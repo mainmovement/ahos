@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""AHOS STEP 6 — Feature store fs_v0.1 with machine-enforced leakage prevention.
+RULES (D §4): L1 features read ONLY retrieved_ts <= as_of observations.
+              L2 this module MUST NOT import/know outcome_label (architecture test asserts it).
+              L3 availability_ts <= as_of_ts (DB CHECK + assert here).
+              L4 research joins use as_of/availability from feature_vector only.
+Determinism: same rows + same as_of → identical output (pure SQL + float math).
+"""
+from __future__ import annotations
+import math, sqlite3, statistics, json
+
+FEATURE_SET = "fs_v0.1"
+FEATURE_SET_V02 = "fs_v0.2"   # wave-6 additive set; computed only when its data exists
+EPS_LIQ = 100.0          # liquidity floor for growth denominators (documented, versioned here)
+VOL_WINDOW = 12          # min 5m points for volatility_1h / volume_acceleration
+
+DEFINED_FEATURES = [
+    # key, definition, formula, source_fields, missing_behavior, reliability, status
+    ("token_age_hours", "age of pair at as_of", "(as_of - pair_created_ts)/3600", "pairs.pair_created_ts", "FEATURE=NULL", "HIGH", "DEFINED"),
+    ("liquidity_usd_t", "liquidity nearest ≤ as_of", "last obs.liquidity_usd before as_of", "discovery_observations.liquidity_usd", "NULL", "HIGH", "DEFINED"),
+    ("liquidity_growth_1h", "relative liquidity change over 1h", "(L_t - L_t-1h)/max(L_t-1h,100)", "liquidity_usd series", "NULL", "HIGH", "DEFINED"),
+    ("liquidity_growth_6h", "same over 6h", "(L_t - L_t-6h)/max(L_t-6h,100)", "liquidity_usd series", "NULL", "HIGH", "DEFINED"),
+    ("volume_growth_1h", "1h volume log-growth vs previous 1h", "log(V_t / V_t-1h) if V_t-1h>0", "volume_1h series", "NULL", "MED", "DEFINED"),
+    ("buy_sell_imbalance_1h", "net buying share of 1h txns", "(b-s)/max(b+s,1)", "...txns_1h_buys, txns_1h_sells", "NULL", "HIGH", "DEFINED"),
+    ("volume_acceleration", "5m volume vs trailing mean(12)", "V_5m / mean(V_5m last 12)", "volume_5m series", "NULL(<12 pts)", "MED", "DEFINED"),
+    ("liquidity_to_volume_24h", "depth adequacy", "L / max(V24,1)", "liquidity_usd, volume_24h", "NULL", "MED", "DEFINED"),
+    ("price_change_1h", "recomputed 1h price change", "p_t/p_{t-1h}-1", "price_usd series", "NULL", "HIGH", "DEFINED"),
+    ("price_change_6h", "recomputed 6h change", "p_t/p_{t-6h}-1", "price_usd series", "NULL", "HIGH", "DEFINED"),
+    ("price_change_24h", "recomputed 24h change", "p_t/p_{t-24h}-1", "price_usd series", "NULL", "HIGH", "DEFINED"),
+    ("max_drawdown_since_first_seen", "peak-to-trough since first seen within window", "1 - min/max price", "price_usd series", "NULL", "HIGH", "DEFINED"),
+    ("volatility_1h", "stdev of 5m log-returns (60m)", "stdev(log r_i)", "price_usd series", "NULL(<12 pts)", "MED", "DEFINED"),
+    ("boost_active", "last known boost amount > 0", "boost_amount>0", "boost_amount", "NULL", "MED", "DEFINED"),
+    ("security_all_hard_veto_clear", "no CRITICAL TRUE && ≥1 resolved check", "gate evaluate", "security_verdicts", "NULL(no checks)", "HIGH", "DEFINED"),
+    # market_regime intentionally NOT in fs_v0.1 compute set — wiring to research majors lands with the
+    # regime adapter (keeps registry ⇄ computed-set strictly equal; doc D marks it REGISTERED-ONLY).
+]
+
+V02_EXTRA_FEATURES = [
+    ("liquidity_stability", "depth-quality: inverse coefficient-of-variation of liquidity",
+     "1 - stdev(L)/mean(L) over last 12 obs (clamped >=0)", "liquidity_usd series", "NULL(<12 pts)", "MED", "DEFINED"),
+    ("txn_acceleration", "5m txn count vs trailing mean(12)", "tx_5m / mean(tx_5m last 12)",
+     "txns_5m_buys+txns_5m_sells series", "NULL(<12 pts)", "MED", "DEFINED"),
+    ("mcap_change_1h", "market-cap relative change 1h", "mc_t/mc_t-1h - 1", "market_cap series", "NULL", "MED", "DEFINED"),
+    ("top_holder_concentration", "Σ top-10 share at latest holder snapshot ≤ as_of",
+     "holder_snapshot.top10_share", "holder_snapshot", "NULL(no snapshot)", "MED", "DEFINED"),
+    ("top20_net_flow_1h", "relative change of top-20 aggregate vs snapshot ≥1h earlier",
+     "top20_share ratio delta", "holder_snapshot", "NULL(<2 snapshots)", "MED", "DEFINED"),
+]
+
+ALL_FEATURES_V02 = DEFINED_FEATURES + V02_EXTRA_FEATURES
+
+
+def register_definitions(conn: sqlite3.Connection) -> None:
+    for ver, table in ((FEATURE_SET, DEFINED_FEATURES), (FEATURE_SET_V02, ALL_FEATURES_V02)):
+        for key, definition, formula, src, miss, rel, status in table:
+            conn.execute(
+                """INSERT INTO feature_definitions(key,feature_set_version,definition,formula,source_fields,
+                                                 missing_behavior,reliability,status)
+                   VALUES (?,?,?,?,?,?,?,?)
+                   ON CONFLICT(key,feature_set_version) DO UPDATE SET definition=excluded.definition""",
+                (key, ver, definition, formula, src, miss, rel, status))
+
+
+def _series(conn, token_id: str, as_of: float, field: str) -> list[tuple[float, float]]:
+    """L1: strictly observations retrieved at-or-before as_of. Never future data."""
+    allowed = {"price_usd", "liquidity_usd", "volume_5m", "volume_1h", "volume_24h",
+               "txns_1h_buys", "txns_1h_sells", "boost_amount", "market_cap"}
+    if field not in allowed:
+        raise ValueError(field)
+    rows = conn.execute(
+        f"""SELECT retrieved_ts, {field} AS v FROM discovery_observations
+            WHERE token_id=? AND retrieved_ts<=? AND {field} IS NOT NULL AND error_state IS NULL
+            ORDER BY retrieved_ts""", (token_id, as_of)).fetchall()
+    return [(r["retrieved_ts"], r["v"]) for r in rows if r["v"] is not None]
+
+
+def _nearest_at_or_before(series: list[tuple[float, float]], t: float):
+    best = None
+    for ts, v in series:
+        if ts <= t:
+            best = (ts, v)
+        else:
+            break
+    return best
+
+
+def _last_availability(conn, token_id: str, as_of: float) -> float | None:
+    r = conn.execute(
+        "SELECT MAX(retrieved_ts) AS m FROM discovery_observations WHERE token_id=? AND retrieved_ts<=?",
+        (token_id, as_of)).fetchone()
+    return r["m"] if r and r["m"] is not None else None
+
+
+def compute_features(conn: sqlite3.Connection, token_id: str, as_of: float,
+                     computed_by: str = "feature_store.fs_v0.1") -> dict:
+    """Compute fs_v0.1 for one token at as_of. Persisted rows carry as_of_ts AND availability_ts.
+    Features that cannot be computed are ABSENT (NULL discipline), never zero-filled."""
+    obs_avail = _last_availability(conn, token_id, as_of)
+
+    def emit(feats: dict, key: str, value_num, availability_ts: float | None, reliability: str):
+        if value_num is None or availability_ts is None:
+            return
+        assert availability_ts <= as_of, f"L3 violation for {key}: avail {availability_ts} > as_of {as_of}"
+        feats[key] = {"value_num": float(value_num), "availability_ts": availability_ts,
+                      "reliability": reliability}
+
+    feats: dict = {}
+
+    pair = conn.execute(
+        "SELECT pair_created_ts FROM pairs WHERE token_id=? ORDER BY first_seen_ts LIMIT 1",
+        (token_id,)).fetchone()
+    if pair and pair["pair_created_ts"]:
+        emit(feats, "token_age_hours", (as_of - pair["pair_created_ts"]) / 3600.0, obs_avail, "HIGH")
+
+    liq = _series(conn, token_id, as_of, "liquidity_usd")
+    px = _series(conn, token_id, as_of, "price_usd")
+    v5 = _series(conn, token_id, as_of, "volume_5m")
+    v1 = _series(conn, token_id, as_of, "volume_1h")
+    txb = _series(conn, token_id, as_of, "txns_1h_buys")
+    txs = _series(conn, token_id, as_of, "txns_1h_sells")
+    v24 = _series(conn, token_id, as_of, "volume_24h")
+    boost = _series(conn, token_id, as_of, "boost_amount")
+
+    last_liq = _nearest_at_or_before(liq, as_of)
+    if last_liq:
+        emit(feats, "liquidity_usd_t", last_liq[1], last_liq[0], "HIGH")
+        past = _nearest_at_or_before(liq, as_of - 3600)
+        if past:
+            emit(feats, "liquidity_growth_1h", (last_liq[1] - past[1]) / max(past[1], EPS_LIQ),
+                 max(last_liq[0], past[0]), "HIGH")
+        past6 = _nearest_at_or_before(liq, as_of - 6 * 3600)
+        if past6:
+            emit(feats, "liquidity_growth_6h", (last_liq[1] - past6[1]) / max(past6[1], EPS_LIQ),
+                 max(last_liq[0], past6[0]), "HIGH")
+        last_v24 = _nearest_at_or_before(v24, as_of)
+        if last_v24:
+            emit(feats, "liquidity_to_volume_24h", last_liq[1] / max(last_v24[1], 1.0),
+                 max(last_liq[0], last_v24[0]), "MED")
+
+    last_px = _nearest_at_or_before(px, as_of)
+    if last_px and last_px[1] > 0:
+        for hours, key in ((1, "price_change_1h"), (6, "price_change_6h"), (24, "price_change_24h")):
+            past = _nearest_at_or_before(px, as_of - hours * 3600)
+            if past and past[1] > 0:
+                emit(feats, key, last_px[1] / past[1] - 1.0, max(last_px[0], past[0]), "HIGH")
+        vals = [v for _, v in px if v > 0]
+        if len(vals) >= 2:
+            emit(feats, "max_drawdown_since_first_seen", 1.0 - min(vals) / max(vals), last_px[0], "HIGH")
+        window = [(t, v) for t, v in px if t > as_of - 3600 and v > 0]
+        if len(window) >= VOL_WINDOW:
+            rets = [math.log(window[i][1] / window[i - 1][1]) for i in range(1, len(window))]
+            emit(feats, "volatility_1h", statistics.pstdev(rets), last_px[0], "MED")
+
+    last_v1 = _nearest_at_or_before(v1, as_of)
+    prev_v1 = _nearest_at_or_before(v1, as_of - 3600)
+    if last_v1 and prev_v1 and prev_v1[1] > 0:
+        emit(feats, "volume_growth_1h", math.log(last_v1[1] / prev_v1[1]),
+             max(last_v1[0], prev_v1[0]), "MED")
+
+    if v5:
+        recent = [v for t, v in v5[-12:] if v >= 0]
+        if len(recent) >= VOL_WINDOW and sum(recent[:-1]) > 0:
+            mean_prev = sum(recent[:-1]) / len(recent[:-1])
+            if mean_prev > 0:
+                emit(feats, "volume_acceleration", recent[-1] / mean_prev, v5[-1][0], "MED")
+
+    b = _nearest_at_or_before(txb, as_of)
+    s = _nearest_at_or_before(txs, as_of)
+    if b and s:
+        emit(feats, "buy_sell_imbalance_1h", (b[1] - s[1]) / max(b[1] + s[1], 1.0),
+             max(b[0], s[0]), "HIGH")
+
+    lb = _nearest_at_or_before(boost, as_of)
+    if lb:
+        emit(feats, "boost_active", 1.0 if (lb[1] or 0) > 0 else 0.0, lb[0], "MED")
+
+    # security composite (from verdicts known ≤ as_of — L1 applies to evidence time, not eval time)
+    checks = conn.execute(
+        """SELECT value, severity FROM security_verdicts WHERE token_id=? AND ts<=?""",
+        (token_id, as_of)).fetchall()
+    if checks:
+        crit_true = any(c["value"] == "TRUE" and c["severity"] == "CRITICAL" for c in checks)
+        resolved = any(c["value"] in ("TRUE", "FALSE") for c in checks)
+        ts_avail = conn.execute(
+            "SELECT MAX(ts) AS m FROM security_verdicts WHERE token_id=? AND ts<=?", (token_id, as_of)).fetchone()["m"]
+        if resolved and not crit_true:
+            emit(feats, "security_all_hard_veto_clear", 1.0, ts_avail, "HIGH")
+        elif crit_true:
+            emit(feats, "security_all_hard_veto_clear", 0.0, ts_avail, "HIGH")
+
+    return feats
+
+
+def persist_features(conn: sqlite3.Connection, token_id: str, as_of: float, feats: dict,
+                     feature_set: str = FEATURE_SET) -> int:
+    n = 0
+    for key, f in feats.items():
+        conn.execute(
+            """INSERT INTO feature_vector(token_id,feature_set_version,as_of_ts,availability_ts,key,value_num,
+                                        value_text,reliability,computed_by)
+               VALUES (?,?,?,?,?,?,NULL,?,?)
+               ON CONFLICT(token_id,feature_set_version,as_of_ts,key) DO UPDATE SET
+                 value_num=excluded.value_num, availability_ts=excluded.availability_ts""",
+            (token_id, feature_set, as_of, f["availability_ts"], key, f["value_num"],
+             f["reliability"], f"feature_store.{feature_set}"))
+        n += 1
+    return n
+
+
+def compute_features_v02(conn: sqlite3.Connection, token_id: str, as_of: float) -> dict:
+    """fs_v0.2 = fs_v0.1 + 5 additive features (E-doc). Leakage laws apply identically."""
+    from . import holders
+    feats = compute_features(conn, token_id, as_of)
+
+    def emit(key, value, avail, rel):
+        if value is None or avail is None:
+            return
+        assert avail <= as_of, f"L3 violation {key}"
+        feats[key] = {"value_num": float(value), "availability_ts": avail, "reliability": rel}
+
+    # liquidity_stability over last 12 liq points
+    liq = _series(conn, token_id, as_of, "liquidity_usd")
+    pts = [v for _, v in liq[-VOL_WINDOW:]]
+    if len(pts) >= VOL_WINDOW and sum(pts) > 0:
+        m = sum(pts) / len(pts)
+        cv = (statistics.pstdev(pts) / m) if m > 0 else None
+        if cv is not None:
+            emit("liquidity_stability", max(0.0, 1.0 - cv), liq[-1][0], "MED")
+
+    # txn_acceleration from combined 5m txn counts
+    rows = conn.execute(
+        """SELECT retrieved_ts, (txns_5m_buys + txns_5m_sells) v FROM discovery_observations
+           WHERE token_id=? AND retrieved_ts<=? AND txns_5m_buys IS NOT NULL AND txns_5m_sells IS NOT NULL
+             AND error_state IS NULL ORDER BY retrieved_ts""", (token_id, as_of)).fetchall()
+    s5 = [(r["retrieved_ts"], r["v"]) for r in rows]
+    if len(s5) >= VOL_WINDOW:
+        recent = [v for _, v in s5[-VOL_WINDOW:]]
+        prev = recent[:-1]
+        if sum(prev) > 0:
+            emit("txn_acceleration", recent[-1] / (sum(prev) / len(prev)), s5[-1][0], "MED")
+
+    # mcap_change_1h
+    mc = _series(conn, token_id, as_of, "market_cap")
+    last_mc = _nearest_at_or_before(mc, as_of)
+    prev_mc = _nearest_at_or_before(mc, as_of - 3600)
+    if last_mc and prev_mc and prev_mc[1] > 0:
+        emit("mcap_change_1h", last_mc[1] / prev_mc[1] - 1.0, max(last_mc[0], prev_mc[0]), "MED")
+
+    # holder features (real rows only — usually absent while free RPC is rate-limited; honest absence)
+    v10, t10 = holders.top_share_at(conn, token_id, as_of, "top10_share")
+    emit("top_holder_concentration", v10, t10, "MED")
+    vflow, tflow = holders.top20_net_flow(conn, token_id, as_of, lookback=3600)
+    emit("top20_net_flow_1h", vflow, tflow, "MED")
+    return feats

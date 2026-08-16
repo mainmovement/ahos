@@ -1,0 +1,215 @@
+{
+  "ts": "2026-08-11T18:54:05.972359+00:00",
+  "cells": 7,
+  "verdicts": [
+    "INSUFFICIENT_DATA"
+  ],
+  "guards": {
+    "min_n": 200,
+    "min_pos": 20
+  },
+  "results": [
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "buy_sell_imbalance_1h",
+            "op": ">=",
+            "value": 0.15
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h14-24h-p50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "buy_sell_imbalance_1h",
+            "op": ">=",
+            "value": 0.15
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h14-72h-p100"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "liquidity_growth_1h",
+            "op": ">=",
+            "value": 0.1
+          },
+          {
+            "key": "txn_acceleration",
+            "op": ">=",
+            "value": 1.5
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h15-24h-p50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "liquidity_growth_1h",
+            "op": ">=",
+            "value": 0.1
+          },
+          {
+            "key": "txn_acceleration",
+            "op": ">=",
+            "value": 1.5
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h15-72h-p100"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "security_all_hard_veto_clear",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h18-24h-p50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "security_all_hard_veto_clear",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h18-72h-p100"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "txn_acceleration",
+            "op": ">=",
+            "value": 1.5
+          },
+          {
+            "key": "liquidity_growth_1h",
+            "op": ">=",
+            "value": 0.1
+          },
+          {
+            "key": "buy_sell_imbalance_1h",
+            "op": ">=",
+            "value": 0.15
+          },
+          {
+            "key": "price_change_1h",
+            "op": ">",
+            "value": -0.05
+          },
+          {
+            "key": "price_change_1h",
+            "op": "<",
+            "value": 0.05
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h20-24h-p50"
+    }
+  ]
+}

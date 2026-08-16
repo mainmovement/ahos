@@ -1,0 +1,160 @@
+{
+ "artifact": "E01-GATE-R8.1 materialize run report (FAILURE FORM)",
+ "gate_due_utc": "2026-08-14T18:00:00Z",
+ "attempt_utc": "2026-08-14T18:06:00Z",
+ "command": "python3 -m discovery.materialize --report reports/e01_gate_materialize_20260814_gate1800Z.json",
+ "result": "CRASHED at materialize_features stage (272nd token processed)",
+ "error": "ValueError: math domain error",
+ "crash_site": {
+  "file": "discovery/feature_store.py",
+  "line": 157,
+  "code": "emit(feats, \"volume_growth_1h\", math.log(last_v1[1] / prev_v1[1]), ...)",
+  "sha256": "202bbe6d4f6b36418756092965a3b2761d33123888f19918679261a54c1da4bf"
+ },
+ "root_cause": "asymmetric zero guard: guard checks prev_v1[1] > 0 but NOT last_v1[1] > 0; a token whose latest volume_1h at/before as_of is 0.0 yields math.log(0.0) -> ValueError. Latent in frozen Lane-A code; fixture battery never exercised zero-volume obs; live starved cohort contains 24 such tokens.",
+ "affected_tokens_count": 24,
+ "affected_tokens": [
+  {
+   "token_id": "1b962df3b4d54dbf817f8fb9acb57cbe",
+   "first_seen_utc": "2026-08-13T00:54:52Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "e9632f06c92942ad5c3ba1e9759640ab",
+   "first_seen_utc": "2026-08-13T00:54:52Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "97080b5de26fb6573c9d0ba3988f61dc",
+   "first_seen_utc": "2026-08-13T02:57:34Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "38b829e9492296821e3383ace12c26df",
+   "first_seen_utc": "2026-08-13T02:57:34Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "ac1a676f9414bdad85dcd8326607c6e5",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "ae51deb5690e44c322fc4aa0e6c66c83",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "bbc5f6d27079f787ae43ae94a4c4b31d",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "e1d0b830895d5150e84f3d3cf4e7fc39",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "a8c55b296ebe95fb77f2aa4d93ccefd1",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "a9e48bf0402b70dd3318e4c53a493b46",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "b163808bb84f3fc34a74535443fe67bc",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "26db16dc3ed6641207998f05ba157b79",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "42859785987f8f10ed7b646993bc5fd0",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "61996aa03176eeb80494834e8cf721e5",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "2513e8fea6be48f370d1562b2d3dda2a",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "c16ecc59e1391d8b943504877c20ab90",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "37f3bd75a5063cf1c6e18d7c7ba977a5",
+   "first_seen_utc": "2026-08-13T04:38:45Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "6ec09bd75f8432f96d2bf586e1550f5c",
+   "first_seen_utc": "2026-08-14T04:59:36Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "f9dd529c432a22a1bc6900c3d695dad0",
+   "first_seen_utc": "2026-08-14T04:59:36Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "080edfa6b2ef9c35374445d6f17539ae",
+   "first_seen_utc": "2026-08-14T04:59:36Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "ce29459bee9f2e23ef135c8df54d962b",
+   "first_seen_utc": "2026-08-14T04:59:36Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "335c29167c43a9f062493c0a0a18be8b",
+   "first_seen_utc": "2026-08-14T04:59:36Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "a3d97fa2ec9febbd2b3a903dcfd1548a",
+   "first_seen_utc": "2026-08-14T04:59:36Z",
+   "error": "ValueError('math domain error')"
+  },
+  {
+   "token_id": "bddd3ca06b0fa2f404b43000f59ade9e",
+   "first_seen_utc": "2026-08-14T04:59:36Z",
+   "error": "ValueError('math domain error')"
+  }
+ ],
+ "traceback_first": [
+  "Traceback (most recent call last):",
+  "  File \"<stdin>\", line 14, in <module>",
+  "  File \"/home/user/ahos/discovery/feature_store.py\", line 157, in compute_features",
+  "    emit(feats, \"volume_growth_1h\", math.log(last_v1[1] / prev_v1[1]),",
+  "                                    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "ValueError: math domain error"
+ ],
+ "writes_persisted": false,
+ "rollback": "implicit (conn.commit never reached; post-crash counts identical to pre-gate: tokens 952/obs 1736/state 952 OBSERVING/gap_register 826/outcome_label 0/feature_vector 0/feature_definitions 0; PRAGMA integrity_check=ok)",
+ "stages_not_reached": [
+  "materialize_outcomes",
+  "lifecycle.sweep (gap registration frozen since last 2026-08-13 sweep)",
+  "outcomes.compute_outcomes"
+ ],
+ "law": "STRICT FREEZE held: no Lane-A code edited on gate day; defect reported, not improvised around",
+ "code_hashes_executed": {
+  "feature_store.py": "202bbe6d4f6b36418756092965a3b2761d33123888f19918679261a54c1da4bf",
+  "materialize.py": "144701613f135b2f247b5675f877fdc638bd5eb7ea8ae8a3d4ce153d007cdfbc",
+  "lifecycle.py": "fd33e7e5bb9d5119f72b2373fbc5fd1218d9ee6c8f1b2e90eeccb9a69d39736b",
+  "outcomes.py": "5186b57508316d5a75b9ed1687596bc5e2e0d07ea7b28edc7bcedca71c9453c2"
+ }
+}

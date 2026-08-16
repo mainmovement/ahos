@@ -1,0 +1,68 @@
+# AHOS W11 — CONTROL PLANE CONFIG (Lane B). The operator sees ONE system.
+# Laws: one-start idempotent; resume-from-ledger; honest health (no prober result ⇒ UNKNOWN,
+# never READY); critical failure ⇒ SAFE_HALT; non-critical/advisory failure ⇒ DEGRADED;
+# OPTIONAL components never affect status. Infrastructure below is DECLARED with measured
+# availability — nothing here is secretly running.
+matrix_version: W11-CP-1
+created_utc: "2026-08-13T02:08:00+00:00"
+contract: control_plane_contract_v1
+operator_surface: [START, STOP, STATUS, SAFE_HALT, RESUME]
+ledger:
+  path: data/control_plane_ledger.sqlite   # tests override with tmp; append-only trigger-guarded
+  heartbeat_ttl_s: 120
+idempotency:
+  key_law: "sha256(config_sha + registry_sha + intent); repeated identical START returns existing run, no duplicate activation"
+budget_and_cost_law:
+  default_ai_budget_usd: 0.0
+  allow_paid: false
+phases:   # executable order; each phase ledgered with evidence
+  - env_validation
+  - infra_discovery
+  - postgres_health
+  - temporal_health
+  - engine_health
+  - n8n_health
+  - optional_redis_health
+  - optional_bus_health
+  - config_verify
+  - state_verify
+  - registry_load
+  - dependency_graph
+  - locks
+  - agent_startup
+  - workflow_startup
+  - health_verify
+infrastructure:
+  # Measured availability (2026-08-13): this sandbox has no Docker/host (verified repeatedly);
+  # infra components are TARGETS with honest states — NOT fabricated as running.
+  - {component: postgresql, boot_class: CRITICAL, availability: BLOCKED_NO_HOST,
+     purpose: "durable evidence/state convergence layer (F1 plan target)", health: {kind: probe, ref: defined},
+     fallback: "sqlite stores remain experiment source of truth (append-only discipline + RO law)"}
+  - {component: temporal, boot_class: NON_CRITICAL, availability: TARGET_DEFERRED,
+     purpose: "durable workflow execution (adopted as TARGET by W10 orchestration_comparison verdict: recommend-target/defer-install)",
+     health: {kind: probe, ref: defined}, fallback: "Python control plane provides lifecycle semantics in-repo today"}
+  - {component: redis, boot_class: OPTIONAL, availability: NOT_JUSTIFIED,
+     purpose: "cache/queue — no measured need at 24 agents / ~30s cycles", health: {kind: none, ref: none},
+     fallback: "sqlite queues suffice at current scale"}
+  - {component: event_bus, boot_class: OPTIONAL, availability: NOT_JUSTIFIED,
+     purpose: "NATS/Kafka — replayable event log only at justified scale", health: {kind: none, ref: none},
+     fallback: "append-only ledger + cycle files"}
+  - {component: n8n, boot_class: OPTIONAL, availability: BLOCKED_NO_HOST,
+     purpose: "external automation/IO edge only (Telegram, webhooks, admin) — never the brain (W11 §18)",
+     health: {kind: probe, ref: defined}, fallback: "cli entrypoints; telegram currently env-blocked anyway (R-28)"}
+  - {component: observability, boot_class: NON_CRITICAL, availability: DESIGN_ONLY,
+     purpose: "OTel/Prometheus/Grafana target; interim = run-ledger + periodic reports",
+     health: {kind: none, ref: none}, fallback: "reports/ + ledger STATUS surface"}
+  - {component: ahos_engine, boot_class: CRITICAL, availability: LIVE,
+     purpose: "deterministic Lane-A core (collector/cycle) — runs via standing schedule until host exists",
+     health: {kind: probe, ref: cycle_report_freshness}, fallback: "none — this IS the floor"}
+  - {component: evidence_stores, boot_class: CRITICAL, availability: LIVE,
+     purpose: "3 governed sqlite stores", health: {kind: probe, ref: "trigger/integrity census (W10A-02)"},
+     fallback: "RO law + conservation invariants"}
+agents_source: config/agent_registry.yaml
+startup_rules:
+  - "agents with ops.operability.implemented=false are REGISTERED but never START-blind: boot reports NOT_IMPLEMENTED honestly"
+  - "PLANNED/MISSING agents are visible in STATUS as not-implemented, never silently skipped"
+  - "agent_startup phase starts only orchestrated=true agents; today orchestrated=0 for all — STATUS says so"
+  - "locks phase enforces single active run; stale lock ⇒ SAFE_HALT record + explicit RESUME path"
+status_surface_fields: [running, failed, why, evidence, last_valid_state, resumable]

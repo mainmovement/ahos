@@ -1,0 +1,13 @@
+{
+  "rollback_target": "STRATEGY_SPEC_v1.0 (frozen)",
+  "description": "Restores all engine constants to frozen values. Run before/instead of any unapproved param change.",
+  "restore": {
+    "ema_len": 20, "atr_len": 14, "vol_sma_len": 20, "vol_mult": 1.2,
+    "sl_atr": 1.5, "tp_atr": 2.0, "time_stop_h": 72, "leverage": 2.0,
+    "risk_pct": 0.02, "fee_taker": 0.00055, "slippage": 0.0002,
+    "max_positions": 3, "daily_loss_cap": 0.10, "dd_cap": 0.20
+  },
+  "verification": "python3 -m pytest tests/test_ahos.py -q  (test_spec_frozen_constants must PASS)",
+  "approval_chain": ["AGENT-09 QA", "AGENT-10 Auditor", "HUMAN GATE (telegram)"],
+  "note": "A parameter change without this rollback file + dual approval is automatically REJECTED."
+}

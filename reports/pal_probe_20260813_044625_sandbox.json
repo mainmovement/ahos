@@ -1,0 +1,277 @@
+{
+ "report": "pal_probe",
+ "schema": 1,
+ "site": "sandbox",
+ "generated_utc": "2026-08-13T04:46:25+00:00",
+ "total": 17,
+ "ok": 12,
+ "down_or_degraded": 5,
+ "records": [
+  {
+   "probe_id": "PRB-20260813-001",
+   "ts_utc": "2026-08-13T04:46:22+00:00",
+   "site": "sandbox",
+   "capability": "discovery_stream",
+   "target": "https://api.geckoterminal.com/api/v2/networks/solana/new_pools?page=1",
+   "note": "GT solana new pools",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 100,
+   "error_kind": null,
+   "error_message": "",
+   "evidence_sha256": "dd96f3bf60bfda455a81a24564dae367f8763c2c8a6efa3b2a71f40abfbf81ab",
+   "attempts": [
+    {
+     "provider": "geckoterminal_new_pools",
+     "availability": "OK",
+     "error": null
+    }
+   ]
+  },
+  {
+   "probe_id": "PRB-20260813-002",
+   "ts_utc": "2026-08-13T04:46:22+00:00",
+   "site": "sandbox",
+   "capability": "pair_enrich",
+   "target": "https://api.dexscreener.com/tokens/v1/solana/DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+   "note": "DexScreener token pairs (BONK)",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 133,
+   "error_kind": null,
+   "error_message": "",
+   "evidence_sha256": "62ba6be15d29f21dbf1d250927c7e22c2e8672b3887dcdf31699f94abbbcb5d4",
+   "attempts": [
+    {
+     "provider": "dexscreener_tokens",
+     "availability": "OK",
+     "error": null
+    }
+   ]
+  },
+  {
+   "probe_id": "PRB-20260813-003",
+   "ts_utc": "2026-08-13T04:46:22+00:00",
+   "site": "sandbox",
+   "capability": "security_sol",
+   "target": "https://api.rugcheck.xyz/v1/tokens/DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263/report/summary",
+   "note": "RugCheck summary (BONK)",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 410,
+   "error_kind": null,
+   "error_message": "",
+   "evidence_sha256": "c4e2d1ebbc6175afffa9c1f2806d79c6170afd09a1e02f84c0b883558cc96217",
+   "attempts": [
+    {
+     "provider": "rugcheck_report",
+     "availability": "OK",
+     "error": null
+    }
+   ]
+  },
+  {
+   "probe_id": "PRB-20260813-004",
+   "ts_utc": "2026-08-13T04:46:23+00:00",
+   "site": "sandbox",
+   "capability": "security_evm",
+   "target": "https://api.gopluslabs.io/api/v1/token_security/1?contract_addresses=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+   "note": "GoPlus token_security (WETH)",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 320,
+   "error_kind": null,
+   "error_message": "",
+   "evidence_sha256": "89e51d2ebd80ce6152688ae53ccc2ace6d7d4528656d65a2e974a5fc5d133ed0",
+   "attempts": [
+    {
+     "provider": "goplus_evm",
+     "availability": "OK",
+     "error": null
+    }
+   ]
+  },
+  {
+   "probe_id": "PRB-20260813-005",
+   "ts_utc": "2026-08-13T04:46:23+00:00",
+   "site": "sandbox",
+   "capability": "narrative_rss",
+   "target": "https://cointelegraph.com/rss",
+   "note": "CoinTelegraph RSS",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 69,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "7c86f6c87452333faa0587d5f2b34692cc29d339189df259ec9837c415b33c3e"
+  },
+  {
+   "probe_id": "PRB-20260813-006",
+   "ts_utc": "2026-08-13T04:46:23+00:00",
+   "site": "sandbox",
+   "capability": "narrative_rss",
+   "target": "https://www.theblock.co/rss.xml",
+   "note": "TheBlock RSS",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 71,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "059ff3801b75dd8b1b1defa4f068d8d3a37879e8aba9496a68f2c8708111f8f4"
+  },
+  {
+   "probe_id": "PRB-20260813-007",
+   "ts_utc": "2026-08-13T04:46:23+00:00",
+   "site": "sandbox",
+   "capability": "rpc_sol",
+   "target": "https://api.mainnet-beta.solana.com",
+   "note": "solana mainnet-beta",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 218,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "96ea1ea6daa9a246d30cea7d7df5656df27cc2a118218583c66af862a89465e4"
+  },
+  {
+   "probe_id": "PRB-20260813-008",
+   "ts_utc": "2026-08-13T04:46:23+00:00",
+   "site": "sandbox",
+   "capability": "rpc_sol",
+   "target": "https://solana-rpc.publicnode.com",
+   "note": "solana publicnode",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 112,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "ae845ed6c78d605730087c7a3944570def09afa697c2be20c64408c3779f9234"
+  },
+  {
+   "probe_id": "PRB-20260813-009",
+   "ts_utc": "2026-08-13T04:46:23+00:00",
+   "site": "sandbox",
+   "capability": "rpc_eth",
+   "target": "https://ethereum-rpc.publicnode.com",
+   "note": "publicnode ETH",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 140,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "3d453c27cbdec4be145736e0404dc48b9c4f90b9c0fa6078aa101d8cd3fc6763"
+  },
+  {
+   "probe_id": "PRB-20260813-010",
+   "ts_utc": "2026-08-13T04:46:23+00:00",
+   "site": "sandbox",
+   "capability": "rpc_bsc",
+   "target": "https://bsc-rpc.publicnode.com",
+   "note": "publicnode BSC",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 130,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "c4bce745b679c00e6521e574f68571439c710ac3768dfeec327fb1c6a0115693"
+  },
+  {
+   "probe_id": "PRB-20260813-011",
+   "ts_utc": "2026-08-13T04:46:24+00:00",
+   "site": "sandbox",
+   "capability": "rpc_base",
+   "target": "https://base-rpc.publicnode.com",
+   "note": "publicnode Base",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 115,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "ed6ab12e4811285726880c4d01772495b8608af1ed1807bac47315fabf69bcbb"
+  },
+  {
+   "probe_id": "PRB-20260813-012",
+   "ts_utc": "2026-08-13T04:46:24+00:00",
+   "site": "sandbox",
+   "capability": "extra:llamarpc_eth",
+   "target": "https://eth.llamarpc.com",
+   "note": "LlamaRPC — FAILED 521 on 2026-08-11; re-probe",
+   "availability": "DOWN",
+   "http_status": 521,
+   "latency_ms": 224,
+   "error_kind": "http_error",
+   "error_message": "HTTP Error 521: <none>",
+   "evidence_sha256": "bef7d65e0b60d92c17aa88a2fe86c033c9c6ed43a7df934abf0a54808496a3d8"
+  },
+  {
+   "probe_id": "PRB-20260813-013",
+   "ts_utc": "2026-08-13T04:46:24+00:00",
+   "site": "sandbox",
+   "capability": "extra:cloudflare_eth",
+   "target": "https://cloudflare-eth.com",
+   "note": "Cloudflare ETH — returned -32046 on 2026-08-11; re-probe",
+   "availability": "DEGRADED",
+   "http_status": 200,
+   "latency_ms": 104,
+   "error_kind": "rpc_error",
+   "error_message": "{'code': -32046, 'message': 'Cannot fulfill request'}",
+   "evidence_sha256": "d1a5830fe5de35b060de428e2fc28d261baa2871f90759c6bc6daf6ebb9fb021"
+  },
+  {
+   "probe_id": "PRB-20260813-014",
+   "ts_utc": "2026-08-13T04:46:24+00:00",
+   "site": "sandbox",
+   "capability": "extra:ankr_eth",
+   "target": "https://rpc.ankr.com/eth",
+   "note": "Ankr — began requiring API key 2026-08-11; re-probe",
+   "availability": "DEGRADED",
+   "http_status": 200,
+   "latency_ms": 191,
+   "error_kind": "rpc_error",
+   "error_message": "{'code': -32000, 'message': 'Unauthorized: You must authenticate your request with an API key. Create an account on https://www.ankr.com/rpc/ and generate your personal API key for free.'}",
+   "evidence_sha256": "64225f689dd0e0b073d5e91570a4424ea1a06ca2d258e93e473075b42c6895eb"
+  },
+  {
+   "probe_id": "PRB-20260813-015",
+   "ts_utc": "2026-08-13T04:46:24+00:00",
+   "site": "sandbox",
+   "capability": "extra:helius_public",
+   "target": "https://mainnet.helius-rpc.com/?api-key=public",
+   "note": "Helius 'public' key — 401 on 2026-08-11; re-probe",
+   "availability": "DOWN",
+   "http_status": 401,
+   "latency_ms": 93,
+   "error_kind": "http_error",
+   "error_message": "HTTP Error 401: Unauthorized",
+   "evidence_sha256": "571ba218398aa472b0d3cf62cbdd08733523d983153d96eb54b35bea5a81e0d5"
+  },
+  {
+   "probe_id": "PRB-20260813-016",
+   "ts_utc": "2026-08-13T04:46:24+00:00",
+   "site": "sandbox",
+   "capability": "extra:cryptopanic_posts",
+   "target": "https://cryptopanic.com/api/free/v1/posts/?kind=news",
+   "note": "CryptoPanic free API — 404 ×2 on 2026-08-11 (endpoint changed?); re-probe",
+   "availability": "DOWN",
+   "http_status": 404,
+   "latency_ms": 328,
+   "error_kind": "http_error",
+   "error_message": "HTTP Error 404: Not Found",
+   "evidence_sha256": "6aeb7dd31ae3bcdac6742d0d7ba2032a6456f1b17229971263a211c033984393"
+  },
+  {
+   "probe_id": "PRB-20260813-017",
+   "ts_utc": "2026-08-13T04:46:25+00:00",
+   "site": "sandbox",
+   "capability": "extra:coindesk_rss",
+   "target": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+   "note": "CoinDesk RSS — 308 redirect chain on 2026-08-11; re-probe",
+   "availability": "OK",
+   "http_status": 200,
+   "latency_ms": 190,
+   "error_kind": null,
+   "error_message": null,
+   "evidence_sha256": "34c2b5abe2336e43b16a2dd1f5e94d12d4697e8fc904fe61b52a4428f81365a1"
+  }
+ ]
+}

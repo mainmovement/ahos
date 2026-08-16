@@ -1,0 +1,54 @@
+{
+  "name": "AHOS-12 Research Report (weekly digest from registry)",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "weeks", "weeksInterval": 1, "triggerAtDay": [ 0 ], "triggerAtHour": 6, "triggerAtMinute": 0 } ] } },
+      "id": "b1200001-0000-4000-8000-000000000001",
+      "name": "Weekly Sun 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [ 0, 300 ]
+    },
+    {
+      "parameters": { "command": "cd /opt/ahos && python3 engine/research_report_bot.py 2>&1 | tail -30" },
+      "id": "b1200002-0000-4000-8000-000000000002",
+      "name": "Build+Send Digest",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [ 240, 300 ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO agent_audit_trail (agent_id, action, reason, result) VALUES ('AGENT-06','RESEARCH_DIGEST','weekly digest dispatch','{{ $json.error ? 'FAILED' : 'SENT' }}');",
+        "options": {}
+      },
+      "id": "b1200003-0000-4000-8000-000000000003",
+      "name": "Audit Dispatch",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 480, 300 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={ $env.TELEGRAM_ADMIN_CHAT_ID }",
+        "text": "⚠️ AHOS weekly research digest failed to build/send. Check engine/research_report_bot.py on VPS.",
+        "additionalFields": {}
+      },
+      "id": "b1200004-0000-4000-8000-000000000004",
+      "name": "Alert Digest Failure",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 480, 480 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram" } }
+    }
+  ],
+  "connections": {
+    "Weekly Sun 06:00": { "main": [ [ { "node": "Build+Send Digest", "type": "main", "index": 0 } ] ] },
+    "Build+Send Digest": { "main": [ [ { "node": "Audit Dispatch", "type": "main", "index": 0 } ], [ { "node": "Alert Digest Failure", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": { "executionOrder": "v1", "saveExecutionProgress": true, "timezone": "UTC" },
+  "staticData": null,
+  "pinData": {}
+}

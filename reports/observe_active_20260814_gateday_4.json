@@ -1,0 +1,186 @@
+{
+ "tool": "observe_active",
+ "version": "observe_active:v2",
+ "scheduler_version": "observation_scheduler:v1",
+ "ts": 1786684613.4591286,
+ "dry_run": false,
+ "max_tokens": 40,
+ "min_interval": 240.0,
+ "near_expiry_s": 1800.0,
+ "tracked_size": 11,
+ "tracked_note": null,
+ "eligible_total": 14,
+ "not_selected_by_cap": 0,
+ "by_state": {
+  "ALREADY_OBSERVED": 509,
+  "WINDOW_OPEN": 14,
+  "COVERABLE": 2925,
+  "MISSED": 4168,
+  "UNRECOVERABLE": 0
+ },
+ "skipped_cooldown": 0,
+ "selected": [
+  {
+   "token_id": "cc8801ede67d05520c1e0f4fa82e59fa",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "cdb44990383705b53bf718707ac52d48",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "d6a80c03e0ad18d6d772abc442fc8d26",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "d7da5b347f159c6b4d4e69860c524065",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "d94a59fed430d68be35b50abafd4f5b0",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "dcd4730d712ae758b1c168125aceea11",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "dd639ec789561c6d51451726e2670f15",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "df6f0d6dcae7ba0b7dcf654c31bc3024",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "e7d6af6546a44ec5cf32cf1d6cf2b340",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "eb23712fbe2484895deb01781c153b6c",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "ecfea22efa07dbc0eed022e57bd460ca",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "f00e065e0181835271046f49939dca63",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "f32f3ec24a10c6c892794b5a3e9af9f7",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "f8f7a81beca5c368b4cf96029e797ce5",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  }
+ ],
+ "aborted": null,
+ "not_attempted": 0,
+ "attempted": 14,
+ "recorded": 11,
+ "would_record": 0,
+ "failures": [
+  {
+   "token_id": "dcd4730d712ae758b1c168125aceea11",
+   "kind": "no_valid_price",
+   "obs_id": "ce080dfec1c7f49e23853d4019afff21",
+   "provider": "dexscreener",
+   "tier": 3,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "e7d6af6546a44ec5cf32cf1d6cf2b340",
+   "kind": "no_valid_price",
+   "obs_id": "d26525d427fce268ac166bd79a884ae7",
+   "provider": "dexscreener",
+   "tier": 3,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "f8f7a81beca5c368b4cf96029e797ce5",
+   "kind": "no_valid_price",
+   "obs_id": "237cd16f034a93dbdac29b4a69e82e61",
+   "provider": "dexscreener",
+   "tier": 3,
+   "slots": [
+    "s+24h"
+   ]
+  }
+ ],
+ "obs_ids": [
+  "2ac3d1387c5d9cc1aae73054829c57e0",
+  "817d4f88f1a7159eea4cea01f85874c9",
+  "a22fd8ebaf57d9a0402708021ef5cceb",
+  "736dced3e792dfec11734dd630242ab8",
+  "160ebc26b3611d3be1d91d4bfe335c4f",
+  "2f9ce9a54af890d7739114fce2d4fa02",
+  "1b409f1adf0e9653ef3420d05e0e8eca",
+  "ad5ce5b43ad18f2afeee29fa490ff3dd",
+  "753f2873965df789dac51d18d8102b9a",
+  "e809c1089d1dc28887bd6f5aa7ec2e01",
+  "3ff1f9cb8494b5bcbf3a73e331225979"
+ ]
+}

@@ -1,0 +1,100 @@
+# AHOS W11 — TARGET runtime compose (DESIGN ARTIFACT — NOT BUILT/ACTIVATED in this sandbox;
+# no Docker/host available). Activation gate: host exists + owner trigger + this file's own
+# dry-run review. Secrets: env-only, never in this file. Telegram tokens remain exclusively
+# in the external deployment/control layer (R-28 law).
+name: ahos-target
+x-logging: &default-logging
+  driver: json-file
+  options: {max-size: "25m", max-file: "3"}
+
+services:
+  postgres:
+    image: postgres:16-alpine            # version-pinned
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${AHOS_PG_PASSWORD:?env-only}   # never in source
+      POSTGRES_DB: ahos
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ahos"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    deploy: {resources: {limits: {memory: 1G}}}
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    logging: *default-logging
+
+  temporal:
+    image: temporalio/auto-setup:1.24    # version-pinned
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+    environment:
+      DB: postgres12
+      DB_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PWD: ${AHOS_PG_PASSWORD:?env-only}
+    healthcheck:
+      test: ["CMD", "tctl", "cluster", "health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    deploy: {resources: {limits: {memory: 1G}}}
+    logging: *default-logging
+
+  ahos-engine:
+    build: {context: ..}                 # Lane-B runtime image (Dockerfile target = future work)
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+      temporal: {condition: service_healthy}
+    environment:
+      AHOS_ENV: target
+      # AI keys only when owner authorizes; absence = DETERMINISTIC_ONLY floor (by design)
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"from architecture.control_plane import ControlPlane; import sys; sys.exit(0)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy: {resources: {limits: {memory: 512M}}}
+    logging: *default-logging
+
+  n8n:
+    image: n8nio/n8n:1.47.1              # external automation EDGE ONLY — never the brain
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PASSWORD: ${AHOS_PG_PASSWORD:?env-only}
+      # TELEGRAM_* injected at deploy time ONLY (R-28: rotate first, one canonical bot)
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 6
+    deploy: {resources: {limits: {memory: 512M}}}
+    logging: *default-logging
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy: {resources: {limits: {memory: 512M}}}
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    restart: unless-stopped
+    depends_on:
+      prometheus: {condition: service_healthy}
+    deploy: {resources: {limits: {memory: 256M}}}
+    logging: *default-logging
+
+volumes:
+  pgdata:
+# deliberately ABSENT: redis, nats, kafka, kubernetes manifests — no measured need (W10 §22/W11 §24).

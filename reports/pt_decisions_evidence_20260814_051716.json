@@ -1,0 +1,93 @@
+{
+ "cycle": "reports/paper_cycle_20260814_051716.json",
+ "decisions": [
+  {
+   "id": 144,
+   "symbol": "TOADER",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#144"
+  },
+  {
+   "id": 145,
+   "symbol": "PRISM",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#145"
+  },
+  {
+   "id": 146,
+   "symbol": "V4",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#146"
+  },
+  {
+   "id": 147,
+   "symbol": "SMA",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#147"
+  },
+  {
+   "id": 148,
+   "symbol": "👽ALIEN",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#148"
+  },
+  {
+   "id": 149,
+   "symbol": "QQQB",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#149"
+  },
+  {
+   "id": 150,
+   "symbol": "TLI",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#150"
+  },
+  {
+   "id": 151,
+   "symbol": "MOMO",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#151"
+  },
+  {
+   "id": 152,
+   "symbol": "COMM💯",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#152"
+  },
+  {
+   "id": 153,
+   "symbol": "BabyMonkey",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#153"
+  },
+  {
+   "id": 154,
+   "symbol": "TOAD",
+   "action": "NO_DATA",
+   "reason": "STALE_OBSERVATION",
+   "rule_version": "PT-X3-v2",
+   "evidence_ref": "position_decision_event#154"
+  }
+ ]
+}

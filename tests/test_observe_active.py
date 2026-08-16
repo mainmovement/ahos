@@ -1,0 +1,218 @@
+"""F12-O2 supplemental observation poller — tests/fixtures BEFORE production behavior (owner order #5).
+Network-free: fake PAL fetchers injected. Fixture store = real schema via obs.open_store(tmp).
+Boundaries pinned: no historical rewrite, duplicate-safe, failures recorded explicitly, true
+timestamps only, RESOLVED excluded, rate cap honored, restart-safe, stale-aware selection.
+"""
+import sqlite3
+import sys
+import time
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+from discovery import observations as obs  # noqa: E402
+from discovery import lifecycle  # noqa: E402
+from discovery import identity  # noqa: E402
+from discovery import observe_active as oa  # noqa: E402  (module added by F12-O2)
+
+T0 = 1_786_500_000.0            # arbitrary fixed discovery time
+NOW = T0 + 3600.0               # t0+1h
+
+
+def _mk_store(tmp_path, tokens):
+    """tokens: [(symbol, chain, first_seen, state)] — enough rows for the machinery."""
+    conn = obs.open_store(tmp_path / "fx.sqlite")
+    for i, (sym, chain, addr, t0) in enumerate(tokens):
+        tid = obs.upsert_token(conn, chain, addr, first_seen_ts=t0, provider="fx", symbol=sym)
+        raw0 = obs.store_raw(conn, "fx", f"/fx/{addr}", t0, 200, {"fx": addr})
+        pid = obs.upsert_pair(conn, chain, "raydium", f"pair{i}", tid, t0, "fx", raw0)
+        lifecycle.register_discovery(conn, tid, t0)
+        obs.record_observation(conn, tid, "fx", t0, raw0, pair=pid, metrics={"price_usd": 1.0})
+        lifecycle.on_observation(conn, tid, t0)
+    conn.commit()
+    return conn
+
+
+def _env_ok(price=2.0, pair_address="pair0", addr="TOK"):
+    return {"availability": "OK", "provider_id": "dexscreener",
+            "endpoint": f"/tokens/v1/sol/{addr}", "http_status": 200,
+            "payload": [{"chainId": "solana", "pairAddress": pair_address,
+            "dexId": "raydium", "priceUsd": str(price),
+            "baseToken": {"address": addr, "symbol": "AAA", "name": "AAA"},
+            "quoteToken": {"symbol": "SOL"},
+            "liquidity": {"usd": 50000}, "fdv": 1_000_000, "marketCap": 900_000,
+            "volume": {"h24": 1000}, "txns": {}, "priceChange": {}}]}
+
+
+def _fetcher_from(envelopes):
+    return lambda chain, address, now: envelopes[(chain, address)]
+
+
+def test_success_records_true_ts_and_provenance(tmp_path):
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    tid = identity.token_id("solana", "TOK")
+    before = conn.execute("SELECT * FROM discovery_observations").fetchall()
+    rep = oa.run_observe_active(conn, now=NOW, fetch=_fetcher_from({("solana", "TOK"): _env_ok()}),
+                                dry_run=False)
+    assert rep["recorded"] == 1 and rep["failures"] == []
+    after = conn.execute("SELECT * FROM discovery_observations ORDER BY retrieved_ts").fetchall()
+    assert after[: len(before)] == before                      # history rows byte-identical
+    new = after[-1]
+    assert new["retrieved_ts"] == NOW and abs(new["price_usd"] - 2.0) < 1e-9
+    assert new["source_ts"] is None                            # undisclosed => NULL, never invented
+    assert new["provider"] == "dexscreener"
+    assert new["pair_id"] is not None                          # joined to the known pair
+    assert "schema_ok" in (new["quality_flags"] or "")
+    assert rep["obs_ids"] and new["obs_id"] in rep["obs_ids"]  # run report lists every new row
+    raw = conn.execute("SELECT endpoint FROM raw_payloads WHERE payload_sha256=?", (new["raw_ref"],)).fetchone()
+    assert raw and "tokens/v1" in raw["endpoint"]              # provenance preserved
+
+
+def test_resolved_tokens_never_polled_and_due_drives_selection(tmp_path):
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    tid = identity.token_id("solana", "TOK")
+    lifecycle._move(conn, tid, "OBSERVING", "RESOLVED", NOW, "test")
+    conn.commit()
+    rep = oa.run_observe_active(conn, now=NOW, fetch=_fetcher_from({}), dry_run=False)
+    assert rep["attempted"] == 0 and rep["recorded"] == 0      # RESOLVED excluded
+
+
+def test_duplicate_and_cooldown_safety(tmp_path):
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    f = _fetcher_from({("solana", "TOK"): _env_ok()})
+    r1 = oa.run_observe_active(conn, now=NOW, fetch=f, dry_run=False)
+    assert r1["recorded"] == 1
+    r2 = oa.run_observe_active(conn, now=NOW, fetch=f, dry_run=False)
+    assert r2["recorded"] == 0 and r2["attempted"] == 0        # same instant: cooldown/dedup
+    n = conn.execute("SELECT COUNT(*) FROM discovery_observations").fetchone()[0]
+    assert n == 2                                              # initial + one poller row
+
+
+def test_failure_recorded_explicitly_never_silent(tmp_path):
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    env = {"availability": "DOWN", "provider_id": "dexscreener", "endpoint": "/tokens/v1/sol/TOK",
+           "http_status": 521, "payload": None, "error_state": {"kind": "http", "code": 521}}
+    rep = oa.run_observe_active(conn, now=NOW,
+                                fetch=_fetcher_from({("solana", "TOK"): env}), dry_run=False)
+    assert rep["recorded"] == 0 and len(rep["failures"]) == 1
+    row = conn.execute(
+        "SELECT error_state, price_usd FROM discovery_observations ORDER BY retrieved_ts DESC LIMIT 1"
+    ).fetchone()
+    assert row["error_state"] and "521" in row["error_state"]  # explicit failure row
+    assert row["price_usd"] is None                            # no fake price
+
+
+def test_no_valid_price_becomes_error_state_not_zero(tmp_path):
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    env = _env_ok(); env["payload"] = [{"chainId": "solana", "pairAddress": "pair0",
+                                        "dexId": "raydium",
+                                        "baseToken": {"address": "TOK"}}]  # no priceUsd at all
+    rep = oa.run_observe_active(conn, now=NOW, fetch=_fetcher_from({("solana", "TOK"): env}),
+                                dry_run=False)
+    assert rep["recorded"] == 0 and len(rep["failures"]) == 1
+    row = conn.execute("SELECT error_state, price_usd FROM discovery_observations "
+                       "WHERE error_state IS NOT NULL ORDER BY retrieved_ts DESC LIMIT 1").fetchone()
+    assert "no_valid_price" in row["error_state"] and row["price_usd"] is None
+
+
+def test_unmatched_pair_records_with_null_pair_not_crosswired(tmp_path):
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    env = _env_ok(pair_address="some_other_pair")              # payload pair unknown to our store
+    rep = oa.run_observe_active(conn, now=NOW, fetch=_fetcher_from({("solana", "TOK"): env}),
+                                dry_run=False)
+    assert rep["recorded"] == 1
+    row = conn.execute("SELECT pair_id FROM discovery_observations ORDER BY retrieved_ts DESC LIMIT 1").fetchone()
+    assert row["pair_id"] is None                              # never cross-wire metrics to wrong pair
+
+
+def test_rate_cap_and_dry_run(tmp_path):
+    toks = [(f"T{i}", "solana", f"TOK{i}", T0) for i in range(6)]
+    conn = _mk_store(tmp_path, toks)
+    seen = []
+    def f(chain, address, now):
+        seen.append(address)
+        return _env_ok(pair_address=f"pair{address[-1]}", addr=address)
+    rep = oa.run_observe_active(conn, now=NOW, fetch=f, dry_run=False, max_tokens=3)
+    assert len(seen) == 3 and rep["recorded"] == 3             # cap honored
+    seen.clear()
+    # v2 disclosure: probe moved from NOW+1000 to NOW+240 — owner law (F12-O2a): expired
+    # windows are NEVER attempted (NOW+1000 lands after the frozen s+1h window closes).
+    # The dry-run/cap law itself is unchanged and still pinned below.
+    rep = oa.run_observe_active(conn, now=NOW + 240, fetch=f, dry_run=True, max_tokens=3)
+    assert rep["recorded"] == 0 and rep["would_record"] == 3 and rep["dry_run"] is True
+    assert conn.execute("SELECT COUNT(*) FROM discovery_observations").fetchone()[0] == 6 + 3
+
+
+def test_census_of_history_tables_untouched(tmp_path):
+    """Owner boundary #11: historical experiment data must not change."""
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    def census(c):
+        out = {}
+        for t in ("tokens", "pairs", "discovery_observations", "raw_payloads",
+                  "lifecycle_events", "gap_register"):
+            rows = c.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+            out[t] = rows
+        return out
+    before = census(conn)
+    oa.run_observe_active(conn, now=NOW, fetch=_fetcher_from({("solana", "TOK"): _env_ok()}),
+                          dry_run=False)
+    after = census(conn)
+    assert after["tokens"] == before["tokens"]                 # no new/updated tokens
+    assert after["pairs"] == before["pairs"]                   # no new pairs
+    assert after["gap_register"] == before["gap_register"]     # gaps are never rewritten
+    assert after["discovery_observations"] == before["discovery_observations"] + 1
+    first = conn.execute("SELECT symbol FROM tokens").fetchone()["symbol"]
+    assert first == "AAA"
+
+
+# ---------------- RED TEAM additions (owner step 9) ----------------
+def test_never_substitutes_stale_rows_as_fresh(tmp_path):
+    """Rows written by the poller ALWAYS carry retrieved_ts == the run's now; any attempt to
+    serve an old timestamp is structurally impossible (retrieved_ts is call-site injected).
+    v2 disclosure: the three runs are pinned at the LEGAL frozen windows (s+1h/s+4h/s+12h) —
+    F12-O2a forbids attempts outside open windows; the law pinned here is unchanged and is now
+    demonstrated across three distinct legal windows (stronger than the v1 same-window form)."""
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    runs = (NOW, T0 + 4 * 3600, T0 + 12 * 3600)
+    for now in runs:
+        oa.run_observe_active(conn, now=now, fetch=_fetcher_from({("solana", "TOK"): _env_ok(price=3.0)}),
+                              dry_run=False, min_interval=0)
+    rows = conn.execute("SELECT retrieved_ts FROM discovery_observations WHERE provider='dexscreener'").fetchall()
+    assert [r["retrieved_ts"] for r in rows] == list(runs)
+    assert all(abs(r["retrieved_ts"] - n) < 1e-9 for r, n in zip(rows, runs))
+
+
+def test_resume_after_mid_run_crash_is_duplicate_safe(tmp_path):
+    """Kill in the middle = partial commit; restart must not duplicate or corrupt."""
+    conn = _mk_store(tmp_path, [(f"T{i}", "solana", f"TOK{i}", T0) for i in range(4)])
+    calls = {"n": 0}
+    def crashing(chain, address, now):
+        calls["n"] += 1
+        if calls["n"] == 3:
+            raise RuntimeError("SIMULATED MID-RUN CRASH")     # propagates: poller must not swallow
+        return _env_ok(pair_address=f"pair{address[-1]}", addr=address)
+    with pytest.raises(RuntimeError):
+        oa.run_observe_active(conn, now=NOW, fetch=crashing, dry_run=False, min_interval=0)
+    before = conn.execute("SELECT COUNT(*) FROM discovery_observations").fetchone()[0]
+    rep = oa.run_observe_active(conn, now=NOW, fetch=_fetcher_from({
+        ("solana", f"TOK{i}"): _env_ok(pair_address=f"pair{i}", addr=f"TOK{i}") for i in range(4)}),
+        dry_run=False, min_interval=0)
+    after = conn.execute("SELECT COUNT(*) FROM discovery_observations").fetchone()[0]
+    assert after - before == 4 - 2                            # only the not-yet-served tokens
+    assert rep["recorded"] == 2
+
+
+def test_gap_register_never_touched_by_poller(tmp_path):
+    """Missed slots stay missed: the poller may NOT erase/lease history's gaps."""
+    conn = _mk_store(tmp_path, [("AAA", "solana", "TOK", T0)])
+    lifecycle.sweep(conn, NOW)                                # registers missed:s+15m (overdue)
+    n_gaps = conn.execute("SELECT COUNT(*) FROM gap_register").fetchone()[0]
+    assert n_gaps >= 1
+    oa.run_observe_active(conn, now=NOW, fetch=_fetcher_from({("solana", "TOK"): _env_ok()}),
+                          dry_run=False)
+    n_after = conn.execute("SELECT COUNT(*) FROM gap_register").fetchone()[0]
+    assert n_after == n_gaps                                  # poller adds/removes NO gap rows
+    kinds = [r[0] for r in conn.execute("SELECT kind FROM gap_register").fetchall()]
+    assert all(k.startswith("missed:") for k in kinds)

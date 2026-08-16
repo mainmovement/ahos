@@ -1,0 +1,53 @@
+{
+  "timestamp_utc": "2026-08-15T07:10:01.427427+00:00",
+  "execution_type": "E-01_GATE_REPLAY_POST_D-FS-01_FIX",
+  "gate_metric_target": "n_resolved_covered >= 200 (for 72h horizon)",
+  "n_resolved_state": 223,
+  "n_resolved_covered_72h": 52,
+  "total_tokens": 952,
+  "total_observations": 1736,
+  "state_breakdown": {
+    "DEAD": 729,
+    "RESOLVED": 223
+  },
+  "segmentation": {
+    "activation_epoch": 1786595433.489443,
+    "activation_iso": "2026-08-13T04:30:33.489443Z",
+    "PRE_FIX": {
+      "obs_count": 987,
+      "token_count": 762
+    },
+    "POST_FIX": {
+      "obs_count": 749,
+      "token_count": 451
+    }
+  },
+  "gap_register_summary": {
+    "total_gaps": 5339,
+    "by_kind": {
+      "missed:s+12h": 952,
+      "missed:s+15m": 837,
+      "missed:s+1h": 872,
+      "missed:s+24h": 835,
+      "missed:s+48h": 879,
+      "missed:s+4h": 741,
+      "missed:s+72h": 223
+    }
+  },
+  "baseline_audit": {
+    "preregistered_cells_evaluated": 9,
+    "insufficient_cells": 9,
+    "verdict": "INSUFFICIENT_DATA"
+  },
+  "track_b_audit": {
+    "open_trades": 11,
+    "closed_trades": 0,
+    "required_closed_trades": 30,
+    "realized_reconciliations": 0,
+    "cash_balance_usd": 1.8984375,
+    "verdict": "NOT_MET"
+  },
+  "sufficiency_verdict": "INSUFFICIENT_DATA",
+  "protocol_verdict": "PROTOCOL_VALID_PIPELINE_RESOLVED",
+  "overall_experiment_state": "NOT YET VALIDATED"
+}

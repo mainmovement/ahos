@@ -1,0 +1,135 @@
+{
+  "name": "AHOS-01 Data Ingest + Integrity Gate",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "hours", "hoursInterval": 1 } ] } },
+      "id": "a1000001-0000-4000-8000-000000000001",
+      "name": "Schedule 1h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [ 0, 300 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tier-1 micro-mode symbols (48-scanner later; live artery = 3)\nreturn ['BTCUSDT','ETHUSDT','SOLUSDT'].map(s => ({ json: { symbol: s, lbank: s.replace('USDT','_usdt').toLowerCase() } }));"
+      },
+      "id": "a1000002-0000-4000-8000-000000000002",
+      "name": "Symbol Set",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 220, 300 ]
+    },
+    {
+      "parameters": { "batchSize": 1, "options": {} },
+      "id": "a1000003-0000-4000-8000-000000000003",
+      "name": "Per Symbol",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [ 440, 300 ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.lbank.info/v2/kline.do?symbol={{ $json.lbank }}&type=hour1&size=200",
+        "options": { "timeout": 20000, "retry": { "enabled": true, "maxTries": 3, "waitBetweenTries": 3000 } }
+      },
+      "id": "a1000004-0000-4000-8000-000000000004",
+      "name": "Fetch OHLCV (LBank)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ 680, 300 ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Agent-01 normalization + Agent-09 integrity gates (mirror of engine/data_audit.py)\nconst raw = ($json && $json.data) || [];\nconst symbol = $('Per Symbol').item.json.symbol;\nconst rows = raw.map(r => ({ ts: new Date(Number(r[0])).toISOString(), open:+r[1], high:+r[2], low:+r[3], close:+r[4], volume:+r[5] }));\nconst bad = [];\nfor (const k of rows) {\n  if (!(k.open>0 && k.high>0 && k.low>0 && k.close>0)) bad.push({ts:k.ts, g:'positive'});\n  if (k.high < k.low) bad.push({ts:k.ts, g:'h<l'});\n  if (k.close > k.high || k.close < k.low) bad.push({ts:k.ts, g:'close-range'});\n  if (!(k.volume >= 0)) bad.push({ts:k.ts, g:'volume'});\n}\nconst seen = new Set(); let dup = 0;\nfor (const k of rows) { if (seen.has(k.ts)) dup++; seen.add(k.ts); }\nconst verdict = (bad.length === 0 && dup === 0 && rows.length > 0) ? 'PASS' : 'FAIL';\nreturn [{ json: { symbol, verdict, checked: rows.length, defects: bad.slice(0,10), duplicates: dup, rows: verdict === 'PASS' ? rows : [] } }];"
+      },
+      "id": "a1000005-0000-4000-8000-000000000005",
+      "name": "Integrity Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 920, 300 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            { "id": "pass-cond", "leftValue": "={{ $json.verdict }}", "rightValue": "PASS", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1000006-0000-4000-8000-000000000006",
+      "name": "PASS?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [ 1140, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO market_data (symbol, timeframe, ts, open, high, low, close, volume, source, dataset_version)\nSELECT '{{ $json.symbol }}', '1h', x.ts::timestamptz, x.open, x.high, x.low, x.close, x.volume, 'LBank', 'v1.1-live-ingest'\nFROM json_to_recordset('{{ JSON.stringify($json.rows) }}'::json) AS x(ts text, open numeric, high numeric, low numeric, close numeric, volume numeric)\nON CONFLICT (symbol, timeframe, ts, source) DO NOTHING;",
+        "options": {}
+      },
+      "id": "a1000007-0000-4000-8000-000000000007",
+      "name": "Upsert market_data",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 1380, 220 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO agent_audit_trail (agent_id, action, reason, result) VALUES ('AGENT-01', 'DATA_INGEST', 'hourly ingest ({{ $json.symbol }})', '{{ $json.verdict }} rows={{ $json.checked }}');",
+        "options": {}
+      },
+      "id": "a1000008-0000-4000-8000-000000000008",
+      "name": "Audit Trail",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 1620, 220 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={ $env.TELEGRAM_ADMIN_CHAT_ID }",
+        "text": "=AHOS ALERT — Data integrity FAIL for {{ $json.symbol }}. rows={{ $json.checked }}, defects={{ JSON.stringify($json.defects) }}. Ingest BLOCKED. Review required (Agent-09).",
+        "additionalFields": {}
+      },
+      "id": "a1000009-0000-4000-8000-000000000009",
+      "name": "Alert Integrity Fail",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 1380, 420 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram Bot" } }
+    },
+    {
+      "parameters": {
+        "chatId": "={ $env.TELEGRAM_ADMIN_CHAT_ID }",
+        "text": "=AHOS ALERT — Exchange fetch failed for {{ $('Per Symbol').item.json.symbol }} after retries. Error: {{ $json.error && $json.error.message ? $json.error.message : 'unknown' }}. Pipeline continues on next cycle; 3 consecutive failures -> check exchange status.",
+        "additionalFields": {}
+      },
+      "id": "a1000010-0000-4000-8000-000000000010",
+      "name": "Alert Fetch Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 920, 560 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram Bot" } }
+    }
+  ],
+  "connections": {
+    "Schedule 1h": { "main": [ [ { "node": "Symbol Set", "type": "main", "index": 0 } ] ] },
+    "Symbol Set": { "main": [ [ { "node": "Per Symbol", "type": "main", "index": 0 } ] ] },
+    "Per Symbol": { "main": [ null, [ { "node": "Fetch OHLCV (LBank)", "type": "main", "index": 0 } ] ] },
+    "Fetch OHLCV (LBank)": { "main": [ [ { "node": "Integrity Gate", "type": "main", "index": 0 } ], [ { "node": "Alert Fetch Error", "type": "main", "index": 0 } ] ] },
+    "Integrity Gate": { "main": [ [ { "node": "PASS?", "type": "main", "index": 0 } ] ] },
+    "PASS?": { "main": [ [ { "node": "Upsert market_data", "type": "main", "index": 0 } ], [ { "node": "Alert Integrity Fail", "type": "main", "index": 0 } ] ] },
+    "Upsert market_data": { "main": [ [ { "node": "Audit Trail", "type": "main", "index": 0 } ] ] },
+    "Audit Trail": { "main": [ [ { "node": "Per Symbol", "type": "main", "index": 0 } ] ] },
+    "Alert Integrity Fail": { "main": [ [ { "node": "Per Symbol", "type": "main", "index": 0 } ] ] },
+    "Alert Fetch Error": { "main": [ [ { "node": "Per Symbol", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": { "executionOrder": "v1", "saveExecutionProgress": true, "timezone": "UTC" },
+  "staticData": null,
+  "pinData": {}
+}

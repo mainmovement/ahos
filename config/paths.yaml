@@ -1,0 +1,14 @@
+platform_detected: linux
+is_windows: false
+project_root: /home/user/ahos
+data_dir: /home/user/ahos/data
+config_dir: /home/user/ahos/config
+reports_dir: /home/user/ahos/reports
+docs_dir: /home/user/ahos/docs
+contracts_dir: /home/user/ahos/contracts
+n8n_workflows_dir: /home/user/ahos/n8n/workflows
+databases:
+  discovery: /home/user/ahos/data/e01_discovery.sqlite
+  paper_trading: /home/user/ahos/data/paper_trading.sqlite
+  local: /home/user/ahos/data/ahos_local.sqlite
+  knowledge: /home/user/ahos/data/ahos_knowledge.sqlite

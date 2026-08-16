@@ -1,0 +1,12 @@
+{
+ "now": 1786520072.9475996,
+ "scanned": 295,
+ "snapshots": 233,
+ "entries": 15,
+ "defers_budget": 62,
+ "not_qualified": 218,
+ "monitored": 15,
+ "exits": 0,
+ "invalidations": 0,
+ "security_calls": 15
+}

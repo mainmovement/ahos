@@ -1,0 +1,609 @@
+{
+ "tool": "observe_active",
+ "version": "observe_active:v2",
+ "scheduler_version": "observation_scheduler:v1",
+ "ts": 1786683543.7752848,
+ "dry_run": false,
+ "max_tokens": 40,
+ "min_interval": 240.0,
+ "near_expiry_s": 1800.0,
+ "tracked_size": 11,
+ "tracked_note": null,
+ "eligible_total": 56,
+ "not_selected_by_cap": 16,
+ "by_state": {
+  "ALREADY_OBSERVED": 333,
+  "WINDOW_OPEN": 56,
+  "COVERABLE": 2475,
+  "MISSED": 4168,
+  "UNRECOVERABLE": 0
+ },
+ "skipped_cooldown": 0,
+ "selected": [
+  {
+   "token_id": "04a69d7b1faaba75769d8db1daaace39",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "0b00a1c87e569d85d19ad2bbff5e9a1c",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "0b7a255715db8618b1f90616b3a6b393",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "0f52356487dd53a04558c5548255cd26",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "11728da0abe702b240befe293aabca3d",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "161379477a4e7f281492c1d1b7bc03df",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "215041861e7e4a00da81fd1fb0db9467",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "2513e8fea6be48f370d1562b2d3dda2a",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "26db16dc3ed6641207998f05ba157b79",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "2a803e185347df1056dcbc92d4747b86",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "2bc308de6b77c4d81f0925f43fd56024",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "363e2ec0bf99b1db277b3154a02ea023",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "37c4cb01520a38867af73c473e521082",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "37f3bd75a5063cf1c6e18d7c7ba977a5",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "37f9535c04a206deac7dd53b96a3133c",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "42859785987f8f10ed7b646993bc5fd0",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "4683d6ea97acd9144287548a96d08905",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "4c83bec86bfcde7c011c2075843051fb",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "53cf53ed2fb38da8bfbe983d19ebe288",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "5798f6e8ad900f3cfa69225c9c137c2e",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "5850ca3a1a156474f880267691b5552e",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "60b218bd95ad5e0ce12adfd1d3455465",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "61996aa03176eeb80494834e8cf721e5",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "6199c27c08bc7b58d45e8f2e37b39407",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "684a9847d1694167cc04a29fbf442996",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "696e970220ab91be3713f42015422a53",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "70ea628b632b77b02fb6aa207358701c",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "805428af92c4fe836132d0768951b42b",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "85e2309e6ccf697df0fec854612a7eb8",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "8daecfc6e41aff81a0dd4d76a49a8633",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "90dbe91ac62a2bf88983db9222b85d63",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "95dd4803476d480a0cc29f3a1f2b5c14",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "9a7ab9b4840994f2850996a52e0fbe29",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "a0c800427077993228ea1a22c450aa15",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "a3e64b23ccca5c72f9bf94ff25606021",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "a8c55b296ebe95fb77f2aa4d93ccefd1",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "a9e48bf0402b70dd3318e4c53a493b46",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "abdf552cc716478b3e350a999f988161",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "ac1a676f9414bdad85dcd8326607c6e5",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "ae51deb5690e44c322fc4aa0e6c66c83",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  }
+ ],
+ "aborted": null,
+ "not_attempted": 0,
+ "attempted": 40,
+ "recorded": 16,
+ "would_record": 0,
+ "failures": [
+  {
+   "token_id": "0f52356487dd53a04558c5548255cd26",
+   "kind": "no_valid_price",
+   "obs_id": "f7b0aebb82f347321db138f0fe237e03",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "161379477a4e7f281492c1d1b7bc03df",
+   "kind": "no_valid_price",
+   "obs_id": "9d6065d1a43153da9497a862ee1c5c38",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "215041861e7e4a00da81fd1fb0db9467",
+   "kind": "no_valid_price",
+   "obs_id": "93fe9509e2e6ce1c1ae7728229a3ea1d",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "26db16dc3ed6641207998f05ba157b79",
+   "kind": "no_valid_price",
+   "obs_id": "287bb58ba67e5346fb293d953bf2ad0c",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "2bc308de6b77c4d81f0925f43fd56024",
+   "kind": "no_valid_price",
+   "obs_id": "7fa46812fbe2614fae7369d2481b4781",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "37f3bd75a5063cf1c6e18d7c7ba977a5",
+   "kind": "no_valid_price",
+   "obs_id": "2f393d3a8fe65968b689f5bffdecccc7",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "37f9535c04a206deac7dd53b96a3133c",
+   "kind": "no_valid_price",
+   "obs_id": "599a95eee9ace156c996b79e3866c02c",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "42859785987f8f10ed7b646993bc5fd0",
+   "kind": "no_valid_price",
+   "obs_id": "0270779b08e32c2e247061656d43632d",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "4683d6ea97acd9144287548a96d08905",
+   "kind": "no_valid_price",
+   "obs_id": "316a1c3ccb20bd6bb157620889eb3f73",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "4c83bec86bfcde7c011c2075843051fb",
+   "kind": "no_valid_price",
+   "obs_id": "a6757a6987972b68b155557e33e07f5b",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "53cf53ed2fb38da8bfbe983d19ebe288",
+   "kind": "no_valid_price",
+   "obs_id": "1e1fb559ae351a4672e8c27017fbe68b",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "5798f6e8ad900f3cfa69225c9c137c2e",
+   "kind": "no_valid_price",
+   "obs_id": "991dfe2a17da35c46945808d91c58cba",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "60b218bd95ad5e0ce12adfd1d3455465",
+   "kind": "no_valid_price",
+   "obs_id": "5c32300f88669e90b7e3c56b4aad734a",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "61996aa03176eeb80494834e8cf721e5",
+   "kind": "no_valid_price",
+   "obs_id": "98c323bd60f7ca4016afbd766ea1b64e",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "684a9847d1694167cc04a29fbf442996",
+   "kind": "no_valid_price",
+   "obs_id": "1e3403611a42e6b90ce570bedaee1a2a",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "805428af92c4fe836132d0768951b42b",
+   "kind": "no_valid_price",
+   "obs_id": "2a151f7f802e3eb5407aa909591df73b",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "8daecfc6e41aff81a0dd4d76a49a8633",
+   "kind": "no_valid_price",
+   "obs_id": "efdb366da9a87142f7b2c1bc5001ad69",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "90dbe91ac62a2bf88983db9222b85d63",
+   "kind": "no_valid_price",
+   "obs_id": "99e2d067eb6323efa86600ebe3074078",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "95dd4803476d480a0cc29f3a1f2b5c14",
+   "kind": "no_valid_price",
+   "obs_id": "0f1d4efa5aba8731492134d1b8f58879",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "9a7ab9b4840994f2850996a52e0fbe29",
+   "kind": "no_valid_price",
+   "obs_id": "171dffd3301ca49fca8f55d5bd3917cc",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "a0c800427077993228ea1a22c450aa15",
+   "kind": "no_valid_price",
+   "obs_id": "3555d3bbdfc1a47da3a95bf25dd107c9",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "a8c55b296ebe95fb77f2aa4d93ccefd1",
+   "kind": "no_valid_price",
+   "obs_id": "b6ad1c961f96aa408c98394d1b607e81",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "a9e48bf0402b70dd3318e4c53a493b46",
+   "kind": "no_valid_price",
+   "obs_id": "d5ebcfce39c2601d0c0d88a243e1ed5f",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "abdf552cc716478b3e350a999f988161",
+   "kind": "no_valid_price",
+   "obs_id": "093bffdf7cc869cfd9cac03d599b1a96",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  }
+ ],
+ "obs_ids": [
+  "8a9f1c4733d678a74fa5de6f5b326398",
+  "62c2a335036c70dec42b4f2547f4632e",
+  "65904cbaea3d45fcf5e78fabaaa6f7fd",
+  "4a22b40a162347d979c4dcd8f6f13889",
+  "02500b1360859f892696933bb352da8c",
+  "9ae43dc33c8d565f1a8923af7cf0034f",
+  "e854cfd3e9b6ac37e0151f45165acd03",
+  "c5b7a75cfb962926dcaed117a1f5034f",
+  "4d1d34da2e7642ae90fddc5daf2c811f",
+  "4d2fd2308f5245d3a7115b19fbb27a52",
+  "cd8e59cb31a3ee85dd0278efee94aa87",
+  "e012a1450416ce84790a979897ea45c3",
+  "ada9ee3da90eadc7dd6903230a7d7e62",
+  "77cb621195b5a791c4f68fcaef4c5087",
+  "dc460ae70a9badb4a6c1e9959c97f3f7",
+  "dd46dfead0dddf2d4ce9f594171cd83c"
+ ]
+}

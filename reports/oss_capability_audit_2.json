@@ -1,0 +1,108 @@
+{
+ "probe_set": "W12A-OSS-2",
+ "ts": "2026-08-13T03:45Z",
+ "mode": "READ-ONLY metadata audit (GitHub public API); NO clone/install/execute (PART O law)",
+ "pipeline_stage_reached": "ARCHITECTURE_AUDIT (metadata depth); BENCHMARK/REPLAY/CI = NOT_RUN by law",
+ "candidates": [
+  {
+   "repo": "agronholm/apscheduler",
+   "capability_lanes": [
+    "scheduler",
+    "job orchestration (in-process)",
+    "disconnection resilience"
+   ],
+   "license": "MIT",
+   "language": "Python",
+   "stars": 7604,
+   "forks": 771,
+   "open_issues": 56,
+   "pushed_at": "2026-08-01T18:35:28Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1 read-only; dependency tree not audited)",
+   "security_posture": "UNVERIFIED (no vuln scan in read-only mode)",
+   "ahos_comparison": "addresses measured scheduler gap (standing cycles currently fire only per user-trigger \u2014 no cron/systemd without host); adoption = Tier-2/3 gated; Lane A FROZEN so no Lane-A use case admissible",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "prometheus/client_python",
+   "capability_lanes": [
+    "observability",
+    "metrics",
+    "exporter"
+   ],
+   "license": "Apache-2.0",
+   "language": "Python",
+   "stars": 4356,
+   "forks": 871,
+   "open_issues": 147,
+   "pushed_at": "2026-07-24T19:35:00Z",
+   "archived": false,
+   "maintenance": "STALE_OR_SLOW",
+   "dependency_posture": "UNVERIFIED (Tier-1 read-only; dependency tree not audited)",
+   "security_posture": "UNVERIFIED (no vuln scan in read-only mode)",
+   "ahos_comparison": "mandated by PART L target; cadence slow but library mature; integration host-gated with OTel stack",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "open-telemetry/opentelemetry-python",
+   "capability_lanes": [
+    "observability",
+    "tracing",
+    "OTel target stack"
+   ],
+   "license": "Apache-2.0",
+   "language": "Python",
+   "stars": 2586,
+   "forks": 968,
+   "open_issues": 394,
+   "pushed_at": "2026-08-13T03:33:52Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1 read-only; dependency tree not audited)",
+   "security_posture": "UNVERIFIED (no vuln scan in read-only mode)",
+   "ahos_comparison": "designated in runtime v1 \u00a74 as tracing target; install deferred to host phase",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "jd/tenacity",
+   "capability_lanes": [
+    "fault tolerance",
+    "retry/circuit helpers",
+    "self-healing primitives"
+   ],
+   "license": "Apache-2.0",
+   "language": "Python",
+   "stars": 8745,
+   "forks": 342,
+   "open_issues": 43,
+   "pushed_at": "2026-08-06T06:51:35Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1 read-only; dependency tree not audited)",
+   "security_posture": "UNVERIFIED (no vuln scan in read-only mode)",
+   "ahos_comparison": "retry/backoff primitives candidate for PART 29 resilience; current control-plane retry semantics already deterministic \u2014 benchmark must PROVE added value",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "PrefectHQ/prefect",
+   "capability_lanes": [
+    "workflow/orchestration",
+    "Temporal alternative candidate",
+    "data pipelines"
+   ],
+   "license": "Apache-2.0",
+   "language": "Python",
+   "stars": 23608,
+   "forks": 2453,
+   "open_issues": 845,
+   "pushed_at": "2026-08-13T03:09:01Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1 read-only; dependency tree not audited)",
+   "security_posture": "UNVERIFIED (no vuln scan in read-only mode)",
+   "ahos_comparison": "orchestration alternative to Temporal target; orchestration_comparison.md verdict (Temporal recommend-as-target/defer-install) stands unless Tier-3 benchmark refutes it",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  }
+ ]
+}

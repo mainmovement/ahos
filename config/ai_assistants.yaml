@@ -1,0 +1,85 @@
+# AHOS Logical AI Assistant Roles & Task Contracts (Phase XXIV)
+# Non-negotiable: These are logical advisory roles, NOT uncontrolled autonomous agents.
+# Priority: Local Ollama ($0) -> Free Keyed AI ($0) -> Deterministic Floor ($0)
+
+assistants:
+  architect:
+    role: "Architect"
+    domain: "System Design & Modularity"
+    objective: "Evaluates subsystem contracts, interfaces, and cross-platform path compatibility."
+    authority: "ADVISORY_ONLY"
+    allowed_tools: ["inspect_contract", "validate_interfaces", "check_modularity"]
+    prohibited_actions: ["modify_lane_a", "execute_live_trades", "self_approve"]
+    preferred_model_tier: "LOCAL_OR_FREE"
+
+  researcher:
+    role: "Researcher"
+    domain: "Market Research & Anomaly Detection"
+    objective: "Analyzes token volume velocity, liquidity trends, and pre-registers research hypotheses."
+    authority: "ADVISORY_ONLY"
+    allowed_tools: ["query_observations", "calculate_features", "format_hypothesis"]
+    prohibited_actions: ["modify_lane_a", "p_hack_baselines"]
+    preferred_model_tier: "LOCAL_OR_FREE"
+
+  auditor:
+    role: "Auditor"
+    domain: "Security, Leakage & Integrity Verification"
+    objective: "Performs red-team evaluations, secret masking verification, and invariant testing."
+    authority: "VETO_ONLY"
+    allowed_tools: ["audit_secrets", "verify_l3_invariants", "red_team_claims"]
+    prohibited_actions: ["override_veto", "suppress_warnings"]
+    preferred_model_tier: "LOCAL_OR_FREE"
+
+  developer:
+    role: "Developer"
+    domain: "Code Quality & Test Engineering"
+    objective: "Writes minimal, verified code changes and comprehensive regression unit tests."
+    authority: "PROPOSE_ONLY"
+    allowed_tools: ["write_test", "run_pytest", "implement_patch"]
+    prohibited_actions: ["self_approve_proposals", "bypass_human_gate"]
+    preferred_model_tier: "LOCAL_OR_FREE"
+
+  data_scientist:
+    role: "Data Scientist"
+    domain: "Empirical Statistics & Baseline Analysis"
+    objective: "Computes Wilson score confidence intervals, sample adequacy bounds, and lift metrics."
+    authority: "ADVISORY_ONLY"
+    allowed_tools: ["calculate_wilson_ci", "scan_baseline_cells"]
+    prohibited_actions: ["lower_min_n_guard", "invent_sample_counts"]
+    preferred_model_tier: "DETERMINISTIC_FIRST"
+
+  risk_manager:
+    role: "Risk Manager"
+    domain: "Downside Protection & Trapped Capital Elimination"
+    objective: "Applies Taleb convexity rules, Munger inversion, and hard security vetoes."
+    authority: "VETO_ONLY"
+    allowed_tools: ["evaluate_honeypot", "check_liquidity_depth", "flag_freeze_authority"]
+    prohibited_actions: ["permit_unverified_contracts", "remove_veto"]
+    preferred_model_tier: "DETERMINISTIC_FIRST"
+
+  historian:
+    role: "Historian"
+    domain: "Knowledge Memory & Contradiction Tracking"
+    objective: "Records empirical lessons, maintains issue register, and traces causal contradiction graphs."
+    authority: "RECORD_ONLY"
+    allowed_tools: ["query_knowledge_claims", "append_lesson", "trace_contradictions"]
+    prohibited_actions: ["rewrite_history", "delete_past_observations"]
+    preferred_model_tier: "LOCAL_OR_FREE"
+
+  documentation_manager:
+    role: "Documentation Manager"
+    domain: "Canonical Documentation & User Communication"
+    objective: "Maintains clear Persian-first Telegram cards, setup guides, and README documentation."
+    authority: "ADVISORY_ONLY"
+    allowed_tools: ["format_persian_card", "generate_setup_guide"]
+    prohibited_actions: ["fabricate_capabilities", "inflate_scores"]
+    preferred_model_tier: "LOCAL_OR_FREE"
+
+  guardian:
+    role: "Guardian"
+    domain: "Final Human Governance & Safety Boundary"
+    objective: "Enforces Master Directive v1 hash locks, human approval requirements, and paper-only invariant."
+    authority: "FINAL_HUMAN_APPROVAL"
+    allowed_tools: ["verify_master_directive", "validate_human_token"]
+    prohibited_actions: ["delegate_to_ai", "bypass_governance"]
+    preferred_model_tier: "HUMAN_ONLY"

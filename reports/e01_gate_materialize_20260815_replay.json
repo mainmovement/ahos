@@ -1,0 +1,13 @@
+{
+ "ts": 1786777776.7980738,
+ "store": "/home/user/ahos/data/e01_discovery.sqlite",
+ "features_tokens": 952,
+ "features_rows": 6745,
+ "features_immature_skipped": 0,
+ "feature_set": "fs_v0.2",
+ "join_offset": 3600.0,
+ "now": 1786777777.0139976,
+ "outcome_tokens_resolved": 223,
+ "outcome_rows_written": 1048,
+ "outcome_labels_total": 1048
+}

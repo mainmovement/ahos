@@ -1,0 +1,40 @@
+{
+  "contract_id": "ahos.ai_provider",
+  "version": "v1",
+  "created_utc": "2026-08-13T01:59:23+00:00",
+  "law": "providers are optional advisory resources; FREE_FIRST (cost=0 first) where capability permits; NO provider superiority is hard-coded — strengths count toward routing ONLY when backed by probe_ids; unprobed strength claims are ignored, not believed; paid providers are never a hard dependency and never appear silently (allow_paid flag, default false)",
+  "capabilities": ["code_reasoning", "long_doc_audit", "persian_nlp", "classification_bulk",
+                   "adversarial_critique", "numeric_care", "architecture_reasoning",
+                   "test_generation", "failure_diagnosis"],
+  "provider_spec_fields": {
+    "required": ["provider_id", "kind", "cost_per_1k_usd", "timeout_s", "rate_limit",
+                 "context_tokens", "capabilities_claimed", "strengths", "availability",
+                 "key_env", "probe_ids"],
+    "notes": {
+      "strengths": "list of {capability, claim, probe_ref|null}; claim ignored by the router when probe_ref is null",
+      "availability": "enum availability",
+      "probe_ids": "live-measured ids only (e.g. PRB-20260813-xxx / PRB-20260811-AI-001)",
+      "provider_id": "convention: the registry mapping key IS the provider_id (no duplicated literals)"
+    }
+  },
+  "enums": {
+    "availability": ["OK", "DEGRADED", "DOWN", "NO_KEY", "NEEDS_USER_KEY", "NO_HOST",
+                     "REFUTED", "UNKNOWN"],
+    "circuit": ["CLOSED", "OPEN", "HALF_OPEN"],
+    "health": ["HEALTHY", "UNHEALTHY", "UNKNOWN"]
+  },
+  "response_envelope_fields": ["provider", "model", "probe_id", "timestamp", "input_hash",
+                               "content", "numeric_claims", "evidence_refs", "confidence",
+                               "version", "latency_ms", "error_state"],
+  "safety": {
+    "ai_output_never": ["authoritative evidence", "market data", "numeric truth",
+                        "financial decision", "governance change", "frozen rule modification"],
+    "numeric_provenance_law": "every numeric_claim must reference >=1 entry in evidence_refs; otherwise the claim verdict is INVALID",
+    "deterministic_floor": "all providers failing => DETERMINISTIC_ONLY; AHOS continues safely; AI is an accelerator, never the foundation"
+  },
+  "cost_law": {
+    "budget_default_usd": 0.0,
+    "allow_paid_default": false,
+    "free_is_not_forever": "availability/cost are probe-measured per interval, never assumed permanent"
+  }
+}

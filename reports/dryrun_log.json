@@ -1,0 +1,47 @@
+[
+  {
+    "scenario": "S1_normal_paper_cycle",
+    "result": "PASS",
+    "detail": "decision=NO_TRADE reason=no signal fields_ok=True"
+  },
+  {
+    "scenario": "S2_exchange_down",
+    "result": "ALERTED",
+    "detail": "failure routed to Alert Fetch Error path; pipeline halted for cycle; audit written. (simulated: LBank timeout after 3 retries)"
+  },
+  {
+    "scenario": "S3_integrity_block",
+    "result": "BLOCKED",
+    "detail": "injected defect detected (1 rows close-out-of-range) -> UPSERT skipped, admin alerted, row quarantined (no silent repair)"
+  },
+  {
+    "scenario": "S4_kill_switch",
+    "result": "PASS",
+    "detail": "kill flag set -> decision=NO_TRADE reason=kill_switch_active"
+  },
+  {
+    "scenario": "S5_unauthorized_cmd",
+    "result": "PASS",
+    "detail": "chat_id!=admin on /kill -> rejected + audit AUTH_FAIL, bot never executes"
+  },
+  {
+    "scenario": "S6_admin_commands",
+    "result": "PASS",
+    "detail": "admin /kill -> Execute Kill Switch; /approve BTCUSDT -> Human Gate recorded"
+  },
+  {
+    "scenario": "S7_risk_caps",
+    "result": "PASS",
+    "detail": "notional sizing: 100.00/200.00/0.00 (2% risk, 2x cap, zero-guard)"
+  },
+  {
+    "scenario": "S8_rollback_governance",
+    "result": "PASS",
+    "detail": "param change stays PENDING until Agent-10 + Human approve; rollback path mandatory before apply"
+  },
+  {
+    "scenario": "S9_leverage_ladder",
+    "result": "PASS",
+    "detail": "micro=2.0x std-strong=10.0x std-weak=5.0x"
+  }
+]

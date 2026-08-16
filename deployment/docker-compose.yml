@@ -1,0 +1,55 @@
+# AHOS Deployment — VPS engine side (Poco F3 stays controller/Telegram client only)
+# No secrets in this file. All secrets via ../config/.env (gitignored).
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ahos_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ahos}
+      POSTGRES_USER: ${POSTGRES_USER:?set in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/postgresql_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+    networks: [ahos_internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB:-ahos}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: ahos_n8n
+    restart: unless-stopped
+    environment:
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:?set in .env}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:?set in .env}
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-https}
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL:?set in .env}
+      GENERIC_TIMEZONE: UTC
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-ahos}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER:?set in .env}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set in .env}
+    ports:
+      - "127.0.0.1:5678:5678"   # reverse-proxy/tunnel only; never expose raw
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ../n8n/workflows:/opt/workflows:ro
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [ahos_internal]
+
+networks:
+  ahos_internal: { driver: bridge }
+volumes:
+  postgres_data: {}
+  n8n_data: {}

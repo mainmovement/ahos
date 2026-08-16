@@ -1,0 +1,46 @@
+{
+ "probe_id": "PRB-20260811-AI-001",
+ "capability": "ai:persian_parse(keyless)",
+ "availability": "DEGRADED",
+ "http_status": null,
+ "latency_ms": null,
+ "provider_id": null,
+ "mode": "DETERMINISTIC_ONLY",
+ "attempts": [
+  {
+   "provider": "ollama_local",
+   "availability": "DOWN",
+   "error": "network_error"
+  },
+  {
+   "provider": "pollinations_text",
+   "availability": "DOWN",
+   "error": "http_error"
+  },
+  {
+   "provider": "github_models_gpt4omini",
+   "availability": "DOWN",
+   "error": "no_key"
+  },
+  {
+   "provider": "groq_llama",
+   "availability": "DOWN",
+   "error": "no_key"
+  },
+  {
+   "provider": "gemini_flash_free",
+   "availability": "DOWN",
+   "error": "no_key"
+  },
+  {
+   "provider": "openrouter_free",
+   "availability": "DOWN",
+   "error": "no_key"
+  }
+ ],
+ "error": {
+  "kind": "all_ai_providers_down",
+  "message": "deterministic-only mode"
+ },
+ "content_head": ""
+}

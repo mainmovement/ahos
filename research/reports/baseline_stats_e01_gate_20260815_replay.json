@@ -1,0 +1,265 @@
+{
+  "ts": "2026-08-15T07:09:46.103922+00:00",
+  "cells": 9,
+  "verdicts": [
+    "INSUFFICIENT_DATA"
+  ],
+  "guards": {
+    "min_n": 200,
+    "min_pos": 20
+  },
+  "results": [
+    {
+      "n_conditioned": 8,
+      "pos_conditioned": 2,
+      "n_baseline": 43,
+      "pos_baseline": 6,
+      "rate_conditioned": 0.25,
+      "ci_conditioned": [
+        0.07147921209795555,
+        0.5907245720727483
+      ],
+      "rate_baseline": 0.13953488372093023,
+      "ci_baseline": [
+        0.06555723389691778,
+        0.2726358809127827
+      ],
+      "lift": 1.7916666666666667,
+      "precision": 0.25,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": "key='liquidity_growth_1h' AND value_num>0.10",
+      "join_offset": 3600.0,
+      "cell_id": "B1-lg1h-pos-24h-50"
+    },
+    {
+      "n_conditioned": 31,
+      "pos_conditioned": 3,
+      "n_baseline": 43,
+      "pos_baseline": 6,
+      "rate_conditioned": 0.0967741935483871,
+      "ci_conditioned": [
+        0.033464643902175836,
+        0.24899938594300403
+      ],
+      "rate_baseline": 0.13953488372093023,
+      "ci_baseline": [
+        0.06555723389691778,
+        0.2726358809127827
+      ],
+      "lift": 0.6935483870967741,
+      "precision": 0.0967741935483871,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": "key='buy_sell_imbalance_1h' AND value_num>0.15",
+      "join_offset": 3600.0,
+      "cell_id": "B1-bsi-pos-24h-50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 43,
+      "pos_baseline": 6,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "buy_sell_imbalance_1h",
+            "op": ">=",
+            "value": 0.15
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h14-24h-p50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 52,
+      "pos_baseline": 4,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "buy_sell_imbalance_1h",
+            "op": ">=",
+            "value": 0.15
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h14-72h-p100"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 43,
+      "pos_baseline": 6,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "liquidity_growth_1h",
+            "op": ">=",
+            "value": 0.1
+          },
+          {
+            "key": "txn_acceleration",
+            "op": ">=",
+            "value": 1.5
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h15-24h-p50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 52,
+      "pos_baseline": 4,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "liquidity_growth_1h",
+            "op": ">=",
+            "value": 0.1
+          },
+          {
+            "key": "txn_acceleration",
+            "op": ">=",
+            "value": 1.5
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h15-72h-p100"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 43,
+      "pos_baseline": 6,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "security_all_hard_veto_clear",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h18-24h-p50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 52,
+      "pos_baseline": 4,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "security_all_hard_veto_clear",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h18-72h-p100"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 43,
+      "pos_baseline": 6,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": {
+        "conjunction": [
+          {
+            "key": "volume_acceleration",
+            "op": ">=",
+            "value": 2.0
+          },
+          {
+            "key": "txn_acceleration",
+            "op": ">=",
+            "value": 1.5
+          },
+          {
+            "key": "liquidity_growth_1h",
+            "op": ">=",
+            "value": 0.1
+          },
+          {
+            "key": "buy_sell_imbalance_1h",
+            "op": ">=",
+            "value": 0.15
+          },
+          {
+            "key": "price_change_1h",
+            "op": ">",
+            "value": -0.05
+          },
+          {
+            "key": "price_change_1h",
+            "op": "<",
+            "value": 0.05
+          }
+        ]
+      },
+      "join_offset": 3600.0,
+      "cell_id": "B2-h20-24h-p50"
+    }
+  ]
+}

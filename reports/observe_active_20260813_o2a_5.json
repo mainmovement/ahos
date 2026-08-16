@@ -1,0 +1,30 @@
+{
+ "tool": "observe_active",
+ "version": "observe_active:v2",
+ "scheduler_version": "observation_scheduler:v1",
+ "ts": 1786598673.0735765,
+ "dry_run": false,
+ "max_tokens": 40,
+ "min_interval": 240.0,
+ "near_expiry_s": 1800.0,
+ "tracked_size": 11,
+ "tracked_note": null,
+ "eligible_total": 0,
+ "not_selected_by_cap": 0,
+ "by_state": {
+  "ALREADY_OBSERVED": 227,
+  "WINDOW_OPEN": 0,
+  "COVERABLE": 3864,
+  "MISSED": 2453,
+  "UNRECOVERABLE": 0
+ },
+ "skipped_cooldown": 0,
+ "selected": [],
+ "aborted": null,
+ "not_attempted": 0,
+ "attempted": 0,
+ "recorded": 0,
+ "would_record": 0,
+ "failures": [],
+ "obs_ids": []
+}

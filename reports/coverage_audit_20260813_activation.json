@@ -1,0 +1,38 @@
+{
+ "tool": "coverage_audit",
+ "version": "v1",
+ "ts": 1786595632.9588425,
+ "store": "/home/user/ahos/data/e01_discovery.sqlite",
+ "verdict": "DEGRADED",
+ "blocks": {
+  "collection_health": {
+   "active_tokens": 762,
+   "tokens_with_obs_last_24h": 580,
+   "observations_last_24h": 735,
+   "successful_observations_last_24h": 709,
+   "share_active_with_fresh_obs_24h": 0.7270341207349081
+  },
+  "observation_freshness": {
+   "tokens_tracked": 762,
+   "median_latest_obs_age_h": 3.649991702304946,
+   "share_latest_obs_within_24h": 0.7270341207349081
+  },
+  "horizon_coverage": {
+   "resolved_total": 0,
+   "resolved_with_72h_window_point": 0,
+   "share": null
+  },
+  "gap_detection": {
+   "missed_total": 826,
+   "missed_last_24h": 580
+  },
+  "recovery_status": {
+   "poller_reports": 1,
+   "last_run_ts": 1786595433.489443,
+   "last_recorded": 14,
+   "last_failures": 26,
+   "poller_version": "observe_active:v1"
+  }
+ },
+ "classifier": "STARVING iff share<0.30&no-success&gap>0; DEGRADED iff share<0.80 or missed_24h>0; else HEALTHY (frozen, v1)"
+}

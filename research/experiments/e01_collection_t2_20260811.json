@@ -1,0 +1,80 @@
+{
+  "ts": 1786471632.2229793,
+  "store": "/home/user/ahos/data/e01_discovery.sqlite",
+  "dry_run": false,
+  "streams": {
+    "gt_new_pools_solana": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/solana/new_pools?page=1",
+      "seen": 20,
+      "taken": 8
+    },
+    "gt_new_pools_ethereum": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/eth/new_pools?page=1",
+      "seen": 20,
+      "taken": 8
+    },
+    "gt_new_pools_bsc": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/bsc/new_pools?page=1",
+      "seen": 20,
+      "taken": 8
+    },
+    "gt_new_pools_base": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/base/new_pools?page=1",
+      "seen": 20,
+      "taken": 8
+    },
+    "dex_profiles": {
+      "availability": "OK",
+      "seen": 30,
+      "enriched": 8
+    }
+  },
+  "ingested": 40,
+  "errors": [],
+  "new_tokens": [
+    "a7e867f016c203e00f041485464145c0",
+    "d972049df4acf7308ea4f321d74d1417",
+    "b6d3b468223214a93d1e81725e26fb73",
+    "6402c6c06732f8286aa9bb908b682ad0",
+    "086e4bc801849b95d015c8e501326c8e",
+    "ab4f18b718ab1bd919060d70de7e048f",
+    "9447a53b0597dd3b21a6b71b2fcff327",
+    "461d70289a8076f7da7da1e9056632d6",
+    "91c84efcd6431014cbafac27998a8db8",
+    "474df1a7c14bc00a95f21ef2f86fd6e3",
+    "474df1a7c14bc00a95f21ef2f86fd6e3",
+    "474df1a7c14bc00a95f21ef2f86fd6e3",
+    "f70380c812435fd066fec23439b5c075",
+    "3bb954a830a207a89add91829542a959",
+    "a2a212bbabef97577bc3625b9e2da8df",
+    "474df1a7c14bc00a95f21ef2f86fd6e3",
+    "1fdba933c172ccba8bbe073b1b6a16d0",
+    "8a943fd8c71921b786cef6c55ad763be",
+    "aadad6dce85980161154f92c15e823f6",
+    "cef5d11555ecae0f7851ddb096460bf4",
+    "47ff09fcf881bb1f0ca51be25db7cfd3",
+    "34395e3aa4b7f1fd197190d4b3ab667b",
+    "1f50a5a7ee3be49c3598c204d8a0f152",
+    "8a943fd8c71921b786cef6c55ad763be",
+    "c7bcb296ebcaaef207413b270d229661",
+    "e0fdded19dcaf0f75d2eb13355627b27",
+    "fca346ebd192f1637255a40d5650e192",
+    "920a03890ff2673b54926be5e595f7e0",
+    "1591d60594e18e01d5739840a76c68b4",
+    "a39549fec7ea7cf71dc803630b916703",
+    "022cf9c642ff7e6e2cb98650317b3789",
+    "44077e7ca28fd3d8712c5f3a79a13b99",
+    "24542ba9ef0d57f3f65f59a37d1f5f0c",
+    "fcb4771cd39b7ecc81de375f7c50939a",
+    "67605b2af8b439fb167353fb14bd13be",
+    "561faedc332d6d86c0b8cbe79072de61",
+    "09710551a49d6b56e2a3de40a47c670a",
+    "55c92db8a34c16077be65fe0babfe836",
+    "caf5498e9ad4ea0457e53ba999e2c2c8",
+    "9f8a917547552d353d6a366d56aaab80"
+  ]
+}

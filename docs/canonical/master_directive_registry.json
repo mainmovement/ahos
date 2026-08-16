@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "law": "exactly one ACTIVE; ACTIVE = highest version; every version file on disk must be listed; every sha256 must appear in AHOS_ISSUE_REGISTER.md",
+  "directives": [
+    {
+      "version": 1,
+      "file": "MASTER_DIRECTIVE_v1.md",
+      "status": "ACTIVE",
+      "ratified_utc": "2026-08-13T04:55:00Z",
+      "sha256": "e2457c0d9dfbadba84ee666feb46f0a01f60663e749f1261f27988abfd837d79"
+    }
+  ]
+}

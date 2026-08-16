@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ahos_postgres_win
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ahos}
+      POSTGRES_USER: ${POSTGRES_USER:-ahos_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ahos_secure_pass_123}
+    volumes:
+      - postgres_data_win:/var/lib/postgresql/data
+      - ../database/postgresql_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - ahos_win_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ahos_user} -d ${POSTGRES_DB:-ahos}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: ahos_n8n_win
+    restart: unless-stopped
+    environment:
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-ahos_admin_pass_123}
+      N8N_HOST: localhost
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://localhost:5678/
+      GENERIC_TIMEZONE: UTC
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-ahos}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER:-ahos_user}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-ahos_secure_pass_123}
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes:
+      - n8n_data_win:/home/node/.n8n
+      - ../n8n/workflows:/opt/workflows:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ahos_win_net
+
+  ahos-runtime:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: ahos_runtime_win
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ../data:/app/data
+      - ../reports:/app/reports
+      - ../docs:/app/docs:ro
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - ahos_win_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+networks:
+  ahos_win_net:
+    driver: bridge
+
+volumes:
+  postgres_data_win: {}
+  n8n_data_win: {}

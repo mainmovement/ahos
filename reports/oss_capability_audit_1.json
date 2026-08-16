@@ -1,0 +1,60 @@
+{
+  "probe_set": "W12A-OSS-1",
+  "ts": "2026-08-13T02:5xZ",
+  "mode": "READ-ONLY metadata audit (GitHub public API); NO clone, NO install, NO code execution (W12 PART O law)",
+  "pipeline_stage_reached": "ARCHITECTURE_AUDIT (metadata depth); BENCHMARK/REPLAY/CI = NOT_RUN by law",
+  "candidates": [
+    {
+      "repo": "temporalio/sdk-python",
+      "capability_lanes": ["workflow/orchestration", "replay", "fault-tolerant long-running"],
+      "license": "MIT",
+      "language": "Python",
+      "stars": 1162,
+      "forks": 223,
+      "open_issues": 108,
+      "pushed_at": "2026-08-13T00:32:04Z",
+      "archived": false,
+      "maintenance": "ACTIVE (org: temporalio, official SDK)",
+      "dependency_posture": "UNVERIFIED (dependency tree not audited — requires BENCHMARK stage tooling)",
+      "security_posture": "UNVERIFIED (no vuln scan executed in read-only mode)",
+      "ahos_comparison": "temporal adoption already RECOMMEND-AS-TARGET/DEFER-INSTALL (orchestration_comparison.md); sdk would arrive WITH temporal, not before",
+      "verdict": "NO_INTEGRATION (host-gated; already aligned with target decision)"
+    },
+    {
+      "repo": "promptfoo/promptfoo",
+      "capability_lanes": ["red team", "model evaluation"],
+      "license": "MIT",
+      "language": "TypeScript",
+      "stars": 24184,
+      "forks": 2180,
+      "open_issues": 498,
+      "pushed_at": "2026-08-13T02:27:24Z",
+      "archived": false,
+      "maintenance": "ACTIVE",
+      "dependency_posture": "UNVERIFIED — TypeScript boundary adds a runtime dep AHOS does not currently have (node); violates nothing today because NOT integrated",
+      "ahos_comparison": "AG-14 red-team lints are Python/contract-native today; promptfoo's LLM red-team packs are interesting for the AI-council lane ONLY after AI keys exist (owner decision)",
+      "verdict": "CANDIDATE_HELD_UNVERIFIED (security/dependency audits not yet possible read-only; revisit at host time)"
+    },
+    {
+      "repo": "crewAIInc/crewAI",
+      "capability_lanes": ["multi-agent systems", "agent runtime"],
+      "license": "MIT",
+      "language": "Python",
+      "stars": 57003,
+      "forks": 8134,
+      "open_issues": 783,
+      "pushed_at": "2026-08-13T02:39:43Z",
+      "archived": false,
+      "maintenance": "ACTIVE",
+      "dependency_posture": "UNVERIFIED — role-playing agent frameworks are culturally OPPOSED to AHOS law (no personality agents; no fabricated authority); any adoption would need a boundary audit proving advisory-only use",
+      "ahos_comparison": "current agent fabric is contract-first/deterministic; crewAI offers persona-oriented orchestration which conflicts with W12 PART I law as commonly used",
+      "verdict": "CANDIDATE_HELD_UNVERIFIED (conceptual fit low-to-unknown; security/dependency audits pending)"
+    }
+  ],
+  "law_notes": [
+    "GitHub repository = CANDIDATE, never truth, never dependency (PART E)",
+    "no repo enters production directly (NON-NEGOTIABLE LAW 8)",
+    "every unproven audit stage marked UNVERIFIED, not assumed",
+    "integration path when/if authorized: ImprovementProposal -> sandbox -> replay -> CI -> red team -> human gate -> versioned"
+  ]
+}

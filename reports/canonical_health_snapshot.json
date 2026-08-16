@@ -1,0 +1,166 @@
+{
+  "timestamp_utc": "2026-08-16T08:58:05.297041+00:00",
+  "overall_verdict": "GREEN",
+  "system_uptime_seconds": 4889.21,
+  "runtime_state": "RUNNING",
+  "scheduler_status": {
+    "active_locks_count": 0,
+    "last_run_id": "f73c0097a914617c",
+    "last_run_status": "SUCCESS",
+    "last_heartbeat_utc": "2026-08-16T07:36:36.086453+00:00",
+    "heartbeat_age_seconds": 4889.21,
+    "recent_operational_metrics": [
+      {
+        "event_id": "met_1786865802825_alerts_alerts_e",
+        "run_id": "run_1786865796_d38b8118",
+        "timestamp_utc": "2026-08-16T07:36:42.825442+00:00",
+        "component": "alerts",
+        "metric_name": "alerts_emitted",
+        "metric_value": 1.0,
+        "status": "OK",
+        "evidence_refs": "[\"opportunity_pipeline_1786865796_d7c479da\"]",
+        "meta_json": "{}"
+      },
+      {
+        "event_id": "met_1786865802823_scorin_scores_g",
+        "run_id": "run_1786865796_d38b8118",
+        "timestamp_utc": "2026-08-16T07:36:42.823660+00:00",
+        "component": "scoring",
+        "metric_name": "scores_generated",
+        "metric_value": 13.0,
+        "status": "OK",
+        "evidence_refs": "[\"opportunity_pipeline_1786865796_d7c479da\"]",
+        "meta_json": "{}"
+      },
+      {
+        "event_id": "met_1786865802821_pipeli_cycle_du",
+        "run_id": "run_1786865796_d38b8118",
+        "timestamp_utc": "2026-08-16T07:36:42.821779+00:00",
+        "component": "pipeline",
+        "metric_name": "cycle_duration_ms",
+        "metric_value": 6729.84,
+        "status": "OK",
+        "evidence_refs": "[\"opportunity_pipeline_1786865796_d7c479da\"]",
+        "meta_json": "{}"
+      },
+      {
+        "event_id": "met_1786798815302_alerts_alerts_e",
+        "run_id": "run_1786798800_2f5f3480",
+        "timestamp_utc": "2026-08-15T13:00:15.302123+00:00",
+        "component": "alerts",
+        "metric_name": "alerts_emitted",
+        "metric_value": 1.0,
+        "status": "OK",
+        "evidence_refs": "[\"opportunity_pipeline_1786798809_89781835\"]",
+        "meta_json": "{}"
+      },
+      {
+        "event_id": "met_1786798815300_scorin_scores_g",
+        "run_id": "run_1786798800_2f5f3480",
+        "timestamp_utc": "2026-08-15T13:00:15.300503+00:00",
+        "component": "scoring",
+        "metric_name": "scores_generated",
+        "metric_value": 13.0,
+        "status": "OK",
+        "evidence_refs": "[\"opportunity_pipeline_1786798809_89781835\"]",
+        "meta_json": "{}"
+      }
+    ]
+  },
+  "observation_metrics": {
+    "total_gaps": 5339,
+    "total_obs": 1736
+  },
+  "provider_health": {
+    "dexscreener": {
+      "state": "CLOSED",
+      "failure_count": 0,
+      "last_failure_ts": 0.0
+    },
+    "geckoterminal": {
+      "state": "CLOSED",
+      "failure_count": 0,
+      "last_failure_ts": 0.0
+    },
+    "goplus": {
+      "state": "CLOSED",
+      "failure_count": 0,
+      "last_failure_ts": 0.0
+    },
+    "rugcheck": {
+      "state": "CLOSED",
+      "failure_count": 0,
+      "last_failure_ts": 0.0
+    }
+  },
+  "database_integrity": {
+    "e01_discovery": {
+      "exists": true,
+      "integrity": "OK",
+      "tables_count": 16,
+      "total_rows": 21967
+    },
+    "paper_trading": {
+      "exists": true,
+      "integrity": "OK",
+      "tables_count": 17,
+      "total_rows": 1697
+    },
+    "ahos_local": {
+      "exists": true,
+      "integrity": "OK",
+      "tables_count": 6,
+      "total_rows": 95
+    },
+    "ahos_knowledge": {
+      "exists": true,
+      "integrity": "OK",
+      "tables_count": 2,
+      "total_rows": 96
+    }
+  },
+  "e01_experiment_state": {
+    "total_tokens_observed": 952,
+    "total_observations_recorded": 1736,
+    "total_gaps_registered": 5339,
+    "tokens_resolved": 223,
+    "tokens_dead": 729,
+    "covered_72h_outcomes": 52,
+    "required_threshold": 200,
+    "official_verdict": "INSUFFICIENT_DATA",
+    "validation_status": "NOT YET VALIDATED (statistically honest)"
+  },
+  "track_b_accounting": {
+    "virtual_bankroll_initial_usd": 20.0,
+    "cash_balance_usd": 1.8984375,
+    "allocated_capital_usd": 18.1015625,
+    "accounting_sum_usd": 20.0,
+    "is_accounting_consistent": true,
+    "open_positions_count": 11,
+    "closed_positions_count": 0,
+    "execution_mode": "100% PAPER ONLY"
+  },
+  "telegram_adapter_status": {
+    "mode": "MOCK_LOCAL_OFFLINE",
+    "bot_token_present": false,
+    "security_gate_active": true,
+    "persian_nlu_intents_count": 11,
+    "response_contract": "Section X Format with Mandatory Persian Footer"
+  },
+  "ai_router_status": {
+    "deterministic_floor_active": true,
+    "cost_ceiling_usd_month": 0.0,
+    "registered_providers_count": 10,
+    "nvidia_nim_configured": true,
+    "nvidia_key_present": false,
+    "ai_decision_authority": "ZERO (Advisory Only)"
+  },
+  "security_invariants": {
+    "ahos_paper_only_enforced": true,
+    "live_trading_prohibited": true,
+    "zero_secret_in_source": true,
+    "master_directive_hash_pinned": true,
+    "e01_protocol_hash_pinned": true
+  },
+  "summary_reasons": []
+}

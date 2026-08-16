@@ -1,0 +1,75 @@
+===================================================================
+AHOS N8N LIVE SMOKE TEST EVIDENCE - 2026-08-11 (UTC)
+Runtime: n8n 2.8.4 (npm), node v20.20.2, sqlite, 127.0.0.1:5678
+===================================================================
+
+[1] RUNTIME UP
+{"status":"ok"}
+
+[2] CLI IMPORT RESULTS (6/6 exit=0)
+=== IMPORT ahos_01_data_ingest_integrity.json ===
+Successfully imported 1 workflow.
+exit=0
+=== IMPORT ahos_02_signal_pipeline.json ===
+Successfully imported 1 workflow.
+exit=0
+=== IMPORT ahos_03_telegram_control.json ===
+Successfully imported 1 workflow.
+exit=0
+=== IMPORT ahos_10_research_lab.json ===
+Successfully imported 1 workflow.
+exit=0
+=== IMPORT ahos_11_data_update.json ===
+Successfully imported 1 workflow.
+exit=0
+=== IMPORT ahos_12_research_report.json ===
+Successfully imported 1 workflow.
+exit=0
+
+[3] LIST AFTER IMPORT + PERSISTENCE ACROSS RESTART
+a5pGY7uq1NcWx5lD|AHOS-01 Data Ingest + Integrity Gate
+6wqOt3a70CPDm4ZG|AHOS-02 Signal + Risk Gate Pipeline
+YnoviH5Uarnk5XI9|AHOS-03 Telegram Control + Kill Switch
+hylvL0OJquYb6s6V|AHOS-10 Research Lab (weekly validation battery)
+22wREp2BjMCF77xN|AHOS-11 Research Data Update (nightly incremental)
+5wb5v4Vc9AIFcnML|AHOS-12 Research Report (weekly digest from registry)
+
+[4] LIVE NODE-TYPE REGISTRY AUDIT (default v2.8.4 config)
+  811 node types registered; n8n-nodes-base.executeCommand MISSING
+  root cause (n8n source, modules/breaking-changes/rules/v2/disabled-nodes.rule.js):
+  'ExecuteCommand and LocalFileTrigger nodes are now disabled by default for
+   security reasons' (v2 breaking change, severity=medium)
+
+[5] LIVE NODE-TYPE AUDIT WITH NODES_EXCLUDE=[] (secure-default override)
+  OK       n8n-nodes-base.code
+  OK       n8n-nodes-base.executeCommand
+  OK       n8n-nodes-base.httpRequest
+  OK       n8n-nodes-base.if
+  OK       n8n-nodes-base.n8nTrigger
+  OK       n8n-nodes-base.noOp
+  OK       n8n-nodes-base.postgres
+  OK       n8n-nodes-base.scheduleTrigger
+  OK       n8n-nodes-base.splitInBatches
+  OK       n8n-nodes-base.switch
+  OK       n8n-nodes-base.telegram
+  OK       n8n-nodes-base.telegramTrigger
+  total live node types: 814
+
+[6] ACTIVATION GATE TEST (workflow W01)
+  POST /rest/workflows/a5pGY7uq1NcWx5lD/activate -> 400 WorkflowValidationError
+  'Cannot publish workflow: 2 nodes have configuration issues:
+   Missing required credential: postgres (Upsert market_data, Audit Trail)'
+  => Activation CORRECTLY blocked only by unassigned credentials (design: __ASSIGN_AFTER_IMPORT__)
+
+[7] WORKFLOW STATE VIA REST (all imported, active=false as expected)
+  a5pGY7uq1NcWx5lD | AHOS-01 Data Ingest + Integrity Gate | active= False
+  6wqOt3a70CPDm4ZG | AHOS-02 Signal + Risk Gate Pipeline | active= False
+  YnoviH5Uarnk5XI9 | AHOS-03 Telegram Control + Kill Switch | active= False
+  hylvL0OJquYb6s6V | AHOS-10 Research Lab (weekly validation battery) | active= False
+  22wREp2BjMCF77xN | AHOS-11 Research Data Update (nightly incremental) | active= False
+  5wb5v4Vc9AIFcnML | AHOS-12 Research Report (weekly digest from registry) | active= False
+
+VERDICT: IMPORT=PASS(6/6) | NODE-TYPES=PASS(12/12 with NODES_EXCLUDE=[])
+         ACTIVATION=BLOCKED-BY-CREDENTIALS (expected; Postgres/Telegram env pending)
+         EXECUTION=PENDING (requires Postgres + TELEGRAM_BOT_TOKEN env; user blockers 1+2)
+No real credentials/secrets used. Owner account: throwaway smoke@ahos.local (local disposal instance).

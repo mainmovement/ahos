@@ -1,0 +1,218 @@
+# AHOS PAL provider registry v1 (Mission v1.1) — free-first, ordered fallback chains.
+# reachability: LIVE VERIFIED from sandbox 2026-08-11 unless marked otherwise (docs/mission_v1_1/G).
+# iran_network: UNKNOWN until user-side probe (engine/pal_probe.py).
+version: 1
+capabilities:
+  discovery_stream:
+    chain: [geckoterminal_new_pools, dexscreener_profiles, dexscreener_boosts]
+  pair_enrich:
+    chain: [dexscreener_tokens, geckoterminal_pool]
+  security_sol:
+    chain: [rugcheck_report]
+  security_evm:
+    chain: [goplus_evm]           # degraded at authoring; on-chain heuristics fallback (Phase-3)
+  rpc_sol:
+    chain: [solana_rpc_mainnet, solana_rpc_publicnode]
+  rpc_eth:
+    chain: [publicnode_eth]
+  rpc_bsc:
+    chain: [publicnode_bsc]
+  rpc_base:
+    chain: [publicnode_base]
+  narrative_rss:
+    chain: [cointelegraph_rss, theblock_rss, coindesk_rss]
+
+providers:
+  geckoterminal_new_pools:
+    provider_id: geckoterminal
+    base_url: "https://api.geckoterminal.com/api/v2"
+    method: GET
+    path_templates:
+      new_pools: "/networks/{chain}/new_pools?page={page}"
+    chain_map: { solana: solana, ethereum: eth, bsc: bsc, base: base }
+    rate: { rpm: 25, burst: 1 }          # conservative vs ~30 documented
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cache_ttl_sec: 120
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  dexscreener_profiles:
+    provider_id: dexscreener
+    base_url: "https://api.dexscreener.com"
+    method: GET
+    path_templates:
+      profiles: "/token-profiles/latest/v1"
+      boosts: "/token-boosts/latest/v1"
+    rate: { rpm: 120, burst: 2 }         # conservative vs ~300 documented
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cache_ttl_sec: 120
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  dexscreener_boosts:
+    provider_id: dexscreener
+    base_url: "https://api.dexscreener.com"
+    method: GET
+    path_templates:
+      boosts: "/token-boosts/latest/v1"
+    rate: { rpm: 120, burst: 2 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cache_ttl_sec: 120
+    cost: free
+    keyless: true
+
+  dexscreener_tokens:
+    provider_id: dexscreener
+    base_url: "https://api.dexscreener.com"
+    method: GET
+    path_templates:
+      token_pairs: "/tokens/v1/{chain}/{address}"
+    chain_map: { solana: solana, ethereum: ethereum, bsc: bsc, base: base }
+    rate: { rpm: 120, burst: 2 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cache_ttl_sec: 120
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  geckoterminal_pool:
+    provider_id: geckoterminal
+    base_url: "https://api.geckoterminal.com/api/v2"
+    method: GET
+    path_templates:
+      pool: "/networks/{chain}/pools/{pair}?include=base_token,quote_token"
+    chain_map: { solana: solana, ethereum: eth, bsc: bsc, base: base }
+    rate: { rpm: 25, burst: 1 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cache_ttl_sec: 120
+    cost: free
+    keyless: true
+
+  rugcheck_report:
+    provider_id: rugcheck
+    base_url: "https://api.rugcheck.xyz"
+    method: GET
+    path_templates:
+      report: "/v1/tokens/{address}/report"
+      summary: "/v1/tokens/{address}/report/summary"
+    chains: [solana]
+    rate: { rpm: 30, burst: 1 }          # undocumented -> conservative
+    timeout_sec: 15
+    breaker: { fail_threshold: 3, cooldown_sec: 180 }
+    cache_ttl_sec: 600
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  goplus_evm:
+    provider_id: goplus
+    base_url: "https://api.gopluslabs.io"
+    method: GET
+    path_templates:
+      token_security: "/api/v1/token_security/{chain_num}?contract_addresses={address}"
+    chain_num_map: { ethereum: 1, bsc: 56, base: 8453 }
+    rate: { rpm: 20, burst: 1 }
+    timeout_sec: 15
+    breaker: { fail_threshold: 2, cooldown_sec: 300 }
+    cache_ttl_sec: 600
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11    # probe PRB-20260811-004 (was FAILED-timeout earlier same day; PRB-20260811-004 OK 361ms)
+
+  solana_rpc_mainnet:
+    provider_id: solana_rpc
+    transport: jsonrpc
+    base_url: "https://api.mainnet-beta.solana.com"
+    rate: { rpm: 30, burst: 2 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  solana_rpc_publicnode:
+    provider_id: solana_rpc
+    transport: jsonrpc
+    base_url: "https://solana-rpc.publicnode.com"
+    rate: { rpm: 30, burst: 2 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  publicnode_eth:
+    provider_id: publicnode
+    transport: jsonrpc
+    base_url: "https://ethereum-rpc.publicnode.com"
+    rate: { rpm: 30, burst: 2 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  publicnode_bsc:
+    provider_id: publicnode
+    transport: jsonrpc
+    base_url: "https://bsc-rpc.publicnode.com"
+    rate: { rpm: 30, burst: 2 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  publicnode_base:
+    provider_id: publicnode
+    transport: jsonrpc
+    base_url: "https://base-rpc.publicnode.com"
+    rate: { rpm: 30, burst: 2 }
+    timeout_sec: 12
+    breaker: { fail_threshold: 3, cooldown_sec: 120 }
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  cointelegraph_rss:
+    provider_id: cointelegraph
+    base_url: "https://cointelegraph.com/rss"
+    method: GET
+    rate: { rpm: 4, burst: 1 }
+    timeout_sec: 15
+    breaker: { fail_threshold: 3, cooldown_sec: 300 }
+    cache_ttl_sec: 900
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  theblock_rss:
+    provider_id: theblock
+    base_url: "https://www.theblock.co/rss.xml"
+    method: GET
+    rate: { rpm: 4, burst: 1 }
+    timeout_sec: 15
+    breaker: { fail_threshold: 3, cooldown_sec: 300 }
+    cache_ttl_sec: 900
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11
+
+  coindesk_rss:
+    provider_id: coindesk
+    base_url: "https://www.coindesk.com/arc/outboundfeeds/rss/"
+    method: GET
+    rate: { rpm: 4, burst: 1 }
+    timeout_sec: 15
+    breaker: { fail_threshold: 3, cooldown_sec: 300 }
+    cache_ttl_sec: 900
+    cost: free
+    keyless: true
+    reachability_sandbox: live-verified-2026-08-11   # probe PRB-20260811-017 (308-chain resolved)

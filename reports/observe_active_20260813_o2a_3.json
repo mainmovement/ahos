@@ -1,0 +1,392 @@
+{
+ "tool": "observe_active",
+ "version": "observe_active:v2",
+ "scheduler_version": "observation_scheduler:v1",
+ "ts": 1786598634.3087096,
+ "dry_run": false,
+ "max_tokens": 40,
+ "min_interval": 240.0,
+ "near_expiry_s": 1800.0,
+ "tracked_size": 11,
+ "tracked_note": null,
+ "eligible_total": 80,
+ "not_selected_by_cap": 40,
+ "by_state": {
+  "ALREADY_OBSERVED": 147,
+  "WINDOW_OPEN": 80,
+  "COVERABLE": 3864,
+  "MISSED": 2453,
+  "UNRECOVERABLE": 0
+ },
+ "skipped_cooldown": 0,
+ "selected": [
+  {
+   "token_id": "5048503ea97698327a493d5b719fdbc8",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "5a13b7891f5db2e4a38a381caca9f71f",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "5f0b06b527c9e0781db0c6a6b48db0fb",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "61f2c0cad98ae7f34e1cbb62e8446ae2",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "6a67a94c24044d4ecd6d772a9a5bf70e",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "70cb4a6911d31712ce1cbd947709a0be",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "7785ffdbc3b119e5f970449230266a42",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "7adbd728c1c879d89912334a0dee5490",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "7b5acf737b9180baeb537e0b2c2c0eac",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "8473f35582183e146ef0e687e6c69959",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "84864d585a0b874a09817141f156cc0f",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "948f71d584c216a6567627a7f4ffc840",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "96175320f1e4d95b268e52b9c750b9a8",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "a274e8d16c3c158ba27a060e7be88fdb",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "ae17f2b5dc7ad09b44afd40cdcdc2b94",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "aec414e33ed997f99239aeca49a71db1",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "b43d659d9ff3c8ea403772a02acda0c7",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "bb528394e8c91862c57b2652c7a75283",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "c05a0bc28ce4ce6f101a0339d39d0f50",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "c30c7d8bdce16718164a74a8227a3c2c",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "c3f6de97e80fc11893b3cb4852708243",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "c69cc885481a1c655cdaff3caeb38fd2",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "c868caa9d987ced7aea2b9f983543c2f",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "ce80c81f147946b77b90b48956da0527",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "cf0688cce6d077e482abe4fbb3ea582e",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "d0b10ff34f4893891e0bb1253c6397a8",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "d491979e103b99e3dc9d71fd7306fdd5",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "d958aa5638a186fc79b15d5150b975c7",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "e2c4deaaadabf7bb39c9d1eab3ae499c",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "ea74e361ea6ad9d19f31e045a3003884",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "eb241d348ab4f0f25b579fd7e3f6405a",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "ee3cc94e08ec22dbc64bdebefe14ee7c",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "fcbc48b18f39391a41f80acb16c23ac6",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "ff5d794a40f65afb5b2a3323f180f93d",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "ffd45b8303ab6516dc22193ef5eff63f",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786599342.23246
+  },
+  {
+   "token_id": "0670d243b42664f0bc9ed05110de2d52",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786600325.814451
+  },
+  {
+   "token_id": "12ff24b64f3a77692a2292ec89c30566",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786600325.814451
+  },
+  {
+   "token_id": "16c1fe85f7ebf65b7e8511683d13aae0",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786600325.814451
+  },
+  {
+   "token_id": "1c9c34456cfd1b6fd3f63ea769140895",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786600325.814451
+  },
+  {
+   "token_id": "1da3aea940bb404df55c4fcd97a98c03",
+   "tier": 1,
+   "open_slots": [
+    "s+4h"
+   ],
+   "close_ts": 1786600325.814451
+  }
+ ],
+ "aborted": null,
+ "not_attempted": 0,
+ "attempted": 40,
+ "recorded": 40,
+ "would_record": 0,
+ "failures": [],
+ "obs_ids": [
+  "50b423f628d514f1cb3727834d34fe87",
+  "2923e1dc7cece09a64934c84a2af1f66",
+  "aa31a20c3ac26ba0d475b9944a38665d",
+  "69b3326072a1b2a2f92cdeda11ed6f1e",
+  "ac558c2a75be6065a3b678bdf08f28c0",
+  "edf707458aafe4ee51a349d851ebb10b",
+  "2c75f150f6f062d702ca6c781f57317d",
+  "27a7cf959d6869b8e787fa3e80b74cf0",
+  "c8d1f69214d99082479f7d020312f8af",
+  "57932098e1806c7f5c8f941875b99814",
+  "dd12ca72a7453178fcb4e4d70014ec47",
+  "bcf4567fd67ca5f3e358c4903daf54a7",
+  "1ca0d783d156e4cdcf32d0e032d55689",
+  "b617ec9386b7c73a0ada1b93fd642c64",
+  "67426a98d42a381fdc296b692e40d00c",
+  "1342ebb4dc4db0f3e1218e5e54b2d3ff",
+  "64f6d261de5e5e2b67ad9dae8a096428",
+  "786718fd30de573400dcc7b3cb9a3abc",
+  "e7e5dae8760309a8c506caef20a2ed87",
+  "58954008488aff507671effb17f3e636",
+  "e0611165e3e8d2acb3b2ed8ee1069f53",
+  "13199e84cdf9b34e081edff17603d326",
+  "1e4310e41944539441f7eab36a104c0c",
+  "85f24623f5f47eacb260ac6e79855304",
+  "b818ad1d555b531c0f323084b9cd65ff",
+  "f59207fcead1ee74f6ed25ade85f7e2f",
+  "1a762f34a43f86ae683a8349af0df513",
+  "2009e50f0b4c7221eb9905bc22081c58",
+  "14279d8aa314eede990de6ea7c631120",
+  "c6152caed63ce20d0e2d9b06e2b97c0b",
+  "dff7f0076dff9587a8333b5ca128744c",
+  "a20c24a36258105f6bdf26ff38d5b7cc",
+  "6a5490d29d5a7306fccda162819445c1",
+  "6936431359eac5e098d6083aef2670d4",
+  "051f4b3e239f0065865578a4a22ce05d",
+  "7e227bfd511a9b90042a39f89cf56d33",
+  "e53951def269f6786c0039dd42f82d7a",
+  "bbc30271a285df683f365dd87f658daa",
+  "b49e24647d39b324e976559214f9ab5d",
+  "8ec9996a9d38707a15424256d26e8b59"
+ ]
+}

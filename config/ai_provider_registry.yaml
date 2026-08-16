@@ -1,0 +1,144 @@
+# AHOS W11 — AI PROVIDER REGISTRY (provider-independent router input).
+# LAWS: FREE_FIRST (cost=0 first where capability permits); NO superiority hard-coded —
+# every strength claim carries probe_ref or is IGNORED by the router (tagged UNPROBED);
+# availability is MEASURED (probes) or honestly NEEDS_USER_KEY/NO_HOST/REFUTED; paid never
+# silently enabled (allow_paid=false default; PRB-20260811-AI-001 evidence attached).
+matrix_version: W11-AI-1
+created_utc: "2026-08-13T02:10:00+00:00"
+contract: ai_provider_contract_v1
+cost_budget:
+  default_budget_usd: 0.0
+  allow_paid: false
+  law: "cost=0-first with graceful degradation; never encode 'AI must always be free'; availability/cost re-probed per interval"
+capabilities:   # routing lanes (W10 §8 + W11 §10)
+  - code_reasoning
+  - long_doc_audit
+  - persian_nlp
+  - classification_bulk
+  - adversarial_critique
+  - numeric_care
+  - architecture_reasoning
+  - test_generation
+  - failure_diagnosis
+providers:
+  ollama_local:
+    kind: openai_compatible
+    cost_per_1k_usd: 0.0
+    timeout_s: 30
+    rate_limit: local
+    context_tokens: 8192
+    capabilities_claimed: [code_reasoning, long_doc_audit, persian_nlp, classification_bulk,
+                           adversarial_critique, numeric_care, architecture_reasoning,
+                           test_generation, failure_diagnosis]
+    strengths: []   # UNPROBED — never measured on AHOS tasks; router ignores
+    availability: NO_HOST            # PRB-20260811-AI-001 attempt chain: network_error
+    key_env: null
+    probe_ids: [PRB-20260811-AI-001]
+  nvidia_nim:
+    kind: openai_compatible
+    base_url: "https://integrate.api.nvidia.com/v1"
+    model: "meta/llama-3.1-70b-instruct"
+    cost_per_1k_usd: 0.0             # Free tier credits on build.nvidia.com
+    timeout_s: 30
+    rate_limit: "40_rpm"
+    context_tokens: 16384
+    capabilities_claimed: [code_reasoning, long_doc_audit, persian_nlp, classification_bulk,
+                           adversarial_critique, numeric_care, architecture_reasoning,
+                           test_generation, failure_diagnosis]
+    strengths: []
+    availability: NEEDS_USER_KEY     # Requires user-supplied NVIDIA_API_KEY from build.nvidia.com
+    key_env: NVIDIA_API_KEY
+    probe_ids: [PRB-20260816-NVIDIA-001]
+  github_models_gpt4omini:
+    kind: openai_compatible
+    cost_per_1k_usd: 0.0
+    timeout_s: 30
+    rate_limit: "free-tier (measured only when keyed)"
+    context_tokens: 128000
+    capabilities_claimed: [code_reasoning, classification_bulk, test_generation, failure_diagnosis]
+    strengths: []
+    availability: NEEDS_USER_KEY     # no_key (PRB-20260811-AI-001)
+    key_env: GITHUB_TOKEN
+    probe_ids: [PRB-20260811-AI-001]
+  groq_llama:
+    kind: openai_compatible
+    cost_per_1k_usd: 0.0
+    timeout_s: 30
+    rate_limit: "free-tier (measured only when keyed)"
+    context_tokens: 128000
+    capabilities_claimed: [classification_bulk, persian_nlp, failure_diagnosis]
+    strengths: []
+    availability: NEEDS_USER_KEY
+    key_env: GROQ_API_KEY
+    probe_ids: [PRB-20260811-AI-001]
+  gemini_flash_free:
+    kind: openai_compatible
+    cost_per_1k_usd: 0.0
+    timeout_s: 30
+    rate_limit: "free-tier (measured only when keyed)"
+    context_tokens: 1000000
+    capabilities_claimed: [long_doc_audit, architecture_reasoning]
+    strengths: []   # "best long context" NOT asserted — requires probe on AHOS artifacts
+    availability: NEEDS_USER_KEY
+    key_env: GEMINI_API_KEY
+    probe_ids: [PRB-20260811-AI-001]
+  openrouter_free:
+    kind: openai_compatible
+    cost_per_1k_usd: 0.0
+    timeout_s: 30
+    rate_limit: "free-tier (measured only when keyed)"
+    context_tokens: 128000
+    capabilities_claimed: [code_reasoning, adversarial_critique]
+    strengths: []
+    availability: NEEDS_USER_KEY
+    key_env: OPENROUTER_API_KEY
+    probe_ids: [PRB-20260811-AI-001]
+  pollinations_text:
+    kind: pollinations_get
+    cost_per_1k_usd: 0.0
+    timeout_s: 30
+    rate_limit: n/a
+    context_tokens: 4096
+    capabilities_claimed: [classification_bulk]
+    strengths: []
+    availability: REFUTED            # http_error 402 on keyless tier (PRB-20260811-AI-001)
+    key_env: null
+    probe_ids: [PRB-20260811-AI-001]
+  chatgpt_target:
+    kind: openai_compatible
+    cost_per_1k_usd: DECLARED_PAID    # exact $ only via owner-authorized metering; default excluded by allow_paid=false
+    timeout_s: 60
+    rate_limit: "contract/owner-metered"
+    context_tokens: 128000
+    capabilities_claimed: [code_reasoning, classification_bulk, test_generation]
+    strengths: []   # "best coding" NOT asserted without AHOS probes
+    availability: NEEDS_USER_KEY
+    key_env: OPENAI_API_KEY
+    probe_ids: []
+  claude_target:
+    kind: openai_compatible
+    cost_per_1k_usd: DECLARED_PAID
+    timeout_s: 60
+    rate_limit: "contract/owner-metered"
+    context_tokens: 200000
+    capabilities_claimed: [code_reasoning, long_doc_audit, architecture_reasoning, adversarial_critique]
+    strengths: []
+    availability: NEEDS_USER_KEY
+    key_env: ANTHROPIC_API_KEY
+    probe_ids: []
+  gemini_target:
+    kind: openai_compatible
+    cost_per_1k_usd: DECLARED_PAID
+    timeout_s: 60
+    rate_limit: "contract/owner-metered"
+    context_tokens: 1000000
+    capabilities_claimed: [long_doc_audit, architecture_reasoning]
+    strengths: []
+    availability: NEEDS_USER_KEY
+    key_env: GEMINI_API_KEY_PAID
+    probe_ids: []
+routing_law:
+  order: [capability_filter, health, cost, context, probe_evidence, selection]
+  free_first: true
+  deterministic_floor: "all unavailable ⇒ DETERMINISTIC_ONLY (floor live-verified PRB-20260811-AI-001)"
+  tie_break: "fewest recent failures, then declared context sufficiency; NEVER brand reputation"

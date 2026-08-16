@@ -1,0 +1,394 @@
+{
+  "generated_by": "ahos_backtest.py v1.0",
+  "strategy_spec": "STRATEGY_SPEC_v1.0 (frozen)",
+  "data_limitation": "~83 days (2000c) real LBank data; 3-year dataset NOT yet acquired \u2014 OOS/WF/MC marked LIMITED",
+  "removed_rows_registry": [
+    {
+      "symbol": "BTCUSDT",
+      "timestamp": "2026-05-25T00:00:00Z",
+      "reason": "open < low (source data defect)"
+    },
+    {
+      "symbol": "BTCUSDT",
+      "timestamp": "2026-06-13T01:00:00Z",
+      "reason": "open < low (source data defect)"
+    }
+  ],
+  "symbols": {
+    "BTCUSDT": {
+      "full": {
+        "symbol": "BTCUSDT",
+        "rows": 1997,
+        "start": "2026-05-17 22:00:00+00:00",
+        "end": "2026-08-09 04:00:00+00:00",
+        "trades": 85,
+        "win_rate": 44.71,
+        "avg_win": 1.9249,
+        "avg_loss": -1.7491,
+        "profit_factor": 0.89,
+        "expectancy": -0.10659,
+        "total_pnl": -9.0599,
+        "total_return_pct": -9.06,
+        "max_drawdown_pct": 20.39,
+        "sharpe_annualized": -0.965,
+        "halts": [
+          {
+            "ts": "2026-06-17 18:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2039,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "train_70": {
+        "symbol": "BTCUSDT",
+        "rows": 1397,
+        "start": "2026-05-17 22:00:00+00:00",
+        "end": "2026-07-15 04:00:00+00:00",
+        "trades": 85,
+        "win_rate": 44.71,
+        "avg_win": 1.9249,
+        "avg_loss": -1.7491,
+        "profit_factor": 0.89,
+        "expectancy": -0.10659,
+        "total_pnl": -9.0599,
+        "total_return_pct": -9.06,
+        "max_drawdown_pct": 20.39,
+        "sharpe_annualized": -1.154,
+        "halts": [
+          {
+            "ts": "2026-06-17 18:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2039,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "oos_30": {
+        "symbol": "BTCUSDT",
+        "rows": 660,
+        "start": "2026-07-12 17:00:00+00:00",
+        "end": "2026-08-09 04:00:00+00:00",
+        "trades": 26,
+        "win_rate": 26.92,
+        "avg_win": 1.7695,
+        "avg_loss": -1.5632,
+        "profit_factor": 0.417,
+        "expectancy": -0.66596,
+        "total_pnl": -17.3149,
+        "total_return_pct": -17.315,
+        "max_drawdown_pct": 20.36,
+        "sharpe_annualized": -7.651,
+        "halts": [
+          {
+            "ts": "2026-07-24 07:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2036,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "walk_forward": [
+        {
+          "window": 1,
+          "train": "2026-05-17 22:00:00+00:00\u21922026-06-26 23:00:00+00:00",
+          "test": "2026-06-27 00:00:00+00:00\u21922026-07-06 23:00:00+00:00",
+          "train_wr": 44.71,
+          "train_pf": 0.89,
+          "test_wr": 23.81,
+          "test_pf": 0.321,
+          "test_trades": 21
+        },
+        {
+          "window": 2,
+          "train": "2026-05-27 23:00:00+00:00\u21922026-07-06 23:00:00+00:00",
+          "test": "2026-07-07 00:00:00+00:00\u21922026-07-16 23:00:00+00:00",
+          "train_wr": 42.86,
+          "train_pf": 0.889,
+          "test_wr": 36.11,
+          "test_pf": 0.579,
+          "test_trades": 36
+        },
+        {
+          "window": 3,
+          "train": "2026-06-06 23:00:00+00:00\u21922026-07-16 23:00:00+00:00",
+          "test": "2026-07-17 00:00:00+00:00\u21922026-07-26 23:00:00+00:00",
+          "train_wr": 30.3,
+          "train_pf": 0.521,
+          "test_wr": 17.39,
+          "test_pf": 0.249,
+          "test_trades": 23
+        },
+        {
+          "window": 4,
+          "train": "2026-06-17 00:00:00+00:00\u21922026-07-26 23:00:00+00:00",
+          "test": "2026-07-27 00:00:00+00:00\u21922026-08-05 23:00:00+00:00",
+          "train_wr": 35.0,
+          "train_pf": 0.638,
+          "test_wr": 47.22,
+          "test_pf": 0.722,
+          "test_trades": 36
+        }
+      ],
+      "monte_carlo": {
+        "simulations": 1000,
+        "positive_outcomes_pct": 30.4,
+        "p5_pnl": -38.094,
+        "median_pnl": -8.579,
+        "p95_pnl": 21.799,
+        "p95_maxdd": 43.723,
+        "prob_dd_gt_20pct": 60.4
+      }
+    },
+    "ETHUSDT": {
+      "full": {
+        "symbol": "ETHUSDT",
+        "rows": 1999,
+        "start": "2026-05-17 22:00:00+00:00",
+        "end": "2026-08-09 04:00:00+00:00",
+        "trades": 26,
+        "win_rate": 23.08,
+        "avg_win": 1.9348,
+        "avg_loss": -1.6031,
+        "profit_factor": 0.362,
+        "expectancy": -0.78662,
+        "total_pnl": -20.4522,
+        "total_return_pct": -20.452,
+        "max_drawdown_pct": 20.45,
+        "sharpe_annualized": -4.651,
+        "halts": [
+          {
+            "ts": "2026-05-26 15:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2045,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "train_70": {
+        "symbol": "ETHUSDT",
+        "rows": 1399,
+        "start": "2026-05-17 22:00:00+00:00",
+        "end": "2026-07-15 04:00:00+00:00",
+        "trades": 26,
+        "win_rate": 23.08,
+        "avg_win": 1.9348,
+        "avg_loss": -1.6031,
+        "profit_factor": 0.362,
+        "expectancy": -0.78662,
+        "total_pnl": -20.4522,
+        "total_return_pct": -20.452,
+        "max_drawdown_pct": 20.45,
+        "sharpe_annualized": -5.564,
+        "halts": [
+          {
+            "ts": "2026-05-26 15:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2045,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "oos_30": {
+        "symbol": "ETHUSDT",
+        "rows": 660,
+        "start": "2026-07-12 17:00:00+00:00",
+        "end": "2026-08-09 04:00:00+00:00",
+        "trades": 47,
+        "win_rate": 42.55,
+        "avg_win": 1.6768,
+        "avg_loss": -1.8591,
+        "profit_factor": 0.668,
+        "expectancy": -0.35448,
+        "total_pnl": -16.6605,
+        "total_return_pct": -16.661,
+        "max_drawdown_pct": 20.75,
+        "sharpe_annualized": -4.71,
+        "halts": [
+          {
+            "ts": "2026-07-28 16:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2075,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "walk_forward": [
+        {
+          "window": 1,
+          "train": "2026-05-17 22:00:00+00:00\u21922026-06-26 21:00:00+00:00",
+          "test": "2026-06-26 22:00:00+00:00\u21922026-07-06 21:00:00+00:00",
+          "train_wr": 23.08,
+          "train_pf": 0.362,
+          "test_wr": 32.61,
+          "test_pf": 0.732,
+          "test_trades": 46
+        },
+        {
+          "window": 2,
+          "train": "2026-05-27 22:00:00+00:00\u21922026-07-06 21:00:00+00:00",
+          "test": "2026-07-06 22:00:00+00:00\u21922026-07-16 21:00:00+00:00",
+          "train_wr": 38.83,
+          "train_pf": 0.848,
+          "test_wr": 40.0,
+          "test_pf": 0.695,
+          "test_trades": 35
+        },
+        {
+          "window": 3,
+          "train": "2026-06-06 22:00:00+00:00\u21922026-07-16 21:00:00+00:00",
+          "test": "2026-07-16 22:00:00+00:00\u21922026-07-26 21:00:00+00:00",
+          "train_wr": 34.25,
+          "train_pf": 0.783,
+          "test_wr": 41.94,
+          "test_pf": 0.608,
+          "test_trades": 31
+        },
+        {
+          "window": 4,
+          "train": "2026-06-16 22:00:00+00:00\u21922026-07-26 21:00:00+00:00",
+          "test": "2026-07-26 22:00:00+00:00\u21922026-08-05 21:00:00+00:00",
+          "train_wr": 30.77,
+          "train_pf": 0.681,
+          "test_wr": 43.24,
+          "test_pf": 0.605,
+          "test_trades": 37
+        }
+      ],
+      "monte_carlo": {
+        "simulations": 1000,
+        "positive_outcomes_pct": 0.8,
+        "p5_pnl": -33.507,
+        "median_pnl": -20.604,
+        "p95_pnl": -6.381,
+        "p95_maxdd": 32.713,
+        "prob_dd_gt_20pct": 60.3
+      }
+    },
+    "SOLUSDT": {
+      "full": {
+        "symbol": "SOLUSDT",
+        "rows": 1999,
+        "start": "2026-05-17 22:00:00+00:00",
+        "end": "2026-08-09 04:00:00+00:00",
+        "trades": 30,
+        "win_rate": 30.0,
+        "avg_win": 2.1925,
+        "avg_loss": -1.9732,
+        "profit_factor": 0.476,
+        "expectancy": -0.72352,
+        "total_pnl": -21.7057,
+        "total_return_pct": -21.706,
+        "max_drawdown_pct": 21.71,
+        "sharpe_annualized": -4.039,
+        "halts": [
+          {
+            "ts": "2026-05-27 18:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2171,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "train_70": {
+        "symbol": "SOLUSDT",
+        "rows": 1399,
+        "start": "2026-05-17 22:00:00+00:00",
+        "end": "2026-07-15 04:00:00+00:00",
+        "trades": 30,
+        "win_rate": 30.0,
+        "avg_win": 2.1925,
+        "avg_loss": -1.9732,
+        "profit_factor": 0.476,
+        "expectancy": -0.72352,
+        "total_pnl": -21.7057,
+        "total_return_pct": -21.706,
+        "max_drawdown_pct": 21.71,
+        "sharpe_annualized": -4.831,
+        "halts": [
+          {
+            "ts": "2026-05-27 18:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2171,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "oos_30": {
+        "symbol": "SOLUSDT",
+        "rows": 660,
+        "start": "2026-07-12 17:00:00+00:00",
+        "end": "2026-08-09 04:00:00+00:00",
+        "trades": 53,
+        "win_rate": 43.4,
+        "avg_win": 1.8547,
+        "avg_loss": -1.9495,
+        "profit_factor": 0.729,
+        "expectancy": -0.29864,
+        "total_pnl": -15.8278,
+        "total_return_pct": -15.828,
+        "max_drawdown_pct": 20.66,
+        "sharpe_annualized": -4.002,
+        "halts": [
+          {
+            "ts": "2026-07-31 03:00:00+00:00",
+            "type": "MAX_DRAWDOWN_HALT",
+            "dd": 0.2066,
+            "effect": "NO NEW POSITIONS for remainder of run (DD cap breached)"
+          }
+        ]
+      },
+      "walk_forward": [
+        {
+          "window": 1,
+          "train": "2026-05-17 22:00:00+00:00\u21922026-06-26 21:00:00+00:00",
+          "test": "2026-06-26 22:00:00+00:00\u21922026-07-06 21:00:00+00:00",
+          "train_wr": 30.0,
+          "train_pf": 0.476,
+          "test_wr": 37.14,
+          "test_pf": 0.673,
+          "test_trades": 35
+        },
+        {
+          "window": 2,
+          "train": "2026-05-27 22:00:00+00:00\u21922026-07-06 21:00:00+00:00",
+          "test": "2026-07-06 22:00:00+00:00\u21922026-07-16 21:00:00+00:00",
+          "train_wr": 43.14,
+          "train_pf": 0.912,
+          "test_wr": 22.73,
+          "test_pf": 0.352,
+          "test_trades": 22
+        },
+        {
+          "window": 3,
+          "train": "2026-06-06 22:00:00+00:00\u21922026-07-16 21:00:00+00:00",
+          "test": "2026-07-16 22:00:00+00:00\u21922026-07-26 21:00:00+00:00",
+          "train_wr": 41.79,
+          "train_pf": 0.851,
+          "test_wr": 51.52,
+          "test_pf": 0.925,
+          "test_trades": 33
+        },
+        {
+          "window": 4,
+          "train": "2026-06-16 22:00:00+00:00\u21922026-07-26 21:00:00+00:00",
+          "test": "2026-07-26 22:00:00+00:00\u21922026-08-05 21:00:00+00:00",
+          "train_wr": 39.66,
+          "train_pf": 0.764,
+          "test_wr": 46.67,
+          "test_pf": 0.748,
+          "test_trades": 30
+        }
+      ],
+      "monte_carlo": {
+        "simulations": 1000,
+        "positive_outcomes_pct": 3.4,
+        "p5_pnl": -38.654,
+        "median_pnl": -21.7,
+        "p95_pnl": -2.335,
+        "p95_maxdd": 38.468,
+        "prob_dd_gt_20pct": 67.5
+      }
+    }
+  }
+}

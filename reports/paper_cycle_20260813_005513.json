@@ -1,0 +1,238 @@
+{
+ "cycle_ts": 1786582513.6246688,
+ "v3": {
+  "now": 1786582513.6246688,
+  "engine": "v3",
+  "scanned": 400,
+  "snapshot_v2": 56,
+  "security_calls": 10,
+  "defers_budget": 85,
+  "rejected": {
+   "liquidity 2660 < min 5000": 1,
+   "liquidity 1693 < min 5000": 1,
+   "liquidity 2642 < min 5000": 1,
+   "liquidity 1788 < min 5000": 1,
+   "liquidity 1400 < min 5000": 1,
+   "liquidity 970 < min 5000": 1,
+   "liquidity 1952 < min 5000": 1,
+   "liquidity 3916 < min 5000": 1,
+   "liquidity 155 < min 5000": 1,
+   "liquidity 1690 < min 5000": 1,
+   "liquidity 2500 < min 5000": 1,
+   "liquidity 195 < min 5000": 1,
+   "liquidity 1677 < min 5000": 1,
+   "liquidity 2628 < min 5000": 1,
+   "liquidity 0 < min 5000": 9,
+   "liquidity 392 < min 5000": 1,
+   "liquidity 1507 < min 5000": 1,
+   "liquidity 80 < min 5000": 1,
+   "CRITICAL_RISK: CRITICAL veto evidence: mint_authority_active": 1,
+   "liquidity 1 < min 5000": 1,
+   "liquidity 5 < min 5000": 1,
+   "liquidity 243 < min 5000": 1,
+   "liquidity 2028 < min 5000": 1,
+   "liquidity 120 < min 5000": 1,
+   "MEDIUM_RISK: resolved CRITICAL checks 1 < 2 \u2192 insufficient coverage": 2,
+   "MEDIUM_RISK: resolved CRITICAL checks 0 < 2 \u2192 insufficient coverage": 1,
+   "liquidity 2829 < min 5000": 2,
+   "liquidity 85 < min 5000": 1,
+   "liquidity negative beyond EPS dust \u2014 invalid data, evidence preserved": 4,
+   "liquidity 3764 < min 5000": 1,
+   "liquidity 4203 < min 5000": 1,
+   "liquidity 17 < min 5000": 1,
+   "liquidity 42 < min 5000": 1,
+   "liquidity UNKNOWN at decision time": 9,
+   "liquidity 4384 < min 5000": 1
+  },
+  "qualified_skipped_no_cash": 6,
+  "entries": 0,
+  "monitored": 11,
+  "escalations": 0,
+  "exits": 0,
+  "partials": 0,
+  "trapped": 0,
+  "invalidations": 0,
+  "realizable_rows": 11,
+  "lessons_new": 0,
+  "decisions": {
+   "HOLD": 11
+  },
+  "cash_state": "CASH_AVAILABLE",
+  "learning": {
+   "closed_trades": 0,
+   "profitable_trades": 0,
+   "losing_trades": 0,
+   "trapped_or_total_loss": 0,
+   "scams_avoided_validated": 0,
+   "scams_avoided_pending": 0,
+   "scams_missed": 0,
+   "honeypots_avoided": 1,
+   "honeypots_missed": 0,
+   "false_security_pass": 0,
+   "partial_exits_taken": 0,
+   "liquidity_estimation_errors_gt30pct": 0,
+   "slippage_estimation_errors": 0,
+   "news_social_signal_accuracy": "UNAVAILABLE_NO_FEED \u2014 UNKNOWN by construction",
+   "early_entry_accuracy": "NO_COUNTERFACTUAL_PROTOCOL_YET",
+   "late_entry_mistakes": "NO_COUNTERFACTUAL_PROTOCOL_YET",
+   "false_security_reject": 0,
+   "missed_opportunity_validated": 0,
+   "rejected_review_pending": 3,
+   "rejected_not_reviewable": 305,
+   "lessons_recorded": 0,
+   "note": "counters recomputed from append-only tables each cycle; one trade never changes a frozen rule; improvements require accumulated evidence"
+  },
+  "cash": 1.8984375
+ },
+ "v1_monitor": {
+  "now": 1786582513.6246688,
+  "scanned": 0,
+  "snapshots": 0,
+  "entries": 0,
+  "defers_budget": 0,
+  "not_qualified": 0,
+  "monitored": 15,
+  "exits": 0,
+  "invalidations": 0,
+  "security_calls": 5
+ },
+ "research": {
+  "tokens": 430,
+  "observations": 517,
+  "resolved": 0,
+  "cohort_readiness": "WALL-CLOCK GATED (first 72h closure 2026-08-14 18:00Z)",
+  "h14_h20_gate": "pre-registered only; untouched by Track-B"
+ },
+ "experiment": {
+  "bankroll_start_usd": 20.0,
+  "cash_now_usd": 1.8984,
+  "capital_at_risk_usd": 18.1016,
+  "candidates_decided": 327,
+  "rejected_by_class": {
+   "honeypot": 1,
+   "liquidity": 297,
+   "security": 8
+  },
+  "scam_assessments": {
+   "CRITICAL_RISK": 3
+  },
+  "qualified_skipped_no_cash": 10,
+  "paper_entries": 11,
+  "open_positions": 11,
+  "paper_exits": 0,
+  "state_counts": {
+   "LOSING": 11
+  },
+  "winning_trades": 0,
+  "losing_trades": 0,
+  "trapped_positions": 0,
+  "total_fees_usd": 0.181,
+  "total_slippage_usd": 0.0447,
+  "total_token_taxes_usd": 0,
+  "realized_pnl_usd": 0,
+  "capital_lost_trapped_usd": 0,
+  "max_drawdown_usd": 0.0,
+  "best_trade": null,
+  "worst_trade": null,
+  "cohorts": {},
+  "expectancy_gate": "INSUFFICIENT_CLOSED_TRADES \u2014 no expectancy/profitability language permitted"
+ },
+ "equity": {
+  "bankroll_start_usd": 20.0,
+  "cash_usd": 1.8984,
+  "open_displayed_value_usd": 17.8759,
+  "open_realizable_value_usd": 14.5329,
+  "open_alloc_remaining_usd": 18.1016,
+  "realized_pnl_usd": 0,
+  "unrealized_pnl_displayed_basis_usd": -0.2257,
+  "unrealized_pnl_realizable_basis_usd": -3.5687,
+  "trapped_capital_open_usd": 0.0,
+  "total_loss_booked_usd": 0,
+  "fees_total_usd": 0.181,
+  "gas_total_usd": 0,
+  "taxes_known_total_usd": 0,
+  "slippage_total_usd": 0.0447,
+  "net_equity_displayed_usd": 19.7743,
+  "net_equity_realizable_usd": 16.4313,
+  "equity_truth": "NET_EQUITY_REALIZABLE is the economically meaningful number; DISPLAYED is what a naive UI would show \u2014 never used for decisions",
+  "open_positions": [
+   {
+    "trade": "TOADER",
+    "displayed": 1.9751,
+    "realizable": 1.9304,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "PRISM",
+    "displayed": 1.9751,
+    "realizable": 1.1504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "V4",
+    "displayed": 1.9751,
+    "realizable": 1.1504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "SMA",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "\ud83d\udc7dALIEN",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "QQQB",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "TLI",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "MOMO",
+    "displayed": 1.4813,
+    "realizable": 0.6628,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 1.5
+   },
+   {
+    "trade": "COMM\ud83d\udcaf",
+    "displayed": 1.111,
+    "realizable": 0.9971,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 1.125
+   },
+   {
+    "trade": "BabyMonkey",
+    "displayed": 0.8332,
+    "realizable": 0.7228,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 0.8438
+   },
+   {
+    "trade": "TOAD",
+    "displayed": 0.6249,
+    "realizable": 0.5171,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 0.6328
+   }
+  ]
+ }
+}

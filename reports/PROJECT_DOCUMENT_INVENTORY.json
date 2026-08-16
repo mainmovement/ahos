@@ -1,0 +1,1556 @@
+{
+ "inventory": [
+  {
+   "path": "ahos/AHOS_ISSUE_REGISTER.md",
+   "size": 11969,
+   "sha": "30e6c9826d85064f",
+   "sha_full": "30e6c9826d85064fa4f66c31c181994e229b66322e74e42d88cc6c5f79d5ce3c",
+   "title": "AHOS \u2014 ISSUE REGISTER (Forensic, failure-format mandated: WHY/WHERE/WHEN/HOW/SOLUTION)",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/README.md",
+   "size": 7306,
+   "sha": "7c8f62b123db502e",
+   "sha_full": "7c8f62b123db502eb75168f8a650fb3673658f7a2222d9a1f283721f04b275f7",
+   "title": "AHOS \u2014 Artificial Hybrid Opportunity Scoring System",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/AHOS_PROJECT_STATE_MAP.md",
+   "size": 12700,
+   "sha": "3b7649053ead8f10",
+   "sha_full": "3b7649053ead8f106f6bc829db6cd24c24f56c421b02b30cef25a98c0b5c32fb",
+   "title": "AHOS \u2014 PROJECT STATE MAP (Forensic Audit) \u2014 2026-08-11 (wave-4)",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/config/.env.template",
+   "size": 1083,
+   "sha": "8ebb200241bac4a2",
+   "sha_full": "8ebb200241bac4a2bfbc485d36f9271aae5646c935b684b53aa1e83b69e43cab",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/config/rollback_v1.0.json",
+   "size": 746,
+   "sha": "a6027ecabf3bbdd7",
+   "sha_full": "a6027ecabf3bbdd7a8c1074447cb69da8a7eba4b0b2a73e4a2fd60c2fba378eb",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/data/ahos_local.sqlite",
+   "size": 8192,
+   "sha": "0b1d08e96b4a6907",
+   "sha_full": "0b1d08e96b4a69075f3560e65434b7cf167c1867fea049793e5a10c13f634cd0",
+   "title": "",
+   "category": "runtime-store"
+  },
+  {
+   "path": "ahos/data/e01_discovery.sqlite",
+   "size": 782336,
+   "sha": "e0412d4ad829670c",
+   "sha_full": "e0412d4ad829670c6a989bfd47785dda2b0777c7de71c26f6ddfb078a33bf1d2",
+   "title": "",
+   "category": "runtime-store"
+  },
+  {
+   "path": "ahos/database/postgresql_schema.sql",
+   "size": 7402,
+   "sha": "e6ed3dbfb6f47f52",
+   "sha_full": "e6ed3dbfb6f47f526ff281561190ec63a7f84ada118e0b12936b211432c63d24",
+   "title": "-- ============================================================================ ",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/database/schema_v1_2.sql",
+   "size": 5210,
+   "sha": "6ddb65ddaa16af5b",
+   "sha_full": "6ddb65ddaa16af5b1a81947889a4fb07d905695c63d639fe585b61c9923fddc4",
+   "title": "-- AHOS PostgreSQL schema v1.2 \u2014 ADDITIVE migration over v1.1 (no v1.1 object al",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/deployment/docker-compose.yml",
+   "size": 1941,
+   "sha": "db448d3844a2c0f5",
+   "sha_full": "db448d3844a2c0f5e2105a7a421f17a47cff0fc52f1db94978425dd6596fbcba",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/docs/AGENT_MAPPING.md",
+   "size": 2837,
+   "sha": "0b86708e66577bc1",
+   "sha_full": "0b86708e66577bc167527502eb5abda33a5bcc760b219952040e75d2fdcdf0e8",
+   "title": "AHOS \u2014 AGENT MAPPING FINAL",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/ARCHITECTURE_FINAL.md",
+   "size": 3753,
+   "sha": "0a8560e3d6f0af0a",
+   "sha_full": "0a8560e3d6f0af0a91d2b877c274eb07eab7f0869086662f9da60985e32a5b12",
+   "title": "AHOS \u2014 FINAL ARCHITECTURE (v1.1) \u2014 2026-08-10",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/COMPONENT_REUSE_MAP.md",
+   "size": 1936,
+   "sha": "f0c00ce0eb7f2f8f",
+   "sha_full": "f0c00ce0eb7f2f8f19dd08b072928f58c9f05d74b90d00a1d0cf48294585c34b",
+   "title": "AHOS \u2014 COMPONENT REUSE MAP \u2014 2026-08-11",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/COUNCIL_15_DESIGN.md",
+   "size": 2218,
+   "sha": "b92f93ad30c8fbc1",
+   "sha_full": "b92f93ad30c8fbc1eb5f39d80fb6fdedfeeed68cbf6c216fb98b64c16805c966",
+   "title": "AHOS \u2014 15-AGENT RESEARCH COUNCIL DESIGN (Mission-Correction roster) \u2014 2026-08-11",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/DATA_SOURCE_MATRIX.md",
+   "size": 4230,
+   "sha": "140230f64902f608",
+   "sha_full": "140230f64902f608c14ba70f4cc315dc752d58730692c81d5850ae17858cb88d",
+   "title": "AHOS \u2014 DATA SOURCE MATRIX v1.0 (free-first, Iran-resilient, provider-independent)",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/DEVELOPMENT_ROADMAP.md",
+   "size": 2303,
+   "sha": "f6e10336a5d3c4a8",
+   "sha_full": "f6e10336a5d3c4a820125b1333e8e61565623985f2368a6280924521cc32962c",
+   "title": "AHOS \u2014 DEVELOPMENT ROADMAP (Mission vNext) \u2014 2026-08-11",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/ISSUES_REGISTER.md",
+   "size": 4103,
+   "sha": "454686f0ee178b80",
+   "sha_full": "454686f0ee178b801cd132824f865a46ba315cd936b433d4624033d4bb9a449c",
+   "title": "AHOS \u2014 ISSUES & CONTRADICTIONS REGISTER (Agent-10 Auditor mandated)",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/MISSING_COMPONENT_REGISTER.md",
+   "size": 1992,
+   "sha": "24f008d665794078",
+   "sha_full": "24f008d6657940785d93e425bd4683f183950c5c4b41e9ba40cf71e55851539e",
+   "title": "AHOS \u2014 MISSING COMPONENT REGISTER (post-gap-analysis) \u2014 2026-08-11",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/OPPORTUNITY_SCORE_DESIGN_v0.1.md",
+   "size": 3046,
+   "sha": "1a8a27ec483ae02e",
+   "sha_full": "1a8a27ec483ae02e7f71bddcf1c721979a158380ee9811ae4a7749e7a6049133",
+   "title": "AHOS \u2014 OPPORTUNITY SCORE DESIGN v0.1 (DESIGN \u2014 Maturity A; weights NOT validated)",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/RUNBOOK_OPERATIONS.md",
+   "size": 3699,
+   "sha": "0540f4045206eae1",
+   "sha_full": "0540f4045206eae18f6caa854858ded80d3904722961055491ac2399aefa73b1",
+   "title": "AHOS \u2014 OPERATIONS RUNBOOK (P3 activation guide)",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/SECURITY_CHECKLIST.md",
+   "size": 2378,
+   "sha": "d266ccec57a91e32",
+   "sha_full": "d266ccec57a91e3281325749d964b99207f5117439724b803f7b8e790c65a41d",
+   "title": "AHOS \u2014 SECURITY CHECKLIST FINAL (Agent-04) \u2014 2026-08-10",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/SECURITY_SCORE_DESIGN_v0.1.md",
+   "size": 1478,
+   "sha": "8d91e644f78e3d61",
+   "sha_full": "8d91e644f78e3d619c46c8806cb43a527e88137ece23fad72fbbf82e5c253add",
+   "title": "AHOS \u2014 SECURITY SCORE DESIGN v0.1 (DESIGN \u2014 Maturity A) \u2014 Security can veto opportunity.",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/STRATEGIC_GAP_ANALYSIS.md",
+   "size": 3430,
+   "sha": "853f9529506bd4ac",
+   "sha_full": "853f9529506bd4ac06ce3e8043cb301f4bd172c99884fee8d1b52a687f106de2",
+   "title": "AHOS \u2014 STRATEGIC GAP ANALYSIS (Step \u00a723 of Mission Correction v1.0) \u2014 2026-08-11",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/STRATEGY_SPEC_v1.0.md",
+   "size": 2016,
+   "sha": "2d15d9df3c832540",
+   "sha_full": "2d15d9df3c832540872a7fa6954ae478e337df2d4ad757cb138a0e825102c5ba",
+   "title": "AHOS BASELINE STRATEGY SPEC v1.0 (FROZEN \u2014 NO OPTIMIZATION)",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/TARGET_ARCHITECTURE_vNext.md",
+   "size": 2408,
+   "sha": "0a46446dbb9aee97",
+   "sha_full": "0a46446dbb9aee978a324c34cc0ad32d759673ecf4273eb79aa741212cf96023",
+   "title": "AHOS \u2014 TARGET ARCHITECTURE vNext (opportunity-intelligence platform) \u2014 2026-08-11",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/TELEGRAM_PERSIAN_UX_DESIGN.md",
+   "size": 2575,
+   "sha": "69f83ac7fd635f11",
+   "sha_full": "69f83ac7fd635f11f3fe936fad6ac091b8eb1806b9d2c028067dbf537a4f3277",
+   "title": "AHOS \u2014 TELEGRAM PERSIAN UX DESIGN v0.1 (DESIGN \u2014 Maturity A)",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/TELEGRAM_TEST_PROCEDURE.md",
+   "size": 2446,
+   "sha": "a1fe27c8d855a095",
+   "sha_full": "a1fe27c8d855a095a2bf0d186a220ca6795ba15f7b600f42a1f25eae70e52d17",
+   "title": "AHOS \u2014 TELEGRAM TEMPORARY TEST PROCEDURE (Directive \u00a710/\u00a711)",
+   "category": "canonical-detail"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/A_CURRENT_PAL_AUDIT.md",
+   "size": 3890,
+   "sha": "aee269e6101c6904",
+   "sha_full": "aee269e6101c6904a22616a845a6dc278965aa9f30c51202d861767d9b905bde",
+   "title": "A. CURRENT PAL AUDIT \u2014 Mission v1.1, STEP 1 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/B_CURRENT_E01_AUDIT.md",
+   "size": 2743,
+   "sha": "6438d2b0ea32924a",
+   "sha_full": "6438d2b0ea32924a5da52b78103d750f230ae66cd1f282d778f77e0f4cd4447d",
+   "title": "B. CURRENT E-01 AUDIT \u2014 Mission v1.1, STEP 2 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/C_DISCOVERY_DATA_MODEL.md",
+   "size": 4312,
+   "sha": "228b306d368a3a3a",
+   "sha_full": "228b306d368a3a3a28d287cad2d9b760ee3bbbb9f05ae73d40b9101ead0459e1",
+   "title": "C. DISCOVERY DATA MODEL v0.1 \u2014 Mission v1.1 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/D_FEATURE_STORE_SCHEMA.md",
+   "size": 4504,
+   "sha": "1b90e8c32dbd30ee",
+   "sha_full": "1b90e8c32dbd30eefa3afb38bc8d75b136847f01e585982a7ac3642c48fc0a44",
+   "title": "D. FEATURE STORE SCHEMA v0.1 \u2014 Mission v1.1 \u00a710 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/E_SECURITY_GATE_DESIGN.md",
+   "size": 3384,
+   "sha": "dc0a954f18ed7c6d",
+   "sha_full": "dc0a954f18ed7c6dcc2ac7a8db7f861181ed3497e66a685e51685d244ebce717",
+   "title": "E. SECURITY GATE DESIGN v0.1 \u2014 Mission v1.1 \u00a79 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/F_STATE_MACHINE_72H.md",
+   "size": 3210,
+   "sha": "e2acd033c48a6fa5",
+   "sha_full": "e2acd033c48a6fa59ffe6f4aa07acb2d735b5360c054fc7848b3633f7c8bb37c",
+   "title": "F. 72-HOUR OBSERVATION STATE MACHINE v0.1 \u2014 Mission v1.1 \u00a77 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/G_PROVIDER_MATRIX.md",
+   "size": 3537,
+   "sha": "e17307cd6bf4b77b",
+   "sha_full": "e17307cd6bf4b77b67b5512bbc74fcc69131216b4356a3ca99d7ed9ea19f9d09",
+   "title": "G. PROVIDER MATRIX v1 \u2014 Mission v1.1 \u00a75 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/H_COUNCIL_15_EXECUTION_MODEL.md",
+   "size": 3123,
+   "sha": "44f6e499fa5ed5e8",
+   "sha_full": "44f6e499fa5ed5e88e95120f16c1e9071246403642ef6e14dc875a705fc92a0f",
+   "title": "H. 15-AGENT COUNCIL EXECUTION MODEL \u2014 Mission v1.1 \u00a714 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/I_TELEGRAM_PERSIAN_CONTRACT.md",
+   "size": 3976,
+   "sha": "9165217a4c61e8fd",
+   "sha_full": "9165217a4c61e8fd6f74b31eb90428ebbd3bbaa6655fef1bd88849ab0ee904ae",
+   "title": "I. TELEGRAM PERSIAN INTERFACE CONTRACT v0.1 \u2014 Mission v1.1 \u00a716/\u00a718 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/J_IMPLEMENTATION_PLAN.md",
+   "size": 2570,
+   "sha": "916f07648a16c18a",
+   "sha_full": "916f07648a16c18a1a06e93640ccae70ed29d908d91ab060b77b987e76eaa58c",
+   "title": "J. IMPLEMENTATION PLAN v1.1 \u2014 Mission v1.1 \u00a720 \u2014 2026-08-11",
+   "category": "canonical"
+  },
+  {
+   "path": "ahos/engine/acquire_3yr.py",
+   "size": 11254,
+   "sha": "1abef324c949d371",
+   "sha_full": "1abef324c949d3715e17e83c97c3918e87bf7cb8d5564389d85f1071b5adca8d",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/ahos_backtest.py",
+   "size": 10552,
+   "sha": "8c2a59949445b30c",
+   "sha_full": "8c2a59949445b30c507fa73859544c5067cf96c04a586d64549c970d8c7c7d42",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/bot_skeleton.py",
+   "size": 2989,
+   "sha": "2cc680dc23e478df",
+   "sha_full": "2cc680dc23e478df75fa2bd55fa3997c927c6084393fe616872663e14de209c2",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/data_audit.py",
+   "size": 5426,
+   "sha": "ac95961be13718e7",
+   "sha_full": "ac95961be13718e7c8d0980f098646d1b1ef091981e1c2642e6f88dadde379b6",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/dryrun_simulation.py",
+   "size": 6102,
+   "sha": "fc3000497877e438",
+   "sha_full": "fc3000497877e43893c4351f3f3f03cfbd92e3eee9df2e63374700c8b534a4af",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/research_report_bot.py",
+   "size": 3479,
+   "sha": "573a1a1dcc58e9ff",
+   "sha_full": "573a1a1dcc58e9ffe627933017c8e92346b293a9a9613417523fa3eb7e0d812a",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/run_all_checks.sh",
+   "size": 917,
+   "sha": "c5b23502f133c5c5",
+   "sha_full": "c5b23502f133c5c5c355ba2a6b31552ace0e153867455b6b29841293d8872de2",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/run_validation.py",
+   "size": 2607,
+   "sha": "4bd794069639ede1",
+   "sha_full": "4bd794069639ede120646c35908648112d1507844baf1dfca2f429ecb98a0346",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/engine/telegram_live_test.py",
+   "size": 6483,
+   "sha": "cbfd28111d454ecd",
+   "sha_full": "cbfd28111d454ecdba0898c9325b84fb0f911c80f5b2e6657f8499d93661ac07",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_01_data_ingest_integrity.json",
+   "size": 7165,
+   "sha": "769f6d7879ed998c",
+   "sha_full": "769f6d7879ed998c4c54bc6ba7f740d5423df788d5b173e3a6f74ecf09f5a236",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_02_signal_pipeline.json",
+   "size": 12750,
+   "sha": "38297a447520576a",
+   "sha_full": "38297a447520576afabbd86d1d16044ad098d3fcdf3c609d65828df41fcd33db",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_03_telegram_control.json",
+   "size": 15605,
+   "sha": "8e76960ed9c4bd64",
+   "sha_full": "8e76960ed9c4bd64f92d04d07522930dc98bbc712277a31b804c8085eee6ed62",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_10_research_lab.json",
+   "size": 3731,
+   "sha": "2593d47d124f74a8",
+   "sha_full": "2593d47d124f74a84e0c09dc4433ce22e189615d998cb79f443172f5eb116085",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_11_data_update.json",
+   "size": 3161,
+   "sha": "771e39d7b0f64940",
+   "sha_full": "771e39d7b0f64940a90c4a04ecfcb137efc52315c55c0c16c01904f871479077",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_12_research_report.json",
+   "size": 2242,
+   "sha": "ee83badd14ca3999",
+   "sha_full": "ee83badd14ca3999a885720ab67886145defac0857acfce59d4a67e36df4f18a",
+   "title": "",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/reports/BACKTEST_REPORT_EXACT.md",
+   "size": 3940,
+   "sha": "2f6709a79a871070",
+   "sha_full": "2f6709a79a87107062a2fcdce2a52b3ee54558d338e69b738ef9e7f9e489be96",
+   "title": "AHOS \u2014 EXACT BACKTEST RE-COMPUTATION REPORT (Agent-09 QA + Agent-07 LeadEng)",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/PHASE_STATE.md",
+   "size": 5689,
+   "sha": "1920657440562f14",
+   "sha_full": "1920657440562f144ae9a1f42111951dd8676fc701e161be7e70ea6b01adcfc2",
+   "title": "AHOS \u2014 UNIFIED PHASE STATE (2026-08-11, wave-5: Mission v1.1 Discovery Core online)",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/FINAL_DELIVERY.md",
+   "size": 2759,
+   "sha": "e85ab89e658a8ed0",
+   "sha_full": "e85ab89e658a8ed021aa640a790021df2f9e0aebcf18592e3859f88643af96da",
+   "title": "AHOS \u2014 FINAL DELIVERY REPORT (Project Lead Consolidation) \u2014 2026-08-10",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/FINAL_EXECUTION_REPORT.md",
+   "size": 19523,
+   "sha": "3778342aebcac598",
+   "sha_full": "3778342aebcac59851050279ea8e53408cbabdeb24617d321463ca7abdc9a054",
+   "title": "AHOS \u2014 FINAL EXECUTION REPORT (Master Execution Order v3.0 + Strategic Mission Correction v1.0)",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/N8N_LIVE_SMOKE_TEST_EVIDENCE.txt",
+   "size": 3407,
+   "sha": "ffe9120e460ba403",
+   "sha_full": "ffe9120e460ba403801bdea89f8baebaf7195b126abcb29afbc119f42a4f199d",
+   "title": "=================================================================== AHOS N8N LIV",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/QA_REPORT_FINAL.md",
+   "size": 3020,
+   "sha": "794f28e30d36cab7",
+   "sha_full": "794f28e30d36cab7765bb5ddcf66f122b084362f190c61e913f8363186355079",
+   "title": "AHOS \u2014 FINAL QA REPORT (Agent-09) \u2014 2026-08-10",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/TELEGRAM_INTEGRATION_TEST_REPORT.md",
+   "size": 2749,
+   "sha": "c3cfa7b014f0973f",
+   "sha_full": "c3cfa7b014f0973fa8fcbd5cd890ccc0333d1a883625d481552d4d09494cd28c",
+   "title": "AHOS \u2014 TELEGRAM INTEGRATION TEST REPORT \u2014 2026-08-11 (wave-4)",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/TELEGRAM_RESEARCH_REPORT.md",
+   "size": 2345,
+   "sha": "78bcc27171de25cc",
+   "sha_full": "78bcc27171de25cca1482931dd6258b200901951a68ba818e21188fd31c6609b",
+   "title": "AHOS \u2014 TELEGRAM RESEARCH REPORT (Agent-05/06) \u2014 2026-08-10",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/TEST_REPORT_FINAL.md",
+   "size": 5008,
+   "sha": "6a7f19ad31fc5361",
+   "sha_full": "6a7f19ad31fc536190ece1fface453ff08e6f71ed5a62c7cb6e6cbcc6c956cea",
+   "title": "AHOS \u2014 FINAL TEST REPORT (Agent-09 QA / Agent-07 LeadEng) \u2014 2026-08-10",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/reports/data_integrity_audit.json",
+   "size": 30255,
+   "sha": "08f4912738d7987e",
+   "sha_full": "08f4912738d7987eb69dd378ea94eb0bc110b0cedbbaf144fddfac6b7ef37ca7",
+   "title": "",
+   "category": "generated-report"
+  },
+  {
+   "path": "ahos/reports/dryrun_log.json",
+   "size": 1482,
+   "sha": "a22723da1f49e2ac",
+   "sha_full": "a22723da1f49e2ac6a14f294e41d84d78d4945574966de9388921202be5e650f",
+   "title": "",
+   "category": "generated-report"
+  },
+  {
+   "path": "ahos/reports/telegram_test_log.json",
+   "size": 2304,
+   "sha": "59bf23b41d295ee0",
+   "sha_full": "59bf23b41d295ee0cd9533cf38ba373084c925effba27a8bebe075c81a2fc33c",
+   "title": "",
+   "category": "generated-report"
+  },
+  {
+   "path": "ahos/reports/validation_results.json",
+   "size": 12048,
+   "sha": "5f7ba83cb2bcdb86",
+   "sha_full": "5f7ba83cb2bcdb866d7104e187521512d1f76e5f071e916405f5965b09689d47",
+   "title": "",
+   "category": "generated-report"
+  },
+  {
+   "path": "ahos/reports/WAVE5_EXECUTION_REPORT.md",
+   "size": 6792,
+   "sha": "12ce76398de0fcc4",
+   "sha_full": "12ce76398de0fcc4b2c5ffe1ca20176e944fa44958e25f0dd04e63a4d91f0d5e",
+   "title": "AHOS \u2014 WAVE-5 EXECUTION REPORT (Mission v1.1 \u2014 Post-Wave-4 Directive)",
+   "category": "canonical-report"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_1h_3yr.csv",
+   "size": 2145240,
+   "sha": "7d1375cc1f52c6c9",
+   "sha_full": "7d1375cc1f52c6c929276abd59642894b101fdcd3ffe410a1ab855cda7401acb",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_1h_ext.csv",
+   "size": 3952895,
+   "sha": "bf8fd1426c3c9c7c",
+   "sha_full": "bf8fd1426c3c9c7c1cc1bdb87b84f11e58954c618f9a550bf2c1f2116aaf7cf6",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_funding_3yr.csv",
+   "size": 147903,
+   "sha": "8b4e324c00460551",
+   "sha_full": "8b4e324c00460551994a30df0346d1dbd51f67095346d43b1cff12d794906cef",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_funding_ext.csv",
+   "size": 275996,
+   "sha": "d437dccb4ca25732",
+   "sha_full": "d437dccb4ca2573219f6d2de08acac50e13fb62928607ad57630090c034bb4ad",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_oi_daily_3yr.csv",
+   "size": 69784,
+   "sha": "65277d285d7de304",
+   "sha_full": "65277d285d7de304b1ae682d8ce3c4b9283181cd56610664e0d0dd8337de8fcf",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_oi_daily_ext.csv",
+   "size": 115230,
+   "sha": "71ca825f8f56fa04",
+   "sha_full": "71ca825f8f56fa04debafd42f731ad65b9fd01a1bb996e50b123feef70a0d5ab",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/ETHUSDT_1h_3yr.csv",
+   "size": 2138980,
+   "sha": "fa8a1e0184eec9e2",
+   "sha_full": "fa8a1e0184eec9e26208ddc262bddd7270fa0380025c1b68f8a4cd3920f82a29",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/ETHUSDT_funding_3yr.csv",
+   "size": 148060,
+   "sha": "044393b2e9fbd7d9",
+   "sha_full": "044393b2e9fbd7d95ca3a8c6ff7e050cf32b8b26154eddbc0af50bc8dfbb89ac",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/ETHUSDT_oi_daily_3yr.csv",
+   "size": 72424,
+   "sha": "bde17060bb48a07e",
+   "sha_full": "bde17060bb48a07e238631a2ff3bd03035021f8fec9b29713e75d089d6b0c9e9",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/MANIFEST.json",
+   "size": 1240228,
+   "sha": "eb96b127ee8b9c8e",
+   "sha_full": "eb96b127ee8b9c8e6d02ded766d896d93644308dd4e32e72424c340117e539d7",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/MANIFEST_ext.json",
+   "size": 775964,
+   "sha": "6048efb120b2f653",
+   "sha_full": "6048efb120b2f6533b067971c71afc35d557c35c30f52eed89fa6a931249bf85",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/SOLUSDT_1h_3yr.csv",
+   "size": 2001049,
+   "sha": "c2885aa1ca647b8d",
+   "sha_full": "c2885aa1ca647b8d217331683a16c9643e39d84c0a17811436e5c8f88137912e",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/SOLUSDT_funding_3yr.csv",
+   "size": 148982,
+   "sha": "7a5d77269c06428d",
+   "sha_full": "7a5d77269c06428d825573a60d08f01001e70be858f11645bd07e72ca2b6fe90",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/data/SOLUSDT_oi_daily_3yr.csv",
+   "size": 69448,
+   "sha": "a0950249b4a24f11",
+   "sha_full": "a0950249b4a24f11e2bc5ba3f21234cd5cf46d81b335710547e88a68007a847c",
+   "title": "",
+   "category": "source-dataset"
+  },
+  {
+   "path": "ahos/research/experiments/exp_20260810_121055.json",
+   "size": 82251,
+   "sha": "d5fb3b5cf80ae710",
+   "sha_full": "d5fb3b5cf80ae71063b58fcc7a0000c7444327af92c643e3cb4280c7ef259dd4",
+   "title": "",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/experiments/exp_20260811_154550.json",
+   "size": 30350,
+   "sha": "8ed7af3ae7edf973",
+   "sha_full": "8ed7af3ae7edf97335f1772ddf03e47283f907fb56595986df3b5df270c3fd65",
+   "title": "",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/experiments/exp_20260811_165329.json",
+   "size": 6215,
+   "sha": "ce909a76711ac6e8",
+   "sha_full": "ce909a76711ac6e86ead36ac0945e8dd992679f559554ea79387b6d68a2b8291",
+   "title": "",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t0_20260811.json",
+   "size": 3029,
+   "sha": "78829a2b4d58a903",
+   "sha_full": "78829a2b4d58a903c5287a4d044c2575d649b79d30812aa7600be06c3e82042a",
+   "title": "",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t1_20260811.json",
+   "size": 2025,
+   "sha": "466ba9fa51ab9ceb",
+   "sha_full": "466ba9fa51ab9cebedb966af3141d54a0f2c81db3227d5291afb4279f1a4f621",
+   "title": "",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t2_20260811.json",
+   "size": 2625,
+   "sha": "2b4e830259d37188",
+   "sha_full": "2b4e830259d3718826a055237b1e4c74c6123d6ab157cd189c3aabac035db29e",
+   "title": "",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/reports/RESEARCH_FINDINGS_v2.0.md",
+   "size": 6932,
+   "sha": "860090f1eb66d88a",
+   "sha_full": "860090f1eb66d88a1935e21c09d3796229f21d7787169cc732c8a2695ba04217",
+   "title": "AHOS \u2014 STRATEGY RESEARCH LABORATORY v2.0 \u2014 FINDINGS REPORT",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/reports/RESEARCH_META_ANALYSIS_v1.md",
+   "size": 6480,
+   "sha": "26eb65f3e1b30b97",
+   "sha_full": "26eb65f3e1b30b97a6d944614abed1c57a2384df8d79f0f3a3a96841bac562f0",
+   "title": "AHOS \u2014 RESEARCH META-ANALYSIS v1.0 (required gate before batch-4)",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/research/reports/telegram_dispatch.json",
+   "size": 1751,
+   "sha": "c56c34e8f841d183",
+   "sha_full": "c56c34e8f841d18342f8df11923a487bcbba7f0b9870ea3086087b654ee9e268",
+   "title": "",
+   "category": "research-evidence"
+  },
+  {
+   "path": "ahos/strategy_lab/README.md",
+   "size": 1907,
+   "sha": "0e62d793b037c03c",
+   "sha_full": "0e62d793b037c03c4ce9ed311062dd2f26106301e2e1cb9c98fd5eb51cdda079",
+   "title": "AHOS STRATEGY RESEARCH LABORATORY v2.0 \u2014 CHARTER",
+   "category": "research-code"
+  },
+  {
+   "path": "ahos/strategy_lab/candidates.py",
+   "size": 6229,
+   "sha": "262f631866dbffd3",
+   "sha_full": "262f631866dbffd354485b280f721018bafcd66bf17b2b2dc5a365938af48e52",
+   "title": "\"\"\"AHOS Lab \u2014 candidate signal generators. CAUSAL ONLY (no look-ahead): all seri",
+   "category": "research-code"
+  },
+  {
+   "path": "ahos/strategy_lab/hypotheses.py",
+   "size": 12060,
+   "sha": "21ef49e4517f39de",
+   "sha_full": "21ef49e4517f39dee6b8924627d7047a0f19c711d205cde3d97e9c2250725615",
+   "title": "AHOS Strategy Research Laboratory \u2014 Hypothesis Registry (v2.0)",
+   "category": "research-code"
+  },
+  {
+   "path": "ahos/strategy_lab/lab_engine.py",
+   "size": 6471,
+   "sha": "8c63a29a2a3ebd1a",
+   "sha_full": "8c63a29a2a3ebd1abfe65cee4612e10462d12033fe75f034967844a58be49f79",
+   "title": "\"\"\"AHOS Lab Execution Engine \u2014 generic causal backtester for registered candidat",
+   "category": "research-code"
+  },
+  {
+   "path": "ahos/strategy_lab/registry.json",
+   "size": 2791,
+   "sha": "b85d61ce577d3a8a",
+   "sha_full": "b85d61ce577d3a8a6be656807c4223ece320b1f0596f3bdeef5d84ffbdb37938",
+   "title": "",
+   "category": "research-code"
+  },
+  {
+   "path": "ahos/strategy_lab/run_lab.py",
+   "size": 8449,
+   "sha": "84711a9c02568b9e",
+   "sha_full": "84711a9c02568b9e3b5657e68a28b2328f8f08e36f2317322d54e15cc5fefa4d",
+   "title": "!/usr/bin/env python3",
+   "category": "research-code"
+  },
+  {
+   "path": "ahos/tests/test_ahos.py",
+   "size": 3088,
+   "sha": "27fa7009e9a4fed3",
+   "sha_full": "27fa7009e9a4fed3cbf49e758ff0413dadf2357dba6034a10206f64015159d07",
+   "title": "\"\"\"AHOS pytest suite \u2014 Agent-09 QA. Unit + integration + governance tests. Run: ",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/tests/test_strategy_lab.py",
+   "size": 4524,
+   "sha": "a632cbbb4e8f35c9",
+   "sha_full": "a632cbbb4e8f35c9e1e5c976cf662a26774fbf87581c40a2b05bfd22ba2d882e",
+   "title": "\"\"\"AHOS Lab test suite \u2014 Agent-09 QA. Causality, determinism, registry schema, g",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/tests/validate_n8n.py",
+   "size": 3941,
+   "sha": "54221fbcbc436a84",
+   "sha_full": "54221fbcbc436a8475d125966df79e3f2712c88e0e9d19164e7ff4c09b96281c",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/tests/test_discovery.py",
+   "size": 18054,
+   "sha": "c11f0042e29e4fa4",
+   "sha_full": "c11f0042e29e4fa44702561d80baab9ed202b3099f2a6bb52e445fcb385fc624",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/schema_sqlite.sql",
+   "size": 5346,
+   "sha": "010dc43c766a6db6",
+   "sha_full": "010dc43c766a6db6f3bca830f42283280fe5f6ada4765147b199c28e38863d59",
+   "title": "-- AHOS Discovery Core schema v1.2 (SQLite canonical-local; Postgres twin in dat",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/__init__.py",
+   "size": 366,
+   "sha": "c3facf0c6579a089",
+   "sha_full": "c3facf0c6579a0896a5681aa764cd5817c35425294e41f19880b3cb68416646b",
+   "title": "\"\"\"AHOS Discovery Core (Mission v1.1) \u2014 PAL, identity, observations, lifecycle, ",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/providers.yaml",
+   "size": 6347,
+   "sha": "8cfea21e0fe7d1e7",
+   "sha_full": "8cfea21e0fe7d1e7d70320be45f31e7a8d627ab7b80383b4ef36aababf68ec14",
+   "title": "AHOS PAL provider registry v1 (Mission v1.1) \u2014 free-first, ordered fallback chains.",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/pal.py",
+   "size": 10006,
+   "sha": "3006964be53639bf",
+   "sha_full": "3006964be53639bfb1060f2f651db943e8564585f27929b33257be9ae0ca0329",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/identity.py",
+   "size": 2358,
+   "sha": "b81794cec9f302cd",
+   "sha_full": "b81794cec9f302cd5d8c060d309340e7e6163715a2294db294ab670be917c83e",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/observations.py",
+   "size": 5717,
+   "sha": "94618f59ec0127d1",
+   "sha_full": "94618f59ec0127d1bc4573434feb7eafd97163f824ffc05524fdef49e639a5aa",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/lifecycle.py",
+   "size": 5770,
+   "sha": "fd33e7e5bb9d5119",
+   "sha_full": "fd33e7e5bb9d5119f72b2373fbc5fd1218d9ee6c8f1b2e90eeccb9a69d39736b",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/feature_store.py",
+   "size": 10718,
+   "sha": "105ff51e59145261",
+   "sha_full": "105ff51e59145261f74bc1102a2225267548cf5f086bd5bb32082f9b4850d68b",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/security_gate.py",
+   "size": 5811,
+   "sha": "91edf7142b29a8ce",
+   "sha_full": "91edf7142b29a8ce7c30c990b330bab7ecd4baec91b7ba9533085c45d9439bf6",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/outcomes.py",
+   "size": 3058,
+   "sha": "5186b57508316d5a",
+   "sha_full": "5186b57508316d5a75b9ed1687596bc5e2e0d07ea7b28edc7bcedca71c9453c2",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/ranker.py",
+   "size": 6126,
+   "sha": "b28fcb736dba7834",
+   "sha_full": "b28fcb736dba78349e6b7fb7855dc60c906936cb6c5402644b801e0f905f39e8",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/discovery/collect.py",
+   "size": 12144,
+   "sha": "974f865013849512",
+   "sha_full": "974f865013849512a786f69371b2f10f4d65aba1278cc534508c69f571bf1d47",
+   "title": "!/usr/bin/env python3",
+   "category": "active-code"
+  },
+  {
+   "path": "ahos/.pytest_cache/README.md",
+   "size": 302,
+   "sha": "73fd6fccdd802c41",
+   "sha_full": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+   "title": "pytest cache directory #",
+   "category": "temporary"
+  },
+  {
+   "path": "ahos/.pytest_cache/.gitignore",
+   "size": 37,
+   "sha": "3ed731b65d06150c",
+   "sha_full": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+   "title": "",
+   "category": "temporary"
+  },
+  {
+   "path": "ahos/.pytest_cache/CACHEDIR.TAG",
+   "size": 191,
+   "sha": "37dc88ef9a0abedd",
+   "sha_full": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+   "title": "",
+   "category": "temporary"
+  },
+  {
+   "path": "ahos/.pytest_cache/v/cache/nodeids",
+   "size": 2354,
+   "sha": "373167f71510a7b4",
+   "sha_full": "373167f71510a7b4c8ced5fdf572b075c5a22e70c08b934eb3a3a969e52db5c1",
+   "title": "",
+   "category": "temporary"
+  },
+  {
+   "path": "ahos/.pytest_cache/v/cache/lastfailed",
+   "size": 2,
+   "sha": "44136fa355b3678a",
+   "sha_full": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+   "title": "",
+   "category": "temporary"
+  },
+  {
+   "path": "uploads/$10_15_FEASIBILITY.md",
+   "size": 7228,
+   "sha": "55b183e9254e27a0",
+   "sha_full": "55b183e9254e27a0d48e31545a962ecc9ac61325e87f1aac81dc70215620b6d6",
+   "title": "PHASE 1A \u2014 $10-$15 CAPITAL FEASIBILITY ANALYSIS (Critical \u2014 Must Be Documented)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AGENT_ROLES.md",
+   "size": 1830,
+   "sha": "ea0add1eef6a5af1",
+   "sha_full": "ea0add1eef6a5af1adf3c6327962e5b2533d6d2bb3700999fe2e11d1a14b6f15",
+   "title": "TRADING INTELLIGENCE SYSTEM \u2014 10 AGENTS + 3 GROUP LEADS + 1 AUDITOR",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/ADAUSDT_1h_1000.csv",
+   "size": 62844,
+   "sha": "68d462545edaf92f",
+   "sha_full": "68d462545edaf92f6581330b8269e17bf109b6462d2d2e0761bf21d4c5781ee9",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_EVOLUTION_CONFIRMATION.md",
+   "size": 809,
+   "sha": "f041ab81fd7f8854",
+   "sha_full": "f041ab81fd7f8854778950a4b50dbd0478f84d7dfc3e4975e748bec0428d0fd3",
+   "title": "AHOS EVOLUTION LAYER \u2014 CONFIRMED (Phase 1 Architecture PRESERVED)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_EVOLUTION_CONFIRMED.md",
+   "size": 728,
+   "sha": "938dab926892bd8b",
+   "sha_full": "938dab926892bd8b3d2ffc27123fa3353fb8258ade9d6e0caa3cdf344196b580",
+   "title": "AHOS Evolution Roadmap \u2014 CONFIRMED",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_EVOLUTION_ROADMAP_PHASE_3_4.md",
+   "size": 4094,
+   "sha": "1ad3cc6123b95402",
+   "sha_full": "1ad3cc6123b954023a9a22a14dd35a801a7f8744f2939e2dbe16576dcbaaf969",
+   "title": "AHOS \u2014 Adaptive Evolutionary Market Intelligence System",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_PHASE_1_PRODUCTION_VERIFICATION_REPORT.md",
+   "size": 2511,
+   "sha": "ca9ccb3f4a365cae",
+   "sha_full": "ca9ccb3f4a365caed07e50ae0fef061d10b59fe2cb38b561b18e3e9f6eb46940",
+   "title": "=== AHOS PHASE 1 PRODUCTION VERIFICATION REPORT === Verification Date: 2026-08-0",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_Final_Checkpoint.md",
+   "size": 2290,
+   "sha": "533ab62924eebf59",
+   "sha_full": "533ab62924eebf5984d2196b88a421f3e329ef0ccdb0b1f56f82747f8795f60b",
+   "title": "=== AHOS PHASE 1 FINAL CHECKPOINT === Verified: 2026-08-09 Status: PRODUCTION RE",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Evidence_Report.md",
+   "size": 44,
+   "sha": "ec4ce49035883735",
+   "sha_full": "ec4ce49035883735d7963c8b819b0b350a6c0065056307c156f9d62b9cab4d0e",
+   "title": "=== AHOS PHASE 1 FINAL QA GATE EVIDENCE ===",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Final_Report.md",
+   "size": 485,
+   "sha": "caeb29cb2b815597",
+   "sha_full": "caeb29cb2b8155971fad12eb2295cec952b71495c825814cd38868c8f32e001f",
+   "title": "=== FINAL VERIFICATION REPORT \u2014 ARTIFACTS 1-2-3 === Artifact 1 (PostgreSQL Schem",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Report.md",
+   "size": 664,
+   "sha": "7ab50a40c2c77045",
+   "sha_full": "7ab50a40c2c77045036c22dd881fb54e358bf0a8c97f59518ec7c1a90a78c5e3",
+   "title": "=== ARTIFACT 1: PostgreSQL Schema === File: /home/user/trading_intelligence/phas",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Report_Final.md",
+   "size": 246,
+   "sha": "fc0919aa5c67b7fe",
+   "sha_full": "fc0919aa5c67b7fec5ba0549bee71ed4b34ee526a5aea6498a68428d87ff243b",
+   "title": "Artifact: /home/user/trading_intelligence/phase_1/AHOS_Phase1_Final_Checkpoint.m",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Verification_Final.md",
+   "size": 386,
+   "sha": "bc7a2fcc376742d4",
+   "sha_full": "bc7a2fcc376742d49d8c949066c90fcb1777519ac9e081c3ae5a17f56f6c1e40",
+   "title": "=== FINAL QA GATE 3 \u2014 ALL ARTIFACTS \u2014 VERIFICATION COMPLETE === Artifact 1 (Post",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Verified.md",
+   "size": 58,
+   "sha": "161ec6ec4792aeac",
+   "sha_full": "161ec6ec4792aeac4c8dc09ffdcbf576490771001b61501df0e3126df3a7bb13",
+   "title": "Phase 3 Framework Design \u2014 Ready for User Authorization",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_Q_Gate.md",
+   "size": 113,
+   "sha": "2d87a26a6f84ebfc",
+   "sha_full": "2d87a26a6f84ebfc91fd61f0c68ad292754a3d351fa7a126703679052a88323e",
+   "title": "Artifact 3 (Event System): PASS \u2014 117 lines \u2014 All event types \u2014 Failure modes \u2014 ",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase_3_Execution_Protocol.md",
+   "size": 2434,
+   "sha": "2e392d9b07f5d8ad",
+   "sha_full": "2e392d9b07f5d8ad4c11bdcf22ec34362b93b60d01d36d9a964f6526e4119379",
+   "title": "=== AHOS PHASE 3 EXECUTION PROTOCOL === Status: READY FOR AUTHORIZATION \u2014 NOT EX",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase_3_Framework_Design.md",
+   "size": 2590,
+   "sha": "9a6334d60e161e13",
+   "sha_full": "9a6334d60e161e134d08c18370ee8f48c9f0cf46bf470ed62ed610f1d1427984",
+   "title": "=== AHOS PHASE 3: OUT-OF-SAMPLE (OOS) / WALK-FORWARD (WF) / MONTE CARLO FRAMEWOR",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/AHOS_Phase_3_Validation_Framework.md",
+   "size": 2391,
+   "sha": "58712a14a6f6e543",
+   "sha_full": "58712a14a6f6e543a2620a26b62ae1fd11ff60d88405b0fadcd8aeae5d3a5229",
+   "title": "=== AHOS PHASE 3 \u2014 Validation Framework (Design Only \u2014 No Execution Yet) === Sta",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/BTCUSDT_1h_1000.csv",
+   "size": 71099,
+   "sha": "abe7d03f7bcaf8c5",
+   "sha_full": "abe7d03f7bcaf8c57179039b4112df5eab1f5c3661d0fda282911598b63c7576",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/BTCUSDT_1h_1000_renamed.csv",
+   "size": 71099,
+   "sha": "abe7d03f7bcaf8c5",
+   "sha_full": "abe7d03f7bcaf8c57179039b4112df5eab1f5c3661d0fda282911598b63c7576",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/COMPLIANCE_SCORECARD.md",
+   "size": 3687,
+   "sha": "8eacd5c2d3fc7254",
+   "sha_full": "8eacd5c2d3fc7254e4761bfcbf161a4980f1eea2d4559be1916a9b29c529803e",
+   "title": "Trading Intelligence System \u2014 Live Compliance Scorecard",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_1000.md",
+   "size": 550,
+   "sha": "5c158aba6240205f",
+   "sha_full": "5c158aba6240205f5f86e1573d8287518bccc2c9e21326f356848da7442aee33",
+   "title": "DATA INTEGRITY REPORT \u2014 LBANK_BTCUSDT_1000 File: trading_intelligence/phase_1b/d",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_1h.md",
+   "size": 546,
+   "sha": "cc2965d5f61771bc",
+   "sha_full": "cc2965d5f61771bc7484b9cae40551c56a3f93f235fa019d951b44b314c53f2e",
+   "title": "DATA INTEGRITY REPORT \u2014 LBANK_BTCUSDT_1h File: trading_intelligence/phase_1b/dow",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_2000.md",
+   "size": 601,
+   "sha": "04d6d6a2a2740867",
+   "sha_full": "04d6d6a2a27408677d1debf388204df152076db8244dcfbe6eb59706dab1038f",
+   "title": "DATA INTEGRITY REPORT \u2014 LBANK_BTCUSDT_2000 File: trading_intelligence/phase_1b/d",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_2000CLEAN.md",
+   "size": 632,
+   "sha": "37f3f054e2f670a4",
+   "sha_full": "37f3f054e2f670a4d812aad99aec72751c0fb26e375fc8d3279538ac9221a108",
+   "title": "DATA INTEGRITY REPORT \u2014 LBANK_BTCUSDT_2000CLEAN File: trading_intelligence/phase",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_500.md",
+   "size": 548,
+   "sha": "7ecc968e45b01896",
+   "sha_full": "7ecc968e45b018967480962e94afb97701fb8c6e1b61a3f4d59f43b30570df9c",
+   "title": "DATA INTEGRITY REPORT \u2014 LBANK_BTCUSDT_500 File: trading_intelligence/phase_1b/do",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/ETHUSDT_1h_1000.csv",
+   "size": 67185,
+   "sha": "9a9d8ae3d2144c6d",
+   "sha_full": "9a9d8ae3d2144c6d26b32e748000cd2d1f21dcb4e36b298393ed12dc4743f667",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/EXCHANGE_FACTS.md",
+   "size": 5563,
+   "sha": "54050cd1a7453880",
+   "sha_full": "54050cd1a745388018379d1df1404b2862c50f0e15cf449713f0ecf0ddb0d6fa",
+   "title": "PHASE 1A \u2014 EXCHANGE FACTS CHECK (Real \u2014 Not Guessing \u2014 Marked UNKNOWN Where Unverified)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_3YR_BTCUSDT_chunked.csv",
+   "size": 35562,
+   "sha": "3cfb4222f9bd6b9a",
+   "sha_full": "3cfb4222f9bd6b9a63627f8bf0d6c0dfbe53691398856968a3d22386c7daa83b",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_3YR_ETHUSDT_chunked.csv",
+   "size": 33609,
+   "sha": "48f9f1f7712889ea",
+   "sha_full": "48f9f1f7712889ea2d19ff0795512483d8d5516ab6a3805c04def5470d19c9f3",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_3YR_SOLUSDT_chunked.csv",
+   "size": 30032,
+   "sha": "d5ff9a920db9dd02",
+   "sha_full": "d5ff9a920db9dd024568d3ea97112f57cea1ff936fe0a1a2f2f48e3d09fe036d",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk1.csv",
+   "size": 35562,
+   "sha": "fa16bc0d9476f2a3",
+   "sha_full": "fa16bc0d9476f2a3e6d88fa344e7f23b83034c854ce1da5a18aab7134a229b4c",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk2.csv",
+   "size": 35562,
+   "sha": "2281b449e8b73edd",
+   "sha_full": "2281b449e8b73edde0434df3604389f2f84f160ed59842cfb4a9a16d72a5587e",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk3.csv",
+   "size": 35562,
+   "sha": "630440b5424d41ab",
+   "sha_full": "630440b5424d41abb052c2f4f24a44b39a5250c44b43dc9515f732928c988445",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk4.csv",
+   "size": 35562,
+   "sha": "ad53deb4b2d688fb",
+   "sha_full": "ad53deb4b2d688fb118300d22d7294e750a97cf44614b4ecc6264c41f0cd8b73",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk5.csv",
+   "size": 35562,
+   "sha": "86c7c2301dac10f0",
+   "sha_full": "86c7c2301dac10f011f1eade8f9c7f7a405637478d0b383ab500d80b03461cb5",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk1.csv",
+   "size": 33609,
+   "sha": "3c264473b3f33013",
+   "sha_full": "3c264473b3f330130655f3ec9f317b5be62d6043210faafe7a1138e08e644716",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk2.csv",
+   "size": 33609,
+   "sha": "887b3de0d92c3e06",
+   "sha_full": "887b3de0d92c3e0671c4ae5ceecaf3f116baebecad02a0ad5524649e8e5e430c",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk3.csv",
+   "size": 33609,
+   "sha": "f358cc615b815d55",
+   "sha_full": "f358cc615b815d550444d4d092141a5b93a241fd73f0005e96c6effa172ba0a5",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk4.csv",
+   "size": 33609,
+   "sha": "3c8ab559863946f5",
+   "sha_full": "3c8ab559863946f5521f08e333062b70c7f88c4386a4a28fb480f76f2eb127ab",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk5.csv",
+   "size": 33609,
+   "sha": "898ed3359046915a",
+   "sha_full": "898ed3359046915a7b4cbafc4661f7632245dde47ab5307980d425d848b63b3c",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk1.csv",
+   "size": 30032,
+   "sha": "f2cc461e534d75cf",
+   "sha_full": "f2cc461e534d75cfbbca21734fd59cd42ee0dae02ba9a2f3959d8a0ca27437d6",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk2.csv",
+   "size": 30032,
+   "sha": "20111c3de9e665c1",
+   "sha_full": "20111c3de9e665c1e912b755fbde0d34f1640198fb8c25e636f9b61917967da9",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk3.csv",
+   "size": 30032,
+   "sha": "281001be0f643af7",
+   "sha_full": "281001be0f643af7e66d7ab7f4209a88d161fa3732c9e27572212e6ad256e5e5",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk4.csv",
+   "size": 30032,
+   "sha": "898168fa464fe2ac",
+   "sha_full": "898168fa464fe2ac3b23666c1a22e7e9b2d7ed7c728897200d439e7321d6164d",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk5.csv",
+   "size": 30032,
+   "sha": "898168fa464fe2ac",
+   "sha_full": "898168fa464fe2ac3b23666c1a22e7e9b2d7ed7c728897200d439e7321d6164d",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_2000.csv",
+   "size": 142072,
+   "sha": "1ec47ed92d6d3f0a",
+   "sha_full": "1ec47ed92d6d3f0a4027f6e7191c35a58d3c2f60d88f214997cbd2071dde0ee3",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_2000_clean.csv",
+   "size": 141931,
+   "sha": "75598f2a0e265ac1",
+   "sha_full": "75598f2a0e265ac1ba99bcb817124e1a5947042b759fd8bdccfe85c56df385e6",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_500.csv",
+   "size": 35536,
+   "sha": "c14716f1105c3312",
+   "sha_full": "c14716f1105c3312a9a23e531985ec636481bfc79304b1cb1c1d3c06abae8cca",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_500_renamed.csv",
+   "size": 35561,
+   "sha": "669bbbd249454945",
+   "sha_full": "669bbbd24945494566c6b7a0e7278153868de415ec8f1995fa5635909a6fcdab",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_test.csv",
+   "size": 3547,
+   "sha": "7e71423e25cfaf71",
+   "sha_full": "7e71423e25cfaf718cfb1dba7da2ca99dd33609b6ea2e05aea735bea872f4873",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_test_renamed.csv",
+   "size": 3572,
+   "sha": "ac5b51c1b4355cbb",
+   "sha_full": "ac5b51c1b4355cbbd7d27b7f9509b752c1177ff654dc7b6117a404206dcd48f0",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_ETHUSDT_1h_2000.csv",
+   "size": 134304,
+   "sha": "b3bbfe320ae08ebf",
+   "sha_full": "b3bbfe320ae08ebf2f5283b6cc9899293e5ca3272278a869712b14a6081f1c07",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_ETHUSDT_1h_500.csv",
+   "size": 33583,
+   "sha": "38a7b6916dae0e27",
+   "sha_full": "38a7b6916dae0e27e166582a8cc2d42e344bf8cf3f359e53b03040d8189f61c3",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_ETHUSDT_1h_500_renamed.csv",
+   "size": 33608,
+   "sha": "f731537fb1c9aa82",
+   "sha_full": "f731537fb1c9aa822cb408de47b6d1d2263fc806e2afd9e38ff33c1de8360bdb",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_SOLUSDT_1h_2000.csv",
+   "size": 120358,
+   "sha": "bf5c992835d85ca1",
+   "sha_full": "bf5c992835d85ca14dc79a9f5de88d9989224e10dec049253b849d87748ebbb6",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_SOLUSDT_1h_500.csv",
+   "size": 30007,
+   "sha": "d0f791638028b825",
+   "sha_full": "d0f791638028b825284029f79e264f077ad16c3f4103bc6ab540b4ca8f4177f8",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/LBANK_SOLUSDT_1h_500_renamed.csv",
+   "size": 30032,
+   "sha": "ed7081d4825c8661",
+   "sha_full": "ed7081d4825c866112237cd8d214cefd5008c686579bbd42426fee8976ce4acd",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/MASTERPIECE_CONFIRMED.md",
+   "size": 1291,
+   "sha": "e5cff5c9cbe9a54f",
+   "sha_full": "e5cff5c9cbe9a54f86638d952ea8f123b16912a0f9d53914435db386251f1146",
+   "title": "AHOS \u2014 Phase 1 Complete \u2014 All Systems Verified \u2014 Ready for Evolution",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/MASTERPIECE_FINAL_CONFIRMATION.md",
+   "size": 1299,
+   "sha": "be7b7edb6af91b24",
+   "sha_full": "be7b7edb6af91b241f86b1146d29223f89bdf6a7ed17003e7b549e8772d6bdf8",
+   "title": "=== PHASE 3 \u2014 MASTERPIECE LIVE CONFIRMATION === Authorized: Mehrdad \u2014 Full Power",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/MASTERPIECE_FINAL_SUMMARY.md",
+   "size": 2520,
+   "sha": "899b6c62688d5dda",
+   "sha_full": "899b6c62688d5dda0cb128b530229d06fe8ad65f01fe6873fb7fadc5ef190928",
+   "title": "MASTERPIECE \u2014 PHASE 1A / 1B / 2 \u2014 COMPLETED WITH FULL POWER",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_0_REDTEAM_REPORT.md",
+   "size": 30467,
+   "sha": "bcf2f9ac1e9c25ce",
+   "sha_full": "bcf2f9ac1e9c25ce70e691206acd584e2c755b5010e3663386de9cb23fbdd0ed",
+   "title": "PHASE 0 \u2014 ARCHITECTURE REVIEW & RED-TEAM CRITIQUE",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_0_REPORT.md",
+   "size": 2561,
+   "sha": "742124b1fadde03f",
+   "sha_full": "742124b1fadde03fa0f9e2f9fcfc1b9d7ff2ee6e1d557db288355c10526f8e5e",
+   "title": "Phase 0 Deliverable \u2014 Setup & Architecture (2026-08-09)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_1A_SCORECARD.md",
+   "size": 12677,
+   "sha": "249743c6b511be22",
+   "sha_full": "249743c6b511be226118ff4dea0ce3c74b7f6fbe4f49a5c3b767262f8cd40c46",
+   "title": "PHASE 1A \u2014 FINAL REPORT & SCORECARD",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_1B_BACKTEST_REPORT.md",
+   "size": 1015,
+   "sha": "e3bf83f894558e7b",
+   "sha_full": "e3bf83f894558e7bd6209559e9f764afb24446501e0200f8d8fa52e21e9b557e",
+   "title": "PHASE 1B \u2014 BASELINE BACKTEST REPORT \u2014 LBANK_BTCUSDT_2000CLEAN Data Source: REAL ",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_1B_FINAL_MASTER_REPORT.md",
+   "size": 1913,
+   "sha": "946144b0338974ad",
+   "sha_full": "946144b0338974ad186373b8eb4c027b9361a04c3d15aff170b594c482a42d1f",
+   "title": "PHASE 1B \u2014 FINAL MASTERPIECE REPORT \u2014 OPTION A EXECUTED",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_2_BACKTEST_REPORT.md",
+   "size": 1519,
+   "sha": "e2fcfb51ec862cb7",
+   "sha_full": "e2fcfb51ec862cb792f685c5734e2fc725b67e47dee972f122aedc3759cc496b",
+   "title": "PHASE 2 \u2014 BACKTEST RESULTS (REAL DATA \u2014 1997 ROWS BTC/USDT)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_2_BACKTEST_REPORT_FINAL.md",
+   "size": 1519,
+   "sha": "e2fcfb51ec862cb7",
+   "sha_full": "e2fcfb51ec862cb792f685c5734e2fc725b67e47dee972f122aedc3759cc496b",
+   "title": "PHASE 2 \u2014 BACKTEST RESULTS (REAL DATA \u2014 1997 ROWS BTC/USDT)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/PHASE_2_FINAL_REPORT.md",
+   "size": 1519,
+   "sha": "e2fcfb51ec862cb7",
+   "sha_full": "e2fcfb51ec862cb792f685c5734e2fc725b67e47dee972f122aedc3759cc496b",
+   "title": "PHASE 2 \u2014 BACKTEST RESULTS (REAL DATA \u2014 1997 ROWS BTC/USDT)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/README_SECURITY.md",
+   "size": 639,
+   "sha": "2df1ef91cfc5705c",
+   "sha_full": "2df1ef91cfc5705c464ba9ea0e6cd0b41b4d7fedf1b9e4dbd80cbc71944e2f2a",
+   "title": "SECURITY RULE \u2014 TELEGRAM BOT ============================== 1. NEVER put bot tok",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/SCHEMA.md",
+   "size": 964,
+   "sha": "13e28ca736c06b4c",
+   "sha_full": "13e28ca736c06b4c234c2ea9152c3925b78307c9e9845071753d0ba303dd64f4",
+   "title": "PHASE 1A \u2014 DATASET SCHEMA (Standardized for All 48 Pairs)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/SOLUSDT_1h_1000.csv",
+   "size": 60082,
+   "sha": "9496c656b88d6007",
+   "sha_full": "9496c656b88d6007f21098cb6cbf7e171bf98844a1dfcc62056e52d64670fcdb",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/TRADING_INTELLIGENCE_PLAN.md",
+   "size": 19408,
+   "sha": "b3d06c30e2aaba91",
+   "sha_full": "b3d06c30e2aaba91d1cfb3c100cda171f097f3a748fb451944ba12b1a8285362",
+   "title": "Trading Intelligence System \u2014 Architecture & Honest Review",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/XRPUSDT_1h_1000.csv",
+   "size": 63639,
+   "sha": "c8aa552ef14e0664",
+   "sha_full": "c8aa552ef14e06643f0ea1e985f3b9aa75543924a6b6ea46662fbcab61289ea2",
+   "title": "",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/assets_48.md",
+   "size": 1031,
+   "sha": "c0660e62df76441c",
+   "sha_full": "c0660e62df76441c3304c7d8a44e1afe917d34e4a36747f809d34c87152470f0",
+   "title": "PHASE 1A \u2014 ASSET UNIVERSE (48 Opportunities \u2014 NOT 48 Simultaneous Trades)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/phase_1a_audit.md",
+   "size": 2092,
+   "sha": "e3b7e79a802c0fd6",
+   "sha_full": "e3b7e79a802c0fd61896a26b859bf401bc7192cc8ec78a9c32dcdde9f1f52793",
+   "title": "PHASE 1B \u2014 AUDIT LOOP & SELF-CRITIQUE (Continuous)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/phase_1b_final_report.md",
+   "size": 6167,
+   "sha": "7e96a0f2af1c828d",
+   "sha_full": "7e96a0f2af1c828d60fb32eba3f610a84ab8f052e75c54f60ae9fb08be5afdbd",
+   "title": "PHASE 1B \u2014 OPTION A EXECUTION COMPLETE (MASTERPIECE \u2014 REAL DATA ONLY)",
+   "category": "historical"
+  },
+  {
+   "path": "uploads/phase_1b_report.md",
+   "size": 7960,
+   "sha": "c60437c672e6fa54",
+   "sha_full": "c60437c672e6fa545871186353ff09f992729fdfc0add7d6dbaa1567a35a126e",
+   "title": "PHASE 1B \u2014 FINAL REPORT (Masterpiece \u2014 Real Data \u2014 No Hidden Weakness)",
+   "category": "historical"
+  }
+ ]
+}

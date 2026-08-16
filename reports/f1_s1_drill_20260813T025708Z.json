@@ -1,0 +1,25 @@
+{
+ "probe_set": "W12A-F1S1-DRILL",
+ "ts": "20260813T025708Z",
+ "mode": "drill",
+ "law": "DDL only; zero row writes; census before/after proves identical data",
+ "drills": [
+  {
+   "store": "/home/user/ahos/data/e01_discovery.sqlite",
+   "update_blocked": true,
+   "insert_path": true,
+   "row_count_stable": true,
+   "rollback_clean": true,
+   "data_identical_after_drill": true
+  },
+  {
+   "store": "/home/user/ahos/data/ahos_local.sqlite",
+   "update_blocked": true,
+   "insert_path": "delete-blocked-as-required",
+   "row_count_stable": true,
+   "rollback_clean": true,
+   "data_identical_after_drill": true
+  }
+ ],
+ "verdict": "SAFE"
+}

@@ -1,0 +1,82 @@
+{
+  "environment": "SIMULATED",
+  "results": [
+    {
+      "t": "2026-08-16T10:50:59.455943+00:00",
+      "test": "T1_connectivity",
+      "check": "getMe",
+      "status": "PASS",
+      "detail": "bot=@Sun_sniperbot"
+    },
+    {
+      "t": "2026-08-16T10:50:59.455968+00:00",
+      "test": "T1_connectivity",
+      "check": "mode",
+      "status": "INFO",
+      "detail": "(SIMULATED api — mock) token_source=env_only token_stored=False"
+    },
+    {
+      "t": "2026-08-16T10:50:59.455984+00:00",
+      "test": "T2_system_message",
+      "check": "AHOS_SYSTEM_ONLINE",
+      "status": "PASS",
+      "detail": "timestamp+state+agent status included"
+    },
+    {
+      "t": "2026-08-16T10:50:59.456220+00:00",
+      "test": "T3_commands_authorized",
+      "check": "/start",
+      "status": "PASS",
+      "detail": "route=Read Handler, logged=True"
+    },
+    {
+      "t": "2026-08-16T10:50:59.456232+00:00",
+      "test": "T3_commands_authorized",
+      "check": "/status",
+      "status": "PASS",
+      "detail": "route=Read Handler, logged=True"
+    },
+    {
+      "t": "2026-08-16T10:50:59.456239+00:00",
+      "test": "T3_commands_authorized",
+      "check": "/health",
+      "status": "PASS",
+      "detail": "route=Read Handler, logged=True"
+    },
+    {
+      "t": "2026-08-16T10:50:59.456245+00:00",
+      "test": "T3_commands_authorized",
+      "check": "/agents",
+      "status": "PASS",
+      "detail": "route=Read Handler, logged=True"
+    },
+    {
+      "t": "2026-08-16T10:50:59.458682+00:00",
+      "test": "T3_commands_authorized",
+      "check": "/kill",
+      "status": "PASS",
+      "detail": "route=Execute Kill Switch, logged=True"
+    },
+    {
+      "t": "2026-08-16T10:50:59.460342+00:00",
+      "test": "T3_commands_authorized",
+      "check": "/reset",
+      "status": "PASS",
+      "detail": "route=Execute Reset, logged=True"
+    },
+    {
+      "t": "2026-08-16T10:50:59.461733+00:00",
+      "test": "T3_commands_unauthorized",
+      "check": "/kill",
+      "status": "PASS",
+      "detail": "rejected + AUTH_FAIL written"
+    },
+    {
+      "t": "2026-08-16T10:50:59.464701+00:00",
+      "test": "T4_integration",
+      "check": "bidirectional",
+      "status": "PASS",
+      "detail": "outbound_send=True inbound_command_to_audit=+2 rows in control_flags"
+    }
+  ]
+}

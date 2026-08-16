@@ -1,0 +1,32 @@
+════════════════════════════════════════════════════════════════
+AHOS PERIODIC REPORT — TWO TRACKS (separated by law)
+════════════════════════════════════════════════════════════════
+
+RESEARCH TRACK (E-01 / H14–H20)
+  tokens: 295
+  observations: 367
+  resolved: 0
+  cohort_readiness: WALL-CLOCK GATED (first 72h closure 2026-08-14 18:00Z)
+  h14_h20_gate: pre-registered only; untouched by Track-B
+
+PAPER TRACK (isolated; PT results are NOT research-gate evidence — §10)
+  candidates_decided: 211
+  paper_entries: 7
+  open_positions: 7
+  closed_positions: None
+  gross_pnl_usd: None
+  slippage_usd: None
+  cost_usd: None
+  net_pnl_usd: None
+  win_rate: None
+  profit_factor: None
+  max_drawdown_usd: 0.0
+  avg_hold_hours: None
+  exposure_open_usd: None
+  liq_bands: None
+  gross_win_but_net_loss_count: None
+  invalidated: None
+  ⛔ INSUFFICIENT_CLOSED_TRADES — no expectancy/profitability language permitted
+
+Allowed language: 'PT-BASELINE-v1 entered because conditions X/Y/Z were observed at T.'
+Forbidden: predictions, probabilities, investment directives. تصمیم نهایی با کاربر است.

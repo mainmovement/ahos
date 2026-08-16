@@ -1,0 +1,1129 @@
+{
+  "ts": "2026-08-11T15:45:50.376969+00:00",
+  "data": {
+    "BTCUSDT": "7d1375cc1f52",
+    "ETHUSDT": "fa8a1e0184ee",
+    "SOLUSDT": "c2885aa1ca64"
+  },
+  "gates": {
+    "min_pf_oos": 1.3,
+    "min_expectancy": 0.0,
+    "max_dd_oos": 15.0,
+    "min_mc_positive": 70.0,
+    "min_wf_pass_ratio": 0.6,
+    "min_wf_trades": 10,
+    "stress_min_pf": 1.1
+  },
+  "candidates": {
+    "H10": {
+      "name": "OI expansion in high-vol regime only",
+      "family": "open_interest+regime",
+      "verdict": "REJECTED",
+      "per_symbol": {
+        "BTCUSDT": {
+          "checks": {
+            "oos_pf>gate": true,
+            "expectancy>0": true,
+            "oos_dd<15%": true,
+            "mc_pos>70%": true,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": true,
+            "sample>=30 OOS trades": false
+          },
+          "passed": false,
+          "oos": {
+            "pf": 2.35,
+            "wr": 68.75,
+            "dd": 8.06,
+            "trades": 16,
+            "mc_pos": 95.2
+          },
+          "wf_windows": 0,
+          "wf_pass_ratio": 0.0,
+          "bar": 1.5
+        },
+        "ETHUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": false,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": false
+          },
+          "passed": false,
+          "oos": {
+            "pf": 0.495,
+            "wr": 29.41,
+            "dd": 20.98,
+            "trades": 17,
+            "mc_pos": 9.7
+          },
+          "wf_windows": 2,
+          "wf_pass_ratio": 1.0,
+          "bar": 1.5
+        },
+        "SOLUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": false,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": true
+          },
+          "passed": false,
+          "oos": {
+            "pf": 0.721,
+            "wr": 38.71,
+            "dd": 20.75,
+            "trades": 31,
+            "mc_pos": 18.9
+          },
+          "wf_windows": 6,
+          "wf_pass_ratio": 0.333,
+          "bar": 1.5
+        }
+      },
+      "detail": {
+        "BTCUSDT": {
+          "full": {
+            "trades": 87,
+            "win_rate": 56.32,
+            "profit_factor": 1.367,
+            "total_return_pct": 32.972,
+            "max_drawdown_pct": 12.79
+          },
+          "train_pf": 1.19,
+          "oos": {
+            "trades": 16,
+            "win_rate": 68.75,
+            "profit_factor": 2.35,
+            "expectancy": 0.87625,
+            "total_return_pct": 14.02,
+            "max_drawdown_pct": 8.06,
+            "sharpe_annualized": 1.479
+          },
+          "stress_oos_pf": 1.776,
+          "mc_oos": {
+            "simulations": 1000,
+            "positive_outcomes_pct": 95.2,
+            "p5_pnl": 0.269,
+            "median_pnl": 13.976,
+            "p95_pnl": 26.682,
+            "p95_maxdd": 8.902,
+            "prob_dd_gt_20pct": 0.0
+          },
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": 0.877,
+              "wr": 40.0,
+              "trades": 5
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": 1.103,
+              "wr": 50.0,
+              "trades": 6
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": 2.2,
+              "wr": 66.67,
+              "trades": 3
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": 0.0,
+              "wr": 0.0,
+              "trades": 4
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": 1.128,
+              "wr": 50.0,
+              "trades": 4
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": 1.081,
+              "wr": 50.0,
+              "trades": 2
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": 1.535,
+              "wr": 60.0,
+              "trades": 5
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": null,
+              "wr": 100.0,
+              "trades": 1
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": 0.462,
+              "wr": 28.57,
+              "trades": 7
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": null,
+              "wr": 100.0,
+              "trades": 3
+            }
+          ]
+        },
+        "ETHUSDT": {
+          "full": {
+            "trades": 107,
+            "win_rate": 50.47,
+            "profit_factor": 1.101,
+            "total_return_pct": 13.498,
+            "max_drawdown_pct": 20.98
+          },
+          "train_pf": 1.313,
+          "oos": {
+            "trades": 17,
+            "win_rate": 29.41,
+            "profit_factor": 0.495,
+            "expectancy": -0.75941,
+            "total_return_pct": -12.91,
+            "max_drawdown_pct": 20.98,
+            "sharpe_annualized": -1.379
+          },
+          "stress_oos_pf": 0.469,
+          "mc_oos": {
+            "simulations": 1000,
+            "positive_outcomes_pct": 9.7,
+            "p5_pnl": -27.058,
+            "median_pnl": -13.07,
+            "p95_pnl": 1.48,
+            "p95_maxdd": 25.88,
+            "prob_dd_gt_20pct": 27.2
+          },
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": 2.192,
+              "wr": 66.67,
+              "trades": 3
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": 0.177,
+              "wr": 14.29,
+              "trades": 7
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": 0.0,
+              "wr": 0.0,
+              "trades": 1
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": 1.791,
+              "wr": 60.0,
+              "trades": 5
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": 1.749,
+              "wr": 60.0,
+              "trades": 20
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": 1.128,
+              "wr": 50.0,
+              "trades": 12
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": 0.237,
+              "wr": 16.67,
+              "trades": 6
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": 0.669,
+              "wr": 37.5,
+              "trades": 8
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": 0.434,
+              "wr": 28.57,
+              "trades": 7
+            }
+          ]
+        },
+        "SOLUSDT": {
+          "full": {
+            "trades": 38,
+            "win_rate": 39.47,
+            "profit_factor": 0.829,
+            "total_return_pct": -8.441,
+            "max_drawdown_pct": 20.12
+          },
+          "train_pf": 0.829,
+          "oos": {
+            "trades": 31,
+            "win_rate": 38.71,
+            "profit_factor": 0.721,
+            "expectancy": -0.37661,
+            "total_return_pct": -11.675,
+            "max_drawdown_pct": 20.75,
+            "sharpe_annualized": -0.881
+          },
+          "stress_oos_pf": 0.649,
+          "mc_oos": {
+            "simulations": 1000,
+            "positive_outcomes_pct": 18.9,
+            "p5_pnl": -34.366,
+            "median_pnl": -11.959,
+            "p95_pnl": 10.672,
+            "p95_maxdd": 36.707,
+            "prob_dd_gt_20pct": 43.7
+          },
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": 1.059,
+              "wr": 46.67,
+              "trades": 15
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": 5.03,
+              "wr": 80.0,
+              "trades": 5
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": 0.695,
+              "wr": 33.33,
+              "trades": 9
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": 0.445,
+              "wr": 26.32,
+              "trades": 19
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": 0.756,
+              "wr": 37.93,
+              "trades": 29
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": 0.0,
+              "wr": 0.0,
+              "trades": 4
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": 1.318,
+              "wr": 54.17,
+              "trades": 24
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": 0.515,
+              "wr": 30.0,
+              "trades": 10
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": 0.881,
+              "wr": 45.45,
+              "trades": 22
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": 0.273,
+              "wr": 20.0,
+              "trades": 5
+            }
+          ]
+        }
+      }
+    },
+    "H11": {
+      "name": "Composite score, conviction-extremes only",
+      "family": "multi_factor+conviction",
+      "verdict": "REJECTED",
+      "per_symbol": {
+        "BTCUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": false,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": false
+          },
+          "passed": false,
+          "oos": {
+            "pf": null,
+            "wr": null,
+            "dd": null,
+            "trades": 0,
+            "mc_pos": null
+          },
+          "wf_windows": 0,
+          "wf_pass_ratio": 0.0,
+          "bar": 1.5
+        },
+        "ETHUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": false,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": false
+          },
+          "passed": false,
+          "oos": {
+            "pf": null,
+            "wr": null,
+            "dd": null,
+            "trades": 0,
+            "mc_pos": null
+          },
+          "wf_windows": 0,
+          "wf_pass_ratio": 0.0,
+          "bar": 1.5
+        },
+        "SOLUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": false,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": false
+          },
+          "passed": false,
+          "oos": {
+            "pf": null,
+            "wr": null,
+            "dd": null,
+            "trades": 0,
+            "mc_pos": null
+          },
+          "wf_windows": 0,
+          "wf_pass_ratio": 0.0,
+          "bar": 1.5
+        }
+      },
+      "detail": {
+        "BTCUSDT": {
+          "full": {
+            "trades": 0,
+            "win_rate": null,
+            "profit_factor": null,
+            "total_return_pct": null,
+            "max_drawdown_pct": null
+          },
+          "train_pf": null,
+          "oos": {
+            "trades": 0,
+            "win_rate": null,
+            "profit_factor": null,
+            "expectancy": null,
+            "total_return_pct": null,
+            "max_drawdown_pct": null,
+            "sharpe_annualized": null
+          },
+          "stress_oos_pf": null,
+          "mc_oos": null,
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            }
+          ]
+        },
+        "ETHUSDT": {
+          "full": {
+            "trades": 0,
+            "win_rate": null,
+            "profit_factor": null,
+            "total_return_pct": null,
+            "max_drawdown_pct": null
+          },
+          "train_pf": null,
+          "oos": {
+            "trades": 0,
+            "win_rate": null,
+            "profit_factor": null,
+            "expectancy": null,
+            "total_return_pct": null,
+            "max_drawdown_pct": null,
+            "sharpe_annualized": null
+          },
+          "stress_oos_pf": null,
+          "mc_oos": null,
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            }
+          ]
+        },
+        "SOLUSDT": {
+          "full": {
+            "trades": 0,
+            "win_rate": null,
+            "profit_factor": null,
+            "total_return_pct": null,
+            "max_drawdown_pct": null
+          },
+          "train_pf": null,
+          "oos": {
+            "trades": 0,
+            "win_rate": null,
+            "profit_factor": null,
+            "expectancy": null,
+            "total_return_pct": null,
+            "max_drawdown_pct": null,
+            "sharpe_annualized": null
+          },
+          "stress_oos_pf": null,
+          "mc_oos": null,
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": null,
+              "wr": null,
+              "trades": 0
+            }
+          ]
+        }
+      }
+    },
+    "H12": {
+      "name": "RV 3-state machine gating Donchian breaks",
+      "family": "regime_state_machine",
+      "verdict": "REJECTED",
+      "per_symbol": {
+        "BTCUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": false,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": true
+          },
+          "passed": false,
+          "oos": {
+            "pf": 0.685,
+            "wr": 34.48,
+            "dd": 21.13,
+            "trades": 58,
+            "mc_pos": 14.4
+          },
+          "wf_windows": 10,
+          "wf_pass_ratio": 0.3,
+          "bar": 1.5
+        },
+        "ETHUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": true,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": true,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": true
+          },
+          "passed": false,
+          "oos": {
+            "pf": 1.16,
+            "wr": 43.64,
+            "dd": 20.56,
+            "trades": 55,
+            "mc_pos": 61.1
+          },
+          "wf_windows": 10,
+          "wf_pass_ratio": 0.7,
+          "bar": 1.5
+        },
+        "SOLUSDT": {
+          "checks": {
+            "oos_pf>gate": false,
+            "expectancy>0": false,
+            "oos_dd<15%": false,
+            "mc_pos>70%": false,
+            "wf_stability>=60%": false,
+            "stress_pf>1.1": false,
+            "sample>=30 OOS trades": true
+          },
+          "passed": false,
+          "oos": {
+            "pf": 0.947,
+            "wr": 38.71,
+            "dd": 20.58,
+            "trades": 93,
+            "mc_pos": 42.5
+          },
+          "wf_windows": 10,
+          "wf_pass_ratio": 0.3,
+          "bar": 1.5
+        }
+      },
+      "detail": {
+        "BTCUSDT": {
+          "full": {
+            "trades": 66,
+            "win_rate": 28.79,
+            "profit_factor": 1.043,
+            "total_return_pct": 4.486,
+            "max_drawdown_pct": 20.86
+          },
+          "train_pf": 1.043,
+          "oos": {
+            "trades": 58,
+            "win_rate": 34.48,
+            "profit_factor": 0.685,
+            "expectancy": -0.33886,
+            "total_return_pct": -19.654,
+            "max_drawdown_pct": 21.13,
+            "sharpe_annualized": -0.912
+          },
+          "stress_oos_pf": 0.147,
+          "mc_oos": {
+            "simulations": 1000,
+            "positive_outcomes_pct": 14.4,
+            "p5_pnl": -49.162,
+            "median_pnl": -20.786,
+            "p95_pnl": 10.702,
+            "p95_maxdd": 52.074,
+            "prob_dd_gt_20pct": 79.9
+          },
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": 1.458,
+              "wr": 31.58,
+              "trades": 19
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": 0.338,
+              "wr": 30.0,
+              "trades": 20
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": 0.761,
+              "wr": 29.17,
+              "trades": 24
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": 0.789,
+              "wr": 30.0,
+              "trades": 30
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": 0.809,
+              "wr": 29.17,
+              "trades": 24
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": 1.217,
+              "wr": 28.57,
+              "trades": 21
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": 0.16,
+              "wr": 23.81,
+              "trades": 21
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": 0.607,
+              "wr": 33.33,
+              "trades": 27
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": 1.066,
+              "wr": 33.33,
+              "trades": 24
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": 0.907,
+              "wr": 48.48,
+              "trades": 33
+            }
+          ]
+        },
+        "ETHUSDT": {
+          "full": {
+            "trades": 64,
+            "win_rate": 28.12,
+            "profit_factor": 0.775,
+            "total_return_pct": -19.435,
+            "max_drawdown_pct": 21.06
+          },
+          "train_pf": 0.775,
+          "oos": {
+            "trades": 55,
+            "win_rate": 43.64,
+            "profit_factor": 1.16,
+            "expectancy": 0.1919,
+            "total_return_pct": 10.554,
+            "max_drawdown_pct": 20.56,
+            "sharpe_annualized": 0.504
+          },
+          "stress_oos_pf": 1.084,
+          "mc_oos": {
+            "simulations": 1000,
+            "positive_outcomes_pct": 61.1,
+            "p5_pnl": -31.661,
+            "median_pnl": 7.31,
+            "p95_pnl": 61.02,
+            "p95_maxdd": 43.534,
+            "prob_dd_gt_20pct": 57.1
+          },
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": 1.111,
+              "wr": 34.78,
+              "trades": 23
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": 0.636,
+              "wr": 39.13,
+              "trades": 23
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": 1.173,
+              "wr": 29.17,
+              "trades": 24
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": 1.308,
+              "wr": 35.48,
+              "trades": 31
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": 1.015,
+              "wr": 32.0,
+              "trades": 25
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": 1.66,
+              "wr": 36.36,
+              "trades": 22
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": 2.343,
+              "wr": 52.38,
+              "trades": 21
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": 0.92,
+              "wr": 35.48,
+              "trades": 31
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": 1.045,
+              "wr": 34.48,
+              "trades": 29
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": 0.973,
+              "wr": 38.71,
+              "trades": 31
+            }
+          ]
+        },
+        "SOLUSDT": {
+          "full": {
+            "trades": 120,
+            "win_rate": 38.33,
+            "profit_factor": 1.406,
+            "total_return_pct": 77.03,
+            "max_drawdown_pct": 21.18
+          },
+          "train_pf": 1.406,
+          "oos": {
+            "trades": 93,
+            "win_rate": 38.71,
+            "profit_factor": 0.947,
+            "expectancy": -0.05761,
+            "total_return_pct": -5.358,
+            "max_drawdown_pct": 20.58,
+            "sharpe_annualized": -0.063
+          },
+          "stress_oos_pf": 0.877,
+          "mc_oos": {
+            "simulations": 1000,
+            "positive_outcomes_pct": 42.5,
+            "p5_pnl": -53.436,
+            "median_pnl": -5.907,
+            "p95_pnl": 41.631,
+            "p95_maxdd": 62.185,
+            "prob_dd_gt_20pct": 83.0
+          },
+          "walk_forward": [
+            {
+              "window": 1,
+              "test": "2024-01-01\u21922024-03-30",
+              "pf": 0.478,
+              "wr": 30.43,
+              "trades": 23
+            },
+            {
+              "window": 2,
+              "test": "2024-03-31\u21922024-06-28",
+              "pf": 0.72,
+              "wr": 37.93,
+              "trades": 29
+            },
+            {
+              "window": 3,
+              "test": "2024-06-29\u21922024-09-26",
+              "pf": 1.407,
+              "wr": 46.15,
+              "trades": 26
+            },
+            {
+              "window": 4,
+              "test": "2024-09-27\u21922024-12-25",
+              "pf": 0.836,
+              "wr": 33.33,
+              "trades": 33
+            },
+            {
+              "window": 5,
+              "test": "2024-12-26\u21922025-03-25",
+              "pf": 0.992,
+              "wr": 28.57,
+              "trades": 35
+            },
+            {
+              "window": 6,
+              "test": "2025-03-26\u21922025-06-23",
+              "pf": 0.524,
+              "wr": 31.03,
+              "trades": 29
+            },
+            {
+              "window": 7,
+              "test": "2025-06-24\u21922025-09-21",
+              "pf": 1.352,
+              "wr": 57.14,
+              "trades": 28
+            },
+            {
+              "window": 8,
+              "test": "2025-09-22\u21922025-12-20",
+              "pf": 0.924,
+              "wr": 40.62,
+              "trades": 32
+            },
+            {
+              "window": 9,
+              "test": "2025-12-21\u21922026-03-20",
+              "pf": 0.909,
+              "wr": 39.29,
+              "trades": 28
+            },
+            {
+              "window": 10,
+              "test": "2026-03-21\u21922026-06-18",
+              "pf": 1.159,
+              "wr": 41.38,
+              "trades": 29
+            }
+          ]
+        }
+      }
+    }
+  }
+}

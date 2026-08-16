@@ -1,0 +1,33 @@
+{
+  "contract_id": "ahos.control_plane",
+  "version": "v1",
+  "created_utc": "2026-08-13T01:59:23+00:00",
+  "law": "ONE operator surface (START/STOP/STATUS/SAFE_HALT/RESUME); dependency-aware boot; idempotent runs; append-only run-ledger; resume-from-ledger never restart-blind; no fabricated health — a component without a probe result is UNKNOWN, never READY",
+  "system_states": ["BOOTING", "SYSTEM_ONLINE", "SYSTEM_DEGRADED", "SAFE_HALT", "RECOVERING", "HALTED"],
+  "terminal_status_rule": "any CRITICAL component failed => SAFE_HALT; else any NON_CRITICAL or ADVISORY component failed/degraded => SYSTEM_DEGRADED; else SYSTEM_ONLINE; OPTIONAL components never affect status",
+  "boot_classes": ["CRITICAL", "NON_CRITICAL", "OPTIONAL", "ADVISORY"],
+  "agent_lifecycle": ["REGISTERED", "HEALTH_CHECK", "READY", "RUNNING", "DEGRADED", "CIRCUIT_OPEN", "RECOVERING"],
+  "phases": [
+    "env_validation", "infra_discovery", "postgres_health", "temporal_health", "engine_health",
+    "n8n_health", "optional_redis_health", "optional_bus_health", "config_verify", "state_verify",
+    "registry_load", "dependency_graph", "locks", "agent_startup", "workflow_startup", "health_verify"
+  ],
+  "run_record_fields": {
+    "run_id": "string, sha-derived, unique per accepted start",
+    "idempotency_key": "string sha256(config_sha + registry_sha + intent); identical repeat start returns the existing run",
+    "start_ts": "number epoch",
+    "end_ts": "number epoch | null",
+    "final_status": "enum system_states",
+    "config_sha": "sha256 of loaded control plane config",
+    "registry_sha": "sha256 of loaded agent registry",
+    "evidence": "array of ledger row refs / probe ids"
+  },
+  "ledger_laws": {
+    "append_only": "UPDATE/DELETE forbidden (trigger-enforced)",
+    "resume": "inspect durable state -> last completed phase per component -> resume; NEVER blind restart",
+    "locks": "single active run; crash => stale lock detected via heartbeat age; steal requires explicit SAFE_HALT record",
+    "replayability": "same config + same injected health results => same phase sequence (deterministic given inputs)"
+  },
+  "observability_surface": ["running", "failed", "why", "evidence", "last_valid_state", "resumable"],
+  "operator_surface": ["START", "STOP", "STATUS", "SAFE_HALT", "RESUME"]
+}

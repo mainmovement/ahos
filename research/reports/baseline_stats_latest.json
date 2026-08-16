@@ -1,0 +1,39 @@
+{
+  "ts": "2026-08-11T18:28:49.991890+00:00",
+  "cells": 2,
+  "verdicts": [
+    "INSUFFICIENT_DATA"
+  ],
+  "guards": {
+    "min_n": 200,
+    "min_pos": 20
+  },
+  "results": [
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": "key='liquidity_growth_1h' AND value_num>0.10",
+      "join_offset": 3600.0,
+      "cell_id": "B1-lg1h-pos-24h-50"
+    },
+    {
+      "n_conditioned": 0,
+      "pos_conditioned": 0,
+      "n_baseline": 0,
+      "pos_baseline": 0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "empty cell",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "condition": "key='buy_sell_imbalance_1h' AND value_num>0.15",
+      "join_offset": 3600.0,
+      "cell_id": "B1-bsi-pos-24h-50"
+    }
+  ]
+}

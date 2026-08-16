@@ -1,0 +1,119 @@
+{
+ "artifact": "E01-GATE-R8.4 sufficiency audit",
+ "audit_utc": "2026-08-14T18:13:39Z",
+ "protocol": "E01_GATE_PROTOCOL_v1",
+ "protocol_sha256": "16b86b86e89392c3f84d82a1c2c6d87534fea988c4dff5a1454fcc137a168101",
+ "R1": {
+  "n_resolved_state_actual": 0,
+  "n_resolved_covered_actual": 0,
+  "gate_metric_min": 200,
+  "gate_metric": 0,
+  "hypothetical_tick_equivalent_readonly": {
+   "n_resolved_state": 88,
+   "n_resolved_covered_72h_closure": 0,
+   "label": "READ-ONLY HYPOTHETICAL \u2014 sweep never executed (crash); tick logic emulated without writes"
+  }
+ },
+ "R2": {
+  "pre_fix": {
+   "obs": 987,
+   "tokens": 762
+  },
+  "post_fix": {
+   "obs": 749,
+   "tokens": 451
+  },
+  "activation_ts": 1786595433.489443,
+  "activation_utc": "2026-08-13T04:30:33Z"
+ },
+ "R4": {
+  "cells_registered": 9,
+  "batches": [
+   "B1-pre-registered",
+   "B2-pre-registered"
+  ],
+  "cells_verdict": "9/9 INSUFFICIENT_DATA",
+  "budget_respected": true,
+  "no_new_hypotheses": true
+ },
+ "R5_trackB": {
+  "closed_trades": 0,
+  "cost_reconciliations": 0,
+  "open_positions": 11,
+  "verdict": "NOT MET (arithmetic per R5)"
+ },
+ "R6_deviations": [
+  {
+   "dev": "gate executed 2026-08-14T18:06:00Z (+6 min after due)",
+   "reason": "owner-ordered immediate execution after 21:30 IRST passed",
+   "harm": "none \u2014 cutoff based"
+  },
+  {
+   "dev": "forced halt at step 3 (materialize crash)",
+   "reason": "pipeline defect, not a chosen deviation",
+   "record": "artifact R8.1"
+  }
+ ],
+ "R7_verdict": "INVALID_PROTOCOL",
+ "R7_note": "frozen pipeline could not produce gate outputs (feature-stage defect on live data). Independently of the crash, data arithmetic forces INSUFFICIENT_DATA: gate metric n_resolved_covered=0 (<200) even under hypothetical perfect sweep (88 resolvable/0 covered).",
+ "horizon_coverage": {
+  "s+15m": {
+   "closed": 952,
+   "covered": 115,
+   "rate": 0.1208,
+   "post_closed": 190,
+   "post_covered": 73,
+   "post_rate": 0.3842
+  },
+  "s+1h": {
+   "closed": 952,
+   "covered": 80,
+   "rate": 0.084,
+   "post_closed": 266,
+   "post_covered": 58,
+   "post_rate": 0.218
+  },
+  "s+4h": {
+   "closed": 952,
+   "covered": 211,
+   "rate": 0.2216,
+   "post_closed": 522,
+   "post_covered": 139,
+   "post_rate": 0.2663
+  },
+  "s+12h": {
+   "closed": 952,
+   "covered": 0,
+   "rate": 0.0,
+   "post_closed": 594,
+   "post_covered": 0,
+   "post_rate": 0.0
+  },
+  "s+24h": {
+   "closed": 879,
+   "covered": 117,
+   "rate": 0.1331,
+   "post_closed": 656,
+   "post_covered": 117,
+   "post_rate": 0.1784
+  },
+  "s+48h": {
+   "closed": 358,
+   "covered": 0,
+   "rate": 0.0,
+   "post_closed": 358,
+   "post_covered": 0,
+   "post_rate": 0.0
+  }
+ },
+ "cohort_state_actual": {
+  "OBSERVING": 952
+ },
+ "would_be_dead_stale_gt24h": 805,
+ "gap_register": 826,
+ "gap_disclosure": "additional misses since last sweep (incl. 358 s+48h slots w/ 0 coverage, 594 s+12h POST slots w/ 0 coverage) NOT yet registered \u2014 sweep crashed; next lawful registration = post-defect-fix re-run of the identical frozen materialize",
+ "evidence": [
+  "reports/e01_gate_materialize_20260814T1806Z_FAILURE.json",
+  "research/reports/baseline_stats_e01_gate_20260814.json"
+ ]
+}

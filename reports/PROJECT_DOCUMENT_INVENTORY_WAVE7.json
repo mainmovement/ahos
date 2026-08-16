@@ -1,0 +1,2699 @@
+{
+ "schema": 2,
+ "wave": 7,
+ "generated_utc": "2026-08-11T19:08:28+00:00",
+ "law": "negative evidence NEVER removed; E/G autonomous via manifest; F flag-only",
+ "diff_vs_wave6_baseline": {
+  "baseline": "ahos/reports/PROJECT_DOCUMENT_INVENTORY.json",
+  "baseline_files": 194,
+  "current_files": 254,
+  "added": [
+   "ahos/database/schema_v1_3.sql",
+   "ahos/discovery/holders.py",
+   "ahos/discovery/materialize.py",
+   "ahos/docs/archive/FINAL_DELIVERY_wave1.md",
+   "ahos/docs/archive/ISSUES_REGISTER_wave1_longform.md",
+   "ahos/docs/canonical/AGENT_COUNCIL.md",
+   "ahos/docs/canonical/ARCHITECTURE.md",
+   "ahos/docs/canonical/DATA_MODEL.md",
+   "ahos/docs/canonical/DISCOVERY.md",
+   "ahos/docs/canonical/GOVERNANCE.md",
+   "ahos/docs/canonical/KNOWLEDGE_MAP.md",
+   "ahos/docs/canonical/MISSION.md",
+   "ahos/docs/canonical/PROJECT_STATE.md",
+   "ahos/docs/canonical/PROVIDERS.md",
+   "ahos/docs/canonical/RESEARCH.md",
+   "ahos/docs/canonical/ROADMAP.md",
+   "ahos/docs/canonical/SECURITY.md",
+   "ahos/docs/canonical/TELEGRAM.md",
+   "ahos/docs/mission_v1_1/A_PROJECT_DOCUMENT_INVENTORY.md",
+   "ahos/docs/mission_v1_1/B_DUPLICATE_REDUNDANCY_REPORT.md",
+   "ahos/docs/mission_v1_1/C_CANONICAL_DOCUMENT_MAP.md",
+   "ahos/docs/mission_v1_1/D_CLEANUP_MANIFEST.md",
+   "ahos/docs/mission_v1_1/E_FEATURE_EXPANSION_PLAN.md",
+   "ahos/docs/mission_v1_1/F_PUMP_EVENT_RESEARCH_SPEC.md",
+   "ahos/docs/mission_v1_1/G_BASELINE_LIFT_DESIGN.md",
+   "ahos/docs/mission_v1_1/H_H14_GENERATION_DESIGN.md",
+   "ahos/docs/mission_v1_1/I_HOLDER_WHALE_ARCHITECTURE.md",
+   "ahos/docs/mission_v1_1/J_SOCIAL_NARRATIVE_ARCHITECTURE.md",
+   "ahos/docs/mission_v1_1/K_TELEGRAM_AI_IMPLEMENTATION_PLAN.md",
+   "ahos/docs/mission_v1_1/L_COUNCIL_WAVE6_DECISION_LOG.md",
+   "ahos/docs/mission_v1_1/W7_A_MASTER_PLAN.md",
+   "ahos/docs/mission_v1_1/W7_B_H14_RESEARCH_PLAN.md",
+   "ahos/docs/mission_v1_1/W7_C_TELEGRAM_AI_ARCHITECTURE.md",
+   "ahos/docs/mission_v1_1/W7_D_FREE_AI_PROVIDER_MATRIX.md",
+   "ahos/docs/mission_v1_1/W7_E_IRAN_RESILIENCE_MATRIX.md",
+   "ahos/docs/mission_v1_1/W7_F_DOC_HYGIENE_POLICY_V2.md",
+   "ahos/docs/mission_v1_1/W7_G_CLEANUP_EXECUTION_REPORT.md",
+   "ahos/docs/mission_v1_1/W7_H_CANONICAL_KNOWLEDGE_MAP_V2.md",
+   "ahos/docs/mission_v1_1/W7_I_POSITION_MONITORING_SPEC.md",
+   "ahos/docs/mission_v1_1/W7_J_PERSIAN_ALERT_SPEC.md",
+   "ahos/docs/mission_v1_1/W7_K_COUNCIL_DECISION_LOG.md",
+   "ahos/docs/mission_v1_1/W7_L_H14_SEARCH_REGISTRY_UPDATE.md",
+   "ahos/engine/doc_hygiene.py",
+   "ahos/engine/pal_probe.py",
+   "ahos/reports/CLEANUP_MANIFEST_WAVE7.json",
+   "ahos/reports/PROJECT_DOCUMENT_INVENTORY.json",
+   "ahos/reports/PROJECT_DOCUMENT_INVENTORY_WAVE7.json",
+   "ahos/reports/WAVE6_EXECUTION_REPORT.md",
+   "ahos/reports/ai_provider_probe_20260811.json",
+   "ahos/reports/pal_probe_20260811_184349_sandbox.json",
+   "ahos/research/SEARCH_SPACE_REGISTRY.json",
+   "ahos/research/baseline_stats.py",
+   "ahos/research/experiments/e01_collection_t3_20260811.json",
+   "ahos/research/experiments/e01_collection_t4_20260811.json",
+   "ahos/research/reports/baseline_stats_b2_reportmode_20260811.json",
+   "ahos/research/reports/baseline_stats_latest.json",
+   "ahos/telegram_ai/__init__.py",
+   "ahos/telegram_ai/ai_providers.yaml",
+   "ahos/telegram_ai/alerts.py",
+   "ahos/telegram_ai/intent.py",
+   "ahos/telegram_ai/positions.py",
+   "ahos/telegram_ai/providers.py",
+   "ahos/tests/test_baseline_stats.py",
+   "ahos/tests/test_telegram_ai.py",
+   "ahos/tests/test_wave7_research.py",
+   "uploads/_archive_exact_dups_wave7/BTCUSDT_1h_1000_renamed.csv",
+   "uploads/_archive_exact_dups_wave7/FINAL_SOLUSDT_chunk5.csv",
+   "uploads/_archive_exact_dups_wave7/PHASE_2_BACKTEST_REPORT_FINAL.md",
+   "uploads/_archive_exact_dups_wave7/PHASE_2_FINAL_REPORT.md"
+  ],
+  "removed": [
+   "ahos/.pytest_cache/.gitignore",
+   "ahos/.pytest_cache/CACHEDIR.TAG",
+   "ahos/.pytest_cache/README.md",
+   "ahos/.pytest_cache/v/cache/lastfailed",
+   "ahos/.pytest_cache/v/cache/nodeids",
+   "uploads/BTCUSDT_1h_1000_renamed.csv",
+   "uploads/FINAL_SOLUSDT_chunk5.csv",
+   "uploads/PHASE_2_BACKTEST_REPORT_FINAL.md",
+   "uploads/PHASE_2_FINAL_REPORT.md"
+  ],
+  "changed": [
+   "ahos/AHOS_ISSUE_REGISTER.md",
+   "ahos/AHOS_PROJECT_STATE_MAP.md",
+   "ahos/README.md",
+   "ahos/data/ahos_local.sqlite",
+   "ahos/data/e01_discovery.sqlite",
+   "ahos/discovery/feature_store.py",
+   "ahos/discovery/providers.yaml",
+   "ahos/discovery/schema_sqlite.sql",
+   "ahos/docs/ISSUES_REGISTER.md",
+   "ahos/engine/run_all_checks.sh",
+   "ahos/reports/FINAL_DELIVERY.md",
+   "ahos/reports/PHASE_STATE.md",
+   "ahos/reports/data_integrity_audit.json",
+   "ahos/reports/telegram_test_log.json",
+   "ahos/research/reports/telegram_dispatch.json",
+   "ahos/tests/test_discovery.py"
+  ]
+ },
+ "class_totals": {
+  "A": {
+   "files": 17,
+   "bytes": 65828
+  },
+  "B": {
+   "files": 65,
+   "bytes": 3866386
+  },
+  "C": {
+   "files": 166,
+   "bytes": 13436266
+  },
+  "D": {
+   "files": 6,
+   "bytes": 111595
+  }
+ },
+ "total_bytes": 17480075,
+ "exact_dup_groups": [
+  [
+   "uploads/BTCUSDT_1h_1000.csv",
+   "uploads/_archive_exact_dups_wave7/BTCUSDT_1h_1000_renamed.csv"
+  ],
+  [
+   "uploads/FINAL_SOLUSDT_chunk4.csv",
+   "uploads/_archive_exact_dups_wave7/FINAL_SOLUSDT_chunk5.csv"
+  ],
+  [
+   "uploads/PHASE_2_BACKTEST_REPORT.md",
+   "uploads/_archive_exact_dups_wave7/PHASE_2_BACKTEST_REPORT_FINAL.md",
+   "uploads/_archive_exact_dups_wave7/PHASE_2_FINAL_REPORT.md"
+  ]
+ ],
+ "near_dup_groups": [
+  [
+   "ahos/README.md",
+   "ahos/strategy_lab/README.md"
+  ],
+  [
+   "ahos/discovery/__init__.py",
+   "ahos/telegram_ai/__init__.py"
+  ]
+ ],
+ "cleanup_plan": [],
+ "cleanup_executed": [],
+ "inventory": [
+  {
+   "path": "ahos/AHOS_ISSUE_REGISTER.md",
+   "size": 16864,
+   "mtime": "2026-08-11T19:06:57+00:00",
+   "sha_full": "d6c2511d7adf439b043afb8920e225fa0b9c10e000e25a75bcd4b30edc8c7136",
+   "title": "AHOS — ISSUE REGISTER (Forensic, failure-format mandated: WHY/WHERE/WHEN/HOW/SOLUTION)",
+   "sha": "d6c2511d7adf439b",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/AHOS_PROJECT_STATE_MAP.md",
+   "size": 13688,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "24aa026b0963fe51089a15882be07c024873d7ad64a7918d5d928be465c2a31e",
+   "title": "AHOS — PROJECT STATE MAP (Forensic Audit) — 2026-08-11 (wave-4)",
+   "sha": "24aa026b0963fe51",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/README.md",
+   "size": 7864,
+   "mtime": "2026-08-11T19:06:23+00:00",
+   "sha_full": "0c6612d806c6bd9a82cd9dbc60a6575fbfdb17592e205a2478f2f13eba51206e",
+   "title": "AHOS — Artificial Hybrid Opportunity Scoring System",
+   "sha": "0c6612d806c6bd9a",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/config/.env.template",
+   "size": 1083,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8ebb200241bac4a2bfbc485d36f9271aae5646c935b684b53aa1e83b69e43cab",
+   "title": null,
+   "sha": "8ebb200241bac4a2",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/config/rollback_v1.0.json",
+   "size": 746,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "a6027ecabf3bbdd7a8c1074447cb69da8a7eba4b0b2a73e4a2fd60c2fba378eb",
+   "title": null,
+   "sha": "a6027ecabf3bbdd7",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/data/ahos_local.sqlite",
+   "size": 8192,
+   "mtime": "2026-08-11T19:07:58+00:00",
+   "sha_full": "ff4f7102a175967bfdb711372af81d7a9b7b4d0f63ba6060d52ebea597d4a580",
+   "title": null,
+   "sha": "ff4f7102a175967b",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/data/e01_discovery.sqlite",
+   "size": 1253376,
+   "mtime": "2026-08-11T18:40:30+00:00",
+   "sha_full": "39f59e7a00d472a85db827cd8af6e5ac989425bdf43d1233da59b9ac4c94a804",
+   "title": null,
+   "sha": "39f59e7a00d472a8",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/database/postgresql_schema.sql",
+   "size": 7402,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e6ed3dbfb6f47f526ff281561190ec63a7f84ada118e0b12936b211432c63d24",
+   "title": "-- ============================================================================",
+   "sha": "e6ed3dbfb6f47f52",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/database/schema_v1_2.sql",
+   "size": 5210,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "6ddb65ddaa16af5b1a81947889a4fb07d905695c63d639fe585b61c9923fddc4",
+   "title": "-- AHOS PostgreSQL schema v1.2 — ADDITIVE migration over v1.1 (no v1.1 object altered/dropped)",
+   "sha": "6ddb65ddaa16af5b",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/database/schema_v1_3.sql",
+   "size": 626,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "30b9ecc2927971fe1ad817bd9ba37bc42ee3c868237c9dbb3231a96f280b5cbe",
+   "title": "-- AHOS PostgreSQL schema v1.3 — ADDITIVE (holder/whale snapshots; wave-6). Apply after v1.2.",
+   "sha": "30b9ecc2927971fe",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/deployment/docker-compose.yml",
+   "size": 1941,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "db448d3844a2c0f5e2105a7a421f17a47cff0fc52f1db94978425dd6596fbcba",
+   "title": null,
+   "sha": "db448d3844a2c0f5",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/discovery/__init__.py",
+   "size": 366,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c3facf0c6579a0896a5681aa764cd5817c35425294e41f19880b3cb68416646b",
+   "title": "\"\"\"AHOS Discovery Core (Mission v1.1) — PAL, identity, observations, lifecycle,",
+   "sha": "c3facf0c6579a089",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/collect.py",
+   "size": 12144,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "974f865013849512a786f69371b2f10f4d65aba1278cc534508c69f571bf1d47",
+   "title": "!/usr/bin/env python3",
+   "sha": "974f865013849512",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/feature_store.py",
+   "size": 14202,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "202bbe6d4f6b36418756092965a3b2761d33123888f19918679261a54c1da4bf",
+   "title": "!/usr/bin/env python3",
+   "sha": "202bbe6d4f6b3641",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/holders.py",
+   "size": 5012,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "019bc3ff916ed6281663e8ed41d72b280ccc78dad86ee561e9b7381882720a5b",
+   "title": "!/usr/bin/env python3",
+   "sha": "019bc3ff916ed628",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/identity.py",
+   "size": 2358,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b81794cec9f302cd5d8c060d309340e7e6163715a2294db294ab670be917c83e",
+   "title": "!/usr/bin/env python3",
+   "sha": "b81794cec9f302cd",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/lifecycle.py",
+   "size": 5770,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "fd33e7e5bb9d5119f72b2373fbc5fd1218d9ee6c8f1b2e90eeccb9a69d39736b",
+   "title": "!/usr/bin/env python3",
+   "sha": "fd33e7e5bb9d5119",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/materialize.py",
+   "size": 3745,
+   "mtime": "2026-08-11T18:50:36+00:00",
+   "sha_full": "144701613f135b2f247b5675f877fdc638bd5eb7ea8ae8a3d4ce153d007cdfbc",
+   "title": "!/usr/bin/env python3",
+   "sha": "144701613f135b2f",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/observations.py",
+   "size": 5717,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "94618f59ec0127d1bc4573434feb7eafd97163f824ffc05524fdef49e639a5aa",
+   "title": "!/usr/bin/env python3",
+   "sha": "94618f59ec0127d1",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/outcomes.py",
+   "size": 3058,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "5186b57508316d5a75b9ed1687596bc5e2e0d07ea7b28edc7bcedca71c9453c2",
+   "title": "!/usr/bin/env python3",
+   "sha": "5186b57508316d5a",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/pal.py",
+   "size": 10006,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "3006964be53639bfb1060f2f651db943e8564585f27929b33257be9ae0ca0329",
+   "title": "!/usr/bin/env python3",
+   "sha": "3006964be53639bf",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/providers.yaml",
+   "size": 6797,
+   "mtime": "2026-08-11T18:44:23+00:00",
+   "sha_full": "46e194670216fbf6fe3ab3b27d27f6c15ddd118c667b7d4d661697b721b719f0",
+   "title": "AHOS PAL provider registry v1 (Mission v1.1) — free-first, ordered fallback chains.",
+   "sha": "46e194670216fbf6",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/ranker.py",
+   "size": 6126,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b28fcb736dba78349e6b7fb7855dc60c906936cb6c5402644b801e0f905f39e8",
+   "title": "!/usr/bin/env python3",
+   "sha": "b28fcb736dba7834",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/schema_sqlite.sql",
+   "size": 6095,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b24c4490d1b3b6597fe95602a1b3a2e14712e57b317f1b2a9ff1d6fc49fb87d5",
+   "title": "-- AHOS Discovery Core schema v1.2 (SQLite canonical-local; Postgres twin in database/schema_v1_2.sql)",
+   "sha": "b24c4490d1b3b659",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/discovery/security_gate.py",
+   "size": 5811,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "91edf7142b29a8ce7c30c990b330bab7ecd4baec91b7ba9533085c45d9439bf6",
+   "title": "!/usr/bin/env python3",
+   "sha": "91edf7142b29a8ce",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/docs/AGENT_MAPPING.md",
+   "size": 2837,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "0b86708e66577bc167527502eb5abda33a5bcc760b219952040e75d2fdcdf0e8",
+   "title": "AHOS — AGENT MAPPING FINAL",
+   "sha": "0b86708e66577bc1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/ARCHITECTURE_FINAL.md",
+   "size": 3753,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "0a8560e3d6f0af0a91d2b877c274eb07eab7f0869086662f9da60985e32a5b12",
+   "title": "AHOS — FINAL ARCHITECTURE (v1.1) — 2026-08-10",
+   "sha": "0a8560e3d6f0af0a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/COMPONENT_REUSE_MAP.md",
+   "size": 1936,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f0c00ce0eb7f2f8f19dd08b072928f58c9f05d74b90d00a1d0cf48294585c34b",
+   "title": "AHOS — COMPONENT REUSE MAP — 2026-08-11",
+   "sha": "f0c00ce0eb7f2f8f",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/COUNCIL_15_DESIGN.md",
+   "size": 2218,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b92f93ad30c8fbc1eb5f39d80fb6fdedfeeed68cbf6c216fb98b64c16805c966",
+   "title": "AHOS — 15-AGENT RESEARCH COUNCIL DESIGN (Mission-Correction roster) — 2026-08-11",
+   "sha": "b92f93ad30c8fbc1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/DATA_SOURCE_MATRIX.md",
+   "size": 4230,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "140230f64902f608c14ba70f4cc315dc752d58730692c81d5850ae17858cb88d",
+   "title": "AHOS — DATA SOURCE MATRIX v1.0 (free-first, Iran-resilient, provider-independent)",
+   "sha": "140230f64902f608",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/DEVELOPMENT_ROADMAP.md",
+   "size": 2303,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f6e10336a5d3c4a820125b1333e8e61565623985f2368a6280924521cc32962c",
+   "title": "AHOS — DEVELOPMENT ROADMAP (Mission vNext) — 2026-08-11",
+   "sha": "f6e10336a5d3c4a8",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/ISSUES_REGISTER.md",
+   "size": 333,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "bdd5dbfc911c33804715a04b4c023d8ce7eba0dc9731f5d917a8903cd06a1722",
+   "title": "ISSUES_REGISTER — SUPERSEDED (wave-6 doc hygiene, 2026-08-11)",
+   "sha": "bdd5dbfc911c3380",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/MISSING_COMPONENT_REGISTER.md",
+   "size": 1992,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "24f008d6657940785d93e425bd4683f183950c5c4b41e9ba40cf71e55851539e",
+   "title": "AHOS — MISSING COMPONENT REGISTER (post-gap-analysis) — 2026-08-11",
+   "sha": "24f008d665794078",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/OPPORTUNITY_SCORE_DESIGN_v0.1.md",
+   "size": 3046,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "1a8a27ec483ae02e7f71bddcf1c721979a158380ee9811ae4a7749e7a6049133",
+   "title": "AHOS — OPPORTUNITY SCORE DESIGN v0.1 (DESIGN — Maturity A; weights NOT validated)",
+   "sha": "1a8a27ec483ae02e",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/RUNBOOK_OPERATIONS.md",
+   "size": 3699,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "0540f4045206eae18f6caa854858ded80d3904722961055491ac2399aefa73b1",
+   "title": "AHOS — OPERATIONS RUNBOOK (P3 activation guide)",
+   "sha": "0540f4045206eae1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/SECURITY_CHECKLIST.md",
+   "size": 2378,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d266ccec57a91e3281325749d964b99207f5117439724b803f7b8e790c65a41d",
+   "title": "AHOS — SECURITY CHECKLIST FINAL (Agent-04) — 2026-08-10",
+   "sha": "d266ccec57a91e32",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/SECURITY_SCORE_DESIGN_v0.1.md",
+   "size": 1478,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8d91e644f78e3d619c46c8806cb43a527e88137ece23fad72fbbf82e5c253add",
+   "title": "AHOS — SECURITY SCORE DESIGN v0.1 (DESIGN — Maturity A) — Security can veto opportunity.",
+   "sha": "8d91e644f78e3d61",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/STRATEGIC_GAP_ANALYSIS.md",
+   "size": 3430,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "853f9529506bd4ac06ce3e8043cb301f4bd172c99884fee8d1b52a687f106de2",
+   "title": "AHOS — STRATEGIC GAP ANALYSIS (Step §23 of Mission Correction v1.0) — 2026-08-11",
+   "sha": "853f9529506bd4ac",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/STRATEGY_SPEC_v1.0.md",
+   "size": 2016,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2d15d9df3c832540872a7fa6954ae478e337df2d4ad757cb138a0e825102c5ba",
+   "title": "AHOS BASELINE STRATEGY SPEC v1.0 (FROZEN — NO OPTIMIZATION)",
+   "sha": "2d15d9df3c832540",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/TARGET_ARCHITECTURE_vNext.md",
+   "size": 2408,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "0a46446dbb9aee978a324c34cc0ad32d759673ecf4273eb79aa741212cf96023",
+   "title": "AHOS — TARGET ARCHITECTURE vNext (opportunity-intelligence platform) — 2026-08-11",
+   "sha": "0a46446dbb9aee97",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/TELEGRAM_PERSIAN_UX_DESIGN.md",
+   "size": 2575,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "69f83ac7fd635f11f3fe936fad6ac091b8eb1806b9d2c028067dbf537a4f3277",
+   "title": "AHOS — TELEGRAM PERSIAN UX DESIGN v0.1 (DESIGN — Maturity A)",
+   "sha": "69f83ac7fd635f11",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/TELEGRAM_TEST_PROCEDURE.md",
+   "size": 2446,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "a1fe27c8d855a095a2bf0d186a220ca6795ba15f7b600f42a1f25eae70e52d17",
+   "title": "AHOS — TELEGRAM TEMPORARY TEST PROCEDURE (Directive §10/§11)",
+   "sha": "a1fe27c8d855a095",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/archive/FINAL_DELIVERY_wave1.md",
+   "size": 3009,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "339f074921e35d0282de8c108ba083daacb657233ba925954c9dc32531c7e9d3",
+   "title": "[ARCHIVED — SUPERSEDED 2026-08-11 wave-6 doc hygiene]",
+   "sha": "339f074921e35d02",
+   "class": "D",
+   "class_reason": "superseded; archived with redirect stub (wave-6 law)"
+  },
+  {
+   "path": "ahos/docs/archive/ISSUES_REGISTER_wave1_longform.md",
+   "size": 4417,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2669a5e65fad11aa1b16d08afd713648ecbe3bcbd5520a69938dc531b28ea2e5",
+   "title": "[ARCHIVED — SUPERSEDED 2026-08-11 wave-6 doc hygiene]",
+   "sha": "2669a5e65fad11aa",
+   "class": "D",
+   "class_reason": "superseded; archived with redirect stub (wave-6 law)"
+  },
+  {
+   "path": "ahos/docs/canonical/AGENT_COUNCIL.md",
+   "size": 1296,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "69246b568f94e24664057ab5dc7d92619ddfd4398be83b400b8ce66c4b47b964",
+   "title": "AHOS CANONICAL — 15-AGENT COUNCIL",
+   "sha": "69246b568f94e246",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/ARCHITECTURE.md",
+   "size": 1717,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d453923dac512be209bd37105cd7ec689230d1cfe2674c524ff4ec317f3d4cf4",
+   "title": "AHOS CANONICAL — ARCHITECTURE",
+   "sha": "d453923dac512be2",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/DATA_MODEL.md",
+   "size": 1636,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "9f088b645a3bc55e938e79ed4d2401b1fd73ad2c2e82b312b768eb0755cb58c3",
+   "title": "AHOS CANONICAL — DATA MODEL (current truth)",
+   "sha": "9f088b645a3bc55e",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/DISCOVERY.md",
+   "size": 1526,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "12c84f81fa91ecb3b645c66fa732cf7a83630de0c6c77c85283a663b0bb4edcb",
+   "title": "AHOS CANONICAL — DISCOVERY (E-01)",
+   "sha": "12c84f81fa91ecb3",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/GOVERNANCE.md",
+   "size": 1658,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c9ef5fb92376289b2f534f114f15de84dd5f797ca8b3cb35e4e6dd16b5c253e1",
+   "title": "AHOS CANONICAL — GOVERNANCE",
+   "sha": "c9ef5fb92376289b",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/KNOWLEDGE_MAP.md",
+   "size": 1852,
+   "mtime": "2026-08-11T19:06:10+00:00",
+   "sha_full": "a889f635207a85f2736ebd9bd15d9d7025cc88d03df9e1e3247b927185c2ef90",
+   "title": "AHOS — CANONICAL KNOWLEDGE MAP (entry node · v2, Wave-7 2026-08-11)",
+   "sha": "a889f635207a85f2",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/MISSION.md",
+   "size": 1954,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e39f7e9be0b0ce83fca2fad40375bd97b85f75b91eaca5890b8609353d31c4a5",
+   "title": "AHOS CANONICAL — MISSION",
+   "sha": "e39f7e9be0b0ce83",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/PROJECT_STATE.md",
+   "size": 2195,
+   "mtime": "2026-08-11T19:07:29+00:00",
+   "sha_full": "80417aef08a7d945caacead8c49164c98aa6c555a56dae9a44895da510c96214",
+   "title": "AHOS CANONICAL — PROJECT STATE (always-current pointer)",
+   "sha": "80417aef08a7d945",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/PROVIDERS.md",
+   "size": 1182,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "5ef26e6f91ee12d8caee4fca2a0f8e5c680aa9078c1ad6123fb0ed60a7720db7",
+   "title": "AHOS CANONICAL — PROVIDERS (PAL matrix, live ground truth)",
+   "sha": "5ef26e6f91ee12d8",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/RESEARCH.md",
+   "size": 1373,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d7495795a06d6d138ecd23184f72ec84c26a25bca9bf0068d4e861cce2ac50ec",
+   "title": "AHOS CANONICAL — RESEARCH (lab + evidence laws)",
+   "sha": "d7495795a06d6d13",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/ROADMAP.md",
+   "size": 1197,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f5ee2369072a4b0109a8c5b93121e7b37ac2f228c6a5ccd8d786e6bba1a500ba",
+   "title": "AHOS CANONICAL — ROADMAP (single queue)",
+   "sha": "f5ee2369072a4b01",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/SECURITY.md",
+   "size": 1368,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7b812d61e195788beb36e8079372da59530b405699603aa5f0235ed1d66c004b",
+   "title": "AHOS CANONICAL — SECURITY (two layers: token-security veto + platform security)",
+   "sha": "7b812d61e195788b",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/canonical/TELEGRAM.md",
+   "size": 1289,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d45c8a727e6249df08941a127994e4dbaadffcba6798213c150d544e76b35bad",
+   "title": "AHOS CANONICAL — TELEGRAM (Persian-first interface)",
+   "sha": "d45c8a727e6249df",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/A_CURRENT_PAL_AUDIT.md",
+   "size": 3890,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "aee269e6101c6904a22616a845a6dc278965aa9f30c51202d861767d9b905bde",
+   "title": "A. CURRENT PAL AUDIT — Mission v1.1, STEP 1 — 2026-08-11",
+   "sha": "aee269e6101c6904",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/A_PROJECT_DOCUMENT_INVENTORY.md",
+   "size": 904,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "dcd13fd4671cdfa70de8de080567b1a8643fe05c70ec155608e70dcd0c21b2c6",
+   "title": "A. PROJECT DOCUMENT INVENTORY — Wave-6 (2026-08-11)",
+   "sha": "dcd13fd4671cdfa7",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/B_CURRENT_E01_AUDIT.md",
+   "size": 2743,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "6438d2b0ea32924a5da52b78103d750f230ae66cd1f282d778f77e0f4cd4447d",
+   "title": "B. CURRENT E-01 AUDIT — Mission v1.1, STEP 2 — 2026-08-11",
+   "sha": "6438d2b0ea32924a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/B_DUPLICATE_REDUNDANCY_REPORT.md",
+   "size": 2203,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "a184d5e6efd565b2f1f079114d546fe1c70814b01d1f2287cc59e09a6146f2d3",
+   "title": "B. DUPLICATE / REDUNDANCY REPORT — Wave-6",
+   "sha": "a184d5e6efd565b2",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/C_CANONICAL_DOCUMENT_MAP.md",
+   "size": 1549,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b30744849ed773de0d8c5242dc5a638f6cd78400a07cdce0ba2aa358012a0535",
+   "title": "C. CANONICAL DOCUMENT MAP — Wave-6",
+   "sha": "b30744849ed773de",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/C_DISCOVERY_DATA_MODEL.md",
+   "size": 4312,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "228b306d368a3a3a28d287cad2d9b760ee3bbbb9f05ae73d40b9101ead0459e1",
+   "title": "C. DISCOVERY DATA MODEL v0.1 — Mission v1.1 — 2026-08-11",
+   "sha": "228b306d368a3a3a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/D_CLEANUP_MANIFEST.md",
+   "size": 1682,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b03f6aeafdf7a8761398924e90144946a2b57deade27e0d78d221192bc8c7e7e",
+   "title": "D. CLEANUP MANIFEST — PROJECT_DOCUMENT_CLEANUP_MANIFEST.md — Wave-6 (2026-08-11)",
+   "sha": "b03f6aeafdf7a876",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/D_FEATURE_STORE_SCHEMA.md",
+   "size": 4504,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "1b90e8c32dbd30eefa3afb38bc8d75b136847f01e585982a7ac3642c48fc0a44",
+   "title": "D. FEATURE STORE SCHEMA v0.1 — Mission v1.1 §10 — 2026-08-11",
+   "sha": "1b90e8c32dbd30ee",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/E_FEATURE_EXPANSION_PLAN.md",
+   "size": 2526,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "61ed310dd8614e0ba7cbf17640f29681c9ce6b8eced0aff24d780793ae712e49",
+   "title": "E. DISCOVERY FEATURE EXPANSION PLAN — Wave-6 (Part V mapping) — 2026-08-11",
+   "sha": "61ed310dd8614e0b",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/E_SECURITY_GATE_DESIGN.md",
+   "size": 3384,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "dc0a954f18ed7c6dcc2ac7a8db7f861181ed3497e66a685e51685d244ebce717",
+   "title": "E. SECURITY GATE DESIGN v0.1 — Mission v1.1 §9 — 2026-08-11",
+   "sha": "dc0a954f18ed7c6d",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/F_PUMP_EVENT_RESEARCH_SPEC.md",
+   "size": 2270,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "1f6795b8124242650e67927cbec5bb957eaebb0236509184cf0ddcfeaa3a32a3",
+   "title": "F. PUMP-EVENT RESEARCH SPECIFICATION v1 — Wave-6 (Part III) — 2026-08-11",
+   "sha": "1f6795b812424265",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/F_STATE_MACHINE_72H.md",
+   "size": 3210,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e2acd033c48a6fa59ffe6f4aa07acb2d735b5360c054fc7848b3633f7c8bb37c",
+   "title": "F. 72-HOUR OBSERVATION STATE MACHINE v0.1 — Mission v1.1 §7 — 2026-08-11",
+   "sha": "e2acd033c48a6fa5",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/G_BASELINE_LIFT_DESIGN.md",
+   "size": 2167,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b7b3446747d6206b075440353519ed607bd5046c3ddf8804f0f9787c110edb01",
+   "title": "G. BASELINE / LIFT ANALYSIS DESIGN — Wave-6 (Part X) — 2026-08-11",
+   "sha": "b7b3446747d6206b",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/G_PROVIDER_MATRIX.md",
+   "size": 3537,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e17307cd6bf4b77b67b5512bbc74fcc69131216b4356a3ca99d7ed9ea19f9d09",
+   "title": "G. PROVIDER MATRIX v1 — Mission v1.1 §5 — 2026-08-11",
+   "sha": "e17307cd6bf4b77b",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/H_COUNCIL_15_EXECUTION_MODEL.md",
+   "size": 3123,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "44f6e499fa5ed5e88e95120f16c1e9071246403642ef6e14dc875a705fc92a0f",
+   "title": "H. 15-AGENT COUNCIL EXECUTION MODEL — Mission v1.1 §14 — 2026-08-11",
+   "sha": "44f6e499fa5ed5e8",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/H_H14_GENERATION_DESIGN.md",
+   "size": 2262,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ccce1fd86bc9dda389aa60c1ca611244815239535e5061b83f3786f8eadb380f",
+   "title": "H. H14+ HYPOTHESIS GENERATION DESIGN — Wave-6 (Part IX/XI) — 2026-08-11",
+   "sha": "ccce1fd86bc9dda3",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/I_HOLDER_WHALE_ARCHITECTURE.md",
+   "size": 3186,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7ab6472b4ef8ed4e95d9490402b95c1623498e4b23070638db5c7dc0d34fb305",
+   "title": "I. HOLDER / WHALE INTELLIGENCE ARCHITECTURE — Wave-6 (Part V) — 2026-08-11",
+   "sha": "7ab6472b4ef8ed4e",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/I_TELEGRAM_PERSIAN_CONTRACT.md",
+   "size": 3976,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "9165217a4c61e8fd6f74b31eb90428ebbd3bbaa6655fef1bd88849ab0ee904ae",
+   "title": "I. TELEGRAM PERSIAN INTERFACE CONTRACT v0.1 — Mission v1.1 §16/§18 — 2026-08-11",
+   "sha": "9165217a4c61e8fd",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/J_IMPLEMENTATION_PLAN.md",
+   "size": 2570,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "916f07648a16c18a1a06e93640ccae70ed29d908d91ab060b77b987e76eaa58c",
+   "title": "J. IMPLEMENTATION PLAN v1.1 — Mission v1.1 §20 — 2026-08-11",
+   "sha": "916f07648a16c18a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/J_SOCIAL_NARRATIVE_ARCHITECTURE.md",
+   "size": 2620,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "9569158dd193e4a0e0abaefd182771e2a8dbc5213c6c2256561621699ae69aef",
+   "title": "J. SOCIAL / NARRATIVE INTELLIGENCE ARCHITECTURE — Wave-6 (Part VII) — 2026-08-11",
+   "sha": "9569158dd193e4a0",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/K_TELEGRAM_AI_IMPLEMENTATION_PLAN.md",
+   "size": 2486,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "cc3af741038e4b153ff48954bf975009fd08bbc404c50370b7955861abd4c297",
+   "title": "K. TELEGRAM PERSIAN AI-INTERFACE IMPLEMENTATION PLAN — Wave-6 (Part XVI/XVII) — 2026-08-11",
+   "sha": "cc3af741038e4b15",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/L_COUNCIL_WAVE6_DECISION_LOG.md",
+   "size": 3016,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f4080093896a52369b9e69bf0b6ced5a2c5d3fae24ab36aedbad5c6b2a710c01",
+   "title": "L. 15-AGENT COUNCIL — WAVE-6 DECISION LOG — 2026-08-11",
+   "sha": "f4080093896a5236",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_A_MASTER_PLAN.md",
+   "size": 3732,
+   "mtime": "2026-08-11T19:02:05+00:00",
+   "sha_full": "589a3675920fff44811fa33b8b95464a3c44d38c7f234f6cf2871354143b6770",
+   "title": "WAVE-7 MASTER PLAN (Deliverable A) — 2026-08-11",
+   "sha": "589a3675920fff44",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_B_H14_RESEARCH_PLAN.md",
+   "size": 3520,
+   "mtime": "2026-08-11T19:02:32+00:00",
+   "sha_full": "745c8f11e083417cc6e411ee6b69cb22c311df448ce4612ed0e3cc7ca8df8be6",
+   "title": "EARLY-MOVEMENT H14+ RESEARCH PLAN (Deliverable B) — 2026-08-11",
+   "sha": "745c8f11e083417c",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_C_TELEGRAM_AI_ARCHITECTURE.md",
+   "size": 2712,
+   "mtime": "2026-08-11T19:02:54+00:00",
+   "sha_full": "9fefbde5879a016bf3b0b4c638679d500959a7e985d47d1d876131587b2e62ad",
+   "title": "TELEGRAM AI ARCHITECTURE (Deliverable C) — 2026-08-11",
+   "sha": "9fefbde5879a016b",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_D_FREE_AI_PROVIDER_MATRIX.md",
+   "size": 2129,
+   "mtime": "2026-08-11T19:03:18+00:00",
+   "sha_full": "02def99d18a3c9c132e8d411d84d4462e33f7401e99a738aada0ed9b00b24066",
+   "title": "FREE AI PROVIDER MATRIX (Deliverable D) — 2026-08-11",
+   "sha": "02def99d18a3c9c1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_E_IRAN_RESILIENCE_MATRIX.md",
+   "size": 2480,
+   "mtime": "2026-08-11T19:03:36+00:00",
+   "sha_full": "6039a6393822360835a7ef9b55911dff2b7a0559f1d2208384dbe102074152cd",
+   "title": "IRAN NETWORK RESILIENCE MATRIX (Deliverable E) — 2026-08-11",
+   "sha": "6039a63938223608",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_F_DOC_HYGIENE_POLICY_V2.md",
+   "size": 2211,
+   "mtime": "2026-08-11T19:03:50+00:00",
+   "sha_full": "5c4dcf2afa7f41a554c7718a394988eef302bcc6fb076cbd3bc85479f4626833",
+   "title": "DOCUMENT HYGIENE POLICY v2 (Deliverable F) — 2026-08-11",
+   "sha": "5c4dcf2afa7f41a5",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_G_CLEANUP_EXECUTION_REPORT.md",
+   "size": 2505,
+   "mtime": "2026-08-11T19:04:12+00:00",
+   "sha_full": "f548a908a8f4e0c22333bc92d0d5e6353893a98896d6ab84a6fd3ba5dce73eb6",
+   "title": "DOCUMENT CLEANUP EXECUTION REPORT (Deliverable G) — 2026-08-11",
+   "sha": "f548a908a8f4e0c2",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_H_CANONICAL_KNOWLEDGE_MAP_V2.md",
+   "size": 1794,
+   "mtime": "2026-08-11T19:04:31+00:00",
+   "sha_full": "653c4e7dd4660322f84f5751af09a230ea22ea8e0baa87d3224ce6794047eb5a",
+   "title": "CANONICAL KNOWLEDGE MAP v2 (Deliverable H) — 2026-08-11",
+   "sha": "653c4e7dd4660322",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_I_POSITION_MONITORING_SPEC.md",
+   "size": 2191,
+   "mtime": "2026-08-11T19:04:46+00:00",
+   "sha_full": "763ce6d099b9069482e7b4d30926a9f9690763c631d74b806f4fc9be501384c2",
+   "title": "POSITION MONITORING SPEC (Deliverable I) — 2026-08-11",
+   "sha": "763ce6d099b90694",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_J_PERSIAN_ALERT_SPEC.md",
+   "size": 1798,
+   "mtime": "2026-08-11T19:04:57+00:00",
+   "sha_full": "62248e0c16f9edb95160459043cffc6e1116316b0b0869374b86fa8e9a0b51a9",
+   "title": "PERSIAN ALERT SPECIFICATION (Deliverable J) — 2026-08-11",
+   "sha": "62248e0c16f9edb9",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_K_COUNCIL_DECISION_LOG.md",
+   "size": 3405,
+   "mtime": "2026-08-11T19:05:34+00:00",
+   "sha_full": "96ed7f80db3726a12f9f65b5f79ce7665437565bc3f701872e92470b31c7a38a",
+   "title": "15-AGENT COUNCIL — WAVE-7 DECISION LOG (Deliverable K) — 2026-08-11",
+   "sha": "96ed7f80db3726a1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/docs/mission_v1_1/W7_L_H14_SEARCH_REGISTRY_UPDATE.md",
+   "size": 2173,
+   "mtime": "2026-08-11T19:05:48+00:00",
+   "sha_full": "92fab23e61078eb44b853ed0a5a081ce7c09c60d5f91730094226aaeacf02bd8",
+   "title": "H14+ SEARCH REGISTRY UPDATE (Deliverable L) — 2026-08-11",
+   "sha": "92fab23e61078eb4",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/engine/acquire_3yr.py",
+   "size": 11254,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "1abef324c949d3715e17e83c97c3918e87bf7cb8d5564389d85f1071b5adca8d",
+   "title": "!/usr/bin/env python3",
+   "sha": "1abef324c949d371",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/ahos_backtest.py",
+   "size": 10552,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8c2a59949445b30c507fa73859544c5067cf96c04a586d64549c970d8c7c7d42",
+   "title": "!/usr/bin/env python3",
+   "sha": "8c2a59949445b30c",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/bot_skeleton.py",
+   "size": 2989,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2cc680dc23e478df75fa2bd55fa3997c927c6084393fe616872663e14de209c2",
+   "title": "!/usr/bin/env python3",
+   "sha": "2cc680dc23e478df",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/data_audit.py",
+   "size": 5426,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ac95961be13718e7c8d0980f098646d1b1ef091981e1c2642e6f88dadde379b6",
+   "title": "!/usr/bin/env python3",
+   "sha": "ac95961be13718e7",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/doc_hygiene.py",
+   "size": 13121,
+   "mtime": "2026-08-11T18:47:15+00:00",
+   "sha_full": "b79585d0d241978e5d6eba3046ce401aad706056145cae10d01ad86d9c6020d6",
+   "title": "!/usr/bin/env python3",
+   "sha": "b79585d0d241978e",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/dryrun_simulation.py",
+   "size": 6102,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "fc3000497877e43893c4351f3f3f03cfbd92e3eee9df2e63374700c8b534a4af",
+   "title": "!/usr/bin/env python3",
+   "sha": "fc3000497877e438",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/pal_probe.py",
+   "size": 10796,
+   "mtime": "2026-08-11T18:43:41+00:00",
+   "sha_full": "4158f2523663f02c2aadc78d417074bfa09479ac591d9017c10e66df2f6ac56a",
+   "title": "!/usr/bin/env python3",
+   "sha": "4158f2523663f02c",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/research_report_bot.py",
+   "size": 3479,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "573a1a1dcc58e9ffe627933017c8e92346b293a9a9613417523fa3eb7e0d812a",
+   "title": "!/usr/bin/env python3",
+   "sha": "573a1a1dcc58e9ff",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/run_all_checks.sh",
+   "size": 1299,
+   "mtime": "2026-08-11T19:00:56+00:00",
+   "sha_full": "26c81bd764851d91723f6d9ebfc0558665b8d8e67d7a2720528bc21f315a6d0c",
+   "title": "!/usr/bin/env bash",
+   "sha": "26c81bd764851d91",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/run_validation.py",
+   "size": 2607,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "4bd794069639ede120646c35908648112d1507844baf1dfca2f429ecb98a0346",
+   "title": "!/usr/bin/env python3",
+   "sha": "4bd794069639ede1",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/engine/telegram_live_test.py",
+   "size": 6483,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "cbfd28111d454ecdba0898c9325b84fb0f911c80f5b2e6657f8499d93661ac07",
+   "title": "!/usr/bin/env python3",
+   "sha": "cbfd28111d454ecd",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_01_data_ingest_integrity.json",
+   "size": 7165,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "769f6d7879ed998c4c54bc6ba7f740d5423df788d5b173e3a6f74ecf09f5a236",
+   "title": null,
+   "sha": "769f6d7879ed998c",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_02_signal_pipeline.json",
+   "size": 12750,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "38297a447520576afabbd86d1d16044ad098d3fcdf3c609d65828df41fcd33db",
+   "title": null,
+   "sha": "38297a447520576a",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_03_telegram_control.json",
+   "size": 15605,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8e76960ed9c4bd64f92d04d07522930dc98bbc712277a31b804c8085eee6ed62",
+   "title": null,
+   "sha": "8e76960ed9c4bd64",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_10_research_lab.json",
+   "size": 3731,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2593d47d124f74a84e0c09dc4433ce22e189615d998cb79f443172f5eb116085",
+   "title": null,
+   "sha": "2593d47d124f74a8",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_11_data_update.json",
+   "size": 3161,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "771e39d7b0f64940a90c4a04ecfcb137efc52315c55c0c16c01904f871479077",
+   "title": null,
+   "sha": "771e39d7b0f64940",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/n8n/workflows/ahos_12_research_report.json",
+   "size": 2242,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ee83badd14ca3999a885720ab67886145defac0857acfce59d4a67e36df4f18a",
+   "title": null,
+   "sha": "ee83badd14ca3999",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/reports/BACKTEST_REPORT_EXACT.md",
+   "size": 3940,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2f6709a79a87107062a2fcdce2a52b3ee54558d338e69b738ef9e7f9e489be96",
+   "title": "AHOS — EXACT BACKTEST RE-COMPUTATION REPORT (Agent-09 QA + Agent-07 LeadEng)",
+   "sha": "2f6709a79a871070",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/CLEANUP_MANIFEST_WAVE7.json",
+   "size": 14647,
+   "mtime": "2026-08-11T19:08:28+00:00",
+   "sha_full": "3554330a2af86483d56628f20cb7ddcba5a4350cded54c81448924ecbfe8820a",
+   "title": null,
+   "sha": "3554330a2af86483",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/reports/FINAL_DELIVERY.md",
+   "size": 248,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "200d6bc17acef9c8af4ae67aa876c73c4baf5fec3bceca32b92b696354cbf033",
+   "title": "FINAL_DELIVERY — SUPERSEDED (wave-6 doc hygiene, 2026-08-11)",
+   "sha": "200d6bc17acef9c8",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/FINAL_EXECUTION_REPORT.md",
+   "size": 19523,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "3778342aebcac59851050279ea8e53408cbabdeb24617d321463ca7abdc9a054",
+   "title": "AHOS — FINAL EXECUTION REPORT (Master Execution Order v3.0 + Strategic Mission Correction v1.0)",
+   "sha": "3778342aebcac598",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/N8N_LIVE_SMOKE_TEST_EVIDENCE.txt",
+   "size": 3407,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ffe9120e460ba403801bdea89f8baebaf7195b126abcb29afbc119f42a4f199d",
+   "title": "===================================================================",
+   "sha": "ffe9120e460ba403",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/PHASE_STATE.md",
+   "size": 7169,
+   "mtime": "2026-08-11T19:07:12+00:00",
+   "sha_full": "64ea5dc3c1b1c62334018c6f73169c5610550aab5027c51d72b1cc7d13d0e0ca",
+   "title": "AHOS — UNIFIED PHASE STATE (2026-08-11, wave-5: Mission v1.1 Discovery Core online)",
+   "sha": "64ea5dc3c1b1c623",
+   "class": "A",
+   "class_reason": "current canonical authority"
+  },
+  {
+   "path": "ahos/reports/PROJECT_DOCUMENT_INVENTORY.json",
+   "size": 53281,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e0e29deb9a578809df5a18a130465e3b20336e64d25a583721adf7cc97470dde",
+   "title": null,
+   "sha": "e0e29deb9a578809",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/reports/PROJECT_DOCUMENT_INVENTORY_WAVE7.json",
+   "size": 141758,
+   "mtime": "2026-08-11T19:08:28+00:00",
+   "sha_full": "f081df741da0113d1d96fccacae3f24461b098ac4e23074ad8c2d52cebf06ab7",
+   "title": null,
+   "sha": "f081df741da0113d",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/reports/QA_REPORT_FINAL.md",
+   "size": 3020,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "794f28e30d36cab7765bb5ddcf66f122b084362f190c61e913f8363186355079",
+   "title": "AHOS — FINAL QA REPORT (Agent-09) — 2026-08-10",
+   "sha": "794f28e30d36cab7",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/TELEGRAM_INTEGRATION_TEST_REPORT.md",
+   "size": 2749,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c3cfa7b014f0973fa8fcbd5cd890ccc0333d1a883625d481552d4d09494cd28c",
+   "title": "AHOS — TELEGRAM INTEGRATION TEST REPORT — 2026-08-11 (wave-4)",
+   "sha": "c3cfa7b014f0973f",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/TELEGRAM_RESEARCH_REPORT.md",
+   "size": 2345,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "78bcc27171de25cca1482931dd6258b200901951a68ba818e21188fd31c6609b",
+   "title": "AHOS — TELEGRAM RESEARCH REPORT (Agent-05/06) — 2026-08-10",
+   "sha": "78bcc27171de25cc",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/TEST_REPORT_FINAL.md",
+   "size": 5008,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "6a7f19ad31fc536190ece1fface453ff08e6f71ed5a62c7cb6e6cbcc6c956cea",
+   "title": "AHOS — FINAL TEST REPORT (Agent-09 QA / Agent-07 LeadEng) — 2026-08-10",
+   "sha": "6a7f19ad31fc5361",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/WAVE5_EXECUTION_REPORT.md",
+   "size": 6792,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "12ce76398de0fcc4b2c5ffe1ca20176e944fa44958e25f0dd04e63a4d91f0d5e",
+   "title": "AHOS — WAVE-5 EXECUTION REPORT (Mission v1.1 — Post-Wave-4 Directive)",
+   "sha": "12ce76398de0fcc4",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/reports/WAVE6_EXECUTION_REPORT.md",
+   "size": 3459,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b150852997c83d7c29e62946fc581ab0c777ba075d1d8c9630f52744566de166",
+   "title": "AHOS — WAVE-6 EXECUTION REPORT — 2026-08-11",
+   "sha": "b150852997c83d7c",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/reports/ai_provider_probe_20260811.json",
+   "size": 897,
+   "mtime": "2026-08-11T18:57:50+00:00",
+   "sha_full": "969995f54160c1a18b603cdaf40814f8bf3421947844a1b2475c54984b3fa211",
+   "title": null,
+   "sha": "969995f54160c1a1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/data_integrity_audit.json",
+   "size": 28590,
+   "mtime": "2026-08-11T19:07:39+00:00",
+   "sha_full": "4200bfa4dba50eacb5ca9d3ac728f4d9084e91aae20316dfaadcb5aa62c85dd7",
+   "title": null,
+   "sha": "4200bfa4dba50eac",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/dryrun_log.json",
+   "size": 1482,
+   "mtime": "2026-08-11T19:07:58+00:00",
+   "sha_full": "a22723da1f49e2ac6a14f294e41d84d78d4945574966de9388921202be5e650f",
+   "title": null,
+   "sha": "a22723da1f49e2ac",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/pal_probe_20260811_184349_sandbox.json",
+   "size": 8851,
+   "mtime": "2026-08-11T18:43:49+00:00",
+   "sha_full": "3f541e771ce536bf0bc1689b5e0b2941500d0179484832bbc5b40291ae915a5f",
+   "title": null,
+   "sha": "3f541e771ce536bf",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/reports/telegram_test_log.json",
+   "size": 2304,
+   "mtime": "2026-08-11T19:07:58+00:00",
+   "sha_full": "f074f2c7ae573569458debcfe05395735ef2878ce7d95a65059817d5aa2f2d49",
+   "title": null,
+   "sha": "f074f2c7ae573569",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/reports/validation_results.json",
+   "size": 12048,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "5f7ba83cb2bcdb866d7104e187521512d1f76e5f071e916405f5965b09689d47",
+   "title": null,
+   "sha": "5f7ba83cb2bcdb86",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/SEARCH_SPACE_REGISTRY.json",
+   "size": 18356,
+   "mtime": "2026-08-11T18:53:55+00:00",
+   "sha_full": "f577a231b6aeb00f5c776fdd9a5502b7304370e3d2d67a6a641ac42294881c5c",
+   "title": null,
+   "sha": "f577a231b6aeb00f",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/research/baseline_stats.py",
+   "size": 9490,
+   "mtime": "2026-08-11T18:50:13+00:00",
+   "sha_full": "7efefb015cc35ae2814414ef596c3ff9b9674adcc79038cf6a21139c501a0ace",
+   "title": "!/usr/bin/env python3",
+   "sha": "7efefb015cc35ae2",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_1h_3yr.csv",
+   "size": 2145240,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7d1375cc1f52c6c929276abd59642894b101fdcd3ffe410a1ab855cda7401acb",
+   "title": null,
+   "sha": "7d1375cc1f52c6c9",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_1h_ext.csv",
+   "size": 3952895,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "bf8fd1426c3c9c7c1cc1bdb87b84f11e58954c618f9a550bf2c1f2116aaf7cf6",
+   "title": null,
+   "sha": "bf8fd1426c3c9c7c",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_funding_3yr.csv",
+   "size": 147903,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8b4e324c00460551994a30df0346d1dbd51f67095346d43b1cff12d794906cef",
+   "title": null,
+   "sha": "8b4e324c00460551",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_funding_ext.csv",
+   "size": 275996,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d437dccb4ca2573219f6d2de08acac50e13fb62928607ad57630090c034bb4ad",
+   "title": null,
+   "sha": "d437dccb4ca25732",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_oi_daily_3yr.csv",
+   "size": 69784,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "65277d285d7de304b1ae682d8ce3c4b9283181cd56610664e0d0dd8337de8fcf",
+   "title": null,
+   "sha": "65277d285d7de304",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/BTCUSDT_oi_daily_ext.csv",
+   "size": 115230,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "71ca825f8f56fa04debafd42f731ad65b9fd01a1bb996e50b123feef70a0d5ab",
+   "title": null,
+   "sha": "71ca825f8f56fa04",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/ETHUSDT_1h_3yr.csv",
+   "size": 2138980,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "fa8a1e0184eec9e26208ddc262bddd7270fa0380025c1b68f8a4cd3920f82a29",
+   "title": null,
+   "sha": "fa8a1e0184eec9e2",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/ETHUSDT_funding_3yr.csv",
+   "size": 148060,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "044393b2e9fbd7d95ca3a8c6ff7e050cf32b8b26154eddbc0af50bc8dfbb89ac",
+   "title": null,
+   "sha": "044393b2e9fbd7d9",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/ETHUSDT_oi_daily_3yr.csv",
+   "size": 72424,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "bde17060bb48a07e238631a2ff3bd03035021f8fec9b29713e75d089d6b0c9e9",
+   "title": null,
+   "sha": "bde17060bb48a07e",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/MANIFEST.json",
+   "size": 1240228,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "eb96b127ee8b9c8e6d02ded766d896d93644308dd4e32e72424c340117e539d7",
+   "title": null,
+   "sha": "eb96b127ee8b9c8e",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/research/data/MANIFEST_ext.json",
+   "size": 775964,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "6048efb120b2f6533b067971c71afc35d557c35c30f52eed89fa6a931249bf85",
+   "title": null,
+   "sha": "6048efb120b2f653",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/research/data/SOLUSDT_1h_3yr.csv",
+   "size": 2001049,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c2885aa1ca647b8d217331683a16c9643e39d84c0a17811436e5c8f88137912e",
+   "title": null,
+   "sha": "c2885aa1ca647b8d",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/SOLUSDT_funding_3yr.csv",
+   "size": 148982,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7a5d77269c06428d825573a60d08f01001e70be858f11645bd07e72ca2b6fe90",
+   "title": null,
+   "sha": "7a5d77269c06428d",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/data/SOLUSDT_oi_daily_3yr.csv",
+   "size": 69448,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "a0950249b4a24f11e2bc5ba3f21234cd5cf46d81b335710547e88a68007a847c",
+   "title": null,
+   "sha": "a0950249b4a24f11",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t0_20260811.json",
+   "size": 3029,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "78829a2b4d58a903c5287a4d044c2575d649b79d30812aa7600be06c3e82042a",
+   "title": null,
+   "sha": "78829a2b4d58a903",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t1_20260811.json",
+   "size": 2025,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "466ba9fa51ab9cebedb966af3141d54a0f2c81db3227d5291afb4279f1a4f621",
+   "title": null,
+   "sha": "466ba9fa51ab9ceb",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t2_20260811.json",
+   "size": 2625,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2b4e830259d3718826a055237b1e4c74c6123d6ab157cd189c3aabac035db29e",
+   "title": null,
+   "sha": "2b4e830259d37188",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t3_20260811.json",
+   "size": 2624,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "5d3131edfe8ffc66f4bbd957043cd5be95cf5150366d01b183600420e6e4ef3f",
+   "title": null,
+   "sha": "5d3131edfe8ffc66",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/e01_collection_t4_20260811.json",
+   "size": 3509,
+   "mtime": "2026-08-11T18:39:55+00:00",
+   "sha_full": "da550a2a6ab54b036aa4547e2f1d809f3e21f3be4abb0321c0fcf3adde41f04a",
+   "title": null,
+   "sha": "da550a2a6ab54b03",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/exp_20260810_121055.json",
+   "size": 82251,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d5fb3b5cf80ae71063b58fcc7a0000c7444327af92c643e3cb4280c7ef259dd4",
+   "title": null,
+   "sha": "d5fb3b5cf80ae710",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/exp_20260811_154550.json",
+   "size": 30350,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8ed7af3ae7edf97335f1772ddf03e47283f907fb56595986df3b5df270c3fd65",
+   "title": null,
+   "sha": "8ed7af3ae7edf973",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/experiments/exp_20260811_165329.json",
+   "size": 6215,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ce909a76711ac6e86ead36ac0945e8dd992679f559554ea79387b6d68a2b8291",
+   "title": null,
+   "sha": "ce909a76711ac6e8",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/reports/RESEARCH_FINDINGS_v2.0.md",
+   "size": 6932,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "860090f1eb66d88a1935e21c09d3796229f21d7787169cc732c8a2695ba04217",
+   "title": "AHOS — STRATEGY RESEARCH LABORATORY v2.0 — FINDINGS REPORT",
+   "sha": "860090f1eb66d88a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/reports/RESEARCH_META_ANALYSIS_v1.md",
+   "size": 6480,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "26eb65f3e1b30b97a6d944614abed1c57a2384df8d79f0f3a3a96841bac562f0",
+   "title": "AHOS — RESEARCH META-ANALYSIS v1.0 (required gate before batch-4)",
+   "sha": "26eb65f3e1b30b97",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/reports/baseline_stats_b2_reportmode_20260811.json",
+   "size": 4819,
+   "mtime": "2026-08-11T18:54:05+00:00",
+   "sha_full": "af9571aa7e8ed8fa9a834bd139c700c58fb775b47ad6893ac50dfa41635d96bc",
+   "title": null,
+   "sha": "af9571aa7e8ed8fa",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/reports/baseline_stats_latest.json",
+   "size": 920,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e1b76a890b97c43d4d79f4454d117ee0c4366091fa204e713137bcaa5bdce9c9",
+   "title": null,
+   "sha": "e1b76a890b97c43d",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/research/reports/telegram_dispatch.json",
+   "size": 1751,
+   "mtime": "2026-08-11T19:07:58+00:00",
+   "sha_full": "f6e1ce3c24d885463e938709d350ae888dd1a4a8b473d03099902acc18bc732f",
+   "title": null,
+   "sha": "f6e1ce3c24d88546",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/strategy_lab/README.md",
+   "size": 1907,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "0e62d793b037c03c4ce9ed311062dd2f26106301e2e1cb9c98fd5eb51cdda079",
+   "title": "AHOS STRATEGY RESEARCH LABORATORY v2.0 — CHARTER",
+   "sha": "0e62d793b037c03c",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/strategy_lab/candidates.py",
+   "size": 6229,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "262f631866dbffd354485b280f721018bafcd66bf17b2b2dc5a365938af48e52",
+   "title": "\"\"\"AHOS Lab — candidate signal generators. CAUSAL ONLY (no look-ahead):",
+   "sha": "262f631866dbffd3",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/strategy_lab/hypotheses.py",
+   "size": 12060,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "21ef49e4517f39dee6b8924627d7047a0f19c711d205cde3d97e9c2250725615",
+   "title": "AHOS Strategy Research Laboratory — Hypothesis Registry (v2.0)",
+   "sha": "21ef49e4517f39de",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/strategy_lab/lab_engine.py",
+   "size": 6471,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8c63a29a2a3ebd1abfe65cee4612e10462d12033fe75f034967844a58be49f79",
+   "title": "\"\"\"AHOS Lab Execution Engine — generic causal backtester for registered candidates.",
+   "sha": "8c63a29a2a3ebd1a",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/strategy_lab/registry.json",
+   "size": 2791,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b85d61ce577d3a8a6be656807c4223ece320b1f0596f3bdeef5d84ffbdb37938",
+   "title": null,
+   "sha": "b85d61ce577d3a8a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "ahos/strategy_lab/run_lab.py",
+   "size": 8449,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "84711a9c02568b9e3b5657e68a28b2328f8f08e36f2317322d54e15cc5fefa4d",
+   "title": "!/usr/bin/env python3",
+   "sha": "84711a9c02568b9e",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/telegram_ai/__init__.py",
+   "size": 100,
+   "mtime": "2026-08-11T18:57:49+00:00",
+   "sha_full": "edccd00415ca6306c881d131c3fdf9dd1d922d7aea40f763b5fbf2cbbcf8435e",
+   "title": "\"\"\"AHOS telegram_ai — Wave-7: Persian-first interface, free-first AI, deterministic authority.\"\"\"",
+   "sha": "edccd00415ca6306",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/telegram_ai/ai_providers.yaml",
+   "size": 3018,
+   "mtime": "2026-08-11T18:58:45+00:00",
+   "sha_full": "c662b69b4f76444a82441d80dbf8d47f371ac69b955750de4134ec520d7a9bed",
+   "title": "AHOS AI-PAL provider registry v1 (Wave-7 §13) — FREE-FIRST, provider-agnostic.",
+   "sha": "c662b69b4f76444a",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/telegram_ai/alerts.py",
+   "size": 3346,
+   "mtime": "2026-08-11T18:56:29+00:00",
+   "sha_full": "2849a45bc257243f4d1904266222517d7773ac7b3449c17f74164ed4bf8afa54",
+   "title": "!/usr/bin/env python3",
+   "sha": "2849a45bc257243f",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/telegram_ai/intent.py",
+   "size": 7688,
+   "mtime": "2026-08-11T19:00:35+00:00",
+   "sha_full": "6f7ccff3efe68951fc40b979e5ad39faeee7def5d454aa8e16ad9e8760b5156f",
+   "title": "!/usr/bin/env python3",
+   "sha": "6f7ccff3efe68951",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/telegram_ai/positions.py",
+   "size": 4026,
+   "mtime": "2026-08-11T18:56:05+00:00",
+   "sha_full": "90d871e34bc37fbc79d2f12a825f26c93aee5389228076e463b7102a8b3c2d96",
+   "title": "!/usr/bin/env python3",
+   "sha": "90d871e34bc37fbc",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/telegram_ai/providers.py",
+   "size": 6055,
+   "mtime": "2026-08-11T18:57:36+00:00",
+   "sha_full": "569b7757e3e78ba0f96f63946ba9ff9de76d03aa3cddf66acf8be2f71ebf2ab9",
+   "title": "!/usr/bin/env python3",
+   "sha": "569b7757e3e78ba0",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/tests/test_ahos.py",
+   "size": 3088,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "27fa7009e9a4fed3cbf49e758ff0413dadf2357dba6034a10206f64015159d07",
+   "title": "\"\"\"AHOS pytest suite — Agent-09 QA. Unit + integration + governance tests.",
+   "sha": "27fa7009e9a4fed3",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/tests/test_baseline_stats.py",
+   "size": 4219,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "46333d8154e85c64aa4b4d0788dcfcf117344320f84fe6078dfd2b0b1124e530",
+   "title": "!/usr/bin/env python3",
+   "sha": "46333d8154e85c64",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/tests/test_discovery.py",
+   "size": 21246,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "150a8307abb9b73a53e4c528aa377ccddd1d02456dddfa2aa9d907f23d000a8b",
+   "title": "!/usr/bin/env python3",
+   "sha": "150a8307abb9b73a",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/tests/test_strategy_lab.py",
+   "size": 4524,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "a632cbbb4e8f35c9e1e5c976cf662a26774fbf87581c40a2b05bfd22ba2d882e",
+   "title": "\"\"\"AHOS Lab test suite — Agent-09 QA. Causality, determinism, registry schema, gate logic.",
+   "sha": "a632cbbb4e8f35c9",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/tests/test_telegram_ai.py",
+   "size": 8349,
+   "mtime": "2026-08-11T19:00:19+00:00",
+   "sha_full": "0aef742be1d7f171cd6a83b86073d6e36b130276056a298d76a67b6adbd41e1f",
+   "title": "!/usr/bin/env python3",
+   "sha": "0aef742be1d7f171",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/tests/test_wave7_research.py",
+   "size": 8147,
+   "mtime": "2026-08-11T18:52:26+00:00",
+   "sha_full": "0d5416fe22209f834a58869dea1fb69b9d8799bd3632b8ae5c567f5e3500975f",
+   "title": "!/usr/bin/env python3",
+   "sha": "0d5416fe22209f83",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "ahos/tests/validate_n8n.py",
+   "size": 3941,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "54221fbcbc436a8475d125966df79e3f2712c88e0e9d19164e7ff4c09b96281c",
+   "title": "!/usr/bin/env python3",
+   "sha": "54221fbcbc436a84",
+   "class": "B",
+   "class_reason": "active implementation / governed data / current reference"
+  },
+  {
+   "path": "uploads/$10_15_FEASIBILITY.md",
+   "size": 7228,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "55b183e9254e27a0d48e31545a962ecc9ac61325e87f1aac81dc70215620b6d6",
+   "title": "PHASE 1A — $10-$15 CAPITAL FEASIBILITY ANALYSIS (Critical — Must Be Documented)",
+   "sha": "55b183e9254e27a0",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/ADAUSDT_1h_1000.csv",
+   "size": 62844,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "68d462545edaf92f6581330b8269e17bf109b6462d2d2e0761bf21d4c5781ee9",
+   "title": null,
+   "sha": "68d462545edaf92f",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AGENT_ROLES.md",
+   "size": 1830,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ea0add1eef6a5af1adf3c6327962e5b2533d6d2bb3700999fe2e11d1a14b6f15",
+   "title": "TRADING INTELLIGENCE SYSTEM — 10 AGENTS + 3 GROUP LEADS + 1 AUDITOR",
+   "sha": "ea0add1eef6a5af1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_EVOLUTION_CONFIRMATION.md",
+   "size": 809,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f041ab81fd7f8854778950a4b50dbd0478f84d7dfc3e4975e748bec0428d0fd3",
+   "title": "AHOS EVOLUTION LAYER — CONFIRMED (Phase 1 Architecture PRESERVED)",
+   "sha": "f041ab81fd7f8854",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_EVOLUTION_CONFIRMED.md",
+   "size": 728,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "938dab926892bd8b3d2ffc27123fa3353fb8258ade9d6e0caa3cdf344196b580",
+   "title": "AHOS Evolution Roadmap — CONFIRMED",
+   "sha": "938dab926892bd8b",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_EVOLUTION_ROADMAP_PHASE_3_4.md",
+   "size": 4094,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "1ad3cc6123b954023a9a22a14dd35a801a7f8744f2939e2dbe16576dcbaaf969",
+   "title": "AHOS — Adaptive Evolutionary Market Intelligence System",
+   "sha": "1ad3cc6123b95402",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_PHASE_1_PRODUCTION_VERIFICATION_REPORT.md",
+   "size": 2511,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ca9ccb3f4a365caed07e50ae0fef061d10b59fe2cb38b561b18e3e9f6eb46940",
+   "title": "=== AHOS PHASE 1 PRODUCTION VERIFICATION REPORT ===",
+   "sha": "ca9ccb3f4a365cae",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_Final_Checkpoint.md",
+   "size": 2290,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "533ab62924eebf5984d2196b88a421f3e329ef0ccdb0b1f56f82747f8795f60b",
+   "title": "=== AHOS PHASE 1 FINAL CHECKPOINT ===",
+   "sha": "533ab62924eebf59",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Evidence_Report.md",
+   "size": 44,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ec4ce49035883735d7963c8b819b0b350a6c0065056307c156f9d62b9cab4d0e",
+   "title": "=== AHOS PHASE 1 FINAL QA GATE EVIDENCE ===",
+   "sha": "ec4ce49035883735",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Final_Report.md",
+   "size": 485,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "caeb29cb2b8155971fad12eb2295cec952b71495c825814cd38868c8f32e001f",
+   "title": "=== FINAL VERIFICATION REPORT — ARTIFACTS 1-2-3 ===",
+   "sha": "caeb29cb2b815597",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Report.md",
+   "size": 664,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7ab50a40c2c77045036c22dd881fb54e358bf0a8c97f59518ec7c1a90a78c5e3",
+   "title": "=== ARTIFACT 1: PostgreSQL Schema ===",
+   "sha": "7ab50a40c2c77045",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Report_Final.md",
+   "size": 246,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "fc0919aa5c67b7fec5ba0549bee71ed4b34ee526a5aea6498a68428d87ff243b",
+   "title": "Artifact: /home/user/trading_intelligence/phase_1/AHOS_Phase1_Final_Checkpoint.md",
+   "sha": "fc0919aa5c67b7fe",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Verification_Final.md",
+   "size": 386,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "bc7a2fcc376742d49d8c949066c90fcb1777519ac9e081c3ae5a17f56f6c1e40",
+   "title": "=== FINAL QA GATE 3 — ALL ARTIFACTS — VERIFICATION COMPLETE ===",
+   "sha": "bc7a2fcc376742d4",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_QA_Verified.md",
+   "size": 58,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "161ec6ec4792aeac4c8dc09ffdcbf576490771001b61501df0e3126df3a7bb13",
+   "title": "Phase 3 Framework Design — Ready for User Authorization",
+   "sha": "161ec6ec4792aeac",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase1_Q_Gate.md",
+   "size": 113,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2d87a26a6f84ebfc91fd61f0c68ad292754a3d351fa7a126703679052a88323e",
+   "title": "Artifact 3 (Event System): PASS — 117 lines — All event types — Failure modes — Audit trail — Rollback",
+   "sha": "2d87a26a6f84ebfc",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase_3_Execution_Protocol.md",
+   "size": 2434,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2e392d9b07f5d8ad4c11bdcf22ec34362b93b60d01d36d9a964f6526e4119379",
+   "title": "=== AHOS PHASE 3 EXECUTION PROTOCOL ===",
+   "sha": "2e392d9b07f5d8ad",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase_3_Framework_Design.md",
+   "size": 2590,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "9a6334d60e161e134d08c18370ee8f48c9f0cf46bf470ed62ed610f1d1427984",
+   "title": "=== AHOS PHASE 3: OUT-OF-SAMPLE (OOS) / WALK-FORWARD (WF) / MONTE CARLO FRAMEWORK ===",
+   "sha": "9a6334d60e161e13",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/AHOS_Phase_3_Validation_Framework.md",
+   "size": 2391,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "58712a14a6f6e543a2620a26b62ae1fd11ff60d88405b0fadcd8aeae5d3a5229",
+   "title": "=== AHOS PHASE 3 — Validation Framework (Design Only — No Execution Yet) ===",
+   "sha": "58712a14a6f6e543",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/BTCUSDT_1h_1000.csv",
+   "size": 71099,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "abe7d03f7bcaf8c57179039b4112df5eab1f5c3661d0fda282911598b63c7576",
+   "title": null,
+   "sha": "abe7d03f7bcaf8c5",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/COMPLIANCE_SCORECARD.md",
+   "size": 3687,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "8eacd5c2d3fc7254e4761bfcbf161a4980f1eea2d4559be1916a9b29c529803e",
+   "title": "Trading Intelligence System — Live Compliance Scorecard",
+   "sha": "8eacd5c2d3fc7254",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_1000.md",
+   "size": 550,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "5c158aba6240205f5f86e1573d8287518bccc2c9e21326f356848da7442aee33",
+   "title": "DATA INTEGRITY REPORT — LBANK_BTCUSDT_1000",
+   "sha": "5c158aba6240205f",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_1h.md",
+   "size": 546,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "cc2965d5f61771bc7484b9cae40551c56a3f93f235fa019d951b44b314c53f2e",
+   "title": "DATA INTEGRITY REPORT — LBANK_BTCUSDT_1h",
+   "sha": "cc2965d5f61771bc",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_2000.md",
+   "size": 601,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "04d6d6a2a27408677d1debf388204df152076db8244dcfbe6eb59706dab1038f",
+   "title": "DATA INTEGRITY REPORT — LBANK_BTCUSDT_2000",
+   "sha": "04d6d6a2a2740867",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_2000CLEAN.md",
+   "size": 632,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "37f3f054e2f670a4d812aad99aec72751c0fb26e375fc8d3279538ac9221a108",
+   "title": "DATA INTEGRITY REPORT — LBANK_BTCUSDT_2000CLEAN",
+   "sha": "37f3f054e2f670a4",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/DATA_INTEGRITY_LBANK_BTCUSDT_500.md",
+   "size": 548,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7ecc968e45b018967480962e94afb97701fb8c6e1b61a3f4d59f43b30570df9c",
+   "title": "DATA INTEGRITY REPORT — LBANK_BTCUSDT_500",
+   "sha": "7ecc968e45b01896",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/ETHUSDT_1h_1000.csv",
+   "size": 67185,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "9a9d8ae3d2144c6d26b32e748000cd2d1f21dcb4e36b298393ed12dc4743f667",
+   "title": null,
+   "sha": "9a9d8ae3d2144c6d",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/EXCHANGE_FACTS.md",
+   "size": 5563,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "54050cd1a745388018379d1df1404b2862c50f0e15cf449713f0ecf0ddb0d6fa",
+   "title": "PHASE 1A — EXCHANGE FACTS CHECK (Real — Not Guessing — Marked UNKNOWN Where Unverified)",
+   "sha": "54050cd1a7453880",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_3YR_BTCUSDT_chunked.csv",
+   "size": 35562,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "3cfb4222f9bd6b9a63627f8bf0d6c0dfbe53691398856968a3d22386c7daa83b",
+   "title": null,
+   "sha": "3cfb4222f9bd6b9a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_3YR_ETHUSDT_chunked.csv",
+   "size": 33609,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "48f9f1f7712889ea2d19ff0795512483d8d5516ab6a3805c04def5470d19c9f3",
+   "title": null,
+   "sha": "48f9f1f7712889ea",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_3YR_SOLUSDT_chunked.csv",
+   "size": 30032,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d5ff9a920db9dd024568d3ea97112f57cea1ff936fe0a1a2f2f48e3d09fe036d",
+   "title": null,
+   "sha": "d5ff9a920db9dd02",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk1.csv",
+   "size": 35562,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "fa16bc0d9476f2a3e6d88fa344e7f23b83034c854ce1da5a18aab7134a229b4c",
+   "title": null,
+   "sha": "fa16bc0d9476f2a3",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk2.csv",
+   "size": 35562,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2281b449e8b73edde0434df3604389f2f84f160ed59842cfb4a9a16d72a5587e",
+   "title": null,
+   "sha": "2281b449e8b73edd",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk3.csv",
+   "size": 35562,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "630440b5424d41abb052c2f4f24a44b39a5250c44b43dc9515f732928c988445",
+   "title": null,
+   "sha": "630440b5424d41ab",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk4.csv",
+   "size": 35562,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ad53deb4b2d688fb118300d22d7294e750a97cf44614b4ecc6264c41f0cd8b73",
+   "title": null,
+   "sha": "ad53deb4b2d688fb",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_BTCUSDT_chunk5.csv",
+   "size": 35562,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "86c7c2301dac10f011f1eade8f9c7f7a405637478d0b383ab500d80b03461cb5",
+   "title": null,
+   "sha": "86c7c2301dac10f0",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk1.csv",
+   "size": 33609,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "3c264473b3f330130655f3ec9f317b5be62d6043210faafe7a1138e08e644716",
+   "title": null,
+   "sha": "3c264473b3f33013",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk2.csv",
+   "size": 33609,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "887b3de0d92c3e0671c4ae5ceecaf3f116baebecad02a0ad5524649e8e5e430c",
+   "title": null,
+   "sha": "887b3de0d92c3e06",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk3.csv",
+   "size": 33609,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f358cc615b815d550444d4d092141a5b93a241fd73f0005e96c6effa172ba0a5",
+   "title": null,
+   "sha": "f358cc615b815d55",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk4.csv",
+   "size": 33609,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "3c8ab559863946f5521f08e333062b70c7f88c4386a4a28fb480f76f2eb127ab",
+   "title": null,
+   "sha": "3c8ab559863946f5",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_ETHUSDT_chunk5.csv",
+   "size": 33609,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "898ed3359046915a7b4cbafc4661f7632245dde47ab5307980d425d848b63b3c",
+   "title": null,
+   "sha": "898ed3359046915a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk1.csv",
+   "size": 30032,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f2cc461e534d75cfbbca21734fd59cd42ee0dae02ba9a2f3959d8a0ca27437d6",
+   "title": null,
+   "sha": "f2cc461e534d75cf",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk2.csv",
+   "size": 30032,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "20111c3de9e665c1e912b755fbde0d34f1640198fb8c25e636f9b61917967da9",
+   "title": null,
+   "sha": "20111c3de9e665c1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk3.csv",
+   "size": 30032,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "281001be0f643af7e66d7ab7f4209a88d161fa3732c9e27572212e6ad256e5e5",
+   "title": null,
+   "sha": "281001be0f643af7",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/FINAL_SOLUSDT_chunk4.csv",
+   "size": 30032,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "898168fa464fe2ac3b23666c1a22e7e9b2d7ed7c728897200d439e7321d6164d",
+   "title": null,
+   "sha": "898168fa464fe2ac",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_2000.csv",
+   "size": 142072,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "1ec47ed92d6d3f0a4027f6e7191c35a58d3c2f60d88f214997cbd2071dde0ee3",
+   "title": null,
+   "sha": "1ec47ed92d6d3f0a",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_2000_clean.csv",
+   "size": 141931,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "75598f2a0e265ac1ba99bcb817124e1a5947042b759fd8bdccfe85c56df385e6",
+   "title": null,
+   "sha": "75598f2a0e265ac1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_500.csv",
+   "size": 35536,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c14716f1105c3312a9a23e531985ec636481bfc79304b1cb1c1d3c06abae8cca",
+   "title": null,
+   "sha": "c14716f1105c3312",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_500_renamed.csv",
+   "size": 35561,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "669bbbd24945494566c6b7a0e7278153868de415ec8f1995fa5635909a6fcdab",
+   "title": null,
+   "sha": "669bbbd249454945",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_test.csv",
+   "size": 3547,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7e71423e25cfaf718cfb1dba7da2ca99dd33609b6ea2e05aea735bea872f4873",
+   "title": null,
+   "sha": "7e71423e25cfaf71",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_BTCUSDT_1h_test_renamed.csv",
+   "size": 3572,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ac5b51c1b4355cbbd7d27b7f9509b752c1177ff654dc7b6117a404206dcd48f0",
+   "title": null,
+   "sha": "ac5b51c1b4355cbb",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_ETHUSDT_1h_2000.csv",
+   "size": 134304,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b3bbfe320ae08ebf2f5283b6cc9899293e5ca3272278a869712b14a6081f1c07",
+   "title": null,
+   "sha": "b3bbfe320ae08ebf",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_ETHUSDT_1h_500.csv",
+   "size": 33583,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "38a7b6916dae0e27e166582a8cc2d42e344bf8cf3f359e53b03040d8189f61c3",
+   "title": null,
+   "sha": "38a7b6916dae0e27",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_ETHUSDT_1h_500_renamed.csv",
+   "size": 33608,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "f731537fb1c9aa822cb408de47b6d1d2263fc806e2afd9e38ff33c1de8360bdb",
+   "title": null,
+   "sha": "f731537fb1c9aa82",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_SOLUSDT_1h_2000.csv",
+   "size": 120358,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "bf5c992835d85ca14dc79a9f5de88d9989224e10dec049253b849d87748ebbb6",
+   "title": null,
+   "sha": "bf5c992835d85ca1",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_SOLUSDT_1h_500.csv",
+   "size": 30007,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "d0f791638028b825284029f79e264f077ad16c3f4103bc6ab540b4ca8f4177f8",
+   "title": null,
+   "sha": "d0f791638028b825",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/LBANK_SOLUSDT_1h_500_renamed.csv",
+   "size": 30032,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "ed7081d4825c866112237cd8d214cefd5008c686579bbd42426fee8976ce4acd",
+   "title": null,
+   "sha": "ed7081d4825c8661",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/MASTERPIECE_CONFIRMED.md",
+   "size": 1291,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e5cff5c9cbe9a54f86638d952ea8f123b16912a0f9d53914435db386251f1146",
+   "title": "AHOS — Phase 1 Complete — All Systems Verified — Ready for Evolution",
+   "sha": "e5cff5c9cbe9a54f",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/MASTERPIECE_FINAL_CONFIRMATION.md",
+   "size": 1299,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "be7b7edb6af91b241f86b1146d29223f89bdf6a7ed17003e7b549e8772d6bdf8",
+   "title": "=== PHASE 3 — MASTERPIECE LIVE CONFIRMATION ===",
+   "sha": "be7b7edb6af91b24",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/MASTERPIECE_FINAL_SUMMARY.md",
+   "size": 2520,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "899b6c62688d5dda0cb128b530229d06fe8ad65f01fe6873fb7fadc5ef190928",
+   "title": "MASTERPIECE — PHASE 1A / 1B / 2 — COMPLETED WITH FULL POWER",
+   "sha": "899b6c62688d5dda",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/PHASE_0_REDTEAM_REPORT.md",
+   "size": 30467,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "bcf2f9ac1e9c25ce70e691206acd584e2c755b5010e3663386de9cb23fbdd0ed",
+   "title": "PHASE 0 — ARCHITECTURE REVIEW & RED-TEAM CRITIQUE",
+   "sha": "bcf2f9ac1e9c25ce",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/PHASE_0_REPORT.md",
+   "size": 2561,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "742124b1fadde03fa0f9e2f9fcfc1b9d7ff2ee6e1d557db288355c10526f8e5e",
+   "title": "Phase 0 Deliverable — Setup & Architecture (2026-08-09)",
+   "sha": "742124b1fadde03f",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/PHASE_1A_SCORECARD.md",
+   "size": 12677,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "249743c6b511be226118ff4dea0ce3c74b7f6fbe4f49a5c3b767262f8cd40c46",
+   "title": "PHASE 1A — FINAL REPORT & SCORECARD",
+   "sha": "249743c6b511be22",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/PHASE_1B_BACKTEST_REPORT.md",
+   "size": 1015,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e3bf83f894558e7bd6209559e9f764afb24446501e0200f8d8fa52e21e9b557e",
+   "title": "PHASE 1B — BASELINE BACKTEST REPORT — LBANK_BTCUSDT_2000CLEAN",
+   "sha": "e3bf83f894558e7b",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/PHASE_1B_FINAL_MASTER_REPORT.md",
+   "size": 1913,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "946144b0338974ad186373b8eb4c027b9361a04c3d15aff170b594c482a42d1f",
+   "title": "PHASE 1B — FINAL MASTERPIECE REPORT — OPTION A EXECUTED",
+   "sha": "946144b0338974ad",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/PHASE_2_BACKTEST_REPORT.md",
+   "size": 1519,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e2fcfb51ec862cb792f685c5734e2fc725b67e47dee972f122aedc3759cc496b",
+   "title": "PHASE 2 — BACKTEST RESULTS (REAL DATA — 1997 ROWS BTC/USDT)",
+   "sha": "e2fcfb51ec862cb7",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/README_SECURITY.md",
+   "size": 639,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "2df1ef91cfc5705c464ba9ea0e6cd0b41b4d7fedf1b9e4dbd80cbc71944e2f2a",
+   "title": "SECURITY RULE — TELEGRAM BOT",
+   "sha": "2df1ef91cfc5705c",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/SCHEMA.md",
+   "size": 964,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "13e28ca736c06b4c234c2ea9152c3925b78307c9e9845071753d0ba303dd64f4",
+   "title": "PHASE 1A — DATASET SCHEMA (Standardized for All 48 Pairs)",
+   "sha": "13e28ca736c06b4c",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/SOLUSDT_1h_1000.csv",
+   "size": 60082,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "9496c656b88d6007f21098cb6cbf7e171bf98844a1dfcc62056e52d64670fcdb",
+   "title": null,
+   "sha": "9496c656b88d6007",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/TRADING_INTELLIGENCE_PLAN.md",
+   "size": 19408,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "b3d06c30e2aaba91d1cfb3c100cda171f097f3a748fb451944ba12b1a8285362",
+   "title": "Trading Intelligence System — Architecture & Honest Review",
+   "sha": "b3d06c30e2aaba91",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/XRPUSDT_1h_1000.csv",
+   "size": 63639,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c8aa552ef14e06643f0ea1e985f3b9aa75543924a6b6ea46662fbcab61289ea2",
+   "title": null,
+   "sha": "c8aa552ef14e0664",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/assets_48.md",
+   "size": 1031,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c0660e62df76441c3304c7d8a44e1afe917d34e4a36747f809d34c87152470f0",
+   "title": "PHASE 1A — ASSET UNIVERSE (48 Opportunities — NOT 48 Simultaneous Trades)",
+   "sha": "c0660e62df76441c",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/phase_1a_audit.md",
+   "size": 2092,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e3b7e79a802c0fd61896a26b859bf401bc7192cc8ec78a9c32dcdde9f1f52793",
+   "title": "PHASE 1B — AUDIT LOOP & SELF-CRITIQUE (Continuous)",
+   "sha": "e3b7e79a802c0fd6",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/phase_1b_final_report.md",
+   "size": 6167,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "7e96a0f2af1c828d60fb32eba3f610a84ab8f052e75c54f60ae9fb08be5afdbd",
+   "title": "PHASE 1B — OPTION A EXECUTION COMPLETE (MASTERPIECE — REAL DATA ONLY)",
+   "sha": "7e96a0f2af1c828d",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/phase_1b_report.md",
+   "size": 7960,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "c60437c672e6fa545871186353ff09f992729fdfc0add7d6dbaa1567a35a126e",
+   "title": "PHASE 1B — FINAL REPORT (Masterpiece — Real Data — No Hidden Weakness)",
+   "sha": "c60437c672e6fa54",
+   "class": "C",
+   "class_reason": "historical evidence — preserved (never auto-removed)"
+  },
+  {
+   "path": "uploads/_archive_exact_dups_wave7/BTCUSDT_1h_1000_renamed.csv",
+   "size": 71099,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "abe7d03f7bcaf8c57179039b4112df5eab1f5c3661d0fda282911598b63c7576",
+   "title": null,
+   "sha": "abe7d03f7bcaf8c5",
+   "class": "D",
+   "class_reason": "already archived (duplicate archive pool) — retained per manifest"
+  },
+  {
+   "path": "uploads/_archive_exact_dups_wave7/FINAL_SOLUSDT_chunk5.csv",
+   "size": 30032,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "898168fa464fe2ac3b23666c1a22e7e9b2d7ed7c728897200d439e7321d6164d",
+   "title": null,
+   "sha": "898168fa464fe2ac",
+   "class": "D",
+   "class_reason": "already archived (duplicate archive pool) — retained per manifest"
+  },
+  {
+   "path": "uploads/_archive_exact_dups_wave7/PHASE_2_BACKTEST_REPORT_FINAL.md",
+   "size": 1519,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e2fcfb51ec862cb792f685c5734e2fc725b67e47dee972f122aedc3759cc496b",
+   "title": "PHASE 2 — BACKTEST RESULTS (REAL DATA — 1997 ROWS BTC/USDT)",
+   "sha": "e2fcfb51ec862cb7",
+   "class": "D",
+   "class_reason": "already archived (duplicate archive pool) — retained per manifest"
+  },
+  {
+   "path": "uploads/_archive_exact_dups_wave7/PHASE_2_FINAL_REPORT.md",
+   "size": 1519,
+   "mtime": "2026-08-11T18:38:16+00:00",
+   "sha_full": "e2fcfb51ec862cb792f685c5734e2fc725b67e47dee972f122aedc3759cc496b",
+   "title": "PHASE 2 — BACKTEST RESULTS (REAL DATA — 1997 ROWS BTC/USDT)",
+   "sha": "e2fcfb51ec862cb7",
+   "class": "D",
+   "class_reason": "already archived (duplicate archive pool) — retained per manifest"
+  }
+ ]
+}

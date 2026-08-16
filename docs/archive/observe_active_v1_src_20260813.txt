@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""F12-O2 — supplemental observation poller (owner-approved 2026-08-13, strict evidence bounds).
+
+WHAT IT IS: the missing fetch-side consumer of the EXISTING snapshot machinery
+(lifecycle.due_snapshots + observations.record_observation + PAL clients). NO historical data
+is touched, created, or rewritten: it only APPENDS new observations with TRUE retrieved_ts
+(now-injected at the call site) for tokens whose stored streams have due-uncovered schedule
+slots. Missed slots stay missed (gap_register rows are never touched).
+
+BOUNDARIES (owner directive): no backfill of historical windows · no fabricated availability ·
+no retrieved_ts manipulation · no threshold/card/rule changes · PRE_FIX data byte-frozen.
+Segmentation: POST_FIX rows are identifiable by (retrieved_ts >= activation_ts) AND the explicit
+obs_id list in each run report (reports/observe_active_*.json) — dual evidence.
+
+DESIGN LAWS: idempotent (INSERT OR IGNORE obs_id) · provenance-preserving (raw payload stored,
+sha-joined) · rate-limited (PAL token bucket + max_tokens cap) · failure-tolerant (per-token
+commit; one failure never aborts the run) · observable (run report) · auditable (obs_ids list)
+· restart-safe (state derived from tables only) · duplicate-safe (cooldown + obs_id dedup) ·
+provider-aware (actual answering provider recorded from envelope) · stale-aware (selection is
+driven by the lifecycle schedule + per-token freshness cooldown).
+Failures are recorded EXPLICITLY as error_state rows (never silent, never substituted).
+"""
+from __future__ import annotations
+import argparse, json, sys, time
+from pathlib import Path
+
+from . import observations as obs
+from . import lifecycle
+from . import identity
+from . import collect as _collect          # reuse: normalize_dex_pairs (no duplication)
+
+POLLER_VERSION = "observe_active:v1"
+DEFAULT_STORE = Path(__file__).resolve().parent.parent / "data" / "e01_discovery.sqlite"
+MIN_INTERVAL_DEFAULT = 240.0              # s+15m slot tolerance is ±300s; 240s keeps slots servable
+
+
+def _due_tokens(conn, now: float, min_interval: float) -> list[tuple[str, str, str]]:
+    """Active tokens (state != RESOLVED) with due-uncovered slots and no too-fresh observation,
+    oldest-cohort first (they carry the most at stake: their 24h/48h/72h windows)."""
+    rows = conn.execute(
+        """SELECT s.token_id, s.first_seen_ts, t.chain_id, t.address, s.last_obs_ts
+           FROM observation_state s JOIN tokens t ON t.token_id = s.token_id
+           WHERE s.state != 'RESOLVED' ORDER BY s.first_seen_ts""").fetchall()
+    out = []
+    for r in rows:
+        tid = r["token_id"]
+        last = r["last_obs_ts"] if r["last_obs_ts"] is not None else r["first_seen_ts"]
+        if now - last < min_interval:
+            continue                                  # stale-aware cooldown
+        if not lifecycle.due_snapshots(conn, tid, now):
+            continue                                  # nothing due-and-uncovered
+        out.append((tid, r["chain_id"], r["address"]))
+    return out
+
+
+def _our_pairs(conn, token_id: str) -> dict:
+    return {r["pair_address"]: r["pair_id"] for r in
+            conn.execute("SELECT pair_id, pair_address FROM pairs WHERE token_id=?", (token_id,))}
+
+
+def _record_failure(conn, tid, pid, provider, endpoint, now, http_status, payload,
+                    error_state, dry_run):
+    if dry_run:
+        return None
+    sha = obs.store_raw(conn, provider, endpoint, now, http_status,
+                        payload if payload is not None else {"error_state": error_state})
+    oid = obs.record_observation(conn, tid, provider, now, sha, pair=pid,
+                                 source_ts=None, metrics=None, error_state=error_state)
+    inserted = conn.execute("SELECT changes()").fetchone()[0]   # INSERT OR IGNORE dedup-aware
+    conn.commit()
+    return oid if inserted else None
+
+
+def run_observe_active(conn, *, now: float | None = None, fetch, dry_run: bool = False,
+                       max_tokens: int = 40, min_interval: float = MIN_INTERVAL_DEFAULT,
+                       sleep_s: float = 0.0) -> dict:
+    """One poller pass. `fetch(chain, address, now) -> PAL-style envelope` (injected for tests)."""
+    now = time.time() if now is None else now
+    due = _due_tokens(conn, now, min_interval)
+    selected = due[:max_tokens]
+    rep = {"tool": "observe_active", "version": POLLER_VERSION, "ts": now, "dry_run": dry_run,
+           "max_tokens": max_tokens, "due_total": len(due), "attempted": len(selected),
+           "recorded": 0, "would_record": 0, "skipped_by_cap": len(due) - len(selected),
+           "failures": [], "obs_ids": []}
+    for i, (tid, chain, address) in enumerate(selected):
+        if i and sleep_s:
+            time.sleep(sleep_s)
+        pid_candidates = _our_pairs(conn, tid)
+        canonical_pid = next(iter(pid_candidates.values()), None)
+        env = fetch(chain, address, now)
+        provider = env.get("provider_id") or "unknown"
+        endpoint = env.get("endpoint") or ""
+        if env.get("availability") != "OK":
+            es = {"kind": "provider_unavailable", "detail": env.get("error_state"),
+                  "endpoint": endpoint}
+            oid = _record_failure(conn, tid, canonical_pid, provider, endpoint, now,
+                                  env.get("http_status"), env.get("payload"), es, dry_run)
+            rep["failures"].append({"token_id": tid, "kind": es["kind"],
+                                    "obs_id": oid, "provider": provider})
+            continue
+        if provider != "dexscreener":
+            es = {"kind": "unsupported_provider_payload", "provider": provider}
+            oid = _record_failure(conn, tid, canonical_pid, provider, endpoint, now,
+                                  env.get("http_status"), env.get("payload"), es, dry_run)
+            rep["failures"].append({"token_id": tid, "kind": es["kind"], "obs_id": oid,
+                                    "provider": provider})
+            continue
+        recs = _collect.normalize_dex_pairs(env.get("payload"), chain) or []
+        # wrong-token hard guard: a rec describes its baseToken; metrics must describe the
+        # QUERIED token only — never accept payload rows about a different base address.
+        recs = [r for r in recs if (r.get("address") or "").lower() == (address or "").lower()]
+        matched = [r for r in recs if r.get("pair_address") in pid_candidates]
+        rec = matched[0] if matched else max(
+            recs, key=lambda r: (r["metrics"].get("liquidity_usd") or 0), default=None)
+        if rec is None or not (rec["metrics"].get("price_usd")):
+            es = {"kind": "no_valid_price", "endpoint": endpoint}
+            oid = _record_failure(conn, tid, canonical_pid, provider, endpoint, now,
+                                  env.get("http_status"), env.get("payload"), es, dry_run)
+            rep["failures"].append({"token_id": tid, "kind": "no_valid_price", "obs_id": oid,
+                                    "provider": provider})
+            continue
+        pid = pid_candidates.get(rec.get("pair_address")) if matched else None
+        if dry_run:
+            rep["would_record"] += 1       # dry-run never counts as recorded (nothing is written)
+            continue
+        sha = obs.store_raw(conn, provider, endpoint, now, env.get("http_status"), env["payload"])
+        metrics = dict(rec["metrics"])
+        if rec.get("pool_created_ts"):
+            metrics["pair_age_minutes"] = max(0, int((now - rec["pool_created_ts"]) / 60))
+        oid = obs.record_observation(conn, tid, provider, now, sha, pair=pid,
+                                     source_ts=None, metrics=metrics)
+        inserted = conn.execute("SELECT changes()").fetchone()[0]
+        if inserted:
+            lifecycle.on_observation(conn, tid, now)
+        conn.commit()
+        if inserted:
+            rep["recorded"] += 1
+            rep["obs_ids"].append(oid)
+        else:
+            rep["deduped"] = rep.get("deduped", 0) + 1          # re-served same instant: swallowed
+    return rep
+
+
+def main(argv=None) -> int:
+    from . import pal
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--store", default=str(DEFAULT_STORE))
+    ap.add_argument("--max-tokens", type=int, default=40)
+    ap.add_argument("--min-interval", type=float, default=MIN_INTERVAL_DEFAULT)
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--report", default=None)
+    args = ap.parse_args(argv)
+    p = pal.PAL()
+
+    def fetch(chain, address, now):
+        return p.clients["dexscreener_tokens"].fetch("token_pairs", "pair_enrich",
+                                                     chain=chain, address=address, now=now)
+
+    conn = obs.open_store(args.store)
+    rep = run_observe_active(conn, now=time.time(), fetch=fetch, dry_run=args.dry_run,
+                             max_tokens=args.max_tokens, min_interval=args.min_interval)
+    conn.close()
+    out = Path(args.report) if args.report else (
+        Path(__file__).resolve().parent.parent / "reports" /
+        f"observe_active_{time.strftime('%Y%m%d_%H%M%S', time.gmtime(rep['ts']))}.json")
+    out.write_text(json.dumps(rep, indent=1, ensure_ascii=False))
+    slim = {k: v for k, v in rep.items() if k not in ("obs_ids",)}
+    slim["obs_ids"] = f"{len(rep['obs_ids'])} recorded"
+    print(json.dumps(slim, indent=1, ensure_ascii=False))
+    print("report ->", out)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

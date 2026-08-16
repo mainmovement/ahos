@@ -1,0 +1,21 @@
+# AHOS Root Docker Compose Entrypoint
+# For Windows local development: docker compose -f deployment/docker-compose.windows.yml up -d
+# For Production VPS deployment: docker compose -f deployment/docker-compose.production.yml up -d
+
+version: '3.8'
+
+services:
+  ahos-core:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: ahos-runtime
+    restart: unless-stopped
+    env_file:
+      - deployment/.env
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./docs:/app/docs:ro
+    ports:
+      - "127.0.0.1:8000:8000"

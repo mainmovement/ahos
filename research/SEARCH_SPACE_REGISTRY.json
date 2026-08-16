@@ -1,0 +1,365 @@
+{
+  "batches": [
+    {
+      "batch_id": "B1-pre-registered",
+      "n_cells": 2,
+      "ts": "2026-08-11T18:28:49.992268+00:00"
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "n_cells": 7,
+      "ts": "2026-08-11T18:53:55.320553+00:00",
+      "law": "cells registered BEFORE any run; constants locked; evaluation only via research/baseline_stats.py with guards n>=200/pos>=20"
+    }
+  ],
+  "cells": [
+    {
+      "batch_id": "B1-pre-registered",
+      "cell_id": "B1-lg1h-pos-24h-50",
+      "condition": "key='liquidity_growth_1h' AND value_num>0.10",
+      "horizon": "24h",
+      "event_class": "+50%"
+    },
+    {
+      "batch_id": "B1-pre-registered",
+      "cell_id": "B1-bsi-pos-24h-50",
+      "condition": "key='buy_sell_imbalance_1h' AND value_num>0.15",
+      "horizon": "24h",
+      "event_class": "+50%"
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "cell_id": "B2-h14-24h-p50",
+      "hypothesis_id": "H14",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "clauses": [
+        {
+          "key": "volume_acceleration",
+          "op": ">=",
+          "value": 2.0
+        },
+        {
+          "key": "buy_sell_imbalance_1h",
+          "op": ">=",
+          "value": 0.15
+        }
+      ]
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "cell_id": "B2-h14-72h-p100",
+      "hypothesis_id": "H14",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "clauses": [
+        {
+          "key": "volume_acceleration",
+          "op": ">=",
+          "value": 2.0
+        },
+        {
+          "key": "buy_sell_imbalance_1h",
+          "op": ">=",
+          "value": 0.15
+        }
+      ]
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "cell_id": "B2-h15-24h-p50",
+      "hypothesis_id": "H15",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "clauses": [
+        {
+          "key": "liquidity_growth_1h",
+          "op": ">=",
+          "value": 0.1
+        },
+        {
+          "key": "txn_acceleration",
+          "op": ">=",
+          "value": 1.5
+        }
+      ]
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "cell_id": "B2-h15-72h-p100",
+      "hypothesis_id": "H15",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "clauses": [
+        {
+          "key": "liquidity_growth_1h",
+          "op": ">=",
+          "value": 0.1
+        },
+        {
+          "key": "txn_acceleration",
+          "op": ">=",
+          "value": 1.5
+        }
+      ]
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "cell_id": "B2-h18-24h-p50",
+      "hypothesis_id": "H18",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "clauses": [
+        {
+          "key": "volume_acceleration",
+          "op": ">=",
+          "value": 2.0
+        },
+        {
+          "key": "security_all_hard_veto_clear",
+          "op": "=",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "cell_id": "B2-h18-72h-p100",
+      "hypothesis_id": "H18",
+      "horizon": "72h",
+      "event_class": "+100%",
+      "clauses": [
+        {
+          "key": "volume_acceleration",
+          "op": ">=",
+          "value": 2.0
+        },
+        {
+          "key": "security_all_hard_veto_clear",
+          "op": "=",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "batch_id": "B2-pre-registered",
+      "cell_id": "B2-h20-24h-p50",
+      "hypothesis_id": "H20",
+      "horizon": "24h",
+      "event_class": "+50%",
+      "clauses": [
+        {
+          "key": "volume_acceleration",
+          "op": ">=",
+          "value": 2.0
+        },
+        {
+          "key": "txn_acceleration",
+          "op": ">=",
+          "value": 1.5
+        },
+        {
+          "key": "liquidity_growth_1h",
+          "op": ">=",
+          "value": 0.1
+        },
+        {
+          "key": "buy_sell_imbalance_1h",
+          "op": ">=",
+          "value": 0.15
+        },
+        {
+          "key": "price_change_1h",
+          "op": ">",
+          "value": -0.05
+        },
+        {
+          "key": "price_change_1h",
+          "op": "<",
+          "value": 0.05
+        }
+      ]
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H14",
+      "title": "Volume acceleration + buyer-side dominance (unique-buyer proxy)",
+      "batch_id": "B2-pre-registered",
+      "status": "REGISTERED-COMPUTABLE",
+      "registered_ts": "2026-08-11T18:53:55.320553+00:00",
+      "hypothesis": "Volume acceleration + buyer-side dominance (unique-buyer proxy)",
+      "reasoning": "Sustained volume expansion against trailing mean, dominated by buys, is the earliest market-visible trace of coordinated accumulation; a genuine unique-buyer feature is REFUTED-blocked (tx-level data unavailable free), proxy explicitly declared.",
+      "feature_definitions": {
+        "volume_acceleration": "fs_v0.1: current 5m volume vs trailing mean (locked def in feature_store)",
+        "buy_sell_imbalance_1h": "fs_v0.1: (buys-sells)/(buys+sells) over 1h"
+      },
+      "observation_cutoff": "features frozen at as_of = first_seen_ts + 3600s (JOIN_OFFSET, locked); outcomes from observations only",
+      "event_windows": {
+        "primary": "+50% within 24h of first_seen",
+        "secondary": "+100% within 72h"
+      },
+      "baseline": "all RESOLVED E-01 candidates with a label for the same horizon/class (survivorship-bias ban: RUGS/DEAD/FLAT/SECURITY-FAILED stay in the cohort)",
+      "exclusion_rules": "no exclusions beyond engine laws: SECURITY FAIL veto never removed from cohort; missing feature => not in condition stratum (no imputation); illiquid tokens stay IN (liquidity-adjusted variants reported separately)",
+      "success_bar": "training lift 95% Wilson CI lower bound > 1.0 AND OOS (strictly later weeks) lift CI lower > 1.0 AND stability across time-halves",
+      "failure_bar": "CI spans 1.0 OOS, or incidence < MIN_POSITIVES=20 (abandon as untestable with reason recorded), or mechanism refuted by adverse evidence",
+      "expected_failure_mode": "wash-trading inflates both proxies — discount via security gate + liquidity-adjusted variants",
+      "required_data_beyond_fs_v0_2": null,
+      "note": "RESEARCH HYPOTHESIS — not a trading signal; rank-first law unchanged; no score implied"
+    },
+    {
+      "id": "H15",
+      "title": "Liquidity growth + transaction acceleration",
+      "batch_id": "B2-pre-registered",
+      "status": "REGISTERED-COMPUTABLE",
+      "registered_ts": "2026-08-11T18:53:55.320553+00:00",
+      "hypothesis": "Liquidity growth + transaction acceleration",
+      "reasoning": "Rising committed LP depth alongside accelerating transaction count indicates organic demand expansion rather than thin-book price spikes; depth must arrive BEFORE the move to count.",
+      "feature_definitions": {
+        "liquidity_growth_1h": "fs_v0.1 locked",
+        "txn_acceleration": "fs_v0.2 locked (5m txn vs trailing 12)"
+      },
+      "observation_cutoff": "features frozen at as_of = first_seen_ts + 3600s (JOIN_OFFSET, locked); outcomes from observations only",
+      "event_windows": {
+        "primary": "+50% within 24h of first_seen",
+        "secondary": "+100% within 72h"
+      },
+      "baseline": "all RESOLVED E-01 candidates with a label for the same horizon/class (survivorship-bias ban: RUGS/DEAD/FLAT/SECURITY-FAILED stay in the cohort)",
+      "exclusion_rules": "no exclusions beyond engine laws: SECURITY FAIL veto never removed from cohort; missing feature => not in condition stratum (no imputation); illiquid tokens stay IN (liquidity-adjusted variants reported separately)",
+      "success_bar": "training lift 95% Wilson CI lower bound > 1.0 AND OOS (strictly later weeks) lift CI lower > 1.0 AND stability across time-halves",
+      "failure_bar": "CI spans 1.0 OOS, or incidence < MIN_POSITIVES=20 (abandon as untestable with reason recorded), or mechanism refuted by adverse evidence",
+      "expected_failure_mode": "LP-inflation games: depth added right before rug — cohort keeps SECURITY-FAILED as negatives",
+      "required_data_beyond_fs_v0_2": null,
+      "note": "RESEARCH HYPOTHESIS — not a trading signal; rank-first law unchanged; no score implied"
+    },
+    {
+      "id": "H16",
+      "title": "Whale accumulation + liquidity stability",
+      "batch_id": "B2-pre-registered",
+      "status": "REGISTERED-DATA-BLOCKED",
+      "registered_ts": "2026-08-11T18:53:55.320553+00:00",
+      "hypothesis": "Whale accumulation + liquidity stability",
+      "reasoning": "Top-20 net inflow while depth stays stable historically precedes sustained moves; both sides are needed to separate accumulation from exit-liquidity preparation.",
+      "feature_definitions": {
+        "top20_net_flow_1h": "fs_v0.2 — holder_snapshot dependent",
+        "liquidity_stability": "fs_v0.2 locked"
+      },
+      "observation_cutoff": "features frozen at as_of = first_seen_ts + 3600s (JOIN_OFFSET, locked); outcomes from observations only",
+      "event_windows": {
+        "primary": "+50% within 24h of first_seen",
+        "secondary": "+100% within 72h"
+      },
+      "baseline": "all RESOLVED E-01 candidates with a label for the same horizon/class (survivorship-bias ban: RUGS/DEAD/FLAT/SECURITY-FAILED stay in the cohort)",
+      "exclusion_rules": "no exclusions beyond engine laws: SECURITY FAIL veto never removed from cohort; missing feature => not in condition stratum (no imputation); illiquid tokens stay IN (liquidity-adjusted variants reported separately)",
+      "success_bar": "training lift 95% Wilson CI lower bound > 1.0 AND OOS (strictly later weeks) lift CI lower > 1.0 AND stability across time-halves",
+      "failure_bar": "CI spans 1.0 OOS, or incidence < MIN_POSITIVES=20 (abandon as untestable with reason recorded), or mechanism refuted by adverse evidence",
+      "expected_failure_mode": "DATA-BLOCKED — cells cannot be minted until holder snapshots exist; no fabrication",
+      "required_data_beyond_fs_v0_2": "free holder source REFUTED (5/5 RPC probes R-15); unblock requires Helius/QuickNode free-tier keys (user signup) or EVM Transfer-log scanner (Phase-3)",
+      "note": "RESEARCH HYPOTHESIS — not a trading signal; rank-first law unchanged; no score implied"
+    },
+    {
+      "id": "H17",
+      "title": "Holder growth + organic social acceleration",
+      "batch_id": "B2-pre-registered",
+      "status": "REGISTERED-DATA-BLOCKED",
+      "registered_ts": "2026-08-11T18:53:55.320553+00:00",
+      "hypothesis": "Holder growth + organic social acceleration",
+      "reasoning": "Widening holder base plus non-paid narrative spread is the organic-growth signature.",
+      "feature_definitions": {
+        "holder_growth": "NOT DEFINED (source refuted)",
+        "mention_velocity": "NOT DEFINED (Phase-7 social MVP)"
+      },
+      "observation_cutoff": "features frozen at as_of = first_seen_ts + 3600s (JOIN_OFFSET, locked); outcomes from observations only",
+      "event_windows": {
+        "primary": "+50% within 24h of first_seen",
+        "secondary": "+100% within 72h"
+      },
+      "baseline": "all RESOLVED E-01 candidates with a label for the same horizon/class (survivorship-bias ban: RUGS/DEAD/FLAT/SECURITY-FAILED stay in the cohort)",
+      "exclusion_rules": "no exclusions beyond engine laws: SECURITY FAIL veto never removed from cohort; missing feature => not in condition stratum (no imputation); illiquid tokens stay IN (liquidity-adjusted variants reported separately)",
+      "success_bar": "training lift 95% Wilson CI lower bound > 1.0 AND OOS (strictly later weeks) lift CI lower > 1.0 AND stability across time-halves",
+      "failure_bar": "CI spans 1.0 OOS, or incidence < MIN_POSITIVES=20 (abandon as untestable with reason recorded), or mechanism refuted by adverse evidence",
+      "expected_failure_mode": "DATA-BLOCKED ×2 — registered so the search space is complete and honestly fenced",
+      "required_data_beyond_fs_v0_2": "holders (refuted) + social ingestion (RSS narrative chain verified; mention metrics need source design)",
+      "note": "RESEARCH HYPOTHESIS — not a trading signal; rank-first law unchanged; no score implied"
+    },
+    {
+      "id": "H18",
+      "title": "Volume acceleration + security pass (concentration clause blocked)",
+      "batch_id": "B2-pre-registered",
+      "status": "REGISTERED-COMPUTABLE",
+      "registered_ts": "2026-08-11T18:53:55.320553+00:00",
+      "hypothesis": "Volume acceleration + security pass (concentration clause blocked)",
+      "reasoning": "Acceleration that survives the hard-veto registry is the manipulated-vs-organic discriminator; low-concentration clause registered but DATA-BLOCKED (holder source refuted) — partial computable form only.",
+      "feature_definitions": {
+        "volume_acceleration": "fs_v0.1 locked",
+        "security_all_hard_veto_clear": "fs_v0.1 locked",
+        "top_holder_concentration": "fs_v0.2 — holder_snapshot dependent (BLOCKED)"
+      },
+      "observation_cutoff": "features frozen at as_of = first_seen_ts + 3600s (JOIN_OFFSET, locked); outcomes from observations only",
+      "event_windows": {
+        "primary": "+50% within 24h of first_seen",
+        "secondary": "+100% within 72h"
+      },
+      "baseline": "all RESOLVED E-01 candidates with a label for the same horizon/class (survivorship-bias ban: RUGS/DEAD/FLAT/SECURITY-FAILED stay in the cohort)",
+      "exclusion_rules": "no exclusions beyond engine laws: SECURITY FAIL veto never removed from cohort; missing feature => not in condition stratum (no imputation); illiquid tokens stay IN (liquidity-adjusted variants reported separately)",
+      "success_bar": "training lift 95% Wilson CI lower bound > 1.0 AND OOS (strictly later weeks) lift CI lower > 1.0 AND stability across time-halves",
+      "failure_bar": "CI spans 1.0 OOS, or incidence < MIN_POSITIVES=20 (abandon as untestable with reason recorded), or mechanism refuted by adverse evidence",
+      "expected_failure_mode": "security_clear feature is NULL when no verdict exists (excluded from stratum, never imputed) — incidence may be thin; recorded if so",
+      "required_data_beyond_fs_v0_2": null,
+      "note": "RESEARCH HYPOTHESIS — not a trading signal; rank-first law unchanged; no score implied"
+    },
+    {
+      "id": "H19",
+      "title": "Narrative acceleration + on-chain confirmation",
+      "batch_id": "B2-pre-registered",
+      "status": "REGISTERED-DATA-BLOCKED",
+      "registered_ts": "2026-08-11T18:53:55.320553+00:00",
+      "hypothesis": "Narrative acceleration + on-chain confirmation",
+      "reasoning": "Narrative leading price with simultaneous on-chain txn acceleration separates catalyst-driven moves from pure chart momentum.",
+      "feature_definitions": {
+        "narrative_acceleration": "NOT DEFINED (Phase-7)",
+        "txn_acceleration": "fs_v0.2 locked"
+      },
+      "observation_cutoff": "features frozen at as_of = first_seen_ts + 3600s (JOIN_OFFSET, locked); outcomes from observations only",
+      "event_windows": {
+        "primary": "+50% within 24h of first_seen",
+        "secondary": "+100% within 72h"
+      },
+      "baseline": "all RESOLVED E-01 candidates with a label for the same horizon/class (survivorship-bias ban: RUGS/DEAD/FLAT/SECURITY-FAILED stay in the cohort)",
+      "exclusion_rules": "no exclusions beyond engine laws: SECURITY FAIL veto never removed from cohort; missing feature => not in condition stratum (no imputation); illiquid tokens stay IN (liquidity-adjusted variants reported separately)",
+      "success_bar": "training lift 95% Wilson CI lower bound > 1.0 AND OOS (strictly later weeks) lift CI lower > 1.0 AND stability across time-halves",
+      "failure_bar": "CI spans 1.0 OOS, or incidence < MIN_POSITIVES=20 (abandon as untestable with reason recorded), or mechanism refuted by adverse evidence",
+      "expected_failure_mode": "DATA-BLOCKED — no narrative feature exists; fenced, not fabricated",
+      "required_data_beyond_fs_v0_2": "RSS narrative MVP (cointelegraph/theblock/coindesk chains LIVE-VERIFIED 2026-08-11) — mention-to-token mapping unsolved",
+      "note": "RESEARCH HYPOTHESIS — not a trading signal; rank-first law unchanged; no score implied"
+    },
+    {
+      "id": "H20",
+      "title": "Multi-signal confirmation while price still flat (pre-move signature)",
+      "batch_id": "B2-pre-registered",
+      "status": "REGISTERED-COMPUTABLE",
+      "registered_ts": "2026-08-11T18:53:55.320553+00:00",
+      "hypothesis": "Multi-signal confirmation while price still flat (pre-move signature)",
+      "reasoning": "STRICT 4-of-4 conjunction: volume+txn+liquidity+imbalance all elevated while 1h price change stays within ±5% — evidence of accumulation before repricing. (>=3-of-4 relaxation is a separate future card; not registered now.)",
+      "feature_definitions": {
+        "volume_acceleration": "fs_v0.1",
+        "txn_acceleration": "fs_v0.2",
+        "liquidity_growth_1h": "fs_v0.1",
+        "buy_sell_imbalance_1h": "fs_v0.1",
+        "price_change_1h": "fs_v0.1 — flatness constraint |pc1h|<0.05"
+      },
+      "observation_cutoff": "features frozen at as_of = first_seen_ts + 3600s (JOIN_OFFSET, locked); outcomes from observations only",
+      "event_windows": {
+        "primary": "+50% within 24h of first_seen",
+        "secondary": "+100% within 72h"
+      },
+      "baseline": "all RESOLVED E-01 candidates with a label for the same horizon/class (survivorship-bias ban: RUGS/DEAD/FLAT/SECURITY-FAILED stay in the cohort)",
+      "exclusion_rules": "no exclusions beyond engine laws: SECURITY FAIL veto never removed from cohort; missing feature => not in condition stratum (no imputation); illiquid tokens stay IN (liquidity-adjusted variants reported separately)",
+      "success_bar": "training lift 95% Wilson CI lower bound > 1.0 AND OOS (strictly later weeks) lift CI lower > 1.0 AND stability across time-halves",
+      "failure_bar": "CI spans 1.0 OOS, or incidence < MIN_POSITIVES=20 (abandon as untestable with reason recorded), or mechanism refuted by adverse evidence",
+      "expected_failure_mode": "strict conjunction may have near-zero incidence at n≈200 — then recorded as untestable, NOT relaxed post-hoc",
+      "required_data_beyond_fs_v0_2": null,
+      "note": "RESEARCH HYPOTHESIS — not a trading signal; rank-first law unchanged; no score implied"
+    }
+  ]
+}

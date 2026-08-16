@@ -1,0 +1,258 @@
+{
+ "tool": "observe_active",
+ "version": "observe_active:v2",
+ "scheduler_version": "observation_scheduler:v1",
+ "ts": 1786683566.1093922,
+ "dry_run": false,
+ "max_tokens": 40,
+ "min_interval": 240.0,
+ "near_expiry_s": 1800.0,
+ "tracked_size": 11,
+ "tracked_note": null,
+ "eligible_total": 16,
+ "not_selected_by_cap": 0,
+ "by_state": {
+  "ALREADY_OBSERVED": 373,
+  "WINDOW_OPEN": 16,
+  "COVERABLE": 2475,
+  "MISSED": 4168,
+  "UNRECOVERABLE": 0
+ },
+ "skipped_cooldown": 0,
+ "selected": [
+  {
+   "token_id": "ae759356a192ce63dc6aed194b086303",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "b163808bb84f3fc34a74535443fe67bc",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "bbc5f6d27079f787ae43ae94a4c4b31d",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "c0a459ae4e39ce52c359944754376fc7",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "c12a7686c71785059b7528761e906b12",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "c16ecc59e1391d8b943504877c20ab90",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "c88e4b4407ef11acae69d9d0eea603a0",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "ca235335d6562568ea43fbc1a441ef84",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "dd3eedc2b7899b5ce48c474cdd2681f9",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "e1d0b830895d5150e84f3d3cf4e7fc39",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "e3c37917755db753d1028ba92ebd0ac1",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "ea15141450d1197f3fff18cc4988a1f3",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "ea32f5c3420196fed450d29e6a55bd60",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "eaa2f3852125688a71de8c568acda914",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "f6cd166a9e4dd1f0cf4fa17dc4b9f81d",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  },
+  {
+   "token_id": "fb366717c7a10ca6f0623eef7e31b896",
+   "tier": 1,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786684125.7341337
+  }
+ ],
+ "aborted": null,
+ "not_attempted": 0,
+ "attempted": 16,
+ "recorded": 7,
+ "would_record": 0,
+ "failures": [
+  {
+   "token_id": "b163808bb84f3fc34a74535443fe67bc",
+   "kind": "no_valid_price",
+   "obs_id": "72a0549d7f258b957eb42eef19f13281",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "bbc5f6d27079f787ae43ae94a4c4b31d",
+   "kind": "no_valid_price",
+   "obs_id": "d7731d750b5c784ded1aa16e84798d54",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "c12a7686c71785059b7528761e906b12",
+   "kind": "no_valid_price",
+   "obs_id": "385c4d620ef784d3548b06a4ea969059",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "e1d0b830895d5150e84f3d3cf4e7fc39",
+   "kind": "no_valid_price",
+   "obs_id": "90adb599c60563dcbba487616cba6dda",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "e3c37917755db753d1028ba92ebd0ac1",
+   "kind": "no_valid_price",
+   "obs_id": "9f71cceb484b42840791cc181a4bbae5",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "ea15141450d1197f3fff18cc4988a1f3",
+   "kind": "no_valid_price",
+   "obs_id": "989aba75ef410d83da7575e9d7f284b1",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "ea32f5c3420196fed450d29e6a55bd60",
+   "kind": "no_valid_price",
+   "obs_id": "1c6962106f053f8fb1b2545d077a51e9",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "f6cd166a9e4dd1f0cf4fa17dc4b9f81d",
+   "kind": "no_valid_price",
+   "obs_id": "d85b7482cf23f428416f1f72eee02af0",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "fb366717c7a10ca6f0623eef7e31b896",
+   "kind": "no_valid_price",
+   "obs_id": "f96330121198d45e75b59f9ff6964f9e",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+24h"
+   ]
+  }
+ ],
+ "obs_ids": [
+  "b0c9a42ed7f764eed46bbbd683247f65",
+  "51f33a2af4dd08f9c9da9c6a2a7b45ca",
+  "719d03354e0b4aaa14ad2c600b229469",
+  "41dcdbde96721c7c228bd31939ff192f",
+  "0803fa2bdfdc8653ec36b050def96619",
+  "da4ef2e7c33ad29f83fdb8a35b41110e",
+  "f8d97d46d669354e4c426b6d61e871a1"
+ ]
+}

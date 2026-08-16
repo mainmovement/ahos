@@ -1,0 +1,44 @@
+{
+  "contract_id": "ahos.agent_contract",
+  "version": "v1",
+  "created_utc": "2026-08-13T01:30:00+00:00",
+  "law": "every agent (existing or future) maps its I/O into this envelope; AI may ANALYZE/ADVISE/CHALLENGE only",
+  "fields": {
+    "input":      {"required": true,  "type": "object", "note": "query window/scope; never contains secrets"},
+    "output":     {"required": true,  "type": "any",    "note": "categorical verdict + payload; AI numbers are never authoritative"},
+    "state":      {"required": true,  "type": "object", "note": "tables/stores touched {reads:[], writes:[]}"},
+    "error":      {"required": true,  "type": "enum",   "values": ["NONE", "NO_DATA", "STALE", "PROVIDER_DOWN", "VETO", "BUDGET", "INVALID_INPUT", "CONTRACT_BREAK"]},
+    "evidence":   {"required": true,  "type": "array",  "note": "evidence ids / probe ids / sha refs; empty only with error!=NONE"},
+    "confidence": {"required": true,  "type": "enum",   "values": ["PROVEN", "SUPPORTED", "PARTIALLY_SUPPORTED", "UNSUPPORTED", "UNKNOWN", "INSUFFICIENT_SAMPLE", "REFUTED", "CONTAMINATED", "NOT_EVALUATED"]},
+    "timestamp":  {"required": true,  "type": "number", "note": "unix epoch seconds, UTC"},
+    "provenance": {"required": true,  "type": "object", "note": "{producer, source_artifacts[], lane}"},
+    "version":    {"required": true,  "type": "string", "note": "agent/card version, e.g. PT-X3-v2"},
+    "health":     {"required": true,  "type": "object", "note": "{last_ok_ts, circuit: CLOSED|OPEN|HALF_OPEN}"}
+  },
+  "spec_fields": {
+    "note": "P1: every registered agent spec must carry these fields",
+    "required": ["agent_id", "name", "status", "lane", "form", "cadence", "capabilities",
+                 "dependencies", "criticality", "failure_behavior", "allowed_authority",
+                 "forbidden_authority", "required_probes", "version", "evidence"],
+    "optional_note": "W11 additive: orchestration block (OPTIONAL in v1 — required for Temporal-slot registration later). Validated when present; absence never breaks v1.",
+    "optional": ["ops"],
+    "ops_fields": {
+      "required_when_present": ["runtime", "boot_class", "operability", "health", "circuit",
+                                "contract", "cognitive_principles", "probe_refs", "state_tables",
+                                "startup_policy", "shutdown_policy", "failure_policy"],
+      "operability_note": "four independent booleans, machine-readable honesty: implemented (executable artifact exists), contracted (envelope/spec validated), orchestrated (bootable by control plane), live (actually ran in current runtime). live => implemented."
+    }
+  },
+  "enums": {
+    "status": ["EXISTS", "PARTIAL", "PLANNED", "MISSING", "DUPLICATED", "UNKNOWN"],
+    "lane": ["A", "B", "SHARED"],
+    "form": ["lib", "service", "n8n_workflow", "n8n_subworkflow", "loop_doc", "pipeline"],
+    "cadence": ["continuous", "periodic", "event_driven", "on_demand", "per_decision"],
+    "criticality": ["CRITICAL", "NON_CRITICAL"],
+    "authority": ["OBSERVE", "ANALYZE", "ADVISE", "CHALLENGE", "VETO", "DECIDE", "PROMOTE"],
+    "runtime": ["python_lib", "python_service", "n8n_workflow", "temporal_workflow", "loop_doc", "pipeline", "none"],
+    "boot_class": ["CRITICAL", "NON_CRITICAL", "OPTIONAL", "ADVISORY"],
+    "circuit": ["CLOSED", "OPEN", "HALF_OPEN"],
+    "health_kind": ["probe", "static", "none"]
+  }
+}

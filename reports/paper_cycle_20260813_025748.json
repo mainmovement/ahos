@@ -1,0 +1,233 @@
+{
+ "cycle_ts": 1786589868.485901,
+ "v3": {
+  "now": 1786589868.485901,
+  "engine": "v3",
+  "scanned": 400,
+  "snapshot_v2": 55,
+  "security_calls": 10,
+  "defers_budget": 38,
+  "rejected": {
+   "CRITICAL_RISK: CRITICAL veto evidence: lp_not_locked_fresh_pool": 1,
+   "liquidity 2255 < min 5000": 1,
+   "liquidity 1688 < min 5000": 1,
+   "liquidity 1908 < min 5000": 1,
+   "liquidity 1961 < min 5000": 1,
+   "liquidity 1750 < min 5000": 1,
+   "liquidity 4261 < min 5000": 1,
+   "liquidity 2264 < min 5000": 1,
+   "liquidity 1720 < min 5000": 1,
+   "liquidity 1084 < min 5000": 1,
+   "liquidity 3407 < min 5000": 1,
+   "liquidity 1531 < min 5000": 1,
+   "liquidity 3191 < min 5000": 1,
+   "liquidity 1902 < min 5000": 1,
+   "liquidity 2067 < min 5000": 1,
+   "liquidity 2300 < min 5000": 1,
+   "liquidity 1914 < min 5000": 1,
+   "liquidity 3504 < min 5000": 1,
+   "liquidity 361 < min 5000": 1,
+   "liquidity 4309 < min 5000": 1,
+   "liquidity 0 < min 5000": 14,
+   "CRITICAL_RISK: CRITICAL veto evidence: blacklist_function": 2,
+   "liquidity 2604 < min 5000": 1,
+   "liquidity 2831 < min 5000": 1,
+   "security: EVM gate: honeypot/sell-tax not both resolved clea": 2,
+   "liquidity 2829 < min 5000": 3,
+   "liquidity 2773 < min 5000": 1,
+   "liquidity 4811 < min 5000": 1,
+   "liquidity UNKNOWN at decision time": 9,
+   "liquidity 3215 < min 5000": 1
+  },
+  "qualified_skipped_no_cash": 5,
+  "entries": 0,
+  "monitored": 11,
+  "escalations": 0,
+  "exits": 0,
+  "partials": 0,
+  "trapped": 0,
+  "invalidations": 0,
+  "realizable_rows": 11,
+  "lessons_new": 0,
+  "decisions": {
+   "NO_DATA": 11
+  },
+  "cash_state": "CASH_AVAILABLE",
+  "learning": {
+   "closed_trades": 0,
+   "profitable_trades": 0,
+   "losing_trades": 0,
+   "trapped_or_total_loss": 0,
+   "scams_avoided_validated": 1,
+   "scams_avoided_pending": 0,
+   "scams_missed": 0,
+   "honeypots_avoided": 6,
+   "honeypots_missed": 0,
+   "false_security_pass": 0,
+   "partial_exits_taken": 0,
+   "liquidity_estimation_errors_gt30pct": 0,
+   "slippage_estimation_errors": 0,
+   "news_social_signal_accuracy": "UNAVAILABLE_NO_FEED \u2014 UNKNOWN by construction",
+   "early_entry_accuracy": "NO_COUNTERFACTUAL_PROTOCOL_YET",
+   "late_entry_mistakes": "NO_COUNTERFACTUAL_PROTOCOL_YET",
+   "false_security_reject": 0,
+   "missed_opportunity_validated": 0,
+   "rejected_review_pending": 11,
+   "rejected_not_reviewable": 474,
+   "lessons_recorded": 0,
+   "note": "counters recomputed from append-only tables each cycle; one trade never changes a frozen rule; improvements require accumulated evidence"
+  },
+  "cash": 1.8984375
+ },
+ "v1_monitor": {
+  "now": 1786589868.485901,
+  "scanned": 0,
+  "snapshots": 0,
+  "entries": 0,
+  "defers_budget": 0,
+  "not_qualified": 0,
+  "monitored": 15,
+  "exits": 0,
+  "invalidations": 0,
+  "security_calls": 5
+ },
+ "research": {
+  "tokens": 638,
+  "observations": 791,
+  "resolved": 0,
+  "cohort_readiness": "WALL-CLOCK GATED (first 72h closure 2026-08-14 18:00Z)",
+  "h14_h20_gate": "pre-registered only; untouched by Track-B"
+ },
+ "experiment": {
+  "bankroll_start_usd": 20.0,
+  "cash_now_usd": 1.8984,
+  "capital_at_risk_usd": 18.1016,
+  "candidates_decided": 523,
+  "rejected_by_class": {
+   "honeypot": 6,
+   "liquidity": 453,
+   "security": 20
+  },
+  "scam_assessments": {
+   "CRITICAL_RISK": 7
+  },
+  "qualified_skipped_no_cash": 33,
+  "paper_entries": 11,
+  "open_positions": 11,
+  "paper_exits": 0,
+  "state_counts": {
+   "NO_DATA": 11
+  },
+  "winning_trades": 0,
+  "losing_trades": 0,
+  "trapped_positions": 0,
+  "total_fees_usd": 0.181,
+  "total_slippage_usd": 0.0447,
+  "total_token_taxes_usd": 0,
+  "realized_pnl_usd": 0,
+  "capital_lost_trapped_usd": 0,
+  "max_drawdown_usd": 0.0,
+  "best_trade": null,
+  "worst_trade": null,
+  "cohorts": {},
+  "expectancy_gate": "INSUFFICIENT_CLOSED_TRADES \u2014 no expectancy/profitability language permitted"
+ },
+ "equity": {
+  "bankroll_start_usd": 20.0,
+  "cash_usd": 1.8984,
+  "open_displayed_value_usd": 17.8759,
+  "open_realizable_value_usd": 14.5329,
+  "open_alloc_remaining_usd": 18.1016,
+  "realized_pnl_usd": 0,
+  "unrealized_pnl_displayed_basis_usd": -0.2257,
+  "unrealized_pnl_realizable_basis_usd": -3.5687,
+  "trapped_capital_open_usd": 0.0,
+  "total_loss_booked_usd": 0,
+  "fees_total_usd": 0.181,
+  "gas_total_usd": 0,
+  "taxes_known_total_usd": 0,
+  "slippage_total_usd": 0.0447,
+  "net_equity_displayed_usd": 19.7743,
+  "net_equity_realizable_usd": 16.4313,
+  "equity_truth": "NET_EQUITY_REALIZABLE is the economically meaningful number; DISPLAYED is what a naive UI would show \u2014 never used for decisions",
+  "open_positions": [
+   {
+    "trade": "TOADER",
+    "displayed": 1.9751,
+    "realizable": 1.9304,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "PRISM",
+    "displayed": 1.9751,
+    "realizable": 1.1504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "V4",
+    "displayed": 1.9751,
+    "realizable": 1.1504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "SMA",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "\ud83d\udc7dALIEN",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "QQQB",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "TLI",
+    "displayed": 1.9751,
+    "realizable": 1.8504,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 2.0
+   },
+   {
+    "trade": "MOMO",
+    "displayed": 1.4813,
+    "realizable": 0.6628,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 1.5
+   },
+   {
+    "trade": "COMM\ud83d\udcaf",
+    "displayed": 1.111,
+    "realizable": 0.9971,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 1.125
+   },
+   {
+    "trade": "BabyMonkey",
+    "displayed": 0.8332,
+    "realizable": 0.7228,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 0.8438
+   },
+   {
+    "trade": "TOAD",
+    "displayed": 0.6249,
+    "realizable": 0.5171,
+    "route": "EXECUTABLE_FULL",
+    "alloc_remaining": 0.6328
+   }
+  ]
+ }
+}

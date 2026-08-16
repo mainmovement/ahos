@@ -1,0 +1,97 @@
+{
+  "updated": "2026-08-11T16:53:38.048499+00:00",
+  "experiment_log": "exp_20260811_165329.json",
+  "candidates": {
+    "H1": {
+      "name": "Donchian Breakout 55/20",
+      "family": "trend_following",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H2": {
+      "name": "Bollinger z20 \u00b12 reversion",
+      "family": "mean_reversion",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H3": {
+      "name": "ATR squeeze breakout",
+      "family": "volatility_expansion",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H4": {
+      "name": "ADX>25 pullback-to-EMA20",
+      "family": "regime_detection",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H5": {
+      "name": "Extreme funding contrarian",
+      "family": "funding_rate",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H6": {
+      "name": "OI expansion + price confirmation",
+      "family": "open_interest",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H7": {
+      "name": "Volume shock continuation",
+      "family": "volume_anomaly",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H8": {
+      "name": "Order-book imbalance scalping",
+      "family": "-",
+      "status": "DATA-BLOCKED",
+      "verdict": "NOT TESTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H9": {
+      "name": "Fixed-weight composite score",
+      "family": "multi_factor",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260810_121055.json"
+    },
+    "H10": {
+      "name": "OI expansion in high-vol regime only",
+      "family": "open_interest+regime",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260811_154550.json"
+    },
+    "H11": {
+      "name": "Composite score, conviction-extremes only",
+      "family": "multi_factor+conviction",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260811_154550.json"
+    },
+    "H12": {
+      "name": "RV 3-state machine gating Donchian breaks",
+      "family": "regime_state_machine",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260811_154550.json"
+    },
+    "H13": {
+      "name": "OI\u00d7high-vol, BTC-scoped, 7-year sample",
+      "family": "open_interest+regime+instrument-scope",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "exp_20260811_165329.json"
+    }
+  }
+}

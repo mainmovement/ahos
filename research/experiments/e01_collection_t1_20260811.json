@@ -1,0 +1,65 @@
+{
+  "ts": 1786471361.2602537,
+  "store": "/home/user/ahos/data/e01_discovery.sqlite",
+  "dry_run": false,
+  "streams": {
+    "gt_new_pools_solana": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/solana/new_pools?page=1",
+      "seen": 20,
+      "taken": 5
+    },
+    "gt_new_pools_ethereum": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/eth/new_pools?page=1",
+      "seen": 20,
+      "taken": 5
+    },
+    "gt_new_pools_bsc": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/bsc/new_pools?page=1",
+      "seen": 20,
+      "taken": 5
+    },
+    "gt_new_pools_base": {
+      "availability": "OK",
+      "endpoint": "https://api.geckoterminal.com/api/v2/networks/base/new_pools?page=1",
+      "seen": 20,
+      "taken": 5
+    },
+    "dex_profiles": {
+      "availability": "OK",
+      "seen": 30,
+      "enriched": 5
+    }
+  },
+  "ingested": 25,
+  "errors": [],
+  "new_tokens": [
+    "4b4b361114137d242dff44837d9863c2",
+    "fe249ca216d309fc825d380194ed7618",
+    "abcae19670fe8e65cd9dabe428876b46",
+    "b2774cc9085c2e7eafa0d53811047dba",
+    "4addf7e67ce11ee7b014ab5825306879",
+    "91c84efcd6431014cbafac27998a8db8",
+    "474df1a7c14bc00a95f21ef2f86fd6e3",
+    "474df1a7c14bc00a95f21ef2f86fd6e3",
+    "474df1a7c14bc00a95f21ef2f86fd6e3",
+    "f70380c812435fd066fec23439b5c075",
+    "f323dac3c80362809f8173d0134a4f90",
+    "3e5e8b44a472d6d64d1d2eb6ec0ad47c",
+    "e544ac17d715b3c60cc6ecbec9c6b6b6",
+    "dd8a9d3299b30d89db9ab1853e62ba98",
+    "8f464384ef13f010e0f2b1be2fbcd149",
+    "920a03890ff2673b54926be5e595f7e0",
+    "1591d60594e18e01d5739840a76c68b4",
+    "022cf9c642ff7e6e2cb98650317b3789",
+    "44077e7ca28fd3d8712c5f3a79a13b99",
+    "803caeb106c7ccfe404444a26d37f298",
+    "beaca97842a787dcadb4156c00797b36",
+    "b59ff1d9003de1addb19ddd8cf79c71f",
+    "a9427c52ee4ff157271b29d41e1d93be",
+    "5db30e4e358751b9e698c052bd579f15",
+    "5bf1e829cbe98a9e850de62224b63cb3"
+  ]
+}

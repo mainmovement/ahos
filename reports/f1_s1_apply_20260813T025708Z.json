@@ -1,0 +1,181 @@
+{
+ "probe_set": "W12A-F1S1-APPLY",
+ "ts": "20260813T025708Z",
+ "mode": "apply",
+ "law": "DDL only; zero row writes; census before/after proves identical data",
+ "e01": {
+  "triggers": [
+   "f1s1_guard_no_update_discovery_observations",
+   "f1s1_guard_no_delete_discovery_observations",
+   "f1s1_guard_no_update_raw_payloads",
+   "f1s1_guard_no_delete_raw_payloads",
+   "f1s1_guard_no_update_gap_register",
+   "f1s1_guard_no_delete_gap_register",
+   "f1s1_guard_no_update_lifecycle_events",
+   "f1s1_guard_no_delete_lifecycle_events",
+   "f1s1_guard_no_update_gate_summary",
+   "f1s1_guard_no_delete_gate_summary"
+  ],
+  "guards_present_after": [
+   "f1s1_guard_no_delete_discovery_observations",
+   "f1s1_guard_no_delete_gap_register",
+   "f1s1_guard_no_delete_gate_summary",
+   "f1s1_guard_no_delete_lifecycle_events",
+   "f1s1_guard_no_delete_raw_payloads",
+   "f1s1_guard_no_update_discovery_observations",
+   "f1s1_guard_no_update_gap_register",
+   "f1s1_guard_no_update_gate_summary",
+   "f1s1_guard_no_update_lifecycle_events",
+   "f1s1_guard_no_update_raw_payloads"
+  ],
+  "census_before": {
+   "raw_payloads": {
+    "rows": 173,
+    "sha": "5354a0d0652f1303844ae6a91c26cc71ce6478ba71d0581d11fddcd4aaeb737e"
+   },
+   "tokens": {
+    "rows": 569,
+    "sha": "e5a8c0a2a38289dcc87b79817b9e30bb496bdbd3e85d7b721d87d493d8c911d1"
+   },
+   "pairs": {
+    "rows": 600,
+    "sha": "40f1543d159b4f3e27777182ce2c1a8cbd7658b386be5c687c4c00b9664244ea"
+   },
+   "discovery_observations": {
+    "rows": 716,
+    "sha": "9d6933052d657e73de31fc1f586f2f99f529639e1a5e360b4e1e2c4943c01a4a"
+   },
+   "observation_state": {
+    "rows": 569,
+    "sha": "20879b37d8a1610454e850906557e38ef64b31003ad9a1514be54f09abb056a1"
+   },
+   "lifecycle_events": {
+    "rows": 1285,
+    "sha": "5f0186d2c5797df4b045219eea7dc40268779a2a85fa7e81e8d55208395777fd"
+   },
+   "gap_register": {
+    "rows": 826,
+    "sha": "10e2b37317054437f91daebd8657506a6b5800eea5c4ad3210457d0c8774df84"
+   },
+   "security_verdicts": {
+    "rows": 7,
+    "sha": "d70356ebd0277da6d109867a132c6d71300b3c57567fb11b9bf3b04f71abc40a"
+   },
+   "gate_summary": {
+    "rows": 1,
+    "sha": "775c3e6e5d2701eddc4adcbc31a4bcae6c6c9dceb6ef14d0a7d26c630b66672d"
+   },
+   "feature_definitions": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "feature_vector": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "outcome_label": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "opportunity_rank": {
+    "rows": 25,
+    "sha": "2494515eb7db7b2a7abc7b604c390cee8a96450a302ca8672af889b9314aa3d8"
+   },
+   "holder_snapshot": {
+    "rows": 1,
+    "sha": "067a8e31f42d1f7cab545c5324ce470527dbf5f07141076bf9debaf03a24a9f2"
+   },
+   "wallet_observation": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  },
+  "census_after": {
+   "raw_payloads": {
+    "rows": 173,
+    "sha": "5354a0d0652f1303844ae6a91c26cc71ce6478ba71d0581d11fddcd4aaeb737e"
+   },
+   "tokens": {
+    "rows": 569,
+    "sha": "e5a8c0a2a38289dcc87b79817b9e30bb496bdbd3e85d7b721d87d493d8c911d1"
+   },
+   "pairs": {
+    "rows": 600,
+    "sha": "40f1543d159b4f3e27777182ce2c1a8cbd7658b386be5c687c4c00b9664244ea"
+   },
+   "discovery_observations": {
+    "rows": 716,
+    "sha": "9d6933052d657e73de31fc1f586f2f99f529639e1a5e360b4e1e2c4943c01a4a"
+   },
+   "observation_state": {
+    "rows": 569,
+    "sha": "20879b37d8a1610454e850906557e38ef64b31003ad9a1514be54f09abb056a1"
+   },
+   "lifecycle_events": {
+    "rows": 1285,
+    "sha": "5f0186d2c5797df4b045219eea7dc40268779a2a85fa7e81e8d55208395777fd"
+   },
+   "gap_register": {
+    "rows": 826,
+    "sha": "10e2b37317054437f91daebd8657506a6b5800eea5c4ad3210457d0c8774df84"
+   },
+   "security_verdicts": {
+    "rows": 7,
+    "sha": "d70356ebd0277da6d109867a132c6d71300b3c57567fb11b9bf3b04f71abc40a"
+   },
+   "gate_summary": {
+    "rows": 1,
+    "sha": "775c3e6e5d2701eddc4adcbc31a4bcae6c6c9dceb6ef14d0a7d26c630b66672d"
+   },
+   "feature_definitions": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "feature_vector": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "outcome_label": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "opportunity_rank": {
+    "rows": 25,
+    "sha": "2494515eb7db7b2a7abc7b604c390cee8a96450a302ca8672af889b9314aa3d8"
+   },
+   "holder_snapshot": {
+    "rows": 1,
+    "sha": "067a8e31f42d1f7cab545c5324ce470527dbf5f07141076bf9debaf03a24a9f2"
+   },
+   "wallet_observation": {
+    "rows": 0,
+    "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  },
+  "data_identical": true
+ },
+ "ahos_local": {
+  "triggers": [
+   "f1s1_guard_no_update_control_flags",
+   "f1s1_guard_no_delete_control_flags"
+  ],
+  "guards_present_after": [
+   "f1s1_guard_no_delete_control_flags",
+   "f1s1_guard_no_update_control_flags"
+  ],
+  "census_before": {
+   "control_flags": {
+    "rows": 65,
+    "sha": "29f59c024a45dabb2169d711fcbfcfe70d9b660583f2f7b8523cb75dc6ab60d8"
+   }
+  },
+  "census_after": {
+   "control_flags": {
+    "rows": 65,
+    "sha": "29f59c024a45dabb2169d711fcbfcfe70d9b660583f2f7b8523cb75dc6ab60d8"
+   }
+  },
+  "data_identical": true
+ },
+ "verdict": "OK"
+}

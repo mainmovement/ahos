@@ -1,0 +1,750 @@
+# AHOS W11→W12 — AGENT REGISTRY (25-agent matrix; machine-readable ops blocks; source of truth for
+# Master Orchestration). Laws: PARTIAL/PLANNED never promoted without executable evidence;
+# operability flags are independent booleans (implemented ⇒ executable artifact; contracted ⇒
+# envelope-conformant; orchestrated ⇒ control-plane bootable; live ⇒ ran in current runtime);
+# live ⇒ implemented (validator-enforced). Dependencies are agent ids only (F2/F3 repairs:
+# cycle AG-11↔AG-13 removed 2026-08-13; non-agent infra/file/human refs moved to ops.notes).
+# W12 deltas (2026-08-13, R-34): AG-25 OSS Capability Intelligence registered (PLANNED/ADVISORY);
+# AG-17 promoted PARTIAL→EXISTS after F1-S1 made its trigger-guard claim measured-true.
+matrix_version: W11-OPS-2
+created_utc: "2026-08-13T02:05:00+00:00"
+agents:
+  - agent_id: AG-01
+    name: Master Orchestrator
+    status: MISSING
+    lane: B
+    form: n8n_workflow
+    cadence: continuous
+    criticality: CRITICAL
+    capabilities: [orchestration, lifecycle]
+    dependencies: [AG-22, AG-23]
+    failure_behavior: "SAFE HALT on critical dep failure; DEGRADED otherwise"
+    allowed_authority: [OBSERVE]
+    forbidden_authority: [DECIDE, PROMOTE, VETO]
+    required_probes: [REPLAY_PROBE, DETERMINISM_PROBE]
+    version: "design-W9"
+    evidence: "docs/architecture/ (blueprint only; no runtime) — designed absence, no fake orchestrator"
+    ops:
+      runtime: none
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: control_plane_contract_v1 (consumes; does not satisfy yet)
+      cognitive_principles: [ENG-01, ENG-07, ENG-08, MATH-09, MATH-10, HUM-03, ENG-11]
+      probe_refs: [W10A-07 (graph analysis)]
+      state_tables: [data/control_plane_ledger.sqlite (future run-ledger)]
+      startup_policy: {depends_on: [AG-22, AG-23], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: [run_ledger]}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "ABSENT BY DESIGN; absence ⇒ manual per-component operation = current reality"
+  - agent_id: AG-02
+    name: Data Intelligence
+    status: EXISTS
+    lane: A
+    form: lib
+    cadence: periodic
+    criticality: CRITICAL
+    capabilities: [collection, normalization, provenance]
+    dependencies: []
+    failure_behavior: "provider failure ⇒ circuit + gap_register row"
+    allowed_authority: [OBSERVE]
+    forbidden_authority: [DECIDE, PROMOTE, VETO, ADVISE]
+    required_probes: [PROVENANCE_PROBE, ADVERSARIAL_INPUT]
+    version: "e01-t11"
+    evidence: "discovery/collect.py + discovery/observations.py; data/e01_discovery.sqlite (569 tok/716 obs @t11)"
+    ops:
+      runtime: python_lib
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: probe, ref: pal_probe collectors}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped, not envelope-wrapped — Lane-A frozen)
+      cognitive_principles: [CRYPTO-05, CRYPTO-11, SEC-02, MATH-04, MATH-12]
+      probe_refs: [W10A-01, W10A-03, PRB-20260813-001..011 (chain probes)]
+      state_tables: [tokens, pairs, discovery_observations, raw_payloads, observation_state, lifecycle_events, gap_register, gate_summary, feature_definitions, feature_vector, outcome_label, security_verdicts, opportunity_rank, holder_snapshot, wallet_observation]
+      startup_policy: {depends_on: [PAL, providers.yaml], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: [raw_payloads]}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "infra deps (PAL/providers.yaml) declared here; tracked-token refresh coverage thin (F12)"
+  - agent_id: AG-03
+    name: Research Agent
+    status: EXISTS
+    lane: A
+    form: lib
+    cadence: event_driven
+    criticality: CRITICAL
+    capabilities: [statistics, evaluation, registry]
+    dependencies: [AG-02]
+    failure_behavior: "INSUFFICIENT_SAMPLE verdicts; never force"
+    allowed_authority: [OBSERVE, ANALYZE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [STATISTICAL_SUFFICIENCY, OVERFIT_CHECK]
+    version: "b2-prereg"
+    evidence: "research/baseline_stats.py (incl. evaluate_conjunction); research/SEARCH_SPACE_REGISTRY.json (9 cells)"
+    ops:
+      runtime: python_lib
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-04, MATH-05, MATH-11, MATH-14, SCI-01, SCI-02, SEC-07]
+      probe_refs: [tests/test_baseline_stats.py]
+      state_tables: [research/data/* (manifested files); reads e01 RO]
+      startup_policy: {depends_on: [AG-02, SEARCH_SPACE_REGISTRY], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 1, backoff_s: 0}
+      notes: "first real scan wall-clock gated (≥200 resolved ≈ 2026-08-17)"
+  - agent_id: AG-04
+    name: Market Intelligence
+    status: PARTIAL
+    lane: A
+    form: lib
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [ranking, regimes]
+    dependencies: [AG-02]
+    failure_behavior: "UNKNOWN if inputs missing"
+    allowed_authority: [OBSERVE, ANALYZE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [STATISTICAL_SUFFICIENCY]
+    version: "ranker-v0"
+    evidence: "discovery/ranker.py (categorical only; no regime module — verified W10A-15)"
+    ops:
+      runtime: python_lib
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-05, MATH-07, MATH-13]
+      probe_refs: [tests/test_discovery.py]
+      state_tables: [opportunity_rank]
+      startup_policy: {depends_on: [AG-02], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "boundary vs AG-05 documented (F16): AG-04 ranks; AG-05 classifies momentum"
+  - agent_id: AG-05
+    name: Trend Intelligence
+    status: PARTIAL
+    lane: A
+    form: lib
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [momentum, decay]
+    dependencies: [AG-02]
+    failure_behavior: "momentum UNKNOWN without 2 obs"
+    allowed_authority: [OBSERVE, ANALYZE]
+    forbidden_authority: [DECIDE]
+    required_probes: [MODEL_ASSUMPTION_CHECK]
+    version: "mom-classes-v1"
+    evidence: "paper_trading/decision_v3.py momentum_class (line 78; Track-B consumption only)"
+    ops:
+      runtime: python_lib
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-06, MATH-07]
+      probe_refs: [tests/test_paper_trading_v3.py]
+      state_tables: []
+      startup_policy: {depends_on: [AG-02], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "stale obs ⇒ consumer-side NO_DATA (PT-X3-v2 live behavior)"
+  - agent_id: AG-06
+    name: On-Chain Intelligence
+    status: PARTIAL
+    lane: A
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [holders, deployers]
+    dependencies: []
+    failure_behavior: "source-refuted ⇒ UNKNOWN rows (R-15 stands)"
+    allowed_authority: [OBSERVE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [SOURCE_DISAGREEMENT_PROBE]
+    version: "holders-refuted"
+    evidence: "discovery/holders.py; R-15 free-RPC refutation recorded (Helius 401 re-probed PRB-20260813-015)"
+    ops:
+      runtime: python_service
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: probe, ref: pal_probe rpc tier}
+      circuit: {state: OPEN, failures: 3}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [CRYPTO-05, SEC-03, SEC-09]
+      probe_refs: [PRB-20260813-012..016]
+      state_tables: [holder_snapshot, wallet_observation]
+      startup_policy: {depends_on: [rpc-providers], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 1, backoff_s: 300}
+      notes: "OPEN circuit by evidence (sources refuted); re-close needs a live source"
+  - agent_id: AG-07
+    name: Liquidity/Exitability
+    status: EXISTS
+    lane: A
+    form: lib
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [realizable, impact, exitability]
+    dependencies: []
+    failure_behavior: "UNKNOWN liq ⇒ UNEXITABLE status, never guessed"
+    allowed_authority: [OBSERVE, ANALYZE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [LIQUIDITY_ILLUSION_CHECK, NUMERIC_TRACE_CHECK]
+    version: "PT-REALIZABLE-v1"
+    evidence: "paper_trading/realizable.py + live sweep (disp 17.8759 vs realizable 14.5329; 11/11 EXECUTABLE_FULL)"
+    ops:
+      runtime: python_lib
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [CRYPTO-06, MATH-02, MATH-06, CRYPTO-13]
+      probe_refs: [W10A-05, tests/test_paper_trading_v3.py]
+      state_tables: [realizable_snapshot]
+      startup_policy: {depends_on: [cost_model], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "gas MODEL classes tagged (no live oracle); EVM true sell-sim unavailable (GoPlus proxy documented)"
+  - agent_id: AG-08
+    name: Risk Agent
+    status: EXISTS
+    lane: A
+    form: lib
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [classification, escalation, trapped]
+    dependencies: [AG-09]
+    failure_behavior: "worst-case-first; TRAPPED not guessed from UNKNOWN"
+    allowed_authority: [OBSERVE, ANALYZE]
+    forbidden_authority: [DECIDE]
+    required_probes: [MODEL_ASSUMPTION_CHECK]
+    version: "risk-v2"
+    evidence: "paper_trading/risk.py; MEANINGFUL_RECOVERY_FRAC 0.10 locked (line 14)"
+    ops:
+      runtime: python_lib
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-08, SEC-03, CRYPTO-08, MATH-13]
+      probe_refs: [tests/test_paper_trading_v2.py, tests/test_paper_trading_v3.py]
+      state_tables: [position_state_event]
+      startup_policy: {depends_on: [AG-09], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "escalation is advisory-only (documented)"
+  - agent_id: AG-09
+    name: Security/Scam Defense
+    status: EXISTS
+    lane: A
+    form: service
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [veto, taxes, honeypot, lp-lock]
+    dependencies: []
+    failure_behavior: "UNKNOWN ≠ PASS; insufficient coverage ⇒ NO ENTRY"
+    allowed_authority: [OBSERVE, ANALYZE, VETO]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [PROVIDER_COMPROMISE, ADVERSARIAL_INPUT]
+    version: "sec-multi-v2"
+    evidence: "paper_trading/security_multi.py; honeypots_avoided=3 live (W10A-14); single-source-per-chain KNOWN RISK"
+    ops:
+      runtime: python_service
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: probe, ref: pal_probe security providers}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [SEC-01, SEC-02, SEC-03, SEC-04, CRYPTO-01]
+      probe_refs: [W10A-14, PRB-20260813-00x tiers (rugcheck/goplus)]
+      state_tables: [scam_assessment, security_verdicts]
+      startup_policy: {depends_on: [rugcheck, goplus], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "deterministic safety VETO is explicit in this spec (F5 resolution: authority text amended to recognize deterministic vetoes; never an AI veto)"
+  - agent_id: AG-10
+    name: Narrative Intelligence
+    status: PARTIAL
+    lane: A
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [rss, narrative_streams]
+    dependencies: []
+    failure_behavior: "no feed ⇒ UNAVAILABLE_NO_FEED (never fabricated)"
+    allowed_authority: [OBSERVE, ANALYZE]
+    forbidden_authority: [DECIDE]
+    required_probes: [SOURCE_DISAGREEMENT_PROBE]
+    version: "rss-only"
+    evidence: "providers.yaml (cointelegraph/theblock/coindesk; coindesk OK PRB-20260813-017); no scoring module (verified W10A-15)"
+    ops:
+      runtime: python_service
+      boot_class: ADVISORY
+      operability: {implemented: true, contracted: false, orchestrated: false, live: false}
+      health: {kind: probe, ref: pal_probe rss tier}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [CRYPTO-05, SCI-03, HUM-08]
+      probe_refs: [PRB-20260813-017]
+      state_tables: []
+      startup_policy: {depends_on: [rss providers], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 1, backoff_s: 300}
+      notes: "live=false honestly: feeds probed OK but narrative rows not yet consumed by any decision path"
+  - agent_id: AG-11
+    name: Multi-Mind Council
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: event_driven
+    criticality: NON_CRITICAL
+    capabilities: [advisory_review, lenses, AI]
+    dependencies: [AG-12, AG-13]
+    failure_behavior: "no providers ⇒ deterministic floor, council silent"
+    allowed_authority: [ANALYZE, ADVISE, CHALLENGE]
+    forbidden_authority: [DECIDE, PROMOTE, VETO]
+    required_probes: [AI_CORRELATION_CHECK, LIMITATION_CHECK]
+    version: "contract-W11"
+    evidence: "architecture/council.py + ai_council_contract_v1 (W11); docs/canonical/AGENT_COUNCIL.md protocol (document loop)"
+    ops:
+      runtime: python_lib
+      boot_class: ADVISORY
+      operability: {implemented: true, contracted: true, orchestrated: false, live: false}
+      health: {kind: probe, ref: router health}
+      circuit: {state: CLOSED, failures: 0}
+      contract: ai_council_contract_v1
+      cognitive_principles: [MATH-09, MATH-12, CRYPTO-03, CRYPTO-10]
+      probe_refs: [tests/test_runtime_w11.py]
+      state_tables: []
+      startup_policy: {depends_on: [AG-12, AG-13], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "council OFFLINE ≠ system halt (deterministic floor law)"
+  - agent_id: AG-12
+    name: AI Model Router
+    status: PARTIAL
+    lane: B
+    form: lib
+    cadence: on_demand
+    criticality: NON_CRITICAL
+    capabilities: [capability_routing, fallback, AI]
+    dependencies: []
+    failure_behavior: "all fail ⇒ DETERMINISTIC_ONLY (live-verified PRB-20260811-AI-001)"
+    allowed_authority: [ANALYZE, ADVISE]
+    forbidden_authority: [DECIDE, PROMOTE, VETO]
+    required_probes: [health probe law]
+    version: "router-W11"
+    evidence: "architecture/provider_router.py + config/ai_provider_registry.yaml (W11); telegram_ai/providers.py (v1 chain); 9 capabilities contracted"
+    ops:
+      runtime: python_lib
+      boot_class: ADVISORY
+      operability: {implemented: true, contracted: true, orchestrated: false, live: false}
+      health: {kind: probe, ref: provider probes}
+      circuit: {state: CLOSED, failures: 0}
+      contract: ai_provider_contract_v1
+      cognitive_principles: [ENG-04, HUM-04, CRYPTO-07]
+      probe_refs: [PRB-20260811-AI-001, tests/test_runtime_w11.py]
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "W10 F9 gap closed: circuit breaker + health state now implemented (test-pinned)"
+  - agent_id: AG-13
+    name: Consensus/Disagreement Engine
+    status: PARTIAL
+    lane: B
+    form: lib
+    cadence: event_driven
+    criticality: NON_CRITICAL
+    capabilities: [disagreement_detection]
+    dependencies: []
+    failure_behavior: "conflicts recorded, never silent-averaged"
+    allowed_authority: [ANALYZE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [AI_CORRELATION_CHECK]
+    version: "compare-W11"
+    evidence: "architecture/council.py disagreement analysis (pairwise categorical; numbers never averaged); W6/W7 decision logs"
+    ops:
+      runtime: python_lib
+      boot_class: ADVISORY
+      operability: {implemented: true, contracted: true, orchestrated: false, live: false}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: ai_council_contract_v1
+      cognitive_principles: [MATH-09, SCI-03, SEC-11]
+      probe_refs: [tests/test_runtime_w11.py]
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "F2 resolved 2026-08-13: former cycle AG-11↔AG-13 removed (consumes envelopes post-hoc; no service dependency)"
+  - agent_id: AG-14
+    name: Red Team
+    status: PARTIAL
+    lane: B
+    form: service
+    cadence: event_driven
+    criticality: CRITICAL
+    capabilities: [adversarial_lints, veto_claims]
+    dependencies: [AG-21]
+    failure_behavior: "verdict enum only; may veto claims, never data"
+    allowed_authority: [CHALLENGE, VETO]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [STALE_DATA_LINTER, SURVIVORSHIP_LINTER, PROVENANCE_CHECK]
+    version: "linter-W11"
+    evidence: "architecture/council.py red-team stage (numeric-provenance INVALID lint live); R-C3 found by audit (R-30); verdict enum REJECT/INVALID/INSUFFICIENT_EVIDENCE/NEEDS_MORE_DATA"
+    ops:
+      runtime: python_lib
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: true, orchestrated: false, live: false}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: ai_council_contract_v1
+      cognitive_principles: [SEC-01, SEC-02, SEC-03, SEC-04, MATH-09, SCI-01, SCI-02, SCI-03, SEC-10, SEC-11]
+      probe_refs: [tests/test_runtime_w11.py, tests/test_paper_trading_v32.py]
+      state_tables: []
+      startup_policy: {depends_on: [AG-21], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 0, backoff_s: 0}
+      notes: "fail-closed for promotions: red-team down ⇒ no promotion proceeds (governance law)"
+  - agent_id: AG-15
+    name: Decision Engine
+    status: EXISTS
+    lane: A
+    form: lib
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [frozen_rules, exits]
+    dependencies: [AG-07, AG-08, AG-09]
+    failure_behavior: "stale/unknown ⇒ NO_DATA/INVALID; never priced fiction"
+    allowed_authority: [DECIDE]
+    forbidden_authority: [PROMOTE]
+    required_probes: [DETERMINISM_PROBE, REPLAY_PROBE]
+    version: "PT-X3-v2"
+    evidence: "paper_trading/decision_v3.py (decide_v1 byte-frozen; gated decide); 11/11 live NO_DATA(STALE) latest cycle (W10A-17)"
+    ops:
+      runtime: python_lib
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-03, MATH-10, CRYPTO-04, CRYPTO-06, CRYPTO-14, ENG-03, SEC-10, SCI-02]
+      probe_refs: [W10A-16, W10A-17, tests/test_paper_trading_v32.py]
+      state_tables: [position_decision_event]
+      startup_policy: {depends_on: [AG-07, AG-08, AG-09], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "only DECIDE holder (with AG-16); deterministic; frozen cards only"
+  - agent_id: AG-16
+    name: Paper-Trading Agent
+    status: EXISTS
+    lane: A
+    form: service
+    cadence: periodic
+    criticality: CRITICAL
+    capabilities: [entries, settlement, ledger]
+    dependencies: [AG-15]
+    failure_behavior: "conservation invariant exact; append-only"
+    allowed_authority: [DECIDE]
+    forbidden_authority: [PROMOTE]
+    required_probes: [NUMERIC_TRACE_CHECK]
+    version: "PT-BANKROLL-v2"
+    evidence: "paper_trading/engine_v3.py; conservation 20.0000000 exact every cycle (W10A-04)"
+    ops:
+      runtime: python_service
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-02, MATH-03, CRYPTO-02, CRYPTO-13, ENG-04]
+      probe_refs: [W10A-04, tests/test_paper_trading_v2.py, tests/test_paper_trading_v3.py]
+      state_tables: [paper_trade_v2, paper_exit_v3, portfolio_ledger, position_state_event, realizable_snapshot, decision_snapshot_v2, scam_assessment, post_trade_lesson, learning_stats_snapshot]
+      startup_policy: {depends_on: [AG-15, bankroll], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: [portfolio_ledger]}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "PAPER ONLY — LIVE TRADING CLOSED forever by law"
+  - agent_id: AG-17
+    name: Memory Agent
+    status: EXISTS
+    lane: SHARED
+    form: service
+    cadence: continuous
+    criticality: CRITICAL
+    capabilities: [event_sourcing, durability]
+    dependencies: []
+    failure_behavior: "append-only triggers abort history-table violations in ALL governed stores (F1-S1 measured)"
+    allowed_authority: [OBSERVE]
+    forbidden_authority: [DECIDE, PROMOTE, VETO]
+    required_probes: [REPLAY_INTEGRITY_CHECK]
+    version: "eventstore-v3-F1S1"
+    evidence: "MEASURED post-F1-S1 (2026-08-13): paper 34 triggers/17 tables; e01 10 f1s1 guards on 5 history tables (UPDATE abort probed live); ahos_local 2 guards on control_flags; upsert state tables documented; drill/apply reports data_identical=true; tests/test_f1_s1.py; PG convergence = target (F1 plan)"
+    ops:
+      runtime: python_service
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: probe, ref: trigger census probe}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [CRYPTO-02, MATH-03]
+      probe_refs: [W10A-02, W12A-F1S1-ENFORCE, W12A-F1S1-APPLY]
+      state_tables: [all stores (guardian role)]
+      startup_policy: {depends_on: [storage], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: [all]}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "F1: claim corrected to measured reality; PG convergence plan exists; NO destructive migration"
+  - agent_id: AG-18
+    name: Learning Agent
+    status: PARTIAL
+    lane: A
+    form: service
+    cadence: event_driven
+    criticality: NON_CRITICAL
+    capabilities: [lessons, stats]
+    dependencies: [AG-16]
+    failure_behavior: "idempotent; hypotheses never auto-promote"
+    allowed_authority: [ANALYZE, ADVISE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [OVERFIT_CHECK]
+    version: "lessons-v1"
+    evidence: "paper_trading/lessons.py (armed; 0 closed trades ⇒ 0 lessons — structural honesty)"
+    ops:
+      runtime: python_lib
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: tests}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-11, MATH-06, SCI-01, HUM-06]
+      probe_refs: [tests/test_paper_trading_v3.py]
+      state_tables: [post_trade_lesson, learning_stats_snapshot]
+      startup_policy: {depends_on: [AG-16], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 1, backoff_s: 0}
+      notes: "input-gated on experiment clock (0 closed), correctly idle"
+  - agent_id: AG-19
+    name: Self-Diagnostic
+    status: PARTIAL
+    lane: SHARED
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [probes, audits]
+    dependencies: [AG-02]
+    failure_behavior: "probe failures recorded with ids; claims gated on them"
+    allowed_authority: [OBSERVE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [TRUST_ASSUMPTION_PROBE]
+    version: "pal-probe-v1"
+    evidence: "engine/pal_probe.py; battery re-run 2026-08-13 (PRB-20260813-001..017)"
+    ops:
+      runtime: python_service
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: probe, ref: self}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [MATH-09, CRYPTO-01, ENG-05, SEC-05, SEC-06, SEC-08, SEC-09]
+      probe_refs: [PRB-20260813-001..017]
+      state_tables: []
+      startup_policy: {depends_on: [AG-02], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 1, backoff_s: 60}
+      notes: "tracked-token freshness SLA probe still absent (F12, owner decision pending)"
+  - agent_id: AG-20
+    name: Controlled Self-Evolution
+    status: PLANNED
+    lane: B
+    form: pipeline
+    cadence: event_driven
+    criticality: NON_CRITICAL
+    capabilities: [proposals, replay, versioning]
+    dependencies: [AG-14, AG-18]
+    failure_behavior: "no approval ⇒ no promotion; rollback via cards"
+    allowed_authority: [ADVISE]
+    forbidden_authority: [DECIDE, PROMOTE, VETO]
+    required_probes: [REGRESSION_PROBE, REPLAY_PROBE]
+    version: "contract-W11"
+    evidence: "contracts/improvement_proposal_v1.json (W11 stage machine); versioned-card seed (PT-X3-v1→v2, R-30)"
+    ops:
+      runtime: pipeline
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: true, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: improvement_proposal_v1
+      cognitive_principles: [SCI-01, SCI-02, ENG-02, CRYPTO-10, MATH-16, HUM-03]
+      probe_refs: [tests/test_runtime_w11.py (contract validation)]
+      state_tables: []
+      startup_policy: {depends_on: [AG-14, AG-18], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "human gate dependency is structural (requires_human forced when governance_touching)"
+  - agent_id: AG-21
+    name: Evidence/Provenance
+    status: EXISTS
+    lane: SHARED
+    form: lib
+    cadence: continuous
+    criticality: CRITICAL
+    capabilities: [hashing, linkage, manifests]
+    dependencies: []
+    failure_behavior: "unprovenanced artifact excluded from claims"
+    allowed_authority: [OBSERVE, CHALLENGE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [PROVENANCE_PROBE]
+    version: "sha-linked-v1"
+    evidence: "research/data/MANIFEST.json + raw join 716/716 re-verified post-t11 (W11A-01)"
+    ops:
+      runtime: python_lib
+      boot_class: CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: probe, ref: join coverage census}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [CRYPTO-01, CRYPTO-02, SEC-04, MATH-15]
+      probe_refs: [W10A-03, W11A-01]
+      state_tables: [raw_payloads, research/data/MANIFEST.json]
+      startup_policy: {depends_on: [storage], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "evidence-id runtime resolution step contracted (D-chain), enforcement at P3+"
+  - agent_id: AG-22
+    name: Observability/Health
+    status: PARTIAL
+    lane: B
+    form: service
+    cadence: continuous
+    criticality: CRITICAL
+    capabilities: [heartbeat, run_ledger]
+    dependencies: [AG-17]
+    failure_behavior: "no metrics today ⇒ PHASE_STATE snapshots only"
+    allowed_authority: [OBSERVE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [DETERMINISM_PROBE]
+    version: "ledger-W11"
+    evidence: "architecture/control_plane.py run-ledger + heartbeat registration (W11 P3); reports/periodic_report_*.txt"
+    ops:
+      runtime: python_lib
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: true, orchestrated: false, live: false}
+      health: {kind: probe, ref: ledger liveness}
+      circuit: {state: CLOSED, failures: 0}
+      contract: control_plane_contract_v1
+      cognitive_principles: [ENG-05, ENG-06, MATH-10, ENG-09, ENG-11, CRYPTO-07]
+      probe_refs: [tests/test_runtime_w11.py]
+      state_tables: [data/control_plane_ledger.sqlite (future)]
+      startup_policy: {depends_on: [AG-17], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: [run_ledger]}
+      failure_policy: {on_failure: DEGRADE, retries: 1, backoff_s: 30}
+      notes: "P3 scope: health/heartbeat/run-ledger implemented as Lane-B engine (test-pinned)"
+  - agent_id: AG-23
+    name: Governance/Policy
+    status: PARTIAL
+    lane: SHARED
+    form: loop_doc
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [laws, cards, versioning]
+    dependencies: []
+    failure_behavior: "law conflict ⇒ STOP + register, never silent choice"
+    allowed_authority: [VETO, PROMOTE]
+    forbidden_authority: [OBSERVE]
+    required_probes: [LIMITATION_CHECK]
+    version: "gov-R33"
+    evidence: "AHOS_ISSUE_REGISTER.md R-01..R-33; strategies.json versioned cards; runtime engine MISSING (by law: human loop)"
+    ops:
+      runtime: loop_doc
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: improvement_proposal_v1 (governance check stage)
+      cognitive_principles: [MATH-09, SCI-02, CRYPTO-03, CRYPTO-12, ENG-02, ENG-10, HUM-05, HUM-07]
+      probe_refs: [W10A-12, R-series]
+      state_tables: []
+      startup_policy: {depends_on: [HUMAN], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "F5 resolution: PROMOTE+VETO legal ONLY as documented human gateway; NEVER implement as software (human_gate semantics recorded in ops.notes)"
+  - agent_id: AG-24
+    name: Cost/Resource Manager
+    status: PARTIAL
+    lane: SHARED
+    form: lib
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [budgets, rate_limits]
+    dependencies: []
+    failure_behavior: "budget exhausted ⇒ DEFER (recorded), never overdraw"
+    allowed_authority: [OBSERVE, ANALYZE]
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [NUMERIC_TRACE_CHECK]
+    version: "static-budgets"
+    evidence: "cycle.py V1_BUDGET=5/V2_BUDGET=10; 310+ cumulative defer events (W10A-12)"
+    ops:
+      runtime: python_lib
+      boot_class: NON_CRITICAL
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
+      health: {kind: static, ref: cycle reports}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (mapped)
+      cognitive_principles: [ENG-04, ENG-05, HUM-04, HUM-05]
+      probe_refs: [W10A-12]
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "dynamic budget accounting table = P3-adjacent future"
+  - agent_id: AG-25
+    name: Open-Source Capability Intelligence
+    status: PLANNED
+    lane: B
+    form: pipeline
+    cadence: event_driven
+    criticality: NON_CRITICAL
+    capabilities: [github_discovery, repository_ranking, capability_extraction, license_analysis,
+                   dependency_security_analysis, architecture_comparison, benchmark_design,
+                   candidate_scoring, improvement_proposal, evidence_packaging]
+    dependencies: [AG-14, AG-20]
+    failure_behavior: "untrusted provenance/license/security ⇒ REJECT/UNVERIFIED; not-better ⇒ NO_INTEGRATION"
+    allowed_authority: [OBSERVE, ANALYZE, ADVISE]
+    forbidden_authority: [DECIDE, PROMOTE, VETO]
+    required_probes: [LICENSE_AUDIT_PROBE, SECURITY_AUDIT_PROBE, DEPENDENCY_AUDIT_PROBE]
+    version: "spec-W12"
+    evidence: "docs/architecture/OSS_CAPABILITY_DISCOVERY.md (pipeline+spec); reports/oss_capability_audit_1.json (first manual read-only audit)"
+    ops:
+      runtime: pipeline
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: improvement_proposal_v1 (proposal output target)
+      cognitive_principles: [ENG-10, CRYPTO-11, SCI-01, SEC-03]
+      probe_refs: [W12A-OSS-1]
+      state_tables: []
+      startup_policy: {depends_on: [AG-14, AG-20], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
+      notes: "DISCOVERY→ANALYSIS→PROPOSAL only; NO direct integration right — promotion exclusively via governance/Red-Team/human approval (PART F law)"
+totals:
+  agents: 25
+  EXISTS: 9
+  PARTIAL: 12
+  PLANNED: 3
+  MISSING: 1
+  operability_totals:
+    implemented: 21
+    contracted: 6
+    orchestrated: 0
+    live: 15
+  boot_class_totals: {CRITICAL: 10, NON_CRITICAL: 9, OPTIONAL: 0, ADVISORY: 6}

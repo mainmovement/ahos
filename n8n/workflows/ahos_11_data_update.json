@@ -1,0 +1,64 @@
+{
+  "name": "AHOS-11 Research Data Update (nightly incremental)",
+  "comment": "RESEARCH DATA ONLY. Incrementally extends the 3yr verified datasets; gates before registry use.",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "days", "daysInterval": 1, "triggerAtHour": 4, "triggerAtMinute": 15 } ] } },
+      "id": "b1100001-0000-4000-8000-000000000001",
+      "name": "Nightly 04:15",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [ 0, 300 ]
+    },
+    {
+      "parameters": { "command": "cd /opt/ahos && python3 engine/acquire_3yr.py --start 2023-01-01 2>&1 | tail -20" },
+      "id": "b1100002-0000-4000-8000-000000000002",
+      "name": "Incremental Acquire",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [ 240, 300 ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": { "command": "cd /opt/ahos && python3 engine/data_audit.py research/data 2>/dev/null || true; python3 - << 'PY'\nimport glob, json\nimport pandas as pd\nfor f in sorted(glob.glob('research/data/*_1h_3yr.csv')):\n    df = pd.read_csv(f)\n    print(f.split('/')[-1], len(df), df.timestamp.iloc[0][:10], '->', df.timestamp.iloc[-1][:10])\nPY" },
+      "id": "b1100003-0000-4000-8000-000000000003",
+      "name": "Integrity Re-check",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [ 480, 300 ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const a = String($('Incremental Acquire').item.json.stdout || '');\nconst failed = !!$json.error || /FAIL/.test(a);\nconst b = String($json.stdout || '');\nreturn [{ json: { failed, text: (failed ? '⚠️ AHOS data update FAILED — datasets frozen at last good manifest' : '📦 AHOS research data updated:\\n' + b).slice(0, 3500) } }];"
+      },
+      "id": "b1100004-0000-4000-8000-000000000004",
+      "name": "Format Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 720, 300 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={ $env.TELEGRAM_ADMIN_CHAT_ID }",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "b1100005-0000-4000-8000-000000000005",
+      "name": "Telegram Update",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 960, 300 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram" } }
+    }
+  ],
+  "connections": {
+    "Nightly 04:15": { "main": [ [ { "node": "Incremental Acquire", "type": "main", "index": 0 } ] ] },
+    "Incremental Acquire": { "main": [ [ { "node": "Integrity Re-check", "type": "main", "index": 0 } ], [ { "node": "Telegram Update", "type": "main", "index": 0 } ] ] },
+    "Integrity Re-check": { "main": [ [ { "node": "Format Update", "type": "main", "index": 0 } ] ] },
+    "Format Update": { "main": [ [ { "node": "Telegram Update", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": { "executionOrder": "v1", "saveExecutionProgress": true, "timezone": "UTC" },
+  "staticData": null,
+  "pinData": {}
+}

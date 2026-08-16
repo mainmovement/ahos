@@ -1,0 +1,438 @@
+{
+ "tool": "observe_active",
+ "version": "observe_active:v2",
+ "scheduler_version": "observation_scheduler:v1",
+ "ts": 1786684568.9691038,
+ "dry_run": false,
+ "max_tokens": 40,
+ "min_interval": 240.0,
+ "near_expiry_s": 1800.0,
+ "tracked_size": 11,
+ "tracked_note": null,
+ "eligible_total": 94,
+ "not_selected_by_cap": 54,
+ "by_state": {
+  "ALREADY_OBSERVED": 429,
+  "WINDOW_OPEN": 94,
+  "COVERABLE": 2925,
+  "MISSED": 4168,
+  "UNRECOVERABLE": 0
+ },
+ "skipped_cooldown": 0,
+ "selected": [
+  {
+   "token_id": "9bf0f298eb7a64492ed225500765a43d",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "9db6338a9fd4ec514c8774b9d8f2b46d",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "a037e0bc558786406256e5ab10c3aefe",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "a3aad1a2f5eb666f0b3b1c89b7ba66ab",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "a3d97fa2ec9febbd2b3a903dcfd1548a",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "a6cec74b27bb536634c329cc9b77baba",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "aa71533e0f77b0539865e1f6f997fd6e",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "b4d343469ff00b53478e9475c678c170",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "b655d1f5b972ce178cefe0c30e148770",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "ba809319bc59caaddb40648f2d36c2e9",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "bddd3ca06b0fa2f404b43000f59ade9e",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "c22394631dcbd892b21da926b78944d1",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "c37d9ea7c91500112c597a8c6b7affe3",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "c52f1f975a24cb6e2f4112cc4ca1e3b1",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "c6d7134286c5ade730c60816da476b15",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "cbfe12c7a5ad9118f6474bd63aa3c073",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "ce29459bee9f2e23ef135c8df54d962b",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "d17dc46af93aeb601e4dffe7a8bb8121",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "d2927510953693d68026a30321ef494f",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "d2ddb644d5f12dbdf03ae0d2ac4dce0c",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "d3bc3171851a49a675e6caf9492d4618",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "de0d998863106d47d9215760f73e6adf",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "de24564d34b49cb05c4a3a2c89bdfcc4",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "e4040c2800e8b3d3f92255d63a4f1218",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "e7d53267bbe20481a3213178af75a108",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "e856df25935e0d9e60070d2f24ad43cb",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "eb5371aca0a81eed80edab4760a3285b",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "f1852821a41bec41d0c36f8076aff019",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "f1d51935462172b58ae1875f73e8c649",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "f9706a5b0efc20636c5bdbfed1799b71",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "f9dd529c432a22a1bc6900c3d695dad0",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "fce0d219c4e4b1e36b750643d05359c8",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "fe9c493bb5858e8800a68eb6cde767d1",
+   "tier": 1,
+   "open_slots": [
+    "s+15m"
+   ],
+   "close_ts": 1786684776.5403566
+  },
+  {
+   "token_id": "02072f1fb5a53ca5e19d12d2cb819d15",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "0d755099e56b5e3c070aaef9748cd792",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "13aa895143b73e461ac5c7938cf63394",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "172495bc5218a5a393be817d1b177db5",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "22cbb7b6bca79fd96051f88dd101874f",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "279d67548e5a6757c1d3109991a2cb2b",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  },
+  {
+   "token_id": "2cc2f57f6ccef2712102219d1478955e",
+   "tier": 3,
+   "open_slots": [
+    "s+24h"
+   ],
+   "close_ts": 1786687506.1326327
+  }
+ ],
+ "aborted": null,
+ "not_attempted": 0,
+ "attempted": 40,
+ "recorded": 35,
+ "would_record": 0,
+ "failures": [
+  {
+   "token_id": "cbfe12c7a5ad9118f6474bd63aa3c073",
+   "kind": "no_valid_price",
+   "obs_id": "8915f2741e71369c8ddf3ef89ffcee49",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+15m"
+   ]
+  },
+  {
+   "token_id": "e4040c2800e8b3d3f92255d63a4f1218",
+   "kind": "no_valid_price",
+   "obs_id": "9e8826c1cf31c7ddb29044ebebe357a2",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+15m"
+   ]
+  },
+  {
+   "token_id": "e856df25935e0d9e60070d2f24ad43cb",
+   "kind": "no_valid_price",
+   "obs_id": "13c4bc9daa88286c472af561140a63eb",
+   "provider": "dexscreener",
+   "tier": 1,
+   "slots": [
+    "s+15m"
+   ]
+  },
+  {
+   "token_id": "13aa895143b73e461ac5c7938cf63394",
+   "kind": "no_valid_price",
+   "obs_id": "cede12cf7bde450480b1cd9971c9a8d2",
+   "provider": "dexscreener",
+   "tier": 3,
+   "slots": [
+    "s+24h"
+   ]
+  },
+  {
+   "token_id": "22cbb7b6bca79fd96051f88dd101874f",
+   "kind": "no_valid_price",
+   "obs_id": "cb2d721f07afd65f5d7b305d3bf7521d",
+   "provider": "dexscreener",
+   "tier": 3,
+   "slots": [
+    "s+24h"
+   ]
+  }
+ ],
+ "obs_ids": [
+  "c1cee77a2dbf62d6d14751b2b1bbd3e6",
+  "e109861f3e362797e24c52ceceedb56f",
+  "8e227b7202ea36b23f216ebfe33361ec",
+  "de51de3b85989274672540d32cd732ca",
+  "bc745deedcf0df0fb7bf992ba782a992",
+  "49e51ab8ae9f9b48e1a2be92ebd2e4de",
+  "7340cce14255688b7f03a7980acf6645",
+  "bb563138e9a4e06cd1bd4ada06011ca8",
+  "166de186cf5122695e0df7b06123bcd9",
+  "13188c8d7dfa42a809681c482a856cc3",
+  "ea212e9d04f346e28399ccd0dc896ab8",
+  "c2a9ba06f866796204b91e7ef17ae833",
+  "fb3bffe099c3ca099d2280896d76d972",
+  "b2e22f4bd2f8f1020a4141fa9da6d202",
+  "07c7b5c27f2dd849e4cd6680fb57e419",
+  "7cd7c79e366a69a8c6f510606aca5e6a",
+  "e6907af2454906ee7eb6235dd5217b94",
+  "b5b57f3a6f0e9bae9ad4b7bc5e937a92",
+  "9acf8c003ce3989d7dd01a9f7d1ce84a",
+  "e5333d3204656b50f55ab87e064918a2",
+  "2f759b7cc1b5b6e68925fbd885b2b0b2",
+  "bad2d11200159264b22a41be236704ce",
+  "4e7ac85e919de0ab3bde8f73ed7170ce",
+  "c4a56fa065faedda8da66773fe1a8479",
+  "ccf9962f523c69dbe774274f11c415e5",
+  "fe07ac268dcd8c33c6bd6fe631d78c8a",
+  "38d8920d02b7f8607bfdd4eafd0aee22",
+  "9d9dc8a35e701c8dd616357ef8985753",
+  "f8e7780d3163a67461c62d3776beb2a9",
+  "b3ec7982eac7f57d51f602099a97219c",
+  "159caf02e089846ed2cbc701851f394c",
+  "3f907a589800e9f4d61939782797f97c",
+  "047e34087ce862f99a430109fb3cfccc",
+  "283201ad2f2f4b98d081f4b9a36fa4d5",
+  "7ca44020827196fce3841bc739c46b01"
+ ]
+}

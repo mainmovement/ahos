@@ -1,0 +1,81 @@
+{
+  "name": "AHOS-10 Research Lab (weekly validation battery)",
+  "comment": "RESEARCH ONLY. No trading. Re-runs the full candidate battery and reports verdicts.",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "weeks", "weeksInterval": 1, "triggerAtDay": [ 0 ], "triggerAtHour": 3, "triggerAtMinute": 0 } ] } },
+      "id": "b1000001-0000-4000-8000-000000000001",
+      "name": "Weekly Sun 03:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [ 0, 300 ]
+    },
+    {
+      "parameters": { "command": "cd /opt/ahos && python3 strategy_lab/run_lab.py 2>&1 | tail -40" },
+      "id": "b1000002-0000-4000-8000-000000000002",
+      "name": "Run Lab Battery",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [ 240, 300 ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = String($json.stdout || $json.output || '');\nconst failed = !!$json.error;\nconst lines = out.split('\\n').filter(l => l.startsWith('=== '));\nconst text = '🔬 AHOS Research Lab — weekly battery\\n' + (failed ? 'BATTERY FAILED (see alert)' : lines.join('\\n')) + '\\n\\nFull log: research/experiments/ (registry.json updated)';\nreturn [{ json: { failed, summary: text.slice(0, 3800) } }];"
+      },
+      "id": "b1000003-0000-4000-8000-000000000003",
+      "name": "Format Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 480, 300 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={ $env.TELEGRAM_ADMIN_CHAT_ID }",
+        "text": "={{ $json.summary }}",
+        "additionalFields": {}
+      },
+      "id": "b1000004-0000-4000-8000-000000000004",
+      "name": "Telegram Digest",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 720, 220 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram" } }
+    },
+    {
+      "parameters": {
+        "chatId": "={ $env.TELEGRAM_ADMIN_CHAT_ID }",
+        "text": "⚠️ AHOS Research Lab battery FAILED this week. Check VPS logs (strategy_lab/run_lab.py). Registry NOT updated.",
+        "additionalFields": {}
+      },
+      "id": "b1000005-0000-4000-8000-000000000005",
+      "name": "Alert Battery Failure",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 720, 420 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO agent_audit_trail (agent_id, action, reason, result) VALUES ('AGENT-09','LAB_BATTERY','weekly research run','{{ $json.failed ? 'FAILED' : 'COMPLETED' }}');",
+        "options": {}
+      },
+      "id": "b1000006-0000-4000-8000-000000000006",
+      "name": "Audit Run",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 960, 300 ]
+    }
+  ],
+  "connections": {
+    "Weekly Sun 03:00": { "main": [ [ { "node": "Run Lab Battery", "type": "main", "index": 0 } ] ] },
+    "Run Lab Battery": { "main": [ [ { "node": "Format Digest", "type": "main", "index": 0 } ], [ { "node": "Alert Battery Failure", "type": "main", "index": 0 } ] ] },
+    "Format Digest": { "main": [ [ { "node": "Telegram Digest", "type": "main", "index": 0 } ] ] },
+    "Telegram Digest": { "main": [ [ { "node": "Audit Run", "type": "main", "index": 0 } ] ] },
+    "Alert Battery Failure": { "main": [ [ { "node": "Audit Run", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": { "executionOrder": "v1", "saveExecutionProgress": true, "timezone": "UTC" },
+  "staticData": null,
+  "pinData": {}
+}

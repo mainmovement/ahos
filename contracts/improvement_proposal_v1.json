@@ -1,0 +1,38 @@
+{
+  "contract_id": "ahos.improvement_proposal",
+  "version": "v1",
+  "created_utc": "2026-08-13T01:59:23+00:00",
+  "law": "no step may be skipped; AI may diagnose/propose/write candidate code and tests/critique but may NEVER self-approve, NEVER touch Lane A, and NEVER promote itself; governance-touching proposals REQUIRE human approval; every stage carries evidence",
+  "stages": ["PROPOSED", "SANDBOXED", "REPLAYED", "CI_PASSED", "REDTEAMED", "COUNCIL_REVIEWED",
+             "GOVERNANCE_CHECKED", "AWAITING_HUMAN", "APPROVED", "VERSION_BUMPED", "DEPLOYED",
+             "MONITORING", "ROLLED_BACK", "REJECTED"],
+  "terminal_stages": ["ROLLED_BACK", "REJECTED", "MONITORING"],
+  "proposal_fields": {
+    "proposal_id": "string unique",
+    "created_ts": "number epoch",
+    "detected_by": "agent_id or human",
+    "diagnosis": "text + evidence refs",
+    "proposed_by": "agent_id | provider envelope ref | human (AI proposals tagged is_ai=true)",
+    "target_scope": "enum lanes below",
+    "governance_touching": "bool",
+    "requires_human": "bool — validator FORCES true when governance_touching=true",
+    "candidate_diff_ref": "sandbox branch/patch ref, never applied to Lane A",
+    "replay_evidence": "run ids proving identical-or-better replay",
+    "test_battery": "list of test refs incl. new tests",
+    "redteam_verdict": "enum verdicts below, with probe_id",
+    "council_review": "ai_council report id or NONE",
+    "approvals": "list of {approver, ts}; rule: proposer may NOT be an approver; AI identity may NEVER be an approver",
+    "rollback_plan": "explicit steps + rollback trigger metric",
+    "version_bump": "new version/card id once approved"
+  },
+  "enums": {
+    "lanes": ["B_ONLY", "SHARED_INFRA", "LANE_A_FORBIDDEN"],
+    "verdicts": ["ACCEPT", "REJECT", "INSUFFICIENT_EVIDENCE", "NEEDS_MORE_DATA"]
+  },
+  "hard_rules": [
+    "target_scope=LANE_A_FORBIDDEN => immediate REJECT",
+    "governance_touching=true and no human approval record => stuck at AWAITING_HUMAN forever (by design)",
+    "approvals containing the proposer => INVALID",
+    "skip detected (stage jump) => INVALID"
+  ]
+}

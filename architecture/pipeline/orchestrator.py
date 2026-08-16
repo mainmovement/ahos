@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""AHOS End-to-End Opportunity Pipeline Orchestrator (Phase XX).
+
+Connects the full scientific and intelligence flow:
+  Providers
+      ↓
+  Normalization & Evidence
+      ↓
+  Features & Risk Evaluation
+      ↓
+  Opportunity Scoring
+      ↓
+  Alert Engine
+      ↓
+  Telegram Intelligence Surface
+"""
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
+from typing import Any
+
+from ..providers.contracts import NormalizedTokenCandidate
+from ..providers.registry import ProviderRouter
+from ..collector.engine import CollectorEngine, CollectedObservationRecord
+from ..scoring.engine import OpportunityScorer, OpportunityScoreReport
+from ..alerts.engine import AlertEngine
+from ..observability import Tracer, OperationTrace
+from telegram_ai.adapter import TelegramBotAdapterInterface
+from telegram_ai.alerts import Alert, render_fa as render_alert_fa
+from telegram_ai.response_contract import format_opportunity_response
+
+
+@dataclass
+class PipelineExecutionReport:
+    run_id: str
+    started_ts: float
+    duration_ms: float
+    candidates_collected: int
+    scores_generated: int
+    alerts_emitted: int
+    telegram_messages_sent: int
+    top_opportunity: OpportunityScoreReport | None = None
+    alerts: list[Alert] = field(default_factory=list)
+    trace: OperationTrace | None = None
+
+
+class OpportunityPipelineOrchestrator:
+    def __init__(self,
+                 collector: CollectorEngine | None = None,
+                 scorer: OpportunityScorer | None = None,
+                 alert_engine: AlertEngine | None = None,
+                 telegram_adapter: TelegramBotAdapterInterface | None = None,
+                 target_chat_id: int | str | None = None):
+        self.collector = collector or CollectorEngine()
+        self.scorer = scorer or OpportunityScorer()
+        self.alert_engine = alert_engine or AlertEngine(score_threshold=70.0)
+        self.telegram_adapter = telegram_adapter
+        self.target_chat_id = target_chat_id
+        self.tracer = Tracer("opportunity_pipeline", version="1.0.0")
+
+    def run_pipeline(self, chain: str = "solana", limit: int = 10,
+                     now: float | None = None) -> PipelineExecutionReport:
+        t0 = time.time() if now is None else now
+        trace_ctx = self.tracer.trace_operation("run_pipeline", {"chain": chain, "limit": limit})
+
+        # 1. Collect & Normalize Candidate Tokens
+        obs_records = self.collector.collect_candidates(chain=chain, limit=limit, now=t0)
+
+        # Convert records to candidates for scoring
+        candidates: list[NormalizedTokenCandidate] = []
+        for r in obs_records:
+            cand = self.collector.router.get_provider("dexscreener")  # router lookup
+            # Build normalized candidate from observation record
+            cand_obj = NormalizedTokenCandidate(
+                chain=r.chain,
+                address=r.token_address,
+                symbol=r.symbol,
+                name=r.name,
+                source_provider=r.provider_source,
+                retrieved_ts=r.retrieved_ts,
+                raw_payload_sha256=r.raw_evidence_hash
+            )
+            # Rehydrate metrics
+            for k, v in r.metrics.items():
+                if hasattr(cand_obj.metrics, k):
+                    setattr(cand_obj.metrics, k, v)
+            for k, v in r.security.items():
+                if hasattr(cand_obj.security, k):
+                    setattr(cand_obj.security, k, v)
+            cand_obj.identify_unknowns()
+            candidates.append(cand_obj)
+
+        # 2. Score & Synthesize Evidence
+        reports: list[OpportunityScoreReport] = []
+        for cand in candidates:
+            rep = self.scorer.evaluate(cand, now=t0)
+            reports.append(rep)
+
+        reports.sort(key=lambda r: r.opportunity_score, reverse=True)
+        top_opp = reports[0] if reports else None
+
+        # 3. Evaluate Alerts
+        emitted_alerts: list[Alert] = []
+        for cand, rep in zip(candidates, reports):
+            alerts = self.alert_engine.evaluate_opportunity(rep, cand, now=t0)
+            emitted_alerts.extend(alerts)
+
+        # 4. Notify Telegram Surface
+        messages_sent = 0
+        if self.telegram_adapter and self.target_chat_id:
+            try:
+                # Send high priority alerts
+                for alert in emitted_alerts:
+                    if alert.severity in ("HIGH", "CRITICAL"):
+                        msg_text = render_alert_fa(alert)
+                        self.telegram_adapter.send_message(self.target_chat_id, msg_text)
+                        messages_sent += 1
+
+                # If top opportunity is high quality, send summary
+                if top_opp and top_opp.opportunity_score >= 75.0:
+                    matching_cand = next((c for c in candidates if c.address == top_opp.token_address), None)
+                    card_text = format_opportunity_response(top_opp, matching_cand)
+                    self.telegram_adapter.send_message(self.target_chat_id, f"🚨 **فرصت ویژه شناسایی شد**\n\n" + card_text)
+                    messages_sent += 1
+            except Exception:
+                pass
+
+        dt = (time.time() - t0) * 1000.0
+        trace = trace_ctx.success({
+            "candidates": len(candidates),
+            "scores": len(reports),
+            "alerts": len(emitted_alerts),
+            "messages_sent": messages_sent
+        })
+
+        return PipelineExecutionReport(
+            run_id=trace_ctx.run_id,
+            started_ts=t0,
+            duration_ms=round(dt, 2),
+            candidates_collected=len(candidates),
+            scores_generated=len(reports),
+            alerts_emitted=len(emitted_alerts),
+            telegram_messages_sent=messages_sent,
+            top_opportunity=top_opp,
+            alerts=emitted_alerts,
+            trace=trace
+        )

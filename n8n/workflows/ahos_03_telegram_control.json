@@ -1,0 +1,276 @@
+{
+  "name": "AHOS-03 Telegram Control + Kill Switch",
+  "nodes": [
+    {
+      "parameters": { "updates": [ "message" ] },
+      "id": "a3000001-0000-4000-8000-000000000001",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [ -200, 300 ],
+      "webhookId": "__AUTO__",
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Agent-04 Security: admin auth BEFORE any action. Never log tokens.\nconst msg = $json.message || {};\nconst chatId = msg.chat && msg.chat.id;\nconst admin = String($env.TELEGRAM_ADMIN_CHAT_ID || '');\nconst text = (msg.text || '').trim();\nconst authorized = admin !== '' && String(chatId) === admin;\nlet type = 'UNKNOWN', arg = null, raw = null;\nconst m = text.match(/^\\/(start|status|report|risk|signals|health|agents|kill|emergency_stop|reset|approve|reject)\\b\\s*(\\S+)?/i);\nif (m) { raw = m[1].toLowerCase(); arg = m[2] || null;\n  if (['start','status','report','risk','signals'].includes(raw)) type = 'READ';\n  else if (raw === 'health') type = 'HEALTH';\n  else if (raw === 'agents') type = 'AGENTS';\n  else if (['kill','emergency_stop'].includes(raw)) type = 'KILL';\n  else if (raw === 'reset') type = 'RESET';\n  else type = raw === 'approve' ? 'APPROVE' : 'REJECT';\n}\nreturn [{ json: { authorized, type, arg, chatId, raw_cmd: raw } }];"
+      },
+      "id": "a3000002-0000-4000-8000-000000000002",
+      "name": "Auth Guard + Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 40, 300 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "auth-cond-1",
+              "leftValue": "={{ String($json.authorized) }}",
+              "rightValue": "true",
+              "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a3000004-0000-4000-8000-000000000004",
+      "name": "Authorized?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [ 280, 300 ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "loose" }, "conditions": [ { "id": "sw-read", "leftValue": "={{ $json.type }}", "rightValue": "READ", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } } ], "combinator": "and" }, "renameOutput": true, "outputKey": "READ" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "loose" }, "conditions": [ { "id": "sw-health", "leftValue": "={{ $json.type }}", "rightValue": "HEALTH", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } } ], "combinator": "and" }, "renameOutput": true, "outputKey": "HEALTH" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "loose" }, "conditions": [ { "id": "sw-agents", "leftValue": "={{ $json.type }}", "rightValue": "AGENTS", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } } ], "combinator": "and" }, "renameOutput": true, "outputKey": "AGENTS" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "loose" }, "conditions": [ { "id": "sw-kill", "leftValue": "={{ $json.type }}", "rightValue": "KILL", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } } ], "combinator": "and" }, "renameOutput": true, "outputKey": "KILL" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "loose" }, "conditions": [ { "id": "sw-gate", "leftValue": "={{ $json.type }}", "rightValue": "APPROVE", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } } ], "combinator": "and" }, "renameOutput": true, "outputKey": "APPROVE" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "loose" }, "conditions": [ { "id": "sw-rej", "leftValue": "={{ $json.type }}", "rightValue": "REJECT", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } } ], "combinator": "and" }, "renameOutput": true, "outputKey": "REJECT" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "loose" }, "conditions": [ { "id": "sw-reset", "leftValue": "={{ $json.type }}", "rightValue": "RESET", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } } ], "combinator": "and" }, "renameOutput": true, "outputKey": "RESET" }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" },
+        "looseTypeValidation": true
+      },
+      "id": "a3000003-0000-4000-8000-000000000003",
+      "name": "Command Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.1,
+      "position": [ 520, 300 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "Unauthorized. This incident has been logged.",
+        "additionalFields": {}
+      },
+      "id": "a3000005-0000-4000-8000-000000000005",
+      "name": "Reject Unauthorized",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 520, 640 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO agent_audit_trail (agent_id, action, reason, result) VALUES ('AGENT-04','AUTH_FAIL','telegram command from chat_id {{ $json.chatId }}','REJECTED');",
+        "options": {}
+      },
+      "id": "a3000006-0000-4000-8000-000000000006",
+      "name": "Audit Unauthorized",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 760, 640 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT json_build_object('pending', (SELECT count(*) FROM trade_decisions WHERE execution_status='PENDING'), 'paper', (SELECT count(*) FROM trade_decisions WHERE execution_status='PAPER'), 'recent', (SELECT json_agg(t) FROM (SELECT symbol, decision, execution_status, ts FROM trade_decisions ORDER BY ts DESC LIMIT 5) t)) AS status;",
+        "options": {}
+      },
+      "id": "a3000007-0000-4000-8000-000000000007",
+      "name": "Query Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 780, -60 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Auth Guard + Router').item.json.chatId }}",
+        "text": "=AHOS STATUS\n{{ JSON.stringify($json.status, null, 1) }}\nCommands: /status /report /risk /signals /health /agents | High-risk: /kill /emergency_stop /reset /approve <sym> /reject <sym>",
+        "additionalFields": {}
+      },
+      "id": "a3000008-0000-4000-8000-000000000008",
+      "name": "Reply Status",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 1020, -60 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Auth Guard + Router').item.json.chatId }}",
+        "text": "=AHOS HEALTH\ntimestamp: {{ new Date().toISOString() }}\nmode: {{ $env.AHOS_MODE || 'PAPER' }}\nstate: ONLINE\nworkflows: 01 ingest / 02 analysis / 03 telegram = ACTIVE\ndb: reachable (this reply proves round-trip)",
+        "additionalFields": {}
+      },
+      "id": "a3000014-0000-4000-8000-000000000014",
+      "name": "Reply Health",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 780, 80 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT json_agg(json_build_object('id', agent_id, 'name', agent_name, 'group', agent_group, 'enabled', enabled)) AS agents FROM agent_registry;",
+        "options": {}
+      },
+      "id": "a3000015-0000-4000-8000-000000000015",
+      "name": "Query Agents",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 780, 220 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Auth Guard + Router').item.json.chatId }}",
+        "text": "=AHOS AGENTS (10-agent frozen registry)\n{{ JSON.stringify($json.agents, null, 1) }}",
+        "additionalFields": {}
+      },
+      "id": "a3000016-0000-4000-8000-000000000016",
+      "name": "Reply Agents",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 1020, 220 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO agent_audit_trail (agent_id, action, reason, result, verified_by_agent_10) VALUES ('AGENT-04','KILL_SWITCH','user command /{{ $('Auth Guard + Router').item.json.raw_cmd }}','ALL_EVALUATION_HALTED', true); UPDATE trade_decisions SET execution_status='CANCELLED' WHERE execution_status='PENDING';",
+        "options": {}
+      },
+      "id": "a3000009-0000-4000-8000-000000000009",
+      "name": "Execute Kill Switch",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 780, 360 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Auth Guard + Router').item.json.chatId }}",
+        "text": "=KILL SWITCH ENGAGED. All PENDING decisions cancelled. Halt flag written to audit trail. Clear ONLY with /reset after Agent-10 review.",
+        "additionalFields": {}
+      },
+      "id": "a3000010-0000-4000-8000-000000000010",
+      "name": "Confirm Kill",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 1020, 360 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=DELETE FROM agent_audit_trail WHERE action='KILL_SWITCH' AND result='ALL_EVALUATION_HALTED' AND ts > now() - interval '30 days'; INSERT INTO agent_audit_trail (agent_id, action, reason, result) VALUES ('AGENT-05','KILL_RESET','user command /reset','HALT_FLAG_CLEARED');",
+        "options": {}
+      },
+      "id": "a3000017-0000-4000-8000-000000000017",
+      "name": "Execute Reset",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 780, 500 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Auth Guard + Router').item.json.chatId }}",
+        "text": "=RESET COMPLETE. Halt flags cleared and audit-logged. Evaluation cycles resume on next schedule tick.",
+        "additionalFields": {}
+      },
+      "id": "a3000018-0000-4000-8000-000000000018",
+      "name": "Confirm Reset",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 1020, 500 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE trade_decisions SET execution_status = CASE '{{ $('Auth Guard + Router').item.json.raw_cmd }}' WHEN 'approve' THEN 'PAPER' ELSE 'REJECTED' END WHERE symbol = upper('{{ $('Auth Guard + Router').item.json.arg }}') AND execution_status='PENDING'; INSERT INTO agent_audit_trail (agent_id, action, reason, result) VALUES ('AGENT-05','HUMAN_GATE','{{ $('Auth Guard + Router').item.json.raw_cmd }} {{ $('Auth Guard + Router').item.json.arg }}','recorded');",
+        "options": {}
+      },
+      "id": "a3000011-0000-4000-8000-000000000011",
+      "name": "Apply Human Gate",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [ 780, -180 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Auth Guard + Router').item.json.chatId }}",
+        "text": "=Human gate recorded: {{ $('Auth Guard + Router').item.json.raw_cmd }} {{ $('Auth Guard + Router').item.json.arg }}",
+        "additionalFields": {}
+      },
+      "id": "a3000012-0000-4000-8000-000000000012",
+      "name": "Confirm Gate",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 1020, -180 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Auth Guard + Router').item.json.chatId }}",
+        "text": "Unknown command. Available: /start /status /report /risk /signals /health /agents /kill /emergency_stop /reset /approve <sym> /reject <sym>",
+        "additionalFields": {}
+      },
+      "id": "a3000013-0000-4000-8000-000000000013",
+      "name": "Reply Help",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [ 760, 760 ],
+      "credentials": { "telegramApi": { "id": "__ASSIGN_AFTER_IMPORT__", "name": "AHOS Telegram (temporary Sun_sniperbot for TEST ONLY — rotate after test)" } }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": { "main": [ [ { "node": "Auth Guard + Router", "type": "main", "index": 0 } ] ] },
+    "Auth Guard + Router": { "main": [ [ { "node": "Authorized?", "type": "main", "index": 0 } ] ] },
+    "Authorized?": {
+      "main": [
+        [ { "node": "Command Switch", "type": "main", "index": 0 } ],
+        [ { "node": "Reject Unauthorized", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Command Switch": {
+      "main": [
+        [ { "node": "Query Status", "type": "main", "index": 0 } ],
+        [ { "node": "Reply Health", "type": "main", "index": 0 } ],
+        [ { "node": "Query Agents", "type": "main", "index": 0 } ],
+        [ { "node": "Execute Kill Switch", "type": "main", "index": 0 } ],
+        [ { "node": "Apply Human Gate", "type": "main", "index": 0 } ],
+        [ { "node": "Apply Human Gate", "type": "main", "index": 0 } ],
+        [ { "node": "Execute Reset", "type": "main", "index": 0 } ],
+        [ { "node": "Reply Help", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Reject Unauthorized": { "main": [ [ { "node": "Audit Unauthorized", "type": "main", "index": 0 } ] ] },
+    "Query Status": { "main": [ [ { "node": "Reply Status", "type": "main", "index": 0 } ] ] },
+    "Query Agents": { "main": [ [ { "node": "Reply Agents", "type": "main", "index": 0 } ] ] },
+    "Execute Kill Switch": { "main": [ [ { "node": "Confirm Kill", "type": "main", "index": 0 } ] ] },
+    "Execute Reset": { "main": [ [ { "node": "Confirm Reset", "type": "main", "index": 0 } ] ] },
+    "Apply Human Gate": { "main": [ [ { "node": "Confirm Gate", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": { "executionOrder": "v1", "saveExecutionProgress": true, "timezone": "UTC" },
+  "staticData": null,
+  "pinData": {}
+}

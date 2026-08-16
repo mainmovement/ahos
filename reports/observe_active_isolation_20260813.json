@@ -1,0 +1,106 @@
+{
+ "tool": "observe_active",
+ "version": "observe_active:v1",
+ "ts": 1786595351.436164,
+ "dry_run": false,
+ "max_tokens": 20,
+ "due_total": 755,
+ "attempted": 20,
+ "recorded": 6,
+ "would_record": 0,
+ "skipped_by_cap": 735,
+ "failures": [
+  {
+   "token_id": "442a8da95e92c10bb773752a934d9348",
+   "kind": "no_valid_price",
+   "obs_id": "046b0b22eb1c88b63e9e1c34750cdc78",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "6e0731d7b88d47ed1fe3896cdf64d196",
+   "kind": "no_valid_price",
+   "obs_id": "393e4777ec9dd87175cbbacb4ed7781b",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "d95ffd1f38d4f8e114eb612b29c4c98a",
+   "kind": "no_valid_price",
+   "obs_id": "7e219e39515485e7cbdaefa157c41947",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "ecf5b05c68ed312455cb15c1a3ce9bb4",
+   "kind": "no_valid_price",
+   "obs_id": "577a9cf26c949aa91a5ca8ea9c84ad30",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "1ce2ccba8607e9dc34c4d7bd609e5a5c",
+   "kind": "no_valid_price",
+   "obs_id": "093599566d9869341d3e4b54c957e248",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "3c69b878cb9b0954d2a1112280f05384",
+   "kind": "no_valid_price",
+   "obs_id": "23c0109a24b0a24fb4ab646712e8f1bb",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "91c84efcd6431014cbafac27998a8db8",
+   "kind": "no_valid_price",
+   "obs_id": "6a8f233a86e96c2b2b70f3cc04f70501",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "f70380c812435fd066fec23439b5c075",
+   "kind": "no_valid_price",
+   "obs_id": "c37969ea8fdbd15c9cdc16e504f97809",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "774456da693191d7ab6fcda2f1075c2c",
+   "kind": "no_valid_price",
+   "obs_id": "377641ef09303c0cde88fe534eb2ebaa",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "ce9b1d3988800dc93e9b3966305d6d98",
+   "kind": "no_valid_price",
+   "obs_id": "54cf23b357a1751c578e77e59063164d",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "8f464384ef13f010e0f2b1be2fbcd149",
+   "kind": "no_valid_price",
+   "obs_id": "4ecb2b3df86a5497c13dd4d97ae6c098",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "f45abeb59058bb19c2074d3be6f7a06f",
+   "kind": "no_valid_price",
+   "obs_id": "056f4a161043230077433651c312832a",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "00d51ce882b37a74339c96a4d6e96996",
+   "kind": "no_valid_price",
+   "obs_id": "054071d721969cf4427b9a4a5e82de68",
+   "provider": "dexscreener"
+  },
+  {
+   "token_id": "77c1b7837d2dc27cb604ed5666a2147f",
+   "kind": "no_valid_price",
+   "obs_id": "f32b022ceae1b85c9011d32cf252beba",
+   "provider": "dexscreener"
+  }
+ ],
+ "obs_ids": [
+  "6a016570f1e741dee551f029ae616363",
+  "a55a294b6278e9e76f07b48adbc2034d",
+  "e231ffc0369947b20662dedfa4986874",
+  "c575a9004ff38cee3cc1808893614ec4",
+  "9942723869811ab371de255ed3d23fc1",
+  "ec024818760c77c21eef78163d2427e5"
+ ]
+}
