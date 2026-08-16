@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-ahos}
       POSTGRES_USER: ${POSTGRES_USER:-ahos_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ahos_secure_pass_123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
     volumes:
       - postgres_data_win:/var/lib/postgresql/data
       - ../database/postgresql_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
@@ -29,7 +29,7 @@ services:
     environment:
       N8N_BASIC_AUTH_ACTIVE: "true"
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
-      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-ahos_admin_pass_123}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:?set in .env}
       N8N_HOST: localhost
       N8N_PORT: "5678"
       N8N_PROTOCOL: http
@@ -40,7 +40,7 @@ services:
       DB_POSTGRESDB_PORT: "5432"
       DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-ahos}
       DB_POSTGRESDB_USER: ${POSTGRES_USER:-ahos_user}
-      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-ahos_secure_pass_123}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
     ports:
       - "127.0.0.1:5678:5678"
     volumes:

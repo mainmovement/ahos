@@ -48,8 +48,8 @@ The continuous intelligence daemon will launch and begin polling market opportun
 1. Open `deployment\.env` in a text editor (e.g. Notepad).
 2. Set your Telegram Bot token:
    ```env
-   TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz1234567
-   TELEGRAM_ALLOWED_CHATS=123456789
+   TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN_HERE
+   TELEGRAM_ALLOWED_CHATS=YOUR_CHAT_ID_HERE
    ```
 3. Restart the daemon via `.\start_ahos.ps1`.
 
