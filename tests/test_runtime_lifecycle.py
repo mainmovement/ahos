@@ -73,8 +73,10 @@ def test_lifecycle_manager_startup_and_shutdown(tmp_path):
     # Setup mock workspace structure
     (tmp_path / "data").mkdir(parents=True, exist_ok=True)
     (tmp_path / "docs" / "canonical").mkdir(parents=True, exist_ok=True)
-    master_doc = Path(str(ROOT_DIR / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md")).read_text()
-    (tmp_path / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md").write_text(master_doc)
+
+    src = ROOT_DIR / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md"
+    dst = tmp_path / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md"
+    dst.write_bytes(src.read_bytes())
 
     for db_name in ["e01_discovery.sqlite", "paper_trading.sqlite", "ahos_local.sqlite"]:
         c = sqlite3.connect(tmp_path / "data" / db_name)

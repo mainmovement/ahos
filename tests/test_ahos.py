@@ -59,7 +59,7 @@ def test_backtest_executes_and_records():
     assert m["trades"] >= 0 and "profit_factor" in m and "max_drawdown_pct" in m
 
 def test_walk_forward_window_count():
-    wf = walk_forward(load(BTC), "BTCUSDT")
+    wf = walk_forward(load(BTC).iloc[:2000].copy(), "BTCUSDT")
     assert len(wf) == 4  # 2000 rows, train 960 + test 240, step 240
 
 def test_monte_carlo_deterministic_seeded():
