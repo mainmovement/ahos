@@ -73,6 +73,7 @@ class Advice:
     deterministic_score: float | None = None
     exit_verdict: str | None = None
     council: dict[str, Any] | None = None
+    panel: dict[str, Any] | None = None
     computed_ts: float = field(default_factory=time.time)
     version: str = ADVISOR_VERSION
 
@@ -93,6 +94,7 @@ class Advice:
             "invalidation": self.invalidation, "hard_vetoes": self.hard_vetoes,
             "deterministic_score": self.deterministic_score,
             "exit_verdict": self.exit_verdict, "council": self.council,
+            "panel": self.panel,
             "computed_ts": self.computed_ts, "version": self.version,
         }
 
@@ -132,7 +134,7 @@ class DecisionAdvisor:
     # ------------------------------------------------------------------ ENTRY
     def advise_entry(self, candidate, score_report,
                      exitability=None, virality=None, whale=None,
-                     narrative=None, council=None,
+                     narrative=None, council=None, panel=None,
                      now: float | None = None) -> Advice:
         ts = time.time() if now is None else now
         m = candidate.metrics
@@ -152,6 +154,7 @@ class DecisionAdvisor:
             deterministic_score=score_report.opportunity_score,
             exit_verdict=exitability.verdict if exitability else None,
             council=council.to_dict() if council else None,
+            panel=panel.to_dict() if panel else None,
             computed_ts=ts,
         )
 
@@ -168,6 +171,14 @@ class DecisionAdvisor:
             )
         if score_report.risk_level == "CRITICAL":
             vetoes.append("سطح ریسک بحرانی توسط موتور قطعی اعلام شد")
+
+        # Cognitive panel vetoes are DETERMINISTIC checks derived from published
+        # principles -- they are arithmetic over measured evidence, not model
+        # opinion. That is why, unlike the AI council, the panel may block here
+        # rather than only ratchet conviction downward later.
+        if panel is not None and panel.is_blocking:
+            for reason in panel.vetoes:
+                vetoes.append(f"شورای تحلیلی: {reason}")
 
         if vetoes:
             base.action = "AVOID"
@@ -275,6 +286,20 @@ class DecisionAdvisor:
                 conviction = "MEDIUM"
             if council.echo_suspected:
                 risks.append("اتفاق‌نظر مدل‌ها ممکن است هم‌آوایی باشد، نه تأیید مستقل")
+
+        # Cognitive panel: same one-directional safety ratchet.
+        if panel is not None:
+            if panel.verdict == "CAUTION" and conviction == "HIGH":
+                conviction = "MEDIUM"
+                risks.append("شورای تحلیلی هشدار داد — اطمینان کاهش یافت")
+            elif panel.verdict == "INSUFFICIENT_EVIDENCE" and action == "ENTER":
+                action, conviction = "WAIT", "LOW"
+                risks.append(
+                    "بیش از نیمی از دیدگاه‌های تحلیلی به دلیل نبود داده سکوت "
+                    "کردند — سکوت تأیید نیست")
+            for c in panel.cautions[:3]:
+                if c not in risks:
+                    risks.append(f"شورای تحلیلی: {c}")
 
         # ============ POSITION SIZING =======================================
         size: float | None = None

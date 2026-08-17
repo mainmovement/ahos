@@ -44,6 +44,8 @@ def svc():
     ("اشتباهاتت رو مرور کن", "SELF_REVIEW"),
     ("عملکرد گذشته چطور بوده؟", "SELF_REVIEW"),
     ("چه درسی گرفتی؟", "SELF_REVIEW"),
+    ("شورای تحلیلی چی میگه؟", "PANEL_ANALYSIS"),
+    ("۱۰۰ نابغه چی میگن", "PANEL_ANALYSIS"),
 ])
 def test_conversational_intents_route(text, intent):
     assert I.parse(text).intent == intent
@@ -69,7 +71,7 @@ def test_leading_question_is_not_answered_as_data_query():
 def test_all_conversational_intents_are_info_only():
     convo = {"NEWS_DIGEST", "WHAT_TO_BUY", "ENTRY_TIMING", "EXITABILITY_QUERY",
              "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "GREETING",
-             "SELF_REVIEW"}
+             "SELF_REVIEW", "PANEL_ANALYSIS"}
     assert convo <= I.INFO_ONLY_INTENTS
     assert not (convo & I.LEDGER_MUTATING_INTENTS)
 
@@ -201,3 +203,20 @@ def test_self_review_is_available_on_demand_and_labelled(svc):
 
 def test_help_mentions_the_self_review_capability(svc):
     assert "مرور" in svc.handle_message("راهنما")["text"]
+
+
+def test_cognitive_panel_is_reachable_from_telegram(svc):
+    r = svc.handle_message("شورای تحلیلی چی میگه؟", user_context=CTX)
+    assert r["intent"] == "PANEL_ANALYSIS" and r["status"] == "OK"
+    assert r["panel"].advisory_only is True
+    assert "مشورتی" in r["text"]
+    assert FOOTER_MANDATED in r["text"]
+
+
+def test_panel_reply_names_the_thinkers_behind_each_finding(svc):
+    """Attribution is the point: the user should see WHO objected and why."""
+    r = svc.handle_message("شورای تحلیلی چی میگه؟", user_context=CTX)
+    v = r["panel"]
+    speaking = [o for o in v.opinions if o.stance != "ABSTAIN"]
+    if speaking:
+        assert any(o.identity and o.citation_ref for o in speaking)

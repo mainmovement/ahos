@@ -215,6 +215,11 @@ def parse(text: str, context_token: dict | None = None) -> ParseResult:
     if re.search(r"(وایرال|ترند|هایپ)", norm) and not re.search(r"(حتما|قطعا|مطمئن)", norm):
         return result("VIRALITY_QUERY", "HIGH", "R-VIRAL-01")
 
+    # --- cognitive panel («شورای تحلیلی» / «۱۰۰ نابغه چی میگن») ---
+    if re.search(r"(شورای تحلیلی|صد نابغه|۱۰۰ نابغه|100 نابغه|نوابغ|بزرگان)", norm) \
+            or re.search(r"(تحلیل|بررسی).*(عمیق|چندجانبه|تخصصی)", norm):
+        return result("PANEL_ANALYSIS", "HIGH", "R-PANEL-01")
+
     # --- AI council opinion («نظر هوش مصنوعی‌ها چیه؟») ---
     if re.search(r"(نظر|عقیده|رای).*(هوش مصنوعی|مدل|شورا|دستیار)", norm) \
             or "شورا چی میگه" in norm:
@@ -275,7 +280,7 @@ INFO_ONLY_INTENTS = {
     # «تصمیم نهایی با کاربر است.» — never an executable order.
     "NEWS_DIGEST", "WHAT_TO_BUY", "ENTRY_TIMING", "EXITABILITY_QUERY",
     "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "GREETING",
-    "SELF_REVIEW",
+    "SELF_REVIEW", "PANEL_ANALYSIS",
 }
 # Intents permitted to write the position ledger (deterministic command layer only).
 LEDGER_MUTATING_INTENTS = {"BUY_LOG"}

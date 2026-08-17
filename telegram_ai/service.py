@@ -25,6 +25,7 @@ from config.paths import get_discovery_db_path, get_local_db_path
 # inherit the token currently under discussion in the conversation.
 TOKEN_SCOPED_INTENTS = {
     "EXITABILITY_QUERY", "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION",
+    "PANEL_ANALYSIS",
 }
 
 
@@ -107,6 +108,8 @@ class TelegramDomainService:
             return self._handle_virality(parsed)
         elif parsed.intent == "COUNCIL_OPINION":
             return self._handle_council(parsed)
+        elif parsed.intent == "PANEL_ANALYSIS":
+            return self._handle_panel(parsed)
         elif parsed.intent == "SELF_REVIEW":
             return self._handle_self_review(parsed)
         elif parsed.intent == "HELP":
@@ -856,6 +859,25 @@ class TelegramDomainService:
         return {"text": "\n".join(lines), "intent": "COUNCIL_OPINION",
                 "status": "OK", "council": verdict}
 
+    def _handle_panel(self, parsed: ParseResult) -> dict[str, Any]:
+        """The 100-mind panel, run as deterministic checks over real evidence."""
+        from architecture.knowledge.panel import CognitivePanel
+        from architecture.intel.exitability import ExitabilityAnalyzer
+        from architecture.intel.viral import ViralityTracker
+
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+
+        report = self.scorer.evaluate(cand)
+        verdict = CognitivePanel().deliberate(
+            cand, score_report=report,
+            exitability=ExitabilityAnalyzer().analyze(cand),
+            virality=ViralityTracker().analyze(cand),
+        )
+        return {"text": f"{verdict.summary_persian()}\n\n{FOOTER_MANDATED}",
+                "intent": "PANEL_ANALYSIS", "status": "OK", "panel": verdict}
+
     def _handle_self_review(self, parsed: ParseResult) -> dict[str, Any]:
         """The learning loop, on demand: how good were our past calls, really?"""
         from architecture.evolution.hindsight import HindsightEngine
@@ -893,6 +915,7 @@ class TelegramDomainService:
             "• `نهنگ‌ها چیکار می‌کنن؟`\n"
             "• `این وایرال شده؟`\n"
             "• `نظر هوش مصنوعی‌ها چیه؟`\n"
+            "• `شورای تحلیلی چی میگه؟` (۱۰ دیدگاه تخصصی)\n"
             "• `چه چیزی نامعلوم است؟`\n"
             "• `چه چیزی این فرصت را invalid می‌کند؟`\n\n"
             "💼 پوزیشن‌های من\n"
