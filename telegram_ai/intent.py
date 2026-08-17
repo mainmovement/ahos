@@ -159,6 +159,13 @@ def parse(text: str, context_token: dict | None = None) -> ParseResult:
     # --- Market Overview (آخرین وضعیت بازار) ---
     if re.search(r"(آخرین|وضعیت|خلاصه).*(بازار|مارکت|کلی)", norm) or "اوضاع بازار" in norm:
         return result("MARKET_OVERVIEW", "HIGH", "R-MKT-01")
+    # The natural way a Persian speaker actually asks this is «بازار چطوره؟» --
+    # subject first, no «وضعیت» anywhere -- which R-MKT-01 above cannot match.
+    # Requires an explicit market noun, so «این توکن چطوره؟» stays a token query
+    # and a bare «چطوره؟» stays UNKNOWN rather than being guessed at.
+    if re.search(r"(بازار|مارکت)", norm) and re.search(
+            r"(چطور|چه طور|چگونه|خوبه|خوب است|چه وضعی|در چه حالی|حالش)", norm):
+        return result("MARKET_OVERVIEW", "HIGH", "R-MKT-02")
 
     # --- System Health & Diagnostics (سلامت سامانه / وضعیت سیستم) ---
     if re.search(r"(وضعیت|سلامت).*(زمان‌بند|زمانبند|اسکجولر|قفل)", norm) or "وضعیت زمان بند" in norm:
@@ -229,6 +236,14 @@ def parse(text: str, context_token: dict | None = None) -> ParseResult:
     if re.fullmatch(r"(سلام|درود|های|هی|سلام علیکم)[\s!.،؟?]*", norm) \
             or re.fullmatch(r"(خوبی|چطوری|حالت چطوره)[\s!.،؟?]*", norm):
         return result("GREETING", "HIGH", "R-GREET-01")
+    # A greeting followed by a pleasantry -- «سلام خوبی؟», «سلام چطوری» -- is
+    # still just a greeting. Kept as a fullmatch over the two-part form only, so
+    # «سلام بازار چطوره؟» falls through to the real intent rules below rather
+    # than being answered with a hello.
+    if re.fullmatch(r"(سلام|درود|های|هی|سلام علیکم)[\s،]*"
+                    r"(خوبی|چطوری|خوبید|چطورید|حالت چطوره|حال شما)"
+                    r"[\s!.،؟?]*", norm):
+        return result("GREETING", "HIGH", "R-GREET-02")
 
     # --- token check / status ---
     if "بررسی کن" in norm or "بررسیش کن" in norm or "چک کن" in norm or "چکش کن" in norm:

@@ -266,3 +266,55 @@ def test_every_reachable_intent_carries_the_footer(probe):
     fresh = TelegramDomainService()
     r = fresh.handle_message(probe, user_context=CTX)
     assert FOOTER_MANDATED in r["text"], f"{probe} -> {r.get('intent')}"
+
+
+# --------------------------------------------- natural phrasing (Wave-26) --
+# Found by actually talking to the bot rather than by reading the rules: the
+# single most likely thing a user types, «بازار چطوره؟», returned "I did not
+# understand". R-MKT-01 required وضعیت/آخرین/خلاصه to appear BEFORE the noun,
+# which is not how the question is asked out loud.
+
+@pytest.mark.parametrize("text", [
+    "بازار چطوره؟",
+    "بازار چطور است؟",
+    "حال بازار چطوره؟",
+    "الان بازار چطوره؟",
+    "بازار امروز چطوره؟",
+    "بازار خوبه؟",
+    "کلیت بازار چطوره",
+    "مارکت چطوره؟",
+    "اوضاع بازار چطوره",
+    "وضعیت بازار چیه؟",
+])
+def test_natural_market_questions_are_understood(text):
+    assert I.parse(text).intent == "MARKET_OVERVIEW", \
+        f"the most natural way to ask this was not understood: {text}"
+
+
+@pytest.mark.parametrize("text", [
+    "چطوره؟",            # no subject -- must not be guessed at
+    "این توکن چطوره؟",   # about a token, not the market
+])
+def test_market_rule_does_not_over_match(text):
+    assert I.parse(text).intent != "MARKET_OVERVIEW", \
+        f"market rule swallowed an unrelated question: {text}"
+
+
+@pytest.mark.parametrize("text,expected", [
+    ("سلام خوبی؟", "GREETING"),
+    ("سلام چطوری", "GREETING"),
+    ("سلام، خوبی؟", "GREETING"),
+    ("درود خوبید؟", "GREETING"),
+    ("سلام", "GREETING"),
+    # A greeting glued to a real question must route to the question.
+    ("سلام بازار چطوره؟", "MARKET_OVERVIEW"),
+    ("سلام چی بخرم؟", "WHAT_TO_BUY"),
+])
+def test_greeting_with_pleasantry_and_greeting_prefixed_questions(text, expected):
+    assert I.parse(text).intent == expected, f"misrouted: {text}"
+
+
+def test_hopeful_phrasing_is_still_never_guessed():
+    """The standing rule: leading questions must not be answered as if the
+    system agreed with them."""
+    assert I.parse("حتماً پامپ میشه نه؟").intent == "UNKNOWN"
