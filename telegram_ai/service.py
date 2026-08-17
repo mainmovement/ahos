@@ -762,6 +762,21 @@ class TelegramDomainService:
             holder_count=None,
             price_change_pct=getattr(cand.metrics, "price_change_1h", None),
         )
+        # Distribution forensics (Gini / coordination) from the holder store.
+        forensic = None
+        try:
+            from architecture.intel.forensics import ForensicsAnalyzer
+            conn = self._open_discovery()
+            row = conn.execute(
+                "SELECT token_id FROM tokens WHERE address=? LIMIT 1",
+                (cand.address,)).fetchone()
+            if row:
+                forensic = ForensicsAnalyzer().analyze_from_store(
+                    conn, row[0], symbol=cand.symbol)
+            conn.close()
+        except Exception:
+            forensic = None
+
         lines = [f"🐋 توزیع مالکیت — {cand.symbol}", "",
                  f"وضعیت: **{rep.label}**"]
         if rep.top10_share_pct is not None:
@@ -778,12 +793,19 @@ class TelegramDomainService:
             lines.append(f" ⚠️ {w}")
         for u in rep.unknowns:
             lines.append(f" ❓ {u}")
-        if rep.label == "UNKNOWN":
+        if forensic is not None and forensic.is_known:
+            lines += ["", f"🔬 تحلیل توزیع: **{forensic.label}**"]
+            if forensic.gini is not None:
+                lines.append(f"ضریب جینی: {forensic.gini:.2f} ({forensic.gini_label})")
+            for w in forensic.warnings[:3]:
+                lines.append(f" ⚠️ {w}")
+
+        if rep.label == "UNKNOWN" and (forensic is None or not forensic.is_known):
             lines += ["", "توضیح صادقانه: نقاط پایانی رایگان RPC فهرست دارندگان را "
                           "ارائه نمی‌دهند. نبود داده را «امن» تفسیر نمی‌کنیم."]
         lines += ["", FOOTER_MANDATED]
         return {"text": "\n".join(lines), "intent": "WHALE_QUERY",
-                "status": "OK", "whales": rep}
+                "status": "OK", "whales": rep, "forensics": forensic}
 
     def _handle_virality(self, parsed: ParseResult) -> dict[str, Any]:
         from architecture.intel.viral import ViralityTracker
