@@ -14,7 +14,7 @@ This document specifies the Intelligence Engine built **on top of** the Evidence
 ```
 core/                          ← unified evidence atom (source,value,timestamp,confidence,verification,metadata)
 providers/                     ← fetch / health_check / normalize → Evidence-anchored Observations
-intelligence/                  ← ★ NEW: intelligence on evidence
+intelligence/                  ← ★ NEW: intelligence on evidence (all connected via pipeline)
 ├── features/
 │   └── registry.py            FeatureRegistry, FeatureDefinition (name, description, source_evidence, calculation_method, version)
 ├── scoring/
@@ -26,11 +26,12 @@ intelligence/                  ← ★ NEW: intelligence on evidence
 │   ├── concentration_risk.py  ConcentrationRiskAnalyzer (top10_share, holders_count)
 │   ├── manipulation_risk.py   ManipulationRiskAnalyzer (wash: volume vs txn divergence, buys_ratio)
 │   └── engine.py              RiskEngine (aggregate 4 analyzers → aggregate_score/level)
-└── explanations/
-    └── generator.py           ExplanationGenerator (ScoreResult + RiskEngineResult → Persian text)
+├── explanations/
+│   └── generator.py           ExplanationGenerator (ScoreResult + RiskEngineResult → Persian text)
+└── pipeline.py                IntelligencePipeline — integrates Registry+Scoring+Risk+Explanation (Evidence-only, connected)
 
-docs/AHOS_V2_INTELLIGENCE_ENGINE.md — this file
-tests/test_intelligence_engine.py  — 25 tests (scoring, risk, explanation, registry)
+docs/AHOS_V2_INTELLIGENCE_ENGINE.md — this file (updated 2026-08-17: pipeline integration)
+tests/test_intelligence_engine.py  — 30 tests (registry, scoring, risk, explanation, pipeline)
 ```
 
 **Law:** Intelligence never reads raw `NormalizedTokenCandidate` fields directly; it reads `Evidence.value` via `evidence_map: dict[str, Evidence]`. Missing evidence → low confidence / `UNKNOWN`, never fabricated.
@@ -266,9 +267,9 @@ CI litmus: `tests/test_zero_money_invariant.py` still 13 checks green; no `impor
 
 ### Migration path
 
-1. **Phase 4a (this commit)** — Foundation only: registry, scoring v2, 4 risk analyzers, explanation generator, tests, this doc. No wiring into `architecture/pipeline/orchestrator.py` yet.
-2. **Phase 4b (next, flagged)** — Wire `intelligence.scoring` behind `AHOS_INTELLIGENCE_ENABLED` flag in pipeline (parallel score, compare with architecture score, emit `Evidence` for both). Risk engine runs in shadow.
-3. **Phase 4c (later)** — When v2 scores are validated on E-01 cohorts (≥200 horizons), promote `intelligence.scoring` as primary, keep architecture scoring as fallback, and route `intelligence.explanations` to `telegram_ai` rendering.
+1. **Phase 4a (this commit)** — Foundation + integration: registry, scoring v2, 4 risk analyzers, explanation generator, **IntelligencePipeline** (evidence-only, connects all sub-engines + FeatureRegistry provenance), tests, this doc. Pipeline is exercised by `tests/test_intelligence_engine.py::TestIntelligencePipeline` and can be called from `architecture/pipeline/orchestrator` via `IntelligencePipeline.from_candidate(candidate)` without modifying legacy pipeline (adapter pattern).
+2. **Phase 4b (next, flagged)** — Wire `intelligence.pipeline` behind `AHOS_INTELLIGENCE_ENABLED` flag in the existing orchestrator (parallel score, compare with architecture score, emit `Evidence` for both). Risk engine runs in shadow, explanations feed `telegram_ai`.
+3. **Phase 4c (later)** — When v2 scores are validated on E-01 cohorts (≥200 horizons), promote `intelligence.pipeline` as primary, keep architecture scoring as fallback.
 
 Rollback: `git revert HEAD --no-edit` drops `intelligence/` only, 0 legacy deletions.
 
@@ -319,7 +320,7 @@ pytest -q                                            # 961 (936 + 25)
 
 ---
 
-## 9. Files touched in this commit
+## 9. Files touched in this commit (clean + integrated)
 
 ```
 intelligence/__init__.py
@@ -336,8 +337,11 @@ intelligence/risk/manipulation_risk.py    — ManipulationRiskAnalyzer
 intelligence/risk/engine.py               — RiskEngine (aggregate)
 intelligence/explanations/__init__.py
 intelligence/explanations/generator.py    — ExplanationGenerator + Explanation
-tests/test_intelligence_engine.py         — 25 tests (registry, scoring, risk, explanation)
-docs/AHOS_V2_INTELLIGENCE_ENGINE.md       — this file
+intelligence/pipeline.py                  — IntelligencePipeline (integrates registry+scoring+risk+explanation, evidence-only, not isolated)
+tests/test_intelligence_engine.py         — 30 tests (registry, scoring, risk, explanation, pipeline)
+docs/AHOS_V2_INTELLIGENCE_ENGINE.md       — this file (updated)
+.gitignore                                — added ahos_snap_*.txt, *.patch (pollution cleanup)
+data/*.sqlite, data/*.sqlite-wal/shm, __pycache__, .pytest_cache — removed from filesystem, ignored
 ```
 
 No file under `discovery/`, `architecture/`, `core/`, `providers/`, `paper_trading/`, `telegram_ai/`, `research/`, `config/`, `contracts/` was deleted.

@@ -374,3 +374,80 @@ class TestExplanationGenerator:
         exp = ExplanationGenerator().generate(res)
         assert isinstance(exp.text, str)
         assert exp.confidence == Confidence.UNKNOWN
+
+
+# ---------------------------------------------------------------------------
+# Intelligence Pipeline (integration — evidence-only, connected)
+# ---------------------------------------------------------------------------
+
+class TestIntelligencePipeline:
+    def test_pipeline_evidence_only(self):
+        from intelligence.pipeline import IntelligencePipeline
+
+        pipe = IntelligencePipeline()
+        # Raw values must be rejected
+        with pytest.raises((TypeError, ValueError), match="Evidence"):
+            pipe.analyze({"price_usd": 1.5})  # raw, not Evidence
+
+    def test_pipeline_end_to_end(self):
+        from intelligence.pipeline import IntelligencePipeline
+
+        pipe = IntelligencePipeline()
+        m = {
+            "price_change_6h": _ev(value=15),
+            "volume_24h": _ev(value=80000),
+            "liquidity_usd": _ev(value=100000),
+            "is_honeypot": _ev(source="security_gate", value=False),
+            "has_mint_authority": _ev(source="security_gate", value=False),
+            "top10_share": _ev(source="holders", value=22),
+            "narrative_score": _ev(source="viral", value=65),
+        }
+        res = pipe.analyze(m)
+        assert 0 <= res.score_result.total_score <= 100
+        assert res.risk_result.aggregate_level in RiskLevel.ALL
+        assert isinstance(res.explanation.text, str) and "تصمیم نهایی با کاربر است" in res.explanation.text
+        assert res.decision.advisory_only is True
+        assert res.feature_provenance  # non-empty
+        assert res.score_result.confidence in Confidence.ALL
+        # Evidence audit
+        assert len(res.score_result.evidence_refs) == len(m)
+
+    def test_pipeline_from_candidate_adapter(self):
+        from intelligence.pipeline import IntelligencePipeline
+        from architecture.providers.contracts import NormalizedTokenCandidate, MarketMetrics, SecuritySignals
+
+        pipe = IntelligencePipeline()
+        cand = NormalizedTokenCandidate(
+            chain="solana",
+            address="So11111111111111111111111111111111111111112",
+            symbol="TEST",
+            name="Test",
+            metrics=MarketMetrics(price_usd=1.5, liquidity_usd=60000, volume_24h=80000, price_change_6h=12),
+            security=SecuritySignals(is_honeypot=False, has_mint_authority=False),
+            source_provider="dexscreener",
+            retrieved_ts=FIXED_TS,
+            raw_payload_sha256=RAW,
+        )
+        res = IntelligencePipeline.from_candidate(cand, now=FIXED_TS)
+        assert res.score_result.total_score >= 0
+        assert res.risk_result.aggregate_level in RiskLevel.ALL
+
+    def test_pipeline_is_deterministic(self):
+        from intelligence.pipeline import IntelligencePipeline
+
+        pipe = IntelligencePipeline()
+        m = {"price_change_6h": _ev(value=10), "liquidity_usd": _ev(value=50000)}
+        r1 = pipe.analyze(m, now=FIXED_TS)
+        r2 = pipe.analyze(m, now=FIXED_TS)
+        assert r1.score_result.total_score == r2.score_result.total_score
+        assert r1.explanation.text == r2.explanation.text
+
+    def test_pipeline_connected_to_registry(self):
+        from intelligence.pipeline import IntelligencePipeline
+
+        pipe = IntelligencePipeline()
+        # Pipeline must carry feature provenance from global registry
+        assert pipe.feature_registry.count() >= 6
+        res = pipe.analyze({"price_change_6h": _ev(value=5)})
+        assert res.feature_provenance == pipe.feature_registry.provenance()
+

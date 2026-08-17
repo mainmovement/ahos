@@ -54,3 +54,7 @@ dist/
 # SQLite runtime sidecar files
 *.sqlite-wal
 *.sqlite-shm
+
+# AHOS generated artifacts (Phase 4 cleanup)
+ahos_snap_*.txt
+*.patch
