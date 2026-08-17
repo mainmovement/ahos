@@ -115,13 +115,26 @@ class HealthSnapshotEngine:
             closed_v3 = cur_pt.execute("SELECT COUNT(*) FROM paper_exit_v3").fetchone()[0]
             conn_pt.close()
 
+            from paper_trading.bankroll import BANKROLL_START_USD
+
+            # An UNINITIALISED bankroll (no ledger rows at all) is not a
+            # violation — it is a fresh install that has not started the
+            # experiment yet. Only a ledger that exists AND fails to conserve
+            # money is an accounting breach. Conflating the two made every
+            # clean checkout report CRITICAL forever.
+            initialised = bool(ledger)
             total_sum = round(cash + allocated, 7)
-            consistent = (abs(total_sum - 20.0) < 1e-6)
+            if initialised:
+                consistent = abs(total_sum - BANKROLL_START_USD) < 1e-6
+            else:
+                consistent = (allocated == 0.0)
+
             track_b = {
-                "virtual_bankroll_initial_usd": 20.0,
+                "virtual_bankroll_initial_usd": BANKROLL_START_USD,
+                "bankroll_initialised": initialised,
                 "cash_balance_usd": cash,
                 "allocated_capital_usd": allocated,
-                "accounting_sum_usd": total_sum,
+                "accounting_sum_usd": total_sum if initialised else BANKROLL_START_USD,
                 "is_accounting_consistent": consistent,
                 "open_positions_count": len(trades),
                 "closed_positions_count": closed_v3,
@@ -129,7 +142,15 @@ class HealthSnapshotEngine:
             }
             if not consistent:
                 is_critical = True
-                reasons.append(f"Track B accounting mismatch: cash+allocated = ${total_sum} != $20.00")
+                if initialised:
+                    reasons.append(
+                        f"Track B accounting mismatch: cash+allocated = ${total_sum} "
+                        f"!= ${BANKROLL_START_USD:.2f}"
+                    )
+                else:
+                    reasons.append(
+                        f"Track B has ${allocated} allocated with no portfolio ledger entry"
+                    )
         except Exception as e:
             track_b = {"error": str(e), "is_accounting_consistent": False}
             is_critical = True

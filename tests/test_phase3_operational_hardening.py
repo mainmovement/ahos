@@ -95,20 +95,40 @@ def test_cognitive_registry_100_unique_thinkers():
 
 
 def test_track_b_accounting_invariants_preserved():
-    """Proves Track B portfolio accounting equation holds: Cash ($1.8984375) + Allocated ($18.1015625) = $20.0000000."""
+    """Proves the Track B conservation law: cash + allocated == BANKROLL_START_USD.
+
+    This asserts the INVARIANT, not one machine's row counts. The previous version
+    hardcoded cash=$1.8984375 / allocated=$18.1015625 / 11 open trades, which were
+    the author's local numbers from a store that `.gitignore` never committed — so
+    the test could only ever pass on that one laptop. Money conservation is the
+    real law and it holds for an empty store, 11 trades, or 10,000.
+    """
+    from paper_trading.bankroll import BANKROLL_START_USD
+
     db_path = get_paper_trading_db_path()
     conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
-    trades = cur.execute("SELECT amount_allocated FROM paper_trade_v2").fetchall()
-    assert len(trades) == 11
+    trades = cur.execute(
+        "SELECT amount_allocated FROM paper_trade_v2"
+    ).fetchall()
     allocated = sum(t["amount_allocated"] for t in trades)
 
-    ledger = cur.execute("SELECT cash_after FROM portfolio_ledger ORDER BY rowid ASC").fetchall()
-    cash = ledger[-1]["cash_after"]
+    ledger = cur.execute(
+        "SELECT cash_after FROM portfolio_ledger ORDER BY rowid ASC"
+    ).fetchall()
     conn.close()
 
-    assert cash == pytest.approx(1.8984375, rel=1e-7)
-    assert allocated == pytest.approx(18.1015625, rel=1e-7)
-    assert (cash + allocated) == pytest.approx(20.0, rel=1e-7)
+    if not ledger:
+        # Fresh install: no bankroll initialised yet. Nothing to conserve, and
+        # fabricating rows to satisfy a test is exactly what this project forbids.
+        assert allocated == 0.0, "allocated capital without any ledger entry"
+        return
+
+    cash = ledger[-1]["cash_after"]
+
+    # THE LAW: no money is created or destroyed by paper bookkeeping.
+    assert (cash + allocated) == pytest.approx(BANKROLL_START_USD, rel=1e-7)
+    assert cash >= 0.0, "cash balance must never go negative"
+    assert allocated >= 0.0, "allocated capital must never go negative"

@@ -1,0 +1,30 @@
+# ==============================================================================
+# AHOS — Runtime Dependencies
+# LAW: $0/month cost ceiling. Every package here is free, permissively licensed,
+#      and installable offline from a wheel cache. No paid SDK is ever required.
+# Python: 3.11+
+# ==============================================================================
+
+# ---- Core (MANDATORY — deterministic floor runs on these alone) --------------
+PyYAML>=6.0.1              # registries, contracts, provider configs
+
+# ---- Research / analytics lane (Lane B) --------------------------------------
+numpy>=1.26.0              # baseline stats, backtest vectors
+pandas>=2.1.0              # CSV datasets, research reports
+
+# ---- Networking --------------------------------------------------------------
+# NOTE: the runtime core deliberately uses stdlib urllib so the deterministic
+# floor has ZERO third-party network dependency. requests is used only by the
+# optional social/news collectors and the Telegram long-poll transport.
+requests>=2.31.0
+urllib3>=2.0.0
+
+# ---- Iran-resilience: SOCKS5 proxy support for filtered endpoints ------------
+PySocks>=1.7.1             # enables ALL_PROXY=socks5://127.0.0.1:10808
+
+# ---- Testing / QA ------------------------------------------------------------
+pytest>=7.4.0
+pytest-timeout>=2.2.0
+
+# ---- OPTIONAL (not imported by the deterministic floor) ----------------------
+# Install with:  pip install -r requirements-optional.txt

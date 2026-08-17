@@ -180,6 +180,46 @@ def parse(text: str, context_token: dict | None = None) -> ParseResult:
     if re.search(r"(سلامت|هلث|وضعیت|کارکرد).*(سیستم|سامانه|سرویس|سرور|اپلیکیشن)", norm) or "سلامت سیستم" in norm or "وضعیت سامانه" in norm:
         return result("SYSTEM_HEALTH", "HIGH", "R-HEALTH-01")
 
+    # --- crypto news digest («امروز چه خبر؟» / «اخبار کریپتو») ---
+    if re.search(r"(چه خبر|چیه خبر|خبرها|اخبار|نیوز)", norm):
+        scope = "TOKEN" if tok else "MARKET"
+        return result("NEWS_DIGEST", "HIGH", "R-NEWS-01", scope=scope)
+
+    # --- open-ended "what should I buy?" advisory ---
+    if re.search(r"(چی|چه چیزی|کدوم|کدام).*(بخرم|بخریم|وارد بشم|سرمایه)", norm) \
+            or "چی بخرم" in norm or "پیشنهاد" in norm:
+        return result("WHAT_TO_BUY", "HIGH", "R-ADVISE-01")
+
+    # --- entry timing («کی وارد بشم؟») ---
+    if re.search(r"(کی|چه زمانی|چه وقت).*(بخرم|وارد|ورود)", norm):
+        return result("ENTRY_TIMING", "HIGH", "R-ENTRY-TIME-01")
+
+    # --- exit feasibility («می‌تونم بفروشمش؟» / «نقدشوندگی») ---
+    if re.search(r"(می ?تونم|میشه|امکان).*(بفروش|خارج|نقد)", norm) \
+            or "نقدشوندگی" in norm or "قابل فروش" in norm:
+        return result("EXITABILITY_QUERY", "HIGH", "R-EXIT-01")
+
+    # --- whale / holder distribution («نهنگ‌ها») ---
+    if re.search(r"(نهنگ|والی|هولدر|توزیع مالکیت|دارندگان)", norm):
+        return result("WHALE_QUERY", "HIGH", "R-WHALE-01")
+
+    # --- virality / hype («وایرال شده؟» / «چقدر ترند شده») ---
+    # Deliberately NOT matching bare "پامپ": phrases like «حتماً پامپ میشه نه؟»
+    # are leading statements seeking agreement, not questions about evidence.
+    # Answering them as a data query would let the user's hope set the agenda.
+    if re.search(r"(وایرال|ترند|هایپ)", norm) and not re.search(r"(حتما|قطعا|مطمئن)", norm):
+        return result("VIRALITY_QUERY", "HIGH", "R-VIRAL-01")
+
+    # --- AI council opinion («نظر هوش مصنوعی‌ها چیه؟») ---
+    if re.search(r"(نظر|عقیده|رای).*(هوش مصنوعی|مدل|شورا|دستیار)", norm) \
+            or "شورا چی میگه" in norm:
+        return result("COUNCIL_OPINION", "HIGH", "R-COUNCIL-01")
+
+    # --- greetings / smalltalk: answer warmly, then steer to capability ---
+    if re.fullmatch(r"(سلام|درود|های|هی|سلام علیکم)[\s!.،؟?]*", norm) \
+            or re.fullmatch(r"(خوبی|چطوری|حالت چطوره)[\s!.،؟?]*", norm):
+        return result("GREETING", "HIGH", "R-GREET-01")
+
     # --- token check / status ---
     if "بررسی کن" in norm or "بررسیش کن" in norm or "چک کن" in norm or "چکش کن" in norm:
         return result("CHECK_TOKEN", "HIGH", "R-CHECK-01")
@@ -224,7 +264,12 @@ INFO_ONLY_INTENTS = {
     "INVALIDATION_CONDITIONS", "MARKET_OVERVIEW", "SYSTEM_HEALTH",
     "SCHEDULER_STATUS", "DATABASE_STATUS", "PROVIDERS_STATUS",
     "OBSERVATION_GAPS_STATUS", "E01_STATUS", "PAPER_TRADING_STATUS",
-    "AI_STATUS", "LAST_CYCLE_STATUS"
+    "AI_STATUS", "LAST_CYCLE_STATUS",
+    # Conversational advisory intents (Wave-25). All are strictly informational:
+    # they explain evidence and options, and always end with the mandated footer
+    # «تصمیم نهایی با کاربر است.» — never an executable order.
+    "NEWS_DIGEST", "WHAT_TO_BUY", "ENTRY_TIMING", "EXITABILITY_QUERY",
+    "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "GREETING",
 }
 # Intents permitted to write the position ledger (deterministic command layer only).
 LEDGER_MUTATING_INTENTS = {"BUY_LOG"}

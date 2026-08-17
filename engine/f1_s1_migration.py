@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sqlite3
 import sys
@@ -96,47 +97,137 @@ def rollback(store: Path, tables: list[str]) -> list[str]:
     return dropped
 
 
+def _probe_row(conn: sqlite3.Connection, table: str) -> tuple[str, list]:
+    """Build a synthetic INSERT for `table` from its own PRAGMA schema.
+
+    A BEFORE UPDATE/DELETE trigger only fires when a row actually matches. On an
+    EMPTY table an `UPDATE ... SET rowid=rowid` touches zero rows and therefore
+    proves NOTHING. To make the safety drill valid on a fresh install as well as
+    on a populated store, we insert one disposable probe row into the temporary
+    COPY and run the destructive attempts against that row.
+    """
+    cols = conn.execute(f'PRAGMA table_info("{table}")').fetchall()
+
+    # Some columns carry CHECK (col IN ('A','B',...)) constraints. A generic probe
+    # string would violate them, so we mine the table DDL for the first allowed
+    # literal per column and use that instead.
+    ddl_row = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)
+    ).fetchone()
+    ddl = (ddl_row[0] if ddl_row else "") or ""
+    enums: dict[str, str] = {}
+    for m in re.finditer(r"CHECK\s*\(\s*(\w+)\s+IN\s*\(([^)]*)\)", ddl, re.IGNORECASE):
+        col, body = m.group(1), m.group(2)
+        literals = re.findall(r"'([^']*)'", body)
+        if literals:
+            enums[col] = literals[0]
+
+    def _literal(ctype: str, name: str = ""):
+        if name in enums:
+            return enums[name]
+        t = (ctype or "TEXT").upper()
+        if "INT" in t:
+            return 0
+        if any(k in t for k in ("REAL", "FLOA", "DOUB", "NUM")):
+            return 0.0
+        return "__F1S1_DRILL_PROBE__"
+
+    names, values = [], []
+    for _cid, name, ctype, notnull, default, pk in cols:
+        if pk and "INTEGER" in (ctype or "").upper():
+            continue                      # let AUTOINCREMENT assign it
+        if default is not None:
+            continue                      # respect schema defaults
+        if not notnull and not pk:
+            continue                      # nullable ⇒ omit; keeps the row minimal
+        names.append(name)
+        values.append(_literal(ctype, name))
+
+    if not names:
+        # Every column is nullable or defaulted (e.g. control_flags). An empty
+        # column list is not valid SQL, so name the first non-autoincrement
+        # column explicitly to force exactly one probe row into existence.
+        for _cid, name, ctype, _notnull, _default, pk in cols:
+            if pk and "INTEGER" in (ctype or "").upper():
+                continue
+            names.append(name)
+            values.append(_literal(ctype, name))
+            break
+    if not names:
+        return f'INSERT INTO "{table}" DEFAULT VALUES', []
+
+    placeholders = ", ".join("?" for _ in names)
+    quoted = ", ".join(f'"{n}"' for n in names)
+    return f'INSERT INTO "{table}" ({quoted}) VALUES ({placeholders})', values
+
+
 def drill(store: Path, tables: list[str]) -> dict:
-    """Full safety drill on a COPY: apply → UPDATE must fail → INSERT must work → rollback →
-    triggers gone → data identical. Migration is proven safe BEFORE touching the live store."""
+    """Full safety drill on a COPY: INSERT must work → UPDATE must abort →
+    DELETE must abort → rollback → triggers gone → data identical.
+
+    The migration is proven safe BEFORE the live store is ever touched. The drill
+    is data-independent: it works on an empty fresh-install store and on a store
+    with years of history, because it supplies its own probe row.
+    """
     tmp = Path(tempfile.mkdtemp()) / "copy.sqlite"
     shutil.copy2(store, tmp)
     before = census(tmp, tables)
     apply(tmp, tables)
+
     conn = sqlite3.connect(str(tmp))
+    conn.execute("PRAGMA foreign_keys=OFF")     # probing schema guards, not referential integrity
     t0 = tables[0]
+    n_before = conn.execute(f'SELECT COUNT(*) FROM "{t0}"').fetchone()[0]
+
+    # 1. INSERT must still work — append-only means append IS allowed.
+    insert_ok = False
+    try:
+        sql, vals = _probe_row(conn, t0)
+        conn.execute(sql, vals)
+        conn.commit()
+        insert_ok = True
+    except sqlite3.Error:
+        conn.rollback()
+
+    # 2. UPDATE must abort (now there is guaranteed to be >= 1 row to match).
     update_blocked = False
     try:
         conn.execute(f'UPDATE "{t0}" SET rowid=rowid')
         conn.commit()
     except sqlite3.IntegrityError:
+        conn.rollback()
         update_blocked = True
-    n_before = conn.execute(f'SELECT COUNT(*) FROM "{t0}"').fetchone()[0]
-    insert_ok = True
+
+    # 3. DELETE must abort.
+    delete_blocked = False
     try:
-        if t0 == "control_flags":
-            conn.execute(f'INSERT INTO "{t0}"(action, detail) VALUES (?, ?)', ("DRILL", "f1s1 drill"))
-            conn.execute(f'DELETE FROM "{t0}" WHERE action="DRILL"')  # DELETE on guarded = blocked; so we do not expect commit
-            conn.commit()
-            insert_ok = False  # should not reach (DELETE must abort)
-        else:
-            conn.execute(f'INSERT INTO "{t0}" SELECT * FROM "{t0}" LIMIT 0')  # zero-row insert
-            conn.commit()
+        conn.execute(f'DELETE FROM "{t0}"')
+        conn.commit()
     except sqlite3.IntegrityError:
-        # for control_flags the DELETE must abort — that IS the proof; re-open clean
-        insert_ok = "delete-blocked-as-required"
-        conn.close()
-        conn = sqlite3.connect(str(tmp))
+        conn.rollback()
+        delete_blocked = True
+
     n_after = conn.execute(f'SELECT COUNT(*) FROM "{t0}"').fetchone()[0]
     conn.close()
+
+    # 4. Rollback the guards, then remove the probe row so the census can prove
+    #    the drill left the data byte-identical to how it started.
     rollback(tmp, tables)
-    after = census(tmp, tables)
     gone = guards_present(tmp) == []
+    if insert_ok:
+        conn = sqlite3.connect(str(tmp))
+        conn.execute("PRAGMA foreign_keys=OFF")
+        conn.execute(f'DELETE FROM "{t0}" WHERE rowid = (SELECT MAX(rowid) FROM "{t0}")')
+        conn.commit()
+        conn.close()
+    after = census(tmp, tables)
     identical = before == after
     tmp.unlink()
-    return {"store": str(store), "update_blocked": update_blocked, "insert_path": insert_ok,
-            "row_count_stable": n_before == n_after, "rollback_clean": gone,
-            "data_identical_after_drill": identical}
+
+    return {"store": str(store), "update_blocked": update_blocked,
+            "delete_blocked": delete_blocked, "insert_path": insert_ok,
+            "row_count_stable": (n_after == n_before + (1 if insert_ok else 0)),
+            "rollback_clean": gone, "data_identical_after_drill": identical}
 
 
 def main() -> int:
