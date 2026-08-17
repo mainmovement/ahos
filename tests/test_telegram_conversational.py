@@ -41,6 +41,9 @@ def svc():
     ("نهنگ ها چیکار میکنن؟", "WHALE_QUERY"),
     ("این وایرال شده؟", "VIRALITY_QUERY"),
     ("نظر هوش مصنوعی ها چیه؟", "COUNCIL_OPINION"),
+    ("اشتباهاتت رو مرور کن", "SELF_REVIEW"),
+    ("عملکرد گذشته چطور بوده؟", "SELF_REVIEW"),
+    ("چه درسی گرفتی؟", "SELF_REVIEW"),
 ])
 def test_conversational_intents_route(text, intent):
     assert I.parse(text).intent == intent
@@ -65,7 +68,8 @@ def test_leading_question_is_not_answered_as_data_query():
 
 def test_all_conversational_intents_are_info_only():
     convo = {"NEWS_DIGEST", "WHAT_TO_BUY", "ENTRY_TIMING", "EXITABILITY_QUERY",
-             "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "GREETING"}
+             "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "GREETING",
+             "SELF_REVIEW"}
     assert convo <= I.INFO_ONLY_INTENTS
     assert not (convo & I.LEDGER_MUTATING_INTENTS)
 
@@ -184,3 +188,16 @@ def test_help_covers_the_new_conversational_surface(svc):
 def test_unrecognised_input_still_refuses_to_guess(svc):
     r = svc.handle_message("asdkjh qwerty")
     assert r["status"] == "UNRECOGNIZED"
+
+
+def test_self_review_is_available_on_demand_and_labelled(svc):
+    """The learning loop must be inspectable by the user, not a black box."""
+    r = svc.handle_message("اشتباهاتت رو مرور کن")
+    assert r["intent"] == "SELF_REVIEW" and r["status"] == "OK"
+    # Hindsight may judge, never justify -- the label must reach the user.
+    assert "OUT_OF_SAMPLE_REVIEW" in r["text"]
+    assert FOOTER_MANDATED in r["text"]
+
+
+def test_help_mentions_the_self_review_capability(svc):
+    assert "مرور" in svc.handle_message("راهنما")["text"]

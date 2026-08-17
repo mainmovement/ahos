@@ -180,6 +180,11 @@ def parse(text: str, context_token: dict | None = None) -> ParseResult:
     if re.search(r"(سلامت|هلث|وضعیت|کارکرد).*(سیستم|سامانه|سرویس|سرور|اپلیکیشن)", norm) or "سلامت سیستم" in norm or "وضعیت سامانه" in norm:
         return result("SYSTEM_HEALTH", "HIGH", "R-HEALTH-01")
 
+    # --- self-review / learning loop («اشتباهاتت رو مرور کن») ---
+    if re.search(r"(اشتباه|خطا|درس|یادگیری|عملکرد گذشته|بازبینی)", norm) \
+            or "چقدر درست بودی" in norm or "گذشته رو مرور" in norm:
+        return result("SELF_REVIEW", "HIGH", "R-REVIEW-01")
+
     # --- crypto news digest («امروز چه خبر؟» / «اخبار کریپتو») ---
     if re.search(r"(چه خبر|چیه خبر|خبرها|اخبار|نیوز)", norm):
         scope = "TOKEN" if tok else "MARKET"
@@ -270,6 +275,7 @@ INFO_ONLY_INTENTS = {
     # «تصمیم نهایی با کاربر است.» — never an executable order.
     "NEWS_DIGEST", "WHAT_TO_BUY", "ENTRY_TIMING", "EXITABILITY_QUERY",
     "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "GREETING",
+    "SELF_REVIEW",
 }
 # Intents permitted to write the position ledger (deterministic command layer only).
 LEDGER_MUTATING_INTENTS = {"BUY_LOG"}

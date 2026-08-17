@@ -107,6 +107,8 @@ class TelegramDomainService:
             return self._handle_virality(parsed)
         elif parsed.intent == "COUNCIL_OPINION":
             return self._handle_council(parsed)
+        elif parsed.intent == "SELF_REVIEW":
+            return self._handle_self_review(parsed)
         elif parsed.intent == "HELP":
             return {
                 "text": self._get_help_text(),
@@ -854,6 +856,25 @@ class TelegramDomainService:
         return {"text": "\n".join(lines), "intent": "COUNCIL_OPINION",
                 "status": "OK", "council": verdict}
 
+    def _handle_self_review(self, parsed: ParseResult) -> dict[str, Any]:
+        """The learning loop, on demand: how good were our past calls, really?"""
+        from architecture.evolution.hindsight import HindsightEngine
+        try:
+            conn = self._open_discovery()
+            engine = HindsightEngine(conn)
+            results = engine.review_recent_picks(limit=20)
+            text = engine.report_persian(results)
+            agg = engine.aggregate(results)
+            conn.close()
+        except Exception as e:
+            return {
+                "text": (f"بازبینی گذشته ممکن نشد: {type(e).__name__}\n\n"
+                         f"{FOOTER_MANDATED}"),
+                "intent": "SELF_REVIEW", "status": "ERROR",
+            }
+        return {"text": f"{text}\n\n{FOOTER_MANDATED}",
+                "intent": "SELF_REVIEW", "status": "OK", "aggregate": agg}
+
     def _get_help_text(self) -> str:
         return (
             "🤖 **راهنمای دستیار هوشمند AHOS**\n\n"
@@ -878,8 +899,9 @@ class TelegramDomainService:
             "• `۵ میلیون تومان خریدم` (ثبت پوزیشن کاغذی)\n"
             "• `چند درصد سود دارم؟`\n"
             "• `کی بفروشم؟` / `وضعیت پوزیشن من چیه؟`\n\n"
-            "⚙️ سیستم\n"
-            "• `وضعیت سیستم چطوره؟`\n\n"
+            "⚙️ سیستم و یادگیری\n"
+            "• `وضعیت سیستم چطوره؟`\n"
+            "• `اشتباهاتت رو مرور کن` (بازبینی انتخاب‌های گذشته)\n\n"
             "⚠️ این سامانه ابزار تحلیل است، نه ربات معامله‌گر. "
             "هیچ خرید و فروش واقعی انجام نمی‌شود.\n\n"
             f"{FOOTER_MANDATED}"
