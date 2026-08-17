@@ -52,7 +52,12 @@ class SystemHealthReport:
 class AHOSHealthManager:
     def __init__(self, root_dir: Path | str | None = None):
         self.root = Path(root_dir) if root_dir else get_project_root()
-        self.required_packages = ["pytest", "yaml", "anyio"]
+        # Packages the AHOS deterministic floor genuinely imports at runtime.
+        # NOTE: 'anyio' was previously listed here but is imported by NO module in
+        # this repository — it was a transitive pytest plugin mistaken for a
+        # dependency, and it forced a permanent RED health verdict on clean
+        # installs. Health checks must track real imports, not folklore.
+        self.required_packages = ["pytest", "yaml"]
         self.required_files = [
             self.root / "contracts" / "agent_contract_v1.json",
             self.root / "contracts" / "ai_council_contract_v1.json",

@@ -64,7 +64,13 @@ def main(argv: list[str] | None = None) -> int:
     else:
         telegram_adapter = MockTelegramAdapter()
 
-    allowed_chats = [c.strip() for c in os.environ.get("TELEGRAM_ALLOWED_CHATS", "").split(",") if c.strip()]
+    # Canonical name is TELEGRAM_ALLOWED_CHAT_IDS (used by .env.example,
+    # run_bot.py and the docs). TELEGRAM_ALLOWED_CHATS is the legacy spelling
+    # this module used to read on its own -- the mismatch meant proactive
+    # alerts silently had no destination for anyone following the quickstart.
+    _raw_chats = (os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS")
+                  or os.environ.get("TELEGRAM_ALLOWED_CHATS", ""))
+    allowed_chats = [c.strip() for c in _raw_chats.split(",") if c.strip()]
     gate = TelegramSecurityGate(allowed_chat_ids=allowed_chats if allowed_chats else None)
     telegram_service = TelegramDomainService(discovery_db_path=discovery_db, ledger_db_path=ledger_db)
     bot_runner = TelegramBotRunner(adapter=telegram_adapter, service=telegram_service, gate=gate)

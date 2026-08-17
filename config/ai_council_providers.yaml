@@ -1,0 +1,134 @@
+# =============================================================================
+# AHOS AI COUNCIL — provider registry (live transport layer)
+#
+# ORDER MATTERS: entries are tried in declaration order, free-first by law.
+#   1. local  (Ollama)      — $0, offline, immune to filtering/sanctions
+#   2. free-tier keyed      — $0, needs a free signup key
+#   3. paid                 — EXCLUDED by default; only with allow_paid=True
+#
+# Nothing here is required. With zero keys set, AHOS runs at full capability on
+# its deterministic floor and the council simply reports OFFLINE.
+#
+# IRAN NOTE: `iran_accessibility` is an honest field. UNKNOWN means nobody has
+# probed it from an Iranian IP yet — it is NOT a claim that it works. Run
+# `python engine/pal_probe.py --site user-iran` to turn UNKNOWN into evidence.
+# Set ALL_PROXY=socks5://127.0.0.1:10808 to route through a local tunnel.
+# =============================================================================
+version: 2
+
+providers:
+
+  # ---------------------------------------------------------------- LOCAL ---
+  ollama_local:
+    kind: openai_compatible
+    base_url: "http://localhost:11434/v1"
+    model: "qwen2.5:7b-instruct"      # strong Persian for its size; override freely
+    key_env: null                     # local server, no key
+    cost: free-local
+    timeout_sec: 120                  # local inference on a laptop CPU is slow
+    temperature: 0.2
+    iran_accessibility: LOCAL_IMMUNE
+    enabled: true
+    note: >
+      FIRST BY LAW. Install: https://ollama.com  then `ollama pull qwen2.5:7b-instruct`.
+      This is the only provider that keeps working under total network filtering,
+      costs nothing forever, and never sends your data anywhere.
+
+  # ------------------------------------------------------------ FREE TIER ---
+  groq_llama:
+    kind: openai_compatible
+    base_url: "https://api.groq.com/openai/v1"
+    model: "llama-3.3-70b-versatile"
+    key_env: GROQ_API_KEY
+    cost: free
+    timeout_sec: 30
+    temperature: 0.2
+    iran_accessibility: UNKNOWN
+    enabled: true
+    note: "Free key at console.groq.com. Very fast; good general reasoning."
+
+  gemini_flash:
+    kind: openai_compatible
+    base_url: "https://generativelanguage.googleapis.com/v1beta/openai"
+    model: "gemini-2.0-flash"
+    key_env: GEMINI_API_KEY
+    cost: free
+    timeout_sec: 30
+    temperature: 0.2
+    iran_accessibility: UNKNOWN       # Google is sanctioned in IR; likely needs a tunnel
+    enabled: true
+    note: "Free key at aistudio.google.com. Huge context window."
+
+  openrouter_free:
+    kind: openai_compatible
+    base_url: "https://openrouter.ai/api/v1"
+    model: "meta-llama/llama-3.3-70b-instruct:free"
+    key_env: OPENROUTER_API_KEY
+    cost: free
+    timeout_sec: 30
+    temperature: 0.2
+    iran_accessibility: UNKNOWN
+    enabled: true
+    note: "Free key at openrouter.ai. Gateway to many free models."
+
+  github_models:
+    kind: openai_compatible
+    base_url: "https://models.inference.ai.azure.com"
+    model: "gpt-4o-mini"
+    key_env: GITHUB_TOKEN
+    cost: free
+    timeout_sec: 30
+    temperature: 0.2
+    iran_accessibility: UNKNOWN
+    enabled: true
+    note: "Free with ANY GitHub account — you almost certainly already have this key."
+
+  # ----------------------------------------------------------------- PAID ---
+  # Excluded unless the council is called with allow_paid=True. Present so the
+  # system is ready the day a budget exists — no rewrite required.
+
+  openai_gpt:
+    kind: openai_compatible
+    base_url: "https://api.openai.com/v1"
+    model: "gpt-4o"
+    key_env: OPENAI_API_KEY
+    cost: paid
+    timeout_sec: 60
+    temperature: 0.2
+    iran_accessibility: BLOCKED       # OpenAI blocks Iranian IPs outright
+    enabled: true
+
+  anthropic_claude:
+    kind: anthropic                   # different wire format; adapted in clients.py
+    base_url: "https://api.anthropic.com"
+    model: "claude-sonnet-4-20250514"
+    api_version: "2023-06-01"
+    key_env: ANTHROPIC_API_KEY
+    cost: paid
+    timeout_sec: 60
+    iran_accessibility: BLOCKED
+    enabled: true
+
+  xai_grok:
+    kind: openai_compatible
+    base_url: "https://api.x.ai/v1"
+    model: "grok-2-latest"
+    key_env: XAI_API_KEY
+    cost: paid
+    timeout_sec: 60
+    temperature: 0.2
+    iran_accessibility: UNKNOWN
+    enabled: true
+
+# -----------------------------------------------------------------------------
+council_law:
+  free_first: true
+  advisory_only: true                 # AI never decides, never approves
+  deterministic_floor: "zero providers reachable => DETERMINISTIC_ONLY, not an error"
+  min_responses_for_consensus: 2      # one model agreeing with itself is not consensus
+  disagreement_is_a_result: true      # conflict is reported, never averaged away
+  never:
+    - "AI may not override a security veto"
+    - "AI may not mutate the paper ledger"
+    - "AI may not upgrade its own confidence"
+    - "AI output without evidence_refs carries zero decision weight"

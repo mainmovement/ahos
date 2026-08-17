@@ -44,16 +44,33 @@ def test_apply_idempotent_enforced_rollback_clean(tmp_path):
     first = guarded(store)
     mig.apply(store, HISTORY_E01)                            # idempotent re-apply
     assert guarded(store) == first and len(first) == 2 * len(HISTORY_E01)
+
     conn = sqlite3.connect(str(store))
+    conn.execute("PRAGMA foreign_keys=OFF")
+
+    # A BEFORE UPDATE/DELETE trigger only fires against a row that exists. Seed
+    # one disposable probe row so this proof holds on a FRESH install too, not
+    # only on a store that happens to carry historical rows.
+    for table in ("discovery_observations", "raw_payloads"):
+        sql, vals = mig._probe_row(conn, table)
+        conn.execute(sql, vals)
+    conn.commit()
+
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("UPDATE discovery_observations SET rowid=rowid")
+    conn.rollback()
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("DELETE FROM raw_payloads")
+    conn.rollback()
+
+    # INSERT path must remain alive — append-only permits appends.
     n0 = conn.execute("SELECT COUNT(*) FROM lifecycle_events").fetchone()[0]
-    conn.execute("INSERT INTO lifecycle_events SELECT * FROM lifecycle_events LIMIT 0")   # INSERT path alive
+    sql, vals = mig._probe_row(conn, "lifecycle_events")
+    conn.execute(sql, vals)
     conn.commit()
-    assert conn.execute("SELECT COUNT(*) FROM lifecycle_events").fetchone()[0] == n0
+    assert conn.execute("SELECT COUNT(*) FROM lifecycle_events").fetchone()[0] == n0 + 1
     conn.close()
+
     mig.rollback(store, HISTORY_E01)
     assert guarded(store) == set()
 
@@ -64,11 +81,27 @@ def test_mutable_state_tables_not_blocked(tmp_path):
     shutil.copy2(E01, store)
     mig.apply(store, HISTORY_E01)
     conn = sqlite3.connect(str(store))
+    conn.execute("PRAGMA foreign_keys=OFF")
+
+    # Seed probe rows so the "still writable" claim is proven against real rows
+    # rather than vacuously passing on an empty table.
+    for table in ("observation_state", "opportunity_rank"):
+        sql, vals = mig._probe_row(conn, table)
+        conn.execute(sql, vals)
+    conn.commit()
+
     conn.execute("UPDATE observation_state SET last_obs_ts=last_obs_ts")      # no guard ⇒ writable
     conn.execute("UPDATE opportunity_rank SET rank=rank")
+    conn.execute("DELETE FROM observation_state")                             # deletes allowed too
     conn.commit()
-    n = conn.execute("SELECT COUNT(*) FROM observation_state").fetchone()[0]
-    assert n > 0
+
+    # The guarded history tables must STILL reject mutation in the same session.
+    sql, vals = mig._probe_row(conn, "gap_register")
+    conn.execute(sql, vals)
+    conn.commit()
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("DELETE FROM gap_register")
+    conn.rollback()
     conn.close()
 
 

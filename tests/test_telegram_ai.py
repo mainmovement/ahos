@@ -71,8 +71,19 @@ def test_address_extraction_and_anaphora():
 
 
 def test_unknown_never_guessed():
-    for junk in ["سلام خوبی؟", "حتماً پامپ میشه نه؟", "asdkjh qwerty", "قیمت طلا چنده"]:
+    """Ambiguous or out-of-domain input must never be guessed into a financial intent."""
+    for junk in ["حتماً پامپ میشه نه؟", "asdkjh qwerty", "قیمت طلا چنده"]:
         assert I.parse(junk).intent == "UNKNOWN"
+
+
+def test_greeting_is_recognised_but_carries_no_financial_meaning():
+    """Smalltalk gets a friendly reply (Wave-25 conversational UX) — never a trade."""
+    for hello in ["سلام", "درود", "خوبی؟", "چطوری"]:
+        r = I.parse(hello)
+        assert r.intent == "GREETING"
+        assert r.intent in I.INFO_ONLY_INTENTS
+        assert r.intent not in I.LEDGER_MUTATING_INTENTS
+        assert "token" not in r.slots
 
 
 def test_info_only_and_mutation_law():

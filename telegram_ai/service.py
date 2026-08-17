@@ -21,6 +21,13 @@ from architecture.providers.contracts import NormalizedTokenCandidate, MarketMet
 from .positions import open_ledger, log_buy, positions_for_token, latest_observed_value
 from config.paths import get_discovery_db_path, get_local_db_path
 
+# Intents that are meaningless without a specific token, and may therefore
+# inherit the token currently under discussion in the conversation.
+TOKEN_SCOPED_INTENTS = {
+    "EXITABILITY_QUERY", "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION",
+    "PANEL_ANALYSIS",
+}
+
 
 class TelegramDomainService:
     def __init__(self, discovery_db_path: str | None = None,
@@ -39,9 +46,31 @@ class TelegramDomainService:
         return open_ledger(self.ledger_db_path)
 
     def handle_message(self, text: str, user_context: dict | None = None) -> dict[str, Any]:
-        """Main entry point for incoming Telegram user text."""
+        """Main entry point for incoming Telegram user text.
+
+        Wraps the router so the footer law is enforced STRUCTURALLY. Previously
+        every handler appended the footer by hand, which meant compliance was a
+        convention -- one new handler forgetting it would ship a bare
+        recommendation. Now no reply can leave this method without it.
+        """
+        result = self._route(text, user_context)
+        text_out = result.get("text", "")
+        if text_out and FOOTER_MANDATED not in text_out:
+            result["text"] = f"{text_out}\n\n{FOOTER_MANDATED}"
+            result["footer_injected"] = True
+        return result
+
+    def _route(self, text: str, user_context: dict | None = None) -> dict[str, Any]:
         context_tok = (user_context or {}).get("current_token")
         parsed: ParseResult = parse(text, context_token=context_tok)
+
+        # Conversational continuity: token-scoped questions asked without any
+        # pointing word («نهنگ‌ها چیکار می‌کنن؟») still mean "the token we are
+        # discussing". Inherit the session token when the parser found none.
+        # This never invents a token — it only reuses one the user already raised.
+        if (context_tok and parsed.intent in TOKEN_SCOPED_INTENTS
+                and not parsed.slots.get("token")):
+            parsed.slots["token"] = context_tok
 
         if parsed.intent == "UNKNOWN":
             return {
@@ -79,6 +108,24 @@ class TelegramDomainService:
             return self._handle_ai_status(parsed)
         elif parsed.intent == "LAST_CYCLE_STATUS":
             return self._handle_last_cycle_status(parsed)
+        elif parsed.intent == "GREETING":
+            return self._handle_greeting(parsed)
+        elif parsed.intent == "NEWS_DIGEST":
+            return self._handle_news_digest(parsed)
+        elif parsed.intent in ("WHAT_TO_BUY", "ENTRY_TIMING"):
+            return self._handle_what_to_buy(parsed)
+        elif parsed.intent == "EXITABILITY_QUERY":
+            return self._handle_exitability(parsed)
+        elif parsed.intent == "WHALE_QUERY":
+            return self._handle_whales(parsed)
+        elif parsed.intent == "VIRALITY_QUERY":
+            return self._handle_virality(parsed)
+        elif parsed.intent == "COUNCIL_OPINION":
+            return self._handle_council(parsed)
+        elif parsed.intent == "PANEL_ANALYSIS":
+            return self._handle_panel(parsed)
+        elif parsed.intent == "SELF_REVIEW":
+            return self._handle_self_review(parsed)
         elif parsed.intent == "HELP":
             return {
                 "text": self._get_help_text(),
@@ -505,18 +552,416 @@ class TelegramDomainService:
             pass
         return candidates
 
+    # ==================================================================
+    # Conversational advisory handlers (Wave-25)
+    # Every one of these is INFORMATIONAL: it explains measured evidence and
+    # the options it implies. None of them can place an order — no order path
+    # exists in this system. All end with the mandated footer.
+    # ==================================================================
+
+    def _handle_greeting(self, parsed: ParseResult) -> dict[str, Any]:
+        return {
+            "text": (
+                "سلام! 👋 من دستیار تحلیل فرصت‌های کریپتو هستم.\n\n"
+                "می‌توانید راحت با من حرف بزنید، مثلاً:\n"
+                "• «امروز چه خبر از بازار کریپتو؟»\n"
+                "• «بهترین فرصت‌های امروز چیه؟»\n"
+                "• «این توکن رو بررسی کن [آدرس]»\n"
+                "• «۵ میلیون تومان خریدم» (ثبت در دفتر کاغذی)\n"
+                "• «کی بفروشم؟»\n\n"
+                "یادآوری مهم: من ابزار تحلیل و پشتیبانی تصمیم هستم، نه ربات معامله‌گر. "
+                "هیچ خرید و فروش واقعی انجام نمی‌دهم.\n\n"
+                f"{FOOTER_MANDATED}"
+            ),
+            "intent": "GREETING",
+            "status": "OK",
+        }
+
+    def _handle_news_digest(self, parsed: ParseResult) -> dict[str, Any]:
+        """Crypto news digest. Honest about unreachable feeds (filtering/sanctions)."""
+        from architecture.intel.news import NewsCollector
+
+        token_info = parsed.slots.get("token") or {}
+        keywords = None
+        subject = "MARKET"
+        if token_info.get("address"):
+            cand = self._get_candidate_from_store(
+                token_info["address"], token_info.get("chain", "solana"))
+            subject = cand.symbol
+            keywords = [cand.symbol, cand.name]
+
+        signal = NewsCollector().analyze(subject=subject, keywords=keywords)
+
+        lines = [f"📰 خلاصه اخبار — {'بازار کلی' if subject == 'MARKET' else subject}", ""]
+        if not signal.is_known:
+            reason = (signal.error_state or {}).get("kind", "unknown")
+            if reason == "all_feeds_unreachable":
+                lines += [
+                    "⚠️ هیچ‌کدام از منابع خبری در دسترس نبودند.",
+                    "این معمولاً یعنی فیلترینگ یا قطعی شبکه — نه اینکه خبری نیست.",
+                    "",
+                    "راهکار: یک تونل/پروکسی محلی روشن کنید و متغیر زیر را تنظیم کنید:",
+                    "`ALL_PROXY=socks5://127.0.0.1:10808`",
+                ]
+            else:
+                lines.append("در بازه اخیر خبری مرتبط با این موضوع پیدا نشد.")
+            if signal.feeds_failed:
+                lines += ["", "منابع ناموفق:"]
+                lines += [f" • {f['feed']}" for f in signal.feeds_failed[:5]]
+        else:
+            mood = {"BULLISH": "مثبت 🟢", "BEARISH": "منفی 🔴", "NEUTRAL": "خنثی ⚪"}
+            lines += [
+                f"فضای کلی: {mood.get(signal.label, signal.label)} "
+                f"(امتیاز {signal.sentiment:+.2f})",
+                f"تعداد تیترهای بررسی‌شده: {signal.mention_count}",
+            ]
+            if signal.high_impact_count:
+                lines.append(f"تیترهای پرتأثیر: {signal.high_impact_count}")
+            if signal.evidence:
+                lines += ["", "مهم‌ترین تیترها:"]
+                for ev in signal.evidence[:5]:
+                    arrow = "🟢" if ev["score"] > 0 else ("🔴" if ev["score"] < 0 else "⚪")
+                    lines.append(f" {arrow} {ev['title']}  [{ev['source']}]")
+            lines += ["", "⚠️ خبر «شاهد» است، نه «دلیل». تصمیم بر پایه داده‌های اندازه‌گیری‌شده گرفته می‌شود."]
+
+        lines += ["", FOOTER_MANDATED]
+        return {"text": "\n".join(lines), "intent": "NEWS_DIGEST",
+                "status": "OK" if signal.is_known else "UNKNOWN", "signal": signal}
+
+    def _handle_what_to_buy(self, parsed: ParseResult) -> dict[str, Any]:
+        """Ranked, fully-justified advice across currently observed candidates."""
+        from architecture.decision.advisor import DecisionAdvisor
+        from architecture.intel.exitability import ExitabilityAnalyzer
+        from architecture.intel.viral import ViralityTracker
+
+        candidates = self._load_recent_active_candidates(limit=12)
+        if not candidates:
+            return {
+                "text": (
+                    "هنوز هیچ توکنی با داده کافی در پایگاه داده ثبت نشده است.\n\n"
+                    "برای شروع جمع‌آوری داده، یک چرخه اجرا کنید:\n"
+                    "`python -m architecture.runtime --single-cycle`\n\n"
+                    f"{FOOTER_MANDATED}"
+                ),
+                "intent": parsed.intent, "status": "EMPTY",
+            }
+
+        advisor = DecisionAdvisor()
+        exiter = ExitabilityAnalyzer()
+        viral = ViralityTracker()
+
+        scored = []
+        for c in candidates:
+            report = self.scorer.evaluate(c)
+            advice = advisor.advise_entry(
+                c, report,
+                exitability=exiter.analyze(c, position_usd=100.0),
+                virality=viral.analyze(c),
+            )
+            scored.append(advice)
+
+        actionable = [a for a in scored if a.action == "ENTER"]
+        actionable.sort(key=lambda a: a.deterministic_score or 0, reverse=True)
+
+        lines = ["🎯 تحلیل فرصت‌های فعلی", ""]
+        if not actionable:
+            avoided = sum(1 for a in scored if a.action == "AVOID")
+            lines += [
+                f"از {len(scored)} توکن بررسی‌شده، هیچ‌کدام شرایط ورود را ندارند.",
+                f"({avoided} مورد رد شد، {len(scored) - avoided} مورد در حالت انتظار)",
+                "",
+                "«فرصت مناسبی نیست» هم یک پاسخ معتبر است — نه یک خطا.",
+            ]
+            worst = [a for a in scored if a.hard_vetoes][:3]
+            if worst:
+                lines += ["", "نمونه دلایل رد:"]
+                for a in worst:
+                    lines.append(f" • {a.symbol}: {a.hard_vetoes[0]}")
+        else:
+            lines.append(f"از {len(scored)} توکن بررسی‌شده، {len(actionable)} مورد شرایط ورود دارند:")
+            lines.append("")
+            for a in actionable[:3]:
+                lines += self._render_advice_block(a)
+                lines.append("")
+        lines += [FOOTER_MANDATED]
+        return {"text": "\n".join(lines), "intent": parsed.intent,
+                "status": "OK", "advice": actionable}
+
+    def _render_advice_block(self, a: Any) -> list[str]:
+        """Renders one Advice with its full WHY — reasons, risks, unknowns, exit plan."""
+        out = [f"▸ **{a.symbol}** — امتیاز {(a.deterministic_score or 0):.0f}/100 "
+               f"(اطمینان: {a.conviction})"]
+        if a.suggested_size_usd:
+            out.append(f"   حجم پیشنهادی: ${a.suggested_size_usd:,.2f}")
+        if a.take_profit_price and a.stop_loss_price:
+            out.append(f"   برنامه خروج: هدف سود ${a.take_profit_price:.8g} / "
+                       f"حد ضرر ${a.stop_loss_price:.8g} / حداکثر {a.max_hold_hours:.0f} ساعت")
+        for r in a.reasons[:3]:
+            out.append(f"   ✅ {r}")
+        for r in a.risks[:3]:
+            out.append(f"   ⚠️ {r}")
+        for u in a.unknowns[:2]:
+            out.append(f"   ❓ {u}")
+        if a.council and getattr(a.council, "council_status", "") not in ("", "OFFLINE"):
+            out.append(f"   🧠 شورای هوش مصنوعی: {a.council.final_stance} "
+                       f"({a.council.agreement})")
+        return out
+
+    def _require_token(self, parsed: ParseResult):
+        """Returns (candidate, None) or (None, error_response) for token-scoped queries."""
+        token_info = parsed.slots.get("token")
+        if not token_info or not token_info.get("address"):
+            return None, {
+                "text": ("لطفاً آدرس توکن را مشخص کنید یا ابتدا یک توکن را "
+                         f"بررسی کنید تا «این» به آن اشاره کند.\n\n{FOOTER_MANDATED}"),
+                "intent": parsed.intent, "status": "NEEDS_CONTEXT",
+            }
+        return self._get_candidate_from_store(
+            token_info["address"], token_info.get("chain", "solana")), None
+
+    def _handle_exitability(self, parsed: ParseResult) -> dict[str, Any]:
+        """THE question that matters: can the money actually come back out?"""
+        from architecture.intel.exitability import ExitabilityAnalyzer
+
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+
+        amount = parsed.slots.get("amount_usd") or 100.0
+        rep = ExitabilityAnalyzer().analyze(cand, position_usd=float(amount))
+
+        icon = {"EXITABLE": "🟢", "DEGRADED": "🟡",
+                "TRAPPED": "🔴", "UNKNOWN": "⚪"}.get(rep.verdict, "⚪")
+        lines = [
+            f"{icon} بررسی امکان خروج — {cand.symbol}",
+            "",
+            f"حکم: **{rep.verdict}** (کسر قابل‌بازیافت: {rep.realizable_fraction:.1%})"
+            if rep.realizable_fraction is not None else f"حکم: **{rep.verdict}**",
+            f"مبلغ بررسی‌شده: ${float(amount):,.2f}",
+        ]
+        if rep.realizable_usd is not None:
+            lines.append(f"ارزش نمایشی: ${rep.displayed_usd:,.2f}  →  "
+                         f"واقعاً قابل برداشت: ${rep.realizable_usd:,.2f}")
+        if rep.slippage_bps is not None:
+            lines.append(f"لغزش خروج: {rep.slippage_bps:.0f} bps | "
+                         f"کارمزد: ${(rep.fee_usd or 0):,.2f} | "
+                         f"مالیات فروش: ${(rep.tax_usd or 0):,.2f}")
+        if rep.max_safe_position_usd is not None:
+            lines.append(f"حداکثر حجم امن: ${rep.max_safe_position_usd:,.2f}")
+        if rep.hard_vetoes:
+            lines += ["", "🚫 وتوی قطعی:"]
+            lines += [f" • {v}" for v in rep.hard_vetoes]
+        if rep.warnings:
+            lines += ["", "⚠️ هشدارها:"]
+            lines += [f" • {w}" for w in rep.warnings]
+        if rep.unknowns:
+            lines += ["", "❓ نامعلوم‌ها:"]
+            lines += [f" • {u}" for u in rep.unknowns]
+        lines += ["", FOOTER_MANDATED]
+        return {"text": "\n".join(lines), "intent": "EXITABILITY_QUERY",
+                "status": "OK", "exitability": rep}
+
+    def _handle_whales(self, parsed: ParseResult) -> dict[str, Any]:
+        from architecture.intel.whales import WhaleTracker
+
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+
+        sec = cand.security
+        rep = WhaleTracker().analyze(
+            symbol=cand.symbol,
+            top10_share_pct=getattr(sec, "top10_holder_concentration_pct", None),
+            top1_share_pct=None,
+            holder_count=None,
+            price_change_pct=getattr(cand.metrics, "price_change_1h", None),
+        )
+        # Distribution forensics (Gini / coordination) from the holder store.
+        forensic = None
+        try:
+            from architecture.intel.forensics import ForensicsAnalyzer
+            conn = self._open_discovery()
+            row = conn.execute(
+                "SELECT token_id FROM tokens WHERE address=? LIMIT 1",
+                (cand.address,)).fetchone()
+            if row:
+                forensic = ForensicsAnalyzer().analyze_from_store(
+                    conn, row[0], symbol=cand.symbol)
+            conn.close()
+        except Exception:
+            forensic = None
+
+        lines = [f"🐋 توزیع مالکیت — {cand.symbol}", "",
+                 f"وضعیت: **{rep.label}**"]
+        if rep.top10_share_pct is not None:
+            lines.append(f"سهم ۱۰ کیف‌پول برتر: {rep.top10_share_pct:.1f}%")
+        if rep.holder_count is not None:
+            lines.append(f"تعداد دارندگان: {rep.holder_count:,}")
+        if rep.delta_pct_points:
+            lines.append(f"تغییر تمرکز: {rep.delta_pct_points:+.1f} واحد درصد")
+        if rep.risk_penalty:
+            lines.append(f"جریمه ریسک: −{rep.risk_penalty:.0f}")
+        for r in rep.reasons[:3]:
+            lines.append(f" • {r}")
+        for w in rep.warnings:
+            lines.append(f" ⚠️ {w}")
+        for u in rep.unknowns:
+            lines.append(f" ❓ {u}")
+        if forensic is not None and forensic.is_known:
+            lines += ["", f"🔬 تحلیل توزیع: **{forensic.label}**"]
+            if forensic.gini is not None:
+                lines.append(f"ضریب جینی: {forensic.gini:.2f} ({forensic.gini_label})")
+            for w in forensic.warnings[:3]:
+                lines.append(f" ⚠️ {w}")
+
+        if rep.label == "UNKNOWN" and (forensic is None or not forensic.is_known):
+            lines += ["", "توضیح صادقانه: نقاط پایانی رایگان RPC فهرست دارندگان را "
+                          "ارائه نمی‌دهند. نبود داده را «امن» تفسیر نمی‌کنیم."]
+        lines += ["", FOOTER_MANDATED]
+        return {"text": "\n".join(lines), "intent": "WHALE_QUERY",
+                "status": "OK", "whales": rep, "forensics": forensic}
+
+    def _handle_virality(self, parsed: ParseResult) -> dict[str, Any]:
+        from architecture.intel.viral import ViralityTracker
+
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+
+        rep = ViralityTracker().analyze(cand)
+        icon = {"VIRAL": "🔥", "BUILDING": "📈", "COOLING": "📉",
+                "FLAT": "➖", "UNKNOWN": "⚪"}.get(rep.label, "⚪")
+        lines = [f"{icon} سنجش توجه بازار — {cand.symbol}", "",
+                 f"وضعیت: **{rep.label}** (امتیاز: {rep.score:.0f}/100)"]
+        if rep.txn_acceleration is not None:
+            lines.append(f"شتاب تراکنش (۵د نسبت به میانگین ساعتی): {rep.txn_acceleration:.2f}×")
+        if rep.volume_acceleration is not None:
+            lines.append(f"شتاب حجم: {rep.volume_acceleration:.2f}×")
+        if rep.buy_pressure is not None:
+            lines.append(f"فشار خرید: {rep.buy_pressure:.2f}")
+        if rep.is_paid_promotion:
+            lines.append("💰 نشانه تبلیغ پولی (paid boost) شناسایی شد.")
+        if rep.wash_suspected:
+            lines += ["", "🚨 الگوی مشکوک به معامله صوری (wash trading) شناسایی شد — "
+                          "حجم بالا بدون تغییر معنادار قیمت."]
+        for w in rep.warnings:
+            lines.append(f" ⚠️ {w}")
+        for u in rep.unknowns:
+            lines.append(f" ❓ {u}")
+        lines += ["", "توضیح: «وایرال بودن» را از ردپای واقعی روی زنجیره می‌سنجیم، "
+                      "نه از شبکه‌های اجتماعی.", "", FOOTER_MANDATED]
+        return {"text": "\n".join(lines), "intent": "VIRALITY_QUERY",
+                "status": "OK", "virality": rep}
+
+    def _handle_council(self, parsed: ParseResult) -> dict[str, Any]:
+        """Live multi-AI deliberation. Advisory only — can never overrule the math."""
+        from architecture.ai.council_live import LiveCouncil, build_evidence_packet
+        from architecture.intel.exitability import ExitabilityAnalyzer
+
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+
+        report = self.scorer.evaluate(cand)
+        exitability = ExitabilityAnalyzer().analyze(cand, position_usd=100.0)
+        packet = build_evidence_packet(score_report=report, exitability=exitability)
+
+        verdict = LiveCouncil().deliberate(
+            packet, question="آیا ورود به این توکن منطقی است؟", allow_paid=False)
+
+        lines = [f"🧠 شورای هوش مصنوعی — {cand.symbol}", "",
+                 f"جمع‌بندی: **{verdict.final_stance}** (توافق: {verdict.agreement})",
+                 f"وضعیت شورا: {verdict.council_status}"]
+        if verdict.providers_ok:
+            lines.append(f"پاسخ‌دهندگان ({verdict.responded}): "
+                         f"{', '.join(verdict.providers_ok)}")
+        if verdict.providers_failed:
+            names = [f.get("provider", "?") for f in verdict.providers_failed]
+            lines.append(f"در دسترس نبودند: {', '.join(names)}")
+        if verdict.council_status in ("OFFLINE", "DETERMINISTIC_ONLY"):
+            lines += ["", "هیچ مدل هوش مصنوعی در دسترس نبود — احتمالاً فیلترینگ یا "
+                          "نبود کلید API. سامانه روی موتور قطعی (ریاضی) کار می‌کند "
+                          "و همچنان معتبر است."]
+        if verdict.reasons:
+            lines += ["", "دلایل مطرح‌شده:"]
+            lines += [f" • {r}" for r in verdict.reasons[:6]]
+        for w in verdict.warnings:
+            lines.append(f" ⚠️ {w}")
+        if verdict.echo_suspected:
+            lines += ["", "⚠️ اتفاق‌نظر کامل روی شواهد ضعیف — احتمال هم‌صدایی "
+                          "(echo) مدل‌ها. به این اجماع وزن کمتری بدهید."]
+        lines += ["", "⚠️ نظر مدل‌ها فقط مشورتی است و هرگز نمی‌تواند وتوهای "
+                      "قطعی موتور ریاضی را لغو کند.", "", FOOTER_MANDATED]
+        return {"text": "\n".join(lines), "intent": "COUNCIL_OPINION",
+                "status": "OK", "council": verdict}
+
+    def _handle_panel(self, parsed: ParseResult) -> dict[str, Any]:
+        """The 100-mind panel, run as deterministic checks over real evidence."""
+        from architecture.knowledge.panel import CognitivePanel
+        from architecture.intel.exitability import ExitabilityAnalyzer
+        from architecture.intel.viral import ViralityTracker
+
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+
+        report = self.scorer.evaluate(cand)
+        verdict = CognitivePanel().deliberate(
+            cand, score_report=report,
+            exitability=ExitabilityAnalyzer().analyze(cand),
+            virality=ViralityTracker().analyze(cand),
+        )
+        return {"text": f"{verdict.summary_persian()}\n\n{FOOTER_MANDATED}",
+                "intent": "PANEL_ANALYSIS", "status": "OK", "panel": verdict}
+
+    def _handle_self_review(self, parsed: ParseResult) -> dict[str, Any]:
+        """The learning loop, on demand: how good were our past calls, really?"""
+        from architecture.evolution.hindsight import HindsightEngine
+        try:
+            conn = self._open_discovery()
+            engine = HindsightEngine(conn)
+            results = engine.review_recent_picks(limit=20)
+            text = engine.report_persian(results)
+            agg = engine.aggregate(results)
+            conn.close()
+        except Exception as e:
+            return {
+                "text": (f"بازبینی گذشته ممکن نشد: {type(e).__name__}\n\n"
+                         f"{FOOTER_MANDATED}"),
+                "intent": "SELF_REVIEW", "status": "ERROR",
+            }
+        return {"text": f"{text}\n\n{FOOTER_MANDATED}",
+                "intent": "SELF_REVIEW", "status": "OK", "aggregate": agg}
+
     def _get_help_text(self) -> str:
         return (
             "🤖 **راهنمای دستیار هوشمند AHOS**\n\n"
-            "دستورات و سوالات متداول:\n"
-            "• `فرصت‌های جدید؟` یا `بهترین فرصت امروز؟`\n"
-            "• `این توکن رو بررسی کن [آدرس]`\n"
+            "می‌توانید طبیعی حرف بزنید. نمونه‌ها:\n\n"
+            "📰 اخبار و بازار\n"
+            "• `امروز چه خبر؟` / `اخبار کریپتو`\n"
+            "• `آخرین وضعیت بازار چیست؟`\n\n"
+            "🎯 فرصت‌ها\n"
+            "• `فرصت‌های جدید؟` / `بهترین فرصت امروز؟`\n"
+            "• `چی بخرم؟` / `کی وارد بشم؟`\n"
+            "• `این توکن رو بررسی کن [آدرس]`\n\n"
+            "🔍 تحلیل عمیق\n"
             "• `چرا این توکن امتیاز گرفته؟`\n"
             "• `ریسک این توکن چیست؟`\n"
+            "• `میتونم بفروشمش؟` (بررسی نقدشوندگی خروج)\n"
+            "• `نهنگ‌ها چیکار می‌کنن؟`\n"
+            "• `این وایرال شده؟`\n"
+            "• `نظر هوش مصنوعی‌ها چیه؟`\n"
+            "• `شورای تحلیلی چی میگه؟` (۱۰ دیدگاه تخصصی)\n"
             "• `چه چیزی نامعلوم است؟`\n"
-            "• `چه چیزی این فرصت را invalid می‌کند؟`\n"
-            "• `من ۵ میلیون تومان از این خریدم` (ثبت پوزیشن کاغذی)\n"
-            "• `وضعیت پوزیشن من چیه؟`\n"
-            "• `آخرین وضعیت بازار چیست؟`\n\n"
+            "• `چه چیزی این فرصت را invalid می‌کند؟`\n\n"
+            "💼 پوزیشن‌های من\n"
+            "• `۵ میلیون تومان خریدم` (ثبت پوزیشن کاغذی)\n"
+            "• `چند درصد سود دارم؟`\n"
+            "• `کی بفروشم؟` / `وضعیت پوزیشن من چیه؟`\n\n"
+            "⚙️ سیستم و یادگیری\n"
+            "• `وضعیت سیستم چطوره؟`\n"
+            "• `اشتباهاتت رو مرور کن` (بازبینی انتخاب‌های گذشته)\n\n"
+            "⚠️ این سامانه ابزار تحلیل است، نه ربات معامله‌گر. "
+            "هیچ خرید و فروش واقعی انجام نمی‌شود.\n\n"
             f"{FOOTER_MANDATED}"
         )

@@ -262,17 +262,25 @@ def test_pre_post_fix_isolation(tmp_path):
 
 # ----- 12 · Lane-A integrity + classification ≡ frozen lifecycle + genericity -----
 def _frozen_pins() -> dict[str, str]:
-    pins = {}
-    man = ROOT.parent / "ahos_snap_w15_after.txt"
-    for line in man.read_text().splitlines():
-        h, p = line.split(None, 1)
-        if (p.startswith("./discovery/") or p.startswith("./paper_trading/")) \
-                and p.endswith(".py") and "observe_active" not in p and "feature_store" not in p:
-            pins[p] = h                                        # owner-amended artifacts excluded from w15 baseline
-        if p in ("./discovery/schema_sqlite.sql", "./discovery/providers.yaml"):
-            pins[p] = h
-    # Explicitly pin owner-amended feature_store.py (A-1 amendment, Wave 19)
-    pins["./discovery/feature_store.py"] = "d3086e729f5cf1018cfd8d102d5f65153d6878148fce5cfe9bc10901b98c1e1c"
+    """Load the in-repo Lane-A freeze manifest.
+
+    The baseline used to live at `../ahos_snap_w15_after.txt` — OUTSIDE the
+    repository — so it never survived `git clone` and this guarantee silently
+    did not exist for anyone but its original author. It is now anchored at
+    `config/lane_a_freeze.sha256`, regenerated via `scripts/freeze_lane_a.py`.
+    """
+    manifest = ROOT / "config" / "lane_a_freeze.sha256"
+    assert manifest.exists(), (
+        "Lane-A freeze manifest missing. Generate it with: "
+        "python scripts/freeze_lane_a.py --write"
+    )
+    pins: dict[str, str] = {}
+    for line in manifest.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        sha, rel = line.split(None, 1)
+        pins[rel.strip()] = sha
     return pins
 
 
@@ -280,7 +288,7 @@ def test_lane_a_frozen_files_hash_integrity():
     pins = _frozen_pins()
     assert len(pins) >= 18                                     # full Lane-A surface pinned
     drift = [p for p, h in pins.items()
-             if hashlib.sha256((ROOT / p[2:]).read_bytes()).hexdigest() != h]
+             if hashlib.sha256((ROOT / p).read_bytes()).hexdigest() != h]
     assert drift == [], f"LANE-A DRIFT DETECTED: {drift}"
 
 

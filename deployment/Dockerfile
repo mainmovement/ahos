@@ -14,15 +14,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install core python dependencies
+# Install core python dependencies.
+# No `|| fallback`: if requirements.txt cannot install, the build MUST fail
+# loudly rather than silently producing an image with the wrong packages.
 COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt || pip install pytest pyyaml requests anyio
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source
 COPY . /app
 
-# Create non-root runtime user
+# Create non-root runtime user. chmod runs BEFORE the USER switch so it is
+# guaranteed to succeed regardless of the git checkout's file mode.
 RUN useradd -m -u 1000 ahosuser && \
+    chmod +x /app/deployment/entrypoint.sh && \
+    mkdir -p /app/data /app/reports && \
     chown -R ahosuser:ahosuser /app
 
 USER ahosuser
@@ -33,4 +38,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 EXPOSE 8000
 
+ENTRYPOINT ["/app/deployment/entrypoint.sh"]
 CMD ["python3", "-m", "architecture.runtime"]

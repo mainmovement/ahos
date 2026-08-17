@@ -1,0 +1,16 @@
+# ==============================================================================
+# AHOS — OPTIONAL Dependencies
+# NOTHING here is required for the deterministic floor. AHOS runs at 100%
+# capability on requirements.txt alone; these only add convenience.
+# ==============================================================================
+
+-r requirements.txt
+
+# ---- Faster RSS/HTML parsing for the news & viral collectors ------------------
+# Without these, AHOS falls back to its stdlib xml.etree + regex parsers.
+feedparser>=6.0.11
+beautifulsoup4>=4.12.0
+
+# ---- Local LLM client (Ollama) — free, offline, Iran-immune -------------------
+# Without this, the AI council uses plain HTTP via urllib. Purely ergonomic.
+httpx>=0.27.0

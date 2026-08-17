@@ -112,12 +112,77 @@ class MockTelegramAdapter(TelegramBotAdapterInterface):
         return True
 
 
+def build_proxy_transport(proxy_url: str | None = None) -> Callable:
+    """Return a urlopen-compatible callable that routes through a proxy.
+
+    api.telegram.org is filtered in Iran, so the deployment target normally
+    reaches it through a local tunnel. Reads ALL_PROXY / HTTPS_PROXY when no
+    explicit URL is given; returns plain urlopen when no proxy is configured.
+
+    SOCKS5 requires PySocks (already in requirements.txt). If it is missing we
+    fall back to direct access rather than crashing at import time -- a bot that
+    starts and reports "cannot reach Telegram" is far more debuggable than one
+    that dies on an ImportError.
+    """
+    import os
+    proxy_url = proxy_url or os.environ.get("ALL_PROXY") or os.environ.get("HTTPS_PROXY")
+    if not proxy_url:
+        return urllib.request.urlopen
+
+    if proxy_url.startswith("socks"):
+        try:
+            import socks  # noqa: F401  (PySocks)
+            import sockshandler
+            scheme, _, rest = proxy_url.partition("://")
+            host, _, port = rest.rpartition(":")
+            stype = socks.SOCKS4 if "socks4" in scheme else socks.SOCKS5
+            opener = urllib.request.build_opener(
+                sockshandler.SocksiPyHandler(stype, host, int(port)))
+            return opener.open
+        except Exception:
+            # PySocks/sockshandler unavailable: degrade to direct, do not crash.
+            return urllib.request.urlopen
+
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url}))
+    return opener.open
+
+
 class ProductionTelegramAdapter(TelegramBotAdapterInterface):
     """Production HTTP adapter connecting to Telegram Bot API."""
-    def __init__(self, bot_token: str, transport: Callable = urllib.request.urlopen):
+    def __init__(self, bot_token: str, transport: Callable | None = None,
+                 proxy_url: str | None = None):
         self.bot_token = bot_token
         self.base_url = f"https://api.telegram.org/bot{bot_token}"
-        self.transport = transport
+        # An explicitly injected transport always wins (tests depend on this).
+        self.transport = transport if transport is not None else build_proxy_transport(proxy_url)
+
+    def _scrub(self, text: str) -> str:
+        """Redact secrets, including THIS bot's exact token.
+
+        sanitize_secrets() matches tokens by shape, which covers well-formed
+        credentials. But the token is embedded in every request URL, so any
+        exception carrying that URL can leak it -- and a malformed or test
+        token would slip past a shape-based pattern. Redacting the literal
+        configured value closes that gap deterministically.
+        """
+        out = sanitize_secrets(str(text))
+        if self.bot_token:
+            out = out.replace(self.bot_token, "[REDACTED_SECRET]")
+            # The token's secret half can appear alone in some error strings.
+            _, _, secret_part = self.bot_token.partition(":")
+            if len(secret_part) >= 8:
+                out = out.replace(secret_part, "[REDACTED_SECRET]")
+        return out
+
+    def get_me(self) -> dict[str, Any]:
+        """Connectivity + token validation. Used by the launcher preflight."""
+        req = urllib.request.Request(f"{self.base_url}/getMe")
+        try:
+            with self.transport(req, timeout=15.0) as resp:
+                return json.loads(resp.read())
+        except Exception as e:
+            return {"ok": False, "error": self._scrub(f"{type(e).__name__}: {e}")}
 
     def send_message(self, chat_id: int | str, text: str, parse_mode: str = "HTML") -> dict[str, Any]:
         url = f"{self.base_url}/sendMessage"
@@ -133,7 +198,7 @@ class ProductionTelegramAdapter(TelegramBotAdapterInterface):
                 raw = resp.read()
             return json.loads(raw)
         except Exception as e:
-            return {"ok": False, "error": sanitize_secrets(str(e))}
+            return {"ok": False, "error": self._scrub(str(e))}
 
     def poll_updates(self, offset: int | None = None, timeout: int = 10) -> list[TelegramUpdate]:
         url = f"{self.base_url}/getUpdates?timeout={timeout}"
