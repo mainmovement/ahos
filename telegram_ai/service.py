@@ -46,7 +46,21 @@ class TelegramDomainService:
         return open_ledger(self.ledger_db_path)
 
     def handle_message(self, text: str, user_context: dict | None = None) -> dict[str, Any]:
-        """Main entry point for incoming Telegram user text."""
+        """Main entry point for incoming Telegram user text.
+
+        Wraps the router so the footer law is enforced STRUCTURALLY. Previously
+        every handler appended the footer by hand, which meant compliance was a
+        convention -- one new handler forgetting it would ship a bare
+        recommendation. Now no reply can leave this method without it.
+        """
+        result = self._route(text, user_context)
+        text_out = result.get("text", "")
+        if text_out and FOOTER_MANDATED not in text_out:
+            result["text"] = f"{text_out}\n\n{FOOTER_MANDATED}"
+            result["footer_injected"] = True
+        return result
+
+    def _route(self, text: str, user_context: dict | None = None) -> dict[str, Any]:
         context_tok = (user_context or {}).get("current_token")
         parsed: ParseResult = parse(text, context_token=context_tok)
 

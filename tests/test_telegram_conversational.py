@@ -220,3 +220,49 @@ def test_panel_reply_names_the_thinkers_behind_each_finding(svc):
     speaking = [o for o in v.opinions if o.stance != "ABSTAIN"]
     if speaking:
         assert any(o.identity and o.citation_ref for o in speaking)
+
+
+# --------------------------------------------------- structural footer law --
+
+def test_footer_is_enforced_structurally_not_by_convention(svc):
+    """A new handler that forgets the footer must still be safe.
+
+    Compliance used to rely on every handler remembering to append it. That is
+    a convention, and conventions get forgotten. handle_message now guarantees
+    it, so this test simulates the forgetful handler.
+    """
+    svc._route = lambda text, user_context=None: {
+        "text": "بخر همین الان", "intent": "ROGUE", "status": "OK"}
+    out = svc.handle_message("هرچی")
+    assert FOOTER_MANDATED in out["text"]
+    assert out.get("footer_injected") is True
+
+
+def test_footer_is_not_duplicated_when_the_handler_already_added_it(svc):
+    svc._route = lambda text, user_context=None: {
+        "text": f"تحلیل\n\n{FOOTER_MANDATED}", "intent": "X", "status": "OK"}
+    out = svc.handle_message("هرچی")
+    assert out["text"].count(FOOTER_MANDATED) == 1
+    assert "footer_injected" not in out
+
+
+def test_empty_replies_are_left_alone(svc):
+    """A handler returning no text is a bug to surface, not one to decorate."""
+    svc._route = lambda text, user_context=None: {
+        "text": "", "intent": "X", "status": "EMPTY"}
+    assert svc.handle_message("هرچی")["text"] == ""
+
+
+@pytest.mark.parametrize("probe", [
+    "آخرین وضعیت بازار چیست؟", "بهترین فرصت های امروز", "فرصت های جدید",
+    "این توکن رو بررسی کن", "سلام", "امروز چه خبر؟", "چی بخرم؟",
+    "نقدشوندگی این چطوره؟", "نهنگ ها چیکار میکنن؟", "این وایرال شده؟",
+    "نظر هوش مصنوعی ها چیه؟", "شورای تحلیلی چی میگه؟", "اشتباهاتت رو مرور کن",
+    "وضعیت سیستم چطوره؟", "چند درصد سود دارم؟", "کی بفروشم؟", "راهنما",
+    "asdkjh qwerty",
+])
+def test_every_reachable_intent_carries_the_footer(probe):
+    """Exhaustive sweep across the live surface -- not a sampled subset."""
+    fresh = TelegramDomainService()
+    r = fresh.handle_message(probe, user_context=CTX)
+    assert FOOTER_MANDATED in r["text"], f"{probe} -> {r.get('intent')}"
