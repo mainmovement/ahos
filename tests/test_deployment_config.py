@@ -130,3 +130,45 @@ def test_env_file_is_gitignored_but_the_example_is_not():
     ig = (ROOT / ".gitignore").read_text(encoding="utf-8")
     assert ".env" in ig
     assert "!.env.example" in ig
+
+
+# ------------------------------------------------- config-name consistency --
+
+def test_chat_id_env_var_has_one_canonical_name():
+    """A real bug this caught: the runtime read TELEGRAM_ALLOWED_CHATS while
+    .env.example, run_bot.py and the docs all set TELEGRAM_ALLOWED_CHAT_IDS.
+    Anyone following the quickstart got proactive alerts with no destination,
+    silently. Config typos do not raise -- they just do nothing."""
+    canonical = "TELEGRAM_ALLOWED_CHAT_IDS"
+    for rel in (".env.example", "deployment/.env.example",
+                "QUICKSTART.md", "AHOS_WINDOWS_DEPLOYMENT_GUIDE.md"):
+        f = ROOT / rel
+        if not f.exists():
+            continue
+        txt = f.read_text(encoding="utf-8")
+        assert "TELEGRAM_ALLOWED_CHATS=" not in txt, (
+            f"{rel} uses the legacy env var name")
+        assert canonical in txt, f"{rel} never mentions {canonical}"
+
+
+def test_runtime_reads_the_canonical_chat_id_variable(monkeypatch):
+    """The alert destination must resolve from the documented variable."""
+    src = (ROOT / "architecture" / "runtime" / "__main__.py").read_text(
+        encoding="utf-8")
+    assert "TELEGRAM_ALLOWED_CHAT_IDS" in src
+
+
+def test_every_env_var_the_code_reads_is_documented():
+    """Anything os.environ.get()s a TELEGRAM_/AHOS_ setting must appear in
+    .env.example, or the user cannot discover it."""
+    import re
+    example = (ROOT / ".env.example").read_text(encoding="utf-8")
+    referenced = set()
+    for rel in ("run_bot.py", "architecture/runtime/__main__.py"):
+        src = (ROOT / rel).read_text(encoding="utf-8")
+        for m in re.finditer(r'environ\.get\(\s*"((?:TELEGRAM|AHOS)_\w+)"', src):
+            referenced.add(m.group(1))
+    undocumented = sorted(
+        v for v in referenced
+        if v not in example and v != "TELEGRAM_ALLOWED_CHATS")  # legacy alias
+    assert not undocumented, f"env vars read but never documented: {undocumented}"
