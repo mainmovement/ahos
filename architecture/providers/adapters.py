@@ -466,3 +466,275 @@ class RugCheckSecurityAdapter(BaseHttpProviderAdapter):
                 latency_ms=(time.time() - t0) * 1000.0,
                 error_message=f"{type(e).__name__}: {str(e)[:200]}"
             )
+
+
+# ======================================================================
+# DEXTools (Wave-25)
+#
+# DEXTools v2 is a PAID, key-gated API -- there is no free tier that returns
+# pool/token data. This project runs on a $0 cost floor, so the adapter is
+# built but stays DISABLED unless DEXTOOLS_API_KEY is present in the
+# environment. Without a key it reports NO_KEY rather than pretending to be
+# down: a missing key is a configuration fact, not a provider outage, and the
+# two must never be confused in the health ledger.
+#
+# What DEXTools uniquely adds when a key IS present is its audit + score
+# endpoints (lock intel, honeypot flags, DEXTScore). Everything the free
+# providers already cover is deliberately NOT duplicated here.
+# ======================================================================
+
+class DEXToolsAdapter(BaseHttpProviderAdapter):
+    """DEXTools v2 adapter. Inert without DEXTOOLS_API_KEY (paid tier only)."""
+
+    # DEXTools chain slugs differ from the ones used elsewhere in AHOS.
+    CHAIN_SLUGS = {
+        "ethereum": "ether", "eth": "ether", "bsc": "bsc", "polygon": "polygon",
+        "arbitrum": "arbitrum", "base": "base", "avalanche": "avalanche",
+        "optimism": "optimism", "solana": "solana", "fantom": "fantom",
+    }
+
+    def __init__(self, transport: Callable = urllib.request.urlopen,
+                 api_key: str | None = None, plan: str = "trial"):
+        super().__init__(
+            provider_id="dextools",
+            base_url="https://public-api.dextools.io/trial/v2",
+            capabilities=["pairs", "security", "score", "lp_lock", "audit"],
+            rate_limit_rps=1.0,          # trial plan is heavily throttled
+            transport=transport,
+        )
+        import os
+        self._api_key = api_key if api_key is not None else os.environ.get("DEXTOOLS_API_KEY", "")
+        self._plan = plan
+        if plan and plan != "trial":
+            self._base_url = f"https://public-api.dextools.io/{plan}/v2"
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self._api_key)
+
+    def health_check(self) -> bool:
+        # Never emit network traffic we know will 401.
+        return bool(self._api_key) and super().health_check()
+
+    def _no_key(self, t0: float) -> ProviderResponse:
+        return ProviderResponse(
+            provider_id="dextools", status="NO_KEY", tokens=[],
+            latency_ms=(time.time() - t0) * 1000.0,
+            error_message=("DEXTOOLS_API_KEY not set. DEXTools v2 has no free tier; "
+                           "AHOS runs without it and relies on free providers."),
+        )
+
+    def _get(self, path: str) -> tuple[dict, bytes, int]:
+        self._rate_limit()
+        req = urllib.request.Request(
+            f"{self._base_url}{path}",
+            headers={"X-API-Key": self._api_key,
+                     "Accept": "application/json",
+                     "User-Agent": "ahos/1.0"},
+        )
+        with self._transport(req, timeout=self._timeout_sec) as resp:
+            raw = resp.read()
+            status_code = resp.status
+        return json.loads(raw), raw, status_code
+
+    def fetch_candidate_tokens(self, chain: str, limit: int = 20) -> ProviderResponse:
+        """Hot pools ranking -- DEXTools' curated 'what is moving now' list."""
+        t0 = time.time()
+        if not self._api_key:
+            return self._no_key(t0)
+        slug = self.CHAIN_SLUGS.get(chain.lower(), chain.lower())
+        try:
+            data, raw, status_code = self._get(f"/ranking/{slug}/hotpools")
+            rows = data.get("data") or []
+            tokens = []
+            for row in rows[:limit]:
+                main = row.get("mainToken") or {}
+                addr = main.get("address")
+                if not addr:
+                    continue
+                tok = NormalizedTokenCandidate(
+                    chain=chain.lower(),
+                    address=addr,
+                    symbol=main.get("symbol", "UNKNOWN"),
+                    name=main.get("name", "Unknown Token"),
+                    pair_address=row.get("address"),
+                    dex_id=(row.get("exchange") or {}).get("name"),
+                    metrics=MarketMetrics(),
+                    source_provider="dextools",
+                    retrieved_ts=time.time(),
+                    raw_payload_sha256=_sha(raw),
+                )
+                tok.identify_unknowns()
+                tokens.append(tok)
+            return ProviderResponse(
+                provider_id="dextools", status="OK", tokens=tokens,
+                latency_ms=(time.time() - t0) * 1000.0,
+                http_status=status_code, raw_sha256=_sha(raw),
+            )
+        except Exception as e:
+            return ProviderResponse(
+                provider_id="dextools", status="ERROR", tokens=[],
+                latency_ms=(time.time() - t0) * 1000.0,
+                error_message=f"{type(e).__name__}: {str(e)[:200]}",
+            )
+
+    def fetch_token_metrics(self, chain: str, address: str) -> ProviderResponse:
+        """Token audit -- the one thing DEXTools gives that free providers do not."""
+        t0 = time.time()
+        if not self._api_key:
+            return self._no_key(t0)
+        slug = self.CHAIN_SLUGS.get(chain.lower(), chain.lower())
+        try:
+            data, raw, status_code = self._get(f"/token/{slug}/{address}/audit")
+            d = data.get("data") or {}
+
+            def _flag(key: str) -> bool | None:
+                # DEXTools returns "yes"/"no"/"unknown" strings. "unknown" must
+                # stay None -- coercing it to False would invent a safety claim.
+                v = d.get(key)
+                if isinstance(v, str):
+                    lv = v.strip().lower()
+                    if lv in ("yes", "true"):
+                        return True
+                    if lv in ("no", "false"):
+                        return False
+                return None
+
+            def _tax(key: str) -> float | None:
+                v = d.get(key)
+                try:
+                    if v is None:
+                        return None
+                    f = float(v)
+                    # DEXTools reports tax as a fraction on some plans.
+                    return f * 100.0 if 0 < f <= 1 else f
+                except (TypeError, ValueError):
+                    return None
+
+            sec = SecuritySignals(
+                is_honeypot=_flag("isHoneypot"),
+                buy_tax_pct=_tax("buyTax"),
+                sell_tax_pct=_tax("sellTax"),
+                is_contract_verified=_flag("isOpenSource"),
+                has_mint_authority=_flag("isMintable"),
+                has_freeze_authority=_flag("isBlacklisted"),
+                is_ownership_renounced=(
+                    None if _flag("isProxy") is None else not _flag("isProxy")),
+            )
+            tok = NormalizedTokenCandidate(
+                chain=chain.lower(), address=address,
+                symbol="UNKNOWN", name="Unknown",
+                security=sec, source_provider="dextools",
+                retrieved_ts=time.time(), raw_payload_sha256=_sha(raw),
+            )
+            tok.identify_unknowns()
+            return ProviderResponse(
+                provider_id="dextools", status="OK", tokens=[tok],
+                latency_ms=(time.time() - t0) * 1000.0,
+                http_status=status_code, raw_sha256=_sha(raw),
+            )
+        except Exception as e:
+            return ProviderResponse(
+                provider_id="dextools", status="ERROR", tokens=[],
+                latency_ms=(time.time() - t0) * 1000.0,
+                error_message=f"{type(e).__name__}: {str(e)[:200]}",
+            )
+
+
+# ======================================================================
+# DexScreener boosts / promotion feed (Wave-25) -- FREE, no key.
+#
+# This is the honest replacement for social-media virality scraping. A "boost"
+# is a token team PAYING DexScreener for placement. That is measurable, public,
+# and free at 60 req/min.
+#
+# Critically, AHOS treats a boost as a RISK signal, not a bullish one: someone
+# spending money on visibility for a micro-cap is evidence of marketing intent,
+# not of fundamental strength. It feeds ViralityTracker(boost_amount=...),
+# which raises is_paid_promotion.
+# ======================================================================
+
+class DexScreenerBoostsAdapter(BaseHttpProviderAdapter):
+    """Free promotion-spend feed. Boost spend is treated as a risk marker."""
+
+    def __init__(self, transport: Callable = urllib.request.urlopen):
+        super().__init__(
+            provider_id="dexscreener_boosts",
+            base_url="https://api.dexscreener.com",
+            capabilities=["discovery", "promotion", "attention"],
+            rate_limit_rps=1.0,          # documented limit is 60/min
+            transport=transport,
+        )
+
+    def _fetch(self, path: str) -> tuple[Any, bytes, int]:
+        self._rate_limit()
+        req = urllib.request.Request(f"{self._base_url}{path}",
+                                     headers={"User-Agent": "ahos/1.0"})
+        with self._transport(req, timeout=self._timeout_sec) as resp:
+            raw = resp.read()
+            status_code = resp.status
+        return json.loads(raw), raw, status_code
+
+    def fetch_boost_map(self, path: str = "/token-boosts/top/v1") -> dict[str, float]:
+        """Returns {address_lower: total_boost_amount}. Empty dict on any failure.
+
+        Callers must treat an empty map as 'unknown', never as 'no token is
+        being promoted' -- under network filtering these look identical.
+        """
+        try:
+            data, _, _ = self._fetch(path)
+            rows = data if isinstance(data, list) else (data.get("data") or [])
+            out: dict[str, float] = {}
+            for row in rows:
+                addr = (row or {}).get("tokenAddress")
+                if not addr:
+                    continue
+                amt = row.get("totalAmount", row.get("amount"))
+                try:
+                    out[str(addr).lower()] = float(amt)
+                except (TypeError, ValueError):
+                    continue
+            return out
+        except Exception:
+            return {}
+
+    def fetch_candidate_tokens(self, chain: str, limit: int = 20) -> ProviderResponse:
+        t0 = time.time()
+        try:
+            data, raw, status_code = self._fetch("/token-boosts/top/v1")
+            rows = data if isinstance(data, list) else (data.get("data") or [])
+            tokens = []
+            for row in rows:
+                if len(tokens) >= limit:
+                    break
+                addr = (row or {}).get("tokenAddress")
+                row_chain = str(row.get("chainId", "")).lower()
+                if not addr or (chain and row_chain != chain.lower()):
+                    continue
+                tok = NormalizedTokenCandidate(
+                    chain=row_chain or chain.lower(),
+                    address=addr,
+                    symbol="UNKNOWN",
+                    name="Unknown Token",
+                    metrics=MarketMetrics(),
+                    source_provider="dexscreener_boosts",
+                    retrieved_ts=time.time(),
+                    raw_payload_sha256=_sha(raw),
+                )
+                tok.identify_unknowns()
+                tokens.append(tok)
+            return ProviderResponse(
+                provider_id="dexscreener_boosts", status="OK", tokens=tokens,
+                latency_ms=(time.time() - t0) * 1000.0,
+                http_status=status_code, raw_sha256=_sha(raw),
+            )
+        except Exception as e:
+            return ProviderResponse(
+                provider_id="dexscreener_boosts", status="ERROR", tokens=[],
+                latency_ms=(time.time() - t0) * 1000.0,
+                error_message=f"{type(e).__name__}: {str(e)[:200]}",
+            )
+
+    def fetch_token_metrics(self, chain: str, address: str) -> ProviderResponse:
+        # Boost feed carries no market metrics; it is a discovery/attention source.
+        return ProviderResponse(provider_id="dexscreener_boosts", status="OK", tokens=[])
