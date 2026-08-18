@@ -1,0 +1,197 @@
+{
+  "schema": "ahos.system_state.v1",
+  "timestamp_utc": "2026-08-18T16:46:25Z",
+  "command": "python scripts/system_state_snapshot.py",
+  "git": {
+    "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+    "branch": "arena/01a015a3-ahos",
+    "working_tree_clean": true
+  },
+  "environment": {
+    "python_version": "3.11.2",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "system": "Linux",
+    "executable": "/home/user/ahos/.venv/bin/python",
+    "cwd": "/home/user/ahos",
+    "ahos_related_env_names": [
+      "PYTHONDONTWRITEBYTECODE"
+    ],
+    "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
+  },
+  "exit_code": 0,
+  "result": "RECORDED",
+  "lane_a": {
+    "drift": [],
+    "missing": [],
+    "untracked": [],
+    "ok": true
+  },
+  "watchdog": {
+    "status": "NO_HEARTBEATS",
+    "checked_at_utc": "2026-08-18T16:46:25Z",
+    "max_age_sec": 300.0,
+    "stale_components": [],
+    "detail": "no heartbeat ever recorded \u2014 fresh install or silent death"
+  },
+  "scheduler": {
+    "runs_in_window": 0,
+    "status_counts": {},
+    "max_clock_drift_sec": null,
+    "last_runs": [],
+    "heartbeat_ages_sec": {},
+    "live_leases": []
+  },
+  "soak_observations": {
+    "production_window_count": 0,
+    "production_distinct_tokens": 0,
+    "e01_window_count": 0,
+    "gap_register_window": "NO_DATA",
+    "provider_failure_events": "NO_DATA"
+  },
+  "integrity": {
+    "local_db": "ok",
+    "discovery_db": "ok"
+  },
+  "stores": {
+    "ahos_local": {
+      "path": "/home/user/ahos/data/ahos_local.sqlite",
+      "exists": true,
+      "integrity_check": "ok",
+      "row_counts": {
+        "control_flags": 20,
+        "position_ledger": 0,
+        "runtime_lifecycle_events": 0,
+        "runtime_operational_metrics": 0,
+        "scheduler_heartbeats": 0,
+        "scheduler_locks": 0,
+        "scheduler_runs": 0
+      },
+      "row_total": 20
+    },
+    "e01_discovery": {
+      "path": "/home/user/ahos/data/e01_discovery.sqlite",
+      "exists": true,
+      "integrity_check": "ok",
+      "row_counts": {
+        "discovery_observations": 0,
+        "feature_definitions": 0,
+        "feature_vector": 0,
+        "gap_register": 0,
+        "gate_summary": 0,
+        "holder_snapshot": 0,
+        "lifecycle_events": 0,
+        "observation_state": 0,
+        "opportunity_rank": 0,
+        "outcome_label": 0,
+        "pairs": 0,
+        "production_observations": 0,
+        "provider_failure_events": 0,
+        "raw_payloads": 0,
+        "security_verdicts": 0,
+        "tokens": 0,
+        "wallet_observation": 0
+      },
+      "row_total": 0
+    },
+    "paper_trading": {
+      "path": "/home/user/ahos/data/paper_trading.sqlite",
+      "exists": true,
+      "integrity_check": "ok",
+      "row_counts": {
+        "decision_snapshot": 0,
+        "decision_snapshot_v2": 0,
+        "invalidation": 0,
+        "learning_stats_snapshot": 0,
+        "monitor_event": 0,
+        "paper_exit": 0,
+        "paper_exit_v2": 0,
+        "paper_exit_v3": 0,
+        "paper_position_events": 0,
+        "paper_positions": 0,
+        "paper_trade": 0,
+        "paper_trade_v2": 0,
+        "portfolio_ledger": 0,
+        "position_decision_event": 0,
+        "position_state_event": 0,
+        "post_trade_lesson": 0,
+        "realizable_snapshot": 0,
+        "scam_assessment": 0,
+        "strategy_version": 0
+      },
+      "row_total": 0
+    },
+    "ahos_knowledge": {
+      "path": "/home/user/ahos/data/ahos_knowledge.sqlite",
+      "exists": true,
+      "integrity_check": "ok",
+      "row_counts": {
+        "claim_contradiction_edges": 0,
+        "knowledge_claims": 0
+      },
+      "row_total": 0
+    }
+  },
+  "backup": {
+    "committed_drill_exists": true,
+    "path": "/home/user/ahos/reports/backup_restore_drill.json",
+    "verdict": "PASS"
+  },
+  "provider_probe": [],
+  "events": [
+    {
+      "timestamp_utc": "2026-08-18T16:46:25Z",
+      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "event_type": "WATCHDOG_STATUS",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#watchdog",
+      "detail": "status=NO_HEARTBEATS detail=no heartbeat ever recorded \u2014 fresh install or silent death"
+    },
+    {
+      "timestamp_utc": "2026-08-18T16:46:25Z",
+      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "event_type": "SCHEDULER_WINDOW",
+      "severity": "INFO",
+      "evidence_path": "reports/system_state_snapshot.json#scheduler",
+      "detail": "runs_in_window=0 status_counts={}"
+    },
+    {
+      "timestamp_utc": "2026-08-18T16:46:25Z",
+      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "event_type": "PERSISTENCE_INTEGRITY",
+      "severity": "INFO",
+      "evidence_path": "reports/system_state_snapshot.json#stores.ahos_local",
+      "detail": "ahos_local integrity=ok exists=True"
+    },
+    {
+      "timestamp_utc": "2026-08-18T16:46:25Z",
+      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "event_type": "PERSISTENCE_INTEGRITY",
+      "severity": "INFO",
+      "evidence_path": "reports/system_state_snapshot.json#stores.e01_discovery",
+      "detail": "e01_discovery integrity=ok exists=True"
+    },
+    {
+      "timestamp_utc": "2026-08-18T16:46:25Z",
+      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "event_type": "PERSISTENCE_INTEGRITY",
+      "severity": "INFO",
+      "evidence_path": "reports/system_state_snapshot.json#stores.paper_trading",
+      "detail": "paper_trading integrity=ok exists=True"
+    },
+    {
+      "timestamp_utc": "2026-08-18T16:46:25Z",
+      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "event_type": "PERSISTENCE_INTEGRITY",
+      "severity": "INFO",
+      "evidence_path": "reports/system_state_snapshot.json#stores.ahos_knowledge",
+      "detail": "ahos_knowledge integrity=ok exists=True"
+    }
+  ],
+  "honest_limitations": [
+    "This snapshot does not start the daemon.",
+    "NO_HEARTBEATS / NO_DATA is the honest state of a host that is not under soak.",
+    "A live provider probe, if present, is one request \u2014 not availability proof."
+  ]
+}
