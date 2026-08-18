@@ -210,6 +210,15 @@ class ObservationRuntime:
             status = STATUS_SUCCESS if (not failed and not poll.get("aborted")) else STATUS_DEGRADED
             details = {k: v for k, v in poll.items()
                        if k not in ("selected", "obs_ids", "failures")}
+
+            # 3. Resolve outcomes for tokens whose horizons have now closed.
+            #    Without this the labeler never runs outside tests: predictions
+            #    would accumulate forever against zero outcome labels and the
+            #    calibration join would stay empty no matter how long the
+            #    daemon ran. The materializer is frozen Lane-A code (reused,
+            #    never reimplemented) and enforces horizon-closure itself via
+            #    `now`, so no label can describe an unfinished horizon.
+            details.update(self._materialize_outcomes(conn, started))
             rep = self._report(
                 rid, started, status, verdict,
                 attempted=int(poll.get("attempted", 0)),
@@ -235,6 +244,26 @@ class ObservationRuntime:
                     conn.close()
                 except Exception:
                     pass
+
+    @staticmethod
+    def _materialize_outcomes(conn, now: float) -> dict[str, Any]:
+        """Run the frozen Lane-A outcome labeler for closed horizons.
+
+        Fail-soft by design: outcome labeling is downstream bookkeeping, and a
+        failure here must not discard the observations the cycle just
+        collected. The error is reported in the cycle details rather than
+        swallowed, so a persistently failing labeler is visible in snapshots.
+        """
+        try:
+            from discovery.materialize import materialize_outcomes
+            result = materialize_outcomes(conn, now=now)
+            return {
+                "outcome_tokens_resolved": result.get("outcome_tokens_resolved", 0),
+                "outcome_rows_written": result.get("outcome_rows_written", 0),
+                "outcome_labels_total": result.get("outcome_labels_total", 0),
+            }
+        except Exception as e:
+            return {"outcome_materialization_error": f"{type(e).__name__}: {e}"[:200]}
 
     # ------------------------------------------------------------------ helpers
     @staticmethod

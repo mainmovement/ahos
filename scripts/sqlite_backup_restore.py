@@ -295,6 +295,112 @@ def run_drill(workdir: Path, include_ahos_stores: bool = True) -> dict:
     return report
 
 
+NIGHTLY_TARGET_NIGHTS = 7
+NIGHTLY_SERIES_SCHEMA = "ahos.nightly_backup_series.v1"
+
+
+def _real_stores() -> dict[str, Path]:
+    from config.paths import (
+        get_discovery_db_path, get_knowledge_db_path,
+        get_local_db_path, get_paper_trading_db_path,
+    )
+    return {
+        "e01_discovery": Path(get_discovery_db_path()),
+        "paper_trading": Path(get_paper_trading_db_path()),
+        "ahos_local": Path(get_local_db_path()),
+        "ahos_knowledge": Path(get_knowledge_db_path()),
+    }
+
+
+def run_nightly(backup_root: Path, series_path: Path,
+                now: float | None = None) -> dict:
+    """Take ONE night's verified backup and append it to the series ledger.
+
+    M-GAP-010's residual is "7 consecutive nightly backups on the operator's
+    host". That cannot be produced by a tool in one run, and this function does
+    not pretend otherwise: it performs exactly one night, records it, and
+    reports how many DISTINCT calendar days the series actually contains.
+
+    `series_complete` only turns true when 7 distinct UTC dates are present --
+    running this seven times in one afternoon will not satisfy it.
+    """
+    ts = time.time() if now is None else now
+    stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(ts))
+    date_utc = time.strftime("%Y-%m-%d", time.gmtime(ts))
+
+    series: dict = {}
+    if series_path.is_file():
+        try:
+            series = json.loads(series_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            series = {}
+    nights: list[dict] = list(series.get("nights", []))
+
+    night_dir = backup_root / stamp
+    entries: list[dict] = []
+    for name, src in _real_stores().items():
+        if not src.is_file():
+            entries.append({"store": name, "source": str(src),
+                            "verdict": "MISSING_SOURCE", "integrity_check": "NO_DATA"})
+            continue
+        dest = night_dir / f"{name}.sqlite"
+        try:
+            copy_sqlite(src, dest)
+            src_info = inspect(src, "source")
+            bak_info = inspect(dest, "backup")
+            failures = verify_restore(src_info, bak_info)
+            entries.append({
+                "store": name,
+                "source": str(src),
+                "backup": str(dest),
+                "source_sha256": src_info["sha256"],
+                "backup_sha256": bak_info["sha256"],
+                "row_counts": bak_info["row_counts"],
+                "integrity_check": bak_info["integrity_check"],
+                "verdict": "FAIL" if failures else "PASS",
+                "failures": failures,
+            })
+        except Exception as exc:
+            entries.append({"store": name, "source": str(src),
+                            "verdict": "FAIL",
+                            "failures": [f"{type(exc).__name__}: {exc}"[:200]]})
+
+    failed = [e for e in entries if e["verdict"] != "PASS"]
+    nights.append({
+        "night_utc": stamp,
+        "date_utc": date_utc,
+        "backup_dir": str(night_dir),
+        "stores": entries,
+        "verdict": "FAIL" if failed else "PASS",
+    })
+
+    distinct_dates = sorted({n["date_utc"] for n in nights})
+    passing_dates = sorted({n["date_utc"] for n in nights if n["verdict"] == "PASS"})
+
+    report = {
+        "schema": NIGHTLY_SERIES_SCHEMA,
+        "updated_utc": utc_now(),
+        "git": git_meta(),
+        "backup_root": str(backup_root),
+        "target_nights": NIGHTLY_TARGET_NIGHTS,
+        "runs_recorded": len(nights),
+        "distinct_dates": distinct_dates,
+        "distinct_passing_dates": passing_dates,
+        "nights_completed": len(passing_dates),
+        # The honest gate: distinct calendar days, not invocations.
+        "series_complete": len(passing_dates) >= NIGHTLY_TARGET_NIGHTS,
+        "latest_verdict": nights[-1]["verdict"],
+        "nights": nights,
+        "unproven_until_operator_runs_them": [
+            f"{NIGHTLY_TARGET_NIGHTS} consecutive nightly backups on the laptop "
+            f"({len(passing_dates)}/{NIGHTLY_TARGET_NIGHTS} distinct days so far)",
+            "restore onto a FRESH host (different machine) — USER-ACTION-REQUIRED",
+        ],
+    }
+    write_report(report, series_path)
+    return report
+
+
 def write_report(report: dict, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(report, indent=2, sort_keys=False) + "\n", encoding="utf-8")
@@ -317,7 +423,23 @@ def main(argv: list[str] | None = None) -> int:
     p_drill.add_argument("--report", default=str(ROOT / "reports" / "backup_restore_drill.json"))
     p_drill.add_argument("--synthetic-only", action="store_true")
 
+    p_nightly = sub.add_parser(
+        "nightly", help="take ONE night's verified backup of the real stores "
+                        "and append it to the 7-night series ledger")
+    p_nightly.add_argument("--backup-root", default=str(ROOT / "data" / "backups"))
+    p_nightly.add_argument("--series", default=str(ROOT / "reports" / "nightly_backup_series.json"))
+
     args = ap.parse_args(argv)
+
+    if args.cmd == "nightly":
+        rep = run_nightly(Path(args.backup_root), Path(args.series))
+        print(f"night verdict     : {rep['latest_verdict']}")
+        print(f"distinct days     : {rep['nights_completed']}/{rep['target_nights']}")
+        print(f"series_complete   : {rep['series_complete']}")
+        print(f"series ledger     : {args.series}")
+        for note in rep["unproven_until_operator_runs_them"]:
+            print(f"  UNPROVEN: {note}")
+        return 0 if rep["latest_verdict"] == "PASS" else 1
 
     if args.cmd == "backup":
         copy_sqlite(Path(args.source), Path(args.dest))

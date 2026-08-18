@@ -44,12 +44,18 @@ HONESTY LAWS
 """
 from __future__ import annotations
 
+import hashlib
 import sqlite3
 import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from config.paths import get_discovery_db_path, get_local_db_path
+from .score_ledger import CALIBRATION_ELIGIBLE_SOURCES
+
+
+def _utc(ts: float) -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts))
 
 # Pre-declared score bands. Fixed before observing any data.
 SCORE_BANDS: tuple[tuple[str, float, float], ...] = (
@@ -114,17 +120,33 @@ class CalibrationReport:
     verdict: str = "INSUFFICIENT_DATA"
     findings: list[str] = field(default_factory=list)
     monotonicity: str | None = None
+    # -- provenance: "this number came from exactly these rows" ---------------
+    eligible_sources: list[str] = field(default_factory=list)
+    source_census: dict[str, int] = field(default_factory=dict)
+    excluded_predictions: int = 0
+    exclusion_reasons: dict[str, int] = field(default_factory=dict)
+    observation_window: dict[str, Any] = field(default_factory=dict)
+    dataset_fingerprint: str = ""
+    weight_fingerprints: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            "schema": "ahos.calibration_report.v1",
+            "schema": "ahos.calibration_report.v2",
             "generated_utc": self.generated_utc,
             "horizon": self.horizon,
             "event_class": self.event_class,
-            "total_predictions": self.total_predictions,
-            "joined_pairs": self.joined_pairs,
+            "calibration_status": self.verdict,
+            "number_of_predictions": self.total_predictions,
+            "number_of_eligible_pairs": self.joined_pairs,
+            "excluded_predictions": self.excluded_predictions,
+            "exclusion_reasons": self.exclusion_reasons,
+            "eligible_sources": self.eligible_sources,
+            "source_census": self.source_census,
+            "observation_window": self.observation_window,
+            "dataset_fingerprint": self.dataset_fingerprint,
+            "score_engine_versions": self.engine_versions,
+            "weight_fingerprints": self.weight_fingerprints,
             "bands": [b.as_dict() for b in self.bands],
-            "engine_versions": self.engine_versions,
             "monotonicity": self.monotonicity,
             "verdict": self.verdict,
             "findings": self.findings,
@@ -132,6 +154,8 @@ class CalibrationReport:
                 "min_n_per_band": MIN_N_PER_BAND,
                 "min_positives": MIN_POSITIVES,
                 "no_peeking": "label.resolved_ts > prediction.scored_ts",
+                "source_filter": "prediction.source IN eligible_sources",
+                "unresolved_policy": "outcome_label.hit IS NULL => UNRESOLVED, never a failure",
             },
         }
 
@@ -140,28 +164,49 @@ class CalibrationHarness:
     """Joins persisted predictions to frozen outcome labels and measures lift."""
 
     def __init__(self, ledger_db: str | None = None,
-                 discovery_db: str | None = None):
+                 discovery_db: str | None = None,
+                 eligible_sources: frozenset[str] | set[str] | None = None):
         self.ledger_db = ledger_db or get_local_db_path()
         self.discovery_db = discovery_db or get_discovery_db_path()
+        # Overridable ONLY so the test suite can prove the filter works on its
+        # own fixtures. Production callers take the default, which admits real
+        # operator evidence and nothing else.
+        self.eligible_sources = frozenset(
+            eligible_sources if eligible_sources is not None
+            else CALIBRATION_ELIGIBLE_SOURCES)
 
     # ------------------------------------------------------------- the join --
+
+    def _connect(self) -> sqlite3.Connection:
+        """Read-only handle over the ledger with the Lane-A store attached.
+
+        Both stores are opened `mode=ro`: a calibration run must be incapable
+        of writing to either, and Lane-A especially is never mutated.
+        """
+        conn = sqlite3.connect(f"file:{self.ledger_db}?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
+        conn.execute("ATTACH DATABASE ? AS disc", (f"file:{self.discovery_db}?mode=ro",))
+        return conn
 
     def _load_pairs(self, horizon: str, event_class: str) -> list[dict[str, Any]]:
         """Prediction ⋈ outcome label, with the no-peeking rule enforced in SQL.
 
-        The two live in different stores (predictions in the local operational
-        DB, labels in the Lane-A discovery DB), so the discovery store is
-        ATTACHed read-only. Lane-A is never written.
+        Three filters carry the integrity of this join and none of them may be
+        relaxed by a caller:
+          * `s.source IN (eligible)`  — test/sandbox/synthetic rows can never
+            become calibration evidence, even when they share a store.
+          * `o.resolved_ts > s.scored_ts` — no-peeking: a label that closed
+            before the prediction existed cannot grade it.
+          * `o.hit IS NOT NULL` — an unresolved outcome stays UNRESOLVED and is
+            never silently read as a failure.
         """
-        rows: list[dict[str, Any]] = []
+        placeholders = ",".join("?" for _ in self.eligible_sources)
         try:
-            conn = sqlite3.connect(f"file:{self.ledger_db}?mode=ro", uri=True)
-            conn.row_factory = sqlite3.Row
-            conn.execute("ATTACH DATABASE ? AS disc", (f"file:{self.discovery_db}?mode=ro",))
+            conn = self._connect()
             rows = [dict(r) for r in conn.execute(
-                """SELECT s.score_id, s.token_id, s.opportunity_score, s.scored_ts,
+                f"""SELECT s.score_id, s.token_id, s.opportunity_score, s.scored_ts,
                           s.engine_version, s.weights_sha256, s.confidence_level,
-                          o.hit, o.resolved_ts, o.max_favorable
+                          s.source, o.hit, o.resolved_ts, o.max_favorable
                      FROM opportunity_score_ledger s
                      JOIN disc.outcome_label o
                        ON o.token_id = s.token_id
@@ -169,13 +214,105 @@ class CalibrationHarness:
                       AND o.event_class = ?
                       AND o.hit IS NOT NULL
                       AND s.token_id IS NOT NULL
-                      AND o.resolved_ts > s.scored_ts""",   # no-peeking law
-                (horizon, event_class),
+                      AND s.source IN ({placeholders})
+                      AND o.resolved_ts > s.scored_ts""",
+                (horizon, event_class, *sorted(self.eligible_sources)),
             ).fetchall()]
             conn.close()
+            return rows
         except sqlite3.Error:
             return []
-        return rows
+
+    def _exclusion_census(self, horizon: str, event_class: str) -> dict[str, int]:
+        """Why predictions did NOT make it into the cohort.
+
+        A calibration number without an exclusion account is unauditable: the
+        reader cannot tell a genuinely small cohort from a large one that was
+        quietly filtered down.
+        """
+        placeholders = ",".join("?" for _ in self.eligible_sources)
+        eligible = sorted(self.eligible_sources)
+        census: dict[str, int] = {}
+        try:
+            conn = self._connect()
+
+            def scalar(sql: str, params: tuple = ()) -> int:
+                row = conn.execute(sql, params).fetchone()
+                return int(row[0]) if row else 0
+
+            total = scalar("SELECT COUNT(*) FROM opportunity_score_ledger")
+            census["ineligible_source"] = scalar(
+                f"SELECT COUNT(*) FROM opportunity_score_ledger "
+                f"WHERE source NOT IN ({placeholders})", tuple(eligible))
+            census["missing_token_id"] = scalar(
+                f"SELECT COUNT(*) FROM opportunity_score_ledger "
+                f"WHERE token_id IS NULL AND source IN ({placeholders})", tuple(eligible))
+            census["no_matching_label"] = scalar(
+                f"""SELECT COUNT(*) FROM opportunity_score_ledger s
+                     WHERE s.source IN ({placeholders})
+                       AND s.token_id IS NOT NULL
+                       AND NOT EXISTS (
+                         SELECT 1 FROM disc.outcome_label o
+                          WHERE o.token_id = s.token_id
+                            AND o.horizon = ? AND o.event_class = ?)""",
+                (*eligible, horizon, event_class))
+            census["label_predates_prediction"] = scalar(
+                f"""SELECT COUNT(*) FROM opportunity_score_ledger s
+                     JOIN disc.outcome_label o ON o.token_id = s.token_id
+                    WHERE s.source IN ({placeholders})
+                      AND o.horizon = ? AND o.event_class = ?
+                      AND o.resolved_ts <= s.scored_ts""",
+                (*eligible, horizon, event_class))
+            census["unresolved_outcome"] = scalar(
+                f"""SELECT COUNT(*) FROM opportunity_score_ledger s
+                     JOIN disc.outcome_label o ON o.token_id = s.token_id
+                    WHERE s.source IN ({placeholders})
+                      AND o.horizon = ? AND o.event_class = ?
+                      AND o.hit IS NULL""",
+                (*eligible, horizon, event_class))
+            census["_total_predictions"] = total
+            conn.close()
+        except sqlite3.Error:
+            return {}
+        return census
+
+    def _dataset_fingerprint(self, pairs: list[dict[str, Any]]) -> str:
+        """Deterministic digest of the exact cohort behind a report.
+
+        Two reports with the same fingerprint were computed from the same rows;
+        a changed number with an unchanged fingerprint means the CODE changed,
+        not the data. That distinction is what makes a result replayable.
+        """
+        h = hashlib.sha256()
+        for p in sorted(pairs, key=lambda r: str(r["score_id"])):
+            h.update(f"{p['score_id']}|{p['opportunity_score']}|"
+                     f"{p['hit']}|{p['resolved_ts']}|{p['scored_ts']}".encode())
+        return h.hexdigest()
+
+    def _observation_window(self, pairs: list[dict[str, Any]]) -> dict[str, Any]:
+        if not pairs:
+            return {"first_scored_utc": None, "last_scored_utc": None,
+                    "first_resolved_utc": None, "last_resolved_utc": None}
+        scored = [float(p["scored_ts"]) for p in pairs]
+        resolved = [float(p["resolved_ts"]) for p in pairs]
+        return {
+            "first_scored_utc": _utc(min(scored)),
+            "last_scored_utc": _utc(max(scored)),
+            "first_resolved_utc": _utc(min(resolved)),
+            "last_resolved_utc": _utc(max(resolved)),
+        }
+
+    def _source_census(self) -> dict[str, int]:
+        try:
+            conn = sqlite3.connect(f"file:{self.ledger_db}?mode=ro", uri=True)
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT source, COUNT(*) AS n FROM opportunity_score_ledger "
+                "GROUP BY source ORDER BY source").fetchall()
+            conn.close()
+            return {r["source"]: r["n"] for r in rows}
+        except sqlite3.Error:
+            return {}
 
     def _total_predictions(self) -> int:
         try:
@@ -194,12 +331,21 @@ class CalibrationHarness:
         ts = time.time() if now is None else now
         pairs = self._load_pairs(horizon, event_class)
 
+        exclusions = self._exclusion_census(horizon, event_class)
+        total = exclusions.pop("_total_predictions", self._total_predictions())
+
         report = CalibrationReport(
             generated_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts)),
             horizon=horizon,
             event_class=event_class,
-            total_predictions=self._total_predictions(),
+            total_predictions=total,
             joined_pairs=len(pairs),
+            eligible_sources=sorted(self.eligible_sources),
+            source_census=self._source_census(),
+            excluded_predictions=max(0, total - len(pairs)),
+            exclusion_reasons=exclusions,
+            observation_window=self._observation_window(pairs),
+            dataset_fingerprint=self._dataset_fingerprint(pairs),
         )
 
         # Version census first: a mixed cohort must be visible before any rate.
@@ -208,6 +354,17 @@ class CalibrationHarness:
             key = f"{p['engine_version']}:{str(p['weights_sha256'])[:12]}"
             versions[key] = versions.get(key, 0) + 1
         report.engine_versions = versions
+        report.weight_fingerprints = sorted(
+            {str(p["weights_sha256"]) for p in pairs})
+
+        # Contamination is a headline finding, not a footnote.
+        contaminating = {s: n for s, n in report.source_census.items()
+                         if s not in self.eligible_sources}
+        if contaminating:
+            report.findings.append(
+                f"NON_ELIGIBLE_ROWS_PRESENT: {contaminating} — these are excluded "
+                "from every rate below (test/sandbox/synthetic data is never "
+                "calibration evidence).")
         if len(versions) > 1:
             report.findings.append(
                 f"MIXED_ENGINE_VERSIONS: {len(versions)} scoring versions in cohort — "

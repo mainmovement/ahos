@@ -55,7 +55,9 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import sqlite3
+import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -69,12 +71,68 @@ logger = logging.getLogger("ahos.learning.score_ledger")
 # Bumped ONLY when the scoring computation itself changes semantics.
 SCORING_ENGINE_VERSION = "AHOS-SCORE-v1"
 
+# Evidence namespaces. A calibration number is only meaningful if you know
+# which universe of rows produced it, so every prediction is stamped at write
+# time and the harness filters on it. `LOCAL` is the operator's real laptop
+# evidence; everything else is explicitly NOT calibration evidence.
+SOURCE_LOCAL = "local"            # real operator runtime on the target laptop
+SOURCE_SANDBOX = "sandbox"        # agent/dev container runs — never calibration
+SOURCE_TEST = "test"              # unit/integration fixtures — never calibration
+SOURCE_SYNTHETIC = "synthetic"    # deliberately fabricated data — never calibration
+
+#: Only these namespaces may ever be counted as real calibration evidence.
+CALIBRATION_ELIGIBLE_SOURCES: frozenset[str] = frozenset({SOURCE_LOCAL})
+
+VALID_SOURCES: frozenset[str] = frozenset({
+    SOURCE_LOCAL, SOURCE_SANDBOX, SOURCE_TEST, SOURCE_SYNTHETIC,
+})
+
+# Env override lets the operator's daemon declare itself, without which a
+# sandbox run could masquerade as laptop evidence.
+_SOURCE_ENV_VAR = "AHOS_EVIDENCE_SOURCE"
+
+
+def resolve_source(explicit: str | None = None) -> str:
+    """Resolve the evidence namespace for a prediction.
+
+    Precedence: explicit argument > AHOS_EVIDENCE_SOURCE env > pytest detection
+    > SANDBOX default.
+
+    The default is deliberately NOT `local`. Defaulting to the calibration-
+    eligible namespace would mean any unlabelled run silently becomes real
+    evidence -- the exact failure this boundary exists to prevent. An operator
+    must opt IN to producing real evidence.
+    """
+    if explicit:
+        value = str(explicit).strip().lower()
+        if value not in VALID_SOURCES:
+            raise ValueError(
+                f"unknown evidence source {explicit!r}; valid: {sorted(VALID_SOURCES)}")
+        return value
+
+    env = os.environ.get(_SOURCE_ENV_VAR, "").strip().lower()
+    if env:
+        if env not in VALID_SOURCES:
+            raise ValueError(
+                f"{_SOURCE_ENV_VAR}={env!r} is not a valid evidence source; "
+                f"valid: {sorted(VALID_SOURCES)}")
+        return env
+
+    # A test run must never be able to write calibration-eligible rows, even if
+    # someone points it at a real store by accident.
+    if "PYTEST_CURRENT_TEST" in os.environ or "pytest" in sys.modules:
+        return SOURCE_TEST
+
+    return SOURCE_SANDBOX
+
+
 SCHEMA_SCORE_LEDGER = """
 CREATE TABLE IF NOT EXISTS opportunity_score_ledger (
   score_id           TEXT PRIMARY KEY,
   scored_ts          REAL NOT NULL,
   scored_utc         TEXT NOT NULL,
   run_id             TEXT,
+  source             TEXT NOT NULL DEFAULT 'sandbox',  -- local|sandbox|test|synthetic
   chain              TEXT NOT NULL,
   token_address      TEXT NOT NULL,
   token_id           TEXT,             -- canonical Lane-A identity (join key)
@@ -127,6 +185,7 @@ class ScoreRecord:
     token_id: str | None = None
     symbol: str | None = None
     run_id: str | None = None
+    source: str = SOURCE_SANDBOX
     base_score: float | None = None
     total_penalties: float | None = None
     engine_version: str = SCORING_ENGINE_VERSION
@@ -190,8 +249,12 @@ def _canonical_token_id(chain: str, address: str) -> str | None:
 class ScoreLedger:
     """Append-only sink for opportunity predictions."""
 
-    def __init__(self, db_path: str | None = None):
+    def __init__(self, db_path: str | None = None, source: str | None = None):
         self.db_path = db_path or get_local_db_path()
+        # Resolved once at construction so every row from this ledger carries a
+        # consistent namespace, and an invalid source fails loudly at wiring
+        # time rather than silently mislabelling evidence later.
+        self.source = resolve_source(source)
         self.write_failures = 0
         self._init_db()
 
@@ -208,15 +271,16 @@ class ScoreLedger:
 
     # ------------------------------------------------------------ recording --
 
-    @staticmethod
-    def build_record(report: Any, *, run_id: str | None = None,
-                     now: float | None = None) -> ScoreRecord:
+    def build_record(self, report: Any, *, run_id: str | None = None,
+                     now: float | None = None,
+                     source: str | None = None) -> ScoreRecord:
         """Project an OpportunityScoreReport onto a ledger record.
 
         Duck-typed on purpose: the ledger must not import the scoring engine
         (that would invert the dependency and drag the intelligence surface
         into a persistence module).
         """
+        row_source = resolve_source(source) if source else self.source
         ts = float(getattr(report, "computed_at_ts", None) or (now or time.time()))
         chain = str(getattr(report, "token_chain", "") or "")
         address = str(getattr(report, "token_address", "") or "")
@@ -249,7 +313,10 @@ class ScoreLedger:
 
         # score_id must be unique per (token, instant, engine) without colliding
         # when the same token is legitimately re-scored in a later cycle.
-        seed = f"{chain}:{address}:{ts}:{SCORING_ENGINE_VERSION}:{run_id or ''}"
+        # `source` is part of the seed so a test fixture can never collide with
+        # -- and thereby suppress -- a real local prediction via INSERT OR IGNORE.
+        seed = (f"{row_source}:{chain}:{address}:{ts}:"
+                f"{SCORING_ENGINE_VERSION}:{run_id or ''}")
         score_id = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
 
         return ScoreRecord(
@@ -260,6 +327,7 @@ class ScoreLedger:
             token_id=_canonical_token_id(chain, address),
             symbol=str(getattr(report, "token_symbol", "") or "") or None,
             run_id=run_id,
+            source=row_source,
             opportunity_score=float(getattr(report, "opportunity_score", 0.0) or 0.0),
             confidence_level=str(getattr(report, "confidence_level", "LOW") or "LOW"),
             risk_level=str(getattr(report, "risk_level", "LOW") or "LOW"),
@@ -278,15 +346,18 @@ class ScoreLedger:
         )
 
     def record(self, report: Any, *, run_id: str | None = None,
-               now: float | None = None) -> ScoreRecord | None:
+               now: float | None = None,
+               source: str | None = None) -> ScoreRecord | None:
         """Persist one prediction. Returns None if the write failed."""
-        rec = self.build_record(report, run_id=run_id, now=now)
+        rec = self.build_record(report, run_id=run_id, now=now, source=source)
         return rec if self._insert([rec]) == 1 else None
 
     def record_many(self, reports: list[Any], *, run_id: str | None = None,
-                    now: float | None = None) -> int:
+                    now: float | None = None,
+                    source: str | None = None) -> int:
         """Persist a batch of predictions. Returns the number written."""
-        records = [self.build_record(r, run_id=run_id, now=now) for r in reports]
+        records = [self.build_record(r, run_id=run_id, now=now, source=source)
+                   for r in reports]
         return self._insert(records)
 
     def _insert(self, records: list[ScoreRecord]) -> int:
@@ -301,15 +372,16 @@ class ScoreLedger:
                 # score at the identical instant -- keep the original.
                 cur = conn.execute(
                     """INSERT OR IGNORE INTO opportunity_score_ledger(
-                        score_id, scored_ts, scored_utc, run_id, chain, token_address,
+                        score_id, scored_ts, scored_utc, run_id, source, chain,
+                        token_address,
                         token_id, symbol, opportunity_score, confidence_level, risk_level,
                         base_score, total_penalties, engine_version, weights_sha256,
                         evidence_sha256, known_field_count, unknown_field_count,
                         positive_reasons_json, risk_findings_json, missing_unknowns_json,
                         invalidation_json, score_breakdown_json
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (
-                        r.score_id, r.scored_ts, r.scored_utc, r.run_id, r.chain,
+                        r.score_id, r.scored_ts, r.scored_utc, r.run_id, r.source, r.chain,
                         r.token_address, r.token_id, r.symbol, r.opportunity_score,
                         r.confidence_level, r.risk_level, r.base_score, r.total_penalties,
                         r.engine_version, r.weights_sha256, r.evidence_sha256,
@@ -335,9 +407,21 @@ class ScoreLedger:
 
     # -------------------------------------------------------------- reading --
 
-    def count(self) -> int:
-        rows = self._read("SELECT COUNT(*) AS n FROM opportunity_score_ledger")
+    def count(self, source: str | None = None) -> int:
+        if source is not None:
+            rows = self._read(
+                "SELECT COUNT(*) AS n FROM opportunity_score_ledger WHERE source = ?",
+                (source,))
+        else:
+            rows = self._read("SELECT COUNT(*) AS n FROM opportunity_score_ledger")
         return rows[0]["n"] if rows else 0
+
+    def source_census(self) -> dict[str, int]:
+        """Row count per evidence namespace — makes contamination visible."""
+        rows = self._read(
+            "SELECT source, COUNT(*) AS n FROM opportunity_score_ledger "
+            "GROUP BY source ORDER BY source")
+        return {r["source"]: r["n"] for r in rows}
 
     def recent(self, limit: int = 20) -> list[dict[str, Any]]:
         return self._read(

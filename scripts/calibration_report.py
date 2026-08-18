@@ -66,10 +66,15 @@ def main(argv: list[str] | None = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    print(f"verdict            : {report.verdict}")
-    print(f"total predictions  : {report.total_predictions}")
-    print(f"joined pairs       : {report.joined_pairs}  "
+    print(f"calibration_status : {report.verdict}")
+    print(f"predictions (all)  : {report.total_predictions}")
+    print(f"eligible pairs     : {report.joined_pairs}  "
           f"(horizon={report.horizon}, class={report.event_class})")
+    print(f"eligible sources   : {report.eligible_sources}")
+    print(f"source census      : {report.source_census or '(empty ledger)'}")
+    print(f"excluded           : {report.excluded_predictions} "
+          f"{report.exclusion_reasons or ''}")
+    print(f"dataset fingerprint: {report.dataset_fingerprint[:16] or '(none)'}")
     for band in report.bands:
         rate = f"{band.rate:.3f}" if band.rate is not None else "n/a"
         print(f"  band {band.band:>7}: n={band.n:<6} hits={band.positives:<5} "

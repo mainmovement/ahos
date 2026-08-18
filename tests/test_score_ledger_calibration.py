@@ -30,6 +30,7 @@ from architecture.learning.calibration import (  # noqa: E402
 )
 from architecture.learning.score_ledger import (  # noqa: E402
     SCORING_ENGINE_VERSION,
+    SOURCE_TEST,
     ScoreLedger,
     weights_fingerprint,
 )
@@ -256,14 +257,15 @@ def _seed(tmp_path, pairs, *, resolved_offset: float = 3600.0):
         tid = f"token{i:05d}"
         conn.execute(
             """INSERT INTO opportunity_score_ledger(
-                 score_id, scored_ts, scored_utc, run_id, chain, token_address,
+                 score_id, scored_ts, scored_utc, run_id, source, chain, token_address,
                  token_id, symbol, opportunity_score, confidence_level, risk_level,
                  base_score, total_penalties, engine_version, weights_sha256,
                  evidence_sha256, known_field_count, unknown_field_count,
                  positive_reasons_json, risk_findings_json, missing_unknowns_json,
                  invalidation_json, score_breakdown_json)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-            (f"s{i:05d}", t0, "2026-01-01T00:00:00Z", "run", "solana", f"addr{i}",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (f"s{i:05d}", t0, "2026-01-01T00:00:00Z", "run", SOURCE_TEST, "solana",
+             f"addr{i}",
              tid, "T", float(score), "HIGH", "LOW", 0.0, 0.0,
              SCORING_ENGINE_VERSION, "a" * 64, "b" * 64, 4, 0,
              "[]", "[]", "[]", "[]", "{}"))
@@ -273,7 +275,12 @@ def _seed(tmp_path, pairs, *, resolved_offset: float = 3600.0):
 
     conn.commit(); conn.close()
     dconn.commit(); dconn.close()
-    return CalibrationHarness(ledger_db=str(ledger_db), discovery_db=str(disc_db))
+    # Fixtures are stamped `test`, which is NOT calibration-eligible in
+    # production. The override is what lets these tests exercise the band maths
+    # at all -- and its necessity is itself the proof that real calibration
+    # cannot silently consume test data.
+    return CalibrationHarness(ledger_db=str(ledger_db), discovery_db=str(disc_db),
+                              eligible_sources={SOURCE_TEST})
 
 
 def test_calibration_is_insufficient_data_on_a_young_cohort(tmp_path):
@@ -330,14 +337,14 @@ def test_mixed_engine_versions_are_flagged_not_averaged(tmp_path):
     conn = sqlite3.connect(harness.ledger_db)
     conn.execute(
         """INSERT INTO opportunity_score_ledger(
-             score_id, scored_ts, scored_utc, chain, token_address, token_id,
+             score_id, scored_ts, scored_utc, source, chain, token_address, token_id,
              opportunity_score, confidence_level, risk_level, engine_version,
              weights_sha256, known_field_count, unknown_field_count,
              positive_reasons_json, risk_findings_json, missing_unknowns_json,
              invalidation_json, score_breakdown_json)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-        ("other", time.time() - 86400, "2026-01-01T00:00:00Z", "solana", "addrX",
-         "token00000", 90.0, "HIGH", "LOW", "AHOS-SCORE-v2", "c" * 64,
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        ("other", time.time() - 86400, "2026-01-01T00:00:00Z", SOURCE_TEST, "solana",
+         "addrX", "token00000", 90.0, "HIGH", "LOW", "AHOS-SCORE-v2", "c" * 64,
          4, 0, "[]", "[]", "[]", "[]", "{}"))
     conn.commit(); conn.close()
 

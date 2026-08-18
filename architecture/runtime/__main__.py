@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import signal
 import sys
@@ -44,7 +45,34 @@ def main(argv: list[str] | None = None) -> int:
                         help="Also run the E-01 observation cycle (frozen Lane-A poller) in each cycle")
     parser.add_argument("--observation-max-tokens", type=int, default=40,
                         help="Max tokens attempted per observation cycle")
+    parser.add_argument("--evidence-source", default=None,
+                        choices=["local", "sandbox", "test", "synthetic"],
+                        help="Evidence namespace for persisted predictions. "
+                             "Only 'local' is calibration-eligible. Defaults to "
+                             "$AHOS_EVIDENCE_SOURCE, else 'sandbox'.")
+    parser.add_argument("--probe-providers", action="store_true",
+                        help="Probe every provider for live reachability, print a "
+                             "classified status table, and exit (no scoring, no writes)")
     args = parser.parse_args(argv)
+
+    # Provider probe is a pure read-only diagnostic: it must run without
+    # booting the runtime, touching a database, or emitting a prediction.
+    if args.probe_providers:
+        from ..providers.probe import probe_providers, render_table
+
+        report = probe_providers(chain=args.chain)
+        print(render_table(report))
+        out = Path(args.workspace) / "reports" / (
+            f"provider_probe_{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}.json")
+        try:
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(report.as_dict(), indent=2), encoding="utf-8")
+            print(f"\nartifact: {out}")
+        except OSError as e:
+            print(f"\nWARNING: could not write probe artifact: {e}")
+        # Exit 0 = probe completed. A provider outage is evidence, not a crash;
+        # exit 3 distinguishes "ran, found nothing live" for scripted operators.
+        return 0 if report.any_success else 3
 
     root = Path(args.workspace)
     app = ApplicationLifecycleManager(workspace_root=root)
@@ -84,7 +112,14 @@ def main(argv: list[str] | None = None) -> int:
 
     # Predictions land in the local operational store alongside scheduler and
     # metrics history, so a single laptop backup captures the whole evidence set.
-    score_ledger = ScoreLedger(db_path=local_db)
+    #
+    # The evidence namespace is resolved from AHOS_EVIDENCE_SOURCE (or --evidence
+    # -source). It deliberately defaults to `sandbox`, NOT `local`: only a run
+    # the operator explicitly declares as laptop evidence may feed calibration.
+    score_ledger = ScoreLedger(db_path=local_db, source=args.evidence_source)
+    logger.info(f"Prediction evidence namespace: {score_ledger.source}"
+                + ("" if score_ledger.source == "local"
+                   else "  (NOT calibration-eligible)"))
 
     orchestrator = OpportunityPipelineOrchestrator(
         collector=collector,
