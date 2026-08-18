@@ -3,7 +3,8 @@
 **Created:** 2026-08-18 (Month 1 Operational Gate phase) · **Supersedes:** AHOS_REALITY_AUDIT_v2.md §5 (informal list)
 **Ordering (strict):** 1 Safety · 2 Data integrity · 3 Scheduler reliability · 4 Persistence ·
 5 Provider reliability · 6 Observability · 7 Performance · 8 UX
-**Status legend:** OPEN · MITIGATED (control exists, residual risk documented) · CLOSED (evidence-linked)
+**Status legend:** OPEN · MITIGATED (control exists, residual risk documented) · CLOSED (evidence-linked)  
+**Phase-8 class (this mission):** PROVEN · MITIGATED · OPEN · BLOCKED — never PASS without an artifact.
 
 | GAP ID | Discovered | Priority tier | Evidence | Subsystem | Reproducibility | Mitigation | Owner / action | Acceptance criterion | Status |
 |---|---|---|---|---|---|---|---|---|---|
@@ -39,7 +40,9 @@ and Lane-A freeze veto are exercised by that matrix. That is **not** a productio
 | Backup/restore drill (hashes, counts, integrity) | `reports/backup_restore_drill.json` |
 | Backup/restore implementation + tests | `scripts/sqlite_backup_restore.py`, `tests/test_sqlite_backup_restore.py` |
 | `provider_failure_events` schema/writer/tests | `architecture/collector/engine.py`, `tests/test_collector_failure_visibility.py` |
-| Command-run artifacts (command + UTC + SHA + exit) | `reports/validate_imports_run_*.json`, `reports/pytest_run_*.json` |
+| Command-run artifacts (command + UTC + SHA + exit) | `reports/validate_imports_run.json`, `reports/pytest_run.json` |
+| System state snapshot (Phase 8) | `reports/system_state_snapshot.json` |
+| Reliability challenge (Phase 8) | `reports/reliability_matrix.json`, `reports/reliability_matrix_*.json` |
 
 A PASS/GREEN verdict in this register is allowed only when one of the rows above is the
 evidence link. Markdown prose without an artifact is not evidence.
