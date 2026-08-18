@@ -45,10 +45,11 @@ FROZEN_GLOBS = [
 ]
 
 
-def frozen_files() -> list[Path]:
+def frozen_files(root: Path | None = None) -> list[Path]:
+    root = Path(root) if root is not None else ROOT
     seen: set[Path] = set()
     for pattern in FROZEN_GLOBS:
-        for p in sorted(ROOT.glob(pattern)):
+        for p in sorted(root.glob(pattern)):
             if p.is_file() and "__pycache__" not in p.parts:
                 seen.add(p)
     return sorted(seen)
@@ -58,15 +59,18 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def current_manifest() -> dict[str, str]:
-    return {str(p.relative_to(ROOT)): digest(p) for p in frozen_files()}
+def current_manifest(root: Path | None = None) -> dict[str, str]:
+    root = Path(root) if root is not None else ROOT
+    return {str(p.relative_to(root)): digest(p) for p in frozen_files(root=root)}
 
 
-def load_baseline() -> dict[str, str]:
-    if not BASELINE.exists():
+def load_baseline(root: Path | None = None) -> dict[str, str]:
+    root = Path(root) if root is not None else ROOT
+    baseline = root / BASELINE.relative_to(ROOT)
+    if not baseline.exists():
         return {}
     out: dict[str, str] = {}
-    for line in BASELINE.read_text(encoding="utf-8").splitlines():
+    for line in baseline.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
             continue
@@ -75,8 +79,10 @@ def load_baseline() -> dict[str, str]:
     return out
 
 
-def write_baseline() -> int:
-    manifest = current_manifest()
+def write_baseline(root: Path | None = None) -> int:
+    root = Path(root) if root is not None else ROOT
+    baseline = root / BASELINE.relative_to(ROOT)
+    manifest = current_manifest(root=root)
     lines = [
         "# AHOS Lane-A Integrity Baseline",
         "# sha256  relative/path",
@@ -88,13 +94,13 @@ def write_baseline() -> int:
         "#",
     ]
     lines += [f"{sha}  {rel}" for rel, sha in sorted(manifest.items())]
-    BASELINE.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Wrote {len(manifest)} pinned files -> {BASELINE.relative_to(ROOT)}")
+    baseline.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Wrote {len(manifest)} pinned files -> {baseline.relative_to(root)}")
     return len(manifest)
 
 
-def verify() -> tuple[list[str], list[str], list[str]]:
-    base, cur = load_baseline(), current_manifest()
+def verify(root: Path | None = None) -> tuple[list[str], list[str], list[str]]:
+    base, cur = load_baseline(root=root), current_manifest(root=root)
     drift = sorted(p for p in base.keys() & cur.keys() if base[p] != cur[p])
     missing = sorted(base.keys() - cur.keys())
     untracked = sorted(cur.keys() - base.keys())

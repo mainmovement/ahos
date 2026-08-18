@@ -7,6 +7,17 @@ from .lifecycle import (
     ApplicationLifecycleManager
 )
 from .logging import get_logger, JsonFormatter
+from .observation_loop import (
+    OBSERVATION_RUNTIME_VERSION,
+    ObservationCycleReport,
+    ObservationRuntime,
+    RuntimeSafetyGate,
+    SafetyVerdict,
+    STATUS_SUCCESS,
+    STATUS_DEGRADED,
+    STATUS_BLOCKED,
+    STATUS_FAILED,
+)
 
 __all__ = [
     "RuntimeState",
@@ -15,5 +26,14 @@ __all__ = [
     "StartupValidator",
     "ApplicationLifecycleManager",
     "get_logger",
-    "JsonFormatter"
+    "JsonFormatter",
+    "OBSERVATION_RUNTIME_VERSION",
+    "ObservationCycleReport",
+    "ObservationRuntime",
+    "RuntimeSafetyGate",
+    "SafetyVerdict",
+    "STATUS_SUCCESS",
+    "STATUS_DEGRADED",
+    "STATUS_BLOCKED",
+    "STATUS_FAILED",
 ]
