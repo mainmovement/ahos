@@ -49,4 +49,5 @@ All 481+ tests pass with zero failures and zero warnings.
 
 ## 5. License & Governance
 Governed by immutable `MASTER_DIRECTIVE_v1` (hash-pinned: `e2457c0d...`).  
+Daily Agent Mode ops: `docs/AGENT_MODE_OPERATIONAL_DIRECTIVE_FA.md` (living; does not supersede v1).  
 Licensed under the Apache-2.0 License.
