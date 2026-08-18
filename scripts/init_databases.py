@@ -116,6 +116,7 @@ def _module_schemas() -> dict[str, list[str]]:
     from architecture.runtime.metrics import SCHEMA_METRICS
     from architecture.positions.manager import SCHEMA_POSITIONS
     from architecture.knowledge.store import SCHEMA_KNOWLEDGE
+    from architecture.learning.score_ledger import SCHEMA_SCORE_LEDGER
 
     lifecycle_schema = """
     CREATE TABLE IF NOT EXISTS runtime_lifecycle_events (
@@ -130,7 +131,8 @@ def _module_schemas() -> dict[str, list[str]]:
     """
 
     return {
-        "local": [SCHEMA_SCHEDULER, SCHEMA_METRICS, lifecycle_schema, LOCAL_EXTRA_SCHEMA],
+        "local": [SCHEMA_SCHEDULER, SCHEMA_METRICS, lifecycle_schema,
+                  LOCAL_EXTRA_SCHEMA, SCHEMA_SCORE_LEDGER],
         "paper": [SCHEMA_POSITIONS],
         "knowledge": [SCHEMA_KNOWLEDGE],
     }

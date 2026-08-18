@@ -20,6 +20,7 @@ from .lifecycle import ApplicationLifecycleManager, RuntimeState
 from .logging import get_logger
 from .observation_loop import ObservationRuntime, STATUS_BLOCKED
 from ..collector.engine import CollectorEngine
+from ..learning.score_ledger import ScoreLedger
 from ..scheduling.engine import ProductionScheduler, ScheduleTask
 from ..pipeline.orchestrator import OpportunityPipelineOrchestrator
 from telegram_ai.adapter import MockTelegramAdapter, ProductionTelegramAdapter, TelegramSecurityGate
@@ -81,10 +82,15 @@ def main(argv: list[str] | None = None) -> int:
     telegram_service = TelegramDomainService(discovery_db_path=discovery_db, ledger_db_path=ledger_db)
     bot_runner = TelegramBotRunner(adapter=telegram_adapter, service=telegram_service, gate=gate)
 
+    # Predictions land in the local operational store alongside scheduler and
+    # metrics history, so a single laptop backup captures the whole evidence set.
+    score_ledger = ScoreLedger(db_path=local_db)
+
     orchestrator = OpportunityPipelineOrchestrator(
         collector=collector,
         telegram_adapter=telegram_adapter,
-        target_chat_id=allowed_chats[0] if allowed_chats else None
+        target_chat_id=allowed_chats[0] if allowed_chats else None,
+        score_ledger=score_ledger
     )
 
     # Observation runtime (Phase 6): wraps the frozen Lane-A poller; every
@@ -114,8 +120,18 @@ def main(argv: list[str] | None = None) -> int:
         rep = orchestrator.run_pipeline(chain=args.chain, limit=args.limit, now=now)
         logger.info(
             f"Pipeline executed in {rep.duration_ms:.2f}ms: "
-            f"candidates={rep.candidates_collected}, scores={rep.scores_generated}, alerts={rep.alerts_emitted}"
+            f"candidates={rep.candidates_collected}, scores={rep.scores_generated}, "
+            f"persisted={rep.scores_persisted}, alerts={rep.alerts_emitted}"
         )
+        # A prediction that was scored but NOT written down is a silent hole in
+        # the learning loop -- surface it rather than letting it pass as normal.
+        if rep.scores_generated and rep.scores_persisted < rep.scores_generated:
+            logger.warning(
+                f"score ledger dropped "
+                f"{rep.scores_generated - rep.scores_persisted} of "
+                f"{rep.scores_generated} predictions this cycle "
+                f"(total write failures: {score_ledger.write_failures})"
+            )
         # Record operational metrics
         metrics_tracker.record_metric(
             run_id=app.run_id, component="pipeline",
@@ -130,6 +146,12 @@ def main(argv: list[str] | None = None) -> int:
         metrics_tracker.record_metric(
             run_id=app.run_id, component="alerts",
             metric_name="alerts_emitted", metric_value=float(rep.alerts_emitted),
+            evidence_refs=[rep.run_id]
+        )
+        metrics_tracker.record_metric(
+            run_id=app.run_id, component="learning",
+            metric_name="scores_persisted", metric_value=float(rep.scores_persisted),
+            status="OK" if rep.scores_persisted >= rep.scores_generated else "WARN",
             evidence_refs=[rep.run_id]
         )
         # 2. Process Telegram updates
