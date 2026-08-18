@@ -22,6 +22,11 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.evidence_common import environment_fingerprint  # noqa: E402
+
 SCHEMA_VERSION = "ahos.test_run.v1"
 
 
@@ -109,6 +114,7 @@ def record_run(command: list[str], out_path: Path, timeout: int = 1800) -> dict:
         "cwd": str(ROOT),
         "executable": sys.executable,
         "git": meta,
+        "environment": environment_fingerprint(),
         "exit_code": exit_code,
         "timed_out": timed_out,
         "pytest_summary": parse_pytest_summary(stdout + "\n" + stderr),
