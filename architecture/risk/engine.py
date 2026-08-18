@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""AHOS Risk Engine (Phase 4).
+"""AHOS Risk Engine (Phase 4/5).
 
 Consumes EvidenceBundle ONLY. Emits structured RiskFindings with explicit
-evidence references. Security vetoes (honeypot) remain non-compensable at the
-scoring layer via a 100-point CRITICAL penalty.
+evidence references.
+
+Phase 5: contract / holder / manipulation / whale findings are produced by
+`architecture.security` and `architecture.intelligence.whales` and merged here
+(deduped by risk_id). This module keeps the historic market-structure floor:
+LOW_LIQUIDITY, SELL_PRESSURE, HIGH_UNCERTAINTY, WASH_SUSPECTED.
 """
 from __future__ import annotations
 
@@ -37,12 +41,36 @@ class RiskAssessment:
         return any(f.risk_id == risk_id for f in self.findings)
 
 
+def merge_findings(*groups: list[RiskFinding]) -> list[RiskFinding]:
+    """First finding per risk_id wins — prevents double penalties."""
+    out: list[RiskFinding] = []
+    seen: set[str] = set()
+    for group in groups:
+        for finding in group:
+            if finding.risk_id in seen:
+                continue
+            out.append(finding)
+            seen.add(finding.risk_id)
+    return out
+
+
+def classify_risk_level(findings: list[RiskFinding], total_penalties: float) -> str:
+    if any(f.severity == "CRITICAL" for f in findings) or total_penalties >= 50.0:
+        return "CRITICAL"
+    if any(f.severity == "HIGH" for f in findings) or total_penalties >= 25.0:
+        return "HIGH"
+    if any(f.severity == "MED" for f in findings) or total_penalties >= 10.0:
+        return "MED"
+    return "LOW"
+
+
 class RiskEngine:
     """EVIDENCE → RISK. Pure function of an EvidenceBundle."""
 
     CONSUMER = "RiskEngine.assess"
 
-    def assess(self, evidence: EvidenceBundle) -> RiskAssessment:
+    def assess(self, evidence: EvidenceBundle,
+               extra_findings: list[RiskFinding] | None = None) -> RiskAssessment:
         require_evidence_bundle(evidence, self.CONSUMER)
 
         findings: list[RiskFinding] = []
@@ -69,47 +97,6 @@ class RiskEngine:
                     ))
                     refs.append("txns_1h_sells")
 
-        if bool_value(evidence.get("is_honeypot")) is True:
-            findings.append(RiskFinding(
-                "CRITICAL_HONEYPOT", "CRITICAL",
-                "قرارداد به عنوان Honeypot شناسایی شد",
-                100.0, "security.is_honeypot",
-            ))
-            refs.append("is_honeypot")
-
-        if bool_value(evidence.get("has_mint_authority")) is True:
-            findings.append(RiskFinding(
-                "MINT_AUTHORITY_ACTIVE", "HIGH",
-                "قابلیت ضرب توکن نامحدود فعال است",
-                20.0, "security.has_mint_authority",
-            ))
-            refs.append("has_mint_authority")
-
-        if bool_value(evidence.get("has_freeze_authority")) is True:
-            findings.append(RiskFinding(
-                "FREEZE_AUTHORITY_ACTIVE", "HIGH",
-                "قابلیت مسدودسازی کیف‌پول‌ها فعال است",
-                20.0, "security.has_freeze_authority",
-            ))
-            refs.append("has_freeze_authority")
-
-        concentration = numeric_value(evidence.get("top10_concentration"))
-        if concentration is not None and concentration > 70.0:
-            findings.append(RiskFinding(
-                "HIGH_HOLDER_CONCENTRATION", "HIGH",
-                f"تمرکز شدید هولدرها ({concentration:.1f}%)",
-                25.0, "security.top10_holder_concentration_pct",
-            ))
-            refs.append("top10_concentration")
-
-        if bool_value(evidence.get("is_contract_verified")) is False:
-            findings.append(RiskFinding(
-                "UNVERIFIED_CONTRACT", "MED",
-                "سورس کد قرارداد تایید نشده است",
-                10.0, "security.is_contract_verified",
-            ))
-            refs.append("is_contract_verified")
-
         unknowns = evidence.missing_unknowns()
         if len(unknowns) >= 3:
             findings.append(RiskFinding(
@@ -119,7 +106,6 @@ class RiskEngine:
             ))
             refs.append("unknown_fields")
 
-        # Optional intel-derived evidence (never required; never overrides vetoes).
         if bool_value(evidence.get("wash_suspected")) is True:
             findings.append(RiskFinding(
                 "WASH_SUSPECTED", "HIGH",
@@ -128,19 +114,29 @@ class RiskEngine:
             ))
             refs.append("wash_suspected")
 
-        total = sum(f.penalty_points for f in findings)
-        if any(f.severity == "CRITICAL" for f in findings) or total >= 50.0:
-            level = "CRITICAL"
-        elif any(f.severity == "HIGH" for f in findings) or total >= 25.0:
-            level = "HIGH"
-        elif any(f.severity == "MED" for f in findings) or total >= 10.0:
-            level = "MED"
-        else:
-            level = "LOW"
+        if extra_findings is None:
+            extra_findings = _standalone_intelligence_findings(evidence)
 
+        findings = merge_findings(findings, extra_findings)
+        for finding in findings:
+            if finding.evidence_ref not in refs:
+                refs.append(finding.evidence_ref)
+
+        total = sum(f.penalty_points for f in findings)
+        level = classify_risk_level(findings, total)
         return RiskAssessment(
             findings=findings,
             total_penalties=total,
             risk_level=level,
             evidence_refs=refs,
         )
+
+
+def _standalone_intelligence_findings(evidence: EvidenceBundle) -> list[RiskFinding]:
+    """When callers skip IntelligenceEngine, still apply Phase 5 analyzers."""
+    from ..security import SecurityIntelligence
+    from ..intelligence.whales import WhaleIntelligence
+
+    security = SecurityIntelligence().analyze(evidence)
+    whales = WhaleIntelligence().analyze(evidence)
+    return merge_findings(security.findings, whales.findings)

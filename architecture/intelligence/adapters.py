@@ -93,6 +93,18 @@ def evidence_from_whales(signal: Any) -> list[Evidence]:
             getattr(signal, "risk_penalty", None),
             provider="intel.whales", timestamp=ts, source_field="whales.risk_penalty",
             status=status),
+        _ev("whale_label", "Lane-A whale label",
+            getattr(signal, "label", None),
+            provider="intel.whales", timestamp=ts, source_field="whales.label",
+            status=status),
+        _ev("top1_concentration", "Lane-A top-1 share",
+            getattr(signal, "top1_share_pct", None),
+            provider="intel.whales", timestamp=ts, source_field="whales.top1_share_pct",
+            status=status),
+        _ev("previous_top10_concentration", "Lane-A prior top-10 share",
+            _previous_top10(signal),
+            provider="intel.whales", timestamp=ts, source_field="whales.previous_top10",
+            status=status),
     ]
 
 
@@ -127,3 +139,14 @@ def collect_intel_evidence(*, narrative: Any = None, virality: Any = None,
 
 def as_evidence_sequence(items: Iterable[Any]) -> list[Evidence]:
     return [i for i in items if isinstance(i, Evidence)]
+
+
+def _previous_top10(signal: Any) -> float | None:
+    top = getattr(signal, "top10_share_pct", None)
+    delta = getattr(signal, "delta_pct_points", None)
+    if top is None or delta is None:
+        return None
+    try:
+        return float(top) - float(delta)
+    except (TypeError, ValueError):
+        return None

@@ -126,6 +126,38 @@ def text_value(evidence: Evidence | None) -> str | None:
     return str(evidence.value)
 
 
+def list_value(evidence: Evidence | None) -> list:
+    if evidence is None or not isinstance(evidence.value, list):
+        return []
+    return list(evidence.value)
+
+
+def make_derived_evidence(
+    key: str,
+    description: str,
+    value: Any,
+    *,
+    provider: str,
+    timestamp: float,
+    source_field: str,
+    status: str = "DERIVED",
+) -> Evidence:
+    """Build a provenance-bearing derived Evidence atom (never raw data)."""
+    known = value is not None and status != "UNKNOWN"
+    resolved = "UNKNOWN" if not known else status
+    return Evidence(
+        key=key,
+        description=description,
+        value=value,
+        provider=provider,
+        timestamp=timestamp,
+        freshness_seconds=0.0,
+        status=resolved,
+        source_field=source_field,
+        sha256=_digest(key, value, provider, timestamp),
+    )
+
+
 def _digest(key: str, value: Any, provider: str, timestamp: float) -> str:
     payload = f"{key}|{value!r}|{provider}|{timestamp}".encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
@@ -252,6 +284,14 @@ def materialize_evidence(candidate: Any, now: float | None = None) -> EvidenceBu
     vol = mget("volume_1h")
     honeypot = sget("is_honeypot")
     concentration = sget("top10_holder_concentration_pct")
+    proxy_flag = sget("is_proxy")
+    if proxy_flag is None and security is not None:
+        proxy_flag = getattr(security, "is_upgradeable", None)
+    top1_share = getattr(security, "top1_holder_concentration_pct", None) if security is not None else None
+    holder_count = getattr(candidate, "holder_count", None)
+    prev_top10 = getattr(candidate, "previous_top10_share_pct", None)
+    whale_flow = getattr(candidate, "whale_net_flow_1h", None)
+    wallet_events = getattr(candidate, "wallet_events", None) or []
 
     atoms: list[Evidence] = [
         _atom(
@@ -469,6 +509,39 @@ def materialize_evidence(candidate: Any, now: float | None = None) -> EvidenceBu
             known_when=getattr(candidate, "pair_created_ts", None) is not None,
         ),
     ]
+
+    # Optional Phase 5 atoms: emit only when observed so extra Evidence can attach later.
+    optional = [
+        ("liquidity_locked_pct", sget("liquidity_locked_pct"), "LP lock percent",
+         "security_gate", "security.liquidity_locked_pct"),
+        ("liquidity_burned_pct", sget("liquidity_burned_pct"), "LP burned percent",
+         "security_gate", "security.liquidity_burned_pct"),
+        ("deployer_address", sget("deployer_address"), "Deployer address",
+         "security_gate", "security.deployer_address"),
+        ("is_proxy", proxy_flag, "Proxy / upgradeable contract",
+         "security_gate", "security.is_proxy"),
+        ("price_change_1h", mget("price_change_1h"), "1h price change",
+         provider, "metrics.price_change_1h"),
+        ("volume_24h", mget("volume_24h"), "24h volume",
+         provider, "metrics.volume_24h"),
+        ("top1_concentration", top1_share, "Largest-wallet share",
+         "security_gate", "security.top1_holder_concentration_pct"),
+        ("holder_count", holder_count, "Holder count",
+         provider, "holder_count"),
+        ("previous_top10_concentration", prev_top10, "Prior top-10 concentration snapshot",
+         provider, "previous_top10_share_pct"),
+        ("whale_net_flow_1h", whale_flow, "Whale net flow 1h USD",
+         provider, "whale_net_flow_1h"),
+        ("wallet_events", wallet_events if wallet_events else None, "Observed wallet events",
+         provider, "wallet_events"),
+    ]
+    for key, value, desc, prov, field in optional:
+        if value is None:
+            continue
+        atoms.append(_atom(
+            key=key, description=desc, value=value, provider=prov,
+            timestamp=retrieved, now=ts, source_field=field, known_when=True,
+        ))
 
     identity = TokenRef(
         chain=str(getattr(candidate, "chain", "") or ""),

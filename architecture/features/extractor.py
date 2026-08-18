@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 
 from ..intelligence.evidence import (
     EvidenceBundle,
+    bool_value,
     mapping_value,
     numeric_value,
     require_evidence_bundle,
@@ -135,6 +136,43 @@ class FeatureExtractor:
             features["multi_source"] = Feature(
                 "multi_source", 0.0, 0.0, None, "source_provider", "KNOWN"
             )
+
+        # Phase 5: security / whale features are recorded for explainability
+        # but contribute 0 points so the historic opportunity floor is unchanged.
+        ownership = bool_value(evidence.get("is_ownership_renounced"))
+        if ownership is not None:
+            features["ownership_hygiene"] = Feature(
+                "ownership_hygiene", 1.0 if ownership else 0.0, 0.0,
+                None, "is_ownership_renounced", "KNOWN",
+            )
+            refs.append("is_ownership_renounced")
+
+        lock_q = numeric_value(evidence.get("lp_lock_quality"))
+        if lock_q is None:
+            locked = numeric_value(evidence.get("liquidity_locked_pct"))
+            if locked is not None:
+                lock_q = max(0.0, min(1.0, locked / 100.0))
+        if lock_q is not None:
+            features["lp_lock_quality"] = Feature(
+                "lp_lock_quality", lock_q, 0.0, None, "lp_lock_quality", "KNOWN",
+            )
+            refs.append("lp_lock_quality")
+
+        whale_label = text_value(evidence.get("whale_label"))
+        if whale_label and whale_label != "UNKNOWN":
+            features["whale_regime"] = Feature(
+                "whale_regime", None, 0.0, None, "whale_label", "KNOWN",
+            )
+            refs.append("whale_label")
+
+        whale_flow = numeric_value(evidence.get("whale_net_flow_observed"))
+        if whale_flow is None:
+            whale_flow = numeric_value(evidence.get("whale_net_flow_1h"))
+        if whale_flow is not None:
+            features["whale_flow"] = Feature(
+                "whale_flow", whale_flow, 0.0, None, "whale_net_flow_1h", "KNOWN",
+            )
+            refs.append("whale_net_flow_1h")
 
         return FeatureVector(
             features=features,

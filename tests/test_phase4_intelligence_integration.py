@@ -41,6 +41,14 @@ CALC_MODULES = [
     ROOT / "architecture" / "scoring" / "calculator.py",
     ROOT / "architecture" / "explanations" / "engine.py",
     ROOT / "architecture" / "intelligence" / "engine.py",
+    ROOT / "architecture" / "security" / "engine.py",
+    ROOT / "architecture" / "security" / "contract_analysis.py",
+    ROOT / "architecture" / "security" / "liquidity_analysis.py",
+    ROOT / "architecture" / "security" / "holder_analysis.py",
+    ROOT / "architecture" / "security" / "manipulation_detection.py",
+    ROOT / "architecture" / "intelligence" / "whales" / "wallet_activity.py",
+    ROOT / "architecture" / "intelligence" / "whales" / "smart_money_detector.py",
+    ROOT / "architecture" / "intelligence" / "whales" / "whale_signals.py",
 ]
 
 
@@ -51,6 +59,8 @@ def test_phase4_packages_exist_and_import():
         "architecture.scoring",
         "architecture.risk",
         "architecture.explanations",
+        "architecture.security",
+        "architecture.intelligence.whales",
     ):
         mod = importlib.import_module(name)
         assert mod is not None
@@ -157,6 +167,8 @@ def test_lane_isolation_phase4_modules():
         ROOT / "architecture" / "risk",
         ROOT / "architecture" / "explanations",
         ROOT / "architecture" / "scoring",
+        ROOT / "architecture" / "security",
+        ROOT / "architecture" / "intelligence" / "whales",
     ]
     for folder in roots:
         for path in folder.glob("*.py"):
