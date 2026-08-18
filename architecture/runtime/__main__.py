@@ -5,6 +5,7 @@ Usage:
   python3 -m architecture.runtime --single-cycle
   python3 -m architecture.runtime --daemon --interval-sec 60
   python3 -m architecture.runtime --chain solana --limit 20
+  python3 -m architecture.runtime --daemon --observation-cycle
 """
 from __future__ import annotations
 
@@ -17,6 +18,7 @@ from pathlib import Path
 
 from .lifecycle import ApplicationLifecycleManager, RuntimeState
 from .logging import get_logger
+from .observation_loop import ObservationRuntime, STATUS_BLOCKED
 from ..collector.engine import CollectorEngine
 from ..scheduling.engine import ProductionScheduler, ScheduleTask
 from ..pipeline.orchestrator import OpportunityPipelineOrchestrator
@@ -37,6 +39,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--single-cycle", action="store_true", help="Execute exactly one complete cycle and exit")
     parser.add_argument("--daemon", action="store_true", help="Run continuously as background daemon")
     parser.add_argument("--interval-sec", type=float, default=60.0, help="Interval between daemon cycles in seconds")
+    parser.add_argument("--observation-cycle", action="store_true",
+                        help="Also run the E-01 observation cycle (frozen Lane-A poller) in each cycle")
+    parser.add_argument("--observation-max-tokens", type=int, default=40,
+                        help="Max tokens attempted per observation cycle")
     args = parser.parse_args(argv)
 
     root = Path(args.workspace)
@@ -80,6 +86,11 @@ def main(argv: list[str] | None = None) -> int:
         telegram_adapter=telegram_adapter,
         target_chat_id=allowed_chats[0] if allowed_chats else None
     )
+
+    # Observation runtime (Phase 6): wraps the frozen Lane-A poller; every
+    # cycle re-asserts the paper-only safety laws before anything executes.
+    observation_runtime = ObservationRuntime(
+        workspace_root=root, metrics_tracker=metrics_tracker)
 
     # Register Graceful Shutdown
     running = True
@@ -126,6 +137,19 @@ def main(argv: list[str] | None = None) -> int:
         if processed_updates > 0:
             logger.info(f"Processed {processed_updates} Telegram updates")
 
+    # Observation task: fail-closed by the runtime safety gate (a vetoed cycle
+    # is reported as BLOCKED and never touches the discovery store).
+    def _execute_observation_cycle():
+        rep = observation_runtime.run_cycle(max_tokens=args.observation_max_tokens)
+        if rep.status == STATUS_BLOCKED:
+            logger.warning(f"Observation cycle BLOCKED by safety gate: {rep.safety.reasons}")
+            return
+        logger.info(
+            f"Observation cycle completed in {rep.duration_ms:.2f}ms: "
+            f"status={rep.status}, attempted={rep.attempted}, recorded={rep.recorded}, "
+            f"failures={rep.failures}, tracked={rep.tracked_size}"
+        )
+
     # Define Scheduled Tasks
     pipeline_task = ScheduleTask(
         task_id="OPPORTUNITY_CYCLE",
@@ -134,18 +158,27 @@ def main(argv: list[str] | None = None) -> int:
         action_fn=_execute_full_cycle,
         label="Opportunity Intelligence Cycle"
     )
+    cycle_tasks = [pipeline_task]
+    if args.observation_cycle:
+        cycle_tasks.append(ScheduleTask(
+            task_id="OBSERVATION_CYCLE",
+            target_offset_sec=0.0,
+            tolerance_sec=300.0,
+            action_fn=_execute_observation_cycle,
+            label="E-01 Observation Cycle"
+        ))
 
     # 3. Main Loop
     try:
         if args.single_cycle:
-            sched_res = scheduler.execute_scheduled_cycle("SINGLE_CYCLE", [pipeline_task])
+            sched_res = scheduler.execute_scheduled_cycle("SINGLE_CYCLE", cycle_tasks)
             logger.info(f"Single cycle completed with status: {sched_res['status']}")
             app.shutdown(reason="Single cycle complete")
             return 0 if sched_res["status"] == "SUCCESS" else 1
 
         logger.info(f"AHOS Daemon started. Interval: {args.interval_sec}s")
         while running:
-            sched_res = scheduler.execute_scheduled_cycle("DAEMON_CYCLE", [pipeline_task])
+            sched_res = scheduler.execute_scheduled_cycle("DAEMON_CYCLE", cycle_tasks)
             if not running:
                 break
             time.sleep(args.interval_sec)
