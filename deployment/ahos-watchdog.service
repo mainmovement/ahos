@@ -1,0 +1,18 @@
+# AHOS heartbeat watchdog probe (Phase 7 — silent-death detection)
+#
+# Paired with ahos-watchdog.timer (every 5 minutes). The probe is READ-ONLY:
+# it inspects scheduler_heartbeats and exits non-zero when a component is
+# stale or no heartbeat was ever recorded. Non-zero exit lands in journald
+# (visible via `journalctl -u ahos-watchdog`), which external uptime
+# monitors (UptimeRobot free tier, etc.) can alert on.
+
+[Unit]
+Description=AHOS scheduler heartbeat watchdog probe (read-only)
+
+[Service]
+Type=oneshot
+User=ahos
+Group=ahos
+WorkingDirectory=/opt/ahos
+ExecStart=/opt/ahos/.venv/bin/python3 -m architecture.scheduling.watchdog --status --max-age-sec 300
+SyslogIdentifier=ahos-watchdog
