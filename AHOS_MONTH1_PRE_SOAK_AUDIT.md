@@ -10,12 +10,18 @@ flagged as such (§17).
 
 ## 0. Executed Verification Commands (this session, post Month-1 tooling)
 
+**Correction (2026-08-18 evidence discipline):** V1/V2/V4 counts below were written as
+narrative only — no `reports/*_run_*.json` artifact was committed with command + timestamp +
+SHA. They are **runtime observations, not repository evidence**, and must not be cited as PASS.
+Use the committed `reports/validate_imports_run_*.json` and `reports/pytest_run_*.json` files
+instead. V3 is backed by `reports/month1_failure_matrix.json`.
+
 | # | Command | Result |
 |---|---|---|
-| V1 | `python scripts/validate_imports.py` | **PASS** — imports/evidence-boundary/Lane-A freeze/secrets all clean |
-| V2 | `pytest tests/ -q` | **972 passed / 0 failed** (95.9s) |
-| V3 | `python scripts/month1_failure_matrix.py` | **27/27 PASS** (report §2 of `AHOS_CONTROLLED_FAILURE_TEST_REPORT.md`) |
-| V4 | `pytest tests/test_month1_failure_matrix.py tests/test_soak_snapshot.py tests/test_scheduler_phase7.py -q` | **19 passed** (matrix pinned as CI regression) |
+| V1 | `python scripts/validate_imports.py` | narrative-only (withdrawn as PASS; see `reports/validate_imports_run_*.json`) |
+| V2 | `pytest tests/ -q` | narrative-only “972 passed” (withdrawn as PASS; see `reports/pytest_run_*.json`) |
+| V3 | `python scripts/month1_failure_matrix.py` | committed: `reports/month1_failure_matrix.json` |
+| V4 | `pytest tests/test_month1_failure_matrix.py tests/test_soak_snapshot.py tests/test_scheduler_phase7.py -q` | narrative-only (withdrawn as PASS) |
 
 ## 1–16. Readiness Checklist
 

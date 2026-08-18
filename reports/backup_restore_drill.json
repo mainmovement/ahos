@@ -1,0 +1,352 @@
+{
+  "schema": "ahos.backup_restore.v1",
+  "timestamp_utc": "2026-08-18T15:05:31Z",
+  "git": {
+    "commit_sha": "81b59846fefdb5dec9bd136c671e45c0aa7c1b9d",
+    "branch": "arena/01a01560-ahos",
+    "working_tree_clean": false
+  },
+  "command": "python scripts/sqlite_backup_restore.py drill",
+  "workdir": "/home/user/ahos/reports/_scratch/backup_restore_drill",
+  "include_ahos_stores": true,
+  "ahos_probe_rows_inserted": {
+    "ahos_local.control_flags": 1
+  },
+  "store_count": 5,
+  "passed": 5,
+  "failed": 0,
+  "stores": [
+    {
+      "source": {
+        "role": "source",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/source/synthetic_drill.sqlite",
+        "exists": true,
+        "bytes": 16384,
+        "sha256": "7df1af62a378dbe81ece5293ae1e3517604f94aee93221d27ab373abffdc4828",
+        "integrity_check": "ok",
+        "row_counts": {
+          "drill_events": 3,
+          "drill_meta": 2
+        },
+        "row_total": 5
+      },
+      "backup": {
+        "role": "backup",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/backup/synthetic_drill.sqlite",
+        "exists": true,
+        "bytes": 16384,
+        "sha256": "727cd478a270730db26f62f46333305749c78c11e0a4212c6d1c4adebaa70897",
+        "integrity_check": "ok",
+        "row_counts": {
+          "drill_events": 3,
+          "drill_meta": 2
+        },
+        "row_total": 5
+      },
+      "restored": {
+        "role": "restored",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/restored/synthetic_drill.sqlite",
+        "exists": true,
+        "bytes": 16384,
+        "sha256": "727cd478a270730db26f62f46333305749c78c11e0a4212c6d1c4adebaa70897",
+        "integrity_check": "ok",
+        "row_counts": {
+          "drill_events": 3,
+          "drill_meta": 2
+        },
+        "row_total": 5
+      },
+      "failures": [],
+      "verdict": "PASS"
+    },
+    {
+      "source": {
+        "role": "source",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/ahos_data/e01_discovery.sqlite",
+        "exists": true,
+        "bytes": 147456,
+        "sha256": "aa096800c3bbef39e3e83cf733b6030abf1c3b1b1200802917ef6309439024ae",
+        "integrity_check": "ok",
+        "row_counts": {
+          "discovery_observations": 0,
+          "feature_definitions": 0,
+          "feature_vector": 0,
+          "gap_register": 0,
+          "gate_summary": 0,
+          "holder_snapshot": 0,
+          "lifecycle_events": 0,
+          "observation_state": 0,
+          "opportunity_rank": 0,
+          "outcome_label": 0,
+          "pairs": 0,
+          "production_observations": 0,
+          "provider_failure_events": 0,
+          "raw_payloads": 0,
+          "security_verdicts": 0,
+          "tokens": 0,
+          "wallet_observation": 0
+        },
+        "row_total": 0
+      },
+      "backup": {
+        "role": "backup",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/backup/e01_discovery.sqlite",
+        "exists": true,
+        "bytes": 147456,
+        "sha256": "c85c9cf21db7a8791eab791a82e376e8ca6cecf1b70d66e19d5d7897cfdbbe45",
+        "integrity_check": "ok",
+        "row_counts": {
+          "discovery_observations": 0,
+          "feature_definitions": 0,
+          "feature_vector": 0,
+          "gap_register": 0,
+          "gate_summary": 0,
+          "holder_snapshot": 0,
+          "lifecycle_events": 0,
+          "observation_state": 0,
+          "opportunity_rank": 0,
+          "outcome_label": 0,
+          "pairs": 0,
+          "production_observations": 0,
+          "provider_failure_events": 0,
+          "raw_payloads": 0,
+          "security_verdicts": 0,
+          "tokens": 0,
+          "wallet_observation": 0
+        },
+        "row_total": 0
+      },
+      "restored": {
+        "role": "restored",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/restored/e01_discovery.sqlite",
+        "exists": true,
+        "bytes": 147456,
+        "sha256": "c85c9cf21db7a8791eab791a82e376e8ca6cecf1b70d66e19d5d7897cfdbbe45",
+        "integrity_check": "ok",
+        "row_counts": {
+          "discovery_observations": 0,
+          "feature_definitions": 0,
+          "feature_vector": 0,
+          "gap_register": 0,
+          "gate_summary": 0,
+          "holder_snapshot": 0,
+          "lifecycle_events": 0,
+          "observation_state": 0,
+          "opportunity_rank": 0,
+          "outcome_label": 0,
+          "pairs": 0,
+          "production_observations": 0,
+          "provider_failure_events": 0,
+          "raw_payloads": 0,
+          "security_verdicts": 0,
+          "tokens": 0,
+          "wallet_observation": 0
+        },
+        "row_total": 0
+      },
+      "failures": [],
+      "verdict": "PASS"
+    },
+    {
+      "source": {
+        "role": "source",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/ahos_data/paper_trading.sqlite",
+        "exists": true,
+        "bytes": 180224,
+        "sha256": "08976a29fdd7b8c78c675795e59f7a121aaca938e3590460bca50aeba42111d1",
+        "integrity_check": "ok",
+        "row_counts": {
+          "decision_snapshot": 0,
+          "decision_snapshot_v2": 0,
+          "invalidation": 0,
+          "learning_stats_snapshot": 0,
+          "monitor_event": 0,
+          "paper_exit": 0,
+          "paper_exit_v2": 0,
+          "paper_exit_v3": 0,
+          "paper_position_events": 0,
+          "paper_positions": 0,
+          "paper_trade": 0,
+          "paper_trade_v2": 0,
+          "portfolio_ledger": 0,
+          "position_decision_event": 0,
+          "position_state_event": 0,
+          "post_trade_lesson": 0,
+          "realizable_snapshot": 0,
+          "scam_assessment": 0,
+          "strategy_version": 0
+        },
+        "row_total": 0
+      },
+      "backup": {
+        "role": "backup",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/backup/paper_trading.sqlite",
+        "exists": true,
+        "bytes": 180224,
+        "sha256": "19c783a92c8db650d97638cf0f6508240034856097edbb06752c4030a8649333",
+        "integrity_check": "ok",
+        "row_counts": {
+          "decision_snapshot": 0,
+          "decision_snapshot_v2": 0,
+          "invalidation": 0,
+          "learning_stats_snapshot": 0,
+          "monitor_event": 0,
+          "paper_exit": 0,
+          "paper_exit_v2": 0,
+          "paper_exit_v3": 0,
+          "paper_position_events": 0,
+          "paper_positions": 0,
+          "paper_trade": 0,
+          "paper_trade_v2": 0,
+          "portfolio_ledger": 0,
+          "position_decision_event": 0,
+          "position_state_event": 0,
+          "post_trade_lesson": 0,
+          "realizable_snapshot": 0,
+          "scam_assessment": 0,
+          "strategy_version": 0
+        },
+        "row_total": 0
+      },
+      "restored": {
+        "role": "restored",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/restored/paper_trading.sqlite",
+        "exists": true,
+        "bytes": 180224,
+        "sha256": "19c783a92c8db650d97638cf0f6508240034856097edbb06752c4030a8649333",
+        "integrity_check": "ok",
+        "row_counts": {
+          "decision_snapshot": 0,
+          "decision_snapshot_v2": 0,
+          "invalidation": 0,
+          "learning_stats_snapshot": 0,
+          "monitor_event": 0,
+          "paper_exit": 0,
+          "paper_exit_v2": 0,
+          "paper_exit_v3": 0,
+          "paper_position_events": 0,
+          "paper_positions": 0,
+          "paper_trade": 0,
+          "paper_trade_v2": 0,
+          "portfolio_ledger": 0,
+          "position_decision_event": 0,
+          "position_state_event": 0,
+          "post_trade_lesson": 0,
+          "realizable_snapshot": 0,
+          "scam_assessment": 0,
+          "strategy_version": 0
+        },
+        "row_total": 0
+      },
+      "failures": [],
+      "verdict": "PASS"
+    },
+    {
+      "source": {
+        "role": "source",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/ahos_data/ahos_local.sqlite",
+        "exists": true,
+        "bytes": 57344,
+        "sha256": "342328fa0419c2a73994459662020b4eec4a02eb133327932f28eac645cc55f2",
+        "integrity_check": "ok",
+        "row_counts": {
+          "control_flags": 1,
+          "position_ledger": 0,
+          "runtime_lifecycle_events": 0,
+          "runtime_operational_metrics": 0,
+          "scheduler_heartbeats": 0,
+          "scheduler_locks": 0,
+          "scheduler_runs": 0
+        },
+        "row_total": 1
+      },
+      "backup": {
+        "role": "backup",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/backup/ahos_local.sqlite",
+        "exists": true,
+        "bytes": 57344,
+        "sha256": "6326906d76b11be0ce71d38fe6cb2e4705287d006692e4e1457c39a2dd36d53e",
+        "integrity_check": "ok",
+        "row_counts": {
+          "control_flags": 1,
+          "position_ledger": 0,
+          "runtime_lifecycle_events": 0,
+          "runtime_operational_metrics": 0,
+          "scheduler_heartbeats": 0,
+          "scheduler_locks": 0,
+          "scheduler_runs": 0
+        },
+        "row_total": 1
+      },
+      "restored": {
+        "role": "restored",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/restored/ahos_local.sqlite",
+        "exists": true,
+        "bytes": 57344,
+        "sha256": "6326906d76b11be0ce71d38fe6cb2e4705287d006692e4e1457c39a2dd36d53e",
+        "integrity_check": "ok",
+        "row_counts": {
+          "control_flags": 1,
+          "position_ledger": 0,
+          "runtime_lifecycle_events": 0,
+          "runtime_operational_metrics": 0,
+          "scheduler_heartbeats": 0,
+          "scheduler_locks": 0,
+          "scheduler_runs": 0
+        },
+        "row_total": 1
+      },
+      "failures": [],
+      "verdict": "PASS"
+    },
+    {
+      "source": {
+        "role": "source",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/ahos_data/ahos_knowledge.sqlite",
+        "exists": true,
+        "bytes": 20480,
+        "sha256": "bdbf0b7f0fcd417ee558719c64ef6e5f9152004d3aac0d80db4ea639f9a4da66",
+        "integrity_check": "ok",
+        "row_counts": {
+          "claim_contradiction_edges": 0,
+          "knowledge_claims": 0
+        },
+        "row_total": 0
+      },
+      "backup": {
+        "role": "backup",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/backup/ahos_knowledge.sqlite",
+        "exists": true,
+        "bytes": 20480,
+        "sha256": "3a45a56fd1134b5e31291a98a76dda050c2ef6d6efcc0e998352c84eb4b141dc",
+        "integrity_check": "ok",
+        "row_counts": {
+          "claim_contradiction_edges": 0,
+          "knowledge_claims": 0
+        },
+        "row_total": 0
+      },
+      "restored": {
+        "role": "restored",
+        "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/restored/ahos_knowledge.sqlite",
+        "exists": true,
+        "bytes": 20480,
+        "sha256": "3a45a56fd1134b5e31291a98a76dda050c2ef6d6efcc0e998352c84eb4b141dc",
+        "integrity_check": "ok",
+        "row_counts": {
+          "claim_contradiction_edges": 0,
+          "knowledge_claims": 0
+        },
+        "row_total": 0
+      },
+      "failures": [],
+      "verdict": "PASS"
+    }
+  ],
+  "verdict": "PASS",
+  "unproven": [
+    "7 consecutive nightly backups on a persistent host (original Month-1 acceptance remainder)",
+    "restore onto a fresh host / different machine",
+    "cron/systemd timer actually firing in production"
+  ]
+}

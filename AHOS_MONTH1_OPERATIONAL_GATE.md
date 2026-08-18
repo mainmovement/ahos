@@ -16,10 +16,11 @@ would violate the protocol's own pre-registration rule — so the honest classif
 
 | Area | Evidence | Verdict |
 |---|---|---|
-| Readiness (16 items) | `AHOS_MONTH1_PRE_SOAK_AUDIT.md` §1–16 (file:line + commands) | PASS |
-| Controlled failures (28 scenarios: scheduler 10, providers 9, persistence 5, safety 4) | `AHOS_MONTH1_SOAK…` n/a — `AHOS_CONTROLLED_FAILURE_TEST_REPORT.md` + `reports/month1_failure_matrix.json`; initial run 24/27 → root-caused (2 harness bugs + 1 benign pattern hit, zero system defects) → final **28/28** incl. GAP-002 regression scenario | PASS |
-| Full regression | `pytest tests/ -q` → **983 passed / 0 failed**; `validate_imports.py` → PASS | GREEN |
-| Live pilot (running) | daemon started 14:18 UTC; pre-fix phase 14:18–14:24 (7 cycles); GAP-002 fix deployed via documented restart 14:25; snapshot `reports/soak_snapshot_20260818T142806Z.json`: 10/10 SUCCESS cycles, max drift 2.1e-6 s, heartbeat fresh, `integrity_check=ok` ×2, 6 durable provider-failure events | ACCRUING |
+| Readiness (16 items) | `AHOS_MONTH1_PRE_SOAK_AUDIT.md` §1–16 (file:line + commands). Checklist inspection — not a soak PASS. | INSPECTION ONLY |
+| Controlled failures | Committed machine record `reports/month1_failure_matrix.json` (`total=28`, `passed=28`, `failed=0`). Narrative in `AHOS_CONTROLLED_FAILURE_TEST_REPORT.md` is not a substitute for that file. | PASS (matrix file only) |
+| Full regression | Counts live only in `reports/pytest_run.json` and `reports/validate_imports_run.json` (command + timestamp_utc + git.commit_sha + exit_code). Prior narrative “983 passed” / “972 passed” sentences had no artifact and are withdrawn. | SEE ARTIFACT |
+| Live pilot | Committed snapshot `reports/soak_snapshot_20260818T142806Z.json` + `reports/soak_pilot_log_20260818T1431Z.jsonl`. Sandbox hours, not the 168h window. | ACCRUING (pilot) |
+| Backup/restore drill | `reports/backup_restore_drill.json` + `tests/test_sqlite_backup_restore.py`. One executed drill; not 7 nightly host backups. | MITIGATED |
 
 ## What Failed (found & dispositioned)
 
@@ -36,8 +37,8 @@ would violate the protocol's own pre-registration rule — so the honest classif
   sandbox is a dev container, not the target VPS, and its egress blocks market-data APIs
   (M-GAP-007): provider **availability/success paths** need the VPS; the pilot proves the
   **failure-side** discipline only.
-- Live Telegram (M-GAP-009), scoring calibration on real history (M-GAP-008), backup/restore
-  drill (M-GAP-010), off-box watchdog alerting (M-GAP-012).
+- Live Telegram (M-GAP-009), scoring calibration on real history (M-GAP-008), 7-night host
+  backup series + fresh-host restore (M-GAP-010 residual), off-box watchdog alerting (M-GAP-012).
 - Deliberate recovery events (kill -9 / SIGTERM / 20-min pause — protocol §6) scheduled for
   pilot days 1/3/5.
 
