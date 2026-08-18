@@ -59,6 +59,9 @@ uploads/
 *.patch
 ahos_snap_*.txt
 
+# Local drill scratch (binaries / WAL); committed evidence is reports/*.json
+reports/_scratch/
+
 # Build
 build/
 dist/
