@@ -1,0 +1,125 @@
+{
+  "snapshot_utc": "2026-08-18T14:28:06Z",
+  "window_hours": 1.0,
+  "watchdog": {
+    "status": "OK",
+    "checked_at_utc": "2026-08-18T14:28:06Z",
+    "max_age_sec": 300.0,
+    "stale_components": [],
+    "detail": "all components beating"
+  },
+  "scheduler": {
+    "runs_in_window": 10,
+    "status_counts": {
+      "SUCCESS": 10
+    },
+    "max_clock_drift_sec": 2.1457672119140625e-06,
+    "last_runs": [
+      {
+        "run_id": "59c477ae8f577147",
+        "schedule_name": "DAEMON_CYCLE",
+        "started_ts": 1787063000.2822711,
+        "finished_ts": 1787063003.194941,
+        "status": "SUCCESS",
+        "clock_drift_sec": 1.6689300537109375e-06,
+        "tasks_executed": 2,
+        "tasks_failed": 0,
+        "error_summary": null,
+        "duration_sec": 2.913,
+        "start_to_start_gap": 62.861
+      },
+      {
+        "run_id": "b7101100ae0d8b65",
+        "schedule_name": "DAEMON_CYCLE",
+        "started_ts": 1787063063.19677,
+        "finished_ts": 1787063066.0599885,
+        "status": "SUCCESS",
+        "clock_drift_sec": 7.152557373046875e-07,
+        "tasks_executed": 2,
+        "tasks_failed": 0,
+        "error_summary": null,
+        "duration_sec": 2.863,
+        "start_to_start_gap": 62.914
+      },
+      {
+        "run_id": "ecb1a1472f26057e",
+        "schedule_name": "DAEMON_CYCLE",
+        "started_ts": 1787063130.692111,
+        "finished_ts": 1787063133.5616107,
+        "status": "SUCCESS",
+        "clock_drift_sec": 2.384185791015625e-07,
+        "tasks_executed": 2,
+        "tasks_failed": 0,
+        "error_summary": null,
+        "duration_sec": 2.869,
+        "start_to_start_gap": 67.495
+      },
+      {
+        "run_id": "7b56e0d8d1ed20ec",
+        "schedule_name": "DAEMON_CYCLE",
+        "started_ts": 1787063193.5630314,
+        "finished_ts": 1787063196.4520712,
+        "status": "SUCCESS",
+        "clock_drift_sec": 9.5367431640625e-07,
+        "tasks_executed": 2,
+        "tasks_failed": 0,
+        "error_summary": null,
+        "duration_sec": 2.889,
+        "start_to_start_gap": 62.871
+      },
+      {
+        "run_id": "52ed02c40def32ab",
+        "schedule_name": "DAEMON_CYCLE",
+        "started_ts": 1787063256.4543962,
+        "finished_ts": 1787063259.3211021,
+        "status": "SUCCESS",
+        "clock_drift_sec": 1.6689300537109375e-06,
+        "tasks_executed": 2,
+        "tasks_failed": 0,
+        "error_summary": null,
+        "duration_sec": 2.867,
+        "start_to_start_gap": 62.891
+      }
+    ],
+    "heartbeat_ages_sec": {
+      "DAEMON_CYCLE": 29.6
+    },
+    "live_leases": []
+  },
+  "metrics": [
+    {
+      "component": "alerts",
+      "status": "OK",
+      "n": 10
+    },
+    {
+      "component": "observation",
+      "status": "OK",
+      "n": 50
+    },
+    {
+      "component": "pipeline",
+      "status": "OK",
+      "n": 10
+    },
+    {
+      "component": "scoring",
+      "status": "OK",
+      "n": 10
+    }
+  ],
+  "observations": {
+    "production_window_count": 0,
+    "production_distinct_tokens": 0,
+    "e01_window_count": 0,
+    "gap_register_window": "NO_DATA",
+    "provider_failure_events": {
+      "FETCH_ERROR / dexscreener": 3,
+      "FETCH_ERROR / geckoterminal": 3
+    }
+  },
+  "integrity": {
+    "local_db": "ok",
+    "discovery_db": "ok"
+  }
+}

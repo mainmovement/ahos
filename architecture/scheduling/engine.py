@@ -79,6 +79,11 @@ class ProductionScheduler:
         self.discovery_db_path = discovery_db_path or get_discovery_db_path()
         self.max_allowed_clock_drift_sec = max_allowed_clock_drift_sec
         self.lease_duration_sec = lease_duration_sec
+        # Clock-drift baseline (Phase 7): offset between wall clock and the
+        # monotonic clock at construction. Any later step of the wall clock
+        # (NTP correction, manual change, VM pause/resume) shifts the live
+        # offset away from this baseline — that divergence IS the drift.
+        self._clock_baseline_offset = time.time() - time.monotonic()
         self._init_db()
 
     def _init_db(self):
@@ -87,11 +92,19 @@ class ProductionScheduler:
         conn.close()
 
     def check_clock_drift(self) -> float:
-        """Compares system time against monotonic clock baseline."""
+        """Measures wall-clock vs monotonic divergence since process start (NTP-free).
+
+        Returns absolute drift in seconds. A wall clock stepped backwards/forwards
+        mid-run (NTP jump, suspend/resume, manual change) shows up as a divergence
+        between the live (time.time() - time.monotonic()) offset and the baseline
+        captured at construction. 9999.0 is returned if the wall clock looks
+        plainly wrong (pre-2023) so no cycle trusts an absurd clock.
+        """
         t_sys = time.time()
         if t_sys < 1_700_000_000.0:
             return 9999.0
-        return 0.0
+        live_offset = t_sys - time.monotonic()
+        return abs(live_offset - self._clock_baseline_offset)
 
     def record_heartbeat(self, component: str = "main_scheduler", now: float | None = None) -> float:
         """Updates heartbeat and detects downtime since last run."""

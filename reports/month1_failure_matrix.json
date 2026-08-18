@@ -1,0 +1,232 @@
+{
+  "executed_at_utc": "2026-08-18T14:25:17Z",
+  "total": 28,
+  "passed": 28,
+  "failed": 0,
+  "scenarios": [
+    {
+      "category": "SCHEDULER",
+      "scenario": "normal_cycle",
+      "injected_fault": "none (baseline)",
+      "expected_behavior": "SUCCESS + task executed + lease released",
+      "verdict": "PASS",
+      "evidence": "status=SUCCESS tasks=1 locks_left=0"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "duplicate_cycle_sequential",
+      "injected_fault": "same schedule re-entered",
+      "expected_behavior": "second run SUCCESS, both runs recorded distinctly",
+      "verdict": "PASS",
+      "evidence": "second=SUCCESS run_rows=2"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "overlapping_cycle",
+      "injected_fault": "foreign live lease on lock",
+      "expected_behavior": "SKIPPED_LOCKED, task NOT executed",
+      "verdict": "PASS",
+      "evidence": "status=SKIPPED_LOCKED"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "stale_lease_takeover",
+      "injected_fault": "expired lease left by dead holder",
+      "expected_behavior": "lease reclaimed, cycle SUCCESS",
+      "verdict": "PASS",
+      "evidence": "status=SUCCESS"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "crashed_process_recovery",
+      "injected_fault": "SIGKILL of lease holder mid-run",
+      "expected_behavior": "refused while lease live; takeover after expiry; recovery SUCCESS",
+      "verdict": "PASS",
+      "evidence": "immediate=SKIPPED_LOCKED after_expiry=SUCCESS"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "delayed_process",
+      "injected_fault": "1h heartbeat gap",
+      "expected_behavior": "downtime_detected_sec ~3600 recorded (visible, not hidden)",
+      "verdict": "PASS",
+      "evidence": "downtime=3600.0"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "clock_step_forward_backward",
+      "injected_fault": "+600s then -3600s wall step",
+      "expected_behavior": "drift measured; cycle would ABORTED_DRIFT (unit-proven)",
+      "verdict": "PASS",
+      "evidence": "forward=600.0s backward=3600.0s"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "watchdog_detection",
+      "injected_fault": "1000s-silent component",
+      "expected_behavior": "status STALE, component named",
+      "verdict": "PASS",
+      "evidence": "status=STALE"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "watchdog_fail_closed",
+      "injected_fault": "missing heartbeat DB",
+      "expected_behavior": "NO_HEARTBEATS (never reported OK on absent evidence)",
+      "verdict": "PASS",
+      "evidence": "status=NO_HEARTBEATS"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "provider_unavailable",
+      "injected_fault": "ConnectionError on transport",
+      "expected_behavior": "fail-closed envelope, zero tokens",
+      "verdict": "PASS",
+      "evidence": "status=ERROR tokens=0"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "provider_timeout",
+      "injected_fault": "TimeoutError on transport",
+      "expected_behavior": "fail-closed envelope, zero tokens",
+      "verdict": "PASS",
+      "evidence": "status=DOWN"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "malformed_response",
+      "injected_fault": "HTTP 200 with garbage bytes",
+      "expected_behavior": "fail-closed envelope, no crash, no partial parse",
+      "verdict": "PASS",
+      "evidence": "status=ERROR"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "partial_response",
+      "injected_fault": "payload missing most fields",
+      "expected_behavior": "parse OK; absent fields stay UNKNOWN (listed)",
+      "verdict": "PASS",
+      "evidence": "status=OK liquidity=None"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "conflicting_provider_data",
+      "injected_fault": "0.10 vs 0.99 across providers",
+      "expected_behavior": "first-provider-wins + conflict explicitly logged",
+      "verdict": "PASS",
+      "evidence": "kept=0.1 conflicts=1"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "all_fields_unavailable",
+      "injected_fault": "empty payloads everywhere",
+      "expected_behavior": "all-UNKNOWN candidate, LOW/MED confidence, unknowns listed",
+      "verdict": "PASS",
+      "evidence": "unknown_fields=27 confidence=LOW"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "unsupported_chain",
+      "injected_fault": "cardano on CoinGecko; solana on explorer; discovery on CG",
+      "expected_behavior": "ERROR/UNSUPPORTED envelopes; never fabricated data",
+      "verdict": "PASS",
+      "evidence": "cg=ERROR explorer=UNSUPPORTED discovery=UNSUPPORTED"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "unknown_field_discipline",
+      "injected_fault": "fresh candidate, no data",
+      "expected_behavior": ">=28 UNKNOWN fields explicitly tracked; all values None",
+      "verdict": "PASS",
+      "evidence": "tracked=30"
+    },
+    {
+      "category": "PERSISTENCE",
+      "scenario": "restart_continuity",
+      "injected_fault": "process replaced between cycles",
+      "expected_behavior": "state persists, runs accumulate, DB integrity ok",
+      "verdict": "PASS",
+      "evidence": "rows=2 integrity=ok"
+    },
+    {
+      "category": "PERSISTENCE",
+      "scenario": "interrupted_write",
+      "injected_fault": "SIGKILL with open uncommitted INSERT",
+      "expected_behavior": "transaction rolled back; no partial row; DB not corrupted",
+      "verdict": "PASS",
+      "evidence": "rows=0 integrity=ok"
+    },
+    {
+      "category": "PERSISTENCE",
+      "scenario": "repeated_observation",
+      "injected_fault": "same schedule twice",
+      "expected_behavior": "distinct run_ids; both recorded once",
+      "verdict": "PASS",
+      "evidence": "ids 6e397ac2.. vs e59a9c83.."
+    },
+    {
+      "category": "PERSISTENCE",
+      "scenario": "duplicate_event_rejected",
+      "injected_fault": "identical PK inserted twice",
+      "expected_behavior": "PRIMARY KEY rejects duplicate event",
+      "verdict": "PASS",
+      "evidence": "integrity_error_raised=True"
+    },
+    {
+      "category": "PERSISTENCE",
+      "scenario": "missed_windows_registered_not_backfilled",
+      "injected_fault": "token with 30h-old first_seen, zero observations",
+      "expected_behavior": "missed slots registered in gap_register; NO fabricated observations",
+      "verdict": "PASS",
+      "evidence": "gaps=5 backfilled_rows=0"
+    },
+    {
+      "category": "PROVIDERS",
+      "scenario": "collector_failure_durable_visible",
+      "injected_fault": "network-dead providers at collector level",
+      "expected_behavior": "zero candidates AND durable FETCH_ERROR events (visible, survives restart)",
+      "verdict": "PASS",
+      "evidence": "records=0 fetch_errors=2"
+    },
+    {
+      "category": "SAFETY",
+      "scenario": "no_fabricated_provider_data",
+      "injected_fault": "every provider unreachable",
+      "expected_behavior": "all-UNKNOWN LOW candidate; exception never escapes",
+      "verdict": "PASS",
+      "evidence": "unknowns=30 conf=LOW"
+    },
+    {
+      "category": "SAFETY",
+      "scenario": "no_fabricated_score",
+      "injected_fault": "candidate with zero data fields",
+      "expected_behavior": "score 0.0, confidence LOW, missing-evidence list non-empty",
+      "verdict": "PASS",
+      "evidence": "score=0.0 conf=LOW missing=4"
+    },
+    {
+      "category": "SAFETY",
+      "scenario": "env_live_trading_veto",
+      "injected_fault": "AHOS_EXECUTE_LIVE_TRADES=1",
+      "expected_behavior": "safety gate vetoes (fail-closed before any cycle)",
+      "verdict": "PASS",
+      "evidence": "ok=False reasons=[\"env_safety_veto: CRITICAL SECURITY VETO: Live trading environment variables detected: ['AHOS_EXECUTE_LIVE_TRADES']\"]"
+    },
+    {
+      "category": "SAFETY",
+      "scenario": "lane_a_freeze_drift_veto",
+      "injected_fault": "manifest hash mismatch workspace",
+      "expected_behavior": "observation cycle vetoed on unverifiable Lane-A freeze",
+      "verdict": "PASS",
+      "evidence": "ok=False reasons=[\"lane_a_freeze_missing: ['discovery/collect.py']\"]"
+    },
+    {
+      "category": "SAFETY",
+      "scenario": "no_execution_surface",
+      "injected_fault": "static scan (execution-surface patterns: SDK imports, order calls)",
+      "expected_behavior": "no exchange SDK import, no order-placement call in source (broad 1st-pass hit was the sanitizer's own 'private_key' deny-list literal)",
+      "verdict": "PASS",
+      "evidence": "hits=0[]"
+    }
+  ]
+}

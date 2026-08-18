@@ -1,0 +1,41 @@
+# AHOS Opportunity Intelligence Runtime — systemd unit (Phase 7, Month 1)
+#
+# Install (Debian/Ubuntu VPS, repo cloned to /opt/ahos):
+#   sudo cp deployment/ahos-runtime.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now ahos-runtime.service
+#
+# Laws honored: paper-only (no exchange keys), $0 stack, UNKNOWN-never-invented.
+# The runtime itself never holds secrets; Telegram token (when activated) is
+# injected via EnvironmentFile /etc/ahos/ahos.env (gitignored, chmod 600).
+
+[Unit]
+Description=AHOS Crypto Opportunity Intelligence Runtime (observation daemon, PAPER-ONLY)
+Documentation=file:///opt/ahos/ARCHITECTURE.md
+After=network-online.target
+Wants=network-online.target
+# Crash-loop protection: max 5 restarts per 10 minutes
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=ahos
+Group=ahos
+WorkingDirectory=/opt/ahos
+Environment=PYTHONUNBUFFERED=1
+# EnvironmentFile=/etc/ahos/ahos.env   # optional: TELEGRAM_BOT_TOKEN etc. (never in git)
+ExecStart=/opt/ahos/.venv/bin/python3 -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
+Restart=always
+RestartSec=15
+# Hardening (opportunity intelligence needs no privileges)
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ahos-runtime
+
+[Install]
+WantedBy=multi-user.target
