@@ -44,8 +44,13 @@ AHOS supports standalone Python execution on Windows 11, Linux, Mac, and contain
    ```
 3. Start background daemon:
    ```bash
-   python3 -m architecture.runtime --daemon --interval-sec 60
+   python3 -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
    ```
+
+   `--observation-cycle` is required for real operation. Without it the daemon
+   runs the scoring pipeline but never runs the E-01 observation poller or the
+   outcome labeler, so predictions accumulate against zero outcome labels and
+   calibration stays permanently empty.
 
 ---
 

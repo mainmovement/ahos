@@ -40,7 +40,7 @@
 
 ### 4. How user starts AHOS:
 - On Windows: Run `.\install_windows.ps1` once, then double-click `start_ahos.bat` or run `.\start_ahos.ps1`.
-- On Linux/Mac: Run `python3 -m architecture.runtime --daemon --interval-sec 60`.
+- On Linux/Mac: Run `python3 -m architecture.runtime --daemon --interval-sec 60 --observation-cycle`.
 - In Docker: Run `docker compose -f deployment/docker-compose.windows.yml up -d`.
 
 ### 5. How user updates AHOS safely:
