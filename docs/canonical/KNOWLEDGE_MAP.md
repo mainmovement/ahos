@@ -3,6 +3,8 @@
 # Human view with rationale: docs/mission_v1_1/W7_H_CANONICAL_KNOWLEDGE_MAP_V2.md
 
 ## 1) Orientation (read in order)
+0. **Agent Mode living ops:** `docs/AGENT_MODE_OPERATIONAL_DIRECTIVE_FA.md`
+   (session start / end protocol; does **not** supersede MASTER_DIRECTIVE_v1)
 1. MISSION.md — what AHOS is / non-negotiable laws ($0, PAPER-only, rank-first, probe-id law)
 2. PROJECT_STATE.md — live component states (A–E letters), blockers, counters
 3. GOVERNANCE.md — review chain, decision logs, hygiene law, register locations

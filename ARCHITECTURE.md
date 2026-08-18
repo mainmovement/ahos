@@ -18,6 +18,9 @@
 [Candidate Normalization] (Strict UNKNOWN Preservation)
            │
            ▼
+[Intelligence Engine] (Phase 4/5: Evidence → security/ + whales/ → features/ → risk/ → scoring/ → explanations/)
+           │
+           ▼
 [Opportunity Scoring Engine] (8-Stage Pipeline: DATA -> SIGNALS -> EVIDENCE -> FEATURES -> RISK -> OPP -> CONFIDENCE -> INVALIDATION)
            │
            ├────────────────────────────┐
