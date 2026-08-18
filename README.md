@@ -16,15 +16,25 @@ AHOS is an autonomous intelligence platform designed to observe, normalize, scor
 
 ---
 
-## 2. Quick Start on Windows 11 Laptop
-Double-click `install_windows.ps1` (or `start_ahos.bat`) to install dependencies, initialize databases, and launch the daemon.
+## 2. Windows 11 Laptop (No VPS Required)
+AHOS supports a local, observation-only deployment on one Windows laptop. A VPS, cloud VM, Docker, exchange key, wallet key, and live-trading capability are **not** required.
+
+For an ordinary local launch:
 
 ```powershell
-# In PowerShell:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\install_windows.ps1
 .\start_ahos.ps1
 ```
+
+For the official 168-hour reliability soak, do **not** use the quick launch as evidence. Follow these in order:
+
+1. [`AHOS_WINDOWS_OPERATOR_RUNBOOK.md`](AHOS_WINDOWS_OPERATOR_RUNBOOK.md)
+2. [`AHOS_LAPTOP_READINESS_CHECKLIST.md`](AHOS_LAPTOP_READINESS_CHECKLIST.md)
+3. Run `scripts/record_local_laptop_baseline.py` and require `official_168h_eligible=true`.
+4. Follow [`AHOS_LOCAL_SOAK_PROTOCOL.md`](AHOS_LOCAL_SOAK_PROTOCOL.md).
+
+Arena/sandbox runtime does not count toward the official laptop clock.
 
 ---
 
@@ -41,9 +51,12 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 ## 4. Testing & Verification
 ```bash
-pytest tests/ -v
+python scripts/freeze_lane_a.py
+python scripts/validate_imports.py
+python -m pytest tests/ -q
 ```
-All 481+ tests pass with zero failures and zero warnings.
+
+The latest machine-readable results are committed in `reports/validate_imports_run.json` and `reports/pytest_run.json`; do not rely on a hard-coded historical count.
 
 ---
 
