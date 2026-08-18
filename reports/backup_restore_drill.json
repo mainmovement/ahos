@@ -1,10 +1,10 @@
 {
   "schema": "ahos.backup_restore.v1",
-  "timestamp_utc": "2026-08-18T15:05:31Z",
+  "timestamp_utc": "2026-08-18T15:09:56Z",
   "git": {
-    "commit_sha": "81b59846fefdb5dec9bd136c671e45c0aa7c1b9d",
+    "commit_sha": "3c7476d19c4929f836b5d3e2ae6ee762521916a8",
     "branch": "arena/01a01560-ahos",
-    "working_tree_clean": false
+    "working_tree_clean": true
   },
   "command": "python scripts/sqlite_backup_restore.py drill",
   "workdir": "/home/user/ahos/reports/_scratch/backup_restore_drill",
@@ -247,10 +247,10 @@
         "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/ahos_data/ahos_local.sqlite",
         "exists": true,
         "bytes": 57344,
-        "sha256": "342328fa0419c2a73994459662020b4eec4a02eb133327932f28eac645cc55f2",
+        "sha256": "153e8d2e271cea7a4928551c193baac9fff4044db3baa0cb5c5a0bd8333aed2a",
         "integrity_check": "ok",
         "row_counts": {
-          "control_flags": 1,
+          "control_flags": 2,
           "position_ledger": 0,
           "runtime_lifecycle_events": 0,
           "runtime_operational_metrics": 0,
@@ -258,17 +258,17 @@
           "scheduler_locks": 0,
           "scheduler_runs": 0
         },
-        "row_total": 1
+        "row_total": 2
       },
       "backup": {
         "role": "backup",
         "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/backup/ahos_local.sqlite",
         "exists": true,
         "bytes": 57344,
-        "sha256": "6326906d76b11be0ce71d38fe6cb2e4705287d006692e4e1457c39a2dd36d53e",
+        "sha256": "aad8201c320fbae87fbba3931e24509461525272812ab9dcc309eee0a877af1f",
         "integrity_check": "ok",
         "row_counts": {
-          "control_flags": 1,
+          "control_flags": 2,
           "position_ledger": 0,
           "runtime_lifecycle_events": 0,
           "runtime_operational_metrics": 0,
@@ -276,17 +276,17 @@
           "scheduler_locks": 0,
           "scheduler_runs": 0
         },
-        "row_total": 1
+        "row_total": 2
       },
       "restored": {
         "role": "restored",
         "path": "/home/user/ahos/reports/_scratch/backup_restore_drill/restored/ahos_local.sqlite",
         "exists": true,
         "bytes": 57344,
-        "sha256": "6326906d76b11be0ce71d38fe6cb2e4705287d006692e4e1457c39a2dd36d53e",
+        "sha256": "aad8201c320fbae87fbba3931e24509461525272812ab9dcc309eee0a877af1f",
         "integrity_check": "ok",
         "row_counts": {
-          "control_flags": 1,
+          "control_flags": 2,
           "position_ledger": 0,
           "runtime_lifecycle_events": 0,
           "runtime_operational_metrics": 0,
@@ -294,7 +294,7 @@
           "scheduler_locks": 0,
           "scheduler_runs": 0
         },
-        "row_total": 1
+        "row_total": 2
       },
       "failures": [],
       "verdict": "PASS"
