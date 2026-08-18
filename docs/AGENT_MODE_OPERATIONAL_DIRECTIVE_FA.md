@@ -9,8 +9,8 @@
 | Version | Master Living Document |
 | Status | ACTIVE (عملیاتی) |
 | Last updated | 2026-08-18 |
-| Branch | `arena/01a0118a-ahos` |
-| Pull Request | https://github.com/mainmovement/ahos/pull/2 |
+| Branch | `arena/01a013c7-ahos` |
+| Pull Request | https://github.com/mainmovement/ahos/pull/3 |
 
 > **رابطه با دکترین تغییرناپذیر:** این سند **جایگزین** `docs/canonical/MASTER_DIRECTIVE_v1.md` نیست و آن را تضعیف نمی‌کند. دکترین v1 همچنان ACTIVE و hash-pinned است (`e2457c0d…`). این فایل مرجع **عملیاتی زنده** برای Agent Mode است: هر جلسه با خواندن آن شروع می‌شود و بعد از هر مرحله مهم به‌روز می‌شود.
 
@@ -530,9 +530,9 @@ Senior Review
 
 # 17. وضعیت فعلی توسعه
 
-بروزرسانی: 2026-08-18 — شاخه `arena/01a0118a-ahos` — PR [#2](https://github.com/mainmovement/ahos/pull/2)
+بروزرسانی: 2026-08-18 — شاخه `arena/01a013c7-ahos` — PR [#3](https://github.com/mainmovement/ahos/pull/3)
 
-`main` هنوز روی `62ecf04` («Add files via upload») است تا PR merge شود.
+`main` روی `081db6c` است (PR #2 ادغام شد). Phase 6 در PR #3 منتظر بازبینی است و merge نمی‌شود.
 
 ## Phase 4 — انجام‌شده
 
@@ -599,6 +599,42 @@ architecture/intelligence/whales/
 * ویژگی‌های نهنگ/مالکیت در `FeatureVector` با امتیاز صفر (کف تاریخی امتیاز حفظ شود)
 
 تست: سوئیت کامل ۳ بار + بازبینی معمار — **938 passed**.
+
+---
+
+## Phase 6 — انجام‌شده
+
+هدف:
+
+Runtime Hardening + یکپارچه‌سازی CI
+
+Commit:
+
+```
+52fa8a2460a2f177328dcadde3c6927d40e5f247
+AHOS v2: harden observation runtime and add CI
+```
+
+ساخته شد:
+
+```
+architecture/runtime/observation_loop.py   ObservationRuntime + RuntimeSafetyGate (fail-closed)
+architecture/runtime/__main__.py           تسک OBSERVATION_CYCLE در دیمن (--observation-cycle)
+scripts/validate_imports.py                دروازه CI: import تازه، مرز Evidence، انجماد Lane-A، رازها، آرتیفکت‌ها
+tests/test_observation_runtime.py          ۸ تست بدون شبکه
+.github/workflows/ci.yml                   GitHub Actions (validate + pytest)
+```
+
+قوانین اتصال:
+
+* چرخه مشاهده فقط پولر منجمد `discovery.observe_active` را wrap می‌کند — هیچ پولر دوم یا منطق انتخاب/ذخیره موازی ساخته نشد
+* وتوی paper-only (`assert_safe_environment`) قبل از هر چرخه دوباره اجرا می‌شود؛ تخلف = BLOCKED بدون تماس با دیتابیس
+* مانیفست انجماد Lane-A در دروازه ایمنی و در CI تأیید می‌شود؛ `config/lane_a_freeze.sha256` دست‌نخورده
+* هیچ فایلی از Intelligence / Security / Whale / Risk / Scoring / Features / Explanations تغییر نکرد
+
+تست: `validate_imports` سبز + سوئیت کامل ۳ بار — **947 passed**.
+
+یادداشت: فایل `.github/workflows/ci.yml` آماده است اما توکن فعلی GitHub App مجوز `workflows` ندارد؛ پس از اتصال مجدد GitHub در Arena باید push شود.
 
 ---
 
