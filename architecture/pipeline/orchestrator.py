@@ -4,11 +4,11 @@
 Connects the full scientific and intelligence flow:
   Providers
       ↓
-  Normalization & Evidence
+  Normalization
       ↓
-  Features & Risk Evaluation
+  Evidence materialization (architecture/intelligence)
       ↓
-  Opportunity Scoring
+  Features → Risk → Scoring → Explanations  (Phase 4 intelligence engine)
       ↓
   Alert Engine
       ↓
@@ -24,6 +24,8 @@ from ..providers.contracts import NormalizedTokenCandidate
 from ..providers.registry import ProviderRouter
 from ..collector.engine import CollectorEngine, CollectedObservationRecord
 from ..scoring.engine import OpportunityScorer, OpportunityScoreReport
+from ..intelligence.engine import IntelligenceEngine
+from ..intelligence.evidence import materialize_evidence
 from ..alerts.engine import AlertEngine
 from ..observability import Tracer, OperationTrace
 from telegram_ai.adapter import TelegramBotAdapterInterface
@@ -51,9 +53,11 @@ class OpportunityPipelineOrchestrator:
                  scorer: OpportunityScorer | None = None,
                  alert_engine: AlertEngine | None = None,
                  telegram_adapter: TelegramBotAdapterInterface | None = None,
-                 target_chat_id: int | str | None = None):
+                 target_chat_id: int | str | None = None,
+                 intelligence: IntelligenceEngine | None = None):
+        self.intelligence = intelligence or IntelligenceEngine()
         self.collector = collector or CollectorEngine()
-        self.scorer = scorer or OpportunityScorer()
+        self.scorer = scorer or OpportunityScorer(intelligence=self.intelligence)
         self.alert_engine = alert_engine or AlertEngine(score_threshold=70.0)
         self.telegram_adapter = telegram_adapter
         self.target_chat_id = target_chat_id
@@ -91,11 +95,13 @@ class OpportunityPipelineOrchestrator:
             cand_obj.identify_unknowns()
             candidates.append(cand_obj)
 
-        # 2. Score & Synthesize Evidence
+        # 2. Evidence → Features → Risk → Score → Explanations
+        #    (raw candidate data does not enter the intelligence calculations)
         reports: list[OpportunityScoreReport] = []
         for cand in candidates:
-            rep = self.scorer.evaluate(cand, now=t0)
-            reports.append(rep)
+            bundle = materialize_evidence(cand, now=t0)
+            intel = self.intelligence.evaluate(bundle)
+            reports.append(self.scorer.from_intelligence(intel))
 
         reports.sort(key=lambda r: r.opportunity_score, reverse=True)
         top_opp = reports[0] if reports else None

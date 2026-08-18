@@ -1,6 +1,8 @@
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
+*$py.class
 *.pyo
 
 # Virtual environments
@@ -28,29 +30,36 @@ Thumbs.db
 # Test/cache
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+.tox/
+.nox/
+.cache/
 
-# Local runtime
+# Local runtime / logs
 *.log
+*.tmp
+*.temp
+tmp/
+temp/
 
-# Local databases
+# Generated / local databases
+data/
 *.sqlite
 *.sqlite3
 *.db
+*.sqlite-wal
+*.sqlite-shm
 
-# Temporary
-tmp/
-temp/
+# Temporary runtime files
+paper_trading/runs/*.json
+uploads/
+*.patch
+ahos_snap_*.txt
 
 # Build
 build/
 dist/
 *.egg-info/
-
-# Generated caches
-.cache/
-# SQLite runtime sidecar files
-*.sqlite-wal
-*.sqlite-shm
