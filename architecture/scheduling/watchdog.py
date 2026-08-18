@@ -6,6 +6,10 @@ heartbeats in `scheduler_heartbeats` but have gone quiet. This module performs
 NO network I/O and mutates nothing — it is a read-only probe designed to be
 wired into systemd `WatchdogSec=`/`OnFailure=`, docker healthchecks, or cron.
 
+Month 1 hardening: connections are opened in SQLite read-only URI mode, so a
+probe can never create or modify a store (previously a plain connect() created
+an empty file when the store was missing).
+
 Exit codes (fail-closed, per AHOS laws):
     0 = OK           — all recorded components beat within max_age_sec
     2 = STALE        — at least one component is silent for too long
@@ -33,6 +37,11 @@ from config.paths import get_local_db_path  # noqa: E402
 DEFAULT_MAX_AGE_SEC = 300.0
 
 
+def _connect_ro(db_path: str) -> sqlite3.Connection:
+    """Read-only connection — can NEVER create or modify a store."""
+    return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+
+
 def stale_components(db_path: str | None = None,
                      max_age_sec: float = DEFAULT_MAX_AGE_SEC,
                      now: float | None = None) -> list[dict[str, Any]]:
@@ -43,7 +52,7 @@ def stale_components(db_path: str | None = None,
     """
     ts = time.time() if now is None else now
     try:
-        conn = sqlite3.connect(db_path or get_local_db_path())
+        conn = _connect_ro(db_path or get_local_db_path())
         conn.row_factory = sqlite3.Row
         rows = conn.execute(
             "SELECT component, last_heartbeat_ts, last_heartbeat_utc, downtime_detected_sec "
@@ -69,7 +78,7 @@ def stale_components(db_path: str | None = None,
 def has_any_heartbeat(db_path: str | None = None) -> bool:
     """True if at least one heartbeat row exists (system has run at least once)."""
     try:
-        conn = sqlite3.connect(db_path or get_local_db_path())
+        conn = _connect_ro(db_path or get_local_db_path())
         row = conn.execute("SELECT COUNT(*) FROM scheduler_heartbeats").fetchone()
         conn.close()
         return bool(row and row[0] > 0)

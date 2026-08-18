@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import sqlite3
 import time
 from dataclasses import dataclass, field, asdict
@@ -23,6 +24,8 @@ from ..providers.registry import ProviderRouter
 from .circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 from .retry import RetryPolicy
 from config.paths import get_discovery_db_path
+
+logger = logging.getLogger("ahos.collector")
 
 
 @dataclass
@@ -80,6 +83,21 @@ class CollectorEngine:
                     created_utc TEXT NOT NULL
                 )"""
             )
+            # Month-1 GAP-002 fix: durable provider-failure events (previously a
+            # provider outage was visible only as "candidates=0" — ambiguous with
+            # an honestly empty market, and breaker state died with the process).
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS provider_failure_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event_ts REAL NOT NULL,
+                    event_utc TEXT NOT NULL,
+                    kind TEXT NOT NULL,             -- FETCH_ERROR | BREAKER_OPEN_SKIP
+                    provider_id TEXT NOT NULL,
+                    chain TEXT NOT NULL,
+                    error_class TEXT,
+                    error_detail TEXT
+                )"""
+            )
             conn.commit()
             conn.close()
         except Exception:
@@ -94,7 +112,11 @@ class CollectorEngine:
         for pid in ["dexscreener", "geckoterminal"]:
             cb = self.circuit_breakers.get(pid)
             provider = self.router.get_provider(pid)
-            if not provider or (cb and not cb.allow_request(now=ts)):
+            if not provider:
+                self._record_provider_event("BREAKER_OPEN_SKIP", pid, chain, "provider_missing", None)
+                continue
+            if cb and not cb.allow_request(now=ts):
+                self._record_provider_event("BREAKER_OPEN_SKIP", pid, chain, "circuit_open", None)
                 continue
 
             try:
@@ -108,9 +130,11 @@ class CollectorEngine:
                 if cb:
                     cb.record_success(now=ts)
                 candidates.extend(resp.tokens)
-            except Exception:
+            except Exception as e:  # GAP-002: fail closed AND stay observable
                 if cb:
                     cb.record_failure(now=ts)
+                self._record_provider_event("FETCH_ERROR", pid, chain,
+                                            type(e).__name__, str(e)[:200])
 
         # Deduplicate candidates by (chain, address)
         seen = set()
@@ -155,6 +179,34 @@ class CollectorEngine:
         # 3. Persist observations
         self._persist_records(records)
         return records
+
+    def _record_provider_event(self, kind: str, provider_id: str, chain: str,
+                               error_class: str, error_detail: str | None) -> None:
+        """Durable, visible provider failure/skip event (GAP-002 fix).
+
+        Logs a WARNING (or DEBUG for breaker skips) and appends to
+        provider_failure_events so outages survive process restarts and are
+        reconstructible from committed stores alone.
+        """
+        ts = time.time()
+        detail = f"provider={provider_id} chain={chain} kind={kind} err={error_class}"
+        if kind == "FETCH_ERROR":
+            logger.warning("collector provider failure: %s detail=%s", detail, error_detail)
+        else:
+            logger.debug("collector breaker skip: %s", detail)
+        try:
+            conn = sqlite3.connect(self.db_path)
+            conn.execute(
+                "INSERT INTO provider_failure_events"
+                "(event_ts, event_utc, kind, provider_id, chain, error_class, error_detail) "
+                "VALUES (?,?,?,?,?,?,?)",
+                (ts, time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts)), kind,
+                 provider_id, chain, error_class, error_detail),
+            )
+            conn.commit()
+            conn.close()
+        except sqlite3.Error:
+            logger.warning("provider_failure_events write failed for %s", detail)
 
     def _persist_records(self, records: list[CollectedObservationRecord]):
         if not records:
