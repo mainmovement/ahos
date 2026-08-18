@@ -1,0 +1,83 @@
+{
+  "schema": "ahos.local_laptop_baseline.v1",
+  "timestamp_utc": "2026-08-18T19:31:01Z",
+  "git": {
+    "commit_sha": "50d047d35045786b4b77d2912d1bde97a7a82269",
+    "branch": "arena/01a015c9-ahos",
+    "working_tree_clean": true
+  },
+  "os": {
+    "system": "Linux",
+    "release": "6.1.158+",
+    "version": "#1 SMP PREEMPT_DYNAMIC Mon May 11 18:48:24 UTC 2026",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64"
+  },
+  "python": {
+    "version": "3.11.2",
+    "executable": "/home/user/ahos/.venv/bin/python"
+  },
+  "environment": {
+    "python_version": "3.11.2",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "system": "Linux",
+    "executable": "/home/user/ahos/.venv/bin/python",
+    "cwd": "/home/user/ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
+  },
+  "dependency_hash": {
+    "requirements_txt_sha256": "9a5ef004e1d0ac79b7cf0bf7b4e4a78f1bfd4466543d0c4b3bdbbaac71cf9e79",
+    "lane_a_freeze_sha256": "2f5d67dd9176bd7d45a11a5f17b63a9d91cf80f43b7ac8fd7cf505484446312d"
+  },
+  "lane_a": {
+    "ok": true,
+    "drift": [],
+    "missing": [],
+    "untracked": []
+  },
+  "databases": {
+    "data_dir": "/home/user/ahos/data",
+    "paths": {
+      "e01_discovery": "/home/user/ahos/data/e01_discovery.sqlite",
+      "paper_trading": "/home/user/ahos/data/paper_trading.sqlite",
+      "ahos_local": "/home/user/ahos/data/ahos_local.sqlite",
+      "ahos_knowledge": "/home/user/ahos/data/ahos_knowledge.sqlite"
+    },
+    "integrity": {
+      "e01_discovery": "ok",
+      "paper_trading": "ok",
+      "ahos_local": "ok",
+      "ahos_knowledge": "ok"
+    }
+  },
+  "safety": {
+    "execution_environment": {
+      "AHOS_EXECUTE_LIVE_TRADES": null,
+      "AHOS_ALLOW_REAL_FUNDS": null
+    },
+    "execution_flags_disabled": true,
+    "mode": "observation-only"
+  },
+  "checks": {
+    "windows_host": false,
+    "python_3_11_or_newer": true,
+    "working_tree_clean_before_artifact": true,
+    "lane_a_intact": true,
+    "all_databases_integrity_ok": true,
+    "execution_flags_disabled": true
+  },
+  "daemon_command": [
+    "/home/user/ahos/.venv/bin/python",
+    "-m",
+    "architecture.runtime",
+    "--daemon",
+    "--interval-sec",
+    "60",
+    "--observation-cycle"
+  ],
+  "official_168h_eligible": false,
+  "note": "Eligibility requires Windows, Python 3.11+, a clean tree before this artifact, Lane-A integrity, four healthy local databases, and disabled execution flags. A sandbox run must remain ineligible."
+}

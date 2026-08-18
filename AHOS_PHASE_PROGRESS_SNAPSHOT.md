@@ -23,6 +23,26 @@ artifact or a reproducible command. Prose is not evidence.
 | **Phase 10** | **Prediction ledger + calibration harness** | **PASS** | `architecture/learning/`; closed M-GAP-013 — scores were computed then discarded, making calibration structurally impossible |
 | **Phase 11** | **Adversarial integrity audit of the prediction chain** | **PASS** | 44 adversarial tests; closed M-GAP-014/015/016 |
 | **Phase 12** | **Local activation preparation** | **PASS** | `AHOS_LOCAL_ACTIVATION_CHECKLIST.md`, `scripts/local_activation_report.py`, `reports/local_activation_report.json` |
+| **Phase 13** | **Laptop operation gate** | **BLOCKED — awaiting laptop** | `AHOS_LAPTOP_OPERATION_REPORT.md`, `scripts/soak_t0_snapshot.py`, `reports/local_laptop_baseline.json` (`official_168h_eligible=false`, failed `windows_host`) |
+
+### Phase 13 outcome — the transition was correctly NOT made
+
+The directive permits `READY_FOR_REAL_LOCAL_DATA → LOCAL_SOAK_RUNNING` **only if**
+four conditions hold. None can hold in the agent sandbox:
+
+| Condition | Required | Actual (sandbox) |
+|---|---|---|
+| Windows laptop | yes | **Linux** |
+| `source=local` | yes | **`sandbox`** (default; opt-in by design) |
+| watchdog OK | yes | **`NO_HEARTBEATS`** (daemon not started) |
+| t0 snapshot exists | valid | **`t0_valid=false`** |
+
+`scripts/record_local_laptop_baseline.py` exited `2` with
+`STOP: baseline is not eligible; do not start the official 168h clock.`
+Task 4 gates the daemon on a baseline PASS, so **the daemon was not started**,
+no t0 was certified, and no prediction was fabricated.
+
+**Classification therefore remains `READY_FOR_REAL_LOCAL_DATA`.**
 
 ### What Phases 10–12 actually changed
 
@@ -117,11 +137,16 @@ provider probe        : {'UNSUPPORTED': 4, 'TLS_ERROR': 2}, any_success=False
 1. Work through `AHOS_LOCAL_ACTIVATION_CHECKLIST.md` (all boxes).
 2. `python -m architecture.runtime --probe-providers` → commit the artifact.
    A single `SUCCESS` closes M-GAP-007 and is the gate for everything downstream.
-3. `python scripts/local_activation_report.py` → require `READY_FOR_REAL_LOCAL_DATA`.
-4. Start the daemon with **`AHOS_EVIDENCE_SOURCE=local`** (default is `sandbox`;
+3. `python scripts/record_local_laptop_baseline.py` → require
+   `official_168h_eligible=true` (exits `2` and refuses otherwise).
+4. `python scripts/local_activation_report.py` → require `READY_FOR_REAL_LOCAL_DATA`.
+5. Start the daemon with **`AHOS_EVIDENCE_SOURCE=local`** (default is `sandbox`;
    without this, predictions are recorded but never calibration-eligible).
-5. Write the t0 snapshot — the 168-hour clock starts there.
-6. Nightly: `python scripts/sqlite_backup_restore.py nightly`.
+6. `python scripts/soak_t0_snapshot.py` → require `t0_valid=true`.
+   **That timestamp is hour 0 of 168**, and only then does this document's
+   classification advance to `LOCAL_SOAK_RUNNING`.
+7. Fill in `AHOS_LAPTOP_OPERATION_REPORT.md` from the artifacts.
+8. Nightly: `python scripts/sqlite_backup_restore.py nightly`.
 
 Then, and only then:
 
@@ -140,7 +165,7 @@ pre-registered guards (n ≥ 200 per band, ≥ 20 positives) are inherited from
 | Gate | State |
 |---|---|
 | Lane-A freeze | **36 files pinned, unchanged** |
-| Test suite | **1078 passed / 0 failed** (`reports/pytest_run.json`) |
+| Test suite | **1096 passed / 0 failed** (`reports/pytest_run.json`) |
 | Import + architecture gate | **PASS** (`reports/validate_imports_run.json`) |
 | Execution surface | **NO_EXECUTION_SURFACE** — no ccxt/web3/order/wallet/signing |
 | TLS verification | never bypassed (scan-enforced by test) |
