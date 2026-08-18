@@ -8,6 +8,7 @@ must never become eligible for the official 168-hour clock.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import os
@@ -121,7 +122,18 @@ def build() -> dict:
     }
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    # Phase 14 audit finding: this entrypoint previously ignored argv entirely,
+    # so `--help` (the first thing an operator types) skipped straight to
+    # building and OVERWROTE reports/local_laptop_baseline.json. Asking a tool
+    # what it does must never mutate evidence.
+    parser = argparse.ArgumentParser(
+        description="Record the Windows-laptop eligibility baseline for the "
+                    "official 168-hour soak. Writes "
+                    "reports/local_laptop_baseline.json and exits 2 when the "
+                    "host is not eligible.")
+    parser.parse_args(argv)
+
     report = build()
     DESTINATION.parent.mkdir(parents=True, exist_ok=True)
     DESTINATION.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

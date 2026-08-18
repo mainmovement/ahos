@@ -153,8 +153,16 @@ counts **distinct UTC dates**, not invocations — running it four times in one
 evening still reads `1/7`. `series_complete` flips to true only after seven
 real days, which is what M-GAP-010's residual actually requires.
 
-Deliberate recovery events (kill -9, SIGTERM, a 20-minute pause) are scheduled
-in `AHOS_LOCAL_SOAK_PROTOCOL.md` §6-7. Do them, and snapshot after each.
+Deliberate recovery events (hard kill, graceful stop, a 20-minute pause) are
+scheduled in `AHOS_LOCAL_SOAK_PROTOCOL.md` §6-7. Do them, and snapshot after each.
+On Windows the hard kill is:
+
+```powershell
+Get-Process python | Select-Object Id,StartTime,Path
+Stop-Process -Id <PID> -Force
+```
+
+and the graceful stop is **Ctrl+C** in the daemon window.
 
 Commit snapshots under `reports\` and never overwrite one. A gap in the series
 must be explained (sleep, travel, kill) — an unexplained gap invalidates the
