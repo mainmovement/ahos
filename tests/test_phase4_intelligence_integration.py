@@ -157,6 +157,57 @@ def test_no_duplicate_score_math_in_facade():
     assert "CRITICAL_HONEYPOT" not in src
 
 
+def test_pipeline_keeps_candidate_score_pairing(tmp_path):
+    """A high-score token must not inherit another token's identity after ranking."""
+    class MockDiscoveryProvider:
+        def __init__(self, candidates):
+            self.provider_id = "dexscreener"
+            self.capabilities = ["discovery"]
+            self.candidates = candidates
+
+        def fetch_candidate_tokens(self, chain, limit=10):
+            return ProviderResponse(self.provider_id, "OK", tokens=self.candidates[:limit])
+
+        def fetch_token_metrics(self, chain, address):
+            return ProviderResponse(self.provider_id, "OK", tokens=[])
+
+    weak = NormalizedTokenCandidate(
+        chain="solana", address="WeakTok111111111111111111111111111111111",
+        symbol="WEAK", name="Weak", source_provider="dexscreener",
+        retrieved_ts=1_787_000_000.0,
+        metrics=MarketMetrics(liquidity_usd=500.0, volume_1h=100.0),
+        security=SecuritySignals(is_honeypot=False),
+    )
+    strong = NormalizedTokenCandidate(
+        chain="solana", address="StrongTok1111111111111111111111111111111",
+        symbol="STRNG", name="Strong", source_provider="dexscreener",
+        retrieved_ts=1_787_000_000.0,
+        metrics=MarketMetrics(
+            liquidity_usd=90000.0, volume_1h=50000.0,
+            txns_1h_buys=80, txns_1h_sells=20,
+        ),
+        security=SecuritySignals(
+            is_honeypot=False, is_contract_verified=True,
+            top10_holder_concentration_pct=20.0,
+        ),
+        social_presence={"x": "1"},
+    )
+    router = ProviderRouter()
+    router.providers["dexscreener"] = MockDiscoveryProvider([weak, strong])
+    router.providers["geckoterminal"] = MockDiscoveryProvider([])
+    orch = OpportunityPipelineOrchestrator(
+        collector=CollectorEngine(db_path=str(tmp_path / "pair.sqlite"), router=router),
+        scorer=OpportunityScorer(),
+        alert_engine=AlertEngine(score_threshold=70.0),
+    )
+    report = orch.run_pipeline(chain="solana", limit=5, now=1_787_000_000.0)
+    assert report.scores_generated == 2
+    assert report.top_opportunity is not None
+    assert report.top_opportunity.token_symbol == "STRNG"
+    assert report.top_opportunity.token_address == strong.address
+    assert all(a.symbol != "WEAK" or a.cls != "OPPORTUNITY" for a in report.alerts)
+
+
 def test_lane_isolation_phase4_modules():
     """New architecture modules must not import experiment packages."""
     import re

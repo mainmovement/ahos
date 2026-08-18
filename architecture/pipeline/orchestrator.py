@@ -97,18 +97,19 @@ class OpportunityPipelineOrchestrator:
 
         # 2. Evidence → Features → Risk → Score → Explanations
         #    (raw candidate data does not enter the intelligence calculations)
-        reports: list[OpportunityScoreReport] = []
+        paired: list[tuple[NormalizedTokenCandidate, OpportunityScoreReport]] = []
         for cand in candidates:
             bundle = materialize_evidence(cand, now=t0)
             intel = self.intelligence.evaluate(bundle)
-            reports.append(self.scorer.from_intelligence(intel))
+            paired.append((cand, self.scorer.from_intelligence(intel)))
 
-        reports.sort(key=lambda r: r.opportunity_score, reverse=True)
+        ranked = sorted(paired, key=lambda item: item[1].opportunity_score, reverse=True)
+        reports = [rep for _, rep in ranked]
         top_opp = reports[0] if reports else None
 
-        # 3. Evaluate Alerts
+        # 3. Evaluate Alerts — keep candidate/report pairing (never zip after an independent sort)
         emitted_alerts: list[Alert] = []
-        for cand, rep in zip(candidates, reports):
+        for cand, rep in paired:
             alerts = self.alert_engine.evaluate_opportunity(rep, cand, now=t0)
             emitted_alerts.extend(alerts)
 
