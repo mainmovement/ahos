@@ -1,0 +1,67 @@
+{
+  "schema": "ahos.provider_probe.v1",
+  "probed_at_utc": "2026-08-18T18:53:08Z",
+  "chain": "solana",
+  "results": [
+    {
+      "provider_id": "chain_explorer",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.0,
+      "detail": "no discovery capability (has ['onchain', 'security', 'contract-verification']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-18T18:53:08Z"
+    },
+    {
+      "provider_id": "coingecko",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.0,
+      "detail": "no discovery capability (has ['market', 'metadata', 'market_cap']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-18T18:53:08Z"
+    },
+    {
+      "provider_id": "dexscreener",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 59.7,
+      "detail": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "probed_at_utc": "2026-08-18T18:53:08Z"
+    },
+    {
+      "provider_id": "geckoterminal",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 39.7,
+      "detail": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "probed_at_utc": "2026-08-18T18:53:08Z"
+    },
+    {
+      "provider_id": "goplus",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.3,
+      "detail": "no discovery capability (has ['security', 'honeypot', 'contract_audit', 'taxes']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-18T18:53:08Z"
+    },
+    {
+      "provider_id": "rugcheck",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.0,
+      "detail": "no discovery capability (has ['security', 'solana_lp_lock', 'solana_mint_authority']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-18T18:53:08Z"
+    }
+  ],
+  "status_counts": {
+    "UNSUPPORTED": 4,
+    "TLS_ERROR": 2
+  },
+  "any_success": false,
+  "m_gap_007_live_success_proven": false
+}

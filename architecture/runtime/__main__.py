@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import signal
 import sys
@@ -20,6 +21,7 @@ from .lifecycle import ApplicationLifecycleManager, RuntimeState
 from .logging import get_logger
 from .observation_loop import ObservationRuntime, STATUS_BLOCKED
 from ..collector.engine import CollectorEngine
+from ..learning.score_ledger import ScoreLedger
 from ..scheduling.engine import ProductionScheduler, ScheduleTask
 from ..pipeline.orchestrator import OpportunityPipelineOrchestrator
 from telegram_ai.adapter import MockTelegramAdapter, ProductionTelegramAdapter, TelegramSecurityGate
@@ -43,7 +45,34 @@ def main(argv: list[str] | None = None) -> int:
                         help="Also run the E-01 observation cycle (frozen Lane-A poller) in each cycle")
     parser.add_argument("--observation-max-tokens", type=int, default=40,
                         help="Max tokens attempted per observation cycle")
+    parser.add_argument("--evidence-source", default=None,
+                        choices=["local", "sandbox", "test", "synthetic"],
+                        help="Evidence namespace for persisted predictions. "
+                             "Only 'local' is calibration-eligible. Defaults to "
+                             "$AHOS_EVIDENCE_SOURCE, else 'sandbox'.")
+    parser.add_argument("--probe-providers", action="store_true",
+                        help="Probe every provider for live reachability, print a "
+                             "classified status table, and exit (no scoring, no writes)")
     args = parser.parse_args(argv)
+
+    # Provider probe is a pure read-only diagnostic: it must run without
+    # booting the runtime, touching a database, or emitting a prediction.
+    if args.probe_providers:
+        from ..providers.probe import probe_providers, render_table
+
+        report = probe_providers(chain=args.chain)
+        print(render_table(report))
+        out = Path(args.workspace) / "reports" / (
+            f"provider_probe_{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}.json")
+        try:
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(report.as_dict(), indent=2), encoding="utf-8")
+            print(f"\nartifact: {out}")
+        except OSError as e:
+            print(f"\nWARNING: could not write probe artifact: {e}")
+        # Exit 0 = probe completed. A provider outage is evidence, not a crash;
+        # exit 3 distinguishes "ran, found nothing live" for scripted operators.
+        return 0 if report.any_success else 3
 
     root = Path(args.workspace)
     app = ApplicationLifecycleManager(workspace_root=root)
@@ -81,10 +110,22 @@ def main(argv: list[str] | None = None) -> int:
     telegram_service = TelegramDomainService(discovery_db_path=discovery_db, ledger_db_path=ledger_db)
     bot_runner = TelegramBotRunner(adapter=telegram_adapter, service=telegram_service, gate=gate)
 
+    # Predictions land in the local operational store alongside scheduler and
+    # metrics history, so a single laptop backup captures the whole evidence set.
+    #
+    # The evidence namespace is resolved from AHOS_EVIDENCE_SOURCE (or --evidence
+    # -source). It deliberately defaults to `sandbox`, NOT `local`: only a run
+    # the operator explicitly declares as laptop evidence may feed calibration.
+    score_ledger = ScoreLedger(db_path=local_db, source=args.evidence_source)
+    logger.info(f"Prediction evidence namespace: {score_ledger.source}"
+                + ("" if score_ledger.source == "local"
+                   else "  (NOT calibration-eligible)"))
+
     orchestrator = OpportunityPipelineOrchestrator(
         collector=collector,
         telegram_adapter=telegram_adapter,
-        target_chat_id=allowed_chats[0] if allowed_chats else None
+        target_chat_id=allowed_chats[0] if allowed_chats else None,
+        score_ledger=score_ledger
     )
 
     # Observation runtime (Phase 6): wraps the frozen Lane-A poller; every
@@ -114,8 +155,18 @@ def main(argv: list[str] | None = None) -> int:
         rep = orchestrator.run_pipeline(chain=args.chain, limit=args.limit, now=now)
         logger.info(
             f"Pipeline executed in {rep.duration_ms:.2f}ms: "
-            f"candidates={rep.candidates_collected}, scores={rep.scores_generated}, alerts={rep.alerts_emitted}"
+            f"candidates={rep.candidates_collected}, scores={rep.scores_generated}, "
+            f"persisted={rep.scores_persisted}, alerts={rep.alerts_emitted}"
         )
+        # A prediction that was scored but NOT written down is a silent hole in
+        # the learning loop -- surface it rather than letting it pass as normal.
+        if rep.scores_generated and rep.scores_persisted < rep.scores_generated:
+            logger.warning(
+                f"score ledger dropped "
+                f"{rep.scores_generated - rep.scores_persisted} of "
+                f"{rep.scores_generated} predictions this cycle "
+                f"(total write failures: {score_ledger.write_failures})"
+            )
         # Record operational metrics
         metrics_tracker.record_metric(
             run_id=app.run_id, component="pipeline",
@@ -130,6 +181,12 @@ def main(argv: list[str] | None = None) -> int:
         metrics_tracker.record_metric(
             run_id=app.run_id, component="alerts",
             metric_name="alerts_emitted", metric_value=float(rep.alerts_emitted),
+            evidence_refs=[rep.run_id]
+        )
+        metrics_tracker.record_metric(
+            run_id=app.run_id, component="learning",
+            metric_name="scores_persisted", metric_value=float(rep.scores_persisted),
+            status="OK" if rep.scores_persisted >= rep.scores_generated else "WARN",
             evidence_refs=[rep.run_id]
         )
         # 2. Process Telegram updates

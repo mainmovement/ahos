@@ -1,0 +1,100 @@
+{
+  "schema": "ahos.calibration_report.v1",
+  "generated_utc": "2026-08-18T17:25:00Z",
+  "horizon": "24h",
+  "event_class": "+50%",
+  "total_predictions": 0,
+  "joined_pairs": 0,
+  "bands": [
+    {
+      "band": "0-20",
+      "lower": 0.0,
+      "upper": 20.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "20-40",
+      "lower": 20.0,
+      "upper": 40.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "40-60",
+      "lower": 40.0,
+      "upper": 60.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "60-80",
+      "lower": 60.0,
+      "upper": 80.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "80-100",
+      "lower": 80.0,
+      "upper": 100.001,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    }
+  ],
+  "engine_versions": {},
+  "monotonicity": null,
+  "verdict": "INSUFFICIENT_DATA",
+  "findings": [
+    "No score band met the pre-registered guards (n>=200, positives>=20). 0 prediction/outcome pairs available. This is the expected honest result until enough real observation history has accumulated."
+  ],
+  "guards": {
+    "min_n_per_band": 200,
+    "min_positives": 20,
+    "no_peeking": "label.resolved_ts > prediction.scored_ts"
+  },
+  "command": "python scripts/calibration_report.py",
+  "timestamp_utc": "2026-08-18T17:25:00Z",
+  "git": {
+    "commit_sha": "8dc77f8d7057f6d5a7ae4de09f5a38155cb9c73b",
+    "branch": "arena/01a015c9-ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.2",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "system": "Linux",
+    "executable": "/home/user/ahos/.venv/bin/python",
+    "cwd": "/home/user/ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
+  },
+  "ledger_census": {}
+}

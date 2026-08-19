@@ -26,6 +26,7 @@ from ..collector.engine import CollectorEngine, CollectedObservationRecord
 from ..scoring.engine import OpportunityScorer, OpportunityScoreReport
 from ..intelligence.engine import IntelligenceEngine
 from ..intelligence.evidence import materialize_evidence
+from ..learning.score_ledger import ScoreLedger
 from ..alerts.engine import AlertEngine
 from ..observability import Tracer, OperationTrace
 from telegram_ai.adapter import TelegramBotAdapterInterface
@@ -42,6 +43,7 @@ class PipelineExecutionReport:
     scores_generated: int
     alerts_emitted: int
     telegram_messages_sent: int
+    scores_persisted: int = 0
     top_opportunity: OpportunityScoreReport | None = None
     alerts: list[Alert] = field(default_factory=list)
     trace: OperationTrace | None = None
@@ -54,13 +56,24 @@ class OpportunityPipelineOrchestrator:
                  alert_engine: AlertEngine | None = None,
                  telegram_adapter: TelegramBotAdapterInterface | None = None,
                  target_chat_id: int | str | None = None,
-                 intelligence: IntelligenceEngine | None = None):
+                 intelligence: IntelligenceEngine | None = None,
+                 score_ledger: ScoreLedger | None = None):
         self.intelligence = intelligence or IntelligenceEngine()
         self.collector = collector or CollectorEngine()
         self.scorer = scorer or OpportunityScorer(intelligence=self.intelligence)
         self.alert_engine = alert_engine or AlertEngine(score_threshold=70.0)
         self.telegram_adapter = telegram_adapter
         self.target_chat_id = target_chat_id
+        # Prediction persistence is EXPLICITLY INJECTED, never defaulted.
+        #
+        # Defaulting to a live ScoreLedger() here would mean every ad-hoc or
+        # test construction of this orchestrator silently appends rows to the
+        # operator's real prediction store. Those fixture rows would later be
+        # joined to outcome labels and reported as calibration evidence -- a
+        # measurement corrupted by its own test suite. The production daemon
+        # (architecture/runtime/__main__.py) injects the real ledger; anything
+        # that does not ask for persistence does not get it.
+        self.score_ledger = score_ledger
         self.tracer = Tracer("opportunity_pipeline", version="1.0.0")
 
     def run_pipeline(self, chain: str = "solana", limit: int = 10,
@@ -107,6 +120,16 @@ class OpportunityPipelineOrchestrator:
         reports = [rep for _, rep in ranked]
         top_opp = reports[0] if reports else None
 
+        # 2b. Persist every prediction BEFORE any outcome is known.
+        #     This is the `Prediction` node of the learning loop. Scoring after
+        #     the fact from stored observations would leak hindsight, so the
+        #     score is written down at the moment it is made. A ledger failure
+        #     is counted and logged but never aborts a collection cycle.
+        scores_persisted = 0
+        if self.score_ledger is not None and reports:
+            scores_persisted = self.score_ledger.record_many(
+                reports, run_id=trace_ctx.run_id, now=t0)
+
         # 3. Evaluate Alerts — keep candidate/report pairing (never zip after an independent sort)
         emitted_alerts: list[Alert] = []
         for cand, rep in paired:
@@ -137,6 +160,7 @@ class OpportunityPipelineOrchestrator:
         trace = trace_ctx.success({
             "candidates": len(candidates),
             "scores": len(reports),
+            "scores_persisted": scores_persisted,
             "alerts": len(emitted_alerts),
             "messages_sent": messages_sent
         })
@@ -149,6 +173,7 @@ class OpportunityPipelineOrchestrator:
             scores_generated=len(reports),
             alerts_emitted=len(emitted_alerts),
             telegram_messages_sent=messages_sent,
+            scores_persisted=scores_persisted,
             top_opportunity=top_opp,
             alerts=emitted_alerts,
             trace=trace

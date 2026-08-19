@@ -1,0 +1,133 @@
+{
+  "schema": "ahos.soak_t0.v1",
+  "timestamp_utc": "2026-08-18T19:32:14Z",
+  "timestamp_epoch": 1787081534.1801026,
+  "git": {
+    "commit_sha": "50d047d35045786b4b77d2912d1bde97a7a82269",
+    "branch": "arena/01a015c9-ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.2",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "system": "Linux",
+    "executable": "/home/user/ahos/.venv/bin/python",
+    "cwd": "/home/user/ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
+  },
+  "os": {
+    "system": "Linux",
+    "release": "6.1.158+",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "is_windows": false
+  },
+  "baseline": {
+    "present": true,
+    "official_168h_eligible": false,
+    "failed_checks": [
+      "windows_host"
+    ],
+    "baseline_utc": "2026-08-18T19:31:01Z",
+    "baseline_commit": "50d047d35045786b4b77d2912d1bde97a7a82269"
+  },
+  "watchdog": {
+    "status": "NO_HEARTBEATS",
+    "checked_at_utc": "2026-08-18T19:32:14Z",
+    "max_age_sec": 300.0,
+    "stale_components": [],
+    "detail": "no heartbeat ever recorded — fresh install or silent death"
+  },
+  "heartbeats": {
+    "components": [],
+    "component_count": 0,
+    "scheduler_runs_total": 0
+  },
+  "predictions": {
+    "total_rows": 0,
+    "source_census": {},
+    "local_rows": 0,
+    "resolved_source_for_this_process": "sandbox"
+  },
+  "providers": {
+    "schema": "ahos.provider_probe.v1",
+    "probed_at_utc": "2026-08-18T19:32:14Z",
+    "chain": "solana",
+    "results": [
+      {
+        "provider_id": "chain_explorer",
+        "status": "UNSUPPORTED",
+        "token_count": 0,
+        "chain": "solana",
+        "latency_ms": 0.0,
+        "detail": "no discovery capability (has ['onchain', 'security', 'contract-verification']); reachability not tested by this probe",
+        "probed_at_utc": "2026-08-18T19:32:14Z"
+      },
+      {
+        "provider_id": "coingecko",
+        "status": "UNSUPPORTED",
+        "token_count": 0,
+        "chain": "solana",
+        "latency_ms": 0.0,
+        "detail": "no discovery capability (has ['market', 'metadata', 'market_cap']); reachability not tested by this probe",
+        "probed_at_utc": "2026-08-18T19:32:14Z"
+      },
+      {
+        "provider_id": "dexscreener",
+        "status": "TLS_ERROR",
+        "token_count": 0,
+        "chain": "solana",
+        "latency_ms": 43.1,
+        "detail": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+        "probed_at_utc": "2026-08-18T19:32:14Z"
+      },
+      {
+        "provider_id": "geckoterminal",
+        "status": "TLS_ERROR",
+        "token_count": 0,
+        "chain": "solana",
+        "latency_ms": 59.2,
+        "detail": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+        "probed_at_utc": "2026-08-18T19:32:14Z"
+      },
+      {
+        "provider_id": "goplus",
+        "status": "UNSUPPORTED",
+        "token_count": 0,
+        "chain": "solana",
+        "latency_ms": 0.3,
+        "detail": "no discovery capability (has ['security', 'honeypot', 'contract_audit', 'taxes']); reachability not tested by this probe",
+        "probed_at_utc": "2026-08-18T19:32:14Z"
+      },
+      {
+        "provider_id": "rugcheck",
+        "status": "UNSUPPORTED",
+        "token_count": 0,
+        "chain": "solana",
+        "latency_ms": 0.0,
+        "detail": "no discovery capability (has ['security', 'solana_lp_lock', 'solana_mint_authority']); reachability not tested by this probe",
+        "probed_at_utc": "2026-08-18T19:32:14Z"
+      }
+    ],
+    "status_counts": {
+      "UNSUPPORTED": 4,
+      "TLS_ERROR": 2
+    },
+    "any_success": false,
+    "m_gap_007_live_success_proven": false,
+    "probed": true
+  },
+  "evidence_source": "sandbox",
+  "t0_valid": false,
+  "t0_invalid_reasons": [
+    "host is Linux, not Windows — the official soak target is the operator's laptop; sandbox hours never count",
+    "laptop baseline is not eligible (failed: ['windows_host'])",
+    "watchdog status is NO_HEARTBEATS — the daemon must be running and heart-beating before t0 is meaningful",
+    "evidence namespace is 'sandbox' — set AHOS_EVIDENCE_SOURCE=local so predictions are calibration-eligible"
+  ],
+  "soak_status": "NOT_STARTED",
+  "note": "t0_valid=true means the 168-hour clock legitimately starts at timestamp_utc. t0_valid=false means this file is a diagnostic record only and must never be cited as the start of the window."
+}

@@ -32,13 +32,29 @@ This guide provides step-by-step instructions for installing and running AHOS on
 ---
 
 ## 3. Starting the AHOS Daemon
-You can start AHOS in any of the following ways:
+
+All three methods below run the same canonical command —
+`--daemon --interval-sec 60 --observation-cycle` with
+`AHOS_EVIDENCE_SOURCE=local` — so observation polling, outcome labeling, and
+calibration-eligible predictions are active in each.
+
+> Starting the daemon is **one step** of the official 168-hour window, not the
+> whole thing. The gated procedure (baseline eligibility, provider probe, t0
+> snapshot) is in `AHOS_OPERATOR_QUICKSTART_WINDOWS.md`. A daemon started
+> outside that sequence is a working system, not soak evidence.
+
 - **Method A (PowerShell):**
   ```powershell
   .\start_ahos.ps1
   ```
 - **Method B (File Explorer):**
   Double-click `start_ahos.bat` in File Explorer.
+
+- **Method C (explicit, equivalent to A and B):**
+  ```powershell
+  $env:AHOS_EVIDENCE_SOURCE = "local"
+  .\.venv\Scripts\python.exe -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
+  ```
 
 The continuous intelligence daemon will launch and begin polling market opportunities every 60 seconds. To stop gracefully, press `Ctrl + C`.
 

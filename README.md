@@ -27,12 +27,20 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\start_ahos.ps1
 ```
 
-For the official 168-hour reliability soak, do **not** use the quick launch as evidence. Follow these in order:
+> `start_ahos.ps1` / `start_ahos.bat` start the daemon with
+> `--daemon --interval-sec 60 --observation-cycle` and
+> `AHOS_EVIDENCE_SOURCE=local`, so observation polling, outcome labeling, and
+> calibration-eligible predictions are all active.
 
-1. [`AHOS_WINDOWS_OPERATOR_RUNBOOK.md`](AHOS_WINDOWS_OPERATOR_RUNBOOK.md)
-2. [`AHOS_LAPTOP_READINESS_CHECKLIST.md`](AHOS_LAPTOP_READINESS_CHECKLIST.md)
+Starting the daemon is only one step of the official window. For the 168-hour reliability soak, the gated procedure still applies — follow these in order:
+
+1. [`AHOS_OPERATOR_QUICKSTART_WINDOWS.md`](AHOS_OPERATOR_QUICKSTART_WINDOWS.md) — the single PowerShell path
+2. [`AHOS_LOCAL_ACTIVATION_CHECKLIST.md`](AHOS_LOCAL_ACTIVATION_CHECKLIST.md) — power, disk, sleep, evidence source
 3. Run `scripts/record_local_laptop_baseline.py` and require `official_168h_eligible=true`.
-4. Follow [`AHOS_LOCAL_SOAK_PROTOCOL.md`](AHOS_LOCAL_SOAK_PROTOCOL.md).
+4. Start the daemon with `AHOS_EVIDENCE_SOURCE=local` and
+   `--daemon --interval-sec 60 --observation-cycle`.
+5. Run `scripts/soak_t0_snapshot.py` and require `t0_valid=true` — that timestamp is hour 0.
+6. Follow [`AHOS_LOCAL_SOAK_PROTOCOL.md`](AHOS_LOCAL_SOAK_PROTOCOL.md).
 
 Arena/sandbox runtime does not count toward the official laptop clock.
 
