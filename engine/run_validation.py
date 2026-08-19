@@ -14,7 +14,7 @@ if str(ROOT_DIR / "engine") not in sys.path:
 from ahos_backtest import load, run_backtest, metrics, monte_carlo, walk_forward
 from config.paths import get_reports_dir, get_research_dir
 
-UPLOAD_DIR = Path("/home/user/uploads")
+UPLOAD_DIR = ROOT_DIR.parent / "uploads"
 RESEARCH_DATA = get_research_dir() / "data"
 
 def get_data_file(sym):
