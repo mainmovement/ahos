@@ -1,36 +1,36 @@
 {
   "schema": "ahos.local_laptop_baseline.v1",
-  "timestamp_utc": "2026-08-18T19:31:01Z",
+  "timestamp_utc": "2026-08-19T12:03:59Z",
   "git": {
-    "commit_sha": "50d047d35045786b4b77d2912d1bde97a7a82269",
-    "branch": "arena/01a015c9-ahos",
-    "working_tree_clean": true
+    "commit_sha": "75780c0eb3454c997856d96f696c798c5cec5672",
+    "branch": "main",
+    "working_tree_clean": false
   },
   "os": {
-    "system": "Linux",
-    "release": "6.1.158+",
-    "version": "#1 SMP PREEMPT_DYNAMIC Mon May 11 18:48:24 UTC 2026",
-    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
-    "machine": "x86_64"
+    "system": "Windows",
+    "release": "10",
+    "version": "10.0.19045",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "machine": "AMD64"
   },
   "python": {
-    "version": "3.11.2",
-    "executable": "/home/user/ahos/.venv/bin/python"
+    "version": "3.11.9",
+    "executable": "G:\\robat\\ahos-main\\.venv\\Scripts\\python.exe"
   },
   "environment": {
-    "python_version": "3.11.2",
+    "python_version": "3.11.9",
     "python_implementation": "CPython",
-    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
-    "machine": "x86_64",
-    "system": "Linux",
-    "executable": "/home/user/ahos/.venv/bin/python",
-    "cwd": "/home/user/ahos",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "machine": "AMD64",
+    "system": "Windows",
+    "executable": "G:\\robat\\ahos-main\\.venv\\Scripts\\python.exe",
+    "cwd": "G:\\robat\\ahos-main",
     "ahos_related_env_names": [],
-    "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
+    "fingerprint_sha256": "40c2f93f565e4ef32cc381c61fbe15ad4564c7f805caa9db78cd24517d9329d4"
   },
   "dependency_hash": {
-    "requirements_txt_sha256": "9a5ef004e1d0ac79b7cf0bf7b4e4a78f1bfd4466543d0c4b3bdbbaac71cf9e79",
-    "lane_a_freeze_sha256": "2f5d67dd9176bd7d45a11a5f17b63a9d91cf80f43b7ac8fd7cf505484446312d"
+    "requirements_txt_sha256": "af3e7716e08f32da2d9a27f99a66cba6651792a22ec635fa1473a4d23e6fb7e5",
+    "lane_a_freeze_sha256": "8d35cd2b9bfe62cf7552019b096934961878ad60471e5219ec6a9bb76b997746"
   },
   "lane_a": {
     "ok": true,
@@ -39,12 +39,12 @@
     "untracked": []
   },
   "databases": {
-    "data_dir": "/home/user/ahos/data",
+    "data_dir": "G:\\robat\\ahos-main\\data",
     "paths": {
-      "e01_discovery": "/home/user/ahos/data/e01_discovery.sqlite",
-      "paper_trading": "/home/user/ahos/data/paper_trading.sqlite",
-      "ahos_local": "/home/user/ahos/data/ahos_local.sqlite",
-      "ahos_knowledge": "/home/user/ahos/data/ahos_knowledge.sqlite"
+      "e01_discovery": "G:\\robat\\ahos-main\\data\\e01_discovery.sqlite",
+      "paper_trading": "G:\\robat\\ahos-main\\data\\paper_trading.sqlite",
+      "ahos_local": "G:\\robat\\ahos-main\\data\\ahos_local.sqlite",
+      "ahos_knowledge": "G:\\robat\\ahos-main\\data\\ahos_knowledge.sqlite"
     },
     "integrity": {
       "e01_discovery": "ok",
@@ -62,15 +62,15 @@
     "mode": "observation-only"
   },
   "checks": {
-    "windows_host": false,
+    "windows_host": true,
     "python_3_11_or_newer": true,
-    "working_tree_clean_before_artifact": true,
+    "working_tree_clean_before_artifact": false,
     "lane_a_intact": true,
     "all_databases_integrity_ok": true,
     "execution_flags_disabled": true
   },
   "daemon_command": [
-    "/home/user/ahos/.venv/bin/python",
+    "G:\\robat\\ahos-main\\.venv\\Scripts\\python.exe",
     "-m",
     "architecture.runtime",
     "--daemon",
