@@ -1,0 +1,245 @@
+# =============================================================================
+# AHOS — COUNCIL TEAM STRUCTURE (Wave-31)
+#
+# Why this file exists
+# --------------------
+# `cognitive_registry_100.yaml` lists 100 verified thinkers grouped by academic
+# discipline. Grouping by discipline answers "who are they?" but not "who
+# decides what?" -- and so 83 of the 100 had no role in any decision.
+#
+# This file re-organises the SAME 100 people into seven operational teams. A
+# team is not a topic: it is one question the system must answer before money
+# moves, with an explicit owner and an explicit veto power. Every member has a
+# named duty that maps to a real field the collectors actually return -- if a
+# duty cannot be computed from available evidence, it is marked
+# `status: PENDING_DATA` rather than quietly dropped, so the gap stays visible.
+#
+# LAW: assignment follows the person's actual published work. Kelly sizing goes
+# to Thorp because he wrote the book on it, not because a slot was free. Where
+# a thinker's real expertise does not map onto any question this system asks,
+# they are listed as ADVISORY rather than given an invented duty.
+# =============================================================================
+
+version: "1.0.0"
+council_version: "AHOS-TEAMS-v1"
+total_thinkers: 100
+
+# Teams are evaluated in this order. Earlier teams gate later ones: there is no
+# point sizing a position in a token you cannot exit.
+evaluation_order:
+  - SURVIVAL
+  - ADVERSARY
+  - LIQUIDITY
+  - EVIDENCE
+  - TIMING
+  - SIZING
+  - LEARNING
+
+teams:
+
+  # ---------------------------------------------------------------------------
+  - team_id: "SURVIVAL"
+    name_fa: "تیم بقا"
+    charter_fa: "آیا این معامله می‌تواند ما را نابود کند؟"
+    charter: "Can this position destroy us? Ruin questions come first because
+      they are not tradeable against upside -- a 100% loss ends the game."
+    veto_power: true      # this team can block on its own
+    lead: "THINKER-99"    # Taleb — ruin avoidance is his central thesis
+    members:
+      - {id: "THINKER-99", name: "Nassim Nicholas Taleb", duty_fa: "ریسک ویرانی و دم‌های چاق", duty: "Ruin risk: is any single outcome unrecoverable?", lens_id: "LENS-TALEB", status: "ACTIVE"}
+      - {id: "THINKER-15", name: "Kurt Gödel", duty_fa: "مرزهای آنچه نمی‌دانیم", duty: "Unknown-field census: what does the evidence not cover?", lens_id: "LENS-GODEL", status: "ACTIVE"}
+      - {id: "THINKER-28", name: "Margaret Hamilton", duty_fa: "سرریز خطاهای هم‌زمان", duty: "Fault overload: several defects at once is not an average", lens_id: "LENS-HAMILTON", status: "ACTIVE"}
+      - {id: "THINKER-61", name: "Satoshi Nakamoto", duty_fa: "وابستگی به حسن‌نیت سازنده", duty: "Trust minimisation: what rests on the deployer behaving?", lens_id: "LENS-NAKAMOTO", status: "ACTIVE"}
+      - {id: "THINKER-12", name: "Henri Poincaré", duty_fa: "حساسیت به شرایط اولیه", duty: "Chaos sensitivity: does a small input change flip the verdict?", lens_id: "LENS-POINCARE", status: "ACTIVE"}
+      - {id: "THINKER-84", name: "George Box", duty_fa: "مرز اعتبار مدل", duty: "Model validity: where does our own scoring stop being useful?", lens_id: "LENS-BOX", status: "ACTIVE"}
+      - {id: "THINKER-49", name: "Andrew S. Tanenbaum", duty_fa: "جداسازی خطا", duty: "Fault isolation: does one bad signal contaminate the rest?", status: "ADVISORY"}
+      - {id: "THINKER-19", name: "Emmy Noether", duty_fa: "رقیق‌شدگی: سهم دارنده از عرضه پایسته نیست", duty: "Invariants: the holder's share of supply is not conserved", lens_id: "LENS-NOETHER", status: "ACTIVE"}
+
+  # ---------------------------------------------------------------------------
+  - team_id: "ADVERSARY"
+    name_fa: "تیم حریف (هکرها)"
+    charter_fa: "اگر می‌خواستیم با این توکن کلاه سر کسی بگذاریم، چطور عمل می‌کردیم؟"
+    charter: "If we were running this scam, how would we do it? Red team by
+      construction -- every member here made their name breaking things."
+    veto_power: true
+    lead: "THINKER-57"    # Schneier — security as a process
+    members:
+      - {id: "THINKER-57", name: "Bruce Schneier", duty_fa: "ضعیف‌ترین حلقه امنیتی", duty: "Weakest link across the whole security chain", lens_id: "LENS-SCHNEIER", status: "ACTIVE"}
+      - {id: "THINKER-27", name: "Ken Thompson", duty_fa: "اعتماد به کد تأییدشده", duty: "Trusting Trust: verified source vs retained authority", lens_id: "LENS-THOMPSON", status: "ACTIVE"}
+      - {id: "THINKER-60", name: "Ross Anderson", duty_fa: "انگیزه اقتصادی پشت نقص امنیتی", duty: "Incentive analysis: who profits from this exact structure?", lens_id: "LENS-ANDERSON", status: "ACTIVE"}
+      - {id: "THINKER-56", name: "Brian Krebs", duty_fa: "سابقه سازنده و شبکه کلاهبرداری", duty: "Deployer history: prior rugs, linked wallets", lens_id: "LENS-KREBS", status: "ACTIVE"}
+      - {id: "THINKER-51", name: "Kevin Mitnick", duty_fa: "مهندسی اجتماعی و هیجان مصنوعی", duty: "Social engineering: is the hype manufactured?", lens_id: "LENS-MITNICK", status: "ACTIVE"}
+      - {id: "THINKER-59", name: "Joanna Rutkowska", duty_fa: "جداسازی دامنه نامطمئن", duty: "Isolation: never let unverified data reach a decision path", status: "ADVISORY"}
+      - {id: "THINKER-58", name: "Moxie Marlinspike", duty_fa: "یکپارچگی رمزنگاری", duty: "Cryptographic integrity of the contract itself", status: "PENDING_DATA"}
+      - {id: "THINKER-52", name: "George Hotz", duty_fa: "مهندسی معکوس سطح قرارداد", duty: "Bytecode reverse engineering", status: "PENDING_DATA"}
+      - {id: "THINKER-53", name: "Kevin Poulsen", duty_fa: "ردیابی الگوی نفوذ", duty: "Attack-pattern forensics across observations", status: "PENDING_DATA"}
+      - {id: "THINKER-54", name: "Adrian Lamo", duty_fa: "نقشه‌برداری داخلی", duty: "Internal mapping of contract permissions", status: "PENDING_DATA"}
+      - {id: "THINKER-55", name: "Jonathan James", duty_fa: "دور زدن دفاع", duty: "Defence bypass detection", status: "PENDING_DATA"}
+
+  # ---------------------------------------------------------------------------
+  - team_id: "LIQUIDITY"
+    name_fa: "تیم نقدینگی و خروج"
+    charter_fa: "آیا واقعاً می‌توانیم تمام پوزیشن را بفروشیم و پول را بیرون بکشیم؟"
+    charter: "Can the entire position actually be sold and the money withdrawn?
+      This is the specification's central demand, and the AMM mechanics that
+      answer it are the day job of the people on this team."
+    veto_power: true
+    lead: "THINKER-66"    # Hayden Adams — wrote the constant product AMM
+    members:
+      - {id: "THINKER-66", name: "Hayden Adams", duty_fa: "لغزش قیمت در فرمول x*y=k", duty: "Constant-product slippage for the actual position size", lens_id: "LENS-ADAMS", status: "ACTIVE"}
+      - {id: "THINKER-62", name: "Vitalik Buterin", duty_fa: "مصالحه سه‌گانه عمق/قفل/توزیع", duty: "Trilemma: depth vs lock vs distribution", lens_id: "LENS-BUTERIN", status: "ACTIVE"}
+      - {id: "THINKER-17", name: "John von Neumann", duty_fa: "بدترین خروج معقول", duty: "Minimax: value after the concentrated stake exits first", lens_id: "LENS-VON-NEUMANN", status: "ACTIVE"}
+      - {id: "THINKER-77", name: "John Nash", duty_fa: "تعادل بازی خروج", duty: "Withdrawal equilibrium: who runs for the door first?", lens_id: "LENS-NASH", status: "ACTIVE"}
+      - {id: "THINKER-25", name: "Donald Knuth", duty_fa: "جمله غالب در مقیاس", duty: "Which cost term dominates as position size grows", lens_id: "LENS-KNUTH", status: "ACTIVE"}
+      - {id: "THINKER-73", name: "John Maynard Keynes", duty_fa: "ترجیح نقدشوندگی", duty: "Liquidity preference: depth relative to daily turnover", lens_id: "LENS-KEYNES", status: "ACTIVE"}
+      - {id: "THINKER-67", name: "Stani Kulechov", duty_fa: "اجرای اتمی و وام آنی", duty: "Flash-loan attack surface on this pool", status: "PENDING_DATA"}
+      - {id: "THINKER-64", name: "Anatoly Yakovenko", duty_fa: "توان عبور شبکه در فروش", duty: "Chain throughput during a sell cascade", status: "PENDING_DATA"}
+
+  # ---------------------------------------------------------------------------
+  - team_id: "EVIDENCE"
+    name_fa: "تیم شواهد و آمار"
+    charter_fa: "آیا این عدد واقعی است یا نویز؟"
+    charter: "Is this number real or noise? Every claim the system makes about a
+      token traces back to a measurement, and measurements lie in specific,
+      well-studied ways."
+    veto_power: false     # advises; does not block on its own
+    lead: "THINKER-86"    # Bayes — prior-to-posterior updating
+    members:
+      - {id: "THINKER-86", name: "Thomas Bayes", duty_fa: "به‌روزرسانی احتمال با نرخ پایه", duty: "Base-rate anchored posterior on the score", lens_id: "LENS-BAYES", status: "ACTIVE"}
+      - {id: "THINKER-81", name: "Ronald Fisher", duty_fa: "معناداری عدم توازن خرید/فروش", duty: "Significance of the buy/sell imbalance vs a fair coin", lens_id: "LENS-FISHER", status: "ACTIVE"}
+      - {id: "THINKER-90", name: "Judea Pearl", duty_fa: "تفکیک علیت از همبستگی", duty: "Causation vs correlation: real demand vs wash trading", lens_id: "LENS-PEARL", status: "ACTIVE"}
+      - {id: "THINKER-23", name: "Claude Shannon", duty_fa: "محتوای اطلاعاتی نمونه", duty: "Sample information content: is there signal to extract?", lens_id: "LENS-SHANNON", status: "ACTIVE"}
+      - {id: "THINKER-82", name: "Jerzy Neyman", duty_fa: "بازه اطمینان و توازن خطای نوع I/II", duty: "Confidence intervals; false-positive vs false-negative cost", lens_id: "LENS-NEYMAN", status: "ACTIVE"}
+      - {id: "THINKER-20", name: "Terence Tao", duty_fa: "بازیابی سیگنال از داده تُنُک", duty: "Sparse-data recovery: how few observations still inform?", lens_id: "LENS-TAO", status: "ACTIVE"}
+      - {id: "THINKER-50", name: "Eric Brewer", duty_fa: "سازگاری در برابر دسترس‌پذیری داده", duty: "CAP: single-source availability is not corroboration", lens_id: "LENS-BREWER", status: "ACTIVE"}
+      - {id: "THINKER-30", name: "Leslie Lamport", duty_fa: "ترتیب و تازگی رویدادها", duty: "Observation freshness and causal ordering", lens_id: "LENS-LAMPORT", status: "ACTIVE"}
+      - {id: "THINKER-88", name: "Andrey Kolmogorov", duty_fa: "پیچیدگی الگوریتمی الگو", duty: "Kolmogorov complexity: is the pattern compressible noise?", status: "ADVISORY"}
+      - {id: "THINKER-87", name: "Pierre-Simon Laplace", duty_fa: "قاعده جانشینی برای رویداد نادیده", duty: "Rule of succession for never-observed outcomes", status: "ADVISORY"}
+      - {id: "THINKER-83", name: "Egon Pearson", duty_fa: "توان آزمون", duty: "Test power for the sample sizes we actually get", status: "ADVISORY"}
+      - {id: "THINKER-10", name: "Carl Friedrich Gauss", duty_fa: "کران‌های توزیع نرمال", duty: "Normal bounds and where they stop applying", status: "ADVISORY"}
+      - {id: "THINKER-05", name: "Ibn al-Haytham", duty_fa: "شک‌گرایی تجربی", duty: "Empirical scepticism: demand the observation, not the claim", status: "ADVISORY"}
+
+  # ---------------------------------------------------------------------------
+  - team_id: "TIMING"
+    name_fa: "تیم زمان‌بندی ورود و خروج"
+    charter_fa: "کی وارد شویم و کی خارج؟"
+    charter: "When to enter and when to leave. Distinct from whether to enter:
+      a good token at the wrong moment is a losing trade."
+    veto_power: false
+    lead: "THINKER-79"    # Kahneman — the biases that wreck timing
+    members:
+      - {id: "THINKER-79", name: "Daniel Kahneman", duty_fa: "زیان‌گریزی و هیجان‌زدگی", duty: "Loss aversion and manufactured urgency in the entry decision", lens_id: "LENS-KAHNEMAN", status: "ACTIVE"}
+      # Mandelbrot has a lens but is NOT in the 100-registry, so the fat-tail
+      # duty is held here by Riemann, who is. The LENS-MANDELBROT opinion still
+      # runs -- it is simply not claimed as a registry seat it never occupied.
+      - {id: "THINKER-11", name: "Bernhard Riemann", duty_fa: "هندسه چندبعدی سطح ریسک", duty: "Multi-dimensional risk surface: price, depth and time together", lens_id: "LENS-RIEMANN", status: "ACTIVE"}
+      - {id: "THINKER-80", name: "Amos Tversky", duty_fa: "لنگر انداختن روی قیمت ورود", duty: "Anchoring on entry price when judging an exit", lens_id: "LENS-TVERSKY", status: "ACTIVE"}
+      - {id: "THINKER-78", name: "Herbert Simon", duty_fa: "عقلانیت محدود و کفایت‌گرایی", duty: "Satisficing: stop optimising when the data cannot support it", lens_id: "LENS-SIMON", status: "ACTIVE"}
+      - {id: "THINKER-74", name: "Friedrich Hayek", duty_fa: "قیمت به‌مثابه تجمیع دانش پراکنده", duty: "Price as aggregated knowledge: what does the market know?", lens_id: "LENS-HAYEK", status: "ACTIVE"}
+      - {id: "THINKER-07", name: "Isaac Newton", duty_fa: "نرخ تغییر و شتاب قیمت", duty: "Rate of change: velocity and acceleration of price/volume", lens_id: "LENS-NEWTON", status: "ACTIVE"}
+      - {id: "THINKER-92", name: "Nikola Tesla", duty_fa: "تشدید و هم‌نوایی سیگنال", duty: "Resonance: when independent signals reinforce", status: "ADVISORY"}
+      - {id: "THINKER-71", name: "Adam Smith", duty_fa: "هماهنگی خودانگیخته بازار", duty: "Spontaneous coordination among independent participants", status: "ADVISORY"}
+      - {id: "THINKER-75", name: "Milton Friedman", duty_fa: "اثر نقدینگی کلان", duty: "Macro liquidity conditions", status: "PENDING_DATA"}
+      - {id: "THINKER-76", name: "Ludwig von Mises", duty_fa: "ارزش‌گذاری بدون پشتوانه نقدینگی", duty: "Calculation problem: fully diluted valuation the pool cannot honour", lens_id: "LENS-MISES", status: "ACTIVE"}
+      - {id: "THINKER-72", name: "David Ricardo", duty_fa: "مزیت نسبی میان فرصت‌ها", duty: "Comparative advantage across simultaneous candidates", status: "ADVISORY"}
+
+  # ---------------------------------------------------------------------------
+  - team_id: "SIZING"
+    name_fa: "تیم اندازه پوزیشن و مدیریت سرمایه"
+    charter_fa: "چقدر بخریم؟"
+    charter: "How much? Position sizing is where mathematically literate traders
+      separate from gamblers, and Thorp literally wrote the book."
+    veto_power: false
+    lead: "THINKER-96"    # Thorp — Kelly criterion in practice
+    members:
+      - {id: "THINKER-96", name: "Edward O. Thorp", duty_fa: "معیار کِلی برای اندازه شرط", duty: "Kelly sizing against calibrated win probability", lens_id: "LENS-THORP", status: "ACTIVE"}
+      - {id: "THINKER-93", name: "Albert Einstein", duty_fa: "آزمایش فکری: چارچوب مرجع", duty: "Reference frames: the same position looks different by bankroll", lens_id: "LENS-EINSTEIN", status: "ACTIVE"}
+      - {id: "THINKER-98", name: "Richard Feynman", duty_fa: "بازگشت به اصول اولیه", duty: "First principles: can we derive the size from scratch?", lens_id: "LENS-FEYNMAN", status: "ACTIVE"}
+      - {id: "THINKER-03", name: "Archimedes", duty_fa: "بار کل رفت‌وبرگشت در برابر حد سود", duty: "Leverage: total round-trip load against the take-profit that must bear it", lens_id: "LENS-ARCHIMEDES", status: "ACTIVE"}
+      - {id: "THINKER-70", name: "Brian Armstrong", duty_fa: "حضانت و زیرساخت مبادله", duty: "Custody and exchange-side execution constraints", status: "PENDING_DATA"}
+      - {id: "THINKER-68", name: "Jed McCaleb", duty_fa: "تسویه کم‌تأخیر", duty: "Low-latency settlement assumptions", status: "PENDING_DATA"}
+
+  # ---------------------------------------------------------------------------
+  - team_id: "LEARNING"
+    name_fa: "تیم یادگیری و بهبود مستمر"
+    charter_fa: "از اشتباهات گذشته چه آموختیم؟"
+    charter: "What did past calls actually cost us? The self-improvement loop the
+      specification asks for: review old picks, measure what would have
+      happened, feed it back."
+    veto_power: false
+    lead: "THINKER-85"    # Deming — PDCA and statistical process control
+    members:
+      - {id: "THINKER-85", name: "William Edwards Deming", duty_fa: "کنترل آماری فرایند و چرخه بهبود", duty: "Process control: are our errors random or systematic?", lens_id: "LENS-DEMING", status: "ACTIVE"}
+      - {id: "THINKER-100", name: "Peter Drucker", duty_fa: "آنچه اندازه‌گیری نشود بهبود نمی‌یابد", duty: "Measurement discipline: every claim gets a metric", lens_id: "LENS-DRUCKER", status: "ACTIVE"}
+      - {id: "THINKER-44", name: "Kent Beck", duty_fa: "آزمون پیش از تغییر", duty: "Regression discipline: prove the fix with a failing test first", status: "ADVISORY"}
+      - {id: "THINKER-45", name: "Ward Cunningham", duty_fa: "سنجش بدهی فنی", duty: "Technical debt: what shortcuts are we paying interest on?", status: "ADVISORY"}
+      - {id: "THINKER-42", name: "Martin Fowler", duty_fa: "بازآرایی تدریجی", duty: "Evolutionary architecture over rewrites", status: "ADVISORY"}
+      - {id: "THINKER-95", name: "Walt Disney", duty_fa: "سه‌گانه رؤیاپرداز/واقع‌گرا/منتقد", duty: "Dreamer-Realist-Critic passes over each proposal", status: "ADVISORY"}
+      - {id: "THINKER-48", name: "Fred Brooks", duty_fa: "یکپارچگی مفهومی", duty: "Conceptual integrity as the system grows", status: "ADVISORY"}
+      - {id: "THINKER-91", name: "Leonardo da Vinci", duty_fa: "ترکیب میان‌رشته‌ای", duty: "Cross-domain synthesis of findings", status: "ADVISORY"}
+      - {id: "THINKER-94", name: "Steve Jobs", duty_fa: "تقاطع فناوری و تجربه کاربر", duty: "Does the output actually help the person reading it?", status: "ADVISORY"}
+      - {id: "THINKER-97", name: "Buckminster Fuller", duty_fa: "طراحی پیش‌نگر جامع", duty: "Anticipatory design: what breaks at 10x scale?", status: "ADVISORY"}
+
+# =============================================================================
+# EXTERNAL LENSES
+#
+# Three lenses vote on every candidate but their thinkers are NOT in the
+# 100-registry: the pilot lens library predates it and drew on people the
+# registry never listed. They are recorded here so `validate()` can confirm
+# every voting lens has an owning team, rather than the roster quietly
+# disagreeing with the panel.
+#
+# They are counted separately from the 100 on purpose. Folding them in would
+# inflate the headline, which is the exact overstatement this restructuring
+# exists to end.
+# =============================================================================
+external_lenses:
+  - {lens_id: "LENS-MUNGER", name: "Charlie Munger", team: "SURVIVAL", duty_fa: "وارونه‌سازی: اول راه‌های نابودی", duty: "Inversion: enumerate the ways this kills you first"}
+  - {lens_id: "LENS-MANDELBROT", name: "Benoit Mandelbrot", team: "TIMING", duty_fa: "دم‌های چاق و مقیاس توانی", duty: "Fat tails: pool depth against shock magnitude"}
+  - {lens_id: "LENS-MARKS", name: "Howard Marks", team: "TIMING", duty_fa: "تفکر سطح دوم", duty: "Second-level thinking: quality versus crowding"}
+
+# =============================================================================
+# ENGINEERING BENCH
+#
+# The remaining thinkers built the tools this system is written with. Their
+# contribution is real but architectural rather than per-token: assigning them
+# a token-scoring duty would be theatre. They are recorded here so the roster
+# is complete and honest about who does what.
+# =============================================================================
+engineering_bench:
+  charter_fa: "سازندگان ابزارهایی که این سیستم با آن‌ها نوشته شده"
+  charter: "Built the tools. Consulted on architecture, not on token verdicts."
+  members:
+    - {id: "THINKER-01", name: "Euclid", contribution: "Axiomatic method — the contract-first design of every module"}
+    - {id: "THINKER-02", name: "Pythagoras", contribution: "Invariants and proportion"}
+    - {id: "THINKER-04", name: "Al-Khwarizmi", contribution: "Algorithmic reduction"}
+    - {id: "THINKER-06", name: "Omar Khayyam", contribution: "Geometric solutions to algebraic problems"}
+    - {id: "THINKER-08", name: "Gottfried Wilhelm Leibniz", contribution: "Symbolic logic"}
+    - {id: "THINKER-09", name: "Leonhard Euler", contribution: "Graph topology — wallet-cluster analysis"}
+    - {id: "THINKER-13", name: "David Hilbert", contribution: "Formal completeness bounds"}
+    - {id: "THINKER-14", name: "Georg Cantor", contribution: "Set cardinality"}
+    - {id: "THINKER-16", name: "Alan Turing", contribution: "Computability limits — what cannot be decided in advance"}
+    - {id: "THINKER-18", name: "Srinivasa Ramanujan", contribution: "Asymptotic approximation"}
+    - {id: "THINKER-21", name: "Ada Lovelace", contribution: "Separation of algorithm from machine"}
+    - {id: "THINKER-22", name: "Grace Hopper", contribution: "Machine independence — runs on any laptop"}
+    - {id: "THINKER-24", name: "Edsger Dijkstra", contribution: "Structural verification"}
+    - {id: "THINKER-26", name: "Dennis Ritchie", contribution: "Minimalist systems design"}
+    - {id: "THINKER-29", name: "Barbara Liskov", contribution: "Substitutability — provider adapters behind one contract"}
+    - {id: "THINKER-31", name: "John McCarthy", contribution: "Symbolic AI foundations"}
+    - {id: "THINKER-32", name: "Marvin Minsky", contribution: "Multi-agent architecture — the panel itself"}
+    - {id: "THINKER-33", name: "Niklaus Wirth", contribution: "Lean software — the $0 dependency floor"}
+    - {id: "THINKER-34", name: "Bjarne Stroustrup", contribution: "Zero-overhead abstraction"}
+    - {id: "THINKER-35", name: "Guido van Rossum", contribution: "Readability — the language this is written in"}
+    - {id: "THINKER-36", name: "James Gosling", contribution: "Portable execution"}
+    - {id: "THINKER-37", name: "Linus Torvalds", contribution: "Content-addressed version control"}
+    - {id: "THINKER-38", name: "Brendan Eich", contribution: "Event-driven async"}
+    - {id: "THINKER-39", name: "Tim Berners-Lee", contribution: "Stateless resource identifiers — the provider APIs"}
+    - {id: "THINKER-40", name: "Anders Hejlsberg", contribution: "Gradual typing — the dataclass contracts"}
+    - {id: "THINKER-41", name: "John Ousterhout", contribution: "Deep modules behind narrow interfaces"}
+    - {id: "THINKER-43", name: "Robert C. Martin", contribution: "Dependency inversion"}
+    - {id: "THINKER-46", name: "Jeff Dean", contribution: "Fault-tolerant scale"}
+    - {id: "THINKER-47", name: "Sanjay Ghemawat", contribution: "Append-only storage — the F1-S1 observation guarantee"}
+    - {id: "THINKER-63", name: "Gavin Wood", contribution: "Formal VM specification"}
+    - {id: "THINKER-65", name: "Sergey Nazarov", contribution: "Oracle consensus — multi-provider corroboration"}
+    - {id: "THINKER-69", name: "Charles Hoskinson", contribution: "Peer-reviewed formal methods"}
+    - {id: "THINKER-89", name: "George Boole", contribution: "Binary truth tables"}

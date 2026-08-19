@@ -49,15 +49,26 @@ def test_full_pipeline_orchestration_high_opportunity(tmp_path):
             price_usd=0.10,
             liquidity_usd=80000.0,
             volume_1h=40000.0,
-            volume_velocity=3.2,
+            volume_24h=500000.0,
+            volume_5m=10000.0,
+            fdv_usd=2_000_000.0,
+            market_cap_usd=1_800_000.0,
             txns_1h_buys=90,
-            txns_1h_sells=20
+            txns_1h_sells=20,
+            txns_5m_buys=20,
+            txns_5m_sells=5
         ),
         security=SecuritySignals(
             is_honeypot=False,
+            sell_tax_pct=1.0,
+            buy_tax_pct=1.0,
+            liquidity_locked_pct=95.0,
+            has_mint_authority=False,
+            has_freeze_authority=False,
             is_contract_verified=True,
             is_ownership_renounced=True,
-            top10_holder_concentration_pct=22.0
+            top10_holder_concentration_pct=22.0,
+            deployer_past_rug_count=0
         ),
         social_presence={"twitter": "https://x.com/alpha"}
     )

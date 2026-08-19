@@ -24,10 +24,15 @@ services:
     env_file: [.env]
     environment:
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
+      AHOS_EVIDENCE_SOURCE: "local"
     volumes:
       - ./data:/app/data
       - ./reports:/app/reports
-    command: ["python", "-m", "architecture.runtime"]
+    command: ["python", "-m", "architecture.runtime", "--daemon",
+              "--interval-sec", "${AHOS_INTERVAL_SEC:-900}",
+              "--observation-cycle", "--evidence-source", "local",
+              "--chain", "${AHOS_CHAIN:-solana}"]
     healthcheck:
       test: ["CMD", "python", "-c", "import sqlite3,os;sqlite3.connect('/app/data/e01_discovery.sqlite').execute('select 1')"]
       interval: 60s
@@ -45,6 +50,7 @@ services:
     env_file: [.env]
     environment:
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     volumes:
       - ./data:/app/data
     command: ["python", "run_bot.py"]

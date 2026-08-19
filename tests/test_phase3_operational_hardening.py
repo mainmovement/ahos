@@ -45,8 +45,28 @@ def test_system_health_telegram_service_output():
     assert res["status"] == "OK"
     assert res["intent"] == "SYSTEM_HEALTH"
     assert "گزارش وضعیت و سلامت عملیاتی" in res["text"]
-    assert "وضعیت کلی سلامت:" in res["text"]
-    assert "تعداد توکن‌های رصد شده: ۹۵۲" in res["text"]
+    assert "وضعیت اندازه‌گیری‌شده:" in res["text"]
+    assert "توکن‌های رصدشده:" in res["text"]
+    # Health responses must not fabricate a test count: tests are not executed
+    # as part of a Telegram read-only status request.
+    assert "نتیجه تست‌ها: در زمان پاسخ‌گویی اجرا نمی‌شود" in res["text"]
+    assert "۹۵۲" not in res["text"]
+    assert FOOTER_MANDATED in res["text"]
+
+
+def test_system_health_failure_is_unknown_not_fake_green(monkeypatch):
+    """A broken diagnostic surface must never be reported as healthy."""
+    from architecture.runtime.observability_snapshot import HealthSnapshotEngine
+
+    def fail(_self):
+        raise sqlite3.OperationalError("unavailable")
+
+    monkeypatch.setattr(HealthSnapshotEngine, "generate_snapshot", fail)
+    res = TelegramDomainService().handle_message("وضعیت سامانه چطوره؟")
+
+    assert res["status"] == "UNKNOWN"
+    assert "UNKNOWN" in res["text"]
+    assert "فعال و پایدار" not in res["text"]
     assert FOOTER_MANDATED in res["text"]
 
 

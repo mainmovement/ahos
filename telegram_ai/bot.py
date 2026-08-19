@@ -15,6 +15,7 @@ from typing import Any
 from .adapter import TelegramBotAdapterInterface, TelegramUpdate, TelegramSecurityGate, MockTelegramAdapter
 from .service import TelegramDomainService
 from .response_contract import FOOTER_MANDATED
+from .announced import context_token as last_announced_context
 
 
 class TelegramBotRunner:
@@ -54,7 +55,18 @@ class TelegramBotRunner:
             text = "آخرین وضعیت بازار چیست؟"
 
         # 4. Context retrieval & dispatch
-        ctx = self.user_contexts.get(str(update.user_id), {})
+        #
+        # In-session context wins: if the user just asked about a token, that
+        # is what "it" means. Otherwise fall back to the last token the
+        # pipeline announced on its own initiative. Without that fallback the
+        # commonest exchange in the whole product -- bot alerts, user replies
+        # «خریدم» -- failed with "token unknown", because user_contexts is
+        # only written by user-initiated questions and is lost on restart.
+        ctx = dict(self.user_contexts.get(str(update.user_id), {}))
+        if not ctx.get("current_token"):
+            announced = last_announced_context()
+            if announced:
+                ctx["current_token"] = announced
         result = self.service.handle_message(text, user_context=ctx)
 
         # 5. Update user context if candidate/token returned

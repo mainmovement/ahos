@@ -144,6 +144,39 @@ class PaperPositionManager:
         conn.close()
         return pos
 
+    def open_positions(self) -> list[PaperPosition]:
+        """Return every currently open paper position in entry order.
+
+        Enumeration is required by the monitor; accepting one known position id
+        at a time made autonomous follow-up unreachable. This remains a local,
+        paper-only read and never contacts an exchange or wallet.
+        """
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        try:
+            rows = conn.execute(
+                "SELECT * FROM paper_positions WHERE status='OPEN' ORDER BY entry_ts"
+            ).fetchall()
+        finally:
+            conn.close()
+
+        positions: list[PaperPosition] = []
+        for row in rows:
+            try:
+                rules = json.loads(row["invalidation_rules"] or "[]")
+            except (TypeError, ValueError):
+                rules = []
+            positions.append(PaperPosition(
+                position_id=row["position_id"], chain=row["chain"],
+                token_address=row["token_address"], symbol=row["symbol"],
+                entry_ts=row["entry_ts"], entry_price_usd=row["entry_price_usd"],
+                allocated_usd=row["allocated_usd"], tokens_amount=row["tokens_amount"],
+                fee_entry_usd=row["fee_entry_usd"], impact_bps=row["impact_bps"],
+                status=row["status"], strategy_id=row["strategy_id"],
+                invalidation_rules=rules,
+            ))
+        return positions
+
     def evaluate_position(self, position_id: str, current_price_usd: float | None,
                           last_obs_ts: float | None, is_honeypot: bool = False,
                           liquidity_drop_pct: float = 0.0,

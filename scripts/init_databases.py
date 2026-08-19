@@ -71,20 +71,6 @@ CREATE TABLE IF NOT EXISTS control_flags (
   action TEXT,
   detail TEXT
 );
-
-CREATE TABLE IF NOT EXISTS position_ledger (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  ts            REAL NOT NULL,
-  chain         TEXT,
-  address       TEXT,
-  symbol        TEXT,
-  side          TEXT NOT NULL,
-  amount        REAL,
-  currency      TEXT,
-  price_usd     REAL,
-  note          TEXT,
-  evidence_json TEXT
-);
 """
 
 # NOTE: `production_observations` is owned by architecture/collector/engine.py.

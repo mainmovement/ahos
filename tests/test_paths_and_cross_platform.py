@@ -40,3 +40,24 @@ def test_export_paths_yaml(tmp_path):
     assert out_yaml.exists()
     assert "databases:" in content
     assert "project_root:" in content
+
+
+def test_repository_env_loader_preserves_process_precedence(tmp_path, monkeypatch):
+    from config.environment import load_dotenv
+    env_file = tmp_path / ".env"
+    env_file.write_text("AHOS_CHAIN=base\nNEW_SETTING='utf8-مقدار'\n", encoding="utf-8")
+    monkeypatch.setenv("AHOS_CHAIN", "solana")
+    monkeypatch.delenv("NEW_SETTING", raising=False)
+
+    loaded = load_dotenv(env_file)
+    assert loaded["AHOS_CHAIN"] == "base"
+    assert __import__("os").environ["AHOS_CHAIN"] == "solana"
+    assert __import__("os").environ["NEW_SETTING"] == "utf8-مقدار"
+
+
+def test_tracked_path_example_contains_no_machine_path():
+    example = (ROOT_DIR / "config" / "paths.example.yaml").read_text(encoding="utf-8")
+    assert "/home/user" not in example
+    assert ":\\Users\\" not in example
+    assert not (ROOT_DIR / "config" / "paths.yaml").is_file(), \
+        "generated machine-local paths.yaml must stay untracked in a clean checkout"

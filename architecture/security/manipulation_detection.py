@@ -21,8 +21,8 @@ from ..risk.engine import RiskFinding
 
 EXTREME_SELL_TAX = 25.0
 HIGH_BUY_TAX = 10.0
-VELOCITY_DIVERGENCE = 4.0
-MIN_TXNS_FOR_VELOCITY = 10
+ACCELERATION_FLOOR = 4.0
+WASH_DIVERGENCE = 4.0
 
 
 @dataclass
@@ -71,16 +71,28 @@ class ManipulationDetector:
                 8.0, "security.buy_tax_pct",
             ))
 
-        velocity = numeric_value(evidence.get("volume_velocity"))
-        buys = numeric_value(evidence.get("txns_1h_buys"))
-        sells = numeric_value(evidence.get("txns_1h_sells"))
-        if velocity is not None and buys is not None and sells is not None:
-            total_tx = buys + sells
-            if velocity >= VELOCITY_DIVERGENCE and total_tx < MIN_TXNS_FOR_VELOCITY:
+        # Use windows every production adapter can populate. The retired
+        # `volume_velocity` contract field had no writers, leaving this risk
+        # branch dead despite green tests that assigned it by hand.
+        volume_5m = numeric_value(evidence.get("volume_5m"))
+        volume_1h = numeric_value(evidence.get("volume_1h"))
+        buys_5m = numeric_value(evidence.get("txns_5m_buys"))
+        sells_5m = numeric_value(evidence.get("txns_5m_sells"))
+        buys_1h = numeric_value(evidence.get("txns_1h_buys"))
+        sells_1h = numeric_value(evidence.get("txns_1h_sells"))
+        if (None not in (volume_5m, volume_1h, buys_5m, sells_5m,
+                         buys_1h, sells_1h)
+                and volume_1h > 0 and buys_1h + sells_1h > 0):
+            volume_accel = volume_5m / (volume_1h / 12.0)
+            txn_accel = ((buys_5m + sells_5m)
+                         / ((buys_1h + sells_1h) / 12.0))
+            if (volume_accel >= ACCELERATION_FLOOR and txn_accel > 0
+                    and volume_accel / txn_accel >= WASH_DIVERGENCE):
                 findings.append(RiskFinding(
                     "VOLUME_TX_DIVERGENCE", "MED",
-                    "شتاب حجم بدون تراکنش کافی — الگوی مشکوک ساختگی",
-                    10.0, "metrics.volume_velocity",
+                    "شتاب حجم بسیار بیشتر از شتاب تعداد تراکنش‌هاست — "
+                    "الگوی مشکوک به معاملات صوری",
+                    10.0, "metrics.volume_5m|metrics.txns_5m",
                 ))
 
         flag = bool(findings)

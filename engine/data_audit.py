@@ -14,7 +14,7 @@ if str(ROOT_DIR) not in sys.path:
 
 from config.paths import get_reports_dir
 
-UP = "/home/user/uploads" if os.path.exists("/home/user/uploads") else str(ROOT_DIR / "research" / "data")
+UP = os.environ.get("AHOS_UPLOAD_DIR") or str(ROOT_DIR / "research" / "data")
 
 def sha256(path):
     h = hashlib.sha256()

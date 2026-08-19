@@ -94,6 +94,15 @@ class ParseResult:
     slots: dict = field(default_factory=dict)
     normalized: str = ""
     needs_context: bool = False     # anaphora present, caller must supply context token
+    token_inferred: bool = False    # token came from context, not from message
+
+
+# Position-centric intents may inherit the current conversation token even
+# without a pointing word. Discovery intents deliberately cannot.
+_CONTEXT_HUNGRY_INTENTS = frozenset({
+    "BUY_LOG", "SELL_ADVICE_QUERY", "TAKE_PROFIT_QUERY", "PNL_QUERY",
+    "POSITION_STATUS", "EXITABILITY_QUERY", "TOKEN_STATUS",
+})
 
 
 # ------------------------------------------------------------------ rule table
@@ -103,18 +112,21 @@ def parse(text: str, context_token: dict | None = None) -> ParseResult:
     addr, chain = _extract_address(text)
     tok = {"address": addr, "chain": chain} if addr else None
 
-    def token_slot() -> tuple[dict | None, bool]:
+    def token_slot() -> tuple[dict | None, bool, bool]:
         if tok:
-            return tok, False
+            return tok, False, False
         if "این" in norm or "اون" in norm or norm.rstrip("؟?").endswith("ش"):
-            return (context_token or None), context_token is None
-        return None, False
+            return (context_token or None), context_token is None, context_token is not None
+        return None, False, False
 
     def result(intent, conf, rule, **slots):
-        token, needs = token_slot()
+        token, needs, inferred = token_slot()
+        if token is None and context_token and intent in _CONTEXT_HUNGRY_INTENTS:
+            token, inferred = context_token, True
         if token is not None and "token" not in slots:
             slots["token"] = token
-        return ParseResult(intent, conf, rule, slots, norm, needs)
+        return ParseResult(intent, conf, rule, slots, norm, needs,
+                           token_inferred=inferred)
 
     amount, cur = _parse_amount(norm)
 
@@ -222,6 +234,14 @@ def parse(text: str, context_token: dict | None = None) -> ParseResult:
     if re.search(r"(وایرال|ترند|هایپ)", norm) and not re.search(r"(حتما|قطعا|مطمئن)", norm):
         return result("VIRALITY_QUERY", "HIGH", "R-VIRAL-01")
 
+    # --- who is on the council? («شورا از کیا تشکیل شده») ---
+    # This must precede PANEL_ANALYSIS, whose broad «نوابغ» match would
+    # otherwise swallow roster questions and incorrectly demand a token.
+    if re.search(r"(شورا|نوابغ|نابغه|اعضا|متفکر).*(کیا|کی هستن|چه کسانی|ترکیب|اعضایش|لیست)", norm) \
+            or re.search(r"(لیست|فهرست).*(شورا|نوابغ|متفکر)", norm) \
+            or "پوشش شورا" in norm:
+        return result("COUNCIL_ROSTER", "HIGH", "R-ROSTER-01")
+
     # --- cognitive panel («شورای تحلیلی» / «۱۰۰ نابغه چی میگن») ---
     if re.search(r"(شورای تحلیلی|صد نابغه|۱۰۰ نابغه|100 نابغه|نوابغ|بزرگان)", norm) \
             or re.search(r"(تحلیل|بررسی).*(عمیق|چندجانبه|تخصصی)", norm):
@@ -295,7 +315,7 @@ INFO_ONLY_INTENTS = {
     # «تصمیم نهایی با کاربر است.» — never an executable order.
     "NEWS_DIGEST", "WHAT_TO_BUY", "ENTRY_TIMING", "EXITABILITY_QUERY",
     "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "GREETING",
-    "SELF_REVIEW", "PANEL_ANALYSIS",
+    "SELF_REVIEW", "PANEL_ANALYSIS", "COUNCIL_ROSTER",
 }
 # Intents permitted to write the position ledger (deterministic command layer only).
 LEDGER_MUTATING_INTENTS = {"BUY_LOG"}

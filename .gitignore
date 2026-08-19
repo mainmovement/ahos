@@ -38,6 +38,9 @@ htmlcov/
 .nox/
 .cache/
 
+# Generated machine-local path snapshot
+/config/paths.yaml
+
 # Local runtime / logs
 *.log
 *.tmp

@@ -129,6 +129,42 @@ class CalibrationReport:
     dataset_fingerprint: str = ""
     weight_fingerprints: list[str] = field(default_factory=list)
 
+    @property
+    def is_usable(self) -> bool:
+        """Whether at least one pre-registered band earned a descriptive rate.
+
+        This does not call the score a probability model. It only permits a
+        consumer to use a band whose sample and positive-count guards passed.
+        """
+        return (
+            self.verdict == "DESCRIPTIVE_OK"
+            and any(b.verdict == "DESCRIPTIVE_OK" and b.rate is not None
+                    for b in self.bands)
+        )
+
+    def probability_for_score(
+        self, score: float
+    ) -> tuple[float, tuple[float, float]] | None:
+        """Return the earned band rate and Wilson interval for ``score``.
+
+        A thin or absent band returns ``None``. The ordinal opportunity score is
+        never converted to a probability by formula or intuition.
+        """
+        for band in self.bands:
+            upper_inclusive = band.upper > 100.0
+            inside = band.lower <= score < band.upper
+            if upper_inclusive and score == 100.0:
+                inside = True
+            if not inside or band.verdict != "DESCRIPTIVE_OK":
+                continue
+            if None in (band.rate, band.ci_low, band.ci_high):
+                return None
+            return (
+                float(band.rate),
+                (float(band.ci_low), float(band.ci_high)),
+            )
+        return None
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "schema": "ahos.calibration_report.v2",

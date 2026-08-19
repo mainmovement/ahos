@@ -27,7 +27,7 @@ This guide provides step-by-step instructions for installing and running AHOS on
    ```powershell
    .\install_windows.ps1
    ```
-   *The script will create a `.venv` virtual environment, install dependencies, initialize directories, configure Windows paths, and run an initial health check.*
+   *The script verifies Python 3.11+, creates `.venv`, installs declared dependencies, generates an ignored machine-local path snapshot, initializes SQLite, and runs offline import/n8n checks. It does not claim that providers or Telegram are reachable.*
 
 ---
 
@@ -53,7 +53,7 @@ calibration-eligible predictions are active in each.
 - **Method C (explicit, equivalent to A and B):**
   ```powershell
   $env:AHOS_EVIDENCE_SOURCE = "local"
-  .\.venv\Scripts\python.exe -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
+  .\.venv\Scripts\python.exe -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local
   ```
 
 The continuous intelligence daemon will launch and begin polling market opportunities every 60 seconds. To stop gracefully, press `Ctrl + C`.
@@ -61,7 +61,7 @@ The continuous intelligence daemon will launch and begin polling market opportun
 ---
 
 ## 4. Configuring Telegram Interface (Optional)
-1. Open `deployment\.env` in a text editor (e.g. Notepad).
+1. Open the root `.env` file created beside `start_ahos.ps1` (not `deployment\.env`) in a text editor.
 2. Set your Telegram Bot token:
    ```env
    TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN_HERE

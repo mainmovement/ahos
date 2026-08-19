@@ -34,6 +34,11 @@ from config.paths import get_project_root, get_discovery_db_path, get_local_db_p
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Native launchers do not have Docker Compose's env_file support. Load the
+    # repository-local template copy without overriding process-level settings.
+    from config.environment import load_dotenv
+    load_dotenv()
+
     parser = argparse.ArgumentParser(description="AHOS Production Runtime Entrypoint")
     parser.add_argument("--workspace", default=str(get_project_root()), help="AHOS workspace root directory")
     parser.add_argument("--chain", default="solana", help="Primary discovery chain (solana, ethereum, bsc, base)")
@@ -121,11 +126,17 @@ def main(argv: list[str] | None = None) -> int:
                 + ("" if score_ledger.source == "local"
                    else "  (NOT calibration-eligible)"))
 
+    # The discovery cycle also reviews open paper positions against the newest
+    # stored observation. This emits advice/alerts only; it has no execution path.
+    from ..positions.monitor import build_position_monitor
+    position_monitor = build_position_monitor(discovery_db)
+
     orchestrator = OpportunityPipelineOrchestrator(
         collector=collector,
         telegram_adapter=telegram_adapter,
         target_chat_id=allowed_chats[0] if allowed_chats else None,
-        score_ledger=score_ledger
+        score_ledger=score_ledger,
+        position_monitor=position_monitor,
     )
 
     # Observation runtime (Phase 6): wraps the frozen Lane-A poller; every

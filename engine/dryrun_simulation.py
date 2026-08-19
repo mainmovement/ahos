@@ -41,9 +41,11 @@ def signal_eval(df, symbol, killed=False):
             "tp": round(tp, 8), "notional": round(notional, 4), "leverage": leverage_allowed(0.55, False),
             "risk_percent": P["risk_pct"] * 100, "reason": "frozen v1.0"}
 
-UPLOAD_BTC = Path("/home/user/uploads/LBANK_BTCUSDT_1h_2000_clean.csv")
+_upload_dir = os.environ.get("AHOS_UPLOAD_DIR")
+UPLOAD_BTC = (Path(_upload_dir) / "LBANK_BTCUSDT_1h_2000_clean.csv"
+              if _upload_dir else None)
 RESEARCH_BTC = get_research_dir() / "data" / "BTCUSDT_1h_3yr.csv"
-DATA_FILE = str(UPLOAD_BTC if UPLOAD_BTC.exists() else RESEARCH_BTC)
+DATA_FILE = str(UPLOAD_BTC if UPLOAD_BTC and UPLOAD_BTC.exists() else RESEARCH_BTC)
 
 df = load(DATA_FILE)
 sig = signal_eval(df, "BTCUSDT", killed=False)

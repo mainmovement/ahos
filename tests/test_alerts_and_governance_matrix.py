@@ -65,7 +65,11 @@ def test_alert_engine_abnormal_movement_spike():
         metrics=MarketMetrics(
             liquidity_usd=50000.0,
             volume_1h=30000.0,
-            volume_velocity=4.5  # >= 3.0x threshold
+            volume_5m=12500.0,
+            txns_1h_buys=300,
+            txns_1h_sells=300,
+            txns_5m_buys=125,
+            txns_5m_sells=125,
         ),
         security=SecuritySignals(is_honeypot=False)
     )
