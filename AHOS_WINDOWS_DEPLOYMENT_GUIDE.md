@@ -33,15 +33,15 @@ This guide provides step-by-step instructions for installing and running AHOS on
 
 ## 3. Starting the AHOS Daemon
 
-> **For the official 168-hour local soak, do NOT use the one-click launchers.**
-> `start_ahos.ps1` and `start_ahos.bat` start the daemon **without**
-> `--observation-cycle`, so the E-01 observation poller and the outcome labeler
-> never run: predictions accumulate against zero outcome labels and calibration
-> stays permanently empty. They also do not set `AHOS_EVIDENCE_SOURCE=local`,
-> so any predictions they do record are **not calibration-eligible**.
->
-> Use `AHOS_OPERATOR_QUICKSTART_WINDOWS.md` for the soak. The launchers below
-> are convenience demos only.
+All three methods below run the same canonical command —
+`--daemon --interval-sec 60 --observation-cycle` with
+`AHOS_EVIDENCE_SOURCE=local` — so observation polling, outcome labeling, and
+calibration-eligible predictions are active in each.
+
+> Starting the daemon is **one step** of the official 168-hour window, not the
+> whole thing. The gated procedure (baseline eligibility, provider probe, t0
+> snapshot) is in `AHOS_OPERATOR_QUICKSTART_WINDOWS.md`. A daemon started
+> outside that sequence is a working system, not soak evidence.
 
 - **Method A (PowerShell):**
   ```powershell
@@ -50,7 +50,7 @@ This guide provides step-by-step instructions for installing and running AHOS on
 - **Method B (File Explorer):**
   Double-click `start_ahos.bat` in File Explorer.
 
-- **Method C (official soak — the supported path):**
+- **Method C (explicit, equivalent to A and B):**
   ```powershell
   $env:AHOS_EVIDENCE_SOURCE = "local"
   .\.venv\Scripts\python.exe -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
