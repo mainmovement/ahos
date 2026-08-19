@@ -61,7 +61,7 @@ def digest(path: Path) -> str:
 
 def current_manifest(root: Path | None = None) -> dict[str, str]:
     root = Path(root) if root is not None else ROOT
-    return {str(p.relative_to(root)): digest(p) for p in frozen_files(root=root)}
+    return {p.relative_to(root).as_posix(): digest(p) for p in frozen_files(root=root)}
 
 
 def load_baseline(root: Path | None = None) -> dict[str, str]:
