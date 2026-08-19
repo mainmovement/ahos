@@ -72,7 +72,7 @@ Recorded automatically into `reports/local_laptop_baseline.json` under `os`.
 laptop unless `requirements.txt` changed):
 
 ```
-requirements_txt_sha256 : 9a5ef004e1d0ac79b7cf0bf7b4e4a78f1bfd4466543d0c4b3bdbbaac71cf9e79
+requirements_txt_sha256 : af3e7716e08f32da2d9a27f99a66cba6651792a22ec635fa1473a4d23e6fb7e5
 lane_a_freeze_sha256    : 2f5d67dd9176bd7d45a11a5f17b63a9d91cf80f43b7ac8fd7cf505484446312d
 ```
 

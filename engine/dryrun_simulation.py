@@ -41,7 +41,7 @@ def signal_eval(df, symbol, killed=False):
             "tp": round(tp, 8), "notional": round(notional, 4), "leverage": leverage_allowed(0.55, False),
             "risk_percent": P["risk_pct"] * 100, "reason": "frozen v1.0"}
 
-UPLOAD_BTC = Path("/home/user/uploads/LBANK_BTCUSDT_1h_2000_clean.csv")
+UPLOAD_BTC = ROOT_DIR.parent / "uploads" / "LBANK_BTCUSDT_1h_2000_clean.csv"
 RESEARCH_BTC = get_research_dir() / "data" / "BTCUSDT_1h_3yr.csv"
 DATA_FILE = str(UPLOAD_BTC if UPLOAD_BTC.exists() else RESEARCH_BTC)
 

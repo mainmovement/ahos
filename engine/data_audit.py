@@ -14,7 +14,8 @@ if str(ROOT_DIR) not in sys.path:
 
 from config.paths import get_reports_dir
 
-UP = "/home/user/uploads" if os.path.exists("/home/user/uploads") else str(ROOT_DIR / "research" / "data")
+UPLOAD_CANDIDATE = ROOT_DIR.parent / "uploads"
+UP = str(UPLOAD_CANDIDATE if UPLOAD_CANDIDATE.exists() else ROOT_DIR / "research" / "data")
 
 def sha256(path):
     h = hashlib.sha256()

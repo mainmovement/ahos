@@ -97,7 +97,7 @@ def main():
     ids = None
     if len(sys.argv) > 2 and sys.argv[1] == "--ids":
         ids = set(sys.argv[2].split(","))
-    log_path = f"/home/user/ahos/research/experiments/exp_{datetime.now(timezone.utc):%Y%m%d_%H%M%S}.json"
+    log_path = str(ROOT_DIR / "research" / "experiments" / f"exp_{datetime.now(timezone.utc):%Y%m%d_%H%M%S}.json")
     record = dict(ts=datetime.now(timezone.utc).isoformat(),
                   data={s: json.load(open(f"{DATA}/MANIFEST.json"))["symbols"][s]["klines_out"]["sha256"][:12] for s in SYMS},
                   gates=GATES, candidates={})
@@ -136,7 +136,7 @@ def main():
                   f"wfPass={acc[sym]['wf_pass_ratio']*100:.0f}%")
     with open(log_path, "w") as f: json.dump(record, f, indent=2, default=str)
     # update registry (MERGE with existing — never drop prior verdicts)
-    reg_path = "/home/user/ahos/strategy_lab/registry.json"
+    reg_path = str(ROOT_DIR / "strategy_lab" / "registry.json")
     try:
         prev = json.load(open(reg_path))
         candidates = prev.get("candidates", {})
