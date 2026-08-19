@@ -137,7 +137,7 @@ def export_paths_yaml(output_file: Path | str | None = None) -> str:
     }
     content = yaml.safe_dump(paths_dict, sort_keys=False)
     if output_file:
-        Path(output_file).write_text(content)
+        Path(output_file).write_text(content, encoding="utf-8")
     return content
 
 

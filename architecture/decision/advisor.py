@@ -177,7 +177,13 @@ class DecisionAdvisor:
         # opinion. That is why, unlike the AI council, the panel may block here
         # rather than only ratchet conviction downward later.
         if panel is not None and panel.is_blocking:
-            for reason in panel.vetoes:
+            # A convergent-caution verdict blocks without a VETO opinion; its
+            # evidence lives in cautions. Never emit an unexplained refusal.
+            blocking_reasons = list(panel.vetoes) or [
+                f"همگرایی هشدارها ({len(panel.cautions)} دیدگاه مستقل): " + reason
+                for reason in panel.cautions[:3]
+            ]
+            for reason in blocking_reasons:
                 vetoes.append(f"شورای تحلیلی: {reason}")
 
         if vetoes:

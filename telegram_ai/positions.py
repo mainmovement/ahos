@@ -36,9 +36,39 @@ CREATE INDEX IF NOT EXISTS idx_ledger_token ON position_ledger(token_chain, toke
 """
 
 
+# Columns that prove the table is the shape this module owns.
+_REQUIRED_COLUMNS = {"entry_id", "token_chain", "token_address", "amount_value"}
+
+
+def _table_is_foreign(conn: sqlite3.Connection) -> bool:
+    """True when position_ledger exists but is not the shape we own.
+
+    An earlier version of scripts/init_databases.py declared a second,
+    incompatible position_ledger (id/chain/address). Both used CREATE TABLE IF
+    NOT EXISTS, so whichever ran first won and the loser failed at query time --
+    a fresh install could bootstrap cleanly and then crash on the first logged
+    buy with "no such column: token_chain".
+    """
+    row = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='position_ledger'"
+    ).fetchone()
+    if row is None:
+        return False
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(position_ledger)")}
+    return not _REQUIRED_COLUMNS.issubset(cols)
+
+
 def open_ledger(path: str | Path) -> sqlite3.Connection:
     conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
+    if _table_is_foreign(conn):
+        # Rename rather than drop. The legacy table was never written to by any
+        # code path, so there is nothing to migrate -- but deleting a user's
+        # table to fix our own schema bug is not a trade this project makes.
+        stamp = int(time.time())
+        conn.execute(
+            f"ALTER TABLE position_ledger RENAME TO position_ledger_legacy_{stamp}")
+        conn.commit()
     conn.executescript(SCHEMA)
     return conn
 

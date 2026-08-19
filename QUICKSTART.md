@@ -29,21 +29,23 @@ python scripts/init_databases.py --with-guards
 cp .env.example .env
 ```
 
-### ویندوز (PowerShell)
+### ویندوز (PowerShell؛ مسیر پیشنهادی)
 
 ```powershell
 git clone <repo-url> ahos; cd ahos
-python -m venv .venv; .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python scripts\init_databases.py --with-guards
-copy .env.example .env
+Set-ExecutionPolicy -Scope Process Bypass
+.\install_windows.ps1
 ```
+
+نصاب نسخهٔ Python 3.11+ را واقعاً بررسی می‌کند، `.venv` می‌سازد، UTF-8 و
+SQLite را آماده می‌کند و تست‌های آفلاین اولیه را اجرا می‌کند.
 
 ---
 
 ## پیکربندی
 
-فایل `.env` را باز کنید. **فقط یک مقدار اجباری است:**
+فایل `.env` را باز کنید. برای اجرای **ربات تلگرام** فقط این مقدار اجباری است؛
+موتور قطعی و حالت کنسول بدون آن اجرا می‌شوند:
 
 ```ini
 TELEGRAM_BOT_TOKEN=123456789:AAF...
@@ -63,8 +65,9 @@ TELEGRAM_ALLOWED_CHAT_IDS=123456789
 ALL_PROXY=socks5://127.0.0.1:10808
 ```
 
-بقیه مقادیر `.env` **همه اختیاری‌اند**. سامانه بدون هیچ کلید هوش مصنوعی و بدون
-هیچ کلید دیتا با ظرفیت کامل کار می‌کند.
+بقیه مقادیر `.env` **همه اختیاری‌اند**. منطق قطعی بدون کلید پولی اجرا می‌شود؛
+اما نبود شبکه، محدودیت RPC یا فیلترینگ می‌تواند دادهٔ زنده را `UNKNOWN` کند و
+نباید با «ظرفیت کامل» یا دادهٔ موجود اشتباه گرفته شود.
 
 ---
 
@@ -92,9 +95,16 @@ python run_bot.py --console
 ربات از روی داده‌های ذخیره‌شده جواب می‌دهد. برای پر کردن پایگاه داده:
 
 ```bash
-python -m architecture.runtime --single-cycle     # یک چرخه
-python -m architecture.runtime                    # چرخه مداوم
+# یک چرخهٔ امتیازدهی + مشاهده (شواهد واقعی اپراتور)
+python -m architecture.runtime --single-cycle --observation-cycle --evidence-source local
+
+# اجرای مداوم
+python -m architecture.runtime --daemon --interval-sec 60 \
+  --observation-cycle --evidence-source local
 ```
+
+اجرای `architecture.runtime` بدون `--observation-cycle` عمداً فقط پایپ‌لاین
+امتیازدهی را اجرا می‌کند و برای جمع‌آوری نتیجه/کالیبراسیون کافی نیست.
 
 ---
 

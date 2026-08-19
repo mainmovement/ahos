@@ -192,3 +192,21 @@ def test_security_findings_reduce_opportunity_score():
     b = engine.evaluate(materialize_evidence(dirty, now=NOW))
     assert b.opportunity_score < a.opportunity_score
     assert b.risk.has("MINT_AUTHORITY_ACTIVE")
+
+
+def test_manipulation_divergence_uses_adapter_populated_windows():
+    cand = _cand(metrics=MarketMetrics(
+        volume_5m=90_000.0, volume_1h=90_000.0,
+        txns_5m_buys=40, txns_5m_sells=35,
+        txns_1h_buys=450, txns_1h_sells=450))
+    report = ManipulationDetector().analyze(materialize_evidence(cand, now=NOW))
+    assert "VOLUME_TX_DIVERGENCE" in {f.risk_id for f in report.findings}
+
+
+def test_manipulation_divergence_does_not_punish_real_trade_acceleration():
+    cand = _cand(metrics=MarketMetrics(
+        volume_5m=37_500.0, volume_1h=90_000.0,
+        txns_5m_buys=200, txns_5m_sells=175,
+        txns_1h_buys=450, txns_1h_sells=450))
+    report = ManipulationDetector().analyze(materialize_evidence(cand, now=NOW))
+    assert "VOLUME_TX_DIVERGENCE" not in {f.risk_id for f in report.findings}

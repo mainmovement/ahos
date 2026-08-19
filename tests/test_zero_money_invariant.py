@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SCANNED_DIRS = ("architecture", "telegram_ai", "paper_trading", "discovery",
                 "engine", "scripts", "config", "strategy_lab")
 
-EXCLUDED_FILES = {"test_zero_money_invariant.py", "security.py", "hygiene.py"}
+EXCLUDED_FILES = {"test_zero_money_invariant.py", "security.py"}
 
 # Primitives that can move real funds. Matched case-insensitively against
 # source text with comments and docstrings stripped, so that a comment saying

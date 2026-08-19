@@ -21,6 +21,30 @@ from typing import Any
 from telegram_ai.alerts import Alert, build as build_alert
 from architecture.scoring.engine import OpportunityScoreReport
 from architecture.providers.contracts import NormalizedTokenCandidate
+from architecture.intel.viral import WASH_DIVERGENCE
+
+
+def _per_5m_baseline(hourly: float | None) -> float | None:
+    """The per-5m rate implied by a trailing hour. Twelve 5m windows per hour."""
+    if hourly is None or hourly <= 0:
+        return None
+    return hourly / 12.0
+
+
+def _volume_acceleration(m) -> float | None:
+    base = _per_5m_baseline(m.volume_1h)
+    if base is None or m.volume_5m is None:
+        return None
+    return m.volume_5m / base
+
+
+def _txn_acceleration(m) -> float | None:
+    if None in (m.txns_5m_buys, m.txns_5m_sells, m.txns_1h_buys, m.txns_1h_sells):
+        return None
+    base = _per_5m_baseline(float(m.txns_1h_buys + m.txns_1h_sells))
+    if base is None:
+        return None
+    return (m.txns_5m_buys + m.txns_5m_sells) / base
 
 
 class AlertEngine:
@@ -56,13 +80,42 @@ class AlertEngine:
             ))
 
         # 3. Abnormal Volume Movement
-        if candidate.metrics.volume_velocity and candidate.metrics.volume_velocity >= self.volume_spike_threshold:
+        #
+        # This rule keyed on `metrics.volume_velocity`, a field NO adapter has
+        # ever populated -- it is declared in the contract and set nowhere, so
+        # it is always None and the whole ABNORMAL_MOVEMENT class was dead
+        # code. Verified: a token doing 90k in five minutes against 200k over
+        # the day raised no movement alert at all.
+        #
+        # The quantity was already being computed correctly elsewhere.
+        # ViralityAnalyzer derives volume acceleration as the 5m window over
+        # the per-5m rate implied by the trailing hour, which is the honest
+        # baseline (dividing the hour by 12), and it also knows that volume
+        # accelerating far faster than transaction count means wash trading
+        # rather than attention. Recomputing that here would have duplicated a
+        # subtle calculation and let the two drift apart, so the alert now
+        # reads the same derivation.
+        accel = _volume_acceleration(candidate.metrics)
+        if accel is not None and accel >= self.volume_spike_threshold:
+            txn_accel = _txn_acceleration(candidate.metrics)
+            washy = (txn_accel is not None and txn_accel > 0
+                     and accel / txn_accel >= WASH_DIVERGENCE)
+            reasons = [f"شتاب غیرعادی حجم معاملات ({accel:.1f}× نرخ ساعت گذشته)"]
+            evidence = [f"volume_acceleration={accel:.2f}",
+                        f"volume_5m={candidate.metrics.volume_5m}",
+                        f"volume_1h={candidate.metrics.volume_1h}"]
+            if washy:
+                # Do not report manufactured volume as if it were interest.
+                reasons.append(
+                    f"اما تعداد تراکنش‌ها تنها {txn_accel:.1f}× شتاب گرفته — "
+                    f"واگرایی نشانه معاملات صوری است، نه توجه واقعی")
+                evidence.append(f"txn_acceleration={txn_accel:.2f}")
             alerts.append(build_alert(
                 cls="ABNORMAL_MOVEMENT",
                 symbol=report.token_symbol,
-                reasons=[f"شتاب غیرعادی حجم معاملات ({candidate.metrics.volume_velocity:.1f}x نسبت به میانگین)"],
-                evidence=[f"volume_velocity={candidate.metrics.volume_velocity:.2f}"],
-                severity="MED"
+                reasons=reasons,
+                evidence=evidence,
+                severity="HIGH" if washy else "MED"
             ))
 
         # 4. Risk Escalation Alert

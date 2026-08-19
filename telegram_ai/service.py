@@ -9,17 +9,25 @@ Decouples Telegram edge handlers from core intelligence services:
 """
 from __future__ import annotations
 
+import logging
 import sqlite3
 import time
 from pathlib import Path
 from typing import Any
 
 from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTENTS
-from .response_contract import format_opportunity_response, format_market_overview, FOOTER_MANDATED
+from .response_contract import (
+    FOOTER_MANDATED,
+    esc,
+    format_market_overview,
+    format_opportunity_response,
+)
 from architecture.scoring.engine import OpportunityScorer, OpportunityScoreReport
 from architecture.providers.contracts import NormalizedTokenCandidate, MarketMetrics, SecuritySignals
 from .positions import open_ledger, log_buy, positions_for_token, latest_observed_value
 from config.paths import get_discovery_db_path, get_local_db_path
+
+logger = logging.getLogger(__name__)
 
 # Intents that are meaningless without a specific token, and may therefore
 # inherit the token currently under discussion in the conversation.
@@ -122,10 +130,14 @@ class TelegramDomainService:
             return self._handle_virality(parsed)
         elif parsed.intent == "COUNCIL_OPINION":
             return self._handle_council(parsed)
+        elif parsed.intent == "COUNCIL_ROSTER":
+            return self._handle_council_roster(parsed)
         elif parsed.intent == "PANEL_ANALYSIS":
             return self._handle_panel(parsed)
         elif parsed.intent == "SELF_REVIEW":
             return self._handle_self_review(parsed)
+        elif parsed.intent == "SELL_ADVICE_QUERY":
+            return self._handle_sell_advice(parsed)
         elif parsed.intent == "HELP":
             return {
                 "text": self._get_help_text(),
@@ -134,9 +146,11 @@ class TelegramDomainService:
             }
         else:
             return {
-                "text": f"درخواست «{parsed.intent}» دریافت شد.\n\n{FOOTER_MANDATED}",
+                "text": ("این درخواست هنوز پیاده‌سازی نشده است. برای دیدن "
+                         "توانایی‌های فعلی «راهنما» را بفرستید."
+                         f"\n\n{FOOTER_MANDATED}"),
                 "intent": parsed.intent,
-                "status": "OK"
+                "status": "NOT_IMPLEMENTED"
             }
 
     def _handle_token_query(self, parsed: ParseResult) -> dict[str, Any]:
@@ -208,8 +222,13 @@ class TelegramDomainService:
         )
         conn.close()
         if eid:
+            origin = ("\n• توکن از آخرین اعلام ربات برداشته شد — اگر توکن دیگری "
+                      "مدنظرتان بود، آدرس آن را بفرستید."
+                      if getattr(parsed, "token_inferred", False) else "")
             return {
-                "text": f"✅ پوزیشن خرید کاغذی با موفقیت ثبت شد.\n• شناسه: {eid}\n• مبلغ: {amt:,.0f} {cur}\n• توکن: {token_info['address']}\n\n{FOOTER_MANDATED}",
+                "text": (f"✅ پوزیشن خرید کاغذی با موفقیت ثبت شد.\n"
+                         f"• شناسه: {eid}\n• مبلغ: {amt:,.0f} {cur}\n"
+                         f"• توکن: {token_info['address']}{origin}\n\n{FOOTER_MANDATED}"),
                 "intent": "BUY_LOG",
                 "entry_id": eid,
                 "status": "RECORDED"
@@ -267,46 +286,82 @@ class TelegramDomainService:
             "status": "OK"
         }
 
+    @staticmethod
+    def _unknown_operational(
+        intent: str, title: str, exc: Exception
+    ) -> dict[str, Any]:
+        """Return an explicit UNKNOWN instead of inventing healthy fallback data."""
+        return {
+            "text": (
+                f"{title}\n──────────────────────────\n"
+                f"• وضعیت: UNKNOWN\n"
+                f"• سنجش فعلی در دسترس نیست ({esc(type(exc).__name__)}).\n\n"
+                f"{FOOTER_MANDATED}"
+            ),
+            "intent": intent,
+            "status": "UNKNOWN",
+        }
+
     def _handle_system_health(self, parsed: ParseResult) -> dict[str, Any]:
-        """Provides full operational health diagnostics & observability report in Persian."""
+        """Report only values measured by the current health snapshot."""
         try:
-            from engine.health_manager import AHOSHealthManager
-            from architecture.runtime.metrics import OperationalMetricsTracker
-            hm = AHOSHealthManager()
-            health_rep = hm.run_full_diagnostics()
-            tracker = OperationalMetricsTracker()
-            recent_metrics = tracker.get_recent_metrics(limit=5)
-            
-            status_fa = "🟢 پایدار (GREEN)" if health_rep.overall_status == "GREEN" else "🟡 نیازمند توجه (YELLOW)"
+            from architecture.runtime.observability_snapshot import HealthSnapshotEngine
+
+            snap = HealthSnapshotEngine().generate_snapshot()
+            dbs = snap.database_integrity
+            healthy_dbs = sum(
+                info.get("integrity") == "OK" for info in dbs.values()
+            )
+            e01 = snap.e01_experiment_state
+            paper = snap.track_b_accounting
+            recent_metrics = snap.scheduler_status.get(
+                "recent_operational_metrics", []
+            )
+
+            verdict_icon = {
+                "GREEN": "🟢",
+                "DEGRADED": "🟡",
+                "WARNING": "🟠",
+                "CRITICAL": "🔴",
+                "UNKNOWN": "⚪",
+            }.get(snap.overall_verdict, "⚪")
             lines = [
                 "🛡️ **گزارش وضعیت و سلامت عملیاتی سامانه AHOS**",
                 "──────────────────────────",
-                f"• وضعیت کلی سلامت: {status_fa}",
-                f"• تعداد تست‌های پاس‌شده: ۴۹۳+ تست سبز (۰ خطا)",
-                f"• وضعیت پایگاه‌های داده: ۴ پایگاه داده فعال و سالم (Integrity OK)",
-                f"• تعداد توکن‌های رصد شده: ۹۵۲ توکن",
-                f"• وضعیت پوزیشن‌های کاغذی: ۱۱ پوزیشن باز (سرمایه کل: ۲۰ دلار)",
-                f"• حالت اجرای پلتفرم: ۱۰۰٪ معاملات کاغذی (PAPER ONLY)",
+                f"• وضعیت اندازه‌گیری‌شده: {verdict_icon} {snap.overall_verdict}",
+                f"• پایگاه‌های داده سالم: {healthy_dbs} از {len(dbs)}",
+                f"• توکن‌های رصدشده: {e01.get('total_tokens_observed', 'نامعلوم')}",
+                f"• پوزیشن‌های کاغذی باز: {paper.get('open_positions_count', 'نامعلوم')}",
+                f"• حالت اجرا: {paper.get('execution_mode', 'PAPER ONLY')}",
+                "• نتیجه تست‌ها: در زمان پاسخ‌گویی اجرا نمی‌شود؛ به گزارش اعتبارسنجی مراجعه کنید.",
             ]
             if recent_metrics:
-                lines.append("\n📈 **آخرین متریک‌های عملیاتی:**")
-                for m in recent_metrics[:3]:
-                    lines.append(f" • {m.get('metric_name')}: {m.get('metric_value')} [{m.get('status')}]")
+                lines.append("\n📈 **آخرین متریک‌های ثبت‌شده:**")
+                for metric in recent_metrics[:3]:
+                    lines.append(
+                        f" • {esc(metric.get('metric_name', '?'))}: "
+                        f"{esc(metric.get('metric_value', '?'))} "
+                        f"[{esc(metric.get('status', 'UNKNOWN'))}]"
+                    )
             lines.append(f"\n{FOOTER_MANDATED}")
-            txt = "\n".join(lines)
-            return {"text": txt, "intent": "SYSTEM_HEALTH", "status": "OK", "health": health_rep.overall_status}
-        except Exception as e:
             return {
-                "text": f"🛡️ وضعیت سامانه: فعال و پایدار (بررسی خط لوله: OK)\n\n{FOOTER_MANDATED}",
+                "text": "\n".join(lines),
                 "intent": "SYSTEM_HEALTH",
-                "status": "OK"
+                "status": "OK",
+                "health": snap.overall_verdict,
             }
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "SYSTEM_HEALTH", "🛡️ گزارش وضعیت و سلامت عملیاتی", exc
+            )
 
     def _handle_scheduler_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
             from architecture.runtime.observability_snapshot import HealthSnapshotEngine
             snap = HealthSnapshotEngine().generate_snapshot()
             sch = snap.scheduler_status
+            if sch.get("error"):
+                raise RuntimeError("scheduler snapshot unavailable")
             lines = [
                 "⏱️ **گزارش وضعیت زمان‌بند تولیدی (Production Scheduler)**",
                 "──────────────────────────",
@@ -319,8 +374,10 @@ class TelegramDomainService:
                 f"\n{FOOTER_MANDATED}"
             ]
             return {"text": "\n".join(lines), "intent": "SCHEDULER_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"⏱️ وضعیت زمان‌بند: فعال و پایش مداوم برقرار است.\n\n{FOOTER_MANDATED}", "intent": "SCHEDULER_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "SCHEDULER_STATUS", "⏱️ گزارش وضعیت زمان‌بند تولیدی", exc
+            )
 
     def _handle_database_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -338,8 +395,10 @@ class TelegramDomainService:
                 lines.append(f"{status_emoji} **{name}**: {integ} | سطرها: {rows:,}")
             lines.append(f"\n{FOOTER_MANDATED}")
             return {"text": "\n".join(lines), "intent": "DATABASE_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"🗄️ وضعیت دیتابیس‌ها: تمامی ۴ پایگاه داده سالم و فعال هستند.\n\n{FOOTER_MANDATED}", "intent": "DATABASE_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "DATABASE_STATUS", "🗄️ گزارش وضعیت پایگاه‌های داده SQLite", exc
+            )
 
     def _handle_providers_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -357,14 +416,18 @@ class TelegramDomainService:
                 lines.append(f"{emoji} **{name}**: وضعیت {st} | شکست‌ها: {fails}")
             lines.append(f"\n{FOOTER_MANDATED}")
             return {"text": "\n".join(lines), "intent": "PROVIDERS_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"🌐 وضعیت پرووایدرها: ۴ منبع معتبر فعال و تحت حفاظت Circuit Breaker هستند.\n\n{FOOTER_MANDATED}", "intent": "PROVIDERS_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "PROVIDERS_STATUS", "🌐 گزارش وضعیت پرووایدرها", exc
+            )
 
     def _handle_observation_gaps_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
             from architecture.runtime.observability_snapshot import HealthSnapshotEngine
             snap = HealthSnapshotEngine().generate_snapshot()
             e01 = snap.e01_experiment_state
+            if e01.get("error"):
+                raise RuntimeError("observation snapshot unavailable")
             lines = [
                 "🔍 **گزارش شکاف‌های رصدی و وضعیت مشاهدات**",
                 "──────────────────────────",
@@ -377,14 +440,18 @@ class TelegramDomainService:
                 f"\n{FOOTER_MANDATED}"
             ]
             return {"text": "\n".join(lines), "intent": "OBSERVATION_GAPS_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"🔍 گزارش رصد: ۵,۳۳۹ اسلات جاافتاده ثبت‌شده به صورت قانونی بدون دستکاری تاریخچه.\n\n{FOOTER_MANDATED}", "intent": "OBSERVATION_GAPS_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "OBSERVATION_GAPS_STATUS", "🔍 گزارش شکاف‌های رصدی", exc
+            )
 
     def _handle_e01_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
             from architecture.runtime.observability_snapshot import HealthSnapshotEngine
             snap = HealthSnapshotEngine().generate_snapshot()
             e01 = snap.e01_experiment_state
+            if e01.get("error"):
+                raise RuntimeError("E-01 snapshot unavailable")
             lines = [
                 "🧪 **گزارش وضعیت گیت اعتبارسنجی E-01**",
                 "──────────────────────────",
@@ -395,30 +462,36 @@ class TelegramDomainService:
                 f"\n{FOOTER_MANDATED}"
             ]
             return {"text": "\n".join(lines), "intent": "E01_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"🧪 وضعیت E-01: حکم رسمی INSUFFICIENT_DATA (پوشش ۵۲ کمتر از ۲۰۰).\n\n{FOOTER_MANDATED}", "intent": "E01_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "E01_STATUS", "🧪 گزارش وضعیت گیت اعتبارسنجی E-01", exc
+            )
 
     def _handle_paper_trading_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
             from architecture.runtime.observability_snapshot import HealthSnapshotEngine
             snap = HealthSnapshotEngine().generate_snapshot()
             pt = snap.track_b_accounting
+            if pt.get("error"):
+                raise RuntimeError("paper-accounting snapshot unavailable")
             lines = [
                 "💼 **گزارش حسابداری معاملات کاغذی (Track B)**",
                 "──────────────────────────",
-                f"• حالت اجرا: {pt.get('execution_mode', '100% PAPER ONLY')}",
-                f"• سرمایه اولیه فرضی: ${pt.get('virtual_bankroll_initial_usd', 20.0):.2f}",
-                f"• موجودی نقد فعلی: ${pt.get('cash_balance_usd', 1.8984):.4f}",
-                f"• سرمایه تخصیص‌یافته: ${pt.get('allocated_capital_usd', 18.1016):.4f}",
-                f"• مجموع حسابداری (Cash + Allocated): ${pt.get('accounting_sum_usd', 20.0):.7f}",
-                f"• انطباق دقیق حسابداری ($20.00): {'تایید شد ✅' if pt.get('is_accounting_consistent') else 'مغایرت ⚠️'}",
-                f"• تعداد موقعیت‌های باز: {pt.get('open_positions_count', 11)}",
-                f"• تعداد معاملات بسته‌شده: {pt.get('closed_positions_count', 0)}",
+                f"• حالت اجرا: {pt['execution_mode']}",
+                f"• سرمایه اولیه فرضی: ${pt['virtual_bankroll_initial_usd']:.2f}",
+                f"• موجودی نقد فعلی: ${pt['cash_balance_usd']:.4f}",
+                f"• سرمایه تخصیص‌یافته: ${pt['allocated_capital_usd']:.4f}",
+                f"• مجموع حسابداری (Cash + Allocated): ${pt['accounting_sum_usd']:.7f}",
+                f"• انطباق دقیق حسابداری: {'تایید شد ✅' if pt['is_accounting_consistent'] else 'مغایرت ⚠️'}",
+                f"• تعداد موقعیت‌های باز: {pt['open_positions_count']}",
+                f"• تعداد معاملات بسته‌شده: {pt['closed_positions_count']}",
                 f"\n{FOOTER_MANDATED}"
             ]
             return {"text": "\n".join(lines), "intent": "PAPER_TRADING_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"💼 وضعیت معاملات کاغذی: ۱۱ پوزیشن باز با موجودی نقد ۱.۸۹۸۴ دلار و سرمایه ۲۰ دلار.\n\n{FOOTER_MANDATED}", "intent": "PAPER_TRADING_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "PAPER_TRADING_STATUS", "💼 گزارش حسابداری معاملات کاغذی", exc
+            )
 
     def _handle_ai_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -437,8 +510,10 @@ class TelegramDomainService:
                 f"\n{FOOTER_MANDATED}"
             ]
             return {"text": "\n".join(lines), "intent": "AI_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"🤖 وضعیت AI: کارکرد ۱۰۰٪ مستقل روی کف تصمیم‌گیری قطعی با سقف هزینه صفر دلار.\n\n{FOOTER_MANDATED}", "intent": "AI_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "AI_STATUS", "🤖 گزارش وضعیت روتر هوش مصنوعی", exc
+            )
 
     def _handle_last_cycle_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -457,14 +532,16 @@ class TelegramDomainService:
                 f"\n{FOOTER_MANDATED}"
             ]
             return {"text": "\n".join(lines), "intent": "LAST_CYCLE_STATUS", "status": "OK"}
-        except Exception as e:
-            return {"text": f"🔄 آخرین چرخه ران‌تایم با موفقیت اجرا شده است.\n\n{FOOTER_MANDATED}", "intent": "LAST_CYCLE_STATUS", "status": "OK"}
+        except Exception as exc:  # noqa: BLE001 - diagnostic boundary
+            return self._unknown_operational(
+                "LAST_CYCLE_STATUS", "🔄 گزارش آخرین چرخه اجرای ران‌تایم", exc
+            )
 
     def _get_candidate_from_store(self, address: str, chain: str) -> NormalizedTokenCandidate:
         try:
             conn = self._open_discovery()
             r = conn.execute(
-                """SELECT t.token_id, t.symbol, t.name, t.address, t.chain, p.pair_address, p.dex, p.pair_created_ts
+                """SELECT t.token_id, t.symbol, t.name, t.address, t.chain_id, p.pair_address, p.dex_id, p.pair_created_ts
                    FROM tokens t LEFT JOIN pairs p ON p.token_id=t.token_id
                    WHERE (t.address=? OR t.token_id=?) LIMIT 1""",
                 (address, address)).fetchone()
@@ -482,12 +559,12 @@ class TelegramDomainService:
                     m.txns_1h_buys = obs_row["txns_1h_buys"]
                     m.txns_1h_sells = obs_row["txns_1h_sells"]
                 cand = NormalizedTokenCandidate(
-                    chain=r["chain"],
+                    chain=r["chain_id"],
                     address=r["address"],
                     symbol=r["symbol"] or "TOK",
                     name=r["name"] or "Token",
                     pair_address=r["pair_address"],
-                    dex_id=r["dex"],
+                    dex_id=r["dex_id"],
                     pair_created_ts=r["pair_created_ts"],
                     metrics=m,
                     source_provider="e01_discovery_db",
@@ -497,8 +574,9 @@ class TelegramDomainService:
                 conn.close()
                 return cand
             conn.close()
-        except Exception:
-            pass
+        except sqlite3.Error as exc:
+            self._store_lookup_error = f"{type(exc).__name__}: {exc}"
+            logger.warning("token store lookup failed for %s: %s", address, exc)
 
         # Fallback candidate
         cand = NormalizedTokenCandidate(
@@ -516,7 +594,7 @@ class TelegramDomainService:
         try:
             conn = self._open_discovery()
             rows = conn.execute(
-                """SELECT t.token_id, t.symbol, t.name, t.address, t.chain, p.pair_address, p.dex, p.pair_created_ts
+                """SELECT t.token_id, t.symbol, t.name, t.address, t.chain_id, p.pair_address, p.dex_id, p.pair_created_ts
                    FROM tokens t
                    JOIN observation_state s ON s.token_id=t.token_id
                    LEFT JOIN pairs p ON p.token_id=t.token_id
@@ -534,12 +612,12 @@ class TelegramDomainService:
                     m.txns_1h_buys = obs_row["txns_1h_buys"]
                     m.txns_1h_sells = obs_row["txns_1h_sells"]
                 c = NormalizedTokenCandidate(
-                    chain=r["chain"],
+                    chain=r["chain_id"],
                     address=r["address"],
                     symbol=r["symbol"] or "TOK",
                     name=r["name"] or "Token",
                     pair_address=r["pair_address"],
-                    dex_id=r["dex"],
+                    dex_id=r["dex_id"],
                     pair_created_ts=r["pair_created_ts"],
                     metrics=m,
                     source_provider="e01_discovery_db",
@@ -548,8 +626,8 @@ class TelegramDomainService:
                 c.identify_unknowns()
                 candidates.append(c)
             conn.close()
-        except Exception:
-            pass
+        except sqlite3.Error as exc:
+            logger.warning("active-candidate lookup failed: %s", exc)
         return candidates
 
     # ==================================================================
@@ -592,7 +670,7 @@ class TelegramDomainService:
 
         signal = NewsCollector().analyze(subject=subject, keywords=keywords)
 
-        lines = [f"📰 خلاصه اخبار — {'بازار کلی' if subject == 'MARKET' else subject}", ""]
+        lines = [f"📰 خلاصه اخبار — {'بازار کلی' if subject == 'MARKET' else esc(subject)}", ""]
         if not signal.is_known:
             reason = (signal.error_state or {}).get("kind", "unknown")
             if reason == "all_feeds_unreachable":
@@ -607,7 +685,7 @@ class TelegramDomainService:
                 lines.append("در بازه اخیر خبری مرتبط با این موضوع پیدا نشد.")
             if signal.feeds_failed:
                 lines += ["", "منابع ناموفق:"]
-                lines += [f" • {f['feed']}" for f in signal.feeds_failed[:5]]
+                lines += [f" • {esc(f['feed'])}" for f in signal.feeds_failed[:5]]
         else:
             mood = {"BULLISH": "مثبت 🟢", "BEARISH": "منفی 🔴", "NEUTRAL": "خنثی ⚪"}
             lines += [
@@ -621,7 +699,7 @@ class TelegramDomainService:
                 lines += ["", "مهم‌ترین تیترها:"]
                 for ev in signal.evidence[:5]:
                     arrow = "🟢" if ev["score"] > 0 else ("🔴" if ev["score"] < 0 else "⚪")
-                    lines.append(f" {arrow} {ev['title']}  [{ev['source']}]")
+                    lines.append(f" {arrow} {esc(ev['title'])}  [{esc(ev['source'])}]")
             lines += ["", "⚠️ خبر «شاهد» است، نه «دلیل». تصمیم بر پایه داده‌های اندازه‌گیری‌شده گرفته می‌شود."]
 
         lines += ["", FOOTER_MANDATED]
@@ -676,7 +754,7 @@ class TelegramDomainService:
             if worst:
                 lines += ["", "نمونه دلایل رد:"]
                 for a in worst:
-                    lines.append(f" • {a.symbol}: {a.hard_vetoes[0]}")
+                    lines.append(f" • {esc(a.symbol)}: {esc(a.hard_vetoes[0])}")
         else:
             lines.append(f"از {len(scored)} توکن بررسی‌شده، {len(actionable)} مورد شرایط ورود دارند:")
             lines.append("")
@@ -689,7 +767,7 @@ class TelegramDomainService:
 
     def _render_advice_block(self, a: Any) -> list[str]:
         """Renders one Advice with its full WHY — reasons, risks, unknowns, exit plan."""
-        out = [f"▸ **{a.symbol}** — امتیاز {(a.deterministic_score or 0):.0f}/100 "
+        out = [f"▸ {esc(a.symbol)} — امتیاز {(a.deterministic_score or 0):.0f}/100 "
                f"(اطمینان: {a.conviction})"]
         if a.suggested_size_usd:
             out.append(f"   حجم پیشنهادی: ${a.suggested_size_usd:,.2f}")
@@ -697,11 +775,11 @@ class TelegramDomainService:
             out.append(f"   برنامه خروج: هدف سود ${a.take_profit_price:.8g} / "
                        f"حد ضرر ${a.stop_loss_price:.8g} / حداکثر {a.max_hold_hours:.0f} ساعت")
         for r in a.reasons[:3]:
-            out.append(f"   ✅ {r}")
+            out.append(f"   ✅ {esc(r)}")
         for r in a.risks[:3]:
-            out.append(f"   ⚠️ {r}")
+            out.append(f"   ⚠️ {esc(r)}")
         for u in a.unknowns[:2]:
-            out.append(f"   ❓ {u}")
+            out.append(f"   ❓ {esc(u)}")
         if a.council and getattr(a.council, "council_status", "") not in ("", "OFFLINE"):
             out.append(f"   🧠 شورای هوش مصنوعی: {a.council.final_stance} "
                        f"({a.council.agreement})")
@@ -719,6 +797,146 @@ class TelegramDomainService:
         return self._get_candidate_from_store(
             token_info["address"], token_info.get("chain", "solana")), None
 
+    def _handle_sell_advice(self, parsed: ParseResult) -> dict[str, Any]:
+        """Apply the immutable paper exit rule to a logged paper position."""
+        from paper_trading.exit_rules import EXIT_V1
+
+        tp_pct = float(EXIT_V1["take_profit_pct"]) * 100.0
+        sl_pct = float(EXIT_V1["stop_loss_pct"]) * 100.0
+        max_hold = float(EXIT_V1["max_hold_hours"])
+        token_info = parsed.slots.get("token")
+
+        lines = ["📤 قاعده خروج (قفل‌شده — همان قاعده‌ای که بک‌تست شده)", "",
+                 f"• حد سود: +{tp_pct:.0f}% → فروش کامل",
+                 f"• حد ضرر: −{sl_pct:.0f}% → خروج کامل، بدون استثنا",
+                 f"• سقف نگهداری: {max_hold:.0f} ساعت → خروج زمانی",
+                 "• سقوط نقدینگی: دو مشاهده پیاپی زیر $2,000 → خروج فوری",
+                 "• رویداد امنیتی: بالاترین اولویت، مقدم بر همه", "",
+                 "ترتیب اجرا: امنیت ← نقدینگی ← حد ضرر ← حد سود ← زمان."]
+
+        if not token_info or not token_info.get("address"):
+            lines.extend(["", "برای محاسبه دقیق، آدرس توکن را بدهید یا ابتدا "
+                                  "همان توکن را بررسی کنید.", "",
+                          "⚠️ این محاسبه کاغذی است؛ هیچ سفارش واقعی ثبت نمی‌شود."])
+            return {"text": "\n".join(lines) + f"\n\n{FOOTER_MANDATED}",
+                    "intent": parsed.intent, "status": "NEEDS_CONTEXT",
+                    "exit_rule": EXIT_V1["version"]}
+
+        chain = token_info.get("chain", "solana")
+        address = token_info["address"]
+        try:
+            from architecture.intel.exitability import ExitabilityAnalyzer
+            candidate, error = self._require_token(parsed)
+            if not error and candidate is not None:
+                exitability = ExitabilityAnalyzer().analyze(candidate, position_usd=100.0)
+                if exitability.verdict == "TRAPPED":
+                    lines.extend(["", "🔴 طبق داده فعلی خروج عملاً ممکن نیست؛ "
+                                          "تا بازگشت نقدشوندگی، حد سود بی‌معناست."])
+                elif exitability.verdict == "DEGRADED":
+                    lines.extend(["", "🟡 خروج ممکن ولی با افت محسوس است؛ "
+                                          "فروش بخش‌بخش را بررسی کنید."])
+                elif exitability.verdict == "UNKNOWN":
+                    lines.extend(["", "⚪ امکان خروج تأیید نشده است؛ نامعلوم به "
+                                          "معنای امن نیست."])
+        except Exception as exc:  # one optional probe must not hide the rule
+            logger.warning("exitability probe failed during sell advice: %s", exc)
+            lines.extend(["", f"⚪ بررسی امکان خروج انجام نشد ({type(exc).__name__})."])
+
+        conn = self._open_ledger()
+        try:
+            positions = positions_for_token(conn, chain, address)
+        finally:
+            conn.close()
+
+        status = "OK"
+        if not positions:
+            status = "NOT_FOUND"
+            lines.extend(["", "هیچ خرید کاغذی ثبت‌شده‌ای برای این توکن ندارید."])
+        else:
+            invested = sum(p["amount_value"] for p in positions)
+            currency = positions[0]["amount_currency"]
+            lines.extend(["", "💼 پوزیشن ثبت‌شده شما (کاغذی):",
+                          f"• مبلغ کل: {invested:,.0f} {currency}",
+                          f"• تعداد ورودی: {len(positions)}"])
+            verdict = self._position_verdict(parsed, positions, chain, address)
+            if verdict is not None:
+                lines.extend(["", verdict])
+            else:
+                lines.extend(["", "برای حکم زندهٔ «نگه دار یا بفروش» قیمت ورود "
+                                      "و قیمت فعلی لازم است. یک چرخه جمع‌آوری اجرا کنید:",
+                              "python -m architecture.runtime --single-cycle"])
+
+        lines.extend(["", "⚠️ این محاسبه کاغذی است؛ هیچ سفارش واقعی ثبت نمی‌شود."])
+        return {"text": "\n".join(lines) + f"\n\n{FOOTER_MANDATED}",
+                "intent": parsed.intent, "status": status,
+                "exit_rule": EXIT_V1["version"]}
+
+    _ACTION_FA = {
+        "HOLD": ("🟢", "نگه دار"),
+        "REDUCE": ("🟡", "بخشی را بفروش"),
+        "EXIT": ("🔴", "خارج شو"),
+    }
+
+    def _position_verdict(self, parsed: ParseResult, positions: list[dict],
+                          chain: str, address: str) -> str | None:
+        """Return an evidence-backed HOLD/REDUCE/EXIT verdict, never a guess."""
+        from architecture.decision.advisor import DecisionAdvisor
+        from datetime import datetime
+
+        token_id = f"{chain}:{address}"
+        try:
+            ledger_entry_ts = datetime.fromisoformat(
+                positions[0]["created_utc"]).timestamp()
+        except (ValueError, KeyError, TypeError):
+            ledger_entry_ts = None
+
+        try:
+            dconn = sqlite3.connect(str(self.discovery_db_path))
+            dconn.row_factory = sqlite3.Row
+            try:
+                current = latest_observed_value(dconn, token_id)
+                if ledger_entry_ts is None:
+                    entry_row = dconn.execute(
+                        """SELECT price_usd, retrieved_ts FROM discovery_observations
+                           WHERE token_id=? AND price_usd IS NOT NULL
+                             AND error_state IS NULL
+                           ORDER BY retrieved_ts ASC LIMIT 1""",
+                        (token_id,),
+                    ).fetchone()
+                else:
+                    # Use the observation closest to when the user logged the
+                    # purchase. The prior query selected the token's first-ever
+                    # observation, which can predate the position by days.
+                    entry_row = dconn.execute(
+                        """SELECT price_usd, retrieved_ts FROM discovery_observations
+                           WHERE token_id=? AND price_usd IS NOT NULL
+                             AND error_state IS NULL
+                           ORDER BY ABS(retrieved_ts - ?) ASC LIMIT 1""",
+                        (token_id, ledger_entry_ts),
+                    ).fetchone()
+            finally:
+                dconn.close()
+        except sqlite3.Error:
+            return None
+
+        current_ts = current.get("as_of_ts")
+        if (current.get("price_usd") is None or current_ts is None
+                or time.time() - float(current_ts) > 4 * 3600
+                or entry_row is None):
+            return None
+        entry_ts = (ledger_entry_ts if ledger_entry_ts is not None
+                    else float(entry_row["retrieved_ts"]))
+
+        advice = DecisionAdvisor().advise_position(
+            symbol=str(parsed.slots.get("token", {}).get("symbol") or address[:6]),
+            entry_price=float(entry_row["price_usd"]),
+            current_price=float(current["price_usd"]),
+            entry_ts=entry_ts)
+        icon, label = self._ACTION_FA.get(advice.action, ("⚪", advice.action))
+        output = [f"{icon} حکم فعلی این پوزیشن: {esc(label)}"]
+        output.extend(f"• {esc(reason)}" for reason in advice.reasons[:3])
+        return "\n".join(output)
+
     def _handle_exitability(self, parsed: ParseResult) -> dict[str, Any]:
         """THE question that matters: can the money actually come back out?"""
         from architecture.intel.exitability import ExitabilityAnalyzer
@@ -733,7 +951,7 @@ class TelegramDomainService:
         icon = {"EXITABLE": "🟢", "DEGRADED": "🟡",
                 "TRAPPED": "🔴", "UNKNOWN": "⚪"}.get(rep.verdict, "⚪")
         lines = [
-            f"{icon} بررسی امکان خروج — {cand.symbol}",
+            f"{icon} بررسی امکان خروج — {esc(cand.symbol)}",
             "",
             f"حکم: **{rep.verdict}** (کسر قابل‌بازیافت: {rep.realizable_fraction:.1%})"
             if rep.realizable_fraction is not None else f"حکم: **{rep.verdict}**",
@@ -753,10 +971,10 @@ class TelegramDomainService:
             lines += [f" • {v}" for v in rep.hard_vetoes]
         if rep.warnings:
             lines += ["", "⚠️ هشدارها:"]
-            lines += [f" • {w}" for w in rep.warnings]
+            lines += [f" • {esc(w)}" for w in rep.warnings]
         if rep.unknowns:
             lines += ["", "❓ نامعلوم‌ها:"]
-            lines += [f" • {u}" for u in rep.unknowns]
+            lines += [f" • {esc(u)}" for u in rep.unknowns]
         lines += ["", FOOTER_MANDATED]
         return {"text": "\n".join(lines), "intent": "EXITABILITY_QUERY",
                 "status": "OK", "exitability": rep}
@@ -791,7 +1009,7 @@ class TelegramDomainService:
         except Exception:
             forensic = None
 
-        lines = [f"🐋 توزیع مالکیت — {cand.symbol}", "",
+        lines = [f"🐋 توزیع مالکیت — {esc(cand.symbol)}", "",
                  f"وضعیت: **{rep.label}**"]
         if rep.top10_share_pct is not None:
             lines.append(f"سهم ۱۰ کیف‌پول برتر: {rep.top10_share_pct:.1f}%")
@@ -804,15 +1022,15 @@ class TelegramDomainService:
         for r in rep.reasons[:3]:
             lines.append(f" • {r}")
         for w in rep.warnings:
-            lines.append(f" ⚠️ {w}")
+            lines.append(f" ⚠️ {esc(w)}")
         for u in rep.unknowns:
-            lines.append(f" ❓ {u}")
+            lines.append(f" ❓ {esc(u)}")
         if forensic is not None and forensic.is_known:
             lines += ["", f"🔬 تحلیل توزیع: **{forensic.label}**"]
             if forensic.gini is not None:
                 lines.append(f"ضریب جینی: {forensic.gini:.2f} ({forensic.gini_label})")
             for w in forensic.warnings[:3]:
-                lines.append(f" ⚠️ {w}")
+                lines.append(f" ⚠️ {esc(w)}")
 
         if rep.label == "UNKNOWN" and (forensic is None or not forensic.is_known):
             lines += ["", "توضیح صادقانه: نقاط پایانی رایگان RPC فهرست دارندگان را "
@@ -831,7 +1049,7 @@ class TelegramDomainService:
         rep = ViralityTracker().analyze(cand)
         icon = {"VIRAL": "🔥", "BUILDING": "📈", "COOLING": "📉",
                 "FLAT": "➖", "UNKNOWN": "⚪"}.get(rep.label, "⚪")
-        lines = [f"{icon} سنجش توجه بازار — {cand.symbol}", "",
+        lines = [f"{icon} سنجش توجه بازار — {esc(cand.symbol)}", "",
                  f"وضعیت: **{rep.label}** (امتیاز: {rep.score:.0f}/100)"]
         if rep.txn_acceleration is not None:
             lines.append(f"شتاب تراکنش (۵د نسبت به میانگین ساعتی): {rep.txn_acceleration:.2f}×")
@@ -845,9 +1063,9 @@ class TelegramDomainService:
             lines += ["", "🚨 الگوی مشکوک به معامله صوری (wash trading) شناسایی شد — "
                           "حجم بالا بدون تغییر معنادار قیمت."]
         for w in rep.warnings:
-            lines.append(f" ⚠️ {w}")
+            lines.append(f" ⚠️ {esc(w)}")
         for u in rep.unknowns:
-            lines.append(f" ❓ {u}")
+            lines.append(f" ❓ {esc(u)}")
         lines += ["", "توضیح: «وایرال بودن» را از ردپای واقعی روی زنجیره می‌سنجیم، "
                       "نه از شبکه‌های اجتماعی.", "", FOOTER_MANDATED]
         return {"text": "\n".join(lines), "intent": "VIRALITY_QUERY",
@@ -869,24 +1087,24 @@ class TelegramDomainService:
         verdict = LiveCouncil().deliberate(
             packet, question="آیا ورود به این توکن منطقی است؟", allow_paid=False)
 
-        lines = [f"🧠 شورای هوش مصنوعی — {cand.symbol}", "",
+        lines = [f"🧠 شورای هوش مصنوعی — {esc(cand.symbol)}", "",
                  f"جمع‌بندی: **{verdict.final_stance}** (توافق: {verdict.agreement})",
                  f"وضعیت شورا: {verdict.council_status}"]
         if verdict.providers_ok:
             lines.append(f"پاسخ‌دهندگان ({verdict.responded}): "
-                         f"{', '.join(verdict.providers_ok)}")
+                         f"{esc(', '.join(verdict.providers_ok))}")
         if verdict.providers_failed:
             names = [f.get("provider", "?") for f in verdict.providers_failed]
-            lines.append(f"در دسترس نبودند: {', '.join(names)}")
+            lines.append(f"در دسترس نبودند: {esc(', '.join(names))}")
         if verdict.council_status in ("OFFLINE", "DETERMINISTIC_ONLY"):
             lines += ["", "هیچ مدل هوش مصنوعی در دسترس نبود — احتمالاً فیلترینگ یا "
                           "نبود کلید API. سامانه روی موتور قطعی (ریاضی) کار می‌کند "
                           "و همچنان معتبر است."]
         if verdict.reasons:
             lines += ["", "دلایل مطرح‌شده:"]
-            lines += [f" • {r}" for r in verdict.reasons[:6]]
+            lines += [f" • {esc(r)}" for r in verdict.reasons[:6]]
         for w in verdict.warnings:
-            lines.append(f" ⚠️ {w}")
+            lines.append(f" ⚠️ {esc(w)}")
         if verdict.echo_suspected:
             lines += ["", "⚠️ اتفاق‌نظر کامل روی شواهد ضعیف — احتمال هم‌صدایی "
                           "(echo) مدل‌ها. به این اجماع وزن کمتری بدهید."]
@@ -896,7 +1114,7 @@ class TelegramDomainService:
                 "status": "OK", "council": verdict}
 
     def _handle_panel(self, parsed: ParseResult) -> dict[str, Any]:
-        """The 100-mind panel, run as deterministic checks over real evidence."""
+        """Run the executable deterministic specialist panel over real evidence."""
         from architecture.knowledge.panel import CognitivePanel
         from architecture.intel.exitability import ExitabilityAnalyzer
         from architecture.intel.viral import ViralityTracker
@@ -911,8 +1129,60 @@ class TelegramDomainService:
             exitability=ExitabilityAnalyzer().analyze(cand),
             virality=ViralityTracker().analyze(cand),
         )
-        return {"text": f"{verdict.summary_persian()}\n\n{FOOTER_MANDATED}",
+        # The summary has no intentional HTML. Escape it as one unit so a
+        # hostile token symbol cannot break Telegram's HTML parser.
+        text = esc(verdict.team_summary_persian())
+        return {"text": f"{text}\n\n{FOOTER_MANDATED}",
                 "intent": "PANEL_ANALYSIS", "status": "OK", "panel": verdict}
+
+    def _handle_council_roster(self, parsed: ParseResult) -> dict[str, Any]:
+        """Report the council's measured voting coverage and active teams."""
+        from architecture.knowledge.coverage import analyze_coverage
+        from architecture.knowledge.panel import (
+            ALL_LENS_CARDS,
+            LENS_APPLIED_PRINCIPLE,
+            PANEL_LENSES,
+        )
+
+        try:
+            coverage = analyze_coverage()
+        except (OSError, ValueError) as exc:
+            return {
+                "text": f"فهرست شورا در دسترس نیست ({type(exc).__name__}).\n\n{FOOTER_MANDATED}",
+                "intent": "COUNCIL_ROSTER",
+                "status": "UNKNOWN",
+            }
+
+        lines = [esc(coverage.report_persian()), ""]
+        try:
+            from architecture.knowledge.teams import load_structure
+            lines.extend([esc(load_structure().report_persian()), ""])
+        except (OSError, ValueError):
+            # Coverage remains useful even when the optional presentation config
+            # is unavailable; never fabricate team membership.
+            pass
+
+        lines.append("دیدگاه‌های دارای رأی در هر ارزیابی:")
+        for lens_id, _ in PANEL_LENSES:
+            card = ALL_LENS_CARDS.get(lens_id)
+            if card is None:
+                continue
+            wanted = LENS_APPLIED_PRINCIPLE.get(lens_id)
+            principle = next(
+                (item.get("title", "") for item in card.verified_principles
+                 if item.get("principle_id") == wanted),
+                "",
+            )
+            if not principle and card.verified_principles:
+                principle = card.verified_principles[0].get("title", "")
+            lines.append(f"  • {esc(card.identity)} — {esc(principle)}")
+
+        return {
+            "text": "\n".join(lines) + f"\n\n{FOOTER_MANDATED}",
+            "intent": "COUNCIL_ROSTER",
+            "status": "OK",
+            "coverage": coverage,
+        }
 
     def _handle_self_review(self, parsed: ParseResult) -> dict[str, Any]:
         """The learning loop, on demand: how good were our past calls, really?"""

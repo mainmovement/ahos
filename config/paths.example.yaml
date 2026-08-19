@@ -1,0 +1,16 @@
+# Documentation-only shape. Run `python config/paths.py` to create the ignored,
+# machine-local config/paths.yaml with resolved absolute paths.
+platform_detected: <windows|linux|darwin|docker|vps>
+is_windows: <true|false>
+project_root: <resolved-project-root>
+data_dir: <resolved-project-root>/data
+config_dir: <resolved-project-root>/config
+reports_dir: <resolved-project-root>/reports
+docs_dir: <resolved-project-root>/docs
+contracts_dir: <resolved-project-root>/contracts
+n8n_workflows_dir: <resolved-project-root>/n8n/workflows
+databases:
+  discovery: <resolved-project-root>/data/e01_discovery.sqlite
+  paper_trading: <resolved-project-root>/data/paper_trading.sqlite
+  local: <resolved-project-root>/data/ahos_local.sqlite
+  knowledge: <resolved-project-root>/data/ahos_knowledge.sqlite

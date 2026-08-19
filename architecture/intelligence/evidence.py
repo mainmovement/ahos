@@ -325,16 +325,6 @@ def materialize_evidence(candidate: Any, now: float | None = None) -> EvidenceBu
             known_when=mget("volume_5m") is not None,
         ),
         _atom(
-            key="volume_velocity",
-            description="Volume velocity vs baseline",
-            value=mget("volume_velocity"),
-            provider=provider,
-            timestamp=retrieved,
-            now=ts,
-            source_field="metrics.volume_velocity",
-            known_when=mget("volume_velocity") is not None,
-        ),
-        _atom(
             key="price_usd",
             description="Spot price USD",
             value=mget("price_usd"),

@@ -16,6 +16,9 @@ REM Full soak procedure: AHOS_OPERATOR_QUICKSTART_WINDOWS.md
 REM ============================================================================
 title AHOS Opportunity Intelligence System
 cd /d "%~dp0"
+chcp 65001 >nul
+set "PYTHONUTF8=1"
+set "PYTHONIOENCODING=utf-8"
 
 set "VENV_PY=.venv\Scripts\python.exe"
 
@@ -28,6 +31,11 @@ if not exist "%VENV_PY%" (
     echo ERROR: %VENV_PY% still missing after install. Aborting.
     pause
     exit /b 1
+)
+
+if not exist ".env" (
+    copy /Y ".env.example" ".env" >nul
+    echo Created .env from the safe template; edit it to enable Telegram.
 )
 
 REM Idempotent: creates the local SQLite stores if they are absent.

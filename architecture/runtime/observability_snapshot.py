@@ -16,6 +16,7 @@ Generates a machine-readable & human-auditable comprehensive system health snaps
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sqlite3
@@ -40,7 +41,9 @@ from config.paths import (
 class CanonicalHealthSnapshot:
     timestamp_utc: str
     overall_verdict: str                        # GREEN | DEGRADED | WARNING | CRITICAL | UNKNOWN
-    system_uptime_seconds: float
+    # No process-start timestamp is persisted. ``None`` is honest when uptime
+    # cannot be measured from outside the daemon.
+    system_uptime_seconds: float | None
     runtime_state: str
     scheduler_status: dict[str, Any]
     observation_metrics: dict[str, Any]
@@ -184,6 +187,7 @@ class HealthSnapshotEngine:
 
         # 4. Scheduler & Lease Locks Health
         sched_health: dict[str, Any] = {}
+        hb = None
         try:
             conn_loc = sqlite3.connect(f"file:{get_local_db_path()}?mode=ro", uri=True)
             conn_loc.row_factory = sqlite3.Row
@@ -206,6 +210,29 @@ class HealthSnapshotEngine:
             }
         except Exception as e:
             sched_health = {"error": str(e)}
+
+        # A database that is structurally healthy does not prove a daemon is
+        # running. Heartbeat age is the only observable liveness signal here.
+        try:
+            configured_interval = float(os.environ.get("AHOS_INTERVAL_SEC", "60"))
+        except ValueError:
+            configured_interval = 60.0
+        heartbeat_max_age = max(300.0, configured_interval * 3.0)
+        heartbeat_age = sched_health.get("heartbeat_age_seconds")
+        if heartbeat_age is None:
+            runtime_state = "NOT_OBSERVED"
+            is_degraded = True
+            reasons.append("No scheduler heartbeat has been observed")
+        elif heartbeat_age > heartbeat_max_age:
+            runtime_state = "STALE"
+            is_degraded = True
+            reasons.append(
+                f"Scheduler heartbeat is stale ({heartbeat_age}s > {heartbeat_max_age}s)"
+            )
+        else:
+            runtime_state = "RUNNING"
+        sched_health["heartbeat_freshness_limit_seconds"] = heartbeat_max_age
+        sched_health["heartbeat_is_fresh"] = runtime_state == "RUNNING"
 
         # 5. Providers & Circuit Breakers Health
         from architecture.collector.engine import CollectorEngine
@@ -238,13 +265,50 @@ class HealthSnapshotEngine:
             "ai_decision_authority": "ZERO (Advisory Only)"
         }
 
+        # Security claims are evaluated where possible. Repository-wide secret
+        # scanning is deliberately *not* pretended here; that belongs to the
+        # offline import/secret validator and is reported as not checked.
+        try:
+            from architecture.security import assert_safe_environment
+
+            env_safety = assert_safe_environment()
+            paper_only = bool(env_safety.get("paper_only_enforced"))
+        except PermissionError as exc:
+            paper_only = False
+            is_critical = True
+            reasons.append(str(exc))
+
+        master_path = self.root / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md"
+        expected_master_hash = (
+            "e2457c0d9dfbadba84ee666feb46f0a01f60663e749f1261f27988abfd837d79"
+        )
+        master_hash_ok = (
+            master_path.exists()
+            and hashlib.sha256(master_path.read_bytes()).hexdigest()
+            == expected_master_hash
+        )
+        try:
+            from scripts.freeze_lane_a import verify as verify_lane_a
+
+            drift, missing, _untracked = verify_lane_a(root=self.root)
+            lane_a_ok = not drift and not missing
+        except Exception as exc:  # noqa: BLE001 - health boundary
+            lane_a_ok = False
+            reasons.append(f"Lane-A freeze could not be verified: {type(exc).__name__}")
+
         security_inv = {
-            "ahos_paper_only_enforced": True,
+            "ahos_paper_only_enforced": paper_only,
+            # This is an architectural invariant: the repository exposes no
+            # exchange-order or wallet-execution path.
             "live_trading_prohibited": True,
-            "zero_secret_in_source": True,
-            "master_directive_hash_pinned": True,
-            "e01_protocol_hash_pinned": True
+            "zero_secret_in_source": "NOT_CHECKED_AT_RUNTIME",
+            "master_directive_hash_pinned": master_hash_ok,
+            "e01_protocol_hash_pinned": lane_a_ok,
+            "lane_a_freeze_verified": lane_a_ok,
         }
+        if not master_hash_ok or not lane_a_ok:
+            is_critical = True
+            reasons.append("Governance or Lane-A hash verification failed")
 
         # Overall Verdict Determination
         if is_critical:
@@ -257,8 +321,9 @@ class HealthSnapshotEngine:
         snapshot = CanonicalHealthSnapshot(
             timestamp_utc=ts_utc,
             overall_verdict=verdict,
-            system_uptime_seconds=round(ts - (hb["last_heartbeat_ts"] if hb else ts), 2),
-            runtime_state="RUNNING" if verdict == "GREEN" else "DEGRADED",
+            # A last heartbeat gives observation age, not process uptime.
+            system_uptime_seconds=None,
+            runtime_state=runtime_state,
             scheduler_status=sched_health,
             observation_metrics={"total_gaps": e01_state.get("total_gaps_registered", 0), "total_obs": e01_state.get("total_observations_recorded", 0)},
             provider_health=prov_health,

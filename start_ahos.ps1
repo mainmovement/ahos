@@ -24,6 +24,9 @@ $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $ScriptDir
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 $VenvPython = "$ScriptDir\.venv\Scripts\python.exe"
 
@@ -35,6 +38,11 @@ if (-not (Test-Path $VenvPython)) {
 if (-not (Test-Path $VenvPython)) {
     Write-Host "ERROR: $VenvPython still missing after install. Aborting." -ForegroundColor Red
     exit 1
+}
+
+if (-not (Test-Path ".env")) {
+    Copy-Item ".env.example" ".env"
+    Write-Host "Created .env from the safe template; edit it to enable Telegram." -ForegroundColor DarkYellow
 }
 
 # Ensure the local SQLite stores exist before the daemon touches them.

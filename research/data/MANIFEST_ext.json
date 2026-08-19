@@ -16349,21 +16349,21 @@
         }
       },
       "klines_out": {
-        "path": "/home/user/ahos/research/data/BTCUSDT_1h_ext.csv",
+        "path": "research/data/BTCUSDT_1h_ext.csv",
         "rows": 57912,
         "first": "2020-01-01 00:00:00+00:00",
         "last": "2026-08-09 23:00:00+00:00",
         "sha256": "bf8fd1426c3c9c7c1cc1bdb87b84f11e58954c618f9a550bf2c1f2116aaf7cf6"
       },
       "funding_out": {
-        "path": "/home/user/ahos/research/data/BTCUSDT_funding_ext.csv",
+        "path": "research/data/BTCUSDT_funding_ext.csv",
         "rows": 7212,
         "first": "2020-01-01 00:00:00+00:00",
         "last": "2026-07-31 16:00:00+00:00",
         "sha256": "d437dccb4ca2573219f6d2de08acac50e13fb62928607ad57630090c034bb4ad"
       },
       "oi_out": {
-        "path": "/home/user/ahos/research/data/BTCUSDT_oi_daily_ext.csv",
+        "path": "research/data/BTCUSDT_oi_daily_ext.csv",
         "rows": 2169,
         "first": "2020-09-01 23:55:00+00:00",
         "last": "2026-08-09 23:55:00+00:00",

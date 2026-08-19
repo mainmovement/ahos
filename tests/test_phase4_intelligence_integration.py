@@ -121,7 +121,8 @@ def test_pipeline_uses_evidence_path(tmp_path):
         retrieved_ts=1_787_000_000.0,
         metrics=MarketMetrics(
             price_usd=0.10, liquidity_usd=80000.0, volume_1h=40000.0,
-            volume_velocity=3.2, txns_1h_buys=90, txns_1h_sells=20,
+            volume_5m=10000.0, txns_1h_buys=90, txns_1h_sells=20,
+            txns_5m_buys=20, txns_5m_sells=5,
         ),
         security=SecuritySignals(
             is_honeypot=False, is_contract_verified=True,

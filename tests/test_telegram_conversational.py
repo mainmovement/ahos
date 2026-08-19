@@ -318,3 +318,172 @@ def test_hopeful_phrasing_is_still_never_guessed():
     """The standing rule: leading questions must not be answered as if the
     system agreed with them."""
     assert I.parse("حتماً پامپ میشه نه؟").intent == "UNKNOWN"
+
+# ------------------------------------------- sell advice / no silent gaps --
+# «کی بفروشم؟» is an explicit line in the user's spec. The parser recognised
+# SELL_ADVICE_QUERY but no handler served it, so the catch-all replied
+# «درخواست «SELL_ADVICE_QUERY» دریافت شد.» -- leaking an internal identifier
+# and reporting status OK, which made a missing feature look like a working one.
+
+def test_sell_advice_is_actually_handled():
+    svc = TelegramDomainService()
+    out = svc.handle_message("کی بفروشم؟", {})
+    assert out["status"] != "NOT_IMPLEMENTED"
+    assert "SELL_ADVICE_QUERY" not in out["text"], \
+        "internal intent name leaked to the user"
+    assert "دریافت شد" not in out["text"]
+
+
+@pytest.mark.parametrize("text", [
+    "کی بفروشم؟", "چقدرشو بفروشم؟", "بفروشم یا نه؟", "الان بفروشم؟",
+])
+def test_sell_questions_state_the_frozen_exit_rule(text):
+    """The advice must quote the same thresholds the backtest used, otherwise
+    the track record no longer describes the advice being given."""
+    from paper_trading.exit_rules import EXIT_V1
+    out = TelegramDomainService().handle_message(text, {})
+    assert out.get("exit_rule") == EXIT_V1["version"]
+    body = out["text"]
+    assert f"+{EXIT_V1['take_profit_pct'] * 100:.0f}%" in body
+    assert f"{EXIT_V1['stop_loss_pct'] * 100:.0f}%" in body
+    assert f"{EXIT_V1['max_hold_hours']:.0f} ساعت" in body
+
+
+def test_sell_advice_carries_the_mandated_footer():
+    out = TelegramDomainService().handle_message("کی بفروشم؟", {})
+    assert FOOTER_MANDATED in out["text"]
+
+
+def test_sell_advice_never_claims_a_real_order():
+    out = TelegramDomainService().handle_message("کی بفروشم؟", {})
+    assert "کاغذی" in out["text"], "must state that nothing real is executed"
+
+
+def test_unserved_intents_are_reported_honestly():
+    """The catch-all must not dress a gap up as a success. If this ever fires
+    for a real intent, that intent needs a handler -- not a nicer message."""
+    svc = TelegramDomainService()
+    import telegram_ai.intent as _I
+    unserved = []
+    for probe in ("کی بفروشم؟", "چی بخرم؟", "بازار چطوره؟", "سلام",
+                  "اخبار کریپتو", "نهنگ‌ها چیکار میکنن؟", "وضعیت سیستم چطوره؟"):
+        out = svc.handle_message(probe, {})
+        if out["status"] == "NOT_IMPLEMENTED":
+            unserved.append((probe, _I.parse(probe).intent))
+    assert not unserved, f"documented capabilities with no handler: {unserved}"
+
+
+# --------------------------------------- live position verdict (Wave-27) --
+# DecisionAdvisor.advise_position encodes exactly what the user asked for --
+# «اینقدرشو نگهدار» / «الان بفروش» -- but grep showed it had zero call sites
+# outside its own definition. The engine existed and was not plugged in.
+
+def _seed_position(tmp_path, entry_px, current_px, hours_held, monkeypatch):
+    """Build an isolated discovery+ledger pair with a priced position."""
+    import sqlite3, time, uuid
+    from telegram_ai.positions import open_ledger, log_buy
+
+    now = time.time()
+    addr = "So11111111111111111111111111111111111111112"
+    token_id = f"solana:{addr}"
+    disco = tmp_path / "disco.sqlite"
+
+    d = sqlite3.connect(disco)
+    d.executescript("""
+        CREATE TABLE discovery_observations(
+          obs_id TEXT PRIMARY KEY, token_id TEXT, provider TEXT,
+          retrieved_ts REAL, price_usd REAL, liquidity_usd REAL,
+          error_state TEXT, raw_ref TEXT);
+    """)
+    tag = uuid.uuid4().hex[:8]
+    for i, (ts, px) in enumerate([
+            (now - hours_held * 3600 - 10 * 86400, entry_px * 50),
+            (now - hours_held * 3600, entry_px),
+            (now - 30, current_px)]):
+        d.execute("INSERT INTO discovery_observations"
+                  "(obs_id,token_id,provider,retrieved_ts,price_usd,liquidity_usd,raw_ref)"
+                  " VALUES (?,?,?,?,?,?,?)",
+                  (f"o_{tag}_{i}", token_id, "dexscreener", ts, px, 50000.0, "r"))
+    d.commit(); d.close()
+
+    ledger = tmp_path / "ledger.sqlite"
+    c = open_ledger(ledger)
+    log_buy(c, token={"chain": "solana", "address": addr, "symbol": "TVX"},
+            amount_value=5_000_000, amount_currency="تومان",
+            intent_rule="R-TEST", raw_text="خریدم",
+            now=now - hours_held * 3600)
+    c.commit(); c.close()
+
+    svc = TelegramDomainService(discovery_db_path=str(disco),
+                                ledger_db_path=str(ledger))
+    return svc.handle_message(f"کی بفروشم؟ {addr}", {})
+
+
+def test_position_in_profit_is_told_to_take_some_off(tmp_path, monkeypatch):
+    out = _seed_position(tmp_path, 1.00, 1.60, 6, monkeypatch)
+    assert out["status"] == "OK"
+    assert "بخشی را بفروش" in out["text"], out["text"]
+    assert "۶۰" in out["text"] or "60" in out["text"]
+
+
+def test_position_past_stop_loss_is_told_to_exit(tmp_path, monkeypatch):
+    out = _seed_position(tmp_path, 1.00, 0.60, 6, monkeypatch)
+    assert "خارج شو" in out["text"], out["text"]
+
+
+def test_position_within_plan_is_told_to_hold(tmp_path, monkeypatch):
+    out = _seed_position(tmp_path, 1.00, 1.10, 6, monkeypatch)
+    assert "نگه دار" in out["text"], out["text"]
+
+
+def test_position_past_time_horizon_is_told_to_exit(tmp_path, monkeypatch):
+    out = _seed_position(tmp_path, 1.00, 1.05, 60, monkeypatch)
+    assert "خارج شو" in out["text"], out["text"]
+
+
+def test_verdict_is_withheld_when_price_evidence_is_missing(tmp_path):
+    """No prices must mean "I cannot say", never a confident verdict."""
+    import sqlite3
+    from telegram_ai.positions import open_ledger, log_buy
+
+    addr = "So11111111111111111111111111111111111111112"
+    disco = tmp_path / "empty.sqlite"
+    d = sqlite3.connect(disco)
+    d.executescript("""
+        CREATE TABLE discovery_observations(
+          obs_id TEXT PRIMARY KEY, token_id TEXT, provider TEXT,
+          retrieved_ts REAL, price_usd REAL, liquidity_usd REAL,
+          error_state TEXT, raw_ref TEXT);
+    """)
+    d.commit(); d.close()
+
+    ledger = tmp_path / "ledger.sqlite"
+    c = open_ledger(ledger)
+    log_buy(c, token={"chain": "solana", "address": addr, "symbol": "TVX"},
+            amount_value=5_000_000, amount_currency="تومان",
+            intent_rule="R-TEST", raw_text="خریدم")
+    c.commit(); c.close()
+
+    out = TelegramDomainService(discovery_db_path=str(disco),
+                                ledger_db_path=str(ledger)
+                                ).handle_message(f"کی بفروشم؟ {addr}", {})
+    # Match the rendered verdict line, not bare words: the fallback text
+    # legitimately contains «نگه دار یا بفروش» while explaining what is missing.
+    assert "حکم فعلی این پوزیشن" not in out["text"], \
+        "invented a verdict with no price data"
+    assert "چرخه" in out["text"], "should tell the user how to get the data"
+
+
+def test_advise_position_is_actually_wired_up():
+    """Regression guard: the engine must have a caller outside its own module."""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    callers = []
+    for path in root.rglob("*.py"):
+        if any(p in path.parts for p in (".venv", "__pycache__", "tests")):
+            continue
+        if path.name == "advisor.py":
+            continue
+        if "advise_position" in path.read_text(encoding="utf-8", errors="ignore"):
+            callers.append(str(path.relative_to(root)))
+    assert callers, "advise_position has no callers -- dead code again"

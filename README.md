@@ -6,10 +6,13 @@
 ---
 
 ## 1. Core Mission & Scientific Invariants
-AHOS is an autonomous intelligence platform designed to observe, normalize, score, and explain early crypto market opportunities across Solana and EVM chains.
+AHOS is an observation-first intelligence platform designed to normalize, score, vet, and explain early crypto market opportunities across Solana and EVM chains. It is not a readiness certificate or a trading system.
+
+**Current capability, validation, and limitations:** [`docs/canonical/CANONICAL_STATUS.md`](docs/canonical/CANONICAL_STATUS.md)
+**Documentation precedence:** [`docs/DOCUMENT_CLASSIFICATION.md`](docs/DOCUMENT_CLASSIFICATION.md)
 
 - **DATA > AI:** Empirical evidence and on-chain observations overrule AI narrative consensus.
-- **DETERMINISTIC FLOOR:** Operates 100% reliably at $0 cost on free public feeds without requiring commercial AI keys.
+- **DETERMINISTIC FLOOR:** Scoring and safety logic require no commercial AI key; live feed availability is reported honestly and is never assumed.
 - **100% PAPER ONLY:** Live trading execution is strictly prohibited by type-level constraints and governance law.
 - **WHY-LAW MANDATED:** Every score, alert, and decision contains explicit positive reasons, risk deductions, and provenance evidence references.
 - **PERSIAN-FIRST TELEGRAM EDGE:** Natural language query interface tailored for Persian-speaking users ending with: `«تصمیم نهایی با کاربر است.»`.
@@ -47,24 +50,27 @@ Arena/sandbox runtime does not count toward the official laptop clock.
 ---
 
 ## 3. Architecture & Subsystems
-- `architecture/runtime/`: Application lifecycle manager, startup validation, structured JSON logging with correlation `run_id`.
-- `architecture/collector/`: Multi-provider polling engine (DexScreener, GeckoTerminal, GoPlus, RugCheck) with 3-state Circuit Breaker and exponential retry.
-- `architecture/scheduling/`: Wall-clock schedule alignment ($s+15\text{m}$ to $s+7\text{d}$), atomic lease locking (`scheduler_locks`), and downtime gap registration (`missed:<slot>`).
-- `architecture/scoring/`: 8-stage deterministic decision pipeline answering all 8 canonical opportunity questions.
-- `architecture/positions/`: Event-sourced paper position manager with fee/slippage modeling and realizable PnL.
-- `architecture/knowledge/`: Trust Registry (K-01), Versioned Claim Store (K-02), 10 Expert Lens Cards (K-03), and 12-Stage OSS Pipeline (K-04).
-- `telegram_ai/`: Persian NLU intent parser, Section X Response Contract formatter, and Bot API abstraction.
+- `discovery/`: hash-pinned Lane-A observation, identity, outcome, and research evidence path.
+- `architecture/runtime/`: lifecycle, scheduling, local evidence namespace, observation cycle, Telegram polling, score persistence, and paper-position review.
+- `architecture/collector/` + `architecture/providers/`: normalized multi-provider runtime collection with UNKNOWN/failure discipline.
+- `architecture/intelligence/`, `features/`, `security/`, `risk/`, `scoring/`: the canonical Evidence-only deterministic score path.
+- `architecture/intel/` + `architecture/decision/`: exitability, virality, whales, optional narrative context, and safety-ratcheting advice.
+- `architecture/knowledge/`: 42 unique executable deterministic lens functions, seven governed teams, and measured—not advertised—coverage of the historical 100-person registry.
+- `architecture/learning/`: append-only, source-isolated predictions and no-peeking guarded calibration.
+- `architecture/positions/` + `paper_trading/`: paper-only position advice, monitoring, and intentionally versioned research engines.
+- `telegram_ai/`: Persian intents, persistent announcement follow-up, HTML-safe response contracts, and Telegram adapters.
 
 ---
 
 ## 4. Testing & Verification
 ```bash
-python scripts/freeze_lane_a.py
-python scripts/validate_imports.py
-python -m pytest tests/ -q
+.venv/bin/python scripts/freeze_lane_a.py
+.venv/bin/python scripts/validate_imports.py
+.venv/bin/python tests/validate_n8n.py
+.venv/bin/python -m pytest -q -p no:cacheprovider
 ```
 
-The latest machine-readable results are committed in `reports/validate_imports_run.json` and `reports/pytest_run.json`; do not rely on a hard-coded historical count.
+On Windows replace `.venv/bin/python` with `.venv\Scripts\python.exe`. Historical machine-readable reports retain the host and time at which they were produced; use the executed-results section in the canonical status document for the current checkout.
 
 ---
 

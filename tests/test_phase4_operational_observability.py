@@ -42,6 +42,12 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert data["track_b_accounting"]["accounting_sum_usd"] == pytest.approx(20.0, rel=1e-7)
     assert data["security_invariants"]["ahos_paper_only_enforced"] is True
     assert data["security_invariants"]["live_trading_prohibited"] is True
+    assert data["security_invariants"]["zero_secret_in_source"] == "NOT_CHECKED_AT_RUNTIME"
+    assert data["runtime_state"] in {"RUNNING", "STALE", "NOT_OBSERVED"}
+    assert (data["runtime_state"] == "RUNNING") is data["scheduler_status"]["heartbeat_is_fresh"]
+    # A heartbeat timestamps the latest observation; it is not proof of process
+    # start time and therefore cannot honestly be called uptime.
+    assert data["system_uptime_seconds"] is None
 
 
 @pytest.mark.parametrize("query,expected_intent,expected_snippet", [

@@ -172,3 +172,17 @@ def test_every_env_var_the_code_reads_is_documented():
         v for v in referenced
         if v not in example and v != "TELEGRAM_ALLOWED_CHATS")  # legacy alias
     assert not undocumented, f"env vars read but never documented: {undocumented}"
+
+
+def test_canonical_compose_runs_the_observation_loop_as_local_evidence(compose):
+    core = _services(compose)["ahos-core"]
+    command = " ".join(core["command"])
+    assert "--daemon" in command
+    assert "--observation-cycle" in command
+    assert "--evidence-source local" in command
+    assert core["environment"]["AHOS_EVIDENCE_SOURCE"] == "local"
+
+
+def test_container_targets_the_supported_python_floor():
+    first = DOCKERFILE.read_text(encoding="utf-8").splitlines()[1]
+    assert "python:3.11-slim" in first

@@ -23,7 +23,6 @@ class MarketMetrics:
     volume_5m: float | None = UNKNOWN_VALUE
     volume_1h: float | None = UNKNOWN_VALUE
     volume_24h: float | None = UNKNOWN_VALUE
-    volume_velocity: float | None = UNKNOWN_VALUE
     fdv_usd: float | None = UNKNOWN_VALUE
     market_cap_usd: float | None = UNKNOWN_VALUE
     price_change_5m: float | None = UNKNOWN_VALUE
