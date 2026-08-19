@@ -738,3 +738,124 @@ class DexScreenerBoostsAdapter(BaseHttpProviderAdapter):
     def fetch_token_metrics(self, chain: str, address: str) -> ProviderResponse:
         # Boost feed carries no market metrics; it is a discovery/attention source.
         return ProviderResponse(provider_id="dexscreener_boosts", status="OK", tokens=[])
+
+
+# ======================================================================
+# CoinMarketCap (Wave-25 / Phase 8)
+#
+# CoinMarketCap is a PAID, key-gated API. This project runs on a $0 cost floor,
+# so the adapter is built but stays DISABLED unless COINMARKETCAP_API_KEY is
+# present in the environment. Without a key it reports NO_KEY.
+# ======================================================================
+
+class CoinMarketCapAdapter(BaseHttpProviderAdapter):
+    """CoinMarketCap v2 API adapter. Inert without COINMARKETCAP_API_KEY."""
+
+    def __init__(self, transport: Callable = urllib.request.urlopen,
+                 api_key: str | None = None):
+        super().__init__(
+            provider_id="coinmarketcap",
+            base_url="https://pro-api.coinmarketcap.com",
+            capabilities=["metadata", "market_cap", "rank"],
+            rate_limit_rps=1.0,
+            transport=transport,
+        )
+        import os
+        self._api_key = api_key if api_key is not None else os.environ.get("COINMARKETCAP_API_KEY", "")
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self._api_key)
+
+    def health_check(self) -> bool:
+        return bool(self._api_key) and super().health_check()
+
+    def _no_key(self, t0: float) -> ProviderResponse:
+        return ProviderResponse(
+            provider_id="coinmarketcap", status="NO_KEY", tokens=[],
+            latency_ms=(time.time() - t0) * 1000.0,
+            error_message="COINMARKETCAP_API_KEY not set. CoinMarketCap v2 requires an API key.",
+        )
+
+    def _get(self, path: str) -> tuple[dict, bytes, int]:
+        self._rate_limit()
+        req = urllib.request.Request(
+            f"{self._base_url}{path}",
+            headers={"X-CMC_PRO_API_KEY": self._api_key,
+                     "Accept": "application/json",
+                     "User-Agent": "ahos/1.0"},
+        )
+        with self._transport(req, timeout=self._timeout_sec) as resp:
+            raw = resp.read()
+            status_code = resp.status
+        return json.loads(raw), raw, status_code
+
+    def fetch_candidate_tokens(self, chain: str, limit: int = 20) -> ProviderResponse:
+        t0 = time.time()
+        if not self._api_key:
+            return self._no_key(t0)
+        return ProviderResponse(
+            provider_id="coinmarketcap", status="UNSUPPORTED", tokens=[],
+            latency_ms=(time.time() - t0) * 1000.0,
+            error_message="CoinMarketCap adapter does not support candidate discovery lists.",
+        )
+
+    def fetch_token_metrics(self, chain: str, address: str) -> ProviderResponse:
+        t0 = time.time()
+        if not self._api_key:
+            return self._no_key(t0)
+        try:
+            data, raw, status_code = self._get(f"/v2/cryptocurrency/info?address={address}")
+            result_data = data.get("data") or {}
+
+            target_token_data = None
+            for tid, tok_info in result_data.items():
+                platform = tok_info.get("platform") or {}
+                token_address = platform.get("token_address")
+                if token_address and token_address.lower() == address.lower():
+                    target_token_data = tok_info
+                    break
+
+            if not target_token_data and result_data:
+                target_token_data = next(iter(result_data.values()))
+
+            if not target_token_data:
+                return ProviderResponse(
+                    provider_id="coinmarketcap", status="OK", tokens=[],
+                    latency_ms=(time.time() - t0) * 1000.0,
+                    http_status=status_code, raw_sha256=_sha(raw),
+                    error_message=f"No token matching address {address} found in CoinMarketCap response."
+                )
+
+            metrics = MarketMetrics(
+                market_cap_usd=float(target_token_data.get("self_reported_market_cap") or 0) or None,
+            )
+
+            symbol = str(target_token_data.get("symbol") or "UNKNOWN").upper()
+            name = target_token_data.get("name") or "Unknown Token"
+
+            sec = SecuritySignals()
+
+            tok = NormalizedTokenCandidate(
+                chain=chain.lower(),
+                address=address,
+                symbol=symbol,
+                name=name,
+                metrics=metrics,
+                security=sec,
+                source_provider="coinmarketcap",
+                retrieved_ts=time.time(),
+                raw_payload_sha256=_sha(raw),
+            )
+            tok.identify_unknowns()
+            return ProviderResponse(
+                provider_id="coinmarketcap", status="OK", tokens=[tok],
+                latency_ms=(time.time() - t0) * 1000.0,
+                http_status=status_code, raw_sha256=_sha(raw),
+            )
+        except Exception as e:
+            return ProviderResponse(
+                provider_id="coinmarketcap", status="ERROR", tokens=[],
+                latency_ms=(time.time() - t0) * 1000.0,
+                error_message=f"{type(e).__name__}: {str(e)[:200]}",
+            )

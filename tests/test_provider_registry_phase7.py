@@ -14,6 +14,7 @@ if str(ROOT_DIR) not in sys.path:
 
 from architecture.providers.coingecko import CoinGeckoAdapter
 from architecture.providers.chain_explorer import ChainExplorerAdapter
+from architecture.providers.adapters import CoinMarketCapAdapter
 from architecture.providers.collect import ProviderCollector, CollectionOutcome
 from architecture.providers.registry import ProviderRouter
 
@@ -244,8 +245,8 @@ def test_collect_total_failure_is_all_unknown_low_confidence():
     collector = ProviderCollector(transport=ExplodingTransport())
     outcome = collector.collect("solana", "SomeSolanaAddress1111111111111111111111")
 
-    # DOWN/ERROR = attempted and failed; UNSUPPORTED = honestly not applicable.
-    assert all(s in ("DOWN", "ERROR", "UNSUPPORTED") for s in outcome.provider_statuses.values())
+    # DOWN/ERROR = attempted and failed; UNSUPPORTED = honestly not applicable; NO_KEY = unconfigured paid tier.
+    assert all(s in ("DOWN", "ERROR", "UNSUPPORTED", "NO_KEY") for s in outcome.provider_statuses.values())
     cand = outcome.candidate
     assert cand.metrics.liquidity_usd is None
     assert cand.security.is_honeypot is None
@@ -267,3 +268,45 @@ def test_registry_exposes_new_providers():
     router = ProviderRouter()
     assert "coingecko" in router.providers
     assert "chain_explorer" in router.providers
+    assert "coinmarketcap" in router.providers
+
+
+COINMARKETCAP_FIXTURE = {
+    "status": {
+        "error_code": 0,
+        "error_message": None
+    },
+    "data": {
+        "123": {
+            "id": 123,
+            "name": "ABC Token",
+            "symbol": "ABC",
+            "self_reported_market_cap": 500000.0,
+            "platform": {
+                "token_address": "0xToken"
+            }
+        }
+    }
+}
+
+
+def test_coinmarketcap_no_key_fails_gracefully():
+    adapter = CoinMarketCapAdapter(transport=RoutingTransport({}), api_key="")
+    resp = adapter.fetch_token_metrics("ethereum", "0xToken")
+    assert resp.status == "NO_KEY"
+    assert resp.tokens == []
+
+
+def test_coinmarketcap_token_metrics_parse():
+    adapter = CoinMarketCapAdapter(
+        transport=RoutingTransport({"pro-api.coinmarketcap.com": COINMARKETCAP_FIXTURE}),
+        api_key="MOCK_API_KEY"
+    )
+    resp = adapter.fetch_token_metrics("ethereum", "0xToken")
+    assert resp.status == "OK"
+    assert len(resp.tokens) == 1
+    tok = resp.tokens[0]
+    assert tok.symbol == "ABC"
+    assert tok.name == "ABC Token"
+    assert tok.metrics.market_cap_usd == 500000.0
+    assert tok.source_provider == "coinmarketcap"

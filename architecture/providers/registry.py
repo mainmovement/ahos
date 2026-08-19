@@ -8,7 +8,8 @@ from .adapters import (
     DexScreenerAdapter,
     GeckoTerminalAdapter,
     GoPlusSecurityAdapter,
-    RugCheckSecurityAdapter
+    RugCheckSecurityAdapter,
+    CoinMarketCapAdapter
 )
 from .coingecko import CoinGeckoAdapter
 from .chain_explorer import ChainExplorerAdapter
@@ -26,6 +27,7 @@ class ProviderRouter:
             # from dexscreener/geckoterminal lists below):
             "coingecko": CoinGeckoAdapter(**kwargs),
             "chain_explorer": ChainExplorerAdapter(**kwargs),
+            "coinmarketcap": CoinMarketCapAdapter(**kwargs),
         }
 
     def get_provider(self, provider_id: str) -> BaseMarketProvider | None:
