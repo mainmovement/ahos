@@ -28,6 +28,18 @@ from config.paths import get_discovery_db_path
 logger = logging.getLogger("ahos.collector")
 
 
+# PAL-aligned breaker contracts (discovery/providers.yaml, Lane-A frozen).
+# Month 2 rate/breaker sync law (ROADMAP_v3 §2, tests/test_provider_yaml_sync.py):
+# the architecture collector must never open later or recover sooner than the
+# frozen PAL contract for the same provider_id.
+PAL_BREAKER_CONFIGS: dict[str, CircuitBreakerConfig] = {
+    "dexscreener": CircuitBreakerConfig(failure_threshold=3, recovery_timeout_sec=120.0),
+    "geckoterminal": CircuitBreakerConfig(failure_threshold=3, recovery_timeout_sec=120.0),
+    "goplus": CircuitBreakerConfig(failure_threshold=2, recovery_timeout_sec=300.0),
+    "rugcheck": CircuitBreakerConfig(failure_threshold=3, recovery_timeout_sec=180.0),
+}
+
+
 @dataclass
 class CollectedObservationRecord:
     obs_id: str
@@ -51,10 +63,8 @@ class CollectorEngine:
         self.db_path = db_path or get_discovery_db_path()
         self.router = router or ProviderRouter()
         self.circuit_breakers: dict[str, CircuitBreaker] = {
-            "dexscreener": CircuitBreaker("dexscreener"),
-            "geckoterminal": CircuitBreaker("geckoterminal"),
-            "goplus": CircuitBreaker("goplus"),
-            "rugcheck": CircuitBreaker("rugcheck"),
+            pid: CircuitBreaker(pid, PAL_BREAKER_CONFIGS[pid])
+            for pid in PAL_BREAKER_CONFIGS
         }
         self.retry_policy = RetryPolicy(max_retries=2, initial_delay_sec=0.2)
         self._init_tables()
