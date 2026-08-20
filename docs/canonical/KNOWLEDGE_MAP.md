@@ -220,7 +220,7 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   - Paper Position Manager (`architecture/positions/`): event-sourced position manager, fees, slippage, realizable PnL, invalidation exits, stale observation NO_DATA holds.
   - Alert Engine (`architecture/alerts/`): deterministic alert generator with WHY-law compliance.
   - Production Scheduler (`architecture/scheduling/`, `docs/architecture/PRODUCTION_SCHEDULER_SPEC.md`): wall-clock alignment, leasing locks, clock drift checks.
-  - Security & Observability (`architecture/security.py`, `architecture/observability.py`): secret redaction, structured JSON tracing.
+  - Security & Observability (`architecture/security/`, `architecture/observability.py`): secret redaction, structured JSON tracing.
 - Test Suite: 290 passed (36 new tests added, 0 failures). Governance hashes verified. Manifest `ahos_snap_w19_after.txt`.
 
 ## W20 — Phase XX: Production Runtime Layer, Collector, Pipeline, and Test Suite Expansion (2026-08-15)
@@ -407,3 +407,198 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   NO_DRIFT_DETECTED / DRIFT_DETECTED (first-trigger sample) / honest
   INSUFFICIENT_DATA on <10 samples; DRIFT_DETECTED adds a SCORE_DRIFT finding.
 - Suite **1294 passed**; zero live trading, zero credential exposure.
+
+## W35 — Evolution infrastructure wave (2026-08-20): self-observation, governed proposals, benchmark gate, dead-code detection, measured optimization
+- Self-observation (§4A): `CanonicalHealthSnapshot` gains a `self_observation`
+  block — provider failure rates (durable `provider_failure_events` census),
+  data completeness / UNKNOWN share, calibration state (ledger census + newest
+  artifact), test/regression health (committed gate artifacts), storage growth
+  (per-store bytes). Read-only, fail-open (NO_DATA), informational (never
+  drives the verdict — honest INSUFFICIENT_DATA / blocked egress are expected
+  states).
+- Governed improvement proposals (§4C): `SelfEvolutionEngine` now persists
+  proposals (`proposals/<id>.json` + sha256-integrity `proposals/ledger.jsonl`)
+  with the full mission-required analysis surface (problem, evidence,
+  subsystem, expected_benefit, risk, affected_contracts, benchmark_baseline,
+  proposed_change, validation_method); `scripts/propose_improvement.py` is a
+  governed CLI (full analysis required, is_ai=True → human gate, never
+  auto-approves, LANE_A_FORBIDDEN born REJECTED).
+- Benchmark gate (§5): `scripts/benchmark_performance.py` always records runs
+  as `ahos.benchmark_run.v1` (git+env+results) and `compare` produces a
+  before/after `ahos.benchmark_diff.v1` with per-benchmark deltas;
+  NOT_COMPARABLE when a benchmark is missing on either side.
+- Dead-code detection (§4B): the canonical `scripts/validate_imports.py` gate
+  gains an ORPHANS section (WARN-level) using a full import graph incl.
+  resolved relative/lazy imports; reports 14 honest candidates on the current
+  tree (standalone entrypoints + `architecture.security.engine`).
+- Measured optimization (§5, BASELINE→CHANGE→MEASUREMENT): calibration
+  `_token_regimes` batched from per-token DB connections to one IN-query —
+  **475.6 ms → 81.1 ms (5.9×) on an identical 500-token cohort with
+  byte-identical output**; evidence in `reports/benchmark_regime_batching.json`,
+  parity pinned by a regression test exercising the per-token no-peeking cutoff.
+- Suite **1311 passed**; zero live trading, zero credential exposure.
+
+## W36 — Intelligence loop + self-evolution (2026-08-20)
+- **Self-observation loop closed (P2):** daemon snapshots now emit THREE
+  artifacts per cadence — soak, system-state, and canonical health (with
+  self_observation). **Health scorecard (P3):** 12 independent dimensions
+  (DATA/PROVIDER/EVIDENCE/SCORING/CALIBRATION/DRIFT/RUNTIME/STORAGE/TEST/
+  ARCHITECTURE/CONFIG/BENCHMARK), each with status/evidence/explanation;
+  UNKNOWN/NO_DATA are explicit, never a fake numeric score; derived after the
+  verdict and non-authoritative.
+- **Diagnostic correlations (P4):** metric co-movements (provider failures ↔
+  UNKNOWN share, drift ↔ calibration stability, storage ↔ runtime, test exit
+  ↔ health, breakers ↔ provider health), all labeled CORRELATION_ONLY with
+  caveats — never causality; absent data yields no correlation.
+- **Self-evolution v2 (P5):** proposals gain classification
+  (PERFORMANCE/CORRECTNESS/DATA_QUALITY/INTELLIGENCE/LEARNING/ARCHITECTURE/
+  RELIABILITY/DOCUMENTATION/SECURITY, validated) and evidence_links
+  (health/diagnostic/benchmark refs); CLI accepts both. **Closed-loop
+  validation (P6):** `architecture/evolution/validate.py` maps benchmark
+  diff + test outcome to IMPROVEMENT_SUPPORTED / NO_MEASURABLE_IMPROVEMENT /
+  REGRESSION_DETECTED / NOT_COMPARABLE / INSUFFICIENT_DATA /
+  GOVERNANCE_REQUIRED (any regression or failed test ⇒ REGRESSION_DETECTED;
+  governance-required always defers to the human gate).
+- **Performance (P7):** calibration regime classification memoized on the
+  price tuple — repeated-series cohort **512 ms → 143 ms (3.6×)**, unique
+  worst case unchanged; evidence `reports/benchmark_regime_memoization.json`;
+  parity pinned.
+- **Orphan analysis (P8):** detector now resolves string-based lazy imports
+  (false positive fixed); `reports/ORPHAN_ANALYSIS_W36.md` classifies the 13
+  candidates: 0 SAFE_TO_REMOVE, 10 KEEP_ENTRYPOINT, 2 KEEP_LEGACY (Lane-A
+  frozen), 1 GOVERNANCE_REVIEW (config.offline_mode); nothing deleted.
+- **Architecture graph (P9):** `scripts/architecture_graph.py` — deterministic
+  stdlib module graph (139 nodes / 208 edges), machine-detects the
+  intelligence import cycle (explanations→scoring→intelligence→explanations);
+  a governed improvement proposal (prop_1787220693_6e764424) filed for it —
+  first end-to-end OBSERVE→DIAGNOSE→MEASURE→PROPOSE artifact.
+- **Evidence freshness (P10):** declared-but-unenforced STALE status now
+  realized — measured items older than 24h are STALE (value intact,
+  is_known() stays True); scoring provably invariant (no math branches on
+  status); observability completion, not a weighting change.
+- **Longitudinal learning (P11):** calibration schema v7 adds temporal_buckets
+  (weekly realized hit rate; TEMPORAL_DEGRADATION finding on falling rates;
+  small buckets honest INSUFFICIENT_DATA).
+- **Regression intelligence (P12):** `scripts/regression_report.py` diffs
+  evidence-state artifacts → machine-readable findings (test deltas,
+  benchmark degradation, schema drift, UNKNOWN growth, storage growth, cycle
+  count, Lane-A loss); NOT_COMPARABLE never invented.
+- Suite **1348 passed**; zero live trading, zero credential exposure.
+
+## W37 — Continuous evolution loop tightening (2026-08-20)
+- **Coherent evidence package (P2/P3/P4):** daemon cadence now writes a
+  package per interval — canonical triple + health scorecard +
+  snapshot-to-snapshot regression (vs the previous canonical_health artifact,
+  honest NOT_COMPARABLE on the first) + package index. `trend_dimensions`
+  gives per-dimension IMPROVING/STABLE/DEGRADING/UNKNOWN/NOT_COMPARABLE from
+  two committed scorecards (no fake global score). Each stage isolated:
+  a diagnostic failure never crashes the daemon.
+- **Automatic findings + finding→proposal (P5/P6):**
+  `architecture/evolution/findings.py` derives actionable findings
+  (PROVIDER_FAILURE, UNKNOWN_GROWTH, SCORE_DRIFT, CALIBRATION_DEGRADATION,
+  BENCHMARK_REGRESSION, STORAGE_ANOMALY, ARCHITECTURE_CYCLE, ORPHAN,
+  TEST_REGRESSION, CONFIG_DRIFT) with the full contract (id, severity,
+  evidence, confidence OBSERVED/DERIVED/CORRELATED/UNKNOWN, guard state,
+  internal/governance/external flags). `propose_for_finding` converts one
+  into a governed PROPOSED proposal with **deduplication** (an open proposal
+  for the same finding_id ⇒ EXISTING_PROPOSAL, no duplicates). The package
+  writes a findings artifact per cadence.
+- **Regression intelligence extended (P3/P12/P13):** provider-failure growth,
+  calibration-status change to error, test-count anomalies (≥10 jump), and
+  architecture-cycle list-length detection (new cycle ⇒ REGRESSION).
+- **Learning (P11):** calibration schema v8 adds error_analysis —
+  TP/FP/TN/FN at a pre-declared 50-point threshold, FPR/FNR, precision,
+  recall, and concrete highest-FP / lowest-TP examples with evidence shas;
+  sample guard + explicit warning below the bar.
+- **Configuration (P14/P15):** `config/offline_mode` is now OBSERVED in the
+  health snapshot's config_health (active flag, source) — behavioral wiring
+  stays a governed decision; CONFIG_DRIFT findings surface degraded gate or
+  active offline mode (never prints secrets).
+- Performance (P9): a regime-classifier micro-optimization candidate measured
+  1.01× (below the meaningful bar) and was reverted — no benchmark win, no
+  change. No performance claim made.
+- Suite **1370 passed**; zero live trading, zero credential exposure.
+
+## W38 — Evidence package enrichment + finding prioritization + doc drift + proposal quality (2026-08-20)
+- **Evidence package enriched (A+C):** the daemon package now carries 11
+  artifact types — canonical triple, scorecard, snapshot regression,
+  findings, architecture graph, health trends (vs previous scorecard),
+  benchmark state, doc-drift diagnostic, index. First package honest
+  NOT_COMPARABLE; every stage isolated.
+- **Finding prioritization (D):** findings carry `priority`
+  (CRITICAL/HIGH/MEDIUM/LOW) derived deterministically from severity +
+  evidence strength (CORRELATED/UNKNOWN downgrade; never inflated by weak
+  evidence), and are returned highest-priority first with a deterministic
+  tie-break.
+- **Doc <-> code drift detection (H):** `scripts/doc_drift.py` scans the 63
+  canonical docs for repository-relative file references; `.sqlite`/`.jsonl`
+  are never truncated (word-boundary fix); intentional planned/future refs
+  are ignored with reasons. Found and fixed **21 real stale references**
+  (data/*.sql → .sqlite, refactored security.py → security/ package,
+  lane_a_freeze.sh → scripts/freeze_lane_a.py, evaluate_conjunction.py →
+  baseline_stats.py, postgresql_schema location, soak_pilot_log .json →
+  .jsonl, experiment artifact paths). The canonical set now has ZERO stale
+  refs, regression-protected by a test. Doc-drift runs per package cadence.
+- **Proposal quality (E):** `SelfEvolutionEngine.validate_proposal` returns
+  a binary PASS/INCOMPLETE report (required fields, analysis surface,
+  rollback trigger, governance invariants, enum membership, PERFORMANCE ⇒
+  benchmark evidence link). Caught a real defect: the filed cycle proposal
+  was INCOMPLETE (missing diff ref); now PASS.
+- Suite **1384 passed**; zero live trading, zero credential exposure.
+
+## W39 — Evidence-driven improvement selection + learning from failure (2026-08-20)
+- **Improvement selection (W39 core):** `architecture/evolution/selection.py`
+  — `ImprovementCandidate` (full W39 field set; UNKNOWN stays None) and
+  `ImprovementSelectionEngine.evaluate`: deterministic lexicographic ranking
+  (impact → evidence → leverage → reversibility → cost). A candidate missing
+  any required dimension is NOT_COMPARABLE, never a fabricated mid-score; no
+  comparable candidate ⇒ INSUFFICIENT_EVIDENCE. `candidates_from_findings` +
+  `select_improvement` wire findings → candidates → selection; kind-derived
+  leverage encodes the intelligence-multiplication principle. Selection only
+  COMPARES — never implements/approves/merges.
+- **Learning from failure (W39 P10/P11):** `architecture/evolution/
+  experiment.py` — append-only JSONL experiment ledger with fixed result and
+  failure-reason vocabularies (OPTIMIZATION_BELOW_NOISE_FLOOR / OUTPUT_
+  PARITY_FAILED / ...), integrity sha256 per record, `lookup()` dedup. First
+  real entry: the W37 regime-classifier 1.01× candidate (reusable lesson:
+  the bottleneck is np.percentile+predict, not mean/var).
+- **Loop-pathology prevention (W39 P14):** `derive_findings` with an
+  experiment ledger marks a finding whose investigation was already
+  attempted as RECURRING_FINDING — the same failed change is not silently
+  re-proposed.
+- **Autonomous priority re-evaluation (W39 P13):** `select_highest_value()`
+  consumes findings + ledger (+health) and returns ONE highest-value
+  candidate; a previously-attempted change is downgraded to UNKNOWN
+  confidence so a known-failed optimization cannot win.
+- **Temporal acceleration (W39 P12):** `HealthSnapshotEngine.acceleration`
+  — 3-point per-dimension STABLE / STABLE_MOMENTUM / ACCELERATING /
+  DECELERATING / REVERSING / NOT_COMPARABLE, always CORRELATION_ONLY.
+- Performance: selection measured 0.53 ms per call (per-cadence cost
+  negligible — no optimization needed, no claim made).
+- Suite **1405 passed**; zero live trading, zero credential exposure.
+
+## W40 — Measured performance evolution (2026-08-20)
+Two evidence-backed bottlenecks found by profiling the per-cadence evidence
+package, optimized with the BASELINE→CHANGE→MEASUREMENT→PARITY discipline:
+
+1. **`load_registry` memoized** (`architecture/provider_router.py`): the
+   health snapshot re-parsed the static AI-provider YAML per cadence (72% of
+   its 0.44s). `lru_cache` keyed on the resolved path:
+   **9.2 ms → 0.0001 ms/call (~70,000× on repeated calls)**; cached == fresh
+   parse (parity test-pinned); snapshot 0.44s → 0.16s (2.7×).
+2. **`build_graph` cached on a source fingerprint**
+   (`scripts/architecture_graph.py`): the evidence package re-AST-parsed
+   140+ files per cadence (0.89s of 0.97s). Fingerprint = mtime+size of
+   every scanned file, so an edit invalidates while an unchanged tree
+   reuses: **294 ms → 2.4 ms/call (122×)**; parity + invalidation
+   test-pinned.
+
+Measured-and-rejected (recorded in the experiment ledger, never re-proposed):
+DB connection reuse in the health snapshot (0.035 ms/conn — below noise
+floor); `load_contract` JSON parse (0.029 ms — not a bottleneck).
+
+Architecture finding surfaced by the now-cached graph: a second lazy-import
+cycle `evolution.findings ↔ evolution.selection` — governed proposal
+`prop_1787227838_7120d5f2` filed (human gate, never auto-applied).
+
+Suite **1407 passed**; zero live trading, zero credential exposure.

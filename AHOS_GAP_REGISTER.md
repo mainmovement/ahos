@@ -40,7 +40,7 @@ and Lane-A freeze veto are exercised by that matrix. That is **not** a productio
 |---|---|
 | Controlled-failure matrix machine record | `reports/month1_failure_matrix.json` |
 | Soak snapshot file (pilot window, not 168h) | `reports/soak_snapshot_20260818T142806Z.json` |
-| Soak pilot log | `reports/soak_pilot_log_20260818T1431Z.jsonl` |
+| Soak pilot log | `reports/soak_pilot_log_20260818T1431Z.jsonll` |
 | Backup/restore drill (hashes, counts, integrity) | `reports/backup_restore_drill.json` |
 | Backup/restore implementation + tests | `scripts/sqlite_backup_restore.py`, `tests/test_sqlite_backup_restore.py` |
 | `provider_failure_events` schema/writer/tests | `architecture/collector/engine.py`, `tests/test_collector_failure_visibility.py` |

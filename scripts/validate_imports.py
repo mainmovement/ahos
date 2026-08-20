@@ -223,6 +223,113 @@ def check_artifacts() -> tuple[list[str], list[str]]:
     return failures, ["no build artifacts expected in a clean checkout"]
 
 
+def _module_import_paths(path: Path) -> set[str]:
+    """Every module path a source file imports, absolute and resolved
+    relative (level N) — so `from ..features import extractor` inside a
+    function body still registers `architecture.features.extractor` and a
+    lazy import cannot hide an orphan.
+
+    String-based lazy imports are also captured: `__init__.py` files in this
+    repo commonly map attribute names to `(".engine", "SecurityIntelligence")`
+    tuples inside `__getattr__`, which no AST Import node represents. Any
+    dotted string literal in an `__init__.py` is resolved relative to the
+    package, so those modules are never falsely reported as orphans.
+    """
+    out: set[str] = set()
+
+    def _package_of(file: Path) -> str:
+        rel = file.relative_to(ROOT).parent
+        return ".".join(rel.parts) if str(rel) != "." else ""
+
+    def _resolve_relative(rel_spec: str) -> str | None:
+        # 1 leading dot = this package (".engine" -> "pkg.engine"),
+        # 2 dots = parent, etc. — same semantics as a relative ImportFrom.
+        dots = len(rel_spec) - len(rel_spec.lstrip("."))
+        spec = rel_spec.lstrip(".")
+        parts = pkg.split(".") if pkg else []
+        if not spec or not parts:
+            return None
+        up = max(0, dots - 1)
+        base = ".".join(parts[: len(parts) - up]) if len(parts) >= up else ""
+        return f"{base}.{spec}" if base else spec
+
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (OSError, SyntaxError):
+        return out
+
+    pkg = _package_of(path)
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Import):
+            for alias in n.names:
+                out.add(alias.name)
+        elif isinstance(n, ast.ImportFrom) and n.module:
+            if n.level == 0:
+                out.add(n.module)
+                for alias in n.names:
+                    if alias.name != "*":
+                        out.add(f"{n.module}.{alias.name}")
+            else:
+                # relative: go up (level-1) packages from this file's package
+                parts = pkg.split(".") if pkg else []
+                up = max(0, n.level - 1)
+                base = ".".join(parts[: len(parts) - up]) if len(parts) >= up else ""
+                resolved = f"{base}.{n.module}" if base else n.module or ""
+                if resolved:
+                    out.add(resolved)
+                    for alias in n.names:
+                        if alias.name != "*":
+                            out.add(f"{resolved}.{alias.name}")
+
+    # string-based lazy imports (e.g. __getattr__ mapping tuples)
+    if path.name == "__init__.py":
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                v = node.value
+                if v.startswith(".") and v.lstrip(".").replace(".", "").isidentifier():
+                    resolved = _resolve_relative(v)
+                    if resolved:
+                        out.add(resolved)
+    return out
+
+
+def check_orphans() -> tuple[list[str], list[str]]:
+    """Dead-module detection (evolution mission §4B): a runtime module that
+    nothing imports and no test exercises is a candidate for consolidation or
+    removal. WARN-level only: a standalone executable entrypoint is
+    legitimate, and removal is a governance decision, never an automatic
+    action by this gate."""
+    known = set(collect_modules())
+
+    # A "leaf" is a real .py file, not a package directory (packages are
+    # referenced implicitly by their submodules and are never orphaned).
+    def _is_package(mod: str) -> bool:
+        rel = Path(*mod.split("."))
+        return (ROOT / rel / "__init__.py").exists()
+
+    leaf_modules = {m for m in known if not _is_package(m)}
+    referenced: set[str] = set()
+
+    scan_targets = list(ROOT.rglob("*.py"))
+    for path in scan_targets:
+        if "__pycache__" in path.parts or ".venv" in path.parts or ".git" in path.parts:
+            continue
+        for mod in _module_import_paths(path):
+            referenced.add(mod)
+
+    orphans = sorted(m for m in leaf_modules
+                     if m not in referenced and m not in IMPORT_EXCLUDE)
+    notes = [f"{len(leaf_modules)} leaf modules scanned, "
+             f"{len(referenced & leaf_modules)} referenced"]
+    if orphans:
+        notes.append(f"WARN: {len(orphans)} modules never imported by any module "
+                     "or test (dead-code candidates, governance review): "
+                     + ", ".join(orphans))
+    else:
+        notes.append("no orphaned leaf modules")
+    return [], notes
+
+
 # ---------------------------------------------------------------------- report
 
 def main(argv: list[str] | None = None) -> int:
@@ -243,6 +350,7 @@ def main(argv: list[str] | None = None) -> int:
             ("EVIDENCE-BOUNDARY", check_evidence_boundaries),
             ("LANE-A FREEZE", check_lane_a_freeze),
             ("SECRETS", check_secrets),
+            ("ORPHANS", check_orphans),
         ]
 
     rc = 0
@@ -250,7 +358,10 @@ def main(argv: list[str] | None = None) -> int:
         failures, notes = fn()
         print(f"\n== {name} ==")
         for line in notes:
-            print(f"   info: {line}")
+            if line.startswith("WARN:"):
+                print(f"   WARN: {line[5:].strip()}")
+            else:
+                print(f"   info: {line}")
         for line in failures:
             print(f"   FAIL: {line}")
         if failures:

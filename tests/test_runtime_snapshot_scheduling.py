@@ -50,7 +50,7 @@ def _fake_state(monkeypatch, report=None, raise_exc=False):
     monkeypatch.setattr("scripts.system_state_snapshot.build_snapshot", _build)
 
 
-def test_write_soak_snapshots_writes_both_artifacts(tmp_path, monkeypatch):
+def test_write_soak_snapshots_writes_all_three_artifacts(tmp_path, monkeypatch):
     _fake_soak(monkeypatch)
     _fake_state(monkeypatch)
 
@@ -63,11 +63,14 @@ def test_write_soak_snapshots_writes_both_artifacts(tmp_path, monkeypatch):
         now=1755700000.0,
     )
 
-    assert len(paths) == 2
+    assert len(paths) == 3
     assert all(p.exists() for p in paths)
     names = {p.name for p in paths}
     assert any(n.startswith("soak_snapshot_") for n in names)
     assert any(n.startswith("system_state_snapshot_") for n in names)
+    # self-observation loop closure: the canonical health snapshot (with its
+    # self_observation block) is written on every cadence
+    assert any(n.startswith("canonical_health_") for n in names)
 
     soak = json.loads(paths[0].read_text(encoding="utf-8"))
     assert soak["snapshot_utc"] == "2026-08-20T12:00:00Z"
@@ -76,8 +79,12 @@ def test_write_soak_snapshots_writes_both_artifacts(tmp_path, monkeypatch):
     state = json.loads(paths[1].read_text(encoding="utf-8"))
     assert state["result"] == "RECORDED"
 
+    health = json.loads(paths[2].read_text(encoding="utf-8"))
+    assert "self_observation" in health
+    assert health["overall_verdict"] in ("GREEN", "DEGRADED", "CRITICAL", "UNKNOWN")
 
-def test_one_failure_does_not_block_the_other(tmp_path, monkeypatch):
+
+def test_one_failure_does_not_block_the_others(tmp_path, monkeypatch):
     _fake_soak(monkeypatch, raise_exc=True)
     _fake_state(monkeypatch)
 
@@ -90,13 +97,22 @@ def test_one_failure_does_not_block_the_other(tmp_path, monkeypatch):
         now=1755700000.0,
     )
 
-    assert len(paths) == 1
-    assert paths[0].name.startswith("system_state_snapshot_")
+    # soak failed; system-state AND canonical health still written
+    assert len(paths) == 2
+    assert any(p.name.startswith("system_state_snapshot_") for p in paths)
+    assert any(p.name.startswith("canonical_health_") for p in paths)
 
 
 def test_total_failure_returns_empty_without_raising(tmp_path, monkeypatch):
     _fake_soak(monkeypatch, raise_exc=True)
     _fake_state(monkeypatch, raise_exc=True)
+
+    class _BoomEngine:
+        def generate_snapshot(self, now=None):
+            raise RuntimeError("health snapshot boom (injected)")
+
+    monkeypatch.setattr("architecture.runtime.observability_snapshot.HealthSnapshotEngine",
+                        _BoomEngine)
 
     paths = runtime_main.write_soak_snapshots(
         local_db=str(tmp_path / "l.sqlite"),

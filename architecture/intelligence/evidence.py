@@ -163,6 +163,13 @@ def _digest(key: str, value: Any, provider: str, timestamp: float) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+#: Pre-declared evidence freshness budget (W36 phase 10). A measured item
+#: older than this is STALE — still a known fact (its value stays usable for
+#: scoring, which never branches on status), but visibly old in explanations
+#: and calibration. Fixed before observing data; never a runtime parameter.
+EVIDENCE_FRESHNESS_BUDGET_SEC = 86400.0   # 24h
+
+
 def _atom(
     *,
     key: str,
@@ -174,7 +181,19 @@ def _atom(
     source_field: str,
     known_when: bool,
 ) -> Evidence:
+    """Build a provider-measured evidence atom with an honest status.
+
+    The declared-but-unenforced STALE contract is now realized: a known item
+    whose measurement is older than EVIDENCE_FRESHNESS_BUDGET_SEC carries
+    status STALE (value intact — is_known() stays True, and no scoring math
+    branches on status, so this is observability completion, not a weighting
+    change). Unknown stays UNKNOWN.
+    """
     status = "VERIFIED" if known_when else "UNKNOWN"
+    if status == "VERIFIED":
+        freshness = max(0.0, now - timestamp)
+        if freshness > EVIDENCE_FRESHNESS_BUDGET_SEC:
+            status = "STALE"
     return Evidence(
         key=key,
         description=description,

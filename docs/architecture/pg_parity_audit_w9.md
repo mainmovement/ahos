@@ -11,7 +11,7 @@
 
 **Total drift: 33/33 live tables absent from the PG DDL; 8 LDA-era PG tables need mapping/merge decisions.**
 Name collision flagged: PG DDL `agent_registry` vs this wave's W9 agent-registry concept
-(Lane-B store `data/architecture_registry.sqlite`) — semantics differ (n8n runtime agents vs
+(Lane-B store `database/postgresql_schema.sql`) — semantics differ (n8n runtime agents vs
 cognitive agents); reconciliation required in P2, no silent merge.
 
 ## P2 plan (designed, not executed)

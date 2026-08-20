@@ -1,0 +1,124 @@
+{
+  "schema": "ahos.architecture_graph.v1",
+  "generated_utc": "2026-08-20T10:11:24Z",
+  "node_count": 139,
+  "edge_count": 208,
+  "cycles": [
+    [
+      "architecture.explanations.engine",
+      "architecture.intelligence.engine",
+      "architecture.scoring.engine"
+    ]
+  ],
+  "top_depended_upon": [
+    {
+      "module": "config.paths",
+      "dependents": 22
+    },
+    {
+      "module": "architecture.intelligence.evidence",
+      "dependents": 16
+    },
+    {
+      "module": "architecture.risk.engine",
+      "dependents": 13
+    },
+    {
+      "module": "architecture.providers.contracts",
+      "dependents": 12
+    },
+    {
+      "module": "discovery.pal",
+      "dependents": 9
+    },
+    {
+      "module": "architecture.providers.adapters",
+      "dependents": 7
+    },
+    {
+      "module": "architecture.knowledge.contracts",
+      "dependents": 6
+    },
+    {
+      "module": "architecture.scoring.engine",
+      "dependents": 5
+    },
+    {
+      "module": "architecture.features.extractor",
+      "dependents": 4
+    },
+    {
+      "module": "architecture.collector.engine",
+      "dependents": 3
+    }
+  ],
+  "top_dependent": [
+    {
+      "module": "telegram_ai.service",
+      "dependencies": 18
+    },
+    {
+      "module": "architecture.runtime.__main__",
+      "dependencies": 14
+    },
+    {
+      "module": "architecture.pipeline.orchestrator",
+      "dependencies": 12
+    },
+    {
+      "module": "architecture.runtime.observation_loop",
+      "dependencies": 7
+    },
+    {
+      "module": "architecture.intelligence.engine",
+      "dependencies": 6
+    },
+    {
+      "module": "architecture.providers.registry",
+      "dependencies": 6
+    },
+    {
+      "module": "architecture.security.engine",
+      "dependencies": 6
+    },
+    {
+      "module": "architecture.collector.engine",
+      "dependencies": 5
+    },
+    {
+      "module": "architecture.explanations.engine",
+      "dependencies": 5
+    },
+    {
+      "module": "architecture.providers.collect",
+      "dependencies": 5
+    }
+  ],
+  "isolated_modules": [
+    "architecture.control_plane",
+    "architecture.evolution.validate",
+    "architecture.intel.analytics_bridge",
+    "architecture.knowledge.oss_pipeline",
+    "architecture.providers.defillama",
+    "architecture.providers.dex_pools",
+    "architecture.security.hygiene",
+    "config.offline_mode",
+    "discovery.feature_store",
+    "discovery.holders",
+    "discovery.observation_scheduler",
+    "discovery.outcomes",
+    "discovery.ranker",
+    "engine.agent_matrix_v2",
+    "engine.coverage_audit",
+    "engine.doc_hygiene",
+    "engine.event_backtest",
+    "engine.f1_s1_migration",
+    "engine.oss_audit",
+    "paper_trading.entry_rules",
+    "paper_trading.ledger",
+    "paper_trading.reports",
+    "paper_trading.risk",
+    "telegram_ai.providers"
+  ],
+  "note": "deterministic import-graph representation; a cycle is evidence for review, not an automatic failure"
+}

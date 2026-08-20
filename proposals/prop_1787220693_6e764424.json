@@ -1,0 +1,41 @@
+{
+  "proposal_id": "prop_1787220693_6e764424",
+  "created_ts": 1787220693.7610962,
+  "detected_by": "arena-agent",
+  "diagnosis": "Module-level import cycle in the intelligence surface (explanations -> scoring -> intelligence -> explanations)",
+  "proposed_by": "arena-agent",
+  "is_ai": true,
+  "target_scope": "B_ONLY",
+  "governance_touching": false,
+  "requires_human": true,
+  "candidate_diff_ref": "finding:architecture cycle — candidate diff to be prepared for architecture/{explanations,scoring,intelligence} after approval; never touches Lane A",
+  "replay_evidence": [],
+  "test_battery": [],
+  "redteam_verdict": "NEEDS_MORE_DATA",
+  "council_review": "NONE",
+  "research_basis": [],
+  "approvals": [],
+  "rollback_plan": {
+    "trigger": "cycle persists or any intelligence test fails",
+    "action": "revert the extraction commit"
+  },
+  "version_bump": null,
+  "current_stage": "PROPOSED",
+  "provenance_sha256": "fa62ecb8e94c4069d631ec129ed370c393a22ffdfb2f863d8f18e91cd2356bd3",
+  "analysis": {
+    "problem": "architecture.explanations.engine imports scoring.engine (InvalidationCondition); scoring.engine lazily imports intelligence.engine; intelligence.engine imports explanations.engine - a module-level cycle tolerated only by a function-body import",
+    "evidence": "scripts/architecture_graph.py detects the cycle deterministically (reports/architecture_graph_20260820T1030Z.json); all tests currently green",
+    "subsystem": "architecture/{explanations,scoring,intelligence}",
+    "expected_benefit": "Removes the only module-level cycle in the runtime surface; enables static analysis and cleaner import contracts",
+    "risk": "Moving InvalidationCondition to a neutral module touches three packages and their tests; behavior must stay byte-identical",
+    "affected_contracts": "OpportunityScoreReport (scoring.engine), ExplanationPack (explanations.engine), IntelligenceReport (intelligence.engine)",
+    "benchmark_baseline": "architecture_graph: 1 cycle; full suite 1311+ passing",
+    "proposed_change": "Extract InvalidationCondition into a dependency-neutral home (e.g. architecture/contracts.py) and re-import it from all three consumers; keep lazy scoring->intelligence import until the extraction is verified",
+    "validation_method": "re-run architecture_graph (expect 0 cycles); full pytest; targeted intelligence/explanation/scoring suites"
+  },
+  "classification": "ARCHITECTURE",
+  "evidence_links": {
+    "benchmark": "reports/architecture_graph_20260820T1030Z.json"
+  },
+  "sha256": "395e1e6d93454422ec76fe04fc3a48f645095e3eb8e83abcb97cc49366dc1771"
+}

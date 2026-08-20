@@ -1,0 +1,41 @@
+{
+  "proposal_id": "prop_1787227838_7120d5f2",
+  "created_ts": 1787227838.8824105,
+  "detected_by": "arena-agent",
+  "diagnosis": "Lazy-import cycle between evolution.findings and evolution.selection (both directions)",
+  "proposed_by": "arena-agent",
+  "is_ai": true,
+  "target_scope": "B_ONLY",
+  "governance_touching": false,
+  "requires_human": true,
+  "candidate_diff_ref": "",
+  "replay_evidence": [],
+  "test_battery": [],
+  "redteam_verdict": "NEEDS_MORE_DATA",
+  "council_review": "NONE",
+  "research_basis": [],
+  "approvals": [],
+  "rollback_plan": {
+    "trigger": "cycle persists or any evolution test fails",
+    "action": "revert the extraction commit"
+  },
+  "version_bump": null,
+  "current_stage": "PROPOSED",
+  "provenance_sha256": "ac98b9510a3c173a25828ba24f4fe7bd780085d6dfda8b6a533916e5929cf02c",
+  "analysis": {
+    "problem": "architecture/evolution/findings.py imports from .selection (ImprovementCandidate, ImprovementSelectionEngine) and selection.py imports from .findings (candidates_from_findings) — a module-level cycle tolerated only by function-body imports",
+    "evidence": "scripts/architecture_graph.py machine-detects it (2 cycles now: findings<->selection + the pre-existing explanations->scoring->intelligence cycle); graph cached and verified 2026-08-20",
+    "subsystem": "architecture/evolution/{findings,selection}",
+    "expected_benefit": "Removes a second import cycle from the runtime surface; static analysis stays clean; selection/findings become independently importable",
+    "risk": "Moving the shared helpers touches both modules and their tests; behavior must stay byte-identical",
+    "affected_contracts": "DiagnosticFinding, ImprovementCandidate, candidates_from_findings, select_improvement",
+    "benchmark_baseline": "architecture_graph: 2 cycles; full suite 1405+ passing",
+    "proposed_change": "Extract the finding/candidate shared vocabulary (DiagnosticFinding, ImprovementCandidate dataclasses) into a dependency-neutral home and re-import from both; keep lazy imports until verified",
+    "validation_method": "re-run architecture_graph (expect 1 cycle: the pre-existing intelligence one); full pytest; targeted evolution suites"
+  },
+  "classification": "ARCHITECTURE",
+  "evidence_links": {
+    "benchmark": "reports/architecture_graph_20260820T1030Z.json"
+  },
+  "sha256": "7c4df2736350dae527baf57d3d5aff56b4a27dc4c9e1867d03e2924a22d285bb"
+}

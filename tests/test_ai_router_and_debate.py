@@ -63,3 +63,20 @@ def test_debate_council_risk_veto_low_liquidity():
 
     assert debate["risk_veto"] is True
     assert "Pool liquidity under $5,000" in debate["risk_veto_reason"]
+
+
+def test_load_registry_is_memoized_and_parity_preserved():
+    """W40: load_registry is memoized (static config, per-cadence caller) —
+    repeated calls must hit the cache (cheap) and return a result identical
+    to a fresh parse."""
+    from architecture.provider_router import load_registry
+    import yaml
+    from pathlib import Path
+
+    cached = load_registry()
+    again = load_registry()
+    assert cached is again, "memoization must return the cached object"
+    fresh = yaml.safe_load(
+        Path("config/ai_provider_registry.yaml").read_text(encoding="utf-8"))
+    assert cached == fresh, "cached registry must equal a fresh parse (parity)"
+    assert isinstance(cached.get("providers"), dict)

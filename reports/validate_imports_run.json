@@ -1,8 +1,8 @@
 {
   "schema": "ahos.test_run.v1",
-  "timestamp_utc": "2026-08-20T09:14:12Z",
-  "finished_utc": "2026-08-20T09:14:24Z",
-  "duration_sec": 12.537,
+  "timestamp_utc": "2026-08-20T12:15:06Z",
+  "finished_utc": "2026-08-20T12:15:20Z",
+  "duration_sec": 13.703,
   "command": [
     ".venv/bin/python",
     "-B",
@@ -12,7 +12,7 @@
   "cwd": "/home/user/ahos",
   "executable": "/home/user/ahos/.venv/bin/python",
   "git": {
-    "commit_sha": "f81b3d4e068f6e3bd06a4cc547b96031fb0f5f93",
+    "commit_sha": "b039fb0ad20dfa98f7dd42cd07a3b98e66aa1e41",
     "branch": "arena/01a01def-ahos",
     "working_tree_clean": false
   },
@@ -30,7 +30,7 @@
   "exit_code": 0,
   "timed_out": false,
   "pytest_summary": null,
-  "stdout": "\n== ARTIFACTS ==\n   info: no build artifacts expected in a clean checkout\n\n== IMPORTS ==\n   info: 162 modules imported cleanly in fresh interpreters\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 17 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 2092 source files scanned\n\nVALIDATION PASSED \u2014 repository wiring is clean.\n",
+  "stdout": "\n== ARTIFACTS ==\n   info: no build artifacts expected in a clean checkout\n\n== IMPORTS ==\n   info: 166 modules imported cleanly in fresh interpreters\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 17 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 2106 source files scanned\n\n== ORPHANS ==\n   info: 142 leaf modules scanned, 130 referenced\n   WARN: 12 modules never imported by any module or test (dead-code candidates, governance review): discovery.collect, engine.acquire_3yr, engine.agent_matrix_v2, engine.coverage_audit, engine.data_audit, engine.doc_hygiene, engine.dryrun_simulation, engine.oss_audit, engine.pal_probe, engine.research_report_bot, engine.telegram_live_test, paper_trading.cycle\n\nVALIDATION PASSED \u2014 repository wiring is clean.\n",
   "stderr": "",
   "verdict": "PASS"
 }
