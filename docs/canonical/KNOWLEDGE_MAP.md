@@ -322,3 +322,28 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
 - Test Suite: **1225 passed (100% green)**; gate artifacts refreshed
   (`reports/pytest_run.json`, `reports/validate_imports_run.json` — PASS, Lane-A frozen).
   Zero live trading, zero credential exposure.
+
+## W33 — Month 3: Score-vs-outcome calibration surface (2026-08-20, M-GAP-008 infra)
+- Extended the canonical calibration harness (`architecture/learning/calibration.py`,
+  report schema v3 — no parallel analytics subsystem):
+  - Confidence-bucket segmentation (HIGH/MED/LOW + UNKNOWN bucket; ordering /
+    inversion verdicts pin over/under-confidence) and chain segmentation, with the
+    same pre-registered guards as score bands (never more permissive).
+  - Continuous outcomes per band: mean/median max_favorable, mean max_adverse,
+    mean_score, calibration_delta (rate − mean_score/100 ⇒ per-band over/under-confidence).
+  - Diagnostics over the joined cohort: Brier on normalized score (explicitly a
+    ranking diagnostic, not a probability claim), base-rate Brier + resolution,
+    ECE over pre-declared bands, Spearman rank (score vs hit, score vs max_favorable)
+    — pure-stdlib implementations, deterministic.
+  - Evidence-coverage census, extreme-record provenance (top/bottom 3 scored rows
+    with evidence sha), honest dimension-availability (provider / market_regime /
+    opportunity_type NOT_PERSISTED_AT_PREDICTION_TIME — never fabricated).
+  - Multi-horizon `run_many` + CLI `--all-horizons` (combined artifact,
+    per-horizon provenance); INSUFFICIENT_DATA default unchanged; sample-size
+    warnings travel with descriptive metrics.
+- Tests: 21 new (`tests/test_calibration_extended.py`: empty/insufficient/valid
+  cohorts, bucket aggregation, confidence/chain segments, missing fields, UNKNOWN
+  buckets, mixed versions, multi-horizon, determinism, no-fabrication, CLI).
+- Runtime: `scripts/calibration_report.py` artifacts committed — honest
+  INSUFFICIENT_DATA (0 `local` pairs; real measurement still blocked on data
+  accrual per M-GAP-008). Suite 1232 → **1253 passed**; zero live trading.
