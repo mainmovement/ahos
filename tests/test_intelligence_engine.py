@@ -199,18 +199,31 @@ def test_intel_signals_attach_as_extra_evidence_only():
         txn_acceleration=4.0, volume_acceleration=3.0, buy_pressure=2.0,
         wash_suspected=True, is_paid_promotion=False, computed_ts=NOW,
     )
-    extra = collect_intel_evidence(narrative=narrative, virality=virality)
+    # The fixture signal was computed FROM observed txn data, so the caller
+    # declares txns_seen — otherwise the honest default (UNKNOWN) would
+    # suppress the wash flag (never a fabricated negative from missing data).
+    extra = collect_intel_evidence(narrative=narrative, virality=virality,
+                                   boost_seen=True, txns_seen=True)
     assert extra
     assert all(isinstance(e, Evidence) for e in extra)
     assert any(e.key == "narrative_label" for e in extra)
     assert evidence_from_narrative(narrative)
-    assert evidence_from_virality(virality)
+    assert evidence_from_virality(virality, boost_seen=True, txns_seen=True)
 
     intel = IntelligenceEngine().evaluate(
         materialize_evidence(_candidate(), now=NOW), extra=extra,
     )
     assert intel.evidence.get("wash_suspected") is not None
     assert intel.risk.has("WASH_SUSPECTED")
+
+    # WITHOUT the flags the same signal must NOT leak a fabricated wash
+    # finding — the honest default is UNKNOWN/absent.
+    intel_unflagged = IntelligenceEngine().evaluate(
+        materialize_evidence(_candidate(), now=NOW),
+        extra=collect_intel_evidence(narrative=narrative, virality=virality),
+    )
+    wash = intel_unflagged.evidence.get("wash_suspected")
+    assert wash is not None and wash.value is None and wash.status == "UNKNOWN"
 
 
 def test_extended_bundle_does_not_mutate_original():

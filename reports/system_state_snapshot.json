@@ -1,11 +1,11 @@
 {
   "schema": "ahos.system_state.v1",
-  "timestamp_utc": "2026-08-18T16:46:25Z",
+  "timestamp_utc": "2026-08-20T07:36:28Z",
   "command": "python scripts/system_state_snapshot.py",
   "git": {
-    "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
-    "branch": "arena/01a015a3-ahos",
-    "working_tree_clean": true
+    "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+    "branch": "arena/01a01def-ahos",
+    "working_tree_clean": false
   },
   "environment": {
     "python_version": "3.11.2",
@@ -15,9 +15,7 @@
     "system": "Linux",
     "executable": "/home/user/ahos/.venv/bin/python",
     "cwd": "/home/user/ahos",
-    "ahos_related_env_names": [
-      "PYTHONDONTWRITEBYTECODE"
-    ],
+    "ahos_related_env_names": [],
     "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
   },
   "exit_code": 0,
@@ -30,7 +28,7 @@
   },
   "watchdog": {
     "status": "NO_HEARTBEATS",
-    "checked_at_utc": "2026-08-18T16:46:25Z",
+    "checked_at_utc": "2026-08-20T07:36:28Z",
     "max_age_sec": 300.0,
     "stale_components": [],
     "detail": "no heartbeat ever recorded \u2014 fresh install or silent death"
@@ -60,7 +58,8 @@
       "exists": true,
       "integrity_check": "ok",
       "row_counts": {
-        "control_flags": 20,
+        "control_flags": 40,
+        "opportunity_score_ledger": 0,
         "position_ledger": 0,
         "runtime_lifecycle_events": 0,
         "runtime_operational_metrics": 0,
@@ -68,7 +67,7 @@
         "scheduler_locks": 0,
         "scheduler_runs": 0
       },
-      "row_total": 20
+      "row_total": 40
     },
     "e01_discovery": {
       "path": "/home/user/ahos/data/e01_discovery.sqlite",
@@ -138,55 +137,184 @@
     "path": "/home/user/ahos/reports/backup_restore_drill.json",
     "verdict": "PASS"
   },
-  "provider_probe": [],
+  "provider_probe": [
+    {
+      "provider_id": "chain_explorer",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "error": "no discovery capability (has ['onchain', 'security', 'contract-verification']); reachability not tested by this probe",
+      "latency_ms": 0.0
+    },
+    {
+      "provider_id": "coingecko",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "error": "no discovery capability (has ['market', 'metadata', 'market_cap']); reachability not tested by this probe",
+      "latency_ms": 0.0
+    },
+    {
+      "provider_id": "coinmarketcap",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "error": "no discovery capability (has ['market', 'metadata', 'market_cap']); reachability not tested by this probe",
+      "latency_ms": 0.0
+    },
+    {
+      "provider_id": "dexscreener",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "error": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "latency_ms": 40.7
+    },
+    {
+      "provider_id": "geckoterminal",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "error": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "latency_ms": 53.7
+    },
+    {
+      "provider_id": "goplus",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "error": "no discovery capability (has ['security', 'honeypot', 'contract_audit', 'taxes']); reachability not tested by this probe",
+      "latency_ms": 0.3
+    },
+    {
+      "provider_id": "pumpfun",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "error": "<urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "latency_ms": 63.0
+    },
+    {
+      "provider_id": "rugcheck",
+      "probed_at_utc": "2026-08-20T07:36:28Z",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "error": "no discovery capability (has ['security', 'solana_lp_lock', 'solana_mint_authority']); reachability not tested by this probe",
+      "latency_ms": 0.2
+    }
+  ],
   "events": [
     {
-      "timestamp_utc": "2026-08-18T16:46:25Z",
-      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
       "event_type": "WATCHDOG_STATUS",
       "severity": "WARN",
       "evidence_path": "reports/system_state_snapshot.json#watchdog",
       "detail": "status=NO_HEARTBEATS detail=no heartbeat ever recorded \u2014 fresh install or silent death"
     },
     {
-      "timestamp_utc": "2026-08-18T16:46:25Z",
-      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
       "event_type": "SCHEDULER_WINDOW",
       "severity": "INFO",
       "evidence_path": "reports/system_state_snapshot.json#scheduler",
       "detail": "runs_in_window=0 status_counts={}"
     },
     {
-      "timestamp_utc": "2026-08-18T16:46:25Z",
-      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
       "event_type": "PERSISTENCE_INTEGRITY",
       "severity": "INFO",
       "evidence_path": "reports/system_state_snapshot.json#stores.ahos_local",
       "detail": "ahos_local integrity=ok exists=True"
     },
     {
-      "timestamp_utc": "2026-08-18T16:46:25Z",
-      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
       "event_type": "PERSISTENCE_INTEGRITY",
       "severity": "INFO",
       "evidence_path": "reports/system_state_snapshot.json#stores.e01_discovery",
       "detail": "e01_discovery integrity=ok exists=True"
     },
     {
-      "timestamp_utc": "2026-08-18T16:46:25Z",
-      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
       "event_type": "PERSISTENCE_INTEGRITY",
       "severity": "INFO",
       "evidence_path": "reports/system_state_snapshot.json#stores.paper_trading",
       "detail": "paper_trading integrity=ok exists=True"
     },
     {
-      "timestamp_utc": "2026-08-18T16:46:25Z",
-      "commit_sha": "d325a016ddf9ee2638e2afb5fb83d852e8437314",
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
       "event_type": "PERSISTENCE_INTEGRITY",
       "severity": "INFO",
       "evidence_path": "reports/system_state_snapshot.json#stores.ahos_knowledge",
       "detail": "ahos_knowledge integrity=ok exists=True"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "chain_explorer status=UNSUPPORTED tokens=0"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "coingecko status=UNSUPPORTED tokens=0"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "coinmarketcap status=UNSUPPORTED tokens=0"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "dexscreener status=TLS_ERROR tokens=0"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "geckoterminal status=TLS_ERROR tokens=0"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "goplus status=UNSUPPORTED tokens=0"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "pumpfun status=TLS_ERROR tokens=0"
+    },
+    {
+      "timestamp_utc": "2026-08-20T07:36:28Z",
+      "commit_sha": "ab9208dd4fd449e7628ec078c2cff48299d20519",
+      "event_type": "PROVIDER_PROBE",
+      "severity": "WARN",
+      "evidence_path": "reports/system_state_snapshot.json#provider_probe",
+      "detail": "rugcheck status=UNSUPPORTED tokens=0"
     }
   ],
   "honest_limitations": [

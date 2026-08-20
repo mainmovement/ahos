@@ -303,3 +303,107 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
 - CI Script Validation: `engine/run_all_checks.sh` executed and passed all 6 stages completely (Data audit, test_ahos, test_strategy_lab, test_discovery, test_baseline_stats, test_wave7_research, test_telegram_ai, test_paper_trading, dryrun, telegram live test, n8n validation).
 - Lane A Hash Integrity: Verified byte-identical hash for `discovery/collect.py` (`974f8650...`), Master Directive v1 (`e2457c0d...`), and E01 Protocol v1 (`16b86b86...`).
 - Test Suite: **516 passed tests (100% green, 0 failures, 0 warnings)** across 56 test suites. Manifest `ahos_snap_w31_after.txt`. Zero live trading, zero credential exposure.
+
+## W32 — Month 2: CoinMarketCap + pump.fun launchpad adapters, PAL rate/breaker sync (2026-08-20)
+- CoinMarketCap adapter (`architecture/providers/coinmarketcap.py`): keyed free tier, inert NO_KEY
+  until `COINMARKETCAP_API_KEY` (DEXTools pattern, zero traffic unconfigured); two-step
+  info+quotes lookup → real market cap/FDV/volume/price-change/social; chain-aware platform
+  matching; AUTH_REQUIRED/RATE_LIMIT/DOWN distinction; wired into `ProviderCollector` last
+  (fills UNKNOWNs only). 20 offline tests.
+- pump.fun launchpad adapter (`architecture/providers/pumpfun.py`): keyless Solana launchpad
+  discovery feed, discovery-only, Solana-only; missing fields stay UNKNOWN; DOWN/RATE_LIMIT/
+  OK-empty distinction. 11 offline tests. Both registered in `ProviderRouter` +
+  `--probe-providers`.
+- PAL rate/breaker sync law: `tests/test_provider_yaml_sync.py` pins adapters ≤ frozen
+  `discovery/providers.yaml` rates (dexscreener 120/geckoterminal 24/goplus ~20/rugcheck 30 rpm)
+  and collector breakers (threshold ≤ PAL, recovery ≥ PAL cooldown).
+- M-GAP-004 re-verified: `.github/workflows/ci.yml` push still rejected (App lacks `workflows`
+  permission); workflow kept untracked, ready when permission is granted.
+- Test Suite: **1225 passed (100% green)**; gate artifacts refreshed
+  (`reports/pytest_run.json`, `reports/validate_imports_run.json` — PASS, Lane-A frozen).
+  Zero live trading, zero credential exposure.
+
+## W33 — Month 3: Score-vs-outcome calibration surface (2026-08-20, M-GAP-008 infra)
+- Extended the canonical calibration harness (`architecture/learning/calibration.py`,
+  report schema v3 — no parallel analytics subsystem):
+  - Confidence-bucket segmentation (HIGH/MED/LOW + UNKNOWN bucket; ordering /
+    inversion verdicts pin over/under-confidence) and chain segmentation, with the
+    same pre-registered guards as score bands (never more permissive).
+  - Continuous outcomes per band: mean/median max_favorable, mean max_adverse,
+    mean_score, calibration_delta (rate − mean_score/100 ⇒ per-band over/under-confidence).
+  - Diagnostics over the joined cohort: Brier on normalized score (explicitly a
+    ranking diagnostic, not a probability claim), base-rate Brier + resolution,
+    ECE over pre-declared bands, Spearman rank (score vs hit, score vs max_favorable)
+    — pure-stdlib implementations, deterministic.
+  - Evidence-coverage census, extreme-record provenance (top/bottom 3 scored rows
+    with evidence sha), honest dimension-availability (provider / market_regime /
+    opportunity_type NOT_PERSISTED_AT_PREDICTION_TIME — never fabricated).
+  - Multi-horizon `run_many` + CLI `--all-horizons` (combined artifact,
+    per-horizon provenance); INSUFFICIENT_DATA default unchanged; sample-size
+    warnings travel with descriptive metrics.
+- Tests: 21 new (`tests/test_calibration_extended.py`: empty/insufficient/valid
+  cohorts, bucket aggregation, confidence/chain segments, missing fields, UNKNOWN
+  buckets, mixed versions, multi-horizon, determinism, no-fabrication, CLI).
+- Runtime: `scripts/calibration_report.py` artifacts committed — honest
+  INSUFFICIENT_DATA (0 `local` pairs; real measurement still blocked on data
+  accrual per M-GAP-008). Suite 1232 → **1253 passed**; zero live trading.
+- Follow-up (same wave): **provider segmentation closed** — `source_provider` is
+  now stamped on `OpportunityScoreReport` at scoring time (both `evaluate()` and
+  the pipeline's `from_intelligence` path) and persisted in
+  `opportunity_score_ledger.source_provider` (idempotent additive migration for
+  legacy stores; legacy rows stay NULL → UNKNOWN bucket). Calibration report
+  schema v4 adds `provider_segments` (same pre-registered guards) and an
+  `outcome_provenance` block (frozen Lane-A labeler identity). Opportunity-type
+  remains honestly NOT_PERSISTED — no such concept exists in the scoring
+  contract and the harness does not invent one. Suite **1257 passed**.
+- **Regime segmentation (schema v5):** token_price_regime computed post-hoc at
+  evaluation time from PRE-prediction observations per token (no-peeking:
+  `retrieved_ts <= scored_ts`) via the existing
+  `architecture/intel/regimes.py` classifier — its first production consumer.
+  Fewer than 10 pre-prediction observations ⇒ UNKNOWN bucket (never a default
+  regime). `regime_segments` added to the report; dimension_availability
+  documents the post-hoc computation honestly. Suite **1261 passed**.
+- **Weight-governance acceptance tool (W33d):** `scripts/calibration_diff.py`
+  diffs two calibration report artifacts (`ahos.calibration_diff.v1`,
+  deterministic) — per-band rate deltas only when both sides are DESCRIPTIVE_OK
+  on the same horizon+event_class, monotonicity + diagnostic deltas, full
+  provenance of both sides; honest NO_COMPARABLE_BANDS while evidence is
+  insufficient, IDENTICAL_DATASETS nulls rate deltas, missing artifact exits 2.
+  This is the roadmap's "any weight change ⇒ calibration diff attached to PR"
+  acceptance tool. Suite **1269 passed**.
+- **Month-3 feed-through (W33e):** virality / paid-promotion evidence now
+  flows into the opportunity report through the canonical converters —
+  `ViralityTracker` (intel/viral) → `evidence_from_virality`
+  (intelligence/adapters.py, first production caller) → `EvidenceBundle.extra`
+  → `OpportunityScoreReport.intel_evidence_items` / `answer_intel_evidence()`
+  with provider provenance (`intel.viral`). Wired in both scoring paths
+  (`OpportunityScorer.evaluate` + pipeline). Honesty fix in the shared
+  converter: `wash_suspected`/`is_paid_promotion` are DERIVED only when the
+  underlying data was observed (`boost_seen`/`txns_seen` flags); otherwise
+  UNKNOWN with value None — the signal's False-on-missing default never
+  fabricates negatives. The frozen 4-item `answer_evidence()` contract is
+  unchanged. Narrative (news RSS) feed-through remains uncollected by the
+  collector (documented, not fabricated). Suite **1276 passed**.
+
+## W34 — P0 data integrity + operator tooling + config validation + score drift (2026-08-20)
+- MCP `market_data_query` no longer fabricates prices (was hardcoded
+  `185.50 if SOL`): resolves real provider data via the unified
+  `ProviderCollector`, `data_status UNKNOWN` + null fields + per-provider
+  statuses when nothing is observed; symbols refused honestly; collector
+  injectable for offline tests.
+- Daemon `--snapshot-interval-hours N` (+ `--snapshot-probe-providers`):
+  automatic soak + system-state snapshots (first at t=0, then every N hours)
+  make the 168h protocol's 6h cadence a single command; failures logged,
+  never fatal. First production consumer of the snapshot scripts.
+- Config-validation invariant (`tests/test_config_validation.py`): every
+  canonical env key must be documented in `.env.example` or be a reasoned
+  legacy exception, and every documented key must be consumed. Fixed real
+  drift it found: COINGECKO_API_KEY / NVIDIA_API_KEY undocumented;
+  OLLAMA_BASE_URL documented but never read (code reads OLLAMA_API_URL);
+  dead AHOS_CHAIN / AHOS_CYCLE_MINUTES removed; GEMINI_API_KEY_PAID
+  documented; XAI_API_KEY coverage via ai_council_providers.yaml.
+- Calibration report schema v6: `score_drift` diagnostic feeds the cohort's
+  score stream through `StreamingDriftDetector` (first production consumer) —
+  NO_DRIFT_DETECTED / DRIFT_DETECTED (first-trigger sample) / honest
+  INSUFFICIENT_DATA on <10 samples; DRIFT_DETECTED adds a SCORE_DRIFT finding.
+- Suite **1294 passed**; zero live trading, zero credential exposure.

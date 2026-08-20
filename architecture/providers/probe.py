@@ -187,11 +187,15 @@ def probe_providers(chain: str = "solana",
         )
         from .chain_explorer import ChainExplorerAdapter
         from .coingecko import CoinGeckoAdapter
+        from .coinmarketcap import CoinMarketCapAdapter
+        from .pumpfun import PumpFunLaunchpadAdapter
 
         providers = {
             "dexscreener": DexScreenerAdapter(),
             "geckoterminal": GeckoTerminalAdapter(),
             "coingecko": CoinGeckoAdapter(),
+            "coinmarketcap": CoinMarketCapAdapter(),
+            "pumpfun": PumpFunLaunchpadAdapter(),
             "goplus": GoPlusSecurityAdapter(),
             "rugcheck": RugCheckSecurityAdapter(),
             "chain_explorer": ChainExplorerAdapter(),

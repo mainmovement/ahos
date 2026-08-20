@@ -44,6 +44,7 @@ DOCUMENTED_CLIS: dict[str, tuple[str, ...]] = {
 DOCUMENTED_RUNTIME_FLAGS = (
     "--probe-providers", "--daemon", "--interval-sec",
     "--observation-cycle", "--evidence-source",
+    "--snapshot-interval-hours", "--snapshot-probe-providers",
 )
 
 

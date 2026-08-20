@@ -115,6 +115,14 @@ From the same laptop, while the daemon runs:
 | every 12h after that | same |
 | nightly | `python scripts/sqlite_backup_restore.py backup` per store into `data/backups/` |
 
+**Automatic mode (recommended):** the daemon writes both snapshot types itself —
+start it with
+`python -m architecture.runtime --daemon --observation-cycle --snapshot-interval-hours 6 [--snapshot-probe-providers]`
+and the first snapshot lands at t=0, then every 6h, under `reports/`
+(`soak_snapshot_<utc>.json` + `system_state_snapshot_<utc>.json`, never
+overwritten). A snapshot-cycle failure is logged and never stops the daemon;
+a gap in the series must still be explained (sleep, travel, kill).
+
 Commit snapshots under `reports/` (never overwrite). A gap in the snapshot series must be explained (sleep, travel, kill).
 
 ---

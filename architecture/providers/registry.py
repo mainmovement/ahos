@@ -12,6 +12,8 @@ from .adapters import (
 )
 from .coingecko import CoinGeckoAdapter
 from .chain_explorer import ChainExplorerAdapter
+from .coinmarketcap import CoinMarketCapAdapter
+from .pumpfun import PumpFunLaunchpadAdapter
 
 
 class ProviderRouter:
@@ -26,6 +28,11 @@ class ProviderRouter:
             # from dexscreener/geckoterminal lists below):
             "coingecko": CoinGeckoAdapter(**kwargs),
             "chain_explorer": ChainExplorerAdapter(**kwargs),
+            # Month 2 (M-GAP-011): keyed free tier — inert (NO_KEY) until
+            # COINMARKETCAP_API_KEY is configured; never emits traffic without it.
+            "coinmarketcap": CoinMarketCapAdapter(**kwargs),
+            # Month 2 (M-GAP-011): keyless Solana launchpad discovery feed.
+            "pumpfun": PumpFunLaunchpadAdapter(**kwargs),
         }
 
     def get_provider(self, provider_id: str) -> BaseMarketProvider | None:

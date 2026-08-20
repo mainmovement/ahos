@@ -27,9 +27,12 @@ from .adapters import (
 )
 from .coingecko import CoinGeckoAdapter
 from .chain_explorer import ChainExplorerAdapter
+from .coinmarketcap import CoinMarketCapAdapter
 from .contracts import NormalizedTokenCandidate
 
-MARKET_PROVIDER_ORDER = ["dexscreener", "geckoterminal", "coingecko"]
+# coinmarketcap is LAST: keyed free tier, inert (NO_KEY) without a key; when
+# configured it only fills fields the keyless providers left UNKNOWN.
+MARKET_PROVIDER_ORDER = ["dexscreener", "geckoterminal", "coingecko", "coinmarketcap"]
 SECURITY_PROVIDER_ORDER = {
     # chain_explorer is attempted on every family; chains without a keyless
     # explorer instance honestly return UNSUPPORTED (recorded, never faked).
@@ -89,6 +92,7 @@ class ProviderCollector:
             "goplus": GoPlusSecurityAdapter(**kwargs),
             "rugcheck": RugCheckSecurityAdapter(**kwargs),
             "chain_explorer": ChainExplorerAdapter(**kwargs),
+            "coinmarketcap": CoinMarketCapAdapter(**kwargs),
         }
 
     def available_providers(self) -> list[str]:

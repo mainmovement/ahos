@@ -79,7 +79,9 @@ class DexScreenerAdapter(BaseHttpProviderAdapter):
             provider_id="dexscreener",
             base_url="https://api.dexscreener.com/latest/dex",
             capabilities=["discovery", "pairs", "liquidity", "volume", "price"],
-            rate_limit_rps=3.0,
+            # 120 rpm — equals the frozen PAL budget (discovery/providers.yaml);
+            # never exceed it (tests/test_provider_yaml_sync.py).
+            rate_limit_rps=2.0,
             transport=transport
         )
 
@@ -203,7 +205,9 @@ class GeckoTerminalAdapter(BaseHttpProviderAdapter):
             provider_id="geckoterminal",
             base_url="https://api.geckoterminal.com/api/v2",
             capabilities=["discovery", "pools", "ohlcv", "volume"],
-            rate_limit_rps=1.0,
+            # 24 rpm — under PAL's frozen 25 rpm budget
+            # (discovery/providers.yaml; tests/test_provider_yaml_sync.py).
+            rate_limit_rps=0.4,
             transport=transport
         )
 
@@ -306,7 +310,9 @@ class GoPlusSecurityAdapter(BaseHttpProviderAdapter):
             provider_id="goplus",
             base_url="https://api.gopluslabs.io/api/v1",
             capabilities=["security", "honeypot", "contract_audit", "taxes"],
-            rate_limit_rps=2.0,
+            # ~20 rpm — PAL's frozen goplus_evm budget is 20 rpm
+            # (discovery/providers.yaml; tests/test_provider_yaml_sync.py).
+            rate_limit_rps=0.33,
             transport=transport
         )
 
@@ -371,7 +377,9 @@ class RugCheckSecurityAdapter(BaseHttpProviderAdapter):
             provider_id="rugcheck",
             base_url="https://api.rugcheck.xyz/v1",
             capabilities=["security", "solana_lp_lock", "solana_mint_authority"],
-            rate_limit_rps=2.0,
+            # 30 rpm — equals PAL's frozen rugcheck budget
+            # (discovery/providers.yaml; tests/test_provider_yaml_sync.py).
+            rate_limit_rps=0.5,
             transport=transport
         )
 

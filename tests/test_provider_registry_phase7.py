@@ -14,6 +14,7 @@ if str(ROOT_DIR) not in sys.path:
 
 from architecture.providers.coingecko import CoinGeckoAdapter
 from architecture.providers.chain_explorer import ChainExplorerAdapter
+from architecture.providers.coinmarketcap import CoinMarketCapAdapter
 from architecture.providers.collect import ProviderCollector, CollectionOutcome
 from architecture.providers.registry import ProviderRouter
 
@@ -244,8 +245,9 @@ def test_collect_total_failure_is_all_unknown_low_confidence():
     collector = ProviderCollector(transport=ExplodingTransport())
     outcome = collector.collect("solana", "SomeSolanaAddress1111111111111111111111")
 
-    # DOWN/ERROR = attempted and failed; UNSUPPORTED = honestly not applicable.
-    assert all(s in ("DOWN", "ERROR", "UNSUPPORTED") for s in outcome.provider_statuses.values())
+    # DOWN/ERROR = attempted and failed; UNSUPPORTED = honestly not applicable;
+    # NO_KEY = unconfigured keyed tier (coinmarketcap is inert without a key).
+    assert all(s in ("DOWN", "ERROR", "UNSUPPORTED", "NO_KEY") for s in outcome.provider_statuses.values())
     cand = outcome.candidate
     assert cand.metrics.liquidity_usd is None
     assert cand.security.is_honeypot is None
@@ -267,3 +269,55 @@ def test_registry_exposes_new_providers():
     router = ProviderRouter()
     assert "coingecko" in router.providers
     assert "chain_explorer" in router.providers
+    assert "coinmarketcap" in router.providers
+    assert router.providers["coinmarketcap"].is_configured is False  # inert by default
+
+
+# ---------------------------- CoinMarketCap in collect() -----------------------
+
+CMC_INFO_FIXTURE = {
+    "data": {
+        "98765": {
+            "id": 98765, "name": "ABC Token", "symbol": "ABC",
+            "platform": {"id": 1027, "name": "Ethereum", "slug": "ethereum",
+                         "token_address": "0xToken"},
+            "urls": {},
+        }
+    },
+    "status": {"error_code": 0},
+}
+
+CMC_QUOTES_FIXTURE = {
+    "data": {
+        "98765": {"id": 98765, "quote": {"USD": {
+            "price": 0.10, "volume_24h": 5000.0, "market_cap": 999999.0,
+            "fully_diluted_market_cap": 1000000.0, "percent_change_24h": 5.0,
+        }}},
+    },
+    "status": {"error_code": 0},
+}
+
+
+def test_collect_uses_cmc_market_cap_when_keyed_and_coingecko_lacks_it():
+    """coinmarketcap is the last market provider: with a key it fills only the
+    fields the keyless providers left UNKNOWN (market cap here)."""
+    cg = dict(COINGECKO_FIXTURE)
+    cg["market_data"] = dict(COINGECKO_FIXTURE["market_data"])
+    cg["market_data"].pop("market_cap", None)   # CoinGecko does not know it
+
+    routes = _merge_routes(cg)
+    routes["pro-api.coinmarketcap.com/v2/cryptocurrency/info"] = CMC_INFO_FIXTURE
+    routes["pro-api.coinmarketcap.com/v2/cryptocurrency/quotes"] = CMC_QUOTES_FIXTURE
+
+    collector = ProviderCollector(transport=RoutingTransport(routes))
+    # ProviderCollector builds adapters without a key by default; inject one.
+    collector._providers["coinmarketcap"] = CoinMarketCapAdapter(
+        transport=RoutingTransport(routes), api_key="MOCK")
+    outcome = collector.collect("ethereum", "0xToken")
+
+    assert outcome.provider_statuses["coinmarketcap"] == "OK"
+    assert outcome.candidate.metrics.market_cap_usd == 999999.0
+    assert outcome.field_sources["metrics.market_cap_usd"] == "coinmarketcap"
+    # already-known fields are never overwritten by CMC (last provider wins law)
+    assert outcome.candidate.metrics.liquidity_usd == 50000.0
+    assert outcome.field_sources["metrics.liquidity_usd"] == "dexscreener"

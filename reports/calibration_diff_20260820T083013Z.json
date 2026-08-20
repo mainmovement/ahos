@@ -1,0 +1,158 @@
+{
+  "schema": "ahos.calibration_diff.v1",
+  "generated_utc": "2026-08-20T08:30:13Z",
+  "before_artifact": "/tmp/cal_before.json",
+  "after_artifact": "/tmp/cal_after.json",
+  "verdict": "NO_COMPARABLE_BANDS",
+  "cohort": {
+    "before": {
+      "horizon": "24h",
+      "event_class": "+50%",
+      "joined_pairs": 0,
+      "calibration_status": "INSUFFICIENT_DATA",
+      "dataset_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "after": {
+      "horizon": "24h",
+      "event_class": "+50%",
+      "joined_pairs": 0,
+      "calibration_status": "INSUFFICIENT_DATA",
+      "dataset_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "provenance": {
+    "before": {
+      "score_engine_versions": {},
+      "weight_fingerprints": [],
+      "eligible_sources": [
+        "local"
+      ]
+    },
+    "after": {
+      "score_engine_versions": {},
+      "weight_fingerprints": [],
+      "eligible_sources": [
+        "local"
+      ]
+    }
+  },
+  "bands": [
+    {
+      "band": "0-20",
+      "before_n": 0,
+      "after_n": 0,
+      "before_rate": null,
+      "after_rate": null,
+      "rate_delta": null,
+      "before_verdict": "INSUFFICIENT_DATA",
+      "after_verdict": "INSUFFICIENT_DATA",
+      "comparable": false
+    },
+    {
+      "band": "20-40",
+      "before_n": 0,
+      "after_n": 0,
+      "before_rate": null,
+      "after_rate": null,
+      "rate_delta": null,
+      "before_verdict": "INSUFFICIENT_DATA",
+      "after_verdict": "INSUFFICIENT_DATA",
+      "comparable": false
+    },
+    {
+      "band": "40-60",
+      "before_n": 0,
+      "after_n": 0,
+      "before_rate": null,
+      "after_rate": null,
+      "rate_delta": null,
+      "before_verdict": "INSUFFICIENT_DATA",
+      "after_verdict": "INSUFFICIENT_DATA",
+      "comparable": false
+    },
+    {
+      "band": "60-80",
+      "before_n": 0,
+      "after_n": 0,
+      "before_rate": null,
+      "after_rate": null,
+      "rate_delta": null,
+      "before_verdict": "INSUFFICIENT_DATA",
+      "after_verdict": "INSUFFICIENT_DATA",
+      "comparable": false
+    },
+    {
+      "band": "80-100",
+      "before_n": 0,
+      "after_n": 0,
+      "before_rate": null,
+      "after_rate": null,
+      "rate_delta": null,
+      "before_verdict": "INSUFFICIENT_DATA",
+      "after_verdict": "INSUFFICIENT_DATA",
+      "comparable": false
+    }
+  ],
+  "monotonicity": {
+    "before": null,
+    "after": null
+  },
+  "metrics": {
+    "base_rate": {
+      "before": null,
+      "after": null,
+      "delta": null
+    },
+    "brier_score": {
+      "before": null,
+      "after": null,
+      "delta": null
+    },
+    "brier_base_rate": {
+      "before": null,
+      "after": null,
+      "delta": null
+    },
+    "ece": {
+      "before": null,
+      "after": null,
+      "delta": null
+    },
+    "spearman_score_vs_hit": {
+      "before": null,
+      "after": null,
+      "delta": null
+    },
+    "spearman_score_vs_maxfav": {
+      "before": null,
+      "after": null,
+      "delta": null
+    },
+    "guards_met": {
+      "before": false,
+      "after": false,
+      "delta": 0
+    }
+  },
+  "findings": [
+    "No band is DESCRIPTIVE_OK on both sides (before 5 bands, after 5 bands) — no rate delta can be stated while real evidence is insufficient (M-GAP-008). This is the expected honest answer, not a failure."
+  ],
+  "command": "python scripts/calibration_diff.py /tmp/cal_before.json /tmp/cal_after.json",
+  "timestamp_utc": "2026-08-20T08:30:13Z",
+  "git": {
+    "commit_sha": "800e491b9335593bff58d4cc0162c52505e16857",
+    "branch": "arena/01a01def-ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.2",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "system": "Linux",
+    "executable": "/home/user/ahos/.venv/bin/python",
+    "cwd": "/home/user/ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
+  }
+}

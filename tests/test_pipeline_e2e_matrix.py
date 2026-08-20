@@ -32,6 +32,48 @@ class MockMultiChainProvider:
         return ProviderResponse(self.provider_id, "OK", tokens=[])
 
 
+def test_pipeline_stamps_source_provider_into_ledger(tmp_path):
+    """The production scoring path (pipeline -> from_intelligence) must stamp
+    the candidate's discovery provider into every persisted prediction, so
+    calibration can segment by provider (Q8). The evaluate() path is covered
+    by test_score_ledger_calibration; this pins the pipeline path."""
+    from architecture.learning.score_ledger import ScoreLedger
+
+    cand = NormalizedTokenCandidate(
+        chain="solana",
+        address="SolanaProvider11111111111111111111111111111",
+        symbol="PROV",
+        name="Provider Token",
+        source_provider="geckoterminal",       # distinct from the router id
+        retrieved_ts=time.time(),
+        metrics=MarketMetrics(liquidity_usd=40000.0, volume_1h=15000.0,
+                              txns_1h_buys=30, txns_1h_sells=10),
+        security=SecuritySignals(is_honeypot=False, is_contract_verified=True)
+    )
+
+    router = ProviderRouter()
+    router.providers["dexscreener"] = MockMultiChainProvider([cand])
+    router.providers["geckoterminal"] = MockMultiChainProvider([])
+
+    collector = CollectorEngine(db_path=str(tmp_path / "disc.sqlite"), router=router)
+    ledger = ScoreLedger(db_path=str(tmp_path / "ledger.sqlite"))
+    orchestrator = OpportunityPipelineOrchestrator(
+        collector=collector,
+        scorer=OpportunityScorer(),
+        alert_engine=AlertEngine(),
+        telegram_adapter=MockTelegramAdapter(),
+        target_chat_id=123,
+        score_ledger=ledger,
+    )
+
+    rep = orchestrator.run_pipeline(chain="solana", limit=5)
+    assert rep.scores_persisted == rep.scores_generated == 1
+    rows = ledger.recent(1)
+    assert rows[0]["source_provider"] == "geckoterminal", (
+        "pipeline must stamp the candidate's discovery provider, not the "
+        "router provider id")
+
+
 @pytest.mark.parametrize("chain", ["solana", "ethereum", "bsc", "base", "arbitrum"])
 def test_multi_chain_pipeline_execution(tmp_path, chain):
     db_file = tmp_path / f"test_pipe_{chain}.sqlite"

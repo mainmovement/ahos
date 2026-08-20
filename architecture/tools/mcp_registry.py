@@ -14,8 +14,10 @@ from architecture.tools.sandbox import SecuritySandbox, SecuritySandboxViolation
 class MCPToolRegistry:
     """Registry and dispatcher for MCP-compliant agent tools."""
 
-    def __init__(self, sandbox: Optional[SecuritySandbox] = None) -> None:
+    def __init__(self, sandbox: Optional[SecuritySandbox] = None,
+                 collector: Optional[Any] = None) -> None:
         self.sandbox = sandbox or SecuritySandbox()
+        self._collector = collector
         self.tools: Dict[str, Dict[str, Any]] = {}
         self._register_default_tools()
 
@@ -77,19 +79,88 @@ class MCPToolRegistry:
             }
 
     def _register_default_tools(self) -> None:
-        """Registers core AHOS analytical and risk tools."""
+        """Registers core AHOS analytical and risk tools.
 
-        def _market_data_query(token: str) -> Dict[str, Any]:
+        HONESTY LAW: the market-data tool must never fabricate numbers. It
+        resolves real provider data through the unified ProviderCollector and
+        reports `data_status: "OK"` only when at least one field was actually
+        observed; otherwise every field stays None with `data_status:
+        "UNKNOWN"` and the per-provider statuses/provenance are returned so an
+        agent can see exactly why nothing is known (M-GAP-016 discipline).
+        """
+
+        def _market_data_query(token: str = "", chain: str = "solana") -> Dict[str, Any]:
+            collector = self._collector
+            if collector is None:
+                from ..providers.collect import ProviderCollector
+                collector = ProviderCollector()
+
+            # Symbols cannot be resolved to a contract address by the provider
+            # layer; answering with a fabricated price would violate the
+            # UNKNOWN-over-invention law. Addresses (Solana base58 / EVM hex)
+            # are >= 32 chars; anything shorter is treated as a symbol and
+            # honestly refused.
+            if not token or len(token) < 32:
+                return {
+                    "token": token,
+                    "chain": chain,
+                    "data_status": "UNKNOWN",
+                    "note": ("a contract address is required for provider "
+                             "resolution; symbols cannot be mapped without a "
+                             "local registry (never fabricated)"),
+                    "price_usd": None,
+                    "liquidity_usd": None,
+                    "24h_volume_usd": None,
+                    "market_cap_usd": None,
+                    "fdv_usd": None,
+                    "provider_statuses": {},
+                    "unknown_fields": ["address"],
+                }
+            try:
+                outcome = collector.collect(chain=chain, address=token)
+            except Exception as e:
+                # Fail-closed: an exception is evidence, never a reason to
+                # invent data.
+                return {
+                    "token": token,
+                    "chain": chain,
+                    "data_status": "UNKNOWN",
+                    "note": f"provider collection failed: {type(e).__name__}: {str(e)[:200]}",
+                    "price_usd": None,
+                    "liquidity_usd": None,
+                    "24h_volume_usd": None,
+                    "market_cap_usd": None,
+                    "fdv_usd": None,
+                    "provider_statuses": {},
+                    "unknown_fields": [],
+                }
+
+            cand = outcome.candidate
+            known = bool(outcome.field_sources)
             return {
                 "token": token,
-                "price_usd": 185.50 if token.upper() == "SOL" else 1.00,
-                "liquidity_usd": 1200000.0,
-                "24h_volume_usd": 450000.0,
+                "chain": chain,
+                "data_status": "OK" if known else "UNKNOWN",
+                "note": None if known else (
+                    "no provider returned data for this address; all fields "
+                    "are UNKNOWN (never fabricated)"),
+                "price_usd": cand.metrics.price_usd,
+                "liquidity_usd": cand.metrics.liquidity_usd,
+                "24h_volume_usd": cand.metrics.volume_24h,
+                "market_cap_usd": cand.metrics.market_cap_usd,
+                "fdv_usd": cand.metrics.fdv_usd,
+                "provider_statuses": outcome.provider_statuses,
+                "field_sources": outcome.field_sources,
+                "unknown_fields": outcome.unknown_fields,
+                "confidence_level": cand.confidence_level,
             }
 
         def _risk_assessment(
             capital_usd: float, risk_pct: float
         ) -> Dict[str, Any]:
+            # Deterministic sizing formula from PROVIDED inputs only — no
+            # market data is invented here. The drawdown guard is a fixed
+            # model parameter (5% of capital), documented as such.
             max_pos = capital_usd * (risk_pct / 100.0)
             return {
                 "recommended_position_usd": round(max_pos, 2),
@@ -99,11 +170,17 @@ class MCPToolRegistry:
 
         self.register_tool(
             name="market_data_query",
-            description="Queries current market price and liquidity for a token symbol or address.",
+            description=("Queries market price, liquidity and volume for a "
+                         "token CONTRACT ADDRESS via the provider layer. "
+                         "Returns data_status UNKNOWN with null fields when "
+                         "no provider data is available — never fabricated."),
             parameters_schema={
                 "type": "object",
                 "properties": {
-                    "token": {"type": "string", "description": "Token symbol or address"}
+                    "token": {"type": "string",
+                              "description": "Token contract address (required; symbols are not resolvable)"},
+                    "chain": {"type": "string", "description": "Chain: solana, ethereum, bsc, base, ...",
+                              "default": "solana"},
                 },
                 "required": ["token"],
             },

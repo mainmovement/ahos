@@ -60,22 +60,36 @@ def evidence_from_narrative(signal: Any) -> list[Evidence]:
     return items
 
 
-def evidence_from_virality(signal: Any) -> list[Evidence]:
+def evidence_from_virality(signal: Any, *,
+                           boost_seen: bool | None = None,
+                           txns_seen: bool | None = None) -> list[Evidence]:
+    """Convert a ViralitySignal into evidence atoms with honest statuses.
+
+    The raw signal uses False-on-missing for `wash_suspected` and
+    `is_paid_promotion`; emitting that False as a known fact would fabricate
+    a negative ("no promotion" / "no wash") out of absent data. Callers must
+    pass `boost_seen` / `txns_seen` so the atoms are DERIVED only when the
+    underlying data was actually observed; otherwise the atom carries None
+    with status UNKNOWN. `None` (unspecified) is treated as not observed —
+    the conservative, never-fabricating default.
+    """
     if signal is None:
         return []
     ts = float(getattr(signal, "computed_ts", 0.0) or 0.0)
     status = "DERIVED" if getattr(signal, "is_known", False) else "UNKNOWN"
+    wash_value = getattr(signal, "wash_suspected", None) if txns_seen else None
+    paid_value = getattr(signal, "is_paid_promotion", None) if boost_seen else None
     return [
         _ev("virality_label", "Virality label", getattr(signal, "label", None),
             provider="intel.viral", timestamp=ts, source_field="virality.label", status=status),
         _ev("virality_score", "Virality score", getattr(signal, "score", None),
             provider="intel.viral", timestamp=ts, source_field="virality.score", status=status),
-        _ev("wash_suspected", "Wash-trading suspected", getattr(signal, "wash_suspected", None),
+        _ev("wash_suspected", "Wash-trading suspected", wash_value,
             provider="intel.viral", timestamp=ts, source_field="virality.wash_suspected",
-            status="DERIVED"),
-        _ev("is_paid_promotion", "Paid DEX promotion", getattr(signal, "is_paid_promotion", None),
+            status="DERIVED" if txns_seen else "UNKNOWN"),
+        _ev("is_paid_promotion", "Paid DEX promotion", paid_value,
             provider="intel.viral", timestamp=ts, source_field="virality.is_paid_promotion",
-            status="DERIVED"),
+            status="DERIVED" if boost_seen else "UNKNOWN"),
     ]
 
 
@@ -124,12 +138,20 @@ def evidence_from_exitability(report: Any) -> list[Evidence]:
 
 
 def collect_intel_evidence(*, narrative: Any = None, virality: Any = None,
-                           whales: Any = None, exitability: Any = None) -> list[Evidence]:
-    """Bundle optional Lane-A intel signals as extra Evidence."""
+                           whales: Any = None, exitability: Any = None,
+                           boost_seen: bool | None = None,
+                           txns_seen: bool | None = None) -> list[Evidence]:
+    """Bundle optional Lane-A intel signals as extra Evidence.
+
+    `boost_seen`/`txns_seen` are forwarded to `evidence_from_virality` so the
+    wash/paid-promotion atoms are DERIVED only when the underlying data was
+    observed; the conservative default (None) yields UNKNOWN, never a
+    fabricated negative.
+    """
     items: list[Evidence] = []
     for group in (
         evidence_from_narrative(narrative),
-        evidence_from_virality(virality),
+        evidence_from_virality(virality, boost_seen=boost_seen, txns_seen=txns_seen),
         evidence_from_whales(whales),
         evidence_from_exitability(exitability),
     ):
