@@ -79,7 +79,7 @@ AHOS is an **Event-Driven Autonomous Crypto Opportunity Intelligence System**. I
 
 - **Pytest Suite:** **1,187 passed** in 152.98s (100% pass rate, 0 failures, 0 errors).
 - **Import Validation (`scripts/validate_imports.py`):** **160 modules imported cleanly** in fresh interpreters.
-- **Lane-A Scientific Freeze (`scripts/freeze_lane_a.pya256`):** **36 files verified** with 0 unauthorized drift.
+- **Lane-A Scientific Freeze (`config/lane_a_freeze.sha256`):** **36 files verified** with 0 unauthorized drift.
 - **Security Audit:** **0** hardcoded API keys/secrets, **0** dangerous `eval()`/`exec()` calls in non-test runtime modules.
 
 ---

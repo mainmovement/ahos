@@ -19,7 +19,7 @@ would violate the protocol's own pre-registration rule — so the honest classif
 | Readiness (16 items) | `AHOS_MONTH1_PRE_SOAK_AUDIT.md` §1–16 (file:line + commands). Checklist inspection — not a soak PASS. | INSPECTION ONLY |
 | Controlled failures | Committed machine record `reports/month1_failure_matrix.json` (`total=28`, `passed=28`, `failed=0`). Narrative in `AHOS_CONTROLLED_FAILURE_TEST_REPORT.md` is not a substitute for that file. | PASS (matrix file only) |
 | Full regression | Counts live only in `reports/pytest_run.json` and `reports/validate_imports_run.json` (command + timestamp_utc + git.commit_sha + exit_code). Prior narrative “983 passed” / “972 passed” sentences had no artifact and are withdrawn. | SEE ARTIFACT |
-| Live pilot | Committed snapshot `reports/soak_snapshot_20260818T142806Z.json` + `reports/soak_pilot_log_20260818T1431Z.jsonll`. Sandbox hours, not the 168h window. | ACCRUING (pilot) |
+| Live pilot | Committed snapshot `reports/soak_snapshot_20260818T142806Z.json` + `reports/soak_pilot_log_20260818T1431Z.jsonl`. Sandbox hours, not the 168h window. | ACCRUING (pilot) |
 | Backup/restore drill | `reports/backup_restore_drill.json` + `tests/test_sqlite_backup_restore.py`. One executed drill; not 7 nightly host backups. | MITIGATED |
 
 ## What Failed (found & dispositioned)

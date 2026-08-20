@@ -51,7 +51,7 @@ PATH_RE = re.compile(
     r"(?<![A-Za-z0-9_.])((?:architecture|scripts|tests|docs|config|engine|"
     r"discovery|paper_trading|telegram_ai|strategy_lab|research|contracts|"
     r"deployment|database|proposals|reports|data)/[A-Za-z0-9_./\-]+"
-    r"\.(?:jsonl|sqlite|json|yaml|yml|sql|py|sh|md|txt|toml|ini|ps1|bat|"
+    r"\.(?:template|jsonl|sqlite|json|yaml|yml|sql|py|sh|md|txt|toml|ini|ps1|bat|"
     r"service|timer|csv))\b"
 )
 
@@ -64,6 +64,8 @@ CORRUPTION_PATTERNS: dict[str, str] = {
     "sqliteite": "double extension (replace applied inside .sqlite)",
     "jsonlson": "double extension (replace applied inside .jsonl)",
     "jsonjson": "double extension (replace applied inside .json)",
+    "jsonll": "malformed JSON Lines extension (expected .jsonl)",
+    "pya256": "malformed SHA-256 manifest extension (expected .sha256)",
     ".sql.sqlite": "double extension",
     ".json.json": "double extension",
 }

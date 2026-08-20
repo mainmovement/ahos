@@ -14,7 +14,7 @@ executed this session against `main @ 95f5e14`.
 |---|---|---|
 | Import & architecture gate | `python scripts/validate_imports.py` | **PASS** — 138 modules import cleanly; evidence-boundary 17 files OK; Lane-A freeze 36 files OK; secrets scan 2,111 files clean |
 | Test suite | `pytest tests/ -q` | **947 passed / 0 failed** in 70.2s (Python 3.11.2) |
-| Frozen scientific surface | `scripts/freeze_lane_a.pya256` | 36 files pinned — all of `discovery/` + `paper_trading/` |
+| Frozen scientific surface | `config/lane_a_freeze.sha256` | 36 files pinned — all of `discovery/` + `paper_trading/` |
 
 Repo shape: 223 Python files; `architecture/` = 78 files / 12,314 LOC (the real core);
 `tests/` = 77 files / ~12,100 LOC; `engine/` = legacy wave scripts; `database/` = SQL schemas only.

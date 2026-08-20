@@ -240,8 +240,9 @@
   (daily cadence; last run 2026-08-11 18:43Z).
 
 ### R-24 Paper Trading Lab — isolated Track-B online (2026-08-12)
-- WHAT: paper_trading/ subsystem (engine/ledger/entry_rules/exit_rules/position_monitor/cost_model/
-  paper_trading/schema.sql) — event-sourced append-only store (UPDATE/DELETE triggers),
+- WHAT: `paper_trading/` subsystem (`engine.py`, `ledger.py`, `entry_rules.py`,
+  `exit_rules.py`, `position_monitor.py`, `cost_model.py`, `reports.py`,
+  `schema.sql`, `strategies.json`) — event-sourced append-only store (UPDATE/DELETE triggers),
   discovery opened READ-ONLY (uri mode=ro, verified: Track-A counters unchanged by cycle 001).
 - LAWS TEST-PINNED (tests/test_paper_trading.py 14/14): as_of leakage impossibility (future-pollution
   replay identical), one-trade-per-token dedupe, invalid/negative/EPS-dust data rejected honestly,
@@ -396,8 +397,8 @@
 - PROCESS TRANSPARENCY: three test failures during build were surfaced and corrected openly —
   (i) my own syntax slip, (ii) test's brace-pattern evidence parsing vs yaml text, (iii) registry
   honesty lint caught a WRONG evidence citation (AG-03 pointed at a nonexistent
-  research/baseline_stats.py — function actually lives inside research/baseline_stats.py;
-  yaml corrected). No silent repairs; this note is the record.
+  standalone `evaluate_conjunction` module — the function actually lives in
+  `research/baseline_stats.py`; yaml corrected). No silent repairs; this note is the record.
 - P2 AUDIT (no migration): docs/architecture/pg_parity_audit_w9.md — measured drift 33/33 live
   SQLite tables absent from PG DDL; PG 'agent_registry' name collision with W9 registry flagged;
   execution blocked on host (Docker/VPS), $0 constraint.
@@ -1165,7 +1166,7 @@
   2. pump.fun launchpad adapter (`architecture/providers/pumpfun.py` + 11 offline tests): keyless Solana launchpad discovery feed; discovery-only (enrichment UNSUPPORTED); Solana-only; missing fields stay UNKNOWN; DOWN/RATE_LIMIT/OK-empty distinction. Registered in `ProviderRouter` + `--probe-providers`.
   3. PAL rate/breaker sync law (`tests/test_provider_yaml_sync.py`, 8 tests): architecture adapters never exceed the frozen `discovery/providers.yaml` contract — dexscreener 120 rpm, geckoterminal 24, goplus ~20, rugcheck 30; collector breakers now per-provider PAL contracts (threshold ≤ PAL, recovery ≥ PAL cooldown) via `architecture/collector/engine.py::PAL_BREAKER_CONFIGS`; external-ceiling guards for CMC (≤30 credits/min) and pump.fun (conservative, undocumented feed).
   4. Observability consolidation: `scripts/system_state_snapshot.py` now probes all 8 registered providers through the canonical `probe_providers()` (previously a 2-provider subset with raw exception class names); snapshot artifact regenerated (8/8 providers, honest statuses).
-  5. M-GAP-004 re-verified: push of `.github/workflows/ci.yml` still rejected (`refusing to allow a GitHub App to create or update workflow ... without workflows permission`); workflow kept untracked (Phase-7 precedent).
+  5. M-GAP-004 re-verified: push of `.github/workflows/ci.yml` still rejected (`refusing to allow a GitHub App to create or update workflow ... without workflows permission`); workflow preserved as tracked template `deployment/github-actions-ci.yml.template` so the working tree remains clean.
   6. Consolidation governance: the parallel CMC implementation on `arena/01a01b48-ahos` (PR #11) is superseded — comment left on the PR; the single canonical implementation lives on `arena/01a01def-ahos` (PR #12). No duplicate adapter is introduced.
 - EVIDENCE: 1225/1225 tests green (gate artifacts `reports/pytest_run.json` + `reports/validate_imports_run.json`, PASS, Lane-A integrity OK 36 files pinned); runtime `--probe-providers` + system-state snapshot exercised (provider SUCCESS still unproven from this host — M-GAP-007 remains OPEN, USER-ACTION-REQUIRED on the laptop); commits 5c58986, f10e2b5, 9b8d9e1, 9d3b625, ab9208d, 6141211. Zero live trading, zero credential exposure.
 

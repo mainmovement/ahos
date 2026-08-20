@@ -68,7 +68,28 @@ The latest machine-readable results are committed in `reports/validate_imports_r
 
 ---
 
-## 5. License & Governance
+## 5. Repository Map
+
+| Path | Purpose |
+|---|---|
+| `architecture/` | Canonical runtime, providers, scoring, learning, and governance code |
+| `discovery/` | Frozen Lane-A observation and outcome-labeling surface |
+| `paper_trading/` | Paper-only execution laboratory; never live trading |
+| `telegram_ai/` | Persian operator interface and Telegram adapters |
+| `config/` and `contracts/` | Versioned configuration and machine-readable contracts |
+| `scripts/` | Audits, maintenance commands, benchmarks, and operator tooling |
+| `tests/` | Regression and invariant test suite |
+| `docs/canonical/` | Current canonical knowledge and architecture documents |
+| `reports/` | Committed, machine-readable evidence and historical run artifacts |
+| `deployment/` | Deployment units and templates, including the blocked CI workflow template |
+
+Temporary merge payloads and generated caches are not project source. Keep them
+outside Git (or use the already-ignored `*.patch` extension); Git history remains
+the audit trail for completed integrations.
+
+---
+
+## 6. License & Governance
 Governed by immutable `MASTER_DIRECTIVE_v1` (hash-pinned: `e2457c0d...`).  
 Daily Agent Mode ops: `docs/AGENT_MODE_OPERATIONAL_DIRECTIVE_FA.md` (living; does not supersede v1).  
 Licensed under the Apache-2.0 License.

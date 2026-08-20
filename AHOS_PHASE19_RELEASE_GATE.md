@@ -117,7 +117,7 @@ not among them** — no weight or threshold was altered.
 ### Lane-A frozen-file cross-check
 
 Every one of the PR's 44 changed paths was intersected against the 36 entries in
-`scripts/freeze_lane_a.pya256`:
+`config/lane_a_freeze.sha256`:
 
 ```
 CHANGED ∩ FROZEN = EMPTY   -> no frozen file modified

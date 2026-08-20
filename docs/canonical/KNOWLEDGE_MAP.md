@@ -318,7 +318,8 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   `discovery/providers.yaml` rates (dexscreener 120/geckoterminal 24/goplus ~20/rugcheck 30 rpm)
   and collector breakers (threshold ≤ PAL, recovery ≥ PAL cooldown).
 - M-GAP-004 re-verified: `.github/workflows/ci.yml` push still rejected (App lacks `workflows`
-  permission); workflow kept untracked, ready when permission is granted.
+  permission); workflow preserved as tracked `deployment/github-actions-ci.yml.template`, ready
+  to copy into place when permission is granted.
 - Test Suite: **1225 passed (100% green)**; gate artifacts refreshed
   (`reports/pytest_run.json`, `reports/validate_imports_run.json` — PASS, Lane-A frozen).
   Zero live trading, zero credential exposure.

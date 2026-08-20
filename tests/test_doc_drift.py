@@ -97,10 +97,21 @@ def test_double_extension_corruption_is_reported(tmp_path, monkeypatch):
 
 
 def test_canonical_docs_have_no_double_extension_corruption():
-    """The 5 sqliteite corruptions fixed in W38 are regression-protected."""
+    """Malformed and doubled extensions are regression-protected."""
     from scripts.doc_drift import CORRUPTION_PATTERNS
     drift = dd.scan_docs()
     for doc, refs in drift.items():
         for r in refs:
             assert r["reason"] not in CORRUPTION_PATTERNS.values(), (
                 f"{doc}: {r['reference']} ({r['reason']})")
+
+
+def test_malformed_jsonl_and_sha256_extensions_are_reported(tmp_path, monkeypatch):
+    """Typos that no valid path regex can match must still be surfaced."""
+    p = _doc(
+        tmp_path,
+        "see reports/pilot.jsonll and scripts/freeze_lane_a.pya256",
+    )
+    out = _scan_in(tmp_path, monkeypatch, p)
+    refs = {row["reference"] for row in next(iter(out.values()))}
+    assert refs == {"jsonll", "pya256"}
