@@ -371,3 +371,16 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   insufficient, IDENTICAL_DATASETS nulls rate deltas, missing artifact exits 2.
   This is the roadmap's "any weight change ⇒ calibration diff attached to PR"
   acceptance tool. Suite **1269 passed**.
+- **Month-3 feed-through (W33e):** virality / paid-promotion evidence now
+  flows into the opportunity report through the canonical converters —
+  `ViralityTracker` (intel/viral) → `evidence_from_virality`
+  (intelligence/adapters.py, first production caller) → `EvidenceBundle.extra`
+  → `OpportunityScoreReport.intel_evidence_items` / `answer_intel_evidence()`
+  with provider provenance (`intel.viral`). Wired in both scoring paths
+  (`OpportunityScorer.evaluate` + pipeline). Honesty fix in the shared
+  converter: `wash_suspected`/`is_paid_promotion` are DERIVED only when the
+  underlying data was observed (`boost_seen`/`txns_seen` flags); otherwise
+  UNKNOWN with value None — the signal's False-on-missing default never
+  fabricates negatives. The frozen 4-item `answer_evidence()` contract is
+  unchanged. Narrative (news RSS) feed-through remains uncollected by the
+  collector (documented, not fabricated). Suite **1276 passed**.

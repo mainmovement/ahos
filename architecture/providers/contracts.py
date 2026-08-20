@@ -61,6 +61,7 @@ class NormalizedTokenCandidate:
     pair_address: str | None = UNKNOWN_VALUE
     dex_id: str | None = UNKNOWN_VALUE
     pair_created_ts: float | None = UNKNOWN_VALUE
+    boost_amount: float | None = UNKNOWN_VALUE   # paid DEX promotion spend, if observed
     metrics: MarketMetrics = field(default_factory=MarketMetrics)
     security: SecuritySignals = field(default_factory=SecuritySignals)
     social_presence: dict[str, str | None] = field(default_factory=dict)

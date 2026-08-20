@@ -96,7 +96,11 @@ class OpportunityPipelineOrchestrator:
                 name=r.name,
                 source_provider=r.provider_source,
                 retrieved_ts=r.retrieved_ts,
-                raw_payload_sha256=r.raw_evidence_hash
+                raw_payload_sha256=r.raw_evidence_hash,
+                # Paid-promotion spend, when the observation carried it
+                # (boost feed); None stays None -> virality evidence reports
+                # promotion status UNKNOWN, never a fabricated False.
+                boost_amount=r.metrics.get("boost_amount"),
             )
             # Rehydrate metrics
             for k, v in r.metrics.items():
@@ -113,6 +117,7 @@ class OpportunityPipelineOrchestrator:
         paired: list[tuple[NormalizedTokenCandidate, OpportunityScoreReport]] = []
         for cand in candidates:
             bundle = materialize_evidence(cand, now=t0)
+            bundle = OpportunityScorer.attach_virality(bundle, cand, t0)
             intel = self.intelligence.evaluate(bundle)
             rep = self.scorer.from_intelligence(intel)
             # Stamp the discovery provider on the report (calibration Q8
