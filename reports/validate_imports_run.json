@@ -1,8 +1,8 @@
 {
   "schema": "ahos.test_run.v1",
-  "timestamp_utc": "2026-08-20T08:24:49Z",
-  "finished_utc": "2026-08-20T08:25:01Z",
-  "duration_sec": 11.923,
+  "timestamp_utc": "2026-08-20T08:34:25Z",
+  "finished_utc": "2026-08-20T08:34:37Z",
+  "duration_sec": 12.855,
   "command": [
     ".venv/bin/python",
     "-B",
@@ -12,7 +12,7 @@
   "cwd": "/home/user/ahos",
   "executable": "/home/user/ahos/.venv/bin/python",
   "git": {
-    "commit_sha": "4289634c5829a23eda00f3d2cb3cdedab47e336a",
+    "commit_sha": "f0f6abd4c9e7a68572e041d1423a20f0a9df65cc",
     "branch": "arena/01a01def-ahos",
     "working_tree_clean": false
   },
@@ -30,7 +30,7 @@
   "exit_code": 0,
   "timed_out": false,
   "pytest_summary": null,
-  "stdout": "\n== ARTIFACTS ==\n   info: no build artifacts expected in a clean checkout\n\n== IMPORTS ==\n   info: 162 modules imported cleanly in fresh interpreters\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 17 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 2088 source files scanned\n\nVALIDATION PASSED \u2014 repository wiring is clean.\n",
+  "stdout": "\n== ARTIFACTS ==\n   info: no build artifacts expected in a clean checkout\n\n== IMPORTS ==\n   info: 162 modules imported cleanly in fresh interpreters\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 17 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 2090 source files scanned\n\nVALIDATION PASSED \u2014 repository wiring is clean.\n",
   "stderr": "",
   "verdict": "PASS"
 }
