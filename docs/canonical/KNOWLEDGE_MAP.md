@@ -621,3 +621,20 @@ W32–W40 claims treated as **evidence, not completion**. Engineering completene
 Observed this session: **1441 passed / 0 failed** (`pytest tests/`, 222s). Not a completion claim.
 
 Project is **NOT complete**. See `reports/AHOS_EVOLUTION_REPORT_W41.md` and `reports/architecture_truth_model_w41.json`.
+
+## W42 — Telegram honesty + error taxonomy + whale-role UNKNOWN (2026-08-20)
+
+Highest-value gap after W41 was **false operational census in Telegram** (۴۹۳ tests / ۹۵۲ tokens / ۱۱ positions hardcoded; exception handlers claimed GREEN).
+
+- `telegram_ai/service.py` SYSTEM_HEALTH reads live `HealthSnapshotEngine`; exception paths are UNKNOWN, never fabricated OK.
+- Paper-status defaults no longer invent $1.8984 / 11 open trades.
+- WATCH_TOKEN / ALERT_SET write `telegram_watch_list` (paper only, dedicated tables so they do not collide with `ahos_local.sqlite`).
+- WHY_REJECTED uses multi-factor ranking reasons. SELL_ADVICE is INFO-ONLY and refuses without a paper position / entry price.
+- Top-opportunity Telegram path uses `architecture.scoring.ranker` (not highest score).
+- `architecture/learning/error_taxonomy.py`: prediction→outcome classes; UNKNOWN security + later trap = DATA_PROBLEM not SECURITY_MISS.
+- Whale `wallet_role` stays UNKNOWN without identity evidence.
+- SecuritySignals + contract analyzer: blacklist / whitelist / transfer restriction (UNKNOWN ≠ SAFE).
+- Local AI heuristic floor: INSUFFICIENT_EVIDENCE, confidence None (no fake 0.70 WATCH).
+
+**PROJECT COMPLETE: no.**
+>>>>>>> 3b129bb (W41+W42: social intel, anti-hype ranking, Telegram honesty, error taxonomy)

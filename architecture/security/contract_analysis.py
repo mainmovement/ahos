@@ -94,6 +94,19 @@ class ContractAnalyzer:
                 15.0, "security.is_proxy",
             ))
 
+        for key, rid, desc, sev, pen in (
+            ("has_blacklist", "BLACKLIST_PRESENT",
+             "قرارداد blacklist دارد — فروش می‌تواند مسدود شود", "HIGH", 20.0),
+            ("has_whitelist", "WHITELIST_PRESENT",
+             "قرارداد whitelist دارد — انتقال محدود است", "HIGH", 15.0),
+            ("has_transfer_restriction", "TRANSFER_RESTRICTED",
+             "محدودیت انتقال مشاهده شد", "HIGH", 20.0),
+        ):
+            flag = bool_value(evidence.get(key))
+            mark(key, flag is not None)
+            if flag is True:
+                findings.append(RiskFinding(rid, sev, desc, pen, f"security.{key}"))
+
         rugs = numeric_value(evidence.get("deployer_past_rug_count"))
         mark("deployer_past_rug_count", rugs is not None)
         if rugs is not None and rugs > 0:

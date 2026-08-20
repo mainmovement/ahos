@@ -53,6 +53,9 @@ class WhaleSignal:
     warnings: list[str] = field(default_factory=list)
     unknowns: list[str] = field(default_factory=list)
     evidence: list[str] = field(default_factory=list)
+    # Role is UNKNOWN unless identity evidence is supplied. Concentration
+    # alone never proves whale vs smart-money vs insider vs deployer vs LP vs MM.
+    wallet_role: str = "UNKNOWN"   # WHALE|SMART_MONEY|INSIDER|DEPLOYER|LP|MARKET_MAKER|UNKNOWN
     computed_ts: float = field(default_factory=time.time)
     version: str = WHALE_VERSION
 
@@ -85,6 +88,8 @@ class WhaleTracker:
                 holder_count: int | None = None,
                 price_change_pct: float | None = None,
                 evidence_refs: list[str] | None = None,
+                wallet_role: str | None = None,
+                role_evidence: str | None = None,
                 now: float | None = None) -> WhaleSignal:
         ts = time.time() if now is None else now
         reasons: list[str] = []
@@ -99,8 +104,9 @@ class WhaleTracker:
                 top10_share_pct=None, top1_share_pct=top1_share_pct,
                 delta_pct_points=None, holder_count=holder_count,
                 risk_penalty=0.0, reasons=[], warnings=[],
-                unknowns=["توزیع هولدرها (رایگان در دسترس نیست — RPC عمومی محدود است)"],
-                evidence=evidence_refs or [], computed_ts=ts,
+                unknowns=["توزیع هولدرها (رایگان در دسترس نیست — RPC عمومی محدود است)",
+                          "wallet_role"],
+                evidence=evidence_refs or [], wallet_role="UNKNOWN", computed_ts=ts,
             )
 
         # ---- 1. Absolute concentration --------------------------------------
@@ -163,7 +169,25 @@ class WhaleTracker:
         else:
             unknowns.append("تعداد کل هولدرها")
 
-        # ---- 5. Verdict -------------------------------------------------------
+        # ---- 5. Wallet role (identity evidence required) ---------------------
+        allowed_roles = {
+            "WHALE", "SMART_MONEY", "INSIDER", "DEPLOYER", "LP", "MARKET_MAKER",
+        }
+        role = "UNKNOWN"
+        if wallet_role and role_evidence:
+            cand = str(wallet_role).upper()
+            if cand in allowed_roles:
+                role = cand
+                reasons.append(f"wallet_role={role} (evidence: {role_evidence})")
+            else:
+                unknowns.append("wallet_role (unrecognised label refused)")
+        else:
+            unknowns.append(
+                "wallet_role — concentration is not identity; "
+                "whale/smart-money/insider/deployer/LP/MM stay UNKNOWN without evidence"
+            )
+
+        # ---- 6. Verdict -------------------------------------------------------
         if top10_share_pct >= CONCENTRATION_CRITICAL or (
             top1_share_pct is not None and top1_share_pct >= SINGLE_WALLET_CRITICAL
         ):
@@ -183,5 +207,5 @@ class WhaleTracker:
             holder_count=holder_count,
             risk_penalty=round(min(penalty, 50.0), 2),
             reasons=reasons, warnings=warnings, unknowns=unknowns,
-            evidence=evidence_refs or [], computed_ts=ts,
+            evidence=evidence_refs or [], wallet_role=role, computed_ts=ts,
         )

@@ -46,7 +46,10 @@ def test_system_health_telegram_service_output():
     assert res["intent"] == "SYSTEM_HEALTH"
     assert "گزارش وضعیت و سلامت عملیاتی" in res["text"]
     assert "وضعیت کلی سلامت:" in res["text"]
-    assert "تعداد توکن‌های رصد شده: ۹۵۲" in res["text"]
+    assert "تعداد توکن‌های رصد شده:" in res["text"]
+    # Hardcoded W25 census is forbidden — live snapshot or UNKNOWN.
+    assert "۹۵۲ توکن" not in res["text"]
+    assert "۴۹۳" not in res["text"]
     assert FOOTER_MANDATED in res["text"]
 
 
