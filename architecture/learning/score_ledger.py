@@ -151,7 +151,8 @@ CREATE TABLE IF NOT EXISTS opportunity_score_ledger (
   risk_findings_json TEXT NOT NULL,
   missing_unknowns_json TEXT NOT NULL,
   invalidation_json  TEXT NOT NULL,
-  score_breakdown_json TEXT NOT NULL
+  score_breakdown_json TEXT NOT NULL,
+  source_provider    TEXT              -- discovery provider (calibration Q8 segment)
 );
 CREATE INDEX IF NOT EXISTS idx_score_ledger_token_ts
   ON opportunity_score_ledger(token_id, scored_ts);
@@ -198,6 +199,7 @@ class ScoreRecord:
     missing_unknowns: list[str] = field(default_factory=list)
     invalidation_conditions: list[dict[str, Any]] = field(default_factory=list)
     score_breakdown: dict[str, float] = field(default_factory=dict)
+    source_provider: str = "UNKNOWN"     # discovery provider; UNKNOWN when not stamped
 
     @property
     def scored_utc(self) -> str:
@@ -263,11 +265,24 @@ class ScoreLedger:
             Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
             conn = sqlite3.connect(self.db_path)
             conn.executescript(SCHEMA_SCORE_LEDGER)
+            self._migrate(conn)
             conn.commit()
             conn.close()
         except sqlite3.Error as e:
             self.write_failures += 1
             logger.warning("score ledger schema init failed: %s", e)
+
+    @staticmethod
+    def _migrate(conn: sqlite3.Connection) -> None:
+        """Additive, idempotent migrations for stores created before a schema
+        column existed. Append-only guards (UPDATE/DELETE triggers) are
+        untouched — ALTER TABLE ADD COLUMN is the only safe change."""
+        cols = {row[1] for row in conn.execute(
+            "PRAGMA table_info(opportunity_score_ledger)").fetchall()}
+        if "source_provider" not in cols:
+            conn.execute(
+                "ALTER TABLE opportunity_score_ledger "
+                "ADD COLUMN source_provider TEXT")
 
     # ------------------------------------------------------------ recording --
 
@@ -343,6 +358,7 @@ class ScoreLedger:
             missing_unknowns=missing,
             invalidation_conditions=invalidations,
             score_breakdown=breakdown,
+            source_provider=str(getattr(report, "source_provider", "") or ""),
         )
 
     def record(self, report: Any, *, run_id: str | None = None,
@@ -378,8 +394,8 @@ class ScoreLedger:
                         base_score, total_penalties, engine_version, weights_sha256,
                         evidence_sha256, known_field_count, unknown_field_count,
                         positive_reasons_json, risk_findings_json, missing_unknowns_json,
-                        invalidation_json, score_breakdown_json
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        invalidation_json, score_breakdown_json, source_provider
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (
                         r.score_id, r.scored_ts, r.scored_utc, r.run_id, r.source, r.chain,
                         r.token_address, r.token_id, r.symbol, r.opportunity_score,
@@ -391,6 +407,7 @@ class ScoreLedger:
                         json.dumps(r.missing_unknowns, ensure_ascii=False),
                         json.dumps(r.invalidation_conditions, ensure_ascii=False),
                         json.dumps(r.score_breakdown, ensure_ascii=False),
+                        r.source_provider or "",
                     ),
                 )
                 written += cur.rowcount if cur.rowcount > 0 else 0

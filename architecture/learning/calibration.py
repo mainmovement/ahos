@@ -259,6 +259,7 @@ class CalibrationReport:
     # -- Month-3 additions: segmentation + diagnostics -----------------------
     confidence_segments: list[SegmentResult] = field(default_factory=list)
     chain_segments: list[SegmentResult] = field(default_factory=list)
+    provider_segments: list[SegmentResult] = field(default_factory=list)
     confidence_ordering: str | None = None
     metrics: CalibrationMetrics = field(default_factory=CalibrationMetrics)
     feature_coverage: dict[str, Any] = field(default_factory=dict)
@@ -275,7 +276,7 @@ class CalibrationReport:
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            "schema": "ahos.calibration_report.v3",
+            "schema": "ahos.calibration_report.v4",
             "generated_utc": self.generated_utc,
             "horizon": self.horizon,
             "event_class": self.event_class,
@@ -293,6 +294,7 @@ class CalibrationReport:
             "bands": [b.as_dict() for b in self.bands],
             "confidence_segments": [s.as_dict() for s in self.confidence_segments],
             "chain_segments": [s.as_dict() for s in self.chain_segments],
+            "provider_segments": [s.as_dict() for s in self.provider_segments],
             "confidence_ordering": self.confidence_ordering,
             "metrics": self.metrics.as_dict(),
             "feature_coverage": self.feature_coverage,
@@ -307,6 +309,12 @@ class CalibrationReport:
                 "no_peeking": "label.resolved_ts > prediction.scored_ts",
                 "source_filter": "prediction.source IN eligible_sources",
                 "unresolved_policy": "outcome_label.hit IS NULL => UNRESOLVED, never a failure",
+            },
+            "outcome_provenance": {
+                "labeler": "discovery/outcomes.py (Lane-A frozen, hash-pinned)",
+                "horizon_grid": "15m,1h,4h,12h,24h,72h,7d",
+                "event_grid": "+25%,+50%,+100%,+200%",
+                "entry_rule": "closest observation within 15min of first_seen",
             },
         }
 
@@ -358,7 +366,7 @@ class CalibrationHarness:
                 f"""SELECT s.score_id, s.token_id, s.opportunity_score, s.scored_ts,
                           s.engine_version, s.weights_sha256, s.confidence_level,
                           s.chain, s.known_field_count, s.unknown_field_count,
-                          s.evidence_sha256, s.source,
+                          s.evidence_sha256, s.source, s.source_provider,
                           o.hit, o.resolved_ts, o.max_favorable, o.max_adverse
                      FROM opportunity_score_ledger s
                      JOIN disc.outcome_label o
@@ -628,14 +636,14 @@ class CalibrationHarness:
             "event_class": "run parameter (outcome_label.event_class)",
             "evidence": ("persisted (evidence_sha256, positive_reasons_json, "
                          "known/unknown field counts)"),
-            "provider": "NOT_PERSISTED_AT_PREDICTION_TIME — no source_provider "
-                        "column in the ledger; segmentation by provider is "
-                        "future writer-side work",
+            "provider": ("persisted (opportunity_score_ledger.source_provider, "
+                         "stamped from the candidate at scoring time)"),
             "market_regime": "NOT_PERSISTED_AT_PREDICTION_TIME — regime is "
                              "computed post-hoc by architecture/intel/regimes.py "
                              "and is not stamped on predictions",
             "opportunity_type": "NOT_PERSISTED_AT_PREDICTION_TIME — no "
-                                "opportunity-type column in the ledger",
+                                "opportunity-type concept exists in the scoring "
+                                "contract; not invented by the harness",
         }
 
     # ------------------------------------------------------------- multi-run --
@@ -742,6 +750,8 @@ class CalibrationHarness:
             allowed=CONFIDENCE_LEVELS)
         report.chain_segments = self._segment_table(
             pairs, "chain", lambda p: str(p.get("chain") or ""))
+        report.provider_segments = self._segment_table(
+            pairs, "provider", lambda p: str(p.get("source_provider") or ""))
         report.confidence_ordering = self._confidence_ordering(
             report.confidence_segments)
         report.metrics = self._compute_metrics(report, pairs)

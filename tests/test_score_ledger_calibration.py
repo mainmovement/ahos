@@ -67,6 +67,78 @@ def _ledger(tmp_path) -> ScoreLedger:
 
 # ------------------------------------------------------- persistence contract
 
+def test_prediction_persists_source_provider(tmp_path):
+    """Q8 'performance by provider' requires the provider to survive at
+    prediction time — the report must carry it into the ledger row."""
+    cand = _candidate()
+    cand.source_provider = "geckoterminal"
+    report = _report(cand)
+    assert report.source_provider == "geckoterminal"
+
+    ledger = _ledger(tmp_path)
+    ledger.record(report, source="test")
+    rows = ledger.recent(1)
+    assert rows[0]["source_provider"] == "geckoterminal"
+
+
+def test_report_without_provider_defaults_to_unknown(tmp_path):
+    """A report stamped by an old code path must not fabricate a provider."""
+    cand = _candidate()
+    cand.source_provider = ""
+    report = _report(cand)
+    assert report.source_provider == ""
+
+    ledger = _ledger(tmp_path)
+    ledger.record(report, source="test")
+    assert ledger.recent(1)[0]["source_provider"] == ""
+
+
+def test_legacy_ledger_db_is_migrated_additively(tmp_path):
+    """A store created before source_provider existed must gain the column on
+    open, keep every existing row, and keep the append-only guards. The legacy
+    fixture is the real pre-migration schema (current schema minus the
+    source_provider column), so indexes/triggers are present as in production."""
+    from architecture.learning import score_ledger as sl
+
+    legacy_schema = sl.SCHEMA_SCORE_LEDGER.replace(
+        "  score_breakdown_json TEXT NOT NULL,\n"
+        "  source_provider    TEXT              -- discovery provider (calibration Q8 segment)",
+        "  score_breakdown_json TEXT NOT NULL")
+    assert "source_provider" not in legacy_schema
+
+    db = tmp_path / "legacy.sqlite"
+    conn = sqlite3.connect(str(db))
+    conn.executescript(legacy_schema)
+    conn.execute(
+        """INSERT INTO opportunity_score_ledger(
+             score_id, scored_ts, scored_utc, source, chain, token_address,
+             token_id, symbol, opportunity_score, confidence_level, risk_level,
+             base_score, total_penalties, engine_version, weights_sha256,
+             evidence_sha256, known_field_count, unknown_field_count,
+             positive_reasons_json, risk_findings_json, missing_unknowns_json,
+             invalidation_json, score_breakdown_json)
+           VALUES ('old1', 1.0, '2026-01-01T00:00:00Z', 'sandbox', 'solana',
+                   'addr1', 'tok1', 'T', 50.0, 'MED', 'LOW', 0.0, 0.0,
+                   'v1', 'a'*64, 'b'*64, 3, 1,
+                   '[]', '[]', '[]', '[]', '{}')""")
+    conn.commit(); conn.close()
+
+    ledger = ScoreLedger(db_path=str(db))
+    assert ledger.write_failures == 0
+    assert ledger.count() == 1, "migration must preserve existing rows"
+    row = ledger.recent(1)[0]
+    assert row["score_id"] == "old1"
+    # NULL, not '' — the legacy row has no provider recorded; the calibration
+    # harness buckets it UNKNOWN rather than fabricating one.
+    assert row["source_provider"] is None
+
+    # the append-only guard survives the migration
+    with pytest.raises(sqlite3.IntegrityError):
+        conn = sqlite3.connect(str(db))
+        conn.execute("UPDATE opportunity_score_ledger SET chain='x'")
+        conn.commit()
+
+
 def test_prediction_is_persisted_with_full_provenance(tmp_path):
     """The gap this closes: a score must survive the call that produced it."""
     ledger = _ledger(tmp_path)

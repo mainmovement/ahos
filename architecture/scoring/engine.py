@@ -60,6 +60,7 @@ class OpportunityScoreReport:
     score_breakdown: dict[str, float]
     computed_at_ts: float = field(default_factory=time.time)
     provenance_sha256: str = ""
+    source_provider: str = "UNKNOWN"     # which provider supplied the candidate
 
     def answer_why_scored(self) -> str:
         return "\n".join(f"+ {r}" for r in self.positive_reasons) if self.positive_reasons else "امتیاز پایه حداقلی"
@@ -107,7 +108,11 @@ class OpportunityScorer:
         ts = time.time() if now is None else now
         bundle = materialize_evidence(candidate, now=ts)
         report = self.intelligence.evaluate(bundle)
-        return self.from_intelligence(report)
+        report = self.from_intelligence(report)
+        # Stamp the candidate's discovery provider so calibration can segment
+        # by provider (Q8). The report itself does not otherwise know it.
+        report.source_provider = str(getattr(candidate, "source_provider", "") or "")
+        return report
 
     @staticmethod
     def from_intelligence(report) -> OpportunityScoreReport:

@@ -70,6 +70,7 @@ def _seed(tmp_path, rows, horizon="24h", event_class="+50%", now=None):
         chain = r.get("chain", "solana")
         engine = r.get("engine_version", SCORING_ENGINE_VERSION)
         resolved_offset = r.get("resolved_offset", 3600.0)
+        provider = r.get("provider", "")
         conn.execute(
             """INSERT INTO opportunity_score_ledger(
                  score_id, scored_ts, scored_utc, run_id, source, chain, token_address,
@@ -77,14 +78,14 @@ def _seed(tmp_path, rows, horizon="24h", event_class="+50%", now=None):
                  base_score, total_penalties, engine_version, weights_sha256,
                  evidence_sha256, known_field_count, unknown_field_count,
                  positive_reasons_json, risk_findings_json, missing_unknowns_json,
-                 invalidation_json, score_breakdown_json)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                 invalidation_json, score_breakdown_json, source_provider)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (f"s{i:05d}", t0 + i, "2026-01-01T00:00:00Z", "run", SOURCE_TEST, chain,
              f"addr{i}", tid, "T", float(r["score"]), conf, "LOW", 0.0, 0.0,
              engine, r.get("weights", "a" * 64),
              r.get("evidence_sha", "b" * 64),
              r.get("known_fields", 4), r.get("unknown_fields", 0),
-             "[]", "[]", "[]", "[]", "{}"))
+             "[]", "[]", "[]", "[]", "{}", provider))
         dconn.execute(
             """INSERT INTO outcome_label(token_id,horizon,event_class,hit,
                  max_favorable,max_adverse,resolved_ts)
@@ -389,19 +390,46 @@ def test_dimension_availability_is_honest(tmp_path):
     assert da["score"].startswith("persisted")
     assert da["confidence_level"].startswith("persisted")
     assert da["chain"].startswith("persisted")
-    assert "NOT_PERSISTED_AT_PREDICTION_TIME" in da["provider"]
+    assert da["provider"].startswith("persisted")  # now stamped at scoring time
     assert "NOT_PERSISTED_AT_PREDICTION_TIME" in da["market_regime"]
     assert "NOT_PERSISTED_AT_PREDICTION_TIME" in da["opportunity_type"]
 
 
-def test_schema_bumped_to_v3_with_guards_intact(tmp_path):
+def test_schema_bumped_to_v4_with_guards_intact(tmp_path):
     report = _seed(tmp_path, [{"score": 90, "hit": 1}]).run()
     d = report.as_dict()
-    assert d["schema"] == "ahos.calibration_report.v3"
+    assert d["schema"] == "ahos.calibration_report.v4"
     assert d["guards"]["min_n_per_band"] == MIN_N_PER_BAND
     assert d["guards"]["min_positives"] == MIN_POSITIVES
     assert "no_peeking" in d["guards"]
     assert "metrics" in d and "dimension_availability" in d
+    assert "provider_segments" in d
+    # outcome provenance must be stated (frozen labeler identity, not a guess)
+    assert d["outcome_provenance"]["labeler"].startswith("discovery/outcomes.py")
+
+
+# ---------------------------------------------------------------- provider segments
+
+def test_provider_segmentation(tmp_path):
+    rows = []
+    rows += _cohort_rows(90, 200, 50, provider="dexscreener")
+    rows += _cohort_rows(90, 30, 220, provider="geckoterminal")
+    rows += _cohort_rows(90, 20, 30)                     # no provider -> UNKNOWN
+    report = _seed(tmp_path, rows).run()
+
+    by = {s.value: s for s in report.provider_segments}
+    assert by["dexscreener"].rate == pytest.approx(0.8)
+    assert by["geckoterminal"].rate == pytest.approx(30 / 250)
+    assert by["UNKNOWN"].n == 50
+    assert by["dexscreener"].verdict == "DESCRIPTIVE_OK"
+
+
+def test_provider_segments_follow_the_same_guards(tmp_path):
+    rows = _cohort_rows(90, 5, 5, provider="dexscreener")  # n=10 < 200
+    report = _seed(tmp_path, rows).run()
+    seg = next(s for s in report.provider_segments if s.value == "dexscreener")
+    assert seg.verdict == "INSUFFICIENT_DATA"
+    assert "n<200" in (seg.reason or "")
 
 
 def test_constants_stay_conservative():
@@ -421,7 +449,7 @@ def test_cli_writes_artifact_and_reports_insufficient_data(tmp_path, monkeypatch
     rc = cr.main(["--out", str(out), "--horizon", "24h"])
     assert rc == 0
     payload = json.loads(out.read_text(encoding="utf-8"))
-    assert payload["schema"] == "ahos.calibration_report.v3"
+    assert payload["schema"] == "ahos.calibration_report.v4"
     assert payload["calibration_status"] == "INSUFFICIENT_DATA"
     assert payload["number_of_eligible_pairs"] == 0
     assert "metrics" in payload and payload["metrics"]["brier_score"] is None

@@ -347,3 +347,12 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
 - Runtime: `scripts/calibration_report.py` artifacts committed — honest
   INSUFFICIENT_DATA (0 `local` pairs; real measurement still blocked on data
   accrual per M-GAP-008). Suite 1232 → **1253 passed**; zero live trading.
+- Follow-up (same wave): **provider segmentation closed** — `source_provider` is
+  now stamped on `OpportunityScoreReport` at scoring time (both `evaluate()` and
+  the pipeline's `from_intelligence` path) and persisted in
+  `opportunity_score_ledger.source_provider` (idempotent additive migration for
+  legacy stores; legacy rows stay NULL → UNKNOWN bucket). Calibration report
+  schema v4 adds `provider_segments` (same pre-registered guards) and an
+  `outcome_provenance` block (frozen Lane-A labeler identity). Opportunity-type
+  remains honestly NOT_PERSISTED — no such concept exists in the scoring
+  contract and the harness does not invent one. Suite **1257 passed**.

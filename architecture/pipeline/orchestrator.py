@@ -114,7 +114,12 @@ class OpportunityPipelineOrchestrator:
         for cand in candidates:
             bundle = materialize_evidence(cand, now=t0)
             intel = self.intelligence.evaluate(bundle)
-            paired.append((cand, self.scorer.from_intelligence(intel)))
+            rep = self.scorer.from_intelligence(intel)
+            # Stamp the discovery provider on the report (calibration Q8
+            # segmentation by provider); from_intelligence cannot see the
+            # candidate, so the pipeline does it here.
+            rep.source_provider = str(getattr(cand, "source_provider", "") or "")
+            paired.append((cand, rep))
 
         ranked = sorted(paired, key=lambda item: item[1].opportunity_score, reverse=True)
         reports = [rep for _, rep in ranked]

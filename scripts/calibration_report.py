@@ -79,6 +79,10 @@ def _print_report(report) -> None:
         rate = f"{seg.rate:.3f}" if seg.rate is not None else "n/a"
         print(f"  chain      {seg.value:>10}: n={seg.n:<6} rate={rate:<6} {seg.verdict}"
               + (f" ({seg.reason})" if seg.reason else ""))
+    for seg in report.provider_segments:
+        rate = f"{seg.rate:.3f}" if seg.rate is not None else "n/a"
+        print(f"  provider   {seg.value:>10}: n={seg.n:<6} rate={rate:<6} {seg.verdict}"
+              + (f" ({seg.reason})" if seg.reason else ""))
     if report.confidence_ordering:
         print(f"confidence ordering: {report.confidence_ordering}")
     if report.monotonicity:
