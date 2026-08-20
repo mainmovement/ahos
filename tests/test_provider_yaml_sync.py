@@ -110,3 +110,23 @@ def test_collector_breakers_never_more_aggressive_than_pal():
         assert cb.config.recovery_timeout_sec >= pal["max_cooldown_sec"], (
             f"{pid} recovers after {cb.config.recovery_timeout_sec}s; PAL "
             f"contract cools down {pal['max_cooldown_sec']}s")
+
+
+# ------------------------------------------------------- external ceilings
+# Providers absent from the frozen PAL yaml still have documented external
+# ceilings; the adapters must stay under them (same law, different source).
+
+def test_coinmarketcap_rate_within_free_tier_ceiling():
+    """CMC free tier = 30 credits/min (info + quotes are 1 credit each)."""
+    from architecture.providers.coinmarketcap import CoinMarketCapAdapter
+    adapter_rpm = CoinMarketCapAdapter()._rate_limit_rps * 60.0
+    assert adapter_rpm <= 30.0, (
+        f"coinmarketcap at {adapter_rpm:.1f} rpm exceeds CMC free-tier ceiling "
+        f"of 30 credits/min")
+
+
+def test_pumpfun_rate_is_conservative_undocumented_feed():
+    """pump.fun frontend budget is undocumented -> conservative by law."""
+    from architecture.providers.pumpfun import PumpFunLaunchpadAdapter
+    adapter_rpm = PumpFunLaunchpadAdapter()._rate_limit_rps * 60.0
+    assert adapter_rpm <= 30.0, "undocumented feed must stay conservative"

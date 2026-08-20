@@ -303,3 +303,22 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
 - CI Script Validation: `engine/run_all_checks.sh` executed and passed all 6 stages completely (Data audit, test_ahos, test_strategy_lab, test_discovery, test_baseline_stats, test_wave7_research, test_telegram_ai, test_paper_trading, dryrun, telegram live test, n8n validation).
 - Lane A Hash Integrity: Verified byte-identical hash for `discovery/collect.py` (`974f8650...`), Master Directive v1 (`e2457c0d...`), and E01 Protocol v1 (`16b86b86...`).
 - Test Suite: **516 passed tests (100% green, 0 failures, 0 warnings)** across 56 test suites. Manifest `ahos_snap_w31_after.txt`. Zero live trading, zero credential exposure.
+
+## W32 — Month 2: CoinMarketCap + pump.fun launchpad adapters, PAL rate/breaker sync (2026-08-20)
+- CoinMarketCap adapter (`architecture/providers/coinmarketcap.py`): keyed free tier, inert NO_KEY
+  until `COINMARKETCAP_API_KEY` (DEXTools pattern, zero traffic unconfigured); two-step
+  info+quotes lookup → real market cap/FDV/volume/price-change/social; chain-aware platform
+  matching; AUTH_REQUIRED/RATE_LIMIT/DOWN distinction; wired into `ProviderCollector` last
+  (fills UNKNOWNs only). 20 offline tests.
+- pump.fun launchpad adapter (`architecture/providers/pumpfun.py`): keyless Solana launchpad
+  discovery feed, discovery-only, Solana-only; missing fields stay UNKNOWN; DOWN/RATE_LIMIT/
+  OK-empty distinction. 11 offline tests. Both registered in `ProviderRouter` +
+  `--probe-providers`.
+- PAL rate/breaker sync law: `tests/test_provider_yaml_sync.py` pins adapters ≤ frozen
+  `discovery/providers.yaml` rates (dexscreener 120/geckoterminal 24/goplus ~20/rugcheck 30 rpm)
+  and collector breakers (threshold ≤ PAL, recovery ≥ PAL cooldown).
+- M-GAP-004 re-verified: `.github/workflows/ci.yml` push still rejected (App lacks `workflows`
+  permission); workflow kept untracked, ready when permission is granted.
+- Test Suite: **1225 passed (100% green)**; gate artifacts refreshed
+  (`reports/pytest_run.json`, `reports/validate_imports_run.json` — PASS, Lane-A frozen).
+  Zero live trading, zero credential exposure.
