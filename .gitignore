@@ -1,68 +1,19 @@
-# Python
 __pycache__/
-**/__pycache__/
 *.py[cod]
 *$py.class
-*.pyo
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Secrets
-.env
-.env.*
-!.env.example
-*.key
-*.pem
-secrets/
-credentials/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Test/cache
-.pytest_cache/
-.coverage
-.coverage.*
-htmlcov/
-.mypy_cache/
-.ruff_cache/
-.tox/
-.nox/
-.cache/
-
-# Local runtime / logs
-*.log
-*.tmp
-*.temp
-tmp/
-temp/
-
-# Generated / local databases
-data/
-*.sqlite
-*.sqlite3
-*.db
-*.sqlite-wal
-*.sqlite-shm
-
-# Temporary runtime files
-paper_trading/runs/*.json
-uploads/
-*.patch
-ahos_snap_*.txt
-
-# Local drill scratch (binaries / WAL); committed evidence is reports/*.json
-reports/_scratch/
-
-# Build
+*.so
+.Python
 build/
 dist/
 *.egg-info/
+.env
+.venv
+venv/
+*.db
+*.sqlite
+*.log
+logs/
+data/
+.DS_Store
+.idea/
+.vscode/
