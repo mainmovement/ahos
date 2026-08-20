@@ -52,6 +52,11 @@ Legend: ✅ LIVE VERIFIED (sandbox) · ⚠️ degraded/changed · ❌ failed pro
 | CoinMarketCap | pro-api /v2/cryptocurrency/info?address= + /quotes/latest?id= | ❔ fixture-verified only (M-GAP-011 adapter, 2026-08-20) | free tier needs key → inert NO_KEY until COINMARKETCAP_API_KEY (DEXTools pattern); market cap / FDV / volume / price-change / social links; discovery UNSUPPORTED; liquidity stays UNKNOWN |
 | DEXTools | public-api.dextools.io (paid) | 🚫 cost-blocked | inert NO_KEY until DEXTOOLS_API_KEY; audit/score capability only |
 
+## Capability: LAUNCHPAD DISCOVERY (Month-2 scope, M-GAP-011)
+| Provider | Endpoint(s) | Verified | Notes |
+|---|---|---|---|
+| pump.fun | frontend-api.pump.fun/coins?sort=created | ❔ fixture-verified only (adapter 2026-08-20; probe classifies live reachability) | keyless; newly created Solana launchpad coins (discovery-only; enrichment via DEX providers); Solana-only, other chains UNSUPPORTED; candidates are inherently high-risk memecoins → downstream security checks only, the adapter never scores |
+
 ## Rate/breaker sync law (Month 2 — ROADMAP_v3 §2)
 `discovery/providers.yaml` is the frozen PAL contract (Lane-A). The architecture
 adapters must never be more aggressive than it: request rate ≤ PAL's most

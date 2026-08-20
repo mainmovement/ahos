@@ -1,0 +1,85 @@
+{
+  "schema": "ahos.provider_probe.v1",
+  "probed_at_utc": "2026-08-20T07:20:44Z",
+  "chain": "solana",
+  "results": [
+    {
+      "provider_id": "chain_explorer",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.0,
+      "detail": "no discovery capability (has ['onchain', 'security', 'contract-verification']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    },
+    {
+      "provider_id": "coingecko",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.0,
+      "detail": "no discovery capability (has ['market', 'metadata', 'market_cap']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    },
+    {
+      "provider_id": "coinmarketcap",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.0,
+      "detail": "no discovery capability (has ['market', 'metadata', 'market_cap']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    },
+    {
+      "provider_id": "dexscreener",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 71.8,
+      "detail": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    },
+    {
+      "provider_id": "geckoterminal",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 43.6,
+      "detail": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    },
+    {
+      "provider_id": "goplus",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.2,
+      "detail": "no discovery capability (has ['security', 'honeypot', 'contract_audit', 'taxes']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    },
+    {
+      "provider_id": "pumpfun",
+      "status": "TLS_ERROR",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 65.7,
+      "detail": "<urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    },
+    {
+      "provider_id": "rugcheck",
+      "status": "UNSUPPORTED",
+      "token_count": 0,
+      "chain": "solana",
+      "latency_ms": 0.2,
+      "detail": "no discovery capability (has ['security', 'solana_lp_lock', 'solana_mint_authority']); reachability not tested by this probe",
+      "probed_at_utc": "2026-08-20T07:20:44Z"
+    }
+  ],
+  "status_counts": {
+    "UNSUPPORTED": 5,
+    "TLS_ERROR": 3
+  },
+  "any_success": false,
+  "m_gap_007_live_success_proven": false
+}
