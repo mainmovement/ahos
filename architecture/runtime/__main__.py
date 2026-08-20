@@ -15,6 +15,7 @@ import os
 import signal
 import sys
 import time
+from dataclasses import asdict
 from pathlib import Path
 
 from .lifecycle import ApplicationLifecycleManager, RuntimeState
@@ -38,19 +39,24 @@ from config.paths import get_project_root, get_discovery_db_path, get_local_db_p
 def write_soak_snapshots(*, local_db: str, discovery_db: str,
                          window_hours: float, probe_providers: bool,
                          reports_dir: Path, now: float | None = None) -> list[Path]:
-    """Write one soak snapshot + one system-state snapshot (read-only
+    """Write soak + system-state + canonical health snapshots (read-only
     evidence) and return the artifact paths. Never raises: a snapshot failure
     must not end a daemon — the caller logs it. Empty on failure.
 
-    First production consumer of scripts/soak_snapshot.snapshot() and
-    scripts/system_state_snapshot.build_snapshot() from the runtime, which is
-    what makes the 168h soak protocol's 6h snapshot cadence automatic.
+    First production consumer of scripts/soak_snapshot.snapshot(),
+    scripts/system_state_snapshot.build_snapshot() and
+    HealthSnapshotEngine.generate_snapshot() from the runtime — this is what
+    makes the 168h soak protocol's 6h snapshot cadence automatic, and closes
+    the self-observation loop (mission W36 phase 2): the canonical health
+    snapshot (with its self_observation block) is written alongside the soak
+    and system-state artifacts every cadence.
     """
     import json
     import time as _time
 
     from scripts import soak_snapshot
     from scripts import system_state_snapshot
+    from .observability_snapshot import HealthSnapshotEngine
 
     ts = _time.time() if now is None else now
     out: list[Path] = []
@@ -80,6 +86,225 @@ def write_soak_snapshots(*, local_db: str, discovery_db: str,
     except Exception as e:
         logger.warning("automatic system-state snapshot failed: %s", e)
 
+    try:
+        health = HealthSnapshotEngine().generate_snapshot(now=ts)
+        utc3 = health.timestamp_utc.replace(":", "").replace("-", "")
+        path3 = reports_dir / f"canonical_health_{utc3}.json"
+        path3.parent.mkdir(parents=True, exist_ok=True)
+        path3.write_text(json.dumps(asdict(health), indent=2,
+                                    ensure_ascii=False, default=str),
+                         encoding="utf-8")
+        out.append(path3)
+    except Exception as e:
+        logger.warning("automatic canonical health snapshot failed: %s", e)
+
+    return out
+
+
+def write_evidence_package(*, local_db: str, discovery_db: str,
+                           window_hours: float, probe_providers: bool,
+                           reports_dir: Path, now: float | None = None) -> list[Path]:
+    """Coherent evidence package (W37 phase 2): the canonical snapshot triple
+    PLUS snapshot-to-snapshot regression against the previous comparable
+    health snapshot, PLUS per-dimension health-scorecard trends.
+
+    Returns every artifact path written. Never raises: each stage is isolated
+    so one diagnostic failure cannot crash the daemon. The package index is
+    written first so a partial package is still discoverable; every artifact
+    carries its own timestamp + schema + provenance.
+    """
+    import json
+    import time as _time
+
+    ts = _time.time() if now is None else now
+    ts_utc = _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime(ts))
+    out: list[Path] = []
+
+    # 1. canonical triple (soak / system-state / health) via the existing writer
+    triple = write_soak_snapshots(
+        local_db=local_db, discovery_db=discovery_db,
+        window_hours=window_hours, probe_providers=probe_providers,
+        reports_dir=reports_dir, now=ts)
+    out.extend(triple)
+
+    # 2. health scorecard + regression + trend (from the just-written health
+    #    snapshot; absent triple => honest NOT_COMPARABLE, never invented)
+    health_path = next((p for p in triple
+                        if p.name.startswith("canonical_health_")), None)
+    if health_path is not None:
+        try:
+            from .observability_snapshot import HealthSnapshotEngine
+            engine = HealthSnapshotEngine()
+            health = json.loads(health_path.read_text(encoding="utf-8"))
+            scorecard = engine._build_scorecard(type(
+                "Snap", (), {"timestamp_utc": health.get("timestamp_utc", ts_utc),
+                             "overall_verdict": health.get("overall_verdict", "UNKNOWN"),
+                             "self_observation": health.get("self_observation", {}),
+                             "database_integrity": health.get("database_integrity", {}),
+                             "provider_health": health.get("provider_health", {}),
+                             "scheduler_status": health.get("scheduler_status", {}),
+                             "security_invariants": health.get("security_invariants", {}),
+                             "lane_a_ok": True})())
+            score_path = reports_dir / f"health_scorecard_{ts_utc.replace(':', '').replace('-', '')}.json"
+            score_path.parent.mkdir(parents=True, exist_ok=True)
+            score_path.write_text(json.dumps(scorecard, indent=2,
+                                             ensure_ascii=False, default=str),
+                                  encoding="utf-8")
+            out.append(score_path)
+
+            # snapshot-to-snapshot regression vs the previous health snapshot
+            prev = sorted(reports_dir.glob("canonical_health_*.json"),
+                          key=lambda p: p.stat().st_mtime)
+            prev = [p for p in prev if p != health_path]
+            regression_path = reports_dir / f"regression_{ts_utc.replace(':', '').replace('-', '')}.json"
+            regression_path.parent.mkdir(parents=True, exist_ok=True)
+            if prev:
+                from scripts.regression_report import build_regression_report
+                reg = build_regression_report(prev[-1], health_path)
+                reg["generated_utc"] = ts_utc
+                reg["previous_artifact"] = prev[-1].name
+                reg["current_artifact"] = health_path.name
+                regression_path.write_text(json.dumps(reg, indent=2,
+                                                      ensure_ascii=False) + "\n",
+                                           encoding="utf-8")
+            else:
+                regression_path.write_text(json.dumps({
+                    "schema": "ahos.regression_report.v1",
+                    "generated_utc": ts_utc,
+                    "verdict": "NOT_COMPARABLE",
+                    "findings": [{"source": "snapshots", "metric": "baseline",
+                                  "before": None, "after": None, "delta": None,
+                                  "kind": "NOT_COMPARABLE",
+                                  "evidence": "no previous comparable snapshot "
+                                              "(first evidence package)"}],
+                    "note": "first package: no baseline to compare yet",
+                }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            out.append(regression_path)
+        except Exception as e:
+            logger.warning("automatic evidence package regression failed: %s", e)
+
+    # 2b. automatic diagnostic findings from the health snapshot (W37 P5):
+    #     derived, never invented; a finding alone never changes anything.
+    if health_path is not None:
+        try:
+            from ..evolution.findings import derive_findings
+            findings = [f.as_dict() for f in derive_findings(health)]
+            findings_path = reports_dir / f"findings_{ts_utc.replace(':', '').replace('-', '')}.json"
+            findings_path.parent.mkdir(parents=True, exist_ok=True)
+            findings_path.write_text(json.dumps({
+                "schema": "ahos.diagnostic_findings.v1",
+                "generated_utc": ts_utc,
+                "findings": findings,
+                "note": "derived findings are informational; acting on them "
+                        "requires a governed proposal + human gate",
+            }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            out.append(findings_path)
+        except Exception as e:
+            logger.warning("automatic diagnostic findings failed: %s", e)
+
+    # 2c. health-scorecard trends (W37 P4 / W38 Candidate C): compare the
+    #     current scorecard against the previous committed one. First package
+    #     => every dimension NOT_COMPARABLE (no invented baseline).
+    if health_path is not None:
+        try:
+            from .observability_snapshot import HealthSnapshotEngine
+            engine = HealthSnapshotEngine()
+            score_path = next((p for p in out
+                               if p.name.startswith("health_scorecard_")), None)
+            if score_path is not None:
+                current_sc = json.loads(score_path.read_text(encoding="utf-8"))
+                prev_scs = sorted(reports_dir.glob("health_scorecard_*.json"),
+                                  key=lambda p: p.stat().st_mtime)
+                prev_scs = [p for p in prev_scs if p != score_path]
+                previous_sc = (json.loads(prev_scs[-1].read_text(encoding="utf-8"))
+                               if prev_scs else None)
+                trends = HealthSnapshotEngine.trend_dimensions(current_sc,
+                                                               previous_sc)
+                trends_path = reports_dir / f"health_trends_{ts_utc.replace(':', '').replace('-', '')}.json"
+                trends_path.parent.mkdir(parents=True, exist_ok=True)
+                trends_path.write_text(json.dumps({
+                    "schema": "ahos.health_trends.v1",
+                    "generated_utc": ts_utc,
+                    "previous_scorecard": prev_scs[-1].name if prev_scs else None,
+                    "current_scorecard": score_path.name,
+                    "dimensions": trends,
+                    "note": "per-dimension trends observed from committed "
+                            "scorecards; NOT_COMPARABLE without a previous one",
+                }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                out.append(trends_path)
+        except Exception as e:
+            logger.warning("automatic health trends failed: %s", e)
+
+    # 2d. architecture graph (W38 Candidate A): deterministic stdlib module
+    #     graph — new cycles/orphans become visible per cadence.
+    try:
+        from scripts.architecture_graph import build_graph
+        graph = build_graph()
+        graph["generated_utc"] = ts_utc
+        graph_path = reports_dir / f"architecture_graph_{ts_utc.replace(':', '').replace('-', '')}.json"
+        graph_path.parent.mkdir(parents=True, exist_ok=True)
+        graph_path.write_text(json.dumps(graph, indent=2,
+                                         ensure_ascii=False) + "\n",
+                              encoding="utf-8")
+        out.append(graph_path)
+    except Exception as e:
+        logger.warning("automatic architecture graph failed: %s", e)
+
+    # 2d2. doc <-> code drift (W38 Candidate H): canonical docs referencing
+    #     missing files are diagnosed per cadence (WARN-only; a doc may
+    #     legitimately reference planned artifacts — see the ignore list).
+    try:
+        from scripts.doc_drift import scan_docs
+        drift = scan_docs()
+        drift_count = sum(len(v) for v in drift.values())
+        drift_path = reports_dir / f"doc_drift_{ts_utc.replace(':', '').replace('-', '')}.json"
+        drift_path.parent.mkdir(parents=True, exist_ok=True)
+        drift_path.write_text(json.dumps({
+            "schema": "ahos.doc_drift.v1",
+            "generated_utc": ts_utc,
+            "stale_reference_count": drift_count,
+            "stale_references": drift,
+            "note": "WARN-only diagnostic; intentional refs are ignored with "
+                    "reasons (scripts/doc_drift.py)",
+        }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        out.append(drift_path)
+    except Exception as e:
+        logger.warning("automatic doc-drift check failed: %s", e)
+
+    # 2e. benchmark state (W38 Candidate A): reference the committed baseline
+    #     so the package exposes benchmark health without re-running the suite.
+    try:
+        bench = (health.get("self_observation", {}).get("benchmark_health", {})
+                 if health_path is not None else {})
+        bench_path = reports_dir / f"benchmark_state_{ts_utc.replace(':', '').replace('-', '')}.json"
+        bench_path.parent.mkdir(parents=True, exist_ok=True)
+        bench_path.write_text(json.dumps({
+            "schema": "ahos.benchmark_state.v1",
+            "generated_utc": ts_utc,
+            "baseline_present": bool(bench.get("baseline_present")),
+            "baseline_artifact": bench.get("baseline_artifact"),
+            "note": ("baseline reference only; run "
+                     "scripts/benchmark_performance.py compare for deltas"),
+        }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        out.append(bench_path)
+    except Exception as e:
+        logger.warning("automatic benchmark state failed: %s", e)
+
+    # 3. package index (written last, lists what actually landed)
+    index = {
+        "schema": "ahos.evidence_package.v1",
+        "generated_utc": ts_utc,
+        "window_hours": window_hours,
+        "artifacts": [str(p.relative_to(reports_dir) if p.is_relative_to(reports_dir)
+                          else p) for p in out],
+        "artifact_count": len(out),
+        "note": "coherent daemon evidence package; each artifact is self-describing",
+    }
+    index_path = reports_dir / f"evidence_package_{ts_utc.replace(':', '').replace('-', '')}.json"
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    index_path.write_text(json.dumps(index, indent=2, ensure_ascii=False) + "\n",
+                          encoding="utf-8")
+    out.append(index_path)
     return out
 
 
@@ -312,7 +537,7 @@ def main(argv: list[str] | None = None) -> int:
                 due = (last_snapshot_ts is None
                        or now_ts - last_snapshot_ts >= snapshot_every * 3600.0)
                 if due:
-                    written = write_soak_snapshots(
+                    written = write_evidence_package(
                         local_db=local_db,
                         discovery_db=discovery_db,
                         window_hours=max(0.0, (now_ts - daemon_started_ts) / 3600.0),

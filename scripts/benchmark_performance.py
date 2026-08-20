@@ -11,6 +11,7 @@ for core AHOS subsystems:
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import time
@@ -149,5 +150,151 @@ def run_all_benchmarks() -> Dict[str, Any]:
     return results
 
 
+def record_benchmark(results: Dict[str, Any], out_path: Path | str | None = None,
+                     commit_sha: str | None = None) -> Path:
+    """Persist a benchmark run as a reproducible evidence artifact.
+
+    Carries the git commit, timestamp and environment so a later `compare`
+    can attribute a delta to a code change vs. a different machine.
+    """
+    from scripts.evidence_common import environment_fingerprint, git_meta, utc_now
+
+    payload = {
+        "schema": "ahos.benchmark_run.v1",
+        "timestamp_utc": utc_now(),
+        "git": git_meta(),
+        "environment": environment_fingerprint(),
+        "results": results,
+    }
+    if commit_sha:
+        payload["git"]["commit_sha"] = commit_sha
+    out = Path(out_path) if out_path else (
+        ROOT / "reports"
+        / f"benchmark_{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}.json")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+                   encoding="utf-8")
+    return out
+
+
+#: The primary throughput/latency metric per benchmark — the number a
+#: before/after comparison should headline. Adding a benchmark must add its
+#: headline metric here, or the compare gate cannot see it.
+HEADLINE_METRICS: Dict[str, str] = {
+    "vectorized_backtest": "evaluations_per_sec",
+    "quantstats_tearsheet": "latency_per_tearsheet_ms",
+    "olap_analytics_bridge": "latency_per_aggregation_ms",
+    "streaming_drift_throughput": "samples_per_sec",
+    "event_driven_backtest": "events_per_sec",
+}
+
+
+def compare_benchmarks(before_path: Path, after_path: Path) -> Dict[str, Any]:
+    """Deterministic before/after benchmark diff (mission §5 evidence).
+
+    Compares headline metrics for benchmarks present in BOTH artifacts and
+    reports the absolute and relative delta (after − before). Benchmarks
+    missing from either side are listed as NOT_COMPARABLE — never a fake
+    delta. Higher-is-better metrics are flagged so a positive delta is
+    readable as an improvement regardless of direction.
+    """
+    def _load(p: Path) -> Dict[str, Any]:
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            raise ValueError(f"cannot read benchmark artifact {p}: {e}")
+        if not isinstance(data.get("results"), dict):
+            raise ValueError(f"{p} is not a benchmark_run artifact")
+        return data
+
+    before = _load(before_path)
+    after = _load(after_path)
+    b_res, a_res = before["results"], after["results"]
+
+    rows: list[Dict[str, Any]] = []
+    for name, metric in sorted(HEADLINE_METRICS.items()):
+        bm, am = b_res.get(name), a_res.get(name)
+        bv = (bm or {}).get(metric) if bm else None
+        av = (am or {}).get(metric) if am else None
+        if bv is None or av is None:
+            rows.append({"benchmark": name, "metric": metric,
+                         "before": bv, "after": av,
+                         "delta_abs": None, "delta_pct": None,
+                         "comparable": False})
+            continue
+        delta_abs = round(av - bv, 4)
+        delta_pct = round((delta_abs / bv) * 100.0, 2) if bv else None
+        rows.append({"benchmark": name, "metric": metric,
+                     "before": bv, "after": av,
+                     "delta_abs": delta_abs, "delta_pct": delta_pct,
+                     "comparable": True})
+
+    verdict = "COMPARABLE" if any(r["comparable"] for r in rows) else "NO_COMPARABLE_METRICS"
+    return {
+        "schema": "ahos.benchmark_diff.v1",
+        "before_artifact": str(before_path),
+        "after_artifact": str(after_path),
+        "verdict": verdict,
+        "before_commit": (before.get("git") or {}).get("commit_sha"),
+        "after_commit": (after.get("git") or {}).get("commit_sha"),
+        "rows": rows,
+        "note": ("delta = after − before. Higher-is-better metrics "
+                 "(evaluations/s, samples/s, events/s) improve when delta > 0; "
+                 "latency metrics improve when delta < 0."),
+    }
+
+
+def _print_diff(diff: Dict[str, Any]) -> None:
+    print(f"benchmark_diff verdict : {diff['verdict']}")
+    print(f"before                 : {diff['before_commit']} ({diff['before_artifact']})")
+    print(f"after                  : {diff['after_commit']} ({diff['after_artifact']})")
+    for r in diff["rows"]:
+        if not r["comparable"]:
+            print(f"  {r['benchmark']:<26} NOT_COMPARABLE "
+                  f"(before={r['before']}, after={r['after']})")
+            continue
+        print(f"  {r['benchmark']:<26} {r['before']:>12} -> {r['after']:>12} "
+              f"({r['delta_pct']:+.2f}%)")
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description="AHOS performance micro-benchmark suite")
+    sub = ap.add_subparsers(dest="command")
+
+    run_p = sub.add_parser("run", help="run the benchmark suite (default)")
+    run_p.add_argument("--out", default=None, help="artifact path for the run")
+    run_p.add_argument("--commit-sha", default=None,
+                       help="commit sha to stamp (default: git HEAD)")
+
+    cmp_p = sub.add_parser("compare", help="diff two benchmark artifacts")
+    cmp_p.add_argument("before", help="before benchmark_run artifact")
+    cmp_p.add_argument("after", help="after benchmark_run artifact")
+    cmp_p.add_argument("--out", default=None, help="write the diff artifact")
+
+    args = ap.parse_args(argv)
+
+    if args.command == "compare":
+        try:
+            diff = compare_benchmarks(Path(args.before), Path(args.after))
+        except ValueError as e:
+            print(f"ERROR: {e}")
+            return 2
+        _print_diff(diff)
+        if args.out:
+            out = Path(args.out)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(diff, indent=2, ensure_ascii=False) + "\n",
+                           encoding="utf-8")
+            print(f"artifact           : {out}")
+        return 0
+
+    results = run_all_benchmarks()
+    # Always persist: a benchmark run without a recorded artifact cannot be
+    # compared later (mission §5: measure -> record -> compare).
+    path = record_benchmark(results, out_path=args.out, commit_sha=args.commit_sha)
+    print(f"benchmark artifact : {path}")
+    return 0
+
+
 if __name__ == "__main__":
-    run_all_benchmarks()
+    raise SystemExit(main())

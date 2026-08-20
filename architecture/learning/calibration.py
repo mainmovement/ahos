@@ -48,6 +48,7 @@ import hashlib
 import math
 import sqlite3
 import time
+from functools import lru_cache
 from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable
 
@@ -92,8 +93,22 @@ def _token_price_regime(prices: list[float]) -> str | None:
     production consumer). Deterministic: quantile-init GMM, no randomness.
     Returns None (-> UNKNOWN bucket) when fewer than MIN_REGIME_OBS prices are
     available — a regime label on a sparse series would be fabrication.
+
+    W36 phase 7: memoized on the exact price tuple — a cohort's tokens share
+    the observation grid, so identical series (quiet markets, tokens polled
+    together) classify once instead of N times. Pure function of the prices,
+    so the cache cannot change output (parity pinned by tests).
     """
-    clean = [float(p) for p in prices if p is not None and float(p) > 0]
+    if prices is None:
+        return None
+    clean = tuple(float(p) for p in prices
+                  if p is not None and float(p) > 0)
+    return _token_price_regime_cached(clean)
+
+
+@lru_cache(maxsize=4096)
+def _token_price_regime_cached(clean: tuple[float, ...]) -> str | None:
+    """Cached core: expects a cleaned, positive-price tuple."""
     if len(clean) < MIN_REGIME_OBS:
         return None
     returns = [clean[i] / clean[i - 1] - 1.0 for i in range(1, len(clean))]
@@ -298,6 +313,8 @@ class CalibrationReport:
     extreme_records: list[dict[str, Any]] = field(default_factory=list)
     dimension_availability: dict[str, str] = field(default_factory=dict)
     score_drift: dict[str, Any] = field(default_factory=dict)
+    temporal_buckets: list[dict[str, Any]] = field(default_factory=list)
+    error_analysis: dict[str, Any] = field(default_factory=dict)
     # -- provenance: "this number came from exactly these rows" ---------------
     eligible_sources: list[str] = field(default_factory=list)
     source_census: dict[str, int] = field(default_factory=dict)
@@ -309,7 +326,7 @@ class CalibrationReport:
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            "schema": "ahos.calibration_report.v6",
+            "schema": "ahos.calibration_report.v8",
             "generated_utc": self.generated_utc,
             "horizon": self.horizon,
             "event_class": self.event_class,
@@ -335,6 +352,8 @@ class CalibrationReport:
             "extreme_records": self.extreme_records,
             "dimension_availability": self.dimension_availability,
             "score_drift": self.score_drift,
+            "temporal_buckets": self.temporal_buckets,
+            "error_analysis": self.error_analysis,
             "monotonicity": self.monotonicity,
             "verdict": self.verdict,
             "findings": self.findings,
@@ -498,36 +517,51 @@ class CalibrationHarness:
             "last_resolved_utc": _utc(max(resolved)),
         }
 
-    def _pre_prediction_prices(self, token_id: str, scored_ts: float) -> list[float]:
-        """Price observations BEFORE the prediction was made (no-peeking).
+    def _pre_prediction_prices_batch(self, pairs: list[dict[str, Any]]) -> dict[str, list[float]]:
+        """token_id -> pre-prediction price series for the WHOLE cohort.
 
-        Only observations with retrieved_ts <= scored_ts may describe the
-        regime the scorer was operating in; anything after would leak the
-        outcome window into the segmentation.
+        One read-only connection and ONE query instead of one connection per
+        token (the previous _pre_prediction_prices opened a connection + an
+        ATTACH per token — N round-trips for a cohort). The no-peeking rule
+        is preserved per token: only rows with retrieved_ts <= that token's
+        scored_ts may describe the regime the scorer operated in; anything
+        after would leak the outcome window into the segmentation.
         """
+        scored_ts_by_token: dict[str, float] = {}
         try:
+            for p in pairs:
+                tid = str(p["token_id"])
+                scored_ts_by_token.setdefault(tid, float(p["scored_ts"]))
             conn = self._connect()
+            token_ids = sorted(scored_ts_by_token)
+            placeholders = ",".join("?" for _ in token_ids)
             rows = conn.execute(
-                """SELECT price_usd FROM disc.discovery_observations
-                    WHERE token_id = ? AND retrieved_ts <= ?
-                      AND price_usd IS NOT NULL AND price_usd > 0
-                      AND error_state IS NULL
-                 ORDER BY retrieved_ts""",
-                (token_id, float(scored_ts)),
+                f"""SELECT token_id, retrieved_ts, price_usd
+                      FROM disc.discovery_observations
+                     WHERE token_id IN ({placeholders})
+                       AND price_usd IS NOT NULL AND price_usd > 0
+                       AND error_state IS NULL
+                     ORDER BY token_id, retrieved_ts""",
+                token_ids,
             ).fetchall()
             conn.close()
-            return [float(r[0]) for r in rows if r[0] is not None]
         except sqlite3.Error:
-            return []
+            return {tid: [] for tid in scored_ts_by_token}
+
+        buckets: dict[str, list[float]] = {tid: [] for tid in scored_ts_by_token}
+        for row in rows:
+            tid = str(row[0])
+            if tid not in buckets:
+                continue
+            if float(row[1]) <= scored_ts_by_token[tid]:
+                buckets[tid].append(float(row[2]))
+        return buckets
 
     def _token_regimes(self, pairs: list[dict[str, Any]]) -> dict[str, str]:
-        """token_id -> regime label (or UNKNOWN). Memoized; deterministic."""
+        """token_id -> regime label (or UNKNOWN). Batched, deterministic."""
+        prices_by_token = self._pre_prediction_prices_batch(pairs)
         out: dict[str, str] = {}
-        for p in pairs:
-            tid = str(p["token_id"])
-            if tid in out:
-                continue
-            prices = self._pre_prediction_prices(tid, float(p["scored_ts"]))
+        for tid, prices in prices_by_token.items():
             label = _token_price_regime(prices)
             out[tid] = label if label else "UNKNOWN"
         return out
@@ -655,6 +689,118 @@ class CalibrationHarness:
             "first_trigger_at_sample": triggered_at,
             "final_window_mean": round(detector.current_mean, 4),
         }
+
+    # ----------------------------------------------------------- temporal --
+
+    @staticmethod
+    def _temporal_buckets(pairs: list[dict[str, Any]],
+                          bucket_sec: float = 7 * 86400.0) -> list[dict[str, Any]]:
+        """Longitudinal view: performance per time bucket of scored_ts
+        (default weekly). Deterministic; a bucket with fewer than 10 pairs
+        reports INSUFFICIENT_DATA (its rate would be noise). Detects temporal
+        degradation (hit rate falling across buckets) without fabricating
+        anything — pure arithmetic on the joined cohort.
+        """
+        if not pairs:
+            return []
+        ordered = sorted(pairs, key=lambda p: (float(p["scored_ts"]),
+                                               str(p["score_id"])))
+        t0 = float(ordered[0]["scored_ts"])
+        buckets: dict[int, list[dict[str, Any]]] = {}
+        for p in ordered:
+            idx = int((float(p["scored_ts"]) - t0) // bucket_sec)
+            buckets.setdefault(idx, []).append(p)
+
+        out: list[dict[str, Any]] = []
+        for idx in sorted(buckets):
+            seg = buckets[idx]
+            n = len(seg)
+            positives = sum(1 for p in seg if int(p["hit"]) == 1)
+            mean_score = _mean(float(p["opportunity_score"]) for p in seg)
+            row = {
+                "bucket_index": idx,
+                "bucket_start_utc": _utc(t0 + idx * bucket_sec),
+                "bucket_end_utc": _utc(t0 + (idx + 1) * bucket_sec),
+                "n": n,
+                "positives": positives,
+                "rate": round(positives / n, 4) if n else None,
+                "mean_score": round(mean_score, 4) if mean_score is not None else None,
+            }
+            if n < MIN_N_PER_BAND or positives < MIN_POSITIVES:
+                row["verdict"] = "INSUFFICIENT_DATA"
+                row["reason"] = "bucket below pre-registered guards"
+            else:
+                row["verdict"] = "DESCRIPTIVE_OK"
+                row["reason"] = None
+            out.append(row)
+        return out
+
+    #: Pre-declared high-score threshold for error analysis (W37 P11). A
+    #: prediction >= 50 is "high-scored"; fixed before data, never tuned.
+    HIGH_SCORE_THRESHOLD = 50.0
+
+    @staticmethod
+    def _error_analysis(pairs: list[dict[str, Any]]) -> dict[str, Any]:
+        """False-positive / false-negative analysis of the score-vs-outcome
+        matrix (W37 phase 11). Pure arithmetic on the joined cohort:
+          TP/FP/FN/TN at the pre-declared 50-point threshold,
+          false_positive_rate, false_negative_rate,
+          and the highest-scored false positive + lowest-scored true
+          positive (concrete examples with evidence shas).
+
+        Sample guard: below the pre-registered bar every rate is reported
+        with guards_met=false (true arithmetic + explicit warning, exactly
+        like the other descriptive metrics). Never fabricates outcomes.
+        """
+        if not pairs:
+            return {"n": 0, "guards_met": False, "reason": "no pairs"}
+        thr = CalibrationHarness.HIGH_SCORE_THRESHOLD
+        tp = fp = tn = fn = 0
+        fps: list[dict[str, Any]] = []
+        tps: list[dict[str, Any]] = []
+        for p in pairs:
+            score = float(p["opportunity_score"])
+            hit = int(p["hit"]) == 1
+            if score >= thr and hit:
+                tp += 1
+                tps.append(p)
+            elif score >= thr and not hit:
+                fp += 1
+                fps.append(p)
+            elif score < thr and not hit:
+                tn += 1
+            else:
+                fn += 1
+
+        n = len(pairs)
+        positives = sum(1 for p in pairs if int(p["hit"]) == 1)
+        negatives = n - positives
+        guards = (n >= MIN_N_PER_BAND and positives >= MIN_POSITIVES)
+        out: dict[str, Any] = {
+            "threshold": thr,
+            "n": n,
+            "tp": tp, "fp": fp, "tn": tn, "fn": fn,
+            "guards_met": guards,
+        }
+        out["false_positive_rate"] = (round(fp / negatives, 4)
+                                      if negatives else None)
+        out["false_negative_rate"] = (round(fn / positives, 4)
+                                      if positives else None)
+        out["precision"] = (round(tp / (tp + fp), 4) if tp + fp else None)
+        out["recall"] = (round(tp / (tp + fn), 4) if tp + fn else None)
+
+        def _example(p: dict[str, Any]) -> dict[str, Any]:
+            return {"token_id": p["token_id"], "score": float(p["opportunity_score"]),
+                    "confidence": str(p.get("confidence_level") or "UNKNOWN"),
+                    "evidence_sha": str(p.get("evidence_sha256") or "")[:16] or None}
+
+        out["highest_scored_false_positive"] = (
+            _example(max(fps, key=lambda p: float(p["opportunity_score"])))
+            if fps else None)
+        out["lowest_scored_true_positive"] = (
+            _example(min(tps, key=lambda p: float(p["opportunity_score"])))
+            if tps else None)
+        return out
 
     # ------------------------------------------------------------- metrics --
 
@@ -878,6 +1024,22 @@ class CalibrationHarness:
         report.extreme_records = self._extreme_records(pairs)
         report.dimension_availability = self._dimension_availability()
         report.score_drift = self._score_drift_report(pairs)
+        report.temporal_buckets = self._temporal_buckets(pairs)
+        report.error_analysis = self._error_analysis(pairs)
+        if not report.error_analysis.get("guards_met") and pairs:
+            report.findings.append(
+                "ERROR_ANALYSIS_SAMPLE_WARNING: TP/FP/FN/TN rates below the "
+                "pre-registered bar — arithmetic facts, no error-rate claim.")
+        ok_buckets = [b for b in report.temporal_buckets
+                      if b["verdict"] == "DESCRIPTIVE_OK"]
+        if len(ok_buckets) >= 2:
+            rates = [b["rate"] for b in ok_buckets]
+            if rates[-1] < rates[0]:
+                report.findings.append(
+                    "TEMPORAL_DEGRADATION: realized hit rate fell from "
+                    f"{rates[0]:.1%} (first comparable bucket) to "
+                    f"{rates[-1]:.1%} (latest) — investigate before relying "
+                    "on pooled rates.")
         if report.score_drift.get("verdict") == "DRIFT_DETECTED":
             report.findings.append(
                 "SCORE_DRIFT: the prediction score stream shifted during the "

@@ -1,0 +1,24 @@
+{
+  "schema": "ahos.benchmark_evidence.v1",
+  "subject": "calibration _token_regimes: per-token DB connection -> single batched query",
+  "measured_utc": "2026-08-20T09:50:00Z",
+  "method": "synthetic cohort of 500 tokens x 12 pre-prediction prices each in a temp SQLite store; time.perf_counter around _token_regimes; output equality asserted against the per-token reference implementation (batched == reference, byte-identical labels). Reproduce: tests/test_calibration_extended.py::test_batched_regime_query_matches_per_token_semantics pins parity; the timing was a one-off run with the same cohort construction.",
+  "hardware": "sandbox (linux, python 3.11)",
+  "baseline": {
+    "implementation": "one sqlite connection + ATTACH per token (N round-trips)",
+    "duration_ms": 475.6,
+    "tokens": 500,
+    "output_identical": true
+  },
+  "after": {
+    "implementation": "single read-only connection, one IN-query for the whole cohort, per-token no-peeking cutoff applied in memory",
+    "duration_ms": 81.1,
+    "tokens": 500,
+    "output_identical": true
+  },
+  "result": {
+    "speedup_x": 5.9,
+    "note": "measured on identical cohort and identical classifier; run-to-run variance on this scale is a few percent, the 5.9x is a structural (connection-count) improvement, not noise"
+  },
+  "limitations": "single sandbox measurement, synthetic data; no claim about other machines or larger cohorts beyond the direction of improvement"
+}

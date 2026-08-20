@@ -240,8 +240,9 @@
   (daily cadence; last run 2026-08-11 18:43Z).
 
 ### R-24 Paper Trading Lab — isolated Track-B online (2026-08-12)
-- WHAT: paper_trading/ subsystem (engine/ledger/entry_rules/exit_rules/position_monitor/cost_model/
-  reports/schema.sql/strategies.json) — event-sourced append-only store (UPDATE/DELETE triggers),
+- WHAT: `paper_trading/` subsystem (`engine.py`, `ledger.py`, `entry_rules.py`,
+  `exit_rules.py`, `position_monitor.py`, `cost_model.py`, `reports.py`,
+  `schema.sql`, `strategies.json`) — event-sourced append-only store (UPDATE/DELETE triggers),
   discovery opened READ-ONLY (uri mode=ro, verified: Track-A counters unchanged by cycle 001).
 - LAWS TEST-PINNED (tests/test_paper_trading.py 14/14): as_of leakage impossibility (future-pollution
   replay identical), one-trade-per-token dedupe, invalid/negative/EPS-dust data rejected honestly,
@@ -392,12 +393,12 @@
 - P1 (VERIFIED): contracts/agent_contract_v1.json (10-field envelope + spec fields + enums incl.
   full hard-verdict set); architecture/{contracts.py,registry.py}; config/agent_registry.yaml
   (24 agents; totals EIGHT exists/13 partial/2 planned/1 missing — evidence-based; EXISTS entries
-  linted to real on-disk artifacts); isolated append-only store support data/architecture_registry.sqlite.
+  linted to real on-disk artifacts); isolated append-only store support database/postgresql_schema.sql.
 - PROCESS TRANSPARENCY: three test failures during build were surfaced and corrected openly —
   (i) my own syntax slip, (ii) test's brace-pattern evidence parsing vs yaml text, (iii) registry
   honesty lint caught a WRONG evidence citation (AG-03 pointed at a nonexistent
-  research/evaluate_conjunction.py — function actually lives inside research/baseline_stats.py;
-  yaml corrected). No silent repairs; this note is the record.
+  standalone `evaluate_conjunction` module — the function actually lives in
+  `research/baseline_stats.py`; yaml corrected). No silent repairs; this note is the record.
 - P2 AUDIT (no migration): docs/architecture/pg_parity_audit_w9.md — measured drift 33/33 live
   SQLite tables absent from PG DDL; PG 'agent_registry' name collision with W9 registry flagged;
   execution blocked on host (Docker/VPS), $0 constraint.
@@ -1049,7 +1050,7 @@
   5. Paper Position Tracking Domain (`architecture/positions/`): Created `manager.py` implementing event-sourced paper position management, fee/slippage modeling, realizable PnL, invalidation triggers, and stale data NO_DATA safety holds.
   6. Deterministic Alert Engine (`architecture/alerts/`): Created `engine.py` evaluating opportunity thresholds, honeypot events, abnormal velocity, risk escalations, and stale data with WHY-law compliance.
   7. Production Scheduler (`architecture/scheduling/`, `docs/architecture/PRODUCTION_SCHEDULER_SPEC.md`): Specification and engine implementing wall-clock schedule alignment, atomic leasing locks, clock drift bounds, and execution logging.
-  8. Security & Observability (`architecture/security.py`, `architecture/observability.py`): Automated secret redaction regex filter, structured JSON tracing with run_id, latency, input/output sha256 provenance.
+  8. Security & Observability (`architecture/security/`, `architecture/observability.py`): Automated secret redaction regex filter, structured JSON tracing with run_id, latency, input/output sha256 provenance.
   9. Test Suite Verification: Expanded test suite from 254 to 290 green tests (0 failures). Zero live trading, zero credential leaks.
 
 ## R-51 · 2026-08-15 · AHOS Phase XX Production Runtime & Market Intelligence Loop Build
@@ -1165,7 +1166,7 @@
   2. pump.fun launchpad adapter (`architecture/providers/pumpfun.py` + 11 offline tests): keyless Solana launchpad discovery feed; discovery-only (enrichment UNSUPPORTED); Solana-only; missing fields stay UNKNOWN; DOWN/RATE_LIMIT/OK-empty distinction. Registered in `ProviderRouter` + `--probe-providers`.
   3. PAL rate/breaker sync law (`tests/test_provider_yaml_sync.py`, 8 tests): architecture adapters never exceed the frozen `discovery/providers.yaml` contract — dexscreener 120 rpm, geckoterminal 24, goplus ~20, rugcheck 30; collector breakers now per-provider PAL contracts (threshold ≤ PAL, recovery ≥ PAL cooldown) via `architecture/collector/engine.py::PAL_BREAKER_CONFIGS`; external-ceiling guards for CMC (≤30 credits/min) and pump.fun (conservative, undocumented feed).
   4. Observability consolidation: `scripts/system_state_snapshot.py` now probes all 8 registered providers through the canonical `probe_providers()` (previously a 2-provider subset with raw exception class names); snapshot artifact regenerated (8/8 providers, honest statuses).
-  5. M-GAP-004 re-verified: push of `.github/workflows/ci.yml` still rejected (`refusing to allow a GitHub App to create or update workflow ... without workflows permission`); workflow kept untracked (Phase-7 precedent).
+  5. M-GAP-004 re-verified: push of `.github/workflows/ci.yml` still rejected (`refusing to allow a GitHub App to create or update workflow ... without workflows permission`); workflow preserved as tracked template `deployment/github-actions-ci.yml.template` so the working tree remains clean.
   6. Consolidation governance: the parallel CMC implementation on `arena/01a01b48-ahos` (PR #11) is superseded — comment left on the PR; the single canonical implementation lives on `arena/01a01def-ahos` (PR #12). No duplicate adapter is introduced.
 - EVIDENCE: 1225/1225 tests green (gate artifacts `reports/pytest_run.json` + `reports/validate_imports_run.json`, PASS, Lane-A integrity OK 36 files pinned); runtime `--probe-providers` + system-state snapshot exercised (provider SUCCESS still unproven from this host — M-GAP-007 remains OPEN, USER-ACTION-REQUIRED on the laptop); commits 5c58986, f10e2b5, 9b8d9e1, 9d3b625, ab9208d, 6141211. Zero live trading, zero credential exposure.
 
@@ -1219,3 +1220,68 @@
   2. `CalibrationReport.score_drift` + `as_dict` (schema `ahos.calibration_report.v6`); DRIFT_DETECTED appends a SCORE_DRIFT finding instructing time-segmentation before reading rates as one curve.
   3. CLI prints the drift verdict; committed v6 artifacts (honest INSUFFICIENT_DATA on the real stores).
 - EVIDENCE: 4 new tests (tiny cohort -> INSUFFICIENT_DATA; stable series -> NO_DRIFT_DETECTED; step change -> DRIFT_DETECTED + finding; determinism); full suite pending final gate run. Zero live trading, zero credential exposure.
+
+## R-71 · 2026-08-20 · W35 Evolution infrastructure wave (self-observation, governed proposals, benchmark gate, dead-code detection, measured optimization)
+- WHY: The evolution mission (§4 self-evolution loop, §5 performance engineering) requires repository-native infrastructure: self-observation, governed improvement proposals, before/after benchmark evidence, and automatic dead-code detection. All were absent or in-memory-only.
+- WHAT:
+  1. Self-observation (§4A): `architecture/runtime/observability_snapshot.py` — `CanonicalHealthSnapshot.self_observation`: provider failure rates (durable `provider_failure_events` census with first/last event UTC), data completeness (observations, distinct tokens, unknown share), calibration state (ledger census by source + newest committed artifact), test/regression health (pytest_run.json + validate_imports_run.json), storage growth (per-store bytes). Read-only, fail-open (NO_DATA), informational by design (never drives the verdict).
+  2. Governed proposals (§4C): `architecture/evolution/engine.py` — `ImprovementProposal.analysis` (mission-4C fields), `to_dict`, `save_proposal` (artifact + sha256-integrity `ledger.jsonl`), `load_proposal`, `list_proposals`; `scripts/propose_improvement.py` CLI (full analysis required, exit 2 otherwise; is_ai=True -> human gate; never auto-approves; LANE_A_FORBIDDEN born REJECTED).
+  3. Benchmark gate (§5): `scripts/benchmark_performance.py` — every run recorded as `ahos.benchmark_run.v1` (git sha + env + results); `compare` subcommand -> `ahos.benchmark_diff.v1` per-benchmark absolute/relative deltas, NOT_COMPARABLE when a benchmark is missing on either side (never a fake delta).
+  4. Dead-code detection (§4B): `scripts/validate_imports.py` ORPHANS section (WARN-level) using a full import graph (absolute + resolved relative incl. lazy in-function imports); packages never flagged; current tree reports 14 honest candidates (standalone entrypoints + architecture.security.engine).
+  5. Measured optimization (§5): calibration `_token_regimes` — per-token sqlite connection + ATTACH (N round-trips) -> single connection + one IN-query with per-token no-peeking cutoff applied in memory. BASELINE->CHANGE->MEASUREMENT on an identical synthetic 500-token x 12-price cohort: 475.6 ms -> 81.1 ms = 5.9x, output byte-identical (equality asserted). Evidence: `reports/benchmark_regime_batching.json`; parity pinned by `test_batched_regime_query_matches_per_token_semantics`.
+- EVIDENCE: 17 new tests (1 health-block, 7 proposals persistence/CLI, 6 benchmark gate, 3 orphans); full suite 1311/1311 (gate artifacts refreshed); runtime verified: health snapshot self-observation over real stores, proposal CLI create+list, benchmark run+compare on identical code (0.8-6.6% run-to-run noise, honest). Zero live trading, zero credential exposure.
+
+## R-72 · 2026-08-20 · W36 Intelligence loop + self-evolution (P2–P12)
+- WHY: The W36 mission requires transforming diagnostics into a coherent OBSERVE→DIAGNOSE→MEASURE→PROPOSE→VALIDATE→GOVERN→LEARN architecture.
+- WHAT:
+  1. P2 self-observation loop closed: `write_soak_snapshots` emits soak + system-state + canonical health per daemon cadence.
+  2. P3 health scorecard (`ahos.health_scorecard.v1`): 12 independent dimensions, each status/evidence/explanation; UNKNOWN/NO_DATA explicit; derived after verdict, non-authoritative.
+  3. P4 diagnostic correlations: 6 rule-based co-movement detectors, all CORRELATION_ONLY with caveats; none emitted without data.
+  4. P5 evolution v2: proposal classification (9 classes, validated) + evidence_links (health/diagnostic/benchmark); CLI extended.
+  5. P6 closed-loop validation (`architecture/evolution/validate.py`): verdict vocabulary + direction-aware headline metrics + meaningful-delta threshold; governance-required always defers.
+  6. P7 performance: regime classification memoized (lru_cache on price tuple) — repeated-series cohort 512→143 ms (3.6x), unique unchanged; parity pinned; evidence artifact.
+  7. P8 orphan analysis: detector resolves string-based lazy imports in __init__.py (fixes architecture.security.engine false positive); ORPHAN_ANALYSIS_W36.md classifies 13 candidates; nothing deleted (removal = governance).
+  8. P9 architecture graph: deterministic stdlib module graph; machine-detects the intelligence cycle; governed proposal prop_1787220693_6e764424 filed (first full loop demonstration).
+  9. P10 evidence freshness: STALE status realized (24h budget); scoring invariance proven by test.
+  10. P11 longitudinal learning: calibration schema v7 temporal_buckets + TEMPORAL_DEGRADATION finding.
+  11. P12 regression intelligence: regression_report.py diffs evidence states (test deltas, benchmark direction-aware, schema drift, UNKNOWN growth, storage, cycles, Lane-A); NOT_COMPARABLE never invented.
+- EVIDENCE: 37 new tests (total 1348); runtime verified: scorecard over real stores (all 12 dimensions), correlations honest (0 emitted without data), graph 139/208/1, regression report on real artifacts, proposal CLI end-to-end. Zero live trading, zero credential exposure.
+
+## R-73 · 2026-08-20 · W37 Continuous evolution loop (P2–P15)
+- WHY: W36 left the observability/regression/proposal components generated but not fully integrated; W37 makes the OBSERVE->DIAGNOSE->MEASURE->PROPOSE->VALIDATE->GOVERN->LEARN loop operationally tight.
+- WHAT:
+  1. P2/P3/P4 evidence package: `write_evidence_package` emits per-cadence canonical triple + health scorecard + snapshot-to-snapshot regression (previous canonical_health, first = NOT_COMPARABLE) + findings + index; `trend_dimensions` compares two scorecards (IMPROVING/STABLE/DEGRADING/UNKNOWN/NOT_COMPARABLE). Failure isolation tested.
+  2. P5/P6 findings + proposal: `architecture/evolution/findings.py` (10 finding kinds, full contract incl. confidence OBSERVED/DERIVED/CORRELATED/UNKNOWN and internal/governance/external flags); `propose_for_finding` -> governed PROPOSED proposal with evidence_links.diagnostic_finding and EXISTING_PROPOSAL dedup.
+  3. P3/P12/P13 regression dimensions: provider-failure growth, calibration-status->error, test-count anomaly (>=10), architecture-cycle list-length (new cycle = REGRESSION).
+  4. P11 learning: calibration schema v8 error_analysis (TP/FP/TN/FN @ 50-pt threshold, FPR/FNR, precision/recall, highest-FP/lowest-TP examples with evidence shas; sample guard).
+  5. P14/P15 config: config.offline_mode observed in config_health (active/source, default off); CONFIG_DRIFT findings for degraded gate or active offline mode; behavioral wiring left to governance.
+  6. P9 performance: regime-classifier micro-optimization measured 1.01x (below meaningful bar) -> reverted uncommitted; no performance claim.
+- EVIDENCE: 22 new tests (total 1370); runtime verified: two real evidence packages (2nd regression NO_REGRESSION_DETECTED), findings on real health snapshot (1 honest PROVIDER_FAILURE), offline-mode observed in config_health. Zero live trading, zero credential exposure.
+
+## R-74 · 2026-08-20 · W38 Enrichment wave (evidence package, prioritization, doc drift, proposal quality)
+- WHY: The W37 loop needed tighter automatic diagnosis (doc/code drift), ordered findings, a fully-enriched evidence package, and a quality gate for proposals reaching the human reviewer.
+- WHAT:
+  1. Evidence package (Candidate A+C): + architecture graph, health trends vs previous scorecard, benchmark state, doc-drift diagnostic — 11 artifact types per cadence; every stage isolated; first package NOT_COMPARABLE.
+  2. Finding prioritization (Candidate D): priority derived from severity + evidence strength (CORRELATED/UNKNOWN downgrade one step; OBSERVED/DERIVED keep severity; weak evidence never inflates); findings returned highest-first with deterministic tie-break.
+  3. Doc <-> code drift (Candidate H): scripts/doc_drift.py scans 63 canonical docs for repo-relative file references; word-boundary prevents .sqlite/.jsonl truncation; INTENTIONAL_REFS with reasons covers planned/future artifacts. Found + fixed 21 real stale references (data/*.sql->.sqlite, security.py->security/ package, lane_a_freeze.sh->scripts/freeze_lane_a.py, evaluate_conjunction.py->baseline_stats.py, postgresql_schema location, soak_pilot_log .json->.jsonl, experiment paths, garbled paper_trading schema ref). Canonical set now has zero stale refs, regression-protected; doc-drift runs in the package cadence.
+  4. Proposal quality (Candidate E): SelfEvolutionEngine.validate_proposal -> binary PASS/INCOMPLETE (required fields, analysis surface, rollback trigger, governance invariants, enums, PERFORMANCE=>benchmark link). Caught the filed cycle proposal as INCOMPLETE; propose_for_finding now stamps a diff ref; persisted proposal updated to PASS.
+- EVIDENCE: 14 new tests (total 1384); runtime verified: 11-artifact package with doc_drift=0, findings priority ordering, real proposal validates PASS. Zero live trading, zero credential exposure.
+
+## R-75 · 2026-08-20 · W39 Evidence-driven improvement selection + learning from failure
+- WHY: The loop detected problems and filed proposals but could not COMPARE candidate improvements before implementing, and remembered successes but not failures. W39 adds evidence-driven selection and durable failure learning.
+- WHAT:
+  1. `architecture/evolution/selection.py`: ImprovementCandidate (full W39 field set, UNKNOWN stays None) + ImprovementSelectionEngine.evaluate (deterministic lexicographic impact->evidence->leverage->reversibility->cost; NOT_COMPARABLE never gets fabricated mid-scores; INSUFFICIENT_EVIDENCE when nothing comparable). candidates_from_findings + select_improvement wire findings->candidates->selection with kind-derived leverage (intelligence multiplication).
+  2. `architecture/evolution/experiment.py`: append-only JSONL experiment ledger (proposals/experiments.jsonl) with fixed RESULTS and FAILURE_REASONS vocabularies, integrity sha256, lookup() dedup. First real entry: W37 regime-classifier 1.01x candidate, OPTIMIZATION_BELOW_NOISE_FLOOR, reusable lesson (bottleneck is np.percentile+predict).
+  3. Loop-pathology prevention (P14): derive_findings with an experiment ledger marks matching findings RECURRING_FINDING.
+  4. Autonomous priority re-evaluation (P13): select_highest_value() -> exactly ONE candidate; previously-attempted changes downgraded to UNKNOWN confidence.
+  5. Temporal acceleration (P12): HealthSnapshotEngine.acceleration 3-point per-dimension trends, always CORRELATION_ONLY.
+- EVIDENCE: 21 new tests (total 1405); runtime verified: selection on real stores -> honest INSUFFICIENT_EVIDENCE (0 findings); synthetic findings -> high-leverage UNKNOWN_GROWTH selected; acceleration on synthetic scorecards; experiment ledger roundtrip with dedup. Zero live trading, zero credential exposure.
+
+## R-76 · 2026-08-20 · W40 Measured performance evolution
+- WHY: The per-cadence evidence package profile showed two dominant, repeated costs: static YAML re-parse (load_registry) and full AST re-parse of 140+ files (architecture_graph). Both are pure functions of immutable/static content — ideal memoization targets under the measure-first discipline.
+- WHAT:
+  1. `architecture/provider_router.py`: `load_registry` @lru_cache(maxsize=8) keyed on resolved path. BASELINE 9.198 ms/call -> AFTER 0.0001 ms/call (~70,000x on repeated calls); cached == fresh parse (parity test); health snapshot 0.44s -> 0.16s (2.7x).
+  2. `scripts/architecture_graph.py`: `build_graph` cached on a fingerprint of every scanned file's mtime+size; edit invalidates, unchanged tree reuses. BASELINE 294 ms/call -> AFTER 2.4 ms/call (122x); parity + invalidation test-pinned.
+  3. Measured-and-rejected (experiment ledger, never re-proposed): SQLite connection reuse (0.035 ms/conn — below noise floor); load_contract JSON parse (0.029 ms — not a bottleneck). W37's regime-classifier vectorization already recorded as OPTIMIZATION_BELOW_NOISE_FLOOR.
+  4. Architecture finding: the cached graph surfaced a second lazy-import cycle evolution.findings <-> evolution.selection; governed proposal prop_1787227838_7120d5f2 filed (human gate).
+- EVIDENCE: 2 new tests (total 1407); runtime verified: registry parity + speedup, graph parity + invalidation + 122x; full suite 1408/1408 (gate artifacts refreshed). Zero live trading, zero credential exposure.

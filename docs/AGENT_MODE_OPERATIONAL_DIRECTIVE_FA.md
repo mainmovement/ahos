@@ -622,7 +622,7 @@ architecture/runtime/observation_loop.py   ObservationRuntime + RuntimeSafetyGat
 architecture/runtime/__main__.py           تسک OBSERVATION_CYCLE در دیمن (--observation-cycle)
 scripts/validate_imports.py                دروازه CI: import تازه، مرز Evidence، انجماد Lane-A، رازها، آرتیفکت‌ها
 tests/test_observation_runtime.py          ۸ تست بدون شبکه
-.github/workflows/ci.yml                   GitHub Actions (validate + pytest)
+deployment/github-actions-ci.yml.template  GitHub Actions template (validate + pytest)
 ```
 
 قوانین اتصال:
@@ -634,7 +634,7 @@ tests/test_observation_runtime.py          ۸ تست بدون شبکه
 
 تست: `validate_imports` سبز + سوئیت کامل ۳ بار — **947 passed**.
 
-یادداشت: فایل `.github/workflows/ci.yml` آماده است اما توکن فعلی GitHub App مجوز `workflows` ندارد؛ پس از اتصال مجدد GitHub در Arena باید push شود.
+یادداشت: قالب workflow در `deployment/github-actions-ci.yml.template` نگهداری می‌شود، چون توکن فعلی GitHub App مجوز `workflows` ندارد. پس از اتصال مجدد GitHub در Arena، قالب را به `.github/workflows/ci.yml` کپی و commit کنید.
 
 ---
 

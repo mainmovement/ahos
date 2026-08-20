@@ -423,18 +423,105 @@ def test_dimension_availability_is_honest(tmp_path):
     assert "NOT_PERSISTED_AT_PREDICTION_TIME" in da["opportunity_type"]
 
 
-def test_schema_bumped_to_v6_with_guards_intact(tmp_path):
+def test_schema_bumped_to_v8_with_guards_intact(tmp_path):
     report = _seed(tmp_path, [{"score": 90, "hit": 1}]).run()
     d = report.as_dict()
-    assert d["schema"] == "ahos.calibration_report.v6"
+    assert d["schema"] == "ahos.calibration_report.v8"
     assert d["guards"]["min_n_per_band"] == MIN_N_PER_BAND
     assert d["guards"]["min_positives"] == MIN_POSITIVES
     assert "no_peeking" in d["guards"]
     assert "metrics" in d and "dimension_availability" in d
     assert "provider_segments" in d and "regime_segments" in d
-    assert "score_drift" in d
+    assert "score_drift" in d and "temporal_buckets" in d
+    assert "error_analysis" in d
     # outcome provenance must be stated (frozen labeler identity, not a guess)
     assert d["outcome_provenance"]["labeler"].startswith("discovery/outcomes.py")
+
+
+def test_error_analysis_matrix_and_examples(tmp_path):
+    """False-positive/false-negative analysis at the pre-declared 50-point
+    threshold: TP/FP/TN/FN counts, rates, precision/recall, and concrete
+    highest-FP / lowest-TP examples."""
+    rows = [{"score": 90, "hit": 1, "evidence_sha": "a" * 64} for _ in range(150)]
+    rows += [{"score": 90, "hit": 0, "evidence_sha": "b" * 64} for _ in range(30)]
+    rows += [{"score": 10, "hit": 0, "evidence_sha": "c" * 64} for _ in range(60)]
+    rows += [{"score": 10, "hit": 1, "evidence_sha": "d" * 64} for _ in range(10)]
+    # a HIGH-score TP (score 70) so the "lowest TP" is a distinct example;
+    # score-10 hits are FN (below threshold), not TP.
+    rows += [{"score": 70, "hit": 1, "evidence_sha": "e" * 64} for _ in range(5)]
+    report = _seed(tmp_path, rows).run()
+
+    ea = report.error_analysis
+    assert ea["threshold"] == 50.0
+    assert ea["tp"] == 155 and ea["fp"] == 30
+    assert ea["tn"] == 60 and ea["fn"] == 10
+    assert ea["false_positive_rate"] == pytest.approx(30 / 90, abs=1e-4)
+    assert ea["false_negative_rate"] == pytest.approx(10 / 165, abs=1e-4)
+    assert ea["precision"] == pytest.approx(155 / 185, abs=1e-4)
+    assert ea["recall"] == pytest.approx(155 / 165, abs=1e-4)
+    # examples carry evidence provenance
+    assert ea["highest_scored_false_positive"]["evidence_sha"] == "b" * 16
+    assert ea["lowest_scored_true_positive"]["evidence_sha"] == "e" * 16
+
+
+def test_error_analysis_empty_and_sample_warning(tmp_path):
+    empty = _seed(tmp_path / "e", []).run()
+    assert empty.error_analysis["n"] == 0
+    assert empty.error_analysis["guards_met"] is False
+
+    tiny = _seed(tmp_path / "t", [{"score": 90, "hit": 1}]).run()
+    assert tiny.error_analysis["tp"] == 1
+    assert tiny.error_analysis["guards_met"] is False
+    assert any("ERROR_ANALYSIS_SAMPLE_WARNING" in f for f in tiny.findings)
+
+
+def _mk_pair(score, hit, scored_ts, score_id):
+    return {"score_id": score_id, "opportunity_score": float(score),
+            "scored_ts": float(scored_ts), "hit": hit}
+
+
+def test_temporal_buckets_split_by_scored_time(tmp_path):
+    """Longitudinal view: two well-separated weeks produce two buckets with
+    independent rates; a young bucket reports INSUFFICIENT_DATA."""
+    from architecture.learning.calibration import CalibrationHarness
+
+    week1 = [_mk_pair(90, 1, 1000.0 + i, f"w1_{i}") for i in range(210)]
+    week1 += [_mk_pair(10, 0, 1000.0 + 210 + i, f"w1b_{i}") for i in range(40)]
+    week2 = [_mk_pair(90, 0, 1000.0 + 8 * 86400 + i, f"w2_{i}") for i in range(210)]
+    week2 += [_mk_pair(10, 1, 1000.0 + 8 * 86400 + 210 + i, f"w2b_{i}") for i in range(40)]
+
+    buckets = CalibrationHarness._temporal_buckets(week1 + week2)
+    assert len(buckets) == 2
+    assert buckets[0]["verdict"] == "DESCRIPTIVE_OK"
+    assert buckets[1]["verdict"] == "DESCRIPTIVE_OK"
+    assert buckets[0]["rate"] == pytest.approx(210 / 250)
+    assert buckets[1]["rate"] == pytest.approx(40 / 250)
+    assert buckets[0]["bucket_start_utc"] != buckets[1]["bucket_start_utc"]
+
+
+def test_temporal_bucket_guards_small_buckets(tmp_path):
+    from architecture.learning.calibration import CalibrationHarness
+    small = [_mk_pair(90, 1, 1000.0 + i, f"s_{i}") for i in range(5)]
+    buckets = CalibrationHarness._temporal_buckets(small)
+    assert buckets[0]["verdict"] == "INSUFFICIENT_DATA"
+    assert "pre-registered guards" in (buckets[0]["reason"] or "")
+
+
+def test_temporal_buckets_detect_degradation(tmp_path):
+    """A falling rate across comparable buckets => TEMPORAL_DEGRADATION is
+    surfaced by run()'s finding (the finding is appended in run, the bucket
+    arithmetic is pure)."""
+    from architecture.learning.calibration import CalibrationHarness
+
+    week1 = [_mk_pair(90, 1, 1000.0 + i, f"w1_{i}") for i in range(210)]
+    week1 += [_mk_pair(10, 0, 1000.0 + 210 + i, f"w1b_{i}") for i in range(40)]
+    week2 = [_mk_pair(90, 0, 1000.0 + 8 * 86400 + i, f"w2_{i}") for i in range(210)]
+    week2 += [_mk_pair(10, 1, 1000.0 + 8 * 86400 + 210 + i, f"w2b_{i}") for i in range(40)]
+
+    buckets = CalibrationHarness._temporal_buckets(week1 + week2)
+    ok = [b for b in buckets if b["verdict"] == "DESCRIPTIVE_OK"]
+    assert len(ok) == 2
+    assert ok[0]["rate"] > ok[1]["rate"]  # degradation detectable from buckets
 
 
 # ---------------------------------------------------------------- provider segments
@@ -527,6 +614,77 @@ def test_regime_segmentation_from_pre_prediction_observations(tmp_path):
     assert by["UNKNOWN"].rate == pytest.approx(30 / 250)
 
 
+def test_regime_memoization_preserves_output_parity():
+    """W36 phase 7: the lru_cache wrapper must never change the label for an
+    identical series — same input, same output, whether cached or not."""
+    from architecture.learning.calibration import (
+        _token_price_regime,
+        _token_price_regime_cached,
+    )
+
+    series = _noisy_trend(up=True)
+    # cached core gets the cleaned tuple; wrapper passes the same cleaning
+    cleaned = tuple(float(p) for p in series if p is not None and float(p) > 0)
+    assert _token_price_regime(series) == _token_price_regime_cached(cleaned)
+    # repeated calls (cache hits) return the identical label
+    assert _token_price_regime(series) == _token_price_regime(series)
+    # a DIFFERENT series still gets its own (potentially different) label
+    other = _noisy_trend(up=False)
+    other_label = _token_price_regime(other)
+    assert other_label in ("BULL_TREND", "BEAR_VOLATILE", "NEUTRAL_CHOP")
+
+
+def test_batched_regime_query_matches_per_token_semantics(tmp_path):
+    """The batched regime query (one connection, one IN-query) must produce
+    byte-identical labels to the per-token reference, including the no-peeking
+    filter (each token's prices cut at ITS OWN scored_ts)."""
+    from architecture.learning.calibration import _token_price_regime
+
+    rows = []
+    rows += _cohort_rows(90, 210, 40)                     # token00000-249
+    rows += _cohort_rows(10, 30, 220)                     # token00250-499
+    series = {i: _noisy_trend(up=True) for i in range(250)}
+    series.update({i: _noisy_trend(up=False) for i in range(250, 500)})
+    harness = _seed(tmp_path, rows, price_series=series)
+
+    # scored_ts = t0 + i (seed convention), so a price row at t0+250 falls
+    # BEFORE the scored_ts of tokens 250-499 (included) and AFTER that of
+    # tokens 0-249 (excluded) — exercising the per-token no-peeking cutoff
+    # inside the batched query. Recompute t0 with the same convention.
+    t0 = time.time() - 86400
+    conn = sqlite3.connect(harness.discovery_db)
+    for i in range(500):
+        conn.execute(
+            """INSERT INTO discovery_observations(obs_id, token_id, retrieved_ts,
+                 price_usd, error_state) VALUES (?,?,?,?,NULL)""",
+            (f"boundary_{i}", f"token{i:05d}", t0 + 250, 3.33))
+    conn.commit(); conn.close()
+    pairs = harness._load_pairs("24h", "+50%")
+
+    # per-token reference (the pre-batching implementation's semantics)
+    def _reference(pairs):
+        out = {}
+        for p in pairs:
+            tid = str(p["token_id"])
+            if tid in out:
+                continue
+            conn2 = harness._connect()
+            rows2 = conn2.execute(
+                """SELECT price_usd FROM disc.discovery_observations
+                    WHERE token_id = ? AND retrieved_ts <= ?
+                      AND price_usd IS NOT NULL AND price_usd > 0
+                      AND error_state IS NULL ORDER BY retrieved_ts""",
+                (tid, float(p["scored_ts"]))).fetchall()
+            conn2.close()
+            label = _token_price_regime([float(r[0]) for r in rows2])
+            out[tid] = label if label else "UNKNOWN"
+        return out
+
+    ref = _reference(pairs)
+    batched = harness._token_regimes(pairs)
+    assert ref == batched, "batched regime query diverged from per-token semantics"
+
+
 def test_regime_never_uses_post_prediction_observations(tmp_path):
     """Observations after scored_ts must not influence the regime label."""
     from architecture.learning.calibration import _token_price_regime
@@ -607,7 +765,7 @@ def test_cli_writes_artifact_and_reports_insufficient_data(tmp_path, monkeypatch
     rc = cr.main(["--out", str(out), "--horizon", "24h"])
     assert rc == 0
     payload = json.loads(out.read_text(encoding="utf-8"))
-    assert payload["schema"] == "ahos.calibration_report.v6"
+    assert payload["schema"] == "ahos.calibration_report.v8"
     assert payload["calibration_status"] == "INSUFFICIENT_DATA"
     assert payload["number_of_eligible_pairs"] == 0
     assert "metrics" in payload and payload["metrics"]["brier_score"] is None

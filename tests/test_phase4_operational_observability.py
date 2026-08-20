@@ -43,6 +43,127 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert data["security_invariants"]["ahos_paper_only_enforced"] is True
     assert data["security_invariants"]["live_trading_prohibited"] is True
 
+    # Self-observation block (evolution mission §4A): informational sections
+    # must exist and be well-formed; absent data must be honest NO_DATA /
+    # None, never fabricated.
+    so = data["self_observation"]
+    assert so["informational_note"].startswith("self-observation is informational")
+    assert "provider_failure_rates" in so and "data_completeness" in so
+    assert "calibration_state" in so and "test_health" in so and "storage_growth" in so
+    assert "store_bytes" in so["storage_growth"]
+    assert "total_predictions" in so["calibration_state"]
+    # test-health artifacts are committed, so they must be present, not NO_DATA
+    assert so["test_health"]["pytest"]["present"] is True
+    assert so["test_health"]["validate"]["present"] is True
+    # self-observation now includes benchmark + config health
+    assert "benchmark_health" in so and "config_health" in so
+
+
+def test_offline_mode_config_is_observed_not_behavioral(tmp_path, monkeypatch):
+    """W37 P15: config/offline_mode is wired into the health snapshot as
+    OBSERVED state (default inactive); it must not alter any runtime
+    behavior — this test pins the observability surface only."""
+    from architecture.runtime import observability_snapshot as obs
+
+    engine = obs.HealthSnapshotEngine()
+    so = engine.generate_snapshot().self_observation
+    om = so["config_health"]["offline_mode"]
+    assert om["active"] is False          # default: online
+    assert om["allow_external_http"] is True
+    assert "AHOS_OFFLINE_MODE" in om["source"]
+
+    # when the env flag is set, the snapshot reflects it (still read-only)
+    monkeypatch.setenv("AHOS_OFFLINE_MODE", "1")
+    so2 = engine.generate_snapshot().self_observation
+    assert so2["config_health"]["offline_mode"]["active"] is True
+
+
+def test_health_scorecard_dimensions_independent_and_honest(tmp_path):
+    """Phase 3: the scorecard has independent dimensions with explicit
+    UNKNOWN/NO_DATA semantics; it is informational and non-authoritative."""
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    sc = snap.health_scorecard
+
+    assert sc["schema"] == "ahos.health_scorecard.v1"
+    assert sc["overall_verdict"] == snap.overall_verdict
+    assert sc["note"].startswith("scorecard is informational")
+
+    from architecture.runtime.observability_snapshot import HEALTH_DIMENSIONS
+    assert set(sc["dimensions"].keys()) == set(HEALTH_DIMENSIONS)
+
+    # DATA_HEALTH must be healthy (stores exist and integrity OK)
+    assert sc["dimensions"]["DATA_HEALTH"]["status"] == "HEALTHY"
+    assert any("integrity OK" in e for e in sc["dimensions"]["DATA_HEALTH"]["evidence"])
+
+    # every dimension carries status/evidence/explanation
+    for name, dim in sc["dimensions"].items():
+        assert dim["status"] in ("HEALTHY", "DEGRADED", "UNKNOWN", "FAIL"), name
+        assert isinstance(dim["evidence"], list), name
+        assert dim["explanation"], name
+
+    # UNKNOWN states are explicit, not collapsed into a fake score
+    assert "CALIBRATION_HEALTH" in sc["dimensions"]
+    assert sc["dimensions"]["CALIBRATION_HEALTH"]["status"] in (
+        "HEALTHY", "UNKNOWN", "DEGRADED")
+    # no numeric score anywhere
+    assert "score" not in sc or "numeric_score" not in sc
+
+
+def test_scorecard_does_not_alter_verdict(tmp_path):
+    """The scorecard is derived AFTER the verdict; it must not change it and
+    must not be able to (informational, non-authoritative)."""
+    engine = HealthSnapshotEngine()
+    snap1 = engine.generate_snapshot()
+    verdict_before = snap1.overall_verdict
+    sc = snap1.health_scorecard
+    assert sc["overall_verdict"] == verdict_before
+    # an UNKNOWN scorecard dimension never degrades the verdict
+    assert verdict_before in ("GREEN", "DEGRADED", "CRITICAL", "UNKNOWN")
+
+
+def test_diagnostic_correlations_are_correlation_only(tmp_path):
+    """Phase 4: correlations are emitted only when data supports them, and
+    every one is labeled CORRELATION_ONLY with a caveat — never causality."""
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    corr = snap.diagnostic_correlations
+
+    assert isinstance(corr, list)
+    for c in corr:
+        assert c["label"] == "CORRELATION_ONLY"
+        assert c["caveat"]
+        assert c["evidence"]
+        assert c["left"] and c["right"] and c["direction"]
+
+    # deterministic: two runs produce identical correlation sets
+    snap2 = engine.generate_snapshot()
+    assert [c["left"] + c["right"] for c in corr] == \
+           [c["left"] + c["right"] for c in snap2.diagnostic_correlations]
+
+
+def test_correlations_never_invented_without_data(tmp_path, monkeypatch):
+    """With no failure events, no unknown share, no drift, no tests failing,
+    the correlation list must be empty (absent data => no correlation)."""
+    from architecture.runtime import observability_snapshot as obs
+
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+
+    # strip every signal source; the builder must emit nothing
+    snap.self_observation["provider_failure_rates"] = {"total_failure_events": 0}
+    snap.self_observation["data_completeness"] = {"error": "NO_DATA"}
+    snap.self_observation["score_drift"] = {}
+    snap.self_observation["storage_growth"] = {"total_bytes": 1024}
+    snap.self_observation["test_health"] = {
+        "pytest": {"present": True, "exit_code": 0},
+        "validate": {"present": True, "exit_code": 0},
+    }
+    snap.provider_health = {}
+
+    corr = engine._build_correlations(snap)
+    assert corr == []
+
 
 @pytest.mark.parametrize("query,expected_intent,expected_snippet", [
     ("وضعیت زمان‌بند", "SCHEDULER_STATUS", "گزارش وضعیت زمان‌بند تولیدی"),

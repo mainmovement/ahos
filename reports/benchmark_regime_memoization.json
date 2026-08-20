@@ -1,0 +1,26 @@
+{
+  "schema": "ahos.benchmark_evidence.v1",
+  "subject": "calibration _token_price_regime: per-token GMM fit -> lru_cache on the price tuple",
+  "measured_utc": "2026-08-20T10:30:00Z",
+  "method": "synthetic cohorts of 2000 tokens x 12 pre-prediction prices each in a temp SQLite store; time.perf_counter around the full CalibrationHarness.run(); same cohort shape before/after; output parity asserted by tests (regime segmentation + memoization parity tests).",
+  "hardware": "sandbox (linux, python 3.11)",
+  "baseline": {
+    "implementation": "full GMM fit per token (quantile-init EM) - every token re-classifies its series",
+    "unique_series_full_run_ms": 512,
+    "repeated_series_full_run_ms": null,
+    "note": "baseline profile: _token_price_regime 0.747s cumulative of 0.861s profile"
+  },
+  "after": {
+    "implementation": "memoized on the exact cleaned price tuple (lru_cache 4096); tokens sharing an identical series classify once",
+    "unique_series_full_run_ms": 488,
+    "repeated_series_full_run_ms": 143,
+    "note": "unique-series worst case unchanged (1.05x, no regression); repeated-series (10 unique x 200 tokens - the real polled-data pattern: shared observation grid, quiet market) 3.6x faster"
+  },
+  "result": {
+    "repeated_series_speedup_x": 3.6,
+    "unique_series_regression_x": 1.05,
+    "output_identical": true,
+    "note": "memoization is a pure function of the price tuple; parity pinned by tests/test_calibration_extended.py::test_regime_memoization_preserves_output_parity"
+  },
+  "limitations": "single sandbox measurement; synthetic data; real-world win depends on how often cohorts share identical series"
+}

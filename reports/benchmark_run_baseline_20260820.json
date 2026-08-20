@@ -1,0 +1,48 @@
+{
+  "schema": "ahos.benchmark_run.v1",
+  "timestamp_utc": "2026-08-20T09:51:19Z",
+  "git": {
+    "commit_sha": "d0fb19b2b56b6abfaa69b310f8be45898e17a9f8",
+    "branch": "arena/01a01def-ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.2",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "system": "Linux",
+    "executable": "/home/user/ahos/.venv/bin/python",
+    "cwd": "/home/user/ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
+  },
+  "results": {
+    "vectorized_backtest": {
+      "combinations_evaluated": 64,
+      "duration_seconds": 0.0436,
+      "evaluations_per_sec": 1468.8
+    },
+    "quantstats_tearsheet": {
+      "runs": 50,
+      "total_duration_sec": 0.0284,
+      "latency_per_tearsheet_ms": 0.57
+    },
+    "olap_analytics_bridge": {
+      "rows": 10000,
+      "runs": 20,
+      "is_duckdb_accelerated": false,
+      "latency_per_aggregation_ms": 3.9
+    },
+    "streaming_drift_throughput": {
+      "samples": 50000,
+      "duration_sec": 0.1091,
+      "samples_per_sec": 458101.5
+    },
+    "event_driven_backtest": {
+      "events_processed": 500,
+      "duration_sec": 0.0006,
+      "events_per_sec": 814056.5
+    }
+  }
+}

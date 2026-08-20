@@ -133,7 +133,7 @@
 | Security gate (7 CRITICAL veto registry; fixtures 100% veto) | **C Tested** | discovery/security_gate.py; fixture-set labeled FIXTURE (never "real scam rate") |
 | Outcome labeler (7 horizons × 4 classes, no-peeking) | **C Tested** | discovery/outcomes.py; horizon-closure enforced by test |
 | Paper ranker (rank-first, NO numeric score) | **C Tested** | discovery/ranker.py; "NO OPPORTUNITY" first-class (empty-state test) |
-| E-01 REAL collection (sandbox) | **C Tested / RUNNING** | data/e01_discovery.sqlite: 61 tokens, 75 obs, 15 raw payloads, coverage 92–100%; T0=2026-08-11 17:20Z; reports research/experiments/e01_collection_t0/t1_20260811.json |
+| E-01 REAL collection (sandbox) | **C Tested / RUNNING** | data/e01_discovery.sqlite: 61 tokens, 75 obs, 15 raw payloads, coverage 92–100%; T0=2026-08-11 17:20Z; reports research/experiments/e01_collection_t0_20260811.json |
 | Provider reachability ground truth | **D (sandbox)** | docs/mission_v1_1/G §probes: 12 OK, 5 degraded/failed recorded honestly; Iran=UNKNOWN |
 | Schema v1.2 (sqlite canonical + pg twin) | **B Implemented** | discovery/schema_sqlite.sql + database/schema_v1_2.sql (additive; pg live boot pending blocker #2) |
 | Live gate | CLOSED (unchanged) | 0/13 strategies + 0 promoted features (E-01 data < 8 weeks) — double lock stands |

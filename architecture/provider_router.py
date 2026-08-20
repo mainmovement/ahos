@@ -17,6 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+from functools import lru_cache
 from pathlib import Path
 
 import yaml
@@ -28,8 +29,18 @@ CONTRACT_PATH = ROOT / "contracts" / "ai_provider_contract_v1.json"
 FLOOR_RESULT = {"mode": "DETERMINISTIC_ONLY", "provider": None, "reason": "no_available_provider"}
 
 
+@lru_cache(maxsize=8)
 def load_registry(path: str | Path = REGISTRY_PATH) -> dict:
-    return yaml.safe_load(Path(path).read_text(encoding='utf-8'))
+    """Load + parse the AI provider registry (YAML).
+
+    W40: memoized. The registry is static repository configuration — it only
+    changes when the repo changes — so re-reading and re-parsing the file on
+    every call (the health snapshot calls this per cadence; AI routing per
+    request) is pure waste. The cache is keyed on the resolved path, so a
+    genuinely different path still parses; a process restart picks up a file
+    edit. Callers must treat the returned dict as read-only.
+    """
+    return yaml.safe_load(Path(path).read_text(encoding="utf-8"))
 
 
 def load_contract(path: str | Path = CONTRACT_PATH) -> dict:

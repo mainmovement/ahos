@@ -1,0 +1,40 @@
+# AHOS CI gate (M-GAP-004).
+#
+# Ordering is deliberate: `scripts/validate_imports.py` runs FIRST on a clean
+# tree (it fails on build artifacts like __pycache__, which a pytest run
+# would create), then the full pytest suite. This matches the local gate
+# documented in AHOS_GAP_REGISTER.md (reports/pytest_run.json +
+# validate_imports_run.json) and the Phase-7 "clean-tree requirement".
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Import / Lane-A / secrets gate (clean tree)
+        run: python scripts/validate_imports.py
+
+      - name: Full test suite
+        run: python -m pytest -q -p no:cacheprovider --timeout=600
+
+      - name: 6-stage regression gate
+        run: bash engine/run_all_checks.sh
