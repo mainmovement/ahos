@@ -19,6 +19,8 @@ from pathlib import Path
 
 from .lifecycle import ApplicationLifecycleManager, RuntimeState
 from .logging import get_logger
+
+logger = get_logger("ahos.main")
 from .observation_loop import ObservationRuntime, STATUS_BLOCKED
 from ..collector.engine import CollectorEngine
 from ..learning.score_ledger import ScoreLedger
@@ -31,6 +33,54 @@ from telegram_ai.service import TelegramDomainService
 
 from .metrics import OperationalMetricsTracker
 from config.paths import get_project_root, get_discovery_db_path, get_local_db_path
+
+
+def write_soak_snapshots(*, local_db: str, discovery_db: str,
+                         window_hours: float, probe_providers: bool,
+                         reports_dir: Path, now: float | None = None) -> list[Path]:
+    """Write one soak snapshot + one system-state snapshot (read-only
+    evidence) and return the artifact paths. Never raises: a snapshot failure
+    must not end a daemon — the caller logs it. Empty on failure.
+
+    First production consumer of scripts/soak_snapshot.snapshot() and
+    scripts/system_state_snapshot.build_snapshot() from the runtime, which is
+    what makes the 168h soak protocol's 6h snapshot cadence automatic.
+    """
+    import json
+    import time as _time
+
+    from scripts import soak_snapshot
+    from scripts import system_state_snapshot
+
+    ts = _time.time() if now is None else now
+    out: list[Path] = []
+    try:
+        snap = soak_snapshot.snapshot(local_db, discovery_db,
+                                      window_hours=window_hours, now=ts)
+        utc = snap.get("snapshot_utc") or _time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ", _time.gmtime(ts))
+        path = reports_dir / f"soak_snapshot_{utc.replace(':', '').replace('-', '')}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(snap, indent=2, ensure_ascii=False, default=str),
+                        encoding="utf-8")
+        out.append(path)
+    except Exception as e:
+        logger.warning("automatic soak snapshot failed: %s", e)
+
+    try:
+        report = system_state_snapshot.build_snapshot(
+            probe_providers=probe_providers, window_hours=window_hours)
+        utc2 = (report.get("timestamp_utc") or report.get("snapshot_utc")
+                or _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime(ts)))
+        path2 = reports_dir / f"system_state_snapshot_{utc2.replace(':', '').replace('-', '')}.json"
+        path2.parent.mkdir(parents=True, exist_ok=True)
+        path2.write_text(json.dumps(report, indent=2, default=str) + "\n",
+                         encoding="utf-8")
+        out.append(path2)
+    except Exception as e:
+        logger.warning("automatic system-state snapshot failed: %s", e)
+
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -53,6 +103,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--probe-providers", action="store_true",
                         help="Probe every provider for live reachability, print a "
                              "classified status table, and exit (no scoring, no writes)")
+    parser.add_argument("--snapshot-interval-hours", type=float, default=0.0,
+                        help="In daemon mode, write soak + system-state snapshot "
+                             "evidence every N hours (first one immediately at "
+                             "start). 0 disables. Use 6 for the 168h soak protocol.")
+    parser.add_argument("--snapshot-probe-providers", action="store_true",
+                        help="Include the live provider probe inside each "
+                             "automatic system-state snapshot (requires egress; "
+                             "failures are recorded honestly)")
     args = parser.parse_args(argv)
 
     # Provider probe is a pure read-only diagnostic: it must run without
@@ -226,6 +284,11 @@ def main(argv: list[str] | None = None) -> int:
         ))
 
     # 3. Main Loop
+    snapshot_every = args.snapshot_interval_hours or 0.0
+    last_snapshot_ts: float | None = None
+    daemon_started_ts = time.time()
+    reports_dir = root / "reports"
+
     try:
         if args.single_cycle:
             sched_res = scheduler.execute_scheduled_cycle("SINGLE_CYCLE", cycle_tasks)
@@ -233,11 +296,39 @@ def main(argv: list[str] | None = None) -> int:
             app.shutdown(reason="Single cycle complete")
             return 0 if sched_res["status"] == "SUCCESS" else 1
 
-        logger.info(f"AHOS Daemon started. Interval: {args.interval_sec}s")
+        logger.info(f"AHOS Daemon started. Interval: {args.interval_sec}s"
+                    + (f", soak snapshots every {snapshot_every:.1f}h"
+                       if snapshot_every > 0 else ", snapshots disabled"))
         while running:
             sched_res = scheduler.execute_scheduled_cycle("DAEMON_CYCLE", cycle_tasks)
             if not running:
                 break
+
+            # Automatic soak evidence (M-GAP-003 support): the first snapshot
+            # lands immediately at t=0 (protocol §6 row t=0), then every N
+            # hours. Failure is logged, never fatal.
+            if snapshot_every > 0:
+                now_ts = time.time()
+                due = (last_snapshot_ts is None
+                       or now_ts - last_snapshot_ts >= snapshot_every * 3600.0)
+                if due:
+                    written = write_soak_snapshots(
+                        local_db=local_db,
+                        discovery_db=discovery_db,
+                        window_hours=max(0.0, (now_ts - daemon_started_ts) / 3600.0),
+                        probe_providers=args.snapshot_probe_providers,
+                        reports_dir=reports_dir,
+                        now=now_ts,
+                    )
+                    last_snapshot_ts = now_ts
+                    if written:
+                        logger.info(
+                            "soak snapshot evidence written: %s",
+                            ", ".join(str(p) for p in written))
+                    else:
+                        logger.warning(
+                            "soak snapshot cycle produced no artifacts "
+                            "(see snapshot warnings above)")
             time.sleep(args.interval_sec)
 
         app.shutdown(reason="Daemon stopped")
