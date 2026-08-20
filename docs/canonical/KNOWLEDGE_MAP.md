@@ -363,3 +363,11 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   Fewer than 10 pre-prediction observations ⇒ UNKNOWN bucket (never a default
   regime). `regime_segments` added to the report; dimension_availability
   documents the post-hoc computation honestly. Suite **1261 passed**.
+- **Weight-governance acceptance tool (W33d):** `scripts/calibration_diff.py`
+  diffs two calibration report artifacts (`ahos.calibration_diff.v1`,
+  deterministic) — per-band rate deltas only when both sides are DESCRIPTIVE_OK
+  on the same horizon+event_class, monotonicity + diagnostic deltas, full
+  provenance of both sides; honest NO_COMPARABLE_BANDS while evidence is
+  insufficient, IDENTICAL_DATASETS nulls rate deltas, missing artifact exits 2.
+  This is the roadmap's "any weight change ⇒ calibration diff attached to PR"
+  acceptance tool. Suite **1269 passed**.
