@@ -1,8 +1,8 @@
 {
   "schema": "ahos.test_run.v1",
-  "timestamp_utc": "2026-08-18T16:43:07Z",
-  "finished_utc": "2026-08-18T16:43:23Z",
-  "duration_sec": 15.993,
+  "timestamp_utc": "2026-08-20T07:33:46Z",
+  "finished_utc": "2026-08-20T07:33:58Z",
+  "duration_sec": 12.192,
   "command": [
     ".venv/bin/python",
     "-B",
@@ -12,9 +12,9 @@
   "cwd": "/home/user/ahos",
   "executable": "/home/user/ahos/.venv/bin/python",
   "git": {
-    "commit_sha": "dc001c8b6c4bc6ad0ce79b370b77a1cd32e81ab9",
-    "branch": "arena/01a015a3-ahos",
-    "working_tree_clean": true
+    "commit_sha": "9b8d9e1fe46cdd1cd0749442eb6ae206f3036928",
+    "branch": "arena/01a01def-ahos",
+    "working_tree_clean": false
   },
   "environment": {
     "python_version": "3.11.2",
@@ -24,15 +24,13 @@
     "system": "Linux",
     "executable": "/home/user/ahos/.venv/bin/python",
     "cwd": "/home/user/ahos",
-    "ahos_related_env_names": [
-      "PYTHONDONTWRITEBYTECODE"
-    ],
+    "ahos_related_env_names": [],
     "fingerprint_sha256": "ba462ad395aee98d9b4f0eb6d4423f5fe80cf8b7d6ff5b4a99730de582bd8abf"
   },
   "exit_code": 0,
   "timed_out": false,
   "pytest_summary": null,
-  "stdout": "\n== ARTIFACTS ==\n   info: no build artifacts expected in a clean checkout\n\n== IMPORTS ==\n   info: 142 modules imported cleanly in fresh interpreters\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 17 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 2048 source files scanned\n\nVALIDATION PASSED \u2014 repository wiring is clean.\n",
+  "stdout": "\n== ARTIFACTS ==\n   info: no build artifacts expected in a clean checkout\n\n== IMPORTS ==\n   info: 162 modules imported cleanly in fresh interpreters\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 17 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 2086 source files scanned\n\nVALIDATION PASSED \u2014 repository wiring is clean.\n",
   "stderr": "",
   "verdict": "PASS"
 }
