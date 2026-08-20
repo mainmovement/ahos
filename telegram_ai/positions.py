@@ -33,13 +33,45 @@ CREATE TABLE IF NOT EXISTS position_ledger (
   meta_json     TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_ledger_token ON position_ledger(token_chain, token_address);
+
+CREATE TABLE IF NOT EXISTS watch_list (
+  watch_id      TEXT PRIMARY KEY,
+  created_utc   TEXT NOT NULL,
+  token_chain   TEXT NOT NULL,
+  token_address TEXT NOT NULL,
+  condition     TEXT,
+  raw_text      TEXT
+);
 """
 
 
 def open_ledger(path: str | Path) -> sqlite3.Connection:
     conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
-    conn.executescript(SCHEMA)
+    # Never bundle CREATE INDEX with CREATE TABLE IF NOT EXISTS: a pre-existing
+    # table of the same name (ahos_local.sqlite is a shared store) may lack
+    # token_chain, and SQLite then aborts the whole script.
+    # Dedicated names: ahos_local.sqlite already has unrelated tables; never
+    # collide with a non-telegram `position_ledger`.
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS telegram_position_ledger (
+          entry_id TEXT PRIMARY KEY, created_utc TEXT NOT NULL,
+          intent_rule TEXT NOT NULL, token_chain TEXT NOT NULL,
+          token_address TEXT NOT NULL, side TEXT NOT NULL,
+          amount_value REAL NOT NULL, amount_currency TEXT NOT NULL,
+          note TEXT, raw_text TEXT, meta_json TEXT);
+        CREATE INDEX IF NOT EXISTS idx_tg_ledger_token
+          ON telegram_position_ledger(token_chain, token_address);
+        CREATE TABLE IF NOT EXISTS telegram_watch_list (
+          watch_id TEXT PRIMARY KEY, created_utc TEXT NOT NULL,
+          token_chain TEXT NOT NULL, token_address TEXT NOT NULL,
+          condition TEXT, raw_text TEXT);
+        CREATE INDEX IF NOT EXISTS idx_tg_watch_token
+          ON telegram_watch_list(token_chain, token_address);
+        """
+    )
+    conn.commit()
     return conn
 
 
@@ -60,7 +92,7 @@ def log_buy(conn: sqlite3.Connection, *, token: dict, amount_value: float,
         return None
     eid = _entry_id(chain, str(address).lower(), float(amount_value), amount_currency, ts)
     conn.execute(
-        """INSERT INTO position_ledger(entry_id,created_utc,intent_rule,token_chain,token_address,
+        """INSERT INTO telegram_position_ledger(entry_id,created_utc,intent_rule,token_chain,token_address,
                                       side,amount_value,amount_currency,note,raw_text,meta_json)
            VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
         (eid, datetime.fromtimestamp(ts, timezone.utc).isoformat(timespec="seconds"),
@@ -72,7 +104,34 @@ def log_buy(conn: sqlite3.Connection, *, token: dict, amount_value: float,
 
 def positions_for_token(conn: sqlite3.Connection, chain: str, address: str) -> list[dict]:
     rows = conn.execute(
-        """SELECT * FROM position_ledger WHERE token_chain=? AND token_address=? ORDER BY created_utc""",
+        """SELECT * FROM telegram_position_ledger WHERE token_chain=? AND token_address=? ORDER BY created_utc""",
+        (chain, str(address))).fetchall()
+    return [dict(r) for r in rows]
+
+
+def log_watch(conn: sqlite3.Connection, *, token: dict, condition: str | None,
+              raw_text: str, now: float | None = None) -> str | None:
+    """Paper watchlist. Refuses unresolved tokens. Never fires a live trade alert."""
+    ts = time.time() if now is None else now
+    address = (token or {}).get("address")
+    chain = (token or {}).get("chain")
+    if not address or not chain:
+        return None
+    wid = hashlib.sha256(
+        f"watch:{chain}:{address}:{condition}:{ts}".encode()
+    ).hexdigest()[:16]
+    conn.execute(
+        """INSERT INTO telegram_watch_list(watch_id,created_utc,token_chain,token_address,condition,raw_text)
+           VALUES (?,?,?,?,?,?)""",
+        (wid, datetime.fromtimestamp(ts, timezone.utc).isoformat(timespec="seconds"),
+         chain, str(address), condition, raw_text))
+    conn.commit()
+    return wid
+
+
+def watches_for_token(conn: sqlite3.Connection, chain: str, address: str) -> list[dict]:
+    rows = conn.execute(
+        """SELECT * FROM telegram_watch_list WHERE token_chain=? AND token_address=? ORDER BY created_utc""",
         (chain, str(address))).fetchall()
     return [dict(r) for r in rows]
 

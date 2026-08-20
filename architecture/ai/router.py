@@ -124,9 +124,12 @@ class AIProviderRouter:
             "provider": "deterministic_rules_engine",
             "success": True,
             "data": {
-                "recommendation": "WATCH",
-                "confidence": 0.70,
-                "reasoning": "Deterministic rule evaluation applied. Market conditions require standard monitoring.",
-                "risk_flags": ["VOLATILITY_MONITORING"],
+                "recommendation": "INSUFFICIENT_EVIDENCE",
+                "confidence": None,
+                "confidence_status": "UNKNOWN",
+                "reasoning": "No local or free AI provider answered. "
+                             "The deterministic floor does not invent a WATCH "
+                             "or a 0.70 confidence. Scoring remains the math engine.",
+                "risk_flags": [],
             },
         }

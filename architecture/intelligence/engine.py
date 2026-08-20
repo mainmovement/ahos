@@ -82,13 +82,14 @@ class IntelligenceEngine:
         virality: Any = None,
         whales: Any = None,
         exitability: Any = None,
+        social: Any = None,
     ) -> IntelligenceReport:
         require_evidence_bundle(evidence, self.CONSUMER)
 
         extras: list[Evidence] = list(extra or [])
         extras.extend(collect_intel_evidence(
             narrative=narrative, virality=virality,
-            whales=whales, exitability=exitability,
+            whales=whales, exitability=exitability, social=social,
         ))
         if extras:
             evidence = evidence.extended(extras)

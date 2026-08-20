@@ -77,6 +77,17 @@ def test_lens_application_shannon_high_snr():
     assert any(i["lens_id"] == "LENS-SHANNON" and i["verdict"] == "CONFIRM_SIGNAL" for i in insights)
 
 
+def test_missing_fields_do_not_fabricate_false_or_zero():
+    """False-on-missing is forbidden: unknown honeypot is not a clean bill,
+    unknown liquidity is not $0 trapped-capital."""
+    lib = ExpertLensLibrary()
+    insights = lib.evaluate_opportunity_with_lenses({})
+    verdicts = {(i["lens_id"], i["verdict"]) for i in insights}
+    assert ("LENS-MUNGER", "VETO") not in verdicts
+    assert ("LENS-TALEB", "AVOID_TRAPPED_CAPITAL") not in verdicts
+    assert any(i["verdict"] == "ABSTAIN_UNKNOWN" for i in insights)
+
+
 def test_lens_domain_filtering():
     lib = ExpertLensLibrary()
     crypto_lenses = lib.list_by_domain(KnowledgeDomain.CRYPTOGRAPHY)

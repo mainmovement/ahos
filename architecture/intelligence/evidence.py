@@ -553,6 +553,12 @@ def materialize_evidence(candidate: Any, now: float | None = None) -> EvidenceBu
          provider, "whale_net_flow_1h"),
         ("wallet_events", wallet_events if wallet_events else None, "Observed wallet events",
          provider, "wallet_events"),
+        ("has_blacklist", sget("has_blacklist"), "Blacklist present",
+         "security_gate", "security.has_blacklist"),
+        ("has_whitelist", sget("has_whitelist"), "Whitelist present",
+         "security_gate", "security.has_whitelist"),
+        ("has_transfer_restriction", sget("has_transfer_restriction"),
+         "Transfer restriction", "security_gate", "security.has_transfer_restriction"),
     ]
     for key, value, desc, prov, field in optional:
         if value is None:

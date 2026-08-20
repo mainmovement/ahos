@@ -24,6 +24,7 @@ from ..providers.contracts import NormalizedTokenCandidate
 from ..providers.registry import ProviderRouter
 from ..collector.engine import CollectorEngine, CollectedObservationRecord
 from ..scoring.engine import OpportunityScorer, OpportunityScoreReport
+from ..scoring.ranker import rank_paired
 from ..intelligence.engine import IntelligenceEngine
 from ..intelligence.evidence import materialize_evidence
 from ..learning.score_ledger import ScoreLedger
@@ -45,6 +46,7 @@ class PipelineExecutionReport:
     telegram_messages_sent: int
     scores_persisted: int = 0
     top_opportunity: OpportunityScoreReport | None = None
+    ranking: list[dict] = field(default_factory=list)
     alerts: list[Alert] = field(default_factory=list)
     trace: OperationTrace | None = None
 
@@ -126,9 +128,12 @@ class OpportunityPipelineOrchestrator:
             rep.source_provider = str(getattr(cand, "source_provider", "") or "")
             paired.append((cand, rep))
 
-        ranked = sorted(paired, key=lambda item: item[1].opportunity_score, reverse=True)
-        reports = [rep for _, rep in ranked]
+        # Multi-factor ranking (not highest-score-wins). Anti-hype: HIGH
+        # VIRALITY + HIGH SECURITY RISK → REJECT. Score itself is unchanged.
+        ranked_rows = rank_paired(paired)
+        reports = [rep for _, rep, _ in ranked_rows]
         top_opp = reports[0] if reports else None
+        ranking = [row.as_dict() for _, _, row in ranked_rows]
 
         # 2b. Persist every prediction BEFORE any outcome is known.
         #     This is the `Prediction` node of the learning loop. Scoring after
@@ -185,6 +190,7 @@ class OpportunityPipelineOrchestrator:
             telegram_messages_sent=messages_sent,
             scores_persisted=scores_persisted,
             top_opportunity=top_opp,
+            ranking=ranking,
             alerts=emitted_alerts,
             trace=trace
         )

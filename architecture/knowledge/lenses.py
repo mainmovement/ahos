@@ -961,12 +961,48 @@ class ExpertLensLibrary:
     def evaluate_opportunity_with_lenses(self, token_data: dict[str, Any]) -> list[dict[str, Any]]:
         """Applies lens principles to token observation data without AI fabrication."""
         insights = []
-        liq = token_data.get("liquidity_usd") or 0.0
-        vol = token_data.get("volume_1h") or 0.0
-        is_hp = token_data.get("is_honeypot", False)
+        # Honesty: missing keys stay UNKNOWN. `or 0.0` / `get(..., False)`
+        # would fabricate a numeric zero / a clean-security negative.
+        if "liquidity_usd" not in token_data:
+            liq = None
+        else:
+            liq = token_data.get("liquidity_usd")
+        if "volume_1h" not in token_data:
+            vol = None
+        else:
+            vol = token_data.get("volume_1h")
+        if "is_honeypot" not in token_data:
+            is_hp = None
+        else:
+            is_hp = token_data.get("is_honeypot")
+
+        if liq is None:
+            insights.append({
+                "lens_id": "LENS-TALEB",
+                "identity": "Nassim Nicholas Taleb",
+                "insight": "UNKNOWN liquidity — convexity cannot be judged; not a clean bill.",
+                "verdict": "ABSTAIN_UNKNOWN",
+                "citation_ref": "SRC-TALEB-2012:p231",
+            })
+        if vol is None:
+            insights.append({
+                "lens_id": "LENS-SHANNON",
+                "identity": "Claude Shannon",
+                "insight": "UNKNOWN volume — SNR cannot be judged.",
+                "verdict": "ABSTAIN_UNKNOWN",
+                "citation_ref": "SRC-SHANNON-1948:p380",
+            })
+        if is_hp is None:
+            insights.append({
+                "lens_id": "LENS-MUNGER",
+                "identity": "Charlie Munger",
+                "insight": "UNKNOWN honeypot flag — inversion cannot veto or clear.",
+                "verdict": "ABSTAIN_UNKNOWN",
+                "citation_ref": "SRC-MUNGER-1995:speech",
+            })
 
         # Apply Munger Inversion Lens
-        if is_hp:
+        if is_hp is True:
             insights.append({
                 "lens_id": "LENS-MUNGER",
                 "identity": "Charlie Munger",
@@ -976,7 +1012,7 @@ class ExpertLensLibrary:
             })
 
         # Apply Taleb Antifragility / Convexity Lens
-        if liq < 2000.0:
+        if liq is not None and liq < 2000.0:
             insights.append({
                 "lens_id": "LENS-TALEB",
                 "identity": "Nassim Nicholas Taleb",
@@ -986,7 +1022,7 @@ class ExpertLensLibrary:
             })
 
         # Apply Shannon SNR / Entropy Lens
-        if vol > 20000.0 and liq > 30000.0:
+        if vol is not None and liq is not None and vol > 20000.0 and liq > 30000.0:
             insights.append({
                 "lens_id": "LENS-SHANNON",
                 "identity": "Claude Shannon",
@@ -996,7 +1032,7 @@ class ExpertLensLibrary:
             })
 
         # Apply Howard Marks Second-Level Thinking Lens
-        if vol > 50000.0 and liq < 10000.0:
+        if vol is not None and liq is not None and vol > 50000.0 and liq < 10000.0:
             insights.append({
                 "lens_id": "LENS-MARKS",
                 "identity": "Howard Marks",

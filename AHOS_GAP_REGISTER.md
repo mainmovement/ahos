@@ -102,8 +102,20 @@ Classification alphabet: **IMPLEMENTABLE NOW** · **REQUIRES USER ACTION** ·
 | M-GAP-011 (CMC + launchpads) | CLOSED (adapters) → live probe REQUIRES USER ACTION | adapters implemented + 31 offline tests; live probe rides on M-GAP-007 |
 | M-GAP-012 (off-box watchdog) | OPTIONAL (by design) | not an acceptance item for local-laptop operation |
 
-No remaining gap is IMPLEMENTABLE NOW without user action, credentials,
-external permission, or data accrual. Next engineering surfaces (Month 3–5:
-weight governance via the existing `improvement_proposal_v1` flow, narrative
-feed-through, learning engine) are sequenced behind calibration measurement
-evidence per ROADMAP_v3.
+The 2026-08-20 "no IMPLEMENTABLE NOW remaining" sentence is **falsified by W41**.
+Engineering-complete tests were never product-complete: Social Intelligence was
+RSS-only, pipeline ranking was highest-score-wins, operational expert roles were
+absent (historical-thinker cards only), PR #14 was an unsafe parallel subsystem,
+and `select_highest_value` was not in the evidence package. Those were internal.
+
+| Gap | Classification | What unblocks it |
+|---|---|---|
+| W-GAP-041 Social Intelligence abstraction | CLOSED (architecture) / live collection EXTERNALLY_BLOCKED | `architecture/intel/social.py` + tests; live RSS still rides M-GAP-007 |
+| W-GAP-042 Multi-factor ranking / anti-hype | CLOSED | `architecture/scoring/ranker.py` wired into the production pipeline |
+| W-GAP-043 Operational expert lenses (20 roles) | CLOSED (advisory) | `architecture/knowledge/operational_lenses.py`; not a live LLM council |
+| W-GAP-044 PR #14 parallel subsystem | CLOSED (isolated, not deleted) | deprecation + neutralization + `tests/test_pr14_isolation.py` |
+| W-GAP-045 Evidence-package selection loop | CLOSED | `improvement_selection_*.json` per cadence |
+| W-GAP-046 False-on-missing in historical lenses | CLOSED | `evaluate_opportunity_with_lenses` + invalidation UNKNOWN thresholds |
+| Live AI council (multi-provider deliberation) | PARTIAL | contracts + debate_council exist; live keys EXTERNALLY_BLOCKED |
+| Narrative RSS in the collector cycle | OPEN (internal, lower priority) | collector still does not fetch news; social is on-demand |
+| DEXTools live | EXTERNALLY_BLOCKED | adapter IMPLEMENTED; needs `DEXTOOLS_API_KEY` + egress |

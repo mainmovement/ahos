@@ -18,14 +18,15 @@ from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTEN
 from .response_contract import format_opportunity_response, format_market_overview, FOOTER_MANDATED
 from architecture.scoring.engine import OpportunityScorer, OpportunityScoreReport
 from architecture.providers.contracts import NormalizedTokenCandidate, MarketMetrics, SecuritySignals
-from .positions import open_ledger, log_buy, positions_for_token, latest_observed_value
+from .positions import open_ledger, log_buy, log_watch, positions_for_token, latest_observed_value
 from config.paths import get_discovery_db_path, get_local_db_path
 
 # Intents that are meaningless without a specific token, and may therefore
 # inherit the token currently under discussion in the conversation.
 TOKEN_SCOPED_INTENTS = {
     "EXITABILITY_QUERY", "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION",
-    "PANEL_ANALYSIS",
+    "PANEL_ANALYSIS", "WATCH_TOKEN", "ALERT_SET", "WHY_REJECTED",
+    "SELL_ADVICE_QUERY", "TAKE_PROFIT_QUERY", "WHY_ALERTED",
 }
 
 
@@ -126,6 +127,12 @@ class TelegramDomainService:
             return self._handle_panel(parsed)
         elif parsed.intent == "SELF_REVIEW":
             return self._handle_self_review(parsed)
+        elif parsed.intent in ("WATCH_TOKEN", "ALERT_SET"):
+            return self._handle_watch(parsed)
+        elif parsed.intent == "WHY_REJECTED":
+            return self._handle_why_rejected(parsed)
+        elif parsed.intent in ("SELL_ADVICE_QUERY", "TAKE_PROFIT_QUERY"):
+            return self._handle_sell_advice(parsed)
         elif parsed.intent == "HELP":
             return {
                 "text": self._get_help_text(),
@@ -173,11 +180,23 @@ class TelegramDomainService:
                 "status": "EMPTY"
             }
         reports = [self.scorer.evaluate(c) for c in candidates]
-        reports.sort(key=lambda r: r.opportunity_score, reverse=True)
-
-        top = reports[0]
+        from architecture.scoring.ranker import rank_reports
+        ranked = rank_reports(reports)
+        pick = next((row for row in ranked if row.disposition in ("SELECT", "INVESTIGATE")), None)
+        if pick is None:
+            pick = next((row for row in ranked if row.disposition != "REJECT"), None)
+        if pick is None:
+            return {
+                "text": f"از {len(reports)} توکن بررسی‌شده هیچ‌کدام از فیلتر امنیت/خروج عبور نکرد.\n\n{FOOTER_MANDATED}",
+                "intent": parsed.intent,
+                "status": "EMPTY",
+            }
+        top = next(r for r in reports if r.token_address == pick.token_address)
         matching_cand = next(c for c in candidates if c.address == top.token_address)
-        formatted_text = f"🌟 بهترین فرصت شناسایی‌شده امروز:\n\n" + format_opportunity_response(top, matching_cand)
+        formatted_text = (
+            f"🌟 بالاترین رتبه چندعاملی ({pick.disposition}) — نه صرفاً بالاترین امتیاز:\n\n"
+            + format_opportunity_response(top, matching_cand)
+        )
 
         return {
             "text": formatted_text,
@@ -268,38 +287,57 @@ class TelegramDomainService:
         }
 
     def _handle_system_health(self, parsed: ParseResult) -> dict[str, Any]:
-        """Provides full operational health diagnostics & observability report in Persian."""
+        """Live health diagnostics. Hardcoded census numbers are forbidden."""
         try:
-            from engine.health_manager import AHOSHealthManager
-            from architecture.runtime.metrics import OperationalMetricsTracker
-            hm = AHOSHealthManager()
-            health_rep = hm.run_full_diagnostics()
-            tracker = OperationalMetricsTracker()
-            recent_metrics = tracker.get_recent_metrics(limit=5)
-            
-            status_fa = "🟢 پایدار (GREEN)" if health_rep.overall_status == "GREEN" else "🟡 نیازمند توجه (YELLOW)"
+            from architecture.runtime.observability_snapshot import HealthSnapshotEngine
+            snap = HealthSnapshotEngine().generate_snapshot()
+            e01 = snap.e01_experiment_state or {}
+            tb = snap.track_b_accounting or {}
+            so = snap.self_observation or {}
+            test = (so.get("test_health") or {}).get("pytest") or {}
+            tokens = e01.get("total_tokens_observed")
+            pytest_passed = test.get("passed")
+            pytest_exit = test.get("exit_code")
+            open_pos = tb.get("open_positions_count")
+            bankroll = tb.get("virtual_bankroll_initial_usd")
+            db_ok = sum(1 for v in (snap.database_integrity or {}).values()
+                        if isinstance(v, dict) and v.get("integrity") == "OK")
+            db_n = len(snap.database_integrity or {})
+            verdict = snap.overall_verdict or "UNKNOWN"
+            status_fa = {
+                "GREEN": "🟢 پایدار (GREEN)",
+                "DEGRADED": "🟡 تنزل‌یافته (DEGRADED)",
+                "WARNING": "🟡 هشدار (WARNING)",
+                "CRITICAL": "🔴 بحرانی (CRITICAL)",
+            }.get(verdict, "⚪ نامعلوم (UNKNOWN)")
+            def _n(v):
+                return str(v) if v is not None else "نامعلوم"
+            extra = ""
+            if pytest_exit is not None:
+                extra = f" (exit {pytest_exit})"
+            elif pytest_passed is None:
+                extra = " (artifact نیست)"
+            bank = f" (بانکرول ${bankroll})" if bankroll is not None else ""
             lines = [
                 "🛡️ **گزارش وضعیت و سلامت عملیاتی سامانه AHOS**",
                 "──────────────────────────",
                 f"• وضعیت کلی سلامت: {status_fa}",
-                f"• تعداد تست‌های پاس‌شده: ۴۹۳+ تست سبز (۰ خطا)",
-                f"• وضعیت پایگاه‌های داده: ۴ پایگاه داده فعال و سالم (Integrity OK)",
-                f"• تعداد توکن‌های رصد شده: ۹۵۲ توکن",
-                f"• وضعیت پوزیشن‌های کاغذی: ۱۱ پوزیشن باز (سرمایه کل: ۲۰ دلار)",
-                f"• حالت اجرای پلتفرم: ۱۰۰٪ معاملات کاغذی (PAPER ONLY)",
+                f"• تست‌های پاس‌شده (artifact): {_n(pytest_passed)}{extra}",
+                f"• پایگاه‌های داده با integrity=OK: {db_ok} از {_n(db_n or None)}",
+                f"• تعداد توکن‌های رصد شده: {_n(tokens)}",
+                f"• پوزیشن‌های کاغذی باز: {_n(open_pos)}{bank}",
+                "• حالت اجرا: PAPER ONLY (هیچ معامله واقعی)",
             ]
-            if recent_metrics:
-                lines.append("\n📈 **آخرین متریک‌های عملیاتی:**")
-                for m in recent_metrics[:3]:
-                    lines.append(f" • {m.get('metric_name')}: {m.get('metric_value')} [{m.get('status')}]")
+            if snap.summary_reasons:
+                lines.append("• دلایل: " + "; ".join(snap.summary_reasons[:3]))
             lines.append(f"\n{FOOTER_MANDATED}")
-            txt = "\n".join(lines)
-            return {"text": txt, "intent": "SYSTEM_HEALTH", "status": "OK", "health": health_rep.overall_status}
+            return {"text": "\n".join(lines), "intent": "SYSTEM_HEALTH",
+                    "status": "OK", "health": verdict}
         except Exception as e:
             return {
-                "text": f"🛡️ وضعیت سامانه: فعال و پایدار (بررسی خط لوله: OK)\n\n{FOOTER_MANDATED}",
+                "text": f"🛡️ وضعیت سامانه: نامعلوم ({type(e).__name__}) — عدد جعل نمی‌شود.\n\n{FOOTER_MANDATED}",
                 "intent": "SYSTEM_HEALTH",
-                "status": "OK"
+                "status": "UNKNOWN"
             }
 
     def _handle_scheduler_status(self, parsed: ParseResult) -> dict[str, Any]:
@@ -320,7 +358,7 @@ class TelegramDomainService:
             ]
             return {"text": "\n".join(lines), "intent": "SCHEDULER_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"⏱️ وضعیت زمان‌بند: فعال و پایش مداوم برقرار است.\n\n{FOOTER_MANDATED}", "intent": "SCHEDULER_STATUS", "status": "OK"}
+            return {"text": f"⏱️ وضعیت زمان‌بند: نامعلوم ({type(e).__name__}).\n\n{FOOTER_MANDATED}", "intent": "SCHEDULER_STATUS", "status": "OK"}
 
     def _handle_database_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -339,7 +377,7 @@ class TelegramDomainService:
             lines.append(f"\n{FOOTER_MANDATED}")
             return {"text": "\n".join(lines), "intent": "DATABASE_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"🗄️ وضعیت دیتابیس‌ها: تمامی ۴ پایگاه داده سالم و فعال هستند.\n\n{FOOTER_MANDATED}", "intent": "DATABASE_STATUS", "status": "OK"}
+            return {"text": f"🗄️ وضعیت دیتابیس: نامعلوم ({type(e).__name__}).\n\n{FOOTER_MANDATED}", "intent": "DATABASE_STATUS", "status": "OK"}
 
     def _handle_providers_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -358,7 +396,7 @@ class TelegramDomainService:
             lines.append(f"\n{FOOTER_MANDATED}")
             return {"text": "\n".join(lines), "intent": "PROVIDERS_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"🌐 وضعیت پرووایدرها: ۴ منبع معتبر فعال و تحت حفاظت Circuit Breaker هستند.\n\n{FOOTER_MANDATED}", "intent": "PROVIDERS_STATUS", "status": "OK"}
+            return {"text": f"🌐 وضعیت پرووایدرها: نامعلوم ({type(e).__name__}).\n\n{FOOTER_MANDATED}", "intent": "PROVIDERS_STATUS", "status": "OK"}
 
     def _handle_observation_gaps_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -378,7 +416,7 @@ class TelegramDomainService:
             ]
             return {"text": "\n".join(lines), "intent": "OBSERVATION_GAPS_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"🔍 گزارش رصد: ۵,۳۳۹ اسلات جاافتاده ثبت‌شده به صورت قانونی بدون دستکاری تاریخچه.\n\n{FOOTER_MANDATED}", "intent": "OBSERVATION_GAPS_STATUS", "status": "OK"}
+            return {"text": f"🔍 گزارش رصد: نامعلوم ({type(e).__name__}) — عدد تاریخی جعل نمی‌شود.\n\n{FOOTER_MANDATED}", "intent": "OBSERVATION_GAPS_STATUS", "status": "OK"}
 
     def _handle_e01_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -396,7 +434,7 @@ class TelegramDomainService:
             ]
             return {"text": "\n".join(lines), "intent": "E01_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"🧪 وضعیت E-01: حکم رسمی INSUFFICIENT_DATA (پوشش ۵۲ کمتر از ۲۰۰).\n\n{FOOTER_MANDATED}", "intent": "E01_STATUS", "status": "OK"}
+            return {"text": f"🧪 وضعیت E-01: نامعلوم ({type(e).__name__}).\n\n{FOOTER_MANDATED}", "intent": "E01_STATUS", "status": "OK"}
 
     def _handle_paper_trading_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -407,18 +445,18 @@ class TelegramDomainService:
                 "💼 **گزارش حسابداری معاملات کاغذی (Track B)**",
                 "──────────────────────────",
                 f"• حالت اجرا: {pt.get('execution_mode', '100% PAPER ONLY')}",
-                f"• سرمایه اولیه فرضی: ${pt.get('virtual_bankroll_initial_usd', 20.0):.2f}",
-                f"• موجودی نقد فعلی: ${pt.get('cash_balance_usd', 1.8984):.4f}",
-                f"• سرمایه تخصیص‌یافته: ${pt.get('allocated_capital_usd', 18.1016):.4f}",
-                f"• مجموع حسابداری (Cash + Allocated): ${pt.get('accounting_sum_usd', 20.0):.7f}",
+                f"• سرمایه اولیه فرضی: {('$' + format(pt.get('virtual_bankroll_initial_usd'), '.2f')) if pt.get('virtual_bankroll_initial_usd') is not None else 'نامعلوم'}",
+                f"• موجودی نقد فعلی: {('$' + format(pt.get('cash_balance_usd'), '.4f')) if pt.get('cash_balance_usd') is not None else 'نامعلوم'}",
+                f"• سرمایه تخصیص‌یافته: {('$' + format(pt.get('allocated_capital_usd'), '.4f')) if pt.get('allocated_capital_usd') is not None else 'نامعلوم'}",
+                f"• مجموع حسابداری (Cash + Allocated): {('$' + format(pt.get('accounting_sum_usd'), '.7f')) if pt.get('accounting_sum_usd') is not None else 'نامعلوم'}",
                 f"• انطباق دقیق حسابداری ($20.00): {'تایید شد ✅' if pt.get('is_accounting_consistent') else 'مغایرت ⚠️'}",
-                f"• تعداد موقعیت‌های باز: {pt.get('open_positions_count', 11)}",
+                f"• تعداد موقعیت‌های باز: {pt.get('open_positions_count')}",
                 f"• تعداد معاملات بسته‌شده: {pt.get('closed_positions_count', 0)}",
                 f"\n{FOOTER_MANDATED}"
             ]
             return {"text": "\n".join(lines), "intent": "PAPER_TRADING_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"💼 وضعیت معاملات کاغذی: ۱۱ پوزیشن باز با موجودی نقد ۱.۸۹۸۴ دلار و سرمایه ۲۰ دلار.\n\n{FOOTER_MANDATED}", "intent": "PAPER_TRADING_STATUS", "status": "OK"}
+            return {"text": f"💼 وضعیت معاملات کاغذی: نامعلوم ({type(e).__name__}) — موجودی جعل نمی‌شود.\n\n{FOOTER_MANDATED}", "intent": "PAPER_TRADING_STATUS", "status": "OK"}
 
     def _handle_ai_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -438,7 +476,7 @@ class TelegramDomainService:
             ]
             return {"text": "\n".join(lines), "intent": "AI_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"🤖 وضعیت AI: کارکرد ۱۰۰٪ مستقل روی کف تصمیم‌گیری قطعی با سقف هزینه صفر دلار.\n\n{FOOTER_MANDATED}", "intent": "AI_STATUS", "status": "OK"}
+            return {"text": f"🤖 وضعیت AI: نامعلوم ({type(e).__name__}).\n\n{FOOTER_MANDATED}", "intent": "AI_STATUS", "status": "OK"}
 
     def _handle_last_cycle_status(self, parsed: ParseResult) -> dict[str, Any]:
         try:
@@ -458,7 +496,7 @@ class TelegramDomainService:
             ]
             return {"text": "\n".join(lines), "intent": "LAST_CYCLE_STATUS", "status": "OK"}
         except Exception as e:
-            return {"text": f"🔄 آخرین چرخه ران‌تایم با موفقیت اجرا شده است.\n\n{FOOTER_MANDATED}", "intent": "LAST_CYCLE_STATUS", "status": "OK"}
+            return {"text": f"🔄 آخرین چرخه: نامعلوم ({type(e).__name__}).\n\n{FOOTER_MANDATED}", "intent": "LAST_CYCLE_STATUS", "status": "OK"}
 
     def _get_candidate_from_store(self, address: str, chain: str) -> NormalizedTokenCandidate:
         try:
@@ -932,6 +970,84 @@ class TelegramDomainService:
             }
         return {"text": f"{text}\n\n{FOOTER_MANDATED}",
                 "intent": "SELF_REVIEW", "status": "OK", "aggregate": agg}
+
+
+    def _handle_watch(self, parsed: ParseResult) -> dict[str, Any]:
+        """Paper watchlist / alert-condition log. Never fires a live trade."""
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+        cond = parsed.slots.get("condition") or (
+            "CONDITIONS_DETERIORATE" if parsed.intent == "ALERT_SET" else "WATCH"
+        )
+        conn = self._open_ledger()
+        wid = log_watch(conn, token={"address": cand.address, "chain": cand.chain},
+                        condition=cond, raw_text=parsed.normalized, now=time.time())
+        conn.close()
+        if not wid:
+            return {"text": f"ثبت دیده‌بانی رد شد (توکن نامشخص).\n\n{FOOTER_MANDATED}",
+                    "intent": parsed.intent, "status": "REFUSED"}
+        kind = "هشدار کاغذی" if parsed.intent == "ALERT_SET" else "دیده‌بانی کاغذی"
+        return {
+            "text": (f"✅ {kind} ثبت شد.\n• شناسه: {wid}\n"
+                     f"• توکن: {cand.symbol} ({cand.address})\n"
+                     f"• شرط: {cond}\n"
+                     "این فقط دفتر محلی است — هیچ معامله‌ای اجرا نمی‌شود.\n\n"
+                     f"{FOOTER_MANDATED}"),
+            "intent": parsed.intent, "watch_id": wid, "status": "RECORDED",
+        }
+
+    def _handle_why_rejected(self, parsed: ParseResult) -> dict[str, Any]:
+        from architecture.scoring.ranker import classify
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+        report = self.scorer.evaluate(cand)
+        row = classify(report)
+        lines = [f"🚫 چرا انتخاب نشد — {cand.symbol}", "",
+                 f"حکم رتبه: **{row.disposition}** (امتیاز {row.opportunity_score})"]
+        for r in (row.why_not_selected or row.reasons)[:6]:
+            lines.append(f" • {r}")
+        for r in row.risk_factors[:4]:
+            lines.append(f" ⚠️ {r}")
+        for u in row.unknown_factors[:4]:
+            lines.append(f" ❓ {u}")
+        if not row.why_not_selected and row.disposition in ("SELECT", "INVESTIGATE"):
+            lines.append("این توکن رد نشده — برای رد شدن، وتوی امنیت/خروج لازم است.")
+        lines += ["", FOOTER_MANDATED]
+        return {"text": "\n".join(lines), "intent": "WHY_REJECTED",
+                "status": "OK", "ranking": row.as_dict()}
+
+    def _handle_sell_advice(self, parsed: ParseResult) -> dict[str, Any]:
+        """INFO-ONLY. Uses paper ledger + observed price. UNKNOWN price → no advice."""
+        cand, err = self._require_token(parsed)
+        if err:
+            return err
+        conn = self._open_ledger()
+        positions = positions_for_token(conn, cand.chain, cand.address)
+        conn.close()
+        if not positions:
+            return {
+                "text": (f"پوزیشن کاغذی برای {cand.symbol} ثبت نشده. "
+                         "ابتدا «خریدم» را ثبت کنید؛ بدون ورود، خروج معنی ندارد."
+                         f"\n\n{FOOTER_MANDATED}"),
+                "intent": parsed.intent, "status": "NOT_FOUND",
+            }
+        price = cand.metrics.price_usd
+        if price is None:
+            return {
+                "text": (f"قیمت فعلی {cand.symbol} نامعلوم است — "
+                         "بدون قیمت، توصیه خروج جعل نمی‌شود."
+                         f"\n\n{FOOTER_MANDATED}"),
+                "intent": parsed.intent, "status": "UNKNOWN",
+            }
+        return {
+            "text": (f"پوزیشن کاغذی وجود دارد ({len(positions)} ورود) و قیمت مشاهده‌شده "
+                     f"${price} است، اما قیمت ورود در دفتر تلگرام ذخیره نشده. "
+                     "توصیه حدسود/حدضرر بدون entry price ساخته نمی‌شود."
+                     f"\n\n{FOOTER_MANDATED}"),
+            "intent": parsed.intent, "status": "INSUFFICIENT_EVIDENCE",
+        }
 
     def _get_help_text(self) -> str:
         return (

@@ -138,7 +138,7 @@ def test_ledger_refuses_unresolved_and_invalid(tmp_path):
                      intent_rule="R-BUY-01", raw_text="x", now=1.0) is None
     assert P.log_buy(conn, token={"address": EVM, "chain": "evm"}, amount_value=-3,
                      amount_currency="IRT", intent_rule="R-BUY-01", raw_text="x", now=1.0) is None
-    n = conn.execute("SELECT COUNT(*) c FROM position_ledger").fetchone()["c"]
+    n = conn.execute("SELECT COUNT(*) c FROM telegram_position_ledger").fetchone()["c"]
     assert n == 0                                          # nothing junk ever stored
     conn.close()
 
