@@ -80,3 +80,30 @@ evidence link. Markdown prose without an artifact is not evidence.
 - GitHub Actions (M-GAP-004) and off-box watchdog (M-GAP-012) are **optional**, not local-production blockers.
 - Deliberate recovery events on the laptop (local protocol §7).
 - Any readiness percentage or “production ready / READY_FOR_DEPLOYMENT” sentence in older reports.
+
+---
+
+## Remaining-gap classification (2026-08-20 — after W32 provider expansion + W33 calibration surface)
+
+Classification alphabet: **IMPLEMENTABLE NOW** · **REQUIRES USER ACTION** ·
+**REQUIRES EXTERNAL SERVICE** · **REQUIRES CREDENTIAL** ·
+**INTENTIONALLY BLOCKED** (governance/safety) · **CLOSED/MITIGATED** (evidence-linked).
+
+| Gap | Classification | What unblocks it |
+|---|---|---|
+| M-GAP-003 (168h soak) | REQUIRES USER ACTION | laptop/VPS daemon + `AHOS_LOCAL_SOAK_PROTOCOL.md` for 7 real days; snapshots every 6h |
+| M-GAP-004 (CI) | REQUIRES EXTERNAL SERVICE | GitHub App `workflows` permission; workflow drafted (untracked `.github/workflows/ci.yml`), ready to commit |
+| M-GAP-005 (SQLite WAL) | INTENTIONALLY BLOCKED (post-soak reviewed change) | monitoring exists in soak snapshots (integrity_check per snapshot); WAL switch only after gate review |
+| M-GAP-006 (drift vs NTP) | MITIGATED | documented limitation; host OS time sync (user-side) |
+| M-GAP-007 (live egress) | REQUIRES USER ACTION | `python -m architecture.runtime --probe-providers` on the laptop → SUCCESS + tokens>0 |
+| M-GAP-008 (calibration measurement) | REQUIRES USER ACTION (data accrual) | harness surface IMPLEMENTED (W33); run the laptop daemon with `AHOS_EVIDENCE_SOURCE=local`, then `scripts/calibration_report.py` |
+| M-GAP-009 (live Telegram) | REQUIRES CREDENTIAL | BotFather token rotation + admin chat id (user blocker ①) |
+| M-GAP-010 (7-night backups) | REQUIRES USER ACTION | 7 distinct nightly `scripts/sqlite_backup_restore.py nightly` runs |
+| M-GAP-011 (CMC + launchpads) | CLOSED (adapters) → live probe REQUIRES USER ACTION | adapters implemented + 31 offline tests; live probe rides on M-GAP-007 |
+| M-GAP-012 (off-box watchdog) | OPTIONAL (by design) | not an acceptance item for local-laptop operation |
+
+No remaining gap is IMPLEMENTABLE NOW without user action, credentials,
+external permission, or data accrual. Next engineering surfaces (Month 3–5:
+weight governance via the existing `improvement_proposal_v1` flow, narrative
+feed-through, learning engine) are sequenced behind calibration measurement
+evidence per ROADMAP_v3.
