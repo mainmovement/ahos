@@ -1,0 +1,134 @@
+{
+  "schema": "ahos.architecture_truth_model.v1",
+  "generated_utc": "2026-08-20T00:00:00Z",
+  "note": "States are IMPLEMENTABLE-repository truth, not live-ops truth. UNKNOWN > fabrication.",
+  "capabilities": [
+    {
+      "capability": "Market discovery (DexScreener, GeckoTerminal)",
+      "vision": "required",
+      "canonical_document": "docs/canonical/PROVIDERS.md",
+      "implementation": "architecture/providers/adapters.py + discovery/collect.py",
+      "runtime_entrypoint": "architecture.runtime --single-cycle",
+      "tests": "tests/test_provider_abstraction.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "live SUCCESS blocked on egress (M-GAP-007)"
+    },
+    {
+      "capability": "DEXTools",
+      "vision": "required",
+      "canonical_document": "docs/canonical/PROVIDERS.md",
+      "implementation": "architecture/providers/adapters.py::DEXToolsAdapter",
+      "runtime_entrypoint": "ProviderRouter + --probe-providers",
+      "tests": "tests/test_dextools_and_boosts_adapters.py",
+      "current_state": "EXTERNALLY_BLOCKED",
+      "gap": "inert without DEXTOOLS_API_KEY; architecture is not missing"
+    },
+    {
+      "capability": "CoinMarketCap + pump.fun",
+      "vision": "required",
+      "canonical_document": "docs/canonical/PROVIDERS.md",
+      "implementation": "architecture/providers/coinmarketcap.py, pumpfun.py",
+      "tests": "tests/test_coinmarketcap_adapter.py, tests/test_pumpfun_adapter.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "live probe rides M-GAP-007 / CMC key"
+    },
+    {
+      "capability": "Social Intelligence",
+      "vision": "required (not RSS-only)",
+      "canonical_document": "docs/mission_v1_1/J_SOCIAL_NARRATIVE_ARCHITECTURE.md",
+      "implementation": "architecture/intel/social.py (W41)",
+      "runtime_entrypoint": "SocialIntelligence.analyze (on-demand; not collector)",
+      "tests": "tests/test_social_intelligence.py",
+      "current_state": "PARTIAL",
+      "gap": "RSS+GitHub collectors IMPLEMENTED; other sources honest AUTH/COST/OUT_OF_POLICY; collector cycle still does not fetch RSS"
+    },
+    {
+      "capability": "Virality",
+      "vision": "required",
+      "implementation": "architecture/intel/viral.py",
+      "tests": "tests/test_intel_narrative_and_virality.py, tests/test_virality_feed_through.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "DEX-footprint only; platform virality COST/OUT_OF_POLICY"
+    },
+    {
+      "capability": "Whale / smart money",
+      "vision": "required",
+      "implementation": "architecture/intel/whales.py + architecture/intelligence/whales/",
+      "tests": "tests/test_whale_intelligence.py, tests/test_exitability_and_whales.py",
+      "current_state": "PARTIAL",
+      "gap": "classification without identity evidence abstains (correct); live wallet graphs not present"
+    },
+    {
+      "capability": "Token security / exitability",
+      "vision": "required (veto precedes score)",
+      "implementation": "architecture/security/ + architecture/intel/exitability.py",
+      "tests": "tests/test_security_intelligence.py, tests/test_exitability_and_whales.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "provider security atoms; no bytecode disassembly"
+    },
+    {
+      "capability": "Opportunity scoring",
+      "vision": "score, not probability",
+      "implementation": "architecture/scoring/",
+      "tests": "tests/test_opportunity_scoring.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "weights uncalibrated (M-GAP-008)"
+    },
+    {
+      "capability": "Candidate ranking",
+      "vision": "multi-factor, anti-hype",
+      "implementation": "architecture/scoring/ranker.py (W41); discovery/ranker.py frozen rank-first",
+      "tests": "tests/test_candidate_ranking.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "Lane-A ranker remains evidence-count heuristic by freeze law"
+    },
+    {
+      "capability": "AI council / expert lenses",
+      "vision": "multi-expert deliberation",
+      "implementation": "architecture/council.py, architecture/knowledge/lenses.py, architecture/knowledge/operational_lenses.py (W41)",
+      "tests": "tests/test_operational_lenses.py, tests/test_expert_lenses.py, tests/test_multi_mind_council_anti_echo.py",
+      "current_state": "PARTIAL",
+      "gap": "role lenses are deterministic/advisory; live multi-provider council needs keys"
+    },
+    {
+      "capability": "Calibration / learning",
+      "vision": "score vs outcome after accrual",
+      "implementation": "architecture/learning/calibration.py",
+      "tests": "tests/test_calibration_extended.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "measurement INSUFFICIENT_DATA (0 local pairs)"
+    },
+    {
+      "capability": "Self-observation / diagnosis / evolution",
+      "vision": "observe→diagnose→propose→govern",
+      "implementation": "architecture/runtime/observability_snapshot.py, architecture/evolution/",
+      "tests": "tests/test_evidence_package.py, tests/test_improvement_selection.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "human gate mandatory; no auto-merge"
+    },
+    {
+      "capability": "Telegram UX",
+      "vision": "Persian-first primary UX",
+      "implementation": "telegram_ai/",
+      "tests": "tests/test_telegram_*.py",
+      "current_state": "EXTERNALLY_BLOCKED",
+      "gap": "M-GAP-009 live token"
+    },
+    {
+      "capability": "Paper positions",
+      "vision": "paper/simulation only",
+      "implementation": "architecture/positions/, paper_trading/",
+      "tests": "tests/test_paper_*.py",
+      "current_state": "IMPLEMENTED",
+      "gap": "none internal; real-money INTENTIONALLY BLOCKED"
+    },
+    {
+      "capability": "PR #14 core/infrastructure/utils",
+      "vision": "not a vision capability",
+      "implementation": "core/, infrastructure/, utils/ (neutralized W41)",
+      "tests": "tests/test_pr14_isolation.py",
+      "current_state": "OBSOLETE",
+      "gap": "KEEP_LEGACY — not deleted"
+    }
+  ]
+}

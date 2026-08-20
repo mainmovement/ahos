@@ -5,6 +5,7 @@ Answers the questions the market-data pipeline cannot:
   - Is attention ACCELERATING or decaying?          (viral.py)
   - Are large holders accumulating or exiting?      (whales.py)
   - If I buy, can I actually GET OUT?               (exitability.py)
+  - Social source contracts + pipeline              (social.py)
 
 LAW (inherited from the deterministic floor):
   Narrative is EVIDENCE, never proof. Every signal produced here is a bounded
@@ -16,10 +17,16 @@ from .news import NewsCollector, NewsItem, NarrativeSignal          # noqa: F401
 from .viral import ViralityTracker, ViralitySignal                  # noqa: F401
 from .whales import WhaleTracker, WhaleSignal                       # noqa: F401
 from .exitability import ExitabilityAnalyzer, ExitabilityReport     # noqa: F401
+from .social import (                                               # noqa: F401
+    SocialIntelligence, SocialIntelligenceReport, SocialEvent,
+    SOCIAL_SOURCE_REGISTRY, source_registry,
+)
 
 __all__ = [
     "NewsCollector", "NewsItem", "NarrativeSignal",
     "ViralityTracker", "ViralitySignal",
     "WhaleTracker", "WhaleSignal",
     "ExitabilityAnalyzer", "ExitabilityReport",
+    "SocialIntelligence", "SocialIntelligenceReport", "SocialEvent",
+    "SOCIAL_SOURCE_REGISTRY", "source_registry",
 ]

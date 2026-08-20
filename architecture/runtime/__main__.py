@@ -271,6 +271,48 @@ def write_evidence_package(*, local_db: str, discovery_db: str,
     except Exception as e:
         logger.warning("automatic doc-drift check failed: %s", e)
 
+    # 2f. highest-value improvement selection (W41 / directive §40).
+    #     Consumes the findings just derived (or re-derives from the health
+    #     snapshot) plus the experiment ledger. Empty findings → honest
+    #     INSUFFICIENT_EVIDENCE. Selection never implements or approves.
+    try:
+        from ..evolution.findings import derive_findings
+        from ..evolution.selection import select_highest_value
+        from ..evolution.experiment import ExperimentLedger
+
+        if health_path is not None:
+            health_for_sel = json.loads(health_path.read_text(encoding="utf-8"))
+            graph_path = next((p for p in out
+                               if p.name.startswith("architecture_graph_")), None)
+            graph = None
+            if graph_path is not None:
+                try:
+                    graph = json.loads(graph_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError):
+                    graph = None
+            findings_objs = derive_findings(health_for_sel, graph=graph)
+            ledger = ExperimentLedger()
+            selection = select_highest_value(
+                findings=findings_objs, experiment_ledger=ledger)
+        else:
+            selection = {
+                "schema": "ahos.improvement_selection.v1",
+                "verdict": "INSUFFICIENT_EVIDENCE",
+                "selected": None,
+                "ranking": [],
+                "note": "no health snapshot in this package",
+            }
+        selection["generated_utc"] = ts_utc
+        sel_path = reports_dir / (
+            f"improvement_selection_{ts_utc.replace(':', '').replace('-', '')}.json")
+        sel_path.parent.mkdir(parents=True, exist_ok=True)
+        sel_path.write_text(json.dumps(selection, indent=2,
+                                       ensure_ascii=False, default=str) + "\n",
+                            encoding="utf-8")
+        out.append(sel_path)
+    except Exception as e:
+        logger.warning("automatic improvement selection failed: %s", e)
+
     # 2e. benchmark state (W38 Candidate A): reference the committed baseline
     #     so the package exposes benchmark health without re-running the suite.
     try:

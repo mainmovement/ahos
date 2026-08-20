@@ -137,8 +137,43 @@ def evidence_from_exitability(report: Any) -> list[Evidence]:
     ]
 
 
+def evidence_from_social(report: Any) -> list[Evidence]:
+    """SocialIntelligenceReport → Evidence. Social is never a buy signal."""
+    if report is None:
+        return []
+    ts = float(getattr(report, "computed_ts", 0.0) or 0.0)
+    velocity = getattr(report, "mention_velocity_1h", None)
+    propagation = getattr(report, "cross_source_propagation", None)
+    wash = getattr(report, "bot_wash", None) or {}
+    recycled = wash.get("recycled_content") if isinstance(wash, dict) else None
+    paid = wash.get("paid_promo_markers") if isinstance(wash, dict) else None
+    return [
+        _ev("social_mention_velocity_1h", "Social mention velocity (1h)",
+            velocity, provider="intel.social", timestamp=ts,
+            source_field="social.mention_velocity_1h",
+            status="DERIVED" if velocity is not None else "UNKNOWN"),
+        _ev("social_cross_source_propagation", "Distinct social sources with a match",
+            propagation, provider="intel.social", timestamp=ts,
+            source_field="social.cross_source_propagation",
+            status="DERIVED" if propagation is not None else "UNKNOWN"),
+        _ev("social_recycled_content", "Recycled-content heuristic",
+            recycled, provider="intel.social", timestamp=ts,
+            source_field="social.bot_wash.recycled_content",
+            status="DERIVED" if recycled is not None else "UNKNOWN"),
+        _ev("social_paid_promo_markers", "Paid-promo phrase-bank hit",
+            paid, provider="intel.social", timestamp=ts,
+            source_field="social.bot_wash.paid_promo_markers",
+            status="DERIVED" if paid is not None else "UNKNOWN"),
+        _ev("social_decision_floor", "Social cannot create an opportunity",
+            getattr(report, "decision_floor", "SOCIAL_IS_EVIDENCE_NOT_PROOF"),
+            provider="intel.social", timestamp=ts,
+            source_field="social.decision_floor", status="VERIFIED"),
+    ]
+
+
 def collect_intel_evidence(*, narrative: Any = None, virality: Any = None,
                            whales: Any = None, exitability: Any = None,
+                           social: Any = None,
                            boost_seen: bool | None = None,
                            txns_seen: bool | None = None) -> list[Evidence]:
     """Bundle optional Lane-A intel signals as extra Evidence.
@@ -154,6 +189,7 @@ def collect_intel_evidence(*, narrative: Any = None, virality: Any = None,
         evidence_from_virality(virality, boost_seen=boost_seen, txns_seen=txns_seen),
         evidence_from_whales(whales),
         evidence_from_exitability(exitability),
+        evidence_from_social(social),
     ):
         items.extend(group)
     return items

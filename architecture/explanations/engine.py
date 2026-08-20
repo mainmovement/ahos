@@ -42,18 +42,22 @@ class ExplanationEngine:
         if not isinstance(score, ScoreBreakdown):
             raise TypeError("ExplanationEngine.explain requires a ScoreBreakdown")
 
-        liq = numeric_value(evidence.get("liquidity_usd")) or 0.0
-        vol = numeric_value(evidence.get("volume_1h")) or 0.0
+        liq = numeric_value(evidence.get("liquidity_usd"))
+        vol = numeric_value(evidence.get("volume_1h"))
+        inv_liq = (f"< ${liq * 0.2:,.0f}" if liq is not None
+                   else "UNKNOWN (liquidity not observed)")
+        inv_vol = (f"< ${vol * 0.3:,.0f}" if vol is not None
+                   else "UNKNOWN (volume not observed)")
         invalidation = [
             InvalidationCondition(
                 "INV-01",
                 "کاهش نقدینگی به زیر ۲۰٪ سطح فعلی",
-                f"< ${max(liq, 0) * 0.2:,.0f}",
+                inv_liq,
             ),
             InvalidationCondition(
                 "INV-02",
                 "افت حجم معاملات ۱ ساعته به زیر ۷۰٪ سطح فعلی",
-                f"< ${max(vol, 0) * 0.3:,.0f}",
+                inv_vol,
             ),
             InvalidationCondition(
                 "INV-03",

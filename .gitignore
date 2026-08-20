@@ -7,6 +7,8 @@ build/
 dist/
 *.egg-info/
 .env
+.env.*
+!.env.example
 .venv
 venv/
 *.db
@@ -17,3 +19,26 @@ data/
 .DS_Store
 .idea/
 .vscode/
+
+# Secrets / credentials / wallets (never commit)
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.wallet
+wallet.json
+wallets.json
+secrets.yaml
+secrets.json
+credentials.json
+credentials.yaml
+*.secret
+auth.json
+# Keep tracked example templates
+!.env.example
+!deployment/.env.example
+

@@ -89,6 +89,14 @@ def test_first_evidence_package_is_not_comparable(tmp_path, monkeypatch):
     assert index["schema"] == "ahos.evidence_package.v1"
     assert index["artifact_count"] >= 7
 
+    sel_path = next((p for p in paths if p.name.startswith("improvement_selection_")), None)
+    assert sel_path is not None, "improvement selection missing from evidence package"
+    sel = json.loads(sel_path.read_text(encoding="utf-8"))
+    assert sel["schema"] == "ahos.improvement_selection.v1"
+    assert sel["verdict"] in ("SELECTED", "INSUFFICIENT_EVIDENCE")
+    if sel["verdict"] == "INSUFFICIENT_EVIDENCE":
+        assert sel["selected"] is None
+
 
 def test_second_evidence_package_regresses_against_first(tmp_path, monkeypatch):
     _fake_soak(monkeypatch)

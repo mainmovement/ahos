@@ -603,3 +603,21 @@ cycle `evolution.findings ↔ evolution.selection` — governed proposal
 `prop_1787227838_7120d5f2` filed (human gate, never auto-applied).
 
 Suite **1407 passed**; zero live trading, zero credential exposure.
+
+## W41 — Adversarial capability audit + Social Intelligence + multi-factor ranking + operational lenses (2026-08-20)
+
+W32–W40 claims treated as **evidence, not completion**. Engineering completeness (1407 green tests) ≠ product completeness. Highest-value *internal* gaps closed this wave; external blockers unchanged.
+
+- **Social Intelligence** (`architecture/intel/social.py`): canonical source registry for RSS, GitHub, Reddit, X/Twitter, Telegram channels, Instagram, TikTok, YouTube, public web. Status vocabulary IMPLEMENTED / AUTH_REQUIRED / COST_BLOCKED / OUT_OF_POLICY — **zero live claims**. Pipeline SOURCE→COLLECTION→NORMALIZATION→PROVENANCE→DEDUP→BOT/WASH→VIRALITY→SENTIMENT→EVIDENCE. Social NEVER creates a BUY. Author-less RSS cannot report unique_author_ratio=0. Tests: `tests/test_social_intelligence.py`.
+- **Multi-factor ranking** (`architecture/scoring/ranker.py`): production pipeline no longer sorts by highest score. Dimensions: opportunity + confidence + evidence quality + liquidity + security + exitability + novelty + risk + uncertainty + virality. Anti-hype: HIGH VIRALITY + HIGH SECURITY RISK → REJECT. Wired into `OpportunityPipelineOrchestrator`. Lane-A `discovery/ranker.py` untouched (frozen). Tests: `tests/test_candidate_ranking.py`.
+- **Operational expert lenses** (`architecture/knowledge/operational_lenses.py`): 20 ROLE frameworks (Market Analyst … Arbitrator), not person impersonation. Missing evidence → ABSTAIN/UNKNOWN, never False-on-missing veto. Synthesis preserves DISAGREEMENT, advisory_only. Historical thinker cards in `lenses.py` retained. Honesty fix: `evaluate_opportunity_with_lenses` no longer coerces missing liquidity to 0 / missing honeypot to False.
+- **Evidence package §40**: daemon cadence writes `improvement_selection_*.json` via `select_highest_value()` (INSUFFICIENT_EVIDENCE when nothing is comparable).
+- **PR #14 isolation**: `core/`, `infrastructure/`, `utils/` classified DUPLICATE/OBSOLETE. Canonical packages must not import them (test-pinned). Neutralized `eval()` Redis cache, hardcoded SECRET_KEY, import-time mkdir. Files kept (orphan policy).
+- **Security**: `.gitignore` now covers `*.pem` `*.key` wallets/secrets/credentials / `.env.*`.
+- **Honesty**: invalidation thresholds no longer treat UNKNOWN liquidity/volume as $0.
+- DEXTools remains IMPLEMENTED+EXTERNALLY_BLOCKED (inert without `DEXTOOLS_API_KEY`) — architecture was not missing.
+- Live social collection, live Telegram, 168h soak, calibration measurement remain EXTERNALLY_BLOCKED / USER ACTION.
+
+Observed this session: **1441 passed / 0 failed** (`pytest tests/`, 222s). Not a completion claim.
+
+Project is **NOT complete**. See `reports/AHOS_EVOLUTION_REPORT_W41.md` and `reports/architecture_truth_model_w41.json`.
