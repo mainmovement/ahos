@@ -67,7 +67,8 @@ python -m venv .venv
 - [ ] `TELEGRAM_BOT_TOKEN` unset (mock adapter is correct for soak)
 - [ ] `AHOS_EXECUTE_LIVE_TRADES` unset / not `1`
 - [ ] `AHOS_ALLOW_REAL_FUNDS` unset / not `1`
-- [ ] `AHOS_CHAIN` optional (`solana` default)
+- [ ] chain is a CLI argument: `python -m architecture.runtime --chain solana`
+      (no `AHOS_CHAIN` env key is read — the CLI is canonical)
 - [ ] `ALL_PROXY` / `HTTPS_PROXY` only if you already use them for egress
 
 No exchange keys. No wallet keys.
