@@ -356,3 +356,10 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   `outcome_provenance` block (frozen Lane-A labeler identity). Opportunity-type
   remains honestly NOT_PERSISTED — no such concept exists in the scoring
   contract and the harness does not invent one. Suite **1257 passed**.
+- **Regime segmentation (schema v5):** token_price_regime computed post-hoc at
+  evaluation time from PRE-prediction observations per token (no-peeking:
+  `retrieved_ts <= scored_ts`) via the existing
+  `architecture/intel/regimes.py` classifier — its first production consumer.
+  Fewer than 10 pre-prediction observations ⇒ UNKNOWN bucket (never a default
+  regime). `regime_segments` added to the report; dimension_availability
+  documents the post-hoc computation honestly. Suite **1261 passed**.

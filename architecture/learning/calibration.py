@@ -79,6 +79,37 @@ DEFAULT_EVENT_CLASS = "+50%"
 # this set is bucketed UNKNOWN and never merged into a real level.
 CONFIDENCE_LEVELS: tuple[str, ...] = ("HIGH", "MED", "LOW")
 
+# Minimum pre-prediction observations required to classify a token's price
+# regime — matches the MarketRegimeClassifier's own fit minimum. Fewer
+# observations => regime stays UNKNOWN (never a fabricated default regime).
+MIN_REGIME_OBS = 10
+
+
+def _token_price_regime(prices: list[float]) -> str | None:
+    """Post-hoc token price regime from PRE-prediction observations.
+
+    Uses the existing architecture/intel/regimes.py classifier (its first
+    production consumer). Deterministic: quantile-init GMM, no randomness.
+    Returns None (-> UNKNOWN bucket) when fewer than MIN_REGIME_OBS prices are
+    available — a regime label on a sparse series would be fabrication.
+    """
+    clean = [float(p) for p in prices if p is not None and float(p) > 0]
+    if len(clean) < MIN_REGIME_OBS:
+        return None
+    returns = [clean[i] / clean[i - 1] - 1.0 for i in range(1, len(clean))]
+    if len(returns) < MIN_REGIME_OBS - 1:
+        return None
+    try:
+        import numpy as np
+        from ..intel.regimes import MarketRegimeClassifier
+        clf = MarketRegimeClassifier()
+        clf.fit_returns(np.asarray(returns, dtype=np.float64))
+        verdict = clf.predict_regime_probabilities(np.asarray(returns, dtype=np.float64))
+        label = str(verdict.get("active_regime") or "")
+        return label if label in MarketRegimeClassifier.REGIME_LABELS.values() else None
+    except Exception:
+        return None
+
 
 def _mean(values: Iterable[float]) -> float | None:
     vals = [float(v) for v in values]
@@ -260,6 +291,7 @@ class CalibrationReport:
     confidence_segments: list[SegmentResult] = field(default_factory=list)
     chain_segments: list[SegmentResult] = field(default_factory=list)
     provider_segments: list[SegmentResult] = field(default_factory=list)
+    regime_segments: list[SegmentResult] = field(default_factory=list)
     confidence_ordering: str | None = None
     metrics: CalibrationMetrics = field(default_factory=CalibrationMetrics)
     feature_coverage: dict[str, Any] = field(default_factory=dict)
@@ -276,7 +308,7 @@ class CalibrationReport:
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            "schema": "ahos.calibration_report.v4",
+            "schema": "ahos.calibration_report.v5",
             "generated_utc": self.generated_utc,
             "horizon": self.horizon,
             "event_class": self.event_class,
@@ -295,6 +327,7 @@ class CalibrationReport:
             "confidence_segments": [s.as_dict() for s in self.confidence_segments],
             "chain_segments": [s.as_dict() for s in self.chain_segments],
             "provider_segments": [s.as_dict() for s in self.provider_segments],
+            "regime_segments": [s.as_dict() for s in self.regime_segments],
             "confidence_ordering": self.confidence_ordering,
             "metrics": self.metrics.as_dict(),
             "feature_coverage": self.feature_coverage,
@@ -462,6 +495,40 @@ class CalibrationHarness:
             "first_resolved_utc": _utc(min(resolved)),
             "last_resolved_utc": _utc(max(resolved)),
         }
+
+    def _pre_prediction_prices(self, token_id: str, scored_ts: float) -> list[float]:
+        """Price observations BEFORE the prediction was made (no-peeking).
+
+        Only observations with retrieved_ts <= scored_ts may describe the
+        regime the scorer was operating in; anything after would leak the
+        outcome window into the segmentation.
+        """
+        try:
+            conn = self._connect()
+            rows = conn.execute(
+                """SELECT price_usd FROM disc.discovery_observations
+                    WHERE token_id = ? AND retrieved_ts <= ?
+                      AND price_usd IS NOT NULL AND price_usd > 0
+                      AND error_state IS NULL
+                 ORDER BY retrieved_ts""",
+                (token_id, float(scored_ts)),
+            ).fetchall()
+            conn.close()
+            return [float(r[0]) for r in rows if r[0] is not None]
+        except sqlite3.Error:
+            return []
+
+    def _token_regimes(self, pairs: list[dict[str, Any]]) -> dict[str, str]:
+        """token_id -> regime label (or UNKNOWN). Memoized; deterministic."""
+        out: dict[str, str] = {}
+        for p in pairs:
+            tid = str(p["token_id"])
+            if tid in out:
+                continue
+            prices = self._pre_prediction_prices(tid, float(p["scored_ts"]))
+            label = _token_price_regime(prices)
+            out[tid] = label if label else "UNKNOWN"
+        return out
 
     def _source_census(self) -> dict[str, int]:
         try:
@@ -638,9 +705,12 @@ class CalibrationHarness:
                          "known/unknown field counts)"),
             "provider": ("persisted (opportunity_score_ledger.source_provider, "
                          "stamped from the candidate at scoring time)"),
-            "market_regime": "NOT_PERSISTED_AT_PREDICTION_TIME — regime is "
-                             "computed post-hoc by architecture/intel/regimes.py "
-                             "and is not stamped on predictions",
+            "market_regime": ("computed post-hoc at evaluation time from "
+                              "PRE-prediction observations per token "
+                              "(token_price_regime via "
+                              "architecture/intel/regimes.py, first production "
+                              "consumer; <10 obs -> UNKNOWN); not stamped on "
+                              "predictions"),
             "opportunity_type": "NOT_PERSISTED_AT_PREDICTION_TIME — no "
                                 "opportunity-type concept exists in the scoring "
                                 "contract; not invented by the harness",
@@ -752,6 +822,9 @@ class CalibrationHarness:
             pairs, "chain", lambda p: str(p.get("chain") or ""))
         report.provider_segments = self._segment_table(
             pairs, "provider", lambda p: str(p.get("source_provider") or ""))
+        regimes = self._token_regimes(pairs)
+        report.regime_segments = self._segment_table(
+            pairs, "token_price_regime", lambda p: regimes.get(str(p["token_id"]), "UNKNOWN"))
         report.confidence_ordering = self._confidence_ordering(
             report.confidence_segments)
         report.metrics = self._compute_metrics(report, pairs)

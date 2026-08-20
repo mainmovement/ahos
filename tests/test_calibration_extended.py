@@ -47,10 +47,14 @@ from architecture.learning.score_ledger import (  # noqa: E402
 # --------------------------------------------------------------------- helpers
 
 
-def _seed(tmp_path, rows, horizon="24h", event_class="+50%", now=None):
+def _seed(tmp_path, rows, horizon="24h", event_class="+50%", now=None,
+          price_series=None):
     """rows: list of dicts with at least score/hit; optional confidence, chain,
     max_favorable, max_adverse, known_fields, unknown_fields, evidence_sha,
-    engine_version, resolved_offset."""
+    engine_version, resolved_offset, provider.
+
+    price_series: {row_index: [pre-prediction prices]} — written into a
+    discovery_observations table so regime segmentation can be exercised."""
     ledger_db = tmp_path / "ledger.sqlite"
     disc_db = tmp_path / "disc.sqlite"
     t0 = (now or time.time()) - 86400
@@ -92,6 +96,30 @@ def _seed(tmp_path, rows, horizon="24h", event_class="+50%", now=None):
                VALUES (?,?,?,?,?,?,?)""",
             (tid, horizon, event_class, int(r["hit"]),
              r.get("max_favorable"), r.get("max_adverse"), t0 + resolved_offset))
+
+    if price_series:
+        dconn.execute(
+            """CREATE TABLE discovery_observations (
+                 obs_id TEXT PRIMARY KEY, token_id TEXT, pair_id TEXT,
+                 provider TEXT, capability TEXT, source_ts REAL,
+                 retrieved_ts REAL, price_usd REAL, liquidity_usd REAL,
+                 fdv REAL, market_cap REAL, volume_5m REAL, volume_1h REAL,
+                 volume_6h REAL, volume_24h REAL, txns_5m_buys INTEGER,
+                 txns_5m_sells INTEGER, txns_1h_buys INTEGER,
+                 txns_1h_sells INTEGER, txns_24h_buys INTEGER,
+                 txns_24h_sells INTEGER, price_change_5m REAL,
+                 price_change_1h REAL, price_change_6h REAL,
+                 price_change_24h REAL, pair_age_minutes REAL,
+                 boost_amount REAL, quality_flags TEXT, error_state TEXT,
+                 raw_ref TEXT)""")
+        for idx, prices in price_series.items():
+            tid = f"token{idx:05d}"
+            for j, px in enumerate(prices):
+                dconn.execute(
+                    """INSERT INTO discovery_observations(
+                         obs_id, token_id, retrieved_ts, price_usd, error_state)
+                       VALUES (?,?,?,?,NULL)""",
+                    (f"obs_{idx}_{j}", tid, t0 - 7200 + j * 300.0, float(px)))
 
     conn.commit(); conn.close()
     dconn.commit(); dconn.close()
@@ -391,19 +419,19 @@ def test_dimension_availability_is_honest(tmp_path):
     assert da["confidence_level"].startswith("persisted")
     assert da["chain"].startswith("persisted")
     assert da["provider"].startswith("persisted")  # now stamped at scoring time
-    assert "NOT_PERSISTED_AT_PREDICTION_TIME" in da["market_regime"]
+    assert "computed post-hoc" in da["market_regime"]
     assert "NOT_PERSISTED_AT_PREDICTION_TIME" in da["opportunity_type"]
 
 
-def test_schema_bumped_to_v4_with_guards_intact(tmp_path):
+def test_schema_bumped_to_v5_with_guards_intact(tmp_path):
     report = _seed(tmp_path, [{"score": 90, "hit": 1}]).run()
     d = report.as_dict()
-    assert d["schema"] == "ahos.calibration_report.v4"
+    assert d["schema"] == "ahos.calibration_report.v5"
     assert d["guards"]["min_n_per_band"] == MIN_N_PER_BAND
     assert d["guards"]["min_positives"] == MIN_POSITIVES
     assert "no_peeking" in d["guards"]
     assert "metrics" in d and "dimension_availability" in d
-    assert "provider_segments" in d
+    assert "provider_segments" in d and "regime_segments" in d
     # outcome provenance must be stated (frozen labeler identity, not a guess)
     assert d["outcome_provenance"]["labeler"].startswith("discovery/outcomes.py")
 
@@ -432,6 +460,98 @@ def test_provider_segments_follow_the_same_guards(tmp_path):
     assert "n<200" in (seg.reason or "")
 
 
+# ---------------------------------------------------------------- regime segments
+
+def _noisy_trend(up: bool, n: int = 30) -> list[float]:
+    """Deterministic (seeded) trending series with noise, so all three
+    variance clusters are non-empty for the classifier."""
+    import numpy as np
+    rng = np.random.RandomState(42 if up else 7)
+    drift = 0.03 if up else -0.03
+    p = 1.0
+    out = []
+    for _ in range(n):
+        p *= 1.0 + drift + float(rng.normal(0.0, 0.008))
+        out.append(max(p, 1e-9))
+    return out
+
+
+def test_token_price_regime_helper():
+    from architecture.learning.calibration import (
+        MIN_REGIME_OBS,
+        _token_price_regime,
+    )
+
+    # fewer than the pre-registered minimum -> UNKNOWN, never a default regime
+    assert _token_price_regime([]) is None
+    assert _token_price_regime([1.0, 2.0, 3.0]) is None
+
+    # valid label set (the classifier's own); the harness does not re-derive
+    from architecture.intel.regimes import MarketRegimeClassifier
+    valid = set(MarketRegimeClassifier.REGIME_LABELS.values())
+
+    bull = _noisy_trend(up=True)
+    bear = _noisy_trend(up=False)
+    assert len(bull) >= MIN_REGIME_OBS and len(bear) >= MIN_REGIME_OBS
+    assert _token_price_regime(bull) in valid
+    assert _token_price_regime(bear) in valid
+    # deterministic across calls (GMM quantile init, no randomness)
+    assert _token_price_regime(bull) == _token_price_regime(bull)
+    assert _token_price_regime(bear) == _token_price_regime(bear)
+
+
+def test_regime_segmentation_from_pre_prediction_observations(tmp_path):
+    """Regime is computed from PRE-prediction prices only (no peeking) and
+    tokens without enough observations land in UNKNOWN. The expected label is
+    taken from the helper itself — the harness must not assert the weak
+    classifier's label semantics, only that segmentation is coherent."""
+    from architecture.learning.calibration import _token_price_regime
+
+    rows = []
+    rows += _cohort_rows(90, 200, 50, provider="dexscreener")   # token00000-249
+    rows += _cohort_rows(10, 30, 220, provider="dexscreener")   # token00250-499
+    series = {i: _noisy_trend(up=True) for i in range(250)}     # one regime
+    series.update({i: [1.0, 1.1, 1.2] for i in range(250, 500)})  # sparse
+    expected = _token_price_regime(series[0])
+    assert expected is not None
+
+    report = _seed(tmp_path, rows, price_series=series).run()
+    by = {s.value: s for s in report.regime_segments}
+    assert by[expected].n == 250
+    assert by[expected].rate == pytest.approx(200 / 250)
+    assert by[expected].verdict == "DESCRIPTIVE_OK"
+    # sparse tokens land in UNKNOWN (regime not computable), but their
+    # outcomes are still real — the bucket carries the honest hit rate
+    assert by["UNKNOWN"].n == 250
+    assert by["UNKNOWN"].rate == pytest.approx(30 / 250)
+
+
+def test_regime_never_uses_post_prediction_observations(tmp_path):
+    """Observations after scored_ts must not influence the regime label."""
+    from architecture.learning.calibration import _token_price_regime
+
+    rows = _cohort_rows(90, 210, 40)
+    series = {i: _noisy_trend(up=True) for i in range(250)}
+    expected = _token_price_regime(series[0])
+    harness = _seed(tmp_path, rows, price_series=series)
+
+    # inject crashing observations that occur AFTER every prediction — they
+    # describe the outcome window, not the regime the scorer operated in
+    conn = sqlite3.connect(harness.discovery_db)
+    for i in range(5):
+        conn.execute(
+            """INSERT INTO discovery_observations(obs_id, token_id, retrieved_ts,
+                 price_usd, error_state) VALUES (?,?,?,?,NULL)""",
+            (f"post_crash_{i}", f"token{i:05d}", 1e18, 0.001))
+    conn.commit(); conn.close()
+
+    report = harness.run()
+    by = {s.value: s for s in report.regime_segments}
+    # the pre-prediction trend still classifies the same regime; crash rows
+    # (retrieved_ts after every scored_ts) were ignored by the no-peeking filter
+    assert by[expected].n == 250
+
+
 def test_constants_stay_conservative():
     assert MIN_N_PER_BAND >= 200 and MIN_POSITIVES >= 20
     assert CONFIDENCE_LEVELS == ("HIGH", "MED", "LOW")
@@ -449,7 +569,7 @@ def test_cli_writes_artifact_and_reports_insufficient_data(tmp_path, monkeypatch
     rc = cr.main(["--out", str(out), "--horizon", "24h"])
     assert rc == 0
     payload = json.loads(out.read_text(encoding="utf-8"))
-    assert payload["schema"] == "ahos.calibration_report.v4"
+    assert payload["schema"] == "ahos.calibration_report.v5"
     assert payload["calibration_status"] == "INSUFFICIENT_DATA"
     assert payload["number_of_eligible_pairs"] == 0
     assert "metrics" in payload and payload["metrics"]["brier_score"] is None
