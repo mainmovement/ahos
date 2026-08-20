@@ -270,6 +270,34 @@ def test_http_401_is_auth_required():
     assert resp.status == "AUTH_REQUIRED"
 
 
+def test_body_error_code_1001_inside_http_200_is_auth_required():
+    """CMC can report an invalid key with HTTP 200 + status.error_code 1001."""
+    body = {"status": {"error_code": 1001, "error_message": "invalid key"},
+            "data": {}}
+    a = _adapter(_routing_transport(_routes(info=body)))
+    resp = a.fetch_token_metrics("ethereum", "0xabc123")
+    assert resp.status == "AUTH_REQUIRED"
+    assert resp.tokens == []
+
+
+def test_body_error_code_1008_inside_http_200_is_rate_limit():
+    body = {"status": {"error_code": 1008, "error_message": "over rate limit"},
+            "data": {}}
+    a = _adapter(_routing_transport(_routes(info=body)))
+    resp = a.fetch_token_metrics("ethereum", "0xabc123")
+    assert resp.status == "RATE_LIMIT"
+
+
+def test_body_error_on_quotes_step_is_caught_too():
+    info = json.loads(json.dumps(INFO_PAYLOAD))
+    quotes = {"status": {"error_code": 1009, "error_message": "monthly cap"},
+              "data": {}}
+    a = _adapter(_routing_transport(_routes(info=info, quotes=quotes)))
+    resp = a.fetch_token_metrics("ethereum", "0xabc123")
+    assert resp.status == "RATE_LIMIT"
+    assert resp.tokens == []
+
+
 def test_http_429_is_rate_limit():
     a = _adapter(_routing_transport(_routes(), http_errors={"info?": _cmc_http_error(429)}))
     resp = a.fetch_token_metrics("ethereum", "0xabc123")

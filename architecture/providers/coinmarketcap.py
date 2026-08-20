@@ -147,6 +147,30 @@ class CoinMarketCapAdapter(BaseHttpProviderAdapter):
         except (ValueError, AttributeError):
             return None
 
+    def _body_error_envelope(self, body: dict, t0: float,
+                             http_status: int | None) -> ProviderResponse | None:
+        """Map a CMC body-level ``status.error_code`` (which CMC can return
+        inside an HTTP 200) onto a normalized envelope. None when the body
+        reports success."""
+        code = (body.get("status") or {}).get("error_code")
+        if code in (None, 0):
+            return None
+        detail = f"CMC error_code {code}"
+        if code in (1001, 1002):
+            return ProviderResponse(
+                provider_id="coinmarketcap", status="AUTH_REQUIRED", tokens=[],
+                latency_ms=(time.time() - t0) * 1000.0, http_status=http_status,
+                error_message="CMC API key invalid or inactive (error_code 1001/1002)")
+        if code in (1008, 1009, 1022, 1024, 1032):  # per-minute / daily / monthly ceilings
+            return ProviderResponse(
+                provider_id="coinmarketcap", status="RATE_LIMIT", tokens=[],
+                latency_ms=(time.time() - t0) * 1000.0, http_status=http_status,
+                error_message=f"{detail} — CMC rate ceiling reached")
+        return ProviderResponse(
+            provider_id="coinmarketcap", status="ERROR", tokens=[],
+            latency_ms=(time.time() - t0) * 1000.0, http_status=http_status,
+            error_message=detail)
+
     # -- public fetch ------------------------------------------------------------
 
     def fetch_token_metrics(self, chain: str, address: str) -> ProviderResponse:
@@ -175,6 +199,10 @@ class CoinMarketCapAdapter(BaseHttpProviderAdapter):
                 latency_ms=(time.time() - t0) * 1000.0,
                 error_message=str(e)[:150],
             )
+
+        body_err = self._body_error_envelope(info_data, t0, info_status)
+        if body_err is not None:
+            return body_err
 
         listings = info_data.get("data") or {}
         if not listings:
@@ -207,6 +235,10 @@ class CoinMarketCapAdapter(BaseHttpProviderAdapter):
                 latency_ms=(time.time() - t0) * 1000.0,
                 error_message=str(e)[:150],
             )
+
+        body_err = self._body_error_envelope(quote_data, t0, quote_status)
+        if body_err is not None:
+            return body_err
 
         token = self._build_token(ch, address, listing, quote_data, info_raw, quote_raw)
         return ProviderResponse(

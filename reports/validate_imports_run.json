@@ -1,8 +1,8 @@
 {
   "schema": "ahos.test_run.v1",
-  "timestamp_utc": "2026-08-20T07:33:46Z",
-  "finished_utc": "2026-08-20T07:33:58Z",
-  "duration_sec": 12.192,
+  "timestamp_utc": "2026-08-20T07:41:42Z",
+  "finished_utc": "2026-08-20T07:41:54Z",
+  "duration_sec": 12.395,
   "command": [
     ".venv/bin/python",
     "-B",
@@ -12,7 +12,7 @@
   "cwd": "/home/user/ahos",
   "executable": "/home/user/ahos/.venv/bin/python",
   "git": {
-    "commit_sha": "9b8d9e1fe46cdd1cd0749442eb6ae206f3036928",
+    "commit_sha": "fdbf90b5d9803024cc9258163c2f263d499f95b7",
     "branch": "arena/01a01def-ahos",
     "working_tree_clean": false
   },
