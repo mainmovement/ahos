@@ -297,6 +297,7 @@ class CalibrationReport:
     feature_coverage: dict[str, Any] = field(default_factory=dict)
     extreme_records: list[dict[str, Any]] = field(default_factory=list)
     dimension_availability: dict[str, str] = field(default_factory=dict)
+    score_drift: dict[str, Any] = field(default_factory=dict)
     # -- provenance: "this number came from exactly these rows" ---------------
     eligible_sources: list[str] = field(default_factory=list)
     source_census: dict[str, int] = field(default_factory=dict)
@@ -308,7 +309,7 @@ class CalibrationReport:
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            "schema": "ahos.calibration_report.v5",
+            "schema": "ahos.calibration_report.v6",
             "generated_utc": self.generated_utc,
             "horizon": self.horizon,
             "event_class": self.event_class,
@@ -333,6 +334,7 @@ class CalibrationReport:
             "feature_coverage": self.feature_coverage,
             "extreme_records": self.extreme_records,
             "dimension_availability": self.dimension_availability,
+            "score_drift": self.score_drift,
             "monotonicity": self.monotonicity,
             "verdict": self.verdict,
             "findings": self.findings,
@@ -610,6 +612,50 @@ class CalibrationHarness:
             return "CONFIDENCE_NOT_ORDERED"
         return None
 
+    # ------------------------------------------------------------- drift --
+
+    @staticmethod
+    def _score_drift_report(pairs: list[dict[str, Any]]) -> dict[str, Any]:
+        """ADWIN-style score-stream drift diagnostic over the joined cohort.
+
+        First production consumer of architecture/learning/drift.py: feeds the
+        opportunity scores in scored_ts order through StreamingDriftDetector
+        and reports whether the score distribution shifted during the
+        observation window. Honesty: fewer than the detector's min_window
+        samples => INSUFFICIENT_DATA (never a fabricated stability claim);
+        the verdict is a fact about the cohort, not a claim about live data.
+        """
+        ordered = sorted(pairs, key=lambda p: (float(p["scored_ts"]),
+                                               str(p["score_id"])))
+        if len(ordered) < 10:   # StreamingDriftDetector.min_window
+            return {
+                "detector": "StreamingDriftDetector (ADWIN pattern)",
+                "samples": len(ordered),
+                "verdict": "INSUFFICIENT_DATA",
+                "reason": f"fewer than {10} score samples in cohort",
+                "drift_detected": None,
+            }
+        try:
+            from ..learning.drift import StreamingDriftDetector
+        except Exception as e:
+            return {"detector": "StreamingDriftDetector", "samples": len(ordered),
+                    "verdict": "UNKNOWN", "reason": f"{type(e).__name__}: {e}",
+                    "drift_detected": None}
+        detector = StreamingDriftDetector()
+        triggered_at: int | None = None
+        for idx, p in enumerate(ordered, start=1):
+            if detector.update(float(p["opportunity_score"])):
+                triggered_at = idx
+        return {
+            "detector": "StreamingDriftDetector (ADWIN pattern)",
+            "samples": len(ordered),
+            "verdict": ("DRIFT_DETECTED" if triggered_at is not None
+                        else "NO_DRIFT_DETECTED"),
+            "drift_detected": triggered_at is not None,
+            "first_trigger_at_sample": triggered_at,
+            "final_window_mean": round(detector.current_mean, 4),
+        }
+
     # ------------------------------------------------------------- metrics --
 
     def _compute_metrics(self, report: CalibrationReport,
@@ -831,6 +877,14 @@ class CalibrationHarness:
         report.feature_coverage = self._feature_coverage(pairs)
         report.extreme_records = self._extreme_records(pairs)
         report.dimension_availability = self._dimension_availability()
+        report.score_drift = self._score_drift_report(pairs)
+        if report.score_drift.get("verdict") == "DRIFT_DETECTED":
+            report.findings.append(
+                "SCORE_DRIFT: the prediction score stream shifted during the "
+                "observation window (ADWIN trigger at sample "
+                f"{report.score_drift.get('first_trigger_at_sample')}) — "
+                "rates pool distinct score regimes; segment by time before "
+                "reading them as one curve.")
 
         # Sample-size warnings travel with the descriptive metrics.
         if pairs and not report.metrics.guards_met:

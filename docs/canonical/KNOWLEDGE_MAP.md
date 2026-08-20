@@ -384,3 +384,26 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   fabricates negatives. The frozen 4-item `answer_evidence()` contract is
   unchanged. Narrative (news RSS) feed-through remains uncollected by the
   collector (documented, not fabricated). Suite **1276 passed**.
+
+## W34 — P0 data integrity + operator tooling + config validation + score drift (2026-08-20)
+- MCP `market_data_query` no longer fabricates prices (was hardcoded
+  `185.50 if SOL`): resolves real provider data via the unified
+  `ProviderCollector`, `data_status UNKNOWN` + null fields + per-provider
+  statuses when nothing is observed; symbols refused honestly; collector
+  injectable for offline tests.
+- Daemon `--snapshot-interval-hours N` (+ `--snapshot-probe-providers`):
+  automatic soak + system-state snapshots (first at t=0, then every N hours)
+  make the 168h protocol's 6h cadence a single command; failures logged,
+  never fatal. First production consumer of the snapshot scripts.
+- Config-validation invariant (`tests/test_config_validation.py`): every
+  canonical env key must be documented in `.env.example` or be a reasoned
+  legacy exception, and every documented key must be consumed. Fixed real
+  drift it found: COINGECKO_API_KEY / NVIDIA_API_KEY undocumented;
+  OLLAMA_BASE_URL documented but never read (code reads OLLAMA_API_URL);
+  dead AHOS_CHAIN / AHOS_CYCLE_MINUTES removed; GEMINI_API_KEY_PAID
+  documented; XAI_API_KEY coverage via ai_council_providers.yaml.
+- Calibration report schema v6: `score_drift` diagnostic feeds the cohort's
+  score stream through `StreamingDriftDetector` (first production consumer) —
+  NO_DRIFT_DETECTED / DRIFT_DETECTED (first-trigger sample) / honest
+  INSUFFICIENT_DATA on <10 samples; DRIFT_DETECTED adds a SCORE_DRIFT finding.
+- Suite **1294 passed**; zero live trading, zero credential exposure.

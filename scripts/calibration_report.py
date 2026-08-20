@@ -91,6 +91,11 @@ def _print_report(report) -> None:
         print(f"confidence ordering: {report.confidence_ordering}")
     if report.monotonicity:
         print(f"band monotonicity  : {report.monotonicity}")
+    sd = report.score_drift
+    if sd:
+        print(f"score drift        : {sd.get('verdict')} "
+              f"(samples={sd.get('samples')}, "
+              f"trigger={sd.get('first_trigger_at_sample') or 'n/a'})")
     for finding in report.findings:
         print(f"  - {finding}")
 

@@ -423,15 +423,16 @@ def test_dimension_availability_is_honest(tmp_path):
     assert "NOT_PERSISTED_AT_PREDICTION_TIME" in da["opportunity_type"]
 
 
-def test_schema_bumped_to_v5_with_guards_intact(tmp_path):
+def test_schema_bumped_to_v6_with_guards_intact(tmp_path):
     report = _seed(tmp_path, [{"score": 90, "hit": 1}]).run()
     d = report.as_dict()
-    assert d["schema"] == "ahos.calibration_report.v5"
+    assert d["schema"] == "ahos.calibration_report.v6"
     assert d["guards"]["min_n_per_band"] == MIN_N_PER_BAND
     assert d["guards"]["min_positives"] == MIN_POSITIVES
     assert "no_peeking" in d["guards"]
     assert "metrics" in d and "dimension_availability" in d
     assert "provider_segments" in d and "regime_segments" in d
+    assert "score_drift" in d
     # outcome provenance must be stated (frozen labeler identity, not a guess)
     assert d["outcome_provenance"]["labeler"].startswith("discovery/outcomes.py")
 
@@ -557,6 +558,43 @@ def test_constants_stay_conservative():
     assert CONFIDENCE_LEVELS == ("HIGH", "MED", "LOW")
 
 
+# ---------------------------------------------------------------- score drift
+
+def test_score_drift_tiny_cohort_is_insufficient(tmp_path):
+    rows = [{"score": 60, "hit": 1} for _ in range(5)]
+    report = _seed(tmp_path, rows).run()
+    assert report.score_drift["verdict"] == "INSUFFICIENT_DATA"
+    assert report.score_drift["drift_detected"] is None
+
+
+def test_score_drift_stable_series_no_drift(tmp_path):
+    rows = [{"score": 50.0, "hit": 1 if i % 3 == 0 else 0}
+            for i in range(120)]
+    report = _seed(tmp_path, rows).run()
+    assert report.score_drift["samples"] == 120
+    assert report.score_drift["verdict"] == "NO_DRIFT_DETECTED"
+    assert report.score_drift["drift_detected"] is False
+
+
+def test_score_drift_step_change_is_detected_and_flagged(tmp_path):
+    # first 60 scores low, then a step to high — a real distribution shift
+    rows = [{"score": 20.0, "hit": 0} for _ in range(60)]
+    rows += [{"score": 80.0, "hit": 1} for _ in range(60)]
+    report = _seed(tmp_path, rows).run()
+    assert report.score_drift["verdict"] == "DRIFT_DETECTED"
+    assert report.score_drift["drift_detected"] is True
+    assert any("SCORE_DRIFT" in f for f in report.findings)
+
+
+def test_score_drift_is_deterministic(tmp_path):
+    rows = [{"score": 50.0, "hit": 1 if i % 3 == 0 else 0}
+            for i in range(120)]
+    now = 1755000000.0
+    r1 = _seed(tmp_path / "a", rows, now=now).run(now=now)
+    r2 = _seed(tmp_path / "b", rows, now=now).run(now=now)
+    assert r1.score_drift == r2.score_drift
+
+
 # ---------------------------------------------------------------- CLI surface
 
 def test_cli_writes_artifact_and_reports_insufficient_data(tmp_path, monkeypatch):
@@ -569,7 +607,7 @@ def test_cli_writes_artifact_and_reports_insufficient_data(tmp_path, monkeypatch
     rc = cr.main(["--out", str(out), "--horizon", "24h"])
     assert rc == 0
     payload = json.loads(out.read_text(encoding="utf-8"))
-    assert payload["schema"] == "ahos.calibration_report.v5"
+    assert payload["schema"] == "ahos.calibration_report.v6"
     assert payload["calibration_status"] == "INSUFFICIENT_DATA"
     assert payload["number_of_eligible_pairs"] == 0
     assert "metrics" in payload and payload["metrics"]["brier_score"] is None
