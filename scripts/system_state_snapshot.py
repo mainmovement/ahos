@@ -61,35 +61,25 @@ def _store_status(path_fn) -> dict:
 
 
 def _probe_providers() -> list[dict]:
-    """Live reachability only. Failures are evidence, not blockers."""
-    from architecture.providers.adapters import DexScreenerAdapter, GeckoTerminalAdapter
+    """Live reachability for EVERY registered provider, via the canonical
+    probe (architecture/providers/probe.py — M-GAP-016 status vocabulary).
+    Failures are evidence, never blockers. One probe implementation; the
+    snapshot no longer duplicates a 2-provider subset with raw exception
+    class names as statuses."""
+    from architecture.providers.probe import probe_providers
 
-    out: list[dict] = []
-    for name, cls in (
-        ("dexscreener", DexScreenerAdapter),
-        ("geckoterminal", GeckoTerminalAdapter),
-    ):
-        started = utc_now()
-        try:
-            resp = cls().fetch_candidate_tokens("solana", limit=2)
-            out.append({
-                "provider_id": name,
-                "probed_at_utc": started,
-                "status": resp.status,
-                "token_count": len(resp.tokens),
-                "error": resp.error_message,
-            })
-        except TimeoutError as exc:
-            out.append({
-                "provider_id": name, "probed_at_utc": started,
-                "status": "TIMEOUT", "token_count": 0, "error": str(exc)[:200],
-            })
-        except Exception as exc:  # fail-closed: record the class, invent nothing
-            out.append({
-                "provider_id": name, "probed_at_utc": started,
-                "status": type(exc).__name__, "token_count": 0, "error": str(exc)[:200],
-            })
-    return out
+    report = probe_providers(chain="solana")
+    return [
+        {
+            "provider_id": r.provider_id,
+            "probed_at_utc": r.probed_at_utc,
+            "status": r.status,
+            "token_count": r.token_count,
+            "error": r.detail,
+            "latency_ms": r.latency_ms,
+        }
+        for r in report.results
+    ]
 
 
 def build_snapshot(probe_providers: bool = False, window_hours: float = 24.0) -> dict:

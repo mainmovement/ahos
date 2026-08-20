@@ -314,3 +314,16 @@ def test_probe_reports_enrichment_only_as_unsupported():
     result = report.results[0]
     assert result.status == "UNSUPPORTED"
     assert "no discovery capability" in (result.detail or "")
+
+
+def test_probe_default_map_covers_every_registered_provider():
+    """Any provider registered in ProviderRouter must also appear in the
+    --probe-providers default map, or the probe artifact silently misses it."""
+    import inspect
+
+    from architecture.providers import probe as probe_mod
+    from architecture.providers.registry import ProviderRouter
+
+    src = inspect.getsource(probe_mod.probe_providers)
+    for pid in ProviderRouter().providers:
+        assert pid in src, f"probe default map missing registered provider {pid}"
