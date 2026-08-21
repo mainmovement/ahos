@@ -1,6 +1,6 @@
 # AHOS Intelligent Web Command Center
 
-این لایه، رابط عملیاتی وب برای مأموریت AHOS است. جایگزین موتور پایتونِ `mainmovement/ahos` نیست؛ همان قوانین را روی Next.js + PostgreSQL پیاده می‌کند.
+این لایه، رابط عملیاتی وب برای مأموریت AHOS است. جایگزین موتور پایتونِ `mainmovement/ahos` نیست؛ همان قوانین را روی Next.js پیاده می‌کند و به چرخه‌های واقعی وصل است.
 
 ## واقعیت اجرا
 
@@ -9,10 +9,11 @@
 - اصل داده: `UNKNOWN > fabricated`
 - زبان رابط: فارسی / RTL
 - شورا: ۱۰۰ نقش در ۱۰ تیم — مشورتی، بدون میانگین‌گیری کور
+- حلقه: یک‌بار **شروع** → چرخه‌های مداوم (~۷۵s) تا **توقف**
 
-## زنده در صورت دسترسی شبکه
+## زنده در صورت دسترسی شبکه (رایگان / عمومی)
 
-DexScreener, GeckoTerminal, CoinGecko, GoPlus, RugCheck, DefiLlama, Alternative.me, Binance, CoinCap, CryptoCompare, CoinPaprika, Jupiter, Pump.fun, mempool.space, Blockchain.com, RSS خبری (۲۰+ منبع), Reddit RSS, Hacker News Algolia, MyMemory ترجمه.
+DexScreener, GeckoTerminal, CoinGecko, GoPlus, RugCheck, DefiLlama, Alternative.me, Binance public, CoinCap, CryptoCompare, CoinPaprika, Jupiter, Pump.fun, mempool.space, Blockchain.com, ۳۰+ منبع RSS خبری, Reddit RSS, Hacker News Algolia, MyMemory ترجمه.
 
 ## BLOCKED / صادقانه
 
@@ -25,8 +26,11 @@ DexScreener, GeckoTerminal, CoinGecko, GoPlus, RugCheck, DefiLlama, Alternative.
 | Telegram scrape | OUT_OF_POLICY |
 | مدل‌های پولی AI | NO_KEY مگر env |
 | معامله واقعی | DISABLED |
-| پوش به GitHub `mainmovement/ahos` | نیازمند credential کاربر |
 
-## حلقه
+## گفت‌وگو
 
-`شروع` → چرخه فوری → interval ~75s تا `توقف`. استارت دوباره لازم نیست.
+چت مثل صحبت با یک همکار صریح است: intent تشخیص داده می‌شود و به موتور واقعی (بازار، فرصت، اخبار، شورا، واچ، کاغذی، سلامت) وصل می‌شود. اگر داده نباشد می‌گوید UNKNOWN — نه حدس زیبا.
+
+## Master directive
+
+`docs/canonical/MASTER_DIRECTIVE_W43.md`

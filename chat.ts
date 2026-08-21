@@ -21,10 +21,11 @@ export async function handleChat(message: string): Promise<ChatResponse> {
 
   if (intent === "start") {
     await startEngine();
-    reply = "موتور را روشن کردم. از این لحظه چرخه‌ها خودکار ادامه پیدا می‌کنند تا خودت استاپ بزنی. داده جعلی نمی‌سازم؛ اگر پروایدری نباشد همان UNKNOWN/DOWN می‌ماند.";
+    reply =
+      "روشن شد. از همین لحظه چرخه‌ها پشت‌سرهم می‌روند (حدود هر ۷۵ ثانیه) تا خودت بگی توقف. وسط کار وای نمی‌ایستم که دوباره استارت بزنی. اگر پروایدری قطع باشه همان DOWN یا UNKNOWN می‌مونه — چیزی جعل نمی‌کنم.";
   } else if (intent === "stop") {
     await stopEngine();
-    reply = "موتور را متوقف کردم. مشاهدات قبلی در پایگاه می‌ماند. برای ادامه، دوباره شروع را بزن.";
+    reply = "متوقف شد. داده‌های قبلی سر جاشون هستن. هر وقت خواستی دوباره بگو شروع کن.";
   } else if (intent === "market") {
     reply = marketReply(snap);
   } else if (intent === "opportunities") {
@@ -43,11 +44,11 @@ export async function handleChat(message: string): Promise<ChatResponse> {
     reply = paperReply(snap);
   } else if (intent === "whales") {
     reply =
-      "برای نهنگ‌ها قانون سخت است: اگر سند نقش کیف نباشد wallet_role=UNKNOWN. در این چرخه هویت نهنگ جعل نشد. آنچه داریم فقط خرید/فروش استخر (در صورت وجود) و هشدار تمرکز است. بدون کاوشگر اختصاصی با کلید، ادعای اسمارت‌مانی نمی‌کنم.";
+      "برای نهنگ‌ها سخت‌گیرم: اگر سند نقش کیف پول نباشد می‌گویم wallet_role=UNKNOWN. اسمارت‌مانی جعلی نمی‌سازم. فقط حرکت استخر و هشدار تمرکز رو گزارش می‌دم وقتی evidence داشته باشم.";
   } else if (intent === "watch_add") {
     const hit = findOpp(snap, text);
     if (!hit) {
-      reply = "توکن را در فرصت‌های همین چرخه پیدا نکردم. نماد یا بخشی از اسم را دقیق‌تر بگو. چیزی را حدس نمی‌زنم.";
+      reply = "این نماد رو تو فرصت‌های همین چرخه پیدا نکردم. اسم یا سمبل رو دقیق‌تر بگو؛ حدس نمی‌زنم.";
     } else {
       await addWatch({
         tokenKey: hit.tokenKey,
@@ -56,7 +57,7 @@ export async function handleChat(message: string): Promise<ChatResponse> {
         address: hit.address,
         thesisFa: `پایش به درخواست کاربر: ${text}`,
       });
-      reply = `${hit.symbol} روی ${hit.chain} رفت روی واچ‌لیست کاغذی. حکم فعلی ${hit.decision} با اطمینان ${hit.confidence}. ${hit.invalidationFa}`;
+      reply = `${hit.symbol} روی ${hit.chain} رفت تو واچ‌لیست. حکم فعلی: ${hit.decision} با اطمینان ${hit.confidence}. ${hit.invalidationFa}`;
       evidence.tokenKey = hit.tokenKey;
     }
   } else if (intent === "paper_buy") {
@@ -66,7 +67,7 @@ export async function handleChat(message: string): Promise<ChatResponse> {
       (hit?.payload ? num(hit.payload.priceUsd) : null);
     const qty = extractNumber(text, /(?:مقدار|تعداد|تا)\s*([0-9]+(?:\.[0-9]+)?)/);
     if (!hit && !extractSymbol(text)) {
-      reply = "برای ثبت خرید کاغذی باید نماد توکن مشخص باشد. خرید واقعی انجام نمی‌شود.";
+      reply = "برای ثبت خرید کاغذی باید نماد مشخص باشه. خرید واقعی انجام نمی‌دم.";
     } else {
       const symbol = hit?.symbol || extractSymbol(text) || "UNKNOWN";
       const row = await addPaper({
@@ -79,27 +80,27 @@ export async function handleChat(message: string): Promise<ChatResponse> {
         thesisFa: `خرید کاغذی کاربر: ${text}`,
         targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
       });
-      reply = `ثبت شد به‌صورت PAPER ONLY. نماد ${symbol}. قیمت ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارش واقعی به صرافی نرفت. اگر قیمت زنده داشته باشیم MFE/MAE را در چرخه‌های بعد پر می‌کنم.`;
+      reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت. اگر قیمت زنده داشته باشم MFE/MAE رو در چرخه‌های بعد پر می‌کنم.`;
       evidence.positionId = row.id;
     }
   } else if (intent === "why") {
     const hit = findOpp(snap, text);
-    reply = hit ? whyReply(hit) : "بگو کدام توکن. بدون مصداق، دلیل اختراع نمی‌کنم.";
+    reply = hit ? whyReply(hit) : "بگو کدوم توکن. بدون مصداق دلیل اختراع نمی‌کنم.";
   } else if (intent === "reject") {
     const rejected = snap.opportunities.filter((o) => o.decision === "REJECT").slice(0, 5);
     reply = rejected.length
       ? `رد شده‌ها (ضدهایپ):\n${rejected.map((o) => `• ${o.symbol}: ${(o.risksFa || []).slice(0, 2).join(" ")}`).join("\n")}`
-      : "در آخرین چرخه REJECT ثبت نشده یا هنوز چرخه‌ای نیست.";
+      : "تو آخرین چرخه REJECT ثبت نشده یا هنوز چرخه‌ای نیست.";
   } else if (intent === "token") {
     const hit = findOpp(snap, text);
-    reply = hit ? whyReply(hit) : "این نماد را در کاندیدهای فعلی ندارم. اول شروع را بزن تا کشف انجام شود، یا نام را دقیق‌تر بگو.";
+    reply = hit ? whyReply(hit) : "این نماد رو تو کاندیدهای فعلی ندارم. اول شروع رو بزن تا کشف انجام بشه، یا اسم رو دقیق‌تر بگو.";
   } else {
     reply = await generalReply(text, snap);
   }
 
   const state = await getState();
   if (!state.running && intent !== "start" && intent !== "stop") {
-    reply += "\n\nموتور الان خاموش است. اگر بخواهی خودم از اینجا شروع کنم بگو «شروع کن» تا چرخه‌ها پشت‌سرهم بروند.";
+    reply += "\n\nموتور الان خاموشه. اگر بخوای خودم از اینجا روشن کنم بگو «شروع کن» — بعدش خودش پشت‌سرهم جمع می‌کنه.";
   }
   reply += `\n\n${FINAL_USER_LINE}`;
 
@@ -136,7 +137,7 @@ function detectIntent(text: string): string {
 
 function marketReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
   const m = snap.market;
-  if (!m) return "هنوز اسنپ‌شات بازار ندارم — INSUFFICIENT_EVIDENCE. یک‌بار شروع را بزن تا از CoinGecko/Binance/Alternative.me جمع کنم.";
+  if (!m) return "هنوز اسنپ‌شات بازار ندارم — INSUFFICIENT_EVIDENCE. یک‌بار شروع رو بزن تا از منابع آزاد جمع کنم.";
   return [
     `بازار الان (شواهد زنده، نه حدس): رژیم ${m.regime}.`,
     `بیت‌کوین ${faUsd(m.btcPrice)} (${faPct(m.btcChange24h)}).`,
@@ -152,9 +153,9 @@ function marketReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string 
 function oppReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
   const list = snap.opportunities.filter((o) => o.decision === "WATCH").slice(0, 5);
   const rejected = snap.opportunities.filter((o) => o.decision === "REJECT").length;
-  if (!snap.opportunities.length) return "فرصتی در حافظه نیست. یا موتور روشن نشده یا پروایدرها DOWN بوده‌اند.";
+  if (!snap.opportunities.length) return "فرصتی در حافظه نیست. یا موتور روشن نشده یا پروایدرها DOWN بودن.";
   if (!list.length) {
-    return `کاندید WATCH ندارم. ${rejected} مورد رد شد. highest-score-wins خاموش است؛ هایپ به‌تنهایی بالا نمی‌آید.`;
+    return `کاندید WATCH ندارم. ${rejected} مورد رد شد. highest-score-wins خاموشه؛ هایپ به‌تنهایی بالا نمی‌آد.";
   }
   return [
     "بهترین‌ها یعنی «قابل پایش با شواهد بهتر»، نه خرید:",
@@ -162,7 +163,7 @@ function oppReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
       (o, i) =>
         `${i + 1}) ${o.symbol} روی ${o.chain} — ${o.decision} / ${o.confidence} / امنیت ${o.securityStatus}. پوشش شواهد ${faNumber((o.evidenceCoverage || 0) * 100, 0)}٪. ${(o.reasonsFa || [])[0] || ""} ریسک: ${(o.risksFa || [])[0] || "UNKNOWN"}`,
     ),
-    `${rejected} توکن رد شدند (ضدهایپ).`,
+    `${rejected} توکن رد شدن (ضدهایپ).`,
   ].join("\n");
 }
 
@@ -177,18 +178,18 @@ function newsReply(snap: Awaited<ReturnType<typeof commandSnapshot>>, text: stri
 
 function healthReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
   const lines = snap.health.dimensions.map((d) => `• ${d.nameFa}: ${d.status} — ${d.evidenceFa}`);
-  return [`وضعیت سیستم (۱۲ بُعد، یک نمره فریبنده نمی‌سازم):`, ...lines, `چرخه‌ها: ${snap.state.cycleCount}. آخرین: ${snap.state.lastCycleStatus}.`].join("\n");
+  return [`وضعیت سیستم (ابعاد جدا، یک نمره فریبنده نمی‌سازم):`, ...lines, `چرخه‌ها: ${snap.state.cycleCount}. آخرین: ${snap.state.lastCycleStatus}.`].join("\n");
 }
 
 function councilReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  if (!snap.council.length) return "هنوز گزارش شورا نیست. بعد از اولین چرخه، اختلاف ۱۰ تیم را می‌بینی.";
+  if (!snap.council.length) return "هنوز گزارش شورا نیست. بعد از اولین چرخه، اختلاف ۱۰ تیم رو می‌بینی.";
   const c = snap.council[0];
   return `آخرین حکم شورا برای ${c.tokenKey}: ${c.verdict}. WATCH=${c.watchCount} REJECT=${c.rejectCount} ABSTAIN=${c.abstainCount}. ${c.summaryFa} اختلاف مخفی نشد.`;
 }
 
 function learningReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
   if (!snap.lessons.length && !snap.outcomes.length) {
-    return "هنوز درس افق‌بسته ندارم. پیش‌بینی‌ها باید به افق برسند تا outcome واقعی ساخته شود. No peeking.";
+    return "هنوز درس افق‌بسته ندارم. پیش‌بینی‌ها باید به افق برسن تا outcome واقعی ساخته بشه. No peeking.";
   }
   return ["درس‌های ثبت‌شده:", ...snap.lessons.slice(0, 5).map((l) => `• ${l.titleFa}: ${l.bodyFa}`)].join("\n");
 }
@@ -227,7 +228,7 @@ async function generalReply(text: string, snap: Awaited<ReturnType<typeof comman
   if (hit) return whyReply(hit);
   const m = snap.market;
   return [
-    "من AHOS هستم؛ مثل یک همکار صریح. حدس را به‌جای داده نمی‌گذارم.",
+    "من AHOS هستم؛ مثل یک همکار صریح. حدس رو جای داده نمی‌ذارم.",
     m
       ? `الان رژیم ${m.regime} است، بیت‌کوین ${faUsd(m.btcPrice)} (${faPct(m.btcChange24h)}).`
       : "اسنپ‌شات بازار هنوز UNKNOWN است.",
@@ -235,8 +236,8 @@ async function generalReply(text: string, snap: Awaited<ReturnType<typeof comman
       ? `${snap.opportunities.filter((o) => o.decision === "WATCH").length} کاندید پایش و ${snap.opportunities.filter((o) => o.decision === "REJECT").length} رد در آخرین چرخه.`
       : "فرصتی جمع نشده.",
     snap.news[0] ? `تازه‌ترین خبر فارسی: ${snap.news[0].titleFa}` : "خبری نیست.",
-    "می‌توانی بپرسی: بازار چه خبر؟ فرصت‌ها؟ این توکن را زیر نظر بگیر. خریدم. اخبار سولانا. شورا چه گفت. سیستم کجاش لنگ می‌زند.",
-    `پیامت را این‌طور فهمیدم که گفتگو عمومی است («${text.slice(0, 80)}»). اگر منظورت چیز دیگری است همان را خودمانی بگو.`,
+    "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ این توکن رو زیر نظر بگیر. خریدم. اخبار سولانا. شورا چه گفت. سیستم کجاش لنگ می‌زنه.",
+    `پیامت رو این‌طور فهمیدم که گفتگوی عمومیه («${text.slice(0, 80)}»). اگر منظورت چیز دیگه‌ایه همون رو بگو.`,
   ].join(" ");
 }
 
@@ -268,7 +269,3 @@ function extractNumber(text: string, re: RegExp): number | null {
 function num(v: unknown): number | null {
   return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
-
-
-
-
