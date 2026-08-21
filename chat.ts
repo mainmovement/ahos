@@ -10,14 +10,28 @@ export type ChatResponse = {
   reply: string;
   intent: string;
   evidence: Record<string, unknown>;
+  focusToken?: string | null;
 };
 
-export async function handleChat(message: string): Promise<ChatResponse> {
+export type ChatContext = {
+  focusToken?: string | null;
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
+};
+
+export async function handleChat(message: string, ctx: ChatContext = {}): Promise<ChatResponse> {
   const text = message.trim();
   const intent = detectIntent(text);
   const snap = await commandSnapshot();
+  let focus =
+    ctx.focusToken ||
+    extractFocusFromHistory(ctx.history) ||
+    null;
   let reply = "";
-  const evidence: Record<string, unknown> = { intent, at: new Date().toISOString() };
+  const evidence: Record<string, unknown> = {
+    intent,
+    at: new Date().toISOString(),
+    focusIn: focus,
+  };
 
   if (intent === "start") {
     await startEngine();
@@ -30,12 +44,14 @@ export async function handleChat(message: string): Promise<ChatResponse> {
     reply = marketReply(snap);
   } else if (intent === "opportunities") {
     reply = oppReply(snap);
+    const top = snap.opportunities.find((o) => o.decision === "WATCH");
+    if (top) focus = top.tokenKey;
   } else if (intent === "news") {
     reply = newsReply(snap, text);
   } else if (intent === "health") {
     reply = healthReply(snap);
   } else if (intent === "council") {
-    reply = councilReply(snap);
+    reply = councilReply(snap, text, focus);
   } else if (intent === "learning") {
     reply = learningReply(snap);
   } else if (intent === "watchlist") {
@@ -43,10 +59,13 @@ export async function handleChat(message: string): Promise<ChatResponse> {
   } else if (intent === "paper_list") {
     reply = paperReply(snap);
   } else if (intent === "whales") {
-    reply =
-      "برای نهنگ‌ها سخت‌گیرم: اگر سند نقش کیف پول نباشد می‌گویم wallet_role=UNKNOWN. اسمارت‌مانی جعلی نمی‌سازم. فقط حرکت استخر و هشدار تمرکز رو گزارش می‌دم وقتی evidence داشته باشم. اگر توکن خاصی مدنظرت هست اسمش رو بگو.";
+    const hit = findOpp(snap, text, focus);
+    reply = hit
+      ? `برای ${hit.symbol}: بدون سند نقش کیف پول، wallet_role=UNKNOWN می‌ماند. تمرکز دارندگان و فشار خرید/فروش استخر فقط وقتی evidence باشد گزارش می‌شود. امنیت فعلی: ${hit.securityStatus}.`
+      : "برای نهنگ‌ها سخت‌گیرم: اگر سند نقش کیف پول نباشد می‌گویم wallet_role=UNKNOWN. اسمارت‌مانی جعلی نمی‌سازم. توکن را نام ببر یا اول فرصتی را باز کن تا «این» معنا داشته باشد.";
+    if (hit) focus = hit.tokenKey;
   } else if (intent === "watch_add") {
-    const hit = findOpp(snap, text);
+    const hit = findOpp(snap, text, focus);
     if (!hit) {
       reply = "این نماد رو تو فرصت‌های همین چرخه پیدا نکردم. اسم یا سمبل رو دقیق‌تر بگو؛ حدس نمی‌زنم.";
     } else {
@@ -59,9 +78,10 @@ export async function handleChat(message: string): Promise<ChatResponse> {
       });
       reply = `${hit.symbol} روی ${hit.chain} رفت تو واچ‌لیست. حکم فعلی: ${hit.decision} با اطمینان ${hit.confidence}. ${hit.invalidationFa}`;
       evidence.tokenKey = hit.tokenKey;
+      focus = hit.tokenKey;
     }
   } else if (intent === "paper_buy") {
-    const hit = findOpp(snap, text) || findBySymbol(snap, text);
+    const hit = findOpp(snap, text, focus);
     const price =
       extractNumber(text, /(?:قیمت|با|@)\s*([0-9]+(?:\.[0-9]+)?)/) ??
       (hit?.payload ? num(hit.payload.priceUsd) : null);
@@ -80,26 +100,35 @@ export async function handleChat(message: string): Promise<ChatResponse> {
         thesisFa: `خرید کاغذی کاربر: ${text}`,
         targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
       });
-      reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت. اگر قیمت زنده داشته باشم MFE/MAE رو در چرخه‌های بعد پر می‌کنم.`;
+      reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت.`;
       evidence.positionId = row.id;
+      if (hit) focus = hit.tokenKey;
     }
-  } else if (intent === "why") {
-    const hit = findOpp(snap, text);
-    reply = hit ? whyReply(hit) : "بگو کدوم توکن. بدون مصداق دلیل اختراع نمی‌کنم.";
+  } else if (intent === "why" || intent === "token") {
+    const hit = findOpp(snap, text, focus);
+    reply = hit
+      ? whyReply(hit)
+      : intent === "why"
+        ? "بگو کدوم توکن — یا اول یک فرصت را باز کن تا «این یکی» معنا داشته باشد. بدون مصداق دلیل اختراع نمی‌کنم."
+        : "این نماد رو تو کاندیدهای فعلی ندارم. اول شروع رو بزن تا کشف انجام بشه، یا اسم رو دقیق‌تر بگو.";
+    if (hit) focus = hit.tokenKey;
   } else if (intent === "reject") {
     const rejected = snap.opportunities.filter((o) => o.decision === "REJECT").slice(0, 5);
     reply = rejected.length
       ? `رد شده‌ها (ضدهایپ):\n${rejected.map((o) => `• ${o.symbol}: ${(o.risksFa || []).slice(0, 2).join(" ")}`).join("\n")}`
       : "تو آخرین چرخه REJECT ثبت نشده یا هنوز چرخه‌ای نیست.";
-  } else if (intent === "token") {
-    const hit = findOpp(snap, text);
-    reply = hit ? whyReply(hit) : "این نماد رو تو کاندیدهای فعلی ندارم. اول شروع رو بزن تا کشف انجام بشه، یا اسم رو دقیق‌تر بگو.";
   } else if (intent === "greeting") {
     reply = greetingReply(snap);
   } else if (intent === "help") {
     reply = helpReply();
   } else {
-    reply = await generalReply(text, snap);
+    const hit = findOpp(snap, text, focus);
+    if (hit && isPronounQuery(text)) {
+      reply = whyReply(hit);
+      focus = hit.tokenKey;
+    } else {
+      reply = await generalReply(text, snap);
+    }
   }
 
   const state = await getState();
@@ -107,14 +136,15 @@ export async function handleChat(message: string): Promise<ChatResponse> {
     reply += "\n\nموتور الان خاموشه. اگر بخوای خودم از اینجا روشن کنم بگو «شروع کن» — بعدش خودش پشت‌سرهم جمع می‌کنه.";
   }
   reply += `\n\n${FINAL_USER_LINE}`;
+  evidence.focusToken = focus;
 
   try {
     await db.insert(chatMessages).values({ role: "user", content: text, intent, evidence });
     await db.insert(chatMessages).values({ role: "assistant", content: reply, intent, evidence });
   } catch {
-    /* DB optional for chat path when DATABASE_URL missing */
+    /* DB optional when DATABASE_URL missing */
   }
-  return { reply, intent, evidence };
+  return { reply, intent, evidence, focusToken: focus };
 }
 
 export async function chatHistory(limit = 24) {
@@ -124,6 +154,21 @@ export async function chatHistory(limit = 24) {
   } catch {
     return [];
   }
+}
+
+function isPronounQuery(text: string): boolean {
+  return /(این یکی|همون|همین|این توکن|همون توکن|این چطوره|خوبه\؟|ریسکش)/i.test(text);
+}
+
+function extractFocusFromHistory(
+  history?: Array<{ role: "user" | "assistant"; content: string }>,
+): string | null {
+  if (!history?.length) return null;
+  for (let i = history.length - 1; i >= 0; i--) {
+    const m = history[i].content.match(/\b([A-Z]{2,12})\b/);
+    if (m && !/[آ-ی]/.test(m[1])) return m[1];
+  }
+  return null;
 }
 
 function detectIntent(text: string): string {
@@ -146,6 +191,7 @@ function detectIntent(text: string): string {
   if (/(درس|یاد گرفت|اشتباه|hindsight|learning)/i.test(text)) return "learning";
   if (/(بازار|رژیم|بیت‌کوین|بیتکوین|اتریوم|سولانا|btc|eth|sol)/i.test(t)) return "market";
   if (/[a-z]{2,10}/i.test(text) && /(توکن|امن|تحلیل|قیمت)/.test(text)) return "token";
+  if (isPronounQuery(text)) return "why";
   return "general";
 }
 
@@ -157,7 +203,7 @@ function greetingReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): strin
     running
       ? `الان موتور روشنه و ${n} کاندید پایش تو آخرین چرخه دارم.`
       : "موتور فعلاً خاموشه؛ بگو «شروع کن» تا جمع‌آوری شروع بشه.",
-    "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ اخبار سولانا؟ این توکن رو زیر نظر بگیر. سیستم کجاش لنگه؟",
+    "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ اخبار سولانا؟ این توکن رو تحت نظر بگیر. سیستم کجاش لنگه؟",
     "خرید واقعی انجام نمی‌دم — فقط کاغذی و پایش.",
   ].join(" ");
 }
@@ -168,7 +214,7 @@ function helpReply(): string {
     "• بازار / بیت‌کوین / اتریوم / سولانا",
     "• بهترین فرصت‌ها / پامپ / چی بخرم (فقط پایش — نه سفارش واقعی)",
     "• اخبار / اخبار سولانا",
-    "• این توکن رو زیر نظر بگیر / خرید کاغذی ثبت کن",
+    "• این توکن رو تحت نظر بگیر / خرید کاغذی ثبت کن",
     "• شورا چه گفت / نهنگ‌ها / سلامت سیستم / درس‌ها",
     "• شروع کن / توقف",
     "مثل چت عادی حرف بزن؛ اگر داده نباشه می‌گم UNKNOWN.",
@@ -230,21 +276,27 @@ function healthReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string 
   return [`وضعیت سیستم (ابعاد جدا، یک نمره فریبنده نمی‌سازم):`, ...lines, `چرخه‌ها: ${snap.state.cycleCount}. آخرین: ${snap.state.lastCycleStatus}.`].join("\n");
 }
 
-function councilReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
+function councilReply(
+  snap: Awaited<ReturnType<typeof commandSnapshot>>,
+  text: string,
+  focus: string | null,
+): string {
   if (!snap.council.length) return "هنوز گزارش شورا نیست. بعد از اولین چرخه، اختلاف ۱۰ تیم رو می‌بینی.";
-  const c = snap.council[0];
+  const hit = findOpp(snap, text, focus);
+  const c =
+    (hit && snap.council.find((x) => x.tokenKey === hit.tokenKey)) || snap.council[0];
   return `آخرین حکم شورا برای ${c.tokenKey}: ${c.verdict}. WATCH=${c.watchCount} REJECT=${c.rejectCount} ABSTAIN=${c.abstainCount}. ${c.summaryFa} اختلاف مخفی نشد.`;
 }
 
 function learningReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  if (!snap.lessons.length && !snap.outcomes.length) {
+  if (!snap.lessons.length) {
     return "هنوز درس افق‌بسته ندارم. پیش‌بینی‌ها باید به افق برسن تا outcome واقعی ساخته بشه. No peeking.";
   }
   return ["درس‌های ثبت‌شده:", ...snap.lessons.slice(0, 5).map((l) => `• ${l.titleFa}: ${l.bodyFa}`)].join("\n");
 }
 
 function watchReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  if (!snap.watchlist.length) return "واچ‌لیست خالی است. بگو «این توکن را زیر نظر بگیر».";
+  if (!snap.watchlist.length) return "واچ‌لیست خالی است. بگو «این توکن را تحت نظر بگیر».";
   return snap.watchlist.map((w) => `• ${w.symbol} (${w.chain}) — ${w.thesisFa || "بدون تز"}`).join("\n");
 }
 
@@ -273,7 +325,7 @@ function whyReply(o: Awaited<ReturnType<typeof commandSnapshot>>["opportunities"
 }
 
 async function generalReply(text: string, snap: Awaited<ReturnType<typeof commandSnapshot>>): Promise<string> {
-  const hit = findOpp(snap, text);
+  const hit = findOpp(snap, text, null);
   if (hit) return whyReply(hit);
   const m = snap.market;
   const q = text.slice(0, 120);
@@ -290,17 +342,24 @@ async function generalReply(text: string, snap: Awaited<ReturnType<typeof comman
   ].join(" ");
 }
 
-function findOpp(snap: Awaited<ReturnType<typeof commandSnapshot>>, text: string) {
+function findOpp(
+  snap: Awaited<ReturnType<typeof commandSnapshot>>,
+  text: string,
+  focus: string | null,
+) {
   const up = text.toUpperCase();
-  return (
+  const bySymbol =
     snap.opportunities.find((o) => up.includes(o.symbol.toUpperCase())) ||
     snap.opportunities.find((o) => o.name && text.includes(o.name)) ||
-    null
-  );
-}
-
-function findBySymbol(snap: Awaited<ReturnType<typeof commandSnapshot>>, text: string) {
-  return findOpp(snap, text);
+    null;
+  if (bySymbol) return bySymbol;
+  if (focus) {
+    const byFocus =
+      snap.opportunities.find((o) => o.tokenKey === focus || o.symbol.toUpperCase() === focus.toUpperCase()) ||
+      null;
+    if (byFocus && (isPronounQuery(text) || !extractSymbol(text))) return byFocus;
+  }
+  return null;
 }
 
 function extractSymbol(text: string): string | null {
