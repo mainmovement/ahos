@@ -5,6 +5,11 @@ import { fetchText, sha1 } from "./http";
 import { classifyNews, persianNewsRewrite } from "./persian";
 import type { Envelope, NewsStory } from "./types";
 
+/**
+ * Free / public RSS and API sources only.
+ * No scraping of X, Instagram, TikTok, Telegram channels (OUT_OF_POLICY).
+ * If a source is DOWN → SOURCE_UNAVAILABLE. Never fabricate stories.
+ */
 export const NEWS_SOURCES: Array<{ id: string; fa: string; url: string }> = [
   { id: "CoinTelegraph", fa: "کوین‌تلگراف", url: "https://cointelegraph.com/rss" },
   { id: "CoinDesk", fa: "کوین‌دسک", url: "https://www.coindesk.com/arc/outboundfeeds/rss/" },
@@ -24,12 +29,19 @@ export const NEWS_SOURCES: Array<{ id: string; fa: string; url: string }> = [
   { id: "Bitcoinist", fa: "بیت‌کوینیست", url: "https://bitcoinist.com/feed/" },
   { id: "CryptoPotato", fa: "کریپتوپوتیتو", url: "https://cryptopotato.com/feed/" },
   { id: "CoinJournal", fa: "کوین‌ژورنال", url: "https://coinjournal.net/feed/" },
-  { id: "NewsBTC2", fa: "سی‌سی‌ان", url: "https://www.ccn.com/feed/" },
+  { id: "CCN", fa: "سی‌سی‌ان", url: "https://www.ccn.com/feed/" },
   { id: "CoinSpeaker", fa: "کوین‌اسپیکر", url: "https://www.coinspeaker.com/feed/" },
   { id: "Cryptopolitan", fa: "کریپتوپولیتن", url: "https://www.cryptopolitan.com/feed/" },
+  { id: "Coinpedia", fa: "کوین‌پدیا", url: "https://coinpedia.org/feed/" },
+  { id: "CryptoBriefing", fa: "کریپتو بریفینگ", url: "https://cryptobriefing.com/feed/" },
+  { id: "NullTX", fa: "نال‌تی‌ایکس", url: "https://nulltx.com/feed/" },
+  { id: "CoinIdol", fa: "کوین‌آیدل", url: "https://coinidol.com/rss/" },
+  { id: "CryptoDaily", fa: "کریپتو دیلی", url: "https://cryptodaily.co.uk/feed" },
   { id: "RedditCrypto", fa: "ردیت CryptoCurrency", url: "https://www.reddit.com/r/CryptoCurrency/new/.rss" },
   { id: "RedditSolana", fa: "ردیت Solana", url: "https://www.reddit.com/r/solana/new/.rss" },
   { id: "RedditDefi", fa: "ردیت DeFi", url: "https://www.reddit.com/r/defi/new/.rss" },
+  { id: "RedditBitcoin", fa: "ردیت Bitcoin", url: "https://www.reddit.com/r/Bitcoin/new/.rss" },
+  { id: "RedditEthTrader", fa: "ردیت ethtrader", url: "https://www.reddit.com/r/ethtrader/new/.rss" },
   { id: "HNAlgolia", fa: "هکرنیوز", url: "https://hn.algolia.com/api/v1/search?query=crypto%20OR%20bitcoin%20OR%20ethereum%20OR%20solana&tags=story" },
 ];
 
@@ -161,7 +173,7 @@ export async function collectNews(): Promise<{ stories: NewsStory[]; envelopes: 
     if (!unique.has(fp)) unique.set(fp, row);
   }
 
-  const picked = [...unique.entries()].slice(0, 48);
+  const picked = [...unique.entries()].slice(0, 56);
   for (const [fp, row] of picked) {
     const cls = classifyNews(row.item.title, row.item.summary);
     const translated = await translateFa(row.item.title);

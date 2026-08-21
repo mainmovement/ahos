@@ -1,4 +1,4 @@
-import CommandCenter from "@/components/CommandCenter";
+import CommandCenter from "./CommandCenter";
 
 export const dynamic = "force-dynamic";
 
