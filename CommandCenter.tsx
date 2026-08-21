@@ -115,7 +115,8 @@ export default function CommandCenter() {
   const [chat, setChat] = useState<ChatMsg[]>([
     {
       role: "assistant",
-      content: "سلام. من AHOS هستم. مثل یک همکار حرف می‌زنم، اما اگر داده نباشد می‌گویم UNKNOWN. موتور را که روشن کنی خودم جمع می‌کنم و وسط کار وای نمی‌ایستم. معامله واقعی خاموش است.",
+      content:
+        "سلام. من AHOS هستم — مثل یک همکار صریح. اگر داده نباشد می‌گویم UNKNOWN، حدس نمی‌زنم. یک‌بار «شروع پروژه» را بزن؛ خودم پشت‌سرهم جمع می‌کنم و وسط کار وای نمی‌ایستم. معامله واقعی خاموش است (فقط کاغذی).",
     },
   ]);
   const [draft, setDraft] = useState("");
@@ -279,7 +280,7 @@ export default function CommandCenter() {
             </div>
             <div className="md:pr-40">
               <p className="m-0 text-sm text-cyan-100/80">
-                مشاهده → شواهد → تحلیل → امتیاز چندعاملی → تصمیم‌یار → یادگیری. هیچ قیمت، خبر یا اطمینان جعلی ساخته نمی‌شود.
+                مشاهده → شواهد → تحلیل → امتیاز چندعاملی → تصمیم‌یار → یادگیری. هیچ قیمت، خبر یا اطمینان جعلی ساخته نمی‌شود. یک‌بار شروع کن؛ تا توقف خودش ادامه می‌دهد.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Hud
@@ -511,7 +512,7 @@ export default function CommandCenter() {
         <aside className="glass flex min-h-[70vh] flex-col rounded-[28px] p-4 md:p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="m-0 text-lg">گفت‌وگو با AHOS</h2>
-            <span className="text-xs text-white/50">رایگان · محلی · بدون confidene جعلی</span>
+            <span className="text-xs text-white/50">رایگان · محلی · بدون confidence جعلی</span>
           </div>
           <div ref={chatRef} className="scroll-thin flex-1 space-y-3 overflow-auto pe-1">
             {chat.map((m, i) => (
