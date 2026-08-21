@@ -1,6 +1,6 @@
 # AHOS — Intelligent Web Command Center
 
-**Artificial Hybrid Opportunity Scoring System**
+**Artificial Hybrid Opportunity Scoring System** · W44 Intelligence Tier
 
 Evidence-first crypto opportunity intelligence. Persian-first. Paper-only.  
 No fabricated prices, news, confidence, or live-trading claims.
@@ -12,57 +12,50 @@ No fabricated prices, news, confidence, or live-trading claims.
 | Data honesty | `UNKNOWN > fabricated` |
 | Execution | `PAPER_ONLY` — real trading DISABLED |
 | UI language | فارسی / RTL |
-| Council | 100 roles in 10 teams (advisory, disagreement preserved) |
-| Start once | Cycles continue until Stop |
+| Council | 100 roles · 10 teams (disagreement preserved) |
+| Start once | Cycles continue (~70s) until Stop |
+| Ranking | Multi-factor · anti-hype · security gate first |
+
+## W44 upgrades
+
+- **Smarter scoring:** age, buy/sell flow, vol/liq ratio, multi-source evidence
+- **Faster cycles:** parallel security (×4), adaptive HTTP timeouts, 70s interval
+- **Harder anti-hype:** paid promo + thin book, extreme momentum, wash-trade-like ratios → REJECT
+- **30+ free news sources** → Persian rewrite + provenance
 
 ## Start (laptop)
 
 ```bash
-# install deps (Node + Python as needed)
 npm install
-# configure .env from .env.example (optional keys only)
 npm run dev
 ```
 
-Open the site → press **شروع پروژه**.  
-The engine runs continuous cycles (~75s) until you press **توقف**.
+Open the site → **شروع پروژه** once. Engine runs continuous cycles until **توقف**.
 
-Python runtime (core intelligence):
+Python core (optional parallel path):
 
 ```bash
 python3 -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
 ```
 
-## What is live in code
+## Live in code (when network allows)
 
-- Discovery via DexScreener / GeckoTerminal / CoinGecko / Pump.fun (when network allows)
-- Multi-factor ranking (anti-hype)
-- Independent security gate
-- News from 30+ free RSS/API sources → Persian rewrite + provenance
-- Conversational chat (intent → real subsystems)
-- Watchlist + paper positions + hindsight lessons
-- Self-observation, findings, evolution proposals
+DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · DefiLlama · Alternative.me · Binance public · CoinCap · CryptoCompare · CoinPaprika · Jupiter · mempool · 30+ RSS
 
-## Honest BLOCKED / REQUIRES USER ACTION
+## Honest BLOCKED
 
 | Item | Status |
 |------|--------|
-| DEXTools full API | NO_KEY / COST_BLOCKED |
-| CoinMarketCap without key | NO_KEY |
-| X / Twitter | COST_BLOCKED |
-| Instagram / TikTok / Telegram scrape | OUT_OF_POLICY |
-| Paid AI models | NO_KEY unless you set env |
-| Real trading / wallet signing | DISABLED |
-| Live Telegram bot | needs BotFather token |
-| Long soak (168h) | run on your laptop |
+| DEXTools full | NO_KEY / COST_BLOCKED |
+| CMC without key | NO_KEY |
+| X / IG / TikTok scrape | COST_BLOCKED / OUT_OF_POLICY |
+| Real trading | DISABLED |
+| Telegram bot | needs BotFather token |
 
 ## Docs
 
 - Master directive: `docs/canonical/MASTER_DIRECTIVE_W43.md`
+- W44 report: `reports/W44_INTELLIGENCE_SPEED_UPGRADE.md`
 - Gap register: `AHOS_GAP_REGISTER.md`
-- Web command center notes: `AHOS_WEB_COMMAND_CENTER.md`
 
-## Safety
-
-No secrets in git. No real orders. No private keys.  
-If evidence is missing, AHOS says **UNKNOWN** — that is a feature.
+**AHOS does not pretend to be smart — it tightens evidence and measures what it can.**

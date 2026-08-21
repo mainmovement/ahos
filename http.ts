@@ -8,6 +8,17 @@ export function sha1(input: string): string {
   return createHash("sha1").update(input).digest("hex");
 }
 
+/**
+ * Adaptive timeout: discovery/news can fail fast; market core gets a bit more room.
+ * Never fabricates data on timeout — returns DOWN with honest latency.
+ */
+function defaultTimeout(category: string): number {
+  if (category === "discovery") return 7000;
+  if (category === "news") return 8000;
+  if (category === "security") return 9000;
+  return 8500;
+}
+
 export async function fetchJson<T>(
   provider: string,
   category: string,
@@ -23,7 +34,7 @@ export async function fetchJson<T>(
   }
 
   const started = Date.now();
-  const timeoutMs = options?.timeoutMs ?? 9000;
+  const timeoutMs = options?.timeoutMs ?? defaultTimeout(category);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -84,7 +95,7 @@ export async function fetchText(
   provider: string,
   category: string,
   url: string,
-  timeoutMs = 10000,
+  timeoutMs = 8000,
 ): Promise<Envelope<string>> {
   return fetchJson<string>(provider, category, url, { timeoutMs });
 }
