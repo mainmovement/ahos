@@ -6,6 +6,7 @@
   --gold: #f0c36a;
   --magenta: #ff4d9d;
   --glass: rgba(10, 18, 40, 0.62);
+  --alarm: #ff2d55;
 }
 
 * {
@@ -99,6 +100,53 @@ textarea {
 
 .ticker {
   animation: ticker 36s linear infinite;
+}
+
+/* Pump / opportunity alarm — large, readable, loud visual */
+.alarm-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  padding: 1rem 1.25rem;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(90deg, #ff2d55, #ff8a00, #ff2d55);
+  background-size: 200% 100%;
+  animation: alarmflash 0.9s ease-in-out infinite, alarmslide 3s linear infinite;
+  box-shadow: 0 12px 40px rgba(255, 45, 85, 0.45);
+  border-bottom: 2px solid #ffe566;
+}
+
+.alarm-banner small {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+@keyframes alarmflash {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.35);
+  }
+}
+
+@keyframes alarmslide {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
 }
 
 @keyframes orbspin {
