@@ -24,7 +24,12 @@ import { collectMarket, enrichPairs, fetchSecurity, mergePairs } from "./provide
 import { rankOpportunities, scoreToken } from "./scoring";
 import type { Envelope, PairObservation, ScoredOpportunity } from "./types";
 
-const INTERVAL_MS = 75_000;
+/** Base interval; stays continuous until stop. */
+const INTERVAL_MS = 70_000;
+/** Max concurrent security probes — speed without flooding GoPlus/RugCheck. */
+const SECURITY_CONCURRENCY = 4;
+const SECURITY_INSPECT_CAP = 10;
+const CANDIDATE_CAP = 32;
 
 type DaemonMem = {
   timer: ReturnType<typeof setInterval> | null;
@@ -94,6 +99,21 @@ export async function restoreDaemonIfNeeded() {
       if (mem().running) void runCycle("restore");
     }, INTERVAL_MS);
   }
+}
+
+/** Bounded parallel map for security — faster cycles, honest failures. */
+async function mapPool<T, R>(items: T[], concurrency: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let i = 0;
+  async function worker() {
+    while (i < items.length) {
+      const idx = i++;
+      results[idx] = await fn(items[idx]);
+    }
+  }
+  const n = Math.min(concurrency, Math.max(1, items.length));
+  await Promise.all(Array.from({ length: n }, () => worker()));
+  return results;
 }
 
 export async function runCycle(reason: string) {
@@ -167,7 +187,6 @@ export async function runCycle(reason: string) {
         .onConflictDoNothing();
     }
 
-    const scored: ScoredOpportunity[] = [];
     for (const token of pairs) {
       await db
         .insert(tokens)
@@ -210,13 +229,17 @@ export async function runCycle(reason: string) {
       });
     }
 
+    // Parallel security (bounded) — major cycle speedup
+    const inspect = pairs.slice(0, SECURITY_INSPECT_CAP);
     const securityMap = new Map<string, Awaited<ReturnType<typeof fetchSecurity>>>();
-    const inspect = pairs.slice(0, 8);
-    for (const token of inspect) {
+    const secResults = await mapPool(inspect, SECURITY_CONCURRENCY, async (token) => {
       const sec = await fetchSecurity(token);
-      securityMap.set(token.tokenKey, sec);
+      return { tokenKey: token.tokenKey, sec };
+    });
+    for (const { tokenKey, sec } of secResults) {
+      securityMap.set(tokenKey, sec);
       await db.insert(securityReports).values({
-        tokenKey: token.tokenKey,
+        tokenKey,
         provider: sec.provider,
         status: sec.status,
         honeypot: sec.honeypot,
@@ -229,6 +252,7 @@ export async function runCycle(reason: string) {
       });
     }
 
+    const scored: ScoredOpportunity[] = [];
     for (const token of pairs) {
       const hits = news.stories.filter(
         (n) =>
@@ -332,20 +356,24 @@ export async function runCycle(reason: string) {
     await writeFindings(cycle.id, market.envelopes, news.envelopes, ranked);
 
     const unknownShare =
-      ranked.length === 0 ? 1 : ranked.filter((o) => o.decision === "INSUFFICIENT_EVIDENCE" || o.confidence === "UNKNOWN").length / ranked.length;
+      ranked.length === 0
+        ? 1
+        : ranked.filter((o) => o.decision === "INSUFFICIENT_EVIDENCE" || o.confidence === "UNKNOWN").length /
+          ranked.length;
 
+    const durationMs = Date.now() - started;
     await db
       .update(cycles)
       .set({
         status: "SUCCESS",
         finishedAt: new Date(),
-        durationMs: Date.now() - started,
+        durationMs,
         tokenCount: pairs.length,
         newsCount: news.stories.length,
         opportunityCount: ranked.length,
         unknownShare,
-        notesFa: `چرخه کامل شد. توکن=${pairs.length} خبر=${news.stories.length} فرصت=${ranked.length}`,
-        details: { reason },
+        notesFa: `چرخه کامل. توکن=${pairs.length} خبر=${news.stories.length} فرصت=${ranked.length} زمان=${durationMs}ms`,
+        details: { reason, securityInspected: inspect.length, parallelSecurity: SECURITY_CONCURRENCY },
       })
       .where(eq(cycles.id, cycle.id));
 
@@ -362,7 +390,7 @@ export async function runCycle(reason: string) {
       .where(eq(systemState.id, 1));
 
     m.lastCycleId = cycle.id;
-    return { skipped: false as const, cycleId: cycle.id };
+    return { skipped: false as const, cycleId: cycle.id, durationMs };
   } catch (error) {
     const message = error instanceof Error ? error.message : "UNKNOWN";
     await db
@@ -397,15 +425,20 @@ function inferRegime(fg: number | null, btcChange: number | null): string {
   return "RANGE";
 }
 
+/** Smarter candidate selection: multi-source, liquidity, volume, anti-boost bias. */
 function pickCandidates(pairs: PairObservation[]): PairObservation[] {
   const scored = pairs.map((p) => {
     let w = 0;
-    if (p.liquidityUsd != null) w += Math.min(p.liquidityUsd / 50000, 3);
-    if (p.volume24h != null) w += Math.min(p.volume24h / 80000, 3);
-    if (p.source.includes("GeckoTerminal")) w += 0.4;
-    if (p.source.includes("DexScreener")) w += 0.4;
-    if (p.paidPromotion) w -= 1.2;
-    if (p.address) w += 0.3;
+    if (p.liquidityUsd != null) w += Math.min(p.liquidityUsd / 40_000, 3.5);
+    if (p.volume24h != null) w += Math.min(p.volume24h / 60_000, 3);
+    if (p.source.includes("GeckoTerminal")) w += 0.5;
+    if (p.source.includes("DexScreener")) w += 0.45;
+    if (p.source.includes("Pump.fun")) w += 0.25;
+    if (p.source.includes(",") || p.source.includes("+")) w += 0.8;
+    if (p.address) w += 0.35;
+    if (p.pairCreatedAt) w += 0.2;
+    if (p.paidPromotion) w -= 1.5;
+    if ((p.priceChange24h ?? 0) > 200 && (p.liquidityUsd ?? 0) < 20_000) w -= 1.2;
     return { p, w };
   });
   scored.sort((a, b) => b.w - a.w);
@@ -415,7 +448,7 @@ function pickCandidates(pairs: PairObservation[]): PairObservation[] {
     if (seen.has(row.p.tokenKey)) continue;
     seen.add(row.p.tokenKey);
     uniq.push(row.p);
-    if (uniq.length >= 28) break;
+    if (uniq.length >= CANDIDATE_CAP) break;
   }
   return uniq;
 }
@@ -581,9 +614,27 @@ async function writeFindings(
       status: "OPEN",
     });
   }
+  const watchN = ranked.filter((r) => r.decision === "WATCH").length;
+  const rejectN = ranked.filter((r) => r.decision === "REJECT").length;
+  if (ranked.length >= 5 && rejectN > watchN * 2) {
+    await db.insert(findings).values({
+      findingId: `F-HYPER-${cycleId}`,
+      severity: "LOW",
+      titleFa: "فیلتر ضدهایپ فعال — ردها بیشتر از پایش",
+      evidenceFa: `WATCH=${watchN} REJECT=${rejectN}. سیستم در حال رد فرصت‌های پرریسک است.`,
+      confidence: "MED",
+      status: "OPEN",
+    });
+  }
 }
 
-export async function addWatch(input: { tokenKey: string; symbol: string; chain: string; address?: string | null; thesisFa?: string }) {
+export async function addWatch(input: {
+  tokenKey: string;
+  symbol: string;
+  chain: string;
+  address?: string | null;
+  thesisFa?: string;
+}) {
   await db
     .insert(watchlist)
     .values({
@@ -630,5 +681,3 @@ export async function addPaper(input: {
     .returning();
   return row;
 }
-
-
