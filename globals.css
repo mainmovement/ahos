@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #040714;
+  --cyan: #4df2ff;
+  --gold: #f0c36a;
+  --magenta: #ff4d9d;
+  --glass: rgba(10, 18, 40, 0.62);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #040714;
+  color: #e8f6ff;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
+
+.scene {
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+
+.orb-spin {
+  animation: orbspin 28s linear infinite;
+}
+
+.float-y {
+  animation: floaty 7s ease-in-out infinite;
+}
+
+.grid-move {
+  animation: gridmove 22s linear infinite;
+}
+
+.pulse-ring {
+  animation: pulsering 3.6s ease-out infinite;
+}
+
+.hud-btn {
+  position: relative;
+  border: 1px solid rgba(77, 242, 255, 0.35);
+  background: linear-gradient(180deg, rgba(77, 242, 255, 0.16), rgba(8, 16, 40, 0.7));
+  color: #d9fbff;
+  border-radius: 16px;
+  padding: 0.85rem 1.15rem;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease, border-color 140ms ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateZ(0);
+}
+
+.hud-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(240, 195, 106, 0.7);
+  box-shadow: 0 16px 40px rgba(77, 242, 255, 0.18);
+}
+
+.hud-btn:active,
+.hud-btn.is-press {
+  transform: translateY(3px) scale(0.97);
+  filter: brightness(1.15);
+}
+
+.hud-btn.is-loading {
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.hud-btn.is-ok {
+  border-color: #4dff91;
+  box-shadow: 0 0 24px rgba(77, 255, 145, 0.25);
+}
+
+.hud-btn.is-err {
+  border-color: #ff4d6a;
+}
+
+.glass {
+  background: linear-gradient(180deg, rgba(16, 28, 62, 0.72), rgba(6, 10, 28, 0.78));
+  border: 1px solid rgba(77, 242, 255, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.ticker {
+  animation: ticker 36s linear infinite;
+}
+
+@keyframes orbspin {
+  from {
+    transform: rotateY(0deg) rotateX(12deg);
+  }
+  to {
+    transform: rotateY(360deg) rotateX(12deg);
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes gridmove {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 220px;
+  }
+}
+
+@keyframes pulsering {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: rgba(77, 242, 255, 0.28);
+  border-radius: 99px;
+}
