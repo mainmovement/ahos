@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 type Dim = { nameFa: string; status: string; evidenceFa: string };
 type Opp = {
@@ -107,10 +115,38 @@ type Snap = {
 };
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
+type TabId = "dash" | "opp" | "news" | "council" | "watch" | "evo";
+
+const TABS: ReadonlyArray<readonly [TabId, string]> = [
+  ["dash", "داشبورد"],
+  ["opp", "فرصت‌ها"],
+  ["news", "اخبار فارسی"],
+  ["council", "شورای ۱۰۰ نفره"],
+  ["watch", "پایش / کاغذی"],
+  ["evo", "تکامل و درس"],
+] as const;
+
+const QUICK_PROMPTS = [
+  "امروز بازار چه خبر؟",
+  "بهترین فرصت‌ها چیه؟",
+  "اخبار سولانا",
+  "سیستم کجاش لنگه؟",
+  "شروع کن",
+] as const;
+
+const MAX_CHAT = 80;
+const POLL_RUNNING_MS = 10_000;
+const POLL_IDLE_MS = 25_000;
+
+const faFmt = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 2 });
+const faFmt0 = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
+const faFmt6 = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 6 });
 
 function faNum(n: number | null | undefined, d = 2) {
   if (n == null || !Number.isFinite(n)) return "نامشخص";
-  return new Intl.NumberFormat("fa-IR", { maximumFractionDigits: d }).format(n);
+  if (d === 0) return faFmt0.format(n);
+  if (d >= 6) return faFmt6.format(n);
+  return faFmt.format(n);
 }
 function faUsd(n: number | null | undefined) {
   if (n == null || !Number.isFinite(n)) return "نامشخص";
@@ -126,11 +162,16 @@ function faPct(n: number | null | undefined) {
   return `${n > 0 ? "+" : ""}${faNum(n)}٪`;
 }
 
+let sharedAudioCtx: AudioContext | null = null;
 function beep(ok: boolean, enabled: boolean) {
   if (!enabled || typeof window === "undefined") return;
   try {
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
+    const Ctx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!sharedAudioCtx) sharedAudioCtx = new Ctx();
+    const ctx = sharedAudioCtx;
+    if (ctx.state === "suspended") void ctx.resume();
     const o = ctx.createOscillator();
     const g = ctx.createGain();
     o.type = "triangle";
@@ -141,13 +182,13 @@ function beep(ok: boolean, enabled: boolean) {
     o.start();
     o.stop(ctx.currentTime + 0.09);
   } catch {
-    /* ignore audio failures */
+    /* ignore */
   }
 }
 
 export default function CommandCenter() {
   const [snap, setSnap] = useState<Snap | null>(null);
-  const [tab, setTab] = useState<"dash" | "opp" | "news" | "council" | "watch" | "evo">("dash");
+  const [tab, setTab] = useState<TabId>("dash");
   const [chat, setChat] = useState<ChatMsg[]>([
     {
       role: "assistant",
@@ -160,67 +201,123 @@ export default function CommandCenter() {
   const [sound, setSound] = useState(false);
   const [selected, setSelected] = useState<Opp | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
+
   const chatRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const soundRef = useRef(sound);
+  const snapGenRef = useRef<string | null>(null);
+  const loadAbortRef = useRef<AbortController | null>(null);
   const running = snap?.state.running ?? false;
 
+  useEffect(() => {
+    soundRef.current = sound;
+  }, [sound]);
+
   const load = useCallback(async () => {
+    loadAbortRef.current?.abort();
+    const ac = new AbortController();
+    loadAbortRef.current = ac;
     try {
-      const res = await fetch("/api/command", { cache: "no-store" });
+      const res = await fetch("/api/command", { cache: "no-store", signal: ac.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as Snap;
+      if (ac.signal.aborted) return;
+      if (json.generatedAt && json.generatedAt === snapGenRef.current) return;
+      snapGenRef.current = json.generatedAt ?? null;
       setSnap(json);
       setBootError(null);
     } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
       setBootError(e instanceof Error ? e.message : "UNKNOWN");
     }
   }, []);
 
   useEffect(() => {
     void load();
+    return () => loadAbortRef.current?.abort();
   }, [load]);
 
   useEffect(() => {
-    const t = setInterval(() => void load(), running ? 8000 : 20000);
-    return () => clearInterval(t);
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    const tick = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      void load();
+    };
+
+    const arm = () => {
+      if (timer) clearInterval(timer);
+      timer = setInterval(tick, running ? POLL_RUNNING_MS : POLL_IDLE_MS);
+    };
+
+    arm();
+
+    const onVis = () => {
+      if (document.visibilityState === "visible") {
+        void load();
+        arm();
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      if (timer) clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, [load, running]);
 
   useEffect(() => {
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    const el = chatRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [chat]);
 
   useEffect(() => {
+    let raf = 0;
     const onMove = (e: MouseEvent) => {
-      if (!cursorRef.current) return;
-      cursorRef.current.style.left = `${e.clientX}px`;
-      cursorRef.current.style.top = `${e.clientY}px`;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const node = cursorRef.current;
+        if (!node) return;
+        node.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+      });
     };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
-  const act = async (action: "start" | "stop" | "cycle") => {
-    setBusy(action);
-    try {
-      const res = await fetch("/api/engine", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const json = (await res.json()) as { ok?: boolean };
-      beep(Boolean(json.ok), sound);
-      await load();
-    } catch {
-      beep(false, sound);
-    } finally {
-      setBusy(null);
-    }
-  };
+  const act = useCallback(
+    async (action: "start" | "stop" | "cycle") => {
+      setBusy(action);
+      try {
+        const res = await fetch("/api/engine", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action }),
+        });
+        const json = (await res.json()) as { ok?: boolean };
+        beep(Boolean(json.ok), soundRef.current);
+        await load();
+      } catch {
+        beep(false, soundRef.current);
+      } finally {
+        setBusy(null);
+      }
+    },
+    [load],
+  );
 
-  const send = async () => {
+  const send = useCallback(async () => {
     const message = draft.trim();
     if (!message) return;
     setDraft("");
-    setChat((c) => [...c, { role: "user", content: message }]);
+    setChat((c) => {
+      const next: ChatMsg[] = [...c, { role: "user", content: message }];
+      return next.length > MAX_CHAT ? next.slice(next.length - MAX_CHAT) : next;
+    });
     setBusy("chat");
     try {
       const res = await fetch("/api/chat", {
@@ -229,64 +326,79 @@ export default function CommandCenter() {
         body: JSON.stringify({ message }),
       });
       const json = (await res.json()) as { reply?: string };
-      setChat((c) => [...c, { role: "assistant", content: json.reply || "UNKNOWN" }]);
-      beep(true, sound);
-      await load();
-    } catch {
-      setChat((c) => [...c, { role: "assistant", content: "ارتباط قطع شد — DOWN. چیزی جعل نکردم." }]);
-      beep(false, sound);
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  const watch = async (o: Opp) => {
-    setBusy(`watch-${o.id}`);
-    try {
-      await fetch("/api/watch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tokenKey: o.tokenKey,
-          symbol: o.symbol,
-          chain: o.chain,
-          address: o.address,
-          thesisFa: "از داشبورد",
-        }),
+      setChat((c) => {
+        const next: ChatMsg[] = [...c, { role: "assistant", content: json.reply || "UNKNOWN" }];
+        return next.length > MAX_CHAT ? next.slice(next.length - MAX_CHAT) : next;
       });
-      beep(true, sound);
+      beep(true, soundRef.current);
       await load();
     } catch {
-      beep(false, sound);
+      setChat((c) => [
+        ...c,
+        { role: "assistant", content: "ارتباط قطع شد — DOWN. چیزی جعل نکردم." },
+      ]);
+      beep(false, soundRef.current);
     } finally {
       setBusy(null);
     }
-  };
+  }, [draft, load]);
 
-  const paper = async (o: Opp) => {
-    setBusy(`paper-${o.id}`);
-    try {
-      const price = typeof o.payload?.priceUsd === "number" ? o.payload.priceUsd : null;
-      await fetch("/api/paper", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tokenKey: o.tokenKey,
-          symbol: o.symbol,
-          chain: o.chain,
-          address: o.address,
-          entryPrice: price,
-          thesisFa: "کاغذی از داشبورد",
-        }),
-      });
-      beep(true, sound);
-      await load();
-    } catch {
-      beep(false, sound);
-    } finally {
-      setBusy(null);
-    }
-  };
+  const watch = useCallback(
+    async (o: Opp) => {
+      setBusy(`watch-${o.id}`);
+      try {
+        await fetch("/api/watch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tokenKey: o.tokenKey,
+            symbol: o.symbol,
+            chain: o.chain,
+            address: o.address,
+            thesisFa: "از داشبورد",
+          }),
+        });
+        beep(true, soundRef.current);
+        await load();
+      } catch {
+        beep(false, soundRef.current);
+      } finally {
+        setBusy(null);
+      }
+    },
+    [load],
+  );
+
+  const paper = useCallback(
+    async (o: Opp) => {
+      setBusy(`paper-${o.id}`);
+      try {
+        const price = typeof o.payload?.priceUsd === "number" ? o.payload.priceUsd : null;
+        await fetch("/api/paper", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tokenKey: o.tokenKey,
+            symbol: o.symbol,
+            chain: o.chain,
+            address: o.address,
+            entryPrice: price,
+            thesisFa: "کاغذی از داشبورد",
+          }),
+        });
+        beep(true, soundRef.current);
+        await load();
+      } catch {
+        beep(false, soundRef.current);
+      } finally {
+        setBusy(null);
+      }
+    },
+    [load],
+  );
+
+  const toggleSound = useCallback(() => setSound((s) => !s), []);
+  const closeModal = useCallback(() => setSelected(null), []);
 
   const ticker = useMemo(() => {
     const bits = [
@@ -299,12 +411,16 @@ export default function CommandCenter() {
       "PAPER ONLY",
       "UNKNOWN > fabricated",
     ];
-    return [...bits, ...bits].join("   ·   ");
+    return `${bits.join("   ·   ")}   ·   ${bits.join("   ·   ")}`;
   }, [snap]);
 
   const showAlarm =
     snap?.state.lastCycleStatus === "CODE_FAILURE" ||
     (snap?.state.lastError != null && snap.state.lastError.length > 0);
+
+  const opps = useMemo(() => (snap?.opportunities ?? []).slice(0, 16), [snap?.opportunities]);
+  const providers = useMemo(() => (snap?.providers ?? []).slice(0, 18), [snap?.providers]);
+  const council = useMemo(() => (snap?.council ?? []).slice(0, 6), [snap?.council]);
 
   return (
     <div className="stage">
@@ -312,7 +428,7 @@ export default function CommandCenter() {
       <div className="stage-grid" />
       <div className="stage-vignette" />
       <div className="stage-scan" />
-      <div ref={cursorRef} className="cursor-glow" />
+      <div ref={cursorRef} className="cursor-glow" style={{ left: 0, top: 0, willChange: "transform" }} />
 
       {showAlarm && (
         <div className="alarm-banner">
@@ -327,16 +443,24 @@ export default function CommandCenter() {
             AH
           </div>
           <div>
-            <p className="m-0 font-[var(--font-orbitron)] text-[11px] tracking-[0.28em] text-cyan-300">AHOS COMMAND CENTER</p>
+            <p className="m-0 font-[var(--font-orbitron)] text-[11px] tracking-[0.28em] text-cyan-300">
+              AHOS COMMAND CENTER
+            </p>
             <h1 className="m-0 text-xl font-semibold md:text-2xl">مرکز فرماندهی هوشمند فرصت‌های رمزارز</h1>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className={`rounded-full px-3 py-1 text-xs ${running ? "bg-emerald-400/20 text-emerald-200" : "bg-white/10 text-white/70"}`}>
+          <span
+            className={`rounded-full px-3 py-1 text-xs ${
+              running ? "bg-emerald-400/20 text-emerald-200" : "bg-white/10 text-white/70"
+            }`}
+          >
             {running ? "در حال مشاهده خودکار" : "متوقف"}
           </span>
-          <span className="rounded-full bg-amber-300/15 px-3 py-1 text-xs text-amber-200">فقط کاغذی — معامله واقعی خاموش</span>
-          <Hud onClick={() => setSound((s) => !s)} active={sound}>
+          <span className="rounded-full bg-amber-300/15 px-3 py-1 text-xs text-amber-200">
+            فقط کاغذی — معامله واقعی خاموش
+          </span>
+          <Hud onClick={toggleSound} active={sound}>
             صدا {sound ? "روشن" : "خاموش"}
           </Hud>
         </div>
@@ -355,7 +479,8 @@ export default function CommandCenter() {
             </div>
             <div className="md:pr-40">
               <p className="m-0 text-sm text-cyan-100/80">
-                مشاهده → شواهد → تحلیل → امتیاز چندعاملی → تصمیم‌یار → یادگیری. هیچ قیمت، خبر یا اطمینان جعلی ساخته نمی‌شود. یک‌بار شروع کن؛ تا توقف خودش ادامه می‌دهد.
+                مشاهده → شواهد → تحلیل → امتیاز چندعاملی → تصمیم‌یار → یادگیری. هیچ قیمت، خبر یا اطمینان جعلی ساخته
+                نمی‌شود. یک‌بار شروع کن؛ تا توقف خودش ادامه می‌دهد.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Hud
@@ -373,8 +498,8 @@ export default function CommandCenter() {
                 </Hud>
               </div>
               <p className="mt-4 text-sm text-white/70">
-                آخرین چرخه: {snap?.state.lastCycleStatus ?? "UNKNOWN"} — تعداد {faNum(snap?.state.cycleCount, 0)} — توکن‌ها{" "}
-                {faNum(snap?.cycle?.tokenCount, 0)} — اخبار {faNum(snap?.cycle?.newsCount, 0)}
+                آخرین چرخه: {snap?.state.lastCycleStatus ?? "UNKNOWN"} — تعداد {faNum(snap?.state.cycleCount, 0)} —
+                توکن‌ها {faNum(snap?.cycle?.tokenCount, 0)} — اخبار {faNum(snap?.cycle?.newsCount, 0)}
                 {snap?.state.lastError ? ` — خطا: ${snap.state.lastError}` : ""}
                 {bootError ? ` — ارتباط: ${bootError}` : ""}
               </p>
@@ -383,21 +508,16 @@ export default function CommandCenter() {
               <Metric label="بیت‌کوین" value={faUsd(snap?.market?.btcPrice)} sub={faPct(snap?.market?.btcChange24h)} />
               <Metric label="اتریوم" value={faUsd(snap?.market?.ethPrice)} sub={faPct(snap?.market?.ethChange24h)} />
               <Metric label="سولانا" value={faUsd(snap?.market?.solPrice)} sub={faPct(snap?.market?.solChange24h)} />
-              <Metric label="ترس/طمع" value={faNum(snap?.market?.fearGreed, 0)} sub={snap?.market?.fearGreedLabel ?? "UNKNOWN"} />
+              <Metric
+                label="ترس/طمع"
+                value={faNum(snap?.market?.fearGreed, 0)}
+                sub={snap?.market?.fearGreedLabel ?? "UNKNOWN"}
+              />
             </div>
           </div>
 
           <nav className="mt-4 flex flex-wrap gap-2">
-            {(
-              [
-                ["dash", "داشبورد"],
-                ["opp", "فرصت‌ها"],
-                ["news", "اخبار فارسی"],
-                ["council", "شورای ۱۰۰ نفره"],
-                ["watch", "پایش / کاغذی"],
-                ["evo", "تکامل و درس"],
-              ] as const
-            ).map(([id, label]) => (
+            {TABS.map(([id, label]) => (
               <Hud key={id} active={tab === id} onClick={() => setTab(id)}>
                 {label}
               </Hud>
@@ -409,7 +529,10 @@ export default function CommandCenter() {
               <Card title="سلامت سیستم">
                 <div className="grid gap-2">
                   {(snap?.health?.dimensions || []).map((d) => (
-                    <div key={d.nameFa} className="flex items-start justify-between gap-3 rounded-2xl bg-white/5 px-3 py-2">
+                    <div
+                      key={d.nameFa}
+                      className="flex items-start justify-between gap-3 rounded-2xl bg-white/5 px-3 py-2"
+                    >
                       <div>
                         <div className="text-sm">{d.nameFa}</div>
                         <div className="text-xs text-white/60">{d.evidenceFa}</div>
@@ -422,8 +545,11 @@ export default function CommandCenter() {
               </Card>
               <Card title="پروایدرها (صادقانه)">
                 <div className="max-h-[360px] space-y-2 overflow-auto scroll-thin">
-                  {(snap?.providers || []).slice(0, 18).map((p, i) => (
-                    <div key={`${p.provider}-${i}`} className="flex items-center justify-between gap-2 rounded-2xl bg-white/5 px-3 py-2 text-sm">
+                  {providers.map((p, i) => (
+                    <div
+                      key={`${p.provider}-${i}`}
+                      className="flex items-center justify-between gap-2 rounded-2xl bg-white/5 px-3 py-2 text-sm"
+                    >
                       <div>
                         <div>
                           {p.provider} <span className="text-white/40">/{p.category}</span>
@@ -439,7 +565,7 @@ export default function CommandCenter() {
                       <StatusPill status={b.status} />
                     </div>
                   ))}
-                  {!snap?.providers?.length && <Empty text="بعد از اولین چرخه وضعیت واقعی پروایدر می‌آید." />}
+                  {!providers.length && <Empty text="بعد از اولین چرخه وضعیت واقعی پروایدر می‌آید." />}
                 </div>
               </Card>
             </div>
@@ -447,7 +573,7 @@ export default function CommandCenter() {
 
           {tab === "opp" && (
             <div className="mt-4 grid gap-4">
-              {(snap?.opportunities || []).slice(0, 16).map((o) => (
+              {opps.map((o) => (
                 <article key={o.id} className="glass rounded-[24px] p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -466,7 +592,9 @@ export default function CommandCenter() {
                   </div>
                   <p className="mt-2 text-sm text-cyan-100/90">{(o.reasonsFa || [])[0]}</p>
                   <p className="text-sm text-rose-200/90">ریسک: {(o.risksFa || [])[0]}</p>
-                  <p className="text-xs text-amber-200/80">UNKNOWN: {(o.unknownsFa || []).join(" | ") || "—"}</p>
+                  <p className="text-xs text-amber-200/80">
+                    UNKNOWN: {(o.unknownsFa || []).join(" | ") || "—"}
+                  </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Hud onClick={() => setSelected(o)}>چرا؟</Hud>
                     <Hud loading={busy === `watch-${o.id}`} onClick={() => void watch(o)}>
@@ -478,7 +606,9 @@ export default function CommandCenter() {
                   </div>
                 </article>
               ))}
-              {!snap?.opportunities?.length && <Empty text="فرصتی نیست. شروع را بزن تا DexScreener و GeckoTerminal خوانده شوند." />}
+              {!opps.length && (
+                <Empty text="فرصتی نیست. شروع را بزن تا DexScreener و GeckoTerminal خوانده شوند." />
+              )}
             </div>
           )}
 
@@ -502,7 +632,9 @@ export default function CommandCenter() {
                   )}
                 </article>
               ))}
-              {!snap?.news?.length && <Empty text="خبری جمع نشده. اگر RSSها DOWN باشند SOURCE_UNAVAILABLE می‌ماند." />}
+              {!snap?.news?.length && (
+                <Empty text="خبری جمع نشده. اگر RSSها DOWN باشند SOURCE_UNAVAILABLE می‌ماند." />
+              )}
             </div>
           )}
 
@@ -519,7 +651,7 @@ export default function CommandCenter() {
                 </div>
               </Card>
               <Card title="آخرین احکام">
-                {(snap?.council || []).slice(0, 6).map((c, i) => (
+                {council.map((c, i) => (
                   <div key={`${c.tokenKey}-${i}`} className="mb-2 rounded-2xl bg-white/5 p-3 text-sm">
                     <div className="flex justify-between gap-2">
                       <b>{c.tokenKey}</b>
@@ -531,7 +663,7 @@ export default function CommandCenter() {
                     </p>
                   </div>
                 ))}
-                {!snap?.council?.length && <Empty text="پس از چرخه، اختلاف نظر تیم‌ها اینجا می‌ماند." />}
+                {!council.length && <Empty text="پس از چرخه، اختلاف نظر تیم‌ها اینجا می‌ماند." />}
               </Card>
             </div>
           )}
@@ -545,15 +677,17 @@ export default function CommandCenter() {
                     <div className="text-white/60">{w.thesisFa}</div>
                   </div>
                 ))}
-                {!snap?.watchlist?.length && <Empty text="خالی است. از کارت فرصت یا چت بگو زیر نظر بگیر." />}
+                {!snap?.watchlist?.length && (
+                  <Empty text="خالی است. از کارت فرصت یا چت بگو زیر نظر بگیر." />
+                )}
               </Card>
               <Card title="موقعیت کاغذی">
                 {(snap?.paper || []).map((p) => (
                   <div key={p.id} className="mb-2 rounded-2xl bg-white/5 p-3 text-sm">
                     {p.symbol} — {p.status}
                     <div className="text-white/60">
-                      ورود {faUsd(p.entryPrice)} · الان {faUsd(p.lastPrice)} · MFE {p.maxFavorable ?? "نامشخص"} · MAE{" "}
-                      {p.maxAdverse ?? "نامشخص"}
+                      ورود {faUsd(p.entryPrice)} · الان {faUsd(p.lastPrice)} · MFE{" "}
+                      {p.maxFavorable ?? "نامشخص"} · MAE {p.maxAdverse ?? "نامشخص"}
                     </div>
                   </div>
                 ))}
@@ -607,7 +741,7 @@ export default function CommandCenter() {
             ))}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            {["امروز بازار چه خبر؟", "بهترین فرصت‌ها چیه؟", "اخبار سولانا", "سیستم کجاش لنگه؟", "شروع کن"].map((q) => (
+            {QUICK_PROMPTS.map((q) => (
               <button key={q} type="button" className="hud-btn !px-3 !py-1 text-xs" onClick={() => setDraft(q)}>
                 {q}
               </button>
@@ -634,8 +768,11 @@ export default function CommandCenter() {
       </main>
 
       {selected && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setSelected(null)}>
-          <div className="glass max-h-[85vh] w-full max-w-2xl overflow-auto rounded-[28px] p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={closeModal}>
+          <div
+            className="glass max-h-[85vh] w-full max-w-2xl overflow-auto rounded-[28px] p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="mt-0 text-2xl">{selected.symbol} — چرا این حکم؟</h3>
             <p>
               تصمیم {selected.decision} · اطمینان {selected.confidence} · شورا {selected.councilVerdict}
@@ -662,7 +799,7 @@ export default function CommandCenter() {
             <p>{(selected.missingFa || []).join("، ") || "—"}</p>
             <p>ابطال: {selected.invalidationFa}</p>
             <p className="text-amber-200">تصمیم نهایی با کاربر است. خرید واقعی انجام نمی‌شود.</p>
-            <Hud onClick={() => setSelected(null)}>بستن</Hud>
+            <Hud onClick={closeModal}>بستن</Hud>
           </div>
         </div>
       )}
@@ -670,7 +807,7 @@ export default function CommandCenter() {
   );
 }
 
-function Hud({
+const Hud = memo(function Hud({
   children,
   onClick,
   loading,
@@ -697,18 +834,18 @@ function Hud({
       {loading ? "…" : children}
     </button>
   );
-}
+});
 
-function Card({ title, children }: { title: string; children: ReactNode }) {
+const Card = memo(function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="glass rounded-[24px] p-4">
       <h3 className="mt-0 mb-3 text-base">{title}</h3>
       {children}
     </section>
   );
-}
+});
 
-function Metric({ label, value, sub }: { label: string; value: string; sub: string }) {
+const Metric = memo(function Metric({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div className="metric-tile">
       <div className="text-xs text-white/50">{label}</div>
@@ -716,20 +853,27 @@ function Metric({ label, value, sub }: { label: string; value: string; sub: stri
       <div className="text-xs text-cyan-200/80">{sub}</div>
     </div>
   );
-}
+});
 
-function StatusPill({ status }: { status: string }) {
+const StatusPill = memo(function StatusPill({ status }: { status: string }) {
   const tone =
     status === "SUCCESS" || status === "OK" || status === "WATCH" || status === "HIGH"
       ? "bg-emerald-400/15 text-emerald-200"
-      : status === "REJECT" || status === "DOWN" || status === "HONEYPOT" || status === "DISABLED" || status === "CODE_FAILURE"
+      : status === "REJECT" ||
+          status === "DOWN" ||
+          status === "HONEYPOT" ||
+          status === "DISABLED" ||
+          status === "CODE_FAILURE"
         ? "bg-rose-400/15 text-rose-200"
-        : status === "UNKNOWN" || status === "NO_DATA" || status === "INSUFFICIENT_EVIDENCE" || status === "ABSTAIN"
+        : status === "UNKNOWN" ||
+            status === "NO_DATA" ||
+            status === "INSUFFICIENT_EVIDENCE" ||
+            status === "ABSTAIN"
           ? "bg-amber-400/15 text-amber-100"
           : "bg-white/10 text-white/80";
   return <span className={`rounded-full px-2 py-0.5 text-[11px] ${tone}`}>{status}</span>;
-}
+});
 
-function Empty({ text }: { text: string }) {
+const Empty = memo(function Empty({ text }: { text: string }) {
   return <p className="m-0 text-sm text-white/55">{text}</p>;
-}
+});
