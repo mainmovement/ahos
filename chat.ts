@@ -22,7 +22,7 @@ export async function handleChat(message: string): Promise<ChatResponse> {
   if (intent === "start") {
     await startEngine();
     reply =
-      "روشن شد. از همین لحظه چرخه‌ها پشت‌سرهم می‌روند (حدود هر ۷۵ ثانیه) تا خودت بگی توقف. وسط کار وای نمی‌ایستم که دوباره استارت بزنی. اگر پروایدری قطع باشه همان DOWN یا UNKNOWN می‌مونه — چیزی جعل نمی‌کنم.";
+      "روشن شد. از همین لحظه چرخه‌ها پشت‌سرهم می‌روند (حدود هر ۷۰ ثانیه) تا خودت بگی توقف. وسط کار وای نمی‌ایستم که دوباره استارت بزنی. اگر پروایدری قطع باشه همان DOWN یا UNKNOWN می‌مونه — چیزی جعل نمی‌کنم.";
   } else if (intent === "stop") {
     await stopEngine();
     reply = "متوقف شد. داده‌های قبلی سر جاشون هستن. هر وقت خواستی دوباره بگو شروع کن.";
@@ -155,7 +155,7 @@ function oppReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
   const rejected = snap.opportunities.filter((o) => o.decision === "REJECT").length;
   if (!snap.opportunities.length) return "فرصتی در حافظه نیست. یا موتور روشن نشده یا پروایدرها DOWN بودن.";
   if (!list.length) {
-    return `کاندید WATCH ندارم. ${rejected} مورد رد شد. highest-score-wins خاموشه؛ هایپ به‌تنهایی بالا نمی‌آد.";
+    return `کاندید WATCH ندارم. ${rejected} مورد رد شد. highest-score-wins خاموشه؛ هایپ به‌تنهایی بالا نمی‌آد.`;
   }
   return [
     "بهترین‌ها یعنی «قابل پایش با شواهد بهتر»، نه خرید:",
@@ -169,11 +169,20 @@ function oppReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
 
 function newsReply(snap: Awaited<ReturnType<typeof commandSnapshot>>, text: string): string {
   let items = snap.news;
-  if (/solana|سولانا/i.test(text)) items = items.filter((n) => n.relatedChains?.includes("solana") || /سولانا|solana/i.test(`${n.titleFa} ${n.titleOriginal}`));
-  if (/bitcoin|بیت/i.test(text)) items = items.filter((n) => n.relatedTokens?.includes("BTC") || /بیت‌کوین|bitcoin/i.test(`${n.titleFa} ${n.titleOriginal}`));
+  if (/solana|سولانا/i.test(text))
+    items = items.filter(
+      (n) => n.relatedChains?.includes("solana") || /سولانا|solana/i.test(`${n.titleFa} ${n.titleOriginal}`),
+    );
+  if (/bitcoin|بیت/i.test(text))
+    items = items.filter(
+      (n) => n.relatedTokens?.includes("BTC") || /بیت‌کوین|bitcoin/i.test(`${n.titleFa} ${n.titleOriginal}`),
+    );
   const top = items.slice(0, 6);
   if (!top.length) return "خبری مطابق فیلتر تو در حافظه نیست — SOURCE_UNAVAILABLE یا هنوز جمع نشده.";
-  return ["اخبار با بازنویسی فارسی (عنوان اصلی حفظ شده):", ...top.map((n) => `• ${n.titleFa} — ${n.source} — اهمیت ${n.importance} — ${n.summaryFa}`)].join("\n");
+  return [
+    "اخبار با بازنویسی فارسی (عنوان اصلی حفظ شده):",
+    ...top.map((n) => `• ${n.titleFa} — ${n.source} — اهمیت ${n.importance} — ${n.summaryFa}`),
+  ].join("\n");
 }
 
 function healthReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
