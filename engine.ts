@@ -19,6 +19,7 @@ import {
   watchlist,
 } from "@/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
+import { processOpportunityAlerts } from "./alerts";
 import { collectNews } from "./news";
 import { collectMarket, enrichPairs, fetchSecurity, mergePairs } from "./providers";
 import { rankOpportunities, scoreToken } from "./scoring";
@@ -229,7 +230,6 @@ export async function runCycle(reason: string) {
       });
     }
 
-    // Parallel security (bounded) — major cycle speedup
     const inspect = pairs.slice(0, SECURITY_INSPECT_CAP);
     const securityMap = new Map<string, Awaited<ReturnType<typeof fetchSecurity>>>();
     const secResults = await mapPool(inspect, SECURITY_CONCURRENCY, async (token) => {
@@ -351,6 +351,18 @@ export async function runCycle(reason: string) {
       }
     }
 
+    // W45: critical opportunity alerts → web state + optional Telegram (env secrets only)
+    let alertMeta: { count: number; telegramOk: number } = { count: 0, telegramOk: 0 };
+    try {
+      const alertResult = await processOpportunityAlerts(ranked);
+      alertMeta = {
+        count: alertResult.emitted.length,
+        telegramOk: alertResult.telegram.filter((t) => t.ok).length,
+      };
+    } catch {
+      /* alert path must never fail the cycle */
+    }
+
     await markPaperPrices(pairs);
     await resolvePredictions(pairs);
     await writeFindings(cycle.id, market.envelopes, news.envelopes, ranked);
@@ -372,8 +384,13 @@ export async function runCycle(reason: string) {
         newsCount: news.stories.length,
         opportunityCount: ranked.length,
         unknownShare,
-        notesFa: `چرخه کامل. توکن=${pairs.length} خبر=${news.stories.length} فرصت=${ranked.length} زمان=${durationMs}ms`,
-        details: { reason, securityInspected: inspect.length, parallelSecurity: SECURITY_CONCURRENCY },
+        notesFa: `چرخه کامل. توکن=${pairs.length} خبر=${news.stories.length} فرصت=${ranked.length} هشدار=${alertMeta.count} زمان=${durationMs}ms`,
+        details: {
+          reason,
+          securityInspected: inspect.length,
+          parallelSecurity: SECURITY_CONCURRENCY,
+          alerts: alertMeta,
+        },
       })
       .where(eq(cycles.id, cycle.id));
 
@@ -390,7 +407,7 @@ export async function runCycle(reason: string) {
       .where(eq(systemState.id, 1));
 
     m.lastCycleId = cycle.id;
-    return { skipped: false as const, cycleId: cycle.id, durationMs };
+    return { skipped: false as const, cycleId: cycle.id, durationMs, alerts: alertMeta };
   } catch (error) {
     const message = error instanceof Error ? error.message : "UNKNOWN";
     await db
@@ -425,7 +442,6 @@ function inferRegime(fg: number | null, btcChange: number | null): string {
   return "RANGE";
 }
 
-/** Smarter candidate selection: multi-source, liquidity, volume, anti-boost bias. */
 function pickCandidates(pairs: PairObservation[]): PairObservation[] {
   const scored = pairs.map((p) => {
     let w = 0;
