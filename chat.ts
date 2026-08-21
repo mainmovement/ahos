@@ -22,7 +22,7 @@ export async function handleChat(message: string): Promise<ChatResponse> {
   if (intent === "start") {
     await startEngine();
     reply =
-      "روشن شد. از همین لحظه چرخه‌ها پشت‌سرهم می‌روند (حدود هر ۷۰ ثانیه) تا خودت بگی توقف. وسط کار وای نمی‌ایستم که دوباره استارت بزنی. اگر پروایدری قطع باشه همان DOWN یا UNKNOWN می‌مونه — چیزی جعل نمی‌کنم.";
+      "روشن شد. از همین لحظه چرخه‌ها پشت‌سرهم می‌روند (حدود هر ۷۰ ثانیه) تا خودت بگی توقف. وسط کار وای نمی‌ایستم. اگر پروایدری قطع باشه همان DOWN یا UNKNOWN می‌مونه — چیزی جعل نمی‌کنم. هروقت خواستی خودمونی بپرس: بازار چه خبر؟ فرصت‌ها؟ این توکن چطوره؟";
   } else if (intent === "stop") {
     await stopEngine();
     reply = "متوقف شد. داده‌های قبلی سر جاشون هستن. هر وقت خواستی دوباره بگو شروع کن.";
@@ -44,7 +44,7 @@ export async function handleChat(message: string): Promise<ChatResponse> {
     reply = paperReply(snap);
   } else if (intent === "whales") {
     reply =
-      "برای نهنگ‌ها سخت‌گیرم: اگر سند نقش کیف پول نباشد می‌گویم wallet_role=UNKNOWN. اسمارت‌مانی جعلی نمی‌سازم. فقط حرکت استخر و هشدار تمرکز رو گزارش می‌دم وقتی evidence داشته باشم.";
+      "برای نهنگ‌ها سخت‌گیرم: اگر سند نقش کیف پول نباشد می‌گویم wallet_role=UNKNOWN. اسمارت‌مانی جعلی نمی‌سازم. فقط حرکت استخر و هشدار تمرکز رو گزارش می‌دم وقتی evidence داشته باشم. اگر توکن خاصی مدنظرت هست اسمش رو بگو.";
   } else if (intent === "watch_add") {
     const hit = findOpp(snap, text);
     if (!hit) {
@@ -94,28 +94,42 @@ export async function handleChat(message: string): Promise<ChatResponse> {
   } else if (intent === "token") {
     const hit = findOpp(snap, text);
     reply = hit ? whyReply(hit) : "این نماد رو تو کاندیدهای فعلی ندارم. اول شروع رو بزن تا کشف انجام بشه، یا اسم رو دقیق‌تر بگو.";
+  } else if (intent === "greeting") {
+    reply = greetingReply(snap);
+  } else if (intent === "help") {
+    reply = helpReply();
   } else {
     reply = await generalReply(text, snap);
   }
 
   const state = await getState();
-  if (!state.running && intent !== "start" && intent !== "stop") {
+  if (!state.running && intent !== "start" && intent !== "stop" && intent !== "greeting" && intent !== "help") {
     reply += "\n\nموتور الان خاموشه. اگر بخوای خودم از اینجا روشن کنم بگو «شروع کن» — بعدش خودش پشت‌سرهم جمع می‌کنه.";
   }
   reply += `\n\n${FINAL_USER_LINE}`;
 
-  await db.insert(chatMessages).values({ role: "user", content: text, intent, evidence });
-  await db.insert(chatMessages).values({ role: "assistant", content: reply, intent, evidence });
+  try {
+    await db.insert(chatMessages).values({ role: "user", content: text, intent, evidence });
+    await db.insert(chatMessages).values({ role: "assistant", content: reply, intent, evidence });
+  } catch {
+    /* DB optional for chat path when DATABASE_URL missing */
+  }
   return { reply, intent, evidence };
 }
 
 export async function chatHistory(limit = 24) {
-  const rows = await db.select().from(chatMessages).orderBy(desc(chatMessages.id)).limit(limit);
-  return rows.reverse();
+  try {
+    const rows = await db.select().from(chatMessages).orderBy(desc(chatMessages.id)).limit(limit);
+    return rows.reverse();
+  } catch {
+    return [];
+  }
 }
 
 function detectIntent(text: string): string {
   const t = text.toLowerCase();
+  if (/^(سلام|درود|هی|hello|hi|hey)(\s|$|[!.،,])/i.test(text.trim()) || /چطوری|خوبی/.test(text)) return "greeting";
+  if (/(راهنما|کمک|چه کار|چیکار میکنی|help|commands)/i.test(text)) return "help";
   if (/(^|\s)(شروع|استارت|start|روشن)(\s|$)/i.test(text) && !/خرید/.test(text)) return "start";
   if (/(توقف|استاپ|stop|خاموش)/i.test(text)) return "stop";
   if (/(زیر نظر|واچ|watch)/i.test(text)) return "watch_add";
@@ -125,7 +139,7 @@ function detectIntent(text: string): string {
   if (/(چرا|دلیل|شواهد|explain)/i.test(text)) return "why";
   if (/(رد شد|چرا رد|reject)/i.test(text)) return "reject";
   if (/(خبر|اخبار|news)/i.test(text)) return "news";
-  if (/(فرصت|بهترین|پامپ|opportunity)/i.test(text)) return "opportunities";
+  if (/(فرصت|بهترین|پامپ|opportunity|چی بخرم)/i.test(text)) return "opportunities";
   if (/(نهنگ|whale)/i.test(text)) return "whales";
   if (/(شورا|کارشناس|تیم|council)/i.test(text)) return "council";
   if (/(سلامت|وضعیت سیستم|health|کالیبر)/i.test(text)) return "health";
@@ -133,6 +147,32 @@ function detectIntent(text: string): string {
   if (/(بازار|رژیم|بیت‌کوین|بیتکوین|اتریوم|سولانا|btc|eth|sol)/i.test(t)) return "market";
   if (/[a-z]{2,10}/i.test(text) && /(توکن|امن|تحلیل|قیمت)/.test(text)) return "token";
   return "general";
+}
+
+function greetingReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
+  const running = snap.state?.running;
+  const n = snap.opportunities?.filter((o) => o.decision === "WATCH").length ?? 0;
+  return [
+    "سلام! من AHOS هستم — همون همکار صریح که حدس رو جای داده نمی‌ذاره.",
+    running
+      ? `الان موتور روشنه و ${n} کاندید پایش تو آخرین چرخه دارم.`
+      : "موتور فعلاً خاموشه؛ بگو «شروع کن» تا جمع‌آوری شروع بشه.",
+    "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ اخبار سولانا؟ این توکن رو زیر نظر بگیر. سیستم کجاش لنگه؟",
+    "خرید واقعی انجام نمی‌دم — فقط کاغذی و پایش.",
+  ].join(" ");
+}
+
+function helpReply(): string {
+  return [
+    "چی می‌تونی ازم بپرسی:",
+    "• بازار / بیت‌کوین / اتریوم / سولانا",
+    "• بهترین فرصت‌ها / پامپ / چی بخرم (فقط پایش — نه سفارش واقعی)",
+    "• اخبار / اخبار سولانا",
+    "• این توکن رو زیر نظر بگیر / خرید کاغذی ثبت کن",
+    "• شورا چه گفت / نهنگ‌ها / سلامت سیستم / درس‌ها",
+    "• شروع کن / توقف",
+    "مثل چت عادی حرف بزن؛ اگر داده نباشه می‌گم UNKNOWN.",
+  ].join("\n");
 }
 
 function marketReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
@@ -236,8 +276,9 @@ async function generalReply(text: string, snap: Awaited<ReturnType<typeof comman
   const hit = findOpp(snap, text);
   if (hit) return whyReply(hit);
   const m = snap.market;
+  const q = text.slice(0, 120);
   return [
-    "من AHOS هستم؛ مثل یک همکار صریح. حدس رو جای داده نمی‌ذارم.",
+    "فهمیدم چی گفتی — مثل همکار جواب می‌دم، نه ربات خشک.",
     m
       ? `الان رژیم ${m.regime} است، بیت‌کوین ${faUsd(m.btcPrice)} (${faPct(m.btcChange24h)}).`
       : "اسنپ‌شات بازار هنوز UNKNOWN است.",
@@ -245,8 +286,7 @@ async function generalReply(text: string, snap: Awaited<ReturnType<typeof comman
       ? `${snap.opportunities.filter((o) => o.decision === "WATCH").length} کاندید پایش و ${snap.opportunities.filter((o) => o.decision === "REJECT").length} رد در آخرین چرخه.`
       : "فرصتی جمع نشده.",
     snap.news[0] ? `تازه‌ترین خبر فارسی: ${snap.news[0].titleFa}` : "خبری نیست.",
-    "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ این توکن رو زیر نظر بگیر. خریدم. اخبار سولانا. شورا چه گفت. سیستم کجاش لنگ می‌زنه.",
-    `پیامت رو این‌طور فهمیدم که گفتگوی عمومیه («${text.slice(0, 80)}»). اگر منظورت چیز دیگه‌ایه همون رو بگو.`,
+    `اگر منظورت چیز دقیق‌تری بود از «${q}»، همون رو شفاف‌تر بگو: فرصت‌ها؟ یک توکن خاص؟ وضعیت سیستم؟`,
   ].join(" ");
 }
 
