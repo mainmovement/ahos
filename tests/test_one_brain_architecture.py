@@ -1,4 +1,4 @@
-"""W56 architecture invariants: One Brain routing."""
+"""W57 architecture invariants: One Brain routing."""
 from __future__ import annotations
 import ast
 from pathlib import Path
@@ -60,5 +60,5 @@ def test_gateway_and_canonical_modules_exist():
 def test_require_scorer_forbidden_raises():
     from telegram_ai.service import TelegramDomainService
 
-    with pytest.raises(RuntimeError, match="W56"):
+    with pytest.raises(RuntimeError, match="W57"):
         TelegramDomainService()._require_scorer_forbidden()
