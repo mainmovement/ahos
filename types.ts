@@ -1,3 +1,36 @@
+/** W56 One Brain — canonical health & opportunity contracts */
+export const PROVIDER_HEALTH_STATUSES = [
+  "LIVE",
+  "DEGRADED",
+  "TIMEOUT",
+  "RATE_LIMITED",
+  "NO_KEY",
+  "AUTH_FAILED",
+  "NETWORK_UNAVAILABLE",
+  "SOURCE_UNAVAILABLE",
+  "UNKNOWN",
+] as const;
+export type ProviderHealthStatus = (typeof PROVIDER_HEALTH_STATUSES)[number];
+
+export const OPPORTUNITY_STATES = [
+  "NORMAL",
+  "WATCH",
+  "EMERGING",
+  "ACCELERATING",
+  "HIGH_OPPORTUNITY",
+  "REJECT",
+  "INSUFFICIENT_EVIDENCE",
+] as const;
+export type OpportunityState = (typeof OPPORTUNITY_STATES)[number];
+
+export const ALERT_TIERS = [
+  "INFO",
+  "WATCH",
+  "HIGH_ATTENTION",
+  "CRITICAL_OPPORTUNITY",
+] as const;
+export type AlertTier = (typeof ALERT_TIERS)[number];
+
 export const PROVIDER_STATUSES = [
   "SUCCESS",
   "NO_DATA",
@@ -174,3 +207,107 @@ export function tokenKey(chain: string, address: string | null, symbol: string):
 }
 
 export const FINAL_USER_LINE = "تصمیم نهایی با کاربر است.";
+
+export function toProviderHealth(status: string): ProviderHealthStatus {
+  switch (status) {
+    case "SUCCESS":
+      return "LIVE";
+    case "RATE_LIMIT":
+      return "RATE_LIMITED";
+    case "AUTH_REQUIRED":
+      return "AUTH_FAILED";
+    case "NO_KEY":
+      return "NO_KEY";
+    case "DOWN":
+      return "NETWORK_UNAVAILABLE";
+    case "NO_DATA":
+    case "UNSUPPORTED":
+    case "OUT_OF_POLICY":
+    case "COST_BLOCKED":
+      return "SOURCE_UNAVAILABLE";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+export type ProviderHealthEntry = {
+  name: string;
+  status: ProviderHealthStatus;
+  last_success: string | null;
+  last_failure: string | null;
+  latency_ms: number | null;
+  error_count: number;
+  request_count: number;
+  availability: number | null;
+  error_type?: string | null;
+};
+
+export type ProviderEvidence = {
+  provider: string;
+  status: ProviderHealthStatus;
+  latency_ms?: number | null;
+  summary?: string;
+};
+
+export type OpportunityCanonicalV1 = {
+  id: string;
+  token: string;
+  chain: string;
+  contract: string | null;
+  liquidity: number | null;
+  volume: number | null;
+  age_hours: number | null;
+  holders: number | null;
+  security_status: string;
+  provider_evidence: ProviderEvidence[];
+  score: number | null;
+  state: OpportunityState;
+  confidence: Confidence;
+  reasons: string[];
+  risks: string[];
+  unknowns: string[];
+  invalidation_conditions: string[];
+  timestamp: string;
+  tokenKey: string;
+  sources: string[];
+};
+
+export type AlertEvent = {
+  id: string;
+  tier: AlertTier;
+  tokenKey: string;
+  symbol: string;
+  chain: string;
+  state: OpportunityState;
+  why: string[];
+  evidence: string[];
+  risk: string[];
+  unknowns: string[];
+  invalidation: string[];
+  sources: string[];
+  timestamp: string;
+  cooldownKey: string;
+};
+
+export type ConversationRequest = {
+  message: string;
+  conversation_id?: string | null;
+  user_id?: string | null;
+  channel: "web" | "telegram" | "api";
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
+  focus_token?: string | null;
+  referenced_token?: string | null;
+};
+
+export type ConversationResponse = {
+  answer: string;
+  intent: string;
+  entities: Record<string, unknown>;
+  focus_token: string | null;
+  referenced_token: string | null;
+  evidence: Record<string, unknown>;
+  uncertainty: string[];
+  suggested_followups: string[];
+  timestamp: string;
+  conversation_id?: string | null;
+};
