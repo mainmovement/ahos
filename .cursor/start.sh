@@ -6,6 +6,22 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Self-heal: when booting from a prebuilt snapshot the `install` phase is skipped,
+# so make sure the web stack's Node dependencies are actually present before we
+# rely on drizzle-kit. Cheap no-op when node_modules is already complete.
+if [ ! -d node_modules/drizzle-orm ] || [ ! -d node_modules/drizzle-kit ]; then
+  echo "==> node_modules incomplete; running npm ci"
+  npm ci
+fi
+
+# Self-heal the Python virtualenv the same way.
+if [ ! -x ./.venv/bin/python ]; then
+  echo "==> Python virtualenv missing; recreating"
+  python3 -m venv .venv
+  ./.venv/bin/pip install --quiet --upgrade pip
+  ./.venv/bin/pip install --quiet -r requirements.txt
+fi
+
 echo "==> Starting PostgreSQL 16 cluster"
 sudo pg_ctlcluster 16 main start 2>/dev/null || true
 
