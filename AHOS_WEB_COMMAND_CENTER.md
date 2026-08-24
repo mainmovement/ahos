@@ -33,4 +33,5 @@ DexScreener, GeckoTerminal, CoinGecko, GoPlus, RugCheck, DefiLlama, Alternative.
 
 ## Master directive
 
-`docs/canonical/MASTER_DIRECTIVE_W43.md`
+ACTIVE (immutable): `docs/canonical/MASTER_DIRECTIVE_v1.md` (authority: `docs/canonical/master_directive_registry.json`).
+Historical wave directive (reference-only, not the active doctrine): `docs/canonical/MASTER_DIRECTIVE_W43.md` — see `docs/canonical/RECONCILIATION_R1.md`.

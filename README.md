@@ -54,7 +54,8 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 
 ## Docs
 
-- Master directive: `docs/canonical/MASTER_DIRECTIVE_W43.md`
+- Master directive (ACTIVE, immutable): `docs/canonical/MASTER_DIRECTIVE_v1.md` — authority pinned by `docs/canonical/master_directive_registry.json` (CI: `tests/test_master_directive.py`)
+- Historical wave directive (reference-only, NOT the active doctrine): `docs/canonical/MASTER_DIRECTIVE_W43.md` — see `docs/canonical/RECONCILIATION_R1.md`
 - W44 report: `reports/W44_INTELLIGENCE_SPEED_UPGRADE.md`
 - Gap register: `AHOS_GAP_REGISTER.md`
 
