@@ -1,31 +1,32 @@
 # AHOS — Owner Action Required
 
 **Date:** 2026-08-27  
-**Phase:** WINDOWS OPERATOR VALIDATION (handoff ready)  
+**Phase:** WINDOWS OPERATOR VALIDATION  
 **Classification:** `INTEGRATION_READY` (agent-host) · **`OPERATOR_READY = NOT_VERIFIED`**
 
-## Agent completed (this pass)
+## Agent completed
 
-- Hardened `scripts/operator_validation_gate.py` (Windows paths, exit codes, no fake PASS)
-- `docs/OPERATOR_VALIDATION_PROTOCOL.md` — copy/paste-safe PowerShell
-- `docs/PRE_SOAK_PROTOCOL.md` — entry only after Windows G1–G10
-- `docs/WINDOWS_OPERATOR_HANDOFF.md` — single operator handoff
-- Removed/gitignored `reports/_scratch/`
-- **Did not** invent Windows run results or merge PR #19
+- Fixed Windows-blocking defects (SQLite RO URI helper, npm.cmd subprocess, G2 HTTPError, handoff commands)
+- Documented Postgres `DATABASE_URL` for One-Brain G2
+- Removed invalid `pip install -e .`; added `init_databases.py` to handoff
+- G11 attestation via `--telegram-e2e-artifact`
+- Reported remaining Lane-A frozen URI gap (not patched)
+- **Did not** invent Windows PASS or merge PR #19
 
 ## Owner must do (in order)
 
-| ID | Action | Command / artifact |
-|----|--------|---------------------|
-| OA-H | Read handoff | `docs/WINDOWS_OPERATOR_HANDOFF.md` |
-| OA-W0 | Start One-Brain for G2 | `npm run dev` (port 3000) |
-| OA-W1 | Run operator gates on **Windows** | `python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill` → `reports\operator_validation_report_windows_*.json` |
-| OA-W2 | Confirm `pre_soak_entry_ok` | G1–G10 PASS in that JSON |
-| OA-PS | Run PRE_SOAK only after unlock | `docs/PRE_SOAK_PROTOCOL.md` |
-| OA-4 | After pre-soak: real T+72h | `python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local` |
-| OA-1/2 | Telegram live E2E (G11) | `docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md` — required for `OPERATOR_READY` |
-| OA-n8n | Optional n8n operational | `docs/N8N_OPERATIONAL_PROCEDURE.md` |
-| OA-8 | Merge PR #19 when ready | human merge only |
+| ID | Action | Evidence |
+|----|--------|----------|
+| OA-H | Follow `docs/WINDOWS_OPERATOR_HANDOFF.md` | — |
+| OA-PG | Provide Postgres + `DATABASE_URL` in `.env` | G2 |
+| OA-W0 | `npm run dev` | G2 |
+| OA-W1 | `python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill` | `reports\operator_validation_report_windows_*.json` |
+| OA-W2 | Confirm `pre_soak_entry_ok` | JSON |
+| OA-PS | PRE_SOAK only after unlock | `docs/PRE_SOAK_PROTOCOL.md` |
+| OA-4 | Real T+72h observation | lifecycle / calibration reports |
+| OA-TG | Telegram E2E + `--telegram-e2e-artifact` | G11 / OPERATOR_READY |
+| OA-n8n | Optional n8n operational | G12 |
+| OA-LA | Decide whether to approve Lane-A URI fix + freeze re-anchor | Windows soak using Lane-A RO opens |
+| OA-8 | Merge PR #19 | human only |
 
-**Do not claim `OPERATOR_READY` until Windows G1–G11 PASS artifacts exist.**  
-**Do not start PRE_SOAK until `summary.pre_soak_entry_ok` is true on a Windows report.**
+**Do not claim `OPERATOR_READY` until Windows G1–G11 PASS artifacts exist.**

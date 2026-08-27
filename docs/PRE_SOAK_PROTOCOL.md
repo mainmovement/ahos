@@ -20,7 +20,7 @@ Do **not** start when:
 | G11 Telegram | May still be OWNER_ACTION_REQUIRED for **short** pre-soak |
 | G12 n8n | STRUCTURAL_VALID allowed; operational not required for entry |
 
-Full claim **`OPERATOR_READY`** still requires G11 PASS (see gate runner `classify`). Short pre-soak must not be labeled OPERATOR_READY.
+Full claim **`OPERATOR_READY`** still requires G11 PASS. Short pre-soak must not be labeled OPERATOR_READY.
 
 Until unlock: **STOP**.
 
@@ -38,28 +38,20 @@ Controlled soak on the **Windows operator host** after G1–G10 PASS — stabili
 cd <PATH_TO_AHOS_REPO>
 .\.venv\Scripts\Activate.ps1
 $env:AHOS_PAPER_ONLY = "1"
-$env:PYTHONPATH = "."
-$env:AHOS_LIVE_COLLECT = "1"
+$env:AHOS_EVIDENCE_SOURCE = "local"
 
-# One paper cycle
 python -m architecture.runtime --single-cycle --evidence-source local --limit 5
-
-# Lifecycle status (OBSERVING > 0; outcome_labels may still be 0)
 python scripts\prediction_lifecycle_status.py
-
-# Optional observation cycle (does not invent T+72h outcomes early)
 python -m architecture.runtime --observation-cycle --evidence-source local
 ```
 
 Record wall-clock **T0** when Windows soak predictions are registered. Outcomes require real elapsed time to T+72h.
 
-For multi-hour soak, prefer:
+Multi-hour:
 
 ```powershell
 python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local
 ```
-
-(stop with Ctrl+C; keep PAPER_ONLY).
 
 ---
 
@@ -70,20 +62,20 @@ python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --
 | PAPER_ONLY violated / live trading flags | STOP |
 | Lane A freeze verify FAIL | STOP |
 | DB corruption / backup restore fail | STOP |
-| Provider outage hidden by mocks | STOP — diagnose honestly |
+| Provider outage hidden by mocks | STOP |
 | Security veto bypassed | STOP |
-| Gateway required but down | STOP or mark degraded — do not fake health |
-| Fabricating outcome_labels | STOP — wait for real time |
+| Gateway required but down | STOP or mark degraded |
+| Fabricating outcome_labels | STOP |
 
 ---
 
 ## What pre-soak does **not** prove
 
 - Full Telegram production (G11)
-- n8n operational (G12 owner procedure)
+- n8n operational (G12)
 - Calibration sufficiency (real T+72h labels)
 - Agent-host success ≠ Windows soak success
-- `OPERATOR_READY` (needs G11 PASS artifacts)
+- `OPERATOR_READY`
 
 ---
 
