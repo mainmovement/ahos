@@ -43,7 +43,7 @@ async function loadState(): Promise<AlertState> {
   try {
     const raw = await readFile(path.join(process.cwd(), STATE_REL), "utf8");
     const json = JSON.parse(raw) as AlertState;
-    return { sent: json.sent || {}, ...json };
+    return { ...json, sent: json.sent || {} };
   } catch {
     return { sent: {} };
   }
