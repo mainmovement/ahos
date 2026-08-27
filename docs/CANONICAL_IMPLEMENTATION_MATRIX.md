@@ -9,7 +9,10 @@ Status alphabet: `COMPLETE` · `PARTIAL` · `MISSING` · `BROKEN` · `BLOCKED_EX
 
 | Requirement | Canonical Source | Expected Capability | Current Implementation | Relevant Files | Relevant Tests | Evidence | Status | Gap | Priority | Blocking Reason | Required Action |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Early multi-source discovery | Doctrine + DMS | Collect emerging pairs with provenance | Collector + discovery poller implemented | `architecture/collector/`, `discovery/`, `architecture/providers/` | `tests/test_discovery.py`, provider tests | Code + offline tests | COMPLETE | — | — | Live SUCCESS needs egress | Operator: `--probe-providers` (M-GAP-007) |
+| Early multi-source discovery | Doctrine + DMS | Collect emerging pairs with provenance | Collector + discovery poller implemented | `architecture/collector/`, `discovery/`, `architecture/providers/` | `tests/test_discovery.py`, provider tests | Agent-host LIVE SUCCESS 2026-08-27 | COMPLETE | Laptop re-probe residual | Med | Operator egress may differ | OA-3 on Windows laptop |
+| Narrative intel feed-through | R-69/R-80 | News atoms in scored reports | `attach_narrative` + orchestrator prefetch | `architecture/intel/news.py`, `scoring/engine.py`, `pipeline/orchestrator.py` | `test_narrative_and_intel_feed_through` | Live DERIVED atoms | COMPLETE | — | — | — | Keep AHOS_NARRATIVE_FETCH documented |
+| Market structure / tokenomics / catalysts | Backlog P1 | Honest microstructure + tokenomics + catalysts | Lane B intel modules | `architecture/intel/market_structure.py`, `tokenomics.py`, `catalyst.py` | feed-through + contract tests | Live DERIVED | COMPLETE | Unlock schedules UNKNOWN by design | Low | Data scarcity | Do not fabricate vesting |
+| Scoring semantic contract | P1-5 | Shared field dictionary Py↔TS | Contract JSON + tests | `docs/contracts/scoring_contract_v1.json` | `test_scoring_contract_v1` | Present | COMPLETE | Numeric parity deferred | Low | Dual engines | Optional parity harness |
 | Multi-chain / DEX / launchpad | Provider registry | Replaceable providers + pump.fun | Router + CMC + pumpfun adapters | `architecture/providers/*` | `test_coinmarketcap_adapter`, `test_pumpfun_adapter`, `test_provider_yaml_sync` | Offline PASS | COMPLETE | Live probe | Med | Egress | M-GAP-007 |
 | Evidence ≠ score ≠ decision ≠ outcome | DEB / learning | Traceable ledger | Score ledger + frozen outcomes materializer | `architecture/learning/score_ledger.py`, `discovery/materialize.py` | `test_score_ledger_calibration` | Infra closed M-GAP-013/014 | PARTIAL | Measurement empty | High | Needs local evidence accrual | M-GAP-008 |
 | Deterministic scoring | SPS | Explainable multi-factor score | Python scoring + TS scoring | `architecture/scoring/`, `scoring.ts`, `opportunity_canonical.ts` | scoring / one-brain tests | Dual stacks | PARTIAL | Dual brain ownership | High | Doc/ops clarity | Documented in DOC_TRUTH_MAP; keep both |
@@ -53,4 +56,6 @@ Status alphabet: `COMPLETE` · `PARTIAL` · `MISSING` · `BROKEN` · `BLOCKED_EX
 
 **Closed this pass / prior PR #19 commits:** stale Telegram tests; env-key docs; n8n wording; freeze exclusion docs; truth map dual-stack; security hygiene dead-check; historical doc banners; owner action consolidator; GitHub intelligence honesty.
 
-**Not closable without owner/external:** M-GAP-003, 004, 007, 008, 009, 010 residual (see `docs/OWNER_ACTION_REQUIRED.md`).
+**Not closable without owner/external:** M-GAP-003, 004, 008, 009, 010 residual; M-GAP-007 residual laptop re-probe (agent-host MITIGATED). See `docs/OWNER_ACTION_REQUIRED.md`.
+
+**Classification:** `INTEGRATION_READY` (agent-host) — see `docs/FINAL_TRUTH_AUDIT.md`.

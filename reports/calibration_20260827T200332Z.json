@@ -1,0 +1,207 @@
+{
+  "schema": "ahos.calibration_report.v8",
+  "generated_utc": "2026-08-27T20:03:32Z",
+  "horizon": "24h",
+  "event_class": "+50%",
+  "calibration_status": "INSUFFICIENT_DATA",
+  "number_of_predictions": 348,
+  "number_of_eligible_pairs": 0,
+  "excluded_predictions": 348,
+  "exclusion_reasons": {
+    "ineligible_source": 0,
+    "missing_token_id": 0,
+    "no_matching_label": 348,
+    "label_predates_prediction": 0,
+    "unresolved_outcome": 0
+  },
+  "eligible_sources": [
+    "local"
+  ],
+  "source_census": {
+    "local": 348
+  },
+  "observation_window": {
+    "first_scored_utc": null,
+    "last_scored_utc": null,
+    "first_resolved_utc": null,
+    "last_resolved_utc": null
+  },
+  "dataset_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "score_engine_versions": {},
+  "weight_fingerprints": [],
+  "bands": [
+    {
+      "band": "0-20",
+      "lower": 0.0,
+      "upper": 20.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "mean_score": null,
+      "mean_max_favorable": null,
+      "median_max_favorable": null,
+      "mean_max_adverse": null,
+      "calibration_delta": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "20-40",
+      "lower": 20.0,
+      "upper": 40.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "mean_score": null,
+      "mean_max_favorable": null,
+      "median_max_favorable": null,
+      "mean_max_adverse": null,
+      "calibration_delta": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "40-60",
+      "lower": 40.0,
+      "upper": 60.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "mean_score": null,
+      "mean_max_favorable": null,
+      "median_max_favorable": null,
+      "mean_max_adverse": null,
+      "calibration_delta": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "60-80",
+      "lower": 60.0,
+      "upper": 80.0,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "mean_score": null,
+      "mean_max_favorable": null,
+      "median_max_favorable": null,
+      "mean_max_adverse": null,
+      "calibration_delta": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "band": "80-100",
+      "lower": 80.0,
+      "upper": 100.001,
+      "n": 0,
+      "positives": 0,
+      "rate": null,
+      "ci_low": null,
+      "ci_high": null,
+      "mean_score": null,
+      "mean_max_favorable": null,
+      "median_max_favorable": null,
+      "mean_max_adverse": null,
+      "calibration_delta": null,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    }
+  ],
+  "confidence_segments": [],
+  "chain_segments": [],
+  "provider_segments": [],
+  "regime_segments": [],
+  "confidence_ordering": null,
+  "metrics": {
+    "joined_pairs": 0,
+    "base_rate": null,
+    "brier_score": null,
+    "brier_base_rate": null,
+    "brier_resolution": null,
+    "ece": null,
+    "spearman_score_vs_hit": null,
+    "spearman_score_vs_maxfav": null,
+    "guards_met": false,
+    "brier_note": "Brier is computed on opportunity_score/100 — a diagnostic of ranking sharpness, NOT a claim that AHOS scores are calibrated probabilities."
+  },
+  "feature_coverage": {
+    "mean_known_fields": null,
+    "mean_unknown_fields": null,
+    "records_with_evidence_sha": 0,
+    "total_records": 0
+  },
+  "extreme_records": [],
+  "dimension_availability": {
+    "score": "persisted (opportunity_score_ledger.opportunity_score)",
+    "confidence_level": "persisted (opportunity_score_ledger.confidence_level)",
+    "chain": "persisted (opportunity_score_ledger.chain)",
+    "horizon": "run parameter (outcome_label.horizon)",
+    "event_class": "run parameter (outcome_label.event_class)",
+    "evidence": "persisted (evidence_sha256, positive_reasons_json, known/unknown field counts)",
+    "provider": "persisted (opportunity_score_ledger.source_provider, stamped from the candidate at scoring time)",
+    "market_regime": "computed post-hoc at evaluation time from PRE-prediction observations per token (token_price_regime via architecture/intel/regimes.py, first production consumer; <10 obs -> UNKNOWN); not stamped on predictions",
+    "opportunity_type": "NOT_PERSISTED_AT_PREDICTION_TIME — no opportunity-type concept exists in the scoring contract; not invented by the harness"
+  },
+  "score_drift": {
+    "detector": "StreamingDriftDetector (ADWIN pattern)",
+    "samples": 0,
+    "verdict": "INSUFFICIENT_DATA",
+    "reason": "fewer than 10 score samples in cohort",
+    "drift_detected": null
+  },
+  "temporal_buckets": [],
+  "error_analysis": {
+    "n": 0,
+    "guards_met": false,
+    "reason": "no pairs"
+  },
+  "monotonicity": null,
+  "verdict": "INSUFFICIENT_DATA",
+  "findings": [
+    "No score band met the pre-registered guards (n>=200, positives>=20). 0 prediction/outcome pairs available. This is the expected honest result until enough real observation history has accumulated."
+  ],
+  "guards": {
+    "min_n_per_band": 200,
+    "min_positives": 20,
+    "no_peeking": "label.resolved_ts > prediction.scored_ts",
+    "source_filter": "prediction.source IN eligible_sources",
+    "unresolved_policy": "outcome_label.hit IS NULL => UNRESOLVED, never a failure"
+  },
+  "outcome_provenance": {
+    "labeler": "discovery/outcomes.py (Lane-A frozen, hash-pinned)",
+    "horizon_grid": "15m,1h,4h,12h,24h,72h,7d",
+    "event_grid": "+25%,+50%,+100%,+200%",
+    "entry_rule": "closest observation within 15min of first_seen"
+  },
+  "command": "python scripts/calibration_report.py",
+  "timestamp_utc": "2026-08-27T20:03:32Z",
+  "git": {
+    "commit_sha": "b4905cc33b907275e6d0146499b9231905072686",
+    "branch": "cursor/ahos-cleanup-alignment-4bde",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.12.3",
+    "python_implementation": "CPython",
+    "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "system": "Linux",
+    "executable": "/workspace/.venv/bin/python",
+    "cwd": "/workspace",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "81d84f316e64560ac641a4c7073ddc88216077eba22d6a55598ca1421e5186c7"
+  },
+  "ledger_census": {
+    "AHOS-SCORE-v1:686f0cb39d69": 344,
+    "AHOS-SCORE-v1:c6676eed3032": 4
+  }
+}

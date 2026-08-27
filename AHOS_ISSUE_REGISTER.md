@@ -1210,7 +1210,7 @@
   1. `architecture/scoring/engine.py`: `OpportunityScorer.attach_virality(bundle, candidate, now)` computes the ViralitySignal and extends the evidence bundle through the canonical `evidence_from_virality` converter; called in `evaluate()` AND in the pipeline's direct `from_intelligence` path (both scoring paths covered). `OpportunityScoreReport` gains `intel_evidence_items` + `answer_intel_evidence()` exposing the full intel surface with provider provenance; the frozen 4-item `answer_evidence()` contract is untouched (backward compatible; ledger known-field counts unchanged).
   2. `architecture/providers/contracts.py`: `NormalizedTokenCandidate.boost_amount` (observed paid-promotion spend); pipeline forwards it from observation records.
   3. Honesty fix in the shared `evidence_from_virality(signal, *, boost_seen, txns_seen)`: `wash_suspected` / `is_paid_promotion` are DERIVED only when the underlying data was observed; otherwise the atom is UNKNOWN with value None. The raw ViralitySignal's False-on-missing defaults would otherwise fabricate "not promoted"/"no wash" negatives into the risk path. Flags forwarded through `collect_intel_evidence`; the conservative default (None) is UNKNOWN, never a claim.
-  4. Narrative (news) feed-through remains NOT WIRED: the narrative_rss PAL capability is not collected by the collector yet — documented as remaining, not fabricated.
+  4. Narrative (news) feed-through was NOT WIRED at R-69 time — **CLOSED in R-80** (`OpportunityScorer.attach_narrative` + orchestrator prefetch).
 - EVIDENCE: 7 new tests (`tests/test_virality_feed_through.py`) incl. a regression asserting the legacy 4-item surface stays exactly {liquidity_usd, volume_1h, is_honeypot, top10_concentration}; intelligence/decision/council/telegram regression 143 green; full suite 1276/1276 (gate artifacts refreshed); feed-through runtime-verified (virality atoms + is_paid_promotion DERIVED True, provenance intel.viral). Zero live trading, zero credential exposure.
 
 ## R-70 · 2026-08-20 · Calibration score-drift diagnostic (schema v6)
@@ -1287,4 +1287,16 @@
 
 
 
+
+
+## R-80 · 2026-08-27 · Integration pass: narrative feed-through + P1 intel + live provider SUCCESS (agent host)
+- WHY: Move DEVELOPMENT_READY → INTEGRATION_READY by wiring real discovery/evidence/narrative and completing high-value analytical dimensions without fabrication.
+- WHAT:
+  1. P0-3/R-69: `OpportunityScorer.attach_narrative` + pipeline one-RSS-fetch-per-cycle (`AHOS_NARRATIVE_FETCH`); offline UNKNOWN honesty; pytest defaults fetch off.
+  2. P1: `architecture/intel/market_structure.py`, `tokenomics.py`, `catalyst.py` + evidence adapters + risk findings (ABNORMAL/FRAGILE/TOKENOMICS_*).
+  3. Scoring semantic contract `docs/contracts/scoring_contract_v1.json` + tests (field dictionary; numeric parity NOT claimed).
+  4. Live probe on agent host: dexscreener+geckoterminal SUCCESS (tokens>0) — artifact `reports/provider_probe_LIVE_VERIFIED_agent_host.json`. Single-cycle pipeline persisted local ledger rows. Live intel atoms DERIVED (narrative/mstruct/tokenomics/catalyst).
+  5. Calibration still `INSUFFICIENT_DATA` — 348 local predictions but 0 outcome pairs (`no_matching_label`); outcome accrual remains operational follow-up.
+- EVIDENCE: new unit/feed-through/contract tests; live probe JSON; live intel atoms artifact; Lane-A freeze OK; no Lane-A rewrite; PAPER_ONLY preserved.
+- NOT CLAIMED: Telegram E2E, n8n operational, 7-day soak, calibration validated, operator-laptop egress, PRODUCTION_READY.
 

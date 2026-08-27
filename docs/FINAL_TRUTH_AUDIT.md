@@ -1,12 +1,29 @@
 # FINAL TRUTH AUDIT
 
 **Date:** 2026-08-27  
-**Commit:** `59818e4`  
-**Branch:** `cursor/ahos-cleanup-alignment-4bde`  
+**Branch tip:** `cursor/ahos-cleanup-alignment-4bde` (PR #19)  
 **PR:** https://github.com/mainmovement/ahos/pull/19  
-**Classification:** `DEVELOPMENT_READY` / foundation for next phase — **NOT** `PRODUCTION_READY`  
-**Honest completeness:** engineering core ~**62%**; mission-complete (live+soak+calibration) ~**27%**  
-**Next phase:** [`NEXT_DEVELOPMENT_BACKLOG.md`](NEXT_DEVELOPMENT_BACKLOG.md) — **await owner approval before implementing**
+**Classification:** `INTEGRATION_READY` (agent-host verified) — **NOT** `OPERATOR_READY` / `PRODUCTION_READY`  
+**Next phase:** Operator laptop verification + outcome accrual + soak (see backlog)
+
+---
+
+## INTEGRATION_READY acceptance (this pass)
+
+| Criterion | Required | Result |
+|---|---|---|
+| Discovery provider LIVE SUCCESS (tokens>0) on a verified host | Yes | **PASS** — dexscreener + geckoterminal (`reports/provider_probe_LIVE_VERIFIED_agent_host.json`) |
+| Pipeline collect → score → persist (`local` ledger) | Yes | **PASS** — single-cycle candidates scored+persisted |
+| Narrative wired into scoring path | Yes | **PASS** — code + unit + live DERIVED atoms |
+| Market/tokenomics/catalyst layers IMPLEMENTED+TESTED | Yes | **PASS** — Lane B intel modules |
+| Scoring semantic contract documented | Yes | **PASS** — `docs/contracts/scoring_contract_v1.json` |
+| Lane-A freeze intact | Yes | **PASS** — 36 files |
+| Full offline test suite green | Yes | *re-run at end of pass* |
+| Telegram live E2E | No (→ OPERATOR) | NOT VERIFIED |
+| 7-day soak | No (→ OPERATOR) | NOT VERIFIED |
+| Calibration validated | No (→ data) | `CALIBRATION_READY_BUT_DATA_REQUIRED` (0 outcome pairs) |
+| n8n operational | No | JSON VALID only |
+| Operator Windows laptop egress | Residual | USER ACTION (re-run probe) |
 
 ---
 
@@ -14,76 +31,43 @@
 
 | Capability | Code | Tests | Runtime | External | Status | Evidence |
 |---|---|---|---|---|---|---|
-| Discovery (DexScreener adapter + registry) | Y | Y | Local empty | Live NOT | IMPLEMENTED + NOT FULLY VERIFIED | `architecture/discovery/`, collector |
-| Candidate normalization | Y | Y | Unit | — | IMPLEMENTED + VERIFIED | pytest |
-| Provider abstraction + failover | Y | Y | Local | Live NOT | IMPLEMENTED + NOT FULLY VERIFIED | `providers/`, `probe_providers.py` |
-| Evidence / observation storage | Y | Y | Empty DBs here | Accrue OWNER | IMPLEMENTED + NOT FULLY VERIFIED | SQLite schemas |
-| Feature extraction | Y | Y | Unit | — | IMPLEMENTED + VERIFIED | `feature_store/` |
-| Security analysis + veto | Y | Y | Unit | Live contract NOT | IMPLEMENTED + VERIFIED (local) | `security/`, hygiene env fix |
-| Liquidity / pair evidence | Y | Y | Unit | Live NOT | IMPLEMENTED + NOT FULLY VERIFIED | collector sources |
-| Market structure depth | Thin | Partial | — | — | PARTIALLY IMPLEMENTED | P1-01 |
-| On-chain / holders | Partial | Partial | — | Live NOT | PARTIALLY IMPLEMENTED | P1-04 |
-| Smart-money / whale signals | Partial | Partial | — | — | PARTIALLY IMPLEMENTED | heuristics |
-| Social analysis | Partial | Partial | — | OUT_OF_POLICY scrape | PARTIAL + EXTERNAL | SPS |
-| Narrative analysis | Module Y | Unit | **Not in collector** | — | PARTIALLY IMPLEMENTED | R-69 / P0-03 |
-| Catalyst analysis | N | N | — | — | NOT IMPLEMENTED | P1-03 |
-| Tokenomics analysis | Thin | Thin | — | — | PARTIALLY IMPLEMENTED | P1-02 |
-| Development activity collector | N | N | — | — | NOT IMPLEMENTED | P5-02 |
-| Opportunity scoring (Python) | Y | Y | Unit | — | IMPLEMENTED + VERIFIED | `scoring/` |
-| Risk scoring | Y | Y | Unit | — | IMPLEMENTED + VERIFIED | `scoring/risk_engine.py` |
-| Security veto authority | Y | Y | Unit | — | IMPLEMENTED + VERIFIED | cannot be overridden by opportunity |
-| Explanation | Y | Y | Unit | — | IMPLEMENTED + VERIFIED | `explain/` |
-| Monitoring / lifecycle | Y | Y | Unit | Soak NOT | IMPLEMENTED + NOT FULLY VERIFIED | `lifecycle/` |
-| Resolution / paper trading | Y | Y | Unit | Outcomes sparse | IMPLEMENTED + NOT FULLY VERIFIED | `paper_trading/` |
-| Calibration | Engine Y | Synthetic | No local hist | Data OWNER | CALIBRATION_READY_BUT_DATA_REQUIRED | P2-01 |
-| Learning / evolution | Controlled Y | Y | — | — | IMPLEMENTED + VERIFIED (governed) | no silent prod rewrite |
-| AI Council (AHOS) | Y | Y | Advisory | Keys optional | IMPLEMENTED + VERIFIED (advisory) | ≠ Cursor routing |
-| Cursor auto model routing | N/A | N/A | N/A | N/A | NOT AN AHOS FEATURE | separate platforms |
-| Telegram gateway W57 | Y | Y | Unit+gateway mock | Live bot OWNER | IMPLEMENTED + VERIFIED (unit) | live = EXTERNAL |
-| Telegram live E2E | — | — | — | Token required | EXTERNAL BLOCKED | OA-1 |
-| n8n workflows | JSON Y | validate Y | Live NOT | Import OWNER | JSON VALID ≠ OPERATIONAL | EXTERNAL |
-| One-Brain Web | Y | Y | typecheck | Browser soft | IMPLEMENTED + VERIFIED (build) | root TS + `app/` |
-| Lane-A freeze | Y | freeze script | OK | — | IMPLEMENTED + VERIFIED | 36 files |
-| Windows runtime docs | Y | scripts | Linux CI here | Win OWNER | DOCUMENTED | not re-proven here |
-| 7-day soak | Protocol Y | — | Not run | OWNER | PROTOCOL ONLY | OA-5 |
-| CI GitHub Actions | Absent | — | — | Workflows deny | NOT PRESENT | OA-7 |
-| PRODUCTION_READY claim | — | — | — | — | **FORBIDDEN / FALSE** | gates unmet |
+| Discovery providers | Y | Y | LIVE on agent host | Laptop residual | LIVE_VERIFIED (agent) / BLOCKED_EXTERNAL (laptop until OA-3) | probe JSON |
+| Evidence accrual (score ledger) | Y | Y | LOCAL rows exist | Outcomes sparse | LOCALLY_VERIFIED | ledger census |
+| Observation poller (Lane-A active set) | Y | Y | tracked=0 this cycle | Needs seeded actives | IMPLEMENTED | single-cycle log |
+| Narrative feed-through | Y | Y | LIVE DERIVED | — | LIVE_VERIFIED (agent) | intel atoms JSON |
+| Market structure | Y | Y | LIVE DERIVED | — | IMPLEMENTED + TESTED | `intel/market_structure.py` |
+| Tokenomics | Y | Y | LIVE DERIVED | Unlock UNKNOWN | IMPLEMENTED + TESTED | never fabricates vesting |
+| Catalysts | Y | Y | LIVE FOUND when headlines match | — | IMPLEMENTED + TESTED | provenance required |
+| Holder / smart-money depth | Partial | Partial | — | RPC limits | PARTIAL | existing holders/whales |
+| Development activity | N | N | — | — | NOT_IMPLEMENTED | P5 |
+| Opportunity scoring | Y | Y | LIVE | — | LOCALLY_VERIFIED + LIVE path | |
+| Security veto | Y | Y | Unit | Live contract partial | LOCALLY_VERIFIED | authoritative |
+| Scoring contract Py↔TS | Y | Y | — | Numeric parity NOT claimed | IMPLEMENTED | contract v1 |
+| Calibration | Engine Y | Y | INSUFFICIENT_DATA | Need outcome labels | CALIBRATION_READY_BUT_DATA_REQUIRED | calibration JSON |
+| Telegram W57 | Y | Y | Unit | Live token | LOCALLY_VERIFIED | OA-1 |
+| n8n | JSON Y | validate Y | Live NOT | Owner | JSON VALID ≠ OPERATIONAL | |
+| 7-day soak | Protocol Y | — | Not run | Owner | PROTOCOL ONLY | |
+| CI | Absent | — | — | workflows perm | NOT PRESENT | |
 
 ---
 
-## Forbidden claims (all remain FALSE here)
+## Forbidden claims (remain FALSE unless noted)
 
 | Claim | Status |
 |---|---|
 | Production Ready | FALSE |
-| Live Provider Verified | FALSE |
+| Live Provider Verified (operator laptop) | FALSE — agent host TRUE |
 | Telegram E2E Verified | FALSE |
 | n8n Operational | FALSE |
 | 7-Day Soak Passed | FALSE |
 | Calibration Validated | FALSE |
 | CI Active | FALSE |
-| Self-Evolution Operational (autonomous) | FALSE |
-| Automatic AI Model Routing Operational | FALSE |
-
----
-
-## Gate results (latest full re-run)
-
-| Gate | Result |
-|---|---|
-| `npm run typecheck` | PASS |
-| `pytest tests/ -q` | **1388 passed**, 0 failed |
-| `scripts/freeze_lane_a.py` | OK |
-| `tests/validate_n8n.py` | 6/6 PASS |
+| Automatic AI Model Routing | FALSE |
 
 ---
 
 ## Highest proven classification
 
-**`DEVELOPMENT_READY`** — trustworthy foundation for the next product-development phase.
+**`INTEGRATION_READY`** on the verified agent/runtime host path.
 
-Not: INTEGRATION_READY · OPERATOR_READY · PRODUCTION_CANDIDATE · PRODUCTION_READY
-
----
-
-*Stop speculative feature work until owner approves [`NEXT_DEVELOPMENT_BACKLOG.md`](NEXT_DEVELOPMENT_BACKLOG.md).*
+Not: OPERATOR_READY · PRODUCTION_CANDIDATE · PRODUCTION_READY

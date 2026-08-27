@@ -52,4 +52,4 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 | Owner action checklist | `docs/OWNER_ACTION_REQUIRED.md` |
 | Stale design snapshots (bannered) | `docs/SECURITY_CHECKLIST.md`, `docs/MISSING_COMPONENT_REGISTER.md`, `docs/STRATEGIC_GAP_ANALYSIS.md` |
 
-**Classification pointer:** `DEVELOPMENT_READY` / foundation for next phase — see `docs/FINAL_TRUTH_AUDIT.md`. Do not start P0+ product work until the owner approves the backlog.
+**Classification pointer:** `INTEGRATION_READY` (agent-host) — see `docs/FINAL_TRUTH_AUDIT.md`. Operator laptop + soak + Telegram live remain EXTERNAL.

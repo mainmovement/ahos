@@ -54,11 +54,11 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 
 ## Project classification
 
-**`DEVELOPMENT_READY`** — trustworthy foundation for the next development phase (~62% engineering core; ~27% mission-complete with live + soak + calibration). Production gates remain owner-external.
+**`INTEGRATION_READY`** (agent-host verified: live discovery + scored ledger + narrative/intel feed-through). Not `OPERATOR_READY` / `PRODUCTION_READY`.
 
-See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md). Next phase (await owner approval): [`docs/NEXT_DEVELOPMENT_BACKLOG.md`](docs/NEXT_DEVELOPMENT_BACKLOG.md).
+See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md). Remaining owner actions: [`docs/OWNER_ACTION_REQUIRED.md`](docs/OWNER_ACTION_REQUIRED.md). Next engineering step: [`docs/NEXT_DEVELOPMENT_BACKLOG.md`](docs/NEXT_DEVELOPMENT_BACKLOG.md) (P0-2b outcome labels).
 
-**Not claimed:** Production Ready · Live Provider Verified · Telegram E2E Verified · n8n Operational · 7-Day Soak Passed · Calibration Validated · CI Active · Automatic AI Model Routing.
+**Not claimed:** Production Ready · Operator-laptop Live Provider · Telegram E2E · n8n Operational · 7-Day Soak · Calibration Validated · CI Active · Automatic AI Model Routing.
 
 ## Docs
 
