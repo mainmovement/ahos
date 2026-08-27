@@ -1,61 +1,46 @@
 # FINAL TRUTH AUDIT
 
 **Date:** 2026-08-27  
-**Branch tip:** `cursor/ahos-cleanup-alignment-4bde` (PR #19)  
-**PR:** https://github.com/mainmovement/ahos/pull/19  
-**Classification:** `INTEGRATION_READY` (agent-host) — **NOT** `OPERATOR_READY` / `PRODUCTION_READY`  
-**Calibration:** `CALIBRATION_READY_BUT_DATA_REQUIRED` (lifecycle bridged; await T+72h labels)
+**Branch:** `cursor/ahos-cleanup-alignment-4bde` (PR #19)  
+**Phase:** OPERATOR VALIDATION & EVIDENCE ACCRUAL  
+**Classification:** `INTEGRATION_READY` (agent-host) — **`OPERATOR_READY` = NOT_VERIFIED**
+
+Snapshot: `docs/CURRENT_TRUTH_SNAPSHOT.md`  
+Operator protocol: `docs/OPERATOR_VALIDATION_PROTOCOL.md`  
+Agent-host gate report: `reports/operator_validation_report_agent_host.json`
 
 ---
 
-## Capability matrix (selected)
+## Operator gates (agent-host run)
 
-| Capability | Status | Evidence |
-|---|---|---|
-| Discovery LIVE (agent host) | AGENT_HOST_VERIFIED | probe JSON SUCCESS |
-| Score ledger `local` preds | LOCALLY_VERIFIED | census > 0 |
-| Lane-A observation registration | IMPLEMENTED + TEST_VERIFIED + AGENT_HOST_VERIFIED | bridge + backfill → OBSERVING=101 |
-| Outcome labels | INSUFFICIENT_DATA | 0 until T+72h RESOLVED |
-| Calibration pairs | INSUFFICIENT_DATA | join ready; no labels yet |
-| Narrative / mstruct / tokenomics / catalyst | AGENT_HOST_VERIFIED | live DERIVED atoms |
-| Scoring contract v1 | TEST_VERIFIED | semantic; numeric parity NOT required |
-| Dev-activity / AG-25 | NOT_IMPLEMENTED | deferred (not speculative this pass) |
-| Telegram live E2E | OWNER_ACTION_REQUIRED | protocol: `docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md` |
-| n8n operational | OWNER_ACTION_REQUIRED | `docs/N8N_OPERATIONAL_PROCEDURE.md` |
-| Operator Windows probe | OWNER_ACTION_REQUIRED | OA-3 |
-| 7-day soak | OWNER_ACTION_REQUIRED | OA-5 |
-| CI | EXTERNALLY_BLOCKED | OA-7 |
+| Gate | Status |
+|------|--------|
+| G1 Environment | PASS |
+| G2 Gateway | FAIL (dev server not running) |
+| G3 Discovery | PASS (AGENT_HOST_VERIFIED) |
+| G4–G5 Evidence/Scoring | PASS |
+| G6–G7 Security/Lane-A | PASS |
+| G8–G9 Lifecycle | PASS (outcome_labels=0 expected) |
+| G10 Backup drill | PASS |
+| G11 Telegram live | OWNER_ACTION_REQUIRED |
+| G12 n8n | STRUCTURAL_VALID ≠ OPERATIONAL |
+
+**Windows operator gates:** NOT_VERIFIED
 
 ---
 
-## Prediction lifecycle (this pass)
+## Calibration
 
-Root cause of 348 preds / 0 pairs: Lane-B never seeded Lane-A `observation_state`.
-
-Fix (Lane B only): `architecture/learning/prediction_lifecycle.py` + orchestrator hook + backfill script.
-
-After backfill on agent host: `OBSERVING=101`, `discovery_observations=354`, `outcome_labels=0` (honest).
-
-Canonical doc: `docs/CALIBRATION_LIFECYCLE.md`
+`CALIBRATION_READY_BUT_DATA_REQUIRED` — joined_pairs=0; await T+72h RESOLVED labels.
 
 ---
 
-## Gate results
+## Forbidden claims (FALSE)
 
-| Gate | Result |
-|---|---|
-| `npm run typecheck` | PASS |
-| `.venv/bin/pytest tests/ -q` | **1404 passed**, 0 failed |
-| `python3 scripts/freeze_lane_a.py` | OK (36 files) — no Lane-A source edits |
-| `python3 tests/validate_n8n.py` | 6/6 JSON VALID |
-| Lane-A backfill (agent host) | registered=97, obs_written=354 → OBSERVING=101 |
-| `outcome_labels` | 0 — await T+72h |
-| `calibration_report` | INSUFFICIENT_DATA (honest) |
+Production Ready · OPERATOR_READY · Telegram E2E Verified · n8n Operational · 72h/168h Soak Passed · Calibration Validated · OPERATOR_WINDOWS_VERIFIED
 
 ---
 
 ## Highest proven classification
 
 **`INTEGRATION_READY`** (agent-host).
-
-Not promoted to OPERATOR_READY: Windows live probe, Telegram E2E, soak, and calibration pairs with guards unmet.

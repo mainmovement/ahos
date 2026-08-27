@@ -54,11 +54,11 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 
 ## Project classification
 
-**`INTEGRATION_READY`** (agent-host verified: live discovery + scored ledger + narrative/intel feed-through). Not `OPERATOR_READY` / `PRODUCTION_READY`.
+**`INTEGRATION_READY`** (agent-host verified). **`OPERATOR_READY` = NOT_VERIFIED** until Windows gates pass (`docs/OPERATOR_VALIDATION_PROTOCOL.md`).
 
-See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md). Remaining owner actions: [`docs/OWNER_ACTION_REQUIRED.md`](docs/OWNER_ACTION_REQUIRED.md). Next engineering step: [`docs/NEXT_DEVELOPMENT_BACKLOG.md`](docs/NEXT_DEVELOPMENT_BACKLOG.md) (P0-2b outcome labels).
+See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md) · [`docs/CURRENT_TRUTH_SNAPSHOT.md`](docs/CURRENT_TRUTH_SNAPSHOT.md) · Owner: [`docs/OWNER_ACTION_REQUIRED.md`](docs/OWNER_ACTION_REQUIRED.md).
 
-**Not claimed:** Production Ready · Operator-laptop Live Provider · Telegram E2E · n8n Operational · 7-Day Soak · Calibration Validated · CI Active · Automatic AI Model Routing.
+**Not claimed:** Production Ready · Operator Ready · Telegram E2E · n8n Operational · Soak Passed · Calibration Validated.
 
 ## Docs
 

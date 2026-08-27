@@ -50,6 +50,10 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 | Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |
 | Next-phase backlog | `docs/NEXT_DEVELOPMENT_BACKLOG.md` |
 | Calibration lifecycle | `docs/CALIBRATION_LIFECYCLE.md` |
+| Operator validation protocol | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
+| Operator validation report | `docs/OPERATOR_VALIDATION_REPORT.md` |
+| Current truth snapshot | `docs/CURRENT_TRUTH_SNAPSHOT.md` |
+| Pre-soak protocol | `docs/PRE_SOAK_PROTOCOL.md` |
 | Telegram E2E protocol | `docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md` |
 | n8n operational procedure | `docs/N8N_OPERATIONAL_PROCEDURE.md` |
 | Owner action checklist | `docs/OWNER_ACTION_REQUIRED.md` |

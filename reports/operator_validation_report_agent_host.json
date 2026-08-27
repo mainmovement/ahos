@@ -1,0 +1,162 @@
+{
+  "schema": "ahos.operator_validation_report.v1",
+  "generated_utc": "2026-08-27T20:28:47Z",
+  "platform_arg": "agent-host",
+  "platform_effective": "agent-host",
+  "host_platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
+  "head_hint": "f75a184",
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Environment",
+      "status": "PASS",
+      "detail": "{\"python\": \"3.12.3\", \"platform\": \"Linux-6.12.94+-x86_64-with-glibc2.39\", \"node\": \"v22.14.0\", \"npm\": \"10.9.7\", \"issues\": []}",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z",
+      "python": "3.12.3",
+      "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
+      "node": "v22.14.0",
+      "npm": "10.9.7",
+      "issues": []
+    },
+    {
+      "id": "G2",
+      "name": "Gateway",
+      "status": "FAIL",
+      "detail": "URLError: <urlopen error [Errno 111] Connection refused>",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z",
+      "url": "http://127.0.0.1:3000/api/chat"
+    },
+    {
+      "id": "G3",
+      "name": "Discovery providers",
+      "status": "PASS",
+      "detail": "SUCCESS: dexscreener, geckoterminal",
+      "artifact": "/workspace/reports/provider_probe_opval_20260827T202846Z.json",
+      "ts_utc": "2026-08-27T20:28:46Z",
+      "status_counts": {
+        "UNSUPPORTED": 5,
+        "SUCCESS": 2,
+        "ERROR": 1
+      }
+    },
+    {
+      "id": "G4",
+      "name": "Evidence persistence",
+      "status": "PASS",
+      "detail": "discovery_observations=368 production_observations=354",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z",
+      "census": {
+        "schema": "ahos.prediction_lifecycle_status.v1",
+        "version": "prediction_lifecycle:v1",
+        "discovery_db": "/workspace/data/e01_discovery.sqlite",
+        "ledger_db": "/workspace/data/ahos_local.sqlite",
+        "observation_state": {
+          "OBSERVING": 113
+        },
+        "outcome_labels": 0,
+        "discovery_observations": 368,
+        "production_observations": 354,
+        "local_predictions": 352,
+        "eligible_join_pairs_estimate": 0,
+        "notes": [
+          "CALIBRATION_READY_BUT_DATA_REQUIRED — await T+72h RESOLVED + materialize"
+        ]
+      }
+    },
+    {
+      "id": "G5",
+      "name": "Scoring / predictions",
+      "status": "PASS",
+      "detail": "local_predictions=352 (run --single-cycle --evidence-source local if 0)",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z",
+      "local_predictions": 352
+    },
+    {
+      "id": "G8",
+      "name": "Prediction lifecycle registration",
+      "status": "PASS",
+      "detail": "observation_state_total=113 states={'OBSERVING': 113}",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z"
+    },
+    {
+      "id": "G9",
+      "name": "Observation lifecycle",
+      "status": "PASS",
+      "detail": "discovery_observations=368 outcome_labels=0 (labels remain 0 until T+72h RESOLVED — expected)",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z",
+      "outcome_labels": 0
+    },
+    {
+      "id": "G6",
+      "name": "Security / PAPER_ONLY",
+      "status": "PASS",
+      "detail": "assert_safe_environment ok",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z",
+      "env": {
+        "paper_only_enforced": true,
+        "zero_real_trading": true,
+        "credentials_isolated": true
+      }
+    },
+    {
+      "id": "G7",
+      "name": "Lane-A freeze",
+      "status": "PASS",
+      "detail": "Lane-A integrity OK (pinned)",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:46Z"
+    },
+    {
+      "id": "G10",
+      "name": "Restart/recovery",
+      "status": "PASS",
+      "detail": "{\n  \"verdict\": \"PASS\",\n  \"passed\": 5,\n  \"failed\": 0,\n  \"report\": \"/workspace/reports/backup_restore_drill.json\",\n  \"timestamp_utc\": \"2026-08-27T20:28:47Z\",\n  \"commit_sha\": \"f75a1840e7b0cada2c74e407bb61b9b1dd30006b\"\n}\n",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:47Z",
+      "returncode": 0
+    },
+    {
+      "id": "G11",
+      "name": "Telegram live E2E",
+      "status": "OWNER_ACTION_REQUIRED",
+      "detail": "TELEGRAM_BOT_TOKEN unset — follow docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:47Z",
+      "platform": "agent-host"
+    },
+    {
+      "id": "G12",
+      "name": "n8n",
+      "status": "STRUCTURAL_VALID",
+      "detail": "[PASS] ahos_01_data_ingest_integrity.json\n[PASS] ahos_02_signal_pipeline.json\n[PASS] ahos_03_telegram_control.json\n[PASS] ahos_10_research_lab.json\n[PASS] ahos_11_data_update.json\n[PASS] ahos_12_research_report.json\n",
+      "artifact": null,
+      "ts_utc": "2026-08-27T20:28:47Z",
+      "structural_valid": true,
+      "operational_valid": false,
+      "note": "OPERATIONAL_VALID requires live n8n execution (OWNER_ACTION)"
+    }
+  ],
+  "summary": {
+    "classification": "INTEGRATION_READY",
+    "operator_ready": false,
+    "reason": "platform is not windows — OPERATOR_READY requires OPERATOR_WINDOWS_VERIFIED gates",
+    "missing": [
+      "G2:FAIL",
+      "G11:OWNER_ACTION_REQUIRED"
+    ]
+  },
+  "forbidden_claims": [
+    "PRODUCTION_READY",
+    "OPERATOR_READY without Windows G1-G11 PASS artifacts",
+    "n8n OPERATIONAL_VALID from JSON alone",
+    "Telegram live from unit tests alone",
+    "Calibration validated with 0 joined_pairs"
+  ]
+}
