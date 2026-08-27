@@ -65,6 +65,7 @@ See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md) · [`docs/CURRENT_T
 | Role | Path |
 |------|------|
 | Windows operator handoff | `docs/WINDOWS_OPERATOR_HANDOFF.md` |
+| Merge / transfer audit | `docs/MERGE_READINESS_AUDIT.md` |
 | Operator validation protocol | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
 | Pre-soak (after Windows G1–G10) | `docs/PRE_SOAK_PROTOCOL.md` |
 | Document truth map | `docs/DOC_TRUTH_MAP.md` |

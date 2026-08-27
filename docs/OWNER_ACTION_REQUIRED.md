@@ -2,31 +2,28 @@
 
 **Date:** 2026-08-27  
 **Phase:** WINDOWS OPERATOR VALIDATION  
-**Classification:** `INTEGRATION_READY` (agent-host) · **`OPERATOR_READY = NOT_VERIFIED`**
+**Classification:** `INTEGRATION_READY` (agent-host) · **`OPERATOR_READY = NOT_VERIFIED`**  
+**Merge:** human decision only — see `docs/MERGE_READINESS_AUDIT.md`
 
-## Agent completed
+## Agent completed (transfer control)
 
-- Fixed Windows-blocking defects (SQLite RO URI helper, npm.cmd subprocess, G2 HTTPError, handoff commands)
-- Documented Postgres `DATABASE_URL` for One-Brain G2
-- Removed invalid `pip install -e .`; added `init_databases.py` to handoff
-- G11 attestation via `--telegram-e2e-artifact`
-- Reported remaining Lane-A frozen URI gap (not patched)
-- **Did not** invent Windows PASS or merge PR #19
+- Environment contract: documented `AHOS_PAPER_ONLY` + clarified required keys in `.env.example`
+- Merge readiness audit document
+- Reconfirmed Lane-A freeze; no frozen sources changed vs `main`
+- **Did not** invent Windows PASS, merge PR #19, or add speculative features
 
-## Owner must do (in order)
+## Owner must do (post-merge / transfer)
 
 | ID | Action | Evidence |
 |----|--------|----------|
-| OA-H | Follow `docs/WINDOWS_OPERATOR_HANDOFF.md` | — |
-| OA-PG | Provide Postgres + `DATABASE_URL` in `.env` | G2 |
-| OA-W0 | `npm run dev` | G2 |
-| OA-W1 | `python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill` | `reports\operator_validation_report_windows_*.json` |
-| OA-W2 | Confirm `pre_soak_entry_ok` | JSON |
-| OA-PS | PRE_SOAK only after unlock | `docs/PRE_SOAK_PROTOCOL.md` |
-| OA-4 | Real T+72h observation | lifecycle / calibration reports |
-| OA-TG | Telegram E2E + `--telegram-e2e-artifact` | G11 / OPERATOR_READY |
-| OA-n8n | Optional n8n operational | G12 |
-| OA-LA | Decide whether to approve Lane-A URI fix + freeze re-anchor | Windows soak using Lane-A RO opens |
-| OA-8 | Merge PR #19 | human only |
+| OA-MERGE | Human merge PR #19 when MERGE_READY | GitHub |
+| OA-H | Follow `docs/WINDOWS_OPERATOR_HANDOFF.md` on Windows | — |
+| OA-PG | Postgres + `DATABASE_URL` | G2 |
+| OA-W1 | Windows operator gate | `reports\operator_validation_report_windows_*.json` |
+| OA-PS | PRE_SOAK if `pre_soak_entry_ok` | protocol |
+| OA-4 | Real T+72h | calibration |
+| OA-TG | Telegram E2E | G11 |
+| OA-LA | Optional Lane-A URI fix + freeze re-anchor | governance |
 
 **Do not claim `OPERATOR_READY` until Windows G1–G11 PASS artifacts exist.**
+

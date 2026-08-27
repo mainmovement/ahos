@@ -70,9 +70,17 @@ def assert_safe_environment() -> dict[str, bool]:
     """Audits environment for live-trading enablement flags and exchange API key presence.
 
     Live-trading FLAGS (AHOS_ALLOW_REAL_FUNDS / AHOS_EXECUTE_LIVE_TRADES) veto hard.
+    Explicit AHOS_PAPER_ONLY=0/false also vetoes (PAPER_ONLY is mandatory).
     Exchange API key *presence* does not enable AHOS execution (there is no execution
     surface), but must not be reported as credentials_isolated=True.
     """
+    paper = os.environ.get("AHOS_PAPER_ONLY")
+    if paper is not None and paper.strip() != "" and not _env_flag_enabled(paper):
+        raise PermissionError(
+            "CRITICAL SECURITY VETO: AHOS_PAPER_ONLY is explicitly disabled "
+            f"(value={paper!r}); PAPER_ONLY is mandatory"
+        )
+
     live_trading_flags = (
         "AHOS_ALLOW_REAL_FUNDS",
         "AHOS_EXECUTE_LIVE_TRADES",
@@ -94,4 +102,5 @@ def assert_safe_environment() -> dict[str, bool]:
         "paper_only_enforced": True,
         "zero_real_trading": True,
         "credentials_isolated": len(present_exchange_keys) == 0,
+        "ahos_paper_only_env": (paper.strip() if paper and paper.strip() else "unset_default_paper"),
     }

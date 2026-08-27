@@ -2,8 +2,9 @@
 
 **Date:** 2026-08-27  
 **Branch:** `cursor/ahos-cleanup-alignment-4bde` (PR #19)  
-**Phase:** OPERATOR VALIDATION — Windows defects fixed; Windows evidence absent  
-**Classification:** `INTEGRATION_READY` (agent-host) — **`OPERATOR_READY` = NOT_VERIFIED**
+**Phase:** RELEASE / TRANSFER CONTROL  
+**Classification:** `INTEGRATION_READY` (agent-host) — **`OPERATOR_READY` = NOT_VERIFIED**  
+**Merge audit:** `docs/MERGE_READINESS_AUDIT.md` (MERGE_READY ≠ OPERATOR_READY)
 
 Snapshot: `docs/CURRENT_TRUTH_SNAPSHOT.md`  
 Windows handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md`  

@@ -1,7 +1,7 @@
 # CURRENT_TRUTH_SNAPSHOT
 
 **Captured:** 2026-08-27 (agent host)  
-**Phase:** OPERATOR VALIDATION — Windows-blocking defects fixed; Windows run NOT simulated  
+**Phase:** RELEASE / TRANSFER CONTROL — merge audit; Windows run NOT simulated  
 **Law:** Code + executable artifacts > documentation claims.
 
 ## Git / PR
@@ -9,10 +9,11 @@
 | Field | Value |
 |-------|--------|
 | Branch | `cursor/ahos-cleanup-alignment-4bde` |
-| HEAD | `f36ed2a` |
-| PR | https://github.com/mainmovement/ahos/pull/19 — OPEN, MERGEABLE, not draft |
+| HEAD | `PENDING_PIN` |
+| PR | https://github.com/mainmovement/ahos/pull/19 — OPEN |
 | Base | `main` |
-| Lane-A freeze | OK (36 files pinned) |
+| Lane-A freeze | OK (36 files pinned; no frozen sources changed vs main) |
+| Merge audit | `docs/MERGE_READINESS_AUDIT.md` |
 
 ## Classification (honest)
 
@@ -20,8 +21,9 @@
 |-------|--------|
 | DEVELOPMENT_READY | proven earlier |
 | INTEGRATION_READY | **YES — agent-host only** |
-| OPERATOR_READY | **NOT_VERIFIED** — no Windows gate JSON yet |
+| OPERATOR_READY | **NOT_VERIFIED** — no Windows gate JSON |
 | PRODUCTION_CANDIDATE / PRODUCTION_READY | **FALSE** |
+| MERGE_READY (transfer) | see `docs/MERGE_READINESS_AUDIT.md` after gates |
 
 ## Evidence census (agent host DBs)
 
@@ -29,27 +31,24 @@
 |--------|------:|
 | local predictions | 352 |
 | observation_state OBSERVING | 113 |
-| discovery_observations | 379 |
+| discovery_observations | ≥368 |
 | production_observations | 354 |
 | outcome_labels | **0** |
 | calibration eligible pairs | **0** |
-| calibration_status | `INSUFFICIENT_DATA` / `CALIBRATION_READY_BUT_DATA_REQUIRED` |
+| calibration_status | `CALIBRATION_READY_BUT_DATA_REQUIRED` |
 
 ## What is proven vs not
 
 | Claim | State |
 |-------|--------|
-| Agent-host provider SUCCESS | AGENT_HOST_VERIFIED (prior) |
-| Windows-safe SQLite RO URI (Lane B/scripts) | TEST_VERIFIED |
-| Operator gate Windows defects fixed | TEST_VERIFIED (npm.cmd, HTTPError, handoff commands) |
-| Operator Windows probe | **NOT_VERIFIED** / OWNER_ACTION |
+| Agent-host provider SUCCESS | AGENT_HOST LIVE_VERIFIED (prior JSON) |
+| Windows operator gates | NOT_VERIFIED |
 | Telegram live E2E | OWNER_ACTION_REQUIRED |
-| n8n OPERATIONAL_VALID | OWNER_ACTION_REQUIRED |
+| n8n OPERATIONAL | NOT_VERIFIED (structural only) |
 | Pre-soak / 72h / 168h soak | NOT_VERIFIED |
-| Lane-A RO URI on Windows (`observe_active`, `paper_trading/ledger`) | **REMAINING GAP** (frozen; not patched) |
+| Lane-A Windows RO URI gap | BLOCKED pending freeze re-anchor |
+| AG-25 / speculative features | NOT_IMPLEMENTED / DEFERRED |
 
 ## This phase scope (binding)
 
-Fix real Windows operator-blocking defects; keep readiness honest.  
-Do **not** promote to OPERATOR_READY without Windows artifacts.  
-Do **not** fabricate calibration pairs or simulate Windows PASS.
+Freeze PR for safe Windows transfer. Do **not** invent Windows PASS. Do **not** promote OPERATOR_READY.
