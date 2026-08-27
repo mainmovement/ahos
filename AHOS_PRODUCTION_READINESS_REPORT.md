@@ -1,8 +1,12 @@
 # AHOS Production Readiness Report
 
+> **SUPERSEDED — NOT CURRENT AUTHORITY (2026-08-27 hygiene).**  
+> This file is **historical C-class evidence** only. The `95.5/100` / `READY_FOR_DEPLOYMENT` language below is an **overclaim** relative to later audits (`AHOS_REALITY_AUDIT_v2.md`, `AHOS_GAP_REGISTER.md`).  
+> Current honesty: `AHOS_GAP_REGISTER.md` · `AHOS_LOCAL_PRODUCTION_GATE_REPORT.md` · `docs/DOC_TRUTH_MAP.md`.
+
 **Evaluation Date:** 2026-08-16  
 **Auditors:** AHOS Lead Systems Engineer + DevOps Architect + QA Auditor  
-**Overall Readiness Score:** **95.5 / 100**
+**Overall Readiness Score:** **95.5 / 100** *(historical claim — superseded)*
 
 ---
 

@@ -81,7 +81,7 @@ class AHOSUpdateManager:
             requires_human_approval=True,
             proposed_actions=actions,
             rollback_plan={
-                "strategy": "Revert to latest signed snapshot manifest (ahos_snap_w*.txt)",
+                "strategy": "Revert via Lane-A freeze (`config/lane_a_freeze.sha256`); historical snaps in `reports/archive/snaps/`",
                 "trigger": "Integrity check failure or unauthorized code drift"
             }
         )

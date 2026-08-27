@@ -1,0 +1,39 @@
+# AHOS — Document Truth Map
+
+**Purpose:** One place that says which files are current authority vs historical evidence.  
+**Law:** UNKNOWN / OPEN gaps beat older “READY” prose. Archive history; do not delete C-class evidence.
+
+## A — Current authority (start here)
+
+| Topic | Path |
+|-------|------|
+| Immutable master doctrine | `docs/canonical/MASTER_DIRECTIVE_v1.md` + `docs/canonical/master_directive_registry.json` |
+| Wave ops directive (living, not registry ACTIVE) | `docs/canonical/MASTER_DIRECTIVE_W43.md` |
+| Project state pointer | `docs/canonical/PROJECT_STATE.md` → `reports/PHASE_STATE.md` |
+| Open operational gaps | `AHOS_GAP_REGISTER.md` |
+| Living change register | `AHOS_ISSUE_REGISTER.md` |
+| Local laptop gate (honest) | `AHOS_LOCAL_PRODUCTION_GATE_REPORT.md` |
+| Operator start | `README.md`, `QUICKSTART.md`, `AHOS_OPERATOR_QUICKSTART_WINDOWS.md` |
+| Lane-A freeze | `config/lane_a_freeze.sha256` + `scripts/freeze_lane_a.py` |
+
+## B — Historical / superseded (do not cite as current readiness)
+
+| Path | Note |
+|------|------|
+| `AHOS_FINAL_STATUS.md` | SUPERSEDED — contains banned `READY_FOR_DEPLOYMENT` claim |
+| `AHOS_PRODUCTION_READINESS_REPORT.md` | SUPERSEDED — score/READY overclaim |
+| Other root `AHOS_PHASE*.md` / month reports | Wave evidence; check date vs gap register |
+| `docs/archive/oss_research/` | Former root `OSS_*.md` |
+| `reports/archive/snaps/` | Former root `ahos_snap_*.txt` |
+
+## C — Do not confuse these layers
+
+| Layer | What it is | Not |
+|-------|------------|-----|
+| AHOS runtime AI council | In-product advisory routing (`architecture/ai/`, `config/ai_*`) | Cursor Cloud Agent models |
+| Web Command Center TS at repo root | One-Brain surface pinned by `tests/test_one_brain_architecture.py` | Orphan Next templates (removed) |
+| App Router | `app/page.tsx`, `app/layout.tsx`, `app/api/**` | Deleted root `page.tsx` / `layout.tsx` / `route.ts` |
+
+## D — Honesty gate (binding)
+
+Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness percentage without a linked artifact in `AHOS_GAP_REGISTER.md` is **not current truth**.

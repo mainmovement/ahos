@@ -7,8 +7,10 @@ build/
 dist/
 *.egg-info/
 .env
+!.env.example
 .venv
 venv/
+node_modules/
 *.db
 *.sqlite
 *.log
@@ -17,3 +19,4 @@ data/
 .DS_Store
 .idea/
 .vscode/
+tsconfig.tsbuildinfo

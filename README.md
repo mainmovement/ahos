@@ -54,8 +54,15 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 
 ## Docs
 
-- Master directive: `docs/canonical/MASTER_DIRECTIVE_W43.md`
-- W44 report: `reports/W44_INTELLIGENCE_SPEED_UPGRADE.md`
-- Gap register: `AHOS_GAP_REGISTER.md`
+| Role | Path |
+|------|------|
+| Document truth map | `docs/DOC_TRUTH_MAP.md` |
+| Immutable master doctrine | `docs/canonical/MASTER_DIRECTIVE_v1.md` |
+| Wave ops directive | `docs/canonical/MASTER_DIRECTIVE_W43.md` |
+| Open gaps (honesty) | `AHOS_GAP_REGISTER.md` |
+| Windows operator soak gate | `AHOS_OPERATOR_QUICKSTART_WINDOWS.md` |
+| W44 report | `reports/W44_INTELLIGENCE_SPEED_UPGRADE.md` |
+
+**Not current truth:** `AHOS_FINAL_STATUS.md` / `AHOS_PRODUCTION_READINESS_REPORT.md` (`READY_FOR_DEPLOYMENT` — superseded).
 
 **AHOS does not pretend to be smart — it tightens evidence and measures what it can.**

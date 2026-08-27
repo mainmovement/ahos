@@ -1277,11 +1277,14 @@
   5. Temporal acceleration (P12): HealthSnapshotEngine.acceleration 3-point per-dimension trends, always CORRELATION_ONLY.
 - EVIDENCE: 21 new tests (total 1405); runtime verified: selection on real stores -> honest INSUFFICIENT_EVIDENCE (0 findings); synthetic findings -> high-leverage UNKNOWN_GROWTH selected; acceleration on synthetic scorecards; experiment ledger roundtrip with dedup. Zero live trading, zero credential exposure.
 
-## R-76 · 2026-08-20 · W40 Measured performance evolution
-- WHY: The per-cadence evidence package profile showed two dominant, repeated costs: static YAML re-parse (load_registry) and full AST re-parse of 140+ files (architecture_graph). Both are pure functions of immutable/static content — ideal memoization targets under the measure-first discipline.
+## R-77 · 2026-08-27 · Root hygiene + document truth alignment
+- WHY: Repo root mixed live One-Brain TS with orphan Next templates, 25 historical snap dumps, 12 OSS research notes, and superseded `READY_FOR_DEPLOYMENT` reports that contradicted `AHOS_GAP_REGISTER.md`.
 - WHAT:
-  1. `architecture/provider_router.py`: `load_registry` @lru_cache(maxsize=8) keyed on resolved path. BASELINE 9.198 ms/call -> AFTER 0.0001 ms/call (~70,000x on repeated calls); cached == fresh parse (parity test); health snapshot 0.44s -> 0.16s (2.7x).
-  2. `scripts/architecture_graph.py`: `build_graph` cached on a fingerprint of every scanned file's mtime+size; edit invalidates, unchanged tree reuses. BASELINE 294 ms/call -> AFTER 2.4 ms/call (122x); parity + invalidation test-pinned.
-  3. Measured-and-rejected (experiment ledger, never re-proposed): SQLite connection reuse (0.035 ms/conn — below noise floor); load_contract JSON parse (0.029 ms — not a bottleneck). W37's regime-classifier vectorization already recorded as OPTIMIZATION_BELOW_NOISE_FLOOR.
-  4. Architecture finding: the cached graph surfaced a second lazy-import cycle evolution.findings <-> evolution.selection; governed proposal prop_1787227838_7120d5f2 filed (human gate).
-- EVIDENCE: 2 new tests (total 1407); runtime verified: registry parity + speedup, graph parity + invalidation + 122x; full suite 1408/1408 (gate artifacts refreshed). Zero live trading, zero credential exposure.
+  1. Deleted orphan root `page.tsx` / `layout.tsx` / `route.ts` / `index.ts` (App Router + `db/index.ts` remain authoritative).
+  2. Archived `ahos_snap_w*.txt` → `reports/archive/snaps/`; archived `OSS_*.md` → `docs/archive/oss_research/`.
+  3. Added `docs/DOC_TRUTH_MAP.md`; superseded banners on `AHOS_FINAL_STATUS.md` + `AHOS_PRODUCTION_READINESS_REPORT.md`.
+  4. Renamed `package.json` name `nextjs-postgresql-template` → `ahos`; README/CONTRIBUTING point at v1 doctrine + truth map; update_manager recovery string points at Lane-A freeze.
+  5. Fixed TypeScript: `opportunity_canonical.ts` uses `scored.token.tokenKey`; `alerts.ts` loadState no longer overwrites `sent`.
+- EVIDENCE: One-Brain path tests + Lane-A freeze hash + master directive tests; `npm run typecheck` clean. Zero live trading. Canonical doctrine content unchanged.
+
+
