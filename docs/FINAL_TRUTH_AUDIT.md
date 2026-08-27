@@ -66,8 +66,15 @@
 
 ---
 
-## Highest proven classification
+## Gate results (end of integration pass)
 
-**`INTEGRATION_READY`** on the verified agent/runtime host path.
-
-Not: OPERATOR_READY · PRODUCTION_CANDIDATE · PRODUCTION_READY
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | PASS |
+| `.venv/bin/pytest tests/ -q` | **1399 passed**, 0 failed |
+| `python3 scripts/freeze_lane_a.py` | OK (36 files) |
+| `python3 tests/validate_n8n.py` | 6/6 PASS (JSON only) |
+| `--probe-providers` (agent host) | LIVE SUCCESS: dexscreener, geckoterminal |
+| `--single-cycle --evidence-source local` | candidates scored + persisted |
+| Live intel atoms | narrative/mstruct/tokenomics/catalyst DERIVED |
+| `scripts/calibration_report.py` | INSUFFICIENT_DATA (0 outcome pairs) |
