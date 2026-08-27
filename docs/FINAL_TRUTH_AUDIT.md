@@ -65,7 +65,7 @@ npm run typecheck
 | Gate | Result |
 |------|--------|
 | `npm run typecheck` | **PASS** |
-| `pytest tests/ -q` | **1385 passed, 0 failed** (pre-acceptance-pass baseline; security tests added → re-run in this commit) |
+| `pytest tests/ -q` | **1388 passed, 0 failed** | Independent re-run after acceptance-pass security tests |
 | Lane-A freeze | **OK (36 files)** |
 | n8n validate | **6/6 PASS** |
 
