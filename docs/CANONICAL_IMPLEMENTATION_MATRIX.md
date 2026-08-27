@@ -1,0 +1,51 @@
+# AHOS — Canonical Implementation Matrix
+
+**Date:** 2026-08-27  
+**Branch:** `cursor/ahos-cleanup-alignment-4bde`  
+**Authority inputs:** `docs/canonical/MASTER_DIRECTIVE_v1.md`, `MASTER_DIRECTIVE_W43.md`, `AHOS_GAP_REGISTER.md`, `docs/DOC_TRUTH_MAP.md`, source + tests  
+**Law:** Statuses are repository reality, not aspiration.
+
+Status alphabet: `COMPLETE` · `PARTIAL` · `MISSING` · `BROKEN` · `BLOCKED_EXTERNAL` · `DEFERRED_BY_DESIGN` · `CONTRADICTORY`
+
+| Requirement | Canonical Source | Expected Capability | Current Implementation | Relevant Files | Relevant Tests | Evidence | Status | Gap | Priority | Blocking Reason | Required Action |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Early multi-source discovery | Doctrine + DMS | Collect emerging pairs with provenance | Collector + discovery poller implemented | `architecture/collector/`, `discovery/`, `architecture/providers/` | `tests/test_discovery.py`, provider tests | Code + offline tests | COMPLETE | — | — | Live SUCCESS needs egress | Operator: `--probe-providers` (M-GAP-007) |
+| Multi-chain / DEX / launchpad | Provider registry | Replaceable providers + pump.fun | Router + CMC + pumpfun adapters | `architecture/providers/*` | `test_coinmarketcap_adapter`, `test_pumpfun_adapter`, `test_provider_yaml_sync` | Offline PASS | COMPLETE | Live probe | Med | Egress | M-GAP-007 |
+| Evidence ≠ score ≠ decision ≠ outcome | DEB / learning | Traceable ledger | Score ledger + frozen outcomes materializer | `architecture/learning/score_ledger.py`, `discovery/materialize.py` | `test_score_ledger_calibration` | Infra closed M-GAP-013/014 | PARTIAL | Measurement empty | High | Needs local evidence accrual | M-GAP-008 |
+| Deterministic scoring | SPS | Explainable multi-factor score | Python scoring + TS scoring | `architecture/scoring/`, `scoring.ts`, `opportunity_canonical.ts` | scoring / one-brain tests | Dual stacks | PARTIAL | Dual brain ownership | High | Doc/ops clarity | Documented in DOC_TRUTH_MAP; keep both |
+| Security-first gate | RAS | Attractive score cannot ignore critical security | GoPlus/RugCheck + security_gate | `discovery/security_gate.py`, `architecture/security/`, adapters | security + discovery tests | Code COMPLETE | COMPLETE | Live probe | Med | Egress | M-GAP-007 |
+| Opportunity explainability | Doctrine | WHY interesting / dangerous / missing | Reasons/risks/unknowns + council advisory | `opportunity_canonical.ts`, `council.ts`, `architecture/council.py` | one-brain / council tests | Present | COMPLETE | — | — | — | Keep advisory-only |
+| Monitoring / lifecycle | RAS | Repeated observations + alerts | observe_active + web alerts | `discovery/observe_active.py`, `alerts.ts` | observation scheduler tests | Present | PARTIAL | 168h soak | High | User laptop | M-GAP-003 |
+| Paper trading only | Doctrine | No real execution | paper_trading v3 + PAPER_ONLY UI | `paper_trading/`, `engine.ts` | `test_paper_trading*` | Present | COMPLETE | strategies.json not in freeze | Low | By design | Documented in `freeze_lane_a.py` |
+| Learning loop | Evolution docs | Observation→outcome→calibration | Calibration harness, no weight mutation | `architecture/learning/` | calibration tests | Infra COMPLETE | PARTIAL | No local pairs | High | User data | M-GAP-008 |
+| One-Brain chat | W56/W57 | Single conversation entry | `conversationGateway` + `/api/chat` | `conversation_gateway.ts`, `app/api/chat/route.ts` | `test_one_brain_architecture` | Present | COMPLETE | Telegram needs URL | Med | Config | Set `AHOS_GATEWAY_URL` |
+| Lane A freeze | Governance | Drift veto | `config/lane_a_freeze.sha256` | `scripts/freeze_lane_a.py`, observation_loop | `test_lane_a_frozen_files_hash_integrity` | PASS | COMPLETE | — | — | — | — |
+| Lane B research | Doctrine | Evolve without rewriting Lane A | strategy_lab + evolution packages | `strategy_lab/`, `architecture/evolution/` | strategy_lab / evolution tests | Present | COMPLETE | — | — | — | Human gate for promotions |
+| AI council advisory-only | Council contract | Never DECIDE | advisory_only enforced | `architecture/council.py`, `architecture/ai/` | council tests | Present | COMPLETE | Paid AI keys optional | Low | Optional | Leave free-first |
+| Telegram Persian UX | Telegram docs | Intent + honest replies | Intent parser COMPLETE; service gateway-only | `telegram_ai/` | `test_telegram_service`, updated conversational | W57 lockdown | PARTIAL | Live bot + gateway | High | Token + URL | M-GAP-009 + `AHOS_GATEWAY_URL` |
+| n8n automation | Deployment docs | Meaningful workflows | 6 JSON workflows + validator | `n8n/workflows/`, `tests/validate_n8n.py` | validate_n8n | Structural PASS | PARTIAL | Runtime import/creds | Med | Docker + creds | Operator import |
+| Windows-first local run | Operator docs | One-click start | install/start scripts | `install_windows.ps1`, `start_ahos.ps1`, `run_ahos.sh` | phase18 launcher tests | Present | COMPLETE | Soak evidence | High | User | M-GAP-003 |
+| CI | Gap register | Green PR checks | Template only | `deployment/github-actions-ci.yml.template` | — | No `.github/workflows` | BLOCKED_EXTERNAL | Workflows permission | Med | GitHub App | M-GAP-004 |
+| No READY overclaim | Gap register honesty | Docs match reality | Supersede banners + truth map | `AHOS_FINAL_STATUS.md`, `docs/DOC_TRUTH_MAP.md` | — | Hygiene PR | COMPLETE | — | — | — | Maintain |
+| Telegram tests vs W57 | W57 commits | Tests match lockdown | Aligned 2026-08-27 | `tests/test_telegram_*` | conversational + service | Was CONTRADICTORY | COMPLETE | Was stale | High | — | Closed this pass |
+| Env key documentation | Config validation | Every key in `.env.example` | Documented AHOS_GATEWAY_URL + alert keys | `.env.example` | `test_config_validation` | Fixed this pass | COMPLETE | — | — | — | — |
+| Real trading | Doctrine | DISABLED | No execution path in scanned runtime | multiple | month1 failure matrix | Present | DEFERRED_BY_DESIGN | Forever unless doctrine change | — | Safety | Keep DISABLED |
+| Social scrape X/IG/TikTok | Policy | OUT_OF_POLICY | Honest BLOCKED in providers | `providers.ts`, README | — | Present | DEFERRED_BY_DESIGN | Cost/policy | — | Policy | Keep blocked |
+| DEXTools full | Cost | Optional paid | NO_KEY / COST_BLOCKED | providers | — | Present | BLOCKED_EXTERNAL | Key/cost | Low | Operator | Optional |
+
+## Summary counts (rows above)
+
+| Status | Count |
+|--------|------:|
+| COMPLETE | 14 |
+| PARTIAL | 8 |
+| BLOCKED_EXTERNAL | 2 (+ live legs of COMPLETE rows) |
+| DEFERRED_BY_DESIGN | 2 |
+| MISSING / BROKEN | 0 in scanned core |
+| CONTRADICTORY | 0 remaining after W57 test alignment |
+
+## Closable now vs not
+
+**Closed this pass:** stale Telegram test contradiction; env-key documentation; n8n Telegram wording drift; freeze exclusion documentation; truth map dual-stack wording.
+
+**Not closable without user/external:** M-GAP-003, 004, 007, 008, 009, 010 residual.

@@ -33,7 +33,18 @@
 | AHOS runtime AI council | In-product advisory routing (`architecture/ai/`, `config/ai_*`) | Cursor Cloud Agent models |
 | Web Command Center TS at repo root | One-Brain surface pinned by `tests/test_one_brain_architecture.py` | Orphan Next templates (removed) |
 | App Router | `app/page.tsx`, `app/layout.tsx`, `app/api/**` | Deleted root `page.tsx` / `layout.tsx` / `route.ts` |
+| Python observation daemon | Lane-A evidence producer (`python -m architecture.runtime`) | Telegram independent scorer (forbidden W57) |
+| Telegram Domain Service | Gateway client only (`AHOS_GATEWAY_URL`) | Pre-W57 in-process scoring brain |
+
+**Dual-stack ownership (binding):** Chat/explanation for humans flows through the TS Conversation Gateway. Continuous observation, scoring ledger, and calibration accrue on the Python daemon. Telegram must call the gateway; it must not invent a second brain.
 
 ## D — Honesty gate (binding)
 
 Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness percentage without a linked artifact in `AHOS_GAP_REGISTER.md` is **not current truth**.
+
+## E — Completion artifacts (2026-08-27)
+
+| Artifact | Path |
+|----------|------|
+| Implementation matrix | `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
+| Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |

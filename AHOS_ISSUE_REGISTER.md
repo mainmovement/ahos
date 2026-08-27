@@ -1277,14 +1277,14 @@
   5. Temporal acceleration (P12): HealthSnapshotEngine.acceleration 3-point per-dimension trends, always CORRELATION_ONLY.
 - EVIDENCE: 21 new tests (total 1405); runtime verified: selection on real stores -> honest INSUFFICIENT_EVIDENCE (0 findings); synthetic findings -> high-leverage UNKNOWN_GROWTH selected; acceleration on synthetic scorecards; experiment ledger roundtrip with dedup. Zero live trading, zero credential exposure.
 
-## R-77 · 2026-08-27 · Root hygiene + document truth alignment
-- WHY: Repo root mixed live One-Brain TS with orphan Next templates, 25 historical snap dumps, 12 OSS research notes, and superseded `READY_FOR_DEPLOYMENT` reports that contradicted `AHOS_GAP_REGISTER.md`.
+## R-78 · 2026-08-27 · Final alignment pass (W57 truth + matrix)
+- WHY: Completion directive required one coherent truth across doctrine/code/tests. After hygiene (R-77), remaining failures were mostly STALE Telegram tests contradicting intentional W57 gateway-only lockdown, plus undocumented env keys.
 - WHAT:
-  1. Deleted orphan root `page.tsx` / `layout.tsx` / `route.ts` / `index.ts` (App Router + `db/index.ts` remain authoritative).
-  2. Archived `ahos_snap_w*.txt` → `reports/archive/snaps/`; archived `OSS_*.md` → `docs/archive/oss_research/`.
-  3. Added `docs/DOC_TRUTH_MAP.md`; superseded banners on `AHOS_FINAL_STATUS.md` + `AHOS_PRODUCTION_READINESS_REPORT.md`.
-  4. Renamed `package.json` name `nextjs-postgresql-template` → `ahos`; README/CONTRIBUTING point at v1 doctrine + truth map; update_manager recovery string points at Lane-A freeze.
-  5. Fixed TypeScript: `opportunity_canonical.ts` uses `scored.token.tokenKey`; `alerts.ts` loadState no longer overwrites `sent`.
-- EVIDENCE: One-Brain path tests + Lane-A freeze hash + master directive tests; `npm run typecheck` clean. Zero live trading. Canonical doctrine content unchanged.
+  1. Wrote `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` and `docs/FINAL_TRUTH_AUDIT.md` (honest statuses; no READY_FOR_DEPLOYMENT claim).
+  2. Realigned Telegram conversational / phase3 / phase4 / bot adapter / run_bot tests to EMERGENCY_FALLBACK_ONLY; pinned gateway success + transport-failure paths.
+  3. Documented `AHOS_GATEWAY_URL` + alert env keys in `.env.example`; fixed n8n Telegram wording; documented strategies.json freeze exclusion.
+  4. Updated `AHOS_GAP_REGISTER.md` (M-GAP-017/018/019 CLOSED) and DOC_TRUTH_MAP dual-stack ownership.
+- EVIDENCE: pytest post-fix artifact + `npm run typecheck`. External gaps M-GAP-003/004/007/008/009 remain USER/EXTERNAL. Zero live trading.
+
 
 

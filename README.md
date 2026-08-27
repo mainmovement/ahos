@@ -57,6 +57,8 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 | Role | Path |
 |------|------|
 | Document truth map | `docs/DOC_TRUTH_MAP.md` |
+| Implementation matrix | `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
+| Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |
 | Immutable master doctrine | `docs/canonical/MASTER_DIRECTIVE_v1.md` |
 | Wave ops directive | `docs/canonical/MASTER_DIRECTIVE_W43.md` |
 | Open gaps (honesty) | `AHOS_GAP_REGISTER.md` |

@@ -102,8 +102,22 @@ Classification alphabet: **IMPLEMENTABLE NOW** · **REQUIRES USER ACTION** ·
 | M-GAP-011 (CMC + launchpads) | CLOSED (adapters) → live probe REQUIRES USER ACTION | adapters implemented + 31 offline tests; live probe rides on M-GAP-007 |
 | M-GAP-012 (off-box watchdog) | OPTIONAL (by design) | not an acceptance item for local-laptop operation |
 
+### Addendum 2026-08-27 — completion pass (PR hygiene + W57 truth)
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-017 (Telegram tests contradicted W57 lockdown) | **CLOSED** | Stale `handle_message` expectations realigned to `EMERGENCY_FALLBACK_ONLY`; gateway success/failure paths pinned |
+| M-GAP-018 (undocumented AHOS_GATEWAY_URL / alert env keys) | **CLOSED** | Documented in `.env.example`; config validation test green |
+| M-GAP-019 (n8n guide claimed Telegram → independent NLU) | **CLOSED** | `docs/n8n_setup_guide.md` states gateway-only law |
+| Dual-stack ownership (TS chat vs Python daemon) | **DOCUMENTED** | `docs/DOC_TRUTH_MAP.md` §C + `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
+| `strategies.json` outside Lane-A freeze | **DOCUMENTED** | Intentional exclusion note in `scripts/freeze_lane_a.py` |
+
+Implementation matrix: `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`  
+Final truth audit: `docs/FINAL_TRUTH_AUDIT.md`
+
 No remaining gap is IMPLEMENTABLE NOW without user action, credentials,
-external permission, or data accrual. Next engineering surfaces (Month 3–5:
+external permission, or data accrual — except ongoing doc/test hygiene already closed above.
+Next engineering surfaces (Month 3–5:
 weight governance via the existing `improvement_proposal_v1` flow, narrative
 feed-through, learning engine) are sequenced behind calibration measurement
 evidence per ROADMAP_v3.
