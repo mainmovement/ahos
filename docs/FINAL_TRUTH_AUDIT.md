@@ -44,11 +44,13 @@ Canonical doc: `docs/CALIBRATION_LIFECYCLE.md`
 
 | Gate | Result |
 |---|---|
-| typecheck | *re-run at end* |
-| pytest | *re-run at end* |
-| Lane-A freeze | OK (36) — no Lane-A source edits |
-| n8n validate | 6/6 JSON |
-| calibration_report | INSUFFICIENT_DATA |
+| `npm run typecheck` | PASS |
+| `.venv/bin/pytest tests/ -q` | **1404 passed**, 0 failed |
+| `python3 scripts/freeze_lane_a.py` | OK (36 files) — no Lane-A source edits |
+| `python3 tests/validate_n8n.py` | 6/6 JSON VALID |
+| Lane-A backfill (agent host) | registered=97, obs_written=354 → OBSERVING=101 |
+| `outcome_labels` | 0 — await T+72h |
+| `calibration_report` | INSUFFICIENT_DATA (honest) |
 
 ---
 
