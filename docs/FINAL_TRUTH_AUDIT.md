@@ -16,12 +16,12 @@ Operator protocol: `docs/OPERATOR_VALIDATION_PROTOCOL.md`
 
 | Check | Result |
 |-------|--------|
-| pytest | **1415 passed** |
+| pytest | **1417 passed** |
 | `npm run typecheck` | PASS |
 | Lane-A freeze | PASS (36 files) |
 | n8n structural | PASS (6/6) |
-| backup drill (synthetic) | PASS |
-| operator_validation_gate tests | PASS |
+| backup drill (synthetic) | PASS (prior) |
+| operator_validation_gate / security / paths | PASS |
 
 ## Windows operator gates
 
