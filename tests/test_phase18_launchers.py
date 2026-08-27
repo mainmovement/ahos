@@ -123,6 +123,113 @@ def test_install_windows_has_crlf_line_endings():
     assert bare_lf == 0, f"install_windows.ps1 contains {bare_lf} bare LF line endings"
 
 
+def test_install_windows_is_ascii_only():
+    """Windows PowerShell 5.1 often reads UTF-8 .ps1 as system ANSI (cp1252).
+
+    UTF-8 em-dash bytes E2 80 94 become â€\" under that misread: the 0x94 byte
+    is a curly quote in cp1252 and terminates double-quoted strings early, which
+    is exactly the real Windows ParserError cascade (expression after '(', etc.).
+    ASCII-only punctuation prevents that class of failure.
+    """
+    raw = (ROOT / "install_windows.ps1").read_bytes()
+    try:
+        text = raw.decode("ascii")
+    except UnicodeDecodeError as exc:
+        pytest.fail(f"install_windows.ps1 contains non-ASCII bytes: {exc}")
+    assert all(ord(c) < 128 for c in text)
+
+
+def test_install_windows_python_c_payloads_are_single_quoted():
+    """Defense in depth: Python -c with () must not sit in PS double quotes."""
+    text = _read("install_windows.ps1")
+    # Flag any -c "..." form that embeds a Python call with parentheses.
+    dangerous = re.findall(
+        r"""-c\s+"[^"]*\([^"]*" """,
+        text,
+    )
+    assert not dangerous, (
+        "install_windows.ps1 must use single-quoted -c payloads when Python "
+        f"code contains (); found: {dangerous!r}"
+    )
+    # Positive pin: safety assert uses single quotes.
+    assert "-c 'from dotenv import load_dotenv" in text or (
+        "-c 'from architecture.security import assert_safe_environment" in text
+    ) or re.search(r"-c\s+'[^']*assert_safe_environment[^']*'", text)
+
+
+def test_install_windows_survives_cp1252_misread_parse(tmp_path):
+    """Regression for the real Windows laptop ParserError on PR #20 main.
+
+    Simulate PS 5.1 opening a UTF-8 script as Windows-1252, then require the
+    PowerShell AST parser to accept the result. Skips only if pwsh is absent.
+    """
+    pwsh = _find_pwsh()
+    if pwsh is None:
+        pytest.skip("pwsh not available for AST parse verification")
+
+    raw = (ROOT / "install_windows.ps1").read_bytes()
+    # Misread UTF-8 bytes as cp1252 (what Windows 5.1 does without BOM).
+    misread = raw.decode("cp1252", errors="replace")
+    victim = tmp_path / "install_windows_cp1252_misread.ps1"
+    victim.write_text(misread, encoding="utf-8", newline="\n")
+
+    proc = subprocess.run(
+        [
+            pwsh,
+            "-NoProfile",
+            "-Command",
+            (
+                "$t=$null; $e=$null; "
+                "[void][System.Management.Automation.Language.Parser]::ParseFile("
+                f"'{victim.as_posix()}', [ref]$t, [ref]$e); "
+                "if ($e -and $e.Count) { $e | ForEach-Object { $_.ToString() }; exit 1 }; "
+                "Write-Output 'PARSE_OK'"
+            ),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, (
+        "install_windows.ps1 must still parse after a cp1252 misread "
+        f"(Windows 5.1 failure mode).\nstdout={proc.stdout}\nstderr={proc.stderr}"
+    )
+    assert "PARSE_OK" in proc.stdout
+
+
+def test_install_windows_parses_under_pwsh():
+    """Direct AST parse of the committed installer (CRLF, as in the repo)."""
+    pwsh = _find_pwsh()
+    if pwsh is None:
+        pytest.skip("pwsh not available for AST parse verification")
+    path = (ROOT / "install_windows.ps1").resolve()
+    proc = subprocess.run(
+        [
+            pwsh,
+            "-NoProfile",
+            "-Command",
+            (
+                "$t=$null; $e=$null; "
+                "[void][System.Management.Automation.Language.Parser]::ParseFile("
+                f"'{path.as_posix()}', [ref]$t, [ref]$e); "
+                "if ($e -and $e.Count) { $e | ForEach-Object { $_.ToString() }; exit 1 }; "
+                "Write-Output ('PARSE_OK tokens=' + $t.Count)"
+            ),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "PARSE_OK" in proc.stdout
+
+
+def _find_pwsh() -> str | None:
+    from shutil import which
+
+    return which("pwsh") or which("powershell")
+
+
 def test_launcher_flags_are_accepted_by_the_runtime():
     """Every flag the launchers pass must really exist on the CLI."""
     proc = subprocess.run(

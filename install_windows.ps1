@@ -1,250 +1,199 @@
 # ==============================================================================
-# AHOS Windows Installer / Activation (canonical transfer path)
+# AHOS Windows 11 One-Click Installer (Double-Click Runnable)
 #
-# Aligns with: docs/WINDOWS_OPERATOR_HANDOFF.md
-#              docs/OPERATOR_VALIDATION_PROTOCOL.md
+# Operator prep ONLY. This script does NOT claim OPERATOR_READY and does NOT
+# start PRE_SOAK / soak. After install, run the Windows operator gate yourself:
+#   docs\WINDOWS_OPERATOR_HANDOFF.md
+#   python scripts\operator_validation_gate.py --platform windows ...
 #
-# This script prepares the laptop for Operator Validation.
-# It does NOT:
-#   - claim OPERATOR_READY or PRODUCTION_READY
-#   - run live provider probes (unless -SeedEvidence)
-#   - start PRE_SOAK / the ≥72h daemon
-#   - invent gateway/provider/Telegram/calibration evidence
-#   - modify Lane-A frozen sources
-#   - overwrite an existing .env
-#
-# Usage (PowerShell, repo root):
-#   Set-ExecutionPolicy -Scope Process Bypass
-#   .\install_windows.ps1
-#   .\install_windows.ps1 -SeedEvidence   # optional: one paper single-cycle
-#
-# Next step after success:
-#   docs\WINDOWS_OPERATOR_HANDOFF.md  (G2 gateway + operator_validation_gate)
+# Encoding contract (Windows PowerShell 5.1 + PowerShell 7):
+#   - ASCII-only punctuation in this file (no em-dash, no >= glyph)
+#   - Python -c payloads use SINGLE-QUOTED PowerShell strings so () is not
+#     parsed as a PowerShell subexpression (ParserError on Windows 5.1)
 # ==============================================================================
 
-[CmdletBinding()]
 param(
-    [switch]$SeedEvidence,
-    [switch]$SkipNpm
+    # Optional: run one observation single-cycle after install to seed local
+    # evidence. Default OFF - install must stay conservative and honest.
+    [switch]$SeedEvidence
 )
 
 $ErrorActionPreference = "Stop"
 
-function Write-Step([string]$Msg) {
-    Write-Host "`n$Msg" -ForegroundColor Yellow
-}
-function Write-Ok([string]$Msg) {
-    Write-Host "  $Msg" -ForegroundColor Green
-}
-function Write-Warn([string]$Msg) {
-    Write-Host "  $Msg" -ForegroundColor DarkYellow
-}
-function Write-Err([string]$Msg) {
-    Write-Host "  ERROR: $Msg" -ForegroundColor Red
-}
-function Require-Cmd([string]$Name) {
-    $cmd = Get-Command $Name -ErrorAction SilentlyContinue
-    if (-not $cmd) {
-        # Windows often exposes npm as npm.cmd
-        $cmd = Get-Command "$Name.cmd" -ErrorAction SilentlyContinue
-    }
-    if (-not $cmd) {
-        Write-Err "$Name not found on PATH."
-        exit 1
-    }
-    return $cmd.Source
-}
-
-Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "  AHOS Windows Installer (Operator Validation prep)" -ForegroundColor Cyan
-Write-Host "  Classification : INTEGRATION_READY (agent-host)" -ForegroundColor DarkGray
-Write-Host "  OPERATOR_READY : NOT_VERIFIED (this script never changes that)" -ForegroundColor DarkGray
-Write-Host "==========================================================" -ForegroundColor Cyan
-
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $ScriptDir
 
-# ---- 1) Platform + tool versions -------------------------------------------
-Write-Step "[1/9] Verifying Windows + Python + Node/npm..."
-if ($env:OS -ne "Windows_NT") {
-    Write-Warn "OS env is not Windows_NT; continuing (cross-host dry run)."
+function Write-Step([string]$Message) {
+    Write-Host ""
+    Write-Host ("==> " + $Message) -ForegroundColor Cyan
 }
 
-try {
-    $pyVerOut = & python --version 2>&1
-    Write-Ok "Python: $pyVerOut"
-} catch {
-    Write-Err "Python 3.11+ required. Install from https://python.org (Add to PATH)."
-    exit 1
-}
-
-$pyCheck = & python -c "import sys; print(sys.version_info[:2] >= (3,11))"
-if ($pyCheck.Trim() -ne "True") {
-    Write-Err "Python 3.11+ required (found: $pyVerOut)."
-    exit 1
-}
-
-$nodePath = Require-Cmd "node"
-$npmPath = Require-Cmd "npm"
-$nodeVer = & node --version 2>&1
-$npmVer = & npm --version 2>&1
-Write-Ok "Node: $nodeVer ($nodePath)"
-Write-Ok "npm:  $npmVer ($npmPath)"
-
-# ---- 2) Virtualenv ---------------------------------------------------------
-Write-Step "[2/9] Creating/reusing .venv..."
-$VenvPython = Join-Path $ScriptDir ".venv\Scripts\python.exe"
-$VenvPip = Join-Path $ScriptDir ".venv\Scripts\pip.exe"
-if (-not (Test-Path $VenvPython)) {
-    & python -m venv .venv
-    Write-Ok "Created .venv"
-} else {
-    Write-Ok "Existing .venv reused"
-}
-if (-not (Test-Path $VenvPython)) {
-    Write-Err ".venv\Scripts\python.exe missing after venv create."
-    exit 1
-}
-
-# ---- 3) Python deps --------------------------------------------------------
-Write-Step "[3/9] Installing Python requirements..."
-if (-not (Test-Path "requirements.txt")) {
-    Write-Err "requirements.txt missing."
-    exit 1
-}
-& $VenvPython -m pip install -U pip
-& $VenvPython -m pip install -r requirements.txt
-Write-Ok "requirements.txt installed (no editable install; no pyproject.toml)"
-
-# ---- 4) Node deps (One-Brain / G2) -----------------------------------------
-Write-Step "[4/9] Installing Node dependencies (npm install)..."
-if ($SkipNpm) {
-    Write-Warn "Skipped (-SkipNpm). G2 / npm run dev will fail until you run: npm install"
-} else {
-    if (-not (Test-Path "package.json")) {
-        Write-Err "package.json missing."
-        exit 1
-    }
-    # Prefer npm.cmd resolution via Require-Cmd above; call through cmd for .cmd safety
-    & npm install
-    if ($LASTEXITCODE -ne 0) {
-        Write-Err "npm install failed (exit $LASTEXITCODE)."
-        exit $LASTEXITCODE
-    }
-    Write-Ok "npm install complete"
-}
-
-# ---- 5) Directories --------------------------------------------------------
-Write-Step "[5/9] Ensuring workspace directories..."
-foreach ($dir in @("data", "reports", "logs", "research\reports")) {
-    if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-        Write-Ok "Created $dir"
+function Assert-Command([string]$Name) {
+    if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
+        throw ("Required command not found on PATH: " + $Name)
     }
 }
-Write-Ok "Directories ready (SQLite DBs are gitignored runtime state)"
 
-# ---- 6) Canonical env contract (root .env — never overwrite) ---------------
-Write-Step "[6/9] Establishing PAPER_ONLY / env contract..."
-$env:AHOS_PAPER_ONLY = "1"
-$env:AHOS_EVIDENCE_SOURCE = "local"
-Write-Ok "Process env: AHOS_PAPER_ONLY=1, AHOS_EVIDENCE_SOURCE=local"
-
-$RootEnv = Join-Path $ScriptDir ".env"
-$RootEnvExample = Join-Path $ScriptDir ".env.example"
-if (-not (Test-Path $RootEnvExample)) {
-    Write-Err ".env.example missing (canonical operator template)."
-    exit 1
-}
-if (-not (Test-Path $RootEnv)) {
-    Copy-Item $RootEnvExample $RootEnv
-    Write-Ok "Created .env from .env.example (gitignored; fill secrets locally)"
-    Write-Warn "Edit .env: set DATABASE_URL for G2 (Postgres) before npm run dev."
-    Write-Warn "Do NOT commit .env."
-} else {
-    Write-Ok "Existing .env left untouched (never overwritten by installer)"
-}
-
-# deployment\.env is NOT the One-Brain / operator canonical path.
-if (Test-Path "deployment\.env.example") {
-    Write-Warn "Note: deployment\.env.example is a deployment template — operator runtime uses root .env"
-}
-
-# Validate PAPER_ONLY cannot be explicitly disabled in process (security module).
-& $VenvPython -c "from architecture.security import assert_safe_environment; print(assert_safe_environment())"
-if ($LASTEXITCODE -ne 0) {
-    Write-Err "Security assert_safe_environment failed."
-    exit $LASTEXITCODE
-}
-Write-Ok "Security assert_safe_environment OK (PAPER_ONLY contract)"
-
-# DATABASE_URL presence check (do not invent Postgres).
-$dbUrl = $env:DATABASE_URL
-if (-not $dbUrl -and (Test-Path $RootEnv)) {
-    $line = Select-String -Path $RootEnv -Pattern '^\s*DATABASE_URL\s*=\s*(.+)$' | Select-Object -First 1
-    if ($line) {
-        $dbUrl = $line.Matches[0].Groups[1].Value.Trim()
-    }
-}
-if ([string]::IsNullOrWhiteSpace($dbUrl)) {
-    Write-Warn "DATABASE_URL unset — G2 (One-Brain /api/chat) will FAIL until Postgres is configured."
-    Write-Warn "Set in .env: DATABASE_URL=postgresql://USER:PASS@127.0.0.1:5432/ahos"
-} else {
-    Write-Ok "DATABASE_URL is set in environment/.env (value not printed)."
-}
-
-# ---- 7) Initialize SQLite stores -------------------------------------------
-Write-Step "[7/9] Initializing SQLite stores (canonical)..."
-& $VenvPython scripts\init_databases.py --with-guards
-if ($LASTEXITCODE -ne 0) {
-    Write-Err "init_databases.py failed (exit $LASTEXITCODE)."
-    exit $LASTEXITCODE
-}
-Write-Ok "SQLite stores healthy (or repaired idempotently)"
-
-# Optional local path dump — never commit; write under reports/ (machine-local).
-$stamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$pathOut = Join-Path $ScriptDir "reports\paths_local_$stamp.yaml"
-& $VenvPython -c "from config.paths import export_paths_yaml; export_paths_yaml(r'$pathOut'); print(r'$pathOut')"
-Write-Ok "Wrote local path diagnostic: reports\paths_local_$stamp.yaml (do not commit secrets)"
-
-# ---- 8) Optional seed (NOT a readiness claim) ------------------------------
-Write-Step "[8/9] Evidence seed..."
-if ($SeedEvidence) {
-    Write-Warn "Running ONE paper single-cycle with --evidence-source local (live network may be used)."
-    Write-Warn "This does NOT prove OPERATOR_READY."
-    & $VenvPython -m architecture.runtime --single-cycle --evidence-source local --limit 5
-    if ($LASTEXITCODE -ne 0) {
-        Write-Warn "single-cycle exited $LASTEXITCODE — diagnose honestly; do not mock providers."
-    } else {
-        & $VenvPython scripts\prediction_lifecycle_status.py
-        Write-Ok "Seed cycle finished (inspect lifecycle status; labels may be 0 until T+72h)."
-    }
-} else {
-    Write-Ok "Skipped live seed (default). Use -SeedEvidence to run one paper cycle."
-}
-
-# ---- 9) Next operator commands (no auto gate / no auto soak) ---------------
-Write-Step "[9/9] Installer complete — next human steps"
-Write-Host ""
-Write-Host "  STATUS" -ForegroundColor Cyan
-Write-Host "    INTEGRATION_READY     : prior agent-host claim (unchanged by installer)" -ForegroundColor DarkGray
-Write-Host "    OPERATOR_READY        : NOT_VERIFIED" -ForegroundColor DarkGray
-Write-Host "    PRE_SOAK              : do NOT start until pre_soak_entry_ok" -ForegroundColor DarkGray
-Write-Host ""
-Write-Host "  NEXT (Terminal A) — One-Brain gateway for G2:" -ForegroundColor Cyan
-Write-Host "    1. Ensure .env has DATABASE_URL + AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat" -ForegroundColor White
-Write-Host "    2. npm run dev" -ForegroundColor White
-Write-Host ""
-Write-Host "  NEXT (Terminal B) — Operator Validation Gate:" -ForegroundColor Cyan
-Write-Host "    .\.venv\Scripts\Activate.ps1" -ForegroundColor White
-Write-Host "    `$env:AHOS_PAPER_ONLY = `"1`"" -ForegroundColor White
-Write-Host "    `$env:AHOS_EVIDENCE_SOURCE = `"local`"" -ForegroundColor White
-Write-Host "    `$env:AHOS_GATEWAY_URL = `"http://127.0.0.1:3000/api/chat`"" -ForegroundColor White
-Write-Host "    python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill" -ForegroundColor White
-Write-Host ""
-Write-Host "  Full protocol: docs\WINDOWS_OPERATOR_HANDOFF.md" -ForegroundColor Cyan
-Write-Host "  Do NOT run .\start_ahos.ps1 (soak daemon) until summary.pre_soak_entry_ok == true." -ForegroundColor DarkYellow
+Write-Host "==========================================================" -ForegroundColor Cyan
+Write-Host "  AHOS Windows Installer - operator prep (not readiness)" -ForegroundColor Cyan
+Write-Host "==========================================================" -ForegroundColor Cyan
+Write-Host "  This installer prepares a PAPER_ONLY local host." -ForegroundColor DarkGray
+Write-Host "  It does NOT set OPERATOR_READY and does NOT start PRE_SOAK." -ForegroundColor DarkGray
 Write-Host "==========================================================" -ForegroundColor Cyan
 
-exit 0
+# ------------------------------------------------------------------------------
+# 1) Toolchain: Python 3.11+ and Node/npm
+# ------------------------------------------------------------------------------
+Write-Step "Checking Python 3.11+ and Node/npm"
+
+Assert-Command "python"
+Assert-Command "npm"
+Assert-Command "node"
+
+$pyVerRaw = & python -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])'
+if ($LASTEXITCODE -ne 0) {
+    throw "python failed while reporting version"
+}
+$pyParts = $pyVerRaw.Trim().Split(".")
+$pyMajor = [int]$pyParts[0]
+$pyMinor = [int]$pyParts[1]
+if (($pyMajor -lt 3) -or (($pyMajor -eq 3) -and ($pyMinor -lt 11))) {
+    throw ("Python 3.11+ required; found " + $pyVerRaw.Trim())
+}
+Write-Host ("  Python OK: " + $pyVerRaw.Trim()) -ForegroundColor Green
+Write-Host ("  Node   OK: " + ((& node --version) | Out-String).Trim()) -ForegroundColor Green
+Write-Host ("  npm    OK: " + ((& npm --version) | Out-String).Trim()) -ForegroundColor Green
+
+# ------------------------------------------------------------------------------
+# 2) Python venv + requirements.txt
+# ------------------------------------------------------------------------------
+Write-Step "Creating/updating .venv and installing requirements.txt"
+
+$VenvPython = Join-Path $ScriptDir ".venv\Scripts\python.exe"
+if (-not (Test-Path $VenvPython)) {
+    & python -m venv .venv
+    if ($LASTEXITCODE -ne 0) { throw "python -m venv .venv failed" }
+}
+
+& $VenvPython -m pip install --upgrade pip
+if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed" }
+
+& $VenvPython -m pip install -r requirements.txt
+if ($LASTEXITCODE -ne 0) { throw "pip install -r requirements.txt failed" }
+Write-Host "  Python dependencies installed." -ForegroundColor Green
+
+# ------------------------------------------------------------------------------
+# 3) Node dependencies (n8n structural / gateway tooling)
+# ------------------------------------------------------------------------------
+Write-Step "Installing npm dependencies (npm install)"
+& npm install
+if ($LASTEXITCODE -ne 0) { throw "npm install failed" }
+Write-Host "  npm dependencies installed." -ForegroundColor Green
+
+# ------------------------------------------------------------------------------
+# 4) Root .env from .env.example (never overwrite an existing .env)
+# ------------------------------------------------------------------------------
+Write-Step "Ensuring root .env exists (from .env.example if needed)"
+
+$EnvPath = Join-Path $ScriptDir ".env"
+$EnvExample = Join-Path $ScriptDir ".env.example"
+if (-not (Test-Path $EnvExample)) {
+    throw ".env.example is missing - cannot bootstrap operator env"
+}
+if (-not (Test-Path $EnvPath)) {
+    Copy-Item -Path $EnvExample -Destination $EnvPath
+    Write-Host "  Created .env from .env.example (edit secrets before live providers)." -ForegroundColor Yellow
+} else {
+    Write-Host "  Existing .env left unchanged." -ForegroundColor Green
+}
+Write-Host "  Note: deployment\.env is NOT the operator runtime env for this host." -ForegroundColor DarkGray
+
+# ------------------------------------------------------------------------------
+# 5) Force PAPER_ONLY and verify safety assert (no fake provider PASS)
+# ------------------------------------------------------------------------------
+Write-Step "Enforcing AHOS_PAPER_ONLY=1 and running assert_safe_environment"
+
+$env:AHOS_PAPER_ONLY = "1"
+# SINGLE-QUOTED -c payload: Windows PowerShell must not parse Python () as PS.
+& $VenvPython -c 'from dotenv import load_dotenv; load_dotenv(); from config.runtime_env import assert_safe_environment; print(assert_safe_environment())'
+if ($LASTEXITCODE -ne 0) {
+    throw "assert_safe_environment failed - fix .env / PAPER_ONLY before continuing"
+}
+Write-Host "  Safety assert OK (PAPER_ONLY enforced)." -ForegroundColor Green
+
+# ------------------------------------------------------------------------------
+# 6) Explicit Postgres / DATABASE_URL reminder (G2 remains blocked without it)
+# ------------------------------------------------------------------------------
+Write-Step "DATABASE_URL / Postgres reminder (required for G2 gateway)"
+
+$dbUrl = $env:DATABASE_URL
+if (-not $dbUrl) {
+    # Best-effort read from .env without claiming the gateway is ready.
+    $line = Get-Content $EnvPath -ErrorAction SilentlyContinue |
+        Where-Object { $_ -match '^\s*DATABASE_URL\s*=' } |
+        Select-Object -First 1
+    if ($line) {
+        $dbUrl = ($line -split '=', 2)[1].Trim().Trim('"').Trim("'")
+    }
+}
+
+if (-not $dbUrl -or $dbUrl -match 'CHANGE_ME|your-password|example\.com|localhost:5432\/ahos(\s|$)' ) {
+    Write-Host "  WARNING: DATABASE_URL is missing or still a placeholder." -ForegroundColor Yellow
+    Write-Host "  G2 (gateway POST /api/chat) REQUIRES a reachable Postgres DATABASE_URL." -ForegroundColor Yellow
+    Write-Host "  Edit .env, start Postgres, then re-run the operator gate." -ForegroundColor Yellow
+    Write-Host "  Installer continues (SQLite init still needed); G2 will FAIL until fixed." -ForegroundColor Yellow
+} else {
+    Write-Host "  DATABASE_URL is set in the environment or .env (operator must still verify reachability)." -ForegroundColor Green
+}
+
+# ------------------------------------------------------------------------------
+# 7) Initialize local SQLite stores (guarded; never invents readiness)
+# ------------------------------------------------------------------------------
+Write-Step "Initializing local SQLite databases (scripts\init_databases.py --with-guards)"
+& $VenvPython scripts\init_databases.py --with-guards
+if ($LASTEXITCODE -ne 0) {
+    throw ("init_databases.py --with-guards failed with exit " + $LASTEXITCODE)
+}
+Write-Host "  Local SQLite stores ready (or already present)." -ForegroundColor Green
+
+# ------------------------------------------------------------------------------
+# 8) Optional evidence seed (OFF by default) - never auto PRE_SOAK / never ready
+# ------------------------------------------------------------------------------
+if ($SeedEvidence) {
+    Write-Step "Optional -SeedEvidence: one observation single-cycle (local evidence)"
+    $env:AHOS_EVIDENCE_SOURCE = "local"
+    & $VenvPython -m architecture.runtime --once --observation-cycle --evidence-source local
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ("  WARNING: single-cycle exited " + $LASTEXITCODE + " - diagnose honestly; do not claim PASS.") -ForegroundColor Yellow
+    } else {
+        Write-Host "  Single-cycle completed (still NOT OPERATOR_READY)." -ForegroundColor Green
+    }
+} else {
+    Write-Host ""
+    Write-Host "  Skipping live single-cycle (default). Use -SeedEvidence only if you want local evidence seed." -ForegroundColor DarkGray
+}
+
+# ------------------------------------------------------------------------------
+# 9) Explicit next step: Windows operator gate (NOT auto-run)
+# ------------------------------------------------------------------------------
+Write-Host ""
+Write-Host "==========================================================" -ForegroundColor Green
+Write-Host "  Install prep finished. OPERATOR_READY remains NOT_VERIFIED." -ForegroundColor Green
+Write-Host "==========================================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "NEXT (required - not started by this installer):" -ForegroundColor Cyan
+Write-Host "  1. Edit .env: API keys, Telegram, and a real DATABASE_URL (Postgres for G2)." -ForegroundColor White
+Write-Host "  2. Start Postgres and ensure the gateway can reach DATABASE_URL." -ForegroundColor White
+Write-Host "  3. Follow docs\WINDOWS_OPERATOR_HANDOFF.md" -ForegroundColor White
+Write-Host "  4. Run the Windows operator gate, for example:" -ForegroundColor White
+Write-Host ""
+Write-Host "     .\.venv\Scripts\python.exe scripts\operator_validation_gate.py ``" -ForegroundColor Yellow
+Write-Host "       --platform windows ``" -ForegroundColor Yellow
+Write-Host "       --repo-root . ``" -ForegroundColor Yellow
+Write-Host "       --out reports\operator_validation_windows.json ``" -ForegroundColor Yellow
+Write-Host "       --require-owner-action" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "  Do NOT claim OPERATOR_READY until that gate reports it on Windows." -ForegroundColor Yellow
+Write-Host "  Do NOT start PRE_SOAK until summary.pre_soak_entry_ok == true." -ForegroundColor Yellow
+Write-Host "  PAPER_ONLY remains mandatory. No live trading." -ForegroundColor Yellow
+Write-Host ""
