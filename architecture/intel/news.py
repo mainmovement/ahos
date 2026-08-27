@@ -242,15 +242,21 @@ class NewsCollector:
                 keywords: Iterable[str] | None = None,
                 items: list[NewsItem] | None = None,
                 max_age_sec: float | None = 86400.0,
-                now: float | None = None) -> NarrativeSignal:
+                now: float | None = None,
+                feeds_ok: list[str] | None = None,
+                feeds_failed: list[dict[str, str]] | None = None) -> NarrativeSignal:
         """Produce a bounded narrative signal for `subject`.
 
         `keywords` filters headlines (e.g. a token symbol + name). When omitted the
         whole feed is treated as market-wide context.
+
+        When `items` is supplied (shared prefetch for a pipeline run), optional
+        `feeds_ok` / `feeds_failed` preserve fetch provenance so unreachable
+        feeds remain UNKNOWN rather than silent.
         """
         ts = time.time() if now is None else now
-        ok: list[str] = []
-        failed: list[dict[str, str]] = []
+        ok: list[str] = list(feeds_ok or [])
+        failed: list[dict[str, str]] = list(feeds_failed or [])
 
         if items is None:
             items, ok, failed = self.fetch_all()

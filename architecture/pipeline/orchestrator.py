@@ -114,10 +114,43 @@ class OpportunityPipelineOrchestrator:
 
         # 2. Evidence → Features → Risk → Score → Explanations
         #    (raw candidate data does not enter the intelligence calculations)
+        #
+        # Narrative prefetch (P0-3 / R-69): one RSS pull per pipeline cycle.
+        # Disable with AHOS_NARRATIVE_FETCH=0. Failures degrade to UNKNOWN.
+        import os
+        narrative_items = None
+        narrative_feeds_ok: list[str] = []
+        narrative_feeds_failed: list[dict] = []
+        narrative_fetch_enabled = os.environ.get("AHOS_NARRATIVE_FETCH", "1").strip() != "0"
+        if narrative_fetch_enabled:
+            try:
+                from ..intel.news import NewsCollector
+                narrative_items, narrative_feeds_ok, narrative_feeds_failed = (
+                    NewsCollector().fetch_all())
+            except Exception as e:  # noqa: BLE001 — never abort scoring for news
+                narrative_items = []
+                narrative_feeds_failed = [
+                    {"feed": "*", "error": f"{type(e).__name__}: {str(e)[:120]}"}]
+
         paired: list[tuple[NormalizedTokenCandidate, OpportunityScoreReport]] = []
         for cand in candidates:
             bundle = materialize_evidence(cand, now=t0)
             bundle = OpportunityScorer.attach_virality(bundle, cand, t0)
+            if narrative_items is not None:
+                bundle = OpportunityScorer.attach_narrative(
+                    bundle, cand, t0,
+                    items=narrative_items,
+                    feeds_ok=narrative_feeds_ok,
+                    feeds_failed=narrative_feeds_failed,
+                )
+            else:
+                bundle = OpportunityScorer.attach_narrative(
+                    bundle, cand, t0, fetch=False)
+            bundle = OpportunityScorer.attach_market_structure(bundle, cand, t0)
+            bundle = OpportunityScorer.attach_tokenomics(bundle, cand, t0)
+            bundle = OpportunityScorer.attach_catalysts(
+                bundle, cand, t0,
+                news_items=narrative_items if narrative_items is not None else [])
             intel = self.intelligence.evaluate(bundle)
             rep = self.scorer.from_intelligence(intel)
             # Stamp the discovery provider on the report (calibration Q8
