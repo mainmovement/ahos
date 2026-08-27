@@ -7,7 +7,6 @@ import {
   lessons,
   marketSnapshots,
   newsItems,
-  opportunities,
   outcomes,
   paperPositions,
   providerSnapshots,
@@ -17,13 +16,19 @@ import {
 import { desc, eq } from "drizzle-orm";
 import { TEAM_META } from "./council";
 import { ensureState } from "./engine";
+// ONE BRAIN: the visible opportunity table is sourced from the Python canonical
+// decision store (read-only), NOT from TS scoring. Fail-closed: no canonical
+// eligible record ⇒ no opportunity shown.
+import { loadCanonicalSnapshot, listCanonicalOpportunities } from "@/canonical_store";
 
 export async function commandSnapshot() {
   await ensureState();
   const [state] = await db.select().from(systemState).limit(1);
   const [cycle] = await db.select().from(cycles).orderBy(desc(cycles.id)).limit(1);
   const [market] = await db.select().from(marketSnapshots).orderBy(desc(marketSnapshots.id)).limit(1);
-  const opps = await db.select().from(opportunities).orderBy(desc(opportunities.id)).limit(30);
+  // Canonical opportunities (Python authority, read-only, fail-closed).
+  const canonicalSnap = await loadCanonicalSnapshot();
+  const canonicalOpps = listCanonicalOpportunities(canonicalSnap);
   const news = await db.select().from(newsItems).orderBy(desc(newsItems.id)).limit(24);
   const providers = cycle
     ? await db.select().from(providerSnapshots).where(eq(providerSnapshots.cycleId, cycle.id))
@@ -101,28 +106,36 @@ export async function commandSnapshot() {
           createdAt: market.createdAt,
         }
       : null,
-    opportunities: opps.map((o) => ({
-      id: o.id,
-      tokenKey: o.tokenKey,
-      symbol: o.symbol,
-      name: o.name,
-      chain: o.chain,
-      address: o.address,
-      decision: o.decision,
-      rankScore: o.rankScore,
-      confidence: o.confidence,
-      securityStatus: o.securityStatus,
-      evidenceCoverage: o.evidenceCoverage,
-      reasonsFa: o.reasonsFa,
-      risksFa: o.risksFa,
-      unknownsFa: o.unknownsFa,
-      invalidationFa: o.invalidationFa,
-      missingFa: o.missingFa,
-      councilVerdict: o.councilVerdict,
-      disagreement: o.disagreement,
-      payload: o.payload,
-      createdAt: o.createdAt,
-    })),
+    // Sourced from the canonical decision store. Only PASS-eligible, fresh,
+    // valid records appear; UNKNOWN/VETO/stale/malformed/missing are excluded
+    // (fail-closed). No TS scoring, no PostgreSQL opportunity fallback.
+    opportunities: canonicalOpps.map((r, i) => {
+      const p = (r.presentation ?? {}) as Record<string, unknown>;
+      const asList = (v: unknown): string[] => (Array.isArray(v) ? (v as string[]) : []);
+      return {
+        id: i + 1,
+        tokenKey: r.canonical_token_id,
+        symbol: String(p.symbol ?? ""),
+        name: (typeof p.name === "string" ? p.name : null),
+        chain: r.chain,
+        address: r.normalized_contract_address,
+        // Canonical eligible = a monitored opportunity (AHOS never emits BUY).
+        decision: "WATCH",
+        rankScore: r.opportunity_score / 100,
+        confidence: String(p.confidence_level ?? "UNKNOWN"),
+        securityStatus: r.security_disposition,
+        evidenceCoverage: null,
+        reasonsFa: asList(p.reasons_fa),
+        risksFa: asList(p.risks_fa),
+        unknownsFa: asList(p.unknowns_fa),
+        invalidationFa: null,
+        missingFa: [] as string[],
+        councilVerdict: r.recommendation_cap,
+        disagreement: false,
+        payload: null as Record<string, unknown> | null,
+        createdAt: new Date(r.decision_timestamp * 1000).toISOString(),
+      };
+    }),
     news: news.map((n) => ({
       id: n.id,
       source: n.source,

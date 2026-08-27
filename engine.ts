@@ -1,28 +1,22 @@
 import { db } from "@/db";
 import {
-  councilReports,
   cycles,
-  expertVotes,
   findings,
   lessons,
   marketSnapshots,
   newsItems,
   observations,
-  opportunities,
   outcomes,
   paperPositions,
   predictions,
   providerSnapshots,
-  securityReports,
   systemState,
   tokens,
   watchlist,
 } from "@/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
-import { processOpportunityAlerts } from "./alerts";
 import { collectNews } from "./news";
-import { collectMarket, enrichPairs, fetchSecurity, mergePairs } from "./providers";
-import { rankOpportunities, scoreToken } from "./scoring";
+import { collectMarket, enrichPairs, mergePairs } from "./providers";
 import type { Envelope, PairObservation, ScoredOpportunity } from "./types";
 
 /** Base interval; stays continuous until stop. */
@@ -230,148 +224,21 @@ export async function runCycle(reason: string) {
       });
     }
 
-    const inspect = pairs.slice(0, SECURITY_INSPECT_CAP);
-    const securityMap = new Map<string, Awaited<ReturnType<typeof fetchSecurity>>>();
-    const secResults = await mapPool(inspect, SECURITY_CONCURRENCY, async (token) => {
-      const sec = await fetchSecurity(token);
-      return { tokenKey: token.tokenKey, sec };
-    });
-    for (const { tokenKey, sec } of secResults) {
-      securityMap.set(tokenKey, sec);
-      await db.insert(securityReports).values({
-        tokenKey,
-        provider: sec.provider,
-        status: sec.status,
-        honeypot: sec.honeypot,
-        sellable: sec.sellable,
-        mintable: sec.mintable,
-        freezeable: sec.freezeable,
-        ownership: sec.ownership,
-        summaryFa: sec.summaryFa,
-        payload: { flags: sec.flags, raw: sec.raw },
-      });
-    }
-
-    const scored: ScoredOpportunity[] = [];
-    for (const token of pairs) {
-      const hits = news.stories.filter(
-        (n) =>
-          n.relatedTokens.includes(token.symbol) ||
-          n.titleOriginal.toUpperCase().includes(token.symbol) ||
-          n.titleFa.includes(token.symbol),
-      );
-      const negativeNews = hits.some((n) => n.sentiment === "NEG" || n.category.includes("هک"));
-      const opp = scoreToken({
-        token,
-        security: securityMap.get(token.tokenKey) ?? null,
-        fearGreed: market.global.fearGreed,
-        newsHits: hits.length,
-        negativeNews,
-      });
-      scored.push(opp);
-    }
-
-    const ranked = rankOpportunities(scored).slice(0, 40);
-    for (const opp of ranked) {
-      const [row] = await db
-        .insert(opportunities)
-        .values({
-          cycleId: cycle.id,
-          tokenKey: opp.token.tokenKey,
-          symbol: opp.token.symbol,
-          name: opp.token.name,
-          chain: opp.token.chain,
-          address: opp.token.address,
-          decision: opp.decision,
-          rankScore: opp.rankScore,
-          confidence: opp.confidence,
-          securityStatus: opp.securityStatus,
-          evidenceCoverage: opp.evidenceCoverage,
-          reasonsFa: opp.reasonsFa,
-          risksFa: opp.risksFa,
-          unknownsFa: opp.unknownsFa,
-          invalidationFa: opp.invalidationFa,
-          missingFa: opp.missingFa,
-          councilVerdict: opp.councilVerdict,
-          disagreement: opp.disagreement,
-          payload: {
-            source: opp.token.source,
-            priceUsd: opp.token.priceUsd,
-            liquidityUsd: opp.token.liquidityUsd,
-            volume24h: opp.token.volume24h,
-            priceChange24h: opp.token.priceChange24h,
-            url: opp.token.url,
-            paidPromotion: opp.token.paidPromotion,
-            teamTally: tally(opp.votes),
-          },
-        })
-        .returning();
-
-      const sampleVotes = sampleTeamVotes(opp.votes);
-      if (sampleVotes.length) {
-        await db.insert(expertVotes).values(
-          sampleVotes.map((v) => ({
-            cycleId: cycle.id,
-            tokenKey: opp.token.tokenKey,
-            expertId: v.expertId,
-            teamId: v.teamId,
-            expertNameFa: v.expertNameFa,
-            vote: v.vote,
-            confidence: v.confidence,
-            reasonFa: v.reasonFa,
-            uncertaintyFa: v.uncertaintyFa,
-          })),
-        );
-      }
-      await db.insert(councilReports).values({
-        cycleId: cycle.id,
-        tokenKey: opp.token.tokenKey,
-        verdict: opp.councilVerdict,
-        agreeCount: opp.votes.filter((v) => v.vote === "WATCH").length,
-        rejectCount: opp.votes.filter((v) => v.vote === "REJECT").length,
-        abstainCount: opp.votes.filter((v) => v.vote === "ABSTAIN" || v.vote === "UNKNOWN").length,
-        watchCount: opp.votes.filter((v) => v.vote === "WATCH").length,
-        summaryFa: `${opp.token.symbol}: ${opp.councilVerdict}. اختلاف=${opp.disagreement ? "بله" : "کم"}.`,
-        disagreementFa: [...new Set(opp.votes.map((v) => v.vote))],
-      });
-
-      if (opp.decision === "WATCH" && opp.token.priceUsd != null) {
-        await db.insert(predictions).values({
-          cycleId: cycle.id,
-          tokenKey: opp.token.tokenKey,
-          symbol: opp.token.symbol,
-          decision: opp.decision,
-          rankScore: opp.rankScore,
-          confidence: opp.confidence,
-          horizonMin: 240,
-          entryPrice: opp.token.priceUsd,
-          evidence: { opportunityId: row.id, coverage: opp.evidenceCoverage },
-          source: "local",
-        });
-      }
-    }
-
-    // W45: critical opportunity alerts → web state + optional Telegram (env secrets only)
-    let alertMeta: { count: number; telegramOk: number } = { count: 0, telegramOk: 0 };
-    try {
-      const alertResult = await processOpportunityAlerts(ranked);
-      alertMeta = {
-        count: alertResult.emitted.length,
-        telegramOk: alertResult.telegram.filter((t) => t.ok).length,
-      };
-    } catch {
-      /* alert path must never fail the cycle */
-    }
+    // ONE BRAIN: opportunity scoring, security decisions, ranking, council, and
+    // opportunity/prediction persistence are the Python canonical brain's SOLE
+    // authority. This web cycle is CONTEXT-ONLY — it collects market/news/token
+    // context for presentation and maintains paper positions on already-open
+    // positions. It no longer scores tokens, fetches security, ranks, runs a
+    // council, or writes TS opportunity/prediction/council rows. The visible
+    // opportunity table is served from the canonical decision store
+    // (see snapshot.ts → listCanonicalOpportunities). No TS opportunity fallback.
+    const alertMeta = { count: 0, telegramOk: 0 };
 
     await markPaperPrices(pairs);
     await resolvePredictions(pairs);
-    await writeFindings(cycle.id, market.envelopes, news.envelopes, ranked);
+    await writeFindings(cycle.id, market.envelopes, news.envelopes, []);
 
-    const unknownShare =
-      ranked.length === 0
-        ? 1
-        : ranked.filter((o) => o.decision === "INSUFFICIENT_EVIDENCE" || o.confidence === "UNKNOWN").length /
-          ranked.length;
+    const unknownShare: number | null = null;
 
     const durationMs = Date.now() - started;
     await db
@@ -382,14 +249,12 @@ export async function runCycle(reason: string) {
         durationMs,
         tokenCount: pairs.length,
         newsCount: news.stories.length,
-        opportunityCount: ranked.length,
+        opportunityCount: 0,
         unknownShare,
-        notesFa: `چرخه کامل. توکن=${pairs.length} خبر=${news.stories.length} فرصت=${ranked.length} هشدار=${alertMeta.count} زمان=${durationMs}ms`,
+        notesFa: `چرخهٔ زمینه کامل شد. توکن=${pairs.length} خبر=${news.stories.length} زمان=${durationMs}ms — فرصت‌ها از مغز کانونی پایتون می‌آیند.`,
         details: {
           reason,
-          securityInspected: inspect.length,
-          parallelSecurity: SECURITY_CONCURRENCY,
-          alerts: alertMeta,
+          contextOnly: true,
         },
       })
       .where(eq(cycles.id, cycle.id));

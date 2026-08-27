@@ -62,6 +62,15 @@ class OpportunityScoreReport:
     provenance_sha256: str = ""
     source_provider: str = "UNKNOWN"     # which provider supplied the candidate
     intel_evidence_items: list[dict] = field(default_factory=list)  # full intel evidence (beyond the 4 canonical items)
+    # P0 security authority (set by the pipeline's SecurityGate BEFORE ranking).
+    # None means the gate was not applied (e.g. direct scorer.evaluate calls); the
+    # production pipeline always sets these. Only "PASS" may become a positive opportunity.
+    security_disposition: str | None = None   # PASS | PASS_WITH_UNKNOWN | SECURITY_VETO
+    recommendation_cap: str | None = None      # PASS | WATCH | AVOID
+
+    def is_security_cleared(self) -> bool:
+        """True only when the security gate explicitly PASSED this candidate."""
+        return self.security_disposition == "PASS"
 
     def answer_why_scored(self) -> str:
         return "\n".join(f"+ {r}" for r in self.positive_reasons) if self.positive_reasons else "امتیاز پایه حداقلی"

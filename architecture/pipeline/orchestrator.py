@@ -28,6 +28,10 @@ from ..intelligence.engine import IntelligenceEngine
 from ..intelligence.evidence import materialize_evidence
 from ..learning.score_ledger import ScoreLedger
 from ..alerts.engine import AlertEngine
+from ..security.gate import SecurityGate, SecurityDisposition
+from ..canonical.contract import CanonicalDecision
+from ..canonical.decision_store import CanonicalDecisionStore
+from ..canonical.identity import canonical_token_id, canonical_chain, canonical_address
 from ..observability import Tracer, OperationTrace
 from telegram_ai.adapter import TelegramBotAdapterInterface
 from telegram_ai.alerts import Alert, render_fa as render_alert_fa
@@ -44,7 +48,13 @@ class PipelineExecutionReport:
     alerts_emitted: int
     telegram_messages_sent: int
     scores_persisted: int = 0
+    # RAW highest-score candidate — NOT an authority. It may be a SECURITY_VETO or
+    # PASS_WITH_UNKNOWN candidate. Never interpret this as a recommendation; use
+    # `recommended_opportunity` for the security-cleared, authoritative opportunity.
     top_opportunity: OpportunityScoreReport | None = None
+    # AUTHORITATIVE opportunity: the top security-cleared (PASS) candidate only.
+    # None when no candidate passed the security gate. Safe for user-facing surfaces.
+    recommended_opportunity: OpportunityScoreReport | None = None
     alerts: list[Alert] = field(default_factory=list)
     trace: OperationTrace | None = None
 
@@ -57,11 +67,21 @@ class OpportunityPipelineOrchestrator:
                  telegram_adapter: TelegramBotAdapterInterface | None = None,
                  target_chat_id: int | str | None = None,
                  intelligence: IntelligenceEngine | None = None,
-                 score_ledger: ScoreLedger | None = None):
+                 score_ledger: ScoreLedger | None = None,
+                 security_gate: SecurityGate | None = None,
+                 decision_store: CanonicalDecisionStore | None = None):
         self.intelligence = intelligence or IntelligenceEngine()
         self.collector = collector or CollectorEngine()
         self.scorer = scorer or OpportunityScorer(intelligence=self.intelligence)
         self.alert_engine = alert_engine or AlertEngine(score_threshold=70.0)
+        # P0 security authority: VETO / WATCH-cap / PASS is decided BEFORE ranking
+        # and alerting. UNKNOWN security can never become a positive opportunity.
+        self.security_gate = security_gate or SecurityGate()
+        # Canonical decision store: when injected (production daemon), this
+        # orchestrator is the SOLE writer of the cross-runtime canonical record
+        # every adapter (web/Telegram/n8n) consumes. Not defaulted, so ad-hoc /
+        # test constructions never write to the operator's real store.
+        self.decision_store = decision_store
         self.telegram_adapter = telegram_adapter
         self.target_chat_id = target_chat_id
         # Prediction persistence is EXPLICITLY INJECTED, never defaulted.
@@ -75,6 +95,49 @@ class OpportunityPipelineOrchestrator:
         # that does not ask for persistence does not get it.
         self.score_ledger = score_ledger
         self.tracer = Tracer("opportunity_pipeline", version="1.0.0")
+
+    @staticmethod
+    def _canonical_decision(cand: NormalizedTokenCandidate,
+                            rep: OpportunityScoreReport,
+                            disposition: SecurityDisposition,
+                            now: float) -> CanonicalDecision | None:
+        """Build the canonical record from the ALREADY-computed disposition/score.
+
+        Fail-closed: if a canonical identity cannot be formed, no record is
+        produced (the token simply has no canonical decision → adapters treat it
+        as not evaluated). No security/score is recomputed here.
+        """
+        cid = canonical_token_id(getattr(cand, "chain", None), getattr(cand, "address", None))
+        if cid is None:
+            return None
+        chain = canonical_chain(getattr(cand, "chain", None)) or str(getattr(cand, "chain", "") or "")
+        addr = canonical_address(getattr(cand, "chain", None), getattr(cand, "address", None)) \
+            or str(getattr(cand, "address", "") or "")
+        decision = CanonicalDecision(
+            canonical_token_id=cid,
+            chain=chain,
+            normalized_contract_address=addr,
+            security_disposition=disposition.verdict,
+            recommendation_cap=disposition.recommendation_cap,
+            # Authoritative eligibility == the security gate's PASS verdict.
+            opportunity_eligible=disposition.allows_opportunity(),
+            # Score is evidence only (never authority).
+            opportunity_score=float(getattr(rep, "opportunity_score", 0.0) or 0.0),
+            evidence_reference=str(getattr(rep, "provenance_sha256", "") or ""),
+            decision_timestamp=now,
+            # Non-authoritative display payload from the SAME report (no recompute).
+            presentation={
+                "symbol": str(getattr(rep, "token_symbol", "") or ""),
+                "name": str(getattr(rep, "token_name", "") or ""),
+                "chain": chain,
+                "confidence_level": str(getattr(rep, "confidence_level", "") or ""),
+                "risk_level": str(getattr(rep, "risk_level", "") or ""),
+                "reasons_fa": list(getattr(rep, "positive_reasons", []) or [])[:5],
+                "risks_fa": [getattr(r, "description", "") for r in (getattr(rep, "risk_deductions", []) or [])][:5],
+                "unknowns_fa": list(getattr(rep, "missing_unknowns", []) or [])[:5],
+            },
+        )
+        return decision if decision.validate() else None
 
     def run_pipeline(self, chain: str = "solana", limit: int = 10,
                      now: float | None = None) -> PipelineExecutionReport:
@@ -112,23 +175,38 @@ class OpportunityPipelineOrchestrator:
             cand_obj.identify_unknowns()
             candidates.append(cand_obj)
 
-        # 2. Evidence → Features → Risk → Score → Explanations
+        # 2. Evidence → Security Gate → Features → Risk → Score → Explanations
         #    (raw candidate data does not enter the intelligence calculations)
-        paired: list[tuple[NormalizedTokenCandidate, OpportunityScoreReport]] = []
+        #
+        # SECURITY AUTHORITY PRECEDES RANKING (P0): the security disposition is
+        # computed from the materialized Evidence BEFORE any ranking or alerting
+        # decision. UNKNOWN security is capped at WATCH and a confirmed veto is
+        # excluded from the positive-opportunity surface — a high numeric score can
+        # never bypass the security gate.
+        paired: list[tuple[NormalizedTokenCandidate, OpportunityScoreReport, SecurityDisposition]] = []
         for cand in candidates:
             bundle = materialize_evidence(cand, now=t0)
             bundle = OpportunityScorer.attach_virality(bundle, cand, t0)
             intel = self.intelligence.evaluate(bundle)
+            disposition = self.security_gate.evaluate(intel.evidence, intel.security)
             rep = self.scorer.from_intelligence(intel)
             # Stamp the discovery provider on the report (calibration Q8
             # segmentation by provider); from_intelligence cannot see the
             # candidate, so the pipeline does it here.
             rep.source_provider = str(getattr(cand, "source_provider", "") or "")
-            paired.append((cand, rep))
+            # Attach the security authority so every downstream consumer (alerts,
+            # Telegram, ledger, web adapter) reads one canonical disposition.
+            rep.security_disposition = disposition.verdict
+            rep.recommendation_cap = disposition.recommendation_cap
+            paired.append((cand, rep, disposition))
 
         ranked = sorted(paired, key=lambda item: item[1].opportunity_score, reverse=True)
-        reports = [rep for _, rep in ranked]
+        reports = [rep for _, rep, _ in ranked]
         top_opp = reports[0] if reports else None
+        # The positive-opportunity surface (Telegram "special opportunity") may only
+        # feature a security-cleared PASS candidate, regardless of numeric score.
+        top_cleared = next(
+            (rep for _, rep, disp in ranked if disp.allows_opportunity()), None)
 
         # 2b. Persist every prediction BEFORE any outcome is known.
         #     This is the `Prediction` node of the learning loop. Scoring after
@@ -140,10 +218,31 @@ class OpportunityPipelineOrchestrator:
             scores_persisted = self.score_ledger.record_many(
                 reports, run_id=trace_ctx.run_id, now=t0)
 
+        # 2c. Canonical decision store — the SINGLE cross-runtime authority.
+        #     Python (this brain) is the sole writer; adapters read only. We reuse
+        #     the disposition/score already computed above (no recomputation).
+        if self.decision_store is not None and paired:
+            decisions = [
+                d for d in (
+                    self._canonical_decision(cand, rep, disp, t0)
+                    for cand, rep, disp in paired
+                ) if d is not None
+            ]
+            if decisions:
+                try:
+                    self.decision_store.write_decisions(decisions, now=t0)
+                except Exception:
+                    # A store write failure must never abort a collection cycle;
+                    # adapters fail closed on a missing/stale record.
+                    pass
+
         # 3. Evaluate Alerts — keep candidate/report pairing (never zip after an independent sort)
+        #    The security disposition is passed so a positive OPPORTUNITY alert can
+        #    only fire for a security-cleared PASS candidate.
         emitted_alerts: list[Alert] = []
-        for cand, rep in paired:
-            alerts = self.alert_engine.evaluate_opportunity(rep, cand, now=t0)
+        for cand, rep, disposition in paired:
+            alerts = self.alert_engine.evaluate_opportunity(
+                rep, cand, now=t0, disposition=disposition)
             emitted_alerts.extend(alerts)
 
         # 4. Notify Telegram Surface
@@ -157,10 +256,12 @@ class OpportunityPipelineOrchestrator:
                         self.telegram_adapter.send_message(self.target_chat_id, msg_text)
                         messages_sent += 1
 
-                # If top opportunity is high quality, send summary
-                if top_opp and top_opp.opportunity_score >= 75.0:
-                    matching_cand = next((c for c in candidates if c.address == top_opp.token_address), None)
-                    card_text = format_opportunity_response(top_opp, matching_cand)
+                # If the top SECURITY-CLEARED opportunity is high quality, send summary.
+                # Only a PASS candidate may surface as a positive "special opportunity";
+                # UNKNOWN/vetoed tokens never reach this path even at a high score.
+                if top_cleared and top_cleared.opportunity_score >= 75.0:
+                    matching_cand = next((c for c in candidates if c.address == top_cleared.token_address), None)
+                    card_text = format_opportunity_response(top_cleared, matching_cand)
                     self.telegram_adapter.send_message(self.target_chat_id, f"🚨 **فرصت ویژه شناسایی شد**\n\n" + card_text)
                     messages_sent += 1
             except Exception:
@@ -185,6 +286,7 @@ class OpportunityPipelineOrchestrator:
             telegram_messages_sent=messages_sent,
             scores_persisted=scores_persisted,
             top_opportunity=top_opp,
+            recommended_opportunity=top_cleared,
             alerts=emitted_alerts,
             trace=trace
         )

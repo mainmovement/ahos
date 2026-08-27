@@ -25,11 +25,15 @@ __all__ = [
     "HolderReport",
     "ManipulationDetector",
     "ManipulationReport",
+    "SecurityGate",
+    "SecurityDisposition",
 ]
 
 _LAZY = {
     "SecurityIntelligence": (".engine", "SecurityIntelligence"),
     "SecurityReport": (".engine", "SecurityReport"),
+    "SecurityGate": (".gate", "SecurityGate"),
+    "SecurityDisposition": (".gate", "SecurityDisposition"),
     "ContractAnalyzer": (".contract_analysis", "ContractAnalyzer"),
     "ContractReport": (".contract_analysis", "ContractReport"),
     "LiquidityAnalyzer": (".liquidity_analysis", "LiquidityAnalyzer"),
