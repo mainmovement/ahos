@@ -13,7 +13,7 @@
 | Operator (Windows) | **`OPERATOR_READY = NOT_VERIFIED`** |
 | Calibration | `CALIBRATION_READY_BUT_DATA_REQUIRED` |
 | Pre-soak | **Blocked** until Windows `pre_soak_entry_ok` |
-| PR #19 | Do **not** merge as part of this handoff |
+| Installer | `.\install_windows.ps1` prepares tools — never upgrades readiness |
 
 Only your real Windows artifacts can change the operator row.
 
@@ -54,7 +54,19 @@ node --version
 npm --version
 ```
 
-### 1) Python setup (no editable install — repo has no pyproject.toml)
+### 0b) Optional one-click prep (canonical installer)
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\install_windows.ps1
+# optional paper seed (live network):
+# .\install_windows.ps1 -SeedEvidence
+```
+
+This prepares venv, `requirements.txt`, `npm install`, root `.env` from `.env.example` (never overwrites), `init_databases.py --with-guards`, and PAPER_ONLY.  
+It does **not** claim OPERATOR_READY, does **not** start PRE_SOAK, and does **not** run the operator gate.
+
+### 1) Python setup (manual alternative — no editable install)
 
 ```powershell
 python -m venv .venv

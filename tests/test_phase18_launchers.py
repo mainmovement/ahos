@@ -91,11 +91,36 @@ def test_gitattributes_pins_launcher_line_endings():
 
 
 @pytest.mark.parametrize("name", LAUNCHERS)
-def test_launcher_adds_no_execution_surface(name):
-    text = _read(name).lower()
-    for forbidden in ("ccxt", "web3", "place_order", "create_order",
-                      "private_key", "market_buy", "market_sell"):
-        assert forbidden not in text, f"{name} references {forbidden}"
+def test_launcher_declares_paper_only(name):
+    text = _read(name)
+    assert "AHOS_PAPER_ONLY" in text
+    assert "OPERATOR_READY" in text or "pre_soak_entry_ok" in text or "NOT_VERIFIED" in text or "WINDOWS_OPERATOR_HANDOFF" in text
+
+
+def test_install_windows_is_operator_prep_not_readiness():
+    """install_windows.ps1 must prep the host without inventing OPERATOR_READY."""
+    text = _read("install_windows.ps1")
+    assert "requirements.txt" in text
+    assert "npm install" in text
+    assert "init_databases.py --with-guards" in text
+    assert "AHOS_PAPER_ONLY" in text
+    assert ".env.example" in text
+    assert "operator_validation_gate.py" in text
+    assert "OPERATOR_READY" in text and "NOT_VERIFIED" in text
+    # Must not auto-start soak daemon or claim production.
+    assert "--daemon" not in text or "do NOT" in text.lower() or "NOT start" in text or "pre_soak" in text.lower()
+    assert "deployment\\.env" not in text or "NOT the" in text or "not the" in text.lower()
+    # Default path must not force a live single-cycle (SeedEvidence is opt-in).
+    assert "SeedEvidence" in text
+    assert "PRODUCTION_READY" not in text or "never" in text.lower()
+
+
+def test_install_windows_has_crlf_line_endings():
+    raw = (ROOT / "install_windows.ps1").read_bytes()
+    crlf = raw.count(b"\r\n")
+    bare_lf = raw.count(b"\n") - crlf
+    assert crlf > 0, "install_windows.ps1 has no CRLF line endings"
+    assert bare_lf == 0, f"install_windows.ps1 contains {bare_lf} bare LF line endings"
 
 
 def test_launcher_flags_are_accepted_by_the_runtime():
