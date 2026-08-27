@@ -110,11 +110,11 @@ def resolve_source(explicit: str | None = None) -> str:
                 f"unknown evidence source {explicit!r}; valid: {sorted(VALID_SOURCES)}")
         return value
 
-    env = os.environ.get(_SOURCE_ENV_VAR, "").strip().lower()
+    env = os.environ.get("AHOS_EVIDENCE_SOURCE", "").strip().lower()
     if env:
         if env not in VALID_SOURCES:
             raise ValueError(
-                f"{_SOURCE_ENV_VAR}={env!r} is not a valid evidence source; "
+                f"AHOS_EVIDENCE_SOURCE={env!r} is not a valid evidence source; "
                 f"valid: {sorted(VALID_SOURCES)}")
         return env
 
