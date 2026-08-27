@@ -439,7 +439,9 @@ def main(argv: list[str] | None = None) -> int:
         logger.info(
             f"Pipeline executed in {rep.duration_ms:.2f}ms: "
             f"candidates={rep.candidates_collected}, scores={rep.scores_generated}, "
-            f"persisted={rep.scores_persisted}, alerts={rep.alerts_emitted}"
+            f"persisted={rep.scores_persisted}, alerts={rep.alerts_emitted}, "
+            f"lane_a_registered={getattr(rep, 'lane_a_registered', 0)}, "
+            f"lane_a_obs={getattr(rep, 'lane_a_observations_written', 0)}"
         )
         # A prediction that was scored but NOT written down is a silent hole in
         # the learning loop -- surface it rather than letting it pass as normal.

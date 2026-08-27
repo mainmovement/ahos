@@ -44,9 +44,12 @@ class PipelineExecutionReport:
     alerts_emitted: int
     telegram_messages_sent: int
     scores_persisted: int = 0
+    lane_a_registered: int = 0
+    lane_a_observations_written: int = 0
     top_opportunity: OpportunityScoreReport | None = None
     alerts: list[Alert] = field(default_factory=list)
     trace: OperationTrace | None = None
+    lifecycle_bridge: dict | None = None
 
 
 class OpportunityPipelineOrchestrator:
@@ -83,6 +86,16 @@ class OpportunityPipelineOrchestrator:
 
         # 1. Collect & Normalize Candidate Tokens
         obs_records = self.collector.collect_candidates(chain=chain, limit=limit, now=t0)
+
+        # 1b. Seed Lane-A observation lifecycle (prediction→outcome bridge).
+        #     Without this, ScoreLedger rows never join outcome_label.
+        #     Uses frozen discovery APIs only — no Lane-A source edits.
+        lifecycle_reg = None
+        try:
+            from ..learning.prediction_lifecycle import register_for_observation
+            lifecycle_reg = register_for_observation(obs_records, now=t0)
+        except Exception as e:  # noqa: BLE001 — scoring must not abort
+            lifecycle_reg = {"error": type(e).__name__, "detail": str(e)[:160]}
 
         # Convert records to candidates for scoring
         candidates: list[NormalizedTokenCandidate] = []
@@ -200,12 +213,25 @@ class OpportunityPipelineOrchestrator:
                 pass
 
         dt = (time.time() - t0) * 1000.0
+        bridge_dict = None
+        lane_a_reg = 0
+        lane_a_obs = 0
+        if lifecycle_reg is not None:
+            if hasattr(lifecycle_reg, "as_dict"):
+                bridge_dict = lifecycle_reg.as_dict()
+                lane_a_reg = int(lifecycle_reg.registered)
+                lane_a_obs = int(lifecycle_reg.observations_written)
+            elif isinstance(lifecycle_reg, dict):
+                bridge_dict = lifecycle_reg
+
         trace = trace_ctx.success({
             "candidates": len(candidates),
             "scores": len(reports),
             "scores_persisted": scores_persisted,
             "alerts": len(emitted_alerts),
-            "messages_sent": messages_sent
+            "messages_sent": messages_sent,
+            "lane_a_registered": lane_a_reg,
+            "lane_a_observations_written": lane_a_obs,
         })
 
         return PipelineExecutionReport(
@@ -217,7 +243,10 @@ class OpportunityPipelineOrchestrator:
             alerts_emitted=len(emitted_alerts),
             telegram_messages_sent=messages_sent,
             scores_persisted=scores_persisted,
+            lane_a_registered=lane_a_reg,
+            lane_a_observations_written=lane_a_obs,
             top_opportunity=top_opp,
             alerts=emitted_alerts,
-            trace=trace
+            trace=trace,
+            lifecycle_bridge=bridge_dict,
         )
