@@ -29,23 +29,28 @@ Status alphabet: `COMPLETE` · `PARTIAL` · `MISSING` · `BROKEN` · `BLOCKED_EX
 | No READY overclaim | Gap register honesty | Docs match reality | Supersede banners + truth map | `AHOS_FINAL_STATUS.md`, `docs/DOC_TRUTH_MAP.md` | — | Hygiene PR | COMPLETE | — | — | — | Maintain |
 | Telegram tests vs W57 | W57 commits | Tests match lockdown | Aligned 2026-08-27 | `tests/test_telegram_*` | conversational + service | Was CONTRADICTORY | COMPLETE | Was stale | High | — | Closed this pass |
 | Env key documentation | Config validation | Every key in `.env.example` | Documented AHOS_GATEWAY_URL + alert keys | `.env.example` | `test_config_validation` | Fixed this pass | COMPLETE | — | — | — | — |
+| GitHub / OSS capability intelligence (AG-25) | Agent registry | Live GitHub harvest agent | PLANNED only; offline oss_pipeline + optional `engine/oss_audit.py` | `config/agent_registry.yaml`, `architecture/knowledge/oss_pipeline.py` | control_plane / oss tests | Registry `implemented: false` | NOT_IMPLEMENTED | AG-25 | Low | Design + owner gate | Keep PLANNED; do not claim live |
+| Live trading enablement | Doctrine | DISABLED | Flags veto + honest exchange-key isolation | `architecture/security/hygiene.py` | `test_security_hardening` | Fixed dead `== "1"` key check | COMPLETE | — | — | — | — |
+| Owner action consolidator | Ops | One OWNER checklist | `docs/OWNER_ACTION_REQUIRED.md` | same | — | Added 2026-08-27 | COMPLETE | — | — | — | Owner executes OA-* |
 | Real trading | Doctrine | DISABLED | No execution path in scanned runtime | multiple | month1 failure matrix | Present | DEFERRED_BY_DESIGN | Forever unless doctrine change | — | Safety | Keep DISABLED |
 | Social scrape X/IG/TikTok | Policy | OUT_OF_POLICY | Honest BLOCKED in providers | `providers.ts`, README | — | Present | DEFERRED_BY_DESIGN | Cost/policy | — | Policy | Keep blocked |
 | DEXTools full | Cost | Optional paid | NO_KEY / COST_BLOCKED | providers | — | Present | BLOCKED_EXTERNAL | Key/cost | Low | Operator | Optional |
+| Calibration measurement | Learning | Score vs outcome | Framework COMPLETE | `architecture/learning/` | calibration tests | `CALIBRATION_READY_BUT_DATA_REQUIRED` | PARTIAL | Local pairs | High | Owner OA-4 | Accrue evidence |
+| 168h soak execution | Ops | 7-day reliability | Protocol + scripts COMPLETE | `AHOS_LOCAL_SOAK_PROTOCOL.md`, `scripts/soak_*.py` | soak tests | `SOAK_INFRASTRUCTURE_READY` / `SOAK_NOT_YET_EXECUTED` | PARTIAL | Execution | High | Owner OA-5 | Run soak |
 
 ## Summary counts (rows above)
 
 | Status | Count |
 |--------|------:|
-| COMPLETE | 14 |
+| COMPLETE | 16 |
 | PARTIAL | 8 |
 | BLOCKED_EXTERNAL | 2 (+ live legs of COMPLETE rows) |
 | DEFERRED_BY_DESIGN | 2 |
-| MISSING / BROKEN | 0 in scanned core |
-| CONTRADICTORY | 0 remaining after W57 test alignment |
+| NOT_IMPLEMENTED | 1 (AG-25 live harvest) |
+| MISSING / BROKEN / CONTRADICTORY | 0 in scanned core after acceptance pass |
 
 ## Closable now vs not
 
-**Closed this pass:** stale Telegram test contradiction; env-key documentation; n8n Telegram wording drift; freeze exclusion documentation; truth map dual-stack wording.
+**Closed this pass / prior PR #19 commits:** stale Telegram tests; env-key docs; n8n wording; freeze exclusion docs; truth map dual-stack; security hygiene dead-check; historical doc banners; owner action consolidator; GitHub intelligence honesty.
 
-**Not closable without user/external:** M-GAP-003, 004, 007, 008, 009, 010 residual.
+**Not closable without owner/external:** M-GAP-003, 004, 007, 008, 009, 010 residual (see `docs/OWNER_ACTION_REQUIRED.md`).

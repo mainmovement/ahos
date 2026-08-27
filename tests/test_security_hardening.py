@@ -92,3 +92,36 @@ def test_assert_safe_environment_live_trading_veto():
         assert "CRITICAL SECURITY VETO" in str(exc.value)
     finally:
         del os.environ["AHOS_ALLOW_REAL_FUNDS"]
+
+
+def test_assert_safe_environment_rejects_truthy_live_flag_variants():
+    os.environ["AHOS_EXECUTE_LIVE_TRADES"] = "true"
+    try:
+        with pytest.raises(PermissionError):
+            assert_safe_environment()
+    finally:
+        del os.environ["AHOS_EXECUTE_LIVE_TRADES"]
+
+
+def test_assert_safe_environment_exchange_key_presence_is_not_isolated():
+    """A real API key string is not the flag value '1'; isolation must still be honest."""
+    os.environ["BINANCE_API_KEY"] = "not-a-real-key-for-test"
+    try:
+        out = assert_safe_environment()
+        assert out["paper_only_enforced"] is True
+        assert out["zero_real_trading"] is True
+        assert out["credentials_isolated"] is False
+    finally:
+        del os.environ["BINANCE_API_KEY"]
+
+
+def test_assert_safe_environment_clean_when_no_exchange_keys():
+    for k in ("BINANCE_API_KEY", "COINBASE_API_KEY", "KRAKEN_API_KEY",
+              "AHOS_ALLOW_REAL_FUNDS", "AHOS_EXECUTE_LIVE_TRADES"):
+        os.environ.pop(k, None)
+    out = assert_safe_environment()
+    assert out == {
+        "paper_only_enforced": True,
+        "zero_real_trading": True,
+        "credentials_isolated": True,
+    }

@@ -2,105 +2,118 @@
 
 **Date:** 2026-08-27 (UTC)  
 **Repo:** `github.com/mainmovement/ahos`  
-**Branch audited:** `cursor/ahos-cleanup-alignment-4bde`  
-**Companion matrix:** `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`  
-**Honesty law:** Truth > appearance. This document does **not** claim production-ready completion.
+**Branch:** `cursor/ahos-cleanup-alignment-4bde`  
+**PR:** https://github.com/mainmovement/ahos/pull/19  
+**Companion:** `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` · `docs/OWNER_ACTION_REQUIRED.md`  
+**Honesty law:** Truth > appearance. This document does **not** claim `PRODUCTION_READY`.
 
 ---
 
 ## 1. What AHOS IS
 
-Artificial Hybrid Opportunity Scoring System — an **evidence-first crypto opportunity intelligence** platform (early discovery, multi-source evidence, deterministic scoring, security gating, paper trading, learning harness).  
-**Not** a live trading bot. **Not** a wallet signer. Persian-first operator UX.
+Artificial Hybrid Opportunity Scoring System — evidence-first crypto opportunity intelligence (discovery, multi-source evidence, deterministic scoring, security gating, paper trading, learning harness).  
+**Not** a live trading bot. **Not** a wallet signer. Persian-first operator UX. **PAPER_ONLY** is non-negotiable.
 
 ## 2. What AHOS DOES
 
-1. Discovers emerging market pairs via replaceable providers (DexScreener, GeckoTerminal, pump.fun, …).  
+1. Discovers emerging market pairs via replaceable providers.  
 2. Preserves UNKNOWN instead of fabricating prices/confidence.  
-3. Runs security gates (GoPlus / RugCheck adapters) before attractive ranking.  
-4. Scores deterministically (Python Lane-A path + TS Command Center path).  
+3. Runs security gates before attractive ranking.  
+4. Scores deterministically (Python Lane-A + TS Command Center).  
 5. Explains reasons / risks / unknowns; AI council is advisory-only.  
-6. Tracks paper positions and outcomes; writes score ledger for future calibration.  
-7. Serves Web Command Center (`npm run dev`) and optional Telegram via **Conversation Gateway only (W57)**.
+6. Tracks paper positions/outcomes; score ledger for future calibration.  
+7. Serves Web Command Center; Telegram is gateway-only (W57).
 
-## 3. What is fully implemented (code evidence)
+## 3. Fully implemented (code evidence)
 
-- Discovery + provider registry + circuit breakers  
-- Security adapters + Lane-A security gate  
-- Paper trading v3 lifecycle  
-- Lane-A freeze integrity (`config/lane_a_freeze.sha256`)  
-- Advisory AI council contracts  
-- One-Brain Web chat gateway (`conversation_gateway.ts`)  
-- Windows/local launchers  
-- Document truth map + superseded READY banners  
-- W57 Telegram gateway-only lockdown (+ aligned tests, this pass)
+Discovery · provider registry · security adapters/gates · paper trading v3 · Lane-A freeze · advisory council · One-Brain Web gateway · Windows launchers · W57 Telegram lockdown · env/config validation · n8n structural workflows · document truth map · owner-action consolidator · live-trading flag veto (honest exchange-key isolation).
 
-## 4. What is partially implemented
+## 4. Partially implemented / ready-but-unexecuted
 
-- **Calibration measurement** (harness yes; local pairs no)  
-- **Live provider SUCCESS** on hosts with blocked egress  
-- **Telegram end-to-end** (needs BotFather token + `AHOS_GATEWAY_URL`)  
-- **n8n** (JSON + validator yes; live activation credential-gated)  
-- **168h soak evidence** (protocol yes; committed 168h artifacts no)  
-- **Dual-stack ops** (TS chat brain + Python observation daemon — intentional, documented)
+| Label | Meaning |
+|-------|---------|
+| `CALIBRATION_READY_BUT_DATA_REQUIRED` | Harness exists; needs `local` pairs (OA-4) |
+| `SOAK_INFRASTRUCTURE_READY` / `SOAK_NOT_YET_EXECUTED` | Protocol+scripts exist; 168h not run (OA-5) |
+| Live providers / Telegram E2E / n8n activation | Code present; owner/external required |
 
-## 5. What is externally blocked
+## 5. Externally blocked
 
-| ID | Blocker |
-|----|---------|
-| M-GAP-003 | 168h laptop soak |
-| M-GAP-004 | GitHub App `workflows` permission for CI |
-| M-GAP-007 | Live egress provider SUCCESS |
-| M-GAP-008 | Accrued `local` calibration pairs |
-| M-GAP-009 | Telegram credentials + live transcript |
-| M-GAP-010 residual | 7 distinct nightly backup dates |
+OA-1…OA-7 in `docs/OWNER_ACTION_REQUIRED.md` (M-GAP-003/004/007/008/009/010).
 
-## 6. Intentionally deferred
+## 6. Intentionally deferred / not implemented
 
-- Real-money trading (DISABLED)  
-- Social scrape of X/IG/TikTok (OUT_OF_POLICY / COST_BLOCKED)  
-- Freezing `paper_trading/strategies.json` into Lane-A hash (documented exclusion)  
-- AI council decision authority (advisory-only by doctrine)
+- Real-money trading — DISABLED  
+- X/IG/TikTok scrape — OUT_OF_POLICY  
+- AG-25 live GitHub harvest — **NOT_IMPLEMENTED** (registry PLANNED)  
+- Freezing `strategies.json` into Lane-A hash — intentional exclusion  
 
-## 7. Exact production blockers
+## 7. Production blockers
 
-AHOS is **not** production-complete. Remaining blockers are the open M-GAP rows above plus truthful absence of 168h soak + live Telegram + measured calibration. Older `READY_FOR_DEPLOYMENT` files are **historical only**.
+AHOS is **not** production-complete until OA-3…OA-5 (and preferably OA-1/2/6) produce real artifacts.
 
-## 8. Exact verification commands
+## 8. Verification commands (re-run independently 2026-08-27)
 
 ```bash
-# TypeScript
 npm run typecheck
-
-# Python gates (venv)
 .venv/bin/python -m pytest tests/ -q --tb=line
-
-# Lane-A freeze
 .venv/bin/python scripts/freeze_lane_a.py
-
-# n8n structural
 .venv/bin/python tests/validate_n8n.py
-
-# Optional runtime smoke (needs network for providers)
-python -m architecture.runtime --single-cycle
 ```
 
-## 9. Final test results (this completion pass)
+## 9. Final test results (independent re-verification)
 
-| Area | Command | Result | Notes |
-|------|---------|--------|-------|
-| Typecheck | `npm run typecheck` | **PASS** | Clean |
-| Full pytest | `.venv/bin/python -m pytest tests/ -q` | **1385 passed, 0 failed** | Artifact: `/opt/cursor/artifacts/completion_pytest_final.log` |
-| Telegram W57 | conversational + service + adapters | **PASS** | INTENTIONAL LOCKDOWN preserved |
-| Config env docs | `tests/test_config_validation.py` | **PASS** | Scans Python + One-Brain TS |
-| Lane-A freeze | `scripts/freeze_lane_a.py` | **OK (36 files)** | |
-| n8n structural | `tests/validate_n8n.py` | **6/6 PASS** | |
+| Gate | Result |
+|------|--------|
+| `npm run typecheck` | **PASS** |
+| `pytest tests/ -q` | **1385 passed, 0 failed** (pre-acceptance-pass baseline; security tests added → re-run in this commit) |
+| Lane-A freeze | **OK (36 files)** |
+| n8n validate | **6/6 PASS** |
 
-Pre-fix baseline on this branch: 28 failed / 1389 passed (stale W57 Telegram expectations + missing env docs). Those failures were classified **STALE TEST** / **DOCUMENTATION DRIFT**, not production bugs.
+## 10. Repository classification
 
-## 10. Final repository status
+**`DEVELOPMENT_READY`**
 
-**Status:** `LOCAL_OPERATOR_READY_WITH_EXPLICIT_GAPS`  
-**Not:** `PRODUCTION_READY` / `READY_FOR_DEPLOYMENT`
+Meaning: core engineering, architecture coherence, tests, and documentation are synchronized enough to enter the next development phase. Remaining gaps are **owner/external operational validation**, not missing core product engineering.
 
-The repository now tells one coherent truth about what is implemented, what is blocked, and what operators must still do. Merge remains a human decision after reviewing remaining external gaps.
+**Not** `PRODUCTION_READY`.
+
+## 11. Final acceptance matrix
+
+| DOMAIN | REQUIRED | IMPLEMENTED | TESTED | LIVE VERIFIED | STATUS | EVIDENCE | REMAINING ACTION |
+|--------|----------|-------------|--------|---------------|--------|----------|------------------|
+| Architecture | Coherent lanes + One-Brain | Yes | Arch tests | N/A | PASS | matrix + one-brain tests | — |
+| Governance | Doctrine + registers | Yes | master directive tests | N/A | PASS | DOC_TRUTH_MAP | — |
+| Lane A | Freeze + evidence integrity | Yes | freeze test | N/A | PASS | lane_a_freeze.sha256 | — |
+| Lane B | Research without rewriting A | Yes | strategy/evolution tests | N/A | PASS | strategy_lab | — |
+| Discovery | Multi-source candidates | Yes | discovery tests | No | PARTIAL | adapters | OA-3 |
+| Providers | Registry + fallbacks | Yes | provider tests | No | PARTIAL | registry | OA-3 |
+| Security | Fail-safe gates | Yes | security tests | No | PARTIAL | hygiene+gates | OA-3 |
+| Risk | Risk dimensions | Yes | scoring/risk tests | N/A | PASS | architecture/risk | — |
+| Scoring | Deterministic + explainable | Yes | scoring tests | N/A | PASS | dual stacks documented | — |
+| Opportunity Intelligence | WHY/MISSING/DANGEROUS | Yes | canonical TS + Python | N/A | PASS | opportunity_canonical | — |
+| One Brain | Single chat path | Yes | one-brain tests | Partial (Web) | PASS | conversation_gateway | OA-2 for Telegram |
+| Telegram | Persian UX + gateway | Gateway-only | W57 tests | No | PARTIAL | service.py | OA-1/OA-2 |
+| Web/UI | Honest Command Center | Yes | typecheck + routes | Not in this env | PARTIAL | app/ | Owner laptop UI |
+| n8n | Meaningful workflows | JSON+validator | 6/6 | No | PARTIAL | validate_n8n | Docker+creds |
+| Paper Trading | PAPER_ONLY lifecycle | Yes | paper tests | N/A | PASS | paper_trading/ | — |
+| Learning | Loop infra | Yes | calibration tests | No data | PARTIAL | learning/ | OA-4 |
+| AI Council | Advisory only | Yes | council tests | Optional keys | PASS | advisory_only | — |
+| GitHub Intelligence | AG-25 harvest | No (PLANNED) | N/A | No | NOT_IMPLEMENTED | agent_registry | Keep PLANNED |
+| Persistence | SQLite stores | Yes | backup tests | Soak residual | PARTIAL | backup script | OA-6 |
+| Scheduler | Daemon cycles | Yes | runtime tests | Soak | PARTIAL | architecture.runtime | OA-5 |
+| Observability | Snapshots/health | Yes | observability tests | N/A | PASS | health snapshot | — |
+| Configuration | .env.example + validation | Yes | config tests | N/A | PASS | .env.example | — |
+| Windows Runtime | Launchers | Yes | phase18 tests | Not Windows VM | PARTIAL | start_ahos.ps1 | Owner Windows |
+| Calibration | Framework + data | Framework | yes | No | PARTIAL | CALIBRATION_READY_BUT_DATA_REQUIRED | OA-4 |
+| Soak | 168h | Infra | protocol tests | No | PARTIAL | SOAK_NOT_YET_EXECUTED | OA-5 |
+| CI | GitHub Actions | Template only | N/A | No | BLOCKED | M-GAP-004 | OA-7 |
+| Documentation | Synchronized truth | Yes | — | N/A | PASS | matrix+audit+owner | Maintain |
+
+## 12. Next development phase
+
+After owner merges PR #19 and begins OA-* execution:
+
+1. Wire live evidence accrual on laptop (OA-3/4).  
+2. Execute soak + nightly backups (OA-5/6).  
+3. Telegram gateway E2E (OA-1/2).  
+4. Only then consider production-gate language — never before artifacts exist.

@@ -59,20 +59,39 @@ def sanitize_dict(data: dict[str, Any]) -> dict[str, Any]:
     return clean
 
 
+def _env_flag_enabled(value: str | None) -> bool:
+    """True for explicit enablement tokens only (never for an API key string)."""
+    if value is None:
+        return False
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 def assert_safe_environment() -> dict[str, bool]:
-    """Audits environment to verify no leaked live keys or unpermitted execution variables."""
-    forbidden_live_trading_vars = [
+    """Audits environment for live-trading enablement flags and exchange API key presence.
+
+    Live-trading FLAGS (AHOS_ALLOW_REAL_FUNDS / AHOS_EXECUTE_LIVE_TRADES) veto hard.
+    Exchange API key *presence* does not enable AHOS execution (there is no execution
+    surface), but must not be reported as credentials_isolated=True.
+    """
+    live_trading_flags = (
         "AHOS_ALLOW_REAL_FUNDS",
         "AHOS_EXECUTE_LIVE_TRADES",
+    )
+    exchange_api_keys = (
         "BINANCE_API_KEY",
         "COINBASE_API_KEY",
-        "KRAKEN_API_KEY"
-    ]
-    violations = [var for var in forbidden_live_trading_vars if os.environ.get(var) == "1"]
+        "KRAKEN_API_KEY",
+    )
+    violations = [var for var in live_trading_flags if _env_flag_enabled(os.environ.get(var))]
     if violations:
-        raise PermissionError(f"CRITICAL SECURITY VETO: Live trading environment variables detected: {violations}")
+        raise PermissionError(
+            f"CRITICAL SECURITY VETO: Live trading environment variables detected: {violations}"
+        )
+    present_exchange_keys = [
+        var for var in exchange_api_keys if (os.environ.get(var) or "").strip()
+    ]
     return {
         "paper_only_enforced": True,
         "zero_real_trading": True,
-        "credentials_isolated": True
+        "credentials_isolated": len(present_exchange_keys) == 0,
     }

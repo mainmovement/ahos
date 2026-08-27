@@ -48,3 +48,5 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 |----------|------|
 | Implementation matrix | `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
 | Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |
+| Owner action checklist | `docs/OWNER_ACTION_REQUIRED.md` |
+| Stale design snapshots (bannered) | `docs/SECURITY_CHECKLIST.md`, `docs/MISSING_COMPONENT_REGISTER.md`, `docs/STRATEGIC_GAP_ANALYSIS.md` |

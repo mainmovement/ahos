@@ -111,9 +111,16 @@ Classification alphabet: **IMPLEMENTABLE NOW** · **REQUIRES USER ACTION** ·
 | M-GAP-019 (n8n guide claimed Telegram → independent NLU) | **CLOSED** | `docs/n8n_setup_guide.md` states gateway-only law |
 | Dual-stack ownership (TS chat vs Python daemon) | **DOCUMENTED** | `docs/DOC_TRUTH_MAP.md` §C + `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
 | `strategies.json` outside Lane-A freeze | **DOCUMENTED** | Intentional exclusion note in `scripts/freeze_lane_a.py` |
+| M-GAP-020 (exchange-key env veto dead-check) | **CLOSED** | `assert_safe_environment` now truthy-flags live trading; exchange key presence → `credentials_isolated=False` |
+| M-GAP-021 (owner actions scattered) | **CLOSED** | `docs/OWNER_ACTION_REQUIRED.md` |
+| M-GAP-022 (stale SECURITY/MISSING/STRATEGIC docs) | **CLOSED** | Historical banners pointing at matrix/audit |
+| AG-25 GitHub live harvest | **NOT_IMPLEMENTED** (by design PLANNED) | Honest in matrix; do not claim COMPLETE |
 
 Implementation matrix: `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`  
-Final truth audit: `docs/FINAL_TRUTH_AUDIT.md`
+Final truth audit: `docs/FINAL_TRUTH_AUDIT.md`  
+Owner actions: `docs/OWNER_ACTION_REQUIRED.md`
+
+**Classification:** `DEVELOPMENT_READY` (not `PRODUCTION_READY`).
 
 No remaining gap is IMPLEMENTABLE NOW without user action, credentials,
 external permission, or data accrual — except ongoing doc/test hygiene already closed above.

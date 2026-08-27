@@ -1,4 +1,9 @@
 # AHOS — STRATEGIC GAP ANALYSIS (Step §23 of Mission Correction v1.0) — 2026-08-11
+#
+> **HISTORICAL (2026-08-27).** “✘ does not exist” rows for discovery/security/scoring/Telegram NLP  
+> are obsolete relative to current Lane-A / architecture / telegram_ai / scoring surfaces.  
+> Current truth: `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` · `docs/FINAL_TRUTH_AUDIT.md`.
+
 # CURRENT SYSTEM vs INTENDED SYSTEM. Basis: all existing docs read; H1–H13 evidence reviewed.
 
 ## CURRENT SYSTEM (what exists — maturity letters enforced)

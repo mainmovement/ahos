@@ -1,4 +1,10 @@
 # AHOS — MISSING COMPONENT REGISTER (post-gap-analysis) — 2026-08-11
+#
+> **HISTORICAL (2026-08-27).** Status letters below are a 2026-08-11 design snapshot.  
+> Many rows (M1–M5, M8–M12) are now implemented in code — see  
+> `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` and `AHOS_GAP_REGISTER.md`.  
+> Do not treat “A Designed” rows as current missing-work truth.
+
 # Status letters: A Designed · B Implemented · C Tested · D Verified · E Production Ready
 | # | Component | Status | Blocked by | Priority |
 |---|---|---|---|---|

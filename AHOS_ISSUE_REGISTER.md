@@ -1277,14 +1277,14 @@
   5. Temporal acceleration (P12): HealthSnapshotEngine.acceleration 3-point per-dimension trends, always CORRELATION_ONLY.
 - EVIDENCE: 21 new tests (total 1405); runtime verified: selection on real stores -> honest INSUFFICIENT_EVIDENCE (0 findings); synthetic findings -> high-leverage UNKNOWN_GROWTH selected; acceleration on synthetic scorecards; experiment ledger roundtrip with dedup. Zero live trading, zero credential exposure.
 
-## R-78 · 2026-08-27 · Final alignment pass (W57 truth + matrix)
-- WHY: Completion directive required one coherent truth across doctrine/code/tests. After hygiene (R-77), remaining failures were mostly STALE Telegram tests contradicting intentional W57 gateway-only lockdown, plus undocumented env keys.
+## R-79 · 2026-08-27 · Acceptance pass → DEVELOPMENT_READY
+- WHY: Final acceptance directive required independent re-verification, closure of remaining local P0/P1 hygiene, and an honest classification (not PRODUCTION_READY).
 - WHAT:
-  1. Wrote `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` and `docs/FINAL_TRUTH_AUDIT.md` (honest statuses; no READY_FOR_DEPLOYMENT claim).
-  2. Realigned Telegram conversational / phase3 / phase4 / bot adapter / run_bot tests to EMERGENCY_FALLBACK_ONLY; pinned gateway success + transport-failure paths.
-  3. Documented `AHOS_GATEWAY_URL` + alert env keys in `.env.example`; fixed n8n Telegram wording; documented strategies.json freeze exclusion.
-  4. Updated `AHOS_GAP_REGISTER.md` (M-GAP-017/018/019 CLOSED) and DOC_TRUTH_MAP dual-stack ownership.
-- EVIDENCE: pytest post-fix artifact + `npm run typecheck`. External gaps M-GAP-003/004/007/008/009 remain USER/EXTERNAL. Zero live trading.
+  1. Fixed `assert_safe_environment` dead exchange-key check; added regression tests.
+  2. Added `docs/OWNER_ACTION_REQUIRED.md`; bannered stale SECURITY/MISSING/STRATEGIC docs.
+  3. Matrix/audit: AG-25 NOT_IMPLEMENTED; CALIBRATION_READY_BUT_DATA_REQUIRED; SOAK_INFRASTRUCTURE_READY / SOAK_NOT_YET_EXECUTED; acceptance matrix; class `DEVELOPMENT_READY`.
+- EVIDENCE: Independent re-run typecheck + pytest + Lane-A freeze + n8n validate. External OA-* remain owner-only. Zero live trading. Zero fabricated live evidence.
+
 
 
 
