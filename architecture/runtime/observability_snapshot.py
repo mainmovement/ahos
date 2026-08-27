@@ -26,13 +26,14 @@ from pathlib import Path
 from typing import Any
 
 from config.paths import (
+    connect_sqlite_ro,
     get_project_root,
     get_data_dir,
     get_reports_dir,
     get_discovery_db_path,
     get_paper_trading_db_path,
     get_local_db_path,
-    get_knowledge_db_path
+    get_knowledge_db_path,
 )
 
 
@@ -123,7 +124,7 @@ class HealthSnapshotEngine:
                 reasons.append(f"Database {name} file missing: {path}")
             else:
                 try:
-                    conn = sqlite3.connect(f"file:{p}?mode=ro", uri=True)
+                    conn = connect_sqlite_ro(p)
                     cur = conn.cursor()
                     integ = cur.execute("PRAGMA integrity_check;").fetchone()
                     tables = [t[0] for t in cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()]
@@ -147,7 +148,7 @@ class HealthSnapshotEngine:
         # 2. Track B Accounting
         track_b: dict[str, Any] = {}
         try:
-            conn_pt = sqlite3.connect(f"file:{get_paper_trading_db_path()}?mode=ro", uri=True)
+            conn_pt = connect_sqlite_ro(get_paper_trading_db_path())
             conn_pt.row_factory = sqlite3.Row
             cur_pt = conn_pt.cursor()
             trades = cur_pt.execute("SELECT amount_allocated FROM paper_trade_v2").fetchall()
@@ -200,7 +201,7 @@ class HealthSnapshotEngine:
         # 3. E-01 Experiment State
         e01_state: dict[str, Any] = {}
         try:
-            conn_e01 = sqlite3.connect(f"file:{get_discovery_db_path()}?mode=ro", uri=True)
+            conn_e01 = connect_sqlite_ro(get_discovery_db_path())
             cur_e01 = conn_e01.cursor()
             tokens_cnt = cur_e01.execute("SELECT COUNT(*) FROM tokens").fetchone()[0]
             obs_cnt = cur_e01.execute("SELECT COUNT(*) FROM discovery_observations").fetchone()[0]
@@ -227,7 +228,7 @@ class HealthSnapshotEngine:
         # 4. Scheduler & Lease Locks Health
         sched_health: dict[str, Any] = {}
         try:
-            conn_loc = sqlite3.connect(f"file:{get_local_db_path()}?mode=ro", uri=True)
+            conn_loc = connect_sqlite_ro(get_local_db_path())
             conn_loc.row_factory = sqlite3.Row
             cur_loc = conn_loc.cursor()
             hb = cur_loc.execute("SELECT * FROM scheduler_heartbeats ORDER BY last_heartbeat_ts DESC LIMIT 1").fetchone()
@@ -335,7 +336,7 @@ class HealthSnapshotEngine:
         #    provider_failure_events table — M-GAP-002 surface).
         provider_failures: dict[str, Any] = {}
         try:
-            conn = sqlite3.connect(f"file:{get_discovery_db_path()}?mode=ro", uri=True)
+            conn = connect_sqlite_ro(get_discovery_db_path())
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT provider_id, kind, COUNT(*) AS n, "
@@ -360,7 +361,7 @@ class HealthSnapshotEngine:
         # 2. Data completeness / UNKNOWN rates from persisted observations.
         completeness: dict[str, Any] = {}
         try:
-            conn = sqlite3.connect(f"file:{get_discovery_db_path()}?mode=ro", uri=True)
+            conn = connect_sqlite_ro(get_discovery_db_path())
             conn.row_factory = sqlite3.Row
             total = conn.execute("SELECT COUNT(*) AS n FROM production_observations").fetchone()["n"]
             unknown_rows = conn.execute(
@@ -381,7 +382,7 @@ class HealthSnapshotEngine:
         # 3. Calibration state: ledger census + newest calibration artifact.
         calibration: dict[str, Any] = {}
         try:
-            conn = sqlite3.connect(f"file:{get_local_db_path()}?mode=ro", uri=True)
+            conn = connect_sqlite_ro(get_local_db_path())
             conn.row_factory = sqlite3.Row
             by_source = conn.execute(
                 "SELECT source, COUNT(*) AS n FROM opportunity_score_ledger "

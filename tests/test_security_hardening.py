@@ -92,3 +92,55 @@ def test_assert_safe_environment_live_trading_veto():
         assert "CRITICAL SECURITY VETO" in str(exc.value)
     finally:
         del os.environ["AHOS_ALLOW_REAL_FUNDS"]
+
+
+def test_assert_safe_environment_rejects_truthy_live_flag_variants():
+    os.environ["AHOS_EXECUTE_LIVE_TRADES"] = "true"
+    try:
+        with pytest.raises(PermissionError):
+            assert_safe_environment()
+    finally:
+        del os.environ["AHOS_EXECUTE_LIVE_TRADES"]
+
+
+def test_assert_safe_environment_exchange_key_presence_is_not_isolated():
+    """A real API key string is not the flag value '1'; isolation must still be honest."""
+    os.environ["BINANCE_API_KEY"] = "not-a-real-key-for-test"
+    try:
+        out = assert_safe_environment()
+        assert out["paper_only_enforced"] is True
+        assert out["zero_real_trading"] is True
+        assert out["credentials_isolated"] is False
+    finally:
+        del os.environ["BINANCE_API_KEY"]
+
+
+def test_assert_safe_environment_clean_when_no_exchange_keys():
+    for k in ("BINANCE_API_KEY", "COINBASE_API_KEY", "KRAKEN_API_KEY",
+              "AHOS_ALLOW_REAL_FUNDS", "AHOS_EXECUTE_LIVE_TRADES", "AHOS_PAPER_ONLY"):
+        os.environ.pop(k, None)
+    out = assert_safe_environment()
+    assert out["paper_only_enforced"] is True
+    assert out["zero_real_trading"] is True
+    assert out["credentials_isolated"] is True
+    assert out["ahos_paper_only_env"] == "unset_default_paper"
+
+
+def test_assert_safe_environment_rejects_explicit_paper_only_disable():
+    os.environ["AHOS_PAPER_ONLY"] = "0"
+    try:
+        with pytest.raises(PermissionError) as exc:
+            assert_safe_environment()
+        assert "AHOS_PAPER_ONLY" in str(exc.value)
+    finally:
+        del os.environ["AHOS_PAPER_ONLY"]
+
+
+def test_assert_safe_environment_accepts_paper_only_one():
+    os.environ["AHOS_PAPER_ONLY"] = "1"
+    try:
+        out = assert_safe_environment()
+        assert out["paper_only_enforced"] is True
+        assert out["ahos_paper_only_env"] == "1"
+    finally:
+        del os.environ["AHOS_PAPER_ONLY"]

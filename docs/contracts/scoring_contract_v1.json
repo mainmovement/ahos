@@ -1,0 +1,57 @@
+{
+  "schema": "ahos.scoring_contract.v1",
+  "title": "AHOS dual-stack scoring semantic contract",
+  "security_veto_authoritative": true,
+  "paper_only": true,
+  "notes": [
+    "Numeric score parity between Python and TypeScript is NOT required.",
+    "Semantic fields and veto authority must agree.",
+    "Missing data must surface as UNKNOWN / missing lists — never fabricated zeros."
+  ],
+  "python_opportunity_score_report_required": [
+    "token_address",
+    "token_chain",
+    "token_symbol",
+    "token_name",
+    "opportunity_score",
+    "confidence_level",
+    "risk_level",
+    "positive_reasons",
+    "risk_deductions",
+    "evidence_items",
+    "missing_unknowns",
+    "invalidation_conditions",
+    "score_breakdown",
+    "provenance_sha256",
+    "source_provider",
+    "intel_evidence_items"
+  ],
+  "typescript_scored_opportunity_required": [
+    "address",
+    "chain",
+    "symbol",
+    "score",
+    "confidence",
+    "decision",
+    "reasonsFa",
+    "risksFa",
+    "unknownsFa"
+  ],
+  "field_aliases": {
+    "token_address": "address",
+    "token_chain": "chain",
+    "token_symbol": "symbol",
+    "opportunity_score": "score",
+    "confidence_level": "confidence",
+    "positive_reasons": "reasonsFa",
+    "missing_unknowns": "unknownsFa"
+  },
+  "intel_evidence_keys_expected": [
+    "narrative_label",
+    "virality_label",
+    "mstruct_label",
+    "tokenomics_label",
+    "catalyst_status"
+  ],
+  "veto_rule": "Critical security veto overrides opportunity enthusiasm; AI/council/narrative cannot bypass."
+}

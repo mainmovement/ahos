@@ -21,6 +21,7 @@ no-op, so a normal local run is unaffected.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -28,6 +29,10 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# Keep the pytest suite offline by default. Production/orchestrator still
+# defaults AHOS_NARRATIVE_FETCH=1. Live narrative tests may override to "1".
+os.environ.setdefault("AHOS_NARRATIVE_FETCH", "0")
 
 # The stores the runtime's StartupValidator requires before it reports healthy.
 REQUIRED_DATABASES = (

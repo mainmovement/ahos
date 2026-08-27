@@ -92,12 +92,12 @@ def test_telegram_bot_runner_full_cycle(tmp_path):
     gate = TelegramSecurityGate(allowed_chat_ids=[100])
     runner = TelegramBotRunner(adapter, service=service, gate=gate)
 
-    # 1. Authorized message
+    # 1. Authorized message — W57 emergency fallback when gateway URL unset
     adapter.inject_update(chat_id=100, text="/help")
     count = runner.process_pending_updates()
     assert count == 1
     assert len(adapter.sent_messages) == 1
-    assert "راهنمای دستیار هوشمند" in adapter.sent_messages[0]["text"]
+    assert "EMERGENCY_FALLBACK_ONLY" in adapter.sent_messages[0]["text"]
     assert FOOTER_MANDATED in adapter.sent_messages[0]["text"]
 
     # 2. Unauthorized message

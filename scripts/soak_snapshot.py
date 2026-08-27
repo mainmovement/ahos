@@ -23,13 +23,13 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from config.paths import get_local_db_path, get_discovery_db_path  # noqa: E402
+from config.paths import connect_sqlite_ro, get_local_db_path, get_discovery_db_path  # noqa: E402
 from architecture.scheduling import watchdog  # noqa: E402
 
 
 def _query(db_path: str, sql: str, params: tuple = ()) -> list[dict]:
     try:
-        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(db_path)
         conn.row_factory = sqlite3.Row
         rows = [dict(r) for r in conn.execute(sql, params).fetchall()]
         conn.close()
@@ -40,7 +40,7 @@ def _query(db_path: str, sql: str, params: tuple = ()) -> list[dict]:
 
 def _integrity(db_path: str) -> str:
     try:
-        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(db_path)
         verdict = conn.execute("PRAGMA integrity_check").fetchone()[0]
         conn.close()
         return verdict

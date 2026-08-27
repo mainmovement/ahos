@@ -3,7 +3,7 @@
 Thank you for your interest in contributing to the Artificial Hybrid Opportunity Scoring System.
 
 ## Governance & Operating Rules
-0. **Start here (Agent Mode / daily ops):** read `docs/AGENT_MODE_OPERATIONAL_DIRECTIVE_FA.md`, then the immutable `docs/canonical/MASTER_DIRECTIVE_v1.md`. The living directive does not weaken v1.
+0. **Start here (Agent Mode / daily ops):** read `docs/DOC_TRUTH_MAP.md`, then `docs/AGENT_MODE_OPERATIONAL_DIRECTIVE_FA.md`, then the immutable `docs/canonical/MASTER_DIRECTIVE_v1.md`. The living directive does not weaken v1. Never treat superseded root `READY_FOR_DEPLOYMENT` reports as current authority.
 1. **Never Introduce Live Trading:** AHOS is an intelligence platform and paper-trading laboratory. Pull requests introducing live trade execution or wallet signing will be rejected immediately.
 2. **Lane A Immutability:** Historical observation tables and frozen experiment protocols (`docs/mission_v1_1/E01_GATE_PROTOCOL_v1.md`) are immutable. No retroactive backfilling of missed observation windows is permitted.
 3. **Evidence > Opinion:** All new features or scoring models must be backed by empirical evidence, reproducible unit tests, and pre-registered hypotheses.

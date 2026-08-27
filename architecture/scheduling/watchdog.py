@@ -32,14 +32,14 @@ from typing import Any
 if __package__ in (None, ""):  # direct-script execution support
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from config.paths import get_local_db_path  # noqa: E402
+from config.paths import connect_sqlite_ro, get_local_db_path  # noqa: E402
 
 DEFAULT_MAX_AGE_SEC = 300.0
 
 
 def _connect_ro(db_path: str) -> sqlite3.Connection:
     """Read-only connection — can NEVER create or modify a store."""
-    return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    return connect_sqlite_ro(db_path)
 
 
 def stale_components(db_path: str | None = None,

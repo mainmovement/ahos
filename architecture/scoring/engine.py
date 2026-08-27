@@ -134,6 +134,103 @@ class OpportunityScorer:
         return bundle.extended(
             evidence_from_virality(signal, boost_seen=boost_seen, txns_seen=txns_seen))
 
+    @staticmethod
+    def attach_narrative(
+        bundle,
+        candidate,
+        now: float,
+        *,
+        items=None,
+        feeds_ok: list | None = None,
+        feeds_failed: list | None = None,
+        collector=None,
+        fetch: bool | None = None,
+    ):
+        """Attach narrative (RSS) evidence atoms — R-69 / P0-3 feed-through.
+
+        Network law
+        -----------
+        Default for `OpportunityScorer.evaluate` is *no* live fetch
+        (`AHOS_NARRATIVE_FETCH` unset/0) so unit tests stay offline and fast.
+        The production pipeline orchestrator prefetches once per cycle and
+        passes `items` (+ feed provenance). Set `AHOS_NARRATIVE_FETCH=1` to
+        allow evaluate() itself to hit RSS.
+
+        Honesty: unreachable / disabled feeds → UNKNOWN label, never NEUTRAL
+        fabricated from silence. Narrative never overrides security vetoes.
+        """
+        import os
+
+        from ..intel.news import NewsCollector, NarrativeSignal
+        from ..intelligence.adapters import evidence_from_narrative
+
+        if fetch is None:
+            fetch = os.environ.get("AHOS_NARRATIVE_FETCH", "0").strip() == "1"
+
+        collector = collector or NewsCollector()
+        symbol = str(getattr(candidate, "symbol", "") or "").strip()
+        name = str(getattr(candidate, "name", "") or "").strip()
+        keywords = [k for k in (symbol, name) if k and len(k) >= 2]
+        subject = symbol or name or "MARKET"
+
+        if items is not None:
+            signal = collector.analyze(
+                subject=subject,
+                keywords=keywords or None,
+                items=list(items),
+                now=now,
+                feeds_ok=feeds_ok,
+                feeds_failed=feeds_failed,
+            )
+        elif fetch:
+            signal = collector.analyze(
+                subject=subject,
+                keywords=keywords or None,
+                now=now,
+            )
+        else:
+            signal = NarrativeSignal(
+                subject=subject,
+                sentiment=0.0,
+                label="UNKNOWN",
+                mention_count=0,
+                high_impact_count=0,
+                computed_ts=now,
+                error_state={
+                    "kind": "narrative_fetch_disabled",
+                    "detail": "AHOS_NARRATIVE_FETCH!=1 and no prefetched items",
+                },
+            )
+        return bundle.extended(evidence_from_narrative(signal))
+
+    @staticmethod
+    def attach_market_structure(bundle, candidate, now: float):
+        """Attach deterministic market-structure evidence (Lane B intel)."""
+        from ..intel.market_structure import MarketStructureAnalyzer
+        from ..intelligence.adapters import evidence_from_market_structure
+
+        signal = MarketStructureAnalyzer().analyze(candidate, now=now)
+        return bundle.extended(evidence_from_market_structure(signal))
+
+    @staticmethod
+    def attach_tokenomics(bundle, candidate, now: float):
+        """Attach tokenomics evidence from observed supply/authority fields."""
+        from ..intel.tokenomics import TokenomicsAnalyzer
+        from ..intelligence.adapters import evidence_from_tokenomics
+
+        signal = TokenomicsAnalyzer().analyze(candidate, now=now)
+        return bundle.extended(evidence_from_tokenomics(signal))
+
+    @staticmethod
+    def attach_catalysts(bundle, candidate, now: float, *, news_items=None):
+        """Attach provenance-aware catalyst catalog (deterministic heuristics)."""
+        from ..intel.catalyst import CatalystDetector
+        from ..intelligence.adapters import evidence_from_catalysts
+
+        report = CatalystDetector().detect(
+            candidate, news_items=news_items, now=now)
+        return bundle.extended(evidence_from_catalysts(report))
+
     def evaluate(self, candidate: Any,
                  previous_candidate: Any | None = None,
                  now: float | None = None) -> OpportunityScoreReport:
@@ -142,6 +239,10 @@ class OpportunityScorer:
         ts = time.time() if now is None else now
         bundle = materialize_evidence(candidate, now=ts)
         bundle = self.attach_virality(bundle, candidate, ts)
+        bundle = self.attach_narrative(bundle, candidate, ts)
+        bundle = self.attach_market_structure(bundle, candidate, ts)
+        bundle = self.attach_tokenomics(bundle, candidate, ts)
+        bundle = self.attach_catalysts(bundle, candidate, ts)
         report = self.intelligence.evaluate(bundle)
         report = self.from_intelligence(report)
         # Stamp the candidate's discovery provider so calibration can segment

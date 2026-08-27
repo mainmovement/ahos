@@ -95,11 +95,11 @@ export function fromScored(
   }
 
   return {
-    id: `opp:${scored.tokenKey}:${Date.now()}`,
+    id: `opp:${scored.token.tokenKey}:${Date.now()}`,
     token:
       (scored as { symbol?: string }).symbol ||
       (token as { symbol?: string }).symbol ||
-      scored.tokenKey,
+      scored.token.tokenKey,
     chain:
       (scored as { chain?: string }).chain ||
       (token as { chain?: string }).chain ||
@@ -128,7 +128,7 @@ export function fromScored(
     invalidation_conditions,
     timestamp:
       (scored as { updatedAt?: string }).updatedAt || new Date().toISOString(),
-    tokenKey: scored.tokenKey,
+    tokenKey: scored.token.tokenKey,
     sources,
   };
 }

@@ -266,7 +266,8 @@ def integrity_check() -> dict:
         if not Path(p).exists():
             out[name] = "MISSING"
             continue
-        conn = sqlite3.connect(f"file:{p}?mode=ro", uri=True)
+        from config.paths import connect_sqlite_ro
+        conn = connect_sqlite_ro(p)
         row = conn.execute("PRAGMA integrity_check;").fetchone()
         conn.close()
         out[name] = row[0] if row else "unknown"

@@ -110,11 +110,11 @@ def resolve_source(explicit: str | None = None) -> str:
                 f"unknown evidence source {explicit!r}; valid: {sorted(VALID_SOURCES)}")
         return value
 
-    env = os.environ.get(_SOURCE_ENV_VAR, "").strip().lower()
+    env = os.environ.get("AHOS_EVIDENCE_SOURCE", "").strip().lower()
     if env:
         if env not in VALID_SOURCES:
             raise ValueError(
-                f"{_SOURCE_ENV_VAR}={env!r} is not a valid evidence source; "
+                f"AHOS_EVIDENCE_SOURCE={env!r} is not a valid evidence source; "
                 f"valid: {sorted(VALID_SOURCES)}")
         return env
 
@@ -464,7 +464,8 @@ class ScoreLedger:
     def _read(self, sql: str, params: tuple = ()) -> list[dict[str, Any]]:
         """Read-only query. A missing store reports nothing rather than creating one."""
         try:
-            conn = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
+            from config.paths import connect_sqlite_ro
+            conn = connect_sqlite_ro(self.db_path)
             conn.row_factory = sqlite3.Row
             rows = [dict(r) for r in conn.execute(sql, params).fetchall()]
             conn.close()

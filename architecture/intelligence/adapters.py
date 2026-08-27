@@ -137,11 +137,114 @@ def evidence_from_exitability(report: Any) -> list[Evidence]:
     ]
 
 
+def evidence_from_market_structure(signal: Any) -> list[Evidence]:
+    """MarketStructureSignal → Evidence. Missing metrics stay UNKNOWN."""
+    if signal is None:
+        return []
+    ts = float(getattr(signal, "computed_ts", 0.0) or 0.0)
+    status = "DERIVED" if getattr(signal, "is_known", False) else "UNKNOWN"
+    return [
+        _ev("mstruct_label", "Market structure label",
+            getattr(signal, "label", "UNKNOWN"),
+            provider="intel.market_structure", timestamp=ts,
+            source_field="market_structure.label", status=status),
+        _ev("mstruct_liquidity_quality", "Liquidity quality band",
+            getattr(signal, "liquidity_quality", None),
+            provider="intel.market_structure", timestamp=ts,
+            source_field="market_structure.liquidity_quality",
+            status="DERIVED" if getattr(signal, "liquidity_quality", None) else "UNKNOWN"),
+        _ev("mstruct_vol_liq_ratio", "Volume/liquidity ratio (1h)",
+            getattr(signal, "vol_liq_ratio", None),
+            provider="intel.market_structure", timestamp=ts,
+            source_field="market_structure.vol_liq_ratio",
+            status="DERIVED" if getattr(signal, "vol_liq_ratio", None) is not None else "UNKNOWN"),
+        _ev("mstruct_buy_sell_imbalance", "Buy/sell imbalance [-1,1]",
+            getattr(signal, "buy_sell_imbalance", None),
+            provider="intel.market_structure", timestamp=ts,
+            source_field="market_structure.buy_sell_imbalance",
+            status="DERIVED" if getattr(signal, "buy_sell_imbalance", None) is not None else "UNKNOWN"),
+        _ev("mstruct_activity_quality", "Activity quality",
+            getattr(signal, "activity_quality", None),
+            provider="intel.market_structure", timestamp=ts,
+            source_field="market_structure.activity_quality",
+            status="DERIVED" if getattr(signal, "activity_quality", None) else "UNKNOWN"),
+    ]
+
+
+def evidence_from_tokenomics(signal: Any) -> list[Evidence]:
+    if signal is None:
+        return []
+    ts = float(getattr(signal, "computed_ts", 0.0) or 0.0)
+    status = "DERIVED" if getattr(signal, "is_known", False) else "UNKNOWN"
+    items = [
+        _ev("tokenomics_label", "Tokenomics label",
+            getattr(signal, "label", "UNKNOWN"),
+            provider="intel.tokenomics", timestamp=ts,
+            source_field="tokenomics.label", status=status),
+        _ev("tokenomics_circ_to_fdv", "Circulating/FDV ratio",
+            getattr(signal, "circ_to_fdv_ratio", None),
+            provider="intel.tokenomics", timestamp=ts,
+            source_field="tokenomics.circ_to_fdv_ratio",
+            status="DERIVED" if getattr(signal, "circ_to_fdv_ratio", None) is not None else "UNKNOWN"),
+        _ev("tokenomics_mint_authority", "Mint authority active",
+            getattr(signal, "has_mint_authority", None),
+            provider="intel.tokenomics", timestamp=ts,
+            source_field="tokenomics.has_mint_authority",
+            status="DERIVED" if getattr(signal, "has_mint_authority", None) is not None else "UNKNOWN"),
+        _ev("tokenomics_freeze_authority", "Freeze authority active",
+            getattr(signal, "has_freeze_authority", None),
+            provider="intel.tokenomics", timestamp=ts,
+            source_field="tokenomics.has_freeze_authority",
+            status="DERIVED" if getattr(signal, "has_freeze_authority", None) is not None else "UNKNOWN"),
+        _ev("tokenomics_unlock_vesting", "Unlock/vesting schedule status",
+            getattr(signal, "unlock_vesting_status", "UNKNOWN"),
+            provider="intel.tokenomics", timestamp=ts,
+            source_field="tokenomics.unlock_vesting_status",
+            status="UNKNOWN"),  # never fabricated as known
+    ]
+    return items
+
+
+def evidence_from_catalysts(report: Any) -> list[Evidence]:
+    if report is None:
+        return []
+    ts = float(getattr(report, "computed_ts", 0.0) or 0.0)
+    status_raw = getattr(report, "status", "UNKNOWN")
+    atom_status = "DERIVED" if status_raw in ("FOUND", "NONE") else "UNKNOWN"
+    items = [
+        _ev("catalyst_status", "Catalyst catalog status",
+            status_raw,
+            provider="intel.catalyst", timestamp=ts,
+            source_field="catalyst.status", status=atom_status),
+        _ev("catalyst_count", "Catalyst event count",
+            len(getattr(report, "events", None) or []),
+            provider="intel.catalyst", timestamp=ts,
+            source_field="catalyst.count",
+            status=atom_status if status_raw != "UNKNOWN" else "UNKNOWN"),
+    ]
+    for i, ev in enumerate(getattr(report, "events", None) or []):
+        if not isinstance(ev, dict):
+            ev = ev.to_dict() if hasattr(ev, "to_dict") else {}
+        items.append(_ev(
+            f"catalyst_{i}_{ev.get('kind', 'EVENT')}",
+            ev.get("title") or "catalyst",
+            ev.get("evidence_sha16") or ev.get("kind"),
+            provider=str(ev.get("source") or "intel.catalyst"),
+            timestamp=float(ev["timestamp"]) if ev.get("timestamp") is not None else ts,
+            source_field="catalyst.event",
+            status="VERIFIED" if ev.get("evidence_sha16") else "DERIVED",
+        ))
+    return items
+
+
 def collect_intel_evidence(*, narrative: Any = None, virality: Any = None,
                            whales: Any = None, exitability: Any = None,
+                           market_structure: Any = None,
+                           tokenomics: Any = None,
+                           catalysts: Any = None,
                            boost_seen: bool | None = None,
                            txns_seen: bool | None = None) -> list[Evidence]:
-    """Bundle optional Lane-A intel signals as extra Evidence.
+    """Bundle optional Lane-B intel signals as extra Evidence.
 
     `boost_seen`/`txns_seen` are forwarded to `evidence_from_virality` so the
     wash/paid-promotion atoms are DERIVED only when the underlying data was
@@ -154,6 +257,9 @@ def collect_intel_evidence(*, narrative: Any = None, virality: Any = None,
         evidence_from_virality(virality, boost_seen=boost_seen, txns_seen=txns_seen),
         evidence_from_whales(whales),
         evidence_from_exitability(exitability),
+        evidence_from_market_structure(market_structure),
+        evidence_from_tokenomics(tokenomics),
+        evidence_from_catalysts(catalysts),
     ):
         items.extend(group)
     return items

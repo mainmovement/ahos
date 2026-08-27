@@ -19,7 +19,7 @@ from pathlib import Path
 from .contracts import TrustClass, ClaimCategory, VersionedClaim, EvidenceLink
 from .store import VersionedClaimStore
 from .lenses import LENS_PILOT_REGISTRY
-from config.paths import get_knowledge_db_path, get_discovery_db_path, get_research_dir
+from config.paths import connect_sqlite_ro, get_knowledge_db_path, get_discovery_db_path, get_research_dir
 
 
 class KnowledgeSyncBridge:
@@ -43,7 +43,7 @@ class KnowledgeSyncBridge:
 
     def _sync_e01_outcomes(self) -> int:
         ts = time.time()
-        conn = sqlite3.connect(f"file:{self.discovery_db}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(self.discovery_db)
         cur = conn.cursor()
         total_tokens = cur.execute("SELECT COUNT(*) FROM tokens").fetchone()[0]
         resolved = cur.execute("SELECT COUNT(*) FROM observation_state WHERE state='RESOLVED'").fetchone()[0]

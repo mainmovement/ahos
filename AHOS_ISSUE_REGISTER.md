@@ -1210,7 +1210,7 @@
   1. `architecture/scoring/engine.py`: `OpportunityScorer.attach_virality(bundle, candidate, now)` computes the ViralitySignal and extends the evidence bundle through the canonical `evidence_from_virality` converter; called in `evaluate()` AND in the pipeline's direct `from_intelligence` path (both scoring paths covered). `OpportunityScoreReport` gains `intel_evidence_items` + `answer_intel_evidence()` exposing the full intel surface with provider provenance; the frozen 4-item `answer_evidence()` contract is untouched (backward compatible; ledger known-field counts unchanged).
   2. `architecture/providers/contracts.py`: `NormalizedTokenCandidate.boost_amount` (observed paid-promotion spend); pipeline forwards it from observation records.
   3. Honesty fix in the shared `evidence_from_virality(signal, *, boost_seen, txns_seen)`: `wash_suspected` / `is_paid_promotion` are DERIVED only when the underlying data was observed; otherwise the atom is UNKNOWN with value None. The raw ViralitySignal's False-on-missing defaults would otherwise fabricate "not promoted"/"no wash" negatives into the risk path. Flags forwarded through `collect_intel_evidence`; the conservative default (None) is UNKNOWN, never a claim.
-  4. Narrative (news) feed-through remains NOT WIRED: the narrative_rss PAL capability is not collected by the collector yet — documented as remaining, not fabricated.
+  4. Narrative (news) feed-through was NOT WIRED at R-69 time — **CLOSED in R-80** (`OpportunityScorer.attach_narrative` + orchestrator prefetch).
 - EVIDENCE: 7 new tests (`tests/test_virality_feed_through.py`) incl. a regression asserting the legacy 4-item surface stays exactly {liquidity_usd, volume_1h, is_honeypot, top10_concentration}; intelligence/decision/council/telegram regression 143 green; full suite 1276/1276 (gate artifacts refreshed); feed-through runtime-verified (virality atoms + is_paid_promotion DERIVED True, provenance intel.viral). Zero live trading, zero credential exposure.
 
 ## R-70 · 2026-08-20 · Calibration score-drift diagnostic (schema v6)
@@ -1277,11 +1277,38 @@
   5. Temporal acceleration (P12): HealthSnapshotEngine.acceleration 3-point per-dimension trends, always CORRELATION_ONLY.
 - EVIDENCE: 21 new tests (total 1405); runtime verified: selection on real stores -> honest INSUFFICIENT_EVIDENCE (0 findings); synthetic findings -> high-leverage UNKNOWN_GROWTH selected; acceleration on synthetic scorecards; experiment ledger roundtrip with dedup. Zero live trading, zero credential exposure.
 
-## R-76 · 2026-08-20 · W40 Measured performance evolution
-- WHY: The per-cadence evidence package profile showed two dominant, repeated costs: static YAML re-parse (load_registry) and full AST re-parse of 140+ files (architecture_graph). Both are pure functions of immutable/static content — ideal memoization targets under the measure-first discipline.
+## R-79 · 2026-08-27 · Acceptance pass → DEVELOPMENT_READY
+- WHY: Final acceptance directive required independent re-verification, closure of remaining local P0/P1 hygiene, and an honest classification (not PRODUCTION_READY).
 - WHAT:
-  1. `architecture/provider_router.py`: `load_registry` @lru_cache(maxsize=8) keyed on resolved path. BASELINE 9.198 ms/call -> AFTER 0.0001 ms/call (~70,000x on repeated calls); cached == fresh parse (parity test); health snapshot 0.44s -> 0.16s (2.7x).
-  2. `scripts/architecture_graph.py`: `build_graph` cached on a fingerprint of every scanned file's mtime+size; edit invalidates, unchanged tree reuses. BASELINE 294 ms/call -> AFTER 2.4 ms/call (122x); parity + invalidation test-pinned.
-  3. Measured-and-rejected (experiment ledger, never re-proposed): SQLite connection reuse (0.035 ms/conn — below noise floor); load_contract JSON parse (0.029 ms — not a bottleneck). W37's regime-classifier vectorization already recorded as OPTIMIZATION_BELOW_NOISE_FLOOR.
-  4. Architecture finding: the cached graph surfaced a second lazy-import cycle evolution.findings <-> evolution.selection; governed proposal prop_1787227838_7120d5f2 filed (human gate).
-- EVIDENCE: 2 new tests (total 1407); runtime verified: registry parity + speedup, graph parity + invalidation + 122x; full suite 1408/1408 (gate artifacts refreshed). Zero live trading, zero credential exposure.
+  1. Fixed `assert_safe_environment` dead exchange-key check; added regression tests.
+  2. Added `docs/OWNER_ACTION_REQUIRED.md`; bannered stale SECURITY/MISSING/STRATEGIC docs.
+  3. Matrix/audit: AG-25 NOT_IMPLEMENTED; CALIBRATION_READY_BUT_DATA_REQUIRED; SOAK_INFRASTRUCTURE_READY / SOAK_NOT_YET_EXECUTED; acceptance matrix; class `DEVELOPMENT_READY`.
+- EVIDENCE: Independent re-run typecheck + pytest + Lane-A freeze + n8n validate. External OA-* remain owner-only. Zero live trading. Zero fabricated live evidence.
+
+
+
+
+
+## R-80 · 2026-08-27 · Integration pass: narrative feed-through + P1 intel + live provider SUCCESS (agent host)
+- WHY: Move DEVELOPMENT_READY → INTEGRATION_READY by wiring real discovery/evidence/narrative and completing high-value analytical dimensions without fabrication.
+- WHAT:
+  1. P0-3/R-69: `OpportunityScorer.attach_narrative` + pipeline one-RSS-fetch-per-cycle (`AHOS_NARRATIVE_FETCH`); offline UNKNOWN honesty; pytest defaults fetch off.
+  2. P1: `architecture/intel/market_structure.py`, `tokenomics.py`, `catalyst.py` + evidence adapters + risk findings (ABNORMAL/FRAGILE/TOKENOMICS_*).
+  3. Scoring semantic contract `docs/contracts/scoring_contract_v1.json` + tests (field dictionary; numeric parity NOT claimed).
+  4. Live probe on agent host: dexscreener+geckoterminal SUCCESS (tokens>0) — artifact `reports/provider_probe_LIVE_VERIFIED_agent_host.json`. Single-cycle pipeline persisted local ledger rows. Live intel atoms DERIVED (narrative/mstruct/tokenomics/catalyst).
+  5. Calibration still `INSUFFICIENT_DATA` — 348 local predictions but 0 outcome pairs (`no_matching_label`); outcome accrual remains operational follow-up.
+- EVIDENCE: new unit/feed-through/contract tests; live probe JSON; live intel atoms artifact; Lane-A freeze OK; no Lane-A rewrite; PAPER_ONLY preserved.
+- NOT CLAIMED: Telegram E2E, n8n operational, 7-day soak, calibration validated, operator-laptop egress, PRODUCTION_READY.
+
+
+## R-81 · 2026-08-27 · Prediction→Lane-A observation lifecycle bridge (calibration join)
+- WHY: 348 local predictions / 0 outcome pairs — Lane-B scored into ScoreLedger + production_observations but never called frozen Lane-A register/observe APIs, so observation_state stayed empty and calibration reported no_matching_label.
+- WHAT:
+  1. `architecture/learning/prediction_lifecycle.py` — register_for_observation / backfill_from_production_observations / lifecycle_status (calls frozen discovery APIs only; no Lane-A source edits).
+  2. `OpportunityPipelineOrchestrator` seeds Lane-A after collect; report fields lane_a_registered / lane_a_observations_written.
+  3. Scripts: `backfill_lane_a_from_production.py`, `prediction_lifecycle_status.py`.
+  4. Docs: `docs/CALIBRATION_LIFECYCLE.md`; Windows quickstart section; Telegram/n8n operator protocols.
+  5. Tests: `tests/test_prediction_lifecycle_bridge.py` (incl. clock-injected join → pairs≥1, verdict still INSUFFICIENT_DATA).
+- EVIDENCE: agent-host backfill registered 97 tokens / 354 obs → OBSERVING=101; outcome_labels still 0 until T+72h (honest). Lane-A freeze OK.
+- NOT CLAIMED: calibration validated; fabricated outcomes; OPERATOR_READY.
+

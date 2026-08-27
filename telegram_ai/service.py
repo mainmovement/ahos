@@ -22,7 +22,7 @@ AHOS_GATEWAY_URL = os.environ.get("AHOS_GATEWAY_URL", "").strip()
 from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTENTS
 from .response_contract import FOOTER_MANDATED
 from .positions import open_ledger, log_buy, positions_for_token, latest_observed_value
-from config.paths import get_discovery_db_path, get_local_db_path
+from config.paths import connect_sqlite_ro, get_discovery_db_path, get_local_db_path
 
 TOKEN_SCOPED_INTENTS = {
     "EXITABILITY_QUERY", "WHALE_QUERY", "VIRALITY_QUERY", "COUNCIL_OPINION", "PANEL_ANALYSIS",
@@ -36,7 +36,7 @@ class TelegramDomainService:
         self.scorer = None  # W57: no independent scorer
 
     def _open_discovery(self) -> sqlite3.Connection:
-        c = sqlite3.connect(f"file:{self.discovery_db_path}?mode=ro", uri=True)
+        c = connect_sqlite_ro(self.discovery_db_path)
         c.row_factory = sqlite3.Row
         return c
 

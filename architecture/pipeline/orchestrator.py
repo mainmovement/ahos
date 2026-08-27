@@ -44,9 +44,12 @@ class PipelineExecutionReport:
     alerts_emitted: int
     telegram_messages_sent: int
     scores_persisted: int = 0
+    lane_a_registered: int = 0
+    lane_a_observations_written: int = 0
     top_opportunity: OpportunityScoreReport | None = None
     alerts: list[Alert] = field(default_factory=list)
     trace: OperationTrace | None = None
+    lifecycle_bridge: dict | None = None
 
 
 class OpportunityPipelineOrchestrator:
@@ -84,6 +87,16 @@ class OpportunityPipelineOrchestrator:
         # 1. Collect & Normalize Candidate Tokens
         obs_records = self.collector.collect_candidates(chain=chain, limit=limit, now=t0)
 
+        # 1b. Seed Lane-A observation lifecycle (prediction→outcome bridge).
+        #     Without this, ScoreLedger rows never join outcome_label.
+        #     Uses frozen discovery APIs only — no Lane-A source edits.
+        lifecycle_reg = None
+        try:
+            from ..learning.prediction_lifecycle import register_for_observation
+            lifecycle_reg = register_for_observation(obs_records, now=t0)
+        except Exception as e:  # noqa: BLE001 — scoring must not abort
+            lifecycle_reg = {"error": type(e).__name__, "detail": str(e)[:160]}
+
         # Convert records to candidates for scoring
         candidates: list[NormalizedTokenCandidate] = []
         for r in obs_records:
@@ -114,10 +127,43 @@ class OpportunityPipelineOrchestrator:
 
         # 2. Evidence → Features → Risk → Score → Explanations
         #    (raw candidate data does not enter the intelligence calculations)
+        #
+        # Narrative prefetch (P0-3 / R-69): one RSS pull per pipeline cycle.
+        # Disable with AHOS_NARRATIVE_FETCH=0. Failures degrade to UNKNOWN.
+        import os
+        narrative_items = None
+        narrative_feeds_ok: list[str] = []
+        narrative_feeds_failed: list[dict] = []
+        narrative_fetch_enabled = os.environ.get("AHOS_NARRATIVE_FETCH", "1").strip() != "0"
+        if narrative_fetch_enabled:
+            try:
+                from ..intel.news import NewsCollector
+                narrative_items, narrative_feeds_ok, narrative_feeds_failed = (
+                    NewsCollector().fetch_all())
+            except Exception as e:  # noqa: BLE001 — never abort scoring for news
+                narrative_items = []
+                narrative_feeds_failed = [
+                    {"feed": "*", "error": f"{type(e).__name__}: {str(e)[:120]}"}]
+
         paired: list[tuple[NormalizedTokenCandidate, OpportunityScoreReport]] = []
         for cand in candidates:
             bundle = materialize_evidence(cand, now=t0)
             bundle = OpportunityScorer.attach_virality(bundle, cand, t0)
+            if narrative_items is not None:
+                bundle = OpportunityScorer.attach_narrative(
+                    bundle, cand, t0,
+                    items=narrative_items,
+                    feeds_ok=narrative_feeds_ok,
+                    feeds_failed=narrative_feeds_failed,
+                )
+            else:
+                bundle = OpportunityScorer.attach_narrative(
+                    bundle, cand, t0, fetch=False)
+            bundle = OpportunityScorer.attach_market_structure(bundle, cand, t0)
+            bundle = OpportunityScorer.attach_tokenomics(bundle, cand, t0)
+            bundle = OpportunityScorer.attach_catalysts(
+                bundle, cand, t0,
+                news_items=narrative_items if narrative_items is not None else [])
             intel = self.intelligence.evaluate(bundle)
             rep = self.scorer.from_intelligence(intel)
             # Stamp the discovery provider on the report (calibration Q8
@@ -167,12 +213,25 @@ class OpportunityPipelineOrchestrator:
                 pass
 
         dt = (time.time() - t0) * 1000.0
+        bridge_dict = None
+        lane_a_reg = 0
+        lane_a_obs = 0
+        if lifecycle_reg is not None:
+            if hasattr(lifecycle_reg, "as_dict"):
+                bridge_dict = lifecycle_reg.as_dict()
+                lane_a_reg = int(lifecycle_reg.registered)
+                lane_a_obs = int(lifecycle_reg.observations_written)
+            elif isinstance(lifecycle_reg, dict):
+                bridge_dict = lifecycle_reg
+
         trace = trace_ctx.success({
             "candidates": len(candidates),
             "scores": len(reports),
             "scores_persisted": scores_persisted,
             "alerts": len(emitted_alerts),
-            "messages_sent": messages_sent
+            "messages_sent": messages_sent,
+            "lane_a_registered": lane_a_reg,
+            "lane_a_observations_written": lane_a_obs,
         })
 
         return PipelineExecutionReport(
@@ -184,7 +243,10 @@ class OpportunityPipelineOrchestrator:
             alerts_emitted=len(emitted_alerts),
             telegram_messages_sent=messages_sent,
             scores_persisted=scores_persisted,
+            lane_a_registered=lane_a_reg,
+            lane_a_observations_written=lane_a_obs,
             top_opportunity=top_opp,
             alerts=emitted_alerts,
-            trace=trace
+            trace=trace,
+            lifecycle_bridge=bridge_dict,
         )

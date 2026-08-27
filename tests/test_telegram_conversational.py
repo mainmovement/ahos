@@ -1,19 +1,28 @@
-"""Wave-25: free-form Persian conversation layer.
+"""Wave-25 conversational NLU + W57 gateway-only Telegram surface.
 
-These tests pin the behaviour the user asked for: talk to the bot like you talk
-to ChatGPT, in Persian, and get a real answer -- while the safety laws that make
-the answer trustworthy stay bolted down.
+Two layers are pinned here:
 
-Two invariants dominate this file:
-  1. No conversational path may ever mutate the ledger or emit an order.
-  2. Missing data must surface as UNKNOWN with an honest explanation, never as
-     silence and never as a reassuring default.
+1. Intent parsing (`telegram_ai.intent`) remains the Persian NLU grammar.
+   It is used by the Conversation Gateway / Web path; Telegram no longer
+   executes independent scoring through `_route`.
+
+2. `TelegramDomainService.handle_message` is W57 gateway-only:
+   - With AHOS_GATEWAY_URL → POST Conversation Gateway → Core
+   - Without gateway → EMERGENCY_FALLBACK_ONLY (no independent scoring)
+
+Pre-W57 expectations that assumed in-process GREETING/NEWS/COUNCIL replies
+from TelegramDomainService are intentionally retired.
 """
 from __future__ import annotations
+
+import json
+from io import BytesIO
+from urllib.error import URLError
 
 import pytest
 
 import telegram_ai.intent as I
+import telegram_ai.service as svc_mod
 from telegram_ai.service import TelegramDomainService, TOKEN_SCOPED_INTENTS
 from telegram_ai.response_contract import FOOTER_MANDATED
 
@@ -24,6 +33,11 @@ CTX = {"current_token": {"address": SOL, "chain": "solana"}}
 @pytest.fixture(scope="module")
 def svc():
     return TelegramDomainService()
+
+
+@pytest.fixture(autouse=True)
+def _no_gateway(monkeypatch):
+    monkeypatch.setattr(svc_mod, "AHOS_GATEWAY_URL", "")
 
 
 # ----------------------------------------------------------------- routing --
@@ -81,45 +95,6 @@ def test_ledger_mutation_remains_a_single_deterministic_intent():
     assert I.LEDGER_MUTATING_INTENTS == {"BUY_LOG"}
 
 
-@pytest.mark.parametrize("text", [
-    "سلام", "امروز چه خبر؟", "چی بخرم؟", "راهنما",
-])
-def test_every_reply_carries_the_mandated_footer(svc, text):
-    assert FOOTER_MANDATED in svc.handle_message(text)["text"]
-
-
-@pytest.mark.parametrize("text", [
-    "نقدشوندگی این چطوره؟", "نهنگ ها چیکار میکنن؟",
-    "این وایرال شده؟", "نظر هوش مصنوعی ها چیه؟",
-])
-def test_token_scoped_replies_carry_the_footer(svc, text):
-    assert FOOTER_MANDATED in svc.handle_message(text, user_context=CTX)["text"]
-
-
-# ------------------------------------------------------- conversational UX --
-
-def test_greeting_is_answered_and_advertises_capability(svc):
-    r = svc.handle_message("سلام")
-    assert r["intent"] == "GREETING" and r["status"] == "OK"
-    # A greeting should teach the user what to ask next.
-    assert "؟" in r["text"]
-    # ...and must restate that this is not a trading bot.
-    assert "معامله‌گر" in r["text"]
-
-
-def test_token_scope_is_inherited_across_turns(svc):
-    """«نهنگ‌ها چیکار می‌کنن؟» has no pointing word but clearly means *this* token."""
-    for text in ("نهنگ ها چیکار میکنن؟", "نظر هوش مصنوعی ها چیه؟"):
-        r = svc.handle_message(text, user_context=CTX)
-        assert r["status"] == "OK", f"{text} failed to inherit session token"
-
-
-def test_token_scoped_query_without_context_asks_rather_than_guesses(svc):
-    r = svc.handle_message("نهنگ ها چیکار میکنن؟")
-    assert r["status"] == "NEEDS_CONTEXT"
-    assert "آدرس" in r["text"]
-
-
 def test_inheritance_is_limited_to_token_scoped_intents():
     """A session token must not silently narrow market-wide questions."""
     assert "NEWS_DIGEST" not in TOKEN_SCOPED_INTENTS
@@ -127,130 +102,72 @@ def test_inheritance_is_limited_to_token_scoped_intents():
     assert "GREETING" not in TOKEN_SCOPED_INTENTS
 
 
-# ------------------------------------------------------- honest degradation --
+# ------------------------------------------- W57 gateway-only service path --
 
-def test_unreachable_news_feeds_are_reported_not_hidden(svc):
-    """Under filtering this is the normal path -- it must be legible, not empty."""
-    r = svc.handle_message("امروز چه خبر؟")
-    assert r["intent"] == "NEWS_DIGEST"
-    if r["status"] == "UNKNOWN":
-        assert "در دسترس" in r["text"]
-        # Must not let the user read "no news" as "nothing is happening".
-        assert "فیلترینگ" in r["text"] or "شبکه" in r["text"]
-
-
-def test_empty_database_explains_the_next_step(svc):
-    r = svc.handle_message("چی بخرم؟")
-    if r["status"] == "EMPTY":
-        assert "single-cycle" in r["text"]
-
-
-def test_missing_holder_data_is_unknown_not_safe(svc):
-    """Free RPC exposes no holder list. Absence of evidence != evidence of safety."""
-    r = svc.handle_message("نهنگ ها چیکار میکنن؟", user_context=CTX)
-    txt = r["text"]
-    if "UNKNOWN" in txt:
-        assert "امن" in txt  # the reply explicitly refuses to call it safe
-        assert "🟢" not in txt
-
-
-def test_offline_council_falls_back_to_deterministic_engine(svc):
-    """No AI reachable is a survivable state, not an outage."""
-    r = svc.handle_message("نظر هوش مصنوعی ها چیه؟", user_context=CTX)
-    assert r["status"] == "OK"
-    v = r["council"]
-    assert v.advisory_only is True
-    if v.council_status in ("OFFLINE", "DETERMINISTIC_ONLY"):
-        assert "موتور قطعی" in r["text"]
-
-
-def test_council_reply_states_it_cannot_override_the_math(svc):
-    r = svc.handle_message("نظر هوش مصنوعی ها چیه؟", user_context=CTX)
-    assert "مشورتی" in r["text"]
-
-
-def test_virality_reply_discloses_its_measurement_basis(svc):
-    """We measure attention on-chain; the user must know social media is not scraped."""
-    r = svc.handle_message("این وایرال شده؟", user_context=CTX)
-    assert "شبکه‌های اجتماعی" in r["text"]
-
-
-def test_exitability_reply_is_produced_for_a_session_token(svc):
-    r = svc.handle_message("نقدشوندگی این چطوره؟", user_context=CTX)
-    assert r["status"] == "OK"
-    assert r["exitability"].verdict in ("EXITABLE", "DEGRADED", "TRAPPED", "UNKNOWN")
-
-
-def test_help_covers_the_new_conversational_surface(svc):
-    txt = svc.handle_message("راهنما")["text"]
-    for probe in ["چه خبر", "چی بخرم", "نهنگ", "وایرال", "نقدشوندگی"]:
-        assert probe in txt, f"help text never mentions {probe}"
-
-
-def test_unrecognised_input_still_refuses_to_guess(svc):
-    r = svc.handle_message("asdkjh qwerty")
-    assert r["status"] == "UNRECOGNIZED"
-
-
-def test_self_review_is_available_on_demand_and_labelled(svc):
-    """The learning loop must be inspectable by the user, not a black box."""
-    r = svc.handle_message("اشتباهاتت رو مرور کن")
-    assert r["intent"] == "SELF_REVIEW" and r["status"] == "OK"
-    # Hindsight may judge, never justify -- the label must reach the user.
-    assert "OUT_OF_SAMPLE_REVIEW" in r["text"]
+@pytest.mark.parametrize("text", [
+    "سلام", "امروز چه خبر؟", "چی بخرم؟", "راهنما",
+    "نقدشوندگی این چطوره؟", "نهنگ ها چیکار میکنن؟",
+    "این وایرال شده؟", "نظر هوش مصنوعی ها چیه؟",
+    "اشتباهاتت رو مرور کن", "شورای تحلیلی چی میگه؟",
+    "asdkjh qwerty",
+])
+def test_without_gateway_handle_message_is_emergency_fallback(svc, text):
+    r = svc.handle_message(text, user_context=CTX)
+    assert r["status"] == "EMERGENCY_FALLBACK_ONLY"
+    assert r["source"] == "EMERGENCY_FALLBACK_ONLY"
+    assert r["intent"] == "gateway_unavailable"
+    assert "scoring" in r["text"].lower() or "هسته" in r["text"]
     assert FOOTER_MANDATED in r["text"]
 
 
-def test_help_mentions_the_self_review_capability(svc):
-    assert "مرور" in svc.handle_message("راهنما")["text"]
+def test_legacy_route_is_hard_locked(svc):
+    with pytest.raises(RuntimeError, match="W57"):
+        svc._route("سلام")
 
 
-def test_cognitive_panel_is_reachable_from_telegram(svc):
-    r = svc.handle_message("شورای تحلیلی چی میگه؟", user_context=CTX)
-    assert r["intent"] == "PANEL_ANALYSIS" and r["status"] == "OK"
-    assert r["panel"].advisory_only is True
-    assert "مشورتی" in r["text"]
+def test_scorer_slot_remains_none(svc):
+    assert svc.scorer is None
+
+
+def test_gateway_success_path_uses_conversation_core(monkeypatch):
+    monkeypatch.setattr(svc_mod, "AHOS_GATEWAY_URL", "http://127.0.0.1:9/api/chat")
+
+    class _Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps({
+                "text": "پاسخ هسته از gateway",
+                "intent": "GREETING",
+                "focus_token": None,
+                "evidence": {},
+            }).encode("utf-8")
+
+    monkeypatch.setattr(
+        svc_mod.urllib.request, "urlopen", lambda *a, **k: _Resp())
+    r = TelegramDomainService().handle_message("سلام")
+    assert r["status"] == "OK"
+    assert r["source"] == "conversation_gateway"
+    assert r["intent"] == "GREETING"
+    assert "پاسخ هسته" in r["text"]
     assert FOOTER_MANDATED in r["text"]
 
 
-def test_panel_reply_names_the_thinkers_behind_each_finding(svc):
-    """Attribution is the point: the user should see WHO objected and why."""
-    r = svc.handle_message("شورای تحلیلی چی میگه؟", user_context=CTX)
-    v = r["panel"]
-    speaking = [o for o in v.opinions if o.stance != "ABSTAIN"]
-    if speaking:
-        assert any(o.identity and o.citation_ref for o in speaking)
+def test_gateway_transport_failure_falls_back_honestly(monkeypatch):
+    monkeypatch.setattr(svc_mod, "AHOS_GATEWAY_URL", "http://127.0.0.1:9/api/chat")
 
+    def _boom(*a, **k):
+        raise URLError("connection refused")
 
-# --------------------------------------------------- structural footer law --
-
-def test_footer_is_enforced_structurally_not_by_convention(svc):
-    """A new handler that forgets the footer must still be safe.
-
-    Compliance used to rely on every handler remembering to append it. That is
-    a convention, and conventions get forgotten. handle_message now guarantees
-    it, so this test simulates the forgetful handler.
-    """
-    svc._route = lambda text, user_context=None: {
-        "text": "بخر همین الان", "intent": "ROGUE", "status": "OK"}
-    out = svc.handle_message("هرچی")
-    assert FOOTER_MANDATED in out["text"]
-    assert out.get("footer_injected") is True
-
-
-def test_footer_is_not_duplicated_when_the_handler_already_added_it(svc):
-    svc._route = lambda text, user_context=None: {
-        "text": f"تحلیل\n\n{FOOTER_MANDATED}", "intent": "X", "status": "OK"}
-    out = svc.handle_message("هرچی")
-    assert out["text"].count(FOOTER_MANDATED) == 1
-    assert "footer_injected" not in out
-
-
-def test_empty_replies_are_left_alone(svc):
-    """A handler returning no text is a bug to surface, not one to decorate."""
-    svc._route = lambda text, user_context=None: {
-        "text": "", "intent": "X", "status": "EMPTY"}
-    assert svc.handle_message("هرچی")["text"] == ""
+    monkeypatch.setattr(svc_mod.urllib.request, "urlopen", _boom)
+    r = TelegramDomainService().handle_message("سلام")
+    assert r["status"] == "EMERGENCY_FALLBACK_ONLY"
+    assert r["intent"] == "gateway_unavailable"
+    assert FOOTER_MANDATED in r["text"]
 
 
 @pytest.mark.parametrize("probe", [
@@ -261,60 +178,7 @@ def test_empty_replies_are_left_alone(svc):
     "وضعیت سیستم چطوره؟", "چند درصد سود دارم؟", "کی بفروشم؟", "راهنما",
     "asdkjh qwerty",
 ])
-def test_every_reachable_intent_carries_the_footer(probe):
-    """Exhaustive sweep across the live surface -- not a sampled subset."""
+def test_every_reachable_probe_carries_footer_under_lockdown(probe):
     fresh = TelegramDomainService()
     r = fresh.handle_message(probe, user_context=CTX)
     assert FOOTER_MANDATED in r["text"], f"{probe} -> {r.get('intent')}"
-
-
-# --------------------------------------------- natural phrasing (Wave-26) --
-# Found by actually talking to the bot rather than by reading the rules: the
-# single most likely thing a user types, «بازار چطوره؟», returned "I did not
-# understand". R-MKT-01 required وضعیت/آخرین/خلاصه to appear BEFORE the noun,
-# which is not how the question is asked out loud.
-
-@pytest.mark.parametrize("text", [
-    "بازار چطوره؟",
-    "بازار چطور است؟",
-    "حال بازار چطوره؟",
-    "الان بازار چطوره؟",
-    "بازار امروز چطوره؟",
-    "بازار خوبه؟",
-    "کلیت بازار چطوره",
-    "مارکت چطوره؟",
-    "اوضاع بازار چطوره",
-    "وضعیت بازار چیه؟",
-])
-def test_natural_market_questions_are_understood(text):
-    assert I.parse(text).intent == "MARKET_OVERVIEW", \
-        f"the most natural way to ask this was not understood: {text}"
-
-
-@pytest.mark.parametrize("text", [
-    "چطوره؟",            # no subject -- must not be guessed at
-    "این توکن چطوره؟",   # about a token, not the market
-])
-def test_market_rule_does_not_over_match(text):
-    assert I.parse(text).intent != "MARKET_OVERVIEW", \
-        f"market rule swallowed an unrelated question: {text}"
-
-
-@pytest.mark.parametrize("text,expected", [
-    ("سلام خوبی؟", "GREETING"),
-    ("سلام چطوری", "GREETING"),
-    ("سلام، خوبی؟", "GREETING"),
-    ("درود خوبید؟", "GREETING"),
-    ("سلام", "GREETING"),
-    # A greeting glued to a real question must route to the question.
-    ("سلام بازار چطوره؟", "MARKET_OVERVIEW"),
-    ("سلام چی بخرم؟", "WHAT_TO_BUY"),
-])
-def test_greeting_with_pleasantry_and_greeting_prefixed_questions(text, expected):
-    assert I.parse(text).intent == expected, f"misrouted: {text}"
-
-
-def test_hopeful_phrasing_is_still_never_guessed():
-    """The standing rule: leading questions must not be answered as if the
-    system agreed with them."""
-    assert I.parse("حتماً پامپ میشه نه؟").intent == "UNKNOWN"

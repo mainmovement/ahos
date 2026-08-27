@@ -1,8 +1,13 @@
 # AHOS Final Operational Status & Deployment Certification
 
+> **SUPERSEDED — NOT CURRENT AUTHORITY (2026-08-27 hygiene).**  
+> This file is **historical C-class evidence** only. Its `READY_FOR_DEPLOYMENT` claim is **banned as current truth** by `AHOS_GAP_REGISTER.md` (Unproven section).  
+> Current honesty: `AHOS_GAP_REGISTER.md` · `AHOS_LOCAL_PRODUCTION_GATE_REPORT.md` · `docs/DOC_TRUTH_MAP.md` · `docs/canonical/MASTER_DIRECTIVE_v1.md`.  
+> Do not cite the readiness score or deploy status below without re-verification against the gap register.
+
 **Date:** 2026-08-16  
 **Auditors:** AHOS Lead Systems Engineer + DevOps Architect + QA Auditor  
-**Final Status:** **READY_FOR_DEPLOYMENT**
+**Final Status:** **READY_FOR_DEPLOYMENT** *(historical claim — superseded)*
 
 ---
 

@@ -40,7 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from config.paths import get_local_db_path  # noqa: E402
+from config.paths import connect_sqlite_ro, get_local_db_path  # noqa: E402
 from scripts.evidence_common import environment_fingerprint, git_meta, utc_now  # noqa: E402
 
 SCHEMA = "ahos.soak_t0.v1"
@@ -79,7 +79,7 @@ def _heartbeat_status() -> dict:
     """Raw heartbeat rows — the evidence behind the watchdog verdict."""
     import sqlite3
     try:
-        conn = sqlite3.connect(f"file:{get_local_db_path()}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(get_local_db_path())
         conn.row_factory = sqlite3.Row
         rows = [dict(r) for r in conn.execute(
             "SELECT component, last_heartbeat_ts, last_heartbeat_utc, "

@@ -52,10 +52,33 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 | Real trading | DISABLED |
 | Telegram bot | needs BotFather token |
 
+## Project classification
+
+**`INTEGRATION_READY`** (agent-host verified). **`OPERATOR_READY` = NOT_VERIFIED** until Windows gates produce real artifacts (`docs/WINDOWS_OPERATOR_HANDOFF.md`).
+
+See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md) · [`docs/CURRENT_TRUTH_SNAPSHOT.md`](docs/CURRENT_TRUTH_SNAPSHOT.md) · Owner: [`docs/OWNER_ACTION_REQUIRED.md`](docs/OWNER_ACTION_REQUIRED.md).
+
+**Not claimed:** Production Ready · Operator Ready · Telegram E2E · n8n Operational · Soak Passed · Calibration Validated.
+
 ## Docs
 
-- Master directive: `docs/canonical/MASTER_DIRECTIVE_W43.md`
-- W44 report: `reports/W44_INTELLIGENCE_SPEED_UPGRADE.md`
-- Gap register: `AHOS_GAP_REGISTER.md`
+| Role | Path |
+|------|------|
+| Windows operator handoff | `docs/WINDOWS_OPERATOR_HANDOFF.md` |
+| Merge / transfer audit | `docs/MERGE_READINESS_AUDIT.md` |
+| Operator validation protocol | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
+| Pre-soak (after Windows G1–G10) | `docs/PRE_SOAK_PROTOCOL.md` |
+| Document truth map | `docs/DOC_TRUTH_MAP.md` |
+| Implementation matrix | `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
+| Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |
+| Next-phase backlog | `docs/NEXT_DEVELOPMENT_BACKLOG.md` |
+| Owner actions | `docs/OWNER_ACTION_REQUIRED.md` |
+| Immutable master doctrine | `docs/canonical/MASTER_DIRECTIVE_v1.md` |
+| Wave ops directive | `docs/canonical/MASTER_DIRECTIVE_W43.md` |
+| Open gaps (honesty) | `AHOS_GAP_REGISTER.md` |
+| Windows operator soak gate | `AHOS_OPERATOR_QUICKSTART_WINDOWS.md` |
+| W44 report | `reports/W44_INTELLIGENCE_SPEED_UPGRADE.md` |
+
+**Not current truth:** `AHOS_FINAL_STATUS.md` / `AHOS_PRODUCTION_READINESS_REPORT.md` (`READY_FOR_DEPLOYMENT` — superseded).
 
 **AHOS does not pretend to be smart — it tightens evidence and measures what it can.**

@@ -396,9 +396,10 @@ class CalibrationHarness:
         Both stores are opened `mode=ro`: a calibration run must be incapable
         of writing to either, and Lane-A especially is never mutated.
         """
-        conn = sqlite3.connect(f"file:{self.ledger_db}?mode=ro", uri=True)
+        from config.paths import connect_sqlite_ro, sqlite_ro_uri
+        conn = connect_sqlite_ro(self.ledger_db)
         conn.row_factory = sqlite3.Row
-        conn.execute("ATTACH DATABASE ? AS disc", (f"file:{self.discovery_db}?mode=ro",))
+        conn.execute("ATTACH DATABASE ? AS disc", (sqlite_ro_uri(self.discovery_db),))
         return conn
 
     def _load_pairs(self, horizon: str, event_class: str) -> list[dict[str, Any]]:
@@ -568,7 +569,8 @@ class CalibrationHarness:
 
     def _source_census(self) -> dict[str, int]:
         try:
-            conn = sqlite3.connect(f"file:{self.ledger_db}?mode=ro", uri=True)
+            from config.paths import connect_sqlite_ro
+            conn = connect_sqlite_ro(self.ledger_db)
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT source, COUNT(*) AS n FROM opportunity_score_ledger "
@@ -580,7 +582,8 @@ class CalibrationHarness:
 
     def _total_predictions(self) -> int:
         try:
-            conn = sqlite3.connect(f"file:{self.ledger_db}?mode=ro", uri=True)
+            from config.paths import connect_sqlite_ro
+            conn = connect_sqlite_ro(self.ledger_db)
             n = conn.execute("SELECT COUNT(*) FROM opportunity_score_ledger").fetchone()[0]
             conn.close()
             return int(n)

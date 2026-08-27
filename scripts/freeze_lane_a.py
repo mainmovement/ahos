@@ -34,6 +34,10 @@ BASELINE = ROOT / "config" / "lane_a_freeze.sha256"
 # The frozen Lane-A surface: implementation + the schema/registry that define
 # its semantics. Test files are excluded (tests may grow without invalidating
 # recorded observations); caches are excluded.
+#
+# INTENTIONAL EXCLUSION: paper_trading/strategies.json is NOT frozen here.
+# Strategy cards may evolve under research governance without rewriting the
+# Lane-A scientific surface hash. Schemas + engine .py remain frozen.
 FROZEN_GLOBS = [
     "discovery/*.py",
     "paper_trading/*.py",

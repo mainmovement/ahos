@@ -1,4 +1,11 @@
 # AHOS — SECURITY CHECKLIST FINAL (Agent-04) — 2026-08-10
+#
+> **HISTORICAL / PARTIALLY SUPERSEDED (2026-08-27).**  
+> This checklist predates PAPER_ONLY-hard doctrine and W57 Telegram gateway-only.  
+> Do **not** create exchange TRADE-ONLY keys for AHOS — there is no live execution surface.  
+> Current operator actions: `docs/OWNER_ACTION_REQUIRED.md` · `AHOS_GAP_REGISTER.md` · `docs/DOC_TRUTH_MAP.md`.  
+> Telegram admin env today: `TELEGRAM_ALLOWED_CHAT_IDS` / `TELEGRAM_ADMIN_USER_IDS` (see `.env.example`).
+
 # ✔ = verified by automation this session · ☐ = user action / pre-production gate
 
 ## Secrets & credentials
