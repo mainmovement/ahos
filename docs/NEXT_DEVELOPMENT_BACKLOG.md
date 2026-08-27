@@ -1,7 +1,7 @@
 # AHOS — Next Development Backlog
 
 **Date:** 2026-08-27  
-**Branch baseline:** `cursor/ahos-cleanup-alignment-4bde` @ `5ca16d1`  
+**Branch baseline:** `cursor/ahos-cleanup-alignment-4bde` @ `59818e4`  
 **Prerequisite:** Owner review/merge of PR #19, then approve a phase below.  
 **Law:** Documentation describes reality. After this backlog is accepted, implement — do not spawn more status docs.
 
