@@ -160,6 +160,8 @@ def export_paths_yaml(output_file: Path | str | None = None) -> str:
 
 
 if __name__ == "__main__":
-    out_path = get_config_dir() / "paths.yaml"
+    # Prefer reports/ so machine-absolute dumps are not confused with tracked config.
+    # config/paths.yaml is gitignored (local diagnostic only).
+    out_path = get_reports_dir() / "paths_local.yaml"
     export_paths_yaml(out_path)
     print(f"Exported paths configuration to: {out_path}")

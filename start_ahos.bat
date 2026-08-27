@@ -40,14 +40,20 @@ if errorlevel 1 (
 
 REM Calibration-eligible evidence namespace, also passed explicitly below.
 set "AHOS_EVIDENCE_SOURCE=local"
+set "AHOS_PAPER_ONLY=1"
 
 echo ==========================================================
 echo   Starting AHOS Continuous Opportunity Intelligence Daemon
 echo   Mode           : observation-only (no trading, no wallet)
 echo   Evidence source: local (calibration-eligible)
+echo   PAPER_ONLY     : 1
 echo   Cycle interval : 60s, with E-01 observation cycle
 echo   Press Ctrl+C to stop gracefully.
 echo ==========================================================
+echo.
+echo   WARNING: Not OPERATOR_READY. Start soak only after
+echo   pre_soak_entry_ok from operator_validation_gate.py
+echo   See docs\WINDOWS_OPERATOR_HANDOFF.md
 echo.
 
 "%VENV_PY%" -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local

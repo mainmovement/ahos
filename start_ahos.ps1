@@ -48,18 +48,22 @@ if ($LASTEXITCODE -ne 0) {
 # Calibration-eligible evidence namespace. Exported for this process tree AND
 # passed explicitly below, so the namespace is unambiguous either way.
 $env:AHOS_EVIDENCE_SOURCE = "local"
+$env:AHOS_PAPER_ONLY = "1"
 
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  Starting AHOS Continuous Opportunity Intelligence Daemon" -ForegroundColor Cyan
 Write-Host "  Mode           : observation-only (no trading, no wallet)" -ForegroundColor DarkGray
 Write-Host "  Evidence source: local (calibration-eligible)" -ForegroundColor DarkGray
+Write-Host "  PAPER_ONLY     : 1 (mandatory)" -ForegroundColor DarkGray
 Write-Host "  Cycle interval : 60s, with E-01 observation cycle" -ForegroundColor DarkGray
 Write-Host "  Press Ctrl+C to stop gracefully." -ForegroundColor DarkGray
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  This is the official local soak command. For the full gated" -ForegroundColor DarkGray
-Write-Host "  procedure (baseline, provider probe, t0 snapshot) follow" -ForegroundColor DarkGray
-Write-Host "  AHOS_OPERATOR_QUICKSTART_WINDOWS.md." -ForegroundColor DarkGray
+Write-Host "  WARNING: Do NOT treat this as OPERATOR_READY." -ForegroundColor DarkYellow
+Write-Host "  PRE_SOAK / soak hours count only after Windows" -ForegroundColor DarkYellow
+Write-Host "  summary.pre_soak_entry_ok == true from:" -ForegroundColor DarkYellow
+Write-Host "    python scripts\operator_validation_gate.py --platform windows ..." -ForegroundColor DarkYellow
+Write-Host "  See docs\WINDOWS_OPERATOR_HANDOFF.md and docs\PRE_SOAK_PROTOCOL.md." -ForegroundColor DarkYellow
 Write-Host ""
 
 # Launch the continuous runtime daemon.

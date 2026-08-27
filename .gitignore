@@ -17,6 +17,8 @@ node_modules/
 logs/
 data/
 reports/_scratch/
+reports/paths_local_*.yaml
+config/paths.yaml
 .DS_Store
 .idea/
 .vscode/
