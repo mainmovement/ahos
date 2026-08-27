@@ -7,7 +7,7 @@
 | Field | Value |
 |-------|--------|
 | Branch | `cursor/ahos-cleanup-alignment-4bde` |
-| HEAD | `6827719` |
+| HEAD | `e73a92e` |
 | PR | https://github.com/mainmovement/ahos/pull/19 |
 | Base | `main` |
 | Classification | `INTEGRATION_READY` (agent-host) |
