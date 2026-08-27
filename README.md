@@ -52,6 +52,14 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 | Real trading | DISABLED |
 | Telegram bot | needs BotFather token |
 
+## Project classification
+
+**`DEVELOPMENT_READY`** — trustworthy foundation for the next development phase (~62% engineering core; ~27% mission-complete with live + soak + calibration). Production gates remain owner-external.
+
+See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md). Next phase (await owner approval): [`docs/NEXT_DEVELOPMENT_BACKLOG.md`](docs/NEXT_DEVELOPMENT_BACKLOG.md).
+
+**Not claimed:** Production Ready · Live Provider Verified · Telegram E2E Verified · n8n Operational · 7-Day Soak Passed · Calibration Validated · CI Active · Automatic AI Model Routing.
+
 ## Docs
 
 | Role | Path |
@@ -59,7 +67,8 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 | Document truth map | `docs/DOC_TRUTH_MAP.md` |
 | Implementation matrix | `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
 | Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |
-| Owner actions (external only) | `docs/OWNER_ACTION_REQUIRED.md` |
+| Next-phase backlog | `docs/NEXT_DEVELOPMENT_BACKLOG.md` |
+| Owner actions | `docs/OWNER_ACTION_REQUIRED.md` |
 | Immutable master doctrine | `docs/canonical/MASTER_DIRECTIVE_v1.md` |
 | Wave ops directive | `docs/canonical/MASTER_DIRECTIVE_W43.md` |
 | Open gaps (honesty) | `AHOS_GAP_REGISTER.md` |

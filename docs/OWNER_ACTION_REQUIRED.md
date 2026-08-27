@@ -1,30 +1,24 @@
 # AHOS — Owner Action Required
 
-**Date:** 2026-08-27  
-**Purpose:** Single checklist of actions that **only the project owner** can complete.  
-**Engineering status:** Core local engineering is complete enough for `DEVELOPMENT_READY` (see `docs/FINAL_TRUTH_AUDIT.md`).  
-**These boxes are NOT simulated and are NOT claimed PASS.**
+**Date:** 2026-08-27 · **Companion:** `docs/NEXT_DEVELOPMENT_BACKLOG.md`, `docs/FINAL_TRUTH_AUDIT.md`
 
-| ID | Action | Why | Exact command / step | Acceptance evidence |
-|----|--------|-----|----------------------|---------------------|
-| OA-1 | Provide Telegram bot token + allowed chat ids | Live Telegram E2E (M-GAP-009) | Copy `.env.example` → `.env`; set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_CHAT_IDS` | Live transcript archived |
-| OA-2 | Point Telegram at Conversation Gateway | W57 One-Brain path | Start `npm run dev`; set `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat` | Telegram reply `source=conversation_gateway` |
-| OA-3 | Run provider probe on a host with egress | Live SUCCESS path (M-GAP-007) | `python -m architecture.runtime --probe-providers` | Committed probe artifact with `SUCCESS` + tokens>0 |
-| OA-4 | Accrue local evidence + calibration | Measurement (M-GAP-008) | Daemon with `AHOS_EVIDENCE_SOURCE=local`; then `python scripts/calibration_report.py` | Report with real `local` pairs (not INSUFFICIENT_DATA only) |
-| OA-5 | Execute 168h laptop soak | Reliability (M-GAP-003) | Follow `AHOS_LOCAL_SOAK_PROTOCOL.md` / `AHOS_SOAK_OPERATOR_START.md` | Snapshots every 6h for 7 distinct days |
-| OA-6 | Nightly backups × 7 distinct UTC dates | Persistence (M-GAP-010 residual) | `python scripts/sqlite_backup_restore.py nightly` | `reports/nightly_backup_series.json` `series_complete=true` |
-| OA-7 | Optional CI workflows permission | M-GAP-004 | Grant GitHub App `workflows`; copy `deployment/github-actions-ci.yml.template` → `.github/workflows/ci.yml` | Green CI on PR |
-| OA-8 | Review + merge PR #19 | Release into next phase | Human review of matrix/audit; merge when satisfied | `main` contains alignment commits |
+## Cursor / agent can do (no owner secrets)
 
-## Explicitly NOT required for AHOS
+- Code, tests, docs, Lane-A freeze checks, n8n JSON validation, typecheck, offline provider/security/scoring tests
+- PR preparation on `cursor/ahos-cleanup-alignment-4bde`
+- Architecture reconciliation without live credentials
 
-- Exchange TRADE-ONLY / withdrawal API keys — **no live execution surface**
-- Paid social scrape (X/IG/TikTok) — OUT_OF_POLICY / COST_BLOCKED
-- Claiming `PRODUCTION_READY` before OA-3…OA-5 evidence exists
+## Owner must do (cannot be simulated)
 
-## Pointers
+| ID | Action | Artifact proving done |
+|----|--------|------------------------|
+| OA-1 | Set `TELEGRAM_BOT_TOKEN` + `TELEGRAM_ALLOWED_CHAT_IDS` in local `.env` | Live Telegram transcript |
+| OA-2 | Run `npm run dev` and set `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat` | Reply `source=conversation_gateway` |
+| OA-3 | On a host with egress: `python -m architecture.runtime --probe-providers` | Probe JSON with SUCCESS + tokens>0 |
+| OA-4 | Daemon with `AHOS_EVIDENCE_SOURCE=local`; then `python scripts/calibration_report.py` | Calibration report with real `local` pairs |
+| OA-5 | 168h soak per `AHOS_LOCAL_SOAK_PROTOCOL.md` | Snapshots across 7 distinct days |
+| OA-6 | `python scripts/sqlite_backup_restore.py nightly` × 7 UTC dates | `series_complete=true` |
+| OA-7 | Optional: GitHub App `workflows` permission + copy CI template | Green Actions run |
+| OA-8 | Human review + merge PR #19 | `main` contains handoff commits |
 
-- Gaps: `AHOS_GAP_REGISTER.md`
-- Matrix: `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`
-- Truth audit: `docs/FINAL_TRUTH_AUDIT.md`
-- Soak start: `AHOS_SOAK_OPERATOR_START.md`
+**Not required:** exchange trade keys, paid social scrape, declaring PRODUCTION_READY before OA-3…OA-5.
