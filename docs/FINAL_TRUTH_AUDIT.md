@@ -78,3 +78,11 @@
 | `--single-cycle --evidence-source local` | candidates scored + persisted |
 | Live intel atoms | narrative/mstruct/tokenomics/catalyst DERIVED |
 | `scripts/calibration_report.py` | INSUFFICIENT_DATA (0 outcome pairs) |
+
+---
+
+## Highest proven classification
+
+**`INTEGRATION_READY`** on the verified agent/runtime host path.
+
+Not: OPERATOR_READY · PRODUCTION_CANDIDATE · PRODUCTION_READY
