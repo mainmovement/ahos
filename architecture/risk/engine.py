@@ -18,6 +18,7 @@ from ..intelligence.evidence import (
     bool_value,
     numeric_value,
     require_evidence_bundle,
+    text_value,
 )
 
 
@@ -113,6 +114,45 @@ class RiskEngine:
                 15.0, "virality.wash_suspected",
             ))
             refs.append("wash_suspected")
+
+        # Market-structure / tokenomics feed-through (P1): penalties only when
+        # DERIVED labels indicate fragility — never invent findings from UNKNOWN.
+        mstruct_ev = evidence.get("mstruct_label")
+        label = None
+        if mstruct_ev is not None and getattr(mstruct_ev, "status", "") != "UNKNOWN":
+            label = text_value(mstruct_ev)
+        if label == "ABNORMAL":
+            findings.append(RiskFinding(
+                "ABNORMAL_MARKET_STRUCTURE", "HIGH",
+                "ساختار بازار غیرعادی (نسبت حجم به نقدینگی / واگرایی فعالیت)",
+                12.0, "market_structure.label",
+            ))
+            refs.append("mstruct_label")
+        elif label == "FRAGILE":
+            findings.append(RiskFinding(
+                "FRAGILE_MARKET_STRUCTURE", "MED",
+                "ساختار بازار شکننده (نقدینگی نازک یا فشار نامتوازن)",
+                8.0, "market_structure.label",
+            ))
+            refs.append("mstruct_label")
+
+        tok_ev = evidence.get("tokenomics_label")
+        if tok_ev is not None and getattr(tok_ev, "status", "") != "UNKNOWN":
+            tok_label = text_value(tok_ev)
+            if tok_label == "CRITICAL":
+                findings.append(RiskFinding(
+                    "TOKENOMICS_CRITICAL", "HIGH",
+                    "توکنومیکس بحرانی (اختیار mint/freeze یا تمرکز/سابقه deployer)",
+                    18.0, "tokenomics.label",
+                ))
+                refs.append("tokenomics_label")
+            elif tok_label == "CONCERNING":
+                findings.append(RiskFinding(
+                    "TOKENOMICS_CONCERNING", "MED",
+                    "توکنومیکس نگران‌کننده بر اساس شواهد موجود",
+                    8.0, "tokenomics.label",
+                ))
+                refs.append("tokenomics_label")
 
         if extra_findings is None:
             extra_findings = _standalone_intelligence_findings(evidence)
