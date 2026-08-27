@@ -33,13 +33,16 @@
 
 ## Windows operator results
 
-**NOT_VERIFIED** — owner must run:
+**NOT_VERIFIED** — follow `docs/WINDOWS_OPERATOR_HANDOFF.md`. Owner must run:
 
 ```powershell
-python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill --json-out reports\operator_validation_report.json
+npm run dev
+# other terminal:
+python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill
 ```
 
-(with `npm run dev` up for G2, Telegram token for G11 live).
+Expect `reports\operator_validation_report_windows_*.json`.  
+`pre_soak_entry_ok` unlocks PRE_SOAK; `operator_ready` still needs G11 PASS.
 
 ## Classification decision
 

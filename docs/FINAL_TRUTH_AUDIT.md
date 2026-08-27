@@ -2,10 +2,11 @@
 
 **Date:** 2026-08-27  
 **Branch:** `cursor/ahos-cleanup-alignment-4bde` (PR #19)  
-**Phase:** OPERATOR VALIDATION & EVIDENCE ACCRUAL  
+**Phase:** WINDOWS OPERATOR HANDOFF  
 **Classification:** `INTEGRATION_READY` (agent-host) — **`OPERATOR_READY` = NOT_VERIFIED**
 
 Snapshot: `docs/CURRENT_TRUTH_SNAPSHOT.md`  
+Windows handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md`  
 Operator protocol: `docs/OPERATOR_VALIDATION_PROTOCOL.md`  
 Agent-host gate report: `reports/operator_validation_report_agent_host.json`
 

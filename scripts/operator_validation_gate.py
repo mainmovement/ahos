@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-"""AHOS Operator Validation Gate runner.
+"""AHOS Operator Validation Gate runner (Windows + agent-host).
 
 Produces a machine-readable report for G1–G12.
-Never invents PASS for Windows/Telegram/n8n-live/soak when not executed.
+Never invents PASS for live Windows/Telegram/n8n-ops/soak.
 
-Usage:
-  python scripts/operator_validation_gate.py --platform agent-host \\
-      --json-out reports/operator_validation_report_agent_host.json
+Exit codes
+----------
+  0  report written; no gate has status FAIL
+  1  unexpected script/runtime error
+  2  one or more gates have status FAIL
+  3  --platform windows and operator_ready is still false
+     (expected until all required Windows gates PASS)
 
-  python scripts/operator_validation_gate.py --platform windows \\
-      --json-out reports/operator_validation_report.json
+Usage (PowerShell)
+------------------
+  .\\.venv\\Scripts\\Activate.ps1
+  $env:AHOS_EVIDENCE_SOURCE = "local"
+  python scripts\\operator_validation_gate.py --platform windows `
+    --probe-providers --backup-drill `
+    --json-out reports\\operator_validation_report.json
 """
 from __future__ import annotations
 
@@ -17,7 +26,7 @@ import argparse
 import json
 import os
 import platform
-import sqlite3
+import shutil
 import subprocess
 import sys
 import time
@@ -29,15 +38,17 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 SCHEMA = "ahos.operator_validation_report.v1"
+ALLOWED_STATUS = (
+    "PASS", "FAIL", "BLOCKED", "NOT_VERIFIED", "OWNER_ACTION_REQUIRED",
+    "STRUCTURAL_VALID", "SKIPPED",
+)
 
 
 def _gate(gid: str, name: str, status: str, detail: str,
           artifact: str | None = None, **extra: Any) -> dict[str, Any]:
-    assert status in (
-        "PASS", "FAIL", "BLOCKED", "NOT_VERIFIED", "OWNER_ACTION_REQUIRED",
-        "STRUCTURAL_VALID", "SKIPPED",
-    )
-    out = {
+    if status not in ALLOWED_STATUS:
+        raise ValueError(f"invalid gate status {status!r}")
+    out: dict[str, Any] = {
         "id": gid,
         "name": name,
         "status": status,
@@ -49,15 +60,40 @@ def _gate(gid: str, name: str, status: str, detail: str,
     return out
 
 
+def _run_cmd(argv: list[str], timeout: float = 30.0) -> tuple[int | None, str, str]:
+    """Run a command; return (returncode|None if missing, stdout, stderr)."""
+    exe = argv[0]
+    if shutil.which(exe) is None and not Path(exe).exists():
+        return None, "", f"executable_not_found:{exe}"
+    try:
+        r = subprocess.run(
+            argv,
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            shell=False,
+        )
+        return r.returncode, r.stdout or "", r.stderr or ""
+    except FileNotFoundError:
+        return None, "", f"executable_not_found:{exe}"
+    except subprocess.TimeoutExpired:
+        return -1, "", "timeout"
+    except OSError as e:
+        return -1, "", f"{type(e).__name__}: {e}"
+
+
 def g1_environment() -> dict[str, Any]:
-    issues = []
+    issues: list[str] = []
+    blocked: list[str] = []
     py = sys.version.split()[0]
     if sys.version_info < (3, 10):
         issues.append(f"python_too_old:{py}")
     try:
         import architecture  # noqa: F401
     except Exception as e:  # noqa: BLE001
-        issues.append(f"import_architecture:{type(e).__name__}")
+        issues.append(f"import_architecture:{type(e).__name__}:{e}")
+
     data = ROOT / "data"
     try:
         data.mkdir(parents=True, exist_ok=True)
@@ -66,17 +102,43 @@ def g1_environment() -> dict[str, Any]:
         probe.unlink(missing_ok=True)
     except OSError as e:
         issues.append(f"data_not_writable:{e}")
-    node = subprocess.run(["node", "--version"], capture_output=True, text=True)
-    npm = subprocess.run(["npm", "--version"], capture_output=True, text=True)
+
+    node_rc, node_out, node_err = _run_cmd(["node", "--version"])
+    npm_rc, npm_out, npm_err = _run_cmd(["npm", "--version"])
+    node_ver = (node_out or "").strip() or None
+    npm_ver = (npm_out or "").strip() or None
+    if node_rc is None:
+        blocked.append("node_not_installed_or_not_on_PATH")
+    elif node_rc != 0:
+        issues.append(f"node_failed:{node_err.strip() or node_rc}")
+    if npm_rc is None:
+        blocked.append("npm_not_installed_or_not_on_PATH")
+    elif npm_rc != 0:
+        issues.append(f"npm_failed:{npm_err.strip() or npm_rc}")
+
     detail = {
         "python": py,
+        "executable": sys.executable,
         "platform": platform.platform(),
-        "node": (node.stdout or node.stderr or "").strip() or None,
-        "npm": (npm.stdout or npm.stderr or "").strip() or None,
+        "system": platform.system(),
+        "node": node_ver,
+        "npm": npm_ver,
+        "repo_root": str(ROOT),
         "issues": issues,
+        "blocked": blocked,
     }
-    if issues:
-        return _gate("G1", "Environment", "FAIL", json.dumps(detail), **detail)
+    if blocked and not issues:
+        return _gate(
+            "G1", "Environment", "BLOCKED",
+            "missing prerequisites: " + ", ".join(blocked),
+            **detail,
+        )
+    if issues or blocked:
+        return _gate(
+            "G1", "Environment", "FAIL",
+            json.dumps({"issues": issues, "blocked": blocked}),
+            **detail,
+        )
     return _gate("G1", "Environment", "PASS", json.dumps(detail), **detail)
 
 
@@ -84,11 +146,27 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     if skip_network:
         return _gate(
             "G2", "Gateway", "NOT_VERIFIED",
-            "skipped_network_probe; start npm run dev and re-run without --skip-network",
+            "skipped_network_probe; start 'npm run dev' then re-run without --skip-network",
         )
+    if shutil.which("node") is None:
+        return _gate(
+            "G2", "Gateway", "BLOCKED",
+            "node not on PATH — install Node.js LTS, then: npm install && npm run dev",
+        )
+
     import urllib.error
     import urllib.request
-    url = os.environ.get("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+
+    # Canonical One-Brain chat route (Next.js default port 3000). Not /health.
+    raw_url = os.environ.get("AHOS_GATEWAY_URL")
+    if raw_url is not None and not raw_url.strip():
+        return _gate(
+            "G2", "Gateway", "BLOCKED",
+            "AHOS_GATEWAY_URL is set but empty — unset it or set "
+            "http://127.0.0.1:3000/api/chat",
+        )
+    url = (raw_url or "http://127.0.0.1:3000/api/chat").strip()
+
     try:
         req = urllib.request.Request(
             url,
@@ -98,46 +176,63 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
         )
         with urllib.request.urlopen(req, timeout=5) as resp:
             body = resp.read(400).decode("utf-8", "replace")
+            # Any HTTP response from the chat route proves the gateway process is up.
+            # Do not treat application-level error JSON as PASS if status >= 500.
+            if resp.status >= 500:
+                return _gate(
+                    "G2", "Gateway", "FAIL",
+                    f"http_{resp.status} from {url}",
+                    artifact=body[:200], http_status=resp.status, url=url,
+                )
             return _gate(
                 "G2", "Gateway", "PASS",
                 f"http_{resp.status} from {url}",
-                artifact=body[:200],
-                http_status=resp.status,
-                url=url,
+                artifact=body[:200], http_status=resp.status, url=url,
             )
-    except Exception as e:  # noqa: BLE001
+    except urllib.error.URLError as e:
+        reason = str(getattr(e, "reason", e))
+        # Connection refused = gateway not running (operator must start npm run dev)
         return _gate(
             "G2", "Gateway", "FAIL",
-            f"{type(e).__name__}: {e}",
+            f"URLError: {reason} — start One-Brain with: npm run dev",
             url=url,
         )
+    except Exception as e:  # noqa: BLE001
+        return _gate("G2", "Gateway", "FAIL", f"{type(e).__name__}: {e}", url=url)
 
 
 def g3_providers(do_probe: bool) -> dict[str, Any]:
     if not do_probe:
         return _gate(
             "G3", "Discovery providers", "NOT_VERIFIED",
-            "pass --probe-providers to execute live probe",
+            "live probe not requested — re-run with --probe-providers",
         )
     try:
-        from architecture.providers.probe import probe_providers, render_table
+        from architecture.providers.probe import probe_providers
+
         report = probe_providers(chain="solana")
         out_dir = ROOT / "reports"
         out_dir.mkdir(parents=True, exist_ok=True)
         stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
         path = out_dir / f"provider_probe_opval_{stamp}.json"
-        path.write_text(json.dumps(report.as_dict(), indent=2) + "\n", encoding="utf-8")
+        path.write_text(
+            json.dumps(report.as_dict(), indent=2) + "\n", encoding="utf-8",
+        )
+        # PASS only on real SUCCESS with tokens>0 (probe.any_success already encodes that)
         if report.any_success:
             names = [r.provider_id for r in report.successes]
+            counts = {n: next(x.token_count for x in report.successes if x.provider_id == n)
+                      for n in names}
             return _gate(
                 "G3", "Discovery providers", "PASS",
-                f"SUCCESS: {', '.join(names)}",
+                f"SUCCESS: {', '.join(names)} tokens={counts}",
                 artifact=str(path),
                 status_counts=report.status_counts(),
+                successes=names,
             )
         return _gate(
             "G3", "Discovery providers", "FAIL",
-            f"no SUCCESS; counts={report.status_counts()}",
+            f"no provider SUCCESS with tokens>0; counts={report.status_counts()}",
             artifact=str(path),
             status_counts=report.status_counts(),
         )
@@ -146,8 +241,18 @@ def g3_providers(do_probe: bool) -> dict[str, Any]:
 
 
 def g4_g5_g8_g9_evidence() -> list[dict[str, Any]]:
-    from architecture.learning.prediction_lifecycle import lifecycle_status
-    st = lifecycle_status()
+    try:
+        from architecture.learning.prediction_lifecycle import lifecycle_status
+        st = lifecycle_status()
+    except Exception as e:  # noqa: BLE001
+        err = _gate("G4", "Evidence persistence", "FAIL", f"lifecycle_status:{type(e).__name__}:{e}")
+        return [
+            err,
+            _gate("G5", "Scoring / predictions", "FAIL", "skipped_due_to_G4"),
+            _gate("G8", "Prediction lifecycle registration", "FAIL", "skipped_due_to_G4"),
+            _gate("G9", "Observation lifecycle", "FAIL", "skipped_due_to_G4"),
+        ]
+
     disc_obs = int(st.get("discovery_observations") or 0)
     prod_obs = int(st.get("production_observations") or 0)
     preds = int(st.get("local_predictions") or 0)
@@ -157,25 +262,33 @@ def g4_g5_g8_g9_evidence() -> list[dict[str, Any]]:
     g4 = _gate(
         "G4", "Evidence persistence",
         "PASS" if (disc_obs > 0 or prod_obs > 0) else "FAIL",
-        f"discovery_observations={disc_obs} production_observations={prod_obs}",
+        f"discovery_observations={disc_obs} production_observations={prod_obs}"
+        + ("" if (disc_obs or prod_obs) else
+           " — run: python -m architecture.runtime --single-cycle "
+           "--evidence-source local --limit 5"),
         census=st,
     )
     g5 = _gate(
         "G5", "Scoring / predictions",
-        "PASS" if preds > 0 else "NOT_VERIFIED",
-        f"local_predictions={preds} (run --single-cycle --evidence-source local if 0)",
+        "PASS" if preds > 0 else "FAIL",
+        f"local_predictions={preds}"
+        + ("" if preds else
+           " — run: python -m architecture.runtime --single-cycle --evidence-source local"),
         local_predictions=preds,
     )
     g8 = _gate(
         "G8", "Prediction lifecycle registration",
         "PASS" if active > 0 else "FAIL",
-        f"observation_state_total={active} states={st.get('observation_state')}",
+        f"observation_state_total={active} states={st.get('observation_state')}"
+        + ("" if active else
+           " — run single-cycle (lifecycle bridge) or: "
+           "python scripts\\backfill_lane_a_from_production.py"),
     )
     g9 = _gate(
         "G9", "Observation lifecycle",
         "PASS" if disc_obs > 0 else "FAIL",
         f"discovery_observations={disc_obs} outcome_labels={labels} "
-        f"(labels remain 0 until T+72h RESOLVED — expected)",
+        f"(outcome_labels=0 is expected until T+72h RESOLVED — do not fabricate)",
         outcome_labels=labels,
     )
     return [g4, g5, g8, g9]
@@ -185,8 +298,11 @@ def g6_security() -> dict[str, Any]:
     try:
         from architecture.security import assert_safe_environment
         env = assert_safe_environment()
-        return _gate("G6", "Security / PAPER_ONLY", "PASS",
-                     "assert_safe_environment ok", env=env if isinstance(env, dict) else str(env))
+        return _gate(
+            "G6", "Security / PAPER_ONLY", "PASS",
+            "assert_safe_environment ok",
+            env=env if isinstance(env, dict) else str(env),
+        )
     except Exception as e:  # noqa: BLE001
         return _gate("G6", "Security / PAPER_ONLY", "FAIL", f"{type(e).__name__}: {e}")
 
@@ -209,21 +325,20 @@ def g10_restart(do_drill: bool) -> dict[str, Any]:
     if not do_drill:
         return _gate(
             "G10", "Restart/recovery", "NOT_VERIFIED",
-            "pass --backup-drill to run sqlite_backup_restore drill",
+            "backup drill not requested — re-run with --backup-drill",
         )
-    try:
-        r = subprocess.run(
-            [sys.executable, str(ROOT / "scripts" / "sqlite_backup_restore.py"), "drill"],
-            cwd=str(ROOT), capture_output=True, text=True, timeout=120,
-        )
-        ok = r.returncode == 0
-        return _gate(
-            "G10", "Restart/recovery", "PASS" if ok else "FAIL",
-            (r.stdout or r.stderr or "")[-500:],
-            returncode=r.returncode,
-        )
-    except Exception as e:  # noqa: BLE001
-        return _gate("G10", "Restart/recovery", "FAIL", f"{type(e).__name__}: {e}")
+    script = ROOT / "scripts" / "sqlite_backup_restore.py"
+    if not script.is_file():
+        return _gate("G10", "Restart/recovery", "BLOCKED", f"missing {script}")
+    rc, out, err = _run_cmd([sys.executable, str(script), "drill"], timeout=180.0)
+    if rc is None:
+        return _gate("G10", "Restart/recovery", "BLOCKED", err)
+    text = (out or err)[-500:]
+    return _gate(
+        "G10", "Restart/recovery", "PASS" if rc == 0 else "FAIL",
+        text or f"returncode={rc}",
+        returncode=rc,
+    )
 
 
 def g11_telegram(platform_name: str) -> dict[str, Any]:
@@ -231,70 +346,96 @@ def g11_telegram(platform_name: str) -> dict[str, Any]:
     if not token:
         return _gate(
             "G11", "Telegram live E2E", "OWNER_ACTION_REQUIRED",
-            "TELEGRAM_BOT_TOKEN unset — follow docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md",
+            "TELEGRAM_BOT_TOKEN unset — set in .env (never commit); "
+            "then follow docs\\TELEGRAM_OPERATOR_E2E_PROTOCOL.md and archive transcript",
             platform=platform_name,
         )
-    # Token present does not mean E2E ran — still require human transcript artifact.
     return _gate(
         "G11", "Telegram live E2E", "NOT_VERIFIED",
-        "token present in env but live transcript artifact not provided to this runner",
+        "token present in environment but live transcript artifact not supplied to this runner "
+        "(archive reports\\telegram_e2e_<UTC>.md then mark PASS manually in OPERATOR_VALIDATION_REPORT)",
         platform=platform_name,
     )
 
 
 def g12_n8n() -> dict[str, Any]:
-    try:
-        r = subprocess.run(
-            [sys.executable, str(ROOT / "tests" / "validate_n8n.py")],
-            cwd=str(ROOT), capture_output=True, text=True, timeout=60,
-        )
-        structural = r.returncode == 0
-        return _gate(
-            "G12", "n8n",
-            "STRUCTURAL_VALID" if structural else "FAIL",
-            (r.stdout or "")[-400:],
-            structural_valid=structural,
-            operational_valid=False,
-            note="OPERATIONAL_VALID requires live n8n execution (OWNER_ACTION)",
-        )
-    except Exception as e:  # noqa: BLE001
-        return _gate("G12", "n8n", "FAIL", f"{type(e).__name__}: {e}")
+    script = ROOT / "tests" / "validate_n8n.py"
+    if not script.is_file():
+        return _gate("G12", "n8n", "BLOCKED", f"missing {script}")
+    rc, out, err = _run_cmd([sys.executable, str(script)], timeout=60.0)
+    if rc is None:
+        return _gate("G12", "n8n", "BLOCKED", err)
+    structural = rc == 0
+    return _gate(
+        "G12", "n8n",
+        "STRUCTURAL_VALID" if structural else "FAIL",
+        (out or err)[-400:],
+        structural_valid=structural,
+        operational_valid=False,
+        note="OPERATIONAL_VALID requires live n8n import+execute (OWNER_ACTION) — JSON valid ≠ operational",
+    )
+
+
+def _core_gates_pass(by_id: dict[str, dict[str, Any]]) -> bool:
+    """G1–G10 must all be PASS for Windows pre-soak entry (not full OPERATOR_READY)."""
+    for i in range(1, 11):
+        gid = f"G{i}"
+        g = by_id.get(gid)
+        if g is None or g.get("status") != "PASS":
+            return False
+    return True
 
 
 def classify(platform_name: str, gates: list[dict[str, Any]]) -> dict[str, Any]:
     by_id = {g["id"]: g for g in gates}
-    # OPERATOR_READY requires Windows + G1–G10 PASS + G11 live PASS + G12 structural
     required = ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11"]
-    missing = []
+    missing: list[str] = []
     for gid in required:
         g = by_id.get(gid)
         if g is None:
             missing.append(f"{gid}:absent")
             continue
         st = g["status"]
-        if gid == "G11" and st != "PASS":
-            missing.append(f"{gid}:{st}")
-        elif gid != "G11" and st not in ("PASS",):
+        if gid == "G11":
+            # Runner never auto-PASS Telegram; owner archives E2E then marks PASS.
+            if st != "PASS":
+                missing.append(f"{gid}:{st}")
+        elif st != "PASS":
             missing.append(f"{gid}:{st}")
     g12 = by_id.get("G12", {})
     if g12.get("status") not in ("PASS", "STRUCTURAL_VALID"):
         missing.append(f"G12:{g12.get('status')}")
 
+    g1_g10 = _core_gates_pass(by_id)
+    # Pre-soak may start after Windows G1–G10 PASS; OPERATOR_READY still needs G11.
+    pre_soak_entry_ok = platform_name == "windows" and g1_g10
+
+    base = {
+        "g1_g10_all_pass": g1_g10,
+        "pre_soak_entry_ok": pre_soak_entry_ok,
+        "missing": missing,
+    }
+
     if platform_name != "windows":
         return {
+            **base,
             "classification": "INTEGRATION_READY",
             "operator_ready": False,
-            "reason": "platform is not windows — OPERATOR_READY requires OPERATOR_WINDOWS_VERIFIED gates",
-            "missing": missing,
+            "reason": "platform is not windows — OPERATOR_READY requires Windows gate artifacts",
         }
     if missing:
         return {
+            **base,
             "classification": "INTEGRATION_READY",
             "operator_ready": False,
-            "reason": "required operator gates not all PASS",
-            "missing": missing,
+            "reason": (
+                "Windows G1–G10 PASS — pre-soak entry OK; G11 still required for OPERATOR_READY"
+                if pre_soak_entry_ok
+                else "required Windows operator gates not all PASS"
+            ),
         }
     return {
+        **base,
         "classification": "OPERATOR_READY",
         "operator_ready": True,
         "reason": "all required Windows operator gates PASS with artifacts",
@@ -306,67 +447,89 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--platform", choices=("agent-host", "windows", "unknown"),
                     default="unknown")
-    ap.add_argument("--json-out", default=str(ROOT / "reports" / "operator_validation_report.json"))
-    ap.add_argument("--probe-providers", action="store_true")
+    ap.add_argument(
+        "--json-out",
+        default=None,
+        help="Output JSON path. Default: reports/operator_validation_report_<platform>_<UTC>.json",
+    )
+    ap.add_argument("--probe-providers", action="store_true",
+                    help="Required for G3 PASS — runs live provider probe")
     ap.add_argument("--skip-network", action="store_true",
-                    help="Do not probe gateway HTTP")
-    ap.add_argument("--backup-drill", action="store_true")
+                    help="Skip G2 HTTP probe (leaves G2 NOT_VERIFIED)")
+    ap.add_argument("--backup-drill", action="store_true",
+                    help="Required for G10 PASS — runs sqlite backup drill")
     args = ap.parse_args(argv)
 
-    # Auto-detect platform hint
     plat = args.platform
     if plat == "unknown":
         plat = "windows" if sys.platform.startswith("win") else "agent-host"
 
-    gates: list[dict[str, Any]] = []
-    gates.append(g1_environment())
-    gates.append(g2_gateway(skip_network=args.skip_network))
-    gates.append(g3_providers(do_probe=args.probe_providers))
-    gates.extend(g4_g5_g8_g9_evidence())
-    gates.append(g6_security())
-    gates.append(g7_lane_a())
-    gates.append(g10_restart(do_drill=args.backup_drill))
-    gates.append(g11_telegram(plat))
-    gates.append(g12_n8n())
+    if args.json_out is None:
+        stamp = time.strftime("%Y%m%d_%H%M%S", time.gmtime())
+        args.json_out = str(
+            ROOT / "reports" / f"operator_validation_report_{plat}_{stamp}.json"
+        )
 
-    summary = classify(plat, gates)
-    report = {
-        "schema": SCHEMA,
-        "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "platform_arg": args.platform,
-        "platform_effective": plat,
-        "host_platform": platform.platform(),
-        "head_hint": _git_head(),
-        "gates": gates,
-        "summary": summary,
-        "forbidden_claims": [
-            "PRODUCTION_READY",
-            "OPERATOR_READY without Windows G1-G11 PASS artifacts",
-            "n8n OPERATIONAL_VALID from JSON alone",
-            "Telegram live from unit tests alone",
-            "Calibration validated with 0 joined_pairs",
-        ],
-    }
+    try:
+        gates: list[dict[str, Any]] = []
+        gates.append(g1_environment())
+        gates.append(g2_gateway(skip_network=args.skip_network))
+        gates.append(g3_providers(do_probe=args.probe_providers))
+        gates.extend(g4_g5_g8_g9_evidence())
+        gates.append(g6_security())
+        gates.append(g7_lane_a())
+        gates.append(g10_restart(do_drill=args.backup_drill))
+        gates.append(g11_telegram(plat))
+        gates.append(g12_n8n())
 
-    out = Path(args.json_out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(json.dumps({"wrote": str(out), "summary": summary}, indent=2))
-    for g in gates:
-        print(f"{g['id']:4} {g['status']:22} {g['name']}: {g['detail'][:100]}")
-    # Exit 0 even when not operator-ready — honesty is the product.
-    return 0
+        summary = classify(plat, gates)
+        report = {
+            "schema": SCHEMA,
+            "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "platform_arg": args.platform,
+            "platform_effective": plat,
+            "host_platform": platform.platform(),
+            "head_hint": _git_head(),
+            "gates": gates,
+            "summary": summary,
+            "exit_code_legend": {
+                "0": "report written; no FAIL gates",
+                "1": "unexpected script error",
+                "2": "one or more FAIL gates",
+                "3": "windows platform and operator_ready still false",
+            },
+            "forbidden_claims": [
+                "PRODUCTION_READY",
+                "OPERATOR_READY without Windows G1-G11 PASS artifacts",
+                "n8n OPERATIONAL_VALID from JSON alone",
+                "Telegram live from unit tests alone",
+                "Calibration validated with 0 joined_pairs",
+                "Agent-host SUCCESS as OPERATOR_WINDOWS_VERIFIED",
+            ],
+        }
+
+        out = Path(args.json_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(json.dumps({"wrote": str(out), "summary": summary}, indent=2))
+        for g in gates:
+            print(f"{g['id']:4} {g['status']:22} {g['name']}: {g['detail'][:120]}")
+
+        if any(g["status"] == "FAIL" for g in gates):
+            return 2
+        if plat == "windows" and not summary.get("operator_ready"):
+            return 3
+        return 0
+    except Exception as e:  # noqa: BLE001
+        print(f"operator_validation_gate fatal: {type(e).__name__}: {e}", file=sys.stderr)
+        return 1
 
 
 def _git_head() -> str | None:
-    try:
-        r = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=str(ROOT), capture_output=True, text=True, timeout=10,
-        )
-        return (r.stdout or "").strip() or None
-    except Exception:
-        return None
+    rc, out, _ = _run_cmd(["git", "rev-parse", "--short", "HEAD"], timeout=10.0)
+    if rc == 0:
+        return (out or "").strip() or None
+    return None
 
 
 if __name__ == "__main__":

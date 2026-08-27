@@ -50,6 +50,7 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 | Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |
 | Next-phase backlog | `docs/NEXT_DEVELOPMENT_BACKLOG.md` |
 | Calibration lifecycle | `docs/CALIBRATION_LIFECYCLE.md` |
+| Windows operator handoff | `docs/WINDOWS_OPERATOR_HANDOFF.md` |
 | Operator validation protocol | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
 | Operator validation report | `docs/OPERATOR_VALIDATION_REPORT.md` |
 | Current truth snapshot | `docs/CURRENT_TRUTH_SNAPSHOT.md` |
@@ -59,4 +60,5 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 | Owner action checklist | `docs/OWNER_ACTION_REQUIRED.md` |
 | Stale design snapshots (bannered) | `docs/SECURITY_CHECKLIST.md`, `docs/MISSING_COMPONENT_REGISTER.md`, `docs/STRATEGIC_GAP_ANALYSIS.md` |
 
-**Classification pointer:** `INTEGRATION_READY` (agent-host) — see `docs/FINAL_TRUTH_AUDIT.md`. Operator laptop + soak + Telegram live remain EXTERNAL.
+**Classification pointer:** `INTEGRATION_READY` (agent-host) — see `docs/FINAL_TRUTH_AUDIT.md`.  
+**`OPERATOR_READY = NOT_VERIFIED`** until Windows gate artifacts exist (`docs/WINDOWS_OPERATOR_HANDOFF.md`).

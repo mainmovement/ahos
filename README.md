@@ -54,7 +54,7 @@ DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · D
 
 ## Project classification
 
-**`INTEGRATION_READY`** (agent-host verified). **`OPERATOR_READY` = NOT_VERIFIED** until Windows gates pass (`docs/OPERATOR_VALIDATION_PROTOCOL.md`).
+**`INTEGRATION_READY`** (agent-host verified). **`OPERATOR_READY` = NOT_VERIFIED** until Windows gates produce real artifacts (`docs/WINDOWS_OPERATOR_HANDOFF.md`).
 
 See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md) · [`docs/CURRENT_TRUTH_SNAPSHOT.md`](docs/CURRENT_TRUTH_SNAPSHOT.md) · Owner: [`docs/OWNER_ACTION_REQUIRED.md`](docs/OWNER_ACTION_REQUIRED.md).
 
@@ -64,6 +64,9 @@ See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md) · [`docs/CURRENT_T
 
 | Role | Path |
 |------|------|
+| Windows operator handoff | `docs/WINDOWS_OPERATOR_HANDOFF.md` |
+| Operator validation protocol | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
+| Pre-soak (after Windows G1–G10) | `docs/PRE_SOAK_PROTOCOL.md` |
 | Document truth map | `docs/DOC_TRUTH_MAP.md` |
 | Implementation matrix | `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
 | Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |

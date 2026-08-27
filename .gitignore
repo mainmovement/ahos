@@ -16,6 +16,7 @@ node_modules/
 *.log
 logs/
 data/
+reports/_scratch/
 .DS_Store
 .idea/
 .vscode/

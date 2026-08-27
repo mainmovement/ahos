@@ -1,7 +1,7 @@
 # CURRENT_TRUTH_SNAPSHOT
 
-**Captured:** 2026-08-27T20:27Z (agent host)  
-**Phase:** OPERATOR VALIDATION & EVIDENCE ACCRUAL — pre-modify reconcile  
+**Captured:** 2026-08-27 (agent host)  
+**Phase:** WINDOWS OPERATOR HANDOFF — protocols ready; Windows run not simulated  
 **Law:** Code + executable artifacts > documentation claims.
 
 ## Git / PR
@@ -21,7 +21,7 @@
 |-------|--------|
 | DEVELOPMENT_READY | proven earlier |
 | INTEGRATION_READY | **YES — agent-host only** |
-| OPERATOR_READY | **NOT_VERIFIED** — Windows operator gates not executed |
+| OPERATOR_READY | **NOT_VERIFIED** — await real Windows gate JSON (see `docs/WINDOWS_OPERATOR_HANDOFF.md`) |
 | PRODUCTION_CANDIDATE / PRODUCTION_READY | **FALSE** |
 
 ## Evidence census (agent host DBs)
@@ -58,6 +58,7 @@ None material between code and canonical docs after R-81: docs correctly say INT
 
 ## This phase scope (binding)
 
-Build operator validation gates + pre-soak protocol + runnable report generator.  
-Do **not** add speculative features.  
-Do **not** promote to OPERATOR_READY without Windows artifacts.
+Harden Windows-safe operator gate runner + protocols + handoff.  
+Do **not** add speculative features (AG-25, holders, AI orchestration).  
+Do **not** promote to OPERATOR_READY without Windows artifacts.  
+Do **not** fabricate calibration pairs or simulate Windows PASS commits.

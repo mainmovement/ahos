@@ -1,115 +1,94 @@
-# AHOS — Pre-Soak Protocol (controlled short soak)
+# Pre-Soak Protocol
 
-**Status:** PROTOCOL — not an executed soak  
-**Not:** 72h evidence accrual · not 168h soak  
-**Purpose:** Prove scheduler/DB/restart stability before asking the operator for ≥72h uptime.
+**Entry condition (hard):** Windows Operator Validation **G1–G10** must PASS first.
+
+Do **not** start when:
+
+- Only agent-host `INTEGRATION_READY` exists
+- `OPERATOR_READY` is being assumed without Windows JSON
+- Gate JSON missing, or `platform_effective` ≠ `windows`
+- `summary.pre_soak_entry_ok` ≠ `true`
+- Any of G1–G10 is FAIL / BLOCKED / NOT_VERIFIED on Windows
+
+**Unlock checklist:**
+
+| Check | Evidence |
+|-------|----------|
+| Operator protocol run on Windows | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
+| Artifact present | `reports/operator_validation_report_windows_*.json` |
+| `summary.pre_soak_entry_ok` | `true` |
+| G11 Telegram | May still be OWNER_ACTION_REQUIRED for **short** pre-soak |
+| G12 n8n | STRUCTURAL_VALID allowed; operational not required for entry |
+
+Full claim **`OPERATOR_READY`** still requires G11 PASS (see gate runner `classify`). Short pre-soak must not be labeled OPERATOR_READY.
+
+Until unlock: **STOP**.
 
 ---
 
-## Duration
+## Purpose
 
-**Minimum:** 2 hours continuous daemon  
-**Recommended:** 4–6 hours on the Windows operator laptop  
-
-Record as `PRE_SOAK`, never as full soak.
+Controlled soak on the **Windows operator host** after G1–G10 PASS — stability before longer observation (T+72h).
 
 ---
 
-## Start (PowerShell)
+## Pre-soak commands (PowerShell, after unlock)
 
 ```powershell
-cd C:\path\to\ahos
+cd <PATH_TO_AHOS_REPO>
 .\.venv\Scripts\Activate.ps1
-$env:AHOS_EVIDENCE_SOURCE = "local"
-$env:AHOS_NARRATIVE_FETCH = "1"
+$env:AHOS_PAPER_ONLY = "1"
+$env:PYTHONPATH = "."
+$env:AHOS_LIVE_COLLECT = "1"
 
-# Optional once:
-python scripts\backfill_lane_a_from_production.py
-python scripts\prediction_lifecycle_status.py --json-out reports\pre_soak_t0_lifecycle.json
+# One paper cycle
+python -m architecture.runtime --single-cycle --evidence-source local --limit 5
 
-python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local --snapshot-interval-hours 1
-```
-
-Keep laptop awake (OS power settings).
-
----
-
-## Checks during PRE_SOAK
-
-Every ~30–60 minutes:
-
-```powershell
+# Lifecycle status (OBSERVING > 0; outcome_labels may still be 0)
 python scripts\prediction_lifecycle_status.py
-python -m architecture.scheduling.watchdog --status
+
+# Optional observation cycle (does not invent T+72h outcomes early)
+python -m architecture.runtime --observation-cycle --evidence-source local
 ```
 
-Monitor:
+Record wall-clock **T0** when Windows soak predictions are registered. Outcomes require real elapsed time to T+72h.
 
-| Signal | Healthy |
-|--------|---------|
-| Cycles | increasing |
-| discovery_observations | non-decreasing |
-| observation_state | stable/growing |
-| outcome_labels | still 0 if <72h since first_seen (expected) |
-| provider failures | logged, not silent |
-| DB integrity | no crash loops |
-| Restart | stop/start once mid-window; continues |
-
-Mid-window restart drill:
+For multi-hour soak, prefer:
 
 ```powershell
-# Ctrl+C daemon, then:
-python scripts\sqlite_backup_restore.py drill
 python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local
 ```
 
----
-
-## End artifact
-
-```powershell
-python scripts\prediction_lifecycle_status.py --json-out reports\pre_soak_end_lifecycle.json
-python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill --json-out reports\operator_validation_report.json
-```
-
-Write a short note in `reports/pre_soak_notes_<UTC>.md`:
-
-* start/end UTC
-* interruptions
-* FAIL symptoms
-* PASS/FAIL decision for proceeding to 72h
+(stop with Ctrl+C; keep PAPER_ONLY).
 
 ---
 
-## PASS criteria (PRE_SOAK)
+## Stop conditions (abort immediately)
 
-* Daemon ran ≥2h without process crash
-* At least one successful discovery/score cycle with persisted evidence
-* Restart drill completed; DBs readable
-* Lane-A freeze still OK
-* No fabricated outcomes
-
-## FAIL → do not start 72h
-
-* Repeated TLS/total provider failure with zero observations
-* DB corruption / integrity_check fail
-* Lane-A freeze drift
-* Scheduler stuck with zero heartbeats and no recovery
+| Condition | Action |
+|-----------|--------|
+| PAPER_ONLY violated / live trading flags | STOP |
+| Lane A freeze verify FAIL | STOP |
+| DB corruption / backup restore fail | STOP |
+| Provider outage hidden by mocks | STOP — diagnose honestly |
+| Security veto bypassed | STOP |
+| Gateway required but down | STOP or mark degraded — do not fake health |
+| Fabricating outcome_labels | STOP — wait for real time |
 
 ---
 
-## After PRE_SOAK PASS
+## What pre-soak does **not** prove
 
-Proceed to **72h evidence accrual** (OWNER):
+- Full Telegram production (G11)
+- n8n operational (G12 owner procedure)
+- Calibration sufficiency (real T+72h labels)
+- Agent-host success ≠ Windows soak success
+- `OPERATOR_READY` (needs G11 PASS artifacts)
 
-```powershell
-python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local --snapshot-interval-hours 6
-```
+---
 
-After ≥72h from earliest `first_seen_ts` of tracked tokens:
+## Related
 
-```powershell
-python scripts\calibration_report.py
-```
-
-Expect `joined_pairs > 0` only when RESOLVED labels exist. Keep `INSUFFICIENT_DATA` until guards met.
+- Handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md`
+- Operator Validation: `docs/OPERATOR_VALIDATION_PROTOCOL.md`
+- Calibration lifecycle: `docs/CALIBRATION_LIFECYCLE.md`
