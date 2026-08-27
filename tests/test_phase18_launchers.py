@@ -157,6 +157,101 @@ def test_install_windows_python_c_payloads_are_single_quoted():
     ) or re.search(r"-c\s+'[^']*assert_safe_environment[^']*'", text)
 
 
+def _install_windows_single_quoted_c_payloads() -> list[str]:
+    """Extract every single-quoted python -c payload from the installer."""
+    text = _read("install_windows.ps1")
+    return re.findall(r"""-c\s+'([^']*)'""", text)
+
+
+def test_install_windows_python_c_payloads_have_no_embedded_double_quotes():
+    """WinPS 5.1 strips embedded \" when calling native python.exe.
+
+    Real laptop failure after PR #21:
+      print("%d.%d.%d" % sys.version_info[:3])
+    arrived at Python as:
+      print(%d.%d.%d % sys.version_info[:3])
+    """
+    payloads = _install_windows_single_quoted_c_payloads()
+    assert payloads, "expected at least one single-quoted -c payload"
+    for payload in payloads:
+        assert '"' not in payload, (
+            "install_windows.ps1 -c payloads must not embed double quotes "
+            f"(WinPS 5.1 strips them): {payload!r}"
+        )
+
+
+def test_install_windows_python_version_check_survives_winps51_quote_stripping():
+    """Acceptance criterion: version -c must work after WinPS 5.1 quote strip."""
+    text = _read("install_windows.ps1")
+    match = re.search(
+        r"""python\s+-c\s+'([^']*sys\.version[^']*)'""",
+        text,
+    )
+    assert match, "missing python -c version-check payload in install_windows.ps1"
+    payload = match.group(1)
+    assert "sys.version" in payload
+    assert '"' not in payload
+
+    # Simulate WinPS 5.1 native-arg quoting: strip every embedded ".
+    stripped = payload.replace('"', "")
+    proc = subprocess.run(
+        [sys.executable, "-c", stripped],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert proc.returncode == 0, (
+        "version-check -c failed under WinPS 5.1 quote-stripping simulation.\n"
+        f"payload={payload!r}\nstripped={stripped!r}\n"
+        f"stdout={proc.stdout!r}\nstderr={proc.stderr!r}"
+    )
+    version = proc.stdout.strip()
+    assert re.fullmatch(r"\d+\.\d+\.\d+([a-zA-Z0-9.+_]*)?", version), (
+        f"version-check must print a usable Python version, got {version!r}"
+    )
+    parts = version.split(".")
+    assert len(parts) >= 2
+    int(parts[0])
+    int(parts[1])
+
+
+def test_install_windows_python_version_check_via_pwsh_call():
+    """Run the exact installer -c line through pwsh -> python (runtime path)."""
+    pwsh = _find_pwsh()
+    if pwsh is None:
+        pytest.skip("pwsh not available for version-check runtime verification")
+
+    text = _read("install_windows.ps1")
+    match = re.search(
+        r"""python\s+-c\s+'([^']*sys\.version[^']*)'""",
+        text,
+    )
+    assert match, "missing python -c version-check payload"
+    payload = match.group(1)
+    # Prefer the same interpreter the test host uses; still goes through pwsh -c.
+    py = sys.executable.replace("'", "''")
+    # Single-quoted -c payload for pwsh, matching installer style.
+    ps_payload = payload.replace("'", "''")
+    proc = subprocess.run(
+        [
+            pwsh,
+            "-NoProfile",
+            "-Command",
+            f"& '{py}' -c '{ps_payload}'",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert proc.returncode == 0, (
+        f"pwsh->python version check failed.\nstdout={proc.stdout}\nstderr={proc.stderr}"
+    )
+    version = proc.stdout.strip()
+    assert re.fullmatch(r"\d+\.\d+\.\d+([a-zA-Z0-9.+_]*)?", version), (
+        f"expected version string, got {version!r}"
+    )
+
+
 def test_install_windows_survives_cp1252_misread_parse(tmp_path):
     """Regression for the real Windows laptop ParserError on PR #20 main.
 

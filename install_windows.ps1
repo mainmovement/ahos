@@ -6,10 +6,13 @@
 #   docs\WINDOWS_OPERATOR_HANDOFF.md
 #   python scripts\operator_validation_gate.py --platform windows ...
 #
-# Encoding contract (Windows PowerShell 5.1 + PowerShell 7):
+# Encoding / quoting contract (Windows PowerShell 5.1 + PowerShell 7):
 #   - ASCII-only punctuation in this file (no em-dash, no >= glyph)
 #   - Python -c payloads use SINGLE-QUOTED PowerShell strings so () is not
 #     parsed as a PowerShell subexpression (ParserError on Windows 5.1)
+#   - Python -c payloads must contain NO double-quote characters: WinPS 5.1
+#     strips embedded " when calling native python.exe, which turned
+#     print("%d.%d.%d" % ...) into print(%d.%d.%d % ...) (SyntaxError)
 # ==============================================================================
 
 param(
@@ -50,7 +53,8 @@ Assert-Command "python"
 Assert-Command "npm"
 Assert-Command "node"
 
-$pyVerRaw = & python -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])'
+# Quote-free -c payload: WinPS 5.1 strips embedded " when invoking python.exe.
+$pyVerRaw = & python -c 'import sys; print(sys.version.split()[0])'
 if ($LASTEXITCODE -ne 0) {
     throw "python failed while reporting version"
 }
