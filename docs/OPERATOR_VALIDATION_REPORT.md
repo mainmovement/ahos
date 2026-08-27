@@ -3,7 +3,7 @@
 **Source JSON:** `reports/operator_validation_report_agent_host.json`  
 **Protocol:** `docs/OPERATOR_VALIDATION_PROTOCOL.md`  
 **Captured:** 2026-08-27 (agent-host run)  
-**HEAD:** `f75a184` (+ pending commits for this phase)
+**HEAD:** `207a169` (+ pending commits for this phase)
 
 ## Meta
 

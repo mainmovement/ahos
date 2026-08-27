@@ -9,7 +9,7 @@
 | Field | Value |
 |-------|--------|
 | Branch | `cursor/ahos-cleanup-alignment-4bde` |
-| HEAD | `f75a184` |
+| HEAD | `207a169` |
 | Working tree | clean |
 | PR | https://github.com/mainmovement/ahos/pull/19 — OPEN, MERGEABLE, not draft |
 | Base | `main` @ `dff5133` |
