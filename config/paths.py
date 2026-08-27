@@ -113,6 +113,24 @@ def get_knowledge_db_path() -> str:
     return get_db_path("ahos_knowledge.sqlite")
 
 
+def sqlite_ro_uri(path: Path | str) -> str:
+    """Build a SQLite read-only URI that works on Windows and POSIX.
+
+    Naive ``file:{path}?mode=ro`` breaks on Windows because ``Path`` yields
+    backslashes and a drive colon (``C:\\...``), which are illegal in SQLite
+    URI paths. ``Path.as_uri()`` emits ``file:///C:/...`` which is valid.
+    """
+    p = Path(path).resolve()
+    return f"{p.as_uri()}?mode=ro"
+
+
+def connect_sqlite_ro(path: Path | str):
+    """Open an existing SQLite DB read-only (never creates the file)."""
+    import sqlite3
+
+    return sqlite3.connect(sqlite_ro_uri(path), uri=True)
+
+
 # Dump to YAML for reference
 def export_paths_yaml(output_file: Path | str | None = None) -> str:
     import yaml

@@ -16,6 +16,34 @@ from config.paths import (
 )
 
 
+def test_sqlite_ro_uri_has_no_backslashes(tmp_path):
+    """Windows-safe URI: Path.as_uri() form, never file:C:\\..."""
+    from config.paths import sqlite_ro_uri, connect_sqlite_ro
+    import sqlite3
+
+    db = tmp_path / "win_uri.sqlite"
+    sqlite3.connect(str(db)).close()
+    uri = sqlite_ro_uri(db)
+    assert uri.startswith("file:")
+    assert "\\" not in uri
+    assert uri.endswith("?mode=ro")
+    conn = connect_sqlite_ro(db)
+    assert conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+    conn.close()
+
+
+def test_naive_windows_style_uri_fails():
+    """Document why connect_sqlite_ro exists: naive Windows paths break SQLite URI mode."""
+    import sqlite3
+    naive = r"file:C:\Users\operator\ahos\data\t.sqlite?mode=ro"
+    try:
+        sqlite3.connect(naive, uri=True)
+        # Some platforms may not raise until execute; force a use.
+        raise AssertionError("naive Windows URI unexpectedly connected")
+    except sqlite3.Error:
+        pass
+
+
 def test_detect_platform():
     plat = detect_platform()
     assert plat in ("windows", "linux", "darwin", "docker", "vps")

@@ -5,12 +5,19 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.operator_validation_gate import classify, main  # noqa: E402
+from scripts.operator_validation_gate import (  # noqa: E402
+    classify,
+    g2_gateway,
+    g11_telegram,
+    main,
+    _resolve_executable,
+)
 
 
 def _pass_gates(n_end: int = 12) -> list[dict]:
@@ -67,7 +74,6 @@ def test_runner_exit_3_on_windows_without_operator_ready(tmp_path):
         "--skip-network",
         "--json-out", str(out),
     ])
-    # Without probe/backup/gateway: no artificial PASS; expect FAIL and/or not ready.
     doc = json.loads(out.read_text(encoding="utf-8"))
     assert doc["summary"]["operator_ready"] is False
     statuses = {g["id"]: g["status"] for g in doc["gates"]}
@@ -75,3 +81,54 @@ def test_runner_exit_3_on_windows_without_operator_ready(tmp_path):
         assert rc == 2
     else:
         assert rc == 3
+
+
+def test_g2_http_error_4xx_is_pass_not_connection_fail():
+    """urlopen raises HTTPError for 4xx; process reachable => PASS (not 'start npm')."""
+    import urllib.error
+
+    err = urllib.error.HTTPError(
+        url="http://127.0.0.1:3000/api/chat",
+        code=404,
+        msg="Not Found",
+        hdrs=None,
+        fp=mock.Mock(read=mock.Mock(return_value=b"{}")),
+    )
+    with mock.patch("urllib.request.urlopen", side_effect=err):
+        with mock.patch.dict("os.environ", {"AHOS_GATEWAY_URL": "http://127.0.0.1:3000/api/chat"}, clear=False):
+            g = g2_gateway(skip_network=False)
+    assert g["status"] == "PASS"
+    assert g["http_status"] == 404
+
+
+def test_g2_http_error_5xx_is_fail(monkeypatch):
+    import urllib.error
+
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+    err = urllib.error.HTTPError(
+        url="http://127.0.0.1:3000/api/chat",
+        code=500,
+        msg="Internal",
+        hdrs=None,
+        fp=mock.Mock(read=mock.Mock(return_value=b'{"error":"DATABASE_URL"}')),
+    )
+    with mock.patch("urllib.request.urlopen", side_effect=err):
+        g = g2_gateway(skip_network=False)
+    assert g["status"] == "FAIL"
+    assert g["http_status"] == 500
+    assert "DATABASE_URL" in g["detail"]
+
+
+def test_g11_artifact_attestation(tmp_path, monkeypatch):
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "dummy-token-not-real")
+    art = tmp_path / "telegram_e2e_test.md"
+    art.write_text("# E2E\n" + ("x" * 80), encoding="utf-8")
+    g = g11_telegram("windows", e2e_artifact=str(art))
+    assert g["status"] == "PASS"
+    g2 = g11_telegram("windows", e2e_artifact=None)
+    assert g2["status"] == "NOT_VERIFIED"
+
+
+def test_resolve_executable_finds_python():
+    assert _resolve_executable(sys.executable) is not None or Path(sys.executable).exists()

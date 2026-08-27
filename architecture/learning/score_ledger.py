@@ -464,7 +464,8 @@ class ScoreLedger:
     def _read(self, sql: str, params: tuple = ()) -> list[dict[str, Any]]:
         """Read-only query. A missing store reports nothing rather than creating one."""
         try:
-            conn = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
+            from config.paths import connect_sqlite_ro
+            conn = connect_sqlite_ro(self.db_path)
             conn.row_factory = sqlite3.Row
             rows = [dict(r) for r in conn.execute(sql, params).fetchall()]
             conn.close()

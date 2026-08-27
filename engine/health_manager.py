@@ -26,7 +26,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from config.paths import get_project_root, get_data_dir, get_discovery_db_path, get_local_db_path, get_paper_trading_db_path, get_knowledge_db_path
+from config.paths import connect_sqlite_ro, get_project_root, get_data_dir, get_discovery_db_path, get_local_db_path, get_paper_trading_db_path, get_knowledge_db_path
 
 
 @dataclass
@@ -105,7 +105,7 @@ class AHOSHealthManager:
                 ))
             else:
                 try:
-                    conn = sqlite3.connect(f"file:{p}?mode=ro", uri=True)
+                    conn = connect_sqlite_ro(p)
                     res = conn.execute("PRAGMA integrity_check;").fetchone()
                     conn.close()
                     if not res or res[0] != "ok":

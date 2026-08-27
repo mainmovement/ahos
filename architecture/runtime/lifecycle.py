@@ -108,7 +108,8 @@ class StartupValidator:
                 report["valid"] = False
             else:
                 try:
-                    conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+                    from config.paths import connect_sqlite_ro
+                    conn = connect_sqlite_ro(db)
                     row = conn.execute("PRAGMA integrity_check;").fetchone()
                     conn.close()
                     ok = (row and row[0] == "ok")
@@ -155,7 +156,8 @@ class ApplicationLifecycleManager:
             db_path = self.root / "data" / "ahos_local.sqlite"
             if not db_path.exists():
                 return False, {"error": "db_missing"}
-            conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+            from config.paths import connect_sqlite_ro
+            conn = connect_sqlite_ro(db_path)
             res = conn.execute("PRAGMA integrity_check;").fetchone()
             conn.close()
             return (res[0] == "ok"), {"integrity": res[0]}

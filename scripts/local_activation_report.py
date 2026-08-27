@@ -40,6 +40,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from config.paths import (  # noqa: E402
+    connect_sqlite_ro,
     get_discovery_db_path,
     get_knowledge_db_path,
     get_local_db_path,
@@ -68,7 +69,7 @@ def _store_status(name: str, path_fn) -> dict:
         return {"store": name, "path": str(path), "exists": False,
                 "integrity_check": "NO_DATA", "tables": 0, "ok": False}
     try:
-        conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(path)
         integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
         tables = [r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
@@ -92,7 +93,7 @@ def _prediction_ledger_status() -> dict:
             CALIBRATION_ELIGIBLE_SOURCES, ScoreLedger, resolve_source,
         )
         ledger = ScoreLedger()
-        conn = sqlite3.connect(f"file:{ledger.db_path}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(ledger.db_path)
         guards = {r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='trigger' "
             "AND name LIKE '%score_ledger%'")}
@@ -118,7 +119,7 @@ def _prediction_ledger_status() -> dict:
 def _outcome_label_status() -> dict:
     """Are outcome labels being produced? (the other half of a calibration pair)"""
     try:
-        conn = sqlite3.connect(f"file:{get_discovery_db_path()}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(get_discovery_db_path())
         labels = conn.execute("SELECT COUNT(*) FROM outcome_label").fetchone()[0]
         resolved = conn.execute(
             "SELECT COUNT(*) FROM observation_state WHERE state='RESOLVED'").fetchone()[0]

@@ -24,6 +24,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from config.paths import connect_sqlite_ro
 
 ROOT = Path(__file__).resolve().parents[1]
 STORES = {
@@ -42,7 +43,7 @@ def trigger_names(table: str) -> tuple[str, str]:
 
 
 def census(path: Path, tables: list[str]) -> dict:
-    c = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    c = connect_sqlite_ro(path)
     out = {}
     for t in tables:
         n = c.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0]
@@ -55,14 +56,14 @@ def census(path: Path, tables: list[str]) -> dict:
 
 
 def all_tables(path: Path) -> list[str]:
-    c = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    c = connect_sqlite_ro(path)
     tabs = [r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")]
     c.close()
     return tabs
 
 
 def guards_present(path: Path) -> list[str]:
-    c = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    c = connect_sqlite_ro(path)
     names = [r[0] for r in c.execute(
         "SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'f1s1_guard_%'")]
     c.close()

@@ -15,6 +15,7 @@ UNKNOWN when the store lacks the tables (never fabricated).
 from __future__ import annotations
 import json, sqlite3, time
 from pathlib import Path
+from config.paths import connect_sqlite_ro
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -26,7 +27,7 @@ def coverage_report(store_path, *, now: float | None = None, reports_dir: Path |
            "verdict": "UNKNOWN", "blocks": {}}
     if not db.exists():
         return rep
-    conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    conn = connect_sqlite_ro(db)
     conn.row_factory = sqlite3.Row
     names = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     need = {"observation_state", "discovery_observations", "gap_register"}

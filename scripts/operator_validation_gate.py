@@ -60,19 +60,45 @@ def _gate(gid: str, name: str, status: str, detail: str,
     return out
 
 
+def _resolve_executable(name: str) -> str | None:
+    """Resolve an executable for subprocess (Windows-safe for npm.cmd)."""
+    if Path(name).exists():
+        return name
+    found = shutil.which(name)
+    if found:
+        return found
+    if sys.platform.startswith("win"):
+        for suffix in (".cmd", ".exe", ".bat"):
+            found = shutil.which(f"{name}{suffix}")
+            if found:
+                return found
+    return None
+
+
 def _run_cmd(argv: list[str], timeout: float = 30.0) -> tuple[int | None, str, str]:
     """Run a command; return (returncode|None if missing, stdout, stderr)."""
     exe = argv[0]
-    if shutil.which(exe) is None and not Path(exe).exists():
+    resolved = _resolve_executable(exe)
+    if resolved is None:
         return None, "", f"executable_not_found:{exe}"
+
+    run_argv: list[str] | str = list(argv)
+    use_shell = False
+    if isinstance(run_argv, list):
+        run_argv[0] = resolved
+        # Windows CreateProcess cannot launch .cmd/.bat without a shell.
+        if sys.platform.startswith("win") and resolved.lower().endswith((".cmd", ".bat")):
+            use_shell = True
+            run_argv = subprocess.list2cmdline(run_argv)
+
     try:
         r = subprocess.run(
-            argv,
+            run_argv,
             cwd=str(ROOT),
             capture_output=True,
             text=True,
             timeout=timeout,
-            shell=False,
+            shell=use_shell,
         )
         return r.returncode, r.stdout or "", r.stderr or ""
     except FileNotFoundError:
@@ -87,8 +113,9 @@ def g1_environment() -> dict[str, Any]:
     issues: list[str] = []
     blocked: list[str] = []
     py = sys.version.split()[0]
-    if sys.version_info < (3, 10):
-        issues.append(f"python_too_old:{py}")
+    # Operator handoff requires 3.11+ (matches AHOS_OPERATOR_QUICKSTART_WINDOWS).
+    if sys.version_info < (3, 11):
+        issues.append(f"python_too_old:{py}_need_3.11+")
     try:
         import architecture  # noqa: F401
     except Exception as e:  # noqa: BLE001
@@ -148,7 +175,7 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
             "G2", "Gateway", "NOT_VERIFIED",
             "skipped_network_probe; start 'npm run dev' then re-run without --skip-network",
         )
-    if shutil.which("node") is None:
+    if _resolve_executable("node") is None:
         return _gate(
             "G2", "Gateway", "BLOCKED",
             "node not on PATH — install Node.js LTS, then: npm install && npm run dev",
@@ -167,6 +194,10 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
         )
     url = (raw_url or "http://127.0.0.1:3000/api/chat").strip()
 
+    # One-Brain chat uses Postgres; missing DATABASE_URL yields HTTP 500 while
+    # Next is up. Surface that as BLOCKED/OWNER_ACTION rather than "start npm".
+    db_url = (os.environ.get("DATABASE_URL") or "").strip()
+
     try:
         req = urllib.request.Request(
             url,
@@ -174,31 +205,65 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
             headers={"Content-Type": "application/json", "User-Agent": "ahos-opval/1"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=5) as resp:
+        with urllib.request.urlopen(req, timeout=8) as resp:
             body = resp.read(400).decode("utf-8", "replace")
-            # Any HTTP response from the chat route proves the gateway process is up.
-            # Do not treat application-level error JSON as PASS if status >= 500.
             if resp.status >= 500:
                 return _gate(
                     "G2", "Gateway", "FAIL",
-                    f"http_{resp.status} from {url}",
+                    f"http_{resp.status} from {url}"
+                    + ("" if db_url else " — DATABASE_URL may be unset (required by One-Brain)"),
                     artifact=body[:200], http_status=resp.status, url=url,
+                    database_url_set=bool(db_url),
                 )
             return _gate(
                 "G2", "Gateway", "PASS",
                 f"http_{resp.status} from {url}",
                 artifact=body[:200], http_status=resp.status, url=url,
+                database_url_set=bool(db_url),
             )
+    except urllib.error.HTTPError as e:
+        # urlopen raises HTTPError for status >= 400 (never reaches resp.status above).
+        body = ""
+        try:
+            body = e.read(400).decode("utf-8", "replace")
+        except Exception:  # noqa: BLE001
+            body = ""
+        code = int(getattr(e, "code", 0) or 0)
+        if code >= 500:
+            detail = (
+                f"HTTPError {code} from {url}"
+                + ("" if db_url else
+                   " — set DATABASE_URL for One-Brain (Postgres) then restart npm run dev")
+            )
+            return _gate(
+                "G2", "Gateway", "FAIL",
+                detail,
+                artifact=body[:200], http_status=code, url=url,
+                database_url_set=bool(db_url),
+            )
+        # 4xx still proves the HTTP process is listening (route/method may differ).
+        return _gate(
+            "G2", "Gateway", "PASS",
+            f"HTTPError {code} from {url} (process reachable; non-5xx)",
+            artifact=body[:200], http_status=code, url=url,
+            database_url_set=bool(db_url),
+        )
     except urllib.error.URLError as e:
         reason = str(getattr(e, "reason", e))
-        # Connection refused = gateway not running (operator must start npm run dev)
         return _gate(
             "G2", "Gateway", "FAIL",
-            f"URLError: {reason} — start One-Brain with: npm run dev",
+            f"URLError: {reason} — start One-Brain with: npm run dev "
+            "(and set DATABASE_URL in .env)",
             url=url,
+            database_url_set=bool(db_url),
         )
     except Exception as e:  # noqa: BLE001
-        return _gate("G2", "Gateway", "FAIL", f"{type(e).__name__}: {e}", url=url)
+        return _gate(
+            "G2", "Gateway", "FAIL",
+            f"{type(e).__name__}: {e}",
+            url=url,
+            database_url_set=bool(db_url),
+        )
 
 
 def g3_providers(do_probe: bool) -> dict[str, Any]:
@@ -341,7 +406,7 @@ def g10_restart(do_drill: bool) -> dict[str, Any]:
     )
 
 
-def g11_telegram(platform_name: str) -> dict[str, Any]:
+def g11_telegram(platform_name: str, e2e_artifact: str | None = None) -> dict[str, Any]:
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     if not token:
         return _gate(
@@ -350,10 +415,35 @@ def g11_telegram(platform_name: str) -> dict[str, Any]:
             "then follow docs\\TELEGRAM_OPERATOR_E2E_PROTOCOL.md and archive transcript",
             platform=platform_name,
         )
+
+    # Owner may attest live E2E by pointing at an archived transcript.
+    # File presence alone without --telegram-e2e-artifact does NOT auto-PASS.
+    if e2e_artifact:
+        art = Path(e2e_artifact)
+        if not art.is_file():
+            return _gate(
+                "G11", "Telegram live E2E", "FAIL",
+                f"telegram E2E artifact missing: {art}",
+                platform=platform_name, artifact=str(art),
+            )
+        size = art.stat().st_size
+        if size < 64:
+            return _gate(
+                "G11", "Telegram live E2E", "FAIL",
+                f"telegram E2E artifact too small ({size} bytes): {art}",
+                platform=platform_name, artifact=str(art),
+            )
+        return _gate(
+            "G11", "Telegram live E2E", "PASS",
+            "owner-supplied transcript artifact present "
+            "(content honesty remains owner responsibility)",
+            platform=platform_name, artifact=str(art), bytes=size,
+        )
+
     return _gate(
         "G11", "Telegram live E2E", "NOT_VERIFIED",
-        "token present in environment but live transcript artifact not supplied to this runner "
-        "(archive reports\\telegram_e2e_<UTC>.md then mark PASS manually in OPERATOR_VALIDATION_REPORT)",
+        "token present but no --telegram-e2e-artifact supplied "
+        "(archive reports\\telegram_e2e_<UTC>.md then re-run with that path)",
         platform=platform_name,
     )
 
@@ -458,6 +548,11 @@ def main(argv: list[str] | None = None) -> int:
                     help="Skip G2 HTTP probe (leaves G2 NOT_VERIFIED)")
     ap.add_argument("--backup-drill", action="store_true",
                     help="Required for G10 PASS — runs sqlite backup drill")
+    ap.add_argument(
+        "--telegram-e2e-artifact",
+        default=None,
+        help="Path to archived live Telegram transcript (owner attestation for G11 PASS)",
+    )
     args = ap.parse_args(argv)
 
     plat = args.platform
@@ -479,7 +574,7 @@ def main(argv: list[str] | None = None) -> int:
         gates.append(g6_security())
         gates.append(g7_lane_a())
         gates.append(g10_restart(do_drill=args.backup_drill))
-        gates.append(g11_telegram(plat))
+        gates.append(g11_telegram(plat, e2e_artifact=args.telegram_e2e_artifact))
         gates.append(g12_n8n())
 
         summary = classify(plat, gates)

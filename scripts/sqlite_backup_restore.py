@@ -30,6 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from config.paths import connect_sqlite_ro  # noqa: E402
+
 SCHEMA_VERSION = "ahos.backup_restore.v1"
 
 SYNTHETIC_SCHEMA = """
@@ -84,7 +86,7 @@ def integrity_check(path: Path) -> str:
     if not path.is_file():
         return "NO_DATA"
     try:
-        conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        conn = connect_sqlite_ro(path)
         try:
             row = conn.execute("PRAGMA integrity_check").fetchone()
         finally:
@@ -97,7 +99,7 @@ def integrity_check(path: Path) -> str:
 def table_row_counts(path: Path) -> dict[str, int]:
     if not path.is_file():
         return {}
-    conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    conn = connect_sqlite_ro(path)
     try:
         names = [
             r[0] for r in conn.execute(
@@ -121,7 +123,7 @@ def copy_sqlite(src: Path, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     if dest.exists():
         dest.unlink()
-    src_conn = sqlite3.connect(f"file:{src}?mode=ro", uri=True)
+    src_conn = connect_sqlite_ro(src)
     try:
         dest_conn = sqlite3.connect(str(dest))
         try:
