@@ -214,7 +214,7 @@ def test_get_me_error_never_leaks_the_bot_token():
 # ----------------------------------------------------- end-to-end dispatch --
 
 def test_bot_runner_answers_a_persian_conversation_turn():
-    """Full path: update -> gate -> NLU -> analysis -> outbound message."""
+    """Full path under W57: update -> gate -> gateway-only service -> outbound."""
     from telegram_ai.bot import TelegramBotRunner
 
     ad = MockTelegramAdapter()
@@ -223,8 +223,9 @@ def test_bot_runner_answers_a_persian_conversation_turn():
     up = ad.poll_updates()[0]
     res = runner.process_update(up)
     assert res["status"] == "PROCESSED"
-    assert res["intent"] == "GREETING"
+    assert res["intent"] == "gateway_unavailable"
     assert ad.sent_messages, "no reply was delivered"
+    assert "EMERGENCY_FALLBACK_ONLY" in ad.sent_messages[0]["text"]
 
 
 def test_unauthorized_chat_is_refused():

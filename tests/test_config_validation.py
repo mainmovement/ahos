@@ -9,13 +9,15 @@ documentation. This test pins the first direction — the drift that actually
 causes operator confusion (e.g. COINGECKO_API_KEY existed in code but not in
 .env.example until 2026-08-20).
 
-Scope: architecture/, telegram_ai/, scripts/, run_bot.py — the canonical
-runtime surface. `engine/` (legacy lane, documented-excluded entrypoints) and
+Scope: architecture/, telegram_ai/, scripts/, run_bot.py, and the
+One-Brain TypeScript surface that reads process.env (alerts.ts, …).
+`engine/` (legacy lane, documented-excluded entrypoints) and
 `config/paths.py` overrides (AHOS_DATA_DIR / AHOS_ROOT / AHOS_ENV /
 AHOS_IN_DOCKER — test/ops knobs) are explicit exceptions with reasons.
 
 The test scans SOURCE, not imports: it lists every `os.environ.get("KEY")`
-literal so a new env read fails loudly until it is documented.
+literal (Python) and `process.env.KEY` (TypeScript) so a new env read
+fails loudly until it is documented.
 """
 from __future__ import annotations
 
@@ -28,6 +30,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 ENV_READ_RE = re.compile(r'os\.environ\.(?:get|getenv)\(\s*["\']([A-Z_][A-Z0-9_]*)["\']')
+TS_ENV_READ_RE = re.compile(r'process\.env\.([A-Z_][A-Z0-9_]*)')
 
 SCAN_DIRS = (
     "architecture",
@@ -35,6 +38,14 @@ SCAN_DIRS = (
     "scripts",
 )
 SCAN_FILES = ("run_bot.py",)
+# One-Brain TypeScript modules at repo root (pinned by architecture tests).
+SCAN_TS_FILES = (
+    "alerts.ts",
+    "engine.ts",
+    "providers.ts",
+    "conversation_gateway.ts",
+    "chat.ts",
+)
 
 #: Explicit exceptions — every entry must carry a reason.
 LEGACY_ENV_KEYS: dict[str, str] = {
@@ -62,6 +73,10 @@ def _scanned_source_keys() -> set[str]:
         p = ROOT / f
         if p.exists():
             keys.update(ENV_READ_RE.findall(p.read_text(encoding="utf-8")))
+    for f in SCAN_TS_FILES:
+        p = ROOT / f
+        if p.exists():
+            keys.update(TS_ENV_READ_RE.findall(p.read_text(encoding="utf-8")))
     # AI providers consume keys through `key_env:` fields in the two provider
     # registries (architecture/ai/clients.py reads them) — same documentation
     # law applies.

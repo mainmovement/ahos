@@ -39,15 +39,14 @@ def test_system_health_persian_nlu_intent():
 
 
 def test_system_health_telegram_service_output():
-    """Proves TelegramDomainService emits structured health diagnostics with mandatory footer."""
+    """W57: without AHOS_GATEWAY_URL, Telegram must not run independent health scoring."""
     srv = TelegramDomainService()
     res = srv.handle_message("وضعیت سامانه چطوره؟")
-    assert res["status"] == "OK"
-    assert res["intent"] == "SYSTEM_HEALTH"
-    assert "گزارش وضعیت و سلامت عملیاتی" in res["text"]
-    assert "وضعیت کلی سلامت:" in res["text"]
-    assert "تعداد توکن‌های رصد شده: ۹۵۲" in res["text"]
+    assert res["status"] == "EMERGENCY_FALLBACK_ONLY"
+    assert res["intent"] == "gateway_unavailable"
+    assert res["source"] == "EMERGENCY_FALLBACK_ONLY"
     assert FOOTER_MANDATED in res["text"]
+    assert "scoring" in res["text"].lower() or "هسته" in res["text"]
 
 
 def test_expert_lenses_batch_21_to_30_instantiated():

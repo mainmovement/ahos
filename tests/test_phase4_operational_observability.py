@@ -176,16 +176,19 @@ def test_correlations_never_invented_without_data(tmp_path, monkeypatch):
     ("آخرین چرخه", "LAST_CYCLE_STATUS", "گزارش آخرین چرخه اجرای ران‌تایم"),
 ])
 def test_telegram_operational_read_only_intents(query, expected_intent, expected_snippet):
-    """Proves all Telegram operational control plane queries parse and format correctly."""
+    """Parse layer remains operational; Telegram service itself is W57 gateway-only."""
     srv = TelegramDomainService()
     parsed = I.parse(query)
     assert parsed.intent == expected_intent
 
     res = srv.handle_message(query)
-    assert res["status"] == "OK"
-    assert res["intent"] == expected_intent
-    assert expected_snippet in res["text"]
+    assert res["status"] == "EMERGENCY_FALLBACK_ONLY"
+    assert res["intent"] == "gateway_unavailable"
     assert FOOTER_MANDATED in res["text"]
+    # Snippet checks belong to the Conversation Gateway path (AHOS_GATEWAY_URL),
+    # not to the emergency fallback which must never invent independent reports.
+    assert expected_snippet  # keep parametrize table wired for future gateway tests
+    _ = expected_snippet
 
 
 def test_paper_trading_negative_amount_rejection(tmp_path):
