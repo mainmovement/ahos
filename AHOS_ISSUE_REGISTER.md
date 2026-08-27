@@ -1300,3 +1300,15 @@
 - EVIDENCE: new unit/feed-through/contract tests; live probe JSON; live intel atoms artifact; Lane-A freeze OK; no Lane-A rewrite; PAPER_ONLY preserved.
 - NOT CLAIMED: Telegram E2E, n8n operational, 7-day soak, calibration validated, operator-laptop egress, PRODUCTION_READY.
 
+
+## R-81 · 2026-08-27 · Prediction→Lane-A observation lifecycle bridge (calibration join)
+- WHY: 348 local predictions / 0 outcome pairs — Lane-B scored into ScoreLedger + production_observations but never called frozen Lane-A register/observe APIs, so observation_state stayed empty and calibration reported no_matching_label.
+- WHAT:
+  1. `architecture/learning/prediction_lifecycle.py` — register_for_observation / backfill_from_production_observations / lifecycle_status (calls frozen discovery APIs only; no Lane-A source edits).
+  2. `OpportunityPipelineOrchestrator` seeds Lane-A after collect; report fields lane_a_registered / lane_a_observations_written.
+  3. Scripts: `backfill_lane_a_from_production.py`, `prediction_lifecycle_status.py`.
+  4. Docs: `docs/CALIBRATION_LIFECYCLE.md`; Windows quickstart section; Telegram/n8n operator protocols.
+  5. Tests: `tests/test_prediction_lifecycle_bridge.py` (incl. clock-injected join → pairs≥1, verdict still INSUFFICIENT_DATA).
+- EVIDENCE: agent-host backfill registered 97 tokens / 354 obs → OBSERVING=101; outcome_labels still 0 until T+72h (honest). Lane-A freeze OK.
+- NOT CLAIMED: calibration validated; fabricated outcomes; OPERATOR_READY.
+

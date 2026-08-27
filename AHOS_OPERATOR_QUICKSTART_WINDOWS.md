@@ -228,6 +228,26 @@ python -m architecture.scheduling.watchdog --status
 
 ---
 
+### Prediction → outcome lifecycle (required for calibration)
+
+Predictions alone do **not** create calibration pairs. Tokens must enter the
+Lane-A observation active set, then resolve at **T+72h**.
+
+After any scoring cycles (or once, for historical `production_observations`):
+
+```powershell
+python scripts\backfill_lane_a_from_production.py
+python scripts\prediction_lifecycle_status.py
+```
+
+Expect `observation_state` counts > 0 and `discovery_observations` > 0.
+`outcome_labels` stays 0 until tokens reach T+72h RESOLVED and materialize runs
+(daemon `--observation-cycle` does this automatically).
+
+Canonical lifecycle: `docs\CALIBRATION_LIFECYCLE.md`
+
+---
+
 ## After the window
 
 ```powershell
@@ -256,6 +276,8 @@ Read `calibration_status` honestly:
 | Baseline exits `2` | open the JSON and read `failed_checks` |
 | t0 exits `3` | open the JSON and read `t0_invalid_reasons` |
 | Ledger census `{}` | providers returned nothing — step 6 |
+| `observation_state` empty | run `python scripts\backfill_lane_a_from_production.py` |
+| `no_matching_label` forever | Lane-A never registered — backfill + keep `--observation-cycle` |
 | Laptop slept | log the UTC gap in `reports\local_soak_interruptions.jsonl`; those hours do not count |
 
 ## Scope
