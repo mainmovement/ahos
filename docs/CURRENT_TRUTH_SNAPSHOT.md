@@ -9,7 +9,7 @@
 | Field | Value |
 |-------|--------|
 | Branch | `cursor/ahos-cleanup-alignment-4bde` |
-| HEAD | `PENDING_PIN` |
+| HEAD | `d8f18db` |
 | PR | https://github.com/mainmovement/ahos/pull/19 — OPEN |
 | Base | `main` |
 | Lane-A freeze | OK (36 files pinned; no frozen sources changed vs main) |
