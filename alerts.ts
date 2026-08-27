@@ -7,6 +7,14 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import type { ScoredOpportunity } from "./types";
+import { canonicalTokenId } from "./canonical_identity";
+import {
+  loadCanonicalSnapshot,
+  getDecision,
+  isCanonicalPositiveOpportunity,
+  type CanonicalSnapshot,
+  type CanonicalDecision,
+} from "./canonical_store";
 
 const STATE_REL = path.join("reports", "pump_alert_state.json");
 const COOLDOWN_SEC = Number(process.env.AHOS_ALERT_COOLDOWN_SEC || "900");
@@ -28,6 +36,7 @@ export type AlertPayload = {
   rankScore: number | null;
   confidence: string;
   securityStatus: string;
+  recommendationCap: string;
   liquidityUsd: number | null;
   volume24h: number | null;
   priceUsd: number | null;
@@ -55,26 +64,30 @@ async function saveState(state: AlertState): Promise<void> {
   await writeFile(path.join(process.cwd(), STATE_REL), JSON.stringify(state, null, 2), "utf8");
 }
 
-function securityOk(status: string, rankScore: number | null): boolean {
-  const s = (status || "").toUpperCase();
-  if (["HONEYPOT", "REJECT", "FAIL", "DOWN"].includes(s)) return false;
-  if (s === "UNKNOWN") return rankScore != null && rankScore >= 0.8;
-  return true;
-}
-
-export function shouldAlertOpportunity(opp: ScoredOpportunity, state: AlertState): boolean {
-  if (opp.decision !== "WATCH") return false;
+export function shouldAlertOpportunity(
+  opp: ScoredOpportunity,
+  state: AlertState,
+  snapshot: CanonicalSnapshot,
+  nowSec: number = Date.now() / 1000,
+): boolean {
+  // ONE BRAIN: the positive-opportunity AUTHORITY is the Python canonical
+  // decision. TS is a read-only adapter here: it can only further restrict, it
+  // can NEVER promote. A missing / stale / UNKNOWN / VETO canonical record (or
+  // one for which no canonical identity can be formed) fails closed. There is
+  // no TS security/eligibility computation left in this emission path.
+  const cid = canonicalTokenId(opp.token.chain, opp.token.address);
+  if (!isCanonicalPositiveOpportunity(snapshot, cid, nowSec)) return false;
+  // Non-authoritative presentation / throttle guards below (only restrict):
   if (opp.rankScore == null || opp.rankScore < SCORE_FLOOR) return false;
-  if (!securityOk(opp.securityStatus, opp.rankScore)) return false;
   if ((opp.token.liquidityUsd ?? 0) < 15_000 && opp.token.liquidityUsd != null) return false;
   if (opp.token.paidPromotion && (opp.token.liquidityUsd ?? 0) < 50_000) return false;
   const key = opp.token.tokenKey;
   const last = state.sent[key] || 0;
-  if (Date.now() / 1000 - last < COOLDOWN_SEC) return false;
+  if (nowSec - last < COOLDOWN_SEC) return false;
   return true;
 }
 
-export function buildAlertPayload(opp: ScoredOpportunity): AlertPayload {
+export function buildAlertPayload(opp: ScoredOpportunity, decision: CanonicalDecision): AlertPayload {
   return {
     tokenKey: opp.token.tokenKey,
     symbol: opp.token.symbol,
@@ -84,6 +97,9 @@ export function buildAlertPayload(opp: ScoredOpportunity): AlertPayload {
     rankScore: opp.rankScore,
     confidence: opp.confidence,
     securityStatus: opp.securityStatus,
+    // Canonical recommendation cap comes from the Python canonical decision
+    // (the sole authority), NOT from any TS-side security computation.
+    recommendationCap: decision.recommendation_cap,
     liquidityUsd: opp.token.liquidityUsd,
     volume24h: opp.token.volume24h,
     priceUsd: opp.token.priceUsd,
@@ -167,15 +183,22 @@ async function pushTelegram(text: string): Promise<{ ok: boolean; error?: string
  */
 export async function processOpportunityAlerts(
   ranked: ScoredOpportunity[],
+  cwd: string = process.cwd(),
 ): Promise<{ emitted: AlertPayload[]; telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> }> {
   const state = await loadState();
+  // Load the canonical decision snapshot ONCE per cycle. This is the sole
+  // authority for whether any token may be emitted as a positive opportunity.
+  const snapshot = await loadCanonicalSnapshot(cwd);
+  const nowSec = Date.now() / 1000;
   const emitted: AlertPayload[] = [];
   const telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> = [];
 
   for (const opp of ranked) {
     if (emitted.length >= 3) break;
-    if (!shouldAlertOpportunity(opp, state)) continue;
-    const payload = buildAlertPayload(opp);
+    if (!shouldAlertOpportunity(opp, state, snapshot, nowSec)) continue;
+    const decision = getDecision(snapshot, canonicalTokenId(opp.token.chain, opp.token.address), nowSec);
+    if (!decision) continue; // fail-closed (should not happen after the gate)
+    const payload = buildAlertPayload(opp, decision);
     state.sent[payload.tokenKey] = Date.now() / 1000;
     state.last_alert_at = Date.now() / 1000;
     state.last_token = payload.tokenKey;

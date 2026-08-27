@@ -30,12 +30,19 @@ class AlertEngine:
 
     def evaluate_opportunity(self, report: OpportunityScoreReport,
                              candidate: NormalizedTokenCandidate,
-                             now: float | None = None) -> list[Alert]:
+                             now: float | None = None,
+                             disposition: Any | None = None) -> list[Alert]:
         alerts: list[Alert] = []
         ts = time.time() if now is None else now
 
-        # 1. High Score Opportunity Alert
-        if report.opportunity_score >= self.score_threshold and report.risk_level in ("LOW", "MED"):
+        # Security authority precedes opportunity (P0). A positive opportunity alert
+        # may only fire when the security gate explicitly PASSED. When `disposition`
+        # is None the gate was not supplied (legacy/direct call) and legacy behavior
+        # is preserved; the production pipeline always supplies it.
+        security_cleared = disposition is None or getattr(disposition, "verdict", None) == "PASS"
+
+        # 1. High Score Opportunity Alert — gated by the security disposition.
+        if security_cleared and report.opportunity_score >= self.score_threshold and report.risk_level in ("LOW", "MED"):
             alerts.append(build_alert(
                 cls="OPPORTUNITY",
                 symbol=report.token_symbol,

@@ -27,6 +27,7 @@ from ..collector.engine import CollectorEngine
 from ..learning.score_ledger import ScoreLedger
 from ..scheduling.engine import ProductionScheduler, ScheduleTask
 from ..pipeline.orchestrator import OpportunityPipelineOrchestrator
+from ..canonical.decision_store import CanonicalDecisionStore
 from telegram_ai.adapter import MockTelegramAdapter, ProductionTelegramAdapter, TelegramSecurityGate
 from telegram_ai.bot import TelegramBotRunner
 from telegram_ai.service import TelegramDomainService
@@ -404,11 +405,17 @@ def main(argv: list[str] | None = None) -> int:
                 + ("" if score_ledger.source == "local"
                    else "  (NOT calibration-eligible)"))
 
+    # Canonical decision store: the production daemon is the SOLE writer of the
+    # cross-runtime canonical decision record that web/Telegram/n8n adapters read.
+    canonical_store = CanonicalDecisionStore()
+    logger.info(f"Canonical decision store: {canonical_store.latest_path}")
+
     orchestrator = OpportunityPipelineOrchestrator(
         collector=collector,
         telegram_adapter=telegram_adapter,
         target_chat_id=allowed_chats[0] if allowed_chats else None,
-        score_ledger=score_ledger
+        score_ledger=score_ledger,
+        decision_store=canonical_store,
     )
 
     # Observation runtime (Phase 6): wraps the frozen Lane-A poller; every

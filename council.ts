@@ -337,34 +337,9 @@ function evaluate(expert: ExpertDefinition, input: CouncilInput): ExpertVote {
   return vote(expert, "WATCH", "LOW", "اگر انتخاب شود باید پیش‌بینی و افق ثبت شود تا بعداً درس گرفته شود.", "no peeking");
 }
 
-export function runCouncil(input: CouncilInput): CouncilResult {
-  const votes = EXPERTS.map((e) => evaluate(e, input));
-  const reject = votes.filter((v) => v.vote === "REJECT").length;
-  const abstain = votes.filter((v) => v.vote === "ABSTAIN" || v.vote === "UNKNOWN").length;
-  const paper = votes.filter((v) => v.vote === "PAPER_CANDIDATE").length;
-  const agreeWatch = votes.filter((v) => v.vote === "WATCH").length;
-  const kinds = new Set(votes.map((v) => v.vote));
-  const disagreement = kinds.size > 1;
-  let verdict = "INSUFFICIENT_EVIDENCE";
-  if (reject >= 25) verdict = "REJECT";
-  else if (agreeWatch >= 55 && reject < 15) verdict = "WATCH";
-  else if (abstain >= 50) verdict = "INSUFFICIENT_EVIDENCE";
-  else if (disagreement) verdict = "DISAGREEMENT";
-  else verdict = "WATCH";
-
-  const disagreementFa = [...kinds].map((k) => {
-    const n = votes.filter((v) => v.vote === k).length;
-    return `${k}: ${n} رأی از ۱۰۰ کارشناس`;
-  });
-
-  const summaryFa = [
-    `شورای ۱۰۰ نفره (۱۰ تیم) برای ${input.token.symbol} روی ${input.token.chain}:`,
-    `WATCH ${agreeWatch}، REJECT ${reject}، ABSTAIN/UNKNOWN ${abstain}، PAPER ${paper}.`,
-    `حکم شورا: ${verdict}. این حکم مشورتی است و تصمیم خرید نیست.`,
-    disagreement ? "اختلاف نظر حفظ شد و مخفی نشد." : "اختلاف کمی مشاهده شد.",
-  ].join(" ");
-
-  return { votes, verdict, disagreement, agreeWatch, reject, abstain, paper, summaryFa, disagreementFa };
-}
+// ONE BRAIN: the TS `runCouncil` opportunity/verdict authority is RETIRED.
+// Opportunity verdicts are the Python canonical brain's sole authority. This
+// module now only exposes `TEAM_META` — non-authoritative presentation metadata
+// (team names/sizes) for the dashboard. It performs no scoring or verdict.
 
 export const TEAM_META = TEAMS.map((t) => ({ id: t.id, fa: t.fa, size: t.roles.length }));
