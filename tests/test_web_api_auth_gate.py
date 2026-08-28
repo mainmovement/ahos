@@ -106,6 +106,16 @@ def test_windows_seed_local_evidence_script_exists():
     assert "db:migrate" in text.lower() or "Never migrates" in text
 
 
+def test_windows_run_this_first_points_at_ops_bat():
+    text = (ROOT / "WINDOWS_RUN_THIS_FIRST.txt").read_text(encoding="utf-8")
+    assert "AHOS_WINDOWS_OPS.bat" in text
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
+    assert "db:migrate" in text.lower()
+    start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
+    assert "AHOS_WINDOWS_OPS.bat" in start_ps1
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1
+
+
 def test_windows_restart_next_dev_script_exists():
     path = ROOT / "scripts" / "windows_restart_next_dev.ps1"
     text = path.read_text(encoding="utf-8")

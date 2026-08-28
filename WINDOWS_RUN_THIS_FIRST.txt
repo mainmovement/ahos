@@ -1,0 +1,17 @@
+AHOS Windows — PRE_SOAK unlock (PAPER_ONLY)
+==========================================
+STATE B: NEVER run db:migrate / db:push
+Do NOT invent OPERATOR_READY
+
+1) Merge or checkout PR #34 (cursor/windows-gate-harden-4bde), then:
+   git pull
+
+2) Double-click:
+   AHOS_WINDOWS_OPS.bat
+
+3) Evidence back to Cursor (one of):
+   - If `gh` is logged in: gate auto-comments OWNER_PASTE on PR #34
+   - Else: Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
+
+That JSON is required for G1–G10 / pre_soak_entry_ok.
+G11 (Telegram E2E) is separate for full OPERATOR_READY.
