@@ -6,7 +6,7 @@ Lane-A freeze: do not modify frozen Lane-A paths.
 
 On main (merged): web-api auth (#31), G2 empty-gateway (#45), G2 validate (#46),
 evidence autopush (#47), /api/chat 500 stack + DATABASE_URL sync (#48-#52).
-Unlock tip: PR #53 (warm recovery + OPS sync fix).
+Unlock tip: merged to main (#53). Paste sink: open PR #38 or LEAVE-OPEN inbox PR.
 
 --------------------------------------------------
 ONE CLICK (preferred)
@@ -18,7 +18,7 @@ ONE CLICK (preferred)
   Bat: token + Docker diagnose + DATABASE_URL (probe-first), then AHOS_WINDOWS_OPS.bat
   On /api/chat warm fail: auto forensics + DATABASE_URL + ensure-pg + Next restart.
   Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
-  Or: AHOS_PUSH_EVIDENCE_NOW.bat (pushes existing paste to PR #54 / evidence branch)
+  Or: AHOS_PUSH_EVIDENCE_NOW.bat (pushes existing paste to open PR #38 / LEAVE-OPEN inbox / evidence branch)
   PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).
 
 --------------------------------------------------

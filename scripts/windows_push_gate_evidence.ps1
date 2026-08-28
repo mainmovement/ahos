@@ -223,6 +223,7 @@ if ($pushOk -and ($null -ne $gh)) {
         } catch {}
         # Always try the dedicated evidence inbox heads if open.
         foreach ($inboxHead in @(
+          "cursor/windows-evidence-inbox-open-sink-4bde",
           "cursor/windows-evidence-inbox-stay-open-4bde",
           "cursor/windows-evidence-inbox-live-4bde",
           "cursor/windows-evidence-inbox-open-4bde",
