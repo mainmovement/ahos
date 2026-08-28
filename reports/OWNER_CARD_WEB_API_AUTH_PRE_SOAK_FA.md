@@ -1,13 +1,14 @@
 # کارت مالک — PRE_SOAK (Windows PAPER_ONLY)
 
-**کد:** unlock روی `main` (#53) + تیپ PR #57.  
+**کد:** unlock تیپ PR #57.  
 **DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
 
 ## یک‌خطی (در `G:\robat\ahos`)
 
 ```bat
 cd /d G:\robat\ahos
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/scripts/windows_bootstrap_presoak.ps1 -OutFile scripts\windows_bootstrap_presoak.ps1; powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_bootstrap_presoak.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat' -OutFile 'AHOS_BOOTSTRAP_PRESOAK.bat'"
+AHOS_BOOTSTRAP_PRESOAK.bat
 ```
 
 ## خروجی برای Cursor (الزامی)
