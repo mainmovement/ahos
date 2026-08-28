@@ -34,6 +34,12 @@ Write-Host "  AHOS G2 validate (health + gateway only)" -ForegroundColor Cyan
 Write-Host "  STATE B: no migrate / no READY claim" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
+$applyChat = Join-Path $RepoRoot "scripts\windows_apply_chat_500_sources.ps1"
+if (Test-Path -LiteralPath $applyChat) {
+  Write-Host "==> apply /api/chat 500 source unlock (Next route + db + snapshot)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $applyChat -RepoRoot $RepoRoot
+}
+
 $diag = Join-Path $RepoRoot "scripts\windows_diagnose_docker_health.ps1"
 if (Test-Path -LiteralPath $diag) {
   Write-Host "==> diagnose docker health" -ForegroundColor Cyan
@@ -79,6 +85,20 @@ $ensureTok = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
 if (Test-Path -LiteralPath $ensureTok) {
   Write-Host "==> ensure web API token + gateway URL" -ForegroundColor Cyan
   & powershell -NoProfile -ExecutionPolicy Bypass -File $ensureTok
+}
+
+$ensureDbUrl = Join-Path $RepoRoot "scripts\windows_ensure_database_url.ps1"
+if (Test-Path -LiteralPath $ensureDbUrl) {
+  Write-Host "==> ensure DATABASE_URL matches POSTGRES_* (chat 500 root cause class)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $ensureDbUrl -RepoRoot $RepoRoot
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "FAIL: DATABASE_URL cannot query ahos_* — /api/chat will HTTP 500. No migrate." -ForegroundColor Red
+    $forensics = Join-Path $RepoRoot "scripts\windows_chat_500_forensics.ps1"
+    if (Test-Path -LiteralPath $forensics) {
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $forensics -RepoRoot $RepoRoot
+    }
+    exit 2
+  }
 }
 
 $restart = Join-Path $RepoRoot "scripts\windows_restart_next_dev.ps1"

@@ -36,6 +36,7 @@ if errorlevel 1 (
 
 call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
+git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
 git fetch origin cursor/windows-evidence-push-lease-4bde >> "%LOG%" 2>&1
 git fetch origin cursor/windows-reconcile-ops-artifacts-4bde >> "%LOG%" 2>&1
@@ -46,11 +47,20 @@ if errorlevel 1 (
 )
 REM Prefer newest unlock tip not yet contained in origin/main.
 set "OPS_SYNC_REF=origin/main"
-git rev-parse --verify origin/cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
+git rev-parse --verify origin/cursor/windows-chat-500-rootcause-4bde >nul 2>&1
 if not errorlevel 1 (
-  git merge-base --is-ancestor origin/cursor/windows-g2-evidence-autopush-4bde origin/main >nul 2>&1
+  git merge-base --is-ancestor origin/cursor/windows-chat-500-rootcause-4bde origin/main >nul 2>&1
   if errorlevel 1 (
-    set "OPS_SYNC_REF=origin/cursor/windows-g2-evidence-autopush-4bde"
+    set "OPS_SYNC_REF=origin/cursor/windows-chat-500-rootcause-4bde"
+  )
+)
+if "!OPS_SYNC_REF!"=="origin/main" (
+  git rev-parse --verify origin/cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
+  if not errorlevel 1 (
+    git merge-base --is-ancestor origin/cursor/windows-g2-evidence-autopush-4bde origin/main >nul 2>&1
+    if errorlevel 1 (
+      set "OPS_SYNC_REF=origin/cursor/windows-g2-evidence-autopush-4bde"
+    )
   )
 )
 if "!OPS_SYNC_REF!"=="origin/main" (
@@ -72,7 +82,7 @@ if "!OPS_SYNC_REF!"=="origin/main" (
   )
 )
 call :log ==^> force-sync ops scripts from !OPS_SYNC_REF!
-git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt scripts/operator_validation_gate.py scripts/windows_g2_probe.py tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example >> "%LOG%" 2>&1
+git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt scripts/operator_validation_gate.py scripts/windows_g2_probe.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example >> "%LOG%" 2>&1
 if errorlevel 1 (
   call :log WARNING: force-sync ops scripts failed - parse preflight may catch stale scripts
 )

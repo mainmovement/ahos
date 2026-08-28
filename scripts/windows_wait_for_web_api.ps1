@@ -124,10 +124,13 @@ for ($i = 0; $i -lt $Attempts; $i++) {
             if ($snippet) { Write-Host ("  body: " + $snippet) -ForegroundColor DarkGray }
             if ($consecutiveServerErrors -ge $limit) {
                 Write-Host ("  FAIL-FAST: " + $limit + " consecutive 5xx from /api/chat") -ForegroundColor Red
-                Write-Host "  Likely cause: Next is up but Postgres unreachable (One-Brain snapshot needs DB)." -ForegroundColor Yellow
-                Write-Host "  Remediation: start Docker Desktop Linux Engine (docker ps must work)," -ForegroundColor Yellow
-                Write-Host "    then scripts\windows_ensure_postgres_win.ps1; restart Next; re-run bat." -ForegroundColor Yellow
-                Write-Host "  If dockerDesktopLinuxEngine pipe not found: open Docker Desktop, wait green." -ForegroundColor Yellow
+                if ($snippet) { Write-Host ("  body: " + $snippet) -ForegroundColor DarkYellow }
+                Write-Host "  Likely cause: Next is up but One-Brain snapshot cannot use Postgres." -ForegroundColor Yellow
+                Write-Host "  Remediation:" -ForegroundColor Yellow
+                Write-Host "    1) powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_chat_500_forensics.ps1" -ForegroundColor Yellow
+                Write-Host "    2) powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_ensure_database_url.ps1" -ForegroundColor Yellow
+                Write-Host "    3) powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_restart_next_dev.ps1" -ForegroundColor Yellow
+                Write-Host "  If pg probe says CONN_REFUSED: scripts\\windows_ensure_postgres_win.ps1 first." -ForegroundColor Yellow
                 Write-Host "  STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
                 exit 2
             }

@@ -31,6 +31,7 @@ if errorlevel 1 (
 
 echo ==^> git fetch / pull origin main
 git fetch origin
+git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
 git fetch origin cursor/windows-evidence-push-lease-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
@@ -39,26 +40,27 @@ if errorlevel 1 (
   echo WARNING: git pull origin main failed - continuing with local tree
 )
 
-REM Prefer newest unlock tip not yet on main (evidence-lease, then #45)
+REM Prefer newest unlock tip not yet on main (chat-500, then evidence-autopush)
 set "UNLOCK_REF="
-git rev-parse --verify origin/cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
-if not errorlevel 1 (
-  git merge-base --is-ancestor origin/cursor/windows-g2-evidence-autopush-4bde origin/main >nul 2>&1
-  if errorlevel 1 set "UNLOCK_REF=origin/cursor/windows-g2-evidence-autopush-4bde"
-)
-if not defined UNLOCK_REF (
-  git rev-parse --verify origin/cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
-  if not errorlevel 1 (
-    git merge-base --is-ancestor origin/cursor/windows-g2-empty-gateway-default-4bde origin/main >nul 2>&1
-    if errorlevel 1 set "UNLOCK_REF=origin/cursor/windows-g2-empty-gateway-default-4bde"
+for %%R in (
+  origin/cursor/windows-chat-500-rootcause-4bde
+  origin/cursor/windows-g2-evidence-autopush-4bde
+  origin/cursor/windows-g2-empty-gateway-default-4bde
+) do (
+  if not defined UNLOCK_REF (
+    git rev-parse --verify %%R >nul 2>&1
+    if not errorlevel 1 (
+      git merge-base --is-ancestor %%R origin/main >nul 2>&1
+      if errorlevel 1 set "UNLOCK_REF=%%R"
+    )
   )
 )
 if defined UNLOCK_REF (
   echo ==^> applying unlock tip !UNLOCK_REF! onto working tree ^(not a merge^)
-  git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/operator_validation_gate.py scripts/windows_g2_probe.py tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example 2>nul
+  git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/operator_validation_gate.py scripts/windows_g2_probe.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example 2>nul
   if errorlevel 1 (
     echo WARNING: bulk checkout failed - trying core files individually
-    git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat scripts/operator_validation_gate.py scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/windows_wait_for_web_api.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_diagnose_docker_health.ps1 tests/validate_n8n.py deployment/docker-compose.windows.yml
+    git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat scripts/operator_validation_gate.py scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs scripts/windows_wait_for_web_api.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_diagnose_docker_health.ps1 app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml
   )
 ) else (
   echo ==^> unlock tips already on origin/main -- using main tip

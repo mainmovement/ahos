@@ -139,6 +139,42 @@ if ([string]::IsNullOrWhiteSpace($dbUrl)) {
   }
 }
 
+# Credential/query probe — string presence alone does not prove /api/chat can snapshot.
+$probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
+New-Item -ItemType Directory -Force -Path (Split-Path $probeOut) | Out-Null
+$psProbe = Join-Path $RepoRoot "scripts\windows_pg_probe.ps1"
+$mjsProbe = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
+$probeJson = ""
+$probeOk = $false
+if (Test-Path -LiteralPath $psProbe) {
+  $probeJson = & powershell -NoProfile -ExecutionPolicy Bypass -File $psProbe -RepoRoot $RepoRoot -JsonOut $probeOut 2>&1 | Out-String
+  $probeOk = ($LASTEXITCODE -eq 0)
+} elseif (Test-Path -LiteralPath $mjsProbe) {
+  $probeJson = & node $mjsProbe --json-out $probeOut 2>&1 | Out-String
+  $probeOk = ($LASTEXITCODE -eq 0)
+}
+if (-not [string]::IsNullOrWhiteSpace($probeJson) -or (Test-Path -LiteralPath $probeOut)) {
+  $probeClass = ""
+  try {
+    if (Test-Path -LiteralPath $probeOut) {
+      $pj = Get-Content -LiteralPath $probeOut -Raw | ConvertFrom-Json
+    } else {
+      $pj = $probeJson | ConvertFrom-Json
+    }
+    $probeClass = [string]$pj.error_class
+    if ($pj.ok) { $probeOk = $true }
+  } catch {}
+  if ($probeOk) {
+    Write-Check "database_url_query" "PASS" "ahos_system_state readable (pg probe)"
+  } else {
+    Write-Check "database_url_query" "FAIL" ("One-Brain snapshot blocked: " + $(if ($probeClass) { $probeClass } else { "see reports\pg_probe_latest.json" }))
+    $fails++
+    Write-Host "         remediation: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_ensure_database_url.ps1" -ForegroundColor Yellow
+    Write-Host "         then: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_restart_next_dev.ps1" -ForegroundColor Yellow
+    Write-Host "         forensics: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_chat_500_forensics.ps1" -ForegroundColor Yellow
+  }
+}
+
 # --- runtime (NOT required for host Next G2 PAPER_ONLY) ---
 $rt = (& docker ps -a --filter ("name=^/" + $RuntimeContainer + "$") --format "{{.Status}}" 2>$null | Select-Object -First 1)
 if ([string]::IsNullOrWhiteSpace($rt)) {

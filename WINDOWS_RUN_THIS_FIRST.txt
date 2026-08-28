@@ -4,8 +4,23 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-On main: through PR #46. Open #47 tip is on unlock ref
-  origin/cursor/windows-evidence-push-lease-4bde (auto-applied by bats).
+--------------------------------------------------
+If /api/chat returns HTTP 500 while Docker diagnose PASSes
+--------------------------------------------------
+  Exact root cause (message + stack_top + pg probe):
+
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_chat_500_forensics.ps1
+
+  Then fix DATABASE_URL vs Postgres auth (common cause) and reload Next:
+
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_database_url.ps1
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
+
+  Or one-click G2 (applies unlock tip + DATABASE_URL sync + warm chat):
+
+    AHOS_VALIDATE_G2_NOW.bat
+
+  Paste reports\OWNER_PASTE_CHAT_500_*.txt  (and Next console [api/chat] stack)
 
 --------------------------------------------------
 ONE CLICK (preferred)
@@ -14,8 +29,8 @@ ONE CLICK (preferred)
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
 
-  Bat applies unlock tip, diagnoses Docker/pg_isready, ensures Postgres
-  (no migrate), warms /api/chat, runs full G1-G10 via AHOS_WINDOWS_OPS.bat.
+  Bat applies unlock tip, diagnoses Docker/pg_isready, syncs DATABASE_URL,
+  warms /api/chat, runs full G1-G10 via AHOS_WINDOWS_OPS.bat.
   Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
 
 --------------------------------------------------
