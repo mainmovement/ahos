@@ -3,6 +3,9 @@
 .SYNOPSIS
   Push Windows gate OWNER_PASTE + report JSON to a durable evidence branch.
 
+Uses a temporary git index + commit-tree so the owner's current branch/worktree
+is NOT checked out away (avoids dirty-tree checkout failures).
+
 Creates/updates branch cursor/windows-gate-evidence-4bde and opens/updates a PR
 so Cloud agents can fetch evidence without chat paste.
 
@@ -59,19 +62,15 @@ if (-not (Test-Path -LiteralPath $evDir)) {
 $stamp = (Get-Date).ToUniversalTime().ToString("yyyyMMdd_HHmmss")
 $utf8 = New-Object System.Text.UTF8Encoding $false
 
-$bundle = Join-Path $evDir ("OWNER_PASTE_" + $stamp + ".txt")
-$latestOut = Join-Path $evDir "LATEST_WINDOWS_GATE.txt"
-$pointer = Join-Path $evDir "README_EVIDENCE.md"
-
 if (Test-Path -LiteralPath $PastePath) {
-  Copy-Item -LiteralPath $PastePath -Destination $bundle -Force
+  Copy-Item -LiteralPath $PastePath -Destination (Join-Path $evDir ("OWNER_PASTE_" + $stamp + ".txt")) -Force
   Copy-Item -LiteralPath $PastePath -Destination (Join-Path $evDir "OWNER_PASTE_WINDOWS_GATE.txt") -Force
 }
 if (Test-Path -LiteralPath $SlimPath) {
   Copy-Item -LiteralPath $SlimPath -Destination (Join-Path $evDir "OWNER_PASTE_WINDOWS_GATE_SLIM.txt") -Force
 }
 if (Test-Path -LiteralPath $LatestPath) {
-  Copy-Item -LiteralPath $LatestPath -Destination $latestOut -Force
+  Copy-Item -LiteralPath $LatestPath -Destination (Join-Path $evDir "LATEST_WINDOWS_GATE.txt") -Force
 }
 
 $newestJson = Get-ChildItem -LiteralPath $reports -Filter "operator_validation_report_windows_*.json" -ErrorAction SilentlyContinue |
@@ -82,6 +81,7 @@ if ($null -ne $newestJson) {
   Copy-Item -LiteralPath $newestJson.FullName -Destination (Join-Path $evDir "operator_validation_report_windows_LATEST.json") -Force
 }
 
+$pointer = Join-Path $evDir "README_EVIDENCE.md"
 $readme = @(
   "# Windows gate evidence (not a READY claim)",
   "",
@@ -95,49 +95,65 @@ $readme = @(
 )
 [System.IO.File]::WriteAllText($pointer, ($readme -join "`n") + "`n", $utf8)
 
-$prevBranch = "main"
-try { $prevBranch = (& git rev-parse --abbrev-ref HEAD 2>$null).Trim() } catch {}
-$dirty = $false
+Write-Step "fetch origin (for main base)"
+& git fetch origin main 2>&1 | Out-Null
+$base = ""
+try { $base = (& git rev-parse origin/main 2>$null).Trim() } catch {}
+if ([string]::IsNullOrWhiteSpace($base)) {
+  try { $base = (& git rev-parse HEAD 2>$null).Trim() } catch {}
+}
+if ([string]::IsNullOrWhiteSpace($base)) {
+  Write-Host "[gate-evidence] cannot resolve base commit — Ctrl+V paste still required." -ForegroundColor Yellow
+  exit 0
+}
+
+# Temporary index: do not disturb current branch / dirty worktree
+$idx = Join-Path $RepoRoot (".git\ahos-evidence-index-" + $stamp)
+$env:GIT_INDEX_FILE = $idx
 try {
-  $status = (& git status --porcelain 2>$null)
-  if (-not [string]::IsNullOrWhiteSpace(($status | Out-String))) { $dirty = $true }
-} catch {}
+  Write-Step ("temp index from " + $base.Substring(0, [Math]::Min(7, $base.Length)))
+  & git read-tree $base 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "[gate-evidence] read-tree failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    exit 0
+  }
 
-if ($dirty) {
-  Write-Step "working tree dirty — committing only evidence paths on evidence branch"
-}
+  & git add -- "reports/windows_gate_evidence" 2>&1 | Out-Host
+  $staged = (& git diff --cached --name-only 2>$null)
+  if ([string]::IsNullOrWhiteSpace(($staged | Out-String))) {
+    Write-Host "[gate-evidence] nothing staged — skip." -ForegroundColor DarkYellow
+    exit 0
+  }
 
-Write-Step ("checkout -B " + $EvidenceBranch)
-& git fetch origin 2>$null | Out-Null
-& git checkout -B $EvidenceBranch 2>&1 | Out-Host
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "[gate-evidence] checkout failed — Ctrl+V paste still required." -ForegroundColor Yellow
-  exit 0
-}
+  $tree = (& git write-tree 2>$null).Trim()
+  if ([string]::IsNullOrWhiteSpace($tree)) {
+    Write-Host "[gate-evidence] write-tree failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    exit 0
+  }
 
-& git add -- "reports/windows_gate_evidence"
-# Also force-add ignored paste mirrors if present at reports root (belt/suspenders)
-if (Test-Path -LiteralPath $PastePath) { & git add -f -- $PastePath 2>$null }
-if (Test-Path -LiteralPath $LatestPath) { & git add -f -- $LatestPath 2>$null }
-
-$staged = (& git diff --cached --name-only 2>$null)
-if ([string]::IsNullOrWhiteSpace(($staged | Out-String))) {
-  Write-Host "[gate-evidence] nothing staged — skip commit." -ForegroundColor DarkYellow
-  & git checkout $prevBranch 2>&1 | Out-Null
-  exit 0
-}
-
-$msg = @"
+  $msg = @"
 Windows gate evidence bundle ($stamp).
 
 Not a PRE_SOAK or OPERATOR_READY claim. STATE B: no migrate.
 Interpret LATEST / JSON honestly on agent side.
 "@
-& git commit -m $msg 2>&1 | Out-Host
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "[gate-evidence] commit failed — Ctrl+V paste still required." -ForegroundColor Yellow
-  & git checkout $prevBranch 2>&1 | Out-Null
-  exit 0
+  $commit = (& git commit-tree $tree -p $base -m $msg 2>$null).Trim()
+  if ([string]::IsNullOrWhiteSpace($commit)) {
+    Write-Host "[gate-evidence] commit-tree failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    exit 0
+  }
+
+  Write-Step ("update-ref " + $EvidenceBranch + " -> " + $commit.Substring(0, 7))
+  & git update-ref ("refs/heads/" + $EvidenceBranch) $commit 2>&1 | Out-Host
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "[gate-evidence] update-ref failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    exit 0
+  }
+} finally {
+  Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue
+  if (Test-Path -LiteralPath $idx) {
+    Remove-Item -LiteralPath $idx -Force -ErrorAction SilentlyContinue
+  }
 }
 
 Write-Step ("push --force-with-lease origin " + $EvidenceBranch)
@@ -147,7 +163,6 @@ if (-not $pushOk) {
   Write-Host "[gate-evidence] push failed — Ctrl+V Desktop AHOS_PASTE_TO_CURSOR.txt into Cursor." -ForegroundColor Yellow
 }
 
-# Best-effort open/update PR for evidence branch
 $gh = Get-Command gh -ErrorAction SilentlyContinue
 if ($pushOk -and ($null -ne $gh)) {
   try {
@@ -166,11 +181,9 @@ if ($pushOk -and ($null -ne $gh)) {
   } catch {}
 }
 
-Write-Step ("return to " + $prevBranch)
-& git checkout $prevBranch 2>&1 | Out-Host
-
 if ($pushOk) {
   Write-Host "[gate-evidence] OK — agents can fetch origin/cursor/windows-gate-evidence-4bde" -ForegroundColor Green
+  Write-Host "[gate-evidence] owner branch unchanged (temp-index push)." -ForegroundColor DarkGray
 } else {
   Write-Host "[gate-evidence] incomplete — Ctrl+V paste still required." -ForegroundColor Yellow
 }

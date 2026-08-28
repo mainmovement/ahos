@@ -137,6 +137,9 @@ def test_windows_push_gate_evidence_helper_exists():
     assert "windows-gate-evidence-4bde" in text
     assert "windows_gate_evidence" in text
     assert "force-with-lease" in text
+    assert "commit-tree" in text
+    assert "GIT_INDEX_FILE" in text or "ahos-evidence-index" in text
+    assert "checkout -B" not in text  # must not leave owner branch
     assert "OPERATOR_READY" in text
     assert "db:migrate" in text.lower() or "no migrate" in text.lower()
     runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
