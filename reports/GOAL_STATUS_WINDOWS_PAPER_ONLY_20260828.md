@@ -2,7 +2,7 @@
 
 **Generated (UTC):** 2026-08-28T21:35Z  
 **main tip:** `40c5100` (PR #31–#35 merged)  
-**Open follow-up:** `cursor/windows-g1-g10-harden-4bde` (seed/fail-fast/paste)  
+**Open follow-up:** PR **#36** (`cursor/windows-g1-g10-harden-4bde`)  
 **Claim:** tooling on main + harden PR — **OPERATOR_READY = NOT_VERIFIED**  
 **Owner:** no gate JSON / OWNER_PASTE yet
 
