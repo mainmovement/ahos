@@ -209,7 +209,7 @@ def matrix_scheduler(workdir: Path) -> None:
     record("SCHEDULER", "stale_lease_takeover", "expired lease left by dead holder",
            "lease reclaimed, cycle SUCCESS", ok, f"status={r4['status']}")
 
-    # 5+23. crashed process holding lease, then recovery after expiry
+    # 5 + 23. crashed process holding lease, then recovery after expiry
     # (crasher acquires a 1s lease; parent must be refused while it lives and
     #  take over only after real expiry — real timing, no fudged timestamps)
     s5 = fresh_scheduler(workdir, lease_duration=1.0)
@@ -224,17 +224,27 @@ def matrix_scheduler(workdir: Path) -> None:
     acquired = crasher.stdout.readline().strip()
     time.sleep(0.5)
     force_kill(crasher)
-    # immediate takeover attempt against a LIVE-duration lease must be refused
+    child_dead = crasher.poll() is not None
+    # 5. immediate takeover attempt against a LIVE-duration lease must be refused
     r5a = s5.execute_scheduled_cycle("M_CRASH", [task("t5")])
-    # but our scheduler instance uses lease_duration=1s => after expiry it takes over
+    ok_held = (
+        acquired == "True"
+        and child_dead
+        and r5a["status"] == "SKIPPED_LOCKED"
+        and "t5" not in ran
+    )
+    record("SCHEDULER", "crashed_process_lease_held",
+           "hard-kill of lease holder mid-run (terminate/kill)",
+           "second runner refused while dead holder's lease still live", ok_held,
+           f"acquired={acquired} child_dead={child_dead} immediate={r5a['status']}")
+    # 23. after real expiry the lease is reclaimable and recovery succeeds
     time.sleep(1.2)
     r5b = s5.execute_scheduled_cycle("M_CRASH", [task("t5")])
-    ok = (r5a["status"] == "SKIPPED_LOCKED" and r5b["status"] == "SUCCESS"
-          and "t5" in ran and acquired == "True")
+    ok_recover = r5b["status"] == "SUCCESS" and "t5" in ran
     record("SCHEDULER", "crashed_process_recovery",
            "hard-kill of lease holder mid-run (terminate/kill)",
-           "refused while lease live; takeover after expiry; recovery SUCCESS", ok,
-           f"immediate={r5a['status']} after_expiry={r5b['status']}")
+           "after expiry lease reclaimed; recovery cycle SUCCESS", ok_recover,
+           f"after_expiry={r5b['status']}")
 
     # 6. delayed process -> downtime honestly measured
     s6 = fresh_scheduler(workdir)
@@ -525,6 +535,9 @@ def matrix_safety(workdir: Path) -> None:
 # ==================================== main =====================================
 
 def run_all(workdir: Path | None = None) -> list[dict]:
+    # Fresh result set every run — avoids cross-test pollution via the module
+    # global (otherwise later pytest cases inherit earlier SCHEDULER rows).
+    RESULTS.clear()
     own_tmp = workdir is None
     workdir = workdir or Path(tempfile.mkdtemp(prefix="ahos_failure_matrix_"))
     matrix_scheduler(workdir)
@@ -535,7 +548,7 @@ def run_all(workdir: Path | None = None) -> list[dict]:
     if own_tmp:
         import shutil
         shutil.rmtree(workdir, ignore_errors=True)
-    return RESULTS
+    return list(RESULTS)
 
 
 def main(argv: list[str] | None = None) -> int:
