@@ -138,7 +138,7 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
     try {
         Set-Clipboard -Value ([System.IO.File]::ReadAllText($paste))
         $clipOk = $true
-        Write-Host "Copied paste bundle to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
+        Write-Host "Copied paste bundle to clipboard -- Ctrl+V into Cursor." -ForegroundColor Green
     } catch {
         Write-Host ("Clipboard copy skipped: " + $_.Exception.Message) -ForegroundColor DarkYellow
     }
@@ -200,16 +200,16 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host ("Posted gate paste to PR #" + $prNum + " via gh (agent can fetch).") -ForegroundColor Green
                 } else {
-                    Write-Host ("gh pr comment failed exit=" + $LASTEXITCODE + " — Ctrl+V paste still required.") -ForegroundColor DarkYellow
+                    Write-Host ("gh pr comment failed exit=" + $LASTEXITCODE + " -- Ctrl+V paste still required.") -ForegroundColor DarkYellow
                 }
             } else {
-                Write-Host "gh not authenticated — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+                Write-Host "gh not authenticated -- Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
             }
         } catch {
             Write-Host ("gh post skipped: " + $_.Exception.Message) -ForegroundColor DarkYellow
         }
     } else {
-        Write-Host "gh CLI not on PATH — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+        Write-Host "gh CLI not on PATH -- Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
     }
 
     $tgSend = Join-Path $RepoRoot "scripts\windows_telegram_send_gate_paste.ps1"

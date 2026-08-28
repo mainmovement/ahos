@@ -274,3 +274,14 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     TelegramDomainService().handle_message("سلام")
     headers = {k.lower(): v for k, v in captured["headers"].items()}
     assert "authorization" not in headers
+
+def test_windows_ps1_scripts_are_ascii_for_ps51():
+    """PS 5.1 misreads UTF-8 em-dashes without BOM as ANSI mojibake."""
+    bad = []
+    for path in sorted((ROOT / "scripts").glob("windows_*.ps1")):
+        content = path.read_text(encoding="utf-8")
+        non_ascii = sorted({ch for ch in content if ord(ch) > 127})
+        if non_ascii:
+            bad.append(f"{path.name}: {non_ascii!r}")
+    assert not bad, "non-ASCII in Windows PS1:\n" + "\n".join(bad)
+

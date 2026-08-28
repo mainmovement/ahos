@@ -101,7 +101,7 @@ $lines += ("sqlite_census=" + $censusLine)
 $lines += "pre_soak_entry_ok=false"
 $lines += "operator_ready=false"
 $lines += "STATE B: do not db:migrate / db:push"
-$lines += "NOTE: This is a mid-bat failure paste — not a full G1-G11 gate report."
+$lines += "NOTE: This is a mid-bat failure paste -- not a full G1-G11 gate report."
 $lines += "--- windows_ops_last_run.log (tail) ---"
 $lines += $logTail
 $lines += "===== END WINDOWS OPS FAILURE PASTE ====="
@@ -129,7 +129,7 @@ Write-Host ("Wrote failure paste: " + $paste) -ForegroundColor Yellow
 
 try {
   Set-Clipboard -Value $body
-  Write-Host "Copied failure paste to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
+  Write-Host "Copied failure paste to clipboard -- Ctrl+V into Cursor." -ForegroundColor Green
 } catch {}
 
 try {

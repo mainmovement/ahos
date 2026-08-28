@@ -2,7 +2,7 @@
 # AHOS Windows - stop anything on 127.0.0.1:3000 then start npm run dev
 #
 # Why: after windows_ensure_web_api_token.ps1 writes .env, a STALE Next process
-# still holds the old token → G2 WEB_API_UNAUTHORIZED. Port-open != fresh env.
+# still holds the old token -> G2 WEB_API_UNAUTHORIZED. Port-open != fresh env.
 #
 # Usage:
 #   powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
@@ -66,7 +66,7 @@ if ($pids.Count -gt 0) {
 }
 
 if ($NoStart) {
-    Write-Host "  NoStart set — not launching npm." -ForegroundColor DarkGray
+    Write-Host "  NoStart set -- not launching npm." -ForegroundColor DarkGray
     exit 0
 }
 
