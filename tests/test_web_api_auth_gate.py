@@ -232,6 +232,7 @@ def test_windows_diagnose_docker_health_script_exists():
 def test_windows_g2_validate_helpers_exist():
     bat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8", errors="replace")
     assert "windows_validate_g2.ps1" in bat
+    assert "windows_g2_probe.py" in bat  # must checkout .py (glob is windows_*.ps1 only)
     assert "db:migrate" in bat.lower()
     assert "READY" in bat
     ps1 = (ROOT / "scripts" / "windows_validate_g2.ps1").read_bytes()
