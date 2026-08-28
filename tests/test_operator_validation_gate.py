@@ -262,11 +262,80 @@ def test_g2_http_error_5xx_is_fail(monkeypatch):
         hdrs=None,
         fp=mock.Mock(read=mock.Mock(return_value=b'{"error":"DATABASE_URL"}')),
     )
-    with mock.patch("urllib.request.urlopen", side_effect=err):
+    with mock.patch("urllib.request.urlopen", side_effect=err) as urlopen:
         g = g2_gateway(skip_network=False)
     assert g["status"] == "FAIL"
     assert g["http_status"] == 500
     assert "DATABASE_URL" in g["detail"]
+    assert urlopen.call_count == 1  # no DATABASE_URL => no retries
+
+
+def test_g2_retries_http_500_when_database_url_set(monkeypatch):
+    """Docker/Postgres just-up race: retry briefly when DATABASE_URL is present."""
+    import urllib.error
+
+    monkeypatch.setenv("AHOS_WEB_API_TOKEN", "probe-token")
+    monkeypatch.setenv("DATABASE_URL", "postgresql://ahos:ahos@127.0.0.1:5432/ahos")
+    monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+    err = urllib.error.HTTPError(
+        url="http://127.0.0.1:3000/api/chat",
+        code=500,
+        msg="Internal",
+        hdrs=None,
+        fp=mock.Mock(read=mock.Mock(return_value=b'{"error":"db"}')),
+    )
+
+    class _Resp:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self, _n=400):
+            return b'{"reply":"ok"}'
+
+    calls = {"n": 0}
+
+    def _urlopen(_req, timeout=None):
+        calls["n"] += 1
+        if calls["n"] < 2:
+            raise err
+        return _Resp()
+
+    with mock.patch("urllib.request.urlopen", side_effect=_urlopen):
+        with mock.patch("scripts.operator_validation_gate.time.sleep") as sleep:
+            g = g2_gateway(skip_network=False)
+    assert g["status"] == "PASS"
+    assert calls["n"] == 2
+    assert g.get("attempt") == 2
+    sleep.assert_called_once_with(2)
+
+
+def test_g2_retries_exhausted_still_fail_with_db_hint(monkeypatch):
+    import urllib.error
+
+    monkeypatch.setenv("AHOS_WEB_API_TOKEN", "probe-token")
+    monkeypatch.setenv("DATABASE_URL", "postgresql://ahos:ahos@127.0.0.1:5432/ahos")
+    monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+    err = urllib.error.HTTPError(
+        url="http://127.0.0.1:3000/api/chat",
+        code=500,
+        msg="Internal",
+        hdrs=None,
+        fp=mock.Mock(read=mock.Mock(return_value=b'{"error":"db"}')),
+    )
+    with mock.patch("urllib.request.urlopen", side_effect=err) as urlopen:
+        with mock.patch("scripts.operator_validation_gate.time.sleep") as sleep:
+            g = g2_gateway(skip_network=False)
+    assert g["status"] == "FAIL"
+    assert g["http_status"] == 500
+    assert urlopen.call_count == 3
+    assert sleep.call_count == 2
+    assert "Postgres unreachable" in g["detail"] or "Docker" in g["detail"]
+    assert g.get("attempt") == 3
 
 
 def test_g2_empty_gateway_url_defaults_to_local_chat(monkeypatch):

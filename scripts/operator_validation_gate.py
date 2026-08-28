@@ -252,83 +252,108 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     if web_token:
         headers["Authorization"] = f"Bearer {web_token}"
 
-    try:
-        req = urllib.request.Request(
-            url,
-            data=json.dumps({"message": "ping", "locale": "fa"}).encode("utf-8"),
-            headers=headers,
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=45) as resp:
-            body = resp.read(400).decode("utf-8", "replace")
-            if resp.status >= 500:
-                return _gate(
-                    "G2", "Gateway", "FAIL",
-                    f"http_{resp.status} from {url}"
-                    + ("" if db_url else " — DATABASE_URL may be unset (required by One-Brain)"),
-                    artifact=body[:200], http_status=resp.status, url=url,
-                    database_url_set=bool(db_url), web_api_token_set=bool(web_token),
-                )
-            return _gate(
-                "G2", "Gateway", "PASS",
-                f"http_{resp.status} from {url}",
-                artifact=body[:200], http_status=resp.status, url=url,
-                database_url_set=bool(db_url), web_api_token_set=bool(web_token),
-            )
-    except urllib.error.HTTPError as e:
-        # urlopen raises HTTPError for status >= 400 (never reaches resp.status above).
-        body = ""
+    # When DATABASE_URL is set, brief retries cover Docker/Postgres just-became-ready
+    # races (Next pool / first query). Do not invent PASS -- only retry real probes.
+    attempts = 3 if db_url else 1
+    last_fail: dict[str, Any] | None = None
+
+    for attempt in range(1, attempts + 1):
         try:
-            body = e.read(400).decode("utf-8", "replace")
-        except Exception:  # noqa: BLE001
+            req = urllib.request.Request(
+                url,
+                data=json.dumps({"message": "ping", "locale": "fa"}).encode("utf-8"),
+                headers=headers,
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                body = resp.read(400).decode("utf-8", "replace")
+                if resp.status >= 500:
+                    last_fail = _gate(
+                        "G2", "Gateway", "FAIL",
+                        f"http_{resp.status} from {url}"
+                        + ("" if db_url else
+                           " -- DATABASE_URL may be unset (required by One-Brain)"),
+                        artifact=body[:200], http_status=resp.status, url=url,
+                        database_url_set=bool(db_url), web_api_token_set=bool(web_token),
+                        attempt=attempt,
+                    )
+                else:
+                    return _gate(
+                        "G2", "Gateway", "PASS",
+                        f"http_{resp.status} from {url}",
+                        artifact=body[:200], http_status=resp.status, url=url,
+                        database_url_set=bool(db_url), web_api_token_set=bool(web_token),
+                        attempt=attempt,
+                    )
+        except urllib.error.HTTPError as e:
+            # urlopen raises HTTPError for status >= 400 (never reaches resp.status above).
             body = ""
-        code = int(getattr(e, "code", 0) or 0)
-        blocked = _web_api_auth_blocked(
-            code, body, url, token_set=bool(web_token), db_url_set=bool(db_url),
-        )
-        if blocked is not None:
-            return blocked
-        if code >= 500:
-            detail = f"HTTPError {code} from {url}"
-            if not db_url:
-                detail += (
-                    " -- set DATABASE_URL for One-Brain (Postgres) then restart npm run dev"
+            try:
+                body = e.read(400).decode("utf-8", "replace")
+            except Exception:  # noqa: BLE001
+                body = ""
+            code = int(getattr(e, "code", 0) or 0)
+            blocked = _web_api_auth_blocked(
+                code, body, url, token_set=bool(web_token), db_url_set=bool(db_url),
+            )
+            if blocked is not None:
+                return blocked
+            if code >= 500:
+                detail = f"HTTPError {code} from {url}"
+                if not db_url:
+                    detail += (
+                        " -- set DATABASE_URL for One-Brain (Postgres) then restart npm run dev"
+                    )
+                else:
+                    detail += (
+                        " -- DATABASE_URL is set but Postgres unreachable; start Docker Desktop "
+                        "Linux Engine + ahos_postgres_win (STATE B: no db:migrate/db:push), "
+                        "then restart npm run dev"
+                    )
+                last_fail = _gate(
+                    "G2", "Gateway", "FAIL",
+                    detail,
+                    artifact=body[:200], http_status=code, url=url,
+                    database_url_set=bool(db_url), web_api_token_set=bool(web_token),
+                    attempt=attempt,
                 )
             else:
-                detail += (
-                    " -- DATABASE_URL is set but Postgres unreachable; start Docker Desktop "
-                    "Linux Engine + ahos_postgres_win (STATE B: no db:migrate/db:push), "
-                    "then restart npm run dev"
+                # Other 4xx still proves the HTTP process is listening.
+                return _gate(
+                    "G2", "Gateway", "PASS",
+                    f"HTTPError {code} from {url} (process reachable; non-5xx)",
+                    artifact=body[:200], http_status=code, url=url,
+                    database_url_set=bool(db_url), web_api_token_set=bool(web_token),
+                    attempt=attempt,
                 )
+        except urllib.error.URLError as e:
+            reason = str(getattr(e, "reason", e))
+            last_fail = _gate(
+                "G2", "Gateway", "FAIL",
+                f"URLError: {reason} -- start One-Brain with: npm run dev "
+                "(and set DATABASE_URL in .env)",
+                url=url,
+                database_url_set=bool(db_url), web_api_token_set=bool(web_token),
+                attempt=attempt,
+            )
+        except Exception as e:  # noqa: BLE001
             return _gate(
                 "G2", "Gateway", "FAIL",
-                detail,
-                artifact=body[:200], http_status=code, url=url,
+                f"{type(e).__name__}: {e}",
+                url=url,
                 database_url_set=bool(db_url), web_api_token_set=bool(web_token),
+                attempt=attempt,
             )
-        # Other 4xx still proves the HTTP process is listening (route/method may differ).
-        return _gate(
-            "G2", "Gateway", "PASS",
-            f"HTTPError {code} from {url} (process reachable; non-5xx)",
-            artifact=body[:200], http_status=code, url=url,
-            database_url_set=bool(db_url), web_api_token_set=bool(web_token),
-        )
-    except urllib.error.URLError as e:
-        reason = str(getattr(e, "reason", e))
-        return _gate(
-            "G2", "Gateway", "FAIL",
-            f"URLError: {reason} — start One-Brain with: npm run dev "
-            "(and set DATABASE_URL in .env)",
-            url=url,
-            database_url_set=bool(db_url), web_api_token_set=bool(web_token),
-        )
-    except Exception as e:  # noqa: BLE001
-        return _gate(
-            "G2", "Gateway", "FAIL",
-            f"{type(e).__name__}: {e}",
-            url=url,
-            database_url_set=bool(db_url), web_api_token_set=bool(web_token),
-        )
+
+        if attempt < attempts:
+            time.sleep(2)
+
+    return last_fail or _gate(
+        "G2", "Gateway", "FAIL",
+        f"no successful probe of {url} after {attempts} attempt(s)",
+        url=url,
+        database_url_set=bool(db_url), web_api_token_set=bool(web_token),
+    )
 
 
 def g3_providers(do_probe: bool) -> dict[str, Any]:
