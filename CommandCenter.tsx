@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { webApiFetch } from "@/web_api_client";
 
 type Dim = { nameFa: string; status: string; evidenceFa: string };
 type Opp = {
@@ -218,7 +219,7 @@ export default function CommandCenter() {
     const ac = new AbortController();
     loadAbortRef.current = ac;
     try {
-      const res = await fetch("/api/command", { cache: "no-store", signal: ac.signal });
+      const res = await webApiFetch("/api/command", { cache: "no-store", signal: ac.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as Snap;
       if (ac.signal.aborted) return;
@@ -293,7 +294,7 @@ export default function CommandCenter() {
     async (action: "start" | "stop" | "cycle") => {
       setBusy(action);
       try {
-        const res = await fetch("/api/engine", {
+        const res = await webApiFetch("/api/engine", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action }),
@@ -320,7 +321,7 @@ export default function CommandCenter() {
     });
     setBusy("chat");
     try {
-      const res = await fetch("/api/chat", {
+      const res = await webApiFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
@@ -347,7 +348,7 @@ export default function CommandCenter() {
     async (o: Opp) => {
       setBusy(`watch-${o.id}`);
       try {
-        await fetch("/api/watch", {
+        await webApiFetch("/api/watch", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -374,7 +375,7 @@ export default function CommandCenter() {
       setBusy(`paper-${o.id}`);
       try {
         const price = typeof o.payload?.priceUsd === "number" ? o.payload.priceUsd : null;
-        await fetch("/api/paper", {
+        await webApiFetch("/api/paper", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

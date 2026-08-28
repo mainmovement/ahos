@@ -13,6 +13,7 @@ Fixture veto set = 7/7 (labeled FIXTURE; never a real-world detection claim).
 ## Platform security
 - Secrets env-only (TELEGRAM_BOT_TOKEN etc.); scans clean each wave; compromised legacy token = OPEN blocker①.
 - Auth-first admin gating (chat-id allowlist); kill switch three enforcement points (dryrun-proven S4/S5).
+- Lane-B `/api/*` fail-closed web gate: `AHOS_WEB_API_TOKEN` (+ matching `NEXT_PUBLIC_AHOS_WEB_API_TOKEN` for Command Center); empty token locks unless `AHOS_WEB_API_ALLOW_OPEN_ACCESS=1`. Telegram gateway sends `Authorization: Bearer` from `AHOS_WEB_API_TOKEN`. Next `dev`/`start` bind `127.0.0.1`.
 - n8n v2 secure defaults honored (ExecuteCommand env-gated, R-10).
 - Raw evidence append-only; verdicts supersede by timestamp (never overwrite).
 - Fail-closed: provider down ⇒ error_state rows + coverage drop ⇒ recommendations cap themselves.

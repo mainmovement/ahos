@@ -1,8 +1,11 @@
+import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
 import { addPaper } from "@/engine";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const denied = authorizeWebApi(req);
+  if (denied) return denied;
   try {
     const body = (await req.json().catch(() => ({}))) as {
       tokenKey?: string;
@@ -29,7 +32,9 @@ export async function POST(req: Request) {
     });
     return Response.json({ ok: true, mode: "PAPER_ONLY", id: row.id });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "UNKNOWN";
-    return Response.json({ ok: false, error: message }, { status: 500 });
+    return Response.json(
+      { ok: false, error: sanitizePublicError(error) },
+      { status: 500 },
+    );
   }
 }

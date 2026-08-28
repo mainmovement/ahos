@@ -32,6 +32,7 @@ Only your real Windows artifacts can change the operator row.
 | Postgres | Required for One-Brain G2 — set `DATABASE_URL` in `.env` |
 | Env | `AHOS_PAPER_ONLY=1`, `AHOS_EVIDENCE_SOURCE=local` |
 | Gateway URL | `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat` when `npm run dev` is up |
+| Web API token | Same value in `AHOS_WEB_API_TOKEN` and `NEXT_PUBLIC_AHOS_WEB_API_TOKEN` (fail-closed; empty locks `/api/*` unless `AHOS_WEB_API_ALLOW_OPEN_ACCESS=1`) |
 | SQLite stores | `.\data\e01_discovery.sqlite`, `paper_trading.sqlite`, `ahos_local.sqlite`, `ahos_knowledge.sqlite` (via `init_databases.py`) |
 | Telegram | Bot token — owner only (G11) |
 | n8n | Optional (G12 operational) |
