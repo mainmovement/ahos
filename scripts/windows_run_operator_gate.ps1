@@ -99,7 +99,23 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
     $utf8 = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($paste, ($lines -join "`n") + "`n", $utf8)
     Write-Host ("Wrote paste bundle: " + $paste) -ForegroundColor Green
-    Write-Host "Open that file and paste its full contents into Cursor." -ForegroundColor Yellow
+    $clipOk = $false
+    try {
+        Set-Clipboard -Value ([System.IO.File]::ReadAllText($paste))
+        $clipOk = $true
+        Write-Host "Copied paste bundle to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
+    } catch {
+        Write-Host ("Clipboard copy skipped: " + $_.Exception.Message) -ForegroundColor DarkYellow
+    }
+    try {
+        Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null
+        Write-Host "Opened OWNER_PASTE_WINDOWS_GATE.txt in Notepad." -ForegroundColor Cyan
+    } catch {
+        Write-Host "Open that file and paste its full contents into Cursor." -ForegroundColor Yellow
+    }
+    if (-not $clipOk) {
+        Write-Host "Open that file and paste its full contents into Cursor." -ForegroundColor Yellow
+    }
 } else {
     Write-Host "Paste reports\operator_validation_report_windows_*.json into Cursor." -ForegroundColor Yellow
 }

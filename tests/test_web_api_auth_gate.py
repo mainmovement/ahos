@@ -65,6 +65,8 @@ def test_windows_run_operator_gate_script_exists():
     assert "probe-providers" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "LATEST_WINDOWS_GATE.txt" in text
+    assert "Set-Clipboard" in text
+    assert "notepad.exe" in text
 
 
 def test_windows_preflight_ops_script_exists():
