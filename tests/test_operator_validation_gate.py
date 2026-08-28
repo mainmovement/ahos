@@ -332,10 +332,12 @@ def test_g2_retries_exhausted_still_fail_with_db_hint(monkeypatch):
             g = g2_gateway(skip_network=False)
     assert g["status"] == "FAIL"
     assert g["http_status"] == 500
-    assert urlopen.call_count == 3
-    assert sleep.call_count == 2
+    assert urlopen.call_count == 8
+    assert sleep.call_count == 7
     assert "Postgres unreachable" in g["detail"] or "Docker" in g["detail"]
-    assert g.get("attempt") == 3
+    assert "windows_recover_g2_warm" in g["detail"] or "recover" in g["detail"].lower()
+    assert "error=db" in (g.get("artifact") or g.get("detail") or "")
+    assert g.get("attempt") == 8
 
 
 def test_g2_empty_gateway_url_defaults_to_local_chat(monkeypatch):

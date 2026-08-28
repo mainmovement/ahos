@@ -252,10 +252,27 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     if web_token:
         headers["Authorization"] = f"Bearer {web_token}"
 
-    # When DATABASE_URL is set, brief retries cover Docker/Postgres just-became-ready
-    # races (Next pool / first query). Do not invent PASS -- only retry real probes.
-    attempts = 3 if db_url else 1
+    # When DATABASE_URL is set, retries cover Docker/Postgres just-became-ready
+    # races and Next restart after windows_recover_g2_warm (STATE B: no invent PASS).
+    attempts = 8 if db_url else 1
     last_fail: dict[str, Any] | None = None
+
+    def _artifact_snippet(raw: str) -> str:
+        text = (raw or "")[:800]
+        # Prefer structured chat 500 fields when present.
+        try:
+            obj = json.loads(raw)
+            if isinstance(obj, dict):
+                bits = []
+                for k in ("error", "message", "stack_top", "code"):
+                    v = obj.get(k)
+                    if v:
+                        bits.append(f"{k}={v}")
+                if bits:
+                    return "; ".join(bits)[:800]
+        except Exception:  # noqa: BLE001
+            pass
+        return text
 
     for attempt in range(1, attempts + 1):
         try:
@@ -266,14 +283,14 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
                 method="POST",
             )
             with urllib.request.urlopen(req, timeout=45) as resp:
-                body = resp.read(400).decode("utf-8", "replace")
+                body = resp.read(1200).decode("utf-8", "replace")
                 if resp.status >= 500:
                     last_fail = _gate(
                         "G2", "Gateway", "FAIL",
                         f"http_{resp.status} from {url}"
                         + ("" if db_url else
                            " -- DATABASE_URL may be unset (required by One-Brain)"),
-                        artifact=body[:200], http_status=resp.status, url=url,
+                        artifact=_artifact_snippet(body), http_status=resp.status, url=url,
                         database_url_set=bool(db_url), web_api_token_set=bool(web_token),
                         attempt=attempt,
                     )
@@ -289,7 +306,7 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
             # urlopen raises HTTPError for status >= 400 (never reaches resp.status above).
             body = ""
             try:
-                body = e.read(400).decode("utf-8", "replace")
+                body = e.read(1200).decode("utf-8", "replace")
             except Exception:  # noqa: BLE001
                 body = ""
             code = int(getattr(e, "code", 0) or 0)
@@ -308,12 +325,15 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
                     detail += (
                         " -- DATABASE_URL is set but Postgres unreachable; start Docker Desktop "
                         "Linux Engine + ahos_postgres_win (STATE B: no db:migrate/db:push), "
-                        "then restart npm run dev"
+                        "then run scripts\\windows_recover_g2_warm.ps1"
                     )
+                snip = _artifact_snippet(body)
+                if snip:
+                    detail += f" | {snip}"
                 last_fail = _gate(
                     "G2", "Gateway", "FAIL",
                     detail,
-                    artifact=body[:200], http_status=code, url=url,
+                    artifact=snip or body[:200], http_status=code, url=url,
                     database_url_set=bool(db_url), web_api_token_set=bool(web_token),
                     attempt=attempt,
                 )
@@ -586,10 +606,9 @@ def remediation_actions(gates: list[dict[str, Any]]) -> list[str]:
         elif "DATABASE_URL" in d or (g2.get("http_status") or 0) >= 500:
             out.append(
                 "G2: powershell -ExecutionPolicy Bypass -File "
-                ".\\scripts\\windows_chat_500_forensics.ps1 then "
-                ".\\scripts\\windows_ensure_database_url.ps1 then "
-                ".\\scripts\\windows_restart_next_dev.ps1 "
-                "(Docker health PASS is not enough — Next needs working DATABASE_URL; "
+                ".\\scripts\\windows_recover_g2_warm.ps1 "
+                "(forensics + ensure-pg + DATABASE_URL probe-first + Next restart; "
+                "Docker health PASS is not enough — Next needs working DATABASE_URL; "
                 "STATE B: no migrate)."
             )
         elif g2.get("status") == "NOT_VERIFIED":
