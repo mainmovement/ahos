@@ -59,6 +59,12 @@ if (Test-Path -LiteralPath $envPath) {
     }
 }
 
+# .env.example ships AHOS_GATEWAY_URL= (empty). Empty-but-set BLOCKS G2.
+if ([string]::IsNullOrWhiteSpace($env:AHOS_GATEWAY_URL)) {
+    $env:AHOS_GATEWAY_URL = "http://127.0.0.1:3000/api/chat"
+    Write-Host "  AHOS_GATEWAY_URL was empty -- using http://127.0.0.1:3000/api/chat for this gate run" -ForegroundColor Yellow
+}
+
 $py = Join-Path $RepoRoot ".venv\Scripts\python.exe"
 if (-not (Test-Path -LiteralPath $py)) {
     $py = "python"

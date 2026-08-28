@@ -126,6 +126,14 @@ if ([string]::IsNullOrWhiteSpace($token)) {
     }
 }
 
+$gw = Get-EnvValue -Path $envPath -Key "AHOS_GATEWAY_URL"
+if ([string]::IsNullOrWhiteSpace($gw)) {
+    Write-Check "AHOS_GATEWAY_URL" "FAIL" "empty - run windows_ensure_web_api_token.ps1 (sets http://127.0.0.1:3000/api/chat)"
+    $fails++
+} else {
+    Write-Check "AHOS_GATEWAY_URL" "PASS" $gw
+}
+
 if (Get-Command node -ErrorAction SilentlyContinue) {
     Write-Check "node" "PASS" ((& node --version) | Out-String).Trim()
 } else {
