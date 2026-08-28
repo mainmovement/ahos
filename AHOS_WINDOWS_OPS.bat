@@ -36,6 +36,7 @@ if errorlevel 1 (
 
 call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
+git fetch origin cursor/windows-evidence-notify-retarget-4bde >nul 2>&1
 git fetch origin cursor/windows-presoak-unblock-4bde >nul 2>&1
 git fetch origin cursor/windows-dburl-probe-first-4bde >nul 2>&1
 git fetch origin cursor/windows-presoak-followup-4bde >nul 2>&1
@@ -51,6 +52,7 @@ if errorlevel 1 (
 REM Prefer newest unlock tip not yet contained in origin/main.
 set "OPS_SYNC_REF=origin/main"
 for %%R in (
+  origin/cursor/windows-evidence-notify-retarget-4bde
   origin/cursor/windows-presoak-unblock-4bde
   origin/cursor/windows-dburl-probe-first-4bde
   origin/cursor/windows-presoak-followup-4bde

@@ -297,11 +297,15 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     assert "db:migrate" in text.lower()
     ops = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8")
     assert "windows_recover_g2_warm.ps1" in ops
+    assert "windows-evidence-notify-retarget-4bde" in ops
     assert "for %%R in (" in ops
     g2 = (ROOT / "scripts" / "windows_validate_g2.ps1").read_text(encoding="utf-8-sig")
     assert "windows_recover_g2_warm.ps1" in g2
     vbat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8")
     assert "windows-presoak-unblock-4bde" in vbat
+    apply = (ROOT / "AHOS_APPLY_TIP.bat").read_text(encoding="utf-8")
+    assert "windows-evidence-notify-retarget-4bde" in apply
+    assert "AHOS_PRE_SOAK_NOW.bat" in apply
     push_bat = (ROOT / "AHOS_PUSH_EVIDENCE_NOW.bat").read_text(encoding="utf-8")
     assert "windows_push_gate_evidence.ps1" in push_bat
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in push_bat
