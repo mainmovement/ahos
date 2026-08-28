@@ -274,21 +274,33 @@ try {
 }
 
 if ($dockerOk -and $Report.docker.postgres_running) {
-    function Invoke-PsqlRo([string]$Sql) {
-        $out = & docker exec $PostgresContainer psql -U $PostgresUser -d $PostgresDb -v ON_ERROR_STOP=1 -P pager=off -c $Sql 2>&1
-        if ($LASTEXITCODE -ne 0) {
+    function Invoke-PsqlRo([string]$Sql, [bool]$StopOnError = $true) {
+        $args = @(
+            "exec", $PostgresContainer,
+            "psql", "-U", $PostgresUser, "-d", $PostgresDb,
+            "-P", "pager=off", "-c", $Sql
+        )
+        if ($StopOnError) {
+            $args = @(
+                "exec", $PostgresContainer,
+                "psql", "-U", $PostgresUser, "-d", $PostgresDb,
+                "-v", "ON_ERROR_STOP=1", "-P", "pager=off", "-c", $Sql
+            )
+        }
+        $out = & docker @args 2>&1
+        if ($StopOnError -and $LASTEXITCODE -ne 0) {
             throw ("psql failed: " + ($out | Out-String))
         }
         return ($out | Out-String)
     }
 
+    $coreOk = $false
     try {
         # Identity
         $Report.postgres["identity"] = Invoke-PsqlRo "SELECT current_database() AS db, current_user AS usr, version() AS ver;"
         # ahos_* tables
         $Report.postgres["ahos_tables"] = Invoke-PsqlRo "SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'ahos_%' ORDER BY tablename;"
         $Report.postgres["ahos_table_count"] = Invoke-PsqlRo "SELECT COUNT(*) AS n FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'ahos_%';"
-        # row counts (dynamic safe: only ahos_ prefix from catalog)
         $Report.postgres["row_counts"] = Invoke-PsqlRo @"
 SELECT c.relname AS table_name, c.reltuples::bigint AS approx_rows
 FROM pg_class c
@@ -296,7 +308,6 @@ JOIN pg_namespace n ON n.oid = c.relnamespace
 WHERE n.nspname = 'public' AND c.relkind = 'r' AND c.relname LIKE 'ahos_%'
 ORDER BY c.relname;
 "@
-        # exact counts via DO-less union generated in SQL
         $Report.postgres["exact_row_counts"] = Invoke-PsqlRo @"
 SELECT t.tablename,
        (xpath('/row/cnt/text()', query_to_xml(format('SELECT COUNT(*) AS cnt FROM public.%I', t.tablename), false, true, '')))[1]::text::bigint AS row_count
@@ -304,32 +315,50 @@ FROM pg_tables t
 WHERE t.schemaname='public' AND t.tablename LIKE 'ahos_%'
 ORDER BY t.tablename;
 "@
-        # drizzle migrations table
-        $Report.postgres["drizzle_migrations_exists"] = Invoke-PsqlRo @"
+        $coreOk = $true
+
+        # Migration history is OPTIONAL. Absence is evidence, not a hard failure.
+        $existsOut = Invoke-PsqlRo @"
 SELECT EXISTS (
   SELECT 1 FROM information_schema.tables
   WHERE table_schema='public' AND table_name='__drizzle_migrations'
 ) AS drizzle_migrations_exists;
 "@
-        $Report.postgres["drizzle_migrations_rows"] = Invoke-PsqlRo @"
-SELECT table_name FROM information_schema.tables
-WHERE table_schema='public' AND table_name='__drizzle_migrations';
-"@
-        # Try select from migrations only if exists - use to_regclass guard
-        $Report.postgres["drizzle_migrations_content"] = Invoke-PsqlRo @"
-SELECT CASE WHEN to_regclass('public.__drizzle_migrations') IS NULL
-  THEN 'TABLE_ABSENT'
-  ELSE (SELECT COALESCE(string_agg(id::text || ':' || hash, ', ' ORDER BY created_at), 'EMPTY')
-        FROM public.__drizzle_migrations)
-END AS migrations;
-"@
+        $Report.postgres["drizzle_migrations_exists"] = $existsOut
+        $hasMig = ($existsOut -match '\bt\b') -and ($existsOut -notmatch '\bf\b')
+        # More reliable: look for a data row with t/f in first column after header.
+        if ($existsOut -match '(?m)^\s*t\s*$') { $hasMig = $true }
+        elseif ($existsOut -match '(?m)^\s*f\s*$') { $hasMig = $false }
+
+        $Report.postgres["migration_history_present"] = $hasMig
+        if ($hasMig) {
+            $Report.postgres["drizzle_migrations_content"] = Invoke-PsqlRo "SELECT id, hash, created_at FROM public.__drizzle_migrations ORDER BY created_at;" $false
+        } else {
+            $Report.postgres["drizzle_migrations_content"] = "TABLE_ABSENT"
+            # Also probe drizzle schema variant (read-only).
+            $Report.postgres["drizzle_schema_history"] = Invoke-PsqlRo "SELECT to_regclass('drizzle.__drizzle_migrations') AS drizzle_schema_history, to_regclass('public.__drizzle_migrations') AS public_history;" $false
+        }
+
         $Report.postgres["ok"] = $true
+        $Report.postgres["classification_hint"] = $(
+            if (-not $hasMig) {
+                "STATE_B_OR_C: ahos_* tables may exist without __drizzle_migrations; do NOT migrate blindly"
+            } else {
+                "migration_history_present; still compare live DDL before migrate"
+            }
+        )
         Write-Host "  Postgres read-only forensics captured." -ForegroundColor Green
+        if (-not $hasMig) {
+            Write-Host "  NOTE: public.__drizzle_migrations ABSENT (history gap; not a probe crash)." -ForegroundColor Yellow
+        }
     } catch {
-        $Report.postgres["ok"] = $false
+        $Report.postgres["ok"] = $coreOk
         $Report.postgres["error"] = $_.Exception.Message
         $Report.errors += ("POSTGRES_RO: " + $_.Exception.Message)
         Write-Host ("  Postgres forensics failed: " + $_.Exception.Message) -ForegroundColor Yellow
+        if ($coreOk) {
+            Write-Host "  Core table/count evidence was captured before the failure." -ForegroundColor Yellow
+        }
     }
 } else {
     $Report.postgres["ok"] = $false
@@ -344,10 +373,18 @@ Write-Step "VERDICT"
 
 $syncOk = [bool]$Report.sync.ok -and [bool]$Report.sync.matches_origin_main
 $pgOk = [bool]$Report.postgres.ok
+$migAbsent = ($Report.postgres["drizzle_migrations_content"] -eq "TABLE_ABSENT") -or (
+    ($Report.postgres.Contains("migration_history_present")) -and ($Report.postgres["migration_history_present"] -eq $false)
+)
 
 if ($syncOk -and $pgOk) {
-    $Report.verdict = "SYNCED_FORENSICS_CAPTURED"
-    $Report.next_action = "Paste this REPORT into Cursor. Do NOT migrate until Cursor classifies DB STATE A-E."
+    if ($migAbsent) {
+        $Report.verdict = "SYNCED_FORENSICS_STATE_B"
+        $Report.next_action = "Paste REPORT. MIGRATION BLOCKED: 19 ahos_* tables may exist without __drizzle_migrations and may hold data. Do NOT db:migrate/db:push."
+    } else {
+        $Report.verdict = "SYNCED_FORENSICS_CAPTURED"
+        $Report.next_action = "Paste this REPORT into Cursor. Do NOT migrate until Cursor classifies DB STATE A-E."
+    }
 } elseif ($syncOk -and -not $pgOk) {
     $Report.verdict = "SYNCED_BUT_DB_UNKNOWN"
     $Report.next_action = "Start ahos_postgres_win, re-run script, or paste REPORT for guidance."
