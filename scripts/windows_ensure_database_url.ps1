@@ -1,12 +1,13 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  Ensure .env DATABASE_URL matches Windows Docker Postgres (STATE B / no migrate).
+  Ensure .env DATABASE_URL can run One-Brain snapshot queries (STATE B / no migrate).
 
-Root cause class this fixes for /api/chat HTTP 500:
-  - DATABASE_URL missing, empty, or password not URL-encoded
-  - DATABASE_URL password diverged from POSTGRES_PASSWORD (compose auth)
-  - Next still healthy-looking while One-Brain snapshot cannot authenticate
+Strategy (important for Windows STATE B volumes):
+  1) If DATABASE_URL is set, probe it FIRST.
+  2) Only rewrite from POSTGRES_* when missing/empty OR probe fails.
+  3) Never overwrite a working DATABASE_URL just because it differs from
+     POSTGRES_PASSWORD text (container volume may still use the original password).
 
 Does NOT db:migrate / db:push. Does NOT touch Lane-A. Does NOT claim READY.
 #>
@@ -69,6 +70,21 @@ function Encode-PgUrlPart([string]$Raw) {
   return [Uri]::EscapeDataString($Raw)
 }
 
+function Invoke-PgProbe([string]$Root, [string]$OutJson) {
+  $psProbe = Join-Path $Root "scripts\windows_pg_probe.ps1"
+  $mjs = Join-Path $Root "scripts\ahos_pg_probe.mjs"
+  if (Test-Path -LiteralPath $psProbe) {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $psProbe -RepoRoot $Root -JsonOut $OutJson | Out-Host
+    return ($LASTEXITCODE -eq 0)
+  }
+  if (Test-Path -LiteralPath $mjs) {
+    & node $mjs --json-out $OutJson | Out-Host
+    return ($LASTEXITCODE -eq 0)
+  }
+  Write-Host "WARN: no pg probe script present" -ForegroundColor DarkYellow
+  return $false
+}
+
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  AHOS ensure DATABASE_URL (G2 / STATE B / no migrate)" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -91,46 +107,54 @@ if ([string]::IsNullOrWhiteSpace($pgPass)) {
 
 $expected = "postgresql://{0}:{1}@127.0.0.1:5432/{2}" -f $pgUser, (Encode-PgUrlPart $pgPass), $pgDb
 $current = Get-EnvValue -Path $envPath -Key "DATABASE_URL"
-$redacted = $expected -replace '(:[^:@/]+)@', ':***@'
-
-if ($current -ne $expected) {
-  if ($NoWrite) {
-    Write-Host "WARN: DATABASE_URL does not match POSTGRES_* (NoWrite set; not fixing)" -ForegroundColor Yellow
-  } else {
-    Write-Host "Updating DATABASE_URL to match POSTGRES_* (password URL-encoded)..." -ForegroundColor Yellow
-    Set-EnvValue -Path $envPath -Key "DATABASE_URL" -Value $expected
-    Write-Host ("  DATABASE_URL=" + $redacted) -ForegroundColor Green
-  }
-} else {
-  Write-Host ("OK DATABASE_URL already matches POSTGRES_* -> " + $redacted) -ForegroundColor Green
-}
-
+$redactedExpected = $expected -replace '(:[^:@/]+)@', ':***@'
 $probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
-$psProbe = Join-Path $RepoRoot "scripts\windows_pg_probe.ps1"
-$mjs = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
-if (Test-Path -LiteralPath $psProbe) {
-  Write-Host "==> windows_pg_probe.ps1 (One-Brain snapshot queries; unlock-safe)" -ForegroundColor Cyan
-  & powershell -NoProfile -ExecutionPolicy Bypass -File $psProbe -RepoRoot $RepoRoot -JsonOut $probeOut
-  $code = $LASTEXITCODE
-  if ($code -ne 0) {
-    Write-Host "FAIL: Postgres snapshot probe failed (see reports\pg_probe_latest.json)" -ForegroundColor Red
-    Write-Host "Remediation: confirm ahos_postgres_win up; POSTGRES_PASSWORD matches DATABASE_URL; restart npm run dev" -ForegroundColor Yellow
+New-Item -ItemType Directory -Force -Path (Split-Path $probeOut) | Out-Null
+
+$currentOk = $false
+if (-not [string]::IsNullOrWhiteSpace($current)) {
+  $redactedCurrent = $current -replace '(:[^:@/]+)@', ':***@'
+  Write-Host ("==> probe current DATABASE_URL first -> " + $redactedCurrent) -ForegroundColor Cyan
+  $currentOk = Invoke-PgProbe -Root $RepoRoot -OutJson $probeOut
+  if ($currentOk) {
+    Write-Host "OK current DATABASE_URL already runs One-Brain queries -- leaving it unchanged" -ForegroundColor Green
+    if ($current -ne $expected) {
+      Write-Host "NOTE: differs from POSTGRES_* text (likely volume was created with an older password)." -ForegroundColor DarkYellow
+      Write-Host "      Not overwriting a working URL (STATE B / no wipe)." -ForegroundColor DarkYellow
+    }
+    Write-Host "Next must be restarted to load DATABASE_URL: scripts\windows_restart_next_dev.ps1" -ForegroundColor Cyan
     Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
-    exit 2
+    exit 0
   }
-  Write-Host "OK pg probe -- ahos_* readable" -ForegroundColor Green
-} elseif (Test-Path -LiteralPath $mjs) {
-  Write-Host "==> node scripts/ahos_pg_probe.mjs" -ForegroundColor Cyan
-  & node $mjs --json-out $probeOut
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "FAIL: host DATABASE_URL cannot run snapshot queries" -ForegroundColor Red
-    exit 2
-  }
-  Write-Host "OK pg probe -- ahos_* readable via DATABASE_URL" -ForegroundColor Green
+  Write-Host "Current DATABASE_URL probe FAILED -- will try POSTGRES_* sync" -ForegroundColor Yellow
 } else {
-  Write-Host "WARN: no pg probe script -- DATABASE_URL written but not verified" -ForegroundColor DarkYellow
+  Write-Host "DATABASE_URL empty -- will write from POSTGRES_*" -ForegroundColor Yellow
 }
 
+if ($NoWrite) {
+  Write-Host "WARN: NoWrite set; not updating DATABASE_URL" -ForegroundColor Yellow
+  exit 2
+}
+
+Write-Host "Updating DATABASE_URL from POSTGRES_* (password URL-encoded)..." -ForegroundColor Yellow
+Set-EnvValue -Path $envPath -Key "DATABASE_URL" -Value $expected
+Write-Host ("  DATABASE_URL=" + $redactedExpected) -ForegroundColor Green
+
+Write-Host "==> probe DATABASE_URL after sync" -ForegroundColor Cyan
+$afterOk = Invoke-PgProbe -Root $RepoRoot -OutJson $probeOut
+if (-not $afterOk) {
+  Write-Host "FAIL: Postgres snapshot probe still failing after sync (see reports\pg_probe_latest.json)" -ForegroundColor Red
+  Write-Host "Remediation:" -ForegroundColor Yellow
+  Write-Host "  1) Confirm ahos_postgres_win is up (pg_isready)" -ForegroundColor Yellow
+  Write-Host "  2) If POSTGRES_PASSWORD was changed after first compose up, the volume still has the OLD password." -ForegroundColor Yellow
+  Write-Host "     Put the original password back into DATABASE_URL (do NOT wipe volume under STATE B)." -ForegroundColor Yellow
+  Write-Host "  3) scripts\windows_restart_next_dev.ps1" -ForegroundColor Yellow
+  Write-Host "  4) scripts\windows_chat_500_forensics.ps1" -ForegroundColor Yellow
+  Write-Host "STATE B: do NOT db:migrate / db:push / do NOT docker volume rm" -ForegroundColor Yellow
+  exit 2
+}
+
+Write-Host "OK pg probe -- ahos_* readable via DATABASE_URL" -ForegroundColor Green
 Write-Host "Next must be restarted to load DATABASE_URL: scripts\windows_restart_next_dev.ps1" -ForegroundColor Cyan
 Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
 exit 0

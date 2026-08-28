@@ -36,6 +36,7 @@ if errorlevel 1 (
 
 call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
+git fetch origin cursor/windows-dburl-probe-first-4bde >nul 2>&1
 git fetch origin cursor/windows-presoak-followup-4bde >nul 2>&1
 git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
@@ -48,7 +49,8 @@ if errorlevel 1 (
 )
 REM Prefer newest unlock tip not yet contained in origin/main.
 set "OPS_SYNC_REF=origin/main"
-git rev-parse --verify origin/cursor/windows-presoak-followup-4bde >nul 2>&1
+git rev-parse --verify origin/cursor/windows-dburl-probe-first-4bde
+  origin/cursor/windows-presoak-followup-4bde >nul 2>&1
 if not errorlevel 1 (
   git merge-base --is-ancestor origin/cursor/windows-presoak-followup-4bde origin/main >nul 2>&1
   if errorlevel 1 (
