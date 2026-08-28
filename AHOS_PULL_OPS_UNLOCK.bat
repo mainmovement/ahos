@@ -19,13 +19,14 @@ if errorlevel 1 (
 )
 
 echo ==^> git fetch origin main + unlock branches
-git fetch origin main cursor/windows-evidence-push-lease-4bde cursor/windows-g2-empty-gateway-default-4bde cursor/windows-reconcile-ops-artifacts-4bde
+git fetch origin main cursor/windows-g2-evidence-autopush-4bde cursor/windows-evidence-push-lease-4bde cursor/windows-g2-empty-gateway-default-4bde cursor/windows-reconcile-ops-artifacts-4bde
 if errorlevel 1 (
   echo WARNING: fetch failed - check network / remotes
 )
 
 set "UNLOCK_REF="
 for %%R in (
+  origin/cursor/windows-g2-evidence-autopush-4bde
   origin/cursor/windows-evidence-push-lease-4bde
   origin/cursor/windows-g2-empty-gateway-default-4bde
   origin/cursor/windows-reconcile-ops-artifacts-4bde

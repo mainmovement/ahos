@@ -31,6 +31,7 @@ if errorlevel 1 (
 
 echo ==^> git fetch / pull origin main
 git fetch origin
+git fetch origin cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
 git fetch origin cursor/windows-evidence-push-lease-4bde >nul 2>&1
 git pull origin main
 if errorlevel 1 (
@@ -38,10 +39,10 @@ if errorlevel 1 (
 )
 
 set "UNLOCK_REF="
-git rev-parse --verify origin/cursor/windows-evidence-push-lease-4bde >nul 2>&1
+git rev-parse --verify origin/cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
 if not errorlevel 1 (
-  git merge-base --is-ancestor origin/cursor/windows-evidence-push-lease-4bde origin/main >nul 2>&1
-  if errorlevel 1 set "UNLOCK_REF=origin/cursor/windows-evidence-push-lease-4bde"
+  git merge-base --is-ancestor origin/cursor/windows-g2-evidence-autopush-4bde origin/main >nul 2>&1
+  if errorlevel 1 set "UNLOCK_REF=origin/cursor/windows-g2-evidence-autopush-4bde"
 )
 if defined UNLOCK_REF (
   echo ==^> applying unlock tip !UNLOCK_REF!
@@ -69,10 +70,26 @@ if not exist "scripts\windows_g2_probe.py" (
 set "RC=!ERRORLEVEL!"
 
 echo.
-echo ==========================================================
-echo   Paste reports\OWNER_PASTE_G2_VALIDATE.txt into Cursor
-echo   G2 PASS alone is NOT PRE_SOAK -- need G1-G10 via OPS bat
-echo   Never invent OPERATOR_READY
-echo ==========================================================
-pause
+if "!RC!"=="0" (
+  echo ==========================================================
+  echo   G2 PASS -- continuing to full G1-G10 via AHOS_PRE_SOAK_NOW
+  echo   Still will NOT invent PRE_SOAK/READY without paste evidence
+  echo ==========================================================
+  if exist "AHOS_PRE_SOAK_NOW.bat" (
+    call "AHOS_PRE_SOAK_NOW.bat"
+    set "RC=!ERRORLEVEL!"
+  ) else if exist "AHOS_WINDOWS_OPS.bat" (
+    call "AHOS_WINDOWS_OPS.bat"
+    set "RC=!ERRORLEVEL!"
+  ) else (
+    echo ERROR: missing AHOS_PRE_SOAK_NOW.bat / AHOS_WINDOWS_OPS.bat after unlock
+  )
+) else (
+  echo ==========================================================
+  echo   G2 not PASS -- fix health/gateway, then re-run
+  echo   Paste reports\OWNER_PASTE_G2_VALIDATE.txt into Cursor
+  echo   Never invent OPERATOR_READY / PRE_SOAK
+  echo ==========================================================
+  pause
+)
 exit /b !RC!
