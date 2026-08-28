@@ -46,19 +46,35 @@ $envPath = Join-Path $RepoRoot ".env"
 $tok = Get-EnvValue -Path $envPath -Key "AHOS_WEB_API_TOKEN"
 $pub = Get-EnvValue -Path $envPath -Key "NEXT_PUBLIC_AHOS_WEB_API_TOKEN"
 $db = Get-EnvValue -Path $envPath -Key "DATABASE_URL"
+$gw = Get-EnvValue -Path $envPath -Key "AHOS_GATEWAY_URL"
+$pgPass = Get-EnvValue -Path $envPath -Key "POSTGRES_PASSWORD"
 
 $head = "UNKNOWN"
 $branch = "UNKNOWN"
 try { $head = (& git rev-parse --short HEAD 2>$null).Trim() } catch {}
 try { $branch = (& git rev-parse --abbrev-ref HEAD 2>$null).Trim() } catch {}
 
+$dockerDaemon = "unknown"
 $pgRunning = "unknown"
 try {
   if (Get-Command docker -ErrorAction SilentlyContinue) {
-    $names = (& docker ps --format "{{.Names}}" 2>$null) -join " "
-    $pgRunning = if ($names -match "ahos_postgres_win") { "yes" } else { "no" }
-  } else { $pgRunning = "docker_missing" }
-} catch { $pgRunning = "error" }
+    & docker info 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+      $dockerDaemon = "ok"
+      $names = (& docker ps --format "{{.Names}}" 2>$null) -join " "
+      $pgRunning = if ($names -match "ahos_postgres_win") { "yes" } else { "no" }
+    } else {
+      $dockerDaemon = "down"
+      $pgRunning = "no"
+    }
+  } else {
+    $dockerDaemon = "docker_missing"
+    $pgRunning = "docker_missing"
+  }
+} catch {
+  $dockerDaemon = "error"
+  $pgRunning = "error"
+}
 
 $censusLine = "n/a"
 try {
@@ -84,6 +100,30 @@ if (Test-Path -LiteralPath $logPath) {
   $logTail = Get-Content -LiteralPath $logPath -Tail 80 -ErrorAction SilentlyContinue
 }
 
+# Infer the PRE_SOAK (G1-G10) blocker without inventing PASS/READY.
+$likely = "unknown"
+$nextAction = "Re-run AHOS_WINDOWS_OPS.bat after fixing FAILs; paste OWNER_PASTE."
+$tokenOk = -not [string]::IsNullOrWhiteSpace($tok)
+$gwOk = -not [string]::IsNullOrWhiteSpace($gw)
+if ($Stage -eq "wait_web_api" -or $Detail -match "api/chat" -or $Detail -match "500") {
+  if ($dockerDaemon -ne "ok" -or $pgRunning -ne "yes") {
+    $likely = "G2_blocked_by_docker_postgres"
+    $nextAction = "Start Docker Desktop (green), confirm docker ps + ahos_postgres_win, restart Next, re-run bat."
+  } else {
+    $likely = "G2_chat_error_with_postgres_up"
+    $nextAction = "Check Next window errors; confirm AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat; re-run bat."
+  }
+} elseif (-not $tokenOk) {
+  $likely = "token_unset"
+  $nextAction = "Run windows_ensure_web_api_token.ps1 then restart Next / re-run bat."
+} elseif (-not $gwOk) {
+  $likely = "gateway_url_empty"
+  $nextAction = "Run windows_ensure_web_api_token.ps1 (fills AHOS_GATEWAY_URL) then re-run bat."
+} elseif ($dockerDaemon -ne "ok") {
+  $likely = "docker_daemon_down"
+  $nextAction = "Start Docker Desktop Linux Engine, wait green, docker ps, re-run bat."
+}
+
 $lines = @()
 $lines += "===== BEGIN WINDOWS OPS FAILURE PASTE (into Cursor) ====="
 $lines += ("generated_utc=" + $stamp)
@@ -93,11 +133,17 @@ $lines += ("exit_hint=" + $ExitHint)
 $lines += ("git_branch=" + $branch)
 $lines += ("git_head=" + $head)
 $lines += ("host=windows_ops_bat")
-$lines += ("AHOS_WEB_API_TOKEN_set=" + (-not [string]::IsNullOrWhiteSpace($tok)))
-$lines += ("NEXT_PUBLIC_match=" + (($pub -eq $tok) -and (-not [string]::IsNullOrWhiteSpace($tok))))
+$lines += ("AHOS_WEB_API_TOKEN_set=" + $tokenOk)
+$lines += ("NEXT_PUBLIC_match=" + (($pub -eq $tok) -and $tokenOk))
+$lines += ("AHOS_GATEWAY_URL_set=" + $gwOk)
+if ($gwOk) { $lines += ("AHOS_GATEWAY_URL=" + $gw) } else { $lines += "AHOS_GATEWAY_URL=" }
 $lines += ("DATABASE_URL_set=" + (-not [string]::IsNullOrWhiteSpace($db)))
+$lines += ("POSTGRES_PASSWORD_set=" + (-not [string]::IsNullOrWhiteSpace($pgPass)))
+$lines += ("docker_daemon=" + $dockerDaemon)
 $lines += ("ahos_postgres_win=" + $pgRunning)
 $lines += ("sqlite_census=" + $censusLine)
+$lines += ("likely_pre_soak_blocker=" + $likely)
+$lines += ("next_action=" + $nextAction)
 $lines += "pre_soak_entry_ok=false"
 $lines += "operator_ready=false"
 $lines += "STATE B: do not db:migrate / db:push"
@@ -118,9 +164,13 @@ $latestLines = @(
   "status=OPS_STAGE_FAIL",
   ("stage=" + $Stage),
   ("detail=" + $Detail),
+  ("likely_pre_soak_blocker=" + $likely),
+  ("next_action=" + $nextAction),
   "pre_soak_entry_ok=false",
   "operator_ready=false",
   ("git_head=" + $head),
+  ("docker_daemon=" + $dockerDaemon),
+  ("ahos_postgres_win=" + $pgRunning),
   ("paste=" + $paste)
 )
 [System.IO.File]::WriteAllText($latest, ($latestLines -join "`n") + "`n", $utf8)
