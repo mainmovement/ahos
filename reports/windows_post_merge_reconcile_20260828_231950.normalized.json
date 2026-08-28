@@ -1,0 +1,54 @@
+{
+  "schema": "ahos.windows_post_merge_reconcile.v1",
+  "source": "owner_paste_2026-08-28T19:49Z",
+  "started_utc": "2026-08-28T19:49:30.4128386Z",
+  "repo_root": "G:\\robat\\ahos",
+  "pre": {
+    "branch": "main",
+    "head": "e2292fdea1844625f760ea3b88a069ca9635812d",
+    "origin_main": "e2292fdea1844625f760ea3b88a069ca9635812d",
+    "left_right_ahead_behind": "0\t0"
+  },
+  "sync": {
+    "matches_origin_main": true,
+    "ok": true
+  },
+  "docker": {
+    "n8n_running": true,
+    "postgres_running": true,
+    "runtime_running": true
+  },
+  "postgres": {
+    "ahos_table_count": 19,
+    "drizzle_migrations_exists": false,
+    "identity": {
+      "db": "ahos",
+      "usr": "ahos_user",
+      "version": "PostgreSQL 16.15"
+    },
+    "exact_row_counts": {
+      "ahos_chat_messages": 0,
+      "ahos_council_reports": 32,
+      "ahos_cycles": 1,
+      "ahos_expert_votes": 352,
+      "ahos_findings": 2,
+      "ahos_lessons": 0,
+      "ahos_market_snapshots": 1,
+      "ahos_news_items": 56,
+      "ahos_observations": 32,
+      "ahos_opportunities": 32,
+      "ahos_outcomes": 0,
+      "ahos_paper_positions": 1,
+      "ahos_predictions": 29,
+      "ahos_provider_snapshots": 66,
+      "ahos_security_reports": 10,
+      "ahos_system_state": 1,
+      "ahos_tokens": 32,
+      "ahos_translation_cache": 56,
+      "ahos_watchlist": 1
+    }
+  },
+  "classification": "STATE_B",
+  "migration_decision": "MIGRATION_BLOCKED",
+  "script_false_negative": "POSTGRES_RO failed only because optional __drizzle_migrations SELECT used a CASE ELSE that still referenced the missing relation under ON_ERROR_STOP; core forensics were already captured."
+}
