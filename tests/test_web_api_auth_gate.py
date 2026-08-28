@@ -127,6 +127,8 @@ def test_windows_wait_for_web_api_script_exists():
     assert "/api/chat" in text
     assert "AHOS_WEB_API_TOKEN" in text
     assert "Invoke-WebRequest" in text
+    assert "FAIL-FAST" in text
+    assert "WEB_API_LOCKED_NO_TOKEN" in text or "401" in text
 
 
 def test_windows_ensure_postgres_win_script_exists():
@@ -145,6 +147,18 @@ def test_windows_seed_local_evidence_script_exists():
     assert "single-cycle" in text
     assert "OPERATOR_READY" in text
     assert "db:migrate" in text.lower() or "Never migrates" in text
+    assert "observation_state_total" in text
+    assert "sum(int(v)" in text or "observation_state" in text
+    assert "after_seed" in text or "re-read" in text.lower() or "after seed" in text.lower()
+
+
+def test_windows_gate_runner_posts_to_pr35_by_default():
+    text = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
+    assert 'prNum = "35"' in text or 'prNum = "35"' in text.replace("'", '"')
+    assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
+    assert "BEGIN WINDOWS GATE PASTE" in text
+    # stale #34-only default removed
+    assert 'prNum = "34"' not in text
 
 
 def test_windows_run_this_first_points_at_ops_bat():

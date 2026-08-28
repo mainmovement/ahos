@@ -81,7 +81,28 @@ if ([string]::IsNullOrWhiteSpace($db)) {
     Write-Check "DATABASE_URL" "FAIL" "unset in .env - G2 will FAIL"
     $fails++
 } else {
-    Write-Check "DATABASE_URL" "PASS" "set (reachability not proven here)"
+    Write-Check "DATABASE_URL" "PASS" "set (reachability probed next)"
+    # Best-effort TCP to host:port from URL — no migrate, no READY claim
+    try {
+        $m = [regex]::Match($db, '(?i)(?:postgres(?:ql)?://[^@]+@)?([^:/?\s]+):(\d+)')
+        if ($m.Success) {
+            $dbHost = $m.Groups[1].Value
+            $dbPort = [int]$m.Groups[2].Value
+            $tcp = Test-NetConnection -ComputerName $dbHost -Port $dbPort -WarningAction SilentlyContinue
+            if ($tcp.TcpTestSucceeded) {
+                Write-Check "DATABASE_URL_tcp" "PASS" ($dbHost + ":" + $dbPort + " accepting")
+            } else {
+                Write-Check "DATABASE_URL_tcp" "WARN" ($dbHost + ":" + $dbPort + " not accepting - start ahos_postgres_win")
+                $warns++
+            }
+        } else {
+            Write-Check "DATABASE_URL_tcp" "WARN" "could not parse host:port from DATABASE_URL"
+            $warns++
+        }
+    } catch {
+        Write-Check "DATABASE_URL_tcp" "WARN" "could not probe DATABASE_URL host"
+        $warns++
+    }
 }
 
 $token = Get-EnvValue -Path $envPath -Key "AHOS_WEB_API_TOKEN"

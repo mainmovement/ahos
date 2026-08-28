@@ -162,23 +162,26 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
                 $prNum = (& gh pr view --json number -q ".number" 2>$null)
             } catch { $prNum = "" }
         }
-        if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "34" }
+        # Default to unlock PR #35 (ops harden). Override with AHOS_GATE_PR.
+        if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "35" }
+        # Always post slim LATEST first (agent-fetchable); full paste if small enough.
+        $slim = Join-Path $reportsDir "OWNER_PASTE_WINDOWS_GATE_SLIM.txt"
+        $slimLines = @()
+        $slimLines += "===== BEGIN WINDOWS GATE PASTE (slim) ====="
+        $slimLines += ("report_path=" + $reportPath)
+        $slimLines += ("full_paste=" + $paste)
+        if (Test-Path -LiteralPath $latest) {
+            $slimLines += "--- LATEST_WINDOWS_GATE ---"
+            $slimLines += (Get-Content -LiteralPath $latest)
+        }
+        $slimLines += "Paste full OWNER_PASTE_WINDOWS_GATE.txt into Cursor if agent cannot fetch JSON."
+        $slimLines += "STATE B: do not db:migrate / db:push"
+        $slimLines += "===== END WINDOWS GATE PASTE (slim) ====="
+        [System.IO.File]::WriteAllText($slim, ($slimLines -join "`n") + "`n", $utf8)
         $pasteBytes = (Get-Item -LiteralPath $paste).Length
-        $commentFile = $paste
-        if ($pasteBytes -gt 55000) {
-            # GitHub comment size guard — post pointer + LATEST only.
-            $slim = Join-Path $reportsDir "OWNER_PASTE_WINDOWS_GATE_SLIM.txt"
-            $slimLines = @()
-            $slimLines += "===== BEGIN WINDOWS GATE PASTE (slim; full in reports\\OWNER_PASTE_WINDOWS_GATE.txt) ====="
-            $slimLines += ("report_path=" + $reportPath)
-            if (Test-Path -LiteralPath $latest) {
-                $slimLines += "--- LATEST_WINDOWS_GATE ---"
-                $slimLines += (Get-Content -LiteralPath $latest)
-            }
-            $slimLines += "Full JSON too large for PR comment; paste OWNER_PASTE_WINDOWS_GATE.txt into Cursor."
-            $slimLines += "STATE B: do not db:migrate / db:push"
-            [System.IO.File]::WriteAllText($slim, ($slimLines -join "`n") + "`n", $utf8)
-            $commentFile = $slim
+        $commentFile = $slim
+        if ($pasteBytes -le 55000) {
+            $commentFile = $paste
         }
         try {
             & gh auth status 2>$null | Out-Null

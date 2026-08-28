@@ -28,5 +28,6 @@ PR #31–#34 are on main. PR #35 adds postgres ensure + anti-forgery
    - Else: Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
 
 That JSON is required for G1–G10 / pre_soak_entry_ok (Windows-attested only).
+NOTE: Postgres ahos_* row counts do NOT satisfy G4/G5/G8/G9 — bat seeds local SQLite.
 G11 (Telegram E2E): after G1–G10, run scripts\windows_g11_telegram_e2e_helper.ps1,
 fill the transcript from live chat, re-run gate with -TelegramE2eArtifact.

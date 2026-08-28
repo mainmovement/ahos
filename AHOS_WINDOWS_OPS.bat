@@ -102,8 +102,11 @@ if errorlevel 1 (
 )
 
 if exist "scripts\windows_seed_local_evidence.ps1" (
-  call :log ==^> seed local SQLite evidence if census empty
+  call :log ==^> seed local SQLite evidence if census empty ^(Postgres rows do NOT count^)
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_seed_local_evidence.ps1"
+  if errorlevel 1 (
+    call :log WARNING: seed census still insufficient - G4/G5/G8/G9 may FAIL honestly
+  )
 )
 
 if exist "scripts\windows_run_operator_gate.ps1" (
