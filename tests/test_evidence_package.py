@@ -140,12 +140,30 @@ def test_trend_dimensions_compare_two_scorecards():
     sc2 = dict(sc1)
     dims2 = {k: dict(v) for k, v in sc1["dimensions"].items()}
     dims2["DATA_HEALTH"]["status"] = "DEGRADED"   # simulated degradation
-    dims2["TEST_HEALTH"]["status"] = "HEALTHY"    # same as before
+    # Pick a dimension that is HEALTHY in the live scorecard for a STABLE
+    # comparison — TEST_HEALTH may be UNKNOWN when committed artifacts are
+    # stale vs HEAD (honest, not a regression of trend logic).
+    stable_dim = next(
+        (
+            name
+            for name, dim in sc1["dimensions"].items()
+            if name != "DATA_HEALTH" and dim.get("status") == "HEALTHY"
+        ),
+        "STORAGE_HEALTH",
+    )
+    dims2[stable_dim] = dict(sc1["dimensions"][stable_dim])
+    dims2[stable_dim]["status"] = "HEALTHY"
+    # Ensure previous side is also HEALTHY for a clean STABLE assertion.
+    sc1_dims = {k: dict(v) for k, v in sc1["dimensions"].items()}
+    sc1_dims[stable_dim] = dict(sc1_dims.get(stable_dim) or {})
+    sc1_dims[stable_dim]["status"] = "HEALTHY"
+    sc1 = dict(sc1)
+    sc1["dimensions"] = sc1_dims
     sc2["dimensions"] = dims2
 
     trends = HealthSnapshotEngine.trend_dimensions(sc2, sc1)
     assert trends["DATA_HEALTH"]["trend"] == "DEGRADING"
-    assert trends["TEST_HEALTH"]["trend"] == "STABLE"
+    assert trends[stable_dim]["trend"] == "STABLE"
     assert all(t["evidence"] for t in trends.values())
 
     # no previous -> NOT_COMPARABLE

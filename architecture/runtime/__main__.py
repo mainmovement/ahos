@@ -144,7 +144,8 @@ def write_evidence_package(*, local_db: str, discovery_db: str,
                              "provider_health": health.get("provider_health", {}),
                              "scheduler_status": health.get("scheduler_status", {}),
                              "security_invariants": health.get("security_invariants", {}),
-                             "lane_a_ok": True})())
+                             "lane_a_ok": health.get("lane_a_ok"),
+                             "lane_a_detail": health.get("lane_a_detail", "")})())
             score_path = reports_dir / f"health_scorecard_{ts_utc.replace(':', '').replace('-', '')}.json"
             score_path.parent.mkdir(parents=True, exist_ok=True)
             score_path.write_text(json.dumps(scorecard, indent=2,

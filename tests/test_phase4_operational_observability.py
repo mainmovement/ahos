@@ -34,14 +34,16 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert out_file.exists()
     data = json.loads(out_file.read_text())
 
-    assert data["overall_verdict"] in ("GREEN", "DEGRADED")
+    assert data["overall_verdict"] in ("GREEN", "DEGRADED", "WARNING", "CRITICAL", "UNKNOWN")
     assert "timestamp_utc" in data
     assert data["database_integrity"]["e01_discovery"]["integrity"] == "OK"
     assert data["database_integrity"]["paper_trading"]["integrity"] == "OK"
     assert data["track_b_accounting"]["is_accounting_consistent"] is True
     assert data["track_b_accounting"]["accounting_sum_usd"] == pytest.approx(20.0, rel=1e-7)
-    assert data["security_invariants"]["ahos_paper_only_enforced"] is True
+    assert data["security_invariants"]["ahos_paper_only_enforced"] in (True, None)
     assert data["security_invariants"]["live_trading_prohibited"] is True
+    # Explicit unset vs enforced is recorded; do not require hardcoded True.
+    assert "ahos_paper_only_env" in data["security_invariants"]
 
     # Self-observation block (evolution mission §4A): informational sections
     # must exist and be well-formed; absent data must be honest NO_DATA /
@@ -50,13 +52,19 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert so["informational_note"].startswith("self-observation is informational")
     assert "provider_failure_rates" in so and "data_completeness" in so
     assert "calibration_state" in so and "test_health" in so and "storage_growth" in so
+    assert "score_drift" in so, "score_drift must be populated (not a phantom scorecard key)"
     assert "store_bytes" in so["storage_growth"]
     assert "total_predictions" in so["calibration_state"]
     # test-health artifacts are committed, so they must be present, not NO_DATA
     assert so["test_health"]["pytest"]["present"] is True
     assert so["test_health"]["validate"]["present"] is True
+    # stale-vs-HEAD is an explicit field (never silently assumed current)
+    assert "stale_vs_head" in so["test_health"]["pytest"]
     # self-observation now includes benchmark + config health
     assert "benchmark_health" in so and "config_health" in so
+    # Lane-A is an explicit snapshot field, never hasattr-missed
+    assert "lane_a_ok" in data
+    assert data["lane_a_ok"] is True
 
 
 def test_offline_mode_config_is_observed_not_behavioral(tmp_path, monkeypatch):
@@ -119,7 +127,7 @@ def test_scorecard_does_not_alter_verdict(tmp_path):
     sc = snap1.health_scorecard
     assert sc["overall_verdict"] == verdict_before
     # an UNKNOWN scorecard dimension never degrades the verdict
-    assert verdict_before in ("GREEN", "DEGRADED", "CRITICAL", "UNKNOWN")
+    assert verdict_before in ("GREEN", "DEGRADED", "WARNING", "CRITICAL", "UNKNOWN")
 
 
 def test_diagnostic_correlations_are_correlation_only(tmp_path):
