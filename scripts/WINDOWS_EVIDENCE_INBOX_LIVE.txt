@@ -1,0 +1,10 @@
+AHOS Windows evidence inbox (KEEP THIS PR OPEN)
+================================================
+Purpose: durable GitHub comment sink for OWNER_PASTE / gate JSON.
+
+- Not PRE_SOAK / OPERATOR_READY
+- STATE B: never db:migrate / db:push
+- Agents read PR comments + origin/cursor/windows-gate-evidence-4bde
+
+windows_post_gate_paste_gh.ps1 looks up head:
+  cursor/windows-evidence-inbox-live-4bde
