@@ -130,10 +130,35 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
         Write-Check "docker_daemon" "PASS" "docker info ok"
         $running = (& docker ps --format "{{.Names}}" 2>$null)
         if ($running -match [regex]::Escape($PostgresContainer)) {
-            Write-Check "postgres_container" "PASS" ($PostgresContainer + " running")
+            $st = (& docker ps --filter ("name=^/" + $PostgresContainer + "$") --format "{{.Status}}" 2>$null | Select-Object -First 1)
+            if ($st -match "unhealthy") {
+                Write-Check "postgres_container" "WARN" ($PostgresContainer + " Up but Docker-unhealthy -- G2 uses pg_isready, not the label")
+                $warns++
+            } else {
+                Write-Check "postgres_container" "PASS" ($PostgresContainer + " " + $st)
+            }
+            $pgUser = Get-EnvValue -Path $envPath -Key "POSTGRES_USER"
+            $pgDb = Get-EnvValue -Path $envPath -Key "POSTGRES_DB"
+            if ([string]::IsNullOrWhiteSpace($pgUser)) { $pgUser = "ahos_user" }
+            if ([string]::IsNullOrWhiteSpace($pgDb)) { $pgDb = "ahos" }
+            & docker exec $PostgresContainer pg_isready -U $pgUser -d $pgDb 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Check "pg_isready" "PASS" ("G2 DB path usable (" + $pgUser + "/" + $pgDb + ")")
+            } else {
+                Write-Check "pg_isready" "FAIL" "not ready - ensure-pg will restart once (no migrate)"
+                $fails++
+            }
         } else {
             Write-Check "postgres_container" "WARN" ($PostgresContainer + " not running - bat/ensure-pg will start it")
             $warns++
+        }
+        $rt = (& docker ps --format "{{.Names}}" 2>$null)
+        if ($rt -match "ahos_runtime_win") {
+            $rst = (& docker ps --filter "name=^/ahos_runtime_win$" --format "{{.Status}}" 2>$null | Select-Object -First 1)
+            if ($rst -match "unhealthy") {
+                Write-Check "ahos_runtime_win" "WARN" "unhealthy -- OK for PAPER_ONLY; G2 uses host Next :3000 not container :8000"
+                $warns++
+            }
         }
     }
 }

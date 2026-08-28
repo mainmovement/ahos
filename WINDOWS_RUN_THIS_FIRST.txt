@@ -2,40 +2,36 @@ AHOS Windows -- PRE_SOAK unlock (PAPER_ONLY)
 ==========================================
 STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
+Lane-A freeze: do not modify frozen Lane-A paths.
 
-On main now: through PR #45 (empty-gateway default, G2 retries, chat warm recovery).
-Open follow-up: cursor/windows-evidence-push-lease-4bde (evidence push lease + unlock notify).
+On main: PR #45 (G2 empty-gateway + retries + warm recovery).
+Open: #46 evidence-lease tip + docker health diagnose (this branch).
 
-Latest Windows-attested gate before unlock (220318):
-  PASS: G1, G3-G10
-  BLOCKED: G2 empty AHOS_GATEWAY_URL /api/chat 500 without Docker
-  OWNER_ACTION: G11 Telegram (READY only, not PRE_SOAK)
-  pre_soak_entry_ok=false
-
-PRE_SOAK needs G1-G10 PASS only (G11/G12 do not block pre_soak_entry_ok).
-Simulated: 220318 + G2 PASS => pre_soak_entry_ok=true, operator_ready=false.
+Docker NOW (owner report):
+  ahos_postgres_win  Up (unhealthy)  -- investigate pg_isready; label alone is NOT G2 fail
+  ahos_runtime_win   Up (unhealthy)  -- NOT required for host Next G2 / PRE_SOAK
+  ahos_n8n_win       Up
 
 --------------------------------------------------
-PREFERRED: one-click after Docker is green
---------------------------------------------------
-  1) Start Docker Desktop, wait GREEN, confirm: docker ps
-  2) Get launcher (once, if not on disk yet):
-       git fetch origin cursor/windows-evidence-push-lease-4bde
-       git checkout origin/cursor/windows-evidence-push-lease-4bde -- AHOS_PRE_SOAK_NOW.bat
-  3) Double-click:  AHOS_PRE_SOAK_NOW.bat
-     (pulls main, applies unlock tip if needed, readiness, then OPS bat)
-  4) Paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor
-     (or wait for evidence branch / PR comment)
-
---------------------------------------------------
-Manual equivalent
+NOW: health + G2 validation (no migrate)
 --------------------------------------------------
   cd /d G:\robat\ahos
-  git checkout main
   git pull origin main
-  powershell -ExecutionPolicy Bypass -File .\scripts\windows_pre_soak_readiness.ps1
-  AHOS_WINDOWS_OPS.bat
+  git fetch origin cursor/windows-evidence-push-lease-4bde
+  git checkout origin/cursor/windows-evidence-push-lease-4bde -- AHOS_PRE_SOAK_NOW.bat
 
-PRE_SOAK: only when paste shows pre_soak_entry_ok=true (G1-G10 PASS).
-OPERATOR_READY: only with G11 Telegram E2E PASS -- never invent.
-Postgres ahos_* rows do NOT satisfy G4/G5/G8/G9 (local SQLite census does).
+  powershell -ExecutionPolicy Bypass -File .\scripts\windows_diagnose_docker_health.ps1
+  REM If pg_isready FAIL:
+  REM   docker restart ahos_postgres_win
+  REM   powershell -File .\scripts\windows_ensure_postgres_win.ps1
+
+  AHOS_PRE_SOAK_NOW.bat
+  REM (pulls unlock tip, diagnose, ensure-pg, then AHOS_WINDOWS_OPS.bat)
+
+  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
+  PRE_SOAK only if pre_soak_entry_ok=true (G1-G10). Never invent READY.
+
+Notes:
+  - G2 = host npm run dev POST /api/chat + Postgres via DATABASE_URL
+  - ahos_runtime_win unhealthy does not block G2
+  - Do not db:migrate / db:push under STATE B

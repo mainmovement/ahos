@@ -68,6 +68,14 @@ if exist "scripts\windows_ensure_web_api_token.ps1" (
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_web_api_token.ps1"
 )
 
+if exist "scripts\windows_diagnose_docker_health.ps1" (
+  echo ==^> docker health diagnose ^(G2 focus; runtime unhealthy OK^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_diagnose_docker_health.ps1"
+  if errorlevel 1 (
+    echo WARNING: postgres pg_isready FAIL - ensure-pg will attempt one restart ^(no migrate^)
+  )
+)
+
 if exist "scripts\windows_pre_soak_readiness.ps1" (
   echo ==^> readiness checklist
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_pre_soak_readiness.ps1" -AllowDockerStarting

@@ -207,11 +207,32 @@ def test_windows_wait_for_web_api_script_exists():
 
 def test_windows_ensure_postgres_win_script_exists():
     path = ROOT / "scripts" / "windows_ensure_postgres_win.ps1"
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     assert "ahos_postgres_win" in text
     assert "docker compose" in text
     assert "pg_isready" in text
+    assert "docker restart" in text  # one recovery for unhealthy/stuck without wipe
     assert "db:migrate" in text.lower() or "Never db:migrate" in text
+
+
+def test_windows_diagnose_docker_health_script_exists():
+    path = ROOT / "scripts" / "windows_diagnose_docker_health.ps1"
+    raw = path.read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")
+    text = raw.decode("utf-8-sig")
+    assert "ahos_postgres_win" in text
+    assert "pg_isready" in text
+    assert "ahos_runtime_win" in text
+    assert "NOT a G2 blocker" in text or "not a G2 blocker" in text.lower()
+    assert "db:migrate" in text.lower()
+
+
+def test_windows_compose_postgres_healthcheck_uses_container_env():
+    compose = (ROOT / "deployment" / "docker-compose.windows.yml").read_text(encoding="utf-8")
+    assert "$$POSTGRES_USER" in compose or '"$$POSTGRES_USER"' in compose
+    assert "start_period" in compose
+    assert "postgresql_schema.sql" in compose
+    assert "db:migrate" not in compose
 
 
 def test_windows_seed_local_evidence_script_exists():
