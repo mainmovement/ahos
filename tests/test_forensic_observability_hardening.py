@@ -144,7 +144,7 @@ def _init_paper_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
         CREATE TABLE paper_trade_v2 (
-            id INTEGER PRIMARY KEY,
+            trade_id TEXT PRIMARY KEY,
             amount_allocated REAL NOT NULL
         );
         CREATE TABLE portfolio_ledger (
@@ -152,37 +152,66 @@ def _init_paper_schema(conn: sqlite3.Connection) -> None:
             cash_after REAL NOT NULL
         );
         CREATE TABLE paper_exit_v3 (
-            id INTEGER PRIMARY KEY
+            id INTEGER PRIMARY KEY,
+            trade_id TEXT NOT NULL,
+            allocated_retired_usd REAL NOT NULL
         );
         """
     )
 
 
-def test_track_b_fresh_install_not_critical(tmp_path, monkeypatch):
-    """Empty ledger + zero allocation is consistent (fresh install)."""
+def test_calibration_insufficient_data_is_unknown_not_healthy():
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    drift = snap.self_observation["score_drift"]
+    cal_dim = snap.health_scorecard["dimensions"]["CALIBRATION_HEALTH"]
+    # When calibration_status is INSUFFICIENT_DATA, dimension must be UNKNOWN.
+    latest = snap.self_observation["calibration_state"].get("latest_artifact")
+    if latest and latest.get("calibration_status") == "INSUFFICIENT_DATA":
+        assert cal_dim["status"] == "UNKNOWN"
+    if drift.get("verdict") == "INSUFFICIENT_DATA":
+        assert snap.health_scorecard["dimensions"]["DRIFT_HEALTH"]["status"] == "UNKNOWN"
+
+
+def test_provider_health_does_not_invent_closed_breakers():
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    assert snap.provider_health.get("breaker_state_source") == "UNAVAILABLE"
+    assert snap.health_scorecard["dimensions"]["PROVIDER_HEALTH"]["status"] in (
+        "UNKNOWN", "DEGRADED"
+    )
+
+
+def test_no_runs_yet_is_runtime_unknown():
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    snap.scheduler_status = {"last_run_status": "NO_RUNS_YET", "heartbeat_age_seconds": None}
+    sc = engine._build_scorecard(snap)
+    assert sc["dimensions"]["RUNTIME_HEALTH"]["status"] == "UNKNOWN"
+
+
+def test_paper_only_unset_is_unknown_not_true(monkeypatch):
+    monkeypatch.delenv("AHOS_PAPER_ONLY", raising=False)
+    snap = HealthSnapshotEngine().generate_snapshot()
+    assert snap.security_invariants["ahos_paper_only_enforced"] is None
+    assert snap.security_invariants["ahos_paper_only_env"] == "unset_default_paper"
+
+
+def test_fresh_install_accounting_has_no_mismatch_reason(tmp_path, monkeypatch):
     db = tmp_path / "paper.sqlite"
     conn = sqlite3.connect(str(db))
     _init_paper_schema(conn)
     conn.commit()
     conn.close()
-
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_paper_trading_db_path",
         lambda: str(db),
     )
-    # Stub other stores so generate_snapshot does not CRITICAL on missing DBs.
-    # Prefer unit-testing the accounting block via a partial path:
-    engine = HealthSnapshotEngine(root_dir=ROOT)
-    # Call generate and inspect only if paper path is overridden — also need
-    # other DBs present. Use real project DBs for integrity; only paper is stubbed.
-    snap = engine.generate_snapshot()
-    # If override worked, fresh DB means bankroll_initialised False.
-    tb = snap.track_b_accounting
-    if tb.get("bankroll_initialised") is False:
-        assert tb["is_accounting_consistent"] is True
-        assert snap.overall_verdict != "CRITICAL" or any(
-            "accounting" not in r.lower() for r in snap.summary_reasons
-        )
+    snap = HealthSnapshotEngine(root_dir=ROOT).generate_snapshot()
+    assert snap.track_b_accounting.get("bankroll_initialised") is False
+    assert snap.track_b_accounting.get("is_accounting_consistent") is True
+    assert not any("accounting mismatch" in r for r in snap.summary_reasons)
+    assert not any("allocated with no portfolio ledger" in r for r in snap.summary_reasons)
 
 
 def test_track_b_mismatch_is_critical(tmp_path, monkeypatch):
@@ -190,7 +219,9 @@ def test_track_b_mismatch_is_critical(tmp_path, monkeypatch):
     conn = sqlite3.connect(str(db))
     _init_paper_schema(conn)
     conn.execute("INSERT INTO portfolio_ledger(cash_after) VALUES (10.0)")
-    conn.execute("INSERT INTO paper_trade_v2(amount_allocated) VALUES (5.0)")
+    conn.execute(
+        "INSERT INTO paper_trade_v2(trade_id, amount_allocated) VALUES ('t1', 5.0)"
+    )
     conn.commit()
     conn.close()
 
@@ -215,7 +246,10 @@ def test_track_b_initialized_correct_ledger(tmp_path, monkeypatch):
     allocated = 5.0
     cash = BANKROLL_START_USD - allocated
     conn.execute("INSERT INTO portfolio_ledger(cash_after) VALUES (?)", (cash,))
-    conn.execute("INSERT INTO paper_trade_v2(amount_allocated) VALUES (?)", (allocated,))
+    conn.execute(
+        "INSERT INTO paper_trade_v2(trade_id, amount_allocated) VALUES ('t1', ?)",
+        (allocated,),
+    )
     conn.commit()
     conn.close()
 

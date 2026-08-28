@@ -40,8 +40,10 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert data["database_integrity"]["paper_trading"]["integrity"] == "OK"
     assert data["track_b_accounting"]["is_accounting_consistent"] is True
     assert data["track_b_accounting"]["accounting_sum_usd"] == pytest.approx(20.0, rel=1e-7)
-    assert data["security_invariants"]["ahos_paper_only_enforced"] is True
+    assert data["security_invariants"]["ahos_paper_only_enforced"] in (True, None)
     assert data["security_invariants"]["live_trading_prohibited"] is True
+    # Explicit unset vs enforced is recorded; do not require hardcoded True.
+    assert "ahos_paper_only_env" in data["security_invariants"]
 
     # Self-observation block (evolution mission §4A): informational sections
     # must exist and be well-formed; absent data must be honest NO_DATA /
