@@ -227,6 +227,24 @@ def test_windows_diagnose_docker_health_script_exists():
     assert "db:migrate" in text.lower()
 
 
+
+def test_windows_g2_validate_helpers_exist():
+    bat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8", errors="replace")
+    assert "windows_validate_g2.ps1" in bat
+    assert "db:migrate" in bat.lower()
+    assert "READY" in bat
+    ps1 = (ROOT / "scripts" / "windows_validate_g2.ps1").read_bytes()
+    assert ps1.startswith(b"\xef\xbb\xbf")
+    body = ps1[3:].decode("utf-8")
+    assert "windows_g2_probe.py" in body
+    assert "windows_diagnose_docker_health.ps1" in body
+    assert "db:migrate" in body.lower()
+    probe = (ROOT / "scripts" / "windows_g2_probe.py").read_text(encoding="utf-8")
+    assert "g2_gateway" in probe
+    assert "ahos.g2_validate.v1" in probe
+    assert "PRE_SOAK" in probe
+
+
 def test_windows_compose_postgres_healthcheck_uses_container_env():
     compose = (ROOT / "deployment" / "docker-compose.windows.yml").read_text(encoding="utf-8")
     assert "$$POSTGRES_USER" in compose or '"$$POSTGRES_USER"' in compose

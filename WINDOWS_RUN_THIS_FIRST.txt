@@ -18,13 +18,11 @@ NOW: health + G2 validation (no migrate)
   cd /d G:\robat\ahos
   git pull origin main
   git fetch origin cursor/windows-evidence-push-lease-4bde
-  git checkout origin/cursor/windows-evidence-push-lease-4bde -- AHOS_PRE_SOAK_NOW.bat
+  git checkout origin/cursor/windows-evidence-push-lease-4bde -- AHOS_VALIDATE_G2_NOW.bat AHOS_PRE_SOAK_NOW.bat
 
-  powershell -ExecutionPolicy Bypass -File .\scripts\windows_diagnose_docker_health.ps1
-  REM If pg_isready FAIL:
-  REM   docker restart ahos_postgres_win
-  REM   powershell -File .\scripts\windows_ensure_postgres_win.ps1
-
+  AHOS_VALIDATE_G2_NOW.bat
+  REM Paste reports\OWNER_PASTE_G2_VALIDATE.txt
+  REM If G2 PASS, then full PRE_SOAK path:
   AHOS_PRE_SOAK_NOW.bat
   REM (pulls unlock tip, diagnose, ensure-pg, then AHOS_WINDOWS_OPS.bat)
 
