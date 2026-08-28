@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1787912128997,
+      "tag": "0000_ahos_canonical_tables",
+      "breakpoints": true
+    }
+  ]
+}

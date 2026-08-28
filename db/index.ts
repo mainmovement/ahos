@@ -10,7 +10,8 @@ function getDatabaseUrl(): string {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
     throw new Error(
-      "DATABASE_URL is required. Set it in .env (e.g. postgresql://postgres:postgres@127.0.0.1:5432/app_db)",
+      "DATABASE_URL is required. Set it in .env to the same Postgres as Docker " +
+        "ahos_postgres_win (e.g. postgresql://ahos_user:***@127.0.0.1:5432/ahos).",
     );
   }
   return databaseUrl;
