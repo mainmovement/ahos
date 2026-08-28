@@ -3,19 +3,30 @@ AHOS Windows — PRE_SOAK unlock (PAPER_ONLY)
 STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY
 
-Hardened ops path is on main (PR #31–#34).
+PR #31–#34 are on main. PR #35 adds postgres ensure + anti-forgery
+(open until merged).
 
-1) On G:\robat\ahos:
-   git pull origin main
+1) On G:\robat\ahos — get latest scripts (pick ONE):
+
+   A) After #35 is merged:
+      git pull origin main
+
+   B) Before merge (recommended now):
+      git fetch origin
+      git checkout cursor/windows-main-unlock-4bde
+      git pull origin cursor/windows-main-unlock-4bde
 
 2) Double-click:
    AHOS_WINDOWS_OPS.bat
 
+   Bat will: ensure ahos_postgres_win (no migrate) → reconcile/token →
+   preflight → restart Next → warm /api/chat → seed SQLite if needed → gate.
+
 3) Evidence back to Cursor (one of):
-   - If `gh` is logged in: gate auto-comments OWNER_PASTE on the open PR / #34
-   - If Telegram bot+allowlist set: document sent to your chat — forward into Cursor
+   - If `gh` is logged in: gate auto-comments OWNER_PASTE on the open PR
+   - If Telegram bot+allowlist set: document sent — forward into Cursor
    - Else: Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
 
-That JSON is required for G1–G10 / pre_soak_entry_ok.
+That JSON is required for G1–G10 / pre_soak_entry_ok (Windows-attested only).
 G11 (Telegram E2E): after G1–G10, run scripts\windows_g11_telegram_e2e_helper.ps1,
 fill the transcript from live chat, re-run gate with -TelegramE2eArtifact.
