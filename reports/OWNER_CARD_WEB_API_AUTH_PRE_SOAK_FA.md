@@ -7,16 +7,7 @@
 
 ```bat
 cd /d G:\robat\ahos
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_APPLY_TIP.bat' -OutFile 'AHOS_APPLY_TIP.bat'"
-AHOS_APPLY_TIP.bat
-```
-
-## بعد از merge شدن #57
-
-```bat
-cd /d G:\robat\ahos
-git pull origin main
-AHOS_PRE_SOAK_NOW.bat
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/scripts/windows_bootstrap_presoak.ps1 -OutFile scripts\windows_bootstrap_presoak.ps1; powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_bootstrap_presoak.ps1"
 ```
 
 ## خروجی برای Cursor (الزامی)

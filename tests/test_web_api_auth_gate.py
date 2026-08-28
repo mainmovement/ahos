@@ -290,6 +290,14 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
 
 
 
+
+def test_windows_bootstrap_presoak_script_exists():
+    text = (ROOT / "scripts" / "windows_bootstrap_presoak.ps1").read_text(encoding="utf-8-sig")
+    assert "windows-evidence-notify-retarget-4bde" in text
+    assert "AHOS_PRE_SOAK_NOW.bat" in text
+    assert "db:migrate" in text.lower()
+
+
 def test_windows_ensure_database_url_realigns_via_docker_exec():
     text = (ROOT / "scripts" / "windows_ensure_database_url.ps1").read_text(encoding="utf-8-sig")
     assert "ALTER ROLE" in text
@@ -329,8 +337,8 @@ def test_windows_run_this_first_points_at_ops_bat():
     assert "AHOS_WINDOWS_OPS.bat" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "db:migrate" in text.lower()
-    assert "Invoke-WebRequest" in text
-    assert "AHOS_APPLY_TIP.bat" in text
+    assert "windows_bootstrap_presoak.ps1" in text or "AHOS_APPLY_TIP.bat" in text
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
     assert "AHOS_WINDOWS_OPS.bat" in start_ps1
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1

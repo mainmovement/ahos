@@ -1,0 +1,86 @@
+﻿#Requires -Version 5.1
+<#
+.SYNOPSIS
+  One-shot Windows bootstrap: fetch unlock tip, apply files, run PRE_SOAK path.
+
+STATE B: never db:migrate / db:push. Does NOT invent PRE_SOAK/READY.
+
+Bootstrap from G:\robat\ahos (lowest friction):
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/scripts/windows_bootstrap_presoak.ps1 -OutFile scripts\windows_bootstrap_presoak.ps1; powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_bootstrap_presoak.ps1"
+#>
+[CmdletBinding()]
+param(
+  [string]$RepoRoot = "",
+  [string]$Tip = "cursor/windows-evidence-notify-retarget-4bde"
+)
+
+$ErrorActionPreference = "Continue"
+
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+  if (-not [string]::IsNullOrWhiteSpace($PSScriptRoot)) {
+    $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+  } else {
+    $RepoRoot = (Get-Location).Path
+  }
+}
+Set-Location -LiteralPath $RepoRoot
+
+Write-Host "==========================================================" -ForegroundColor Cyan
+Write-Host "  AHOS bootstrap PRE_SOAK tip (PAPER_ONLY)" -ForegroundColor Cyan
+Write-Host "  Tip: $Tip" -ForegroundColor DarkGray
+Write-Host "  Will NOT migrate DB or claim READY" -ForegroundColor DarkGray
+Write-Host "==========================================================" -ForegroundColor Cyan
+
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+  Write-Host "FAIL: git not on PATH" -ForegroundColor Red
+  exit 2
+}
+
+Write-Host "==> git fetch origin main + tip" -ForegroundColor Cyan
+& git fetch origin main 2>&1 | Out-Host
+& git fetch origin $Tip 2>&1 | Out-Host
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "FAIL: git fetch tip failed" -ForegroundColor Red
+  exit 2
+}
+
+$ref = "origin/" + $Tip
+Write-Host ("==> checkout unlock files from " + $ref) -ForegroundColor Cyan
+& git checkout $ref -- `
+  AHOS_APPLY_TIP.bat AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_VALIDATE_G2_NOW.bat `
+  AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt `
+  "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/windows_g2_probe.py `
+  scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts `
+  tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example 2>&1 | Out-Host
+
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "WARN: bulk checkout failed - trying core set" -ForegroundColor Yellow
+  & git checkout $ref -- `
+    AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_PUSH_EVIDENCE_NOW.bat `
+    scripts/operator_validation_gate.py scripts/windows_recover_g2_warm.ps1 `
+    scripts/windows_ensure_database_url.ps1 scripts/windows_wait_for_web_api.ps1 `
+    scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
+    scripts/windows_bootstrap_presoak.ps1 app/api/chat/route.ts 2>&1 | Out-Host
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "FAIL: tip checkout failed" -ForegroundColor Red
+    exit 2
+  }
+}
+
+$pre = Join-Path $RepoRoot "AHOS_PRE_SOAK_NOW.bat"
+if (-not (Test-Path -LiteralPath $pre)) {
+  Write-Host "FAIL: AHOS_PRE_SOAK_NOW.bat missing after tip checkout" -ForegroundColor Red
+  exit 2
+}
+
+Write-Host "==> launching AHOS_PRE_SOAK_NOW.bat" -ForegroundColor Cyan
+$p = Start-Process -FilePath "cmd.exe" -ArgumentList @("/c", "`"$pre`"") -WorkingDirectory $RepoRoot -Wait -PassThru
+$code = 0
+if ($null -ne $p) { $code = [int]$p.ExitCode }
+
+Write-Host ""
+Write-Host "Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38" -ForegroundColor Cyan
+Write-Host "Or run AHOS_PUSH_EVIDENCE_NOW.bat" -ForegroundColor Cyan
+Write-Host "PRE_SOAK only if pre_soak_entry_ok=true. Never invent READY." -ForegroundColor Yellow
+Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
+exit $code
