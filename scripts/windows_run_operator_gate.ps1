@@ -134,82 +134,48 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
     $utf8 = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($paste, ($lines -join "`n") + "`n", $utf8)
     Write-Host ("Wrote paste bundle: " + $paste) -ForegroundColor Green
-    $clipOk = $false
-    try {
-        Set-Clipboard -Value ([System.IO.File]::ReadAllText($paste))
-        $clipOk = $true
-        Write-Host "Copied paste bundle to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
-    } catch {
-        Write-Host ("Clipboard copy skipped: " + $_.Exception.Message) -ForegroundColor DarkYellow
-    }
-    try {
-        Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null
-        Write-Host "Opened OWNER_PASTE_WINDOWS_GATE.txt in Notepad." -ForegroundColor Cyan
-    } catch {
-        Write-Host "Open that file and paste its full contents into Cursor." -ForegroundColor Yellow
-    }
-    if (-not $clipOk) {
-        Write-Host "Open that file and paste its full contents into Cursor." -ForegroundColor Yellow
+
+    $publish = Join-Path $RepoRoot "scripts\windows_publish_owner_paste.ps1"
+    if (Test-Path -LiteralPath $publish) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $publish -PastePath $paste
+    } else {
+        try {
+            Set-Clipboard -Value ([System.IO.File]::ReadAllText($paste))
+            Write-Host "Copied paste bundle to clipboard -- Ctrl+V into Cursor." -ForegroundColor Green
+        } catch {}
+        try { Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null } catch {}
     }
 
-    # Best-effort: post paste to GitHub PR so Cursor agents can fetch without chat paste.
-    # Never fails the gate. Prefer current PR; override with AHOS_GATE_PR.
-    $gh = Get-Command gh -ErrorAction SilentlyContinue
-    if ($null -ne $gh) {
-        $prNum = $env:AHOS_GATE_PR
-        if ([string]::IsNullOrWhiteSpace($prNum)) {
-            try {
-                $prNum = (& gh pr view --json number -q ".number" 2>$null)
-            } catch { $prNum = "" }
-        }
-        if ([string]::IsNullOrWhiteSpace($prNum)) {
-            try {
-                $prNum = (& gh pr list --head cursor/windows-g1-g10-harden-4bde --json number -q ".[0].number" 2>$null)
-            } catch { $prNum = "" }
-        }
-        # Fallback: latest open PR on this repo authored by current user / unlock series
-        if ([string]::IsNullOrWhiteSpace($prNum)) {
-            try {
-                $prNum = (& gh pr list --state open --limit 5 --json number,headRefName -q "[.[] | select(.headRefName|test(\"windows|harden|unlock\";\"i\"))][0].number" 2>$null)
-            } catch { $prNum = "" }
-        }
-        if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "36" }
-        # Always post slim LATEST first (agent-fetchable); full paste if small enough.
-        $slim = Join-Path $reportsDir "OWNER_PASTE_WINDOWS_GATE_SLIM.txt"
-        $slimLines = @()
-        $slimLines += "===== BEGIN WINDOWS GATE PASTE (slim) ====="
-        $slimLines += ("report_path=" + $reportPath)
-        $slimLines += ("full_paste=" + $paste)
-        if (Test-Path -LiteralPath $latest) {
-            $slimLines += "--- LATEST_WINDOWS_GATE ---"
-            $slimLines += (Get-Content -LiteralPath $latest)
-        }
-        $slimLines += "Paste full OWNER_PASTE_WINDOWS_GATE.txt into Cursor if agent cannot fetch JSON."
-        $slimLines += "STATE B: do not db:migrate / db:push"
-        $slimLines += "===== END WINDOWS GATE PASTE (slim) ====="
-        [System.IO.File]::WriteAllText($slim, ($slimLines -join "`n") + "`n", $utf8)
-        $pasteBytes = (Get-Item -LiteralPath $paste).Length
-        $commentFile = $slim
-        if ($pasteBytes -le 55000) {
-            $commentFile = $paste
-        }
-        try {
-            & gh auth status 2>$null | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                & gh pr comment $prNum --body-file $commentFile 2>&1 | Out-Host
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host ("Posted gate paste to PR #" + $prNum + " via gh (agent can fetch).") -ForegroundColor Green
-                } else {
-                    Write-Host ("gh pr comment failed exit=" + $LASTEXITCODE + " — Ctrl+V paste still required.") -ForegroundColor DarkYellow
-                }
-            } else {
-                Write-Host "gh not authenticated — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
-            }
-        } catch {
-            Write-Host ("gh post skipped: " + $_.Exception.Message) -ForegroundColor DarkYellow
-        }
+    # Best-effort: post paste to GitHub PRs so Cursor agents can fetch without chat paste.
+    # Never fails the gate. Prefer AHOS_GATE_PR; also tries open unlock PRs + #37/#36.
+    $postGh = Join-Path $RepoRoot "scripts\windows_post_gate_paste_gh.ps1"
+    $slim = Join-Path $reportsDir "OWNER_PASTE_WINDOWS_GATE_SLIM.txt"
+    $slimLines = @()
+    $slimLines += "===== BEGIN WINDOWS GATE PASTE (slim) ====="
+    $slimLines += ("report_path=" + $reportPath)
+    $slimLines += ("full_paste=" + $paste)
+    if (Test-Path -LiteralPath $latest) {
+        $slimLines += "--- LATEST_WINDOWS_GATE ---"
+        $slimLines += (Get-Content -LiteralPath $latest)
+    }
+    $slimLines += "Paste full OWNER_PASTE_WINDOWS_GATE.txt into Cursor if agent cannot fetch JSON."
+    $slimLines += "STATE B: do not db:migrate / db:push"
+    $slimLines += "===== END WINDOWS GATE PASTE (slim) ====="
+    [System.IO.File]::WriteAllText($slim, ($slimLines -join "`n") + "`n", $utf8)
+    $pasteBytes = (Get-Item -LiteralPath $paste).Length
+    $commentFile = $slim
+    if ($pasteBytes -le 55000) {
+        $commentFile = $paste
+    }
+    if (Test-Path -LiteralPath $postGh) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $postGh -BodyFile $commentFile -RepoRoot $RepoRoot
     } else {
-        Write-Host "gh CLI not on PATH — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+        Write-Host "gh paste helper missing -- Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+    }
+
+    $pushEv = Join-Path $RepoRoot "scripts\windows_push_gate_evidence.ps1"
+    if (Test-Path -LiteralPath $pushEv) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $pushEv -RepoRoot $RepoRoot -PastePath $paste -SlimPath $slim -LatestPath $latest
     }
 
     $tgSend = Join-Path $RepoRoot "scripts\windows_telegram_send_gate_paste.ps1"

@@ -66,7 +66,7 @@ if ([string]::IsNullOrWhiteSpace($pgDb)) { $pgDb = "ahos" }
 # Prefer existing healthy container (no recreate / no volume wipe)
 $running = (& docker ps --format "{{.Names}}" 2>$null)
 if ($running -match [regex]::Escape($ContainerName)) {
-  Write-Step "$ContainerName already running — checking pg_isready"
+  Write-Step "$ContainerName already running -- checking pg_isready"
 } else {
   Write-Step "docker compose -f $ComposeFile up -d $ServiceName (container $ContainerName)"
   if (Test-Path -LiteralPath $envPath) {
@@ -95,5 +95,5 @@ if (-not $ready) {
   Fail "Postgres ($ContainerName) did not become ready within ${ReadyTimeoutSec}s"
 }
 
-Write-Step "OK — $ContainerName listening. STATE B: do NOT db:migrate / db:push."
+Write-Step "OK -- $ContainerName listening. STATE B: do NOT db:migrate / db:push."
 exit 0

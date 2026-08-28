@@ -3,30 +3,25 @@ AHOS Windows — PRE_SOAK unlock (PAPER_ONLY)
 STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY
 
-PR #31–#35 are on main (postgres ensure + anti-forgery).
-Follow-up harden (seed census / fail-fast warm / paste): PR branch below.
+PR #31–#36 are on main (auth, ops bat, postgres ensure, seed/fail-fast/paste).
 
-1) On G:\robat\ahos — get latest scripts (pick ONE):
-
-   A) After harden PR is merged:
-      git checkout main
-      git pull origin main
-
-   B) Before harden merge (recommended now):
-      git fetch origin
-      git checkout cursor/windows-g1-g10-harden-4bde
-      git pull origin cursor/windows-g1-g10-harden-4bde
+1) On G:\robat\ahos:
+   git checkout main
+   git pull origin main
 
 2) Double-click:
    AHOS_WINDOWS_OPS.bat
 
    Bat will: ensure ahos_postgres_win (no migrate) → reconcile/token →
    preflight → restart Next → warm /api/chat → seed SQLite if needed → gate.
+   Mid-fail still writes reports\OWNER_PASTE_WINDOWS_GATE.txt
 
-3) Evidence back to Cursor (one of):
-   - If `gh` is logged in: gate auto-comments OWNER_PASTE on the open PR
-   - If Telegram bot+allowlist set: document sent — forward into Cursor
-   - Else: Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
+3) Evidence back to Cursor (REQUIRED — one of):
+   - Ctrl+V (clipboard is filled) OR open Desktop\AHOS_PASTE_TO_CURSOR.txt
+   - Or paste reports\OWNER_PASTE_WINDOWS_GATE.txt into this Cursor chat
+   - If git push works: auto-updates branch cursor/windows-gate-evidence-4bde (agents fetch)
+   - If `gh` logged in: auto-comments on unlock PRs (#37/#36)
+   - Telegram document forward into Cursor (if bot sent it)
 
 That JSON is required for G1–G10 / pre_soak_entry_ok (Windows-attested only).
 NOTE: Postgres ahos_* row counts do NOT satisfy G4/G5/G8/G9 — bat seeds local SQLite.

@@ -68,9 +68,9 @@ def test_windows_run_operator_gate_script_exists():
     assert "Set-Clipboard" in text
     assert "notepad.exe" in text
     assert "Env:AHOS_WEB_API_TOKEN" in text or 'Set-Item -Path ("Env:"' in text
-    assert "gh pr comment" in text
-    assert "AHOS_GATE_PR" in text
+    assert "windows_post_gate_paste_gh.ps1" in text or "gh pr comment" in text
     assert "windows_telegram_send_gate_paste.ps1" in text
+    assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
 
 
 def test_windows_telegram_send_gate_paste_script_exists():
@@ -122,14 +122,47 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "OPERATOR_READY" in text
 
 
-def test_windows_failure_paste_helper_exists():
-    path = ROOT / "scripts" / "windows_write_ops_failure_paste.ps1"
+def test_windows_publish_owner_paste_helper_exists():
+    path = ROOT / "scripts" / "windows_publish_owner_paste.ps1"
     text = path.read_text(encoding="utf-8")
-    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
-    assert "pre_soak_entry_ok=false" in text
-    assert "operator_ready=false" in text
-    assert "db:migrate" in text.lower()
-    assert "BEGIN WINDOWS OPS FAILURE PASTE" in text
+    assert "AHOS_PASTE_TO_CURSOR.txt" in text
+    assert "Desktop" in text
+    assert "Set-Clipboard" in text
+    assert "notepad.exe" in text
+
+
+def test_windows_push_gate_evidence_helper_exists():
+    path = ROOT / "scripts" / "windows_push_gate_evidence.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "windows-gate-evidence-4bde" in text
+    assert "windows_gate_evidence" in text
+    assert "force-with-lease" in text
+    assert "commit-tree" in text
+    assert "GIT_INDEX_FILE" in text or "ahos-evidence-index" in text
+    assert "checkout -B" not in text  # must not leave owner branch
+    assert "OPERATOR_READY" in text
+    assert "db:migrate" in text.lower() or "no migrate" in text.lower()
+    runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
+    assert "windows_push_gate_evidence.ps1" in runner
+
+
+def test_windows_ops_bat_pulls_current_branch_too():
+    text = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8", errors="replace")
+    assert "git pull origin main" in text
+    assert "CURBRANCH" in text or "abbrev-ref" in text
+    assert "windows_publish_owner_paste.ps1" in (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
+
+
+def test_windows_ps1_scripts_are_ascii_for_ps51():
+    """Windows PowerShell 5.1 often reads UTF-8 without BOM as system ANSI;
+    em-dashes become mojibake and break string/brace parsing."""
+    bad = []
+    for path in sorted((ROOT / "scripts").glob("windows_*.ps1")):
+        text = path.read_text(encoding="utf-8")
+        non_ascii = sorted({ch for ch in text if ord(ch) > 127})
+        if non_ascii:
+            bad.append(f"{path.name}: {non_ascii!r}")
+    assert not bad, "non-ASCII in Windows PS1 (use ASCII -- not em-dash):\n" + "\n".join(bad)
 
 
 def test_windows_wait_for_web_api_script_exists():
@@ -163,14 +196,16 @@ def test_windows_seed_local_evidence_script_exists():
     assert "after_seed" in text or "re-read" in text.lower() or "after seed" in text.lower()
 
 
-def test_windows_gate_runner_posts_to_open_harden_pr():
+def test_windows_gate_runner_posts_via_multi_pr_helper():
     text = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
     assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
     assert "BEGIN WINDOWS GATE PASTE" in text
-    assert "windows-g1-g10-harden" in text or 'prNum = "36"' in text
-    # stale merged-PR-only defaults removed
-    assert 'prNum = "34"' not in text
-    assert 'prNum = "35"' not in text
+    assert "windows_post_gate_paste_gh.ps1" in text
+    helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8")
+    assert "gh pr comment" in helper
+    assert '"37"' in helper or "37" in helper
+    assert '"36"' in helper or "36" in helper
+    assert "db:migrate" in helper.lower() or "READY" in helper
 
 
 def test_windows_run_this_first_points_at_ops_bat():

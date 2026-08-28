@@ -34,11 +34,16 @@ if errorlevel 1 (
   exit /b 2
 )
 
-call :log ==^> git fetch / pull origin main
+call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
 git pull origin main >> "%LOG%" 2>&1
 if errorlevel 1 (
   call :log WARNING: git pull origin main failed - continuing if scripts present
+)
+for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CURBRANCH=%%B"
+if defined CURBRANCH if /I not "!CURBRANCH!"=="main" (
+  call :log ==^> git pull origin !CURBRANCH!
+  git pull origin !CURBRANCH! >> "%LOG%" 2>&1
 )
 
 if not exist "scripts\windows_post_merge_reconcile.ps1" (

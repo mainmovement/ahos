@@ -101,7 +101,7 @@ $lines += ("sqlite_census=" + $censusLine)
 $lines += "pre_soak_entry_ok=false"
 $lines += "operator_ready=false"
 $lines += "STATE B: do not db:migrate / db:push"
-$lines += "NOTE: This is a mid-bat failure paste — not a full G1-G11 gate report."
+$lines += "NOTE: This is a mid-bat failure paste -- not a full G1-G11 gate report."
 $lines += "--- windows_ops_last_run.log (tail) ---"
 $lines += $logTail
 $lines += "===== END WINDOWS OPS FAILURE PASTE ====="
@@ -127,34 +127,28 @@ $latestLines = @(
 
 Write-Host ("Wrote failure paste: " + $paste) -ForegroundColor Yellow
 
-try {
-  Set-Clipboard -Value $body
-  Write-Host "Copied failure paste to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
-} catch {}
-
-try {
-  Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null
-} catch {}
-
-# Best-effort gh comment on open harden PR
-$gh = Get-Command gh -ErrorAction SilentlyContinue
-if ($null -ne $gh) {
-  $prNum = $env:AHOS_GATE_PR
-  if ([string]::IsNullOrWhiteSpace($prNum)) {
-    try { $prNum = (& gh pr view --json number -q ".number" 2>$null) } catch { $prNum = "" }
-  }
-  if ([string]::IsNullOrWhiteSpace($prNum)) {
-    try {
-      $prNum = (& gh pr list --head cursor/windows-g1-g10-harden-4bde --json number -q ".[0].number" 2>$null)
-    } catch { $prNum = "" }
-  }
-  if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "36" }
+$publish = Join-Path $RepoRoot "scripts\windows_publish_owner_paste.ps1"
+if (Test-Path -LiteralPath $publish) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $publish -PastePath $paste
+} else {
   try {
-    & gh auth status 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-      & gh pr comment $prNum --body-file $slim 2>&1 | Out-Host
-    }
+    Set-Clipboard -Value $body
+    Write-Host "Copied failure paste to clipboard -- Ctrl+V into Cursor." -ForegroundColor Green
   } catch {}
+  try {
+    Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null
+  } catch {}
+}
+
+# Best-effort gh comment on open/merged unlock PRs
+$postGh = Join-Path $RepoRoot "scripts\windows_post_gate_paste_gh.ps1"
+if (Test-Path -LiteralPath $postGh) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $postGh -BodyFile $slim -RepoRoot $RepoRoot
+}
+
+$pushEv = Join-Path $RepoRoot "scripts\windows_push_gate_evidence.ps1"
+if (Test-Path -LiteralPath $pushEv) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $pushEv -RepoRoot $RepoRoot -PastePath $paste -SlimPath $slim -LatestPath $latest
 }
 
 exit 0

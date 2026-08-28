@@ -1,21 +1,14 @@
 AHOS Windows owner - toward PRE_SOAK (PAPER_ONLY)
 =================================================
-PR #31/#32/#33 on main. PR #34 = Next restart + env harden + evidence seed.
-STATE B: do NOT db:migrate / db:push.
+PR #31-#36 on main. STATE B: do NOT db:migrate / db:push.
 Do NOT invent OPERATOR_READY.
 
-Option A - double-click (after PR #34 merge, or checkout that branch):
-  AHOS_WINDOWS_OPS.bat
-  (reconcile KeepCurrentBranch → preflight → restart Next → warm /api/chat
-   → seed SQLite if empty → gate → clipboard)
-
-Option B - on main + PR #34 scripts:
 cd G:\robat\ahos
-git pull
-powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
-# Restart Next if token was just written (critical)
-powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\windows_seed_local_evidence.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
+git checkout main
+git pull origin main
+AHOS_WINDOWS_OPS.bat
 
-Paste: reports\OWNER_PASTE_WINDOWS_GATE.txt (Ctrl+V) into Cursor.
+Paste (required): reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
+  (or confirm gh commented on https://github.com/mainmovement/ahos/pull/36)
+
+Mid-fail still writes the paste file -- send it anyway.
