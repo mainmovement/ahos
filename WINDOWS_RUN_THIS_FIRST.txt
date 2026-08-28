@@ -15,7 +15,7 @@ ONE CLICK (preferred)
   AHOS_PRE_SOAK_NOW.bat
 
   Bat applies unlock tip, diagnoses Docker/pg_isready, ensures Postgres
-  (no migrate), warms /api/chat, runs full G1-G10 gate.
+  (no migrate), warms /api/chat, runs full G1-G10 via AHOS_WINDOWS_OPS.bat.
   Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
 
 --------------------------------------------------
