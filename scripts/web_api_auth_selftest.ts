@@ -3,7 +3,7 @@
  * Run: npm run test:web-api-auth
  */
 import assert from "node:assert/strict";
-import { afterEach, describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import {
   authorizeWebApi,
   sanitizePublicError,
@@ -15,8 +15,16 @@ const KEYS = [
   "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
 ] as const;
 
-afterEach(() => {
+function clearGateEnv(): void {
   for (const k of KEYS) delete process.env[k];
+}
+
+beforeEach(() => {
+  clearGateEnv();
+});
+
+afterEach(() => {
+  clearGateEnv();
 });
 
 function req(headers: Record<string, string> = {}): Request {

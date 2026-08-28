@@ -57,6 +57,22 @@ def test_windows_ops_toward_pre_soak_script_exists():
     assert "OPERATOR_READY" in text
 
 
+def test_windows_run_operator_gate_script_exists():
+    path = ROOT / "scripts" / "windows_run_operator_gate.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "--platform" in text and "windows" in text
+    assert "operator_validation_gate.py" in text
+    assert "probe-providers" in text
+
+
+def test_install_windows_gate_cli_matches_runner():
+    text = (ROOT / "install_windows.ps1").read_text(encoding="utf-8", errors="replace")
+    assert "--repo-root" not in text
+    assert "--require-owner-action" not in text
+    assert "windows_run_operator_gate.ps1" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+
+
 def test_post_merge_reconcile_invokes_token_ensure():
     text = (ROOT / "scripts" / "windows_post_merge_reconcile.ps1").read_text(encoding="utf-8")
     assert "windows_ensure_web_api_token.ps1" in text

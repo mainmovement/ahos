@@ -537,6 +537,58 @@ def _core_gates_pass(by_id: dict[str, dict[str, Any]]) -> bool:
     return True
 
 
+def remediation_actions(gates: list[dict[str, Any]]) -> list[str]:
+    """Concrete owner next steps for non-PASS gates (Windows console-safe ASCII)."""
+    by = {g["id"]: g for g in gates}
+    out: list[str] = []
+    g2 = by.get("G2") or {}
+    if g2.get("status") in ("BLOCKED", "FAIL", "NOT_VERIFIED"):
+        d = (g2.get("detail") or "")
+        if "WEB_API" in d or "AHOS_WEB_API_TOKEN" in d:
+            out.append(
+                "G2: run scripts\\windows_ensure_web_api_token.ps1, restart npm run dev, "
+                "re-run gate (do NOT db:migrate)."
+            )
+        elif "DATABASE_URL" in d or (g2.get("http_status") or 0) >= 500:
+            out.append(
+                "G2: set reachable DATABASE_URL for Postgres ahos DB, restart npm run dev, "
+                "keep STATE B (no migrate)."
+            )
+        elif g2.get("status") == "NOT_VERIFIED":
+            out.append("G2: start npm run dev on 127.0.0.1:3000 then re-run without --skip-network.")
+        else:
+            out.append(
+                "G2: ensure npm run dev is up and AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat."
+            )
+    g3 = by.get("G3") or {}
+    if g3.get("status") != "PASS":
+        out.append("G3: re-run with --probe-providers and working HTTPS (DexScreener/Gecko).")
+    for gid, hint in (
+        ("G4", "G4: python -m architecture.runtime --single-cycle --evidence-source local --limit 5"),
+        ("G5", "G5: same single-cycle until local_predictions > 0"),
+        ("G8", "G8: single-cycle / lifecycle bridge until observation_state_total > 0"),
+        ("G9", "G9: need discovery_observations > 0 (outcome_labels=0 OK until T+72h)"),
+        ("G6", "G6: set AHOS_PAPER_ONLY=1; unset live-trading flags"),
+        ("G7", "G7: Lane-A freeze drift — do not edit discovery/ or paper_trading/"),
+        ("G10", "G10: re-run with --backup-drill"),
+    ):
+        g = by.get(gid) or {}
+        if g.get("status") not in (None, "PASS"):
+            out.append(hint)
+    g11 = by.get("G11") or {}
+    if g11.get("status") != "PASS":
+        out.append(
+            "G11: set TELEGRAM_BOT_TOKEN + allowlist, archive E2E transcript, "
+            "re-run with --telegram-e2e-artifact reports\\telegram_e2e_<UTC>.md "
+            "(needed for OPERATOR_READY; pre-soak only needs G1-G10)."
+        )
+    if not out:
+        out.append("All remediated gates clear — if Windows G1-G10 PASS, follow docs\\PRE_SOAK_PROTOCOL.md.")
+    out.append("Never claim OPERATOR_READY without Windows G1-G11 PASS artifacts.")
+    out.append("STATE B: never db:migrate / db:push without Cursor classification.")
+    return out
+
+
 def classify(platform_name: str, gates: list[dict[str, Any]]) -> dict[str, Any]:
     by_id = {g["id"]: g for g in gates}
     required = ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11"]
@@ -560,11 +612,13 @@ def classify(platform_name: str, gates: list[dict[str, Any]]) -> dict[str, Any]:
     g1_g10 = _core_gates_pass(by_id)
     # Pre-soak may start after Windows G1–G10 PASS; OPERATOR_READY still needs G11.
     pre_soak_entry_ok = platform_name == "windows" and g1_g10
+    remediations = remediation_actions(gates)
 
     base = {
         "g1_g10_all_pass": g1_g10,
         "pre_soak_entry_ok": pre_soak_entry_ok,
         "missing": missing,
+        "remediation_actions": remediations,
     }
 
     if platform_name != "windows":
@@ -678,6 +732,10 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"wrote": str(out), "summary": summary}, indent=2))
         for g in gates:
             print(f"{g['id']:4} {g['status']:22} {g['name']}: {g['detail'][:120]}")
+        print("===== OWNER_NEXT (paste with JSON into Cursor) =====")
+        for line in summary.get("remediation_actions") or []:
+            print(f"- {line}")
+        print("===== END OWNER_NEXT =====")
 
         if any(g["status"] == "FAIL" for g in gates):
             return 2

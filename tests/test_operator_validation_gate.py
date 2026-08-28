@@ -16,6 +16,7 @@ from scripts.operator_validation_gate import (  # noqa: E402
     g2_gateway,
     g11_telegram,
     main,
+    remediation_actions,
     _resolve_executable,
 )
 
@@ -53,6 +54,20 @@ def test_windows_full_pass_operator_ready():
     assert summary["operator_ready"] is True
     assert summary["classification"] == "OPERATOR_READY"
     assert summary["pre_soak_entry_ok"] is True
+    assert "remediation_actions" in summary
+
+
+def test_remediation_mentions_web_api_token_for_g2_block():
+    gates = _pass_gates(12)
+    gates[1] = {
+        "id": "G2",
+        "status": "BLOCKED",
+        "name": "Gateway",
+        "detail": "AHOS_WEB_API_TOKEN unset and AHOS_WEB_API_ALLOW_OPEN_ACCESS not enabled",
+    }
+    actions = remediation_actions(gates)
+    assert any("windows_ensure_web_api_token" in a for a in actions)
+    assert any("db:migrate" in a for a in actions)
 
 
 def test_runner_writes_report(tmp_path):

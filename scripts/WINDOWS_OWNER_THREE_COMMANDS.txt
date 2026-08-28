@@ -1,0 +1,21 @@
+AHOS Windows owner - three commands toward PRE_SOAK (PAPER_ONLY)
+================================================================
+PR #31 (web API auth) is on main. STATE B: do NOT db:migrate / db:push.
+Do NOT invent OPERATOR_READY.
+
+cd G:\robat\ahos
+git pull
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
+
+# Terminal A
+npm run dev
+
+# Terminal B (after Next is up). If windows_run_operator_gate.ps1 missing, merge PR #32 or run:
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
+# fallback on main without PR #32:
+#   .\.venv\Scripts\Activate.ps1
+#   $env:AHOS_PAPER_ONLY = "1"
+#   $env:AHOS_EVIDENCE_SOURCE = "local"
+#   python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill
+
+Paste BEGIN REPORT + reports\operator_validation_report_windows_*.json into Cursor.
