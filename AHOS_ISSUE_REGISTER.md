@@ -1105,7 +1105,7 @@
 ## R-57 · 2026-08-16 · AHOS Windows 11 Compatibility, Self-Repair & Master Agent Hardening
 - WHY: Transform the repository into a production-grade single-user Windows 11 laptop deployment system while preserving Lane A immutability, zero-cost resilience, and governance rules.
 - WHAT:
-  1. Cross-Platform Path Resolver (`config/paths.py`; optional gitignored `config/paths.yaml` for local diagnostics only): Dynamically resolves project root and eliminates hardcoded paths across Windows, Linux, and Docker.
+  1. Cross-Platform Path Resolver (`config/paths.py`; optional gitignored local YAML overlay under config/): Dynamically resolves project root and eliminates hardcoded paths across Windows, Linux, and Docker.
   2. Windows One-Click Installers: Created `install_windows.ps1`, `start_ahos.ps1`, and `start_ahos.bat` for double-click startup.
   3. Self-Repair System (`engine/health_manager.py`): Diagnostic engine detecting missing files, broken paths, missing packages, and corrupted databases, outputting `reports/health_report.json` with zero unauthorized automated mutation.
   4. Update Governance (`engine/update_manager.py`): Operates in CHECK_ONLY mode by default; enforces Master Directive hash locks and human approval gates.

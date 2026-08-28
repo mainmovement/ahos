@@ -17,7 +17,7 @@ The repository implements a modular, dual-lane architecture:
 
 | Component / File | Discovered Deficiency | Resolution Implemented | Verification Proof |
 |---|---|---|---|
-| **Hardcoded `/home/user/ahos` Paths** | Path strings hardcoded across 25+ files prevented native Windows execution. | Implemented dynamic cross-platform resolver `config/paths.py` (optional gitignored `config/paths.yaml` for local diagnostics only). | System resolves cleanly on Windows, Linux, and Docker. |
+| **Hardcoded `/home/user/ahos` Paths** | Path strings hardcoded across 25+ files prevented native Windows execution. | Implemented dynamic cross-platform resolver `config/paths.py` (optional gitignored local YAML overlay under config/). | System resolves cleanly on Windows, Linux, and Docker. |
 | **Missing Windows Launchers** | Lack of single-user Windows 11 installation and double-click startup scripts. | Created `install_windows.ps1`, `start_ahos.ps1`, and `start_ahos.bat`. | Powershell scripts verified and ready. |
 | **Self-Repair Diagnostic Gaps** | No single diagnostic engine reporting overall health and repair advice. | Implemented `engine/health_manager.py` outputting `reports/health_report.json`. | Executed: Status GREEN, 0 issues. |
 | **Update Governance Gaps** | No formal CLI tool enforcing check-only vs approval-required update policies. | Implemented `engine/update_manager.py` enforcing Master Directive hash locks. | Executed in CHECK_ONLY mode. |

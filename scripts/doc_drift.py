@@ -75,8 +75,6 @@ CORRUPTION_PATTERNS: dict[str, str] = {
 #: reference is ignored only when it appears in this exact set; anything
 #: else that does not exist is reported.
 INTENTIONAL_REFS: dict[str, str] = {
-    "config/paths.yaml": "optional local path overlay; gitignored by design "
-        "(see .gitignore and config/paths.py); canonical resolver is paths.py",
     "reports/nightly_backup_series.json": "planned artifact produced by "
         "scripts/sqlite_backup_restore.py nightly runs (7 distinct days)",
     "reports/local_soak_interruptions.json": "planned artifact produced "
