@@ -63,6 +63,7 @@ try {
 } catch {}
 
 # Dedicated evidence inbox + known sinks (comments wake subscribed agents)
+Add-Target "51"
 Add-Target "50"
 # Open durable inbox (replace number after PR create if needed — also matched by head name)
 try {
