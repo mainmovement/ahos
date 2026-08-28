@@ -114,6 +114,7 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "/api/chat" in text
     assert "windows_seed_local_evidence.ps1" in text
     assert "windows_wait_for_web_api.ps1" in text or "/api/chat" in text
+    assert "windows_ensure_postgres_win.ps1" in text
     assert "windows_run_operator_gate.ps1" in text
     assert "windows_ops_last_run.log" in text or "LOG=" in text
     assert "db:migrate" in text.lower()
@@ -126,6 +127,15 @@ def test_windows_wait_for_web_api_script_exists():
     assert "/api/chat" in text
     assert "AHOS_WEB_API_TOKEN" in text
     assert "Invoke-WebRequest" in text
+
+
+def test_windows_ensure_postgres_win_script_exists():
+    path = ROOT / "scripts" / "windows_ensure_postgres_win.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "ahos_postgres_win" in text
+    assert "docker compose" in text
+    assert "pg_isready" in text
+    assert "db:migrate" in text.lower() or "Never db:migrate" in text
 
 
 def test_windows_seed_local_evidence_script_exists():

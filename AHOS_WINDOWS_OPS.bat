@@ -47,6 +47,14 @@ if not exist "scripts\windows_post_merge_reconcile.ps1" (
   exit /b 2
 )
 
+if exist "scripts\windows_ensure_postgres_win.ps1" (
+  call :log ==^> ensure ahos_postgres_win running ^(no migrate^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_postgres_win.ps1"
+  if errorlevel 1 (
+    call :log WARNING: postgres ensure failed - G2 may HTTP 500; continuing
+  )
+)
+
 call :log ==^> post-merge reconcile + web API token ensure (KeepCurrentBranch)
 "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_post_merge_reconcile.ps1" -KeepCurrentBranch >> "%LOG%" 2>&1
 if errorlevel 1 (
