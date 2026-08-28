@@ -163,14 +163,16 @@ def test_windows_seed_local_evidence_script_exists():
     assert "after_seed" in text or "re-read" in text.lower() or "after seed" in text.lower()
 
 
-def test_windows_gate_runner_posts_to_open_harden_pr():
+def test_windows_gate_runner_posts_via_multi_pr_helper():
     text = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
     assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
     assert "BEGIN WINDOWS GATE PASTE" in text
-    assert "windows-g1-g10-harden" in text or 'prNum = "36"' in text
-    # stale merged-PR-only defaults removed
-    assert 'prNum = "34"' not in text
-    assert 'prNum = "35"' not in text
+    assert "windows_post_gate_paste_gh.ps1" in text
+    helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8")
+    assert "gh pr comment" in helper
+    assert '"37"' in helper or "37" in helper
+    assert '"36"' in helper or "36" in helper
+    assert "db:migrate" in helper.lower() or "READY" in helper
 
 
 def test_windows_run_this_first_points_at_ops_bat():

@@ -136,25 +136,10 @@ try {
   Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null
 } catch {}
 
-# Best-effort gh comment on open harden PR
-$gh = Get-Command gh -ErrorAction SilentlyContinue
-if ($null -ne $gh) {
-  $prNum = $env:AHOS_GATE_PR
-  if ([string]::IsNullOrWhiteSpace($prNum)) {
-    try { $prNum = (& gh pr view --json number -q ".number" 2>$null) } catch { $prNum = "" }
-  }
-  if ([string]::IsNullOrWhiteSpace($prNum)) {
-    try {
-      $prNum = (& gh pr list --head cursor/windows-g1-g10-harden-4bde --json number -q ".[0].number" 2>$null)
-    } catch { $prNum = "" }
-  }
-  if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "36" }
-  try {
-    & gh auth status 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-      & gh pr comment $prNum --body-file $slim 2>&1 | Out-Host
-    }
-  } catch {}
+# Best-effort gh comment on open/merged unlock PRs
+$postGh = Join-Path $RepoRoot "scripts\windows_post_gate_paste_gh.ps1"
+if (Test-Path -LiteralPath $postGh) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $postGh -BodyFile $slim -RepoRoot $RepoRoot
 }
 
 exit 0
