@@ -1,9 +1,16 @@
 # AHOS Operator Quickstart — Windows
 
+> **CURRENT PATH (2026-08-28, post PR #31):** Do **not** start soak from this page until Windows operator gates pass.
+> Canonical handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md` · one-shot: `scripts/windows_post_merge_reconcile.ps1` then `scripts/windows_run_operator_gate.ps1` (PR #32) · or:
+> `python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill`
+> Requires: `DATABASE_URL`, matching `AHOS_WEB_API_TOKEN` + `NEXT_PUBLIC_AHOS_WEB_API_TOKEN`, `npm run dev` on `127.0.0.1:3000`.
+> **STATE B:** do **not** `db:migrate` / `db:push`. **OPERATOR_READY** is NOT invented by this quickstart.
+
+---
+
 **One page, PowerShell only, in order.** Copy each block as-is.
 
-Every command here was verified to exist with these exact flags at commit
-`164766b`. Nothing in this file is bash, and nothing requires a VPS.
+Prefer `docs/WINDOWS_OPERATOR_HANDOFF.md` for the live G1–G12 gate. Commands below are historical soak helpers; nothing here is bash or VPS-required.
 
 - Full reasoning per gate → `AHOS_SOAK_OPERATOR_START.md`
 - Pre-flight boxes (power, disk, sleep) → `AHOS_LOCAL_ACTIVATION_CHECKLIST.md`
