@@ -198,6 +198,11 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
     } else {
         Write-Host "gh CLI not on PATH — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
     }
+
+    $tgSend = Join-Path $RepoRoot "scripts\windows_telegram_send_gate_paste.ps1"
+    if (Test-Path -LiteralPath $tgSend) {
+        & powershell -ExecutionPolicy Bypass -File $tgSend -RepoRoot $RepoRoot -PastePath $paste
+    }
 } else {
     Write-Host "Paste reports\operator_validation_report_windows_*.json into Cursor." -ForegroundColor Yellow
 }

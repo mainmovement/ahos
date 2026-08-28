@@ -134,6 +134,10 @@ if (Get-Command docker -ErrorAction SilentlyContinue) {
 }
 
 if ($dockerOk) {
+    $PostgresUser = Get-EnvValue -Path $envPath -Key "POSTGRES_USER"
+    $PostgresDb = Get-EnvValue -Path $envPath -Key "POSTGRES_DB"
+    if ([string]::IsNullOrWhiteSpace($PostgresUser)) { $PostgresUser = "ahos_user" }
+    if ([string]::IsNullOrWhiteSpace($PostgresDb)) { $PostgresDb = "ahos" }
     try {
         $ping = & docker exec $PostgresContainer pg_isready -U $PostgresUser -d $PostgresDb 2>$null
         if ($LASTEXITCODE -eq 0) {

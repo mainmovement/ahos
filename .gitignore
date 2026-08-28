@@ -20,6 +20,7 @@ reports/_scratch/
 reports/LATEST_WINDOWS_GATE.txt
 reports/OWNER_PASTE_WINDOWS_GATE.txt
 reports/OWNER_PASTE_WINDOWS_GATE_SLIM.txt
+reports/windows_ops_last_run.log
 reports/paths_local_*.yaml
 config/paths.yaml
 .DS_Store
