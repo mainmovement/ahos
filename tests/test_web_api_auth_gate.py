@@ -298,6 +298,10 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     ops = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8")
     assert "windows_recover_g2_warm.ps1" in ops
     assert "for %%R in (" in ops
+    g2 = (ROOT / "scripts" / "windows_validate_g2.ps1").read_text(encoding="utf-8-sig")
+    assert "windows_recover_g2_warm.ps1" in g2
+    vbat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8")
+    assert "windows-presoak-unblock-4bde" in vbat
     paste = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "windows-evidence-inbox-live-4bde" in paste
 

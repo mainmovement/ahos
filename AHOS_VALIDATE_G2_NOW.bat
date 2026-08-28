@@ -31,6 +31,7 @@ if errorlevel 1 (
 
 echo ==^> git fetch / pull origin main
 git fetch origin
+git fetch origin cursor/windows-presoak-unblock-4bde >nul 2>&1
 git fetch origin cursor/windows-dburl-probe-first-4bde >nul 2>&1
 git fetch origin cursor/windows-presoak-followup-4bde >nul 2>&1
 git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
@@ -43,6 +44,7 @@ if errorlevel 1 (
 
 set "UNLOCK_REF="
 for %%R in (
+  origin/cursor/windows-presoak-unblock-4bde
   origin/cursor/windows-dburl-probe-first-4bde
   origin/cursor/windows-presoak-followup-4bde
   origin/cursor/windows-chat-500-rootcause-4bde
