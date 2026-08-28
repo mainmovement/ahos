@@ -67,6 +67,7 @@ def test_windows_run_operator_gate_script_exists():
     assert "LATEST_WINDOWS_GATE.txt" in text
     assert "Set-Clipboard" in text
     assert "notepad.exe" in text
+    assert "Env:AHOS_WEB_API_TOKEN" in text or 'Set-Item -Path ("Env:"' in text
 
 
 def test_windows_preflight_ops_script_exists():
@@ -76,17 +77,37 @@ def test_windows_preflight_ops_script_exists():
     assert "DATABASE_URL" in text
     assert "web_api_auth.ts" in text
     assert "db:migrate" in text.lower() or "do NOT db:migrate" in text
+    assert "sqlite_evidence" in text or "e01_discovery" in text
+    assert "pg_isready" in text
 
 
 def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     text = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8", errors="replace")
     assert "windows_post_merge_reconcile.ps1" in text
+    assert "KeepCurrentBranch" in text
     assert "windows_preflight_ops.ps1" in text
-    assert "npm run dev" in text
+    assert "windows_restart_next_dev.ps1" in text or "npm run dev" in text
     assert "127.0.0.1:3000" in text
+    assert "/api/chat" in text
     assert "windows_run_operator_gate.ps1" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+
+
+def test_windows_restart_next_dev_script_exists():
+    path = ROOT / "scripts" / "windows_restart_next_dev.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "Stop-Process" in text
+    assert "npm run dev" in text
+    assert "3000" in text
+
+
+def test_post_merge_reconcile_supports_keep_current_branch():
+    text = (ROOT / "scripts" / "windows_post_merge_reconcile.ps1").read_text(encoding="utf-8")
+    assert "KeepCurrentBranch" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+    assert "web_api_auth.ts" in text
+    assert "operator_validation_gate.py" in text or "windows_run_operator_gate.ps1" in text
 
 
 def test_install_windows_gate_cli_matches_runner():
@@ -95,13 +116,6 @@ def test_install_windows_gate_cli_matches_runner():
     assert "--require-owner-action" not in text
     assert "windows_run_operator_gate.ps1" in text
     assert "windows_ensure_web_api_token.ps1" in text
-
-
-def test_post_merge_reconcile_invokes_token_ensure():
-    text = (ROOT / "scripts" / "windows_post_merge_reconcile.ps1").read_text(encoding="utf-8")
-    assert "windows_ensure_web_api_token.ps1" in text
-    assert "web_api_auth.ts" in text
-    assert "operator_validation_gate.py" in text
 
 
 def test_env_example_documents_web_api_token_keys():
