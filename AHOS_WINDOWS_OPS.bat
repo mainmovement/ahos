@@ -36,6 +36,7 @@ if errorlevel 1 (
 
 call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
+git fetch origin cursor/windows-presoak-unblock-4bde >nul 2>&1
 git fetch origin cursor/windows-dburl-probe-first-4bde >nul 2>&1
 git fetch origin cursor/windows-presoak-followup-4bde >nul 2>&1
 git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
@@ -49,47 +50,20 @@ if errorlevel 1 (
 )
 REM Prefer newest unlock tip not yet contained in origin/main.
 set "OPS_SYNC_REF=origin/main"
-git rev-parse --verify origin/cursor/windows-dburl-probe-first-4bde
-  origin/cursor/windows-presoak-followup-4bde >nul 2>&1
-if not errorlevel 1 (
-  git merge-base --is-ancestor origin/cursor/windows-presoak-followup-4bde origin/main >nul 2>&1
-  if errorlevel 1 (
-    set "OPS_SYNC_REF=origin/cursor/windows-presoak-followup-4bde"
-  )
-)
-if "!OPS_SYNC_REF!"=="origin/main" (
-  git rev-parse --verify origin/cursor/windows-chat-500-rootcause-4bde >nul 2>&1
-  if not errorlevel 1 (
-    git merge-base --is-ancestor origin/cursor/windows-chat-500-rootcause-4bde origin/main >nul 2>&1
-    if errorlevel 1 (
-      set "OPS_SYNC_REF=origin/cursor/windows-chat-500-rootcause-4bde"
-    )
-  )
-)
-if "!OPS_SYNC_REF!"=="origin/main" (
-  git rev-parse --verify origin/cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
-  if not errorlevel 1 (
-    git merge-base --is-ancestor origin/cursor/windows-g2-evidence-autopush-4bde origin/main >nul 2>&1
-    if errorlevel 1 (
-      set "OPS_SYNC_REF=origin/cursor/windows-g2-evidence-autopush-4bde"
-    )
-  )
-)
-if "!OPS_SYNC_REF!"=="origin/main" (
-  git rev-parse --verify origin/cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
-  if not errorlevel 1 (
-    git merge-base --is-ancestor origin/cursor/windows-g2-empty-gateway-default-4bde origin/main >nul 2>&1
-    if errorlevel 1 (
-      set "OPS_SYNC_REF=origin/cursor/windows-g2-empty-gateway-default-4bde"
-    )
-  )
-)
-if "!OPS_SYNC_REF!"=="origin/main" (
-  git rev-parse --verify origin/cursor/windows-reconcile-ops-artifacts-4bde >nul 2>&1
-  if not errorlevel 1 (
-    git merge-base --is-ancestor origin/cursor/windows-reconcile-ops-artifacts-4bde origin/main >nul 2>&1
-    if errorlevel 1 (
-      set "OPS_SYNC_REF=origin/cursor/windows-reconcile-ops-artifacts-4bde"
+for %%R in (
+  origin/cursor/windows-presoak-unblock-4bde
+  origin/cursor/windows-dburl-probe-first-4bde
+  origin/cursor/windows-presoak-followup-4bde
+  origin/cursor/windows-chat-500-rootcause-4bde
+  origin/cursor/windows-g2-evidence-autopush-4bde
+  origin/cursor/windows-g2-empty-gateway-default-4bde
+  origin/cursor/windows-reconcile-ops-artifacts-4bde
+) do (
+  if "!OPS_SYNC_REF!"=="origin/main" (
+    git rev-parse --verify %%R >nul 2>&1
+    if not errorlevel 1 (
+      git merge-base --is-ancestor %%R origin/main >nul 2>&1
+      if errorlevel 1 set "OPS_SYNC_REF=%%R"
     )
   )
 )
@@ -194,18 +168,28 @@ if exist "scripts\windows_wait_for_web_api.ps1" (
   call :log ==^> wait + warm /api/chat
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
   if errorlevel 1 (
-    call :log WARNING: /api/chat warm failed - one recovery: ensure-pg + restart Next + wait again
-    if exist "scripts\windows_ensure_postgres_win.ps1" (
-      "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_postgres_win.ps1"
-    )
-    if exist "scripts\windows_restart_next_dev.ps1" (
-      "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_restart_next_dev.ps1"
+    call :log WARNING: /api/chat warm failed - recovery: forensics + DATABASE_URL + ensure-pg + restart Next
+    if exist "scripts\windows_recover_g2_warm.ps1" (
+      "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
+    ) else (
+      if exist "scripts\windows_chat_500_forensics.ps1" (
+        "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_chat_500_forensics.ps1"
+      )
+      if exist "scripts\windows_ensure_postgres_win.ps1" (
+        "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_postgres_win.ps1"
+      )
+      if exist "scripts\windows_ensure_database_url.ps1" (
+        "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
+      )
+      if exist "scripts\windows_restart_next_dev.ps1" (
+        "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_restart_next_dev.ps1"
+      )
     )
     "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
     if errorlevel 1 (
       set "WAIT_FAIL=1"
       call :log WARNING: /api/chat still not ready after recovery - writing failure paste, then still run gate for honest G2 JSON
-      call :failpaste wait_web_api "Next /api/chat not ready after ensure-pg recovery; gate will likely G2 FAIL"
+      call :failpaste wait_web_api "Next /api/chat not ready after G2 warm recovery; gate will likely G2 FAIL"
     ) else (
       call :log Recovery warm OK - continuing to gate
     )
