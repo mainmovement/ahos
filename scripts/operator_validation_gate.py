@@ -781,6 +781,12 @@ def main(argv: list[str] | None = None) -> int:
     # Normalize empty AHOS_GATEWAY_URL= from older .env.example (G2 must not BLOCK).
     if not (os.environ.get("AHOS_GATEWAY_URL") or "").strip():
         os.environ["AHOS_GATEWAY_URL"] = "http://127.0.0.1:3000/api/chat"
+        if _persist_env_key(ROOT / ".env", "AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat"):
+            print(
+                "Normalized empty AHOS_GATEWAY_URL in .env -> "
+                "http://127.0.0.1:3000/api/chat",
+                flush=True,
+            )
 
     plat = args.platform
     if plat == "unknown":
@@ -860,6 +866,11 @@ def main(argv: list[str] | None = None) -> int:
                 latest.parent.mkdir(parents=True, exist_ok=True)
                 latest.write_text(pointer_body, encoding="utf-8")
                 latest_paths.append(latest)
+            try:
+                status_path = _write_pre_soak_status(summary, gates)
+                print(f"PRE_SOAK_STATUS: {status_path}", flush=True)
+            except OSError as e:
+                print(f"PRE_SOAK_STATUS write skipped: {e}", flush=True)
         print(json.dumps({"wrote": str(out), "summary": summary}, indent=2))
         for g in gates:
             print(f"{g['id']:4} {g['status']:22} {g['name']}: {g['detail'][:120]}")
@@ -878,6 +889,84 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as e:  # noqa: BLE001
         print(f"operator_validation_gate fatal: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
+
+
+def _persist_env_key(env_path: Path, key: str, value: str) -> bool:
+    """Set KEY=value in .env (create/replace line). ASCII-safe. Returns True if wrote."""
+    try:
+        raw = ""
+        if env_path.is_file():
+            raw = env_path.read_text(encoding="utf-8", errors="replace")
+        lines = raw.splitlines()
+        prefix = key + "="
+        out: list[str] = []
+        found = False
+        for line in lines:
+            stripped = line.lstrip()
+            if stripped.startswith("#"):
+                out.append(line)
+                continue
+            if stripped.startswith(prefix) or line.startswith(prefix):
+                out.append(prefix + value)
+                found = True
+            else:
+                out.append(line)
+        if not found:
+            if out and out[-1].strip() != "":
+                out.append("")
+            out.append(prefix + value)
+        env_path.write_text("\n".join(out) + "\n", encoding="utf-8")
+        return True
+    except OSError:
+        return False
+
+
+def _write_pre_soak_status(summary: dict[str, Any], gates: list[dict[str, Any]]) -> Path:
+    """ASCII status file for Windows owner — does not invent READY."""
+    reports = ROOT / "reports"
+    reports.mkdir(parents=True, exist_ok=True)
+    path = reports / "PRE_SOAK_STATUS.txt"
+    by = {g["id"]: g for g in gates}
+    lines = [
+        "AHOS PRE_SOAK STATUS (PAPER_ONLY)",
+        "================================",
+        f"host_is_windows={summary.get('host_is_windows')}",
+        f"pre_soak_entry_ok={summary.get('pre_soak_entry_ok')}",
+        f"operator_ready={summary.get('operator_ready')}",
+        f"classification={summary.get('classification')}",
+        "STATE B: do not db:migrate / db:push",
+        "",
+        "G1-G10 (need all PASS for PRE_SOAK):",
+    ]
+    for i in range(1, 11):
+        gid = f"G{i}"
+        g = by.get(gid) or {}
+        lines.append(f"  {gid} {g.get('status', 'MISSING')}")
+    lines.append(
+        f"  G11 {((by.get('G11') or {}).get('status', 'MISSING'))} (OPERATOR_READY only)"
+    )
+    lines.append(
+        f"  G12 {((by.get('G12') or {}).get('status', 'MISSING'))} (informational)"
+    )
+    lines.append("")
+    if summary.get("pre_soak_entry_ok"):
+        lines.append("VERDICT: PRE_SOAK entry OK on this Windows host.")
+        lines.append("Paste reports\\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.")
+    else:
+        lines.append("VERDICT: NOT PRE_SOAK yet.")
+        for line in summary.get("remediation_actions") or []:
+            lines.append(f"- {line}")
+        lines.append("")
+        lines.append("Owner unlock (if tip not merged):")
+        lines.append(
+            "  curl.exe -L -o AHOS_BOOTSTRAP_PRESOAK.bat "
+            "https://raw.githubusercontent.com/mainmovement/ahos/"
+            "cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat"
+        )
+        lines.append("  AHOS_BOOTSTRAP_PRESOAK.bat")
+    lines.append("")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
 
 
 def _git_head() -> str | None:

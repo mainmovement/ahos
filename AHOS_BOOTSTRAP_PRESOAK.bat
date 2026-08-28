@@ -3,6 +3,9 @@ REM AHOS -- lowest-friction Windows PRE_SOAK bootstrap (downloadable from tip)
 REM STATE B: never db:migrate / db:push. Does NOT invent READY.
 REM
 REM From G:\robat\ahos (even if tip files are missing):
+REM   curl.exe -L -o AHOS_BOOTSTRAP_PRESOAK.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat
+REM   AHOS_BOOTSTRAP_PRESOAK.bat
+REM Or PowerShell:
 REM   powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat' -OutFile 'AHOS_BOOTSTRAP_PRESOAK.bat'"
 REM   AHOS_BOOTSTRAP_PRESOAK.bat
 setlocal EnableExtensions EnableDelayedExpansion

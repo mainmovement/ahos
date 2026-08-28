@@ -381,3 +381,38 @@ def test_g11_artifact_attestation(tmp_path, monkeypatch):
 
 def test_resolve_executable_finds_python():
     assert _resolve_executable(sys.executable) is not None or Path(sys.executable).exists()
+
+
+def test_persist_env_key_replaces_empty_gateway(tmp_path):
+    from scripts.operator_validation_gate import _persist_env_key
+
+    env = tmp_path / ".env"
+    env.write_text("FOO=1\nAHOS_GATEWAY_URL=\nBAR=2\n", encoding="utf-8")
+    assert _persist_env_key(env, "AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+    text = env.read_text(encoding="utf-8")
+    assert "AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat" in text
+    assert "FOO=1" in text and "BAR=2" in text
+    assert text.count("AHOS_GATEWAY_URL=") == 1
+
+
+def test_write_pre_soak_status_ascii(tmp_path, monkeypatch):
+    import scripts.operator_validation_gate as ovg
+
+    monkeypatch.setattr(ovg, "ROOT", tmp_path)
+    gates = [{"id": f"G{i}", "status": "PASS"} for i in range(1, 11)]
+    gates.append({"id": "G11", "status": "OWNER_ACTION_REQUIRED"})
+    gates.append({"id": "G12", "status": "FAIL"})
+    summary = {
+        "host_is_windows": True,
+        "pre_soak_entry_ok": False,
+        "operator_ready": False,
+        "classification": "INTEGRATION_READY",
+        "remediation_actions": ["G2: ensure gateway"],
+    }
+    path = ovg._write_pre_soak_status(summary, gates)
+    body = path.read_text(encoding="utf-8")
+    body.encode("ascii")
+    assert "pre_soak_entry_ok=False" in body
+    assert "AHOS_BOOTSTRAP_PRESOAK.bat" in body
+    assert "G1 PASS" in body
+    assert "VERDICT: NOT PRE_SOAK yet." in body

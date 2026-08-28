@@ -7,7 +7,7 @@
 
 ```bat
 cd /d G:\robat\ahos
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat' -OutFile 'AHOS_BOOTSTRAP_PRESOAK.bat'"
+curl.exe -L -o AHOS_BOOTSTRAP_PRESOAK.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat
 AHOS_BOOTSTRAP_PRESOAK.bat
 ```
 
@@ -15,5 +15,6 @@ AHOS_BOOTSTRAP_PRESOAK.bat
 
 - `reports\OWNER_PASTE_WINDOWS_GATE.txt` را در PR **#56** (باز بماند) یا **#38** کامنت کنید
 - یا `AHOS_PUSH_EVIDENCE_NOW.bat`
+- خلاصه: `reports\PRE_SOAK_STATUS.txt`
 
 هدف: `pre_soak_entry_ok=true` (G1–G10 روی Windows). G11 تلگرام فقط برای OPERATOR_READY.

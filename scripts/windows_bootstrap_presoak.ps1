@@ -112,6 +112,13 @@ if (-not (Test-Path -LiteralPath $pre)) {
   exit 2
 }
 
+# Scrub empty AHOS_GATEWAY_URL= before PRE_SOAK (last Windows paste G2 BLOCKED on empty).
+$ensureTok = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
+if (Test-Path -LiteralPath $ensureTok) {
+  Write-Host "==> ensure web API token + AHOS_GATEWAY_URL" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $ensureTok | Out-Host
+}
+
 # Same console so OPS bat pause/paste instructions are visible.
 Write-Host "==> launching AHOS_PRE_SOAK_NOW.bat (same console)" -ForegroundColor Cyan
 cmd.exe /c "`"$pre`""
@@ -120,6 +127,7 @@ $code = $LASTEXITCODE
 Write-Host ""
 Write-Host "Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38" -ForegroundColor Cyan
 Write-Host "Or run AHOS_PUSH_EVIDENCE_NOW.bat" -ForegroundColor Cyan
+Write-Host "Also see reports\PRE_SOAK_STATUS.txt" -ForegroundColor Cyan
 Write-Host "PRE_SOAK only if pre_soak_entry_ok=true. Never invent READY." -ForegroundColor Yellow
 Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
 exit $code

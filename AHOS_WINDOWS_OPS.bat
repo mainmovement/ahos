@@ -14,6 +14,9 @@ call :log   AHOS Windows ops (main harden path)
 call :log   Will NOT migrate DB or claim OPERATOR_READY
 call :log ==========================================================
 
+REM Force UTF-8 for Python child processes (G12 n8n JSON / charmap).
+set "PYTHONUTF8=1"
+set "PYTHONIOENCODING=utf-8"
 REM Ensure powershell is usable (Explorer double-click often lacks profile PATH)
 set "PS=powershell"
 where powershell >nul 2>&1
