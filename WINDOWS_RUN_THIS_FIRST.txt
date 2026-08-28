@@ -14,7 +14,7 @@ ONE CLICK (preferred)
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
 
-  Bat: token + Docker diagnose + DATABASE_URL (probe-first), then OPS bat.
+  Bat: token + Docker diagnose + DATABASE_URL (probe-first), then AHOS_WINDOWS_OPS.bat
   On /api/chat warm fail: auto forensics + DATABASE_URL + ensure-pg + Next restart.
   Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
   PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).

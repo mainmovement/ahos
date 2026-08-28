@@ -76,6 +76,7 @@ try {
   $openInbox3 = & gh pr list --head cursor/windows-evidence-inbox-4bde --state open --json number -q ".[0].number" 2>$null
   Add-Target $openInbox3
 } catch {}
+Add-Target "54"
 Add-Target "53"
 Add-Target "52"
 Add-Target "51"
