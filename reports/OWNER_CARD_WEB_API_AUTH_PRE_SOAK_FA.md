@@ -1,10 +1,18 @@
 # کارت مالک — PRE_SOAK (Windows PAPER_ONLY)
 
-**کد:** web-api auth + G2 fixes روی `main` / unlock tip PR #53.  
-**DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.  
-**توجه:** ردیف‌های Postgres برای G4/G5/G8/G9 کافی نیستند — SQLite محلی لازم است.
+**کد:** unlock روی `main` (#53) + تیپ PR #57 (اگر هنوز merge نشده).  
+**DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
 
-## فقط این
+## مسیر سریع (اگر #57 هنوز merge نشده)
+
+```bat
+cd /d G:\robat\ahos
+git fetch origin cursor/windows-evidence-notify-retarget-4bde
+git checkout origin/cursor/windows-evidence-notify-retarget-4bde -- AHOS_APPLY_TIP.bat
+AHOS_APPLY_TIP.bat
+```
+
+## بعد از merge شدن #57
 
 ```bat
 cd /d G:\robat\ahos
@@ -12,13 +20,9 @@ git pull origin main
 AHOS_PRE_SOAK_NOW.bat
 ```
 
-اگر `/api/chat` هنوز 500 بود: `AHOS_VALIDATE_G2_NOW.bat`  
-(با ریکاوری forensics + DATABASE_URL + restart)
-
 ## خروجی برای Cursor (الزامی)
 
-- `reports\OWNER_PASTE_WINDOWS_GATE.txt` را در Cursor بچسبانید
-- یا کامنت روی PR #54 / #53 / #38
-- حتی اگر bat وسط راه fail شد، همان paste را بفرستید
+- `reports\OWNER_PASTE_WINDOWS_GATE.txt` را در PR **#56** (باز بماند) یا **#38** کامنت کنید
+- یا `AHOS_PUSH_EVIDENCE_NOW.bat`
 
-هدف: `pre_soak_entry_ok=true` (G1–G10 روی Windows واقعی). G11 تلگرام فقط برای OPERATOR_READY.
+هدف: `pre_soak_entry_ok=true` (G1–G10 روی Windows). G11 تلگرام فقط برای OPERATOR_READY.
