@@ -4,32 +4,24 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-On main: PR #45 (G2 empty-gateway + retries + warm recovery).
-Open: #46 evidence-lease tip + docker health diagnose (this branch).
+On main now: through PR #46 (G2 validate path, diagnose, probe checkout fix).
+Open follow-up: cursor/windows-g2-evidence-autopush-4bde (G2 paste auto-push).
 
-Docker NOW (owner report):
-  ahos_postgres_win  Up (unhealthy)  -- investigate pg_isready; label alone is NOT G2 fail
-  ahos_runtime_win   Up (unhealthy)  -- NOT required for host Next G2 / PRE_SOAK
-  ahos_n8n_win       Up
+Docker (owner): postgres/runtime may show unhealthy -- G2 uses pg_isready + host Next.
 
 --------------------------------------------------
 NOW: health + G2 validation (no migrate)
 --------------------------------------------------
   cd /d G:\robat\ahos
   git pull origin main
-  git fetch origin cursor/windows-evidence-push-lease-4bde
-  git checkout origin/cursor/windows-evidence-push-lease-4bde -- AHOS_VALIDATE_G2_NOW.bat AHOS_PRE_SOAK_NOW.bat
+  git fetch origin cursor/windows-g2-evidence-autopush-4bde
+  git checkout origin/cursor/windows-g2-evidence-autopush-4bde -- AHOS_VALIDATE_G2_NOW.bat
 
   AHOS_VALIDATE_G2_NOW.bat
-  REM Paste reports\OWNER_PASTE_G2_VALIDATE.txt
-  REM If G2 PASS, then full PRE_SOAK path:
+  REM Paste reports\OWNER_PASTE_G2_VALIDATE.txt (also auto-pushes evidence when gh/git allow)
+
+  REM After G2 PASS -- full PRE_SOAK (G1-G10):
   AHOS_PRE_SOAK_NOW.bat
-  REM (pulls unlock tip, diagnose, ensure-pg, then AHOS_WINDOWS_OPS.bat)
+  REM (then AHOS_WINDOWS_OPS.bat)
 
-  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
-  PRE_SOAK only if pre_soak_entry_ok=true (G1-G10). Never invent READY.
-
-Notes:
-  - G2 = host npm run dev POST /api/chat + Postgres via DATABASE_URL
-  - ahos_runtime_win unhealthy does not block G2
-  - Do not db:migrate / db:push under STATE B
+PRE_SOAK only if paste shows pre_soak_entry_ok=true. Never invent READY.
