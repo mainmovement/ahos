@@ -113,9 +113,19 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "127.0.0.1:3000" in text
     assert "/api/chat" in text
     assert "windows_seed_local_evidence.ps1" in text
+    assert "windows_wait_for_web_api.ps1" in text or "/api/chat" in text
     assert "windows_run_operator_gate.ps1" in text
+    assert "windows_ops_last_run.log" in text or "LOG=" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+
+
+def test_windows_wait_for_web_api_script_exists():
+    path = ROOT / "scripts" / "windows_wait_for_web_api.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "/api/chat" in text
+    assert "AHOS_WEB_API_TOKEN" in text
+    assert "Invoke-WebRequest" in text
 
 
 def test_windows_seed_local_evidence_script_exists():
