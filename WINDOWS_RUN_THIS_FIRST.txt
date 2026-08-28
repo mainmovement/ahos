@@ -19,6 +19,7 @@ PR #31–#36 are on main (auth, ops bat, postgres ensure, seed/fail-fast/paste).
 3) Evidence back to Cursor (REQUIRED — one of):
    - Ctrl+V (clipboard is filled) OR open Desktop\AHOS_PASTE_TO_CURSOR.txt
    - Or paste reports\OWNER_PASTE_WINDOWS_GATE.txt into this Cursor chat
+   - If git push works: auto-updates branch cursor/windows-gate-evidence-4bde (agents fetch)
    - If `gh` logged in: auto-comments on unlock PRs (#37/#36)
    - Telegram document forward into Cursor (if bot sent it)
 

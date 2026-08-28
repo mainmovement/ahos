@@ -146,4 +146,9 @@ if (Test-Path -LiteralPath $postGh) {
   & powershell -NoProfile -ExecutionPolicy Bypass -File $postGh -BodyFile $slim -RepoRoot $RepoRoot
 }
 
+$pushEv = Join-Path $RepoRoot "scripts\windows_push_gate_evidence.ps1"
+if (Test-Path -LiteralPath $pushEv) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $pushEv -RepoRoot $RepoRoot -PastePath $paste -SlimPath $slim -LatestPath $latest
+}
+
 exit 0

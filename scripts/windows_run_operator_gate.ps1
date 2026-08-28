@@ -173,6 +173,11 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
         Write-Host "gh paste helper missing — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
     }
 
+    $pushEv = Join-Path $RepoRoot "scripts\windows_push_gate_evidence.ps1"
+    if (Test-Path -LiteralPath $pushEv) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $pushEv -RepoRoot $RepoRoot -PastePath $paste -SlimPath $slim -LatestPath $latest
+    }
+
     $tgSend = Join-Path $RepoRoot "scripts\windows_telegram_send_gate_paste.ps1"
     if (Test-Path -LiteralPath $tgSend) {
         & powershell -ExecutionPolicy Bypass -File $tgSend -RepoRoot $RepoRoot -PastePath $paste

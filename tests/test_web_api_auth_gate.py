@@ -131,6 +131,18 @@ def test_windows_publish_owner_paste_helper_exists():
     assert "notepad.exe" in text
 
 
+def test_windows_push_gate_evidence_helper_exists():
+    path = ROOT / "scripts" / "windows_push_gate_evidence.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "windows-gate-evidence-4bde" in text
+    assert "windows_gate_evidence" in text
+    assert "force-with-lease" in text
+    assert "OPERATOR_READY" in text
+    assert "db:migrate" in text.lower() or "no migrate" in text.lower()
+    runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
+    assert "windows_push_gate_evidence.ps1" in runner
+
+
 def test_windows_ops_bat_pulls_current_branch_too():
     text = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8", errors="replace")
     assert "git pull origin main" in text
