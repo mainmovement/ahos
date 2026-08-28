@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Write OWNER_PASTE diagnostic when Windows ops fails mid-bat (before gate).

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Push Windows gate OWNER_PASTE + report JSON to a durable evidence branch.

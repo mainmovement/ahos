@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Make OWNER_PASTE hard to miss: Desktop copy + clipboard + Notepad.

@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows - best-effort Telegram delivery of OWNER_PASTE
 #
 # Sends reports\OWNER_PASTE_WINDOWS_GATE.txt (or LATEST summary) to the first
