@@ -1,0 +1,13 @@
+AHOS Windows evidence inbox -- DO NOT MERGE THIS PR
+====================================================
+Purpose: durable GitHub comment sink for OWNER_PASTE / gate JSON.
+
+Merging closes the notify wake path (see #50/#51/#54).
+Leave this PR OPEN until PRE_SOAK is Windows-attested.
+
+- Not PRE_SOAK / OPERATOR_READY
+- STATE B: never db:migrate / db:push
+- Agents: read PR comments + origin/cursor/windows-gate-evidence-4bde
+
+windows_post_gate_paste_gh.ps1 looks up head:
+  cursor/windows-evidence-inbox-stay-open-4bde
