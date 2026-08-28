@@ -20,8 +20,8 @@ NOW: health + G2 validation (no migrate)
   AHOS_VALIDATE_G2_NOW.bat
   REM Paste reports\OWNER_PASTE_G2_VALIDATE.txt (also auto-pushes evidence when gh/git allow)
 
-  REM After G2 PASS -- full PRE_SOAK (G1-G10):
+  REM After G2 PASS -- full PRE_SOAK (G1-G10 via AHOS_WINDOWS_OPS.bat):
   AHOS_PRE_SOAK_NOW.bat
-  REM (then AHOS_WINDOWS_OPS.bat)
 
+Paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor.
 PRE_SOAK only if paste shows pre_soak_entry_ok=true. Never invent READY.
