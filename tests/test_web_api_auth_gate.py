@@ -68,9 +68,9 @@ def test_windows_run_operator_gate_script_exists():
     assert "Set-Clipboard" in text
     assert "notepad.exe" in text
     assert "Env:AHOS_WEB_API_TOKEN" in text or 'Set-Item -Path ("Env:"' in text
-    assert "gh pr comment" in text
-    assert "AHOS_GATE_PR" in text
+    assert "windows_post_gate_paste_gh.ps1" in text or "gh pr comment" in text
     assert "windows_telegram_send_gate_paste.ps1" in text
+    assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
 
 
 def test_windows_telegram_send_gate_paste_script_exists():
