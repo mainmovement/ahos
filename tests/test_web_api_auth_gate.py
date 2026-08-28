@@ -117,8 +117,19 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "windows_ensure_postgres_win.ps1" in text
     assert "windows_run_operator_gate.ps1" in text
     assert "windows_ops_last_run.log" in text or "LOG=" in text
+    assert "windows_write_ops_failure_paste.ps1" in text or "failpaste" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+
+
+def test_windows_failure_paste_helper_exists():
+    path = ROOT / "scripts" / "windows_write_ops_failure_paste.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
+    assert "pre_soak_entry_ok=false" in text
+    assert "operator_ready=false" in text
+    assert "db:migrate" in text.lower()
+    assert "BEGIN WINDOWS OPS FAILURE PASTE" in text
 
 
 def test_windows_wait_for_web_api_script_exists():

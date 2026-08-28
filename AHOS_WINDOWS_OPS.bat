@@ -43,6 +43,7 @@ if errorlevel 1 (
 
 if not exist "scripts\windows_post_merge_reconcile.ps1" (
   call :log ERROR: missing scripts\windows_post_merge_reconcile.ps1 - pull main first
+  call :failpaste missing_reconcile_script "pull harden branch or main first"
   pause
   exit /b 2
 )
@@ -65,7 +66,8 @@ if exist "scripts\windows_preflight_ops.ps1" (
   call :log ==^> Windows preflight
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_preflight_ops.ps1"
   if errorlevel 1 (
-    call :log PREFLIGHT failed - fix FAIL lines, then re-run this bat
+    call :log PREFLIGHT failed - writing OWNER_PASTE for Cursor, then stop
+    call :failpaste preflight "fix FAIL lines in preflight output, then re-run bat"
     call :log Log: %CD%\%LOG%
     pause
     exit /b 2
@@ -79,24 +81,25 @@ if exist "scripts\windows_restart_next_dev.ps1" (
   where npm >nul 2>&1
   if errorlevel 1 (
     call :log ERROR: npm not on PATH
+    call :failpaste npm_missing "install Node.js / ensure npm on PATH"
     pause
     exit /b 2
   )
   start "AHOS Next.js :3000" cmd /k "cd /d ""%~dp0"" && echo AHOS Next.js - leave this window open && npm run dev"
 )
 
+set "WAIT_FAIL=0"
 if exist "scripts\windows_wait_for_web_api.ps1" (
   call :log ==^> wait + warm /api/chat
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
+  if errorlevel 1 (
+    set "WAIT_FAIL=1"
+    call :log WARNING: /api/chat not ready - writing failure paste, then still run gate for honest G2 JSON
+    call :failpaste wait_web_api "Next /api/chat not ready; gate will likely G2 FAIL/BLOCKED"
+  )
 ) else (
   call :log ERROR: missing windows_wait_for_web_api.ps1
-  pause
-  exit /b 2
-)
-if errorlevel 1 (
-  call :log ERROR: Next.js /api/chat not ready on 127.0.0.1:3000
-  call :log Fix the other window, then re-run bat or windows_run_operator_gate.ps1
-  call :log Log: %CD%\%LOG%
+  call :failpaste missing_wait_script "checkout cursor/windows-g1-g10-harden-4bde"
   pause
   exit /b 2
 )
@@ -133,12 +136,23 @@ if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
 ) else (
   call :log Paste reports\operator_validation_report_windows_*.json into Cursor.
 )
+if "!WAIT_FAIL!"=="1" (
+  call :log NOTE: /api/chat warm failed earlier - check G2 in paste; STATE B no migrate
+)
 call :log STATE B: never db:migrate / db:push
 call :log Full log: %CD%\%LOG%
 echo.
 pause
 endlocal
 exit /b 0
+
+:failpaste
+if exist "scripts\windows_write_ops_failure_paste.ps1" (
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_write_ops_failure_paste.ps1" -Stage "%~1" -Detail "%~2"
+) else (
+  call :log WARNING: failure paste helper missing - copy %LOG% into Cursor
+)
+goto :eof
 
 :log
 echo %*
