@@ -1,0 +1,195 @@
+{
+  "schema": "ahos.operator_validation_report.v1",
+  "generated_utc": "2026-08-28T22:03:16Z",
+  "platform_arg": "windows",
+  "platform_effective": "windows",
+  "host_platform": "Windows-10-10.0.19045-SP0",
+  "host_is_windows": true,
+  "head_hint": "24151d6",
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Environment",
+      "status": "PASS",
+      "detail": "{\"python\": \"3.11.9\", \"executable\": \"G:\\\\robat\\\\ahos\\\\.venv\\\\Scripts\\\\python.exe\", \"platform\": \"Windows-10-10.0.19045-SP0\", \"system\": \"Windows\", \"node\": \"v24.19.0\", \"npm\": \"11.17.0\", \"repo_root\": \"G:\\\\robat\\\\ahos\", \"database_url_set\": true, \"web_api_token_set\": true, \"web_api_auth_module_present\": true, \"issues\": [], \"blocked\": []}",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:08Z",
+      "python": "3.11.9",
+      "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+      "platform": "Windows-10-10.0.19045-SP0",
+      "system": "Windows",
+      "node": "v24.19.0",
+      "npm": "11.17.0",
+      "repo_root": "G:\\robat\\ahos",
+      "database_url_set": true,
+      "web_api_token_set": true,
+      "web_api_auth_module_present": true,
+      "issues": [],
+      "blocked": []
+    },
+    {
+      "id": "G2",
+      "name": "Gateway",
+      "status": "BLOCKED",
+      "detail": "AHOS_GATEWAY_URL is set but empty — unset it or set http://127.0.0.1:3000/api/chat",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:08Z"
+    },
+    {
+      "id": "G3",
+      "name": "Discovery providers",
+      "status": "PASS",
+      "detail": "SUCCESS: dexscreener, geckoterminal tokens={'dexscreener': 2, 'geckoterminal': 2}",
+      "artifact": "G:\\robat\\ahos\\reports\\provider_probe_opval_20260828T220310Z.json",
+      "ts_utc": "2026-08-28T22:03:10Z",
+      "status_counts": {
+        "UNSUPPORTED": 5,
+        "SUCCESS": 2,
+        "ERROR": 1
+      },
+      "successes": [
+        "dexscreener",
+        "geckoterminal"
+      ]
+    },
+    {
+      "id": "G4",
+      "name": "Evidence persistence",
+      "status": "PASS",
+      "detail": "discovery_observations=1118 production_observations=4898",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:10Z",
+      "census": {
+        "schema": "ahos.prediction_lifecycle_status.v1",
+        "version": "prediction_lifecycle:v1",
+        "discovery_db": "G:\\robat\\ahos\\data\\e01_discovery.sqlite",
+        "ledger_db": "G:\\robat\\ahos\\data\\ahos_local.sqlite",
+        "observation_state": {
+          "OBSERVING": 809
+        },
+        "outcome_labels": 0,
+        "discovery_observations": 1118,
+        "production_observations": 4898,
+        "local_predictions": 8,
+        "eligible_join_pairs_estimate": 0,
+        "notes": [
+          "CALIBRATION_READY_BUT_DATA_REQUIRED — await T+72h RESOLVED + materialize"
+        ]
+      }
+    },
+    {
+      "id": "G5",
+      "name": "Scoring / predictions",
+      "status": "PASS",
+      "detail": "local_predictions=8",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:10Z",
+      "local_predictions": 8
+    },
+    {
+      "id": "G8",
+      "name": "Prediction lifecycle registration",
+      "status": "PASS",
+      "detail": "observation_state_total=809 states={'OBSERVING': 809}",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:10Z"
+    },
+    {
+      "id": "G9",
+      "name": "Observation lifecycle",
+      "status": "PASS",
+      "detail": "discovery_observations=1118 outcome_labels=0 (outcome_labels=0 is expected until T+72h RESOLVED — do not fabricate)",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:10Z",
+      "outcome_labels": 0
+    },
+    {
+      "id": "G6",
+      "name": "Security / PAPER_ONLY",
+      "status": "PASS",
+      "detail": "assert_safe_environment ok",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:10Z",
+      "env": {
+        "paper_only_enforced": true,
+        "paper_only_explicit": true,
+        "paper_only_unset": false,
+        "live_trading_flags_absent": true,
+        "zero_real_trading": true,
+        "credentials_isolated": true,
+        "ahos_paper_only_env": "1"
+      }
+    },
+    {
+      "id": "G7",
+      "name": "Lane-A freeze",
+      "status": "PASS",
+      "detail": "Lane-A integrity OK (pinned)",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:12Z"
+    },
+    {
+      "id": "G10",
+      "name": "Restart/recovery",
+      "status": "PASS",
+      "detail": "{\n  \"verdict\": \"PASS\",\n  \"passed\": 5,\n  \"failed\": 0,\n  \"report\": \"G:\\\\robat\\\\ahos\\\\reports\\\\backup_restore_drill.json\",\n  \"timestamp_utc\": \"2026-08-28T22:03:15Z\",\n  \"commit_sha\": \"24151d645c45922efd959f188c0a0726689cb356\"\n}\n",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:15Z",
+      "returncode": 0
+    },
+    {
+      "id": "G11",
+      "name": "Telegram live E2E",
+      "status": "OWNER_ACTION_REQUIRED",
+      "detail": "TELEGRAM_BOT_TOKEN unset — set in .env (never commit); then follow docs\\TELEGRAM_OPERATOR_E2E_PROTOCOL.md and archive transcript",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:15Z",
+      "platform": "windows"
+    },
+    {
+      "id": "G12",
+      "name": "n8n",
+      "status": "FAIL",
+      "detail": "N parse error: 'charmap' codec can't decode byte 0x8f in position 2083: character maps to <undefined>\n[FAIL] ahos_11_data_update.json\n   ERROR: JSON parse error: 'charmap' codec can't decode byte 0x8f in position 1745: character maps to <undefined>\n[FAIL] ahos_12_research_report.json\n   ERROR: JSON parse error: 'charmap' codec can't decode byte 0x8f in position 1372: character maps to <undefined>\n",
+      "artifact": null,
+      "ts_utc": "2026-08-28T22:03:16Z",
+      "structural_valid": false,
+      "operational_valid": false,
+      "note": "OPERATIONAL_VALID requires live n8n import+execute (OWNER_ACTION) — JSON valid ≠ operational"
+    }
+  ],
+  "summary": {
+    "g1_g10_all_pass": false,
+    "pre_soak_entry_ok": false,
+    "missing": [
+      "G2:BLOCKED",
+      "G11:OWNER_ACTION_REQUIRED",
+      "G12:FAIL"
+    ],
+    "remediation_actions": [
+      "G2: ensure npm run dev is up and AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat.",
+      "G11: set TELEGRAM_BOT_TOKEN + allowlist, archive E2E transcript, re-run with --telegram-e2e-artifact reports\\telegram_e2e_<UTC>.md (needed for OPERATOR_READY; pre-soak only needs G1-G10).",
+      "Never claim OPERATOR_READY without Windows G1-G11 PASS artifacts.",
+      "STATE B: never db:migrate / db:push without Cursor classification."
+    ],
+    "host_is_windows": true,
+    "windows_attested": true,
+    "classification": "INTEGRATION_READY",
+    "operator_ready": false,
+    "reason": "required Windows operator gates not all PASS"
+  },
+  "exit_code_legend": {
+    "0": "report written; no FAIL gates",
+    "1": "unexpected script error",
+    "2": "one or more FAIL gates",
+    "3": "windows platform and operator_ready still false"
+  },
+  "forbidden_claims": [
+    "PRODUCTION_READY",
+    "OPERATOR_READY without Windows G1-G11 PASS artifacts",
+    "n8n OPERATIONAL_VALID from JSON alone",
+    "Telegram live from unit tests alone",
+    "Calibration validated with 0 joined_pairs",
+    "Agent-host SUCCESS as OPERATOR_WINDOWS_VERIFIED"
+  ]
+}

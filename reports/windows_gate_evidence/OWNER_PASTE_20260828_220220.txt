@@ -1,0 +1,99 @@
+===== BEGIN WINDOWS OPS FAILURE PASTE (into Cursor) =====
+generated_utc=2026-08-28T22:02:18Z
+stage=wait_web_api
+detail=Next /api/chat not ready; gate will likely G2 FAIL/BLOCKED
+exit_hint=2
+git_branch=main
+git_head=24151d6
+host=windows_ops_bat
+AHOS_WEB_API_TOKEN_set=True
+NEXT_PUBLIC_match=True
+DATABASE_URL_set=True
+ahos_postgres_win=no
+sqlite_census=discovery=1110 predictions=0 observation_state_total=804
+pre_soak_entry_ok=false
+operator_ready=false
+STATE B: do not db:migrate / db:push
+NOTE: This is a mid-bat failure paste -- not a full G1-G11 gate report.
+--- windows_ops_last_run.log (tail) ---
+  Will NOT migrate DB, reset, stash, or force-push.
+==========================================================
+
+==> PREFLIGHT git state
+From https://github.com/mainmovement/ahos
+ * branch            main       -> FETCH_HEAD
+  branch     : main
+  HEAD       : 24151d645c45922efd959f188c0a0726689cb356
+  origin/main: 24151d645c45922efd959f188c0a0726689cb356
+  ahead/behind HEAD...origin/main: 0	0
+  git status --short:
+     M reports/windows_gate_evidence/README_EVIDENCE.md
+    ?? reports/windows_gate_evidence/LATEST_WINDOWS_GATE.txt
+    ?? reports/windows_gate_evidence/OWNER_PASTE_20260828_215716.txt
+    ?? reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE.txt
+    ?? reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE_SLIM.txt
+    ?? reports/windows_post_merge_reconcile_20260828_231950.json
+STOP - unexpected dirty paths (not in owner-protected set): reports/windows_gate_evidence/README_EVIDENCE.md, reports/windows_gate_evidence/LATEST_WINDOWS_GATE.txt, reports/windows_gate_evidence/OWNER_PASTE_20260828_215716.txt, reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE.txt, reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE_SLIM.txt, reports/windows_post_merge_reconcile_20260828_231950.json
+
+===== BEGIN REPORT (paste into Cursor) =====
+{
+    "schema":  "ahos.windows_post_merge_reconcile.v1",
+    "started_utc":  "2026-08-28T21:59:05.8727535Z",
+    "repo_root":  "G:\\robat\\ahos",
+    "protected_files":  [
+                            ".gitignore",
+                            "deployment/docker-compose.windows.yml",
+                            "reports/backup_restore_drill.json"
+                        ],
+    "pre":  {
+                "branch":  "main",
+                "head":  "24151d645c45922efd959f188c0a0726689cb356",
+                "origin_main":  "24151d645c45922efd959f188c0a0726689cb356",
+                "left_right_ahead_behind":  "0\t0",
+                "status_short":  [
+                                     " M reports/windows_gate_evidence/README_EVIDENCE.md",
+                                     "?? reports/windows_gate_evidence/LATEST_WINDOWS_GATE.txt",
+                                     "?? reports/windows_gate_evidence/OWNER_PASTE_20260828_215716.txt",
+                                     "?? reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE.txt",
+                                     "?? reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE_SLIM.txt",
+                                     "?? reports/windows_post_merge_reconcile_20260828_231950.json"
+                                 ],
+                "dirty_paths":  [
+                                    "reports/windows_gate_evidence/README_EVIDENCE.md",
+                                    "reports/windows_gate_evidence/LATEST_WINDOWS_GATE.txt",
+                                    "reports/windows_gate_evidence/OWNER_PASTE_20260828_215716.txt",
+                                    "reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE.txt",
+                                    "reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE_SLIM.txt",
+                                    "reports/windows_post_merge_reconcile_20260828_231950.json"
+                                ],
+                "unexpected_dirty":  [
+                                         "reports/windows_gate_evidence/README_EVIDENCE.md",
+                                         "reports/windows_gate_evidence/LATEST_WINDOWS_GATE.txt",
+                                         "reports/windows_gate_evidence/OWNER_PASTE_20260828_215716.txt",
+                                         "reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE.txt",
+                                         "reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE_SLIM.txt",
+                                         "reports/windows_post_merge_reconcile_20260828_231950.json"
+                                     ]
+            },
+    "sync":  {
+
+             },
+    "docker":  {
+
+               },
+    "postgres":  {
+
+                 },
+    "verdict":  "BLOCKED_OWNER_DECISION",
+    "next_action":  "Classify or commit/clean unexpected dirty files, then re-run this script.",
+    "errors":  [
+                   "STOP - unexpected dirty paths (not in owner-protected set): reports/windows_gate_evidence/README_EVIDENCE.md, reports/windows_gate_evidence/LATEST_WINDOWS_GATE.txt, reports/windows_gate_evidence/OWNER_PASTE_20260828_215716.txt, reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE.txt, reports/windows_gate_evidence/OWNER_PASTE_WINDOWS_GATE_SLIM.txt, reports/windows_post_merge_reconcile_20260828_231950.json"
+               ]
+}
+===== END REPORT =====
+WARNING: reconcile exited 2 - paste REPORT into Cursor anyway 
+== 
+== Next.js so .env token is loaded 
+== + warm /api/chat 
+WARNING: /api/chat not ready - writing failure paste, then still run gate for honest G2 JSON 
+===== END WINDOWS OPS FAILURE PASTE =====
