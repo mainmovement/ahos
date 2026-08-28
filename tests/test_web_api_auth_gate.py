@@ -159,7 +159,7 @@ def test_windows_push_gate_evidence_helper_exists():
     assert "db:migrate" in text.lower() or "no migrate" in text.lower()
     # Lease against fetched origin tip so laptop pushes do not silently no-op
     assert "origin/" in text and "fetch origin" in text
-    assert "gh pr comment 45" in text or "NOTIFY_PR45" in text
+    assert "NOTIFY_UNLOCK" in text or "gh pr comment" in text
     runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
     assert "windows_push_gate_evidence.ps1" in runner
 

@@ -194,7 +194,7 @@ if ($pushOk -and ($null -ne $gh)) {
       } else {
         Write-Host ("[gate-evidence] evidence PR already open #" + $existing) -ForegroundColor Green
       }
-      # Notify unlock PR #45 so subscribed agents wake on new evidence
+      # Notify open unlock/evidence PRs so subscribed agents wake on new evidence
       if (Test-Path -LiteralPath $LatestPath) {
         $notify = @(
           "Windows gate evidence pushed to ``origin/" + $EvidenceBranch + "`` (stamp " + $stamp + ").",
@@ -202,9 +202,23 @@ if ($pushOk -and ($null -ne $gh)) {
           "--- LATEST_WINDOWS_GATE ---"
         )
         $notify += Get-Content -LiteralPath $LatestPath -ErrorAction SilentlyContinue
-        $notifyFile = Join-Path $evDir ("NOTIFY_PR45_" + $stamp + ".txt")
+        $notifyFile = Join-Path $evDir ("NOTIFY_UNLOCK_" + $stamp + ".txt")
         [System.IO.File]::WriteAllText($notifyFile, ($notify -join "`n") + "`n", $utf8)
-        & gh pr comment 45 --body-file $notifyFile 2>&1 | Out-Host
+        $notifyTargets = New-Object System.Collections.Generic.List[string]
+        if (-not [string]::IsNullOrWhiteSpace($existing)) { [void]$notifyTargets.Add([string]$existing) }
+        try {
+          $open = & gh pr list --state open --limit 15 --json number,headRefName 2>$null | ConvertFrom-Json
+          foreach ($p in $open) {
+            if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2|evidence|lease') {
+              $n = [string]$p.number
+              if (-not ($notifyTargets -contains $n)) { [void]$notifyTargets.Add($n) }
+            }
+          }
+        } catch {}
+        # Prefer current unlock tip if listed; keep #45 as legacy sink when still open
+        foreach ($prNum in $notifyTargets) {
+          & gh pr comment $prNum --body-file $notifyFile 2>&1 | Out-Host
+        }
       }
     }
   } catch {}

@@ -3,8 +3,8 @@ AHOS Windows -- PRE_SOAK unlock (PAPER_ONLY)
 STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 
-On main now: through PR #43/#44 (G2 gateway ensure, Docker wait, G12 UTF-8, evidence).
-PR #45 (open): empty-gateway default + G2 retries + wait 5xx recovery + PRE_SOAK_NOW.
+On main now: through PR #45 (empty-gateway default, G2 retries, chat warm recovery).
+Open follow-up: cursor/windows-evidence-push-lease-4bde (evidence push lease + unlock notify).
 
 Latest Windows-attested gate before unlock (220318):
   PASS: G1, G3-G10
@@ -13,18 +13,17 @@ Latest Windows-attested gate before unlock (220318):
   pre_soak_entry_ok=false
 
 PRE_SOAK needs G1-G10 PASS only (G11/G12 do not block pre_soak_entry_ok).
+Simulated: 220318 + G2 PASS => pre_soak_entry_ok=true, operator_ready=false.
 
 --------------------------------------------------
 PREFERRED: one-click after Docker is green
 --------------------------------------------------
   1) Start Docker Desktop, wait GREEN, confirm: docker ps
   2) Get launcher (once, if not on disk yet):
-       git fetch origin cursor/windows-g2-empty-gateway-default-4bde
-       git checkout origin/cursor/windows-g2-empty-gateway-default-4bde -- AHOS_PRE_SOAK_NOW.bat
+       git fetch origin cursor/windows-evidence-push-lease-4bde
+       git checkout origin/cursor/windows-evidence-push-lease-4bde -- AHOS_PRE_SOAK_NOW.bat
   3) Double-click:  AHOS_PRE_SOAK_NOW.bat
-     (pulls main, applies #45 files if needed, readiness, then OPS bat)
-     OPS bat: fills empty gateway, waits Docker/Postgres, recovers once on chat 500,
-     then gate. Evidence auto-pushes to cursor/windows-gate-evidence-4bde when possible.
+     (pulls main, applies unlock tip if needed, readiness, then OPS bat)
   4) Paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor
      (or wait for evidence branch / PR comment)
 
