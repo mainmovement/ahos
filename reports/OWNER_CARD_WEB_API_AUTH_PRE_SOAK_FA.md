@@ -1,14 +1,15 @@
-# کارت مالک — فقط لپ‌تاپ (main کافی است)
+# کارت مالک — فقط لپ‌تاپ Windows (به‌سوی PRE_SOAK)
 
-**کد:** PR #31 روی `main` است. PR #32 اختیاری (گیت‌رانر راحت‌تر).  
-**DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
+**کد روی main:** PR #31 (auth) + PR #32 (گیت‌رانر).  
+**اختیاری:** PR #33 = دابل‌کلیک کامل‌تر (با شروع خودکار Next).  
+**DB:** STATE B — `db:migrate` / `db:push` ممنوع. READY جعلی نمی‌شود.
 
-## راه ۱ — دابل‌کلیک
+## راه ۱ — دابل‌کلیک (بعد از merge شدن #33)
 
-بعد از `git pull` روی `G:\robat\ahos` فایل `AHOS_WINDOWS_OPS.bat` را دابل‌کلیک کنید  
-(اگر نبود: اول PR #32 را merge کنید، یا از مسیر زیر استفاده کنید).
+روی `G:\robat\ahos` بعد از `git pull` فایل `AHOS_WINDOWS_OPS.bat` را دابل‌کلیک کنید.  
+خودش: pull → reconcile → preflight → `npm run dev` → انتظار `:3000` → گیت.
 
-## راه ۲ — سه دستور (فقط main)
+## راه ۲ — همین الان روی main (بدون #33)
 
 ```powershell
 cd G:\robat\ahos
@@ -20,10 +21,17 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.
 بعد:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
-$env:AHOS_PAPER_ONLY = "1"
-$env:AHOS_EVIDENCE_SOURCE = "local"
-python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
 ```
 
-REPORT + JSON را در Cursor بچسبانید.
+## چی را در Cursor بچسبانید
+
+ترجیحاً کل محتویات:
+
+`reports\OWNER_PASTE_WINDOWS_GATE.txt`
+
+اگر نبود: BEGIN REPORT + `reports\operator_validation_report_windows_*.json`  
+(+ در صورت وجود `reports\LATEST_WINDOWS_GATE.txt`)
+
+**هدف این موج:** `pre_soak_entry_ok=true` از JSON ویندوز (G1–G10).  
+G11 (تلگرام) برای OPERATOR_READY کامل لازم است — جعل نمی‌شود.
