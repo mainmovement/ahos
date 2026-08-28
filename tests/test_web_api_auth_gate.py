@@ -329,6 +329,8 @@ def test_windows_run_this_first_points_at_ops_bat():
     assert "AHOS_WINDOWS_OPS.bat" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "db:migrate" in text.lower()
+    assert "Invoke-WebRequest" in text
+    assert "AHOS_APPLY_TIP.bat" in text
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
     assert "AHOS_WINDOWS_OPS.bat" in start_ps1
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1

@@ -5,12 +5,20 @@ Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
 Unlock #53 is on main. Follow-up tip: PR #57
-  (G2 retries + PR #38 notify + warm recovery).
+  (G2 retries + password realign + PR #38 notify + warm recovery).
 
 --------------------------------------------------
-ONE CLICK (if PR #57 not merged yet)
+ONE CLICK (copy/paste in cmd at G:\robat\ahos)
 --------------------------------------------------
   cd /d G:\robat\ahos
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_APPLY_TIP.bat' -OutFile 'AHOS_APPLY_TIP.bat'"
+  AHOS_APPLY_TIP.bat
+
+  (Applies tip unlock files, then runs AHOS_PRE_SOAK_NOW.bat -> AHOS_WINDOWS_OPS.bat)
+
+--------------------------------------------------
+OR git form (same tip)
+--------------------------------------------------
   git fetch origin cursor/windows-evidence-notify-retarget-4bde
   git checkout origin/cursor/windows-evidence-notify-retarget-4bde -- AHOS_APPLY_TIP.bat
   AHOS_APPLY_TIP.bat

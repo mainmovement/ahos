@@ -2,6 +2,10 @@
 REM AHOS -- apply newest unlock tip onto working tree, then PRE_SOAK path
 REM Use when tip PR is not yet merged to main.
 REM STATE B: never db:migrate / db:push. Does NOT invent READY.
+REM
+REM Bootstrap (from repo root) if this file is missing:
+REM   powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_APPLY_TIP.bat' -OutFile 'AHOS_APPLY_TIP.bat'"
+REM   AHOS_APPLY_TIP.bat
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
 

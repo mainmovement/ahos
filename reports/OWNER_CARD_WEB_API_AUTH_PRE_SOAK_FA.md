@@ -1,14 +1,13 @@
 # کارت مالک — PRE_SOAK (Windows PAPER_ONLY)
 
-**کد:** unlock روی `main` (#53) + تیپ PR #57 (اگر هنوز merge نشده).  
+**کد:** unlock روی `main` (#53) + تیپ PR #57.  
 **DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
 
-## مسیر سریع (اگر #57 هنوز merge نشده)
+## یک‌خطی (در `G:\robat\ahos`)
 
 ```bat
 cd /d G:\robat\ahos
-git fetch origin cursor/windows-evidence-notify-retarget-4bde
-git checkout origin/cursor/windows-evidence-notify-retarget-4bde -- AHOS_APPLY_TIP.bat
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_APPLY_TIP.bat' -OutFile 'AHOS_APPLY_TIP.bat'"
 AHOS_APPLY_TIP.bat
 ```
 
