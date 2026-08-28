@@ -151,6 +151,53 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
     if (-not $clipOk) {
         Write-Host "Open that file and paste its full contents into Cursor." -ForegroundColor Yellow
     }
+
+    # Best-effort: post paste to GitHub PR so Cursor agents can fetch without chat paste.
+    # Never fails the gate. Prefer current PR; override with AHOS_GATE_PR.
+    $gh = Get-Command gh -ErrorAction SilentlyContinue
+    if ($null -ne $gh) {
+        $prNum = $env:AHOS_GATE_PR
+        if ([string]::IsNullOrWhiteSpace($prNum)) {
+            try {
+                $prNum = (& gh pr view --json number -q ".number" 2>$null)
+            } catch { $prNum = "" }
+        }
+        if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "34" }
+        $pasteBytes = (Get-Item -LiteralPath $paste).Length
+        $commentFile = $paste
+        if ($pasteBytes -gt 55000) {
+            # GitHub comment size guard — post pointer + LATEST only.
+            $slim = Join-Path $reportsDir "OWNER_PASTE_WINDOWS_GATE_SLIM.txt"
+            $slimLines = @()
+            $slimLines += "===== BEGIN WINDOWS GATE PASTE (slim; full in reports\\OWNER_PASTE_WINDOWS_GATE.txt) ====="
+            $slimLines += ("report_path=" + $reportPath)
+            if (Test-Path -LiteralPath $latest) {
+                $slimLines += "--- LATEST_WINDOWS_GATE ---"
+                $slimLines += (Get-Content -LiteralPath $latest)
+            }
+            $slimLines += "Full JSON too large for PR comment; paste OWNER_PASTE_WINDOWS_GATE.txt into Cursor."
+            $slimLines += "STATE B: do not db:migrate / db:push"
+            [System.IO.File]::WriteAllText($slim, ($slimLines -join "`n") + "`n", $utf8)
+            $commentFile = $slim
+        }
+        try {
+            & gh auth status 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                & gh pr comment $prNum --body-file $commentFile 2>&1 | Out-Host
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host ("Posted gate paste to PR #" + $prNum + " via gh (agent can fetch).") -ForegroundColor Green
+                } else {
+                    Write-Host ("gh pr comment failed exit=" + $LASTEXITCODE + " — Ctrl+V paste still required.") -ForegroundColor DarkYellow
+                }
+            } else {
+                Write-Host "gh not authenticated — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+            }
+        } catch {
+            Write-Host ("gh post skipped: " + $_.Exception.Message) -ForegroundColor DarkYellow
+        }
+    } else {
+        Write-Host "gh CLI not on PATH — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+    }
 } else {
     Write-Host "Paste reports\operator_validation_report_windows_*.json into Cursor." -ForegroundColor Yellow
 }

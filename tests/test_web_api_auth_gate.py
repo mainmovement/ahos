@@ -68,6 +68,8 @@ def test_windows_run_operator_gate_script_exists():
     assert "Set-Clipboard" in text
     assert "notepad.exe" in text
     assert "Env:AHOS_WEB_API_TOKEN" in text or 'Set-Item -Path ("Env:"' in text
+    assert "gh pr comment" in text
+    assert "AHOS_GATE_PR" in text
 
 
 def test_windows_preflight_ops_script_exists():
