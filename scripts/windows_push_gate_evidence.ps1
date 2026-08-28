@@ -213,12 +213,19 @@ if ($pushOk -and ($null -ne $gh)) {
         $notifyTargets = New-Object System.Collections.Generic.List[string]
         if (-not [string]::IsNullOrWhiteSpace($existing)) { [void]$notifyTargets.Add([string]$existing) }
         try {
-          $open = & gh pr list --state open --limit 15 --json number,headRefName 2>$null | ConvertFrom-Json
+          $open = & gh pr list --state open --limit 20 --json number,headRefName 2>$null | ConvertFrom-Json
           foreach ($p in $open) {
-            if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2|evidence|lease') {
+            if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2|evidence|lease|inbox') {
               $n = [string]$p.number
               if (-not ($notifyTargets -contains $n)) { [void]$notifyTargets.Add($n) }
             }
+          }
+        } catch {}
+        # Always try the dedicated evidence inbox head if open.
+        try {
+          $inbox = & gh pr list --head cursor/windows-evidence-inbox-4bde --state open --json number -q ".[0].number" 2>$null
+          if (-not [string]::IsNullOrWhiteSpace($inbox) -and -not ($notifyTargets -contains [string]$inbox)) {
+            [void]$notifyTargets.Add([string]$inbox)
           }
         } catch {}
         # Prefer current unlock tip if listed; keep #45 as legacy sink when still open
