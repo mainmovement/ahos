@@ -42,7 +42,11 @@ STORES = {
 
 
 def _store_status(path_fn) -> dict:
-    path = Path(path_fn())
+    # Read-only: never mkdir data dirs while inspecting stores.
+    try:
+        path = Path(path_fn(create_dir=False))
+    except TypeError:
+        path = Path(path_fn())
     if not path.is_file():
         return {
             "path": str(path),
@@ -149,7 +153,8 @@ def build_snapshot(probe_providers: bool = False, window_hours: float = 24.0) ->
         "result": "RECORDED",
         "lane_a": {
             "drift": drift, "missing": missing, "untracked": untracked,
-            "ok": not drift and not missing,
+            # Untracked Lane-A paths are not intact until freeze re-anchor.
+            "ok": (not drift and not missing and not untracked),
         },
         "watchdog": soak["watchdog"],
         "scheduler": soak["scheduler"],

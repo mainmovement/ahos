@@ -92,15 +92,20 @@ def _freeze_check(root) -> tuple[bool, str]:
     """Verify the Lane-A scientific surface against the frozen manifest.
 
     Reuses scripts/freeze_lane_a — no duplicate hashing logic exists here.
+
+    Untracked Lane-A files are NOT intact: they are an unpinned scientific
+    surface and must fail closed for observation execution.
     """
     try:
         sys.path.insert(0, str(root))
         from scripts import freeze_lane_a as freeze_lane
-        drift, missing, _untracked = freeze_lane.verify(root=root)
+        drift, missing, untracked = freeze_lane.verify(root=root)
         if drift or missing:
             detail = (f"lane_a_freeze_drift: drift={sorted(drift)}"
                       if drift else f"lane_a_freeze_missing: {sorted(missing)}")
             return False, detail
+        if untracked:
+            return False, f"lane_a_freeze_untracked: {sorted(untracked)}"
         return True, "lane_a_freeze_ok"
     except Exception as e:  # unverifiable freeze => fail closed, never assume intact
         return False, f"lane_a_freeze_unverifiable: {type(e).__name__}: {e}"

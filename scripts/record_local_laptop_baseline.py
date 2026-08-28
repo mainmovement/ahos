@@ -62,7 +62,7 @@ def build() -> dict:
         "windows_host": platform.system() == "Windows",
         "python_3_11_or_newer": sys.version_info >= (3, 11),
         "working_tree_clean_before_artifact": git.get("working_tree_clean") is True,
-        "lane_a_intact": not drift and not missing,
+        "lane_a_intact": not drift and not missing and not untracked,
         "all_databases_integrity_ok": all(value == "ok" for value in integrity.values()),
         "execution_flags_disabled": not any(_enabled_env(name) for name in _FORBIDDEN_EXECUTION_FLAGS),
     }

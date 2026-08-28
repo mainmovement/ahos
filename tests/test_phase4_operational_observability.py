@@ -38,8 +38,16 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert "timestamp_utc" in data
     assert data["database_integrity"]["e01_discovery"]["integrity"] == "OK"
     assert data["database_integrity"]["paper_trading"]["integrity"] == "OK"
-    assert data["track_b_accounting"]["is_accounting_consistent"] is True
-    assert data["track_b_accounting"]["accounting_sum_usd"] == pytest.approx(20.0, rel=1e-7)
+    tb = data["track_b_accounting"]
+    if tb.get("bankroll_initialised"):
+        assert tb["is_accounting_consistent"] is True
+        assert tb["accounting_sum_usd"] == pytest.approx(
+            tb["expected_equity_usd"], rel=1e-7
+        )
+    else:
+        # Fresh install: consistency UNKNOWN, not fabricated True/$20.
+        assert tb["is_accounting_consistent"] is None
+        assert tb["accounting_sum_usd"] is None
     assert data["security_invariants"]["ahos_paper_only_enforced"] in (True, None)
     assert data["security_invariants"]["live_trading_prohibited"] is True
     # Explicit unset vs enforced is recorded; do not require hardcoded True.

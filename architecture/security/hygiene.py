@@ -76,9 +76,10 @@ def assert_safe_environment() -> dict[str, bool]:
     """
     paper = os.environ.get("AHOS_PAPER_ONLY")
     if paper is not None and paper.strip() != "" and not _env_flag_enabled(paper):
+        # Never embed the raw env value — it could be a misplaced secret.
         raise PermissionError(
-            "CRITICAL SECURITY VETO: AHOS_PAPER_ONLY is explicitly disabled "
-            f"(value={paper!r}); PAPER_ONLY is mandatory"
+            "CRITICAL SECURITY VETO: AHOS_PAPER_ONLY is explicitly disabled; "
+            "PAPER_ONLY is mandatory"
         )
 
     live_trading_flags = (
@@ -98,9 +99,23 @@ def assert_safe_environment() -> dict[str, bool]:
     present_exchange_keys = [
         var for var in exchange_api_keys if (os.environ.get(var) or "").strip()
     ]
+    paper_explicit = bool(paper and paper.strip() and _env_flag_enabled(paper))
+    paper_unset = paper is None or str(paper).strip() == ""
+    # Measured: live-enable flags are absent (else we would have raised above).
+    live_flags_absent = len(violations) == 0
     return {
-        "paper_only_enforced": True,
-        "zero_real_trading": True,
+        # True ONLY when AHOS_PAPER_ONLY is explicitly enabled (=1/true/yes/on).
+        # Unset is default-safe for gate passage but MUST NOT claim enforcement.
+        "paper_only_enforced": paper_explicit,
+        # Epistemic: env flag was explicitly enabled (not merely default).
+        "paper_only_explicit": paper_explicit,
+        "paper_only_unset": paper_unset,
+        # Measured absence of live-trading FLAGS (not a claim that execution
+        # is impossible by other means).
+        "live_trading_flags_absent": live_flags_absent,
+        "zero_real_trading": live_flags_absent,
         "credentials_isolated": len(present_exchange_keys) == 0,
-        "ahos_paper_only_env": (paper.strip() if paper and paper.strip() else "unset_default_paper"),
+        "ahos_paper_only_env": (
+            paper.strip() if paper and paper.strip() else "unset_default_paper"
+        ),
     }

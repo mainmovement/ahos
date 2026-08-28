@@ -26,6 +26,7 @@ import sqlite3
 import threading
 import time
 import uuid
+import weakref
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -37,6 +38,11 @@ from config.paths import get_local_db_path
 log = logging.getLogger("ahos.runtime.metrics")
 
 ALLOWED_STATUSES = frozenset({"OK", "WARN", "ERROR", "RECOVERED"})
+
+# Process-local registry so read-only health snapshots can observe in-process
+# write failures without constructing a new tracker (which would mkdir/CREATE).
+_TRACKER_REGISTRY: weakref.WeakSet = weakref.WeakSet()
+_TRACKER_REGISTRY_LOCK = threading.Lock()
 
 SCHEMA_METRICS = """
 CREATE TABLE IF NOT EXISTS runtime_operational_metrics (
@@ -86,6 +92,33 @@ class OperationalMetricsTracker:
         self._write_failures = 0
         self._failure_history: deque[MetricWriteFailure] = deque(maxlen=max_failure_history)
         self._init_db()
+        with _TRACKER_REGISTRY_LOCK:
+            _TRACKER_REGISTRY.add(self)
+
+    @classmethod
+    def registered_telemetry_health(cls) -> dict[str, Any] | None:
+        """Merge telemetry_health from live in-process trackers, or None if none.
+
+        Never constructs a tracker (no mkdir / CREATE TABLE side effects).
+        """
+        with _TRACKER_REGISTRY_LOCK:
+            trackers = list(_TRACKER_REGISTRY)
+        if not trackers:
+            return None
+        total_failures = 0
+        recent: list[dict[str, Any]] = []
+        for t in trackers:
+            h = t.telemetry_health()
+            total_failures += int(h.get("write_failures") or 0)
+            recent.extend(list(h.get("recent_failures") or []))
+        recent.sort(key=lambda r: str(r.get("timestamp_utc") or ""), reverse=True)
+        return {
+            "write_failures": total_failures,
+            "recent_failures": recent[:64],
+            "status": "OK" if total_failures == 0 else "DEGRADED",
+            "source": "in_process_registry",
+            "tracker_count": len(trackers),
+        }
 
     def _init_db(self) -> None:
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)

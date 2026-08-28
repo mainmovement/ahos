@@ -132,10 +132,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"MISSING   {p}")
     for p in untracked:
         print(f"UNTRACKED {p}")
-    if not (drift or missing):
-        print(f"Lane-A integrity OK ({len(load_baseline())} files pinned)")
+    if drift or missing:
+        return 1
+    if untracked:
+        print(
+            f"Lane-A PINNED set intact ({len(load_baseline())} files) but "
+            f"{len(untracked)} UNTRACKED file(s) pending governance re-anchor"
+        )
         return 0
-    return 1
+    print(f"Lane-A integrity OK ({len(load_baseline())} files pinned)")
+    return 0
 
 
 if __name__ == "__main__":

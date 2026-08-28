@@ -26,7 +26,9 @@ def test_proposal_lane_a_forbidden_immediate_reject():
     assert prop.current_stage == "REJECTED"
 
 
-def test_proposal_requires_human_approval_cannot_be_approved_by_ai():
+def test_proposal_requires_human_approval_cannot_be_approved_by_ai(monkeypatch):
+    monkeypatch.setenv("AHOS_HUMAN_APPROVER_IDS", "lead_architect_human")
+    monkeypatch.delenv("AHOS_ALLOW_UNBOUND_HUMAN_APPROVAL", raising=False)
     engine = SelfEvolutionEngine()
     prop = engine.create_proposal(
         detected_by="human_lead",
@@ -58,7 +60,21 @@ def test_proposal_requires_human_approval_cannot_be_approved_by_ai():
         prop, "APPROVED", evidence_ref="ev_human", approver="AG-20", is_human_approver=True
     )
     assert ok_self_approve is False
-    assert "Proposer cannot approve" in err_msg2
+    assert "Proposer cannot approve" in err_msg2 or "AI/agent pattern" in err_msg2
+
+    # Spoofed human boolean with AI-shaped identity -> veto
+    ok_spoof, err_spoof = engine.advance_stage(
+        prop, "APPROVED", evidence_ref="ev_spoof", approver="AI_AGENT_X", is_human_approver=True
+    )
+    assert ok_spoof is False
+    assert "AI/agent pattern" in err_spoof or "allowlist" in err_spoof
+
+    # Non-allowlisted "human" -> veto
+    ok_outside, err_out = engine.advance_stage(
+        prop, "APPROVED", evidence_ref="ev_out", approver="random_person", is_human_approver=True
+    )
+    assert ok_outside is False
+    assert "allowlist" in err_out
 
     # Legitimate independent human approval -> APPROVED
     ok_human, msg_ok = engine.advance_stage(
@@ -66,6 +82,31 @@ def test_proposal_requires_human_approval_cannot_be_approved_by_ai():
     )
     assert ok_human is True
     assert prop.current_stage == "APPROVED"
+
+
+def test_unbound_human_approval_refused_without_allowlist(monkeypatch):
+    monkeypatch.delenv("AHOS_HUMAN_APPROVER_IDS", raising=False)
+    monkeypatch.delenv("AHOS_ALLOW_UNBOUND_HUMAN_APPROVAL", raising=False)
+    engine = SelfEvolutionEngine()
+    prop = engine.create_proposal(
+        detected_by="human_lead",
+        diagnosis="Add telemetry probe",
+        proposed_by="lead_human",
+        is_ai=False,
+        target_scope="B_ONLY",
+        governance_touching=False,
+        candidate_diff_ref="diff_03",
+        test_battery=["test_03"],
+        rollback_plan={"trigger": "error", "action": "revert"}
+    )
+    for stg in ["SANDBOXED", "REPLAYED", "CI_PASSED", "REDTEAMED", "COUNCIL_REVIEWED", "GOVERNANCE_CHECKED", "AWAITING_HUMAN"]:
+        ok, msg = engine.advance_stage(prop, stg, evidence_ref="ev_ref")
+        assert ok is True, msg
+    ok, err = engine.advance_stage(
+        prop, "APPROVED", evidence_ref="ev", approver="lead_architect_human", is_human_approver=True
+    )
+    assert ok is False
+    assert "AHOS_HUMAN_APPROVER_IDS unset" in err
 
 
 def test_proposal_stage_jump_forbidden():

@@ -50,8 +50,9 @@ def _integrity(db_path: str) -> str:
 
 def snapshot(local_db: str | None = None, discovery_db: str | None = None,
              window_hours: float = 24.0, now: float | None = None) -> dict:
-    local_db = local_db or get_local_db_path()
-    discovery_db = discovery_db or get_discovery_db_path()
+    # Read-only default paths: never mkdir operational data dirs.
+    local_db = local_db or get_local_db_path(create_dir=False)
+    discovery_db = discovery_db or get_discovery_db_path(create_dir=False)
     ts = time.time() if now is None else now
     cutoff = ts - window_hours * 3600.0
 

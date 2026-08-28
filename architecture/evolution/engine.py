@@ -11,12 +11,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
 import time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
 from ..knowledge.contracts import VersionedClaim
+
+# Approver ids that look like AI agents (fail-closed even if caller claims human).
+_AI_APPROVER_RE = re.compile(r"(?i)\b(ai[_-]?agent|ag-\d+|bot|llm|model)\b")
 
 CONTRACT_PATH = Path(__file__).resolve().parents[2] / "contracts" / "improvement_proposal_v1.json"
 
@@ -241,8 +246,31 @@ class SelfEvolutionEngine:
                 return False, "EPISTEMIC VETO: Approval requires a verified HUMAN approver."
             if approver == proposal.proposed_by:
                 return False, "GOVERNANCE VETO: Proposer cannot approve their own proposal."
+            if _AI_APPROVER_RE.search(str(approver)):
+                return False, (
+                    "EPISTEMIC VETO: Approver identity matches AI/agent pattern; "
+                    "human approval required."
+                )
             if not proposal.rollback_plan or not proposal.rollback_plan.get("trigger"):
                 return False, "ROLLBACK VETO: Missing explicit rollback plan and trigger."
+            # Bound human approval: either an explicit allowlist, or an explicit
+            # unbound-approval escape hatch. Spoofable boolean alone is insufficient.
+            allow_raw = (os.environ.get("AHOS_HUMAN_APPROVER_IDS") or "").strip()
+            unbound_ok = (os.environ.get("AHOS_ALLOW_UNBOUND_HUMAN_APPROVAL") or "").strip().lower() in {
+                "1", "true", "yes", "on",
+            }
+            if allow_raw:
+                allowed = {x.strip() for x in allow_raw.split(",") if x.strip()}
+                if str(approver) not in allowed:
+                    return False, (
+                        "GOVERNANCE VETO: Approver not in AHOS_HUMAN_APPROVER_IDS allowlist."
+                    )
+            elif not unbound_ok:
+                return False, (
+                    "EPISTEMIC VETO: AHOS_HUMAN_APPROVER_IDS unset; refusing unbound "
+                    "human approval (set AHOS_ALLOW_UNBOUND_HUMAN_APPROVAL=1 only for "
+                    "controlled local tests)."
+                )
 
             proposal.approvals.append({"approver": approver, "is_human": True, "ts": ts})
 

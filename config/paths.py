@@ -53,30 +53,38 @@ def get_project_root() -> Path:
 
 
 # Core directory getters
-def get_data_dir() -> Path:
+def get_data_dir(*, create: bool = True) -> Path:
+    """Resolve the data directory.
+
+    ``create=True`` (default) ensures the directory exists for writers.
+    Observational / read-only callers MUST pass ``create=False`` so that
+    health snapshots and diagnostics cannot mutate the filesystem.
+    """
     data_dir = os.environ.get("AHOS_DATA_DIR")
     if data_dir:
         p = Path(data_dir).resolve()
     else:
         p = get_project_root() / "data"
-    p.mkdir(parents=True, exist_ok=True)
+    if create:
+        p.mkdir(parents=True, exist_ok=True)
     return p
 
 
-def get_db_path(db_name: str) -> str:
+def get_db_path(db_name: str, *, create_dir: bool = True) -> str:
     """Returns absolute path string to a SQLite database file."""
     if not db_name.endswith(".sqlite") and not db_name.endswith(".db"):
         db_name = f"{db_name}.sqlite"
-    return str(get_data_dir() / db_name)
+    return str(get_data_dir(create=create_dir) / db_name)
 
 
 def get_config_dir() -> Path:
     return get_project_root() / "config"
 
 
-def get_reports_dir() -> Path:
+def get_reports_dir(*, create: bool = True) -> Path:
     p = get_project_root() / "reports"
-    p.mkdir(parents=True, exist_ok=True)
+    if create:
+        p.mkdir(parents=True, exist_ok=True)
     return p
 
 
@@ -97,20 +105,20 @@ def get_research_dir() -> Path:
 
 
 # Common canonical DB paths
-def get_discovery_db_path() -> str:
-    return get_db_path("e01_discovery.sqlite")
+def get_discovery_db_path(*, create_dir: bool = True) -> str:
+    return get_db_path("e01_discovery.sqlite", create_dir=create_dir)
 
 
-def get_paper_trading_db_path() -> str:
-    return get_db_path("paper_trading.sqlite")
+def get_paper_trading_db_path(*, create_dir: bool = True) -> str:
+    return get_db_path("paper_trading.sqlite", create_dir=create_dir)
 
 
-def get_local_db_path() -> str:
-    return get_db_path("ahos_local.sqlite")
+def get_local_db_path(*, create_dir: bool = True) -> str:
+    return get_db_path("ahos_local.sqlite", create_dir=create_dir)
 
 
-def get_knowledge_db_path() -> str:
-    return get_db_path("ahos_knowledge.sqlite")
+def get_knowledge_db_path(*, create_dir: bool = True) -> str:
+    return get_db_path("ahos_knowledge.sqlite", create_dir=create_dir)
 
 
 def sqlite_ro_uri(path: Path | str) -> str:
