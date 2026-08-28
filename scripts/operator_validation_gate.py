@@ -731,6 +731,10 @@ def main(argv: list[str] | None = None) -> int:
     except Exception:  # noqa: BLE001
         pass
 
+    # Normalize empty AHOS_GATEWAY_URL= from older .env.example (G2 must not BLOCK).
+    if not (os.environ.get("AHOS_GATEWAY_URL") or "").strip():
+        os.environ["AHOS_GATEWAY_URL"] = "http://127.0.0.1:3000/api/chat"
+
     plat = args.platform
     if plat == "unknown":
         plat = "windows" if sys.platform.startswith("win") else "agent-host"
