@@ -15,7 +15,10 @@
 param(
     [string]$RepoRoot = "",
     [string]$PostgresContainer = "ahos_postgres_win",
-    [string]$GatewayDefault = "http://127.0.0.1:3000/api/chat"
+    [string]$GatewayDefault = "http://127.0.0.1:3000/api/chat",
+    # When set, docker daemon / postgres container issues are WARN not FAIL
+    # (OPS bat ensure-pg waits up to DockerDaemonWaitSec for Desktop to come up).
+    [switch]$AllowDockerStarting
 )
 
 $ErrorActionPreference = "Continue"
@@ -102,13 +105,24 @@ if ([string]::IsNullOrWhiteSpace($pgPass)) {
 }
 
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Check "docker" "FAIL" "docker not on PATH - install Docker Desktop"
-    $fails++
+    if ($AllowDockerStarting) {
+        Write-Check "docker" "WARN" "docker not on PATH yet - install/start Docker Desktop"
+        $warns++
+    } else {
+        Write-Check "docker" "FAIL" "docker not on PATH - install Docker Desktop"
+        $fails++
+    }
 } else {
     $info = & docker info 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0) {
-        Write-Check "docker_daemon" "FAIL" "Docker Desktop Linux Engine not reachable (start Desktop; wait green)"
-        $fails++
+        $msg = "Docker Desktop Linux Engine not reachable (start Desktop; wait green)"
+        if ($AllowDockerStarting) {
+            Write-Check "docker_daemon" "WARN" $msg
+            $warns++
+        } else {
+            Write-Check "docker_daemon" "FAIL" $msg
+            $fails++
+        }
         if ($info -match "dockerDesktopLinuxEngine" -or $info -match "pipe") {
             Write-Host "         hint: dockerDesktopLinuxEngine pipe not found = engine still starting" -ForegroundColor DarkYellow
         }

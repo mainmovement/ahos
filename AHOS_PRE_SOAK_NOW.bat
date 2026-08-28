@@ -56,15 +56,13 @@ if exist "scripts\windows_ensure_web_api_token.ps1" (
 
 if exist "scripts\windows_pre_soak_readiness.ps1" (
   echo ==^> readiness checklist
-  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_pre_soak_readiness.ps1"
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_pre_soak_readiness.ps1" -AllowDockerStarting
   if errorlevel 1 (
-    echo.
-    echo READINESS still has FAILs.
-    echo If Docker daemon FAIL: start Docker Desktop, wait GREEN, re-run this bat.
+    echo WARNING: readiness FAILs present.
+    echo If Docker daemon is still starting, OPS bat will wait up to ~120s for the engine.
+    echo If token/gateway FAIL persisted, fix .env then re-run.
     echo STATE B: do NOT db:migrate / db:push
-    echo.
-    pause
-    exit /b 2
+    echo Continuing into AHOS_WINDOWS_OPS.bat anyway...
   )
 )
 

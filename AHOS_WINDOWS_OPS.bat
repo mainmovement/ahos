@@ -85,7 +85,7 @@ if exist "scripts\windows_validate_ps1_parse.ps1" (
 
 if exist "scripts\windows_pre_soak_readiness.ps1" (
   call :log ==^> pre-soak readiness checklist ^(no READY claim^)
-  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_pre_soak_readiness.ps1"
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_pre_soak_readiness.ps1" -AllowDockerStarting
   if errorlevel 1 (
     call :log WARNING: readiness FAILs present - ensure-pg / token ensure may still fix Docker+gateway
   )
