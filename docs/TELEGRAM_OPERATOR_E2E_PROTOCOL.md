@@ -8,10 +8,16 @@
 
 1. Copy `.env.example` → `.env`
 2. Set `TELEGRAM_BOT_TOKEN` from BotFather
-3. Set `TELEGRAM_ALLOWED_CHAT_IDS` to your chat id
-4. Start One-Brain: `npm run dev`
-5. Set `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat`
-6. Start Telegram domain service / bot per `AHOS_OPERATOR_QUICKSTART_WINDOWS.md`
+3. Set `TELEGRAM_ALLOWED_CHAT_IDS` to your chat id (empty allowlist is LOCKED unless `AHOS_TELEGRAM_ALLOW_OPEN_ACCESS=1`)
+4. Set matching `AHOS_WEB_API_TOKEN` and `NEXT_PUBLIC_AHOS_WEB_API_TOKEN` (or run `scripts\windows_ensure_web_api_token.ps1`)
+5. Start One-Brain: `npm run dev` (binds `127.0.0.1`)
+6. Set `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat`
+7. Start Telegram domain service / bot per `docs/WINDOWS_OPERATOR_HANDOFF.md`
+8. After live checks, attest G11 via gate:
+
+```powershell
+python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill --telegram-e2e-artifact reports\telegram_e2e_<UTC>.md
+```
 
 ## Exact checks
 

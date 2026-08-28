@@ -1,10 +1,15 @@
-# کارت اقدام مالک — PAPER_ONLY تا PRE_SOAK (بدون READY جعلی)
+# کارت مالک — فقط لپ‌تاپ Windows (به‌سوی PRE_SOAK)
 
-**وضعیت کد:** PR #31 روی `main` merge شده (`967f5dc`)  
-**مسدودکننده فعلی:** شواهد ویندوز (توکن + گیت اپراتور) هنوز ارسال نشده  
-**DB:** STATE B — **migrate ممنوع**
+**کد روی main:** PR #31 (auth) + PR #32 (گیت‌رانر).  
+**اختیاری:** PR #33 = دابل‌کلیک کامل‌تر (با شروع خودکار Next).  
+**DB:** STATE B — `db:migrate` / `db:push` ممنوع. READY جعلی نمی‌شود.
 
-## فقط این سه دستور
+## راه ۱ — دابل‌کلیک (بعد از merge شدن #33)
+
+روی `G:\robat\ahos` بعد از `git pull` فایل `AHOS_WINDOWS_OPS.bat` را دابل‌کلیک کنید.  
+خودش: pull → reconcile → preflight → `npm run dev` → انتظار `:3000` → گیت.
+
+## راه ۲ — همین الان روی main (بدون #33)
 
 ```powershell
 cd G:\robat\ahos
@@ -12,24 +17,21 @@ git pull
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
 ```
 
-Reconcile توکن وب را می‌سازد. سپس:
+ترمینال دیگر: `npm run dev`  
+بعد:
 
 ```powershell
-# Terminal A
-npm run dev
-
-# Terminal B
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
 ```
 
-REPORT + `reports\operator_validation_report_windows_*.json` را در Cursor بچسبانید.
+## چی را در Cursor بچسبانید
 
-## حقیقت
+ترجیحاً کل محتویات:
 
-| ادعا | وضعیت |
-|------|--------|
-| Merge #31 | DONE |
-| توکن روی لپ‌تاپ | OWNER (reconcile) |
-| G1–G10 Windows | OWNER (gate script) |
-| OPERATOR_READY | فقط با G11 Telegram E2E |
-| migrate | ممنوع (STATE B) |
+`reports\OWNER_PASTE_WINDOWS_GATE.txt`
+
+اگر نبود: BEGIN REPORT + `reports\operator_validation_report_windows_*.json`  
+(+ در صورت وجود `reports\LATEST_WINDOWS_GATE.txt`)
+
+**هدف این موج:** `pre_soak_entry_ok=true` از JSON ویندوز (G1–G10).  
+G11 (تلگرام) برای OPERATOR_READY کامل لازم است — جعل نمی‌شود.

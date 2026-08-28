@@ -1,0 +1,23 @@
+AHOS Windows — paste this into Cursor after the operator gate
+============================================================
+Fill nothing inventively. Prefer the auto file:
+  reports\OWNER_PASTE_WINDOWS_GATE.txt
+created by scripts\windows_run_operator_gate.ps1
+
+If that file is missing, paste:
+
+===== BEGIN WINDOWS GATE PASTE (into Cursor) =====
+report_path=<full path to reports\operator_validation_report_windows_*.json>
+
+--- LATEST_WINDOWS_GATE ---
+<contents of reports\LATEST_WINDOWS_GATE.txt>
+
+--- GATE_JSON ---
+<full JSON contents of the report>
+
+===== END WINDOWS GATE PASTE =====
+STATE B: do not db:migrate / db:push
+
+Also paste reconcile BEGIN REPORT / END REPORT if you still have it.
+
+Do NOT claim OPERATOR_READY. Agent will read pre_soak_entry_ok / OWNER_NEXT from JSON.

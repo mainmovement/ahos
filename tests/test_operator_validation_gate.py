@@ -82,6 +82,24 @@ def test_runner_writes_report(tmp_path):
     assert ids >= {f"G{i}" for i in range(1, 13)}
 
 
+def test_windows_runner_writes_latest_pointer(tmp_path):
+    out = tmp_path / "w.json"
+    # Avoid real network/provider/backup work.
+    rc = main([
+        "--platform", "windows",
+        "--skip-network",
+        "--json-out", str(out),
+    ])
+    assert rc in (0, 2, 3)
+    latest = tmp_path / "LATEST_WINDOWS_GATE.txt"
+    assert latest.is_file()
+    text = latest.read_text(encoding="utf-8")
+    assert f"report={out.resolve()}" in text
+    assert "pre_soak_entry_ok=" in text
+    assert "operator_ready=" in text
+    assert "db:migrate" in text
+
+
 def test_runner_exit_3_on_windows_without_operator_ready(tmp_path):
     out = tmp_path / "w.json"
     rc = main([

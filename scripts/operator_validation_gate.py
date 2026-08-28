@@ -729,6 +729,32 @@ def main(argv: list[str] | None = None) -> int:
         out = Path(args.json_out)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        latest_paths: list[Path] = []
+        if plat == "windows":
+            pointer_body = "\n".join(
+                [
+                    f"report={out.resolve()}",
+                    f"pre_soak_entry_ok={summary.get('pre_soak_entry_ok')}",
+                    f"operator_ready={summary.get('operator_ready')}",
+                    f"classification={summary.get('classification')}",
+                    "Paste this report JSON into Cursor.",
+                    "STATE B: do not db:migrate / db:push.",
+                    "",
+                ]
+            )
+            # Prefer beside the JSON (tests + custom --json-out); also pin under reports/.
+            for latest in (
+                out.parent / "LATEST_WINDOWS_GATE.txt",
+                ROOT / "reports" / "LATEST_WINDOWS_GATE.txt",
+            ):
+                try:
+                    if latest.resolve() in {p.resolve() for p in latest_paths}:
+                        continue
+                except OSError:
+                    pass
+                latest.parent.mkdir(parents=True, exist_ok=True)
+                latest.write_text(pointer_body, encoding="utf-8")
+                latest_paths.append(latest)
         print(json.dumps({"wrote": str(out), "summary": summary}, indent=2))
         for g in gates:
             print(f"{g['id']:4} {g['status']:22} {g['name']}: {g['detail'][:120]}")
@@ -736,6 +762,8 @@ def main(argv: list[str] | None = None) -> int:
         for line in summary.get("remediation_actions") or []:
             print(f"- {line}")
         print("===== END OWNER_NEXT =====")
+        if latest_paths:
+            print(f"LATEST_POINTER: {latest_paths[0]}")
 
         if any(g["status"] == "FAIL" for g in gates):
             return 2

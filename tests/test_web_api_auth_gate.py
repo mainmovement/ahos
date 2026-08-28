@@ -63,6 +63,30 @@ def test_windows_run_operator_gate_script_exists():
     assert "--platform" in text and "windows" in text
     assert "operator_validation_gate.py" in text
     assert "probe-providers" in text
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
+    assert "LATEST_WINDOWS_GATE.txt" in text
+    assert "Set-Clipboard" in text
+    assert "notepad.exe" in text
+
+
+def test_windows_preflight_ops_script_exists():
+    path = ROOT / "scripts" / "windows_preflight_ops.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "AHOS_WEB_API_TOKEN" in text
+    assert "DATABASE_URL" in text
+    assert "web_api_auth.ts" in text
+    assert "db:migrate" in text.lower() or "do NOT db:migrate" in text
+
+
+def test_windows_ops_bat_auto_starts_next_and_runs_gate():
+    text = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8", errors="replace")
+    assert "windows_post_merge_reconcile.ps1" in text
+    assert "windows_preflight_ops.ps1" in text
+    assert "npm run dev" in text
+    assert "127.0.0.1:3000" in text
+    assert "windows_run_operator_gate.ps1" in text
+    assert "db:migrate" in text.lower()
+    assert "OPERATOR_READY" in text
 
 
 def test_install_windows_gate_cli_matches_runner():
