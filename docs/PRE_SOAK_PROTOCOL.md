@@ -14,11 +14,22 @@ Do **not** start when:
 
 | Check | Evidence |
 |-------|----------|
-| Operator protocol run on Windows | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
+| Operator protocol run on Windows | `docs/OPERATOR_VALIDATION_PROTOCOL.md` / `scripts/windows_run_operator_gate.ps1` |
 | Artifact present | `reports/operator_validation_report_windows_*.json` |
 | `summary.pre_soak_entry_ok` | `true` |
+| Web API token | `AHOS_WEB_API_TOKEN` (+ matching `NEXT_PUBLIC_…`) set; G2 not BLOCKED |
+| STATE B | Do **not** `db:migrate` / `db:push` unless Cursor reclassifies DB |
 | G11 Telegram | May still be OWNER_ACTION_REQUIRED for **short** pre-soak |
 | G12 n8n | STRUCTURAL_VALID allowed; operational not required for entry |
+
+**How to produce the unlock artifact (Windows):**
+
+```powershell
+git pull
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
+# other terminal: npm run dev
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
+```
 
 Full claim **`OPERATOR_READY`** still requires G11 PASS. Short pre-soak must not be labeled OPERATOR_READY.
 
