@@ -12,7 +12,8 @@
 |-------------|----------|--------|
 | Merge web-api auth | PR #31 on main | **DONE** |
 | Windows ops + postgres ensure + anti-forgery | PR #35 merged `40c5100` | **DONE** |
-| Seed census / fail-fast warm / paste to correct PR | Harden branch tip `c602baf`+ | **IN FLIGHT** |
+| Seed census / fail-fast warm / paste | PR **#36** ready for review | **IN FLIGHT** |
+| Empty single-cycle → G4/G5/G8/G9 census | Agent probe: 0→8 obs/preds (not Windows-attested) | **VERIFIED (agent)** |
 | Set tokens on laptop | No fresh Windows paste | **UNVERIFIED** |
 | STATE B / no migrate | Scripts + prior reconcile | **ENFORCED** |
 | G1–G10 Windows JSON | Missing | **MISSING** |
