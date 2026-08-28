@@ -95,8 +95,9 @@ $readme = @(
 )
 [System.IO.File]::WriteAllText($pointer, ($readme -join "`n") + "`n", $utf8)
 
-Write-Step "fetch origin (for main base)"
+Write-Step "fetch origin (for main base + evidence lease)"
 & git fetch origin main 2>&1 | Out-Null
+& git fetch origin $EvidenceBranch 2>&1 | Out-Null
 $base = ""
 try { $base = (& git rev-parse origin/main 2>$null).Trim() } catch {}
 if ([string]::IsNullOrWhiteSpace($base)) {
@@ -106,6 +107,9 @@ if ([string]::IsNullOrWhiteSpace($base)) {
   Write-Host "[gate-evidence] cannot resolve base commit -- Ctrl+V paste still required." -ForegroundColor Yellow
   exit 0
 }
+
+$remoteLease = ""
+try { $remoteLease = (& git rev-parse ("origin/" + $EvidenceBranch) 2>$null).Trim() } catch {}
 
 # Temporary index: do not disturb current branch / dirty worktree
 $idx = Join-Path $RepoRoot (".git\ahos-evidence-index-" + $stamp)
@@ -157,8 +161,21 @@ Interpret LATEST / JSON honestly on agent side.
 }
 
 Write-Step ("push --force-with-lease origin " + $EvidenceBranch)
-& git push --force-with-lease -u origin $EvidenceBranch 2>&1 | Out-Host
-$pushOk = ($LASTEXITCODE -eq 0)
+$pushOk = $false
+if (-not [string]::IsNullOrWhiteSpace($remoteLease)) {
+  $leaseSpec = ("refs/heads/" + $EvidenceBranch + ":" + $remoteLease)
+  & git push --force-with-lease=$leaseSpec -u origin $EvidenceBranch 2>&1 | Out-Host
+  $pushOk = ($LASTEXITCODE -eq 0)
+} else {
+  & git push -u origin $EvidenceBranch 2>&1 | Out-Host
+  $pushOk = ($LASTEXITCODE -eq 0)
+}
+if (-not $pushOk) {
+  Write-Host "[gate-evidence] leased push failed -- retry plain force-with-lease" -ForegroundColor DarkYellow
+  & git fetch origin $EvidenceBranch 2>&1 | Out-Null
+  & git push --force-with-lease -u origin $EvidenceBranch 2>&1 | Out-Host
+  $pushOk = ($LASTEXITCODE -eq 0)
+}
 if (-not $pushOk) {
   Write-Host "[gate-evidence] push failed -- Ctrl+V Desktop AHOS_PASTE_TO_CURSOR.txt into Cursor." -ForegroundColor Yellow
 }
@@ -176,6 +193,18 @@ if ($pushOk -and ($null -ne $gh)) {
           2>&1 | Out-Host
       } else {
         Write-Host ("[gate-evidence] evidence PR already open #" + $existing) -ForegroundColor Green
+      }
+      # Notify unlock PR #45 so subscribed agents wake on new evidence
+      if (Test-Path -LiteralPath $LatestPath) {
+        $notify = @(
+          "Windows gate evidence pushed to ``origin/" + $EvidenceBranch + "`` (stamp " + $stamp + ").",
+          "Not a READY claim. STATE B: no migrate.",
+          "--- LATEST_WINDOWS_GATE ---"
+        )
+        $notify += Get-Content -LiteralPath $LatestPath -ErrorAction SilentlyContinue
+        $notifyFile = Join-Path $evDir ("NOTIFY_PR45_" + $stamp + ".txt")
+        [System.IO.File]::WriteAllText($notifyFile, ($notify -join "`n") + "`n", $utf8)
+        & gh pr comment 45 --body-file $notifyFile 2>&1 | Out-Host
       }
     }
   } catch {}

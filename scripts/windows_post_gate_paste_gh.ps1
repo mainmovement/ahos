@@ -54,15 +54,18 @@ try {
 
 # Open unlock/docs PRs first, then durable merged evidence PRs
 try {
-  $open = & gh pr list --state open --limit 10 --json number,headRefName 2>$null | ConvertFrom-Json
+  $open = & gh pr list --state open --limit 15 --json number,headRefName 2>$null | ConvertFrom-Json
   foreach ($p in $open) {
-    if ($p.headRefName -match 'windows|harden|unlock|ops|gate') {
+    if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2') {
       Add-Target ([string]$p.number)
     }
   }
 } catch {}
 
-# Known evidence sinks (merged PRs still accept comments)
+# Known sinks (open unlock + prior evidence/ops PRs still accept comments)
+Add-Target "45"
+Add-Target "44"
+Add-Target "43"
 Add-Target "37"
 Add-Target "36"
 Add-Target "34"

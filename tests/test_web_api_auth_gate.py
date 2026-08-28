@@ -148,7 +148,7 @@ def test_windows_publish_owner_paste_helper_exists():
 
 def test_windows_push_gate_evidence_helper_exists():
     path = ROOT / "scripts" / "windows_push_gate_evidence.ps1"
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     assert "windows-gate-evidence-4bde" in text
     assert "windows_gate_evidence" in text
     assert "force-with-lease" in text
@@ -157,6 +157,9 @@ def test_windows_push_gate_evidence_helper_exists():
     assert "checkout -B" not in text  # must not leave owner branch
     assert "OPERATOR_READY" in text
     assert "db:migrate" in text.lower() or "no migrate" in text.lower()
+    # Lease against fetched origin tip so laptop pushes do not silently no-op
+    assert "origin/" in text and "fetch origin" in text
+    assert "gh pr comment 45" in text or "NOTIFY_PR45" in text
     runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
     assert "windows_push_gate_evidence.ps1" in runner
 
@@ -228,8 +231,9 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
     assert "BEGIN WINDOWS GATE PASTE" in text
     assert "windows_post_gate_paste_gh.ps1" in text
-    helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8")
+    helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "gh pr comment" in helper
+    assert '"45"' in helper  # unlock PR sink for subscribed agents
     assert '"37"' in helper or "37" in helper
     assert '"36"' in helper or "36" in helper
     assert "db:migrate" in helper.lower() or "READY" in helper
