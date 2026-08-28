@@ -122,14 +122,21 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "OPERATOR_READY" in text
 
 
-def test_windows_failure_paste_helper_exists():
-    path = ROOT / "scripts" / "windows_write_ops_failure_paste.ps1"
+def test_windows_publish_owner_paste_helper_exists():
+    path = ROOT / "scripts" / "windows_publish_owner_paste.ps1"
     text = path.read_text(encoding="utf-8")
-    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
-    assert "pre_soak_entry_ok=false" in text
-    assert "operator_ready=false" in text
-    assert "db:migrate" in text.lower()
-    assert "BEGIN WINDOWS OPS FAILURE PASTE" in text
+    assert "AHOS_PASTE_TO_CURSOR.txt" in text
+    assert "Desktop" in text
+    assert "Set-Clipboard" in text
+    assert "notepad.exe" in text
+
+
+def test_windows_ops_bat_pulls_current_branch_too():
+    text = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8", errors="replace")
+    assert "git pull origin main" in text
+    assert "CURBRANCH" in text or "abbrev-ref" in text
+    assert "windows_publish_owner_paste.ps1" in (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
+
 
 
 def test_windows_wait_for_web_api_script_exists():

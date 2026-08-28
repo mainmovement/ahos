@@ -127,14 +127,18 @@ $latestLines = @(
 
 Write-Host ("Wrote failure paste: " + $paste) -ForegroundColor Yellow
 
-try {
-  Set-Clipboard -Value $body
-  Write-Host "Copied failure paste to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
-} catch {}
-
-try {
-  Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null
-} catch {}
+$publish = Join-Path $RepoRoot "scripts\windows_publish_owner_paste.ps1"
+if (Test-Path -LiteralPath $publish) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $publish -PastePath $paste
+} else {
+  try {
+    Set-Clipboard -Value $body
+    Write-Host "Copied failure paste to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
+  } catch {}
+  try {
+    Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null
+  } catch {}
+}
 
 # Best-effort gh comment on open/merged unlock PRs
 $postGh = Join-Path $RepoRoot "scripts\windows_post_gate_paste_gh.ps1"

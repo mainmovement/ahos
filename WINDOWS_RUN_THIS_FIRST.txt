@@ -17,8 +17,9 @@ PR #31–#36 are on main (auth, ops bat, postgres ensure, seed/fail-fast/paste).
    Mid-fail still writes reports\OWNER_PASTE_WINDOWS_GATE.txt
 
 3) Evidence back to Cursor (REQUIRED — one of):
-   - Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into this Cursor chat
-   - If `gh` logged in: confirm auto-comment on https://github.com/mainmovement/ahos/pull/36
+   - Ctrl+V (clipboard is filled) OR open Desktop\AHOS_PASTE_TO_CURSOR.txt
+   - Or paste reports\OWNER_PASTE_WINDOWS_GATE.txt into this Cursor chat
+   - If `gh` logged in: auto-comments on unlock PRs (#37/#36)
    - Telegram document forward into Cursor (if bot sent it)
 
 That JSON is required for G1–G10 / pre_soak_entry_ok (Windows-attested only).
