@@ -30,6 +30,7 @@ from architecture.runtime.observability_snapshot import (
     HealthSnapshotEngine,
     CanonicalHealthSnapshot,
     HEALTH_DIMENSIONS,
+    _quote_sqlite_ident,
 )
 from paper_trading.bankroll import BANKROLL_START_USD
 
@@ -262,3 +263,139 @@ def test_track_b_initialized_correct_ledger(tmp_path, monkeypatch):
     assert tb["is_accounting_consistent"] is True
     assert tb["accounting_sum_usd"] == pytest.approx(BANKROLL_START_USD, rel=1e-7)
     assert not any("accounting mismatch" in r for r in snap.summary_reasons)
+
+
+def test_quote_sqlite_ident_rejects_malicious_names():
+    assert _quote_sqlite_ident("paper_trade_v2") == '"paper_trade_v2"'
+    for bad in (
+        "foo;DROP TABLE x",
+        "a b",
+        "x--",
+        "1bad",
+        'quote"me',
+        "",
+        None,
+    ):
+        with pytest.raises((ValueError, TypeError)):
+            _quote_sqlite_ident(bad)  # type: ignore[arg-type]
+
+
+def test_health_snapshot_does_not_mutate_operational_dbs(tmp_path, monkeypatch):
+    """Snapshot generation must be side-effect free on SQLite stores."""
+    import hashlib
+    import shutil
+
+    from config import paths as pathmod
+
+    stores = {
+        "discovery": pathmod.get_discovery_db_path(),
+        "paper": pathmod.get_paper_trading_db_path(),
+        "local": pathmod.get_local_db_path(),
+        "knowledge": pathmod.get_knowledge_db_path(),
+    }
+    copies: dict[str, Path] = {}
+    for name, src in stores.items():
+        dst = tmp_path / f"{name}.sqlite"
+        src_p = Path(src)
+        if src_p.exists():
+            shutil.copy2(src_p, dst)
+        else:
+            sqlite3.connect(str(dst)).close()
+        copies[name] = dst
+
+    monkeypatch.setattr(
+        "architecture.runtime.observability_snapshot.get_discovery_db_path",
+        lambda: str(copies["discovery"]),
+    )
+    monkeypatch.setattr(
+        "architecture.runtime.observability_snapshot.get_paper_trading_db_path",
+        lambda: str(copies["paper"]),
+    )
+    monkeypatch.setattr(
+        "architecture.runtime.observability_snapshot.get_local_db_path",
+        lambda: str(copies["local"]),
+    )
+    monkeypatch.setattr(
+        "architecture.runtime.observability_snapshot.get_knowledge_db_path",
+        lambda: str(copies["knowledge"]),
+    )
+
+    def _fp() -> dict[str, tuple[str, list[str], dict[str, int]]]:
+        out: dict[str, tuple[str, list[str], dict[str, int]]] = {}
+        for name, path in copies.items():
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            conn = sqlite3.connect(str(path))
+            tables = [
+                r[0]
+                for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name NOT LIKE 'sqlite_%' ORDER BY 1"
+                ).fetchall()
+            ]
+            counts = {
+                t: conn.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0]
+                for t in tables
+                if t.isidentifier()
+            }
+            conn.close()
+            out[name] = (digest, tables, counts)
+        return out
+
+    before = _fp()
+    HealthSnapshotEngine(root_dir=ROOT).generate_snapshot()
+    HealthSnapshotEngine(root_dir=ROOT).generate_snapshot()
+    after = _fp()
+    assert after == before
+
+
+def test_evidence_package_scorecard_cannot_fabricate_lane_a_ok():
+    """Rebuilt scorecards must honor serialized lane_a_ok, never hardcode True."""
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    # Simulate evidence-package reconstruction from serialized health JSON.
+    proxy = type(
+        "Snap",
+        (),
+        {
+            "timestamp_utc": snap.timestamp_utc,
+            "overall_verdict": snap.overall_verdict,
+            "self_observation": snap.self_observation,
+            "database_integrity": snap.database_integrity,
+            "provider_health": snap.provider_health,
+            "scheduler_status": snap.scheduler_status,
+            "security_invariants": snap.security_invariants,
+            "lane_a_ok": False,
+            "lane_a_detail": "lane_a_freeze_drift: synthetic",
+        },
+    )()
+    sc = engine._build_scorecard(proxy)
+    assert sc["dimensions"]["ARCHITECTURE_HEALTH"]["status"] == "FAIL"
+    assert any("FAILED" in e for e in sc["dimensions"]["ARCHITECTURE_HEALTH"]["evidence"])
+
+
+def test_stale_artifact_never_reports_test_health_healthy(monkeypatch):
+    """Force stale SHA and prove TEST_HEALTH cannot be HEALTHY."""
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    so = dict(snap.self_observation)
+    so["test_health"] = {
+        "pytest": {
+            "present": True,
+            "exit_code": 0,
+            "commit_sha": "deadbeef" * 5,
+            "head_sha": "cafebabe" * 5,
+            "stale_vs_head": True,
+            "evidence_completeness": "COMPLETE",
+        },
+        "validate": {
+            "present": True,
+            "exit_code": 0,
+            "commit_sha": "deadbeef" * 5,
+            "head_sha": "cafebabe" * 5,
+            "stale_vs_head": True,
+            "evidence_completeness": "COMPLETE",
+        },
+    }
+    snap.self_observation = so
+    sc = engine._build_scorecard(snap)
+    assert sc["dimensions"]["TEST_HEALTH"]["status"] == "UNKNOWN"
