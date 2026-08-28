@@ -74,6 +74,12 @@ if ([string]::IsNullOrWhiteSpace($db)) {
     Write-Host "  WARN: DATABASE_URL empty -- /api/chat may HTTP 500" -ForegroundColor Yellow
 }
 
+function Test-DockerDaemonUp {
+    if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { return $false }
+    & docker info 2>$null | Out-Null
+    return ($LASTEXITCODE -eq 0)
+}
+
 $consecutiveServerErrors = 0
 
 for ($i = 0; $i -lt $Attempts; $i++) {
@@ -106,12 +112,19 @@ for ($i = 0; $i -lt $Attempts; $i++) {
 
         if ($code -ge 500) {
             $consecutiveServerErrors++
-            Write-Host ("  /api/chat HTTP " + $code + " attempt=" + $attempt + " (server up but erroring)") -ForegroundColor Yellow
+            $dockerUp = Test-DockerDaemonUp
+            # Docker down / no DATABASE_URL: fail fast. Docker up + DATABASE_URL:
+            # allow ~60s of 5xx for Postgres pool / just-started container races
+            # (PRE_SOAK needs G2 PASS; burning 6s then giving up loses the window).
+            $limit = 3
+            if ($dockerUp -and -not [string]::IsNullOrWhiteSpace($db)) {
+                $limit = 30
+            }
+            Write-Host ("  /api/chat HTTP " + $code + " attempt=" + $attempt + " consecutive5xx=" + $consecutiveServerErrors + "/" + $limit + " docker_up=" + $dockerUp) -ForegroundColor Yellow
             if ($snippet) { Write-Host ("  body: " + $snippet) -ForegroundColor DarkGray }
-            # Next is answering -- do not burn full timeout on persistent 5xx
-            if ($consecutiveServerErrors -ge 3) {
-                Write-Host "  FAIL-FAST: three consecutive 5xx from /api/chat" -ForegroundColor Red
-                Write-Host "  Likely cause: Next is up but Postgres is down (One-Brain snapshot needs DB)." -ForegroundColor Yellow
+            if ($consecutiveServerErrors -ge $limit) {
+                Write-Host ("  FAIL-FAST: " + $limit + " consecutive 5xx from /api/chat") -ForegroundColor Red
+                Write-Host "  Likely cause: Next is up but Postgres unreachable (One-Brain snapshot needs DB)." -ForegroundColor Yellow
                 Write-Host "  Remediation: start Docker Desktop Linux Engine (docker ps must work)," -ForegroundColor Yellow
                 Write-Host "    then scripts\windows_ensure_postgres_win.ps1; restart Next; re-run bat." -ForegroundColor Yellow
                 Write-Host "  If dockerDesktopLinuxEngine pipe not found: open Docker Desktop, wait green." -ForegroundColor Yellow

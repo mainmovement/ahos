@@ -61,7 +61,7 @@ if "!OPS_SYNC_REF!"=="origin/main" (
   )
 )
 call :log ==^> force-sync ops scripts from !OPS_SYNC_REF!
-git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" AHOS_WINDOWS_OPS.bat scripts/operator_validation_gate.py tests/validate_n8n.py >> "%LOG%" 2>&1
+git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt scripts/operator_validation_gate.py tests/validate_n8n.py .env.example >> "%LOG%" 2>&1
 if errorlevel 1 (
   call :log WARNING: force-sync ops scripts failed - parse preflight may catch stale scripts
 )
@@ -152,13 +152,25 @@ if exist "scripts\windows_wait_for_web_api.ps1" (
   call :log ==^> wait + warm /api/chat
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
   if errorlevel 1 (
-    set "WAIT_FAIL=1"
-    call :log WARNING: /api/chat not ready - writing failure paste, then still run gate for honest G2 JSON
-    call :failpaste wait_web_api "Next /api/chat not ready; gate will likely G2 FAIL/BLOCKED"
+    call :log WARNING: /api/chat warm failed - one recovery: ensure-pg + restart Next + wait again
+    if exist "scripts\windows_ensure_postgres_win.ps1" (
+      "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_postgres_win.ps1"
+    )
+    if exist "scripts\windows_restart_next_dev.ps1" (
+      "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_restart_next_dev.ps1"
+    )
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
+    if errorlevel 1 (
+      set "WAIT_FAIL=1"
+      call :log WARNING: /api/chat still not ready after recovery - writing failure paste, then still run gate for honest G2 JSON
+      call :failpaste wait_web_api "Next /api/chat not ready after ensure-pg recovery; gate will likely G2 FAIL"
+    ) else (
+      call :log Recovery warm OK - continuing to gate
+    )
   )
 ) else (
   call :log ERROR: missing windows_wait_for_web_api.ps1
-  call :failpaste missing_wait_script "checkout cursor/windows-g1-g10-harden-4bde"
+  call :failpaste missing_wait_script "checkout cursor/windows-g2-empty-gateway-default-4bde"
   pause
   exit /b 2
 )
