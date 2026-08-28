@@ -367,6 +367,34 @@ SELECT EXISTS (
 }
 
 # ------------------------------------------------------------------------------
+# Lane-B web API token (idempotent; no migrate)
+# ------------------------------------------------------------------------------
+$authTs = Join-Path $RepoRoot "web_api_auth.ts"
+$ensureToken = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
+$Report["web_api_auth"] = [ordered]@{
+    module_present = (Test-Path -LiteralPath $authTs)
+    ensure_script_present = (Test-Path -LiteralPath $ensureToken)
+    ensure_ran = $false
+    ensure_error = $null
+}
+if ((Test-Path -LiteralPath $authTs) -and (Test-Path -LiteralPath $ensureToken)) {
+    Write-Step "Ensuring Lane-B web API token (.env)"
+    try {
+        & powershell -ExecutionPolicy Bypass -File $ensureToken
+        if ($LASTEXITCODE -ne 0) {
+            throw ("ensure token exit " + $LASTEXITCODE)
+        }
+        $Report.web_api_auth["ensure_ran"] = $true
+    } catch {
+        $Report.web_api_auth["ensure_error"] = $_.Exception.Message
+        $Report.errors += ("WEB_API_TOKEN: " + $_.Exception.Message)
+        Write-Host ("  Token ensure failed: " + $_.Exception.Message) -ForegroundColor Yellow
+    }
+} elseif (-not (Test-Path -LiteralPath $authTs)) {
+    Write-Host "  web_api_auth.ts absent — skip token ensure (merge PR #31 first)." -ForegroundColor Yellow
+}
+
+# ------------------------------------------------------------------------------
 # VERDICT
 # ------------------------------------------------------------------------------
 Write-Step "VERDICT"
@@ -376,14 +404,15 @@ $pgOk = [bool]$Report.postgres.ok
 $migAbsent = ($Report.postgres["drizzle_migrations_content"] -eq "TABLE_ABSENT") -or (
     ($Report.postgres.Contains("migration_history_present")) -and ($Report.postgres["migration_history_present"] -eq $false)
 )
+$opsHint = " Then: restart npm run dev; python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill. Paste gate JSON. Do NOT db:migrate/db:push."
 
 if ($syncOk -and $pgOk) {
     if ($migAbsent) {
         $Report.verdict = "SYNCED_FORENSICS_STATE_B"
-        $Report.next_action = "Paste REPORT. MIGRATION BLOCKED: 19 ahos_* tables may exist without __drizzle_migrations and may hold data. Do NOT db:migrate/db:push."
+        $Report.next_action = "Paste REPORT. MIGRATION BLOCKED (STATE B)." + $opsHint
     } else {
         $Report.verdict = "SYNCED_FORENSICS_CAPTURED"
-        $Report.next_action = "Paste this REPORT into Cursor. Do NOT migrate until Cursor classifies DB STATE A-E."
+        $Report.next_action = "Paste REPORT. Do NOT migrate until Cursor classifies DB STATE A-E." + $opsHint
     }
 } elseif ($syncOk -and -not $pgOk) {
     $Report.verdict = "SYNCED_BUT_DB_UNKNOWN"

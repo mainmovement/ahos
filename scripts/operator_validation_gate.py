@@ -151,6 +151,9 @@ def g1_environment() -> dict[str, Any]:
         "node": node_ver,
         "npm": npm_ver,
         "repo_root": str(ROOT),
+        "database_url_set": bool((os.environ.get("DATABASE_URL") or "").strip()),
+        "web_api_token_set": bool((os.environ.get("AHOS_WEB_API_TOKEN") or "").strip()),
+        "web_api_auth_module_present": (ROOT / "web_api_auth.ts").is_file(),
         "issues": issues,
         "blocked": blocked,
     }
@@ -167,6 +170,33 @@ def g1_environment() -> dict[str, Any]:
             **detail,
         )
     return _gate("G1", "Environment", "PASS", json.dumps(detail), **detail)
+
+
+def _web_api_auth_blocked(code: int, body: str, url: str, *,
+                          token_set: bool, db_url_set: bool) -> dict[str, Any] | None:
+    """401 from Lane-B fail-closed gate is NOT a usable gateway PASS."""
+    if code != 401:
+        return None
+    blob = (body or "").upper()
+    if "WEB_API_LOCKED_NO_TOKEN" in blob:
+        return _gate(
+            "G2", "Gateway", "BLOCKED",
+            "HTTP 401 WEB_API_LOCKED_NO_TOKEN — set AHOS_WEB_API_TOKEN and "
+            "NEXT_PUBLIC_AHOS_WEB_API_TOKEN (same value) in .env, or run "
+            "scripts\\windows_ensure_web_api_token.ps1, then restart npm run dev",
+            artifact=body[:200], http_status=code, url=url,
+            database_url_set=db_url_set, web_api_token_set=token_set,
+        )
+    if "WEB_API_UNAUTHORIZED" in blob or "WEB_API" in blob:
+        return _gate(
+            "G2", "Gateway", "BLOCKED",
+            "HTTP 401 WEB_API_UNAUTHORIZED — probe must send Authorization: Bearer "
+            "matching AHOS_WEB_API_TOKEN (loaded from .env). Restart Next after "
+            "setting the token.",
+            artifact=body[:200], http_status=code, url=url,
+            database_url_set=db_url_set, web_api_token_set=token_set,
+        )
+    return None
 
 
 def g2_gateway(skip_network: bool) -> dict[str, Any]:
@@ -197,12 +227,33 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     # One-Brain chat uses Postgres; missing DATABASE_URL yields HTTP 500 while
     # Next is up. Surface that as BLOCKED/OWNER_ACTION rather than "start npm".
     db_url = (os.environ.get("DATABASE_URL") or "").strip()
+    web_token = (os.environ.get("AHOS_WEB_API_TOKEN") or "").strip()
+    open_raw = (os.environ.get("AHOS_WEB_API_ALLOW_OPEN_ACCESS") or "").strip().lower()
+    open_access = open_raw in {"1", "true", "yes", "on"}
+    # After Lane-B auth land, empty token without open-access cannot PASS G2.
+    if (ROOT / "web_api_auth.ts").is_file() and not web_token and not open_access:
+        return _gate(
+            "G2", "Gateway", "BLOCKED",
+            "AHOS_WEB_API_TOKEN unset and AHOS_WEB_API_ALLOW_OPEN_ACCESS not enabled — "
+            "run: powershell -ExecutionPolicy Bypass -File "
+            ".\\scripts\\windows_ensure_web_api_token.ps1 then restart npm run dev",
+            url=url,
+            database_url_set=bool(db_url),
+            web_api_token_set=False,
+            web_api_open_access=False,
+        )
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "ahos-opval/1",
+    }
+    if web_token:
+        headers["Authorization"] = f"Bearer {web_token}"
 
     try:
         req = urllib.request.Request(
             url,
             data=json.dumps({"message": "ping", "locale": "fa"}).encode("utf-8"),
-            headers={"Content-Type": "application/json", "User-Agent": "ahos-opval/1"},
+            headers=headers,
             method="POST",
         )
         with urllib.request.urlopen(req, timeout=8) as resp:
@@ -213,13 +264,13 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
                     f"http_{resp.status} from {url}"
                     + ("" if db_url else " — DATABASE_URL may be unset (required by One-Brain)"),
                     artifact=body[:200], http_status=resp.status, url=url,
-                    database_url_set=bool(db_url),
+                    database_url_set=bool(db_url), web_api_token_set=bool(web_token),
                 )
             return _gate(
                 "G2", "Gateway", "PASS",
                 f"http_{resp.status} from {url}",
                 artifact=body[:200], http_status=resp.status, url=url,
-                database_url_set=bool(db_url),
+                database_url_set=bool(db_url), web_api_token_set=bool(web_token),
             )
     except urllib.error.HTTPError as e:
         # urlopen raises HTTPError for status >= 400 (never reaches resp.status above).
@@ -229,6 +280,11 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
         except Exception:  # noqa: BLE001
             body = ""
         code = int(getattr(e, "code", 0) or 0)
+        blocked = _web_api_auth_blocked(
+            code, body, url, token_set=bool(web_token), db_url_set=bool(db_url),
+        )
+        if blocked is not None:
+            return blocked
         if code >= 500:
             detail = (
                 f"HTTPError {code} from {url}"
@@ -239,14 +295,14 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
                 "G2", "Gateway", "FAIL",
                 detail,
                 artifact=body[:200], http_status=code, url=url,
-                database_url_set=bool(db_url),
+                database_url_set=bool(db_url), web_api_token_set=bool(web_token),
             )
-        # 4xx still proves the HTTP process is listening (route/method may differ).
+        # Other 4xx still proves the HTTP process is listening (route/method may differ).
         return _gate(
             "G2", "Gateway", "PASS",
             f"HTTPError {code} from {url} (process reachable; non-5xx)",
             artifact=body[:200], http_status=code, url=url,
-            database_url_set=bool(db_url),
+            database_url_set=bool(db_url), web_api_token_set=bool(web_token),
         )
     except urllib.error.URLError as e:
         reason = str(getattr(e, "reason", e))
@@ -255,14 +311,14 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
             f"URLError: {reason} — start One-Brain with: npm run dev "
             "(and set DATABASE_URL in .env)",
             url=url,
-            database_url_set=bool(db_url),
+            database_url_set=bool(db_url), web_api_token_set=bool(web_token),
         )
     except Exception as e:  # noqa: BLE001
         return _gate(
             "G2", "Gateway", "FAIL",
             f"{type(e).__name__}: {e}",
             url=url,
-            database_url_set=bool(db_url),
+            database_url_set=bool(db_url), web_api_token_set=bool(web_token),
         )
 
 
@@ -559,6 +615,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Path to archived live Telegram transcript (owner attestation for G11 PASS)",
     )
     args = ap.parse_args(argv)
+
+    # Load root .env so AHOS_WEB_API_TOKEN / DATABASE_URL reach G2 without manual $env.
+    try:
+        from run_bot import load_dotenv
+
+        load_dotenv(ROOT / ".env")
+    except Exception:  # noqa: BLE001
+        pass
 
     plat = args.platform
     if plat == "unknown":

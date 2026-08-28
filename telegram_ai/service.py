@@ -82,10 +82,15 @@ class TelegramDomainService:
                 "user_id": str(user_context.get("user_id") or ""),
             }
             data = json.dumps(payload).encode("utf-8")
+            headers = {"Content-Type": "application/json"}
+            # Mirror Lane-B web API gate: send token when configured (fail-closed server-side).
+            web_token = (os.environ.get("AHOS_WEB_API_TOKEN") or "").strip()
+            if web_token:
+                headers["Authorization"] = f"Bearer {web_token}"
             req = urllib.request.Request(
                 AHOS_GATEWAY_URL,
                 data=data,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 method="POST",
             )
             with urllib.request.urlopen(req, timeout=12) as resp:

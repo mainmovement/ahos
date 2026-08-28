@@ -31,6 +31,7 @@ Canonical handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md`.
 $env:AHOS_PAPER_ONLY = "1"
 $env:AHOS_EVIDENCE_SOURCE = "local"
 $env:AHOS_GATEWAY_URL = "http://127.0.0.1:3000/api/chat"
+# Also set AHOS_WEB_API_TOKEN (+ NEXT_PUBLIC_…) in .env — see windows_ensure_web_api_token.ps1
 ```
 
 Canonical SQLite stores (under `.\data\` after `init_databases.py`):
@@ -84,7 +85,7 @@ python scripts\prediction_lifecycle_status.py
 
 ### Step 4 — Gateway (Terminal A)
 
-Set in `.env`: `DATABASE_URL=...` and `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat`.
+Set in `.env`: `DATABASE_URL=...`, `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat`, and matching `AHOS_WEB_API_TOKEN` / `NEXT_PUBLIC_AHOS_WEB_API_TOKEN` (or run `scripts\windows_ensure_web_api_token.ps1`).
 
 ```powershell
 npm install

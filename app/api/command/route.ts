@@ -1,15 +1,18 @@
+import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
 import { commandSnapshot } from "@/snapshot";
 import { restoreDaemonIfNeeded } from "@/engine";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = authorizeWebApi(req);
+  if (denied) return denied;
   try {
     await restoreDaemonIfNeeded();
     const snap = await commandSnapshot();
     return Response.json(snap);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "UNKNOWN";
+    const message = sanitizePublicError(error);
     return Response.json(
       {
         generatedAt: new Date().toISOString(),
@@ -48,7 +51,12 @@ export async function GET() {
             },
           ],
         },
-        blocked: [{ item: "DATABASE_URL / Postgres", status: message.includes("DATABASE_URL") ? "NO_KEY" : "DOWN" }],
+        blocked: [
+          {
+            item: "DATABASE_URL / Postgres",
+            status: message.includes("DATABASE_URL") ? "NO_KEY" : "DOWN",
+          },
+        ],
       },
       { status: 200 },
     );

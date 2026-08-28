@@ -1,10 +1,13 @@
+import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
 import { readFile } from "fs/promises";
 import path from "path";
 
 export const dynamic = "force-dynamic";
 
 /** Latest critical opportunity alert for the web dashboard (loud banner). */
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = authorizeWebApi(req);
+  if (denied) return denied;
   try {
     const file = path.join(process.cwd(), "reports", "pump_alert_state.json");
     const raw = await readFile(file, "utf8").catch(() => "{}");
@@ -30,7 +33,9 @@ export async function GET() {
         "هشدار فرصت پایش است — سیگنال خرید واقعی نیست. PAPER ONLY.",
     });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "UNKNOWN";
-    return Response.json({ active: false, error: message }, { status: 200 });
+    return Response.json(
+      { active: false, error: sanitizePublicError(e) },
+      { status: 200 },
+    );
   }
 }

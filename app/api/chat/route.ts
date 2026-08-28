@@ -1,8 +1,11 @@
+import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
 import { conversationGateway } from "@/conversation_gateway";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const denied = authorizeWebApi(req);
+  if (denied) return denied;
   try {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const history = Array.isArray(body.history)
@@ -40,7 +43,7 @@ export async function POST(req: Request) {
       timestamp: gw.timestamp,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "UNKNOWN";
+    const message = sanitizePublicError(error);
     return Response.json(
       {
         reply: `خطای داخلی: ${message}`,
