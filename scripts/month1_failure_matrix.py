@@ -20,7 +20,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import signal
 import sqlite3
 import subprocess
 import sys
@@ -44,6 +43,33 @@ from architecture.scoring.engine import OpportunityScorer
 from architecture.runtime.observation_loop import RuntimeSafetyGate
 
 RESULTS: list[dict] = []
+
+
+def force_kill(proc: subprocess.Popen, *, wait_timeout: float = 15.0) -> None:
+    """Abruptly stop a child process for crash-injection scenarios.
+
+    ``signal.SIGKILL`` is POSIX-only and raises ``AttributeError`` on Windows.
+    ``Popen.kill()`` is the portable equivalent: SIGKILL on POSIX, and
+    ``TerminateProcess`` on Windows. ``terminate()`` is tried first so a
+    cooperative child can exit; ``kill()`` escalates if it stays alive so the
+    lease/DB crash path still runs against a truly dead process.
+    """
+    if proc.poll() is not None:
+        return
+    try:
+        proc.terminate()
+    except OSError:
+        pass
+    try:
+        proc.wait(timeout=min(2.0, wait_timeout))
+        return
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        proc.kill()
+    except OSError:
+        pass
+    proc.wait(timeout=wait_timeout)
 
 
 def record(category: str, name: str, fault: str, expected: str,
@@ -189,7 +215,7 @@ def matrix_scheduler(workdir: Path) -> None:
     s5 = fresh_scheduler(workdir, lease_duration=1.0)
     crasher = subprocess.Popen(
         [sys.executable, "-c",
-         "import sys,time,signal,os;sys.path.insert(0,%r);"
+         "import sys,time;sys.path.insert(0,%r);"
          "from architecture.scheduling.engine import ProductionScheduler;"
          "s=ProductionScheduler(db_path=%r, discovery_db_path=%r, lease_duration_sec=1.0);"
          "print(s.acquire_lease('M_CRASH','crash_run',time.time()),flush=True);time.sleep(60)"
@@ -197,8 +223,7 @@ def matrix_scheduler(workdir: Path) -> None:
         stdout=subprocess.PIPE, text=True)
     acquired = crasher.stdout.readline().strip()
     time.sleep(0.5)
-    crasher.send_signal(signal.SIGKILL)
-    crasher.wait()
+    force_kill(crasher)
     # immediate takeover attempt against a LIVE-duration lease must be refused
     r5a = s5.execute_scheduled_cycle("M_CRASH", [task("t5")])
     # but our scheduler instance uses lease_duration=1s => after expiry it takes over
@@ -206,7 +231,8 @@ def matrix_scheduler(workdir: Path) -> None:
     r5b = s5.execute_scheduled_cycle("M_CRASH", [task("t5")])
     ok = (r5a["status"] == "SKIPPED_LOCKED" and r5b["status"] == "SUCCESS"
           and "t5" in ran and acquired == "True")
-    record("SCHEDULER", "crashed_process_recovery", "SIGKILL of lease holder mid-run",
+    record("SCHEDULER", "crashed_process_recovery",
+           "hard-kill of lease holder mid-run (terminate/kill)",
            "refused while lease live; takeover after expiry; recovery SUCCESS", ok,
            f"immediate={r5a['status']} after_expiry={r5b['status']}")
 
@@ -350,7 +376,7 @@ def matrix_persistence(workdir: Path) -> None:
            "state persists, runs accumulate, DB integrity ok", ok,
            f"rows={rows} integrity={integrity}")
 
-    # 20. interrupted write (SIGKILL mid-transaction)
+    # 20. interrupted write (hard-kill mid-transaction)
     idb = str(workdir / "interrupted.sqlite")
     crasher = subprocess.Popen(
         [sys.executable, "-c",
@@ -360,14 +386,14 @@ def matrix_persistence(workdir: Path) -> None:
         stdout=subprocess.PIPE, text=True)
     crasher.stdout.readline()
     time.sleep(0.3)
-    crasher.send_signal(signal.SIGKILL)
-    crasher.wait()
+    force_kill(crasher)
     conn = sqlite3.connect(idb)
     integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
     rows = conn.execute("SELECT COUNT(*) FROM t").fetchone()[0]
     conn.close()
     ok = integrity == "ok" and rows == 0
-    record("PERSISTENCE", "interrupted_write", "SIGKILL with open uncommitted INSERT",
+    record("PERSISTENCE", "interrupted_write",
+           "hard-kill with open uncommitted INSERT (terminate/kill)",
            "transaction rolled back; no partial row; DB not corrupted", ok,
            f"rows={rows} integrity={integrity}")
 
