@@ -184,7 +184,7 @@ if (Test-Path -LiteralPath $pushEv) {
 }
 
 if ($code -eq 0) {
-  Write-Host "G2 PASS -- next run AHOS_PRE_SOAK_NOW.bat for full G1-G10 (still no READY invent)." -ForegroundColor Green
+  Write-Host "G2 PASS -- VALIDATE bat will chain to AHOS_PRE_SOAK_NOW for G1-G10 (still no READY invent)." -ForegroundColor Green
 } else {
   Write-Host ("G2 not PASS (exit " + $code + ") -- fix health/gateway, re-run. No migrate.") -ForegroundColor Yellow
 }

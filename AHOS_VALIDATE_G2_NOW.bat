@@ -70,10 +70,26 @@ if not exist "scripts\windows_g2_probe.py" (
 set "RC=!ERRORLEVEL!"
 
 echo.
-echo ==========================================================
-echo   Paste reports\OWNER_PASTE_G2_VALIDATE.txt into Cursor
-echo   G2 PASS alone is NOT PRE_SOAK -- need G1-G10 via OPS bat
-echo   Never invent OPERATOR_READY
-echo ==========================================================
-pause
+if "!RC!"=="0" (
+  echo ==========================================================
+  echo   G2 PASS -- continuing to full G1-G10 via AHOS_PRE_SOAK_NOW
+  echo   Still will NOT invent PRE_SOAK/READY without paste evidence
+  echo ==========================================================
+  if exist "AHOS_PRE_SOAK_NOW.bat" (
+    call "AHOS_PRE_SOAK_NOW.bat"
+    set "RC=!ERRORLEVEL!"
+  ) else if exist "AHOS_WINDOWS_OPS.bat" (
+    call "AHOS_WINDOWS_OPS.bat"
+    set "RC=!ERRORLEVEL!"
+  ) else (
+    echo ERROR: missing AHOS_PRE_SOAK_NOW.bat / AHOS_WINDOWS_OPS.bat after unlock
+  )
+) else (
+  echo ==========================================================
+  echo   G2 not PASS -- fix health/gateway, then re-run
+  echo   Paste reports\OWNER_PASTE_G2_VALIDATE.txt into Cursor
+  echo   Never invent OPERATOR_READY / PRE_SOAK
+  echo ==========================================================
+  pause
+)
 exit /b !RC!

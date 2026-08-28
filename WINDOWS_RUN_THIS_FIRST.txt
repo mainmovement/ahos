@@ -4,24 +4,25 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-On main now: through PR #46 (G2 validate path, diagnose, probe checkout fix).
-Open follow-up: cursor/windows-g2-evidence-autopush-4bde (G2 paste auto-push).
-
-Docker (owner): postgres/runtime may show unhealthy -- G2 uses pg_isready + host Next.
+On main: through PR #46. Open #47 tip is on unlock ref
+  origin/cursor/windows-evidence-push-lease-4bde (auto-applied by bats).
 
 --------------------------------------------------
-NOW: health + G2 validation (no migrate)
+ONE CLICK (preferred)
 --------------------------------------------------
   cd /d G:\robat\ahos
   git pull origin main
-  git fetch origin cursor/windows-g2-evidence-autopush-4bde
-  git checkout origin/cursor/windows-g2-evidence-autopush-4bde -- AHOS_VALIDATE_G2_NOW.bat
-
-  AHOS_VALIDATE_G2_NOW.bat
-  REM Paste reports\OWNER_PASTE_G2_VALIDATE.txt (also auto-pushes evidence when gh/git allow)
-
-  REM After G2 PASS -- full PRE_SOAK (G1-G10 via AHOS_WINDOWS_OPS.bat):
   AHOS_PRE_SOAK_NOW.bat
 
-Paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor.
-PRE_SOAK only if paste shows pre_soak_entry_ok=true. Never invent READY.
+  Bat applies unlock tip, diagnoses Docker/pg_isready, ensures Postgres
+  (no migrate), warms /api/chat, runs full G1-G10 gate.
+  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
+
+--------------------------------------------------
+OR: G2 first, then auto-continue to full gate
+--------------------------------------------------
+  AHOS_VALIDATE_G2_NOW.bat
+  (on G2 PASS, chains into AHOS_PRE_SOAK_NOW.bat)
+
+PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).
+Never invent READY. ahos_runtime_win unhealthy is OK for host Next G2.
