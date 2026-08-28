@@ -142,19 +142,66 @@ Write-Host ("  DATABASE_URL=" + $redactedExpected) -ForegroundColor Green
 
 Write-Host "==> probe DATABASE_URL after sync" -ForegroundColor Cyan
 $afterOk = Invoke-PgProbe -Root $RepoRoot -OutJson $probeOut
-if (-not $afterOk) {
-  Write-Host "FAIL: Postgres snapshot probe still failing after sync (see reports\pg_probe_latest.json)" -ForegroundColor Red
-  Write-Host "Remediation:" -ForegroundColor Yellow
-  Write-Host "  1) Confirm ahos_postgres_win is up (pg_isready)" -ForegroundColor Yellow
-  Write-Host "  2) If POSTGRES_PASSWORD was changed after first compose up, the volume still has the OLD password." -ForegroundColor Yellow
-  Write-Host "     Put the original password back into DATABASE_URL (do NOT wipe volume under STATE B)." -ForegroundColor Yellow
-  Write-Host "  3) scripts\windows_restart_next_dev.ps1" -ForegroundColor Yellow
-  Write-Host "  4) scripts\windows_chat_500_forensics.ps1" -ForegroundColor Yellow
-  Write-Host "STATE B: do NOT db:migrate / db:push / do NOT docker volume rm" -ForegroundColor Yellow
-  exit 2
+if ($afterOk) {
+  Write-Host "OK pg probe -- ahos_* readable via DATABASE_URL" -ForegroundColor Green
+  Write-Host "Next must be restarted to load DATABASE_URL: scripts\windows_restart_next_dev.ps1" -ForegroundColor Cyan
+  Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
+  exit 0
 }
 
-Write-Host "OK pg probe -- ahos_* readable via DATABASE_URL" -ForegroundColor Green
-Write-Host "Next must be restarted to load DATABASE_URL: scripts\windows_restart_next_dev.ps1" -ForegroundColor Cyan
-Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
-exit 0
+# Host TCP auth failed but container local psql often still works (volume password drift).
+# STATE B recovery: ALTER ROLE password to match .env POSTGRES_PASSWORD (no wipe / no migrate).
+Write-Host "Host DATABASE_URL probe still failing -- trying docker-exec password realign (STATE B)" -ForegroundColor Yellow
+$errorClass = ""
+try {
+  if (Test-Path -LiteralPath $probeOut) {
+    $pj = Get-Content -LiteralPath $probeOut -Raw | ConvertFrom-Json
+    $errorClass = [string]$pj.error_class
+  }
+} catch {}
+
+$container = "ahos_postgres_win"
+$dockerOk = $false
+if (Get-Command docker -ErrorAction SilentlyContinue) {
+  $names = (& docker ps --format "{{.Names}}" 2>$null)
+  if ($names -match [regex]::Escape($container)) {
+    $ping = & docker exec $container psql -U $pgUser -d $pgDb -t -A -c "SELECT 1" 2>&1 | Out-String
+    if ($LASTEXITCODE -eq 0 -and $ping.Trim() -match "1") {
+      $dockerOk = $true
+    } else {
+      Write-Host ("docker exec psql failed: " + $ping.Trim()) -ForegroundColor DarkYellow
+    }
+  } else {
+    Write-Host ("container not running: " + $container) -ForegroundColor DarkYellow
+  }
+}
+
+if ($dockerOk) {
+  $tag = "ahospw" + [guid]::NewGuid().ToString("N").Substring(0, 10)
+  # Dollar-quote password so special chars cannot break SQL.
+  $alterSql = ("ALTER ROLE "" + $pgUser + "" WITH PASSWORD $" + $tag + "$" + $pgPass + "$" + $tag + "$;")
+  Write-Host ("==> ALTER ROLE " + $pgUser + " password to match .env POSTGRES_PASSWORD (via docker exec)") -ForegroundColor Cyan
+  $alterOut = & docker exec $container psql -U $pgUser -d $pgDb -v ON_ERROR_STOP=1 -c $alterSql 2>&1 | Out-String
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host ("ALTER ROLE failed: " + $alterOut.Trim()) -ForegroundColor Red
+  } else {
+    Write-Host "ALTER ROLE ok -- re-probing host DATABASE_URL" -ForegroundColor Green
+    $realignOk = Invoke-PgProbe -Root $RepoRoot -OutJson $probeOut
+    if ($realignOk) {
+      Write-Host "OK pg probe after password realign -- ahos_* readable via DATABASE_URL" -ForegroundColor Green
+      Write-Host "Next must be restarted to load DATABASE_URL: scripts\windows_restart_next_dev.ps1" -ForegroundColor Cyan
+      Write-Host "STATE B: do NOT db:migrate / db:push / do NOT docker volume rm" -ForegroundColor Yellow
+      exit 0
+    }
+  }
+} else {
+  Write-Host ("docker-exec realign skipped (error_class=" + $errorClass + ")") -ForegroundColor DarkYellow
+}
+
+Write-Host "FAIL: Postgres snapshot probe still failing after sync/realign (see reports\pg_probe_latest.json)" -ForegroundColor Red
+Write-Host "Remediation:" -ForegroundColor Yellow
+Write-Host "  1) Confirm ahos_postgres_win is up (pg_isready)" -ForegroundColor Yellow
+Write-Host "  2) If POSTGRES_PASSWORD was changed after first compose up, realign failed -- put the ORIGINAL password into POSTGRES_PASSWORD + DATABASE_URL (do NOT wipe volume under STATE B)." -ForegroundColor Yellow
+Write-Host "  3) scripts\windows_recover_g2_warm.ps1" -ForegroundColor Yellow
+Write-Host "STATE B: do NOT db:migrate / db:push / do NOT docker volume rm" -ForegroundColor Yellow
+exit 2

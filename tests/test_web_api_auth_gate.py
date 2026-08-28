@@ -289,6 +289,15 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
 
 
 
+
+def test_windows_ensure_database_url_realigns_via_docker_exec():
+    text = (ROOT / "scripts" / "windows_ensure_database_url.ps1").read_text(encoding="utf-8-sig")
+    assert "ALTER ROLE" in text
+    assert "docker exec" in text
+    assert "db:migrate" in text.lower()
+    assert "ahos_postgres_win" in text
+
+
 def test_windows_recover_g2_warm_script_and_ops_bat():
     recover = ROOT / "scripts" / "windows_recover_g2_warm.ps1"
     text = recover.read_text(encoding="utf-8-sig")
