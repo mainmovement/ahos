@@ -288,6 +288,29 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert "db:migrate" in helper.lower() or "READY" in helper
 
 
+
+def test_windows_recover_g2_warm_script_and_ops_bat():
+    recover = ROOT / "scripts" / "windows_recover_g2_warm.ps1"
+    text = recover.read_text(encoding="utf-8-sig")
+    assert "windows_ensure_database_url.ps1" in text
+    assert "windows_chat_500_forensics.ps1" in text
+    assert "db:migrate" in text.lower()
+    ops = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8")
+    assert "windows_recover_g2_warm.ps1" in ops
+    assert "for %%R in (" in ops
+    g2 = (ROOT / "scripts" / "windows_validate_g2.ps1").read_text(encoding="utf-8-sig")
+    assert "windows_recover_g2_warm.ps1" in g2
+    vbat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8")
+    assert "windows-presoak-unblock-4bde" in vbat
+    push_bat = (ROOT / "AHOS_PUSH_EVIDENCE_NOW.bat").read_text(encoding="utf-8")
+    assert "windows_push_gate_evidence.ps1" in push_bat
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in push_bat
+    pull = (ROOT / "AHOS_PULL_OPS_UNLOCK.bat").read_text(encoding="utf-8")
+    assert "windows-presoak-unblock-4bde" in pull
+    paste = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
+    assert "windows-evidence-inbox-stay-open-4bde" in paste
+
+
 def test_windows_run_this_first_points_at_ops_bat():
     text = (ROOT / "WINDOWS_RUN_THIS_FIRST.txt").read_text(encoding="utf-8")
     assert "AHOS_WINDOWS_OPS.bat" in text

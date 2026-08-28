@@ -221,14 +221,22 @@ if ($pushOk -and ($null -ne $gh)) {
             }
           }
         } catch {}
-        # Always try the dedicated evidence inbox head if open.
-        try {
-          $inbox = & gh pr list --head cursor/windows-evidence-inbox-open-4bde --state open --json number -q ".[0].number" 2>$null
-          if (-not [string]::IsNullOrWhiteSpace($inbox) -and -not ($notifyTargets -contains [string]$inbox)) {
-            [void]$notifyTargets.Add([string]$inbox)
-          }
-        } catch {}
-        # Prefer current unlock tip if listed; keep #45 as legacy sink when still open
+        # Always try the dedicated evidence inbox heads if open.
+        foreach ($inboxHead in @(
+          "cursor/windows-evidence-inbox-stay-open-4bde",
+          "cursor/windows-evidence-inbox-live-4bde",
+          "cursor/windows-evidence-inbox-open-4bde",
+          "cursor/windows-evidence-inbox-4bde",
+          "cursor/windows-presoak-unblock-4bde"
+        )) {
+          try {
+            $inbox = & gh pr list --head $inboxHead --state open --json number -q ".[0].number" 2>$null
+            if (-not [string]::IsNullOrWhiteSpace($inbox) -and -not ($notifyTargets -contains [string]$inbox)) {
+              [void]$notifyTargets.Add([string]$inbox)
+            }
+          } catch {}
+        }
+        # Prefer current unlock tip if listed; keep #45/#38 as legacy sink when still open
         foreach ($prNum in $notifyTargets) {
           & gh pr comment $prNum --body-file $notifyFile 2>&1 | Out-Host
         }

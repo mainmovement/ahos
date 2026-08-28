@@ -114,12 +114,24 @@ if (Test-Path -LiteralPath $wait) {
   Write-Host "==> wait + warm /api/chat" -ForegroundColor Cyan
   & powershell -NoProfile -ExecutionPolicy Bypass -File $wait
   if ($LASTEXITCODE -ne 0) {
-    Write-Host "WARN: warm failed -- one recovery ensure-pg + restart + wait" -ForegroundColor Yellow
-    if (Test-Path -LiteralPath $ensurePg) {
-      & powershell -NoProfile -ExecutionPolicy Bypass -File $ensurePg
-    }
-    if (Test-Path -LiteralPath $restart) {
-      & powershell -NoProfile -ExecutionPolicy Bypass -File $restart
+    Write-Host "WARN: warm failed -- recovery forensics + DATABASE_URL + ensure-pg + restart" -ForegroundColor Yellow
+    $recover = Join-Path $RepoRoot "scripts\windows_recover_g2_warm.ps1"
+    if (Test-Path -LiteralPath $recover) {
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $recover -RepoRoot $RepoRoot
+    } else {
+      $forensics = Join-Path $RepoRoot "scripts\windows_chat_500_forensics.ps1"
+      if (Test-Path -LiteralPath $forensics) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $forensics -RepoRoot $RepoRoot
+      }
+      if (Test-Path -LiteralPath $ensurePg) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $ensurePg
+      }
+      if (Test-Path -LiteralPath $ensureDbUrl) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $ensureDbUrl -RepoRoot $RepoRoot
+      }
+      if (Test-Path -LiteralPath $restart) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $restart
+      }
     }
     & powershell -NoProfile -ExecutionPolicy Bypass -File $wait
     if ($LASTEXITCODE -ne 0) {

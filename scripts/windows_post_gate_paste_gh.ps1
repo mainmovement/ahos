@@ -63,13 +63,31 @@ try {
 } catch {}
 
 # Dedicated evidence inbox + known sinks (comments wake subscribed agents)
-Add-Target "51"
-Add-Target "50"
-# Open durable inbox (replace number after PR create if needed — also matched by head name)
+# Prefer LIVE open inbox head; keep merged numbers as best-effort fallbacks.
 try {
-  $openInbox = & gh pr list --head cursor/windows-evidence-inbox-open-4bde --state open --json number -q ".[0].number" 2>$null
+  $openInbox0 = & gh pr list --head cursor/windows-evidence-inbox-stay-open-4bde --state open --json number -q ".[0].number" 2>$null
+  Add-Target $openInbox0
+} catch {}
+try {
+  $openInbox = & gh pr list --head cursor/windows-evidence-inbox-live-4bde --state open --json number -q ".[0].number" 2>$null
   Add-Target $openInbox
 } catch {}
+try {
+  $openInbox2 = & gh pr list --head cursor/windows-evidence-inbox-open-4bde --state open --json number -q ".[0].number" 2>$null
+  Add-Target $openInbox2
+} catch {}
+try {
+  $openInbox3 = & gh pr list --head cursor/windows-evidence-inbox-4bde --state open --json number -q ".[0].number" 2>$null
+  Add-Target $openInbox3
+} catch {}
+Add-Target "55"
+Add-Target "54"
+Add-Target "53"
+Add-Target "52"
+Add-Target "51"
+Add-Target "50"
+Add-Target "49"
+Add-Target "48"
 Add-Target "45"
 Add-Target "44"
 Add-Target "43"

@@ -111,7 +111,7 @@ if ($Stage -eq "wait_web_api" -or $Detail -match "api/chat" -or $Detail -match "
     $nextAction = "Start Docker Desktop (green), confirm docker ps + ahos_postgres_win, restart Next, re-run bat."
   } else {
     $likely = "G2_chat_error_with_postgres_up"
-    $nextAction = "Check Next window errors; confirm AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat; re-run bat."
+    $nextAction = "Run windows_chat_500_forensics.ps1 + windows_ensure_database_url.ps1 + windows_restart_next_dev.ps1; then re-run bat."
   }
 } elseif (-not $tokenOk) {
   $likely = "token_unset"
@@ -142,6 +142,19 @@ $lines += ("POSTGRES_PASSWORD_set=" + (-not [string]::IsNullOrWhiteSpace($pgPass
 $lines += ("docker_daemon=" + $dockerDaemon)
 $lines += ("ahos_postgres_win=" + $pgRunning)
 $lines += ("sqlite_census=" + $censusLine)
+$probePath = Join-Path $reports "pg_probe_latest.json"
+if (Test-Path -LiteralPath $probePath) {
+  try {
+    $probeRaw = Get-Content -LiteralPath $probePath -Raw -ErrorAction Stop
+    if ($probeRaw.Length -gt 1200) { $probeRaw = $probeRaw.Substring(0, 1200) }
+    $lines += "pg_probe_latest_json="
+    $lines += $probeRaw.Trim()
+  } catch {
+    $lines += ("pg_probe_latest_json=read_error:" + $_.Exception.Message)
+  }
+} else {
+  $lines += "pg_probe_latest_json=missing"
+}
 $lines += ("likely_pre_soak_blocker=" + $likely)
 $lines += ("next_action=" + $nextAction)
 $lines += "pre_soak_entry_ok=false"
