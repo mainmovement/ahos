@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Extract exact /api/chat HTTP 500 root cause (stack/message) on Windows.

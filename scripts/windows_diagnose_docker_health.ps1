@@ -139,7 +139,7 @@ if ([string]::IsNullOrWhiteSpace($dbUrl)) {
   }
 }
 
-# Credential/query probe — string presence alone does not prove /api/chat can snapshot.
+# Credential/query probe -- string presence alone does not prove /api/chat can snapshot.
 $probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
 New-Item -ItemType Directory -Force -Path (Split-Path $probeOut) | Out-Null
 $psProbe = Join-Path $RepoRoot "scripts\windows_pg_probe.ps1"

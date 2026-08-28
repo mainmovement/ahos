@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Probe DATABASE_URL / Docker Postgres for One-Brain snapshot queries (STATE B).

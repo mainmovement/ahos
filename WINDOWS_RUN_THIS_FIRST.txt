@@ -14,8 +14,8 @@ ONE CLICK (preferred)
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
 
-  Bat: token + Docker diagnose + DATABASE_URL sync + warm /api/chat + G1-G10 gate.
-  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
+  Bat: token + Docker diagnose + DATABASE_URL sync, then AHOS_WINDOWS_OPS.bat
+  (warm /api/chat + G1-G10 gate). Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
   PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).
 
 --------------------------------------------------
