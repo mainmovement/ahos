@@ -83,10 +83,11 @@ def test_runner_exit_3_on_windows_without_operator_ready(tmp_path):
         assert rc == 3
 
 
-def test_g2_http_error_4xx_is_pass_not_connection_fail():
+def test_g2_http_error_4xx_is_pass_not_connection_fail(monkeypatch):
     """urlopen raises HTTPError for 4xx; process reachable => PASS (not 'start npm')."""
     import urllib.error
 
+    monkeypatch.setenv("AHOS_WEB_API_TOKEN", "probe-token")
     err = urllib.error.HTTPError(
         url="http://127.0.0.1:3000/api/chat",
         code=404,
@@ -101,12 +102,12 @@ def test_g2_http_error_4xx_is_pass_not_connection_fail():
     assert g["http_status"] == 404
 
 
-def test_g2_http_401_web_api_locked_is_blocked(monkeypatch):
+def test_g2_http_401_web_api_unauthorized_is_blocked(monkeypatch):
     import urllib.error
 
-    monkeypatch.delenv("AHOS_WEB_API_TOKEN", raising=False)
+    monkeypatch.setenv("AHOS_WEB_API_TOKEN", "probe-token")
     monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
-    body = b'{"ok":false,"error":"WEB_API_LOCKED_NO_TOKEN"}'
+    body = b'{"ok":false,"error":"WEB_API_UNAUTHORIZED"}'
     err = urllib.error.HTTPError(
         url="http://127.0.0.1:3000/api/chat",
         code=401,
@@ -118,7 +119,18 @@ def test_g2_http_401_web_api_locked_is_blocked(monkeypatch):
         g = g2_gateway(skip_network=False)
     assert g["status"] == "BLOCKED"
     assert g["http_status"] == 401
-    assert "WEB_API_LOCKED" in g["detail"]
+    assert "WEB_API_UNAUTHORIZED" in g["detail"]
+
+
+def test_g2_blocks_before_probe_when_token_missing(monkeypatch):
+    monkeypatch.delenv("AHOS_WEB_API_TOKEN", raising=False)
+    monkeypatch.delenv("AHOS_WEB_API_ALLOW_OPEN_ACCESS", raising=False)
+    monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+    with mock.patch("urllib.request.urlopen") as urlopen:
+        g = g2_gateway(skip_network=False)
+    urlopen.assert_not_called()
+    assert g["status"] == "BLOCKED"
+    assert "AHOS_WEB_API_TOKEN unset" in g["detail"]
 
 
 def test_g2_sends_bearer_when_web_token_set(monkeypatch):
@@ -152,6 +164,7 @@ def test_g2_sends_bearer_when_web_token_set(monkeypatch):
 def test_g2_http_error_5xx_is_fail(monkeypatch):
     import urllib.error
 
+    monkeypatch.setenv("AHOS_WEB_API_TOKEN", "probe-token")
     monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
     err = urllib.error.HTTPError(

@@ -151,6 +151,9 @@ def g1_environment() -> dict[str, Any]:
         "node": node_ver,
         "npm": npm_ver,
         "repo_root": str(ROOT),
+        "database_url_set": bool((os.environ.get("DATABASE_URL") or "").strip()),
+        "web_api_token_set": bool((os.environ.get("AHOS_WEB_API_TOKEN") or "").strip()),
+        "web_api_auth_module_present": (ROOT / "web_api_auth.ts").is_file(),
         "issues": issues,
         "blocked": blocked,
     }
@@ -225,6 +228,20 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     # Next is up. Surface that as BLOCKED/OWNER_ACTION rather than "start npm".
     db_url = (os.environ.get("DATABASE_URL") or "").strip()
     web_token = (os.environ.get("AHOS_WEB_API_TOKEN") or "").strip()
+    open_raw = (os.environ.get("AHOS_WEB_API_ALLOW_OPEN_ACCESS") or "").strip().lower()
+    open_access = open_raw in {"1", "true", "yes", "on"}
+    # After Lane-B auth land, empty token without open-access cannot PASS G2.
+    if (ROOT / "web_api_auth.ts").is_file() and not web_token and not open_access:
+        return _gate(
+            "G2", "Gateway", "BLOCKED",
+            "AHOS_WEB_API_TOKEN unset and AHOS_WEB_API_ALLOW_OPEN_ACCESS not enabled — "
+            "run: powershell -ExecutionPolicy Bypass -File "
+            ".\\scripts\\windows_ensure_web_api_token.ps1 then restart npm run dev",
+            url=url,
+            database_url_set=bool(db_url),
+            web_api_token_set=False,
+            web_api_open_access=False,
+        )
     headers = {
         "Content-Type": "application/json",
         "User-Agent": "ahos-opval/1",

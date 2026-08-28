@@ -48,6 +48,15 @@ def test_windows_ensure_web_api_token_script_exists():
     assert "db:migrate" in text.lower() or "Will NOT migrate" in text
 
 
+def test_windows_ops_toward_pre_soak_script_exists():
+    path = ROOT / "scripts" / "windows_ops_toward_pre_soak.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "web_api_auth.ts" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+    assert "operator_validation_gate.py" in text
+    assert "OPERATOR_READY" in text
+
+
 def test_env_example_documents_web_api_token_keys():
     text = (ROOT / ".env.example").read_text(encoding="utf-8")
     assert "AHOS_WEB_API_TOKEN=" in text
