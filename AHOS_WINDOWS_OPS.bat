@@ -137,7 +137,7 @@ if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
   call :log Paste reports\operator_validation_report_windows_*.json into Cursor.
 )
 if "!WAIT_FAIL!"=="1" (
-  call :log NOTE: /api/chat warm failed earlier - check G2 in paste; STATE B no migrate
+  call :log NOTE: 127.0.0.1:3000 /api/chat warm failed earlier - check G2 in paste; STATE B no migrate
 )
 call :log STATE B: never db:migrate / db:push
 call :log Full log: %CD%\%LOG%
