@@ -258,7 +258,7 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
 - Test Suite: Expanded to **481 passed tests (100% green, 0 failures, 0 warnings)** across 49 test suites. Manifest `ahos_snap_w24_after.txt`.
 
 ## W25 — Master Agent Mission: Windows 11 Compatibility, Self-Repair & Hardening (2026-08-16)
-- Cross-Platform Dynamic Path Resolver (`config/paths.py`, `config/paths.yaml`): Eliminates hardcoded Linux paths.
+- Cross-Platform Dynamic Path Resolver (`config/paths.py`; optional gitignored `config/paths.yaml` for local diagnostics): Eliminates hardcoded Linux paths.
 - Windows One-Click Installers: `install_windows.ps1`, `start_ahos.ps1`, `start_ahos.bat`.
 - Self-Repair Health Manager (`engine/health_manager.py`): Diagnostic engine detecting issues and generating `reports/health_report.json` (Status: GREEN).
 - Update Governance (`engine/update_manager.py`): Operates in CHECK_ONLY mode; enforces Master Directive hash locks and human approval gates.
