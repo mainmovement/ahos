@@ -63,10 +63,10 @@ for %%R in (
 )
 if defined UNLOCK_REF (
   echo ==^> applying unlock tip !UNLOCK_REF! onto working tree ^(not a merge^)
-  git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/operator_validation_gate.py scripts/windows_g2_probe.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example 2>nul
+  git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/operator_validation_gate.py scripts/windows_g2_probe.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example 2>nul
   if errorlevel 1 (
     echo WARNING: bulk checkout failed - trying core files individually
-    git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat scripts/operator_validation_gate.py scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs scripts/windows_wait_for_web_api.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_diagnose_docker_health.ps1 app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml
+    git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PUSH_EVIDENCE_NOW.bat scripts/operator_validation_gate.py scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs scripts/windows_wait_for_web_api.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_diagnose_docker_health.ps1 scripts/windows_recover_g2_warm.ps1 app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml
   )
 ) else (
   echo ==^> unlock tips already on origin/main -- using main tip

@@ -68,7 +68,7 @@ for %%R in (
   )
 )
 call :log ==^> force-sync ops scripts from !OPS_SYNC_REF!
-git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt scripts/operator_validation_gate.py scripts/windows_g2_probe.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example >> "%LOG%" 2>&1
+git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt scripts/operator_validation_gate.py scripts/windows_g2_probe.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example >> "%LOG%" 2>&1
 if errorlevel 1 (
   call :log WARNING: force-sync ops scripts failed - parse preflight may catch stale scripts
 )

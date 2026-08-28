@@ -302,6 +302,11 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     assert "windows_recover_g2_warm.ps1" in g2
     vbat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8")
     assert "windows-presoak-unblock-4bde" in vbat
+    push_bat = (ROOT / "AHOS_PUSH_EVIDENCE_NOW.bat").read_text(encoding="utf-8")
+    assert "windows_push_gate_evidence.ps1" in push_bat
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in push_bat
+    pull = (ROOT / "AHOS_PULL_OPS_UNLOCK.bat").read_text(encoding="utf-8")
+    assert "windows-presoak-unblock-4bde" in pull
     paste = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "windows-evidence-inbox-live-4bde" in paste
 
