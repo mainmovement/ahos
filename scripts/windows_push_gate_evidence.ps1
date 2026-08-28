@@ -223,7 +223,7 @@ if ($pushOk -and ($null -ne $gh)) {
         } catch {}
         # Always try the dedicated evidence inbox head if open.
         try {
-          $inbox = & gh pr list --head cursor/windows-evidence-inbox-4bde --state open --json number -q ".[0].number" 2>$null
+          $inbox = & gh pr list --head cursor/windows-evidence-inbox-open-4bde --state open --json number -q ".[0].number" 2>$null
           if (-not [string]::IsNullOrWhiteSpace($inbox) -and -not ($notifyTargets -contains [string]$inbox)) {
             [void]$notifyTargets.Add([string]$inbox)
           }

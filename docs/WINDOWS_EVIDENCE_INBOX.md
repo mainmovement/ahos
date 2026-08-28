@@ -16,3 +16,9 @@ cd /d G:\robat\ahos
 git pull origin main
 AHOS_PRE_SOAK_NOW.bat
 ```
+
+## Keep open
+
+PR head `cursor/windows-evidence-inbox-open-4bde` is the durable open sink.
+Do not merge unless replacing with a newer open inbox head. Merging #50 closed
+the first inbox; this head restores an open notify target.
