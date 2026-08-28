@@ -230,6 +230,10 @@ if exist "reports\LATEST_WINDOWS_GATE.txt" (
 if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
   call :log Paste file ready: reports\OWNER_PASTE_WINDOWS_GATE.txt
   call :log Prefer Ctrl+V into Cursor, or forward Telegram doc if sent.
+  if exist "scripts\windows_push_gate_evidence.ps1" (
+    call :log ==^> belt-and-suspenders evidence push + PR #38 notify
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_push_gate_evidence.ps1"
+  )
 ) else (
   call :log Paste reports\operator_validation_report_windows_*.json into Cursor.
 )
