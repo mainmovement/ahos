@@ -276,12 +276,19 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     assert "authorization" not in headers
 
 def test_windows_ps1_scripts_are_ascii_for_ps51():
-    """PS 5.1 misreads UTF-8 em-dashes without BOM as ANSI mojibake."""
+    """PS 5.1: ASCII codepoints + UTF-8 BOM so file decode is correct."""
+    bom = b"\xef\xbb\xbf"
     bad = []
     for path in sorted((ROOT / "scripts").glob("windows_*.ps1")):
-        content = path.read_text(encoding="utf-8")
+        raw = path.read_bytes()
+        if not raw.startswith(bom):
+            bad.append(f"{path.name}: missing UTF-8 BOM")
+            body = raw
+        else:
+            body = raw[3:]
+        content = body.decode("utf-8")
         non_ascii = sorted({ch for ch in content if ord(ch) > 127})
         if non_ascii:
             bad.append(f"{path.name}: {non_ascii!r}")
-    assert not bad, "non-ASCII in Windows PS1:\n" + "\n".join(bad)
+    assert not bad, "Windows PS1 encoding issues:\n" + "\n".join(bad)
 

@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows - seed local SQLite evidence if G4/G5/G8/G9 would FAIL
 #
 # STATE B Postgres row counts do NOT satisfy those gates. They read local SQLite

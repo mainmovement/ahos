@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows - wait until POST /api/chat responds (after Next restart)
 #
 # Reads AHOS_WEB_API_TOKEN from .env. Does not migrate. Does not claim READY.
