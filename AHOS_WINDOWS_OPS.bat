@@ -46,6 +46,18 @@ if defined CURBRANCH if /I not "!CURBRANCH!"=="main" (
   git pull origin !CURBRANCH! >> "%LOG%" 2>&1
 )
 
+if exist "scripts\windows_validate_ps1_parse.ps1" (
+  call :log ==^> validate windows_*.ps1 parse ^(PS 5.1^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_validate_ps1_parse.ps1"
+  if errorlevel 1 (
+    call :log PARSE preflight failed - writing OWNER_PASTE for Cursor
+    call :failpaste ps1_parse "windows_*.ps1 failed Parser check - pull main with ASCII+BOM fix"
+    call :log Log: %CD%\%LOG%
+    pause
+    exit /b 2
+  )
+)
+
 if not exist "scripts\windows_post_merge_reconcile.ps1" (
   call :log ERROR: missing scripts\windows_post_merge_reconcile.ps1 - pull main first
   call :failpaste missing_reconcile_script "pull harden branch or main first"

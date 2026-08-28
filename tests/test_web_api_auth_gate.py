@@ -118,8 +118,20 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "windows_run_operator_gate.ps1" in text
     assert "windows_ops_last_run.log" in text or "LOG=" in text
     assert "windows_write_ops_failure_paste.ps1" in text or "failpaste" in text
+    assert "windows_validate_ps1_parse.ps1" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+
+
+def test_windows_validate_ps1_parse_script_exists():
+    path = ROOT / "scripts" / "windows_validate_ps1_parse.ps1"
+    text = path.read_bytes()
+    assert text.startswith(b"\xef\xbb\xbf"), "validator should have UTF-8 BOM"
+    body = text[3:].decode("utf-8")
+    assert "Parser]::ParseFile" in body or "ParseFile" in body
+    assert "PARSE_PREFLIGHT_OK" in body
+    assert "db:migrate" in body.lower()
+    assert "OPERATOR_READY" in body or "READY" in body
 
 
 def test_windows_publish_owner_paste_helper_exists():
