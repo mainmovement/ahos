@@ -194,10 +194,10 @@ try {
     if ($KeepCurrentBranch) {
         # Stay on current branch; fast-forward merge origin/main when possible.
         $cur = (git branch --show-current 2>$null | Out-String).Trim()
-        Write-Host ("  KeepCurrentBranch=1 on '" + $cur + "' — will not switch to main") -ForegroundColor DarkYellow
+        Write-Host ("  KeepCurrentBranch=1 on '" + $cur + "' -- will not switch to main") -ForegroundColor DarkYellow
         & git merge --ff-only origin/main 2>$null | Out-Null
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "  ff-only merge origin/main not possible — continuing on current branch (forensics + token still run)" -ForegroundColor Yellow
+            Write-Host "  ff-only merge origin/main not possible -- continuing on current branch (forensics + token still run)" -ForegroundColor Yellow
             $Report.sync["ff_main"] = "skipped_not_ff"
         } else {
             $Report.sync["ff_main"] = "ok"
@@ -409,7 +409,7 @@ if ((Test-Path -LiteralPath $authTs) -and (Test-Path -LiteralPath $ensureToken))
         Write-Host ("  Token ensure failed: " + $_.Exception.Message) -ForegroundColor Yellow
     }
 } elseif (-not (Test-Path -LiteralPath $authTs)) {
-    Write-Host "  web_api_auth.ts absent — skip token ensure (merge PR #31 first)." -ForegroundColor Yellow
+    Write-Host "  web_api_auth.ts absent -- skip token ensure (merge PR #31 first)." -ForegroundColor Yellow
 }
 
 # ------------------------------------------------------------------------------

@@ -24,14 +24,14 @@ if (-not (Test-Path -LiteralPath $BodyFile)) {
 
 $gh = Get-Command gh -ErrorAction SilentlyContinue
 if ($null -eq $gh) {
-  Write-Host "gh CLI not on PATH — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+  Write-Host "gh CLI not on PATH -- Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
   exit 0
 }
 
 try {
   & gh auth status 2>$null | Out-Null
   if ($LASTEXITCODE -ne 0) {
-    Write-Host "gh not authenticated — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+    Write-Host "gh not authenticated -- Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
     exit 0
   }
 } catch {
@@ -83,7 +83,7 @@ foreach ($prNum in $targets) {
 }
 
 if ($posted -eq 0) {
-  Write-Host "No gh PR comment succeeded — Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor." -ForegroundColor Yellow
+  Write-Host "No gh PR comment succeeded -- Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor." -ForegroundColor Yellow
 } else {
   Write-Host ("gh paste posts succeeded=" + $posted + " (agent can fetch).") -ForegroundColor Green
 }

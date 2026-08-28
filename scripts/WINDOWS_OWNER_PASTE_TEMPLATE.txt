@@ -1,4 +1,4 @@
-AHOS Windows — paste this into Cursor after the operator gate
+AHOS Windows -- paste this into Cursor after the operator gate
 ============================================================
 Fill nothing inventively. Prefer the auto file:
   reports\OWNER_PASTE_WINDOWS_GATE.txt

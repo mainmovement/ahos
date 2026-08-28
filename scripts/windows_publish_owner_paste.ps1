@@ -22,7 +22,7 @@ $body = [System.IO.File]::ReadAllText($PastePath)
 
 try {
   Set-Clipboard -Value $body
-  Write-Host "Clipboard: OWNER_PASTE ready — Ctrl+V into Cursor chat NOW." -ForegroundColor Green
+  Write-Host "Clipboard: OWNER_PASTE ready -- Ctrl+V into Cursor chat NOW." -ForegroundColor Green
 } catch {
   Write-Host ("Clipboard skipped: " + $_.Exception.Message) -ForegroundColor DarkYellow
 }

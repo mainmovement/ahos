@@ -153,6 +153,17 @@ def test_windows_ops_bat_pulls_current_branch_too():
     assert "windows_publish_owner_paste.ps1" in (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
 
 
+def test_windows_ps1_scripts_are_ascii_for_ps51():
+    """Windows PowerShell 5.1 often reads UTF-8 without BOM as system ANSI;
+    em-dashes become mojibake and break string/brace parsing."""
+    bad = []
+    for path in sorted((ROOT / "scripts").glob("windows_*.ps1")):
+        text = path.read_text(encoding="utf-8")
+        non_ascii = sorted({ch for ch in text if ord(ch) > 127})
+        if non_ascii:
+            bad.append(f"{path.name}: {non_ascii!r}")
+    assert not bad, "non-ASCII in Windows PS1 (use ASCII -- not em-dash):\n" + "\n".join(bad)
+
 
 def test_windows_wait_for_web_api_script_exists():
     path = ROOT / "scripts" / "windows_wait_for_web_api.ps1"

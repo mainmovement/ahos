@@ -1,6 +1,6 @@
 AHOS Windows owner - toward PRE_SOAK (PAPER_ONLY)
 =================================================
-PR #31–#36 on main. STATE B: do NOT db:migrate / db:push.
+PR #31-#36 on main. STATE B: do NOT db:migrate / db:push.
 Do NOT invent OPERATOR_READY.
 
 cd G:\robat\ahos
@@ -11,4 +11,4 @@ AHOS_WINDOWS_OPS.bat
 Paste (required): reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
   (or confirm gh commented on https://github.com/mainmovement/ahos/pull/36)
 
-Mid-fail still writes the paste file — send it anyway.
+Mid-fail still writes the paste file -- send it anyway.

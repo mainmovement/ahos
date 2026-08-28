@@ -1,5 +1,5 @@
 # ==============================================================================
-# AHOS Windows — ops toward PRE_SOAK (after web-api auth merge)
+# AHOS Windows -- ops toward PRE_SOAK (after web-api auth merge)
 #
 # One owner path:
 #   1) Confirm web_api_auth is on this checkout (PR #31 merged into main)

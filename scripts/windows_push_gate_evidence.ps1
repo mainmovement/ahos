@@ -34,7 +34,7 @@ function Write-Step([string]$Msg) {
 
 $git = Get-Command git -ErrorAction SilentlyContinue
 if ($null -eq $git) {
-  Write-Host "[gate-evidence] git missing — skip push; Ctrl+V paste still required." -ForegroundColor DarkYellow
+  Write-Host "[gate-evidence] git missing -- skip push; Ctrl+V paste still required." -ForegroundColor DarkYellow
   exit 0
 }
 
@@ -50,7 +50,7 @@ if ([string]::IsNullOrWhiteSpace($LatestPath)) {
 }
 
 if (-not (Test-Path -LiteralPath $PastePath) -and -not (Test-Path -LiteralPath $LatestPath)) {
-  Write-Host "[gate-evidence] no paste/latest to push — skip." -ForegroundColor DarkYellow
+  Write-Host "[gate-evidence] no paste/latest to push -- skip." -ForegroundColor DarkYellow
   exit 0
 }
 
@@ -103,7 +103,7 @@ if ([string]::IsNullOrWhiteSpace($base)) {
   try { $base = (& git rev-parse HEAD 2>$null).Trim() } catch {}
 }
 if ([string]::IsNullOrWhiteSpace($base)) {
-  Write-Host "[gate-evidence] cannot resolve base commit — Ctrl+V paste still required." -ForegroundColor Yellow
+  Write-Host "[gate-evidence] cannot resolve base commit -- Ctrl+V paste still required." -ForegroundColor Yellow
   exit 0
 }
 
@@ -114,20 +114,20 @@ try {
   Write-Step ("temp index from " + $base.Substring(0, [Math]::Min(7, $base.Length)))
   & git read-tree $base 2>&1 | Out-Null
   if ($LASTEXITCODE -ne 0) {
-    Write-Host "[gate-evidence] read-tree failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    Write-Host "[gate-evidence] read-tree failed -- Ctrl+V paste still required." -ForegroundColor Yellow
     exit 0
   }
 
   & git add -- "reports/windows_gate_evidence" 2>&1 | Out-Host
   $staged = (& git diff --cached --name-only 2>$null)
   if ([string]::IsNullOrWhiteSpace(($staged | Out-String))) {
-    Write-Host "[gate-evidence] nothing staged — skip." -ForegroundColor DarkYellow
+    Write-Host "[gate-evidence] nothing staged -- skip." -ForegroundColor DarkYellow
     exit 0
   }
 
   $tree = (& git write-tree 2>$null).Trim()
   if ([string]::IsNullOrWhiteSpace($tree)) {
-    Write-Host "[gate-evidence] write-tree failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    Write-Host "[gate-evidence] write-tree failed -- Ctrl+V paste still required." -ForegroundColor Yellow
     exit 0
   }
 
@@ -139,14 +139,14 @@ Interpret LATEST / JSON honestly on agent side.
 "@
   $commit = (& git commit-tree $tree -p $base -m $msg 2>$null).Trim()
   if ([string]::IsNullOrWhiteSpace($commit)) {
-    Write-Host "[gate-evidence] commit-tree failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    Write-Host "[gate-evidence] commit-tree failed -- Ctrl+V paste still required." -ForegroundColor Yellow
     exit 0
   }
 
   Write-Step ("update-ref " + $EvidenceBranch + " -> " + $commit.Substring(0, 7))
   & git update-ref ("refs/heads/" + $EvidenceBranch) $commit 2>&1 | Out-Host
   if ($LASTEXITCODE -ne 0) {
-    Write-Host "[gate-evidence] update-ref failed — Ctrl+V paste still required." -ForegroundColor Yellow
+    Write-Host "[gate-evidence] update-ref failed -- Ctrl+V paste still required." -ForegroundColor Yellow
     exit 0
   }
 } finally {
@@ -160,7 +160,7 @@ Write-Step ("push --force-with-lease origin " + $EvidenceBranch)
 & git push --force-with-lease -u origin $EvidenceBranch 2>&1 | Out-Host
 $pushOk = ($LASTEXITCODE -eq 0)
 if (-not $pushOk) {
-  Write-Host "[gate-evidence] push failed — Ctrl+V Desktop AHOS_PASTE_TO_CURSOR.txt into Cursor." -ForegroundColor Yellow
+  Write-Host "[gate-evidence] push failed -- Ctrl+V Desktop AHOS_PASTE_TO_CURSOR.txt into Cursor." -ForegroundColor Yellow
 }
 
 $gh = Get-Command gh -ErrorAction SilentlyContinue
@@ -182,9 +182,9 @@ if ($pushOk -and ($null -ne $gh)) {
 }
 
 if ($pushOk) {
-  Write-Host "[gate-evidence] OK — agents can fetch origin/cursor/windows-gate-evidence-4bde" -ForegroundColor Green
+  Write-Host "[gate-evidence] OK -- agents can fetch origin/cursor/windows-gate-evidence-4bde" -ForegroundColor Green
   Write-Host "[gate-evidence] owner branch unchanged (temp-index push)." -ForegroundColor DarkGray
 } else {
-  Write-Host "[gate-evidence] incomplete — Ctrl+V paste still required." -ForegroundColor Yellow
+  Write-Host "[gate-evidence] incomplete -- Ctrl+V paste still required." -ForegroundColor Yellow
 }
 exit 0

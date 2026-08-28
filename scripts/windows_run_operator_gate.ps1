@@ -141,7 +141,7 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
     } else {
         try {
             Set-Clipboard -Value ([System.IO.File]::ReadAllText($paste))
-            Write-Host "Copied paste bundle to clipboard — Ctrl+V into Cursor." -ForegroundColor Green
+            Write-Host "Copied paste bundle to clipboard -- Ctrl+V into Cursor." -ForegroundColor Green
         } catch {}
         try { Start-Process -FilePath "notepad.exe" -ArgumentList $paste | Out-Null } catch {}
     }
@@ -170,7 +170,7 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
     if (Test-Path -LiteralPath $postGh) {
         & powershell -NoProfile -ExecutionPolicy Bypass -File $postGh -BodyFile $commentFile -RepoRoot $RepoRoot
     } else {
-        Write-Host "gh paste helper missing — Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
+        Write-Host "gh paste helper missing -- Ctrl+V paste into Cursor still required." -ForegroundColor DarkYellow
     }
 
     $pushEv = Join-Path $RepoRoot "scripts\windows_push_gate_evidence.ps1"

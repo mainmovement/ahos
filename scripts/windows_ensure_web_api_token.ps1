@@ -1,5 +1,5 @@
 # ==============================================================================
-# AHOS Windows — ensure Lane-B web API token in .env (idempotent)
+# AHOS Windows -- ensure Lane-B web API token in .env (idempotent)
 #
 # What this does:
 #   - If AHOS_WEB_API_TOKEN is missing/empty in .env, generate a random token
@@ -102,7 +102,7 @@ if ([string]::IsNullOrWhiteSpace($existing)) {
     $created = $true
     Write-Host "Generated new AHOS_WEB_API_TOKEN (+ matching NEXT_PUBLIC_)." -ForegroundColor Green
 } else {
-    Write-Host "AHOS_WEB_API_TOKEN already set — left unchanged." -ForegroundColor Green
+    Write-Host "AHOS_WEB_API_TOKEN already set -- left unchanged." -ForegroundColor Green
     if ([string]::IsNullOrWhiteSpace($pubExisting) -or ($pubExisting -ne $existing)) {
         Set-Or-Append-EnvKey -Path $EnvPath -Key "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" -Value $existing
         Write-Host "Synced NEXT_PUBLIC_AHOS_WEB_API_TOKEN to match server token." -ForegroundColor Yellow
