@@ -33,6 +33,31 @@ Write-Host "==========================================================" -Foregro
 Write-Host ("  Repo: " + $RepoRoot) -ForegroundColor DarkGray
 Write-Host "  Will NOT migrate DB or invent OPERATOR_READY." -ForegroundColor DarkGray
 
+# Force-load auth/DB keys from .env into THIS process so stale $env cannot beat .env.
+$envPath = Join-Path $RepoRoot ".env"
+if (Test-Path -LiteralPath $envPath) {
+    $forceKeys = @(
+        "AHOS_WEB_API_TOKEN",
+        "NEXT_PUBLIC_AHOS_WEB_API_TOKEN",
+        "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
+        "DATABASE_URL",
+        "AHOS_GATEWAY_URL",
+        "AHOS_PAPER_ONLY",
+        "AHOS_EVIDENCE_SOURCE"
+    )
+    foreach ($line in (Get-Content -LiteralPath $envPath -ErrorAction SilentlyContinue)) {
+        $t = $line.Trim()
+        if ($t.StartsWith("#") -or ($t.IndexOf("=") -lt 1)) { continue }
+        $k = $t.Substring(0, $t.IndexOf("=")).Trim()
+        if ($forceKeys -notcontains $k) { continue }
+        $v = $t.Substring($t.IndexOf("=") + 1).Trim()
+        if (($v.StartsWith('"') -and $v.EndsWith('"')) -or ($v.StartsWith("'") -and $v.EndsWith("'"))) {
+            $v = $v.Substring(1, $v.Length - 2)
+        }
+        Set-Item -Path ("Env:" + $k) -Value $v
+    }
+}
+
 $py = Join-Path $RepoRoot ".venv\Scripts\python.exe"
 if (-not (Test-Path -LiteralPath $py)) {
     $py = "python"

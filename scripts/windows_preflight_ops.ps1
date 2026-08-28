@@ -133,11 +133,37 @@ if (Get-Command docker -ErrorAction SilentlyContinue) {
     $warns++
 }
 
+if ($dockerOk) {
+    try {
+        $ping = & docker exec $PostgresContainer pg_isready -U $PostgresUser -d $PostgresDb 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Check "postgres_ready" "PASS" (($ping | Out-String).Trim())
+        } else {
+            Write-Check "postgres_ready" "WARN" "pg_isready failed - G2 may HTTP 500"
+            $warns++
+        }
+    } catch {
+        Write-Check "postgres_ready" "WARN" "could not pg_isready"
+        $warns++
+    }
+}
+
+# Lane-A / One-Brain evidence is SQLite census — STATE B Postgres rows do not satisfy G4/G5/G8/G9.
+$discDb = Join-Path $RepoRoot "data\e01_discovery.sqlite"
+$localDb = Join-Path $RepoRoot "data\ahos_local.sqlite"
+$hasSqlite = (Test-Path -LiteralPath $discDb) -or (Test-Path -LiteralPath $localDb)
+if ($hasSqlite) {
+    Write-Check "sqlite_evidence_files" "PASS" "e01_discovery and/or ahos_local present"
+} else {
+    Write-Check "sqlite_evidence_files" "WARN" "missing data\\*.sqlite — run a local single-cycle before gate or G4/G5/G8/G9 FAIL"
+    $warns++
+}
+
 # Best-effort port 3000
 try {
     $tcp = Test-NetConnection -ComputerName 127.0.0.1 -Port 3000 -WarningAction SilentlyContinue
     if ($tcp.TcpTestSucceeded) {
-        Write-Check "next_3000" "PASS" "127.0.0.1:3000 accepting TCP"
+        Write-Check "next_3000" "PASS" "127.0.0.1:3000 accepting TCP (restart Next after token changes)"
     } else {
         Write-Check "next_3000" "WARN" "not listening - start npm run dev before gate"
         $warns++
@@ -158,5 +184,5 @@ if ($fails -gt 0) {
 }
 
 Write-Host ("PREFLIGHT_OK warns=" + $warns) -ForegroundColor Green
-Write-Host "Next: npm run dev (if needed), then windows_run_operator_gate.ps1" -ForegroundColor Cyan
+Write-Host "Next: windows_restart_next_dev.ps1 (if needed), then windows_run_operator_gate.ps1" -ForegroundColor Cyan
 exit 0

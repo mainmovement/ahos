@@ -25,7 +25,10 @@ param(
     [string]$RepoRoot = "",
     [string]$PostgresContainer = "ahos_postgres_win",
     [string]$PostgresUser = "ahos_user",
-    [string]$PostgresDb = "ahos"
+    [string]$PostgresDb = "ahos",
+    # When set (AHOS_WINDOWS_OPS.bat): fetch + forensics + token ensure, but do NOT
+    # switch/merge onto main (avoids deleting unmerged PR #33 helpers mid-run).
+    [switch]$KeepCurrentBranch
 )
 
 $ErrorActionPreference = "Stop"
@@ -188,18 +191,33 @@ foreach ($rel in $Protected) {
 }
 
 try {
-    # Ensure local main tracks origin/main tip.
-    # WinPS 5.1 cannot parse semicolons inside (...); keep statements separate.
-    & git show-ref --verify --quiet refs/heads/main 2>$null | Out-Null
-    $localMainExists = ($LASTEXITCODE -eq 0)
-    if ($localMainExists) {
-        Invoke-Git @("switch", "main")
-        Invoke-Git @("merge", "--ff-only", "origin/main")
+    if ($KeepCurrentBranch) {
+        # Stay on current branch; fast-forward merge origin/main when possible.
+        $cur = (git branch --show-current 2>$null | Out-String).Trim()
+        Write-Host ("  KeepCurrentBranch=1 on '" + $cur + "' — will not switch to main") -ForegroundColor DarkYellow
+        & git merge --ff-only origin/main 2>$null | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  ff-only merge origin/main not possible — continuing on current branch (forensics + token still run)" -ForegroundColor Yellow
+            $Report.sync["ff_main"] = "skipped_not_ff"
+        } else {
+            $Report.sync["ff_main"] = "ok"
+        }
+        $Report.sync["method"] = "keep-current-branch"
+        $Report.sync["ok"] = $true
     } else {
-        Invoke-Git @("switch", "-c", "main", "origin/main")
+        # Ensure local main tracks origin/main tip.
+        # WinPS 5.1 cannot parse semicolons inside (...); keep statements separate.
+        & git show-ref --verify --quiet refs/heads/main 2>$null | Out-Null
+        $localMainExists = ($LASTEXITCODE -eq 0)
+        if ($localMainExists) {
+            Invoke-Git @("switch", "main")
+            Invoke-Git @("merge", "--ff-only", "origin/main")
+        } else {
+            Invoke-Git @("switch", "-c", "main", "origin/main")
+        }
+        $Report.sync["method"] = "ff-only-or-create-main"
+        $Report.sync["ok"] = $true
     }
-    $Report.sync["method"] = "ff-only-or-create-main"
-    $Report.sync["ok"] = $true
 } catch {
     $Report.sync["ok"] = $false
     $Report.sync["error"] = $_.Exception.Message
@@ -399,12 +417,18 @@ if ((Test-Path -LiteralPath $authTs) -and (Test-Path -LiteralPath $ensureToken))
 # ------------------------------------------------------------------------------
 Write-Step "VERDICT"
 
-$syncOk = [bool]$Report.sync.ok -and [bool]$Report.sync.matches_origin_main
+$matchesMain = [bool]$Report.sync.matches_origin_main
+if ($KeepCurrentBranch) {
+    # Branch tip may intentionally differ until PR #33 merges; sync "ok" is enough.
+    $syncOk = [bool]$Report.sync.ok
+} else {
+    $syncOk = [bool]$Report.sync.ok -and $matchesMain
+}
 $pgOk = [bool]$Report.postgres.ok
 $migAbsent = ($Report.postgres["drizzle_migrations_content"] -eq "TABLE_ABSENT") -or (
     ($Report.postgres.Contains("migration_history_present")) -and ($Report.postgres["migration_history_present"] -eq $false)
 )
-$opsHint = " Then: restart npm run dev; python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill. Paste gate JSON. Do NOT db:migrate/db:push."
+$opsHint = " Then: restart npm run dev; powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_run_operator_gate.ps1 (or AHOS_WINDOWS_OPS.bat). Paste OWNER_PASTE / gate JSON. Do NOT db:migrate/db:push."
 
 if ($syncOk -and $pgOk) {
     if ($migAbsent) {
