@@ -37,17 +37,27 @@ if errorlevel 1 (
 call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
 git fetch origin cursor/windows-reconcile-ops-artifacts-4bde >> "%LOG%" 2>&1
+git fetch origin cursor/windows-g2-empty-gateway-default-4bde >> "%LOG%" 2>&1
 git pull origin main >> "%LOG%" 2>&1
 if errorlevel 1 (
   call :log WARNING: git pull origin main failed - continuing if scripts present
 )
-REM Prefer unlock-branch ops scripts until that tip is contained in origin/main (PR #43).
+REM Prefer open unlock-branch ops scripts until that tip is contained in origin/main.
 set "OPS_SYNC_REF=origin/main"
-git rev-parse --verify origin/cursor/windows-reconcile-ops-artifacts-4bde >nul 2>&1
+git rev-parse --verify origin/cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
 if not errorlevel 1 (
-  git merge-base --is-ancestor origin/cursor/windows-reconcile-ops-artifacts-4bde origin/main >nul 2>&1
+  git merge-base --is-ancestor origin/cursor/windows-g2-empty-gateway-default-4bde origin/main >nul 2>&1
   if errorlevel 1 (
-    set "OPS_SYNC_REF=origin/cursor/windows-reconcile-ops-artifacts-4bde"
+    set "OPS_SYNC_REF=origin/cursor/windows-g2-empty-gateway-default-4bde"
+  )
+)
+if "!OPS_SYNC_REF!"=="origin/main" (
+  git rev-parse --verify origin/cursor/windows-reconcile-ops-artifacts-4bde >nul 2>&1
+  if not errorlevel 1 (
+    git merge-base --is-ancestor origin/cursor/windows-reconcile-ops-artifacts-4bde origin/main >nul 2>&1
+    if errorlevel 1 (
+      set "OPS_SYNC_REF=origin/cursor/windows-reconcile-ops-artifacts-4bde"
+    )
   )
 )
 call :log ==^> force-sync ops scripts from !OPS_SYNC_REF!
@@ -70,6 +80,14 @@ if exist "scripts\windows_validate_ps1_parse.ps1" (
     call :log Log: %CD%\%LOG%
     pause
     exit /b 2
+  )
+)
+
+if exist "scripts\windows_pre_soak_readiness.ps1" (
+  call :log ==^> pre-soak readiness checklist ^(no READY claim^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_pre_soak_readiness.ps1"
+  if errorlevel 1 (
+    call :log WARNING: readiness FAILs present - ensure-pg / token ensure may still fix Docker+gateway
   )
 )
 

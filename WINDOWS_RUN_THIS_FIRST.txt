@@ -22,11 +22,13 @@ A) Pull latest main
 B) Start Docker Desktop
   - Wait until GREEN / Linux Engine running
   - Confirm:  docker ps
+  - Optional check:
+      powershell -ExecutionPolicy Bypass -File .\scripts\windows_pre_soak_readiness.ps1
 
 C) One-shot ops
   Double-click:  AHOS_WINDOWS_OPS.bat
 
-  Bat: wait for Docker -> ensure ahos_postgres_win (no migrate) ->
+  Bat: readiness checklist -> wait for Docker -> ensure ahos_postgres_win (no migrate) ->
   reconcile -> ensure token + AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat ->
   preflight -> restart Next -> warm /api/chat -> seed SQLite if needed -> gate.
 
