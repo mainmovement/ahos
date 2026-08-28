@@ -17,4 +17,5 @@ Hardened ops path is on main (PR #31–#34).
    - Else: Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
 
 That JSON is required for G1–G10 / pre_soak_entry_ok.
-G11 (Telegram E2E) is separate for full OPERATOR_READY.
+G11 (Telegram E2E): after G1–G10, run scripts\windows_g11_telegram_e2e_helper.ps1,
+fill the transcript from live chat, re-run gate with -TelegramE2eArtifact.
