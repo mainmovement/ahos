@@ -31,6 +31,7 @@ if errorlevel 1 (
 
 echo ==^> git fetch / pull origin main
 git fetch origin
+git fetch origin cursor/windows-presoak-followup-4bde >nul 2>&1
 git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
 git fetch origin cursor/windows-evidence-push-lease-4bde >nul 2>&1
@@ -40,9 +41,10 @@ if errorlevel 1 (
   echo WARNING: git pull origin main failed - continuing with local tree
 )
 
-REM Prefer newest unlock tip not yet on main (chat-500, then evidence-autopush)
+REM Prefer newest unlock tip not yet on main
 set "UNLOCK_REF="
 for %%R in (
+  origin/cursor/windows-presoak-followup-4bde
   origin/cursor/windows-chat-500-rootcause-4bde
   origin/cursor/windows-g2-evidence-autopush-4bde
   origin/cursor/windows-g2-empty-gateway-default-4bde
@@ -76,6 +78,14 @@ if exist "scripts\windows_diagnose_docker_health.ps1" (
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_diagnose_docker_health.ps1"
   if errorlevel 1 (
     echo WARNING: postgres pg_isready FAIL - ensure-pg will attempt one restart ^(no migrate^)
+  )
+)
+
+if exist "scripts\windows_ensure_database_url.ps1" (
+  echo ==^> ensure DATABASE_URL matches POSTGRES_* ^(no migrate^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
+  if errorlevel 1 (
+    echo WARNING: DATABASE_URL probe failed - OPS bat will retry via ensure-pg
   )
 )
 

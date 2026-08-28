@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Checkout /api/chat 500 fix sources onto the working tree (STATE B / no migrate).

@@ -36,6 +36,7 @@ if errorlevel 1 (
 
 call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
+git fetch origin cursor/windows-presoak-followup-4bde >nul 2>&1
 git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
 git fetch origin cursor/windows-evidence-push-lease-4bde >> "%LOG%" 2>&1
@@ -47,11 +48,20 @@ if errorlevel 1 (
 )
 REM Prefer newest unlock tip not yet contained in origin/main.
 set "OPS_SYNC_REF=origin/main"
-git rev-parse --verify origin/cursor/windows-chat-500-rootcause-4bde >nul 2>&1
+git rev-parse --verify origin/cursor/windows-presoak-followup-4bde >nul 2>&1
 if not errorlevel 1 (
-  git merge-base --is-ancestor origin/cursor/windows-chat-500-rootcause-4bde origin/main >nul 2>&1
+  git merge-base --is-ancestor origin/cursor/windows-presoak-followup-4bde origin/main >nul 2>&1
   if errorlevel 1 (
-    set "OPS_SYNC_REF=origin/cursor/windows-chat-500-rootcause-4bde"
+    set "OPS_SYNC_REF=origin/cursor/windows-presoak-followup-4bde"
+  )
+)
+if "!OPS_SYNC_REF!"=="origin/main" (
+  git rev-parse --verify origin/cursor/windows-chat-500-rootcause-4bde >nul 2>&1
+  if not errorlevel 1 (
+    git merge-base --is-ancestor origin/cursor/windows-chat-500-rootcause-4bde origin/main >nul 2>&1
+    if errorlevel 1 (
+      set "OPS_SYNC_REF=origin/cursor/windows-chat-500-rootcause-4bde"
+    )
   )
 )
 if "!OPS_SYNC_REF!"=="origin/main" (
@@ -124,6 +134,15 @@ if exist "scripts\windows_ensure_postgres_win.ps1" (
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_postgres_win.ps1"
   if errorlevel 1 (
     call :log WARNING: postgres ensure failed - G2 may HTTP 500; continuing
+  )
+)
+
+REM Explicit DATABASE_URL sync/probe (belt-and-suspenders; also runs from ensure-pg).
+if exist "scripts\windows_ensure_database_url.ps1" (
+  call :log ==^> ensure DATABASE_URL matches POSTGRES_* ^(chat 500 / G2^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
+  if errorlevel 1 (
+    call :log WARNING: DATABASE_URL probe failed - /api/chat may HTTP 500; continuing to forensics-capable warm
   )
 )
 

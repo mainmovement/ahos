@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Ensure .env DATABASE_URL matches Windows Docker Postgres (STATE B / no migrate).
