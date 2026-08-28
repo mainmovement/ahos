@@ -75,3 +75,37 @@ def test_migration_column_sets_match_schema_ts():
     assert set(sql_cols) == set(schema_cols)
     for t in sql_cols:
         assert sql_cols[t] == schema_cols[t], (t, sql_cols[t] ^ schema_cols[t])
+
+
+def test_docker_init_sql_has_zero_ahos_tables():
+    init = (ROOT / "database" / "postgresql_schema.sql").read_text(encoding="utf-8")
+    # Explicit: no CREATE TABLE ahos_* (comments may mention ahos_ without creating).
+    assert re.search(r'CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["\']?ahos_', init, re.I) is None
+    legacy = re.findall(r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)", init, re.I)
+    assert len(legacy) == 8
+
+
+def test_windows_compose_mounts_legacy_init_not_drizzle():
+    compose = (ROOT / "deployment" / "docker-compose.windows.yml").read_text(encoding="utf-8")
+    assert "postgresql_schema.sql" in compose
+    assert "0000_ahos_canonical_tables.sql" not in compose
+    assert "db:migrate" not in compose
+
+
+def test_drizzle_config_requires_database_url_and_filters_ahos():
+    cfg = (ROOT / "drizzle.config.ts").read_text(encoding="utf-8")
+    assert "DATABASE_URL" in cfg
+    assert 'tablesFilter' in cfg and "ahos_*" in cfg
+    assert 'schema: "./schema.ts"' in cfg or "schema: './schema.ts'" in cfg
+
+
+def test_migration_snapshot_json_table_count_matches():
+    import json
+    snap = json.loads((ROOT / "drizzle" / "meta" / "0000_snapshot.json").read_text(encoding="utf-8"))
+    tables = [k for k in (snap.get("tables") or {}) if "ahos_" in k]
+    assert len(tables) == 19
+
+
+def test_no_if_not_exists_on_ahos_create_table():
+    """Bare CREATE TABLE fails loudly if tables already exist — safer than silent IF NOT EXISTS."""
+    assert re.search(r'CREATE TABLE IF NOT EXISTS "ahos_', SQL, re.I) is None

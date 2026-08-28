@@ -101,13 +101,19 @@ def assert_safe_environment() -> dict[str, bool]:
     ]
     paper_explicit = bool(paper and paper.strip() and _env_flag_enabled(paper))
     paper_unset = paper is None or str(paper).strip() == ""
+    # Measured: live-enable flags are absent (else we would have raised above).
+    live_flags_absent = len(violations) == 0
     return {
-        # Operational: not explicitly disabled (default-safe path still allowed).
-        "paper_only_enforced": True,
+        # True ONLY when AHOS_PAPER_ONLY is explicitly enabled (=1/true/yes/on).
+        # Unset is default-safe for gate passage but MUST NOT claim enforcement.
+        "paper_only_enforced": paper_explicit,
         # Epistemic: env flag was explicitly enabled (not merely default).
         "paper_only_explicit": paper_explicit,
         "paper_only_unset": paper_unset,
-        "zero_real_trading": True,
+        # Measured absence of live-trading FLAGS (not a claim that execution
+        # is impossible by other means).
+        "live_trading_flags_absent": live_flags_absent,
+        "zero_real_trading": live_flags_absent,
         "credentials_isolated": len(present_exchange_keys) == 0,
         "ahos_paper_only_env": (
             paper.strip() if paper and paper.strip() else "unset_default_paper"

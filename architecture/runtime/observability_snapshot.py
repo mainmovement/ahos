@@ -131,6 +131,7 @@ class CanonicalHealthSnapshot:
     # None = unverifiable (UNKNOWN), never silently assumed intact.
     lane_a_ok: bool | None = None
     lane_a_detail: str = ""
+    telemetry_health: dict[str, Any] = field(default_factory=dict)
 
 
 #: Health scorecard dimensions (mission W36 phase 3). Each dimension is
@@ -150,7 +151,11 @@ HEALTH_DIMENSIONS: tuple[str, ...] = (
     "ARCHITECTURE_HEALTH",
     "CONFIG_HEALTH",
     "BENCHMARK_HEALTH",
+    "TELEMETRY_HEALTH",
 )
+
+# Only recent durable provider failures degrade the overall verdict.
+_PROVIDER_FAILURE_VERDICT_WINDOW_SEC = 24 * 3600.0
 
 
 def _scorecard_status(value: Any, *ok_values: Any) -> str:
@@ -169,8 +174,15 @@ def _scorecard_status(value: Any, *ok_values: Any) -> str:
 
 
 class HealthSnapshotEngine:
-    def __init__(self, root_dir: Path | str | None = None):
+    def __init__(
+        self,
+        root_dir: Path | str | None = None,
+        *,
+        metrics_tracker: Any | None = None,
+    ):
         self.root = Path(root_dir) if root_dir else get_project_root()
+        # Optional live tracker; never constructed here (construction mutates DB).
+        self._metrics_tracker = metrics_tracker
 
     def generate_snapshot(self, now: float | None = None) -> CanonicalHealthSnapshot:
         ts = time.time() if now is None else now
@@ -449,10 +461,26 @@ class HealthSnapshotEngine:
                 for r in rows
             }
             prov_health["durable_failure_event_total"] = sum(r["n"] for r in rows)
-            if rows:
+            recent_fail_n = 0
+            for r in rows:
+                last_ts = r["last_ts"]
+                if isinstance(last_ts, (int, float)) and (ts - float(last_ts)) <= _PROVIDER_FAILURE_VERDICT_WINDOW_SEC:
+                    recent_fail_n += int(r["n"])
+            prov_health["durable_failure_events_recent_window_sec"] = (
+                _PROVIDER_FAILURE_VERDICT_WINDOW_SEC
+            )
+            prov_health["durable_failure_event_recent_total"] = recent_fail_n
+            # Lifetime census is informational; only recent failures degrade overall.
+            if recent_fail_n > 0:
                 is_degraded = True
                 reasons.append(
-                    f"{sum(r['n'] for r in rows)} durable provider failure events"
+                    f"{recent_fail_n} durable provider failure events "
+                    f"within {_PROVIDER_FAILURE_VERDICT_WINDOW_SEC:.0f}s"
+                )
+            elif rows:
+                reasons.append(
+                    f"{sum(r['n'] for r in rows)} lifetime durable provider "
+                    "failure events (outside recent window; informational)"
                 )
         except Exception as e:
             prov_health["durable_failure_events_error"] = str(e)
@@ -512,6 +540,7 @@ class HealthSnapshotEngine:
         paper_ok: bool | None = None
         live_prohibited: bool | None = None
         paper_mode = "unknown"
+        security_inv_extra: dict[str, Any] = {}
         try:
             from architecture.security import assert_safe_environment
             from architecture.security.hygiene import _env_flag_enabled
@@ -524,15 +553,30 @@ class HealthSnapshotEngine:
                 paper_ok = None
             else:
                 paper_ok = bool(_env_flag_enabled(raw_paper))
-            live_prohibited = bool(env_audit.get("zero_real_trading"))
+            live_prohibited = bool(env_audit.get("live_trading_flags_absent",
+                                                 env_audit.get("zero_real_trading")))
+            security_inv_extra = {
+                "paper_only_explicit": bool(env_audit.get("paper_only_explicit")),
+                "paper_only_unset": bool(env_audit.get("paper_only_unset")),
+                "live_trading_flags_absent": bool(
+                    env_audit.get("live_trading_flags_absent",
+                                  env_audit.get("zero_real_trading"))
+                ),
+            }
         except PermissionError as e:
             is_critical = True
             reasons.append(f"security veto: {e}")
             paper_ok = False
             live_prohibited = False
+            security_inv_extra = {
+                "paper_only_explicit": False,
+                "paper_only_unset": False,
+                "live_trading_flags_absent": False,
+            }
         except Exception as e:
             is_critical = True
             reasons.append(f"security audit failed: {type(e).__name__}: {e}")
+            security_inv_extra = {}
 
         master_path = self.root / _MASTER_DIRECTIVE_REL
         master_sha = _file_sha256(master_path)
@@ -571,6 +615,7 @@ class HealthSnapshotEngine:
             "zero_secret_check_scope": "root_.env_untracked_only",
             "master_directive_hash_pinned": master_pinned,
             "e01_protocol_hash_pinned": e01_pinned,
+            **security_inv_extra,
         }
         if paper_ok is None:
             is_warning = True
@@ -594,6 +639,43 @@ class HealthSnapshotEngine:
         if isinstance(hb_age, (int, float)) and hb_age > 3600:
             is_warning = True
             reasons.append(f"scheduler heartbeat age {hb_age}s exceeds 1h")
+
+        # 9b. Telemetry writer health — never invent OK without a live tracker.
+        telemetry_health: dict[str, Any]
+        try:
+            from architecture.runtime.metrics import OperationalMetricsTracker
+            if self._metrics_tracker is not None:
+                telemetry_health = dict(self._metrics_tracker.telemetry_health())
+                telemetry_health["source"] = "injected_tracker"
+            else:
+                registered = OperationalMetricsTracker.registered_telemetry_health()
+                if registered is None:
+                    telemetry_health = {
+                        "status": "UNKNOWN",
+                        "write_failures": None,
+                        "recent_failures": [],
+                        "source": "no_live_tracker",
+                        "note": (
+                            "snapshot does not construct OperationalMetricsTracker "
+                            "(would mkdir/CREATE); no in-process tracker registered"
+                        ),
+                    }
+                else:
+                    telemetry_health = registered
+            if telemetry_health.get("status") == "DEGRADED":
+                is_warning = True
+                reasons.append(
+                    f"telemetry write failures="
+                    f"{telemetry_health.get('write_failures')}"
+                )
+        except Exception as e:
+            telemetry_health = {
+                "status": "UNKNOWN",
+                "error": f"{type(e).__name__}: {e}",
+                "source": "probe_failed",
+            }
+            is_warning = True
+            reasons.append(f"telemetry_health unreadable: {type(e).__name__}")
 
         # Overall verdict — GREEN | DEGRADED | WARNING | CRITICAL | UNKNOWN.
         if is_critical:
@@ -652,6 +734,7 @@ class HealthSnapshotEngine:
             summary_reasons=reasons,
             lane_a_ok=lane_a_ok,
             lane_a_detail=lane_a_detail,
+            telemetry_health=telemetry_health,
         )
         snapshot.health_scorecard = self._build_scorecard(snapshot)
         snapshot.diagnostic_correlations = self._build_correlations(snapshot)
@@ -894,6 +977,11 @@ class HealthSnapshotEngine:
                 "active": off.offline_mode_active,
                 "allow_external_http": off.allow_external_http,
                 "source": "AHOS_OFFLINE_MODE env (default 0)",
+                "enforcement": "OBSERVED_ONLY",
+                "note": (
+                    "offline_mode is observational config; providers/Telegram "
+                    "are not automatically blocked by this flag"
+                ),
             }
         except Exception:
             config_health["offline_mode"] = {"error": "NO_DATA"}
@@ -952,19 +1040,22 @@ class HealthSnapshotEngine:
                             "missing or corrupt store fails the snapshot"),
         }
 
-        # PROVIDER_HEALTH: durable failure events; breakers are UNKNOWN without live process.
+        # PROVIDER_HEALTH: recent durable failures; lifetime census is informational.
         p_evidence: list[str] = []
         if isinstance(prov, dict) and prov.get("breaker_state_source") == "UNAVAILABLE":
+            recent_fail = prov.get("durable_failure_event_recent_total")
             total_fail = prov.get("durable_failure_event_total")
-            if isinstance(total_fail, int) and total_fail > 0:
+            if isinstance(recent_fail, int) and recent_fail > 0:
                 p_status = "DEGRADED"
-                p_evidence.append(f"{total_fail} durable failure events")
+                p_evidence.append(f"{recent_fail} recent durable failure events")
             elif "durable_failure_events_error" in prov:
                 p_status = "UNKNOWN"
                 p_evidence.append(f"failure-event read error: {prov['durable_failure_events_error']}")
             else:
                 p_status = "UNKNOWN"
-                p_evidence.append("no live breaker telemetry; zero durable failures observed")
+                p_evidence.append("no live breaker telemetry; zero recent durable failures")
+            if isinstance(total_fail, int) and total_fail > 0:
+                p_evidence.append(f"{total_fail} lifetime durable failure events (informational)")
             p_evidence.append(str(prov.get("note") or "breakers UNAVAILABLE"))
         elif isinstance(prov, dict) and prov.get("providers"):
             p_status = "HEALTHY"
@@ -978,9 +1069,8 @@ class HealthSnapshotEngine:
             p_evidence.append("no provider health data")
         pf = so.get("provider_failure_rates", {})
         if isinstance(pf, dict) and pf.get("total_failure_events"):
-            if p_status == "UNKNOWN":
-                p_status = "DEGRADED"
-            p_evidence.append(f"{pf['total_failure_events']} durable failure events (self-obs)")
+            # Lifetime self-obs census is informational — do not upgrade UNKNOWN→DEGRADED.
+            p_evidence.append(f"{pf['total_failure_events']} durable failure events (self-obs lifetime)")
         dims["PROVIDER_HEALTH"] = {
             "status": p_status,
             "evidence": p_evidence,
@@ -1184,9 +1274,17 @@ class HealthSnapshotEngine:
         else:
             arch_evidence.append("Lane-A integrity intact")
         sec = snap.security_invariants
+        # Epistemic/informational keys must not FAIL the architecture dimension.
+        _SEC_INFO_KEYS = {
+            "ahos_paper_only_env",
+            "zero_secret_check_scope",
+            "paper_only_explicit",
+            "paper_only_unset",
+            "live_trading_flags_absent",
+        }
         if isinstance(sec, dict):
             for k, v in sec.items():
-                if k.endswith("_scope") or k.endswith("_env"):
+                if k in _SEC_INFO_KEYS or k.endswith("_scope") or k.endswith("_env"):
                     arch_evidence.append(f"{k}={v}")
                     continue
                 arch_evidence.append(f"{k}={v}")
@@ -1226,6 +1324,30 @@ class HealthSnapshotEngine:
             "status": b_status,
             "evidence": b_evidence,
             "explanation": "benchmark health = a baseline artifact exists",
+        }
+
+        # TELEMETRY_HEALTH: metrics writer observability (never invent OK).
+        tel = getattr(snap, "telemetry_health", None)
+        tel = tel if isinstance(tel, dict) else {}
+        tel_status_raw = tel.get("status")
+        if tel_status_raw == "OK":
+            tel_status = "HEALTHY"
+        elif tel_status_raw == "DEGRADED":
+            tel_status = "DEGRADED"
+        else:
+            tel_status = "UNKNOWN"
+        dims["TELEMETRY_HEALTH"] = {
+            "status": tel_status,
+            "evidence": [
+                f"source={tel.get('source')}",
+                f"write_failures={tel.get('write_failures')}",
+                *([tel["note"]] if tel.get("note") else []),
+                *([tel["error"]] if tel.get("error") else []),
+            ],
+            "explanation": (
+                "telemetry health observes metric-write failures; "
+                "absence of a live tracker is UNKNOWN, never HEALTHY"
+            ),
         }
 
         return {

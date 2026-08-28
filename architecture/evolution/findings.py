@@ -237,10 +237,12 @@ def derive_findings(health: dict[str, Any], graph: dict[str, Any] | None = None,
     if isinstance(om, dict) and om.get("active"):
         out.append(_finding(
             "CONFIG_DRIFT", "LOW", "config",
-            "AHOS_OFFLINE_MODE=1 is active (external HTTP disabled)",
+            "AHOS_OFFLINE_MODE=1 is active (observed flag only; "
+            "external HTTP is NOT automatically disabled by this flag)",
             ts, "OBSERVED", guard="AHOS_OFFLINE_MODE env",
             investigation="confirm offline mode is intentional; it is "
-                          "currently observed state only",
+                          "currently observed state only and does not "
+                          "block providers/Telegram by itself",
             internal=False, external=True))
 
     # 10. benchmark regression

@@ -88,6 +88,9 @@ def test_tracer_provenance_and_latency():
 
 
 def test_safe_environment_assertion():
+    import os
+    os.environ["AHOS_PAPER_ONLY"] = "1"
     audit = assert_safe_environment()
     assert audit["paper_only_enforced"] is True
     assert audit["zero_real_trading"] is True
+    assert audit["live_trading_flags_absent"] is True
