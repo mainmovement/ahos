@@ -40,7 +40,7 @@ def test_windows_requires_g11_pass_for_operator_ready():
     gates = _pass_gates(10)
     gates.append({"id": "G11", "status": "OWNER_ACTION_REQUIRED", "name": "tg", "detail": ""})
     gates.append({"id": "G12", "status": "STRUCTURAL_VALID", "name": "n8n", "detail": ""})
-    summary = classify("windows", gates)
+    summary = classify("windows", gates, host_is_windows=True)
     assert summary["operator_ready"] is False
     assert summary["g1_g10_all_pass"] is True
     assert summary["pre_soak_entry_ok"] is True
@@ -50,11 +50,23 @@ def test_windows_requires_g11_pass_for_operator_ready():
 def test_windows_full_pass_operator_ready():
     gates = _pass_gates(11)
     gates.append({"id": "G12", "status": "STRUCTURAL_VALID", "name": "n8n", "detail": ""})
-    summary = classify("windows", gates)
+    summary = classify("windows", gates, host_is_windows=True)
     assert summary["operator_ready"] is True
     assert summary["classification"] == "OPERATOR_READY"
     assert summary["pre_soak_entry_ok"] is True
     assert "remediation_actions" in summary
+
+
+def test_platform_windows_on_non_windows_host_refuses_pre_soak():
+    """Anti-forgery: agent-host must not invent PRE_SOAK via --platform windows."""
+    gates = _pass_gates(11)
+    gates.append({"id": "G12", "status": "STRUCTURAL_VALID", "name": "n8n", "detail": ""})
+    summary = classify("windows", gates, host_is_windows=False)
+    assert summary["operator_ready"] is False
+    assert summary["pre_soak_entry_ok"] is False
+    assert summary["windows_attested"] is False
+    assert any("host:not_windows" in m for m in summary["missing"])
+    assert "non-Windows host" in summary["reason"]
 
 
 def test_remediation_mentions_web_api_token_for_g2_block():

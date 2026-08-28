@@ -589,7 +589,21 @@ def remediation_actions(gates: list[dict[str, Any]]) -> list[str]:
     return out
 
 
-def classify(platform_name: str, gates: list[dict[str, Any]]) -> dict[str, Any]:
+def classify(
+    platform_name: str,
+    gates: list[dict[str, Any]],
+    *,
+    host_is_windows: bool | None = None,
+) -> dict[str, Any]:
+    """Classify gate results.
+
+    PRE_SOAK / OPERATOR_READY require BOTH ``platform_name==\"windows\"`` AND a
+    real Windows host. Claiming ``--platform windows`` on Linux/macOS must not
+    invent pre_soak_entry_ok or OPERATOR_READY.
+    """
+    if host_is_windows is None:
+        host_is_windows = sys.platform.startswith("win")
+
     by_id = {g["id"]: g for g in gates}
     required = ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11"]
     missing: list[str] = []
@@ -610,8 +624,13 @@ def classify(platform_name: str, gates: list[dict[str, Any]]) -> dict[str, Any]:
         missing.append(f"G12:{g12.get('status')}")
 
     g1_g10 = _core_gates_pass(by_id)
-    # Pre-soak may start after Windows G1–G10 PASS; OPERATOR_READY still needs G11.
-    pre_soak_entry_ok = platform_name == "windows" and g1_g10
+    claimed_windows = platform_name == "windows"
+    windows_attested = claimed_windows and bool(host_is_windows)
+    if claimed_windows and not host_is_windows:
+        missing.append("host:not_windows(--platform windows on non-Windows host)")
+
+    # Pre-soak may start after attested Windows G1–G10 PASS; OPERATOR_READY still needs G11.
+    pre_soak_entry_ok = windows_attested and g1_g10
     remediations = remediation_actions(gates)
 
     base = {
@@ -619,14 +638,26 @@ def classify(platform_name: str, gates: list[dict[str, Any]]) -> dict[str, Any]:
         "pre_soak_entry_ok": pre_soak_entry_ok,
         "missing": missing,
         "remediation_actions": remediations,
+        "host_is_windows": bool(host_is_windows),
+        "windows_attested": windows_attested,
     }
 
-    if platform_name != "windows":
+    if not claimed_windows:
         return {
             **base,
             "classification": "INTEGRATION_READY",
             "operator_ready": False,
             "reason": "platform is not windows — OPERATOR_READY requires Windows gate artifacts",
+        }
+    if not host_is_windows:
+        return {
+            **base,
+            "classification": "INTEGRATION_READY",
+            "operator_ready": False,
+            "reason": (
+                "--platform windows on non-Windows host — refusing PRE_SOAK/OPERATOR_READY "
+                "(run the gate on the Windows laptop)"
+            ),
         }
     if missing:
         return {
@@ -712,13 +743,14 @@ def main(argv: list[str] | None = None) -> int:
         gates.append(g11_telegram(plat, e2e_artifact=args.telegram_e2e_artifact))
         gates.append(g12_n8n())
 
-        summary = classify(plat, gates)
+        summary = classify(plat, gates, host_is_windows=sys.platform.startswith("win"))
         report = {
             "schema": SCHEMA,
             "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "platform_arg": args.platform,
             "platform_effective": plat,
             "host_platform": platform.platform(),
+            "host_is_windows": sys.platform.startswith("win"),
             "head_hint": _git_head(),
             "gates": gates,
             "summary": summary,
