@@ -117,8 +117,19 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "windows_ensure_postgres_win.ps1" in text
     assert "windows_run_operator_gate.ps1" in text
     assert "windows_ops_last_run.log" in text or "LOG=" in text
+    assert "windows_write_ops_failure_paste.ps1" in text or "failpaste" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+
+
+def test_windows_failure_paste_helper_exists():
+    path = ROOT / "scripts" / "windows_write_ops_failure_paste.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
+    assert "pre_soak_entry_ok=false" in text
+    assert "operator_ready=false" in text
+    assert "db:migrate" in text.lower()
+    assert "BEGIN WINDOWS OPS FAILURE PASTE" in text
 
 
 def test_windows_wait_for_web_api_script_exists():
@@ -127,6 +138,8 @@ def test_windows_wait_for_web_api_script_exists():
     assert "/api/chat" in text
     assert "AHOS_WEB_API_TOKEN" in text
     assert "Invoke-WebRequest" in text
+    assert "FAIL-FAST" in text
+    assert "WEB_API_LOCKED_NO_TOKEN" in text or "401" in text
 
 
 def test_windows_ensure_postgres_win_script_exists():
@@ -145,6 +158,19 @@ def test_windows_seed_local_evidence_script_exists():
     assert "single-cycle" in text
     assert "OPERATOR_READY" in text
     assert "db:migrate" in text.lower() or "Never migrates" in text
+    assert "observation_state_total" in text
+    assert "sum(int(v)" in text or "observation_state" in text
+    assert "after_seed" in text or "re-read" in text.lower() or "after seed" in text.lower()
+
+
+def test_windows_gate_runner_posts_to_open_harden_pr():
+    text = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
+    assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
+    assert "BEGIN WINDOWS GATE PASTE" in text
+    assert "windows-g1-g10-harden" in text or 'prNum = "36"' in text
+    # stale merged-PR-only defaults removed
+    assert 'prNum = "34"' not in text
+    assert 'prNum = "35"' not in text
 
 
 def test_windows_run_this_first_points_at_ops_bat():

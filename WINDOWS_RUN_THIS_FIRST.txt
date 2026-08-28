@@ -3,18 +3,19 @@ AHOS Windows — PRE_SOAK unlock (PAPER_ONLY)
 STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY
 
-PR #31–#34 are on main. PR #35 adds postgres ensure + anti-forgery
-(open until merged).
+PR #31–#35 are on main (postgres ensure + anti-forgery).
+Follow-up harden (seed census / fail-fast warm / paste): PR branch below.
 
 1) On G:\robat\ahos — get latest scripts (pick ONE):
 
-   A) After #35 is merged:
+   A) After harden PR is merged:
+      git checkout main
       git pull origin main
 
-   B) Before merge (recommended now):
+   B) Before harden merge (recommended now):
       git fetch origin
-      git checkout cursor/windows-main-unlock-4bde
-      git pull origin cursor/windows-main-unlock-4bde
+      git checkout cursor/windows-g1-g10-harden-4bde
+      git pull origin cursor/windows-g1-g10-harden-4bde
 
 2) Double-click:
    AHOS_WINDOWS_OPS.bat
@@ -28,5 +29,6 @@ PR #31–#34 are on main. PR #35 adds postgres ensure + anti-forgery
    - Else: Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
 
 That JSON is required for G1–G10 / pre_soak_entry_ok (Windows-attested only).
+NOTE: Postgres ahos_* row counts do NOT satisfy G4/G5/G8/G9 — bat seeds local SQLite.
 G11 (Telegram E2E): after G1–G10, run scripts\windows_g11_telegram_e2e_helper.ps1,
 fill the transcript from live chat, re-run gate with -TelegramE2eArtifact.
