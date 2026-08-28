@@ -5,7 +5,7 @@
 
 STATE B: never db:migrate / db:push. Does NOT invent PRE_SOAK/READY.
 
-Bootstrap from G:\robat\ahos (lowest friction):
+Prefer AHOS_BOOTSTRAP_PRESOAK.bat from repo root. Alternate:
   powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/scripts/windows_bootstrap_presoak.ps1 -OutFile scripts\windows_bootstrap_presoak.ps1; powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_bootstrap_presoak.ps1"
 #>
 [CmdletBinding()]
@@ -45,53 +45,64 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $ref = "origin/" + $Tip
-Write-Host ("==> list + checkout unlock files from " + $ref) -ForegroundColor Cyan
+Write-Host ("==> checkout unlock files from " + $ref) -ForegroundColor Cyan
 
-# Expand windows_*.ps1 via git ls-tree (PowerShell does not expand git pathspecs reliably).
-$winScripts = @()
-try {
-  $listed = & git ls-tree -r --name-only $ref 2>$null
-  foreach ($p in $listed) {
-    if ($p -like "scripts/windows_*.ps1") { $winScripts += $p }
-  }
-} catch {}
-
-$paths = New-Object System.Collections.Generic.List[string]
-foreach ($p in @(
-  "AHOS_APPLY_TIP.bat",
-  "AHOS_PRE_SOAK_NOW.bat",
-  "AHOS_WINDOWS_OPS.bat",
-  "AHOS_VALIDATE_G2_NOW.bat",
-  "AHOS_PULL_OPS_UNLOCK.bat",
-  "AHOS_PUSH_EVIDENCE_NOW.bat",
-  "WINDOWS_RUN_THIS_FIRST.txt",
-  "scripts/ahos_pg_probe.mjs",
-  "scripts/windows_g2_probe.py",
-  "scripts/operator_validation_gate.py",
-  "app/api/chat/route.ts",
-  "db/index.ts",
-  "snapshot.ts",
-  "tests/validate_n8n.py",
-  "deployment/docker-compose.windows.yml",
-  ".env.example"
-)) { [void]$paths.Add($p) }
-foreach ($p in $winScripts) { [void]$paths.Add($p) }
-
-Write-Host ("  windows_*.ps1 count from tip: " + $winScripts.Count) -ForegroundColor DarkGray
-& git checkout $ref -- @($paths.ToArray()) 2>&1 | Out-Host
-if ($LASTEXITCODE -ne 0 -or $winScripts.Count -lt 5) {
-  Write-Host "WARN: bulk/list checkout incomplete - trying core set" -ForegroundColor Yellow
-  & git checkout $ref -- `
-    AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_PUSH_EVIDENCE_NOW.bat `
-    scripts/operator_validation_gate.py scripts/windows_recover_g2_warm.ps1 `
-    scripts/windows_ensure_database_url.ps1 scripts/windows_wait_for_web_api.ps1 `
-    scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
-    scripts/windows_bootstrap_presoak.ps1 scripts/windows_chat_500_forensics.ps1 `
-    scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_postgres_win.ps1 `
-    app/api/chat/route.ts 2>&1 | Out-Host
+# Prefer shared helper (ls-tree expansion). Seed it first to avoid pathspec glob bugs.
+& git checkout $ref -- scripts/windows_checkout_unlock_tip.ps1 AHOS_BOOTSTRAP_PRESOAK.bat 2>&1 | Out-Host
+$helper = Join-Path $RepoRoot "scripts\windows_checkout_unlock_tip.ps1"
+if (Test-Path -LiteralPath $helper) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $helper -Ref $ref
   if ($LASTEXITCODE -ne 0) {
-    Write-Host "FAIL: tip checkout failed" -ForegroundColor Red
+    Write-Host "FAIL: windows_checkout_unlock_tip.ps1 failed" -ForegroundColor Red
     exit 2
+  }
+} else {
+  Write-Host "WARN: checkout helper missing - expanding windows_*.ps1 via git ls-tree" -ForegroundColor Yellow
+  $winScripts = @()
+  try {
+    $listed = & git ls-tree -r --name-only $ref 2>$null
+    foreach ($p in $listed) {
+      if ($p -like "scripts/windows_*.ps1") { $winScripts += $p }
+    }
+  } catch {}
+  $paths = New-Object System.Collections.Generic.List[string]
+  foreach ($p in @(
+    "AHOS_APPLY_TIP.bat",
+    "AHOS_BOOTSTRAP_PRESOAK.bat",
+    "AHOS_PRE_SOAK_NOW.bat",
+    "AHOS_WINDOWS_OPS.bat",
+    "AHOS_VALIDATE_G2_NOW.bat",
+    "AHOS_PULL_OPS_UNLOCK.bat",
+    "AHOS_PUSH_EVIDENCE_NOW.bat",
+    "WINDOWS_RUN_THIS_FIRST.txt",
+    "scripts/ahos_pg_probe.mjs",
+    "scripts/windows_g2_probe.py",
+    "scripts/operator_validation_gate.py",
+    "app/api/chat/route.ts",
+    "db/index.ts",
+    "snapshot.ts",
+    "tests/validate_n8n.py",
+    "deployment/docker-compose.windows.yml",
+    ".env.example"
+  )) { [void]$paths.Add($p) }
+  foreach ($p in $winScripts) { [void]$paths.Add($p) }
+  Write-Host ("  windows_*.ps1 count from tip: " + $winScripts.Count) -ForegroundColor DarkGray
+  & git checkout $ref -- @($paths.ToArray()) 2>&1 | Out-Host
+  if ($LASTEXITCODE -ne 0 -or $winScripts.Count -lt 5) {
+    Write-Host "WARN: bulk/list checkout incomplete - trying core set" -ForegroundColor Yellow
+    & git checkout $ref -- `
+      AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_PUSH_EVIDENCE_NOW.bat `
+      scripts/operator_validation_gate.py scripts/windows_recover_g2_warm.ps1 `
+      scripts/windows_ensure_database_url.ps1 scripts/windows_wait_for_web_api.ps1 `
+      scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
+      scripts/windows_bootstrap_presoak.ps1 scripts/windows_chat_500_forensics.ps1 `
+      scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_postgres_win.ps1 `
+      scripts/windows_post_merge_reconcile.ps1 scripts/windows_run_operator_gate.ps1 `
+      app/api/chat/route.ts 2>&1 | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "FAIL: tip checkout failed" -ForegroundColor Red
+      exit 2
+    }
   }
 }
 

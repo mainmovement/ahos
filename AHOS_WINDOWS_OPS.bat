@@ -70,9 +70,20 @@ for %%R in (
   )
 )
 call :log ==^> force-sync ops scripts from !OPS_SYNC_REF!
-git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt scripts/operator_validation_gate.py scripts/windows_g2_probe.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example >> "%LOG%" 2>&1
-if errorlevel 1 (
-  call :log WARNING: force-sync ops scripts failed - parse preflight may catch stale scripts
+REM Avoid scripts/windows_*.ps1 pathspec glob ^(unreliable on Windows Git^).
+git checkout "!OPS_SYNC_REF!" -- scripts/windows_checkout_unlock_tip.ps1 >> "%LOG%" 2>&1
+if exist "scripts\windows_checkout_unlock_tip.ps1" (
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_checkout_unlock_tip.ps1" -Ref "!OPS_SYNC_REF!" >> "%LOG%" 2>&1
+  if errorlevel 1 (
+    call :log WARNING: unlock tip helper failed - trying explicit core files
+    git checkout "!OPS_SYNC_REF!" -- AHOS_BOOTSTRAP_PRESOAK.bat AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PUSH_EVIDENCE_NOW.bat scripts/windows_checkout_unlock_tip.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_validate_g2.ps1 scripts/windows_post_merge_reconcile.ps1 scripts/windows_write_ops_failure_paste.ps1 scripts/windows_preflight_ops.ps1 scripts/windows_validate_ps1_parse.ps1 scripts/operator_validation_gate.py scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs app/api/chat/route.ts db/index.ts snapshot.ts >> "%LOG%" 2>&1
+  )
+) else (
+  call :log WARNING: checkout helper missing - trying explicit core files
+  git checkout "!OPS_SYNC_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PUSH_EVIDENCE_NOW.bat scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_validate_g2.ps1 scripts/windows_post_merge_reconcile.ps1 scripts/windows_write_ops_failure_paste.ps1 scripts/windows_preflight_ops.ps1 scripts/operator_validation_gate.py scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs app/api/chat/route.ts db/index.ts snapshot.ts >> "%LOG%" 2>&1
+  if errorlevel 1 (
+    call :log WARNING: force-sync ops scripts failed - parse preflight may catch stale scripts
+  )
 )
 for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CURBRANCH=%%B"
 if defined CURBRANCH if /I not "!CURBRANCH!"=="main" (
@@ -254,6 +265,13 @@ if exist "scripts\windows_write_ops_failure_paste.ps1" (
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_write_ops_failure_paste.ps1" -Stage "%~1" -Detail "%~2"
 ) else (
   call :log WARNING: failure paste helper missing - copy %LOG% into Cursor
+)
+REM Still push whatever paste we have so agent wake path gets evidence.
+if exist "scripts\windows_push_gate_evidence.ps1" (
+  if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
+    call :log ==^> evidence push after failure paste
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_push_gate_evidence.ps1"
+  )
 )
 goto :eof
 

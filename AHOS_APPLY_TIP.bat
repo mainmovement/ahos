@@ -34,17 +34,23 @@ if errorlevel 1 (
 )
 
 echo ==^> checkout unlock files from origin/%TIP% ^(overwrites listed unlock files only^)
-git checkout "origin/%TIP%" -- AHOS_APPLY_TIP.bat AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/windows_g2_probe.py scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example
-if errorlevel 1 (
-  echo WARNING: bulk checkout failed - trying core files
-)
-
-REM Always apply explicit G2/PRE_SOAK core scripts (glob may miss on some Git installs).
-git checkout "origin/%TIP%" -- AHOS_APPLY_TIP.bat AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PUSH_EVIDENCE_NOW.bat scripts/windows_bootstrap_presoak.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_validate_g2.ps1 scripts/operator_validation_gate.py scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs app/api/chat/route.ts db/index.ts snapshot.ts
-if errorlevel 1 (
-  echo ERROR: checkout tip core files failed
-  pause
-  exit /b 2
+REM Avoid scripts/windows_*.ps1 pathspec glob ^(unreliable on Windows Git^).
+git checkout "origin/%TIP%" -- scripts/windows_checkout_unlock_tip.ps1
+if exist "scripts\windows_checkout_unlock_tip.ps1" (
+  powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_checkout_unlock_tip.ps1" -Ref "origin/%TIP%"
+  if errorlevel 1 (
+    echo ERROR: unlock tip helper failed
+    pause
+    exit /b 2
+  )
+) else (
+  echo WARNING: checkout helper missing - applying explicit core set
+  git checkout "origin/%TIP%" -- AHOS_APPLY_TIP.bat AHOS_BOOTSTRAP_PRESOAK.bat AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PUSH_EVIDENCE_NOW.bat scripts/windows_bootstrap_presoak.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_validate_g2.ps1 scripts/windows_post_merge_reconcile.ps1 scripts/operator_validation_gate.py scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs app/api/chat/route.ts db/index.ts snapshot.ts
+  if errorlevel 1 (
+    echo ERROR: checkout tip core files failed
+    pause
+    exit /b 2
+  )
 )
 
 echo OK -- tip files applied from origin/%TIP%

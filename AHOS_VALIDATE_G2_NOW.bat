@@ -62,10 +62,17 @@ for %%R in (
 )
 if defined UNLOCK_REF (
   echo ==^> applying unlock tip !UNLOCK_REF!
-  git checkout "!UNLOCK_REF!" -- AHOS_VALIDATE_G2_NOW.bat AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/windows_g2_probe.py scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts deployment/docker-compose.windows.yml tests/validate_n8n.py 2>nul
-  if errorlevel 1 (
-    echo WARNING: bulk checkout failed - trying core files
-    git checkout "!UNLOCK_REF!" -- AHOS_VALIDATE_G2_NOW.bat scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs scripts/windows_diagnose_docker_health.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts deployment/docker-compose.windows.yml
+  REM Avoid scripts/windows_*.ps1 pathspec glob ^(unreliable on Windows Git^).
+  git checkout "!UNLOCK_REF!" -- scripts/windows_checkout_unlock_tip.ps1 2>nul
+  if exist "scripts\windows_checkout_unlock_tip.ps1" (
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_checkout_unlock_tip.ps1" -Ref "!UNLOCK_REF!"
+    if errorlevel 1 (
+      echo WARNING: unlock tip helper failed - trying explicit core files
+      git checkout "!UNLOCK_REF!" -- AHOS_VALIDATE_G2_NOW.bat scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs scripts/windows_diagnose_docker_health.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_recover_g2_warm.ps1 scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts deployment/docker-compose.windows.yml
+    )
+  ) else (
+    echo WARNING: checkout helper missing - trying explicit core files
+    git checkout "!UNLOCK_REF!" -- AHOS_VALIDATE_G2_NOW.bat scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs scripts/windows_diagnose_docker_health.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_recover_g2_warm.ps1 scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts deployment/docker-compose.windows.yml
   )
 ) else (
   echo ==^> unlock tip already on origin/main

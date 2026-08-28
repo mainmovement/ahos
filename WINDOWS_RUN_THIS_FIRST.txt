@@ -4,20 +4,25 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-Unlock #53 is on main. Follow-up tip: PR #57.
+Unlock tip: PR #57 (cursor/windows-evidence-notify-retarget-4bde).
 
 --------------------------------------------------
 ONE LINE (preferred) — from G:\robat\ahos
 --------------------------------------------------
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/scripts/windows_bootstrap_presoak.ps1 -OutFile scripts\windows_bootstrap_presoak.ps1; powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_bootstrap_presoak.ps1"
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat' -OutFile 'AHOS_BOOTSTRAP_PRESOAK.bat'"
+  AHOS_BOOTSTRAP_PRESOAK.bat
 
-  Applies tip unlock files, then AHOS_PRE_SOAK_NOW.bat -> AHOS_WINDOWS_OPS.bat
+  Applies tip unlock files (git ls-tree; no windows_*.ps1 glob), then
+  AHOS_PRE_SOAK_NOW.bat -> AHOS_WINDOWS_OPS.bat
+
+  Alternate: AHOS_APPLY_TIP.bat or scripts\windows_bootstrap_presoak.ps1
 
 --------------------------------------------------
 OR after #57 merged to main
 --------------------------------------------------
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
+  (launches AHOS_WINDOWS_OPS.bat)
 
 Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 (leave open) or #38.
 Or: AHOS_PUSH_EVIDENCE_NOW.bat
