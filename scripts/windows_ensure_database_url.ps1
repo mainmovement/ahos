@@ -179,7 +179,7 @@ if (Get-Command docker -ErrorAction SilentlyContinue) {
 if ($dockerOk) {
   $tag = "ahospw" + [guid]::NewGuid().ToString("N").Substring(0, 10)
   # Dollar-quote password so special chars cannot break SQL.
-  $alterSql = ("ALTER ROLE "" + $pgUser + "" WITH PASSWORD $" + $tag + "$" + $pgPass + "$" + $tag + "$;")
+  $alterSql = ('ALTER ROLE "' + $pgUser + '" WITH PASSWORD $' + $tag + '$' + $pgPass + '$' + $tag + '$;')
   Write-Host ("==> ALTER ROLE " + $pgUser + " password to match .env POSTGRES_PASSWORD (via docker exec)") -ForegroundColor Cyan
   $alterOut = & docker exec $container psql -U $pgUser -d $pgDb -v ON_ERROR_STOP=1 -c $alterSql 2>&1 | Out-String
   if ($LASTEXITCODE -ne 0) {
