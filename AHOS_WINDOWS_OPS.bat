@@ -36,15 +36,24 @@ if errorlevel 1 (
 
 call :log ==^> git fetch / pull origin main (+ current branch if not main)
 git fetch origin >> "%LOG%" 2>&1
+git fetch origin cursor/windows-reconcile-ops-artifacts-4bde >> "%LOG%" 2>&1
 git pull origin main >> "%LOG%" 2>&1
 if errorlevel 1 (
   call :log WARNING: git pull origin main failed - continuing if scripts present
 )
-REM Force-refresh ops scripts from origin/main so local dirt/CRLF cannot keep broken PS1
-call :log ==^> force-sync scripts\windows_*.ps1 from origin/main
-git checkout origin/main -- "scripts/windows_*.ps1" >> "%LOG%" 2>&1
+REM Prefer unlock-branch ops scripts until that tip is contained in origin/main (PR #43).
+set "OPS_SYNC_REF=origin/main"
+git rev-parse --verify origin/cursor/windows-reconcile-ops-artifacts-4bde >nul 2>&1
+if not errorlevel 1 (
+  git merge-base --is-ancestor origin/cursor/windows-reconcile-ops-artifacts-4bde origin/main >nul 2>&1
+  if errorlevel 1 (
+    set "OPS_SYNC_REF=origin/cursor/windows-reconcile-ops-artifacts-4bde"
+  )
+)
+call :log ==^> force-sync ops scripts from !OPS_SYNC_REF!
+git checkout "!OPS_SYNC_REF!" -- "scripts/windows_*.ps1" AHOS_WINDOWS_OPS.bat scripts/operator_validation_gate.py tests/validate_n8n.py >> "%LOG%" 2>&1
 if errorlevel 1 (
-  call :log WARNING: force-sync windows_*.ps1 failed - parse preflight may catch stale scripts
+  call :log WARNING: force-sync ops scripts failed - parse preflight may catch stale scripts
 )
 for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CURBRANCH=%%B"
 if defined CURBRANCH if /I not "!CURBRANCH!"=="main" (
