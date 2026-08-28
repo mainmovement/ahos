@@ -138,9 +138,12 @@ def _lane_a_status() -> dict:
     try:
         from scripts import freeze_lane_a
         drift, missing, untracked = freeze_lane_a.verify(root=ROOT)
-        return {"ok": not drift and not missing,
-                "drift": sorted(drift), "missing": sorted(missing),
-                "untracked": sorted(untracked)}
+        return {
+            "ok": not drift and not missing and not untracked,
+            "drift": sorted(drift),
+            "missing": sorted(missing),
+            "untracked": sorted(untracked),
+        }
     except Exception as e:
         return {"ok": False, "error": f"{type(e).__name__}: {e}"[:200]}
 

@@ -183,12 +183,12 @@ class HealthSnapshotEngine:
         # Heartbeat age is tracked separately under scheduler_status.
         process_uptime_seconds: float | None = None
 
-        # 1. Database Integrity & Row Census
+        # 1. Database Integrity & Row Census (paths resolved WITHOUT mkdir)
         dbs = {
-            "e01_discovery": get_discovery_db_path(),
-            "paper_trading": get_paper_trading_db_path(),
-            "ahos_local": get_local_db_path(),
-            "ahos_knowledge": get_knowledge_db_path()
+            "e01_discovery": get_discovery_db_path(create_dir=False),
+            "paper_trading": get_paper_trading_db_path(create_dir=False),
+            "ahos_local": get_local_db_path(create_dir=False),
+            "ahos_knowledge": get_knowledge_db_path(create_dir=False),
         }
         db_results: dict[str, Any] = {}
         for name, path in dbs.items():
@@ -238,14 +238,14 @@ class HealthSnapshotEngine:
                     is_critical = True
                     reasons.append(f"Database {name} read error: {e}")
 
-        # 2. Track B Accounting — remaining allocated basis (not gross entries).
+        # 2. Track B Accounting — remaining allocated + realized P&L.
+        # Conservation: cash + remaining_basis == BANKROLL_START + SUM(realized_pnl).
+        # Fresh install (no INIT ledger) is UNKNOWN consistency, not fabricated $20 OK.
         track_b: dict[str, Any] = {}
         try:
-            conn_pt = connect_sqlite_ro(get_paper_trading_db_path())
+            conn_pt = connect_sqlite_ro(get_paper_trading_db_path(create_dir=False))
             conn_pt.row_factory = sqlite3.Row
             cur_pt = conn_pt.cursor()
-            # Prefer v3 retirement semantics when paper_exit_v3 has the
-            # allocated_retired_usd column (incomplete stubs fall back).
             exit_cols = {
                 r[1]
                 for r in cur_pt.execute("PRAGMA table_info(paper_exit_v3)").fetchall()
@@ -271,6 +271,14 @@ class HealthSnapshotEngine:
                 allocated = sum(remaining)
                 open_positions = sum(1 for rem in remaining if rem > 1e-9)
                 closed_positions = sum(1 for rem in remaining if rem <= 1e-9)
+                if "realized_pnl_usd" in exit_cols:
+                    realized = float(
+                        cur_pt.execute(
+                            "SELECT COALESCE(SUM(realized_pnl_usd), 0) FROM paper_exit_v3"
+                        ).fetchone()[0]
+                    )
+                else:
+                    realized = 0.0
             else:
                 trades = cur_pt.execute(
                     "SELECT amount_allocated FROM paper_trade_v2"
@@ -278,6 +286,7 @@ class HealthSnapshotEngine:
                 allocated = sum(float(t["amount_allocated"]) for t in trades)
                 open_positions = len(trades)
                 closed_positions = 0
+                realized = 0.0
             ledger = cur_pt.execute(
                 "SELECT cash_after FROM portfolio_ledger ORDER BY rowid ASC"
             ).fetchall()
@@ -288,36 +297,49 @@ class HealthSnapshotEngine:
 
             initialised = bool(ledger)
             total_sum = round(cash + allocated, 7)
-            if initialised:
-                consistent = abs(total_sum - BANKROLL_START_USD) < 1e-6
+            expected_equity = round(BANKROLL_START_USD + realized, 7)
+            if not initialised:
+                # No INIT event — consistency is UNKNOWN, not a fake $20 healthy.
+                consistent: bool | None = None if allocated == 0.0 else False
             else:
-                consistent = allocated == 0.0
+                consistent = abs(total_sum - expected_equity) < 1e-6
 
             track_b = {
                 "virtual_bankroll_initial_usd": BANKROLL_START_USD,
                 "bankroll_initialised": initialised,
                 "cash_balance_usd": cash,
                 "allocated_capital_usd": allocated,
-                "accounting_sum_usd": total_sum if initialised else BANKROLL_START_USD,
+                "realized_pnl_usd": realized,
+                "expected_equity_usd": expected_equity if initialised else None,
+                "accounting_sum_usd": total_sum if initialised else None,
                 "is_accounting_consistent": consistent,
                 "open_positions_count": open_positions,
                 "closed_positions_count": closed_positions,
-                "allocated_basis": "remaining_after_exit_retirement"
-                if has_exit_v3
-                else "gross_paper_trade_v2",
-                "execution_mode": "100% PAPER ONLY",
+                "allocated_basis": (
+                    "remaining_after_exit_retirement"
+                    if has_exit_v3
+                    else "gross_paper_trade_v2"
+                ),
+                "conservation_law": (
+                    "cash + remaining_allocated == BANKROLL_START + realized_pnl"
+                ),
+                "execution_mode": "PAPER_ONLY_CONTRACT",
             }
-            if not consistent:
+            if consistent is False:
                 is_critical = True
                 if initialised:
                     reasons.append(
                         f"Track B accounting mismatch: cash+allocated = ${total_sum} "
-                        f"!= ${BANKROLL_START_USD:.2f}"
+                        f"!= expected ${expected_equity} "
+                        f"(start ${BANKROLL_START_USD} + realized ${realized})"
                     )
                 else:
                     reasons.append(
                         f"Track B has ${allocated} allocated with no portfolio ledger entry"
                     )
+            elif consistent is None:
+                is_warning = True
+                reasons.append("Track B bankroll not initialised (accounting UNKNOWN)")
         except Exception as e:
             track_b = {"error": str(e), "is_accounting_consistent": False}
             is_critical = True
@@ -325,7 +347,7 @@ class HealthSnapshotEngine:
         # 3. E-01 Experiment State
         e01_state: dict[str, Any] = {}
         try:
-            conn_e01 = connect_sqlite_ro(get_discovery_db_path())
+            conn_e01 = connect_sqlite_ro(get_discovery_db_path(create_dir=False))
             cur_e01 = conn_e01.cursor()
             tokens_cnt = cur_e01.execute("SELECT COUNT(*) FROM tokens").fetchone()[0]
             obs_cnt = cur_e01.execute(
@@ -369,7 +391,7 @@ class HealthSnapshotEngine:
         # 4. Scheduler & Lease Locks Health
         sched_health: dict[str, Any] = {}
         try:
-            conn_loc = connect_sqlite_ro(get_local_db_path())
+            conn_loc = connect_sqlite_ro(get_local_db_path(create_dir=False))
             conn_loc.row_factory = sqlite3.Row
             cur_loc = conn_loc.cursor()
             hb = cur_loc.execute("SELECT * FROM scheduler_heartbeats ORDER BY last_heartbeat_ts DESC LIMIT 1").fetchone()
@@ -392,6 +414,9 @@ class HealthSnapshotEngine:
             if last_status not in ("SUCCESS", "NO_RUNS_YET") and runs:
                 is_degraded = True
                 reasons.append(f"last scheduler run status={last_status}")
+            if last_status == "SUCCESS" and downtime is None:
+                is_warning = True
+                reasons.append("last run SUCCESS but no heartbeat evidence")
         except Exception as e:
             sched_health = {"error": str(e)}
             is_warning = True
@@ -409,7 +434,7 @@ class HealthSnapshotEngine:
             "providers": {},
         }
         try:
-            conn_pf = connect_sqlite_ro(get_discovery_db_path())
+            conn_pf = connect_sqlite_ro(get_discovery_db_path(create_dir=False))
             conn_pf.row_factory = sqlite3.Row
             rows = conn_pf.execute(
                 "SELECT provider_id, COUNT(*) AS n, MAX(event_ts) AS last_ts "
@@ -449,25 +474,39 @@ class HealthSnapshotEngine:
         }
 
         # 7. AI Router — configured facts vs unobserved runtime claims.
-        from architecture.provider_router import load_registry
-        ai_reg = load_registry()
-        providers_list = list(ai_reg.get("providers", {}).keys())
-        has_nvidia_key = bool(os.environ.get("NVIDIA_API_KEY"))
-        cost_ceiling = float(
-            (ai_reg.get("governance") or {}).get("cost_ceiling_usd_month", 0.0)
-            if isinstance(ai_reg, dict)
-            else 0.0
-        )
-        ai_status = {
-            "deterministic_floor_configured": True,
-            "deterministic_floor_active": None,  # not observed this snapshot
-            "cost_ceiling_usd_month": cost_ceiling,
-            "registered_providers_count": len(providers_list),
-            "nvidia_nim_configured": "nvidia_nim" in providers_list,
-            "nvidia_key_present": has_nvidia_key,
-            "ai_decision_authority": "ZERO (Advisory Only — code contract)",
-            "authority_observed_this_snapshot": False,
-        }
+        ai_status: dict[str, Any]
+        try:
+            from architecture.provider_router import load_registry
+            ai_reg = load_registry()
+            providers_list = list(ai_reg.get("providers", {}).keys()) if isinstance(ai_reg, dict) else []
+            has_nvidia_key = bool(os.environ.get("NVIDIA_API_KEY"))
+            cost_raw = (
+                (ai_reg.get("governance") or {}).get("cost_ceiling_usd_month", 0.0)
+                if isinstance(ai_reg, dict)
+                else 0.0
+            )
+            try:
+                cost_ceiling = float(cost_raw)
+            except (TypeError, ValueError):
+                cost_ceiling = None
+            ai_status = {
+                "deterministic_floor_configured": True,
+                "deterministic_floor_active": None,  # not observed this snapshot
+                "cost_ceiling_usd_month": cost_ceiling,
+                "registered_providers_count": len(providers_list),
+                "nvidia_nim_configured": "nvidia_nim" in providers_list,
+                "nvidia_key_present": has_nvidia_key,
+                "ai_decision_authority": "ZERO (Advisory Only — code contract)",
+                "authority_observed_this_snapshot": False,
+            }
+        except Exception as e:
+            ai_status = {
+                "error": f"{type(e).__name__}",
+                "ai_decision_authority": "ZERO (Advisory Only — code contract)",
+                "authority_observed_this_snapshot": False,
+            }
+            is_warning = True
+            reasons.append(f"AI registry unreadable: {type(e).__name__}")
 
         # 8. Security invariants — measured; unset paper flag => UNKNOWN not True.
         paper_ok: bool | None = None
@@ -574,10 +613,19 @@ class HealthSnapshotEngine:
                 sched_health.get("last_run_status")
                 if isinstance(sched_health, dict) else None
             )
+            age = (
+                sched_health.get("heartbeat_age_seconds")
+                if isinstance(sched_health, dict) else None
+            )
             if last_run in (None, "NO_RUNS_YET"):
                 runtime_state = "IDLE"
             elif last_run == "SUCCESS":
-                runtime_state = "RUNNING" if (hb_age is None or hb_age < 3600) else "STALE"
+                if not isinstance(age, (int, float)):
+                    runtime_state = "UNKNOWN"  # success without heartbeat evidence
+                elif age > 3600:
+                    runtime_state = "STALE"
+                else:
+                    runtime_state = "RUNNING"
             else:
                 runtime_state = "DEGRADED"
 
@@ -627,7 +675,7 @@ class HealthSnapshotEngine:
         #    provider_failure_events table — M-GAP-002 surface).
         provider_failures: dict[str, Any] = {}
         try:
-            conn = connect_sqlite_ro(get_discovery_db_path())
+            conn = connect_sqlite_ro(get_discovery_db_path(create_dir=False))
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT provider_id, kind, COUNT(*) AS n, "
@@ -653,7 +701,7 @@ class HealthSnapshotEngine:
         # Treat NULL / empty / '[]' / 'null' / '{}' as "no unknown fields listed".
         completeness: dict[str, Any] = {}
         try:
-            conn = connect_sqlite_ro(get_discovery_db_path())
+            conn = connect_sqlite_ro(get_discovery_db_path(create_dir=False))
             conn.row_factory = sqlite3.Row
             total = conn.execute(
                 "SELECT COUNT(*) AS n FROM production_observations"
@@ -684,7 +732,7 @@ class HealthSnapshotEngine:
         calibration: dict[str, Any] = {}
         score_drift: dict[str, Any] = {"error": "NO_DATA", "verdict": None}
         try:
-            conn = connect_sqlite_ro(get_local_db_path())
+            conn = connect_sqlite_ro(get_local_db_path(create_dir=False))
             conn.row_factory = sqlite3.Row
             by_source = conn.execute(
                 "SELECT source, COUNT(*) AS n FROM opportunity_score_ledger "
@@ -778,10 +826,10 @@ class HealthSnapshotEngine:
         storage: dict[str, Any] = {}
         try:
             stores = {
-                "e01_discovery": get_discovery_db_path(),
-                "paper_trading": get_paper_trading_db_path(),
-                "ahos_local": get_local_db_path(),
-                "ahos_knowledge": get_knowledge_db_path(),
+                "e01_discovery": get_discovery_db_path(create_dir=False),
+                "paper_trading": get_paper_trading_db_path(create_dir=False),
+                "ahos_local": get_local_db_path(create_dir=False),
+                "ahos_knowledge": get_knowledge_db_path(create_dir=False),
             }
             sizes = {}
             for name, path in stores.items():
@@ -813,20 +861,24 @@ class HealthSnapshotEngine:
                 artifact_sha = (data.get("git") or {}).get("commit_sha")
                 head_sha = _git_head_sha(self.root)
                 stale = bool(head_sha and artifact_sha and artifact_sha != head_sha)
+                incomplete = not artifact_sha or not head_sha
                 if data.get("exit_code") != 0:
                     cfg_status = "DEGRADED"
-                elif stale:
+                elif stale or incomplete:
                     cfg_status = "UNKNOWN"
                 else:
                     cfg_status = "HEALTHY"
                 config_health = {
                     "status": cfg_status,
                     "stale_vs_head": stale,
+                    "evidence_completeness": (
+                        "INCOMPLETE" if incomplete else "COMPLETE"
+                    ),
                     "evidence": [
                         f"validate_imports exit {data.get('exit_code')} "
-                        f"@ {str(artifact_sha)[:8]} "
+                        f"@ {str(artifact_sha)[:8] if artifact_sha else 'NONE'} "
                         f"(head {str(head_sha)[:8] if head_sha else 'UNKNOWN'}; "
-                        f"{'STALE' if stale else 'current'})"
+                        f"{'STALE' if stale else ('INCOMPLETE' if incomplete else 'current')})"
                     ],
                 }
             except Exception:
@@ -1034,7 +1086,13 @@ class HealthSnapshotEngine:
                 r_evidence = ["no scheduler runs yet"]
             elif last_status == "SUCCESS":
                 age = sched.get("heartbeat_age_seconds")
-                if isinstance(age, (int, float)) and age > 3600:
+                if not isinstance(age, (int, float)):
+                    r_status = "UNKNOWN"
+                    r_evidence = [
+                        f"last run {last_status}",
+                        "heartbeat age missing — not live evidence",
+                    ]
+                elif age > 3600:
                     r_status = "DEGRADED"
                     r_evidence = [
                         f"last run {last_status}",

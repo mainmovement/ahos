@@ -375,11 +375,16 @@ def g6_security() -> dict[str, Any]:
 def g7_lane_a() -> dict[str, Any]:
     try:
         from scripts import freeze_lane_a as freeze
-        drift, missing, _ = freeze.verify(root=ROOT)
+        drift, missing, untracked = freeze.verify(root=ROOT)
         if drift or missing:
             return _gate(
                 "G7", "Lane-A freeze", "FAIL",
                 f"drift={sorted(drift)} missing={sorted(missing)}",
+            )
+        if untracked:
+            return _gate(
+                "G7", "Lane-A freeze", "FAIL",
+                f"untracked={sorted(untracked)} (pending governance re-anchor)",
             )
         return _gate("G7", "Lane-A freeze", "PASS", "Lane-A integrity OK (pinned)")
     except Exception as e:  # noqa: BLE001

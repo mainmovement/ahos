@@ -155,7 +155,8 @@ def _init_paper_schema(conn: sqlite3.Connection) -> None:
         CREATE TABLE paper_exit_v3 (
             id INTEGER PRIMARY KEY,
             trade_id TEXT NOT NULL,
-            allocated_retired_usd REAL NOT NULL
+            allocated_retired_usd REAL NOT NULL,
+            realized_pnl_usd REAL
         );
         """
     )
@@ -206,11 +207,13 @@ def test_fresh_install_accounting_has_no_mismatch_reason(tmp_path, monkeypatch):
     conn.close()
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_paper_trading_db_path",
-        lambda: str(db),
+        lambda create_dir=True: str(db),
     )
     snap = HealthSnapshotEngine(root_dir=ROOT).generate_snapshot()
     assert snap.track_b_accounting.get("bankroll_initialised") is False
-    assert snap.track_b_accounting.get("is_accounting_consistent") is True
+    # Fresh install: consistency is UNKNOWN (None), not fabricated True/$20.
+    assert snap.track_b_accounting.get("is_accounting_consistent") is None
+    assert snap.track_b_accounting.get("accounting_sum_usd") is None
     assert not any("accounting mismatch" in r for r in snap.summary_reasons)
     assert not any("allocated with no portfolio ledger" in r for r in snap.summary_reasons)
 
@@ -228,7 +231,7 @@ def test_track_b_mismatch_is_critical(tmp_path, monkeypatch):
 
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_paper_trading_db_path",
-        lambda: str(db),
+        lambda create_dir=True: str(db),
     )
     # discovery/local/knowledge still required — keep real paths for those.
     snap = HealthSnapshotEngine(root_dir=ROOT).generate_snapshot()
@@ -256,13 +259,69 @@ def test_track_b_initialized_correct_ledger(tmp_path, monkeypatch):
 
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_paper_trading_db_path",
-        lambda: str(db),
+        lambda create_dir=True: str(db),
     )
     snap = HealthSnapshotEngine(root_dir=ROOT).generate_snapshot()
     tb = snap.track_b_accounting
     assert tb["is_accounting_consistent"] is True
     assert tb["accounting_sum_usd"] == pytest.approx(BANKROLL_START_USD, rel=1e-7)
     assert not any("accounting mismatch" in r for r in snap.summary_reasons)
+
+
+def test_track_b_realized_pnl_conservation(tmp_path, monkeypatch):
+    """After a profitable full exit, cash+remaining must equal start+realized."""
+    db = tmp_path / "paper.sqlite"
+    conn = sqlite3.connect(str(db))
+    _init_paper_schema(conn)
+    # Opened $5, fully retired with +1 realized → reclaim brings cash to $21.
+    conn.execute("INSERT INTO portfolio_ledger(cash_after) VALUES (21.0)")
+    conn.execute(
+        "INSERT INTO paper_trade_v2(trade_id, amount_allocated) VALUES ('t1', 5.0)"
+    )
+    conn.execute(
+        "INSERT INTO paper_exit_v3(trade_id, allocated_retired_usd, realized_pnl_usd) "
+        "VALUES ('t1', 5.0, 1.0)"
+    )
+    conn.commit()
+    conn.close()
+    monkeypatch.setattr(
+        "architecture.runtime.observability_snapshot.get_paper_trading_db_path",
+        lambda create_dir=True: str(db),
+    )
+    snap = HealthSnapshotEngine(root_dir=ROOT).generate_snapshot()
+    tb = snap.track_b_accounting
+    assert tb["realized_pnl_usd"] == pytest.approx(1.0)
+    assert tb["allocated_capital_usd"] == pytest.approx(0.0)
+    assert tb["is_accounting_consistent"] is True
+    assert tb["accounting_sum_usd"] == pytest.approx(BANKROLL_START_USD + 1.0, rel=1e-7)
+
+
+def test_success_without_heartbeat_is_runtime_unknown():
+    engine = HealthSnapshotEngine()
+    snap = engine.generate_snapshot()
+    snap.scheduler_status = {
+        "last_run_status": "SUCCESS",
+        "heartbeat_age_seconds": None,
+    }
+    sc = engine._build_scorecard(snap)
+    assert sc["dimensions"]["RUNTIME_HEALTH"]["status"] == "UNKNOWN"
+
+
+def test_freeze_check_fails_closed_on_untracked(tmp_path, monkeypatch):
+    from architecture.runtime import observation_loop as ol
+
+    class FakeFreeze:
+        @staticmethod
+        def verify(root=None):
+            return [], [], ["discovery/new_unpinned.py"]
+
+    monkeypatch.setitem(__import__("sys").modules, "scripts.freeze_lane_a", FakeFreeze)
+    # Also patch import path used inside _freeze_check
+    import scripts.freeze_lane_a as real_freeze
+    monkeypatch.setattr(real_freeze, "verify", lambda root=None: ([], [], ["discovery/x.py"]))
+    ok, detail = ol._freeze_check(ROOT)
+    assert ok is False
+    assert "untracked" in detail
 
 
 def test_quote_sqlite_ident_rejects_malicious_names():
@@ -305,19 +364,19 @@ def test_health_snapshot_does_not_mutate_operational_dbs(tmp_path, monkeypatch):
 
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_discovery_db_path",
-        lambda: str(copies["discovery"]),
+        lambda **kw: str(copies["discovery"]),
     )
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_paper_trading_db_path",
-        lambda: str(copies["paper"]),
+        lambda **kw: str(copies["paper"]),
     )
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_local_db_path",
-        lambda: str(copies["local"]),
+        lambda **kw: str(copies["local"]),
     )
     monkeypatch.setattr(
         "architecture.runtime.observability_snapshot.get_knowledge_db_path",
-        lambda: str(copies["knowledge"]),
+        lambda **kw: str(copies["knowledge"]),
     )
 
     def _fp() -> dict[str, tuple[str, list[str], dict[str, int]]]:
