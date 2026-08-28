@@ -1,32 +1,52 @@
-AHOS Windows - PRE_SOAK unlock (PAPER_ONLY)
+AHOS Windows -- PRE_SOAK unlock (PAPER_ONLY)
 ==========================================
 STATE B: NEVER run db:migrate / db:push
-Do NOT invent OPERATOR_READY
+Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 
-On main now: PR #31-#37 + #39 (web-api auth, ops bat, ASCII+UTF-8 BOM for PS 5.1).
-Optional: PR #40 adds PS1 parse preflight before the rest of the bat.
+On main now: PR #31-#42 (auth, ops bat, ASCII+BOM, parse preflight, force-sync, docs).
+PR #43 (open): G2 gateway fill, Docker wait, G12 UTF-8, reconcile dirty allow, unlock bat.
 
-1) On G:\robat\ahos:
-   git checkout main
-   git pull origin main
+Latest Windows-attested gate (220318):
+  PASS: G1, G3-G10
+  BLOCKED: G2 (empty AHOS_GATEWAY_URL and/or /api/chat HTTP 500)
+  OWNER_ACTION: G11 Telegram (needed for READY, not PRE_SOAK)
+  pre_soak_entry_ok=false  operator_ready=false
 
-2) Double-click:
-   AHOS_WINDOWS_OPS.bat
+Remaining blocker on laptop: Docker Desktop Linux Engine
+  (dockerDesktopLinuxEngine pipe not found => Postgres down => /api/chat 500)
 
-   Bat will: (optional parse check) ensure ahos_postgres_win (no migrate) ->
-   reconcile/token -> preflight -> restart Next -> warm /api/chat ->
-   seed SQLite if needed -> gate.
-   Mid-fail still writes reports\OWNER_PASTE_WINDOWS_GATE.txt
-   + Desktop\AHOS_PASTE_TO_CURSOR.txt
+--------------------------------------------------
+A) Pull unlock tooling (PR #43) -- ONE TIME if not merged
+--------------------------------------------------
+  cd /d G:\robat\ahos
+  git fetch origin cursor/windows-reconcile-ops-artifacts-4bde
+  git checkout origin/cursor/windows-reconcile-ops-artifacts-4bde -- AHOS_PULL_OPS_UNLOCK.bat
+  AHOS_PULL_OPS_UNLOCK.bat
 
-3) Evidence back to Cursor (REQUIRED - one of):
-   - Ctrl+V (clipboard) OR open Desktop\AHOS_PASTE_TO_CURSOR.txt
-   - Or paste reports\OWNER_PASTE_WINDOWS_GATE.txt into this Cursor chat
-   - If git push works: branch cursor/windows-gate-evidence-4bde
-   - If gh logged in: comments on unlock PRs
-   - Telegram document forward into Cursor (if bot sent it)
+  (Or merge PR #43 on GitHub, then: git checkout main && git pull origin main)
 
-That JSON is required for G1-G10 / pre_soak_entry_ok (Windows-attested only).
-NOTE: Postgres ahos_* row counts do NOT satisfy G4/G5/G8/G9 - bat seeds local SQLite.
-G11 (Telegram E2E): after G1-G10, run scripts\windows_g11_telegram_e2e_helper.ps1,
-fill the transcript from live chat, re-run gate with -TelegramE2eArtifact.
+B) Start Docker Desktop
+  - Open Docker Desktop, wait until GREEN / Linux Engine running
+  - Confirm:  docker ps
+  - If pipe error persists, wait 1-2 minutes and retry docker ps
+
+C) One-shot ops (preferred)
+  Double-click:  AHOS_WINDOWS_OPS.bat
+
+  Bat: wait for Docker -> ensure ahos_postgres_win (no migrate) ->
+  reconcile (ops reports allowed) -> ensure token + AHOS_GATEWAY_URL ->
+  preflight -> restart Next -> warm /api/chat -> seed SQLite if needed -> gate.
+
+  Manual equivalent if needed:
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_postgres_win.ps1
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
+    AHOS_WINDOWS_OPS.bat
+
+D) Paste evidence into Cursor (REQUIRED)
+  reports\OWNER_PASTE_WINDOWS_GATE.txt
+  (or Desktop\AHOS_PASTE_TO_CURSOR.txt / evidence branch push)
+
+PRE_SOAK: only when Windows paste shows pre_soak_entry_ok=true (G1-G10 PASS).
+OPERATOR_READY: only with G11 Telegram E2E PASS -- never invent.
+Postgres ahos_* rows do NOT satisfy G4/G5/G8/G9 (local SQLite census does).

@@ -6,13 +6,17 @@
 Starts ONLY the postgres service from deployment/docker-compose.windows.yml.
 STATE B: do NOT db:migrate / db:push / never wipe volumes.
 Does NOT claim OPERATOR_READY or PRE_SOAK.
+
+Encoding: ASCII-only punctuation (WinPS 5.1 safe) + UTF-8 BOM.
 #>
 [CmdletBinding()]
 param(
   [string]$ComposeFile = "",
   [string]$ServiceName = "postgres",
   [string]$ContainerName = "ahos_postgres_win",
-  [int]$ReadyTimeoutSec = 90
+  [int]$ReadyTimeoutSec = 90,
+  # Owner often starts Docker Desktop then immediately re-runs bat; wait for engine.
+  [int]$DockerDaemonWaitSec = 120
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,6 +33,7 @@ function Write-Step([string]$Msg) {
 
 function Fail([string]$Msg) {
   Write-Host ("[ensure-pg] FAIL: {0}" -f $Msg) -ForegroundColor Red
+  Write-Host "[ensure-pg] STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
   exit 1
 }
 
@@ -57,17 +62,39 @@ if (-not $docker) {
   Fail "docker not on PATH. Install Docker Desktop, then re-run."
 }
 
-# Fail fast with a clear owner message when Docker Desktop / Linux engine is down.
-$dockerInfo = & docker info 2>&1 | Out-String
-if ($LASTEXITCODE -ne 0) {
-  Fail "Docker daemon not reachable (start Docker Desktop Linux Engine, wait until green, then re-run). detail=$dockerInfo"
+# Wait for Docker Desktop Linux Engine (pipe often missing for ~30-90s after launch).
+Write-Step ("Waiting for Docker daemon (up to {0}s)..." -f $DockerDaemonWaitSec)
+$daemonDeadline = (Get-Date).AddSeconds($DockerDaemonWaitSec)
+$daemonOk = $false
+$lastDetail = ""
+while ((Get-Date) -lt $daemonDeadline) {
+  $dockerInfo = & docker info 2>&1 | Out-String
+  if ($LASTEXITCODE -eq 0) {
+    $daemonOk = $true
+    break
+  }
+  $lastDetail = $dockerInfo
+  if ($lastDetail -match "dockerDesktopLinuxEngine" -or $lastDetail -match "pipe") {
+    Write-Host "  [ensure-pg] Docker Desktop Linux Engine not ready yet (pipe) -- waiting..." -ForegroundColor DarkYellow
+  } else {
+    Write-Host "  [ensure-pg] docker info failed -- waiting for Docker Desktop..." -ForegroundColor DarkYellow
+  }
+  Start-Sleep -Seconds 5
 }
+if (-not $daemonOk) {
+  Fail ("Docker daemon not reachable after {0}s. Start Docker Desktop, wait until green, confirm 'docker ps' works, then re-run. detail={1}" -f $DockerDaemonWaitSec, $lastDetail)
+}
+Write-Step "Docker daemon reachable"
 
 $envPath = Join-Path $RepoRoot ".env"
 $pgUser = Get-EnvValue -Path $envPath -Key "POSTGRES_USER"
 $pgDb = Get-EnvValue -Path $envPath -Key "POSTGRES_DB"
+$pgPass = Get-EnvValue -Path $envPath -Key "POSTGRES_PASSWORD"
 if ([string]::IsNullOrWhiteSpace($pgUser)) { $pgUser = "ahos_user" }
 if ([string]::IsNullOrWhiteSpace($pgDb)) { $pgDb = "ahos" }
+if ([string]::IsNullOrWhiteSpace($pgPass)) {
+  Fail "POSTGRES_PASSWORD unset in .env (required by deployment/docker-compose.windows.yml). Set it, then re-run. Do NOT migrate."
+}
 
 # Prefer existing healthy container (no recreate / no volume wipe)
 $running = (& docker ps --format "{{.Names}}" 2>$null)
@@ -81,7 +108,7 @@ if ($running -match [regex]::Escape($ContainerName)) {
     & docker compose -f $ComposeFile up -d $ServiceName
   }
   if ($LASTEXITCODE -ne 0) {
-    Fail "docker compose up failed (exit $LASTEXITCODE). Need Docker Desktop + POSTGRES_PASSWORD in .env"
+    Fail "docker compose up failed (exit $LASTEXITCODE). Need Docker Desktop green + POSTGRES_PASSWORD in .env"
   }
 }
 
