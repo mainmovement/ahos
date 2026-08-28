@@ -1,8 +1,14 @@
 AHOS Windows owner - three commands toward PRE_SOAK (PAPER_ONLY)
 ================================================================
-PR #31 (web API auth) is on main. STATE B: do NOT db:migrate / db:push.
+PR #31 (web API auth) + PR #32 (gate runner) are on main.
+STATE B: do NOT db:migrate / db:push.
 Do NOT invent OPERATOR_READY.
 
+Option A - double-click (needs PR #33 merge, or cherry-pick AHOS_WINDOWS_OPS.bat):
+  AHOS_WINDOWS_OPS.bat
+  (pull → reconcile → preflight → starts npm run dev → waits :3000 → gate)
+
+Option B - three commands on current main:
 cd G:\robat\ahos
 git pull
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
@@ -11,12 +17,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows_preflight_ops.ps1
 # Terminal A
 npm run dev
 
-# Terminal B (after Next is up). If windows_run_operator_gate.ps1 missing, merge PR #32 or run:
+# Terminal B (after Next is up)
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
-# fallback on main without PR #32:
-#   .\.venv\Scripts\Activate.ps1
-#   $env:AHOS_PAPER_ONLY = "1"
-#   $env:AHOS_EVIDENCE_SOURCE = "local"
-#   python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill
 
-Paste BEGIN REPORT + reports\operator_validation_report_windows_*.json into Cursor.
+Paste into Cursor:
+  - BEGIN REPORT from reconcile (if shown)
+  - reports\OWNER_PASTE_WINDOWS_GATE.txt  (preferred after gate)
+  - or reports\LATEST_WINDOWS_GATE.txt + reports\operator_validation_report_windows_*.json

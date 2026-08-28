@@ -1,7 +1,8 @@
 # Goal status — Windows PAPER_ONLY operational (honest)
 
-**Generated (UTC):** 2026-08-28T20:48Z  
+**Generated (UTC):** 2026-08-28T21:00Z  
 **main tip:** `d9a50f3` (includes PR #31 + #32)  
+**PR #33:** owner UX (bat + preflight + paste pointer) — optional for unlock  
 **Claim:** tooling READY for owner Windows run — **OPERATOR_READY = NOT_VERIFIED**
 
 ## Requirement audit
@@ -25,9 +26,12 @@
 
 ## Optional (PR #33)
 
-- `AHOS_WINDOWS_OPS.bat` double-click wrapper
+- `AHOS_WINDOWS_OPS.bat` — pull → reconcile → preflight → **auto-start npm** → wait :3000 → gate
+- `scripts/windows_preflight_ops.ps1`
+- `reports/LATEST_WINDOWS_GATE.txt` + `reports/OWNER_PASTE_WINDOWS_GATE.txt` after gate
+- `scripts/WINDOWS_OWNER_PASTE_TEMPLATE.txt`
 
-## Exact owner commands
+## Exact owner commands (main alone)
 
 ```powershell
 cd G:\robat\ahos
@@ -37,4 +41,4 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
 ```
 
-Paste REPORT + gate JSON into Cursor. Do **not** `db:migrate` / `db:push`.
+Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` (or REPORT + gate JSON) into Cursor. Do **not** `db:migrate` / `db:push`.

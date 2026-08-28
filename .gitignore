@@ -17,6 +17,8 @@ node_modules/
 logs/
 data/
 reports/_scratch/
+reports/LATEST_WINDOWS_GATE.txt
+reports/OWNER_PASTE_WINDOWS_GATE.txt
 reports/paths_local_*.yaml
 config/paths.yaml
 .DS_Store

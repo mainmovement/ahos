@@ -50,12 +50,24 @@ if exist "scripts\windows_preflight_ops.ps1" (
 )
 
 echo.
-echo ==========================================================
-echo   NEXT: start Next.js in ANOTHER window, then come back:
-echo     npm run dev
-echo   Press any key HERE after http://127.0.0.1:3000 is Ready
-echo ==========================================================
-pause
+echo ==^> start Next.js in a new window (npm run dev)
+where npm >nul 2>&1
+if errorlevel 1 (
+  echo ERROR: npm not on PATH
+  pause
+  exit /b 2
+)
+start "AHOS Next.js :3000" cmd /k "cd /d ""%~dp0"" && echo AHOS Next.js - leave this window open && npm run dev"
+
+echo ==^> wait for http://127.0.0.1:3000 (up to ~120s)
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$ok=$false; for($i=0;$i -lt 60;$i++){ try { $r=Invoke-WebRequest -Uri 'http://127.0.0.1:3000' -UseBasicParsing -TimeoutSec 2; $ok=$true; break } catch { Start-Sleep -Seconds 2 } }; if(-not $ok){ Write-Host 'TIMEOUT waiting for :3000'; exit 2 }; Write-Host 'Next.js reachable on :3000'; exit 0"
+if errorlevel 1 (
+  echo ERROR: Next.js did not become ready on 127.0.0.1:3000
+  echo Fix the other window, then re-run this bat or windows_run_operator_gate.ps1
+  pause
+  exit /b 2
+)
 
 if exist "scripts\windows_run_operator_gate.ps1" (
   echo ==^> windows_run_operator_gate.ps1
@@ -73,7 +85,12 @@ if exist "scripts\windows_run_operator_gate.ps1" (
 )
 
 echo.
+if exist "reports\LATEST_WINDOWS_GATE.txt" (
+  echo ----- reports\LATEST_WINDOWS_GATE.txt -----
+  type "reports\LATEST_WINDOWS_GATE.txt"
+)
 echo Paste BEGIN REPORT + reports\operator_validation_report_windows_*.json into Cursor.
+echo Or open reports\OWNER_PASTE_WINDOWS_GATE.txt if present.
 echo STATE B: never db:migrate / db:push
 echo.
 pause
