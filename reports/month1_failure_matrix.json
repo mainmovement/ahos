@@ -1,7 +1,7 @@
 {
-  "executed_at_utc": "2026-08-18T14:25:17Z",
-  "total": 28,
-  "passed": 28,
+  "executed_at_utc": "2026-08-28T07:45:42Z",
+  "total": 29,
+  "passed": 29,
   "failed": 0,
   "scenarios": [
     {
@@ -38,11 +38,19 @@
     },
     {
       "category": "SCHEDULER",
-      "scenario": "crashed_process_recovery",
-      "injected_fault": "SIGKILL of lease holder mid-run",
-      "expected_behavior": "refused while lease live; takeover after expiry; recovery SUCCESS",
+      "scenario": "crashed_process_lease_held",
+      "injected_fault": "hard-kill of lease holder mid-run (terminate/kill)",
+      "expected_behavior": "second runner refused while dead holder's lease still live",
       "verdict": "PASS",
-      "evidence": "immediate=SKIPPED_LOCKED after_expiry=SUCCESS"
+      "evidence": "acquired=True child_dead=True immediate=SKIPPED_LOCKED"
+    },
+    {
+      "category": "SCHEDULER",
+      "scenario": "crashed_process_recovery",
+      "injected_fault": "hard-kill of lease holder mid-run (terminate/kill)",
+      "expected_behavior": "after expiry lease reclaimed; recovery cycle SUCCESS",
+      "verdict": "PASS",
+      "evidence": "after_expiry=SUCCESS"
     },
     {
       "category": "SCHEDULER",
@@ -151,7 +159,7 @@
     {
       "category": "PERSISTENCE",
       "scenario": "interrupted_write",
-      "injected_fault": "SIGKILL with open uncommitted INSERT",
+      "injected_fault": "hard-kill with open uncommitted INSERT (terminate/kill)",
       "expected_behavior": "transaction rolled back; no partial row; DB not corrupted",
       "verdict": "PASS",
       "evidence": "rows=0 integrity=ok"
@@ -162,7 +170,7 @@
       "injected_fault": "same schedule twice",
       "expected_behavior": "distinct run_ids; both recorded once",
       "verdict": "PASS",
-      "evidence": "ids 6e397ac2.. vs e59a9c83.."
+      "evidence": "ids 6eaa6a61.. vs ea2d6fa3.."
     },
     {
       "category": "PERSISTENCE",
