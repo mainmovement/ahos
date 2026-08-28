@@ -1,5 +1,5 @@
-# ==============================================================================
-# AHOS Windows G11 helper — scaffold Telegram E2E artifact (not auto-PASS)
+﻿# ==============================================================================
+# AHOS Windows G11 helper -- scaffold Telegram E2E artifact (not auto-PASS)
 #
 # Creates reports\telegram_e2e_<UTC>.md checklist for the owner to fill after
 # live BotFather checks (docs\TELEGRAM_OPERATOR_E2E_PROTOCOL.md).
@@ -57,7 +57,7 @@ if ([string]::IsNullOrWhiteSpace($allow)) {
     Write-Host "  [OK] TELEGRAM_ALLOWED_CHAT_IDS set" -ForegroundColor Green
 }
 if ([string]::IsNullOrWhiteSpace($web)) {
-    Write-Host "  [WARN] AHOS_WEB_API_TOKEN unset — gateway may 401" -ForegroundColor Yellow
+    Write-Host "  [WARN] AHOS_WEB_API_TOKEN unset -- gateway may 401" -ForegroundColor Yellow
 } else {
     Write-Host "  [OK] AHOS_WEB_API_TOKEN set" -ForegroundColor Green
 }
@@ -87,23 +87,23 @@ $lines = @(
     "",
     "## Protocol checks (fill after live chat)",
     "",
-    "1. Persian greeting — reply exists; not independent score when gateway down",
+    "1. Persian greeting -- reply exists; not independent score when gateway down",
     "   - result:",
     "   - notes:",
     "",
-    "2. Stop npm run dev; send message — EMERGENCY_FALLBACK_ONLY / honesty",
+    "2. Stop npm run dev; send message -- EMERGENCY_FALLBACK_ONLY / honesty",
     "   - result:",
     "   - notes:",
     "",
-    "3. Restart gateway; ask for new opportunities — source=conversation_gateway",
+    "3. Restart gateway; ask for new opportunities -- source=conversation_gateway",
     "   - result:",
     "   - notes:",
     "",
-    "4. Ask risk for a known symbol — no fabricated prices",
+    "4. Ask risk for a known symbol -- no fabricated prices",
     "   - result:",
     "   - notes:",
     "",
-    "5. Honeypot/rejected token (if available) — security veto language",
+    "5. Honeypot/rejected token (if available) -- security veto language",
     "   - result:",
     "   - notes:",
     "",

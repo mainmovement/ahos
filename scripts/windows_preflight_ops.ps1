@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows preflight (READ-MOSTLY) before operator gate
 #
 # Checks (no migrate / no READY claim):
@@ -82,7 +82,7 @@ if ([string]::IsNullOrWhiteSpace($db)) {
     $fails++
 } else {
     Write-Check "DATABASE_URL" "PASS" "set (reachability probed next)"
-    # Best-effort TCP to host:port from URL — no migrate, no READY claim
+    # Best-effort TCP to host:port from URL -- no migrate, no READY claim
     try {
         $m = [regex]::Match($db, '(?i)(?:postgres(?:ql)?://[^@]+@)?([^:/?\s]+):(\d+)')
         if ($m.Success) {
@@ -173,14 +173,14 @@ if ($dockerOk) {
     }
 }
 
-# Lane-A / One-Brain evidence is SQLite census — STATE B Postgres rows do not satisfy G4/G5/G8/G9.
+# Lane-A / One-Brain evidence is SQLite census -- STATE B Postgres rows do not satisfy G4/G5/G8/G9.
 $discDb = Join-Path $RepoRoot "data\e01_discovery.sqlite"
 $localDb = Join-Path $RepoRoot "data\ahos_local.sqlite"
 $hasSqlite = (Test-Path -LiteralPath $discDb) -or (Test-Path -LiteralPath $localDb)
 if ($hasSqlite) {
     Write-Check "sqlite_evidence_files" "PASS" "e01_discovery and/or ahos_local present"
 } else {
-    Write-Check "sqlite_evidence_files" "WARN" "missing data\\*.sqlite — run a local single-cycle before gate or G4/G5/G8/G9 FAIL"
+    Write-Check "sqlite_evidence_files" "WARN" "missing data\\*.sqlite -- run a local single-cycle before gate or G4/G5/G8/G9 FAIL"
     $warns++
 }
 

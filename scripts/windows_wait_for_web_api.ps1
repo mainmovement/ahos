@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows - wait until POST /api/chat responds (after Next restart)
 #
 # Reads AHOS_WEB_API_TOKEN from .env. Does not migrate. Does not claim READY.
@@ -68,10 +68,10 @@ $tok = Get-EnvValue -Path $envPath -Key "AHOS_WEB_API_TOKEN"
 $db = Get-EnvValue -Path $envPath -Key "DATABASE_URL"
 Write-Host ("  Waiting for " + $Url + " (up to ~" + ($Attempts * $SleepSec) + "s)") -ForegroundColor Cyan
 if ([string]::IsNullOrWhiteSpace($tok)) {
-    Write-Host "  WARN: AHOS_WEB_API_TOKEN empty — warm may 401/LOCKED" -ForegroundColor Yellow
+    Write-Host "  WARN: AHOS_WEB_API_TOKEN empty -- warm may 401/LOCKED" -ForegroundColor Yellow
 }
 if ([string]::IsNullOrWhiteSpace($db)) {
-    Write-Host "  WARN: DATABASE_URL empty — /api/chat may HTTP 500" -ForegroundColor Yellow
+    Write-Host "  WARN: DATABASE_URL empty -- /api/chat may HTTP 500" -ForegroundColor Yellow
 }
 
 $consecutiveServerErrors = 0
@@ -108,7 +108,7 @@ for ($i = 0; $i -lt $Attempts; $i++) {
             $consecutiveServerErrors++
             Write-Host ("  /api/chat HTTP " + $code + " attempt=" + $attempt + " (server up but erroring)") -ForegroundColor Yellow
             if ($snippet) { Write-Host ("  body: " + $snippet) -ForegroundColor DarkGray }
-            # Next is answering — do not burn full timeout on persistent 5xx
+            # Next is answering -- do not burn full timeout on persistent 5xx
             if ($consecutiveServerErrors -ge 3) {
                 Write-Host "  FAIL-FAST: three consecutive 5xx from /api/chat" -ForegroundColor Red
                 Write-Host "  Remediation: check DATABASE_URL + ahos_postgres_win; fix Next window errors; re-run bat" -ForegroundColor Yellow
@@ -117,9 +117,9 @@ for ($i = 0; $i -lt $Attempts; $i++) {
             }
         } else {
             $consecutiveServerErrors = 0
-            # Connection refused / timeout while Next boots — keep waiting
+            # Connection refused / timeout while Next boots -- keep waiting
             if (($attempt % 10) -eq 0) {
-                Write-Host ("  still waiting (attempt=" + $attempt + ") — is npm run dev window up?") -ForegroundColor DarkGray
+                Write-Host ("  still waiting (attempt=" + $attempt + ") -- is npm run dev window up?") -ForegroundColor DarkGray
             }
         }
         Start-Sleep -Seconds $SleepSec

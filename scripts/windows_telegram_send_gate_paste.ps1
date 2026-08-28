@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows - best-effort Telegram delivery of OWNER_PASTE
 #
 # Sends reports\OWNER_PASTE_WINDOWS_GATE.txt (or LATEST summary) to the first
@@ -93,9 +93,9 @@ if ($null -ne $curl) {
             Write-Host "  telegram_send: OK (document). Forward that file into Cursor." -ForegroundColor Green
             exit 0
         }
-        Write-Host ("  telegram_send: document response not ok — " + $out.Substring(0, [Math]::Min(180, $out.Length))) -ForegroundColor DarkYellow
+        Write-Host ("  telegram_send: document response not ok -- " + $out.Substring(0, [Math]::Min(180, $out.Length))) -ForegroundColor DarkYellow
     } catch {
-        Write-Host ("  telegram_send: curl failed — " + $_.Exception.Message) -ForegroundColor DarkYellow
+        Write-Host ("  telegram_send: curl failed -- " + $_.Exception.Message) -ForegroundColor DarkYellow
     }
 }
 
@@ -113,6 +113,6 @@ try {
         Write-Host "  telegram_send: message fallback not ok." -ForegroundColor DarkYellow
     }
 } catch {
-    Write-Host ("  telegram_send: skipped — " + $_.Exception.Message) -ForegroundColor DarkYellow
+    Write-Host ("  telegram_send: skipped -- " + $_.Exception.Message) -ForegroundColor DarkYellow
 }
 exit 0

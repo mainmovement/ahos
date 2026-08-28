@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows - seed local SQLite evidence if G4/G5/G8/G9 would FAIL
 #
 # STATE B Postgres row counts do NOT satisfy those gates. They read local SQLite
@@ -85,13 +85,13 @@ function Write-Census($st, [string]$Label) {
 
 $censusJson = Get-LifecycleCensus -PythonExe $py
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($censusJson)) {
-    Write-Host "  WARN: could not read lifecycle_status — skipping seed" -ForegroundColor Yellow
+    Write-Host "  WARN: could not read lifecycle_status -- skipping seed" -ForegroundColor Yellow
     exit 0
 }
 
 $st = Read-CensusObject -censusJson $censusJson
 if ($null -eq $st) {
-    Write-Host "  WARN: bad census JSON — skipping seed" -ForegroundColor Yellow
+    Write-Host "  WARN: bad census JSON -- skipping seed" -ForegroundColor Yellow
     exit 0
 }
 if ($st._error) {
@@ -101,7 +101,7 @@ if ($st._error) {
 
 Write-Census -st $st -Label "census"
 if (-not $Force -and (Test-CensusSufficient -st $st)) {
-    Write-Host "  Local evidence already present — skip single-cycle." -ForegroundColor Green
+    Write-Host "  Local evidence already present -- skip single-cycle." -ForegroundColor Green
     exit 0
 }
 
@@ -109,14 +109,14 @@ Write-Host ("  Running one local single-cycle (limit=" + $Limit + ")...") -Foreg
 & $py -m architecture.runtime --single-cycle --evidence-source local --limit $Limit
 $code = $LASTEXITCODE
 if ($code -ne 0) {
-    Write-Host ("  WARNING: single-cycle exit=" + $code + " — gate may still FAIL G4/G5/G8/G9; do not invent PASS.") -ForegroundColor Yellow
+    Write-Host ("  WARNING: single-cycle exit=" + $code + " -- gate may still FAIL G4/G5/G8/G9; do not invent PASS.") -ForegroundColor Yellow
     exit 2
 }
 
 $afterJson = Get-LifecycleCensus -PythonExe $py
 $after = Read-CensusObject -censusJson $afterJson
 if ($null -eq $after) {
-    Write-Host "  WARNING: could not re-read census after seed — do not invent PASS." -ForegroundColor Yellow
+    Write-Host "  WARNING: could not re-read census after seed -- do not invent PASS." -ForegroundColor Yellow
     exit 2
 }
 Write-Census -st $after -Label "after_seed"
@@ -125,6 +125,6 @@ if (Test-CensusSufficient -st $after) {
     exit 0
 }
 
-Write-Host "  WARNING: census still insufficient after single-cycle — gate will honest-FAIL G4/G5/G8/G9." -ForegroundColor Yellow
+Write-Host "  WARNING: census still insufficient after single-cycle -- gate will honest-FAIL G4/G5/G8/G9." -ForegroundColor Yellow
 Write-Host "  Hint: re-run with -Force or scripts\backfill_lane_a_from_production.py (Lane-A rules apply)." -ForegroundColor Yellow
 exit 2
