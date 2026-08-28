@@ -34,16 +34,30 @@ class TelegramUpdate:
 class TelegramSecurityGate:
     def __init__(self, allowed_chat_ids: list[int | str] | None = None,
                  admin_user_ids: list[int | str] | None = None,
-                 rate_limit_user_rps: float = 1.0):
+                 rate_limit_user_rps: float = 1.0,
+                 *,
+                 allow_open_access: bool | None = None):
         self.allowed_chat_ids = set(str(cid) for cid in (allowed_chat_ids or []))
         self.admin_user_ids = set(str(uid) for uid in (admin_user_ids or []))
         self.rate_limit_user_rps = rate_limit_user_rps
         self._user_last_msg_ts: dict[str, float] = {}
+        # Empty allowlist is FAIL-CLOSED unless explicitly opted into open access.
+        if allow_open_access is None:
+            import os
+            raw = (os.environ.get("AHOS_TELEGRAM_ALLOW_OPEN_ACCESS") or "").strip().lower()
+            allow_open_access = raw in {"1", "true", "yes", "on"}
+        self.allow_open_access = bool(allow_open_access)
 
     def is_authorized(self, update: TelegramUpdate) -> bool:
         if not self.allowed_chat_ids:
-            return True  # Open access mode if no restriction configured
+            return self.allow_open_access
         return str(update.chat_id) in self.allowed_chat_ids or str(update.user_id) in self.admin_user_ids
+
+    @property
+    def security_gate_mode(self) -> str:
+        if self.allowed_chat_ids:
+            return "RESTRICTED"
+        return "OPEN_ACCESS" if self.allow_open_access else "LOCKED_NO_ALLOWLIST"
 
     def is_admin(self, update: TelegramUpdate) -> bool:
         return str(update.user_id) in self.admin_user_ids
