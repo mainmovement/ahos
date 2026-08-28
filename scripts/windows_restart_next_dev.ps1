@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows - stop anything on 127.0.0.1:3000 then start npm run dev
 #
 # Why: after windows_ensure_web_api_token.ps1 writes .env, a STALE Next process

@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # Restore owner-preserved files from the reconcile temp backup (optional)
 #
 # Usage (ONLY if you still have the preserve folder from the script):

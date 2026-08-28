@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Best-effort post OWNER_PASTE to one or more GitHub PRs via gh.

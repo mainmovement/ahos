@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows G11 helper -- scaffold Telegram E2E artifact (not auto-PASS)
 #
 # Creates reports\telegram_e2e_<UTC>.md checklist for the owner to fill after

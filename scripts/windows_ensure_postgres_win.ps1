@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Ensure Windows PAPER_ONLY Postgres (ahos_postgres_win) is listening.
