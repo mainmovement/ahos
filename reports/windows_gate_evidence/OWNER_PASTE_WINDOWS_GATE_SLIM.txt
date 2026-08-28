@@ -1,0 +1,13 @@
+===== BEGIN WINDOWS GATE PASTE (slim) =====
+report_path=G:\robat\ahos\reports\operator_validation_report_windows_20260828_220306.json
+full_paste=G:\robat\ahos\reports\OWNER_PASTE_WINDOWS_GATE.txt
+--- LATEST_WINDOWS_GATE ---
+report=G:\robat\ahos\reports\operator_validation_report_windows_20260828_220306.json
+pre_soak_entry_ok=False
+operator_ready=False
+classification=INTEGRATION_READY
+Paste this report JSON into Cursor.
+STATE B: do not db:migrate / db:push.
+Paste full OWNER_PASTE_WINDOWS_GATE.txt into Cursor if agent cannot fetch JSON.
+STATE B: do not db:migrate / db:push
+===== END WINDOWS GATE PASTE (slim) =====
