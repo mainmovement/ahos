@@ -240,6 +240,8 @@ def test_windows_g2_validate_helpers_exist():
     assert "windows_g2_probe.py" in body
     assert "windows_diagnose_docker_health.ps1" in body
     assert "db:migrate" in body.lower()
+    assert "ahos-runtime" not in body.lower() or "no-healthcheck" in body
+    assert "--no-healthcheck" in body or "no-healthcheck" in body
     probe = (ROOT / "scripts" / "windows_g2_probe.py").read_text(encoding="utf-8")
     assert "g2_gateway" in probe
     assert "ahos.g2_validate.v1" in probe

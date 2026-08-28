@@ -53,20 +53,26 @@ if (Test-Path -LiteralPath $ensurePg) {
   }
 }
 
-# Re-apply windows compose health definitions (postgres start_period + runtime healthcheck disable).
-# No volume wipe. Runtime may rebuild if image missing -- ignore non-zero for G2 path.
+# Re-apply postgres compose health defs only (start_period / $$POSTGRES_*).
+# Do NOT compose-up ahos-runtime here -- that can trigger a long image build and
+# block G2. Runtime unhealthy is not a G2 blocker; clear HEALTHCHECK in-place.
 $composeFile = Join-Path $RepoRoot "deployment\docker-compose.windows.yml"
 $envPath = Join-Path $RepoRoot ".env"
 if ((Test-Path -LiteralPath $composeFile) -and (Get-Command docker -ErrorAction SilentlyContinue)) {
-  Write-Host "==> refresh compose health defs (postgres + ahos-runtime; no migrate)" -ForegroundColor Cyan
+  Write-Host "==> refresh postgres compose health def (no wipe / no migrate)" -ForegroundColor Cyan
   if (Test-Path -LiteralPath $envPath) {
     & docker compose --env-file $envPath -f $composeFile up -d postgres 2>&1 | Out-Host
-    & docker compose --env-file $envPath -f $composeFile up -d ahos-runtime 2>&1 | Out-Host
   } else {
     & docker compose -f $composeFile up -d postgres 2>&1 | Out-Host
-    & docker compose -f $composeFile up -d ahos-runtime 2>&1 | Out-Host
   }
-  Write-Host "  (ahos_runtime_win unhealthy from Dockerfile HEALTHCHECK is OK for G2; compose now disables it)" -ForegroundColor DarkGray
+  $rtName = "ahos_runtime_win"
+  $rtRunning = (& docker ps --format "{{.Names}}" 2>$null)
+  if ($rtRunning -match [regex]::Escape($rtName)) {
+    Write-Host "==> docker update --no-healthcheck ahos_runtime_win (clear false unhealthy; no rebuild)" -ForegroundColor Cyan
+    & docker update --no-healthcheck $rtName 2>&1 | Out-Host
+  } else {
+    Write-Host "  ahos_runtime_win not running -- OK for host Next G2" -ForegroundColor DarkGray
+  }
 }
 
 $ensureTok = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"

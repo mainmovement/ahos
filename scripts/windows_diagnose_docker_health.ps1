@@ -148,8 +148,7 @@ if ([string]::IsNullOrWhiteSpace($rt)) {
   if ($rt -match "unhealthy") {
     Write-Check "runtime" "WARN" ($rt + " -- NOT a G2 blocker; PAPER_ONLY uses host Next :3000, not container :8000")
     $warns++
-    Write-Host "         tip: docker compose -f deployment/docker-compose.windows.yml up -d ahos-runtime" -ForegroundColor DarkYellow
-    Write-Host "         (unlock tip disables Dockerfile HEALTHCHECK noise; no migrate)" -ForegroundColor DarkYellow
+    Write-Host "         tip: docker update --no-healthcheck ahos_runtime_win  (no rebuild; G2 uses host Next)" -ForegroundColor DarkYellow
   } else {
     Write-Check "runtime" "PASS" $rt
   }
