@@ -13,6 +13,9 @@
 #   - Python -c payloads must contain NO double-quote characters: WinPS 5.1
 #     strips embedded " when calling native python.exe, which turned
 #     print("%d.%d.%d" % ...) into print(%d.%d.%d % ...) (SyntaxError)
+#   - Do NOT import third-party dotenv / config.runtime_env: requirements.txt
+#     has no python-dotenv; canonical load is run_bot.load_dotenv and
+#     canonical assert is architecture.security.assert_safe_environment
 # ==============================================================================
 
 param(
@@ -118,8 +121,10 @@ Write-Host "  Note: deployment\.env is NOT the operator runtime env for this hos
 Write-Step "Enforcing AHOS_PAPER_ONLY=1 and running assert_safe_environment"
 
 $env:AHOS_PAPER_ONLY = "1"
+# Canonical AHOS path (no python-dotenv): load root .env then security assert.
 # SINGLE-QUOTED -c payload: Windows PowerShell must not parse Python () as PS.
-& $VenvPython -c 'from dotenv import load_dotenv; load_dotenv(); from config.runtime_env import assert_safe_environment; print(assert_safe_environment())'
+# Quote-free payload: WinPS 5.1 strips embedded " when invoking python.exe.
+& $VenvPython -c 'from run_bot import load_dotenv; load_dotenv(); from architecture.security import assert_safe_environment; print(assert_safe_environment())'
 if ($LASTEXITCODE -ne 0) {
     throw "assert_safe_environment failed - fix .env / PAPER_ONLY before continuing"
 }
