@@ -126,6 +126,14 @@ if ([string]::IsNullOrWhiteSpace($token)) {
     }
 }
 
+$gw = Get-EnvValue -Path $envPath -Key "AHOS_GATEWAY_URL"
+if ([string]::IsNullOrWhiteSpace($gw)) {
+    Write-Check "AHOS_GATEWAY_URL" "FAIL" "empty - run windows_ensure_web_api_token.ps1 (sets http://127.0.0.1:3000/api/chat)"
+    $fails++
+} else {
+    Write-Check "AHOS_GATEWAY_URL" "PASS" $gw
+}
+
 if (Get-Command node -ErrorAction SilentlyContinue) {
     Write-Check "node" "PASS" ((& node --version) | Out-String).Trim()
 } else {
@@ -141,17 +149,32 @@ if (Get-Command npm -ErrorAction SilentlyContinue) {
 
 $dockerOk = $false
 if (Get-Command docker -ErrorAction SilentlyContinue) {
-    $running = (& docker ps --format "{{.Names}}" 2>$null)
-    if ($running -match [regex]::Escape($PostgresContainer)) {
-        Write-Check "postgres_container" "PASS" ($PostgresContainer + " running")
-        $dockerOk = $true
-    } else {
-        Write-Check "postgres_container" "WARN" ($PostgresContainer + " not running - start compose windows")
+    $infoOut = & docker info 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        Write-Check "docker_daemon" "WARN" "Docker Desktop Linux Engine not reachable (start Desktop; pipe error = not green yet)"
         $warns++
+    } else {
+        Write-Check "docker_daemon" "PASS" "docker info ok"
+        $running = (& docker ps --format "{{.Names}}" 2>$null)
+        if ($running -match [regex]::Escape($PostgresContainer)) {
+            Write-Check "postgres_container" "PASS" ($PostgresContainer + " running")
+            $dockerOk = $true
+        } else {
+            Write-Check "postgres_container" "WARN" ($PostgresContainer + " not running - bat/ensure-pg will start it")
+            $warns++
+        }
     }
 } else {
     Write-Check "docker" "WARN" "docker not on PATH - ensure Postgres reachable for DATABASE_URL"
     $warns++
+}
+
+$pgPass = Get-EnvValue -Path $envPath -Key "POSTGRES_PASSWORD"
+if ([string]::IsNullOrWhiteSpace($pgPass)) {
+    Write-Check "POSTGRES_PASSWORD" "WARN" "unset in .env - compose cannot start ahos_postgres_win"
+    $warns++
+} else {
+    Write-Check "POSTGRES_PASSWORD" "PASS" "set"
 }
 
 if ($dockerOk) {

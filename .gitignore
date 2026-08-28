@@ -21,7 +21,9 @@ reports/LATEST_WINDOWS_GATE.txt
 reports/OWNER_PASTE_WINDOWS_GATE.txt
 reports/OWNER_PASTE_WINDOWS_GATE_SLIM.txt
 reports/windows_ops_last_run.log
+reports/windows_post_merge_reconcile_*.json
 reports/paths_local_*.yaml
+reports/windows_gate_evidence/
 config/paths.yaml
 .DS_Store
 .idea/

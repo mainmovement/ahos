@@ -53,6 +53,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.
 
 - ریپو را به `origin/main` می‌رساند
 - سه فایل owner را حفظ می‌کند: `.gitignore`, `deployment/docker-compose.windows.yml`, `reports/backup_restore_drill.json`
+- فایل‌های ops زیر `reports/` (مثل `windows_post_merge_reconcile_*.json` و OWNER_PASTE) dirty محسوب می‌شوند اما **STOP نمی‌کنند** (تا token ensure اجرا شود)
 - فقط خواندن از Postgres (`SELECT` / `\dt`)
 - اگر `web_api_auth.ts` باشد، `windows_ensure_web_api_token.ps1` را صدا می‌زند (توکن وب؛ بدون overwrite مقدار موجود)
 - **هرگز** migrate / reset / stash / force-push نمی‌کند

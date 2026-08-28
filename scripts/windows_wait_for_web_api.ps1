@@ -111,7 +111,10 @@ for ($i = 0; $i -lt $Attempts; $i++) {
             # Next is answering -- do not burn full timeout on persistent 5xx
             if ($consecutiveServerErrors -ge 3) {
                 Write-Host "  FAIL-FAST: three consecutive 5xx from /api/chat" -ForegroundColor Red
-                Write-Host "  Remediation: check DATABASE_URL + ahos_postgres_win; fix Next window errors; re-run bat" -ForegroundColor Yellow
+                Write-Host "  Likely cause: Next is up but Postgres is down (One-Brain snapshot needs DB)." -ForegroundColor Yellow
+                Write-Host "  Remediation: start Docker Desktop Linux Engine (docker ps must work)," -ForegroundColor Yellow
+                Write-Host "    then scripts\windows_ensure_postgres_win.ps1; restart Next; re-run bat." -ForegroundColor Yellow
+                Write-Host "  If dockerDesktopLinuxEngine pipe not found: open Docker Desktop, wait green." -ForegroundColor Yellow
                 Write-Host "  STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
                 exit 2
             }

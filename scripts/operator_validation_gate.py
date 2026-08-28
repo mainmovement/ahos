@@ -97,8 +97,15 @@ def _run_cmd(argv: list[str], timeout: float = 30.0) -> tuple[int | None, str, s
             cwd=str(ROOT),
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
             shell=use_shell,
+            env={
+                **os.environ,
+                "PYTHONUTF8": "1",
+                "PYTHONIOENCODING": "utf-8",
+            },
         )
         return r.returncode, r.stdout or "", r.stderr or ""
     except FileNotFoundError:
@@ -286,11 +293,17 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
         if blocked is not None:
             return blocked
         if code >= 500:
-            detail = (
-                f"HTTPError {code} from {url}"
-                + ("" if db_url else
-                   " — set DATABASE_URL for One-Brain (Postgres) then restart npm run dev")
-            )
+            detail = f"HTTPError {code} from {url}"
+            if not db_url:
+                detail += (
+                    " -- set DATABASE_URL for One-Brain (Postgres) then restart npm run dev"
+                )
+            else:
+                detail += (
+                    " -- DATABASE_URL is set but Postgres unreachable; start Docker Desktop "
+                    "Linux Engine + ahos_postgres_win (STATE B: no db:migrate/db:push), "
+                    "then restart npm run dev"
+                )
             return _gate(
                 "G2", "Gateway", "FAIL",
                 detail,
@@ -551,8 +564,9 @@ def remediation_actions(gates: list[dict[str, Any]]) -> list[str]:
             )
         elif "DATABASE_URL" in d or (g2.get("http_status") or 0) >= 500:
             out.append(
-                "G2: set reachable DATABASE_URL for Postgres ahos DB, restart npm run dev, "
-                "keep STATE B (no migrate)."
+                "G2: start Docker Desktop Linux Engine so ahos_postgres_win accepts "
+                "DATABASE_URL, restart npm run dev, confirm POST /api/chat is not 500 "
+                "(STATE B: no migrate)."
             )
         elif g2.get("status") == "NOT_VERIFIED":
             out.append("G2: start npm run dev on 127.0.0.1:3000 then re-run without --skip-network.")

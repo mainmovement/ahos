@@ -11,7 +11,7 @@ REQUIRED_NODE_KEYS = {"parameters", "id", "name", "type", "typeVersion", "positi
 
 def validate(path):
     errs, warns = [], []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         try:
             wf = json.load(f)
         except Exception as e:
@@ -53,7 +53,7 @@ def validate(path):
         if n["name"] not in reachable and not n.get("disabled"):
             errs.append(f"node '{n['name']}' unreachable from triggers")
     # 5. secret scan over entire file text
-    raw = open(path).read()
+    raw = open(path, encoding="utf-8").read()
     for pat, label in SECRET_PATTERNS:
         if pat.search(raw): errs.append(f"possible {label} present in file")
     # 6. credentials must be placeholders (never real ids inline as numbers)

@@ -117,6 +117,17 @@ if ([string]::IsNullOrWhiteSpace($open)) {
     Write-Host "Set AHOS_WEB_API_ALLOW_OPEN_ACCESS=0" -ForegroundColor Yellow
 }
 
+# Empty AHOS_GATEWAY_URL= (from .env.example) BLOCKS G2: "set but empty".
+# Fill default for local PAPER_ONLY; never overwrite a non-empty value.
+$gwDefault = "http://127.0.0.1:3000/api/chat"
+$gw = Get-EnvValue -Path $EnvPath -Key "AHOS_GATEWAY_URL"
+if ([string]::IsNullOrWhiteSpace($gw)) {
+    Set-Or-Append-EnvKey -Path $EnvPath -Key "AHOS_GATEWAY_URL" -Value $gwDefault
+    Write-Host ("Set AHOS_GATEWAY_URL=" + $gwDefault + " (was empty; required for G2)") -ForegroundColor Yellow
+} else {
+    Write-Host ("AHOS_GATEWAY_URL already set -- left unchanged (" + $gw + ")") -ForegroundColor Green
+}
+
 Write-Host ""
 Write-Host "NEXT STEPS:" -ForegroundColor Cyan
 Write-Host "  1) Restart Next:  npm run dev"
