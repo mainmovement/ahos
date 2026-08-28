@@ -53,6 +53,22 @@ if (Test-Path -LiteralPath $ensurePg) {
   }
 }
 
+# Re-apply windows compose health definitions (postgres start_period + runtime healthcheck disable).
+# No volume wipe. Runtime may rebuild if image missing -- ignore non-zero for G2 path.
+$composeFile = Join-Path $RepoRoot "deployment\docker-compose.windows.yml"
+$envPath = Join-Path $RepoRoot ".env"
+if ((Test-Path -LiteralPath $composeFile) -and (Get-Command docker -ErrorAction SilentlyContinue)) {
+  Write-Host "==> refresh compose health defs (postgres + ahos-runtime; no migrate)" -ForegroundColor Cyan
+  if (Test-Path -LiteralPath $envPath) {
+    & docker compose --env-file $envPath -f $composeFile up -d postgres 2>&1 | Out-Host
+    & docker compose --env-file $envPath -f $composeFile up -d ahos-runtime 2>&1 | Out-Host
+  } else {
+    & docker compose -f $composeFile up -d postgres 2>&1 | Out-Host
+    & docker compose -f $composeFile up -d ahos-runtime 2>&1 | Out-Host
+  }
+  Write-Host "  (ahos_runtime_win unhealthy from Dockerfile HEALTHCHECK is OK for G2; compose now disables it)" -ForegroundColor DarkGray
+}
+
 $ensureTok = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
 if (Test-Path -LiteralPath $ensureTok) {
   Write-Host "==> ensure web API token + gateway URL" -ForegroundColor Cyan

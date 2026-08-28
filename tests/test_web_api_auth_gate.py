@@ -224,8 +224,9 @@ def test_windows_diagnose_docker_health_script_exists():
     assert "pg_isready" in text
     assert "ahos_runtime_win" in text
     assert "NOT a G2 blocker" in text or "not a G2 blocker" in text.lower()
+    assert "tcp_5432" in text or "5432" in text
+    assert "DATABASE_URL" in text
     assert "db:migrate" in text.lower()
-
 
 
 def test_windows_g2_validate_helpers_exist():
@@ -251,6 +252,10 @@ def test_windows_compose_postgres_healthcheck_uses_container_env():
     assert "start_period" in compose
     assert "postgresql_schema.sql" in compose
     assert "db:migrate" not in compose
+    # PAPER_ONLY: disable noisy Dockerfile HEALTHCHECK on ahos-runtime
+    assert "healthcheck:" in compose
+    assert "disable: true" in compose
+    assert "service_started" in compose
 
 
 def test_windows_seed_local_evidence_script_exists():

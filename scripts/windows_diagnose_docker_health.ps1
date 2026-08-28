@@ -108,6 +108,37 @@ if ([string]::IsNullOrWhiteSpace($psRow)) {
   }
 }
 
+# Host TCP :5432 (Next DATABASE_URL typically targets 127.0.0.1:5432)
+try {
+  $tcp = Test-NetConnection -ComputerName 127.0.0.1 -Port 5432 -WarningAction SilentlyContinue
+  if ($tcp.TcpTestSucceeded) {
+    Write-Check "tcp_5432" "PASS" "127.0.0.1:5432 accepting (host Next can reach Postgres)"
+  } else {
+    Write-Check "tcp_5432" "FAIL" "127.0.0.1:5432 not accepting -- Postgres publish/port mapping issue"
+    $fails++
+  }
+} catch {
+  Write-Check "tcp_5432" "WARN" "could not probe :5432"
+  $warns++
+}
+
+$dbUrl = Get-EnvValue -Path $envPath -Key "DATABASE_URL"
+if ([string]::IsNullOrWhiteSpace($dbUrl)) {
+  Write-Check "DATABASE_URL" "FAIL" "unset in .env (One-Brain /api/chat needs it)"
+  $fails++
+} else {
+  $redacted = $dbUrl
+  try {
+    $redacted = [regex]::Replace($dbUrl, '(:[^:@/]+)@', ':***@')
+  } catch {}
+  if ($redacted -match '127\.0\.0\.1:5432' -or $redacted -match 'localhost:5432') {
+    Write-Check "DATABASE_URL" "PASS" $redacted
+  } else {
+    Write-Check "DATABASE_URL" "WARN" ("set but host may not be local publish: " + $redacted)
+    $warns++
+  }
+}
+
 # --- runtime (NOT required for host Next G2 PAPER_ONLY) ---
 $rt = (& docker ps -a --filter ("name=^/" + $RuntimeContainer + "$") --format "{{.Status}}" 2>$null | Select-Object -First 1)
 if ([string]::IsNullOrWhiteSpace($rt)) {
@@ -117,6 +148,8 @@ if ([string]::IsNullOrWhiteSpace($rt)) {
   if ($rt -match "unhealthy") {
     Write-Check "runtime" "WARN" ($rt + " -- NOT a G2 blocker; PAPER_ONLY uses host Next :3000, not container :8000")
     $warns++
+    Write-Host "         tip: docker compose -f deployment/docker-compose.windows.yml up -d ahos-runtime" -ForegroundColor DarkYellow
+    Write-Host "         (unlock tip disables Dockerfile HEALTHCHECK noise; no migrate)" -ForegroundColor DarkYellow
   } else {
     Write-Check "runtime" "PASS" $rt
   }

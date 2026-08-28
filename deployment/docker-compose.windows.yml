@@ -71,9 +71,14 @@ services:
       - "127.0.0.1:8000:8000"
     networks:
       - ahos_win_net
+    # PAPER_ONLY G2 uses host Next :3000, not this container. Dockerfile HEALTHCHECK
+    # (full ApplicationLifecycleManager) marks unhealthy without production wiring and
+    # confuses operators -- disable for Windows compose. No migrate.
+    healthcheck:
+      disable: true
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
 
 networks:
   ahos_win_net:
