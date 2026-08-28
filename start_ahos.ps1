@@ -60,10 +60,10 @@ Write-Host "  Press Ctrl+C to stop gracefully." -ForegroundColor DarkGray
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  WARNING: Do NOT treat this as OPERATOR_READY." -ForegroundColor DarkYellow
-Write-Host "  PRE_SOAK / soak hours count only after Windows" -ForegroundColor DarkYellow
-Write-Host "  summary.pre_soak_entry_ok == true from:" -ForegroundColor DarkYellow
-Write-Host "    python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill" -ForegroundColor DarkYellow
-Write-Host "  See docs\WINDOWS_OPERATOR_HANDOFF.md and docs\PRE_SOAK_PROTOCOL.md." -ForegroundColor DarkYellow
+Write-Host "  BEFORE soak: double-click AHOS_WINDOWS_OPS.bat" -ForegroundColor Yellow
+Write-Host "  (or: scripts\windows_run_operator_gate.ps1) and paste" -ForegroundColor Yellow
+Write-Host "  reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor." -ForegroundColor Yellow
+Write-Host "  PRE_SOAK only after summary.pre_soak_entry_ok == true." -ForegroundColor DarkYellow
 Write-Host "  Need AHOS_WEB_API_TOKEN in .env; STATE B = no db:migrate/db:push." -ForegroundColor DarkYellow
 Write-Host ""
 

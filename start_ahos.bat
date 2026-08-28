@@ -51,9 +51,11 @@ echo   Cycle interval : 60s, with E-01 observation cycle
 echo   Press Ctrl+C to stop gracefully.
 echo ==========================================================
 echo.
-echo   WARNING: Not OPERATOR_READY. Start soak only after
-echo   pre_soak_entry_ok from operator_validation_gate.py
-echo   See docs\WINDOWS_OPERATOR_HANDOFF.md
+echo   WARNING: Not OPERATOR_READY.
+echo   BEFORE soak: double-click AHOS_WINDOWS_OPS.bat
+echo   then paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor.
+echo   PRE_SOAK only after pre_soak_entry_ok=true.
+echo   STATE B: no db:migrate / db:push.
 echo.
 
 "%VENV_PY%" -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local

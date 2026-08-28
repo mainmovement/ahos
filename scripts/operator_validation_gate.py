@@ -256,7 +256,7 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
             headers=headers,
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=8) as resp:
+        with urllib.request.urlopen(req, timeout=45) as resp:
             body = resp.read(400).decode("utf-8", "replace")
             if resp.status >= 500:
                 return _gate(
@@ -671,10 +671,22 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     # Load root .env so AHOS_WEB_API_TOKEN / DATABASE_URL reach G2 without manual $env.
+    # Force-overwrite auth/DB keys so a stale shell export cannot beat .env (G2 401 trap).
     try:
         from run_bot import load_dotenv
 
-        load_dotenv(ROOT / ".env")
+        loaded = load_dotenv(ROOT / ".env")
+        for key in (
+            "AHOS_WEB_API_TOKEN",
+            "NEXT_PUBLIC_AHOS_WEB_API_TOKEN",
+            "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
+            "DATABASE_URL",
+            "AHOS_GATEWAY_URL",
+            "AHOS_PAPER_ONLY",
+            "AHOS_EVIDENCE_SOURCE",
+        ):
+            if key in loaded:
+                os.environ[key] = loaded[key]
     except Exception:  # noqa: BLE001
         pass
 
