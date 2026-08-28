@@ -1,0 +1,10 @@
+AHOS Windows evidence inbox -- LEAVE OPEN / DO NOT MERGE
+========================================================
+#50 #51 #54 #55 were all merged; each merge kills the paste wake path.
+
+This PR exists ONLY so OWNER_PASTE comments can wake the agent.
+Merging it is a no-op for code and breaks operations.
+
+- Not PRE_SOAK / OPERATOR_READY
+- STATE B: no db:migrate / db:push
+- Prefer paste comments here; #38 also works while open
