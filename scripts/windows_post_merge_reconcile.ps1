@@ -188,8 +188,10 @@ foreach ($rel in $Protected) {
 }
 
 try {
-    # Ensure local main tracks origin/main tip
-    $localMainExists = (git show-ref --verify --quiet refs/heads/main; $LASTEXITCODE -eq 0)
+    # Ensure local main tracks origin/main tip.
+    # WinPS 5.1 cannot parse semicolons inside (...); keep statements separate.
+    & git show-ref --verify --quiet refs/heads/main 2>$null | Out-Null
+    $localMainExists = ($LASTEXITCODE -eq 0)
     if ($localMainExists) {
         Invoke-Git @("switch", "main")
         Invoke-Git @("merge", "--ff-only", "origin/main")
