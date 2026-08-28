@@ -296,6 +296,8 @@ def test_windows_bootstrap_presoak_script_exists():
     assert "windows-evidence-notify-retarget-4bde" in text
     assert "AHOS_PRE_SOAK_NOW.bat" in text
     assert "db:migrate" in text.lower()
+    assert "ls-tree" in text
+    assert "cmd.exe /c" in text
 
 
 def test_windows_ensure_database_url_realigns_via_docker_exec():

@@ -45,22 +45,50 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $ref = "origin/" + $Tip
-Write-Host ("==> checkout unlock files from " + $ref) -ForegroundColor Cyan
-& git checkout $ref -- `
-  AHOS_APPLY_TIP.bat AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_VALIDATE_G2_NOW.bat `
-  AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt `
-  "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/windows_g2_probe.py `
-  scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts `
-  tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example 2>&1 | Out-Host
+Write-Host ("==> list + checkout unlock files from " + $ref) -ForegroundColor Cyan
 
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "WARN: bulk checkout failed - trying core set" -ForegroundColor Yellow
+# Expand windows_*.ps1 via git ls-tree (PowerShell does not expand git pathspecs reliably).
+$winScripts = @()
+try {
+  $listed = & git ls-tree -r --name-only $ref 2>$null
+  foreach ($p in $listed) {
+    if ($p -like "scripts/windows_*.ps1") { $winScripts += $p }
+  }
+} catch {}
+
+$paths = New-Object System.Collections.Generic.List[string]
+foreach ($p in @(
+  "AHOS_APPLY_TIP.bat",
+  "AHOS_PRE_SOAK_NOW.bat",
+  "AHOS_WINDOWS_OPS.bat",
+  "AHOS_VALIDATE_G2_NOW.bat",
+  "AHOS_PULL_OPS_UNLOCK.bat",
+  "AHOS_PUSH_EVIDENCE_NOW.bat",
+  "WINDOWS_RUN_THIS_FIRST.txt",
+  "scripts/ahos_pg_probe.mjs",
+  "scripts/windows_g2_probe.py",
+  "scripts/operator_validation_gate.py",
+  "app/api/chat/route.ts",
+  "db/index.ts",
+  "snapshot.ts",
+  "tests/validate_n8n.py",
+  "deployment/docker-compose.windows.yml",
+  ".env.example"
+)) { [void]$paths.Add($p) }
+foreach ($p in $winScripts) { [void]$paths.Add($p) }
+
+Write-Host ("  windows_*.ps1 count from tip: " + $winScripts.Count) -ForegroundColor DarkGray
+& git checkout $ref -- @($paths.ToArray()) 2>&1 | Out-Host
+if ($LASTEXITCODE -ne 0 -or $winScripts.Count -lt 5) {
+  Write-Host "WARN: bulk/list checkout incomplete - trying core set" -ForegroundColor Yellow
   & git checkout $ref -- `
     AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_PUSH_EVIDENCE_NOW.bat `
     scripts/operator_validation_gate.py scripts/windows_recover_g2_warm.ps1 `
     scripts/windows_ensure_database_url.ps1 scripts/windows_wait_for_web_api.ps1 `
     scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
-    scripts/windows_bootstrap_presoak.ps1 app/api/chat/route.ts 2>&1 | Out-Host
+    scripts/windows_bootstrap_presoak.ps1 scripts/windows_chat_500_forensics.ps1 `
+    scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_postgres_win.ps1 `
+    app/api/chat/route.ts 2>&1 | Out-Host
   if ($LASTEXITCODE -ne 0) {
     Write-Host "FAIL: tip checkout failed" -ForegroundColor Red
     exit 2
@@ -73,10 +101,10 @@ if (-not (Test-Path -LiteralPath $pre)) {
   exit 2
 }
 
-Write-Host "==> launching AHOS_PRE_SOAK_NOW.bat" -ForegroundColor Cyan
-$p = Start-Process -FilePath "cmd.exe" -ArgumentList @("/c", "`"$pre`"") -WorkingDirectory $RepoRoot -Wait -PassThru
-$code = 0
-if ($null -ne $p) { $code = [int]$p.ExitCode }
+# Same console so OPS bat pause/paste instructions are visible.
+Write-Host "==> launching AHOS_PRE_SOAK_NOW.bat (same console)" -ForegroundColor Cyan
+cmd.exe /c "`"$pre`""
+$code = $LASTEXITCODE
 
 Write-Host ""
 Write-Host "Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38" -ForegroundColor Cyan
