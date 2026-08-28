@@ -33,7 +33,15 @@ git merge --ff-only origin/main
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
 ```
 
-4. بلوک `BEGIN REPORT` … `END REPORT` را کامل کپی کنید و در Cursor بچسبانید.
+4. بعد از merge شدن PR توکن وب (Lane-B auth)، یک‌بار توکن را بسازید/هم‌تراز کنید:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
+```
+
+سپس Next و ربات را ری‌استارت کنید. **migrate نزنید.**
+
+5. بلوک `BEGIN REPORT` … `END REPORT` را کامل کپی کنید و در Cursor بچسبانید.
 
 ## اسکریپت چه می‌کند
 

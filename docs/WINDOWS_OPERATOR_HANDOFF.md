@@ -108,6 +108,15 @@ Copy `.env.example` → `.env` and set at least:
 DATABASE_URL=postgresql://USER:PASS@127.0.0.1:5432/ahos
 AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat
 AHOS_PAPER_ONLY=1
+AHOS_WEB_API_TOKEN=<same-random>
+NEXT_PUBLIC_AHOS_WEB_API_TOKEN=<same-random>
+AHOS_WEB_API_ALLOW_OPEN_ACCESS=0
+```
+
+Or generate tokens without editing by hand:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
 ```
 
 Then:
@@ -118,7 +127,7 @@ npm install
 npm run dev
 ```
 
-Leave running on port **3000**. Without `DATABASE_URL`, Next may listen but `/api/chat` returns **500** → G2 **FAIL**.
+Leave running on port **3000**. Without `DATABASE_URL`, Next may listen but `/api/chat` returns **500** → G2 **FAIL**. Without web API token (and without open-access), `/api/chat` returns **401** → G2 **BLOCKED**.
 
 ### 5) Gate runner (Terminal B)
 
@@ -128,7 +137,7 @@ cd <PATH_TO_AHOS_REPO>
 $env:AHOS_PAPER_ONLY = "1"
 $env:AHOS_EVIDENCE_SOURCE = "local"
 $env:AHOS_GATEWAY_URL = "http://127.0.0.1:3000/api/chat"
-# If you use dotenv elsewhere, also ensure DATABASE_URL is visible to Node (Terminal A).
+# AHOS_WEB_API_TOKEN is loaded from .env by the gate runner (same Bearer as Next).
 
 python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill
 ```
@@ -200,7 +209,7 @@ Follow `docs\PRE_SOAK_PROTOCOL.md`.
 | Gate | Windows proof |
 |------|----------------|
 | G1 Environment | Python **3.11+** + node/npm + writable data |
-| G2 Gateway | Live POST `/api/chat` on :3000 (4xx=reachable PASS; 5xx/refused=FAIL) |
+| G2 Gateway | Live POST `/api/chat` on :3000 with Bearer when token set (401 WEB_API_* = BLOCKED; 5xx=FAIL; other 4xx=reachable PASS) |
 | G3 Providers | Live probe SUCCESS (tokens>0) |
 | G4 Evidence | Observations present |
 | G5 Scoring | local_predictions > 0 |

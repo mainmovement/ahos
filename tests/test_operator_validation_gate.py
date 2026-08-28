@@ -101,6 +101,54 @@ def test_g2_http_error_4xx_is_pass_not_connection_fail():
     assert g["http_status"] == 404
 
 
+def test_g2_http_401_web_api_locked_is_blocked(monkeypatch):
+    import urllib.error
+
+    monkeypatch.delenv("AHOS_WEB_API_TOKEN", raising=False)
+    monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+    body = b'{"ok":false,"error":"WEB_API_LOCKED_NO_TOKEN"}'
+    err = urllib.error.HTTPError(
+        url="http://127.0.0.1:3000/api/chat",
+        code=401,
+        msg="Unauthorized",
+        hdrs=None,
+        fp=mock.Mock(read=mock.Mock(return_value=body)),
+    )
+    with mock.patch("urllib.request.urlopen", side_effect=err):
+        g = g2_gateway(skip_network=False)
+    assert g["status"] == "BLOCKED"
+    assert g["http_status"] == 401
+    assert "WEB_API_LOCKED" in g["detail"]
+
+
+def test_g2_sends_bearer_when_web_token_set(monkeypatch):
+    monkeypatch.setenv("AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat")
+    monkeypatch.setenv("AHOS_WEB_API_TOKEN", "opval-token-xyz")
+    captured: dict = {}
+
+    class _Resp:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self, _n=400):
+            return b'{"reply":"ok"}'
+
+    def _urlopen(req, timeout=None):
+        captured["headers"] = dict(req.headers)
+        return _Resp()
+
+    with mock.patch("urllib.request.urlopen", side_effect=_urlopen):
+        g = g2_gateway(skip_network=False)
+    assert g["status"] == "PASS"
+    auth = captured["headers"].get("Authorization") or captured["headers"].get("authorization")
+    assert auth == "Bearer opval-token-xyz"
+
+
 def test_g2_http_error_5xx_is_fail(monkeypatch):
     import urllib.error
 
