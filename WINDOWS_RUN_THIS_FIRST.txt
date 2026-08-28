@@ -13,6 +13,7 @@ Hardened ops path is on main (PR #31–#34).
 
 3) Evidence back to Cursor (one of):
    - If `gh` is logged in: gate auto-comments OWNER_PASTE on the open PR / #34
+   - If Telegram bot+allowlist set: document sent to your chat — forward into Cursor
    - Else: Ctrl+V reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor chat
 
 That JSON is required for G1–G10 / pre_soak_entry_ok.

@@ -70,6 +70,17 @@ def test_windows_run_operator_gate_script_exists():
     assert "Env:AHOS_WEB_API_TOKEN" in text or 'Set-Item -Path ("Env:"' in text
     assert "gh pr comment" in text
     assert "AHOS_GATE_PR" in text
+    assert "windows_telegram_send_gate_paste.ps1" in text
+
+
+def test_windows_telegram_send_gate_paste_script_exists():
+    path = ROOT / "scripts" / "windows_telegram_send_gate_paste.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "TELEGRAM_BOT_TOKEN" in text
+    assert "TELEGRAM_ALLOWED_CHAT_IDS" in text
+    assert "sendDocument" in text
+    assert "OPERATOR_READY" in text or "NOT OPERATOR_READY" in text or "NOT READY" in text
+    assert "db:migrate" in text.lower() or "Does not migrate" in text
 
 
 def test_windows_preflight_ops_script_exists():

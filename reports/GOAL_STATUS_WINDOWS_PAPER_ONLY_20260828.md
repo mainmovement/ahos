@@ -1,23 +1,24 @@
 # Goal status — Windows PAPER_ONLY operational (honest)
 
-**Generated (UTC):** 2026-08-28T21:16Z  
-**main tip:** `401344a` (PR #31 auth + #32 gate + #33 bat + #34 harden)  
-**Claim:** tooling on main for owner unlock — **OPERATOR_READY = NOT_VERIFIED**
+**Generated (UTC):** 2026-08-28T21:20Z  
+**main tip:** `401344a` (PR #31–#34)  
+**Claim:** tooling on main — **OPERATOR_READY = NOT_VERIFIED**  
+**Owner:** Windows bat external action was **skipped** — no gate JSON yet
 
 ## Requirement audit
 
 | Requirement | Evidence | Status |
 |-------------|----------|--------|
 | Merge web-api auth | PR #31 on main | **DONE** |
-| Harden Windows ops path | PR #34 merged → `401344a` | **DONE** |
-| Set tokens on laptop | ensure script on reconcile; no fresh paste | **UNVERIFIED** (owner) |
-| STATE B / no migrate | Prior reconcile STATE_B; scripts forbid migrate | **ENFORCED** |
-| Operator validation G1–G10 | No Windows gate JSON / PR comment yet | **MISSING** (owner) |
+| Harden Windows ops | PR #34 on main | **DONE** |
+| Set tokens on laptop | No fresh Windows paste | **UNVERIFIED** |
+| STATE B / no migrate | Scripts + prior reconcile | **ENFORCED** |
+| G1–G10 Windows JSON | Missing (owner skipped bat) | **MISSING** |
 | Toward PRE_SOAK | Needs `pre_soak_entry_ok=true` | **BLOCKED** |
-| G11 OPERATOR_READY | Telegram E2E | **MISSING** |
+| G11 | Telegram E2E | **MISSING** |
 | No invented READY | Honored | **HONORED** |
 
-## Owner unlock (main only)
+## Unlock when ready
 
 ```text
 cd G:\robat\ahos
@@ -25,4 +26,4 @@ git pull origin main
 AHOS_WINDOWS_OPS.bat
 ```
 
-Then PR comment or Ctrl+V `reports\OWNER_PASTE_WINDOWS_GATE.txt` into Cursor.
+Evidence: `gh` PR comment, Telegram document (if bot configured), or Ctrl+V `OWNER_PASTE_WINDOWS_GATE.txt`.
