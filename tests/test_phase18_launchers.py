@@ -12,6 +12,7 @@ the one surface where a silent regression costs the operator real days.
 """
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
@@ -151,10 +152,79 @@ def test_install_windows_python_c_payloads_are_single_quoted():
         "install_windows.ps1 must use single-quoted -c payloads when Python "
         f"code contains (); found: {dangerous!r}"
     )
-    # Positive pin: safety assert uses single quotes.
-    assert "-c 'from dotenv import load_dotenv" in text or (
-        "-c 'from architecture.security import assert_safe_environment" in text
-    ) or re.search(r"-c\s+'[^']*assert_safe_environment[^']*'", text)
+    # Positive pin: safety assert uses canonical architecture.security import.
+    assert re.search(
+        r"-c\s+'[^']*from architecture\.security import assert_safe_environment[^']*'",
+        text,
+    ), "install_windows.ps1 must call architecture.security.assert_safe_environment"
+
+
+def test_install_windows_safety_assert_uses_canonical_ahos_env_loader():
+    """Real Windows failure after PR #22: installer imported third-party dotenv.
+
+    requirements.txt does not ship python-dotenv. Canonical mechanisms are:
+      - run_bot.load_dotenv (stdlib-only .env loader)
+      - architecture.security.assert_safe_environment
+    config.runtime_env does not exist in this repo.
+    """
+    text = _read("install_windows.ps1")
+    code_lines = [
+        line for line in text.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    code = "\n".join(code_lines)
+    assert "from dotenv import" not in code
+    assert "import dotenv" not in code
+    assert "python-dotenv" not in code
+    assert "config.runtime_env" not in code
+    assert "from run_bot import load_dotenv" in code
+    assert "from architecture.security import assert_safe_environment" in code
+
+    match = re.search(
+        r"""(?:python|VenvPython).*?-c\s+'([^']*assert_safe_environment[^']*)'""",
+        text,
+    )
+    assert match, "missing assert_safe_environment -c payload"
+    payload = match.group(1)
+    assert '"' not in payload
+    assert "from run_bot import load_dotenv" in payload
+    assert "load_dotenv()" in payload
+    assert "from architecture.security import assert_safe_environment" in payload
+    assert "assert_safe_environment()" in payload
+
+
+def test_install_windows_safety_assert_c_payload_runs_without_python_dotenv():
+    """Acceptance: the exact installer safety -c works with repo deps only."""
+    text = _read("install_windows.ps1")
+    match = re.search(
+        r"""(?:python|\$VenvPython).*?-c\s+'([^']*assert_safe_environment[^']*)'""",
+        text,
+    )
+    assert match, "missing assert_safe_environment -c payload"
+    payload = match.group(1)
+    stripped = payload.replace('"', "")  # WinPS 5.1 native-arg quote strip
+
+    env = os.environ.copy()
+    env["AHOS_PAPER_ONLY"] = "1"
+    # Clear live-trading flags so a polluted host env cannot flake this pin.
+    for key in ("AHOS_ALLOW_REAL_FUNDS", "AHOS_EXECUTE_LIVE_TRADES"):
+        env.pop(key, None)
+
+    proc = subprocess.run(
+        [sys.executable, "-c", stripped],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        cwd=str(ROOT),
+        env=env,
+    )
+    assert proc.returncode == 0, (
+        "safety assert -c must succeed without python-dotenv.\n"
+        f"payload={payload!r}\nstdout={proc.stdout!r}\nstderr={proc.stderr!r}"
+    )
+    assert "ModuleNotFoundError" not in (proc.stderr + proc.stdout)
+    assert "dotenv" not in proc.stderr.lower()
+    assert "paper_only_enforced" in proc.stdout
 
 
 def _install_windows_single_quoted_c_payloads() -> list[str]:
