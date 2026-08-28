@@ -56,16 +56,18 @@ try {
 try {
   $open = & gh pr list --state open --limit 15 --json number,headRefName 2>$null | ConvertFrom-Json
   foreach ($p in $open) {
-    if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2') {
+    if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2|evidence|lease|inbox') {
       Add-Target ([string]$p.number)
     }
   }
 } catch {}
 
-# Known sinks (open unlock + prior evidence/ops PRs still accept comments)
+# Dedicated evidence inbox + known sinks (comments wake subscribed agents)
+Add-Target "50"
 Add-Target "45"
 Add-Target "44"
 Add-Target "43"
+Add-Target "38"
 Add-Target "37"
 Add-Target "36"
 Add-Target "34"
