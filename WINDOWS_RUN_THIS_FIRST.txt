@@ -3,37 +3,34 @@ AHOS Windows -- PRE_SOAK unlock (PAPER_ONLY)
 STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 
-On main now: through PR #43 (G2 gateway fill, Docker wait, G12 UTF-8,
-reconcile dirty allow, unlock bat). Tip includes auth + ops harden path.
+On main now: through PR #43 (G2 gateway ensure, Docker wait, G12 UTF-8).
+PR #45 (open): empty-gateway default + readiness checklist + PRE_SOAK_NOW bat.
 
-Latest Windows-attested gate before #43 (220318):
+Latest Windows-attested gate before unlock (220318):
   PASS: G1, G3-G10
   BLOCKED: G2 empty AHOS_GATEWAY_URL /api/chat 500 without Docker
   OWNER_ACTION: G11 Telegram (READY only, not PRE_SOAK)
   pre_soak_entry_ok=false
 
 --------------------------------------------------
-A) Pull latest main
+PREFERRED: one-click after Docker is green
+--------------------------------------------------
+  1) Start Docker Desktop, wait GREEN, confirm: docker ps
+  2) Get launcher (once, if not on disk yet):
+       git fetch origin cursor/windows-g2-empty-gateway-default-4bde
+       git checkout origin/cursor/windows-g2-empty-gateway-default-4bde -- AHOS_PRE_SOAK_NOW.bat
+  3) Double-click:  AHOS_PRE_SOAK_NOW.bat
+     (pulls main, applies #45 files if needed, readiness, then OPS bat)
+  4) Paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor
+
+--------------------------------------------------
+Manual equivalent
 --------------------------------------------------
   cd /d G:\robat\ahos
   git checkout main
   git pull origin main
-
-B) Start Docker Desktop
-  - Wait until GREEN / Linux Engine running
-  - Confirm:  docker ps
-  - Optional check:
-      powershell -ExecutionPolicy Bypass -File .\scripts\windows_pre_soak_readiness.ps1
-
-C) One-shot ops
-  Double-click:  AHOS_WINDOWS_OPS.bat
-
-  Bat: readiness checklist -> wait for Docker -> ensure ahos_postgres_win (no migrate) ->
-  reconcile -> ensure token + AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat ->
-  preflight -> restart Next -> warm /api/chat -> seed SQLite if needed -> gate.
-
-D) Paste evidence into Cursor (REQUIRED)
-  reports\OWNER_PASTE_WINDOWS_GATE.txt
+  powershell -ExecutionPolicy Bypass -File .\scripts\windows_pre_soak_readiness.ps1
+  AHOS_WINDOWS_OPS.bat
 
 PRE_SOAK: only when paste shows pre_soak_entry_ok=true (G1-G10 PASS).
 OPERATOR_READY: only with G11 Telegram E2E PASS -- never invent.
