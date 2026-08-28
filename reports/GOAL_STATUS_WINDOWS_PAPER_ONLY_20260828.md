@@ -1,30 +1,25 @@
 # Goal status — Windows PAPER_ONLY operational (honest)
 
 **Generated (UTC):** 2026-08-28T21:05Z  
-**main tip:** `d9a50f3` (PR #31 + #32)  
-**PR #33 tip:** harden bat/gate against stale Next + token/env traps  
-**Claim:** tooling improved for owner Windows run — **OPERATOR_READY = NOT_VERIFIED**
+**main:** includes PR #31/#32/#33 (`7ab1771`)  
+**PR #34:** harden + seed evidence (`2a0060a`) — merge then run bat  
+**Claim:** tooling ready for owner Windows unlock — **OPERATOR_READY = NOT_VERIFIED**
 
 ## Requirement audit
 
 | Requirement | Evidence | Status |
 |-------------|----------|--------|
 | Merge web-api auth | PR #31 on main | **DONE** |
-| Set tokens on laptop | No Windows REPORT / paste | **MISSING** (owner) |
-| STATE B / no migrate | Scripts forbid migrate | **ENFORCED** |
-| Operator validation G1–G10 | No Windows gate JSON | **MISSING** (owner) |
-| Toward PRE_SOAK | Needs `pre_soak_entry_ok=true` | **BLOCKED** |
+| Set tokens on laptop | Reconcile can ensure; no fresh Windows paste this wave | **UNVERIFIED** (owner) |
+| STATE B / no migrate | Prior owner reconcile classified STATE_B; scripts forbid migrate | **ENFORCED** |
+| Operator validation G1–G10 | No `operator_validation_report_windows_*.json` from laptop | **MISSING** (owner) |
+| Toward PRE_SOAK | Needs Windows `pre_soak_entry_ok=true` | **BLOCKED** |
+| G11 OPERATOR_READY | Telegram E2E artifact | **MISSING** |
 | No invented READY | Honored | **HONORED** |
 
-## PR #33 hardening (this wave)
+## Owner unlock
 
-- `-KeepCurrentBranch` on reconcile (bat does not self-delete helpers)
-- `windows_restart_next_dev.ps1` — kill stale `:3000`, start fresh Next after token write
-- Bat warms `POST /api/chat` (not just `/`) up to ~180s
-- G2 HTTP timeout 8s → 45s; force-load `.env` auth/DB keys over stale shell
-- Preflight: `pg_isready` + SQLite evidence WARN
-- Paste bundle → clipboard + Notepad
-
-## Owner action
-
-Merge or checkout PR #33, then double-click `AHOS_WINDOWS_OPS.bat` on `G:\robat\ahos`, Ctrl+V paste into Cursor. **No** `db:migrate` / `db:push`.
+1. Merge PR #34 (or checkout `cursor/windows-gate-harden-4bde`)
+2. On `G:\robat\ahos`: double-click `AHOS_WINDOWS_OPS.bat`
+3. Ctrl+V `reports\OWNER_PASTE_WINDOWS_GATE.txt` into Cursor  
+STATE B: never `db:migrate` / `db:push`.
