@@ -269,6 +269,35 @@ def test_g2_http_error_5xx_is_fail(monkeypatch):
     assert "DATABASE_URL" in g["detail"]
 
 
+def test_g2_empty_gateway_url_defaults_to_local_chat(monkeypatch):
+    """Older .env.example shipped AHOS_GATEWAY_URL= (empty). Must not BLOCK G2."""
+    monkeypatch.setenv("AHOS_WEB_API_TOKEN", "probe-token")
+    monkeypatch.setenv("AHOS_GATEWAY_URL", "")  # empty-but-set
+    captured: dict = {}
+
+    class _Resp:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self, _n=400):
+            return b'{"reply":"ok"}'
+
+    def _urlopen(req, timeout=None):
+        captured["url"] = req.full_url
+        return _Resp()
+
+    with mock.patch("urllib.request.urlopen", side_effect=_urlopen):
+        g = g2_gateway(skip_network=False)
+    assert g["status"] == "PASS"
+    assert captured["url"] == "http://127.0.0.1:3000/api/chat"
+    assert g.get("url") == "http://127.0.0.1:3000/api/chat"
+
+
 def test_g11_artifact_attestation(tmp_path, monkeypatch):
     monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "dummy-token-not-real")
     art = tmp_path / "telegram_e2e_test.md"

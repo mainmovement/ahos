@@ -222,14 +222,10 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     import urllib.request
 
     # Canonical One-Brain chat route (Next.js default port 3000). Not /health.
-    raw_url = os.environ.get("AHOS_GATEWAY_URL")
-    if raw_url is not None and not raw_url.strip():
-        return _gate(
-            "G2", "Gateway", "BLOCKED",
-            "AHOS_GATEWAY_URL is set but empty — unset it or set "
-            "http://127.0.0.1:3000/api/chat",
-        )
-    url = (raw_url or "http://127.0.0.1:3000/api/chat").strip()
+    # Empty AHOS_GATEWAY_URL= (common from older .env.example) must NOT BLOCK:
+    # treat blank as unset and use the local PAPER_ONLY default.
+    raw_url = (os.environ.get("AHOS_GATEWAY_URL") or "").strip()
+    url = raw_url or "http://127.0.0.1:3000/api/chat"
 
     # One-Brain chat uses Postgres; missing DATABASE_URL yields HTTP 500 while
     # Next is up. Surface that as BLOCKED/OWNER_ACTION rather than "start npm".
