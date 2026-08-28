@@ -119,6 +119,7 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "windows_ops_last_run.log" in text or "LOG=" in text
     assert "windows_write_ops_failure_paste.ps1" in text or "failpaste" in text
     assert "windows_validate_ps1_parse.ps1" in text
+    assert 'checkout origin/main -- "scripts/windows_*.ps1"' in text or "force-sync" in text.lower() or "windows_*.ps1" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
 

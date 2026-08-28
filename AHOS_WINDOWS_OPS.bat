@@ -40,6 +40,12 @@ git pull origin main >> "%LOG%" 2>&1
 if errorlevel 1 (
   call :log WARNING: git pull origin main failed - continuing if scripts present
 )
+REM Force-refresh ops scripts from origin/main so local dirt/CRLF cannot keep broken PS1
+call :log ==^> force-sync scripts\windows_*.ps1 from origin/main
+git checkout origin/main -- "scripts/windows_*.ps1" >> "%LOG%" 2>&1
+if errorlevel 1 (
+  call :log WARNING: force-sync windows_*.ps1 failed - parse preflight may catch stale scripts
+)
 for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CURBRANCH=%%B"
 if defined CURBRANCH if /I not "!CURBRANCH!"=="main" (
   call :log ==^> git pull origin !CURBRANCH!
