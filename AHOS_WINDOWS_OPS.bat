@@ -127,6 +127,15 @@ if exist "scripts\windows_ensure_postgres_win.ps1" (
   )
 )
 
+REM Explicit DATABASE_URL sync/probe (belt-and-suspenders; also runs from ensure-pg).
+if exist "scripts\windows_ensure_database_url.ps1" (
+  call :log ==^> ensure DATABASE_URL matches POSTGRES_* ^(chat 500 / G2^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
+  if errorlevel 1 (
+    call :log WARNING: DATABASE_URL probe failed - /api/chat may HTTP 500; continuing to forensics-capable warm
+  )
+)
+
 call :log ==^> post-merge reconcile + web API token ensure (KeepCurrentBranch)
 "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_post_merge_reconcile.ps1" -KeepCurrentBranch >> "%LOG%" 2>&1
 if errorlevel 1 (

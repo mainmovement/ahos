@@ -79,6 +79,14 @@ if exist "scripts\windows_diagnose_docker_health.ps1" (
   )
 )
 
+if exist "scripts\windows_ensure_database_url.ps1" (
+  echo ==^> ensure DATABASE_URL matches POSTGRES_* ^(no migrate^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
+  if errorlevel 1 (
+    echo WARNING: DATABASE_URL probe failed - OPS bat will retry via ensure-pg
+  )
+)
+
 if exist "scripts\windows_pre_soak_readiness.ps1" (
   echo ==^> readiness checklist
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_pre_soak_readiness.ps1" -AllowDockerStarting

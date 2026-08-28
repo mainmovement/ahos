@@ -4,23 +4,8 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
---------------------------------------------------
-If /api/chat returns HTTP 500 while Docker diagnose PASSes
---------------------------------------------------
-  Exact root cause (message + stack_top + pg probe):
-
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_chat_500_forensics.ps1
-
-  Then fix DATABASE_URL vs Postgres auth (common cause) and reload Next:
-
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_database_url.ps1
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
-
-  Or one-click G2 (applies unlock tip + DATABASE_URL sync + warm chat):
-
-    AHOS_VALIDATE_G2_NOW.bat
-
-  Paste reports\OWNER_PASTE_CHAT_500_*.txt  (and Next console [api/chat] stack)
+On main (merged): web-api auth (#31), G2 empty-gateway (#45), G2 validate (#46),
+evidence autopush (#47), /api/chat 500 stack + DATABASE_URL sync (#48).
 
 --------------------------------------------------
 ONE CLICK (preferred)
@@ -29,15 +14,20 @@ ONE CLICK (preferred)
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
 
-  Bat applies unlock tip, diagnoses Docker/pg_isready, syncs DATABASE_URL,
-  warms /api/chat, runs full G1-G10 via AHOS_WINDOWS_OPS.bat.
+  Bat: token + Docker diagnose + DATABASE_URL sync + warm /api/chat + G1-G10 gate.
   Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
+  PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).
 
 --------------------------------------------------
-OR: G2 first, then auto-continue to full gate
+OR: G2 first (if /api/chat still 500)
 --------------------------------------------------
   AHOS_VALIDATE_G2_NOW.bat
   (on G2 PASS, chains into AHOS_PRE_SOAK_NOW.bat)
 
-PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).
-Never invent READY. ahos_runtime_win unhealthy is OK for host Next G2.
+  Forensics if still 500:
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_chat_500_forensics.ps1
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_database_url.ps1
+    powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
+
+Never invent READY. G11 Telegram is OWNER_ACTION for OPERATOR_READY only.
+ahos_runtime_win unhealthy is OK for host Next G2.

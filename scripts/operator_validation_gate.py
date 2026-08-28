@@ -585,9 +585,12 @@ def remediation_actions(gates: list[dict[str, Any]]) -> list[str]:
             )
         elif "DATABASE_URL" in d or (g2.get("http_status") or 0) >= 500:
             out.append(
-                "G2: start Docker Desktop Linux Engine so ahos_postgres_win accepts "
-                "DATABASE_URL, restart npm run dev, confirm POST /api/chat is not 500 "
-                "(STATE B: no migrate)."
+                "G2: powershell -ExecutionPolicy Bypass -File "
+                ".\\scripts\\windows_chat_500_forensics.ps1 then "
+                ".\\scripts\\windows_ensure_database_url.ps1 then "
+                ".\\scripts\\windows_restart_next_dev.ps1 "
+                "(Docker health PASS is not enough — Next needs working DATABASE_URL; "
+                "STATE B: no migrate)."
             )
         elif g2.get("status") == "NOT_VERIFIED":
             out.append("G2: start npm run dev on 127.0.0.1:3000 then re-run without --skip-network.")
