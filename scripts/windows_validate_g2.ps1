@@ -153,9 +153,34 @@ $lines += "===== END WINDOWS G2 VALIDATE PASTE ====="
 [System.IO.File]::WriteAllText($paste, ($lines -join "`n") + "`n", $utf8)
 Write-Host ("Wrote " + $paste) -ForegroundColor Green
 
+# Also stage as OWNER_PASTE_WINDOWS_GATE so evidence push / timers find it.
+$gatePaste = Join-Path $reports "OWNER_PASTE_WINDOWS_GATE.txt"
+Copy-Item -LiteralPath $paste -Destination $gatePaste -Force
+$latest = Join-Path $reports "LATEST_WINDOWS_GATE.txt"
+$latestLines = @(
+  ("report=" + $outJson),
+  ("g2_pass=" + ($(if ($code -eq 0) { "True" } else { "False" }))),
+  "pre_soak_entry_ok=False",
+  "operator_ready=False",
+  "note=G2_VALIDATE_ONLY -- not a PRE_SOAK claim; run AHOS_PRE_SOAK_NOW.bat for G1-G10",
+  "STATE B: do not db:migrate / db:push."
+)
+[System.IO.File]::WriteAllText($latest, ($latestLines -join "`n") + "`n", $utf8)
+
 $publish = Join-Path $RepoRoot "scripts\windows_publish_owner_paste.ps1"
 if (Test-Path -LiteralPath $publish) {
   & powershell -NoProfile -ExecutionPolicy Bypass -File $publish -PastePath $paste -DesktopName "AHOS_PASTE_G2_TO_CURSOR.txt"
+}
+
+$postGh = Join-Path $RepoRoot "scripts\windows_post_gate_paste_gh.ps1"
+if (Test-Path -LiteralPath $postGh) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $postGh -BodyFile $paste -RepoRoot $RepoRoot
+}
+
+$pushEv = Join-Path $RepoRoot "scripts\windows_push_gate_evidence.ps1"
+if (Test-Path -LiteralPath $pushEv) {
+  Write-Host "==> push G2 validate evidence branch (best-effort; not READY)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $pushEv -RepoRoot $RepoRoot -PastePath $paste -LatestPath $latest
 }
 
 if ($code -eq 0) {

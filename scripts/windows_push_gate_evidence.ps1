@@ -76,6 +76,12 @@ if (Test-Path -LiteralPath $LatestPath) {
 $newestJson = Get-ChildItem -LiteralPath $reports -Filter "operator_validation_report_windows_*.json" -ErrorAction SilentlyContinue |
   Sort-Object LastWriteTime -Descending |
   Select-Object -First 1
+if ($null -eq $newestJson) {
+  # G2-only validate path writes g2_validate_windows_*.json
+  $newestJson = Get-ChildItem -LiteralPath $reports -Filter "g2_validate_windows_*.json" -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First 1
+}
 if ($null -ne $newestJson) {
   Copy-Item -LiteralPath $newestJson.FullName -Destination (Join-Path $evDir $newestJson.Name) -Force
   Copy-Item -LiteralPath $newestJson.FullName -Destination (Join-Path $evDir "operator_validation_report_windows_LATEST.json") -Force
