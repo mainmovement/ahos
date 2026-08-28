@@ -38,6 +38,17 @@ if errorlevel 1 (
   echo WARNING: reconcile exited %ERRORLEVEL% - paste REPORT into Cursor anyway
 )
 
+if exist "scripts\windows_preflight_ops.ps1" (
+  echo.
+  echo ==^> Windows preflight
+  powershell -ExecutionPolicy Bypass -File ".\scripts\windows_preflight_ops.ps1"
+  if errorlevel 1 (
+    echo PREFLIGHT failed - fix FAIL lines above before gate
+    pause
+    exit /b 2
+  )
+)
+
 echo.
 echo ==========================================================
 echo   NEXT: start Next.js in ANOTHER window, then come back:

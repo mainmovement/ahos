@@ -6,6 +6,7 @@ Do NOT invent OPERATOR_READY.
 cd G:\robat\ahos
 git pull
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_preflight_ops.ps1
 
 # Terminal A
 npm run dev

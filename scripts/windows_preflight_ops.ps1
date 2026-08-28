@@ -1,0 +1,162 @@
+# ==============================================================================
+# AHOS Windows preflight (READ-MOSTLY) before operator gate
+#
+# Checks (no migrate / no READY claim):
+#   - git HEAD / web_api_auth present
+#   - .env DATABASE_URL + AHOS_WEB_API_TOKEN (+ NEXT_PUBLIC match)
+#   - docker ahos_postgres_win running (best-effort)
+#   - node/npm on PATH
+#   - optional: TCP 127.0.0.1:3000 listening
+#
+# Usage:
+#   powershell -ExecutionPolicy Bypass -File .\scripts\windows_preflight_ops.ps1
+# Exit 0 = no hard fails; 2 = hard fail (fix before gate)
+# ==============================================================================
+
+param(
+    [string]$RepoRoot = "",
+    [string]$PostgresContainer = "ahos_postgres_win"
+)
+
+$ErrorActionPreference = "Continue"
+
+function Get-EnvValue([string]$Path, [string]$Key) {
+    if (-not (Test-Path -LiteralPath $Path)) { return "" }
+    foreach ($line in (Get-Content -LiteralPath $Path -ErrorAction SilentlyContinue)) {
+        $t = $line.Trim()
+        if ($t.StartsWith("#") -or ($t.IndexOf("=") -lt 1)) { continue }
+        $k = $t.Substring(0, $t.IndexOf("=")).Trim()
+        if ($k -ne $Key) { continue }
+        $v = $t.Substring($t.IndexOf("=") + 1).Trim()
+        if (($v.StartsWith('"') -and $v.EndsWith('"')) -or ($v.StartsWith("'") -and $v.EndsWith("'"))) {
+            $v = $v.Substring(1, $v.Length - 2)
+        }
+        return $v
+    }
+    return ""
+}
+
+function Write-Check([string]$Name, [string]$Status, [string]$Detail) {
+    $color = "Green"
+    if ($Status -eq "FAIL") { $color = "Red" }
+    elseif ($Status -eq "WARN") { $color = "Yellow" }
+    Write-Host ("  [" + $Status + "] " + $Name + " - " + $Detail) -ForegroundColor $color
+}
+
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $RepoRoot = Split-Path -Parent $ScriptDir
+}
+Set-Location -LiteralPath $RepoRoot
+
+Write-Host "==========================================================" -ForegroundColor Cyan
+Write-Host "  AHOS Windows preflight (no migrate / no READY claim)" -ForegroundColor Cyan
+Write-Host "==========================================================" -ForegroundColor Cyan
+Write-Host ("  Repo: " + $RepoRoot) -ForegroundColor DarkGray
+
+$fails = 0
+$warns = 0
+
+$head = "UNKNOWN"
+try { $head = (& git rev-parse --short HEAD 2>$null).Trim() } catch {}
+Write-Check "git_head" "PASS" $head
+
+if (Test-Path -LiteralPath (Join-Path $RepoRoot "web_api_auth.ts")) {
+    Write-Check "web_api_auth" "PASS" "present"
+} else {
+    Write-Check "web_api_auth" "FAIL" "missing - git pull main (need PR #31+)"
+    $fails++
+}
+
+$envPath = Join-Path $RepoRoot ".env"
+if (-not (Test-Path -LiteralPath $envPath)) {
+    Write-Check "dotenv" "FAIL" ".env missing - copy .env.example or run ensure token script"
+    $fails++
+} else {
+    Write-Check "dotenv" "PASS" ".env present"
+}
+
+$db = Get-EnvValue -Path $envPath -Key "DATABASE_URL"
+if ([string]::IsNullOrWhiteSpace($db)) {
+    Write-Check "DATABASE_URL" "FAIL" "unset in .env - G2 will FAIL"
+    $fails++
+} else {
+    Write-Check "DATABASE_URL" "PASS" "set (reachability not proven here)"
+}
+
+$token = Get-EnvValue -Path $envPath -Key "AHOS_WEB_API_TOKEN"
+$pub = Get-EnvValue -Path $envPath -Key "NEXT_PUBLIC_AHOS_WEB_API_TOKEN"
+$open = Get-EnvValue -Path $envPath -Key "AHOS_WEB_API_ALLOW_OPEN_ACCESS"
+if ([string]::IsNullOrWhiteSpace($token)) {
+    if ($open -in @("1", "true", "yes", "on")) {
+        Write-Check "AHOS_WEB_API_TOKEN" "WARN" "empty but OPEN_ACCESS enabled (local only)"
+        $warns++
+    } else {
+        Write-Check "AHOS_WEB_API_TOKEN" "FAIL" "unset - run windows_ensure_web_api_token.ps1"
+        $fails++
+    }
+} else {
+    Write-Check "AHOS_WEB_API_TOKEN" "PASS" "set"
+    if ($pub -ne $token) {
+        Write-Check "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" "FAIL" "must match AHOS_WEB_API_TOKEN"
+        $fails++
+    } else {
+        Write-Check "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" "PASS" "matches"
+    }
+}
+
+if (Get-Command node -ErrorAction SilentlyContinue) {
+    Write-Check "node" "PASS" ((& node --version) | Out-String).Trim()
+} else {
+    Write-Check "node" "FAIL" "not on PATH"
+    $fails++
+}
+if (Get-Command npm -ErrorAction SilentlyContinue) {
+    Write-Check "npm" "PASS" ((& npm --version) | Out-String).Trim()
+} else {
+    Write-Check "npm" "FAIL" "not on PATH"
+    $fails++
+}
+
+$dockerOk = $false
+if (Get-Command docker -ErrorAction SilentlyContinue) {
+    $running = (& docker ps --format "{{.Names}}" 2>$null)
+    if ($running -match [regex]::Escape($PostgresContainer)) {
+        Write-Check "postgres_container" "PASS" ($PostgresContainer + " running")
+        $dockerOk = $true
+    } else {
+        Write-Check "postgres_container" "WARN" ($PostgresContainer + " not running - start compose windows")
+        $warns++
+    }
+} else {
+    Write-Check "docker" "WARN" "docker not on PATH - ensure Postgres reachable for DATABASE_URL"
+    $warns++
+}
+
+# Best-effort port 3000
+try {
+    $tcp = Test-NetConnection -ComputerName 127.0.0.1 -Port 3000 -WarningAction SilentlyContinue
+    if ($tcp.TcpTestSucceeded) {
+        Write-Check "next_3000" "PASS" "127.0.0.1:3000 accepting TCP"
+    } else {
+        Write-Check "next_3000" "WARN" "not listening - start npm run dev before gate"
+        $warns++
+    }
+} catch {
+    Write-Check "next_3000" "WARN" "could not probe port 3000"
+    $warns++
+}
+
+Write-Host ""
+Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
+Write-Host "OPERATOR_READY is NOT claimed by preflight." -ForegroundColor Yellow
+
+if ($fails -gt 0) {
+    Write-Host ("PREFLIGHT_FAIL count=" + $fails + " warns=" + $warns) -ForegroundColor Red
+    Write-Host "Fix FAILs, then: windows_run_operator_gate.ps1" -ForegroundColor Yellow
+    exit 2
+}
+
+Write-Host ("PREFLIGHT_OK warns=" + $warns) -ForegroundColor Green
+Write-Host "Next: npm run dev (if needed), then windows_run_operator_gate.ps1" -ForegroundColor Cyan
+exit 0

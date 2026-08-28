@@ -65,6 +65,15 @@ def test_windows_run_operator_gate_script_exists():
     assert "probe-providers" in text
 
 
+def test_windows_preflight_ops_script_exists():
+    path = ROOT / "scripts" / "windows_preflight_ops.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "AHOS_WEB_API_TOKEN" in text
+    assert "DATABASE_URL" in text
+    assert "web_api_auth.ts" in text
+    assert "db:migrate" in text.lower() or "do NOT db:migrate" in text
+
+
 def test_install_windows_gate_cli_matches_runner():
     text = (ROOT / "install_windows.ps1").read_text(encoding="utf-8", errors="replace")
     assert "--repo-root" not in text
