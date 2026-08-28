@@ -219,7 +219,7 @@ def test_bot_runner_answers_a_persian_conversation_turn():
 
     ad = MockTelegramAdapter()
     ad.inject_update(chat_id=1, text="سلام", user_id=99)
-    runner = TelegramBotRunner(ad, gate=TelegramSecurityGate())
+    runner = TelegramBotRunner(ad, gate=TelegramSecurityGate(allowed_chat_ids=[1]))
     up = ad.poll_updates()[0]
     res = runner.process_update(up)
     assert res["status"] == "PROCESSED"

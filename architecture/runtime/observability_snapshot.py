@@ -490,13 +490,22 @@ class HealthSnapshotEngine:
         has_token = bool(bot_tok and ":" in bot_tok)
         allow_raw = (os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS") or "").strip()
         allow_configured = bool(allow_raw)
+        open_raw = (os.environ.get("AHOS_TELEGRAM_ALLOW_OPEN_ACCESS") or "").strip().lower()
+        open_access_opt_in = open_raw in {"1", "true", "yes", "on"}
+        if allow_configured:
+            gate_mode = "RESTRICTED"
+            gate_active = True
+        elif open_access_opt_in:
+            gate_mode = "OPEN_ACCESS"
+            gate_active = False
+        else:
+            gate_mode = "LOCKED_NO_ALLOWLIST"
+            gate_active = True  # locked is an active fail-closed gate
         tg_status = {
             "mode": "PRODUCTION_KEYED" if has_token else "MOCK_LOCAL_OFFLINE",
             "bot_token_present": has_token,
-            "security_gate_mode": (
-                "RESTRICTED" if allow_configured else "OPEN_ACCESS"
-            ),
-            "security_gate_active": allow_configured,
+            "security_gate_mode": gate_mode,
+            "security_gate_active": gate_active,
             "persian_nlu_intents_count": 11,
             "response_contract": "Section X Format with Mandatory Persian Footer",
         }

@@ -15,11 +15,19 @@ from telegram_ai.service import TelegramDomainService
 from telegram_ai.response_contract import FOOTER_MANDATED
 
 
-def test_telegram_security_gate_open_access():
-    gate = TelegramSecurityGate()
+def test_telegram_security_gate_locked_without_allowlist():
+    """Empty allowlist is fail-closed unless open access is explicit."""
+    gate = TelegramSecurityGate(allow_open_access=False)
+    up = TelegramUpdate(1, chat_id=100, user_id=200, username="user", text="سلام", is_command=False)
+    assert gate.is_authorized(up) is False
+    assert gate.security_gate_mode == "LOCKED_NO_ALLOWLIST"
+
+
+def test_telegram_security_gate_open_access_requires_explicit_opt_in():
+    gate = TelegramSecurityGate(allow_open_access=True)
     up = TelegramUpdate(1, chat_id=100, user_id=200, username="user", text="سلام", is_command=False)
     assert gate.is_authorized(up) is True
-    assert gate.is_admin(up) is False
+    assert gate.security_gate_mode == "OPEN_ACCESS"
 
 
 def test_telegram_security_gate_restricted_chat():
