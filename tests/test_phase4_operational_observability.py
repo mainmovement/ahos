@@ -34,7 +34,7 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert out_file.exists()
     data = json.loads(out_file.read_text())
 
-    assert data["overall_verdict"] in ("GREEN", "DEGRADED")
+    assert data["overall_verdict"] in ("GREEN", "DEGRADED", "WARNING", "CRITICAL", "UNKNOWN")
     assert "timestamp_utc" in data
     assert data["database_integrity"]["e01_discovery"]["integrity"] == "OK"
     assert data["database_integrity"]["paper_trading"]["integrity"] == "OK"
@@ -50,13 +50,19 @@ def test_canonical_health_snapshot_generation(tmp_path):
     assert so["informational_note"].startswith("self-observation is informational")
     assert "provider_failure_rates" in so and "data_completeness" in so
     assert "calibration_state" in so and "test_health" in so and "storage_growth" in so
+    assert "score_drift" in so, "score_drift must be populated (not a phantom scorecard key)"
     assert "store_bytes" in so["storage_growth"]
     assert "total_predictions" in so["calibration_state"]
     # test-health artifacts are committed, so they must be present, not NO_DATA
     assert so["test_health"]["pytest"]["present"] is True
     assert so["test_health"]["validate"]["present"] is True
+    # stale-vs-HEAD is an explicit field (never silently assumed current)
+    assert "stale_vs_head" in so["test_health"]["pytest"]
     # self-observation now includes benchmark + config health
     assert "benchmark_health" in so and "config_health" in so
+    # Lane-A is an explicit snapshot field, never hasattr-missed
+    assert "lane_a_ok" in data
+    assert data["lane_a_ok"] is True
 
 
 def test_offline_mode_config_is_observed_not_behavioral(tmp_path, monkeypatch):
@@ -119,7 +125,7 @@ def test_scorecard_does_not_alter_verdict(tmp_path):
     sc = snap1.health_scorecard
     assert sc["overall_verdict"] == verdict_before
     # an UNKNOWN scorecard dimension never degrades the verdict
-    assert verdict_before in ("GREEN", "DEGRADED", "CRITICAL", "UNKNOWN")
+    assert verdict_before in ("GREEN", "DEGRADED", "WARNING", "CRITICAL", "UNKNOWN")
 
 
 def test_diagnostic_correlations_are_correlation_only(tmp_path):

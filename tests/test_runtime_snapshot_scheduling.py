@@ -81,7 +81,7 @@ def test_write_soak_snapshots_writes_all_three_artifacts(tmp_path, monkeypatch):
 
     health = json.loads(paths[2].read_text(encoding="utf-8"))
     assert "self_observation" in health
-    assert health["overall_verdict"] in ("GREEN", "DEGRADED", "CRITICAL", "UNKNOWN")
+    assert health["overall_verdict"] in ("GREEN", "DEGRADED", "WARNING", "CRITICAL", "UNKNOWN")
 
 
 def test_one_failure_does_not_block_the_others(tmp_path, monkeypatch):

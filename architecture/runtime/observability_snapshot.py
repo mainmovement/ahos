@@ -16,9 +16,12 @@ Generates a machine-readable & human-auditable comprehensive system health snaps
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import logging
 import os
 import sqlite3
+import subprocess
 import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
@@ -36,9 +39,59 @@ from config.paths import (
     get_knowledge_db_path,
 )
 
+log = logging.getLogger("ahos.runtime.observability_snapshot")
+
+# Governance pins (same values as lifecycle + test_e01_gate_protocol).
+_MASTER_DIRECTIVE_SHA256 = (
+    "e2457c0d9dfbadba84ee666feb46f0a01f60663e749f1261f27988abfd837d79"
+)
+_E01_PROTOCOL_SHA256 = (
+    "16b86b86e89392c3f84d82a1c2c6d87534fea988c4dff5a1454fcc137a168101"
+)
+_E01_PROTOCOL_REL = Path("docs/mission_v1_1/E01_GATE_PROTOCOL_v1.md")
+_MASTER_DIRECTIVE_REL = Path("docs/canonical/MASTER_DIRECTIVE_v1.md")
+
 
 def _utc(ts: float) -> str:
     return datetime.fromtimestamp(ts, timezone.utc).isoformat()
+
+
+def _git_head_sha(root: Path) -> str | None:
+    """Best-effort HEAD SHA for stale-artifact detection; None if unavailable."""
+    try:
+        out = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(root),
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+        )
+        return out.decode("utf-8").strip() or None
+    except Exception:
+        return None
+
+
+def _file_sha256(path: Path) -> str | None:
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except Exception:
+        return None
+
+
+def _lane_a_integrity(root: Path) -> tuple[bool | None, str]:
+    """Verify Lane-A freeze. Fail-closed on unverifiable state (None => UNKNOWN)."""
+    try:
+        from scripts import freeze_lane_a as freeze_lane
+        drift, missing, _untracked = freeze_lane.verify(root=root)
+        if drift or missing:
+            detail = (
+                f"lane_a_freeze_drift: drift={sorted(drift)}"
+                if drift
+                else f"lane_a_freeze_missing: {sorted(missing)}"
+            )
+            return False, detail
+        return True, "lane_a_freeze_ok"
+    except Exception as e:
+        return None, f"lane_a_freeze_unverifiable: {type(e).__name__}: {e}"
 
 
 @dataclass
@@ -60,6 +113,10 @@ class CanonicalHealthSnapshot:
     health_scorecard: dict[str, Any] = field(default_factory=dict)
     diagnostic_correlations: list[dict[str, Any]] = field(default_factory=list)
     summary_reasons: list[str] = field(default_factory=list)
+    # Explicit Lane-A freeze result for scorecard ARCHITECTURE_HEALTH.
+    # None = unverifiable (UNKNOWN), never silently assumed intact.
+    lane_a_ok: bool | None = None
+    lane_a_detail: str = ""
 
 
 #: Health scorecard dimensions (mission W36 phase 3). Each dimension is
@@ -107,6 +164,8 @@ class HealthSnapshotEngine:
         reasons: list[str] = []
         is_degraded = False
         is_critical = False
+        is_warning = False
+        hb_for_uptime: dict[str, Any] | None = None
 
         # 1. Database Integrity & Row Census
         dbs = {
@@ -239,6 +298,8 @@ class HealthSnapshotEngine:
 
             last_hb_ts = hb["last_heartbeat_ts"] if hb else 0.0
             downtime = max(0.0, ts - last_hb_ts) if last_hb_ts else None
+            if hb is not None:
+                hb_for_uptime = dict(hb)
             sched_health = {
                 "active_locks_count": len(locks),
                 "last_run_id": runs["run_id"] if runs else None,
@@ -281,29 +342,116 @@ class HealthSnapshotEngine:
             "ai_decision_authority": "ZERO (Advisory Only)"
         }
 
+        # 8. Security invariants — measured, never hardcoded True.
+        paper_ok = False
+        live_prohibited = False
+        try:
+            from architecture.security import assert_safe_environment
+            env_audit = assert_safe_environment()
+            paper_ok = bool(env_audit.get("paper_only_enforced"))
+            live_prohibited = bool(env_audit.get("zero_real_trading"))
+        except PermissionError as e:
+            is_critical = True
+            reasons.append(f"security veto: {e}")
+        except Exception as e:
+            is_critical = True
+            reasons.append(f"security audit failed: {type(e).__name__}: {e}")
+
+        master_path = self.root / _MASTER_DIRECTIVE_REL
+        master_sha = _file_sha256(master_path)
+        master_pinned = master_sha == _MASTER_DIRECTIVE_SHA256
+        if not master_pinned:
+            is_critical = True
+            reasons.append("master_directive_hash mismatch or missing")
+
+        e01_path = self.root / _E01_PROTOCOL_REL
+        e01_sha = _file_sha256(e01_path)
+        e01_pinned = e01_sha == _E01_PROTOCOL_SHA256
+        if not e01_pinned:
+            is_critical = True
+            reasons.append("e01_protocol_hash mismatch or missing")
+
+        env_not_tracked = True
+        try:
+            probe = subprocess.run(
+                ["git", "ls-files", "--error-unmatch", ".env"],
+                cwd=str(self.root),
+                capture_output=True,
+                timeout=5,
+            )
+            env_not_tracked = probe.returncode != 0
+        except Exception:
+            env_not_tracked = True
+        if not env_not_tracked:
+            is_critical = True
+            reasons.append(".env is tracked by git (secret-in-source risk)")
+
         security_inv = {
-            "ahos_paper_only_enforced": True,
-            "live_trading_prohibited": True,
-            "zero_secret_in_source": True,
-            "master_directive_hash_pinned": True,
-            "e01_protocol_hash_pinned": True
+            "ahos_paper_only_enforced": paper_ok,
+            "live_trading_prohibited": live_prohibited,
+            "zero_secret_in_source": env_not_tracked,
+            "master_directive_hash_pinned": master_pinned,
+            "e01_protocol_hash_pinned": e01_pinned,
         }
 
-        # Overall Verdict Determination
+        # 9. Lane-A freeze integrity (never assume intact via hasattr miss).
+        lane_a_ok, lane_a_detail = _lane_a_integrity(self.root)
+        if lane_a_ok is False:
+            is_critical = True
+            reasons.append(lane_a_detail)
+        elif lane_a_ok is None:
+            is_warning = True
+            reasons.append(lane_a_detail)
+
+        if isinstance(prov_health, dict) and any(
+            (st or {}).get("state", "CLOSED") != "CLOSED"
+            for st in prov_health.values()
+        ):
+            is_degraded = True
+            reasons.append("one or more provider circuit breakers not CLOSED")
+
+        hb_age = (
+            sched_health.get("heartbeat_age_seconds")
+            if isinstance(sched_health, dict) else None
+        )
+        if isinstance(hb_age, (int, float)) and hb_age > 3600:
+            is_warning = True
+            reasons.append(f"scheduler heartbeat age {hb_age}s exceeds 1h")
+
+        # Overall verdict — GREEN | DEGRADED | WARNING | CRITICAL | UNKNOWN.
+        # Informational scorecard dimensions must not invent CRITICAL.
         if is_critical:
             verdict = "CRITICAL"
         elif is_degraded:
             verdict = "DEGRADED"
+        elif is_warning:
+            verdict = "WARNING"
         else:
             verdict = "GREEN"
+
+        uptime_base = (
+            hb_for_uptime["last_heartbeat_ts"]
+            if hb_for_uptime and hb_for_uptime.get("last_heartbeat_ts")
+            else ts
+        )
+        runtime_state = {
+            "GREEN": "RUNNING",
+            "WARNING": "RUNNING",
+            "DEGRADED": "DEGRADED",
+            "CRITICAL": "CRITICAL",
+            "UNKNOWN": "UNKNOWN",
+        }.get(verdict, "UNKNOWN")
 
         snapshot = CanonicalHealthSnapshot(
             timestamp_utc=ts_utc,
             overall_verdict=verdict,
-            system_uptime_seconds=round(ts - (hb["last_heartbeat_ts"] if hb else ts), 2),
-            runtime_state="RUNNING" if verdict == "GREEN" else "DEGRADED",
+            system_uptime_seconds=round(ts - float(uptime_base), 2),
+            runtime_state=runtime_state,
             scheduler_status=sched_health,
-            observation_metrics={"total_gaps": e01_state.get("total_gaps_registered", 0), "total_obs": e01_state.get("total_observations_recorded", 0)},
+            observation_metrics={
+                "total_gaps": e01_state.get("total_gaps_registered", 0),
+                "total_obs": e01_state.get("total_observations_recorded", 0),
+            },
             provider_health=prov_health,
             database_integrity=db_results,
             e01_experiment_state=e01_state,
@@ -312,7 +460,9 @@ class HealthSnapshotEngine:
             ai_router_status=ai_status,
             security_invariants=security_inv,
             self_observation=self._self_observation_report(ts),
-            summary_reasons=reasons
+            summary_reasons=reasons,
+            lane_a_ok=lane_a_ok,
+            lane_a_detail=lane_a_detail,
         )
         snapshot.health_scorecard = self._build_scorecard(snapshot)
         snapshot.diagnostic_correlations = self._build_correlations(snapshot)
@@ -359,16 +509,25 @@ class HealthSnapshotEngine:
             provider_failures = {"error": "NO_DATA"}
 
         # 2. Data completeness / UNKNOWN rates from persisted observations.
+        # Treat NULL / empty / '[]' / 'null' / '{}' as "no unknown fields listed".
         completeness: dict[str, Any] = {}
         try:
             conn = connect_sqlite_ro(get_discovery_db_path())
             conn.row_factory = sqlite3.Row
-            total = conn.execute("SELECT COUNT(*) AS n FROM production_observations").fetchone()["n"]
+            total = conn.execute(
+                "SELECT COUNT(*) AS n FROM production_observations"
+            ).fetchone()["n"]
             unknown_rows = conn.execute(
                 "SELECT COUNT(*) AS n FROM production_observations "
-                "WHERE unknown_fields_json NOT IN ('[]', 'null', '')").fetchone()["n"]
+                "WHERE unknown_fields_json IS NOT NULL "
+                "AND length(trim(unknown_fields_json)) > 0 "
+                "AND lower(trim(unknown_fields_json)) NOT IN "
+                "('[]', 'null', '{}', '\"\"')"
+            ).fetchone()["n"]
             distinct_tokens = conn.execute(
-                "SELECT COUNT(DISTINCT token_address) AS n FROM production_observations").fetchone()["n"]
+                "SELECT COUNT(DISTINCT token_address) AS n "
+                "FROM production_observations"
+            ).fetchone()["n"]
             conn.close()
             completeness = {
                 "production_observations": total,
@@ -380,16 +539,21 @@ class HealthSnapshotEngine:
             completeness = {"error": "NO_DATA"}
 
         # 3. Calibration state: ledger census + newest calibration artifact.
+        # score_drift is sourced from the same artifact (never a phantom key).
         calibration: dict[str, Any] = {}
+        score_drift: dict[str, Any] = {"error": "NO_DATA", "verdict": None}
         try:
             conn = connect_sqlite_ro(get_local_db_path())
             conn.row_factory = sqlite3.Row
             by_source = conn.execute(
                 "SELECT source, COUNT(*) AS n FROM opportunity_score_ledger "
-                "GROUP BY source ORDER BY source").fetchall()
+                "GROUP BY source ORDER BY source"
+            ).fetchall()
             total_preds = sum(r["n"] for r in by_source)
             conn.close()
-            calibration["predictions_by_source"] = {r["source"]: r["n"] for r in by_source}
+            calibration["predictions_by_source"] = {
+                r["source"]: r["n"] for r in by_source
+            }
             calibration["total_predictions"] = total_preds
         except Exception:
             calibration["predictions_by_source"] = "NO_DATA"
@@ -397,8 +561,11 @@ class HealthSnapshotEngine:
 
         newest: dict[str, Any] | None = None
         try:
-            cands = sorted((self.root / "reports").glob("calibration_20*.json"),
-                           key=lambda p: p.stat().st_mtime, reverse=True)
+            cands = sorted(
+                (self.root / "reports").glob("calibration_20*.json"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
             if cands:
                 data = json.loads(cands[0].read_text(encoding="utf-8"))
                 newest = {
@@ -407,12 +574,23 @@ class HealthSnapshotEngine:
                     "joined_pairs": data.get("number_of_eligible_pairs"),
                     "schema": data.get("schema"),
                 }
+                raw_drift = data.get("score_drift")
+                if isinstance(raw_drift, dict) and raw_drift:
+                    score_drift = dict(raw_drift)
+                    score_drift.setdefault("artifact", cands[0].name)
+                else:
+                    score_drift = {
+                        "verdict": "INSUFFICIENT_DATA",
+                        "reason": "calibration artifact lacks score_drift block",
+                        "artifact": cands[0].name,
+                    }
         except Exception:
             newest = None
         calibration["latest_artifact"] = newest
 
-        # 4. Test / regression health from the committed gate artifacts.
+        # 4. Test / regression health — committed artifacts may be STALE vs HEAD.
         test_health: dict[str, Any] = {}
+        head_sha = _git_head_sha(self.root)
         for name, key, fields in (
             ("pytest_run.json", "pytest", ("passed", "failed", "skipped", "errors")),
             ("validate_imports_run.json", "validate", ("exit_code",)),
@@ -423,10 +601,18 @@ class HealthSnapshotEngine:
                 continue
             try:
                 data = json.loads(p.read_text(encoding="utf-8"))
-                entry = {"present": True,
-                         "timestamp_utc": data.get("timestamp_utc"),
-                         "commit_sha": (data.get("git") or {}).get("commit_sha"),
-                         "exit_code": data.get("exit_code")}
+                artifact_sha = (data.get("git") or {}).get("commit_sha")
+                stale = bool(
+                    head_sha and artifact_sha and artifact_sha != head_sha
+                )
+                entry: dict[str, Any] = {
+                    "present": True,
+                    "timestamp_utc": data.get("timestamp_utc"),
+                    "commit_sha": artifact_sha,
+                    "head_sha": head_sha,
+                    "stale_vs_head": stale,
+                    "exit_code": data.get("exit_code"),
+                }
                 summary = data.get("summary") or {}
                 for f in fields:
                     if f in summary:
@@ -465,29 +651,37 @@ class HealthSnapshotEngine:
         except Exception:
             benchmark_health = {"error": "NO_DATA"}
 
-        # 7. Config health: the env-key documentation invariant is enforced
-        #    by the validate gate; here we surface the committed artifact.
+        # 7. Config health: validate-gate artifact + offline-mode observation.
         config_health: dict[str, Any] = {}
         vp = self.root / "reports" / "validate_imports_run.json"
         if vp.exists():
             try:
                 data = json.loads(vp.read_text(encoding="utf-8"))
+                artifact_sha = (data.get("git") or {}).get("commit_sha")
+                head_sha = _git_head_sha(self.root)
+                stale = bool(head_sha and artifact_sha and artifact_sha != head_sha)
+                if data.get("exit_code") != 0:
+                    cfg_status = "DEGRADED"
+                elif stale:
+                    cfg_status = "UNKNOWN"
+                else:
+                    cfg_status = "HEALTHY"
                 config_health = {
-                    "status": ("HEALTHY" if data.get("exit_code") == 0
-                               else "DEGRADED"),
-                    "evidence": [f"validate_imports exit {data.get('exit_code')} "
-                                 f"@ {str((data.get('git') or {}).get('commit_sha'))[:8]}"],
+                    "status": cfg_status,
+                    "stale_vs_head": stale,
+                    "evidence": [
+                        f"validate_imports exit {data.get('exit_code')} "
+                        f"@ {str(artifact_sha)[:8]} "
+                        f"(head {str(head_sha)[:8] if head_sha else 'UNKNOWN'}; "
+                        f"{'STALE' if stale else 'current'})"
+                    ],
                 }
             except Exception:
                 config_health = {"status": "UNKNOWN", "evidence": ["unparseable"]}
         else:
             config_health = {"status": "UNKNOWN", "evidence": ["no artifact"]}
 
-        # offline-mode configuration (W37 phase 15): the OfflineModeConfig
-        # helper existed unreferenced; rather than silently deleting it or
-        # changing runtime behavior, surface it as OBSERVED configuration
-        # state. This keeps the module wired (consumable, tested) while the
-        # behavioral wiring itself remains a governed decision.
+        # offline-mode configuration (W37 phase 15): surface as OBSERVED state.
         try:
             from config.offline_mode import get_offline_config
             off = get_offline_config()
@@ -504,12 +698,15 @@ class HealthSnapshotEngine:
             "provider_failure_rates": provider_failures,
             "data_completeness": completeness,
             "calibration_state": calibration,
+            "score_drift": score_drift,
             "test_health": test_health,
             "storage_growth": storage,
             "benchmark_health": benchmark_health,
             "config_health": config_health,
-            "informational_note": ("self-observation is informational and does "
-                                   "not drive the overall verdict"),
+            "informational_note": (
+                "self-observation is informational and does "
+                "not drive the overall verdict"
+            ),
         }
 
     def _build_scorecard(self, snap: "CanonicalHealthSnapshot") -> dict[str, Any]:
@@ -629,13 +826,23 @@ class HealthSnapshotEngine:
                             "until real local evidence accrues; never inflated"),
         }
 
-        # DRIFT_HEALTH: from the score-drift diagnostic.
-        d_status = ("DEGRADED" if drift.get("verdict") == "DRIFT_DETECTED"
-                    else "HEALTHY" if drift.get("verdict") == "NO_DRIFT_DETECTED"
-                    else "UNKNOWN")
+        # DRIFT_HEALTH: from calibration score_drift (populated explicitly).
+        # INSUFFICIENT_DATA / NO_DATA => UNKNOWN (never fake HEALTHY).
+        drift_verdict = drift.get("verdict") if isinstance(drift, dict) else None
+        if drift_verdict == "DRIFT_DETECTED":
+            d_status = "DEGRADED"
+        elif drift_verdict == "NO_DRIFT_DETECTED":
+            d_status = "HEALTHY"
+        else:
+            d_status = "UNKNOWN"
         dims["DRIFT_HEALTH"] = {
             "status": d_status,
-            "evidence": [f"drift verdict {drift.get('verdict')}"] if drift else [],
+            "evidence": (
+                [f"drift verdict {drift_verdict}"]
+                + ([drift.get("reason")] if drift.get("reason") else [])
+                if isinstance(drift, dict) and drift_verdict
+                else ["score_drift not available"]
+            ),
             "explanation": "drift is a cohort diagnostic, not a live claim",
         }
 
@@ -671,32 +878,53 @@ class HealthSnapshotEngine:
             "explanation": "storage health = stores are readable and bounded",
         }
 
-        # TEST_HEALTH: committed gate artifacts.
+        # TEST_HEALTH: committed gate artifacts; STALE vs HEAD is not HEALTHY.
         t_evidence: list[str] = []
         t_status = "HEALTHY"
         for key in ("pytest", "validate"):
             entry = test.get(key)
             if not entry or not entry.get("present"):
-                t_status = "DEGRADED"
+                t_status = "UNKNOWN"
                 t_evidence.append(f"{key}: no committed artifact")
+                continue
+            if entry.get("error"):
+                t_status = "UNKNOWN"
+                t_evidence.append(f"{key}: {entry.get('error')}")
                 continue
             if entry.get("exit_code") not in (0, None):
                 t_status = "DEGRADED"
-            t_evidence.append(f"{key}: exit {entry.get('exit_code')} "
-                              f"@ {str(entry.get('commit_sha'))[:8]}")
+            elif entry.get("stale_vs_head"):
+                # Stale green artifacts must not claim current-code HEALTHY.
+                if t_status == "HEALTHY":
+                    t_status = "UNKNOWN"
+            t_evidence.append(
+                f"{key}: exit {entry.get('exit_code')} "
+                f"@ {str(entry.get('commit_sha'))[:8]} "
+                f"{'(STALE vs HEAD)' if entry.get('stale_vs_head') else '(current)'}"
+            )
         dims["TEST_HEALTH"] = {
             "status": t_status,
             "evidence": t_evidence,
-            "explanation": "test health = committed gate artifacts are green",
+            "explanation": (
+                "test health = gate artifacts for CURRENT HEAD; "
+                "stale committed artifacts are UNKNOWN, not HEALTHY"
+            ),
         }
 
         # ARCHITECTURE_HEALTH: Lane-A integrity + security invariants.
-        lane = snap.lane_a_ok if hasattr(snap, "lane_a_ok") else None
+        lane = snap.lane_a_ok
         arch_status = "HEALTHY"
         arch_evidence: list[str] = []
         if lane is False:
             arch_status = "FAIL"
-            arch_evidence.append("Lane-A integrity FAILED")
+            arch_evidence.append(
+                f"Lane-A integrity FAILED ({snap.lane_a_detail or 'drift'})"
+            )
+        elif lane is None:
+            arch_status = "UNKNOWN"
+            arch_evidence.append(
+                f"Lane-A integrity UNKNOWN ({snap.lane_a_detail or 'unverifiable'})"
+            )
         else:
             arch_evidence.append("Lane-A integrity intact")
         sec = snap.security_invariants
