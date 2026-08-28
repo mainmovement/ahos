@@ -4,7 +4,7 @@
 # Operator prep ONLY. This script does NOT claim OPERATOR_READY and does NOT
 # start PRE_SOAK / soak. After install, run the Windows operator gate yourself:
 #   docs\WINDOWS_OPERATOR_HANDOFF.md
-#   python scripts\operator_validation_gate.py --platform windows ...
+#   powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
 #
 # Encoding / quoting contract (Windows PowerShell 5.1 + PowerShell 7):
 #   - ASCII-only punctuation in this file (no em-dash, no >= glyph)
@@ -183,6 +183,22 @@ if ($SeedEvidence) {
 }
 
 # ------------------------------------------------------------------------------
+# 8b) Lane-B web API token (idempotent; required after PR #31; no migrate)
+# ------------------------------------------------------------------------------
+$ensureToken = Join-Path $ScriptDir "scripts\windows_ensure_web_api_token.ps1"
+if (Test-Path -LiteralPath (Join-Path $ScriptDir "web_api_auth.ts")) {
+    if (Test-Path -LiteralPath $ensureToken) {
+        Write-Step "Ensuring Lane-B web API token in .env (fail-closed /api gate)"
+        & powershell -ExecutionPolicy Bypass -File $ensureToken
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host ("  WARNING: token ensure exited " + $LASTEXITCODE) -ForegroundColor Yellow
+        }
+    }
+} else {
+    Write-Host "  web_api_auth.ts absent - skip web API token ensure." -ForegroundColor DarkGray
+}
+
+# ------------------------------------------------------------------------------
 # 9) Explicit next step: Windows operator gate (NOT auto-run)
 # ------------------------------------------------------------------------------
 Write-Host ""
@@ -191,18 +207,20 @@ Write-Host "  Install prep finished. OPERATOR_READY remains NOT_VERIFIED." -Fore
 Write-Host "==========================================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "NEXT (required - not started by this installer):" -ForegroundColor Cyan
-Write-Host "  1. Edit .env: API keys, Telegram, and a real DATABASE_URL (Postgres for G2)." -ForegroundColor White
-Write-Host "  2. Start Postgres and ensure the gateway can reach DATABASE_URL." -ForegroundColor White
-Write-Host "  3. Follow docs\WINDOWS_OPERATOR_HANDOFF.md" -ForegroundColor White
-Write-Host "  4. Run the Windows operator gate, for example:" -ForegroundColor White
+Write-Host "  1. Edit .env: Telegram + real DATABASE_URL (Postgres for G2)." -ForegroundColor White
+Write-Host "  2. Start Postgres; keep STATE B - do NOT db:migrate / db:push." -ForegroundColor White
+Write-Host "  3. Terminal A: npm run dev   (binds 127.0.0.1)" -ForegroundColor White
+Write-Host "  4. Terminal B: run the Windows operator gate:" -ForegroundColor White
 Write-Host ""
-Write-Host "     .\.venv\Scripts\python.exe scripts\operator_validation_gate.py ``" -ForegroundColor Yellow
-Write-Host "       --platform windows ``" -ForegroundColor Yellow
-Write-Host "       --repo-root . ``" -ForegroundColor Yellow
-Write-Host "       --out reports\operator_validation_windows.json ``" -ForegroundColor Yellow
-Write-Host "       --require-owner-action" -ForegroundColor Yellow
+Write-Host "     powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "  Do NOT claim OPERATOR_READY until that gate reports it on Windows." -ForegroundColor Yellow
+Write-Host "  Or equivalently:" -ForegroundColor White
+Write-Host "     .\.venv\Scripts\Activate.ps1" -ForegroundColor Yellow
+Write-Host '     $env:AHOS_PAPER_ONLY = ''1''' -ForegroundColor Yellow
+Write-Host '     $env:AHOS_EVIDENCE_SOURCE = ''local''' -ForegroundColor Yellow
+Write-Host "     python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "  Do NOT call OPERATOR_READY until that gate reports it on Windows." -ForegroundColor Yellow
 Write-Host "  Do NOT start PRE_SOAK until summary.pre_soak_entry_ok == true." -ForegroundColor Yellow
 Write-Host "  PAPER_ONLY remains mandatory. No live trading." -ForegroundColor Yellow
 Write-Host ""
