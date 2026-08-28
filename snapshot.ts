@@ -18,9 +18,45 @@ import { desc, eq } from "drizzle-orm";
 import { TEAM_META } from "./council";
 import { ensureState } from "./engine";
 
+function deepestErrorMessage(error: unknown): string {
+  let cur: unknown = error;
+  let last = error instanceof Error ? error.message : String(error);
+  // Walk Error.cause and drizzle's nested [cause] without leaking secrets.
+  for (let i = 0; i < 6; i++) {
+    if (!cur || typeof cur !== "object") break;
+    const c = cur as { cause?: unknown; message?: unknown };
+    if (c.cause) {
+      cur = c.cause;
+      if (cur instanceof Error && cur.message) last = cur.message;
+      else if (typeof cur === "object" && cur && "message" in cur) {
+        last = String((cur as { message: unknown }).message);
+      }
+      continue;
+    }
+    break;
+  }
+  return last;
+}
+
 export async function commandSnapshot() {
-  await ensureState();
+  try {
+    await ensureState();
+  } catch (error) {
+    const root = deepestErrorMessage(error);
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `commandSnapshot.ensureState failed: ${root}` +
+        (root !== msg ? ` (drizzle: ${msg.slice(0, 120)})` : ""),
+      { cause: error },
+    );
+  }
   const [state] = await db.select().from(systemState).limit(1);
+  if (!state) {
+    throw new Error(
+      "commandSnapshot: ahos_system_state empty after ensureState — " +
+        "DATABASE_URL may point at the wrong database (STATE B: no migrate).",
+    );
+  }
   const [cycle] = await db.select().from(cycles).orderBy(desc(cycles.id)).limit(1);
   const [market] = await db.select().from(marketSnapshots).orderBy(desc(marketSnapshots.id)).limit(1);
   const opps = await db.select().from(opportunities).orderBy(desc(opportunities.id)).limit(30);

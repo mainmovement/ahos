@@ -19,13 +19,14 @@ if errorlevel 1 (
 )
 
 echo ==^> git fetch origin main + unlock branches
-git fetch origin main cursor/windows-g2-evidence-autopush-4bde cursor/windows-evidence-push-lease-4bde cursor/windows-g2-empty-gateway-default-4bde cursor/windows-reconcile-ops-artifacts-4bde
+git fetch origin main cursor/windows-chat-500-rootcause-4bde cursor/windows-g2-evidence-autopush-4bde cursor/windows-evidence-push-lease-4bde cursor/windows-g2-empty-gateway-default-4bde cursor/windows-reconcile-ops-artifacts-4bde
 if errorlevel 1 (
   echo WARNING: fetch failed - check network / remotes
 )
 
 set "UNLOCK_REF="
 for %%R in (
+  origin/cursor/windows-chat-500-rootcause-4bde
   origin/cursor/windows-g2-evidence-autopush-4bde
   origin/cursor/windows-evidence-push-lease-4bde
   origin/cursor/windows-g2-empty-gateway-default-4bde
@@ -48,7 +49,7 @@ if not defined UNLOCK_REF (
 )
 
 echo ==^> checkout unlock ops files from !UNLOCK_REF! ^(not a merge^)
-git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt .env.example .gitignore "scripts/windows_*.ps1" scripts/windows_g2_probe.py scripts/operator_validation_gate.py tests/validate_n8n.py deployment/docker-compose.windows.yml
+git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt .env.example .gitignore "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/windows_g2_probe.py scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml
 if errorlevel 1 (
   echo ERROR: git checkout unlock files failed
   pause

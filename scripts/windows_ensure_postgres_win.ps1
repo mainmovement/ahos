@@ -167,4 +167,15 @@ if (Test-Path -LiteralPath $envPath) {
 
 Write-Step "OK -- $ContainerName listening (pg_isready). Docker healthy label may lag; G2 uses TCP/SQL."
 Write-Step "STATE B: do NOT db:migrate / db:push. ahos_runtime_win unhealthy is OK for host Next G2."
+
+# Sync DATABASE_URL to POSTGRES_* so host Next /api/chat can authenticate (common 500 cause).
+$ensureDbUrl = Join-Path $RepoRoot "scripts\windows_ensure_database_url.ps1"
+if (Test-Path -LiteralPath $ensureDbUrl) {
+  Write-Step "ensure DATABASE_URL matches POSTGRES_* (no migrate)"
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $ensureDbUrl -RepoRoot $RepoRoot
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "[ensure-pg] WARN: DATABASE_URL probe failed -- /api/chat may still HTTP 500 until fixed" -ForegroundColor Yellow
+  }
+}
+
 exit 0

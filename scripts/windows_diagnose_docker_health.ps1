@@ -139,6 +139,29 @@ if ([string]::IsNullOrWhiteSpace($dbUrl)) {
   }
 }
 
+# Credential/query probe — string presence alone does not prove /api/chat can snapshot.
+$pgProbe = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
+if (Test-Path -LiteralPath $pgProbe) {
+  $probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
+  New-Item -ItemType Directory -Force -Path (Split-Path $probeOut) | Out-Null
+  $probeJson = & node $pgProbe --json-out $probeOut 2>&1 | Out-String
+  $probeOk = ($LASTEXITCODE -eq 0)
+  $probeClass = ""
+  try {
+    $pj = $probeJson | ConvertFrom-Json
+    $probeClass = [string]$pj.error_class
+  } catch {}
+  if ($probeOk) {
+    Write-Check "database_url_query" "PASS" "ahos_system_state readable via DATABASE_URL"
+  } else {
+    Write-Check "database_url_query" "FAIL" ("One-Brain snapshot blocked: " + $(if ($probeClass) { $probeClass } else { "see reports\pg_probe_latest.json" }))
+    $fails++
+    Write-Host "         remediation: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_ensure_database_url.ps1" -ForegroundColor Yellow
+    Write-Host "         then: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_restart_next_dev.ps1" -ForegroundColor Yellow
+    Write-Host "         forensics: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_chat_500_forensics.ps1" -ForegroundColor Yellow
+  }
+}
+
 # --- runtime (NOT required for host Next G2 PAPER_ONLY) ---
 $rt = (& docker ps -a --filter ("name=^/" + $RuntimeContainer + "$") --format "{{.Status}}" 2>$null | Select-Object -First 1)
 if ([string]::IsNullOrWhiteSpace($rt)) {

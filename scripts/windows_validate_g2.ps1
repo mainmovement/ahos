@@ -81,6 +81,20 @@ if (Test-Path -LiteralPath $ensureTok) {
   & powershell -NoProfile -ExecutionPolicy Bypass -File $ensureTok
 }
 
+$ensureDbUrl = Join-Path $RepoRoot "scripts\windows_ensure_database_url.ps1"
+if (Test-Path -LiteralPath $ensureDbUrl) {
+  Write-Host "==> ensure DATABASE_URL matches POSTGRES_* (chat 500 root cause class)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $ensureDbUrl -RepoRoot $RepoRoot
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "FAIL: DATABASE_URL cannot query ahos_* — /api/chat will HTTP 500. No migrate." -ForegroundColor Red
+    $forensics = Join-Path $RepoRoot "scripts\windows_chat_500_forensics.ps1"
+    if (Test-Path -LiteralPath $forensics) {
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $forensics -RepoRoot $RepoRoot
+    }
+    exit 2
+  }
+}
+
 $restart = Join-Path $RepoRoot "scripts\windows_restart_next_dev.ps1"
 if (Test-Path -LiteralPath $restart) {
   Write-Host "==> restart Next.js so .env is loaded" -ForegroundColor Cyan
