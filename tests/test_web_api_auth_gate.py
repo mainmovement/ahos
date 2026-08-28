@@ -148,7 +148,7 @@ def test_windows_publish_owner_paste_helper_exists():
 
 def test_windows_push_gate_evidence_helper_exists():
     path = ROOT / "scripts" / "windows_push_gate_evidence.ps1"
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     assert "windows-gate-evidence-4bde" in text
     assert "windows_gate_evidence" in text
     assert "force-with-lease" in text
@@ -157,6 +157,9 @@ def test_windows_push_gate_evidence_helper_exists():
     assert "checkout -B" not in text  # must not leave owner branch
     assert "OPERATOR_READY" in text
     assert "db:migrate" in text.lower() or "no migrate" in text.lower()
+    # Lease against fetched origin tip so laptop pushes do not silently no-op
+    assert "origin/" in text and "fetch origin" in text
+    assert "NOTIFY_UNLOCK" in text or "gh pr comment" in text
     runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
     assert "windows_push_gate_evidence.ps1" in runner
 
@@ -204,11 +207,58 @@ def test_windows_wait_for_web_api_script_exists():
 
 def test_windows_ensure_postgres_win_script_exists():
     path = ROOT / "scripts" / "windows_ensure_postgres_win.ps1"
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     assert "ahos_postgres_win" in text
     assert "docker compose" in text
     assert "pg_isready" in text
+    assert "docker restart" in text  # one recovery for unhealthy/stuck without wipe
     assert "db:migrate" in text.lower() or "Never db:migrate" in text
+
+
+def test_windows_diagnose_docker_health_script_exists():
+    path = ROOT / "scripts" / "windows_diagnose_docker_health.ps1"
+    raw = path.read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")
+    text = raw.decode("utf-8-sig")
+    assert "ahos_postgres_win" in text
+    assert "pg_isready" in text
+    assert "ahos_runtime_win" in text
+    assert "NOT a G2 blocker" in text or "not a G2 blocker" in text.lower()
+    assert "tcp_5432" in text or "5432" in text
+    assert "DATABASE_URL" in text
+    assert "db:migrate" in text.lower()
+
+
+def test_windows_g2_validate_helpers_exist():
+    bat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8", errors="replace")
+    assert "windows_validate_g2.ps1" in bat
+    assert "windows_g2_probe.py" in bat  # must checkout .py (glob is windows_*.ps1 only)
+    assert "db:migrate" in bat.lower()
+    assert "READY" in bat
+    ps1 = (ROOT / "scripts" / "windows_validate_g2.ps1").read_bytes()
+    assert ps1.startswith(b"\xef\xbb\xbf")
+    body = ps1[3:].decode("utf-8")
+    assert "windows_g2_probe.py" in body
+    assert "windows_diagnose_docker_health.ps1" in body
+    assert "db:migrate" in body.lower()
+    assert "ahos-runtime" not in body.lower() or "no-healthcheck" in body
+    assert "--no-healthcheck" in body or "no-healthcheck" in body
+    probe = (ROOT / "scripts" / "windows_g2_probe.py").read_text(encoding="utf-8")
+    assert "g2_gateway" in probe
+    assert "ahos.g2_validate.v1" in probe
+    assert "PRE_SOAK" in probe
+
+
+def test_windows_compose_postgres_healthcheck_uses_container_env():
+    compose = (ROOT / "deployment" / "docker-compose.windows.yml").read_text(encoding="utf-8")
+    assert "$$POSTGRES_USER" in compose or '"$$POSTGRES_USER"' in compose
+    assert "start_period" in compose
+    assert "postgresql_schema.sql" in compose
+    assert "db:migrate" not in compose
+    # PAPER_ONLY: disable noisy Dockerfile HEALTHCHECK on ahos-runtime
+    assert "healthcheck:" in compose
+    assert "disable: true" in compose
+    assert "service_started" in compose
 
 
 def test_windows_seed_local_evidence_script_exists():
@@ -228,8 +278,9 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
     assert "BEGIN WINDOWS GATE PASTE" in text
     assert "windows_post_gate_paste_gh.ps1" in text
-    helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8")
+    helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "gh pr comment" in helper
+    assert '"45"' in helper  # unlock PR sink for subscribed agents
     assert '"37"' in helper or "37" in helper
     assert '"36"' in helper or "36" in helper
     assert "db:migrate" in helper.lower() or "READY" in helper

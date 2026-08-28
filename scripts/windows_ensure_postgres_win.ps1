@@ -96,10 +96,15 @@ if ([string]::IsNullOrWhiteSpace($pgPass)) {
   Fail "POSTGRES_PASSWORD unset in .env (required by deployment/docker-compose.windows.yml). Set it, then re-run. Do NOT migrate."
 }
 
-# Prefer existing healthy container (no recreate / no volume wipe)
+# Prefer existing container (no recreate / no volume wipe). Unhealthy != dead:
+# G2 needs pg_isready, not the Docker health label.
 $running = (& docker ps --format "{{.Names}}" 2>$null)
 if ($running -match [regex]::Escape($ContainerName)) {
-  Write-Step "$ContainerName already running -- checking pg_isready"
+  $statusLine = (& docker ps --filter ("name=^/" + $ContainerName + "$") --format "{{.Status}}" 2>$null | Select-Object -First 1)
+  Write-Step ("$ContainerName already running -- " + $statusLine)
+  if ($statusLine -match "unhealthy") {
+    Write-Host "[ensure-pg] Docker health=unhealthy -- will still require pg_isready (no migrate / no wipe)" -ForegroundColor Yellow
+  }
 } else {
   Write-Step "docker compose -f $ComposeFile up -d $ServiceName (container $ContainerName)"
   if (Test-Path -LiteralPath $envPath) {
@@ -112,12 +117,16 @@ if ($running -match [regex]::Escape($ContainerName)) {
   }
 }
 
+function Test-PgReady {
+  & docker exec $ContainerName pg_isready -U $pgUser -d $pgDb 2>$null | Out-Null
+  return ($LASTEXITCODE -eq 0)
+}
+
 Write-Step "Waiting for pg_isready -U $pgUser -d $pgDb (timeout ${ReadyTimeoutSec}s)..."
 $deadline = (Get-Date).AddSeconds($ReadyTimeoutSec)
 $ready = $false
 while ((Get-Date) -lt $deadline) {
-  & docker exec $ContainerName pg_isready -U $pgUser -d $pgDb 2>$null | Out-Null
-  if ($LASTEXITCODE -eq 0) {
+  if (Test-PgReady) {
     $ready = $true
     break
   }
@@ -125,8 +134,37 @@ while ((Get-Date) -lt $deadline) {
 }
 
 if (-not $ready) {
-  Fail "Postgres ($ContainerName) did not become ready within ${ReadyTimeoutSec}s"
+  Write-Host "[ensure-pg] pg_isready still failing -- one docker restart (no volume wipe, no migrate)" -ForegroundColor Yellow
+  & docker restart $ContainerName 2>&1 | Out-Host
+  if ($LASTEXITCODE -ne 0) {
+    Fail "docker restart $ContainerName failed (exit $LASTEXITCODE)"
+  }
+  $deadline2 = (Get-Date).AddSeconds($ReadyTimeoutSec)
+  while ((Get-Date) -lt $deadline2) {
+    if (Test-PgReady) {
+      $ready = $true
+      break
+    }
+    Start-Sleep -Seconds 2
+  }
 }
 
-Write-Step "OK -- $ContainerName listening. STATE B: do NOT db:migrate / db:push."
+if (-not $ready) {
+  try {
+    $healthJson = & docker inspect --format "{{json .State.Health}}" $ContainerName 2>$null
+    Write-Host ("[ensure-pg] health inspect: " + $healthJson) -ForegroundColor DarkYellow
+  } catch {}
+  Fail "Postgres ($ContainerName) did not become ready within ${ReadyTimeoutSec}s (+restart). Do NOT db:migrate / db:push."
+}
+
+# Re-apply compose healthcheck definition if file changed (no recreate of volume)
+Write-Step "Refreshing postgres service definition (compose up -d, keep volume)"
+if (Test-Path -LiteralPath $envPath) {
+  & docker compose --env-file $envPath -f $ComposeFile up -d $ServiceName 2>&1 | Out-Host
+} else {
+  & docker compose -f $ComposeFile up -d $ServiceName 2>&1 | Out-Host
+}
+
+Write-Step "OK -- $ContainerName listening (pg_isready). Docker healthy label may lag; G2 uses TCP/SQL."
+Write-Step "STATE B: do NOT db:migrate / db:push. ahos_runtime_win unhealthy is OK for host Next G2."
 exit 0

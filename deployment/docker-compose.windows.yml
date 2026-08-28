@@ -17,10 +17,13 @@ services:
     networks:
       - ahos_win_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ahos_user} -d ${POSTGRES_DB:-ahos}"]
+      # Use container env ($$) so health matches the running role/db, not a stale
+      # host-side compose substitution. start_period avoids early unhealthy.
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 40s
 
   n8n:
     image: docker.n8n.io/n8nio/n8n:latest
@@ -68,9 +71,14 @@ services:
       - "127.0.0.1:8000:8000"
     networks:
       - ahos_win_net
+    # PAPER_ONLY G2 uses host Next :3000, not this container. Dockerfile HEALTHCHECK
+    # (full ApplicationLifecycleManager) marks unhealthy without production wiring and
+    # confuses operators -- disable for Windows compose. No migrate.
+    healthcheck:
+      disable: true
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
 
 networks:
   ahos_win_net:

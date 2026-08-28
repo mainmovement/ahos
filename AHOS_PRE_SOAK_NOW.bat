@@ -31,31 +31,49 @@ if errorlevel 1 (
 
 echo ==^> git fetch / pull origin main
 git fetch origin
+git fetch origin cursor/windows-evidence-push-lease-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
 git pull origin main
 if errorlevel 1 (
   echo WARNING: git pull origin main failed - continuing with local tree
 )
 
-REM Apply open #45 unlock tip if not yet merged into main
-git rev-parse --verify origin/cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
+REM Prefer newest unlock tip not yet on main (evidence-lease, then #45)
+set "UNLOCK_REF="
+git rev-parse --verify origin/cursor/windows-evidence-push-lease-4bde >nul 2>&1
 if not errorlevel 1 (
-  git merge-base --is-ancestor origin/cursor/windows-g2-empty-gateway-default-4bde origin/main >nul 2>&1
-  if errorlevel 1 (
-    echo ==^> applying PR #45 ops files onto working tree ^(not a merge^)
-    git checkout origin/cursor/windows-g2-empty-gateway-default-4bde -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/operator_validation_gate.py tests/validate_n8n.py .env.example 2>nul
-    if errorlevel 1 (
-      echo WARNING: bulk checkout failed - trying core files individually
-      git checkout origin/cursor/windows-g2-empty-gateway-default-4bde -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat scripts/operator_validation_gate.py scripts/windows_wait_for_web_api.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_ensure_postgres_win.ps1 tests/validate_n8n.py
-    )
-  ) else (
-    echo ==^> PR #45 already on origin/main -- using main tip
+  git merge-base --is-ancestor origin/cursor/windows-evidence-push-lease-4bde origin/main >nul 2>&1
+  if errorlevel 1 set "UNLOCK_REF=origin/cursor/windows-evidence-push-lease-4bde"
+)
+if not defined UNLOCK_REF (
+  git rev-parse --verify origin/cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
+  if not errorlevel 1 (
+    git merge-base --is-ancestor origin/cursor/windows-g2-empty-gateway-default-4bde origin/main >nul 2>&1
+    if errorlevel 1 set "UNLOCK_REF=origin/cursor/windows-g2-empty-gateway-default-4bde"
   )
+)
+if defined UNLOCK_REF (
+  echo ==^> applying unlock tip !UNLOCK_REF! onto working tree ^(not a merge^)
+  git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat WINDOWS_RUN_THIS_FIRST.txt "scripts/windows_*.ps1" scripts/operator_validation_gate.py scripts/windows_g2_probe.py tests/validate_n8n.py deployment/docker-compose.windows.yml .env.example 2>nul
+  if errorlevel 1 (
+    echo WARNING: bulk checkout failed - trying core files individually
+    git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat scripts/operator_validation_gate.py scripts/windows_validate_g2.ps1 scripts/windows_g2_probe.py scripts/windows_wait_for_web_api.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_diagnose_docker_health.ps1 tests/validate_n8n.py deployment/docker-compose.windows.yml
+  )
+) else (
+  echo ==^> unlock tips already on origin/main -- using main tip
 )
 
 if exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ==^> ensure token + AHOS_GATEWAY_URL
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_web_api_token.ps1"
+)
+
+if exist "scripts\windows_diagnose_docker_health.ps1" (
+  echo ==^> docker health diagnose ^(G2 focus; runtime unhealthy OK^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_diagnose_docker_health.ps1"
+  if errorlevel 1 (
+    echo WARNING: postgres pg_isready FAIL - ensure-pg will attempt one restart ^(no migrate^)
+  )
 )
 
 if exist "scripts\windows_pre_soak_readiness.ps1" (
