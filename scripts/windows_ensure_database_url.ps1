@@ -105,21 +105,30 @@ if ($current -ne $expected) {
   Write-Host ("OK DATABASE_URL already matches POSTGRES_* -> " + $redacted) -ForegroundColor Green
 }
 
-$probe = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
 $probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
-if (Test-Path -LiteralPath $probe) {
-  Write-Host "==> node scripts/ahos_pg_probe.mjs (same queries One-Brain needs)" -ForegroundColor Cyan
-  & node $probe --json-out $probeOut
+$psProbe = Join-Path $RepoRoot "scripts\windows_pg_probe.ps1"
+$mjs = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
+if (Test-Path -LiteralPath $psProbe) {
+  Write-Host "==> windows_pg_probe.ps1 (One-Brain snapshot queries; unlock-safe)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $psProbe -RepoRoot $RepoRoot -JsonOut $probeOut
   $code = $LASTEXITCODE
   if ($code -ne 0) {
-    Write-Host "FAIL: host DATABASE_URL cannot run snapshot queries (see reports\pg_probe_latest.json)" -ForegroundColor Red
-    Write-Host "Remediation: confirm ahos_postgres_win up; POSTGRES_PASSWORD matches container; restart npm run dev" -ForegroundColor Yellow
+    Write-Host "FAIL: Postgres snapshot probe failed (see reports\pg_probe_latest.json)" -ForegroundColor Red
+    Write-Host "Remediation: confirm ahos_postgres_win up; POSTGRES_PASSWORD matches DATABASE_URL; restart npm run dev" -ForegroundColor Yellow
     Write-Host "STATE B: do NOT db:migrate / db:push" -ForegroundColor Yellow
+    exit 2
+  }
+  Write-Host "OK pg probe -- ahos_* readable" -ForegroundColor Green
+} elseif (Test-Path -LiteralPath $mjs) {
+  Write-Host "==> node scripts/ahos_pg_probe.mjs" -ForegroundColor Cyan
+  & node $mjs --json-out $probeOut
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "FAIL: host DATABASE_URL cannot run snapshot queries" -ForegroundColor Red
     exit 2
   }
   Write-Host "OK pg probe -- ahos_* readable via DATABASE_URL" -ForegroundColor Green
 } else {
-  Write-Host "WARN: ahos_pg_probe.mjs missing -- skipped live SQL probe" -ForegroundColor DarkYellow
+  Write-Host "WARN: no pg probe script -- DATABASE_URL written but not verified" -ForegroundColor DarkYellow
 }
 
 Write-Host "Next must be restarted to load DATABASE_URL: scripts\windows_restart_next_dev.ps1" -ForegroundColor Cyan

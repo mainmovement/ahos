@@ -85,12 +85,17 @@ Write-Host "==========================================================" -Foregro
 Write-Host "  AHOS /api/chat 500 forensics (G2 only / STATE B)" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
-$probe = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
 $probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
+$psProbe = Join-Path $RepoRoot "scripts\windows_pg_probe.ps1"
+$mjs = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
 $pgJson = ""
-if (Test-Path -LiteralPath $probe) {
-  Write-Host "==> pg probe (DATABASE_URL)" -ForegroundColor Cyan
-  $pgJson = & node $probe --json-out $probeOut 2>&1 | Out-String
+if (Test-Path -LiteralPath $psProbe) {
+  Write-Host "==> windows_pg_probe.ps1" -ForegroundColor Cyan
+  $pgJson = & powershell -NoProfile -ExecutionPolicy Bypass -File $psProbe -RepoRoot $RepoRoot -JsonOut $probeOut 2>&1 | Out-String
+  Write-Host $pgJson
+} elseif (Test-Path -LiteralPath $mjs) {
+  Write-Host "==> pg probe (DATABASE_URL via node)" -ForegroundColor Cyan
+  $pgJson = & node $mjs --json-out $probeOut 2>&1 | Out-String
   Write-Host $pgJson
 }
 

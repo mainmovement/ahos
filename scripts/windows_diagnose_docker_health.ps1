@@ -140,19 +140,32 @@ if ([string]::IsNullOrWhiteSpace($dbUrl)) {
 }
 
 # Credential/query probe — string presence alone does not prove /api/chat can snapshot.
-$pgProbe = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
-if (Test-Path -LiteralPath $pgProbe) {
-  $probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
-  New-Item -ItemType Directory -Force -Path (Split-Path $probeOut) | Out-Null
-  $probeJson = & node $pgProbe --json-out $probeOut 2>&1 | Out-String
+$probeOut = Join-Path $RepoRoot "reports\pg_probe_latest.json"
+New-Item -ItemType Directory -Force -Path (Split-Path $probeOut) | Out-Null
+$psProbe = Join-Path $RepoRoot "scripts\windows_pg_probe.ps1"
+$mjsProbe = Join-Path $RepoRoot "scripts\ahos_pg_probe.mjs"
+$probeJson = ""
+$probeOk = $false
+if (Test-Path -LiteralPath $psProbe) {
+  $probeJson = & powershell -NoProfile -ExecutionPolicy Bypass -File $psProbe -RepoRoot $RepoRoot -JsonOut $probeOut 2>&1 | Out-String
   $probeOk = ($LASTEXITCODE -eq 0)
+} elseif (Test-Path -LiteralPath $mjsProbe) {
+  $probeJson = & node $mjsProbe --json-out $probeOut 2>&1 | Out-String
+  $probeOk = ($LASTEXITCODE -eq 0)
+}
+if (-not [string]::IsNullOrWhiteSpace($probeJson) -or (Test-Path -LiteralPath $probeOut)) {
   $probeClass = ""
   try {
-    $pj = $probeJson | ConvertFrom-Json
+    if (Test-Path -LiteralPath $probeOut) {
+      $pj = Get-Content -LiteralPath $probeOut -Raw | ConvertFrom-Json
+    } else {
+      $pj = $probeJson | ConvertFrom-Json
+    }
     $probeClass = [string]$pj.error_class
+    if ($pj.ok) { $probeOk = $true }
   } catch {}
   if ($probeOk) {
-    Write-Check "database_url_query" "PASS" "ahos_system_state readable via DATABASE_URL"
+    Write-Check "database_url_query" "PASS" "ahos_system_state readable (pg probe)"
   } else {
     Write-Check "database_url_query" "FAIL" ("One-Brain snapshot blocked: " + $(if ($probeClass) { $probeClass } else { "see reports\pg_probe_latest.json" }))
     $fails++

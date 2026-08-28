@@ -34,6 +34,12 @@ Write-Host "  AHOS G2 validate (health + gateway only)" -ForegroundColor Cyan
 Write-Host "  STATE B: no migrate / no READY claim" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
+$applyChat = Join-Path $RepoRoot "scripts\windows_apply_chat_500_sources.ps1"
+if (Test-Path -LiteralPath $applyChat) {
+  Write-Host "==> apply /api/chat 500 source unlock (Next route + db + snapshot)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $applyChat -RepoRoot $RepoRoot
+}
+
 $diag = Join-Path $RepoRoot "scripts\windows_diagnose_docker_health.ps1"
 if (Test-Path -LiteralPath $diag) {
   Write-Host "==> diagnose docker health" -ForegroundColor Cyan

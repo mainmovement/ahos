@@ -16,6 +16,10 @@ If /api/chat returns HTTP 500 while Docker diagnose PASSes
     powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_database_url.ps1
     powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
 
+  Or one-click G2 (applies unlock tip + DATABASE_URL sync + warm chat):
+
+    AHOS_VALIDATE_G2_NOW.bat
+
   Paste reports\OWNER_PASTE_CHAT_500_*.txt  (and Next console [api/chat] stack)
 
 --------------------------------------------------
