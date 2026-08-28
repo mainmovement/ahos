@@ -1,9 +1,10 @@
-AHOS Windows — PRE_SOAK unlock (PAPER_ONLY)
+AHOS Windows - PRE_SOAK unlock (PAPER_ONLY)
 ==========================================
 STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY
 
-PR #31–#36 are on main (auth, ops bat, postgres ensure, seed/fail-fast/paste).
+On main now: PR #31-#37 + #39 (web-api auth, ops bat, ASCII+UTF-8 BOM for PS 5.1).
+Optional: PR #40 adds PS1 parse preflight before the rest of the bat.
 
 1) On G:\robat\ahos:
    git checkout main
@@ -12,18 +13,20 @@ PR #31–#36 are on main (auth, ops bat, postgres ensure, seed/fail-fast/paste).
 2) Double-click:
    AHOS_WINDOWS_OPS.bat
 
-   Bat will: ensure ahos_postgres_win (no migrate) → reconcile/token →
-   preflight → restart Next → warm /api/chat → seed SQLite if needed → gate.
+   Bat will: (optional parse check) ensure ahos_postgres_win (no migrate) ->
+   reconcile/token -> preflight -> restart Next -> warm /api/chat ->
+   seed SQLite if needed -> gate.
    Mid-fail still writes reports\OWNER_PASTE_WINDOWS_GATE.txt
+   + Desktop\AHOS_PASTE_TO_CURSOR.txt
 
-3) Evidence back to Cursor (REQUIRED — one of):
-   - Ctrl+V (clipboard is filled) OR open Desktop\AHOS_PASTE_TO_CURSOR.txt
+3) Evidence back to Cursor (REQUIRED - one of):
+   - Ctrl+V (clipboard) OR open Desktop\AHOS_PASTE_TO_CURSOR.txt
    - Or paste reports\OWNER_PASTE_WINDOWS_GATE.txt into this Cursor chat
-   - If git push works: auto-updates branch cursor/windows-gate-evidence-4bde (agents fetch)
-   - If `gh` logged in: auto-comments on unlock PRs (#37/#36)
+   - If git push works: branch cursor/windows-gate-evidence-4bde
+   - If gh logged in: comments on unlock PRs
    - Telegram document forward into Cursor (if bot sent it)
 
-That JSON is required for G1–G10 / pre_soak_entry_ok (Windows-attested only).
-NOTE: Postgres ahos_* row counts do NOT satisfy G4/G5/G8/G9 — bat seeds local SQLite.
-G11 (Telegram E2E): after G1–G10, run scripts\windows_g11_telegram_e2e_helper.ps1,
+That JSON is required for G1-G10 / pre_soak_entry_ok (Windows-attested only).
+NOTE: Postgres ahos_* row counts do NOT satisfy G4/G5/G8/G9 - bat seeds local SQLite.
+G11 (Telegram E2E): after G1-G10, run scripts\windows_g11_telegram_e2e_helper.ps1,
 fill the transcript from live chat, re-run gate with -TelegramE2eArtifact.
