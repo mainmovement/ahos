@@ -308,7 +308,7 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     pull = (ROOT / "AHOS_PULL_OPS_UNLOCK.bat").read_text(encoding="utf-8")
     assert "windows-presoak-unblock-4bde" in pull
     paste = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
-    assert "windows-evidence-inbox-live-4bde" in paste
+    assert "windows-evidence-inbox-stay-open-4bde" in paste
 
 
 def test_windows_run_this_first_points_at_ops_bat():
