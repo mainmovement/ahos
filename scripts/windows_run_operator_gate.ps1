@@ -63,7 +63,16 @@ if (Test-Path -LiteralPath $envPath) {
 if ([string]::IsNullOrWhiteSpace($env:AHOS_GATEWAY_URL)) {
     $env:AHOS_GATEWAY_URL = "http://127.0.0.1:3000/api/chat"
     Write-Host "  AHOS_GATEWAY_URL was empty -- using http://127.0.0.1:3000/api/chat for this gate run" -ForegroundColor Yellow
+    # Persist into .env so the next bat/preflight does not BLOCK again.
+    $ensure = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
+    if (Test-Path -LiteralPath $ensure) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $ensure | Out-Host
+    }
 }
+
+# Windows console often defaults to charmap; force UTF-8 for G12 n8n JSON reads.
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
 
 $py = Join-Path $RepoRoot ".venv\Scripts\python.exe"
 if (-not (Test-Path -LiteralPath $py)) {

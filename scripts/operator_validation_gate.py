@@ -97,8 +97,15 @@ def _run_cmd(argv: list[str], timeout: float = 30.0) -> tuple[int | None, str, s
             cwd=str(ROOT),
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
             shell=use_shell,
+            env={
+                **os.environ,
+                "PYTHONUTF8": "1",
+                "PYTHONIOENCODING": "utf-8",
+            },
         )
         return r.returncode, r.stdout or "", r.stderr or ""
     except FileNotFoundError:
