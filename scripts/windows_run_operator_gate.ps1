@@ -162,8 +162,18 @@ if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath 
                 $prNum = (& gh pr view --json number -q ".number" 2>$null)
             } catch { $prNum = "" }
         }
-        # Default to unlock PR #35 (ops harden). Override with AHOS_GATE_PR.
-        if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "35" }
+        if ([string]::IsNullOrWhiteSpace($prNum)) {
+            try {
+                $prNum = (& gh pr list --head cursor/windows-g1-g10-harden-4bde --json number -q ".[0].number" 2>$null)
+            } catch { $prNum = "" }
+        }
+        # Fallback: latest open PR on this repo authored by current user / unlock series
+        if ([string]::IsNullOrWhiteSpace($prNum)) {
+            try {
+                $prNum = (& gh pr list --state open --limit 5 --json number,headRefName -q "[.[] | select(.headRefName|test(\"windows|harden|unlock\";\"i\"))][0].number" 2>$null)
+            } catch { $prNum = "" }
+        }
+        if ([string]::IsNullOrWhiteSpace($prNum)) { $prNum = "36" }
         # Always post slim LATEST first (agent-fetchable); full paste if small enough.
         $slim = Join-Path $reportsDir "OWNER_PASTE_WINDOWS_GATE_SLIM.txt"
         $slimLines = @()

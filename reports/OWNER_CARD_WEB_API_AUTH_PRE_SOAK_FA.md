@@ -1,20 +1,21 @@
 # کارت مالک — PRE_SOAK (Windows PAPER_ONLY)
 
-**کد:** PR #31–#34 روی `main`. PR #35 باز است (postgres ensure + ضد جعل READY).  
-**DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
+**کد:** PR #31–#35 روی `main`. Harden بعدی: `cursor/windows-g1-g10-harden-4bde`.  
+**DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.  
+**توجه:** ردیف‌های Postgres برای G4/G5/G8/G9 کافی نیستند — SQLite محلی لازم است.
 
-## فقط این (الان، قبل از merge #35)
+## فقط این (الان)
 
 ```powershell
 cd G:\robat\ahos
 git fetch origin
-git checkout cursor/windows-main-unlock-4bde
-git pull origin cursor/windows-main-unlock-4bde
+git checkout cursor/windows-g1-g10-harden-4bde
+git pull origin cursor/windows-g1-g10-harden-4bde
 ```
 
 سپس دابل‌کلیک: `AHOS_WINDOWS_OPS.bat`
 
-بعد از merge #35 کافی است: `git pull origin main` سپس همان bat.
+بعد از merge harden: `git checkout main && git pull origin main` سپس همان bat.
 
 ## خروجی برای Cursor
 
