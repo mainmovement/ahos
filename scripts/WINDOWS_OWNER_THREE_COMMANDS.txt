@@ -1,35 +1,21 @@
 AHOS Windows owner - toward PRE_SOAK (PAPER_ONLY)
 =================================================
-PR #31 (web API auth) + PR #32 (gate runner) are on main.
-PR #33 = bat + preflight + restart-Next + paste bundle (recommended).
+PR #31/#32/#33 on main. PR #34 = Next restart + env harden + evidence seed.
 STATE B: do NOT db:migrate / db:push.
 Do NOT invent OPERATOR_READY.
 
-Option A - double-click (PR #33 branch or after merge):
+Option A - double-click (after PR #34 merge, or checkout that branch):
   AHOS_WINDOWS_OPS.bat
-  (pull → reconcile -KeepCurrentBranch → preflight → restart Next → warm /api/chat → gate → clipboard)
+  (reconcile KeepCurrentBranch → preflight → restart Next → warm /api/chat
+   → seed SQLite if empty → gate → clipboard)
 
-Option B - on current main (no bat required):
+Option B - on main + PR #34 scripts:
 cd G:\robat\ahos
 git pull
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_post_merge_reconcile.ps1
-
-# Fresh Next after token ensure (critical):
-# Terminal A
-npm run dev
-# If :3000 was already up BEFORE token ensure, stop it and start again.
-
-# Terminal B
+# Restart Next if token was just written (critical)
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\windows_seed_local_evidence.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
 
-If PR #33 files exist:
-  powershell -ExecutionPolicy Bypass -File .\scripts\windows_preflight_ops.ps1
-  powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
-  powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
-
-Paste into Cursor:
-  reports\OWNER_PASTE_WINDOWS_GATE.txt  (Ctrl+V if clipboard filled)
-  or BEGIN REPORT + reports\operator_validation_report_windows_*.json
-
-Note: G4/G5/G8/G9 need local SQLite evidence (not Postgres STATE B counts).
-If those FAIL, run one local single-cycle then re-run the gate.
+Paste: reports\OWNER_PASTE_WINDOWS_GATE.txt (Ctrl+V) into Cursor.

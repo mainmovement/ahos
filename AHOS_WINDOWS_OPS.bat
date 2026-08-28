@@ -88,6 +88,12 @@ if errorlevel 1 (
   exit /b 2
 )
 
+if exist "scripts\windows_seed_local_evidence.ps1" (
+  echo.
+  echo ==^> seed local SQLite evidence if G4/G5/G8/G9 census empty
+  powershell -ExecutionPolicy Bypass -File ".\scripts\windows_seed_local_evidence.ps1"
+)
+
 if exist "scripts\windows_run_operator_gate.ps1" (
   echo ==^> windows_run_operator_gate.ps1
   powershell -ExecutionPolicy Bypass -File ".\scripts\windows_run_operator_gate.ps1"

@@ -16,6 +16,7 @@ param(
     [switch]$SkipNetwork,
     [switch]$NoProviderProbe,
     [switch]$NoBackupDrill,
+    [switch]$SeedEvidenceIfNeeded,
     [string]$TelegramE2eArtifact = ""
 )
 
@@ -84,6 +85,15 @@ if (-not [string]::IsNullOrWhiteSpace($TelegramE2eArtifact)) {
 
 Write-Host ("  python: " + $py) -ForegroundColor DarkGray
 Write-Host ("  args: " + ($argsList -join " ")) -ForegroundColor DarkGray
+
+if ($SeedEvidenceIfNeeded) {
+    $seed = Join-Path $RepoRoot "scripts\windows_seed_local_evidence.ps1"
+    if (Test-Path -LiteralPath $seed) {
+        Write-Host "  SeedEvidenceIfNeeded: checking/running local single-cycle..." -ForegroundColor Cyan
+        & powershell -ExecutionPolicy Bypass -File $seed
+    }
+}
+
 & $py @argsList
 $code = $LASTEXITCODE
 Write-Host ("gate_exit=" + $code)

@@ -89,9 +89,19 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "windows_restart_next_dev.ps1" in text or "npm run dev" in text
     assert "127.0.0.1:3000" in text
     assert "/api/chat" in text
+    assert "windows_seed_local_evidence.ps1" in text
     assert "windows_run_operator_gate.ps1" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+
+
+def test_windows_seed_local_evidence_script_exists():
+    path = ROOT / "scripts" / "windows_seed_local_evidence.ps1"
+    text = path.read_text(encoding="utf-8")
+    assert "lifecycle_status" in text
+    assert "single-cycle" in text
+    assert "OPERATOR_READY" in text
+    assert "db:migrate" in text.lower() or "Never migrates" in text
 
 
 def test_windows_restart_next_dev_script_exists():
