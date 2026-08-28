@@ -57,6 +57,12 @@ if (-not $docker) {
   Fail "docker not on PATH. Install Docker Desktop, then re-run."
 }
 
+# Fail fast with a clear owner message when Docker Desktop / Linux engine is down.
+$dockerInfo = & docker info 2>&1 | Out-String
+if ($LASTEXITCODE -ne 0) {
+  Fail "Docker daemon not reachable (start Docker Desktop Linux Engine, wait until green, then re-run). detail=$dockerInfo"
+}
+
 $envPath = Join-Path $RepoRoot ".env"
 $pgUser = Get-EnvValue -Path $envPath -Key "POSTGRES_USER"
 $pgDb = Get-EnvValue -Path $envPath -Key "POSTGRES_DB"

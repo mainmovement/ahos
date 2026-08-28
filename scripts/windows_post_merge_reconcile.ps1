@@ -80,6 +80,22 @@ $Protected = @(
     "reports/backup_restore_drill.json"
 )
 
+# Ops artifacts written by reconcile / bat / gate paste. These MUST NOT block
+# re-runs (prior bug: ?? reports/windows_post_merge_reconcile_*.json STOP'd
+# before token ensure). Not preserved across sync -- only ignored as dirty.
+function Test-AllowedOpsDirtyPath([string]$RelPath) {
+    if ([string]::IsNullOrWhiteSpace($RelPath)) { return $false }
+    $p = $RelPath.Replace("\", "/")
+    if ($Protected -contains $RelPath -or $Protected -contains $p) { return $true }
+    if ($p -match '^reports/windows_post_merge_reconcile_[^/]+\.json$') { return $true }
+    if ($p -match '^reports/windows_post_merge_reconcile_[^/]+\.normalized\.json$') { return $true }
+    if ($p -eq "reports/windows_ops_last_run.log") { return $true }
+    if ($p -eq "reports/LATEST_WINDOWS_GATE.txt") { return $true }
+    if ($p -match '^reports/OWNER_PASTE') { return $true }
+    if ($p -match '^reports/windows_gate_evidence/') { return $true }
+    return $false
+}
+
 $Report = [ordered]@{
     schema = "ahos.windows_post_merge_reconcile.v1"
     started_utc = (Get-Date).ToUniversalTime().ToString("o")
@@ -130,12 +146,18 @@ foreach ($line in $statusShort) {
     if ($path -match " -> ") { $path = ($path -split " -> ")[-1].Trim() }
     $dirtyPaths += $path
 }
-$unexpectedDirty = @($dirtyPaths | Where-Object { $Protected -notcontains $_ })
+$allowedDirty = @($dirtyPaths | Where-Object { Test-AllowedOpsDirtyPath $_ })
+$unexpectedDirty = @($dirtyPaths | Where-Object { -not (Test-AllowedOpsDirtyPath $_) })
 $Report.pre["dirty_paths"] = $dirtyPaths
+$Report.pre["allowed_ops_dirty"] = $allowedDirty
 $Report.pre["unexpected_dirty"] = $unexpectedDirty
 
+if ($allowedDirty.Count -gt 0) {
+    Write-Host ("  allowed ops dirty (ignored): " + ($allowedDirty -join ", ")) -ForegroundColor DarkGray
+}
+
 if ($unexpectedDirty.Count -gt 0) {
-    $msg = "STOP - unexpected dirty paths (not in owner-protected set): " + ($unexpectedDirty -join ", ")
+    $msg = "STOP - unexpected dirty paths (not in owner-protected / ops-artifact set): " + ($unexpectedDirty -join ", ")
     $Report.errors += $msg
     $Report.verdict = "BLOCKED_OWNER_DECISION"
     $Report.next_action = "Classify or commit/clean unexpected dirty files, then re-run this script."

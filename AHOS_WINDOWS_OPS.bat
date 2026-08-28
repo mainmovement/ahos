@@ -85,6 +85,15 @@ if errorlevel 1 (
   call :log WARNING: reconcile exited !ERRORLEVEL! - paste REPORT into Cursor anyway
 )
 
+REM Belt-and-suspenders: token ensure even if reconcile STOP'd early on dirty paths
+if exist "scripts\windows_ensure_web_api_token.ps1" (
+  call :log ==^> ensure AHOS_WEB_API_TOKEN in .env ^(idempotent^)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_web_api_token.ps1"
+  if errorlevel 1 (
+    call :log WARNING: web API token ensure failed - preflight may FAIL
+  )
+)
+
 if exist "scripts\windows_preflight_ops.ps1" (
   call :log ==^> Windows preflight
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_preflight_ops.ps1"
