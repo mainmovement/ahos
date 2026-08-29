@@ -12,6 +12,9 @@ cd /d "%~dp0"
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 
+REM Wake leave-open paste sink #56 (and tip notify script)
+set "AHOS_GATE_PR=56"
+
 echo ==========================================================
 echo   AHOS MAIN CLEAR G2 (origin/main only)
 echo   Will NOT migrate DB or claim READY
@@ -45,6 +48,13 @@ if errorlevel 1 (
 
 echo ==^> checkout gate + warm scripts from origin/main
 git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 AHOS_PUSH_EVIDENCE_NOW.bat 2>nul
+
+echo ==^> overlay tip post_gate notify (#56 sink) via curl SHA pin
+if not exist "scripts" mkdir scripts >nul 2>&1
+curl.exe -L -o "scripts\windows_post_gate_paste_gh.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/564684d0c585a86aa894b95818ea1c2ac36d461e/scripts/windows_post_gate_paste_gh.ps1"
+if errorlevel 1 (
+  echo WARNING: tip post_gate overlay failed - AHOS_GATE_PR=56 still set for main script
+)
 
 if not exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ERROR: missing windows_ensure_web_api_token.ps1 after main checkout

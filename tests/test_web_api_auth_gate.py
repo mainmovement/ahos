@@ -281,15 +281,18 @@ def test_ahos_main_clear_g2_cmd_is_crlf_main_only():
     assert "windows_recover_g2_warm.ps1" in text
     assert "windows_wait_for_web_api.ps1" in text
     assert "PYTHONUTF8=1" in text
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_post_gate_paste_gh.ps1" in text
     assert "db:migrate" in text.lower()
     assert "OWNER_PASTE" in text
     assert "#56" in text
-    # Runtime path must not git-fetch the tip branch (curl URL in REM is ok)
+    # Runtime path must not git-fetch the tip branch (curl URL / SHA pin for overlay is ok)
     runtime = "\n".join(
         ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
     )
     assert "git fetch origin cursor/" not in runtime
-    assert "windows-main-evidence-push-4bde" not in runtime
+    # May curl tip SHA for post_gate overlay, but must not require tip branch git fetch
+    assert "git fetch origin cursor/windows-main-evidence-push-4bde" not in runtime
 
 
 def test_ahos_run_tip_cmd_is_crlf_and_tls12():
