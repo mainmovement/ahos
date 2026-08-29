@@ -17,7 +17,7 @@ REM Wake leave-open paste sink #56 via AHOS_GATE_PR (post_gate on #59 main)
 set "AHOS_GATE_PR=56"
 
 REM Known-good unlock tip (OPS push + post_gate #56/#38). Used if main checkout is stale.
-set "AHOS_UNLOCK_SHA=735c40e08952ffbd259e84c1398bc2384203a17a"
+set "AHOS_UNLOCK_SHA=55e4e79fbc57f14517af917e4f144faba19b94cd"
 
 echo ==========================================================
 echo   AHOS MAIN CLEAR G2 (origin/main + unlock overlay)
