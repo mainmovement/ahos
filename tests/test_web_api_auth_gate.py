@@ -160,6 +160,9 @@ def test_windows_push_gate_evidence_helper_exists():
     # Lease against fetched origin tip so laptop pushes do not silently no-op
     assert "origin/" in text and "fetch origin" in text
     assert "NOTIFY_UNLOCK" in text or "gh pr comment" in text
+    assert 'Add("56")' in text or ".Add(\"56\")" in text or 'Add("56")' in text
+    assert "60" in text  # leave-open evidence PR wake
+    assert "Leave-open paste sinks first" in text
     runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
     assert "windows_push_gate_evidence.ps1" in runner
 
@@ -282,6 +285,8 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert "windows_post_gate_paste_gh.ps1" in text
     helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "gh pr comment" in helper
+    assert '"56"' in helper  # leave-open paste sink
+    assert '"60"' in helper  # leave-open evidence-branch wake
     assert '"45"' in helper  # unlock PR sink for subscribed agents
     assert '"37"' in helper or "37" in helper
     assert '"36"' in helper or "36" in helper
@@ -412,3 +417,15 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     TelegramDomainService().handle_message("سلام")
     headers = {k.lower(): v for k, v in captured["headers"].items()}
     assert "authorization" not in headers
+
+
+def test_ahos_g2_clear_main_cmd():
+    raw = (ROOT / "AHOS_G2_CLEAR_MAIN.cmd").read_bytes()
+    assert b"\r\n" in raw and raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+    assert "SeedEvidenceIfNeeded" in text
+    assert "Leave-open paste sinks first" in text
+    assert "G2-aligned non-5xx" in text
+    assert "db:migrate" in text.lower()
