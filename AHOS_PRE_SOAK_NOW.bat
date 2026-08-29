@@ -31,6 +31,8 @@ if errorlevel 1 (
 
 echo ==^> git fetch / pull origin main
 git fetch origin
+git fetch origin cursor/windows-main-evidence-push-4bde >nul 2>&1
+git fetch origin cursor/windows-evidence-notify-retarget-4bde >nul 2>&1
 git fetch origin cursor/windows-presoak-unblock-4bde >nul 2>&1
 git fetch origin cursor/windows-dburl-probe-first-4bde >nul 2>&1
 git fetch origin cursor/windows-presoak-followup-4bde >nul 2>&1
@@ -38,14 +40,20 @@ git fetch origin cursor/windows-chat-500-rootcause-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-evidence-autopush-4bde >nul 2>&1
 git fetch origin cursor/windows-evidence-push-lease-4bde >nul 2>&1
 git fetch origin cursor/windows-g2-empty-gateway-default-4bde >nul 2>&1
-git pull origin main
-if errorlevel 1 (
-  echo WARNING: git pull origin main failed - continuing with local tree
+if defined AHOS_SKIP_GIT_PULL (
+  echo ==^> skip git pull ^(caller holds tip overlay^)
+) else (
+  git pull origin main
+  if errorlevel 1 (
+    echo WARNING: git pull origin main failed - continuing with local tree
+  )
 )
 
-REM Prefer newest unlock tip not yet on main
+REM Prefer newest unlock tip not yet on main (evidence-push first: main OPS wake gap)
 set "UNLOCK_REF="
 for %%R in (
+  origin/cursor/windows-main-evidence-push-4bde
+  origin/cursor/windows-evidence-notify-retarget-4bde
   origin/cursor/windows-presoak-unblock-4bde
   origin/cursor/windows-dburl-probe-first-4bde
   origin/cursor/windows-presoak-followup-4bde

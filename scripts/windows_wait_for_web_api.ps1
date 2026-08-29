@@ -136,6 +136,13 @@ for ($i = 0; $i -lt $Attempts; $i++) {
             }
         } else {
             $consecutiveServerErrors = 0
+            # Align with G2: non-5xx (except 401, handled above) means Next is reachable.
+            # Do not invent READY - gate still decides PASS/BLOCKED honestly.
+            if (($code -gt 0) -and ($code -lt 500)) {
+                Write-Host ("  Warm /api/chat HTTP " + $code + " attempt=" + $attempt + " (G2-aligned non-5xx reachable)") -ForegroundColor Green
+                if ($snippet) { Write-Host ("  body: " + $snippet) -ForegroundColor DarkGray }
+                exit 0
+            }
             # Connection refused / timeout while Next boots -- keep waiting
             if (($attempt % 10) -eq 0) {
                 Write-Host ("  still waiting (attempt=" + $attempt + ") -- is npm run dev window up?") -ForegroundColor DarkGray

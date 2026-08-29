@@ -4,33 +4,41 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-On main (merged): web-api auth (#31), G2 empty-gateway (#45), G2 validate (#46),
-evidence autopush (#47), /api/chat 500 stack + DATABASE_URL sync (#48-#52).
-Unlock tip: PR #53 (warm recovery + OPS sync fix).
+See also: RUN_ME_WINDOWS.txt / OWNER_ONE_LINER.txt
+
+Last paste (20260828_220318): G2 empty-gateway BLOCKED; G3-G10 PASS.
+That paste was BEFORE empty-gateway merge #45 on main (~28 min later).
+origin/main alone can clear G2. Please merge #58. Keep #56 OPEN.
 
 --------------------------------------------------
-ONE CLICK (preferred)
+A) FASTEST — MAIN ONLY (pull main + ensure + full gate)
 --------------------------------------------------
   cd /d G:\robat\ahos
+  curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/20f4b00023468d59ad3963d932c8f481249d8c6c/AHOS_MAIN_CLEAR_G2.cmd
+  AHOS_MAIN_CLEAR_G2.cmd
+
+--------------------------------------------------
+B) Tip runner — curl .cmd then double-click
+--------------------------------------------------
+  cd /d G:\robat\ahos
+  curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
+  AHOS_RUN_TIP.cmd
+
+  (CRLF in git blob; TLS1.2; pure-PS surgical G2+gate; tip notify #56)
+
+--------------------------------------------------
+C) PowerShell tip with TLS1.2
+--------------------------------------------------
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; iex (iwr -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1').Content"
+
+--------------------------------------------------
+D) OR after #58 merged to main
+--------------------------------------------------
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
 
-  Bat: token + Docker diagnose + DATABASE_URL (probe-first), then AHOS_WINDOWS_OPS.bat
-  On /api/chat warm fail: auto forensics + DATABASE_URL + ensure-pg + Next restart.
-  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
-  Or: AHOS_PUSH_EVIDENCE_NOW.bat (pushes existing paste to PR #54 / evidence branch)
-  PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).
-
---------------------------------------------------
-OR: G2 first (if /api/chat still 500)
---------------------------------------------------
-  AHOS_VALIDATE_G2_NOW.bat
-  (on G2 PASS, chains into AHOS_PRE_SOAK_NOW.bat)
-
-  Manual forensics if still 500:
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_chat_500_forensics.ps1
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_database_url.ps1
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
-
-Never invent READY. G11 Telegram is OWNER_ACTION for OPERATOR_READY only.
-ahos_runtime_win unhealthy is OK for host Next G2.
+Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 (leave open) or #38.
+Or: AHOS_PUSH_EVIDENCE_NOW.bat / Desktop AHOS_PASTE_TO_CURSOR.txt
+Also check: reports\PRE_SOAK_STATUS.txt
+Full OPS path (after tip merge): AHOS_WINDOWS_OPS.bat
+PRE_SOAK only if pre_soak_entry_ok=true (G1-G10). Never invent READY.

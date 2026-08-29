@@ -47,6 +47,7 @@ function Add-Target([string]$n) {
 }
 
 Add-Target $env:AHOS_GATE_PR
+Add-Target "38"  # durable open sink (do not remove)
 
 try {
   Add-Target (& gh pr view --json number -q ".number" 2>$null)
@@ -65,6 +66,10 @@ try {
 # Dedicated evidence inbox + known sinks (comments wake subscribed agents)
 # Prefer LIVE open inbox head; keep merged numbers as best-effort fallbacks.
 try {
+  $openSink = & gh pr list --head cursor/windows-evidence-inbox-open-sink-4bde --state open --json number -q ".[0].number" 2>$null
+  Add-Target $openSink
+} catch {}
+try {
   $openInbox0 = & gh pr list --head cursor/windows-evidence-inbox-stay-open-4bde --state open --json number -q ".[0].number" 2>$null
   Add-Target $openInbox0
 } catch {}
@@ -80,6 +85,7 @@ try {
   $openInbox3 = & gh pr list --head cursor/windows-evidence-inbox-4bde --state open --json number -q ".[0].number" 2>$null
   Add-Target $openInbox3
 } catch {}
+Add-Target "56"
 Add-Target "55"
 Add-Target "54"
 Add-Target "53"

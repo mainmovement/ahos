@@ -1,0 +1,25 @@
+AHOS Windows -- ONE LINER (PAPER_ONLY)
+=====================================
+STATE B: never db:migrate / db:push
+Do NOT invent READY. Paste sink #56 must stay OPEN.
+
+WHY: last paste 20260828_220318 was G2 empty-gateway BLOCKED (pre-#45).
+Empty-gateway fix (#45) is on main. MAIN_CLEAR scrubs empty gateway, ensures
+token + Postgres + DATABASE_URL, restarts Next, warms /api/chat, runs full gate,
+and pushes OWNER_PASTE to #56/#38.
+
+Prefer merge PR #59 first. Optional later: PR #58. Never merge #56.
+
+A) SHA-pinned (works before or after merge):
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/6fd554385bde85a519579cc00a606480da98bae2/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+
+B) After #59 is on main:
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/main/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+
+Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.
+PRE_SOAK only if pre_soak_entry_ok=true (G1-G10 on real Windows).
+G11 Telegram is for OPERATOR_READY only — not required for PRE_SOAK.

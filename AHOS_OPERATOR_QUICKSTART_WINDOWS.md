@@ -1,10 +1,16 @@
 # AHOS Operator Quickstart — Windows
 
-> **CURRENT PATH (2026-08-28, post PR #31):** Do **not** start soak from this page until Windows operator gates pass.
-> Canonical handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md` · one-shot: `scripts/windows_post_merge_reconcile.ps1` then `scripts/windows_run_operator_gate.ps1` (PR #32) · or:
-> `python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill`
-> Requires: `DATABASE_URL`, matching `AHOS_WEB_API_TOKEN` + `NEXT_PUBLIC_AHOS_WEB_API_TOKEN`, `npm run dev` on `127.0.0.1:3000`.
-> **STATE B:** do **not** `db:migrate` / `db:push`. **OPERATOR_READY** is NOT invented by this quickstart.
+> **CURRENT PATH (2026-08-29, PR #58):** Do **not** start soak until Windows `pre_soak_entry_ok=true`.
+> Fastest unlock (last paste `220318` was **before** empty-gateway #45 on main):
+> ```
+> cd /d G:\robat\ahos
+> curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/20f4b00023468d59ad3963d932c8f481249d8c6c/AHOS_MAIN_CLEAR_G2.cmd
+> AHOS_MAIN_CLEAR_G2.cmd
+> ```
+> Or tip runner: `AHOS_RUN_TIP.cmd` from `cursor/windows-main-evidence-push-4bde`.
+> Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` to PR **#56** (leave open) or **#38**. Merge **#58**.
+> Canonical handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md` · owner card: `docs/OWNER_ACTION_REQUIRED.md`
+> **STATE B:** do **not** `db:migrate` / `db:push`. **Never invent PRE_SOAK / OPERATOR_READY.**
 
 ---
 

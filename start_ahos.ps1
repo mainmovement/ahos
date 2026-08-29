@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows 11 Runtime Launcher (Double-Click Runnable)
 #
 # Starts the OFFICIAL local observation daemon:
@@ -60,10 +60,12 @@ Write-Host "  Press Ctrl+C to stop gracefully." -ForegroundColor DarkGray
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  WARNING: Do NOT treat this as OPERATOR_READY." -ForegroundColor DarkYellow
-Write-Host "  BEFORE soak: double-click AHOS_WINDOWS_OPS.bat" -ForegroundColor Yellow
-Write-Host "  (or: scripts\windows_run_operator_gate.ps1) and paste" -ForegroundColor Yellow
-Write-Host "  reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor." -ForegroundColor Yellow
-Write-Host "  PRE_SOAK only after summary.pre_soak_entry_ok == true." -ForegroundColor DarkYellow
+Write-Host "  BEFORE soak: curl SHA-pinned MAIN_CLEAR .cmd (CRLF-safe) then run it:" -ForegroundColor Yellow
+Write-Host "    curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/20f4b00023468d59ad3963d932c8f481249d8c6c/AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host "    AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host "  Or: AHOS_RUN_TIP.cmd / AHOS_RUN_TIP.ps1 from tip (also CRLF-safe)." -ForegroundColor Yellow
+Write-Host "  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38. Keep #56 OPEN." -ForegroundColor Yellow
+Write-Host "  PRE_SOAK only after summary.pre_soak_entry_ok == true. Merge #58." -ForegroundColor DarkYellow
 Write-Host "  Need AHOS_WEB_API_TOKEN in .env; STATE B = no db:migrate/db:push." -ForegroundColor DarkYellow
 Write-Host ""
 

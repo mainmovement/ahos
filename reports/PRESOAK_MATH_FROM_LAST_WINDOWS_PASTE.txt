@@ -1,0 +1,21 @@
+ORIGINAL paste generated_utc= 2026-08-28T22:03:16Z
+ORIGINAL summary= {'pre_soak_entry_ok': False, 'operator_ready': False, 'host_is_windows': True, 'missing': ['G2:BLOCKED', 'G11:OWNER_ACTION_REQUIRED', 'G12:FAIL'], 'classification': 'INTEGRATION_READY'}
+ORIGINAL gates= [('G1', 'PASS'), ('G2', 'BLOCKED'), ('G3', 'PASS'), ('G4', 'PASS'), ('G5', 'PASS'), ('G8', 'PASS'), ('G9', 'PASS'), ('G6', 'PASS'), ('G7', 'PASS'), ('G10', 'PASS'), ('G11', 'OWNER_ACTION_REQUIRED'), ('G12', 'FAIL')]
+
+AFTER G2->PASS (host_is_windows=True):
+{
+  "pre_soak_entry_ok": true,
+  "operator_ready": false,
+  "g1_g10_all_pass": true,
+  "missing": [
+    "G11:OWNER_ACTION_REQUIRED",
+    "G12:FAIL"
+  ],
+  "classification": "INTEGRATION_READY",
+  "reason": "Windows G1\u2013G10 PASS \u2014 pre-soak entry OK; G11 still required for OPERATOR_READY"
+}
+
+VERDICT: Last Windows paste is ONE gate (G2 empty URL) from PRE_SOAK.
+MAIN_FIRST / empty-gateway fix on main is sufficient IF /api/chat warms.
+G11 Telegram still needed only for OPERATOR_READY, not PRE_SOAK.
+STATE B: no migrate. Do not invent READY without fresh Windows paste.

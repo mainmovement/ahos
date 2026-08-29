@@ -252,10 +252,27 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     if web_token:
         headers["Authorization"] = f"Bearer {web_token}"
 
-    # When DATABASE_URL is set, brief retries cover Docker/Postgres just-became-ready
-    # races (Next pool / first query). Do not invent PASS -- only retry real probes.
-    attempts = 3 if db_url else 1
+    # When DATABASE_URL is set, retries cover Docker/Postgres just-became-ready
+    # races and Next restart after windows_recover_g2_warm (STATE B: no invent PASS).
+    attempts = 8 if db_url else 1
     last_fail: dict[str, Any] | None = None
+
+    def _artifact_snippet(raw: str) -> str:
+        text = (raw or "")[:800]
+        # Prefer structured chat 500 fields when present.
+        try:
+            obj = json.loads(raw)
+            if isinstance(obj, dict):
+                bits = []
+                for k in ("error", "message", "stack_top", "code"):
+                    v = obj.get(k)
+                    if v:
+                        bits.append(f"{k}={v}")
+                if bits:
+                    return "; ".join(bits)[:800]
+        except Exception:  # noqa: BLE001
+            pass
+        return text
 
     for attempt in range(1, attempts + 1):
         try:
@@ -266,14 +283,14 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
                 method="POST",
             )
             with urllib.request.urlopen(req, timeout=45) as resp:
-                body = resp.read(400).decode("utf-8", "replace")
+                body = resp.read(1200).decode("utf-8", "replace")
                 if resp.status >= 500:
                     last_fail = _gate(
                         "G2", "Gateway", "FAIL",
                         f"http_{resp.status} from {url}"
                         + ("" if db_url else
                            " -- DATABASE_URL may be unset (required by One-Brain)"),
-                        artifact=body[:200], http_status=resp.status, url=url,
+                        artifact=_artifact_snippet(body), http_status=resp.status, url=url,
                         database_url_set=bool(db_url), web_api_token_set=bool(web_token),
                         attempt=attempt,
                     )
@@ -289,7 +306,7 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
             # urlopen raises HTTPError for status >= 400 (never reaches resp.status above).
             body = ""
             try:
-                body = e.read(400).decode("utf-8", "replace")
+                body = e.read(1200).decode("utf-8", "replace")
             except Exception:  # noqa: BLE001
                 body = ""
             code = int(getattr(e, "code", 0) or 0)
@@ -308,12 +325,15 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
                     detail += (
                         " -- DATABASE_URL is set but Postgres unreachable; start Docker Desktop "
                         "Linux Engine + ahos_postgres_win (STATE B: no db:migrate/db:push), "
-                        "then restart npm run dev"
+                        "then run scripts\\windows_recover_g2_warm.ps1"
                     )
+                snip = _artifact_snippet(body)
+                if snip:
+                    detail += f" | {snip}"
                 last_fail = _gate(
                     "G2", "Gateway", "FAIL",
                     detail,
-                    artifact=body[:200], http_status=code, url=url,
+                    artifact=snip or body[:200], http_status=code, url=url,
                     database_url_set=bool(db_url), web_api_token_set=bool(web_token),
                     attempt=attempt,
                 )
@@ -586,10 +606,9 @@ def remediation_actions(gates: list[dict[str, Any]]) -> list[str]:
         elif "DATABASE_URL" in d or (g2.get("http_status") or 0) >= 500:
             out.append(
                 "G2: powershell -ExecutionPolicy Bypass -File "
-                ".\\scripts\\windows_chat_500_forensics.ps1 then "
-                ".\\scripts\\windows_ensure_database_url.ps1 then "
-                ".\\scripts\\windows_restart_next_dev.ps1 "
-                "(Docker health PASS is not enough — Next needs working DATABASE_URL; "
+                ".\\scripts\\windows_recover_g2_warm.ps1 "
+                "(forensics + ensure-pg + DATABASE_URL probe-first + Next restart; "
+                "Docker health PASS is not enough — Next needs working DATABASE_URL; "
                 "STATE B: no migrate)."
             )
         elif g2.get("status") == "NOT_VERIFIED":
@@ -762,6 +781,12 @@ def main(argv: list[str] | None = None) -> int:
     # Normalize empty AHOS_GATEWAY_URL= from older .env.example (G2 must not BLOCK).
     if not (os.environ.get("AHOS_GATEWAY_URL") or "").strip():
         os.environ["AHOS_GATEWAY_URL"] = "http://127.0.0.1:3000/api/chat"
+        if _persist_env_key(ROOT / ".env", "AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat"):
+            print(
+                "Normalized empty AHOS_GATEWAY_URL in .env -> "
+                "http://127.0.0.1:3000/api/chat",
+                flush=True,
+            )
 
     plat = args.platform
     if plat == "unknown":
@@ -841,6 +866,11 @@ def main(argv: list[str] | None = None) -> int:
                 latest.parent.mkdir(parents=True, exist_ok=True)
                 latest.write_text(pointer_body, encoding="utf-8")
                 latest_paths.append(latest)
+            try:
+                status_path = _write_pre_soak_status(summary, gates)
+                print(f"PRE_SOAK_STATUS: {status_path}", flush=True)
+            except OSError as e:
+                print(f"PRE_SOAK_STATUS write skipped: {e}", flush=True)
         print(json.dumps({"wrote": str(out), "summary": summary}, indent=2))
         for g in gates:
             print(f"{g['id']:4} {g['status']:22} {g['name']}: {g['detail'][:120]}")
@@ -859,6 +889,91 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as e:  # noqa: BLE001
         print(f"operator_validation_gate fatal: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
+
+
+def _persist_env_key(env_path: Path, key: str, value: str) -> bool:
+    """Set KEY=value in .env (create/replace line). ASCII-safe. Returns True if wrote."""
+    try:
+        raw = ""
+        if env_path.is_file():
+            raw = env_path.read_text(encoding="utf-8", errors="replace")
+        lines = raw.splitlines()
+        prefix = key + "="
+        out: list[str] = []
+        found = False
+        for line in lines:
+            stripped = line.lstrip()
+            if stripped.startswith("#"):
+                out.append(line)
+                continue
+            if stripped.startswith(prefix) or line.startswith(prefix):
+                out.append(prefix + value)
+                found = True
+            else:
+                out.append(line)
+        if not found:
+            if out and out[-1].strip() != "":
+                out.append("")
+            out.append(prefix + value)
+        env_path.write_text("\n".join(out) + "\n", encoding="utf-8")
+        return True
+    except OSError:
+        return False
+
+
+def _write_pre_soak_status(summary: dict[str, Any], gates: list[dict[str, Any]]) -> Path:
+    """ASCII status file for Windows owner — does not invent READY."""
+    reports = ROOT / "reports"
+    reports.mkdir(parents=True, exist_ok=True)
+    path = reports / "PRE_SOAK_STATUS.txt"
+    by = {g["id"]: g for g in gates}
+    lines = [
+        "AHOS PRE_SOAK STATUS (PAPER_ONLY)",
+        "================================",
+        f"host_is_windows={summary.get('host_is_windows')}",
+        f"pre_soak_entry_ok={summary.get('pre_soak_entry_ok')}",
+        f"operator_ready={summary.get('operator_ready')}",
+        f"classification={summary.get('classification')}",
+        "STATE B: do not db:migrate / db:push",
+        "",
+        "G1-G10 (need all PASS for PRE_SOAK):",
+    ]
+    for i in range(1, 11):
+        gid = f"G{i}"
+        g = by.get(gid) or {}
+        lines.append(f"  {gid} {g.get('status', 'MISSING')}")
+    lines.append(
+        f"  G11 {((by.get('G11') or {}).get('status', 'MISSING'))} (OPERATOR_READY only)"
+    )
+    lines.append(
+        f"  G12 {((by.get('G12') or {}).get('status', 'MISSING'))} (informational)"
+    )
+    lines.append("")
+    if summary.get("pre_soak_entry_ok"):
+        lines.append("VERDICT: PRE_SOAK entry OK on this Windows host.")
+        lines.append("Paste reports\\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.")
+    else:
+        lines.append("VERDICT: NOT PRE_SOAK yet.")
+        for line in summary.get("remediation_actions") or []:
+            lines.append(f"- {line}")
+        lines.append("")
+        lines.append("Owner unlock (try main first, then tip):")
+        lines.append("  git pull origin main")
+        lines.append(
+            "  powershell -NoProfile -ExecutionPolicy Bypass -File "
+            ".\\scripts\\windows_ensure_web_api_token.ps1"
+        )
+        lines.append("  AHOS_PRE_SOAK_NOW.bat")
+        lines.append("  Or tip surgical:")
+        lines.append(
+            "  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat "
+            "https://raw.githubusercontent.com/mainmovement/ahos/"
+            "cursor/windows-main-evidence-push-4bde/AHOS_FIX_G2_AND_GATE.bat"
+        )
+        lines.append("  AHOS_FIX_G2_AND_GATE.bat")
+    lines.append("")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
 
 
 def _git_head() -> str | None:
