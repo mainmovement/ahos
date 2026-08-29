@@ -9,7 +9,7 @@
 
 ```bat
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/d4ec08489430863f0478defb7a17397f05dc7ccc/AHOS_MAIN_CLEAR_G2.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/20f4b00023468d59ad3963d932c8f481249d8c6c/AHOS_MAIN_CLEAR_G2.cmd
 AHOS_MAIN_CLEAR_G2.cmd
 ```
 
