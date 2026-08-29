@@ -17,6 +17,16 @@ Unlock tip: **PR #58** (`cursor/windows-main-evidence-push-4bde`). Keep paste-si
 
 ## Do this on the Windows laptop (`G:\robat\ahos`)
 
+**Fastest (main-only; SHA-pinned CRLF `.cmd`):**
+
+```bat
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+```
+
+**Or tip runner:**
+
 ```bat
 cd /d G:\robat\ahos
 curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
@@ -35,7 +45,7 @@ Also see: `OWNER_ONE_LINER.txt` · `RUN_ME_WINDOWS.txt` · `WINDOWS_RUN_THIS_FIR
 | ID | Action | Evidence |
 |----|--------|----------|
 | OA-58 | Merge unlock PR #58 | GitHub |
-| OA-RUN | Run `AHOS_RUN_TIP.cmd` on Windows | console + OWNER_PASTE |
+| OA-RUN | Run `AHOS_MAIN_CLEAR_G2.cmd` (or `AHOS_RUN_TIP.cmd`) on Windows | console + OWNER_PASTE |
 | OA-PASTE | Comment OWNER_PASTE on #56 (leave open) or #38 | GitHub |
 | OA-PS | PRE_SOAK only if `pre_soak_entry_ok=true` | `docs/PRE_SOAK_PROTOCOL.md` |
 | OA-TG | Telegram E2E (G11) for OPERATOR_READY only | G11 |

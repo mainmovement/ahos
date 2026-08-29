@@ -13,8 +13,8 @@
 | Operator (Windows) | **`OPERATOR_READY = NOT_VERIFIED`** |
 | Calibration | `CALIBRATION_READY_BUT_DATA_REQUIRED` |
 | Pre-soak | **Blocked** until Windows `pre_soak_entry_ok` |
-| Last paste | `20260828_220318` — G2 empty-gateway BLOCKED; G3–G10 PASS |
-| Unlock tip | PR **#58** — run `AHOS_RUN_TIP.cmd` (see `docs/OWNER_ACTION_REQUIRED.md`) |
+| Last paste | `20260828_220318` — G2 empty-gateway BLOCKED; G3–G10 PASS (paste predated #45) |
+| Unlock tip | PR **#58** — prefer `AHOS_MAIN_CLEAR_G2.cmd` (see `docs/OWNER_ACTION_REQUIRED.md`) |
 | Paste sink | PR **#56** — **LEAVE OPEN** (do not merge) |
 | Installer | `.\install_windows.ps1` prepares tools — never upgrades readiness |
 
@@ -24,9 +24,11 @@ Only your real Windows artifacts can change the operator row.
 
 ```bat
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
-AHOS_RUN_TIP.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
 ```
+
+Or tip runner: `AHOS_RUN_TIP.cmd` from `cursor/windows-main-evidence-push-4bde`.
 
 STATE B: never `db:migrate` / `db:push`. Do not invent PRE_SOAK / READY.
 
