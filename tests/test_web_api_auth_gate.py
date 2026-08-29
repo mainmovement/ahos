@@ -283,6 +283,10 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
     assert "BEGIN WINDOWS GATE PASTE" in text
     assert "windows_post_gate_paste_gh.ps1" in text
+    runtime = "\n".join(
+        ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
+    )
+    assert "git fetch origin cursor/" not in runtime
     helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "gh pr comment" in helper
     assert '"45"' in helper  # unlock PR sink for subscribed agents
@@ -437,3 +441,7 @@ def test_ahos_main_clear_g2_cmd_on_main_path():
     assert "AHOS_UNLOCK_SHA" in text
     assert "scrub empty AHOS_GATEWAY_URL in .env (inline)" in text
     assert "windows_post_gate_paste_gh.ps1" in text
+    runtime = "\n".join(
+        ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
+    )
+    assert "git fetch origin cursor/" not in runtime
