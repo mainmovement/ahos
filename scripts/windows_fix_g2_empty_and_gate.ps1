@@ -81,6 +81,31 @@ if (Test-Path -LiteralPath $ensure) {
   exit 2
 }
 
+$dbUrl = Join-Path $RepoRoot "scripts\windows_ensure_database_url.ps1"
+if (Test-Path -LiteralPath $dbUrl) {
+  Write-Host "==> ensure DATABASE_URL (probe-first; STATE B)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $dbUrl
+}
+
+# If nothing is listening on :3000, skip the long warm loop and recover immediately.
+$portOpen = $false
+try {
+  $tnc = Test-NetConnection -ComputerName "127.0.0.1" -Port 3000 -WarningAction SilentlyContinue
+  if ($tnc -and $tnc.TcpTestSucceeded) { $portOpen = $true }
+} catch {}
+if (-not $portOpen) {
+  Write-Host "==> :3000 not listening - recover_g2_warm before gate" -ForegroundColor Yellow
+  $recover = Join-Path $RepoRoot "scripts\windows_recover_g2_warm.ps1"
+  if (Test-Path -LiteralPath $recover) {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $recover
+  } else {
+    $restart = Join-Path $RepoRoot "scripts\windows_restart_next_dev.ps1"
+    if (Test-Path -LiteralPath $restart) {
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $restart
+    }
+  }
+}
+
 $wait = Join-Path $RepoRoot "scripts\windows_wait_for_web_api.ps1"
 if (Test-Path -LiteralPath $wait) {
   Write-Host "==> warm /api/chat" -ForegroundColor Cyan
@@ -108,9 +133,18 @@ Write-Host "==> full operator gate (G1-G12)" -ForegroundColor Cyan
 & powershell -NoProfile -ExecutionPolicy Bypass -File $gate
 $gateCode = $LASTEXITCODE
 
+$pastePath = Join-Path $RepoRoot "reports\OWNER_PASTE_WINDOWS_GATE.txt"
+if (-not (Test-Path -LiteralPath $pastePath)) {
+  $failPaste = Join-Path $RepoRoot "scripts\windows_write_ops_failure_paste.ps1"
+  if (Test-Path -LiteralPath $failPaste) {
+    Write-Host "==> writing failure OWNER_PASTE (gate produced none)" -ForegroundColor Yellow
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $failPaste -Stage "fix_g2_gate" -Detail "gate did not write OWNER_PASTE; see console"
+  }
+}
+
 $push = Join-Path $RepoRoot "scripts\windows_push_gate_evidence.ps1"
 if (Test-Path -LiteralPath $push) {
-  if (Test-Path -LiteralPath (Join-Path $RepoRoot "reports\OWNER_PASTE_WINDOWS_GATE.txt")) {
+  if (Test-Path -LiteralPath $pastePath) {
     Write-Host "==> push OWNER_PASTE evidence" -ForegroundColor Cyan
     & powershell -NoProfile -ExecutionPolicy Bypass -File $push
   }
