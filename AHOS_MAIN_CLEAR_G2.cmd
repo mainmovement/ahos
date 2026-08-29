@@ -51,7 +51,10 @@ if errorlevel 1 (
 )
 
 echo ==^> checkout gate + warm scripts from origin/main
-git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_scrub_empty_gateway.ps1 scripts/windows_seed_local_evidence.ps1 AHOS_PUSH_EVIDENCE_NOW.bat
+REM Do NOT list unlock-only files here (e.g. windows_scrub_empty_gateway.ps1).
+REM git checkout origin/main -- pathspec fails the WHOLE command if any path is missing,
+REM which would leave a pre-#45 laptop stuck on stale gate/ensure scripts.
+git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_seed_local_evidence.ps1 AHOS_PUSH_EVIDENCE_NOW.bat
 if errorlevel 1 (
   echo WARNING: git checkout origin/main scripts returned non-zero
 )
@@ -79,10 +82,14 @@ if errorlevel 1 (
   exit /b 2
 )
 
-REM Overlay post_gate #56/#38 + OPS evidence push from unlock SHA when not yet on main.
+REM Overlay post_gate #56/#38 + scrub + OPS evidence push from unlock SHA when not yet on main.
 REM SHA-only unlock overlay (avoid fetching named tip branches).
 git fetch origin %AHOS_UNLOCK_SHA% 2>nul
 git checkout %AHOS_UNLOCK_SHA% -- scripts/windows_post_gate_paste_gh.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_scrub_empty_gateway.ps1 scripts/windows_wait_for_web_api.ps1 AHOS_WINDOWS_OPS.bat 2>nul
+if not exist "scripts\windows_scrub_empty_gateway.ps1" (
+  echo WARNING: scrub missing after unlock overlay - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_scrub_empty_gateway.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_scrub_empty_gateway.ps1"
+)
 
 if not exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ERROR: missing windows_ensure_web_api_token.ps1 after main checkout

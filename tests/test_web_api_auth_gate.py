@@ -450,6 +450,22 @@ def test_ahos_main_clear_g2_cmd_on_main_path():
         ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
     )
     assert "git fetch origin cursor/" not in runtime
+    # Unlock-only scrub must not be in the origin/main pathspec (aborts whole checkout).
+    main_checkout_lines = [
+        ln
+        for ln in runtime.splitlines()
+        if "git checkout origin/main --" in ln
+    ]
+    assert main_checkout_lines, "expected origin/main checkout"
+    assert all(
+        "windows_scrub_empty_gateway.ps1" not in ln for ln in main_checkout_lines
+    )
+    assert "git checkout %AHOS_UNLOCK_SHA% --" in runtime
+    assert any(
+        "windows_scrub_empty_gateway.ps1" in ln
+        and "AHOS_UNLOCK_SHA" in ln
+        for ln in runtime.splitlines()
+    ) or "git checkout %AHOS_UNLOCK_SHA% --" in runtime
 
 
 def test_windows_scrub_empty_gateway_ps1_exists():
