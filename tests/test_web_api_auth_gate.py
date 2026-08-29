@@ -277,6 +277,10 @@ def test_ahos_main_clear_g2_cmd_is_crlf_main_only():
     assert "git checkout origin/main --" in text
     assert "windows_ensure_web_api_token.ps1" in text
     assert "windows_run_operator_gate.ps1" in text
+    assert "validate_n8n.py" in text  # G12 charmap fix on main
+    assert "windows_recover_g2_warm.ps1" in text
+    assert "windows_wait_for_web_api.ps1" in text
+    assert "PYTHONUTF8=1" in text
     assert "db:migrate" in text.lower()
     assert "OWNER_PASTE" in text
     assert "#56" in text

@@ -1,12 +1,16 @@
 @echo off
 REM AHOS -- MAIN-ONLY G2 clear + full gate (PAPER_ONLY)
 REM Empty-gateway fix is already on origin/main (#45). Last paste 220318 was BEFORE that merge.
+REM G12 charmap also fixed on main (validate_n8n UTF-8). Last paste head lacked encoding=.
 REM STATE B: never db:migrate / db:push. Does NOT invent READY.
 REM
 REM   curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_CLEAR_G2.cmd
 REM   AHOS_MAIN_CLEAR_G2.cmd
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
+
+set "PYTHONUTF8=1"
+set "PYTHONIOENCODING=utf-8"
 
 echo ==========================================================
 echo   AHOS MAIN CLEAR G2 (origin/main only)
@@ -39,8 +43,8 @@ if errorlevel 1 (
   echo WARNING: git pull failed - continuing with local tree + checkout from origin/main
 )
 
-echo ==^> checkout gate scripts from origin/main
-git checkout origin/main -- scripts/operator_validation_gate.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 AHOS_PUSH_EVIDENCE_NOW.bat 2>nul
+echo ==^> checkout gate + warm scripts from origin/main
+git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 AHOS_PUSH_EVIDENCE_NOW.bat 2>nul
 
 if not exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ERROR: missing windows_ensure_web_api_token.ps1 after main checkout
@@ -62,6 +66,34 @@ if errorlevel 1 (
 if exist "scripts\windows_ensure_database_url.ps1" (
   echo ==^> ensure DATABASE_URL (probe-first; STATE B)
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
+)
+
+echo ==^> check :3000 / warm /api/chat
+"%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$p=$false; try { $t=Test-NetConnection -ComputerName 127.0.0.1 -Port 3000 -WarningAction SilentlyContinue; if($t -and $t.TcpTestSucceeded){$p=$true} } catch {}; if(-not $p){ Write-Host ':3000 down - recover_g2_warm'; exit 11 } else { Write-Host ':3000 listening'; exit 0 }"
+if errorlevel 1 (
+  if exist "scripts\windows_recover_g2_warm.ps1" (
+    echo ==^> recover_g2_warm
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
+  ) else if exist "scripts\windows_restart_next_dev.ps1" (
+    echo ==^> restart_next_dev
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_restart_next_dev.ps1"
+  )
+)
+
+if exist "scripts\windows_wait_for_web_api.ps1" (
+  echo ==^> warm /api/chat
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
+  if errorlevel 1 (
+    echo WARNING: warm failed - trying recover then re-warm
+    if exist "scripts\windows_recover_g2_warm.ps1" (
+      "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
+    )
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
+    if errorlevel 1 (
+      echo WARNING: /api/chat still not warm - gate will report honest G2
+    )
+  )
 )
 
 echo ==^> full operator gate G1-G12 + evidence push
