@@ -52,8 +52,8 @@ echo   Press Ctrl+C to stop gracefully.
 echo ==========================================================
 echo.
 echo   WARNING: Not OPERATOR_READY.
-echo   BEFORE soak: double-click AHOS_WINDOWS_OPS.bat
-echo   then paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor.
+echo   BEFORE soak: double-click AHOS_G2_CLEAR_MAIN.cmd or AHOS_PRE_SOAK_NOW.bat
+echo   then paste reports\OWNER_PASTE_WINDOWS_GATE.txt into PR #56.
 echo   PRE_SOAK only after pre_soak_entry_ok=true.
 echo   STATE B: no db:migrate / db:push.
 echo.

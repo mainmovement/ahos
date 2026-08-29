@@ -512,3 +512,11 @@ def test_ahos_g2_clear_main_cmd():
     assert "Leave-open paste sinks first" in text
     assert "G2-aligned non-5xx" in text
     assert "db:migrate" in text.lower()
+
+
+def test_ahos_pre_soak_now_delegates_g2_clear():
+    text = (ROOT / "AHOS_PRE_SOAK_NOW.bat").read_text(encoding="utf-8", errors="replace")
+    assert "AHOS_G2_CLEAR_MAIN.cmd" in text
+    assert "call AHOS_G2_CLEAR_MAIN.cmd" in text
+    assert "db:migrate" in text.lower()
+    assert "windows-ops-evidence-push-main-4bde" in text
