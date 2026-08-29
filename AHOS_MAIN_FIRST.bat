@@ -40,6 +40,10 @@ if errorlevel 1 (
   echo WARNING: git pull origin main failed - continuing with local tree
 )
 
+REM Best-effort: tip notify scripts so evidence push hits open #56/#38 (not merged inboxes).
+git fetch origin cursor/windows-evidence-notify-retarget-4bde >nul 2>&1
+git checkout "origin/cursor/windows-evidence-notify-retarget-4bde" -- scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 AHOS_PUSH_EVIDENCE_NOW.bat 2>nul
+
 if exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ==^> scrub empty AHOS_GATEWAY_URL + ensure token
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_web_api_token.ps1"
@@ -59,9 +63,20 @@ echo ==^> launching AHOS_PRE_SOAK_NOW.bat
 call "AHOS_PRE_SOAK_NOW.bat"
 set "RC=!ERRORLEVEL!"
 
+REM Belt-and-suspenders evidence push (avoid AHOS_PUSH_EVIDENCE_NOW.bat pause).
+if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
+  echo ==^> belt-and-suspenders evidence push + PR notify
+  if exist "scripts\windows_post_gate_paste_gh.ps1" (
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_post_gate_paste_gh.ps1" -BodyFile "reports\OWNER_PASTE_WINDOWS_GATE.txt"
+  )
+  if exist "scripts\windows_push_gate_evidence.ps1" (
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_push_gate_evidence.ps1"
+  )
+)
+
 echo.
 echo Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38
-echo Or run AHOS_PUSH_EVIDENCE_NOW.bat
+echo Or Desktop AHOS_PASTE_TO_CURSOR.txt if present
 echo If still blocked, run tip surgical AHOS_FIX_G2_AND_GATE.bat from PR #57
 echo PRE_SOAK only if pre_soak_entry_ok=true. Never invent READY.
 exit /b !RC!
