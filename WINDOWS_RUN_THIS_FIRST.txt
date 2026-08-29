@@ -8,7 +8,7 @@ See also: RUN_ME_WINDOWS.txt
 
 Last paste (20260828_220318): G2 empty-gateway BLOCKED; G3-G10 PASS.
 Empty-gateway default is already on main (#45). Paste head was pre-#45.
-Please merge #58 (OPS evidence push). Keep #56 OPEN.
+Please merge #58 (OPS evidence push + FIX_G2). Keep #56 OPEN.
 
 --------------------------------------------------
 A) FASTEST — MAIN_FIRST from tip #58
@@ -21,15 +21,15 @@ A) FASTEST — MAIN_FIRST from tip #58
   (PRE_SOAK launches AHOS_WINDOWS_OPS.bat)
 
 --------------------------------------------------
-B) IF A fails — surgical tip (#57)
+B) IF A fails — surgical FIX_G2 from same tip #58
 --------------------------------------------------
-  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat
+  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_FIX_G2_AND_GATE.bat
   AHOS_FIX_G2_AND_GATE.bat
 
   Alternate: AHOS_APPLY_TIP.bat or scripts\windows_bootstrap_presoak.ps1
 
 --------------------------------------------------
-C) OR after #57 merged to main
+C) OR after #58 merged to main
 --------------------------------------------------
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat

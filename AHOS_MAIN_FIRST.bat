@@ -90,6 +90,6 @@ if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
 echo.
 echo Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38
 echo Or Desktop AHOS_PASTE_TO_CURSOR.txt if present
-echo If still blocked, run tip surgical AHOS_FIX_G2_AND_GATE.bat from PR #57
+echo If still blocked, run tip surgical AHOS_FIX_G2_AND_GATE.bat from PR #58
 echo PRE_SOAK only if pre_soak_entry_ok=true. Never invent READY.
 exit /b !RC!

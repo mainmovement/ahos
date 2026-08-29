@@ -14,6 +14,17 @@ function stackTop(error: unknown, maxFrames = 6): string | null {
   return frames.length ? frames.join(" | ") : null;
 }
 
+function isTransientPgError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error || "");
+  return /ECONNREFUSED|ETIMEDOUT|ENOTFOUND|Connection terminated|timeout expired|the database system is starting up|remaining connection slots|Too many connections|ECONNRESET/i.test(
+    msg,
+  );
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
 export async function POST(req: Request) {
   const denied = authorizeWebApi(req);
   if (denied) return denied;
@@ -33,7 +44,7 @@ export async function POST(req: Request) {
           }))
           .slice(-12)
       : [];
-    const gw = await conversationGateway({
+    const payload = {
       message: String(body.message || ""),
       conversation_id: (body.conversation_id as string) ?? null,
       user_id: (body.user_id as string) ?? null,
@@ -42,7 +53,21 @@ export async function POST(req: Request) {
       focus_token:
         (body.focus_token as string) ?? (body.focusToken as string) ?? null,
       referenced_token: (body.referenced_token as string) ?? null,
-    });
+    };
+    // One transient retry for Postgres just-started / Next pool race (Windows G2).
+    // Permanent errors (auth, missing relation) still fail honestly — no invented PASS.
+    let gw;
+    try {
+      gw = await conversationGateway(payload);
+    } catch (first) {
+      if (!isTransientPgError(first)) throw first;
+      console.warn(
+        "[api/chat] transient DB error; one retry in 750ms:",
+        first instanceof Error ? first.message : first,
+      );
+      await sleep(750);
+      gw = await conversationGateway(payload);
+    }
     return Response.json({
       reply: gw.answer,
       intent: gw.intent,
@@ -70,8 +95,8 @@ export async function POST(req: Request) {
           error_name: error instanceof Error ? error.name : "UNKNOWN",
           stack_top: top,
           hint:
-            "Windows G2: run scripts\\windows_chat_500_forensics.ps1 and " +
-            "scripts\\windows_ensure_database_url.ps1 (STATE B: no migrate).",
+            "Windows G2: run scripts\\windows_recover_g2_warm.ps1 " +
+            "(forensics + DATABASE_URL + restart; STATE B: no migrate).",
         },
         timestamp: new Date().toISOString(),
       },

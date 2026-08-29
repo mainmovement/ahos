@@ -198,6 +198,60 @@ def test_windows_pre_soak_now_prefers_evidence_push_tip():
     assert idx_push != -1 and idx_old != -1 and idx_push < idx_old
 
 
+def test_windows_fix_g2_and_gate_on_same_tip():
+    bat = (ROOT / "AHOS_FIX_G2_AND_GATE.bat").read_text(encoding="utf-8")
+    assert "windows-main-evidence-push-4bde" in bat
+    assert "windows_fix_g2_empty_and_gate.ps1" in bat
+    assert "db:migrate" in bat.lower()
+    fix = (ROOT / "scripts" / "windows_fix_g2_empty_and_gate.ps1").read_text(
+        encoding="utf-8-sig"
+    )
+    assert "windows-main-evidence-push-4bde" in fix
+    assert "windows_checkout_unlock_tip.ps1" in fix
+    assert "windows_recover_g2_warm.ps1" in fix
+    assert "windows_run_operator_gate.ps1" in fix
+    assert "windows_push_gate_evidence.ps1" in fix
+    assert "db:migrate" in fix.lower()
+
+
+def test_windows_checkout_unlock_tip_uses_ls_tree():
+    text = (ROOT / "scripts" / "windows_checkout_unlock_tip.ps1").read_text(
+        encoding="utf-8-sig"
+    )
+    assert "ls-tree" in text
+    assert "windows_*.ps1" in text
+    assert "AHOS_WINDOWS_OPS.bat" in text
+    assert "db:migrate" in text.lower()
+
+
+def test_windows_bootstrap_presoak_script_exists():
+    text = (ROOT / "scripts" / "windows_bootstrap_presoak.ps1").read_text(
+        encoding="utf-8-sig"
+    )
+    assert "windows-main-evidence-push-4bde" in text
+    assert "AHOS_PRE_SOAK_NOW.bat" in text
+    assert "db:migrate" in text.lower()
+    assert "ls-tree" in text
+
+
+def test_windows_ensure_database_url_realigns_via_docker_exec():
+    text = (ROOT / "scripts" / "windows_ensure_database_url.ps1").read_text(
+        encoding="utf-8-sig"
+    )
+    assert "ALTER ROLE" in text
+    assert "docker exec" in text
+    assert "db:migrate" in text.lower()
+    assert "ahos_postgres_win" in text
+
+
+def test_api_chat_retries_transient_pg_once():
+    text = (ROOT / "app" / "api" / "chat" / "route.ts").read_text(encoding="utf-8")
+    assert "isTransientPgError" in text
+    assert "one retry" in text.lower() or "750" in text
+    assert "windows_recover_g2_warm" in text
+
+
+
 def test_windows_ps1_scripts_are_ascii_for_ps51():
     """PS 5.1: ASCII codepoints + UTF-8 BOM so file decode is correct."""
     bom = b"\xef\xbb\xbf"
