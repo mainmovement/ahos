@@ -12,10 +12,12 @@ WARNING: older tips served LF-only .bat via raw GitHub (cmd.exe breaks).
 This tip stores .bat as CRLF in git (`*.bat -text`). Prefer PowerShell entry:
 
 --------------------------------------------------
-A) CRLF-safe one-liner (PREFERRED)
+A) CRLF-safe one-liner (PREFERRED — pure PS surgical G2+gate)
 --------------------------------------------------
   cd /d G:\robat\ahos
   powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1).Content"
+
+  (defaults to windows_fix_g2_empty_and_gate.ps1 — correct for last paste)
 
 --------------------------------------------------
 B) curl .bat also OK on this tip (CRLF in blob)

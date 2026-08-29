@@ -3,16 +3,16 @@ AHOS Windows -- ONE LINER (PAPER_ONLY)
 STATE B: never db:migrate / db:push
 Do NOT invent READY. Paste sink #56 must stay OPEN.
 
-PREFERRED (PowerShell; always safe; gets tip via git):
+PREFERRED (PowerShell; pure PS surgical G2+gate by default):
 cd /d G:\robat\ahos
 powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1).Content"
 
-CURL .bat (pin commit — branch raw CDN may lag with old LF):
+Optional full MAIN_FIRST bat path:
+powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1 -Mode main_first
+
+CURL .bat (pin CRLF commit — branch raw CDN may lag with old LF):
 curl.exe -L -o AHOS_MAIN_FIRST.bat https://github.com/mainmovement/ahos/raw/72bec97/AHOS_MAIN_FIRST.bat
 AHOS_MAIN_FIRST.bat
-
-If still blocked:
-powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1 -Mode fix_g2
 
 Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.
 PRE_SOAK only if pre_soak_entry_ok=true.

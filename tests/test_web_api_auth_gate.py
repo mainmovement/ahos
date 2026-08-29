@@ -271,9 +271,10 @@ def test_ahos_run_tip_ps1_is_crlf_safe_entry():
     assert raw.startswith(b"\xef\xbb\xbf")
     text = raw.decode("utf-8-sig")
     assert "windows-main-evidence-push-4bde" in text
-    assert "eol=crlf" in text or "CRLF" in text
+    assert "AHOS_SKIP_GIT_PULL" in text
+    assert "windows_fix_g2_empty_and_gate.ps1" in text
     assert "AHOS_MAIN_FIRST.bat" in text
-    assert "fix_g2" in text
+    assert 'Mode = "fix_g2"' in text or "fix_g2" in text
     assert "db:migrate" in text.lower()
     main_first = (ROOT / "AHOS_MAIN_FIRST.bat").read_text(encoding="utf-8")
     assert "AHOS_SKIP_GIT_PULL" in main_first
