@@ -169,6 +169,20 @@ def test_windows_ops_bat_pulls_current_branch_too():
     assert "git pull origin main" in text
     assert "CURBRANCH" in text or "abbrev-ref" in text
     assert "windows_publish_owner_paste.ps1" in (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
+    # Regression: main historically wrote OWNER_PASTE then exited without pushing
+    # evidence — agents never woke. End-of-run + failpaste must push.
+    assert "windows_push_gate_evidence.ps1" in text
+    assert text.lower().count("windows_push_gate_evidence.ps1") >= 2
+    assert "evidence push" in text.lower()
+
+
+def test_windows_main_first_bat_exists():
+    bat = (ROOT / "AHOS_MAIN_FIRST.bat").read_text(encoding="utf-8")
+    assert "git pull origin main" in bat
+    assert "windows_ensure_web_api_token.ps1" in bat
+    assert "AHOS_PRE_SOAK_NOW.bat" in bat
+    assert "db:migrate" in bat.lower()
+    assert "windows_push_gate_evidence.ps1" in bat
 
 
 def test_windows_ps1_scripts_are_ascii_for_ps51():
@@ -309,6 +323,10 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     assert "windows-presoak-unblock-4bde" in pull
     paste = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "windows-evidence-inbox-stay-open-4bde" in paste
+    assert "windows-evidence-inbox-open-sink-4bde" in paste or '"56"' in paste or "Add-Target \"56\"" in paste
+    push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
+    assert "38" in push
+    assert "open-sink" in push or "windows-evidence-inbox-open-sink-4bde" in push
 
 
 def test_windows_run_this_first_points_at_ops_bat():
@@ -316,6 +334,11 @@ def test_windows_run_this_first_points_at_ops_bat():
     assert "AHOS_WINDOWS_OPS.bat" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "db:migrate" in text.lower()
+    assert (
+        "AHOS_MAIN_FIRST.bat" in text
+        or "windows_bootstrap_presoak.ps1" in text
+        or "AHOS_APPLY_TIP.bat" in text
+    )
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
     assert "AHOS_WINDOWS_OPS.bat" in start_ps1
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1
