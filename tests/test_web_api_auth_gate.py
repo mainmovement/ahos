@@ -510,4 +510,5 @@ def test_ahos_g2_clear_main_cmd():
     assert "windows_ensure_web_api_token.ps1" in text
     assert "SeedEvidenceIfNeeded" in text
     assert "Leave-open paste sinks first" in text
+    assert "G2-aligned non-5xx" in text
     assert "db:migrate" in text.lower()
