@@ -4,13 +4,13 @@
 
 ## Now (Windows laptop `G:\robat\ahos`)
 
-1. Prefer merge **PR #59** (leave **PR #56** OPEN as paste sink).
-2. Run (always-latest tip URL):
+1. Prefer merge **PR #59** (includes MICRO #61). Leave **#56** and **#60** OPEN.
+2. Run:
 
 ```bat
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-ops-evidence-push-main-4bde/AHOS_MAIN_CLEAR_G2.cmd
-AHOS_MAIN_CLEAR_G2.cmd
+curl.exe -L -o AHOS_G2_CLEAR_MAIN.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-ops-evidence-push-main-4bde/AHOS_G2_CLEAR_MAIN.cmd
+AHOS_G2_CLEAR_MAIN.cmd
 ```
 
 3. Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` into **#56** or **#38**.
