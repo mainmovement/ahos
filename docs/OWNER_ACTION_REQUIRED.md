@@ -13,7 +13,7 @@ Last Windows paste `20260828_220318` (`cursor/windows-gate-evidence-4bde` @ `988
 - `pre_soak_entry_ok=false` · `operator_ready=false`
 - Paste head was **before** empty-gateway merge #45 — main already defaults empty gateway
 
-Unlock tip: **PR #58** (`cursor/windows-main-evidence-push-4bde`). Keep paste-sink **PR #56 OPEN** (do not merge #56).
+Prefer merge slim **PR #59** first (OPS evidence push + #56/#38 notify, 2 files). Full tip: **PR #58**. Keep paste-sink **PR #56 OPEN** (do not merge #56).
 
 ## Do this on the Windows laptop (`G:\robat\ahos`)
 
@@ -44,7 +44,8 @@ Also see: `OWNER_ONE_LINER.txt` · `RUN_ME_WINDOWS.txt` · `WINDOWS_RUN_THIS_FIR
 
 | ID | Action | Evidence |
 |----|--------|----------|
-| OA-58 | Merge unlock PR #58 | GitHub |
+| OA-59 | Merge slim PR #59 (OPS push) | GitHub |
+| OA-58 | Merge full tip PR #58 | GitHub |
 | OA-RUN | Run `AHOS_MAIN_CLEAR_G2.cmd` (or `AHOS_RUN_TIP.cmd`) on Windows | console + OWNER_PASTE |
 | OA-PASTE | Comment OWNER_PASTE on #56 (leave open) or #38 | GitHub |
 | OA-PS | PRE_SOAK only if `pre_soak_entry_ok=true` | `docs/PRE_SOAK_PROTOCOL.md` |

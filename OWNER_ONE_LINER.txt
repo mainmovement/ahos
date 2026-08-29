@@ -27,4 +27,4 @@ AHOS_MAIN_FIRST.bat
 
 Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.
 PRE_SOAK only if pre_soak_entry_ok=true.
-Please merge PR #58.
+Please merge PR #59 (slim OPS push) then PR #58 (full tip).
