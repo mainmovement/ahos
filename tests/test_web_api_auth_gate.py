@@ -634,3 +634,10 @@ def test_windows_scrub_empty_gateway_ps1_exists():
     text = raw.decode("utf-8-sig")
     assert "AHOS_GATEWAY_URL" in text
     assert "127.0.0.1:3000/api/chat" in text
+
+
+def test_windows_wait_for_web_api_aligns_non5xx_with_g2():
+    path = ROOT / "scripts" / "windows_wait_for_web_api.ps1"
+    text = path.read_text(encoding="utf-8-sig")
+    assert "G2-aligned non-5xx" in text
+    assert "401" in text

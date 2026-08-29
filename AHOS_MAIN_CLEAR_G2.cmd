@@ -17,7 +17,7 @@ REM Wake leave-open paste sink #56 via AHOS_GATE_PR (post_gate on #59 main)
 set "AHOS_GATE_PR=56"
 
 REM Known-good unlock tip (OPS push + post_gate #56/#38). Used if main checkout is stale.
-set "AHOS_UNLOCK_SHA=02d1181278aee2581c2d9182c104a34b9ace628d"
+set "AHOS_UNLOCK_SHA=735c40e08952ffbd259e84c1398bc2384203a17a"
 
 echo ==========================================================
 echo   AHOS MAIN CLEAR G2 (origin/main + unlock overlay)
@@ -82,7 +82,7 @@ if errorlevel 1 (
 REM Overlay post_gate #56/#38 + OPS evidence push from unlock SHA when not yet on main.
 REM SHA-only unlock overlay (avoid fetching named tip branches).
 git fetch origin %AHOS_UNLOCK_SHA% 2>nul
-git checkout %AHOS_UNLOCK_SHA% -- scripts/windows_post_gate_paste_gh.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_scrub_empty_gateway.ps1 AHOS_WINDOWS_OPS.bat 2>nul
+git checkout %AHOS_UNLOCK_SHA% -- scripts/windows_post_gate_paste_gh.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_scrub_empty_gateway.ps1 scripts/windows_wait_for_web_api.ps1 AHOS_WINDOWS_OPS.bat 2>nul
 
 if not exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ERROR: missing windows_ensure_web_api_token.ps1 after main checkout
