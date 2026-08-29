@@ -259,11 +259,33 @@ def test_owner_card_and_one_liner_point_at_pr58():
     assert "#56" in card
     one = (ROOT / "OWNER_ONE_LINER.txt").read_text(encoding="utf-8")
     assert "AHOS_RUN_TIP.cmd" in one or "AHOS_RUN_TIP.ps1" in one
+    assert "AHOS_MAIN_CLEAR_G2.cmd" in one
     assert "windows-main-evidence-push-4bde" in one
     assert "db:migrate" in one.lower()
     assert "AHOS_MAIN_FIRST.bat" in one
+    assert "220318" in one or "#45" in one
     push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
     assert "windows-main-evidence-push-4bde" in push
+
+
+def test_ahos_main_clear_g2_cmd_is_crlf_main_only():
+    raw = (ROOT / "AHOS_MAIN_CLEAR_G2.cmd").read_bytes()
+    assert b"\r\n" in raw
+    assert raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "git pull origin main" in text
+    assert "git checkout origin/main --" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+    assert "windows_run_operator_gate.ps1" in text
+    assert "db:migrate" in text.lower()
+    assert "OWNER_PASTE" in text
+    assert "#56" in text
+    # Runtime path must not git-fetch the tip branch (curl URL in REM is ok)
+    runtime = "\n".join(
+        ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
+    )
+    assert "git fetch origin cursor/" not in runtime
+    assert "windows-main-evidence-push-4bde" not in runtime
 
 
 def test_ahos_run_tip_cmd_is_crlf_and_tls12():
@@ -307,6 +329,8 @@ def test_bat_files_are_crlf_in_working_tree_for_cmd():
         "AHOS_FIX_G2_AND_GATE.bat",
         "AHOS_WINDOWS_OPS.bat",
         "AHOS_PRE_SOAK_NOW.bat",
+        "AHOS_MAIN_CLEAR_G2.cmd",
+        "AHOS_RUN_TIP.cmd",
     ):
         raw = (ROOT / name).read_bytes()
         assert b"\r\n" in raw, name + " missing CRLF"
@@ -460,11 +484,13 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
 
 def test_windows_run_this_first_points_at_ops_bat():
     text = (ROOT / "WINDOWS_RUN_THIS_FIRST.txt").read_text(encoding="utf-8")
-    assert "AHOS_WINDOWS_OPS.bat" in text
+    assert "AHOS_WINDOWS_OPS.bat" in text or "AHOS_MAIN_CLEAR_G2.cmd" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "db:migrate" in text.lower()
     assert (
         "AHOS_RUN_TIP.ps1" in text
+        or "AHOS_RUN_TIP.cmd" in text
+        or "AHOS_MAIN_CLEAR_G2.cmd" in text
         or "AHOS_MAIN_FIRST.bat" in text
         or "windows_bootstrap_presoak.ps1" in text
         or "AHOS_APPLY_TIP.bat" in text

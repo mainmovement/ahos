@@ -1,9 +1,17 @@
 # کارت مالک — PRE_SOAK (Windows PAPER_ONLY)
 
-**کد:** empty-gateway روی `main` است (#45). تیپ یک‌جا: PR **#58**.  
+**کد:** empty-gateway روی `main` است (#45). آخرین پیست `220318` قبل از #45 بود. تیپ یک‌جا: PR **#58**.  
 **DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
 
-## A) ترجیحی — دانلود .cmd و دوبارکلیک
+## A) سریع‌ترین — فقط main (بدون tip branch)
+
+```bat
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+```
+
+## B) تیپ — دانلود .cmd و دوبارکلیک
 
 ```bat
 cd /d G:\robat\ahos
@@ -11,7 +19,7 @@ curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/a
 AHOS_RUN_TIP.cmd
 ```
 
-## B) PowerShell با TLS1.2
+## C) PowerShell با TLS1.2
 
 ```bat
 powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; iex (iwr -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1').Content"

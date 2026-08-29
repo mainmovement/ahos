@@ -103,6 +103,7 @@ function Install-TipViaRaw {
     "AHOS_WINDOWS_OPS.bat",
     "AHOS_PUSH_EVIDENCE_NOW.bat",
     "AHOS_RUN_TIP.cmd",
+    "AHOS_MAIN_CLEAR_G2.cmd",
     "OWNER_ONE_LINER.txt"
   )
   $ok = 0

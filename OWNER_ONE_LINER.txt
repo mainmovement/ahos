@@ -3,15 +3,24 @@ AHOS Windows -- ONE LINER (PAPER_ONLY)
 STATE B: never db:migrate / db:push
 Do NOT invent READY. Paste sink #56 must stay OPEN.
 
-A) PREFERRED — double-click / curl .cmd (CRLF in git blob):
+WHY: last paste 20260828_220318 was G2 empty-gateway BLOCKED.
+Empty-gateway fix (#45) landed on main ~28 min AFTER that paste.
+So origin/main alone can clear G2; tip #58 adds OPS auto evidence-push.
+
+A) FASTEST — MAIN ONLY (no tip branch needed after this curl):
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+
+B) PREFERRED tip runner (surgical G2 + tip notify #56):
 cd /d G:\robat\ahos
 curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
 AHOS_RUN_TIP.cmd
 
-B) Or PowerShell (TLS1.2):
+C) Or PowerShell tip (TLS1.2):
 powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; iex (iwr -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1').Content"
 
-C) Optional MAIN_FIRST bat (CDN now CRLF on tip):
+D) Optional MAIN_FIRST bat:
 curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
 AHOS_MAIN_FIRST.bat
 

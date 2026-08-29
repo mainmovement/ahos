@@ -4,12 +4,19 @@ STATE B: NEVER db:migrate / db:push
 Do NOT invent PRE_SOAK / OPERATOR_READY without OWNER_PASTE
 
 Last evidence (20260828_220318): G2 BLOCKED on empty AHOS_GATEWAY_URL;
-G3-G10 already PASS. Empty-gateway fix is already on main (#45).
+G3-G10 already PASS. Empty-gateway fix (#45) landed on main AFTER that paste.
 
 Please merge unlock PR #58. Keep #56 OPEN.
 
 --------------------------------------------------
-A) PREFERRED — curl .cmd then double-click (CRLF in blob)
+A) FASTEST — MAIN ONLY (no tip branch after curl)
+--------------------------------------------------
+  cd /d G:\robat\ahos
+  curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_CLEAR_G2.cmd
+  AHOS_MAIN_CLEAR_G2.cmd
+
+--------------------------------------------------
+B) Tip runner — curl .cmd then double-click (CRLF in blob)
 --------------------------------------------------
   cd /d G:\robat\ahos
   curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
@@ -18,27 +25,27 @@ A) PREFERRED — curl .cmd then double-click (CRLF in blob)
   (runs pure-PS surgical G2+gate — correct for last paste)
 
 --------------------------------------------------
-B) Or PowerShell with TLS1.2
+C) Or PowerShell tip with TLS1.2
 --------------------------------------------------
   powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; iex (iwr -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1').Content"
 
 --------------------------------------------------
-C) curl MAIN_FIRST.bat (tip CDN now serves CRLF)
+D) curl MAIN_FIRST.bat (tip CDN now serves CRLF)
 --------------------------------------------------
   curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
   AHOS_MAIN_FIRST.bat
 
 --------------------------------------------------
-D) If still blocked — FIX_G2 mode
+E) If still blocked — FIX_G2 mode
 --------------------------------------------------
   powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1 -Mode fix_g2
 
 --------------------------------------------------
-E) After git pull of tip / merge of #58
+F) After git pull of tip / merge of #58
 --------------------------------------------------
   git fetch origin cursor/windows-main-evidence-push-4bde
-  git checkout origin/cursor/windows-main-evidence-push-4bde -- AHOS_MAIN_FIRST.bat AHOS_RUN_TIP.cmd
-  AHOS_RUN_TIP.cmd
+  git checkout origin/cursor/windows-main-evidence-push-4bde -- AHOS_MAIN_CLEAR_G2.cmd AHOS_RUN_TIP.cmd
+  AHOS_MAIN_CLEAR_G2.cmd
 
 PRE_SOAK only if pre_soak_entry_ok=true (G1-G10). Never invent READY.
 Merge #58. Leave paste-sink PR #56 OPEN.
