@@ -500,3 +500,14 @@ def test_windows_wait_for_web_api_aligns_non5xx_with_g2():
     assert "401" in text
     assert "exit 0" in text
     assert "db:migrate" not in text.lower() or "STATE B" in text
+
+
+def test_ahos_g2_clear_main_cmd():
+    raw = (ROOT / "AHOS_G2_CLEAR_MAIN.cmd").read_bytes()
+    assert b"\r\n" in raw and raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+    assert "SeedEvidenceIfNeeded" in text
+    assert "Leave-open paste sinks first" in text
+    assert "db:migrate" in text.lower()
