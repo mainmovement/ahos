@@ -230,6 +230,10 @@ if exist "reports\LATEST_WINDOWS_GATE.txt" (
 if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
   call :log Paste file ready: reports\OWNER_PASTE_WINDOWS_GATE.txt
   call :log Prefer Ctrl+V into Cursor, or forward Telegram doc if sent.
+  if exist "scripts\windows_push_gate_evidence.ps1" (
+    call :log ==^> belt-and-suspenders evidence push + PR notify
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_push_gate_evidence.ps1"
+  )
 ) else (
   call :log Paste reports\operator_validation_report_windows_*.json into Cursor.
 )
@@ -248,6 +252,12 @@ if exist "scripts\windows_write_ops_failure_paste.ps1" (
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_write_ops_failure_paste.ps1" -Stage "%~1" -Detail "%~2"
 ) else (
   call :log WARNING: failure paste helper missing - copy %LOG% into Cursor
+)
+if exist "scripts\windows_push_gate_evidence.ps1" (
+  if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
+    call :log ==^> evidence push after failure paste
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_push_gate_evidence.ps1"
+  )
 )
 goto :eof
 

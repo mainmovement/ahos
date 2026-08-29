@@ -1,0 +1,218 @@
+@echo off
+REM AHOS -- MAIN-ONLY G2 clear + full gate (PAPER_ONLY)
+REM Empty-gateway fix is already on origin/main (#45). Last paste 220318 was BEFORE that merge.
+REM G12 charmap also fixed on main (validate_n8n UTF-8). Last paste head lacked encoding=.
+REM STATE B: never db:migrate / db:push. Does NOT invent READY.
+REM
+REM   After #59 merges to main:
+REM   curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/main/AHOS_MAIN_CLEAR_G2.cmd
+REM   AHOS_MAIN_CLEAR_G2.cmd
+setlocal EnableExtensions EnableDelayedExpansion
+cd /d "%~dp0"
+
+set "PYTHONUTF8=1"
+set "PYTHONIOENCODING=utf-8"
+
+REM Wake leave-open paste sink #56 via AHOS_GATE_PR (post_gate on #59 main)
+set "AHOS_GATE_PR=56"
+
+REM Known-good unlock tip (OPS push + post_gate #56/#38). Used if main checkout is stale.
+set "AHOS_UNLOCK_SHA=55e4e79fbc57f14517af917e4f144faba19b94cd"
+
+echo ==========================================================
+echo   AHOS MAIN CLEAR G2 (origin/main + unlock overlay)
+echo   Will NOT migrate DB or claim READY
+echo ==========================================================
+
+where git >nul 2>&1
+if errorlevel 1 (
+  echo ERROR: git not on PATH
+  pause
+  exit /b 2
+)
+
+set "PS=powershell"
+where powershell >nul 2>&1
+if errorlevel 1 (
+  if exist "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" (
+    set "PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
+  ) else (
+    echo ERROR: powershell.exe not found
+    pause
+    exit /b 2
+  )
+)
+
+echo ==^> git fetch / pull origin main
+git fetch origin main
+git pull origin main
+if errorlevel 1 (
+  echo WARNING: git pull failed - continuing with local tree + checkout from origin/main
+)
+
+echo ==^> checkout gate + warm scripts from origin/main
+REM Do NOT list unlock-only files here (e.g. windows_scrub_empty_gateway.ps1).
+REM git checkout origin/main -- pathspec fails the WHOLE command if any path is missing,
+REM which would leave a pre-#45 laptop stuck on stale gate/ensure scripts.
+git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_seed_local_evidence.ps1 AHOS_PUSH_EVIDENCE_NOW.bat
+if errorlevel 1 (
+  echo WARNING: git checkout origin/main scripts returned non-zero
+)
+
+REM If laptop was stuck on pre-#45 gate, empty AHOS_GATEWAY_URL still BLOCKs G2.
+REM Refuse to continue with a gate that lacks the empty-gateway default.
+findstr /C:"must NOT BLOCK" "scripts\operator_validation_gate.py" >nul 2>&1
+if errorlevel 1 (
+  echo WARNING: gate missing empty-gateway fix - forcing from origin/main blob
+  git show origin/main:scripts/operator_validation_gate.py > "scripts\operator_validation_gate.py"
+)
+findstr /C:"must NOT BLOCK" "scripts\operator_validation_gate.py" >nul 2>&1
+if errorlevel 1 (
+  echo WARNING: origin/main blob still old - curling unlock/main raw gate
+  curl.exe -fsSL -o "scripts\operator_validation_gate.py" "https://raw.githubusercontent.com/mainmovement/ahos/main/scripts/operator_validation_gate.py"
+  if errorlevel 1 (
+    curl.exe -fsSL -o "scripts\operator_validation_gate.py" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/operator_validation_gate.py"
+  )
+)
+findstr /C:"must NOT BLOCK" "scripts\operator_validation_gate.py" >nul 2>&1
+if errorlevel 1 (
+  echo ERROR: operator_validation_gate.py still lacks empty-gateway fix
+  echo        Fix network/git and re-run. Do not invent READY.
+  pause
+  exit /b 2
+)
+
+REM Overlay post_gate #56/#38 + scrub + OPS evidence push from unlock SHA when not yet on main.
+REM SHA-only unlock overlay (avoid fetching named tip branches).
+REM Always curl-fallback: main push/post_gate still lack hardcoded #56 wake after inbox merges.
+git fetch origin %AHOS_UNLOCK_SHA% 2>nul
+git checkout %AHOS_UNLOCK_SHA% -- scripts/windows_post_gate_paste_gh.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_scrub_empty_gateway.ps1 scripts/windows_wait_for_web_api.ps1 AHOS_WINDOWS_OPS.bat 2>nul
+
+if not exist "scripts\windows_scrub_empty_gateway.ps1" (
+  echo WARNING: scrub missing - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_scrub_empty_gateway.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_scrub_empty_gateway.ps1"
+)
+if not exist "scripts\windows_post_gate_paste_gh.ps1" (
+  echo WARNING: post_gate missing - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_post_gate_paste_gh.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_post_gate_paste_gh.ps1"
+)
+if not exist "scripts\windows_wait_for_web_api.ps1" (
+  echo WARNING: wait_for_web_api missing - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_wait_for_web_api.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_wait_for_web_api.ps1"
+)
+if not exist "AHOS_WINDOWS_OPS.bat" (
+  echo WARNING: OPS bat missing - curling unlock SHA
+  curl.exe -fsSL -o "AHOS_WINDOWS_OPS.bat" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/AHOS_WINDOWS_OPS.bat"
+)
+
+REM Main push_gate_evidence does not hardcode #56; unlock tip does. Force unlock blob if needed.
+REM Use quote-free findstr marker (cmd does not treat \" as an escape inside /C:").
+set "NEED_PUSH_CURL=0"
+if not exist "scripts\windows_push_gate_evidence.ps1" set "NEED_PUSH_CURL=1"
+if exist "scripts\windows_push_gate_evidence.ps1" (
+  findstr /C:"Leave-open paste sinks first" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
+  if errorlevel 1 set "NEED_PUSH_CURL=1"
+)
+if "%NEED_PUSH_CURL%"=="1" (
+  echo WARNING: push script lacks #56 leave-open wake or missing - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_push_gate_evidence.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_push_gate_evidence.ps1"
+)
+findstr /C:"Leave-open paste sinks first" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
+if errorlevel 1 (
+  echo ERROR: windows_push_gate_evidence.ps1 still lacks #56 leave-open wake after curl
+  echo        Evidence may not wake leave-open sink. Fix network and re-run.
+)
+
+if not exist "scripts\windows_ensure_web_api_token.ps1" (
+  echo ERROR: missing windows_ensure_web_api_token.ps1 after main checkout
+  pause
+  exit /b 2
+)
+if not exist "scripts\windows_run_operator_gate.ps1" (
+  echo ERROR: missing windows_run_operator_gate.ps1 after main checkout
+  pause
+  exit /b 2
+)
+
+REM Belt-and-suspenders: scrub empty AHOS_GATEWAY_URL via dedicated ps1 (cmd-safe).
+echo ==^> scrub empty AHOS_GATEWAY_URL in .env
+if exist "scripts\windows_scrub_empty_gateway.ps1" (
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_scrub_empty_gateway.ps1"
+) else (
+  echo WARNING: windows_scrub_empty_gateway.ps1 missing - ensure token may still fill gateway
+)
+
+echo ==^> scrub empty AHOS_GATEWAY_URL + ensure web API token
+"%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_web_api_token.ps1"
+if errorlevel 1 (
+  echo WARNING: ensure token returned non-zero - continuing
+)
+
+if exist "scripts\windows_ensure_postgres_win.ps1" (
+  echo ==^> ensure Postgres container ready (STATE B: no migrate)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_postgres_win.ps1"
+  if errorlevel 1 (
+    echo WARNING: postgres ensure failed - G2 may HTTP 500; continuing
+  )
+)
+
+if exist "scripts\windows_ensure_database_url.ps1" (
+  echo ==^> ensure DATABASE_URL (probe-first; STATE B)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
+)
+
+REM After ensure token/DB URL, ALWAYS restart Next so .env reloads.
+REM A stale :3000 listener (pre-token) would otherwise warm-401 then delay G2.
+echo ==^> restart Next so .env token/DATABASE_URL are loaded
+if exist "scripts\windows_restart_next_dev.ps1" (
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_restart_next_dev.ps1"
+) else if exist "scripts\windows_recover_g2_warm.ps1" (
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
+) else (
+  echo WARNING: no restart_next / recover script - if :3000 is stale, G2 may 401
+)
+
+if exist "scripts\windows_wait_for_web_api.ps1" (
+  echo ==^> warm /api/chat
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
+  if errorlevel 1 (
+    echo WARNING: warm failed - trying recover_g2_warm then re-warm
+    if exist "scripts\windows_recover_g2_warm.ps1" (
+      "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
+    )
+    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
+    if errorlevel 1 (
+      echo WARNING: /api/chat still not warm - gate will report honest G2
+    )
+  )
+)
+
+echo ==^> full operator gate G1-G12 + evidence push
+"%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_run_operator_gate.ps1" -SeedEvidenceIfNeeded
+set "RC=!ERRORLEVEL!"
+
+echo.
+echo ==========================================================
+echo   NEXT: paste OWNER_PASTE into GitHub PR #56 or #38
+echo   Leave PR #56 OPEN. Merge PR #59 so main OPS always pushes evidence.
+echo   PRE_SOAK only if pre_soak_entry_ok=true. Never invent READY.
+echo ==========================================================
+if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
+  echo OWNER_PASTE: %CD%\reports\OWNER_PASTE_WINDOWS_GATE.txt
+) else (
+  echo OWNER_PASTE missing - scroll console for errors
+)
+if exist "%USERPROFILE%\Desktop\AHOS_PASTE_TO_CURSOR.txt" (
+  echo Desktop copy: %USERPROFILE%\Desktop\AHOS_PASTE_TO_CURSOR.txt
+)
+if exist "reports\PRE_SOAK_STATUS.txt" (
+  echo ---- PRE_SOAK_STATUS ----
+  type "reports\PRE_SOAK_STATUS.txt"
+)
+if exist "reports\LATEST_WINDOWS_GATE.txt" (
+  echo ---- LATEST_WINDOWS_GATE ----
+  type "reports\LATEST_WINDOWS_GATE.txt"
+)
+echo.
+pause
+exit /b !RC!

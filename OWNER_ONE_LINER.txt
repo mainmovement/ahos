@@ -1,0 +1,22 @@
+AHOS Windows -- ONE LINER (PAPER_ONLY)
+=====================================
+STATE B: never db:migrate / db:push
+Do NOT invent READY. Leave open: #56 (paste) and #60 (evidence wake).
+
+WHY: last paste 20260828_220318 = G2 empty-gateway BLOCKED (pre-#45).
+Main already fills empty gateway (#45). Tip wakes #56/#60 after gate.
+
+Prefer merge PR #59 (includes MICRO #61). Never merge #56 or #60.
+
+A) SIMPLEST (always-latest tip):
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_G2_CLEAR_MAIN.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-ops-evidence-push-main-4bde/AHOS_G2_CLEAR_MAIN.cmd
+AHOS_G2_CLEAR_MAIN.cmd
+
+B) Full MAIN_CLEAR (same tip; extra scrub/unlock overlays):
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-ops-evidence-push-main-4bde/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+
+Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to #56 or #38.
+PRE_SOAK only if pre_soak_entry_ok=true (G1-G10 on real Windows).
+G11 Telegram is for OPERATOR_READY only.

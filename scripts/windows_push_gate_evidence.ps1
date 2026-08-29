@@ -194,9 +194,10 @@ if ($pushOk -and ($null -ne $gh)) {
       $existing = & gh pr list --head $EvidenceBranch --state open --json number -q ".[0].number" 2>$null
       if ([string]::IsNullOrWhiteSpace($existing)) {
         & gh pr create --base main --head $EvidenceBranch `
-          --title "Windows gate evidence (not READY)" `
-          --body "Auto-pushed OWNER_PASTE / gate JSON from laptop. **Not** an OPERATOR_READY claim. STATE B: no migrate. Agent: read ``reports/windows_gate_evidence/``." `
+          --title "LEAVE OPEN: Windows gate evidence wake (not READY)" `
+          --body "Auto-pushed OWNER_PASTE / gate JSON from laptop.`n`n**Please leave this PR open** so agents wake on updates. Merging closes the wake path.`n`nNot an OPERATOR_READY claim. STATE B: no migrate. Agent: read ``reports/windows_gate_evidence/``." `
           2>&1 | Out-Host
+        $existing = & gh pr list --head $EvidenceBranch --state open --json number -q ".[0].number" 2>$null
       } else {
         Write-Host ("[gate-evidence] evidence PR already open #" + $existing) -ForegroundColor Green
       }
@@ -208,14 +209,27 @@ if ($pushOk -and ($null -ne $gh)) {
           "--- LATEST_WINDOWS_GATE ---"
         )
         $notify += Get-Content -LiteralPath $LatestPath -ErrorAction SilentlyContinue
+        if (Test-Path -LiteralPath $PastePath) {
+          $notify += "--- OWNER_PASTE_HEAD ---"
+          $notify += (Get-Content -LiteralPath $PastePath -TotalCount 40 -ErrorAction SilentlyContinue)
+        }
         $notifyFile = Join-Path $evDir ("NOTIFY_UNLOCK_" + $stamp + ".txt")
         [System.IO.File]::WriteAllText($notifyFile, ($notify -join "`n") + "`n", $utf8)
         $notifyTargets = New-Object System.Collections.Generic.List[string]
-        if (-not [string]::IsNullOrWhiteSpace($existing)) { [void]$notifyTargets.Add([string]$existing) }
+        # Leave-open paste sinks first (survives inbox merges). Prefer AHOS_GATE_PR.
+        if (-not [string]::IsNullOrWhiteSpace($env:AHOS_GATE_PR)) {
+          [void]$notifyTargets.Add(([string]$env:AHOS_GATE_PR).Trim())
+        }
+        [void]$notifyTargets.Add("56")
+        [void]$notifyTargets.Add("38")
+        [void]$notifyTargets.Add("60")
+        if (-not [string]::IsNullOrWhiteSpace($existing)) {
+          if (-not ($notifyTargets -contains [string]$existing)) { [void]$notifyTargets.Add([string]$existing) }
+        }
         try {
           $open = & gh pr list --state open --limit 20 --json number,headRefName 2>$null | ConvertFrom-Json
           foreach ($p in $open) {
-            if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2|evidence|lease|inbox') {
+            if ($p.headRefName -match 'windows|harden|unlock|ops|gate|pre.?soak|g2|evidence|lease|inbox|sink|retarget') {
               $n = [string]$p.number
               if (-not ($notifyTargets -contains $n)) { [void]$notifyTargets.Add($n) }
             }
@@ -223,6 +237,11 @@ if ($pushOk -and ($null -ne $gh)) {
         } catch {}
         # Always try the dedicated evidence inbox heads if open.
         foreach ($inboxHead in @(
+          "cursor/windows-gate-evidence-4bde",
+          "cursor/windows-evidence-inbox-open-sink-4bde",
+          "cursor/windows-ops-evidence-push-main-4bde",
+          "cursor/windows-main-evidence-push-4bde",
+          "cursor/windows-evidence-notify-retarget-4bde",
           "cursor/windows-evidence-inbox-stay-open-4bde",
           "cursor/windows-evidence-inbox-live-4bde",
           "cursor/windows-evidence-inbox-open-4bde",
@@ -236,7 +255,7 @@ if ($pushOk -and ($null -ne $gh)) {
             }
           } catch {}
         }
-        # Prefer current unlock tip if listed; keep #45/#38 as legacy sink when still open
+        # Prefer current unlock tip if listed; keep #38 as durable sink
         foreach ($prNum in $notifyTargets) {
           & gh pr comment $prNum --body-file $notifyFile 2>&1 | Out-Host
         }

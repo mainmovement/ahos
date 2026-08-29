@@ -124,6 +124,9 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "one recovery" in text.lower() or "Recovery warm" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+    # Evidence must leave the laptop (otherwise subscribed agents never wake).
+    assert "windows_push_gate_evidence.ps1" in text
+    assert text.count("windows_push_gate_evidence.ps1") >= 2
 
 
 def test_windows_validate_ps1_parse_script_exists():
@@ -160,6 +163,8 @@ def test_windows_push_gate_evidence_helper_exists():
     # Lease against fetched origin tip so laptop pushes do not silently no-op
     assert "origin/" in text and "fetch origin" in text
     assert "NOTIFY_UNLOCK" in text or "gh pr comment" in text
+    assert "60" in text  # leave-open evidence PR wake
+    assert "Leave-open paste sinks first" in text
     runner = (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
     assert "windows_push_gate_evidence.ps1" in runner
 
@@ -280,11 +285,20 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert "OWNER_PASTE_WINDOWS_GATE_SLIM" in text
     assert "BEGIN WINDOWS GATE PASTE" in text
     assert "windows_post_gate_paste_gh.ps1" in text
+    assert "windows_push_gate_evidence.ps1" in text
+    runtime = "\n".join(
+        ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
+    )
+    assert "git fetch origin cursor/" not in runtime
     helper = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "gh pr comment" in helper
+    assert '"56"' in helper  # leave-open paste sink
+    assert '"60"' in helper  # leave-open evidence-branch wake
     assert '"45"' in helper  # unlock PR sink for subscribed agents
     assert '"37"' in helper or "37" in helper
     assert '"36"' in helper or "36" in helper
+    assert '"56"' in helper  # leave-open paste sink
+    assert '"38"' in helper  # durable open sink
     assert "db:migrate" in helper.lower() or "READY" in helper
 
 
@@ -412,3 +426,97 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     TelegramDomainService().handle_message("سلام")
     headers = {k.lower(): v for k, v in captured["headers"].items()}
     assert "authorization" not in headers
+
+
+def test_ahos_main_clear_g2_cmd_on_main_path():
+    """MAIN_CLEAR is curl-safe CRLF and wakes #56 after ensure/restart/gate."""
+    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.cmd -text" in attrs
+    raw = (ROOT / "AHOS_MAIN_CLEAR_G2.cmd").read_bytes()
+    assert b"\r\n" in raw
+    assert raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_run_operator_gate.ps1" in text
+    assert "windows_restart_next_dev.ps1" in text
+    assert "validate_n8n.py" in text
+    assert "db:migrate" in text.lower()
+    # Refuse pre-#45 gate (empty AHOS_GATEWAY_URL BLOCKED last Windows paste).
+    assert "must NOT BLOCK" in text
+    assert "AHOS_UNLOCK_SHA" in text
+    assert "windows_scrub_empty_gateway.ps1" in text
+    assert "windows_ensure_postgres_win.ps1" in text
+    assert "SeedEvidenceIfNeeded" in text
+    assert "windows_seed_local_evidence.ps1" in text
+    assert "windows_post_gate_paste_gh.ps1" in text
+    assert "windows_push_gate_evidence.ps1" in text
+    runtime = "\n".join(
+        ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
+    )
+    assert "git fetch origin cursor/" not in runtime
+    # Unlock-only scrub must not be in the origin/main pathspec (aborts whole checkout).
+    main_checkout_lines = [
+        ln
+        for ln in runtime.splitlines()
+        if "git checkout origin/main --" in ln
+    ]
+    assert main_checkout_lines, "expected origin/main checkout"
+    assert all(
+        "windows_scrub_empty_gateway.ps1" not in ln for ln in main_checkout_lines
+    )
+    assert "git checkout %AHOS_UNLOCK_SHA% --" in runtime
+    assert any(
+        "windows_scrub_empty_gateway.ps1" in ln
+        and "AHOS_UNLOCK_SHA" in ln
+        for ln in runtime.splitlines()
+    ) or "git checkout %AHOS_UNLOCK_SHA% --" in runtime
+    # If unlock git overlay fails, curl must still force push script with #56 hardcode
+    # (origin/main push_gate_evidence still lacks leave-open #56 after inbox merges).
+    assert "NEED_PUSH_CURL" in runtime
+    assert "Leave-open paste sinks first" in text
+    assert (
+        "windows_push_gate_evidence.ps1" in runtime
+        and "raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_push_gate_evidence.ps1"
+        in runtime
+    )
+
+
+def test_windows_scrub_empty_gateway_ps1_exists():
+    path = ROOT / "scripts" / "windows_scrub_empty_gateway.ps1"
+    assert path.is_file()
+    raw = path.read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")
+    text = raw.decode("utf-8-sig")
+    assert "AHOS_GATEWAY_URL" in text
+    assert "127.0.0.1:3000/api/chat" in text
+    assert "db:migrate" not in text.lower() or "never" in text.lower()
+
+
+def test_windows_wait_for_web_api_aligns_non5xx_with_g2():
+    """Warm success must match G2: reachable non-5xx (401 still fail-fast)."""
+    path = ROOT / "scripts" / "windows_wait_for_web_api.ps1"
+    text = path.read_text(encoding="utf-8-sig")
+    assert "G2-aligned non-5xx" in text
+    assert "401" in text
+    assert "exit 0" in text
+    assert "db:migrate" not in text.lower() or "STATE B" in text
+
+
+def test_ahos_g2_clear_main_cmd():
+    raw = (ROOT / "AHOS_G2_CLEAR_MAIN.cmd").read_bytes()
+    assert b"\r\n" in raw and raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+    assert "SeedEvidenceIfNeeded" in text
+    assert "Leave-open paste sinks first" in text
+    assert "G2-aligned non-5xx" in text
+    assert "db:migrate" in text.lower()
+
+
+def test_ahos_pre_soak_now_delegates_g2_clear():
+    text = (ROOT / "AHOS_PRE_SOAK_NOW.bat").read_text(encoding="utf-8", errors="replace")
+    assert "AHOS_G2_CLEAR_MAIN.cmd" in text
+    assert "call AHOS_G2_CLEAR_MAIN.cmd" in text
+    assert "db:migrate" in text.lower()
+    assert "windows-ops-evidence-push-main-4bde" in text
