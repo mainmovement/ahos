@@ -90,23 +90,17 @@ if (Test-Path -LiteralPath $dbUrl) {
   & powershell -NoProfile -ExecutionPolicy Bypass -File $dbUrl
 }
 
-# If nothing is listening on :3000, skip the long warm loop and recover immediately.
-$portOpen = $false
-try {
-  $tnc = Test-NetConnection -ComputerName "127.0.0.1" -Port 3000 -WarningAction SilentlyContinue
-  if ($tnc -and $tnc.TcpTestSucceeded) { $portOpen = $true }
-} catch {}
-if (-not $portOpen) {
-  Write-Host "==> :3000 not listening - recover_g2_warm before gate" -ForegroundColor Yellow
-  $recover = Join-Path $RepoRoot "scripts\windows_recover_g2_warm.ps1"
-  if (Test-Path -LiteralPath $recover) {
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $recover
-  } else {
-    $restart = Join-Path $RepoRoot "scripts\windows_restart_next_dev.ps1"
-    if (Test-Path -LiteralPath $restart) {
-      & powershell -NoProfile -ExecutionPolicy Bypass -File $restart
-    }
-  }
+# After ensure token/DB URL, ALWAYS restart Next so .env reloads.
+# A stale :3000 listener (pre-token) would otherwise warm-401 then delay G2.
+Write-Host "==> restart Next so .env token/DATABASE_URL are loaded" -ForegroundColor Cyan
+$restart = Join-Path $RepoRoot "scripts\windows_restart_next_dev.ps1"
+$recover = Join-Path $RepoRoot "scripts\windows_recover_g2_warm.ps1"
+if (Test-Path -LiteralPath $restart) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $restart -RepoRoot $RepoRoot
+} elseif (Test-Path -LiteralPath $recover) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $recover
+} else {
+  Write-Host "WARN: no restart_next / recover script - if :3000 is stale, G2 may 401" -ForegroundColor Yellow
 }
 
 $wait = Join-Path $RepoRoot "scripts\windows_wait_for_web_api.ps1"

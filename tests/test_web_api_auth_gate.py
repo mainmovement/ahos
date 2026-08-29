@@ -209,6 +209,8 @@ def test_windows_fix_g2_and_gate_on_same_tip():
     assert "windows-main-evidence-push-4bde" in fix
     assert "windows_checkout_unlock_tip.ps1" in fix
     assert "windows_recover_g2_warm.ps1" in fix
+    assert "windows_restart_next_dev.ps1" in fix
+    assert "restart Next so .env" in fix
     assert "windows_run_operator_gate.ps1" in fix
     assert "windows_push_gate_evidence.ps1" in fix
     assert "db:migrate" in fix.lower()
@@ -278,8 +280,9 @@ def test_ahos_main_clear_g2_cmd_is_crlf_main_only():
     assert "windows_ensure_web_api_token.ps1" in text
     assert "windows_run_operator_gate.ps1" in text
     assert "validate_n8n.py" in text  # G12 charmap fix on main
-    assert "windows_recover_g2_warm.ps1" in text
+    assert "windows_restart_next_dev.ps1" in text
     assert "windows_wait_for_web_api.ps1" in text
+    assert "restart Next so .env" in text
     assert "PYTHONUTF8=1" in text
     assert "AHOS_GATE_PR=56" in text
     assert "windows_post_gate_paste_gh.ps1" in text

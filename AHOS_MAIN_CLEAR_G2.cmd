@@ -78,24 +78,22 @@ if exist "scripts\windows_ensure_database_url.ps1" (
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
 )
 
-echo ==^> check :3000 / warm /api/chat
-"%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$p=$false; try { $t=Test-NetConnection -ComputerName 127.0.0.1 -Port 3000 -WarningAction SilentlyContinue; if($t -and $t.TcpTestSucceeded){$p=$true} } catch {}; if(-not $p){ Write-Host ':3000 down - recover_g2_warm'; exit 11 } else { Write-Host ':3000 listening'; exit 0 }"
-if errorlevel 1 (
-  if exist "scripts\windows_recover_g2_warm.ps1" (
-    echo ==^> recover_g2_warm
-    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
-  ) else if exist "scripts\windows_restart_next_dev.ps1" (
-    echo ==^> restart_next_dev
-    "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_restart_next_dev.ps1"
-  )
+REM After ensure token/DB URL, ALWAYS restart Next so .env reloads.
+REM A stale :3000 listener (pre-token) would otherwise warm-401 then delay G2.
+echo ==^> restart Next so .env token/DATABASE_URL are loaded
+if exist "scripts\windows_restart_next_dev.ps1" (
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_restart_next_dev.ps1"
+) else if exist "scripts\windows_recover_g2_warm.ps1" (
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
+) else (
+  echo WARNING: no restart_next / recover script - if :3000 is stale, G2 may 401
 )
 
 if exist "scripts\windows_wait_for_web_api.ps1" (
   echo ==^> warm /api/chat
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_wait_for_web_api.ps1"
   if errorlevel 1 (
-    echo WARNING: warm failed - trying recover then re-warm
+    echo WARNING: warm failed - trying recover_g2_warm then re-warm
     if exist "scripts\windows_recover_g2_warm.ps1" (
       "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_recover_g2_warm.ps1"
     )
