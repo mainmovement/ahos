@@ -42,9 +42,20 @@ if errorlevel 1 (
 )
 
 echo ==^> checkout gate scripts from origin/main
-git checkout origin/main -- scripts/operator_validation_gate.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_seed_local_evidence.ps1 scripts/windows_publish_owner_paste.ps1
+git checkout origin/main -- scripts/operator_validation_gate.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_seed_local_evidence.ps1 scripts/windows_publish_owner_paste.ps1
 if errorlevel 1 (
   echo WARNING: main checkout returned non-zero
+)
+
+REM Tip wait is G2-aligned (reachable non-5xx exits 0). Main wait is 2xx-only.
+echo ==^> overlay G2-aligned wait_for_web_api from unlock tip
+curl.exe -fsSL -o "scripts\windows_wait_for_web_api.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-ops-evidence-push-main-4bde/scripts/windows_wait_for_web_api.ps1"
+if errorlevel 1 (
+  git checkout origin/main -- scripts/windows_wait_for_web_api.ps1 2>nul
+)
+findstr /C:"G2-aligned non-5xx" "scripts\windows_wait_for_web_api.ps1" >nul 2>&1
+if errorlevel 1 (
+  echo WARNING: wait script missing G2-aligned non-5xx - warm may be stricter than G2
 )
 
 REM Wake hardcodes (#56/#60): prefer this PR tree, else curl tip, else main after #61 merge.
