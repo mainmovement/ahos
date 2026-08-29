@@ -3,7 +3,7 @@
 #
 # Operator prep ONLY. This script does NOT claim OPERATOR_READY and does NOT
 # start PRE_SOAK / soak. After install, prefer MAIN_CLEAR then paste OWNER_PASTE:
-#   curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/6be63420db3a1b975c8fc3c4f962a11d1d3c71ad/AHOS_MAIN_CLEAR_G2.cmd
+#   curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/ade1bf28a1a26bbbfea7f128d91653696d836b95/AHOS_MAIN_CLEAR_G2.cmd
 #   AHOS_MAIN_CLEAR_G2.cmd
 #   docs\WINDOWS_OPERATOR_HANDOFF.md
 #
@@ -212,7 +212,7 @@ Write-Host "  1. Edit .env: Telegram + real DATABASE_URL (Postgres for G2)." -Fo
 Write-Host "  2. Start Postgres; keep STATE B - do NOT db:migrate / db:push." -ForegroundColor White
 Write-Host "  3. Prefer one-shot MAIN_CLEAR (pulls main, ensure token, restart Next, full gate):" -ForegroundColor White
 Write-Host ""
-Write-Host "     curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/6be63420db3a1b975c8fc3c4f962a11d1d3c71ad/AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host "     curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/ade1bf28a1a26bbbfea7f128d91653696d836b95/AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
 Write-Host "     AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  Or manual: Terminal A npm run dev; Terminal B:" -ForegroundColor White
