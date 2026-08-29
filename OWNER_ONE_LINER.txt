@@ -8,9 +8,9 @@ Empty-gateway fix (#45) + validate_n8n UTF-8 (G12 charmap) are on main AFTER tha
 So origin/main alone can clear G2 (and G12 encoding). Tip #58 adds OPS auto evidence-push.
 MAIN_CLEAR also warms /api/chat (recover if :3000 down) before the full gate.
 
-A) FASTEST — MAIN ONLY (no tip branch needed after this curl):
+A) FASTEST — MAIN ONLY (SHA-pinned curl; CDN-safe):
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_CLEAR_G2.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/257fab7401adb6f879b959ac9973e75f3fb3507f/AHOS_MAIN_CLEAR_G2.cmd
 AHOS_MAIN_CLEAR_G2.cmd
 
 B) PREFERRED tip runner (surgical G2 + tip notify #56):

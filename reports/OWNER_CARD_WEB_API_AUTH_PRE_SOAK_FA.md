@@ -7,7 +7,7 @@
 
 ```bat
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_CLEAR_G2.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/257fab7401adb6f879b959ac9973e75f3fb3507f/AHOS_MAIN_CLEAR_G2.cmd
 AHOS_MAIN_CLEAR_G2.cmd
 ```
 
