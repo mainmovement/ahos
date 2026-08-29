@@ -49,7 +49,7 @@ echo ==========================================================
 echo.
 echo   WARNING: Not OPERATOR_READY / not PRE_SOAK yet.
 echo   BEFORE soak - run MAIN_CLEAR (SHA-pinned .cmd is CRLF-safe):
-echo     curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/b11c7994fcd6108eb3f61ecea532c87f26da7753/AHOS_MAIN_CLEAR_G2.cmd
+echo     curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/c7b3c5e7542051ae6999a7f5607e6b1c31f35e1c/AHOS_MAIN_CLEAR_G2.cmd
 echo     AHOS_MAIN_CLEAR_G2.cmd
 echo   Or: AHOS_RUN_TIP.cmd from tip branch (also CRLF-safe).
 echo   Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.

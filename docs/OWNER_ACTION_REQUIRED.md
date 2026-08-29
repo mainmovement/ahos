@@ -21,7 +21,7 @@ Prefer merge slim **PR #59** first (OPS evidence push + #56/#38 notify, 2 files)
 
 ```bat
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/b11c7994fcd6108eb3f61ecea532c87f26da7753/AHOS_MAIN_CLEAR_G2.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/c7b3c5e7542051ae6999a7f5607e6b1c31f35e1c/AHOS_MAIN_CLEAR_G2.cmd
 AHOS_MAIN_CLEAR_G2.cmd
 ```
 

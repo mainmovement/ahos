@@ -299,7 +299,7 @@ def test_ahos_main_clear_g2_cmd_is_crlf_main_only():
     # Refuse pre-#45 gate (empty AHOS_GATEWAY_URL BLOCKED last Windows paste).
     assert "must NOT BLOCK" in text
     assert "AHOS_UNLOCK_SHA" in text
-    assert "scrub empty AHOS_GATEWAY_URL in .env (inline)" in text
+    assert "windows_scrub_empty_gateway.ps1" in text
 
 
 def test_ahos_run_tip_cmd_is_crlf_and_tls12():
@@ -621,3 +621,13 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     TelegramDomainService().handle_message("سلام")
     headers = {k.lower(): v for k, v in captured["headers"].items()}
     assert "authorization" not in headers
+
+
+def test_windows_scrub_empty_gateway_ps1_exists():
+    path = ROOT / "scripts" / "windows_scrub_empty_gateway.ps1"
+    assert path.is_file()
+    raw = path.read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")
+    text = raw.decode("utf-8-sig")
+    assert "AHOS_GATEWAY_URL" in text
+    assert "127.0.0.1:3000/api/chat" in text
