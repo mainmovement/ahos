@@ -440,10 +440,21 @@ def test_ahos_main_clear_g2_cmd_on_main_path():
     # Refuse pre-#45 gate (empty AHOS_GATEWAY_URL BLOCKED last Windows paste).
     assert "must NOT BLOCK" in text
     assert "AHOS_UNLOCK_SHA" in text
-    assert "scrub empty AHOS_GATEWAY_URL in .env (inline)" in text
+    assert "windows_scrub_empty_gateway.ps1" in text
     assert "windows_post_gate_paste_gh.ps1" in text
     assert "windows_push_gate_evidence.ps1" in text
     runtime = "\n".join(
         ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
     )
     assert "git fetch origin cursor/" not in runtime
+
+
+def test_windows_scrub_empty_gateway_ps1_exists():
+    path = ROOT / "scripts" / "windows_scrub_empty_gateway.ps1"
+    assert path.is_file()
+    raw = path.read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")
+    text = raw.decode("utf-8-sig")
+    assert "AHOS_GATEWAY_URL" in text
+    assert "127.0.0.1:3000/api/chat" in text
+    assert "db:migrate" not in text.lower() or "never" in text.lower()
