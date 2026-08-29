@@ -957,14 +957,20 @@ def _write_pre_soak_status(summary: dict[str, Any], gates: list[dict[str, Any]])
         for line in summary.get("remediation_actions") or []:
             lines.append(f"- {line}")
         lines.append("")
-        lines.append("Owner unlock (if tip not merged):")
+        lines.append("Owner unlock (try main first, then tip):")
+        lines.append("  git pull origin main")
+        lines.append(
+            "  powershell -NoProfile -ExecutionPolicy Bypass -File "
+            ".\\scripts\\windows_ensure_web_api_token.ps1"
+        )
+        lines.append("  AHOS_PRE_SOAK_NOW.bat")
+        lines.append("  Or tip surgical:")
         lines.append(
             "  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat "
             "https://raw.githubusercontent.com/mainmovement/ahos/"
             "cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat"
         )
         lines.append("  AHOS_FIX_G2_AND_GATE.bat")
-        lines.append("  (or AHOS_BOOTSTRAP_PRESOAK.bat for full OPS path)")
     lines.append("")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path

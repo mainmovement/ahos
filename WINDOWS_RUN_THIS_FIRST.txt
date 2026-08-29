@@ -4,33 +4,33 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-Unlock tip: PR #57 (cursor/windows-evidence-notify-retarget-4bde).
+See also: RUN_ME_WINDOWS.txt
+
+Last paste (20260828_220318): G2 empty-gateway BLOCKED; G3-G10 PASS.
+Empty-gateway default is already on main (#45).
 
 --------------------------------------------------
-IF last paste was G2 empty-gateway BLOCKED (G3-G10 PASS)
+A) FASTEST (main only — try first)
 --------------------------------------------------
   cd /d G:\robat\ahos
+  git pull origin main
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
+  AHOS_PRE_SOAK_NOW.bat
+  (launches AHOS_WINDOWS_OPS.bat)
+
+--------------------------------------------------
+B) IF A fails — surgical tip (#57)
+--------------------------------------------------
   curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat
   AHOS_FIX_G2_AND_GATE.bat
 
-  Scrubs empty AHOS_GATEWAY_URL, warms /api/chat, runs full gate, pushes evidence.
-  Faster than full OPS restart when tokens/Docker already OK.
-
---------------------------------------------------
-OR full unlock (first time / unknown state)
---------------------------------------------------
-  curl.exe -L -o AHOS_BOOTSTRAP_PRESOAK.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat
-  AHOS_BOOTSTRAP_PRESOAK.bat
-
-  Applies tip unlock files, then AHOS_PRE_SOAK_NOW.bat -> AHOS_WINDOWS_OPS.bat
   Alternate: AHOS_APPLY_TIP.bat or scripts\windows_bootstrap_presoak.ps1
 
 --------------------------------------------------
-OR after #57 merged to main
+C) OR after #57 merged to main
 --------------------------------------------------
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
-  (launches AHOS_WINDOWS_OPS.bat)
 
 Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 (leave open) or #38.
 Or: AHOS_PUSH_EVIDENCE_NOW.bat

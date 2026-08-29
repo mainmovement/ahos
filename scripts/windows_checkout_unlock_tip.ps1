@@ -60,6 +60,7 @@ $fixed = @(
   "AHOS_PULL_OPS_UNLOCK.bat",
   "AHOS_PUSH_EVIDENCE_NOW.bat",
   "WINDOWS_RUN_THIS_FIRST.txt",
+  "RUN_ME_WINDOWS.txt",
   "scripts/ahos_pg_probe.mjs",
   "scripts/windows_g2_probe.py",
   "scripts/operator_validation_gate.py",
