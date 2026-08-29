@@ -84,11 +84,42 @@ if errorlevel 1 (
 
 REM Overlay post_gate #56/#38 + scrub + OPS evidence push from unlock SHA when not yet on main.
 REM SHA-only unlock overlay (avoid fetching named tip branches).
+REM Always curl-fallback: main push/post_gate still lack hardcoded #56 wake after inbox merges.
 git fetch origin %AHOS_UNLOCK_SHA% 2>nul
 git checkout %AHOS_UNLOCK_SHA% -- scripts/windows_post_gate_paste_gh.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_scrub_empty_gateway.ps1 scripts/windows_wait_for_web_api.ps1 AHOS_WINDOWS_OPS.bat 2>nul
+
 if not exist "scripts\windows_scrub_empty_gateway.ps1" (
-  echo WARNING: scrub missing after unlock overlay - curling unlock SHA
+  echo WARNING: scrub missing - curling unlock SHA
   curl.exe -fsSL -o "scripts\windows_scrub_empty_gateway.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_scrub_empty_gateway.ps1"
+)
+if not exist "scripts\windows_post_gate_paste_gh.ps1" (
+  echo WARNING: post_gate missing - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_post_gate_paste_gh.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_post_gate_paste_gh.ps1"
+)
+if not exist "scripts\windows_wait_for_web_api.ps1" (
+  echo WARNING: wait_for_web_api missing - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_wait_for_web_api.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_wait_for_web_api.ps1"
+)
+if not exist "AHOS_WINDOWS_OPS.bat" (
+  echo WARNING: OPS bat missing - curling unlock SHA
+  curl.exe -fsSL -o "AHOS_WINDOWS_OPS.bat" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/AHOS_WINDOWS_OPS.bat"
+)
+
+REM Main push_gate_evidence does not hardcode #56; unlock tip does. Force unlock blob if needed.
+set "NEED_PUSH_CURL=0"
+if not exist "scripts\windows_push_gate_evidence.ps1" set "NEED_PUSH_CURL=1"
+if exist "scripts\windows_push_gate_evidence.ps1" (
+  findstr /C:"Add(\"56\")" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
+  if errorlevel 1 set "NEED_PUSH_CURL=1"
+)
+if "%NEED_PUSH_CURL%"=="1" (
+  echo WARNING: push script lacks #56 hardcode or missing - curling unlock SHA
+  curl.exe -fsSL -o "scripts\windows_push_gate_evidence.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_push_gate_evidence.ps1"
+)
+findstr /C:"Add(\"56\")" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
+if errorlevel 1 (
+  echo ERROR: windows_push_gate_evidence.ps1 still lacks #56 hardcode after curl
+  echo        Evidence may not wake leave-open sink. Fix network and re-run.
 )
 
 if not exist "scripts\windows_ensure_web_api_token.ps1" (
