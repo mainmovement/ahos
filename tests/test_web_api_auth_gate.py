@@ -432,3 +432,8 @@ def test_ahos_main_clear_g2_cmd_on_main_path():
     assert "windows_restart_next_dev.ps1" in text
     assert "validate_n8n.py" in text
     assert "db:migrate" in text.lower()
+    # Refuse pre-#45 gate (empty AHOS_GATEWAY_URL BLOCKED last Windows paste).
+    assert "must NOT BLOCK" in text
+    assert "AHOS_UNLOCK_SHA" in text
+    assert "scrub empty AHOS_GATEWAY_URL in .env (inline)" in text
+    assert "windows_post_gate_paste_gh.ps1" in text
