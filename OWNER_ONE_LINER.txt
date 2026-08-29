@@ -6,7 +6,7 @@ Do NOT invent READY. Paste sink #56 must stay OPEN.
 WHY: last paste 20260828_220318 was G2 empty-gateway BLOCKED.
 Empty-gateway fix (#45) + validate_n8n UTF-8 (G12 charmap) are on main AFTER that paste.
 So origin/main alone can clear G2 (and G12 encoding). Tip #58 adds OPS auto evidence-push.
-MAIN_CLEAR also warms /api/chat (recover if :3000 down) before the full gate.
+MAIN_CLEAR also restarts Next after ensure token (avoids stale :3000 401), then warms /api/chat before the full gate.
 
 A) FASTEST — MAIN ONLY (SHA-pinned curl; CDN-safe):
 cd /d G:\robat\ahos
