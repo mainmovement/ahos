@@ -106,19 +106,20 @@ if not exist "AHOS_WINDOWS_OPS.bat" (
 )
 
 REM Main push_gate_evidence does not hardcode #56; unlock tip does. Force unlock blob if needed.
+REM Use quote-free findstr marker (cmd does not treat \" as an escape inside /C:").
 set "NEED_PUSH_CURL=0"
 if not exist "scripts\windows_push_gate_evidence.ps1" set "NEED_PUSH_CURL=1"
 if exist "scripts\windows_push_gate_evidence.ps1" (
-  findstr /C:"Add(\"56\")" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
+  findstr /C:"Leave-open paste sinks first" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
   if errorlevel 1 set "NEED_PUSH_CURL=1"
 )
 if "%NEED_PUSH_CURL%"=="1" (
-  echo WARNING: push script lacks #56 hardcode or missing - curling unlock SHA
+  echo WARNING: push script lacks #56 leave-open wake or missing - curling unlock SHA
   curl.exe -fsSL -o "scripts\windows_push_gate_evidence.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_push_gate_evidence.ps1"
 )
-findstr /C:"Add(\"56\")" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
+findstr /C:"Leave-open paste sinks first" "scripts\windows_push_gate_evidence.ps1" >nul 2>&1
 if errorlevel 1 (
-  echo ERROR: windows_push_gate_evidence.ps1 still lacks #56 hardcode after curl
+  echo ERROR: windows_push_gate_evidence.ps1 still lacks #56 leave-open wake after curl
   echo        Evidence may not wake leave-open sink. Fix network and re-run.
 )
 

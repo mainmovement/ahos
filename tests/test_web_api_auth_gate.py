@@ -469,7 +469,7 @@ def test_ahos_main_clear_g2_cmd_on_main_path():
     # If unlock git overlay fails, curl must still force push script with #56 hardcode
     # (origin/main push_gate_evidence still lacks leave-open #56 after inbox merges).
     assert "NEED_PUSH_CURL" in runtime
-    assert 'Add(\\"56\\")' in text or 'Add(\\"56\\")' in runtime or 'Add(\\"56\\")' in text
+    assert "Leave-open paste sinks first" in text
     assert (
         "windows_push_gate_evidence.ps1" in runtime
         and "raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/windows_push_gate_evidence.ps1"
