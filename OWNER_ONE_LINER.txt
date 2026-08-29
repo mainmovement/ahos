@@ -3,16 +3,17 @@ AHOS Windows -- ONE LINER (PAPER_ONLY)
 STATE B: never db:migrate / db:push
 Do NOT invent READY. Paste sink #56 must stay OPEN.
 
-IMPORTANT: do NOT curl .bat from raw.githubusercontent.com
-(raw serves LF-only bats; cmd.exe breaks). Use PowerShell:
-
+PREFERRED (PowerShell; always safe):
 cd /d G:\robat\ahos
 powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1).Content"
 
-If still blocked (chat cold):
+ALSO OK on this tip (bats stored CRLF in git for raw curl):
+curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
+AHOS_MAIN_FIRST.bat
+
+If still blocked:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1 -Mode fix_g2
 
-Then paste reports\OWNER_PASTE_WINDOWS_GATE.txt to GitHub PR #56 or #38.
-Or open Desktop AHOS_PASTE_TO_CURSOR.txt.
+Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.
 PRE_SOAK only if pre_soak_entry_ok=true.
 Please merge PR #58.

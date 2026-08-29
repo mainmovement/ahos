@@ -261,7 +261,7 @@ def test_owner_card_and_one_liner_point_at_pr58():
     assert "AHOS_RUN_TIP.ps1" in one
     assert "windows-main-evidence-push-4bde" in one
     assert "db:migrate" in one.lower()
-    assert "LF" in one or "curl" in one.lower()
+    assert "AHOS_MAIN_FIRST.bat" in one
     push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
     assert "windows-main-evidence-push-4bde" in push
 
@@ -279,6 +279,23 @@ def test_ahos_run_tip_ps1_is_crlf_safe_entry():
     assert "AHOS_SKIP_GIT_PULL" in main_first
     pre = (ROOT / "AHOS_PRE_SOAK_NOW.bat").read_text(encoding="utf-8")
     assert "AHOS_SKIP_GIT_PULL" in pre
+
+
+def test_bat_files_are_crlf_in_working_tree_for_cmd():
+    """cmd.exe needs CRLF; *.bat is -text so blobs keep CRLF for raw.githubusercontent.com."""
+    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.bat -text" in attrs
+    assert "raw.githubusercontent.com" in attrs or "LF-only" in attrs or "curl" in attrs.lower()
+    for name in (
+        "AHOS_MAIN_FIRST.bat",
+        "AHOS_FIX_G2_AND_GATE.bat",
+        "AHOS_WINDOWS_OPS.bat",
+        "AHOS_PRE_SOAK_NOW.bat",
+    ):
+        raw = (ROOT / name).read_bytes()
+        assert b"\r\n" in raw, name + " missing CRLF"
+        # No bare LF line endings mixed in (allow final content)
+        assert raw.count(b"\n") == raw.count(b"\r\n"), name + " has LF-only lines"
 
 
 def test_windows_ps1_scripts_are_ascii_for_ps51():

@@ -8,8 +8,8 @@ G3-G10 already PASS. Empty-gateway fix is already on main (#45).
 
 Please merge unlock PR #58. Keep #56 OPEN.
 
-WARNING: raw.githubusercontent.com serves .bat as LF-only (cmd.exe breaks).
-Use the PowerShell entry (git checkout gives CRLF via .gitattributes):
+WARNING: older tips served LF-only .bat via raw GitHub (cmd.exe breaks).
+This tip stores .bat as CRLF in git (`*.bat -text`). Prefer PowerShell entry:
 
 --------------------------------------------------
 A) CRLF-safe one-liner (PREFERRED)
@@ -18,12 +18,18 @@ A) CRLF-safe one-liner (PREFERRED)
   powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1).Content"
 
 --------------------------------------------------
-B) If A fails / chat cold — FIX_G2 mode
+B) curl .bat also OK on this tip (CRLF in blob)
+--------------------------------------------------
+  curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
+  AHOS_MAIN_FIRST.bat
+
+--------------------------------------------------
+C) If A/B fail / chat cold — FIX_G2 mode
 --------------------------------------------------
   powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1 -Mode fix_g2
 
 --------------------------------------------------
-C) After git pull of tip / merge of #58
+D) After git pull of tip / merge of #58
 --------------------------------------------------
   git fetch origin cursor/windows-main-evidence-push-4bde
   git checkout origin/cursor/windows-main-evidence-push-4bde -- AHOS_MAIN_FIRST.bat
