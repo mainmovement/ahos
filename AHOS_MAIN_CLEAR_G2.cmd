@@ -17,7 +17,7 @@ REM Wake leave-open paste sink #56 via AHOS_GATE_PR (post_gate on #59 main)
 set "AHOS_GATE_PR=56"
 
 REM Known-good unlock tip (OPS push + post_gate #56/#38). Used if main checkout is stale.
-set "AHOS_UNLOCK_SHA=48df24622682bc506df82c122033296f52da92ab"
+set "AHOS_UNLOCK_SHA=02d1181278aee2581c2d9182c104a34b9ace628d"
 
 echo ==========================================================
 echo   AHOS MAIN CLEAR G2 (origin/main + unlock overlay)
@@ -51,7 +51,7 @@ if errorlevel 1 (
 )
 
 echo ==^> checkout gate + warm scripts from origin/main
-git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_scrub_empty_gateway.ps1 AHOS_PUSH_EVIDENCE_NOW.bat
+git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 scripts/windows_scrub_empty_gateway.ps1 scripts/windows_seed_local_evidence.ps1 AHOS_PUSH_EVIDENCE_NOW.bat
 if errorlevel 1 (
   echo WARNING: git checkout origin/main scripts returned non-zero
 )
@@ -109,6 +109,14 @@ if errorlevel 1 (
   echo WARNING: ensure token returned non-zero - continuing
 )
 
+if exist "scripts\windows_ensure_postgres_win.ps1" (
+  echo ==^> ensure Postgres container ready (STATE B: no migrate)
+  "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_postgres_win.ps1"
+  if errorlevel 1 (
+    echo WARNING: postgres ensure failed - G2 may HTTP 500; continuing
+  )
+)
+
 if exist "scripts\windows_ensure_database_url.ps1" (
   echo ==^> ensure DATABASE_URL (probe-first; STATE B)
   "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_database_url.ps1"
@@ -141,7 +149,7 @@ if exist "scripts\windows_wait_for_web_api.ps1" (
 )
 
 echo ==^> full operator gate G1-G12 + evidence push
-"%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_run_operator_gate.ps1"
+"%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_run_operator_gate.ps1" -SeedEvidenceIfNeeded
 set "RC=!ERRORLEVEL!"
 
 echo.
