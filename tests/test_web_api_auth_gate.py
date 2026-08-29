@@ -493,7 +493,10 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     assert "windows-evidence-inbox-open-sink-4bde" in paste or '"56"' in paste or "Add-Target \"56\"" in paste
     push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
     assert "38" in push
+    assert '"56"' in push or "Add(\"56\")" in push or "notifyTargets.Add(\"56\")" in push
+    assert "AHOS_GATE_PR" in push
     assert "open-sink" in push or "windows-evidence-inbox-open-sink-4bde" in push
+    assert "windows-ops-evidence-push-main-4bde" in push
 
 
 def test_windows_run_this_first_points_at_ops_bat():

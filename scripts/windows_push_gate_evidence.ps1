@@ -216,7 +216,11 @@ if ($pushOk -and ($null -ne $gh)) {
         $notifyFile = Join-Path $evDir ("NOTIFY_UNLOCK_" + $stamp + ".txt")
         [System.IO.File]::WriteAllText($notifyFile, ($notify -join "`n") + "`n", $utf8)
         $notifyTargets = New-Object System.Collections.Generic.List[string]
-        # Durable open sink first (survives inbox merges).
+        # Leave-open paste sinks first (survives inbox merges). Prefer AHOS_GATE_PR.
+        if (-not [string]::IsNullOrWhiteSpace($env:AHOS_GATE_PR)) {
+          [void]$notifyTargets.Add(([string]$env:AHOS_GATE_PR).Trim())
+        }
+        [void]$notifyTargets.Add("56")
         [void]$notifyTargets.Add("38")
         if (-not [string]::IsNullOrWhiteSpace($existing)) {
           if (-not ($notifyTargets -contains [string]$existing)) { [void]$notifyTargets.Add([string]$existing) }
@@ -233,6 +237,7 @@ if ($pushOk -and ($null -ne $gh)) {
         # Always try the dedicated evidence inbox heads if open.
         foreach ($inboxHead in @(
           "cursor/windows-evidence-inbox-open-sink-4bde",
+          "cursor/windows-ops-evidence-push-main-4bde",
           "cursor/windows-main-evidence-push-4bde",
           "cursor/windows-evidence-notify-retarget-4bde",
           "cursor/windows-evidence-inbox-stay-open-4bde",
