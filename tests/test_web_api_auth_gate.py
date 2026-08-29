@@ -285,6 +285,8 @@ def test_ahos_run_tip_ps1_is_crlf_safe_entry():
     assert "windows-main-evidence-push-4bde" in text
     assert "AHOS_SKIP_GIT_PULL" in text
     assert "windows_fix_g2_empty_and_gate.ps1" in text
+    assert "Install-TipViaRaw" in text or "raw.githubusercontent.com" in text
+    assert "Tls12" in text or "TLS" in text
     assert "AHOS_MAIN_FIRST.bat" in text
     assert 'Mode = "fix_g2"' in text or "fix_g2" in text
     assert "db:migrate" in text.lower()

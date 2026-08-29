@@ -3,14 +3,13 @@
 .SYNOPSIS
   CRLF-safe Windows entry for PRE_SOAK unlock tip (PAPER_ONLY).
 
-Avoids curling .bat from raw GitHub (branch CDN may still serve old LF).
-Fetches tip via git, expands unlock files (ls-tree helper), then runs the
-surgical G2+gate path in pure PowerShell (no cmd.exe required by default).
+Fetches tip via git when possible; if tip fetch fails, downloads surgical
+scripts from raw.githubusercontent.com (TLS1.2) and continues.
 
 STATE B: never db:migrate / db:push. Does NOT invent READY.
 
 One-liner from G:\robat\ahos:
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1).Content"
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; iex (iwr -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1').Content"
 #>
 [CmdletBinding()]
 param(
@@ -21,6 +20,10 @@ param(
 )
 
 $ErrorActionPreference = "Continue"
+
+try {
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+} catch {}
 
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   if (-not [string]::IsNullOrWhiteSpace($PSScriptRoot)) {
@@ -45,41 +48,112 @@ Write-Host ("  Tip=" + $Tip + " Mode=" + $Mode) -ForegroundColor DarkGray
 Write-Host "  Will NOT migrate DB or claim READY" -ForegroundColor DarkGray
 Write-Host "==========================================================" -ForegroundColor Cyan
 
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-  Write-Host "FAIL: git not on PATH" -ForegroundColor Red
-  exit 2
-}
-
 if (-not (Test-Path -LiteralPath (Join-Path $RepoRoot ".git"))) {
   Write-Host ("FAIL: not a git repo: " + $RepoRoot) -ForegroundColor Red
   Write-Host "cd /d G:\robat\ahos first, then re-run." -ForegroundColor Yellow
   exit 2
 }
 
-Write-Host "==> git fetch origin main + tip" -ForegroundColor Cyan
-& git fetch origin main 2>&1 | Out-Host
-& git fetch origin $Tip 2>&1 | Out-Host
-if ($LASTEXITCODE -ne 0) {
-  Write-Host ("FAIL: git fetch " + $Tip) -ForegroundColor Red
-  exit 2
+function Save-RawTipFile([string]$RelPath) {
+  $uri = "https://raw.githubusercontent.com/mainmovement/ahos/" + $Tip + "/" + ($RelPath -replace "\\", "/")
+  $out = Join-Path $RepoRoot ($RelPath -replace "/", "\")
+  $dir = Split-Path -Parent $out
+  if (-not (Test-Path -LiteralPath $dir)) {
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+  }
+  Write-Host ("  raw " + $RelPath) -ForegroundColor DarkGray
+  $resp = Invoke-WebRequest -UseBasicParsing -Uri $uri
+  $ext = [IO.Path]::GetExtension($RelPath).ToLowerInvariant()
+  if ($ext -eq ".ps1") {
+    $text = [string]$resp.Content
+    $bom = New-Object System.Text.UTF8Encoding $true
+    [IO.File]::WriteAllText($out, $text, $bom)
+  } elseif ($ext -eq ".bat" -or $ext -eq ".cmd") {
+    $text = ([string]$resp.Content) -replace "`r?`n", "`r`n"
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    [IO.File]::WriteAllText($out, $text, $utf8)
+  } else {
+    $text = [string]$resp.Content
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    [IO.File]::WriteAllText($out, $text, $utf8)
+  }
 }
 
-$ref = "origin/" + $Tip
-Write-Host ("==> checkout tip unlock files from " + $ref) -ForegroundColor Cyan
-& git checkout $ref -- `
-  AHOS_MAIN_FIRST.bat AHOS_FIX_G2_AND_GATE.bat AHOS_BOOTSTRAP_PRESOAK.bat `
-  AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_PUSH_EVIDENCE_NOW.bat `
-  AHOS_RUN_TIP.ps1 OWNER_ONE_LINER.txt RUN_ME_WINDOWS.txt WINDOWS_RUN_THIS_FIRST.txt `
-  scripts/windows_checkout_unlock_tip.ps1 scripts/windows_fix_g2_empty_and_gate.ps1 `
-  scripts/windows_bootstrap_presoak.ps1 scripts/windows_ensure_web_api_token.ps1 `
-  scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
-  scripts/windows_publish_owner_paste.ps1 scripts/windows_run_operator_gate.ps1 `
-  scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 `
-  scripts/windows_wait_for_web_api.ps1 scripts/operator_validation_gate.py 2>&1 | Out-Host
+function Install-TipViaRaw {
+  Write-Host "==> tip git fetch failed - downloading surgical scripts via raw HTTPS" -ForegroundColor Yellow
+  $files = @(
+    "scripts/windows_fix_g2_empty_and_gate.ps1",
+    "scripts/windows_checkout_unlock_tip.ps1",
+    "scripts/windows_ensure_web_api_token.ps1",
+    "scripts/windows_ensure_database_url.ps1",
+    "scripts/windows_wait_for_web_api.ps1",
+    "scripts/windows_recover_g2_warm.ps1",
+    "scripts/windows_run_operator_gate.ps1",
+    "scripts/windows_push_gate_evidence.ps1",
+    "scripts/windows_post_gate_paste_gh.ps1",
+    "scripts/windows_publish_owner_paste.ps1",
+    "scripts/windows_write_ops_failure_paste.ps1",
+    "scripts/windows_restart_next_dev.ps1",
+    "scripts/windows_chat_500_forensics.ps1",
+    "scripts/operator_validation_gate.py",
+    "scripts/windows_g2_probe.py",
+    "scripts/ahos_pg_probe.mjs",
+    "AHOS_MAIN_FIRST.bat",
+    "AHOS_FIX_G2_AND_GATE.bat",
+    "AHOS_WINDOWS_OPS.bat",
+    "AHOS_PUSH_EVIDENCE_NOW.bat",
+    "AHOS_RUN_TIP.cmd",
+    "OWNER_ONE_LINER.txt"
+  )
+  $ok = 0
+  foreach ($f in $files) {
+    try {
+      Save-RawTipFile $f
+      $ok++
+    } catch {
+      Write-Host ("  WARN download failed: " + $f + " :: " + $_.Exception.Message) -ForegroundColor DarkYellow
+    }
+  }
+  Write-Host ("  downloaded_ok=" + $ok + "/" + $files.Count) -ForegroundColor Cyan
+  return ($ok -ge 8)
+}
 
-$helper = Join-Path $RepoRoot "scripts\windows_checkout_unlock_tip.ps1"
-if (Test-Path -LiteralPath $helper) {
-  & powershell -NoProfile -ExecutionPolicy Bypass -File $helper -Ref $ref
+$tipReady = $false
+$ref = "origin/" + $Tip
+if (Get-Command git -ErrorAction SilentlyContinue) {
+  Write-Host "==> git fetch origin main + tip" -ForegroundColor Cyan
+  & git fetch origin main 2>&1 | Out-Host
+  & git fetch origin $Tip 2>&1 | Out-Host
+  if ($LASTEXITCODE -eq 0) {
+    Write-Host ("==> checkout tip unlock files from " + $ref) -ForegroundColor Cyan
+    & git checkout $ref -- `
+      AHOS_MAIN_FIRST.bat AHOS_FIX_G2_AND_GATE.bat AHOS_BOOTSTRAP_PRESOAK.bat `
+      AHOS_PRE_SOAK_NOW.bat AHOS_WINDOWS_OPS.bat AHOS_PUSH_EVIDENCE_NOW.bat `
+      AHOS_RUN_TIP.ps1 AHOS_RUN_TIP.cmd OWNER_ONE_LINER.txt RUN_ME_WINDOWS.txt WINDOWS_RUN_THIS_FIRST.txt `
+      scripts/windows_checkout_unlock_tip.ps1 scripts/windows_fix_g2_empty_and_gate.ps1 `
+      scripts/windows_bootstrap_presoak.ps1 scripts/windows_ensure_web_api_token.ps1 `
+      scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
+      scripts/windows_publish_owner_paste.ps1 scripts/windows_run_operator_gate.ps1 `
+      scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 `
+      scripts/windows_wait_for_web_api.ps1 scripts/operator_validation_gate.py 2>&1 | Out-Host
+    $helper = Join-Path $RepoRoot "scripts\windows_checkout_unlock_tip.ps1"
+    if (Test-Path -LiteralPath $helper) {
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $helper -Ref $ref
+    }
+    $tipReady = Test-Path -LiteralPath (Join-Path $RepoRoot "scripts\windows_fix_g2_empty_and_gate.ps1")
+  } else {
+    Write-Host ("WARN: git fetch tip failed (exit " + $LASTEXITCODE + ")") -ForegroundColor Yellow
+  }
+} else {
+  Write-Host "WARN: git not on PATH - will try raw HTTPS fallback" -ForegroundColor Yellow
+}
+
+if (-not $tipReady) {
+  $tipReady = Install-TipViaRaw
+}
+if (-not $tipReady) {
+  Write-Host "FAIL: could not install tip scripts via git or raw HTTPS" -ForegroundColor Red
+  exit 2
 }
 
 function Invoke-BatCrlf([string]$BatName) {
@@ -112,12 +186,9 @@ switch ($Mode) {
     }
   }
   default {
-    # Pure PowerShell surgical path (no cmd.exe): scrub empty gateway, warm
-    # /api/chat, full G1-G12 gate, push OWNER_PASTE. Correct for last paste
-    # 220318 (G2 empty-gateway BLOCKED, G3-G10 PASS).
     $fix = Join-Path $RepoRoot "scripts\windows_fix_g2_empty_and_gate.ps1"
     if (-not (Test-Path -LiteralPath $fix)) {
-      Write-Host "FAIL: windows_fix_g2_empty_and_gate.ps1 missing after tip checkout" -ForegroundColor Red
+      Write-Host "FAIL: windows_fix_g2_empty_and_gate.ps1 missing" -ForegroundColor Red
       exit 2
     }
     Write-Host "==> windows_fix_g2_empty_and_gate.ps1 (pure PS)" -ForegroundColor Cyan

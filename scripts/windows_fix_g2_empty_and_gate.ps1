@@ -46,30 +46,33 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 Write-Host "==> git fetch origin main + tip" -ForegroundColor Cyan
 & git fetch origin main 2>&1 | Out-Host
 & git fetch origin $Tip 2>&1 | Out-Host
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "FAIL: git fetch tip failed" -ForegroundColor Red
-  exit 2
+$tipFetched = ($LASTEXITCODE -eq 0)
+if (-not $tipFetched) {
+  Write-Host ("WARN: git fetch tip failed - continuing with local scripts if present") -ForegroundColor Yellow
 }
 
 $ref = "origin/" + $Tip
-& git checkout $ref -- scripts/windows_checkout_unlock_tip.ps1 2>&1 | Out-Host
-$helper = Join-Path $RepoRoot "scripts\windows_checkout_unlock_tip.ps1"
-if (Test-Path -LiteralPath $helper) {
-  & powershell -NoProfile -ExecutionPolicy Bypass -File $helper -Ref $ref
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "FAIL: unlock tip checkout helper failed" -ForegroundColor Red
-    exit 2
+if ($tipFetched) {
+  & git checkout $ref -- scripts/windows_checkout_unlock_tip.ps1 2>&1 | Out-Host
+  $helper = Join-Path $RepoRoot "scripts\windows_checkout_unlock_tip.ps1"
+  if (Test-Path -LiteralPath $helper) {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $helper -Ref $ref
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "WARN: unlock tip checkout helper failed - continuing with local scripts" -ForegroundColor Yellow
+    }
+  } else {
+    Write-Host "WARN: checkout helper missing - applying explicit core set" -ForegroundColor Yellow
+    & git checkout $ref -- `
+      scripts/operator_validation_gate.py scripts/windows_run_operator_gate.ps1 `
+      scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 `
+      scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 `
+      scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
+      scripts/windows_publish_owner_paste.ps1 scripts/windows_g2_probe.py `
+      scripts/ahos_pg_probe.mjs app/api/chat/route.ts `
+      AHOS_FIX_G2_AND_GATE.bat AHOS_PUSH_EVIDENCE_NOW.bat 2>&1 | Out-Host
   }
 } else {
-  Write-Host "WARN: checkout helper missing - applying explicit core set" -ForegroundColor Yellow
-  & git checkout $ref -- `
-    scripts/operator_validation_gate.py scripts/windows_run_operator_gate.ps1 `
-    scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 `
-    scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 `
-    scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
-    scripts/windows_publish_owner_paste.ps1 scripts/windows_g2_probe.py `
-    scripts/ahos_pg_probe.mjs app/api/chat/route.ts `
-    AHOS_FIX_G2_AND_GATE.bat AHOS_PUSH_EVIDENCE_NOW.bat 2>&1 | Out-Host
+  Write-Host "WARN: skipping tip checkout (fetch failed)" -ForegroundColor Yellow
 }
 
 $ensure = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
