@@ -275,6 +275,7 @@ def test_ahos_run_tip_cmd_is_crlf_and_tls12():
     text = raw.decode("ascii")
     assert "Tls12" in text or "TLS" in text
     assert "AHOS_RUN_TIP.ps1" in text
+    assert "OWNER_PASTE" in text
     assert "db:migrate" in text.lower()
 
 
