@@ -6,6 +6,7 @@
 #
 # `-text` disables normalization so we can store CRLF for curl + double-click.
 *.bat -text
+*.cmd -text
 
 # PowerShell tolerates LF from raw; keep working-tree CRLF on Windows checkout.
 *.ps1 text eol=crlf

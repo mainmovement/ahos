@@ -258,12 +258,24 @@ def test_owner_card_and_one_liner_point_at_pr58():
     assert "AHOS_RUN_TIP.ps1" in card
     assert "#56" in card
     one = (ROOT / "OWNER_ONE_LINER.txt").read_text(encoding="utf-8")
-    assert "AHOS_RUN_TIP.ps1" in one
+    assert "AHOS_RUN_TIP.cmd" in one or "AHOS_RUN_TIP.ps1" in one
     assert "windows-main-evidence-push-4bde" in one
     assert "db:migrate" in one.lower()
     assert "AHOS_MAIN_FIRST.bat" in one
     push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
     assert "windows-main-evidence-push-4bde" in push
+
+
+def test_ahos_run_tip_cmd_is_crlf_and_tls12():
+    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.cmd -text" in attrs
+    raw = (ROOT / "AHOS_RUN_TIP.cmd").read_bytes()
+    assert b"\r\n" in raw
+    assert raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "Tls12" in text or "TLS" in text
+    assert "AHOS_RUN_TIP.ps1" in text
+    assert "db:migrate" in text.lower()
 
 
 def test_ahos_run_tip_ps1_is_crlf_safe_entry():

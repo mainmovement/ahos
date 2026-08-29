@@ -2,19 +2,19 @@
 
 **کد:** empty-gateway روی `main` است (#45). تیپ یک‌جا: PR **#58**.  
 **DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
-**مهم:** فایل `.bat` را از raw گیت‌هاب `curl` نکنید (LF است و cmd می‌شکند). از PowerShell زیر کنید.
 
-## A) ترجیحی — CRLF-safe
+## A) ترجیحی — دانلود .cmd و دوبارکلیک
 
 ```bat
 cd /d G:\robat\ahos
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1).Content"
+curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
+AHOS_RUN_TIP.cmd
 ```
 
-## B) اگر A شکست — FIX_G2
+## B) PowerShell با TLS1.2
 
 ```bat
-powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1 -Mode fix_g2
+powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; iex (iwr -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1').Content"
 ```
 
 ## خروجی برای Cursor (الزامی)
