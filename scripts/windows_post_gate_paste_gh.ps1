@@ -47,6 +47,8 @@ function Add-Target([string]$n) {
 }
 
 Add-Target $env:AHOS_GATE_PR
+Add-Target "38"  # durable open sink (do not remove)
+Add-Target "56"  # leave-open paste sink (do not merge)
 
 try {
   Add-Target (& gh pr view --json number -q ".number" 2>$null)
