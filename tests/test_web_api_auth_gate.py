@@ -441,6 +441,9 @@ def test_ahos_main_clear_g2_cmd_on_main_path():
     assert "must NOT BLOCK" in text
     assert "AHOS_UNLOCK_SHA" in text
     assert "windows_scrub_empty_gateway.ps1" in text
+    assert "windows_ensure_postgres_win.ps1" in text
+    assert "SeedEvidenceIfNeeded" in text
+    assert "windows_seed_local_evidence.ps1" in text
     assert "windows_post_gate_paste_gh.ps1" in text
     assert "windows_push_gate_evidence.ps1" in text
     runtime = "\n".join(
