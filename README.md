@@ -38,6 +38,18 @@ Python core (optional parallel path):
 python3 -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
 ```
 
+### Windows PRE_SOAK entry (PAPER_ONLY)
+
+Last gate paste (`20260828_220318`) was one G2 flip from PRE_SOAK. **Do not invent READY.**
+
+```bat
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
+AHOS_RUN_TIP.cmd
+```
+
+Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` to PR **#56** (leave open) or **#38**. Merge unlock PR **#58**. STATE B: no `db:migrate` / `db:push`. Details: `docs/OWNER_ACTION_REQUIRED.md` · `OWNER_ONE_LINER.txt`.
+
 ## Live in code (when network allows)
 
 DexScreener · GeckoTerminal · CoinGecko · Pump.fun · GoPlus · RugCheck · DefiLlama · Alternative.me · Binance public · CoinCap · CryptoCompare · CoinPaprika · Jupiter · mempool · 30+ RSS
