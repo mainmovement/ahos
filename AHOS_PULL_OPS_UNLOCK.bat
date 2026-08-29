@@ -19,13 +19,14 @@ if errorlevel 1 (
 )
 
 echo ==^> git fetch origin main + unlock branches
-git fetch origin main cursor/windows-presoak-unblock-4bde cursor/windows-presoak-followup-4bde cursor/windows-chat-500-rootcause-4bde cursor/windows-g2-evidence-autopush-4bde cursor/windows-evidence-push-lease-4bde cursor/windows-g2-empty-gateway-default-4bde cursor/windows-reconcile-ops-artifacts-4bde cursor/windows-dburl-probe-first-4bde
+git fetch origin main cursor/windows-evidence-notify-retarget-4bde cursor/windows-presoak-unblock-4bde cursor/windows-presoak-followup-4bde cursor/windows-chat-500-rootcause-4bde cursor/windows-g2-evidence-autopush-4bde cursor/windows-evidence-push-lease-4bde cursor/windows-g2-empty-gateway-default-4bde cursor/windows-reconcile-ops-artifacts-4bde cursor/windows-dburl-probe-first-4bde
 if errorlevel 1 (
   echo WARNING: fetch failed - check network / remotes
 )
 
 set "UNLOCK_REF="
 for %%R in (
+  origin/cursor/windows-evidence-notify-retarget-4bde
   origin/cursor/windows-presoak-unblock-4bde
   origin/cursor/windows-dburl-probe-first-4bde
   origin/cursor/windows-presoak-followup-4bde
@@ -52,11 +53,23 @@ if not defined UNLOCK_REF (
 )
 
 echo ==^> checkout unlock ops files from !UNLOCK_REF! ^(not a merge^)
-git checkout "!UNLOCK_REF!" -- AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt .env.example .gitignore "scripts/windows_*.ps1" scripts/ahos_pg_probe.mjs scripts/windows_g2_probe.py scripts/operator_validation_gate.py app/api/chat/route.ts db/index.ts snapshot.ts tests/validate_n8n.py deployment/docker-compose.windows.yml
-if errorlevel 1 (
-  echo ERROR: git checkout unlock files failed
-  pause
-  exit /b 2
+REM Avoid scripts/windows_*.ps1 pathspec glob ^(unreliable on Windows Git^).
+git checkout "!UNLOCK_REF!" -- scripts/windows_checkout_unlock_tip.ps1 2>nul
+if exist "scripts\windows_checkout_unlock_tip.ps1" (
+  powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_checkout_unlock_tip.ps1" -Ref "!UNLOCK_REF!"
+  if errorlevel 1 (
+    echo ERROR: unlock tip helper failed
+    pause
+    exit /b 2
+  )
+) else (
+  echo WARNING: checkout helper missing - trying explicit core files
+  git checkout "!UNLOCK_REF!" -- AHOS_BOOTSTRAP_PRESOAK.bat AHOS_WINDOWS_OPS.bat AHOS_PRE_SOAK_NOW.bat AHOS_VALIDATE_G2_NOW.bat AHOS_PULL_OPS_UNLOCK.bat AHOS_PUSH_EVIDENCE_NOW.bat WINDOWS_RUN_THIS_FIRST.txt scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_validate_g2.ps1 scripts/windows_post_merge_reconcile.ps1 scripts/operator_validation_gate.py scripts/windows_g2_probe.py scripts/ahos_pg_probe.mjs app/api/chat/route.ts db/index.ts snapshot.ts
+  if errorlevel 1 (
+    echo ERROR: git checkout unlock files failed
+    pause
+    exit /b 2
+  )
 )
 
 echo.

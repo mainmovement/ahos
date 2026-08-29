@@ -4,33 +4,36 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-On main (merged): web-api auth (#31), G2 empty-gateway (#45), G2 validate (#46),
-evidence autopush (#47), /api/chat 500 stack + DATABASE_URL sync (#48-#52).
-Unlock tip: PR #53 (warm recovery + OPS sync fix).
+See also: RUN_ME_WINDOWS.txt
+
+Last paste (20260828_220318): G2 empty-gateway BLOCKED; G3-G10 PASS.
+Empty-gateway default is already on main (#45).
 
 --------------------------------------------------
-ONE CLICK (preferred)
+A) FASTEST (main only — try first)
 --------------------------------------------------
   cd /d G:\robat\ahos
+  curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_MAIN_FIRST.bat
+  AHOS_MAIN_FIRST.bat
+
+  (or: git pull origin main && ensure token && AHOS_PRE_SOAK_NOW.bat)
+  launches AHOS_WINDOWS_OPS.bat
+
+--------------------------------------------------
+B) IF A fails — surgical tip (#57)
+--------------------------------------------------
+  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat
+  AHOS_FIX_G2_AND_GATE.bat
+
+  Alternate: AHOS_APPLY_TIP.bat or scripts\windows_bootstrap_presoak.ps1
+
+--------------------------------------------------
+C) OR after #57 merged to main
+--------------------------------------------------
   git pull origin main
   AHOS_PRE_SOAK_NOW.bat
 
-  Bat: token + Docker diagnose + DATABASE_URL (probe-first), then AHOS_WINDOWS_OPS.bat
-  On /api/chat warm fail: auto forensics + DATABASE_URL + ensure-pg + Next restart.
-  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt
-  Or: AHOS_PUSH_EVIDENCE_NOW.bat (pushes existing paste to PR #54 / evidence branch)
-  PRE_SOAK only if paste shows pre_soak_entry_ok=true (G1-G10).
-
---------------------------------------------------
-OR: G2 first (if /api/chat still 500)
---------------------------------------------------
-  AHOS_VALIDATE_G2_NOW.bat
-  (on G2 PASS, chains into AHOS_PRE_SOAK_NOW.bat)
-
-  Manual forensics if still 500:
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_chat_500_forensics.ps1
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_ensure_database_url.ps1
-    powershell -ExecutionPolicy Bypass -File .\scripts\windows_restart_next_dev.ps1
-
-Never invent READY. G11 Telegram is OWNER_ACTION for OPERATOR_READY only.
-ahos_runtime_win unhealthy is OK for host Next G2.
+Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 (leave open) or #38.
+Or: AHOS_PUSH_EVIDENCE_NOW.bat
+Also check: reports\PRE_SOAK_STATUS.txt
+PRE_SOAK only if pre_soak_entry_ok=true (G1-G10). Never invent READY.

@@ -1,0 +1,35 @@
+AHOS -- RUN ME ON WINDOWS (PAPER_ONLY)
+======================================
+STATE B: NEVER db:migrate / db:push
+Do NOT invent PRE_SOAK / OPERATOR_READY without OWNER_PASTE
+
+Last evidence (20260828_220318): G2 BLOCKED on empty AHOS_GATEWAY_URL;
+G3-G10 already PASS. Empty-gateway fix is already on main (#45).
+
+--------------------------------------------------
+A) FASTEST (no tip download) -- try this first
+--------------------------------------------------
+  cd /d G:\robat\ahos
+  curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_MAIN_FIRST.bat
+  AHOS_MAIN_FIRST.bat
+
+  Equivalent manual:
+    git pull origin main
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
+    AHOS_PRE_SOAK_NOW.bat
+
+--------------------------------------------------
+B) SURGICAL tip (if A fails / need #57 unlock)
+--------------------------------------------------
+  cd /d G:\robat\ahos
+  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat
+  AHOS_FIX_G2_AND_GATE.bat
+
+--------------------------------------------------
+C) FULL tip bootstrap
+--------------------------------------------------
+  curl.exe -L -o AHOS_BOOTSTRAP_PRESOAK.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat
+  AHOS_BOOTSTRAP_PRESOAK.bat
+
+PRE_SOAK only if pre_soak_entry_ok=true (G1-G10). Never invent READY.
+Tip PR #57 -- please merge. Leave paste-sink PR #56 OPEN.

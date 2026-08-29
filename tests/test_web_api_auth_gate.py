@@ -289,6 +289,25 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
 
 
 
+
+
+def test_windows_bootstrap_presoak_script_exists():
+    text = (ROOT / "scripts" / "windows_bootstrap_presoak.ps1").read_text(encoding="utf-8-sig")
+    assert "windows-evidence-notify-retarget-4bde" in text
+    assert "AHOS_PRE_SOAK_NOW.bat" in text
+    assert "db:migrate" in text.lower()
+    assert "ls-tree" in text
+    assert "cmd.exe /c" in text
+
+
+def test_windows_ensure_database_url_realigns_via_docker_exec():
+    text = (ROOT / "scripts" / "windows_ensure_database_url.ps1").read_text(encoding="utf-8-sig")
+    assert "ALTER ROLE" in text
+    assert "docker exec" in text
+    assert "db:migrate" in text.lower()
+    assert "ahos_postgres_win" in text
+
+
 def test_windows_recover_g2_warm_script_and_ops_bat():
     recover = ROOT / "scripts" / "windows_recover_g2_warm.ps1"
     text = recover.read_text(encoding="utf-8-sig")
@@ -297,18 +316,22 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     assert "db:migrate" in text.lower()
     ops = (ROOT / "AHOS_WINDOWS_OPS.bat").read_text(encoding="utf-8")
     assert "windows_recover_g2_warm.ps1" in ops
+    assert "windows-evidence-notify-retarget-4bde" in ops
     assert "for %%R in (" in ops
     g2 = (ROOT / "scripts" / "windows_validate_g2.ps1").read_text(encoding="utf-8-sig")
     assert "windows_recover_g2_warm.ps1" in g2
     vbat = (ROOT / "AHOS_VALIDATE_G2_NOW.bat").read_text(encoding="utf-8")
     assert "windows-presoak-unblock-4bde" in vbat
+    apply = (ROOT / "AHOS_APPLY_TIP.bat").read_text(encoding="utf-8")
+    assert "windows-evidence-notify-retarget-4bde" in apply
+    assert "AHOS_PRE_SOAK_NOW.bat" in apply
     push_bat = (ROOT / "AHOS_PUSH_EVIDENCE_NOW.bat").read_text(encoding="utf-8")
     assert "windows_push_gate_evidence.ps1" in push_bat
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in push_bat
     pull = (ROOT / "AHOS_PULL_OPS_UNLOCK.bat").read_text(encoding="utf-8")
     assert "windows-presoak-unblock-4bde" in pull
     paste = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
-    assert "windows-evidence-inbox-stay-open-4bde" in paste
+    assert "windows-evidence-inbox-open-sink-4bde" in paste
 
 
 def test_windows_run_this_first_points_at_ops_bat():
@@ -316,6 +339,8 @@ def test_windows_run_this_first_points_at_ops_bat():
     assert "AHOS_WINDOWS_OPS.bat" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "db:migrate" in text.lower()
+    assert "windows_bootstrap_presoak.ps1" in text or "AHOS_APPLY_TIP.bat" in text
+    assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
     assert "AHOS_WINDOWS_OPS.bat" in start_ps1
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1
