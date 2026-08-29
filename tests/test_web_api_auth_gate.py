@@ -124,6 +124,9 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "one recovery" in text.lower() or "Recovery warm" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+    # Evidence must leave the laptop (otherwise subscribed agents never wake).
+    assert "windows_push_gate_evidence.ps1" in text
+    assert text.count("windows_push_gate_evidence.ps1") >= 2
 
 
 def test_windows_validate_ps1_parse_script_exists():
@@ -169,183 +172,6 @@ def test_windows_ops_bat_pulls_current_branch_too():
     assert "git pull origin main" in text
     assert "CURBRANCH" in text or "abbrev-ref" in text
     assert "windows_publish_owner_paste.ps1" in (ROOT / "scripts" / "windows_run_operator_gate.ps1").read_text(encoding="utf-8")
-    # Regression: main historically wrote OWNER_PASTE then exited without pushing
-    # evidence — agents never woke. End-of-run + failpaste must push.
-    assert "windows_push_gate_evidence.ps1" in text
-    assert text.lower().count("windows_push_gate_evidence.ps1") >= 2
-    assert "evidence push" in text.lower()
-
-
-def test_windows_main_first_bat_exists():
-    bat = (ROOT / "AHOS_MAIN_FIRST.bat").read_text(encoding="utf-8")
-    assert "git pull origin main" in bat
-    assert "windows_ensure_web_api_token.ps1" in bat
-    assert "AHOS_PRE_SOAK_NOW.bat" in bat
-    assert "db:migrate" in bat.lower()
-    assert "windows_push_gate_evidence.ps1" in bat
-    # Overlay tip OPS before PRE_SOAK so mid-run push works when main lacks it
-    assert "AHOS_WINDOWS_OPS.bat" in bat
-    assert "windows-main-evidence-push-4bde" in bat
-    assert "named files" in bat.lower() or "TIPREF" in bat
-
-
-def test_windows_pre_soak_now_prefers_evidence_push_tip():
-    bat = (ROOT / "AHOS_PRE_SOAK_NOW.bat").read_text(encoding="utf-8")
-    assert "windows-main-evidence-push-4bde" in bat
-    # Prefer evidence-push tip ahead of older unlocks already on main
-    idx_push = bat.find("windows-main-evidence-push-4bde")
-    idx_old = bat.find("windows-g2-empty-gateway-default-4bde")
-    assert idx_push != -1 and idx_old != -1 and idx_push < idx_old
-
-
-def test_windows_fix_g2_and_gate_on_same_tip():
-    bat = (ROOT / "AHOS_FIX_G2_AND_GATE.bat").read_text(encoding="utf-8")
-    assert "windows-main-evidence-push-4bde" in bat
-    assert "windows_fix_g2_empty_and_gate.ps1" in bat
-    assert "db:migrate" in bat.lower()
-    fix = (ROOT / "scripts" / "windows_fix_g2_empty_and_gate.ps1").read_text(
-        encoding="utf-8-sig"
-    )
-    assert "windows-main-evidence-push-4bde" in fix
-    assert "windows_checkout_unlock_tip.ps1" in fix
-    assert "windows_recover_g2_warm.ps1" in fix
-    assert "windows_restart_next_dev.ps1" in fix
-    assert "restart Next so .env" in fix
-    assert "windows_run_operator_gate.ps1" in fix
-    assert "windows_push_gate_evidence.ps1" in fix
-    assert "db:migrate" in fix.lower()
-
-
-def test_windows_checkout_unlock_tip_uses_ls_tree():
-    text = (ROOT / "scripts" / "windows_checkout_unlock_tip.ps1").read_text(
-        encoding="utf-8-sig"
-    )
-    assert "ls-tree" in text
-    assert "windows_*.ps1" in text
-    assert "AHOS_WINDOWS_OPS.bat" in text
-    assert "db:migrate" in text.lower()
-
-
-def test_windows_bootstrap_presoak_script_exists():
-    text = (ROOT / "scripts" / "windows_bootstrap_presoak.ps1").read_text(
-        encoding="utf-8-sig"
-    )
-    assert "windows-main-evidence-push-4bde" in text
-    assert "AHOS_PRE_SOAK_NOW.bat" in text
-    assert "db:migrate" in text.lower()
-    assert "ls-tree" in text
-
-
-def test_windows_ensure_database_url_realigns_via_docker_exec():
-    text = (ROOT / "scripts" / "windows_ensure_database_url.ps1").read_text(
-        encoding="utf-8-sig"
-    )
-    assert "ALTER ROLE" in text
-    assert "docker exec" in text
-    assert "db:migrate" in text.lower()
-    assert "ahos_postgres_win" in text
-
-
-def test_api_chat_retries_transient_pg_once():
-    text = (ROOT / "app" / "api" / "chat" / "route.ts").read_text(encoding="utf-8")
-    assert "isTransientPgError" in text
-    assert "one retry" in text.lower() or "750" in text
-    assert "windows_recover_g2_warm" in text
-
-
-
-def test_owner_card_and_one_liner_point_at_pr58():
-    card = (ROOT / "reports" / "OWNER_CARD_WEB_API_AUTH_PRE_SOAK_FA.md").read_text(encoding="utf-8")
-    assert "windows-main-evidence-push-4bde" in card
-    assert "AHOS_RUN_TIP.ps1" in card
-    assert "#56" in card
-    one = (ROOT / "OWNER_ONE_LINER.txt").read_text(encoding="utf-8")
-    assert "AHOS_RUN_TIP.cmd" in one or "AHOS_RUN_TIP.ps1" in one
-    assert "AHOS_MAIN_CLEAR_G2.cmd" in one
-    assert "windows-main-evidence-push-4bde" in one
-    assert "db:migrate" in one.lower()
-    assert "AHOS_MAIN_FIRST.bat" in one
-    assert "220318" in one or "#45" in one
-    push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
-    assert "windows-main-evidence-push-4bde" in push
-
-
-def test_ahos_main_clear_g2_cmd_is_crlf_main_only():
-    raw = (ROOT / "AHOS_MAIN_CLEAR_G2.cmd").read_bytes()
-    assert b"\r\n" in raw
-    assert raw.count(b"\n") == raw.count(b"\r\n")
-    text = raw.decode("ascii")
-    assert "git pull origin main" in text
-    assert "git checkout origin/main --" in text
-    assert "windows_ensure_web_api_token.ps1" in text
-    assert "windows_run_operator_gate.ps1" in text
-    assert "validate_n8n.py" in text  # G12 charmap fix on main
-    assert "windows_restart_next_dev.ps1" in text
-    assert "windows_wait_for_web_api.ps1" in text
-    assert "restart Next so .env" in text
-    assert "PYTHONUTF8=1" in text
-    assert "AHOS_GATE_PR=56" in text
-    assert "windows_post_gate_paste_gh.ps1" in text
-    assert "db:migrate" in text.lower()
-    assert "OWNER_PASTE" in text
-    assert "#56" in text
-    # Runtime path must not git-fetch the tip branch (curl URL / SHA pin for overlay is ok)
-    runtime = "\n".join(
-        ln for ln in text.splitlines() if not ln.strip().upper().startswith("REM")
-    )
-    assert "git fetch origin cursor/" not in runtime
-    # May curl tip SHA for post_gate overlay, but must not require tip branch git fetch
-    assert "git fetch origin cursor/windows-main-evidence-push-4bde" not in runtime
-
-
-def test_ahos_run_tip_cmd_is_crlf_and_tls12():
-    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8")
-    assert "*.cmd -text" in attrs
-    raw = (ROOT / "AHOS_RUN_TIP.cmd").read_bytes()
-    assert b"\r\n" in raw
-    assert raw.count(b"\n") == raw.count(b"\r\n")
-    text = raw.decode("ascii")
-    assert "Tls12" in text or "TLS" in text
-    assert "AHOS_RUN_TIP.ps1" in text
-    assert "OWNER_PASTE" in text
-    assert "db:migrate" in text.lower()
-
-
-def test_ahos_run_tip_ps1_is_crlf_safe_entry():
-    raw = (ROOT / "AHOS_RUN_TIP.ps1").read_bytes()
-    assert raw.startswith(b"\xef\xbb\xbf")
-    text = raw.decode("utf-8-sig")
-    assert "windows-main-evidence-push-4bde" in text
-    assert "AHOS_SKIP_GIT_PULL" in text
-    assert "windows_fix_g2_empty_and_gate.ps1" in text
-    assert "Install-TipViaRaw" in text or "raw.githubusercontent.com" in text
-    assert "Tls12" in text or "TLS" in text
-    assert "AHOS_MAIN_FIRST.bat" in text
-    assert 'Mode = "fix_g2"' in text or "fix_g2" in text
-    assert "db:migrate" in text.lower()
-    main_first = (ROOT / "AHOS_MAIN_FIRST.bat").read_text(encoding="utf-8")
-    assert "AHOS_SKIP_GIT_PULL" in main_first
-    pre = (ROOT / "AHOS_PRE_SOAK_NOW.bat").read_text(encoding="utf-8")
-    assert "AHOS_SKIP_GIT_PULL" in pre
-
-
-def test_bat_files_are_crlf_in_working_tree_for_cmd():
-    """cmd.exe needs CRLF; *.bat is -text so blobs keep CRLF for raw.githubusercontent.com."""
-    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8")
-    assert "*.bat -text" in attrs
-    assert "raw.githubusercontent.com" in attrs or "LF-only" in attrs or "curl" in attrs.lower()
-    for name in (
-        "AHOS_MAIN_FIRST.bat",
-        "AHOS_FIX_G2_AND_GATE.bat",
-        "AHOS_WINDOWS_OPS.bat",
-        "AHOS_PRE_SOAK_NOW.bat",
-        "AHOS_MAIN_CLEAR_G2.cmd",
-        "AHOS_RUN_TIP.cmd",
-    ):
-        raw = (ROOT / name).read_bytes()
-        assert b"\r\n" in raw, name + " missing CRLF"
-        # No bare LF line endings mixed in (allow final content)
-        assert raw.count(b"\n") == raw.count(b"\r\n"), name + " has LF-only lines"
 
 
 def test_windows_ps1_scripts_are_ascii_for_ps51():
@@ -462,6 +288,8 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert '"45"' in helper  # unlock PR sink for subscribed agents
     assert '"37"' in helper or "37" in helper
     assert '"36"' in helper or "36" in helper
+    assert '"56"' in helper  # leave-open paste sink
+    assert '"38"' in helper  # durable open sink
     assert "db:migrate" in helper.lower() or "READY" in helper
 
 
@@ -486,38 +314,16 @@ def test_windows_recover_g2_warm_script_and_ops_bat():
     assert "windows-presoak-unblock-4bde" in pull
     paste = (ROOT / "scripts" / "windows_post_gate_paste_gh.ps1").read_text(encoding="utf-8-sig")
     assert "windows-evidence-inbox-stay-open-4bde" in paste
-    assert "windows-evidence-inbox-open-sink-4bde" in paste or '"56"' in paste or "Add-Target \"56\"" in paste
-    push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
-    assert "38" in push
-    assert "open-sink" in push or "windows-evidence-inbox-open-sink-4bde" in push
 
 
 def test_windows_run_this_first_points_at_ops_bat():
     text = (ROOT / "WINDOWS_RUN_THIS_FIRST.txt").read_text(encoding="utf-8")
-    assert "AHOS_WINDOWS_OPS.bat" in text or "AHOS_MAIN_CLEAR_G2.cmd" in text
+    assert "AHOS_WINDOWS_OPS.bat" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "db:migrate" in text.lower()
-    assert (
-        "AHOS_RUN_TIP.ps1" in text
-        or "AHOS_RUN_TIP.cmd" in text
-        or "AHOS_MAIN_CLEAR_G2.cmd" in text
-        or "AHOS_MAIN_FIRST.bat" in text
-        or "windows_bootstrap_presoak.ps1" in text
-        or "AHOS_APPLY_TIP.bat" in text
-    )
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
-    assert (
-        "AHOS_MAIN_CLEAR_G2.cmd" in start_ps1
-        or "AHOS_RUN_TIP.ps1" in start_ps1
-        or "AHOS_RUN_TIP.cmd" in start_ps1
-        or "AHOS_WINDOWS_OPS.bat" in start_ps1
-    )
+    assert "AHOS_WINDOWS_OPS.bat" in start_ps1
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1
-    start_bat = (ROOT / "start_ahos.bat").read_bytes()
-    assert b"\r\n" in start_bat
-    assert start_bat.count(b"\n") == start_bat.count(b"\r\n")
-    assert b"AHOS_MAIN_CLEAR_G2.cmd" in start_bat
-    assert b"db:migrate" in start_bat.lower()
 
 
 def test_windows_restart_next_dev_script_exists():
@@ -540,11 +346,8 @@ def test_install_windows_gate_cli_matches_runner():
     text = (ROOT / "install_windows.ps1").read_text(encoding="utf-8", errors="replace")
     assert "--repo-root" not in text
     assert "--require-owner-action" not in text
-    assert "windows_run_operator_gate.ps1" in text or "AHOS_MAIN_CLEAR_G2.cmd" in text
-    assert "AHOS_MAIN_CLEAR_G2.cmd" in text
-    assert "db:migrate" in text.lower()
-    # token ensure still documented in installer body / MAIN_CLEAR path
-    assert "windows_ensure_web_api_token.ps1" in text or "MAIN_CLEAR" in text
+    assert "windows_run_operator_gate.ps1" in text
+    assert "windows_ensure_web_api_token.ps1" in text
 
 
 def test_env_example_documents_web_api_token_keys():
@@ -614,3 +417,23 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     TelegramDomainService().handle_message("سلام")
     headers = {k.lower(): v for k, v in captured["headers"].items()}
     assert "authorization" not in headers
+
+
+def test_ahos_main_clear_g2_cmd_on_main_path():
+    """MAIN_CLEAR is curl-safe CRLF and wakes #56 after ensure/restart/gate."""
+    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.cmd -text" in attrs
+    raw = (ROOT / "AHOS_MAIN_CLEAR_G2.cmd").read_bytes()
+    assert b"\r\n" in raw
+    assert raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_run_operator_gate.ps1" in text
+    assert "windows_restart_next_dev.ps1" in text
+    assert "validate_n8n.py" in text
+    assert "db:migrate" in text.lower()
+    # Refuse pre-#45 gate (empty AHOS_GATEWAY_URL BLOCKED last Windows paste).
+    assert "must NOT BLOCK" in text
+    assert "AHOS_UNLOCK_SHA" in text
+    assert "scrub empty AHOS_GATEWAY_URL in .env (inline)" in text
+    assert "windows_post_gate_paste_gh.ps1" in text

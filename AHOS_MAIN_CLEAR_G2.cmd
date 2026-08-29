@@ -16,8 +16,11 @@ set "PYTHONIOENCODING=utf-8"
 REM Wake leave-open paste sink #56 via AHOS_GATE_PR (post_gate on #59 main)
 set "AHOS_GATE_PR=56"
 
+REM Known-good unlock tip (OPS push + post_gate #56/#38). Used if main checkout is stale.
+set "AHOS_UNLOCK_SHA=6be63420db3a1b975c8fc3c4f962a11d1d3c71ad"
+
 echo ==========================================================
-echo   AHOS MAIN CLEAR G2 (origin/main only)
+echo   AHOS MAIN CLEAR G2 (origin/main + unlock overlay)
 echo   Will NOT migrate DB or claim READY
 echo ==========================================================
 
@@ -48,8 +51,41 @@ if errorlevel 1 (
 )
 
 echo ==^> checkout gate + warm scripts from origin/main
-git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 AHOS_PUSH_EVIDENCE_NOW.bat 2>nul
+git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 AHOS_PUSH_EVIDENCE_NOW.bat
+if errorlevel 1 (
+  echo WARNING: git checkout origin/main scripts returned non-zero
+)
 
+REM If laptop was stuck on pre-#45 gate, empty AHOS_GATEWAY_URL still BLOCKs G2.
+REM Refuse to continue with a gate that lacks the empty-gateway default.
+findstr /C:"must NOT BLOCK" "scripts\operator_validation_gate.py" >nul 2>&1
+if errorlevel 1 (
+  echo WARNING: gate missing empty-gateway fix - forcing from origin/main blob
+  git show origin/main:scripts/operator_validation_gate.py > "scripts\operator_validation_gate.py"
+)
+findstr /C:"must NOT BLOCK" "scripts\operator_validation_gate.py" >nul 2>&1
+if errorlevel 1 (
+  echo WARNING: origin/main blob still old - curling unlock/main raw gate
+  curl.exe -fsSL -o "scripts\operator_validation_gate.py" "https://raw.githubusercontent.com/mainmovement/ahos/main/scripts/operator_validation_gate.py"
+  if errorlevel 1 (
+    curl.exe -fsSL -o "scripts\operator_validation_gate.py" "https://raw.githubusercontent.com/mainmovement/ahos/%AHOS_UNLOCK_SHA%/scripts/operator_validation_gate.py"
+  )
+)
+findstr /C:"must NOT BLOCK" "scripts\operator_validation_gate.py" >nul 2>&1
+if errorlevel 1 (
+  echo ERROR: operator_validation_gate.py still lacks empty-gateway fix
+  echo        Fix network/git and re-run. Do not invent READY.
+  pause
+  exit /b 2
+)
+
+REM Overlay post_gate #56/#38 + OPS evidence push from unlock tip when not yet on main.
+git fetch origin cursor/windows-ops-evidence-push-main-4bde 2>nul
+git checkout origin/cursor/windows-ops-evidence-push-main-4bde -- scripts/windows_post_gate_paste_gh.ps1 AHOS_WINDOWS_OPS.bat 2>nul
+if errorlevel 1 (
+  git fetch origin %AHOS_UNLOCK_SHA% 2>nul
+  git checkout %AHOS_UNLOCK_SHA% -- scripts/windows_post_gate_paste_gh.ps1 AHOS_WINDOWS_OPS.bat 2>nul
+)
 
 if not exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ERROR: missing windows_ensure_web_api_token.ps1 after main checkout
@@ -61,6 +97,11 @@ if not exist "scripts\windows_run_operator_gate.ps1" (
   pause
   exit /b 2
 )
+
+REM Belt-and-suspenders: scrub empty AHOS_GATEWAY_URL in .env before ensure/gate.
+echo ==^> scrub empty AHOS_GATEWAY_URL in .env (inline)
+"%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$p=Join-Path (Get-Location) '.env'; if (-not (Test-Path -LiteralPath $p)) { New-Item -ItemType File -Path $p | Out-Null }; $c=Get-Content -LiteralPath $p -Raw -ErrorAction SilentlyContinue; if ($null -eq $c) { $c='' }; $default='http://127.0.0.1:3000/api/chat'; if ($c -match '(?m)^AHOS_GATEWAY_URL\s*=\s*$') { $c=[regex]::Replace($c,'(?m)^AHOS_GATEWAY_URL\s*=\s*$',('AHOS_GATEWAY_URL='+$default)); Set-Content -LiteralPath $p -Value $c -Encoding UTF8 -NoNewline; Write-Host 'Filled empty AHOS_GATEWAY_URL' } elseif ($c -notmatch '(?m)^AHOS_GATEWAY_URL\s*=') { Add-Content -LiteralPath $p -Value ('AHOS_GATEWAY_URL='+$default); Write-Host 'Appended AHOS_GATEWAY_URL default' } else { Write-Host 'AHOS_GATEWAY_URL already non-empty or absent-ok' }"
 
 echo ==^> scrub empty AHOS_GATEWAY_URL + ensure web API token
 "%PS%" -NoProfile -ExecutionPolicy Bypass -File ".\scripts\windows_ensure_web_api_token.ps1"

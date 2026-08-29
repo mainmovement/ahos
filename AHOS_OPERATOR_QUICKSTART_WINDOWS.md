@@ -4,7 +4,7 @@
 > Fastest unlock (last paste `220318` was **before** empty-gateway #45 on main):
 > ```
 > cd /d G:\robat\ahos
-> curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/23e0f43bb68de9402c54cc1c6af3be4e32799c39/AHOS_MAIN_CLEAR_G2.cmd
+> curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/6be63420db3a1b975c8fc3c4f962a11d1d3c71ad/AHOS_MAIN_CLEAR_G2.cmd
 > AHOS_MAIN_CLEAR_G2.cmd
 > ```
 > Or tip runner: `AHOS_RUN_TIP.cmd` from `cursor/windows-main-evidence-push-4bde`.
