@@ -10,12 +10,13 @@ G3-G10 already PASS. Empty-gateway fix is already on main (#45).
 A) FASTEST (no tip download) -- try this first
 --------------------------------------------------
   cd /d G:\robat\ahos
-  git pull origin main
-  powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
-  AHOS_PRE_SOAK_NOW.bat
+  curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_MAIN_FIRST.bat
+  AHOS_MAIN_FIRST.bat
 
-  Then paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38
-  Or: AHOS_PUSH_EVIDENCE_NOW.bat
+  Equivalent manual:
+    git pull origin main
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
+    AHOS_PRE_SOAK_NOW.bat
 
 --------------------------------------------------
 B) SURGICAL tip (if A fails / need #57 unlock)

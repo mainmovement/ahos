@@ -13,10 +13,11 @@ Empty-gateway default is already on main (#45).
 A) FASTEST (main only — try first)
 --------------------------------------------------
   cd /d G:\robat\ahos
-  git pull origin main
-  powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
-  AHOS_PRE_SOAK_NOW.bat
-  (launches AHOS_WINDOWS_OPS.bat)
+  curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_MAIN_FIRST.bat
+  AHOS_MAIN_FIRST.bat
+
+  (or: git pull origin main && ensure token && AHOS_PRE_SOAK_NOW.bat)
+  launches AHOS_WINDOWS_OPS.bat
 
 --------------------------------------------------
 B) IF A fails — surgical tip (#57)

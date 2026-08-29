@@ -53,6 +53,7 @@ foreach ($p in $listed) {
 $fixed = @(
   "AHOS_APPLY_TIP.bat",
   "AHOS_BOOTSTRAP_PRESOAK.bat",
+  "AHOS_MAIN_FIRST.bat",
   "AHOS_FIX_G2_AND_GATE.bat",
   "AHOS_PRE_SOAK_NOW.bat",
   "AHOS_WINDOWS_OPS.bat",
