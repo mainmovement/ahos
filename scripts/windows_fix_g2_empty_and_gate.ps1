@@ -66,6 +66,8 @@ if ($tipFetched) {
       scripts/operator_validation_gate.py scripts/windows_run_operator_gate.ps1 `
       scripts/windows_ensure_web_api_token.ps1 scripts/windows_wait_for_web_api.ps1 `
       scripts/windows_recover_g2_warm.ps1 scripts/windows_ensure_database_url.ps1 `
+      scripts/windows_ensure_postgres_win.ps1 scripts/windows_scrub_empty_gateway.ps1 `
+      scripts/windows_seed_local_evidence.ps1 scripts/windows_restart_next_dev.ps1 `
       scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 `
       scripts/windows_publish_owner_paste.ps1 scripts/windows_g2_probe.py `
       scripts/ahos_pg_probe.mjs app/api/chat/route.ts `
@@ -75,6 +77,12 @@ if ($tipFetched) {
   Write-Host "WARN: skipping tip checkout (fetch failed)" -ForegroundColor Yellow
 }
 
+$scrub = Join-Path $RepoRoot "scripts\windows_scrub_empty_gateway.ps1"
+if (Test-Path -LiteralPath $scrub) {
+  Write-Host "==> scrub empty AHOS_GATEWAY_URL in .env" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $scrub -RepoRoot $RepoRoot
+}
+
 $ensure = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
 if (Test-Path -LiteralPath $ensure) {
   Write-Host "==> scrub empty AHOS_GATEWAY_URL + ensure token" -ForegroundColor Cyan
@@ -82,6 +90,15 @@ if (Test-Path -LiteralPath $ensure) {
 } else {
   Write-Host "FAIL: windows_ensure_web_api_token.ps1 missing" -ForegroundColor Red
   exit 2
+}
+
+$pg = Join-Path $RepoRoot "scripts\windows_ensure_postgres_win.ps1"
+if (Test-Path -LiteralPath $pg) {
+  Write-Host "==> ensure Postgres container ready (STATE B: no migrate)" -ForegroundColor Cyan
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $pg
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "WARN: postgres ensure failed - G2 may HTTP 500; continuing" -ForegroundColor Yellow
+  }
 }
 
 $dbUrl = Join-Path $RepoRoot "scripts\windows_ensure_database_url.ps1"
@@ -126,8 +143,8 @@ if (-not (Test-Path -LiteralPath $gate)) {
   exit 2
 }
 
-Write-Host "==> full operator gate (G1-G12)" -ForegroundColor Cyan
-& powershell -NoProfile -ExecutionPolicy Bypass -File $gate
+Write-Host "==> full operator gate (G1-G12) + SeedEvidenceIfNeeded" -ForegroundColor Cyan
+& powershell -NoProfile -ExecutionPolicy Bypass -File $gate -SeedEvidenceIfNeeded
 $gateCode = $LASTEXITCODE
 
 $pastePath = Join-Path $RepoRoot "reports\OWNER_PASTE_WINDOWS_GATE.txt"

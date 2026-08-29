@@ -641,3 +641,14 @@ def test_windows_wait_for_web_api_aligns_non5xx_with_g2():
     text = path.read_text(encoding="utf-8-sig")
     assert "G2-aligned non-5xx" in text
     assert "401" in text
+
+
+def test_windows_fix_g2_has_postgres_and_seed():
+    """RUN_TIP surgical path must match MAIN_CLEAR cold-laptop coverage."""
+    path = ROOT / "scripts" / "windows_fix_g2_empty_and_gate.ps1"
+    text = path.read_text(encoding="utf-8-sig")
+    assert "windows_ensure_postgres_win.ps1" in text
+    assert "SeedEvidenceIfNeeded" in text
+    assert "windows_scrub_empty_gateway.ps1" in text
+    assert "windows_restart_next_dev.ps1" in text
+    assert "db:migrate" in text.lower()
