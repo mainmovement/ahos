@@ -47,6 +47,9 @@ function Add-Target([string]$n) {
 }
 
 Add-Target $env:AHOS_GATE_PR
+Add-Target "38"  # durable open sink (do not remove)
+Add-Target "56"  # leave-open paste sink (do not merge)
+Add-Target "60"  # leave-open evidence-branch wake (do not merge)
 
 try {
   Add-Target (& gh pr view --json number -q ".number" 2>$null)
@@ -64,6 +67,10 @@ try {
 
 # Dedicated evidence inbox + known sinks (comments wake subscribed agents)
 # Prefer LIVE open inbox head; keep merged numbers as best-effort fallbacks.
+try {
+  $openInboxEv = & gh pr list --head cursor/windows-gate-evidence-4bde --state open --json number -q ".[0].number" 2>$null
+  Add-Target $openInboxEv
+} catch {}
 try {
   $openInbox0 = & gh pr list --head cursor/windows-evidence-inbox-stay-open-4bde --state open --json number -q ".[0].number" 2>$null
   Add-Target $openInbox0
