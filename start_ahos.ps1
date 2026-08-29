@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # AHOS Windows 11 Runtime Launcher (Double-Click Runnable)
 #
 # Starts the OFFICIAL local observation daemon:
@@ -60,9 +60,10 @@ Write-Host "  Press Ctrl+C to stop gracefully." -ForegroundColor DarkGray
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  WARNING: Do NOT treat this as OPERATOR_READY." -ForegroundColor DarkYellow
-Write-Host "  BEFORE soak: double-click AHOS_WINDOWS_OPS.bat" -ForegroundColor Yellow
-Write-Host "  (or: scripts\windows_run_operator_gate.ps1) and paste" -ForegroundColor Yellow
-Write-Host "  reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor." -ForegroundColor Yellow
+Write-Host "  BEFORE soak: run AHOS_RUN_TIP.ps1 (or AHOS_MAIN_FIRST.bat after tip checkout)" -ForegroundColor Yellow
+Write-Host "  Prefer: powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1" -ForegroundColor Yellow
+Write-Host "  Do NOT curl .bat from raw GitHub (LF breaks cmd.exe)." -ForegroundColor Yellow
+Write-Host "  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor / PR #56." -ForegroundColor Yellow
 Write-Host "  PRE_SOAK only after summary.pre_soak_entry_ok == true." -ForegroundColor DarkYellow
 Write-Host "  Need AHOS_WEB_API_TOKEN in .env; STATE B = no db:migrate/db:push." -ForegroundColor DarkYellow
 Write-Host ""

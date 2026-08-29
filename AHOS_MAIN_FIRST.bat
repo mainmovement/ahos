@@ -35,9 +35,13 @@ if errorlevel 1 (
 
 echo ==^> git fetch / pull origin main
 git fetch origin main
-git pull origin main
-if errorlevel 1 (
-  echo WARNING: git pull origin main failed - continuing with local tree
+if defined AHOS_SKIP_GIT_PULL (
+  echo ==^> skip git pull ^(MAIN_FIRST tip overlay active^)
+) else (
+  git pull origin main
+  if errorlevel 1 (
+    echo WARNING: git pull origin main failed - continuing with local tree
+  )
 )
 
 REM Tip overlay: main OPS historically wrote OWNER_PASTE then exited without
@@ -69,9 +73,11 @@ if not exist "AHOS_PRE_SOAK_NOW.bat" (
   exit /b 2
 )
 
-echo ==^> launching AHOS_PRE_SOAK_NOW.bat
+echo ==^> launching AHOS_PRE_SOAK_NOW.bat ^(skip nested pull^)
+set "AHOS_SKIP_GIT_PULL=1"
 call "AHOS_PRE_SOAK_NOW.bat"
 set "RC=!ERRORLEVEL!"
+set "AHOS_SKIP_GIT_PULL="
 
 REM Re-apply tip OPS after PRE_SOAK (it may reset to main when unlock tips are ancestors).
 git checkout "%TIPREF%" -- AHOS_WINDOWS_OPS.bat scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 2>nul

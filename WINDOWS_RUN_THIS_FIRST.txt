@@ -4,29 +4,26 @@ STATE B: NEVER run db:migrate / db:push
 Do NOT invent OPERATOR_READY / PRE_SOAK without Windows OWNER_PASTE
 Lane-A freeze: do not modify frozen Lane-A paths.
 
-See also: RUN_ME_WINDOWS.txt
+See also: RUN_ME_WINDOWS.txt / OWNER_ONE_LINER.txt
 
 Last paste (20260828_220318): G2 empty-gateway BLOCKED; G3-G10 PASS.
-Empty-gateway default is already on main (#45). Paste head was pre-#45.
-Please merge #58 (OPS evidence push + FIX_G2). Keep #56 OPEN.
+Please merge #58. Keep #56 OPEN.
+
+WARNING: do not curl .bat from raw GitHub (LF breaks cmd.exe).
 
 --------------------------------------------------
-A) FASTEST — MAIN_FIRST from tip #58
+A) PREFERRED — PowerShell CRLF-safe tip runner
 --------------------------------------------------
   cd /d G:\robat\ahos
-  curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
-  AHOS_MAIN_FIRST.bat
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -useb https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1).Content"
 
-  overlays tip OPS evidence push + fills empty gateway + PRE_SOAK
-  (PRE_SOAK launches AHOS_WINDOWS_OPS.bat)
+  (git-checkouts tip bats with eol=crlf, runs MAIN_FIRST -> AHOS_WINDOWS_OPS.bat)
+  After tip checkout you can also double-click AHOS_MAIN_FIRST.bat
 
 --------------------------------------------------
-B) IF A fails — surgical FIX_G2 from same tip #58
+B) IF A fails — FIX_G2 mode
 --------------------------------------------------
-  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_FIX_G2_AND_GATE.bat
-  AHOS_FIX_G2_AND_GATE.bat
-
-  Alternate: AHOS_APPLY_TIP.bat or scripts\windows_bootstrap_presoak.ps1
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1 -Mode fix_g2
 
 --------------------------------------------------
 C) OR after #58 merged to main

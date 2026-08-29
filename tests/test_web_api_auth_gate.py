@@ -255,14 +255,30 @@ def test_api_chat_retries_transient_pg_once():
 def test_owner_card_and_one_liner_point_at_pr58():
     card = (ROOT / "reports" / "OWNER_CARD_WEB_API_AUTH_PRE_SOAK_FA.md").read_text(encoding="utf-8")
     assert "windows-main-evidence-push-4bde" in card
-    assert "AHOS_MAIN_FIRST.bat" in card
+    assert "AHOS_RUN_TIP.ps1" in card
     assert "#56" in card
     one = (ROOT / "OWNER_ONE_LINER.txt").read_text(encoding="utf-8")
-    assert "AHOS_MAIN_FIRST.bat" in one
+    assert "AHOS_RUN_TIP.ps1" in one
     assert "windows-main-evidence-push-4bde" in one
     assert "db:migrate" in one.lower()
+    assert "LF" in one or "curl" in one.lower()
     push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
     assert "windows-main-evidence-push-4bde" in push
+
+
+def test_ahos_run_tip_ps1_is_crlf_safe_entry():
+    raw = (ROOT / "AHOS_RUN_TIP.ps1").read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")
+    text = raw.decode("utf-8-sig")
+    assert "windows-main-evidence-push-4bde" in text
+    assert "eol=crlf" in text or "CRLF" in text
+    assert "AHOS_MAIN_FIRST.bat" in text
+    assert "fix_g2" in text
+    assert "db:migrate" in text.lower()
+    main_first = (ROOT / "AHOS_MAIN_FIRST.bat").read_text(encoding="utf-8")
+    assert "AHOS_SKIP_GIT_PULL" in main_first
+    pre = (ROOT / "AHOS_PRE_SOAK_NOW.bat").read_text(encoding="utf-8")
+    assert "AHOS_SKIP_GIT_PULL" in pre
 
 
 def test_windows_ps1_scripts_are_ascii_for_ps51():
@@ -415,12 +431,13 @@ def test_windows_run_this_first_points_at_ops_bat():
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
     assert "db:migrate" in text.lower()
     assert (
-        "AHOS_MAIN_FIRST.bat" in text
+        "AHOS_RUN_TIP.ps1" in text
+        or "AHOS_MAIN_FIRST.bat" in text
         or "windows_bootstrap_presoak.ps1" in text
         or "AHOS_APPLY_TIP.bat" in text
     )
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
-    assert "AHOS_WINDOWS_OPS.bat" in start_ps1
+    assert "AHOS_RUN_TIP.ps1" in start_ps1 or "AHOS_WINDOWS_OPS.bat" in start_ps1
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1
 
 
