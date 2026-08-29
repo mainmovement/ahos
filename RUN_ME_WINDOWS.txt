@@ -12,7 +12,7 @@ Please merge unlock PR #58. Keep #56 OPEN.
 A) FASTEST — MAIN ONLY (no tip branch after curl)
 --------------------------------------------------
   cd /d G:\robat\ahos
-  curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/0e3187397128b68fcf9df98890c1e0b11a1f0c82/AHOS_MAIN_CLEAR_G2.cmd
+  curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd
   AHOS_MAIN_CLEAR_G2.cmd
 
 --------------------------------------------------
