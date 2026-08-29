@@ -1,0 +1,17 @@
+AHOS Windows -- ONE LINER (PAPER_ONLY)
+=====================================
+STATE B: never db:migrate / db:push
+Do NOT invent READY. Paste sink #56 must stay OPEN.
+
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
+AHOS_MAIN_FIRST.bat
+
+If still blocked:
+curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_FIX_G2_AND_GATE.bat
+AHOS_FIX_G2_AND_GATE.bat
+
+Then paste reports\OWNER_PASTE_WINDOWS_GATE.txt to GitHub PR #56 or #38.
+Or open Desktop AHOS_PASTE_TO_CURSOR.txt.
+PRE_SOAK only if pre_soak_entry_ok=true.
+Please merge PR #58.

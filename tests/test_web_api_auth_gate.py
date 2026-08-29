@@ -252,6 +252,19 @@ def test_api_chat_retries_transient_pg_once():
 
 
 
+def test_owner_card_and_one_liner_point_at_pr58():
+    card = (ROOT / "reports" / "OWNER_CARD_WEB_API_AUTH_PRE_SOAK_FA.md").read_text(encoding="utf-8")
+    assert "windows-main-evidence-push-4bde" in card
+    assert "AHOS_MAIN_FIRST.bat" in card
+    assert "#56" in card
+    one = (ROOT / "OWNER_ONE_LINER.txt").read_text(encoding="utf-8")
+    assert "AHOS_MAIN_FIRST.bat" in one
+    assert "windows-main-evidence-push-4bde" in one
+    assert "db:migrate" in one.lower()
+    push = (ROOT / "scripts" / "windows_push_gate_evidence.ps1").read_text(encoding="utf-8-sig")
+    assert "windows-main-evidence-push-4bde" in push
+
+
 def test_windows_ps1_scripts_are_ascii_for_ps51():
     """PS 5.1: ASCII codepoints + UTF-8 BOM so file decode is correct."""
     bom = b"\xef\xbb\xbf"

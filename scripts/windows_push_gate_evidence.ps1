@@ -233,11 +233,12 @@ if ($pushOk -and ($null -ne $gh)) {
         # Always try the dedicated evidence inbox heads if open.
         foreach ($inboxHead in @(
           "cursor/windows-evidence-inbox-open-sink-4bde",
+          "cursor/windows-main-evidence-push-4bde",
+          "cursor/windows-evidence-notify-retarget-4bde",
           "cursor/windows-evidence-inbox-stay-open-4bde",
           "cursor/windows-evidence-inbox-live-4bde",
           "cursor/windows-evidence-inbox-open-4bde",
           "cursor/windows-evidence-inbox-4bde",
-          "cursor/windows-evidence-notify-retarget-4bde",
           "cursor/windows-presoak-unblock-4bde"
         )) {
           try {
