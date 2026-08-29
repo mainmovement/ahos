@@ -60,11 +60,12 @@ Write-Host "  Press Ctrl+C to stop gracefully." -ForegroundColor DarkGray
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  WARNING: Do NOT treat this as OPERATOR_READY." -ForegroundColor DarkYellow
-Write-Host "  BEFORE soak: run AHOS_RUN_TIP.ps1 (or AHOS_MAIN_FIRST.bat after tip checkout)" -ForegroundColor Yellow
-Write-Host "  Prefer: powershell -NoProfile -ExecutionPolicy Bypass -File .\AHOS_RUN_TIP.ps1" -ForegroundColor Yellow
-Write-Host "  Do NOT curl .bat from raw GitHub (LF breaks cmd.exe)." -ForegroundColor Yellow
-Write-Host "  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor / PR #56." -ForegroundColor Yellow
-Write-Host "  PRE_SOAK only after summary.pre_soak_entry_ok == true." -ForegroundColor DarkYellow
+Write-Host "  BEFORE soak: curl SHA-pinned MAIN_CLEAR .cmd (CRLF-safe) then run it:" -ForegroundColor Yellow
+Write-Host "    curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host "    AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host "  Or: AHOS_RUN_TIP.cmd / AHOS_RUN_TIP.ps1 from tip (also CRLF-safe)." -ForegroundColor Yellow
+Write-Host "  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38. Keep #56 OPEN." -ForegroundColor Yellow
+Write-Host "  PRE_SOAK only after summary.pre_soak_entry_ok == true. Merge #58." -ForegroundColor DarkYellow
 Write-Host "  Need AHOS_WEB_API_TOKEN in .env; STATE B = no db:migrate/db:push." -ForegroundColor DarkYellow
 Write-Host ""
 

@@ -6,13 +6,9 @@ REM Starts the OFFICIAL local observation daemon:
 REM   -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
 REM with AHOS_EVIDENCE_SOURCE=local so predictions are calibration-eligible.
 REM
-REM Without --observation-cycle the E-01 poller and outcome labeler never run,
-REM so predictions pile up against zero outcome labels and calibration stays
-REM INSUFFICIENT_DATA forever. Without the `local` evidence source the rows are
-REM stamped `sandbox` and can never be used for calibration.
-REM
 REM Observation-only: no trading, no wallet, no order execution.
 REM Full soak procedure: AHOS_OPERATOR_QUICKSTART_WINDOWS.md
+REM STATE B: never db:migrate / db:push. Does NOT invent READY.
 REM ============================================================================
 title AHOS Opportunity Intelligence System
 cd /d "%~dp0"
@@ -51,10 +47,13 @@ echo   Cycle interval : 60s, with E-01 observation cycle
 echo   Press Ctrl+C to stop gracefully.
 echo ==========================================================
 echo.
-echo   WARNING: Not OPERATOR_READY.
-echo   BEFORE soak: double-click AHOS_WINDOWS_OPS.bat
-echo   then paste reports\OWNER_PASTE_WINDOWS_GATE.txt into Cursor.
-echo   PRE_SOAK only after pre_soak_entry_ok=true.
+echo   WARNING: Not OPERATOR_READY / not PRE_SOAK yet.
+echo   BEFORE soak - run MAIN_CLEAR (SHA-pinned .cmd is CRLF-safe):
+echo     curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd
+echo     AHOS_MAIN_CLEAR_G2.cmd
+echo   Or: AHOS_RUN_TIP.cmd from tip branch (also CRLF-safe).
+echo   Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.
+echo   Keep #56 OPEN. Merge #58. PRE_SOAK only if pre_soak_entry_ok=true.
 echo   STATE B: no db:migrate / db:push.
 echo.
 

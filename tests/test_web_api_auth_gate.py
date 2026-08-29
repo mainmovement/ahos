@@ -506,8 +506,18 @@ def test_windows_run_this_first_points_at_ops_bat():
         or "AHOS_APPLY_TIP.bat" in text
     )
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
-    assert "AHOS_RUN_TIP.ps1" in start_ps1 or "AHOS_WINDOWS_OPS.bat" in start_ps1
+    assert (
+        "AHOS_MAIN_CLEAR_G2.cmd" in start_ps1
+        or "AHOS_RUN_TIP.ps1" in start_ps1
+        or "AHOS_RUN_TIP.cmd" in start_ps1
+        or "AHOS_WINDOWS_OPS.bat" in start_ps1
+    )
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1
+    start_bat = (ROOT / "start_ahos.bat").read_bytes()
+    assert b"\r\n" in start_bat
+    assert start_bat.count(b"\n") == start_bat.count(b"\r\n")
+    assert b"AHOS_MAIN_CLEAR_G2.cmd" in start_bat
+    assert b"db:migrate" in start_bat.lower()
 
 
 def test_windows_restart_next_dev_script_exists():
