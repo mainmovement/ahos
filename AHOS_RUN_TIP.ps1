@@ -38,6 +38,7 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   }
 }
 Set-Location -LiteralPath $RepoRoot
+$env:AHOS_GATE_PR = "56"
 
 # Nested bats must not git-pull over the tip overlay we just checked out.
 $env:AHOS_SKIP_GIT_PULL = "1"

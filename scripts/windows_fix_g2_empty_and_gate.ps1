@@ -31,6 +31,8 @@ Set-Location -LiteralPath $RepoRoot
 
 $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
+# Wake leave-open paste sink #56 (post_gate / evidence push notify)
+$env:AHOS_GATE_PR = "56"
 
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  AHOS FIX G2 empty gateway + full gate (PAPER_ONLY)" -ForegroundColor Cyan

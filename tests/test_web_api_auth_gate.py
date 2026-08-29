@@ -650,5 +650,7 @@ def test_windows_fix_g2_has_postgres_and_seed():
     assert "windows_ensure_postgres_win.ps1" in text
     assert "SeedEvidenceIfNeeded" in text
     assert "windows_scrub_empty_gateway.ps1" in text
+    assert "AHOS_GATE_PR" in text
+    assert "56" in text
     assert "windows_restart_next_dev.ps1" in text
     assert "db:migrate" in text.lower()
