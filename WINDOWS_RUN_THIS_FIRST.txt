@@ -16,7 +16,7 @@ A) PREFERRED — curl .cmd then double-click
   curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
   AHOS_RUN_TIP.cmd
 
-  (CRLF in git blob; TLS1.2; pure-PS surgical G2+gate -> AHOS_WINDOWS_OPS path)
+  (CRLF in git blob; TLS1.2; pure-PS surgical G2+gate; gate via AHOS_WINDOWS_OPS.bat path)
 
 --------------------------------------------------
 B) PowerShell with TLS1.2
