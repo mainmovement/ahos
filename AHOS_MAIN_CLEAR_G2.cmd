@@ -13,7 +13,7 @@ cd /d "%~dp0"
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 
-REM Wake leave-open paste sink #56 (and tip notify script)
+REM Wake leave-open paste sink #56 via AHOS_GATE_PR (post_gate on #59 main)
 set "AHOS_GATE_PR=56"
 
 echo ==========================================================
@@ -106,7 +106,7 @@ set "RC=!ERRORLEVEL!"
 echo.
 echo ==========================================================
 echo   NEXT: paste OWNER_PASTE into GitHub PR #56 or #38
-echo   Leave PR #56 OPEN. Prefer merge PR #58 for tip OPS push.
+echo   Leave PR #56 OPEN. Merge PR #59 so main OPS always pushes evidence.
 echo   PRE_SOAK only if pre_soak_entry_ok=true. Never invent READY.
 echo ==========================================================
 if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
