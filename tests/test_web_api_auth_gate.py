@@ -417,3 +417,14 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     TelegramDomainService().handle_message("سلام")
     headers = {k.lower(): v for k, v in captured["headers"].items()}
     assert "authorization" not in headers
+
+
+def test_ahos_g2_clear_main_cmd():
+    raw = (ROOT / "AHOS_G2_CLEAR_MAIN.cmd").read_bytes()
+    assert b"\r\n" in raw and raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_ensure_web_api_token.ps1" in text
+    assert "SeedEvidenceIfNeeded" in text
+    assert "Leave-open paste sinks first" in text
+    assert "db:migrate" in text.lower()
