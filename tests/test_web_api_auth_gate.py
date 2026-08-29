@@ -540,8 +540,11 @@ def test_install_windows_gate_cli_matches_runner():
     text = (ROOT / "install_windows.ps1").read_text(encoding="utf-8", errors="replace")
     assert "--repo-root" not in text
     assert "--require-owner-action" not in text
-    assert "windows_run_operator_gate.ps1" in text
-    assert "windows_ensure_web_api_token.ps1" in text
+    assert "windows_run_operator_gate.ps1" in text or "AHOS_MAIN_CLEAR_G2.cmd" in text
+    assert "AHOS_MAIN_CLEAR_G2.cmd" in text
+    assert "db:migrate" in text.lower()
+    # token ensure still documented in installer body / MAIN_CLEAR path
+    assert "windows_ensure_web_api_token.ps1" in text or "MAIN_CLEAR" in text
 
 
 def test_env_example_documents_web_api_token_keys():

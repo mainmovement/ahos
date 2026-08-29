@@ -1,12 +1,13 @@
 # AHOS Operator Quickstart — Windows
 
 > **CURRENT PATH (2026-08-29, PR #58):** Do **not** start soak until Windows `pre_soak_entry_ok=true`.
-> Fastest unlock (last paste G2 empty-gateway BLOCKED; G3–G10 PASS):
+> Fastest unlock (last paste `220318` was **before** empty-gateway #45 on main):
 > ```
 > cd /d G:\robat\ahos
-> curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
-> AHOS_RUN_TIP.cmd
+> curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd
+> AHOS_MAIN_CLEAR_G2.cmd
 > ```
+> Or tip runner: `AHOS_RUN_TIP.cmd` from `cursor/windows-main-evidence-push-4bde`.
 > Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` to PR **#56** (leave open) or **#38**. Merge **#58**.
 > Canonical handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md` · owner card: `docs/OWNER_ACTION_REQUIRED.md`
 > **STATE B:** do **not** `db:migrate` / `db:push`. **Never invent PRE_SOAK / OPERATOR_READY.**

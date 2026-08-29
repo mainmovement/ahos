@@ -2,9 +2,10 @@
 # AHOS Windows 11 One-Click Installer (Double-Click Runnable)
 #
 # Operator prep ONLY. This script does NOT claim OPERATOR_READY and does NOT
-# start PRE_SOAK / soak. After install, run the Windows operator gate yourself:
+# start PRE_SOAK / soak. After install, prefer MAIN_CLEAR then paste OWNER_PASTE:
+#   curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd
+#   AHOS_MAIN_CLEAR_G2.cmd
 #   docs\WINDOWS_OPERATOR_HANDOFF.md
-#   powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1
 #
 # Encoding / quoting contract (Windows PowerShell 5.1 + PowerShell 7):
 #   - ASCII-only punctuation in this file (no em-dash, no >= glyph)
@@ -209,17 +210,15 @@ Write-Host ""
 Write-Host "NEXT (required - not started by this installer):" -ForegroundColor Cyan
 Write-Host "  1. Edit .env: Telegram + real DATABASE_URL (Postgres for G2)." -ForegroundColor White
 Write-Host "  2. Start Postgres; keep STATE B - do NOT db:migrate / db:push." -ForegroundColor White
-Write-Host "  3. Terminal A: npm run dev   (binds 127.0.0.1)" -ForegroundColor White
-Write-Host "  4. Terminal B: run the Windows operator gate:" -ForegroundColor White
+Write-Host "  3. Prefer one-shot MAIN_CLEAR (pulls main, ensure token, restart Next, full gate):" -ForegroundColor White
 Write-Host ""
+Write-Host "     curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host "     AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "  Or manual: Terminal A npm run dev; Terminal B:" -ForegroundColor White
 Write-Host "     powershell -ExecutionPolicy Bypass -File .\scripts\windows_run_operator_gate.ps1" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "  Or equivalently:" -ForegroundColor White
-Write-Host "     .\.venv\Scripts\Activate.ps1" -ForegroundColor Yellow
-Write-Host '     $env:AHOS_PAPER_ONLY = ''1''' -ForegroundColor Yellow
-Write-Host '     $env:AHOS_EVIDENCE_SOURCE = ''local''' -ForegroundColor Yellow
-Write-Host "     python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill" -ForegroundColor Yellow
-Write-Host ""
+Write-Host "  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38. Keep #56 OPEN." -ForegroundColor White
 Write-Host "  Do NOT call OPERATOR_READY until that gate reports it on Windows." -ForegroundColor Yellow
 Write-Host "  Do NOT start PRE_SOAK until summary.pre_soak_entry_ok == true." -ForegroundColor Yellow
 Write-Host "  PAPER_ONLY remains mandatory. No live trading." -ForegroundColor Yellow
