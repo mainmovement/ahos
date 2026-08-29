@@ -1,0 +1,31 @@
+AHOS Windows -- ONE LINER (PAPER_ONLY)
+=====================================
+STATE B: never db:migrate / db:push
+Do NOT invent READY. Paste sink #56 must stay OPEN.
+
+WHY: last paste 20260828_220318 was G2 empty-gateway BLOCKED.
+Empty-gateway fix (#45) + validate_n8n UTF-8 (G12 charmap) are on main AFTER that paste.
+So origin/main alone can clear G2 (and G12 encoding). Tip #58 adds OPS auto evidence-push.
+MAIN_CLEAR also restarts Next after ensure token (avoids stale :3000 401), then warms /api/chat before the full gate.
+
+A) FASTEST — MAIN ONLY (SHA-pinned curl; CDN-safe).
+   After #59 merges to main you can also curl .../main/AHOS_MAIN_CLEAR_G2.cmd :
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/d4ec08489430863f0478defb7a17397f05dc7ccc/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+
+B) PREFERRED tip runner (surgical G2 + tip notify #56):
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
+AHOS_RUN_TIP.cmd
+
+C) Or PowerShell tip (TLS1.2):
+powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; iex (iwr -UseBasicParsing -Uri 'https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.ps1').Content"
+
+D) Optional MAIN_FIRST bat:
+curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
+AHOS_MAIN_FIRST.bat
+
+Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.
+PRE_SOAK only if pre_soak_entry_ok=true.
+Please merge PR #59 (slim OPS push) then PR #58 (full tip).

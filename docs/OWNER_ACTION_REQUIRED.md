@@ -1,29 +1,21 @@
-# AHOS — Owner Action Required
+# AHOS — Owner Action Required (PRE_SOAK)
 
-**Date:** 2026-08-27  
-**Phase:** WINDOWS OPERATOR VALIDATION  
-**Classification:** `INTEGRATION_READY` (agent-host) · **`OPERATOR_READY = NOT_VERIFIED`**  
-**Merge:** human decision only — see `docs/MERGE_READINESS_AUDIT.md`
+**STATE B:** never `db:migrate` / `db:push`. Do **not** invent READY.
 
-## Agent completed (transfer control)
+## Now (Windows laptop `G:\robat\ahos`)
 
-- Environment contract: documented `AHOS_PAPER_ONLY` + clarified required keys in `.env.example`
-- Merge readiness audit document
-- Reconfirmed Lane-A freeze; no frozen sources changed vs `main`
-- **Did not** invent Windows PASS, merge PR #19, or add speculative features
+1. Prefer merge **PR #59** (leave **PR #56** OPEN as paste sink).
+2. Run:
 
-## Owner must do (post-merge / transfer)
+```bat
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/d4ec08489430863f0478defb7a17397f05dc7ccc/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
+```
 
-| ID | Action | Evidence |
-|----|--------|----------|
-| OA-MERGE | Human merge PR #19 when MERGE_READY | GitHub |
-| OA-H | Follow `docs/WINDOWS_OPERATOR_HANDOFF.md` on Windows | — |
-| OA-PG | Postgres + `DATABASE_URL` | G2 |
-| OA-W1 | Windows operator gate | `reports\operator_validation_report_windows_*.json` |
-| OA-PS | PRE_SOAK if `pre_soak_entry_ok` | protocol |
-| OA-4 | Real T+72h | calibration |
-| OA-TG | Telegram E2E | G11 |
-| OA-LA | Optional Lane-A URI fix + freeze re-anchor | governance |
+3. Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` into **#56** or **#38**.
 
-**Do not claim `OPERATOR_READY` until Windows G1–G11 PASS artifacts exist.**
+**PRE_SOAK** only if Windows report has `pre_soak_entry_ok=true` (G1–G10 PASS).  
+**OPERATOR_READY** still needs G11 Telegram E2E.
 
+See also: `reports/OWNER_CARD_WEB_API_AUTH_PRE_SOAK_FA.md`, `OWNER_ONE_LINER.txt`.
