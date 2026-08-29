@@ -40,15 +40,19 @@ python3 -m architecture.runtime --daemon --interval-sec 60 --observation-cycle
 
 ### Windows PRE_SOAK entry (PAPER_ONLY)
 
-Last gate paste (`20260828_220318`) was one G2 flip from PRE_SOAK. **Do not invent READY.**
+Last gate paste (`20260828_220318`) was one G2 flip from PRE_SOAK (empty gateway; paste predated #45 on main). **Do not invent READY.**
+
+Merge order: slim **#59** (OPS evidence wake) then full tip **#58**. Keep paste-sink **#56 OPEN**.
 
 ```bat
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_RUN_TIP.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_RUN_TIP.cmd
-AHOS_RUN_TIP.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4b0bde85a80701b6105163806e965c438545cf64/AHOS_MAIN_CLEAR_G2.cmd
+AHOS_MAIN_CLEAR_G2.cmd
 ```
 
-Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` to PR **#56** (leave open) or **#38**. Merge unlock PR **#58**. STATE B: no `db:migrate` / `db:push`. Details: `docs/OWNER_ACTION_REQUIRED.md` · `OWNER_ONE_LINER.txt`.
+Or tip runner: `AHOS_RUN_TIP.cmd` from `cursor/windows-main-evidence-push-4bde`.
+
+Paste `reports\OWNER_PASTE_WINDOWS_GATE.txt` to PR **#56** or **#38**. STATE B: no `db:migrate` / `db:push`. Details: `docs/OWNER_ACTION_REQUIRED.md` · `OWNER_ONE_LINER.txt`.
 
 ## Live in code (when network allows)
 
