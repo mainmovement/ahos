@@ -222,6 +222,7 @@ if ($pushOk -and ($null -ne $gh)) {
         }
         [void]$notifyTargets.Add("56")
         [void]$notifyTargets.Add("38")
+        [void]$notifyTargets.Add("60")
         if (-not [string]::IsNullOrWhiteSpace($existing)) {
           if (-not ($notifyTargets -contains [string]$existing)) { [void]$notifyTargets.Add([string]$existing) }
         }
@@ -236,6 +237,7 @@ if ($pushOk -and ($null -ne $gh)) {
         } catch {}
         # Always try the dedicated evidence inbox heads if open.
         foreach ($inboxHead in @(
+          "cursor/windows-gate-evidence-4bde",
           "cursor/windows-evidence-inbox-open-sink-4bde",
           "cursor/windows-ops-evidence-push-main-4bde",
           "cursor/windows-main-evidence-push-4bde",
