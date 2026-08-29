@@ -183,6 +183,19 @@ def test_windows_main_first_bat_exists():
     assert "AHOS_PRE_SOAK_NOW.bat" in bat
     assert "db:migrate" in bat.lower()
     assert "windows_push_gate_evidence.ps1" in bat
+    # Overlay tip OPS before PRE_SOAK so mid-run push works when main lacks it
+    assert "AHOS_WINDOWS_OPS.bat" in bat
+    assert "windows-main-evidence-push-4bde" in bat
+    assert "named files" in bat.lower() or "TIPREF" in bat
+
+
+def test_windows_pre_soak_now_prefers_evidence_push_tip():
+    bat = (ROOT / "AHOS_PRE_SOAK_NOW.bat").read_text(encoding="utf-8")
+    assert "windows-main-evidence-push-4bde" in bat
+    # Prefer evidence-push tip ahead of older unlocks already on main
+    idx_push = bat.find("windows-main-evidence-push-4bde")
+    idx_old = bat.find("windows-g2-empty-gateway-default-4bde")
+    assert idx_push != -1 and idx_old != -1 and idx_push < idx_old
 
 
 def test_windows_ps1_scripts_are_ascii_for_ps51():

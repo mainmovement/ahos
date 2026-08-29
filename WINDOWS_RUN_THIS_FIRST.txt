@@ -7,17 +7,18 @@ Lane-A freeze: do not modify frozen Lane-A paths.
 See also: RUN_ME_WINDOWS.txt
 
 Last paste (20260828_220318): G2 empty-gateway BLOCKED; G3-G10 PASS.
-Empty-gateway default is already on main (#45).
+Empty-gateway default is already on main (#45). Paste head was pre-#45.
+Please merge #58 (OPS evidence push). Keep #56 OPEN.
 
 --------------------------------------------------
-A) FASTEST (main only — try first)
+A) FASTEST — MAIN_FIRST from tip #58
 --------------------------------------------------
   cd /d G:\robat\ahos
   curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
   AHOS_MAIN_FIRST.bat
 
-  (or: git pull origin main && ensure token && AHOS_PRE_SOAK_NOW.bat)
-  launches AHOS_WINDOWS_OPS.bat
+  overlays tip OPS evidence push + fills empty gateway + PRE_SOAK
+  (PRE_SOAK launches AHOS_WINDOWS_OPS.bat)
 
 --------------------------------------------------
 B) IF A fails — surgical tip (#57)

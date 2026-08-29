@@ -5,18 +5,19 @@ Do NOT invent PRE_SOAK / OPERATOR_READY without OWNER_PASTE
 
 Last evidence (20260828_220318): G2 BLOCKED on empty AHOS_GATEWAY_URL;
 G3-G10 already PASS. Empty-gateway fix is already on main (#45).
+Paste head 24151d6 was BEFORE #45 merge -- pull main then re-run.
+
+Please merge slim unlock PR #58 (OPS evidence push wake gap). Keep #56 OPEN.
 
 --------------------------------------------------
-A) FASTEST (no tip download) -- try this first
+A) FASTEST -- MAIN_FIRST from tip #58 (overlays tip OPS push)
 --------------------------------------------------
   cd /d G:\robat\ahos
   curl.exe -L -o AHOS_MAIN_FIRST.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_FIRST.bat
   AHOS_MAIN_FIRST.bat
 
-  Equivalent manual:
-    git pull origin main
-    powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_ensure_web_api_token.ps1
-    AHOS_PRE_SOAK_NOW.bat
+  (pulls main, fills empty gateway, overlays tip OPS evidence push,
+   runs PRE_SOAK -> AHOS_WINDOWS_OPS.bat, re-pushes OWNER_PASTE to #56/#38)
 
 --------------------------------------------------
 B) SURGICAL tip (if A fails / need #57 unlock)
@@ -32,4 +33,4 @@ C) FULL tip bootstrap
   AHOS_BOOTSTRAP_PRESOAK.bat
 
 PRE_SOAK only if pre_soak_entry_ok=true (G1-G10). Never invent READY.
-Tip PR #57 -- please merge. Leave paste-sink PR #56 OPEN.
+Prefer merge #58 (or full #57). Leave paste-sink PR #56 OPEN.
