@@ -4,11 +4,11 @@
 **اول merge کن:** PR **#59** (MAIN_CLEAR). PR **#56** را باز نگه دار (paste sink).  
 **DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
 
-## فقط این (لپ‌تاپ)
+## فقط این (لپ‌تاپ) — همیشه آخرین tip
 
 ```bat
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/99f38326beecc8cb27f245acbfda7fa175e72667/AHOS_MAIN_CLEAR_G2.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-ops-evidence-push-main-4bde/AHOS_MAIN_CLEAR_G2.cmd
 AHOS_MAIN_CLEAR_G2.cmd
 ```
 

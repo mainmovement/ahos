@@ -10,15 +10,18 @@ and pushes OWNER_PASTE to #56/#38.
 
 Prefer merge PR #59 first. Optional later: PR #58. Never merge #56.
 
-A) SHA-pinned (works before or after merge):
+A) ALWAYS-LATEST tip (preferred — no pin thrash):
 cd /d G:\robat\ahos
-curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/99f38326beecc8cb27f245acbfda7fa175e72667/AHOS_MAIN_CLEAR_G2.cmd
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-ops-evidence-push-main-4bde/AHOS_MAIN_CLEAR_G2.cmd
 AHOS_MAIN_CLEAR_G2.cmd
 
 B) After #59 is on main:
 cd /d G:\robat\ahos
 curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/main/AHOS_MAIN_CLEAR_G2.cmd
 AHOS_MAIN_CLEAR_G2.cmd
+
+C) Optional immutable SHA pin (tip 99f3832):
+curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/99f38326beecc8cb27f245acbfda7fa175e72667/AHOS_MAIN_CLEAR_G2.cmd
 
 Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38.
 PRE_SOAK only if pre_soak_entry_ok=true (G1-G10 on real Windows).
