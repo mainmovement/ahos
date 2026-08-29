@@ -4,7 +4,8 @@ REM Empty-gateway fix is already on origin/main (#45). Last paste 220318 was BEF
 REM G12 charmap also fixed on main (validate_n8n UTF-8). Last paste head lacked encoding=.
 REM STATE B: never db:migrate / db:push. Does NOT invent READY.
 REM
-REM   curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-main-evidence-push-4bde/AHOS_MAIN_CLEAR_G2.cmd
+REM   After #59 merges to main:
+REM   curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/main/AHOS_MAIN_CLEAR_G2.cmd
 REM   AHOS_MAIN_CLEAR_G2.cmd
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
@@ -12,7 +13,7 @@ cd /d "%~dp0"
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 
-REM Wake leave-open paste sink #56 (and tip notify script)
+REM Wake leave-open paste sink #56 via AHOS_GATE_PR (post_gate on #59 main)
 set "AHOS_GATE_PR=56"
 
 echo ==========================================================
@@ -49,12 +50,6 @@ if errorlevel 1 (
 echo ==^> checkout gate + warm scripts from origin/main
 git checkout origin/main -- scripts/operator_validation_gate.py tests/validate_n8n.py scripts/windows_ensure_web_api_token.ps1 scripts/windows_run_operator_gate.ps1 scripts/windows_push_gate_evidence.ps1 scripts/windows_post_gate_paste_gh.ps1 scripts/windows_publish_owner_paste.ps1 scripts/windows_wait_for_web_api.ps1 scripts/windows_recover_g2_warm.ps1 scripts/windows_restart_next_dev.ps1 scripts/windows_ensure_database_url.ps1 scripts/windows_ensure_postgres_win.ps1 scripts/windows_chat_500_forensics.ps1 AHOS_PUSH_EVIDENCE_NOW.bat 2>nul
 
-echo ==^> overlay tip post_gate notify (#56 sink) via curl SHA pin
-if not exist "scripts" mkdir scripts >nul 2>&1
-curl.exe -L -o "scripts\windows_post_gate_paste_gh.ps1" "https://raw.githubusercontent.com/mainmovement/ahos/564684d0c585a86aa894b95818ea1c2ac36d461e/scripts/windows_post_gate_paste_gh.ps1"
-if errorlevel 1 (
-  echo WARNING: tip post_gate overlay failed - AHOS_GATE_PR=56 still set for main script
-)
 
 if not exist "scripts\windows_ensure_web_api_token.ps1" (
   echo ERROR: missing windows_ensure_web_api_token.ps1 after main checkout
@@ -111,7 +106,7 @@ set "RC=!ERRORLEVEL!"
 echo.
 echo ==========================================================
 echo   NEXT: paste OWNER_PASTE into GitHub PR #56 or #38
-echo   Leave PR #56 OPEN. Prefer merge PR #58 for tip OPS push.
+echo   Leave PR #56 OPEN. Merge PR #59 so main OPS always pushes evidence.
 echo   PRE_SOAK only if pre_soak_entry_ok=true. Never invent READY.
 echo ==========================================================
 if exist "reports\OWNER_PASTE_WINDOWS_GATE.txt" (
