@@ -61,7 +61,7 @@ Write-Host "==========================================================" -Foregro
 Write-Host ""
 Write-Host "  WARNING: Do NOT treat this as OPERATOR_READY." -ForegroundColor DarkYellow
 Write-Host "  BEFORE soak: curl SHA-pinned MAIN_CLEAR .cmd (CRLF-safe) then run it:" -ForegroundColor Yellow
-Write-Host "    curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/4adfacb3154943a119396f5d7d82c06943a61a53/AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
+Write-Host "    curl.exe -L -o AHOS_MAIN_CLEAR_G2.cmd https://raw.githubusercontent.com/mainmovement/ahos/20f4b00023468d59ad3963d932c8f481249d8c6c/AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
 Write-Host "    AHOS_MAIN_CLEAR_G2.cmd" -ForegroundColor Yellow
 Write-Host "  Or: AHOS_RUN_TIP.cmd / AHOS_RUN_TIP.ps1 from tip (also CRLF-safe)." -ForegroundColor Yellow
 Write-Host "  Paste reports\OWNER_PASTE_WINDOWS_GATE.txt to PR #56 or #38. Keep #56 OPEN." -ForegroundColor Yellow
