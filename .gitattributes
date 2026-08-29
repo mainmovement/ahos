@@ -1,10 +1,8 @@
-# Windows launchers must keep CRLF line endings.
-#
-# cmd.exe is unreliable with LF-only .bat files: a multi-line `if` block or a
-# trailing `pause` can be mis-parsed, which would strand an operator whose only
-# entry point is a double-click. PowerShell is more tolerant, but the two
-# launchers are maintained as a pair, so both are pinned.
+# Windows launchers: .bat keep working-tree CRLF via eol=crlf (existing blobs are LF).
+# .cmd entry points used with curl raw.githubusercontent.com must be -text with CRLF
+# stored in the git blob (otherwise cmd.exe mis-parses LF-only downloads).
 *.bat text eol=crlf
+*.cmd -text
 *.ps1 text eol=crlf
 
 # Everything else keeps LF in the repository.

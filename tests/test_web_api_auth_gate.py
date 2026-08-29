@@ -417,3 +417,18 @@ def test_gateway_omits_authorization_when_web_token_unset(monkeypatch):
     TelegramDomainService().handle_message("سلام")
     headers = {k.lower(): v for k, v in captured["headers"].items()}
     assert "authorization" not in headers
+
+
+def test_ahos_main_clear_g2_cmd_on_main_path():
+    """MAIN_CLEAR is curl-safe CRLF and wakes #56 after ensure/restart/gate."""
+    attrs = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.cmd -text" in attrs
+    raw = (ROOT / "AHOS_MAIN_CLEAR_G2.cmd").read_bytes()
+    assert b"\r\n" in raw
+    assert raw.count(b"\n") == raw.count(b"\r\n")
+    text = raw.decode("ascii")
+    assert "AHOS_GATE_PR=56" in text
+    assert "windows_run_operator_gate.ps1" in text
+    assert "windows_restart_next_dev.ps1" in text
+    assert "validate_n8n.py" in text
+    assert "db:migrate" in text.lower()
