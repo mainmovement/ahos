@@ -53,6 +53,7 @@ foreach ($p in $listed) {
 $fixed = @(
   "AHOS_APPLY_TIP.bat",
   "AHOS_BOOTSTRAP_PRESOAK.bat",
+  "AHOS_FIX_G2_AND_GATE.bat",
   "AHOS_PRE_SOAK_NOW.bat",
   "AHOS_WINDOWS_OPS.bat",
   "AHOS_VALIDATE_G2_NOW.bat",
@@ -89,9 +90,11 @@ if ($paths.Count -lt 1) {
 if ($LASTEXITCODE -ne 0) {
   Write-Host "WARN: bulk checkout failed - trying explicit core set" -ForegroundColor Yellow
   $core = @(
-    "AHOS_APPLY_TIP.bat", "AHOS_BOOTSTRAP_PRESOAK.bat", "AHOS_PRE_SOAK_NOW.bat", "AHOS_WINDOWS_OPS.bat",
+    "AHOS_APPLY_TIP.bat", "AHOS_BOOTSTRAP_PRESOAK.bat", "AHOS_FIX_G2_AND_GATE.bat",
+    "AHOS_PRE_SOAK_NOW.bat", "AHOS_WINDOWS_OPS.bat",
     "AHOS_VALIDATE_G2_NOW.bat", "AHOS_PUSH_EVIDENCE_NOW.bat", "WINDOWS_RUN_THIS_FIRST.txt",
     "scripts/windows_checkout_unlock_tip.ps1", "scripts/windows_bootstrap_presoak.ps1",
+    "scripts/windows_fix_g2_empty_and_gate.ps1",
     "scripts/windows_recover_g2_warm.ps1", "scripts/windows_ensure_database_url.ps1",
     "scripts/windows_ensure_postgres_win.ps1", "scripts/windows_ensure_web_api_token.ps1",
     "scripts/windows_wait_for_web_api.ps1", "scripts/windows_restart_next_dev.ps1",

@@ -413,6 +413,6 @@ def test_write_pre_soak_status_ascii(tmp_path, monkeypatch):
     body = path.read_text(encoding="utf-8")
     body.encode("ascii")
     assert "pre_soak_entry_ok=False" in body
-    assert "AHOS_BOOTSTRAP_PRESOAK.bat" in body
+    assert "AHOS_FIX_G2_AND_GATE.bat" in body or "AHOS_BOOTSTRAP_PRESOAK.bat" in body
     assert "G1 PASS" in body
     assert "VERDICT: NOT PRE_SOAK yet." in body

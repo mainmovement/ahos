@@ -3,7 +3,15 @@
 **کد:** unlock تیپ PR #57.  
 **DB:** STATE B — migrate ممنوع. READY جعلی نمی‌شود.
 
-## یک‌خطی (در `G:\robat\ahos`)
+## اگر آخرین پیست فقط G2 خالی بود (G3–G10 پاس)
+
+```bat
+cd /d G:\robat\ahos
+curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat
+AHOS_FIX_G2_AND_GATE.bat
+```
+
+## مسیر کامل (اولین بار)
 
 ```bat
 cd /d G:\robat\ahos

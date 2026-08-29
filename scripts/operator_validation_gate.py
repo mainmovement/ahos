@@ -959,11 +959,12 @@ def _write_pre_soak_status(summary: dict[str, Any], gates: list[dict[str, Any]])
         lines.append("")
         lines.append("Owner unlock (if tip not merged):")
         lines.append(
-            "  curl.exe -L -o AHOS_BOOTSTRAP_PRESOAK.bat "
+            "  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat "
             "https://raw.githubusercontent.com/mainmovement/ahos/"
-            "cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat"
+            "cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat"
         )
-        lines.append("  AHOS_BOOTSTRAP_PRESOAK.bat")
+        lines.append("  AHOS_FIX_G2_AND_GATE.bat")
+        lines.append("  (or AHOS_BOOTSTRAP_PRESOAK.bat for full OPS path)")
     lines.append("")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path

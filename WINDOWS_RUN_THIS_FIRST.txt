@@ -7,14 +7,22 @@ Lane-A freeze: do not modify frozen Lane-A paths.
 Unlock tip: PR #57 (cursor/windows-evidence-notify-retarget-4bde).
 
 --------------------------------------------------
-ONE LINE (preferred) — from G:\robat\ahos
+IF last paste was G2 empty-gateway BLOCKED (G3-G10 PASS)
+--------------------------------------------------
+  cd /d G:\robat\ahos
+  curl.exe -L -o AHOS_FIX_G2_AND_GATE.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_FIX_G2_AND_GATE.bat
+  AHOS_FIX_G2_AND_GATE.bat
+
+  Scrubs empty AHOS_GATEWAY_URL, warms /api/chat, runs full gate, pushes evidence.
+  Faster than full OPS restart when tokens/Docker already OK.
+
+--------------------------------------------------
+OR full unlock (first time / unknown state)
 --------------------------------------------------
   curl.exe -L -o AHOS_BOOTSTRAP_PRESOAK.bat https://raw.githubusercontent.com/mainmovement/ahos/cursor/windows-evidence-notify-retarget-4bde/AHOS_BOOTSTRAP_PRESOAK.bat
   AHOS_BOOTSTRAP_PRESOAK.bat
 
-  Applies tip unlock files (git ls-tree; no windows_*.ps1 glob), then
-  AHOS_PRE_SOAK_NOW.bat -> AHOS_WINDOWS_OPS.bat
-
+  Applies tip unlock files, then AHOS_PRE_SOAK_NOW.bat -> AHOS_WINDOWS_OPS.bat
   Alternate: AHOS_APPLY_TIP.bat or scripts\windows_bootstrap_presoak.ps1
 
 --------------------------------------------------
