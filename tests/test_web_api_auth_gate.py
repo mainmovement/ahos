@@ -124,6 +124,9 @@ def test_windows_ops_bat_auto_starts_next_and_runs_gate():
     assert "one recovery" in text.lower() or "Recovery warm" in text
     assert "db:migrate" in text.lower()
     assert "OPERATOR_READY" in text
+    # Evidence must leave the laptop (otherwise subscribed agents never wake).
+    assert "windows_push_gate_evidence.ps1" in text
+    assert text.count("windows_push_gate_evidence.ps1") >= 2
 
 
 def test_windows_validate_ps1_parse_script_exists():
@@ -285,6 +288,8 @@ def test_windows_gate_runner_posts_via_multi_pr_helper():
     assert '"45"' in helper  # unlock PR sink for subscribed agents
     assert '"37"' in helper or "37" in helper
     assert '"36"' in helper or "36" in helper
+    assert '"56"' in helper  # leave-open paste sink
+    assert '"38"' in helper  # durable open sink
     assert "db:migrate" in helper.lower() or "READY" in helper
 
 
