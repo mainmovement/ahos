@@ -13,7 +13,8 @@ positive-authority language may replace evidence.
 - Lane A (`discovery/**`, `paper_trading/**`) is FROZEN. Never edit it or
   regenerate `config/lane_a_freeze.sha256` without an explicit reviewed
   governance request. `python scripts/freeze_lane_a.py --write` is human-only.
-- Python Lane B owns canonical identity, security, deterministic decisions,
+- Python Lane B owns canonical identity (`architecture/identity/`, wrapping
+  frozen `discovery/identity.py`), security, deterministic decisions,
   persistence, and provenance.
 - TypeScript/Next.js is an authenticated API, read model, and presentation
   surface. It must not create an independent recommendation authority.

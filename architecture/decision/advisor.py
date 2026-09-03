@@ -30,6 +30,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+from architecture.identity.gates import identity_allows_positive_decision
+from architecture.identity.types import IdentityResolution
 from paper_trading.exit_rules import EXIT_V1
 
 # --- Locked advisory constants (pre-registered; change => new version) -------
@@ -74,6 +76,9 @@ class Advice:
     exit_verdict: str | None = None
     council: dict[str, Any] | None = None
     panel: dict[str, Any] | None = None
+    identity_state: str | None = None
+    identity_token_id: str | None = None
+    identity_policy_version: str | None = None
     computed_ts: float = field(default_factory=time.time)
     version: str = ADVISOR_VERSION
 
@@ -93,8 +98,11 @@ class Advice:
             "reasons": self.reasons, "risks": self.risks, "unknowns": self.unknowns,
             "invalidation": self.invalidation, "hard_vetoes": self.hard_vetoes,
             "deterministic_score": self.deterministic_score,
-            "exit_verdict": self.exit_verdict, "council": self.council,
+            "exit_verdict": self.exit_verdict,             "council": self.council,
             "panel": self.panel,
+            "identity_state": self.identity_state,
+            "identity_token_id": self.identity_token_id,
+            "identity_policy_version": self.identity_policy_version,
             "computed_ts": self.computed_ts, "version": self.version,
         }
 
@@ -135,7 +143,8 @@ class DecisionAdvisor:
     def advise_entry(self, candidate, score_report,
                      exitability=None, virality=None, whale=None,
                      narrative=None, council=None, panel=None,
-                     now: float | None = None) -> Advice:
+                     now: float | None = None,
+                     identity: IdentityResolution | None = None) -> Advice:
         ts = time.time() if now is None else now
         m = candidate.metrics
 
@@ -155,8 +164,22 @@ class DecisionAdvisor:
             exit_verdict=exitability.verdict if exitability else None,
             council=council.to_dict() if council else None,
             panel=panel.to_dict() if panel else None,
+            identity_state=(identity.token.state.value if identity is not None else "MISSING"),
+            identity_token_id=(identity.token.token_id if identity is not None else None),
+            identity_policy_version=(identity.policy_version if identity is not None else None),
             computed_ts=ts,
         )
+
+        # ============ GATE 0 — CANONICAL IDENTITY (fail closed) =============
+        if identity is None or not identity_allows_positive_decision(identity):
+            state = identity.token.state.value if identity is not None else "MISSING"
+            base.action = "AVOID"
+            base.conviction = "NONE"
+            base.hard_vetoes = [
+                f"Identity gate: token state {state} cannot produce ENTER."
+            ]
+            base.reasons = ["ورود ممنوع — هویت کانونیکال توکن تأیید نشده است"]
+            return base
 
         # ============ GATE 1 — SECURITY VETO (absolute) =====================
         if exitability is not None and exitability.hard_vetoes:

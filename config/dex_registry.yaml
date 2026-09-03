@@ -1,0 +1,10 @@
+version: "dex-registry-v1"
+# Versioned DEX deployments known to AHOS. Unknown dex_id is allowed as a
+# string label but cannot be treated as a verified DexDeployment.
+deployments:
+  - {dex_id: raydium, chain: solana, version: "4"}
+  - {dex_id: orca, chain: solana, version: "whirlpool"}
+  - {dex_id: pumpswap, chain: solana, version: "1"}
+  - {dex_id: uniswap, chain: ethereum, version: "v2"}
+  - {dex_id: uniswap, chain: ethereum, version: "v3"}
+  - {dex_id: pancakeswap, chain: bsc, version: "v2"}

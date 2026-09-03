@@ -2,6 +2,7 @@
 name: ahos-token-identity
 description: Canonical token identity — chain, contract, pool, DEX, symbol ambiguity, provenance, conflicts. Use for discovery/identity questions and any token lookup. Do not edit Lane A identity.py.
 paths:
+  - "architecture/identity/**"
   - "discovery/identity.py"
   - "architecture/providers/**"
   - "types.ts"
