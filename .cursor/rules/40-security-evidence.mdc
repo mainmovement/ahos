@@ -1,0 +1,13 @@
+---
+description: Security-first evidence honesty and historical artifact protection
+globs: docs/**/*,reports/**/*,AHOS_*.md,architecture/security/**,architecture/providers/adapters.py
+alwaysApply: false
+---
+
+UNKNOWN and INCOMPLETE are valid states. Do not convert them to PASS.
+Do not rewrite historical evidence or fabricate operational SUCCESS.
+Do not label a phase COMPLETE without executed gates.
+
+Cite `AHOS_GAP_REGISTER.md` for readiness claims.
+Do not weaken tests to obtain PASS.
+Do not log or commit secrets, Telegram tokens, or database passwords.

@@ -32,6 +32,7 @@ from architecture.providers.contracts import (
 from architecture.scoring.engine import OpportunityScorer
 from architecture.intel.exitability import ExitabilityAnalyzer
 from architecture.intel.viral import ViralityTracker
+from tests.helpers_identity import verified_identity_fixture
 
 
 def make(symbol="TOK", **kw):
@@ -309,7 +310,8 @@ def test_panel_veto_blocks_entry_in_the_advisor():
     ctx = full_ctx(EMPTY)
     panel = CognitivePanel().deliberate(EMPTY, **ctx)
     advice = DecisionAdvisor().advise_entry(
-        EMPTY, ctx["score_report"], panel=panel)
+        EMPTY, ctx["score_report"], panel=panel,
+        identity=verified_identity_fixture())
     assert advice.action == "AVOID"
     assert any("شورای تحلیلی" in v for v in advice.hard_vetoes)
 
@@ -323,10 +325,13 @@ def test_panel_cannot_upgrade_a_weak_setup():
         txns_1h_buys=5, txns_1h_sells=5))
     ctx = full_ctx(weak)
     panel = CognitivePanel().deliberate(weak, **ctx)
+    ident = verified_identity_fixture()
     with_panel = DecisionAdvisor().advise_entry(
-        weak, ctx["score_report"], exitability=ctx["exitability"], panel=panel)
+        weak, ctx["score_report"], exitability=ctx["exitability"], panel=panel,
+        identity=ident)
     without = DecisionAdvisor().advise_entry(
-        weak, ctx["score_report"], exitability=ctx["exitability"])
+        weak, ctx["score_report"], exitability=ctx["exitability"],
+        identity=ident)
     rank = {"AVOID": 0, "WAIT": 1, "ENTER": 2}
     assert rank[with_panel.action] <= rank[without.action]
 
@@ -337,7 +342,8 @@ def test_healthy_token_survives_the_panel_unchanged():
     panel = CognitivePanel().deliberate(HEALTHY, **ctx)
     a = DecisionAdvisor().advise_entry(
         HEALTHY, ctx["score_report"], exitability=ctx["exitability"],
-        virality=ctx["virality"], panel=panel)
+        virality=ctx["virality"], panel=panel,
+        identity=verified_identity_fixture())
     assert a.action == "ENTER"
     assert a.panel is not None and a.panel["verdict"] == "APPROVE"
 
@@ -346,7 +352,9 @@ def test_advice_with_panel_stays_serialisable():
     from architecture.decision.advisor import DecisionAdvisor
     ctx = full_ctx(HEALTHY)
     panel = CognitivePanel().deliberate(HEALTHY, **ctx)
-    a = DecisionAdvisor().advise_entry(HEALTHY, ctx["score_report"], panel=panel)
+    a = DecisionAdvisor().advise_entry(
+        HEALTHY, ctx["score_report"], panel=panel,
+        identity=verified_identity_fixture())
     json.dumps(a.to_dict(), ensure_ascii=False)
 
 

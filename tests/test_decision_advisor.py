@@ -3,6 +3,7 @@
 
 This is where a mistake costs real money, so the gates are pinned hard:
 
+  GATE 0  canonical identity -> AVOID unless token state is VERIFIED
   GATE 1  security veto  -> AVOID, unconditionally
   GATE 2  exitability    -> cannot get out => never go in
   GATE 3  liquidity floor
@@ -34,6 +35,7 @@ from architecture.providers.contracts import (  # noqa: E402
     NormalizedTokenCandidate, MarketMetrics, SecuritySignals,
 )
 from paper_trading.exit_rules import EXIT_V1  # noqa: E402
+from tests.helpers_identity import verified_identity_fixture  # noqa: E402
 
 
 def _healthy_metrics(**over):
@@ -66,6 +68,7 @@ def _cand(metrics=None, security=None, symbol="TOK"):
 def _advise(cand, advisor=None, **kw):
     advisor = advisor or DecisionAdvisor(bankroll_usd=1000.0)
     report = OpportunityScorer().evaluate(cand)
+    kw.setdefault("identity", verified_identity_fixture())
     return advisor.advise_entry(
         cand, report,
         exitability=kw.pop("exitability", ExitabilityAnalyzer().analyze(cand, 200)),
@@ -151,10 +154,13 @@ def test_lower_conviction_yields_smaller_size():
     report = OpportunityScorer().evaluate(c)
     ex = ExitabilityAnalyzer().analyze(c, 200)
 
-    high = advisor.advise_entry(c, report, exitability=ex)
+    ident = verified_identity_fixture()
+    high = advisor.advise_entry(c, report, exitability=ex, identity=ident)
     council_unclear = CouncilVerdict(final_stance="UNCLEAR", agreement="SPLIT",
                                      council_status="ONLINE", responded=2)
-    lowered = advisor.advise_entry(c, report, exitability=ex, council=council_unclear)
+    lowered = advisor.advise_entry(
+        c, report, exitability=ex, council=council_unclear, identity=ident,
+    )
 
     if high.action == "ENTER" and lowered.action == "ENTER":
         assert lowered.suggested_size_usd <= high.suggested_size_usd

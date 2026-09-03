@@ -30,3 +30,5 @@ config/paths.yaml
 .vscode/
 tsconfig.tsbuildinfo
 .next/
+.cursor-local/
+.cursor/ralph/

@@ -1,0 +1,18 @@
+# Human review required on governance and frozen scientific surfaces.
+# Branch protection must require CODEOWNERS reviews for this to enforce.
+
+* @mainmovement
+
+/discovery/ @mainmovement
+/paper_trading/ @mainmovement
+/config/lane_a_freeze.sha256 @mainmovement
+/scripts/freeze_lane_a.py @mainmovement
+/docs/canonical/ @mainmovement
+/AGENTS.md @mainmovement
+/.cursor/ @mainmovement
+/.github/ @mainmovement
+/scoring.ts @mainmovement
+/engine.ts @mainmovement
+/council.ts @mainmovement
+/alerts.ts @mainmovement
+/.env.example @mainmovement
