@@ -1,0 +1,17 @@
+---
+description: Lane A freeze — discovery and paper_trading are a scientific surface
+globs: discovery/**,paper_trading/**,config/lane_a_freeze.sha256,scripts/freeze_lane_a.py
+alwaysApply: false
+---
+
+Treat `discovery/**` and `paper_trading/**` as FROZEN Lane A.
+
+Do not edit these files. Do not reformat, rename, or delete unused imports.
+Do not run `python scripts/freeze_lane_a.py --write`.
+
+If a task appears to require a Lane A change, STOP. Record the gap. Open a
+governance path. Continue only on Lane B wrappers/composition.
+
+Verify with `python3 -B scripts/freeze_lane_a.py`.
+`paper_trading/strategies.json` is intentionally not frozen; still do not
+silently promote strategies.

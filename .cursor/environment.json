@@ -1,0 +1,5 @@
+{
+  "name": "AHOS Lane B engineering (PAPER_ONLY)",
+  "install": "bash .cursor/install.sh",
+  "start": "bash .cursor/start.sh"
+}

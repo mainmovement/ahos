@@ -1,0 +1,17 @@
+---
+description: Python Lane B owns canonical identity, security, and decisions
+globs: architecture/**/*.py,telegram_ai/**/*.py,contracts/**/*,engine/**/*.py,config/**/*.yaml,config/**/*.py,database/**/*
+alwaysApply: false
+---
+
+Python Lane B is the only decision authority.
+
+Preserve fail-closed behavior. Missing security evidence is not safe.
+Do not map missing provider fields to False / renounced / PASS.
+
+Do not import frozen `discovery` or `paper_trading` into
+`architecture/intelligence`, `architecture/risk`, `architecture/features`,
+`architecture/scoring`, or `architecture/explanations` (Evidence Architecture law).
+
+Compose Lane A results; do not fork a second identity or security brain.
+Keep `AHOS_PAPER_ONLY=1`. Additive schema only. No silent self-promotion.

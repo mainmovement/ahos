@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "command": "python3 .cursor/hooks/ahos-guard.py preToolUse",
+        "matcher": "Write|Delete|StrReplace",
+        "failClosed": true
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "python3 .cursor/hooks/ahos-guard.py beforeShellExecution",
+        "failClosed": true
+      }
+    ]
+  }
+}

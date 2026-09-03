@@ -15,6 +15,7 @@
 | Local laptop gate (honest) | `AHOS_LOCAL_PRODUCTION_GATE_REPORT.md` |
 | Operator start | `README.md`, `QUICKSTART.md`, `AHOS_OPERATOR_QUICKSTART_WINDOWS.md` |
 | Lane-A freeze | `config/lane_a_freeze.sha256` + `scripts/freeze_lane_a.py` |
+| Cursor engineering contract (Lane B) | `AGENTS.md` + `.cursor/` — developer-agent rules/skills/hooks; not AHOS runtime agents |
 
 ## B — Historical / superseded (do not cite as current readiness)
 

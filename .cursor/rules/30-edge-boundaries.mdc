@@ -1,0 +1,17 @@
+---
+description: TypeScript, Telegram, and n8n are edges — not a second brain
+globs: **/*.ts,**/*.tsx,app/**/*,telegram_ai/**/*,n8n/**/*
+alwaysApply: false
+---
+
+TypeScript/Next.js may present, proxy, and cache canonical state.
+It must not create independent investment recommendations.
+
+Do not widen `scoring.ts`, `engine.ts`, `council.ts`, or `alerts.ts`
+decision authority. Telegram must use `AHOS_GATEWAY_URL` and must not
+import an opportunity scorer. n8n orchestrates; core logic stays in Python.
+
+Escape user-generated and provider HTML before Telegram HTML parse mode.
+Never put secrets in client bundles or commit tokens.
+Persian UI is RTL; English UI is LTR. Visual/audio effects never encode
+hidden authority.
