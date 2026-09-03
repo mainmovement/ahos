@@ -1,6 +1,6 @@
 # Windows gate evidence (not a READY claim)
 
-- generated_utc: 20260828_220318
+- generated_utc: 20260830_101036
 - STATE B: do not db:migrate / db:push
 - OPERATOR_READY: NOT claimed by this push
 - pre_soak_entry_ok: only if LATEST / JSON says so on a real Windows host

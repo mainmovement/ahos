@@ -1,5 +1,5 @@
-report=G:\robat\ahos\reports\operator_validation_report_windows_20260828_220306.json
-pre_soak_entry_ok=False
+report=G:\robat\ahos\reports\operator_validation_report_windows_20260830_101023.json
+pre_soak_entry_ok=True
 operator_ready=False
 classification=INTEGRATION_READY
 Paste this report JSON into Cursor.
