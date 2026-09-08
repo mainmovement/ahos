@@ -123,6 +123,7 @@ class OpportunityPipelineOrchestrator:
                 source_provider=r.provider_source,
                 retrieved_ts=r.retrieved_ts,
                 raw_payload_sha256=r.raw_evidence_hash,
+                pair_created_ts=getattr(r, "pair_created_ts", None),
                 # Paid-promotion spend, when the observation carried it
                 # (boost feed); None stays None -> virality evidence reports
                 # promotion status UNKNOWN, never a fabricated False.
