@@ -188,15 +188,11 @@ IMPLEMENTED:
   - engine.ts persists Python displayDecision, not TS WATCH
 TESTED:
   - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files) before and after this revision
-  - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py → PASSED (182 modules) after clearing pytest __pycache__ residue
-  - targeted pytest (canonical read-model/authority/identity/security/advisor/alerts/pipeline/one-brain/panel/cursor/web-auth/zero-money) → 238 passed
-  - full pytest → 1610 passed, 3 skipped, 1 failed
-  - npm run test:canonical-read-model → 8 passed
-  - npm run test:web-api-auth → 9 passed
-  - npm run typecheck → exit 0
-  - npm run lint → 1 error (PRE-EXISTING CommandCenter.tsx react-hooks/set-state-in-effect)
-  - npm run build → exit 0; route ƒ /api/canonical present; Turbopack NFT warning on canonical_read_model.ts process.cwd()
-VERIFIED (narrow, this environment):
+  - tests/test_config_validation.py → 3 passed (includes test_documented_keys_are_actually_read_or_legacy)
+  - full pytest → 1648 passed, 3 skipped, 0 failed (was 1647 passed / 1 failed on main before this scanner fix)
+  - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py → PASSED (183 modules) after clearing .pytest_cache
+  - npm typecheck / lint / build / browser not re-run this revision (no TS/UI change)
+VERIFIED (narrow, prior #64/#65 environment; not re-claimed here):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
   - POST /api/paper fixture BUY → canonical gate passed, then 500 DATABASE_URL (ENVIRONMENT)
@@ -215,27 +211,25 @@ PRE-EXISTING:
 NEW failures this revision:
   - none (scanner hygiene only; Command Center lint untouched)
 ENVIRONMENT:
-  - validate_imports ARTIFACTS fail when __pycache__ exists after pytest; clean checkout + PYTHONDONTWRITEBYTECODE passes
+  - validate_imports ARTIFACTS fail when .pytest_cache exists after pytest; clean tree + PYTHONDONTWRITEBYTECODE passes
   - Next Turbopack NFT warning tracing canonical_read_model.ts filesystem path
 FAILED_GATES (phase cannot be VERIFIED/COMPLETE):
   - lint not green (PRE-EXISTING CommandCenter set-state-in-effect; not rewritten here)
   - no GitHub CI
   - live daemon + Postgres Command Center overlay missing
-CLOSED this revision (evidence pending pytest on this branch):
-  - SCAN_TS_FILES now includes web_api_client.ts so NEXT_PUBLIC_AHOS_WEB_API_TOKEN is a scanned read, not dead docs
+CLOSED this revision:
+  - SCAN_TS_FILES includes web_api_client.ts; NEXT_PUBLIC_AHOS_WEB_API_TOKEN is a scanned read; full pytest 0 failed
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
   - tests/test_config_validation.py
-  - tests/test_canonical_decision_authority.py
-  - tests/test_canonical_read_model.py
-  - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: prior main full pytest 1647 passed / 3 skipped / 1 failed (config-doc). This revision aims to close that one fail; numbers filled after commands run.
+  - HEAD of cursor/phase3-config-doc-scanner-9500
+TEST_RESULTS: freeze 36 OK; config-doc 3 passed; full pytest 1648 passed / 3 skipped / 0 failed; validate_imports PASSED (183 modules, clean tree)
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
   - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED.
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Closing the config-doc fail does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.
