@@ -479,14 +479,33 @@ class RugCheckSecurityAdapter(BaseHttpProviderAdapter):
                 raw = resp.read()
                 status_code = resp.status
             data = json.loads(raw)
-            risks = data.get("risks", [])
-            has_mint = any(r.get("name") == "Mint Authority" for r in risks)
-            has_freeze = any(r.get("name") == "Freeze Authority" for r in risks)
+            # Missing risks must stay UNKNOWN (never []). Empty risks ⇒ no named honeypot.
+            risks = data["risks"] if "risks" in data else None
+            if "mintAuthority" in data:
+                has_mint = bool(data.get("mintAuthority"))
+            else:
+                has_mint = None
+            if "freezeAuthority" in data:
+                has_freeze = bool(data.get("freezeAuthority"))
+            else:
+                has_freeze = None
+            if risks is None:
+                is_honeypot = None
+            else:
+                is_honeypot = any(
+                    r.get("level") == "danger" and "honeypot" in str(r.get("name", "")).lower()
+                    for r in risks
+                )
+            top = data.get("topHoldersPercent")
+            try:
+                top_pct = float(top) if top not in (None, "") else None
+            except (TypeError, ValueError):
+                top_pct = None
             sec = SecuritySignals(
-                is_honeypot=any(r.get("level") == "danger" and "honeypot" in r.get("name", "").lower() for r in risks),
+                is_honeypot=is_honeypot,
                 has_mint_authority=has_mint,
                 has_freeze_authority=has_freeze,
-                top10_holder_concentration_pct=float(data.get("topHoldersPercent", 0)) if data.get("topHoldersPercent") else None
+                top10_holder_concentration_pct=top_pct,
             )
             tok = NormalizedTokenCandidate(
                 chain="solana",
@@ -668,8 +687,7 @@ class DEXToolsAdapter(BaseHttpProviderAdapter):
                 has_mint_authority=_flag("isMintable"),
                 has_freeze_authority=_flag("isFreezable"),
                 is_blacklisted=_flag("isBlacklisted"),
-                is_ownership_renounced=(
-                    None if _flag("isProxy") is None else not _flag("isProxy")),
+                is_ownership_renounced=_flag("isOwnershipRenounced"),
                 is_proxy=_flag("isProxy"),
             )
             tok = NormalizedTokenCandidate(

@@ -2,7 +2,8 @@
 """Pump / high-opportunity alert → Telegram (loud notification) + structured payload for web.
 
 Rules (honest):
-  - Only alert when evidence is strong enough (score + liquidity + not honeypot).
+  - Only alert when securityStatus is PASS. Score cannot substitute.
+  - UNKNOWN / INCOMPLETE / STALE / REJECT / missing status never alert.
   - Never invent price or confidence.
   - Paper-only disclaimer always present.
 """
@@ -141,9 +142,10 @@ def maybe_alert_opportunity(opp: dict[str, Any]) -> dict[str, Any] | None:
     except (TypeError, ValueError):
         score_f = None
     sec = str(opp.get("securityStatus") or "").upper()
-    if sec in ("HONEYPOT", "REJECT", "DOWN", "FAIL", "UNKNOWN", "INCOMPLETE", "STALE"):
+    # Overlay vocabulary only. OBSERVED/OK/SUCCESS/CLEAN are not PASS.
+    if sec != "PASS":
         return None
-    security_ok = sec in ("OK", "SUCCESS", "PASS", "CLEAN")
+    security_ok = True
     if not should_alert(str(key), score_f, security_ok, canonical_positive=True):
         return None
 

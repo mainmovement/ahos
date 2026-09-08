@@ -1,34 +1,44 @@
 #!/usr/bin/env python3
 """Lane B security-gate overlay.
 
-Composes frozen Lane A `discovery.security_gate.evaluate` without renaming its
-enums. Lane A stays:
+Lane A (`discovery.security_gate`) owns the frozen veto registry and evaluator.
+Lane B projects provider `SecuritySignals` onto those check keys, then maps:
 
-    SECURITY_VETO / PASS_WITH_UNKNOWN / PASS
+    SECURITY_VETO     → REJECT
+    PASS_WITH_UNKNOWN → INCOMPLETE
+    PASS              → PASS (only if overlay extras also resolve)
 
-Lane B overlay:
-
-    REJECT ⇐ SECURITY_VETO or confirmed extra-critical (unsellable / trapped)
-    INCOMPLETE ⇐ PASS_WITH_UNKNOWN or unknown extra-critical
-    STALE ⇐ aged evidence that is not an active REJECT
-    PASS ⇐ Lane A PASS and all overlay criticals resolved FALSE
+This module must not copy `evaluate()` or invent a second CRITICAL set.
+HIGH registry keys (proxy / ownership / holder concentration) are not
+CRITICAL and do not veto; they must not be upgraded by this overlay.
 
 UNKNOWN critical evidence is never treated as safe.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
 from architecture.providers.contracts import NormalizedTokenCandidate, SecuritySignals
+from discovery.security_gate import (  # frozen evaluator — not a second policy
+    CRITICAL as LANE_A_CRITICAL_KEYS,
+    VETO_REGISTRY as LANE_A_VETO_REGISTRY,
+    evaluate as lane_a_evaluate,
+    lp_fresh_pool_check as lane_a_lp_fresh_pool_check,
+)
 
-POLICY_VERSION = "security-overlay-v1"
+POLICY_VERSION = "security-overlay-v2"
 DEFAULT_STALE_SEC = 24 * 3600
 
-# Mirrors frozen discovery.security_gate.CRITICAL / evaluate() without importing
-# Lane A into architecture/security (phase-4 lane isolation).
-LANE_A_CRITICAL_KEYS = (
+# Align with paper_trading.security_multi.EXTREME_SELL_TAX = 0.20 as percent.
+# Tests pin equality; this module must not import paper_trading.
+EXTREME_SELL_TAX_PCT = 20.0
+
+# Lane B can project these CRITICAL keys from SecuritySignals.
+# Any future Lane A CRITICAL key not listed here is omitted from the row
+# list so frozen evaluate() treats it as UNKNOWN → PASS_WITH_UNKNOWN → INCOMPLETE.
+SIGNAL_CRITICAL_PROJECTION = (
     "honeypot",
     "sell_tax_extreme",
     "blacklist_function",
@@ -37,9 +47,6 @@ LANE_A_CRITICAL_KEYS = (
     "lp_not_locked_fresh_pool",
     "deployer_prior_rug",
 )
-
-# Align with paper_trading.security_multi.EXTREME_SELL_TAX = 0.20 as percent.
-EXTREME_SELL_TAX_PCT = 20.0
 
 
 class SecurityState(str, Enum):
@@ -105,54 +112,13 @@ def _sell_tax_extreme(pct: float | None) -> str:
     return "TRUE" if pct >= EXTREME_SELL_TAX_PCT else "FALSE"
 
 
-def _lp_fresh_pool_check(
-    lp_locked_pct: float | None, pair_created_ts: float | None, now: float, fresh_days: int = 7,
-) -> str:
-    """Mirror of frozen discovery.security_gate.lp_fresh_pool_check."""
-    if lp_locked_pct is None or pair_created_ts is None:
-        return "UNKNOWN"
-    young = (now - pair_created_ts) < fresh_days * 86400
-    locked = lp_locked_pct > 0
-    return "TRUE" if (young and not locked) else "FALSE"
-
-
-def _lane_a_evaluate(checks: list[dict]) -> dict:
-    """Mirror of frozen discovery.security_gate.evaluate for CRITICAL keys."""
-    present = {c["check_key"]: c for c in checks}
-    veto = [k for k in LANE_A_CRITICAL_KEYS if present.get(k, {}).get("value") == "TRUE"]
-    unknown_crit = [
-        k for k in LANE_A_CRITICAL_KEYS
-        if present.get(k, {}).get("value") in (None, "UNKNOWN") or k not in present
-    ]
-    unknown_crit = sorted(set(unknown_crit))
-    total = len(LANE_A_CRITICAL_KEYS)
-    resolved = total - len(unknown_crit)
-    coverage = resolved / total if total else 0.0
-    if veto:
-        verdict, cap = "SECURITY_VETO", "AVOID"
-    elif unknown_crit:
-        verdict, cap = "PASS_WITH_UNKNOWN", "WATCH"
-    else:
-        verdict, cap = "PASS", "WATCH-if-early"
-    return {
-        "verdict": verdict,
-        "veto_reasons": veto,
-        "unknown_critical": unknown_crit,
-        "coverage": round(coverage, 4),
-        "recommendation_cap": cap,
-    }
-
-
 def _lp_check(sec: SecuritySignals, pair_created_ts: float | None, now: float) -> str:
-    if pair_created_ts is not None:
-        return _lp_fresh_pool_check(sec.liquidity_locked_pct, pair_created_ts, now)
-    # Age unknown: locked liquidity is not the fresh-unlocked trap; unlocked
-    # without age stays UNKNOWN (never inferred safe).
-    if sec.liquidity_locked_pct is None:
-        return "UNKNOWN"
-    if sec.liquidity_locked_pct > 0:
-        return "FALSE"
-    return "UNKNOWN"
+    """Project LP evidence through the frozen Lane-A compound check.
+
+    Missing pool age is UNKNOWN in Lane A even when lock percent is known.
+    Lane B must not reinterpret that as FALSE/safe.
+    """
+    return lane_a_lp_fresh_pool_check(sec.liquidity_locked_pct, pair_created_ts, now)
 
 
 def checks_from_signals(
@@ -167,19 +133,26 @@ def checks_from_signals(
         rug = "UNKNOWN"
     else:
         rug = "TRUE" if deployer > 0 else "FALSE"
-    rows = [
-        ("honeypot", _tri(sec.is_honeypot)),
-        ("sell_tax_extreme", _sell_tax_extreme(sec.sell_tax_pct)),
-        ("blacklist_function", _tri(getattr(sec, "is_blacklisted", None))),
-        ("mint_authority_active", _tri(sec.has_mint_authority)),
-        ("freeze_authority_active", _tri(sec.has_freeze_authority)),
-        ("lp_not_locked_fresh_pool", _lp_check(sec, pair_created_ts, now)),
-        ("deployer_prior_rug", rug),
-    ]
-    return [
-        {"check_key": key, "value": value, "severity": "CRITICAL", "provider": "signals"}
-        for key, value in rows
-    ]
+    projected = {
+        "honeypot": _tri(sec.is_honeypot),
+        "sell_tax_extreme": _sell_tax_extreme(sec.sell_tax_pct),
+        "blacklist_function": _tri(getattr(sec, "is_blacklisted", None)),
+        "mint_authority_active": _tri(sec.has_mint_authority),
+        "freeze_authority_active": _tri(sec.has_freeze_authority),
+        "lp_not_locked_fresh_pool": _lp_check(sec, pair_created_ts, now),
+        "deployer_prior_rug": rug,
+    }
+    rows = []
+    for key in SIGNAL_CRITICAL_PROJECTION:
+        if key not in LANE_A_CRITICAL_KEYS:
+            continue
+        rows.append({
+            "check_key": key,
+            "value": projected[key],
+            "severity": LANE_A_VETO_REGISTRY[key],
+            "provider": "signals",
+        })
+    return rows
 
 
 def _map_lane_a(verdict: str) -> SecurityState:
@@ -201,7 +174,10 @@ def compose_security_overlay(
     extra_rejects: tuple[str, ...] = (),
     extra_unknowns: tuple[str, ...] = (),
 ) -> SecurityOverlay:
-    """Map a frozen Lane A evaluate() dict onto Lane B states."""
+    """Map a frozen Lane A evaluate() dict onto Lane B states.
+
+    SECURITY_VETO cannot be downgraded. extras may only tighten PASS.
+    """
     mapped = _map_lane_a(str(lane_a.get("verdict") or ""))
     extras: list[str] = []
     if extra_rejects:
@@ -272,7 +248,7 @@ def evaluate_security(
     extra_rejects, extra_unknowns = _extras_from_signals(sec, exitability)
     if lane_a is None:
         checks = checks_from_signals(sec, pair_created_ts=pair_created_ts, now=now)
-        lane_a = _lane_a_evaluate(checks)
+        lane_a = lane_a_evaluate(checks)
     return compose_security_overlay(
         lane_a,
         now=now,

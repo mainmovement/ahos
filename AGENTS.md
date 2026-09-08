@@ -15,11 +15,13 @@ positive-authority language may replace evidence.
   governance request. `python scripts/freeze_lane_a.py --write` is human-only.
 - Python Lane B owns canonical identity (`architecture/identity/`, wrapping
   frozen `discovery/identity.py`), the security overlay (`architecture/security/gate.py`:
-  PASS/REJECT/INCOMPLETE/STALE composing frozen Lane A verdicts), the canonical
-  decision authority (`architecture/decision/authority.py` wrapping
-  `DecisionAdvisor`; pipeline identity → evidence → security → liquidity →
-  score → risk → confidence → optional AI downgrade → decision), persistence,
-  and provenance. OpportunityScorer scores; it does not decide.
+  projects `SecuritySignals` onto frozen CRITICAL keys and calls
+  `discovery.security_gate.evaluate`; PASS/REJECT/INCOMPLETE/STALE; does not
+  copy the evaluator), the canonical decision authority
+  (`architecture/decision/authority.py` wrapping `DecisionAdvisor`; pipeline
+  identity → evidence → security → liquidity → score → risk → confidence →
+  optional AI downgrade → decision), persistence, and provenance.
+  OpportunityScorer scores; it does not decide.
 - TypeScript/Next.js is an authenticated API, read model, and presentation
   surface. It must not create an independent recommendation authority.
   Existing `scoring.ts` / `engine.ts` / `council.ts` / `alerts.ts` are a

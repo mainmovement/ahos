@@ -36,7 +36,7 @@ from architecture.providers.contracts import (  # noqa: E402
 )
 from paper_trading.exit_rules import EXIT_V1  # noqa: E402
 from tests.helpers_identity import verified_identity_fixture  # noqa: E402
-from tests.helpers_security import passing_security_signals  # noqa: E402
+from tests.helpers_security import OLD_POOL_TS, passing_security_signals  # noqa: E402
 
 
 def _healthy_metrics(**over):
@@ -58,6 +58,7 @@ def _cand(metrics=None, security=None, symbol="TOK"):
         metrics=metrics if metrics is not None else _healthy_metrics(),
         security=security if security is not None else _healthy_security(),
         source_provider="dexscreener", retrieved_ts=time.time(),
+        pair_created_ts=OLD_POOL_TS,
     )
 
 
