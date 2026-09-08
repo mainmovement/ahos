@@ -24,10 +24,13 @@ positive-authority language may replace evidence.
   OpportunityScorer scores; it does not decide.
 - TypeScript/Next.js is an authenticated API, read model, and presentation
   surface. It must not create an independent recommendation authority.
-  Existing `scoring.ts` / `engine.ts` / `council.ts` / `alerts.ts` are a
-  documented dual-stack gap — they may rank and fail-closed REJECT/ABSTAIN for
-  display, but they must not emit WATCH/PAPER_CANDIDATE without an injected
-  Python `canonicalBackend`. Do not widen them.
+  `scoring.ts` / `council.ts` remain non-authoritative analysis. They may rank
+  and fail-closed REJECT/ABSTAIN for display, but they must not emit
+  WATCH/PAPER_CANDIDATE without an injected Python `canonicalBackend`.
+  Automatic OPPORTUNITY Telegram (`alerts.ts`) requires Python `alerts_allowed`
+  (BUY) **and** canonical overlay PASS. `POST /api/paper` OPEN requires Python
+  `paper_allowed` **and** overlay PASS. Local OBSERVED/UNKNOWN is not security
+  authority.
 - Telegram is an interaction edge; n8n is an automation edge.
 - Providers and AI are evidence/advisory inputs only. They cannot override
   identity conflict, security rejection, insufficient evidence, or canonical
