@@ -6,6 +6,12 @@
  */
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
+import {
+  displayDecision,
+  loadCanonicalReadModel,
+  lookupCanonicalRow,
+  type CanonicalReadModel,
+} from "./canonical_read_model";
 import type { ScoredOpportunity } from "./types";
 
 const STATE_REL = path.join("reports", "pump_alert_state.json");
@@ -62,9 +68,15 @@ function securityOk(status: string, _rankScore: number | null): boolean {
   return true;
 }
 
-export function shouldAlertOpportunity(opp: ScoredOpportunity, state: AlertState): boolean {
-  // After scoring.ts Phase 3 gate, WATCH only exists if Python canonical was injected.
-  if (opp.decision !== "WATCH" && opp.decision !== "PAPER_CANDIDATE") return false;
+export function shouldAlertOpportunity(
+  opp: ScoredOpportunity,
+  state: AlertState,
+  model: CanonicalReadModel,
+): boolean {
+  // Opportunity alerts require Python alerts_allowed (BUY). TS WATCH is not enough.
+  if (model.status !== "AVAILABLE") return false;
+  const row = lookupCanonicalRow(model, opp.token.chain, opp.token.address);
+  if (!row?.alerts_allowed) return false;
   if (opp.rankScore == null || opp.rankScore < SCORE_FLOOR) return false;
   if (!securityOk(opp.securityStatus, opp.rankScore)) return false;
   if ((opp.token.liquidityUsd ?? 0) < 15_000 && opp.token.liquidityUsd != null) return false;
@@ -164,19 +176,25 @@ async function pushTelegram(text: string): Promise<{ ok: boolean; error?: string
 }
 
 /**
- * After ranking: emit at most a few high-evidence WATCH alerts per cycle.
+ * After ranking: emit at most a few canonical BUY alerts per cycle.
+ * Python alerts_allowed is required; TS WATCH/PAPER_CANDIDATE cannot mint this.
  */
 export async function processOpportunityAlerts(
   ranked: ScoredOpportunity[],
 ): Promise<{ emitted: AlertPayload[]; telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> }> {
   const state = await loadState();
+  const model = await loadCanonicalReadModel();
   const emitted: AlertPayload[] = [];
   const telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> = [];
 
   for (const opp of ranked) {
     if (emitted.length >= 3) break;
-    if (!shouldAlertOpportunity(opp, state)) continue;
-    const payload = buildAlertPayload(opp);
+    if (!shouldAlertOpportunity(opp, state, model)) continue;
+    const row = lookupCanonicalRow(model, opp.token.chain, opp.token.address);
+    const payload = buildAlertPayload({
+      ...opp,
+      decision: displayDecision(row, model.status),
+    });
     state.sent[payload.tokenKey] = Date.now() / 1000;
     state.last_alert_at = Date.now() / 1000;
     state.last_token = payload.tokenKey;

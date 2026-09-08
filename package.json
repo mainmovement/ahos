@@ -6,6 +6,7 @@
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "test:web-api-auth": "node --experimental-strip-types --test scripts/web_api_auth_selftest.ts",
+    "test:canonical-read-model": "node --experimental-strip-types --test scripts/canonical_read_model_selftest.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",

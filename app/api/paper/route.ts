@@ -1,5 +1,6 @@
 import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
 import { addPaper } from "@/engine";
+import { loadCanonicalReadModel, paperAllowedFromCanonical } from "@/canonical_read_model";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,18 @@ export async function POST(req: Request) {
     };
     if (!body.tokenKey || !body.symbol || !body.chain) {
       return Response.json({ ok: false, error: "INSUFFICIENT_EVIDENCE" }, { status: 400 });
+    }
+    const model = await loadCanonicalReadModel();
+    if (!paperAllowedFromCanonical(model, body.chain, body.address || null)) {
+      return Response.json(
+        {
+          ok: false,
+          error: "CANONICAL_PAPER_DENIED",
+          canonicalStatus: model.status,
+          hintFa: "خرید کاغذی فقط با حکم کانونیکال BUY پایتون مجاز است — لایه وب تصمیم نمی‌سازد.",
+        },
+        { status: 403 },
+      );
     }
     const row = await addPaper({
       tokenKey: body.tokenKey,

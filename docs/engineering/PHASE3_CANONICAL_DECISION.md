@@ -79,12 +79,88 @@ AI cannot upgrade a closed identity or security gate. AI may downgrade.
 | Paper | Lane A untouched. Lane B `paper_candidate_allowed()` |
 | Telegram service | Still must not import OpportunityScorer or instantiate a second authority |
 | `scoring.ts` | Presentation. WATCH/PAPER_CANDIDATE blocked unless `canonicalBackend` injected |
-| `alerts.ts` | UNKNOWN/INCOMPLETE/STALE security cannot alert; WATCH only after TS gate |
+| `alerts.ts` | Opportunity alerts require Python `alerts_allowed` (BUY). TS WATCH cannot mint an alert |
+| Command Center | Reads Python JSON via `/api/canonical` + snapshot overlay. Missing/stale ⇒ UNAVAILABLE/STALE, never invented BUY |
+| `engine.ts` | Injects Python read-model as `canonicalBackend`; persists `displayDecision` from Python, not TS WATCH |
+| Paper `/api/paper` + chat | `paperAllowedFromCanonical` — 403 `CANONICAL_PAPER_DENIED` without Python BUY |
+
 Uploaded Web/3D trees (`advanced-3d-audiovisual-website/`,
 `(1)`, `سایت درخت…`, `درخت کاملتر…`) are **preserved** and classified as
 separate presentation projects. They are excluded from the Command Center
 root `tsconfig.json` / ESLint unit so they cannot compile as a hidden second
 brain. Each tree keeps its own `package.json`.
+
+---
+
+## Python → Command Center read model
+
+**Not a second brain.** Python `CanonicalDecisionAuthority` writes
+`reports/canonical_decision_read_model.json` (override:
+`AHOS_CANONICAL_READ_MODEL`). TypeScript only parses and presents.
+
+| File | Role |
+|------|------|
+| `architecture/decision/read_model.py` | Writer + fail-closed loader (missing/corrupt/stale) |
+| `architecture/pipeline/orchestrator.py` | Persists after each decide loop |
+| `canonical_read_model.ts` | Parser, overlay, `presentCanonicalDecisions` |
+| `app/api/canonical/route.ts` | Auth-gated GET of the Python file |
+| `snapshot.ts` | Loads Python model **before** Postgres; on DB failure still returns canonical cards |
+| `CommandCenter.tsx` | Renders Python cards; WATCH/NO_TRADE/MONITOR_ONLY are amber, not green |
+
+Fail-closed rules:
+
+* Missing/corrupt file ⇒ `UNAVAILABLE`, empty decisions, no paper, no alerts
+* Older than 24h ⇒ `STALE`; `is_positive` / `paper_allowed` / `alerts_allowed` stripped
+* Unmatched Command Center token ⇒ display `UNAVAILABLE` (not TS WATCH)
+* Postgres down ⇒ empty opportunity rows + Python cards if the file is present (not invented BUY)
+
+---
+
+## Phase dependency (do not auto-merge)
+
+* **PR #63** Phase 2 security overlay — OPEN DRAFT, MERGEABLE, head `711bcd3`
+* **PR #64** Phase 3 — OPEN DRAFT, stacked on #63 (`711bcd3` is merge-base)
+* Phase 3 work on this branch includes Phase 2 commits until #63 merges.
+* Do **not** merge #63 or #64 automatically. Validation of #64 does not assume #63 is on `main`.
+
+---
+
+## Bypass audit (this revision)
+
+Searched Python, TypeScript Command Center, Telegram, alerts, paper, pump alerts,
+AI council, API routes, `reasoningEngine.ts`, `scoring.ts`, `engine.ts`,
+orchestrator, uploaded Web trees.
+
+| Path | Result |
+|------|--------|
+| Python AlertEngine OPPORTUNITY | Gated on `canonical.alerts_allowed` |
+| Orchestrator Telegram “فرصت ویژه” | Gated on `top_canonical.alerts_allowed` |
+| `telegram_ai/pump_alert.py` | Requires BUY/ENTER; UNKNOWN security cannot alert |
+| `scoring.ts` | Cannot emit WATCH without injected `canonicalBackend` |
+| `alerts.ts` | **Fixed this revision:** was alerting on TS WATCH after injection; now requires Python `alerts_allowed` |
+| `engine.ts` persist | **Fixed this revision:** stores Python `displayDecision`, not TS WATCH |
+| `/api/paper` + chat paper | Requires Python `paper_allowed` |
+| Command Center | Overlays Python; unavailable ⇒ UNAVAILABLE |
+| `reasoningEngine.ts` + uploaded trees | Preserved presentation; excluded from CC compile unit |
+| Council votes WATCH | Advisory display only |
+
+Remaining dual-stack: `engine.ts` still computes **display ranks** (`rankScore`).
+Those ranks are not BUY/WATCH authority. Command Center labels display rank as
+non-canonical.
+
+---
+
+## Evidence classes
+
+Use these labels only as defined:
+
+* **IMPLEMENTED** — code is in the tree
+* **TESTED** — named command was executed in this environment
+* **VERIFIED** — TESTED plus the actual consumer path (API/UI/runtime) was observed
+* **BLOCKED** — cannot proceed without an external dependency
+* **PRE-EXISTING** — failure also present on parent / not introduced here
+
+Do not convert IMPLEMENTED into VERIFIED without evidence.
 
 ---
 
@@ -99,42 +175,44 @@ Repo-root `slills/` is uploaded third-party SKILL dumps — not the AHOS registr
 
 ```
 PHASE_STATUS: PARTIAL
-PASS_GATES:
+IMPLEMENTED:
   - CanonicalDecisionAuthority wrapping DecisionAdvisor
+  - Python canonical read-model writer + TS presentation overlay
+  - Command Center /api/canonical + fail-closed snapshot (DB down still shows Python cards)
+  - paper/chat/alerts.ts gated on Python paper_allowed / alerts_allowed
+  - engine.ts persists Python displayDecision (not TS WATCH)
+TESTED: pending re-run on this revision (see following commit evidence)
+VERIFIED:
+  - (none this revision until API + browser evidence is recorded)
+BLOCKED:
+  - PR #63 still draft; do not auto-merge; #64 remains stacked
+  - GitHub Actions CI workflow still absent (M-GAP-004)
+  - Postgres/DATABASE_URL often unset in agent shell — Command Center opportunity rows ENVIRONMENT
+  - Live operator daemon / OPERATIONAL not claimed
+PRE-EXISTING:
+  - npm run lint: CommandCenter.tsx react-hooks/set-state-in-effect
+  - tests/test_config_validation.py NEXT_PUBLIC_AHOS_WEB_API_TOKEN Python-scan miss
+PASS_GATES (prior revision, still in tree):
   - identity + security + pool gates on positive rec / alert / paper
   - AI upgrade blocked on failed gates
   - orchestrator wired; score-alone Telegram bypass closed
-  - TS WATCH requires injected canonicalBackend
   - pump_alert UNKNOWN+score bypass closed
-  - reasoningEngine classified presentation; web trees preserved
-  - uploaded Web/3D trees excluded from Command Center tsconfig/eslint (not deleted)
-  - Lane A freeze OK (36)
-  - validate_imports PASSED (181 modules)
-  - targeted pytest 185 passed (identity/security/advisor/alerts/pipeline/panel/one-brain/cursor + canonical authority)
-  - Command Center tsc --noEmit exit 0 after excluding uploaded trees
+  - reasoningEngine classified presentation; web trees preserved and excluded from CC compile
+  - Lane A freeze OK (36) before this revision
 FAILED_GATES:
-  - npm run lint: 1 pre-existing CommandCenter.tsx react-hooks/set-state-in-effect (not introduced here)
-  - full pytest: 1598 passed, 3 skipped, 1 failed tests/test_config_validation.py (NEXT_PUBLIC_AHOS_WEB_API_TOKEN scanner; pre-existing, unread by Python scan)
-BLOCKERS:
-  - PR #63 (Phase 2) still draft; this branch stacks on it
-  - GitHub Actions CI workflow still absent (M-GAP-004)
-  - Runtime OPERATIONAL not claimed (no live operator daemon / browser session)
-  - TS engine.ts still computes local ranks for display (not canonical BUY)
-  - npm run lint not green on Command Center
+  - lint not green (PRE-EXISTING)
+  - full pytest not fully green (PRE-EXISTING config-doc fail)
+  - browser Command Center with live Postgres opportunity overlay: not yet VERIFIED
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
   - tests/test_canonical_decision_authority.py
-  - python3 -B scripts/freeze_lane_a.py → 36 OK
-  - python3 scripts/validate_imports.py → 181 modules
-  - pytest targeted 185 passed; full 1598 passed / 1 pre-existing fail
-  - npm run typecheck exit 0; npm run test:web-api-auth 9 passed
-TEST_RESULTS: TARGETED PASS; FULL SUITE NOT PASS (1 pre-existing config-doc fail)
-REGRESSIONS: opportunity alerts now require verified token+pool identity
+  - tests/test_canonical_read_model.py
+  - scripts/canonical_read_model_selftest.ts
+TEST_RESULTS: see later revision notes after pytest/typecheck/build/browser
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
-  - Web Command Center dual-stack display ranks remain until a Python read-model is served
+  - engine.ts display ranks remain presentation-only
   - Live execution not implemented (PAPER / intelligence first)
-  - Browser verification: not executed (no UI claim this phase)
 NEXT_UNLOCKED_PHASE: Phase 4 evidence/persistence only after Phase 3 mandatory gates actually pass
 ```
 

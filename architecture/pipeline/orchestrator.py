@@ -34,6 +34,7 @@ from ..decision.authority import (
     CanonicalDecisionAuthority,
     identity_from_candidate,
 )
+from ..decision.read_model import write_canonical_read_model
 from telegram_ai.adapter import TelegramBotAdapterInterface
 from telegram_ai.alerts import Alert, render_fa as render_alert_fa
 from telegram_ai.response_contract import format_opportunity_response
@@ -203,6 +204,15 @@ class OpportunityPipelineOrchestrator:
                 (d for c, r, d in decided if r.token_address == top_opp.token_address),
                 None,
             )
+
+        # Persist Lane B read model for Command Center (fail-closed if write fails).
+        try:
+            write_canonical_read_model(
+                ((cand, decision) for cand, _rep, decision in decided),
+                now=t0,
+            )
+        except Exception:  # noqa: BLE001 — presentation must not abort scoring
+            pass
 
         # 2b. Persist every prediction BEFORE any outcome is known.
         #     This is the `Prediction` node of the learning loop. Scoring after

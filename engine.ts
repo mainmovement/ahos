@@ -22,6 +22,12 @@ import { and, eq, isNull } from "drizzle-orm";
 import { processOpportunityAlerts } from "./alerts";
 import { collectNews } from "./news";
 import { collectMarket, enrichPairs, fetchSecurity, mergePairs } from "./providers";
+import {
+  displayDecision,
+  loadCanonicalReadModel,
+  lookupCanonicalRow,
+  toBackendDecision,
+} from "./canonical_read_model";
 import { rankOpportunities, scoreToken } from "./scoring";
 import type { Envelope, PairObservation, ScoredOpportunity } from "./types";
 
@@ -253,6 +259,7 @@ export async function runCycle(reason: string) {
     }
 
     const scored: ScoredOpportunity[] = [];
+    const canonicalModel = await loadCanonicalReadModel();
     for (const token of pairs) {
       const hits = news.stories.filter(
         (n) =>
@@ -261,14 +268,15 @@ export async function runCycle(reason: string) {
           n.titleFa.includes(token.symbol),
       );
       const negativeNews = hits.some((n) => n.sentiment === "NEG" || n.category.includes("هک"));
+      const row = lookupCanonicalRow(canonicalModel, token.chain, token.address);
       const opp = scoreToken({
         token,
         security: securityMap.get(token.tokenKey) ?? null,
         fearGreed: market.global.fearGreed,
         newsHits: hits.length,
         negativeNews,
-        // Presentation only. Canonical BUY/WATCH must come from Python.
-        canonicalBackend: null,
+        // Python read model only. Missing/stale/unmatched ⇒ null ⇒ no WATCH.
+        canonicalBackend: toBackendDecision(row, canonicalModel.status),
       });
       scored.push(opp);
     }
@@ -284,7 +292,10 @@ export async function runCycle(reason: string) {
           name: opp.token.name,
           chain: opp.token.chain,
           address: opp.token.address,
-          decision: opp.decision,
+          decision: displayDecision(
+            lookupCanonicalRow(canonicalModel, opp.token.chain, opp.token.address),
+            canonicalModel.status,
+          ),
           rankScore: opp.rankScore,
           confidence: opp.confidence,
           securityStatus: opp.securityStatus,
@@ -337,12 +348,13 @@ export async function runCycle(reason: string) {
         disagreementFa: [...new Set(opp.votes.map((v) => v.vote))],
       });
 
-      if (opp.decision === "WATCH" && opp.token.priceUsd != null) {
+      const canonRow = lookupCanonicalRow(canonicalModel, opp.token.chain, opp.token.address);
+      if (canonicalModel.status === "AVAILABLE" && canonRow?.is_positive && opp.token.priceUsd != null) {
         await db.insert(predictions).values({
           cycleId: cycle.id,
           tokenKey: opp.token.tokenKey,
           symbol: opp.token.symbol,
-          decision: opp.decision,
+          decision: displayDecision(canonRow, canonicalModel.status),
           rankScore: opp.rankScore,
           confidence: opp.confidence,
           horizonMin: 240,
