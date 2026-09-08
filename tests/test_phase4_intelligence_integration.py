@@ -209,7 +209,13 @@ def test_pipeline_keeps_candidate_score_pairing(tmp_path):
 
 
 def test_lane_isolation_phase4_modules():
-    """New architecture modules must not import experiment packages."""
+    """New architecture modules must not import experiment packages.
+
+    architecture/security/gate.py may import frozen discovery.security_gate
+    the same way architecture/identity imports discovery.identity. That is
+    composition of Lane A, not a second policy. Other security/*.py and
+    other experiment packages remain forbidden.
+    """
     import re
     bad = []
     roots = [
@@ -225,6 +231,15 @@ def test_lane_isolation_phase4_modules():
         for path in folder.glob("*.py"):
             text = path.read_text(encoding="utf-8")
             for pat in ("discovery", "paper_trading", "research", "telegram_ai", "engine"):
-                if re.search(rf"^\s*(from|import)\s+{pat}(\.|$|\s)", text, re.M):
-                    bad.append(f"{path.name}:{pat}")
+                if not re.search(rf"^\s*(from|import)\s+{pat}(\.|$|\s)", text, re.M):
+                    continue
+                if (
+                    pat == "discovery"
+                    and folder.name == "security"
+                    and path.name == "gate.py"
+                ):
+                    imports = re.findall(r"^\s*(?:from|import)\s+(discovery\S*)", text, re.M)
+                    if imports and all(s.startswith("discovery.security_gate") for s in imports):
+                        continue
+                bad.append(f"{path.name}:{pat}")
     assert bad == [], bad

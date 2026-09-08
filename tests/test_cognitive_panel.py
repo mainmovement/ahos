@@ -34,7 +34,7 @@ from architecture.scoring.engine import OpportunityScorer
 from architecture.intel.exitability import ExitabilityAnalyzer
 from architecture.intel.viral import ViralityTracker
 from tests.helpers_identity import verified_identity_fixture
-from tests.helpers_security import passing_security_signals
+from tests.helpers_security import OLD_POOL_TS, passing_security_signals
 
 
 def make(symbol="TOK", **kw):
@@ -47,7 +47,8 @@ def make(symbol="TOK", **kw):
     c = NormalizedTokenCandidate(
         chain="solana", address=kw.pop("address", "a1"), symbol=symbol,
         name=symbol, metrics=metrics, security=security,
-        source_provider="test", retrieved_ts=kw.pop("retrieved_ts", time.time()))
+        source_provider="test", retrieved_ts=kw.pop("retrieved_ts", time.time()),
+        pair_created_ts=kw.pop("pair_created_ts", OLD_POOL_TS))
     c.identify_unknowns()
     return c
 

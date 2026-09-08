@@ -53,7 +53,7 @@ from architecture.providers.contracts import (  # noqa: E402
 from architecture.scoring.engine import OpportunityScorer  # noqa: E402
 from discovery.identity import pair_id, token_id  # noqa: E402
 from tests.helpers_identity import verified_identity_fixture  # noqa: E402
-from tests.helpers_security import passing_security_signals  # noqa: E402
+from tests.helpers_security import OLD_POOL_TS, passing_security_signals  # noqa: E402
 
 NOW = 1_800_000_000.0
 USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
@@ -453,6 +453,7 @@ def _healthy_candidate():
         ),
         source_provider="dexscreener",
         retrieved_ts=NOW,
+        pair_created_ts=OLD_POOL_TS,
     )
 
 

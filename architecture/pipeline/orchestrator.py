@@ -29,6 +29,7 @@ from ..intelligence.evidence import materialize_evidence
 from ..learning.score_ledger import ScoreLedger
 from ..alerts.engine import AlertEngine
 from ..observability import Tracer, OperationTrace
+from ..security.gate import evaluate_security_from_candidate, security_allows_alert
 from telegram_ai.adapter import TelegramBotAdapterInterface
 from telegram_ai.alerts import Alert, render_fa as render_alert_fa
 from telegram_ai.response_contract import format_opportunity_response
@@ -203,9 +204,22 @@ class OpportunityPipelineOrchestrator:
                         self.telegram_adapter.send_message(self.target_chat_id, msg_text)
                         messages_sent += 1
 
-                # If top opportunity is high quality, send summary
-                if top_opp and top_opp.opportunity_score >= 75.0:
-                    matching_cand = next((c for c in candidates if c.address == top_opp.token_address), None)
+                # Score alone is not a recommendation. Telegram "فرصت ویژه"
+                # requires the same security PASS as opportunity alerts.
+                matching_cand = None
+                if top_opp:
+                    matching_cand = next(
+                        (c for c in candidates if c.address == top_opp.token_address),
+                        None,
+                    )
+                if (
+                    top_opp
+                    and top_opp.opportunity_score >= 75.0
+                    and matching_cand is not None
+                    and security_allows_alert(
+                        evaluate_security_from_candidate(matching_cand, now=t0)
+                    )
+                ):
                     card_text = format_opportunity_response(top_opp, matching_cand)
                     self.telegram_adapter.send_message(self.target_chat_id, f"🚨 **فرصت ویژه شناسایی شد**\n\n" + card_text)
                     messages_sent += 1

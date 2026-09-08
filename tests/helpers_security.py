@@ -8,7 +8,11 @@ OLD_POOL_TS = NOW - 30 * 86400
 
 
 def passing_security_signals(**over) -> SecuritySignals:
-    """All overlay-critical fields resolved FALSE so GATE 1 can PASS."""
+    """All overlay-critical fields resolved FALSE so GATE 1 can PASS.
+
+    Overlay PASS also requires candidate.pair_created_ts (Lane A LP check is
+    UNKNOWN when pool age is missing). Use OLD_POOL_TS on the candidate.
+    """
     d = dict(
         is_honeypot=False,
         sell_tax_pct=1.0,

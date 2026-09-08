@@ -16,7 +16,7 @@
 | Operator start | `README.md`, `QUICKSTART.md`, `AHOS_OPERATOR_QUICKSTART_WINDOWS.md` |
 | Lane-A freeze | `config/lane_a_freeze.sha256` + `scripts/freeze_lane_a.py` |
 | Canonical identity (Lane B overlay) | `architecture/identity/` wraps frozen `discovery/identity.py`; TypeScript `tokenKey` is not authority |
-| Canonical security overlay (Lane B) | `architecture/security/gate.py` composes frozen `discovery/security_gate.py`; PASS_WITH_UNKNOWN ⇒ INCOMPLETE |
+| Canonical security overlay (Lane B) | `architecture/security/gate.py` projects signals onto frozen CRITICAL keys and calls `discovery.security_gate.evaluate` (`security-overlay-v2`); PASS_WITH_UNKNOWN ⇒ INCOMPLETE; HIGH registry keys are not vetoes |
 | Cursor engineering contract (Lane B) | `AGENTS.md` + `.cursor/` — developer-agent rules/skills/hooks; not AHOS runtime agents |
 | Cursor skills (this repo) | `.cursor/skills/` — eleven progressive skills. `cursor/slills` is not in this repository |
 

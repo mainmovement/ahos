@@ -103,7 +103,7 @@ def test_rugcheck_empty_risks_array():
     assert resp.status == "OK"
     assert len(resp.tokens) == 1
     assert resp.tokens[0].security.is_honeypot is False
-    assert resp.tokens[0].security.has_mint_authority is False
+    assert resp.tokens[0].security.has_mint_authority is None
 
 
 def test_rate_limit_throttle_delay():

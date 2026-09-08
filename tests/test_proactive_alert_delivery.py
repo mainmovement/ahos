@@ -29,7 +29,7 @@ from telegram_ai.adapter import MockTelegramAdapter
 from architecture.providers.contracts import (
     NormalizedTokenCandidate, MarketMetrics, SecuritySignals,
 )
-from tests.helpers_security import passing_security_signals
+from tests.helpers_security import OLD_POOL_TS, passing_security_signals
 
 NOW = time.time()
 
@@ -51,7 +51,8 @@ def excellent_token(now=NOW):
             has_mint_authority=False, has_freeze_authority=False,
             is_contract_verified=True, is_ownership_renounced=True,
             top10_holder_concentration_pct=8.0, deployer_past_rug_count=0),
-        source_provider="dexscreener", retrieved_ts=now)
+        source_provider="dexscreener", retrieved_ts=now,
+        pair_created_ts=OLD_POOL_TS)
     c.identify_unknowns()
     return c
 
