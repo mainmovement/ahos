@@ -20,6 +20,7 @@ from architecture.providers.registry import ProviderRouter
 from telegram_ai.adapter import MockTelegramAdapter
 from telegram_ai.response_contract import FOOTER_MANDATED
 from tests.helpers_security import passing_security_signals
+from tests.helpers_identity import verified_pool_identity_fixture
 
 
 class MockDiscoveryProvider:
@@ -76,7 +77,10 @@ def test_full_pipeline_orchestration_high_opportunity(tmp_path):
         scorer=scorer,
         alert_engine=alert_engine,
         telegram_adapter=telegram_adapter,
-        target_chat_id=123456
+        target_chat_id=123456,
+        identity_resolver=lambda _c, _n: verified_pool_identity_fixture(
+            address=cand_high.address, symbol="ALPHA",
+        ),
     )
 
     report = orchestrator.run_pipeline(chain="solana", limit=5)

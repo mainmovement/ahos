@@ -21,6 +21,7 @@ Key entrypoints:
 
 - Intelligence floor: `architecture/intelligence/engine.py`
 - Decision advisor (AI downgrade only): `architecture/decision/advisor.py`
+- Canonical decision authority: `architecture/decision/authority.py`
 - Pipeline: `architecture/pipeline/orchestrator.py`
 - Score ledger: `architecture/learning/score_ledger.py`
 - Evidence: `architecture/intelligence/evidence.py`

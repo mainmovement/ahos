@@ -22,6 +22,10 @@ Read, do not copy: `docs/DOC_TRUTH_MAP.md`, `docs/canonical/MASTER_DIRECTIVE_v1.
 
 ## Existing dual-stack (do not widen)
 
-`scoring.ts`, `engine.ts`, `council.ts`, `alerts.ts` currently score and alert
-independently of Python. Documented in `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`.
+`scoring.ts`, `engine.ts`, `council.ts`, `alerts.ts` currently score for
+display independently of Python. Phase 3 forces non-positive TS decisions
+unless `canonicalBackend` is injected from
+`architecture.decision.authority.CanonicalDecisionAuthority`. Documented in
+`docs/CANONICAL_IMPLEMENTATION_MATRIX.md` and
+`docs/engineering/PHASE3_CANONICAL_DECISION.md`.
 New work must consume canonical Python state rather than grow this gap.

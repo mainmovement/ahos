@@ -2,16 +2,16 @@
 
 Progressive load only. Do not inject every skill into every prompt.
 
-Inspected 2026-09-08:
+Inspected 2026-09-08 (Phase 3 re-check):
 
 | Path | Result |
 |------|--------|
-| `G:\robat\ahos\cursor\slills` | **Not in this git repository** |
-| `cursor/slills` | **Absent** — spelling is a Windows local typo, not a committed dir |
+| `G:\robat\ahos\cursor\slills` | Windows local path — **not a git directory** |
+| `cursor/slills` | **Absent** |
+| `slills/` at repo root | **Present** — 16 uploaded `SKILL*.md` files (Poteto-style / third-party). **Not** AHOS Cursor project skills. Do not load as `.cursor/skills`. Do not delete. |
 | `.cursor/skills/` | **Canonical** — eleven `SKILL.md` files |
 
-Do not rename a directory that does not exist. Usable skills are Cursor
-project skills under `.cursor/skills/`.
+Do not rename `slills/` into `.cursor/skills`. Do not treat uploaded SKILL dumps as the AHOS registry.
 
 | Skill | Purpose | When | Model preference | Risk |
 |-------|---------|------|------------------|------|

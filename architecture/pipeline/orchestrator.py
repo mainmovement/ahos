@@ -29,6 +29,11 @@ from ..intelligence.evidence import materialize_evidence
 from ..learning.score_ledger import ScoreLedger
 from ..alerts.engine import AlertEngine
 from ..observability import Tracer, OperationTrace
+from ..decision.authority import (
+    CanonicalDecision,
+    CanonicalDecisionAuthority,
+    identity_from_candidate,
+)
 from telegram_ai.adapter import TelegramBotAdapterInterface
 from telegram_ai.alerts import Alert, render_fa as render_alert_fa
 from telegram_ai.response_contract import format_opportunity_response
@@ -47,6 +52,7 @@ class PipelineExecutionReport:
     lane_a_registered: int = 0
     lane_a_observations_written: int = 0
     top_opportunity: OpportunityScoreReport | None = None
+    top_canonical: CanonicalDecision | None = None
     alerts: list[Alert] = field(default_factory=list)
     trace: OperationTrace | None = None
     lifecycle_bridge: dict | None = None
@@ -60,13 +66,19 @@ class OpportunityPipelineOrchestrator:
                  telegram_adapter: TelegramBotAdapterInterface | None = None,
                  target_chat_id: int | str | None = None,
                  intelligence: IntelligenceEngine | None = None,
-                 score_ledger: ScoreLedger | None = None):
+                 score_ledger: ScoreLedger | None = None,
+                 decision_authority: CanonicalDecisionAuthority | None = None,
+                 identity_resolver=None):
         self.intelligence = intelligence or IntelligenceEngine()
         self.collector = collector or CollectorEngine()
         self.scorer = scorer or OpportunityScorer(intelligence=self.intelligence)
         self.alert_engine = alert_engine or AlertEngine(score_threshold=70.0)
         self.telegram_adapter = telegram_adapter
         self.target_chat_id = target_chat_id
+        self.decision_authority = decision_authority or CanonicalDecisionAuthority()
+        # Default: fail-closed resolve from the candidate (single market source
+        # ⇒ UNRESOLVED). Tests inject a VERIFIED resolver when they need BUY.
+        self.identity_resolver = identity_resolver or identity_from_candidate
         # Prediction persistence is EXPLICITLY INJECTED, never defaulted.
         #
         # Defaulting to a live ScoreLedger() here would mean every ad-hoc or
@@ -176,6 +188,22 @@ class OpportunityPipelineOrchestrator:
         reports = [rep for _, rep in ranked]
         top_opp = reports[0] if reports else None
 
+        # 2a. Canonical decision — identity → security → score → AI downgrade.
+        # OpportunityScorer remains a score; it is not a decision authority.
+        decided: list[tuple[NormalizedTokenCandidate, OpportunityScoreReport, CanonicalDecision]] = []
+        for cand, rep in paired:
+            ident = self.identity_resolver(cand, t0)
+            decision = self.decision_authority.decide(
+                cand, rep, identity=ident, now=t0,
+            )
+            decided.append((cand, rep, decision))
+        top_canonical = None
+        if top_opp is not None:
+            top_canonical = next(
+                (d for c, r, d in decided if r.token_address == top_opp.token_address),
+                None,
+            )
+
         # 2b. Persist every prediction BEFORE any outcome is known.
         #     This is the `Prediction` node of the learning loop. Scoring after
         #     the fact from stored observations would leak hindsight, so the
@@ -186,10 +214,12 @@ class OpportunityPipelineOrchestrator:
             scores_persisted = self.score_ledger.record_many(
                 reports, run_id=trace_ctx.run_id, now=t0)
 
-        # 3. Evaluate Alerts — keep candidate/report pairing (never zip after an independent sort)
+        # 3. Evaluate Alerts — canonical BUY required for OPPORTUNITY class
         emitted_alerts: list[Alert] = []
-        for cand, rep in paired:
-            alerts = self.alert_engine.evaluate_opportunity(rep, cand, now=t0)
+        for cand, rep, decision in decided:
+            alerts = self.alert_engine.evaluate_opportunity(
+                rep, cand, now=t0, identity=decision.identity, canonical=decision,
+            )
             emitted_alerts.extend(alerts)
 
         # 4. Notify Telegram Surface
@@ -203,8 +233,9 @@ class OpportunityPipelineOrchestrator:
                         self.telegram_adapter.send_message(self.target_chat_id, msg_text)
                         messages_sent += 1
 
-                # If top opportunity is high quality, send summary
-                if top_opp and top_opp.opportunity_score >= 75.0:
+                # If top opportunity is a canonical BUY, send summary.
+                # Score alone (even >= 75) is not a Telegram recommendation.
+                if top_opp and top_canonical and top_canonical.alerts_allowed:
                     matching_cand = next((c for c in candidates if c.address == top_opp.token_address), None)
                     card_text = format_opportunity_response(top_opp, matching_cand)
                     self.telegram_adapter.send_message(self.target_chat_id, f"🚨 **فرصت ویژه شناسایی شد**\n\n" + card_text)
@@ -246,6 +277,7 @@ class OpportunityPipelineOrchestrator:
             lane_a_registered=lane_a_reg,
             lane_a_observations_written=lane_a_obs,
             top_opportunity=top_opp,
+            top_canonical=top_canonical,
             alerts=emitted_alerts,
             trace=trace,
             lifecycle_bridge=bridge_dict,

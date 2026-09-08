@@ -55,15 +55,16 @@ async function saveState(state: AlertState): Promise<void> {
   await writeFile(path.join(process.cwd(), STATE_REL), JSON.stringify(state, null, 2), "utf8");
 }
 
-function securityOk(status: string, rankScore: number | null): boolean {
+function securityOk(status: string, _rankScore: number | null): boolean {
   const s = (status || "").toUpperCase();
-  if (["HONEYPOT", "REJECT", "FAIL", "DOWN"].includes(s)) return false;
-  if (s === "UNKNOWN") return rankScore != null && rankScore >= 0.8;
+  if (["HONEYPOT", "REJECT", "FAIL", "DOWN", "UNKNOWN", "INCOMPLETE", "STALE"].includes(s)) return false;
+  if (s === "UNKNOWN") return false;
   return true;
 }
 
 export function shouldAlertOpportunity(opp: ScoredOpportunity, state: AlertState): boolean {
-  if (opp.decision !== "WATCH") return false;
+  // After scoring.ts Phase 3 gate, WATCH only exists if Python canonical was injected.
+  if (opp.decision !== "WATCH" && opp.decision !== "PAPER_CANDIDATE") return false;
   if (opp.rankScore == null || opp.rankScore < SCORE_FLOOR) return false;
   if (!securityOk(opp.securityStatus, opp.rankScore)) return false;
   if ((opp.token.liquidityUsd ?? 0) < 15_000 && opp.token.liquidityUsd != null) return false;

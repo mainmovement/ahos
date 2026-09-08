@@ -11,6 +11,7 @@ from architecture.alerts.engine import AlertEngine
 from architecture.scoring.engine import OpportunityScorer
 from architecture.providers.contracts import NormalizedTokenCandidate, MarketMetrics, SecuritySignals
 from tests.helpers_security import passing_security_signals
+from tests.helpers_identity import verified_pool_identity_fixture
 from architecture.scheduling.engine import ProductionScheduler, ScheduleTask
 from architecture.security import sanitize_secrets, sanitize_dict, assert_safe_environment
 from architecture.observability import Tracer
@@ -42,7 +43,9 @@ def test_alert_engine_opportunity_trigger():
     scorer = OpportunityScorer()
     rep = scorer.evaluate(cand)
     engine = AlertEngine(score_threshold=70.0)
-    alerts = engine.evaluate_opportunity(rep, cand)
+    alerts = engine.evaluate_opportunity(
+        rep, cand, identity=verified_pool_identity_fixture(address=cand.address, symbol="ALRT"),
+    )
 
     assert any(a.cls == "OPPORTUNITY" for a in alerts)
     assert any(a.cls == "ABNORMAL_MOVEMENT" for a in alerts)

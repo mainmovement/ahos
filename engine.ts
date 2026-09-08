@@ -267,6 +267,8 @@ export async function runCycle(reason: string) {
         fearGreed: market.global.fearGreed,
         newsHits: hits.length,
         negativeNews,
+        // Presentation only. Canonical BUY/WATCH must come from Python.
+        canonicalBackend: null,
       });
       scored.push(opp);
     }

@@ -34,7 +34,7 @@ from architecture.security.gate import (  # noqa: E402
     security_allows_positive_eligibility,
 )
 from discovery.security_gate import evaluate  # noqa: E402
-from tests.helpers_identity import verified_identity_fixture  # noqa: E402
+from tests.helpers_identity import verified_identity_fixture, verified_pool_identity_fixture  # noqa: E402
 from tests.helpers_security import OLD_POOL_TS, passing_security_signals  # noqa: E402
 from tests.test_provider_abstraction import MockHttpResponse  # noqa: E402
 
@@ -206,7 +206,10 @@ def test_opportunity_alert_suppressed_without_security_pass():
 def test_opportunity_alert_requires_security_pass():
     cand = _cand(passing_security_signals(), retrieved_ts=NOW)
     report = OpportunityScorer().evaluate(cand)
-    alerts = AlertEngine(score_threshold=1.0).evaluate_opportunity(report, cand, now=NOW)
+    alerts = AlertEngine(score_threshold=1.0).evaluate_opportunity(
+        report, cand, now=NOW,
+        identity=verified_pool_identity_fixture(address=cand.address),
+    )
     if report.opportunity_score >= 1.0 and report.risk_level in ("LOW", "MED"):
         assert any(a.cls == "OPPORTUNITY" for a in alerts)
 
