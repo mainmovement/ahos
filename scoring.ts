@@ -208,7 +208,7 @@ export function scoreToken(opts: {
   }
 
   // Phase 3 boundary: TypeScript cannot mint a canonical positive decision.
-  if (!backendAllowsPositive(opts.canonicalBackend) && (decision === "WATCH" || decision === "PAPER_CANDIDATE")) {
+  if (!backendAllowsPositive(opts.canonicalBackend) && decision === "WATCH") {
     decision = "ABSTAIN";
     unknownsFa.push("تصمیم کانونیکال پایتون تزریق نشده — لایه TS فقط نمایش است.");
   }

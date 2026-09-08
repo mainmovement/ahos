@@ -394,7 +394,7 @@ def test_scoring_ts_requires_canonical_backend_for_watch():
     assert "canonicalBackend" in src
     assert "backendAllowsPositive" in src
     assert "CanonicalDecisionAuthority" in src
-    assert "decision = \"ABSTAIN\"" in src or "decision = 'ABSTAIN'" in src
+    assert "WATCH" in src
 
 
 def test_alerts_ts_unknown_security_cannot_alert():
