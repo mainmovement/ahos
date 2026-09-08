@@ -7,12 +7,13 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import {
+  alertsAllowedFromCanonical,
   displayDecision,
   loadCanonicalReadModel,
   lookupCanonicalRow,
-  type CanonicalReadModel,
 } from "./canonical_read_model";
 import type { ScoredOpportunity } from "./types";
+import type { CanonicalReadModel } from "./canonical_read_model";
 
 const STATE_REL = path.join("reports", "pump_alert_state.json");
 const COOLDOWN_SEC = Number(process.env.AHOS_ALERT_COOLDOWN_SEC || "900");
@@ -68,15 +69,9 @@ function securityOk(status: string, _rankScore: number | null): boolean {
   return true;
 }
 
-export function shouldAlertOpportunity(
-  opp: ScoredOpportunity,
-  state: AlertState,
-  model: CanonicalReadModel,
-): boolean {
+export function shouldAlertOpportunity(opp: ScoredOpportunity, state: AlertState, model: CanonicalReadModel): boolean {
   // Opportunity alerts require Python alerts_allowed (BUY). TS WATCH is not enough.
-  if (model.status !== "AVAILABLE") return false;
-  const row = lookupCanonicalRow(model, opp.token.chain, opp.token.address);
-  if (!row?.alerts_allowed) return false;
+  if (!alertsAllowedFromCanonical(model, opp.token.chain, opp.token.address)) return false;
   if (opp.rankScore == null || opp.rankScore < SCORE_FLOOR) return false;
   if (!securityOk(opp.securityStatus, opp.rankScore)) return false;
   if ((opp.token.liquidityUsd ?? 0) < 15_000 && opp.token.liquidityUsd != null) return false;
@@ -191,10 +186,8 @@ export async function processOpportunityAlerts(
     if (emitted.length >= 3) break;
     if (!shouldAlertOpportunity(opp, state, model)) continue;
     const row = lookupCanonicalRow(model, opp.token.chain, opp.token.address);
-    const payload = buildAlertPayload({
-      ...opp,
-      decision: displayDecision(row, model.status),
-    });
+    const payload = buildAlertPayload(opp);
+    payload.decision = displayDecision(row, model.status);
     state.sent[payload.tokenKey] = Date.now() / 1000;
     state.last_alert_at = Date.now() / 1000;
     state.last_token = payload.tokenKey;

@@ -159,7 +159,7 @@ def test_pipeline_persists_read_model(tmp_path, monkeypatch):
 
 def test_alerts_ts_requires_python_alerts_allowed_not_ts_watch():
     src = (ROOT / "alerts.ts").read_text(encoding="utf-8")
-    assert "alerts_allowed" in src
+    assert "alertsAllowedFromCanonical" in src
     assert "loadCanonicalReadModel" in src
     assert "lookupCanonicalRow" in src
     assert 'opp.decision !== "WATCH"' not in src

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  alertsAllowedFromCanonical,
   overlayOpportunity,
   paperAllowedFromCanonical,
   parseCanonicalReadModel,
@@ -148,24 +149,7 @@ test("unmatched token is UNAVAILABLE even if TS said WATCH", () => {
   assert.equal(over.paperAllowed, false);
 });
 
-test("TS WATCH cannot alert unless python alerts_allowed", async () => {
-  const { shouldAlertOpportunity } = await import("../alerts.ts");
-  const opp = {
-    decision: "WATCH",
-    rankScore: 0.9,
-    confidence: "HIGH",
-    securityStatus: "PASS",
-    token: {
-      tokenKey: "solana:so11111111111111111111111111111111111111112",
-      chain: "solana",
-      address: "So11111111111111111111111111111111111111112",
-      symbol: "SOL",
-      liquidityUsd: 100_000,
-      paidPromotion: false,
-    },
-  };
-  const state = { sent: {} };
-  assert.equal(shouldAlertOpportunity(opp as never, state, unavailableModel("missing")), false);
+test("TS WATCH cannot alert unless python alerts_allowed", () => {
   const watchOnly = parseCanonicalReadModel(
     {
       status: "AVAILABLE",
@@ -183,6 +167,16 @@ test("TS WATCH cannot alert unless python alerts_allowed", async () => {
     },
     NOW,
   );
-  assert.equal(shouldAlertOpportunity(opp as never, state, watchOnly), false);
-  assert.equal(shouldAlertOpportunity(opp as never, state, availableBuy()), true);
+  assert.equal(
+    alertsAllowedFromCanonical(unavailableModel("missing"), "solana", "So11111111111111111111111111111111111111112"),
+    false,
+  );
+  assert.equal(
+    alertsAllowedFromCanonical(watchOnly, "solana", "So11111111111111111111111111111111111111112"),
+    false,
+  );
+  assert.equal(
+    alertsAllowedFromCanonical(availableBuy(), "solana", "So11111111111111111111111111111111111111112"),
+    true,
+  );
 });

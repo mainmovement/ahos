@@ -184,6 +184,16 @@ export function paperAllowedFromCanonical(
   return Boolean(row?.paper_allowed);
 }
 
+export function alertsAllowedFromCanonical(
+  model: CanonicalReadModel,
+  chain: string | null | undefined,
+  address: string | null | undefined,
+): boolean {
+  if (model.status !== "AVAILABLE") return false;
+  const row = lookupCanonicalRow(model, chain, address);
+  return Boolean(row?.alerts_allowed);
+}
+
 export type CanonicalReadModelSummary = {
   status: CanonicalReadStatus;
   reason: string | null;
