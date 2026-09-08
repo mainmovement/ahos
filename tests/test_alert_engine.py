@@ -10,6 +10,7 @@ import pytest
 from architecture.alerts.engine import AlertEngine
 from architecture.scoring.engine import OpportunityScorer
 from architecture.providers.contracts import NormalizedTokenCandidate, MarketMetrics, SecuritySignals
+from tests.helpers_security import passing_security_signals
 from architecture.scheduling.engine import ProductionScheduler, ScheduleTask
 from architecture.security import sanitize_secrets, sanitize_dict, assert_safe_environment
 from architecture.observability import Tracer
@@ -30,10 +31,10 @@ def test_alert_engine_opportunity_trigger():
             txns_1h_buys=80,
             txns_1h_sells=20
         ),
-        security=SecuritySignals(
+        security=passing_security_signals(
             is_honeypot=False,
             is_contract_verified=True,
-            is_ownership_renounced=True
+            is_ownership_renounced=True,
         ),
         source_provider="dexscreener",
         retrieved_ts=time.time()

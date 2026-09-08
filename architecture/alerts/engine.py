@@ -21,6 +21,10 @@ from typing import Any
 from telegram_ai.alerts import Alert, build as build_alert
 from architecture.scoring.engine import OpportunityScoreReport
 from architecture.providers.contracts import NormalizedTokenCandidate
+from architecture.security.gate import (
+    evaluate_security_from_candidate,
+    security_allows_alert,
+)
 
 
 class AlertEngine:
@@ -33,9 +37,14 @@ class AlertEngine:
                              now: float | None = None) -> list[Alert]:
         alerts: list[Alert] = []
         ts = time.time() if now is None else now
+        security = evaluate_security_from_candidate(candidate, now=ts)
 
-        # 1. High Score Opportunity Alert
-        if report.opportunity_score >= self.score_threshold and report.risk_level in ("LOW", "MED"):
+        # 1. High Score Opportunity Alert — canonical security PASS required.
+        if (
+            report.opportunity_score >= self.score_threshold
+            and report.risk_level in ("LOW", "MED")
+            and security_allows_alert(security)
+        ):
             alerts.append(build_alert(
                 cls="OPPORTUNITY",
                 symbol=report.token_symbol,

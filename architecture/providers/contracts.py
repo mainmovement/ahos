@@ -50,6 +50,9 @@ class SecuritySignals:
     top10_holder_concentration_pct: float | None = UNKNOWN_VALUE
     deployer_address: str | None = UNKNOWN_VALUE
     deployer_past_rug_count: int | None = UNKNOWN_VALUE
+    is_blacklisted: bool | None = UNKNOWN_VALUE
+    cannot_sell_all: bool | None = UNKNOWN_VALUE
+    is_proxy: bool | None = UNKNOWN_VALUE
 
 
 @dataclass

@@ -25,6 +25,11 @@ __all__ = [
     "HolderReport",
     "ManipulationDetector",
     "ManipulationReport",
+    "SecurityState",
+    "SecurityOverlay",
+    "evaluate_security",
+    "evaluate_security_from_candidate",
+    "security_allows_positive_eligibility",
 ]
 
 _LAZY = {
@@ -38,6 +43,11 @@ _LAZY = {
     "HolderReport": (".holder_analysis", "HolderReport"),
     "ManipulationDetector": (".manipulation_detection", "ManipulationDetector"),
     "ManipulationReport": (".manipulation_detection", "ManipulationReport"),
+    "SecurityState": (".gate", "SecurityState"),
+    "SecurityOverlay": (".gate", "SecurityOverlay"),
+    "evaluate_security": (".gate", "evaluate_security"),
+    "evaluate_security_from_candidate": (".gate", "evaluate_security_from_candidate"),
+    "security_allows_positive_eligibility": (".gate", "security_allows_positive_eligibility"),
 }
 
 

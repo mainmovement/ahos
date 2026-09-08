@@ -29,6 +29,7 @@ from telegram_ai.adapter import MockTelegramAdapter
 from architecture.providers.contracts import (
     NormalizedTokenCandidate, MarketMetrics, SecuritySignals,
 )
+from tests.helpers_security import passing_security_signals
 
 NOW = time.time()
 
@@ -44,7 +45,7 @@ def excellent_token(now=NOW):
             txns_1h_buys=1_500, txns_1h_sells=500,
             price_change_5m=3.0, price_change_1h=12.0, price_change_24h=40.0,
             fdv_usd=5_000_000.0),
-        security=SecuritySignals(
+        security=passing_security_signals(
             is_honeypot=False, sell_tax_pct=0.0, buy_tax_pct=0.0,
             liquidity_locked_pct=100.0, liquidity_burned_pct=100.0,
             has_mint_authority=False, has_freeze_authority=False,
