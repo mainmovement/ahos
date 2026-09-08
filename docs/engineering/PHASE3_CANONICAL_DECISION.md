@@ -176,44 +176,62 @@ Repo-root `slills/` is uploaded third-party SKILL dumps — not the AHOS registr
 ```
 PHASE_STATUS: PARTIAL
 IMPLEMENTED:
-  - CanonicalDecisionAuthority wrapping DecisionAdvisor
-  - Python canonical read-model writer + TS presentation overlay
-  - Command Center /api/canonical + fail-closed snapshot (DB down still shows Python cards)
-  - paper/chat/alerts.ts gated on Python paper_allowed / alerts_allowed
-  - engine.ts persists Python displayDecision (not TS WATCH)
-TESTED: pending re-run on this revision (see following commit evidence)
-VERIFIED:
-  - (none this revision until API + browser evidence is recorded)
+  - CanonicalDecisionAuthority wrapping DecisionAdvisor (not a second brain)
+  - Pipeline: IDENTITY → EVIDENCE → SECURITY → LIQUIDITY/EXITABILITY → SCORE → RISK → CONFIDENCE (independent) → optional AI DOWNGRADE → CANONICAL DECISION
+  - Python JSON read-model writer (orchestrator persist)
+  - Command Center /api/canonical + snapshot overlay + fail-closed snapshot when Postgres is down
+  - paper/chat require Python paper_allowed (403 CANONICAL_PAPER_DENIED)
+  - alerts.ts requires Python alerts_allowed (TS WATCH cannot mint opportunity alerts)
+  - engine.ts persists Python displayDecision, not TS WATCH
+TESTED:
+  - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files) before and after this revision
+  - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py → PASSED (182 modules) after clearing pytest __pycache__ residue
+  - targeted pytest (canonical read-model/authority/identity/security/advisor/alerts/pipeline/one-brain/panel/cursor/web-auth/zero-money) → 238 passed
+  - full pytest → 1610 passed, 3 skipped, 1 failed
+  - npm run test:canonical-read-model → 8 passed
+  - npm run test:web-api-auth → 9 passed
+  - npm run typecheck → exit 0
+  - npm run lint → 1 error (PRE-EXISTING CommandCenter.tsx react-hooks/set-state-in-effect)
+  - npm run build → exit 0; route ƒ /api/canonical present; Turbopack NFT warning on canonical_read_model.ts process.cwd()
+VERIFIED (narrow, this environment):
+  - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
+  - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
+  - POST /api/paper fixture BUY → canonical gate passed, then 500 DATABASE_URL (ENVIRONMENT)
+  - Browser Command Center dash + فرصت‌ها: Python cards rendered; empty DB copy; BUY green; MONITOR_ONLY/NO_TRADE/INSUFFICIENT_EVIDENCE amber; REJECT rose; UNAVAILABLE banner when file missing
+NOT VERIFIED:
+  - Command Center overlay of live Postgres opportunity rows from a running observation daemon
+  - Browser STALE banner (STALE proven via API only)
+  - Isolated loading-flash screenshot (page loaded before capture)
+  - OPERATIONAL product runtime (no Postgres, start.sh does not start Next)
 BLOCKED:
-  - PR #63 still draft; do not auto-merge; #64 remains stacked
-  - GitHub Actions CI workflow still absent (M-GAP-004)
-  - Postgres/DATABASE_URL often unset in agent shell — Command Center opportunity rows ENVIRONMENT
-  - Live operator daemon / OPERATIONAL not claimed
+  - PR #63 still OPEN DRAFT; do not auto-merge; #64 remains stacked on 711bcd3
+  - GitHub Actions CI workflow absent (M-GAP-004)
+  - DATABASE_URL unset in this agent shell — paper persist + DB opportunity overlay ENVIRONMENT
 PRE-EXISTING:
-  - npm run lint: CommandCenter.tsx react-hooks/set-state-in-effect
-  - tests/test_config_validation.py NEXT_PUBLIC_AHOS_WEB_API_TOKEN Python-scan miss
-PASS_GATES (prior revision, still in tree):
-  - identity + security + pool gates on positive rec / alert / paper
-  - AI upgrade blocked on failed gates
-  - orchestrator wired; score-alone Telegram bypass closed
-  - pump_alert UNKNOWN+score bypass closed
-  - reasoningEngine classified presentation; web trees preserved and excluded from CC compile
-  - Lane A freeze OK (36) before this revision
-FAILED_GATES:
+  - npm run lint CommandCenter.tsx react-hooks/set-state-in-effect
+  - tests/test_config_validation.py::test_documented_keys_are_actually_read_or_legacy (NEXT_PUBLIC_AHOS_WEB_API_TOKEN is read in web_api_client.ts; Python scanner misses it)
+NEW failures this revision:
+  - none remaining after alertsAllowedFromCanonical selftest/typecheck fix
+ENVIRONMENT:
+  - validate_imports ARTIFACTS fail when __pycache__ exists after pytest; clean checkout + PYTHONDONTWRITEBYTECODE passes
+  - Next Turbopack NFT warning tracing canonical_read_model.ts filesystem path
+FAILED_GATES (phase cannot be VERIFIED/COMPLETE):
   - lint not green (PRE-EXISTING)
-  - full pytest not fully green (PRE-EXISTING config-doc fail)
-  - browser Command Center with live Postgres opportunity overlay: not yet VERIFIED
+  - full pytest not fully green (PRE-EXISTING config-doc)
+  - no GitHub CI
+  - live daemon + Postgres Command Center overlay missing
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
   - tests/test_canonical_decision_authority.py
   - tests/test_canonical_read_model.py
   - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: see later revision notes after pytest/typecheck/build/browser
+  - HEAD after this docs commit
+TEST_RESULTS: TARGETED PASS (238); FULL SUITE NOT PASS (1 PRE-EXISTING)
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
-  - engine.ts display ranks remain presentation-only
+  - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
-NEXT_UNLOCKED_PHASE: Phase 4 evidence/persistence only after Phase 3 mandatory gates actually pass
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.

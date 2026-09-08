@@ -57,7 +57,7 @@ function tokenKey(chain: string | null | undefined, address: string | null | und
 export function canonicalReadModelPath(): string {
   const env = (process.env.AHOS_CANONICAL_READ_MODEL || "").trim();
   if (env) return env;
-  return path.join(process.cwd(), "reports", "canonical_decision_read_model.json");
+  return path.join(/* turbopackIgnore: true */ process.cwd(), "reports", "canonical_decision_read_model.json");
 }
 
 export function unavailableModel(reason: string): CanonicalReadModel {
