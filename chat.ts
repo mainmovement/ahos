@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { desc } from "drizzle-orm";
-import { addPaper, addWatch, getState, startEngine, stopEngine } from "./engine";
+import { addPaper, addWatch, getState, startEngine, stopEngine, PaperSecurityDenied } from "./engine";
 import { faNumber, faPct, faUsd } from "./persian";
 import { commandSnapshot } from "./snapshot";
 import { FINAL_USER_LINE } from "./types";
@@ -90,19 +90,27 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       reply = "برای ثبت خرید کاغذی باید نماد مشخص باشه. خرید واقعی انجام نمی‌دم.";
     } else {
       const symbol = hit?.symbol || extractSymbol(text) || "UNKNOWN";
-      const row = await addPaper({
-        tokenKey: hit?.tokenKey || `manual:${symbol}`,
-        symbol,
-        chain: hit?.chain || "unknown",
-        address: hit?.address,
-        quantity: qty,
-        entryPrice: price,
-        thesisFa: `خرید کاغذی کاربر: ${text}`,
-        targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
-      });
-      reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت.`;
-      evidence.positionId = row.id;
-      if (hit) focus = hit.tokenKey;
+      try {
+        const row = await addPaper({
+          tokenKey: hit?.tokenKey || `manual:${symbol}`,
+          symbol,
+          chain: hit?.chain || "unknown",
+          address: hit?.address,
+          quantity: qty,
+          entryPrice: price,
+          thesisFa: `خرید کاغذی کاربر: ${text}`,
+          targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
+        });
+        reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت.`;
+        evidence.positionId = row.id;
+        if (hit) focus = hit.tokenKey;
+      } catch (err) {
+        if (err instanceof PaperSecurityDenied) {
+          reply = `خرید کاغذی ثبت نشد — دروازه امنیت PASS نیست (${err.canonicalSecurityState}).`;
+        } else {
+          reply = "خرید کاغذی ثبت نشد — خطا در ثبت. خرید واقعی انجام نشد.";
+        }
+      }
     }
   } else if (intent === "why" || intent === "token") {
     const hit = findOpp(snap, text, focus);

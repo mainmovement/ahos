@@ -18,12 +18,18 @@ import {
   tokens,
   watchlist,
 } from "@/db/schema";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { processOpportunityAlerts } from "./alerts";
+import {
+  attachCanonicalSecurityStates,
+  assessmentToOverlaySignals,
+  paperOpenDecision,
+  queryPythonOverlayStates,
+} from "./canonical_security";
 import { collectNews } from "./news";
 import { collectMarket, enrichPairs, fetchSecurity, mergePairs } from "./providers";
 import { rankOpportunities, scoreToken } from "./scoring";
-import type { Envelope, PairObservation, ScoredOpportunity } from "./types";
+import type { Envelope, PairObservation, ScoredOpportunity, SecurityAssessment } from "./types";
 
 /** Base interval; stays continuous until stop. */
 const INTERVAL_MS = 70_000;
@@ -353,14 +359,17 @@ export async function runCycle(reason: string) {
 
     // W45: critical opportunity alerts → web state + optional Telegram (env secrets only)
     let alertMeta: { count: number; telegramOk: number } = { count: 0, telegramOk: 0 };
+    // Canonical overlay (Python) must authorize Telegram opportunity alerts.
+    // Local scoring.ts OBSERVED/UNKNOWN is not PASS.
     try {
+      await attachCanonicalSecurityStates(ranked);
       const alertResult = await processOpportunityAlerts(ranked);
       alertMeta = {
         count: alertResult.emitted.length,
         telegramOk: alertResult.telegram.filter((t) => t.ok).length,
       };
     } catch {
-      /* alert path must never fail the cycle */
+      /* alert path must never fail the cycle; missing canonical ⇒ no alert */
     }
 
     await markPaperPrices(pairs);
@@ -669,6 +678,87 @@ export async function addWatch(input: {
     .where(eq(watchlist.tokenKey, input.tokenKey));
 }
 
+export class PaperSecurityDenied extends Error {
+  canonicalSecurityState: string;
+  constructor(canonicalSecurityState: string) {
+    super("SECURITY_GATE");
+    this.name = "PaperSecurityDenied";
+    this.canonicalSecurityState = canonicalSecurityState;
+  }
+}
+
+function reportRowToAssessment(row: {
+  provider: string;
+  status: string;
+  honeypot: string;
+  sellable: string;
+  mintable: string;
+  freezeable: string;
+  ownership: string;
+  summaryFa: string | null;
+}): SecurityAssessment {
+  const yn = (v: string): "YES" | "NO" | "UNKNOWN" =>
+    v === "YES" || v === "NO" ? v : "UNKNOWN";
+  const ownership =
+    row.ownership === "RENOUNCED" || row.ownership === "OPEN"
+      ? row.ownership
+      : "UNKNOWN";
+  const status = (row.status || "UNKNOWN") as SecurityAssessment["status"];
+  return {
+    provider: row.provider,
+    status,
+    honeypot: yn(row.honeypot),
+    sellable: yn(row.sellable),
+    mintable: yn(row.mintable),
+    freezeable: yn(row.freezeable),
+    ownership,
+    flags: [],
+    summaryFa: row.summaryFa || "",
+    raw: null,
+  };
+}
+
+export async function resolveCanonicalSecurityForPaper(input: {
+  tokenKey: string;
+}): Promise<unknown> {
+  try {
+    const rows = await db
+      .select()
+      .from(securityReports)
+      .where(eq(securityReports.tokenKey, input.tokenKey))
+      .orderBy(desc(securityReports.createdAt))
+      .limit(1);
+    const row = rows[0];
+    if (!row) return null;
+    const obsRows = await db
+      .select()
+      .from(observations)
+      .where(eq(observations.tokenKey, input.tokenKey))
+      .orderBy(desc(observations.createdAt))
+      .limit(1);
+    const pairAt = obsRows[0]?.pairCreatedAt;
+    const pairTs =
+      pairAt instanceof Date && Number.isFinite(pairAt.getTime())
+        ? pairAt.getTime() / 1000
+        : null;
+    const signals = assessmentToOverlaySignals(reportRowToAssessment(row));
+    delete signals.pair_created_at;
+    const nowSec = Date.now() / 1000;
+    const states = await queryPythonOverlayStates(
+      [{
+        tokenKey: input.tokenKey,
+        signals,
+        pair_created_ts: pairTs,
+        retrieved_ts: nowSec,
+      }],
+      nowSec,
+    );
+    return states[input.tokenKey] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function addPaper(input: {
   tokenKey: string;
   symbol: string;
@@ -679,6 +769,11 @@ export async function addPaper(input: {
   thesisFa?: string;
   targetPrice?: number | null;
 }) {
+  const state = await resolveCanonicalSecurityForPaper({ tokenKey: input.tokenKey });
+  const decision = paperOpenDecision(state);
+  if (!decision.ok) {
+    throw new PaperSecurityDenied(decision.canonicalSecurityState);
+  }
   const [row] = await db
     .insert(paperPositions)
     .values({

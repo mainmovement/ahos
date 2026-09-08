@@ -3,9 +3,13 @@
  * Writes reports/pump_alert_state.json for the web banner.
  * Optionally notifies Telegram when TELEGRAM_BOT_TOKEN + TELEGRAM_ALLOWED_CHAT_IDS are set.
  * Never hardcodes credentials. Never claims buy signals.
+ *
+ * Authorization: canonical Python overlay PASS only.
+ * Local scoring.ts labels (OBSERVED / UNKNOWN / HONEYPOT / empty) cannot authorize.
  */
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
+import { canonicalSecurityAllowsSideEffect } from "./canonical_security";
 import type { ScoredOpportunity } from "./types";
 
 const STATE_REL = path.join("reports", "pump_alert_state.json");
@@ -28,6 +32,7 @@ export type AlertPayload = {
   rankScore: number | null;
   confidence: string;
   securityStatus: string;
+  canonicalSecurityState: string | null;
   liquidityUsd: number | null;
   volume24h: number | null;
   priceUsd: number | null;
@@ -39,7 +44,20 @@ export type AlertPayload = {
   disclaimerFa: string;
 };
 
-async function loadState(): Promise<AlertState> {
+export type AlertTransport = {
+  send: (text: string) => Promise<{ ok: boolean; error?: string; sent?: number }>;
+};
+
+export type ProcessOpportunityAlertsOptions = {
+  nowSec?: number;
+  cooldownSec?: number;
+  scoreFloor?: number;
+  transport?: AlertTransport;
+  loadState?: () => Promise<AlertState>;
+  saveState?: (state: AlertState) => Promise<void>;
+};
+
+async function defaultLoadState(): Promise<AlertState> {
   try {
     const raw = await readFile(path.join(process.cwd(), STATE_REL), "utf8");
     const json = JSON.parse(raw) as AlertState;
@@ -49,28 +67,32 @@ async function loadState(): Promise<AlertState> {
   }
 }
 
-async function saveState(state: AlertState): Promise<void> {
+async function defaultSaveState(state: AlertState): Promise<void> {
   const dir = path.join(process.cwd(), "reports");
   await mkdir(dir, { recursive: true });
-  await writeFile(path.join(process.cwd(), STATE_REL), JSON.stringify(state, null, 2), "utf8");
+  await writeFile(
+    path.join(process.cwd(), STATE_REL),
+    JSON.stringify(state, null, 2),
+    "utf8",
+  );
 }
 
-function securityOk(status: string, rankScore: number | null): boolean {
-  const s = (status || "").toUpperCase();
-  if (["HONEYPOT", "REJECT", "FAIL", "DOWN"].includes(s)) return false;
-  if (s === "UNKNOWN") return rankScore != null && rankScore >= 0.8;
-  return true;
-}
-
-export function shouldAlertOpportunity(opp: ScoredOpportunity, state: AlertState): boolean {
+export function shouldAlertOpportunity(
+  opp: ScoredOpportunity,
+  state: AlertState,
+  opts?: { nowSec?: number; cooldownSec?: number; scoreFloor?: number },
+): boolean {
   if (opp.decision !== "WATCH") return false;
-  if (opp.rankScore == null || opp.rankScore < SCORE_FLOOR) return false;
-  if (!securityOk(opp.securityStatus, opp.rankScore)) return false;
+  const floor = opts?.scoreFloor ?? SCORE_FLOOR;
+  if (opp.rankScore == null || opp.rankScore < floor) return false;
+  if (!canonicalSecurityAllowsSideEffect(opp.canonicalSecurityState)) return false;
   if ((opp.token.liquidityUsd ?? 0) < 15_000 && opp.token.liquidityUsd != null) return false;
   if (opp.token.paidPromotion && (opp.token.liquidityUsd ?? 0) < 50_000) return false;
   const key = opp.token.tokenKey;
   const last = state.sent[key] || 0;
-  if (Date.now() / 1000 - last < COOLDOWN_SEC) return false;
+  const nowSec = opts?.nowSec ?? Date.now() / 1000;
+  const cooldown = opts?.cooldownSec ?? COOLDOWN_SEC;
+  if (nowSec - last < cooldown) return false;
   return true;
 }
 
@@ -84,6 +106,7 @@ export function buildAlertPayload(opp: ScoredOpportunity): AlertPayload {
     rankScore: opp.rankScore,
     confidence: opp.confidence,
     securityStatus: opp.securityStatus,
+    canonicalSecurityState: opp.canonicalSecurityState ?? null,
     liquidityUsd: opp.token.liquidityUsd,
     volume24h: opp.token.volume24h,
     priceUsd: opp.token.priceUsd,
@@ -105,7 +128,7 @@ function formatTelegramHtml(p: AlertPayload): string {
     "",
     `• نماد: <b>${escapeHtml(p.symbol)}</b> | زنجیره: ${escapeHtml(p.chain)}`,
     `• حکم: <b>${escapeHtml(p.decision)}</b> | امتیاز: ${score} | اطمینان: ${escapeHtml(p.confidence)}`,
-    `• امنیت: ${escapeHtml(p.securityStatus)}`,
+    `• امنیت (canonical): ${escapeHtml(p.canonicalSecurityState || "UNAVAILABLE")}`,
   ];
   if (p.priceUsd != null) lines.push(`• قیمت (شواهد): $${p.priceUsd}`);
   if (p.liquidityUsd != null) lines.push(`• نقدینگی: $${Math.round(p.liquidityUsd).toLocaleString("en-US")}`);
@@ -164,28 +187,37 @@ async function pushTelegram(text: string): Promise<{ ok: boolean; error?: string
 
 /**
  * After ranking: emit at most a few high-evidence WATCH alerts per cycle.
+ * Requires canonical overlay PASS. Local OBSERVED/UNKNOWN cannot authorize.
  */
 export async function processOpportunityAlerts(
   ranked: ScoredOpportunity[],
+  opts?: ProcessOpportunityAlertsOptions,
 ): Promise<{ emitted: AlertPayload[]; telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> }> {
-  const state = await loadState();
+  const nowSec = opts?.nowSec ?? Date.now() / 1000;
+  const state = await (opts?.loadState ?? defaultLoadState)();
   const emitted: AlertPayload[] = [];
   const telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> = [];
+  const transport = opts?.transport ?? { send: pushTelegram };
+  const gateOpts = {
+    nowSec,
+    cooldownSec: opts?.cooldownSec,
+    scoreFloor: opts?.scoreFloor,
+  };
 
   for (const opp of ranked) {
     if (emitted.length >= 3) break;
-    if (!shouldAlertOpportunity(opp, state)) continue;
+    if (!shouldAlertOpportunity(opp, state, gateOpts)) continue;
     const payload = buildAlertPayload(opp);
-    state.sent[payload.tokenKey] = Date.now() / 1000;
-    state.last_alert_at = Date.now() / 1000;
+    state.sent[payload.tokenKey] = nowSec;
+    state.last_alert_at = nowSec;
     state.last_token = payload.tokenKey;
     state.last_payload = payload;
     emitted.push(payload);
 
-    const tg = await pushTelegram(formatTelegramHtml(payload));
+    const tg = await transport.send(formatTelegramHtml(payload));
     telegram.push({ tokenKey: payload.tokenKey, ok: tg.ok, error: tg.error });
   }
 
-  if (emitted.length) await saveState(state);
+  if (emitted.length) await (opts?.saveState ?? defaultSaveState)(state);
   return { emitted, telegram };
 }

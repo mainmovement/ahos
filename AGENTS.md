@@ -20,8 +20,10 @@ positive-authority language may replace evidence.
   copy the evaluator), deterministic decisions, persistence, and provenance.
 - TypeScript/Next.js is an authenticated API, read model, and presentation
   surface. It must not create an independent recommendation authority.
-  Existing `scoring.ts` / `engine.ts` / `council.ts` / `alerts.ts` are a
-  documented dual-stack gap — do not widen them.
+  `scoring.ts` / `council.ts` remain non-authoritative analysis. Automatic
+  OPPORTUNITY Telegram (`alerts.ts`) and `POST /api/paper` OPEN must consume
+  canonical overlay PASS (`architecture/security/overlay_query.py`); they
+  must not treat local OBSERVED/UNKNOWN as security authority.
 - Telegram is an interaction edge; n8n is an automation edge.
 - Providers and AI are evidence/advisory inputs only. They cannot override
   identity conflict, security rejection, insufficient evidence, or canonical

@@ -152,24 +152,73 @@ must not become `False`.
 - `security_allows_paper_candidate` is the Lane B helper (PASS only). Frozen
   `paper_trading/**` still uses Lane A verdict names internally and is not
   edited.
+- TypeScript automatic OPPORTUNITY (`alerts.ts` / `processOpportunityAlerts`)
+  requires `canonicalSecurityState === PASS` from Python `overlay_query`.
+  Local `OBSERVED` / `UNKNOWN` / empty cannot authorize Telegram.
+- `POST /api/paper` → `addPaper` requires the same overlay PASS. Client-supplied
+  `canonicalSecurityState` is ignored. Missing/malformed/unavailable → 403
+  `SECURITY_GATE`.
 
 ---
 
-## Bypass audit (Python Lane B)
+## TypeScript side-effect closure (this revision)
 
-| PATH | SOURCE | SECURITY GATE | CAN BYPASS? | RESULT |
-|------|--------|---------------|-------------|--------|
-| Advisor ENTER | `architecture/decision/advisor.py` GATE 1 | overlay PASS | No | AVOID otherwise |
-| Opportunity alert | `architecture/alerts/engine.py` | `security_allows_alert` | No | no OPPORTUNITY |
-| Pipeline «فرصت ویژه» | `architecture/pipeline/orchestrator.py` | `evaluate_security_from_candidate` | No (fixed this revision) | no send |
-| Pump Telegram | `telegram_ai/pump_alert.py` | `securityStatus == PASS` | No (fixed this revision) | None |
-| Paper helper | `security_allows_paper_candidate` | PASS only | No | helper false |
-| Lane A paper_trading | frozen internals | Lane A evaluate | N/A (frozen; not Lane B authority) | documented limitation |
-| TS `scoring.ts` / `alerts.ts` / Command Center | dual-stack presentation | not Python overlay | Classified **non-authoritative**; do not widen (Phase 3+) | not a Phase 2 merge of #64 |
+The Python overlay was already fail-closed. The live TypeScript path was not:
+
+```
+engine.ts runCycle
+  → scoreToken (local securityStatus: HONEYPOT | OBSERVED | UNKNOWN)
+  → processOpportunityAlerts(ranked)
+  → former securityOk() allowed UNKNOWN+high score, OBSERVED, empty, INCOMPLETE, STALE
+  → Telegram + reports/pump_alert_state.json
+```
+
+That `securityOk` function is **removed**. `engine.ts` now:
+
+1. `attachCanonicalSecurityStates(ranked)` — spawn Lane B
+   `python -m architecture.security.overlay_query` (consumes `evaluate_security`,
+   does not copy `evaluate()`).
+2. `processOpportunityAlerts` — `canonicalSecurityAllowsSideEffect` is true
+   **only** for overlay `PASS`.
+
+Anything else (REJECT, INCOMPLETE, STALE, UNKNOWN, OBSERVED, missing,
+malformed, spawn/API unavailable) → no OPPORTUNITY payload and no Telegram send.
+
+`scoring.ts` may still label OBSERVED/UNKNOWN for display. That is analysis,
+not authorization.
+
+`POST /api/paper` and chat `paper_buy` call `addPaper`, which queries the same
+overlay and throws `PaperSecurityDenied` unless PASS.
+
+Adapter: `architecture/security/overlay_query.py` + `canonical_security.ts`.
+The adapter maps JSON booleans onto `SecuritySignals` (strings such as `"YES"`
+stay None) and returns `overlay.state`. It does not re-evaluate honeypot/tax/mint.
+
+Typical GoPlus-only TypeScript snapshots remain INCOMPLETE (missing tax, LP lock,
+blacklist, deployer). That is fail-closed consumption, not a deleted alert path.
+A complete overlay signal set with pool age can still PASS and emit.
+
+---
+
+## Bypass audit (Python Lane B + live TypeScript side effects)
+
+| PATH | AUTHORITY | SECURITY GATE | CAN BYPASS? | RESULT |
+|------|-----------|---------------|-------------|--------|
+| Advisor ENTER | Python overlay | GATE 1 PASS | No | AVOID otherwise |
+| Opportunity alert | Python overlay | `security_allows_alert` | No | no OPPORTUNITY |
+| Pipeline «فرصت ویژه» | Python overlay | `evaluate_security_from_candidate` | No | no send |
+| Pump Telegram | Python overlay | `securityStatus == PASS` | No | None |
+| Paper helper | Python overlay | `security_allows_paper_candidate` | No | helper false |
+| Lane A paper_trading | frozen Lane A | `evaluate_entry` treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY | FROZEN LANE-A LIMITATION | do not edit this phase |
+| TS `processOpportunityAlerts` | Python overlay via `overlay_query` | `canonicalSecurityState === PASS` | No (closed this revision) | no Telegram |
+| TS `POST /api/paper` / `addPaper` | Python overlay via `overlay_query` | `paperOpenDecision` PASS | No (closed this revision) | 403 SECURITY_GATE |
+| TS `scoring.ts` / `council.ts` | local analysis | none (not a side-effect authorizer) | N/A | display only |
+| TS `addWatch` / findings OPEN | operator watch / findings | not paper OPEN / not OPPORTUNITY Telegram | N/A | not this bypass |
+| SQLite `pair_created_ts` drop | persistence | missing age → overlay INCOMPLETE | No (fail-closed) | do not redesign this phase |
 | Score ledger / whales BUY labels | scoring / intel | not a recommendation | N/A | not eligibility |
 
-High opportunity + low risk without security PASS cannot produce ENTER,
-OPPORTUNITY, or the special Telegram card on Python paths.
+High opportunity + local OBSERVED/UNKNOWN without overlay PASS cannot produce
+a TypeScript OPPORTUNITY Telegram or paper OPEN.
 
 ---
 
@@ -188,43 +237,54 @@ PASS_GATES:
   - DEXTools proxy does not invent ownership_renounced
   - collector observation hop preserves `pair_created_ts` in memory so Lane A
     LP age is not silently dropped (missing age remains INCOMPLETE)
-  - opportunity alerts and pipeline/pump Telegram require PASS
+  - Python opportunity alerts and pipeline/pump Telegram require PASS
+  - TypeScript processOpportunityAlerts requires overlay PASS (no securityOk)
+  - POST /api/paper OPEN requires overlay PASS (client state ignored)
   - Lane A freeze OK (36) before and after
   - no Lane A files in diff
-FAILED_GATES: none for the Python overlay scope of this revision
+FAILED_GATES: none for the overlay + TS side-effect gates of this revision
   (full pytest: 1 PRE-EXISTING config-doc scanner miss, not overlay)
 BLOCKERS:
-  - none that block overlay VERIFIED
+  - none that block this security-closure revision
 KNOWN_LIMITATIONS:
-  - TS scoring.ts / engine.ts / council.ts / alerts.ts remain dual-stack
-    (non-authoritative presentation; not closed in this PR)
-  - paper_trading still speaks Lane A verdict names internally (frozen)
-  - security_allows_paper_candidate is the Lane B helper; not spliced into
-    frozen paper_trading
-  - npm typecheck/lint/build not a merge gate (no canonical web change)
+  - TS scoring.ts / council.ts remain dual-stack analysis (not security authority)
+  - FROZEN LANE-A LIMITATION: paper_trading.entry_rules.evaluate_entry still
+    treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY (do not edit Lane A)
+  - SQLite production_observations still does not persist pair_created_ts;
+    reload → INCOMPLETE (fail-closed; not redesigned here)
+  - GoPlus-only TS snapshots typically cannot overlay-PASS (missing tax/lock);
+    alerts/paper OPEN stay denied until canonical evidence is complete
+  - Phase 2 is NOT production-ready merely because this patch passes
 EVIDENCE:
   - docs/engineering/PHASE2_SECURITY_GATE.md (this file)
   - architecture/security/gate.py POLICY_VERSION=security-overlay-v2
-  - pytest tests/test_canonical_security_gate.py (adversarial + provider)
-  - advisor / alerts / pipeline / isolation / provider resilience tests
+  - architecture/security/overlay_query.py (JSON adapter)
+  - canonical_security.ts / alerts.ts / engine.ts addPaper / app/api/paper
+  - pytest tests/test_canonical_security_gate.py + test_overlay_query.py
+  - npm run test:canonical-security (Telegram mock side effects)
   - python3 -B scripts/freeze_lane_a.py
   - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py
-TEST_RESULTS: freeze 36 OK; validate_imports PASSED (179 modules, clean tree);
-  targeted 239 passed; full pytest 1593 passed, 3 skipped, 1 failed
+TEST_RESULTS: freeze 36 OK before and after this revision; validate_imports
+  PASSED (180 modules, clean tree); targeted overlay/paper/alert tests passed;
+  npm run test:canonical-security 15 passed (Telegram mocked + live overlay_query);
+  full pytest 1607 passed, 3 skipped, 1 failed
   (PRE-EXISTING: tests/test_config_validation.py::test_documented_keys_are_actually_read_or_legacy
   — NEXT_PUBLIC_AHOS_WEB_API_TOKEN is read in web_api_client.ts; Python scanner
   misses it; not faked in this PR)
-REGRESSIONS: pipeline fixtures require overlay PASS for فرصت ویژه;
-  RugCheck empty risks no longer infers mint/freeze False
+  npm run typecheck: PRE-EXISTING failures in uploaded parallel frontends
+  (advanced-3d-audiovisual-website*); patched AHOS files are not in that list
+REGRESSIONS: TS UNKNOWN/OBSERVED no longer authorize Telegram; paper OPEN
+  without overlay PASS returns 403 SECURITY_GATE
 NEXT_UNLOCKED_PHASE: Phase 3 remains a separate PR (#64). This document does
   not unlock merge of #63 or start Phase 4.
 ```
 
-VERIFIED here means the Python overlay architecture, fail-closed semantics,
-lane isolation, drift tests, and verification commands support the claim.
-It does **not** mean OPERATOR_READY / PRODUCTION_READY, and it is **not**
-COMPLETE: dual-stack TS and frozen paper_trading internals remain, and this
-PR stays draft until human review.
+VERIFIED here means the Python overlay plus the TypeScript alert/paper OPEN
+boundaries consume canonical PASS and fail closed. It does **not** mean
+OPERATOR_READY / PRODUCTION_READY, and it is **not** COMPLETE: frozen
+paper_trading internals, pair_created_ts SQLite persistence, and remaining
+TypeScript analysis dual-stack are known limitations. This PR stays draft
+until human review.
 
 ---
 
@@ -234,7 +294,9 @@ PR stays draft until human review.
 - Fail-closed mapping and extras
 - Provider missing-field normalization on GoPlus / RugCheck / DEXTools
 - Advisor GATE 1, AlertEngine, pipeline Telegram, pump_alert PASS requirement
+- TypeScript OPPORTUNITY Telegram and API paper OPEN requiring overlay PASS
 - Drift tests vs frozen Lane A without editing Lane A
 
 Not in this phase: merging #63/#64; Phase 3 canonical decision authority;
-TypeScript dual-stack closure; regenerating Lane A hashes.
+editing frozen `paper_trading`; persisting `pair_created_ts` in SQLite;
+regenerating Lane A hashes; claiming production readiness.

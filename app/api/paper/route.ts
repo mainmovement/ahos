@@ -1,5 +1,5 @@
 import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
-import { addPaper } from "@/engine";
+import { addPaper, PaperSecurityDenied } from "@/engine";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,10 @@ export async function POST(req: Request) {
       entryPrice?: number;
       thesisFa?: string;
       targetPrice?: number;
+      canonicalSecurityState?: unknown;
     };
+    // Client-supplied canonicalSecurityState is ignored (not authority).
+    void body.canonicalSecurityState;
     if (!body.tokenKey || !body.symbol || !body.chain) {
       return Response.json({ ok: false, error: "INSUFFICIENT_EVIDENCE" }, { status: 400 });
     }
@@ -32,6 +35,16 @@ export async function POST(req: Request) {
     });
     return Response.json({ ok: true, mode: "PAPER_ONLY", id: row.id });
   } catch (error) {
+    if (error instanceof PaperSecurityDenied) {
+      return Response.json(
+        {
+          ok: false,
+          error: "SECURITY_GATE",
+          canonicalSecurityState: error.canonicalSecurityState,
+        },
+        { status: 403 },
+      );
+    }
     return Response.json(
       { ok: false, error: sanitizePublicError(error) },
       { status: 500 },
