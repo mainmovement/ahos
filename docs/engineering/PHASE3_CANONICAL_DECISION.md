@@ -1,7 +1,7 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
 **Branch:** `cursor/phase3-canonical-decision-9500`  
-**Stacked on:** Phase 2 `cursor/phase2-security-gate-9500` (`711bcd3`, PR #63 draft)  
+**Stacked on:** `origin/main` after PR #64 merge; overlay-v2 reconcile lands in a follow-up PR (do not merge conflicting #63).  
 **Date:** 2026-09-08  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
@@ -204,7 +204,7 @@ NOT VERIFIED:
   - Isolated loading-flash screenshot (page loaded before capture)
   - OPERATIONAL product runtime (no Postgres, start.sh does not start Next)
 BLOCKED:
-  - PR #63 still OPEN DRAFT; do not auto-merge; #64 remains stacked on 711bcd3
+  - PR #63 is CONFLICTING/SUPERSEDED after #64 merged first; overlay-v2 must land via a new PR on current main
   - GitHub Actions CI workflow absent (M-GAP-004)
   - DATABASE_URL unset in this agent shell — paper persist + DB opportunity overlay ENVIRONMENT
 PRE-EXISTING:

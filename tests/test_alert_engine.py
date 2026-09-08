@@ -10,7 +10,7 @@ import pytest
 from architecture.alerts.engine import AlertEngine
 from architecture.scoring.engine import OpportunityScorer
 from architecture.providers.contracts import NormalizedTokenCandidate, MarketMetrics, SecuritySignals
-from tests.helpers_security import passing_security_signals
+from tests.helpers_security import OLD_POOL_TS, passing_security_signals
 from tests.helpers_identity import verified_pool_identity_fixture
 from architecture.scheduling.engine import ProductionScheduler, ScheduleTask
 from architecture.security import sanitize_secrets, sanitize_dict, assert_safe_environment
@@ -38,7 +38,8 @@ def test_alert_engine_opportunity_trigger():
             is_ownership_renounced=True,
         ),
         source_provider="dexscreener",
-        retrieved_ts=time.time()
+        retrieved_ts=time.time(),
+        pair_created_ts=OLD_POOL_TS,
     )
     scorer = OpportunityScorer()
     rep = scorer.evaluate(cand)

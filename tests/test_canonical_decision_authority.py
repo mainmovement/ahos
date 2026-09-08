@@ -400,8 +400,13 @@ def test_scoring_ts_requires_canonical_backend_for_watch():
 def test_alerts_ts_unknown_security_cannot_alert():
     src = (ROOT / "alerts.ts").read_text(encoding="utf-8")
     assert "rankScore >= 0.8" not in src
-    assert "UNKNOWN" in src
-    assert "INCOMPLETE" in src
+    assert "function securityOk" not in src
+    assert "canonicalSecurityAllowsSideEffect" in src
+    assert "alertsAllowedFromCanonical" in src
+    gate = (ROOT / "canonical_security.ts").read_text(encoding="utf-8")
+    assert "INCOMPLETE" in gate
+    assert 'parseCanonicalSecurityState(raw) === "PASS"' in gate or \
+        "parseCanonicalSecurityState(raw) === 'PASS'" in gate
 
 
 def test_reasoning_engine_is_classified_as_presentation():

@@ -123,6 +123,13 @@ def test_unknown_audit_flags_stay_unknown(raw, expected):
     assert r.tokens[0].security.is_honeypot is expected
 
 
+def test_dextools_proxy_does_not_invent_ownership_renounced():
+    a = DEXToolsAdapter(api_key="k", transport=_transport({"data": {"isProxy": "no"}}))
+    sec = a.fetch_token_metrics("ethereum", "0xabc").tokens[0].security
+    assert sec.is_proxy is False
+    assert sec.is_ownership_renounced is None
+
+
 def test_audit_taxes_are_normalized_to_percent():
     a = DEXToolsAdapter(api_key="k", transport=_transport(
         {"data": {"buyTax": 0.05, "sellTax": 12.0}}))

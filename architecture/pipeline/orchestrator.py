@@ -123,6 +123,7 @@ class OpportunityPipelineOrchestrator:
                 source_provider=r.provider_source,
                 retrieved_ts=r.retrieved_ts,
                 raw_payload_sha256=r.raw_evidence_hash,
+                pair_created_ts=getattr(r, "pair_created_ts", None),
                 # Paid-promotion spend, when the observation carried it
                 # (boost feed); None stays None -> virality evidence reports
                 # promotion status UNKNOWN, never a fabricated False.
@@ -243,8 +244,7 @@ class OpportunityPipelineOrchestrator:
                         self.telegram_adapter.send_message(self.target_chat_id, msg_text)
                         messages_sent += 1
 
-                # If top opportunity is a canonical BUY, send summary.
-                # Score alone (even >= 75) is not a Telegram recommendation.
+                # Canonical BUY only (implies overlay PASS). Score ≥ 75 is not enough.
                 if top_opp and top_canonical and top_canonical.alerts_allowed:
                     matching_cand = next((c for c in candidates if c.address == top_opp.token_address), None)
                     card_text = format_opportunity_response(top_opp, matching_cand)

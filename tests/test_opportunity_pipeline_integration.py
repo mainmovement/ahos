@@ -19,7 +19,7 @@ from architecture.providers.contracts import NormalizedTokenCandidate, MarketMet
 from architecture.providers.registry import ProviderRouter
 from telegram_ai.adapter import MockTelegramAdapter
 from telegram_ai.response_contract import FOOTER_MANDATED
-from tests.helpers_security import passing_security_signals
+from tests.helpers_security import OLD_POOL_TS, passing_security_signals
 from tests.helpers_identity import verified_pool_identity_fixture
 
 
@@ -47,6 +47,7 @@ def test_full_pipeline_orchestration_high_opportunity(tmp_path):
         name="Alpha Gem",
         source_provider="dexscreener",
         retrieved_ts=time.time(),
+        pair_created_ts=OLD_POOL_TS,
         metrics=MarketMetrics(
             price_usd=0.10,
             liquidity_usd=80000.0,
@@ -148,3 +149,37 @@ def test_full_pipeline_honeypot_detection_and_security_alert(tmp_path):
     # Telegram received security alert
     assert any("رویداد امنیتی" in msg["text"] or "Honeypot" in msg["text"]
                for msg in telegram_adapter.sent_messages)
+    assert not any("فرصت ویژه" in (msg.get("text") or "") for msg in telegram_adapter.sent_messages)
+
+
+def test_pipeline_score_alone_does_not_send_special_telegram(tmp_path):
+    """High score + incomplete security must not mint Telegram فرصت ویژه."""
+    db_file = tmp_path / "test_pipe_score_only.sqlite"
+    telegram_adapter = MockTelegramAdapter()
+    cand = NormalizedTokenCandidate(
+        chain="solana",
+        address="SolanaAlpha11111111111111111111111111111",
+        symbol="ALPHA",
+        name="Alpha Gem",
+        source_provider="dexscreener",
+        retrieved_ts=time.time(),
+        metrics=MarketMetrics(
+            price_usd=0.10, liquidity_usd=80000.0, volume_1h=40000.0,
+            volume_velocity=3.2, txns_1h_buys=90, txns_1h_sells=20,
+        ),
+        security=SecuritySignals(is_honeypot=False),
+    )
+    router = ProviderRouter()
+    router.providers["dexscreener"] = MockDiscoveryProvider("dexscreener", [cand])
+    router.providers["geckoterminal"] = MockDiscoveryProvider("geckoterminal", [])
+    orchestrator = OpportunityPipelineOrchestrator(
+        collector=CollectorEngine(db_path=str(db_file), router=router),
+        scorer=OpportunityScorer(),
+        alert_engine=AlertEngine(score_threshold=1.0),
+        telegram_adapter=telegram_adapter,
+        target_chat_id=123456,
+    )
+    report = orchestrator.run_pipeline(chain="solana", limit=5)
+    assert report.top_opportunity is not None
+    assert not any("فرصت ویژه" in (msg.get("text") or "") for msg in telegram_adapter.sent_messages)
+    assert not any(a.cls == "OPPORTUNITY" for a in report.alerts)

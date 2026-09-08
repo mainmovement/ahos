@@ -172,6 +172,8 @@ export type ScoredOpportunity = {
   rankScore: number | null;
   confidence: Confidence;
   securityStatus: string;
+  /** Python overlay state. Absent/null is not PASS. Never use local OBSERVED/UNKNOWN as a substitute. */
+  canonicalSecurityState?: string | null;
   evidenceCoverage: number;
   reasonsFa: string[];
   risksFa: string[];
