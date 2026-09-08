@@ -489,11 +489,13 @@ def test_pump_alert_unknown_or_reject_cannot_fire(monkeypatch, tmp_path):
         "chain": "solana",
         "rankScore": 90,
         "decision": "WATCH",
+        "canonicalOutcome": "BUY",
     }
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": "UNKNOWN"}) is None
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": "INCOMPLETE"}) is None
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": "STALE"}) is None
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": "REJECT"}) is None
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": ""}) is None
+    assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": "PASS", "canonicalOutcome": "WATCH"}) is None
     sent = pump_alert.maybe_alert_opportunity({**base, "securityStatus": "PASS"})
     assert sent is not None

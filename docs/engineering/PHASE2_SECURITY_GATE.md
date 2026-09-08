@@ -1,28 +1,27 @@
 # AHOS Phase 2 — Security gate overlay
 
-**Base:** `origin/main` after PR #62 merge plus later Windows/upload commits.  
-**Branch:** `cursor/phase2-security-gate-9500`  
-**PR:** #63 (OPEN / DRAFT; do not merge from this session)  
-**HEAD at this revision:** see git on the branch (policy `security-overlay-v2`)  
+**Base (this reconcile):** `origin/main` after PR #64 merge (`e8a775e`).  
+**Branch:** `cursor/reconcile-overlay-v2-on-phase3-9500`  
+**Supersedes:** PR #63 (`cursor/phase2-security-gate-9500`) which is now CONFLICTING because #64 merged first.  
+**HEAD:** see git on this branch (policy `security-overlay-v2`)  
 **Classification:** `INTEGRATION_READY` (unchanged).  
-**Lane A freeze:** 36 files pinned — verified before and after this revision.
+**Lane A freeze:** 36 files pinned — verify with `python3 -B scripts/freeze_lane_a.py`.
 
 Does **not** edit frozen `discovery/security_gate.py` or `paper_trading/security_multi.py`.
 Lane A enums remain `SECURITY_VETO` / `PASS_WITH_UNKNOWN` / `PASS`.
 
 ---
 
-## Reality notes (this session)
+## Reality notes (live, 2026-09-08)
 
-- PR #62 (Phase 0–1) is **MERGED**. Identity overlay is on `main`.
-- PR #64 (Phase 3) depends on this overlay historically; this task does **not**
-  modify or merge #64.
-- `G:\robat\ahos\cursor\slills` is **not in this repository**. Canonical skills
-  are `.cursor/skills/`.
-- Uploaded `advanced-3d-audiovisual-website/` on `main` is a parallel frontend,
-  not wired as authority.
-- An earlier Phase 2 draft copied `evaluate()` into `_lane_a_evaluate()` and
-  claimed COMPLETE. That copy is **removed**. Status below is re-evaluated.
+- PR #62 (Phase 0–1) is **MERGED**.
+- PR #64 (Phase 3 PARTIAL) is **MERGED** onto `main` **before** the overlay-v2
+  closure. `main` therefore had `_lane_a_evaluate` (security-overlay-v1 copy)
+  plus Phase 3 canonical decision. That copy is removed on this branch.
+- PR #63 is **OPEN / CONFLICTING / SUPERSEDED** by this reconcile. Do not merge #63.
+- TypeScript alerts now require **both** Python `alerts_allowed` (BUY) and
+  overlay PASS. Paper OPEN requires **both** `paper_allowed` and overlay PASS.
+- Uploaded `advanced-3d-audiovisual-website/` remains a parallel frontend.
 
 ---
 
