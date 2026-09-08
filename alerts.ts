@@ -6,7 +6,14 @@
  */
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
+import {
+  alertsAllowedFromCanonical,
+  displayDecision,
+  loadCanonicalReadModel,
+  lookupCanonicalRow,
+} from "./canonical_read_model";
 import type { ScoredOpportunity } from "./types";
+import type { CanonicalReadModel } from "./canonical_read_model";
 
 const STATE_REL = path.join("reports", "pump_alert_state.json");
 const COOLDOWN_SEC = Number(process.env.AHOS_ALERT_COOLDOWN_SEC || "900");
@@ -55,15 +62,16 @@ async function saveState(state: AlertState): Promise<void> {
   await writeFile(path.join(process.cwd(), STATE_REL), JSON.stringify(state, null, 2), "utf8");
 }
 
-function securityOk(status: string, rankScore: number | null): boolean {
+function securityOk(status: string, _rankScore: number | null): boolean {
   const s = (status || "").toUpperCase();
-  if (["HONEYPOT", "REJECT", "FAIL", "DOWN"].includes(s)) return false;
-  if (s === "UNKNOWN") return rankScore != null && rankScore >= 0.8;
+  if (["HONEYPOT", "REJECT", "FAIL", "DOWN", "UNKNOWN", "INCOMPLETE", "STALE"].includes(s)) return false;
+  if (s === "UNKNOWN") return false;
   return true;
 }
 
-export function shouldAlertOpportunity(opp: ScoredOpportunity, state: AlertState): boolean {
-  if (opp.decision !== "WATCH") return false;
+export function shouldAlertOpportunity(opp: ScoredOpportunity, state: AlertState, model: CanonicalReadModel): boolean {
+  // Opportunity alerts require Python alerts_allowed (BUY). TS WATCH is not enough.
+  if (!alertsAllowedFromCanonical(model, opp.token.chain, opp.token.address)) return false;
   if (opp.rankScore == null || opp.rankScore < SCORE_FLOOR) return false;
   if (!securityOk(opp.securityStatus, opp.rankScore)) return false;
   if ((opp.token.liquidityUsd ?? 0) < 15_000 && opp.token.liquidityUsd != null) return false;
@@ -163,19 +171,23 @@ async function pushTelegram(text: string): Promise<{ ok: boolean; error?: string
 }
 
 /**
- * After ranking: emit at most a few high-evidence WATCH alerts per cycle.
+ * After ranking: emit at most a few canonical BUY alerts per cycle.
+ * Python alerts_allowed is required; TS WATCH/PAPER_CANDIDATE cannot mint this.
  */
 export async function processOpportunityAlerts(
   ranked: ScoredOpportunity[],
 ): Promise<{ emitted: AlertPayload[]; telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> }> {
   const state = await loadState();
+  const model = await loadCanonicalReadModel();
   const emitted: AlertPayload[] = [];
   const telegram: Array<{ tokenKey: string; ok: boolean; error?: string }> = [];
 
   for (const opp of ranked) {
     if (emitted.length >= 3) break;
-    if (!shouldAlertOpportunity(opp, state)) continue;
+    if (!shouldAlertOpportunity(opp, state, model)) continue;
+    const row = lookupCanonicalRow(model, opp.token.chain, opp.token.address);
     const payload = buildAlertPayload(opp);
+    payload.decision = displayDecision(row, model.status);
     state.sent[payload.tokenKey] = Date.now() / 1000;
     state.last_alert_at = Date.now() / 1000;
     state.last_token = payload.tokenKey;

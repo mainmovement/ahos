@@ -4,7 +4,7 @@
 This is where a mistake costs real money, so the gates are pinned hard:
 
   GATE 0  canonical identity -> AVOID unless token state is VERIFIED
-  GATE 1  security veto  -> AVOID, unconditionally
+  GATE 1  security overlay PASS/REJECT/INCOMPLETE/STALE; only PASS may ENTER
   GATE 2  exitability    -> cannot get out => never go in
   GATE 3  liquidity floor
   GATE 4  score + evidence modifiers
@@ -36,6 +36,7 @@ from architecture.providers.contracts import (  # noqa: E402
 )
 from paper_trading.exit_rules import EXIT_V1  # noqa: E402
 from tests.helpers_identity import verified_identity_fixture  # noqa: E402
+from tests.helpers_security import passing_security_signals  # noqa: E402
 
 
 def _healthy_metrics(**over):
@@ -48,12 +49,7 @@ def _healthy_metrics(**over):
 
 
 def _healthy_security(**over):
-    d = dict(is_honeypot=False, sell_tax_pct=1.0, buy_tax_pct=1.0,
-             liquidity_locked_pct=95.0, has_mint_authority=False,
-             has_freeze_authority=False, is_contract_verified=True,
-             top10_holder_concentration_pct=20.0)
-    d.update(over)
-    return SecuritySignals(**d)
+    return passing_security_signals(**over)
 
 
 def _cand(metrics=None, security=None, symbol="TOK"):

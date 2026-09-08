@@ -16,6 +16,7 @@ approvals drown a lens shouting 'honeypot'.
 from __future__ import annotations
 
 import json
+import time
 
 import pytest
 
@@ -33,6 +34,7 @@ from architecture.scoring.engine import OpportunityScorer
 from architecture.intel.exitability import ExitabilityAnalyzer
 from architecture.intel.viral import ViralityTracker
 from tests.helpers_identity import verified_identity_fixture
+from tests.helpers_security import passing_security_signals
 
 
 def make(symbol="TOK", **kw):
@@ -41,15 +43,11 @@ def make(symbol="TOK", **kw):
         volume_5m=5_000.0, volume_1h=40_000.0,
         txns_5m_buys=30, txns_5m_sells=25,
         txns_1h_buys=400, txns_1h_sells=380, price_change_1h=8.0)
-    security = kw.pop("security", None) or SecuritySignals(
-        is_honeypot=False, sell_tax_pct=1.0, buy_tax_pct=1.0,
-        has_mint_authority=False, has_freeze_authority=False,
-        is_contract_verified=True, top10_holder_concentration_pct=22.0,
-        deployer_past_rug_count=0)
+    security = kw.pop("security", None) or passing_security_signals()
     c = NormalizedTokenCandidate(
         chain="solana", address=kw.pop("address", "a1"), symbol=symbol,
         name=symbol, metrics=metrics, security=security,
-        source_provider="test", retrieved_ts=0.0)
+        source_provider="test", retrieved_ts=kw.pop("retrieved_ts", time.time()))
     c.identify_unknowns()
     return c
 
@@ -305,12 +303,24 @@ def test_no_lens_invents_a_metric_it_was_not_given(lens_id, fn):
 
 # ------------------------------------------------------- advisor coupling --
 
-def test_panel_veto_blocks_entry_in_the_advisor():
+def test_incomplete_security_blocks_entry_before_panel():
     from architecture.decision.advisor import DecisionAdvisor
     ctx = full_ctx(EMPTY)
-    panel = CognitivePanel().deliberate(EMPTY, **ctx)
     advice = DecisionAdvisor().advise_entry(
-        EMPTY, ctx["score_report"], panel=panel,
+        EMPTY, ctx["score_report"], panel=CognitivePanel().deliberate(EMPTY, **ctx),
+        identity=verified_identity_fixture())
+    assert advice.action == "AVOID"
+    assert advice.security_state == "INCOMPLETE"
+
+
+def test_panel_veto_blocks_entry_in_the_advisor():
+    from architecture.decision.advisor import DecisionAdvisor
+    ctx = full_ctx(HEALTHY)
+    scam_panel = CognitivePanel().deliberate(SCAM, **full_ctx(SCAM))
+    assert scam_panel.is_blocking
+    advice = DecisionAdvisor().advise_entry(
+        HEALTHY, ctx["score_report"], panel=scam_panel,
+        exitability=ctx["exitability"],
         identity=verified_identity_fixture())
     assert advice.action == "AVOID"
     assert any("شورای تحلیلی" in v for v in advice.hard_vetoes)

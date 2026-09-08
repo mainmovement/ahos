@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { addPaper, addWatch, getState, startEngine, stopEngine } from "./engine";
+import { loadCanonicalReadModel, paperAllowedFromCanonical } from "./canonical_read_model";
 import { faNumber, faPct, faUsd } from "./persian";
 import { commandSnapshot } from "./snapshot";
 import { FINAL_USER_LINE } from "./types";
@@ -44,7 +45,8 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     reply = marketReply(snap);
   } else if (intent === "opportunities") {
     reply = oppReply(snap);
-    const top = snap.opportunities.find((o) => o.decision === "WATCH");
+    const top = snap.opportunities.find((o) => o.decision === "BUY")
+      || snap.opportunities.find((o) => o.decision === "WATCH" || o.decision === "MONITOR_ONLY");
     if (top) focus = top.tokenKey;
   } else if (intent === "news") {
     reply = newsReply(snap, text);
@@ -89,20 +91,26 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     if (!hit && !extractSymbol(text)) {
       reply = "برای ثبت خرید کاغذی باید نماد مشخص باشه. خرید واقعی انجام نمی‌دم.";
     } else {
-      const symbol = hit?.symbol || extractSymbol(text) || "UNKNOWN";
-      const row = await addPaper({
-        tokenKey: hit?.tokenKey || `manual:${symbol}`,
-        symbol,
-        chain: hit?.chain || "unknown",
-        address: hit?.address,
-        quantity: qty,
-        entryPrice: price,
-        thesisFa: `خرید کاغذی کاربر: ${text}`,
-        targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
-      });
-      reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت.`;
-      evidence.positionId = row.id;
-      if (hit) focus = hit.tokenKey;
+      const model = await loadCanonicalReadModel();
+      if (!paperAllowedFromCanonical(model, hit?.chain, hit?.address || null)) {
+        reply =
+          "خرید کاغذی ثبت نشد — CANONICAL_PAPER_DENIED. فقط حکم BUY کانونیکال پایتون اجازه ثبت کاغذی می‌دهد. لایه گفتگو تصمیم نمی‌سازد.";
+      } else {
+        const symbol = hit?.symbol || extractSymbol(text) || "UNKNOWN";
+        const row = await addPaper({
+          tokenKey: hit?.tokenKey || `manual:${symbol}`,
+          symbol,
+          chain: hit?.chain || "unknown",
+          address: hit?.address,
+          quantity: qty,
+          entryPrice: price,
+          thesisFa: `خرید کاغذی کاربر: ${text}`,
+          targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
+        });
+        reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت.`;
+        evidence.positionId = row.id;
+        if (hit) focus = hit.tokenKey;
+      }
     }
   } else if (intent === "why" || intent === "token") {
     const hit = findOpp(snap, text, focus);
@@ -197,7 +205,7 @@ function detectIntent(text: string): string {
 
 function greetingReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
   const running = snap.state?.running;
-  const n = snap.opportunities?.filter((o) => o.decision === "WATCH").length ?? 0;
+  const n = snap.opportunities?.filter((o) => o.decision === "BUY" || o.decision === "WATCH" || o.decision === "MONITOR_ONLY").length ?? 0;
   return [
     "سلام! من AHOS هستم — همون همکار صریح که حدس رو جای داده نمی‌ذاره.",
     running
@@ -237,19 +245,50 @@ function marketReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string 
 }
 
 function oppReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  const list = snap.opportunities.filter((o) => o.decision === "WATCH").slice(0, 5);
-  const rejected = snap.opportunities.filter((o) => o.decision === "REJECT").length;
-  if (!snap.opportunities.length) return "فرصتی در حافظه نیست. یا موتور روشن نشده یا پروایدرها DOWN بودن.";
-  if (!list.length) {
-    return `کاندید WATCH ندارم. ${rejected} مورد رد شد. highest-score-wins خاموشه؛ هایپ به‌تنهایی بالا نمی‌آد.`;
+  const status = snap.canonicalReadModel?.status;
+  if (status && status !== "AVAILABLE") {
+    return `حکم کانونیکال پایتون ${status} است — فرصت مثبت نمایش داده نمی‌شود. لایه وب BUY نمی‌سازد.`;
   }
+  const canon = snap.canonicalDecisions ?? [];
+  const canonBuys = canon.filter((d) => d.outcome === "BUY");
+  const canonWatch = canon.filter((d) => d.outcome === "WATCH" || d.outcome === "MONITOR_ONLY" || d.outcome === "NO_TRADE");
+  const buys = snap.opportunities.filter((o) => o.decision === "BUY");
+  const watch = snap.opportunities.filter((o) => o.decision === "WATCH" || o.decision === "MONITOR_ONLY");
+  const rejected =
+    snap.opportunities.filter((o) => o.decision === "REJECT").length ||
+    canon.filter((d) => d.outcome === "REJECT").length;
+  if (!snap.opportunities.length && !canon.length) {
+    return "فرصتی در حافظه نیست و حکم کانونیکال پایتون هم خالی است. لایه وب BUY نمی‌سازد.";
+  }
+  if (canonBuys.length) {
+    return [
+      "حکم BUY کانونیکال پایتون (نه امتیاز فرانت‌اند):",
+      ...canonBuys.slice(0, 5).map(
+        (d, i) =>
+          `${i + 1}) ${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"} — ${d.outcome} / ${d.confidence || "UNKNOWN"} / هویت ${d.identityState || "UNKNOWN"} / امنیت ${d.securityState || "UNKNOWN"}.`,
+      ),
+    ].join("\n");
+  }
+  if (!buys.length && !watch.length && !canonWatch.length) {
+    return `BUY کانونیکال ندارم. ${rejected} مورد رد شد. امتیاز نمایشی به‌تنهایی فرصت نیست.`;
+  }
+  if (canonWatch.length && !buys.length) {
+    return [
+      "پایش/مانیتور/NO_TRADE کانونیکال — خرید نیست:",
+      ...canonWatch.slice(0, 5).map(
+        (d, i) =>
+          `${i + 1}) ${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"} — ${d.outcome} / هویت ${d.identityState || "UNKNOWN"} / امنیت ${d.securityState || "UNKNOWN"}.`,
+      ),
+    ].join("\n");
+  }
+  const list = (buys.length ? buys : watch).slice(0, 5);
   return [
-    "بهترین‌ها یعنی «قابل پایش با شواهد بهتر»، نه خرید:",
+    buys.length ? "حکم BUY کانونیکال پایتون (نه امتیاز فرانت‌اند):" : "پایش/مانیتور کانونیکال — خرید نیست:",
     ...list.map(
       (o, i) =>
-        `${i + 1}) ${o.symbol} روی ${o.chain} — ${o.decision} / ${o.confidence} / امنیت ${o.securityStatus}. پوشش شواهد ${faNumber((o.evidenceCoverage || 0) * 100, 0)}٪. ${(o.reasonsFa || [])[0] || ""} ریسک: ${(o.risksFa || [])[0] || "UNKNOWN"}`,
+        `${i + 1}) ${o.symbol} روی ${o.chain} — ${o.decision} / ${o.confidence} / هویت ${o.identityState || "UNKNOWN"} / امنیت ${o.securityState || "UNKNOWN"}. ${(o.reasonsFa || [])[0] || ""}`,
     ),
-    `${rejected} توکن رد شدن (ضدهایپ).`,
+    `${rejected} توکن رد شدن.`,
   ].join("\n");
 }
 
@@ -335,7 +374,7 @@ async function generalReply(text: string, snap: Awaited<ReturnType<typeof comman
       ? `الان رژیم ${m.regime} است، بیت‌کوین ${faUsd(m.btcPrice)} (${faPct(m.btcChange24h)}).`
       : "اسنپ‌شات بازار هنوز UNKNOWN است.",
     snap.opportunities.length
-      ? `${snap.opportunities.filter((o) => o.decision === "WATCH").length} کاندید پایش و ${snap.opportunities.filter((o) => o.decision === "REJECT").length} رد در آخرین چرخه.`
+      ? `${snap.opportunities.filter((o) => o.decision === "BUY").length} حکم BUY کانونیکال و ${snap.opportunities.filter((o) => o.decision === "REJECT").length} رد.`
       : "فرصتی جمع نشده.",
     snap.news[0] ? `تازه‌ترین خبر فارسی: ${snap.news[0].titleFa}` : "خبری نیست.",
     `اگر منظورت چیز دقیق‌تری بود از «${q}»، همون رو شفاف‌تر بگو: فرصت‌ها؟ یک توکن خاص؟ وضعیت سیستم؟`,

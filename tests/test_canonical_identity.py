@@ -53,6 +53,7 @@ from architecture.providers.contracts import (  # noqa: E402
 from architecture.scoring.engine import OpportunityScorer  # noqa: E402
 from discovery.identity import pair_id, token_id  # noqa: E402
 from tests.helpers_identity import verified_identity_fixture  # noqa: E402
+from tests.helpers_security import passing_security_signals  # noqa: E402
 
 NOW = 1_800_000_000.0
 USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
@@ -444,7 +445,7 @@ def _healthy_candidate():
             txns_5m_buys=90, txns_5m_sells=25,
             txns_1h_buys=400, txns_1h_sells=250, price_change_1h=12.0,
         ),
-        security=SecuritySignals(
+        security=passing_security_signals(
             is_honeypot=False, sell_tax_pct=1.0, buy_tax_pct=1.0,
             liquidity_locked_pct=95.0, has_mint_authority=False,
             has_freeze_authority=False, is_contract_verified=True,

@@ -3,7 +3,17 @@ import { tokens, opportunityScores, paperTrades, alerts as alertsTable } from "@
 import { desc, eq, ilike, or, sql } from "drizzle-orm";
 
 // ---------------------------------------------------------------------------
-// AHOS Local Reasoning Engine
+// AHOS Local Reasoning Engine — PRESENTATION CONSUMER, NOT CANONICAL BRAIN
+// ---------------------------------------------------------------------------
+// Classification: uploaded Web/3D conversational fallback over *stored* rows.
+// It ranks `opportunityScores` already in local Postgres. It does not:
+//   - resolve canonical identity
+//   - evaluate the Lane B security overlay
+//   - compute a Python CanonicalDecision
+//   - synthesize BUY / ENTER
+//
+// Preserve this tree. Do not wire it as a second decision authority.
+// Canonical authority: architecture/decision/authority.py
 // ---------------------------------------------------------------------------
 // This is the zero-budget fallback conversational layer described in the
 // project vision (§30-32): when no external LLM provider key is configured,
@@ -68,11 +78,11 @@ export async function answerQuestion(rawMessage: string): Promise<string> {
     if (!best) return "INSUFFICIENT EVIDENCE — no scored candidates are currently available in the system.";
     const { token, score } = best;
     return [
-      `Top-ranked opportunity right now: **${token.name} ($${token.symbol})** on ${token.chain}.`,
-      `Opportunity Score: ${score.opportunityScore}/100 · Security Score: ${score.securityScore}/100 · Confidence: ${score.confidence}/100.`,
-      `Council decision: ${score.councilDecision.toUpperCase().replace("_", " ")}.`,
-      score.whyPoints?.[0] ? `Primary evidence: ${score.whyPoints[0]}` : "",
-      `Ask me to "explain ${token.symbol}" for the full evidence breakdown.`,
+      `Stored ranking (not a canonical Python BUY): **${token.name} ($${token.symbol})** on ${token.chain}.`,
+      `Stored opportunity score: ${score.opportunityScore}/100 · Stored security score: ${score.securityScore}/100 · Confidence: ${score.confidence}/100.`,
+      `Stored council field: ${score.councilDecision.toUpperCase().replace("_", " ")} — this is a database row, not CanonicalDecisionAuthority.`,
+      score.whyPoints?.[0] ? `Primary stored evidence: ${score.whyPoints[0]}` : "",
+      `Ask me to "explain ${token.symbol}" for the stored evidence breakdown.`,
     ]
       .filter(Boolean)
       .join("\n");

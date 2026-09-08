@@ -14,12 +14,18 @@ positive-authority language may replace evidence.
   regenerate `config/lane_a_freeze.sha256` without an explicit reviewed
   governance request. `python scripts/freeze_lane_a.py --write` is human-only.
 - Python Lane B owns canonical identity (`architecture/identity/`, wrapping
-  frozen `discovery/identity.py`), security, deterministic decisions,
-  persistence, and provenance.
+  frozen `discovery/identity.py`), the security overlay (`architecture/security/gate.py`:
+  PASS/REJECT/INCOMPLETE/STALE composing frozen Lane A verdicts), the canonical
+  decision authority (`architecture/decision/authority.py` wrapping
+  `DecisionAdvisor`; pipeline identity → evidence → security → liquidity →
+  score → risk → confidence → optional AI downgrade → decision), persistence,
+  and provenance. OpportunityScorer scores; it does not decide.
 - TypeScript/Next.js is an authenticated API, read model, and presentation
   surface. It must not create an independent recommendation authority.
   Existing `scoring.ts` / `engine.ts` / `council.ts` / `alerts.ts` are a
-  documented dual-stack gap — do not widen them.
+  documented dual-stack gap — they may rank and fail-closed REJECT/ABSTAIN for
+  display, but they must not emit WATCH/PAPER_CANDIDATE without an injected
+  Python `canonicalBackend`. Do not widen them.
 - Telegram is an interaction edge; n8n is an automation edge.
 - Providers and AI are evidence/advisory inputs only. They cannot override
   identity conflict, security rejection, insufficient evidence, or canonical

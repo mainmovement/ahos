@@ -35,6 +35,34 @@ def _sha(raw: bytes | str) -> str:
     return hashlib.sha256(b).hexdigest()
 
 
+def _tri_bool(value) -> bool | None:
+    """Missing/unparseable flags stay None. Never default a security flag to False."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, bool):
+        return value
+    s = str(value).strip().lower()
+    if s in {"1", "true", "yes"}:
+        return True
+    if s in {"0", "false", "no"}:
+        return False
+    try:
+        return bool(int(float(s)))
+    except (TypeError, ValueError):
+        return None
+
+
+def _maybe_tax_pct(result: dict, key: str) -> float | None:
+    """GoPlus taxes are ratios in [0, 1]. Store percent to match SecuritySignals."""
+    if key not in result or result.get(key) in (None, ""):
+        return None
+    try:
+        f = float(result[key])
+    except (TypeError, ValueError):
+        return None
+    return f * 100.0 if 0 <= f <= 1.0 else f
+
+
 class BaseHttpProviderAdapter(BaseMarketProvider):
     def __init__(self, provider_id: str, base_url: str,
                  capabilities: list[str], rate_limit_rps: float = 2.0,
@@ -333,14 +361,27 @@ class GoPlusSecurityAdapter(BaseHttpProviderAdapter):
                 status_code = resp.status
             data = json.loads(raw)
             result = data.get("result", {}).get(address.lower(), {})
+            take_back = _tri_bool(result.get("can_take_back_ownership"))
             sec = SecuritySignals(
-                is_honeypot=bool(int(result.get("is_honeypot", 0))),
-                buy_tax_pct=float(result.get("buy_tax", 0)) if "buy_tax" in result else None,
-                sell_tax_pct=float(result.get("sell_tax", 0)) if "sell_tax" in result else None,
-                is_contract_verified=bool(int(result.get("is_open_source", 0))),
-                is_ownership_renounced=bool(int(result.get("can_take_back_ownership", 0)) == 0),
-                has_mint_authority=bool(int(result.get("is_mintable", 0))),
-                has_freeze_authority=bool(int(result.get("cannot_sell_all", 0)))
+                is_honeypot=_tri_bool(result.get("is_honeypot")),
+                buy_tax_pct=_maybe_tax_pct(result, "buy_tax"),
+                sell_tax_pct=_maybe_tax_pct(result, "sell_tax"),
+                is_contract_verified=_tri_bool(result.get("is_open_source")),
+                is_ownership_renounced=(None if take_back is None else (not take_back)),
+                has_mint_authority=_tri_bool(result.get("is_mintable")),
+                has_freeze_authority=_tri_bool(
+                    result.get("transfer_pausable") if "transfer_pausable" in result
+                    else result.get("is_freezable")
+                ),
+                is_blacklisted=_tri_bool(
+                    result.get("is_blacklisted") if "is_blacklisted" in result
+                    else result.get("is_in_blacklist")
+                ),
+                cannot_sell_all=_tri_bool(
+                    result.get("cannot_sell_all") if "cannot_sell_all" in result
+                    else result.get("can_not_sell_all")
+                ),
+                is_proxy=_tri_bool(result.get("is_proxy")),
             )
             tok = NormalizedTokenCandidate(
                 chain=chain,
@@ -625,9 +666,11 @@ class DEXToolsAdapter(BaseHttpProviderAdapter):
                 sell_tax_pct=_tax("sellTax"),
                 is_contract_verified=_flag("isOpenSource"),
                 has_mint_authority=_flag("isMintable"),
-                has_freeze_authority=_flag("isBlacklisted"),
+                has_freeze_authority=_flag("isFreezable"),
+                is_blacklisted=_flag("isBlacklisted"),
                 is_ownership_renounced=(
                     None if _flag("isProxy") is None else not _flag("isProxy")),
+                is_proxy=_flag("isProxy"),
             )
             tok = NormalizedTokenCandidate(
                 chain=chain.lower(), address=address,

@@ -17,6 +17,13 @@ import {
 import { desc, eq } from "drizzle-orm";
 import { TEAM_META } from "./council";
 import { ensureState } from "./engine";
+import {
+  canonicalReadModelSummary,
+  loadCanonicalReadModel,
+  overlayOpportunity,
+  presentCanonicalDecisions,
+  type CanonicalReadModel,
+} from "./canonical_read_model";
 
 function deepestErrorMessage(error: unknown): string {
   let cur: unknown = error;
@@ -38,7 +45,70 @@ function deepestErrorMessage(error: unknown): string {
   return last;
 }
 
+export function failClosedCommandSnapshot(error: unknown, canonicalModel: CanonicalReadModel) {
+  const root = deepestErrorMessage(error);
+  const msg = error instanceof Error ? error.message : String(error);
+  const message =
+    `commandSnapshot failed: ${root}` + (root !== msg ? ` (drizzle: ${msg.slice(0, 120)})` : "");
+  return {
+    generatedAt: new Date().toISOString(),
+    executionMode: "PAPER_ONLY",
+    realTrading: false,
+    state: {
+      running: false,
+      startedAt: null,
+      stoppedAt: null,
+      lastCycleAt: null,
+      lastCycleStatus: "CODE_FAILURE",
+      cycleCount: 0,
+      lastError: message,
+      intervalSec: 70,
+    },
+    cycle: null,
+    market: null,
+    opportunities: [],
+    canonicalReadModel: canonicalReadModelSummary(canonicalModel),
+    canonicalDecisions: presentCanonicalDecisions(canonicalModel),
+    news: [],
+    providers: [],
+    providerCensus: { total: 0, success: 0, degraded: 0 },
+    watchlist: [],
+    paper: [],
+    lessons: [],
+    findings: [],
+    outcomes: [],
+    council: [],
+    votes: [],
+    teams: TEAM_META,
+    health: {
+      dimensions: [
+        dim("راه‌اندازی", "CODE_FAILURE", message),
+        dim(
+          "حکم کانونیکال پایتون",
+          canonicalModel.status,
+          canonicalModel.reason || `${canonicalModel.decision_count} حکم از فایل پایتون`,
+        ),
+      ],
+    },
+    blocked: [
+      {
+        item: "DATABASE_URL / Postgres",
+        status: message.includes("DATABASE_URL") ? "NO_KEY" : "DOWN",
+      },
+    ],
+  };
+}
+
 export async function commandSnapshot() {
+  const canonicalModel = await loadCanonicalReadModel();
+  try {
+    return await buildDbCommandSnapshot(canonicalModel);
+  } catch (error) {
+    return failClosedCommandSnapshot(error, canonicalModel);
+  }
+}
+
+async function buildDbCommandSnapshot(canonicalModel: CanonicalReadModel) {
   try {
     await ensureState();
   } catch (error) {
@@ -89,6 +159,13 @@ export async function commandSnapshot() {
       dim("پورتفوی کاغذی", "OK", `${papers.filter((p) => p.status === "OPEN").length} موقعیت باز — اجرای واقعی DISABLED`),
       dim("خبر فارسی", news.length ? "OK" : "UNKNOWN", `${news.length} خبر با بازنویسی فارسی`),
       dim("صفرپولی", "OK", "NO REAL TRADING / PAPER_ONLY"),
+      dim(
+        "حکم کانونیکال پایتون",
+        canonicalModel.status,
+        canonicalModel.status === "AVAILABLE"
+          ? `${canonicalModel.decision_count} حکم — نمایش فقط، تصمیم از پایتون`
+          : canonicalModel.reason || canonicalModel.status,
+      ),
     ],
   };
 
@@ -137,28 +214,35 @@ export async function commandSnapshot() {
           createdAt: market.createdAt,
         }
       : null,
-    opportunities: opps.map((o) => ({
-      id: o.id,
-      tokenKey: o.tokenKey,
-      symbol: o.symbol,
-      name: o.name,
-      chain: o.chain,
-      address: o.address,
-      decision: o.decision,
-      rankScore: o.rankScore,
-      confidence: o.confidence,
-      securityStatus: o.securityStatus,
-      evidenceCoverage: o.evidenceCoverage,
-      reasonsFa: o.reasonsFa,
-      risksFa: o.risksFa,
-      unknownsFa: o.unknownsFa,
-      invalidationFa: o.invalidationFa,
-      missingFa: o.missingFa,
-      councilVerdict: o.councilVerdict,
-      disagreement: o.disagreement,
-      payload: o.payload,
-      createdAt: o.createdAt,
-    })),
+    opportunities: opps.map((o) =>
+      overlayOpportunity(
+        {
+          id: o.id,
+          tokenKey: o.tokenKey,
+          symbol: o.symbol,
+          name: o.name,
+          chain: o.chain,
+          address: o.address,
+          decision: o.decision,
+          rankScore: o.rankScore,
+          confidence: o.confidence,
+          securityStatus: o.securityStatus,
+          evidenceCoverage: o.evidenceCoverage,
+          reasonsFa: o.reasonsFa,
+          risksFa: o.risksFa,
+          unknownsFa: o.unknownsFa,
+          invalidationFa: o.invalidationFa,
+          missingFa: o.missingFa,
+          councilVerdict: o.councilVerdict,
+          disagreement: o.disagreement,
+          payload: o.payload,
+          createdAt: o.createdAt,
+        },
+        canonicalModel,
+      ),
+    ),
+    canonicalReadModel: canonicalReadModelSummary(canonicalModel),
+    canonicalDecisions: presentCanonicalDecisions(canonicalModel),
     news: news.map((n) => ({
       id: n.id,
       source: n.source,

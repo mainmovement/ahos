@@ -32,6 +32,10 @@ from typing import Any
 
 from architecture.identity.gates import identity_allows_positive_decision
 from architecture.identity.types import IdentityResolution
+from architecture.security.gate import (
+    evaluate_security_from_candidate,
+    security_allows_positive_eligibility,
+)
 from paper_trading.exit_rules import EXIT_V1
 
 # --- Locked advisory constants (pre-registered; change => new version) -------
@@ -79,6 +83,8 @@ class Advice:
     identity_state: str | None = None
     identity_token_id: str | None = None
     identity_policy_version: str | None = None
+    security_state: str | None = None
+    security_policy_version: str | None = None
     computed_ts: float = field(default_factory=time.time)
     version: str = ADVISOR_VERSION
 
@@ -103,6 +109,8 @@ class Advice:
             "identity_state": self.identity_state,
             "identity_token_id": self.identity_token_id,
             "identity_policy_version": self.identity_policy_version,
+            "security_state": self.security_state,
+            "security_policy_version": self.security_policy_version,
             "computed_ts": self.computed_ts, "version": self.version,
         }
 
@@ -181,7 +189,24 @@ class DecisionAdvisor:
             base.reasons = ["ورود ممنوع — هویت کانونیکال توکن تأیید نشده است"]
             return base
 
-        # ============ GATE 1 — SECURITY VETO (absolute) =====================
+        # ============ GATE 1 — SECURITY OVERLAY (fail closed) ===============
+        overlay = evaluate_security_from_candidate(
+            candidate, now=ts, exitability=exitability,
+        )
+        base.security_state = overlay.state.value
+        base.security_policy_version = overlay.policy_version
+        if not security_allows_positive_eligibility(overlay):
+            base.action = "AVOID"
+            base.conviction = "NONE"
+            veto_notes = [f"Security gate: {overlay.state.value} ({overlay.reason})."]
+            veto_notes.extend(overlay.veto_reasons)
+            veto_notes.extend(overlay.unknown_critical)
+            base.hard_vetoes = veto_notes
+            base.reasons = ["ورود ممنوع — دروازه امنیت PASS نیست"]
+            base.unknowns = unknowns[:8]
+            return base
+
+        # ============ GATE 1b — legacy absolute vetoes (defense in depth) ===
         if exitability is not None and exitability.hard_vetoes:
             vetoes.extend(exitability.hard_vetoes)
 

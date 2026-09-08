@@ -29,8 +29,14 @@ from telegram_ai.adapter import MockTelegramAdapter
 from architecture.providers.contracts import (
     NormalizedTokenCandidate, MarketMetrics, SecuritySignals,
 )
+from tests.helpers_security import passing_security_signals
+from tests.helpers_identity import verified_pool_identity_fixture
 
 NOW = time.time()
+
+
+def _ident(cand):
+    return verified_pool_identity_fixture(address=cand.address, symbol=cand.symbol)
 
 
 def excellent_token(now=NOW):
@@ -44,7 +50,7 @@ def excellent_token(now=NOW):
             txns_1h_buys=1_500, txns_1h_sells=500,
             price_change_5m=3.0, price_change_1h=12.0, price_change_24h=40.0,
             fdv_usd=5_000_000.0),
-        security=SecuritySignals(
+        security=passing_security_signals(
             is_honeypot=False, sell_tax_pct=0.0, buy_tax_pct=0.0,
             liquidity_locked_pct=100.0, liquidity_burned_pct=100.0,
             has_mint_authority=False, has_freeze_authority=False,
@@ -82,7 +88,9 @@ def test_the_alert_threshold_is_actually_reachable():
 def test_an_excellent_token_produces_a_high_severity_alert():
     cand = excellent_token()
     report = OpportunityScorer().evaluate(cand, now=NOW)
-    alerts = AlertEngine().evaluate_opportunity(report, cand, now=NOW)
+    alerts = AlertEngine().evaluate_opportunity(
+        report, cand, now=NOW, identity=_ident(cand),
+    )
     assert any(a.severity in ("HIGH", "CRITICAL") for a in alerts), \
         f"no deliverable alert from a perfect token: {[a.severity for a in alerts]}"
 
@@ -91,7 +99,9 @@ def test_a_mediocre_token_does_not_trigger_a_high_severity_alert():
     """Alert fatigue is a real failure: if everything alerts, nothing does."""
     cand = mediocre_token()
     report = OpportunityScorer().evaluate(cand, now=NOW)
-    alerts = AlertEngine().evaluate_opportunity(report, cand, now=NOW)
+    alerts = AlertEngine().evaluate_opportunity(
+        report, cand, now=NOW, identity=_ident(cand),
+    )
     assert not any(a.severity in ("HIGH", "CRITICAL") for a in alerts)
 
 
@@ -99,7 +109,9 @@ def test_stale_observations_are_reported_as_such():
     """A perfect token measured long ago is a data problem, not an opportunity."""
     cand = excellent_token(now=NOW - 30 * 86400)
     report = OpportunityScorer().evaluate(cand, now=NOW)
-    alerts = AlertEngine().evaluate_opportunity(report, cand, now=NOW)
+    alerts = AlertEngine().evaluate_opportunity(
+        report, cand, now=NOW, identity=_ident(cand),
+    )
     assert any(getattr(a, "data_state", "") == "STALE" for a in alerts)
 
 
@@ -108,7 +120,9 @@ def test_stale_observations_are_reported_as_such():
 def test_high_severity_alerts_reach_the_transport():
     cand = excellent_token()
     report = OpportunityScorer().evaluate(cand, now=NOW)
-    alerts = AlertEngine().evaluate_opportunity(report, cand, now=NOW)
+    alerts = AlertEngine().evaluate_opportunity(
+        report, cand, now=NOW, identity=_ident(cand),
+    )
 
     adapter = MockTelegramAdapter()
     for a in alerts:
@@ -124,7 +138,9 @@ def test_high_severity_alerts_reach_the_transport():
 def test_rendered_alert_states_its_evidence():
     cand = excellent_token()
     report = OpportunityScorer().evaluate(cand, now=NOW)
-    alerts = AlertEngine().evaluate_opportunity(report, cand, now=NOW)
+    alerts = AlertEngine().evaluate_opportunity(
+        report, cand, now=NOW, identity=_ident(cand),
+    )
     high = [a for a in alerts if a.severity in ("HIGH", "CRITICAL")]
     assert high
     text = render_fa(high[0])

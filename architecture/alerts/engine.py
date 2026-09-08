@@ -21,6 +21,12 @@ from typing import Any
 from telegram_ai.alerts import Alert, build as build_alert
 from architecture.scoring.engine import OpportunityScoreReport
 from architecture.providers.contracts import NormalizedTokenCandidate
+from architecture.decision.authority import CanonicalDecision, CanonicalDecisionAuthority
+from architecture.identity.types import IdentityResolution
+from architecture.security.gate import (
+    evaluate_security_from_candidate,
+    security_allows_alert,
+)
 
 
 class AlertEngine:
@@ -30,12 +36,25 @@ class AlertEngine:
 
     def evaluate_opportunity(self, report: OpportunityScoreReport,
                              candidate: NormalizedTokenCandidate,
-                             now: float | None = None) -> list[Alert]:
+                             now: float | None = None,
+                             identity: IdentityResolution | None = None,
+                             canonical: CanonicalDecision | None = None) -> list[Alert]:
         alerts: list[Alert] = []
         ts = time.time() if now is None else now
+        security = evaluate_security_from_candidate(candidate, now=ts)
+        if canonical is None:
+            canonical = CanonicalDecisionAuthority().decide(
+                candidate, report, identity=identity, now=ts,
+            )
 
-        # 1. High Score Opportunity Alert
-        if report.opportunity_score >= self.score_threshold and report.risk_level in ("LOW", "MED"):
+        # 1. High Score Opportunity Alert — canonical BUY required.
+        # Score + security PASS without identity/authority is not an opportunity.
+        if (
+            report.opportunity_score >= self.score_threshold
+            and report.risk_level in ("LOW", "MED")
+            and security_allows_alert(security)
+            and canonical.alerts_allowed
+        ):
             alerts.append(build_alert(
                 cls="OPPORTUNITY",
                 symbol=report.token_symbol,

@@ -16,5 +16,37 @@ Every output ends with «تصمیم نهایی با کاربر است.»
 """
 
 from .advisor import DecisionAdvisor, Advice, PositionAdvice    # noqa: F401
+from .authority import (  # noqa: F401
+    AUTHORITY_VERSION,
+    AiChallengeRecord,
+    CanonicalDecision,
+    CanonicalDecisionAuthority,
+    CanonicalOutcome,
+    identity_from_candidate,
+)
+from .paper_eligibility import paper_candidate_allowed  # noqa: F401
+from .read_model import (  # noqa: F401
+    canonical_read_model_path,
+    load_canonical_read_model,
+    lookup_decision,
+    write_canonical_read_model,
+    write_unavailable_canonical_read_model,
+)
 
-__all__ = ["DecisionAdvisor", "Advice", "PositionAdvice"]
+__all__ = [
+    "DecisionAdvisor",
+    "Advice",
+    "PositionAdvice",
+    "AUTHORITY_VERSION",
+    "AiChallengeRecord",
+    "CanonicalDecision",
+    "CanonicalDecisionAuthority",
+    "CanonicalOutcome",
+    "identity_from_candidate",
+    "paper_candidate_allowed",
+    "canonical_read_model_path",
+    "load_canonical_read_model",
+    "lookup_decision",
+    "write_canonical_read_model",
+    "write_unavailable_canonical_read_model",
+]

@@ -8,6 +8,44 @@ import type {
 } from "./types";
 
 /**
+ * Presentation / dual-stack scorer — NOT the canonical AHOS decision authority.
+ *
+ * Canonical decisions are produced by Python
+ * `architecture.decision.authority.CanonicalDecisionAuthority`.
+ *
+ * This module may:
+ *   - compute display ranks and evidence coverage
+ *   - fail-closed to REJECT / INSUFFICIENT_EVIDENCE / ABSTAIN
+ *   - render council disagreement
+ *
+ * This module may NOT, on its own:
+ *   - emit WATCH or PAPER_CANDIDATE
+ *   - mint a BUY / ENTER recommendation
+ *   - treat missing security as SAFE
+ *
+ * A positive presentation decision requires `canonicalBackend` injected from
+ * the Python authority (outcome BUY/WATCH or action ENTER/WATCH).
+ */
+export type CanonicalBackendDecision = {
+  outcome?: string | null;
+  action?: string | null;
+  identityState?: string | null;
+  securityState?: string | null;
+};
+
+function backendAllowsPositive(canonical?: CanonicalBackendDecision | null): boolean {
+  if (!canonical) return false;
+  const outcome = String(canonical.outcome || "").toUpperCase();
+  const action = String(canonical.action || "").toUpperCase();
+  return (
+    outcome === "BUY" ||
+    outcome === "WATCH" ||
+    action === "ENTER" ||
+    action === "WATCH"
+  );
+}
+
+/**
  * Evidence coverage — never treat missing fields as zero/safe.
  */
 export function evidenceCoverage(token: PairObservation, security: SecurityAssessment | null): number {
@@ -55,6 +93,7 @@ export function scoreToken(opts: {
   fearGreed: number | null;
   newsHits: number;
   negativeNews: boolean;
+  canonicalBackend?: CanonicalBackendDecision | null;
 }): ScoredOpportunity {
   const { token, security } = opts;
   const coverage = evidenceCoverage(token, security);
@@ -166,6 +205,12 @@ export function scoreToken(opts: {
     decision = "ABSTAIN";
   } else {
     decision = "ABSTAIN";
+  }
+
+  // Phase 3 boundary: TypeScript cannot mint a canonical positive decision.
+  if (!backendAllowsPositive(opts.canonicalBackend) && decision === "WATCH") {
+    decision = "ABSTAIN";
+    unknownsFa.push("تصمیم کانونیکال پایتون تزریق نشده — لایه TS فقط نمایش است.");
   }
 
   // --- Multi-factor rank (anti highest-score-wins) ---

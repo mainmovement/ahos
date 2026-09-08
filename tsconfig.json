@@ -26,5 +26,13 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "scripts/web_api_auth_selftest.ts"]
+  "exclude": [
+    "node_modules",
+    "scripts/web_api_auth_selftest.ts",
+    "scripts/canonical_read_model_selftest.ts",
+    "advanced-3d-audiovisual-website",
+    "advanced-3d-audiovisual-website (1)",
+    "سایت درختadvanced-3d-audiovisual-platform",
+    "درخت کاملتر immersive-3d-audiovisual-website"
+  ]
 }

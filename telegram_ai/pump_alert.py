@@ -33,7 +33,10 @@ def _save_state(state: dict[str, Any]) -> None:
     ALERT_STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def should_alert(token_key: str, score: float | None, security_ok: bool) -> bool:
+def should_alert(token_key: str, score: float | None, security_ok: bool,
+                 *, canonical_positive: bool = False) -> bool:
+    if not canonical_positive:
+        return False
     if score is None or score < 72:
         return False
     if not security_ok:
@@ -127,24 +130,28 @@ def maybe_alert_opportunity(opp: dict[str, Any]) -> dict[str, Any] | None:
     reasonsFa, risksFa, securityStatus, priceUsd, liquidityUsd, volume24h, priceChange1h, address.
     """
     key = opp.get("tokenKey") or f"{opp.get('chain')}:{opp.get('symbol')}"
+    outcome = str(opp.get("canonicalOutcome") or opp.get("canonical_outcome") or "").upper()
+    action = str(opp.get("canonicalAction") or opp.get("advisor_action") or "").upper()
+    canonical_positive = outcome == "BUY" or action == "ENTER"
+    if not canonical_positive:
+        return None
     score = opp.get("rankScore")
     try:
         score_f = float(score) if score is not None else None
     except (TypeError, ValueError):
         score_f = None
     sec = str(opp.get("securityStatus") or "").upper()
-    security_ok = sec in ("OK", "SUCCESS", "PASS", "CLEAN") or sec == "UNKNOWN" and score_f and score_f >= 80
-    # Prefer explicit non-honeypot; if only UNKNOWN, require higher score
-    if sec in ("HONEYPOT", "REJECT", "DOWN", "FAIL"):
+    if sec in ("HONEYPOT", "REJECT", "DOWN", "FAIL", "UNKNOWN", "INCOMPLETE", "STALE"):
         return None
-    if not should_alert(str(key), score_f, True):
+    security_ok = sec in ("OK", "SUCCESS", "PASS", "CLEAN")
+    if not should_alert(str(key), score_f, security_ok, canonical_positive=True):
         return None
 
     text = format_pump_alert(
         symbol=str(opp.get("symbol") or "?"),
         chain=str(opp.get("chain") or "?"),
         score=score_f,
-        decision=str(opp.get("decision") or "WATCH"),
+        decision=str(opp.get("decision") or outcome or "NO_TRADE"),
         reasons=list(opp.get("reasonsFa") or []),
         risks=list(opp.get("risksFa") or []),
         price=opp.get("priceUsd"),

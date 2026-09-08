@@ -32,6 +32,12 @@ type Opp = {
   councilVerdict: string | null;
   disagreement: boolean;
   payload: Record<string, unknown> | null;
+  canonicalStatus?: string;
+  canonicalOutcome?: string | null;
+  identityState?: string | null;
+  securityState?: string | null;
+  paperAllowed?: boolean;
+  canonicalUnavailable?: boolean;
 };
 type News = {
   id: number;
@@ -88,6 +94,29 @@ type Snap = {
     defiTvl: number | null;
   } | null;
   opportunities: Opp[];
+  canonicalReadModel?: {
+    status: string;
+    reason: string | null;
+    generatedTs: number | null;
+    decisionCount: number;
+    stale: boolean;
+    authorityVersion: string | null;
+  };
+  canonicalDecisions?: Array<{
+    tokenKey: string;
+    symbol: string | null;
+    chain: string | null;
+    address: string | null;
+    outcome: string;
+    identityState: string | null;
+    securityState: string | null;
+    confidence: string | null;
+    opportunityScore: number | null;
+    paperAllowed: boolean;
+    isPositive: boolean;
+    monitoringOnly: boolean;
+    primaryReason: string | null;
+  }>;
   news: News[];
   providers: Provider[];
   watchlist: Array<{ id: number; symbol: string; chain: string; thesisFa: string | null }>;
@@ -409,6 +438,7 @@ export default function CommandCenter() {
       `SOL ${faUsd(snap?.market?.solPrice)}`,
       `چرخه ${snap?.state.cycleCount ?? 0}`,
       `آخرین ${snap?.state.lastCycleStatus ?? "UNKNOWN"}`,
+      `کانونیکال ${snap?.canonicalReadModel?.status ?? "UNAVAILABLE"}`,
       "PAPER ONLY",
       "UNKNOWN > fabricated",
     ];
@@ -420,6 +450,10 @@ export default function CommandCenter() {
     (snap?.state.lastError != null && snap.state.lastError.length > 0);
 
   const opps = useMemo(() => (snap?.opportunities ?? []).slice(0, 16), [snap?.opportunities]);
+  const canonicalDecisions = useMemo(
+    () => (snap?.canonicalDecisions ?? []).slice(0, 16),
+    [snap?.canonicalDecisions],
+  );
   const providers = useMemo(() => (snap?.providers ?? []).slice(0, 18), [snap?.providers]);
   const council = useMemo(() => (snap?.council ?? []).slice(0, 6), [snap?.council]);
 
@@ -435,6 +469,14 @@ export default function CommandCenter() {
         <div className="alarm-banner">
           هشدار سیستم
           <small>{snap?.state.lastError || "CODE_FAILURE — چرخه اخیر ناموفق"}</small>
+        </div>
+      )}
+      {snap?.canonicalReadModel?.status && snap.canonicalReadModel.status !== "AVAILABLE" && (
+        <div className="alarm-banner">
+          حکم کانونیکال پایتون {snap.canonicalReadModel.status}
+          <small>
+            {snap.canonicalReadModel.reason || "read model unavailable"} — لایه وب BUY/WATCH نمی‌سازد.
+          </small>
         </div>
       )}
 
@@ -527,6 +569,36 @@ export default function CommandCenter() {
 
           {tab === "dash" && (
             <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <Card title="احکام کانونیکال پایتون">
+                <p className="mb-2 text-xs text-white/50">
+                  فقط نمایش حکم Lane B — لایه وب BUY/WATCH نمی‌سازد.
+                  وضعیت: {snap?.canonicalReadModel?.status ?? "UNAVAILABLE"}
+                  {snap?.canonicalReadModel?.reason ? ` — ${snap.canonicalReadModel.reason}` : ""}
+                </p>
+                <div className="grid gap-2">
+                  {canonicalDecisions.map((d) => (
+                    <div
+                      key={d.tokenKey}
+                      className="flex items-start justify-between gap-3 rounded-2xl bg-white/5 px-3 py-2"
+                    >
+                      <div>
+                        <div className="text-sm">
+                          {d.symbol || "UNKNOWN"}{" "}
+                          <span className="text-white/40">{d.chain || "unknown"}</span>
+                        </div>
+                        <div className="text-xs text-white/60">
+                          هویت {d.identityState || "UNKNOWN"} — امنیت {d.securityState || "UNKNOWN"}
+                          {d.primaryReason ? ` — ${d.primaryReason}` : ""}
+                        </div>
+                      </div>
+                      <StatusPill status={d.outcome} />
+                    </div>
+                  ))}
+                  {!canonicalDecisions.length && (
+                    <Empty text="حکم کانونیکال در فایل پایتون نیست — تصمیم مثبت جعل نشد." />
+                  )}
+                </div>
+              </Card>
               <Card title="سلامت سیستم">
                 <div className="grid gap-2">
                   {(snap?.health?.dimensions || []).map((d) => (
@@ -574,6 +646,36 @@ export default function CommandCenter() {
 
           {tab === "opp" && (
             <div className="mt-4 grid gap-4">
+              {!snap && !bootError && <Empty text="در حال بارگذاری حکم کانونیکال…" />}
+              {bootError && !snap && (
+                <Empty text={`خطای ارتباط با فرماندهی: ${bootError} — تصمیم مثبت جعل نشد.`} />
+              )}
+              {canonicalDecisions.length > 0 && (
+                <Card title="احکام کانونیکال پایتون (منبع تصمیم)">
+                  <div className="grid gap-2">
+                    {canonicalDecisions.map((d) => (
+                      <div
+                        key={`canon-${d.tokenKey}`}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white/5 px-3 py-2"
+                      >
+                        <div>
+                          <div className="text-sm">
+                            {d.symbol || "UNKNOWN"}{" "}
+                            <span className="text-white/40">{d.chain || "unknown"}</span>
+                          </div>
+                          <div className="text-xs text-white/55">
+                            هویت {d.identityState || "UNKNOWN"} — امنیت {d.securityState || "UNKNOWN"} —
+                            اطمینان {d.confidence || "UNKNOWN"}
+                            {d.monitoringOnly ? " — MONITOR_ONLY" : ""}
+                            {d.paperAllowed ? "" : " — کاغذی غیرمجاز"}
+                          </div>
+                        </div>
+                        <StatusPill status={d.outcome} />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
               {opps.map((o) => (
                 <article key={o.id} className="glass rounded-[24px] p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -587,8 +689,10 @@ export default function CommandCenter() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <StatusPill status={o.decision} />
+                      <StatusPill status={o.canonicalStatus || "UNAVAILABLE"} />
+                      <StatusPill status={o.identityState || "IDENTITY_UNKNOWN"} />
+                      <StatusPill status={o.securityState || "SECURITY_UNKNOWN"} />
                       <StatusPill status={o.confidence} />
-                      <StatusPill status={o.securityStatus} />
                     </div>
                   </div>
                   <p className="mt-2 text-sm text-cyan-100/90">{(o.reasonsFa || [])[0]}</p>
@@ -596,19 +700,28 @@ export default function CommandCenter() {
                   <p className="text-xs text-amber-200/80">
                     UNKNOWN: {(o.unknownsFa || []).join(" | ") || "—"}
                   </p>
+                  <p className="text-xs text-white/45">
+                    رتبه نمایشی (غیرکانونیکال): {o.rankScore ?? "UNKNOWN"}
+                  </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Hud onClick={() => setSelected(o)}>چرا؟</Hud>
                     <Hud loading={busy === `watch-${o.id}`} onClick={() => void watch(o)}>
                       زیر نظر بگیر
                     </Hud>
-                    <Hud loading={busy === `paper-${o.id}`} onClick={() => void paper(o)}>
-                      خرید کاغذی
+                    <Hud
+                      loading={busy === `paper-${o.id}`}
+                      onClick={() => {
+                        if (!o.paperAllowed) return;
+                        void paper(o);
+                      }}
+                    >
+                      {o.paperAllowed ? "خرید کاغذی" : "کاغذی غیرمجاز — بدون BUY کانونیکال"}
                     </Hud>
                   </div>
                 </article>
               ))}
-              {!opps.length && (
-                <Empty text="فرصتی نیست. شروع را بزن تا DexScreener و GeckoTerminal خوانده شوند." />
+              {snap && !opps.length && (
+                <Empty text="ردیف فرصت دیتابیس خالی است. حکم مثبت فقط از پایتون می‌آید — لایه وب چیزی نمی‌سازد." />
               )}
             </div>
           )}
@@ -776,7 +889,12 @@ export default function CommandCenter() {
           >
             <h3 className="mt-0 text-2xl">{selected.symbol} — چرا این حکم؟</h3>
             <p>
-              تصمیم {selected.decision} · اطمینان {selected.confidence} · شورا {selected.councilVerdict}
+              حکم کانونیکال {selected.decision} · هویت {selected.identityState || "UNKNOWN"} · امنیت{" "}
+              {selected.securityState || "UNKNOWN"} · اطمینان {selected.confidence} · شورا{" "}
+              {selected.councilVerdict || "ADVISORY"}
+            </p>
+            <p className="text-sm text-white/60">
+              منبع: CanonicalDecisionAuthority — رتبه نمایشی {selected.rankScore ?? "UNKNOWN"} تصمیم نیست.
             </p>
             <h4>شواهد مثبت</h4>
             <ul>
@@ -858,7 +976,7 @@ const Metric = memo(function Metric({ label, value, sub }: { label: string; valu
 
 const StatusPill = memo(function StatusPill({ status }: { status: string }) {
   const tone =
-    status === "SUCCESS" || status === "OK" || status === "WATCH" || status === "HIGH"
+    status === "SUCCESS" || status === "OK" || status === "BUY" || status === "PASS" || status === "HIGH"
       ? "bg-emerald-400/15 text-emerald-200"
       : status === "REJECT" ||
           status === "DOWN" ||
@@ -869,7 +987,13 @@ const StatusPill = memo(function StatusPill({ status }: { status: string }) {
         : status === "UNKNOWN" ||
             status === "NO_DATA" ||
             status === "INSUFFICIENT_EVIDENCE" ||
-            status === "ABSTAIN"
+            status === "ABSTAIN" ||
+            status === "UNAVAILABLE" ||
+            status === "STALE" ||
+            status === "NO_TRADE" ||
+            status === "MONITOR_ONLY" ||
+            status === "WATCH" ||
+            status === "INCOMPLETE"
           ? "bg-amber-400/15 text-amber-100"
           : "bg-white/10 text-white/80";
   return <span className={`rounded-full px-2 py-0.5 text-[11px] ${tone}`}>{status}</span>;
