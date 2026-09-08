@@ -54,6 +54,7 @@ class CollectedObservationRecord:
     metrics: dict[str, Any]
     security: dict[str, Any]
     unknown_fields: list[str]
+    pair_created_ts: float | None = None
     created_utc: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
@@ -182,7 +183,8 @@ class CollectorEngine:
                 confidence_level=cand.confidence_level,
                 metrics=asdict(cand.metrics),
                 security=asdict(cand.security),
-                unknown_fields=cand.unknown_fields
+                unknown_fields=cand.unknown_fields,
+                pair_created_ts=cand.pair_created_ts,
             )
             records.append(rec)
 

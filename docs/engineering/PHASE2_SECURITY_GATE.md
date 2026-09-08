@@ -186,11 +186,13 @@ PASS_GATES:
   - honeypot / unsellable / blacklist / mint / freeze / extreme tax / rug / trapped → REJECT
   - GoPlus missing is_honeypot stays None; RugCheck missing risks stays None
   - DEXTools proxy does not invent ownership_renounced
-  - advisor GATE 1 fail-closed; AI cannot upgrade reject/incomplete
+  - collector observation hop preserves `pair_created_ts` in memory so Lane A
+    LP age is not silently dropped (missing age remains INCOMPLETE)
   - opportunity alerts and pipeline/pump Telegram require PASS
   - Lane A freeze OK (36) before and after
   - no Lane A files in diff
 FAILED_GATES: none for the Python overlay scope of this revision
+  (full pytest: 1 PRE-EXISTING config-doc scanner miss, not overlay)
 BLOCKERS:
   - none that block overlay VERIFIED
 KNOWN_LIMITATIONS:
@@ -207,7 +209,11 @@ EVIDENCE:
   - advisor / alerts / pipeline / isolation / provider resilience tests
   - python3 -B scripts/freeze_lane_a.py
   - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py
-TEST_RESULTS: recorded in the PR body / commit after this revision's pytest
+TEST_RESULTS: freeze 36 OK; validate_imports PASSED (179 modules, clean tree);
+  targeted 239 passed; full pytest 1593 passed, 3 skipped, 1 failed
+  (PRE-EXISTING: tests/test_config_validation.py::test_documented_keys_are_actually_read_or_legacy
+  — NEXT_PUBLIC_AHOS_WEB_API_TOKEN is read in web_api_client.ts; Python scanner
+  misses it; not faked in this PR)
 REGRESSIONS: pipeline fixtures require overlay PASS for فرصت ویژه;
   RugCheck empty risks no longer infers mint/freeze False
 NEXT_UNLOCKED_PHASE: Phase 3 remains a separate PR (#64). This document does
