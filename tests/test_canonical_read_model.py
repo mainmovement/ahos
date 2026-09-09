@@ -166,8 +166,11 @@ def test_alerts_ts_requires_python_alerts_allowed_not_ts_watch():
     engine = (ROOT / "engine.ts").read_text(encoding="utf-8")
     assert "displayDecision" in engine
     assert "canonRow?.is_positive" in engine
+    assert "countCanonicalOutcomesForTokens" in engine
+    assert 'r.decision === "WATCH"' not in engine
     chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
     assert "canonicalDecisions" in chat
+    assert "canonicalFocusTokenKey" in chat
 
 
 def test_command_center_renders_python_decisions_without_db_rows():
@@ -195,7 +198,13 @@ def test_env_example_documents_canonical_read_model_path():
 def test_chat_greeting_counts_python_canonical_not_ts_watch():
     chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
     assert "canonicalDecisions" in chat
-    assert 'o.decision === "WATCH"' not in chat.split("function greetingReply")[1].split("function helpReply")[0]
+    greeting = chat.split("function greetingReply")[1].split("function helpReply")[0]
+    assert 'o.decision === "WATCH"' not in greeting
+    opportunities = chat.split('intent === "opportunities"')[1].split("intent === \"news\"")[0]
+    assert "canonicalFocusTokenKey" in opportunities
+    general = chat.split("async function generalReply")[1].split("function findOpp")[0]
+    assert "canonicalDecisions" in general
+    assert "o.decision === \"BUY\"" not in general
 
 
 def test_paper_api_requires_canonical_buy():

@@ -2,7 +2,11 @@ import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { addPaper, addWatch, getState, startEngine, stopEngine, PaperSecurityDenied } from "./engine";
-import { loadCanonicalReadModel, paperAllowedFromCanonical } from "./canonical_read_model";
+import {
+  canonicalFocusTokenKey,
+  loadCanonicalReadModel,
+  paperAllowedFromCanonical,
+} from "./canonical_read_model";
 import { faNumber, faPct, faUsd } from "./persian";
 import { commandSnapshot } from "./snapshot";
 import { FINAL_USER_LINE } from "./types";
@@ -45,9 +49,12 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     reply = marketReply(snap);
   } else if (intent === "opportunities") {
     reply = oppReply(snap);
-    const top = snap.opportunities.find((o) => o.decision === "BUY")
-      || snap.opportunities.find((o) => o.decision === "WATCH" || o.decision === "MONITOR_ONLY");
-    if (top) focus = top.tokenKey;
+    const fromCanon = canonicalFocusTokenKey(snap.canonicalDecisions ?? []);
+    const top =
+      snap.opportunities.find((o) => o.decision === "BUY") ||
+      snap.opportunities.find((o) => o.decision === "WATCH" || o.decision === "MONITOR_ONLY");
+    if (fromCanon) focus = fromCanon;
+    else if (top) focus = top.tokenKey;
   } else if (intent === "news") {
     reply = newsReply(snap, text);
   } else if (intent === "health") {
@@ -385,8 +392,8 @@ async function generalReply(text: string, snap: Awaited<ReturnType<typeof comman
     m
       ? `الان رژیم ${m.regime} است، بیت‌کوین ${faUsd(m.btcPrice)} (${faPct(m.btcChange24h)}).`
       : "اسنپ‌شات بازار هنوز UNKNOWN است.",
-    snap.opportunities.length
-      ? `${snap.opportunities.filter((o) => o.decision === "BUY").length} حکم BUY کانونیکال و ${snap.opportunities.filter((o) => o.decision === "REJECT").length} رد.`
+    (snap.canonicalDecisions ?? []).length || snap.opportunities.length
+      ? `${(snap.canonicalDecisions ?? []).filter((d) => d.outcome === "BUY").length} حکم BUY کانونیکال و ${(snap.canonicalDecisions ?? []).filter((d) => d.outcome === "REJECT").length} رد.`
       : "فرصتی جمع نشده.",
     snap.news[0] ? `تازه‌ترین خبر فارسی: ${snap.news[0].titleFa}` : "خبری نیست.",
     `اگر منظورت چیز دقیق‌تری بود از «${q}»، همون رو شفاف‌تر بگو: فرصت‌ها؟ یک توکن خاص؟ وضعیت سیستم؟`,

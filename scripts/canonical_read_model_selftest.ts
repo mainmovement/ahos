@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   alertsAllowedFromCanonical,
+  canonicalFocusTokenKey,
+  countCanonicalOutcomesForTokens,
   overlayOpportunity,
   paperAllowedFromCanonical,
   parseCanonicalReadModel,
@@ -179,4 +181,93 @@ test("TS WATCH cannot alert unless python alerts_allowed", () => {
     alertsAllowedFromCanonical(availableBuy(), "solana", "So11111111111111111111111111111111111111112"),
     true,
   );
+});
+
+test("findings counts Python outcomes not TS WATCH", () => {
+  const model = parseCanonicalReadModel(
+    {
+      status: "AVAILABLE",
+      generated_ts: NOW,
+      decisions: [
+        { token_key: "solana:buy", chain: "solana", address: "buy", outcome: "BUY" },
+        { token_key: "solana:watch", chain: "solana", address: "watch", outcome: "WATCH" },
+        { token_key: "solana:rej", chain: "solana", address: "rej", outcome: "REJECT" },
+        { token_key: "solana:rej2", chain: "solana", address: "rej2", outcome: "REJECT" },
+        { token_key: "solana:miss", chain: "solana", address: "miss", outcome: "INSUFFICIENT_EVIDENCE" },
+      ],
+    },
+    NOW,
+  );
+  const counts = countCanonicalOutcomesForTokens(model, [
+    { chain: "solana", address: "buy" },
+    { chain: "solana", address: "watch" },
+    { chain: "solana", address: "rej" },
+    { chain: "solana", address: "rej2" },
+    { chain: "solana", address: "miss" },
+    { chain: "solana", address: "unmatched-ts-watch" },
+  ]);
+  assert.equal(counts.buy, 1);
+  assert.equal(counts.watch, 1);
+  assert.equal(counts.reject, 2);
+  // unmatched + INSUFFICIENT_EVIDENCE; TS WATCH on unmatched must not count as WATCH
+  assert.equal(counts.insufficientOrMissing, 2);
+});
+
+test("unavailable/stale tokens count as missing not WATCH", () => {
+  const missing = countCanonicalOutcomesForTokens(unavailableModel("missing_read_model"), [
+    { chain: "solana", address: "aaa" },
+    { chain: "solana", address: "bbb" },
+  ]);
+  assert.equal(missing.watch, 0);
+  assert.equal(missing.reject, 0);
+  assert.equal(missing.buy, 0);
+  assert.equal(missing.insufficientOrMissing, 2);
+
+  const stale = parseCanonicalReadModel(
+    {
+      status: "AVAILABLE",
+      generated_ts: NOW - 48 * 3600,
+      decisions: [{ token_key: "solana:aaa", chain: "solana", address: "aaa", outcome: "WATCH" }],
+    },
+    NOW,
+  );
+  const staleCounts = countCanonicalOutcomesForTokens(stale, [{ chain: "solana", address: "aaa" }]);
+  assert.equal(stale.status, "STALE");
+  assert.equal(staleCounts.watch, 0);
+  assert.equal(staleCounts.insufficientOrMissing, 1);
+});
+
+test("chat focus prefers Python BUY then WATCH/MONITOR_ONLY", () => {
+  const views = presentCanonicalDecisions(
+    parseCanonicalReadModel(
+      {
+        status: "AVAILABLE",
+        generated_ts: NOW,
+        decisions: [
+          {
+            token_key: "solana:mon",
+            chain: "solana",
+            address: "mon",
+            outcome: "MONITOR_ONLY",
+            symbol: "MON",
+          },
+          {
+            token_key: "solana:buy",
+            chain: "solana",
+            address: "buy",
+            outcome: "BUY",
+            symbol: "BUY",
+          },
+        ],
+      },
+      NOW,
+    ),
+  );
+  assert.equal(canonicalFocusTokenKey(views), "solana:buy");
+  assert.equal(
+    canonicalFocusTokenKey(views.filter((d) => d.outcome !== "BUY")),
+    "solana:mon",
+  );
+  assert.equal(canonicalFocusTokenKey([]), null);
+  assert.equal(canonicalFocusTokenKey(presentCanonicalDecisions(unavailableModel("missing"))), null);
 });

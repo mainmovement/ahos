@@ -1,7 +1,7 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
-**Branch:** `cursor/phase3-overlay-python-on-main-9500` (status docs on current `main`)  
-**Base:** `origin/main` after PR **#66**, **#67**, and **#68** merge (`0cbe393`). Overlay-v2 already on `main` via **#65**.  
+**Branch:** `cursor/phase3-post70-hygiene-9500`  
+**Base:** `origin/main` after PR **#69** and **#70** merge (`95b6467`). Overlay-v2 already on `main` via **#65**.  
 **Date:** 2026-09-09  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
@@ -81,7 +81,8 @@ AI cannot upgrade a closed identity or security gate. AI may downgrade.
 | `scoring.ts` | Presentation. WATCH/PAPER_CANDIDATE blocked unless `canonicalBackend` injected |
 | `alerts.ts` | Opportunity alerts require Python `alerts_allowed` (BUY). TS WATCH cannot mint an alert |
 | Command Center | Reads Python JSON via `/api/canonical` + snapshot overlay. Missing/stale ⇒ UNAVAILABLE/STALE, never invented BUY |
-| `engine.ts` | Injects Python read-model as `canonicalBackend`; persists `displayDecision` from Python, not TS WATCH |
+| `engine.ts` | Injects Python read-model as `canonicalBackend`; persists `displayDecision` from Python, not TS WATCH. Cycle findings / `unknownShare` count Python outcomes, not `scoreToken` WATCH. |
+| `chat.ts` | Greeting, opportunities focus, and general BUY/REJECT counts prefer `canonicalDecisions` |
 | Paper `/api/paper` + chat | `paperAllowedFromCanonical` — 403 `CANONICAL_PAPER_DENIED` without Python BUY |
 
 Uploaded Web/3D trees (`advanced-3d-audiovisual-website/`,
@@ -126,6 +127,8 @@ Live GitHub truth as of 2026-09-09:
 * **PR #66** config-doc scanner (`web_api_client.ts`) — **MERGED**
 * **PR #67** Command Center set-state-in-effect — **MERGED**
 * **PR #68** overlay pythonBin NFT / `next build` panic — **MERGED**
+* **PR #69** Phase 3 status docs after #66/#67/#68 — **MERGED**
+* **PR #70** `AHOS_CANONICAL_READ_MODEL` + chat greeting from Python rows — **MERGED**
 * **PR #63** Phase 2 original overlay-v2 branch — still **OPEN**, **CONFLICTING**, **SUPERSEDED**. Do **not** merge #63.
 * Phase 3 remains **PARTIAL**. Do **not** start Phase 4. Do **not** auto-merge.
 
@@ -143,8 +146,10 @@ orchestrator, uploaded Web trees.
 | Orchestrator Telegram “فرصت ویژه” | Gated on `top_canonical.alerts_allowed` |
 | `telegram_ai/pump_alert.py` | Requires BUY/ENTER; UNKNOWN security cannot alert |
 | `scoring.ts` | Cannot emit WATCH without injected `canonicalBackend` |
-| `alerts.ts` | **Fixed this revision:** was alerting on TS WATCH after injection; now requires Python `alerts_allowed` |
-| `engine.ts` persist | **Fixed this revision:** stores Python `displayDecision`, not TS WATCH |
+| `alerts.ts` | Already on main via #65/#70: requires Python `alerts_allowed` |
+| `engine.ts` persist | stores Python `displayDecision`, not TS WATCH |
+| `engine.ts` findings / `unknownShare` | **Fixed this revision:** counted TS `ranked.decision === WATCH`; now `countCanonicalOutcomesForTokens` |
+| `chat.ts` opportunities focus / general counts | **Fixed this revision:** prefer Python `canonicalDecisions` / `canonicalFocusTokenKey` |
 | `/api/paper` + chat paper | Requires Python `paper_allowed` |
 | Command Center | Overlays Python; unavailable ⇒ UNAVAILABLE |
 | `reasoningEngine.ts` + uploaded trees | Preserved presentation; excluded from CC compile unit |
@@ -152,7 +157,7 @@ orchestrator, uploaded Web trees.
 
 Remaining dual-stack: `engine.ts` still computes **display ranks** (`rankScore`).
 Those ranks are not BUY/WATCH authority. Command Center labels display rank as
-non-canonical.
+non-canonical. Council vote WATCH counts remain advisory.
 
 ---
 
@@ -189,13 +194,13 @@ IMPLEMENTED:
   - paper/chat require Python paper_allowed (403 CANONICAL_PAPER_DENIED)
   - alerts.ts requires Python alerts_allowed (TS WATCH cannot mint opportunity alerts)
   - engine.ts persists Python displayDecision, not TS WATCH
+  - engine.ts anti-hype findings and unknownShare count Python outcomes (not TS WATCH)
+  - chat opportunities focus + general BUY/REJECT counts prefer canonicalDecisions
 TESTED:
-  - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files) before and after this revision
-  - npm run test:canonical-security → 16 passed (Telegram mocked + live overlay_query spawn)
-  - npm run typecheck → exit 0
-  - npx eslint . --max-warnings 0 → exit 0 (#67 closed CommandCenter set-state-in-effect on main)
-  - npm run build → exit 0; routes ƒ /api/canonical and ƒ /api/paper present
-  - prior #66: tests/test_config_validation.py 3 passed; full pytest 1648 passed / 3 skipped / 0 failed
+  - prior #67: npx eslint . --max-warnings 0
+  - prior #68: npm run build → exit 0
+  - prior #70: full pytest 1650 passed / 3 skipped / 0 failed
+  - this revision: freeze + canonical-read-model + typecheck recorded after first push
 VERIFIED (narrow, prior #64/#65 environment; not re-claimed here):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
@@ -224,17 +229,22 @@ CLOSED on main / this revision:
   - #66 SCAN_TS_FILES includes web_api_client.ts; full pytest 0 failed
   - #67 Command Center set-state-in-effect; eslint exit 0 on this tree
   - #68 next build no longer panics on overlay python interpreter symlink
+  - #69 Phase 3 status docs after #66/#67/#68
+  - #70 AHOS_CANONICAL_READ_MODEL documented; SCAN_TS_FILES includes canonical_read_model.ts + web_api_auth.ts; chat greeting counts Python rows
+  - this revision: engine findings/unknownShare + chat opportunities focus count Python outcomes
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
-  - canonical_security.ts pythonBin()
-  - tests/test_config_validation.py
-TEST_RESULTS: freeze 36 OK; canonical-security 16 passed; typecheck 0; eslint 0; next build 0. Phase 3 stays PARTIAL.
+  - canonical_read_model.ts countCanonicalOutcomesForTokens / canonicalFocusTokenKey
+  - engine.ts writeFindings
+  - chat.ts
+  - scripts/canonical_read_model_selftest.ts
+TEST_RESULTS: this revision not yet executed at first commit. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
   - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Merging #66/#67 and greening next build does not make the phase VERIFIED.
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Merging #69/#70 and counting Python findings does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.
