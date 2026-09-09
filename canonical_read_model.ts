@@ -142,6 +142,32 @@ export function displayDecision(row: CanonicalDecisionRow | null, modelStatus: C
   return String(row.outcome);
 }
 
+/** Cycle findings / unknownShare must count Python outcomes, not TS scoreToken WATCH. */
+export function countCanonicalOutcomesForTokens(
+  model: CanonicalReadModel,
+  tokens: Array<{ chain?: string | null; address?: string | null }>,
+): {
+  watch: number;
+  reject: number;
+  buy: number;
+  insufficientOrMissing: number;
+} {
+  let watch = 0;
+  let reject = 0;
+  let buy = 0;
+  let insufficientOrMissing = 0;
+  for (const token of tokens) {
+    const outcome = displayDecision(lookupCanonicalRow(model, token.chain, token.address), model.status);
+    if (outcome === "WATCH") watch += 1;
+    else if (outcome === "REJECT") reject += 1;
+    else if (outcome === "BUY") buy += 1;
+    if (outcome === "INSUFFICIENT_EVIDENCE" || outcome === "UNAVAILABLE" || outcome === "STALE") {
+      insufficientOrMissing += 1;
+    }
+  }
+  return { watch, reject, buy, insufficientOrMissing };
+}
+
 export type OverlayOpportunity = {
   chain: string;
   address: string | null;
@@ -251,6 +277,14 @@ export function presentCanonicalDecisions(model: CanonicalReadModel): CanonicalD
       primaryReason: row.primary_reason ? String(row.primary_reason) : null,
     };
   });
+}
+
+/** Chat/focus: prefer Python BUY, then WATCH/MONITOR_ONLY. Never TS rank. */
+export function canonicalFocusTokenKey(decisions: CanonicalDecisionView[]): string | null {
+  const buy = decisions.find((d) => d.outcome === "BUY");
+  if (buy?.tokenKey) return buy.tokenKey;
+  const watch = decisions.find((d) => d.outcome === "WATCH" || d.outcome === "MONITOR_ONLY");
+  return watch?.tokenKey || null;
 }
 
 export async function loadCanonicalReadModel(now = Date.now() / 1000): Promise<CanonicalReadModel> {

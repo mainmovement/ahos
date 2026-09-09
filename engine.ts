@@ -29,6 +29,7 @@ import {
 import { collectNews } from "./news";
 import { collectMarket, enrichPairs, fetchSecurity, mergePairs } from "./providers";
 import {
+  countCanonicalOutcomesForTokens,
   displayDecision,
   loadCanonicalReadModel,
   lookupCanonicalRow,
@@ -388,13 +389,14 @@ export async function runCycle(reason: string) {
 
     await markPaperPrices(pairs);
     await resolvePredictions(pairs);
-    await writeFindings(cycle.id, market.envelopes, news.envelopes, ranked);
+    await writeFindings(cycle.id, market.envelopes, news.envelopes, ranked, canonicalModel);
 
+    const outcomeCounts = countCanonicalOutcomesForTokens(
+      canonicalModel,
+      ranked.map((o) => o.token),
+    );
     const unknownShare =
-      ranked.length === 0
-        ? 1
-        : ranked.filter((o) => o.decision === "INSUFFICIENT_EVIDENCE" || o.confidence === "UNKNOWN").length /
-          ranked.length;
+      ranked.length === 0 ? 1 : outcomeCounts.insufficientOrMissing / ranked.length;
 
     const durationMs = Date.now() - started;
     await db
@@ -630,6 +632,7 @@ async function writeFindings(
   marketEnv: Envelope<unknown>[],
   newsEnv: Envelope<unknown>[],
   ranked: ScoredOpportunity[],
+  canonicalModel: Awaited<ReturnType<typeof loadCanonicalReadModel>>,
 ) {
   const down = [...marketEnv, ...newsEnv].filter((e) => e.status === "DOWN");
   if (down.length >= 5) {
@@ -653,14 +656,16 @@ async function writeFindings(
       status: "OPEN",
     });
   }
-  const watchN = ranked.filter((r) => r.decision === "WATCH").length;
-  const rejectN = ranked.filter((r) => r.decision === "REJECT").length;
+  const { watch: watchN, reject: rejectN } = countCanonicalOutcomesForTokens(
+    canonicalModel,
+    ranked.map((r) => r.token),
+  );
   if (ranked.length >= 5 && rejectN > watchN * 2) {
     await db.insert(findings).values({
       findingId: `F-HYPER-${cycleId}`,
       severity: "LOW",
       titleFa: "فیلتر ضدهایپ فعال — ردها بیشتر از پایش",
-      evidenceFa: `WATCH=${watchN} REJECT=${rejectN}. سیستم در حال رد فرصت‌های پرریسک است.`,
+      evidenceFa: `WATCH کانونیکال=${watchN} REJECT کانونیکال=${rejectN}. سیستم در حال رد فرصت‌های پرریسک است.`,
       confidence: "MED",
       status: "OPEN",
     });
