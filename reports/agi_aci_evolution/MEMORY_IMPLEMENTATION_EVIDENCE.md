@@ -1,6 +1,6 @@
 # MEMORY_IMPLEMENTATION_EVIDENCE
 
-**Branch:** `cursor/agi-aci-memory-p2-9500`  
+**Implementation commit:** `1b6b4c0`  
 **Base SHA:** `1f4febb9b373e01271654515db58dfe72371a0c0`
 
 ## Commands

@@ -4,7 +4,7 @@
 Record ID: EVOLUTION_RECORD_0003
 Date: 2026-09-09
 Time UTC: (see git commit)
-Git SHA: parent/base 1f4febb9b373e01271654515db58dfe72371a0c0 (implementation SHA filled after commit)
+Git SHA: 1b6b4c0 (base 1f4febb9b373e01271654515db58dfe72371a0c0)
 Branch: cursor/agi-aci-memory-p2-9500
 Objective: P2 provenance-bearing Lane-B cognitive memory substrate
 Trigger: MASTER CURSOR DIRECTIVE P2 after PR #87 merge by owner
