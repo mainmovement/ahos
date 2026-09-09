@@ -4,6 +4,25 @@
 **Interpreter for tests/validate:** `/tmp/ahos-test-venv` (ephemeral; not committed). System `python3` lacks pytest (PEP 668).  
 **Soak daemon:** not started. Cloud sqlite: not treated as soak.
 
+## P5 (typed evidence-bound reasoning)
+
+**Base SHA:** `976516123b0b682e99fcc6e9c6f0efabb91a9495`  
+See `P5_TYPED_EVIDENCE_REASONING_AUDIT.md` and `P5_TYPED_EVIDENCE_REASONING_BENCHMARK.md`. Targeted pytest: 187 passed. Freeze 36/36. Reproducibility equal. P4.3 precision/recall/MATCH_REASON protected. P5 mode-specificity and critic-constraint PASS on the synthetic vector.
+
+```text
+python3 -B scripts/freeze_lane_a.py
+# result: Lane-A integrity OK (36 files pinned)  exit 0
+
+/tmp/ahos-test-venv/bin/python -m pytest -q -p no:cacheprovider \
+  tests/test_typed_reasoning.py tests/test_retrieval_lookalike.py \
+  tests/test_retrieval_relevance.py tests/test_cognitive_benchmark.py \
+  tests/test_cognitive_loop.py tests/test_cognitive_memory.py \
+  tests/test_cognitive_core.py tests/test_self_evolution_engine.py \
+  tests/test_multi_mind_council_anti_echo.py tests/test_evolution_validate.py \
+  tests/test_cognitive_panel.py
+# result: 187 passed  exit 0
+```
+
 ## P4.3 (lookalike discrimination)
 
 **Base SHA:** `eb1dbcf883bf3cba94e18881c9bea9a5252a88af`  

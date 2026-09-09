@@ -111,6 +111,11 @@ def test_full_benchmark_metrics_and_reproducibility(tmp_path: Path) -> None:
         "novelty_not_truth",
         "experiment_analysis_only",
         "critic_detection_rate",
+        "typed_evidence_compliance",
+        "critic_constraint_rate",
+        "mode_specificity",
+        "lesson_application_accuracy",
+        "false_lesson_application_rate",
     }
     assert required <= set(mmap)
     for mid in required:

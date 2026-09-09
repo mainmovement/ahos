@@ -4,7 +4,7 @@ Source of progress measurement. Do not mark IMPLEMENTED_AND_VERIFIED without tes
 
 | Capability | Current Status | Evidence | Architecture Target | Gap | Priority | Implementation Status | Test Status | Promotion Status |
 |------------|----------------|----------|---------------------|-----|----------|----------------------|-------------|------------------|
-| Cognitive Core interfaces | PARTIAL | `architecture/cognitive/` + `loop/` | Domain-general loop | Not soak-wired | P3 | isolated orchestrator | `tests/test_cognitive_loop.py` | isolated PR |
+| Cognitive Core interfaces | PARTIAL | `architecture/cognitive/` + `loop/` | Domain-general loop | Not soak-wired | P5 | typed binding + mode reasoners + critic constraint | `tests/test_typed_reasoning.py` + loop tests | isolated PR |
 | Memory (Lane-B substrate) | PARTIAL | `architecture/cognitive/memory/`; `tests/test_cognitive_memory.py` | typed stores + provenance + production ingest | ACI-GAP-001 | P2 | SQLite substrate | 16 targeted tests | this PR |
 | Versioned claims | PARTIAL | `architecture/knowledge/store.py` | semantic memory | claims ≠ full memory | P2 | existing | existing knowledge tests | already on main |
 | Hypothesis lifecycle | PARTIAL | `hypothesis.py` HYP- ids | persistent lifecycle | not linked to soak DB | P3 | JSONL store | test_hypothesis_lifecycle | isolated PR |

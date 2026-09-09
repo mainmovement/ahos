@@ -1,7 +1,17 @@
-"""Deterministic reasoning modes + critic. LLM-free. Unimplemented modes say so."""
+"""Typed evidence-bound reasoning + critic constraint. LLM-free.
+
+Modes are distinct transformations over EvidenceBinding lists.
+The critic inspects a candidate inference and may constrain the final result.
+"""
 
 from __future__ import annotations
 
+from architecture.cognitive.loop.binding import (
+    NOT_APPLICABLE,
+    ROLE_FACTUAL_PREMISE,
+    EvidenceBinding,
+    bind_context,
+)
 from architecture.cognitive.loop.contracts import (
     Assumption,
     ClaimOrigin,
@@ -13,8 +23,28 @@ from architecture.cognitive.loop.contracts import (
     ReasoningMode,
     ReasoningTrace,
 )
-from architecture.cognitive.loop.retrieval import tokens
-from architecture.cognitive.memory.types import DecayState, EpistemicKind
+from architecture.cognitive.loop.inference import (
+    ACTION_ACCEPT,
+    ACTION_CONTEST,
+    ACTION_DOWNGRADE,
+    ACTION_REFUSE,
+    ACTION_REQUIRE_MORE,
+    FINDING_APPLICABILITY_VIOLATION,
+    FINDING_CONTRADICTION,
+    FINDING_EVIDENCE_MISMATCH,
+    FINDING_MISSING_PREMISE,
+    FINDING_OVERCONFIDENCE,
+    FINDING_SCOPE_MISMATCH,
+    FINDING_TEMPORAL_VIOLATION,
+    FINDING_TYPE_VIOLATION,
+    FINDING_UNSUPPORTED_ASSUMPTION,
+    CandidateInference,
+    apply_constraint,
+    to_inference,
+)
+from architecture.cognitive.loop.modes import MODE_FNS
+from architecture.cognitive.memory.store import CognitiveMemoryStore
+from architecture.cognitive.memory.types import EpistemicKind
 
 
 IMPLEMENTED_MODES = frozenset(
@@ -36,62 +66,129 @@ NOT_IMPLEMENTED_MODES = frozenset(
     }
 )
 
-
-def _keyword_hits(ctx: CognitiveContext, task: CognitiveTask) -> tuple[list[str], list[str]]:
-    q = tokens(task.question) | tokens(task.objective)
-    supporting: list[str] = []
-    opposing: list[str] = []
-    for item in ctx.all_included():
-        overlap = tokens(item.statement) & q
-        if not overlap:
-            continue
-        if item.epistemic_kind in {
-            EpistemicKind.PREDICTION.value,
-            EpistemicKind.OPINION.value,
-            EpistemicKind.SIMULATION.value,
-        }:
-            continue
-        if any(
-            w in f" {item.statement.lower()} "
-            for w in (" is not ", " never ", " contradicts ", " opposite ")
-        ):
-            opposing.append(item.memory_id)
-        else:
-            supporting.append(item.memory_id)
-    return supporting, opposing
+CRITIC_QUESTIONS = (
+    "What evidence contradicts this?",
+    "What evidence is missing?",
+    "Which assumption is weakest?",
+    "Could another explanation fit?",
+    "Is the conclusion too strong?",
+    "Is retrieved context biased?",
+    "Is there stale evidence?",
+    "Did we confuse prediction with fact?",
+)
 
 
-def _verdict_from_context(ctx: CognitiveContext, task: CognitiveTask) -> tuple[str, str, list[str]]:
-    steps: list[str] = []
-    if ctx.contradiction_present:
-        steps.append("CONTRADICTION_PRESENT: both sides retained")
-        return CognitiveVerdict.UNRESOLVED.value, EpistemicAnswer.CONTESTED.value, steps
-    facts = [i for i in ctx.facts if i.status != DecayState.STALE.value]
-    stale_facts = [i for i in ctx.facts if i.status == DecayState.STALE.value]
-    if stale_facts and not facts:
-        steps.append("only STALE observations; STALE is not current")
-        return CognitiveVerdict.INSUFFICIENT_EVIDENCE.value, EpistemicAnswer.STALE.value, steps
-    supporting, opposing = _keyword_hits(ctx, task)
-    if opposing and supporting:
-        steps.append("keyword-level support and opposition without formal edge")
-        return CognitiveVerdict.CONTESTED.value, EpistemicAnswer.CONTESTED.value, steps
-    if facts and supporting:
-        steps.append("non-stale observations overlap the question")
-        if len(supporting) == 1:
-            return CognitiveVerdict.WEAKLY_SUPPORTED.value, EpistemicAnswer.PROBABLE.value, steps
-        return CognitiveVerdict.WEAKLY_SUPPORTED.value, EpistemicAnswer.PROBABLE.value, steps
-    if ctx.lessons:
-        steps.append("lessons present but not treated as OBSERVED_FACT")
-        return CognitiveVerdict.WEAKLY_SUPPORTED.value, EpistemicAnswer.UNCERTAIN.value, steps
-    if ctx.predictions and not facts:
-        steps.append("predictions are not facts")
-        return CognitiveVerdict.INSUFFICIENT_EVIDENCE.value, EpistemicAnswer.UNKNOWN.value, steps
-    steps.append("insufficient evidence")
-    return (
+def _inspect(
+    *,
+    task: CognitiveTask,
+    ctx: CognitiveContext,
+    bindings: list[EvidenceBinding],
+    candidate: CandidateInference,
+    assumptions: list[Assumption],
+) -> tuple[str, list[str]]:
+    findings: list[str] = []
+    already_refused = candidate.verdict in {
         CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
-        EpistemicAnswer.INSUFFICIENT_EVIDENCE.value,
-        steps,
+        CognitiveVerdict.UNRESOLVED.value,
+        CognitiveVerdict.CONTESTED.value,
+        CognitiveVerdict.NOT_IMPLEMENTED.value,
+    }
+    if candidate.missing_premises:
+        findings.append(f"{FINDING_MISSING_PREMISE}:{','.join(candidate.missing_premises)}")
+    if candidate.type_violations:
+        findings.append(f"{FINDING_TYPE_VIOLATION}:{','.join(candidate.type_violations)}")
+    if any(b.typed_class in {"OPINION", "PREDICTION", "SIMULATION"} for b in bindings) and (
+        candidate.verdict
+        in {CognitiveVerdict.SUPPORTED.value, CognitiveVerdict.WEAKLY_SUPPORTED.value}
+        and not any(b.may(ROLE_FACTUAL_PREMISE) for b in bindings)
+        and candidate.conclusion_class not in {"HYPOTHESIS", "INFERENCE"}
+    ):
+        findings.append(f"{FINDING_TYPE_VIOLATION}:non_fact_used_as_fact")
+    if candidate.verdict == CognitiveVerdict.SUPPORTED.value:
+        findings.append(f"{FINDING_OVERCONFIDENCE}:candidate_supported")
+    stale_as_current = any(
+        b.typed_class == "OBSERVED_FACT"
+        and b.temporal_state in {"STALE", "SUPERSEDED"}
+        and b.memory_id in candidate.premises
+        and b.may(ROLE_FACTUAL_PREMISE)
+        for b in bindings
     )
+    if stale_as_current:
+        findings.append(f"{FINDING_TEMPORAL_VIOLATION}:stale_premise")
+    if ctx.contradiction_present and candidate.verdict in {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    }:
+        findings.append(f"{FINDING_CONTRADICTION}:ignored_or_underweighted")
+    inapplicable_lessons = [
+        b
+        for b in bindings
+        if b.typed_class == "LESSON"
+        and b.applicability == NOT_APPLICABLE
+        and b.memory_id in candidate.supporting_ids
+    ]
+    if inapplicable_lessons:
+        findings.append(
+            f"{FINDING_APPLICABILITY_VIOLATION}:{inapplicable_lessons[0].memory_id}"
+        )
+    inapplicable_fails = [
+        b
+        for b in bindings
+        if b.typed_class == "FAILURE"
+        and b.applicability == NOT_APPLICABLE
+        and candidate.failure_applied
+    ]
+    if inapplicable_fails:
+        findings.append(f"{FINDING_APPLICABILITY_VIOLATION}:failure")
+    scope = [
+        b
+        for b in bindings
+        if b.domain
+        and task.domain
+        and b.domain not in {task.domain, "COGNITIVE_CORE"}
+        and b.memory_id in candidate.premises
+    ]
+    if scope:
+        findings.append(f"{FINDING_SCOPE_MISMATCH}:{scope[0].memory_id}")
+    if candidate.verdict in {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    } and not candidate.supporting_ids and not candidate.premises:
+        findings.append(f"{FINDING_EVIDENCE_MISMATCH}:conclusion_without_support")
+    if assumptions and candidate.verdict == CognitiveVerdict.SUPPORTED.value:
+        findings.append(f"{FINDING_UNSUPPORTED_ASSUMPTION}:{assumptions[0].assumption_id}")
+
+    codes = {f.split(":")[0] for f in findings}
+    if candidate.verdict == CognitiveVerdict.NOT_IMPLEMENTED.value:
+        return ACTION_ACCEPT, findings
+    if not bindings:
+        return ACTION_REQUIRE_MORE, findings or [f"{FINDING_MISSING_PREMISE}:empty_context"]
+    if already_refused:
+        return ACTION_ACCEPT, findings
+    if FINDING_MISSING_PREMISE in codes or FINDING_EVIDENCE_MISMATCH in codes:
+        return ACTION_REQUIRE_MORE, findings
+    if FINDING_CONTRADICTION in codes:
+        return ACTION_CONTEST, findings
+    if FINDING_TYPE_VIOLATION in codes:
+        if candidate.verdict == CognitiveVerdict.SUPPORTED.value:
+            return ACTION_DOWNGRADE, findings
+        if candidate.verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value and not any(
+            b.may(ROLE_FACTUAL_PREMISE) for b in bindings
+        ):
+            return ACTION_DOWNGRADE, findings
+        return ACTION_DOWNGRADE, findings
+    if FINDING_TEMPORAL_VIOLATION in codes or FINDING_SCOPE_MISMATCH in codes:
+        return ACTION_DOWNGRADE, findings
+    if FINDING_APPLICABILITY_VIOLATION in codes:
+        return ACTION_DOWNGRADE, findings
+    if FINDING_OVERCONFIDENCE in codes or FINDING_UNSUPPORTED_ASSUMPTION in codes:
+        return ACTION_DOWNGRADE, findings
+    if not bindings and candidate.verdict not in {
+        CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
+        CognitiveVerdict.NOT_IMPLEMENTED.value,
+    }:
+        return ACTION_REFUSE, [f"{FINDING_MISSING_PREMISE}:empty_context"]
+    return ACTION_ACCEPT, findings
 
 
 def critique_result(
@@ -100,35 +197,48 @@ def critique_result(
     ctx: CognitiveContext,
     verdict: str,
     assumptions: list[Assumption],
+    bindings: list[EvidenceBinding] | None = None,
+    candidate: CandidateInference | None = None,
 ) -> Critique:
-    questions = (
-        "What evidence contradicts this?",
-        "What evidence is missing?",
-        "Which assumption is weakest?",
-        "Could another explanation fit?",
-        "Is the conclusion too strong?",
-        "Is retrieved context biased?",
-        "Is there stale evidence?",
-        "Did we confuse prediction with fact?",
-    )
     pred_as_fact = any(
         i.epistemic_kind == EpistemicKind.PREDICTION.value for i in ctx.facts
     )
-    stale_current = any(i.status == DecayState.STALE.value for i in ctx.facts)
+    stale_current = any(
+        i.status == "STALE" and i.epistemic_kind == EpistemicKind.OBSERVED_FACT.value
+        for i in ctx.facts
+    )
     too_strong = verdict == CognitiveVerdict.SUPPORTED.value
     weakest = assumptions[0].statement if assumptions else "none recorded"
-    missing = ctx.unknowns
+    missing = list(ctx.unknowns)
+    if candidate and candidate.missing_premises:
+        missing = list(dict.fromkeys(list(missing) + list(candidate.missing_premises)))
     alt = "An unrecorded cause could explain the same observations."
     if ctx.contradiction_present:
         alt = "The opposing memory remains a live alternative; do not discard it."
+    action = ACTION_ACCEPT
+    findings: list[str] = []
+    if candidate is not None:
+        action, findings = _inspect(
+            task=task,
+            ctx=ctx,
+            bindings=bindings or [],
+            candidate=candidate,
+            assumptions=assumptions,
+        )
+    elif not ctx.all_included():
+        action = ACTION_REQUIRE_MORE
+        findings = [f"{FINDING_MISSING_PREMISE}:empty_context"]
     return Critique(
-        questions=questions,
+        questions=CRITIC_QUESTIONS,
         weakest_assumption=weakest,
         alternative_explanation=alt,
         too_strong=too_strong,
         prediction_confused_with_fact=pred_as_fact,
         stale_used_as_current=stale_current,
-        missing_evidence=missing,
+        missing_evidence=tuple(missing),
+        action=action,
+        findings=tuple(findings),
+        constraint_applied=action != ACTION_ACCEPT,
     )
 
 
@@ -137,69 +247,75 @@ def reason(
     ctx: CognitiveContext,
     *,
     retrieved_ids: list[str],
+    store: CognitiveMemoryStore | None = None,
 ) -> tuple[str, str, ReasoningTrace, Critique, list[Assumption]]:
     mode = task.reasoning_mode
     assumptions = [
         Assumption(
             assumption_id="ASM-000001",
             statement="Retrieved memories are the only evidence for this episode",
-            basis="P3 loop does not query soak or Lane A",
+            basis="P5 loop does not query soak or Lane A",
             confidence=1.0,
-            impact="conclusions cannot be stronger than assembled context",
+            impact="conclusions cannot be stronger than bound evidence",
             origin=ClaimOrigin.ASSUMED.value,
         )
     ]
+    bindings = bind_context(ctx, task, store=store)
+
     if mode in NOT_IMPLEMENTED_MODES:
-        verdict, epistemic = (
-            CognitiveVerdict.NOT_IMPLEMENTED.value,
-            EpistemicAnswer.UNKNOWN.value,
+        candidate = CandidateInference(
+            verdict=CognitiveVerdict.NOT_IMPLEMENTED.value,
+            epistemic=EpistemicAnswer.UNKNOWN.value,
+            conclusion=f"Mode {mode} is not implemented; I don't know.",
+            conclusion_class="UNKNOWN",
+            assumptions=assumptions,
+            steps=[f"mode {mode} is NOT_IMPLEMENTED; refusing pretended inference"],
         )
-        steps = [f"mode {mode} is NOT_IMPLEMENTED; refusing pretended inference"]
         mode_status = "NOT_IMPLEMENTED"
-        conclusion = f"Mode {mode} is not implemented; I don't know."
+    elif mode not in IMPLEMENTED_MODES:
+        candidate = CandidateInference(
+            verdict=CognitiveVerdict.NOT_IMPLEMENTED.value,
+            epistemic=EpistemicAnswer.UNKNOWN.value,
+            conclusion=f"Mode {mode} is unknown; I don't know.",
+            conclusion_class="UNKNOWN",
+            assumptions=assumptions,
+            steps=[f"mode {mode} is not in the implemented set"],
+        )
+        mode_status = "NOT_IMPLEMENTED"
     else:
         mode_status = "IMPLEMENTED"
-        verdict, epistemic, steps = _verdict_from_context(ctx, task)
-        if mode == ReasoningMode.METACOGNITIVE.value:
-            steps.append(
-                f"know={len(ctx.facts)} facts; unknown={list(ctx.unknowns)}; "
-                f"failures={len(ctx.failures)}; lessons={len(ctx.lessons)}"
-            )
-            conclusion = (
-                f"Known observations: {len(ctx.facts)}. "
-                f"Unknowns: {'; '.join(ctx.unknowns) or 'none listed'}. "
-                f"Verdict remains {verdict}."
-            )
-        elif mode == ReasoningMode.TEMPORAL.value:
-            steps.append("event time (observed_at) is distinct from ingestion (created_at)")
-            conclusion = f"Temporal reading: {verdict} (stale not treated as current)."
-        elif mode == ReasoningMode.INDUCTIVE.value:
-            n = len(ctx.failures) + len(ctx.lessons)
-            steps.append(f"inductive count of failures+lessons={n}")
-            conclusion = f"Pattern strength from {n} prior lessons/failures: {verdict}."
-        elif mode == ReasoningMode.ABDUCTIVE.value:
-            steps.append("abduction proposes an explanation; not a fact")
-            conclusion = f"Best explanation candidate under {verdict}: {task.question}"
-        elif mode == ReasoningMode.ADVERSARIAL.value:
-            steps.append("adversarial mode defers to critic before any upgrade")
-            conclusion = f"Adversarial stance: {verdict}"
-        else:
-            conclusion = f"{mode} verdict {verdict} for: {task.question}"
-        if verdict == CognitiveVerdict.SUPPORTED.value:
-            verdict = CognitiveVerdict.WEAKLY_SUPPORTED.value
-            epistemic = EpistemicAnswer.PROBABLE.value
-            steps.append("downgraded SUPPORTED→WEAKLY_SUPPORTED: P3 never upgrades to certainty")
+        candidate = MODE_FNS[mode](task, bindings)
+        if not candidate.assumptions:
+            candidate.assumptions = list(assumptions)
+        assumptions = list(candidate.assumptions)
 
-    if ctx.context_incomplete:
-        steps.append("CONTEXT_INCOMPLETE")
-        if verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value:
-            epistemic = EpistemicAnswer.UNCERTAIN.value
-
+    pre_verdict = candidate.verdict
     critique = critique_result(
-        task=task, ctx=ctx, verdict=verdict, assumptions=assumptions
+        task=task,
+        ctx=ctx,
+        verdict=candidate.verdict,
+        assumptions=assumptions,
+        bindings=bindings,
+        candidate=candidate,
     )
-    if critique.too_strong:
-        verdict = CognitiveVerdict.WEAKLY_SUPPORTED.value
+    constrained = apply_constraint(
+        candidate, action=critique.action, findings=list(critique.findings)
+    )
+    if ctx.context_incomplete:
+        constrained.steps.append("CONTEXT_INCOMPLETE")
+        if constrained.verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value:
+            constrained.epistemic = EpistemicAnswer.UNCERTAIN.value
+    if constrained.verdict == CognitiveVerdict.SUPPORTED.value:
+        constrained.verdict = CognitiveVerdict.WEAKLY_SUPPORTED.value
+        constrained.epistemic = EpistemicAnswer.PROBABLE.value
+        constrained.steps.append("governance: never emit SUPPORTED certainty from P5")
+
+    inference = to_inference(
+        constrained,
+        mode=mode,
+        action=critique.action,
+        findings=list(critique.findings),
+    )
     selected = [i.memory_id for i in ctx.all_included()]
     trace = ReasoningTrace(
         task_id=task.task_id,
@@ -209,12 +325,22 @@ def reason(
         selected_ids=tuple(selected),
         excluded=ctx.excluded,
         assumptions=tuple(assumptions),
-        inferences=tuple(steps),
+        inferences=tuple(constrained.steps),
         contradictions=ctx.contradictions,
-        steps=tuple(steps),
-        uncertainty=epistemic,
-        conclusion=conclusion,
+        steps=tuple(constrained.steps),
+        uncertainty=constrained.epistemic,
+        conclusion=constrained.conclusion,
         open_questions=critique.questions[:4],
-        verdict=verdict,
+        verdict=constrained.verdict,
+        inference_records=(inference.as_dict(),),
+        critic_findings=tuple(critique.findings),
+        constraint_actions=(critique.action,),
+        evidence_classes=tuple(b.typed_class for b in bindings),
+        premises=tuple(constrained.premises),
     )
-    return verdict, epistemic, trace, critique, assumptions
+    # Preserve critic flags after constraint (too_strong refers to candidate).
+    critique.too_strong = pre_verdict == CognitiveVerdict.SUPPORTED.value
+    critique.constraint_applied = (
+        critique.action != ACTION_ACCEPT or constrained.verdict != pre_verdict
+    )
+    return constrained.verdict, constrained.epistemic, trace, critique, assumptions

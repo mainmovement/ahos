@@ -11,6 +11,7 @@ Lane-B AGI/ACI evolution records. Sequential IDs; do not reuse.
 | 0005 | 2026-09-09 | P4.1 cognitive benchmark expansion | ACCEPT for isolated PR; several metrics FAIL honestly |
 | 0006 | 2026-09-09 | P4.2 deterministic retrieval relevance tightening | ACCEPT for isolated PR; precision/F1 still FAIL honestly; recall protected |
 | 0007 | 2026-09-09 | P4.3 deterministic lookalike discrimination | ACCEPT for isolated PR; precision/F1 PASS on this vector; residual cousins remain |
+| 0008 | 2026-09-09 | P5 typed evidence-bound reasoning + critic constraint | ACCEPT for isolated PR; P4.3 retrieval protected; P5 metrics PASS on synthetic vector |
 | — | 2026-09-09 | Process self-research findings | `SELF_RESEARCH_FINDINGS.md` (weaknesses recorded, not hidden) |
 
 Related:
@@ -34,6 +35,10 @@ Related:
 - `P4_3_RETRIEVAL_BENCHMARK_REPORT.md`
 - `p4_3_retrieval_benchmark_latest.json`
 - `p4_3_p42_baseline.json`
+- `P4_4_COGNITIVE_STACK_FORENSIC_AUDIT.md`
+- `P5_TYPED_EVIDENCE_REASONING_AUDIT.md`
+- `P5_TYPED_EVIDENCE_REASONING_BENCHMARK.md`
+- `p5_typed_evidence_reasoning_latest.json`
 - `TEST_EVIDENCE.md`
 - `LANE_A_CHANGE_PROPOSAL.md` (none this pass)
 - Charter: `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`

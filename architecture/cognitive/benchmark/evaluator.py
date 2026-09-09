@@ -11,6 +11,7 @@ from typing import Any
 from architecture.cognitive.benchmark.corpus import NOW, TIMEOUT_RELEVANT, seed_corpus
 from architecture.cognitive.benchmark.match_reasons import match_reason_justified
 from architecture.cognitive.benchmark.metrics import MetricResult, f1, make_metric
+from architecture.cognitive.benchmark.p5_eval import evaluate_p5_reasoning
 from architecture.cognitive.benchmark.scenarios import (
     adversarial_cases,
     contradiction_reason_cases,
@@ -422,7 +423,9 @@ def run_cognitive_benchmark(
         task = _task_from_case(case)
         items = retriever.retrieve(store, task, now=NOW)
         ctx = assemble_context(items, store, now=NOW)
-        verdict, epistemic, trace, _crit, _asm = reason(task, ctx, retrieved_ids=[i.memory_id for i in items])
+        verdict, epistemic, trace, _crit, _asm = reason(
+            task, ctx, retrieved_ids=[i.memory_id for i in items], store=store
+        )
         det_n += 1
         both = set(case.expected_relevant_ids) <= {i.memory_id for i in items}
         if ctx.contradiction_present and both and verdict in {"UNRESOLVED", "CONTESTED"}:
@@ -1347,6 +1350,10 @@ def run_cognitive_benchmark(
         )
     )
 
+    p5_metrics, p5_cases, p5_counts = evaluate_p5_reasoning(store)
+    metrics.extend(p5_metrics)
+    case_results.extend(p5_cases)
+
     # weaknesses from FAILs
     for m in metrics:
         if m.status == "FAIL":
@@ -1373,6 +1380,7 @@ def run_cognitive_benchmark(
             "cross_domain": len(cross_domain_cases()),
             "adversarial": len(adversarial_cases()),
             "corpus_memories": len(corpus.ids),
+            "p5_cases": p5_counts.get("p5_cases", 0),
             "case_result_rows": len(case_results),
         },
         metrics=metrics,

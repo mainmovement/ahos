@@ -93,7 +93,7 @@ class CognitiveOrchestrator:
         ctx = assemble_context(retrieved, self.memory, budget=budget, now=ts)
         retrieved_ids = [i.memory_id for i in retrieved]
         verdict, epistemic, trace, critique, _assumptions = reason(
-            task, ctx, retrieved_ids=retrieved_ids
+            task, ctx, retrieved_ids=retrieved_ids, store=self.memory
         )
 
         seen_before = bool(ctx.lessons or ctx.failures)
@@ -187,6 +187,7 @@ class CognitiveOrchestrator:
         if task.write_back and use_memory:
             lesson_statement = (
                 f"LESSON [{task.data_label}]: {trace.conclusion} "
+                f"about {task.question} {task.objective} "
                 f"verdict={verdict} failures_seen={len(ctx.failures)}"
             )
             lesson = self.memory.remember(
@@ -235,6 +236,33 @@ class CognitiveOrchestrator:
             )
             episode_id = episode.memory_id
 
+        inf = (trace.inference_records or ({},))[0]
+        if task.write_back and use_memory and inf.get("conclusion"):
+            support_ids = list(inf.get("supporting_evidence_ids") or [])
+            self.memory.remember(
+                memory_type=MemoryType.SEMANTIC,
+                epistemic_kind=EpistemicKind.INFERENCE,
+                statement=f"INFERENCE [{task.data_label}]: {trace.conclusion}",
+                source_type=SourceType.SYSTEM,
+                source_id=task.task_id,
+                source_location="architecture.cognitive.loop.orchestrator",
+                producer="architecture.cognitive.loop",
+                producer_version="p5-v1",
+                domain=task.domain,
+                context=task.task_id,
+                created_at=ts,
+                hypothesis_id=hyp_id,
+                experiment_id=exp_id,
+                agent_id=task.agent_id,
+                agent_namespace=task.agent_id or "cognitive-inference",
+                derived_from=support_ids,
+                payload={
+                    "data_label": task.data_label,
+                    "conclusion_class": inf.get("conclusion_class") or "INFERENCE",
+                    "critic_action": critique.action,
+                },
+            )
+
         return CognitiveResult(
             task_id=task.task_id,
             verdict=verdict,
@@ -250,4 +278,7 @@ class CognitiveOrchestrator:
             episode_memory_id=episode_id,
             novelty=novelty,
             authorized_execution=False,
+            lesson_applied=bool(inf.get("lesson_applied")),
+            failure_applied=bool(inf.get("failure_applied")),
+            critic_action=critique.action,
         )

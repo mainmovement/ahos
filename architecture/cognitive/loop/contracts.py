@@ -181,6 +181,9 @@ class Critique:
     prediction_confused_with_fact: bool
     stale_used_as_current: bool
     missing_evidence: tuple[str, ...]
+    action: str = "ACCEPT"
+    findings: tuple[str, ...] = ()
+    constraint_applied: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -191,6 +194,9 @@ class Critique:
             "prediction_confused_with_fact": self.prediction_confused_with_fact,
             "stale_used_as_current": self.stale_used_as_current,
             "missing_evidence": list(self.missing_evidence),
+            "action": self.action,
+            "findings": list(self.findings),
+            "constraint_applied": self.constraint_applied,
         }
 
 
@@ -220,6 +226,8 @@ class CognitiveContext:
     contradiction_present: bool
     context_incomplete: bool
     token_estimate: int
+    opinions: tuple[RetrievedItem, ...] = ()
+    simulations: tuple[RetrievedItem, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         def pack(items: tuple[RetrievedItem, ...]) -> list[dict[str, Any]]:
@@ -230,6 +238,8 @@ class CognitiveContext:
             "inferences": pack(self.inferences),
             "hypotheses": pack(self.hypotheses),
             "predictions": pack(self.predictions),
+            "opinions": pack(self.opinions),
+            "simulations": pack(self.simulations),
             "experiments": pack(self.experiments),
             "outcomes": pack(self.outcomes),
             "contradictions": list(self.contradictions),
@@ -249,6 +259,8 @@ class CognitiveContext:
             self.inferences,
             self.hypotheses,
             self.predictions,
+            self.opinions,
+            self.simulations,
             self.experiments,
             self.outcomes,
             self.failures,
@@ -281,6 +293,11 @@ class ReasoningTrace:
     conclusion: str
     open_questions: tuple[str, ...]
     verdict: str
+    inference_records: tuple[dict[str, Any], ...] = ()
+    critic_findings: tuple[str, ...] = ()
+    constraint_actions: tuple[str, ...] = ()
+    evidence_classes: tuple[str, ...] = ()
+    premises: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -298,6 +315,11 @@ class ReasoningTrace:
             "conclusion": self.conclusion,
             "open_questions": list(self.open_questions),
             "verdict": self.verdict,
+            "inference_records": list(self.inference_records),
+            "critic_findings": list(self.critic_findings),
+            "constraint_actions": list(self.constraint_actions),
+            "evidence_classes": list(self.evidence_classes),
+            "premises": list(self.premises),
         }
 
 
@@ -318,6 +340,9 @@ class CognitiveResult:
     failure_memory_id: str = ""
     novelty: dict[str, Any] = field(default_factory=dict)
     authorized_execution: bool = False
+    lesson_applied: bool = False
+    failure_applied: bool = False
+    critic_action: str = "ACCEPT"
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -336,4 +361,7 @@ class CognitiveResult:
             "failure_memory_id": self.failure_memory_id,
             "novelty": dict(self.novelty),
             "authorized_execution": self.authorized_execution,
+            "lesson_applied": self.lesson_applied,
+            "failure_applied": self.failure_applied,
+            "critic_action": self.critic_action,
         }
