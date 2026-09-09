@@ -121,6 +121,11 @@ def get_knowledge_db_path(*, create_dir: bool = True) -> str:
     return get_db_path("ahos_knowledge.sqlite", create_dir=create_dir)
 
 
+def get_cognitive_memory_db_path(*, create_dir: bool = True) -> str:
+    """Lane-B cognitive memory only. Never the soak / Lane-A / knowledge DBs."""
+    return get_db_path("ahos_cognitive_memory.sqlite", create_dir=create_dir)
+
+
 def sqlite_ro_uri(path: Path | str) -> str:
     """Build a SQLite read-only URI that works on Windows and POSIX.
 
@@ -159,6 +164,7 @@ def export_paths_yaml(output_file: Path | str | None = None) -> str:
             "paper_trading": get_paper_trading_db_path(),
             "local": get_local_db_path(),
             "knowledge": get_knowledge_db_path(),
+            "cognitive_memory": get_cognitive_memory_db_path(),
         }
     }
     content = yaml.safe_dump(paths_dict, sort_keys=False)

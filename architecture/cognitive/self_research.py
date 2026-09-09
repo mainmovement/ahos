@@ -113,7 +113,7 @@ def build_self_research_report(
 
     missing.extend(
         [
-            "Unified working/episodic/semantic/procedural memory with provenance.",
+            "Production ingestion of soak/runtime events into Lane-B cognitive memory (store exists; not wired).",
             "Causal world model (observations are not a world model).",
             "Memory-bearing cognitive agents with independent tools.",
             "Validated counterfactual engine (must not overwrite observed outcomes).",

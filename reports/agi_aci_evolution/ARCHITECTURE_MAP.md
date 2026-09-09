@@ -15,7 +15,7 @@
                          council (advisory)
                          evolution/engine+ledger+hindsight
                          runtime observation daemon
-                         cognitive/  ← NEW contracts (this pass)
+                         cognitive/  ← contracts + P2 memory substrate
 ```
 
 ## Cognitive Core vs domain adapters
@@ -25,7 +25,7 @@ Cognitive Core (domain-general)
   contracts, hypothesis, experiment_bridge, self_research,
   novelty, evaluation, sandbox, capability, evolution_gate,
   world_model inventory, reasoning inventory, agent passports,
-  counterfactual policy
+  counterfactual policy, cognitive memory store (isolated sqlite)
 
 Financial / token Domain Adapters (existing; not rewritten here)
   architecture/intel/*, architecture/intelligence/*,

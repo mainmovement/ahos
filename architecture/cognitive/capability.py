@@ -114,14 +114,14 @@ class CapabilityRegister:
 BASELINE_GAPS: tuple[CapabilityGap, ...] = (
     CapabilityGap(
         gap_id="ACI-GAP-001",
-        description="No unified provenance-bearing memory (working/episodic/semantic/procedural).",
-        impact="Cannot retrieve, contradict, or decay beliefs as a cognitive system.",
+        description="Provenance-bearing Lane-B memory substrate exists; production ingestion and unified retrieval across soak ledgers are not wired.",
+        impact="Cannot yet use memory as a live self-model over soak evidence.",
         dependency="P2 Memory architecture",
         priority="P2",
-        evidence="architecture/ has no MemoryStore; knowledge/VersionedClaimStore is claims-only.",
-        proposed_solution="Design typed memory stores with provenance; do not dump unstructured logs.",
-        implementation_status="OPEN",
-        validation_status="UNVALIDATED",
+        evidence="architecture/cognitive/memory/; tests/test_cognitive_memory.py",
+        proposed_solution="Keep isolated SQLite; later optional read-only links to prediction IDs without writing soak DB.",
+        implementation_status="PARTIAL",
+        validation_status="SUBSTRATE_TESTED",
     ),
     CapabilityGap(
         gap_id="ACI-GAP-002",

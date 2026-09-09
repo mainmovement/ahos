@@ -91,16 +91,21 @@ Autonomy ceiling for this package: `L1_ANALYZE`. Paper trading remains a frozen 
 
 ## 5. Memory evolution path
 
-| Store | Current | Target |
-|-------|---------|--------|
-| Working | process state / evidence bundles | typed WM with TTL |
-| Episodic | observation rows, cycle reports | provenance-bearing episodes |
-| Semantic | `VersionedClaimStore` | queryable beliefs + contradiction |
-| Procedural | scripts + frozen Lane A | versioned procedures with rollback |
-| Market / Experience / Failure | score ledger, experiment JSONL, hindsight | linked to hypotheses |
-| Hypothesis / Strategy / Agent / Causal / Self-model | HypothesisStore JSONL; others MISSING | separate stores, not one dump |
+Authoritative P2 document: `docs/architecture/AHOS_COGNITIVE_MEMORY_ARCHITECTURE_v1.0.md`.
 
-Every memory record should eventually carry: provenance, timestamp, source, confidence, validity, contradiction, revision, decay, domain, context, outcome linkage.
+| Store | Current (P2) | Target |
+|-------|----------------|--------|
+| Working | TTL + session JSON in isolated SQLite; STALE ≠ FALSE | same + runtime wiring |
+| Episodic | Typed episodes with event vs ingestion time | ingest from runtime (read-only wrt soak) |
+| Semantic | Store + consolidation gate (no auto OBSERVED_FACT) | plus VersionedClaimStore links |
+| Procedural | Typed PROCEDURE rows + versioning | rollback metadata in production use |
+| Hypothesis / Experiment | Links by HYP- / experiment_id; ledgers not replaced | same |
+| Failure | Fingerprint + recurrence | query from self-research routinely |
+| Agent | Namespace isolation | memory-bearing agents (P6) |
+| Causal / world-model objects | Payload kinds stored; **not** a world model | P5 |
+| Score ledger / soak observations | Existing; **not** this DB | never merged |
+
+ACI-GAP-001 is **PARTIAL** (substrate tested), not closed: production ingestion is not wired.
 
 ## 6. Safety invariants (binding)
 
