@@ -14,6 +14,7 @@ P3 cognitive loop (architecture/cognitive/loop)
 P4.1 benchmark (architecture/cognitive/benchmark)
         × no soak / Lane A / LLM / network
 P4.2 tightens retrieval only; P4.1 cases/labels stay the measurement boundary
+P4.3 adds lookalike discrimination; still does not rewrite case labels
 ```
 
 The benchmark is non-authoritative. It cannot promote code, authorize execution, or write soak DBs.
