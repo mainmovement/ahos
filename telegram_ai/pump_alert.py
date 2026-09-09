@@ -2,7 +2,8 @@
 """Pump / high-opportunity alert → Telegram (loud notification) + structured payload for web.
 
 Rules (honest):
-  - Only alert when securityStatus is PASS. Score cannot substitute.
+  - Only alert when canonicalOutcome is BUY and securityStatus is PASS.
+  - Advisor ENTER / STALE / WATCH cannot mint an opportunity alert.
   - UNKNOWN / INCOMPLETE / STALE / REJECT / missing status never alert.
   - Never invent price or confidence.
   - Paper-only disclaimer always present.
@@ -132,8 +133,9 @@ def maybe_alert_opportunity(opp: dict[str, Any]) -> dict[str, Any] | None:
     """
     key = opp.get("tokenKey") or f"{opp.get('chain')}:{opp.get('symbol')}"
     outcome = str(opp.get("canonicalOutcome") or opp.get("canonical_outcome") or "").upper()
-    action = str(opp.get("canonicalAction") or opp.get("advisor_action") or "").upper()
-    canonical_positive = outcome == "BUY" or action == "ENTER"
+    # ENTER alone is not a positive recommendation. STALE/UNAVAILABLE rows may
+    # still carry a recorded advisor ENTER; only live canonical BUY may alert.
+    canonical_positive = outcome == "BUY"
     if not canonical_positive:
         return None
     score = opp.get("rankScore")
