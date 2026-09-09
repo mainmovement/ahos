@@ -91,11 +91,16 @@ def evaluation_capability_claim() -> CapabilityAssessment:
         status=CapabilityStatus.PARTIAL,
         evidence=(
             "architecture/cognitive/evaluation.py",
+            "architecture/cognitive/benchmark/",
+            "reports/agi_aci_evolution/P4_1_COGNITIVE_BENCHMARK_REPORT.md",
             "reports/agi_aci_evolution/BENCHMARK_PLAN.md",
         ),
         architecture_target=(
             "Compare against current AHOS, previous best, simple baseline, "
             "statistical baseline, ML baseline, external tool baseline."
         ),
-        gap="No executed AGI/ACI benchmark suite yet; plan only.",
+        gap=(
+            "P4.1 executed a SYNTHETIC cognitive-correctness suite (not an AGI suite). "
+            "Soak/financial calibration and six-baseline comparison remain unmeasured."
+        ),
     )

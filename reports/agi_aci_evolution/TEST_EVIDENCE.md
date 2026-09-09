@@ -4,6 +4,11 @@
 **Interpreter for tests/validate:** `/tmp/ahos-test-venv` (ephemeral; not committed). System `python3` lacks pytest (PEP 668).  
 **Soak daemon:** not started. Cloud sqlite: not treated as soak.
 
+## P4.1 (cognitive benchmark)
+
+**Base SHA:** `6862c6fc20050622f6125853671f885b0e36b16a`  
+See `P4_1_COGNITIVE_BENCHMARK_REPORT.md` and `p4_1_cognitive_benchmark_latest.json`. Targeted pytest includes `tests/test_cognitive_benchmark.py`. Several metrics FAIL honestly.
+
 ## P3 (cognitive loop)
 
 **Base SHA:** `606b6f282318d48e287873aaf0f3ad4c9def4321`  
