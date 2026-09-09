@@ -3,6 +3,10 @@
 P4.2: contextual signals (same_domain, unanchored edges, mere FAILURE type,
 stale/recency) are not sufficient alone. Relationships expand relevance from
 anchors; they do not create it from nothing.
+
+P4.3: lexical/structural similarity is not task identity. Generic two-token
+overlap and cross-domain operation cousins are not sufficient anchors.
+Explicit structured mismatch rejects; missing metadata is not a mismatch.
 """
 
 from __future__ import annotations
@@ -113,6 +117,20 @@ SCORE_TEMPORAL_BOOST = 3
 MIN_STRONG_LEXICAL = 2
 # 1-token + same-domain is an anchor only if that token is rare in-domain.
 MAX_DOMAIN_DF = 3
+# A token seen in this many domains is a generic operation/structure word.
+GENERIC_DOMAIN_SPAN = 3
+# Cross-domain 2-token overlap needs a domain-specific token (span == 1)
+# or at least this many overlapping tokens.
+CROSS_DOMAIN_STRONG_OVERLAP = 3
+
+NON_EVIDENTIAL_KINDS = frozenset(
+    {
+        EpistemicKind.OPINION.value,
+        EpistemicKind.PREDICTION.value,
+        EpistemicKind.SIMULATION.value,
+    }
+)
+UNKNOWN_FIELD = frozenset({"", "UNKNOWN", "NONE", "N/A", "unknown", "none"})
 
 LESSON_INTENT = frozenset({"learn", "learned", "lesson", "lessons"})
 FAILURE_INTENT = frozenset({"fail", "failed", "failure", "failures"})
@@ -256,7 +274,48 @@ def normalize_query(task: CognitiveTask) -> QuerySignals:
 
 
 def _namespace_blocked(task: CognitiveTask, rec: MemoryRecord) -> bool:
-    return bool(task.agent_id and rec.agent_namespace and rec.agent_namespace != task.agent_id)
+    if task.agent_id and rec.agent_namespace and rec.agent_namespace != task.agent_id:
+        return True
+    # Unscoped queries must not see another agent's private memories.
+    if not task.agent_id and rec.agent_namespace:
+        return True
+    return False
+
+
+def _explicit_field(value: Any) -> str:
+    text = str(value or "").strip()
+    if text in UNKNOWN_FIELD or text.upper() in UNKNOWN_FIELD:
+        return ""
+    return text
+
+
+def _hard_mismatch(rec: MemoryRecord, task: CognitiveTask) -> str:
+    payload = rec.payload if isinstance(rec.payload, dict) else {}
+    pairs = (
+        ("COMPONENT", task.constraints.get("component"), payload.get("component")),
+        ("OPERATION", task.constraints.get("operation"), payload.get("operation")),
+        ("FAILURE_TYPE", task.constraints.get("failure_type"), payload.get("failure_type")),
+    )
+    for name, qv, mv in pairs:
+        q = _explicit_field(qv)
+        m = _explicit_field(mv)
+        if q and m and canonical_token(q.lower()) != canonical_token(m.lower()):
+            return f"HARD_MISMATCH_{name}"
+    if rec.epistemic_kind == EpistemicKind.LESSON.value:
+        app = _explicit_field(payload.get("applicability"))
+        if app and task.domain and app != task.domain:
+            return "HARD_MISMATCH_APPLICABILITY"
+    return ""
+
+
+def _token_domain_span(records: list[MemoryRecord]) -> dict[str, int]:
+    domains: dict[str, set[str]] = {}
+    for rec in records:
+        if rec.agent_namespace:
+            continue
+        for tok in canonical_set(memory_tokens(rec.statement)):
+            domains.setdefault(tok, set()).add(rec.domain)
+    return {tok: len(ds) for tok, ds in domains.items()}
 
 
 def _failure_keys(rec: MemoryRecord) -> set[str]:
@@ -309,6 +368,28 @@ class Rejection:
 
 
 @dataclass
+class RelevanceVector:
+    identity: int = 0
+    structured: int = 0
+    lexical: int = 0
+    domain: int = 0
+    relationship: int = 0
+    temporal: int = 0
+    hard_mismatch: int = 0
+
+    def as_dict(self) -> dict[str, int]:
+        return {
+            "identity": self.identity,
+            "structured": self.structured,
+            "lexical": self.lexical,
+            "domain": self.domain,
+            "relationship": self.relationship,
+            "temporal": self.temporal,
+            "hard_mismatch": self.hard_mismatch,
+        }
+
+
+@dataclass
 class RetrievalResult:
     items: list[RetrievedItem]
     rejected: list[Rejection] = field(default_factory=list)
@@ -316,6 +397,7 @@ class RetrievalResult:
     candidate_count: int = 0
     accepted_count: int = 0
     no_relevant_memory: bool = False
+    vectors: dict[str, dict[str, int]] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -325,6 +407,7 @@ class RetrievalResult:
             "candidate_count": self.candidate_count,
             "accepted_count": self.accepted_count,
             "no_relevant_memory": self.no_relevant_memory,
+            "vectors": dict(self.vectors),
         }
 
 
@@ -374,20 +457,31 @@ class MemoryRetriever:
         by_id = {rec.memory_id: rec for rec in recent}
         anchors: dict[str, list[str]] = {}
         scores: dict[str, int] = {}
-        domain_df = _domain_document_frequency(recent)
+        vectors: dict[str, RelevanceVector] = {}
+        visible = [rec for rec in recent if not _namespace_blocked(task, rec)]
+        domain_df = _domain_document_frequency(visible)
+        domain_span = _token_domain_span(visible)
 
         for rec in recent:
             if _namespace_blocked(task, rec):
                 rejected.append(Rejection(rec.memory_id, "NAMESPACE_BLOCKED"))
                 continue
-            reasons, score, rejection = self._anchor_reasons(
-                rec, task, signals, now=now, domain_df=domain_df
+            reasons, score, rejection, vec = self._anchor_reasons(
+                rec,
+                task,
+                signals,
+                now=now,
+                domain_df=domain_df,
+                domain_span=domain_span,
             )
             if reasons:
                 anchors[rec.memory_id] = reasons
                 scores[rec.memory_id] = score
+                vectors[rec.memory_id] = vec
             else:
                 rejected.append(Rejection(rec.memory_id, rejection or "BELOW_RELEVANCE_THRESHOLD"))
+                if vec.hard_mismatch:
+                    vectors[rec.memory_id] = vec
 
         # Stage B: expand only from relevant anchors (one hop).
         expanded: dict[str, list[str]] = {}
@@ -407,6 +501,7 @@ class MemoryRetriever:
                     expanded[other] = ["contradiction_of_relevant_memory"]
                     scores[other] = scores.get(other, 0) + SCORE_CONTRA_EXPAND
                     by_id.setdefault(other, other_rec)
+                    vectors.setdefault(other, RelevanceVector()).relationship = 1
             for rel in store.find_related_memories(aid):
                 if _namespace_blocked(task, rel):
                     rejected.append(Rejection(rel.memory_id, "NAMESPACE_BLOCKED"))
@@ -417,15 +512,18 @@ class MemoryRetriever:
                 expanded[rel.memory_id] = ["related_to_relevant_memory"]
                 scores[rel.memory_id] = scores.get(rel.memory_id, 0) + SCORE_RELATED_EXPAND
                 by_id.setdefault(rel.memory_id, rel)
+                vectors.setdefault(rel.memory_id, RelevanceVector()).relationship = 1
 
         accepted_ids = set(anchors) | set(expanded)
         items: list[RetrievedItem] = []
         for mid in accepted_ids:
             rec = by_id[mid]
             reasons = list(anchors.get(mid) or []) + list(expanded.get(mid) or [])
+            vec = vectors.setdefault(mid, RelevanceVector())
             if rec.domain == task.domain:
                 reasons.append("same_domain")
                 scores[mid] = scores.get(mid, 0) + SCORE_DOMAIN_BOOST
+                vec.domain = 1
             if rec.status == DecayState.STALE.value:
                 reasons.append("stale_but_queryable")
             type_reason = _type_compatibility(rec, signals)
@@ -437,6 +535,7 @@ class MemoryRetriever:
                 if window > 0 and abs(now - rec.observed_at) <= window:
                     reasons.append("temporal_proximity")
                     scores[mid] = scores.get(mid, 0) + SCORE_TEMPORAL_BOOST
+                    vec.temporal = 1
             items.append(_item(rec, reasons))
 
         items.sort(key=lambda i: (-scores.get(i.memory_id, 0), i.memory_id))
@@ -455,6 +554,7 @@ class MemoryRetriever:
             candidate_count=len(recent),
             accepted_count=len(items),
             no_relevant_memory=len(items) == 0,
+            vectors={mid: vectors[mid].as_dict() for mid in accepted_set if mid in vectors},
         )
 
     def _anchor_reasons(
@@ -465,52 +565,122 @@ class MemoryRetriever:
         *,
         now: float | None,
         domain_df: dict[tuple[str, str], int],
-    ) -> tuple[list[str], int, str]:
+        domain_span: dict[str, int],
+    ) -> tuple[list[str], int, str, RelevanceVector]:
+        vec = RelevanceVector()
+        mismatch = _hard_mismatch(rec, task)
+        if mismatch:
+            vec.hard_mismatch = 1
+            return [], 0, mismatch, vec
+
         reasons: list[str] = []
         score = 0
         overlap = _lexical_overlap(rec, signals.tokens)
+        structured = False
 
         if rec.memory_id in signals.wanted_ids:
             reasons.append("exact_id")
             score += SCORE_EXACT_ID
+            vec.identity = 1
+            structured = True
         if signals.hypothesis_id and rec.hypothesis_id == signals.hypothesis_id:
             reasons.append("same_hypothesis")
             score += SCORE_STRUCTURED_KEY
+            vec.structured = 1
+            structured = True
         if signals.experiment_id and rec.experiment_id == signals.experiment_id:
             reasons.append("same_experiment")
             score += SCORE_STRUCTURED_KEY
+            vec.structured = 1
+            structured = True
         if rec.source_id and rec.source_id.lower() in (task.question or "").lower():
             reasons.append("source_relationship")
             score += SCORE_SOURCE
+            vec.structured = 1
+            structured = True
+
+        # Namespaced query: shared (empty-namespace) rows need a structured key.
+        if task.agent_id and not rec.agent_namespace and not structured:
+            return [], 0, "SHARED_WITHOUT_NAMESPACE_SCOPE", vec
+
+        has_structured_query = bool(
+            signals.wanted_ids or signals.hypothesis_id or signals.experiment_id
+        )
+        allow_lexical = not has_structured_query or structured
+
+        generic_ops = {tok for tok, span in domain_span.items() if span >= GENERIC_DOMAIN_SPAN}
+        q_ops = canonical_set(signals.tokens) & generic_ops
+        ov_ops = overlap & generic_ops
+        specific_overlap = any(domain_span.get(tok, 0) <= 1 for tok in overlap)
+        cross_domain = rec.domain != task.domain
+
         strong_lexical = len(overlap) >= MIN_STRONG_LEXICAL
+        if cross_domain and strong_lexical:
+            strong_lexical = len(overlap) >= CROSS_DOMAIN_STRONG_OVERLAP or specific_overlap
         weak_same_domain = rec.domain == task.domain and _rare_in_domain(
             overlap, rec.domain, domain_df
         )
-        if strong_lexical or weak_same_domain:
+        lookalike = bool(
+            q_ops and not ov_ops and len(overlap) < CROSS_DOMAIN_STRONG_OVERLAP and not structured
+        )
+        if lookalike:
+            strong_lexical = False
+            weak_same_domain = False
+
+        lexical_ok = allow_lexical and (strong_lexical or weak_same_domain)
+        if rec.epistemic_kind in NON_EVIDENTIAL_KINDS and not structured:
+            lexical_ok = False
+        if "lesson" in signals.intents and rec.epistemic_kind != EpistemicKind.LESSON.value:
+            if not structured:
+                lexical_ok = False
+        if "failure" in signals.intents and rec.memory_type != MemoryType.FAILURE.value:
+            if not structured:
+                lexical_ok = False
+
+        if lexical_ok:
             reasons.append("task_keyword_match")
             score += min(SCORE_LEXICAL_CAP, SCORE_LEXICAL_PER_TOKEN * len(overlap))
+            vec.lexical = len(overlap)
             if rec.epistemic_kind == EpistemicKind.LESSON.value:
                 reasons.append("lesson_keyword_match")
-        if rec.memory_type == MemoryType.FAILURE.value:
+
+        if rec.memory_type == MemoryType.FAILURE.value and allow_lexical:
             fail_overlap = canonical_set(_failure_keys(rec)) & canonical_set(signals.tokens)
             strong_fail = len(fail_overlap) >= MIN_STRONG_LEXICAL
+            if cross_domain and strong_fail:
+                strong_fail = len(fail_overlap) >= CROSS_DOMAIN_STRONG_OVERLAP or any(
+                    domain_span.get(tok, 0) <= 1 for tok in fail_overlap
+                )
             weak_fail_same_domain = rec.domain == task.domain and _rare_in_domain(
                 fail_overlap, rec.domain, domain_df
             )
-            if strong_fail or weak_fail_same_domain:
-                reasons.append("failure_fingerprint")
-                score += SCORE_FAILURE_FINGERPRINT
+            if (strong_fail or weak_fail_same_domain) and not lookalike:
+                if "failure" in signals.intents or "lesson" not in signals.intents:
+                    reasons.append("failure_fingerprint")
+                    score += SCORE_FAILURE_FINGERPRINT
+                    vec.structured = max(vec.structured, 1)
 
         if reasons:
-            return reasons, score, ""
+            return reasons, score, "", vec
 
-        # Rejection classification (not relevance).
+        if lookalike:
+            return [], 0, "GENERIC_LOOKALIKE", vec
+        if cross_domain and overlap:
+            return [], 0, "CROSS_DOMAIN_GENERIC_OVERLAP", vec
+        if rec.epistemic_kind in NON_EVIDENTIAL_KINDS and overlap:
+            return [], 0, "NON_EVIDENTIAL_KIND", vec
+        if "lesson" in signals.intents and rec.epistemic_kind != EpistemicKind.LESSON.value:
+            return [], 0, "LESSON_APPLICABILITY_MISMATCH", vec
+        if "failure" in signals.intents and rec.memory_type != MemoryType.FAILURE.value:
+            return [], 0, "UNRELATED_FAILURE", vec
+        if has_structured_query and overlap:
+            return [], 0, "STRUCTURED_QUERY_LEXICAL_LOOKALIKE", vec
         if rec.domain == task.domain:
-            return [], 0, "DOMAIN_ONLY"
+            return [], 0, "DOMAIN_ONLY", vec
         if rec.memory_type == MemoryType.FAILURE.value:
-            return [], 0, "UNRELATED_FAILURE"
+            return [], 0, "UNRELATED_FAILURE", vec
         if rec.contradiction_state and rec.contradiction_state not in {"UNCONTESTED", "UNKNOWN"}:
-            return [], 0, "UNRELATED_CONTRADICTION"
+            return [], 0, "UNRELATED_CONTRADICTION", vec
         if overlap:
-            return [], 0, "WEAK_LEXICAL_OVERLAP"
-        return [], 0, "BELOW_RELEVANCE_THRESHOLD"
+            return [], 0, "WEAK_LEXICAL_OVERLAP", vec
+        return [], 0, "BELOW_RELEVANCE_THRESHOLD", vec

@@ -215,4 +215,40 @@ THRESHOLDS: dict[str, dict] = {
         "class": "PROVISIONAL",
         "why": "Relationship expansion should stay anchored to labeled-relevant memories.",
     },
+    "lookalike_rejection_rate": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Labeled structural cousins on RET-KEYWORD-01 should usually be rejected.",
+    },
+    "hard_mismatch_rejection_accuracy": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "PROVISIONAL",
+        "why": "Explicit component mismatch must suppress the incompatible FAILURE.",
+    },
+    "generic_overlap_false_inclusion_rate": {
+        "kind": "MAX",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Retrieved items whose overlap is only multi-domain operation tokens should be rare.",
+    },
+    "structured_mismatch_false_inclusion_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "PROVISIONAL",
+        "why": "A hard-mismatch probe must not retrieve the mismatched FAILURE.",
+    },
+    "relevant_lookalike_recall": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "PROVISIONAL",
+        "why": "Labeled-relevant timeout cluster on RET-KEYWORD-01 must remain retrievable.",
+    },
+    "task_compatibility_accuracy": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "LEARN cases should not retrieve non-LESSON rows as a majority.",
+    },
 }

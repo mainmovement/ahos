@@ -72,6 +72,10 @@ exact id, structured keys, strong lexical overlap (≥2 canonical tokens), or
 a rare in-domain token. Relationships expand one hop from those anchors.
 Empty / signal-less queries return `NO_RELEVANT_MEMORY`.
 
+P4.3: similarity ≠ applicability. Cross-domain generic operation overlap,
+explicit structured mismatch, lesson/failure intent, and namespace scope
+further restrict lexical anchors. Missing metadata is not a mismatch.
+
 Ranking is documented integer scores (exact id > structured key > fingerprint
 > lexical > expansion > domain/temporal boosts), then `memory_id`.
 

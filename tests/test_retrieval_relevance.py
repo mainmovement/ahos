@@ -232,7 +232,10 @@ def test_single_token_cross_domain_is_not_an_anchor(tmp_path: Path) -> None:
     assert "BM-SCI-FACT" not in ids
     assert "BM-FIN-FACT" not in ids
     assert "BM-OPS-FACT" not in ids
-    assert any(r.reason == "WEAK_LEXICAL_OVERLAP" for r in explained.rejected)
+    assert any(
+        r.reason in {"WEAK_LEXICAL_OVERLAP", "CROSS_DOMAIN_GENERIC_OVERLAP"}
+        for r in explained.rejected
+    )
 
 
 def test_relevant_lesson_synonym_wording(tmp_path: Path) -> None:

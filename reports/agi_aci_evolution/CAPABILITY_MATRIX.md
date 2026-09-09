@@ -28,7 +28,7 @@ Source of progress measurement. Do not mark IMPLEMENTED_AND_VERIFIED without tes
 | Trading intelligence / leverage | PARTIAL | paper_trading frozen | leverage as variable not default | live OFF | P11–P12 | not activated | n/a | forbidden now |
 | Risk governor | PARTIAL | `architecture/risk/` + security overlay | independent reject | not full limits set | P12 | existing | existing | already on main |
 | Permission / kill switch | PARTIAL | PAPER_ONLY; n8n/telegram kill sketches | independent kill | not Cognitive-Core-independent hardware | P12 | not changed | n/a | not proposed |
-| Evaluation / benchmarks | PARTIAL | `architecture/cognitive/benchmark/` + P4.1/P4.2 reports | vs 6 baselines | no AGI suite; SYNTHETIC vector; precision/F1 still FAIL | P1 | num/den metrics; refuse 99.9% | `tests/test_cognitive_benchmark.py` + `tests/test_retrieval_relevance.py` | isolated PR |
+| Evaluation / benchmarks | PARTIAL | `architecture/cognitive/benchmark/` + P4.1–P4.3 reports | vs 6 baselines | no AGI suite; SYNTHETIC vector; residual same-domain cousins | P1 | num/den metrics; refuse 99.9% | `tests/test_cognitive_benchmark.py` + lookalike tests | isolated PR |
 | Goal discovery / planning | NOT_IMPLEMENTED | — | bounded goal FSM | unrestricted authority forbidden | P1 | NOT_IMPLEMENTED | n/a | not proposed |
 | Progressive autonomy L0–L7 | PARTIAL | `AutonomyLevel` + ceiling L1 | explicit levels | L3+ not authorized | P12 | enum | test_autonomy_ceiling | isolated PR |
 | M-GAP-003 ≥7-day soak | OPEN | `AHOS_GAP_REGISTER.md` | reliability evidence | 72h ≠ 7d | P0 | not closed | soak in progress | human later |

@@ -70,7 +70,7 @@ Cursor `.cursor/skills/` are **developer instructions**, not AHOS runtime agents
 | Permission Layer | Human/policy/emergency | **PARTIAL** | PAPER_ONLY; n8n human gate sketches; live OFF |
 | Execution Layer | After permission only | **NOT_IMPLEMENTED** (live) | Paper path exists in Lane A; live must stay disabled |
 | Governance | Human approve/reject/rollback | **PARTIAL** | Contracts + freeze + gap register |
-| Evaluation | Named benchmarks vs baselines | **PARTIAL** | P4.1/P4.2 SYNTHETIC vector executed; retrieval relevance improved, precision floor unmet; not a six-baseline AGI suite |
+| Evaluation | Named benchmarks vs baselines | **PARTIAL** | P4.1–P4.3 SYNTHETIC vector executed; lookalike discrimination measured; not a six-baseline AGI suite |
 | Rollback | Per-proposal rollback plan | **PARTIAL** | Required on improvement proposals |
 | Kill Switch | Stop execution without Cognitive Core | **PARTIAL** | Telegram/n8n kill sketches; not independent of those edges |
 | Provider Independence | Registry→health→fallback→local | **PARTIAL** | `architecture/ai/` + provider contracts; paid default false |
