@@ -120,11 +120,12 @@ Implementation matrix: `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`
 Final truth audit: `docs/FINAL_TRUTH_AUDIT.md`  
 Owner actions: `docs/OWNER_ACTION_REQUIRED.md`
 
-**Classification:** `DEVELOPMENT_READY` (not `PRODUCTION_READY`).
+**Classification:** `INTEGRATION_READY` (agent-host). `OPERATOR_READY` / `PRODUCTION_READY` not claimed.
 
-No remaining gap is IMPLEMENTABLE NOW without user action, credentials,
-external permission, or data accrual — except ongoing doc/test hygiene already closed above.
-Next engineering surfaces (Month 3–5:
-weight governance via the existing `improvement_proposal_v1` flow, narrative
-feed-through, learning engine) are sequenced behind calibration measurement
-evidence per ROADMAP_v3.
+### Addendum 2026-09-09 — Telegram HTML escape (Lane B safety)
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-024 (Telegram HTML `escapeHtml` / `format_pump_alert` no-op) | **CLOSED** (unit/selftest) | `escapeTelegramHtml` + `escape_telegram_html` escape `&` `<` `>` on untrusted fields. Tests: `scripts/canonical_security_selftest.ts`, `tests/test_telegram_html_escape.py`. Live E2E remains M-GAP-009. Note: `docs/engineering/TELEGRAM_HTML_ESCAPE.md`. |
+
+Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates.
