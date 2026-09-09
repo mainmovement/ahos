@@ -118,6 +118,7 @@ test("stale/unavailable presentation strips positives", () => {
   );
   const views = presentCanonicalDecisions(stale);
   assert.equal(stale.status, "STALE");
+  assert.equal(stale.reason, "stale_read_model");
   assert.equal(views[0].outcome, "STALE");
   assert.equal(views[0].paperAllowed, false);
   assert.equal(views[0].isPositive, false);

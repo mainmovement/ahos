@@ -93,10 +93,11 @@ export function parseCanonicalReadModel(raw: unknown, now = Date.now() / 1000, s
     }
     decisions.push(item);
   }
+  const givenReason = typeof obj.reason === "string" ? obj.reason : null;
   return {
     version: String(obj.version || CANONICAL_READ_MODEL_VERSION),
     status,
-    reason: typeof obj.reason === "string" ? obj.reason : null,
+    reason: givenReason || (status === "STALE" ? "stale_read_model" : null),
     generated_ts: Number.isFinite(generated) ? generated : null,
     authority_version: typeof obj.authority_version === "string" ? obj.authority_version : null,
     decision_count: decisions.length,

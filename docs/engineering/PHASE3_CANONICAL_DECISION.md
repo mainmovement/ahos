@@ -152,6 +152,7 @@ orchestrator, uploaded Web trees.
 | `engine.ts` findings / `unknownShare` | Already on main via #71: `countCanonicalOutcomesForTokens` |
 | `chat.ts` opportunities focus / general counts | Already on main via #71 |
 | `chat.ts` reject / why / getState | **Fixed this revision:** reject and why read Python rows; `getState` fail-closed so chat does not 500 without Postgres |
+| Command Center STALE banner | **Fixed this revision:** STALE without a reason no longer shows «read model unavailable»; reason is `stale_read_model` |
 | `/api/paper` + chat paper | Requires Python `paper_allowed` |
 | Command Center | Overlays Python; unavailable ⇒ UNAVAILABLE |
 | `reasoningEngine.ts` + uploaded trees | Preserved presentation; excluded from CC compile unit |
@@ -200,16 +201,22 @@ IMPLEMENTED:
   - chat opportunities focus + general BUY/REJECT counts prefer canonicalDecisions
   - chat reject/why/token prefer Python rows; getState fail-closed without Postgres
 TESTED:
-  - this revision: freeze + targeted pytest + canonical-read-model + typecheck recorded after first push
-  - prior #71: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 11 passed; typecheck 0; eslint 0
-VERIFIED (narrow, prior #64/#65 environment; not re-claimed here):
+  - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
+  - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_config_validation.py → 17 passed
+  - npm run test:canonical-read-model → 12 passed
+  - npm run typecheck → exit 0
+  - npm run lint → exit 0
+  - curl GET /api/command + /api/canonical with AHOS_CANONICAL_READ_MODEL fixture: AVAILABLE then STALE; chat reject/why/opportunities without DATABASE_URL; POST /api/paper STALE → 403 CANONICAL_PAPER_DENIED
+  - prior #70: full pytest 1650 passed / 3 skipped / 0 failed
+VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
   - POST /api/paper fixture BUY → canonical gate passed, then 500 DATABASE_URL (ENVIRONMENT)
-  - Browser Command Center dash + فرصت‌ها: Python cards rendered; empty DB copy; BUY green; MONITOR_ONLY/NO_TRADE/INSUFFICIENT_EVIDENCE amber; REJECT rose; UNAVAILABLE banner when file missing
+  - prior: Browser Command Center dash + فرصت‌ها AVAILABLE fixture: Python cards; empty DB copy; BUY green; MONITOR_ONLY/NO_TRADE/INSUFFICIENT_EVIDENCE amber; REJECT rose; UNAVAILABLE banner when file missing
+  - this revision: POST /api/chat without DATABASE_URL — reject lists Python REJECT; why ALPHA uses Python BUY; opportunities STALE does not mint BUY
+  - Browser Command Center at 127.0.0.1:3001 with STALE fixture: banner «حکم کانونیکال پایتون STALE», Python cards labeled STALE (not a green BUY recommendation), DATABASE_URL CODE_FAILURE remain ENVIRONMENT
 NOT VERIFIED:
   - Command Center overlay of live Postgres opportunity rows from a running observation daemon
-  - Browser STALE banner (STALE proven via API only)
   - Isolated loading-flash screenshot (page loaded before capture)
   - OPERATIONAL product runtime (no Postgres, start.sh does not start Next)
 BLOCKED:
@@ -233,19 +240,20 @@ CLOSED on main / this revision:
   - #69 Phase 3 status docs after #66/#67/#68
   - #70 AHOS_CANONICAL_READ_MODEL documented; SCAN_TS_FILES includes canonical_read_model.ts + web_api_auth.ts; chat greeting counts Python rows
   - #71 engine findings/unknownShare + chat opportunities focus count Python outcomes
-  - this revision: chat reject/why from Python; getState fail-closed
+  - this revision: chat reject/why from Python; getState fail-closed; STALE banner reason stale_read_model
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
-  - canonical_read_model.ts findCanonicalDecision
+  - canonical_read_model.ts findCanonicalDecision / stale_read_model
   - chat.ts
+  - CommandCenter.tsx STALE reason
   - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: this revision not yet executed at first commit. Phase 3 stays PARTIAL.
+TEST_RESULTS: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 12 passed; typecheck 0; eslint 0; STALE API+browser banner observed. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
   - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Merging #71 and fail-closing chat getState does not make the phase VERIFIED.
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Fail-closing chat and seeing a STALE banner does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.
