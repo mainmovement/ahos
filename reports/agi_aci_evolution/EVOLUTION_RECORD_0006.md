@@ -3,7 +3,7 @@
 ```text
 Record ID: EVOLUTION_RECORD_0006
 UTC timestamp: 2026-09-09
-Git SHA: (implementation commit on cursor/agi-aci-p4-2-retrieval-relevance-tightening-9500)
+Git SHA: 7349c0bb88cb3ae3f586213763e51058b02aab6f
 Base SHA: 6e65f1573dea8c2fe91d6a181b25a20015e76fe1
 Branch: cursor/agi-aci-p4-2-retrieval-relevance-tightening-9500
 Status: IMPLEMENTED (suite executed; some provisional metrics still FAIL honestly)

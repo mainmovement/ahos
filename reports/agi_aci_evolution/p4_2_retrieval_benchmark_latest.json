@@ -481,7 +481,7 @@
     "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
     "python": "3.12.3"
   },
-  "git_sha": "8b2e3907c4f6148c1eb592fc2117ac785c4eb1e3",
+  "git_sha": "7349c0bb88cb3ae3f586213763e51058b02aab6f",
   "improvement_candidates": [
     "IMPROVEMENT_CANDIDATE:context_coverage",
     "IMPROVEMENT_CANDIDATE:retrieval_f1",

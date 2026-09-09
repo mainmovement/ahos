@@ -3,7 +3,7 @@
 **Evaluator:** unchanged P4.1 suite (`architecture/cognitive/benchmark/`, version `p4.1.0`)  
 **Data label:** `SYNTHETIC_TEST_DATA`  
 **P4.1 baseline SHA:** `6e65f1573dea8c2fe91d6a181b25a20015e76fe1`  
-**P4.2 run SHA (this artifact):** see `p4_2_retrieval_benchmark_latest.json` `git_sha`  
+**P4.2 implementation SHA:** `7349c0bb88cb3ae3f586213763e51058b02aab6f`  
 **Lane-A freeze:** `Lane-A integrity OK (36 files pinned)`  
 **Reproducibility:** two isolated runs, `comparable_payload` equal = YES  
 
