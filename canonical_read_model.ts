@@ -29,6 +29,7 @@ export type CanonicalDecisionRow = {
   alerts_allowed?: boolean;
   paper_allowed?: boolean;
   monitoring_only?: boolean;
+  recorded_outcome?: string | null;
   primary_reason?: string | null;
   reasons?: string[];
   risks?: string[];
@@ -87,9 +88,11 @@ export function parseCanonicalReadModel(raw: unknown, now = Date.now() / 1000, s
     if (!row || typeof row !== "object") continue;
     const item = { ...(row as CanonicalDecisionRow) };
     if (status !== "AVAILABLE") {
+      item.recorded_outcome = item.recorded_outcome || item.outcome || null;
       item.is_positive = false;
       item.alerts_allowed = false;
       item.paper_allowed = false;
+      item.outcome = status;
     }
     decisions.push(item);
   }
@@ -192,7 +195,7 @@ export function overlayOpportunity<T extends OverlayOpportunity>(opp: T, model: 
     ...opp,
     decision,
     canonicalStatus: model.status,
-    canonicalOutcome: row?.outcome ? String(row.outcome) : null,
+    canonicalOutcome: decision,
     identityState: row?.identity_state ? String(row.identity_state) : null,
     securityState: row?.security_state ? String(row.security_state) : null,
     paperAllowed,

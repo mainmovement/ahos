@@ -119,6 +119,8 @@ test("stale/unavailable presentation strips positives", () => {
   const views = presentCanonicalDecisions(stale);
   assert.equal(stale.status, "STALE");
   assert.equal(stale.reason, "stale_read_model");
+  assert.equal(stale.decisions[0].outcome, "STALE");
+  assert.equal(stale.decisions[0].recorded_outcome, "BUY");
   assert.equal(views[0].outcome, "STALE");
   assert.equal(views[0].paperAllowed, false);
   assert.equal(views[0].isPositive, false);
@@ -127,6 +129,7 @@ test("stale/unavailable presentation strips positives", () => {
     stale,
   );
   assert.equal(over.decision, "STALE");
+  assert.equal(over.canonicalOutcome, "STALE");
   assert.equal(over.paperAllowed, false);
   assert.equal(toBackendDecision(stale.decisions[0], stale.status), null);
 });

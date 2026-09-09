@@ -53,10 +53,13 @@ def test_stale_read_model_cannot_stay_positive(tmp_path, monkeypatch):
     write_canonical_read_model([(cand, decision)], now=NOW - 48 * 3600, path=path)
     model = load_canonical_read_model(now=NOW)
     assert model["status"] == "STALE"
+    assert model["reason"] == "stale_read_model"
     for row in model["decisions"]:
         assert row["is_positive"] is False
         assert row["paper_allowed"] is False
         assert row["alerts_allowed"] is False
+        assert row["outcome"] == "STALE"
+        assert row.get("recorded_outcome")
 
 
 def test_write_and_lookup_roundtrip(tmp_path, monkeypatch):

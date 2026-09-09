@@ -173,11 +173,17 @@ def load_canonical_read_model(
             item["is_positive"] = False
             item["alerts_allowed"] = False
             item["paper_allowed"] = False
+            recorded = item.get("recorded_outcome") or item.get("outcome")
+            item["recorded_outcome"] = recorded
+            item["outcome"] = status
         decisions.append(item)
+    reason = raw.get("reason")
+    if status == "STALE" and not reason:
+        reason = "stale_read_model"
     return {
         "version": str(raw.get("version") or READ_MODEL_VERSION),
         "status": status,
-        "reason": raw.get("reason"),
+        "reason": reason,
         "generated_ts": generated,
         "authority_version": raw.get("authority_version"),
         "decision_count": len(decisions),
