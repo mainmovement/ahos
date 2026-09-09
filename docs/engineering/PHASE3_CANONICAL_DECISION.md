@@ -1,7 +1,7 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
-**Branch:** `cursor/phase3-canonical-decision-9500`  
-**Stacked on:** `origin/main` after PR #64 merge; overlay-v2 reconcile lands in a follow-up PR (do not merge conflicting #63).  
+**Branch:** `cursor/phase3-config-doc-scanner-9500` (hygiene on current `main`)  
+**Base:** `origin/main` after PR **#65** merge (`e9387e5`) — Phase 0–1 + Phase 3 PARTIAL + overlay-v2.  
 **Date:** 2026-09-08  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
@@ -118,10 +118,13 @@ Fail-closed rules:
 
 ## Phase dependency (do not auto-merge)
 
-* **PR #63** Phase 2 security overlay — OPEN DRAFT, MERGEABLE, head `711bcd3`
-* **PR #64** Phase 3 — OPEN DRAFT, stacked on #63 (`711bcd3` is merge-base)
-* Phase 3 work on this branch includes Phase 2 commits until #63 merges.
-* Do **not** merge #63 or #64 automatically. Validation of #64 does not assume #63 is on `main`.
+Live GitHub truth as of 2026-09-08:
+
+* **PR #62** Phase 0–1 identity overlay — **MERGED**
+* **PR #64** Phase 3 Canonical Decision Authority — **MERGED** first (stacked only on overlay commit `711bcd3`)
+* **PR #65** overlay-v2 reconcile onto merged Phase 3 — **MERGED** (`e9387e5` on `main`)
+* **PR #63** Phase 2 original overlay-v2 branch — still **OPEN**, **CONFLICTING**, **SUPERSEDED**. Do **not** merge #63.
+* Phase 3 remains **PARTIAL**. Do **not** start Phase 4. Do **not** auto-merge.
 
 ---
 
@@ -185,15 +188,11 @@ IMPLEMENTED:
   - engine.ts persists Python displayDecision, not TS WATCH
 TESTED:
   - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files) before and after this revision
-  - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py → PASSED (182 modules) after clearing pytest __pycache__ residue
-  - targeted pytest (canonical read-model/authority/identity/security/advisor/alerts/pipeline/one-brain/panel/cursor/web-auth/zero-money) → 238 passed
-  - full pytest → 1610 passed, 3 skipped, 1 failed
-  - npm run test:canonical-read-model → 8 passed
-  - npm run test:web-api-auth → 9 passed
-  - npm run typecheck → exit 0
-  - npm run lint → 1 error (PRE-EXISTING CommandCenter.tsx react-hooks/set-state-in-effect)
-  - npm run build → exit 0; route ƒ /api/canonical present; Turbopack NFT warning on canonical_read_model.ts process.cwd()
-VERIFIED (narrow, this environment):
+  - tests/test_config_validation.py → 3 passed (includes test_documented_keys_are_actually_read_or_legacy)
+  - full pytest → 1648 passed, 3 skipped, 0 failed (was 1647 passed / 1 failed on main before this scanner fix)
+  - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py → PASSED (183 modules) after clearing .pytest_cache
+  - npm typecheck / lint / build / browser not re-run this revision (no TS/UI change)
+VERIFIED (narrow, prior #64/#65 environment; not re-claimed here):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
   - POST /api/paper fixture BUY → canonical gate passed, then 500 DATABASE_URL (ENVIRONMENT)
@@ -204,34 +203,33 @@ NOT VERIFIED:
   - Isolated loading-flash screenshot (page loaded before capture)
   - OPERATIONAL product runtime (no Postgres, start.sh does not start Next)
 BLOCKED:
-  - PR #63 is CONFLICTING/SUPERSEDED after #64 merged first; overlay-v2 must land via a new PR on current main
   - GitHub Actions CI workflow absent (M-GAP-004)
   - DATABASE_URL unset in this agent shell — paper persist + DB opportunity overlay ENVIRONMENT
+  - PR #63 remains OPEN/CONFLICTING/SUPERSEDED — do not merge; overlay-v2 already on main via #65
 PRE-EXISTING:
   - npm run lint CommandCenter.tsx react-hooks/set-state-in-effect
-  - tests/test_config_validation.py::test_documented_keys_are_actually_read_or_legacy (NEXT_PUBLIC_AHOS_WEB_API_TOKEN is read in web_api_client.ts; Python scanner misses it)
 NEW failures this revision:
-  - none remaining after alertsAllowedFromCanonical selftest/typecheck fix
+  - none (scanner hygiene only; Command Center lint untouched)
 ENVIRONMENT:
-  - validate_imports ARTIFACTS fail when __pycache__ exists after pytest; clean checkout + PYTHONDONTWRITEBYTECODE passes
+  - validate_imports ARTIFACTS fail when .pytest_cache exists after pytest; clean tree + PYTHONDONTWRITEBYTECODE passes
   - Next Turbopack NFT warning tracing canonical_read_model.ts filesystem path
 FAILED_GATES (phase cannot be VERIFIED/COMPLETE):
-  - lint not green (PRE-EXISTING)
-  - full pytest not fully green (PRE-EXISTING config-doc)
+  - lint not green (PRE-EXISTING CommandCenter set-state-in-effect; not rewritten here)
   - no GitHub CI
   - live daemon + Postgres Command Center overlay missing
+CLOSED this revision:
+  - SCAN_TS_FILES includes web_api_client.ts; NEXT_PUBLIC_AHOS_WEB_API_TOKEN is a scanned read; full pytest 0 failed
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
-  - tests/test_canonical_decision_authority.py
-  - tests/test_canonical_read_model.py
-  - scripts/canonical_read_model_selftest.ts
-  - HEAD after this docs commit
-TEST_RESULTS: TARGETED PASS (238); FULL SUITE NOT PASS (1 PRE-EXISTING)
+  - tests/test_config_validation.py
+  - HEAD of cursor/phase3-config-doc-scanner-9500
+TEST_RESULTS: freeze 36 OK; config-doc 3 passed; full pytest 1648 passed / 3 skipped / 0 failed; validate_imports PASSED (183 modules, clean tree)
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED.
+  - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Closing the config-doc fail does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.

@@ -10,7 +10,8 @@ causes operator confusion (e.g. COINGECKO_API_KEY existed in code but not in
 .env.example until 2026-08-20).
 
 Scope: architecture/, telegram_ai/, scripts/, run_bot.py, and the
-One-Brain TypeScript surface that reads process.env (alerts.ts, …).
+One-Brain TypeScript surface that reads process.env (alerts.ts,
+web_api_client.ts, …).
 `engine/` (legacy lane, documented-excluded entrypoints) and
 `config/paths.py` overrides (AHOS_DATA_DIR / AHOS_ROOT / AHOS_ENV /
 AHOS_IN_DOCKER — test/ops knobs) are explicit exceptions with reasons.
@@ -39,12 +40,16 @@ SCAN_DIRS = (
 )
 SCAN_FILES = ("run_bot.py",)
 # One-Brain TypeScript modules at repo root (pinned by architecture tests).
+# web_api_client.ts is the Command Center fetch helper; it is the only
+# canonical reader of NEXT_PUBLIC_AHOS_WEB_API_TOKEN (must match server
+# AHOS_WEB_API_TOKEN). Omitting it made .env.example look like dead docs.
 SCAN_TS_FILES = (
     "alerts.ts",
     "engine.ts",
     "providers.ts",
     "conversation_gateway.ts",
     "chat.ts",
+    "web_api_client.ts",
 )
 
 #: Explicit exceptions — every entry must carry a reason.
