@@ -251,6 +251,12 @@ KNOWN_LIMITATIONS:
     treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY (do not edit Lane A)
   - SQLite production_observations still does not persist pair_created_ts;
     reload → INCOMPLETE (fail-closed; not redesigned here)
+    **SUPERSEDED 2026-09-09:** this limitation was true for Phase 2. PR #77
+    persists `pair_created_ts`; PR #78 maps Gecko `pool_created_at`. Full-path
+    RUNTIME VERIFIED on `cf7711e` — see
+    `docs/engineering/GECKO_PAIR_CREATED_TS_E2E.md` and
+    `reports/gecko_pair_created_ts_e2e_RUNTIME_VERIFIED.json`. This PHASE2
+    report is otherwise not rewritten.
   - GoPlus-only TS snapshots typically cannot overlay-PASS (missing tax/lock);
     alerts/paper OPEN stay denied until canonical evidence is complete
   - Phase 2 is NOT production-ready merely because this patch passes
