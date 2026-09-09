@@ -118,8 +118,15 @@ export type OverlayQueryFn = (
 ) => Promise<Record<string, string>>;
 
 function pythonBin(): string {
-  const venv = path.join(process.cwd(), ".venv", "bin", "python");
-  if (existsSync(venv)) return venv;
+  // Do not write a static repo-venv interpreter path: Turbopack NFT-traces
+  // it and panics when the binary is a symlink outside the sandbox. Runtime
+  // still prefers a local venv when present.
+  const root = /* turbopackIgnore: true */ process.cwd();
+  const envDir = ["", "venv"].join(".");
+  const unix = path.join(root, envDir, "bin", "python");
+  const win = path.join(root, envDir, "Scripts", "python.exe");
+  if (existsSync(unix)) return unix;
+  if (existsSync(win)) return win;
   return "python3";
 }
 
