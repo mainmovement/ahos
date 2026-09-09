@@ -114,6 +114,8 @@ def test_snapshot_overlays_canonical_and_command_center_does_not_green_watch():
     cc = (ROOT / "CommandCenter.tsx").read_text(encoding="utf-8")
     assert "canonicalReadModel" in cc
     assert "canonicalDecisions" in cc
+    assert "overlayCensus" in cc
+    assert "UNAVAILABLE یعنی fail-closed" in cc
     assert "UNAVAILABLE" in cc
     assert "paperAllowed" in cc
     # WATCH must not be treated as a success/positive pill.

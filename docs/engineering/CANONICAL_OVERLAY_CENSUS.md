@@ -38,3 +38,7 @@ match. Changing gecko identity is a **STOP**.
 ## Tests
 
 `npm run test:canonical-read-model` — census counts + unmatched stays UNAVAILABLE.
+
+Command Center (after overlay-census UI) shows `overlayCensus` on the Python
+decisions card. Unmatched stays **UNAVAILABLE**. The UI does not join stores.
+
