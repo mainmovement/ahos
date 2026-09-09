@@ -1,9 +1,9 @@
-"""Typed evidence eligibility + bounded mode gates + critic constraint. LLM-free.
+"""Typed eligibility + support-class fail-closed + critic-constrained templates.
 
 Modes are distinct governed transformations over EvidenceBinding lists.
-They are not formal deduction, statistical induction, or full abduction.
-The critic inspects a candidate and may ACCEPT, DOWNGRADE, CONTEST,
-REQUIRE_MORE_EVIDENCE, or REFUSE the final result.
+They are not formal deduction, statistical induction, or entailment.
+Lexical match is candidate relevance only. The critic inspects a candidate
+and may ACCEPT, DOWNGRADE, CONTEST, REQUIRE_MORE_EVIDENCE, or REFUSE.
 """
 
 from __future__ import annotations
@@ -112,8 +112,16 @@ def _inspect(
         and b.memory_id in cited_set
         for b in bindings
     )
+    supporting_cited = any(
+        b.may_support_task() and b.may(ROLE_FACTUAL_PREMISE) and b.memory_id in cited_set
+        for b in bindings
+    )
     if accepted and cited_set and not relevant_cited:
         findings.append(f"{FINDING_EVIDENCE_MISMATCH}:irrelevant_citation")
+    if accepted and cited_set and relevant_cited and not supporting_cited:
+        findings.append(f"{FINDING_EVIDENCE_MISMATCH}:lexical_match_without_support")
+    if accepted and not any(b.may_support_task() for b in bindings):
+        findings.append(f"{FINDING_EVIDENCE_MISMATCH}:no_direct_support")
     if candidate.missing_premises:
         findings.append(f"{FINDING_MISSING_PREMISE}:{','.join(candidate.missing_premises)}")
     if candidate.type_violations:
@@ -185,6 +193,8 @@ def _inspect(
     if accepted and unbound:
         return ACTION_REFUSE, findings
     if accepted and not relevant_cited and cited_set:
+        return ACTION_REFUSE, findings
+    if accepted and not supporting_cited:
         return ACTION_REFUSE, findings
     if already_refused:
         return ACTION_ACCEPT, findings
@@ -323,6 +333,17 @@ def reason(
         CognitiveVerdict.WEAKLY_SUPPORTED.value,
     }:
         extra = [f"{FINDING_EVIDENCE_MISMATCH}:unbound_citation:{','.join(leftover)}"]
+        constrained = apply_constraint(
+            constrained, action=ACTION_REFUSE, findings=extra
+        )
+        critique.action = ACTION_REFUSE
+        critique.findings = tuple(list(critique.findings) + extra)
+        critique.constraint_applied = True
+    if constrained.verdict in {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    } and not any(b.may_support_task() for b in bindings):
+        extra = [f"{FINDING_EVIDENCE_MISMATCH}:no_direct_support"]
         constrained = apply_constraint(
             constrained, action=ACTION_REFUSE, findings=extra
         )

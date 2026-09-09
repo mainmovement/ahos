@@ -11,6 +11,15 @@ from typing import Any
 
 from architecture.cognitive.loop.contracts import CognitiveContext, CognitiveTask, RetrievedItem
 from architecture.cognitive.loop.retrieval import canonical_set, content_tokens
+from architecture.cognitive.loop.support import (
+    POLARITY_CONTRADICTS,
+    POLARITY_SUPPORTS,
+    POLARITY_UNKNOWN,
+    SUPPORT_DIRECT as TASK_DIRECT_SUPPORT,
+    SUPPORT_UNKNOWN as TASK_SUPPORT_UNKNOWN,
+    SupportAssessment,
+    classify_support,
+)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, UNKNOWN
 
@@ -92,8 +101,14 @@ def addresses_task(statement: str, task: CognitiveTask) -> bool:
 
     Uses the existing retrieval tokenizer (4+ char tokens, stopwords,
     documented inflections). Not embeddings. Fail-closed: no overlap → False.
+    Lexical match is candidate relevance only — not evidence support.
     """
     return bool(canonical_set(content_tokens(statement)) & task_content_tokens(task))
+
+
+def assess_task_support(statement: str, task: CognitiveTask) -> SupportAssessment:
+    """Task-support class. Separate from addresses_task (lexical relevance)."""
+    return classify_support(statement, task)
 
 
 def _payload(store: CognitiveMemoryStore | None, memory_id: str) -> dict[str, Any]:
@@ -238,6 +253,11 @@ class EvidenceBinding:
     memory_type: str
     match_reasons: tuple[str, ...] = ()
     payload: dict[str, Any] = field(default_factory=dict)
+    addresses_task_flag: bool = False
+    support_class: str = TASK_SUPPORT_UNKNOWN
+    support_polarity: str = POLARITY_UNKNOWN
+    support_reason: str = ""
+    alien_tokens: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -250,6 +270,11 @@ class EvidenceBinding:
             "temporal_state": self.temporal_state,
             "provenance": dict(self.provenance),
             "support_strength": self.support_strength,
+            "support_class": self.support_class,
+            "support_polarity": self.support_polarity,
+            "support_reason": self.support_reason,
+            "addresses_task": self.addresses_task_flag,
+            "alien_tokens": list(self.alien_tokens),
             "contradiction_state": self.contradiction_state,
             "allowed_reasoning_roles": list(self.allowed_reasoning_roles),
             "forbidden_reasoning_roles": list(self.forbidden_reasoning_roles),
@@ -266,6 +291,19 @@ class EvidenceBinding:
             return False
         return role in self.allowed_reasoning_roles
 
+    def may_support_task(self) -> bool:
+        """DIRECT_SUPPORT + SUPPORTS. Lexical relevance is not enough."""
+        return (
+            self.support_class == TASK_DIRECT_SUPPORT
+            and self.support_polarity == POLARITY_SUPPORTS
+        )
+
+    def contradicts_task(self) -> bool:
+        return (
+            self.support_class == TASK_DIRECT_SUPPORT
+            and self.support_polarity == POLARITY_CONTRADICTS
+        )
+
 
 def bind_item(
     item: RetrievedItem,
@@ -281,6 +319,8 @@ def bind_item(
     applicability = _applicability(typed, item, task, payload)
     allowed, forbidden = _roles(typed, temporal, applicability)
     contradicted = bool(contradicted_ids and item.memory_id in contradicted_ids)
+    support = classify_support(item.statement, task)
+    lexical = addresses_task(item.statement, task)
     return EvidenceBinding(
         evidence_id=f"EVD-{index:06d}-{item.memory_id}",
         memory_id=item.memory_id,
@@ -304,6 +344,11 @@ def bind_item(
         memory_type=item.memory_type,
         match_reasons=tuple(item.match_reasons),
         payload=payload,
+        addresses_task_flag=lexical,
+        support_class=support.support_class,
+        support_polarity=support.polarity,
+        support_reason=support.reason,
+        alien_tokens=support.alien_tokens,
     )
 
 

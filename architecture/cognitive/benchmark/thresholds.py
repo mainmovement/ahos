@@ -359,4 +359,28 @@ THRESHOLDS: dict[str, dict] = {
         "class": "GOVERNANCE",
         "why": "Two isolated P5-inclusive benchmark runs must match.",
     },
+    "lexical_match_without_support_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Labeled lexical cousins must be classified as non-DIRECT support.",
+    },
+    "unsupported_positive_verdict_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "NON_SUPPORTING_MATCH / UNKNOWN_SUPPORT / CONTEXT_ONLY must not yield positive verdicts.",
+    },
+    "direct_support_positive_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "PROVISIONAL",
+        "why": "A labeled DIRECT_SUPPORT fact must remain a positive candidate under DEDUCTIVE.",
+    },
+    "unknown_support_refusal_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "UNKNOWN_SUPPORT must refuse WEAKLY_SUPPORTED / SUPPORTED.",
+    },
 }

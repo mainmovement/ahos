@@ -115,7 +115,9 @@ class CognitiveOrchestrator:
             TaskType.ANALYZE.value,
         } and task.reasoning_mode not in NOT_IMPLEMENTED_MODES
 
-        if should_hyp and task.write_back:
+        # Unresolved/insufficient/contested must not become reusable hypotheses.
+        reusable_writeback = verdict == "WEAKLY_SUPPORTED"
+        if should_hyp and task.write_back and reusable_writeback:
             hyp = self.hypotheses.propose(
                 f"{task.question} [{task.data_label}]",
                 domain=task.domain,
@@ -241,7 +243,7 @@ class CognitiveOrchestrator:
             episode_id = episode.memory_id
 
         inf = (trace.inference_records or ({},))[0]
-        if task.write_back and use_memory and inf.get("conclusion"):
+        if task.write_back and use_memory and inf.get("conclusion") and reusable_writeback:
             support_ids = list(inf.get("supporting_evidence_ids") or [])
             self.memory.remember(
                 memory_type=MemoryType.SEMANTIC,

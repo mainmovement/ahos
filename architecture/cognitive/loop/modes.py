@@ -13,6 +13,7 @@ from architecture.cognitive.loop.binding import (
     addresses_task,
     with_role,
 )
+from architecture.cognitive.loop.support import SUPPORT_NON, SUPPORT_UNKNOWN
 from architecture.cognitive.loop.contracts import (
     Assumption,
     ClaimOrigin,
@@ -29,7 +30,30 @@ def _overlap(statement: str, task: CognitiveTask) -> set[str]:
 
 
 def _relevant(bindings: list[EvidenceBinding], task: CognitiveTask, role: str) -> list[EvidenceBinding]:
+    """Lexical candidate relevance. Not evidence support."""
     return [b for b in with_role(bindings, role) if addresses_task(b.statement, task)]
+
+
+def _supporting(bindings: list[EvidenceBinding], task: CognitiveTask, role: str) -> list[EvidenceBinding]:
+    return [b for b in _relevant(bindings, task, role) if b.may_support_task()]
+
+
+def _contradicting(bindings: list[EvidenceBinding], task: CognitiveTask, role: str) -> list[EvidenceBinding]:
+    return [b for b in _relevant(bindings, task, role) if b.contradicts_task()]
+
+
+def _no_support_missing(candidates: list[EvidenceBinding]) -> list[str]:
+    if candidates:
+        return ["TASK_SUPPORTING_PREMISE"]
+    return ["TASK_RELEVANT_PREMISE"]
+
+
+def _no_support_conclusion(candidates: list[EvidenceBinding]) -> str:
+    if any(b.support_class in {SUPPORT_NON, SUPPORT_UNKNOWN} for b in candidates):
+        return "Deduction refused: lexical match is not evidence support."
+    if candidates:
+        return "Deduction refused: retrieved evidence does not support the proposition."
+    return "Deduction refused: no task-relevant factual premises."
 
 
 def _opposes(statement: str) -> bool:
@@ -79,10 +103,15 @@ def _lesson_failure_flags(
 def reason_deductive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
-    steps = ["DEDUCTIVE: premises must be typed FACTUAL_PREMISE that address the task"]
-    premises = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    steps = [
+        "DEDUCTIVE: premises must be typed FACTUAL_PREMISE that support the task",
+        "LEXICAL_MATCH != EVIDENCE_SUPPORT",
+    ]
+    lexical = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    premises = _supporting(bindings, task, ROLE_FACTUAL_PREMISE)
+    contrary = _contradicting(bindings, task, ROLE_FACTUAL_PREMISE)
     requested = [rid for rid in task.requested_evidence if rid]
-    present = {b.memory_id for b in premises}
+    present = {b.memory_id for b in lexical}
     missing = [rid for rid in requested if rid not in present]
     if missing:
         steps.append(f"missing requested premises: {missing}")
@@ -96,12 +125,27 @@ def reason_deductive(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    if contrary and not premises:
+        steps.append("direct contrary evidence; no supporting premises")
+        return CandidateInference(
+            verdict=CognitiveVerdict.CONTESTED.value,
+            epistemic=EpistemicAnswer.CONTESTED.value,
+            conclusion="Deduction contested: evidence contradicts the proposition.",
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in contrary],
+            contradicting_ids=[b.memory_id for b in contrary],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
     if not premises:
         typed_only = with_role(bindings, ROLE_FACTUAL_PREMISE)
         if typed_only:
-            steps.append("typed premises exist but none address the task (valid type ≠ relevant content)")
-            missing = ["TASK_RELEVANT_PREMISE"]
-            conclusion = "Deduction refused: no task-relevant factual premises."
+            steps.append(
+                "typed premises exist but none support the proposition "
+                "(relevance ≠ entailment; lexical match ≠ support)"
+            )
+            missing = _no_support_missing(lexical)
+            conclusion = _no_support_conclusion(lexical)
         else:
             steps.append("no FACTUAL_PREMISE bindings; lessons/hypotheses/opinions are ineligible")
             missing = ["FACTUAL_PREMISE"]
@@ -169,12 +213,16 @@ def reason_deductive(
 def reason_inductive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
-    steps = ["INDUCTIVE: examples → pattern → INFERENCE (never OBSERVED_FACT)"]
-    examples = _relevant(bindings, task, ROLE_FACTUAL_PREMISE) + [
+    steps = [
+        "INDUCTIVE: examples → pattern → INFERENCE (never OBSERVED_FACT)",
+        "LEXICAL_MATCH != EVIDENCE_SUPPORT",
+    ]
+    examples = _supporting(bindings, task, ROLE_FACTUAL_PREMISE) + [
         b
         for b in with_role(bindings, ROLE_HISTORY)
-        if b.typed_class == "FAILURE" and addresses_task(b.statement, task)
+        if b.typed_class == "FAILURE" and b.may_support_task()
     ]
+    contrary = _contradicting(bindings, task, ROLE_FACTUAL_PREMISE)
     # Deduplicate
     seen: set[str] = set()
     uniq: list[EvidenceBinding] = []
@@ -183,12 +231,24 @@ def reason_inductive(
             continue
         seen.add(b.memory_id)
         uniq.append(b)
+    if contrary and not uniq:
+        steps.append("only contrary examples; no supporting pattern")
+        return CandidateInference(
+            verdict=CognitiveVerdict.CONTESTED.value,
+            epistemic=EpistemicAnswer.CONTESTED.value,
+            conclusion="Inductive pattern contested: examples contradict the proposition.",
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in contrary],
+            contradicting_ids=[b.memory_id for b in contrary],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
     if len(uniq) < 2:
-        steps.append(f"insufficient examples n={len(uniq)}")
+        steps.append(f"insufficient supporting examples n={len(uniq)}")
         return CandidateInference(
             verdict=CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
             epistemic=EpistemicAnswer.INSUFFICIENT_EVIDENCE.value,
-            conclusion="Induction refused: fewer than two typed examples.",
+            conclusion="Induction refused: fewer than two supporting examples.",
             conclusion_class="INFERENCE",
             premises=[b.memory_id for b in uniq],
             missing_premises=["additional_examples"],
@@ -230,8 +290,13 @@ def reason_inductive(
 def reason_abductive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
-    steps = ["ABDUCTIVE: observations + candidates → best explanation, not truth"]
+    steps = [
+        "ABDUCTIVE: observations + candidates → best explanation, not truth",
+        "LEXICAL_MATCH != EVIDENCE_SUPPORT",
+    ]
     observations = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    supporting_obs = _supporting(bindings, task, ROLE_FACTUAL_PREMISE)
+    contrary_obs = _contradicting(bindings, task, ROLE_FACTUAL_PREMISE)
     candidates = with_role(bindings, ROLE_EXPLANATION)
     if any(b.contradiction_state == "CONTESTED" for b in observations):
         steps.append("contradictory observations; explanations unresolved")
@@ -256,6 +321,32 @@ def reason_abductive(
             conclusion="Abduction refused: no typed observations.",
             conclusion_class="HYPOTHESIS",
             missing_premises=["OBSERVED_FACT"],
+            alternatives=[b.statement for b in candidates],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
+    if contrary_obs and not supporting_obs:
+        steps.append("observations contradict the proposition; no supporting observation")
+        return CandidateInference(
+            verdict=CognitiveVerdict.CONTESTED.value,
+            epistemic=EpistemicAnswer.CONTESTED.value,
+            conclusion="Abduction contested: observations contradict the proposition.",
+            conclusion_class="HYPOTHESIS",
+            premises=[b.memory_id for b in contrary_obs],
+            contradicting_ids=[b.memory_id for b in contrary_obs],
+            alternatives=[b.statement for b in candidates],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
+    if not supporting_obs:
+        steps.append("lexical/context observations are not support for the proposition")
+        return CandidateInference(
+            verdict=CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
+            epistemic=EpistemicAnswer.INSUFFICIENT_EVIDENCE.value,
+            conclusion="Abduction refused: observations do not support the proposition.",
+            conclusion_class="HYPOTHESIS",
+            premises=[b.memory_id for b in observations],
+            missing_premises=["TASK_SUPPORTING_PREMISE"],
             alternatives=[b.statement for b in candidates],
             assumptions=[_base_assumption()],
             steps=steps,
@@ -313,8 +404,13 @@ def reason_abductive(
 def reason_comparative(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
-    steps = ["COMPARATIVE: aligned dimensions; missing is missing, not zero"]
-    facts = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    steps = [
+        "COMPARATIVE: aligned dimensions; missing is missing, not zero",
+        "LEXICAL_MATCH != EVIDENCE_SUPPORT",
+    ]
+    lexical_facts = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    facts = _supporting(bindings, task, ROLE_FACTUAL_PREMISE)
+    contrary = _contradicting(bindings, task, ROLE_FACTUAL_PREMISE)
     others = [b for b in bindings if b.typed_class != "OBSERVED_FACT"]
     contested = [b for b in bindings if b.contradiction_state == "CONTESTED"]
     dimensions = {
@@ -336,16 +432,29 @@ def reason_comparative(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    if contrary and not facts:
+        steps.append("only contrary factual dimension; no supporting side")
+        return CandidateInference(
+            verdict=CognitiveVerdict.CONTESTED.value,
+            epistemic=EpistemicAnswer.CONTESTED.value,
+            conclusion="Comparison contested: evidence contradicts the proposition.",
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in contrary],
+            contradicting_ids=[b.memory_id for b in contrary],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
     if not facts and not others:
         return _empty(task, "Comparison has no bound evidence.")
     if not facts:
-        steps.append("no factual side; non-facts are labeled and not treated as zero-facts")
+        steps.append("no supporting factual side; non-facts are labeled and not treated as zero-facts")
+        missing = ["TASK_SUPPORTING_PREMISE"] if lexical_facts else ["FACTUAL_PREMISE"]
         return CandidateInference(
             verdict=CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
             epistemic=EpistemicAnswer.INSUFFICIENT_EVIDENCE.value,
-            conclusion="Comparison incomplete: missing factual dimension.",
+            conclusion="Comparison incomplete: missing supporting factual dimension.",
             conclusion_class="INFERENCE",
-            missing_premises=["FACTUAL_PREMISE"],
+            missing_premises=missing,
             assumptions=[_base_assumption()],
             steps=steps,
         )
@@ -382,8 +491,12 @@ def reason_comparative(
 def reason_temporal(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
-    steps = ["TEMPORAL: stale ≠ false; dated ≠ proven current"]
-    usable = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    steps = [
+        "TEMPORAL: stale ≠ false; dated ≠ proven current",
+        "LEXICAL_MATCH != EVIDENCE_SUPPORT",
+    ]
+    usable = _supporting(bindings, task, ROLE_FACTUAL_PREMISE)
+    contrary = _contradicting(bindings, task, ROLE_FACTUAL_PREMISE)
     aging = [b for b in usable if b.temporal_state in {"CURRENT", "AGING"}]
     dated = [b for b in usable if b.temporal_state == "DATED"]
     stale = [b for b in bindings if b.temporal_state in {"STALE", "SUPERSEDED", "HISTORICAL"}]
@@ -417,8 +530,20 @@ def reason_temporal(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    if contrary and not aging and not dated:
+        steps.append("dated contrary evidence; no supporting temporal premise")
+        return CandidateInference(
+            verdict=CognitiveVerdict.CONTESTED.value,
+            epistemic=EpistemicAnswer.CONTESTED.value,
+            conclusion="Temporal reading contested: dated evidence contradicts the proposition.",
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in contrary],
+            contradicting_ids=[b.memory_id for b in contrary],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
     if not aging and not dated:
-        return _empty(task, "Temporal reading has no dated task-relevant facts.")
+        return _empty(task, "Temporal reading has no dated supporting facts.")
     lesson_on, fail_on, _, _ = _lesson_failure_flags(bindings)
     if aging:
         scope = "AGING" if not any(b.temporal_state == "CURRENT" for b in aging) else "CURRENT"
@@ -451,7 +576,8 @@ def reason_adversarial(
     steps = [
         "ADVERSARIAL: search contradictions, type misuse, stale-as-current, lookalikes, weak premises"
     ]
-    facts = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    facts = _supporting(bindings, task, ROLE_FACTUAL_PREMISE)
+    contrary = _contradicting(bindings, task, ROLE_FACTUAL_PREMISE)
     contested = [b for b in bindings if b.contradiction_state == "CONTESTED"]
     opinions = [b for b in bindings if b.typed_class == "OPINION"]
     hyps = [b for b in bindings if b.typed_class == "HYPOTHESIS"]
@@ -541,9 +667,22 @@ def reason_adversarial(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    if contrary and not facts:
+        steps.append("contrary evidence only; no supporting factual premise")
+        return CandidateInference(
+            verdict=CognitiveVerdict.CONTESTED.value,
+            epistemic=EpistemicAnswer.CONTESTED.value,
+            conclusion="Adversarial: evidence contradicts the proposition.",
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in contrary],
+            contradicting_ids=[b.memory_id for b in contrary],
+            assumptions=[_base_assumption()],
+            steps=steps,
+            lesson_applied=lesson_on,
+        )
     if not facts:
-        return _empty(task, "Adversarial review found no factual premises.")
-    steps.append("facts present; still refuse certainty")
+        return _empty(task, "Adversarial review found no supporting factual premises.")
+    steps.append("supporting facts present; still refuse certainty")
     return CandidateInference(
         verdict=CognitiveVerdict.WEAKLY_SUPPORTED.value,
         epistemic=EpistemicAnswer.UNCERTAIN.value,

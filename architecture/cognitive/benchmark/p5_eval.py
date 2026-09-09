@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from architecture.cognitive.benchmark.metrics import MetricResult, make_metric
 from architecture.cognitive.loop.binding import bind_context
+from architecture.cognitive.loop.support import SUPPORT_NON, SUPPORT_UNKNOWN
 from architecture.cognitive.loop.contracts import (
     CognitiveContext,
     CognitiveTask,
@@ -19,7 +20,7 @@ from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
 
 NOW = 1_800_000_000.0
-P5_VERSION = "p5.0.0"
+P5_VERSION = "p5.1.0"
 
 
 def _item(
@@ -222,6 +223,10 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     unk_h = unk_n = 0
     assume_h = assume_n = 0
     xdom_h = xdom_n = 0
+    lex_nosup_h = lex_nosup_n = 0
+    unsup_pos_h = unsup_pos_n = 0
+    direct_pos_h = direct_pos_n = 0
+    unk_ref_h = unk_ref_n = 0
 
     # typed compliance: bindings preserve class
     for item, expect in (
@@ -511,6 +516,128 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     if len(set(verdicts)) == 1:
         xdom_h += 1
 
+    # Evidence-support probes. Labels are the ground truth; classifier/reason() are measured.
+    # No case-ID branches in production. No apply_constraint() substitute. No or True.
+    support_probes = (
+        {
+            "label": "exact_support",
+            "gt": "DIRECT_SUPPORT",
+            "statement": "HTTP retries after timeout reduced request failures.",
+            "question": "Do retries after timeout help?",
+            "allow_positive": True,
+        },
+        {
+            "label": "cafeteria_cousin",
+            "gt": "NO_SUPPORT",
+            "statement": "the lunch timeout retries were about cafeteria seating",
+            "question": "Do retries after timeout help?",
+            "allow_positive": False,
+        },
+        {
+            "label": "kitchen_http",
+            "gt": "NO_SUPPORT",
+            "statement": "Retry behavior was tested in a kitchen queue system.",
+            "question": "Do HTTP retries improve reliability?",
+            "allow_positive": False,
+        },
+        {
+            "label": "generic_overlap",
+            "gt": "NO_SUPPORT",
+            "statement": "The system recovered.",
+            "question": "Do retries after timeout help?",
+            "allow_positive": False,
+        },
+        {
+            "label": "context_only",
+            "gt": "NO_SUPPORT",
+            "statement": "HTTP requests frequently timed out.",
+            "question": "Do retries after timeout help?",
+            "allow_positive": False,
+        },
+        {
+            "label": "direct_negative",
+            "gt": "CONTRADICTS",
+            "statement": "Retries after timeout increased failures.",
+            "question": "Do retries after timeout help?",
+            "allow_positive": False,
+        },
+        {
+            "label": "adversarial_lookalike",
+            "gt": "UNKNOWN_OR_NON",
+            "statement": (
+                "HTTP connection timeout retries after the lunch window "
+                "improved seating availability for the service team."
+            ),
+            "question": "Do HTTP connection retries after timeout improve service availability?",
+            "allow_positive": False,
+        },
+    )
+    POSITIVE = {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    }
+    for probe in support_probes:
+        item = _item(f"P5-SUP-{probe['label']}", f"SYNTHETIC_TEST_DATA: {probe['statement']}")
+        ptask = _task(
+            f"P5-SUP-{probe['label']}",
+            ReasoningMode.DEDUCTIVE.value,
+            question=probe["question"],
+        )
+        binds = bind_context(_ctx(item), ptask, store=store)
+        bind = binds[0] if binds else None
+        if bind and bind.addresses_task_flag and probe["gt"] in {"NO_SUPPORT", "UNKNOWN_OR_NON"}:
+            lex_nosup_n += 1
+            if bind.support_class in {SUPPORT_NON, SUPPORT_UNKNOWN}:
+                lex_nosup_h += 1
+        if bind and bind.support_class == SUPPORT_UNKNOWN:
+            unk_ref_n += 1
+        if probe["gt"] == "DIRECT_SUPPORT":
+            direct_pos_n += 1
+        v, _, tr, cr, _ = _run(ptask, _ctx(item), store)
+        if not probe["allow_positive"]:
+            unsup_pos_n += 1
+            if v in POSITIVE:
+                unsup_pos_h += 1
+        if probe["gt"] == "DIRECT_SUPPORT" and v in POSITIVE:
+            direct_pos_h += 1
+        if bind and bind.support_class == SUPPORT_UNKNOWN and v not in POSITIVE:
+            unk_ref_h += 1
+        case_results.append(
+            {
+                "case_id": f"P5-SUP-{probe['label']}",
+                "family": "p5_support",
+                "support_class": bind.support_class if bind else "",
+                "support_polarity": bind.support_polarity if bind else "",
+                "verdict": v,
+                "critic_action": cr.action,
+                "gt": probe["gt"],
+            }
+        )
+    # Seven modes on the cafeteria cousin — no manufactured positive from lexical overlap.
+    cafe = _item(
+        "P5-CAFE",
+        "SYNTHETIC_TEST_DATA: the lunch timeout retries were about cafeteria seating",
+    )
+    cafe_ctx = _ctx(cafe)
+    for mode in modes:
+        ptask = _task(f"P5-CAFE-{mode}", mode)
+        binds = bind_context(cafe_ctx, ptask, store=store)
+        v, _, tr, cr, _ = _run(ptask, cafe_ctx, store)
+        unsup_pos_n += 1
+        if v in POSITIVE:
+            unsup_pos_h += 1
+        case_results.append(
+            {
+                "case_id": f"P5-CAFE-{mode}",
+                "family": "p5_support_modes",
+                "mode": mode,
+                "support_class": binds[0].support_class if binds else "",
+                "verdict": v,
+                "critic_action": cr.action,
+                "final_verdict": v,
+            }
+        )
+
     metrics = [
         make_metric(
             "typed_evidence_compliance",
@@ -681,6 +808,67 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
             population="software/science/finance/operations one-fact",
             limitations="Synthetic one-fact tasks; not market transfer",
             n=xdom_n,
+        ),
+        make_metric(
+            "lexical_match_without_support_rate",
+            name="lexical_match_without_support_rate",
+            definition=(
+                "labeled no-support bindings that addresses_task and are classified "
+                "NON_SUPPORTING_MATCH or UNKNOWN_SUPPORT / those lexical no-support bindings. "
+                "Ground truth: human-labeled cafeteria/kitchen/adversarial cousins. "
+                "Interpretation: lexical candidates were not promoted to DIRECT_SUPPORT."
+            ),
+            numerator=lex_nosup_h,
+            denominator=float(lex_nosup_n),
+            population="P5 support probes with lexical overlap and GT=no-support",
+            limitations=(
+                "Synthetic statements; closed lexicons are not entailment. "
+                "Does not use or True, apply_constraint, or case-ID production branches."
+            ),
+            n=lex_nosup_n,
+        ),
+        make_metric(
+            "unsupported_positive_verdict_rate",
+            name="unsupported_positive_verdict_rate",
+            definition=(
+                "live reason() finals that are WEAKLY_SUPPORTED/SUPPORTED on labeled "
+                "no-support probes / those probes. "
+                "Ground truth: cafeteria×7 modes + kitchen/generic/context/negative/adversarial. "
+                "Interpretation: 0 means no positive verdict from non-supporting evidence."
+            ),
+            numerator=unsup_pos_h,
+            denominator=float(unsup_pos_n),
+            population="labeled no-support P5 support probes including seven cafeteria modes",
+            limitations="Live reason() only; critic may REFUSE a mode WEAKLY candidate",
+            n=unsup_pos_n,
+        ),
+        make_metric(
+            "direct_support_positive_rate",
+            name="direct_support_positive_rate",
+            definition=(
+                "DEDUCTIVE WEAKLY_SUPPORTED/SUPPORTED on the labeled DIRECT_SUPPORT probe / 1. "
+                "Ground truth: 'HTTP retries after timeout reduced request failures.' "
+                "Interpretation: exact-support still allows a positive candidate."
+            ),
+            numerator=direct_pos_h,
+            denominator=float(direct_pos_n),
+            population="P5 exact-support DEDUCTIVE probe",
+            limitations="N=1 labeled statement; not a semantic engine score",
+            n=direct_pos_n,
+        ),
+        make_metric(
+            "unknown_support_refusal_rate",
+            name="unknown_support_refusal_rate",
+            definition=(
+                "UNKNOWN_SUPPORT bindings whose live verdict is not positive / those bindings. "
+                "Ground truth: classifier UNKNOWN_SUPPORT on the support-probe corpus. "
+                "Interpretation: honest unknown refuses manufactured support."
+            ),
+            numerator=unk_ref_h,
+            denominator=float(unk_ref_n),
+            population="support probes classified UNKNOWN_SUPPORT",
+            limitations="UNKNOWN is a fail-closed residual, not proven irrelevance",
+            n=unk_ref_n,
         ),
     ]
     counts = {

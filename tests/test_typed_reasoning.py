@@ -230,8 +230,12 @@ def test_abductive_preserves_alternatives() -> None:
     )
     v, _, trace, _, _ = _reason(_task(reasoning_mode=ReasoningMode.ABDUCTIVE.value), _ctx(obs, h1, h2))
     assert v in {
-        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+        CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
         CognitiveVerdict.UNRESOLVED.value,
+    }
+    assert v not in {
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+        CognitiveVerdict.SUPPORTED.value,
     }
     alts = trace.inference_records[0]["alternatives"]
     assert len(alts) >= 2
@@ -867,6 +871,7 @@ def test_seven_modes_governed_behavior_not_aliases() -> None:
     assert abd[0] in {
         CognitiveVerdict.WEAKLY_SUPPORTED.value,
         CognitiveVerdict.UNRESOLVED.value,
+        CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
     }
     assert len(abd[2].inference_records[0]["alternatives"]) >= 2
     assert abd[2].inference_records[0]["conclusion_class"] == "HYPOTHESIS"
@@ -881,4 +886,190 @@ def test_seven_modes_governed_behavior_not_aliases() -> None:
     assert "Known observations" in meta[2].conclusion
     assert "no world model" in meta[2].conclusion.lower()
     assert len({ded[0], ind[0], temp[0], adv[0], comp[0]}) >= 3
+
+
+POSITIVE = {
+    CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    CognitiveVerdict.SUPPORTED.value,
+}
+
+
+def test_exact_support_allows_positive_candidate() -> None:
+    fact = _item("S1", "HTTP retries after timeout reduced request failures.")
+    v, _, _, _, _ = _reason(_task(reasoning_mode=ReasoningMode.DEDUCTIVE.value), _ctx(fact))
+    assert v in POSITIVE
+
+
+def test_cafeteria_lexical_cousin_is_insufficient() -> None:
+    fact = _item("S2", "the lunch timeout retries were about cafeteria seating")
+    binds = bind_context(_ctx(fact), _task())
+    assert binds[0].addresses_task_flag is True
+    assert binds[0].may_support_task() is False
+    v, _, _, _, _ = _reason(_task(reasoning_mode=ReasoningMode.DEDUCTIVE.value), _ctx(fact))
+    assert v == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert v not in POSITIVE
+
+
+def test_kitchen_http_domain_mismatch_is_insufficient() -> None:
+    fact = _item("S3", "Retry behavior was tested in a kitchen queue system.")
+    task = _task(question="Do HTTP retries improve reliability?")
+    v, _, _, _, _ = _reason(task, _ctx(fact))
+    assert v == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert v not in POSITIVE
+
+
+def test_generic_overlap_is_insufficient() -> None:
+    fact = _item("S4", "The system recovered.")
+    v, _, _, _, _ = _reason(_task(reasoning_mode=ReasoningMode.DEDUCTIVE.value), _ctx(fact))
+    assert v == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert v not in POSITIVE
+
+
+def test_context_only_timeout_never_positive() -> None:
+    fact = _item("S5", "HTTP requests frequently timed out.")
+    v, _, _, _, _ = _reason(_task(reasoning_mode=ReasoningMode.DEDUCTIVE.value), _ctx(fact))
+    assert v in {
+        CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
+        CognitiveVerdict.UNRESOLVED.value,
+    }
+    assert v not in POSITIVE
+
+
+def test_direct_negative_evidence_is_contested() -> None:
+    fact = _item("S6", "Retries after timeout increased failures.")
+    v, _, _, _, _ = _reason(_task(reasoning_mode=ReasoningMode.DEDUCTIVE.value), _ctx(fact))
+    assert v == CognitiveVerdict.CONTESTED.value
+    assert v not in POSITIVE
+
+
+def test_seven_modes_cafeteria_never_positive() -> None:
+    fact = _item("CAFE", "the lunch timeout retries were about cafeteria seating")
+    ctx = _ctx(fact)
+    rows = []
+    for mode in (
+        ReasoningMode.DEDUCTIVE.value,
+        ReasoningMode.INDUCTIVE.value,
+        ReasoningMode.ABDUCTIVE.value,
+        ReasoningMode.COMPARATIVE.value,
+        ReasoningMode.TEMPORAL.value,
+        ReasoningMode.ADVERSARIAL.value,
+        ReasoningMode.METACOGNITIVE.value,
+    ):
+        task = _task(reasoning_mode=mode)
+        binds = bind_context(ctx, task)
+        v, _, trace, crit, _ = _reason(task, ctx)
+        rows.append(
+            {
+                "mode": mode,
+                "support_class": binds[0].support_class,
+                "verdict": v,
+                "critic_action": crit.action,
+                "final_verdict": v,
+            }
+        )
+        assert v not in POSITIVE, rows[-1]
+        assert binds[0].may_support_task() is False
+    assert len(rows) == 7
+    # METACOGNITIVE may inventory then REFUSE; others refuse in-mode.
+    meta = next(r for r in rows if r["mode"] == ReasoningMode.METACOGNITIVE.value)
+    assert meta["critic_action"] == ACTION_REFUSE
+    assert meta["final_verdict"] == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+
+
+def test_adversarial_lookalike_prefers_unknown_or_insufficient() -> None:
+    fact = _item(
+        "ADV",
+        "HTTP connection timeout retries after the lunch window "
+        "improved seating availability for the service team.",
+    )
+    task = _task(question="Do HTTP connection retries after timeout improve service availability?")
+    binds = bind_context(_ctx(fact), task)
+    v, _, _, _, _ = _reason(task, _ctx(fact))
+    assert binds[0].support_class in {"UNKNOWN_SUPPORT", "NON_SUPPORTING_MATCH"}
+    assert v in {
+        CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
+        CognitiveVerdict.UNRESOLVED.value,
+    }
+    assert v not in POSITIVE
+
+
+def test_unresolved_hypothesis_is_not_reusable_knowledge(tmp_path: Path) -> None:
+    mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
+    hyp = HypothesisStore(tmp_path / "hyp.jsonl")
+    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
+    a = mem.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: timeout retries support recovery.",
+        source_type=SourceType.SYSTEM,
+        source_id="a",
+        source_location="tests/test_typed_reasoning.py",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=NOW - 50,
+        created_at=NOW - 40,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
+    )
+    b = mem.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: timeout retries contradict recovery.",
+        source_type=SourceType.SYSTEM,
+        source_id="b",
+        source_location="tests/test_typed_reasoning.py",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=NOW - 49,
+        created_at=NOW - 39,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
+    )
+    mem.contradict(a.memory_id, b.memory_id, reason="seeded", now=NOW - 1)
+    r1 = orch.run(
+        _task(
+            task_id="unresolved-hyp",
+            task_type=TaskType.INVESTIGATE.value,
+            reasoning_mode=ReasoningMode.DEDUCTIVE.value,
+            write_back=True,
+        ),
+        now=NOW,
+    )
+    assert r1.verdict in {
+        CognitiveVerdict.UNRESOLVED.value,
+        CognitiveVerdict.CONTESTED.value,
+    }
+    assert r1.hypothesis_id == ""
+    assert r1.lesson_memory_id == ""
+    assert mem.find_by_type(MemoryType.HYPOTHESIS) == []
+    assert (not hyp.path.exists()) or hyp.path.read_text(encoding="utf-8").strip() == ""
+    inference_wb = [
+        rec
+        for rec in mem.find_by_type(MemoryType.SEMANTIC)
+        if rec.epistemic_kind == EpistemicKind.INFERENCE.value
+        and rec.statement.startswith("INFERENCE ")
+    ]
+    assert inference_wb == []
+    r2 = orch.run(
+        _task(
+            task_id="unresolved-hyp-ep2",
+            task_type=TaskType.ANALYZE.value,
+            reasoning_mode=ReasoningMode.DEDUCTIVE.value,
+            write_back=False,
+        ),
+        now=NOW + 5,
+    )
+    retrieved_hyps = [i for i in r2.retrieved if i.epistemic_kind == EpistemicKind.HYPOTHESIS.value]
+    assert retrieved_hyps == []
+    assert r2.verdict in {
+        CognitiveVerdict.UNRESOLVED.value,
+        CognitiveVerdict.CONTESTED.value,
+    }
+    assert r2.verdict not in POSITIVE
+    kinds = {i.epistemic_kind for i in r2.retrieved}
+    assert EpistemicKind.LESSON.value not in kinds or all(
+        i.memory_id != r1.lesson_memory_id for i in r2.retrieved
+    )
 
