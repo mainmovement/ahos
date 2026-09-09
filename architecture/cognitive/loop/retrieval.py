@@ -111,10 +111,27 @@ SCORE_TYPE_COMPAT = 25
 SCORE_DOMAIN_BOOST = 5
 SCORE_TEMPORAL_BOOST = 3
 MIN_STRONG_LEXICAL = 2
+# 1-token + same-domain is an anchor only if that token is rare in-domain.
+MAX_DOMAIN_DF = 3
 
 LESSON_INTENT = frozenset({"learn", "learned", "lesson", "lessons"})
 FAILURE_INTENT = frozenset({"fail", "failed", "failure", "failures"})
 HISTORY_INTENT = frozenset({"historical", "history", "stale", "superseded", "quarter"})
+
+# Closed inflection table. Not a stemmer; only documented pairs.
+INFLECTIONS = {
+    "contradicted": "contradict",
+    "contradicts": "contradict",
+    "failures": "failure",
+    "lessons": "lesson",
+    "recovered": "recover",
+    "recovers": "recover",
+    "retried": "retry",
+    "retries": "retry",
+    "supported": "support",
+    "supports": "support",
+    "timeouts": "timeout",
+}
 
 
 def evidence_class_for(kind: str) -> str:
@@ -148,6 +165,14 @@ SCHEMA_LABELS = frozenset(
 
 def memory_tokens(text: str) -> set[str]:
     return content_tokens(text) - SCHEMA_LABELS
+
+
+def canonical_token(tok: str) -> str:
+    return INFLECTIONS.get(tok, tok)
+
+
+def canonical_set(toks: Iterable[str]) -> set[str]:
+    return {canonical_token(t) for t in toks}
 
 
 def _item(rec: MemoryRecord, reasons: Iterable[str]) -> RetrievedItem:
@@ -244,7 +269,23 @@ def _failure_keys(rec: MemoryRecord) -> set[str]:
 
 
 def _lexical_overlap(rec: MemoryRecord, qtok: set[str]) -> set[str]:
-    return memory_tokens(rec.statement) & qtok
+    return canonical_set(memory_tokens(rec.statement)) & canonical_set(qtok)
+
+
+def _domain_document_frequency(records: list[MemoryRecord]) -> dict[tuple[str, str], int]:
+    df: dict[tuple[str, str], int] = {}
+    for rec in records:
+        for tok in canonical_set(memory_tokens(rec.statement)):
+            key = (rec.domain, tok)
+            df[key] = df.get(key, 0) + 1
+    return df
+
+
+def _rare_in_domain(overlap: set[str], domain: str, df: dict[tuple[str, str], int]) -> bool:
+    if len(overlap) != 1:
+        return False
+    tok = next(iter(overlap))
+    return df.get((domain, tok), 0) <= MAX_DOMAIN_DF
 
 
 def _type_compatibility(rec: MemoryRecord, signals: QuerySignals) -> bool:
@@ -333,12 +374,15 @@ class MemoryRetriever:
         by_id = {rec.memory_id: rec for rec in recent}
         anchors: dict[str, list[str]] = {}
         scores: dict[str, int] = {}
+        domain_df = _domain_document_frequency(recent)
 
         for rec in recent:
             if _namespace_blocked(task, rec):
                 rejected.append(Rejection(rec.memory_id, "NAMESPACE_BLOCKED"))
                 continue
-            reasons, score, rejection = self._anchor_reasons(rec, task, signals, now=now)
+            reasons, score, rejection = self._anchor_reasons(
+                rec, task, signals, now=now, domain_df=domain_df
+            )
             if reasons:
                 anchors[rec.memory_id] = reasons
                 scores[rec.memory_id] = score
@@ -420,6 +464,7 @@ class MemoryRetriever:
         signals: QuerySignals,
         *,
         now: float | None,
+        domain_df: dict[tuple[str, str], int],
     ) -> tuple[list[str], int, str]:
         reasons: list[str] = []
         score = 0
@@ -438,16 +483,20 @@ class MemoryRetriever:
             reasons.append("source_relationship")
             score += SCORE_SOURCE
         strong_lexical = len(overlap) >= MIN_STRONG_LEXICAL
-        weak_same_domain = len(overlap) == 1 and rec.domain == task.domain
+        weak_same_domain = rec.domain == task.domain and _rare_in_domain(
+            overlap, rec.domain, domain_df
+        )
         if strong_lexical or weak_same_domain:
             reasons.append("task_keyword_match")
             score += min(SCORE_LEXICAL_CAP, SCORE_LEXICAL_PER_TOKEN * len(overlap))
             if rec.epistemic_kind == EpistemicKind.LESSON.value:
                 reasons.append("lesson_keyword_match")
         if rec.memory_type == MemoryType.FAILURE.value:
-            fail_overlap = _failure_keys(rec) & signals.tokens
+            fail_overlap = canonical_set(_failure_keys(rec)) & canonical_set(signals.tokens)
             strong_fail = len(fail_overlap) >= MIN_STRONG_LEXICAL
-            weak_fail_same_domain = len(fail_overlap) == 1 and rec.domain == task.domain
+            weak_fail_same_domain = rec.domain == task.domain and _rare_in_domain(
+                fail_overlap, rec.domain, domain_df
+            )
             if strong_fail or weak_fail_same_domain:
                 reasons.append("failure_fingerprint")
                 score += SCORE_FAILURE_FINGERPRINT

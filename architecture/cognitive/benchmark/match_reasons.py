@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from architecture.cognitive.loop.contracts import CognitiveTask, RetrievedItem
-from architecture.cognitive.loop.retrieval import tokens
+from architecture.cognitive.loop.retrieval import canonical_set, content_tokens, memory_tokens, tokens
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType
 
@@ -48,10 +48,12 @@ def match_reason_justified(
         elif reason == "lesson_keyword_match":
             if item.epistemic_kind != EpistemicKind.LESSON.value:
                 return False
-            if not (tokens(item.statement) & qtok):
+            qcanon = canonical_set(content_tokens(task.question) | content_tokens(task.objective))
+            if not (canonical_set(memory_tokens(item.statement)) & qcanon):
                 return False
         elif reason == "task_keyword_match":
-            if not (tokens(item.statement) & qtok):
+            qcanon = canonical_set(content_tokens(task.question) | content_tokens(task.objective))
+            if not (canonical_set(memory_tokens(item.statement)) & qcanon):
                 return False
         elif reason == "source_relationship":
             if not item.source_id or item.source_id.lower() not in task.question.lower():

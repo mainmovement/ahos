@@ -4,6 +4,31 @@
 **Interpreter for tests/validate:** `/tmp/ahos-test-venv` (ephemeral; not committed). System `python3` lacks pytest (PEP 668).  
 **Soak daemon:** not started. Cloud sqlite: not treated as soak.
 
+## P4.2 (retrieval relevance)
+
+**Base SHA:** `6e65f1573dea8c2fe91d6a181b25a20015e76fe1`  
+See `P4_2_RETRIEVAL_RELEVANCE_AUDIT.md` and `P4_2_RETRIEVAL_BENCHMARK_REPORT.md`. Targeted pytest: 148 passed (relevance + benchmark + loop + memory + core + evolution + council). Freeze 36/36. validate_imports PASS. Reproducibility equal. Precision/F1 still FAIL vs provisional floors; recall 1.0 protected.
+
+```text
+python3 -B scripts/freeze_lane_a.py
+# result: Lane-A integrity OK (36 files pinned)  exit 0
+
+/tmp/ahos-test-venv/bin/python -m pytest -q -p no:cacheprovider \
+  tests/test_retrieval_relevance.py \
+  tests/test_cognitive_benchmark.py \
+  tests/test_cognitive_loop.py \
+  tests/test_cognitive_memory.py \
+  tests/test_cognitive_core.py \
+  tests/test_self_evolution_engine.py \
+  tests/test_multi_mind_council_anti_echo.py \
+  tests/test_evolution_validate.py \
+  tests/test_cognitive_panel.py
+# result: 148 passed  exit 0
+
+/tmp/ahos-test-venv/bin/python scripts/validate_imports.py
+# result: VALIDATION PASSED (after rm -rf .pytest_cache; restore reports/*.json side effects)
+```
+
 ## P4.1 (cognitive benchmark)
 
 **Base SHA:** `6862c6fc20050622f6125853671f885b0e36b16a`  

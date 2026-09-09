@@ -329,6 +329,23 @@ def test_provenance_survives_filtering(tmp_path: Path) -> None:
     assert items[0].domain == rec.domain
 
 
+def test_common_in_domain_token_does_not_pull_contradictions(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+    items = MemoryRetriever().retrieve(
+        store,
+        _task(
+            domain="science",
+            question="Do calibration retries recover the measurement?",
+            objective="calibration retries",
+        ),
+        now=NOW,
+    )
+    ids = {i.memory_id for i in items}
+    assert "BM-SCI-FACT" in ids
+    assert "BM-SCI-CONTRA-A" not in ids
+    assert "BM-SCI-CONTRA-B" not in ids
+
+
 def test_empty_result_is_no_relevant_memory_contract(tmp_path: Path) -> None:
     store = _store(tmp_path)
     explained = MemoryRetriever().retrieve_explained(

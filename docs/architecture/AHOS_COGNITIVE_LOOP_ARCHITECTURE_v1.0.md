@@ -64,15 +64,18 @@ HYPOTHESIZE, TEST, LEARN, SELF_RESEARCH. Extensible strings; not finance-only.
 
 ## Retrieval
 
-`MemoryRetriever` scans `store.recent()` and attaches MATCH_REASON strings:
+`MemoryRetriever` scans `store.recent()` and attaches MATCH_REASON strings.
 
-- exact_id, same_domain, same_hypothesis, same_experiment
-- failure_relationship, lesson_keyword_match, task_keyword_match
-- source_relationship, stale_but_queryable, contradiction_relationship
-- explicit_relationship, temporal_proximity
+P4.2 (query-time): `same_domain`, unanchored contradiction/failure edges,
+mere FAILURE type, and recency are **not** sufficient alone. Anchors are
+exact id, structured keys, strong lexical overlap (≥2 canonical tokens), or
+a rare in-domain token. Relationships expand one hop from those anchors.
+Empty / signal-less queries return `NO_RELEVANT_MEMORY`.
 
-No embeddings. No vector database. Opaque scores without reasons are not used
-as the explanation (rank is `len(match_reasons)` only).
+Ranking is documented integer scores (exact id > structured key > fingerprint
+> lexical > expansion > domain/temporal boosts), then `memory_id`.
+
+No embeddings. No vector database. No LLM relevance judge.
 
 Agent namespaces: if the task has `agent_id` and a memory has a different
 non-empty `agent_namespace`, it is skipped. Empty namespace is shared.
