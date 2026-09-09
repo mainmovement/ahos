@@ -138,4 +138,10 @@ Owner/env gates below remain blocked.
 |---|---|---|
 | M-GAP-024 (Telegram HTML `escapeHtml` / `format_pump_alert` no-op) | **CLOSED** (unit/selftest) | `escapeTelegramHtml` + `escape_telegram_html` escape `&` `<` `>` on untrusted fields. Tests: `scripts/canonical_security_selftest.ts`, `tests/test_telegram_html_escape.py`. Live E2E remains M-GAP-009. Note: `docs/engineering/TELEGRAM_HTML_ESCAPE.md`. |
 
-Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates.
+### Addendum 2026-09-09 — Canonical overlay census (observability)
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-025 (Python JSON vs TS/Postgres opportunity keys often unmatched → UNAVAILABLE) | **MITIGATED** (diagnostic only) | `/api/command` now includes `overlayCensus` (`matched` / `unmatchedTs` / `unmatchedPython`). Unmatched stays UNAVAILABLE. **No store join. No gecko pool→token identity change.** Note: `docs/engineering/CANONICAL_OVERLAY_CENSUS.md`. |
+
+Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates. Dual-store redesign remains an architecture STOP.

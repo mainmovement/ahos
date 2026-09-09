@@ -257,6 +257,55 @@ export function canonicalReadModelSummary(model: CanonicalReadModel): CanonicalR
   };
 }
 
+/**
+ * Observability only. Does not join Python SQLite/JSON to Postgres.
+ * Unmatched TypeScript rows stay UNAVAILABLE (fail-closed). Not a second brain.
+ */
+export type CanonicalOverlayCensus = {
+  pythonDecisionCount: number;
+  tsOpportunityCount: number;
+  matched: number;
+  unmatchedTs: number;
+  unmatchedPython: number;
+  note: string;
+};
+
+const OVERLAY_CENSUS_NOTE =
+  "UNAVAILABLE is fail-closed. This census does not join stores or mint BUY.";
+
+export function canonicalOverlayCensus(
+  model: CanonicalReadModel,
+  opps: Array<{ chain?: string | null; address?: string | null }>,
+): CanonicalOverlayCensus {
+  const pythonDecisionCount = model.decisions.length;
+  const tsOpportunityCount = opps.length;
+  let matched = 0;
+  let unmatchedTs = 0;
+  const matchedPythonKeys = new Set<string>();
+  for (const opp of opps) {
+    const row = lookupCanonicalRow(model, opp.chain, opp.address);
+    if (row) {
+      matched += 1;
+      matchedPythonKeys.add(row.token_key || tokenKey(row.chain, row.address));
+    } else {
+      unmatchedTs += 1;
+    }
+  }
+  let unmatchedPython = 0;
+  for (const row of model.decisions) {
+    const key = row.token_key || tokenKey(row.chain, row.address);
+    if (!matchedPythonKeys.has(key)) unmatchedPython += 1;
+  }
+  return {
+    pythonDecisionCount,
+    tsOpportunityCount,
+    matched,
+    unmatchedTs,
+    unmatchedPython,
+    note: OVERLAY_CENSUS_NOTE,
+  };
+}
+
 /** Presentation-only view of Python rows. Never invents BUY/WATCH. */
 export type CanonicalDecisionView = {
   tokenKey: string;

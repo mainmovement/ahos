@@ -18,6 +18,7 @@ import { desc, eq } from "drizzle-orm";
 import { TEAM_META } from "./council";
 import { ensureState } from "./engine";
 import {
+  canonicalOverlayCensus,
   canonicalReadModelSummary,
   loadCanonicalReadModel,
   overlayOpportunity,
@@ -68,6 +69,7 @@ export function failClosedCommandSnapshot(error: unknown, canonicalModel: Canoni
     market: null,
     opportunities: [],
     canonicalReadModel: canonicalReadModelSummary(canonicalModel),
+    overlayCensus: canonicalOverlayCensus(canonicalModel, []),
     canonicalDecisions: presentCanonicalDecisions(canonicalModel),
     news: [],
     providers: [],
@@ -242,6 +244,7 @@ async function buildDbCommandSnapshot(canonicalModel: CanonicalReadModel) {
       ),
     ),
     canonicalReadModel: canonicalReadModelSummary(canonicalModel),
+    overlayCensus: canonicalOverlayCensus(canonicalModel, opps),
     canonicalDecisions: presentCanonicalDecisions(canonicalModel),
     news: news.map((n) => ({
       id: n.id,
