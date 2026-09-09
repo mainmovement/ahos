@@ -287,6 +287,26 @@ export function canonicalFocusTokenKey(decisions: CanonicalDecisionView[]): stri
   return watch?.tokenKey || null;
 }
 
+/** Chat why/token lookup against Python rows when DB opportunities are empty. */
+export function findCanonicalDecision(
+  decisions: CanonicalDecisionView[],
+  text: string,
+  focus: string | null,
+): CanonicalDecisionView | null {
+  const up = text.toUpperCase();
+  const bySymbol =
+    decisions.find((d) => d.symbol && up.includes(d.symbol.toUpperCase())) ||
+    decisions.find((d) => d.tokenKey && up.includes(d.tokenKey.toUpperCase())) ||
+    null;
+  if (bySymbol) return bySymbol;
+  if (!focus) return null;
+  const want = focus.toUpperCase();
+  return (
+    decisions.find((d) => d.tokenKey === focus || (d.symbol && d.symbol.toUpperCase() === want)) ||
+    null
+  );
+}
+
 export async function loadCanonicalReadModel(now = Date.now() / 1000): Promise<CanonicalReadModel> {
   try {
     const raw = await readFile(canonicalReadModelPath(), "utf8");
