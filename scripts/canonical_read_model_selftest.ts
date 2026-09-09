@@ -112,6 +112,9 @@ test("stale/unavailable presentation strips positives", () => {
           paper_allowed: true,
           is_positive: true,
           advisor_action: "ENTER",
+          identity_state: "VERIFIED",
+          security_state: "PASS",
+          confidence_level: "HIGH",
         },
       ],
     },
@@ -124,7 +127,16 @@ test("stale/unavailable presentation strips positives", () => {
   assert.equal(stale.decisions[0].recorded_outcome, "BUY");
   assert.equal(stale.decisions[0].advisor_action, null);
   assert.equal(stale.decisions[0].recorded_advisor_action, "ENTER");
+  assert.equal(stale.decisions[0].identity_state, "STALE");
+  assert.equal(stale.decisions[0].security_state, "STALE");
+  assert.equal(stale.decisions[0].confidence_level, "UNKNOWN");
+  assert.equal(stale.decisions[0].recorded_identity_state, "VERIFIED");
+  assert.equal(stale.decisions[0].recorded_security_state, "PASS");
+  assert.equal(stale.decisions[0].recorded_confidence_level, "HIGH");
   assert.equal(views[0].outcome, "STALE");
+  assert.equal(views[0].identityState, "STALE");
+  assert.equal(views[0].securityState, "STALE");
+  assert.equal(views[0].confidence, "UNKNOWN");
   assert.equal(views[0].paperAllowed, false);
   assert.equal(views[0].isPositive, false);
   const over = overlayOpportunity(
@@ -133,6 +145,9 @@ test("stale/unavailable presentation strips positives", () => {
   );
   assert.equal(over.decision, "STALE");
   assert.equal(over.canonicalOutcome, "STALE");
+  assert.equal(over.identityState, "STALE");
+  assert.equal(over.securityState, "STALE");
+  assert.equal(over.confidence, "UNKNOWN");
   assert.equal(over.paperAllowed, false);
   assert.equal(toBackendDecision(stale.decisions[0], stale.status), null);
 });

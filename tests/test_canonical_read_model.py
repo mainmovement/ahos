@@ -61,6 +61,9 @@ def test_stale_read_model_cannot_stay_positive(tmp_path, monkeypatch):
         assert row["outcome"] == "STALE"
         assert row.get("recorded_outcome")
         assert row.get("advisor_action") in (None, "")
+        assert row["identity_state"] == "STALE"
+        assert row["security_state"] == "STALE"
+        assert row["confidence_level"] == "UNKNOWN"
 
 
 def test_write_and_lookup_roundtrip(tmp_path, monkeypatch):
