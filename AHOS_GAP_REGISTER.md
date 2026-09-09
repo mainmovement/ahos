@@ -142,7 +142,7 @@ Owner/env gates below remain blocked.
 
 | Gap | Classification | What changed |
 |---|---|---|
-| M-GAP-025 (Python JSON vs TS/Postgres opportunity keys often unmatched → UNAVAILABLE) | **MITIGATED** (diagnostic only) | `/api/command` now includes `overlayCensus` (`matched` / `unmatchedTs` / `unmatchedPython`). Unmatched stays UNAVAILABLE. **No store join. No gecko pool→token identity change.** Note: `docs/engineering/CANONICAL_OVERLAY_CENSUS.md`. |
+| M-GAP-025 (Python JSON vs TS/Postgres opportunity keys often unmatched → UNAVAILABLE) | **MITIGATED** (diagnostic only) | `/api/command` includes `overlayCensus`. Command Center displays matched/unmatched counts. Unmatched stays UNAVAILABLE. **No store join. No gecko pool→token identity change.** Note: `docs/engineering/CANONICAL_OVERLAY_CENSUS.md`. |
 
 ### Addendum 2026-09-09 — Command Center `/api/alerts` wiring
 

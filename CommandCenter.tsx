@@ -123,6 +123,14 @@ type Snap = {
     stale: boolean;
     authorityVersion: string | null;
   };
+  overlayCensus?: {
+    pythonDecisionCount: number;
+    tsOpportunityCount: number;
+    matched: number;
+    unmatchedTs: number;
+    unmatchedPython: number;
+    note: string;
+  };
   canonicalDecisions?: Array<{
     tokenKey: string;
     symbol: string | null;
@@ -627,6 +635,14 @@ export default function CommandCenter() {
                   وضعیت: {snap?.canonicalReadModel?.status ?? "UNAVAILABLE"}
                   {snap?.canonicalReadModel?.reason ? ` — ${snap.canonicalReadModel.reason}` : ""}
                 </p>
+                {snap?.overlayCensus ? (
+                  <p className="mb-2 text-xs text-amber-200/75">
+                    تطبیق کلید Python/TS: matched {snap.overlayCensus.matched} · TS نامنطبق{" "}
+                    {snap.overlayCensus.unmatchedTs} · پایتون نامنطبق {snap.overlayCensus.unmatchedPython}
+                    {" "}({snap.overlayCensus.pythonDecisionCount} حکم پایتون / {snap.overlayCensus.tsOpportunityCount} فرصت TS).
+                    UNAVAILABLE یعنی fail-closed — join فروشگاه‌ها نیست و BUY ساخته نمی‌شود.
+                  </p>
+                ) : null}
                 <div className="grid gap-2">
                   {canonicalDecisions.map((d) => (
                     <div
