@@ -1,0 +1,188 @@
+"""Governance thresholds. Not fitted to the current implementation.
+
+PROVISIONAL = justified as a first governance floor, not a measured SLA.
+GOVERNANCE = integrity invariant (leakage / fabricated certainty / nondeterminism).
+"""
+
+from __future__ import annotations
+
+BENCHMARK_VERSION = "p4.1.0"
+DATA_LABEL = "SYNTHETIC_TEST_DATA"
+
+# Threshold kind: MIN (value >= t), MAX (value <= t), ZERO (numerator == 0).
+THRESHOLDS: dict[str, dict] = {
+    "namespace_leakage_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "Cross-agent private leakage is an integrity failure.",
+    },
+    "unsupported_claim_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "Opinion/prediction/hypothesis must not become SUPPORTED facts.",
+    },
+    "reproducibility_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Identical inputs must yield identical benchmark output.",
+    },
+    "contradiction_false_resolution_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "A seeded contradiction must not be silently declared true.",
+    },
+    "retrieval_precision": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Half of retrieved items should be labeled relevant. Broad same_domain matching may fail this; failure is evidence, not a reason to lower the floor.",
+    },
+    "retrieval_recall": {
+        "kind": "MIN",
+        "threshold": 0.7,
+        "class": "PROVISIONAL",
+        "why": "Most labeled-relevant memories should appear in retrieve().",
+    },
+    "retrieval_f1": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Harmonic mean floor matching precision governance.",
+    },
+    "match_reason_correctness": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "A MATCH_REASON must correspond to the mechanism that retrieved the item.",
+    },
+    "contradiction_detection_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Seeded contradict() edges must surface CONTRADICTION_PRESENT.",
+    },
+    "unknown_refusal_accuracy": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Empty or unimplemented cases must refuse, not invent certainty.",
+    },
+    "false_certainty_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "INSUFFICIENT/UNKNOWN/NOT_IMPLEMENTED cases must not yield SUPPORTED.",
+    },
+    "namespace_isolation_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Private namespaces must not leak.",
+    },
+    "lesson_reuse_rate": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Applicable later episodes should retrieve a prior lesson more often than not.",
+    },
+    "correct_lesson_reuse_rate": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Reuse on labeled-applicable episodes.",
+    },
+    "incorrect_lesson_application_rate": {
+        "kind": "MAX",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Lessons should not blindly generalize. 0.5 is a weak first floor; same_domain retrieval may exceed it.",
+    },
+    "failure_recall": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Similar later failures should retrieve the prior FAILURE.",
+    },
+    "false_failure_application_rate": {
+        "kind": "MAX",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Unrelated episodes should not treat every FAILURE as applicable.",
+    },
+    "adversarial_resistance": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Misleading evidence must not produce SUPPORTED certainty.",
+    },
+    "cross_domain_consistency": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "PROVISIONAL",
+        "why": "Structurally equivalent tasks should share verdict class across domains.",
+    },
+    "evidence_class_integrity": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Retrieved evidence_class must match the stored epistemic kind mapping.",
+    },
+    "temporal_classification_accuracy": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "STALE/SUPERSEDED/fresh labels must match store status; STALE is not FALSE.",
+    },
+    "context_coverage": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Under a normal budget, at least half of labeled-relevant retrieved items should remain.",
+    },
+    "critic_detection_rate": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Seeded critic-trigger cases should raise the corresponding Critique flag more often than not.",
+    },
+    "recall_at_1": {
+        "kind": "MIN",
+        "threshold": 0.2,
+        "class": "PROVISIONAL",
+        "why": "Top-1 should catch some labeled-relevant items; rank is match_reason count.",
+    },
+    "recall_at_3": {
+        "kind": "MIN",
+        "threshold": 0.4,
+        "class": "PROVISIONAL",
+        "why": "Top-3 provisional floor.",
+    },
+    "recall_at_5": {
+        "kind": "MIN",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Top-5 provisional floor.",
+    },
+    "recall_at_10": {
+        "kind": "MIN",
+        "threshold": 0.6,
+        "class": "PROVISIONAL",
+        "why": "Top-10 provisional floor.",
+    },
+    "no_memory_lesson_reuse": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "NO_MEMORY baseline must not retrieve a lesson that was never read.",
+    },
+    "stale_not_false": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "STALE historical records remain queryable and are not treated as false.",
+    },
+}
