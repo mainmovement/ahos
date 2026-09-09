@@ -1,13 +1,14 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
-**Branch:** `cursor/phase3-post74-hygiene-9500`  
-**Base:** `origin/main` after PR **#74** merge (`4d9f618`). Overlay-v2 already on `main` via **#65**.  
+**Branch:** `cursor/phase3-post75-hygiene-9500`  
+**Base:** `origin/main` after PR **#75** merge (`b35cc09`) plus upload `f08bb38` (`01/`). Overlay-v2 already on `main` via **#65**.  
 **Date:** 2026-09-09  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
 
 Does **not** edit frozen `discovery/**` or `paper_trading/**`.
-Does **not** delete uploaded Web/3D trees or `scoring.ts`.
+Does **not** delete uploaded Web/3D trees, `01/`, or `scoring.ts`.
+Does **not** start Phase 4 or treat Wise Tree as product.
 
 ---
 
@@ -86,10 +87,18 @@ AI cannot upgrade a closed identity or security gate. AI may downgrade.
 | Paper `/api/paper` + chat | `paperAllowedFromCanonical` — 403 `CANONICAL_PAPER_DENIED` without Python BUY |
 
 Uploaded Web/3D trees (`advanced-3d-audiovisual-website/`,
-`(1)`, `سایت درخت…`, `درخت کاملتر…`) are **preserved** and classified as
-separate presentation projects. They are excluded from the Command Center
-root `tsconfig.json` / ESLint unit so they cannot compile as a hidden second
-brain. Each tree keeps its own `package.json`.
+`(1)`, `سایت درخت…`, `درخت کاملتر…`, and **`01/`**) are **preserved** and
+classified as separate presentation projects. They are excluded from the
+Command Center root `tsconfig.json` / ESLint unit so they cannot compile as a
+hidden second brain. Each tree keeps its own `package.json`.
+
+`01/` (upload `f08bb38`) is a Next demo with its own `engine.ts`, seed DB, and
+routes that label JSON `source: "canonical-read-model"`. That string is a
+local presentation label. It is **not** Python
+`architecture.decision.authority.CanonicalDecisionAuthority` and **not**
+`reports/canonical_decision_read_model.json`. The Wise Tree page under
+`01/src/app/[locale]/wise-tree` is presentation-only and does **not** start
+Phase 4.
 
 ---
 
@@ -132,7 +141,10 @@ Live GitHub truth as of 2026-09-09:
 * **PR #70** `AHOS_CANONICAL_READ_MODEL` + chat greeting from Python rows — **MERGED**
 * **PR #71** engine findings / chat focus count Python outcomes — **MERGED**
 * **PR #72** chat fail-closed without Postgres; STALE banner — **MERGED**
+* **PR #73** STALE loaders rewrite `outcome` (keep `recorded_outcome`) — **MERGED**
 * **PR #74** STALE clears advisor ENTER; pump_alert requires live BUY — **MERGED**
+* **PR #75** STALE identity/security/confidence freeze — **MERGED**
+* **`f08bb38`** human upload of `01/` onto `main` after #75 — **preserved**, not a second brain
 * **PR #63** Phase 2 original overlay-v2 branch — still **OPEN**, **CONFLICTING**, **SUPERSEDED**. Do **not** merge #63.
 * Phase 3 remains **PARTIAL**. Do **not** start Phase 4. Do **not** auto-merge.
 
@@ -149,7 +161,7 @@ orchestrator, uploaded Web trees.
 | Python AlertEngine OPPORTUNITY | Gated on `canonical.alerts_allowed` |
 | Orchestrator Telegram “فرصت ویژه” | Gated on `top_canonical.alerts_allowed` |
 | `telegram_ai/pump_alert.py` | Already on main via #74: live BUY only |
-| `GET /api/canonical` STALE rows | Already on main via #73/#74 for outcome/ENTER; **this revision** also rewrites identity/security/confidence so Command Center cannot show a green PASS pill |
+| `GET /api/canonical` STALE rows | Already on main via #73/#74/#75: outcome/ENTER/identity/security/confidence fail-closed |
 | `scoring.ts` | Cannot emit WATCH without injected `canonicalBackend` |
 | `alerts.ts` | Already on main via #65/#70: requires Python `alerts_allowed` |
 | `engine.ts` persist | stores Python `displayDecision`, not TS WATCH |
@@ -159,7 +171,7 @@ orchestrator, uploaded Web trees.
 | Command Center STALE banner | Already on main via #72 |
 | `/api/paper` + chat paper | Requires Python `paper_allowed` |
 | Command Center | Overlays Python; unavailable ⇒ UNAVAILABLE |
-| `reasoningEngine.ts` + uploaded trees | Preserved presentation; excluded from CC compile unit |
+| `reasoningEngine.ts` + uploaded trees including `01/` | Preserved presentation; excluded from CC compile unit |
 | Council votes WATCH | Advisory display only |
 
 Remaining dual-stack: `engine.ts` still computes **display ranks** (`rankScore`).
@@ -207,6 +219,7 @@ IMPLEMENTED:
   - STALE/UNAVAILABLE loaders rewrite outcome (recorded_outcome preserved) so GET /api/canonical cannot return a live BUY
   - STALE/UNAVAILABLE loaders clear advisor_action; pump_alert requires live BUY not ENTER
   - STALE/UNAVAILABLE loaders rewrite identity/security to STALE and confidence to UNKNOWN (no green PASS pill)
+  - `01/` upload preserved and excluded from Command Center tsconfig/eslint; engine classified presentation-only (not Phase 4 Wise Tree)
 TESTED:
   - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
   - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_config_validation.py → 17 passed
@@ -222,7 +235,7 @@ VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - prior #72: POST /api/chat without DATABASE_URL — reject lists Python REJECT; why ALPHA uses Python BUY; opportunities STALE does not mint BUY
   - prior #73: GET /api/canonical STALE fixture returns outcome STALE (recorded_outcome BUY), not a live BUY
   - prior #74: GET /api/canonical STALE fixture ALPHA advisor_action is null (recorded_advisor_action ENTER)
-  - this revision: GET /api/canonical STALE fixture ALPHA identity/security are STALE (recorded_security_state PASS), confidence UNKNOWN
+  - prior #75: GET /api/canonical STALE fixture ALPHA identity/security are STALE (recorded_security_state PASS), confidence UNKNOWN
 NOT VERIFIED:
   - Command Center overlay of live Postgres opportunity rows from a running observation daemon
   - Isolated loading-flash screenshot (page loaded before capture)
@@ -251,19 +264,20 @@ CLOSED on main / this revision:
   - #72 chat reject/why from Python; getState fail-closed; STALE banner reason stale_read_model
   - #73 STALE/UNAVAILABLE loaders rewrite outcome; GET /api/canonical cannot return live BUY
   - #74 STALE clears advisor_action; pump_alert requires live BUY not ENTER
-  - this revision: STALE identity/security/confidence cannot present as live PASS/VERIFIED/HIGH
+  - #75 STALE identity/security/confidence cannot present as live PASS/VERIFIED/HIGH
+  - this revision: `01/` excluded from Command Center compile unit; Wise Tree remains presentation
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
   - architecture/decision/read_model.py
   - canonical_read_model.ts
   - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 12 passed; typecheck 0; eslint 0; STALE identity/security rewritten on /api/canonical. Phase 3 stays PARTIAL.
+TEST_RESULTS: freeze 36 OK; targeted pytest includes `01/` presentation pin; typecheck/eslint exclude `01/`. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
   - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Freezing STALE PASS pills does not make the phase VERIFIED.
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Isolating the `01/` upload / Wise Tree page does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.

@@ -435,3 +435,37 @@ def test_web_trees_preserved():
     assert (ROOT / "scoring.ts").is_file()
     assert (ROOT / "engine.ts").is_file()
     assert (ROOT / "council.ts").is_file()
+
+
+def test_uploaded_01_tree_is_presentation_excluded_from_cc():
+    """`01/` is a preserved upload, not a second Command Center brain."""
+    tree = ROOT / "01"
+    assert tree.is_dir()
+    assert (tree / "package.json").is_file()
+    engine_path = tree / "src" / "lib" / "engine.ts"
+    assert engine_path.is_file()
+    assert (tree / "src" / "app" / "[locale]" / "wise-tree" / "page.tsx").is_file()
+
+    engine = engine_path.read_text(encoding="utf-8")
+    assert "NOT CANONICAL BRAIN" in engine
+    assert "CanonicalDecisionAuthority" in engine
+    assert "does not start Phase 4" in engine
+
+    route = (tree / "src" / "app" / "api" / "opportunities" / "route.ts").read_text(
+        encoding="utf-8",
+    )
+    assert 'source: "canonical-read-model"' in route
+    assert "NOT Python CanonicalDecisionAuthority" in route
+
+    tsconfig = (ROOT / "tsconfig.json").read_text(encoding="utf-8")
+    assert '"01"' in tsconfig
+    eslint = (ROOT / "eslint.config.mjs").read_text(encoding="utf-8")
+    assert '"01/**"' in eslint
+
+    cc = (ROOT / "CommandCenter.tsx").read_text(encoding="utf-8")
+    assert "from \"01" not in cc
+    assert "from '01" not in cc
+    for name in ("engine.ts", "scoring.ts", "canonical_read_model.ts"):
+        text = (ROOT / name).read_text(encoding="utf-8")
+        assert "01/src" not in text
+        assert "from \"01/" not in text
