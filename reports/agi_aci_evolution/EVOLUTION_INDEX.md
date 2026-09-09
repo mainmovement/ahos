@@ -6,6 +6,7 @@ Lane-B AGI/ACI evolution records. Sequential IDs; do not reuse.
 |----|----------|-----------|----------|
 | 0001 | 2026-09-09 | Repository audit vs Charter | ACCEPT — dual authority; soak untouched |
 | 0002 | 2026-09-09 | Implement cognitive contracts + tests + evidence | ACCEPT for isolated PR; not main |
+| 0003 | 2026-09-09 | P2 provenance-bearing cognitive memory substrate | ACCEPT for isolated PR; soak/Lane A untouched |
 | — | 2026-09-09 | Process self-research findings | `SELF_RESEARCH_FINDINGS.md` (weaknesses recorded, not hidden) |
 
 Related:
@@ -18,4 +19,4 @@ Related:
 - `TEST_EVIDENCE.md`
 - `LANE_A_CHANGE_PROPOSAL.md` (none this pass)
 - Charter: `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`
-- ADR: `docs/architecture/ADR_ACI_001_CHARTER_VS_DEFERRED_EVOLUTION.md`
+- `docs/architecture/AHOS_COGNITIVE_MEMORY_ARCHITECTURE_v1.0.md`

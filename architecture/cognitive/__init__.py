@@ -1,9 +1,8 @@
 """AHOS Cognitive Core (Lane B) — domain-general contracts.
 
-This package does NOT implement AGI/ACI. It defines auditable contracts for
-hypothesis/experiment provenance, self-research reports, capability gaps,
-agent metadata, world-model abstraction, novelty labels, evaluation hooks,
-and sandbox boundaries.
+This package does NOT implement AGI/ACI. It defines auditable contracts and a
+Lane-B memory substrate for hypothesis/experiment provenance, self-research,
+capability gaps, agent metadata, world-model abstraction, and sandbox boundaries.
 
 Laws:
   - PAPER_ONLY. No execution path.
@@ -41,6 +40,14 @@ from .capability import BASELINE_GAPS, CapabilityGap, CapabilityRegister
 from .evolution_gate import LaneAChangeRequired, propose_lane_b_evolution
 from .counterfactual import CounterfactualPolicy, current_counterfactual_policy
 from .reasoning import ReasoningInventory, current_reasoning_inventory
+from .memory import (
+    CognitiveMemoryStore,
+    ConsolidationGate,
+    EpistemicKind,
+    MemoryType,
+    SoakBoundaryError,
+    SourceType,
+)
 
 # Stable aliases used in the charter / tests.
 WorldModelView = WorldModelStatus
@@ -94,4 +101,10 @@ __all__ = [
     "current_counterfactual_policy",
     "ReasoningInventory",
     "current_reasoning_inventory",
+    "CognitiveMemoryStore",
+    "ConsolidationGate",
+    "EpistemicKind",
+    "MemoryType",
+    "SoakBoundaryError",
+    "SourceType",
 ]
