@@ -166,3 +166,145 @@ def test_collector_engine_circuit_breaker_trips_on_failures(tmp_path):
     health = collector.get_provider_health()
     assert health["dexscreener"]["failure_count"] >= 3
     assert health["dexscreener"]["state"] == "OPEN"
+
+
+def _obs(**over) -> CollectedObservationRecord:
+    base = dict(
+        obs_id="obs_pair_ts_001",
+        token_address="So11111111111111111111111111111111111111112",
+        chain="solana",
+        symbol="TOK",
+        name="Token",
+        provider_source="dexscreener",
+        retrieved_ts=1_800_000_000.0,
+        raw_evidence_hash="ab" * 32,
+        confidence_level="MED",
+        metrics={"price_usd": 1.0, "liquidity_usd": 10_000.0},
+        security={},
+        unknown_fields=[],
+        pair_created_ts=None,
+        created_utc="2026-09-09T10:49:08.624882+00:00",
+    )
+    base.update(over)
+    return CollectedObservationRecord(**base)
+
+
+def _read_pair_ts(db_path: str, obs_id: str):
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT pair_created_ts FROM production_observations WHERE obs_id = ?",
+        (obs_id,),
+    ).fetchone()
+    conn.close()
+    return None if row is None else row["pair_created_ts"]
+
+
+def test_pair_created_ts_known_value_persists_exactly(tmp_path):
+    """Case A/C: a real pair_created_ts is stored and read back without loss."""
+    db_file = tmp_path / "prod_obs.sqlite"
+    collector = CollectorEngine(db_path=str(db_file), router=ProviderRouter())
+    ts = 1_780_000_000.25
+    rec = _obs(pair_created_ts=ts)
+    collector._persist_records([rec])
+    assert _read_pair_ts(str(db_file), rec.obs_id) == ts
+
+
+def test_pair_created_ts_unknown_persists_null(tmp_path):
+    """Case B: missing pair_created_ts stays SQL NULL — never zero-filled."""
+    db_file = tmp_path / "prod_obs.sqlite"
+    collector = CollectorEngine(db_path=str(db_file), router=ProviderRouter())
+    rec = _obs(obs_id="obs_pair_ts_null", pair_created_ts=None)
+    collector._persist_records([rec])
+    assert _read_pair_ts(str(db_file), rec.obs_id) is None
+
+
+def test_pair_created_ts_migrate_does_not_rewrite_existing_rows(tmp_path):
+    """Pre-column stores gain a NULL column; historical rows stay unknown."""
+    db_file = tmp_path / "legacy.sqlite"
+    conn = sqlite3.connect(str(db_file))
+    conn.execute(
+        """CREATE TABLE production_observations (
+            obs_id TEXT PRIMARY KEY,
+            token_address TEXT NOT NULL,
+            chain TEXT NOT NULL,
+            symbol TEXT NOT NULL,
+            name TEXT NOT NULL,
+            provider_source TEXT NOT NULL,
+            retrieved_ts REAL NOT NULL,
+            raw_evidence_hash TEXT NOT NULL,
+            confidence_level TEXT NOT NULL,
+            price_usd REAL,
+            liquidity_usd REAL,
+            volume_1h REAL,
+            volume_24h REAL,
+            metrics_json TEXT NOT NULL,
+            security_json TEXT NOT NULL,
+            unknown_fields_json TEXT NOT NULL,
+            created_utc TEXT NOT NULL
+        )"""
+    )
+    conn.execute(
+        "INSERT INTO production_observations VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        (
+            "legacy_obs", "AddrLegacy11111111111111111111111111", "solana",
+            "OLD", "Old", "dexscreener", 1_700_000_000.0, "cd" * 32, "LOW",
+            None, None, None, None, "{}", "{}", "[]", "2026-01-01T00:00:00Z",
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+    collector = CollectorEngine(db_path=str(db_file), router=ProviderRouter())
+    assert _read_pair_ts(str(db_file), "legacy_obs") is None
+
+    known = 1_775_000_000.0
+    collector._persist_records([_obs(obs_id="new_obs", pair_created_ts=known)])
+    assert _read_pair_ts(str(db_file), "legacy_obs") is None
+    assert _read_pair_ts(str(db_file), "new_obs") == known
+
+
+def test_pair_created_ts_persist_does_not_weaken_identity_or_overlay(tmp_path):
+    """Case D: storing pair age is not a security/identity PASS and not a BUY."""
+    from architecture.decision.authority import (
+        identity_allows_positive_decision,
+        identity_from_candidate,
+    )
+    from architecture.security.gate import (
+        SecurityState,
+        evaluate_security,
+        security_allows_positive_eligibility,
+    )
+    from tests.helpers_security import NOW, OLD_POOL_TS, passing_security_signals
+
+    db_file = tmp_path / "prod_obs.sqlite"
+    collector = CollectorEngine(db_path=str(db_file), router=ProviderRouter())
+    rec = _obs(pair_created_ts=OLD_POOL_TS)
+    collector._persist_records([rec])
+    stored = _read_pair_ts(str(db_file), rec.obs_id)
+    assert stored == OLD_POOL_TS
+
+    cand = NormalizedTokenCandidate(
+        chain="solana",
+        address=rec.token_address,
+        symbol=rec.symbol,
+        name=rec.name,
+        source_provider="dexscreener",
+        retrieved_ts=NOW,
+        pair_created_ts=stored,
+    )
+    ident = identity_from_candidate(cand, now=NOW)
+    assert ident.token.state.value == "UNRESOLVED"
+    assert identity_allows_positive_decision(ident) is False
+
+    missing_age = evaluate_security(
+        passing_security_signals(), now=NOW, pair_created_ts=None, retrieved_ts=NOW,
+    )
+    assert missing_age.state == SecurityState.INCOMPLETE
+    assert not security_allows_positive_eligibility(missing_age)
+
+    stored_age_empty_security = evaluate_security(
+        None, now=NOW, pair_created_ts=stored, retrieved_ts=NOW,
+    )
+    assert stored_age_empty_security.state == SecurityState.INCOMPLETE
+    assert not security_allows_positive_eligibility(stored_age_empty_security)

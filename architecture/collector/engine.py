@@ -91,7 +91,8 @@ class CollectorEngine:
                     metrics_json TEXT NOT NULL,
                     security_json TEXT NOT NULL,
                     unknown_fields_json TEXT NOT NULL,
-                    created_utc TEXT NOT NULL
+                    created_utc TEXT NOT NULL,
+                    pair_created_ts REAL
                 )"""
             )
             # Month-1 GAP-002 fix: durable provider-failure events (previously a
@@ -109,10 +110,28 @@ class CollectorEngine:
                     error_detail TEXT
                 )"""
             )
+            # Additive only. Existing DBs were created without pair_created_ts;
+            # CREATE TABLE IF NOT EXISTS is a no-op on those stores. Do not
+            # backfill or invent timestamps for rows that never had one.
+            self._migrate_production_observations(conn)
             conn.commit()
             conn.close()
         except Exception:
             pass
+
+    @staticmethod
+    def _migrate_production_observations(conn: sqlite3.Connection) -> None:
+        """Idempotent ALTER ADD COLUMN — same convention as ScoreLedger._migrate.
+
+        Existing rows keep SQL NULL (unknown). Never rewrite historical values.
+        """
+        cols = {row[1] for row in conn.execute(
+            "PRAGMA table_info(production_observations)").fetchall()}
+        if "pair_created_ts" not in cols:
+            conn.execute(
+                "ALTER TABLE production_observations "
+                "ADD COLUMN pair_created_ts REAL"
+            )
 
     def collect_candidates(self, chain: str = "solana", limit: int = 10,
                            now: float | None = None) -> list[CollectedObservationRecord]:
@@ -232,14 +251,14 @@ class CollectorEngine:
                         obs_id, token_address, chain, symbol, name, provider_source,
                         retrieved_ts, raw_evidence_hash, confidence_level, price_usd,
                         liquidity_usd, volume_1h, volume_24h, metrics_json, security_json,
-                        unknown_fields_json, created_utc
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        unknown_fields_json, created_utc, pair_created_ts
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (
                         r.obs_id, r.token_address, r.chain, r.symbol, r.name, r.provider_source,
                         r.retrieved_ts, r.raw_evidence_hash, r.confidence_level,
                         m.get("price_usd"), m.get("liquidity_usd"), m.get("volume_1h"),
                         m.get("volume_24h"), json.dumps(r.metrics), json.dumps(r.security),
-                        json.dumps(r.unknown_fields), r.created_utc
+                        json.dumps(r.unknown_fields), r.created_utc, r.pair_created_ts
                     )
                 )
             conn.commit()
