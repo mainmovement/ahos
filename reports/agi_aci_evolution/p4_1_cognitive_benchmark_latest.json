@@ -726,7 +726,7 @@
     "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
     "python": "3.12.3"
   },
-  "git_sha": "6862c6fc20050622f6125853671f885b0e36b16a",
+  "git_sha": "525443d9ed182d4f464ce260ee4d8b7a4bfffab5",
   "improvement_candidates": [
     "IMPROVEMENT_CANDIDATE:context_coverage",
     "IMPROVEMENT_CANDIDATE:false_failure_application_rate",

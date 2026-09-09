@@ -3,7 +3,7 @@
 ```text
 Record ID: EVOLUTION_RECORD_0005
 UTC timestamp: 2026-09-09
-Git SHA: (implementation commit; see follow-up evidence SHA)
+Git SHA: 525443d9ed182d4f464ce260ee4d8b7a4bfffab5
 Base SHA: 6862c6fc20050622f6125853671f885b0e36b16a
 Branch: cursor/agi-aci-p4-1-cognitive-benchmark-expansion-9500
 Status: IMPLEMENTED (suite executed; several metrics FAIL by design)

@@ -1,7 +1,7 @@
 # P4.1 Cognitive Benchmark Report
 
 **Benchmark version:** `p4.1.0`  
-**Git SHA:** `6862c6fc20050622f6125853671f885b0e36b16a`  
+**Git SHA:** `525443d9ed182d4f464ce260ee4d8b7a4bfffab5`  
 **Data label:** `SYNTHETIC_TEST_DATA`  
 **Lane-A freeze:** `Lane-A integrity OK (36 files pinned)`  
 
