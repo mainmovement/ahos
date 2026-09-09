@@ -53,6 +53,7 @@ SCAN_TS_FILES = (
     "chat.ts",
     "web_api_client.ts",
     "canonical_read_model.ts",
+    "web_api_auth.ts",
 )
 
 #: Explicit exceptions — every entry must carry a reason.
