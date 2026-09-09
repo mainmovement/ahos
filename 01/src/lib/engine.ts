@@ -1,3 +1,16 @@
+// ---------------------------------------------------------------------------
+// AHOS uploaded presentation tree — NOT CANONICAL BRAIN
+// ---------------------------------------------------------------------------
+// Classification: `01/` is a preserved Next.js demo/presentation app uploaded
+// onto main. It ranks seeded demo rows (seedIfEmpty provenance is demo).
+// STRONG_CANDIDATE / CANDIDATE / MONITOR are local view ranks. They are not:
+//   - a Python CanonicalDecision
+//   - architecture.decision.authority.CanonicalDecisionAuthority
+//   - reports/canonical_decision_read_model.json
+// Preserve this tree. Do not wire it as a second decision authority.
+// Wise Tree (`src/app/[locale]/wise-tree`) is presentation-only; it does not start Phase 4.
+// Canonical authority: architecture/decision/authority.py
+// ---------------------------------------------------------------------------
 import { desc } from "drizzle-orm";
 import { db } from "@/db";
 import {

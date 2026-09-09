@@ -9,6 +9,7 @@ export default defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "01/**",
     "advanced-3d-audiovisual-website/**",
     "advanced-3d-audiovisual-website (1)/**",
     "سایت درختadvanced-3d-audiovisual-platform/**",

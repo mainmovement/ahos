@@ -2,7 +2,10 @@ import { getDossier } from "@/lib/engine";
 
 export const dynamic = "force-dynamic";
 
-/** Full canonical dossier for one token. */
+/**
+ * Uploaded `01/` presentation. `source: "canonical-read-model"` is a local
+ * demo label, NOT Python CanonicalDecisionAuthority.
+ */
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ slug: string }> },
