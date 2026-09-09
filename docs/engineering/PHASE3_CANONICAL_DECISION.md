@@ -1,7 +1,7 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
-**Branch:** `cursor/phase3-post73-hygiene-9500`  
-**Base:** `origin/main` after PR **#73** merge (`970007e`). Overlay-v2 already on `main` via **#65**.  
+**Branch:** `cursor/phase3-post74-hygiene-9500`  
+**Base:** `origin/main` after PR **#74** merge (`4d9f618`). Overlay-v2 already on `main` via **#65**.  
 **Date:** 2026-09-09  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
@@ -111,7 +111,7 @@ brain. Each tree keeps its own `package.json`.
 Fail-closed rules:
 
 * Missing/corrupt file ⇒ `UNAVAILABLE`, empty decisions, no paper, no alerts
-* Older than 24h ⇒ `STALE`; `outcome` rewritten to `STALE` (original kept as `recorded_outcome`); `advisor_action` cleared (`recorded_advisor_action`); positives/paper/alerts stripped
+* Older than 24h ⇒ `STALE`; `outcome` / identity / security rewritten to `STALE`; `advisor_action` cleared; confidence `UNKNOWN`; originals kept as `recorded_*`; positives/paper/alerts stripped
 * Unmatched Command Center token ⇒ display `UNAVAILABLE` (not TS WATCH)
 * Postgres down ⇒ empty opportunity rows + Python cards if the file is present (not invented BUY)
 * `GET /api/canonical` returns the fail-closed loader, never a live BUY on a STALE file
@@ -132,7 +132,7 @@ Live GitHub truth as of 2026-09-09:
 * **PR #70** `AHOS_CANONICAL_READ_MODEL` + chat greeting from Python rows — **MERGED**
 * **PR #71** engine findings / chat focus count Python outcomes — **MERGED**
 * **PR #72** chat fail-closed without Postgres; STALE banner — **MERGED**
-* **PR #73** STALE loaders rewrite outcome — **MERGED**
+* **PR #74** STALE clears advisor ENTER; pump_alert requires live BUY — **MERGED**
 * **PR #63** Phase 2 original overlay-v2 branch — still **OPEN**, **CONFLICTING**, **SUPERSEDED**. Do **not** merge #63.
 * Phase 3 remains **PARTIAL**. Do **not** start Phase 4. Do **not** auto-merge.
 
@@ -148,8 +148,8 @@ orchestrator, uploaded Web trees.
 |------|--------|
 | Python AlertEngine OPPORTUNITY | Gated on `canonical.alerts_allowed` |
 | Orchestrator Telegram “فرصت ویژه” | Gated on `top_canonical.alerts_allowed` |
-| `telegram_ai/pump_alert.py` | **Fixed this revision:** BUY only; ENTER / STALE cannot mint an alert |
-| `GET /api/canonical` STALE rows | Already on main via #73 for outcome; **this revision** also clears `advisor_action` |
+| `telegram_ai/pump_alert.py` | Already on main via #74: live BUY only |
+| `GET /api/canonical` STALE rows | Already on main via #73/#74 for outcome/ENTER; **this revision** also rewrites identity/security/confidence so Command Center cannot show a green PASS pill |
 | `scoring.ts` | Cannot emit WATCH without injected `canonicalBackend` |
 | `alerts.ts` | Already on main via #65/#70: requires Python `alerts_allowed` |
 | `engine.ts` persist | stores Python `displayDecision`, not TS WATCH |
@@ -206,13 +206,10 @@ IMPLEMENTED:
   - chat reject/why/token prefer Python rows; getState fail-closed without Postgres
   - STALE/UNAVAILABLE loaders rewrite outcome (recorded_outcome preserved) so GET /api/canonical cannot return a live BUY
   - STALE/UNAVAILABLE loaders clear advisor_action; pump_alert requires live BUY not ENTER
+  - STALE/UNAVAILABLE loaders rewrite identity/security to STALE and confidence to UNKNOWN (no green PASS pill)
 TESTED:
-  - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
-  - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_canonical_decision_authority.py tests/test_canonical_security_gate.py tests/test_config_validation.py → 86 passed
-  - npm run test:canonical-read-model → 12 passed
-  - npm run typecheck → exit 0
-  - npm run lint → exit 0
-  - curl GET /api/canonical STALE fixture: ALPHA advisor_action null, recorded_advisor_action ENTER, outcome STALE
+  - this revision: freeze + targeted pytest + canonical-read-model recorded after first push
+  - prior #74: freeze 36 OK; targeted pytest 86 passed; canonical-read-model 12 passed; STALE advisor_action cleared
 VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
@@ -220,7 +217,7 @@ VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - prior: Browser Command Center dash + فرصت‌ها AVAILABLE fixture: Python cards; empty DB copy; BUY green; MONITOR_ONLY/NO_TRADE/INSUFFICIENT_EVIDENCE amber; REJECT rose; UNAVAILABLE banner when file missing
   - prior #72: POST /api/chat without DATABASE_URL — reject lists Python REJECT; why ALPHA uses Python BUY; opportunities STALE does not mint BUY
   - prior #73: GET /api/canonical STALE fixture returns outcome STALE (recorded_outcome BUY), not a live BUY
-  - this revision: GET /api/canonical STALE fixture ALPHA advisor_action is null (recorded_advisor_action ENTER)
+  - prior #74: GET /api/canonical STALE fixture ALPHA advisor_action is null (recorded_advisor_action ENTER)
 NOT VERIFIED:
   - Command Center overlay of live Postgres opportunity rows from a running observation daemon
   - Isolated loading-flash screenshot (page loaded before capture)
@@ -248,22 +245,20 @@ CLOSED on main / this revision:
   - #71 engine findings/unknownShare + chat opportunities focus count Python outcomes
   - #72 chat reject/why from Python; getState fail-closed; STALE banner reason stale_read_model
   - #73 STALE/UNAVAILABLE loaders rewrite outcome; GET /api/canonical cannot return live BUY
-  - this revision: STALE clears advisor_action; pump_alert requires live BUY not ENTER
+  - #74 STALE clears advisor_action; pump_alert requires live BUY not ENTER
+  - this revision: STALE identity/security/confidence cannot present as live PASS/VERIFIED/HIGH
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
   - architecture/decision/read_model.py
   - canonical_read_model.ts
-  - telegram_ai/pump_alert.py
-  - tests/test_canonical_read_model.py
-  - tests/test_canonical_decision_authority.py
-  - tests/test_canonical_security_gate.py
-TEST_RESULTS: freeze 36 OK; targeted pytest 86 passed; canonical-read-model 12 passed; typecheck 0; eslint 0; STALE advisor_action cleared on /api/canonical. Phase 3 stays PARTIAL.
+  - scripts/canonical_read_model_selftest.ts
+TEST_RESULTS: this revision not yet executed at first commit. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
   - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Clearing STALE ENTER does not make the phase VERIFIED.
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Freezing STALE PASS pills does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.

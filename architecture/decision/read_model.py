@@ -179,6 +179,12 @@ def load_canonical_read_model(
             recorded_action = item.get("recorded_advisor_action") or item.get("advisor_action")
             item["recorded_advisor_action"] = recorded_action
             item["advisor_action"] = None
+            item["recorded_identity_state"] = item.get("recorded_identity_state") or item.get("identity_state")
+            item["identity_state"] = status
+            item["recorded_security_state"] = item.get("recorded_security_state") or item.get("security_state")
+            item["security_state"] = status
+            item["recorded_confidence_level"] = item.get("recorded_confidence_level") or item.get("confidence_level")
+            item["confidence_level"] = "UNKNOWN"
         decisions.append(item)
     reason = raw.get("reason")
     if status == "STALE" and not reason:

@@ -31,6 +31,9 @@ export type CanonicalDecisionRow = {
   monitoring_only?: boolean;
   recorded_outcome?: string | null;
   recorded_advisor_action?: string | null;
+  recorded_identity_state?: string | null;
+  recorded_security_state?: string | null;
+  recorded_confidence_level?: string | null;
   primary_reason?: string | null;
   reasons?: string[];
   risks?: string[];
@@ -91,11 +94,17 @@ export function parseCanonicalReadModel(raw: unknown, now = Date.now() / 1000, s
     if (status !== "AVAILABLE") {
       item.recorded_outcome = item.recorded_outcome || item.outcome || null;
       item.recorded_advisor_action = item.recorded_advisor_action || item.advisor_action || null;
+      item.recorded_identity_state = item.recorded_identity_state || item.identity_state || null;
+      item.recorded_security_state = item.recorded_security_state || item.security_state || null;
+      item.recorded_confidence_level = item.recorded_confidence_level || item.confidence_level || null;
       item.is_positive = false;
       item.alerts_allowed = false;
       item.paper_allowed = false;
       item.outcome = status;
       item.advisor_action = null;
+      item.identity_state = status;
+      item.security_state = status;
+      item.confidence_level = "UNKNOWN";
     }
     decisions.push(item);
   }
@@ -199,11 +208,11 @@ export function overlayOpportunity<T extends OverlayOpportunity>(opp: T, model: 
     decision,
     canonicalStatus: model.status,
     canonicalOutcome: decision,
-    identityState: row?.identity_state ? String(row.identity_state) : null,
-    securityState: row?.security_state ? String(row.security_state) : null,
+    identityState: model.status === "AVAILABLE" && row?.identity_state ? String(row.identity_state) : model.status === "AVAILABLE" ? null : model.status,
+    securityState: model.status === "AVAILABLE" && row?.security_state ? String(row.security_state) : model.status === "AVAILABLE" ? null : model.status,
     paperAllowed,
     canonicalUnavailable: model.status !== "AVAILABLE" || !row,
-    confidence: row?.confidence_level || opp.confidence,
+    confidence: model.status === "AVAILABLE" ? row?.confidence_level || opp.confidence : "UNKNOWN",
   };
 }
 
