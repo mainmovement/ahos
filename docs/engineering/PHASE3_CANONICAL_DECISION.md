@@ -118,11 +118,14 @@ Fail-closed rules:
 
 ## Phase dependency (do not auto-merge)
 
-Live GitHub truth as of 2026-09-08:
+Live GitHub truth as of 2026-09-09:
 
 * **PR #62** Phase 0–1 identity overlay — **MERGED**
 * **PR #64** Phase 3 Canonical Decision Authority — **MERGED** first (stacked only on overlay commit `711bcd3`)
-* **PR #65** overlay-v2 reconcile onto merged Phase 3 — **MERGED** (`e9387e5` on `main`)
+* **PR #65** overlay-v2 reconcile onto merged Phase 3 — **MERGED**
+* **PR #66** config-doc scanner (`web_api_client.ts`) — **MERGED**
+* **PR #67** Command Center set-state-in-effect — **MERGED**
+* **PR #68** overlay pythonBin NFT / `next build` panic — **MERGED**
 * **PR #63** Phase 2 original overlay-v2 branch — still **OPEN**, **CONFLICTING**, **SUPERSEDED**. Do **not** merge #63.
 * Phase 3 remains **PARTIAL**. Do **not** start Phase 4. Do **not** auto-merge.
 
@@ -220,7 +223,7 @@ FAILED_GATES (phase cannot be VERIFIED/COMPLETE):
 CLOSED on main / this revision:
   - #66 SCAN_TS_FILES includes web_api_client.ts; full pytest 0 failed
   - #67 Command Center set-state-in-effect; eslint exit 0 on this tree
-  - this PR: next build no longer panics on overlay python interpreter symlink
+  - #68 next build no longer panics on overlay python interpreter symlink
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
   - canonical_security.ts pythonBin()
