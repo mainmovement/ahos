@@ -55,6 +55,7 @@ and Lane-A freeze veto are exercised by that matrix. That is **not** a productio
 | Reliability challenge (Phase 8) | `reports/reliability_matrix.json`, `reports/reliability_matrix_*.json` |
 | Local laptop soak contract | `AHOS_LOCAL_SOAK_PROTOCOL.md` |
 | Local production gate | `AHOS_LOCAL_PRODUCTION_GATE_REPORT.md` |
+| Gecko `pool_created_at` → SQLite `pair_created_ts` E2E (PR #77+#78, SHA `cf7711e`) | `reports/gecko_pair_created_ts_e2e_RUNTIME_VERIFIED.json`, `docs/engineering/GECKO_PAIR_CREATED_TS_E2E.md` |
 
 A PASS/GREEN verdict in this register is allowed only when one of the rows above is the
 evidence link. Markdown prose without an artifact is not evidence.
@@ -120,11 +121,17 @@ Implementation matrix: `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`
 Final truth audit: `docs/FINAL_TRUTH_AUDIT.md`  
 Owner actions: `docs/OWNER_ACTION_REQUIRED.md`
 
-**Classification:** `DEVELOPMENT_READY` (not `PRODUCTION_READY`).
+**Classification:** `INTEGRATION_READY` (agent-host). `OPERATOR_READY` / `PRODUCTION_READY` not claimed.
 
-No remaining gap is IMPLEMENTABLE NOW without user action, credentials,
-external permission, or data accrual — except ongoing doc/test hygiene already closed above.
-Next engineering surfaces (Month 3–5:
-weight governance via the existing `improvement_proposal_v1` flow, narrative
-feed-through, learning engine) are sequenced behind calibration measurement
-evidence per ROADMAP_v3.
+The 2026-08-27 sentence “no remaining gap is IMPLEMENTABLE NOW” is **stale**.
+Owner/env gates below remain blocked. Independent Lane-B engineering may still
+exist (Telegram HTML `escapeHtml` no-op in `alerts.ts` / unescaped
+`telegram_ai/pump_alert.py` HTML; not claimed CLOSED here).
+
+### Addendum 2026-09-09 — GeckoTerminal pair-created persist path
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-023 (Gecko `pool_created_at` never reached SQLite `pair_created_ts`) | **CLOSED** (path RUNTIME VERIFIED) | Adapter mapping PR #78 + collector persist PR #77. Official `--single-cycle` on `cf7711e`: 5/5 new gecko rows stored + reload + independent pool GET exact epoch match. Historical pre-#78 gecko NULLs **not** backfilled. Artifact: `reports/gecko_pair_created_ts_e2e_RUNTIME_VERIFIED.json`. Pair age is **not** overlay PASS. |
+
+Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates.

@@ -1,0 +1,220 @@
+{
+  "schema": "ahos.gecko_pair_created_ts_e2e.v1",
+  "classification": "RUNTIME_VERIFIED",
+  "not_claimed": [
+    "OPERATOR_READY",
+    "PRODUCTION_READY",
+    "Phase 3 COMPLETE",
+    "identity VERIFIED",
+    "security overlay PASS",
+    "canonical BUY",
+    "calibration sufficiency"
+  ],
+  "git_sha": "cf7711ea25b9a7487fbf71de776666ec8af2ed0c",
+  "merged_prs": [
+    {
+      "pr": 77,
+      "sha": "e0d68b582d7f491895ecc7656c0cca6a0a59c53d",
+      "what": "persist pair_created_ts on production_observations"
+    },
+    {
+      "pr": 78,
+      "sha": "cf7711ea25b9a7487fbf71de776666ec8af2ed0c",
+      "what": "map GeckoTerminal pool_created_at -> pair_created_ts"
+    }
+  ],
+  "verified_at_utc": "2026-09-09T15:20:00Z",
+  "evidence_source": "sandbox",
+  "calibration_eligible": false,
+  "host": "agent-host Linux Cloud VM (not Windows operator laptop)",
+  "command": [
+    "PYTHONDONTWRITEBYTECODE=1",
+    ".venv/bin/python -m architecture.runtime",
+    "--single-cycle",
+    "--observation-cycle",
+    "--evidence-source sandbox",
+    "--chain solana",
+    "--limit 5"
+  ],
+  "run_id": "run_1788966487_3b43873d",
+  "run_start_utc": "2026-09-09T15:08:07Z",
+  "run_exit_code": 0,
+  "sqlite_path": "data/e01_discovery.sqlite",
+  "path_verified": "GeckoTerminal pool_created_at -> NormalizedTokenCandidate.pair_created_ts -> Collector -> production_observations -> fresh SQLite reload",
+  "pre_cycle_row_count": 16,
+  "post_cycle_row_count": 24,
+  "historical_rows_rewritten": 0,
+  "by_provider": [
+    {
+      "provider_source": "dexscreener",
+      "n": 9,
+      "known": 4,
+      "nulls": 5
+    },
+    {
+      "provider_source": "geckoterminal",
+      "n": 15,
+      "known": 5,
+      "nulls": 10
+    }
+  ],
+  "new_cycle_rows": [
+    {
+      "obs_id": "a346cec3fb26b7a6",
+      "symbol": "SOL",
+      "token_address": "0x311935Cd80B76769bF2ecC9D8Ab7635b2139cf82",
+      "provider_source": "dexscreener",
+      "pair_created_ts": null,
+      "pair_created_iso_utc": null,
+      "retrieved_ts": 1788966488.0194058,
+      "unknown_fields_contains_pair_created_ts": true
+    },
+    {
+      "obs_id": "ef574ec2545dbc75",
+      "symbol": "SOL",
+      "token_address": "0x208092689248d96Aa7F30aab09FF6A7E05b41E18",
+      "provider_source": "dexscreener",
+      "pair_created_ts": 1788471531.0,
+      "pair_created_iso_utc": "2026-09-03T21:38:51Z",
+      "retrieved_ts": 1788966488.0195682,
+      "unknown_fields_contains_pair_created_ts": false
+    },
+    {
+      "obs_id": "015cf125ad83ee19",
+      "symbol": "SOL",
+      "token_address": "0x5C40BA1C0c31c50f78BEF2B599b5CDd6BBb58E0d",
+      "provider_source": "dexscreener",
+      "pair_created_ts": 1788234802.0,
+      "pair_created_iso_utc": "2026-09-01T03:53:22Z",
+      "retrieved_ts": 1788966488.0196078,
+      "unknown_fields_contains_pair_created_ts": false
+    },
+    {
+      "obs_id": "2ea7a2c7b15c7277",
+      "symbol": "MarsCoin",
+      "token_address": "JEDkgYeXK7jPZ2wThQBqcp3iqdK2NJrcCTStE2XwmmJG",
+      "provider_source": "geckoterminal",
+      "pair_created_ts": 1788966380.0,
+      "pair_created_iso_utc": "2026-09-09T15:06:20Z",
+      "retrieved_ts": 1788966488.0676906,
+      "unknown_fields_contains_pair_created_ts": false
+    },
+    {
+      "obs_id": "6295f350b4d4b9de",
+      "symbol": "JAILDEN",
+      "token_address": "GQxM8qGrQd6nHD497DFvYMaucCvcRKHNSo5G4B4w9Jtj",
+      "provider_source": "geckoterminal",
+      "pair_created_ts": 1788966376.0,
+      "pair_created_iso_utc": "2026-09-09T15:06:16Z",
+      "retrieved_ts": 1788966488.0677445,
+      "unknown_fields_contains_pair_created_ts": false
+    },
+    {
+      "obs_id": "a74d38bac3f6dca4",
+      "symbol": "STOCK",
+      "token_address": "3Pvbch3dXUkfyH656m7SeUEAVAxKvEs5qtJ8zvva6czB",
+      "provider_source": "geckoterminal",
+      "pair_created_ts": 1788966375.0,
+      "pair_created_iso_utc": "2026-09-09T15:06:15Z",
+      "retrieved_ts": 1788966488.067779,
+      "unknown_fields_contains_pair_created_ts": false
+    },
+    {
+      "obs_id": "c551c444f20072da",
+      "symbol": "VERDIKT",
+      "token_address": "8GAYhyd988gKt9LYQKLoVnLVc4KvGo23dFKEZzGC5Yxh",
+      "provider_source": "geckoterminal",
+      "pair_created_ts": 1788966368.0,
+      "pair_created_iso_utc": "2026-09-09T15:06:08Z",
+      "retrieved_ts": 1788966488.067809,
+      "unknown_fields_contains_pair_created_ts": false
+    },
+    {
+      "obs_id": "f235060054e66b16",
+      "symbol": "IBM",
+      "token_address": "5LubhrwbdxBqSbtxAnYfk5dVYEwEnSbT247Dtj4t4Vuf",
+      "provider_source": "geckoterminal",
+      "pair_created_ts": 1788966365.0,
+      "pair_created_iso_utc": "2026-09-09T15:06:05Z",
+      "retrieved_ts": 1788966488.06784,
+      "unknown_fields_contains_pair_created_ts": false
+    }
+  ],
+  "historical_geckoterminal_null_pair_created_ts": 10,
+  "historical_geckoterminal_null_reason": "pre-PR-#78 gecko rows were persisted without mapping; no backfill; NULL preserved honestly",
+  "independent_geckoterminal_pool_lookup": {
+    "method": "GET https://api.geckoterminal.com/api/v2/networks/solana/pools/{token_address}",
+    "note": "Gecko adapter still stores pool address as NormalizedTokenCandidate.address (identity STOP — not changed)",
+    "matches": [
+      {
+        "obs_id": "f235060054e66b16",
+        "symbol": "IBM",
+        "pool_created_at": "2026-09-09T15:06:05Z",
+        "epoch": 1788966365.0,
+        "exact_match": true
+      },
+      {
+        "obs_id": "c551c444f20072da",
+        "symbol": "VERDIKT",
+        "pool_created_at": "2026-09-09T15:06:08Z",
+        "epoch": 1788966368.0,
+        "exact_match": true
+      },
+      {
+        "obs_id": "a74d38bac3f6dca4",
+        "symbol": "STOCK",
+        "pool_created_at": "2026-09-09T15:06:15Z",
+        "epoch": 1788966375.0,
+        "exact_match": true
+      },
+      {
+        "obs_id": "6295f350b4d4b9de",
+        "symbol": "JAILDEN",
+        "pool_created_at": "2026-09-09T15:06:16Z",
+        "epoch": 1788966376.0,
+        "exact_match": true
+      },
+      {
+        "obs_id": "2ea7a2c7b15c7277",
+        "symbol": "MarsCoin",
+        "pool_created_at": "2026-09-09T15:06:20Z",
+        "epoch": 1788966380.0,
+        "exact_match": true
+      }
+    ],
+    "match_count": "5/5"
+  },
+  "dexscreener_this_cycle": {
+    "known": 2,
+    "provider_null_pairCreatedAt": 1,
+    "note": "NULL is honest provider-missing; not invented"
+  },
+  "canonical_read_model": {
+    "status": "AVAILABLE",
+    "decision_count": 8,
+    "outcomes": {
+      "INSUFFICIENT_EVIDENCE": 8
+    },
+    "identity": {
+      "UNRESOLVED": 8
+    },
+    "security": {
+      "INCOMPLETE": 8
+    },
+    "is_positive": 0,
+    "alerts_allowed": 0,
+    "live_BUY_observed": false
+  },
+  "lane_a_freeze": "OK 36 files",
+  "source_changes_this_verification": false,
+  "verdict": "GECKO_PAIR_CREATED_TS_PATH_RUNTIME_VERIFIED",
+  "phase3_status": "PARTIAL",
+  "remaining_honest_limits": [
+    "identity UNRESOLVED (single market source; do not invent independence)",
+    "overlay INCOMPLETE (honeypot/LP lock/tax/holders still UNKNOWN; pair age is not PASS)",
+    "Gecko address is pool address, not base token (identity-adjacent STOP)",
+    "Python JSON vs TypeScript/Postgres token-key mismatch (architecture STOP to redesign dual store)",
+    "evidence_source=sandbox is calibration-ineligible",
+    "Windows operator gates / 72h / 168h / live Telegram remain USER ACTION"
+  ]
+}

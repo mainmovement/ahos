@@ -64,6 +64,7 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 | Telegram E2E protocol | `docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md` |
 | n8n operational procedure | `docs/N8N_OPERATIONAL_PROCEDURE.md` |
 | Owner action checklist | `docs/OWNER_ACTION_REQUIRED.md` |
+| Gecko pair-created persist E2E (2026-09-09) | `docs/engineering/GECKO_PAIR_CREATED_TS_E2E.md` + `reports/gecko_pair_created_ts_e2e_RUNTIME_VERIFIED.json` |
 | Stale design snapshots (bannered) | `docs/SECURITY_CHECKLIST.md`, `docs/MISSING_COMPONENT_REGISTER.md`, `docs/STRATEGIC_GAP_ANALYSIS.md` |
 
 **Classification pointer:** `INTEGRATION_READY` (agent-host) — see `docs/FINAL_TRUTH_AUDIT.md`.  
