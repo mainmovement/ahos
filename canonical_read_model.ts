@@ -93,10 +93,11 @@ export function parseCanonicalReadModel(raw: unknown, now = Date.now() / 1000, s
     }
     decisions.push(item);
   }
+  const givenReason = typeof obj.reason === "string" ? obj.reason : null;
   return {
     version: String(obj.version || CANONICAL_READ_MODEL_VERSION),
     status,
-    reason: typeof obj.reason === "string" ? obj.reason : null,
+    reason: givenReason || (status === "STALE" ? "stale_read_model" : null),
     generated_ts: Number.isFinite(generated) ? generated : null,
     authority_version: typeof obj.authority_version === "string" ? obj.authority_version : null,
     decision_count: decisions.length,
@@ -285,6 +286,26 @@ export function canonicalFocusTokenKey(decisions: CanonicalDecisionView[]): stri
   if (buy?.tokenKey) return buy.tokenKey;
   const watch = decisions.find((d) => d.outcome === "WATCH" || d.outcome === "MONITOR_ONLY");
   return watch?.tokenKey || null;
+}
+
+/** Chat why/token lookup against Python rows when DB opportunities are empty. */
+export function findCanonicalDecision(
+  decisions: CanonicalDecisionView[],
+  text: string,
+  focus: string | null,
+): CanonicalDecisionView | null {
+  const up = text.toUpperCase();
+  const bySymbol =
+    decisions.find((d) => d.symbol && up.includes(d.symbol.toUpperCase())) ||
+    decisions.find((d) => d.tokenKey && up.includes(d.tokenKey.toUpperCase())) ||
+    null;
+  if (bySymbol) return bySymbol;
+  if (!focus) return null;
+  const want = focus.toUpperCase();
+  return (
+    decisions.find((d) => d.tokenKey === focus || (d.symbol && d.symbol.toUpperCase() === want)) ||
+    null
+  );
 }
 
 export async function loadCanonicalReadModel(now = Date.now() / 1000): Promise<CanonicalReadModel> {

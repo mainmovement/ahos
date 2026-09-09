@@ -1,7 +1,7 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
-**Branch:** `cursor/phase3-post70-hygiene-9500`  
-**Base:** `origin/main` after PR **#69** and **#70** merge (`95b6467`). Overlay-v2 already on `main` via **#65**.  
+**Branch:** `cursor/phase3-post71-hygiene-9500`  
+**Base:** `origin/main` after PR **#71** merge (`6fba7fa`). Overlay-v2 already on `main` via **#65**.  
 **Date:** 2026-09-09  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
@@ -82,7 +82,7 @@ AI cannot upgrade a closed identity or security gate. AI may downgrade.
 | `alerts.ts` | Opportunity alerts require Python `alerts_allowed` (BUY). TS WATCH cannot mint an alert |
 | Command Center | Reads Python JSON via `/api/canonical` + snapshot overlay. Missing/stale ⇒ UNAVAILABLE/STALE, never invented BUY |
 | `engine.ts` | Injects Python read-model as `canonicalBackend`; persists `displayDecision` from Python, not TS WATCH. Cycle findings / `unknownShare` count Python outcomes, not `scoreToken` WATCH. |
-| `chat.ts` | Greeting, opportunities focus, and general BUY/REJECT counts prefer `canonicalDecisions` |
+| `chat.ts` | Greeting, opportunities focus, reject list, why/token, and general BUY/REJECT counts prefer `canonicalDecisions`. `getState()` cannot 500 a canonical answer when Postgres is down. |
 | Paper `/api/paper` + chat | `paperAllowedFromCanonical` — 403 `CANONICAL_PAPER_DENIED` without Python BUY |
 
 Uploaded Web/3D trees (`advanced-3d-audiovisual-website/`,
@@ -129,6 +129,7 @@ Live GitHub truth as of 2026-09-09:
 * **PR #68** overlay pythonBin NFT / `next build` panic — **MERGED**
 * **PR #69** Phase 3 status docs after #66/#67/#68 — **MERGED**
 * **PR #70** `AHOS_CANONICAL_READ_MODEL` + chat greeting from Python rows — **MERGED**
+* **PR #71** engine findings / chat focus count Python outcomes — **MERGED**
 * **PR #63** Phase 2 original overlay-v2 branch — still **OPEN**, **CONFLICTING**, **SUPERSEDED**. Do **not** merge #63.
 * Phase 3 remains **PARTIAL**. Do **not** start Phase 4. Do **not** auto-merge.
 
@@ -148,8 +149,10 @@ orchestrator, uploaded Web trees.
 | `scoring.ts` | Cannot emit WATCH without injected `canonicalBackend` |
 | `alerts.ts` | Already on main via #65/#70: requires Python `alerts_allowed` |
 | `engine.ts` persist | stores Python `displayDecision`, not TS WATCH |
-| `engine.ts` findings / `unknownShare` | **Fixed this revision:** counted TS `ranked.decision === WATCH`; now `countCanonicalOutcomesForTokens` |
-| `chat.ts` opportunities focus / general counts | **Fixed this revision:** prefer Python `canonicalDecisions` / `canonicalFocusTokenKey` |
+| `engine.ts` findings / `unknownShare` | Already on main via #71: `countCanonicalOutcomesForTokens` |
+| `chat.ts` opportunities focus / general counts | Already on main via #71 |
+| `chat.ts` reject / why / getState | **Fixed this revision:** reject and why read Python rows; `getState` fail-closed so chat does not 500 without Postgres |
+| Command Center STALE banner | **Fixed this revision:** STALE without a reason no longer shows «read model unavailable»; reason is `stale_read_model` |
 | `/api/paper` + chat paper | Requires Python `paper_allowed` |
 | Command Center | Overlays Python; unavailable ⇒ UNAVAILABLE |
 | `reasoningEngine.ts` + uploaded trees | Preserved presentation; excluded from CC compile unit |
@@ -196,22 +199,24 @@ IMPLEMENTED:
   - engine.ts persists Python displayDecision, not TS WATCH
   - engine.ts anti-hype findings and unknownShare count Python outcomes (not TS WATCH)
   - chat opportunities focus + general BUY/REJECT counts prefer canonicalDecisions
+  - chat reject/why/token prefer Python rows; getState fail-closed without Postgres
 TESTED:
   - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
   - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_config_validation.py → 17 passed
-  - npm run test:canonical-read-model → 11 passed
+  - npm run test:canonical-read-model → 12 passed
   - npm run typecheck → exit 0
   - npm run lint → exit 0
-  - prior #68: npm run build → exit 0
+  - curl GET /api/command + /api/canonical with AHOS_CANONICAL_READ_MODEL fixture: AVAILABLE then STALE; chat reject/why/opportunities without DATABASE_URL; POST /api/paper STALE → 403 CANONICAL_PAPER_DENIED
   - prior #70: full pytest 1650 passed / 3 skipped / 0 failed
-VERIFIED (narrow, prior #64/#65 environment; not re-claimed here):
+VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
   - POST /api/paper fixture BUY → canonical gate passed, then 500 DATABASE_URL (ENVIRONMENT)
-  - Browser Command Center dash + فرصت‌ها: Python cards rendered; empty DB copy; BUY green; MONITOR_ONLY/NO_TRADE/INSUFFICIENT_EVIDENCE amber; REJECT rose; UNAVAILABLE banner when file missing
+  - prior: Browser Command Center dash + فرصت‌ها AVAILABLE fixture: Python cards; empty DB copy; BUY green; MONITOR_ONLY/NO_TRADE/INSUFFICIENT_EVIDENCE amber; REJECT rose; UNAVAILABLE banner when file missing
+  - this revision: POST /api/chat without DATABASE_URL — reject lists Python REJECT; why ALPHA uses Python BUY; opportunities STALE does not mint BUY
+  - Browser Command Center at 127.0.0.1:3001 with STALE fixture: banner «حکم کانونیکال پایتون STALE», Python cards labeled STALE (not a green BUY recommendation), DATABASE_URL CODE_FAILURE remain ENVIRONMENT
 NOT VERIFIED:
   - Command Center overlay of live Postgres opportunity rows from a running observation daemon
-  - Browser STALE banner (STALE proven via API only)
   - Isolated loading-flash screenshot (page loaded before capture)
   - OPERATIONAL product runtime (no Postgres, start.sh does not start Next)
 BLOCKED:
@@ -234,20 +239,21 @@ CLOSED on main / this revision:
   - #68 next build no longer panics on overlay python interpreter symlink
   - #69 Phase 3 status docs after #66/#67/#68
   - #70 AHOS_CANONICAL_READ_MODEL documented; SCAN_TS_FILES includes canonical_read_model.ts + web_api_auth.ts; chat greeting counts Python rows
-  - this revision: engine findings/unknownShare + chat opportunities focus count Python outcomes
+  - #71 engine findings/unknownShare + chat opportunities focus count Python outcomes
+  - this revision: chat reject/why from Python; getState fail-closed; STALE banner reason stale_read_model
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
-  - canonical_read_model.ts countCanonicalOutcomesForTokens / canonicalFocusTokenKey
-  - engine.ts writeFindings
+  - canonical_read_model.ts findCanonicalDecision / stale_read_model
   - chat.ts
+  - CommandCenter.tsx STALE reason
   - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 11 passed; typecheck 0; eslint 0. Phase 3 stays PARTIAL.
+TEST_RESULTS: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 12 passed; typecheck 0; eslint 0; STALE API+browser banner observed. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
   - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Merging #69/#70 and counting Python findings does not make the phase VERIFIED.
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Fail-closing chat and seeing a STALE banner does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.

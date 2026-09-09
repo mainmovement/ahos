@@ -4,8 +4,10 @@ import { desc } from "drizzle-orm";
 import { addPaper, addWatch, getState, startEngine, stopEngine, PaperSecurityDenied } from "./engine";
 import {
   canonicalFocusTokenKey,
+  findCanonicalDecision,
   loadCanonicalReadModel,
   paperAllowedFromCanonical,
+  type CanonicalDecisionView,
 } from "./canonical_read_model";
 import { faNumber, faPct, faUsd } from "./persian";
 import { commandSnapshot } from "./snapshot";
@@ -129,33 +131,63 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     }
   } else if (intent === "why" || intent === "token") {
     const hit = findOpp(snap, text, focus);
-    reply = hit
-      ? whyReply(hit)
-      : intent === "why"
-        ? "بگو کدوم توکن — یا اول یک فرصت را باز کن تا «این یکی» معنا داشته باشد. بدون مصداق دلیل اختراع نمی‌کنم."
-        : "این نماد رو تو کاندیدهای فعلی ندارم. اول شروع رو بزن تا کشف انجام بشه، یا اسم رو دقیق‌تر بگو.";
-    if (hit) focus = hit.tokenKey;
+    const canonHit = hit ? null : findCanonicalDecision(snap.canonicalDecisions ?? [], text, focus);
+    if (hit) {
+      reply = whyReply(hit);
+      focus = hit.tokenKey;
+    } else if (canonHit) {
+      reply = whyCanonicalReply(canonHit);
+      focus = canonHit.tokenKey;
+    } else {
+      reply =
+        intent === "why"
+          ? "بگو کدوم توکن — یا اول یک فرصت را باز کن تا «این یکی» معنا داشته باشد. بدون مصداق دلیل اختراع نمی‌کنم."
+          : "این نماد رو تو کاندیدهای فعلی ندارم. اول شروع رو بزن تا کشف انجام بشه، یا اسم رو دقیق‌تر بگو.";
+    }
   } else if (intent === "reject") {
-    const rejected = snap.opportunities.filter((o) => o.decision === "REJECT").slice(0, 5);
-    reply = rejected.length
-      ? `رد شده‌ها (ضدهایپ):\n${rejected.map((o) => `• ${o.symbol}: ${(o.risksFa || []).slice(0, 2).join(" ")}`).join("\n")}`
-      : "تو آخرین چرخه REJECT ثبت نشده یا هنوز چرخه‌ای نیست.";
+    const rejectedCanon = (snap.canonicalDecisions ?? [])
+      .filter((d) => d.outcome === "REJECT")
+      .slice(0, 5);
+    const rejectedOpp = snap.opportunities.filter((o) => o.decision === "REJECT").slice(0, 5);
+    if (rejectedCanon.length) {
+      reply = [
+        "رد شده‌های کانونیکال پایتون (ضدهایپ):",
+        ...rejectedCanon.map(
+          (d) =>
+            `• ${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"}: ${d.outcome} / هویت ${d.identityState || "UNKNOWN"} / امنیت ${d.securityState || "UNKNOWN"}${d.primaryReason ? ` — ${d.primaryReason}` : ""}`,
+        ),
+      ].join("\n");
+    } else {
+      reply = rejectedOpp.length
+        ? `رد شده‌ها (ضدهایپ):\n${rejectedOpp.map((o) => `• ${o.symbol}: ${(o.risksFa || []).slice(0, 2).join(" ")}`).join("\n")}`
+        : "تو آخرین چرخه REJECT ثبت نشده یا هنوز چرخه‌ای نیست.";
+    }
   } else if (intent === "greeting") {
     reply = greetingReply(snap);
   } else if (intent === "help") {
     reply = helpReply();
   } else {
     const hit = findOpp(snap, text, focus);
+    const canonHit = hit ? null : findCanonicalDecision(snap.canonicalDecisions ?? [], text, focus);
     if (hit && isPronounQuery(text)) {
       reply = whyReply(hit);
       focus = hit.tokenKey;
+    } else if (canonHit && isPronounQuery(text)) {
+      reply = whyCanonicalReply(canonHit);
+      focus = canonHit.tokenKey;
     } else {
       reply = await generalReply(text, snap);
     }
   }
 
-  const state = await getState();
-  if (!state.running && intent !== "start" && intent !== "stop" && intent !== "greeting" && intent !== "help") {
+  let running = false;
+  try {
+    const state = await getState();
+    running = Boolean(state?.running);
+  } catch {
+    running = false;
+  }
+  if (!running && intent !== "start" && intent !== "stop" && intent !== "greeting" && intent !== "help") {
     reply += "\n\nموتور الان خاموشه. اگر بخوای خودم از اینجا روشن کنم بگو «شروع کن» — بعدش خودش پشت‌سرهم جمع می‌کنه.";
   }
   reply += `\n\n${FINAL_USER_LINE}`;
@@ -204,8 +236,8 @@ function detectIntent(text: string): string {
   if (/(خریدم|خرید کاغذی|ثبت خرید|paper)/i.test(text)) return "paper_buy";
   if (/(پورتف|موقعیت|کاغذی‌ها)/i.test(text)) return "paper_list";
   if (/(واچ‌لیست|watchlist|تحت نظر)/i.test(text)) return "watchlist";
-  if (/(چرا|دلیل|شواهد|explain)/i.test(text)) return "why";
   if (/(رد شد|چرا رد|reject)/i.test(text)) return "reject";
+  if (/(چرا|دلیل|شواهد|explain)/i.test(text)) return "why";
   if (/(خبر|اخبار|news)/i.test(text)) return "news";
   if (/(فرصت|بهترین|پامپ|opportunity|چی بخرم)/i.test(text)) return "opportunities";
   if (/(نهنگ|whale)/i.test(text)) return "whales";
@@ -367,6 +399,17 @@ function paperReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
         p.entryPrice && p.lastPrice ? faPct(((p.lastPrice - p.entryPrice) / p.entryPrice) * 100) : "UNKNOWN";
       return `• ${p.symbol} ورود ${p.entryPrice ?? "UNKNOWN"} آخرین ${p.lastPrice ?? "UNKNOWN"} بازده ${pnl} MFE ${p.maxFavorable ?? "UNKNOWN"} MAE ${p.maxAdverse ?? "UNKNOWN"}`;
     })
+    .join("\n");
+}
+
+function whyCanonicalReply(d: CanonicalDecisionView): string {
+  return [
+    `${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"}: حکم کانونیکال پایتون ${d.outcome} با اطمینان ${d.confidence || "UNKNOWN"}. هویت ${d.identityState || "UNKNOWN"} امنیت ${d.securityState || "UNKNOWN"}.`,
+    d.primaryReason || "دلیل تکمیلی در فایل پایتون نیست.",
+    d.monitoringOnly ? "MONITOR_ONLY — فرصت/کاغذی نیست." : "",
+    "لایه گفتگو تصمیم نمی‌سازد. این توصیه خرید واقعی نیست.",
+  ]
+    .filter(Boolean)
     .join("\n");
 }
 

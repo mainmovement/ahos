@@ -476,7 +476,9 @@ export default function CommandCenter() {
         <div className="alarm-banner">
           حکم کانونیکال پایتون {snap.canonicalReadModel.status}
           <small>
-            {snap.canonicalReadModel.reason || "read model unavailable"} — لایه وب BUY/WATCH نمی‌سازد.
+            {snap.canonicalReadModel.reason ||
+              (snap.canonicalReadModel.status === "STALE" ? "stale_read_model" : "read model unavailable")}{" "}
+            — لایه وب BUY/WATCH نمی‌سازد.
           </small>
         </div>
       )}

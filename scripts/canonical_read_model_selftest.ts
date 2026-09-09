@@ -4,6 +4,7 @@ import {
   alertsAllowedFromCanonical,
   canonicalFocusTokenKey,
   countCanonicalOutcomesForTokens,
+  findCanonicalDecision,
   overlayOpportunity,
   paperAllowedFromCanonical,
   parseCanonicalReadModel,
@@ -117,6 +118,7 @@ test("stale/unavailable presentation strips positives", () => {
   );
   const views = presentCanonicalDecisions(stale);
   assert.equal(stale.status, "STALE");
+  assert.equal(stale.reason, "stale_read_model");
   assert.equal(views[0].outcome, "STALE");
   assert.equal(views[0].paperAllowed, false);
   assert.equal(views[0].isPositive, false);
@@ -270,4 +272,37 @@ test("chat focus prefers Python BUY then WATCH/MONITOR_ONLY", () => {
   );
   assert.equal(canonicalFocusTokenKey([]), null);
   assert.equal(canonicalFocusTokenKey(presentCanonicalDecisions(unavailableModel("missing"))), null);
+});
+
+test("findCanonicalDecision uses Python rows not DB opportunities", () => {
+  const views = presentCanonicalDecisions(
+    parseCanonicalReadModel(
+      {
+        status: "AVAILABLE",
+        generated_ts: NOW,
+        decisions: [
+          {
+            token_key: "solana:rej",
+            chain: "solana",
+            address: "rej",
+            outcome: "REJECT",
+            symbol: "REJ",
+            primary_reason: "honeypot",
+          },
+          {
+            token_key: "solana:buy",
+            chain: "solana",
+            address: "buy",
+            outcome: "BUY",
+            symbol: "ALPHA",
+          },
+        ],
+      },
+      NOW,
+    ),
+  );
+  assert.equal(findCanonicalDecision(views, "چرا ALPHA رد شد", null)?.outcome, "BUY");
+  assert.equal(findCanonicalDecision(views, "این یکی چطوره", "solana:rej")?.outcome, "REJECT");
+  assert.equal(findCanonicalDecision(views, "unknownxyz", null), null);
+  assert.equal(findCanonicalDecision([], "ALPHA", "solana:buy"), null);
 });
