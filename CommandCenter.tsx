@@ -263,12 +263,8 @@ export default function CommandCenter() {
   }, []);
 
   useEffect(() => {
-    void load();
-    return () => loadAbortRef.current?.abort();
-  }, [load]);
-
-  useEffect(() => {
     let timer: ReturnType<typeof setInterval> | null = null;
+    let boot: ReturnType<typeof setTimeout> | null = null;
 
     const tick = () => {
       if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
@@ -280,18 +276,23 @@ export default function CommandCenter() {
       timer = setInterval(tick, running ? POLL_RUNNING_MS : POLL_IDLE_MS);
     };
 
+    // Timer callback, not synchronous setState in the effect body
+    // (react-hooks/set-state-in-effect). First paint still fetches immediately.
+    boot = setTimeout(tick, 0);
     arm();
 
     const onVis = () => {
       if (document.visibilityState === "visible") {
-        void load();
+        tick();
         arm();
       }
     };
     document.addEventListener("visibilitychange", onVis);
     return () => {
+      if (boot) clearTimeout(boot);
       if (timer) clearInterval(timer);
       document.removeEventListener("visibilitychange", onVis);
+      loadAbortRef.current?.abort();
     };
   }, [load, running]);
 
