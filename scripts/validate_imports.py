@@ -71,6 +71,7 @@ EVIDENCE_SURFACES = (
     "architecture/features",
     "architecture/scoring",
     "architecture/explanations",
+    "architecture/cognitive",
 )
 FORBIDDEN_TOP_LEVELS = {"discovery", "paper_trading", "telegram_ai", "engine"}
 
