@@ -175,6 +175,27 @@ def test_command_center_renders_python_decisions_without_db_rows():
     assert "canonicalDecisions" in cc
     assert "احکام کانونیکال پایتون" in cc
     assert "لایه وب BUY/WATCH نمی‌سازد" in cc
+    for forbidden in (
+        'from "./engine"',
+        'from "./scoring"',
+        'from "./canonical_security"',
+        'from "./alerts"',
+        'from "./council"',
+        'from "@/engine"',
+        'from "@/scoring"',
+    ):
+        assert forbidden not in cc, forbidden
+
+
+def test_env_example_documents_canonical_read_model_path():
+    text = (ROOT / ".env.example").read_text(encoding="utf-8")
+    assert "AHOS_CANONICAL_READ_MODEL=" in text
+
+
+def test_chat_greeting_counts_python_canonical_not_ts_watch():
+    chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
+    assert "canonicalDecisions" in chat
+    assert 'o.decision === "WATCH"' not in chat.split("function greetingReply")[1].split("function helpReply")[0]
 
 
 def test_paper_api_requires_canonical_buy():

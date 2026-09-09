@@ -25,7 +25,7 @@ ENV_PATH = "AHOS_CANONICAL_READ_MODEL"
 
 
 def canonical_read_model_path() -> Path:
-    raw = (os.environ.get(ENV_PATH) or "").strip()
+    raw = (os.environ.get("AHOS_CANONICAL_READ_MODEL") or os.environ.get(ENV_PATH) or "").strip()
     if raw:
         return Path(raw)
     return get_project_root() / "reports" / "canonical_decision_read_model.json"
