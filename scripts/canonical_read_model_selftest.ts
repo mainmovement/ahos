@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   alertsAllowedFromCanonical,
   canonicalFocusTokenKey,
+  canonicalOverlayCensus,
   countCanonicalOutcomesForTokens,
   findCanonicalDecision,
   overlayOpportunity,
@@ -172,6 +173,32 @@ test("unmatched token is UNAVAILABLE even if TS said WATCH", () => {
   );
   assert.equal(over.decision, "UNAVAILABLE");
   assert.equal(over.paperAllowed, false);
+});
+
+test("overlay census counts mismatch without joining stores or minting BUY", () => {
+  const model = availableBuy();
+  const census = canonicalOverlayCensus(model, [
+    { chain: "solana", address: "So11111111111111111111111111111111111111112" },
+    { chain: "solana", address: "OtherToken1111111111111111111111111111111" },
+  ]);
+  assert.equal(census.pythonDecisionCount, 1);
+  assert.equal(census.tsOpportunityCount, 2);
+  assert.equal(census.matched, 1);
+  assert.equal(census.unmatchedTs, 1);
+  assert.equal(census.unmatchedPython, 0);
+  assert.match(census.note, /does not join/);
+
+  const emptyTs = canonicalOverlayCensus(model, []);
+  assert.equal(emptyTs.matched, 0);
+  assert.equal(emptyTs.unmatchedTs, 0);
+  assert.equal(emptyTs.unmatchedPython, 1);
+
+  const missing = canonicalOverlayCensus(unavailableModel("missing_read_model"), [
+    { chain: "solana", address: "So11111111111111111111111111111111111111112" },
+  ]);
+  assert.equal(missing.pythonDecisionCount, 0);
+  assert.equal(missing.unmatchedTs, 1);
+  assert.equal(missing.matched, 0);
 });
 
 test("TS WATCH cannot alert unless python alerts_allowed", () => {
