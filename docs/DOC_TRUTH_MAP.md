@@ -24,6 +24,7 @@
 | Lane-B cognitive memory (P2 substrate; **not AGI memory**) | `docs/architecture/AHOS_COGNITIVE_MEMORY_ARCHITECTURE_v1.0.md` + `architecture/cognitive/memory/` — isolated `ahos_cognitive_memory.sqlite`; never soak/Lane-A DBs |
 | Lane-B cognitive loop (P3; **not AGI/ACI**) | `docs/architecture/AHOS_COGNITIVE_LOOP_ARCHITECTURE_v1.0.md` + `architecture/cognitive/loop/` — isolated retrieve→reason→lesson loop; not wired to soak |
 | Lane-B cognitive benchmark (P4.1; **not an intelligence score**) | `architecture/cognitive/benchmark/` + `reports/agi_aci_evolution/P4_1_COGNITIVE_BENCHMARK_REPORT.md` — SYNTHETIC suite; FAIL is allowed |
+| Lane-B retrieval relevance (P4.2; **not AGI**) | `architecture/cognitive/loop/retrieval.py` + `reports/agi_aci_evolution/P4_2_RETRIEVAL_BENCHMARK_REPORT.md` — query-time gates; P4.1 cases unchanged; FAIL still allowed |
 
 ## B — Historical / superseded (do not cite as current readiness)
 

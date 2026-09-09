@@ -70,7 +70,7 @@ Cursor `.cursor/skills/` are **developer instructions**, not AHOS runtime agents
 | Permission Layer | Human/policy/emergency | **PARTIAL** | PAPER_ONLY; n8n human gate sketches; live OFF |
 | Execution Layer | After permission only | **NOT_IMPLEMENTED** (live) | Paper path exists in Lane A; live must stay disabled |
 | Governance | Human approve/reject/rollback | **PARTIAL** | Contracts + freeze + gap register |
-| Evaluation | Named benchmarks vs baselines | **PARTIAL** | P4.1 SYNTHETIC vector executed; not a six-baseline AGI suite |
+| Evaluation | Named benchmarks vs baselines | **PARTIAL** | P4.1/P4.2 SYNTHETIC vector executed; retrieval relevance improved, precision floor unmet; not a six-baseline AGI suite |
 | Rollback | Per-proposal rollback plan | **PARTIAL** | Required on improvement proposals |
 | Kill Switch | Stop execution without Cognitive Core | **PARTIAL** | Telegram/n8n kill sketches; not independent of those edges |
 | Provider Independence | Registry→health→fallback→local | **PARTIAL** | `architecture/ai/` + provider contracts; paid default false |
@@ -145,6 +145,6 @@ Lane-B isolated work:
 5. Evolution proposals via existing `SelfEvolutionEngine` with B_ONLY gate.
 6. Honest world-model / reasoning / novelty / evaluation inventories.
 7. Isolated P3 cognitive loop (`architecture/cognitive/loop/`) with tests; **not** soak ingest.
-8. Isolated P4.1 cognitive benchmark (`architecture/cognitive/benchmark/`); **not** an intelligence score.
+8. Isolated P4.1/P4.2 cognitive benchmark (`architecture/cognitive/benchmark/`); **not** an intelligence score.
 
 It does **not** authorize: Lane A edits, soak interruption, live trading, autonomous promotion, fabricated 99.9% intelligence, or claiming AGI/ACI achieved.
