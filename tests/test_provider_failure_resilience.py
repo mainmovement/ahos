@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Provider Failure, HTTP Error, Timeout, and Fault-Injection Tests (Phase XX)."""
 import sys, json, urllib.error
+from datetime import datetime, timezone
 from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
@@ -84,6 +85,53 @@ def test_geckoterminal_empty_payload():
     adapter = GeckoTerminalAdapter(transport=_raw_transport(b""))
     resp = adapter.fetch_candidate_tokens("solana")
     assert resp.status == "ERROR"
+
+
+def test_geckoterminal_maps_pool_created_at_to_pair_created_ts():
+    payload = json.dumps({
+        "data": [{
+            "id": "solana_pool1",
+            "attributes": {
+                "address": "PoolAddr1111111111111111111111111111111",
+                "name": "TOK / SOL",
+                "pool_created_at": "2026-09-09T14:53:02Z",
+                "reserve_in_usd": "123.4",
+                "volume_usd": {"h24": "10"},
+            },
+        }]
+    }).encode()
+    adapter = GeckoTerminalAdapter(transport=_raw_transport(payload))
+    resp = adapter.fetch_candidate_tokens("solana", limit=1)
+    assert resp.status == "OK"
+    assert len(resp.tokens) == 1
+    tok = resp.tokens[0]
+    assert tok.pair_created_ts == datetime(2026, 9, 9, 14, 53, 2, tzinfo=timezone.utc).timestamp()
+    assert "pair_created_ts" not in tok.unknown_fields
+
+
+def test_geckoterminal_missing_or_unparseable_pool_created_at_stays_none():
+    payload = json.dumps({
+        "data": [
+            {
+                "id": "solana_pool_missing",
+                "attributes": {"address": "A", "name": "A / SOL"},
+            },
+            {
+                "id": "solana_pool_bad",
+                "attributes": {
+                    "address": "B",
+                    "name": "B / SOL",
+                    "pool_created_at": "not-a-timestamp",
+                },
+            },
+        ]
+    }).encode()
+    adapter = GeckoTerminalAdapter(transport=_raw_transport(payload))
+    resp = adapter.fetch_candidate_tokens("solana", limit=2)
+    assert resp.status == "OK"
+    assert [t.pair_created_ts for t in resp.tokens] == [None, None]
+    for tok in resp.tokens:
+        assert "pair_created_ts" in tok.unknown_fields
 
 
 def test_goplus_unexpected_schema():
