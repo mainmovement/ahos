@@ -45,6 +45,10 @@ Controlled soak on the **Windows operator host** after G1–G10 PASS — stabili
 
 ## Pre-soak commands (PowerShell, after unlock)
 
+`--observation-cycle` is **not** an execution mode. It only adds the E-01 Observation Cycle task to each scheduled cycle. Without `--single-cycle`, the runtime enters the daemon loop (interval default 60s), even if `--daemon` is omitted. A lone `--observation-cycle --evidence-source local` therefore runs as a daemon.
+
+One opportunity cycle, then exit:
+
 ```powershell
 cd <PATH_TO_AHOS_REPO>
 .\.venv\Scripts\Activate.ps1
@@ -53,12 +57,19 @@ $env:AHOS_EVIDENCE_SOURCE = "local"
 
 python -m architecture.runtime --single-cycle --evidence-source local --limit 5
 python scripts\prediction_lifecycle_status.py
-python -m architecture.runtime --observation-cycle --evidence-source local
+```
+
+One pass that also runs E-01 (single observation cycle), then exit — use `--single-cycle --observation-cycle` together:
+
+```powershell
+python -m architecture.runtime --single-cycle --observation-cycle --evidence-source local
 ```
 
 Record wall-clock **T0** when Windows soak predictions are registered. Outcomes require real elapsed time to T+72h.
 
-Multi-hour:
+### Multi-hour / daemon
+
+Continuous opportunity + E-01 cycles. Do not use `--observation-cycle` alone for this.
 
 ```powershell
 python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle --evidence-source local
