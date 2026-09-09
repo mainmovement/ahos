@@ -4,6 +4,24 @@
 **Interpreter for tests/validate:** `/tmp/ahos-test-venv` (ephemeral; not committed). System `python3` lacks pytest (PEP 668).  
 **Soak daemon:** not started. Cloud sqlite: not treated as soak.
 
+## P4.3 (lookalike discrimination)
+
+**Base SHA:** `eb1dbcf883bf3cba94e18881c9bea9a5252a88af`  
+See `P4_3_LOOKALIKE_DISCRIMINATION_AUDIT.md` and `P4_3_RETRIEVAL_BENCHMARK_REPORT.md`. Targeted pytest: 167 passed. Freeze 36/36. validate_imports PASS. Reproducibility equal. Precision 0.9091 / F1 0.9524 / recall 1.0 on the P4.1 cases.
+
+```text
+python3 -B scripts/freeze_lane_a.py
+# result: Lane-A integrity OK (36 files pinned)  exit 0
+
+/tmp/ahos-test-venv/bin/python -m pytest -q -p no:cacheprovider \
+  tests/test_retrieval_lookalike.py tests/test_retrieval_relevance.py \
+  tests/test_cognitive_benchmark.py tests/test_cognitive_loop.py \
+  tests/test_cognitive_memory.py tests/test_cognitive_core.py \
+  tests/test_self_evolution_engine.py tests/test_multi_mind_council_anti_echo.py \
+  tests/test_evolution_validate.py tests/test_cognitive_panel.py
+# result: 167 passed  exit 0
+```
+
 ## P4.2 (retrieval relevance)
 
 **Base SHA:** `6e65f1573dea8c2fe91d6a181b25a20015e76fe1`  
