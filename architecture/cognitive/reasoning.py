@@ -1,7 +1,9 @@
-"""Reasoning inventory. Not an orchestrator.
+"""Reasoning inventory.
 
-AHOS has deterministic FSMs, scoring, calibration, and advisory council
-disagreement. It does not have a domain-general reasoning orchestrator.
+AHOS has deterministic FSMs, scoring, calibration, advisory council
+disagreement, and an isolated P3 cognitive loop orchestrator
+(`architecture/cognitive/loop`). The loop is not soak-wired and is not AGI.
+Causal and counterfactual modes remain NOT_IMPLEMENTED.
 """
 
 from __future__ import annotations
@@ -40,9 +42,9 @@ def current_reasoning_inventory() -> ReasoningInventory:
             "adversarial": CapabilityStatus.PARTIAL,  # red-team / council / security
             "multi_step": CapabilityStatus.PARTIAL,  # pipelines, not a general planner
         },
-        orchestrator=CapabilityStatus.NOT_IMPLEMENTED,
+        orchestrator=CapabilityStatus.PARTIAL,
         notes=(
-            "Do not treat scoring.engine or council synthesis as a reasoning orchestrator.",
+            "architecture/cognitive/loop orchestrator is PARTIAL (LLM-free, no soak wiring).",
             "Evidence provenance must survive any future orchestrator.",
         ),
     )

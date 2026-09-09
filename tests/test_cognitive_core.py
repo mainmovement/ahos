@@ -236,7 +236,7 @@ def test_world_model_and_reasoning_are_honest():
     claim = wm.as_claim()
     assert claim.status.value == "NOT_IMPLEMENTED"
     inv = current_reasoning_inventory()
-    assert inv.orchestrator.value == "NOT_IMPLEMENTED"
+    assert inv.orchestrator.value == "PARTIAL"
     cf = current_counterfactual_policy()
     assert cf.may_overwrite_observed_outcomes is False
     assert cf.general_engine_status.value == "NOT_IMPLEMENTED"

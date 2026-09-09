@@ -22,6 +22,7 @@
 | Cursor skills (this repo) | `.cursor/skills/` — eleven progressive skills. Repo-root `slills/` is uploaded third-party material, **not** AHOS Cursor skills. `cursor/slills` is not a git path |
 | AGI/ACI architecture (Lane B contracts; **not achieved**) | `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md` + `reports/agi_aci_evolution/` — does **not** silently replace `docs/NEXT_DEVELOPMENT_BACKLOG.md` deferral of autonomous evolution (see `docs/architecture/ADR_ACI_001_CHARTER_VS_DEFERRED_EVOLUTION.md`) |
 | Lane-B cognitive memory (P2 substrate; **not AGI memory**) | `docs/architecture/AHOS_COGNITIVE_MEMORY_ARCHITECTURE_v1.0.md` + `architecture/cognitive/memory/` — isolated `ahos_cognitive_memory.sqlite`; never soak/Lane-A DBs |
+| Lane-B cognitive loop (P3; **not AGI/ACI**) | `docs/architecture/AHOS_COGNITIVE_LOOP_ARCHITECTURE_v1.0.md` + `architecture/cognitive/loop/` — isolated retrieve→reason→lesson loop; not wired to soak |
 
 ## B — Historical / superseded (do not cite as current readiness)
 

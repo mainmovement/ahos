@@ -44,10 +44,10 @@ Cursor `.cursor/skills/` are **developer instructions**, not AHOS runtime agents
 
 | Subsystem | Architecture target | Current class | Where it lives / why |
 |-----------|---------------------|---------------|----------------------|
-| Cognitive Core | Domain-general perception→reasoning→learning loop | **PARTIAL** | New contracts in `architecture/cognitive/`; no full loop |
+| Cognitive Core | Domain-general perception→reasoning→learning loop | **PARTIAL** | Isolated P3 loop in `architecture/cognitive/loop/`; not soak-wired |
 | Memory System | Working/episodic/semantic/procedural + provenance | **PARTIAL** | Claims store + JSONL ledgers; no unified MemoryStore |
 | World Model | KG + temporal + causal + probabilistic + CF | **NOT_IMPLEMENTED** | Observations ≠ world model (`world_model.py` inventory) |
-| Reasoning | Orchestrator over named modes | **PARTIAL** | FSMs, scoring, council; no orchestrator (`reasoning.py`) |
+| Reasoning | Orchestrator over named modes | **PARTIAL** | P3 `loop/` orchestrator LLM-free; causal/CF NOT_IMPLEMENTED |
 | Metacognition | Answer “what do I know / why / what fails” from real data | **PARTIAL** | `self_research.py` builds reports from **caller snapshots only** |
 | Creativity | Classified IDEA/HYPOTHESIS/… never as truth | **NOT_IMPLEMENTED** | `CreativeClass` enum only |
 | Goal Discovery | Bounded GOAL→DECOMPOSE→…→REVISE | **NOT_IMPLEMENTED** | Governance-bounded; not coded |
@@ -56,7 +56,7 @@ Cursor `.cursor/skills/` are **developer instructions**, not AHOS runtime agents
 | Experiment Engine | First-class reproducible experiments | **PARTIAL** | Reuses `ExperimentLedger`; no general lab runner |
 | Counterfactual Reasoning | Observed vs alternative; never overwrite facts | **PARTIAL** | Financial hindsight PARTIAL; general engine NOT_IMPLEMENTED |
 | Cognitive Society | Memory-bearing tool-using agents that disagree | **PARTIAL** | Registry + lenses + advisory council |
-| Agent Memory | Per-agent episodic/error history | **NOT_IMPLEMENTED** | Passports set `memory_bearing=false` |
+| Agent Memory | Per-agent episodic/error history | **PARTIAL** | P2/P3 namespaces isolated; passports still `memory_bearing=false` |
 | Agent Creation | Gap→spec→sandbox→benchmark→human promote | **NOT_IMPLEMENTED** | Unrestricted auto-deploy forbidden |
 | Self-Research | Machine-readable WHAT I KNOW / DON’T / FAIL | **PARTIAL** | Snapshot builder; not a live soak reader |
 | Learning Engine | Calibration + lessons without fabricating joins | **PARTIAL** | `architecture/learning/`; soak joins may be 0 |
@@ -85,7 +85,7 @@ perception → context → reasoning → planning → memory retrieval
  → tool selection → capability-gap detection
 ```
 
-Implemented now: **contracts and fail-closed stores**, not the loop.
+Implemented now: **contracts, P2 memory, and an isolated P3 loop** (not soak-wired, not AGI).
 
 Autonomy ceiling for this package: `L1_ANALYZE`. Paper trading remains a frozen Lane-A subsystem; this charter does not activate L4–L7.
 
@@ -144,5 +144,6 @@ Lane-B isolated work:
 4. Capability-gap JSONL (does not rewrite `AHOS_GAP_REGISTER.md`).
 5. Evolution proposals via existing `SelfEvolutionEngine` with B_ONLY gate.
 6. Honest world-model / reasoning / novelty / evaluation inventories.
+7. Isolated P3 cognitive loop (`architecture/cognitive/loop/`) with tests; **not** soak ingest.
 
 It does **not** authorize: Lane A edits, soak interruption, live trading, autonomous promotion, fabricated 99.9% intelligence, or claiming AGI/ACI achieved.
