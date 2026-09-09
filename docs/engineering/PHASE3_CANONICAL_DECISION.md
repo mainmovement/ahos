@@ -222,11 +222,10 @@ IMPLEMENTED:
   - `01/` upload preserved and excluded from Command Center tsconfig/eslint; engine classified presentation-only (not Phase 4 Wise Tree)
 TESTED:
   - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
-  - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_config_validation.py → 17 passed
-  - npm run test:canonical-read-model → 12 passed
-  - npm run typecheck → exit 0
-  - npm run lint → exit 0
-  - curl GET /api/canonical STALE fixture: ALPHA identity/security STALE, confidence UNKNOWN, recorded_security_state PASS
+  - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_decision_authority.py tests/test_config_validation.py → 32 passed including `01/` pin
+  - npm run typecheck → exit 0 (`01/` excluded from Command Center unit)
+  - npm run lint → exit 0 (`01/` globally ignored)
+  - prior #75: curl GET /api/canonical STALE fixture: ALPHA identity/security STALE, confidence UNKNOWN, recorded_security_state PASS
 VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
@@ -271,7 +270,7 @@ EVIDENCE:
   - architecture/decision/read_model.py
   - canonical_read_model.ts
   - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: freeze 36 OK; targeted pytest includes `01/` presentation pin; typecheck/eslint exclude `01/`. Phase 3 stays PARTIAL.
+TEST_RESULTS: freeze 36 OK; pytest authority+config-doc 32 passed (includes `01/` pin); typecheck 0; eslint 0. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
