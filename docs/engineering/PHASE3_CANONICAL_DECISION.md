@@ -1,7 +1,7 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
-**Branch:** `cursor/phase3-overlay-python-on-main-9500` (hygiene on current `main`)  
-**Base:** `origin/main` after PR **#66** and **#67** merge (`69c515e`). Overlay-v2 already on `main` via **#65**.  
+**Branch:** `cursor/phase3-overlay-python-on-main-9500` (status docs on current `main`)  
+**Base:** `origin/main` after PR **#66**, **#67**, and **#68** merge (`0cbe393`). Overlay-v2 already on `main` via **#65**.  
 **Date:** 2026-09-09  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
