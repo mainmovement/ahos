@@ -30,7 +30,12 @@ from architecture.cognitive.loop.contracts import (
 )
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator
 from architecture.cognitive.loop.reason import critique_result, reason
-from architecture.cognitive.loop.retrieval import KIND_TO_EVIDENCE, MemoryRetriever
+from architecture.cognitive.loop.retrieval import (
+    KIND_TO_EVIDENCE,
+    MemoryRetriever,
+    _lexical_overlap,
+    normalize_query,
+)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType
 
@@ -1219,6 +1224,126 @@ def run_cognitive_benchmark(
             population="retrieval_cases items retrieved only via anchored expansion",
             limitations="NOT_MEASURED when no relationship-only rows appear",
             n=rel_expand_n,
+        )
+    )
+
+    # ----- P4.3 lookalike discrimination (P4.1 cases unchanged) -----
+    kw = next(c for c in retrieval_cases() if c.case_id == "RET-KEYWORD-01")
+    kw_task = _task_from_case(kw)
+    kw_items = retriever.retrieve(store, kw_task, now=NOW)
+    kw_got = {i.memory_id for i in kw_items}
+    cousin_ids = {
+        "BM-SW-TIMEOUT-LOOKALIKE",
+        "BM-FIN-FACT",
+        "BM-FIN-LESSON",
+        "BM-OPS-FACT",
+        "BM-OPS-LESSON",
+        "BM-SCI-FACT",
+        "BM-SCI-LESSON",
+    }
+    lookalike_rejected = len(cousin_ids - kw_got)
+    relevant_kw = set(TIMEOUT_RELEVANT)
+    rel_look_hit = len(kw_got & relevant_kw)
+    generic_fp = generic_n = 0
+    for item in kw_items:
+        rec = store.get(item.memory_id)
+        if rec is None:
+            continue
+        generic_n += 1
+        ov = _lexical_overlap(rec, normalize_query(kw_task).tokens)
+        if ov and ov <= {"retry", "recover"} and item.memory_id not in relevant_kw:
+            generic_fp += 1
+    mismatch_task = _task_from_case(kw)
+    mismatch_task.constraints = {
+        **dict(mismatch_task.constraints),
+        "component": "database",
+        "failure_type": "disk_full",
+    }
+    mismatch_task.question = "prior timeout retry failure"
+    mismatch_task.objective = "failure memory"
+    mm_items = retriever.retrieve(store, mismatch_task, now=NOW)
+    mm_ids = {i.memory_id for i in mm_items}
+    hard_ok = 1.0 if "BM-SW-TIMEOUT-FAIL" not in mm_ids else 0.0
+    learn_ok = learn_n = 0
+    for case in retrieval_cases():
+        if case.task_type != "LEARN":
+            continue
+        learn_n += 1
+        items = retriever.retrieve(store, _task_from_case(case), now=NOW)
+        if items and all(i.epistemic_kind == "LESSON" for i in items):
+            learn_ok += 1
+        elif not items:
+            learn_ok += 0
+    metrics.append(
+        make_metric(
+            "lookalike_rejection_rate",
+            name="lookalike_rejection_rate",
+            definition="labeled structural cousins not retrieved on RET-KEYWORD-01 / cousin set",
+            numerator=lookalike_rejected,
+            denominator=len(cousin_ids),
+            population="LOOKALIKE + cross-domain retry/recover cousins",
+            limitations="Cousin set is the P4.2-measured false-positive cluster, not a new label rewrite",
+            n=len(cousin_ids),
+        )
+    )
+    metrics.append(
+        make_metric(
+            "relevant_lookalike_recall",
+            name="relevant_lookalike_recall",
+            definition="TIMEOUT_RELEVANT retrieved on RET-KEYWORD-01 / labeled relevant",
+            numerator=rel_look_hit,
+            denominator=len(relevant_kw),
+            population="RET-KEYWORD-01",
+            limitations="Protects same-cluster recall while cousins are rejected",
+            n=len(relevant_kw),
+        )
+    )
+    metrics.append(
+        make_metric(
+            "generic_overlap_false_inclusion_rate",
+            name="generic_overlap_false_inclusion_rate",
+            definition="RET-KEYWORD-01 hits whose overlap is only retry/recover and unlabeled / retrieved",
+            numerator=generic_fp,
+            denominator=generic_n,
+            population="RET-KEYWORD-01 retrieved items",
+            limitations="Uses multi-domain operation tokens retry/recover",
+            n=generic_n,
+        )
+    )
+    metrics.append(
+        make_metric(
+            "hard_mismatch_rejection_accuracy",
+            name="hard_mismatch_rejection_accuracy",
+            definition="1 if BM-SW-TIMEOUT-FAIL is absent under explicit database/disk_full constraints",
+            numerator=hard_ok,
+            denominator=1.0,
+            population="component+failure_type mismatch probe on timeout FAILURE",
+            limitations="Single probe; missing fields remain neutral elsewhere",
+            n=1,
+        )
+    )
+    metrics.append(
+        make_metric(
+            "structured_mismatch_false_inclusion_rate",
+            name="structured_mismatch_false_inclusion_rate",
+            definition="1 if the mismatched FAILURE was still retrieved",
+            numerator=0.0 if hard_ok else 1.0,
+            denominator=1.0,
+            population="same hard-mismatch probe",
+            limitations="Complement of hard_mismatch_rejection_accuracy",
+            n=1,
+        )
+    )
+    metrics.append(
+        make_metric(
+            "task_compatibility_accuracy",
+            name="task_compatibility_accuracy",
+            definition="LEARN retrieval cases whose retrieved set is all LESSON / LEARN cases",
+            numerator=learn_ok,
+            denominator=learn_n,
+            population="RET-DOMAIN-01 and RET-LESSON-01",
+            limitations="Does not score ANALYZE cases that legitimately mix kinds",
+            n=learn_n,
         )
     )
 

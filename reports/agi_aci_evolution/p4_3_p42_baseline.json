@@ -1,0 +1,316 @@
+{
+  "captured_from": "P4.2 merged main eb1dbcf before P4.3 retrieval changes",
+  "data_label": "SYNTHETIC_TEST_DATA",
+  "git_sha_at_capture": "eb1dbcf883bf3cba94e18881c9bea9a5252a88af",
+  "metrics": {
+    "adversarial_resistance": {
+      "denominator": 7.0,
+      "n": 7,
+      "numerator": 7.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "assumption_tracking_rate": {
+      "denominator": 7.0,
+      "n": 7,
+      "numerator": 7.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "context_contradiction_preservation": {
+      "denominator": 0.0,
+      "n": 0,
+      "numerator": 0.0,
+      "status": "NOT_MEASURED",
+      "value": null
+    },
+    "context_coverage": {
+      "denominator": 4.0,
+      "n": 4,
+      "numerator": 1.8571428571428572,
+      "status": "FAIL",
+      "value": 0.4642857142857143
+    },
+    "context_incomplete_flag_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 2.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "contradiction_detection_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 2.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "contradiction_false_resolution_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "contradiction_pollution_rate": {
+      "denominator": 11.0,
+      "n": 11,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "correct_lesson_reuse_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 2.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "critic_detection_rate": {
+      "denominator": 6.0,
+      "n": 6,
+      "numerator": 6.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "critic_false_alarm_rate": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "critic_scope_mismatch": {
+      "denominator": 0.0,
+      "n": 0,
+      "numerator": 0.0,
+      "status": "NOT_MEASURED",
+      "value": null
+    },
+    "cross_domain_consistency": {
+      "denominator": 1.0,
+      "n": 4,
+      "numerator": 1.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "dropped_relevant_record_rate": {
+      "denominator": 28.0,
+      "n": 28,
+      "numerator": 15.0,
+      "status": "PASS",
+      "value": 0.5357142857142857
+    },
+    "empty_query_pollution_rate": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "evidence_class_integrity": {
+      "denominator": 18.0,
+      "n": 18,
+      "numerator": 18.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "experiment_analysis_only": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 1.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "failure_recall": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 1.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "false_certainty_rate": {
+      "denominator": 3.0,
+      "n": 3,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "false_failure_application_rate": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "hypothesis_falsification_present": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 1.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "incorrect_lesson_application_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "irrelevant_relationship_expansion_rate": {
+      "denominator": 0.0,
+      "n": 0,
+      "numerator": 0.0,
+      "status": "NOT_MEASURED",
+      "value": null
+    },
+    "lesson_reuse_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 2.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "match_reason_correctness": {
+      "denominator": 83.0,
+      "n": 83,
+      "numerator": 83.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "namespace_isolation_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 2.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "namespace_leakage_rate": {
+      "denominator": 2.0,
+      "n": 2,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "no_memory_lesson_reuse": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    },
+    "novelty_not_truth": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 1.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "provenance_preservation": {
+      "denominator": 24.0,
+      "n": 24,
+      "numerator": 24.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "reasoning_mode_structure_rate": {
+      "denominator": 7.0,
+      "n": 7,
+      "numerator": 7.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "recall_at_1": {
+      "denominator": 11.0,
+      "n": 11,
+      "numerator": 4.642857142857142,
+      "status": "PASS",
+      "value": 0.42207792207792205
+    },
+    "recall_at_10": {
+      "denominator": 11.0,
+      "n": 11,
+      "numerator": 10.857142857142858,
+      "status": "PASS",
+      "value": 0.987012987012987
+    },
+    "recall_at_3": {
+      "denominator": 11.0,
+      "n": 11,
+      "numerator": 10.428571428571429,
+      "status": "PASS",
+      "value": 0.948051948051948
+    },
+    "recall_at_5": {
+      "denominator": 11.0,
+      "n": 11,
+      "numerator": 10.571428571428571,
+      "status": "PASS",
+      "value": 0.961038961038961
+    },
+    "retrieval_f1": {
+      "denominator": 1.0,
+      "n": 11,
+      "numerator": 0.38834951456310685,
+      "status": "FAIL",
+      "value": 0.38834951456310685
+    },
+    "retrieval_precision": {
+      "denominator": 83.0,
+      "n": 11,
+      "numerator": 20.0,
+      "status": "FAIL",
+      "value": 0.24096385542168675
+    },
+    "retrieval_recall": {
+      "denominator": 20.0,
+      "n": 11,
+      "numerator": 20.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "same_domain_false_inclusion_rate": {
+      "denominator": 91.0,
+      "n": 91,
+      "numerator": 71.0,
+      "status": "FAIL",
+      "value": 0.7802197802197802
+    },
+    "stale_not_false": {
+      "denominator": 1.0,
+      "n": 1,
+      "numerator": 1.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "temporal_classification_accuracy": {
+      "denominator": 5.0,
+      "n": 5,
+      "numerator": 5.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "unknown_refusal_accuracy": {
+      "denominator": 3.0,
+      "n": 3,
+      "numerator": 3.0,
+      "status": "PASS",
+      "value": 1.0
+    },
+    "unrelated_retrieval_rate": {
+      "denominator": 83.0,
+      "n": 11,
+      "numerator": 63.0,
+      "status": "FAIL",
+      "value": 0.7590361445783133
+    },
+    "unsupported_claim_rate": {
+      "denominator": 24.0,
+      "n": 24,
+      "numerator": 0.0,
+      "status": "PASS",
+      "value": 0.0
+    }
+  },
+  "reproducibility_equal": true
+}
