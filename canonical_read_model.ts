@@ -202,17 +202,18 @@ export function overlayOpportunity<T extends OverlayOpportunity>(opp: T, model: 
 } {
   const row = lookupCanonicalRow(model, opp.chain, opp.address);
   const decision = displayDecision(row, model.status);
-  const paperAllowed = Boolean(row?.paper_allowed) && model.status === "AVAILABLE";
+  const live = model.status === "AVAILABLE";
+  const paperAllowed = Boolean(row?.paper_allowed) && live;
   return {
     ...opp,
     decision,
     canonicalStatus: model.status,
     canonicalOutcome: decision,
-    identityState: model.status === "AVAILABLE" && row?.identity_state ? String(row.identity_state) : model.status === "AVAILABLE" ? null : model.status,
-    securityState: model.status === "AVAILABLE" && row?.security_state ? String(row.security_state) : model.status === "AVAILABLE" ? null : model.status,
+    identityState: live ? (row?.identity_state ? String(row.identity_state) : null) : model.status,
+    securityState: live ? (row?.security_state ? String(row.security_state) : null) : model.status,
     paperAllowed,
-    canonicalUnavailable: model.status !== "AVAILABLE" || !row,
-    confidence: model.status === "AVAILABLE" ? row?.confidence_level || opp.confidence : "UNKNOWN",
+    canonicalUnavailable: !live || !row,
+    confidence: live ? row?.confidence_level || opp.confidence : "UNKNOWN",
   };
 }
 

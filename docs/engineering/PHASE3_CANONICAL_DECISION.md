@@ -208,8 +208,12 @@ IMPLEMENTED:
   - STALE/UNAVAILABLE loaders clear advisor_action; pump_alert requires live BUY not ENTER
   - STALE/UNAVAILABLE loaders rewrite identity/security to STALE and confidence to UNKNOWN (no green PASS pill)
 TESTED:
-  - this revision: freeze + targeted pytest + canonical-read-model recorded after first push
-  - prior #74: freeze 36 OK; targeted pytest 86 passed; canonical-read-model 12 passed; STALE advisor_action cleared
+  - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
+  - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_config_validation.py → 17 passed
+  - npm run test:canonical-read-model → 12 passed
+  - npm run typecheck → exit 0
+  - npm run lint → exit 0
+  - curl GET /api/canonical STALE fixture: ALPHA identity/security STALE, confidence UNKNOWN, recorded_security_state PASS
 VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
@@ -218,6 +222,7 @@ VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - prior #72: POST /api/chat without DATABASE_URL — reject lists Python REJECT; why ALPHA uses Python BUY; opportunities STALE does not mint BUY
   - prior #73: GET /api/canonical STALE fixture returns outcome STALE (recorded_outcome BUY), not a live BUY
   - prior #74: GET /api/canonical STALE fixture ALPHA advisor_action is null (recorded_advisor_action ENTER)
+  - this revision: GET /api/canonical STALE fixture ALPHA identity/security are STALE (recorded_security_state PASS), confidence UNKNOWN
 NOT VERIFIED:
   - Command Center overlay of live Postgres opportunity rows from a running observation daemon
   - Isolated loading-flash screenshot (page loaded before capture)
@@ -252,7 +257,7 @@ EVIDENCE:
   - architecture/decision/read_model.py
   - canonical_read_model.ts
   - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: this revision not yet executed at first commit. Phase 3 stays PARTIAL.
+TEST_RESULTS: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 12 passed; typecheck 0; eslint 0; STALE identity/security rewritten on /api/canonical. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
