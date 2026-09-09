@@ -144,4 +144,10 @@ Owner/env gates below remain blocked.
 |---|---|---|
 | M-GAP-025 (Python JSON vs TS/Postgres opportunity keys often unmatched → UNAVAILABLE) | **MITIGATED** (diagnostic only) | `/api/command` now includes `overlayCensus` (`matched` / `unmatchedTs` / `unmatchedPython`). Unmatched stays UNAVAILABLE. **No store join. No gecko pool→token identity change.** Note: `docs/engineering/CANONICAL_OVERLAY_CENSUS.md`. |
 
+### Addendum 2026-09-09 — Command Center `/api/alerts` wiring
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-026 (Command Center did not fetch `/api/alerts`) | **CLOSED** (unit/selftest) | `evaluateWebAlertBanner` re-checks live Python BUY + overlay PASS; expired/WATCH/UNAVAILABLE stay inactive. Command Center shows a non-FOMO `monitor-banner`. Live Telegram E2E remains M-GAP-009. |
+
 Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates. Dual-store redesign remains an architecture STOP.

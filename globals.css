@@ -55,6 +55,8 @@ button, input, textarea { font-family: inherit; }
 
 .alarm-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 90; padding: 1.1rem 1.35rem; text-align: center; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.05em; color: #fff; background: linear-gradient(90deg, #ff2d55, #ff8a00, #ff2d55); background-size: 200% 100%; animation: alarmflash 0.8s ease-in-out infinite, alarmslide 2.6s linear infinite; box-shadow: 0 18px 52px rgba(255, 45, 85, 0.55); border-bottom: 2px solid #ffe566; }
 .alarm-banner small { display: block; margin-top: 0.3rem; font-size: 0.88rem; font-weight: 500; opacity: 0.95; }
+.monitor-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 85; padding: 0.85rem 1.2rem; text-align: center; font-size: 1rem; font-weight: 650; letter-spacing: 0.03em; color: #ffe9c2; background: rgba(42, 28, 8, 0.92); border-bottom: 1px solid rgba(251, 191, 36, 0.45); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35); }
+.monitor-banner small { display: block; margin-top: 0.25rem; font-size: 0.82rem; font-weight: 500; color: rgba(255, 233, 194, 0.85); }
 
 @keyframes gridDrift { from { background-position: 0 0; } to { background-position: 0 128px; } }
 @keyframes scanFlicker { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.42; } }
