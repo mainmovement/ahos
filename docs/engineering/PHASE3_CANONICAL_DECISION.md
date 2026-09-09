@@ -207,8 +207,12 @@ IMPLEMENTED:
   - STALE/UNAVAILABLE loaders rewrite outcome (recorded_outcome preserved) so GET /api/canonical cannot return a live BUY
   - STALE/UNAVAILABLE loaders clear advisor_action; pump_alert requires live BUY not ENTER
 TESTED:
-  - this revision: freeze + targeted pytest + canonical-read-model recorded after first push
-  - prior #73: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 12 passed; STALE /api/canonical outcome rewritten
+  - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
+  - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_canonical_decision_authority.py tests/test_canonical_security_gate.py tests/test_config_validation.py → 86 passed
+  - npm run test:canonical-read-model → 12 passed
+  - npm run typecheck → exit 0
+  - npm run lint → exit 0
+  - curl GET /api/canonical STALE fixture: ALPHA advisor_action null, recorded_advisor_action ENTER, outcome STALE
 VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
@@ -216,6 +220,7 @@ VERIFIED (narrow, this environment + prior #64/#65; not phase-complete):
   - prior: Browser Command Center dash + فرصت‌ها AVAILABLE fixture: Python cards; empty DB copy; BUY green; MONITOR_ONLY/NO_TRADE/INSUFFICIENT_EVIDENCE amber; REJECT rose; UNAVAILABLE banner when file missing
   - prior #72: POST /api/chat without DATABASE_URL — reject lists Python REJECT; why ALPHA uses Python BUY; opportunities STALE does not mint BUY
   - prior #73: GET /api/canonical STALE fixture returns outcome STALE (recorded_outcome BUY), not a live BUY
+  - this revision: GET /api/canonical STALE fixture ALPHA advisor_action is null (recorded_advisor_action ENTER)
 NOT VERIFIED:
   - Command Center overlay of live Postgres opportunity rows from a running observation daemon
   - Isolated loading-flash screenshot (page loaded before capture)
@@ -252,7 +257,7 @@ EVIDENCE:
   - tests/test_canonical_read_model.py
   - tests/test_canonical_decision_authority.py
   - tests/test_canonical_security_gate.py
-TEST_RESULTS: this revision not yet executed at first commit. Phase 3 stays PARTIAL.
+TEST_RESULTS: freeze 36 OK; targeted pytest 86 passed; canonical-read-model 12 passed; typecheck 0; eslint 0; STALE advisor_action cleared on /api/canonical. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
