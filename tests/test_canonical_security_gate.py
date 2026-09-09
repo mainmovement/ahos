@@ -497,5 +497,8 @@ def test_pump_alert_unknown_or_reject_cannot_fire(monkeypatch, tmp_path):
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": "REJECT"}) is None
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": ""}) is None
     assert pump_alert.maybe_alert_opportunity({**base, "securityStatus": "PASS", "canonicalOutcome": "WATCH"}) is None
+    assert pump_alert.maybe_alert_opportunity({
+        **base, "securityStatus": "PASS", "canonicalOutcome": "STALE", "advisor_action": "ENTER",
+    }) is None
     sent = pump_alert.maybe_alert_opportunity({**base, "securityStatus": "PASS"})
     assert sent is not None

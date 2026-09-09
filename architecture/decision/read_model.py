@@ -176,6 +176,9 @@ def load_canonical_read_model(
             recorded = item.get("recorded_outcome") or item.get("outcome")
             item["recorded_outcome"] = recorded
             item["outcome"] = status
+            recorded_action = item.get("recorded_advisor_action") or item.get("advisor_action")
+            item["recorded_advisor_action"] = recorded_action
+            item["advisor_action"] = None
         decisions.append(item)
     reason = raw.get("reason")
     if status == "STALE" and not reason:

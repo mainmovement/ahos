@@ -312,6 +312,17 @@ def test_pump_alert_cannot_fire_without_canonical_buy():
         "rankScore": 99, "decision": "WATCH", "securityStatus": "PASS",
         "canonicalOutcome": "WATCH",
     }) is None
+    assert maybe_alert_opportunity({
+        "tokenKey": "sol:TOK", "symbol": "TOK", "chain": "solana",
+        "rankScore": 99, "decision": "WATCH", "securityStatus": "PASS",
+        "canonicalOutcome": "STALE",
+        "advisor_action": "ENTER",
+    }) is None
+    assert maybe_alert_opportunity({
+        "tokenKey": "sol:TOK", "symbol": "TOK", "chain": "solana",
+        "rankScore": 99, "decision": "WATCH", "securityStatus": "PASS",
+        "advisor_action": "ENTER",
+    }) is None
 
 
 def test_identity_from_candidate_single_source_is_unresolved():

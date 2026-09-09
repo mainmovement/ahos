@@ -30,6 +30,7 @@ export type CanonicalDecisionRow = {
   paper_allowed?: boolean;
   monitoring_only?: boolean;
   recorded_outcome?: string | null;
+  recorded_advisor_action?: string | null;
   primary_reason?: string | null;
   reasons?: string[];
   risks?: string[];
@@ -89,10 +90,12 @@ export function parseCanonicalReadModel(raw: unknown, now = Date.now() / 1000, s
     const item = { ...(row as CanonicalDecisionRow) };
     if (status !== "AVAILABLE") {
       item.recorded_outcome = item.recorded_outcome || item.outcome || null;
+      item.recorded_advisor_action = item.recorded_advisor_action || item.advisor_action || null;
       item.is_positive = false;
       item.alerts_allowed = false;
       item.paper_allowed = false;
       item.outcome = status;
+      item.advisor_action = null;
     }
     decisions.push(item);
   }

@@ -111,6 +111,7 @@ test("stale/unavailable presentation strips positives", () => {
           outcome: "BUY",
           paper_allowed: true,
           is_positive: true,
+          advisor_action: "ENTER",
         },
       ],
     },
@@ -121,6 +122,8 @@ test("stale/unavailable presentation strips positives", () => {
   assert.equal(stale.reason, "stale_read_model");
   assert.equal(stale.decisions[0].outcome, "STALE");
   assert.equal(stale.decisions[0].recorded_outcome, "BUY");
+  assert.equal(stale.decisions[0].advisor_action, null);
+  assert.equal(stale.decisions[0].recorded_advisor_action, "ENTER");
   assert.equal(views[0].outcome, "STALE");
   assert.equal(views[0].paperAllowed, false);
   assert.equal(views[0].isPositive, false);
