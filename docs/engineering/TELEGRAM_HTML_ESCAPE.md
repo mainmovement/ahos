@@ -37,3 +37,7 @@ Structural tags (`<b>`, `<code>`) remain author-controlled.
 - `pytest tests/test_telegram_html_escape.py` — Python formatter
 
 Live send with a real bot token is still owner action (M-GAP-009).
+
+Conversational `telegram_ai/bot.py` replies omit `parse_mode` (plain text).
+Opportunity HTML alerts still pass `parse_mode="HTML"` after field escaping.
+

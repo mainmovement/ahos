@@ -75,7 +75,7 @@ class TelegramSecurityGate:
 
 class TelegramBotAdapterInterface(ABC):
     @abstractmethod
-    def send_message(self, chat_id: int | str, text: str, parse_mode: str = "HTML") -> dict[str, Any]:
+    def send_message(self, chat_id: int | str, text: str, parse_mode: str | None = "HTML") -> dict[str, Any]:
         pass
 
     @abstractmethod
@@ -106,13 +106,14 @@ class MockTelegramAdapter(TelegramBotAdapterInterface):
         self.incoming_updates.append(up)
         return up
 
-    def send_message(self, chat_id: int | str, text: str, parse_mode: str = "HTML") -> dict[str, Any]:
-        msg = {
+    def send_message(self, chat_id: int | str, text: str, parse_mode: str | None = "HTML") -> dict[str, Any]:
+        msg: dict[str, Any] = {
             "chat_id": chat_id,
             "text": sanitize_secrets(text),
-            "parse_mode": parse_mode,
             "timestamp": time.time()
         }
+        if parse_mode:
+            msg["parse_mode"] = parse_mode
         self.sent_messages.append(msg)
         return {"ok": True, "result": msg}
 
@@ -198,13 +199,14 @@ class ProductionTelegramAdapter(TelegramBotAdapterInterface):
         except Exception as e:
             return {"ok": False, "error": self._scrub(f"{type(e).__name__}: {e}")}
 
-    def send_message(self, chat_id: int | str, text: str, parse_mode: str = "HTML") -> dict[str, Any]:
+    def send_message(self, chat_id: int | str, text: str, parse_mode: str | None = "HTML") -> dict[str, Any]:
         url = f"{self.base_url}/sendMessage"
-        payload = {
+        payload: dict[str, Any] = {
             "chat_id": chat_id,
             "text": sanitize_secrets(text),
-            "parse_mode": parse_mode
         }
+        if parse_mode:
+            payload["parse_mode"] = parse_mode
         body = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
         try:
