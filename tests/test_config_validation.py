@@ -43,6 +43,8 @@ SCAN_FILES = ("run_bot.py",)
 # web_api_client.ts is the Command Center fetch helper; it is the only
 # canonical reader of NEXT_PUBLIC_AHOS_WEB_API_TOKEN (must match server
 # AHOS_WEB_API_TOKEN). Omitting it made .env.example look like dead docs.
+# canonical_read_model.ts is the only TypeScript reader of
+# AHOS_CANONICAL_READ_MODEL (Python writes; TS must not invent BUY).
 SCAN_TS_FILES = (
     "alerts.ts",
     "engine.ts",
@@ -50,6 +52,7 @@ SCAN_TS_FILES = (
     "conversation_gateway.ts",
     "chat.ts",
     "web_api_client.ts",
+    "canonical_read_model.ts",
 )
 
 #: Explicit exceptions — every entry must carry a reason.

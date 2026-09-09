@@ -213,11 +213,15 @@ function detectIntent(text: string): string {
 
 function greetingReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
   const running = snap.state?.running;
-  const n = snap.opportunities?.filter((o) => o.decision === "BUY" || o.decision === "WATCH" || o.decision === "MONITOR_ONLY").length ?? 0;
+  const status = snap.canonicalReadModel?.status;
+  const n =
+    status === "AVAILABLE"
+      ? (snap.canonicalDecisions ?? []).filter((d) => d.outcome && d.outcome !== "REJECT").length
+      : 0;
   return [
     "سلام! من AHOS هستم — همون همکار صریح که حدس رو جای داده نمی‌ذاره.",
     running
-      ? `الان موتور روشنه و ${n} کاندید پایش تو آخرین چرخه دارم.`
+      ? `الان موتور روشنه و ${n} حکم کانونیکال پایتون در خواندنی موجود است (نه امتیاز فرانت‌اند).`
       : "موتور فعلاً خاموشه؛ بگو «شروع کن» تا جمع‌آوری شروع بشه.",
     "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ اخبار سولانا؟ این توکن رو تحت نظر بگیر. سیستم کجاش لنگه؟",
     "خرید واقعی انجام نمی‌دم — فقط کاغذی و پایش.",
