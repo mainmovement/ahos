@@ -7,7 +7,8 @@
 ## P4.1 (cognitive benchmark)
 
 **Base SHA:** `6862c6fc20050622f6125853671f885b0e36b16a`  
-See `P4_1_COGNITIVE_BENCHMARK_REPORT.md` and `p4_1_cognitive_benchmark_latest.json`. Targeted pytest includes `tests/test_cognitive_benchmark.py`. Several metrics FAIL honestly.
+**Implementation commit:** `525443d9ed182d4f464ce260ee4d8b7a4bfffab5`  
+See `P4_1_COGNITIVE_BENCHMARK_REPORT.md` and `p4_1_cognitive_benchmark_latest.json`. Targeted pytest: 61 passed (benchmark+loop+memory+core+evolution+council). Freeze 36/36. Several metrics FAIL honestly.
 
 ## P3 (cognitive loop)
 
