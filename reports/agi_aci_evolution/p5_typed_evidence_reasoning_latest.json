@@ -2,11 +2,11 @@
   "benchmark_version": "p4.1.0",
   "case_counts": {
     "adversarial": 7,
-    "case_result_rows": 66,
+    "case_result_rows": 68,
     "contradiction": 2,
     "corpus_memories": 41,
     "cross_domain": 4,
-    "p5_cases": 28,
+    "p5_cases": 30,
     "reasoning_modes": 7,
     "retrieval": 11,
     "unknown": 3
@@ -212,14 +212,19 @@
     },
     {
       "case_id": "P5-CONTRA",
+      "critic_action": "ACCEPT",
       "family": "p5_contradiction",
+      "findings": [
+        "CONTRADICTION_VIOLATION:present"
+      ],
       "verdict": "UNRESOLVED"
     },
     {
-      "candidate": "SUPPORTED",
-      "case_id": "P5-CRITIC-TYPE",
+      "case_id": "P5-CRITIC-LIVE",
+      "critic_action": "CONTEST",
       "family": "p5_critic",
-      "final": "INSUFFICIENT_EVIDENCE"
+      "final": "UNRESOLVED",
+      "pre_verdict": "WEAKLY_SUPPORTED"
     },
     {
       "case_id": "P5-DOM-FINANCE",
@@ -274,6 +279,7 @@
     },
     {
       "case_id": "P5-MISS",
+      "critic_action": "REQUIRE_MORE_EVIDENCE",
       "family": "p5_unknown",
       "verdict": "INSUFFICIENT_EVIDENCE"
     },
@@ -336,6 +342,18 @@
     {
       "case_id": "P5-OP-ADV",
       "family": "p5_adversarial",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-SKY-DED",
+      "critic_action": "ACCEPT",
+      "family": "p5_relevance",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-SKY-META",
+      "critic_action": "REFUSE",
+      "family": "p5_relevance",
       "verdict": "INSUFFICIENT_EVIDENCE"
     },
     {
@@ -585,9 +603,9 @@
     "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
     "python": "3.12.3"
   },
-  "git_sha": "976516123b0b682e99fcc6e9c6f0efabb91a9495",
+  "git_sha": "FIX",
   "improvement_candidates": [],
-  "lane_a_freeze": "Lane-A integrity OK (36 files pinned)",
+  "lane_a_freeze": "OK",
   "limitations": [
     "SYNTHETIC_TEST_DATA only; not soak evidence",
     "Keyword/domain retrieval is not semantic search",
@@ -617,10 +635,10 @@
       "benchmark_version": "p4.1.0",
       "definition": "mode episodes with assumption_id / mode count",
       "denominator": 7.0,
-      "limitations": "Binding presence, not assumption quality",
-      "metric_id": "assumption_binding_accuracy",
+      "limitations": "Record presence only; not assumption sensitivity",
+      "metric_id": "assumption_record_presence",
       "n": 7,
-      "name": "assumption_binding_accuracy",
+      "name": "assumption_record_presence",
       "numerator": 7.0,
       "population": "P5 seven modes on one fact",
       "status": "PASS",
@@ -759,14 +777,14 @@
     },
     {
       "benchmark_version": "p4.1.0",
-      "definition": "probes where critic constrained the structured result / probes",
+      "definition": "live reason() probes where critic action changed the mode verdict / probes",
       "denominator": 2.0,
-      "limitations": "Detection \u2260 constraint; both reported",
+      "limitations": "Detection \u2260 constraint; apply_constraint is not counted as production constraint",
       "metric_id": "critic_constraint_rate",
       "n": 2,
       "name": "critic_constraint_rate",
       "numerator": 2.0,
-      "population": "empty-context + SUPPORTED type-violation apply_constraint",
+      "population": "P5-CRITIC-LIVE CONTEST + P5-SKY-META REFUSE",
       "status": "PASS",
       "threshold": 0.5,
       "threshold_class": "PROVISIONAL",
@@ -1255,14 +1273,14 @@
     },
     {
       "benchmark_version": "p4.1.0",
-      "definition": "critic actions or flags on seeded P5 probes / probes",
-      "denominator": 3.0,
-      "limitations": "Separate from P4.1 critic_detection_rate",
+      "definition": "live critic action or contradiction/relevance finding / probes",
+      "denominator": 4.0,
+      "limitations": "Separate from P4.1 critic_detection_rate; no hardcoded pass",
       "metric_id": "p5_critic_detection_rate",
-      "n": 3,
+      "n": 4,
       "name": "p5_critic_detection_rate",
-      "numerator": 3.0,
-      "population": "empty + contradiction + type-violation critic",
+      "numerator": 4.0,
+      "population": "empty + contradiction + live metacognitive contest + irrelevant inventory refuse",
       "status": "PASS",
       "threshold": 0.5,
       "threshold_class": "PROVISIONAL",
@@ -1672,7 +1690,6 @@
   ],
   "soak_protection": {
     "BENCHMARK_DB": "ahos_cognitive_memory.sqlite",
-    "REPRODUCIBILITY_EQUAL": "YES",
     "SOAK_DATABASE_TOUCHED": "NO",
     "SOAK_RUNTIME_RESTARTED": "NO",
     "T0_RESET": "NO"

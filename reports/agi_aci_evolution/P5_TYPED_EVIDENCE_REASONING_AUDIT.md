@@ -10,9 +10,9 @@ This is not AGI, ACI, or an intelligence score.
 
 ## 1. EXECUTIVE SUMMARY
 
-P4.4 identified the bottleneck: retrieved memories were scored as an undifferentiated keyword pool; the critic did not constrain results. P5 verifies that finding and implements a typed evidence-binding layer, seven mode-specific reasoners, and a critic that can ACCEPT / DOWNGRADE / CONTEST / REQUIRE_MORE_EVIDENCE / REFUSE.
+P4.4 identified the bottleneck: retrieved memories were scored as an undifferentiated keyword pool; the critic did not constrain results. P5 implements deterministic typed-evidence eligibility, bounded mode-specific inference gates, and critic-constrained candidate handling. This is not formal deduction, statistical induction, full abductive reasoning, AGI, or ACI.
 
-P4.3 retrieval metrics are unchanged on the frozen vector (precision 0.9091, recall 1.0000, MATCH_REASON 1.0000). New P5 metrics on a separate reasoning population all PASS on this run. 187 targeted tests passed.
+P4.3 retrieval metrics are unchanged on the frozen vector (precision 0.9091, recall 1.0000, MATCH_REASON 1.0000). P5 metrics on a separate reasoning population are measured without hardcoded passes. Regression envelope: 195 passed (28 P5-specific in `tests/test_typed_reasoning.py`).
 
 ## 2. PRE-P5 BASELINE
 
@@ -116,7 +116,7 @@ SOAK DATABASE TOUCHED: NO. SOAK RUNTIME RESTARTED: NO. T0 RESET: NO.
 
 ## 32. LIMITATIONS
 
-Synthetic small N. Deduction is not a theorem prover. Induction is not statistics. Experiments remain placeholders. Residual P4.3 retrieval cousins remain. Critic is a deterministic rule list, not an independent agent.
+Synthetic small N. Modes are typed eligibility gates, not scientific calculi. Relevance is lexical overlap (existing tokenizer), not embeddings. ACTIVE+timestamp is DATED, not proven CURRENT. Assumptions are recorded, not load-bearing. Experiments remain placeholders. Residual P4.3 retrieval cousins remain. Critic is a deterministic rule list, not an independent agent.
 
 ## 33. REMAINING GAPS
 

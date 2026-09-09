@@ -2,6 +2,7 @@
 
 Every meaningful conclusion is traceable to typed evidence and assumptions.
 The critic may ACCEPT, DOWNGRADE, CONTEST, REQUIRE_MORE_EVIDENCE, or REFUSE.
+REFUSE is live when an accepted candidate cites unbound or task-irrelevant evidence.
 It must not rewrite memory or silently invent evidence.
 """
 

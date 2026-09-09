@@ -185,36 +185,40 @@ class CognitiveOrchestrator:
             )
 
         if task.write_back and use_memory:
-            lesson_statement = (
-                f"LESSON [{task.data_label}]: {trace.conclusion} "
-                f"about {task.question} {task.objective} "
-                f"verdict={verdict} failures_seen={len(ctx.failures)}"
-            )
-            lesson = self.memory.remember(
-                memory_type=MemoryType.AGENT if task.agent_id else MemoryType.SEMANTIC,
-                epistemic_kind=EpistemicKind.LESSON,
-                statement=lesson_statement,
-                source_type=SourceType.SYSTEM,
-                source_id=task.task_id,
-                source_location="architecture.cognitive.loop.orchestrator",
-                producer="architecture.cognitive.loop",
-                producer_version="p3-v1",
-                domain=task.domain,
-                context=task.context_id or task.task_id,
-                created_at=ts,
-                hypothesis_id=hyp_id,
-                experiment_id=exp_id,
-                agent_id=task.agent_id,
-                agent_namespace=task.agent_id,
-                payload={
+            if verdict == "WEAKLY_SUPPORTED":
+                lesson_statement = (
+                    f"LESSON [{task.data_label}]: {trace.conclusion} "
+                    f"about {task.question} {task.objective} "
+                    f"verdict={verdict} failures_seen={len(ctx.failures)}"
+                )
+                lesson_payload = {
                     "data_label": task.data_label,
                     "what_worked": "structured retrieval+critique",
                     "what_failed": "; ".join(ctx.unknowns) or "none listed",
                     "applicability": task.domain,
                     "boundary_conditions": "synthetic/test unless data_label=REAL",
-                },
-            )
-            lesson_id = lesson.memory_id
+                }
+                if task.constraints.get("component"):
+                    lesson_payload["component"] = str(task.constraints["component"])
+                lesson = self.memory.remember(
+                    memory_type=MemoryType.AGENT if task.agent_id else MemoryType.SEMANTIC,
+                    epistemic_kind=EpistemicKind.LESSON,
+                    statement=lesson_statement,
+                    source_type=SourceType.SYSTEM,
+                    source_id=task.task_id,
+                    source_location="architecture.cognitive.loop.orchestrator",
+                    producer="architecture.cognitive.loop",
+                    producer_version="p3-v1",
+                    domain=task.domain,
+                    context=task.context_id or task.task_id,
+                    created_at=ts,
+                    hypothesis_id=hyp_id,
+                    experiment_id=exp_id,
+                    agent_id=task.agent_id,
+                    agent_namespace=task.agent_id,
+                    payload=lesson_payload,
+                )
+                lesson_id = lesson.memory_id
             episode = self.memory.remember(
                 memory_type=MemoryType.EPISODIC,
                 epistemic_kind=EpistemicKind.INFERENCE,

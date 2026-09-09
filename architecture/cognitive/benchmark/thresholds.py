@@ -341,11 +341,11 @@ THRESHOLDS: dict[str, dict] = {
         "class": "GOVERNANCE",
         "why": "Empty P5 context must refuse.",
     },
-    "assumption_binding_accuracy": {
+    "assumption_record_presence": {
         "kind": "MIN",
         "threshold": 1.0,
         "class": "PROVISIONAL",
-        "why": "Every P5 mode episode should record an assumption id.",
+        "why": "Every P5 mode episode should record an assumption id. Presence only, not load-bearing sensitivity.",
     },
     "p5_cross_domain_invariance": {
         "kind": "MIN",

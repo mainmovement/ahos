@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from architecture.cognitive.loop.contracts import CognitiveContext, CognitiveTask, RetrievedItem
+from architecture.cognitive.loop.retrieval import canonical_set, content_tokens
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, UNKNOWN
 
@@ -31,6 +32,7 @@ NOT_APPLICABLE = "NOT_APPLICABLE"
 APPLICABILITY_UNKNOWN = "UNKNOWN"
 
 TEMP_CURRENT = "CURRENT"
+TEMP_DATED = "DATED"
 TEMP_STALE = "STALE"
 TEMP_SUPERSEDED = "SUPERSEDED"
 TEMP_HISTORICAL = "HISTORICAL"
@@ -62,6 +64,12 @@ def typed_class_of(item: RetrievedItem) -> str:
 
 
 def temporal_state_of(item: RetrievedItem) -> str:
+    """Decay status is authoritative. A timestamp does not prove freshness.
+
+    No age-from-clock threshold is invented here. Store decay uses
+    expires_at / valid_until only (`CognitiveMemoryStore.apply_decay`).
+    ACTIVE + observed_at is DATED, not CURRENT.
+    """
     if item.status == DecayState.SUPERSEDED.value:
         return TEMP_SUPERSEDED
     if item.status == DecayState.STALE.value:
@@ -72,7 +80,20 @@ def temporal_state_of(item: RetrievedItem) -> str:
         return TEMP_AGING
     if item.observed_at is None:
         return TEMP_UNKNOWN
-    return TEMP_CURRENT
+    return TEMP_DATED
+
+
+def task_content_tokens(task: CognitiveTask) -> set[str]:
+    return canonical_set(content_tokens(task.question) | content_tokens(task.objective))
+
+
+def addresses_task(statement: str, task: CognitiveTask) -> bool:
+    """Deterministic lexical relevance. Valid type ≠ relevant content.
+
+    Uses the existing retrieval tokenizer (4+ char tokens, stopwords,
+    documented inflections). Not embeddings. Fail-closed: no overlap → False.
+    """
+    return bool(canonical_set(content_tokens(statement)) & task_content_tokens(task))
 
 
 def _payload(store: CognitiveMemoryStore | None, memory_id: str) -> dict[str, Any]:
@@ -92,15 +113,14 @@ def _applicability(
 ) -> str:
     if typed == "LESSON":
         app = _explicit(payload.get("applicability"))
-        if not app:
-            return APPLICABILITY_UNKNOWN
-        if task.domain and app != task.domain:
+        if app and task.domain and app != task.domain:
             return NOT_APPLICABLE
         q_comp = _explicit(task.constraints.get("component"))
         m_comp = _explicit(payload.get("component"))
-        if q_comp and m_comp and q_comp.lower() != m_comp.lower():
-            return NOT_APPLICABLE
-        return APPLICABLE
+        if q_comp and m_comp:
+            return APPLICABLE if q_comp.lower() == m_comp.lower() else NOT_APPLICABLE
+        # Same domain is not the same problem. Missing fingerprints stay UNKNOWN.
+        return APPLICABILITY_UNKNOWN
     if typed == "FAILURE":
         q_comp = _explicit(task.constraints.get("component"))
         m_comp = _explicit(payload.get("component"))
@@ -113,10 +133,14 @@ def _applicability(
             and fail_domain not in {task.domain, "COGNITIVE_CORE"}
         ):
             return NOT_APPLICABLE
-        if q_comp and m_comp:
-            return APPLICABLE if q_comp.lower() == m_comp.lower() else NOT_APPLICABLE
-        if q_ft and m_ft:
-            return APPLICABLE if q_ft.lower() == m_ft.lower() else NOT_APPLICABLE
+        comp_both = bool(q_comp and m_comp)
+        ft_both = bool(q_ft and m_ft)
+        if comp_both and q_comp.lower() != m_comp.lower():
+            return NOT_APPLICABLE
+        if ft_both and q_ft.lower() != m_ft.lower():
+            return NOT_APPLICABLE
+        if comp_both and ft_both:
+            return APPLICABLE
         return APPLICABILITY_UNKNOWN
     if item.domain and task.domain and item.domain not in {task.domain, "COGNITIVE_CORE"}:
         return NOT_APPLICABLE
@@ -141,6 +165,7 @@ def _roles(typed: str, temporal: str, applicability: str) -> tuple[tuple[str, ..
             allowed = [ROLE_HISTORY, ROLE_COMPARISON]
             forbidden = [ROLE_FACTUAL_PREMISE]
         else:
+            # DATED / AGING / CURRENT: typed observation is eligible; DATED ≠ proven fresh.
             allowed = [ROLE_FACTUAL_PREMISE, ROLE_COMPARISON, ROLE_HISTORY]
     elif typed == "DERIVED_FACT":
         allowed = [ROLE_INFERRED_PREMISE, ROLE_COMPARISON]
@@ -182,7 +207,7 @@ def _roles(typed: str, temporal: str, applicability: str) -> tuple[tuple[str, ..
 def _support_strength(typed: str, applicability: str, temporal: str) -> str:
     if applicability == NOT_APPLICABLE:
         return SUPPORT_NONE
-    if typed == "OBSERVED_FACT" and temporal in {TEMP_CURRENT, TEMP_AGING}:
+    if typed == "OBSERVED_FACT" and temporal in {TEMP_CURRENT, TEMP_AGING, TEMP_DATED}:
         return SUPPORT_DIRECT
     if typed in {"INFERENCE", "DERIVED_FACT", "PROCEDURE", "EXPERIMENT"}:
         return SUPPORT_INDIRECT
@@ -303,3 +328,12 @@ def bind_context(
 
 def with_role(bindings: list[EvidenceBinding], role: str) -> list[EvidenceBinding]:
     return [b for b in bindings if b.may(role)]
+
+
+def bound_memory_ids(bindings: list[EvidenceBinding]) -> set[str]:
+    return {b.memory_id for b in bindings}
+
+
+def cited_unbound_ids(cited: list[str], bindings: list[EvidenceBinding]) -> list[str]:
+    allowed = bound_memory_ids(bindings)
+    return [i for i in cited if i and i not in allowed]

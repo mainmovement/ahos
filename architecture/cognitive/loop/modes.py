@@ -10,6 +10,7 @@ from architecture.cognitive.loop.binding import (
     ROLE_FACTUAL_PREMISE,
     ROLE_HISTORY,
     EvidenceBinding,
+    addresses_task,
     with_role,
 )
 from architecture.cognitive.loop.contracts import (
@@ -25,6 +26,10 @@ from architecture.cognitive.loop.retrieval import tokens
 
 def _overlap(statement: str, task: CognitiveTask) -> set[str]:
     return tokens(statement) & (tokens(task.question) | tokens(task.objective))
+
+
+def _relevant(bindings: list[EvidenceBinding], task: CognitiveTask, role: str) -> list[EvidenceBinding]:
+    return [b for b in with_role(bindings, role) if addresses_task(b.statement, task)]
 
 
 def _opposes(statement: str) -> bool:
@@ -74,8 +79,8 @@ def _lesson_failure_flags(
 def reason_deductive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
-    steps = ["DEDUCTIVE: premises must be current OBSERVED_FACT with FACTUAL_PREMISE role"]
-    premises = with_role(bindings, ROLE_FACTUAL_PREMISE)
+    steps = ["DEDUCTIVE: premises must be typed FACTUAL_PREMISE that address the task"]
+    premises = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
     requested = [rid for rid in task.requested_evidence if rid]
     present = {b.memory_id for b in premises}
     missing = [rid for rid in requested if rid not in present]
@@ -92,13 +97,21 @@ def reason_deductive(
             steps=steps,
         )
     if not premises:
-        steps.append("no FACTUAL_PREMISE bindings; lessons/hypotheses/opinions are ineligible")
+        typed_only = with_role(bindings, ROLE_FACTUAL_PREMISE)
+        if typed_only:
+            steps.append("typed premises exist but none address the task (valid type ≠ relevant content)")
+            missing = ["TASK_RELEVANT_PREMISE"]
+            conclusion = "Deduction refused: no task-relevant factual premises."
+        else:
+            steps.append("no FACTUAL_PREMISE bindings; lessons/hypotheses/opinions are ineligible")
+            missing = ["FACTUAL_PREMISE"]
+            conclusion = "Deduction refused: no typed factual premises."
         return CandidateInference(
             verdict=CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
             epistemic=EpistemicAnswer.INSUFFICIENT_EVIDENCE.value,
-            conclusion="Deduction refused: no typed factual premises.",
+            conclusion=conclusion,
             conclusion_class="INFERENCE",
-            missing_premises=["FACTUAL_PREMISE"],
+            missing_premises=missing,
             assumptions=[_base_assumption()],
             steps=steps,
         )
@@ -157,8 +170,10 @@ def reason_inductive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
     steps = ["INDUCTIVE: examples → pattern → INFERENCE (never OBSERVED_FACT)"]
-    examples = with_role(bindings, ROLE_FACTUAL_PREMISE) + [
-        b for b in with_role(bindings, ROLE_HISTORY) if b.typed_class == "FAILURE"
+    examples = _relevant(bindings, task, ROLE_FACTUAL_PREMISE) + [
+        b
+        for b in with_role(bindings, ROLE_HISTORY)
+        if b.typed_class == "FAILURE" and addresses_task(b.statement, task)
     ]
     # Deduplicate
     seen: set[str] = set()
@@ -216,7 +231,7 @@ def reason_abductive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
     steps = ["ABDUCTIVE: observations + candidates → best explanation, not truth"]
-    observations = with_role(bindings, ROLE_FACTUAL_PREMISE)
+    observations = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
     candidates = with_role(bindings, ROLE_EXPLANATION)
     if any(b.contradiction_state == "CONTESTED" for b in observations):
         steps.append("contradictory observations; explanations unresolved")
@@ -299,7 +314,7 @@ def reason_comparative(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
     steps = ["COMPARATIVE: aligned dimensions; missing is missing, not zero"]
-    facts = with_role(bindings, ROLE_FACTUAL_PREMISE)
+    facts = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
     others = [b for b in bindings if b.typed_class != "OBSERVED_FACT"]
     contested = [b for b in bindings if b.contradiction_state == "CONTESTED"]
     dimensions = {
@@ -367,18 +382,17 @@ def reason_comparative(
 def reason_temporal(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
-    steps = ["TEMPORAL: stale ≠ false; stale ≠ current"]
-    current = [
-        b
-        for b in with_role(bindings, ROLE_FACTUAL_PREMISE)
-        if b.temporal_state in {"CURRENT", "AGING"}
-    ]
+    steps = ["TEMPORAL: stale ≠ false; dated ≠ proven current"]
+    usable = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    aging = [b for b in usable if b.temporal_state in {"CURRENT", "AGING"}]
+    dated = [b for b in usable if b.temporal_state == "DATED"]
     stale = [b for b in bindings if b.temporal_state in {"STALE", "SUPERSEDED", "HISTORICAL"}]
     unknown_age = [b for b in bindings if b.temporal_state == "UNKNOWN_AGE"]
     steps.append(
-        f"current={len(current)} stale_or_historical={len(stale)} unknown_age={len(unknown_age)}"
+        f"aging_or_current={len(aging)} dated={len(dated)} "
+        f"stale_or_historical={len(stale)} unknown_age={len(unknown_age)}"
     )
-    if unknown_age and not current and not stale:
+    if unknown_age and not aging and not dated and not stale:
         steps.append("only unknown-age evidence")
         return CandidateInference(
             verdict=CognitiveVerdict.UNRESOLVED.value,
@@ -390,7 +404,7 @@ def reason_temporal(
             steps=steps,
             missing_premises=["observed_at"],
         )
-    if stale and not current:
+    if stale and not aging and not dated:
         steps.append("historical evidence retained; not used as current")
         return CandidateInference(
             verdict=CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
@@ -403,17 +417,27 @@ def reason_temporal(
             assumptions=[_base_assumption()],
             steps=steps,
         )
-    if not current:
-        return _empty(task, "Temporal reading has no dated current facts.")
+    if not aging and not dated:
+        return _empty(task, "Temporal reading has no dated task-relevant facts.")
     lesson_on, fail_on, _, _ = _lesson_failure_flags(bindings)
+    if aging:
+        scope = "AGING" if not any(b.temporal_state == "CURRENT" for b in aging) else "CURRENT"
+        conclusion = "Temporal reading uses decay-aging or current observations; stale retained as history."
+        premises = aging
+    else:
+        scope = "DATED"
+        conclusion = (
+            "Temporal reading uses dated observations; a timestamp does not prove freshness."
+        )
+        premises = dated
     return CandidateInference(
         verdict=CognitiveVerdict.WEAKLY_SUPPORTED.value,
         epistemic=EpistemicAnswer.PROBABLE.value,
-        conclusion="Temporal reading uses current observations; stale retained as history.",
+        conclusion=conclusion,
         conclusion_class="INFERENCE",
-        premises=[b.memory_id for b in current],
-        supporting_ids=[b.memory_id for b in current],
-        temporal_scope="CURRENT",
+        premises=[b.memory_id for b in premises],
+        supporting_ids=[b.memory_id for b in premises],
+        temporal_scope=scope,
         assumptions=[_base_assumption()],
         steps=steps,
         lesson_applied=lesson_on,
@@ -427,7 +451,7 @@ def reason_adversarial(
     steps = [
         "ADVERSARIAL: search contradictions, type misuse, stale-as-current, lookalikes, weak premises"
     ]
-    facts = with_role(bindings, ROLE_FACTUAL_PREMISE)
+    facts = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
     contested = [b for b in bindings if b.contradiction_state == "CONTESTED"]
     opinions = [b for b in bindings if b.typed_class == "OPINION"]
     hyps = [b for b in bindings if b.typed_class == "HYPOTHESIS"]
@@ -537,11 +561,13 @@ def reason_metacognitive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
     facts = with_role(bindings, ROLE_FACTUAL_PREMISE)
+    relevant = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
     inferred = [b for b in bindings if b.typed_class in {"INFERENCE", "DERIVED_FACT"}]
     unknown_n = [b for b in bindings if b.typed_class == "UNKNOWN"]
     steps = [
         "METACOGNITIVE: inventory known / inferred / unknown; not self-awareness",
-        f"known_facts={len(facts)} inferred={len(inferred)} typed_unknown={len(unknown_n)}",
+        f"known_facts={len(facts)} task_relevant={len(relevant)} "
+        f"inferred={len(inferred)} typed_unknown={len(unknown_n)}",
         "capability limitation: no causal or counterfactual engine",
     ]
     lesson_on, fail_on, _, _ = _lesson_failure_flags(bindings)
@@ -560,16 +586,34 @@ def reason_metacognitive(
             lesson_applied=lesson_on,
             failure_applied=fail_on,
         )
+    if not relevant:
+        steps.append("inventory includes observations that do not address the task")
+        return CandidateInference(
+            verdict=CognitiveVerdict.WEAKLY_SUPPORTED.value,
+            epistemic=EpistemicAnswer.UNCERTAIN.value,
+            conclusion=(
+                f"Known observations: {len(facts)} (0 address the task). "
+                "Inventory is not an answer. Capability limitation: no world model."
+            ),
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in facts],
+            supporting_ids=[b.memory_id for b in facts],
+            assumptions=[_base_assumption()],
+            steps=steps,
+            lesson_applied=lesson_on,
+            failure_applied=fail_on,
+        )
     return CandidateInference(
         verdict=CognitiveVerdict.WEAKLY_SUPPORTED.value,
         epistemic=EpistemicAnswer.UNCERTAIN.value,
         conclusion=(
-            f"Known observations: {len(facts)}. Inferred: {len(inferred)}. "
-            "Verdict remains uncertain; no claim of self-awareness."
+            f"Known observations: {len(facts)} ({len(relevant)} address the task). "
+            "Verdict remains uncertain; no claim of self-awareness. "
+            "Capability limitation: no world model."
         ),
         conclusion_class="INFERENCE",
-        premises=[b.memory_id for b in facts],
-        supporting_ids=[b.memory_id for b in facts],
+        premises=[b.memory_id for b in relevant],
+        supporting_ids=[b.memory_id for b in relevant],
         assumptions=[_base_assumption()],
         steps=steps,
         lesson_applied=lesson_on,

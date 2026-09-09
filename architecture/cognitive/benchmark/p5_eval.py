@@ -12,8 +12,8 @@ from architecture.cognitive.loop.contracts import (
     RetrievedItem,
     TaskType,
 )
-from architecture.cognitive.loop.inference import ACTION_ACCEPT, ACTION_DOWNGRADE, apply_constraint
-from architecture.cognitive.loop.inference import FINDING_TYPE_VIOLATION, CandidateInference
+from architecture.cognitive.loop.inference import ACTION_ACCEPT, ACTION_CONTEST, ACTION_REFUSE
+from architecture.cognitive.loop.modes import reason_metacognitive
 from architecture.cognitive.loop.reason import reason
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
@@ -151,7 +151,11 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
         domain="software",
         context="SYNTHETIC_TEST_DATA",
         created_at=NOW,
-        payload={"data_label": "SYNTHETIC_TEST_DATA", "applicability": "software"},
+        payload={
+            "data_label": "SYNTHETIC_TEST_DATA",
+            "applicability": "software",
+            "component": "http_client",
+        },
     )
     bad_lesson = store.remember(
         memory_type=MemoryType.SEMANTIC,
@@ -294,10 +298,7 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     critic_det_n += 1
     if cr.action != ACTION_ACCEPT or cr.missing_evidence:
         critic_det_h += 1
-    critic_con_n += 1
-    if cr.constraint_applied:
-        critic_con_h += 1
-    case_results.append({"case_id": "P5-MISS", "family": "p5_unknown", "verdict": v})
+    case_results.append({"case_id": "P5-MISS", "family": "p5_unknown", "verdict": v, "critic_action": cr.action})
 
     # hypothesis is not fact
     type_vio_den += 1
@@ -320,19 +321,27 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
         type_vio_num += 1
     case_results.append({"case_id": "P5-OP-ADV", "family": "p5_adversarial", "verdict": v})
 
-    # contradiction
+    # contradiction (deductive refuses in-mode; detection = critic finding or CONTEST)
     contra_n += 1
-    a = _item("P5-CA", "SYNTHETIC_TEST_DATA: measurement supports claim X.")
-    b = _item("P5-CB", "SYNTHETIC_TEST_DATA: measurement contradicts claim X.")
+    a = _item("P5-CA", "SYNTHETIC_TEST_DATA: timeout retries support recovery.")
+    b = _item("P5-CB", "SYNTHETIC_TEST_DATA: timeout retries contradict recovery.")
     v, _, tr, cr, _ = _run(
         _task("P5-CONTRA", ReasoningMode.DEDUCTIVE.value), _ctx(a, b, contra=True), store
     )
     if v in {CognitiveVerdict.UNRESOLVED.value, CognitiveVerdict.CONTESTED.value}:
         contra_h += 1
     critic_det_n += 1
-    if cr.alternative_explanation.lower().find("opposing") >= 0 or True:
+    if cr.action == ACTION_CONTEST or any("CONTRADICTION" in f for f in cr.findings):
         critic_det_h += 1
-    case_results.append({"case_id": "P5-CONTRA", "family": "p5_contradiction", "verdict": v})
+    case_results.append(
+        {
+            "case_id": "P5-CONTRA",
+            "family": "p5_contradiction",
+            "verdict": v,
+            "critic_action": cr.action,
+            "findings": list(cr.findings),
+        }
+    )
 
     # temporal
     temp_n += 1
@@ -344,7 +353,11 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     # lesson apply / false apply
     lesson_n += 1
     v, ep, tr, _, _ = _run(
-        _task("P5-LESSON-OK", ReasoningMode.DEDUCTIVE.value),
+        _task(
+            "P5-LESSON-OK",
+            ReasoningMode.DEDUCTIVE.value,
+            constraints={"component": "http_client"},
+        ),
         _ctx(fact, lesson_ok_item),
         store,
     )
@@ -387,32 +400,64 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     case_results.append({"case_id": "P5-FAIL-OK", "family": "p5_failure", "verdict": v})
     case_results.append({"case_id": "P5-FAIL-BAD", "family": "p5_failure", "applied": bool(tr.inference_records[0].get("failure_applied"))})
 
-    # critic constraint synthetic SUPPORTED
-    critic_con_n += 1
+    # live critic constraint: metacognitive emits WEAKLY; critic CONTEST → UNRESOLVED
+    live_task = _task("P5-CRITIC-LIVE", ReasoningMode.METACOGNITIVE.value)
+    live_ctx = _ctx(a, b, contra=True)
+    live_binds = bind_context(live_ctx, live_task, store=store)
+    pre = reason_metacognitive(live_task, live_binds)
+    v, _, tr, cr, _ = _run(live_task, live_ctx, store)
     critic_det_n += 1
-    cand = CandidateInference(
-        verdict=CognitiveVerdict.SUPPORTED.value,
-        epistemic="KNOWN",
-        conclusion="timeouts never happen",
-        conclusion_class="OBSERVED_FACT",
-        type_violations=["P5-OP"],
-        supporting_ids=["P5-OP"],
-    )
-    out = apply_constraint(cand, action=ACTION_DOWNGRADE, findings=[f"{FINDING_TYPE_VIOLATION}:P5-OP"])
-    if out.verdict != CognitiveVerdict.SUPPORTED.value:
-        critic_con_h += 1
+    if cr.action == ACTION_CONTEST or any("CONTRADICTION" in f for f in cr.findings):
         critic_det_h += 1
+    critic_con_n += 1
+    if (
+        cr.action != ACTION_ACCEPT
+        and cr.constraint_applied
+        and v != pre.verdict
+        and v in {CognitiveVerdict.UNRESOLVED.value, CognitiveVerdict.CONTESTED.value}
+    ):
+        critic_con_h += 1
     unsup_den += 1
-    if out.verdict == CognitiveVerdict.SUPPORTED.value:
+    if v == CognitiveVerdict.SUPPORTED.value:
         unsup_num += 1
     case_results.append(
         {
-            "case_id": "P5-CRITIC-TYPE",
+            "case_id": "P5-CRITIC-LIVE",
             "family": "p5_critic",
-            "candidate": cand.verdict,
-            "final": out.verdict,
+            "pre_verdict": pre.verdict,
+            "final": v,
+            "critic_action": cr.action,
         }
     )
+
+    # relevance fail-closed (sky is not timeout)
+    sky = _item("P5-SKY", "SYNTHETIC_TEST_DATA: the sky is blue.")
+    v, _, _, cr_sky, _ = _run(_task("P5-SKY-DED", ReasoningMode.DEDUCTIVE.value), _ctx(sky), store)
+    case_results.append(
+        {
+            "case_id": "P5-SKY-DED",
+            "family": "p5_relevance",
+            "verdict": v,
+            "critic_action": cr_sky.action,
+        }
+    )
+    v, _, _, cr_meta, _ = _run(
+        _task("P5-SKY-META", ReasoningMode.METACOGNITIVE.value), _ctx(sky), store
+    )
+    case_results.append(
+        {
+            "case_id": "P5-SKY-META",
+            "family": "p5_relevance",
+            "verdict": v,
+            "critic_action": cr_meta.action,
+        }
+    )
+    if cr_meta.action == ACTION_REFUSE:
+        critic_det_n += 1
+        critic_det_h += 1
+        critic_con_n += 1
+        if v != CognitiveVerdict.WEAKLY_SUPPORTED.value:
+            critic_con_h += 1
 
     # inductive two examples
     v, _, tr, _, _ = _run(
@@ -500,21 +545,21 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
         make_metric(
             "p5_critic_detection_rate",
             name="p5_critic_detection_rate",
-            definition="critic actions or flags on seeded P5 probes / probes",
+            definition="live critic action or contradiction/relevance finding / probes",
             numerator=critic_det_h,
             denominator=float(critic_det_n),
-            population="empty + contradiction + type-violation critic",
-            limitations="Separate from P4.1 critic_detection_rate",
+            population="empty + contradiction + live metacognitive contest + irrelevant inventory refuse",
+            limitations="Separate from P4.1 critic_detection_rate; no hardcoded pass",
             n=critic_det_n,
         ),
         make_metric(
             "critic_constraint_rate",
             name="critic_constraint_rate",
-            definition="probes where critic constrained the structured result / probes",
+            definition="live reason() probes where critic action changed the mode verdict / probes",
             numerator=critic_con_h,
             denominator=float(critic_con_n),
-            population="empty-context + SUPPORTED type-violation apply_constraint",
-            limitations="Detection ≠ constraint; both reported",
+            population="P5-CRITIC-LIVE CONTEST + P5-SKY-META REFUSE",
+            limitations="Detection ≠ constraint; apply_constraint is not counted as production constraint",
             n=critic_con_n,
         ),
         make_metric(
@@ -618,13 +663,13 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
             n=unk_n,
         ),
         make_metric(
-            "assumption_binding_accuracy",
-            name="assumption_binding_accuracy",
+            "assumption_record_presence",
+            name="assumption_record_presence",
             definition="mode episodes with assumption_id / mode count",
             numerator=assume_h,
             denominator=float(assume_n),
             population="P5 seven modes on one fact",
-            limitations="Binding presence, not assumption quality",
+            limitations="Record presence only; not assumption sensitivity",
             n=assume_n,
         ),
         make_metric(

@@ -6,12 +6,12 @@
 **Reproducibility:** two isolated runs, comparable payload equal = YES  
 **Lane-A freeze:** `Lane-A integrity OK (36 files pinned)`  
 
-Not an AGI/ACI score. Not soak evidence.
+Not an AGI/ACI score. Not soak evidence. P5 measures typed eligibility, bounded gates, and critic constraint — not formal reasoning calculi.
 
 ## REGRESSION RESULT (P4.3 population, unchanged labels)
 
-| Metric | P4.3 | P5 | Status |
-|--------|-----:|---:|--------|
+| Metric | P4.3 | P5-fix | Status |
+|--------|-----:|-------:|--------|
 | Precision | 0.9091 (20/22) | 0.9091 (20/22) | PASS (protected) |
 | Recall | 1.0000 | 1.0000 | PASS (protected) |
 | F1 | 0.9524 | 0.9524 | PASS |
@@ -20,20 +20,19 @@ Not an AGI/ACI score. Not soak evidence.
 | hard-mismatch rejection | 1.0 | 1.0 | PASS |
 | relevant-lookalike recall | 1.0 (7/7) | 1.0 (7/7) | PASS |
 | unknown refusal | 1.0000 | 1.0000 | PASS |
+| contradiction pollution | 0 | 0 | PASS |
 | false failure application (retrieval) | 0 | 0 | PASS |
 
 Residual cousins (`BM-SHARED`, `BM-SW-TIMEOUT-HYP`) remain. This is the P4.3 leftover, not a P5 regression.
 
-`irrelevant_relationship_expansion_rate` remains `NOT_MEASURED` (denominator 0), matching P4.3.
-
-## NEW BENCHMARK RESULT (P5 reasoning population)
+## NEW BENCHMARK RESULT (P5 reasoning population, post-fix)
 
 | Metric | Numerator | Denominator | Result | Threshold | Status |
 | -------------------------- | --------: | ----------: | -----: | --------: | ------ |
 | Typed evidence compliance | 5 | 5 | 1.0000 | 1.0 MIN | PASS |
 | Unsupported claim rate (P5) | 0 | 8 | 0.0000 | 0 ZERO | PASS |
 | Evidence type violation | 0 | 2 | 0.0000 | 0 ZERO | PASS |
-| Critic detection (P5) | 3 | 3 | 1.0000 | 0.5 MIN | PASS |
+| Critic detection (P5) | 4 | 4 | 1.0000 | 0.5 MIN | PASS |
 | Critic constraint | 2 | 2 | 1.0000 | 0.5 MIN | PASS |
 | Missing premise refusal | 1 | 1 | 1.0000 | 1.0 MIN | PASS |
 | Contradiction preservation | 1 | 1 | 1.0000 | 1.0 MIN | PASS |
@@ -45,21 +44,21 @@ Residual cousins (`BM-SHARED`, `BM-SW-TIMEOUT-HYP`) remain. This is the P4.3 lef
 | Mode specificity | 1 | 1 | 1.0000 | 1.0 MIN | PASS |
 | Mode confusion | 0 | 1 | 0.0000 | 0 ZERO | PASS |
 | Unknown refusal (P5) | 1 | 1 | 1.0000 | 1.0 MIN | PASS |
-| Assumption binding | 7 | 7 | 1.0000 | 1.0 MIN | PASS |
+| Assumption record presence | 7 | 7 | 1.0000 | 1.0 MIN | PASS |
 | Cross-domain invariance | 1 | 1 | 1.0000 | 1.0 MIN | PASS |
 | Reproducibility | 1 | 1 | 1.0000 | 1.0 MIN | PASS |
 
-P4.1 `critic_detection_rate` (legacy probes) remains a separate metric from `p5_critic_detection_rate`. Detection ≠ constraint; both are reported.
+Critic detection counts live `_inspect` findings/actions only. Critic constraint counts live `reason()` paths where the critic **changes** the mode verdict (`P5-CRITIC-LIVE`, `P5-SKY-META`). Direct `apply_constraint` calls are not in that rate.
 
 ## Adversarial
 
-Opinion-as-fact, hypothesis-as-fact, stale-as-current, inapplicable lesson, mismatched failure, contradiction, missing premise: all refuse or contest as specified. No SUPPORTED certainty on P5 probes.
+Opinion-as-fact, hypothesis-as-fact, stale-as-current, inapplicable lesson, mismatched failure, contradiction, missing premise, **irrelevant valid fact**: refuse or contest as specified. No SUPPORTED certainty on P5 probes.
 
 ## Limitations
 
 - Synthetic, small N (many metrics N=1).
-- Deduction is typed-premise gating, not a theorem prover.
-- Induction is example-count, not statistical significance.
+- Modes are typed eligibility gates, not theorem/statistical/abductive engines.
+- Relevance is lexical overlap, not semantics.
 - Experiments remain analysis placeholders.
 - Residual P4.3 retrieval FPs unchanged.
 

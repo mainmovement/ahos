@@ -27,13 +27,16 @@ from architecture.cognitive.loop.contracts import (  # noqa: E402
     TaskType,
 )
 from architecture.cognitive.loop.inference import (  # noqa: E402
+    ACTION_CONTEST,
     ACTION_DOWNGRADE,
+    ACTION_REFUSE,
     ACTION_REQUIRE_MORE,
     FINDING_MISSING_PREMISE,
     FINDING_TYPE_VIOLATION,
     CandidateInference,
     apply_constraint,
 )
+from architecture.cognitive.loop.modes import reason_metacognitive  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
@@ -347,7 +350,11 @@ def test_lesson_application_and_false_application(tmp_path: Path) -> None:
         domain="software",
         context="SYNTHETIC_TEST_DATA",
         created_at=NOW - 30,
-        payload={"data_label": "SYNTHETIC_TEST_DATA", "applicability": "software"},
+        payload={
+            "data_label": "SYNTHETIC_TEST_DATA",
+            "applicability": "software",
+            "component": "http_client",
+        },
     )
     bad_lesson = mem.remember(
         memory_type=MemoryType.SEMANTIC,
@@ -379,7 +386,10 @@ def test_lesson_application_and_false_application(tmp_path: Path) -> None:
         store=mem,
     )
     v2, ep2, t2, _, _ = _reason(
-        _task(reasoning_mode=ReasoningMode.DEDUCTIVE.value),
+        _task(
+            reasoning_mode=ReasoningMode.DEDUCTIVE.value,
+            constraints={"component": "http_client"},
+        ),
         _ctx(fact_item, ok_item),
         store=mem,
     )
@@ -464,8 +474,8 @@ def test_failure_application_bounded(tmp_path: Path) -> None:
 
 
 def test_contradiction_preserved() -> None:
-    a = _item("A", "SYNTHETIC_TEST_DATA: measurement supports claim X.")
-    b = _item("B", "SYNTHETIC_TEST_DATA: measurement contradicts claim X.")
+    a = _item("A", "SYNTHETIC_TEST_DATA: timeout retries support recovery.")
+    b = _item("B", "SYNTHETIC_TEST_DATA: timeout retries contradict recovery.")
     ctx = CognitiveContext(
         facts=(a, b),
         inferences=(),
@@ -518,6 +528,7 @@ def test_closed_loop_second_episode_changes_reasoning(tmp_path: Path) -> None:
         reasoning_mode=ReasoningMode.DEDUCTIVE.value,
         write_back=True,
         task_type=TaskType.ANALYZE.value,
+        constraints={"component": "http_client"},
     )
     r1 = orch.run(t1, now=NOW)
     assert r1.lesson_memory_id
@@ -536,13 +547,18 @@ def test_closed_loop_second_episode_changes_reasoning(tmp_path: Path) -> None:
         domain="software",
         context="SYNTHETIC_TEST_DATA",
         created_at=NOW + 1,
-        payload={"data_label": "SYNTHETIC_TEST_DATA", "applicability": "software"},
+        payload={
+            "data_label": "SYNTHETIC_TEST_DATA",
+            "applicability": "software",
+            "component": "http_client",
+        },
     )
     t2 = _task(
         task_id="ep2",
         reasoning_mode=ReasoningMode.DEDUCTIVE.value,
         write_back=False,
         task_type=TaskType.ANALYZE.value,
+        constraints={"component": "http_client"},
     )
     r2 = orch.run(t2, now=NOW + 5)
     assert r2.lesson_applied is True
@@ -578,4 +594,291 @@ def test_cross_domain_core_does_not_require_crypto_fields() -> None:
             _ctx(fact),
         )
         assert v == CognitiveVerdict.WEAKLY_SUPPORTED.value
-        assert "pair" not in trace.conclusion.lower() or True
+        blob = trace.conclusion.lower()
+        assert "pair" not in blob
+        assert "liquidity" not in blob
+        assert "dex" not in blob
+
+
+def test_irrelevant_fact_is_not_weakly_supported() -> None:
+    sky = _item("SKY", "SYNTHETIC_TEST_DATA: the sky is blue.")
+    v, ep, trace, crit, _ = _reason(
+        _task(reasoning_mode=ReasoningMode.DEDUCTIVE.value), _ctx(sky)
+    )
+    assert v == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert v != CognitiveVerdict.WEAKLY_SUPPORTED.value
+    assert "TASK_RELEVANT_PREMISE" in trace.inference_records[0]["missing_premises"]
+
+
+def test_live_critic_constrains_metacognitive_contradiction() -> None:
+    a = _item("A", "SYNTHETIC_TEST_DATA: timeout retries support recovery.")
+    b = _item("B", "SYNTHETIC_TEST_DATA: timeout retries contradict recovery.")
+    ctx = CognitiveContext(
+        facts=(a, b),
+        inferences=(),
+        hypotheses=(),
+        predictions=(),
+        experiments=(),
+        outcomes=(),
+        contradictions=(
+            {"edge_id": "e1", "from_id": "A", "to_id": "B", "relation": "CONTRADICTS"},
+        ),
+        failures=(),
+        procedures=(),
+        lessons=(),
+        unknowns=(),
+        excluded=(),
+        contradiction_present=True,
+        context_incomplete=False,
+        token_estimate=2,
+    )
+    task = _task(reasoning_mode=ReasoningMode.METACOGNITIVE.value)
+    pre = reason_metacognitive(task, bind_context(ctx, task))
+    assert pre.verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value
+    v, _, trace, crit, _ = _reason(task, ctx)
+    assert any("CONTRADICTION" in f for f in crit.findings)
+    assert crit.action == ACTION_CONTEST
+    assert crit.constraint_applied is True
+    assert v != pre.verdict
+    assert v in {CognitiveVerdict.UNRESOLVED.value, CognitiveVerdict.CONTESTED.value}
+    assert trace.constraint_actions[0] == ACTION_CONTEST
+
+
+def test_live_critic_refuses_irrelevant_inventory() -> None:
+    sky = _item("SKY", "SYNTHETIC_TEST_DATA: the sky is blue.")
+    task = _task(reasoning_mode=ReasoningMode.METACOGNITIVE.value)
+    ctx = _ctx(sky)
+    pre = reason_metacognitive(task, bind_context(ctx, task))
+    assert pre.verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value
+    v, _, trace, crit, _ = _reason(task, ctx)
+    assert crit.action == ACTION_REFUSE
+    assert crit.constraint_applied is True
+    assert v != pre.verdict
+    assert v == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+
+
+def test_domain_only_lesson_does_not_apply(tmp_path: Path) -> None:
+    mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
+    fact = mem.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
+        source_type=SourceType.SYSTEM,
+        source_id="f1",
+        source_location="tests/test_typed_reasoning.py",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=NOW - 50,
+        created_at=NOW - 40,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
+    )
+    lesson = mem.remember(
+        memory_type=MemoryType.SEMANTIC,
+        epistemic_kind=EpistemicKind.LESSON,
+        statement="SYNTHETIC_TEST_DATA LESSON: logging format is not a timeout policy",
+        source_type=SourceType.SYSTEM,
+        source_id="l-dom",
+        source_location="tests/test_typed_reasoning.py",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        created_at=NOW - 30,
+        payload={"data_label": "SYNTHETIC_TEST_DATA", "applicability": "software"},
+    )
+    v, ep, t, _, _ = _reason(
+        _task(reasoning_mode=ReasoningMode.DEDUCTIVE.value),
+        _ctx(
+            _item(fact.memory_id, fact.statement),
+            _item(lesson.memory_id, lesson.statement, kind=EpistemicKind.LESSON.value),
+        ),
+        store=mem,
+    )
+    assert t.inference_records[0]["lesson_applied"] is False
+    assert ep == "PROBABLE"
+    assert v == CognitiveVerdict.WEAKLY_SUPPORTED.value
+
+
+def test_failure_same_component_different_type_not_applied(tmp_path: Path) -> None:
+    mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
+    fact = mem.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
+        source_type=SourceType.SYSTEM,
+        source_id="f1",
+        source_location="tests/test_typed_reasoning.py",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=NOW - 50,
+        created_at=NOW - 40,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
+    )
+    fail = mem.record_failure(
+        failure_type="disk_full",
+        component="http_client",
+        attempted_action="write cache",
+        observed_failure="SYNTHETIC_TEST_DATA: http_client disk full",
+        now=NOW - 10,
+        producer="pytest",
+    )
+    task = _task(
+        reasoning_mode=ReasoningMode.DEDUCTIVE.value,
+        constraints={"component": "http_client", "failure_type": "timeout_retry"},
+    )
+    v, _, t, _, _ = _reason(
+        task,
+        _ctx(
+            _item(fact.memory_id, fact.statement),
+            _item(
+                fail.memory_id,
+                fail.statement,
+                kind=EpistemicKind.OBSERVED_FACT.value,
+                mtype=MemoryType.FAILURE.value,
+            ),
+        ),
+        store=mem,
+    )
+    assert t.inference_records[0]["failure_applied"] is False
+    assert v == CognitiveVerdict.WEAKLY_SUPPORTED.value
+
+
+def test_unresolved_episode_does_not_mint_lesson(tmp_path: Path) -> None:
+    mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
+    hyp = HypothesisStore(tmp_path / "hyp.jsonl")
+    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
+    a = mem.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: timeout retries support recovery.",
+        source_type=SourceType.SYSTEM,
+        source_id="a",
+        source_location="tests/test_typed_reasoning.py",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=NOW - 50,
+        created_at=NOW - 40,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
+    )
+    b = mem.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: timeout retries contradict recovery.",
+        source_type=SourceType.SYSTEM,
+        source_id="b",
+        source_location="tests/test_typed_reasoning.py",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=NOW - 49,
+        created_at=NOW - 39,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
+    )
+    mem.contradict(a.memory_id, b.memory_id, reason="seeded", now=NOW - 1)
+    r = orch.run(
+        _task(
+            task_id="unresolved-ep",
+            reasoning_mode=ReasoningMode.DEDUCTIVE.value,
+            write_back=True,
+        ),
+        now=NOW,
+    )
+    assert r.verdict in {
+        CognitiveVerdict.UNRESOLVED.value,
+        CognitiveVerdict.CONTESTED.value,
+    }
+    assert r.lesson_memory_id == ""
+    assert r.episode_memory_id
+
+
+def test_dated_active_is_not_labeled_current() -> None:
+    fact = _item("D1", "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.")
+    v, _, trace, _, _ = _reason(_task(reasoning_mode=ReasoningMode.TEMPORAL.value), _ctx(fact))
+    assert v == CognitiveVerdict.WEAKLY_SUPPORTED.value
+    rec = trace.inference_records[0]
+    assert rec["temporal_scope"] == "DATED"
+    assert "does not prove freshness" in trace.conclusion.lower()
+
+
+def test_seven_modes_governed_behavior_not_aliases() -> None:
+    fact = _item("M1", "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.")
+    fact2 = _item("M2", "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered node two.")
+    hyp = _item(
+        "H1",
+        "SYNTHETIC_TEST_DATA: timeout caused by pool exhaustion",
+        kind=EpistemicKind.HYPOTHESIS.value,
+        mtype=MemoryType.HYPOTHESIS.value,
+    )
+    hyp2 = _item(
+        "H2",
+        "SYNTHETIC_TEST_DATA: timeout caused by dns failure",
+        kind=EpistemicKind.HYPOTHESIS.value,
+        mtype=MemoryType.HYPOTHESIS.value,
+    )
+    opinion = _item(
+        "OP",
+        "SYNTHETIC_TEST_DATA timeouts never happen in production",
+        kind=EpistemicKind.OPINION.value,
+    )
+    stale = _item(
+        "OLD",
+        "SYNTHETIC_TEST_DATA service X timeout retries were on revision 1",
+        status="STALE",
+        observed_at=NOW - 10_000,
+    )
+    one = _ctx(fact)
+    ded = _reason(_task(reasoning_mode=ReasoningMode.DEDUCTIVE.value), one)
+    ind = _reason(_task(reasoning_mode=ReasoningMode.INDUCTIVE.value), one)
+    abd = _reason(_task(reasoning_mode=ReasoningMode.ABDUCTIVE.value), _ctx(fact, hyp, hyp2))
+    comp = _reason(
+        _task(reasoning_mode=ReasoningMode.COMPARATIVE.value),
+        CognitiveContext(
+            facts=(fact, fact2),
+            inferences=(),
+            hypotheses=(),
+            predictions=(),
+            experiments=(),
+            outcomes=(),
+            contradictions=(
+                {"edge_id": "e2", "from_id": "M1", "to_id": "M2", "relation": "CONTRADICTS"},
+            ),
+            failures=(),
+            procedures=(),
+            lessons=(),
+            unknowns=(),
+            excluded=(),
+            contradiction_present=True,
+            context_incomplete=False,
+            token_estimate=2,
+        ),
+    )
+    temp = _reason(_task(reasoning_mode=ReasoningMode.TEMPORAL.value), _ctx(stale))
+    adv = _reason(_task(reasoning_mode=ReasoningMode.ADVERSARIAL.value), _ctx(opinion))
+    meta = _reason(_task(reasoning_mode=ReasoningMode.METACOGNITIVE.value), one)
+    assert ded[0] == CognitiveVerdict.WEAKLY_SUPPORTED.value
+    assert ind[0] == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert abd[0] in {
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+        CognitiveVerdict.UNRESOLVED.value,
+    }
+    assert len(abd[2].inference_records[0]["alternatives"]) >= 2
+    assert abd[2].inference_records[0]["conclusion_class"] == "HYPOTHESIS"
+    assert comp[0] in {
+        CognitiveVerdict.UNRESOLVED.value,
+        CognitiveVerdict.CONTESTED.value,
+    }
+    assert "dimensions=" in "".join(comp[2].steps)
+    assert temp[0] == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert temp[1] == "STALE"
+    assert adv[0] == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert "Known observations" in meta[2].conclusion
+    assert "no world model" in meta[2].conclusion.lower()
+    assert len({ded[0], ind[0], temp[0], adv[0], comp[0]}) >= 3
+

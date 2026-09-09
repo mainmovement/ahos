@@ -7,7 +7,15 @@
 ## P5 (typed evidence-bound reasoning)
 
 **Base SHA:** `976516123b0b682e99fcc6e9c6f0efabb91a9495`  
-See `P5_TYPED_EVIDENCE_REASONING_AUDIT.md` and `P5_TYPED_EVIDENCE_REASONING_BENCHMARK.md`. Targeted pytest: 187 passed. Freeze 36/36. Reproducibility equal. P4.3 precision/recall/MATCH_REASON protected. P5 mode-specificity and critic-constraint PASS on the synthetic vector.
+See `P5_FIX_CORRECTION_REPORT.md`, `P5_TYPED_EVIDENCE_REASONING_AUDIT.md`, and `P5_TYPED_EVIDENCE_REASONING_BENCHMARK.md`.
+
+Counts (do not call the envelope "P5 tests"):
+
+- P5-specific: 28 passed (`tests/test_typed_reasoning.py`)
+- P4 retrieval + benchmark + loop + memory + core: 95 passed (123 − 28)
+- evolution / council / panel: 72 passed
+- Total regression envelope: 195 passed
+- Freeze 36/36. Isolated benchmark twice, equal=YES. P4.3 precision/recall/MATCH_REASON protected.
 
 ```text
 python3 -B scripts/freeze_lane_a.py
@@ -20,7 +28,7 @@ python3 -B scripts/freeze_lane_a.py
   tests/test_cognitive_core.py tests/test_self_evolution_engine.py \
   tests/test_multi_mind_council_anti_echo.py tests/test_evolution_validate.py \
   tests/test_cognitive_panel.py
-# result: 187 passed  exit 0
+# result: 195 passed  exit 0
 ```
 
 ## P4.3 (lookalike discrimination)

@@ -1,7 +1,9 @@
-"""Typed evidence-bound reasoning + critic constraint. LLM-free.
+"""Typed evidence eligibility + bounded mode gates + critic constraint. LLM-free.
 
-Modes are distinct transformations over EvidenceBinding lists.
-The critic inspects a candidate inference and may constrain the final result.
+Modes are distinct governed transformations over EvidenceBinding lists.
+They are not formal deduction, statistical induction, or full abduction.
+The critic inspects a candidate and may ACCEPT, DOWNGRADE, CONTEST,
+REQUIRE_MORE_EVIDENCE, or REFUSE the final result.
 """
 
 from __future__ import annotations
@@ -10,7 +12,9 @@ from architecture.cognitive.loop.binding import (
     NOT_APPLICABLE,
     ROLE_FACTUAL_PREMISE,
     EvidenceBinding,
+    addresses_task,
     bind_context,
+    cited_unbound_ids,
 )
 from architecture.cognitive.loop.contracts import (
     Assumption,
@@ -87,19 +91,35 @@ def _inspect(
     assumptions: list[Assumption],
 ) -> tuple[str, list[str]]:
     findings: list[str] = []
+    accepted = candidate.verdict in {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    }
     already_refused = candidate.verdict in {
         CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
         CognitiveVerdict.UNRESOLVED.value,
         CognitiveVerdict.CONTESTED.value,
         CognitiveVerdict.NOT_IMPLEMENTED.value,
     }
+    cited = list(candidate.supporting_ids) + list(candidate.premises)
+    unbound = cited_unbound_ids(cited, bindings)
+    if unbound:
+        findings.append(f"{FINDING_EVIDENCE_MISMATCH}:unbound_citation:{','.join(unbound)}")
+    cited_set = {i for i in cited if i}
+    relevant_cited = any(
+        addresses_task(b.statement, task)
+        and b.may(ROLE_FACTUAL_PREMISE)
+        and b.memory_id in cited_set
+        for b in bindings
+    )
+    if accepted and cited_set and not relevant_cited:
+        findings.append(f"{FINDING_EVIDENCE_MISMATCH}:irrelevant_citation")
     if candidate.missing_premises:
         findings.append(f"{FINDING_MISSING_PREMISE}:{','.join(candidate.missing_premises)}")
     if candidate.type_violations:
         findings.append(f"{FINDING_TYPE_VIOLATION}:{','.join(candidate.type_violations)}")
     if any(b.typed_class in {"OPINION", "PREDICTION", "SIMULATION"} for b in bindings) and (
-        candidate.verdict
-        in {CognitiveVerdict.SUPPORTED.value, CognitiveVerdict.WEAKLY_SUPPORTED.value}
+        accepted
         and not any(b.may(ROLE_FACTUAL_PREMISE) for b in bindings)
         and candidate.conclusion_class not in {"HYPOTHESIS", "INFERENCE"}
     ):
@@ -115,11 +135,10 @@ def _inspect(
     )
     if stale_as_current:
         findings.append(f"{FINDING_TEMPORAL_VIOLATION}:stale_premise")
-    if ctx.contradiction_present and candidate.verdict in {
-        CognitiveVerdict.SUPPORTED.value,
-        CognitiveVerdict.WEAKLY_SUPPORTED.value,
-    }:
-        findings.append(f"{FINDING_CONTRADICTION}:ignored_or_underweighted")
+    if ctx.contradiction_present:
+        findings.append(f"{FINDING_CONTRADICTION}:present")
+        if accepted:
+            findings.append(f"{FINDING_CONTRADICTION}:ignored_or_underweighted")
     inapplicable_lessons = [
         b
         for b in bindings
@@ -163,19 +182,19 @@ def _inspect(
         return ACTION_ACCEPT, findings
     if not bindings:
         return ACTION_REQUIRE_MORE, findings or [f"{FINDING_MISSING_PREMISE}:empty_context"]
+    if accepted and unbound:
+        return ACTION_REFUSE, findings
+    if accepted and not relevant_cited and cited_set:
+        return ACTION_REFUSE, findings
     if already_refused:
         return ACTION_ACCEPT, findings
-    if FINDING_MISSING_PREMISE in codes or FINDING_EVIDENCE_MISMATCH in codes:
+    if FINDING_MISSING_PREMISE in codes:
+        return ACTION_REQUIRE_MORE, findings
+    if FINDING_EVIDENCE_MISMATCH in codes and "unbound_citation" not in " ".join(findings):
         return ACTION_REQUIRE_MORE, findings
     if FINDING_CONTRADICTION in codes:
         return ACTION_CONTEST, findings
     if FINDING_TYPE_VIOLATION in codes:
-        if candidate.verdict == CognitiveVerdict.SUPPORTED.value:
-            return ACTION_DOWNGRADE, findings
-        if candidate.verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value and not any(
-            b.may(ROLE_FACTUAL_PREMISE) for b in bindings
-        ):
-            return ACTION_DOWNGRADE, findings
         return ACTION_DOWNGRADE, findings
     if FINDING_TEMPORAL_VIOLATION in codes or FINDING_SCOPE_MISMATCH in codes:
         return ACTION_DOWNGRADE, findings
@@ -183,11 +202,6 @@ def _inspect(
         return ACTION_DOWNGRADE, findings
     if FINDING_OVERCONFIDENCE in codes or FINDING_UNSUPPORTED_ASSUMPTION in codes:
         return ACTION_DOWNGRADE, findings
-    if not bindings and candidate.verdict not in {
-        CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
-        CognitiveVerdict.NOT_IMPLEMENTED.value,
-    }:
-        return ACTION_REFUSE, [f"{FINDING_MISSING_PREMISE}:empty_context"]
     return ACTION_ACCEPT, findings
 
 
@@ -301,6 +315,20 @@ def reason(
     constrained = apply_constraint(
         candidate, action=critique.action, findings=list(critique.findings)
     )
+    leftover = cited_unbound_ids(
+        list(constrained.supporting_ids) + list(constrained.premises), bindings
+    )
+    if leftover and constrained.verdict in {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    }:
+        extra = [f"{FINDING_EVIDENCE_MISMATCH}:unbound_citation:{','.join(leftover)}"]
+        constrained = apply_constraint(
+            constrained, action=ACTION_REFUSE, findings=extra
+        )
+        critique.action = ACTION_REFUSE
+        critique.findings = tuple(list(critique.findings) + extra)
+        critique.constraint_applied = True
     if ctx.context_incomplete:
         constrained.steps.append("CONTEXT_INCOMPLETE")
         if constrained.verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value:
