@@ -59,6 +59,27 @@ type Provider = {
   itemCount: number | null;
   messageFa: string | null;
 };
+type WebAlertBanner = {
+  active: boolean;
+  reason?: string;
+  ageSec: number | null;
+  lastToken: string | null;
+  payload: {
+    symbol: string | null;
+    chain: string | null;
+    decision: string | null;
+    canonicalSecurityState: string | null;
+  } | null;
+  disclaimerFa: string;
+};
+
+const INACTIVE_ALERT: WebAlertBanner = {
+  active: false,
+  ageSec: null,
+  lastToken: null,
+  payload: null,
+  disclaimerFa: "هشدار فرصت پایش است — سیگنال خرید واقعی نیست. PAPER ONLY.",
+};
 type Snap = {
   generatedAt: string;
   state: {
@@ -231,6 +252,7 @@ export default function CommandCenter() {
   const [sound, setSound] = useState(false);
   const [selected, setSelected] = useState<Opp | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
+  const [alertBanner, setAlertBanner] = useState<WebAlertBanner>(INACTIVE_ALERT);
 
   const chatRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -248,7 +270,22 @@ export default function CommandCenter() {
     const ac = new AbortController();
     loadAbortRef.current = ac;
     try {
-      const res = await webApiFetch("/api/command", { cache: "no-store", signal: ac.signal });
+      const [res, alertRes] = await Promise.all([
+        webApiFetch("/api/command", { cache: "no-store", signal: ac.signal }),
+        webApiFetch("/api/alerts", { cache: "no-store", signal: ac.signal }).catch(() => null),
+      ]);
+      if (alertRes && alertRes.ok) {
+        try {
+          const banner = (await alertRes.json()) as WebAlertBanner;
+          if (!ac.signal.aborted) {
+            setAlertBanner(banner && banner.active === true ? banner : INACTIVE_ALERT);
+          }
+        } catch {
+          if (!ac.signal.aborted) setAlertBanner(INACTIVE_ALERT);
+        }
+      } else if (!ac.signal.aborted) {
+        setAlertBanner(INACTIVE_ALERT);
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as Snap;
       if (ac.signal.aborted) return;
@@ -459,13 +496,25 @@ export default function CommandCenter() {
   const council = useMemo(() => (snap?.council ?? []).slice(0, 6), [snap?.council]);
 
   return (
-    <div className="stage">
+    <div className="stage" style={alertBanner.active ? { paddingTop: "4.75rem" } : undefined}>
       <div className="stage-void" />
       <div className="stage-grid" />
       <div className="stage-vignette" />
       <div className="stage-scan" />
       <div ref={cursorRef} className="cursor-glow" style={{ left: 0, top: 0, willChange: "transform" }} />
 
+      {alertBanner.active && (
+        <div className="monitor-banner">
+          هشدار پایش فرصت — فقط کاغذی
+          <small>
+            {alertBanner.payload?.symbol || "UNKNOWN"}{" "}
+            {alertBanner.payload?.chain ? `| ${alertBanner.payload.chain}` : ""}{" "}
+            | حکم {alertBanner.payload?.decision || "UNKNOWN"} | امنیت{" "}
+            {alertBanner.payload?.canonicalSecurityState || "UNAVAILABLE"} —{" "}
+            {alertBanner.disclaimerFa}
+          </small>
+        </div>
+      )}
       {showAlarm && (
         <div className="alarm-banner">
           هشدار سیستم

@@ -222,6 +222,10 @@ REGRESSIONS: none. validate_imports import probes can rewrite reports/*.json via
 KNOWN_LIMITATIONS:
   - Hooks are defense-in-depth, not a filesystem boundary
   - TypeScript second brain / GoPlus fail-open / Telegram HTML escape unchanged
+    **SUPERSEDED 2026-09-09 (alerts web UI only):** Command Center now fetches
+    `/api/alerts`. Banner is hot only after live canonical BUY + overlay PASS
+    re-check (`alert_banner.ts`). Not a buy signal. This PHASE0 report is
+    otherwise not rewritten.
   - PR #17 must not be merged as written
 NEXT_UNLOCKED_PHASE: Phase 1 Canonical Identity (Lane B overlay; Lane A frozen)
 ```
