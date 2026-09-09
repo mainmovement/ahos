@@ -3,6 +3,7 @@
 **Environment:** Cursor Cloud Linux `/workspace` (not `G:\robat\ahos`).  
 **Interpreter for tests/validate:** `/tmp/ahos-test-venv` (ephemeral; not committed). System `python3` lacks pytest (PEP 668).  
 **Base SHA:** `f273feb5875c24b9fbccdc552445d82175a6597c`  
+**Implementation commit:** `aa0519a`  
 **Soak daemon:** not started. Cloud sqlite: not treated as soak.
 
 ## Commands

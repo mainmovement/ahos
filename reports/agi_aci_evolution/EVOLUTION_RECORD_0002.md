@@ -4,7 +4,7 @@
 Record ID: EVOLUTION_RECORD_0002
 Date: 2026-09-09
 Time UTC: (see git commit)
-Git SHA: (filled after commit)
+Git SHA: aa0519a (parent f273feb5875c24b9fbccdc552445d82175a6597c)
 Branch: cursor/agi-aci-evolution-v1-9500
 Objective: Highest-value safe Cognitive Core contracts without affecting soak
 Trigger: Directive §61 after audit
