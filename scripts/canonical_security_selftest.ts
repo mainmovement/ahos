@@ -5,8 +5,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  escapeTelegramHtml,
+  formatTelegramHtml,
   processOpportunityAlerts,
   shouldAlertOpportunity,
+  type AlertPayload,
   type AlertState,
 } from "../alerts.ts";
 import {
@@ -262,6 +265,69 @@ describe("processOpportunityAlerts side effects", () => {
     assert.equal(r.telegram.length, 1);
     assert.equal(sent.length, 1);
     assert.match(sent[0], /CRITICAL OPPORTUNITY ALERT/);
+  });
+
+  it("Telegram HTML escapes untrusted fields on the send path", async () => {
+    const sent: string[] = [];
+    const transport = { send: async (text: string) => { sent.push(text); return { ok: true, sent: 1 }; } };
+    const r = await processOpportunityAlerts(
+      [opp({
+        canonicalSecurityState: "PASS",
+        rankScore: 0.99,
+        token: token({ symbol: "<b>HAX</b>&x" }),
+        reasonsFa: ["a < b & c"],
+        risksFa: ["x > y"],
+        unknownsFa: ["foo & bar"],
+      })],
+      { ...optsBase, transport },
+    );
+    assert.equal(r.emitted.length, 1);
+    assert.equal(sent.length, 1);
+    const html = sent[0];
+    assert.match(html, /<b>CRITICAL OPPORTUNITY ALERT/);
+    assert.match(html, /&lt;b&gt;HAX&lt;\/b&gt;&amp;x/);
+    assert.doesNotMatch(html, /<b>HAX<\/b>/);
+    assert.match(html, /a &lt; b &amp; c/);
+    assert.match(html, /x &gt; y/);
+    assert.match(html, /foo &amp; bar/);
+  });
+});
+
+describe("escapeTelegramHtml", () => {
+  it("escapes &, <, > in that order and is not a no-op", () => {
+    assert.equal(escapeTelegramHtml(""), "");
+    assert.equal(escapeTelegramHtml("plain"), "plain");
+    assert.equal(escapeTelegramHtml("<b>x</b>"), "&lt;b&gt;x&lt;/b&gt;");
+    assert.equal(escapeTelegramHtml("a & b"), "a &amp; b");
+    assert.equal(escapeTelegramHtml("&<>"), "&amp;&lt;&gt;");
+    assert.notEqual(escapeTelegramHtml("<"), "<");
+  });
+
+  it("formatTelegramHtml keeps structural tags and escapes payload fields", () => {
+    const payload: AlertPayload = {
+      tokenKey: "solana:x",
+      symbol: "A&B<C>",
+      chain: "solana",
+      address: "addr<>",
+      decision: "BUY",
+      rankScore: 0.9,
+      confidence: "HIGH",
+      securityStatus: "PASS",
+      canonicalSecurityState: "PASS",
+      liquidityUsd: null,
+      volume24h: null,
+      priceUsd: null,
+      priceChange1h: null,
+      reasonsFa: [],
+      risksFa: [],
+      unknownsFa: [],
+      timestamp: "2026-09-09T00:00:00Z",
+      disclaimerFa: "n < 1 & n > 0",
+    };
+    const html = formatTelegramHtml(payload);
+    assert.match(html, /<b>A&amp;B&lt;C&gt;<\/b>/);
+    assert.match(html, /<code>addr&lt;&gt;<\/code>/);
+    assert.match(html, /n &lt; 1 &amp; n &gt; 0/);
   });
 });
 

@@ -222,6 +222,11 @@ REGRESSIONS: none. validate_imports import probes can rewrite reports/*.json via
 KNOWN_LIMITATIONS:
   - Hooks are defense-in-depth, not a filesystem boundary
   - TypeScript second brain / GoPlus fail-open / Telegram HTML escape unchanged
+    **SUPERSEDED 2026-09-09 (Telegram HTML only):** `alerts.ts` +
+    `telegram_ai/pump_alert.py` now escape `&` / `<` / `>` for `parse_mode=HTML`.
+    See `docs/engineering/TELEGRAM_HTML_ESCAPE.md`. GoPlus missing-honeypot
+    UNKNOWN was already closed in Phase 2 tests. Live Telegram E2E is still
+    M-GAP-009. This PHASE0 report is otherwise not rewritten.
   - PR #17 must not be merged as written
 NEXT_UNLOCKED_PHASE: Phase 1 Canonical Identity (Lane B overlay; Lane A frozen)
 ```

@@ -136,39 +136,43 @@ export function buildAlertPayload(opp: ScoredOpportunity): AlertPayload {
   };
 }
 
-function formatTelegramHtml(p: AlertPayload): string {
+/** Telegram HTML parse_mode: escape &, <, > in untrusted fields. Not a no-op. */
+export function escapeTelegramHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+export function formatTelegramHtml(p: AlertPayload): string {
   const score =
     p.rankScore != null ? Math.round(p.rankScore * 100).toString() : "UNKNOWN";
   const lines = [
     "🚨 <b>CRITICAL OPPORTUNITY ALERT — AHOS / Sun Sniper</b>",
     "",
-    `• نماد: <b>${escapeHtml(p.symbol)}</b> | زنجیره: ${escapeHtml(p.chain)}`,
-    `• حکم: <b>${escapeHtml(p.decision)}</b> | امتیاز: ${score} | اطمینان: ${escapeHtml(p.confidence)}`,
-    `• امنیت (canonical): ${escapeHtml(p.canonicalSecurityState || "UNAVAILABLE")}`,
+    `• نماد: <b>${escapeTelegramHtml(p.symbol)}</b> | زنجیره: ${escapeTelegramHtml(p.chain)}`,
+    `• حکم: <b>${escapeTelegramHtml(p.decision)}</b> | امتیاز: ${score} | اطمینان: ${escapeTelegramHtml(p.confidence)}`,
+    `• امنیت (canonical): ${escapeTelegramHtml(p.canonicalSecurityState || "UNAVAILABLE")}`,
   ];
   if (p.priceUsd != null) lines.push(`• قیمت (شواهد): $${p.priceUsd}`);
   if (p.liquidityUsd != null) lines.push(`• نقدینگی: $${Math.round(p.liquidityUsd).toLocaleString("en-US")}`);
   if (p.volume24h != null) lines.push(`• حجم ۲۴س: $${Math.round(p.volume24h).toLocaleString("en-US")}`);
   if (p.priceChange1h != null) lines.push(`• تغییر ۱س: ${p.priceChange1h >= 0 ? "+" : ""}${p.priceChange1h.toFixed(1)}%`);
-  if (p.address) lines.push(`• قرارداد: <code>${escapeHtml(p.address)}</code>`);
+  if (p.address) lines.push(`• قرارداد: <code>${escapeTelegramHtml(p.address)}</code>`);
   if (p.reasonsFa.length) {
     lines.push("", "<b>شواهد</b>");
-    for (const r of p.reasonsFa) lines.push(`  ✅ ${escapeHtml(r)}`);
+    for (const r of p.reasonsFa) lines.push(`  ✅ ${escapeTelegramHtml(r)}`);
   }
   if (p.risksFa.length) {
     lines.push("", "<b>ریسک</b>");
-    for (const r of p.risksFa) lines.push(`  ⚠️ ${escapeHtml(r)}`);
+    for (const r of p.risksFa) lines.push(`  ⚠️ ${escapeTelegramHtml(r)}`);
   }
   if (p.unknownsFa.length) {
     lines.push("", "<b>UNKNOWN</b>");
-    for (const u of p.unknownsFa) lines.push(`  ❓ ${escapeHtml(u)}`);
+    for (const u of p.unknownsFa) lines.push(`  ❓ ${escapeTelegramHtml(u)}`);
   }
-  lines.push("", `⏱ ${p.timestamp}`, "", `⚠️ ${p.disclaimerFa}`);
+  lines.push("", `⏱ ${escapeTelegramHtml(p.timestamp)}`, "", `⚠️ ${escapeTelegramHtml(p.disclaimerFa)}`);
   return lines.join("\n");
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
 }
 
 async function pushTelegram(text: string): Promise<{ ok: boolean; error?: string; sent?: number }> {

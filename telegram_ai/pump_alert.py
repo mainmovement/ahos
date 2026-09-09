@@ -10,11 +10,17 @@ Rules (honest):
 """
 from __future__ import annotations
 
+import html
 import json
 import os
 import time
 from pathlib import Path
 from typing import Any
+
+
+def escape_telegram_html(s: str) -> str:
+    """Telegram HTML parse_mode: escape &, <, > in untrusted fields."""
+    return html.escape(s, quote=False)
 
 
 ALERT_STATE_PATH = Path(os.environ.get("AHOS_ALERT_STATE") or "reports/pump_alert_state.json")
@@ -75,8 +81,8 @@ def format_pump_alert(
     lines = [
         "🚨 <b>هشدار فرصت پایش — Sun Sniper / AHOS</b>",
         "",
-        f"• نماد: <b>{symbol}</b>  |  زنجیره: {chain}",
-        f"• حکم: <b>{decision}</b>  |  امتیاز: {score if score is not None else 'UNKNOWN'}",
+        f"• نماد: <b>{escape_telegram_html(symbol)}</b>  |  زنجیره: {escape_telegram_html(chain)}",
+        f"• حکم: <b>{escape_telegram_html(decision)}</b>  |  امتیاز: {score if score is not None else 'UNKNOWN'}",
     ]
     if price is not None:
         lines.append(f"• قیمت (شواهد): ${price:.8g}")
@@ -87,17 +93,17 @@ def format_pump_alert(
     if change_1h is not None:
         lines.append(f"• تغییر ۱س: {change_1h:+.1f}%")
     if address:
-        lines.append(f"• آدرس: <code>{address}</code>")
+        lines.append(f"• آدرس: <code>{escape_telegram_html(str(address))}</code>")
     if reasons:
         lines.append("")
         lines.append("<b>شواهد مثبت</b>")
         for r in reasons[:4]:
-            lines.append(f"  ✅ {r}")
+            lines.append(f"  ✅ {escape_telegram_html(str(r))}")
     if risks:
         lines.append("")
         lines.append("<b>ریسک</b>")
         for r in risks[:4]:
-            lines.append(f"  ⚠️ {r}")
+            lines.append(f"  ⚠️ {escape_telegram_html(str(r))}")
     lines += [
         "",
         "⚠️ این <b>سیگنال خرید واقعی نیست</b>. فقط کاغذی / پایش.",

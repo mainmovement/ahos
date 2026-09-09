@@ -124,14 +124,18 @@ Owner actions: `docs/OWNER_ACTION_REQUIRED.md`
 **Classification:** `INTEGRATION_READY` (agent-host). `OPERATOR_READY` / `PRODUCTION_READY` not claimed.
 
 The 2026-08-27 sentence “no remaining gap is IMPLEMENTABLE NOW” is **stale**.
-Owner/env gates below remain blocked. Independent Lane-B engineering may still
-exist (Telegram HTML `escapeHtml` no-op in `alerts.ts` / unescaped
-`telegram_ai/pump_alert.py` HTML; not claimed CLOSED here).
+Owner/env gates below remain blocked.
 
 ### Addendum 2026-09-09 — GeckoTerminal pair-created persist path
 
 | Gap | Classification | What changed |
 |---|---|---|
 | M-GAP-023 (Gecko `pool_created_at` never reached SQLite `pair_created_ts`) | **CLOSED** (path RUNTIME VERIFIED) | Adapter mapping PR #78 + collector persist PR #77. Official `--single-cycle` on `cf7711e`: 5/5 new gecko rows stored + reload + independent pool GET exact epoch match. Historical pre-#78 gecko NULLs **not** backfilled. Artifact: `reports/gecko_pair_created_ts_e2e_RUNTIME_VERIFIED.json`. Pair age is **not** overlay PASS. |
+
+### Addendum 2026-09-09 — Telegram HTML escape (Lane B safety)
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-024 (Telegram HTML `escapeHtml` / `format_pump_alert` no-op) | **CLOSED** (unit/selftest) | `escapeTelegramHtml` + `escape_telegram_html` escape `&` `<` `>` on untrusted fields. Tests: `scripts/canonical_security_selftest.ts`, `tests/test_telegram_html_escape.py`. Live E2E remains M-GAP-009. Note: `docs/engineering/TELEGRAM_HTML_ESCAPE.md`. |
 
 Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates.
