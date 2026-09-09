@@ -185,4 +185,34 @@ THRESHOLDS: dict[str, dict] = {
         "class": "GOVERNANCE",
         "why": "STALE historical records remain queryable and are not treated as false.",
     },
+    "unrelated_retrieval_rate": {
+        "kind": "MAX",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "At most half of retrieved items should be unlabeled for the case. Not fitted to P4.2.",
+    },
+    "same_domain_false_inclusion_rate": {
+        "kind": "MAX",
+        "threshold": 0.5,
+        "class": "PROVISIONAL",
+        "why": "Same-domain distractors should not dominate labeled retrieval.",
+    },
+    "contradiction_pollution_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "PROVISIONAL",
+        "why": "Contradiction-linked records must not appear on queries that do not expect them.",
+    },
+    "empty_query_pollution_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "Empty/unknown queries must not retrieve unrelated memories.",
+    },
+    "irrelevant_relationship_expansion_rate": {
+        "kind": "MAX",
+        "threshold": 0.25,
+        "class": "PROVISIONAL",
+        "why": "Relationship expansion should stay anchored to labeled-relevant memories.",
+    },
 }

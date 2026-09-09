@@ -1029,7 +1029,7 @@ def run_cognitive_benchmark(
             numerator=fail_false,
             denominator=1.0,
             population="FAIL-E3 science telescope",
-            limitations="Retriever tags every FAILURE with failure_relationship; FAIL here is a real weakness",
+            limitations="FAILURE type alone is not relevance; measured after P4.2 query-time gating",
             n=1,
         )
     )
@@ -1115,6 +1115,110 @@ def run_cognitive_benchmark(
             population="reasoning_mode_cases + unknown_cases + adversarial_cases",
             limitations="P3 downgrades SUPPORTED by construction",
             n=unsup_claim_n + false_cert_n + adv_n,
+        )
+    )
+
+    # ----- P4.2 pollution (extra measurements; P4.1 cases unchanged) -----
+    contra_ids = {
+        "BM-SW-CONTRA-A",
+        "BM-SW-CONTRA-B",
+        "BM-SCI-CONTRA-A",
+        "BM-SCI-CONTRA-B",
+    }
+    sd_fp = sd_n = 0
+    contra_pollute = contra_pollute_n = 0
+    rel_expand_fp = rel_expand_n = 0
+    for case in retrieval_cases():
+        task = _task_from_case(case)
+        items = retriever.retrieve(store, task, now=NOW)
+        relevant = set(case.expected_relevant_ids)
+        expected_contra = relevant & contra_ids
+        got = {i.memory_id for i in items}
+        unexpected_contra = (got & contra_ids) - expected_contra
+        contra_pollute_n += 1
+        if unexpected_contra:
+            contra_pollute += 1
+        for item in items:
+            rec = store.get(item.memory_id)
+            if rec and rec.domain == task.domain:
+                sd_n += 1
+                if item.memory_id not in relevant:
+                    sd_fp += 1
+            only_rel = set(item.match_reasons) <= {
+                "contradiction_of_relevant_memory",
+                "related_to_relevant_memory",
+                "same_domain",
+                "stale_but_queryable",
+                "temporal_proximity",
+                "type_compatibility",
+            } and (
+                "contradiction_of_relevant_memory" in item.match_reasons
+                or "related_to_relevant_memory" in item.match_reasons
+            )
+            if only_rel:
+                rel_expand_n += 1
+                if item.memory_id not in relevant:
+                    rel_expand_fp += 1
+    empty_task = _task_from_case(unknown_cases()[0])
+    empty_explained = retriever.retrieve_explained(store, empty_task, now=NOW)
+    metrics.append(
+        make_metric(
+            "unrelated_retrieval_rate",
+            name="unrelated_retrieval_rate",
+            definition="|retrieved − relevant| / |retrieved| over labeled retrieval cases",
+            numerator=fp,
+            denominator=tp + fp,
+            population="retrieval_cases",
+            limitations="Complement of retrieval_precision; labels are the case sets",
+            n=len(retrieval_cases()),
+        )
+    )
+    metrics.append(
+        make_metric(
+            "same_domain_false_inclusion_rate",
+            name="same_domain_false_inclusion_rate",
+            definition="same-domain retrieved IDs not in the case label / same-domain retrieved",
+            numerator=sd_fp,
+            denominator=sd_n,
+            population="retrieval_cases same-domain hits",
+            limitations="Domain match is a ranking signal, not a relevance proof",
+            n=sd_n,
+        )
+    )
+    metrics.append(
+        make_metric(
+            "contradiction_pollution_rate",
+            name="contradiction_pollution_rate",
+            definition="retrieval cases that returned an unexpected contradiction-linked ID / retrieval cases",
+            numerator=contra_pollute,
+            denominator=contra_pollute_n,
+            population="retrieval_cases vs seeded contradiction IDs",
+            limitations="Does not score CONTRA-SW/SCI reason cases",
+            n=contra_pollute_n,
+        )
+    )
+    metrics.append(
+        make_metric(
+            "empty_query_pollution_rate",
+            name="empty_query_pollution_rate",
+            definition="1 if UNK-EMPTY-01 retrieved any memory else 0",
+            numerator=1.0 if empty_explained.items else 0.0,
+            denominator=1.0,
+            population="UNK-EMPTY-01",
+            limitations="Single unknown-fact question; NO_RELEVANT_MEMORY is the correct empty result",
+            n=1,
+        )
+    )
+    metrics.append(
+        make_metric(
+            "irrelevant_relationship_expansion_rate",
+            name="irrelevant_relationship_expansion_rate",
+            definition="relationship-only retrieved IDs outside the case label / relationship-only retrieved",
+            numerator=rel_expand_fp,
+            denominator=rel_expand_n,
+            population="retrieval_cases items retrieved only via anchored expansion",
+            limitations="NOT_MEASURED when no relationship-only rows appear",
+            n=rel_expand_n,
         )
     )
 

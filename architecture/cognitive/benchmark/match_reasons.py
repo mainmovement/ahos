@@ -36,6 +36,15 @@ def match_reason_justified(
         elif reason == "failure_relationship":
             if item.memory_type != MemoryType.FAILURE.value:
                 return False
+        elif reason == "failure_fingerprint":
+            if item.memory_type != MemoryType.FAILURE.value:
+                return False
+        elif reason == "contradiction_of_relevant_memory":
+            if not store.find_contradictions(item.memory_id):
+                return False
+        elif reason == "related_to_relevant_memory":
+            if not store.find_related_memories(item.memory_id):
+                return False
         elif reason == "lesson_keyword_match":
             if item.epistemic_kind != EpistemicKind.LESSON.value:
                 return False
@@ -62,6 +71,28 @@ def match_reason_justified(
                 return False
             if abs(now - item.observed_at) > window:
                 return False
+        elif reason == "type_compatibility":
+            if item.epistemic_kind == EpistemicKind.LESSON.value and qtok & {
+                "learn",
+                "learned",
+                "lesson",
+                "lessons",
+            }:
+                continue
+            if item.memory_type == MemoryType.FAILURE.value and qtok & {
+                "fail",
+                "failed",
+                "failure",
+                "failures",
+            }:
+                continue
+            if item.status in {
+                DecayState.STALE.value,
+                DecayState.SUPERSEDED.value,
+                DecayState.ARCHIVED.value,
+            } and qtok & {"historical", "history", "stale", "superseded", "quarter"}:
+                continue
+            return False
         else:
             return False
     return True
