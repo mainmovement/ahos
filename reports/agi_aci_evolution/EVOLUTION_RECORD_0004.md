@@ -2,8 +2,8 @@
 
 ```text
 Record ID: EVOLUTION_RECORD_0004
-UTC timestamp: 2026-09-09 (see git commit)
-Base SHA: 606b6f282318d48e287873aaf0f3ad4c9def4321
+UTC timestamp: 2026-09-09
+Git SHA: 000bdbf8930c2ac2ba76c33bd5356d88ed4a065d (base 606b6f282318d48e287873aaf0f3ad4c9def4321)
 Branch: cursor/agi-aci-cognitive-loop-p3-9500
 Objective: P3 cognitive retrieval + context assembly + reasoning loop (Lane B, PAPER_ONLY, L1_ANALYZE)
 Trigger: MASTER CURSOR DIRECTIVE P3 after PR #88 merge

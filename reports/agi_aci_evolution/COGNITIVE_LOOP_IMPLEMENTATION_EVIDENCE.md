@@ -2,7 +2,7 @@
 
 **Base SHA:** `606b6f282318d48e287873aaf0f3ad4c9def4321`  
 **Branch:** `cursor/agi-aci-cognitive-loop-p3-9500`  
-**Implementation commit:** (see git; filled after commit)
+**Implementation commit:** `000bdbf8930c2ac2ba76c33bd5356d88ed4a065d`
 
 ## Commands
 
@@ -16,13 +16,14 @@ python3 -B scripts/freeze_lane_a.py
   tests/test_cognitive_memory.py \
   tests/test_self_evolution_engine.py \
   tests/test_multi_mind_council_anti_echo.py
-# 55 passed  PASS
+# 55 passed in 0.89s  PASS
 
 # System python3 -m pytest (no venv): ENVIRONMENT_FAILURE if pytest missing (PEP 668)
 # That is not a code success.
 
 /tmp/ahos-test-venv/bin/python scripts/validate_imports.py
-# (recorded after run)
+# VALIDATION PASSED — 215 modules; 49 evidence-surface files; Lane-A OK
+# orphan WARN 12 modules: PRE-EXISTING
 ```
 
 ## What the tests prove
