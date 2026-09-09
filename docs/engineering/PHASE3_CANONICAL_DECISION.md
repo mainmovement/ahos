@@ -197,10 +197,13 @@ IMPLEMENTED:
   - engine.ts anti-hype findings and unknownShare count Python outcomes (not TS WATCH)
   - chat opportunities focus + general BUY/REJECT counts prefer canonicalDecisions
 TESTED:
-  - prior #67: npx eslint . --max-warnings 0
+  - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files)
+  - .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_canonical_read_model.py tests/test_config_validation.py → 17 passed
+  - npm run test:canonical-read-model → 11 passed
+  - npm run typecheck → exit 0
+  - npm run lint → exit 0
   - prior #68: npm run build → exit 0
   - prior #70: full pytest 1650 passed / 3 skipped / 0 failed
-  - this revision: freeze + canonical-read-model + typecheck recorded after first push
 VERIFIED (narrow, prior #64/#65 environment; not re-claimed here):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
@@ -238,7 +241,7 @@ EVIDENCE:
   - engine.ts writeFindings
   - chat.ts
   - scripts/canonical_read_model_selftest.ts
-TEST_RESULTS: this revision not yet executed at first commit. Phase 3 stays PARTIAL.
+TEST_RESULTS: freeze 36 OK; targeted pytest 17 passed; canonical-read-model 11 passed; typecheck 0; eslint 0. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
