@@ -18,6 +18,7 @@ import json
 import time
 import urllib.request
 import urllib.error
+from datetime import datetime
 from typing import Any, Callable
 
 from .contracts import (
@@ -33,6 +34,35 @@ from .contracts import (
 def _sha(raw: bytes | str) -> str:
     b = raw if isinstance(raw, bytes) else str(raw).encode("utf-8")
     return hashlib.sha256(b).hexdigest()
+
+
+def _parse_iso_epoch(value: Any) -> float | None:
+    """Parse provider ISO/epoch pool-created time. None on missing or unparseable.
+
+    Never invents a timestamp. Numeric values are treated as epoch seconds only
+    when finite; ISO-8601 strings (including trailing Z) map to UTC epoch.
+    """
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        try:
+            ts = float(value)
+        except (TypeError, ValueError):
+            return None
+        if ts != ts or ts in (float("inf"), float("-inf")):  # NaN / Inf
+            return None
+        return ts
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(
+            text.replace("Z", "+00:00").replace("z", "+00:00")
+        ).timestamp()
+    except ValueError:
+        return None
 
 
 def _tri_bool(value) -> bool | None:
@@ -259,6 +289,7 @@ class GeckoTerminalAdapter(BaseHttpProviderAdapter):
                     symbol=attrs.get("name", "").split("/")[0].strip(),
                     name=attrs.get("name", "Pool"),
                     pair_address=pool.get("id", ""),
+                    pair_created_ts=_parse_iso_epoch(attrs.get("pool_created_at")),
                     metrics=MarketMetrics(
                         liquidity_usd=float(attrs.get("reserve_in_usd") or 0) if attrs.get("reserve_in_usd") else None,
                         volume_24h=float(attrs.get("volume_usd", {}).get("h24") or 0) if attrs.get("volume_usd") else None
