@@ -210,6 +210,8 @@ def test_chat_greeting_counts_python_canonical_not_ts_watch():
     assert "whyCanonicalReply" in chat
     assert "findCanonicalDecision" in chat
     assert "running = Boolean(state?.running)" in chat
+    detect = chat.split("function detectIntent")[1].split("function greetingReply")[0]
+    assert detect.index("(رد شد|چرا رد|reject)") < detect.index("(چرا|دلیل|شواهد|explain)")
 
 
 def test_paper_api_requires_canonical_buy():

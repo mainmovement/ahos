@@ -236,8 +236,8 @@ function detectIntent(text: string): string {
   if (/(خریدم|خرید کاغذی|ثبت خرید|paper)/i.test(text)) return "paper_buy";
   if (/(پورتف|موقعیت|کاغذی‌ها)/i.test(text)) return "paper_list";
   if (/(واچ‌لیست|watchlist|تحت نظر)/i.test(text)) return "watchlist";
-  if (/(چرا|دلیل|شواهد|explain)/i.test(text)) return "why";
   if (/(رد شد|چرا رد|reject)/i.test(text)) return "reject";
+  if (/(چرا|دلیل|شواهد|explain)/i.test(text)) return "why";
   if (/(خبر|اخبار|news)/i.test(text)) return "news";
   if (/(فرصت|بهترین|پامپ|opportunity|چی بخرم)/i.test(text)) return "opportunities";
   if (/(نهنگ|whale)/i.test(text)) return "whales";
