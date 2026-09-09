@@ -106,6 +106,8 @@ def test_snapshot_overlays_canonical_and_command_center_does_not_green_watch():
     snap = (ROOT / "snapshot.ts").read_text(encoding="utf-8")
     assert "overlayOpportunity" in snap
     assert "canonicalReadModel" in snap
+    assert "canonicalOverlayCensus" in snap
+    assert "overlayCensus" in snap
     assert "failClosedCommandSnapshot" in snap
     assert "presentCanonicalDecisions" in snap
     assert "loadCanonicalReadModel" in snap

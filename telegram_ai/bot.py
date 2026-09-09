@@ -32,7 +32,8 @@ class TelegramBotRunner:
         if not self.gate.is_authorized(update):
             resp = self.adapter.send_message(
                 update.chat_id,
-                f"⛔ دسترسی شما به این ربات مجاز نمی‌باشد.\n\n{FOOTER_MANDATED}"
+                f"⛔ دسترسی شما به این ربات مجاز نمی‌باشد.\n\n{FOOTER_MANDATED}",
+                parse_mode=None,
             )
             return {"status": "UNAUTHORIZED", "response": resp}
 
@@ -40,7 +41,8 @@ class TelegramBotRunner:
         if not self.gate.check_rate_limit(update):
             resp = self.adapter.send_message(
                 update.chat_id,
-                f"⚠️ لطفاً چند لحظه صبر کنید (محدودیت ارسال پیام).\n\n{FOOTER_MANDATED}"
+                f"⚠️ لطفاً چند لحظه صبر کنید (محدودیت ارسال پیام).\n\n{FOOTER_MANDATED}",
+                parse_mode=None,
             )
             return {"status": "RATE_LIMITED", "response": resp}
 
@@ -65,7 +67,7 @@ class TelegramBotRunner:
             }
 
         # 6. Send response
-        send_res = self.adapter.send_message(update.chat_id, result["text"])
+        send_res = self.adapter.send_message(update.chat_id, result["text"], parse_mode=None)
         return {"status": "PROCESSED", "intent": result.get("intent"), "send_result": send_res}
 
     def process_pending_updates(self) -> int:

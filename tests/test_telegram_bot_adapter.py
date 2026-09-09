@@ -92,6 +92,11 @@ def test_production_telegram_adapter_mock_transport():
     assert len(mock_sent) == 1
     assert mock_sent[0]["chat_id"] == 100
     assert mock_sent[0]["text"] == "تست آداپتور لایو"
+    assert mock_sent[0]["parse_mode"] == "HTML"
+
+    res2 = adapter.send_message(chat_id=100, text="plain <not html>", parse_mode=None)
+    assert res2["ok"] is True
+    assert "parse_mode" not in mock_sent[1]
 
 
 def test_telegram_bot_runner_full_cycle(tmp_path):
@@ -107,9 +112,11 @@ def test_telegram_bot_runner_full_cycle(tmp_path):
     assert len(adapter.sent_messages) == 1
     assert "EMERGENCY_FALLBACK_ONLY" in adapter.sent_messages[0]["text"]
     assert FOOTER_MANDATED in adapter.sent_messages[0]["text"]
+    assert "parse_mode" not in adapter.sent_messages[0]
 
     # 2. Unauthorized message
     adapter.inject_update(chat_id=999, text="/help")
     runner.process_pending_updates()
     assert len(adapter.sent_messages) == 2
     assert "دسترسی شما به این ربات مجاز نمی‌باشد" in adapter.sent_messages[1]["text"]
+    assert "parse_mode" not in adapter.sent_messages[1]
