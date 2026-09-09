@@ -20,6 +20,7 @@
 | Canonical decision authority (Lane B) | `architecture/decision/authority.py` wraps `DecisionAdvisor`; OpportunityScorer is score-only |
 | Cursor engineering contract (Lane B) | `AGENTS.md` + `.cursor/` — developer-agent rules/skills/hooks; not AHOS runtime agents |
 | Cursor skills (this repo) | `.cursor/skills/` — eleven progressive skills. Repo-root `slills/` is uploaded third-party material, **not** AHOS Cursor skills. `cursor/slills` is not a git path |
+| AGI/ACI architecture (Lane B contracts; **not achieved**) | `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md` + `reports/agi_aci_evolution/` — does **not** silently replace `docs/NEXT_DEVELOPMENT_BACKLOG.md` deferral of autonomous evolution (see `docs/architecture/ADR_ACI_001_CHARTER_VS_DEFERRED_EVOLUTION.md`) |
 
 ## B — Historical / superseded (do not cite as current readiness)
 
