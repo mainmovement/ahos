@@ -1,8 +1,8 @@
 # AHOS Phase 3 — Canonical Decision Authority
 
-**Branch:** `cursor/phase3-config-doc-scanner-9500` (hygiene on current `main`)  
-**Base:** `origin/main` after PR **#65** merge (`e9387e5`) — Phase 0–1 + Phase 3 PARTIAL + overlay-v2.  
-**Date:** 2026-09-08  
+**Branch:** `cursor/phase3-overlay-python-on-main-9500` (status docs on current `main`)  
+**Base:** `origin/main` after PR **#66**, **#67**, and **#68** merge (`0cbe393`). Overlay-v2 already on `main` via **#65**.  
+**Date:** 2026-09-09  
 **Classification:** `INTEGRATION_READY` (unchanged).  
 **Lane A freeze:** must remain 36 files — verify with `python3 -B scripts/freeze_lane_a.py`.
 
@@ -118,11 +118,14 @@ Fail-closed rules:
 
 ## Phase dependency (do not auto-merge)
 
-Live GitHub truth as of 2026-09-08:
+Live GitHub truth as of 2026-09-09:
 
 * **PR #62** Phase 0–1 identity overlay — **MERGED**
 * **PR #64** Phase 3 Canonical Decision Authority — **MERGED** first (stacked only on overlay commit `711bcd3`)
-* **PR #65** overlay-v2 reconcile onto merged Phase 3 — **MERGED** (`e9387e5` on `main`)
+* **PR #65** overlay-v2 reconcile onto merged Phase 3 — **MERGED**
+* **PR #66** config-doc scanner (`web_api_client.ts`) — **MERGED**
+* **PR #67** Command Center set-state-in-effect — **MERGED**
+* **PR #68** overlay pythonBin NFT / `next build` panic — **MERGED**
 * **PR #63** Phase 2 original overlay-v2 branch — still **OPEN**, **CONFLICTING**, **SUPERSEDED**. Do **not** merge #63.
 * Phase 3 remains **PARTIAL**. Do **not** start Phase 4. Do **not** auto-merge.
 
@@ -188,10 +191,11 @@ IMPLEMENTED:
   - engine.ts persists Python displayDecision, not TS WATCH
 TESTED:
   - python3 -B scripts/freeze_lane_a.py → Lane-A integrity OK (36 files) before and after this revision
-  - tests/test_config_validation.py → 3 passed (includes test_documented_keys_are_actually_read_or_legacy)
-  - full pytest → 1648 passed, 3 skipped, 0 failed (was 1647 passed / 1 failed on main before this scanner fix)
-  - PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_imports.py → PASSED (183 modules) after clearing .pytest_cache
-  - npm typecheck / lint / build / browser not re-run this revision (no TS/UI change)
+  - npm run test:canonical-security → 16 passed (Telegram mocked + live overlay_query spawn)
+  - npm run typecheck → exit 0
+  - npx eslint . --max-warnings 0 → exit 0 (#67 closed CommandCenter set-state-in-effect on main)
+  - npm run build → exit 0; routes ƒ /api/canonical and ƒ /api/paper present
+  - prior #66: tests/test_config_validation.py 3 passed; full pytest 1648 passed / 3 skipped / 0 failed
 VERIFIED (narrow, prior #64/#65 environment; not re-claimed here):
   - GET /api/canonical + GET /api/command with fixture: AVAILABLE, 5 Python outcomes (BUY, MONITOR_ONLY, NO_TRADE, REJECT, INSUFFICIENT_EVIDENCE), 0 DB opportunity rows, no invented BUY
   - POST /api/paper unmatched/STALE/UNAVAILABLE → 403 CANONICAL_PAPER_DENIED
@@ -203,33 +207,34 @@ NOT VERIFIED:
   - Isolated loading-flash screenshot (page loaded before capture)
   - OPERATIONAL product runtime (no Postgres, start.sh does not start Next)
 BLOCKED:
-  - GitHub Actions CI workflow absent (M-GAP-004)
+  - GitHub Actions CI workflow absent (M-GAP-004) — GitHub App lacks `workflows` permission
   - DATABASE_URL unset in this agent shell — paper persist + DB opportunity overlay ENVIRONMENT
   - PR #63 remains OPEN/CONFLICTING/SUPERSEDED — do not merge; overlay-v2 already on main via #65
 PRE-EXISTING:
-  - npm run lint CommandCenter.tsx react-hooks/set-state-in-effect
+  - Next Turbopack NFT warning tracing canonical_read_model.ts / process.cwd() (warning, not the former python symlink panic)
 NEW failures this revision:
-  - none (scanner hygiene only; Command Center lint untouched)
+  - none
 ENVIRONMENT:
   - validate_imports ARTIFACTS fail when .pytest_cache exists after pytest; clean tree + PYTHONDONTWRITEBYTECODE passes
-  - Next Turbopack NFT warning tracing canonical_read_model.ts filesystem path
+  - Next Turbopack NFT warning on canonical_read_model.ts filesystem path
 FAILED_GATES (phase cannot be VERIFIED/COMPLETE):
-  - lint not green (PRE-EXISTING CommandCenter set-state-in-effect; not rewritten here)
   - no GitHub CI
   - live daemon + Postgres Command Center overlay missing
-CLOSED this revision:
-  - SCAN_TS_FILES includes web_api_client.ts; NEXT_PUBLIC_AHOS_WEB_API_TOKEN is a scanned read; full pytest 0 failed
+CLOSED on main / this revision:
+  - #66 SCAN_TS_FILES includes web_api_client.ts; full pytest 0 failed
+  - #67 Command Center set-state-in-effect; eslint exit 0 on this tree
+  - #68 next build no longer panics on overlay python interpreter symlink
 EVIDENCE:
   - docs/engineering/PHASE3_CANONICAL_DECISION.md
+  - canonical_security.ts pythonBin()
   - tests/test_config_validation.py
-  - HEAD of cursor/phase3-config-doc-scanner-9500
-TEST_RESULTS: freeze 36 OK; config-doc 3 passed; full pytest 1648 passed / 3 skipped / 0 failed; validate_imports PASSED (183 modules, clean tree)
+TEST_RESULTS: freeze 36 OK; canonical-security 16 passed; typecheck 0; eslint 0; next build 0. Phase 3 stays PARTIAL.
 KNOWN_LIMITATIONS:
   - identity_from_candidate with a single market source is UNRESOLVED (fail-closed)
   - engine.ts display ranks remain presentation-only (labeled غیرکانونیکال)
   - Live execution not implemented (PAPER / intelligence first)
   - FROZEN paper_trading.entry_rules still treats PASS_WITH_UNKNOWN as QUALIFIED_ENTRY
-NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Closing the config-doc fail does not make the phase VERIFIED.
+NEXT_UNLOCKED_PHASE: Phase 4 must not start. Phase 3 is PARTIAL, not VERIFIED. Merging #66/#67 and greening next build does not make the phase VERIFIED.
 ```
 
 Do **not** mark COMPLETE from code presence alone.
