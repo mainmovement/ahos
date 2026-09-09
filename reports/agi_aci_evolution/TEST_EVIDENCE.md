@@ -2,9 +2,17 @@
 
 **Environment:** Cursor Cloud Linux `/workspace` (not `G:\robat\ahos`).  
 **Interpreter for tests/validate:** `/tmp/ahos-test-venv` (ephemeral; not committed). System `python3` lacks pytest (PEP 668).  
-**Base SHA:** `f273feb5875c24b9fbccdc552445d82175a6597c`  
-**Implementation commit:** `aa0519a`  
 **Soak daemon:** not started. Cloud sqlite: not treated as soak.
+
+## P3 (cognitive loop)
+
+**Base SHA:** `606b6f282318d48e287873aaf0f3ad4c9def4321`  
+See `COGNITIVE_LOOP_IMPLEMENTATION_EVIDENCE.md` for the command log. Targeted pytest: loop + memory + cognitive core + evolution + council.
+
+## P1 (contracts) — historical
+
+**Base SHA:** `f273feb5875c24b9fbccdc552445d82175a6597c`  
+**Implementation commit:** `aa0519a`
 
 ## Commands
 
