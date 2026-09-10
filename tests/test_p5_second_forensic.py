@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT))
 from architecture.cognitive.hypothesis import HypothesisStore  # noqa: E402
 from architecture.cognitive.loop.binding import (  # noqa: E402
     ROLE_FACTUAL_PREMISE,
+    SUPPORT_DIRECT,
     EvidenceBinding,
     bind_context,
 )
@@ -801,6 +802,107 @@ def test_two_hop_unresolved_episode_cannot_become_fact(tmp_path: Path) -> None:
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
     c2 = _counts(mem2)
     assert c2["hypothesis"] == c2["lesson"] == c2["inference"] == 0
+
+
+def test_three_hop_derived_artifact_cannot_escalate_authority(tmp_path: Path) -> None:
+    """HOP1 unresolved → EPISODIC INFERENCE.
+    HOP2 retrieve episode → reusable hyp/lesson/inference not permitted.
+    HOP3 even a forcibly stored HYPOTHESIS/LESSON/INFERENCE cannot become
+    OBSERVED_FACT, FACTUAL_PREMISE, or DIRECT support on a new task.
+    """
+    result, mem, c = _orch(
+        tmp_path,
+        [{"statement": SUPPORT}, {"statement": CONTRA}],
+        _task(task_id="hop1", write_back=True, task_type=TaskType.INVESTIGATE.value),
+    )
+    assert result.verdict not in POSITIVE
+    assert c["hypothesis"] == c["lesson"] == c["inference"] == 0
+    assert c["episode"] == 1
+    episode = next(r for r in mem.find_by_type(MemoryType.EPISODIC) if r.statement.startswith("episode "))
+    assert episode.epistemic_kind == EpistemicKind.INFERENCE.value
+
+    hop2 = Path(tmp_path / "hop2")
+    mem2 = CognitiveMemoryStore(hop2 / "mem.sqlite")
+    hyp2 = HypothesisStore(hop2 / "hyp.jsonl")
+    mem2.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.INFERENCE,
+        statement=episode.statement,
+        source_type=SourceType.SYSTEM,
+        source_id=episode.source_id,
+        source_location="three-hop-2",
+        producer="pytest",
+        producer_version="p5",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=NOW,
+        created_at=NOW,
+        payload=dict(episode.payload or {}),
+    )
+    orch2 = CognitiveOrchestrator(memory=mem2, hypotheses=hyp2, ledger_path=hop2 / "exp.jsonl")
+    t2 = _task(task_id="hop2", write_back=True, task_type=TaskType.ANALYZE.value)
+    t2.requested_evidence = [r.memory_id for r in mem2.find_by_type(MemoryType.EPISODIC)]
+    r2 = orch2.run(t2, now=NOW + 5)
+    assert r2.verdict not in POSITIVE
+    assert _counts(mem2)["hypothesis"] == _counts(mem2)["lesson"] == _counts(mem2)["inference"] == 0
+    binds2 = bind_context(r2.context, t2)
+    assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds2)
+    assert all(b.live_typed_class() != "OBSERVED_FACT" for b in binds2)
+    assert all(b.support_strength != SUPPORT_DIRECT for b in binds2)
+
+    # Simulated substrate write of derived artifacts (ungoverned remember).
+    # This is the hop-3 contamination attempt, not a production write-back.
+    derived = (
+        (MemoryType.HYPOTHESIS, EpistemicKind.HYPOTHESIS, f"HYPOTHESIS from {episode.statement}"),
+        (MemoryType.SEMANTIC, EpistemicKind.LESSON, f"LESSON from {episode.statement}: {SUPPORT}"),
+        (MemoryType.SEMANTIC, EpistemicKind.INFERENCE, f"INFERENCE from {episode.statement}: {SUPPORT}"),
+        (MemoryType.SEMANTIC, EpistemicKind.PREDICTION, f"PREDICTION from {episode.statement}"),
+        (MemoryType.SEMANTIC, EpistemicKind.OPINION, f"OPINION from {episode.statement}"),
+        (MemoryType.SEMANTIC, EpistemicKind.SIMULATION, f"SIMULATION from {episode.statement}"),
+    )
+    hop3 = Path(tmp_path / "hop3")
+    mem3 = CognitiveMemoryStore(hop3 / "mem.sqlite")
+    hyp3 = HypothesisStore(hop3 / "hyp.jsonl")
+    ids = []
+    for i, (mtype, kind, statement) in enumerate(derived):
+        rec = mem3.remember(
+            memory_type=mtype,
+            epistemic_kind=kind,
+            statement=statement,
+            source_type=SourceType.SYSTEM,
+            source_id=f"derived-{i}",
+            source_location="three-hop-3",
+            producer="pytest",
+            producer_version="p5",
+            domain="software",
+            context="SYNTHETIC_TEST_DATA",
+            observed_at=NOW + 10,
+            created_at=NOW + 10,
+            payload={"data_label": "SYNTHETIC_TEST_DATA", "derived_from_episode": episode.memory_id},
+        )
+        ids.append(rec.memory_id)
+    orch3 = CognitiveOrchestrator(memory=mem3, hypotheses=hyp3, ledger_path=hop3 / "exp.jsonl")
+    t3 = _task(task_id="hop3", write_back=True, task_type=TaskType.ANALYZE.value)
+    t3.requested_evidence = ids
+    r3 = orch3.run(t3, now=NOW + 20)
+    assert r3.verdict not in POSITIVE
+    assert r3.verdict != CognitiveVerdict.WEAKLY_SUPPORTED.value
+    binds3 = bind_context(r3.context, t3)
+    assert binds3, "derived artifacts must be bound so roles can be audited"
+    for b in binds3:
+        assert b.live_typed_class() != "OBSERVED_FACT"
+        assert not b.may(ROLE_FACTUAL_PREMISE)
+        assert b.support_strength != SUPPORT_DIRECT
+        assert b.epistemic_kind not in {
+            EpistemicKind.OBSERVED_FACT.value,
+            EpistemicKind.DERIVED_FACT.value,
+        }
+    c3 = _counts(mem3)
+    # Forced substrate rows exist; governed hop-3 write-back must not add more.
+    assert c3["hypothesis"] == 1
+    assert c3["lesson"] == 1
+    assert c3["inference"] == 1
+    assert c3["episode"] == 1
 
 
 def test_production_reason_applies_episode_policy() -> None:

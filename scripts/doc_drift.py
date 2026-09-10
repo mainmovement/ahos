@@ -89,6 +89,8 @@ INTENTIONAL_REFS: dict[str, str] = {
         "issue register; individual win_N artifacts exist",
     "paper_trading/runs/cycle_001_20260812.json": "historical wave-ledger "
         "record of a cycle artifact not retained in git",
+    "data/ahos_cognitive_memory.sqlite": "gitignored runtime CognitiveMemoryStore "
+        "path from config.paths.get_cognitive_memory_db_path; never a committed soak DB",
 }
 
 
