@@ -298,6 +298,7 @@ class ReasoningTrace:
     constraint_actions: tuple[str, ...] = ()
     evidence_classes: tuple[str, ...] = ()
     premises: tuple[str, ...] = ()
+    reusable_writeback: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -320,6 +321,7 @@ class ReasoningTrace:
             "constraint_actions": list(self.constraint_actions),
             "evidence_classes": list(self.evidence_classes),
             "premises": list(self.premises),
+            "reusable_writeback": self.reusable_writeback,
         }
 
 
@@ -343,6 +345,7 @@ class CognitiveResult:
     lesson_applied: bool = False
     failure_applied: bool = False
     critic_action: str = "ACCEPT"
+    reusable_writeback: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -364,4 +367,5 @@ class CognitiveResult:
             "lesson_applied": self.lesson_applied,
             "failure_applied": self.failure_applied,
             "critic_action": self.critic_action,
+            "reusable_writeback": self.reusable_writeback,
         }

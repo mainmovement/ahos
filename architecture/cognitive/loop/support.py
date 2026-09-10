@@ -51,6 +51,7 @@ ENTITY_NONE = "NONE"
 ENTITY_MATCH = "MATCH"
 ENTITY_MISMATCH = "MISMATCH"
 ENTITY_AMBIGUOUS = "AMBIGUOUS"
+ENTITY_SCOPED = "SCOPED"
 
 CLAUSE_AFFIRMED = "AFFIRMED"
 CLAUSE_NEGATED = "NEGATED"
@@ -236,6 +237,45 @@ _AGENT_BEFORE_REDUCE_FAIL = re.compile(
     re.IGNORECASE,
 )
 
+# Interrogative/auxiliary surface forms. Title-case sentence starts ("Did",
+# "Can") are not identity assertions. Not a fixture list.
+_IDENTITY_FUNCTION_WORDS = frozenset(
+    {
+        "are",
+        "be",
+        "been",
+        "being",
+        "can",
+        "could",
+        "did",
+        "do",
+        "does",
+        "doing",
+        "had",
+        "has",
+        "have",
+        "having",
+        "how",
+        "is",
+        "may",
+        "might",
+        "must",
+        "shall",
+        "should",
+        "was",
+        "were",
+        "what",
+        "when",
+        "which",
+        "who",
+        "whom",
+        "whose",
+        "why",
+        "will",
+        "would",
+    }
+)
+
 # Identity tokens that are synthetic-corpus labels, not subjects.
 _IDENTITY_BLOCKLIST = (
     frozenset({"synthetic_test_data"})
@@ -246,6 +286,7 @@ _IDENTITY_BLOCKLIST = (
     | _EVALUATIVE
     | _IN_FAMILY
     | _DOMAIN_QUALIFIERS
+    | _IDENTITY_FUNCTION_WORDS
 )
 
 
@@ -286,14 +327,14 @@ class SupportAssessment:
 
 
 def positive_support_eligible(assessment: SupportAssessment) -> bool:
-    """NEGATED / UNCERTAIN / ENTITY_MISMATCH / AMBIGUOUS cannot satisfy positives."""
+    """NEGATED / UNCERTAIN / MISMATCH / AMBIGUOUS / SCOPED cannot satisfy positives."""
     if assessment.support_class != SUPPORT_DIRECT:
         return False
     if assessment.polarity != POLARITY_SUPPORTS:
         return False
     if assessment.clause_force in {CLAUSE_NEGATED, CLAUSE_UNCERTAIN}:
         return False
-    if assessment.entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS}:
+    if assessment.entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS, ENTITY_SCOPED}:
         return False
     return True
 
@@ -352,9 +393,18 @@ def identity_tokens(text: str) -> frozenset[str]:
 
 
 def entity_alignment(evidence_ids: frozenset[str], task_ids: frozenset[str]) -> str:
-    if not task_ids:
+    """Compatibility of identity markers. Not NER.
+
+    NONE: neither side carries markers (genuinely unscoped / global).
+    SCOPED: evidence is entity-specific, task is not — not automatic support.
+    AMBIGUOUS: task asks about an ID the evidence does not carry.
+    MATCH / MISMATCH: both sides carry markers.
+    """
+    if not task_ids and not evidence_ids:
         return ENTITY_NONE
-    if not evidence_ids:
+    if not task_ids and evidence_ids:
+        return ENTITY_SCOPED
+    if task_ids and not evidence_ids:
         return ENTITY_AMBIGUOUS
     if evidence_ids & task_ids:
         return ENTITY_MATCH
@@ -460,6 +510,9 @@ def classify_support(evidence_text: str, task: CognitiveTask) -> SupportAssessme
 
     if entity_state == ENTITY_AMBIGUOUS:
         return _out(SUPPORT_UNKNOWN, POLARITY_UNKNOWN, "ambiguous_entity")
+
+    if entity_state == ENTITY_SCOPED:
+        return _out(SUPPORT_UNKNOWN, POLARITY_UNKNOWN, "entity_scoped_unscoped_task")
 
     about_redirect = any(m in ev_raw.lower() for m in _ABOUT_MARKERS)
     q_qual = q & _DOMAIN_QUALIFIERS

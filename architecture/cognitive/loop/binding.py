@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from architecture.cognitive.loop.contracts import CognitiveContext, CognitiveTask, RetrievedItem
+from architecture.cognitive.loop.contracts import CognitiveContext, CognitiveTask, RetrievedItem, TaskType
 from architecture.cognitive.loop.retrieval import canonical_set, content_tokens
 from architecture.cognitive.loop.support import (
     CLAUSE_AFFIRMED,
@@ -18,6 +18,7 @@ from architecture.cognitive.loop.support import (
     ENTITY_AMBIGUOUS,
     ENTITY_MISMATCH,
     ENTITY_NONE,
+    ENTITY_SCOPED,
     POLARITY_CONTRADICTS,
     POLARITY_NEGATED,
     POLARITY_UNKNOWN,
@@ -84,7 +85,8 @@ def temporal_state_of(item: RetrievedItem) -> str:
 
     No age-from-clock threshold is invented here. Store decay uses
     expires_at / valid_until only (`CognitiveMemoryStore.apply_decay`).
-    ACTIVE + observed_at is DATED, not CURRENT.
+    ACTIVE + observed_at is DATED, not CURRENT. TEMP_CURRENT is reserved
+    for an explicit freshness proof this layer does not compute.
     """
     if item.status == DecayState.SUPERSEDED.value:
         return TEMP_SUPERSEDED
@@ -240,7 +242,7 @@ def _support_strength(typed: str, applicability: str, temporal: str) -> str:
     return SUPPORT_UNKNOWN
 
 
-@dataclass
+@dataclass(frozen=True)
 class EvidenceBinding:
     evidence_id: str
     memory_id: str
@@ -269,6 +271,26 @@ class EvidenceBinding:
     entity_state: str = ENTITY_NONE
     evidence_entities: tuple[str, ...] = ()
     task_entities: tuple[str, ...] = ()
+    task_question: str = ""
+    task_objective: str = ""
+
+    def _task_snapshot(self) -> CognitiveTask:
+        return CognitiveTask(
+            task_id="bound-snapshot",
+            task_type=TaskType.ANALYZE.value,
+            objective=self.task_objective or "bound",
+            question=self.task_question,
+            domain=self.domain or "software",
+            requester="binding",
+            created_at=0.0,
+            data_label="SYNTHETIC_TEST_DATA",
+        )
+
+    def _live_assessment(self):
+        """Authoritative recompute from statement + task snapshot. Fields are hints."""
+        if not self.task_question and not self.statement:
+            return None
+        return classify_support(self.statement, self._task_snapshot())
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -288,6 +310,7 @@ class EvidenceBinding:
             "entity_state": self.entity_state,
             "evidence_entities": list(self.evidence_entities),
             "task_entities": list(self.task_entities),
+            "task_question": self.task_question,
             "addresses_task": self.addresses_task_flag,
             "alien_tokens": list(self.alien_tokens),
             "contradiction_state": self.contradiction_state,
@@ -307,7 +330,10 @@ class EvidenceBinding:
         return role in self.allowed_reasoning_roles
 
     def may_support_task(self) -> bool:
-        """Load-bearing: NEGATED / UNCERTAIN / ENTITY_MISMATCH cannot support."""
+        """Load-bearing: recomputes from statement. Stored polarity cannot override."""
+        live = self._live_assessment()
+        if live is not None:
+            return positive_support_eligible(live)
         return positive_support_eligible(
             SupportAssessment(
                 support_class=self.support_class,
@@ -325,15 +351,20 @@ class EvidenceBinding:
 
     def contradicts_task(self) -> bool:
         """Same-entity contrary/negated evidence. Mismatch is not contradiction."""
-        if self.support_class != TASK_DIRECT_SUPPORT:
+        live = self._live_assessment()
+        support_class = live.support_class if live is not None else self.support_class
+        polarity = live.polarity if live is not None else self.support_polarity
+        clause_force = live.clause_force if live is not None else self.clause_force
+        entity_state = live.entity_state if live is not None else self.entity_state
+        if support_class != TASK_DIRECT_SUPPORT:
             return False
-        if self.entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS}:
+        if entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS, ENTITY_SCOPED}:
             return False
-        if self.clause_force == CLAUSE_UNCERTAIN:
+        if clause_force == CLAUSE_UNCERTAIN:
             return False
-        if self.clause_force == CLAUSE_NEGATED:
+        if clause_force == CLAUSE_NEGATED:
             return True
-        return self.support_polarity in {POLARITY_CONTRADICTS, POLARITY_NEGATED}
+        return polarity in {POLARITY_CONTRADICTS, POLARITY_NEGATED}
 
 
 def bind_item(
@@ -384,6 +415,8 @@ def bind_item(
         entity_state=support.entity_state,
         evidence_entities=support.evidence_entities,
         task_entities=support.task_entities,
+        task_question=task.question,
+        task_objective=task.objective,
     )
 
 

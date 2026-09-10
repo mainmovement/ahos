@@ -21,6 +21,8 @@ from architecture.cognitive.loop.contracts import (
     TaskType,
 )
 from architecture.cognitive.loop.reason import NOT_IMPLEMENTED_MODES, reason
+from architecture.cognitive.loop.binding import bind_context
+from architecture.cognitive.loop.episode import reusable_writeback_permitted
 from architecture.cognitive.loop.retrieval import MemoryRetriever
 from architecture.cognitive.memory.store import CognitiveMemoryStore, MemoryAuthorizationError, MemoryRecord
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
@@ -116,7 +118,10 @@ class CognitiveOrchestrator:
         } and task.reasoning_mode not in NOT_IMPLEMENTED_MODES
 
         # Unresolved/insufficient/contested must not become reusable hypotheses.
-        reusable_writeback = verdict == "WEAKLY_SUPPORTED"
+        # Verdict string WEAKLY_SUPPORTED is not sufficient; episode polarity is.
+        reusable_writeback = reusable_writeback_permitted(
+            verdict, bind_context(ctx, task, store=self.memory)
+        )
         if should_hyp and task.write_back and reusable_writeback:
             hyp = self.hypotheses.propose(
                 f"{task.question} [{task.data_label}]",
@@ -187,7 +192,7 @@ class CognitiveOrchestrator:
             )
 
         if task.write_back and use_memory:
-            if verdict == "WEAKLY_SUPPORTED":
+            if reusable_writeback:
                 lesson_statement = (
                     f"LESSON [{task.data_label}]: {trace.conclusion} "
                     f"about {task.question} {task.objective} "
@@ -287,4 +292,5 @@ class CognitiveOrchestrator:
             lesson_applied=bool(inf.get("lesson_applied")),
             failure_applied=bool(inf.get("failure_applied")),
             critic_action=critique.action,
+            reusable_writeback=reusable_writeback,
         )

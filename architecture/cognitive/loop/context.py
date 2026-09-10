@@ -127,7 +127,7 @@ def assemble_context(
         lessons=lessons,
         unknowns=tuple(unknowns),
         excluded=tuple(excluded),
-        contradiction_present=bool(uniq),
+        contradiction_present=bool(uniq),  # graph CONTRADICTS edges only; mixed polarity is independent
         context_incomplete=incomplete,
         token_estimate=token_sum,
     )

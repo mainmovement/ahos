@@ -1,4 +1,11 @@
-"""Mode-specific reasoners over EvidenceBinding lists. LLM-free."""
+"""Mode-specific eligibility gates and templates over EvidenceBinding lists.
+
+These are not independent formal reasoning operators. They are distinct
+governed eligibility/template transforms (typed inference heuristics).
+They do not perform proof, statistical induction, or entailment.
+Lexical match is candidate relevance only. Episode-level mixed polarity
+is fail-closed independently of CONTRADICTS graph edges.
+"""
 
 from __future__ import annotations
 
@@ -14,6 +21,12 @@ from architecture.cognitive.loop.binding import (
     with_role,
 )
 from architecture.cognitive.loop.support import SUPPORT_NON, SUPPORT_UNKNOWN
+from architecture.cognitive.loop.episode import (
+    MIXED_POLARITY,
+    MIXED_UNCERTAIN,
+    decision_bearing_supporters,
+    episode_positive_block_reason,
+)
 from architecture.cognitive.loop.contracts import (
     Assumption,
     ClaimOrigin,
@@ -40,6 +53,48 @@ def _supporting(bindings: list[EvidenceBinding], task: CognitiveTask, role: str)
 
 def _contradicting(bindings: list[EvidenceBinding], task: CognitiveTask, role: str) -> list[EvidenceBinding]:
     return [b for b in _relevant(bindings, task, role) if b.contradicts_task()]
+
+
+def _episode_blocks_positive(
+    bindings: list[EvidenceBinding], steps: list[str]
+) -> CandidateInference | None:
+    """Fail-closed mixed polarity/uncertainty. Graph edges are not required."""
+    code = episode_positive_block_reason(bindings)
+    if code == MIXED_POLARITY:
+        steps.append("episode policy: SUPPORTS + CONTRADICTS; graph edge not required")
+        contraries = [b for b in bindings if b.contradicts_task()]
+        supporters = decision_bearing_supporters(bindings)
+        return CandidateInference(
+            verdict=CognitiveVerdict.CONTESTED.value,
+            epistemic=EpistemicAnswer.CONTESTED.value,
+            conclusion="Episode contested: supporting and contradicting evidence both present.",
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in supporters],
+            supporting_ids=[b.memory_id for b in supporters],
+            contradicting_ids=[b.memory_id for b in contraries],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
+    if code == MIXED_UNCERTAIN:
+        steps.append("episode policy: SUPPORTS + UNCERTAIN; unresolved")
+        uncertain = [
+            b
+            for b in bindings
+            if b.clause_force == "UNCERTAIN" and b.addresses_task_flag
+        ]
+        supporters = decision_bearing_supporters(bindings)
+        return CandidateInference(
+            verdict=CognitiveVerdict.UNRESOLVED.value,
+            epistemic=EpistemicAnswer.UNCERTAIN.value,
+            conclusion="Episode unresolved: supporting evidence coexists with uncertain clauses.",
+            conclusion_class="INFERENCE",
+            premises=[b.memory_id for b in supporters],
+            supporting_ids=[b.memory_id for b in supporters],
+            contradicting_ids=[b.memory_id for b in uncertain],
+            assumptions=[_base_assumption()],
+            steps=steps,
+        )
+    return None
 
 
 def _no_support_missing(candidates: list[EvidenceBinding]) -> list[str]:
@@ -137,6 +192,9 @@ def reason_deductive(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    blocked = _episode_blocks_positive(bindings, steps)
+    if blocked:
+        return blocked
     if not premises:
         typed_only = with_role(bindings, ROLE_FACTUAL_PREMISE)
         if typed_only:
@@ -243,6 +301,9 @@ def reason_inductive(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    blocked = _episode_blocks_positive(bindings, steps)
+    if blocked:
+        return blocked
     if len(uniq) < 2:
         steps.append(f"insufficient supporting examples n={len(uniq)}")
         return CandidateInference(
@@ -338,6 +399,9 @@ def reason_abductive(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    blocked = _episode_blocks_positive(bindings, steps)
+    if blocked:
+        return blocked
     if not supporting_obs:
         steps.append("lexical/context observations are not support for the proposition")
         return CandidateInference(
@@ -391,8 +455,8 @@ def reason_abductive(
         epistemic=EpistemicAnswer.UNCERTAIN.value,
         conclusion=f"Best explanation candidate (not truth): {best.statement}",
         conclusion_class="HYPOTHESIS",
-        premises=[b.memory_id for b in observations],
-        supporting_ids=[best.memory_id] + [b.memory_id for b in observations],
+        premises=[b.memory_id for b in supporting_obs],
+        supporting_ids=[b.memory_id for b in supporting_obs],
         alternatives=alts,
         assumptions=[_base_assumption()],
         steps=steps,
@@ -444,6 +508,9 @@ def reason_comparative(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    blocked = _episode_blocks_positive(bindings, steps)
+    if blocked:
+        return blocked
     if not facts and not others:
         return _empty(task, "Comparison has no bound evidence.")
     if not facts:
@@ -542,6 +609,9 @@ def reason_temporal(
             assumptions=[_base_assumption()],
             steps=steps,
         )
+    blocked = _episode_blocks_positive(bindings, steps)
+    if blocked:
+        return blocked
     if not aging and not dated:
         return _empty(task, "Temporal reading has no dated supporting facts.")
     lesson_on, fail_on, _, _ = _lesson_failure_flags(bindings)
@@ -680,6 +750,9 @@ def reason_adversarial(
             steps=steps,
             lesson_applied=lesson_on,
         )
+    blocked = _episode_blocks_positive(bindings, steps)
+    if blocked:
+        return blocked
     if not facts:
         return _empty(task, "Adversarial review found no supporting factual premises.")
     steps.append("supporting facts present; still refuse certainty")
@@ -699,60 +772,63 @@ def reason_adversarial(
 def reason_metacognitive(
     task: CognitiveTask, bindings: list[EvidenceBinding]
 ) -> CandidateInference:
+    """Inventory transform. Decision-bearing evidence is may_support_task() only.
+
+    Lexical `_relevant` items are counted, never cited as support. Cafeteria-style
+    matches cannot upgrade an episode because a real supporter is also present.
+    """
     facts = with_role(bindings, ROLE_FACTUAL_PREMISE)
     relevant = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
+    supporters = decision_bearing_supporters(bindings)
     inferred = [b for b in bindings if b.typed_class in {"INFERENCE", "DERIVED_FACT"}]
     unknown_n = [b for b in bindings if b.typed_class == "UNKNOWN"]
     steps = [
         "METACOGNITIVE: inventory known / inferred / unknown; not self-awareness",
+        "decision-bearing = may_support_task(); lexical inventory is not support",
         f"known_facts={len(facts)} task_relevant={len(relevant)} "
-        f"inferred={len(inferred)} typed_unknown={len(unknown_n)}",
+        f"decision_bearing={len(supporters)} inferred={len(inferred)} "
+        f"typed_unknown={len(unknown_n)}",
         "capability limitation: no causal or counterfactual engine",
     ]
     lesson_on, fail_on, _, _ = _lesson_failure_flags(bindings)
-    if not facts:
+    blocked = _episode_blocks_positive(bindings, steps)
+    if blocked:
+        blocked.conclusion = (
+            f"Known observations: {len(facts)} ({len(supporters)} decision-bearing). "
+            f"{blocked.conclusion} Capability limitation: no world model."
+        )
+        blocked.lesson_applied = lesson_on
+        blocked.failure_applied = fail_on
+        return blocked
+    if not supporters:
+        steps.append("inventory is not an answer; no decision-bearing supporter")
         return CandidateInference(
             verdict=CognitiveVerdict.INSUFFICIENT_EVIDENCE.value,
             epistemic=EpistemicAnswer.UNKNOWN.value,
             conclusion=(
-                f"Known observations: 0. Inferred: {len(inferred)}. "
-                "Unknowns remain unknown. Capability limitation: no world model."
+                f"Known observations: {len(facts)} ({len(relevant)} address the task "
+                "lexically; 0 decision-bearing). Inventory is not an answer. "
+                "Capability limitation: no world model."
             ),
             conclusion_class="INFERENCE",
-            missing_premises=["FACTUAL_PREMISE"],
+            missing_premises=["TASK_SUPPORTING_PREMISE"] if facts else ["FACTUAL_PREMISE"],
             assumptions=[_base_assumption()],
             steps=steps,
             lesson_applied=lesson_on,
             failure_applied=fail_on,
         )
-    if not relevant:
-        steps.append("inventory includes observations that do not address the task")
-        return CandidateInference(
-            verdict=CognitiveVerdict.WEAKLY_SUPPORTED.value,
-            epistemic=EpistemicAnswer.UNCERTAIN.value,
-            conclusion=(
-                f"Known observations: {len(facts)} (0 address the task). "
-                "Inventory is not an answer. Capability limitation: no world model."
-            ),
-            conclusion_class="INFERENCE",
-            premises=[b.memory_id for b in facts],
-            supporting_ids=[b.memory_id for b in facts],
-            assumptions=[_base_assumption()],
-            steps=steps,
-            lesson_applied=lesson_on,
-            failure_applied=fail_on,
-        )
+    steps.append(f"{len(supporters)} decision-bearing supporters; cafeteria not cited")
     return CandidateInference(
         verdict=CognitiveVerdict.WEAKLY_SUPPORTED.value,
         epistemic=EpistemicAnswer.UNCERTAIN.value,
         conclusion=(
-            f"Known observations: {len(facts)} ({len(relevant)} address the task). "
+            f"Known observations: {len(facts)} ({len(supporters)} decision-bearing). "
             "Verdict remains uncertain; no claim of self-awareness. "
             "Capability limitation: no world model."
         ),
         conclusion_class="INFERENCE",
-        premises=[b.memory_id for b in relevant],
-        supporting_ids=[b.memory_id for b in relevant],
+        premises=[b.memory_id for b in supporters],
+        supporting_ids=[b.memory_id for b in supporters],
         assumptions=[_base_assumption()],
         steps=steps,
         lesson_applied=lesson_on,

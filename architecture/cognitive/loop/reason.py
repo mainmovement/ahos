@@ -21,6 +21,7 @@ from architecture.cognitive.loop.support import (
     CLAUSE_UNCERTAIN,
     ENTITY_AMBIGUOUS,
     ENTITY_MISMATCH,
+    ENTITY_SCOPED,
 )
 from architecture.cognitive.loop.contracts import (
     Assumption,
@@ -53,6 +54,12 @@ from architecture.cognitive.loop.inference import (
     to_inference,
 )
 from architecture.cognitive.loop.modes import MODE_FNS
+from architecture.cognitive.loop.episode import (
+    MIXED_POLARITY,
+    apply_episode_positive_policy,
+    episode_positive_block_reason,
+    reusable_writeback_permitted,
+)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import EpistemicKind
 
@@ -153,6 +160,13 @@ def _inspect(
         findings.append(f"{FINDING_CONTRADICTION}:present")
         if accepted:
             findings.append(f"{FINDING_CONTRADICTION}:ignored_or_underweighted")
+    mixed = episode_positive_block_reason(bindings)
+    if mixed == MIXED_POLARITY:
+        findings.append(f"{FINDING_CONTRADICTION}:mixed_polarity_no_edge_required")
+        if accepted:
+            findings.append(f"{FINDING_CONTRADICTION}:ignored_or_underweighted")
+    elif mixed and accepted:
+        findings.append(f"{FINDING_EVIDENCE_MISMATCH}:{mixed}")
     inapplicable_lessons = [
         b
         for b in bindings
@@ -202,14 +216,14 @@ def _inspect(
         return ACTION_REFUSE, findings
     if accepted and not supporting_cited:
         return ACTION_REFUSE, findings
+    if FINDING_CONTRADICTION in codes:
+        return ACTION_CONTEST, findings
     if already_refused:
         return ACTION_ACCEPT, findings
     if FINDING_MISSING_PREMISE in codes:
         return ACTION_REQUIRE_MORE, findings
     if FINDING_EVIDENCE_MISMATCH in codes and "unbound_citation" not in " ".join(findings):
         return ACTION_REQUIRE_MORE, findings
-    if FINDING_CONTRADICTION in codes:
-        return ACTION_CONTEST, findings
     if FINDING_TYPE_VIOLATION in codes:
         return ACTION_DOWNGRADE, findings
     if FINDING_TEMPORAL_VIOLATION in codes or FINDING_SCOPE_MISMATCH in codes:
@@ -290,6 +304,8 @@ def reason(
             origin=ClaimOrigin.ASSUMED.value,
         )
     ]
+    # Assumptions are recorded on the trace. They never enter EvidenceBinding
+    # lists and cannot satisfy may_support_task().
     bindings = bind_context(ctx, task, store=store)
 
     if mode in NOT_IMPLEMENTED_MODES:
@@ -365,7 +381,7 @@ def reason(
         if b.memory_id in cited_support
         and (
             b.clause_force in {CLAUSE_NEGATED, CLAUSE_UNCERTAIN}
-            or b.entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS}
+            or b.entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS, ENTITY_SCOPED}
         )
     ]
     if constrained.verdict in {
@@ -379,6 +395,16 @@ def reason(
         critique.action = ACTION_REFUSE
         critique.findings = tuple(list(critique.findings) + extra)
         critique.constraint_applied = True
+    constrained = apply_episode_positive_policy(constrained, bindings)
+    if constrained.verdict != pre_verdict and constrained.verdict not in {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    }:
+        critique.constraint_applied = True
+        if episode_positive_block_reason(bindings) and "episode policy" not in " ".join(
+            constrained.steps
+        ):
+            constrained.steps.append("episode policy applied after critic")
     if ctx.context_incomplete:
         constrained.steps.append("CONTEXT_INCOMPLETE")
         if constrained.verdict == CognitiveVerdict.WEAKLY_SUPPORTED.value:
@@ -415,6 +441,7 @@ def reason(
         constraint_actions=(critique.action,),
         evidence_classes=tuple(b.typed_class for b in bindings),
         premises=tuple(constrained.premises),
+        reusable_writeback=reusable_writeback_permitted(constrained.verdict, bindings),
     )
     # Preserve critic flags after constraint (too_strong refers to candidate).
     critique.too_strong = pre_verdict == CognitiveVerdict.SUPPORTED.value
