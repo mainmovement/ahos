@@ -721,6 +721,31 @@ def run_cognitive_benchmark(
     )
 
     # ----- hypothesis + experiment (analysis-only) -----
+    # Dedicated store: shared benchmark memory may contain mixed polarity from
+    # earlier probes; reusable write-back must not depend on that leak.
+    hyp_dir = workdir / "hyp-probe"
+    hyp_dir.mkdir(exist_ok=True)
+    hyp_store = CognitiveMemoryStore(hyp_dir / "ahos_cognitive_memory.sqlite")
+    hyp_store.remember(
+        memory_id="SEED-HYP-SUPPORT",
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
+        source_type=SourceType.SYSTEM,
+        source_id="seed-hyp-support",
+        source_location="benchmark.hypothesis",
+        producer="p4.1-benchmark",
+        producer_version="p4.1.0",
+        domain="software",
+        context=DATA_LABEL,
+        observed_at=NOW - 80,
+        created_at=NOW - 70,
+        payload={"data_label": DATA_LABEL},
+    )
+    hyp_only = HypothesisStore(hyp_dir / "hyp.jsonl")
+    hyp_orch = CognitiveOrchestrator(
+        memory=hyp_store, hypotheses=hyp_only, ledger_path=hyp_dir / "exp.jsonl"
+    )
     h_task = CognitiveTask(
         task_id="HYP-BENCH-1",
         task_type=TaskType.INVESTIGATE.value,
@@ -731,9 +756,10 @@ def run_cognitive_benchmark(
         created_at=NOW,
         data_label=DATA_LABEL,
         write_back=True,
+        reasoning_mode=ReasoningMode.DEDUCTIVE.value,
     )
-    h_res = orch.run(h_task, now=NOW, use_memory=True)
-    hyp_rec = hyp.get(h_res.hypothesis_id) if h_res.hypothesis_id else None
+    h_res = hyp_orch.run(h_task, now=NOW, use_memory=True)
+    hyp_rec = hyp_only.get(h_res.hypothesis_id) if h_res.hypothesis_id else None
     fals = 1.0 if hyp_rec and hyp_rec.provenance.get("falsification_condition") else 0.0
     novelty_ok = 1.0 if h_res.novelty.get("novelty_equals_truth") is False else 0.0
     metrics.append(
