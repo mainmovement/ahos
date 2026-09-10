@@ -16,7 +16,7 @@ Original `reports/agi_aci_evolution/P5_FORENSIC_ARCHITECTURE_GATE.md` is **uncha
 | Branch | `cursor/agi-aci-p5-typed-evidence-reasoning-9500` |
 | Audited production HEAD | `1a7e5e74a016da7b8d7aed65a4049c4f2a727e12` |
 | Previous production start | `f0d2c4ee7233f1ee0fc09c9245b6c449c0027638` |
-| Proof tests + this report | *this commit after landing* |
+| Proof tests + this report | `fedecd6c590bcf8a01f15a08e2a9306ada807980` |
 
 ---
 
