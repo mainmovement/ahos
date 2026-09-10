@@ -20,7 +20,7 @@ Original `reports/agi_aci_evolution/P5_FORENSIC_ARCHITECTURE_GATE.md` is **uncha
 | Audited production HEAD (start) | `f0d2c4ee7233f1ee0fc09c9245b6c449c0027638` |
 | Original forensic gate content | `02c41be569798568909e336f4b2277dc84b79dfe` |
 | Audit implementation commit | `f8740917cf9a8b58514a60ae8f3d3668d139df45` |
-| This stamp commit | *this file after landing* |
+| This stamp commit | `883d74d91a63dcd25a2f9ec56a053cdb2f39a82e` |
 
 ---
 
