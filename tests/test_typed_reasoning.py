@@ -617,7 +617,8 @@ def test_live_critic_constrains_metacognitive_contradiction() -> None:
         token_estimate=2,
     )
     task = _task(reasoning_mode=ReasoningMode.METACOGNITIVE.value)
-    pre = reason_metacognitive(task, bind_context(ctx, task))
+    store = authorize_retrieved_items(a, b)
+    pre = reason_metacognitive(task, bind_context(ctx, task, store=store))
     assert pre.verdict in {
         CognitiveVerdict.WEAKLY_SUPPORTED.value,
         CognitiveVerdict.CONTESTED.value,

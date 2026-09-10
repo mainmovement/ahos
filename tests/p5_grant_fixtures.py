@@ -33,6 +33,8 @@ def persist_authorized(
     created_at: float | None = NOW - 10,
     payload: dict | None = None,
     status: str | None = None,
+    agent_id: str = "",
+    agent_namespace: str = "",
 ):
     rec = persist_observed_acquisition(
         store,
@@ -50,6 +52,8 @@ def persist_authorized(
             payload=payload or {"data_label": "SYNTHETIC_TEST_DATA"},
             memory_id=memory_id,
             created_at=created_at,
+            agent_id=agent_id,
+            agent_namespace=agent_namespace,
         ),
     )
     if status and status != DecayState.ACTIVE.value:

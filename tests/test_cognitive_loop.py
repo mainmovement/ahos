@@ -47,6 +47,7 @@ from architecture.cognitive.memory.store import (  # noqa: E402
     MemoryAuthorizationError,
     SoakBoundaryError,
 )
+from tests.p5_grant_fixtures import persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
     EpistemicKind,
@@ -92,23 +93,16 @@ def _seed_fact(
     agent_id: str = "",
     agent_namespace: str = "",
 ) -> str:
-    rec = store.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement=statement,
-        source_type=SourceType.SYSTEM,
+    rec = persist_authorized(
+        store,
+        statement,
         source_id=source_id,
-        source_location="tests/test_cognitive_loop.py",
-        producer="pytest_p3",
-        producer_version="p3",
-        domain=domain,
-        context="SYNTHETIC_TEST_DATA",
         observed_at=observed_at,
-        created_at=created_at,
+        domain=domain,
         valid_until=valid_until,
+        created_at=created_at,
         agent_id=agent_id,
         agent_namespace=agent_namespace,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     return rec.memory_id
 
