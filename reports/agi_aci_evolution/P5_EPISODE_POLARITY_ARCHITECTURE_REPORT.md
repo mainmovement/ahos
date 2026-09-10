@@ -97,13 +97,14 @@ Decision-bearing evidence = `may_support_task()` AND eligible `FACTUAL_PREMISE`.
 
 | Field | Value |
 | --- | --- |
-| Production SHA audited | `096131b64347bd7829a2905f8e260f1e4bbbb95e` |
+| Production SHA audited | `8ec1d2b420b55ef5b8d94a82733b7d920e3b0d3f` |
+| Last code commit | `3350ffa48947f0f6986e60581391fb1ac3f7f64a` |
 | Architecture commit | `664415d` Fail-close mixed polarity at episode level without requiring graph edges. |
 | Original FAIL audit | `7e88ad2ed782b35db84c1c1ea7261b1b5bfa6613` |
 | Original FAIL report commit | `02c41be569798568909e336f4b2277dc84b79dfe` |
 | Retrieval | `architecture/cognitive/loop/retrieval.py` not redesigned |
 
-This file is committed at .
+`git rev-parse HEAD` after this report lands is the SHA to audit. The table SHA above is the parent that already contains the architecture plus the report body.
 
 ---
 
