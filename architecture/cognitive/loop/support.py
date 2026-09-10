@@ -215,6 +215,20 @@ _ACTION = frozenset({"retry", "retries", "retried"})
 _PROBLEM = frozenset({"error", "fail", "failed", "failure", "failures", "timeout", "timeouts"})
 _DOMAIN_QUALIFIERS = frozenset({"dns", "http", "https", "sql", "tcp", "udp"})
 _ABOUT_MARKERS = (" about ", " regarding ", " concerning ")
+_POLARITY_SURFACE = frozenset(
+    {
+        "cannot",
+        "unable",
+        "without",
+        "never",
+        "dont",
+        "didnt",
+        "doesnt",
+        "unknown",
+        "uncertain",
+        "unclear",
+    }
+)
 _AGENT_BEFORE_REDUCE_FAIL = re.compile(
     r"\b(?:retry|retries|retried)\b.{0,160}"
     r"\b(?:reduce|reduced|reduction|reducing)\b.{0,160}"
@@ -412,6 +426,7 @@ def classify_support(evidence_text: str, task: CognitiveTask) -> SupportAssessme
         and t not in _ACTION
         and t not in _PROBLEM
         and t not in _EVALUATIVE
+        and t not in _POLARITY_SURFACE
         and t not in q_content
     }
 
