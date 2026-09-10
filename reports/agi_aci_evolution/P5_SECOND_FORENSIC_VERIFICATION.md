@@ -19,6 +19,7 @@ Honest capability: governed typed eligibility + closed-lexicon support classific
 | --- | --- |
 | Branch | `cursor/agi-aci-p5-typed-evidence-reasoning-9500` |
 | Integrity hardening + forensic tests | `93dc6d8a2f59d514e49954c9253e23cbbdb4fc24` |
+| This report commit | `1244fd60b533a7b83bbf4be4c4d855c6e306d602` |
 
 The production tree to audit is HEAD of this branch after this report lands.
 
