@@ -28,6 +28,10 @@ from architecture.cognitive.loop.support import (
     classify_support,
     positive_support_eligible,
 )
+from architecture.cognitive.memory.observation import (
+    latest_observation_fields,
+    observation_grant_permits_factual,
+)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, UNKNOWN
 
@@ -182,7 +186,13 @@ def _applicability(
     return APPLICABLE
 
 
-def _roles(typed: str, temporal: str, applicability: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _roles(
+    typed: str,
+    temporal: str,
+    applicability: str,
+    *,
+    grant_ok: bool = False,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     forbidden = [ROLE_FACTUAL_PREMISE]
     allowed: list[str] = [ROLE_COMPARISON]
 
@@ -195,6 +205,10 @@ def _roles(typed: str, temporal: str, applicability: str) -> tuple[tuple[str, ..
             allowed = [ROLE_HISTORY, ROLE_COMPARISON]
             forbidden = [ROLE_FACTUAL_PREMISE]
         elif temporal == TEMP_UNKNOWN:
+            allowed = [ROLE_HISTORY, ROLE_COMPARISON]
+            forbidden = [ROLE_FACTUAL_PREMISE]
+        elif not grant_ok:
+            # Label without a verified ObservationGrant is data only.
             allowed = [ROLE_HISTORY, ROLE_COMPARISON]
             forbidden = [ROLE_FACTUAL_PREMISE]
         else:
@@ -237,9 +251,13 @@ def _roles(typed: str, temporal: str, applicability: str) -> tuple[tuple[str, ..
     return tuple(allowed), tuple(forbidden)
 
 
-def _support_strength(typed: str, applicability: str, temporal: str) -> str:
+def _support_strength(
+    typed: str, applicability: str, temporal: str, *, grant_ok: bool = False
+) -> str:
     if applicability == NOT_APPLICABLE:
         return SUPPORT_NONE
+    if typed == "OBSERVED_FACT" and not grant_ok:
+        return SUPPORT_UNKNOWN
     if typed == "OBSERVED_FACT" and temporal in {TEMP_CURRENT, TEMP_AGING, TEMP_DATED}:
         return SUPPORT_DIRECT
     if typed in {"INFERENCE", "DERIVED_FACT", "PROCEDURE", "EXPERIMENT"}:
@@ -286,6 +304,9 @@ class EvidenceBinding:
     task_component: str = ""
     task_failure_type: str = ""
     observed_at: float | None = None
+    source_type: str = ""
+    valid_until: float | None = None
+    task_created_at: float = 0.0
 
     def _task_snapshot(self) -> CognitiveTask:
         return CognitiveTask(
@@ -335,8 +356,29 @@ class EvidenceBinding:
             self.live_typed_class(), item, self._task_snapshot(), dict(self.payload)
         )
 
+    def live_grant_ok(self) -> bool:
+        now = self.task_created_at if self.task_created_at else 0.0
+        return observation_grant_permits_factual(
+            statement=self.statement,
+            epistemic_kind=self.epistemic_kind,
+            memory_type=self.memory_type,
+            source_type=self.source_type or str(self.provenance.get("source_type") or ""),
+            source_id=str(self.provenance.get("source_id") or ""),
+            observed_at=self.observed_at,
+            valid_until=self.valid_until,
+            domain=self.domain,
+            payload=self.payload,
+            now=now,
+            status=self.status,
+        )
+
     def live_roles(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
-        return _roles(self.live_typed_class(), self.live_temporal_state(), self.live_applicability())
+        return _roles(
+            self.live_typed_class(),
+            self.live_temporal_state(),
+            self.live_applicability(),
+            grant_ok=self.live_grant_ok(),
+        )
 
     def live_addresses_task(self) -> bool:
         return addresses_task(self.statement, self._task_snapshot())
@@ -432,14 +474,71 @@ def bind_item(
     contradicted_ids: set[str] | None = None,
     index: int = 0,
 ) -> EvidenceBinding:
-    payload = _payload(store, item.memory_id)
-    typed = typed_class_of(item)
-    temporal = temporal_state_of(item)
-    applicability = _applicability(typed, item, task, payload)
-    allowed, forbidden = _roles(typed, temporal, applicability)
+    latest = latest_observation_fields(store, item.memory_id)
+    if latest is not None:
+        statement = latest.statement
+        domain = latest.domain
+        status = latest.status
+        epistemic_kind = latest.epistemic_kind
+        memory_type = latest.memory_type
+        observed_at = latest.observed_at
+        valid_until = latest.valid_until
+        source_type = latest.source_type
+        source_id = latest.source_id
+        payload = dict(latest.payload) if isinstance(latest.payload, dict) else {}
+        typed = typed_class_from_parts(memory_type, epistemic_kind)
+        temporal = temporal_from_parts(status, observed_at)
+    else:
+        statement = item.statement
+        domain = item.domain
+        status = item.status
+        epistemic_kind = item.epistemic_kind
+        memory_type = item.memory_type
+        observed_at = item.observed_at
+        valid_until = None
+        source_type = ""
+        source_id = item.source_id
+        payload = _payload(store, item.memory_id)
+        typed = typed_class_of(item)
+        temporal = temporal_state_of(item)
+    applicability = _applicability(
+        typed,
+        RetrievedItem(
+            memory_id=item.memory_id,
+            revision=item.revision,
+            statement=statement,
+            match_reasons=item.match_reasons,
+            evidence_class=item.evidence_class,
+            memory_type=memory_type,
+            epistemic_kind=epistemic_kind,
+            status=status,
+            domain=domain,
+            source_id=source_id,
+            agent_namespace=item.agent_namespace,
+            observed_at=observed_at,
+            created_at=item.created_at,
+        ),
+        task,
+        payload,
+    )
+    now = float(task.created_at) if task.created_at else 0.0
+    grant_ok = observation_grant_permits_factual(
+        statement=statement,
+        epistemic_kind=epistemic_kind,
+        memory_type=memory_type,
+        source_type=source_type,
+        source_id=source_id,
+        observed_at=observed_at,
+        valid_until=valid_until,
+        domain=domain,
+        payload=payload,
+        now=now,
+        status=status,
+    )
+    allowed, forbidden = _roles(typed, temporal, applicability, grant_ok=grant_ok)
     contradicted = bool(contradicted_ids and item.memory_id in contradicted_ids)
-    support = classify_support(item.statement, task)
-    lexical = addresses_task(item.statement, task)
+    support = classify_support(statement, task)
+    lexical = addresses_task(statement, task)
     return EvidenceBinding(
         evidence_id=f"EVD-{index:06d}-{item.memory_id}",
         memory_id=item.memory_id,
@@ -448,19 +547,22 @@ def bind_item(
         applicability=applicability,
         temporal_state=temporal,
         provenance={
-            "source_id": item.source_id,
+            "source_id": source_id,
+            "source_type": source_type,
             "producer": "retrieved",
             "evidence_class_p3": item.evidence_class,
         },
-        support_strength=_support_strength(typed, applicability, temporal),
+        support_strength=_support_strength(
+            typed, applicability, temporal, grant_ok=grant_ok
+        ),
         contradiction_state="CONTESTED" if contradicted else "UNCONTESTED",
         allowed_reasoning_roles=allowed,
         forbidden_reasoning_roles=forbidden,
-        statement=item.statement,
-        domain=item.domain,
-        status=item.status,
-        epistemic_kind=item.epistemic_kind,
-        memory_type=item.memory_type,
+        statement=statement,
+        domain=domain,
+        status=status,
+        epistemic_kind=epistemic_kind,
+        memory_type=memory_type,
         match_reasons=tuple(item.match_reasons),
         payload=payload,
         addresses_task_flag=lexical,
@@ -477,7 +579,10 @@ def bind_item(
         task_domain=task.domain,
         task_component=str(task.constraints.get("component") or ""),
         task_failure_type=str(task.constraints.get("failure_type") or ""),
-        observed_at=item.observed_at,
+        observed_at=observed_at,
+        source_type=source_type,
+        valid_until=valid_until,
+        task_created_at=now,
     )
 
 

@@ -16,8 +16,12 @@ from architecture.cognitive.loop.contracts import (
 from architecture.cognitive.loop.inference import ACTION_ACCEPT, ACTION_CONTEST, ACTION_REFUSE
 from architecture.cognitive.loop.modes import reason_metacognitive
 from architecture.cognitive.loop.reason import reason
+from architecture.cognitive.memory.observation import (
+    AcquisitionRecord,
+    persist_observed_acquisition,
+)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
-from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
+from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType
 
 NOW = 1_800_000_000.0
 P5_VERSION = "p5.1.0"
@@ -119,6 +123,41 @@ def _run(task: CognitiveTask, ctx: CognitiveContext, store=None):
     return reason(task, ctx, retrieved_ids=ids, store=store)
 
 
+def _authorize_item(store: CognitiveMemoryStore, item: RetrievedItem) -> None:
+    if item.epistemic_kind != EpistemicKind.OBSERVED_FACT.value:
+        return
+    if item.memory_type == MemoryType.FAILURE.value:
+        return
+    if item.observed_at is None:
+        return
+    if store.get(item.memory_id) is not None:
+        return
+    persist_observed_acquisition(
+        store,
+        AcquisitionRecord(
+            statement=item.statement,
+            source_type=SourceType.SYSTEM.value,
+            source_id=item.source_id or "p5",
+            observed_at=float(item.observed_at),
+            domain=item.domain,
+            source_location="p5_eval",
+            producer="p5",
+            producer_version=P5_VERSION,
+            context="SYNTHETIC_TEST_DATA",
+            payload={"data_label": "SYNTHETIC_TEST_DATA"},
+            memory_id=item.memory_id,
+            created_at=item.created_at,
+        ),
+    )
+    if item.status and item.status != DecayState.ACTIVE.value:
+        store.revise(
+            item.memory_id,
+            status=item.status,
+            correction_reason="p5-eval-status",
+            now=NOW,
+        )
+
+
 def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResult], list[dict], dict[str, int]]:
     case_results: list[dict] = []
     fact = _item("P5-FACT", "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.")
@@ -140,6 +179,8 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
         status="STALE",
         observed_at=NOW - 10_000,
     )
+    for seeded in (fact, fact2, stale):
+        _authorize_item(store, seeded)
     ok_lesson = store.remember(
         memory_type=MemoryType.SEMANTIC,
         epistemic_kind=EpistemicKind.LESSON,
@@ -332,6 +373,8 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     contra_n += 1
     a = _item("P5-CA", "SYNTHETIC_TEST_DATA: timeout retries support recovery.")
     b = _item("P5-CB", "SYNTHETIC_TEST_DATA: timeout retries contradict recovery.")
+    _authorize_item(store, a)
+    _authorize_item(store, b)
     v, _, tr, cr, _ = _run(
         _task("P5-CONTRA", ReasoningMode.DEDUCTIVE.value), _ctx(a, b, contra=True), store
     )
@@ -507,6 +550,7 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
         ("operations", "Do retries recover queue depth?"),
     ):
         f = _item(f"P5-{domain}", f"SYNTHETIC_TEST_DATA {domain} retries recovered", domain=domain)
+        _authorize_item(store, f)
         v, _, _, _, _ = _run(
             _task(f"P5-DOM-{domain}", ReasoningMode.DEDUCTIVE.value, domain=domain, question=q),
             _ctx(f),
@@ -692,6 +736,7 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     }
     for probe in support_probes:
         item = _item(f"P5-SUP-{probe['label']}", f"SYNTHETIC_TEST_DATA: {probe['statement']}")
+        _authorize_item(store, item)
         ptask = _task(
             f"P5-SUP-{probe['label']}",
             ReasoningMode.DEDUCTIVE.value,

@@ -9,6 +9,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from architecture.cognitive.memory.observation import (
+    AcquisitionRecord,
+    persist_observed_acquisition,
+)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
 
@@ -47,6 +51,37 @@ def _remember(
     extra: dict[str, Any] | None = None,
 ) -> str:
     payload = {"data_label": DATA_LABEL, "logical_id": logical, **(extra or {})}
+    use_grant = (
+        kind == EpistemicKind.OBSERVED_FACT
+        and memory_type != MemoryType.FAILURE
+        and observed_at is not None
+    )
+    if use_grant:
+        rec = persist_observed_acquisition(
+            store,
+            AcquisitionRecord(
+                statement=statement,
+                source_type=SourceType.SYSTEM.value,
+                source_id=f"corpus-{logical}",
+                observed_at=float(observed_at),
+                domain=domain,
+                valid_until=valid_until,
+                source_location="architecture.cognitive.benchmark.corpus",
+                producer="p4.1-benchmark",
+                producer_version="p4.1.0",
+                context=DATA_LABEL,
+                payload=payload,
+                memory_type=memory_type.value,
+                memory_id=logical,
+                created_at=created_at,
+                agent_id=agent_id,
+                agent_namespace=agent_namespace,
+                hypothesis_id=hypothesis_id,
+                experiment_id=experiment_id,
+                prediction_id=prediction_id,
+            ),
+        )
+        return rec.memory_id
     rec = store.remember(
         memory_id=logical,
         memory_type=memory_type,

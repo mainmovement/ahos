@@ -196,10 +196,7 @@ def test_remember_non_fact_kinds_store(tmp_path: Path) -> None:
 
 
 def test_consumption_remembered_observed_fact_is_factual_premise(tmp_path: Path) -> None:
-    """GAP PROOF: remember() without CognitiveOrchestrator.run mints evidence
-    that production retrieve+bind treats as FACTUAL_PREMISE / DIRECT support.
-    Storage here is write-authority for observation-class evidence.
-    """
+    """remember() may persist OBSERVED_FACT, but without a grant it is data only."""
     mem, hyp, ledger = _store(tmp_path)
     rec = _remember(mem)
     task = _task(requested_evidence=[rec.memory_id])
@@ -207,13 +204,14 @@ def test_consumption_remembered_observed_fact_is_factual_premise(tmp_path: Path)
     assert items, "production retriever must see requested OBSERVED_FACT"
     assert all(i.epistemic_kind == EpistemicKind.OBSERVED_FACT.value for i in items)
     assert any(i.evidence_class == "DIRECT_OBSERVATION" for i in items)
-    assert any(b.may(ROLE_FACTUAL_PREMISE) for b in binds)
-    assert any(b.support_strength == SUPPORT_DIRECT for b in binds)
-    assert any(b.support_class == TASK_DIRECT_SUPPORT for b in binds)
-    assert result.verdict in POSITIVE
-    assert reusable_writeback_permitted(result.verdict, binds) is True
+    assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+    assert all(b.support_strength != SUPPORT_DIRECT for b in binds)
+    assert result.verdict not in POSITIVE
+    assert reusable_writeback_permitted(result.verdict, binds) is False
     c = _counts(mem)
-    assert c["hypothesis"] >= 1 or c["lesson"] >= 1 or c["inference"] >= 1
+    assert c["hypothesis"] == 0
+    assert c["lesson"] == 0
+    assert c["inference"] == 0
 
 
 def test_consumption_remembered_hypothesis_cannot_factify(tmp_path: Path) -> None:
@@ -320,8 +318,8 @@ def test_forged_temporal_valid_until_does_not_mark_stale_on_insert(tmp_path: Pat
     assert rec.status == DecayState.ACTIVE.value
     task = _task(requested_evidence=[rec.memory_id])
     result, _, binds = _run(tmp_path, mem, hyp, ledger, task)
-    assert any(b.may(ROLE_FACTUAL_PREMISE) for b in binds)
-    assert result.verdict in POSITIVE
+    assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+    assert result.verdict not in POSITIVE
 
 
 def test_missing_observed_at_is_not_factual_premise(tmp_path: Path) -> None:
@@ -460,62 +458,20 @@ def test_consolidation_forged_candidate_skips_propose_from_episodes(tmp_path: Pa
 def test_direct_bypass_false_claim_via_remember_then_second_hop(tmp_path: Path) -> None:
     """Attacker calls remember() then a fresh CognitiveOrchestrator.run().
 
-    Hop 1: forged OBSERVED_FACT can authorize a positive verdict and reusable write-back.
-    Hop 2: the minted LESSON/HYPOTHESIS cannot become OBSERVED_FACT / FACTUAL_PREMISE.
+    Hop 1: ungranted OBSERVED_FACT must not authorize a positive verdict.
+    Hop 2: no reusable factual escalation is minted from that row.
     """
     mem, hyp, ledger = _store(tmp_path)
     rec = _remember(mem, source_id="forged-observation")
     task1 = _task(task_id="bypass-1", requested_evidence=[rec.memory_id], write_back=True)
     r1, _, b1 = _run(tmp_path, mem, hyp, ledger, task1)
-    assert r1.verdict in POSITIVE
-    assert reusable_writeback_permitted(r1.verdict, b1) is True
+    assert r1.verdict not in POSITIVE
+    assert reusable_writeback_permitted(r1.verdict, b1) is False
     c1 = _counts(mem)
-    assert c1["hypothesis"] or c1["lesson"] or c1["inference"]
-    reusable = []
-    for row in mem.recent(limit=50):
-        if row.memory_id == rec.memory_id:
-            continue
-        if row.memory_type == MemoryType.HYPOTHESIS.value:
-            reusable.append(row.memory_id)
-        elif row.memory_type == MemoryType.SEMANTIC.value and row.epistemic_kind in {
-            EpistemicKind.LESSON.value,
-            EpistemicKind.INFERENCE.value,
-        }:
-            reusable.append(row.memory_id)
-    hop = Path(tmp_path / "hop2")
-    mem2, hyp2, led2 = _store(hop)
-    for mid in reusable:
-        src = mem.get(mid)
-        if src is None:
-            continue
-        mem2.remember(
-            memory_type=src.memory_type,
-            epistemic_kind=src.epistemic_kind,
-            statement=src.statement,
-            source_type=src.source_type,
-            source_id=src.source_id,
-            source_location="hop2-copy",
-            producer=src.producer,
-            producer_version=src.producer_version,
-            domain=src.domain,
-            context=src.context,
-            observed_at=src.observed_at,
-            created_at=NOW + 50,
-            payload=dict(src.payload or {}),
-        )
-    copied = [r.memory_id for r in mem2.recent(limit=50)]
-    if not copied:
-        pytest.skip("no reusable derived row to copy; hop-1 write-back kinds unexpected")
-    r2, _, b2 = _run(
-        hop,
-        mem2,
-        hyp2,
-        led2,
-        _task(task_id="bypass-2", requested_evidence=copied, write_back=True),
-    )
-    assert all(b.live_typed_class() != "OBSERVED_FACT" for b in b2)
-    assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in b2)
-    assert r2.verdict not in POSITIVE
+    assert c1["hypothesis"] == 0
+    assert c1["lesson"] == 0
+    assert c1["inference"] == 0
+    assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in b1)
 
 
 def test_authority_escalation_matrix_via_production_bind(tmp_path: Path) -> None:
@@ -544,8 +500,8 @@ def test_authority_escalation_matrix_via_production_bind(tmp_path: Path) -> None
     by_src = {b.provenance.get("source_id"): b for b in binds}
     of = by_src["OF"]
     assert of.live_typed_class() == "OBSERVED_FACT"
-    assert of.may(ROLE_FACTUAL_PREMISE)
-    assert of.support_strength == SUPPORT_DIRECT
+    assert not of.may(ROLE_FACTUAL_PREMISE)
+    assert of.support_strength != SUPPORT_DIRECT
     for key, typed in (
         ("HYP", "HYPOTHESIS"),
         ("LES", "LESSON"),
@@ -586,9 +542,7 @@ def test_lexical_retriever_failure_intent_rejects_unanchored_fact(tmp_path: Path
 
 
 def test_lexical_retriever_without_failure_intent_consumes_forged_fact(tmp_path: Path) -> None:
-    """GAP PROOF: a question without FAILURE intent lexically retrieves a
-    remember()'d OBSERVED_FACT and can authorize a positive verdict.
-    """
+    """Ungranted remember()'d OBSERVED_FACT may retrieve, but cannot factify."""
     mem, hyp, ledger = _store(tmp_path)
     _remember(
         mem,
@@ -606,5 +560,5 @@ def test_lexical_retriever_without_failure_intent_consumes_forged_fact(tmp_path:
         task, now=NOW + 1
     )
     binds = bind_context(result.context, task, store=mem)
-    assert any(b.may(ROLE_FACTUAL_PREMISE) and b.may_support_task() for b in binds)
-    assert result.verdict in POSITIVE
+    assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+    assert result.verdict not in POSITIVE

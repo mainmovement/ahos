@@ -40,6 +40,7 @@ from architecture.cognitive.loop.support import (  # noqa: E402
     identity_tokens,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType  # noqa: E402
 
 NOW = 1_800_000_000.0
@@ -119,10 +120,11 @@ def _ctx(*items: RetrievedItem, edges: tuple = ()) -> CognitiveContext:
 
 
 def _live(task: CognitiveTask, *items: RetrievedItem, edges: tuple = ()):
+    store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task)
+    binds = bind_context(ctx, task, store=store)
     v, _, trace, _, _ = reason(
-        task, ctx, retrieved_ids=[i.memory_id for i in items]
+        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store
     )
     return binds, v, trace
 
@@ -160,20 +162,13 @@ def _run_orch(
     recs = []
     for i, statement in enumerate(statements):
         recs.append(
-            mem.remember(
-                memory_type=MemoryType.EPISODIC,
-                epistemic_kind=EpistemicKind.OBSERVED_FACT,
-                statement=f"SYNTHETIC_TEST_DATA: {statement}",
-                source_type=SourceType.SYSTEM,
+            persist_authorized(
+                mem,
+                f"SYNTHETIC_TEST_DATA: {statement}",
                 source_id=f"seed-{i}",
-                source_location="tests/test_p5_episode_polarity.py",
-                producer="pytest",
-                producer_version="p5",
-                domain=task.domain,
-                context="SYNTHETIC_TEST_DATA",
                 observed_at=NOW - 40 + i,
+                domain=task.domain,
                 created_at=NOW - 30 + i,
-                payload={"data_label": "SYNTHETIC_TEST_DATA"},
             )
         )
     if statuses:

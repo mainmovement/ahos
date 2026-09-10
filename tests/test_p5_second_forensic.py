@@ -47,6 +47,7 @@ from architecture.cognitive.loop.modes import MODE_FNS  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
     EpistemicKind,
@@ -176,11 +177,12 @@ def _counts(mem: CognitiveMemoryStore) -> dict[str, int]:
 
 
 def _reason_row(task: CognitiveTask, *items: RetrievedItem, edges: tuple = ()):
+    store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task)
+    binds = bind_context(ctx, task, store=store)
     pre = MODE_FNS[task.reasoning_mode](task, binds)
     v, ep, trace, crit, _ = reason(
-        task, ctx, retrieved_ids=[i.memory_id for i in items]
+        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store
     )
     permitted = reusable_writeback_permitted(v, binds)
     return {
@@ -217,7 +219,22 @@ def _orch(tmp_path: Path, specs: list[dict], task: CognitiveTask, *, contradict:
             created_at=NOW - 30 + i,
             payload=spec.get("payload") or {"data_label": "SYNTHETIC_TEST_DATA"},
         )
-        recs.append(mem.remember(**kw))
+        kind = EpistemicKind(spec.get("kind", EpistemicKind.OBSERVED_FACT.value))
+        mtype = MemoryType(spec.get("memory_type", MemoryType.EPISODIC.value))
+        if kind == EpistemicKind.OBSERVED_FACT and mtype != MemoryType.FAILURE:
+            recs.append(
+                persist_authorized(
+                    mem,
+                    kw["statement"],
+                    source_id=kw["source_id"],
+                    observed_at=kw["observed_at"],
+                    domain=kw["domain"],
+                    created_at=kw["created_at"],
+                    payload=kw["payload"],
+                )
+            )
+        else:
+            recs.append(mem.remember(**kw))
         st = spec.get("status")
         if st and st != DecayState.ACTIVE.value:
             mem.revise(recs[-1].memory_id, status=st, correction_reason="forensic", now=NOW - 1)
@@ -543,20 +560,13 @@ def test_ao_task_domain_mismatch() -> None:
 
 def test_ap_lesson_applicability_mismatch(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "m.sqlite")
-    fact = mem.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement=f"SYNTHETIC_TEST_DATA: {HELP_FACT}",
-        source_type=SourceType.SYSTEM,
+    fact = persist_authorized(
+        mem,
+        f"SYNTHETIC_TEST_DATA: {HELP_FACT}",
         source_id="f",
-        source_location="forensic",
-        producer="pytest",
-        producer_version="p5",
-        domain="software",
-        context="SYNTHETIC_TEST_DATA",
         observed_at=NOW - 40,
+        domain="software",
         created_at=NOW - 30,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     lesson = mem.remember(
         memory_type=MemoryType.SEMANTIC,
@@ -691,10 +701,11 @@ def test_critic_contradiction_constrains_candidate() -> None:
     task = _task(reasoning_mode=ReasoningMode.METACOGNITIVE.value)
     items = (_item("s", SUPPORT), _item("c", CONTRA))
     edges = ({"edge_id": "e", "from_id": "s", "to_id": "c", "relation": "CONTRADICTS"},)
+    store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task)
+    binds = bind_context(ctx, task, store=store)
     pre = MODE_FNS[task.reasoning_mode](task, binds)
-    v, _, _, crit, _ = reason(task, ctx, retrieved_ids=["s", "c"])
+    v, _, _, crit, _ = reason(task, ctx, retrieved_ids=["s", "c"], store=store)
     assert any("CONTRADICTION" in f for f in crit.findings)
     assert v not in POSITIVE
     assert v != CognitiveVerdict.WEAKLY_SUPPORTED.value

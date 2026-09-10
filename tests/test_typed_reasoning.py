@@ -41,6 +41,7 @@ from architecture.cognitive.loop.modes import reason_metacognitive  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType  # noqa: E402
 
 NOW = 1_800_000_000.0
@@ -137,6 +138,8 @@ def _ctx(*items: RetrievedItem, incomplete: bool = False) -> CognitiveContext:
 
 def _reason(task: CognitiveTask, ctx: CognitiveContext, store=None):
     ids = [i.memory_id for i in ctx.all_included()]
+    if store is None:
+        store = authorize_retrieved_items(*ctx.all_included())
     return reason(task, ctx, retrieved_ids=ids, store=store)
 
 
@@ -328,20 +331,12 @@ def test_causal_still_not_implemented() -> None:
 
 def test_lesson_application_and_false_application(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
-    fact = mem.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
-        source_type=SourceType.SYSTEM,
+    fact = persist_authorized(
+        mem,
+        "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
         source_id="f1",
-        source_location="tests/test_typed_reasoning.py",
-        producer="pytest",
-        producer_version="p5",
-        domain="software",
-        context="SYNTHETIC_TEST_DATA",
         observed_at=NOW - 50,
         created_at=NOW - 40,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     ok_lesson = mem.remember(
         memory_type=MemoryType.SEMANTIC,
@@ -412,20 +407,12 @@ def test_lesson_application_and_false_application(tmp_path: Path) -> None:
 
 def test_failure_application_bounded(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
-    fact = mem.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
-        source_type=SourceType.SYSTEM,
+    fact = persist_authorized(
+        mem,
+        "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
         source_id="f1",
-        source_location="tests/test_typed_reasoning.py",
-        producer="pytest",
-        producer_version="p5",
-        domain="software",
-        context="SYNTHETIC_TEST_DATA",
         observed_at=NOW - 50,
         created_at=NOW - 40,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     match = mem.record_failure(
         failure_type="timeout_retry",
@@ -513,20 +500,12 @@ def test_closed_loop_second_episode_changes_reasoning(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
     orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
-    mem.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
-        source_type=SourceType.SYSTEM,
+    persist_authorized(
+        mem,
+        "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
         source_id="seed",
-        source_location="tests/test_typed_reasoning.py",
-        producer="pytest",
-        producer_version="p5",
-        domain="software",
-        context="SYNTHETIC_TEST_DATA",
         observed_at=NOW - 80,
         created_at=NOW - 70,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     t1 = _task(
         task_id="ep1",
@@ -673,20 +652,12 @@ def test_live_critic_refuses_irrelevant_inventory() -> None:
 
 def test_domain_only_lesson_does_not_apply(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
-    fact = mem.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
-        source_type=SourceType.SYSTEM,
+    fact = persist_authorized(
+        mem,
+        "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
         source_id="f1",
-        source_location="tests/test_typed_reasoning.py",
-        producer="pytest",
-        producer_version="p5",
-        domain="software",
-        context="SYNTHETIC_TEST_DATA",
         observed_at=NOW - 50,
         created_at=NOW - 40,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     lesson = mem.remember(
         memory_type=MemoryType.SEMANTIC,
@@ -717,20 +688,12 @@ def test_domain_only_lesson_does_not_apply(tmp_path: Path) -> None:
 
 def test_failure_same_component_different_type_not_applied(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
-    fact = mem.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
-        source_type=SourceType.SYSTEM,
+    fact = persist_authorized(
+        mem,
+        "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
         source_id="f1",
-        source_location="tests/test_typed_reasoning.py",
-        producer="pytest",
-        producer_version="p5",
-        domain="software",
-        context="SYNTHETIC_TEST_DATA",
         observed_at=NOW - 50,
         created_at=NOW - 40,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     fail = mem.record_failure(
         failure_type="disk_full",

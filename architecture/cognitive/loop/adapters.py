@@ -18,13 +18,19 @@ def ingest_generic_observation(
     source_id: str,
     observed_at: float,
     created_at: float,
-    kind: EpistemicKind | str = EpistemicKind.OBSERVED_FACT,
+    kind: EpistemicKind | str = EpistemicKind.INFERENCE,
     extra: dict[str, Any] | None = None,
 ) -> str:
+    resolved = EpistemicKind(kind).value
+    if resolved == EpistemicKind.OBSERVED_FACT.value:
+        raise ValueError(
+            "ingest_generic_observation cannot mint OBSERVED_FACT; "
+            "use persist_observed_acquisition"
+        )
     payload = {"data_label": SYNTHETIC, **(extra or {})}
     rec = store.remember(
         memory_type=MemoryType.EPISODIC,
-        epistemic_kind=kind,
+        epistemic_kind=resolved,
         statement=statement,
         source_type=SourceType.SYSTEM,
         source_id=source_id,

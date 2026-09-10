@@ -42,6 +42,7 @@ from architecture.cognitive.loop.support import (  # noqa: E402
     positive_support_eligible,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.p5_grant_fixtures import authorize_retrieved_items  # noqa: E402
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType  # noqa: E402
 
 NOW = 1_800_000_000.0
@@ -139,8 +140,9 @@ def _live(statement: str, question: str, *, domain: str = "software", **item_kw)
     task = _task(question, domain=domain)
     item = _item("m1", statement, domain=domain, **item_kw)
     ctx = _ctx(item)
-    binds = bind_context(ctx, task)
-    v, _, _, _, _ = reason(task, ctx, retrieved_ids=["m1"])
+    store = authorize_retrieved_items(item)
+    binds = bind_context(ctx, task, store=store)
+    v, _, _, _, _ = reason(task, ctx, retrieved_ids=["m1"], store=store)
     return classify_support(statement, task), binds[0], v
 
 
