@@ -16,6 +16,12 @@ from architecture.cognitive.loop.binding import (
     bind_context,
     cited_unbound_ids,
 )
+from architecture.cognitive.loop.support import (
+    CLAUSE_NEGATED,
+    CLAUSE_UNCERTAIN,
+    ENTITY_AMBIGUOUS,
+    ENTITY_MISMATCH,
+)
 from architecture.cognitive.loop.contracts import (
     Assumption,
     ClaimOrigin,
@@ -344,6 +350,29 @@ def reason(
         CognitiveVerdict.WEAKLY_SUPPORTED.value,
     } and not any(b.may_support_task() for b in bindings):
         extra = [f"{FINDING_EVIDENCE_MISMATCH}:no_direct_support"]
+        constrained = apply_constraint(
+            constrained, action=ACTION_REFUSE, findings=extra
+        )
+        critique.action = ACTION_REFUSE
+        critique.findings = tuple(list(critique.findings) + extra)
+        critique.constraint_applied = True
+    cited_support = {
+        i for i in (list(constrained.supporting_ids) + list(constrained.premises)) if i
+    }
+    polarity_unsafe = [
+        b
+        for b in bindings
+        if b.memory_id in cited_support
+        and (
+            b.clause_force in {CLAUSE_NEGATED, CLAUSE_UNCERTAIN}
+            or b.entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS}
+        )
+    ]
+    if constrained.verdict in {
+        CognitiveVerdict.SUPPORTED.value,
+        CognitiveVerdict.WEAKLY_SUPPORTED.value,
+    } and polarity_unsafe:
+        extra = [f"{FINDING_EVIDENCE_MISMATCH}:polarity_or_entity_blocks_positive"]
         constrained = apply_constraint(
             constrained, action=ACTION_REFUSE, findings=extra
         )

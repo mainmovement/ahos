@@ -12,13 +12,20 @@ from typing import Any
 from architecture.cognitive.loop.contracts import CognitiveContext, CognitiveTask, RetrievedItem
 from architecture.cognitive.loop.retrieval import canonical_set, content_tokens
 from architecture.cognitive.loop.support import (
+    CLAUSE_AFFIRMED,
+    CLAUSE_NEGATED,
+    CLAUSE_UNCERTAIN,
+    ENTITY_AMBIGUOUS,
+    ENTITY_MISMATCH,
+    ENTITY_NONE,
     POLARITY_CONTRADICTS,
-    POLARITY_SUPPORTS,
+    POLARITY_NEGATED,
     POLARITY_UNKNOWN,
     SUPPORT_DIRECT as TASK_DIRECT_SUPPORT,
     SUPPORT_UNKNOWN as TASK_SUPPORT_UNKNOWN,
     SupportAssessment,
     classify_support,
+    positive_support_eligible,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, UNKNOWN
@@ -258,6 +265,10 @@ class EvidenceBinding:
     support_polarity: str = POLARITY_UNKNOWN
     support_reason: str = ""
     alien_tokens: tuple[str, ...] = ()
+    clause_force: str = CLAUSE_AFFIRMED
+    entity_state: str = ENTITY_NONE
+    evidence_entities: tuple[str, ...] = ()
+    task_entities: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -273,6 +284,10 @@ class EvidenceBinding:
             "support_class": self.support_class,
             "support_polarity": self.support_polarity,
             "support_reason": self.support_reason,
+            "clause_force": self.clause_force,
+            "entity_state": self.entity_state,
+            "evidence_entities": list(self.evidence_entities),
+            "task_entities": list(self.task_entities),
             "addresses_task": self.addresses_task_flag,
             "alien_tokens": list(self.alien_tokens),
             "contradiction_state": self.contradiction_state,
@@ -292,17 +307,33 @@ class EvidenceBinding:
         return role in self.allowed_reasoning_roles
 
     def may_support_task(self) -> bool:
-        """DIRECT_SUPPORT + SUPPORTS. Lexical relevance is not enough."""
-        return (
-            self.support_class == TASK_DIRECT_SUPPORT
-            and self.support_polarity == POLARITY_SUPPORTS
+        """Load-bearing: NEGATED / UNCERTAIN / ENTITY_MISMATCH cannot support."""
+        return positive_support_eligible(
+            SupportAssessment(
+                support_class=self.support_class,
+                polarity=self.support_polarity,
+                clause_force=self.clause_force,
+                entity_state=self.entity_state,
+                evidence_entities=self.evidence_entities,
+                task_entities=self.task_entities,
+                reason=self.support_reason,
+                subject_overlap=(),
+                object_overlap=(),
+                alien_tokens=self.alien_tokens,
+            )
         )
 
     def contradicts_task(self) -> bool:
-        return (
-            self.support_class == TASK_DIRECT_SUPPORT
-            and self.support_polarity == POLARITY_CONTRADICTS
-        )
+        """Same-entity contrary/negated evidence. Mismatch is not contradiction."""
+        if self.support_class != TASK_DIRECT_SUPPORT:
+            return False
+        if self.entity_state in {ENTITY_MISMATCH, ENTITY_AMBIGUOUS}:
+            return False
+        if self.clause_force == CLAUSE_UNCERTAIN:
+            return False
+        if self.clause_force == CLAUSE_NEGATED:
+            return True
+        return self.support_polarity in {POLARITY_CONTRADICTS, POLARITY_NEGATED}
 
 
 def bind_item(
@@ -349,6 +380,10 @@ def bind_item(
         support_polarity=support.polarity,
         support_reason=support.reason,
         alien_tokens=support.alien_tokens,
+        clause_force=support.clause_force,
+        entity_state=support.entity_state,
+        evidence_entities=support.evidence_entities,
+        task_entities=support.task_entities,
     )
 
 

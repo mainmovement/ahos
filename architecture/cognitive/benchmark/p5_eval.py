@@ -227,6 +227,8 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
     unsup_pos_h = unsup_pos_n = 0
     direct_pos_h = direct_pos_n = 0
     unk_ref_h = unk_ref_n = 0
+    neg_leak_h = neg_leak_n = 0
+    ent_leak_h = ent_leak_n = 0
 
     # typed compliance: bindings preserve class
     for item, expect in (
@@ -571,6 +573,118 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
             "question": "Do HTTP connection retries after timeout improve service availability?",
             "allow_positive": False,
         },
+        {
+            "label": "negation_did_not",
+            "gt": "NEGATED",
+            "family": "negation",
+            "statement": "Retries after timeout did not reduce failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "negation_never",
+            "gt": "NEGATED",
+            "family": "negation",
+            "statement": "Retries after timeout never reduced failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "negation_failed_to",
+            "gt": "NEGATED",
+            "family": "negation",
+            "statement": "Retries after timeout failed to reduce failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "negation_cannot",
+            "gt": "NEGATED",
+            "family": "negation",
+            "statement": "Retries after timeout cannot reduce failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "negation_unable",
+            "gt": "NEGATED",
+            "family": "negation",
+            "statement": "Retries after timeout were unable to reduce failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "negation_without",
+            "gt": "NEGATED",
+            "family": "negation",
+            "statement": "The client retried after timeout without reducing failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "uncertain_unknown_whether",
+            "gt": "UNCERTAIN",
+            "family": "negation",
+            "statement": "It is unknown whether retries after timeout reduce failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "no_evidence",
+            "gt": "UNCERTAIN",
+            "family": "negation",
+            "statement": "There is no evidence that retries after timeout reduce failures.",
+            "question": "Do retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "entity_a_vs_b",
+            "gt": "ENTITY_MISMATCH",
+            "family": "entity",
+            "statement": "Service A retries after timeout reduced failures.",
+            "question": "Do Service B retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "entity_x_vs_y",
+            "gt": "ENTITY_MISMATCH",
+            "family": "entity",
+            "statement": "Component X retries after timeout reduced failures.",
+            "question": "Do Component Y retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "entity_a1_vs_b1",
+            "gt": "ENTITY_MISMATCH",
+            "family": "entity",
+            "statement": "Node A1 retries after timeout reduced failures.",
+            "question": "Do Node B1 retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "entity_alpha_vs_bravo",
+            "gt": "ENTITY_MISMATCH",
+            "family": "entity",
+            "statement": "Alpha retries after timeout reduced failures.",
+            "question": "Do Bravo retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "entity_hyphen",
+            "gt": "ENTITY_MISMATCH",
+            "family": "entity",
+            "statement": "Service-A retries after timeout reduced failures.",
+            "question": "Do Service-B retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
+        {
+            "label": "entity_underscore",
+            "gt": "ENTITY_MISMATCH",
+            "family": "entity",
+            "statement": "service_alpha retries after timeout reduced failures.",
+            "question": "Do service_beta retries after timeout reduce failures?",
+            "allow_positive": False,
+        },
     )
     POSITIVE = {
         CognitiveVerdict.SUPPORTED.value,
@@ -598,6 +712,14 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
             unsup_pos_n += 1
             if v in POSITIVE:
                 unsup_pos_h += 1
+        if probe.get("family") == "negation":
+            neg_leak_n += 1
+            if v in POSITIVE:
+                neg_leak_h += 1
+        if probe.get("family") == "entity":
+            ent_leak_n += 1
+            if v in POSITIVE:
+                ent_leak_h += 1
         if probe["gt"] == "DIRECT_SUPPORT" and v in POSITIVE:
             direct_pos_h += 1
         if bind and bind.support_class == SUPPORT_UNKNOWN and v not in POSITIVE:
@@ -833,7 +955,8 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
             definition=(
                 "live reason() finals that are WEAKLY_SUPPORTED/SUPPORTED on labeled "
                 "no-support probes / those probes. "
-                "Ground truth: cafeteria×7 modes + kitchen/generic/context/negative/adversarial. "
+                "Ground truth: cafeteria×7 modes + kitchen/generic/context/negative/"
+                "adversarial + negation polarity + entity-mismatch probes. "
                 "Interpretation: 0 means no positive verdict from non-supporting evidence."
             ),
             numerator=unsup_pos_h,
@@ -869,6 +992,59 @@ def evaluate_p5_reasoning(store: CognitiveMemoryStore) -> tuple[list[MetricResul
             population="support probes classified UNKNOWN_SUPPORT",
             limitations="UNKNOWN is a fail-closed residual, not proven irrelevance",
             n=unk_ref_n,
+        ),
+        make_metric(
+            "negation_positive_leak_rate",
+            name="negation_positive_leak_rate",
+            definition=(
+                "WEAKLY_SUPPORTED/SUPPORTED on labeled negated/uncertain probes / those probes. "
+                "Ground truth: did not / never / failed to / cannot / unable / without / "
+                "unknown whether / no evidence. Denominator must be > 0."
+            ),
+            numerator=neg_leak_h,
+            denominator=float(neg_leak_n),
+            population="P5 negation polarity probes",
+            limitations="Closed-lexicon clause force, not formal NLI",
+            n=neg_leak_n,
+        ),
+        make_metric(
+            "negation_safety_rate",
+            name="negation_safety_rate",
+            definition=(
+                "labeled negated/uncertain probes that did not yield a positive verdict "
+                "/ those probes. Complement of negation_positive_leak_rate."
+            ),
+            numerator=neg_leak_n - neg_leak_h,
+            denominator=float(neg_leak_n),
+            population="P5 negation polarity probes",
+            limitations="Safety is non-positive, not proven contradiction",
+            n=neg_leak_n,
+        ),
+        make_metric(
+            "entity_mismatch_positive_leak_rate",
+            name="entity_mismatch_positive_leak_rate",
+            definition=(
+                "WEAKLY_SUPPORTED/SUPPORTED on labeled entity-mismatch probes / those probes. "
+                "Ground truth: A/B, X/Y, A1/B1, Alpha/Bravo, hyphen, underscore IDs."
+            ),
+            numerator=ent_leak_h,
+            denominator=float(ent_leak_n),
+            population="P5 entity-boundary probes",
+            limitations="Identity markers only; not named-entity resolution",
+            n=ent_leak_n,
+        ),
+        make_metric(
+            "entity_boundary_safety_rate",
+            name="entity_boundary_safety_rate",
+            definition=(
+                "labeled entity-mismatch probes that did not yield a positive verdict "
+                "/ those probes. Complement of entity_mismatch_positive_leak_rate."
+            ),
+            numerator=ent_leak_n - ent_leak_h,
+            denominator=float(ent_leak_n),
+            population="P5 entity-boundary probes",
+            limitations="Ambiguous identity fails closed to UNKNOWN, not a world model",
+            n=ent_leak_n,
         ),
     ]
     counts = {

@@ -116,6 +116,14 @@ def test_full_benchmark_metrics_and_reproducibility(tmp_path: Path) -> None:
         "mode_specificity",
         "lesson_application_accuracy",
         "false_lesson_application_rate",
+        "lexical_match_without_support_rate",
+        "unsupported_positive_verdict_rate",
+        "direct_support_positive_rate",
+        "unknown_support_refusal_rate",
+        "negation_positive_leak_rate",
+        "negation_safety_rate",
+        "entity_mismatch_positive_leak_rate",
+        "entity_boundary_safety_rate",
     }
     assert required <= set(mmap)
     for mid in required:

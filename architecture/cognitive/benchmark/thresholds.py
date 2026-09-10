@@ -383,4 +383,28 @@ THRESHOLDS: dict[str, dict] = {
         "class": "GOVERNANCE",
         "why": "UNKNOWN_SUPPORT must refuse WEAKLY_SUPPORTED / SUPPORTED.",
     },
+    "negation_positive_leak_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "Negated or uncertain clauses must not yield positive verdicts.",
+    },
+    "negation_safety_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Every labeled negation/uncertainty probe must remain non-positive.",
+    },
+    "entity_mismatch_positive_leak_rate": {
+        "kind": "ZERO",
+        "threshold": 0.0,
+        "class": "GOVERNANCE",
+        "why": "Evidence about one identity marker must not positively support another.",
+    },
+    "entity_boundary_safety_rate": {
+        "kind": "MIN",
+        "threshold": 1.0,
+        "class": "GOVERNANCE",
+        "why": "Every labeled entity-mismatch probe must remain non-positive.",
+    },
 }

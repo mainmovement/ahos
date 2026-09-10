@@ -121,3 +121,44 @@ def test_adversarial_overlap_is_unknown_not_direct() -> None:
     assert a.support_class != SUPPORT_DIRECT
     assert a.may_support_positive() is False
     assert set(a.alien_tokens) & {"lunch", "seating", "team", "window"}
+
+
+def test_did_not_reduce_is_not_positive_support() -> None:
+    a = classify_support(
+        "Retries after timeout did not reduce failures.",
+        _task("Do retries after timeout reduce failures?"),
+    )
+    assert a.clause_force == "NEGATED"
+    assert a.polarity != POLARITY_SUPPORTS
+    assert a.may_support_positive() is False
+    assert not (a.support_class == SUPPORT_DIRECT and a.polarity == POLARITY_SUPPORTS)
+
+
+def test_increased_failures_remains_contradictory() -> None:
+    a = classify_support(
+        "Retries after timeout increased failures.",
+        _task("Do retries after timeout reduce failures?"),
+    )
+    assert a.support_class == SUPPORT_DIRECT
+    assert a.polarity == POLARITY_CONTRADICTS
+    assert a.may_support_positive() is False
+
+
+def test_unknown_whether_is_uncertain() -> None:
+    a = classify_support(
+        "It is unknown whether retries reduce failures.",
+        _task("Do retries after timeout reduce failures?"),
+    )
+    assert a.polarity == "UNCERTAIN" or a.support_class == SUPPORT_UNKNOWN
+    assert a.may_support_positive() is False
+
+
+def test_entity_a_does_not_support_entity_b() -> None:
+    a = classify_support(
+        "Service A retries reduced failures.",
+        _task("Do Service B retries reduce failures?"),
+    )
+    assert a.entity_state == "MISMATCH"
+    assert a.may_support_positive() is False
+    assert a.polarity != POLARITY_SUPPORTS or a.support_class != SUPPORT_DIRECT
+
