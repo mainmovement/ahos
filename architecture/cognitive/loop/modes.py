@@ -774,8 +774,8 @@ def reason_metacognitive(
 ) -> CandidateInference:
     """Inventory transform. Decision-bearing evidence is may_support_task() only.
 
-    Lexical `_relevant` items are counted, never cited as support. Cafeteria-style
-    matches cannot upgrade an episode because a real supporter is also present.
+    Lexical `_relevant` items are counted, never cited as support. Non-supporting
+    lexical matches cannot upgrade an episode because a real supporter is also present.
     """
     facts = with_role(bindings, ROLE_FACTUAL_PREMISE)
     relevant = _relevant(bindings, task, ROLE_FACTUAL_PREMISE)
@@ -817,7 +817,7 @@ def reason_metacognitive(
             lesson_applied=lesson_on,
             failure_applied=fail_on,
         )
-    steps.append(f"{len(supporters)} decision-bearing supporters; cafeteria not cited")
+    steps.append(f"{len(supporters)} decision-bearing supporters; lexical inventory not cited")
     return CandidateInference(
         verdict=CognitiveVerdict.WEAKLY_SUPPORTED.value,
         epistemic=EpistemicAnswer.UNCERTAIN.value,

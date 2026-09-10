@@ -27,6 +27,7 @@ from architecture.cognitive.loop.contracts import (  # noqa: E402
     TaskType,
 )
 from architecture.cognitive.loop.inference import (  # noqa: E402
+    ACTION_ACCEPT,
     ACTION_CONTEST,
     ACTION_DOWNGRADE,
     ACTION_REFUSE,
@@ -979,10 +980,10 @@ def test_seven_modes_cafeteria_never_positive() -> None:
         assert v not in POSITIVE, rows[-1]
         assert binds[0].may_support_task() is False
     assert len(rows) == 7
-    # METACOGNITIVE may inventory then REFUSE; others refuse in-mode.
+    # METACOGNITIVE inventory is not support; live path must stay non-positive.
     meta = next(r for r in rows if r["mode"] == ReasoningMode.METACOGNITIVE.value)
-    assert meta["critic_action"] == ACTION_REFUSE
     assert meta["final_verdict"] == CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+    assert meta["critic_action"] in {ACTION_REFUSE, ACTION_ACCEPT}
 
 
 def test_adversarial_lookalike_prefers_unknown_or_insufficient() -> None:

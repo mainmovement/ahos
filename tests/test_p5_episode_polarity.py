@@ -58,7 +58,7 @@ def _task(question: str = Q_UNSCOPED, *, domain: str = "software", **kwargs) -> 
     base = dict(
         task_id="ep-polarity",
         task_type=TaskType.ANALYZE.value,
-        objective="p5-episode-polarity",
+        objective="timeout retries",
         question=question,
         domain=domain,
         requester="pytest",
@@ -165,7 +165,7 @@ def _run_orch(
                 epistemic_kind=EpistemicKind.OBSERVED_FACT,
                 statement=f"SYNTHETIC_TEST_DATA: {statement}",
                 source_type=SourceType.SYSTEM,
-                source_id=f"s{i}",
+                source_id=f"seed-{i}",
                 source_location="tests/test_p5_episode_polarity.py",
                 producer="pytest",
                 producer_version="p5",
@@ -187,6 +187,8 @@ def _run_orch(
                 )
     if contradict and len(recs) >= 2:
         mem.contradict(recs[0].memory_id, recs[1].memory_id, reason="seeded", now=NOW - 1)
+    if recs:
+        task.requested_evidence = [rec.memory_id for rec in recs]
     result = orch.run(task, now=NOW)
     return result, mem, _reusable(mem)
 
