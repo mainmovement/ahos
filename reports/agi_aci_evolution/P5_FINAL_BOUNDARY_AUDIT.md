@@ -19,7 +19,8 @@ Original `reports/agi_aci_evolution/P5_FORENSIC_ARCHITECTURE_GATE.md` is **uncha
 | Branch | `cursor/agi-aci-p5-typed-evidence-reasoning-9500` |
 | Audited production HEAD (start) | `f0d2c4ee7233f1ee0fc09c9245b6c449c0027638` |
 | Original forensic gate content | `02c41be569798568909e336f4b2277dc84b79dfe` |
-| This audit commit | *stamped after landing* |
+| Audit implementation commit | `f8740917cf9a8b58514a60ae8f3d3668d139df45` |
+| This stamp commit | *this file after landing* |
 
 ---
 
@@ -328,15 +329,20 @@ Live soak (do not disturb): T0 `2026-09-10 00:27:41 +03:30`, T+72h `2026-09-13 0
 
 ## 16. Test results
 
-Recorded after the audit commit’s verification run. See the stamped subsection at the end of this file if present; otherwise this table is the planned command set:
+Interpreter: `/tmp/ahos-test-venv/bin/python`. Cache cleaned before `validate_imports`. JSON files dirtied by that script were restored and not committed.
 
-1. Focused P5: `tests/test_typed_reasoning.py tests/test_p5_episode_polarity.py tests/test_p5_second_forensic.py tests/test_p5_negation_entity.py`
-2. A–AQ + seven modes + mutation + two-hop + three-hop: `tests/test_p5_second_forensic.py`
-3. Full `pytest tests`
-4. `python scripts/validate_imports.py`
-5. `python scripts/freeze_lane_a.py`
+| Check | Result |
+| --- | --- |
+| freeze 36/36 | PASS (`Lane-A integrity OK (36 files pinned)`) |
+| `tests/test_p5_second_forensic.py` (A–AQ, seven modes, mutation, two-hop, three-hop, critic) | **42 passed** |
+| Cognitive envelope 1 (typed + p5_* + retrieval lookalike/relevance + cognitive loop/memory/benchmark/core) | **283 passed** |
+| Cognitive envelope 2 (same command) | **283 passed** |
+| `validate_imports.py` | VALIDATION PASSED (after removing `.pytest_cache/`) |
+| `pytest tests` entire tree | **1957 passed, 3 skipped, 0 failed** |
 
-Pre-landing smoke: three-hop PASS; `test_canonical_docs_have_zero_real_stale_refs` PASS after INTENTIONAL_REFS; freeze 36/36.
+The previous full-suite pair of failures is gone after the INTENTIONAL_REFS contract fix. Count delta vs `f0d2c4ee` (1954 passed / 2 failed): the two drift tests now pass, plus one new three-hop test → 1957 passed.
+
+`.pytest_cache/` is an environment artifact of the verification run, not a committed file.
 
 ---
 
@@ -404,6 +410,13 @@ Condition: the write-side `remember` capability gap is bounded by consumption-si
 
 ---
 
-## Verification log (filled after commands)
+## Verification log
 
-_Commands and counts are appended in the landing stamp._
+| Step | Result |
+| --- | --- |
+| `pytest tests/test_p5_second_forensic.py::test_three_hop_derived_artifact_cannot_escalate_authority` | PASS |
+| `pytest tests/test_doc_drift.py::test_canonical_docs_have_zero_real_stale_refs` | PASS after INTENTIONAL_REFS |
+| `pytest tests` | 1957 passed, 3 skipped, 0 failed (219.46s) |
+| `scripts/validate_imports.py` | VALIDATION PASSED |
+| `scripts/freeze_lane_a.py` | 36/36 |
+| Soak / Lane A / original forensic gate | untouched |
