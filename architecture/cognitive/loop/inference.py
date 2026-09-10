@@ -166,6 +166,12 @@ def apply_constraint(
         elif FINDING_CONTRADICTION in codes:
             out.verdict = CognitiveVerdict.UNRESOLVED.value
             out.epistemic = EpistemicAnswer.CONTESTED.value
+        elif FINDING_TEMPORAL_VIOLATION in codes:
+            out.verdict = CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+            out.epistemic = EpistemicAnswer.STALE.value
+        elif FINDING_SCOPE_MISMATCH in codes:
+            out.verdict = CognitiveVerdict.INSUFFICIENT_EVIDENCE.value
+            out.epistemic = EpistemicAnswer.UNKNOWN.value
         elif out.verdict == CognitiveVerdict.SUPPORTED.value:
             out.verdict = CognitiveVerdict.WEAKLY_SUPPORTED.value
             out.epistemic = EpistemicAnswer.PROBABLE.value

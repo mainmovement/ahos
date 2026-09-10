@@ -122,6 +122,8 @@ class CognitiveOrchestrator:
         reusable_writeback = reusable_writeback_permitted(
             verdict, bind_context(ctx, task, store=self.memory)
         )
+        # Rebind from RetrievedItems, not reason() DTO copies, so mutated
+        # EvidenceBinding metadata cannot authorize persistence.
         if should_hyp and task.write_back and reusable_writeback:
             hyp = self.hypotheses.propose(
                 f"{task.question} [{task.data_label}]",

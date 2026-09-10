@@ -139,7 +139,9 @@ def _inspect(
         findings.append(f"{FINDING_MISSING_PREMISE}:{','.join(candidate.missing_premises)}")
     if candidate.type_violations:
         findings.append(f"{FINDING_TYPE_VIOLATION}:{','.join(candidate.type_violations)}")
-    if any(b.typed_class in {"OPINION", "PREDICTION", "SIMULATION"} for b in bindings) and (
+    if any(
+        b.live_typed_class() in {"OPINION", "PREDICTION", "SIMULATION"} for b in bindings
+    ) and (
         accepted
         and not any(b.may(ROLE_FACTUAL_PREMISE) for b in bindings)
         and candidate.conclusion_class not in {"HYPOTHESIS", "INFERENCE"}
@@ -148,8 +150,8 @@ def _inspect(
     if candidate.verdict == CognitiveVerdict.SUPPORTED.value:
         findings.append(f"{FINDING_OVERCONFIDENCE}:candidate_supported")
     stale_as_current = any(
-        b.typed_class == "OBSERVED_FACT"
-        and b.temporal_state in {"STALE", "SUPERSEDED"}
+        b.live_typed_class() == "OBSERVED_FACT"
+        and b.live_temporal_state() in {"STALE", "SUPERSEDED"}
         and b.memory_id in candidate.premises
         and b.may(ROLE_FACTUAL_PREMISE)
         for b in bindings

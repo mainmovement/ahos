@@ -73,11 +73,15 @@ def _explicit(value: Any) -> str:
 
 def typed_class_of(item: RetrievedItem) -> str:
     """P5 taxonomy: what the memory IS. FAILURE/EXPERIMENT win over epistemic kind."""
-    if item.memory_type == MemoryType.FAILURE.value:
+    return typed_class_from_parts(item.memory_type, item.epistemic_kind)
+
+
+def typed_class_from_parts(memory_type: str, epistemic_kind: str) -> str:
+    if memory_type == MemoryType.FAILURE.value:
         return "FAILURE"
-    if item.memory_type == MemoryType.EXPERIMENT.value:
+    if memory_type == MemoryType.EXPERIMENT.value:
         return "EXPERIMENT"
-    return item.epistemic_kind or "UNKNOWN"
+    return epistemic_kind or "UNKNOWN"
 
 
 def temporal_state_of(item: RetrievedItem) -> str:
@@ -88,15 +92,20 @@ def temporal_state_of(item: RetrievedItem) -> str:
     ACTIVE + observed_at is DATED, not CURRENT. TEMP_CURRENT is reserved
     for an explicit freshness proof this layer does not compute.
     """
-    if item.status == DecayState.SUPERSEDED.value:
+    return temporal_from_parts(item.status, item.observed_at)
+
+
+def temporal_from_parts(status: str, observed_at: float | None) -> str:
+    """Ignore any copied temporal_state field. Status + observed_at are source."""
+    if status == DecayState.SUPERSEDED.value:
         return TEMP_SUPERSEDED
-    if item.status == DecayState.STALE.value:
+    if status == DecayState.STALE.value:
         return TEMP_STALE
-    if item.status == DecayState.ARCHIVED.value:
+    if status == DecayState.ARCHIVED.value:
         return TEMP_HISTORICAL
-    if item.status == DecayState.AGING.value:
+    if status == DecayState.AGING.value:
         return TEMP_AGING
-    if item.observed_at is None:
+    if observed_at is None:
         return TEMP_UNKNOWN
     return TEMP_DATED
 
@@ -273,6 +282,10 @@ class EvidenceBinding:
     task_entities: tuple[str, ...] = ()
     task_question: str = ""
     task_objective: str = ""
+    task_domain: str = ""
+    task_component: str = ""
+    task_failure_type: str = ""
+    observed_at: float | None = None
 
     def _task_snapshot(self) -> CognitiveTask:
         return CognitiveTask(
@@ -280,10 +293,14 @@ class EvidenceBinding:
             task_type=TaskType.ANALYZE.value,
             objective=self.task_objective or "bound",
             question=self.task_question,
-            domain=self.domain or "software",
+            domain=self.task_domain or self.domain or "software",
             requester="binding",
             created_at=0.0,
             data_label="SYNTHETIC_TEST_DATA",
+            constraints={
+                "component": self.task_component,
+                "failure_type": self.task_failure_type,
+            },
         )
 
     def _live_assessment(self):
@@ -291,6 +308,44 @@ class EvidenceBinding:
         if not self.task_question and not self.statement:
             return None
         return classify_support(self.statement, self._task_snapshot())
+
+    def live_typed_class(self) -> str:
+        return typed_class_from_parts(self.memory_type, self.epistemic_kind)
+
+    def live_temporal_state(self) -> str:
+        return temporal_from_parts(self.status, self.observed_at)
+
+    def live_applicability(self) -> str:
+        item = RetrievedItem(
+            memory_id=self.memory_id,
+            revision=1,
+            statement=self.statement,
+            match_reasons=self.match_reasons,
+            evidence_class="",
+            memory_type=self.memory_type,
+            epistemic_kind=self.epistemic_kind,
+            status=self.status,
+            domain=self.domain,
+            source_id="",
+            agent_namespace="",
+            observed_at=self.observed_at,
+            created_at=0.0,
+        )
+        return _applicability(
+            self.live_typed_class(), item, self._task_snapshot(), dict(self.payload)
+        )
+
+    def live_roles(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        return _roles(self.live_typed_class(), self.live_temporal_state(), self.live_applicability())
+
+    def live_addresses_task(self) -> bool:
+        return addresses_task(self.statement, self._task_snapshot())
+
+    def is_task_relevant_uncertain(self) -> bool:
+        live = self._live_assessment()
+        if live is None:
+            return False
+        return live.clause_force == CLAUSE_UNCERTAIN and self.live_addresses_task()
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -325,9 +380,11 @@ class EvidenceBinding:
         }
 
     def may(self, role: str) -> bool:
-        if role in self.forbidden_reasoning_roles:
+        """Roles are recomputed. Stored allowed/forbidden tuples cannot escalate."""
+        allowed, forbidden = self.live_roles()
+        if role in forbidden:
             return False
-        return role in self.allowed_reasoning_roles
+        return role in allowed
 
     def may_support_task(self) -> bool:
         """Load-bearing: recomputes from statement. Stored polarity cannot override."""
@@ -417,6 +474,10 @@ def bind_item(
         task_entities=support.task_entities,
         task_question=task.question,
         task_objective=task.objective,
+        task_domain=task.domain,
+        task_component=str(task.constraints.get("component") or ""),
+        task_failure_type=str(task.constraints.get("failure_type") or ""),
+        observed_at=item.observed_at,
     )
 
 

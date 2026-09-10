@@ -48,13 +48,21 @@ def decision_bearing_contraries(bindings: Iterable[Any]) -> list[Any]:
 
 
 def decision_bearing_uncertain(bindings: Iterable[Any]) -> list[Any]:
-    """Task-relevant uncertain clauses. Presence unresolved the episode."""
-    return [
-        b
-        for b in bindings
-        if getattr(b, "clause_force", "") == CLAUSE_UNCERTAIN
-        and getattr(b, "addresses_task_flag", False)
-    ]
+    """Task-relevant uncertain clauses. Presence unresolved the episode.
+
+    Uses live clause-force recompute. Stored clause_force cannot hide uncertainty.
+    """
+    out = []
+    for b in bindings:
+        if hasattr(b, "is_task_relevant_uncertain"):
+            if b.is_task_relevant_uncertain():
+                out.append(b)
+            continue
+        if getattr(b, "clause_force", "") == CLAUSE_UNCERTAIN and getattr(
+            b, "addresses_task_flag", False
+        ):
+            out.append(b)
+    return out
 
 
 def episode_positive_block_reason(bindings: Iterable[Any]) -> str:
