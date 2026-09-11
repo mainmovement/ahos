@@ -3,7 +3,8 @@
 **Kind:** Independent read-only ordinary-caller attack on the V4-PIN implementation candidate.  
 **PR:** [#93](https://github.com/mainmovement/ahos/pull/93) — **DRAFT** (`isDraft=true`, `state=OPEN`)  
 **This document does not trust** `P5_V4_IMPLEMENTATION_REPORT.md`. Claims were re-traced in production source and re-attacked at runtime.  
-**This audit did not modify production code, tests, schemas, Lane A, or soak.** Temporary probes lived under `/tmp` only.
+**This audit did not modify production code, tests, schemas, Lane A, or soak.** Temporary probes lived under `/tmp` only.  
+**AUDIT_REPORT_COMMIT:** `6f1a4f95d58c85bcfded8e82a0c313e84949a441`
 
 Not AGI. Not ACI. Not production-ready. Not live trading. `MERGE = NO`. `READY_FOR_REVIEW = NO`.
 
