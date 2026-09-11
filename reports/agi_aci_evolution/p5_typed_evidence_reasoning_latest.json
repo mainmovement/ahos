@@ -1,0 +1,1699 @@
+{
+  "benchmark_version": "p4.1.0",
+  "case_counts": {
+    "adversarial": 7,
+    "case_result_rows": 68,
+    "contradiction": 2,
+    "corpus_memories": 41,
+    "cross_domain": 4,
+    "p5_cases": 30,
+    "reasoning_modes": 7,
+    "retrieval": 11,
+    "unknown": 3
+  },
+  "case_results": [
+    {
+      "case_id": "ADV-CONTRA",
+      "epistemic": "CONTESTED",
+      "family": "adversarial",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "case_id": "ADV-FIN-OPINION",
+      "epistemic": "PROBABLE",
+      "family": "adversarial",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "ADV-HYP",
+      "epistemic": "PROBABLE",
+      "family": "adversarial",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "ADV-LOOKALIKE",
+      "epistemic": "PROBABLE",
+      "family": "adversarial",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "ADV-OPINION",
+      "epistemic": "INSUFFICIENT_EVIDENCE",
+      "family": "adversarial",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "ADV-PRED",
+      "epistemic": "INSUFFICIENT_EVIDENCE",
+      "family": "adversarial",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "ADV-SUPERSEDED",
+      "epistemic": "PROBABLE",
+      "family": "adversarial",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "both_retrieved": true,
+      "case_id": "CONTRA-SCI-01",
+      "contradiction_present": true,
+      "epistemic": "CONTESTED",
+      "family": "contradiction_reason",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "both_retrieved": true,
+      "case_id": "CONTRA-SW-01",
+      "contradiction_present": true,
+      "epistemic": "CONTESTED",
+      "family": "contradiction_reason",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "case_id": "CTX-LARGE",
+      "context_incomplete": false,
+      "contradiction_present": false,
+      "family": "context",
+      "max_memories": 40,
+      "selected": [
+        "BM-SHARED",
+        "BM-SW-TIMEOUT-EXP",
+        "BM-SW-TIMEOUT-FACT",
+        "BM-SW-TIMEOUT-FAIL",
+        "BM-SW-TIMEOUT-HYP",
+        "BM-SW-TIMEOUT-INFER",
+        "BM-SW-TIMEOUT-LESSON",
+        "BM-SW-TIMEOUT-PROC"
+      ]
+    },
+    {
+      "case_id": "CTX-NORMAL",
+      "context_incomplete": false,
+      "contradiction_present": false,
+      "family": "context",
+      "max_memories": 8,
+      "selected": [
+        "BM-SHARED",
+        "BM-SW-TIMEOUT-EXP",
+        "BM-SW-TIMEOUT-FACT",
+        "BM-SW-TIMEOUT-FAIL",
+        "BM-SW-TIMEOUT-HYP",
+        "BM-SW-TIMEOUT-INFER",
+        "BM-SW-TIMEOUT-LESSON",
+        "BM-SW-TIMEOUT-PROC"
+      ]
+    },
+    {
+      "case_id": "CTX-TINY",
+      "context_incomplete": true,
+      "contradiction_present": false,
+      "family": "context",
+      "max_memories": 2,
+      "selected": [
+        "BM-SW-TIMEOUT-FACT",
+        "BM-SW-TIMEOUT-FAIL"
+      ]
+    },
+    {
+      "case_id": "CTX-ZERO",
+      "context_incomplete": true,
+      "contradiction_present": false,
+      "family": "context",
+      "max_memories": 0,
+      "selected": []
+    },
+    {
+      "case_id": "DOM-FINANCE",
+      "domain": "finance",
+      "epistemic": "PROBABLE",
+      "family": "cross_domain",
+      "retrieved": 2,
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "DOM-OPERATIONS",
+      "domain": "operations",
+      "epistemic": "PROBABLE",
+      "family": "cross_domain",
+      "retrieved": 2,
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "DOM-SCIENCE",
+      "domain": "science",
+      "epistemic": "PROBABLE",
+      "family": "cross_domain",
+      "retrieved": 2,
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "DOM-SOFTWARE",
+      "domain": "software",
+      "epistemic": "PROBABLE",
+      "family": "cross_domain",
+      "retrieved": 10,
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "assumption_id": "ASM-000001",
+      "case_id": "MODE-ABDUCTIVE",
+      "family": "reasoning_mode",
+      "mode": "ABDUCTIVE",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "assumption_id": "ASM-000001",
+      "case_id": "MODE-ADVERSARIAL",
+      "family": "reasoning_mode",
+      "mode": "ADVERSARIAL",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "assumption_id": "ASM-000001",
+      "case_id": "MODE-COMPARATIVE",
+      "family": "reasoning_mode",
+      "mode": "COMPARATIVE",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "assumption_id": "ASM-000001",
+      "case_id": "MODE-DEDUCTIVE",
+      "family": "reasoning_mode",
+      "mode": "DEDUCTIVE",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "assumption_id": "ASM-000001",
+      "case_id": "MODE-INDUCTIVE",
+      "family": "reasoning_mode",
+      "mode": "INDUCTIVE",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "assumption_id": "ASM-000001",
+      "case_id": "MODE-METACOGNITIVE",
+      "family": "reasoning_mode",
+      "mode": "METACOGNITIVE",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "assumption_id": "ASM-000001",
+      "case_id": "MODE-TEMPORAL",
+      "family": "reasoning_mode",
+      "mode": "TEMPORAL",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "alternatives": 2,
+      "case_id": "P5-ABD",
+      "family": "p5_abductive",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-CONTRA",
+      "critic_action": "ACCEPT",
+      "family": "p5_contradiction",
+      "findings": [
+        "CONTRADICTION_VIOLATION:present"
+      ],
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "case_id": "P5-CRITIC-LIVE",
+      "critic_action": "CONTEST",
+      "family": "p5_critic",
+      "final": "UNRESOLVED",
+      "pre_verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-DOM-FINANCE",
+      "family": "p5_domain",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-DOM-OPERATIONS",
+      "family": "p5_domain",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-DOM-SCIENCE",
+      "family": "p5_domain",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-DOM-SOFTWARE",
+      "family": "p5_domain",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "applied": false,
+      "case_id": "P5-FAIL-BAD",
+      "family": "p5_failure"
+    },
+    {
+      "case_id": "P5-FAIL-OK",
+      "family": "p5_failure",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-HYP-DED",
+      "family": "p5_type",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-IND-2",
+      "conclusion_class": "INFERENCE",
+      "family": "p5_inductive",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "applied": false,
+      "case_id": "P5-LESSON-BAD",
+      "family": "p5_lesson"
+    },
+    {
+      "applied": true,
+      "case_id": "P5-LESSON-OK",
+      "family": "p5_lesson"
+    },
+    {
+      "case_id": "P5-MISS",
+      "critic_action": "REQUIRE_MORE_EVIDENCE",
+      "family": "p5_unknown",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-MODE-ABDUCTIVE",
+      "conclusion_class": "HYPOTHESIS",
+      "critic_action": "ACCEPT",
+      "epistemic": "UNKNOWN",
+      "family": "p5_mode",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "case_id": "P5-MODE-ADVERSARIAL",
+      "conclusion_class": "INFERENCE",
+      "critic_action": "ACCEPT",
+      "epistemic": "UNCERTAIN",
+      "family": "p5_mode",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-MODE-COMPARATIVE",
+      "conclusion_class": "INFERENCE",
+      "critic_action": "ACCEPT",
+      "epistemic": "PROBABLE",
+      "family": "p5_mode",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-MODE-DEDUCTIVE",
+      "conclusion_class": "INFERENCE",
+      "critic_action": "ACCEPT",
+      "epistemic": "PROBABLE",
+      "family": "p5_mode",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-MODE-INDUCTIVE",
+      "conclusion_class": "INFERENCE",
+      "critic_action": "ACCEPT",
+      "epistemic": "INSUFFICIENT_EVIDENCE",
+      "family": "p5_mode",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-MODE-METACOGNITIVE",
+      "conclusion_class": "INFERENCE",
+      "critic_action": "ACCEPT",
+      "epistemic": "UNCERTAIN",
+      "family": "p5_mode",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-MODE-TEMPORAL",
+      "conclusion_class": "INFERENCE",
+      "critic_action": "ACCEPT",
+      "epistemic": "PROBABLE",
+      "family": "p5_mode",
+      "verdict": "WEAKLY_SUPPORTED"
+    },
+    {
+      "case_id": "P5-OP-ADV",
+      "family": "p5_adversarial",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-SKY-DED",
+      "critic_action": "ACCEPT",
+      "family": "p5_relevance",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-SKY-META",
+      "critic_action": "REFUSE",
+      "family": "p5_relevance",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-STALE",
+      "epistemic": "STALE",
+      "family": "p5_temporal",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "P5-TYPE-FAILURE",
+      "expected": "FAILURE",
+      "family": "p5_typed",
+      "typed_class": "FAILURE"
+    },
+    {
+      "case_id": "P5-TYPE-HYPOTHESIS",
+      "expected": "HYPOTHESIS",
+      "family": "p5_typed",
+      "typed_class": "HYPOTHESIS"
+    },
+    {
+      "case_id": "P5-TYPE-LESSON",
+      "expected": "LESSON",
+      "family": "p5_typed",
+      "typed_class": "LESSON"
+    },
+    {
+      "case_id": "P5-TYPE-OBSERVED_FACT",
+      "expected": "OBSERVED_FACT",
+      "family": "p5_typed",
+      "typed_class": "OBSERVED_FACT"
+    },
+    {
+      "case_id": "P5-TYPE-OPINION",
+      "expected": "OPINION",
+      "family": "p5_typed",
+      "typed_class": "OPINION"
+    },
+    {
+      "case_id": "RET-CONTRA-01",
+      "family": "retrieval_contradiction",
+      "hits": [
+        "BM-SW-CONTRA-A",
+        "BM-SW-CONTRA-B"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-CONTRA-A",
+        "BM-SW-CONTRA-B"
+      ],
+      "retrieved_ids": [
+        "BM-SW-CONTRA-B",
+        "BM-SW-CONTRA-A"
+      ]
+    },
+    {
+      "case_id": "RET-DOMAIN-01",
+      "family": "retrieval_domain",
+      "hits": [
+        "BM-SW-TIMEOUT-LESSON"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-TIMEOUT-LESSON"
+      ],
+      "retrieved_ids": [
+        "BM-SW-TIMEOUT-LESSON"
+      ]
+    },
+    {
+      "case_id": "RET-EXACT-01",
+      "family": "retrieval_exact",
+      "hits": [
+        "BM-SW-TIMEOUT-FACT"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-TIMEOUT-FACT"
+      ],
+      "retrieved_ids": [
+        "BM-SW-TIMEOUT-FACT"
+      ]
+    },
+    {
+      "case_id": "RET-EXP-01",
+      "family": "retrieval_experiment",
+      "hits": [
+        "BM-SW-TIMEOUT-EXP"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-TIMEOUT-EXP"
+      ],
+      "retrieved_ids": [
+        "BM-SW-TIMEOUT-EXP"
+      ]
+    },
+    {
+      "case_id": "RET-FAIL-01",
+      "family": "retrieval_failure",
+      "hits": [
+        "BM-SW-TIMEOUT-FAIL"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-TIMEOUT-FAIL"
+      ],
+      "retrieved_ids": [
+        "BM-SW-TIMEOUT-FAIL"
+      ]
+    },
+    {
+      "case_id": "RET-HYP-01",
+      "family": "retrieval_hypothesis",
+      "hits": [
+        "BM-SW-TIMEOUT-EXP",
+        "BM-SW-TIMEOUT-HYP"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-TIMEOUT-HYP",
+        "BM-SW-TIMEOUT-EXP"
+      ],
+      "retrieved_ids": [
+        "BM-SW-TIMEOUT-EXP",
+        "BM-SW-TIMEOUT-HYP"
+      ]
+    },
+    {
+      "case_id": "RET-KEYWORD-01",
+      "family": "retrieval_keyword",
+      "hits": [
+        "BM-SW-TIMEOUT-EXP",
+        "BM-SW-TIMEOUT-FACT",
+        "BM-SW-TIMEOUT-FAIL",
+        "BM-SW-TIMEOUT-HYP",
+        "BM-SW-TIMEOUT-INFER",
+        "BM-SW-TIMEOUT-LESSON",
+        "BM-SW-TIMEOUT-PROC"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-TIMEOUT-FACT",
+        "BM-SW-TIMEOUT-LESSON",
+        "BM-SW-TIMEOUT-FAIL",
+        "BM-SW-TIMEOUT-HYP",
+        "BM-SW-TIMEOUT-EXP",
+        "BM-SW-TIMEOUT-INFER",
+        "BM-SW-TIMEOUT-PROC"
+      ],
+      "retrieved_ids": [
+        "BM-SW-TIMEOUT-FAIL",
+        "BM-SW-TIMEOUT-FACT",
+        "BM-SW-TIMEOUT-LESSON",
+        "BM-SW-TIMEOUT-PROC",
+        "BM-SHARED",
+        "BM-SW-TIMEOUT-EXP",
+        "BM-SW-TIMEOUT-HYP",
+        "BM-SW-TIMEOUT-INFER"
+      ]
+    },
+    {
+      "case_id": "RET-LESSON-01",
+      "family": "retrieval_lesson",
+      "hits": [
+        "BM-SW-TIMEOUT-LESSON"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-TIMEOUT-LESSON"
+      ],
+      "retrieved_ids": [
+        "BM-SW-TIMEOUT-LESSON"
+      ]
+    },
+    {
+      "case_id": "RET-NS-A",
+      "family": "retrieval_namespace",
+      "hits": [
+        "BM-A-PRIV"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-A-PRIV"
+      ],
+      "retrieved_ids": [
+        "BM-A-PRIV"
+      ]
+    },
+    {
+      "case_id": "RET-NS-B",
+      "family": "retrieval_namespace",
+      "hits": [
+        "BM-B-PRIV"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-B-PRIV"
+      ],
+      "retrieved_ids": [
+        "BM-B-PRIV"
+      ]
+    },
+    {
+      "case_id": "RET-TEMP-01",
+      "family": "retrieval_temporal",
+      "hits": [
+        "BM-SW-FRESH-FACT",
+        "BM-SW-OLD-FACT"
+      ],
+      "leaks": [],
+      "relevant_ids": [
+        "BM-SW-FRESH-FACT",
+        "BM-SW-OLD-FACT"
+      ],
+      "retrieved_ids": [
+        "BM-SW-FRESH-FACT",
+        "BM-SW-OLD-FACT",
+        "BM-SW-TIMEOUT-HYP"
+      ]
+    },
+    {
+      "case_id": "UNK-EMPTY-01",
+      "epistemic": "INSUFFICIENT_EVIDENCE",
+      "family": "unknown_refusal",
+      "mode_status": "IMPLEMENTED",
+      "verdict": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "UNK-NI-CAUSAL",
+      "epistemic": "UNKNOWN",
+      "family": "unknown_not_implemented",
+      "mode_status": "NOT_IMPLEMENTED",
+      "verdict": "NOT_IMPLEMENTED"
+    },
+    {
+      "case_id": "UNK-NI-CF",
+      "epistemic": "UNKNOWN",
+      "family": "unknown_not_implemented",
+      "mode_status": "NOT_IMPLEMENTED",
+      "verdict": "NOT_IMPLEMENTED"
+    }
+  ],
+  "data_label": "SYNTHETIC_TEST_DATA",
+  "environment": {
+    "data_label": "SYNTHETIC_TEST_DATA",
+    "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
+    "python": "3.12.3"
+  },
+  "git_sha": "FIX",
+  "improvement_candidates": [],
+  "lane_a_freeze": "OK",
+  "limitations": [
+    "SYNTHETIC_TEST_DATA only; not soak evidence",
+    "Keyword/domain retrieval is not semantic search",
+    "Causal/counterfactual modes remain NOT_IMPLEMENTED",
+    "N is small; do not treat rates as statistical significance",
+    "No LLM, network, vector DB, or live execution",
+    "Finance is an adapter proving domain, not the definition of cognition"
+  ],
+  "metrics": [
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "misleading cases that did not yield SUPPORTED / adversarial cases",
+      "denominator": 7.0,
+      "limitations": "Resistance means no false SUPPORTED, not that retrieval ignored distractors",
+      "metric_id": "adversarial_resistance",
+      "n": 7,
+      "name": "adversarial_resistance",
+      "numerator": 7.0,
+      "population": "adversarial_cases",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "mode episodes with assumption_id / mode count",
+      "denominator": 7.0,
+      "limitations": "Record presence only; not assumption sensitivity",
+      "metric_id": "assumption_record_presence",
+      "n": 7,
+      "name": "assumption_record_presence",
+      "numerator": 7.0,
+      "population": "P5 seven modes on one fact",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "episodes with assumption_id and basis / mode cases",
+      "denominator": 7.0,
+      "limitations": "P3 currently records a single loop-level assumption",
+      "metric_id": "assumption_tracking_rate",
+      "n": 7,
+      "name": "assumption_tracking_rate",
+      "numerator": 7.0,
+      "population": "reasoning_mode_cases",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "both contradiction IDs selected and flagged / eligible large budgets",
+      "denominator": 0.0,
+      "limitations": "Tiny budgets cannot keep both; incomplete must be explicit",
+      "metric_id": "context_contradiction_preservation",
+      "n": 0,
+      "name": "context_contradiction_preservation",
+      "numerator": 0.0,
+      "population": "normal/large budgets when both contra items retrieved",
+      "status": "NOT_MEASURED",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": null
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "mean |selected \u2229 relevant| / |relevant retrieved| across budgets",
+      "denominator": 4.0,
+      "limitations": "Coverage of budget, not of the world",
+      "metric_id": "context_coverage",
+      "n": 4,
+      "name": "context_coverage",
+      "numerator": 2.2857142857142856,
+      "population": "RET-KEYWORD-01 under tiny/normal/large/zero budgets",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.5714285714285714
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "incomplete flag true on tiny/zero budgets / those budgets",
+      "denominator": 2.0,
+      "limitations": "Does not score large-budget completeness of the world",
+      "metric_id": "context_incomplete_flag_rate",
+      "n": 2,
+      "name": "context_incomplete_flag_rate",
+      "numerator": 2.0,
+      "population": "tiny and zero context budgets",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "seeded pairs retrieved+flagged+UNRESOLVED|CONTESTED / seeded pairs",
+      "denominator": 2.0,
+      "limitations": "Requires explicit contradict() edges in the corpus",
+      "metric_id": "contradiction_detection_rate",
+      "n": 2,
+      "name": "contradiction_detection_rate",
+      "numerator": 2.0,
+      "population": "contradiction_reason_cases",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "SUPPORTED verdicts on seeded contradiction cases / those cases",
+      "denominator": 2.0,
+      "limitations": "CONTESTED is not a false resolution",
+      "metric_id": "contradiction_false_resolution_rate",
+      "n": 2,
+      "name": "contradiction_false_resolution_rate",
+      "numerator": 0.0,
+      "population": "contradiction_reason_cases",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "retrieval cases that returned an unexpected contradiction-linked ID / retrieval cases",
+      "denominator": 11.0,
+      "limitations": "Does not score CONTRA-SW/SCI reason cases",
+      "metric_id": "contradiction_pollution_rate",
+      "n": 11,
+      "name": "contradiction_pollution_rate",
+      "numerator": 0.0,
+      "population": "retrieval_cases vs seeded contradiction IDs",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "same as lesson_reuse_rate on labeled-applicable episodes",
+      "denominator": 2.0,
+      "limitations": "Applicability is the benchmark label, not a causal test",
+      "metric_id": "correct_lesson_reuse_rate",
+      "n": 2,
+      "name": "correct_lesson_reuse_rate",
+      "numerator": 2.0,
+      "population": "LEARN-E2, LEARN-E3",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "live reason() probes where critic action changed the mode verdict / probes",
+      "denominator": 2.0,
+      "limitations": "Detection \u2260 constraint; apply_constraint is not counted as production constraint",
+      "metric_id": "critic_constraint_rate",
+      "n": 2,
+      "name": "critic_constraint_rate",
+      "numerator": 2.0,
+      "population": "P5-CRITIC-LIVE CONTEST + P5-SKY-META REFUSE",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "seeded critic-trigger checks that fired / checks (missing, contra, stale, assumption, pred-not-fact, not-too-strong)",
+      "denominator": 6.0,
+      "limitations": "scope mismatch and overgeneralization have no Critique field \u2192 NOT_MEASURED separately",
+      "metric_id": "critic_detection_rate",
+      "n": 6,
+      "name": "critic_detection_rate",
+      "numerator": 6.0,
+      "population": "synthetic critic probes",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "too_strong on non-SUPPORTED verdicts / those verdicts",
+      "denominator": 1.0,
+      "limitations": "N=1 probe; not a full false-alarm curve",
+      "metric_id": "critic_false_alarm_rate",
+      "n": 1,
+      "name": "critic_false_alarm_rate",
+      "numerator": 0.0,
+      "population": "empty-evidence critic probe",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "no dedicated Critique field",
+      "denominator": 0.0,
+      "limitations": "Critique schema has no scope_mismatch flag",
+      "metric_id": "critic_scope_mismatch",
+      "n": 0,
+      "name": "critic_scope_mismatch",
+      "numerator": 0.0,
+      "population": "none",
+      "status": "NOT_MEASURED",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": null
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "structurally similar retry questions share one verdict class across 4 domains",
+      "denominator": 1.0,
+      "limitations": "Consistency of class, not of domain-specific quality; finance is an adapter",
+      "metric_id": "cross_domain_consistency",
+      "n": 4,
+      "name": "cross_domain_consistency",
+      "numerator": 1.0,
+      "population": "finance/science/software/operations ANALYZE retry questions",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "relevant retrieved IDs excluded by budget / relevant retrieved",
+      "denominator": 28.0,
+      "limitations": "Zero budget drops everything by design",
+      "metric_id": "dropped_relevant_record_rate",
+      "n": 28,
+      "name": "dropped_relevant_record_rate",
+      "numerator": 12.0,
+      "population": "context budgets on timeout keyword retrieval",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.42857142857142855
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "1 if UNK-EMPTY-01 retrieved any memory else 0",
+      "denominator": 1.0,
+      "limitations": "Single unknown-fact question; NO_RELEVANT_MEMORY is the correct empty result",
+      "metric_id": "empty_query_pollution_rate",
+      "n": 1,
+      "name": "empty_query_pollution_rate",
+      "numerator": 0.0,
+      "population": "UNK-EMPTY-01",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "retrieved evidence_class matches KIND_TO_EVIDENCE mapping",
+      "denominator": 8.0,
+      "limitations": "Mapping is loop-defined, not a world ontology",
+      "metric_id": "evidence_class_integrity",
+      "n": 8,
+      "name": "evidence_class_integrity",
+      "numerator": 8.0,
+      "population": "timeout keyword retrieval",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "hyp/opinion probes that still WEAKLY/SUPPORTED as if fact / probes",
+      "denominator": 2.0,
+      "limitations": "Two probes",
+      "metric_id": "evidence_type_violation_rate",
+      "n": 2,
+      "name": "evidence_type_violation_rate",
+      "numerator": 0.0,
+      "population": "P5-HYP-DED + P5-OP-ADV",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "experiment_id present and authorized_execution is False",
+      "denominator": 1.0,
+      "limitations": "Ledger result is INSUFFICIENT_DATA/NOT_COMPARABLE by design",
+      "metric_id": "experiment_analysis_only",
+      "n": 1,
+      "name": "experiment_analysis_only",
+      "numerator": 1.0,
+      "population": "one INVESTIGATE write-back episode",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "matching component/type failure sets failure_applied / 1",
+      "denominator": 1.0,
+      "limitations": "N=1",
+      "metric_id": "failure_application_accuracy",
+      "n": 1,
+      "name": "failure_application_accuracy",
+      "numerator": 1.0,
+      "population": "P5-FAIL-OK",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "similar later episode retrieved FAILURE F1",
+      "denominator": 1.0,
+      "limitations": "N=1 similar episode",
+      "metric_id": "failure_recall",
+      "n": 1,
+      "name": "failure_recall",
+      "numerator": 1.0,
+      "population": "FAIL-E2 operations deploy",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "SUPPORTED on unknown/not-implemented cases / those cases",
+      "denominator": 3.0,
+      "limitations": "WEAKLY_SUPPORTED on empty context would also be overconfident; tracked separately if seen",
+      "metric_id": "false_certainty_rate",
+      "n": 3,
+      "name": "false_certainty_rate",
+      "numerator": 0.0,
+      "population": "unknown_cases",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "unrelated episode retrieved FAILURE F1 / 1",
+      "denominator": 1.0,
+      "limitations": "FAILURE type alone is not relevance; measured after P4.2 query-time gating",
+      "metric_id": "false_failure_application_rate",
+      "n": 1,
+      "name": "false_failure_application_rate",
+      "numerator": 0.0,
+      "population": "FAIL-E3 science telescope",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MAX",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "finance lesson applied to software task / 1",
+      "denominator": 1.0,
+      "limitations": "N=1",
+      "metric_id": "false_lesson_application_rate",
+      "n": 1,
+      "name": "false_lesson_application_rate",
+      "numerator": 0.0,
+      "population": "P5-LESSON-BAD",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "RET-KEYWORD-01 hits whose overlap is only retry/recover and unlabeled / retrieved",
+      "denominator": 10.0,
+      "limitations": "Uses multi-domain operation tokens retry/recover",
+      "metric_id": "generic_overlap_false_inclusion_rate",
+      "n": 10,
+      "name": "generic_overlap_false_inclusion_rate",
+      "numerator": 0.0,
+      "population": "RET-KEYWORD-01 retrieved items",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MAX",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "1 if BM-SW-TIMEOUT-FAIL is absent under explicit database/disk_full constraints",
+      "denominator": 1.0,
+      "limitations": "Single probe; missing fields remain neutral elsewhere",
+      "metric_id": "hard_mismatch_rejection_accuracy",
+      "n": 1,
+      "name": "hard_mismatch_rejection_accuracy",
+      "numerator": 1.0,
+      "population": "component+failure_type mismatch probe on timeout FAILURE",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "generated hypothesis provenance includes falsification_condition",
+      "denominator": 1.0,
+      "limitations": "String condition is not an executable experiment",
+      "metric_id": "hypothesis_falsification_present",
+      "n": 1,
+      "name": "hypothesis_falsification_present",
+      "numerator": 1.0,
+      "population": "one INVESTIGATE write-back episode",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "inapplicable episodes that still retrieved the timeout LESSON / inapplicable",
+      "denominator": 2.0,
+      "limitations": "same_domain retrieval may retrieve the lesson on E4; that is a measured weakness if FAIL",
+      "metric_id": "incorrect_lesson_application_rate",
+      "n": 2,
+      "name": "incorrect_lesson_application_rate",
+      "numerator": 0.0,
+      "population": "LEARN-E4 compiler (same domain) and LEARN-E5 operations",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MAX",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "relationship-only retrieved IDs outside the case label / relationship-only retrieved",
+      "denominator": 0.0,
+      "limitations": "NOT_MEASURED when no relationship-only rows appear",
+      "metric_id": "irrelevant_relationship_expansion_rate",
+      "n": 0,
+      "name": "irrelevant_relationship_expansion_rate",
+      "numerator": 0.0,
+      "population": "retrieval_cases items retrieved only via anchored expansion",
+      "status": "NOT_MEASURED",
+      "threshold": 0.25,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MAX",
+      "value": null
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "applicable software lesson sets lesson_applied / 1",
+      "denominator": 1.0,
+      "limitations": "N=1",
+      "metric_id": "lesson_application_accuracy",
+      "n": 1,
+      "name": "lesson_application_accuracy",
+      "numerator": 1.0,
+      "population": "P5-LESSON-OK",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "applicable later episodes that retrieved episode-1 LESSON / applicable episodes",
+      "denominator": 2.0,
+      "limitations": "N=2 applicable synthetic episodes; NO_MEMORY baseline is separate",
+      "metric_id": "lesson_reuse_rate",
+      "n": 2,
+      "name": "lesson_reuse_rate",
+      "numerator": 2.0,
+      "population": "LEARN-E2, LEARN-E3 (timeout-related)",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "labeled structural cousins not retrieved on RET-KEYWORD-01 / cousin set",
+      "denominator": 7.0,
+      "limitations": "Cousin set is the P4.2-measured false-positive cluster, not a new label rewrite",
+      "metric_id": "lookalike_rejection_rate",
+      "n": 7,
+      "name": "lookalike_rejection_rate",
+      "numerator": 7.0,
+      "population": "LOOKALIKE + cross-domain retry/recover cousins",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "fraction of retrieved items whose MATCH_REASON strings are mechanistically true",
+      "denominator": 22.0,
+      "limitations": "Unknown reason tokens fail closed",
+      "metric_id": "match_reason_correctness",
+      "n": 22,
+      "name": "match_reason_correctness",
+      "numerator": 22.0,
+      "population": "all retrieved items in retrieval_cases",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "empty-context deduction returns INSUFFICIENT_EVIDENCE / 1",
+      "denominator": 1.0,
+      "limitations": "N=1",
+      "metric_id": "missing_premise_refusal_accuracy",
+      "n": 1,
+      "name": "missing_premise_refusal_accuracy",
+      "numerator": 1.0,
+      "population": "P5-MISS",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "DEDUCTIVE verdict \u2260 INDUCTIVE verdict on one-fact context / 1",
+      "denominator": 1.0,
+      "limitations": "Detects mode collapse between those two modes",
+      "metric_id": "mode_specificity",
+      "n": 1,
+      "name": "mode_specificity",
+      "numerator": 1.0,
+      "population": "P5 one-fact mode suite",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "1 - leakage_rate on private namespace cases",
+      "denominator": 2.0,
+      "limitations": "Does not test allow_cross_namespace store API",
+      "metric_id": "namespace_isolation_rate",
+      "n": 2,
+      "name": "namespace_isolation_rate",
+      "numerator": 2.0,
+      "population": "RET-NS-A/B",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "count of expected_absent private IDs that were retrieved / absences checked",
+      "denominator": 2.0,
+      "limitations": "Empty namespace is shared by policy",
+      "metric_id": "namespace_leakage_rate",
+      "n": 2,
+      "name": "namespace_leakage_rate",
+      "numerator": 0.0,
+      "population": "RET-NS-A/B expected_absent_ids",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "NO_MEMORY baseline retrieval of episode-1 lesson (expect 0)",
+      "denominator": 1.0,
+      "limitations": "Baseline must stay 0; not an intelligence comparison",
+      "metric_id": "no_memory_lesson_reuse",
+      "n": 1,
+      "name": "no_memory_lesson_reuse",
+      "numerator": 0.0,
+      "population": "LEARN-E2-NOMEM",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "novelty_equals_truth is False on generated hypothesis episode",
+      "denominator": 1.0,
+      "limitations": "Classifier output, not a creativity test",
+      "metric_id": "novelty_not_truth",
+      "n": 1,
+      "name": "novelty_not_truth",
+      "numerator": 1.0,
+      "population": "one INVESTIGATE write-back episode",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "contradiction pair yields UNRESOLVED/CONTESTED / 1",
+      "denominator": 1.0,
+      "limitations": "N=1 synthetic pair",
+      "metric_id": "p5_contradiction_preservation",
+      "n": 1,
+      "name": "p5_contradiction_preservation",
+      "numerator": 1.0,
+      "population": "P5-CONTRA",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "live critic action or contradiction/relevance finding / probes",
+      "denominator": 4.0,
+      "limitations": "Separate from P4.1 critic_detection_rate; no hardcoded pass",
+      "metric_id": "p5_critic_detection_rate",
+      "n": 4,
+      "name": "p5_critic_detection_rate",
+      "numerator": 4.0,
+      "population": "empty + contradiction + live metacognitive contest + irrelevant inventory refuse",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "same DEDUCTIVE verdict class across four adapter domains / 1",
+      "denominator": 1.0,
+      "limitations": "Synthetic one-fact tasks; not market transfer",
+      "metric_id": "p5_cross_domain_invariance",
+      "n": 1,
+      "name": "p5_cross_domain_invariance",
+      "numerator": 1.0,
+      "population": "software/science/finance/operations one-fact",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "unconstrained mismatched failure applied / 1",
+      "denominator": 1.0,
+      "limitations": "Separate from P4.3 retrieval false_failure_application_rate",
+      "metric_id": "p5_false_failure_application_rate",
+      "n": 1,
+      "name": "p5_false_failure_application_rate",
+      "numerator": 0.0,
+      "population": "P5-FAIL-BAD",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "empty context refuses with INSUFFICIENT/NOT_IMPLEMENTED / 1",
+      "denominator": 1.0,
+      "limitations": "N=1; does not replace P4.1 unknown_refusal_accuracy",
+      "metric_id": "p5_unknown_refusal_accuracy",
+      "n": 1,
+      "name": "p5_unknown_refusal_accuracy",
+      "numerator": 1.0,
+      "population": "P5-MISS",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "SUPPORTED finals on P5 mode+critic probes / those probes",
+      "denominator": 8.0,
+      "limitations": "Does not replace P4.1 unsupported_claim_rate",
+      "metric_id": "p5_unsupported_claim_rate",
+      "n": 8,
+      "name": "p5_unsupported_claim_rate",
+      "numerator": 0.0,
+      "population": "P5 mode cases + critic probe",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "selected items with producer+source_id / selected items",
+      "denominator": 18.0,
+      "limitations": "Corpus producer is the benchmark seeder",
+      "metric_id": "provenance_preservation",
+      "n": 18,
+      "name": "provenance_preservation",
+      "numerator": 18.0,
+      "population": "assembled context items across budgets",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "DEDUCTIVE==INDUCTIVE on one-fact context / 1",
+      "denominator": 1.0,
+      "limitations": "Complement of mode_specificity for those two modes",
+      "metric_id": "reasoning_mode_confusion_rate",
+      "n": 1,
+      "name": "reasoning_mode_confusion_rate",
+      "numerator": 0.0,
+      "population": "P5 one-fact mode suite",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "implemented modes emit mode+assumptions and never SUPPORTED / 7 modes",
+      "denominator": 7.0,
+      "limitations": "Tests structured outputs, not hidden chain-of-thought quality",
+      "metric_id": "reasoning_mode_structure_rate",
+      "n": 7,
+      "name": "reasoning_mode_structure_rate",
+      "numerator": 7.0,
+      "population": "reasoning_mode_cases",
+      "status": "PASS",
+      "threshold": null,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "mean fraction of labeled-relevant IDs in top-1 retrieved",
+      "denominator": 11.0,
+      "limitations": "Rank is len(match_reasons) then memory_id; not semantic rank",
+      "metric_id": "recall_at_1",
+      "n": 11,
+      "name": "recall_at_1",
+      "numerator": 8.642857142857142,
+      "population": "retrieval_cases with non-empty relevant sets",
+      "status": "PASS",
+      "threshold": 0.2,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.7857142857142857
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "mean fraction of labeled-relevant IDs in top-10 retrieved",
+      "denominator": 11.0,
+      "limitations": "Rank is len(match_reasons) then memory_id; not semantic rank",
+      "metric_id": "recall_at_10",
+      "n": 11,
+      "name": "recall_at_10",
+      "numerator": 11.0,
+      "population": "retrieval_cases with non-empty relevant sets",
+      "status": "PASS",
+      "threshold": 0.6,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "mean fraction of labeled-relevant IDs in top-3 retrieved",
+      "denominator": 11.0,
+      "limitations": "Rank is len(match_reasons) then memory_id; not semantic rank",
+      "metric_id": "recall_at_3",
+      "n": 11,
+      "name": "recall_at_3",
+      "numerator": 10.428571428571429,
+      "population": "retrieval_cases with non-empty relevant sets",
+      "status": "PASS",
+      "threshold": 0.4,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.948051948051948
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "mean fraction of labeled-relevant IDs in top-5 retrieved",
+      "denominator": 11.0,
+      "limitations": "Rank is len(match_reasons) then memory_id; not semantic rank",
+      "metric_id": "recall_at_5",
+      "n": 11,
+      "name": "recall_at_5",
+      "numerator": 10.571428571428571,
+      "population": "retrieval_cases with non-empty relevant sets",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.961038961038961
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "TIMEOUT_RELEVANT retrieved on RET-KEYWORD-01 / labeled relevant",
+      "denominator": 7.0,
+      "limitations": "Protects same-cluster recall while cousins are rejected",
+      "metric_id": "relevant_lookalike_recall",
+      "n": 7,
+      "name": "relevant_lookalike_recall",
+      "numerator": 7.0,
+      "population": "RET-KEYWORD-01",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "harmonic mean of retrieval_precision and retrieval_recall",
+      "denominator": 1.0,
+      "limitations": "Synthetic; not an intelligence score",
+      "metric_id": "retrieval_f1",
+      "n": 11,
+      "name": "retrieval_f1",
+      "numerator": 0.9523809523809523,
+      "population": "retrieval_cases",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.9523809523809523
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "|retrieved \u2229 relevant| / |retrieved| over labeled retrieval cases",
+      "denominator": 22.0,
+      "limitations": "same_domain matching retrieves distractors; synthetic labels only",
+      "metric_id": "retrieval_precision",
+      "n": 11,
+      "name": "retrieval_precision",
+      "numerator": 20.0,
+      "population": "retrieval_cases labeled relevant vs all retrieved",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 0.9090909090909091
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "|retrieved \u2229 relevant| / |relevant| over labeled retrieval cases",
+      "denominator": 20.0,
+      "limitations": "Relevance is the case label set, not human judgment",
+      "metric_id": "retrieval_recall",
+      "n": 11,
+      "name": "retrieval_recall",
+      "numerator": 20.0,
+      "population": "retrieval_cases labeled relevant",
+      "status": "PASS",
+      "threshold": 0.7,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "same-domain retrieved IDs not in the case label / same-domain retrieved",
+      "denominator": 26.0,
+      "limitations": "Domain match is a ranking signal, not a relevance proof",
+      "metric_id": "same_domain_false_inclusion_rate",
+      "n": 26,
+      "name": "same_domain_false_inclusion_rate",
+      "numerator": 6.0,
+      "population": "retrieval_cases same-domain hits",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MAX",
+      "value": 0.23076923076923078
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "stale historical fact remains queryable and is not treated as SUPPORTED falsehood",
+      "denominator": 1.0,
+      "limitations": "Single seeded record",
+      "metric_id": "stale_not_false",
+      "n": 1,
+      "name": "stale_not_false",
+      "numerator": 1.0,
+      "population": "BM-SW-OLD-FACT + RET-TEMP-01",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "1 if the mismatched FAILURE was still retrieved",
+      "denominator": 1.0,
+      "limitations": "Complement of hard_mismatch_rejection_accuracy",
+      "metric_id": "structured_mismatch_false_inclusion_rate",
+      "n": 1,
+      "name": "structured_mismatch_false_inclusion_rate",
+      "numerator": 0.0,
+      "population": "same hard-mismatch probe",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "LEARN retrieval cases whose retrieved set is all LESSON / LEARN cases",
+      "denominator": 2.0,
+      "limitations": "Does not score ANALYZE cases that legitimately mix kinds",
+      "metric_id": "task_compatibility_accuracy",
+      "n": 2,
+      "name": "task_compatibility_accuracy",
+      "numerator": 2.0,
+      "population": "RET-DOMAIN-01 and RET-LESSON-01",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "correct STALE/fresh/unknown-age/SUPERSEDED/history-preserved checks / 5",
+      "denominator": 5.0,
+      "limitations": "STALE \u2260 FALSE is a separate check (stale remains queryable)",
+      "metric_id": "temporal_classification_accuracy",
+      "n": 5,
+      "name": "temporal_classification_accuracy",
+      "numerator": 5.0,
+      "population": "seeded temporal software records",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "stale-only TEMPORAL \u2192 INSUFFICIENT+STALE / 1",
+      "denominator": 1.0,
+      "limitations": "N=1",
+      "metric_id": "temporal_scope_accuracy",
+      "n": 1,
+      "name": "temporal_scope_accuracy",
+      "numerator": 1.0,
+      "population": "P5-STALE",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "bindings whose typed_class matches the source taxonomy / probes",
+      "denominator": 5.0,
+      "limitations": "Synthetic items; not soak",
+      "metric_id": "typed_evidence_compliance",
+      "n": 5,
+      "name": "typed_evidence_compliance",
+      "numerator": 5.0,
+      "population": "P5 typed-class probes",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "empty/unimplemented cases returning the expected refusal class",
+      "denominator": 3.0,
+      "limitations": "Does not measure probabilistic calibration",
+      "metric_id": "unknown_refusal_accuracy",
+      "n": 3,
+      "name": "unknown_refusal_accuracy",
+      "numerator": 3.0,
+      "population": "unknown_cases",
+      "status": "PASS",
+      "threshold": 1.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "MIN",
+      "value": 1.0
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "|retrieved \u2212 relevant| / |retrieved| over labeled retrieval cases",
+      "denominator": 22.0,
+      "limitations": "Complement of retrieval_precision; labels are the case sets",
+      "metric_id": "unrelated_retrieval_rate",
+      "n": 11,
+      "name": "unrelated_retrieval_rate",
+      "numerator": 2.0,
+      "population": "retrieval_cases",
+      "status": "PASS",
+      "threshold": 0.5,
+      "threshold_class": "PROVISIONAL",
+      "threshold_kind": "MAX",
+      "value": 0.09090909090909091
+    },
+    {
+      "benchmark_version": "p4.1.0",
+      "definition": "SUPPORTED verdicts on mode+adversarial+unknown episodes / those episodes",
+      "denominator": 24.0,
+      "limitations": "P3 downgrades SUPPORTED by construction",
+      "metric_id": "unsupported_claim_rate",
+      "n": 24,
+      "name": "unsupported_claim_rate",
+      "numerator": 0.0,
+      "population": "reasoning_mode_cases + unknown_cases + adversarial_cases",
+      "status": "PASS",
+      "threshold": 0.0,
+      "threshold_class": "GOVERNANCE",
+      "threshold_kind": "ZERO",
+      "value": 0.0
+    }
+  ],
+  "soak_protection": {
+    "BENCHMARK_DB": "ahos_cognitive_memory.sqlite",
+    "SOAK_DATABASE_TOUCHED": "NO",
+    "SOAK_RUNTIME_RESTARTED": "NO",
+    "T0_RESET": "NO"
+  },
+  "timing": {},
+  "weaknesses": []
+}

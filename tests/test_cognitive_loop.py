@@ -37,7 +37,6 @@ from architecture.cognitive.loop.contracts import (  # noqa: E402
 )
 from architecture.cognitive.loop.metacognition import metacognitive_state  # noqa: E402
 from architecture.cognitive.loop.metrics import METRIC_SPECS, compute_lesson_reuse  # noqa: E402
-from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import reason  # noqa: E402
 from architecture.cognitive.loop.retrieval import MemoryRetriever  # noqa: E402
 from architecture.cognitive.loop.tools import plan_tools  # noqa: E402
@@ -47,6 +46,8 @@ from architecture.cognitive.memory.store import (  # noqa: E402
     MemoryAuthorizationError,
     SoakBoundaryError,
 )
+from tests.observation_test_runtime import TestCognitiveOrchestrator  # noqa: E402
+from tests.p5_grant_fixtures import persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
     EpistemicKind,
@@ -92,23 +93,16 @@ def _seed_fact(
     agent_id: str = "",
     agent_namespace: str = "",
 ) -> str:
-    rec = store.remember(
-        memory_type=MemoryType.EPISODIC,
-        epistemic_kind=EpistemicKind.OBSERVED_FACT,
-        statement=statement,
-        source_type=SourceType.SYSTEM,
+    rec = persist_authorized(
+        store,
+        statement,
         source_id=source_id,
-        source_location="tests/test_cognitive_loop.py",
-        producer="pytest_p3",
-        producer_version="p3",
-        domain=domain,
-        context="SYNTHETIC_TEST_DATA",
         observed_at=observed_at,
-        created_at=created_at,
+        domain=domain,
         valid_until=valid_until,
+        created_at=created_at,
         agent_id=agent_id,
         agent_namespace=agent_namespace,
-        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     return rec.memory_id
 
@@ -121,7 +115,7 @@ def test_closed_loop_second_episode_retrieves_lesson(tmp_path: Path) -> None:
         domain="software",
         source_id="seed-timeout",
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     r1 = orch.run(
         _task(
             task_id="task-loop-1",
@@ -179,7 +173,7 @@ def test_no_memory_baseline_does_not_retrieve_lesson(tmp_path: Path) -> None:
         domain="software",
         source_id="seed-a",
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     r1 = orch.run(
         _task(
             task_id="nm-1",
@@ -216,7 +210,7 @@ def test_failure_learning_next_task_retrieves_failure(tmp_path: Path) -> None:
         domain="operations",
         source_id="seed-fail",
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     task1 = _task(
         task_id="fail-1",
         task_type=TaskType.ANALYZE.value,
@@ -267,7 +261,7 @@ def test_contradiction_preserved_unresolved(tmp_path: Path) -> None:
         created_at=NOW - 90,
     )
     mem.contradict(a, b, reason="synthetic opposing measurements")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     result = orch.run(
         _task(
             task_id="contra-1",
@@ -426,7 +420,7 @@ def test_domain_generality_four_adapters(tmp_path: Path) -> None:
         observed_at=NOW - 20,
         created_at=NOW - 10,
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     for domain, q in (
         ("finance", "token observation"),
         ("science", "lab measurement"),
@@ -495,7 +489,7 @@ def test_causal_and_counterfactual_not_implemented(tmp_path: Path) -> None:
 
 def test_loop_cannot_authorize_execution(tmp_path: Path) -> None:
     mem, hyp, ledger = _stores(tmp_path)
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     with pytest.raises(MemoryAuthorizationError):
         orch.authorize_execution("anything")
 
@@ -602,13 +596,58 @@ def test_record_cognitive_experiment_still_analysis_only(tmp_path: Path) -> None
 
 
 def test_memory_vs_no_memory_benchmark(tmp_path: Path) -> None:
+    from architecture.cognitive.memory.observation import GRANT_PAYLOAD_KEY
+
     mem, hyp, ledger = _stores(tmp_path)
     out = run_memory_vs_no_memory(mem, hyp, ledger, now=NOW)
     assert out["data_label"] == "SYNTHETIC_TEST_DATA"
     assert out["no_memory_lesson_reuse"] == 0.0
-    assert out["memory_loop_lesson_reuse"] == 1.0
-    assert out["measured_improvement"] == 1.0
-    assert out["episode2_retrieved_lesson"] is True
+    ofacts = [
+        r
+        for r in mem.find_by_type(MemoryType.EPISODIC)
+        if r.epistemic_kind == EpistemicKind.OBSERVED_FACT.value
+    ]
+    assert ofacts
+    assert all(GRANT_PAYLOAD_KEY not in (r.payload or {}) for r in ofacts)
+    # Production helper cannot mint; ungranted seed is not a factual premise.
+    assert out["memory_loop_lesson_reuse"] == 0.0
+    assert not out["episode1_lesson_id"]
+    assert out["episode2_retrieved_lesson"] is False
     assert out["unsupported_claim_rate"] == 0.0
     assert out["integrity"] == "ok"
     assert out["e2e_cycle_seconds"] < 5.0
+
+    mem2, hyp2, ledger2 = _stores(tmp_path / "granted")
+    persist_authorized(
+        mem2,
+        "SYNTHETIC_TEST_DATA retries after HTTP timeout recovered the request.",
+        source_id="bench-timeout",
+    )
+    orch = TestCognitiveOrchestrator(memory=mem2, hypotheses=hyp2, ledger_path=ledger2)
+    r1 = orch.run(
+        _task(
+            task_id="bench-1",
+            task_type=TaskType.INVESTIGATE.value,
+            objective="Investigate timeout recovery",
+            question="Do retries after timeout help?",
+            domain="software",
+        ),
+        now=NOW,
+        use_memory=True,
+    )
+    r2 = orch.run(
+        _task(
+            task_id="bench-2",
+            task_type=TaskType.LEARN.value,
+            objective="Reuse prior timeout lesson",
+            question="What did we learn about timeout retries?",
+            domain="software",
+            created_at=NOW + 1.0,
+        ),
+        now=NOW + 1.0,
+        use_memory=True,
+    )
+    kinds_mem = [i.epistemic_kind for i in r2.retrieved]
+    assert compute_lesson_reuse(kinds_mem, used_memory=True) == 1.0
+    assert r1.lesson_memory_id
+    assert r1.lesson_memory_id in {i.memory_id for i in (r2.context.lessons if r2.context else ())}

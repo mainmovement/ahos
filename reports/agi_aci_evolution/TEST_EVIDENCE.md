@@ -4,6 +4,59 @@
 **Interpreter for tests/validate:** `/tmp/ahos-test-venv` (ephemeral; not committed). System `python3` lacks pytest (PEP 668).  
 **Soak daemon:** not started. Cloud sqlite: not treated as soak.
 
+## Lane-B evolution P5 (PR #93) — HEAD
+
+**Code SHA:** `afdff2539943441244d05478a7004bc4bcc5976f` (architecture/tests)  
+**Recorded on:** integrity-audit execution at `c36f771` (same code tree).  
+See `P5_FINAL_CLOSURE_GATE_REVIEW.md`, `PR93_INDEPENDENT_PRE_REVIEW_INTEGRITY_AUDIT.md`.
+
+Not charter/world-model P5. Not ops/n8n/Telegram P5. PR #93 remains **DRAFT**. `MERGE = NO`. `READY_FOR_REVIEW = NO`. `P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`. Not production-ready. Not live trading. Not AGI/ACI.
+
+Counts (scoped; do not collapse):
+
+- total repository pytest on HEAD: **2065 passed, 3 skipped**
+- Lane-B evolution P5-named modules (collected on HEAD): **308** (`test_typed_reasoning.py` + `test_evidence_support.py` + `tests/test_p5_*.py`) — collected, not a separate “308 passed” claim
+- ObservationGrant V3+V4+grant files (prior targeted run): 85 passed
+- Lane A freeze: 36/36
+- soak: untouched vs `origin/main`
+
+```text
+/tmp/ahos-test-venv/bin/python -m pytest -q --tb=no -p no:cacheprovider
+# result: 2065 passed, 3 skipped in 224.57s  exit 0
+# classification: total repository pytest on HEAD (not a P5-specific count)
+
+python3 -B scripts/freeze_lane_a.py
+# result: Lane-A integrity OK (36 files pinned)  exit 0
+```
+
+## P5 typed-reasoning FIX_CORRECTED snapshot (2026-09-09)
+
+**Base SHA:** `976516123b0b682e99fcc6e9c6f0efabb91a9495`  
+Historical snapshot. Do not treat as HEAD.  
+See `P5_FIX_CORRECTION_REPORT.md`, `P5_TYPED_EVIDENCE_REASONING_AUDIT.md`, and `P5_TYPED_EVIDENCE_REASONING_BENCHMARK.md`.
+
+Counts (do not call the envelope "P5 tests"):
+
+- P5-specific: 28 passed (`tests/test_typed_reasoning.py`)
+- P4 retrieval + benchmark + loop + memory + core: 95 passed (123 − 28)
+- evolution / council / panel: 72 passed
+- Total regression envelope: 195 passed
+- Freeze 36/36. Isolated benchmark twice, equal=YES. P4.3 precision/recall/MATCH_REASON protected.
+
+```text
+python3 -B scripts/freeze_lane_a.py
+# result: Lane-A integrity OK (36 files pinned)  exit 0
+
+/tmp/ahos-test-venv/bin/python -m pytest -q -p no:cacheprovider \
+  tests/test_typed_reasoning.py tests/test_retrieval_lookalike.py \
+  tests/test_retrieval_relevance.py tests/test_cognitive_benchmark.py \
+  tests/test_cognitive_loop.py tests/test_cognitive_memory.py \
+  tests/test_cognitive_core.py tests/test_self_evolution_engine.py \
+  tests/test_multi_mind_council_anti_echo.py tests/test_evolution_validate.py \
+  tests/test_cognitive_panel.py
+# result: 195 passed  exit 0
+```
+
 ## P4.3 (lookalike discrimination)
 
 **Base SHA:** `eb1dbcf883bf3cba94e18881c9bea9a5252a88af`  

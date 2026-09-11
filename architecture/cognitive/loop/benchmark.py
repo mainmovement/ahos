@@ -6,12 +6,11 @@ import time
 from typing import Any
 
 from architecture.cognitive.hypothesis import HypothesisStore
-from architecture.cognitive.loop.adapters import software_observation
 from architecture.cognitive.loop.contracts import CognitiveTask, TaskType
 from architecture.cognitive.loop.metrics import compute_lesson_reuse
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator
 from architecture.cognitive.memory.store import CognitiveMemoryStore
-from architecture.cognitive.memory.types import EpistemicKind
+from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
 
 
 def run_memory_vs_no_memory(
@@ -22,12 +21,20 @@ def run_memory_vs_no_memory(
     now: float = 1_800_000_000.0,
 ) -> dict[str, Any]:
     """Compare NO_MEMORY vs MEMORY+LOOP on lesson reuse. SYNTHETIC_TEST_DATA."""
-    software_observation(
-        memory,
+    memory.remember(
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
         statement="SYNTHETIC_TEST_DATA retries after HTTP timeout recovered the request.",
+        source_type=SourceType.SYSTEM,
         source_id="bench-timeout",
+        source_location="architecture.cognitive.loop.benchmark",
+        producer="p3-benchmark",
+        producer_version="p3-v1",
+        domain="software",
+        context="SYNTHETIC_TEST_DATA",
         observed_at=now - 100.0,
         created_at=now - 50.0,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     orch = CognitiveOrchestrator(
         memory=memory, hypotheses=hypotheses, ledger_path=ledger_path

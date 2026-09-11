@@ -2,6 +2,12 @@
 
 Lane-B AGI/ACI evolution records. Sequential IDs; do not reuse.
 
+**Current law (this branch, not main):** Lane-B evolution P5 (PR #93) is typed evidence-bound reasoning → polarity → memory authorization → ObservationGrant → V4-PIN. Code tip `afdff25`. PR remains **DRAFT**. `P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`. `P5_BOUNDARY_STATUS = CLOSED_WITH_DOCUMENTED_RESIDUALS`. `MERGE = NO`. `READY_FOR_REVIEW = NO`. Not production-ready. Not live trading. Not AGI/ACI.
+
+This is **not** charter/world-model P5 (`ACI-GAP-002` remains OPEN) and **not** ops/n8n/Telegram P5 (`reports/PHASE_STATE.md`, `docs/canonical/ROADMAP.md`).
+
+Rows 0008–0010 below are historical ACCEPT decisions at their dates. They are not HEAD pytest counts.
+
 | ID | UTC date | Objective | Decision |
 |----|----------|-----------|----------|
 | 0001 | 2026-09-09 | Repository audit vs Charter | ACCEPT — dual authority; soak untouched |
@@ -11,6 +17,9 @@ Lane-B AGI/ACI evolution records. Sequential IDs; do not reuse.
 | 0005 | 2026-09-09 | P4.1 cognitive benchmark expansion | ACCEPT for isolated PR; several metrics FAIL honestly |
 | 0006 | 2026-09-09 | P4.2 deterministic retrieval relevance tightening | ACCEPT for isolated PR; precision/F1 still FAIL honestly; recall protected |
 | 0007 | 2026-09-09 | P4.3 deterministic lookalike discrimination | ACCEPT for isolated PR; precision/F1 PASS on this vector; residual cousins remain |
+| 0008 | 2026-09-09 | P5 typed evidence-bound reasoning + critic constraint | ACCEPT for isolated PR; P4.3 retrieval protected; P5 metrics PASS on synthetic vector |
+| 0009 | 2026-09-09 | P5 FIX_REQUIRED correction | ACCEPT for isolated PR; honest critic metrics; relevance fail-closed |
+| 0010 | 2026-09-09 | Lane-B evolution P5 precision remediation (lexical match ≠ support) | ACCEPT for isolated PR correction; see `EVOLUTION_RECORD_0010.md` |
 | — | 2026-09-09 | Process self-research findings | `SELF_RESEARCH_FINDINGS.md` (weaknesses recorded, not hidden) |
 
 Related:
@@ -34,7 +43,21 @@ Related:
 - `P4_3_RETRIEVAL_BENCHMARK_REPORT.md`
 - `p4_3_retrieval_benchmark_latest.json`
 - `p4_3_p42_baseline.json`
+- `P4_4_COGNITIVE_STACK_FORENSIC_AUDIT.md`
+- `P5_TYPED_EVIDENCE_REASONING_AUDIT.md`
+- `P5_TYPED_EVIDENCE_REASONING_BENCHMARK.md`
+- `P5_FIX_CORRECTION_REPORT.md`
+- `P5_PRECISION_REMEDIATION_REPORT.md`
+- `p5_typed_evidence_reasoning_latest.json`
+- `EVOLUTION_RECORD_0010.md`
+- `P5_V4_IMPLEMENTATION_REPORT.md`
+- `P5_V4_POST_IMPLEMENTATION_FORENSIC_AUDIT.md`
+- `P5_V4_FINAL_RESIDUAL_BOUNDARY_REVIEW.md`
+- `P5_FINAL_CLOSURE_GATE_REVIEW.md` (security-exit current law)
+- `PR93_INDEPENDENT_PRE_REVIEW_INTEGRITY_AUDIT.md`
+- `PR93_DOCUMENTATION_RECONCILIATION_PLAN.md`
 - `TEST_EVIDENCE.md`
 - `LANE_A_CHANGE_PROPOSAL.md` (none this pass)
 - Charter: `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`
 - `docs/architecture/AHOS_COGNITIVE_MEMORY_ARCHITECTURE_v1.0.md`
+- `docs/DOC_TRUTH_MAP.md` (repo-wide current-authority map)

@@ -26,6 +26,7 @@
 | Lane-B cognitive benchmark (P4.1; **not an intelligence score**) | `architecture/cognitive/benchmark/` + `reports/agi_aci_evolution/P4_1_COGNITIVE_BENCHMARK_REPORT.md` — SYNTHETIC suite; FAIL is allowed |
 | Lane-B retrieval relevance (P4.2; **not AGI**) | `architecture/cognitive/loop/retrieval.py` + `reports/agi_aci_evolution/P4_2_RETRIEVAL_BENCHMARK_REPORT.md` — query-time gates; P4.1 cases unchanged; FAIL still allowed |
 | Lane-B lookalike discrimination (P4.3; **not AGI**) | `architecture/cognitive/loop/retrieval.py` + `reports/agi_aci_evolution/P4_3_RETRIEVAL_BENCHMARK_REPORT.md` — similarity ≠ applicability; P4.1 cases unchanged |
+| Lane-B evolution P5 (PR #93 DRAFT; **not AGI/ACI**) | Typed evidence → polarity → memory authorization → ObservationGrant → V4-PIN. Current law: `reports/agi_aci_evolution/P5_FINAL_CLOSURE_GATE_REVIEW.md` + `EVOLUTION_INDEX.md` + `TEST_EVIDENCE.md` HEAD section. `P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`. `MERGE = NO`. `READY_FOR_REVIEW = NO`. Not production-ready. Not live trading. Not soak-wired. **Not** charter/world-model P5 (`ACI-GAP-002` OPEN). **Not** ops/n8n/Telegram P5 (`reports/PHASE_STATE.md`, `docs/canonical/ROADMAP.md`). |
 
 ## B — Historical / superseded (do not cite as current readiness)
 

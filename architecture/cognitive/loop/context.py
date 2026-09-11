@@ -78,6 +78,8 @@ def assemble_context(
     inferences = bucket(EpistemicKind.INFERENCE.value)
     hypotheses = bucket(EpistemicKind.HYPOTHESIS.value)
     predictions = bucket(EpistemicKind.PREDICTION.value)
+    opinions = bucket(EpistemicKind.OPINION.value)
+    simulations = bucket(EpistemicKind.SIMULATION.value)
     experiments = tuple(i for i in selected if i.memory_type == MemoryType.EXPERIMENT.value)
     outcomes = tuple(
         i for i in selected
@@ -115,6 +117,8 @@ def assemble_context(
         inferences=inferences,
         hypotheses=hypotheses,
         predictions=predictions,
+        opinions=opinions,
+        simulations=simulations,
         experiments=experiments,
         outcomes=outcomes,
         contradictions=tuple(uniq.values()),
@@ -123,7 +127,7 @@ def assemble_context(
         lessons=lessons,
         unknowns=tuple(unknowns),
         excluded=tuple(excluded),
-        contradiction_present=bool(uniq),
+        contradiction_present=bool(uniq),  # graph CONTRADICTS edges only; mixed polarity is independent
         context_incomplete=incomplete,
         token_estimate=token_sum,
     )

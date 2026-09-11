@@ -513,11 +513,16 @@ class CognitiveMemoryStore:
             if row is None:
                 raise KeyError(memory_id)
             prev = _row_to_record(row)
+            new_statement = prev.statement if statement is None else statement.strip()
+            payload = dict(prev.payload)
+            if new_statement != prev.statement:
+                payload.pop("observation_grant", None)
             nxt = replace(
                 prev,
                 revision=prev.revision + 1,
                 created_at=ts,
-                statement=prev.statement if statement is None else statement.strip(),
+                statement=new_statement,
+                payload=payload,
                 status=prev.status if status is None else DecayState(status).value,
                 contradiction_state=(
                     prev.contradiction_state
@@ -835,6 +840,8 @@ class CognitiveMemoryStore:
         if old is None:
             raise KeyError(old_id)
         kind = epistemic_kind or old.epistemic_kind
+        payload = dict(old.payload)
+        payload.pop("observation_grant", None)
         successor = self.remember(
             memory_type=old.memory_type,
             epistemic_kind=kind,
@@ -849,7 +856,7 @@ class CognitiveMemoryStore:
             confidence=old.confidence,
             observed_at=old.observed_at,
             created_at=ts,
-            payload=dict(old.payload),
+            payload=payload,
             hypothesis_id=old.hypothesis_id,
             experiment_id=old.experiment_id,
             outcome_link=old.outcome_link,
@@ -984,6 +991,11 @@ class CognitiveMemoryStore:
         kind = str(object_kind).strip().upper()
         if kind not in WORLD_MODEL_OBJECT_KINDS:
             raise ValueError(f"unknown world-model object kind {object_kind!r}")
+        resolved = EpistemicKind(epistemic_kind).value
+        if resolved == EpistemicKind.OBSERVED_FACT.value:
+            raise ValueError(
+                "record_world_model_object cannot persist OBSERVED_FACT"
+            )
         body = dict(payload or {})
         body["object_kind"] = kind
         return self.remember(
