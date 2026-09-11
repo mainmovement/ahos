@@ -5,7 +5,8 @@
 **Implementation baseline:** `24b2ab8244f41d9e78582ccfc41dc4b0cf490a83`  
 **HEAD at analysis:** `7f26372da51205cc5d5d07115c20d0cc728240b0` (report-only after baseline).  
 **Prior independent audit:** `reports/agi_aci_evolution/P5_V3_POST_IMPLEMENTATION_FORENSIC_AUDIT.md` (`FORENSIC_STATUS = FAIL`)  
-**This document does not authorize implementation.**
+**This document does not authorize implementation.**  
+**GATE_COMMIT:** `17eed385f1504e0483f81b9f5d3f5b8bd23042f7`
 
 Not AGI. Not ACI. Not production-ready. Not live trading.  
 Lane A and soak are not in scope. This turn does not modify production code, tests, schemas, Lane A, or soak.
