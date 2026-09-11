@@ -47,7 +47,7 @@ from architecture.cognitive.memory.observation import (  # noqa: E402
     statement_sha256,
     verify_observation_grant,
 )
-from tests.observation_test_runtime import test_authority_scope  # noqa: E402
+from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
 from architecture.cognitive.memory.record import MemoryRecord, compute_integrity_hash  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
@@ -71,7 +71,7 @@ OTHER = "Service B retries after timeout reduced failures."
 
 @pytest.fixture(autouse=True)
 def _test_grant_scope():
-    with test_authority_scope(trusted_now=NOW + 1):
+    with grant_verify_scope(trusted_now=NOW + 1):
         yield
 
 

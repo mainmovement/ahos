@@ -40,7 +40,7 @@ from architecture.cognitive.loop.support import (  # noqa: E402
     identity_tokens,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
-from tests.observation_test_runtime import test_authority_scope  # noqa: E402
+from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType  # noqa: E402
 
@@ -58,7 +58,7 @@ CAFETERIA = "the lunch timeout retries were about cafeteria seating"
 
 @pytest.fixture(autouse=True)
 def _test_grant_scope():
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         yield
 
 

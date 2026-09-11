@@ -166,7 +166,7 @@ def _bind_factual(mem: CognitiveMemoryStore, rec, *, now: float, created_at: flo
 
     ctx = assemble_context(items, mem, now=now)
     binds = bind_context(ctx, task, store=mem, now=now)
-    return any(b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+    return any(b.memory_id == rec.memory_id and b.may(ROLE_FACTUAL_PREMISE) for b in binds)
 
 
 # ---------------------------------------------------------------------------
@@ -399,7 +399,7 @@ def test_production_issuer_rejects_test_vector_key() -> None:
     assert hashlib.sha256(TEST_VECTOR_KEY).hexdigest() == (
         "52fe6094743bfd4f9be4321d98adc7e23c1ab622b0ba830e271d1ee1cbfd7850"
     )
-    with pytest.raises(ValueError, match="test-vector"):
+    with pytest.raises(ValueError, match="tests-only vector"):
         ObservationAuthority(secret=TEST_VECTOR_KEY, issuer_id=ISSUER_ID)
 
 
@@ -461,7 +461,7 @@ def test_module_has_no_live_secret_or_authority_global() -> None:
 def test_case_a_old_created_at_current_trusted_now(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -472,14 +472,14 @@ def test_case_a_old_created_at_current_trusted_now(tmp_path: Path) -> None:
             SUPPORT, acquired_at=NOW - 20, valid_until=NOW + 3600
         ),
     )
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, rec, now=NOW, created_at=PAST) is True
 
 
 def test_case_b_future_created_at_cannot_extend_validity(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -492,14 +492,14 @@ def test_case_b_future_created_at_cannot_extend_validity(tmp_path: Path) -> None
             valid_until=NOW - 60,
         ),
     )
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, rec, now=NOW, created_at=FUTURE) is False
 
 
 def test_case_c_run_now_freeze_is_trusted_runtime(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -512,19 +512,19 @@ def test_case_c_run_now_freeze_is_trusted_runtime(tmp_path: Path) -> None:
     )
     orch = _orch(tmp_path, mem)
     task = _task(created_at=PAST, requested_evidence=[rec.memory_id])
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         result = orch.run(task, now=NOW)
         binds = bind_context(result.context, task, store=mem, now=NOW)
-    assert any(b.may(ROLE_FACTUAL_PREMISE) for b in binds)
-    assert all(
-        b.authority_now == NOW for b in binds if b.may(ROLE_FACTUAL_PREMISE)
-    )
+        assert any(b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+        assert all(
+            b.authority_now == NOW for b in binds if b.may(ROLE_FACTUAL_PREMISE)
+        )
 
 
 def test_case_d_grant_expired_relative_to_trusted_runtime(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -535,14 +535,14 @@ def test_case_d_grant_expired_relative_to_trusted_runtime(tmp_path: Path) -> Non
             SUPPORT, acquired_at=NOW - 7200, valid_until=NOW - 60
         ),
     )
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, rec, now=NOW, created_at=NOW) is False
 
 
 def test_case_e_future_observation_relative_to_trusted_runtime(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -553,7 +553,7 @@ def test_case_e_future_observation_relative_to_trusted_runtime(tmp_path: Path) -
             SUPPORT, acquired_at=FUTURE, valid_until=FUTURE + 3600
         ),
     )
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, rec, now=NOW, created_at=NOW) is False
 
 
@@ -631,7 +631,7 @@ def test_alien_bound_ingest_port_is_not_production_valid(tmp_path: Path) -> None
 def test_copied_grant_does_not_authorize_other_statement(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -646,14 +646,14 @@ def test_copied_grant_does_not_authorize_other_statement(tmp_path: Path) -> None
         source_id="a",
         payload={"data_label": "SYNTHETIC_TEST_DATA", GRANT_PAYLOAD_KEY: grant},
     )
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, copied, now=NOW, created_at=NOW) is False
 
 
 def test_serialized_grant_reconstruction_without_matching_fields(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -667,14 +667,14 @@ def test_serialized_grant_reconstruction_without_matching_fields(tmp_path: Path)
         source_id="ser2",
         payload=dict(restored["payload"]),
     )
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, clone, now=NOW, created_at=NOW) is False
 
 
 def test_revision_cannot_reuse_prior_grant(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -687,14 +687,14 @@ def test_revision_cannot_reuse_prior_grant(tmp_path: Path) -> None:
         now=NOW,
     )
     assert GRANT_PAYLOAD_KEY not in nxt.payload
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, rec, now=NOW, created_at=NOW) is False
 
 
 def test_toctou_mutate_after_issuance(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -711,7 +711,7 @@ def test_toctou_mutate_after_issuance(tmp_path: Path) -> None:
     from architecture.cognitive.loop.context import assemble_context
 
     ctx = assemble_context(items, mem, now=NOW + 2)
-    with test_authority_scope(trusted_now=NOW + 2):
+    with grant_verify_scope(trusted_now=NOW + 2):
         binds = bind_context(ctx, task, store=mem, now=NOW + 2)
     assert binds
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
@@ -720,7 +720,7 @@ def test_toctou_mutate_after_issuance(tmp_path: Path) -> None:
 def test_derived_fact_cannot_reuse_observation_grant(tmp_path: Path) -> None:
     from tests.observation_test_runtime import (
         persist_test_observation,
-        test_authority_scope,
+        grant_verify_scope,
         timeout_retry_reading,
     )
 
@@ -744,7 +744,7 @@ def test_derived_fact_cannot_reuse_observation_grant(tmp_path: Path) -> None:
         created_at=NOW - 10,
         payload={"data_label": "SYNTHETIC_TEST_DATA", GRANT_PAYLOAD_KEY: dict(grant)},
     )
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         assert _bind_factual(mem, derived, now=NOW, created_at=NOW) is False
         assert not verify_observation_grant(
             ObservationGrant.from_dict(grant),

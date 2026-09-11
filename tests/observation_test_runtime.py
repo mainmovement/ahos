@@ -96,7 +96,7 @@ _ADAPTER = TestAcquisitionAdapter()
 
 
 @contextmanager
-def test_authority_scope(*, trusted_now: float = NOW) -> Iterator[None]:
+def grant_verify_scope(*, trusted_now: float = NOW) -> Iterator[None]:
     token = push_grant_verify_context(
         GrantVerifyContext(TEST_VECTOR_KEY, ISSUER_ID_TEST, float(trusted_now))
     )

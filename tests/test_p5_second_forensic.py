@@ -47,7 +47,7 @@ from architecture.cognitive.loop.modes import MODE_FNS  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
-from tests.observation_test_runtime import test_authority_scope  # noqa: E402
+from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
@@ -82,7 +82,7 @@ MODES = (
 
 @pytest.fixture(autouse=True)
 def _test_grant_scope():
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         yield
 
 

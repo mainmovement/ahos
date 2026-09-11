@@ -47,7 +47,7 @@ from architecture.cognitive.memory.store import (  # noqa: E402
     MemoryAuthorizationError,
     SoakBoundaryError,
 )
-from tests.observation_test_runtime import test_authority_scope  # noqa: E402
+from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
 from tests.p5_grant_fixtures import persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
@@ -62,7 +62,7 @@ NOW = 1_800_000_000.0
 
 @pytest.fixture(autouse=True)
 def _test_grant_scope():
-    with test_authority_scope(trusted_now=NOW):
+    with grant_verify_scope(trusted_now=NOW):
         yield
 
 

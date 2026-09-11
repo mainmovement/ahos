@@ -11,7 +11,6 @@ from architecture.cognitive.memory.types import DecayState, EpistemicKind, Memor
 from tests.observation_test_runtime import (
     NOW,
     persist_test_observation,
-    test_authority_scope,
     timeout_retry_reading,
 )
 
