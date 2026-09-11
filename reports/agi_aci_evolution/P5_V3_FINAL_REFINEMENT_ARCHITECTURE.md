@@ -4,7 +4,8 @@
 **PR:** [#93](https://github.com/mainmovement/ahos/pull/93) — **DRAFT**  
 **Family:** Hybrid-D + V3-A (bound ingest + episode clock)  
 **Prior:** `P5_HYBRID_D_V3_REMEDIATION_ARCHITECTURE.md`, `P5_V3_TEST_INDEPENDENCE_FORENSIC_DESIGN.md`  
-**Implementation SHA:** `e93b3c07d83c4cebb599174fddbd7760b6a82cdd`
+**Implementation SHA:** `e93b3c07d83c4cebb599174fddbd7760b6a82cdd`  
+**This report commit:** `8e7ff1b96b0204d56593e50fa621587b2daf180a`
 
 This document does **not** modify production code, tests, schemas, Lane A, or soak.  
 It does **not** authorize implementation in this turn.
