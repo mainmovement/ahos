@@ -5,7 +5,8 @@
 **Implementation baseline:** `24b2ab8244f41d9e78582ccfc41dc4b0cf490a83`  
 **HEAD at analysis:** `9b83c6cfd7b44ee5ccc4fde6be385ec6299783ff` (report-only after baseline)  
 **Code delta `24b2ab8..HEAD` (`*.py`, Lane A, soak):** empty  
-**This document does not authorize implementation.**
+**This document does not authorize implementation.**  
+**DESIGN_COMMIT:** `8b05740a7223b1482c654096f75a669fbc1353d6`
 
 Not AGI. Not ACI. Not production-ready. Not live trading.
 
