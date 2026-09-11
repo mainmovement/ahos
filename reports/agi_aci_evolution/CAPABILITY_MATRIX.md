@@ -4,7 +4,7 @@ Source of progress measurement. Do not mark IMPLEMENTED_AND_VERIFIED without tes
 
 | Capability | Current Status | Evidence | Architecture Target | Gap | Priority | Implementation Status | Test Status | Promotion Status |
 |------------|----------------|----------|---------------------|-----|----------|----------------------|-------------|------------------|
-| Cognitive Core interfaces | PARTIAL | `architecture/cognitive/` + `loop/` | Domain-general loop | Not soak-wired | P5 | typed eligibility + bounded mode gates + critic constraint | `tests/test_typed_reasoning.py` (28) + loop tests | isolated PR |
+| Cognitive Core interfaces | PARTIAL | `architecture/cognitive/` + `loop/`; ObservationGrant V4-PIN; `P5_FINAL_CLOSURE_GATE_REVIEW.md` | Domain-general loop | Not soak-wired | Lane-B evolution P5 (PR #93 DRAFT) | typed eligibility + polarity + memory authorization + ObservationGrant V4-PIN instance K_O; not charter world-model P5 | P5-named modules 308 collected on HEAD; total repository pytest 2065 passed, 3 skipped; FIX_CORRECTED snapshot was 28 in `test_typed_reasoning.py` (`TEST_EVIDENCE.md`) | isolated PR #93 DRAFT |
 | Memory (Lane-B substrate) | PARTIAL | `architecture/cognitive/memory/`; `tests/test_cognitive_memory.py` | typed stores + provenance + production ingest | ACI-GAP-001 | P2 | SQLite substrate | 16 targeted tests | this PR |
 | Versioned claims | PARTIAL | `architecture/knowledge/store.py` | semantic memory | claims ≠ full memory | P2 | existing | existing knowledge tests | already on main |
 | Hypothesis lifecycle | PARTIAL | `hypothesis.py` HYP- ids | persistent lifecycle | not linked to soak DB | P3 | JSONL store | test_hypothesis_lifecycle | isolated PR |
@@ -12,8 +12,8 @@ Source of progress measurement. Do not mark IMPLEMENTED_AND_VERIFIED without tes
 | DuckDB research hypotheses | PARTIAL | `knowledge/duck_store.py` | financial research metrics | different ID/status model | P3 | existing | existing | already on main |
 | Self-research reports | PARTIAL | `self_research.py` | live self-model | snapshot-only; not soak reader | P4 | builder | test_self_research | isolated PR |
 | Metacognition (full) | PARTIAL | `loop/metacognition.py` structured state | answers from real traces | not an agent; soak unused | P4 | INTERFACE + episode state | test_closed_loop | isolated PR |
-| World model (KG/causal) | NOT_IMPLEMENTED | `world_model.py` | KG+temporal+causal+CF | ACI-GAP-002 | P5 | inventory only | test_world_model | isolated PR |
-| Financial hindsight CF | PARTIAL | `evolution/hindsight.py` | oos review | not general CF | P5 | existing | existing hindsight tests if any | already on main |
+| World model (KG/causal) | NOT_IMPLEMENTED | `world_model.py` | KG+temporal+causal+CF | ACI-GAP-002 | charter/world-model P5 (not PR #93) | inventory only | test_world_model | isolated PR |
+| Financial hindsight CF | PARTIAL | `evolution/hindsight.py` | oos review | not general CF | charter/world-model P5 (hindsight ≠ world model; not PR #93) | existing | existing hindsight tests if any | already on main |
 | Novelty classification | PARTIAL | `novelty.py` | investigate ≠ promote | no production detector | P7 | classifier | test_novelty | isolated PR |
 | Creative intelligence | NOT_IMPLEMENTED | `CreativeClass` enum | classified ideas | no generator | P7 | enum only | n/a | not proposed |
 | Cognitive society / council | PARTIAL | council.py + panel + registry | memory-bearing agents | ACI-GAP-003 | P6 | passports | test_agent_passports | isolated PR |
