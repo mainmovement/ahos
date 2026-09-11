@@ -21,11 +21,11 @@ POST_IMPLEMENTATION_DELTA = reports/agi_aci_evolution/P5_V4_IMPLEMENTATION_REPOR
 
 ## 1. Audit target SHA
 
-Audited working tree = `origin/cursor/agi-aci-p5-typed-evidence-reasoning-9500` at:
+Audited working tree for **code** = `origin/cursor/agi-aci-p5-typed-evidence-reasoning-9500` at:
 
 `ffde25a8693e9645fa85c9d979bd8771692c1b90`
 
-PR headRefOid matches that commit. Untracked local noise (`next-env.d.ts`, `reports/PRE_SOAK_STATUS.txt`) is **not** part of the candidate and was not added.
+Production and test Python at that commit were re-attacked. Commits after it on this branch add **only this forensic report** (see `AUDIT_REPORT_COMMIT`). Untracked local noise (`next-env.d.ts`, `reports/PRE_SOAK_STATUS.txt`) is **not** part of the candidate and was not added.
 
 ---
 
@@ -43,7 +43,7 @@ The implementation report’s `CODE_SHA` / `IMPLEMENTATION_SHA` of `afdff25` mat
 
 ## 3. HEAD vs claimed implementation
 
-`git diff afdff25..HEAD` is **one file**: `reports/agi_aci_evolution/P5_V4_IMPLEMENTATION_REPORT.md` (record + SHA stamp: `404830b`, `ffde25a`).
+`git diff afdff25..ffde25a` is **one file**: `reports/agi_aci_evolution/P5_V4_IMPLEMENTATION_REPORT.md` (record + SHA stamp: `404830b`, `ffde25a`).
 
 Production/test Python at HEAD **equals** `afdff25`. The audit therefore attacks the reported implementation tree, plus an untrusted narrative document that was ignored except as a claim list.
 
