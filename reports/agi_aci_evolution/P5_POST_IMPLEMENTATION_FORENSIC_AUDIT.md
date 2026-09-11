@@ -43,7 +43,7 @@ The implementation report’s `ARBITRARY_GRANT_MINTING = BLOCKED` is **DISPROVEN
 | Item | Value |
 | --- | --- |
 | **Audited implementation SHA** | `e93b3c07d83c4cebb599174fddbd7760b6a82cdd` |
-| **Forensic report commit / HEAD** | *stamped after this report lands* |
+| **Forensic report commit / HEAD** | `48693caced74865805b0620411a0b703239eb7cb` |
 | PR branch | `cursor/agi-aci-p5-typed-evidence-reasoning-9500` |
 | Merge-base with `origin/main` / base SHA | `976516123b0b682e99fcc6e9c6f0efabb91a9495` |
 | Previous memory-authorization audit pin | `38247d172319741f5df7bd6e01ba2817bf211def` |
