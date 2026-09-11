@@ -45,7 +45,7 @@ from architecture.cognitive.loop.inference import (  # noqa: E402
 )
 from architecture.cognitive.loop.modes import MODE_FNS  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
-from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
+from architecture.cognitive.loop.reason import critique_result, evaluate_reason, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
 from tests.observation_test_runtime import (  # noqa: E402
     TestCognitiveOrchestrator,
@@ -774,7 +774,7 @@ def test_critic_type_violation_on_opinion_as_fact() -> None:
 
 
 def test_episode_policy_order_in_reason_source() -> None:
-    src = inspect.getsource(reason)
+    src = inspect.getsource(evaluate_reason)
     i_constraint = src.find("apply_constraint(")
     i_policy = src.find("apply_episode_positive_policy(")
     i_write = src.find("reusable_writeback_permitted(")
