@@ -4,6 +4,7 @@
 **PR:** [#93](https://github.com/mainmovement/ahos/pull/93) — **DRAFT**  
 **Audited implementation SHA:** `e93b3c07d83c4cebb599174fddbd7760b6a82cdd`  
 **Forensic HEAD at audit:** `2bc447bb374cc956452e9b423f037f36b64d28cf`  
+**V3 design commit:** `c6373aabb1e5fe5623450b3844443784a2664423`  
 **Forensic result:** `FORENSIC_STATUS = FAIL` (CRITICAL=1, HIGH=1)  
 **Approved family:** Hybrid-D  
 **Consumption boundary retained:** bind-time ObservationGrant MAC against the **latest** canonical `OBSERVED_FACT`
