@@ -37,10 +37,6 @@ from architecture.cognitive.loop.retrieval import (
     _lexical_overlap,
     normalize_query,
 )
-from architecture.cognitive.memory.observation import (
-    AcquisitionRecord,
-    persist_observed_acquisition,
-)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType
 
@@ -730,22 +726,21 @@ def run_cognitive_benchmark(
     hyp_dir = workdir / "hyp-probe"
     hyp_dir.mkdir(exist_ok=True)
     hyp_store = CognitiveMemoryStore(hyp_dir / "ahos_cognitive_memory.sqlite")
-    persist_observed_acquisition(
-        hyp_store,
-        AcquisitionRecord(
-            statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
-            source_type=SourceType.SYSTEM.value,
-            source_id="seed-hyp-support",
-            observed_at=NOW - 80,
-            domain="software",
-            source_location="benchmark.hypothesis",
-            producer="p4.1-benchmark",
-            producer_version="p4.1.0",
-            context=DATA_LABEL,
-            payload={"data_label": DATA_LABEL},
-            memory_id="SEED-HYP-SUPPORT",
-            created_at=NOW - 70,
-        ),
+    hyp_store.remember(
+        memory_id="SEED-HYP-SUPPORT",
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
+        source_type=SourceType.SYSTEM,
+        source_id="seed-hyp-support",
+        source_location="benchmark.hypothesis",
+        producer="p4.1-benchmark",
+        producer_version="p4.1.0",
+        domain="software",
+        context=DATA_LABEL,
+        observed_at=NOW - 80,
+        created_at=NOW - 70,
+        payload={"data_label": DATA_LABEL},
     )
     hyp_only = HypothesisStore(hyp_dir / "hyp.jsonl")
     hyp_orch = CognitiveOrchestrator(
@@ -809,22 +804,21 @@ def run_cognitive_benchmark(
     learn_dir = workdir / "learn"
     learn_dir.mkdir(exist_ok=True)
     learn_store = CognitiveMemoryStore(learn_dir / "ahos_cognitive_memory.sqlite")
-    persist_observed_acquisition(
-        learn_store,
-        AcquisitionRecord(
-            statement="SYNTHETIC_TEST_DATA: HTTP timeout recovered after retries.",
-            source_type=SourceType.SYSTEM.value,
-            source_id="seed-timeout",
-            observed_at=NOW - 80,
-            domain="software",
-            source_location="benchmark.learning",
-            producer="p4.1-benchmark",
-            producer_version="p4.1.0",
-            context=DATA_LABEL,
-            payload={"data_label": DATA_LABEL},
-            memory_id="SEED-TIMEOUT",
-            created_at=NOW - 40,
-        ),
+    learn_store.remember(
+        memory_id="SEED-TIMEOUT",
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA: HTTP timeout recovered after retries.",
+        source_type=SourceType.SYSTEM,
+        source_id="seed-timeout",
+        source_location="benchmark.learning",
+        producer="p4.1-benchmark",
+        producer_version="p4.1.0",
+        domain="software",
+        context=DATA_LABEL,
+        observed_at=NOW - 80,
+        created_at=NOW - 40,
+        payload={"data_label": DATA_LABEL},
     )
     learn_orch = CognitiveOrchestrator(
         memory=learn_store,
@@ -981,22 +975,21 @@ def run_cognitive_benchmark(
     fail_dir = workdir / "fail"
     fail_dir.mkdir(exist_ok=True)
     fail_store = CognitiveMemoryStore(fail_dir / "ahos_cognitive_memory.sqlite")
-    persist_observed_acquisition(
-        fail_store,
-        AcquisitionRecord(
-            statement="SYNTHETIC_TEST_DATA deploy checklist rollback",
-            source_type=SourceType.SYSTEM.value,
-            source_id="seed-ops",
-            observed_at=NOW - 10,
-            domain="operations",
-            source_location="benchmark.failure",
-            producer="p4.1-benchmark",
-            producer_version="p4.1.0",
-            context=DATA_LABEL,
-            payload={"data_label": DATA_LABEL},
-            memory_id="SEED-OPS",
-            created_at=NOW - 5,
-        ),
+    fail_store.remember(
+        memory_id="SEED-OPS",
+        memory_type=MemoryType.EPISODIC,
+        epistemic_kind=EpistemicKind.OBSERVED_FACT,
+        statement="SYNTHETIC_TEST_DATA deploy checklist rollback",
+        source_type=SourceType.SYSTEM,
+        source_id="seed-ops",
+        source_location="benchmark.failure",
+        producer="p4.1-benchmark",
+        producer_version="p4.1.0",
+        domain="operations",
+        context=DATA_LABEL,
+        observed_at=NOW - 10,
+        created_at=NOW - 5,
+        payload={"data_label": DATA_LABEL},
     )
     fail_orch = CognitiveOrchestrator(
         memory=fail_store,

@@ -29,6 +29,7 @@ from architecture.cognitive.loop.support import (
     positive_support_eligible,
 )
 from architecture.cognitive.memory.observation import (
+    current_grant_verify_context,
     latest_observation_fields,
     observation_grant_permits_factual,
 )
@@ -307,6 +308,7 @@ class EvidenceBinding:
     source_type: str = ""
     valid_until: float | None = None
     task_created_at: float = 0.0
+    authority_now: float = 0.0
 
     def _task_snapshot(self) -> CognitiveTask:
         return CognitiveTask(
@@ -357,7 +359,7 @@ class EvidenceBinding:
         )
 
     def live_grant_ok(self) -> bool:
-        now = self.task_created_at if self.task_created_at else 0.0
+        now = self.authority_now
         return observation_grant_permits_factual(
             statement=self.statement,
             epistemic_kind=self.epistemic_kind,
@@ -466,6 +468,17 @@ class EvidenceBinding:
         return polarity in {POLARITY_CONTRADICTS, POLARITY_NEGATED}
 
 
+def _trusted_now(task: CognitiveTask, now: float | None) -> float | None:
+    """Episode authority time. Never CognitiveTask.created_at."""
+    del task
+    if now is not None:
+        return float(now)
+    ctx = current_grant_verify_context()
+    if ctx is not None:
+        return float(ctx.trusted_now)
+    return None
+
+
 def bind_item(
     item: RetrievedItem,
     task: CognitiveTask,
@@ -473,6 +486,7 @@ def bind_item(
     store: CognitiveMemoryStore | None = None,
     contradicted_ids: set[str] | None = None,
     index: int = 0,
+    now: float | None = None,
 ) -> EvidenceBinding:
     latest = latest_observation_fields(store, item.memory_id)
     if latest is not None:
@@ -521,20 +535,22 @@ def bind_item(
         task,
         payload,
     )
-    now = float(task.created_at) if task.created_at else 0.0
-    grant_ok = observation_grant_permits_factual(
-        statement=statement,
-        epistemic_kind=epistemic_kind,
-        memory_type=memory_type,
-        source_type=source_type,
-        source_id=source_id,
-        observed_at=observed_at,
-        valid_until=valid_until,
-        domain=domain,
-        payload=payload,
-        now=now,
-        status=status,
-    )
+    trusted_now = _trusted_now(task, now)
+    grant_ok = False
+    if trusted_now is not None:
+        grant_ok = observation_grant_permits_factual(
+            statement=statement,
+            epistemic_kind=epistemic_kind,
+            memory_type=memory_type,
+            source_type=source_type,
+            source_id=source_id,
+            observed_at=observed_at,
+            valid_until=valid_until,
+            domain=domain,
+            payload=payload,
+            now=trusted_now,
+            status=status,
+        )
     allowed, forbidden = _roles(typed, temporal, applicability, grant_ok=grant_ok)
     contradicted = bool(contradicted_ids and item.memory_id in contradicted_ids)
     support = classify_support(statement, task)
@@ -582,7 +598,8 @@ def bind_item(
         observed_at=observed_at,
         source_type=source_type,
         valid_until=valid_until,
-        task_created_at=now,
+        task_created_at=float(task.created_at) if task.created_at else 0.0,
+        authority_now=float(trusted_now) if trusted_now is not None else 0.0,
     )
 
 
@@ -591,6 +608,7 @@ def bind_context(
     task: CognitiveTask,
     *,
     store: CognitiveMemoryStore | None = None,
+    now: float | None = None,
 ) -> list[EvidenceBinding]:
     contradicted: set[str] = set()
     for edge in ctx.contradictions:
@@ -600,7 +618,14 @@ def bind_context(
     bindings: list[EvidenceBinding] = []
     for i, item in enumerate(ctx.all_included()):
         bindings.append(
-            bind_item(item, task, store=store, contradicted_ids=contradicted, index=i + 1)
+            bind_item(
+                item,
+                task,
+                store=store,
+                contradicted_ids=contradicted,
+                index=i + 1,
+                now=now,
+            )
         )
     return bindings
 

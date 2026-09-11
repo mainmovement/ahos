@@ -44,10 +44,10 @@ from architecture.cognitive.memory.observation import (  # noqa: E402
     ObservationAuthority,
     ObservationGrant,
     canonical_observation_bytes,
-    persist_observed_acquisition,
     statement_sha256,
     verify_observation_grant,
 )
+from tests.observation_test_runtime import test_authority_scope  # noqa: E402
 from architecture.cognitive.memory.record import MemoryRecord, compute_integrity_hash  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
@@ -67,6 +67,12 @@ POSITIVE = {
 Q = "Do retries after timeout reduce failures?"
 SUPPORT = "Retries after timeout reduced failures."
 OTHER = "Service B retries after timeout reduced failures."
+
+
+@pytest.fixture(autouse=True)
+def _test_grant_scope():
+    with test_authority_scope(trusted_now=NOW + 1):
+        yield
 
 
 def _task(**kwargs) -> CognitiveTask:
@@ -90,7 +96,7 @@ def _run(mem: CognitiveMemoryStore, tmp_path: Path, task: CognitiveTask):
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
     orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
     result = orch.run(task, now=NOW + 1)
-    binds = bind_context(result.context, task, store=mem)
+    binds = bind_context(result.context, task, store=mem, now=NOW + 1)
     return result, binds
 
 
@@ -162,6 +168,8 @@ def test_no_public_issue_or_grant_mint_export() -> None:
     import architecture.cognitive.memory.observation as og
 
     assert not hasattr(og, "issue")
+    assert not hasattr(og, "persist_observed_acquisition")
+    assert not hasattr(og, "_process_authority")
     assert not hasattr(ObservationAuthority, "issue")
     with pytest.raises(AttributeError):
         og.issue(statement=SUPPORT)  # type: ignore[attr-defined]
@@ -664,7 +672,7 @@ def test_toctou_revise_after_grant_latest_hash_wins(tmp_path: Path) -> None:
     from architecture.cognitive.loop.context import assemble_context
 
     ctx = assemble_context(items, mem, now=NOW + 2)
-    binds = bind_context(ctx, task, store=mem)
+    binds = bind_context(ctx, task, store=mem, now=NOW + 2)
     assert binds
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
 

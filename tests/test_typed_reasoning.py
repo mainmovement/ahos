@@ -41,12 +41,19 @@ from architecture.cognitive.loop.modes import reason_metacognitive  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.observation_test_runtime import test_authority_scope  # noqa: E402
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType  # noqa: E402
 
 NOW = 1_800_000_000.0
 LOOP_DIR = ROOT / "architecture" / "cognitive" / "loop"
 FORBIDDEN = {"discovery", "paper_trading", "telegram_ai", "engine"}
+
+
+@pytest.fixture(autouse=True)
+def _test_grant_scope():
+    with test_authority_scope(trusted_now=NOW):
+        yield
 
 
 def _task(**kwargs) -> CognitiveTask:
@@ -140,7 +147,7 @@ def _reason(task: CognitiveTask, ctx: CognitiveContext, store=None):
     ids = [i.memory_id for i in ctx.all_included()]
     if store is None:
         store = authorize_retrieved_items(*ctx.all_included())
-    return reason(task, ctx, retrieved_ids=ids, store=store)
+    return reason(task, ctx, retrieved_ids=ids, store=store, now=NOW)
 
 
 def test_p5_package_does_not_import_lane_a() -> None:

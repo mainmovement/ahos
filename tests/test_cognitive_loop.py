@@ -47,6 +47,7 @@ from architecture.cognitive.memory.store import (  # noqa: E402
     MemoryAuthorizationError,
     SoakBoundaryError,
 )
+from tests.observation_test_runtime import test_authority_scope  # noqa: E402
 from tests.p5_grant_fixtures import persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
@@ -57,6 +58,12 @@ from architecture.cognitive.memory.types import (  # noqa: E402
 LOOP_DIR = ROOT / "architecture" / "cognitive" / "loop"
 FORBIDDEN = {"discovery", "paper_trading", "telegram_ai", "engine"}
 NOW = 1_800_000_000.0
+
+
+@pytest.fixture(autouse=True)
+def _test_grant_scope():
+    with test_authority_scope(trusted_now=NOW):
+        yield
 
 
 def _task(**kwargs) -> CognitiveTask:
@@ -596,13 +603,58 @@ def test_record_cognitive_experiment_still_analysis_only(tmp_path: Path) -> None
 
 
 def test_memory_vs_no_memory_benchmark(tmp_path: Path) -> None:
+    from architecture.cognitive.memory.observation import GRANT_PAYLOAD_KEY
+
     mem, hyp, ledger = _stores(tmp_path)
     out = run_memory_vs_no_memory(mem, hyp, ledger, now=NOW)
     assert out["data_label"] == "SYNTHETIC_TEST_DATA"
     assert out["no_memory_lesson_reuse"] == 0.0
-    assert out["memory_loop_lesson_reuse"] == 1.0
-    assert out["measured_improvement"] == 1.0
-    assert out["episode2_retrieved_lesson"] is True
+    ofacts = [
+        r
+        for r in mem.find_by_type(MemoryType.EPISODIC)
+        if r.epistemic_kind == EpistemicKind.OBSERVED_FACT.value
+    ]
+    assert ofacts
+    assert all(GRANT_PAYLOAD_KEY not in (r.payload or {}) for r in ofacts)
+    # Production helper cannot mint; ungranted seed is not a factual premise.
+    assert out["memory_loop_lesson_reuse"] == 0.0
+    assert not out["episode1_lesson_id"]
+    assert out["episode2_retrieved_lesson"] is False
     assert out["unsupported_claim_rate"] == 0.0
     assert out["integrity"] == "ok"
     assert out["e2e_cycle_seconds"] < 5.0
+
+    mem2, hyp2, ledger2 = _stores(tmp_path / "granted")
+    persist_authorized(
+        mem2,
+        "SYNTHETIC_TEST_DATA retries after HTTP timeout recovered the request.",
+        source_id="bench-timeout",
+    )
+    orch = CognitiveOrchestrator(memory=mem2, hypotheses=hyp2, ledger_path=ledger2)
+    r1 = orch.run(
+        _task(
+            task_id="bench-1",
+            task_type=TaskType.INVESTIGATE.value,
+            objective="Investigate timeout recovery",
+            question="Do retries after timeout help?",
+            domain="software",
+        ),
+        now=NOW,
+        use_memory=True,
+    )
+    r2 = orch.run(
+        _task(
+            task_id="bench-2",
+            task_type=TaskType.LEARN.value,
+            objective="Reuse prior timeout lesson",
+            question="What did we learn about timeout retries?",
+            domain="software",
+            created_at=NOW + 1.0,
+        ),
+        now=NOW + 1.0,
+        use_memory=True,
+    )
+    kinds_mem = [i.epistemic_kind for i in r2.retrieved]
+    assert compute_lesson_reuse(kinds_mem, used_memory=True) == 1.0
+    assert r1.lesson_memory_id
+    assert r1.lesson_memory_id in {i.memory_id for i in (r2.context.lessons if r2.context else ())}

@@ -16,10 +16,6 @@ from architecture.cognitive.loop.contracts import (
 from architecture.cognitive.loop.inference import ACTION_ACCEPT, ACTION_CONTEST, ACTION_REFUSE
 from architecture.cognitive.loop.modes import reason_metacognitive
 from architecture.cognitive.loop.reason import reason
-from architecture.cognitive.memory.observation import (
-    AcquisitionRecord,
-    persist_observed_acquisition,
-)
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType
 
@@ -132,22 +128,21 @@ def _authorize_item(store: CognitiveMemoryStore, item: RetrievedItem) -> None:
         return
     if store.get(item.memory_id) is not None:
         return
-    persist_observed_acquisition(
-        store,
-        AcquisitionRecord(
-            statement=item.statement,
-            source_type=SourceType.SYSTEM.value,
-            source_id=item.source_id or "p5",
-            observed_at=float(item.observed_at),
-            domain=item.domain,
-            source_location="p5_eval",
-            producer="p5",
-            producer_version=P5_VERSION,
-            context="SYNTHETIC_TEST_DATA",
-            payload={"data_label": "SYNTHETIC_TEST_DATA"},
-            memory_id=item.memory_id,
-            created_at=item.created_at,
-        ),
+    store.remember(
+        memory_id=item.memory_id,
+        memory_type=item.memory_type or MemoryType.EPISODIC.value,
+        epistemic_kind=item.epistemic_kind,
+        statement=item.statement,
+        source_type=SourceType.SYSTEM,
+        source_id=item.source_id or "p5",
+        source_location="p5_eval",
+        producer="p5",
+        producer_version=P5_VERSION,
+        domain=item.domain,
+        context="SYNTHETIC_TEST_DATA",
+        observed_at=float(item.observed_at),
+        created_at=item.created_at,
+        payload={"data_label": "SYNTHETIC_TEST_DATA"},
     )
     if item.status and item.status != DecayState.ACTIVE.value:
         store.revise(

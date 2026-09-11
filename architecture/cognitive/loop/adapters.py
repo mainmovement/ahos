@@ -24,8 +24,7 @@ def ingest_generic_observation(
     resolved = EpistemicKind(kind).value
     if resolved == EpistemicKind.OBSERVED_FACT.value:
         raise ValueError(
-            "ingest_generic_observation cannot mint OBSERVED_FACT; "
-            "use persist_observed_acquisition"
+            "ingest_generic_observation cannot mint OBSERVED_FACT"
         )
     payload = {"data_label": SYNTHETIC, **(extra or {})}
     rec = store.remember(

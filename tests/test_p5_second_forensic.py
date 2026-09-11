@@ -47,6 +47,7 @@ from architecture.cognitive.loop.modes import MODE_FNS  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.observation_test_runtime import test_authority_scope  # noqa: E402
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
@@ -77,6 +78,12 @@ MODES = (
     ReasoningMode.ADVERSARIAL.value,
     ReasoningMode.METACOGNITIVE.value,
 )
+
+
+@pytest.fixture(autouse=True)
+def _test_grant_scope():
+    with test_authority_scope(trusted_now=NOW):
+        yield
 
 
 def _task(question: str = Q, **kwargs) -> CognitiveTask:
@@ -179,10 +186,10 @@ def _counts(mem: CognitiveMemoryStore) -> dict[str, int]:
 def _reason_row(task: CognitiveTask, *items: RetrievedItem, edges: tuple = ()):
     store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task, store=store)
+    binds = bind_context(ctx, task, store=store, now=NOW)
     pre = MODE_FNS[task.reasoning_mode](task, binds)
     v, ep, trace, crit, _ = reason(
-        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store
+        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store, now=NOW
     )
     permitted = reusable_writeback_permitted(v, binds)
     return {

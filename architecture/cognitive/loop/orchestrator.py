@@ -6,6 +6,7 @@ authorize execution. LLM-free.
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,6 +25,14 @@ from architecture.cognitive.loop.reason import NOT_IMPLEMENTED_MODES, reason
 from architecture.cognitive.loop.binding import bind_context
 from architecture.cognitive.loop.episode import reusable_writeback_permitted
 from architecture.cognitive.loop.retrieval import MemoryRetriever
+from architecture.cognitive.memory.observation import (
+    ISSUER_ID,
+    GrantVerifyContext,
+    current_grant_verify_context,
+    is_forbidden_production_secret,
+    push_grant_verify_context,
+    reset_grant_verify_context,
+)
 from architecture.cognitive.memory.store import CognitiveMemoryStore, MemoryAuthorizationError, MemoryRecord
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
 from architecture.cognitive.novelty import classify_novelty
@@ -49,6 +58,10 @@ class CognitiveOrchestrator:
         self.hypotheses = hypotheses
         self.ledger_path = Path(ledger_path)
         self.retriever = retriever or MemoryRetriever()
+        secret = os.urandom(32)
+        while is_forbidden_production_secret(secret):
+            secret = os.urandom(32)
+        self._grant_verify_secret = secret
 
     def authorize_execution(self, *_a: Any, **_k: Any) -> None:
         raise MemoryAuthorizationError("Cognitive loop cannot authorize execution")
@@ -89,13 +102,36 @@ class CognitiveOrchestrator:
         ts = time.time() if now is None else now
         if task.data_label not in {"SYNTHETIC_TEST_DATA", "TEST", "REAL", "UNKNOWN"}:
             raise ValueError("task.data_label must be typed")
+        parent = current_grant_verify_context()
+        if parent is not None:
+            verify_ctx = GrantVerifyContext(parent.key, parent.issuer_id, float(ts))
+        else:
+            verify_ctx = GrantVerifyContext(
+                self._grant_verify_secret, ISSUER_ID, float(ts)
+            )
+        token = push_grant_verify_context(verify_ctx)
+        try:
+            return self._run_with_episode_clock(
+                task, budget=budget, ts=ts, use_memory=use_memory
+            )
+        finally:
+            reset_grant_verify_context(token)
+
+    def _run_with_episode_clock(
+        self,
+        task: CognitiveTask,
+        *,
+        budget: ContextBudget | None,
+        ts: float,
+        use_memory: bool,
+    ) -> CognitiveResult:
         retrieved = (
             self.retriever.retrieve(self.memory, task, now=ts) if use_memory else []
         )
         ctx = assemble_context(retrieved, self.memory, budget=budget, now=ts)
         retrieved_ids = [i.memory_id for i in retrieved]
         verdict, epistemic, trace, critique, _assumptions = reason(
-            task, ctx, retrieved_ids=retrieved_ids, store=self.memory
+            task, ctx, retrieved_ids=retrieved_ids, store=self.memory, now=ts
         )
 
         seen_before = bool(ctx.lessons or ctx.failures)
@@ -120,7 +156,7 @@ class CognitiveOrchestrator:
         # Unresolved/insufficient/contested must not become reusable hypotheses.
         # Verdict string WEAKLY_SUPPORTED is not sufficient; episode polarity is.
         reusable_writeback = reusable_writeback_permitted(
-            verdict, bind_context(ctx, task, store=self.memory)
+            verdict, bind_context(ctx, task, store=self.memory, now=ts)
         )
         # Rebind from RetrievedItems, not reason() DTO copies, so mutated
         # EvidenceBinding metadata cannot authorize persistence.

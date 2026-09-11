@@ -2,6 +2,7 @@
 
 Not a public signing API. Not an authority mechanism for DERIVED_FACT.
 Ordinary remember()/SQLite rows remain data until verification succeeds.
+Public IngestPort cannot mint. There is no persist_observed_acquisition RPC.
 """
 
 from __future__ import annotations
@@ -9,8 +10,8 @@ from __future__ import annotations
 import hashlib
 import hmac
 import os
-import time
 import unicodedata
+from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any, Mapping, Protocol
 
@@ -28,7 +29,13 @@ GRANT_PURPOSE = "FACTUAL_INGEST"
 GRANT_KIND = EpistemicKind.OBSERVED_FACT.value
 GRANT_PAYLOAD_KEY = "observation_grant"
 ISSUER_ID = "ahos.observation_authority"
+ISSUER_ID_TEST = "ahos.observation_authority.test-vector-v1"
 VALID_UNTIL_NONE = "NONE"
+
+# SHA-256 of the tests-only vector key. Production never stores the raw vector.
+_FORBIDDEN_SECRET_SHA256 = frozenset(
+    {"52fe6094743bfd4f9be4321d98adc7e23c1ab622b0ba830e271d1ee1cbfd7850"}
+)
 
 _UNKNOWN_TOKENS = frozenset({"", "UNKNOWN", "NONE", "N/A", "unknown", "none", UNKNOWN})
 
@@ -36,6 +43,14 @@ _UNKNOWN_TOKENS = frozenset({"", "UNKNOWN", "NONE", "N/A", "unknown", "none", UN
 def _unknown_token(value: Any) -> bool:
     text = str(value or "").strip()
     return text in _UNKNOWN_TOKENS or text.upper() in _UNKNOWN_TOKENS
+
+
+def secret_sha256_hex(secret: bytes) -> str:
+    return hashlib.sha256(bytes(secret)).hexdigest()
+
+
+def is_forbidden_production_secret(secret: bytes) -> bool:
+    return secret_sha256_hex(secret) in _FORBIDDEN_SECRET_SHA256
 
 
 def normalize_statement(statement: str) -> str:
@@ -81,6 +96,10 @@ def canonical_observation_bytes(
         str(issuer_id),
     )
     return "|".join(parts).encode("utf-8")
+
+
+def mac_hex(key: bytes, canonical: bytes) -> str:
+    return hmac.new(bytes(key), canonical, hashlib.sha256).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -138,7 +157,7 @@ class ObservationGrant:
 
 @dataclass(frozen=True)
 class AcquisitionRecord:
-    """Structured acquisition. Not a free-form 'sign this statement' request."""
+    """Adapter-built acquisition tuple. Not a public sign-this-claim RPC."""
 
     statement: str
     source_type: str
@@ -161,19 +180,51 @@ class AcquisitionRecord:
     prediction_id: str = ""
 
 
-class ObservationAuthority:
-    """Process-held issuer. Constructing a new instance yields a different secret."""
+@dataclass(frozen=True)
+class GrantVerifyContext:
+    """Verify material for the current episode. Not a public orchestrator kwarg."""
 
-    def __init__(self, *, secret: bytes | None = None) -> None:
+    key: bytes
+    issuer_id: str
+    trusted_now: float
+
+
+_grant_verify_ctx: ContextVar[GrantVerifyContext | None] = ContextVar(
+    "ahos_og_verify", default=None
+)
+
+
+def current_grant_verify_context() -> GrantVerifyContext | None:
+    return _grant_verify_ctx.get()
+
+
+def push_grant_verify_context(ctx: GrantVerifyContext):
+    return _grant_verify_ctx.set(ctx)
+
+
+def reset_grant_verify_context(token: Any) -> None:
+    _grant_verify_ctx.reset(token)
+
+
+class ObservationAuthority:
+    """HMAC issuer. New instance without a shared key cannot satisfy another verifier."""
+
+    def __init__(self, *, secret: bytes | None = None, issuer_id: str = ISSUER_ID) -> None:
         if secret is not None:
             if len(secret) < 32:
                 raise ValueError("ObservationAuthority secret must be at least 32 bytes")
-            self._secret = bytes(secret)
+            material = bytes(secret)
         else:
-            self._secret = os.urandom(32)
+            material = os.urandom(32)
+            while is_forbidden_production_secret(material):
+                material = os.urandom(32)
+        if issuer_id == ISSUER_ID and is_forbidden_production_secret(material):
+            raise ValueError("production issuer cannot use the tests-only vector key")
+        self._secret = material
+        self._issuer_id = str(issuer_id)
 
     def _mac_hex(self, canonical: bytes) -> str:
-        return hmac.new(self._secret, canonical, hashlib.sha256).hexdigest()
+        return mac_hex(self._secret, canonical)
 
     def _mint(self, acq: AcquisitionRecord) -> ObservationGrant:
         _validate_acquisition(acq)
@@ -184,6 +235,7 @@ class ObservationAuthority:
             observed_at=float(acq.observed_at),
             valid_until=acq.valid_until,
             domain=str(acq.domain),
+            issuer_id=self._issuer_id,
         )
         return ObservationGrant(
             version=GRANT_VERSION,
@@ -195,7 +247,7 @@ class ObservationAuthority:
             observed_at_us=timestamp_us(float(acq.observed_at)),
             valid_until=valid_until_token(acq.valid_until),
             domain=str(acq.domain),
-            issuer_id=ISSUER_ID,
+            issuer_id=self._issuer_id,
             mac=self._mac_hex(canonical),
         )
 
@@ -205,16 +257,6 @@ class ObservationAuthority:
             return hmac.compare_digest(expected, str(grant.mac))
         except (TypeError, ValueError):
             return False
-
-
-class _ProcessAuthority:
-    instance: ObservationAuthority | None = None
-
-
-def _process_authority() -> ObservationAuthority:
-    if _ProcessAuthority.instance is None:
-        _ProcessAuthority.instance = ObservationAuthority()
-    return _ProcessAuthority.instance
 
 
 def _validate_acquisition(acq: AcquisitionRecord) -> None:
@@ -232,12 +274,24 @@ def _validate_acquisition(acq: AcquisitionRecord) -> None:
 
 
 class IngestPort:
-    """Trusted persist surface. Minting uses the process authority only."""
+    """Public persist surface. Cannot mint ObservationGrant."""
 
     def persist_acquired(
         self, store: CognitiveMemoryStore, acq: AcquisitionRecord
     ) -> Any:
-        grant = _process_authority()._mint(acq)
+        raise RuntimeError("IngestPort cannot mint ObservationGrant")
+
+
+class BoundIngestPort:
+    """Minting persist bound to one ObservationAuthority. Not a public package export."""
+
+    def __init__(self, authority: ObservationAuthority) -> None:
+        self._authority = authority
+
+    def persist_acquired(
+        self, store: CognitiveMemoryStore, acq: AcquisitionRecord
+    ) -> Any:
+        grant = self._authority._mint(acq)
         payload = dict(acq.payload or {})
         payload[GRANT_PAYLOAD_KEY] = grant.to_dict()
         return store.remember(
@@ -264,13 +318,6 @@ class IngestPort:
         )
 
 
-def persist_observed_acquisition(
-    store: CognitiveMemoryStore, acq: AcquisitionRecord
-) -> Any:
-    """Only trusted persist path that can mint a process-verifiable grant."""
-    return IngestPort().persist_acquired(store, acq)
-
-
 def grant_from_payload(payload: Mapping[str, Any] | None) -> ObservationGrant | None:
     if not isinstance(payload, Mapping):
         return None
@@ -289,13 +336,20 @@ def verify_observation_grant(
     epistemic_kind: str,
     now: float,
     status: str = "",
+    key: bytes | None = None,
+    expected_issuer_id: str | None = None,
 ) -> bool:
-    """Fail-closed cryptographic + temporal + kind check against latest fields."""
+    """Fail-closed cryptographic + temporal + kind check. Pure in `key`."""
     if grant is None:
+        return False
+    ctx = current_grant_verify_context()
+    use_key = key if key is not None else (ctx.key if ctx is not None else None)
+    use_issuer = expected_issuer_id or (ctx.issuer_id if ctx is not None else ISSUER_ID)
+    if use_key is None:
         return False
     if grant.version != GRANT_VERSION or grant.purpose != GRANT_PURPOSE:
         return False
-    if grant.kind != GRANT_KIND or grant.issuer_id != ISSUER_ID:
+    if grant.kind != GRANT_KIND or grant.issuer_id != use_issuer:
         return False
     if str(epistemic_kind) != GRANT_KIND:
         return False
@@ -324,7 +378,11 @@ def verify_observation_grant(
         domain=domain,
         issuer_id=grant.issuer_id,
     )
-    return _process_authority()._verify_mac(grant, canonical)
+    expected = mac_hex(use_key, canonical)
+    try:
+        return hmac.compare_digest(expected, str(grant.mac))
+    except (TypeError, ValueError):
+        return False
 
 
 def latest_observation_fields(
@@ -352,6 +410,8 @@ def observation_grant_permits_factual(
     payload: Mapping[str, Any] | None,
     now: float,
     status: str = "",
+    key: bytes | None = None,
+    expected_issuer_id: str | None = None,
 ) -> bool:
     if memory_type == MemoryType.FAILURE.value:
         return False
@@ -366,6 +426,8 @@ def observation_grant_permits_factual(
         epistemic_kind=epistemic_kind,
         now=now,
         status=status,
+        key=key,
+        expected_issuer_id=expected_issuer_id,
     )
 
 

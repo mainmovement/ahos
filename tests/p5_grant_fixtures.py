@@ -1,19 +1,19 @@
-"""Trusted-ingest helpers for P5 ObservationGrant tests. Not a production API."""
+"""P5 test helpers using tests-only grant authority. Not a production API."""
 
 from __future__ import annotations
 
 import tempfile
 from pathlib import Path
 
-from architecture.cognitive.memory.observation import (
-    AcquisitionRecord,
-    persist_observed_acquisition,
-)
+from architecture.cognitive.loop.contracts import RetrievedItem
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType
-from architecture.cognitive.loop.contracts import RetrievedItem
-
-NOW = 1_800_000_000.0
+from tests.observation_test_runtime import (
+    NOW,
+    persist_test_observation,
+    test_authority_scope,
+    timeout_retry_reading,
+)
 
 
 def ephemeral_store() -> CognitiveMemoryStore:
@@ -36,31 +36,23 @@ def persist_authorized(
     agent_id: str = "",
     agent_namespace: str = "",
 ):
-    rec = persist_observed_acquisition(
+    del source_type
+    return persist_test_observation(
         store,
-        AcquisitionRecord(
-            statement=statement,
-            source_type=source_type,
-            source_id=source_id,
-            observed_at=observed_at,
+        timeout_retry_reading(
+            statement,
+            sensor_id=source_id,
+            acquired_at=observed_at,
             domain=domain,
             valid_until=valid_until,
-            source_location="tests/p5_grant_fixtures.py",
-            producer="pytest",
-            producer_version="p5",
-            context="SYNTHETIC_TEST_DATA",
-            payload=payload or {"data_label": "SYNTHETIC_TEST_DATA"},
             memory_id=memory_id,
             created_at=created_at,
+            status=status,
             agent_id=agent_id,
             agent_namespace=agent_namespace,
+            payload=payload,
         ),
     )
-    if status and status != DecayState.ACTIVE.value:
-        rec = store.revise(
-            rec.memory_id, status=status, correction_reason="fixture-status", now=NOW
-        )
-    return rec
 
 
 def authorize_retrieved_items(

@@ -294,6 +294,7 @@ def reason(
     *,
     retrieved_ids: list[str],
     store: CognitiveMemoryStore | None = None,
+    now: float | None = None,
 ) -> tuple[str, str, ReasoningTrace, Critique, list[Assumption]]:
     mode = task.reasoning_mode
     assumptions = [
@@ -308,7 +309,7 @@ def reason(
     ]
     # Assumptions are recorded on the trace. They never enter EvidenceBinding
     # lists and cannot satisfy may_support_task().
-    bindings = bind_context(ctx, task, store=store)
+    bindings = bind_context(ctx, task, store=store, now=now)
 
     if mode in NOT_IMPLEMENTED_MODES:
         candidate = CandidateInference(

@@ -108,7 +108,7 @@ def _run(tmp_path: Path, mem: CognitiveMemoryStore, hyp: HypothesisStore, ledger
     orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     items = MemoryRetriever().retrieve(mem, task, now=NOW)
     result = orch.run(task, now=NOW + 1)
-    binds = bind_context(result.context, task, store=mem)
+    binds = bind_context(result.context, task, store=mem, now=NOW + 1)
     return result, items, binds
 
 
@@ -559,6 +559,6 @@ def test_lexical_retriever_without_failure_intent_consumes_forged_fact(tmp_path:
     result = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger).run(
         task, now=NOW + 1
     )
-    binds = bind_context(result.context, task, store=mem)
+    binds = bind_context(result.context, task, store=mem, now=NOW + 1)
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
     assert result.verdict not in POSITIVE

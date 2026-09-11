@@ -40,6 +40,7 @@ from architecture.cognitive.loop.support import (  # noqa: E402
     identity_tokens,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.observation_test_runtime import test_authority_scope  # noqa: E402
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType  # noqa: E402
 
@@ -53,6 +54,12 @@ SUPPORT = "Retries after timeout reduced failures."
 CONTRA = "Retries after timeout increased failures."
 UNCERTAIN = "It is unknown whether retries after timeout reduce failures."
 CAFETERIA = "the lunch timeout retries were about cafeteria seating"
+
+
+@pytest.fixture(autouse=True)
+def _test_grant_scope():
+    with test_authority_scope(trusted_now=NOW):
+        yield
 
 
 def _task(question: str = Q_UNSCOPED, *, domain: str = "software", **kwargs) -> CognitiveTask:
@@ -122,9 +129,9 @@ def _ctx(*items: RetrievedItem, edges: tuple = ()) -> CognitiveContext:
 def _live(task: CognitiveTask, *items: RetrievedItem, edges: tuple = ()):
     store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task, store=store)
+    binds = bind_context(ctx, task, store=store, now=NOW)
     v, _, trace, _, _ = reason(
-        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store
+        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store, now=NOW
     )
     return binds, v, trace
 

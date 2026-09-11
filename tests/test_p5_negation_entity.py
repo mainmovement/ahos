@@ -42,6 +42,7 @@ from architecture.cognitive.loop.support import (  # noqa: E402
     positive_support_eligible,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
+from tests.observation_test_runtime import test_authority_scope  # noqa: E402
 from tests.p5_grant_fixtures import authorize_retrieved_items  # noqa: E402
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType  # noqa: E402
 
@@ -60,6 +61,12 @@ FORBIDDEN_PROD_TOKENS = (
     "p5-",
     "bm-",
 )
+
+
+@pytest.fixture(autouse=True)
+def _test_grant_scope():
+    with test_authority_scope(trusted_now=NOW):
+        yield
 
 
 def _task(question: str, *, domain: str = "software", **kwargs) -> CognitiveTask:
@@ -141,8 +148,8 @@ def _live(statement: str, question: str, *, domain: str = "software", **item_kw)
     item = _item("m1", statement, domain=domain, **item_kw)
     ctx = _ctx(item)
     store = authorize_retrieved_items(item)
-    binds = bind_context(ctx, task, store=store)
-    v, _, _, _, _ = reason(task, ctx, retrieved_ids=["m1"], store=store)
+    binds = bind_context(ctx, task, store=store, now=NOW)
+    v, _, _, _, _ = reason(task, ctx, retrieved_ids=["m1"], store=store, now=NOW)
     return classify_support(statement, task), binds[0], v
 
 
