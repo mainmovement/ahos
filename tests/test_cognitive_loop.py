@@ -37,7 +37,6 @@ from architecture.cognitive.loop.contracts import (  # noqa: E402
 )
 from architecture.cognitive.loop.metacognition import metacognitive_state  # noqa: E402
 from architecture.cognitive.loop.metrics import METRIC_SPECS, compute_lesson_reuse  # noqa: E402
-from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import reason  # noqa: E402
 from architecture.cognitive.loop.retrieval import MemoryRetriever  # noqa: E402
 from architecture.cognitive.loop.tools import plan_tools  # noqa: E402
@@ -47,7 +46,7 @@ from architecture.cognitive.memory.store import (  # noqa: E402
     MemoryAuthorizationError,
     SoakBoundaryError,
 )
-from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
+from tests.observation_test_runtime import TestCognitiveOrchestrator  # noqa: E402
 from tests.p5_grant_fixtures import persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
@@ -58,12 +57,6 @@ from architecture.cognitive.memory.types import (  # noqa: E402
 LOOP_DIR = ROOT / "architecture" / "cognitive" / "loop"
 FORBIDDEN = {"discovery", "paper_trading", "telegram_ai", "engine"}
 NOW = 1_800_000_000.0
-
-
-@pytest.fixture(autouse=True)
-def _test_grant_scope():
-    with grant_verify_scope(trusted_now=NOW):
-        yield
 
 
 def _task(**kwargs) -> CognitiveTask:
@@ -122,7 +115,7 @@ def test_closed_loop_second_episode_retrieves_lesson(tmp_path: Path) -> None:
         domain="software",
         source_id="seed-timeout",
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     r1 = orch.run(
         _task(
             task_id="task-loop-1",
@@ -180,7 +173,7 @@ def test_no_memory_baseline_does_not_retrieve_lesson(tmp_path: Path) -> None:
         domain="software",
         source_id="seed-a",
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     r1 = orch.run(
         _task(
             task_id="nm-1",
@@ -217,7 +210,7 @@ def test_failure_learning_next_task_retrieves_failure(tmp_path: Path) -> None:
         domain="operations",
         source_id="seed-fail",
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     task1 = _task(
         task_id="fail-1",
         task_type=TaskType.ANALYZE.value,
@@ -268,7 +261,7 @@ def test_contradiction_preserved_unresolved(tmp_path: Path) -> None:
         created_at=NOW - 90,
     )
     mem.contradict(a, b, reason="synthetic opposing measurements")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     result = orch.run(
         _task(
             task_id="contra-1",
@@ -427,7 +420,7 @@ def test_domain_generality_four_adapters(tmp_path: Path) -> None:
         observed_at=NOW - 20,
         created_at=NOW - 10,
     )
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     for domain, q in (
         ("finance", "token observation"),
         ("science", "lab measurement"),
@@ -496,7 +489,7 @@ def test_causal_and_counterfactual_not_implemented(tmp_path: Path) -> None:
 
 def test_loop_cannot_authorize_execution(tmp_path: Path) -> None:
     mem, hyp, ledger = _stores(tmp_path)
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=ledger)
     with pytest.raises(MemoryAuthorizationError):
         orch.authorize_execution("anything")
 
@@ -630,7 +623,7 @@ def test_memory_vs_no_memory_benchmark(tmp_path: Path) -> None:
         "SYNTHETIC_TEST_DATA retries after HTTP timeout recovered the request.",
         source_id="bench-timeout",
     )
-    orch = CognitiveOrchestrator(memory=mem2, hypotheses=hyp2, ledger_path=ledger2)
+    orch = TestCognitiveOrchestrator(memory=mem2, hypotheses=hyp2, ledger_path=ledger2)
     r1 = orch.run(
         _task(
             task_id="bench-1",

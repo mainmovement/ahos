@@ -47,7 +47,11 @@ from architecture.cognitive.loop.modes import MODE_FNS  # noqa: E402
 from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
-from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
+from tests.observation_test_runtime import (  # noqa: E402
+    TestCognitiveOrchestrator,
+    bind_with_test_authority,
+    reason_with_test_authority,
+)
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
     DecayState,
@@ -78,12 +82,6 @@ MODES = (
     ReasoningMode.ADVERSARIAL.value,
     ReasoningMode.METACOGNITIVE.value,
 )
-
-
-@pytest.fixture(autouse=True)
-def _test_grant_scope():
-    with grant_verify_scope(trusted_now=NOW):
-        yield
 
 
 def _task(question: str = Q, **kwargs) -> CognitiveTask:
@@ -186,10 +184,10 @@ def _counts(mem: CognitiveMemoryStore) -> dict[str, int]:
 def _reason_row(task: CognitiveTask, *items: RetrievedItem, edges: tuple = ()):
     store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task, store=store, now=NOW)
+    binds = bind_with_test_authority(ctx, task, store=store, now=NOW)
     pre = MODE_FNS[task.reasoning_mode](task, binds)
-    v, ep, trace, crit, _ = reason(
-        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store, now=NOW
+    v, ep, trace, crit, _ = reason_with_test_authority(
+        task, ctx, store=store, retrieved_ids=[i.memory_id for i in items], now=NOW
     )
     permitted = reusable_writeback_permitted(v, binds)
     return {
@@ -208,7 +206,7 @@ def _reason_row(task: CognitiveTask, *items: RetrievedItem, edges: tuple = ()):
 def _orch(tmp_path: Path, specs: list[dict], task: CognitiveTask, *, contradict: bool = False):
     mem = CognitiveMemoryStore(tmp_path / "mem.sqlite")
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
     recs = []
     for i, spec in enumerate(specs):
         kw = dict(
@@ -594,10 +592,12 @@ def test_ap_lesson_applicability_mismatch(tmp_path: Path) -> None:
         _item(fact.memory_id, fact.statement),
         _item(lesson.memory_id, lesson.statement, kind=EpistemicKind.LESSON.value),
     )
-    binds = bind_context(ctx, task, store=mem)
+    binds = bind_with_test_authority(ctx, task, store=mem, now=NOW)
     lesson_b = next(b for b in binds if b.memory_id == lesson.memory_id)
     assert lesson_b.live_applicability() == "NOT_APPLICABLE"
-    v, _, trace, _, _ = reason(task, ctx, retrieved_ids=[fact.memory_id, lesson.memory_id], store=mem)
+    v, _, trace, _, _ = reason_with_test_authority(
+        task, ctx, store=mem, retrieved_ids=[fact.memory_id, lesson.memory_id], now=NOW
+    )
     assert v in POSITIVE
     assert trace.inference_records[0].get("lesson_applied") is False
 
@@ -710,9 +710,11 @@ def test_critic_contradiction_constrains_candidate() -> None:
     edges = ({"edge_id": "e", "from_id": "s", "to_id": "c", "relation": "CONTRADICTS"},)
     store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task, store=store)
+    binds = bind_with_test_authority(ctx, task, store=store, now=NOW)
     pre = MODE_FNS[task.reasoning_mode](task, binds)
-    v, _, _, crit, _ = reason(task, ctx, retrieved_ids=["s", "c"], store=store)
+    v, _, _, crit, _ = reason_with_test_authority(
+        task, ctx, store=store, retrieved_ids=["s", "c"], now=NOW
+    )
     assert any("CONTRADICTION" in f for f in crit.findings)
     assert v not in POSITIVE
     assert v != CognitiveVerdict.WEAKLY_SUPPORTED.value

@@ -36,7 +36,6 @@ from architecture.cognitive.loop.contracts import (  # noqa: E402
     TaskType,
 )
 from architecture.cognitive.loop.episode import reusable_writeback_permitted  # noqa: E402
-from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.retrieval import MemoryRetriever  # noqa: E402
 from architecture.cognitive.memory.observation import (  # noqa: E402
     GRANT_PAYLOAD_KEY,
@@ -47,7 +46,7 @@ from architecture.cognitive.memory.observation import (  # noqa: E402
     statement_sha256,
     verify_observation_grant,
 )
-from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
+from tests.observation_test_runtime import TestCognitiveOrchestrator, bind_with_test_authority  # noqa: E402
 from architecture.cognitive.memory.record import MemoryRecord, compute_integrity_hash  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
 from architecture.cognitive.memory.types import (  # noqa: E402
@@ -69,12 +68,6 @@ SUPPORT = "Retries after timeout reduced failures."
 OTHER = "Service B retries after timeout reduced failures."
 
 
-@pytest.fixture(autouse=True)
-def _test_grant_scope():
-    with grant_verify_scope(trusted_now=NOW + 1):
-        yield
-
-
 def _task(**kwargs) -> CognitiveTask:
     base = dict(
         task_id="og",
@@ -94,9 +87,9 @@ def _task(**kwargs) -> CognitiveTask:
 
 def _run(mem: CognitiveMemoryStore, tmp_path: Path, task: CognitiveTask):
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
     result = orch.run(task, now=NOW + 1)
-    binds = bind_context(result.context, task, store=mem, now=NOW + 1)
+    binds = orch._bind_context(result.context, task, now=NOW + 1)
     return result, binds
 
 
@@ -672,7 +665,7 @@ def test_toctou_revise_after_grant_latest_hash_wins(tmp_path: Path) -> None:
     from architecture.cognitive.loop.context import assemble_context
 
     ctx = assemble_context(items, mem, now=NOW + 2)
-    binds = bind_context(ctx, task, store=mem, now=NOW + 2)
+    binds = bind_with_test_authority(ctx, task, store=mem, now=NOW + 2)
     assert binds
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
 

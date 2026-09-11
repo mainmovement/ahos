@@ -21,17 +21,18 @@ from architecture.cognitive.loop.contracts import (
     ContextBudget,
     TaskType,
 )
-from architecture.cognitive.loop.reason import NOT_IMPLEMENTED_MODES, reason
-from architecture.cognitive.loop.binding import bind_context
+from architecture.cognitive.loop.reason import NOT_IMPLEMENTED_MODES, evaluate_reason
+from architecture.cognitive.loop.binding import (
+    assemble_evidence_binding,
+    contradicted_memory_ids,
+    load_bind_snapshot,
+)
 from architecture.cognitive.loop.episode import reusable_writeback_permitted
 from architecture.cognitive.loop.retrieval import MemoryRetriever
 from architecture.cognitive.memory.observation import (
     ISSUER_ID,
-    GrantVerifyContext,
-    current_grant_verify_context,
     is_forbidden_production_secret,
-    push_grant_verify_context,
-    reset_grant_verify_context,
+    observation_grant_permits_factual,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore, MemoryAuthorizationError, MemoryRecord
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType
@@ -62,6 +63,13 @@ class CognitiveOrchestrator:
         while is_forbidden_production_secret(secret):
             secret = os.urandom(32)
         self._grant_verify_secret = secret
+        self._verify_issuer_id = ISSUER_ID
+
+    def __repr__(self) -> str:
+        return (
+            f"CognitiveOrchestrator(memory={self.memory!r}, "
+            f"ledger_path={self.ledger_path!r})"
+        )
 
     def authorize_execution(self, *_a: Any, **_k: Any) -> None:
         raise MemoryAuthorizationError("Cognitive loop cannot authorize execution")
@@ -102,20 +110,102 @@ class CognitiveOrchestrator:
         ts = time.time() if now is None else now
         if task.data_label not in {"SYNTHETIC_TEST_DATA", "TEST", "REAL", "UNKNOWN"}:
             raise ValueError("task.data_label must be typed")
-        parent = current_grant_verify_context()
-        if parent is not None:
-            verify_ctx = GrantVerifyContext(parent.key, parent.issuer_id, float(ts))
-        else:
-            verify_ctx = GrantVerifyContext(
-                self._grant_verify_secret, ISSUER_ID, float(ts)
+        return self._run_with_episode_clock(
+            task, budget=budget, ts=ts, use_memory=use_memory
+        )
+
+    def _permits_observation_grant(
+        self,
+        *,
+        statement: str,
+        epistemic_kind: str,
+        memory_type: str,
+        source_type: str,
+        source_id: str,
+        observed_at: float | None,
+        valid_until: float | None,
+        domain: str,
+        payload: dict[str, Any] | None,
+        now: float,
+        status: str = "",
+    ) -> bool:
+        """Instance-owned production verification. Key is never a caller argument."""
+        return observation_grant_permits_factual(
+            statement=statement,
+            epistemic_kind=epistemic_kind,
+            memory_type=memory_type,
+            source_type=source_type,
+            source_id=source_id,
+            observed_at=observed_at,
+            valid_until=valid_until,
+            domain=domain,
+            payload=payload,
+            now=now,
+            status=status,
+            key=self._grant_verify_secret,
+            expected_issuer_id=self._verify_issuer_id,
+        )
+
+    def _bind_item(
+        self,
+        item: Any,
+        task: CognitiveTask,
+        *,
+        store: CognitiveMemoryStore | None,
+        contradicted_ids: set[str] | None,
+        index: int,
+        now: float,
+    ) -> Any:
+        snap = load_bind_snapshot(item, store)
+        grant_ok = self._permits_observation_grant(
+            statement=snap.statement,
+            epistemic_kind=snap.epistemic_kind,
+            memory_type=snap.memory_type,
+            source_type=snap.source_type,
+            source_id=snap.source_id,
+            observed_at=snap.observed_at,
+            valid_until=snap.valid_until,
+            domain=snap.domain,
+            payload=snap.payload,
+            now=float(now),
+            status=snap.status,
+        )
+        return assemble_evidence_binding(
+            item,
+            task,
+            snap,
+            grant_ok=grant_ok,
+            contradicted_ids=contradicted_ids,
+            index=index,
+            trusted_now=float(now),
+        )
+
+    def _bind_context(self, ctx: Any, task: CognitiveTask, *, now: float) -> list[Any]:
+        contradicted = contradicted_memory_ids(ctx)
+        bindings = []
+        for i, item in enumerate(ctx.all_included()):
+            bindings.append(
+                self._bind_item(
+                    item,
+                    task,
+                    store=self.memory,
+                    contradicted_ids=contradicted,
+                    index=i + 1,
+                    now=now,
+                )
             )
-        token = push_grant_verify_context(verify_ctx)
-        try:
-            return self._run_with_episode_clock(
-                task, budget=budget, ts=ts, use_memory=use_memory
-            )
-        finally:
-            reset_grant_verify_context(token)
+        return bindings
+
+    def _reason_episode(
+        self,
+        task: CognitiveTask,
+        ctx: Any,
+        *,
+        retrieved_ids: list[str],
+        now: float,
+    ) -> Any:
+        bindings = self._bind_context(ctx, task, now=now)
+        return evaluate_reason(task, ctx, bindings, retrieved_ids=retrieved_ids)
 
     def _run_with_episode_clock(
         self,
@@ -130,8 +220,8 @@ class CognitiveOrchestrator:
         )
         ctx = assemble_context(retrieved, self.memory, budget=budget, now=ts)
         retrieved_ids = [i.memory_id for i in retrieved]
-        verdict, epistemic, trace, critique, _assumptions = reason(
-            task, ctx, retrieved_ids=retrieved_ids, store=self.memory, now=ts
+        verdict, epistemic, trace, critique, _assumptions = self._reason_episode(
+            task, ctx, retrieved_ids=retrieved_ids, now=ts
         )
 
         seen_before = bool(ctx.lessons or ctx.failures)
@@ -156,7 +246,7 @@ class CognitiveOrchestrator:
         # Unresolved/insufficient/contested must not become reusable hypotheses.
         # Verdict string WEAKLY_SUPPORTED is not sufficient; episode polarity is.
         reusable_writeback = reusable_writeback_permitted(
-            verdict, bind_context(ctx, task, store=self.memory, now=ts)
+            verdict, self._bind_context(ctx, task, now=ts)
         )
         # Rebind from RetrievedItems, not reason() DTO copies, so mutated
         # EvidenceBinding metadata cannot authorize persistence.

@@ -30,7 +30,6 @@ from architecture.cognitive.loop.episode import (  # noqa: E402
     episode_positive_block_reason,
     reusable_writeback_permitted,
 )
-from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import reason  # noqa: E402
 from architecture.cognitive.loop.support import (  # noqa: E402
     ENTITY_NONE,
@@ -40,7 +39,11 @@ from architecture.cognitive.loop.support import (  # noqa: E402
     identity_tokens,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
-from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
+from tests.observation_test_runtime import (  # noqa: E402
+    TestCognitiveOrchestrator,
+    bind_with_test_authority,
+    reason_with_test_authority,
+)
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, SourceType  # noqa: E402
 
@@ -54,12 +57,6 @@ SUPPORT = "Retries after timeout reduced failures."
 CONTRA = "Retries after timeout increased failures."
 UNCERTAIN = "It is unknown whether retries after timeout reduce failures."
 CAFETERIA = "the lunch timeout retries were about cafeteria seating"
-
-
-@pytest.fixture(autouse=True)
-def _test_grant_scope():
-    with grant_verify_scope(trusted_now=NOW):
-        yield
 
 
 def _task(question: str = Q_UNSCOPED, *, domain: str = "software", **kwargs) -> CognitiveTask:
@@ -129,9 +126,9 @@ def _ctx(*items: RetrievedItem, edges: tuple = ()) -> CognitiveContext:
 def _live(task: CognitiveTask, *items: RetrievedItem, edges: tuple = ()):
     store = authorize_retrieved_items(*items)
     ctx = _ctx(*items, edges=edges)
-    binds = bind_context(ctx, task, store=store, now=NOW)
-    v, _, trace, _, _ = reason(
-        task, ctx, retrieved_ids=[i.memory_id for i in items], store=store, now=NOW
+    binds = bind_with_test_authority(ctx, task, store=store, now=NOW)
+    v, _, trace, _, _ = reason_with_test_authority(
+        task, ctx, store=store, retrieved_ids=[i.memory_id for i in items], now=NOW
     )
     return binds, v, trace
 
@@ -163,7 +160,7 @@ def _run_orch(
 ):
     mem = CognitiveMemoryStore(tmp_path / "mem.sqlite")
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
-    orch = CognitiveOrchestrator(
+    orch = TestCognitiveOrchestrator(
         memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl"
     )
     recs = []

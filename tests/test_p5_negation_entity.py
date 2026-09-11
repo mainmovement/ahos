@@ -26,7 +26,6 @@ from architecture.cognitive.loop.contracts import (  # noqa: E402
     RetrievedItem,
     TaskType,
 )
-from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
 from architecture.cognitive.loop.reason import reason  # noqa: E402
 from architecture.cognitive.loop.support import (  # noqa: E402
     CLAUSE_NEGATED,
@@ -42,7 +41,11 @@ from architecture.cognitive.loop.support import (  # noqa: E402
     positive_support_eligible,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
-from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
+from tests.observation_test_runtime import (  # noqa: E402
+    TestCognitiveOrchestrator,
+    bind_with_test_authority,
+    reason_with_test_authority,
+)
 from tests.p5_grant_fixtures import authorize_retrieved_items  # noqa: E402
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType  # noqa: E402
 
@@ -61,12 +64,6 @@ FORBIDDEN_PROD_TOKENS = (
     "p5-",
     "bm-",
 )
-
-
-@pytest.fixture(autouse=True)
-def _test_grant_scope():
-    with grant_verify_scope(trusted_now=NOW):
-        yield
 
 
 def _task(question: str, *, domain: str = "software", **kwargs) -> CognitiveTask:
@@ -148,8 +145,10 @@ def _live(statement: str, question: str, *, domain: str = "software", **item_kw)
     item = _item("m1", statement, domain=domain, **item_kw)
     ctx = _ctx(item)
     store = authorize_retrieved_items(item)
-    binds = bind_context(ctx, task, store=store, now=NOW)
-    v, _, _, _, _ = reason(task, ctx, retrieved_ids=["m1"], store=store, now=NOW)
+    binds = bind_with_test_authority(ctx, task, store=store, now=NOW)
+    v, _, _, _, _ = reason_with_test_authority(
+        task, ctx, store=store, retrieved_ids=["m1"], now=NOW
+    )
     return classify_support(statement, task), binds[0], v
 
 
@@ -432,7 +431,7 @@ def test_ambiguous_entity_is_not_positive() -> None:
 def test_write_back_does_not_mint_reusable_positive(tmp_path: Path, label, statement, question) -> None:
     mem = CognitiveMemoryStore(tmp_path / f"mem-{label}.sqlite")
     hyp = HypothesisStore(tmp_path / f"hyp-{label}.jsonl")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / f"exp-{label}.jsonl")
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / f"exp-{label}.jsonl")
     mem.remember(
         memory_type=MemoryType.EPISODIC,
         epistemic_kind=EpistemicKind.OBSERVED_FACT,
@@ -480,7 +479,7 @@ def test_write_back_does_not_mint_reusable_positive(tmp_path: Path, label, state
 def test_unresolved_contested_write_back_is_not_reusable(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "mem-contested.sqlite")
     hyp = HypothesisStore(tmp_path / "hyp-contested.jsonl")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp-contested.jsonl")
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp-contested.jsonl")
     a = mem.remember(
         memory_type=MemoryType.EPISODIC,
         epistemic_kind=EpistemicKind.OBSERVED_FACT,

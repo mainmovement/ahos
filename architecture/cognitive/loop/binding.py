@@ -31,7 +31,6 @@ from architecture.cognitive.loop.support import (
 from architecture.cognitive.memory.observation import (
     current_grant_verify_context,
     latest_observation_fields,
-    observation_grant_permits_factual,
 )
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import DecayState, EpistemicKind, MemoryType, UNKNOWN
@@ -309,6 +308,7 @@ class EvidenceBinding:
     valid_until: float | None = None
     task_created_at: float = 0.0
     authority_now: float = 0.0
+    grant_ok: bool = False
 
     def _task_snapshot(self) -> CognitiveTask:
         return CognitiveTask(
@@ -359,20 +359,8 @@ class EvidenceBinding:
         )
 
     def live_grant_ok(self) -> bool:
-        now = self.authority_now
-        return observation_grant_permits_factual(
-            statement=self.statement,
-            epistemic_kind=self.epistemic_kind,
-            memory_type=self.memory_type,
-            source_type=self.source_type or str(self.provenance.get("source_type") or ""),
-            source_id=str(self.provenance.get("source_id") or ""),
-            observed_at=self.observed_at,
-            valid_until=self.valid_until,
-            domain=self.domain,
-            payload=self.payload,
-            now=now,
-            status=self.status,
-        )
+        """Frozen bind-time grant_ok. Does not re-select a ContextVar key."""
+        return bool(self.grant_ok)
 
     def live_roles(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
         return _roles(
@@ -469,7 +457,10 @@ class EvidenceBinding:
 
 
 def _trusted_now(task: CognitiveTask, now: float | None) -> float | None:
-    """Episode authority time. Never CognitiveTask.created_at."""
+    """Episode authority time. Never CognitiveTask.created_at.
+
+    ContextVar may supply clock metadata only. It never selects grant_ok.
+    """
     del task
     if now is not None:
         return float(now)
@@ -479,108 +470,125 @@ def _trusted_now(task: CognitiveTask, now: float | None) -> float | None:
     return None
 
 
-def bind_item(
+@dataclass
+class BindSnapshot:
+    """Latest-row (or retrieved-item) fields for binding. Not authority."""
+
+    statement: str
+    domain: str
+    status: str
+    epistemic_kind: str
+    memory_type: str
+    observed_at: float | None
+    valid_until: float | None
+    source_type: str
+    source_id: str
+    payload: dict[str, Any]
+    typed: str
+    temporal: str
+
+
+def load_bind_snapshot(
     item: RetrievedItem,
-    task: CognitiveTask,
-    *,
-    store: CognitiveMemoryStore | None = None,
-    contradicted_ids: set[str] | None = None,
-    index: int = 0,
-    now: float | None = None,
-) -> EvidenceBinding:
+    store: CognitiveMemoryStore | None,
+) -> BindSnapshot:
     latest = latest_observation_fields(store, item.memory_id)
     if latest is not None:
-        statement = latest.statement
-        domain = latest.domain
-        status = latest.status
-        epistemic_kind = latest.epistemic_kind
-        memory_type = latest.memory_type
-        observed_at = latest.observed_at
-        valid_until = latest.valid_until
-        source_type = latest.source_type
-        source_id = latest.source_id
         payload = dict(latest.payload) if isinstance(latest.payload, dict) else {}
-        typed = typed_class_from_parts(memory_type, epistemic_kind)
-        temporal = temporal_from_parts(status, observed_at)
-    else:
-        statement = item.statement
-        domain = item.domain
-        status = item.status
-        epistemic_kind = item.epistemic_kind
-        memory_type = item.memory_type
-        observed_at = item.observed_at
-        valid_until = None
-        source_type = ""
-        source_id = item.source_id
-        payload = _payload(store, item.memory_id)
-        typed = typed_class_of(item)
-        temporal = temporal_state_of(item)
+        return BindSnapshot(
+            statement=latest.statement,
+            domain=latest.domain,
+            status=latest.status,
+            epistemic_kind=latest.epistemic_kind,
+            memory_type=latest.memory_type,
+            observed_at=latest.observed_at,
+            valid_until=latest.valid_until,
+            source_type=latest.source_type,
+            source_id=latest.source_id,
+            payload=payload,
+            typed=typed_class_from_parts(latest.memory_type, latest.epistemic_kind),
+            temporal=temporal_from_parts(latest.status, latest.observed_at),
+        )
+    payload = _payload(store, item.memory_id)
+    return BindSnapshot(
+        statement=item.statement,
+        domain=item.domain,
+        status=item.status,
+        epistemic_kind=item.epistemic_kind,
+        memory_type=item.memory_type,
+        observed_at=item.observed_at,
+        valid_until=None,
+        source_type="",
+        source_id=item.source_id,
+        payload=payload,
+        typed=typed_class_of(item),
+        temporal=temporal_state_of(item),
+    )
+
+
+def assemble_evidence_binding(
+    item: RetrievedItem,
+    task: CognitiveTask,
+    snap: BindSnapshot,
+    *,
+    grant_ok: bool,
+    contradicted_ids: set[str] | None = None,
+    index: int = 0,
+    trusted_now: float | None = None,
+) -> EvidenceBinding:
+    """Assemble roles from a snapshot. ``grant_ok`` is already decided by the caller."""
     applicability = _applicability(
-        typed,
+        snap.typed,
         RetrievedItem(
             memory_id=item.memory_id,
             revision=item.revision,
-            statement=statement,
+            statement=snap.statement,
             match_reasons=item.match_reasons,
             evidence_class=item.evidence_class,
-            memory_type=memory_type,
-            epistemic_kind=epistemic_kind,
-            status=status,
-            domain=domain,
-            source_id=source_id,
+            memory_type=snap.memory_type,
+            epistemic_kind=snap.epistemic_kind,
+            status=snap.status,
+            domain=snap.domain,
+            source_id=snap.source_id,
             agent_namespace=item.agent_namespace,
-            observed_at=observed_at,
+            observed_at=snap.observed_at,
             created_at=item.created_at,
         ),
         task,
-        payload,
+        snap.payload,
     )
-    trusted_now = _trusted_now(task, now)
-    grant_ok = False
-    if trusted_now is not None:
-        grant_ok = observation_grant_permits_factual(
-            statement=statement,
-            epistemic_kind=epistemic_kind,
-            memory_type=memory_type,
-            source_type=source_type,
-            source_id=source_id,
-            observed_at=observed_at,
-            valid_until=valid_until,
-            domain=domain,
-            payload=payload,
-            now=trusted_now,
-            status=status,
-        )
-    allowed, forbidden = _roles(typed, temporal, applicability, grant_ok=grant_ok)
+    allowed, forbidden = _roles(
+        snap.typed, snap.temporal, applicability, grant_ok=grant_ok
+    )
     contradicted = bool(contradicted_ids and item.memory_id in contradicted_ids)
-    support = classify_support(statement, task)
-    lexical = addresses_task(statement, task)
+    support = classify_support(snap.statement, task)
+    lexical = addresses_task(snap.statement, task)
     return EvidenceBinding(
         evidence_id=f"EVD-{index:06d}-{item.memory_id}",
         memory_id=item.memory_id,
-        typed_class=typed,
+        typed_class=snap.typed,
         relevance="RETRIEVED",
         applicability=applicability,
-        temporal_state=temporal,
+        temporal_state=snap.temporal,
         provenance={
-            "source_id": source_id,
-            "source_type": source_type,
+            "source_id": snap.source_id,
+            "source_type": snap.source_type,
             "producer": "retrieved",
             "evidence_class_p3": item.evidence_class,
         },
         support_strength=_support_strength(
-            typed, applicability, temporal, grant_ok=grant_ok
+            snap.typed, applicability, snap.temporal, grant_ok=grant_ok
         ),
         contradiction_state="CONTESTED" if contradicted else "UNCONTESTED",
         allowed_reasoning_roles=allowed,
         forbidden_reasoning_roles=forbidden,
-        statement=statement,
-        domain=domain,
-        status=status,
-        epistemic_kind=epistemic_kind,
-        memory_type=memory_type,
+        statement=snap.statement,
+        domain=snap.domain,
+        status=snap.status,
+        epistemic_kind=snap.epistemic_kind,
+        memory_type=snap.memory_type,
         match_reasons=tuple(item.match_reasons),
-        payload=payload,
+        payload=snap.payload,
         addresses_task_flag=lexical,
         support_class=support.support_class,
         support_polarity=support.polarity,
@@ -595,12 +603,49 @@ def bind_item(
         task_domain=task.domain,
         task_component=str(task.constraints.get("component") or ""),
         task_failure_type=str(task.constraints.get("failure_type") or ""),
-        observed_at=observed_at,
-        source_type=source_type,
-        valid_until=valid_until,
+        observed_at=snap.observed_at,
+        source_type=snap.source_type,
+        valid_until=snap.valid_until,
         task_created_at=float(task.created_at) if task.created_at else 0.0,
         authority_now=float(trusted_now) if trusted_now is not None else 0.0,
+        grant_ok=bool(grant_ok),
     )
+
+
+def bind_item(
+    item: RetrievedItem,
+    task: CognitiveTask,
+    *,
+    store: CognitiveMemoryStore | None = None,
+    contradicted_ids: set[str] | None = None,
+    index: int = 0,
+    now: float | None = None,
+) -> EvidenceBinding:
+    """Public bind. Always fail-closed for ObservationGrant (grant_ok=False).
+
+    Does not accept key=/secret=/verifier=. Does not trust ContextVar keys.
+    Production ``CognitiveOrchestrator.run`` uses instance-owned bind instead.
+    """
+    snap = load_bind_snapshot(item, store)
+    trusted_now = _trusted_now(task, now)
+    return assemble_evidence_binding(
+        item,
+        task,
+        snap,
+        grant_ok=False,
+        contradicted_ids=contradicted_ids,
+        index=index,
+        trusted_now=trusted_now,
+    )
+
+
+def contradicted_memory_ids(ctx: CognitiveContext) -> set[str]:
+    contradicted: set[str] = set()
+    for edge in ctx.contradictions:
+        if isinstance(edge, dict):
+            contradicted.add(str(edge.get("from_id") or ""))
+            contradicted.add(str(edge.get("to_id") or ""))
+    return contradicted
 
 
 def bind_context(
@@ -610,11 +655,8 @@ def bind_context(
     store: CognitiveMemoryStore | None = None,
     now: float | None = None,
 ) -> list[EvidenceBinding]:
-    contradicted: set[str] = set()
-    for edge in ctx.contradictions:
-        if isinstance(edge, dict):
-            contradicted.add(str(edge.get("from_id") or ""))
-            contradicted.add(str(edge.get("to_id") or ""))
+    """Public bind. Always fail-closed for ObservationGrant."""
+    contradicted = contradicted_memory_ids(ctx)
     bindings: list[EvidenceBinding] = []
     for i, item in enumerate(ctx.all_included()):
         bindings.append(

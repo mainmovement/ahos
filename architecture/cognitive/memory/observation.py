@@ -195,10 +195,16 @@ _grant_verify_ctx: ContextVar[GrantVerifyContext | None] = ContextVar(
 
 
 def current_grant_verify_context() -> GrantVerifyContext | None:
+    """Episode metadata only. Production verification does not read this."""
     return _grant_verify_ctx.get()
 
 
 def push_grant_verify_context(ctx: GrantVerifyContext):
+    """Sets episode metadata. Has no authority-bearing effect on production verify.
+
+    ``CognitiveOrchestrator._permits_observation_grant`` uses instance-owned
+    ``K_O`` and ``ISSUER_ID``. It does not read this ContextVar.
+    """
     return _grant_verify_ctx.set(ctx)
 
 
@@ -339,12 +345,16 @@ def verify_observation_grant(
     key: bytes | None = None,
     expected_issuer_id: str | None = None,
 ) -> bool:
-    """Fail-closed cryptographic + temporal + kind check. Pure in `key`."""
+    """Fail-closed cryptographic + temporal + kind check.
+
+    Production authority is the explicit ``key`` argument (supplied only by
+    ``CognitiveOrchestrator._permits_observation_grant``). ContextVar keys and
+    issuers are ignored and cannot select production verification.
+    """
     if grant is None:
         return False
-    ctx = current_grant_verify_context()
-    use_key = key if key is not None else (ctx.key if ctx is not None else None)
-    use_issuer = expected_issuer_id or (ctx.issuer_id if ctx is not None else ISSUER_ID)
+    use_key = key
+    use_issuer = expected_issuer_id if expected_issuer_id is not None else ISSUER_ID
     if use_key is None:
         return False
     if grant.version != GRANT_VERSION or grant.purpose != GRANT_PURPOSE:

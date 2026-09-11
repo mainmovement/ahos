@@ -35,6 +35,10 @@ from architecture.cognitive.memory.observation import (
     is_forbidden_production_secret,
     verify_observation_grant,
 )
+from tests.observation_test_runtime import (
+    TestCognitiveOrchestrator,
+    bind_with_test_authority,
+)
 from architecture.cognitive.memory.record import MemoryRecord, compute_integrity_hash
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import (
@@ -165,7 +169,7 @@ def _bind_factual(mem: CognitiveMemoryStore, rec, *, now: float, created_at: flo
     from architecture.cognitive.loop.context import assemble_context
 
     ctx = assemble_context(items, mem, now=now)
-    binds = bind_context(ctx, task, store=mem, now=now)
+    binds = bind_with_test_authority(ctx, task, store=mem, now=now)
     return any(b.memory_id == rec.memory_id and b.may(ROLE_FACTUAL_PREMISE) for b in binds)
 
 
@@ -433,9 +437,27 @@ def test_test_issuer_accepts_test_vector_key() -> None:
 def test_env_observation_grant_secret_is_not_read(tmp_path: Path) -> None:
     os.environ["AHOS_OBSERVATION_GRANT_SECRET"] = "deadbeef" * 8
     try:
-        orch = _orch(tmp_path, _store(tmp_path))
-        assert orch._grant_verify_secret != bytes.fromhex("deadbeef" * 8)
-        assert is_forbidden_production_secret(orch._grant_verify_secret) is False
+        mem = _store(tmp_path)
+        attacker = BoundIngestPort(
+            ObservationAuthority(secret=bytes.fromhex("deadbeef" * 8), issuer_id=ISSUER_ID)
+        )
+        rec = attacker.persist_acquired(
+            mem,
+            AcquisitionRecord(
+                statement=SUPPORT,
+                source_type=SourceType.SYSTEM.value,
+                source_id="env",
+                observed_at=NOW - 20,
+                domain="software",
+                valid_until=NOW + 3600,
+            ),
+        )
+        orch = _orch(tmp_path, mem)
+        task = _task(requested_evidence=[rec.memory_id])
+        result = orch.run(task, now=NOW)
+        binds = orch._bind_context(result.context, task, now=NOW)
+        assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+        assert result.reusable_writeback is False
     finally:
         del os.environ["AHOS_OBSERVATION_GRANT_SECRET"]
 
@@ -510,15 +532,18 @@ def test_case_c_run_now_freeze_is_trusted_runtime(tmp_path: Path) -> None:
             SUPPORT, acquired_at=NOW - 20, valid_until=NOW + 3600
         ),
     )
-    orch = _orch(tmp_path, mem)
+    orch = TestCognitiveOrchestrator(
+        memory=mem,
+        hypotheses=HypothesisStore(tmp_path / "hyp.jsonl"),
+        ledger_path=tmp_path / "exp.jsonl",
+    )
     task = _task(created_at=PAST, requested_evidence=[rec.memory_id])
-    with grant_verify_scope(trusted_now=NOW):
-        result = orch.run(task, now=NOW)
-        binds = bind_context(result.context, task, store=mem, now=NOW)
-        assert any(b.may(ROLE_FACTUAL_PREMISE) for b in binds)
-        assert all(
-            b.authority_now == NOW for b in binds if b.may(ROLE_FACTUAL_PREMISE)
-        )
+    result = orch.run(task, now=NOW)
+    binds = orch._bind_context(result.context, task, now=NOW)
+    assert any(b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+    assert all(
+        b.authority_now == NOW for b in binds if b.may(ROLE_FACTUAL_PREMISE)
+    )
 
 
 def test_case_d_grant_expired_relative_to_trusted_runtime(tmp_path: Path) -> None:
@@ -624,8 +649,46 @@ def test_alien_bound_ingest_port_is_not_production_valid(tmp_path: Path) -> None
     orch = _orch(tmp_path, mem)
     task = _task(requested_evidence=[rec.memory_id])
     result = orch.run(task, now=NOW)
-    binds = bind_context(result.context, task, store=mem, now=NOW)
+    binds = orch._bind_context(result.context, task, now=NOW)
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+
+
+def test_c1_push_grant_verify_context_cannot_rekey_production_run(tmp_path: Path) -> None:
+    from architecture.cognitive.memory.observation import (
+        GrantVerifyContext,
+        push_grant_verify_context,
+        reset_grant_verify_context,
+    )
+
+    mem = _store(tmp_path)
+    attacker_key = os.urandom(32)
+    rec = BoundIngestPort(
+        ObservationAuthority(secret=attacker_key, issuer_id=ISSUER_ID)
+    ).persist_acquired(
+        mem,
+        AcquisitionRecord(
+            statement=SUPPORT,
+            source_type=SourceType.SYSTEM.value,
+            source_id="c1",
+            observed_at=NOW - 20,
+            domain="software",
+            valid_until=NOW + 3600,
+        ),
+    )
+    orch = _orch(tmp_path, mem)
+    token = push_grant_verify_context(
+        GrantVerifyContext(attacker_key, ISSUER_ID, float(NOW))
+    )
+    try:
+        task = _task(requested_evidence=[rec.memory_id], write_back=True)
+        result = orch.run(task, now=NOW)
+        binds = orch._bind_context(result.context, task, now=NOW)
+        assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
+        assert result.reusable_writeback is False
+        assert result.hypothesis_id == ""
+        assert result.lesson_memory_id == ""
+    finally:
+        reset_grant_verify_context(token)
 
 
 def test_copied_grant_does_not_authorize_other_statement(tmp_path: Path) -> None:
@@ -777,7 +840,7 @@ def test_n_hop_ungranted_observed_fact_cannot_write_reusable_memory(
     assert result.reusable_writeback is False
     assert result.hypothesis_id == ""
     assert result.lesson_memory_id == ""
-    binds = bind_context(result.context, task, store=mem, now=NOW)
+    binds = orch._bind_context(result.context, task, now=NOW)
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
 
 

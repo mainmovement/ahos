@@ -38,10 +38,12 @@ from architecture.cognitive.loop.inference import (  # noqa: E402
     apply_constraint,
 )
 from architecture.cognitive.loop.modes import reason_metacognitive  # noqa: E402
-from architecture.cognitive.loop.orchestrator import CognitiveOrchestrator  # noqa: E402
-from architecture.cognitive.loop.reason import critique_result, reason  # noqa: E402
 from architecture.cognitive.memory.store import CognitiveMemoryStore  # noqa: E402
-from tests.observation_test_runtime import grant_verify_scope  # noqa: E402
+from tests.observation_test_runtime import (  # noqa: E402
+    TestCognitiveOrchestrator,
+    bind_with_test_authority,
+    reason_with_test_authority,
+)
 from tests.p5_grant_fixtures import authorize_retrieved_items, persist_authorized  # noqa: E402
 from architecture.cognitive.memory.types import EpistemicKind, MemoryType, SourceType  # noqa: E402
 
@@ -50,10 +52,13 @@ LOOP_DIR = ROOT / "architecture" / "cognitive" / "loop"
 FORBIDDEN = {"discovery", "paper_trading", "telegram_ai", "engine"}
 
 
-@pytest.fixture(autouse=True)
-def _test_grant_scope():
-    with grant_verify_scope(trusted_now=NOW):
-        yield
+def _reason(task: CognitiveTask, ctx: CognitiveContext, store=None):
+    ids = [i.memory_id for i in ctx.all_included()]
+    if store is None:
+        store = authorize_retrieved_items(*ctx.all_included())
+    return reason_with_test_authority(
+        task, ctx, store=store, retrieved_ids=ids, now=NOW
+    )
 
 
 def _task(**kwargs) -> CognitiveTask:
@@ -141,13 +146,6 @@ def _ctx(*items: RetrievedItem, incomplete: bool = False) -> CognitiveContext:
         context_incomplete=incomplete,
         token_estimate=len(items),
     )
-
-
-def _reason(task: CognitiveTask, ctx: CognitiveContext, store=None):
-    ids = [i.memory_id for i in ctx.all_included()]
-    if store is None:
-        store = authorize_retrieved_items(*ctx.all_included())
-    return reason(task, ctx, retrieved_ids=ids, store=store, now=NOW)
 
 
 def test_p5_package_does_not_import_lane_a() -> None:
@@ -506,7 +504,7 @@ def test_contradiction_preserved() -> None:
 def test_closed_loop_second_episode_changes_reasoning(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
     persist_authorized(
         mem,
         "SYNTHETIC_TEST_DATA: retries after HTTP timeout recovered the request.",
@@ -625,7 +623,7 @@ def test_live_critic_constrains_metacognitive_contradiction() -> None:
     )
     task = _task(reasoning_mode=ReasoningMode.METACOGNITIVE.value)
     store = authorize_retrieved_items(a, b)
-    pre = reason_metacognitive(task, bind_context(ctx, task, store=store))
+    pre = reason_metacognitive(task, bind_with_test_authority(ctx, task, store=store, now=NOW))
     assert pre.verdict in {
         CognitiveVerdict.WEAKLY_SUPPORTED.value,
         CognitiveVerdict.CONTESTED.value,
@@ -735,7 +733,7 @@ def test_failure_same_component_different_type_not_applied(tmp_path: Path) -> No
 def test_unresolved_episode_does_not_mint_lesson(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
     a = mem.remember(
         memory_type=MemoryType.EPISODIC,
         epistemic_kind=EpistemicKind.OBSERVED_FACT,
@@ -977,7 +975,7 @@ def test_adversarial_lookalike_prefers_unknown_or_insufficient() -> None:
 def test_unresolved_hypothesis_is_not_reusable_knowledge(tmp_path: Path) -> None:
     mem = CognitiveMemoryStore(tmp_path / "ahos_cognitive_memory.sqlite")
     hyp = HypothesisStore(tmp_path / "hyp.jsonl")
-    orch = CognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
+    orch = TestCognitiveOrchestrator(memory=mem, hypotheses=hyp, ledger_path=tmp_path / "exp.jsonl")
     a = mem.remember(
         memory_type=MemoryType.EPISODIC,
         epistemic_kind=EpistemicKind.OBSERVED_FACT,

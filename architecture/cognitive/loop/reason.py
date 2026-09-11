@@ -296,6 +296,27 @@ def reason(
     store: CognitiveMemoryStore | None = None,
     now: float | None = None,
 ) -> tuple[str, str, ReasoningTrace, Critique, list[Assumption]]:
+    """Public reason. Bind is fail-closed for ObservationGrant.
+
+    Does not accept key=/secret=/verifier=/issuer=. Ignores ContextVar keys.
+    Production ``CognitiveOrchestrator.run`` uses instance-owned bind instead.
+    """
+    bindings = bind_context(ctx, task, store=store, now=now)
+    return evaluate_reason(task, ctx, bindings, retrieved_ids=retrieved_ids)
+
+
+def evaluate_reason(
+    task: CognitiveTask,
+    ctx: CognitiveContext,
+    bindings: list[EvidenceBinding],
+    *,
+    retrieved_ids: list[str],
+) -> tuple[str, str, ReasoningTrace, Critique, list[Assumption]]:
+    """Mode/critic/episode policy over already-bound evidence.
+
+    Does not accept key=/secret=/verifier=. Does not verify grants.
+    Production ``CognitiveOrchestrator.run`` supplies bindings from instance bind.
+    """
     mode = task.reasoning_mode
     assumptions = [
         Assumption(
@@ -307,9 +328,6 @@ def reason(
             origin=ClaimOrigin.ASSUMED.value,
         )
     ]
-    # Assumptions are recorded on the trace. They never enter EvidenceBinding
-    # lists and cannot satisfy may_support_task().
-    bindings = bind_context(ctx, task, store=store, now=now)
 
     if mode in NOT_IMPLEMENTED_MODES:
         candidate = CandidateInference(
