@@ -3,7 +3,8 @@
 **Kind:** Read-only adversarial audit of the implementation tree. Not a fix.  
 **Target SHA (mandated):** `24b2ab8244f41d9e78582ccfc41dc4b0cf490a83`  
 **PR:** [#93](https://github.com/mainmovement/ahos/pull/93) — **DRAFT**  
-**Auditor mode:** independent of `P5_V3_IMPLEMENTATION_REPORT.md` (which claimed `IMPLEMENTATION_STATUS = PASS`)
+**Auditor mode:** independent of `P5_V3_IMPLEMENTATION_REPORT.md` (which claimed `IMPLEMENTATION_STATUS = PASS`)  
+**AUDIT_COMMIT:** `037ca326f87c4bfb78bdb2fac5cd0679c0f1f7d6`
 
 Not AGI. Not ACI. Not production-ready. Not live trading.  
 This audit does **not** modify production code, tests, or schemas.
