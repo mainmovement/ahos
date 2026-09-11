@@ -212,6 +212,11 @@ def reset_grant_verify_context(token: Any) -> None:
     _grant_verify_ctx.reset(token)
 
 
+def clear_grant_verify_context() -> None:
+    """Drop episode metadata. Does not select or publish production authority."""
+    _grant_verify_ctx.set(None)
+
+
 class ObservationAuthority:
     """HMAC issuer. New instance without a shared key cannot satisfy another verifier."""
 

@@ -57,6 +57,8 @@ class TypedFakeAcquisitionResult:
 class TestAcquisitionAdapter:
     """Tests-only adapter. Maps typed fake results; not a production mint RPC."""
 
+    __test__ = False
+
     def __init__(self, *, secret: bytes = TEST_VECTOR_KEY, issuer_id: str = ISSUER_ID_TEST) -> None:
         self._port = BoundIngestPort(
             ObservationAuthority(secret=secret, issuer_id=issuer_id)
@@ -102,6 +104,8 @@ class TestCognitiveOrchestrator(CognitiveOrchestrator):
     Not a production constructor. Production ``CognitiveOrchestrator`` has no
     secret=/issuer= kwargs. Isolation tests may pass distinct test secrets.
     """
+
+    __test__ = False
 
     def __init__(
         self,

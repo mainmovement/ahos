@@ -27,6 +27,7 @@ from architecture.cognitive.memory.observation import (
     ISSUER_ID,
     ISSUER_ID_TEST,
     ObservationAuthority,
+    clear_grant_verify_context,
     current_grant_verify_context,
     grant_from_payload,
     push_grant_verify_context,
@@ -36,6 +37,8 @@ from architecture.cognitive.memory.observation import (
 from architecture.cognitive.memory.record import MemoryRecord, compute_integrity_hash
 from architecture.cognitive.memory.store import CognitiveMemoryStore
 from architecture.cognitive.memory.types import (
+    ContradictionState,
+    DecayState,
     EpistemicKind,
     MemoryType,
     SourceType,
@@ -55,6 +58,13 @@ SUPPORT = "Retries after timeout reduced failures."
 Q = "Do retries after timeout reduce failures?"
 KEY_A = bytes.fromhex("c1" * 32)
 KEY_B = bytes.fromhex("c2" * 32)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_grant_verify_context() -> None:
+    clear_grant_verify_context()
+    yield
+    clear_grant_verify_context()
 
 
 def _task(**kwargs) -> CognitiveTask:
@@ -398,7 +408,12 @@ def test_l_sqlite_row_without_production_grant_rejected(tmp_path: Path) -> None:
         producer_version="t",
         domain="software",
         context="SYNTHETIC_TEST_DATA",
+        confidence=None,
+        valid_from=None,
         valid_until=NOW + 3600,
+        status=DecayState.ACTIVE.value,
+        contradiction_state=ContradictionState.UNCONTESTED.value,
+        integrity_hash="",
     )
     rec.integrity_hash = compute_integrity_hash(rec)
     conn = sqlite3.connect(str(mem.path))
@@ -534,7 +549,7 @@ def test_o_n_hop_ungranted_episode_cannot_amplify(tmp_path: Path) -> None:
         payload={"data_label": "SYNTHETIC_TEST_DATA", "verdict": "WEAKLY_SUPPORTED"},
     )
     orch = _prod(tmp_path, mem)
-    task = _task(requested_evidence=None, write_back=True)
+    task = _task(write_back=True)
     result = orch.run(task, now=NOW)
     binds = orch._bind_context(result.context, task, now=NOW)
     assert all(not b.may(ROLE_FACTUAL_PREMISE) for b in binds)
