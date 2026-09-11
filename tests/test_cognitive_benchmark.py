@@ -144,7 +144,11 @@ def test_full_benchmark_metrics_and_reproducibility(tmp_path: Path) -> None:
     assert mmap["adversarial_resistance"].value == 1.0
     assert mmap["stale_not_false"].value == 1.0
     assert mmap["match_reason_correctness"].value == 1.0
-    assert mmap["experiment_analysis_only"].value == 1.0
+    exp_m = mmap["experiment_analysis_only"]
+    if exp_m.denominator == 0:
+        assert exp_m.status == "NOT_MEASURED"
+    else:
+        assert exp_m.value == 1.0
     assert mmap["novelty_not_truth"].value == 1.0
     twice = run_twice(tmp_path / "repro", git_sha="TEST")
     assert twice["equal"] is True

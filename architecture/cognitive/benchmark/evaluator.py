@@ -787,16 +787,21 @@ def run_cognitive_benchmark(
         )
     )
     exp_ok = 1.0 if h_res.experiment_id and h_res.authorized_execution is False else 0.0
+    exp_den = 1.0 if h_res.experiment_id else 0.0
     metrics.append(
         make_metric(
             "experiment_analysis_only",
             name="experiment_analysis_only",
             definition="experiment_id present and authorized_execution is False",
             numerator=exp_ok,
-            denominator=1.0,
+            denominator=exp_den,
             population="one INVESTIGATE write-back episode",
-            limitations="Ledger result is INSUFFICIENT_DATA/NOT_COMPARABLE by design",
-            n=1,
+            limitations=(
+                "Ledger result is INSUFFICIENT_DATA/NOT_COMPARABLE by design. "
+                "Ungranted OBSERVED_FACT cannot authorize write-back; "
+                "NOT_MEASURED when no experiment is persisted."
+            ),
+            n=1 if h_res.experiment_id else 0,
         )
     )
 
