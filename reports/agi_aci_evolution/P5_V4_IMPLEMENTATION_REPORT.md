@@ -5,7 +5,7 @@
 **BASELINE_SHA:** `24b2ab8244f41d9e78582ccfc41dc4b0cf490a83`  
 **CODE_SHA:** `afdff2539943441244d05478a7004bc4bcc5976f`  
 **IMPLEMENTATION_SHA:** `afdff2539943441244d05478a7004bc4bcc5976f`  
-**REPORT_COMMIT:** `REPORT_COMMIT_PENDING`  
+**REPORT_COMMIT:** `404830bc6dfab38e7f9b96c18b4f70d5dcf0c95d`  
 **Architecture:** `P5_V4_FINAL_SECRET_BOUNDARY_DESIGN.md` (approved). Prior gate: `P5_V4_AUTHORITY_CONSTRUCTION_BOUNDARY.md`.
 
 Not AGI. Not ACI. Not production-ready. Not live trading. Not autonomous truth acquisition.  
