@@ -4,7 +4,8 @@
 **PR:** [#93](https://github.com/mainmovement/ahos/pull/93) — **DRAFT**  
 **Audited implementation SHA:** `24b2ab8244f41d9e78582ccfc41dc4b0cf490a83`  
 **Prior independent audit:** `reports/agi_aci_evolution/P5_V3_POST_IMPLEMENTATION_FORENSIC_AUDIT.md` (`FORENSIC_STATUS = FAIL`)  
-**This document does not authorize implementation.**
+**This document does not authorize implementation.**  
+**ARCHITECTURE_COMMIT:** `88d6b2a228bd9028fa7ed2fa8c71223785c064b2`
 
 Not AGI. Not ACI. Not production-ready. Not live trading.  
 Lane A and soak are not in scope. Production code, tests, and schemas are **not** modified in this turn.
