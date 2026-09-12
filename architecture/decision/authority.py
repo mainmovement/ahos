@@ -341,6 +341,7 @@ class CanonicalDecisionAuthority:
             identity = identity_resolver(candidate, ts)
         overlay = evaluate_security_from_candidate(
             candidate, now=ts, exitability=exitability,
+            identity=identity, subject_kind="TOKEN",
         )
         if exitability is None:
             try:
