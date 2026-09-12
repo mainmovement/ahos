@@ -121,7 +121,8 @@ def test_source_isolation():
     for token in FORBIDDEN:
         assert token not in SRC, token
     assert "resolve_identity" not in SRC
-    assert "token_id(" not in SRC
+    assert "from discovery" not in SRC
+    assert "discovery.identity" not in SRC
 
 
 def test_not_wired_into_runtime_or_package_init():

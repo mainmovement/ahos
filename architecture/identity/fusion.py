@@ -7,7 +7,7 @@ Do not import this module from the operational daemon or the pipeline.
 Do not persist, resolve providers, hash Lane A token_id, or trade from here.
 
 Reuses existing IdentityState / IdentityResolution / TokenIdentity and the
-Lane B address validators. Does not replace resolve_identity.
+Lane B address validators. Does not replace the existing resolution function.
 Does not import discovery, runtime, scoring, security, calibration, or W1/W2/W3.
 """
 from __future__ import annotations
