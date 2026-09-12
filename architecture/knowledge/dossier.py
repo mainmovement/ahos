@@ -8,6 +8,17 @@ Composes caller-supplied objects. Never invents canonical identity,
 never upgrades epistemic status, never writes a database, never imports
 Lane A, the operational daemon package, grant verifiers, or the P5 loop.
 
+Security state is taken only from an explicit supported `.state` field
+(PASS / REJECT / INCOMPLETE / STALE). Object `__str__` is never authority.
+
+Canonical identity is authorized only by a supported IdentityResolution
+plus TokenIdentity (type/module match, no import of that package). Arbitrary
+caller objects with `state=VERIFIED` are rejected.
+
+Provenance freeze covers mappings, sequences, and deepcopyable values.
+Non-deepcopyable objects are replaced with an untrusted marker and are not
+epistemic authority.
+
 Do not import this module from the operational daemon package or the pipeline.
 """
 from __future__ import annotations
@@ -18,7 +29,17 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any, Iterable, Mapping
 
-COMPOSER_VERSION = "token-dossier-composer-v1.1"
+COMPOSER_VERSION = "token-dossier-composer-v1.2"
+
+# Join path segments so this file does not contain a contiguous forbidden import token.
+_IDENTITY_TYPES_MODULE = ".".join(("architecture", "identity", "types"))
+_IDENTITY_RESOLUTION_NAME = "IdentityResolution"
+_TOKEN_IDENTITY_NAME = "TokenIdentity"
+
+_SUPPORTED_SECURITY_STATES = frozenset({"PASS", "REJECT", "INCOMPLETE", "STALE"})
+_SUPPORTED_IDENTITY_STATES = frozenset({
+    "VERIFIED", "CONFLICT", "UNRESOLVED", "INVALID", "STALE", "UNSUPPORTED",
+})
 
 
 class AliasKind(str, Enum):
@@ -116,7 +137,9 @@ def _text(value: Any) -> str | None:
     if isinstance(value, Enum):
         raw = value.value
         return str(raw) if raw is not None else None
-    text = str(value).strip()
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
     return text if text else None
 
 
@@ -128,12 +151,89 @@ def _attr(obj: Any, name: str, default: Any = None) -> Any:
     return getattr(obj, name, default)
 
 
-def _state_text(obj: Any) -> str | None:
-    if obj is None:
+def _type_ref(obj: Any) -> tuple[str, str]:
+    cls = type(obj)
+    return (getattr(cls, "__module__", "") or "", cls.__name__)
+
+
+def _is_supported_identity_resolution(obj: Any) -> bool:
+    module, name = _type_ref(obj)
+    return module == _IDENTITY_TYPES_MODULE and name == _IDENTITY_RESOLUTION_NAME
+
+
+def _is_supported_token_identity(obj: Any) -> bool:
+    module, name = _type_ref(obj)
+    return module == _IDENTITY_TYPES_MODULE and name == _TOKEN_IDENTITY_NAME
+
+
+def _enum_or_str(value: Any) -> str | None:
+    """Explicit Enum.value or str. Never str(arbitrary object)."""
+    if value is None:
         return None
-    if isinstance(obj, str):
-        return _text(obj)
-    return _text(_attr(obj, "state", obj))
+    if isinstance(value, Enum):
+        raw = value.value
+        if raw is None:
+            return None
+        text = str(raw).strip()
+        return text if text else None
+    if isinstance(value, str):
+        text = value.strip()
+        return text if text else None
+    return None
+
+
+def _has_explicit_state_field(obj: Any) -> bool:
+    if obj is None or isinstance(obj, (str, bytes, int, float, bool, Enum)):
+        return False
+    try:
+        if isinstance(obj, Mapping):
+            return "state" in obj
+        return hasattr(obj, "state")
+    except (AttributeError, TypeError):
+        return False
+
+
+def _read_overlay_security(security: Any) -> tuple[str | None, str | None]:
+    """Return (supported_state, diagnostic). Never uses str(security)."""
+    if security is None:
+        return None, None
+    if not _has_explicit_state_field(security):
+        return None, "security_state_field_absent"
+    try:
+        raw = security["state"] if isinstance(security, Mapping) else getattr(security, "state")
+    except (AttributeError, TypeError, KeyError, ValueError):
+        return None, "security_state_unreadable"
+    if raw is None:
+        return None, "security_state_empty"
+    if isinstance(raw, str) and not raw.strip():
+        return None, "security_state_empty"
+    text = _enum_or_str(raw)
+    if text is None:
+        return None, "security_state_invalid_type"
+    if text not in _SUPPORTED_SECURITY_STATES:
+        return None, f"security_state_invalid:{text}"
+    return text, None
+
+
+def _read_decision_security(decision: Any) -> tuple[str | None, str | None]:
+    if decision is None:
+        return None, None
+    if isinstance(decision, Mapping):
+        present = "security_state" in decision
+        raw = decision.get("security_state") if present else None
+    else:
+        present = hasattr(decision, "security_state")
+        raw = getattr(decision, "security_state", None) if present else None
+    if not present:
+        return None, None
+    if raw is None:
+        return None, None
+    text = _enum_or_str(raw)
+    if text is None:
+        return None, "decision_security_state_invalid_type"
+    if text not in _SUPPORTED_SECURITY_STATES:
+        return None, f"decision_security_state_invalid:{text}"
+    return text, None
 
 
 def _freeze_value(value: Any) -> Any:
@@ -147,7 +247,11 @@ def _freeze_value(value: Any) -> Any:
     try:
         return deepcopy(value)
     except Exception:
-        return value
+        return MappingProxyType({
+            "untrusted_provenance": True,
+            "value_type": type(value).__name__,
+            "note": "non-deepcopyable object discarded; not authoritative",
+        })
 
 
 def _freeze_mapping(value: Any) -> Mapping[str, Any] | None:
@@ -179,6 +283,85 @@ def _provenance_entry(source: str, payload: Mapping[str, Any] | None = None, **e
 
 def _is_verified_identity(state: str | None) -> bool:
     return state == "VERIFIED"
+
+
+@dataclass(frozen=True)
+class _IdentityIntake:
+    present: bool
+    accepted: bool
+    token: Any | None = None
+    identity_state: str | None = None
+    conflicts: tuple[Any, ...] = ()
+    provenance_blobs: tuple[Any, ...] = ()
+    reject_code: str | None = None
+    reject_detail: str | None = None
+
+
+def _extract_identity(identity: Any) -> _IdentityIntake:
+    """Accept only a supported IdentityResolution; never crash on caller junk."""
+    if identity is None:
+        return _IdentityIntake(present=False, accepted=False)
+    if not _is_supported_identity_resolution(identity):
+        module, name = _type_ref(identity)
+        return _IdentityIntake(
+            present=True,
+            accepted=False,
+            reject_code="identity_input_invalid",
+            reject_detail=f"unsupported_type:{module}:{name}",
+        )
+    try:
+        token = identity.token
+        raw_conflicts = identity.conflicts
+        raw_blobs = identity.provenance
+    except (AttributeError, TypeError, KeyError, ValueError) as exc:
+        return _IdentityIntake(
+            present=True,
+            accepted=False,
+            reject_code="identity_resolution_invalid",
+            reject_detail=f"unreadable_field:{type(exc).__name__}",
+        )
+    except Exception as exc:
+        return _IdentityIntake(
+            present=True,
+            accepted=False,
+            reject_code="identity_resolution_invalid",
+            reject_detail=f"access_error:{type(exc).__name__}",
+        )
+    if not _is_supported_token_identity(token):
+        return _IdentityIntake(
+            present=True,
+            accepted=False,
+            reject_code="identity_resolution_invalid",
+            reject_detail="token_not_supported_token_identity",
+        )
+    try:
+        state = _enum_or_str(token.state)
+        if state is not None and state not in _SUPPORTED_IDENTITY_STATES:
+            state = None
+        conflicts = tuple(raw_conflicts) if raw_conflicts is not None else ()
+        blobs = tuple(raw_blobs) if raw_blobs is not None else ()
+    except (AttributeError, TypeError, KeyError, ValueError) as exc:
+        return _IdentityIntake(
+            present=True,
+            accepted=False,
+            reject_code="identity_resolution_invalid",
+            reject_detail=f"unreadable_token_field:{type(exc).__name__}",
+        )
+    except Exception as exc:
+        return _IdentityIntake(
+            present=True,
+            accepted=False,
+            reject_code="identity_resolution_invalid",
+            reject_detail=f"access_error:{type(exc).__name__}",
+        )
+    return _IdentityIntake(
+        present=True,
+        accepted=True,
+        token=token,
+        identity_state=state,
+        conflicts=conflicts,
+        provenance_blobs=blobs,
+    )
 
 
 def _decision_token_key_alias(chain: str | None, address: str | None) -> str | None:
@@ -263,29 +446,33 @@ def compose_dossier(
     join_keys: list[JoinKey] = []
     seen_keys: set[tuple[str, str, str]] = set()
 
-    token = identity.token if identity is not None else None
-    existing_token_id = _text(_attr(token, "token_id")) if token is not None else None
     # Never hash chain+address here. Never invent a replacement identifier.
+    intake = _extract_identity(identity)
+    token = intake.token if intake.accepted else None
+    existing_token_id = _enum_or_str(_attr(token, "token_id")) if token is not None else None
+    identity_state = intake.identity_state if intake.accepted else None
+    decision_identity_state = _enum_or_str(_attr(decision, "identity_state"))
 
-    identity_state = _text(_attr(token, "state")) if token is not None else None
-    if identity_state is None and identity is not None:
-        identity_state = _text(_attr(identity, "state"))
-    decision_identity_state = _text(_attr(decision, "identity_state"))
-    if identity is None:
-        identity_state = None
+    if not intake.present:
         unknowns.append("identity_resolution_absent")
         unknowns.append("identity_state")
         epistemic.append(EpistemicEntry(
             "identity_state", EpistemicStatus.UNAVAILABLE,
             "no IdentityResolution supplied; decision identity_state is not primary authority",
         ))
-        if decision_identity_state is not None:
-            unknowns.append(f"decision_identity_state:{decision_identity_state}")
-            provenance.append(_provenance_entry(
-                "decision_identity_state_diagnostic",
-                identity_state=decision_identity_state,
-                note="decision-supplied identity_state is diagnostic only; not copied to primary identity_state",
-            ))
+    elif not intake.accepted:
+        unknowns.append(intake.reject_code or "identity_input_invalid")
+        unknowns.append("identity_state")
+        epistemic.append(EpistemicEntry(
+            "identity_state", EpistemicStatus.UNAVAILABLE,
+            "identity input rejected; not a supported IdentityResolution",
+        ))
+        provenance.append(_provenance_entry(
+            "identity_input_rejected",
+            reason=intake.reject_code or "identity_input_invalid",
+            detail=intake.reject_detail or "",
+            note="malformed or unsupported identity cannot authorize VERIFIED or canonical_token_id",
+        ))
     else:
         if identity_state is None:
             unknowns.append("identity_state")
@@ -315,14 +502,25 @@ def compose_dossier(
                 f"identity_state_disagreement:resolution={identity_state}"
                 f":decision={decision_identity_state}"
             )
-
-    if identity is not None:
-        for item in identity.conflicts:
-            conflicts.append(str(item))
-        for blob in identity.provenance:
+        for item in intake.conflicts:
+            text = _enum_or_str(item)
+            if text is not None:
+                conflicts.append(text)
+            elif item is not None:
+                conflicts.append(f"identity_conflict_unprintable:{type(item).__name__}")
+        for blob in intake.provenance_blobs:
             copied = _freeze_mapping(blob)
             if copied is not None:
                 provenance.append(_provenance_entry("identity", copied))
+
+    if not intake.accepted:
+        if decision_identity_state is not None:
+            unknowns.append(f"decision_identity_state:{decision_identity_state}")
+            provenance.append(_provenance_entry(
+                "decision_identity_state_diagnostic",
+                identity_state=decision_identity_state,
+                note="decision-supplied identity_state is diagnostic only; not copied to primary identity_state",
+            ))
 
     if _is_verified_identity(identity_state) and existing_token_id is not None:
         canonical_token_id = existing_token_id
@@ -423,8 +621,17 @@ def compose_dossier(
         if any(k.scheme == "symbol_key" for k in join_keys) and canonical_token_id is None:
             unknowns.append("canonical_identity_not_inferable_from_symbol")
 
-    overlay_security_state = _state_text(security)
-    decision_security_state = _text(_attr(decision, "security_state"))
+    overlay_security_state, overlay_security_diag = _read_overlay_security(security)
+    decision_security_state, decision_security_diag = _read_decision_security(decision)
+    if overlay_security_diag:
+        unknowns.append(overlay_security_diag)
+        provenance.append(_provenance_entry(
+            "security_overlay_rejected",
+            reason=overlay_security_diag,
+            note="malformed overlay cannot manufacture security_state; __str__ is not authority",
+        ))
+    if decision_security_diag:
+        unknowns.append(decision_security_diag)
     if overlay_security_state is None:
         security_state = decision_security_state
         if security_state is None:

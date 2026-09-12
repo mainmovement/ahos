@@ -742,3 +742,200 @@ def test_w11_canonical_join_key_absent_for_all_non_verified_identity_states():
             and k.value == "looks_canonical_but_unverified"
             for k in dossier.join_keys
         ), state
+
+
+# --- W1.2 boundary hardening ---
+
+class _StrPassNoState:
+    def __str__(self) -> str:
+        return "PASS"
+
+
+class _StrRejectNoState:
+    def __str__(self) -> str:
+        return "REJECT"
+
+
+def _spoofed_identity_resolution(**namespace):
+    cls = type("IdentityResolution", (), namespace)
+    cls.__module__ = ".".join(("architecture", "identity", "types"))
+    return cls()
+
+
+def _assert_no_canonical(dossier) -> None:
+    assert dossier.canonical_token_id is None
+    assert not any(k.kind is AliasKind.CANONICAL for k in dossier.join_keys)
+    assert dossier.identity_state != "VERIFIED"
+
+
+def test_w12_str_pass_without_state_is_not_security_authority():
+    dossier = compose_dossier(security=_StrPassNoState())
+    assert dossier.security_state is None
+    assert "security_state_field_absent" in dossier.unknowns
+    assert any(p.get("source") == "security_overlay_rejected" for p in dossier.provenance)
+
+
+def test_w12_str_reject_without_state_is_not_security_authority():
+    dossier = compose_dossier(security=_StrRejectNoState())
+    assert dossier.security_state is None
+    assert "security_state_field_absent" in dossier.unknowns
+
+
+def test_w12_explicit_state_pass_is_preserved():
+    dossier = compose_dossier(security=_security("PASS"))
+    assert dossier.security_state == "PASS"
+
+
+def test_w12_explicit_state_reject_is_preserved():
+    dossier = compose_dossier(security=_security("REJECT", veto_reasons=("honeypot",)))
+    assert dossier.security_state == "REJECT"
+    assert "security_veto:honeypot" in dossier.conflicts
+
+
+def test_w12_explicit_state_invalid_is_not_security_authority():
+    dossier = compose_dossier(security=_security("INVALID"))
+    assert dossier.security_state is None
+    assert any(u.startswith("security_state_invalid:") for u in dossier.unknowns)
+
+
+def test_w12_explicit_state_empty_is_not_security_authority():
+    dossier = compose_dossier(security=_security(""))
+    assert dossier.security_state is None
+    assert "security_state_empty" in dossier.unknowns
+
+
+def test_w12_explicit_state_none_is_not_security_authority():
+    dossier = compose_dossier(security=_security(None))
+    assert dossier.security_state is None
+    assert "security_state_empty" in dossier.unknowns
+
+
+def test_w12_overlay_precedence_unchanged_for_valid_contract_inputs():
+    reject_over_pass = compose_dossier(
+        security=_security("REJECT", veto_reasons=("hp",)),
+        decision=_decision(outcome="REJECT", security_state="PASS"),
+    )
+    assert reject_over_pass.security_state == "REJECT"
+    assert any("security_state_disagreement:overlay=REJECT:decision=PASS" in c
+               for c in reject_over_pass.conflicts)
+    pass_over_reject = compose_dossier(
+        security=_security("PASS"),
+        decision=_decision(outcome="REJECT", security_state="REJECT"),
+    )
+    assert pass_over_reject.security_state == "PASS"
+    assert pass_over_reject.decision_outcome == "REJECT"
+    assert any("security_state_disagreement:overlay=PASS:decision=REJECT" in c
+               for c in pass_over_reject.conflicts)
+
+
+def test_w12_fake_verified_object_with_token_id_is_not_canonical():
+    fake = SimpleNamespace(
+        state="VERIFIED",
+        token=SimpleNamespace(token_id="FORGED_ID", state="VERIFIED", chain="solana",
+                              address_canonical="X", symbol_alias="Z"),
+        conflicts=(),
+        provenance=(),
+    )
+    dossier = compose_dossier(identity=fake)
+    _assert_no_canonical(dossier)
+    assert dossier.identity_state is None
+    assert "identity_input_invalid" in dossier.unknowns
+    assert any(p.get("source") == "identity_input_rejected" for p in dossier.provenance)
+
+
+def test_w12_fake_verified_with_malformed_token_is_not_canonical():
+    fake = SimpleNamespace(state="VERIFIED", token="not-a-token", conflicts=(), provenance=())
+    dossier = compose_dossier(identity=fake)
+    _assert_no_canonical(dossier)
+    assert "identity_input_invalid" in dossier.unknowns
+
+
+def test_w12_fake_identity_missing_token_does_not_crash():
+    dossier = compose_dossier(identity=SimpleNamespace(state="VERIFIED"))
+    _assert_no_canonical(dossier)
+    assert dossier.identity_state is None
+    assert "identity_input_invalid" in dossier.unknowns
+
+
+def test_w12_fake_identity_missing_conflicts_does_not_crash():
+    dossier = compose_dossier(identity=SimpleNamespace(
+        state="VERIFIED",
+        token=SimpleNamespace(token_id="x", state="VERIFIED"),
+        provenance=(),
+    ))
+    _assert_no_canonical(dossier)
+    assert "identity_input_invalid" in dossier.unknowns
+
+
+def test_w12_fake_identity_missing_provenance_does_not_crash():
+    dossier = compose_dossier(identity=SimpleNamespace(
+        state="VERIFIED",
+        token=SimpleNamespace(token_id="x", state="VERIFIED"),
+        conflicts=(),
+    ))
+    _assert_no_canonical(dossier)
+    assert "identity_input_invalid" in dossier.unknowns
+
+
+def test_w12_identity_property_access_error_is_fail_closed():
+    boom = _spoofed_identity_resolution(
+        token=property(lambda self: (_ for _ in ()).throw(RuntimeError("hostile"))),
+        conflicts=(),
+        provenance=(),
+    )
+    dossier = compose_dossier(identity=boom)
+    _assert_no_canonical(dossier)
+    assert dossier.identity_state is None
+    assert "identity_resolution_invalid" in dossier.unknowns
+    assert any(
+        p.get("source") == "identity_input_rejected"
+        and "access_error" in str(p.get("detail"))
+        for p in dossier.provenance
+    )
+
+
+def test_w12_real_verified_identity_resolution_still_authorizes_canonical():
+    ident = _identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid")
+    dossier = compose_dossier(identity=ident)
+    assert dossier.identity_state == "VERIFIED"
+    assert dossier.canonical_token_id == "abc123canonicalid"
+    assert any(k.kind is AliasKind.CANONICAL and k.value == "abc123canonicalid" for k in dossier.join_keys)
+
+
+def test_w12_real_unresolved_identity_resolution_is_not_canonical():
+    ident = _identity(state=IdentityState.UNRESOLVED, token_id="FORGED_NOT_A_HASH")
+    dossier = compose_dossier(identity=ident)
+    assert dossier.identity_state == "UNRESOLVED"
+    _assert_no_canonical(dossier)
+
+
+def test_w12_real_conflict_identity_resolution_is_not_canonical():
+    ident = _identity(state=IdentityState.CONFLICT, token_id="FORGED_NOT_A_HASH", conflicts=("src",))
+    dossier = compose_dossier(identity=ident)
+    assert dossier.identity_state == "CONFLICT"
+    _assert_no_canonical(dossier)
+    assert "src" in dossier.conflicts
+
+
+def test_w12_empty_namespace_identity_does_not_raise():
+    dossier = compose_dossier(identity=SimpleNamespace())
+    _assert_no_canonical(dossier)
+    assert dossier.identity_state is None
+    assert "identity_input_invalid" in dossier.unknowns
+
+
+def test_w12_spoofed_resolution_with_malformed_token_is_rejected():
+    boom = _spoofed_identity_resolution(
+        token=SimpleNamespace(state="VERIFIED", token_id="FORGED_ID"),
+        conflicts=(),
+        provenance=(),
+    )
+    dossier = compose_dossier(identity=boom)
+    _assert_no_canonical(dossier)
+    assert "identity_resolution_invalid" in dossier.unknowns
+
+
+def test_w12_composer_source_has_no_contiguous_identity_import_token():
+    assert "architecture.identity" not in DOSSIER_SRC
+    assert "import hashlib" not in DOSSIER_SRC
+    assert "FACTUAL_PREMISE" not in DOSSIER_SRC
