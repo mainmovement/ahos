@@ -1,41 +1,52 @@
 # Latest Directive for Ahos cursor configuration Agent
 
-**Updated:** 2026-09-12 (Cycle 001)  
-**Status:** `PROCEED_WITH_CONSTRAINTS`  
-**Supervision run:** `bc-da96e388-c281-4c98-be23-903f12552701`
+**Updated:** 2026-09-12 (Cycle 002)  
+**Status:** `STOP` — read before any action  
+**Supervision run:** `bc-da96e388-c281-4c98-be23-903f12552701`  
+**Charter:** `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md` (binding north-star)
 
 ---
 
-## DO (الان انجام بده)
+## STOP (الان متوقف شو تا این‌ها انجام شود)
 
-1. **W2 (#95):** قبل از ادامه W4، W2 را با hardening W1.3 آماده merge کن
-2. **تست spoof:** `test_w12_dynamic_class_spoof_is_not_canonical` اضافه کن
-3. **مستندات:** `architecture/knowledge/DOSSIER.md` + ثبت در `docs/DOC_TRUTH_MAP.md`
-4. **نام تست:** `test_w12_*` → `test_w1_2_*` (جلوگیری از اشتباه audit)
-5. **fail-closed:** اختلاف security overlay/decision → conflict، نه scalar PASS
+1. **W4 (#97–#103) merge نکن** — زنجیره identity fusion جلوتر از W2 ساخته شده
+2. **PR جدید باز نکن** تا W1.3 + W2 (#95) آماده merge باشد
+3. **Charter §39:** تا اجازه صریح owner، runtime semantics / calibration / scoring consumer تغییر نده
 
-## DO NOT (انجام نده)
+## DO (بعد از STOP، به این ترتیب)
 
-1. **Lane A** (`discovery/**`, `paper_trading/**`) را ویرایش نکن
-2. **زنجیره W4 (#97–#103)** را به `main` merge نکن تا W2 + W1.3 روی main باشد
-3. ادعای `PRODUCTION_READY` / `OPERATOR_READY` / AGI/ACI تحویل‌شده نکن
-4. dossier/graph را به runtime daemon یا pipeline وصل نکن (read-model isolated)
-5. PR جدید بدون `git push` باز نکن (۳ بار fail دیده شد)
+1. **W1.3 hardening:** بستن dynamic class identity spoof
+2. **تست:** `test_w1_2_dynamic_class_spoof_is_not_canonical`
+3. **W2 (#95):** merge-ready با hardening
+4. **مستندات:** `architecture/knowledge/DOSSIER.md` + `docs/DOC_TRUTH_MAP.md`
+5. **rename:** `test_w12_*` → `test_w1_2_*`
+6. **fail-closed:** security overlay/decision disagreement → conflict
 
-## STOP conditions (اگر دیدی، کار را متوقف کن و گزارش بده)
+## DO NOT (همیشه)
+
+1. Lane A (`discovery/**`, `paper_trading/**`) — Charter §38
+2. ادعای AGI/ACI/world model تحویل‌شده — Charter §42
+3. live trading / L6+ execution — Charter §25 (فعلاً L0–L1 فقط)
+4. dossier/graph → runtime wiring
+5. PR بدون `git push`
+
+## Charter checks (هر commit)
+
+| § | سوال |
+|---|------|
+| §29 | evidence ≠ score ≠ decision؟ |
+| §38 | Lane A دست نخورده؟ |
+| §39 | soak مختل نشده؟ |
+| §42 | نام فایل = capability نیست؟ |
+| §48 | فایل جدید ≠ موفقیت — تست و evidence؟ |
+
+## STOP conditions
 
 - `freeze_lane_a.py` fail
-- `validate_imports.py` fail
-- pytest زیر 2120 passed
-- هر تغییر در `discovery/` یا `paper_trading/`
-- هر wiring مستقیم TS authority بدون `canonicalBackend`
+- pytest < 2120 passed
+- هر تغییر Lane A
+- Charter §39 violation (runtime/scoring during soak)
 
-## Authority reminders
+## Rationale
 
-- `UNKNOWN > fabricated`
-- Python Lane B = canonical decision; TS = read model only
-- Classification: `INTEGRATION_READY` — not operator-ready
-
-## Full rationale
-
-See `docs/supervision/cycles/CYCLE_001_2026-09-12.md`
+`docs/supervision/cycles/CYCLE_002_2026-09-12.md`

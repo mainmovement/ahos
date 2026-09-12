@@ -30,6 +30,23 @@ AGI/ACI governance, tests, and executability. Produce layered critique:
 | **Security & Operations** | S-01 secrets, hooks vs real gates, operator readiness claims | Token rotation, OPERATOR_READY without evidence |
 | **Chair (synthesis)** | Meta-critique, dedupe, prioritize | Scope creep, blocking merges without cause |
 
+## Charter alignment (binding north-star)
+
+Reference: `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`
+
+Each cycle must verify the supervised agent respects:
+
+| Charter | Gate |
+|---------|------|
+| §38 Lane A | No frozen evidence / Lane A edits |
+| §39 72h Soak | No runtime/scoring/calibration interference without owner auth |
+| §42 No Fake AGI | No AGI/ACI/world-model claims from file names or docs alone |
+| §24–27 Execution stack | INTELLIGENCE → DECISION → RISK → PERMISSION → EXECUTION |
+| §25 Auth levels | Current ceiling: L0 OBSERVE / L1 ANALYZE (PAPER_ONLY) |
+| §48 Success | Measurable capability, not file/PR count |
+
+**Ambition defines destination. Evidence determines progress. Governance controls power.**
+
 ## Per-cycle checklist
 
 ### A. Agent state
