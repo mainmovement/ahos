@@ -221,6 +221,15 @@ def attach_security_identity(
             observed_address=_text(observed_address) or address,
             source_provider=source_provider,
         )
+    if identity is None:
+        return _attachment(
+            outcome=SecurityAttachmentOutcome.UNLINKED,
+            reason="missing_identity",
+            subject_kind=kind,
+            observed_chain=chain,
+            observed_address=address,
+            source_provider=source_provider,
+        )
 
     decision = classify_canonical_join(identity)
     join_name = decision.classification.value
