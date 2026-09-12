@@ -19,7 +19,15 @@ import time
 import urllib.request
 import urllib.error
 from datetime import datetime
-from typing import Any, Callable
+from typing import Any, Callable, Mapping
+
+from architecture.identity.fusion import (
+    classify_gecko_new_pool_item,
+    pool_address,
+    token_address,
+)
+from architecture.identity.types import IdentityState
+from architecture.identity.validate import EVM_CHAINS
 
 from .contracts import (
     BaseMarketProvider,
@@ -29,6 +37,114 @@ from .contracts import (
     SecuritySignals,
     UNKNOWN_VALUE
 )
+
+# Gecko network id → existing validator chain. Display/request chain is unchanged.
+_GECKO_NETWORK_ALIASES = {"eth": "ethereum"}
+_GECKO_VALIDATOR_CHAINS = frozenset(EVM_CHAINS) | {"solana"}
+
+
+def _gecko_validator_chain(network: Any) -> str | None:
+    if not isinstance(network, str):
+        return None
+    key = network.strip().lower()
+    if not key:
+        return None
+    key = _GECKO_NETWORK_ALIASES.get(key, key)
+    if key not in _GECKO_VALIDATOR_CHAINS:
+        return None
+    return key
+
+
+def _gecko_included_token_attrs(payload: Any, resource_id: Any) -> Mapping[str, Any]:
+    """Display metadata only. Never used as an identity source."""
+    if not isinstance(payload, Mapping) or not isinstance(resource_id, str) or not resource_id:
+        return {}
+    included = payload.get("included")
+    if not isinstance(included, list):
+        return {}
+    for item in included:
+        if not isinstance(item, Mapping):
+            continue
+        if item.get("id") == resource_id and item.get("type") == "token":
+            attrs = item.get("attributes")
+            return attrs if isinstance(attrs, Mapping) else {}
+    return {}
+
+
+def _gecko_relationship_id(item: Mapping[str, Any], rel_name: str) -> str | None:
+    rels = item.get("relationships")
+    if not isinstance(rels, Mapping):
+        return None
+    rel = rels.get(rel_name)
+    data = rel.get("data") if isinstance(rel, Mapping) else None
+    value = data.get("id") if isinstance(data, Mapping) else None
+    return value if isinstance(value, str) and value.strip() else None
+
+
+def _gecko_new_pool_candidate(
+    item: Any,
+    *,
+    request_chain: str,
+    payload: Any,
+    raw_sha: str,
+) -> NormalizedTokenCandidate | None:
+    """Emit a BASE TOKEN candidate. Never treat the pool as the token.
+
+    Fail closed when the base-token relationship cannot be extracted and
+    validated. Pool address, provider resource id, symbol, and pool name
+    never become the token address.
+    """
+    if not isinstance(item, Mapping):
+        return None
+    req_chain = _gecko_validator_chain(request_chain)
+    if req_chain is None:
+        return None
+    classified = classify_gecko_new_pool_item(item)
+    base = classified.base_token_address
+    if base is None or not base.address:
+        return None
+    base_chain = _gecko_validator_chain(base.chain)
+    if base_chain is None or base_chain != req_chain:
+        return None
+    validated = token_address(base_chain, base.address)
+    if validated.validation_state is not IdentityState.UNRESOLVED or not validated.address:
+        return None
+    attrs = item.get("attributes") if isinstance(item.get("attributes"), Mapping) else {}
+    pool_raw = attrs.get("address")
+    if not isinstance(pool_raw, str) or not pool_raw.strip():
+        pool_raw = classified.pool_address.address if classified.pool_address else None
+    pair_address = None
+    if isinstance(pool_raw, str) and pool_raw.strip():
+        pool = pool_address(req_chain, pool_raw.strip())
+        if pool.validation_state is IdentityState.UNRESOLVED and pool.address:
+            pair_address = pool.address
+    token_attrs = _gecko_included_token_attrs(payload, _gecko_relationship_id(item, "base_token"))
+    symbol_raw = token_attrs.get("symbol")
+    symbol = symbol_raw.strip() if isinstance(symbol_raw, str) and symbol_raw.strip() else "UNKNOWN"
+    name_raw = token_attrs.get("name")
+    if isinstance(name_raw, str) and name_raw.strip():
+        name = name_raw.strip()
+    else:
+        pool_name = attrs.get("name")
+        name = pool_name.strip() if isinstance(pool_name, str) and pool_name.strip() else "Unknown Token"
+    volume = attrs.get("volume_usd") if isinstance(attrs.get("volume_usd"), Mapping) else {}
+    tok = NormalizedTokenCandidate(
+        chain=request_chain,
+        address=validated.address,
+        symbol=symbol,
+        name=name,
+        pair_address=pair_address,
+        pair_created_ts=_parse_iso_epoch(attrs.get("pool_created_at")),
+        metrics=MarketMetrics(
+            liquidity_usd=float(attrs["reserve_in_usd"]) if attrs.get("reserve_in_usd") else None,
+            volume_24h=float(volume["h24"]) if volume.get("h24") else None,
+        ),
+        source_provider="geckoterminal",
+        retrieved_ts=time.time(),
+        raw_payload_sha256=raw_sha,
+    )
+    tok.identify_unknowns()
+    return tok
 
 
 def _sha(raw: bytes | str) -> str:
@@ -279,26 +395,16 @@ class GeckoTerminalAdapter(BaseHttpProviderAdapter):
                 raw = resp.read()
                 status_code = resp.status
             data = json.loads(raw)
-            pools = data.get("data") or []
+            raw_items = data.get("data") if isinstance(data, Mapping) else None
+            pools = raw_items if isinstance(raw_items, list) else []
             tokens = []
+            raw_sha = _sha(raw)
             for pool in pools[:limit]:
-                attrs = pool.get("attributes", {})
-                tok = NormalizedTokenCandidate(
-                    chain=chain,
-                    address=attrs.get("address", ""),
-                    symbol=attrs.get("name", "").split("/")[0].strip(),
-                    name=attrs.get("name", "Pool"),
-                    pair_address=pool.get("id", ""),
-                    pair_created_ts=_parse_iso_epoch(attrs.get("pool_created_at")),
-                    metrics=MarketMetrics(
-                        liquidity_usd=float(attrs.get("reserve_in_usd") or 0) if attrs.get("reserve_in_usd") else None,
-                        volume_24h=float(attrs.get("volume_usd", {}).get("h24") or 0) if attrs.get("volume_usd") else None
-                    ),
-                    source_provider="geckoterminal",
-                    retrieved_ts=time.time(),
-                    raw_payload_sha256=_sha(raw)
+                tok = _gecko_new_pool_candidate(
+                    pool, request_chain=chain, payload=data, raw_sha=raw_sha
                 )
-                tok.identify_unknowns()
+                if tok is None:
+                    continue
                 tokens.append(tok)
             return ProviderResponse(
                 provider_id="geckoterminal",
