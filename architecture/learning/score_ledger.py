@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS opportunity_score_ledger (
   source             TEXT NOT NULL DEFAULT 'sandbox',  -- local|sandbox|test|synthetic
   chain              TEXT NOT NULL,
   token_address      TEXT NOT NULL,
-  token_id           TEXT,             -- canonical Lane-A identity (join key)
+  token_id           TEXT,             -- canonical join key only when W4 permits
   symbol             TEXT,
   opportunity_score  REAL NOT NULL,
   confidence_level   TEXT NOT NULL,    -- HIGH | MED | LOW
@@ -234,18 +234,25 @@ def weights_fingerprint() -> str:
         return f"UNKNOWN:{type(e).__name__}"
 
 
-def _canonical_token_id(chain: str, address: str) -> str | None:
-    """Canonical Lane-A token identity, so predictions join to outcome labels.
+def ledger_canonical_token_id(identity: Any) -> str | None:
+    """Copy token_id only when W4 classify_canonical_join permits CANONICAL_JOIN.
 
-    Lane-A is imported READ-ONLY (a pure function); nothing here mutates it.
-    An unmappable chain yields None rather than an invented id -- a wrong join
-    key would silently attach a prediction to the wrong token's outcome.
+    chain+address, symbol, CanonicalTokenId wrappers, and raw token_id strings
+    are not authority. None means operational/unresolved: do not invent a key.
     """
-    try:
-        from discovery.identity import token_id
-        return token_id(chain, address)
-    except Exception:
+    from architecture.identity.join import JoinClass, classify_canonical_join
+    from architecture.identity.types import IdentityResolution
+
+    decision = classify_canonical_join(identity)
+    if decision.classification is not JoinClass.CANONICAL_JOIN:
         return None
+    if not isinstance(identity, IdentityResolution):
+        return None
+    tid = getattr(getattr(identity, "token", None), "token_id", None)
+    if not isinstance(tid, str):
+        return None
+    tid = tid.strip()
+    return tid or None
 
 
 class ScoreLedger:
@@ -288,7 +295,8 @@ class ScoreLedger:
 
     def build_record(self, report: Any, *, run_id: str | None = None,
                      now: float | None = None,
-                     source: str | None = None) -> ScoreRecord:
+                     source: str | None = None,
+                     identity: Any = None) -> ScoreRecord:
         """Project an OpportunityScoreReport onto a ledger record.
 
         Duck-typed on purpose: the ledger must not import the scoring engine
@@ -334,12 +342,13 @@ class ScoreLedger:
                 f"{SCORING_ENGINE_VERSION}:{run_id or ''}")
         score_id = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
 
+        bound = identity if identity is not None else getattr(report, "identity", None)
         return ScoreRecord(
             score_id=score_id,
             scored_ts=ts,
             chain=chain,
             token_address=address,
-            token_id=_canonical_token_id(chain, address),
+            token_id=ledger_canonical_token_id(bound),
             symbol=str(getattr(report, "token_symbol", "") or "") or None,
             run_id=run_id,
             source=row_source,
@@ -363,17 +372,25 @@ class ScoreLedger:
 
     def record(self, report: Any, *, run_id: str | None = None,
                now: float | None = None,
-               source: str | None = None) -> ScoreRecord | None:
+               source: str | None = None,
+               identity: Any = None) -> ScoreRecord | None:
         """Persist one prediction. Returns None if the write failed."""
-        rec = self.build_record(report, run_id=run_id, now=now, source=source)
+        rec = self.build_record(
+            report, run_id=run_id, now=now, source=source, identity=identity,
+        )
         return rec if self._insert([rec]) == 1 else None
 
     def record_many(self, reports: list[Any], *, run_id: str | None = None,
                     now: float | None = None,
-                    source: str | None = None) -> int:
+                    source: str | None = None,
+                    identities: list[Any] | None = None) -> int:
         """Persist a batch of predictions. Returns the number written."""
-        records = [self.build_record(r, run_id=run_id, now=now, source=source)
-                   for r in reports]
+        records = []
+        for i, report in enumerate(reports):
+            bound = identities[i] if identities is not None and i < len(identities) else None
+            records.append(self.build_record(
+                report, run_id=run_id, now=now, source=source, identity=bound,
+            ))
         return self._insert(records)
 
     def _insert(self, records: list[ScoreRecord]) -> int:
