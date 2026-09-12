@@ -41,7 +41,9 @@ class AlertEngine:
                              canonical: CanonicalDecision | None = None) -> list[Alert]:
         alerts: list[Alert] = []
         ts = time.time() if now is None else now
-        security = evaluate_security_from_candidate(candidate, now=ts)
+        security = evaluate_security_from_candidate(
+            candidate, now=ts, identity=identity, subject_kind="TOKEN",
+        )
         if canonical is None:
             canonical = CanonicalDecisionAuthority().decide(
                 candidate, report, identity=identity, now=ts,

@@ -14,6 +14,10 @@ from typing import Any
 
 from architecture.providers.contracts import SecuritySignals
 from architecture.security.gate import evaluate_security
+from architecture.security.identity_join import (
+    SecurityAttachment,
+    overlay_attachment_for_item,
+)
 
 
 def _tri(value: Any) -> bool | None:
@@ -73,6 +77,7 @@ def overlay_state_for_item(item: dict[str, Any], *, now: float) -> str:
 
 
 def run(payload: dict[str, Any], *, now: float | None = None) -> dict[str, str]:
+    """Operational tokenKey → overlay.state. tokenKey is never canonical identity."""
     ts = float(now) if now is not None else time.time()
     out: dict[str, str] = {}
     tokens = payload.get("tokens") if isinstance(payload, dict) else None
@@ -84,8 +89,21 @@ def run(payload: dict[str, Any], *, now: float | None = None) -> dict[str, str]:
         key = item.get("tokenKey") or item.get("token_key")
         if not key:
             continue
+        # Operational lookup key only. Never treat as canonical attachment.
         out[str(key)] = overlay_state_for_item(item, now=ts)
     return out
+
+
+def attachment_for_overlay_item(
+    item: dict[str, Any],
+    *,
+    identity: Any = None,
+    subject_kind: str | None = None,
+) -> SecurityAttachment:
+    """Classify canonical attachment for an overlay item. tokenKey is not authority."""
+    return overlay_attachment_for_item(
+        item, identity=identity, subject_kind=subject_kind,
+    )
 
 
 def main() -> int:
