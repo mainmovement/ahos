@@ -263,6 +263,56 @@ TS Command Center / Telegram gateway (fail-closed)
 
 ---
 
+## Readiness model (8 states — do not conflate)
+
+```
+DESIGNED → IMPLEMENTED → TESTED → VALIDATED → INTEGRATED → OPERATIONAL → PRODUCTION_READY → LAUNCH_READY
+```
+
+| Upgrade | Minimum evidence |
+|---------|------------------|
+| IMPLEMENTED | Code merged on intended branch |
+| TESTED | Targeted pytest/selftest pass with artifact |
+| VALIDATED | Real-data or operator scenario proof |
+| INTEGRATED | End-to-end path with adjacent subsystem |
+| OPERATIONAL | Live or soak-attested behavior |
+| PRODUCTION_READY | G5 pass + human sign-off |
+| LAUNCH_READY | G6 pass + all launch blockers closed |
+
+Fail-closed: gap or UNKNOWN → no upgrade.
+
+---
+
+## Milestone gates (G0–G6)
+
+| Gate | Question | Baseline (2026-09-12) |
+|------|----------|------------------------|
+| **G0** | Vision/truth aligned? | PARTIAL — truth model v1.0 |
+| **G1** | Architecture integrity? | PASS (caveats: dual-stack TS) |
+| **G2** | Core engineering? | PASS stale — re-verify HEAD |
+| **G3** | Integration? | FAIL — W2, Telegram live |
+| **G4** | Operational readiness? | FAIL — soak, Windows |
+| **G5** | Security/reliability? | PARTIAL — S-01 open |
+| **G6** | Launch ready? | FAIL |
+
+Gate reviews: `docs/supervision/gates/GATE_GN_YYYYMMDD.md`
+
+---
+
+## Current safety locks (owner 2026-09-12)
+
+Until explicitly updated with evidence:
+
+- Lane A: **do not touch**
+- PR #103: **do not merge**
+- W4 Slice 8: **do not start**
+- No new identity authority / historical mapping
+- No readiness inflation
+- No fixture-only patches
+- No aesthetic-only architecture changes
+
+---
+
 ## Launch requirements (evidence-gated)
 
 A capability is **OPERATIONAL** only with linked artifacts. Launch blockers:

@@ -1,102 +1,74 @@
-# BUILD AGENT DIRECTIVE — Independent Oversight Council
+# BUILD AGENT DIRECTIVE — Oversight Council v2
 
-**Updated:** 2026-09-12 Cycle 004  
-**Council status:** ACTIVE — Master Understanding Phase complete (v1.0)  
-**Build agent:** Ahos cursor configuration — **RUNNING**  
+**Updated:** 2026-09-12 Cycle 005 (Architecture v2)  
+**STATUS:** `FIX_BEFORE_CONTINUE`  
+**Architecture:** `docs/supervision/SUPERVISION_ARCHITECTURE.md`  
 **Truth model:** `docs/supervision/AHOS_PROJECT_TRUTH_MODEL.md`  
-**Owner vision:** `docs/supervision/OWNER_VISION_REGISTRY.md`
+**Baseline:** `docs/supervision/cycles/BASELINE_AUDIT_2026-09-12.md`
 
 ---
 
-## COUNCIL DECISION: BEST PATH (single route)
+## PRE-FLIGHT required (before any material change)
 
 ```
-W1.3 → W2 merge → W4 rebase (≤3 PRs) → P1 (chat/telegram/alerts/contracts) → P2 UX waves → soak (owner)
+Intended change | Authority surface | Reason | Expected behavior | Risks | Test plan
+```
+
+## POST-FLIGHT required (after)
+
+```
+Actual diff | Tests | Evidence artifacts | Unknowns | New risks
 ```
 
 ---
 
-## BLOCK (stop if attempting)
+## OWNER SAFETY LOCKS (§20 — BLOCK until council updates)
 
 | ID | Rule |
 |----|------|
-| B1 | Merge W4 (#97–#103) before W2 (#95) on `main` |
-| B2 | Commit secrets (Telegram token — rotate S-01) |
-| B3 | Edit Lane A (`discovery/**`, `paper_trading/**`) |
-| B4 | Live trading / L6+ execution |
-| B5 | Runtime/scoring/calibration changes during active soak (Charter §39) |
-| B6 | Claim AGI/ACI/PRODUCTION_READY/OPERATOR_READY |
-| B7 | One mega-PR mixing W4 + UI + Telegram + 3D |
-| B8 | Wire orphan 3D trees to Command Center |
+| S20-1 | Lane A — **DO NOT** touch |
+| S20-2 | W4 Slice 7 — hold current state |
+| S20-3 | **DO NOT merge PR #103** |
+| S20-4 | **DO NOT start Slice 8** |
+| S20-5 | No new identity authority |
+| S20-6 | No historical mapping |
+| S20-7 | No readiness upgrade claims |
+| S20-8 | No fixture patch to fake green |
+| S20-9 | No aesthetic-only architecture |
 
 ---
 
-## FIX BEFORE CONTINUE
+## DO (priority order)
 
-| ID | Task | Skill | Evidence required |
-|----|------|-------|-------------------|
-| F1 | W1.3 identity spoof hardening | `ahos-token-identity` | new adversarial test |
-| F2 | Merge W2 (#95) to main | `ahos-domain-backend` | 94 tests pass |
-| F3 | DOSSIER.md + DOC_TRUTH_MAP entry | `ahos-governance-context` | doc PR |
-| F4 | Rebase W4 stack → ≤3 PRs | `ahos-token-identity` | clean diff |
-| F5 | Security scalar conflict fail-closed | `ahos-security-analysis` | test |
+| ID | Task |
+|----|------|
+| D1 | W1.3 identity spoof hardening + test |
+| D2 | Merge W2 (#95) to main |
+| D3 | DOSSIER.md + DOC_TRUTH_MAP |
+| D4 | POST-FLIGHT report per PR |
 
----
+## DO_NOT
 
-## DO (after FIX items)
+- Merge #103, start Slice 8, expand W4 without council review
+- Secrets in git; live trading; AGI/ACI claims
+- Mega-PR; orphan 3D tree wiring
 
-| ID | Task | Skill |
-|----|------|-------|
-| D1 | Chat FA/EN via gateway (not second brain) | `ahos-web-experience` |
-| D2 | Telegram Sun Sniper — `.env` only | `ahos-domain-backend` |
-| D3 | Alerts: overlay PASS + `alerts_allowed` + sound | `ahos-web-experience` |
-| D4 | Contract address: canonical VERIFIED only | `ahos-token-identity` |
-| D5 | E2E artifacts per wave | `ahos-change-verification` |
+## BLOCK
 
----
-
-## DO NOT
-
-- TS independent BUY without `canonicalBackend`
-- Fixture-only proof as "live verified"
-- PR without push
-- `test_w12_*` naming (use `test_w1_2_*`)
-- Skip `freeze_lane_a.py` + pytest before PR
-
----
+PR #103 merge · Slice 8 · Lane A · readiness inflation · soak interference
 
 ## MONITOR
 
-- Dual-stack TS scoring drift
-- P5 governance MERGE=NO vs code on main — **ask human**
-- Build agent RUNNING — report progress each PR
+Agent IDLE stall — wake if no progress by next L2 cycle
+
+## ESCALATE_TO_HUMAN
+
+- P5 MERGE=NO vs main code conflict
+- Token rotation (S-01)
+- Windows soak start
 
 ---
 
-## MODELS
+## Launch filter
 
-| Work | Model |
-|------|-------|
-| Architecture/security/identity | Opus 5 High / GPT-5.6 Sol High |
-| Implementation | Sonnet 5 High / Composer 2.5 |
-| Mechanical | Grok 4.6 High Fast |
-
----
-
-## REPORT FORMAT (each PR)
-
-```
-Problem / What / Tests run / Artifacts / Phase status / Risks
-```
-
-Council reviews against `AHOS_PROJECT_TRUTH_MODEL.md` five-state model.
-
----
-
-## HUMAN REQUIRED
-
-- Telegram token rotation (S-01)
-- Windows G1–G10 operator gate
-- Soak start authorization
-- CI GitHub App permission (M-GAP-004)
-- P5 merge governance decision
+> Does this move AHOS one **real** step toward trustworthy Launch?

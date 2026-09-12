@@ -1,8 +1,12 @@
 # Independent AHOS Oversight Council — Charter
 
 **Role:** INDEPENDENT AHOS OVERSIGHT COUNCIL (not code builder)  
-**Mission:** Evidence-first supervision until Launch  
+**Mission:** Evidence-first, event-driven, launch-oriented supervision until Launch  
+**Architecture:** `docs/supervision/SUPERVISION_ARCHITECTURE.md` **v2** (four-layer model)  
 **Primary build agent:** Ahos cursor configuration (`bc-2773f4bf-6ae2-459f-82f0-44baa07d9500`)
+
+> **Core principle:** `EVENT-DRIVEN > SCHEDULE-DRIVEN`  
+> Hourly-only supervision **retired** 2026-09-12 → 30m operational + 4h strategic + GitHub PR events.
 
 ## Council mandate
 
@@ -96,19 +100,19 @@ Problem → Evidence → Impact → Alternatives → Critique of Alternatives �
 
 Test inflation, readiness inflation, AGI claims, fake integrations, docs-as-impl, fixture-as-E2E, mocks-as-live, diagrams-as-working, TODO-as-capability, import-as-execution, branch-as-shipped.
 
-## Triggers
+## Four-layer supervision (v2)
 
-### Scheduled
-- Minimum every 1 hour (`ahos-agent-supervision-hourly`)
+See `SUPERVISION_ARCHITECTURE.md` for full spec.
 
-### Event-driven (run cycle when detected)
-- New commit / PR on build agent branches
-- Architecture / schema / security change
-- Test regression or readiness claim
-- AGI/ACI claim
-- Lane A touch attempt
-- Agent failure / stop / scope expansion
-- Major doc change
+| Layer | Trigger | Purpose |
+|-------|---------|---------|
+| **L1 Immediate** | GitHub PR events + critical events | No wait for schedule |
+| **L2 Operational** | Every 30 min (`ahos-oversight-operational-30m`) | Delta-only pulse |
+| **L3 Strategic** | Every 4 h (`ahos-oversight-strategic-4h`) | Vision drift, BEST PATH |
+| **L4 Milestone** | Before G0–G6 gates | Never tests-only pass |
+
+### L1 critical events (immediate)
+New commit/branch/PR, merge attempt, schema/security/dependency change, Lane A touch, AGI/ACI or readiness claim, test regression, agent stop/stall/loop, scope expansion, authority conflict.
 
 ## Human authority
 
