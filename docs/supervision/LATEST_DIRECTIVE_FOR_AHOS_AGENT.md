@@ -1,10 +1,11 @@
 # BUILD AGENT DIRECTIVE — Oversight Council v2
 
-**Updated:** 2026-09-12 Cycle 005 (Architecture v2)  
-**STATUS:** `FIX_BEFORE_CONTINUE`  
-**Architecture:** `docs/supervision/SUPERVISION_ARCHITECTURE.md`  
-**Truth model:** `docs/supervision/AHOS_PROJECT_TRUTH_MODEL.md`  
-**Baseline:** `docs/supervision/cycles/BASELINE_AUDIT_2026-09-12.md`
+**Updated:** 2026-09-12 — post Vision Alignment Audit  
+**Council STATUS:** `MONITOR`  
+**Build agent STATUS:** `FIX_BEFORE_CONTINUE` (Phase 1 only when resumed)  
+**Vision audit:** `docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md` ← **authority for WHAT TO BUILD**  
+**Architecture:** `docs/supervision/SUPERVISION_ARCHITECTURE.md` (v2 unchanged)  
+**Truth model:** `docs/supervision/AHOS_PROJECT_TRUTH_MODEL.md`
 
 ---
 
@@ -38,7 +39,7 @@ Actual diff | Tests | Evidence artifacts | Unknowns | New risks
 
 ---
 
-## DO (priority order)
+## DO (Vision-audit path — Phase 1 only)
 
 | ID | Task |
 |----|------|
@@ -46,6 +47,8 @@ Actual diff | Tests | Evidence artifacts | Unknowns | New risks
 | D2 | Merge W2 (#95) to main |
 | D3 | DOSSIER.md + DOC_TRUTH_MAP |
 | D4 | POST-FLIGHT report per PR |
+
+**Phase 2 (P1 chat/TG/alerts)** — ALLOW only after D1–D2 complete. See Vision Audit §11 FINAL BEST PATH.
 
 ## DO_NOT
 

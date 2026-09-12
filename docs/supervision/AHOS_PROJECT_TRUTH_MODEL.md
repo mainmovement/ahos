@@ -1,9 +1,10 @@
 # AHOS Project Truth Model
 
 **Maintained by:** Independent AHOS Oversight Council  
-**Version:** 1.0 (initial master understanding)  
+**Version:** 1.1 (post Vision Alignment Audit)  
 **Date:** 2026-09-12  
 **Status:** Living document — updated each supervision cycle  
+**Vision audit:** `docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md` (foundation for directives)  
 **Authority:** Supervisory model only. Does **not** override `docs/DOC_TRUTH_MAP.md`, `MASTER_DIRECTIVE_v1`, or `AGENTS.md`. Conflicts are reported, not silently resolved.
 
 ---
