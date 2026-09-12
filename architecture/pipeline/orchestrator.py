@@ -221,9 +221,13 @@ class OpportunityPipelineOrchestrator:
         #     score is written down at the moment it is made. A ledger failure
         #     is counted and logged but never aborts a collection cycle.
         scores_persisted = 0
-        if self.score_ledger is not None and reports:
+        if self.score_ledger is not None and decided:
             scores_persisted = self.score_ledger.record_many(
-                reports, run_id=trace_ctx.run_id, now=t0)
+                [rep for _cand, rep, _dec in decided],
+                identities=[dec.identity for _cand, _rep, dec in decided],
+                run_id=trace_ctx.run_id,
+                now=t0,
+            )
 
         # 3. Evaluate Alerts — canonical BUY required for OPPORTUNITY class
         emitted_alerts: list[Alert] = []
