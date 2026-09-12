@@ -474,8 +474,15 @@ def test_adversarial_missing_identity_plus_complete_score():
         decision=_decision(outcome="WATCH", identity_state="VERIFIED"),
     )
     assert dossier.canonical_token_id is None
+    assert dossier.identity_state is None
     assert "identity_resolution_absent" in dossier.unknowns
-    assert dossier.identity_state == "VERIFIED"  # copied from decision, marked UNAVAILABLE
+    assert "identity_state" in dossier.unknowns
+    assert any(u == "decision_identity_state:VERIFIED" for u in dossier.unknowns)
+    assert any(
+        p.get("source") == "decision_identity_state_diagnostic"
+        and p.get("identity_state") == "VERIFIED"
+        for p in dossier.provenance
+    )
     id_ep = next(e for e in dossier.epistemic_map if e.field == "identity_state")
     assert id_ep.status is EpistemicStatus.UNAVAILABLE
     assert not any(k.kind is AliasKind.CANONICAL for k in dossier.join_keys)
@@ -563,3 +570,175 @@ def test_knowledge_init_does_not_export_dossier():
     import architecture.knowledge as knowledge_pkg
     assert not hasattr(knowledge_pkg, "compose_dossier")
     assert not hasattr(knowledge_pkg, "TokenDossier")
+
+
+# --- W1.1 fail-closed hardening ---
+
+_NON_VERIFIED_STATES = (
+    IdentityState.UNRESOLVED,
+    IdentityState.CONFLICT,
+    IdentityState.INVALID,
+    IdentityState.STALE,
+    IdentityState.UNSUPPORTED,
+)
+
+
+def test_w11_forged_token_id_plus_unresolved_is_not_canonical():
+    ident = _identity(state=IdentityState.UNRESOLVED, token_id="FORGED_NOT_A_HASH")
+    dossier = compose_dossier(identity=ident)
+    assert dossier.identity_state == "UNRESOLVED"
+    assert dossier.canonical_token_id is None
+    assert not any(k.kind is AliasKind.CANONICAL for k in dossier.join_keys)
+    assert any(
+        k.kind is AliasKind.OPERATIONAL
+        and k.scheme == "unvalidated_token_id"
+        and k.value == "FORGED_NOT_A_HASH"
+        for k in dossier.join_keys
+    )
+    assert "canonical_token_id" in dossier.unknowns
+
+
+def test_w11_missing_identity_plus_decision_verified_does_not_fill_primary():
+    dossier = compose_dossier(
+        identity=None,
+        decision=_decision(outcome="WATCH", identity_state="VERIFIED"),
+    )
+    assert dossier.identity_state is None
+    assert dossier.canonical_token_id is None
+    assert "identity_resolution_absent" in dossier.unknowns
+    assert any(u == "decision_identity_state:VERIFIED" for u in dossier.unknowns)
+    assert any(
+        p.get("source") == "decision_identity_state_diagnostic"
+        and p.get("identity_state") == "VERIFIED"
+        for p in dossier.provenance
+    )
+    assert not any(k.kind is AliasKind.CANONICAL for k in dossier.join_keys)
+
+
+def test_w11_missing_identity_plus_decision_buy_does_not_create_identity():
+    dossier = compose_dossier(
+        identity=None,
+        decision=_decision(outcome="BUY", identity_state="VERIFIED"),
+    )
+    assert dossier.identity_state is None
+    assert dossier.decision_outcome == "BUY"
+    assert dossier.canonical_token_id is None
+    assert "identity_resolution_absent" in dossier.unknowns
+    assert not any(k.kind is AliasKind.CANONICAL for k in dossier.join_keys)
+
+
+def test_w11_overlay_reject_plus_decision_pass_preserves_both():
+    dossier = compose_dossier(
+        security=_security("REJECT", veto_reasons=("honeypot",)),
+        decision=_decision(outcome="REJECT", security_state="PASS"),
+    )
+    assert dossier.security_state == "REJECT"
+    assert dossier.decision_outcome == "REJECT"
+    assert any("security_state_disagreement:overlay=REJECT:decision=PASS" in c for c in dossier.conflicts)
+    assert "security_veto:honeypot" in dossier.conflicts
+    assert any(
+        p.get("source") == "security_state_disagreement"
+        and p.get("overlay_security_state") == "REJECT"
+        and p.get("decision_security_state") == "PASS"
+        and p.get("effective_security_state") == "REJECT"
+        for p in dossier.provenance
+    )
+
+
+def test_w11_overlay_pass_plus_decision_reject_preserves_both():
+    dossier = compose_dossier(
+        security=_security("PASS"),
+        decision=_decision(outcome="REJECT", security_state="REJECT"),
+    )
+    assert dossier.security_state == "PASS"
+    assert dossier.decision_outcome == "REJECT"
+    assert any("security_state_disagreement:overlay=PASS:decision=REJECT" in c for c in dossier.conflicts)
+    assert any(
+        p.get("source") == "security_state_disagreement"
+        and p.get("overlay_security_state") == "PASS"
+        and p.get("decision_security_state") == "REJECT"
+        and p.get("effective_security_state") == "PASS"
+        for p in dossier.provenance
+    )
+
+
+def test_w11_nested_provenance_mutation_is_isolated_both_directions():
+    nested = {"retrieved_ts": 1.0, "inner": {"k": "v"}}
+    caller_blob = {"provider": "gecko", "nested": nested}
+    decision_nested = {"trace": {"id": "t1"}}
+    ident = _identity(
+        state=IdentityState.VERIFIED,
+        token_id="abc123canonicalid",
+        provenance=(caller_blob,),
+    )
+    decision = _decision(outcome="WATCH", provenance={"nested": decision_nested, "step": "decide"})
+    dossier = compose_dossier(identity=ident, decision=decision)
+
+    nested["retrieved_ts"] = 999
+    nested["inner"]["k"] = "mutated"
+    caller_blob["provider"] = "forged"
+    decision_nested["trace"]["id"] = "mutated"
+    decision.provenance["step"] = "mutated"
+
+    id_prov = next(p for p in dossier.provenance if p.get("source") == "identity")
+    dec_prov = next(p for p in dossier.provenance if p.get("source") == "decision")
+    assert id_prov["provider"] == "gecko"
+    assert id_prov["nested"]["retrieved_ts"] == 1.0
+    assert id_prov["nested"]["inner"]["k"] == "v"
+    assert dec_prov["nested"]["trace"]["id"] == "t1"
+    assert dec_prov["step"] == "decide"
+
+    raised = False
+    try:
+        id_prov["provider"] = "from_dossier"
+    except (TypeError, AttributeError):
+        raised = True
+    try:
+        id_prov["nested"]["inner"]["k"] = "from_dossier"  # type: ignore[index]
+    except (TypeError, AttributeError):
+        raised = True
+    assert raised
+    assert caller_blob["provider"] == "forged"
+    assert nested["inner"]["k"] == "mutated"
+
+    exported = dossier.as_dict()
+    exported["provenance"][0]["provider"] = "from_export"
+    exported["provenance"][0]["nested"]["inner"]["k"] = "from_export"
+    id_after = next(p for p in dossier.provenance if p.get("source") == "identity")
+    assert id_after["provider"] == "gecko"
+    assert id_after["nested"]["inner"]["k"] == "v"
+    assert caller_blob["provider"] == "forged"
+    assert nested["inner"]["k"] == "mutated"
+
+
+def test_w11_conflict_identity_plus_buy_does_not_create_canonical():
+    dossier = compose_dossier(
+        identity=_identity(
+            state=IdentityState.CONFLICT,
+            token_id="looks_like_a_hash",
+            conflicts=("source_disagreement",),
+        ),
+        decision=_decision(outcome="BUY", identity_state="VERIFIED"),
+    )
+    assert dossier.identity_state == "CONFLICT"
+    assert dossier.decision_outcome == "BUY"
+    assert dossier.canonical_token_id is None
+    assert not any(k.kind is AliasKind.CANONICAL for k in dossier.join_keys)
+    assert "source_disagreement" in dossier.conflicts
+    assert any("identity_state_disagreement" in c for c in dossier.conflicts)
+
+
+def test_w11_canonical_join_key_absent_for_all_non_verified_identity_states():
+    for state in _NON_VERIFIED_STATES:
+        dossier = compose_dossier(
+            identity=_identity(state=state, token_id="looks_canonical_but_unverified"),
+        )
+        assert dossier.identity_state == state.value, state
+        assert dossier.canonical_token_id is None, state
+        assert not any(k.kind is AliasKind.CANONICAL for k in dossier.join_keys), state
+        assert any(
+            k.kind is AliasKind.OPERATIONAL
+            and k.scheme == "unvalidated_token_id"
+            and k.value == "looks_canonical_but_unverified"
+            for k in dossier.join_keys
+        ), state

@@ -12,11 +12,13 @@ Do not import this module from the operational daemon package or the pipeline.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
+from types import MappingProxyType
 from typing import Any, Iterable, Mapping
 
-COMPOSER_VERSION = "token-dossier-composer-v1"
+COMPOSER_VERSION = "token-dossier-composer-v1.1"
 
 
 class AliasKind(str, Enum):
@@ -76,7 +78,7 @@ class TokenDossier:
     epistemic_map: tuple[EpistemicEntry, ...]
     conflicts: tuple[str, ...]
     unknowns: tuple[str, ...]
-    provenance: tuple[dict[str, Any], ...]
+    provenance: tuple[Mapping[str, Any], ...]
     composed_at: float | None
     claims: tuple[ClaimRecord, ...]
     composer_version: str = COMPOSER_VERSION
@@ -92,7 +94,7 @@ class TokenDossier:
             "epistemic_map": [e.as_dict() for e in self.epistemic_map],
             "conflicts": list(self.conflicts),
             "unknowns": list(self.unknowns),
-            "provenance": [dict(p) for p in self.provenance],
+            "provenance": [_deep_plain(p) for p in self.provenance],
             "composed_at": self.composed_at,
             "claims": [
                 {
@@ -134,12 +136,49 @@ def _state_text(obj: Any) -> str | None:
     return _text(_attr(obj, "state", obj))
 
 
-def _copy_mapping(value: Any) -> dict[str, Any] | None:
+def _freeze_value(value: Any) -> Any:
+    """Detach and freeze nested containers so provenance cannot alias caller data."""
+    if isinstance(value, Mapping):
+        return MappingProxyType({str(k): _freeze_value(value[k]) for k in value})
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_value(v) for v in value)
+    if isinstance(value, set):
+        return frozenset(_freeze_value(v) for v in value)
+    try:
+        return deepcopy(value)
+    except Exception:
+        return value
+
+
+def _freeze_mapping(value: Any) -> Mapping[str, Any] | None:
     if value is None:
         return None
+    if not isinstance(value, Mapping):
+        return None
+    return MappingProxyType({str(k): _freeze_value(value[k]) for k in value})
+
+
+def _deep_plain(value: Any) -> Any:
     if isinstance(value, Mapping):
-        return {str(k): value[k] for k in value}
-    return None
+        return {str(k): _deep_plain(value[k]) for k in value}
+    if isinstance(value, (list, tuple)):
+        return [_deep_plain(v) for v in value]
+    return value
+
+
+def _provenance_entry(source: str, payload: Mapping[str, Any] | None = None, **extra: Any) -> Mapping[str, Any]:
+    data: dict[str, Any] = {"source": source}
+    if payload is not None:
+        for key in payload:
+            data[str(key)] = payload[key]
+    data.update(extra)
+    frozen = _freeze_mapping(data)
+    assert frozen is not None
+    return frozen
+
+
+def _is_verified_identity(state: str | None) -> bool:
+    return state == "VERIFIED"
 
 
 def _decision_token_key_alias(chain: str | None, address: str | None) -> str | None:
@@ -220,31 +259,32 @@ def compose_dossier(
     conflicts: list[str] = []
     unknowns: list[str] = []
     epistemic: list[EpistemicEntry] = []
-    provenance: list[dict[str, Any]] = []
+    provenance: list[Mapping[str, Any]] = []
     join_keys: list[JoinKey] = []
     seen_keys: set[tuple[str, str, str]] = set()
 
     token = identity.token if identity is not None else None
     existing_token_id = _text(_attr(token, "token_id")) if token is not None else None
-    # Preserve only. Never hash chain+address here.
-    canonical_token_id = existing_token_id
+    # Never hash chain+address here. Never invent a replacement identifier.
 
     identity_state = _text(_attr(token, "state")) if token is not None else None
     if identity_state is None and identity is not None:
         identity_state = _text(_attr(identity, "state"))
     decision_identity_state = _text(_attr(decision, "identity_state"))
     if identity is None:
+        identity_state = None
+        unknowns.append("identity_resolution_absent")
+        unknowns.append("identity_state")
+        epistemic.append(EpistemicEntry(
+            "identity_state", EpistemicStatus.UNAVAILABLE,
+            "no IdentityResolution supplied; decision identity_state is not primary authority",
+        ))
         if decision_identity_state is not None:
-            identity_state = decision_identity_state
-            unknowns.append("identity_resolution_absent")
-            epistemic.append(EpistemicEntry(
-                "identity_state", EpistemicStatus.UNAVAILABLE,
-                "copied from decision; no IdentityResolution supplied",
-            ))
-        else:
-            unknowns.append("identity_state")
-            epistemic.append(EpistemicEntry(
-                "identity_state", EpistemicStatus.UNAVAILABLE, "no identity input",
+            unknowns.append(f"decision_identity_state:{decision_identity_state}")
+            provenance.append(_provenance_entry(
+                "decision_identity_state_diagnostic",
+                identity_state=decision_identity_state,
+                note="decision-supplied identity_state is diagnostic only; not copied to primary identity_state",
             ))
     else:
         if identity_state is None:
@@ -280,25 +320,41 @@ def compose_dossier(
         for item in identity.conflicts:
             conflicts.append(str(item))
         for blob in identity.provenance:
-            copied = _copy_mapping(blob)
+            copied = _freeze_mapping(blob)
             if copied is not None:
-                provenance.append({"source": "identity", **copied})
+                provenance.append(_provenance_entry("identity", copied))
 
-    if canonical_token_id is None:
-        epistemic.append(EpistemicEntry(
-            "canonical_token_id", EpistemicStatus.UNAVAILABLE,
-            "no existing token_id on identity; composer does not synthesize one",
-        ))
-        unknowns.append("canonical_token_id")
-    else:
+    if _is_verified_identity(identity_state) and existing_token_id is not None:
+        canonical_token_id = existing_token_id
         epistemic.append(EpistemicEntry(
             "canonical_token_id", EpistemicStatus.DERIVED,
-            "preserved existing identity.token.token_id; not recomputed",
+            "preserved existing identity.token.token_id under VERIFIED identity; not recomputed",
         ))
         _append_unique(
             join_keys, seen_keys,
             JoinKey(AliasKind.CANONICAL, "token_id", canonical_token_id),
         )
+    else:
+        canonical_token_id = None
+        if existing_token_id is not None:
+            _append_unique(
+                join_keys, seen_keys,
+                JoinKey(AliasKind.OPERATIONAL, "unvalidated_token_id", existing_token_id),
+            )
+            epistemic.append(EpistemicEntry(
+                "canonical_token_id", EpistemicStatus.UNAVAILABLE,
+                "caller token_id present but identity is not VERIFIED; not promoted to canonical",
+            ))
+            epistemic.append(EpistemicEntry(
+                "unvalidated_token_id", EpistemicStatus.UNKNOWN,
+                "preserved caller token.token_id as a non-canonical operational identifier",
+            ))
+        else:
+            epistemic.append(EpistemicEntry(
+                "canonical_token_id", EpistemicStatus.UNAVAILABLE,
+                "no VERIFIED identity token_id to preserve; composer does not synthesize one",
+            ))
+        unknowns.append("canonical_token_id")
 
     id_chain = _text(_attr(token, "chain")) if token is not None else None
     id_addr = _text(_attr(token, "address_canonical")) if token is not None else None
@@ -367,9 +423,10 @@ def compose_dossier(
         if any(k.scheme == "symbol_key" for k in join_keys) and canonical_token_id is None:
             unknowns.append("canonical_identity_not_inferable_from_symbol")
 
-    security_state = _state_text(security)
-    if security_state is None:
-        security_state = _text(_attr(decision, "security_state"))
+    overlay_security_state = _state_text(security)
+    decision_security_state = _text(_attr(decision, "security_state"))
+    if overlay_security_state is None:
+        security_state = decision_security_state
         if security_state is None:
             unknowns.append("security_state")
             epistemic.append(EpistemicEntry(
@@ -381,6 +438,7 @@ def compose_dossier(
                 "copied from decision.security_state; not recomputed",
             ))
     else:
+        security_state = overlay_security_state
         epistemic.append(EpistemicEntry(
             "security_state", EpistemicStatus.DERIVED,
             "preserved from overlay/state input; not recomputed",
@@ -395,6 +453,20 @@ def compose_dossier(
                 t = _text(item)
                 if t:
                     conflicts.append(f"security_veto:{t}")
+        if (
+            decision_security_state is not None
+            and decision_security_state != overlay_security_state
+        ):
+            conflicts.append(
+                f"security_state_disagreement:overlay={overlay_security_state}"
+                f":decision={decision_security_state}"
+            )
+            provenance.append(_provenance_entry(
+                "security_state_disagreement",
+                overlay_security_state=overlay_security_state,
+                decision_security_state=decision_security_state,
+                effective_security_state=overlay_security_state,
+            ))
 
     decision_outcome = _text(_attr(decision, "outcome"))
     if decision_outcome is None:
@@ -415,9 +487,9 @@ def compose_dossier(
             t = _text(item)
             if t:
                 conflicts.append(f"decision_hard_veto:{t}")
-        dec_prov = _copy_mapping(_attr(decision, "provenance"))
+        dec_prov = _freeze_mapping(_attr(decision, "provenance"))
         if dec_prov:
-            provenance.append({"source": "decision", **dec_prov})
+            provenance.append(_provenance_entry("decision", dec_prov))
 
     score_value = _attr(score, "opportunity_score", None) if score is not None else None
     decision_score = _attr(decision, "opportunity_score", None)
@@ -453,7 +525,7 @@ def compose_dossier(
                 unknowns.append(t)
         sha = _text(_attr(score, "provenance_sha256"))
         if sha:
-            provenance.append({"source": "score", "provenance_sha256": sha})
+            provenance.append(_provenance_entry("score", provenance_sha256=sha))
 
     claim_records = _claim_records(claims)
     for rec in claim_records:
@@ -466,7 +538,7 @@ def compose_dossier(
         ))
 
     if metadata:
-        provenance.append({"source": "metadata", "keys": sorted(str(k) for k in metadata)})
+        provenance.append(_provenance_entry("metadata", keys=sorted(str(k) for k in metadata)))
 
     if composed_at is not None:
         epistemic.append(EpistemicEntry(
