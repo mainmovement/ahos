@@ -1,105 +1,102 @@
-# Latest Directive for Ahos cursor configuration Agent
+# BUILD AGENT DIRECTIVE — Independent Oversight Council
 
-**Updated:** 2026-09-12 (Cycle 003 — owner vision integrated)  
-**Status:** `PROCEED_AFTER_W2`  
-**Owner vision:** `docs/supervision/OWNER_VISION_REGISTRY.md`  
-**Charter:** `docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`
-
----
-
-## READ FIRST (every session)
-
-1. `docs/supervision/OWNER_VISION_REGISTRY.md`
-2. `docs/supervision/LATEST_DIRECTIVE_FOR_AHOS_AGENT.md` (this file)
-3. `.cursor/skills/ahos-governance-context/SKILL.md`
-4. `docs/DOC_TRUTH_MAP.md` + `AGENTS.md`
+**Updated:** 2026-09-12 Cycle 004  
+**Council status:** ACTIVE — Master Understanding Phase complete (v1.0)  
+**Build agent:** Ahos cursor configuration — **RUNNING**  
+**Truth model:** `docs/supervision/AHOS_PROJECT_TRUTH_MODEL.md`  
+**Owner vision:** `docs/supervision/OWNER_VISION_REGISTRY.md`
 
 ---
 
-## PHASE A — NOW (blocking everything else)
+## COUNCIL DECISION: BEST PATH (single route)
 
-| # | Task | Skill | PR |
-|---|------|-------|-----|
-| A1 | W1.3: close dynamic class identity spoof | `ahos-token-identity` | on `cursor/token-dossier-composer-9500` |
-| A2 | Add `test_w1_2_dynamic_class_spoof_is_not_canonical` | `ahos-change-verification` | same |
-| A3 | Merge-ready W2 (#95) | `ahos-domain-backend` | #95 |
-| A4 | `architecture/knowledge/DOSSIER.md` + DOC_TRUTH_MAP | `ahos-governance-context` | same |
-| A5 | Rename `test_w12_*` → `test_w1_2_*` | — | same |
-| A6 | Security overlay/decision conflict fail-closed | `ahos-security-analysis` | same |
-| A7 | Rebase W4 (#97–#103) on post-W2 main; collapse to ≤3 PRs | `ahos-token-identity` | rebase |
-
-**Do not start Phase B until W2 is on `main`.**
+```
+W1.3 → W2 merge → W4 rebase (≤3 PRs) → P1 (chat/telegram/alerts/contracts) → P2 UX waves → soak (owner)
+```
 
 ---
 
-## PHASE B — Owner P1 (after W2 merged)
+## BLOCK (stop if attempting)
 
-| # | Task | Skill | Notes |
-|---|------|-------|-------|
-| B1 | **Chat UX** — natural FA/EN conversation on site | `ahos-web-experience` | via Conversation Gateway, not second brain |
-| B2 | **Telegram Sun Sniper** — wire bot, match app gateway | `ahos-domain-backend` | token **only** in `.env`; rotate S-01 |
-| B3 | **Alerts** — opportunity + loud alarm (web + Telegram) | `ahos-web-experience` | requires Python `alerts_allowed` + overlay PASS |
-| B4 | **Contract accuracy** — canonical address display | `ahos-token-identity` | UNKNOWN if unverified; never guess |
-| B5 | E2E evidence: chat transcript + telegram + alert screenshot/video | `ahos-change-verification` | artifact required |
-
----
-
-## PHASE C — Experience (small waves, not one PR)
-
-| # | Task | Skill |
-|---|------|-------|
-| C1 | Write `docs/architecture/DYNAMIC_ENVIRONMENT_ENGINE.md` spec | `ahos-web-experience` |
-| C2 | Bilingual FA/EN switch (full UI copy) | `ahos-web-experience` |
-| C3 | Ambient audio + 3D increments on Command Center | `ahos-web-experience` |
-| C4 | Tree growth visualization + council persona cards | `ahos-product-intelligence` |
-
-Awwwards-level quality = **iterative waves** with critic review each wave.
+| ID | Rule |
+|----|------|
+| B1 | Merge W4 (#97–#103) before W2 (#95) on `main` |
+| B2 | Commit secrets (Telegram token — rotate S-01) |
+| B3 | Edit Lane A (`discovery/**`, `paper_trading/**`) |
+| B4 | Live trading / L6+ execution |
+| B5 | Runtime/scoring/calibration changes during active soak (Charter §39) |
+| B6 | Claim AGI/ACI/PRODUCTION_READY/OPERATOR_READY |
+| B7 | One mega-PR mixing W4 + UI + Telegram + 3D |
+| B8 | Wire orphan 3D trees to Command Center |
 
 ---
 
-## PHASE D — AGI/ACI evolution (research only, isolated)
+## FIX BEFORE CONTINUE
 
-- Continue P2–P5 cognitive modules per Charter — **not soak-wired**
-- Frontier layer: discover → benchmark → adopt/reject
-- No "world model" labeling until `ACI-GAP-002` closed
-- Self-improvement proposals only via sandbox + governance
+| ID | Task | Skill | Evidence required |
+|----|------|-------|-------------------|
+| F1 | W1.3 identity spoof hardening | `ahos-token-identity` | new adversarial test |
+| F2 | Merge W2 (#95) to main | `ahos-domain-backend` | 94 tests pass |
+| F3 | DOSSIER.md + DOC_TRUTH_MAP entry | `ahos-governance-context` | doc PR |
+| F4 | Rebase W4 stack → ≤3 PRs | `ahos-token-identity` | clean diff |
+| F5 | Security scalar conflict fail-closed | `ahos-security-analysis` | test |
 
 ---
 
-## MODEL SELECTION
+## DO (after FIX items)
 
-| Work | Model |
-|------|-------|
-| Architecture, security, identity | Claude Opus 5 High / GPT-5.6 Sol High |
-| Implementation | Claude Sonnet 5 High / Composer 2.5 |
-| Mechanical tests/docs | Grok 4.6 High Fast / Gemini 3.8 Flash High |
-| Council debate | Multi-model (advisory merge only) |
+| ID | Task | Skill |
+|----|------|-------|
+| D1 | Chat FA/EN via gateway (not second brain) | `ahos-web-experience` |
+| D2 | Telegram Sun Sniper — `.env` only | `ahos-domain-backend` |
+| D3 | Alerts: overlay PASS + `alerts_allowed` + sound | `ahos-web-experience` |
+| D4 | Contract address: canonical VERIFIED only | `ahos-token-identity` |
+| D5 | E2E artifacts per wave | `ahos-change-verification` |
 
 ---
 
 ## DO NOT
 
-1. Lane A (`discovery/**`, `paper_trading/**`) — Charter §38
-2. Live trading / leverage execution — Charter §25 (L0–L1 + PAPER_ONLY)
-3. Commit secrets (Telegram token was exposed in owner chat — **rotate**)
-4. Merge W4 before W2 on main
-5. One mega-PR for website + telegram + AGI + trading
-6. Claim AGI/ACI/PRODUCTION_READY delivered — Charter §42
-7. Interfere with soak — Charter §39
-8. TS independent authority — AGENTS.md
+- TS independent BUY without `canonicalBackend`
+- Fixture-only proof as "live verified"
+- PR without push
+- `test_w12_*` naming (use `test_w1_2_*`)
+- Skip `freeze_lane_a.py` + pytest before PR
 
 ---
 
-## DEFINITION OF DONE (per wave)
+## MONITOR
 
-- Relevant tests pass (pytest + web selftests if UI)
-- `freeze_lane_a.py` pass
-- Walkthrough artifact (screenshot/video) for UI/telegram
-- No secrets in diff
-- Phase status honest in PR body
+- Dual-stack TS scoring drift
+- P5 governance MERGE=NO vs code on main — **ask human**
+- Build agent RUNNING — report progress each PR
 
 ---
 
-## Rationale
+## MODELS
 
-`docs/supervision/cycles/CYCLE_003_2026-09-12.md`
+| Work | Model |
+|------|-------|
+| Architecture/security/identity | Opus 5 High / GPT-5.6 Sol High |
+| Implementation | Sonnet 5 High / Composer 2.5 |
+| Mechanical | Grok 4.6 High Fast |
+
+---
+
+## REPORT FORMAT (each PR)
+
+```
+Problem / What / Tests run / Artifacts / Phase status / Risks
+```
+
+Council reviews against `AHOS_PROJECT_TRUTH_MODEL.md` five-state model.
+
+---
+
+## HUMAN REQUIRED
+
+- Telegram token rotation (S-01)
+- Windows G1–G10 operator gate
+- Soak start authorization
+- CI GitHub App permission (M-GAP-004)
+- P5 merge governance decision
