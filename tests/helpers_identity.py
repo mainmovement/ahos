@@ -13,6 +13,25 @@ from architecture.identity.types import (
 SOL_CANON = "So11111111111111111111111111111111111111112"
 
 
+def calibration_identity_maps(
+    token_ids: list[str],
+    *,
+    chain: str = "solana",
+    address: str = SOL_CANON,
+    symbol: str = "TOK",
+) -> tuple[dict, dict]:
+    """Matching VERIFIED maps for calibration math fixtures. Not production evidence."""
+    pred: dict = {}
+    out: dict = {}
+    for tid in token_ids:
+        ident = verified_identity_fixture(
+            chain=chain, address=address, token_id=tid, symbol=symbol,
+        )
+        pred[tid] = ident
+        out[tid] = ident
+    return pred, out
+
+
 def verified_identity_fixture(
     *,
     chain: str = "solana",

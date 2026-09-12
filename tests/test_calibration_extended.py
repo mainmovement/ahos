@@ -43,6 +43,7 @@ from architecture.learning.score_ledger import (  # noqa: E402
     SOURCE_TEST,
     ScoreLedger,
 )
+from tests.helpers_identity import calibration_identity_maps  # noqa: E402
 
 # --------------------------------------------------------------------- helpers
 
@@ -123,8 +124,11 @@ def _seed(tmp_path, rows, horizon="24h", event_class="+50%", now=None,
 
     conn.commit(); conn.close()
     dconn.commit(); dconn.close()
+    pred_ids, out_ids = calibration_identity_maps([f"token{i:05d}" for i in range(len(rows))])
     return CalibrationHarness(ledger_db=str(ledger_db), discovery_db=str(disc_db),
-                              eligible_sources={SOURCE_TEST})
+                              eligible_sources={SOURCE_TEST},
+                              prediction_identities=pred_ids,
+                              outcome_identities=out_ids)
 
 
 def _cohort_rows(score, hits, misses, **kw):
