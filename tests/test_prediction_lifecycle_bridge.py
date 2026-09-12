@@ -198,8 +198,11 @@ def test_clock_injected_register_to_calibration_join(tmp_path):
                               txns_1h_buys=100, txns_1h_sells=40),
         security=SecuritySignals(is_honeypot=False),
     )
+    from tests.helpers_identity import verified_identity_fixture
+    ident = verified_identity_fixture(token_id=tid, address=addr, chain="solana")
     ScoreLedger(db_path=str(led), source=SOURCE_LOCAL).record(
-        OpportunityScorer().evaluate(candidate, now=t0), run_id="join", now=t0
+        OpportunityScorer().evaluate(candidate, now=t0),
+        run_id="join", now=t0, identity=ident,
     )
 
     # t0+73h: resolve + materialize (frozen Lane-A)
@@ -208,7 +211,11 @@ def test_clock_injected_register_to_calibration_join(tmp_path):
     assert mat["outcome_rows_written"] > 0
     conn.close()
 
-    report = CalibrationHarness(ledger_db=str(led), discovery_db=str(disc)).run()
+    report = CalibrationHarness(
+        ledger_db=str(led), discovery_db=str(disc),
+        prediction_identities={tid: ident},
+        outcome_identities={tid: ident},
+    ).run()
     assert report.joined_pairs >= 1
     # Guards still not met with a single pair — honesty preserved.
     assert report.verdict == "INSUFFICIENT_DATA"
