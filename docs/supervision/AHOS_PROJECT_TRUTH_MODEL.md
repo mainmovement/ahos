@@ -1,8 +1,8 @@
 # AHOS Project Truth Model
 
 **Maintained by:** Independent AHOS Oversight Council  
-**Version:** 1.1 (post Vision Alignment Audit)  
-**Date:** 2026-09-12  
+**Version:** 1.2 (post-soak evidence reconciliation)  
+**Date:** 2026-09-13  
 **Status:** Living document — updated each supervision cycle  
 **Vision audit:** `docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md` (foundation for directives)  
 **Authority:** Supervisory model only. Does **not** override `docs/DOC_TRUTH_MAP.md`, `MASTER_DIRECTIVE_v1`, or `AGENTS.md`. Conflicts are reported, not silently resolved.
@@ -363,3 +363,45 @@ A capability is **OPERATIONAL** only with linked artifacts. Launch blockers:
 - **Next full truth model refresh:** after W2 merge + operator gate progress
 - **Per-cycle delta:** `docs/supervision/cycles/CYCLE_NNN_*.md`
 - **Build agent directive:** `LATEST_DIRECTIVE_FOR_AHOS_AGENT.md`
+
+---
+
+## Delta v1.2 — 2026-09-13 (post-soak strategic audit)
+
+**Source:** `CYCLE_STRATEGIC_2026-09-13.md`, post-soak read-only reconciliations, Windows production address census.
+
+### Soak / operational truth (updated)
+
+| Item | Prior (v1.1) | Now (v1.2) |
+|------|--------------|------------|
+| Formal 72H soak | Not evidenced | **EXCEEDED** (owner timestamps; cloud unverified) |
+| Observation continuity | Not evidenced | **~84H28M evidenced** (discovery/production rows) |
+| 168H M-GAP-003 | OPEN | **OPEN** (~84H < 168H) |
+| Mission A E2E | Not proven | **NOT PROVEN** (assessment/security/rank zeros; ledger/decision/paper unknown) |
+| Windows primary export | Not discussed | **BLOCKING** — D-009; cloud cannot query soak SQLite |
+
+### Identity / production census (new)
+
+| Item | Status |
+|------|--------|
+| Production rows (owner) | 33,295 total; 8.9% unmatched on `token_address = tokens.address` |
+| Canonical identity defect | **NOT ESTABLISHED** — address join ≠ `IdentityResolution`; forensic gate **BLOCKED** |
+| Likely dominant unmatched class (architectural) | **IDENTITY_BOUNDARY_GAP** or **DISCOVERY_LAG** pending `token_id` re-join |
+
+### Milestone gates (delta)
+
+| Gate | v1.1 | v1.2 delta |
+|------|------|------------|
+| G4 Operational | FAIL | **PARTIAL signal only** — observation continuity; not OPERATIONAL upgrade |
+| G6 Launch | FAIL | **FAIL** (unchanged) |
+
+### BEST PATH (unchanged structure; Phase 0 reprioritized)
+
+Phase 0 now leads with **Windows primary read-only export** and unmatched-row `token_id` classification before any readiness or W4 discussion. Phases 1–4 unchanged from Vision Alignment Audit §11.
+
+### Forbidden (reaffirmed)
+
+- Matched address row ⇒ VERIFIED identity
+- Observation continuity ⇒ Mission A complete
+- 72H exceeded ⇒ M-GAP-003 closed
+- Cloud surrogate DB ⇒ soak evidence
