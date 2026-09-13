@@ -1,7 +1,7 @@
 # AHOS Project Truth Model
 
 **Maintained by:** Independent AHOS Oversight Council  
-**Version:** 1.2 (post-soak evidence reconciliation)  
+**Version:** 1.3 (W3/W4 stack merge wave)  
 **Date:** 2026-09-13  
 **Status:** Living document — updated each supervision cycle  
 **Vision audit:** `docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md` (foundation for directives)  
@@ -24,7 +24,7 @@ What this council has **systematically reviewed** vs **not yet fully reviewed**:
 | `app/` + CommandCenter | **PARTIAL** | Routes, auth gate, canonical read model; full UI unread |
 | `telegram_ai/` | **PARTIAL** | service.py gateway-only pattern confirmed |
 | Lane A (`discovery/`, `paper_trading/`) | **GOVERNANCE** | Freeze manifest, headers; bodies not fully read |
-| PR history / branches | **CURRENT STATE** | Open PRs #95–#104; not full merge history |
+| PR history / branches | **CURRENT STATE** | #95–#104 merged; W4 slices 2–7 on stack tip only |
 | Duplicate web trees (5 dirs) | **INVENTORY** | Listed in tsconfig exclude; contents not audited |
 | `n8n/workflows/` | **NOT READ** | Structural tests exist |
 | `engine/`, `strategy_lab/` | **NOT READ** | Parallel research trees |
@@ -134,8 +134,8 @@ Multi-market adapters (crypto, gold, forex, equities) without rewriting cognitiv
 | Canonical read model (Py→TS) | **IMPLEMENTED** | `canonical_read_model.ts` |
 | Token dossier (W1) | **IMPLEMENTED** | `architecture/knowledge/dossier.py` on main |
 | Evidence graph (W2) | **IMPLEMENTED** on `main` | PR #95 merged `6f61656a` (2026-09-13) |
-| Identity fusion (W4) | **DESIGNED→IMPLEMENTED** stacked PRs | #97–#103 |
-| Human feedback signals (W3) | **IMPLEMENTED** branch | PR #96 |
+| Identity fusion (W4) | **PARTIAL on main** (Slice 1); **full stack on branch tip** | #97 on main; #98–#103 stack only |
+| Human feedback signals (W3) | **IMPLEMENTED** on `main` | PR #96 merged `a8ece43` |
 | Cognitive memory P2 | **IMPLEMENTED** isolated | Not soak-wired |
 | Cognitive loop P3 | **IMPLEMENTED** isolated | Not AGI |
 | Benchmarks P4.1–4.3 | **TESTED** synthetic | Not intelligence score |
@@ -291,7 +291,7 @@ Fail-closed: gap or UNKNOWN → no upgrade.
 | **G0** | Vision/truth aligned? | PARTIAL — truth model v1.0 |
 | **G1** | Architecture integrity? | PASS (caveats: dual-stack TS) |
 | **G2** | Core engineering? | PASS stale — re-verify HEAD |
-| **G3** | Integration? | **PARTIAL** — W2 on main; Telegram live still open |
+| **G3** | Integration? | **PARTIAL** — W2/W3 on main; W4 slices 2–7 not on main; Telegram live open |
 | **G4** | Operational readiness? | FAIL — soak, Windows |
 | **G5** | Security/reliability? | PARTIAL — S-01 open |
 | **G6** | Launch ready? | FAIL |
@@ -300,17 +300,18 @@ Gate reviews: `docs/supervision/gates/GATE_GN_YYYYMMDD.md`
 
 ---
 
-## Current safety locks (owner 2026-09-12)
+## Current safety locks (updated 2026-09-13T16:30Z)
 
 Until explicitly updated with evidence:
 
 - Lane A: **do not touch**
-- PR #103: **do not merge**
 - W4 Slice 8: **do not start**
+- W4 slices 2–7 → `main`: **ESCALATE_TO_HUMAN** — stack tip PR required; owner merged #103 to stack (§20 override recorded)
 - No new identity authority / historical mapping
 - No readiness inflation
 - No fixture-only patches
 - No aesthetic-only architecture changes
+- No soak/runtime semantic interference (Charter §39)
 
 ---
 
@@ -352,7 +353,7 @@ A capability is **OPERATIONAL** only with linked artifacts. Launch blockers:
 | Conflict | Resolution |
 |----------|------------|
 | P5 code on main vs evolution index `MERGE=NO` | Report to human; do not treat as closed |
-| W4 PR stack ahead of main | **BLOCK** selective merge per §20; W2 now on main |
+| W4 slices 2–7 on stack tip, not `main` | **MONITOR** — owner merged stack; promotion PR pending human review |
 | Duplicate 3D web trees vs One Brain | Orphan — do not wire to production |
 | Owner wants "complete now" vs soak §39 | Soak and governance win |
 
@@ -415,3 +416,18 @@ Phase 0 now leads with **Windows primary read-only export** and unmatched-row `t
 - Observation continuity ⇒ Mission A complete
 - 72H exceeded ⇒ M-GAP-003 closed
 - Cloud surrogate DB ⇒ soak evidence
+
+### Delta v1.3 — 2026-09-13T16:30Z (W3 + W4 merge wave)
+
+**Source:** `CYCLE_W4_W3_STACK_MERGED_2026-09-13.md`
+
+| Item | Update |
+|------|--------|
+| `main` SHA | `f869dc1` (was `6f61656a`) |
+| W3 feedback | **ON MAIN** (#96) |
+| W4 Slice 1 | **ON MAIN** (#97) |
+| W4 Slices 2–7 | **STACK TIP ONLY** (`cursor/calibration-identity-join-9500`); #103 owner-merged to stack |
+| Supervision framework | **ON MAIN** (#104) |
+| §20 #103 block | **WITHDRAWN** (owner override) |
+| Open PRs | **0** — slices 2–7 need promotion PR |
+| Readiness | **NO upgrade** |
