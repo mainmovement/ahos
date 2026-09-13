@@ -10,7 +10,7 @@
 **Recorded on:** integrity-audit execution at `c36f771` (same code tree).  
 See `P5_FINAL_CLOSURE_GATE_REVIEW.md`, `PR93_INDEPENDENT_PRE_REVIEW_INTEGRITY_AUDIT.md`.
 
-Not charter/world-model P5. Not ops/n8n/Telegram P5. PR #93 remains **DRAFT**. `MERGE = NO`. `READY_FOR_REVIEW = NO`. `P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`. Not production-ready. Not live trading. Not AGI/ACI.
+Not charter/world-model P5. Not ops/n8n/Telegram P5. `GIT_MERGED = YES` (`74d0243ca7c07bb7a5c2738bfec84b9b3e4ea5b0`). `CODE_ON_MAIN = YES`. `TEST_STATUS = PROVEN`; `TESTS_EXIST_AND_RECORDED = YES`. `GOVERNANCE_STATUS = CONTRADICTORY`. `PRODUCTION_AUTHORIZED = NO`. `RUNTIME_INTEGRATED = NO`. `RUNTIME_PROVEN = NO`. `SOAK_PROVEN = NO`. `SOAK_WIRED = NO`. `LIVE_TRADING_AUTHORIZED = NO`. `P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`; `P5_SECURITY_EXIT_DOES_NOT_AUTHORIZE_PRODUCTION = YES`. Not AGI/ACI. Tests ≠ runtime proof.
 
 Counts (scoped; do not collapse):
 

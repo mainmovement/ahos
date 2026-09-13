@@ -15,7 +15,7 @@
                          council (advisory)
                          evolution/engine+ledger+hindsight
                          runtime observation daemon
-                         cognitive/  ← contracts + P2 memory + P3 loop + Lane-B evolution P5 (PR #93: bind/ObservationGrant/V4-PIN K_O; isolated; DRAFT)
+                         cognitive/  ← contracts + P2 memory + P3 loop + Lane-B evolution P5 (PR #93 Git-merged; GOVERNANCE_STATUS=CONTRADICTORY; not runtime-wired)
 ```
 
 ## Cognitive Core vs domain adapters
@@ -27,7 +27,7 @@ Cognitive Core (domain-general)
   world_model inventory, reasoning inventory, agent passports,
   counterfactual policy, cognitive memory store (isolated sqlite),
   P3 loop (retrieve → assemble → reason → critique → lesson)
-  Lane-B evolution P5 (PR #93 DRAFT): typed bind → polarity → grant verify
+  Lane-B evolution P5 (PR #93 Git-merged; GOVERNANCE_STATUS=CONTRADICTORY): typed bind → polarity → grant verify
   with instance-owned K_O; not soak-wired; not charter world-model P5
 
 Financial / token Domain Adapters (existing; not rewritten here)

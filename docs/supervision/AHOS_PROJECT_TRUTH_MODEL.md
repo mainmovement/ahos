@@ -139,7 +139,7 @@ Multi-market adapters (crypto, gold, forex, equities) without rewriting cognitiv
 | Cognitive memory P2 | **IMPLEMENTED** isolated | Not soak-wired |
 | Cognitive loop P3 | **IMPLEMENTED** isolated | Not AGI |
 | Benchmarks P4.1–4.3 | **TESTED** synthetic | Not intelligence score |
-| Typed evidence P5 | **IMPLEMENTED** code on main; **governance MERGE=NO** in evolution index | PR #93 tension |
+| Typed evidence P5 | **IMPLEMENTED** isolated on main (`GIT_MERGED=YES`); **GOVERNANCE_STATUS=CONTRADICTORY**; **PRODUCTION_AUTHORIZED=NO** | Git merged; governance not ratified |
 | World model | **DESIGNED only** | ACI-GAP-002 OPEN |
 | Agent creation | **ASPIRATIONAL** | ACI-GAP-009 |
 | Environment Engine | **DESIGNED** (owner) | Not in codebase |
@@ -217,7 +217,7 @@ TS Command Center / Telegram gateway (fail-closed)
 | P2 memory substrate | ✅ | ✅ isolated | ✅ | ❌ soak | ❌ |
 | P3 cognitive loop | ✅ | ✅ isolated | ✅ | ❌ | ❌ |
 | P4 benchmarks | ✅ | ✅ synthetic | ✅ | ❌ real market | ❌ |
-| P5 typed evidence | ✅ | ✅ main code | ✅ | ⚠️ governance NO | ❌ |
+| P5 typed evidence | ✅ | ✅ main (`CODE_ON_MAIN`) | ✅ | ❌ GOVERNANCE_STATUS=CONTRADICTORY | ❌ |
 | World model | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Agent creation | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Live execution L6–7 | ✅ | ❌ forbidden | — | — | ❌ |
@@ -351,7 +351,7 @@ A capability is **OPERATIONAL** only with linked artifacts. Launch blockers:
 
 | Conflict | Resolution |
 |----------|------------|
-| P5 code on main vs evolution index `MERGE=NO` | Report to human; do not treat as closed |
+| P5 living-index documentation vs Git merge | **RESOLVED (documentation namespace only)**; `GOVERNANCE_STATUS` remains **CONTRADICTORY** until human governance ratification |
 | W4 PR stack ahead of main | **BLOCK** selective merge per §20; W2 now on main |
 | Duplicate 3D web trees vs One Brain | Orphan — do not wire to production |
 | Owner wants "complete now" vs soak §39 | Soak and governance win |

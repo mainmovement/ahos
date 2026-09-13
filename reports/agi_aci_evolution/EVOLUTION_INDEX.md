@@ -2,7 +2,38 @@
 
 Lane-B AGI/ACI evolution records. Sequential IDs; do not reuse.
 
-**Current law (this branch, not main):** Lane-B evolution P5 (PR #93) is typed evidence-bound reasoning → polarity → memory authorization → ObservationGrant → V4-PIN. Code tip `afdff25`. PR remains **DRAFT**. `P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`. `P5_BOUNDARY_STATUS = CLOSED_WITH_DOCUMENTED_RESIDUALS`. `MERGE = NO`. `READY_FOR_REVIEW = NO`. Not production-ready. Not live trading. Not AGI/ACI.
+**Current law (origin/main):** Lane-B evolution P5 (PR #93): typed evidence-bound reasoning → polarity → memory authorization → ObservationGrant → V4-PIN. Code tip `afdff25`.
+
+```text
+GIT_STATUS = PROVEN
+GIT_MERGED = YES
+GIT_MERGE_COMMIT = 74d0243ca7c07bb7a5c2738bfec84b9b3e4ea5b0
+CODE_STATUS = PROVEN
+CODE_ON_MAIN = YES
+TEST_STATUS = PROVEN
+TESTS_EXIST_AND_RECORDED = YES
+GOVERNANCE_STATUS = CONTRADICTORY
+GOVERNANCE_STATUS_NOTE = Historical pre-merge governance evidence recorded NO / DRAFT / not ready; PR #93 was subsequently merged by human action. This reconciliation records Git truth and current code placement, but does NOT retroactively establish governance approval.
+RUNTIME_INTEGRATION_STATUS = NOT_PROVEN
+RUNTIME_INTEGRATED = NO
+RUNTIME_PROOF_STATUS = NOT_PROVEN
+RUNTIME_PROVEN = NO
+SOAK_STATUS = NOT_PROVEN
+SOAK_PROVEN = NO
+SOAK_WIRED = NO
+PRODUCTION_AUTHORIZATION_STATUS = NOT_AUTHORIZED
+PRODUCTION_AUTHORIZED = NO
+LIVE_TRADING_AUTHORIZATION = NOT_AUTHORIZED
+LIVE_TRADING_AUTHORIZED = NO
+LANE_A_IMPACT = NONE
+LANE_A_MODIFICATION_AUTHORIZED = NO
+P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE
+P5_SECURITY_EXIT_DOES_NOT_AUTHORIZE_PRODUCTION = YES
+P5_BOUNDARY_STATUS = CLOSED_WITH_DOCUMENTED_RESIDUALS
+NOT_AGI_NOT_ACI = YES
+```
+
+Git merge ≠ governance approval ≠ runtime integration ≠ runtime proof ≠ soak proof ≠ production authorization ≠ live-trading authorization. Tests ≠ runtime proof. Documentation reconciliation ≠ governance ratification. Pre-merge `P5_*.md` / `PR93_*.md` may record `MERGE = NO` / `DRAFT` at their write-time SHAs — historical evidence only.
 
 This is **not** charter/world-model P5 (`ACI-GAP-002` remains OPEN) and **not** ops/n8n/Telegram P5 (`reports/PHASE_STATE.md`, `docs/canonical/ROADMAP.md`).
 

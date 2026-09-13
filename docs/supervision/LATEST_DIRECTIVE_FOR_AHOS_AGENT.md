@@ -62,11 +62,11 @@ PR #103 merge · Slice 8 · Lane A · readiness inflation · soak interference
 
 ## MONITOR
 
-Agent IDLE stall — wake if no progress by next L2 cycle
+- Agent IDLE stall — wake if no progress by next L2 cycle
+- P5 living-index namespace reconciliation — doc patch applied; `GOVERNANCE_STATUS=CONTRADICTORY` until human governance ratification (NOT production/runtime/soak authorization)
 
 ## ESCALATE_TO_HUMAN
 
-- P5 MERGE=NO vs main code conflict
 - Token rotation (S-01)
 - Windows soak start
 

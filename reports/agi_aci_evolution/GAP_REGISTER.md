@@ -2,7 +2,7 @@
 
 Operational gaps remain in `AHOS_GAP_REGISTER.md`. This file is the AGI/ACI evolution register. **Never close a gap without evidence.**
 
-**P5 names (do not collapse):** Lane-B evolution P5 (PR #93 DRAFT) is typed evidence / ObservationGrant V4-PIN (`P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`; not merge; not Ready; not production; not live trading). Charter/world-model P5 is `ACI-GAP-002` (still OPEN). Ops/n8n/Telegram P5 is `reports/PHASE_STATE.md` / `docs/canonical/ROADMAP.md` (unrelated).
+**P5 names (do not collapse):** Lane-B evolution P5 (PR #93): typed evidence / ObservationGrant V4-PIN. `GIT_MERGED = YES` (`74d0243ca7c07bb7a5c2738bfec84b9b3e4ea5b0`); `CODE_ON_MAIN = YES`; `GOVERNANCE_STATUS = CONTRADICTORY`; `PRODUCTION_AUTHORIZED = NO`; `RUNTIME_INTEGRATED = NO`; `SOAK_PROVEN = NO`; `LIVE_TRADING_AUTHORIZED = NO`; `P5_SECURITY_EXIT = SECURITY-EXIT-CANDIDATE`; `P5_SECURITY_EXIT_DOES_NOT_AUTHORIZE_PRODUCTION = YES`. Charter/world-model P5 is `ACI-GAP-002` (still OPEN). Ops/n8n/Telegram P5 is `reports/PHASE_STATE.md` / `docs/canonical/ROADMAP.md` (unrelated).
 
 | GAP ID | Description | Impact | Dependency | Priority | Evidence | Proposed solution | Implementation status | Validation status |
 |--------|-------------|--------|------------|----------|----------|-------------------|----------------------|-------------------|
