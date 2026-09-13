@@ -156,7 +156,9 @@ def test_prediction_is_persisted_with_full_provenance(tmp_path):
     assert stored["engine_version"] == SCORING_ENGINE_VERSION
     assert stored["weights_sha256"] and not stored["weights_sha256"].startswith("UNKNOWN")
     assert stored["evidence_sha256"] == report.provenance_sha256
-    assert stored["token_id"], "canonical Lane-A token_id is the join key to outcomes"
+    assert stored["token_id"] is None, (
+        "without IdentityResolution the ledger must not invent a canonical join key"
+    )
 
 
 def test_recording_never_mutates_the_report(tmp_path):
