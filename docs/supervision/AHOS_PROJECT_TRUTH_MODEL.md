@@ -133,7 +133,7 @@ Multi-market adapters (crypto, gold, forex, equities) without rewriting cognitiv
 | Paper trading lab | **IMPLEMENTED** | Lane A `paper_trading/` |
 | Canonical read model (Py→TS) | **IMPLEMENTED** | `canonical_read_model.ts` |
 | Token dossier (W1) | **IMPLEMENTED** | `architecture/knowledge/dossier.py` on main |
-| Evidence graph (W2) | **IMPLEMENTED** branch-only | PR #95, not on main |
+| Evidence graph (W2) | **IMPLEMENTED** on `main` | PR #95 merged `6f61656a` (2026-09-13) |
 | Identity fusion (W4) | **DESIGNED→IMPLEMENTED** stacked PRs | #97–#103 |
 | Human feedback signals (W3) | **IMPLEMENTED** branch | PR #96 |
 | Cognitive memory P2 | **IMPLEMENTED** isolated | Not soak-wired |
@@ -291,7 +291,7 @@ Fail-closed: gap or UNKNOWN → no upgrade.
 | **G0** | Vision/truth aligned? | PARTIAL — truth model v1.0 |
 | **G1** | Architecture integrity? | PASS (caveats: dual-stack TS) |
 | **G2** | Core engineering? | PASS stale — re-verify HEAD |
-| **G3** | Integration? | FAIL — W2, Telegram live |
+| **G3** | Integration? | **PARTIAL** — W2 on main; Telegram live still open |
 | **G4** | Operational readiness? | FAIL — soak, Windows |
 | **G5** | Security/reliability? | PARTIAL — S-01 open |
 | **G6** | Launch ready? | FAIL |
@@ -352,7 +352,7 @@ A capability is **OPERATIONAL** only with linked artifacts. Launch blockers:
 | Conflict | Resolution |
 |----------|------------|
 | P5 code on main vs evolution index `MERGE=NO` | Report to human; do not treat as closed |
-| W4 PR stack ahead of W2 merge | **BLOCK** until W2 on main |
+| W4 PR stack ahead of main | **BLOCK** selective merge per §20; W2 now on main |
 | Duplicate 3D web trees vs One Brain | Orphan — do not wire to production |
 | Owner wants "complete now" vs soak §39 | Soak and governance win |
 
@@ -398,6 +398,16 @@ A capability is **OPERATIONAL** only with linked artifacts. Launch blockers:
 ### BEST PATH (unchanged structure; Phase 0 reprioritized)
 
 Phase 0 now leads with **Windows primary read-only export** and unmatched-row `token_id` classification before any readiness or W4 discussion. Phases 1–4 unchanged from Vision Alignment Audit §11.
+
+### Delta v1.2b — 2026-09-13T16:28Z (PR #95 merged)
+
+| Item | Update |
+|------|--------|
+| `main` SHA | `6f61656a0cf5` (was `8eb78d5`) |
+| W2 evidence graph | **ON MAIN** |
+| Phase 1 D2 | **COMPLETE** |
+| Phase 1 D1 W1.3 | **Still verify** — not in #95 merge diff |
+| Readiness | **NO upgrade** — soak/Mission-A gates unchanged |
 
 ### Forbidden (reaffirmed)
 
