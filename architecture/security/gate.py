@@ -16,11 +16,12 @@ UNKNOWN critical evidence is never treated as safe.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Any
 
 from architecture.providers.contracts import NormalizedTokenCandidate, SecuritySignals
+from architecture.security.identity_join import SecurityAttachment, attach_security_identity
 from discovery.security_gate import (  # frozen evaluator — not a second policy
     CRITICAL as LANE_A_CRITICAL_KEYS,
     VETO_REGISTRY as LANE_A_VETO_REGISTRY,
@@ -67,8 +68,17 @@ class SecurityOverlay:
     policy_version: str = POLICY_VERSION
     computed_ts: float = 0.0
     extras: tuple[str, ...] = ()
+    canonical_token_id: str | None = None
+    identity_attachment: str = "UNLINKED"
+    subject_kind: str | None = None
+    observed_chain: str | None = None
+    observed_address: str | None = None
+    attachment_identity_state: str | None = None
+    attachment_join_class: str | None = None
+    attachment_reason: str = "missing_identity"
 
     def to_dict(self) -> dict[str, Any]:
+        # Veto/eligibility contract is unchanged. Attachment is orthogonal.
         return {
             "state": self.state.value,
             "reason": self.reason,
@@ -80,6 +90,19 @@ class SecurityOverlay:
             "computed_ts": self.computed_ts,
             "extras": list(self.extras),
         }
+
+    def with_attachment(self, attachment: SecurityAttachment) -> "SecurityOverlay":
+        return replace(
+            self,
+            canonical_token_id=attachment.canonical_token_id,
+            identity_attachment=attachment.outcome,
+            subject_kind=attachment.subject_kind,
+            observed_chain=attachment.observed_chain,
+            observed_address=attachment.observed_address,
+            attachment_identity_state=attachment.identity_state,
+            attachment_join_class=attachment.join_class,
+            attachment_reason=attachment.reason,
+        )
 
 
 def security_allows_positive_eligibility(overlay: SecurityOverlay | None) -> bool:
@@ -266,8 +289,11 @@ def evaluate_security_from_candidate(
     stale_after_sec: float = DEFAULT_STALE_SEC,
     exitability: Any | None = None,
     lane_a: dict | None = None,
+    identity: Any = None,
+    subject_kind: str | None = None,
+    source_provider: str | None = None,
 ) -> SecurityOverlay:
-    return evaluate_security(
+    overlay = evaluate_security(
         candidate.security,
         now=now,
         pair_created_ts=candidate.pair_created_ts,
@@ -276,3 +302,11 @@ def evaluate_security_from_candidate(
         exitability=exitability,
         lane_a=lane_a,
     )
+    attachment = attach_security_identity(
+        identity,
+        subject_kind=subject_kind,
+        observed_chain=getattr(candidate, "chain", None),
+        observed_address=getattr(candidate, "address", None),
+        source_provider=source_provider or getattr(candidate, "source_provider", None),
+    )
+    return overlay.with_attachment(attachment)

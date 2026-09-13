@@ -192,6 +192,7 @@ class DecisionAdvisor:
         # ============ GATE 1 — SECURITY OVERLAY (fail closed) ===============
         overlay = evaluate_security_from_candidate(
             candidate, now=ts, exitability=exitability,
+            identity=identity, subject_kind="TOKEN",
         )
         base.security_state = overlay.state.value
         base.security_policy_version = overlay.policy_version

@@ -30,6 +30,9 @@ __all__ = [
     "evaluate_security",
     "evaluate_security_from_candidate",
     "security_allows_positive_eligibility",
+    "SecurityAttachment",
+    "attach_security_identity",
+    "security_canonical_token_id",
 ]
 
 _LAZY = {
@@ -48,6 +51,9 @@ _LAZY = {
     "evaluate_security": (".gate", "evaluate_security"),
     "evaluate_security_from_candidate": (".gate", "evaluate_security_from_candidate"),
     "security_allows_positive_eligibility": (".gate", "security_allows_positive_eligibility"),
+    "SecurityAttachment": (".identity_join", "SecurityAttachment"),
+    "attach_security_identity": (".identity_join", "attach_security_identity"),
+    "security_canonical_token_id": (".identity_join", "security_canonical_token_id"),
 }
 
 
