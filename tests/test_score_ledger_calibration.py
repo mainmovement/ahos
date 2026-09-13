@@ -40,6 +40,7 @@ from architecture.providers.contracts import (  # noqa: E402
     SecuritySignals,
 )
 from architecture.scoring.engine import OpportunityScorer  # noqa: E402
+from tests.helpers_identity import calibration_identity_maps  # noqa: E402
 
 
 # --------------------------------------------------------------------- helpers
@@ -353,8 +354,11 @@ def _seed(tmp_path, pairs, *, resolved_offset: float = 3600.0):
     # production. The override is what lets these tests exercise the band maths
     # at all -- and its necessity is itself the proof that real calibration
     # cannot silently consume test data.
+    pred_ids, out_ids = calibration_identity_maps([f"token{i:05d}" for i in range(len(pairs))])
     return CalibrationHarness(ledger_db=str(ledger_db), discovery_db=str(disc_db),
-                              eligible_sources={SOURCE_TEST})
+                              eligible_sources={SOURCE_TEST},
+                              prediction_identities=pred_ids,
+                              outcome_identities=out_ids)
 
 
 def test_calibration_is_insufficient_data_on_a_young_cohort(tmp_path):

@@ -53,6 +53,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable
 
 from config.paths import get_discovery_db_path, get_local_db_path
+from .calibration_identity_join import lookup_identity, pair_calibration_identities
 from .score_ledger import CALIBRATION_ELIGIBLE_SOURCES
 
 
@@ -378,7 +379,10 @@ class CalibrationHarness:
 
     def __init__(self, ledger_db: str | None = None,
                  discovery_db: str | None = None,
-                 eligible_sources: frozenset[str] | set[str] | None = None):
+                 eligible_sources: frozenset[str] | set[str] | None = None,
+                 prediction_identities: dict[str, Any] | None = None,
+                 outcome_identities: dict[str, Any] | None = None,
+                 subject_kind: str | None = "TOKEN"):
         self.ledger_db = ledger_db or get_local_db_path()
         self.discovery_db = discovery_db or get_discovery_db_path()
         # Overridable ONLY so the test suite can prove the filter works on its
@@ -387,6 +391,12 @@ class CalibrationHarness:
         self.eligible_sources = frozenset(
             eligible_sources if eligible_sources is not None
             else CALIBRATION_ELIGIBLE_SOURCES)
+        # Operational indexes only. token_id / score_id keys are not authority;
+        # pair_calibration_identities decides whether a candidate may pair.
+        self.prediction_identities = dict(prediction_identities or {})
+        self.outcome_identities = dict(outcome_identities or {})
+        self.subject_kind = subject_kind
+        self._identity_unmatched_count = 0
 
     # ------------------------------------------------------------- the join --
 
@@ -435,9 +445,30 @@ class CalibrationHarness:
                 (horizon, event_class, *sorted(self.eligible_sources)),
             ).fetchall()]
             conn.close()
-            return rows
+            return self._filter_canonical_pairs(rows)
         except sqlite3.Error:
+            self._identity_unmatched_count = 0
             return []
+
+    def _filter_canonical_pairs(self, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """SQL token_id equality is a candidate set, not pairing authority."""
+        kept: list[dict[str, Any]] = []
+        unmatched = 0
+        for row in rows:
+            tid = row.get("token_id")
+            sid = row.get("score_id")
+            pred = lookup_identity(self.prediction_identities, sid, tid)
+            out = lookup_identity(self.outcome_identities, tid)
+            decision = pair_calibration_identities(
+                pred, out, subject_kind=self.subject_kind,
+            )
+            if decision.permits_pair:
+                row["canonical_token_id"] = decision.canonical_token_id
+                kept.append(row)
+            else:
+                unmatched += 1
+        self._identity_unmatched_count = unmatched
+        return kept
 
     def _exclusion_census(self, horizon: str, event_class: str) -> dict[str, int]:
         """Why predictions did NOT make it into the cohort.
@@ -933,6 +964,7 @@ class CalibrationHarness:
 
         exclusions = self._exclusion_census(horizon, event_class)
         total = exclusions.pop("_total_predictions", self._total_predictions())
+        exclusions["identity_unmatched"] = int(self._identity_unmatched_count)
 
         report = CalibrationReport(
             generated_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts)),

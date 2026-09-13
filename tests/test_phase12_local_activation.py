@@ -270,10 +270,19 @@ def test_real_prediction_joins_a_real_outcome_label(tmp_path):
                               txns_1h_buys=120, txns_1h_sells=30),
         security=SecuritySignals(is_honeypot=False, is_contract_verified=True,
                                  top10_holder_concentration_pct=18.0))
+    from tests.helpers_identity import verified_identity_fixture
+    ident = verified_identity_fixture(token_id=tid, address=addr, chain="solana")
     ledger = ScoreLedger(db_path=str(led_db), source=SOURCE_LOCAL)
-    ledger.record(OpportunityScorer().evaluate(candidate, now=t0), run_id="e2e", now=t0)
+    ledger.record(
+        OpportunityScorer().evaluate(candidate, now=t0),
+        run_id="e2e", now=t0, identity=ident,
+    )
 
-    report = CalibrationHarness(ledger_db=str(led_db), discovery_db=str(disc)).run()
+    report = CalibrationHarness(
+        ledger_db=str(led_db), discovery_db=str(disc),
+        prediction_identities={tid: ident},
+        outcome_identities={tid: ident},
+    ).run()
     assert report.joined_pairs == 1
     # One pair is nowhere near the guard: the verdict must stay honest.
     assert report.verdict == "INSUFFICIENT_DATA"
