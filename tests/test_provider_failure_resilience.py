@@ -91,12 +91,21 @@ def test_geckoterminal_maps_pool_created_at_to_pair_created_ts():
     payload = json.dumps({
         "data": [{
             "id": "solana_pool1",
+            "type": "pool",
             "attributes": {
-                "address": "PoolAddr1111111111111111111111111111111",
+                "address": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
                 "name": "TOK / SOL",
                 "pool_created_at": "2026-09-09T14:53:02Z",
                 "reserve_in_usd": "123.4",
                 "volume_usd": {"h24": "10"},
+            },
+            "relationships": {
+                "base_token": {
+                    "data": {
+                        "id": "solana_So11111111111111111111111111111111111111112",
+                        "type": "token",
+                    }
+                }
             },
         }]
     }).encode()
@@ -114,14 +123,35 @@ def test_geckoterminal_missing_or_unparseable_pool_created_at_stays_none():
         "data": [
             {
                 "id": "solana_pool_missing",
-                "attributes": {"address": "A", "name": "A / SOL"},
+                "type": "pool",
+                "attributes": {
+                    "address": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
+                    "name": "A / SOL",
+                },
+                "relationships": {
+                    "base_token": {
+                        "data": {
+                            "id": "solana_So11111111111111111111111111111111111111112",
+                            "type": "token",
+                        }
+                    }
+                },
             },
             {
                 "id": "solana_pool_bad",
+                "type": "pool",
                 "attributes": {
-                    "address": "B",
+                    "address": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
                     "name": "B / SOL",
                     "pool_created_at": "not-a-timestamp",
+                },
+                "relationships": {
+                    "base_token": {
+                        "data": {
+                            "id": "solana_EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                            "type": "token",
+                        }
+                    }
                 },
             },
         ]
