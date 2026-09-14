@@ -199,6 +199,7 @@ export function overlayOpportunity<T extends OverlayOpportunity>(opp: T, model: 
   securityState: string | null;
   paperAllowed: boolean;
   canonicalUnavailable: boolean;
+  confidence: string | undefined;
 } {
   const row = lookupCanonicalRow(model, opp.chain, opp.address);
   const decision = displayDecision(row, model.status);

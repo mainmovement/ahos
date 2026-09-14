@@ -6,6 +6,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -28,9 +29,6 @@
   ],
   "exclude": [
     "node_modules",
-    "scripts/web_api_auth_selftest.ts",
-    "scripts/canonical_read_model_selftest.ts",
-    "scripts/canonical_security_selftest.ts",
     "01",
     "advanced-3d-audiovisual-website",
     "advanced-3d-audiovisual-website (1)",
