@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import ast
-import importlib
+import json
+import subprocess
 import sys
 import unittest
 from pathlib import Path
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[1] / "ahos_org"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+PACKAGE_ROOT = REPO_ROOT / "ahos_org"
 
 FORBIDDEN_PATH_FRAGMENTS = (
     r"G:\robat\ahos",
@@ -29,6 +31,18 @@ FORBIDDEN_IMPORTS = {
     "telegram",
     "n8n",
 }
+
+
+# Modules the runtime must not drag in when `ahos_org` is imported.
+#
+# Deliberately EXCLUDES bare `urllib`, unlike FORBIDDEN_IMPORTS above.
+# Evidence: CPython 3.11 `pathlib.py:13` executes
+# `from urllib.parse import quote_from_bytes`, so `ahos_org/organization.py:5`
+# (`from pathlib import Path`) transitively pulls in the `urllib` package with
+# no network intent at all. `urllib.parse` is a pure string module; the real
+# HTTP client is `urllib.request`, and THAT stays in the watched set.
+# Watching bare `urllib` measured CPython rather than AHOS -- a false positive.
+RUNTIME_IO_MODULES = FORBIDDEN_IMPORTS - {"urllib"}
 
 
 def _iter_package_files() -> list[Path]:
@@ -56,11 +70,34 @@ class BoundaryTests(unittest.TestCase):
                     self.assertNotIn(node.module.split(".")[0], FORBIDDEN_IMPORTS, path.name)
 
     def test_importing_runtime_does_not_require_network_modules(self) -> None:
-        for name in ("requests", "httpx", "telegram", "n8n"):
-            self.assertNotIn(name, sys.modules)
-        importlib.import_module("ahos_org")
-        for name in ("requests", "httpx", "telegram", "n8n", "sqlite3"):
-            self.assertNotIn(name, sys.modules)
+        """Importing ahos_org must not pull in any I/O module.
+
+        HERMETICITY (P0-002)
+        --------------------
+        This asserted against the *shared* interpreter's sys.modules. Any test
+        that ran earlier in the same session could import sqlite3 first, so the
+        check passed or failed depending on collection order -- a boundary
+        guarantee CI was silently not proving. `ahos_org` really does avoid
+        these imports (verified in a bare interpreter); what was broken was the
+        measurement, not the code under test.
+
+        The import now runs in a fresh subprocess, so the result reflects
+        `ahos_org` alone and the whole FORBIDDEN_IMPORTS set is covered rather
+        than the five names the old check remembered to list.
+        """
+        code = (
+            "import sys, json\n"
+            "sys.path.insert(0, %r)\n"
+            "import ahos_org\n"
+            "watch = %r\n"
+            "print(json.dumps(sorted(m for m in watch if m in sys.modules)))\n"
+        ) % (str(REPO_ROOT), sorted(RUNTIME_IO_MODULES))
+        proc = subprocess.run([sys.executable, "-B", "-c", code], cwd=REPO_ROOT,
+                              capture_output=True, text=True, timeout=120)
+        self.assertEqual(proc.returncode, 0,
+                         msg=f"ahos_org failed to import cleanly:\n{proc.stderr[-800:]}")
+        self.assertEqual(proc.stdout.strip(), "[]",
+                         msg=f"ahos_org pulled I/O modules at import: {proc.stdout.strip()}")
 
     def test_no_credential_env_access_in_package(self) -> None:
         for path in _iter_package_files():
