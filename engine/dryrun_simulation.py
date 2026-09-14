@@ -45,71 +45,102 @@ UPLOAD_BTC = ROOT_DIR.parent / "uploads" / "LBANK_BTCUSDT_1h_2000_clean.csv"
 RESEARCH_BTC = get_research_dir() / "data" / "BTCUSDT_1h_3yr.csv"
 DATA_FILE = str(UPLOAD_BTC if UPLOAD_BTC.exists() else RESEARCH_BTC)
 
-df = load(DATA_FILE)
-sig = signal_eval(df, "BTCUSDT", killed=False)
-record("S1_normal_paper_cycle", "PASS", f"decision={sig['decision']} reason={sig.get('reason')} fields_ok={'sl' in sig or sig['decision']=='NO_TRADE'}")
-
 # ---------------- Scenario 2: exchange fetch failure ----------------
 class ExchangeDown(Exception): pass
-try:
-    raise ExchangeDown("simulated: LBank timeout after 3 retries")
-except ExchangeDown as e:
-    record("S2_exchange_down", "ALERTED", f"failure routed to Alert Fetch Error path; pipeline halted for cycle; audit written. ({e})")
 
-# ---------------- Scenario 3: integrity failure blocks ingest ----------------
-bad = df.copy()
-bad.loc[bad.index[5], "close"] = bad.loc[bad.index[5], "high"] * 1.5   # close > high defect
-viol = int(((bad.close > bad.high) | (bad.close < bad.low)).sum())
-record("S3_integrity_block", "BLOCKED" if viol > 0 else "FAIL",
-       f"injected defect detected ({viol} rows close-out-of-range) -> UPSERT skipped, admin alerted, row quarantined (no silent repair)")
-
-# ---------------- Scenario 4: kill switch suppresses signals ----------------
-sig_k = signal_eval(df, "BTCUSDT", killed=True)
-record("S4_kill_switch", "PASS" if sig_k["decision"] == "NO_TRADE" else "FAIL",
-       f"kill flag set -> decision={sig_k['decision']} reason={sig_k['reason']}")
 
 # ---------------- Scenario 5: unauthorized telegram command ----------------
+# Kept at module scope: pure, reusable, and side-effect free with respect to
+# tracked evidence (docs/COMPONENT_REUSE_MAP.md).
 def guard(chat_id, text, admin="12345"):
     m = None
     import re
     mm = re.match(r"^/(status|report|risk|signals|kill|emergency_stop|approve|reject)\b\s*(\S+)?", text.strip())
     if mm: m = mm.group(1)
     return {"authorized": str(chat_id) == admin, "type": m, "route": "Reject Unauthorized" if str(chat_id) != admin else "Handler"}
-r = guard(99999, "/kill")
-record("S5_unauthorized_cmd", "PASS" if (not r["authorized"] and r["route"] == "Reject Unauthorized") else "FAIL",
-       "chat_id!=admin on /kill -> rejected + audit AUTH_FAIL, bot never executes")
 
-# ---------------- Scenario 6: kill + human gate command path ----------------
-r2 = guard(12345, "/kill")
-r3 = guard(12345, "/approve BTCUSDT")
-record("S6_admin_commands", "PASS" if (r2["authorized"] and r2["type"] == "kill" and r3["type"] == "approve") else "FAIL",
-       "admin /kill -> Execute Kill Switch; /approve BTCUSDT -> Human Gate recorded")
 
-# ---------------- Scenario 7: risk caps enforced ----------------
-n1 = position_size(100.0, 100.0, 2.0)      # 2% dist -> notional 100
-n2 = position_size(100.0, 100.0, 0.5)      # 0.5% dist -> capped at 2x equity = 200
-n3 = position_size(100.0, 100.0, 0.0)      # invalid -> 0
-record("S7_risk_caps", "PASS" if (abs(n1-100) < 1e-9 and abs(n2-200) < 1e-9 and n3 == 0) else "FAIL",
-       f"notional sizing: {n1:.2f}/{n2:.2f}/{n3:.2f} (2% risk, 2x cap, zero-guard)")
+def main() -> int:
+    """Execute the 9 dry-run scenarios and write reports/dryrun_log.json.
 
-# ---------------- Scenario 8: rollback procedure (parameter change) ----------------
-# model_parameter_history: change only valid with rollback path + double approval
-change = {"parameter_key": "sl_atr", "previous_value": "1.5", "new_value": "1.8",
-          "change_reason": "hypothesis only — NOT APPLIED", "rollback_script_path": "config/rollback_v1.0.json",
-          "approved_by_agent_10": False, "approved_by_human": False, "applied": False}
-record("S8_rollback_governance", "PASS" if (not change["applied"] and change["rollback_script_path"]) else "FAIL",
-       "param change stays PENDING until Agent-10 + Human approve; rollback path mandatory before apply")
+    IMPORT-SAFETY INVARIANT (MISSION P0-001)
+    ----------------------------------------
+    This module previously ran its whole workload — CSV load, nine scenarios,
+    the ``reports/`` write and ``sys.exit()`` — at module scope. Merely
+    importing it therefore overwrote tracked evidence. All of that now lives
+    here, behind the ``__main__`` guard.
 
-# ---------------- Scenario 9: leverage ladder (micro mode) ----------------
-lv_micro = leverage_allowed(0.95, True, micro_mode=True)
-lv_std = leverage_allowed(0.95, True, micro_mode=False)
-lv_lo = leverage_allowed(0.50, False, micro_mode=False)
-record("S9_leverage_ladder", "PASS" if (lv_micro == 2.0 and lv_std == 10.0 and lv_lo == 5.0) else "FAIL",
-       f"micro={lv_micro}x std-strong={lv_std}x std-weak={lv_lo}x")
+    ``signal_eval()`` / ``guard()`` / ``record()`` remain importable: they are
+    pure with respect to tracked evidence.
 
-out_log = get_reports_dir() / "dryrun_log.json"
-with open(out_log, "w", encoding="utf-8") as f:
-    json.dump(LOG, f, indent=2)
-fails = [l for l in LOG if l["result"] == "FAIL"]
-print(f"\nDry-run complete: {len(LOG)} scenarios, {len(fails)} FAIL. Saved {out_log}")
-sys.exit(1 if fails else 0)
+    Returns
+    -------
+    0 if no scenario reported FAIL, else 1. The exit code is load-bearing:
+    ``engine/run_all_checks.sh`` runs under ``set -euo pipefail``, so a 1 here
+    is what aborts the CI gate.
+    """
+    df = load(DATA_FILE)
+    sig = signal_eval(df, "BTCUSDT", killed=False)
+    record("S1_normal_paper_cycle", "PASS", f"decision={sig['decision']} reason={sig.get('reason')} fields_ok={'sl' in sig or sig['decision']=='NO_TRADE'}")
+
+    # ---------------- Scenario 2: exchange fetch failure ----------------
+    try:
+        raise ExchangeDown("simulated: LBank timeout after 3 retries")
+    except ExchangeDown as e:
+        record("S2_exchange_down", "ALERTED", f"failure routed to Alert Fetch Error path; pipeline halted for cycle; audit written. ({e})")
+
+    # ---------------- Scenario 3: integrity failure blocks ingest ----------------
+    bad = df.copy()
+    bad.loc[bad.index[5], "close"] = bad.loc[bad.index[5], "high"] * 1.5   # close > high defect
+    viol = int(((bad.close > bad.high) | (bad.close < bad.low)).sum())
+    record("S3_integrity_block", "BLOCKED" if viol > 0 else "FAIL",
+           f"injected defect detected ({viol} rows close-out-of-range) -> UPSERT skipped, admin alerted, row quarantined (no silent repair)")
+
+    # ---------------- Scenario 4: kill switch suppresses signals ----------------
+    sig_k = signal_eval(df, "BTCUSDT", killed=True)
+    record("S4_kill_switch", "PASS" if sig_k["decision"] == "NO_TRADE" else "FAIL",
+           f"kill flag set -> decision={sig_k['decision']} reason={sig_k['reason']}")
+
+    # ---------------- Scenario 5: unauthorized telegram command ----------------
+    r = guard(99999, "/kill")
+    record("S5_unauthorized_cmd", "PASS" if (not r["authorized"] and r["route"] == "Reject Unauthorized") else "FAIL",
+           "chat_id!=admin on /kill -> rejected + audit AUTH_FAIL, bot never executes")
+
+    # ---------------- Scenario 6: kill + human gate command path ----------------
+    r2 = guard(12345, "/kill")
+    r3 = guard(12345, "/approve BTCUSDT")
+    record("S6_admin_commands", "PASS" if (r2["authorized"] and r2["type"] == "kill" and r3["type"] == "approve") else "FAIL",
+           "admin /kill -> Execute Kill Switch; /approve BTCUSDT -> Human Gate recorded")
+
+    # ---------------- Scenario 7: risk caps enforced ----------------
+    n1 = position_size(100.0, 100.0, 2.0)      # 2% dist -> notional 100
+    n2 = position_size(100.0, 100.0, 0.5)      # 0.5% dist -> capped at 2x equity = 200
+    n3 = position_size(100.0, 100.0, 0.0)      # invalid -> 0
+    record("S7_risk_caps", "PASS" if (abs(n1-100) < 1e-9 and abs(n2-200) < 1e-9 and n3 == 0) else "FAIL",
+           f"notional sizing: {n1:.2f}/{n2:.2f}/{n3:.2f} (2% risk, 2x cap, zero-guard)")
+
+    # ---------------- Scenario 8: rollback procedure (parameter change) ----------------
+    # model_parameter_history: change only valid with rollback path + double approval
+    change = {"parameter_key": "sl_atr", "previous_value": "1.5", "new_value": "1.8",
+              "change_reason": "hypothesis only — NOT APPLIED", "rollback_script_path": "config/rollback_v1.0.json",
+              "approved_by_agent_10": False, "approved_by_human": False, "applied": False}
+    record("S8_rollback_governance", "PASS" if (not change["applied"] and change["rollback_script_path"]) else "FAIL",
+           "param change stays PENDING until Agent-10 + Human approve; rollback path mandatory before apply")
+
+    # ---------------- Scenario 9: leverage ladder (micro mode) ----------------
+    lv_micro = leverage_allowed(0.95, True, micro_mode=True)
+    lv_std = leverage_allowed(0.95, True, micro_mode=False)
+    lv_lo = leverage_allowed(0.50, False, micro_mode=False)
+    record("S9_leverage_ladder", "PASS" if (lv_micro == 2.0 and lv_std == 10.0 and lv_lo == 5.0) else "FAIL",
+           f"micro={lv_micro}x std-strong={lv_std}x std-weak={lv_lo}x")
+
+    out_log = get_reports_dir() / "dryrun_log.json"
+    with open(out_log, "w", encoding="utf-8") as f:
+        json.dump(LOG, f, indent=2)
+    fails = [l for l in LOG if l["result"] == "FAIL"]
+    print(f"\nDry-run complete: {len(LOG)} scenarios, {len(fails)} FAIL. Saved {out_log}")
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

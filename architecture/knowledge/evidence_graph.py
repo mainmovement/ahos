@@ -56,7 +56,7 @@ Do not import this module from the operational daemon package or the pipeline.
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from types import MappingProxyType
 from typing import Any, Iterable, Mapping
@@ -173,7 +173,7 @@ class GraphNode:
     node_type: NodeType
     epistemic_status: EpistemicStatus
     label: str
-    metadata: Mapping[str, Any] = MappingProxyType({})
+    metadata: Mapping[str, Any] = field(default_factory=lambda: MappingProxyType({}))
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -192,7 +192,7 @@ class GraphEdge:
     source_id: str
     target_id: str
     epistemic_status: EpistemicStatus
-    metadata: Mapping[str, Any] = MappingProxyType({})
+    metadata: Mapping[str, Any] = field(default_factory=lambda: MappingProxyType({}))
 
     def as_dict(self) -> dict[str, Any]:
         return {

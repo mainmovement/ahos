@@ -3,7 +3,7 @@
 Implements the 14 integrity gates from AHOS Phase 3 Validation Framework.
 No synthetic data. Read-only analysis of provided real CSVs."""
 import os, sys, json, hashlib, glob
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -102,14 +102,33 @@ def audit_file(path):
     r["verdict"] = "FAIL" if fails else ("PASS(REVIEW)" if any(str(v).startswith(("WARN","REVIEW")) for v in r["gates"].values()) else "PASS")
     return r
 
-files = sorted(glob.glob(os.path.join(UP, "*.csv")))
-results = [audit_file(f) for f in files]
-out = {"audit_time_utc": datetime.now(__import__("datetime").timezone.utc).isoformat(), "files": results}
-out_file = get_reports_dir() / "data_integrity_audit.json"
-with open(out_file, "w", encoding="utf-8") as f:
-    json.dump(out, f, indent=2)
-for r in results:
-    first = (r.get('first') or 'n/a')[:10]; last = (r.get('last') or 'n/a')[:10]
-    spans = f"{first} → {last}"
-    print(f"{r['verdict']:13s} {r['file']:42s} rows={r['rows']:6d} {spans:24s} miss={r.get('missing_rate_pct','-')}%")
-print(f"\nSaved: {out_file}")
+def main() -> int:
+    """Run the 14 integrity gates over the dataset directory and write the audit.
+
+    IMPORT-SAFETY INVARIANT (MISSION P0-001)
+    ----------------------------------------
+    Everything that touches the filesystem for *writing* lives here, behind
+    ``if __name__ == "__main__"``. Importing this module must never mutate
+    tracked evidence under ``reports/``: the gate
+    ``IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE`` depends on it.
+
+    ``sha256()`` and ``audit_file()`` stay at module scope on purpose — they
+    are pure (read-only) and are the reusable surface documented in
+    ``docs/COMPONENT_REUSE_MAP.md``.
+    """
+    files = sorted(glob.glob(os.path.join(UP, "*.csv")))
+    results = [audit_file(f) for f in files]
+    out = {"audit_time_utc": datetime.now(timezone.utc).isoformat(), "files": results}
+    out_file = get_reports_dir() / "data_integrity_audit.json"
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2)
+    for r in results:
+        first = (r.get('first') or 'n/a')[:10]; last = (r.get('last') or 'n/a')[:10]
+        spans = f"{first} → {last}"
+        print(f"{r['verdict']:13s} {r['file']:42s} rows={r['rows']:6d} {spans:24s} miss={r.get('missing_rate_pct','-')}%")
+    print(f"\nSaved: {out_file}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
