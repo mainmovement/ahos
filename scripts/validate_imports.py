@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import os
 import subprocess
 import sys
@@ -126,17 +127,108 @@ def _import_in_fresh_interpreter(module: str) -> tuple[int, str]:
     return 0, ""
 
 
+# ---------------------------------------------- evidence integrity (P0-001)
+# INVARIANT: IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE
+#
+# Importing a module may define names. It must not write files. This gate
+# imports every module in a fresh interpreter to prove it imports cleanly --
+# so any module that runs its real workload at module scope turns the act of
+# *validating* the repository into a silent rewrite of the historical record.
+#
+# That is exactly what happened: engine/{data_audit,dryrun_simulation,
+# telegram_live_test}.py each wrote under reports/ at import time, so running
+# this gate replaced recorded evidence with fresh results (in one case, an
+# audit of a *different* dataset that reported FAIL over a recorded PASS).
+#
+# engine/run_validation.py still has the pattern; it is in IMPORT_EXCLUDE and
+# therefore not probed here. It is pinned by an xfail test in
+# tests/test_engine_import_safety.py rather than hidden.
+#
+# Cost: two content snapshots of the evidence tree per run (cheap). The
+# per-module bisect only executes when something actually moved.
+EVIDENCE_DIRS = ("reports",)
+
+
+def _evidence_snapshot() -> dict[str, str]:
+    """Content hash of every file present under the evidence directories.
+
+    Covers the whole tree rather than only git-tracked paths: a module that
+    drops a NEW file into reports/ pollutes the evidence store just as surely
+    as one that rewrites a tracked artifact, and a negative-control test
+    proved a tracked-only snapshot misses that case entirely.
+
+    Presence is part of the snapshot, so deletions are detected too.
+    """
+    snap: dict[str, str] = {}
+    for directory in EVIDENCE_DIRS:
+        base = ROOT / directory
+        if not base.is_dir():
+            continue
+        for path in sorted(base.rglob("*")):
+            if not path.is_file():
+                continue
+            rel = path.relative_to(ROOT).as_posix()
+            try:
+                stat = path.stat()
+                # mtime is part of the fingerprint on purpose. A re-write of
+                # identical bytes is still a write: without it the per-module
+                # bisect below cannot attribute the mutation, because by the
+                # time it runs the file already exists with the same content.
+                # Only a write advances mtime; a read never does.
+                snap[rel] = "%s:%d" % (
+                    hashlib.sha256(path.read_bytes()).hexdigest(), stat.st_mtime_ns)
+            except OSError:
+                snap[rel] = "<unreadable>"
+    return snap
+
+
+def _evidence_delta(before: dict[str, str], after: dict[str, str]) -> list[str]:
+    return sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
+
+
+def _bisect_evidence_mutator(modules: list[str]) -> str:
+    """Name the module that mutated evidence. Runs only on failure."""
+    culprits: list[str] = []
+    for module in modules:
+        before = _evidence_snapshot()
+        _import_in_fresh_interpreter(module)
+        after = _evidence_snapshot()
+        delta = _evidence_delta(before, after)
+        if delta:
+            culprits.append(f"{module} -> {', '.join(delta[:5])}")
+    return "; ".join(culprits) if culprits else "not reproducible per-module"
+
+
 def check_imports() -> tuple[list[str], list[str]]:
     failures: list[str] = []
     ok_count = 0
     excluded = sorted(IMPORT_EXCLUDE)
-    for module in collect_modules():
+    modules = collect_modules()
+
+    before = _evidence_snapshot()
+    for module in modules:
         rc, detail = _import_in_fresh_interpreter(module)
         if rc == 0:
             ok_count += 1
         else:
             failures.append(f"{module}: {detail}")
+
+    after = _evidence_snapshot()
+    mutated = _evidence_delta(before, after)
+    if mutated:
+        culprits = _bisect_evidence_mutator(modules)
+        failures.append(
+            "IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE violated: "
+            f"{len(mutated)} evidence file(s) changed by the import probe "
+            f"({', '.join(mutated[:5])}); culprit(s): {culprits}"
+        )
+
     notes = [f"{ok_count} modules imported cleanly in fresh interpreters"]
+    notes.append(
+        "IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE: "
+        + ("HOLD - no evidence changed by the import probe" if not mutated
+           else f"VIOLATED - {len(mutated)} file(s) mutated")
+    )
     if excluded:
         notes.append(f"{len(excluded)} documented executable entrypoints excluded: {excluded}")
     return failures, notes
