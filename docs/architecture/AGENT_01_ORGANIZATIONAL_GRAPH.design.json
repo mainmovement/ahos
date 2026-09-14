@@ -1,0 +1,479 @@
+{
+  "document_id": "AGENT_01_ORGANIZATIONAL_GRAPH",
+  "version": "0.1.0",
+  "status": "DESIGN_ONLY",
+  "runtime_connected": false,
+  "enforced": false,
+  "decision_gate": "PROPOSED_PENDING_HUMAN_ACCEPTANCE",
+  "dual19_status": "UNRESOLVED",
+  "agent_one_runtime_status": "NOT_IMPLEMENTED",
+  "source_architecture": "docs/architecture/AGENT_01_ORGANIZATIONAL_FEDERATION_ARCHITECTURE.md",
+  "source_governance_proposal": "docs/governance/ORGANIZATIONAL_ARCHITECTURE_BASELINE_v0.1.md",
+  "truth_warning": "This graph is a design artifact. It creates no identity, command, supervision, verification, capability, activation, or authority.",
+  "decision_dependencies": [
+    "D1_DUAL19_INTERIM_NAMESPACE_LOCK",
+    "D2_AGENT_ONE_AUTHORITY_CEILING",
+    "D3_CURSOR_TRUST_BOUNDARY",
+    "AUTHORITATIVE_COMMANDER_TREE",
+    "AGENT_ONE_CANONICAL_IDENTITY"
+  ],
+  "taxonomies": {
+    "plane_a": {
+      "namespace": "agent.*",
+      "class": "IMPLEMENTED_LOGICAL_SLICE1_REGISTRY",
+      "authoritative_scope": "existing Slice-1 logical policy taxonomy only",
+      "ids": [
+        "agent.chief-orchestrator",
+        "agent.reality-forensics",
+        "agent.evidence-transport",
+        "agent.security",
+        "agent.identity",
+        "agent.canonical-decision-auditor",
+        "agent.scoring-science",
+        "agent.paper-trading",
+        "agent.learning-memory",
+        "agent.calibration",
+        "agent.cognitive-agi-aci",
+        "agent.windows-runtime",
+        "agent.provider-data",
+        "agent.integration",
+        "agent.frontend-ux",
+        "agent.independent-verification",
+        "agent.red-team",
+        "agent.change-architect",
+        "agent.release-governance-reviewer"
+      ]
+    },
+    "plane_b": {
+      "namespace": "principal.*",
+      "class": "IMPLEMENTED_SLICE2B_IDENTITY_CONTRACTS",
+      "federated_with_other_planes": false
+    },
+    "plane_c": {
+      "namespace": "RESEARCH_ANALYST_AGENT",
+      "class": "IMPLEMENTED_BOUNDED_CLASS_A_RESEARCH_IDENTITY",
+      "member_of_either_19_taxonomy": false
+    },
+    "plane_d": {
+      "namespace": "agent.org.NN-*",
+      "class": "PLANNED_DOCUMENTARY_RESEARCH_ROLES",
+      "runtime_registered": false,
+      "ids": [
+        "agent.org.01-chief-architect",
+        "agent.org.02-systems-architect",
+        "agent.org.03-security-architect",
+        "agent.org.04-governance-constitution",
+        "agent.org.05-epistemic-reasoning",
+        "agent.org.06-research-methodology",
+        "agent.org.07-data-intelligence",
+        "agent.org.08-crypto-market-intelligence",
+        "agent.org.09-on-chain-intelligence",
+        "agent.org.10-token-security-scam-intelligence",
+        "agent.org.11-risk-intelligence",
+        "agent.org.12-quant-backtesting",
+        "agent.org.13-ai-ml-intelligence",
+        "agent.org.14-agent-runtime-engineering",
+        "agent.org.15-prompt-instruction-engineering",
+        "agent.org.16-qa-verification",
+        "agent.org.17-product-ux-intelligence",
+        "agent.org.18-frontend-visualization",
+        "agent.org.19-independent-red-team"
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "node_id": "human.mehrdad",
+      "node_type": "HUMAN_PRINCIPAL",
+      "plane": "HUMAN",
+      "runtime_status": "EXTERNAL_HUMAN",
+      "lifecycle_state": "NOT_APPLICABLE",
+      "authoritative_direct_commander_ref": null,
+      "runtime_capabilities": [],
+      "authority_note": "Final human product and governance authority; authenticated runtime binding not implemented."
+    },
+    {
+      "node_id": "future.agent-one",
+      "node_type": "PROPOSED_PRIMARY_ORGANIZATIONAL_AGENT",
+      "plane": "FUTURE_RUNTIME",
+      "runtime_status": "NOT_IMPLEMENTED",
+      "lifecycle_state": "NOT_REGISTERED",
+      "authoritative_direct_commander_ref": null,
+      "proposed_direct_commander_ref": "human.mehrdad",
+      "runtime_capabilities": [],
+      "authority_ceiling_ref": "D2_AGENT_ONE_AUTHORITY_CEILING",
+      "root_of_trust": false,
+      "identity_binding_status": "UNRESOLVED"
+    },
+    {
+      "node_id": "agent.org.01-chief-architect",
+      "node_type": "PLANNED_SPECIALIST_ROLE",
+      "plane": "D",
+      "role": "Chief Architect",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.02-systems-architect",
+      "node_type": "PLANNED_SPECIALIST_ROLE",
+      "plane": "D",
+      "role": "Systems Architect",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.03-security-architect",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Security Architect",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_ORGANIZATION_SECURITY_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.04-governance-constitution",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Governance and Constitution",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/governance/AGENT_04_GOVERNANCE_AND_CONSTITUTION_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.05-epistemic-reasoning",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Epistemic Reasoning",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_05_EPISTEMIC_REASONING_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.06-research-methodology",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Research Methodology",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_06_RESEARCH_METHODOLOGY_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.07-data-intelligence",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Data Intelligence",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_07_DATA_INTELLIGENCE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.08-crypto-market-intelligence",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Crypto Market Intelligence",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_08_CRYPTO_MARKET_INTELLIGENCE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.09-on-chain-intelligence",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "On-Chain Intelligence",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_09_ON_CHAIN_INTELLIGENCE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.10-token-security-scam-intelligence",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Token Security and Scam Intelligence",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_10_TOKEN_SECURITY_SCAM_INTELLIGENCE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.11-risk-intelligence",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Risk Intelligence",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_11_RISK_INTELLIGENCE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.12-quant-backtesting",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Quantitative Intelligence and Backtesting",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_12_QUANTITATIVE_INTELLIGENCE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.13-ai-ml-intelligence",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "AI and ML Intelligence",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_13_AI_ML_INTELLIGENCE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.14-agent-runtime-engineering",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Agent Runtime Engineering",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_refs": [
+        "docs/architecture/AGENT_14_AGENT_RUNTIME_ARCHITECTURE.md",
+        "docs/architecture/AGENT_14_RUNTIME_FOUNDATION_RECONCILIATION_AND_MVOR_ARCHITECTURE.md"
+      ],
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.15-prompt-instruction-engineering",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Prompt, Instruction, and Delegation Engineering",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_15_PROMPT_INSTRUCTION_DELEGATION_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.16-qa-verification",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Independent Verification and Organizational Forensics",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/verification/AGENT_16_INDEPENDENT_VERIFICATION_AND_ORGANIZATIONAL_FORENSICS.md",
+      "runtime_capabilities": [],
+      "verification_eligibility": "NOT_ESTABLISHED",
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.17-product-ux-intelligence",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Human-Agent UX and Product Intelligence",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_17_HUMAN_AGENT_ORGANIZATION_UX_AND_PRODUCT_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.18-frontend-visualization",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Frontend and Visualization",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/architecture/AGENT_18_FRONTEND_VISUALIZATION_AND_TRUST_INTERFACE_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    },
+    {
+      "node_id": "agent.org.19-independent-red-team",
+      "node_type": "PLANNED_SPECIALIST_ROLE_WITH_DOCUMENTARY_MISSION",
+      "plane": "D",
+      "role": "Independent Red Team",
+      "runtime_status": "NOT_REGISTERED",
+      "lifecycle_state": "DORMANT_DOCUMENTARY",
+      "authoritative_direct_commander_ref": null,
+      "documentary_mission_ref": "docs/security/AGENT_19_RED_TEAM_AND_ADVERSARIAL_ORGANIZATIONAL_SECURITY_ARCHITECTURE.md",
+      "runtime_capabilities": [],
+      "verification_eligibility": "NOT_ESTABLISHED",
+      "activation_status": "BLOCKED_PENDING_IDENTITY_CHARTER_COMMANDER_AND_CAPABILITIES"
+    }
+  ],
+  "relationship_types": {
+    "COMMANDER_OF": {
+      "authority_transfer": "BOUNDED_BY_ACCEPTED_RELATIONSHIP_AND_CAPABILITY_CEILING",
+      "active_incoming_cardinality_per_active_agent": 1,
+      "implies_supervision": false,
+      "implies_verification": false
+    },
+    "SUPERVISES": {
+      "authority_transfer": false,
+      "visibility_scoped": true,
+      "implies_command": false,
+      "implies_verification": false
+    },
+    "PEER_REQUEST_ALLOWED": {
+      "authority_transfer": false,
+      "activation_implied": false,
+      "transport": "OrgRequestEnvelope via Mission Controller"
+    },
+    "KNOWLEDGE_ALLOWED": {
+      "authority_transfer": false,
+      "payload": "typed artifact references",
+      "provenance_required": true
+    },
+    "VERIFIES": {
+      "authority_transfer": false,
+      "independence_profile_required": true,
+      "implies_acceptance": false
+    },
+    "REPORTS_RESULT_TO": {
+      "authority_transfer": false,
+      "route": "producer to direct commander to Mission Controller"
+    },
+    "ESCALATES_TO": {
+      "authority_transfer": false,
+      "scope": "decision or blocker escalation"
+    }
+  },
+  "current_enforceable_relationships": [],
+  "proposed_relationships": [
+    {
+      "relationship_id": "proposal.human-mehrdad.commands-future-agent-one",
+      "relationship_type": "COMMANDER_OF",
+      "source": "human.mehrdad",
+      "target": "future.agent-one",
+      "status": "PROPOSED_PENDING_D2_AND_IDENTITY_BINDING",
+      "enforceable": false
+    }
+  ],
+  "authoritative_plane_d_commander_assignments": [],
+  "unresolved_assignments": {
+    "all_plane_d_roles": true,
+    "reason": "No accepted commander tree, no runtime identities, and conflicting documentary commander labels.",
+    "required_result_before_activation": "Exactly one accepted plane-qualified COMMANDER_OF edge per activated agent.",
+    "failure_state": "ACTIVATION_BLOCKED"
+  },
+  "alias_ambiguities": [
+    {
+      "alias": "AGENT-01",
+      "candidates": [
+        "future.agent-one",
+        "agent.org.01-chief-architect",
+        "agent.chief-orchestrator",
+        "Cursor Master Orchestrator mission persona"
+      ],
+      "resolution": "ROLE_IDENTITY_AMBIGUOUS",
+      "authority": "NONE"
+    }
+  ],
+  "capability_profiles": {
+    "documentary_planned_default": {
+      "runtime_capabilities": [],
+      "documentary_actions_observed_in_prior_missions": [
+        "READ",
+        "ANALYZE",
+        "PROPOSE"
+      ],
+      "prohibited_without_separate_authority": [
+        "IDENTITY_ISSUE",
+        "CAPABILITY_ISSUE",
+        "POLICY_MODIFY",
+        "SELF_ACTIVATE",
+        "SELF_VERIFY",
+        "FINAL_ACCEPT",
+        "PROTECTED_MUTATE",
+        "EXECUTE",
+        "TRADING_LIVE",
+        "AHOS_PRODUCTION"
+      ]
+    }
+  },
+  "graph_invariants": [
+    {
+      "id": "G-CMD-001",
+      "predicate": "active_agent.incoming(COMMANDER_OF).count == 1",
+      "failure": "ACTIVATION_BLOCKED"
+    },
+    {
+      "id": "G-CMD-002",
+      "predicate": "COMMANDER_OF does_not_imply VERIFIES or SUPERVISES",
+      "failure": "RELATIONSHIP_SCOPE_VIOLATION"
+    },
+    {
+      "id": "G-REQ-001",
+      "predicate": "PEER_REQUEST_ALLOWED.authority_transfer == false and activation_implied == false",
+      "failure": "REQUEST_REJECTED"
+    },
+    {
+      "id": "G-ID-001",
+      "predicate": "every_agent_reference_is_plane_qualified",
+      "failure": "ROLE_IDENTITY_AMBIGUOUS"
+    },
+    {
+      "id": "G-IV-001",
+      "predicate": "producer_identity_ref != independent_verifier_identity_ref and independence_profile_passes",
+      "failure": "INDEPENDENT_VERIFICATION_REJECTED"
+    },
+    {
+      "id": "G-A1-001",
+      "predicate": "future.agent-one.root_of_trust == false",
+      "failure": "ARCHITECTURE_NONCONFORMING"
+    },
+    {
+      "id": "G-RUNTIME-001",
+      "predicate": "runtime_connected == false until implementation_and_independent_verification",
+      "failure": "FALSE_OPERATIONAL_CLAIM"
+    }
+  ],
+  "query_contract": {
+    "who_commands_whom": "Return only active COMMANDER_OF edges. Current answer: none.",
+    "who_supervises_whom": "Return only active SUPERVISES edges. Current answer: none.",
+    "who_can_request_work_from_whom": "Return active PEER_REQUEST_ALLOWED edges and MC policy. Current answer: none.",
+    "who_can_verify_whom": "Return active VERIFIES edges plus passing independence profiles. Current answer: none.",
+    "who_can_receive_which_evidence": "Return active KNOWLEDGE_ALLOWED edges and artifact scopes. Current answer: none.",
+    "who_can_modify_which_resources": "Return current authority grants from implemented planes; this design adds none.",
+    "who_reports_to_agent_one": "Current authoritative answer: none. Future result projections route through MC after accepted bindings.",
+    "escalation_path": "Current runtime answer: none. Proposed: subordinate to commander to MC to Agent One to Human Principal.",
+    "result_return_path": "Current runtime answer: none. Proposed path is defined in source architecture section G.",
+    "knowledge_sharing_path": "Current runtime answer: none. Proposed path is defined in source architecture section H."
+  }
+}
