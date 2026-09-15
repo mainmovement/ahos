@@ -26,6 +26,7 @@ from agent_org.commands import (
     PromoteKnowledgePayload,
     RegisterAgentPayload,
     RegisterArtifactPayload,
+    RevokeAgentPayload,
     RevokeApprovalPayload,
     RevokeGrantPayload,
     TransitionArtifactPayload,
@@ -331,6 +332,8 @@ class TrustedCommandBoundary:
     ) -> MutationOutcome:
         if command.command_type is CommandType.REGISTER_AGENT:
             return self.__register_agent(state, command, session)
+        if command.command_type is CommandType.REVOKE_AGENT:
+            return self.__revoke_agent(state, command, now)
         if command.command_type is CommandType.CREATE_TASK:
             return self.__create_task(state, command)
         if command.command_type is CommandType.TRANSITION_TASK:
@@ -376,7 +379,8 @@ class TrustedCommandBoundary:
         session: Session,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, RegisterAgentPayload)
+        if not isinstance(payload, RegisterAgentPayload):
+            raise DomainDenied("payload_type_mismatch")
         identity = payload.identity
         if identity.principal_id in state.principals:
             raise DomainDenied("duplicate_principal")
@@ -395,11 +399,44 @@ class TrustedCommandBoundary:
         return MutationOutcome(None, None, "ACTIVE", 1, 1)
 
     @staticmethod
+    def __revoke_agent(
+        state: _GovernedState,
+        command: CommandEnvelope,
+        now: datetime,
+    ) -> MutationOutcome:
+        """D-15: audited agent-principal revocation.
+
+        Identities are forever: a revoked id can never be re-registered
+        (duplicate_principal wins), and every consumer that checks
+        principal liveness already requires ``revoked_at is None``, so
+        revocation takes effect immediately across artifact production,
+        verification eligibility, and promotion gates.  Grants minted for
+        the revoked principal are unreachable in-slice because no session
+        can be issued for an agent identity; grant-cascade revocation is a
+        documented residual for the multi-session identity model.
+        """
+        payload = command.payload
+        if not isinstance(payload, RevokeAgentPayload):
+            raise DomainDenied("payload_type_mismatch")
+        identity = state.principals.get(payload.principal_id)
+        if identity is None:
+            raise DomainDenied("unknown_principal")
+        if not isinstance(identity, AgentIdentity):
+            raise DomainDenied("cannot_revoke_protected_identity")
+        if identity.revoked_at is not None:
+            raise DomainDenied("identity_already_revoked")
+        state.principals[identity.principal_id] = replace(
+            identity, revoked_at=now
+        )
+        return MutationOutcome("ACTIVE", 1, "REVOKED", 2, 2)
+
+    @staticmethod
     def __create_task(
         state: _GovernedState, command: CommandEnvelope
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, CreateTaskPayload)
+        if not isinstance(payload, CreateTaskPayload):
+            raise DomainDenied("payload_type_mismatch")
         task = payload.task
         if command.expected_state_version != 0:
             raise DomainDenied("create_requires_expected_version_zero")
@@ -431,7 +468,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, TransitionTaskPayload)
+        if not isinstance(payload, TransitionTaskPayload):
+            raise DomainDenied("payload_type_mismatch")
         if payload.task_id != command.task_scope:
             raise DomainDenied("task_payload_scope_mismatch")
         task = state.tasks.get(payload.task_id)
@@ -467,7 +505,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, DelegateAuthorityPayload)
+        if not isinstance(payload, DelegateAuthorityPayload):
+            raise DomainDenied("payload_type_mismatch")
         child = payload.grant
         if command.expected_state_version != 0:
             raise DomainDenied("grant_create_requires_expected_version_zero")
@@ -509,7 +548,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, RevokeGrantPayload)
+        if not isinstance(payload, RevokeGrantPayload):
+            raise DomainDenied("payload_type_mismatch")
         grant = state.grants.get(payload.grant_id)
         if grant is None:
             raise DomainDenied("unknown_grant")
@@ -526,7 +566,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, RegisterArtifactPayload)
+        if not isinstance(payload, RegisterArtifactPayload):
+            raise DomainDenied("payload_type_mismatch")
         item = payload.artifact
         key = artifact_id(item)
         if command.expected_state_version != 0:
@@ -620,6 +661,7 @@ class TrustedCommandBoundary:
             self.__require_existing(
                 state, (item.experiment_run_id,), "experiment-run."
             )
+            self.__require_active_principal(state, item.producer_principal_id)
             return
         if isinstance(item, KnowledgeCandidate):
             self.__require_active_principal(state, item.producer_principal_id)
@@ -631,6 +673,15 @@ class TrustedCommandBoundary:
             if not isinstance(assigned, AgentIdentity):
                 raise DomainDenied("unknown_research_agent")
             self.__require_active_principal(state, item.assigned_agent_id)
+            # D-10: the mission contract itself may not carry scope that the
+            # grant pipeline could never legitimately confer.  Contract
+            # poisoning is denied at registration, not left to execution time.
+            if set(item.authority_resources) & PROTECTED_RESOURCES:
+                raise DomainDenied("mission_cannot_scope_protected_resource")
+            if {Capability.EXECUTION, Capability.POLICY_MODIFY} & set(
+                item.authority_capabilities
+            ):
+                raise DomainDenied("mission_cannot_scope_forbidden_capability")
             self.__require_existing(state, item.hypothesis_ids, "hypothesis.")
             if item.parent_mission_id is not None:
                 self.__require_existing(
@@ -675,7 +726,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, TransitionArtifactPayload)
+        if not isinstance(payload, TransitionArtifactPayload):
+            raise DomainDenied("payload_type_mismatch")
         if command.command_type is not CommandType.TRANSITION_ARTIFACT:
             raise DomainDenied("handler_command_type_mismatch")
         item = state.artifacts.get(payload.artifact_id)
@@ -683,6 +735,8 @@ class TrustedCommandBoundary:
             raise DomainDenied("unknown_artifact")
         if item.version != command.expected_state_version:
             raise DomainDenied("expected_state_version_mismatch")
+        if isinstance(item, MemoryRecord) and payload.target_state is MemoryState.PROMOTED:
+            raise DomainDenied("memory_cannot_silently_become_truth")
         try:
             refuse_generic_knowledge_promotion(item, payload.target_state)
             updated = transition_artifact(item, payload.target_state, now)
@@ -692,8 +746,6 @@ class TrustedCommandBoundary:
             updated.lifecycle_state
         ):
             raise DomainDenied(KNOWLEDGE_PROMOTION_DENIED_REASON)
-        if isinstance(item, MemoryRecord) and payload.target_state is MemoryState.PROMOTED:
-            raise DomainDenied("memory_cannot_silently_become_truth")
         if isinstance(item, Evidence) and payload.target_state is EvidenceState.VALID:
             if item.verification_status is not VerificationStatus.PASS:
                 raise DomainDenied("evidence_requires_independent_verification")
@@ -706,6 +758,26 @@ class TrustedCommandBoundary:
             and payload.target_state is ObservationState.VERIFIED
         ):
             self.__require_independent_verification(state, item)
+        # D-09: positive experiment outcomes are not bare enum flips.
+        # SUPPORTED / CONFIRMED must be grounded in at least one VERIFIED
+        # observation from a live (non-invalidated) experiment chain bound
+        # to this hypothesis.
+        if (
+            isinstance(item, Hypothesis)
+            and payload.target_state is HypothesisState.SUPPORTED
+            and not self.__has_verified_experiment_observation(
+                state, hypothesis_id=item.hypothesis_id
+            )
+        ):
+            raise DomainDenied("hypothesis_supported_requires_verified_observation")
+        if (
+            isinstance(item, Prediction)
+            and payload.target_state is PredictionState.CONFIRMED
+            and not self.__has_verified_experiment_observation(
+                state, hypothesis_id=item.hypothesis_id
+            )
+        ):
+            raise DomainDenied("prediction_confirmed_requires_verified_observation")
         if (
             isinstance(item, ContradictionCase)
             and payload.target_state is ContradictionState.RESOLVED
@@ -720,6 +792,11 @@ class TrustedCommandBoundary:
                     raise DomainDenied("contradiction_resolution_evidence_invalid")
             item = replace(item, resolution_evidence_ids=payload.evidence_ids)
             updated = transition_artifact(item, payload.target_state, now)
+        if (
+            isinstance(item, KnowledgeCandidate)
+            and payload.target_state is KnowledgeState.CHALLENGED
+        ):
+            self.__require_challenge_artifact(state, item)
         if (
             isinstance(item, KnowledgeCandidate)
             and payload.target_state is KnowledgeState.VERIFIED
@@ -741,7 +818,8 @@ class TrustedCommandBoundary:
         session: Session,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, CreateContradictionPayload)
+        if not isinstance(payload, CreateContradictionPayload):
+            raise DomainDenied("payload_type_mismatch")
         item = payload.contradiction
         self.__require_provenance(item, command, session)
         if item.lifecycle_state is not ContradictionState.OPEN or item.version != 1:
@@ -786,7 +864,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, CreateVerificationPayload)
+        if not isinstance(payload, CreateVerificationPayload):
+            raise DomainDenied("payload_type_mismatch")
         verification = payload.verification
         self.__require_provenance(verification, command, session)
         if verification.verification_id in state.artifacts:
@@ -806,6 +885,8 @@ class TrustedCommandBoundary:
         producer = self.__producer_of(target)
         if verification.producer_principal_id != producer:
             raise DomainDenied("verification_producer_mismatch")
+        if verification.target_artifact_id in verification.evidence_ids:
+            raise DomainDenied("verification_cannot_cite_target_itself")
         self.__require_existing(state, verification.evidence_ids, "evidence.")
         if target.version != command.expected_state_version:
             raise DomainDenied("expected_state_version_mismatch")
@@ -873,7 +954,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, CreateApprovalPayload)
+        if not isinstance(payload, CreateApprovalPayload):
+            raise DomainDenied("payload_type_mismatch")
         approval = payload.approval
         self.__require_provenance(approval, command, session)
         if approval.approval_id in state.approvals or approval.approval_id in state.artifacts:
@@ -909,7 +991,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, RevokeApprovalPayload)
+        if not isinstance(payload, RevokeApprovalPayload):
+            raise DomainDenied("payload_type_mismatch")
         approval = state.approvals.get(payload.approval_id)
         if approval is None:
             raise DomainDenied("unknown_approval")
@@ -943,7 +1026,8 @@ class TrustedCommandBoundary:
         now: datetime,
     ) -> MutationOutcome:
         payload = command.payload
-        assert isinstance(payload, PromoteKnowledgePayload)
+        if not isinstance(payload, PromoteKnowledgePayload):
+            raise DomainDenied("payload_type_mismatch")
         if command.command_type is not KNOWLEDGE_PROMOTION_COMMAND:
             raise DomainDenied("promotion_command_type_mismatch")
         candidate = state.artifacts.get(payload.candidate_id)
@@ -965,7 +1049,7 @@ class TrustedCommandBoundary:
             )
         if (
             approval.task_id != command.task_scope
-            or approval.action != Operation.PROMOTE.value
+            or approval.action is not Operation.PROMOTE
             or approval.resource_id != command.resource_scope
             or approval.capability_id != command.capability_scope
             or approval.policy_version != command.policy_version
@@ -989,6 +1073,28 @@ class TrustedCommandBoundary:
             updated.version,
             updated.version,
         )
+
+    @staticmethod
+    def __candidate_challenges(
+        state: _GovernedState, candidate: KnowledgeCandidate
+    ) -> list[ContradictionCase]:
+        return [
+            item
+            for item in state.artifacts.values()
+            if isinstance(item, ContradictionCase)
+            and candidate.candidate_id in item.affects_candidate_ids
+        ]
+
+    def __require_challenge_artifact(
+        self, state: _GovernedState, candidate: KnowledgeCandidate
+    ) -> None:
+        """D-03: CHALLENGED is a claim about reality, not a bare enum flip.
+
+        A knowledge candidate may enter CHALLENGED only when a first-class
+        ContradictionCase naming it actually exists in the governed store.
+        """
+        if not self.__candidate_challenges(state, candidate):
+            raise DomainDenied("knowledge_challenge_requires_contradiction_case")
 
     def __require_candidate_verification(
         self,
@@ -1059,6 +1165,31 @@ class TrustedCommandBoundary:
             and state.principals[record.verifier_principal_id].revoked_at is None
             for record in state.artifacts.values()
         )
+
+    @staticmethod
+    def __has_verified_experiment_observation(
+        state: _GovernedState, *, hypothesis_id: str
+    ) -> bool:
+        for observation in state.artifacts.values():
+            if (
+                not isinstance(observation, Observation)
+                or observation.lifecycle_state is not ObservationState.VERIFIED
+            ):
+                continue
+            run = state.artifacts.get(observation.experiment_run_id)
+            if (
+                not isinstance(run, ExperimentRun)
+                or run.lifecycle_state is ExperimentState.INVALIDATED
+            ):
+                continue
+            plan = state.artifacts.get(run.experiment_plan_id)
+            if (
+                isinstance(plan, ExperimentPlan)
+                and plan.lifecycle_state is not ExperimentState.INVALIDATED
+                and plan.hypothesis_id == hypothesis_id
+            ):
+                return True
+        return False
 
     @staticmethod
     def __require_independent_verification(

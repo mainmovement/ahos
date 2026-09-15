@@ -26,77 +26,83 @@ from agent_org.epistemic import (
 from agent_org.identity import AgentIdentity
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RegisterAgentPayload:
     identity: AgentIdentity
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
+class RevokeAgentPayload:
+    principal_id: str
+
+
+@dataclass(frozen=True, slots=True)
 class CreateTaskPayload:
     task: GovernedTask
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class TransitionTaskPayload:
     task_id: str
     target_state: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class DelegateAuthorityPayload:
     grant: CapabilityGrant
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RevokeGrantPayload:
     grant_id: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RegisterArtifactPayload:
     artifact: Artifact
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class TransitionArtifactPayload:
     artifact_id: str
     target_state: StrEnum
     evidence_ids: tuple[str, ...] = ()
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CreateContradictionPayload:
     contradiction: ContradictionCase
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CreateVerificationPayload:
     verification: VerificationRecord
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CreateApprovalPayload:
     approval: Approval
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RevokeApprovalPayload:
     approval_id: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class PromoteKnowledgePayload:
     candidate_id: str
     approval_id: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class UpdatePolicyPayload:
     proposed_policy_version: str
 
 
 CommandPayload = (
     RegisterAgentPayload
+    | RevokeAgentPayload
     | CreateTaskPayload
     | TransitionTaskPayload
     | DelegateAuthorityPayload
@@ -114,6 +120,7 @@ CommandPayload = (
 
 PAYLOAD_TYPES: dict[CommandType, type[object]] = {
     CommandType.REGISTER_AGENT: RegisterAgentPayload,
+    CommandType.REVOKE_AGENT: RevokeAgentPayload,
     CommandType.CREATE_TASK: CreateTaskPayload,
     CommandType.TRANSITION_TASK: TransitionTaskPayload,
     CommandType.DELEGATE_AUTHORITY: DelegateAuthorityPayload,
@@ -129,7 +136,7 @@ PAYLOAD_TYPES: dict[CommandType, type[object]] = {
 }
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CommandEnvelope:
     command_id: str
     command_type: CommandType

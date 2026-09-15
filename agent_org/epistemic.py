@@ -17,6 +17,7 @@ from typing import Any, Mapping
 from agent_org.contracts import (
     Capability,
     CommandType,
+    Operation,
     Provenance,
     Resource,
     require_id,
@@ -358,10 +359,20 @@ class Prediction:
 
 @dataclass(frozen=True)
 class Observation:
+    """A measured value from an experiment run.
+
+    D-09: carries an explicit producer principal (same pattern as Evidence)
+    so an observation transported by the operator on behalf of an agent
+    producer can receive a genuinely INDEPENDENT verification.  Without it,
+    producer resolved to the registrar and self-verification was the only
+    verification a single-session plane could construct.
+    """
+
     observation_id: str
     experiment_run_id: str
     measured_value: str
     observation_method: str
+    producer_principal_id: str
     provenance: Provenance
     lifecycle_state: ObservationState
     created_at: datetime
@@ -381,6 +392,7 @@ class Observation:
             lineage=self.lineage,
         )
         require_id(self.experiment_run_id, "experiment-run.", "experiment_run_id")
+        require_id(self.producer_principal_id, "principal.", "producer_principal_id")
         if not self.measured_value or not self.observation_method:
             raise ValueError("observation value and method are required")
         for value in self.verification_ids:
@@ -612,6 +624,8 @@ class VerificationRecord:
             raise ValueError("verification requires method and evidence")
         for value in self.evidence_ids:
             require_id(value, "evidence.", "evidence_id")
+        if self.target_artifact_id in self.evidence_ids:
+            raise ValueError("verification cannot cite its target as its own support")
         if (
             self.verification_kind is VerificationKind.INDEPENDENT
             and self.producer_principal_id == self.verifier_principal_id
@@ -631,7 +645,7 @@ class Approval:
     approval_id: str
     approver_principal_id: str
     task_id: str | None
-    action: str
+    action: str | Operation
     resource_id: Resource
     capability_id: Capability
     policy_version: str
@@ -656,6 +670,16 @@ class Approval:
             version=self.version,
             lineage=self.lineage,
         )
+        # D-20: the action is a typed Operation, not a free-form string.
+        # Existing call sites that pass the enum's string value keep working
+        # through this coercion; unknown strings fail closed at construction.
+        try:
+            coerced = Operation(self.action)
+        except ValueError as exc:
+            raise ValueError(
+                f"approval action must be a known Operation, got {self.action!r}"
+            ) from exc
+        object.__setattr__(self, "action", coerced)
         require_id(self.approver_principal_id, "principal.", "approver_principal_id")
         if self.task_id is not None:
             require_id(self.task_id, "task.", "task_id")
@@ -665,7 +689,7 @@ class Approval:
         require_utc(self.expires_at, "expires_at")
         if self.revoked_at is not None:
             require_utc(self.revoked_at, "revoked_at")
-        if self.expires_at <= self.issued_at or not self.action or not self.policy_version:
+        if self.expires_at <= self.issued_at or not self.policy_version:
             raise ValueError("approval must be bounded and fully scoped")
 
     def is_active(self, now: datetime) -> bool:
@@ -780,8 +804,10 @@ _LEGAL_ARTIFACT_TRANSITIONS: dict[type[Any], dict[StrEnum, frozenset[StrEnum]]] 
     },
     Claim: {
         ClaimState.DRAFT: frozenset({ClaimState.SUBMITTED, ClaimState.REJECTED}),
+        # D-05: same discipline as KnowledgeCandidate -- SUBMITTED must be
+        # challenged before it can be declared VERIFIED.
         ClaimState.SUBMITTED: frozenset(
-            {ClaimState.CHALLENGED, ClaimState.VERIFIED, ClaimState.REJECTED}
+            {ClaimState.CHALLENGED, ClaimState.REJECTED}
         ),
         ClaimState.CHALLENGED: frozenset(
             {ClaimState.VERIFIED, ClaimState.REJECTED, ClaimState.SUPERSEDED}
@@ -924,11 +950,16 @@ _LEGAL_ARTIFACT_TRANSITIONS: dict[type[Any], dict[StrEnum, frozenset[StrEnum]]] 
         ExperimentState.INVALIDATED: frozenset(),
     },
     MemoryRecord: {
+        # D-11: no generic edge may name PROMOTED.  Memory must never
+        # automatically become TCB-authoritative knowledge (spec section 26);
+        # a table permitting what the TCB denies is policy split-brain.
+        # The PROMOTED state remains in the enum (a future dedicated command
+        # may govern it) but is unreachable via TRANSITION_ARTIFACT.
         MemoryState.CANDIDATE: frozenset(
-            {MemoryState.CHALLENGED, MemoryState.PROMOTED, MemoryState.REJECTED}
+            {MemoryState.CHALLENGED, MemoryState.REJECTED}
         ),
         MemoryState.CHALLENGED: frozenset(
-            {MemoryState.PROMOTED, MemoryState.REJECTED, MemoryState.SUPERSEDED}
+            {MemoryState.REJECTED, MemoryState.SUPERSEDED}
         ),
         MemoryState.PROMOTED: frozenset({MemoryState.SUPERSEDED}),
         MemoryState.SUPERSEDED: frozenset(),

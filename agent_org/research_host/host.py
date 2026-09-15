@@ -633,6 +633,7 @@ class _Mediator:
                 experiment_run_id=experiment_run_id,
                 measured_value=measured_value,
                 observation_method=observation_method,
+                producer_principal_id=self.__context.principal_id,
                 provenance=provenance,
                 lifecycle_state=ObservationState.RECORDED,
                 created_at=now,

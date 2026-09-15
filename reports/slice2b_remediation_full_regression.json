@@ -1,0 +1,8 @@
+{
+  "command": ".venv/bin/python -m pytest tests/ tests2b/ -q -p no:cacheprovider",
+  "utc": "2026-09-15T13:13:59Z",
+  "head": "accfcdb",
+  "host_os": "linux (dev sandbox; Windows sentinel skips by design; product evidence remains the Windows host's job)",
+  "last_line": "2437 passed, 4 skipped, 1 xfailed in 433.82s (0:07:13)",
+  "note": "Final combined dual-suite regression for Remediation-02/03 and the D-09 host-facade follow-through fix (tests2b includes test_research_host_experiment_flow runtime coverage)."
+}
