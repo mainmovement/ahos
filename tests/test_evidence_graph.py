@@ -12,7 +12,9 @@ from architecture.identity.types import (
 )
 from architecture.knowledge.dossier import (
     AliasKind,
+    COMPOSER_VERSION,
     EpistemicStatus,
+    TokenDossier,
     compose_dossier,
 )
 from architecture.knowledge.evidence_graph import (
@@ -517,7 +519,210 @@ def test_consumer_contract_is_explicit_on_graph():
 
 
 def test_w1_dossier_can_be_projected_without_recompose_identity():
+    # Fix B (Agent-19): dossier= alone is not authority — must pass raw identity=.
     dossier = compose_dossier(identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"))
-    graph = compose_evidence_graph(dossier=dossier)
+    ignored = compose_evidence_graph(dossier=dossier)
+    assert ignored.canonical_token_id is None
+    assert ignored.identity_state is None
+    graph = compose_evidence_graph(
+        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"),
+    )
     assert graph.canonical_token_id == "abc123canonicalid"
     assert graph.identity_state == "VERIFIED"
+
+
+# --- W1.3 Fix B: always-recompose (caller dossier never authority) ---
+
+def _hand_built_verified_dossier(*, token_id: str = "FORGED", version: str = COMPOSER_VERSION):
+    return TokenDossier(
+        canonical_token_id=token_id,
+        join_keys=(),
+        identity_state="VERIFIED",
+        security_state=None,
+        decision_outcome=None,
+        opportunity_score=None,
+        epistemic_map=(),
+        conflicts=(),
+        unknowns=(),
+        provenance=(),
+        composed_at=None,
+        claims=(),
+        composer_version=version,
+    )
+
+
+def test_w13_t5_hand_built_dossier_no_canonical_token_node():
+    """T5: W2 hand-built TokenDossier(VERIFIED, forged id) → no canonical (dossier= discarded)."""
+    forged = _hand_built_verified_dossier(token_id="FORGED")
+    graph = compose_evidence_graph(dossier=forged)
+    assert graph.canonical_token_id is None
+    token = _token(graph)
+    assert token.metadata.get("canonical") is False
+    assert not token.node_id.startswith("token:canonical")
+
+
+def test_w13_t6_compose_via_real_verified_identity_still_works():
+    """T6: W2 compose via identity=real VERIFIED still works."""
+    graph = compose_evidence_graph(
+        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"),
+    )
+    assert graph.canonical_token_id == "abc123canonicalid"
+    assert _token(graph).metadata["canonical"] is True
+    assert _token(graph).node_id.startswith("token:canonical")
+
+
+def test_w13_t8_hand_built_forged_dossier_fails_b_path_a_alone_insufficient():
+    """T8: A-alone is insufficient — hand-built dossier must fail B (always-recompose).
+
+    Fix A only hardens compose_dossier type checks. Without Fix B, a caller can
+    hand-build TokenDossier(identity_state='VERIFIED', canonical_token_id=...)
+    and pass it to compose_evidence_graph. Fix B always recomposes from raw kwargs
+    and discards dossier=.
+    """
+    forged = _hand_built_verified_dossier(token_id="FORGED_A_ALONE_INSUFFICIENT")
+    assert forged.identity_state == "VERIFIED"
+    assert forged.canonical_token_id == "FORGED_A_ALONE_INSUFFICIENT"
+    graph = compose_evidence_graph(dossier=forged)
+    assert graph.canonical_token_id is None
+    assert _token(graph).metadata.get("canonical") is False
+    wrong_seal = _hand_built_verified_dossier(token_id="FORGED_WRONG_SEAL")
+    g2 = compose_evidence_graph(dossier=wrong_seal)
+    assert g2.canonical_token_id is None
+
+
+def test_w13_t9_spoofed_identity_via_w2_compose_dossier_path_no_canonical():
+    """T9: dynamic IR+TI spoof through W2 identity= kwargs yields no canonical."""
+    FakeTI = type(
+        "TokenIdentity",
+        (),
+        {
+            "__module__": ".".join(("architecture", "identity", "types")),
+            "token_id": "SPOOF_VIA_W2",
+            "state": "VERIFIED",
+            "chain": "solana",
+            "address_canonical": "So111",
+            "address_input": "So111",
+            "symbol_alias": "FAKE",
+        },
+    )
+    FakeIR = type(
+        "IdentityResolution",
+        (),
+        {
+            "__module__": ".".join(("architecture", "identity", "types")),
+            "token": FakeTI(),
+            "conflicts": (),
+            "provenance": (),
+        },
+    )
+    graph = compose_evidence_graph(identity=FakeIR())
+    assert graph.canonical_token_id is None
+    assert graph.identity_state is None
+    assert _token(graph).metadata.get("canonical") is False
+
+
+def test_w13_t10_combined_a_and_b_both_paths_closed_on_w2():
+    """T10: combined A+B — spoofed identity and hand-built dossier both closed on W2."""
+    FakeTI = type(
+        "TokenIdentity",
+        (),
+        {
+            "__module__": ".".join(("architecture", "identity", "types")),
+            "token_id": "COMBINED_SPOOF",
+            "state": "VERIFIED",
+            "chain": "solana",
+            "address_canonical": "x",
+            "address_input": "x",
+            "symbol_alias": "Z",
+        },
+    )
+    FakeIR = type(
+        "IdentityResolution",
+        (),
+        {
+            "__module__": ".".join(("architecture", "identity", "types")),
+            "token": FakeTI(),
+            "conflicts": (),
+            "provenance": (),
+        },
+    )
+    g_spoof = compose_evidence_graph(identity=FakeIR())
+    assert g_spoof.canonical_token_id is None
+
+    g_hand = compose_evidence_graph(dossier=_hand_built_verified_dossier())
+    assert g_hand.canonical_token_id is None
+
+    # Positive control: raw identity= still works (dossier= alone never authorizes).
+    g_ok = compose_evidence_graph(
+        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"),
+    )
+    assert g_ok.canonical_token_id == "abc123canonicalid"
+
+
+def test_w13_compose_dossier_object_alone_does_not_authorize_canonical():
+    """Even a real compose_dossier output is not W2 authority without raw kwargs."""
+    dossier = compose_dossier(
+        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid")
+    )
+    graph = compose_evidence_graph(dossier=dossier)
+    assert graph.canonical_token_id is None
+    assert graph.identity_state is None
+
+
+def test_w13_t11_hand_built_verified_dossier_does_not_authorize_canonical():
+    """T11 (Agent-19 / Agent-16): seal symbols absent; hand dossier= discarded → no canonical."""
+    dossier_src = (ROOT / "architecture" / "knowledge" / "dossier.py").read_text(encoding="utf-8")
+    graph_src = (ROOT / "architecture" / "knowledge" / "evidence_graph.py").read_text(encoding="utf-8")
+    for src in (dossier_src, graph_src):
+        assert "_COMPOSER_SEAL" not in src
+        assert "is_composer_sealed" not in src
+        assert "composer_seal" not in src
+    # Import surface must not expose seal helpers
+    import architecture.knowledge.dossier as dossier_mod
+    assert not hasattr(dossier_mod, "_COMPOSER_SEAL")
+    assert not hasattr(dossier_mod, "is_composer_sealed")
+
+    forged = _hand_built_verified_dossier(token_id="SEAL_FORGE_BYPASS")
+    assert forged.identity_state == "VERIFIED"
+    assert forged.canonical_token_id == "SEAL_FORGE_BYPASS"
+    try:
+        object.__setattr__(forged, "canonical_token_id", "SEAL_FORGE_BYPASS")
+    except Exception:
+        pass
+    graph = compose_evidence_graph(dossier=forged)
+    assert graph.canonical_token_id is None
+    assert graph.identity_state is None
+    assert _token(graph).metadata.get("canonical") is False
+
+    # dossier= plus spoofed identity= still closed by Fix A
+    FakeTI = type(
+        "TokenIdentity",
+        (),
+        {
+            "__module__": ".".join(("architecture", "identity", "types")),
+            "token_id": "SPOOF_WITH_DISCARDED_DOSSIER",
+            "state": "VERIFIED",
+            "chain": "solana",
+            "address_canonical": "x",
+            "address_input": "x",
+            "symbol_alias": "Z",
+        },
+    )
+    FakeIR = type(
+        "IdentityResolution",
+        (),
+        {
+            "__module__": ".".join(("architecture", "identity", "types")),
+            "token": FakeTI(),
+            "conflicts": (),
+            "provenance": (),
+        },
+    )
+    g2 = compose_evidence_graph(dossier=forged, identity=FakeIR())
+    assert g2.canonical_token_id is None
+
+    g_ok = compose_evidence_graph(
+        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"),
+    )
+    assert g_ok.canonical_token_id == "abc123canonicalid"
+

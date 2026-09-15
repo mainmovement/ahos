@@ -24,9 +24,12 @@ Epistemic rules
     OBSERVED / FACTUAL / FACTUAL_PREMISE authority is never created here.
 
 Identity rules
-    Canonical TOKEN nodes require dossier.identity_state == VERIFIED and a
-    dossier.canonical_token_id. Symbol, name, operational token_id, and
-    aliases never become canonical graph identity.
+    Canonical TOKEN nodes require a TokenDossier freshly produced by
+    compose_dossier from raw kwargs (always-recompose), with
+    identity_state == VERIFIED and a canonical_token_id. Caller-supplied
+    dossier= objects are discarded and never authorize canonical identity.
+    Symbol, name, operational token_id, and aliases never become canonical
+    graph identity.
 
 Contradiction behavior
     Both sides remain. The contradiction is a first-class node plus
@@ -336,6 +339,8 @@ def _iter_claims(claims: Any) -> list[Any]:
 
 
 def _canonical_token_allowed(dossier: TokenDossier) -> bool:
+    # Dossier here is always freshly produced by compose_dossier (Fix B).
+    # Never trust a caller-supplied TokenDossier (always recomposed upstream).
     return (
         dossier.identity_state == "VERIFIED"
         and _text(dossier.canonical_token_id) is not None
@@ -578,16 +583,21 @@ def compose_evidence_graph(
 
     This is a view. It does not decide, verify identity, or mint facts.
     Scalars alone are not sufficient authority; see CONSUMER_CONTRACT.
+
+    Fix B (Agent-19): never trust caller-supplied TokenDossier.
+    The dossier= argument is accepted for API compatibility only and is discarded.
+    Authority always comes from a fresh compose_dossier(...) over raw kwargs
+    (always-recompose).
     """
-    if dossier is None:
-        dossier = compose_dossier(
-            identity=identity,
-            decision=decision,
-            score=score,
-            security=security,
-            claims=claims,
-            metadata=metadata,
-        )
+    _ = dossier  # discarded — not authority
+    dossier = compose_dossier(
+        identity=identity,
+        decision=decision,
+        score=score,
+        security=security,
+        claims=claims,
+        metadata=metadata,
+    )
 
     builder = _Builder()
     token = _token_node(builder, dossier)
