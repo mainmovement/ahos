@@ -132,16 +132,14 @@ class EpistemicCoreTests(unittest.TestCase):
         return item
 
     def verify(self, target, producer_id: str, evidence_ids: tuple[str, ...], *, kind=VerificationKind.INDEPENDENT):
+        from agent_org.epistemic import artifact_id
+
         holder = {}
 
         def payload(cid):
             record = VerificationRecord(
                 verification_id=self.env.ids.new("verification"),
-                target_artifact_id=(
-                    target.evidence_id
-                    if isinstance(target, Evidence)
-                    else target.candidate_id
-                ),
+                target_artifact_id=artifact_id(target),
                 producer_principal_id=producer_id,
                 verifier_principal_id=self.env.plane.operator.principal_id,
                 verification_kind=kind,
@@ -200,9 +198,11 @@ class EpistemicCoreTests(unittest.TestCase):
         return submit(self.env, command)
 
     def valid_evidence(self) -> Evidence:
-        evidence = self.evidence(self.source())
+        source = self.source()
+        evidence = self.evidence(source)
+        review_base = self.evidence(source)
         result, _record = self.verify(
-            evidence, self.producer.principal_id, (evidence.evidence_id,)
+            evidence, self.producer.principal_id, (review_base.evidence_id,)
         )
         self.assertTrue(result.accepted, result)
         updated = self.env.plane.projections.artifact(evidence.evidence_id)
@@ -304,9 +304,11 @@ class EpistemicCoreTests(unittest.TestCase):
         self.assertEqual(result.reason, "artifact_initial_state_invalid")
 
     def test_stale_evidence_cannot_silently_become_valid(self) -> None:
-        evidence = self.evidence(self.source(), expires_in=2)
+        source = self.source()
+        evidence = self.evidence(source, expires_in=2)
+        review_base = self.evidence(source)
         verified, _ = self.verify(
-            evidence, self.producer.principal_id, (evidence.evidence_id,)
+            evidence, self.producer.principal_id, (review_base.evidence_id,)
         )
         self.assertTrue(verified.accepted)
         self.env.clock.advance(3)
@@ -360,14 +362,69 @@ class EpistemicCoreTests(unittest.TestCase):
         claim = self.claim(self.valid_evidence())
         self.assertTrue(self.transition(claim, ClaimState.SUBMITTED).accepted)
         current = self.env.plane.projections.artifact(claim.claim_id)
+        self.assertTrue(self.transition(current, ClaimState.CHALLENGED).accepted)
+        current = self.env.plane.projections.artifact(claim.claim_id)
         result = self.transition(current, ClaimState.VERIFIED)
         self.assertEqual(result.reason, "missing_independent_verification")
 
+    def _file_challenge(self, candidate, left_artifact_id, right_artifact_id):
+        holder = {}
+
+        def payload(cid):
+            contradiction = ContradictionCase(
+                contradiction_id=self.env.ids.new("contradiction"),
+                left_artifact_id=left_artifact_id,
+                right_artifact_id=right_artifact_id,
+                rationale="Documented challenge to the candidate",
+                affects_candidate_ids=(candidate.candidate_id,),
+                provenance=provenance(self.env, cid),
+                lifecycle_state=ContradictionState.OPEN,
+                created_at=self.env.clock.now(),
+                updated_at=self.env.clock.now(),
+            )
+            holder["item"] = contradiction
+            return CreateContradictionPayload(contradiction)
+
+        result = submit(
+            self.env,
+            make_command(
+                self.env,
+                CommandType.CREATE_CONTRADICTION,
+                payload,
+                task_scope=self.task.task_id,
+                expected_state_version=candidate.version,
+            ),
+        )
+        self.assertTrue(result.accepted, result)
+        return holder["item"]
+
+    def _resolve_challenge(self, contradiction, evidence: Evidence):
+        result = submit(
+            self.env,
+            make_command(
+                self.env,
+                CommandType.TRANSITION_ARTIFACT,
+                lambda _cid: TransitionArtifactPayload(
+                    artifact_id=contradiction.contradiction_id,
+                    target_state=ContradictionState.RESOLVED,
+                    evidence_ids=(evidence.evidence_id,),
+                ),
+                task_scope=self.task.task_id,
+                expected_state_version=contradiction.version,
+            ),
+        )
+        self.assertTrue(result.accepted, result)
+        return result
+
     def test_independent_verification_required_for_candidate(self) -> None:
         evidence = self.valid_evidence()
-        candidate = self.candidate(self.claim(evidence), evidence)
+        left = self.claim(evidence)
+        right = self.claim(evidence)
+        candidate = self.candidate(left, evidence)
         under_review = self.transition(candidate, KnowledgeState.UNDER_REVIEW)
         self.assertTrue(under_review.accepted)
+        current = self.env.plane.projections.artifact(candidate.candidate_id)
+        self._file_challenge(current, left.claim_id, right.claim_id)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
         self.assertTrue(self.transition(current, KnowledgeState.CHALLENGED).accepted)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
@@ -384,12 +441,16 @@ class EpistemicCoreTests(unittest.TestCase):
 
     def test_self_check_does_not_satisfy_promotion_verification(self) -> None:
         evidence = self.valid_evidence()
+        left = self.claim(evidence)
+        right = self.claim(evidence)
         candidate = self.candidate(
-            self.claim(evidence),
+            left,
             evidence,
             producer_id=self.env.plane.operator.principal_id,
         )
         self.assertTrue(self.transition(candidate, KnowledgeState.UNDER_REVIEW).accepted)
+        current = self.env.plane.projections.artifact(candidate.candidate_id)
+        self._file_challenge(current, left.claim_id, right.claim_id)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
         self.assertTrue(self.transition(current, KnowledgeState.CHALLENGED).accepted)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
@@ -406,10 +467,16 @@ class EpistemicCoreTests(unittest.TestCase):
 
     def _verified_candidate(self):
         evidence = self.valid_evidence()
-        candidate = self.candidate(self.claim(evidence), evidence)
+        left = self.claim(evidence)
+        right = self.claim(evidence)
+        candidate = self.candidate(left, evidence)
         self.assertTrue(self.transition(candidate, KnowledgeState.UNDER_REVIEW).accepted)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
+        challenge = self._file_challenge(current, left.claim_id, right.claim_id)
+        current = self.env.plane.projections.artifact(candidate.candidate_id)
         self.assertTrue(self.transition(current, KnowledgeState.CHALLENGED).accepted)
+        challenge = self.env.plane.projections.artifact(challenge.contradiction_id)
+        self._resolve_challenge(challenge, evidence)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
         verification, record = self.verify(
             current, self.producer.principal_id, (evidence.evidence_id,)
@@ -540,6 +607,8 @@ class EpistemicCoreTests(unittest.TestCase):
         candidate = self.candidate(left, evidence)
         self.assertTrue(self.transition(candidate, KnowledgeState.UNDER_REVIEW).accepted)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
+        filed = self._file_challenge(current, left.claim_id, right.claim_id)
+        current = self.env.plane.projections.artifact(candidate.candidate_id)
         self.assertTrue(self.transition(current, KnowledgeState.CHALLENGED).accepted)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
         verified, _record = self.verify(
@@ -547,44 +616,12 @@ class EpistemicCoreTests(unittest.TestCase):
         )
         self.assertTrue(verified.accepted)
         current = self.env.plane.projections.artifact(candidate.candidate_id)
-        holder = {}
-
-        def payload(cid):
-            contradiction = ContradictionCase(
-                contradiction_id=self.env.ids.new("contradiction"),
-                left_artifact_id=left.claim_id,
-                right_artifact_id=right.claim_id,
-                rationale="Conflicting synthetic claims",
-                affects_candidate_ids=(candidate.candidate_id,),
-                provenance=provenance(self.env, cid),
-                lifecycle_state=ContradictionState.OPEN,
-                created_at=self.env.clock.now(),
-                updated_at=self.env.clock.now(),
-            )
-            holder["item"] = contradiction
-            return CreateContradictionPayload(contradiction)
-
-        contradiction = submit(
-            self.env,
-            make_command(
-                self.env,
-                CommandType.CREATE_CONTRADICTION,
-                payload,
-                task_scope=self.task.task_id,
-                expected_state_version=current.version,
-            ),
-        )
-        self.assertTrue(contradiction.accepted)
-        current = self.env.plane.projections.artifact(candidate.candidate_id)
         denied = self.transition(current, KnowledgeState.VERIFIED)
         self.assertEqual(denied.reason, "unresolved_contradiction")
         self.assertIsNotNone(
-            self.env.plane.projections.artifact(holder["item"].contradiction_id)
+            self.env.plane.projections.artifact(filed.contradiction_id)
         )
-        unresolved = self.env.plane.projections.artifact(
-            holder["item"].contradiction_id
-        )
-        no_evidence = self.transition(unresolved, ContradictionState.RESOLVED)
+        no_evidence = self.transition(filed, ContradictionState.RESOLVED)
         self.assertEqual(
             no_evidence.reason, "contradiction_resolution_requires_evidence"
         )
@@ -710,6 +747,7 @@ class EpistemicCoreTests(unittest.TestCase):
                 experiment_run_id=run.experiment_run_id,
                 measured_value="synthetic value",
                 observation_method="offline fixture read",
+                producer_principal_id=self.producer.principal_id,
                 provenance=provenance(self.env, cid),
                 lifecycle_state=ObservationState.RECORDED,
                 created_at=self.env.clock.now(),

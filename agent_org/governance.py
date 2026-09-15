@@ -36,6 +36,9 @@ COMMAND_POLICIES: dict[CommandType, CommandPolicy] = {
     CommandType.REGISTER_AGENT: CommandPolicy(
         Capability.IDENTITY_MANAGE, Operation.REGISTER, Resource.IDENTITY_STORE, False
     ),
+    CommandType.REVOKE_AGENT: CommandPolicy(
+        Capability.IDENTITY_MANAGE, Operation.REVOKE, Resource.IDENTITY_STORE, False
+    ),
     CommandType.CREATE_TASK: CommandPolicy(
         Capability.TASK_MANAGE, Operation.CREATE, Resource.TASK_STORE, False
     ),

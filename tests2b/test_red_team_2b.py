@@ -403,6 +403,115 @@ class Slice2BRedTeamTests(unittest.TestCase):
         with self.assertRaises(AuditIntegrityError):
             ledger.verify()
 
+    def test_rt13b_audit_middle_excision_detected(self) -> None:
+        """ATTACK delete one middle event from a same-process corrupted ledger.
+
+        The synthetic-corruption level is the CORRECT level: the ledger's
+        tamper-evidence checkpoints exist precisely for same-process
+        corruption of private state, so the attack must mutate private
+        state rather than weaken the store boundary to reach the live one.
+        """
+        env = new_env()
+        create_task(env)
+        create_task(env)
+        create_task(env)
+        events = list(env.plane.projections.audit_events())
+        assert len(events) >= 3
+        events.pop(1)
+        ledger = AuditLedger()
+        object.__setattr__(ledger, "_AuditLedger__events", events)
+        object.__setattr__(ledger, "_AuditLedger__expected_count", len(events) + 1)
+        with self.assertRaises(AuditIntegrityError) as ctx:
+            ledger.verify()
+        self.assertEqual(str(ctx.exception), "audit event count checkpoint mismatch")
+
+    def test_rt13c_audit_field_forgery_detected(self) -> None:
+        """ATTACK modify an event field while keeping its recorded hashes."""
+        env = new_env()
+        create_task(env)
+        create_task(env)
+        events = list(env.plane.projections.audit_events())
+        forged = events[1]
+        object.__setattr__(forged, "failure_reason", "rewritten history")
+        events[1] = forged
+        ledger = AuditLedger()
+        object.__setattr__(ledger, "_AuditLedger__events", events)
+        object.__setattr__(
+            ledger, "_AuditLedger__expected_head", events[-1].event_hash
+        )
+        object.__setattr__(ledger, "_AuditLedger__expected_count", len(events))
+        with self.assertRaises(AuditIntegrityError) as ctx:
+            ledger.verify()
+        self.assertEqual(str(ctx.exception), "audit event hash mismatch")
+
+    def test_rt06b_self_verification_denied_through_tcb_under_bypass(self) -> None:
+        """RT-06 was constructor-only; the TCB layer must independently deny
+        an INDEPENDENT self-verification even when construction was bypassed
+        with the documented object.__setattr__ residual.  Every gate before
+        the self-verification check is satisfied with real artifacts so the
+        exercised denial is provably the one under test."""
+        from tests2b.test_epistemic_core import EpistemicCoreTests
+        from agent_org.epistemic import (
+            VerificationKind,
+            VerificationRecord,
+            VerificationStatus,
+        )
+
+        fx = EpistemicCoreTests(
+            "test_verified_candidate_promotes_with_scoped_active_approval"
+        )
+        fx.setUp()
+        env = fx.env
+        source = fx.source()  # operator-produced target
+        evidence = fx.evidence(source)  # real, citable
+
+        record = VerificationRecord(
+            verification_id=env.ids.new("verification"),
+            target_artifact_id=source.source_id,
+            producer_principal_id=env.plane.operator.principal_id,
+            verifier_principal_id=env.plane.operator.principal_id,
+            verification_kind=VerificationKind.SELF_CHECK,
+            status=VerificationStatus.PASS,
+            evidence_ids=(evidence.evidence_id,),
+            method="self-attestation",
+            provenance=provenance(env, "command.rt06b-base"),
+            lifecycle_state=VerificationStatus.PASS,
+            created_at=env.clock.now(),
+            updated_at=env.clock.now(),
+        )
+
+        def forged_payload(cid):
+            forged = VerificationRecord(
+                verification_id=record.verification_id,
+                target_artifact_id=record.target_artifact_id,
+                producer_principal_id=record.producer_principal_id,
+                verifier_principal_id=record.verifier_principal_id,
+                verification_kind=record.verification_kind,
+                status=record.status,
+                evidence_ids=record.evidence_ids,
+                method=record.method,
+                provenance=provenance(env, cid),
+                lifecycle_state=record.lifecycle_state,
+                created_at=record.created_at,
+                updated_at=record.updated_at,
+            )
+            object.__setattr__(
+                forged, "verification_kind", VerificationKind.INDEPENDENT
+            )
+            return CreateVerificationPayload(forged)
+
+        result = submit(
+            env,
+            make_command(
+                env,
+                CommandType.CREATE_VERIFICATION,
+                forged_payload,
+                task_scope=fx.task.task_id,
+                expected_state_version=source.version,
+            ),
+        )
+        self.assertEqual(result.reason, "self_verification_not_independent")
+
     def test_rt14_memory_poisoning_denied(self) -> None:
         """ATTACK memory with fake support; EXPECT reference check; ACTUAL denial."""
         env = new_env()
