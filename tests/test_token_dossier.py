@@ -12,7 +12,9 @@ from architecture.identity.types import (
 )
 from architecture.knowledge.dossier import (
     AliasKind,
+    COMPOSER_VERSION,
     EpistemicStatus,
+    TokenDossier,
     compose_dossier,
 )
 
@@ -878,6 +880,12 @@ def test_w12_fake_identity_missing_provenance_does_not_crash():
 
 
 def test_w12_identity_property_access_error_is_fail_closed():
+    """Spoofed IR is rejected by exact-type check (Fix A) before field access.
+
+    Hostile field access on a type-spoofed object is unreachable under Fix A;
+    fail-closed no-canonical still holds. Access-error path for *exact* types
+    is covered when a real IdentityResolution exposes an unreadable field.
+    """
     boom = _spoofed_identity_resolution(
         token=property(lambda self: (_ for _ in ()).throw(RuntimeError("hostile"))),
         conflicts=(),
@@ -886,11 +894,29 @@ def test_w12_identity_property_access_error_is_fail_closed():
     dossier = compose_dossier(identity=boom)
     _assert_no_canonical(dossier)
     assert dossier.identity_state is None
-    assert "identity_resolution_invalid" in dossier.unknowns
+    assert "identity_input_invalid" in dossier.unknowns
+    assert any(p.get("source") == "identity_input_rejected" for p in dossier.provenance)
+
+    # Exact-type IR with hostile token descriptor via class monkeypatch.
+    real = _identity(state=IdentityState.VERIFIED, token_id="will_not_read")
+    original = IdentityResolution.__dict__.get("token")
+    def _hostile_token(_self):
+        raise RuntimeError("hostile")
+    try:
+        IdentityResolution.token = property(_hostile_token)  # type: ignore[misc, assignment]
+        hostile_dossier = compose_dossier(identity=real)
+    finally:
+        if original is not None:
+            IdentityResolution.token = original  # type: ignore[misc, assignment]
+        else:
+            delattr(IdentityResolution, "token")
+    _assert_no_canonical(hostile_dossier)
+    assert hostile_dossier.identity_state is None
+    assert "identity_resolution_invalid" in hostile_dossier.unknowns
     assert any(
         p.get("source") == "identity_input_rejected"
         and "access_error" in str(p.get("detail"))
-        for p in dossier.provenance
+        for p in hostile_dossier.provenance
     )
 
 
@@ -925,6 +951,7 @@ def test_w12_empty_namespace_identity_does_not_raise():
 
 
 def test_w12_spoofed_resolution_with_malformed_token_is_rejected():
+    """Under Fix A, type-spoofed IR is rejected as identity_input_invalid."""
     boom = _spoofed_identity_resolution(
         token=SimpleNamespace(state="VERIFIED", token_id="FORGED_ID"),
         conflicts=(),
@@ -932,10 +959,160 @@ def test_w12_spoofed_resolution_with_malformed_token_is_rejected():
     )
     dossier = compose_dossier(identity=boom)
     _assert_no_canonical(dossier)
-    assert "identity_resolution_invalid" in dossier.unknowns
+    assert "identity_input_invalid" in dossier.unknowns
 
 
 def test_w12_composer_source_has_no_contiguous_identity_import_token():
     assert "architecture.identity" not in DOSSIER_SRC
     assert "import hashlib" not in DOSSIER_SRC
     assert "FACTUAL_PREMISE" not in DOSSIER_SRC
+
+
+# --- W1.3 exact class identity + always-recompose (Fix A + Fix B) ---
+
+def _dynamic_token_identity(**attrs):
+    defaults = dict(
+        token_id="FORGED_CANONICAL",
+        state="VERIFIED",
+        chain="solana",
+        address_canonical="So11111111111111111111111111111111111111112",
+        address_input="So11111111111111111111111111111111111111112",
+        symbol_alias="FAKE",
+    )
+    defaults.update(attrs)
+    cls = type("TokenIdentity", (), {"__module__": ".".join(("architecture", "identity", "types")), **defaults})
+    return cls()
+
+
+def _dynamic_identity_resolution(*, token, conflicts=(), provenance=()):
+    cls = type(
+        "IdentityResolution",
+        (),
+        {
+            "__module__": ".".join(("architecture", "identity", "types")),
+            "token": token,
+            "conflicts": conflicts,
+            "provenance": provenance,
+        },
+    )
+    return cls()
+
+
+def test_w13_t1_dynamic_class_spoof_both_ir_and_ti_no_verified_canonical():
+    """T1: dynamic type() spoof of IR+TI must not mint VERIFIED/canonical."""
+    spoof = _dynamic_identity_resolution(token=_dynamic_token_identity())
+    dossier = compose_dossier(identity=spoof)
+    _assert_no_canonical(dossier)
+    assert dossier.identity_state is None
+    assert "identity_input_invalid" in dossier.unknowns
+
+
+def test_w13_t2_forge_ir_only_or_ti_only_rejected():
+    """T2: forging only IR or only TI is rejected."""
+    real_ti = TokenIdentity(
+        chain="solana",
+        address_canonical="So11111111111111111111111111111111111111112",
+        address_input="So11111111111111111111111111111111111111112",
+        token_id="real_but_wrapped",
+        symbol_alias="ABC",
+        name_alias=None,
+        state=IdentityState.VERIFIED,
+        reason="fixture",
+    )
+    ir_only = _dynamic_identity_resolution(token=real_ti)
+    d_ir = compose_dossier(identity=ir_only)
+    _assert_no_canonical(d_ir)
+    assert d_ir.identity_state is None
+
+    fake_ti = _dynamic_token_identity(token_id="FORGED_TI_ONLY")
+    ir_with_fake_ti = IdentityResolution(
+        chain=ChainIdentity("solana", "solana", IdentityState.VERIFIED, "fixture"),
+        token=fake_ti,
+        pool=None,
+        dex=None,
+        sources=(),
+        conflicts=(),
+        provenance=(),
+    )
+    d_ti = compose_dossier(identity=ir_with_fake_ti)
+    _assert_no_canonical(d_ti)
+    assert d_ti.identity_state is None
+    assert "identity_resolution_invalid" in d_ti.unknowns
+
+
+def test_w13_t3_real_verified_still_canonical():
+    """T3: real VERIFIED IdentityResolution still authorizes canonical."""
+    ident = _identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid")
+    dossier = compose_dossier(identity=ident)
+    assert dossier.identity_state == "VERIFIED"
+    assert dossier.canonical_token_id == "abc123canonicalid"
+    assert dossier.composer_version == COMPOSER_VERSION
+
+
+def test_w13_t4_real_unresolved_and_conflict_unchanged():
+    """T4: real UNRESOLVED/CONFLICT remain non-canonical."""
+    unresolved = compose_dossier(
+        identity=_identity(state=IdentityState.UNRESOLVED, token_id="FORGED_NOT_A_HASH")
+    )
+    assert unresolved.identity_state == "UNRESOLVED"
+    _assert_no_canonical(unresolved)
+
+    conflict = compose_dossier(
+        identity=_identity(
+            state=IdentityState.CONFLICT,
+            token_id="FORGED_NOT_A_HASH",
+            conflicts=("src",),
+        )
+    )
+    assert conflict.identity_state == "CONFLICT"
+    _assert_no_canonical(conflict)
+    assert "src" in conflict.conflicts
+
+
+def test_w13_t7_dossier_source_lacks_contiguous_identity_and_hashlib():
+    """T7: dossier source lacks contiguous architecture.identity, hashlib, and seal symbols."""
+    src = (ROOT / "architecture" / "knowledge" / "dossier.py").read_text(encoding="utf-8")
+    assert "architecture.identity" not in src
+    assert "import hashlib" not in src
+    assert "import sys" in src
+    assert "_exact_type" in src
+    assert "_COMPOSER_SEAL" not in src
+    assert "composer_seal" not in src
+
+
+def test_w13_t9_dynamic_spoof_fails_via_compose_dossier_path():
+    """T9: after Fix A, dynamic spoof fails on compose_dossier path used by W2."""
+    spoof = _dynamic_identity_resolution(token=_dynamic_token_identity(token_id="SPOOF_W2_PATH"))
+    dossier = compose_dossier(identity=spoof)
+    _assert_no_canonical(dossier)
+    # Spoofed identity composition carries no canonical.
+    assert dossier.canonical_token_id is None
+
+
+def test_w13_t10_combined_a_and_b_paths_closed():
+    """T10: Fix A closes string-type spoof; Fix B closes hand-built dossier."""
+    # Path A (compose_dossier identity spoof)
+    spoof = _dynamic_identity_resolution(token=_dynamic_token_identity())
+    a = compose_dossier(identity=spoof)
+    _assert_no_canonical(a)
+
+    # Path B (hand-built TokenDossier scalars — W2 must ignore; see evidence_graph T11)
+    hand = TokenDossier(
+        canonical_token_id="FORGED",
+        join_keys=(),
+        identity_state="VERIFIED",
+        security_state=None,
+        decision_outcome=None,
+        opportunity_score=None,
+        epistemic_map=(),
+        conflicts=(),
+        unknowns=(),
+        provenance=(),
+        composed_at=None,
+        claims=(),
+    )
+    assert hand.identity_state == "VERIFIED"  # scalars present on object
+    # W2 must ignore hand-built dossier (covered by evidence_graph T5/T11).
+    real = compose_dossier(identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"))
+    assert real.identity_state == "VERIFIED"
+    assert real.canonical_token_id == "abc123canonicalid"

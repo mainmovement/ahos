@@ -12,7 +12,7 @@ Security state is taken only from an explicit supported `.state` field
 (PASS / REJECT / INCOMPLETE / STALE). Object `__str__` is never authority.
 
 Canonical identity is authorized only by a supported IdentityResolution
-plus TokenIdentity (type/module match, no import of that package). Arbitrary
+plus TokenIdentity (exact class object identity via sys.modules; no import of that package). Arbitrary
 caller objects with `state=VERIFIED` are rejected.
 
 Provenance freeze covers mappings, sequences, and deepcopyable values.
@@ -23,6 +23,7 @@ Do not import this module from the operational daemon package or the pipeline.
 """
 from __future__ import annotations
 
+import sys
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
@@ -30,6 +31,7 @@ from types import MappingProxyType
 from typing import Any, Iterable, Mapping
 
 COMPOSER_VERSION = "token-dossier-composer-v1.2"
+
 
 # Join path segments so this file does not contain a contiguous forbidden import token.
 _IDENTITY_TYPES_MODULE = ".".join(("architecture", "identity", "types"))
@@ -156,14 +158,23 @@ def _type_ref(obj: Any) -> tuple[str, str]:
     return (getattr(cls, "__module__", "") or "", cls.__name__)
 
 
+def _exact_type(obj: Any, module: str, name: str) -> bool:
+    """Fail-closed exact class identity (not string name/module spoof)."""
+    mod = sys.modules.get(module)
+    if mod is None:
+        return False  # fail-closed
+    real = getattr(mod, name, None)
+    return real is not None and type(obj) is real
+
+
 def _is_supported_identity_resolution(obj: Any) -> bool:
-    module, name = _type_ref(obj)
-    return module == _IDENTITY_TYPES_MODULE and name == _IDENTITY_RESOLUTION_NAME
+    return _exact_type(obj, _IDENTITY_TYPES_MODULE, _IDENTITY_RESOLUTION_NAME)
 
 
 def _is_supported_token_identity(obj: Any) -> bool:
-    module, name = _type_ref(obj)
-    return module == _IDENTITY_TYPES_MODULE and name == _TOKEN_IDENTITY_NAME
+    return _exact_type(obj, _IDENTITY_TYPES_MODULE, _TOKEN_IDENTITY_NAME)
+
+
 
 
 def _enum_or_str(value: Any) -> str | None:
@@ -766,4 +777,5 @@ def compose_dossier(
         provenance=tuple(provenance),
         composed_at=composed_at,
         claims=claim_records,
+        composer_version=COMPOSER_VERSION,
     )
