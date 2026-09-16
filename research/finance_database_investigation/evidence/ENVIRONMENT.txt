@@ -1,0 +1,23 @@
+# Reproduction environment (recorded, not assumed)
+generated_utc: 2026-09-15T16:32:53Z
+host: Arena.ai agent sandbox (Linux container) — NOT the designated AHOS Windows host
+os: Linux 6.1.158+ x86_64
+python: Python 3.11.2
+pandas: 3.0.5
+numpy: 2.4.6
+requests: 2.34.2
+financedatabase (PyPI sdist+wheel, installed --no-deps): 2.4.0
+financetoolkit: NOT INSTALLED (deliberate; see 09_EXTERNAL_INTEGRATIONS.md)
+repo checkout: JerBouma/FinanceDatabase @ a174c97d3bba96fc1a82b2e1068fb3ec5e02e634 (2026-09-13T15:10:38Z), sparse: compression/ database/ tests/ .github/ financedatabase/
+sdist sha256: a2af519e64e68baa52d369b49a8a16b09e77de0f20bb58e37243fbed225f2e87
+wheel sha256: dee02df0fc132a0cbffcef30294216b67655ddba92f1613dd756e06d5e041fd7
+cpu: 2 cores; mem: 3939 MB total
+
+## Network reachability from this host (measured)
+  pypi.org/simple                     -> HTTP 200
+  github.com                          -> HTTP 200
+  api.github.com                      -> HTTP 200
+  codeload.github.com                 -> HTTP 200
+  files.pythonhosted.org              -> HTTP 200
+  raw.githubusercontent.com           -> TLS FAIL (curl 35, OpenSSL SSL_connect: SSL_ERROR_SYSCALL)
+  => FinanceDatabase's hardcoded DATA_REPO host is UNREACHABLE from this host.

@@ -1,0 +1,303 @@
+[
+ {
+  "op": "Cryptos()",
+  "input": "default remote URL",
+  "expected": "loads 3367 rows from GitHub raw",
+  "actual": "RAISED: ValueError: Failed to load data from https://raw.githubusercontent.com/JerBouma/FinanceDatabase/main/compression/cryptos",
+  "evidence": "runtime observation, sandbox host"
+ },
+ {
+  "op": "Equities(use_local_location=True)",
+  "input": "repo-root cwd",
+  "expected": "loads local bz2",
+  "actual": "OK rows=112690 in 4.12s",
+  "evidence": "runtime observation"
+ },
+ {
+  "op": "select",
+  "input": "country='Netherlands'",
+  "expected": "exact, case-insensitive",
+  "actual": "OK rows=845 in 0.183s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "country='netherlands' (lower)",
+  "expected": "should still match (code lowercases)",
+  "actual": "OK rows=845 in 0.172s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "country='Netherland' (typo)",
+  "expected": "ValueError (validated against options)",
+  "actual": "ValueError: The country 'Netherland' is not available in the database. Please check the available countries using the 'show_options' method.",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "sector='Energy'",
+  "expected": "exact match on GICS sector",
+  "actual": "OK rows=4086 in 0.170s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "sector='ener'",
+  "expected": "ValueError? (no substring support)",
+  "actual": "ValueError: The sector 'ener' is not available in the database. Please check the available sectors using the 'show_options' method.",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "country+sector (AND)",
+  "expected": "AND semantics",
+  "actual": "OK rows=1116 in 0.283s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "country list",
+  "expected": "OR within param",
+  "actual": "OK rows=34455 in 0.175s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "market_cap='Mega Cap'",
+  "expected": "bucket label filter",
+  "actual": "OK rows=627 in 0.151s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "only_primary_listing=True",
+  "expected": "drops dotted symbols",
+  "actual": "OK rows=737 in 0.167s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "exclude_delisted=False",
+  "expected": "includes delisted",
+  "actual": "OK rows=29984 in 0.144s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "exchange='NMS'",
+  "expected": "filter",
+  "actual": "OK rows=5050 in 0.168s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "mic='XNAS'",
+  "expected": "filter",
+  "actual": "OK rows=5605 in 0.171s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select",
+  "input": "no args",
+  "expected": "returns ALL rows (minus delisted)",
+  "actual": "OK rows=102286 in 0.036s",
+  "evidence": "source Equities.py:23-222 + runtime"
+ },
+ {
+  "op": "select(only_primary_listing=True)",
+  "input": "country=China",
+  "expected": "keeps primary listings",
+  "actual": "dropped 6095/6961; 000002.SZ kept=False",
+  "evidence": "runtime; heuristic at Equities.py:208-220 uses index.str.contains(r'\\.')"
+ },
+ {
+  "op": "search",
+  "input": "name='Apple'",
+  "expected": "substring, case-insensitive",
+  "actual": "OK rows=48 in 0.064s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "name='APPLE' case_sensitive=True",
+  "expected": "no matches",
+  "actual": "OK rows=11 in 0.039s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "name='APPLE' case_sensitive='True'",
+  "expected": "treated True (string in list)",
+  "actual": "OK rows=11 in 0.039s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "name='APPLE' case_sensitive='true'",
+  "expected": "-> False! ('true' not in [True,'True'])",
+  "actual": "OK rows=48 in 0.075s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "name='APPLE' case_sensitive=1",
+  "expected": "-> False! (1 not in [True,'True'])",
+  "actual": "OK rows=11 in 0.039s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "symbol='TSLA' (DOCSTRING EXAMPLE)",
+  "expected": "docstring says works; symbol is the INDEX not a column",
+  "actual": "OK rows=112690 in 0.011s | stdout='symbol is not a valid column.'",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "nonexistent_column='x'",
+  "expected": "prints warning, returns UNFILTERED (fail-open)",
+  "actual": "OK rows=112690 in 0.015s | stdout='nonexistent_column is not a valid column.'",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "industry=['Software']",
+  "expected": "list -> SUBSTRING any() semantics",
+  "actual": "OK rows=3253 in 0.106s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "sector=['Energy']",
+  "expected": "list -> substring",
+  "actual": "OK rows=4559 in 0.119s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "name='AT&T' (regex '&')",
+  "expected": "regex ok",
+  "actual": "OK rows=15 in 0.074s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "name='C++' (invalid regex)",
+  "expected": "regex error?",
+  "actual": "OK rows=82603 in 0.091s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "name='(unclosed' (invalid regex)",
+  "expected": "regex error expected",
+  "actual": "error: missing ), unterminated subpattern at position 0",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "index='BTC'",
+  "expected": "regex on index",
+  "actual": "OK rows=31 in 0.037s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "index=['AAVE-USD','ETH-USD']",
+  "expected": "exact isin on index",
+  "actual": "OK rows=0 in 0.019s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "exclude_delisted=True",
+  "expected": "filters delisted",
+  "actual": "OK rows=102286 in 0.035s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "only_primary_listing=True",
+  "expected": "drops dotted",
+  "actual": "OK rows=25468 in 0.044s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search",
+  "input": "two kwargs (AND)",
+  "expected": "AND",
+  "actual": "OK rows=1297 in 0.064s",
+  "evidence": "source helpers.py:81-155 + runtime"
+ },
+ {
+  "op": "search determinism",
+  "input": "same query twice",
+  "expected": "identical results",
+  "actual": "index equal=True",
+  "evidence": "runtime"
+ },
+ {
+  "op": "show_options",
+  "input": "selection='country'",
+  "expected": "ndarray of unique countries",
+  "actual": "RAISED n=-",
+  "evidence": "Equities.py:224-316 + runtime"
+ },
+ {
+  "op": "fd.show_options",
+  "input": "'equities' local",
+  "expected": "dict of column->options",
+  "actual": "RAISED in 3.92s",
+  "evidence": "helpers.py:280-358 + runtime"
+ },
+ {
+  "op": "Cryptos.select",
+  "input": "cryptocurrency='SOL'",
+  "expected": "token filter",
+  "actual": "RAISED ValueError: The cryptocurrency 'SOL' is not available in the database. Please check the av",
+  "evidence": "Cryptos.py:27-90 + runtime"
+ },
+ {
+  "op": "Cryptos.select",
+  "input": "cryptocurrency='SOL1'",
+  "expected": "token filter",
+  "actual": "OK rows=10",
+  "evidence": "Cryptos.py:27-90 + runtime"
+ },
+ {
+  "op": "Cryptos.select",
+  "input": "cryptocurrency='BTC'",
+  "expected": "token filter",
+  "actual": "RAISED ValueError: The cryptocurrency 'BTC' is not available in the database. Please check the av",
+  "evidence": "Cryptos.py:27-90 + runtime"
+ },
+ {
+  "op": "Cryptos.select",
+  "input": "cryptocurrency='ETH'",
+  "expected": "token filter",
+  "actual": "OK rows=5",
+  "evidence": "Cryptos.py:27-90 + runtime"
+ },
+ {
+  "op": "Cryptos.select",
+  "input": "cryptocurrency='sol'",
+  "expected": "token filter",
+  "actual": "RAISED ValueError: The cryptocurrency 'sol' is not available in the database. Please check the av",
+  "evidence": "Cryptos.py:27-90 + runtime"
+ },
+ {
+  "op": "Cryptos.select",
+  "input": "cryptocurrency='Metadium'",
+  "expected": "token filter",
+  "actual": "RAISED ValueError: The cryptocurrency 'Metadium' is not available in the database. Please check t",
+  "evidence": "Cryptos.py:27-90 + runtime"
+ },
+ {
+  "op": "Cryptos.select",
+  "input": "cryptocurrency='META'",
+  "expected": "token filter",
+  "actual": "OK rows=10",
+  "evidence": "Cryptos.py:27-90 + runtime"
+ }
+]

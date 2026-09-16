@@ -1,0 +1,151 @@
+{
+  "gics_json_top_level_keys": [
+    "Communication Services",
+    "Consumer Discretionary",
+    "Consumer Staples",
+    "Energy",
+    "Financials",
+    "Health Care",
+    "Industrials",
+    "Information Technology",
+    "Materials",
+    "Real Estate",
+    "Utilities"
+  ],
+  "gics_n_sectors": 11,
+  "gics_n_industry_groups": 24,
+  "gics_n_industries": 69,
+  "equities_rows": 112690,
+  "rows_with_full_gics_triple": 72585,
+  "rows_excluded_missing_triple": 40105,
+  "invalid_row_count": 10,
+  "invalid_rows": [
+    {
+      "symbol": "ACBA.DU",
+      "error": "'Multi-Sector Holdings'",
+      "sector": "Financials",
+      "industry_group": "Diversified Financials",
+      "industry": "Multi-Sector Holdings",
+      "name": "Ace Global Business Acquisition Limited",
+      "country": "Hong Kong",
+      "exchange": "DUS"
+    },
+    {
+      "symbol": "LTDH.DU",
+      "error": "'Application Software'",
+      "sector": "Information Technology",
+      "industry_group": "Software & Services",
+      "industry": "Application Software",
+      "name": "Living 3D Holdings, Inc.",
+      "country": "Hong Kong",
+      "exchange": "DUS"
+    },
+    {
+      "symbol": "NOAC.DU",
+      "error": "'Multi-Sector Holdings'",
+      "sector": "Financials",
+      "industry_group": "Diversified Financials",
+      "industry": "Multi-Sector Holdings",
+      "name": "Natural Order Acquisition Corp.",
+      "country": "United States",
+      "exchange": "DUS"
+    },
+    {
+      "symbol": "1QY.F",
+      "error": "'REIT - Industrial'",
+      "sector": "Real Estate",
+      "industry_group": "Real Estate",
+      "industry": "REIT - Industrial",
+      "name": "IND.LOG.PROP.TR. DL -,01",
+      "country": "United States",
+      "exchange": "FRA"
+    },
+    {
+      "symbol": "1ZR0.F",
+      "error": "'Multi-Sector Holdings'",
+      "sector": "Financials",
+      "industry_group": "Diversified Financials",
+      "industry": "Multi-Sector Holdings",
+      "name": "ATLANTIC COASTAL ACQ. UT",
+      "country": "United States",
+      "exchange": "FRA"
+    },
+    {
+      "symbol": "MOP.F",
+      "error": "'Asset Management'",
+      "sector": "Financials",
+      "industry_group": "Diversified Financials",
+      "industry": "Asset Management",
+      "name": "Palmboomen Cultuur Maatschappij Mopoli (Palmeraies de Mopoli",
+      "country": "Belgium",
+      "exchange": "FRA"
+    },
+    {
+      "symbol": "1802.TW",
+      "error": "'Building Products'",
+      "sector": "Materials",
+      "industry_group": "Materials",
+      "industry": "Building Products",
+      "name": "Taiwan Glass Industry Corp",
+      "country": "Taiwan",
+      "exchange": "nan"
+    },
+    {
+      "symbol": "1808.TW",
+      "error": "'Construction & Engineering'",
+      "sector": "Real Estate",
+      "industry_group": "Real Estate",
+      "industry": "Construction & Engineering",
+      "name": "Run Long Construction Co Ltd",
+      "country": "Taiwan",
+      "exchange": "nan"
+    },
+    {
+      "symbol": "E1DU34.SA",
+      "error": "'Consumer Services'",
+      "sector": "Consumer Staples",
+      "industry_group": "Consumer Services",
+      "industry": "Hotels, Restaurants & Leisure",
+      "name": "NEW ORIENTALDRN",
+      "country": "China",
+      "exchange": "SAO"
+    },
+    {
+      "symbol": "T1AL34.SA",
+      "error": "'Consumer Services'",
+      "sector": "Consumer Staples",
+      "industry_group": "Consumer Services",
+      "industry": "Hotels, Restaurants & Leisure",
+      "name": "TAL EDUCATIODRN",
+      "country": "China",
+      "exchange": "SAO"
+    }
+  ],
+  "WORKFLOW_WOULD_RAISE": true,
+  "by_missing_sector": {},
+  "distinct_bad_sectors": [],
+  "distinct_bad_industry_groups": [
+    "Consumer Services"
+  ],
+  "distinct_bad_industries": [
+    "Application Software",
+    "Asset Management",
+    "Building Products",
+    "Construction & Engineering",
+    "Multi-Sector Holdings",
+    "REIT - Industrial"
+  ],
+  "by_exchange": {
+    "DUS": 3,
+    "FRA": 3,
+    "nan": 2,
+    "SAO": 2
+  },
+  "by_country": {
+    "United States": 3,
+    "Hong Kong": 2,
+    "Taiwan": 2,
+    "China": 2,
+    "Belgium": 1
+  }
+}
