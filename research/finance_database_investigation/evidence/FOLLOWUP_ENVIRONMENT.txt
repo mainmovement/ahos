@@ -1,0 +1,70 @@
+# Forensic follow-up: reproduction environment (recorded, not assumed)
+# Document 19 — follow-up to the original investigation of 2026-09-15T16:32Z
+followup_window_utc: 2026-09-15T18:25Z .. 2026-09-15T19:05Z
+reason_for_rebuild: the original /tmp/fdb_* research environment did NOT survive between turns.
+                    The sandbox persists only files under /home/user. All /tmp state was ABSENT at
+                    follow-up start; the deliverable under research/finance_database_investigation/
+                    (incl. evidence/) was PRESENT. Environment was rebuilt from scratch and the
+                    decisive claims RE-EXECUTED, not restated.
+
+host: Arena.ai agent sandbox (Linux container, 2 cores) — NOT the designated AHOS Windows host
+python: 3.11.2
+pandas: 3.0.5          (identical to original)
+numpy: 2.4.6           (identical to original)
+requests: 2.34.2       (identical to original)
+financedatabase: 2.4.0 (PyPI wheel, installed --no-deps)
+financetoolkit: NOT INSTALLED (deliberate — attribution rule)
+
+# test stack pinned to match the project's own uv.lock exactly
+pytest: 9.0.3            (uv.lock: 9.0.3)
+pytest-recording: 0.13.4 (uv.lock: 0.13.4)   <- REQUIRED: provides the 'disable_recording' fixture
+pytest-mock: 3.15.1      (uv.lock: 3.15.1)
+pytest-timeout: 2.4.0    (uv.lock: 2.4.0)
+vcrpy: 8.1.1             (uv.lock: 8.1.1)
+pytest-subtests: 0.15.0
+python-stdnum: 2.2       (LGPL-2.1+  <-- see document 23; NOT a permissive licence)
+tqdm, openpyxl: installed
+
+repo checkout: /tmp/fdb2_repo @ a174c97d3bba96fc1a82b2e1068fb3ec5e02e634 (2026-09-13T15:10:38Z)
+               sparse: compression/ database/ tests/ .github/ financedatabase/
+               size 215 MB
+upstream HEAD at follow-up time: STILL a174c97d3bba (pushed_at 2026-09-13T15:10:39Z)
+               => the repository did NOT move between the two investigations.
+               => original findings are CURRENT, not HISTORICAL.
+
+## Artifact integrity RE-VERIFIED independently (two sessions, byte-identical)
+sdist sha256: a2af519e64e68baa52d369b49a8a16b09e77de0f20bb58e37243fbed225f2e87   MATCH
+wheel sha256: dee02df0fc132a0cbffcef30294216b67655ddba92f1613dd756e06d5e041fd7   MATCH
+  (PyPI JSON API digests == ENVIRONMENT.txt record == fresh sha256sum of re-downloaded files)
+
+## Network reachability RE-MEASURED (~2h after the original measurement)
+  pypi.org/simple                     -> HTTP 200
+  github.com                          -> HTTP 200
+  api.github.com                      -> HTTP 200
+  codeload.github.com                 -> HTTP 301 (reachable, redirect)
+  files.pythonhosted.org              -> HTTP 404 on / (reachable; no index at root)
+  raw.githubusercontent.com           -> TLS FAIL (curl 35) — IDENTICAL to original, reproduced
+  productionresultssa12.blob.core.windows.net (GitHub Actions log storage)
+                                      -> EOF, unreachable — NEW finding
+  => FinanceDatabase's hardcoded DATA_REPO host remains UNREACHABLE from this host.
+  => CI job logs could NOT be fetched; U-12 was closed instead by RE-EXECUTING the CI check
+     locally (see f5_gics_replication.py) — stronger evidence than the log would have been.
+
+## Isolation / safety
+  - All installation occurred in /tmp/fdb2_venv (isolated research venv). NOTHING was installed
+    into the AHOS environment.
+  - No AHOS file was written. architecture/providers/contracts.py was imported READ-ONLY by
+    explicit file path, after confirming it is stdlib-only (__future__, abc, dataclasses, time,
+    typing) so the import cannot trigger side effects.
+  - The upstream repository was cloned and only READ. No push, no --apply, no modification.
+  - A symlink was created INSIDE the research venv only:
+      /tmp/fdb2_venv/lib/python3.11/site-packages/compression -> /tmp/fdb2_repo/compression
+    to exercise the release-2.4.0 loader against the pinned data. Outside the AHOS tree.
+
+## Follow-up scripts (archived under evidence/scripts/, prefix 'f' to distinguish from 'a' series)
+  f1_objective_a_crypto.py    -> followup/f1_objective_a.json     (Objective A, claims A-1..A-9)
+  f2_a10_contract.py          -> followup/f2_a10_contract.json    (Objective A, claim A-10)
+  f3_na_regression.py         -> followup/f3_na_regression.json   (Objective C)
+  f4_identity_fixtures.py     -> followup/f4_identity.json        (Objective B)
+  f5_gics_replication.py      -> followup/f5_gics_replication.json(Objective D, closes U-12)
+  (GitHub API queries)        -> followup/d_gics_sequence.json    (Objective D, run history)

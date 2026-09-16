@@ -1,0 +1,151 @@
+{
+  "finding_id": "E-CORR-01",
+  "title": "Aggregate row-count discrepancy: documented aggregate 304,495 versus reconciled aggregate 305,495",
+  "status": "VERIFIED",
+  "discovery_context": "Discovered during the read-only knowledge-extraction pass (documents 26-30) while re-reading the archived machine-readable evidence rather than the prose. The follow-up reconciliation (document 25 section 25.2) reproduced all seven per-class row counts EXACTLY and still restated the aggregate as 304,495. The archived evidence JSON had carried the correct aggregate (305,495) since it was written. The defect is therefore in the documentation's arithmetic, not in any measurement.",
+  "exact_measurement": {
+    "per_class_row_counts_from_A7_temporal_scan": {
+      "equities": 112690,
+      "etfs": 36481,
+      "funds": 57853,
+      "indices": 91181,
+      "currencies": 2556,
+      "cryptos": 3367,
+      "moneymarkets": 1367
+    },
+    "computed_sum_of_components": 305495,
+    "aggregate_stored_in_evidence_json_A7_total_rows_all_schemas": 305495,
+    "aggregate_stated_in_historical_prose": 304495,
+    "components_match_evidence_json": true,
+    "prose_matches_evidence_json": false,
+    "absolute_discrepancy": 1000,
+    "historical_documents_census": {
+      "04_SCHEMA_AUDIT.md": {
+        "occurrences_304495": 1,
+        "occurrences_305495": 0
+      },
+      "10_PERFORMANCE_AND_SCALABILITY.md": {
+        "occurrences_304495": 1,
+        "occurrences_305495": 0
+      },
+      "11_SECURITY_AND_SUPPLY_CHAIN.md": {
+        "occurrences_304495": 2,
+        "occurrences_305495": 0
+      },
+      "12_LICENSE_AND_LEGAL_REVIEW.md": {
+        "occurrences_304495": 4,
+        "occurrences_305495": 0
+      },
+      "16_EVIDENCE_REGISTER.md": {
+        "occurrences_304495": 3,
+        "occurrences_305495": 0
+      },
+      "17_UNKNOWNS_AND_OPEN_QUESTIONS.md": {
+        "occurrences_304495": 2,
+        "occurrences_305495": 0
+      },
+      "18_RECOMMENDATION_AND_NEXT_STEPS.md": {
+        "occurrences_304495": 1,
+        "occurrences_305495": 0
+      },
+      "19_FORENSIC_FOLLOW_UP.md": {
+        "occurrences_304495": 4,
+        "occurrences_305495": 0
+      },
+      "24_AHOS_KNOWLEDGE_EXTRACTION.md": {
+        "occurrences_304495": 3,
+        "occurrences_305495": 0
+      },
+      "25_FINAL_EVIDENCE_RECONCILIATION.md": {
+        "occurrences_304495": 2,
+        "occurrences_305495": 0
+      }
+    },
+    "historical_occurrences_304495": 23,
+    "historical_occurrences_305495": 0,
+    "historical_documents_affected": [
+      "04_SCHEMA_AUDIT.md",
+      "10_PERFORMANCE_AND_SCALABILITY.md",
+      "11_SECURITY_AND_SUPPLY_CHAIN.md",
+      "12_LICENSE_AND_LEGAL_REVIEW.md",
+      "16_EVIDENCE_REGISTER.md",
+      "17_UNKNOWNS_AND_OPEN_QUESTIONS.md",
+      "18_RECOMMENDATION_AND_NEXT_STEPS.md",
+      "19_FORENSIC_FOLLOW_UP.md",
+      "24_AHOS_KNOWLEDGE_EXTRACTION.md",
+      "25_FINAL_EVIDENCE_RECONCILIATION.md"
+    ],
+    "new_documents_census_26_to_30": {
+      "26_AHOS_KNOWLEDGE_REGISTRY.md": {
+        "occurrences_304495": 5,
+        "occurrences_305495": 10
+      },
+      "28_DATA_QUALITY_RULES_CANDIDATES.md": {
+        "occurrences_304495": 0,
+        "occurrences_305495": 3
+      },
+      "29_LICENSE_AND_PROVENANCE_REVIEW_QUEUE.md": {
+        "occurrences_304495": 0,
+        "occurrences_305495": 6
+      },
+      "30_FINAL_DECISION_RECORD.md": {
+        "occurrences_304495": 1,
+        "occurrences_305495": 6
+      }
+    },
+    "new_occurrences_304495": 6,
+    "new_occurrences_305495": 25,
+    "census_method": "regex 304,495|304495 and 305,495|305495 over each markdown file; historical = documents 00-25 + README.md; new = documents 26-30"
+  },
+  "expected_value": "305495 (sum of the seven verified per-class counts; equals the archived evidence JSON)",
+  "actual_value": "304495 as stated in historical prose documents 04, 10, 11, 12, 16, 17, 18, 19, 24, 25 (23 occurrences)",
+  "source_documents": [
+    "04_SCHEMA_AUDIT.md",
+    "10_PERFORMANCE_AND_SCALABILITY.md",
+    "11_SECURITY_AND_SUPPLY_CHAIN.md",
+    "12_LICENSE_AND_LEGAL_REVIEW.md",
+    "16_EVIDENCE_REGISTER.md",
+    "17_UNKNOWNS_AND_OPEN_QUESTIONS.md",
+    "18_RECOMMENDATION_AND_NEXT_STEPS.md",
+    "19_FORENSIC_FOLLOW_UP.md",
+    "24_AHOS_KNOWLEDGE_EXTRACTION.md",
+    "25_FINAL_EVIDENCE_RECONCILIATION.md",
+    "26_AHOS_KNOWLEDGE_REGISTRY.md",
+    "28_DATA_QUALITY_RULES_CANDIDATES.md",
+    "30_FINAL_DECISION_RECORD.md"
+  ],
+  "source_evidence_keys": [
+    "evidence/followup/f1_objective_a.json -> A7_total_rows_all_schemas",
+    "evidence/followup/f1_objective_a.json -> A7_temporal_scan.{equities,etfs,funds,indices,currencies,cryptos,moneymarkets}.rows",
+    "evidence/followup/f1_objective_a.json -> A7_total_temporal_columns_found"
+  ],
+  "reproduction_recipe": [
+    "1. python3 -c \"import json;d=json.load(open('evidence/followup/f1_objective_a.json'));s=d['A7_temporal_scan'];c={k:v['rows'] for k,v in s.items()};print(c, sum(c.values()), d['A7_total_rows_all_schemas'])\"",
+    "2. grep -c '304,495\\|304495' 0*.md 1*.md 2[0-5]_*.md README.md   # expect 23 total across 10 files",
+    "3. grep -rn '305,495\\|305495' 0*.md 1*.md 2[0-5]_*.md README.md   # expect NO matches (historical documents never state the correct aggregate)",
+    "4. Independently re-derive the seven per-class counts by reading compression/*.bz2 with dtype=str, keep_default_na=False, index_col=0 and taking len(df) for each class."
+  ],
+  "environment": {
+    "generated_utc": "2026-09-15T19:51:03Z",
+    "generator": "/tmp/e_gen.py (scratch; not committed — see reproduction_recipe)",
+    "python": "3.11.2",
+    "pandas": "3.0.5",
+    "research_venv": "/tmp/fdb2_venv",
+    "research_clone": "/tmp/fdb2_repo",
+    "pinned_commit": "a174c97d3bba96fc1a82b2e1068fb3ec5e02e634",
+    "ahos_branch": "arena/01a0a5c8-ahos",
+    "ahos_head": "2728b230f16e256a4f017cb8377f42ddf42b6f8f",
+    "note": "Values in this file were computed by direct measurement at generation time, not transcribed from prose."
+  },
+  "limitations": [
+    "The census counts textual occurrences, not distinct claims; one sentence may repeat the figure.",
+    "Historical documents 00-25 and README.md remain FROZEN and were NOT corrected, per authorization. They still state 304,495.",
+    "This finding concerns an aggregate only. All seven per-class counts are individually correct and reproduced exactly.",
+    "No AHOS data was measured; this is a property of the FinanceDatabase corpus documentation."
+  ],
+  "materiality_to_conclusion": "LOW. No verdict, score or decision in documents 00-30 depends on the aggregate row count. The crypto rejection rests on 0 of 14 required identity fields, 0 of 16 capabilities, the absence of SOL, and the TypeError / AttributeError execution proofs - none of which involves the total. The finding that zero temporal columns exist is unaffected: it is 0 regardless of whether the denominator is 304,495 or 305,495.",
+  "materiality_to_method": "HIGH. A reconciliation pass that verified every component exactly still propagated a wrong aggregate. Registered as KN-11 and as the basis for the rule: recompute aggregates from components; never inherit a total from prose. This is the same defect class as E-CORR-03 (a verification instrument that reports the wrong thing while appearing to work).",
+  "implementation_authorized": false,
+  "production_impact": "none",
+  "policy_status": "CANDIDATE — NOT AHOS POLICY"
+}

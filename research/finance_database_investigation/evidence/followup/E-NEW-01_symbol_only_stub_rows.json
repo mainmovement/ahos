@@ -1,0 +1,140 @@
+{
+  "finding_id": "E-NEW-01",
+  "title": "5,108 symbol-only stub rows across the corpus; in indices they are 5.32% of the table and are exactly the rows with an empty exchange",
+  "status": "VERIFIED",
+  "discovery_context": "Discovered during the read-only knowledge-extraction pass (documents 26-30) while verifying what the archived field f3_na_regression.json -> C10_per_asset_class.*.rows_lost_under_release_semantics actually measures. That field name invites the inference 'rows lost to NA coercion'; inspection of the generating script showed it computes len(raw) - len(dfault.dropna(how='all')), i.e. rows whose data columns are entirely empty. Re-measuring that quantity directly across all seven artifacts produced this finding, which is cited in NO prose document. The interpretation correction is registered separately as E-CORR-02.",
+  "exact_measurement": {
+    "definition": "A record whose key (index) is populated but where EVERY data column is empty under a verbatim read (dtype=str, keep_default_na=False).",
+    "per_class": {
+      "equities": {
+        "rows": 112690,
+        "symbol_only_stub_rows": 0,
+        "stub_pct": 0.0,
+        "all_stubs_carry_nonempty_key": null,
+        "artifact_sha256": "41c5a612980f3ab5d1ae360d4ec1ea16eeb8bcd312de7e5bca3093e795b9b578"
+      },
+      "etfs": {
+        "rows": 36481,
+        "symbol_only_stub_rows": 4,
+        "stub_pct": 0.01,
+        "all_stubs_carry_nonempty_key": true,
+        "artifact_sha256": "3f1a990a71676a303ec999d744ed7490fec85c2a18723e702a93f29dff3c1a75"
+      },
+      "funds": {
+        "rows": 57853,
+        "symbol_only_stub_rows": 244,
+        "stub_pct": 0.42,
+        "all_stubs_carry_nonempty_key": true,
+        "artifact_sha256": "b6d925c94bb9f8133257568f68223aedf6834f30c04d42283f17a30f91251042"
+      },
+      "indices": {
+        "rows": 91181,
+        "symbol_only_stub_rows": 4854,
+        "stub_pct": 5.32,
+        "all_stubs_carry_nonempty_key": true,
+        "artifact_sha256": "64be34bee94ae78350f636e8d495c7bc411db9d22abddcd05394bcde24f0b127"
+      },
+      "currencies": {
+        "rows": 2556,
+        "symbol_only_stub_rows": 0,
+        "stub_pct": 0.0,
+        "all_stubs_carry_nonempty_key": null,
+        "artifact_sha256": "aeab9f9340e72e2c08cc76f56b246e6408099df90cd7c3313ffa64ca29298e53"
+      },
+      "cryptos": {
+        "rows": 3367,
+        "symbol_only_stub_rows": 5,
+        "stub_pct": 0.15,
+        "all_stubs_carry_nonempty_key": true,
+        "artifact_sha256": "072aea3c566650d03650042f727391d1488f836df5b657de7b7170fcd5e021be"
+      },
+      "moneymarkets": {
+        "rows": 1367,
+        "symbol_only_stub_rows": 1,
+        "stub_pct": 0.07,
+        "all_stubs_carry_nonempty_key": true,
+        "artifact_sha256": "c49c9d18179660924c8e206323e5b75128c28720f1be69bcd943e94a7e124ea2"
+      }
+    },
+    "corpus_total_rows": 305495,
+    "corpus_total_stub_rows": 5108,
+    "corpus_stub_pct": 1.67,
+    "indices_subset_relationship": {
+      "indices_rows": 91181,
+      "indices_stub_rows": 4854,
+      "indices_rows_with_empty_exchange": 4854,
+      "sets_are_identical": true,
+      "interpretation": "For the indices table, every row lacking an exchange value is a fully-empty stub, and every stub lacks an exchange. Independently corroborates 04_SCHEMA_AUDIT.md line 165 (exchange empty in 4,854 rows = 5.32%).",
+      "sample_stub_keys": [
+        "032A.Z",
+        "032B.Z",
+        "032D.Z",
+        "032E.Z",
+        "05XV.Z",
+        "0TVB.DE",
+        "0TVC.DE",
+        "0TVD.DE"
+      ]
+    },
+    "cross_check_against_archived_evidence": {
+      "f3_C10_rows_lost_under_release_semantics_values": {
+        "equities": 0,
+        "etfs": 4,
+        "funds": 244,
+        "indices": 4854,
+        "currencies": 0,
+        "cryptos": 5,
+        "moneymarkets": 1
+      },
+      "matches_this_measurement": true,
+      "conclusion": "The archived field carries these same seven values, confirming it measures structural emptiness and NOT NA-coercion damage."
+    }
+  },
+  "expected_value": "Not previously measured. No prior document states a stub-row count; 04_SCHEMA_AUDIT.md reports only the indices empty-exchange count (4,854 / 5.32%).",
+  "actual_value": "5108 symbol-only stub rows of 305495 (1.67%); indices alone 4854 (5.32%)",
+  "source_documents": [
+    "04_SCHEMA_AUDIT.md",
+    "26_AHOS_KNOWLEDGE_REGISTRY.md",
+    "28_DATA_QUALITY_RULES_CANDIDATES.md",
+    "30_FINAL_DECISION_RECORD.md",
+    "07_DATA_QUALITY_AND_FRESHNESS.md"
+  ],
+  "source_evidence_keys": [
+    "evidence/followup/f3_na_regression.json -> C10_per_asset_class.*.rows_lost_under_release_semantics",
+    "evidence/scripts/f3_na_regression.py -> lines defining rows_lost_under_release_semantics",
+    "evidence/followup/f1_objective_a.json -> A7_total_rows_all_schemas (corpus denominator)"
+  ],
+  "reproduction_recipe": [
+    "1. Ensure the pinned clone exists at /tmp/fdb2_repo with compression/*.bz2 (7 artifacts).",
+    "2. For each class in equities etfs funds indices currencies cryptos moneymarkets:",
+    "     df = pd.read_csv(f'{REPO}/compression/{cls}.bz2', compression='bz2', index_col=0, dtype=str, keep_default_na=False)",
+    "     mask = df.replace('', pd.NA).isna().all(axis=1)",
+    "     report len(df), int(mask.sum()), pct, and whether all masked rows have a non-empty key",
+    "3. For indices only, additionally compute set(df.index[mask]) and set(df.index[df['exchange']=='']) and assert equality.",
+    "4. Cross-check the seven stub counts against f3_na_regression.json -> C10_per_asset_class.*.rows_lost_under_release_semantics."
+  ],
+  "environment": {
+    "generated_utc": "2026-09-15T19:51:03Z",
+    "generator": "/tmp/e_gen.py (scratch; not committed — see reproduction_recipe)",
+    "python": "3.11.2",
+    "pandas": "3.0.5",
+    "research_venv": "/tmp/fdb2_venv",
+    "research_clone": "/tmp/fdb2_repo",
+    "pinned_commit": "a174c97d3bba96fc1a82b2e1068fb3ec5e02e634",
+    "ahos_branch": "arena/01a0a5c8-ahos",
+    "ahos_head": "2728b230f16e256a4f017cb8377f42ddf42b6f8f",
+    "note": "Values in this file were computed by direct measurement at generation time, not transcribed from prose."
+  },
+  "limitations": [
+    "Measured from the pinned clone's compression/*.bz2 artifacts, not from database/*.csv source shards. Row counts agree with the archived evidence (305,495 total).",
+    "'Empty' means the empty string under a verbatim read. A row containing only whitespace in every data column would NOT be counted as a stub by this definition.",
+    "The required-content list is 'all data columns'. A table with legitimately optional columns would report a higher stub rate; DQR-05 therefore requires a DECLARED required-content list per table before it could be used as a control.",
+    "Set equality was proven for indices only. The same relationship was not tested for the other six classes (etfs 4, funds 244, cryptos 5, moneymarkets 1 - too few to be meaningful; equities and currencies have 0).",
+    "No AHOS data was measured. This is a property of the FinanceDatabase corpus."
+  ],
+  "materiality_to_conclusion": "LOW. No verdict depends on stub rows. The crypto rejection is unaffected: the cryptos table has 5 stub rows of 3,367 (0.15%), and its rejection rests on absent chain/address fields and the 0-of-16 capability result, not on completeness. The finding does slightly worsen the already-documented per-subset quality picture for indices (5.32% placeholder).",
+  "materiality_to_method": "MEDIUM-HIGH. It demonstrates that presence-of-key is not presence-of-data, so a row-count or key-uniqueness health check reports this corpus as healthy while 1.67% of it is placeholder. Registered as KN-12 and as rule candidate DQR-05 (structural emptiness), plus it exposed the mislabeled archived field (E-CORR-02) - an evidence-artifact naming hazard.",
+  "implementation_authorized": false,
+  "production_impact": "none",
+  "policy_status": "CANDIDATE — NOT AHOS POLICY"
+}

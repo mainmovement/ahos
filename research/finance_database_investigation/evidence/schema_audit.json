@@ -1,0 +1,194 @@
+{
+ "equities": {
+  "rows": 112690,
+  "cols": [
+   "symbol",
+   "name",
+   "summary",
+   "currency",
+   "sector",
+   "industry_group",
+   "industry",
+   "exchange",
+   "mic",
+   "market",
+   "country",
+   "state",
+   "city",
+   "zipcode",
+   "website",
+   "market_cap",
+   "isin",
+   "cusip",
+   "figi",
+   "composite_figi",
+   "shareclass_figi",
+   "delisted"
+  ],
+  "dup_symbols": 0,
+  "empty": {
+   "symbol": 1,
+   "name": 1116,
+   "summary": 12227,
+   "currency": 2137,
+   "sector": 9222,
+   "industry_group": 9501,
+   "industry": 40045,
+   "exchange": 484,
+   "mic": 831,
+   "market": 774,
+   "country": 6605,
+   "state": 80725,
+   "city": 43030,
+   "zipcode": 48749,
+   "website": 46132,
+   "market_cap": 36362,
+   "isin": 82261,
+   "cusip": 85404,
+   "figi": 54134,
+   "composite_figi": 51798,
+   "shareclass_figi": 48700,
+   "delisted": 0
+  }
+ },
+ "etfs": {
+  "rows": 36481,
+  "cols": [
+   "symbol",
+   "name",
+   "currency",
+   "summary",
+   "category_group",
+   "category",
+   "family",
+   "exchange",
+   "mic",
+   "isin"
+  ],
+  "dup_symbols": 0,
+  "empty": {
+   "symbol": 0,
+   "name": 8,
+   "currency": 103,
+   "summary": 7694,
+   "category_group": 11048,
+   "category": 13735,
+   "family": 9295,
+   "exchange": 31,
+   "mic": 83,
+   "isin": 28549
+  }
+ },
+ "funds": {
+  "rows": 57853,
+  "cols": [
+   "symbol",
+   "name",
+   "currency",
+   "summary",
+   "category_group",
+   "category",
+   "family",
+   "exchange",
+   "mic"
+  ],
+  "dup_symbols": 0,
+  "empty": {
+   "symbol": 0,
+   "name": 1416,
+   "currency": 253,
+   "summary": 9734,
+   "category_group": 4991,
+   "category": 7298,
+   "family": 21075,
+   "exchange": 244,
+   "mic": 31680
+  }
+ },
+ "indices": {
+  "rows": 91181,
+  "cols": [
+   "symbol",
+   "name",
+   "currency",
+   "summary",
+   "category_group",
+   "category",
+   "exchange",
+   "mic"
+  ],
+  "dup_symbols": 0,
+  "empty": {
+   "symbol": 0,
+   "name": 15677,
+   "currency": 17211,
+   "summary": 48391,
+   "category_group": 18594,
+   "category": 22544,
+   "exchange": 4854,
+   "mic": 54526
+  }
+ },
+ "currencies": {
+  "rows": 2556,
+  "cols": [
+   "symbol",
+   "name",
+   "base_currency",
+   "quote_currency",
+   "summary",
+   "exchange"
+  ],
+  "dup_symbols": 0,
+  "empty": {
+   "symbol": 0,
+   "name": 0,
+   "base_currency": 0,
+   "quote_currency": 0,
+   "summary": 499,
+   "exchange": 0
+  }
+ },
+ "cryptos": {
+  "rows": 3367,
+  "cols": [
+   "symbol",
+   "name",
+   "cryptocurrency",
+   "currency",
+   "summary",
+   "exchange",
+   "website"
+  ],
+  "dup_symbols": 0,
+  "empty": {
+   "symbol": 0,
+   "name": 5,
+   "cryptocurrency": 7,
+   "currency": 7,
+   "summary": 6,
+   "exchange": 5,
+   "website": 6
+  }
+ },
+ "moneymarkets": {
+  "rows": 1367,
+  "cols": [
+   "symbol",
+   "name",
+   "currency",
+   "summary",
+   "family",
+   "exchange"
+  ],
+  "dup_symbols": 0,
+  "empty": {
+   "symbol": 0,
+   "name": 158,
+   "currency": 3,
+   "summary": 676,
+   "family": 541,
+   "exchange": 1
+  }
+ }
+}

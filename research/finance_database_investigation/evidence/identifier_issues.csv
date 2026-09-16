@@ -1,0 +1,3 @@
+file,line,symbol,field,value,problem,actionable,suggested_replacement
+database/equities/NMS.csv,5316,QVCGB,cusip,74915L301,checksum mismatch,False,
+database/equities/PNK.csv,5982,KMGH,cusip,483325109,checksum mismatch,False,

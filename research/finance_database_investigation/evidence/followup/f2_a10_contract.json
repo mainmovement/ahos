@@ -1,0 +1,192 @@
+{
+  "ahos_contracts_imports": [
+    "__future__",
+    "abc",
+    "dataclasses",
+    "time",
+    "typing"
+  ],
+  "ahos_contracts_is_stdlib_only": true,
+  "imported_ok": true,
+  "UNKNOWN_VALUE": "None",
+  "module_docstring_first_line": "AHOS Provider Contracts & Abstract Interfaces (Section VII).",
+  "contract_law_lines": [
+    "- Strict UNKNOWN representation: Missing or uncollected data is NEVER guessed.",
+    "- Provable Source Provenance: Every datapoint carries source provider ID, timestamp, and SHA-256 raw digest.",
+    "- Fail-Closed: Rate limit, connection, or schema errors return normalized error envelopes."
+  ],
+  "NTC_fields": [
+    {
+      "name": "chain",
+      "type": "str",
+      "REQUIRED_no_default": true
+    },
+    {
+      "name": "address",
+      "type": "str",
+      "REQUIRED_no_default": true
+    },
+    {
+      "name": "symbol",
+      "type": "str",
+      "REQUIRED_no_default": true
+    },
+    {
+      "name": "name",
+      "type": "str",
+      "REQUIRED_no_default": true
+    },
+    {
+      "name": "pair_address",
+      "type": "str | None",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "dex_id",
+      "type": "str | None",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "pair_created_ts",
+      "type": "float | None",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "boost_amount",
+      "type": "float | None",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "metrics",
+      "type": "MarketMetrics",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "security",
+      "type": "SecuritySignals",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "social_presence",
+      "type": "dict[str, str | None]",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "source_provider",
+      "type": "str",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "retrieved_ts",
+      "type": "float",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "raw_payload_sha256",
+      "type": "str",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "confidence_level",
+      "type": "str",
+      "REQUIRED_no_default": false
+    },
+    {
+      "name": "unknown_fields",
+      "type": "list[str]",
+      "REQUIRED_no_default": false
+    }
+  ],
+  "NTC_required_fields": [
+    "chain",
+    "address",
+    "symbol",
+    "name"
+  ],
+  "sample_fdb_cryptos_row": {
+    "symbol": "SOL1-CAD",
+    "name": "Solana CAD",
+    "cryptocurrency": "SOL1",
+    "currency": "CAD",
+    "summary": "Solana (SOL) is a cryptocurrency.",
+    "exchange": "CCC",
+    "website": "https://solana.com"
+  },
+  "fdb_row_has_chain": false,
+  "fdb_row_has_address": false,
+  "T1_construct_without_chain_address": "TypeError",
+  "T1_message": "NormalizedTokenCandidate.__init__() missing 2 required positional arguments: 'chain' and 'address'",
+  "T2_construct_with_None": "SUCCEEDED \u2014 dataclass does not enforce str at runtime",
+  "T2_chain_value": "None",
+  "T2_address_value": "None",
+  "T2_unknown_fields": [
+    "metrics.fdv_usd",
+    "metrics.liquidity_usd",
+    "metrics.market_cap_usd",
+    "metrics.price_change_1h",
+    "metrics.price_change_24h",
+    "metrics.price_change_5m",
+    "metrics.price_change_6h",
+    "metrics.price_usd",
+    "metrics.txns_1h_buys",
+    "metrics.txns_1h_sells",
+    "metrics.txns_5m_buys",
+    "metrics.txns_5m_sells",
+    "metrics.volume_1h",
+    "metrics.volume_24h",
+    "metrics.volume_5m",
+    "metrics.volume_velocity",
+    "pair_created_ts",
+    "security.buy_tax_pct",
+    "security.cannot_sell_all",
+    "security.deployer_address",
+    "security.deployer_past_rug_count",
+    "security.has_freeze_authority",
+    "security.has_mint_authority",
+    "security.is_blacklisted",
+    "security.is_contract_verified",
+    "security.is_honeypot",
+    "security.is_ownership_renounced",
+    "security.is_proxy",
+    "security.liquidity_burned_pct",
+    "security.liquidity_locked_pct",
+    "security.sell_tax_pct",
+    "security.top10_holder_concentration_pct",
+    "social_presence"
+  ],
+  "T2_n_unknown_fields": 33,
+  "T2_confidence_level": "HIGH",
+  "T2_dedupe_key_expression": "(c.chain, c.address.lower())",
+  "T2_dedupe_key_raises": "AttributeError: 'NoneType' object has no attribute 'lower'",
+  "T3_registry_dedupe_line": [
+    "key = (c.chain, c.address.lower())"
+  ],
+  "T3_registry_adapter_keys": [
+    "chain_explorer",
+    "coingecko",
+    "coinmarketcap",
+    "dexscreener",
+    "geckoterminal",
+    "goplus",
+    "pumpfun",
+    "rugcheck"
+  ],
+  "T3_discovery_providers": [
+    "# from dexscreener/geckoterminal lists below):",
+    "for pid in [\"dexscreener\", \"geckoterminal\"]:"
+  ],
+  "T4_abstract_methods": [
+    "capabilities",
+    "fetch_candidate_tokens",
+    "fetch_token_metrics",
+    "health_check",
+    "provider_id"
+  ],
+  "T4_fetch_candidate_tokens_signature": "fetch_candidate_tokens(self, chain: str, limit: int = 20)",
+  "T4_fetch_token_metrics_signature": "fetch_token_metrics(self, chain: str, address: str)",
+  "T4_both_require_chain_or_address": true,
+  "T5_MarketMetrics_fields": 16,
+  "T5_SecuritySignals_fields": 15,
+  "T5_MarketMetrics_satisfiable_from_fdb": [],
+  "T5_SecuritySignals_satisfiable_from_fdb": []
+}

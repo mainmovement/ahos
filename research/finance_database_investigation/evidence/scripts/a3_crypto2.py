@@ -1,0 +1,18 @@
+import pandas as pd
+df=pd.read_csv("/tmp/fdb_repo/compression/cryptos.bz2",compression="bz2",dtype=str,keep_default_na=False)
+toks=set(df["cryptocurrency"])
+print("=== VERIFY HEADLINE CLAIMS ===")
+for t in ["BTC","ETH","SOL","USDT","USDC","XRP","DOGE","PEPE","SHIB","BNB","LUNA","UST","FTT","SRM","RAY","BONK"]:
+    print(f"  cryptocurrency == '{t}': {'PRESENT' if t in toks else 'ABSENT'}  (rows={int((df['cryptocurrency']==t).sum())})")
+print()
+print("  symbols containing 'BTC':", df.loc[df['symbol'].str.contains('BTC'),'symbol'].head(15).tolist())
+print("  -> note: BTC appears only as QUOTE currency, not as a token row")
+print()
+print("=== ALL 352 token tickers (sorted) ===")
+print(sorted(toks))
+print()
+print("=== era signal: names of first 40 ===")
+print(df.drop_duplicates('cryptocurrency').set_index('cryptocurrency')['name'].sort_index().head(40).to_string())
+print()
+print("=== 'APL' ambiguity probe (ticker collision with equities?) ===")
+print(df[df['cryptocurrency']=='APL'][['symbol','name','summary']].to_string(index=False)[:800])

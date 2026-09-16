@@ -1,0 +1,197 @@
+{
+  "C1_release_read_csv_lines": [
+    [
+      63,
+      "self.data = pd.read_csv(the_path, compression=\"bz2\", index_col=0)"
+    ],
+    [
+      68,
+      "self.data = pd.read_csv("
+    ],
+    [
+      332,
+      "categories_df = pd.read_csv("
+    ],
+    [
+      339,
+      "categories_df = pd.read_csv("
+    ]
+  ],
+  "C2_main_read_csv_lines": [
+    [
+      63,
+      "self.data = pd.read_csv("
+    ],
+    [
+      74,
+      "self.data = pd.read_csv("
+    ],
+    [
+      340,
+      "categories_df = pd.read_csv("
+    ],
+    [
+      347,
+      "categories_df = pd.read_csv("
+    ]
+  ],
+  "C1_release_has_keep_default_na": false,
+  "C2_main_has_keep_default_na": true,
+  "C3_line_count_release": 358,
+  "C3_line_count_main": 366,
+  "C3_diff_rc": 1,
+  "C3_diff_unified": "--- /tmp/fdb2_venv/lib/python3.11/site-packages/financedatabase/helpers.py\t2026-09-15 18:26:42.022844359 +0000\n+++ /tmp/fdb2_repo/financedatabase/helpers.py\t2026-09-15 18:26:54.258919627 +0000\n@@ -60,7 +60,13 @@\n         the_path += self.FILE_NAME\n         try:\n             if use_local_location:\n-                self.data = pd.read_csv(the_path, compression=\"bz2\", index_col=0)\n+                self.data = pd.read_csv(\n+                    the_path,\n+                    compression=\"bz2\",\n+                    index_col=0,\n+                    keep_default_na=False,\n+                    na_values=[\"\"],\n+                )\n             else:\n                 response = requests.get(the_path, headers=HEADERS, timeout=60)\n                 response.raise_for_status()\n@@ -69,6 +75,8 @@\n                     BytesIO(response.content),\n                     compression=\"bz2\",\n                     index_col=0,\n+                    keep_default_na=False,\n+                    na_values=[\"\"],\n                 )\n         except requests.exceptions.RequestException as error:\n             raise ValueError(\n",
+  "C3_diff_added_lines": [
+    "+                self.data = pd.read_csv(",
+    "+                    the_path,",
+    "+                    compression=\"bz2\",",
+    "+                    index_col=0,",
+    "+                    keep_default_na=False,",
+    "+                    na_values=[\"\"],",
+    "+                )",
+    "+                    keep_default_na=False,",
+    "+                    na_values=[\"\"],"
+  ],
+  "C3_diff_removed_lines": [
+    "-                self.data = pd.read_csv(the_path, compression=\"bz2\", index_col=0)"
+  ],
+  "C3_package_diff": [
+    "Only in /tmp/fdb2_venv/lib/python3.11/site-packages/financedatabase: __pycache__",
+    "Files /tmp/fdb2_venv/lib/python3.11/site-packages/financedatabase/helpers.py and /tmp/fdb2_repo/financedatabase/helpers.py differ",
+    "Only in /tmp/fdb2_repo/financedatabase: validation"
+  ],
+  "C4_source_records_with_symbol_NA": [
+    {
+      "file": "database/equities/NMS.csv",
+      "line": 4346,
+      "raw_first_field": "NA",
+      "record_preview": "NA,Nano Labs Ltd Class A Ordinary Shares,,USD,Information Technology,Semiconductors & Semiconductor Equipment,Semiconductors & Semiconductor Equipment,NMS,XNAS,NASDAQ Global Select"
+    }
+  ],
+  "C4_count": 1,
+  "C5_release_rows": 112690,
+  "C6_main_rows": 112690,
+  "C5_release_index_nan_count": 1,
+  "C6_main_index_nan_count": 0,
+  "C5_release_NA_in_index": false,
+  "C6_main_NA_in_index": true,
+  "C5_release_loc_NA": "KeyError: 'NA'",
+  "C6_main_loc_NA": {
+    "name": "Nano Labs Ltd Class A Ordinary Shares",
+    "country": "China",
+    "exchange": "NMS",
+    "isin": NaN,
+    "summary_present": true
+  },
+  "C5_cell_level_divergence": {},
+  "C5_cell_level_divergence_empty": true,
+  "C10_pandas_default_na_strings": [
+    "",
+    "#N/A",
+    "#N/A N/A",
+    "#NA",
+    "-1.#IND",
+    "-1.#QNAN",
+    "-NaN",
+    "-nan",
+    "1.#IND",
+    "1.#QNAN",
+    "<NA>",
+    "N/A",
+    "NA",
+    "NULL",
+    "NaN",
+    "None",
+    "n/a",
+    "nan",
+    "null"
+  ],
+  "C10_per_asset_class": {
+    "equities": {
+      "rows": 112690,
+      "index_values_matching_pandas_default_NA": [
+        "NA"
+      ],
+      "n_vulnerable": 1,
+      "release_index_nan_count": 1,
+      "rows_lost_under_release_semantics": 0
+    },
+    "etfs": {
+      "rows": 36481,
+      "index_values_matching_pandas_default_NA": [],
+      "n_vulnerable": 0,
+      "release_index_nan_count": 0,
+      "rows_lost_under_release_semantics": 4
+    },
+    "funds": {
+      "rows": 57853,
+      "index_values_matching_pandas_default_NA": [],
+      "n_vulnerable": 0,
+      "release_index_nan_count": 0,
+      "rows_lost_under_release_semantics": 244
+    },
+    "indices": {
+      "rows": 91181,
+      "index_values_matching_pandas_default_NA": [],
+      "n_vulnerable": 0,
+      "release_index_nan_count": 0,
+      "rows_lost_under_release_semantics": 4854
+    },
+    "currencies": {
+      "rows": 2556,
+      "index_values_matching_pandas_default_NA": [],
+      "n_vulnerable": 0,
+      "release_index_nan_count": 0,
+      "rows_lost_under_release_semantics": 0
+    },
+    "cryptos": {
+      "rows": 3367,
+      "index_values_matching_pandas_default_NA": [],
+      "n_vulnerable": 0,
+      "release_index_nan_count": 0,
+      "rows_lost_under_release_semantics": 5
+    },
+    "moneymarkets": {
+      "rows": 1367,
+      "index_values_matching_pandas_default_NA": [],
+      "n_vulnerable": 0,
+      "release_index_nan_count": 0,
+      "rows_lost_under_release_semantics": 1
+    }
+  },
+  "C10_classes_affected": [
+    "equities"
+  ],
+  "C10_ONLY_EQUITIES_AFFECTED": true,
+  "C10_source_csv_NA_like_first_fields": {
+    "database/equities/NMS.csv": [
+      "NA"
+    ]
+  },
+  "C8_helpers_history": [
+    "3b8eb8390959bec6a360a620333b6fe5217a4618|2026-08-07|Jon H\u00f8jlund Arnfred|Preserve CSV values verbatim in the database workflow (#166)",
+    "fa1940d5a1a7b1c3508d0f55f2d204474ea33f26|2026-06-02|jeroen|Add adjustments to automatically filter out delisted companies",
+    "2786d9d49bb09b2d8bff00e0030a66b534dcbfd4|2026-05-29|Alessandro Colace|Add mic (ISO 10383 MIC) column (#149)",
+    "ba9cb4efb65282d3e0fe6d9c7c7c5624c7813a64|2026-05-21|Alessandro Colace|ETFs/Funds data quality + cross-asset invariants + equities country/ISIN backfill + SPAC cleanup + README stats (#147)",
+    "b8a9d177c1863aca6a0455b7c06f7017a885ce38|2025-07-05|jeroen|Update to_toolkit code to reflect new changes to the Finance Toolkit",
+    "64c3d0f6dfb9aef72c87a7e6459b467bee673939|2025-04-04|jeroen|Update the financedatabase package to work well with multiple inputs and add a lot more robustness",
+    "70d6193e1da574bd19c4e96bfd8b037ce9fd546b|2025-04-02|jeroen|Update package to represent new changes",
+    "b20653fb185195c397adcb4002d0da26a4285279|2025-03-30|jeroen|Minor release, big one coming soon",
+    "144566885a1a0f47c7cc8657f2a86e92b997eb6d|2024-02-15|jeroen|Update financetoolkit syntax",
+    "bf5bdeaa17338e92aeaaff65befd416e97dfeccb|2023-11-04|jeroen|Change minor details related to the FinanceToolkit",
+    "fd92cc379fac929ce3aea1709ceb2a62e18cd9f2|2023-09-19|jeroen|Spelling mistakes",
+    "86989ac2f46edc636635398273c740c8f951e049|2023-09-19|jeroen|Update docstrings and introduce FinanceFrame"
+  ],
+  "C9_commits_introducing_keep_default_na": [
+    "3b8eb8390959bec6a360a620333b6fe5217a4618|2026-08-07 12:32:18 +0200|Preserve CSV values verbatim in the database workflow (#166)"
+  ],
+  "C8_tags": [
+    "2.4.0",
+    "2.3.1",
+    "2.3.0",
+    "2.2.0",
+    "2.1.1",
+    "2.1.0"
+  ],
+  "C8_release_2.4.0_date": "2026-06-02 (PyPI upload_time, recorded in 16_EVIDENCE_REGISTER)"
+}
