@@ -1175,15 +1175,15 @@ def test_w14_a1_unminted_verified_rejected():
 def test_w14_a1b_forged_cookie_and_replace_fail():
     """A1b: forged cookie / dataclasses.replace plant fails; same reject."""
     ident = _identity_unminted(token_id="abc123canonicalid")
-    # dataclasses.replace cannot plant init=False field
+    # dataclasses.replace cannot plant init=False field (raises ValueError on 3.11+)
     try:
         planted = replace(ident, _ahos_verified_mint=object())
         # If somehow constructed, still must fail is-check unless cookie is exact sentinel
         dossier = compose_dossier(identity=planted)
         assert dossier.canonical_token_id is None
         assert "identity_verified_unminted" in dossier.unknowns
-    except TypeError:
-        pass  # expected on Python 3.13+ for init=False
+    except (TypeError, ValueError):
+        pass  # CPython 3.11+: ValueError for init=False in replace; TypeError retained
 
     # Forged cookie via object.__setattr__ with wrong sentinel
     forged = _identity_unminted(token_id="abc123canonicalid")
