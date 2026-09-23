@@ -2,6 +2,7 @@
 """Identity eligibility gates — no second brain, identity first."""
 from __future__ import annotations
 
+from architecture.identity.resolution import _has_verified_mint
 from architecture.identity.types import IdentityResolution, IdentityState
 
 BLOCKING_TOKEN_STATES = {
@@ -17,7 +18,9 @@ def identity_allows_positive_decision(resolution: IdentityResolution | None) -> 
     """INVALID/CONFLICT/UNRESOLVED/STALE/UNSUPPORTED/MISSING ⇒ no positive rec."""
     if resolution is None:
         return False
-    return resolution.token.state == IdentityState.VERIFIED
+    if resolution.token.state != IdentityState.VERIFIED:
+        return False
+    return _has_verified_mint(resolution)
 
 
 def identity_allows_alert(resolution: IdentityResolution | None) -> bool:
@@ -47,4 +50,6 @@ def pool_liquidity_claims_allowed(resolution: IdentityResolution | None) -> bool
 def token_monitoring_allowed(resolution: IdentityResolution | None) -> bool:
     if resolution is None:
         return False
-    return resolution.token.state == IdentityState.VERIFIED
+    if resolution.token.state != IdentityState.VERIFIED:
+        return False
+    return _has_verified_mint(resolution)

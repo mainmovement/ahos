@@ -44,6 +44,14 @@ def _attach_verified_mint(resolution: IdentityResolution) -> IdentityResolution:
     return resolution
 
 
+def _has_verified_mint(resolution: IdentityResolution) -> bool:
+    """Fail-closed: True only if resolver mint cookie matches module sentinel."""
+    mint = getattr(resolution, "_ahos_verified_mint", None)
+    if mint is None:
+        return False
+    return mint is _VERIFIED_MINT
+
+
 def _chain_identity(raw: str | None) -> ChainIdentity:
     if not raw or not str(raw).strip():
         return ChainIdentity(raw, None, IdentityState.INVALID, "missing_chain")
