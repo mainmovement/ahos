@@ -28,7 +28,7 @@ That residual is the highest-value **Lane-B identity/security** follow-up that:
 - does not touch `discovery/**` or `paper_trading/**`,
 - does not change scoring semantics,
 - does not enable live trading,
-- is reversible (feature-flag or marker version bump),
+- is reversible via composer version bump (`token-dossier-composer-v1.3`) only (no env/feature-flag hatch),
 - has clear acceptance tests.
 
 ### Non-goals (hard)
@@ -63,7 +63,7 @@ That residual is the highest-value **Lane-B identity/security** follow-up that:
 
 Preferred minimal pattern:
 
-1. Module-private object or `object()` cookie stored on `IdentityResolution` (or on `TokenIdentity`) as `_ahos_verified_mint` / frozen field default `None`.
+1. Module-private object or `object()` cookie stored on `IdentityResolution` **only** (not on `TokenIdentity`) as `_ahos_verified_mint` / frozen field default `None`.
 2. **Only** `architecture.identity.resolution.resolve_identity` attaches the cookie via module-private `_attach_verified_mint` / `_VERIFIED_MINT`. Test helper if needed: `_mint_verified_for_tests` (leading `_`, not in `__all__`); **VETO** ungated public `mint_verified_resolution`.
 3. `compose_dossier` treats `state == VERIFIED` **without** cookie as **reject** with mandatory `reject_code="identity_verified_unminted"` (fail-closed, no canonical, **no silent demotion**).
 4. Dataclass/`__init__` of types must not accept caller-supplied cookie from public kwargs (use `object.__setattr__` inside factory, or `InitVar` discarded, or `__post_init__` that clears cookie unless `factory_token` matches module secret).
@@ -97,6 +97,12 @@ A7  Source hygiene: dossier.py still has no contiguous "architecture.identity" i
     if that invariant remains binding; if mint check needs types, use existing sys.modules exact-type path only.
 
 A8  Lane A freeze verify unchanged (script check, no --write).
+
+A9  No public mint / forge API: mint helpers absent from architecture/identity `__all__`;
+    production attach = module-private `_attach_verified_mint` from `resolve_identity` only;
+    tests via `tests/_mint_support.py` `_mint_verified_for_tests` (leading `_`).
+
+A10 No `AHOS_ALLOW_UNMINTED_VERIFIED` in v1.3 tree (`rg` zero hits — omit preferred).
 ```
 
 Commands for implementer:
@@ -143,8 +149,8 @@ After merge:
 
 ## Success criteria for the cloud agent
 
-- [ ] Single focused PR, reversible, Lane-B only  
-- [ ] Acceptance tests A1–A8 green locally  
+- [ ] Single focused PR, reversible via composer bump only (no feature-flag/env hatch), Lane-B only  
+- [ ] Acceptance tests **A1–A10** green locally (A9 public-mint veto + A10 hatch omit)  
 - [ ] No Lane A file changes  
 - [ ] Honest PR body (no AGI, no PRODUCTION_READY, no D1 closed, no C-FORGE-07 closed, no unforgeable, no public mint API)  
 - [ ] Does not push to `main`; opens PR for human merge  
