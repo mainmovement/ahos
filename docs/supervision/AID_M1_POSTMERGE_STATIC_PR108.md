@@ -15,7 +15,7 @@
 
 ---
 
-## Verdict: **PASS_WITH_GAPS** (static aid only — not IV)
+## Verdict: **AID_STATIC_COHERENCE_WITH_GAPS** (static aid only — **≠** Agent-16 IV; ban bare `PASS` / `PASS_WITH_GAPS` as AID verdict)
 
 | Dimension | Result |
 |-----------|--------|
