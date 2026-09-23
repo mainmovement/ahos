@@ -1,0 +1,62 @@
+# Minimal pytest CI — PAPER_ONLY land (C-CI / MF-CI-PIN).
+# Claims: workflow present; future check-runs may appear.
+# ≠ past-SHA green · ≠ readiness · ≠ D1/07 closed · ≠ AGI · ≠ PROMOTE
+name: pytest-minimal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "architecture/**"
+      - "tests/**"
+      - "discovery/**"
+      - "paper_trading/**"
+      - "config/lane_a_freeze.sha256"
+      - "scripts/freeze_lane_a.py"
+      - "requirements.txt"
+      - "pytest.ini"
+      - ".github/workflows/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "architecture/**"
+      - "tests/**"
+      - "discovery/**"
+      - "paper_trading/**"
+      - "config/lane_a_freeze.sha256"
+      - "scripts/freeze_lane_a.py"
+      - "requirements.txt"
+      - "pytest.ini"
+      - ".github/workflows/**"
+
+concurrency:
+  group: pytest-minimal-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Lane A freeze verify (no --write)
+        run: python scripts/freeze_lane_a.py
+
+      - name: Pytest
+        run: python -m pytest -q
