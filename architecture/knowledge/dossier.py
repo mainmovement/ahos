@@ -177,13 +177,16 @@ def _is_supported_token_identity(obj: Any) -> bool:
 
 def _identity_has_resolver_mint(identity: Any) -> bool:
     """True only when IdentityResolution carries the resolver mint cookie."""
-    mint = getattr(identity, "_ahos_verified_mint", None)
-    if mint is None:
-        return False
     mod = sys.modules.get(".".join(("architecture", "identity", "resolution")))
     if mod is None:
         return False
-    return mint is getattr(mod, "_VERIFIED_MINT", None)
+    checker = getattr(mod, "_has_verified_mint", None)
+    if checker is None:
+        return False
+    try:
+        return bool(checker(identity))
+    except Exception:
+        return False
 
 
 

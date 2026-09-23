@@ -18,10 +18,11 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any, Mapping
 
+from architecture.identity.resolution import _has_verified_mint
 from architecture.identity.types import IdentityResolution, IdentityState, TokenIdentity
 from architecture.identity.validate import EVM_CHAINS, validate_address_for_chain
 
-FUSION_VERSION = "identity-fusion-foundation-v1"
+FUSION_VERSION = "identity-fusion-foundation-v1.1"
 
 CONSUMER_CONTRACT = (
     "These types classify representations. They do not resolve identity. "
@@ -507,7 +508,7 @@ def is_canonical_verified(resolution: Any) -> bool:
         return False
     if _text(token.address_canonical) is None:
         return False
-    return True
+    return _has_verified_mint(resolution)
 
 
 def copy_canonical_token_id(
