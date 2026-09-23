@@ -93,6 +93,6 @@ Epistemic labels used: `IMPLEMENTED_AND_VERIFIED` · `IMPLEMENTED_BUT_UNVERIFIED
 | `architecture/*` | identity, knowledge, cognitive, risk, security, decision, evolution, council.py, … |
 | `config/agent_registry.yaml` | 25 agents; status tally above |
 | `config/lane_a_freeze.sha256` | 36 discovery/paper_trading hashed entries |
-| PR #108 files | See `M1_POSTMERGE_VERIFY_PR108.md` |
+| PR #108 files | See `AID_M1_POSTMERGE_STATIC_PR108.md` (AID static only — ≠ VERIFY packet) |
 
 **Map status:** DRAFT v1 — STATIC_ONLY remote sample. Promote rows only when executable or operator evidence appears.
