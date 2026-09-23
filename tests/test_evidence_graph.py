@@ -10,6 +10,7 @@ from architecture.identity.types import (
     IdentityState,
     TokenIdentity,
 )
+from tests._mint_support import _mint_verified_for_tests
 from architecture.knowledge.dossier import (
     AliasKind,
     COMPOSER_VERSION,
@@ -62,8 +63,9 @@ def _identity(
     symbol: str | None = "ABC",
     conflicts: tuple[str, ...] = (),
     provenance: tuple[dict, ...] = (),
+    mint: bool | None = None,
 ) -> IdentityResolution:
-    return IdentityResolution(
+    resolution = IdentityResolution(
         chain=ChainIdentity(chain, chain, state, "fixture"),
         token=TokenIdentity(
             chain=chain,
@@ -80,6 +82,34 @@ def _identity(
         sources=(),
         conflicts=conflicts,
         provenance=provenance,
+    )
+    if mint is None:
+        mint = state is IdentityState.VERIFIED
+    if mint:
+        return _mint_verified_for_tests(resolution)
+    return resolution
+
+
+def _identity_unminted(
+    *,
+    state: IdentityState = IdentityState.VERIFIED,
+    chain: str | None = "solana",
+    address: str | None = "So11111111111111111111111111111111111111112",
+    token_id: str | None = "abc123canonicalid",
+    symbol: str | None = "ABC",
+    conflicts: tuple[str, ...] = (),
+    provenance: tuple[dict, ...] = (),
+) -> IdentityResolution:
+    """Hand-built exact-typed VERIFIED without resolver mint (A1/A2)."""
+    return _identity(
+        state=state,
+        chain=chain,
+        address=address,
+        token_id=token_id,
+        symbol=symbol,
+        conflicts=conflicts,
+        provenance=provenance,
+        mint=False,
     )
 
 
@@ -726,3 +756,27 @@ def test_w13_t11_hand_built_verified_dossier_does_not_authorize_canonical():
     )
     assert g_ok.canonical_token_id == "abc123canonicalid"
 
+
+# --- W1.4 resolver-mint marker (graph refuse unminted VERIFIED via identity=) ---
+
+
+def test_w14_a2_unminted_verified_graph_no_canonical():
+    """A2: unminted exact-typed VERIFIED via identity= → no canonical on graph."""
+    ident = _identity_unminted(token_id="abc123canonicalid")
+    graph = compose_evidence_graph(identity=ident)
+    assert graph.canonical_token_id is None
+    assert "identity_verified_unminted" in graph.unknowns
+    assert graph.identity_state is None
+    for node in graph.nodes:
+        if node.node_type is NodeType.TOKEN:
+            assert node.metadata.get("canonical") is not True
+            assert node.metadata.get("canonical_token_id") in (None, "")
+
+
+def test_w14_a3_minted_graph_canonical():
+    """A3 mirror: minted VERIFIED via identity= still authorizes graph canonical."""
+    graph = compose_evidence_graph(
+        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid")
+    )
+    assert graph.canonical_token_id == "abc123canonicalid"
+    assert graph.identity_state == "VERIFIED"

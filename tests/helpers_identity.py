@@ -1,6 +1,7 @@
 """Lane B identity fixtures for tests. Not production evidence."""
 from __future__ import annotations
 
+from tests._mint_support import _mint_verified_for_tests
 from architecture.identity.types import (
     ChainIdentity,
     DexDeployment,
@@ -26,7 +27,7 @@ def verified_identity_fixture(
     GATE 0 consumes this fixture so those tests exercise later gates rather
     than Solana address validation.
     """
-    return IdentityResolution(
+    resolution = IdentityResolution(
         chain=ChainIdentity(chain, chain, IdentityState.VERIFIED, "test_fixture"),
         token=TokenIdentity(
             chain=chain,
@@ -43,6 +44,7 @@ def verified_identity_fixture(
         policy_version="identity-resolution-v1",
         computed_ts=0.0,
     )
+    return _mint_verified_for_tests(resolution)
 
 
 def verified_pool_identity_fixture(
@@ -74,7 +76,7 @@ def verified_pool_identity_fixture(
         belongs_to_token=True,
     )
     dex = DexDeployment(dex_id=dex_id, chain=chain, version="v4")
-    return IdentityResolution(
+    resolution = IdentityResolution(
         chain=token_res.chain,
         token=token_res.token,
         pool=pool,
@@ -87,3 +89,4 @@ def verified_pool_identity_fixture(
         policy_version=token_res.policy_version,
         computed_ts=token_res.computed_ts,
     )
+    return _mint_verified_for_tests(resolution)

@@ -34,6 +34,16 @@ INDEPENDENT_KIND_GROUPS = {
 }
 
 
+_VERIFIED_MINT = object()
+
+
+def _attach_verified_mint(resolution: IdentityResolution) -> IdentityResolution:
+    """Attach opaque resolver mint to VERIFIED resolutions only. Private."""
+    if resolution.token.state is IdentityState.VERIFIED:
+        object.__setattr__(resolution, "_ahos_verified_mint", _VERIFIED_MINT)
+    return resolution
+
+
 def _chain_identity(raw: str | None) -> ChainIdentity:
     if not raw or not str(raw).strip():
         return ChainIdentity(raw, None, IdentityState.INVALID, "missing_chain")
@@ -246,7 +256,10 @@ def resolve_identity(
         }
         for s in srcs
     )
-    return IdentityResolution(
+    resolution = IdentityResolution(
         chain_id, token, primary_pool, dex, srcs, conflicts, provenance, (),
         tuple(built_pools), POLICY_VERSION, ts,
     )
+    if token_state is IdentityState.VERIFIED:
+        return _attach_verified_mint(resolution)
+    return resolution
