@@ -6,7 +6,7 @@ are still produced by that module when a chain is in the Lane A registry.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -86,6 +86,7 @@ class IdentityResolution:
     pools: tuple[PoolIdentity, ...] = ()
     policy_version: str = "identity-resolution-v1"
     computed_ts: float = 0.0
+    _ahos_verified_mint: object | None = field(default=None, init=False, repr=False, compare=False)
 
     @property
     def state(self) -> IdentityState:

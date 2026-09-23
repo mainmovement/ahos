@@ -30,7 +30,7 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any, Iterable, Mapping
 
-COMPOSER_VERSION = "token-dossier-composer-v1.2"
+COMPOSER_VERSION = "token-dossier-composer-v1.3"
 
 
 # Join path segments so this file does not contain a contiguous forbidden import token.
@@ -173,6 +173,19 @@ def _is_supported_identity_resolution(obj: Any) -> bool:
 
 def _is_supported_token_identity(obj: Any) -> bool:
     return _exact_type(obj, _IDENTITY_TYPES_MODULE, _TOKEN_IDENTITY_NAME)
+
+
+def _identity_has_resolver_mint(identity: Any) -> bool:
+    """True only when IdentityResolution carries the resolver mint cookie."""
+    mint = getattr(identity, "_ahos_verified_mint", None)
+    if mint is None:
+        return False
+    mod = sys.modules.get(".".join(("architecture", "identity", "resolution")))
+    if mod is None:
+        return False
+    return mint is getattr(mod, "_VERIFIED_MINT", None)
+
+
 
 
 
@@ -364,6 +377,13 @@ def _extract_identity(identity: Any) -> _IdentityIntake:
             accepted=False,
             reject_code="identity_resolution_invalid",
             reject_detail=f"access_error:{type(exc).__name__}",
+        )
+    if state == "VERIFIED" and not _identity_has_resolver_mint(identity):
+        return _IdentityIntake(
+            present=True,
+            accepted=False,
+            reject_code="identity_verified_unminted",
+            reject_detail="verified_without_resolver_mint",
         )
     return _IdentityIntake(
         present=True,

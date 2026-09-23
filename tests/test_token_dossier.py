@@ -1,15 +1,19 @@
 """Read-only token dossier composer — isolated from runtime, Lane A, and P5."""
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
 from architecture.identity.types import (
     ChainIdentity,
     IdentityResolution,
+    IdentitySource,
     IdentityState,
     TokenIdentity,
 )
+from tests._mint_support import _mint_verified_for_tests
+from architecture.identity.resolution import resolve_identity
 from architecture.knowledge.dossier import (
     AliasKind,
     COMPOSER_VERSION,
@@ -55,9 +59,10 @@ def _identity(
     symbol: str | None = "ABC",
     conflicts: tuple[str, ...] = (),
     provenance: tuple[dict, ...] = (),
+    mint: bool | None = None,
 ) -> IdentityResolution:
     chain_state = state if state is not IdentityState.UNSUPPORTED else IdentityState.UNSUPPORTED
-    return IdentityResolution(
+    resolution = IdentityResolution(
         chain=ChainIdentity(chain, chain, chain_state, "fixture"),
         token=TokenIdentity(
             chain=chain,
@@ -74,6 +79,35 @@ def _identity(
         sources=(),
         conflicts=conflicts,
         provenance=provenance,
+    )
+    # Default: mint VERIFIED for positive dossier/graph paths. A1 uses mint=False.
+    if mint is None:
+        mint = state is IdentityState.VERIFIED
+    if mint:
+        return _mint_verified_for_tests(resolution)
+    return resolution
+
+
+def _identity_unminted(
+    *,
+    state: IdentityState = IdentityState.VERIFIED,
+    chain: str | None = "solana",
+    address: str | None = "So11111111111111111111111111111111111111112",
+    token_id: str | None = "abc123canonicalid",
+    symbol: str | None = "ABC",
+    conflicts: tuple[str, ...] = (),
+    provenance: tuple[dict, ...] = (),
+) -> IdentityResolution:
+    """Hand-built exact-typed VERIFIED without resolver mint (A1/A1b)."""
+    return _identity(
+        state=state,
+        chain=chain,
+        address=address,
+        token_id=token_id,
+        symbol=symbol,
+        conflicts=conflicts,
+        provenance=provenance,
+        mint=False,
     )
 
 
@@ -1116,3 +1150,102 @@ def test_w13_t10_combined_a_and_b_paths_closed():
     real = compose_dossier(identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"))
     assert real.identity_state == "VERIFIED"
     assert real.canonical_token_id == "abc123canonicalid"
+
+
+# --- W1.4 resolver-mint marker (dossier refuse unminted VERIFIED) ---
+
+
+def test_w14_a1_unminted_verified_rejected():
+    """A1: hand-built exact-typed VERIFIED without mint → identity_verified_unminted."""
+    ident = _identity_unminted(token_id="abc123canonicalid")
+    assert getattr(ident, "_ahos_verified_mint", None) is None
+    dossier = compose_dossier(identity=ident)
+    assert "identity_verified_unminted" in dossier.unknowns
+    assert dossier.canonical_token_id is None
+    assert dossier.identity_state is None
+    # No silent demotion to UNRESOLVED as primary accepted state
+    assert dossier.identity_state != "UNRESOLVED"
+    assert dossier.identity_state != "VERIFIED"
+    reasons = [dict(p).get("reason") for p in dossier.provenance]
+    assert "identity_verified_unminted" in reasons
+    details = [dict(p).get("detail") for p in dossier.provenance]
+    assert "verified_without_resolver_mint" in details
+
+
+def test_w14_a1b_forged_cookie_and_replace_fail():
+    """A1b: forged cookie / dataclasses.replace plant fails; same reject."""
+    ident = _identity_unminted(token_id="abc123canonicalid")
+    # dataclasses.replace cannot plant init=False field
+    try:
+        planted = replace(ident, _ahos_verified_mint=object())
+        # If somehow constructed, still must fail is-check unless cookie is exact sentinel
+        dossier = compose_dossier(identity=planted)
+        assert dossier.canonical_token_id is None
+        assert "identity_verified_unminted" in dossier.unknowns
+    except TypeError:
+        pass  # expected on Python 3.13+ for init=False
+
+    # Forged cookie via object.__setattr__ with wrong sentinel
+    forged = _identity_unminted(token_id="abc123canonicalid")
+    object.__setattr__(forged, "_ahos_verified_mint", object())
+    dossier = compose_dossier(identity=forged)
+    assert dossier.canonical_token_id is None
+    assert "identity_verified_unminted" in dossier.unknowns
+    assert dossier.identity_state is None
+
+
+def test_w14_a3_minted_via_support_and_resolve_identity():
+    """A3: minted via _mint_support or resolve_identity → VERIFIED + canonical."""
+    # Path 1: test mint helper
+    minted = _mint_verified_for_tests(
+        _identity_unminted(token_id="abc123canonicalid")
+    )
+    d1 = compose_dossier(identity=minted)
+    assert d1.identity_state == "VERIFIED"
+    assert d1.canonical_token_id == "abc123canonicalid"
+    assert d1.composer_version == COMPOSER_VERSION
+    assert COMPOSER_VERSION == "token-dossier-composer-v1.3"
+
+    # Path 2: default _identity (auto-mint)
+    d2 = compose_dossier(
+        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid")
+    )
+    assert d2.identity_state == "VERIFIED"
+    assert d2.canonical_token_id == "abc123canonicalid"
+
+    # Path 3: real resolve_identity with independent sources
+    addr = "So11111111111111111111111111111111111111112"
+    sources = (
+        IdentitySource(provider="a", chain="solana", address=addr, kind="onchain"),
+        IdentitySource(provider="b", chain="solana", address=addr, kind="market"),
+    )
+    resolved = resolve_identity(chain="solana", address=addr, sources=sources, symbol="SOL")
+    assert resolved.token.state is IdentityState.VERIFIED
+    assert getattr(resolved, "_ahos_verified_mint", None) is not None
+    d3 = compose_dossier(identity=resolved)
+    assert d3.identity_state == "VERIFIED"
+    assert d3.canonical_token_id is not None
+    assert d3.canonical_token_id == resolved.token.token_id
+
+
+def test_w14_a7_no_contiguous_architecture_identity_in_dossier():
+    """A7: dossier.py has no contiguous architecture.identity import token."""
+    src = (ROOT / "architecture" / "knowledge" / "dossier.py").read_text(encoding="utf-8")
+    assert "architecture.identity" not in src
+    assert "AHOS_ALLOW_UNMINTED_VERIFIED" not in src
+
+
+def test_w14_a9_mint_helpers_not_in_identity_all():
+    """A9: mint attach / test mint absent from architecture.identity.__all__."""
+    import architecture.identity as ident_pkg
+    exported = set(getattr(ident_pkg, "__all__", ()))
+    banned = {
+        "_attach_verified_mint",
+        "_mint_verified_for_tests",
+        "_VERIFIED_MINT",
+        "mint_verified_resolution",
+        "_ahos_verified_mint",
+    }
+    assert exported.isdisjoint(banned)
+    for name in banned:
+        assert not hasattr(ident_pkg, name) or name.startswith("_") and name not in exported
