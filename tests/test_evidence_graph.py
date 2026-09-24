@@ -1,6 +1,10 @@
 """Read-only claim/evidence graph — isolated from runtime, Lane A, and P5."""
 from __future__ import annotations
 
+import warnings
+
+import pytest
+
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -551,12 +555,16 @@ def test_consumer_contract_is_explicit_on_graph():
 def test_w1_dossier_can_be_projected_without_recompose_identity():
     # Fix B (Agent-19): dossier= alone is not authority — must pass raw identity=.
     dossier = compose_dossier(identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"))
-    ignored = compose_evidence_graph(dossier=dossier)
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        ignored = compose_evidence_graph(dossier=dossier)
     assert ignored.canonical_token_id is None
     assert ignored.identity_state is None
-    graph = compose_evidence_graph(
-        identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"),
-    )
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", DeprecationWarning)
+        graph = compose_evidence_graph(
+            identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"),
+        )
+    assert not any(issubclass(w.category, DeprecationWarning) for w in caught)
     assert graph.canonical_token_id == "abc123canonicalid"
     assert graph.identity_state == "VERIFIED"
 
@@ -584,7 +592,8 @@ def _hand_built_verified_dossier(*, token_id: str = "FORGED", version: str = COM
 def test_w13_t5_hand_built_dossier_no_canonical_token_node():
     """T5: W2 hand-built TokenDossier(VERIFIED, forged id) → no canonical (dossier= discarded)."""
     forged = _hand_built_verified_dossier(token_id="FORGED")
-    graph = compose_evidence_graph(dossier=forged)
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        graph = compose_evidence_graph(dossier=forged)
     assert graph.canonical_token_id is None
     token = _token(graph)
     assert token.metadata.get("canonical") is False
@@ -612,11 +621,13 @@ def test_w13_t8_hand_built_forged_dossier_fails_b_path_a_alone_insufficient():
     forged = _hand_built_verified_dossier(token_id="FORGED_A_ALONE_INSUFFICIENT")
     assert forged.identity_state == "VERIFIED"
     assert forged.canonical_token_id == "FORGED_A_ALONE_INSUFFICIENT"
-    graph = compose_evidence_graph(dossier=forged)
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        graph = compose_evidence_graph(dossier=forged)
     assert graph.canonical_token_id is None
     assert _token(graph).metadata.get("canonical") is False
     wrong_seal = _hand_built_verified_dossier(token_id="FORGED_WRONG_SEAL")
-    g2 = compose_evidence_graph(dossier=wrong_seal)
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        g2 = compose_evidence_graph(dossier=wrong_seal)
     assert g2.canonical_token_id is None
 
 
@@ -679,7 +690,8 @@ def test_w13_t10_combined_a_and_b_both_paths_closed_on_w2():
     g_spoof = compose_evidence_graph(identity=FakeIR())
     assert g_spoof.canonical_token_id is None
 
-    g_hand = compose_evidence_graph(dossier=_hand_built_verified_dossier())
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        g_hand = compose_evidence_graph(dossier=_hand_built_verified_dossier())
     assert g_hand.canonical_token_id is None
 
     # Positive control: raw identity= still works (dossier= alone never authorizes).
@@ -694,7 +706,8 @@ def test_w13_compose_dossier_object_alone_does_not_authorize_canonical():
     dossier = compose_dossier(
         identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid")
     )
-    graph = compose_evidence_graph(dossier=dossier)
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        graph = compose_evidence_graph(dossier=dossier)
     assert graph.canonical_token_id is None
     assert graph.identity_state is None
 
@@ -719,7 +732,8 @@ def test_w13_t11_hand_built_verified_dossier_does_not_authorize_canonical():
         object.__setattr__(forged, "canonical_token_id", "SEAL_FORGE_BYPASS")
     except Exception:
         pass
-    graph = compose_evidence_graph(dossier=forged)
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        graph = compose_evidence_graph(dossier=forged)
     assert graph.canonical_token_id is None
     assert graph.identity_state is None
     assert _token(graph).metadata.get("canonical") is False
@@ -748,7 +762,8 @@ def test_w13_t11_hand_built_verified_dossier_does_not_authorize_canonical():
             "provenance": (),
         },
     )
-    g2 = compose_evidence_graph(dossier=forged, identity=FakeIR())
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        g2 = compose_evidence_graph(dossier=forged, identity=FakeIR())
     assert g2.canonical_token_id is None
 
     g_ok = compose_evidence_graph(
@@ -780,3 +795,27 @@ def test_w14_a3_minted_graph_canonical():
     )
     assert graph.canonical_token_id == "abc123canonicalid"
     assert graph.identity_state == "VERIFIED"
+
+
+def test_dossier_kwarg_emits_deprecation_and_still_discards():
+    """dossier= warns and remains non-authority (compat shim)."""
+    forged = _hand_built_verified_dossier(token_id="DEPRECATE_FORGE")
+    with pytest.warns(DeprecationWarning, match=r"dossier=.*deprecated"):
+        graph = compose_evidence_graph(dossier=forged)
+    assert graph.canonical_token_id is None
+    assert graph.identity_state is None
+
+
+def test_raw_kwargs_compose_does_not_emit_dossier_deprecation():
+    """identity= path must not warn about dossier=."""
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", DeprecationWarning)
+        graph = compose_evidence_graph(
+            identity=_identity(state=IdentityState.VERIFIED, token_id="abc123canonicalid"),
+        )
+    assert graph.canonical_token_id == "abc123canonicalid"
+    assert not any(
+        issubclass(w.category, DeprecationWarning) and "dossier=" in str(w.message)
+        for w in caught
+    )
+
