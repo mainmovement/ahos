@@ -27,7 +27,7 @@ Identity rules
     Canonical TOKEN nodes require a TokenDossier freshly produced by
     compose_dossier from raw kwargs (always-recompose), with
     identity_state == VERIFIED and a canonical_token_id. Caller-supplied
-    dossier= objects are discarded and never authorize canonical identity.
+    dossier= objects are deprecated (DeprecationWarning), discarded, and never authorize canonical identity.
     Symbol, name, operational token_id, and aliases never become canonical
     graph identity.
 
@@ -57,6 +57,7 @@ Non-goals
 Do not import this module from the operational daemon package or the pipeline.
 """
 from __future__ import annotations
+import warnings
 
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -585,10 +586,18 @@ def compose_evidence_graph(
     Scalars alone are not sufficient authority; see CONSUMER_CONTRACT.
 
     Fix B (Agent-19): never trust caller-supplied TokenDossier.
-    The dossier= argument is accepted for API compatibility only and is discarded.
+    The dossier= argument is a deprecated API-compatibility shim and is discarded.
     Authority always comes from a fresh compose_dossier(...) over raw kwargs
-    (always-recompose).
+    (always-recompose). Pass identity=/decision=/… instead of dossier=.
     """
+    if dossier is not None:
+        warnings.warn(
+            "compose_evidence_graph(dossier=...) is deprecated and discarded; "
+            "pass raw identity=/decision=/score=/security=/claims=/metadata= kwargs. "
+            "Authority always recomposes via compose_dossier (Fix B).",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     _ = dossier  # discarded — not authority
     dossier = compose_dossier(
         identity=identity,
