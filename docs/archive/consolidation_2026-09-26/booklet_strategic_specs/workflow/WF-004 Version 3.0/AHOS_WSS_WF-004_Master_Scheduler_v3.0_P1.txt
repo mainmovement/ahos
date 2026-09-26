@@ -1,0 +1,139 @@
+AHOS Workflow Specification Sheet
+WF-004 — Health Monitor
+
+Version 1.0
+
+Phase 1 — Health Monitoring Architecture & Core Principles
+
+این Workflow قرار نیست صرفاً CPU و RAM را چک کند.
+
+این بزرگ‌ترین اشتباهی است که اکثر سیستم‌ها مرتکب می‌شوند.
+
+WF-004 باید سلامت معماری کل AHOS را پایش کند.
+
+نه فقط سلامت سیستم‌عامل.
+
+1. Purpose
+
+The Health Monitor SHALL serve as the authoritative architectural component responsible for continuous assessment of the operational health, availability, and integrity of the AHOS platform.
+
+Health monitoring SHALL provide deterministic operational visibility without interfering with workflow execution.
+
+2. Scope
+
+WF-004 SHALL govern:
+
+Runtime Health Assessment
+Infrastructure Health Monitoring
+Workflow Operational Health
+Service Availability
+Database Connectivity Health
+External API Availability
+Scheduler Health
+Execution Manager Health
+Registry Health
+Resource Utilization Assessment
+System Readiness Evaluation
+
+WF-004 SHALL NOT perform recovery actions.
+
+Recovery SHALL remain governed by other Runtime components.
+
+3. Architectural Responsibility
+
+WF-004 SHALL be the single authoritative source of health status for the AHOS platform.
+
+No other workflow SHALL independently define global system health.
+
+4. Health Philosophy
+
+Health SHALL represent architectural readiness rather than infrastructure existence.
+
+A running service SHALL NOT necessarily be considered healthy.
+
+A healthy component SHALL satisfy all mandatory operational conditions defined by architectural policy.
+
+5. Core Principles
+
+Health monitoring SHALL be:
+
+Continuous
+Passive
+Deterministic
+Observable
+Non-intrusive
+Technology Independent
+Auditable
+
+Monitoring SHALL NEVER modify execution state.
+
+6. Architectural Position
+Runtime Layer
+
+WF-002 Workflow Registry
+          │
+          ▼
+WF-001 Master Scheduler
+          │
+          ▼
+WF-003 Execution Manager
+          │
+          ▼
+WF-004 Health Monitor
+          │
+          ▼
+Operator Control Center
+
+WF-004 SHALL observe the Runtime Layer without participating in execution decisions.
+
+7. Health Domains
+
+The Health Monitor SHALL evaluate, at minimum:
+
+Runtime Health
+Scheduler Health
+Registry Health
+Execution Health
+Database Health
+Infrastructure Health
+External Dependency Health
+Resource Health
+
+Additional health domains MAY be introduced through future architectural revisions.
+
+8. Monitoring Independence
+
+Health assessment SHALL remain independent of:
+
+Business logic
+Workflow implementation
+Market data
+Trading strategy
+AI analysis
+
+Health evaluation SHALL focus exclusively on operational integrity.
+
+9. Health Authority
+
+WF-004 SHALL publish authoritative health status.
+
+Health information produced by WF-004 SHALL be considered the official operational status of the AHOS platform.
+
+10. Architectural Constraints
+
+WF-004 SHALL NOT:
+
+execute workflows;
+schedule workflows;
+retry workflows;
+recover failed executions;
+modify runtime state;
+alter workflow configuration.
+
+Its responsibility SHALL remain observation and assessment only.
+
+11. Phase 1 Completion Statement
+
+Phase 1 establishes the architectural foundation of the AHOS Health Monitor.
+
+It defines the scope, authority, philosophy, principles, and operational boundaries governing health assessment across the Runtime Engine while preserving strict separation between monitoring and execution.

@@ -1,0 +1,2484 @@
+# AHOS Architecture Bible v4.1 — Production Lock Edition
+
+## Section 2: Complete System Architecture
+
+---
+
+### 2.1 Architectural Model Overview
+
+AHOS implements a **four-tier, event-driven architecture** with governance enforced as a cross-cutting concern across all operational tiers. The architecture is designed around clear separation of concerns, deterministic data flow, and fail-closed safety principles.
+
+**Tier Model:**
+
+```
+TIER 0: FOUNDATION
+├─ Event Bus (Postgres-backed, LISTEN/NOTIFY + polling fallback)
+├─ Database Layer (Supabase PostgreSQL, single source of truth)
+├─ Observability Infrastructure (distributed tracing, metrics, logs)
+└─ Configuration Management (system_config, contract_registry, policy_versions)
+
+TIER 1: INGESTION & NORMALIZATION
+├─ Discovery Engine (data collection, normalization, validation)
+└─ Integration Hub (external API abstractions, credential management)
+
+TIER 2: INTELLIGENCE & REASONING
+├─ Knowledge Engine (graph + semantic + versioned state management)
+├─ Analysis Engine (AI-powered reasoning: research, hypothesis, risk assessment)
+├─ Simulation Engine (scenario generation, monte carlo, historical replay)
+└─ Learning Engine (calibration, attribution, performance evaluation)
+
+TIER 3: ORCHESTRATION & EXECUTION
+├─ Decision Router (zone classification, approval workflow routing)
+├─ Execution Controller (idempotent external actions, resource locking)
+└─ Interface Adapters (Telegram bot, future API endpoints)
+
+CROSS-CUTTING: GOVERNANCE
+├─ Policy Enforcement (validation functions invoked by all tiers)
+├─ Approval Workflows (human-in-the-loop for Hybrid/Human zones)
+├─ Audit Trail (immutable logging of all governed actions)
+└─ Override Mechanisms (emergency pause, cooldown-and-reconfirm)
+```
+
+**Data Flow Direction:**
+
+Tiers enforce unidirectional data flow with explicit backpressure mechanisms:
+
+```
+External Sources → Tier 1 (Ingestion) → Tier 2 (Intelligence) → Tier 3 (Orchestration) → External Actions
+                        ↓                       ↓                       ↓
+                   Event Bus ←────────────────────────────────────────┘
+                        ↓
+                   Governance (validates at each tier boundary)
+```
+
+**Tier Separation Rules:**
+
+The following patterns are architecturally prohibited:
+
+1. **Tier 3 components MUST NOT directly query Tier 1 tables** (bypass via Event Bus required)
+2. **Tier 2 components MUST NOT call external APIs directly** (MUST route through Tier 1 Integration Hub)
+3. **Any tier MUST NOT modify Governance policies** (self-governance prohibited; human operator exclusive authority)
+4. **Governance MUST NOT invoke downstream workflow execution** (prevents circular dependency per Governance Invariant)
+5. **No engine MAY directly access another engine's private internal tables** (shared access only through explicitly documented public contracts)
+
+**Tier Separation Enforcement:**
+
+Tier boundaries are enforced at multiple levels to prevent architectural drift:
+
+**Database Level:**
+```sql
+-- Tier 1 role: Read/write raw data tables only
+GRANT SELECT, INSERT, UPDATE ON discoveries, signals, candidates TO tier1_role;
+REVOKE ALL ON knowledge_entries, hypotheses, decisions FROM tier1_role;
+
+-- Tier 2 role: Read-only access to normalized views, no raw tables
+GRANT SELECT ON knowledge_entries, hypotheses, causal_links TO tier2_role;
+REVOKE INSERT, UPDATE, DELETE ON discoveries, signals FROM tier2_role;
+
+-- Tier 3 role: No direct database access except governance/audit tables
+GRANT SELECT, INSERT ON audit_trail, approvals, override_log TO tier3_role;
+REVOKE ALL ON discoveries, knowledge_entries, hypotheses FROM tier3_role;
+```
+
+**n8n Workflow Level:**
+- Tier 1 workflows: Credential access to external APIs; Event Bus write access; NO AI Gateway access
+- Tier 2 workflows: AI Gateway access; Event Bus read access; NO external API credentials
+- Tier 3 workflows: External execution API access; NO data collection API access
+
+**Contract Registry Level:**
+- Every cross-tier call MUST be declared in `contract_registry`
+- Runtime validation: Before workflow invocation, check `contract_registry` for permission
+- Violations logged to `architecture_compliance` table and rejected
+
+**Compile-Time Validation (CI/CD):**
+- Pre-deployment: Schema analyzer scans workflow definitions for direct SQL queries
+- Reject deployment if workflow accesses tables outside its tier permission scope
+- Prevent tier violations before production deployment
+
+---
+
+### 2.2 Event Bus Architecture
+
+The Event Bus is the exclusive inter-tier and inter-engine communication mechanism, implemented as a **PostgreSQL-backed durable queue** with push notification optimization.
+
+**Delivery Guarantee Model:**
+
+AHOS Event Bus provides **At-Least-Once Delivery** combined with **Idempotent Processing**. This design is intentional and production-safe:
+
+- **At-Least-Once:** The system guarantees every published event will be delivered to subscribed consumers at least one time. Under failure conditions (consumer crashes, network partitions, database failover), events MAY be delivered multiple times.
+
+- **Idempotent Processing:** All consumers MUST implement idempotent handlers. Duplicate event reception is expected and handled via idempotency keys (see §2.2.3). Consumers detect duplicates and process each logical event exactly once despite potentially receiving the same event multiple times.
+
+**Rationale for At-Least-Once (Not Exactly-Once):**
+
+Exactly-once delivery requires distributed coordination (two-phase commit across Event Bus and all consumers), introducing:
+- Higher latency (synchronous coordination overhead)
+- Lower availability (coordination failure blocks entire pipeline)
+- Increased complexity (distributed transaction management)
+
+At-Least-Once with idempotency achieves the same correctness guarantee (each event processed exactly once) with:
+- Lower latency (asynchronous publish, consumers dedup locally)
+- Higher availability (independent consumer failure handling)
+- Simpler implementation (database-level uniqueness constraints)
+
+This is a standard pattern in production event-driven architectures (Kafka, SQS, Kinesis all provide at-least-once).
+
+#### 2.2.1 Delivery Mechanism
+
+**Hybrid Push-Pull Model:**
+
+The Event Bus employs **PostgreSQL LISTEN/NOTIFY** for low-latency push delivery with **polling fallback** for reliability:
+
+**Primary Path (Push via LISTEN/NOTIFY):**
+1. Event published: `INSERT INTO event_bus` (durable write, assigned monotonic `sequence_number` via database sequence)
+2. Notification sent: `NOTIFY event_channel, :event_id` (best-effort, non-blocking)
+3. Consumers listening: Receive notification immediately (typical latency <100ms)
+4. Consumer action: Query `event_bus` for events WHERE `sequence_number > last_processed_sequence`
+
+**Fallback Path (Polling):**
+1. All consumers poll `event_bus` every 5 seconds regardless of NOTIFY receipt
+2. Query: Same as push path (`event_bus` WHERE `sequence_number > last_processed_sequence`)
+3. Process events in `sequence_number` ascending order
+4. Update `event_subscriptions.last_processed_sequence` after successful processing
+
+**Rationale for Hybrid Approach:**
+
+LISTEN/NOTIFY provides low latency but has failure modes that polling covers:
+
+| Failure Mode | Impact Without Polling | Mitigation via Polling |
+|--------------|------------------------|------------------------|
+| Notification loss during consumer restart | Consumer crashes; NOTIFY sent during downtime is lost; consumer never processes events | Consumer restart triggers immediate poll; catches all missed events within 5 seconds |
+| Connection pool interference | LISTEN requires persistent connection; pool may close idle connections; consumer disconnected without notification | Regular polling detects missed events even if LISTEN connection dropped |
+| Thundering herd on burst | 1000 events arrive; NOTIFY fires to all consumers simultaneously; database connection pool saturated | Polling rate-limits wake-up to max once per 5 seconds; natural backpressure |
+| NOTIFY payload size limits | Postgres NOTIFY payload limited to 8000 bytes; large event metadata cannot be sent | Polling fetches full event from `event_bus` table; no size limit |
+
+**Sequence Number Guarantees:**
+
+The `sequence_number` field provides global ordering with the following guarantees:
+
+1. **Global Monotonicity:** Sequence numbers MUST be strictly increasing across all events. Enforced via PostgreSQL sequence object; each INSERT receives next value in sequence.
+
+2. **No Reuse:** Sequence numbers MUST NEVER be reused, even after database restore or migration. Sequence state persisted durably; rollback to lower sequence number architecturally prohibited.
+
+3. **Gap Tolerance:** Gaps in sequence numbers are normal and acceptable. Causes include:
+   - Rolled-back transactions (sequence incremented but INSERT never committed)
+   - Concurrent inserts (sequence allocation does not guarantee contiguous values)
+   - Event deletion (rare; only occurs during compliance-mandated purges with governance approval)
+
+4. **Ordering Dependence:** Event ordering depends solely on monotonic increase of sequence numbers, not on absence of gaps. Consumers MUST process events in ascending sequence order, skipping gaps after timeout (see Gap Detection below).
+
+**Gap Detection & Recovery:**
+
+Consumers detect and handle `sequence_number` gaps to ensure completeness:
+
+1. Consumer processes event with `sequence_number = N`
+2. Next available event has `sequence_number = N+5` (gap detected: N+1 through N+4 missing)
+3. **Wait period:** Consumer waits 30 seconds (allows late-arriving events to appear in `event_bus`)
+4. **Gap persistence check:** After 30 seconds, query explicitly for missing range:
+   ```sql
+   SELECT * FROM event_bus 
+   WHERE sequence_number BETWEEN :last_processed + 1 AND :current_sequence - 1
+   ORDER BY sequence_number;
+   ```
+5. **Recovery paths:**
+   - If events found: Process in order, update `last_processed_sequence`, continue
+   - If events truly missing: Log to `gap_log` table, alert operator, **advance `last_processed_sequence`** past gap (do not block stream indefinitely)
+
+**Gap Handling Trade-off:**
+
+Advancing past unrecoverable gaps prioritizes **stream availability** over **strict completeness**. This is acceptable because:
+- Permanent gaps are rare (database corruption or manual deletion required)
+- Alternative (block stream until gap resolved) halts all downstream processing indefinitely
+- Gap events logged and retrievable for manual recovery
+- Critical events (governance, execution) monitored separately via `audit_trail` for completeness verification
+
+**Connection Health Monitoring:**
+
+Dedicated health-check workflow runs every 60 seconds:
+
+```
+HEALTHCHECK_WORKFLOW:
+  1. Execute: SELECT 1 AS heartbeat;
+  2. IF query succeeds within 2 seconds:
+       - Record success to system_metrics
+  3. ELSE (timeout or connection error):
+       - Close existing LISTEN connection
+       - Re-establish LISTEN connection
+       - Log connection interruption to system_logs
+       - Record downtime duration to system_metrics
+  4. Alert IF connection re-establishments > 5 per hour (indicates infrastructure issue)
+```
+
+#### 2.2.2 Event Schema & Metadata
+
+**Standard Event Envelope:**
+
+Every event published to `event_bus` MUST conform to this structure:
+
+```json
+{
+  "id": "UUID (server-generated primary key)",
+  "sequence_number": "BIGINT (monotonic, global ordering, database-assigned)",
+  "idempotency_key": "TEXT (category-specific uniqueness, see §2.2.3)",
+  
+  "event_type": "TEXT (namespaced: domain.entity.action)",
+  "aggregate_type": "TEXT (entity type affected, e.g., knowledge_entry)",
+  "aggregate_id": "UUID (entity instance ID)",
+  
+  "payload": {
+    "/* Event-specific data, schema validated against contract_registry */"
+  },
+  
+  "metadata": {
+    "correlation_id": "UUID (request-scoped, maps to opportunity/analysis session)",
+    "causation_id": "UUID | null (ID of event causing this event, null for root)",
+    "causal_depth": "INT (hops from root event, 0 for root)",
+    "trace_id": "UUID (distributed tracing root, synonymous with correlation_id)",
+    "parent_span_id": "UUID | null (distributed tracing parent operation)",
+    "source_service": "TEXT (producer identity, e.g., discovery_engine)",
+    "schema_version": "TEXT (contract version, e.g., v2.3)",
+    "priority": "critical | standard | background (optional, for priority scheduling)"
+  },
+  
+  "occurred_at": "TIMESTAMPTZ (when event happened in domain time)",
+  "published_by": "TEXT (producing workflow/component identity)",
+  "received_at": "TIMESTAMPTZ (when Event Bus received event, server-generated)"
+}
+```
+
+**Maximum Event Size:**
+
+Event payloads MUST NOT exceed **256 KB** (262,144 bytes) when serialized to JSON. This limit ensures:
+- Efficient network transmission (single TCP packet for most events)
+- Reasonable database storage overhead (event_bus table remains performant)
+- Compatibility with NOTIFY payload limits (though polling handles oversized events)
+
+**Large Payload Handling:**
+
+Events exceeding 256 KB MUST store payload externally:
+
+1. Upload payload to object storage (S3-compatible bucket)
+2. Event payload contains metadata and reference only:
+   ```json
+   {
+     "payload_location": "s3://ahos-events/2026/07/event_abc123.json",
+     "payload_size_bytes": 524288,
+     "payload_hash_sha256": "def456...",
+     "payload_summary": {
+       "/* Small subset of key fields for indexing */"
+     }
+   }
+   ```
+3. Consumers retrieve full payload from object storage when needed
+4. Object storage retention aligned with Event Bus retention policy (see §2.2.8)
+
+**Event Type Naming Convention:**
+
+Format: `{domain}.{entity}.{action}`
+
+Naming MUST follow these rules:
+- Domain: Tier identifier (`discovery`, `knowledge`, `analysis`, `decision`, `governance`, `execution`)
+- Entity: Specific entity type (`signal`, `entry`, `hypothesis`, `approval`, `action`)
+- Action: Past-tense verb (`created`, `updated`, `versioned`, `approved`, `executed`)
+
+Examples:
+- `discovery.signal.ingested` (Tier 1: raw signal received)
+- `knowledge.entry.created` (Tier 2: new knowledge entry)
+- `knowledge.entry.versioned` (Tier 2: knowledge entry updated with new version)
+- `hypothesis.status.updated` (Tier 2: hypothesis lifecycle transition)
+- `decision.approval.granted` (Governance: human approval recorded)
+- `governance.override.executed` (Governance: emergency override invoked)
+- `execution.action.completed` (Tier 3: external action finished)
+
+**Metadata Field Semantics:**
+
+**correlation_id:**
+- **Purpose:** Groups all events related to single opportunity or analysis session
+- **Scope:** Single opportunity lifecycle (discovery → analysis → decision → execution)
+- **Used for:** Trace reconstruction, cost attribution, lineage tracking, scatter-gather coordination
+- **Assignment:** Generated at discovery ingestion; propagated to all downstream events
+
+**causation_id:**
+- **Purpose:** Points to immediate parent event in causal chain
+- **Scope:** Direct cause-effect relationship (not transitive)
+- **Used for:** Happens-before relationship tracking, dependency resolution, causal chain reconstruction
+- **Assignment:** Event E2 caused by event E1 → E2.causation_id = E1.id
+- **Null value:** Root events (no causal parent) have `causation_id = null`
+
+**causal_depth:**
+- **Purpose:** Counts hops from root event
+- **Scope:** Entire causal chain
+- **Used for:** Detecting infinite loops (depth >10 triggers investigation), visualizing dependency depth
+- **Assignment:** Root events: depth=0; child events: parent_depth + 1
+
+**schema_version:**
+- **Purpose:** Contract version identifier for payload structure
+- **Scope:** Event type schema evolution
+- **Used for:** Consumer compatibility checking, schema migration coordination
+- **Format:** Semantic versioning (v2.3.1) or contract registry reference (contract_id:version)
+
+**priority (optional):**
+- **Purpose:** Event prioritization for resource-constrained processing
+- **Scope:** Consumer scheduling decisions
+- **Values:** `critical` (immediate processing required), `standard` (normal priority), `background` (defer if resources constrained)
+- **Used for:** AI budget allocation, queue scheduling during backpressure
+
+**Contract Validation (Pre-Publication):**
+
+Before event insertion into `event_bus`, schema validation MUST occur:
+
+```sql
+-- Pseudocode representation of validation logic
+FUNCTION validate_event(event):
+  1. Lookup contract:
+     contract = SELECT schema_definition, minimum_supported_version, maximum_supported_version
+                FROM contract_registry 
+                WHERE contract_name = event.event_type
+                  AND status = 'active';
+  
+  2. IF contract NOT FOUND:
+       RAISE ERROR 'Unknown event type: no active contract registered';
+  
+  3. Validate payload against schema:
+     validation_result = json_schema_validate(
+       schema = contract.schema_definition,
+       data = event.payload
+     );
+  
+  4. IF validation_result.errors NOT EMPTY:
+       LOG ERROR to error_log:
+         error_category = 'schema_validation_failed'
+         error_message = validation_result.errors
+         request_context = event
+       RAISE ERROR 'Event payload violates contract schema';
+  
+  5. IF validation succeeds:
+       PROCEED with INSERT to event_bus;
+```
+
+Schema validation failures are logged to `error_log` and routed to `dlq_malformed` for developer investigation.
+
+**Contract Version Compatibility:**
+
+The `contract_registry` defines compatibility ranges for each event type:
+
+```sql
+CREATE TABLE contract_registry (
+  contract_name TEXT PRIMARY KEY,
+  schema_definition JSONB NOT NULL,
+  current_version TEXT NOT NULL, -- e.g., "v2.3"
+  minimum_supported_version TEXT NOT NULL, -- e.g., "v2.0"
+  maximum_supported_version TEXT NOT NULL, -- e.g., "v2.9"
+  status TEXT NOT NULL DEFAULT 'active',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+**Consumer Compatibility Validation:**
+
+Before processing event, consumer MUST validate schema version compatibility:
+
+```javascript
+function validate_compatibility(event):
+  contract = lookup_contract(event.event_type);
+  event_version = event.metadata.schema_version;
+  
+  IF event_version < contract.minimum_supported_version:
+    // Event too old; consumer cannot process
+    RETURN 'reject' OR 'transform_legacy';
+  
+  IF event_version > contract.maximum_supported_version:
+    // Event too new; consumer does not understand schema
+    RETURN 'reject' OR 'route_to_dlq_for_upgrade';
+  
+  IF event_version within supported range:
+    RETURN 'process';
+```
+
+**Consumer Behavior on Incompatibility:**
+
+| Scenario | Consumer Action | Rationale |
+|----------|----------------|-----------|
+| Event version < minimum_supported | **Reject** or **Transform** via compatibility shim | Old schema no longer supported; requires migration |
+| Event version > maximum_supported | **Route to DLQ** with category `schema_version_mismatch` | Consumer must upgrade before processing newer events |
+| Event version within range | **Process normally** | Schema compatible |
+
+**Contract Evolution Policy:**
+
+Schema changes are classified by compatibility impact:
+
+**Backward-Compatible Changes:**
+- Adding optional fields to payload
+- Adding new enum values (if consumer handles unknown values gracefully)
+- Relaxing validation constraints (e.g., increasing maximum string length)
+
+**Deployment Expectation:** Consumers continue processing events; new fields ignored until consumer upgraded to utilize them.
+
+**Forward-Compatible Changes:**
+- Removing deprecated optional fields (after deprecation period)
+- Tightening validation constraints on new events (existing events grandfathered)
+
+**Deployment Expectation:** Producers begin emitting new schema; old consumers continue functioning (ignore removed fields).
+
+**Breaking Changes:**
+- Removing required fields
+- Changing field types (e.g., string → integer)
+- Renaming fields
+- Adding required fields without defaults
+
+**Deployment Expectation:** Requires coordinated deployment:
+1. Publish new contract version to `contract_registry` with incremented `current_version`
+2. Deploy updated consumers first (dual-schema support: read old and new)
+3. Deploy updated producers (emit new schema only)
+4. Update `minimum_supported_version` to force old consumers offline
+5. Monitor for stragglers; retire old schema after validation period
+
+Breaking changes MUST be avoided where possible; use expand-contract pattern (add new field, deprecate old field, remove old field in separate version increments).
+
+#### 2.2.3 Event Schema Migration Strategy
+
+**Purpose:**
+
+AHOS Event Bus contains millions of historical events across years of operation. Schema migrations MUST occur without downtime, without data loss, and with full backward compatibility during transition periods.
+
+**Migration Types:**
+
+| Migration Type | Definition | Downtime Required | Complexity |
+|----------------|------------|-------------------|------------|
+| **Online Migration** | Schema change applied while system running; dual-schema support during transition | None | Moderate to High |
+| **Offline Migration** | System paused; batch transformation applied; system resumed with new schema | Hours to Days (unacceptable for production) | Low |
+| **Batch Migration** | Historical events transformed incrementally in background; new events use new schema immediately | None | High |
+
+**AHOS Selection:** **Online Migration with Batch Historical Transformation** (combines zero-downtime with full historical consistency).
+
+**Online Migration Workflow:**
+
+**Phase 1: Preparation & Validation**
+
+1. **Contract Proposal:** New schema version drafted in `contract_registry` with `status = 'proposed'`
+   ```sql
+   INSERT INTO contract_registry (
+     contract_name, 
+     current_version, 
+     schema_definition, 
+     minimum_supported_version, 
+     maximum_supported_version,
+     status
+   ) VALUES (
+     'knowledge.entry.created',
+     'v3.0',
+     :new_schema_json,
+     'v2.0', -- Still support v2.x during migration
+     'v3.0',
+     'proposed'
+   );
+   ```
+
+2. **Transformation Logic Development:** Write bidirectional transformation functions:
+   ```javascript
+   function transform_v2_to_v3(event_v2):
+     // Map old schema to new schema
+     event_v3 = {...};
+     return event_v3;
+   
+   function transform_v3_to_v2(event_v3):
+     // Map new schema to old schema (for backward compat)
+     event_v2 = {...};
+     return event_v2;
+   ```
+
+3. **Validation in Staging:** Deploy transformation logic to staging environment; replay sample of production events through transformations; verify correctness.
+
+4. **Governance Approval:** Submit schema migration to approval workflow (requires ADR documenting rationale, impact analysis, rollback plan).
+
+**Phase 2: Dual-Schema Deployment**
+
+5. **Activate Dual-Schema Mode:**
+   ```sql
+   UPDATE contract_registry
+   SET status = 'dual_schema_active',
+       dual_schema_end_date = now() + INTERVAL '30 days'
+   WHERE contract_name = 'knowledge.entry.created' AND current_version = 'v3.0';
+   ```
+
+6. **Consumer Deployment (Consumer-First Strategy):**
+   - Deploy updated consumers supporting both v2.x and v3.0 schemas
+   - Consumers detect `schema_version` metadata field and apply appropriate transformation
+   - Validation: Monitor consumer error rates; confirm dual-schema consumers process both old and new events correctly
+
+7. **Producer Deployment:**
+   - Deploy updated producers emitting v3.0 schema
+   - Validation: Confirm new events contain `schema_version = 'v3.0'` and pass v3.0 validation
+
+**Phase 3: Historical Event Migration (Batch Transformation)**
+
+8. **Batch Migration Job:**
+   ```sql
+   -- Background job processes historical events in batches
+   UPDATE event_bus
+   SET payload = transform_v2_to_v3(payload),
+       metadata = jsonb_set(metadata, '{schema_version}', '"v3.0"')
+   WHERE event_type = 'knowledge.entry.created'
+     AND metadata->>'schema_version' < 'v3.0'
+     AND sequence_number BETWEEN :batch_start AND :batch_end;
+   
+   -- Process 10,000 events per batch
+   -- Execute during low-traffic periods (e.g., 02:00-04:00 UTC)
+   -- Track progress in migration_progress table
+   ```
+
+9. **Migration Monitoring:**
+   ```sql
+   CREATE TABLE event_migration_progress (
+     migration_id UUID PRIMARY KEY,
+     contract_name TEXT NOT NULL,
+     target_version TEXT NOT NULL,
+     total_events BIGINT,
+     migrated_events BIGINT,
+     failed_events BIGINT,
+     started_at TIMESTAMPTZ,
+     completed_at TIMESTAMPTZ,
+     status TEXT CHECK (status IN ('running', 'paused', 'completed', 'failed'))
+   );
+   ```
+
+10. **Validation After Migration:**
+    - Random sampling: Select 1000 migrated events, verify transformation correctness
+    - Schema validation: Run all migrated events through v3.0 schema validator
+    - Replay test: Replay sample of migrated events through consumers in isolated environment
+
+**Phase 4: Cutover & Cleanup**
+
+11. **Update Minimum Supported Version:**
+    ```sql
+    UPDATE contract_registry
+    SET minimum_supported_version = 'v3.0',
+        status = 'active'
+    WHERE contract_name = 'knowledge.entry.created' AND current_version = 'v3.0';
+    ```
+
+12. **Retire Old Consumers:** Deploy final consumer version supporting only v3.0; remove v2.x transformation logic.
+
+13. **Decommission Dual-Schema Mode:**
+    ```sql
+    UPDATE contract_registry
+    SET status = 'active',
+        dual_schema_end_date = NULL
+    WHERE contract_name = 'knowledge.entry.created' AND current_version = 'v3.0';
+    ```
+
+14. **Archival:** Previous contract versions moved to `status = 'superseded'`; retained for historical reference but no longer active.
+
+**Rollback Procedure:**
+
+If critical issues detected during migration:
+
+1. **Immediate Rollback (Before Batch Migration Completes):**
+   - Revert producers to emit v2.x schema
+   - Consumers already support v2.x (dual-schema); no consumer rollback needed
+   - Pause batch migration job
+   - Revert migrated events:
+     ```sql
+     UPDATE event_bus
+     SET payload = transform_v3_to_v2(payload),
+         metadata = jsonb_set(metadata, '{schema_version}', '"v2.9"')
+     WHERE migration_id = :failed_migration_id;
+     ```
+
+2. **Post-Cutover Rollback (After minimum_supported_version Updated):**
+   - **Not supported without downtime** once v2.x consumers decommissioned
+   - Prevention: Dual-schema period MUST be long enough (30+ days) to detect issues before cutover
+
+**Migration Monitoring & Alerts:**
+
+```sql
+-- Monitor migration progress
+SELECT 
+  contract_name,
+  (migrated_events::FLOAT / total_events * 100) AS percent_complete,
+  failed_events,
+  EXTRACT(EPOCH FROM (now() - started_at)) / 3600 AS hours_elapsed,
+  (total_events - migrated_events) / (migrated_events / EXTRACT(EPOCH FROM (now() - started_at))) / 3600 AS estimated_hours_remaining
+FROM event_migration_progress
+WHERE status = 'running';
+
+-- Alert thresholds
+IF failed_events > 100: ALERT developer (transformation errors);
+IF percent_complete < 10% AND hours_elapsed > 24: ALERT (migration stalled);
+IF estimated_hours_remaining > dual_schema_end_date: ALERT (will not complete before cutover);
+```
+
+**Safe Deployment Sequence:**
+
+For breaking changes requiring coordinated deployment:
+
+1. **Consumer-First:** Always deploy consumers before producers (consumers gain new capability before producers use it)
+2. **Dual-Write Period:** Producers may temporarily dual-write (emit both old and new schema events) during transition
+3. **Validation Window:** Minimum 7-day observation period after consumer deployment before producer deployment
+4. **Gradual Producer Rollout:** Deploy producers to 10% traffic, monitor, expand to 50%, monitor, expand to 100%
+
+**Failure Recovery:**
+
+If batch migration job crashes mid-execution:
+
+1. Resume from last successful batch (tracked via `migration_progress.migrated_events`)
+2. Idempotency: Re-processing already-migrated events is safe (transformation is idempotent)
+3. Verify: Final validation step catches any events missed during crash recovery
+
+#### 2.2.4 Idempotency Strategy
+
+**Category-Specific Idempotency Keys:**
+
+The Event Bus employs different idempotency strategies based on event category, ensuring retries are safe while allowing legitimate re-emissions:
+
+**Category 1: State Mutations (Entity Lifecycle Events)**
+
+**Applies to:** `knowledge.entry.created`, `knowledge.entry.versioned`, `hypothesis.status.updated`, `policy.version.created`
+
+**Idempotency Key Formula:** `{entity_type}:{entity_id}:{version_number}`
+
+**Example:**
+```
+Event 1: knowledge.entry.versioned (entry_id=K123, version=5)
+         → idempotency_key = "knowledge_entry:K123:5"
+
+Event 2: knowledge.entry.versioned (entry_id=K123, version=6)
+         → idempotency_key = "knowledge_entry:K123:6"
+         → ACCEPTED (different version, legitimate evolution)
+
+Retry:   knowledge.entry.versioned (entry_id=K123, version=5)
+         → idempotency_key = "knowledge_entry:K123:5"
+         → REJECTED (duplicate version, retry detected)
+```
+
+**Enforcement:**
+```sql
+CREATE UNIQUE INDEX uq_event_bus_idempotency_key 
+  ON event_bus(idempotency_key);
+
+-- Insert attempt with duplicate key returns existing event ID
+INSERT INTO event_bus (..., idempotency_key)
+VALUES (..., 'knowledge_entry:K123:5')
+ON CONFLICT (idempotency_key) DO NOTHING
+RETURNING id;
+```
+
+**Category 2: Derived Computations (Analysis Results)**
+
+**Applies to:** `risk.score.calculated`, `simulation.scenario.completed`, `recommendation.synthesized`
+
+**Idempotency Key Formula:** `{correlation_id}:{computation_type}:{input_hash}`
+
+Where `input_hash = SHA256(canonical_json_sort(source_entity_versions))`
+
+**Example:**
+```
+Event 1: risk.score.calculated (
+           correlation_id=O1,
+           inputs={K123:v5, K456:v3}
+         )
+         → input_hash = SHA256('{"K123":"v5","K456":"v3"}')
+         → idempotency_key = "O1:risk_scoring:abc123def"
+
+Event 2: risk.score.calculated (
+           correlation_id=O1,
+           inputs={K123:v6, K456:v3}  // K123 updated to v6
+         )
+         → input_hash = SHA256('{"K123":"v6","K456":"v3"}')
+         → idempotency_key = "O1:risk_scoring:xyz789fed"
+         → ACCEPTED (inputs changed, recomputation legitimate)
+
+Retry:   risk.score.calculated (
+           correlation_id=O1,
+           inputs={K123:v5, K456:v3}
+         )
+         → idempotency_key = "O1:risk_scoring:abc123def"
+         → REJECTED (identical inputs, duplicate computation)
+```
+
+**Input Hash Canonicalization:**
+```javascript
+// Pseudocode for deterministic input hashing
+function compute_input_hash(source_versions):
+  1. Extract entity references: [{entity_id, version}, ...]
+  2. Sort by entity_id (deterministic ordering)
+  3. Serialize to JSON: '{"K123":"v5","K456":"v3"}'
+  4. Hash: SHA256(json_string)
+  5. Return hex digest (first 16 chars for brevity)
+```
+
+**Category 3: External Actions (Execution Commands)**
+
+**Applies to:** `execution.action.approved`, `execution.order.placed`, `notification.telegram.sent`
+
+**Idempotency Key Formula:** `{action_type}:{decision_id}`
+
+**Rationale:** Each decision produces at most one execution action; action_id deterministically derived from decision (not random UUID).
+
+**Example:**
+```
+Event 1: execution.action.approved (decision_id=D789)
+         → idempotency_key = "execution_action:D789"
+
+Retry:   execution.action.approved (decision_id=D789)
+         → idempotency_key = "execution_action:D789"
+         → REJECTED (same decision, duplicate action command)
+```
+
+**Category 4: Observability Events (Metrics, Logs, Traces)**
+
+**Applies to:** `system.metric.recorded`, `system.log.created`, `error.occurred`
+
+**Idempotency Key Formula:** None (no deduplication at write time)
+
+**Rationale:** Observability events are append-only; slight duplication acceptable (e.g., duplicate metric samples average out); deduplication occurs at query time if needed.
+
+**Query-Time Deduplication Example:**
+```sql
+-- Remove duplicate metrics via GROUP BY
+SELECT metric_name, AVG(metric_value), recorded_at
+FROM system_metrics
+WHERE metric_name = 'ai_gateway.latency_ms'
+  AND recorded_at > now() - INTERVAL '1 hour'
+GROUP BY metric_name, date_trunc('minute', recorded_at)
+ORDER BY recorded_at DESC;
+```
+
+**Idempotency Key Assignment:**
+
+Event producers MUST assign idempotency keys according to category:
+
+```javascript
+// Pseudocode for key assignment
+function assign_idempotency_key(event):
+  category = classify_event_category(event.event_type);
+  
+  switch (category):
+    case 'state_mutation':
+      return `${event.aggregate_type}:${event.aggregate_id}:${event.payload.version}`;
+    
+    case 'derived_computation':
+      input_hash = compute_input_hash(event.payload.source_versions);
+      return `${event.metadata.correlation_id}:${event.event_type}:${input_hash}`;
+    
+    case 'external_action':
+      return `${event.event_type}:${event.payload.decision_id}`;
+    
+    case 'observability':
+      return null; // No idempotency enforcement
+    
+    default:
+      RAISE ERROR 'Unknown event category for idempotency';
+```
+
+**Collision Handling:**
+
+On `INSERT` conflict with existing `idempotency_key`:
+1. No new row created (conflict prevents duplicate)
+2. Existing event returned to caller (same result as if new event created)
+3. No side effects triggered (consumers already processed original event)
+4. Logged to `system_metrics` counter: `event_bus.duplicate_prevented`
+
+This ensures at-most-once event publication while supporting unlimited retries.
+
+#### 2.2.5 Backpressure & Consumer Rate Limiting
+
+**Problem Addressed:**
+
+Event bursts (e.g., 100 qualified candidates during viral token event) can overwhelm consumers if processed without limits, exhausting:
+- AI budget (100 analyses × $0.50/analysis = $50, potentially exceeding daily budget)
+- Database connections (100 concurrent queries → connection pool saturation)
+- External API quotas (100 simultaneous requests → rate limit rejection)
+
+**Solution: Durable Backpressure via Pull-Based Consumption**
+
+**Consumer Configuration:**
+
+Each consumer registered in `event_subscriptions` with concurrency limit:
+
+```sql
+CREATE TABLE event_subscriptions (
+  id UUID PRIMARY KEY,
+  subscriber_id TEXT NOT NULL, -- e.g., "analysis_engine_worker_1"
+  event_pattern TEXT NOT NULL, -- SQL LIKE pattern: "discovery.%.qualified"
+  max_concurrent_invocations INT NOT NULL DEFAULT 5,
+  last_processed_sequence BIGINT NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused', 'error')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+**Pull-Based Consumption Protocol:**
+
+**Step 1: Query Available Events (Respecting Concurrency Limit)**
+
+Consumer queries `event_bus` for events to process:
+
+```sql
+WITH current_load AS (
+  SELECT COUNT(*) AS in_flight_count
+  FROM event_bus
+  WHERE processing_consumer_id = :subscriber_id
+    AND processing_completed_at IS NULL
+    AND lease_until > now() -- Respect renewed leases
+)
+SELECT eb.*
+FROM event_bus eb, current_load
+WHERE eb.sequence_number > :last_processed_sequence
+  AND eb.event_type LIKE :event_pattern
+  AND (eb.processing_consumer_id IS NULL 
+       OR eb.lease_until < now()) -- Only reclaim expired leases
+  AND current_load.in_flight_count < :max_concurrent_invocations
+ORDER BY 
+  CASE eb.metadata->>'priority'
+    WHEN 'critical' THEN 1
+    WHEN 'standard' THEN 2
+    WHEN 'background' THEN 3
+  END,
+  eb.sequence_number ASC
+LIMIT (:max_concurrent_invocations - current_load.in_flight_count);
+```
+
+**Step 2: Claim Events Atomically with Lease**
+
+For each event fetched, consumer attempts atomic claim with renewable lease:
+
+```sql
+UPDATE event_bus
+SET processing_consumer_id = :subscriber_id,
+    processing_started_at = now(),
+    lease_until = now() + INTERVAL '5 minutes' -- Initial lease duration
+WHERE id = :event_id
+  AND (processing_consumer_id IS NULL OR lease_until < now());
+
+-- Check affected rows
+IF affected_rows = 0:
+  -- Another consumer claimed event or lease not expired; skip
+ELSE:
+  -- Successfully claimed; proceed to process
+```
+
+**Renewable Lease for Long-Running Operations:**
+
+Consumers processing long-running events (e.g., simulations taking >5 minutes) MUST periodically renew their lease:
+
+```sql
+-- Consumer background thread renews lease every 2 minutes for active events
+UPDATE event_bus
+SET lease_until = now() + INTERVAL '5 minutes'
+WHERE id IN (:active_event_ids)
+  AND processing_consumer_id = :subscriber_id
+  AND processing_completed_at IS NULL;
+```
+
+**Lease Renewal Frequency:**
+- Initial lease: 5 minutes
+- Renewal interval: Every 2 minutes (before expiration)
+- Maximum lease duration: 30 minutes (hard timeout; exceeding this indicates stuck processing)
+
+**Watchdog Lease Reclamation (Respecting Renewals):**
+
+Watchdog job reclaims expired leases only (does not interrupt actively-renewed leases):
+
+```sql
+-- Watchdog runs every 5 minutes
+UPDATE event_bus
+SET processing_consumer_id = NULL,
+    retry_count = retry_count + 1,
+    lease_until = NULL
+WHERE processing_consumer_id IS NOT NULL
+  AND lease_until < now() -- Only reclaim expired leases
+  AND processing_completed_at IS NULL
+RETURNING id, processing_consumer_id, event_type, retry_count;
+
+-- Alert if same event reclaimed repeatedly
+IF retry_count > 3:
+  ROUTE TO dlq_permanent;
+```
+
+This prevents incorrectly reclaiming events from consumers actively renewing leases for legitimate long operations.
+
+**Step 3: Process Event**
+
+Consumer invokes workflow to handle event. Processing may take seconds to minutes depending on event type.
+
+**Step 4: Release Event on Completion**
+
+On successful processing:
+
+```sql
+BEGIN TRANSACTION;
+
+-- Update subscription position
+UPDATE event_subscriptions
+SET last_processed_sequence = :event_sequence_number,
+    updated_at = now()
+WHERE subscriber_id = :subscriber_id;
+
+-- Mark event as processed
+UPDATE event_bus
+SET processing_consumer_id = NULL,
+    processing_completed_at = now(),
+    processed = TRUE,
+    lease_until = NULL
+WHERE id = :event_id;
+
+COMMIT;
+```
+
+On processing failure:
+
+```sql
+-- Clear claim, increment retry count
+UPDATE event_bus
+SET processing_consumer_id = NULL,
+    retry_count = retry_count + 1,
+    lease_until = NULL
+WHERE id = :event_id;
+
+-- Route to DLQ if retry limit exceeded
+IF retry_count >= :max_retries:
+  INSERT INTO event_dead_letter (
+    original_event_id, subscriber_id, dlq_category, failure_reason, ...
+  ) VALUES (:event_id, :subscriber_id, :category, :error_message, ...);
+```
+
+**Step 5: Backpressure Application**
+
+If `in_flight_count >= max_concurrent_invocations`:
+- Consumer sleeps (does not pull new events)
+- Sleep duration: 5 seconds (aligns with polling interval)
+- Retry query after sleep
+- Continue until `in_flight_count` decreases below limit
+
+**No Volatile In-Memory Queue:**
+
+This design uses `event_bus` table itself as the queue:
+- **Durable:** Events never lost (persisted in Postgres, backed up, replicated)
+- **Crash-safe:** Consumer crash → in-flight events' leases expire → become available for other consumers
+- **No dual storage:** No Redis/memory queue requiring separate consistency management
+
+**Priority Scheduling:**
+
+Events with `metadata.priority = 'critical'` are processed before standard/background events (see ORDER BY clause in Step 1 query).
+
+**Priority Use Cases:**
+- `critical`: Governance events, emergency overrides, execution completions (immediate processing required)
+- `standard`: Discovery, analysis, simulation events (normal workflow)
+- `background`: Metrics collection, learning calibration, cleanup jobs (defer if resources constrained)
+
+**Load Shedding (Budget-Aware):**
+
+When AI budget constrained:
+
+```sql
+-- Check remaining budget before pulling events
+SELECT (daily_budget - spent_today) AS remaining_budget
+FROM ai_cost_summary
+WHERE date = CURRENT_DATE;
+
+IF remaining_budget < threshold:
+  -- Only pull 'critical' priority events
+  event_pattern_override = event_pattern + ' AND metadata->>''priority'' = ''critical''';
+```
+
+This prevents budget exhaustion on low-priority background tasks while preserving capacity for critical operations.
+
+**Scatter-Gather Coordination:**
+
+For workflows requiring aggregation of multiple asynchronous outputs (e.g., Recommendation Synthesizer waiting for Research, Hypothesis, Risk, Simulation results), scatter-gather coordination is implemented via `working_memory` table:
+
+```sql
+CREATE TABLE scatter_gather_state (
+  correlation_id UUID PRIMARY KEY,
+  expected_tasks JSONB NOT NULL, -- ['research', 'hypothesis', 'risk', 'simulation']
+  completed_tasks JSONB NOT NULL DEFAULT '{}', -- {'research': {status: 'success', completed_at: T}}
+  failed_tasks JSONB NOT NULL DEFAULT '{}',
+  timeout_at TIMESTAMPTZ NOT NULL,
+  gather_triggered BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+**Scatter-Gather Protocol:**
+
+1. **Scatter Phase:** Coordinator publishes multiple events with same `correlation_id`:
+   ```sql
+   INSERT INTO scatter_gather_state (correlation_id, expected_tasks, timeout_at)
+   VALUES (:correlation_id, 
+           '["research", "hypothesis", "risk", "simulation"]',
+           now() + INTERVAL '30 minutes');
+   
+   -- Publish events
+   INSERT INTO event_bus (event_type, correlation_id, ...) VALUES
+     ('analysis.research.start', :correlation_id, ...),
+     ('analysis.hypothesis.start', :correlation_id, ...),
+     ('analysis.risk.start', :correlation_id, ...),
+     ('analysis.simulation.start', :correlation_id, ...);
+   ```
+
+2. **Task Completion:** Each completing task updates scatter-gather state:
+   ```sql
+   UPDATE scatter_gather_state
+   SET completed_tasks = completed_tasks || jsonb_build_object(
+         :task_name, 
+         jsonb_build_object('status', 'success', 'completed_at', now())
+       ),
+       updated_at = now()
+   WHERE correlation_id = :correlation_id;
+   
+   -- Check if all tasks complete
+   IF jsonb_array_length(completed_tasks) + jsonb_array_length(failed_tasks) 
+      = jsonb_array_length(expected_tasks):
+     -- Trigger gather
+     UPDATE scatter_gather_state SET gather_triggered = TRUE;
+     PUBLISH EVENT 'analysis.gather.ready';
+   ```
+
+3. **Timeout Handling:** If timeout expires before all tasks complete:
+   ```sql
+   -- Timeout watchdog (runs every minute)
+   UPDATE scatter_gather_state
+   SET gather_triggered = TRUE
+   WHERE timeout_at < now()
+     AND gather_triggered = FALSE
+   RETURNING correlation_id, expected_tasks, completed_tasks, failed_tasks;
+   
+   FOR EACH timed_out_state:
+     PUBLISH EVENT 'analysis.gather.timeout' WITH partial_results;
+   ```
+
+4. **Gather Decision Logic:**
+   ```javascript
+   function handle_gather(state):
+     required_tasks = ['research', 'risk']; // Minimum quorum
+     optional_tasks = ['simulation', 'recommendation'];
+     
+     IF all(required_tasks in state.completed_tasks):
+       // Proceed with partial results if optional tasks missing
+       GATHER_AND_SYNTHESIZE(state.completed_tasks);
+     ELSE:
+       // Required task failed/timed-out
+       ESCALATE_TO_HUMAN_ZONE('Incomplete analysis: ' + missing_tasks);
+   ```
+
+**Minimum Quorum:** Gather MAY proceed if minimum required tasks complete (e.g., research + risk), even if optional tasks (simulation) fail.
+
+**Partial Result Handling:** Gather result MUST include `incomplete_tasks` field listing tasks that did not complete; downstream consumers flag output as `potentially_incomplete`.
+
+**Cancellation Rules:** If any required task fails permanently (not retriable), coordinator MAY cancel remaining in-flight tasks:
+   ```sql
+   -- Cancel by updating event status (does not interrupt already-started processing)
+   UPDATE event_bus
+   SET processing_cancelled = TRUE
+   WHERE correlation_id = :correlation_id
+     AND processing_completed_at IS NULL;
+   ```
+
+**Fan-Out Limits:** Scatter-gather SHOULD NOT exceed 10 parallel tasks per correlation_id (prevents excessive resource consumption). Exceeding limit requires explicit governance approval via ADR.
+
+#### 2.2.6 Ordering Guarantees
+
+**Per-Stream Ordering (Within correlation_id):**
+
+Events sharing the same `correlation_id` MUST be processed in `sequence_number` ascending order.
+
+**Enforcement:**
+```sql
+-- Consumer query automatically enforces per-stream ordering
+SELECT * FROM event_bus
+WHERE correlation_id = :target_correlation_id
+ORDER BY sequence_number ASC;
+```
+
+**Guarantee:** Operations on the same opportunity occur sequentially (e.g., discovery → knowledge creation → analysis → decision).
+
+**Cross-Stream Ordering (Different correlation_ids):**
+
+Events with different `correlation_id` values have **no ordering guarantee** unless explicitly linked via `causation_id`.
+
+**Example of Cross-Stream Non-Determinism:**
+
+```
+Event E1: knowledge.entry.versioned (correlation_id=K1, sequence=100)
+Event E2: discovery.candidate.qualified (correlation_id=O1, sequence=101)
+
+Processing order could be:
+- E1 before E2 (if consumer processes K1 stream first)
+- E2 before E1 (if consumer processes O1 stream first)
+
+Both orderings are valid absent explicit causality link.
+```
+
+**Causal Ordering (Happens-Before Relationships):**
+
+**Problem:** Knowledge entry K1 updated (event E1, correlation_id=K1). Separately, opportunity O1 analyzes using K1 (event E2, correlation_id=O1). E2 SHOULD see updated K1, but per-stream ordering alone doesn't enforce this (different correlation_ids).
+
+**Solution: Causality Tracking via causation_id**
+
+Event E2 declares dependency on E1:
+
+```json
+{
+  "id": "E2",
+  "event_type": "analysis.research.started",
+  "correlation_id": "O1",
+  "causation_id": "E1",  // Explicitly references knowledge update event
+  "causal_depth": 1,
+  "payload": {
+    "knowledge_entry_id": "K123",
+    "knowledge_entry_version": 5  // Specific version required
+  }
+}
+```
+
+**Consumer Processing with Causality Check:**
+
+Before processing event E2:
+
+```sql
+-- Check: Has causal parent been processed?
+SELECT processed FROM event_bus WHERE id = :causation_id;
+
+IF processed = TRUE:
+  -- Safe to process E2
+  PROCESS_EVENT(E2);
+
+ELSE IF processed = FALSE:
+  -- Defer E2, process other events, retry after delay
+  DEFER_EVENT(E2, retry_after = now() + INTERVAL '30 seconds');
+  
+ELSE IF causation parent missing after 60 seconds:
+  -- Handle missing parent (two options based on event criticality)
+  
+  IF event.priority = 'critical' OR event involves execution:
+    -- Option A (strict): Fail with missing_causal_parent error
+    RAISE ERROR 'Causal parent E1 missing; cannot process E2 safely';
+    ROUTE TO dlq_dependency;
+    ESCALATE TO human;
+  
+  ELSE:
+    -- Option B (degraded): Process with potentially stale data
+    LOG WARNING 'Processing E2 without causal parent; result flagged as potentially_inconsistent';
+    PROCESS_EVENT(E2);
+    MARK_RESULT(E2, flag='potentially_inconsistent');
+```
+
+**AHOS Policy:**
+- **Tier 3 execution events:** MUST use Option A (strict); cannot execute on potentially stale governance state
+- **Tier 2 analysis events:** MAY use Option B (degraded); can analyze with available data, flag uncertainty in output
+
+**Deadlock Prevention:**
+
+Causal chains MUST form Directed Acyclic Graph (DAG):
+
+1. **Forward-only references:** Event cannot reference future event as causation parent
+   - Enforced: `causation_id` MUST reference event with `sequence_number < current_event.sequence_number`
+   
+2. **Maximum depth:** `causal_depth <= 10`
+   - Exceeding depth triggers alert: "Potential infinite causal chain detected"
+   - Manual investigation required before processing depth-11+ events
+
+**Version-Based Consistency (Simplified Alternative):**
+
+For most entity references, version-based consistency is simpler than full causality tracking:
+
+**Pattern:**
+
+Event payload includes specific entity version:
+
+```json
+{
+  "event_type": "analysis.hypothesis.evaluated",
+  "payload": {
+    "knowledge_entry_id": "K123",
+    "knowledge_entry_version": 5,  // Specific version required
+    "hypothesis_id": "H456",
+    "hypothesis_version": 2
+  }
+}
+```
+
+**Consumer Validation:**
+
+```sql
+-- Check: Does database contain required versions?
+SELECT EXISTS(
+  SELECT 1 FROM knowledge_versions
+  WHERE knowledge_entry_id = 'K123' AND version_number = 5
+) AS k_version_exists,
+EXISTS(
+  SELECT 1 FROM hypothesis_versions
+  WHERE hypothesis_id = 'H456' AND version_number = 2
+) AS h_version_exists;
+
+IF NOT k_version_exists OR NOT h_version_exists:
+  -- Wait for version creation events
+  DEFER_EVENT(timeout = 60 seconds);
+  
+  IF timeout expired:
+    -- Same two options as causality timeout (strict vs degraded)
+```
+
+**AHOS Selection:**
+- Use **version-based consistency** for simple entity references (cleaner, easier to implement)
+- Use **causation_id** for complex multi-step workflows requiring strict happens-before (e.g., simulation → recommendation → execution chain where each step depends on prior completion)
+
+#### 2.2.7 Dead Letter Queue (DLQ)
+
+**Purpose:** Capture failed events for investigation and recovery without blocking event stream processing.
+
+**Failure Classification & Routing:**
+
+Events route to category-specific DLQ sub-queues based on failure type:
+
+| DLQ Category | Failure Type | Retry Strategy | Max Retention | Example |
+|--------------|--------------|----------------|---------------|---------|
+| `dlq_transient` | Temporary infrastructure issues | Exponential backoff, max 10 retries over 24h | 7 days | Database deadlock, API 503, network timeout |
+| `dlq_malformed` | Schema violation, parse error | No retry; developer alert | 30 days | Invalid JSON, missing required field, type mismatch |
+| `dlq_logical` | Business logic error | Hold until workflow version increments | 90 days | Division by zero, constraint violation, impossible state |
+| `dlq_dependency` | Missing causal parent or entity | Recheck dependency every 5 min, timeout 4h | 30 days | Event references knowledge_entry not yet created |
+| `dlq_permanent` | Unfixable error | Manual operator investigation only | 1 year | External API 404 for resource that should exist, unrecoverable data corruption |
+
+**DLQ Table Schema:**
+
+```sql
+CREATE TABLE event_dead_letter (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  original_event_id UUID NOT NULL REFERENCES event_bus(id),
+  subscriber_id TEXT NOT NULL,
+  dlq_category TEXT NOT NULL CHECK (
+    dlq_category IN ('transient', 'malformed', 'logical', 'dependency', 'permanent')
+  ),
+  failure_reason TEXT NOT NULL,
+  failure_details JSONB NOT NULL DEFAULT '{}', -- Stack trace, context, retry history
+  failure_timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
+  retry_count INT NOT NULL DEFAULT 0,
+  next_retry_after TIMESTAMPTZ, -- NULL if no retry scheduled
+  final_disposition TEXT CHECK (
+    final_disposition IN (
+      'pending_retry', 
+      'manually_resolved', 
+      'permanently_failed', 
+      'discarded_with_approval'
+    )
+  ),
+  resolved_by TEXT,
+  resolution_notes TEXT,
+  resolved_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_dlq_category_next_retry 
+  ON event_dead_letter(dlq_category, next_retry_after) 
+  WHERE final_disposition = 'pending_retry';
+```
+
+**Automatic DLQ Processing:**
+
+**1. Transient Failures (Auto-Retry with Backoff):**
+
+```javascript
+// Retry schedule (exponential backoff)
+retry_delays = [30s, 1m, 5m, 15m, 1h, 4h, 8h, 16h, 24h];
+
+function process_dlq_transient():
+  events = SELECT * FROM event_dead_letter
+           WHERE dlq_category = 'transient'
+             AND final_disposition = 'pending_retry'
+             AND next_retry_after <= now()
+           LIMIT 100;
+  
+  for each event in events:
+    try:
+      RETRY original_event from event_bus;
+      IF success:
+        UPDATE event_dead_letter SET final_disposition = 'manually_resolved',
+                                      resolved_at = now()
+        WHERE id = event.id;
+    catch error:
+      event.retry_count++;
+      IF event.retry_count >= MAX_RETRIES:
+        UPDATE event_dead_letter SET dlq_category = 'permanent',
+                                      final_disposition = 'permanently_failed'
+        WHERE id = event.id;
+        ALERT operator;
+      ELSE:
+        next_delay = retry_delays[event.retry_count];
+        UPDATE event_dead_letter SET next_retry_after = now() + next_delay
+        WHERE id = event.id;
+```
+
+**2. Dependency Failures (Periodic Recheck):**
+
+```javascript
+function process_dlq_dependency():
+  events = SELECT * FROM event_dead_letter
+           WHERE dlq_category = 'dependency'
+             AND final_disposition = 'pending_retry'
+             AND created_at > now() - INTERVAL '4 hours'; -- Timeout
+  
+  for each event in events:
+    missing_entity = extract_missing_entity_from_failure_details(event);
+    
+    // Check if dependency now exists
+    exists = SELECT EXISTS(
+      SELECT 1 FROM knowledge_entries WHERE id = missing_entity.id
+    );
+    
+    IF exists:
+      RETRY original_event;
+      MARK dlq entry as resolved;
+    ELSE IF event.created_at < now() - INTERVAL '4 hours':
+      ESCALATE to operator: "Dependency missing after 4h timeout";
+      UPDATE event_dead_letter SET dlq_category = 'permanent';
+```
+
+**3. Logical Failures (Await Workflow Update):**
+
+```javascript
+function process_dlq_logical():
+  // Monitor workflow_registry for version updates
+  new_versions = SELECT workflow_name, version FROM workflow_registry
+                 WHERE deployed_at > :last_check_time;
+  
+  for each new_version in new_versions:
+    affected_events = SELECT * FROM event_dead_letter
+                      WHERE dlq_category = 'logical'
+                        AND failure_details->>'workflow_name' = new_version.workflow_name;
+    
+    for each event in affected_events:
+      RETRY event with new workflow version;
+      IF success:
+        MARK as resolved;
+```
+
+**4. Malformed & Permanent Failures (Manual Only):**
+
+No automatic retry. Operator actions:
+- **Malformed:** Developer fixes schema, re-publishes event manually
+- **Permanent:** Operator investigates root cause, determines if event can be manually corrected or discarded
+
+**Poison Event Handling with Governance:**
+
+If event fails >3 times across ALL categories (indicating systematic issue, not transient):
+
+```sql
+-- Mark as poison event
+UPDATE event_dead_letter
+SET dlq_category = 'permanent',
+    failure_reason = 'Poison event: failed across multiple categories',
+    final_disposition = 'permanently_failed'
+WHERE original_event_id = :event_id
+  AND retry_count > 3;
+
+-- Permanent discard REQUIRES explicit human acknowledgement
+INSERT INTO approvals (
+  approval_type = 'poison_event_discard',
+  target_entity_type = 'event',
+  target_entity_id = :event_id,
+  requested_at = now(),
+  status = 'pending',
+  payload = jsonb_build_object(
+    'event_type', :event_type,
+    'correlation_id', :correlation_id,
+    'failure_reason', :failure_reason
+  )
+);
+
+-- Stream advancement ONLY after operator approval
+WAIT FOR approval.status = 'approved';
+
+-- After approval, advance consumer past poison event
+UPDATE event_subscriptions
+SET last_processed_sequence = (
+  SELECT sequence_number FROM event_bus WHERE id = :event_id
+)
+WHERE subscriber_id = :affected_subscriber;
+
+-- Log to audit_trail
+INSERT INTO audit_trail (
+  event_timestamp = now(),
+  actor_type = 'operator',
+  actor_identity = :approver,
+  action_type = 'poison_event_discarded',
+  resource_type = 'event',
+  resource_id = :event_id,
+  old_state = :event_payload,
+  new_state = NULL
+);
+```
+
+**No automatic discard:** Poison events remain in DLQ until explicit operator decision. All discard actions auditable and reversible (event remains in `event_bus`, only consumer position advances).
+
+**Trade-off:** Sacrifices stream continuity temporarily (operator must intervene) to preserve auditability (no automatic silent data loss). Acceptable because:
+- Poison events are rare with proper schema validation
+- Events remain in DLQ for manual recovery
+- Operator can analyze root cause before permanent discard decision
+- All actions fully logged to `audit_trail`
+
+**DLQ Metrics & Monitoring:**
+
+```sql
+-- DLQ health dashboard queries
+SELECT dlq_category, COUNT(*), AVG(retry_count)
+FROM event_dead_letter
+WHERE final_disposition = 'pending_retry'
+GROUP BY dlq_category;
+
+-- Alert thresholds
+IF COUNT(dlq_malformed) > 10: ALERT developer (schema issue);
+IF COUNT(dlq_permanent) > 5: ALERT operator (systematic failure);
+IF AVG(time_in_dlq) > 24 hours: ALERT (DLQ processing backlog);
+```
+
+#### 2.2.8 Event Replay & State Reconstruction
+
+**Replay Capability:**
+
+The Event Bus supports reconstructing system state by replaying historical events, enabling disaster recovery, debugging, and audit verification.
+
+**Replay Modes:**
+
+| Mode | Use Case | Event Filter | Target Environment | Safety |
+|------|----------|--------------|-------------------|--------|
+| **Full Replay** | Disaster recovery, new environment bootstrap | All events from sequence 1 to current | Isolated database instance (separate from production) | Requires operator approval (high-risk) |
+| **Subset Replay** | Single entity state reconstruction | `aggregate_type = X AND aggregate_id = Y` | Isolated database schema | Governance-gated |
+| **Time Window Replay** | Point-in-time state inspection, audit verification | `occurred_at BETWEEN T1 AND T2` | Read-only query environment | Safe (no writes) |
+| **Filtered Replay** | Re-process specific event types (e.g., after workflow fix) | `event_type LIKE 'knowledge.%'` | Test/validation environment | Requires validation suite pass |
+| **Snapshot-Based Replay** | Efficient large-scale replay | Events after last validated snapshot | Isolated environment | Requires snapshot validation |
+
+**Replay Execution Protocol:**
+
+```sql
+-- Example: Replay all knowledge events for opportunity O1
+WITH replay_events AS (
+  SELECT * FROM event_bus
+  WHERE metadata->>'correlation_id' = 'O1'
+    AND event_type LIKE 'knowledge.%'
+  ORDER BY sequence_number ASC
+)
+FOR EACH event IN replay_events:
+  -- Re-invoke original consumer workflow
+  INVOKE consumer_workflow(
+    event_id = event.id,
+    event_payload = event.payload,
+    replay_mode = TRUE  -- Flag indicating replay (may alter behavior)
+  );
+```
+
+**Replay Safety Requirements:**
+
+1. **Idempotency MUST be enforced:** Consumers MUST handle duplicate events gracefully (replay re-delivers already-processed events)
+
+2. **Isolated Environment MUST be used:** Replay MUST NOT execute against production database
+   - Separate database instance OR
+   - Separate schema within same instance (e.g., `replay_2026_07_14`)
+
+3. **Ordering MUST be preserved:** Events replayed in `sequence_number` ascending order within filtered set
+
+4. **Side effects MUST be controlled:**
+   - External API calls disabled (or routed to sandbox endpoints)
+   - Notifications suppressed (no Telegram messages during replay)
+   - Execution actions blocked (no real trades/transfers)
+
+**Snapshot-Based Replay Optimization:**
+
+For large-scale replays (millions of events), replaying from genesis (sequence 1) is prohibitively slow. Snapshot-based replay enables efficient reconstruction:
+
+```sql
+CREATE TABLE replay_snapshots (
+  snapshot_id UUID PRIMARY KEY,
+  snapshot_timestamp TIMESTAMPTZ NOT NULL,
+  last_sequence_number BIGINT NOT NULL,
+  database_backup_location TEXT NOT NULL, -- S3 path or backup identifier
+  validation_status TEXT NOT NULL CHECK (
+    validation_status IN ('pending', 'validated', 'failed')
+  ),
+  validation_hash TEXT, -- Checksum of database state at snapshot time
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+**Snapshot Creation Protocol:**
+
+1. **Trigger:** Monthly automated job or on-demand operator request
+2. **Database Backup:** Supabase point-in-time backup created
+3. **Sequence Capture:** Record `MAX(sequence_number)` from `event_bus` at backup time
+4. **Validation:** Restore backup to isolated environment, run validation suite, compute state hash
+5. **Registration:** Insert validated snapshot into `replay_snapshots` table
+
+**Replay from Snapshot:**
+
+```sql
+-- Replay procedure starting from snapshot
+FUNCTION replay_from_snapshot(target_timestamp):
+  1. SELECT most recent snapshot WHERE snapshot_timestamp <= target_timestamp
+  2. RESTORE database from snapshot.database_backup_location
+  3. Replay events: SELECT * FROM event_bus
+                    WHERE sequence_number > snapshot.last_sequence_number
+                      AND occurred_at <= target_timestamp
+                    ORDER BY sequence_number ASC
+  4. VALIDATE final state hash against expected (if replaying to known checkpoint)
+```
+
+**Performance Rationale:**
+
+Full replay of 10M events at 1000 events/second = 2.8 hours.
+Snapshot replay (restore snapshot + replay 100k incremental events) = 15 minutes.
+
+Snapshots enable practical disaster recovery within RTO targets.
+
+**Replay Validation:**
+
+Post-replay, state SHOULD be verified against expected checkpoints:
+
+```sql
+-- Compare replayed state to production snapshot
+WITH production_snapshot AS (
+  SELECT id, title, current_confidence, status
+  FROM production.knowledge_entries
+  WHERE created_at <= :replay_end_time
+),
+replayed_state AS (
+  SELECT id, title, current_confidence, status
+  FROM replay_schema.knowledge_entries
+)
+SELECT 
+  COALESCE(p.id, r.id) AS entity_id,
+  p.status AS production_status,
+  r.status AS replayed_status,
+  CASE 
+    WHEN p.status != r.status THEN 'MISMATCH'
+    ELSE 'MATCH'
+  END AS validation_result
+FROM production_snapshot p
+FULL OUTER JOIN replayed_state r ON p.id = r.id
+WHERE p.status != r.status OR p.id IS NULL OR r.id IS NULL;
+```
+
+**Audit Trail Linkage:**
+
+Every event automatically generates corresponding `audit_trail` entry (via database trigger):
+
+```sql
+CREATE OR REPLACE FUNCTION trg_event_bus_audit()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO audit_trail (
+    event_timestamp, 
+    actor_type, 
+    actor_identity, 
+    action_type,
+    resource_type, 
+    resource_id, 
+    correlation_id, 
+    source_module
+  )
+  VALUES (
+    NEW.occurred_at,
+    'system',
+    NEW.published_by,
+    'event_published',
+    NEW.aggregate_type,
+    NEW.aggregate_id,
+    NEW.metadata->>'correlation_id',
+    NEW.published_by
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER audit_event_publication
+  AFTER INSERT ON event_bus
+  FOR EACH ROW EXECUTE FUNCTION trg_event_bus_audit();
+```
+
+This ensures dual record: Event Bus (for replay) + Audit Trail (for compliance).
+
+#### 2.2.9 Event Bus Retention & Lifecycle Management
+
+**Retention Policy:**
+
+Event Bus data is managed through a multi-tier retention lifecycle ensuring auditability while controlling storage costs:
+
+| Storage Tier | Duration | Characteristics | Purpose |
+|--------------|----------|----------------|---------|
+| **Hot Storage** | 90 days | Full queryability, indexed, partitioned PostgreSQL tables | Active event processing, recent replay, debugging |
+| **Warm Storage** | 1 year | Compressed partitions, reduced indexes, read-optimized | Audit queries, historical analysis, compliance investigations |
+| **Archive Storage** | 7 years | External object storage (S3 Glacier-compatible), query-on-demand | Long-term compliance retention, disaster recovery baseline |
+| **Purge** | After 7 years | Permanent deletion with governance approval | Compliance with data retention limits |
+
+**Lifecycle Transition Protocol:**
+
+**Hot → Warm (90 days):**
+```sql
+-- Monthly job detaches old partitions, reindexes for read optimization
+ALTER TABLE event_bus DETACH PARTITION event_bus_2026_04;
+CREATE INDEX idx_event_bus_2026_04_archived 
+  ON event_bus_2026_04 (event_type, occurred_at);
+DROP INDEX IF EXISTS idx_event_bus_2026_04_processing; -- Remove write-optimized indexes
+```
+
+**Warm → Archive (1 year):**
+```sql
+-- Export partition to compressed format
+COPY (SELECT * FROM event_bus_2026_04) 
+TO PROGRAM 'gzip > /archive/event_bus_2026_04.json.gz';
+
+-- Upload to S3
+aws s3 cp /archive/event_bus_2026_04.json.gz 
+  s3://ahos-archive/event_bus/2026/04/ 
+  --storage-class GLACIER;
+
+-- Register archive location
+INSERT INTO event_archive_registry (
+  table_name = 'event_bus',
+  partition_name = 'event_bus_2026_04',
+  archive_location = 's3://ahos-archive/event_bus/2026/04/event_bus_2026_04.json.gz',
+  row_count = (SELECT COUNT(*) FROM event_bus_2026_04),
+  checksum_sha256 = compute_checksum('event_bus_2026_04'),
+  archived_at = now()
+);
+
+-- Drop hot storage partition (data preserved in archive)
+DROP TABLE event_bus_2026_04;
+```
+
+**Archive → Purge (7 years):**
+```sql
+-- Governance-approved purge after retention expiry
+-- Requires approval record
+INSERT INTO approvals (
+  approval_type = 'data_purge',
+  target_entity_type = 'event_archive',
+  target_entity_id = :archive_id,
+  status = 'pending'
+);
+
+WAIT FOR approval.status = 'approved';
+
+-- After approval, delete from archive
+aws s3 rm s3://ahos-archive/event_bus/2019/04/event_bus_2019_04.json.gz;
+
+-- Log to audit_trail
+INSERT INTO audit_trail (
+  event_timestamp = now(),
+  actor_type = 'operator',
+  action_type = 'event_archive_purged',
+  resource_id = :archive_id
+);
+```
+
+**Retention Exceptions:**
+
+1. **Governance events:** `governance.*` events retained indefinitely (no 7-year purge)
+2. **Audit trail events:** All `audit_trail` synchronization events retained indefinitely
+3. **Legal hold:** Events under legal hold (compliance investigation) exempt from purge until hold released
+
+**Replay Capability Preservation:**
+
+Archived events remain replay-capable:
+1. Retrieve archive from S3: `aws s3 cp s3://... /restore/`
+2. Decompress: `gunzip event_bus_2026_04.json.gz`
+3. Load into temporary table: `COPY event_bus_restore FROM '/restore/event_bus_2026_04.json'`
+4. Replay from temporary table: Same protocol as §2.2.7
+
+Archive retrieval SLA: 12 hours (Glacier retrieval time) + restore processing time.
+
+---
+
+### 2.3 Distributed Concurrency Control
+
+AHOS employs multiple concurrency control strategies to prevent race conditions, duplicate processing, and state corruption across distributed workers and asynchronous workflows.
+
+#### 2.3.1 Locking Strategies by Use Case
+
+**Optimistic Locking:**
+
+Used for entities with low contention where conflicts are rare:
+
+```sql
+-- Knowledge entry updates use version-based optimistic locking
+UPDATE knowledge_entries
+SET current_confidence = :new_confidence,
+    version = version + 1,
+    updated_at = now()
+WHERE id = :entry_id
+  AND version = :expected_version; -- Fails if version changed (conflict detected)
+
+-- Check affected rows
+IF affected_rows = 0:
+  RAISE ERROR 'Optimistic lock failure: entity modified by concurrent transaction';
+  RETRY with fresh read;
+```
+
+**Use cases:**
+- Knowledge entry confidence updates (multiple consumers may recalculate; last-write wins acceptable)
+- Hypothesis status transitions (single workflow typically owns hypothesis lifecycle)
+- Configuration updates (rare, low-contention)
+
+**Advantages:**
+- No lock acquisition overhead
+- No deadlock risk
+- High concurrency for read-heavy workloads
+
+**Disadvantages:**
+- Retry required on conflict
+- Not suitable for high-contention resources
+
+---
+
+**Pessimistic Locking:**
+
+Used for entities requiring exclusive access during modification:
+
+```sql
+-- Execution resource locking (see §2.3.2 for full protocol)
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+-- Acquire exclusive lock via SELECT FOR UPDATE
+SELECT available_capital
+FROM portfolio_state
+WHERE portfolio_id = 'default'
+FOR UPDATE; -- Blocks other transactions from acquiring lock
+
+-- Check resource availability
+IF available_capital >= :required_capital:
+  -- Reserve capital
+  UPDATE portfolio_state
+  SET available_capital = available_capital - :required_capital;
+  
+  -- Proceed with execution
+  INSERT INTO execution_resource_locks (...);
+  COMMIT;
+ELSE:
+  ROLLBACK;
+  RETURN error('Insufficient capital');
+```
+
+**Use cases:**
+- Capital reservation for execution (prevents overdraft via concurrent actions)
+- Approval workflow state transitions (only one approver may approve at a time)
+- Critical configuration updates requiring exclusive access
+
+**Advantages:**
+- Guaranteed exclusive access
+- No retry logic needed
+- Prevents all concurrent modifications
+
+**Disadvantages:**
+- Lock contention under high load
+- Deadlock risk if multiple locks acquired
+- Reduced concurrency
+
+---
+
+**Lease Locking (Distributed Time-Based Locks):**
+
+Used for coordinating work across multiple consumers in Event Bus (see §2.2.5):
+
+```sql
+-- Event processing lease (already defined in §2.2.5)
+UPDATE event_bus
+SET processing_consumer_id = :consumer_id,
+    lease_until = now() + INTERVAL '5 minutes'
+WHERE id = :event_id
+  AND (processing_consumer_id IS NULL OR lease_until < now());
+
+-- Lease renewal (prevents reclamation during long-running processing)
+UPDATE event_bus
+SET lease_until = now() + INTERVAL '5 minutes'
+WHERE id = :event_id
+  AND processing_consumer_id = :consumer_id;
+```
+
+**Use cases:**
+- Event Bus consumer coordination (prevent duplicate processing)
+- Long-running background jobs (prevent duplicate execution)
+- Distributed cron job coordination (only one instance executes)
+
+**Advantages:**
+- Crash-safe (expired leases auto-reclaimed)
+- No explicit unlock needed (time-based expiration)
+- Supports long-running operations via renewal
+
+**Disadvantages:**
+- Clock skew sensitivity (all nodes must have synchronized clocks)
+- Lease duration tuning required (too short: false reclamation; too long: slow recovery from crashes)
+
+---
+
+**Advisory Locks (PostgreSQL pg_advisory_lock):**
+
+Used for application-level coordination without table-level locking:
+
+```sql
+-- Acquire application-level lock for specific operation
+SELECT pg_advisory_lock(hashtext('knowledge_graph_rebuild'));
+
+-- Perform exclusive operation
+EXECUTE knowledge_graph_rebuild_procedure();
+
+-- Release lock
+SELECT pg_advisory_unlock(hashtext('knowledge_graph_rebuild'));
+```
+
+**Use cases:**
+- Singleton background jobs (only one instance should run system-wide)
+- Exclusive maintenance operations (e.g., graph compaction, metric aggregation)
+- Cross-table coordination without row-level locks
+
+**Advantages:**
+- No table-level contention
+- Named locks (human-readable identifiers)
+- Transaction-scoped or session-scoped (flexible)
+
+**Disadvantages:**
+- Not distributed (single-database only; does not span multiple Postgres instances)
+- Requires explicit unlock (leaked locks if process crashes without cleanup)
+
+---
+
+#### 2.3.2 Resource Lock Protocol (Execution Concurrency Control)
+
+**Purpose:** Prevent race conditions in concurrent execution requests competing for limited resources (capital, position slots, API quotas).
+
+**Resource Types:**
+
+| Resource Type | Constraint | Example |
+|---------------|------------|---------|
+| `capital` | Total available capital for positions | $10,000 daily allocation |
+| `position_slot` | Maximum concurrent open positions | 5 simultaneous positions |
+| `api_quota` | External API rate limits | 100 requests/minute to exchange API |
+
+**Execution Resource Locks Table:**
+
+```sql
+CREATE TABLE execution_resource_locks (
+  lock_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  decision_id UUID NOT NULL, -- Decision consuming resource
+  resource_type TEXT NOT NULL CHECK (resource_type IN ('capital', 'position_slot', 'api_quota')),
+  resource_amount NUMERIC NOT NULL, -- Amount reserved (e.g., $5000 capital)
+  locked_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  released_at TIMESTAMPTZ, -- NULL while locked
+  lock_holder TEXT NOT NULL, -- Workflow execution ID
+  timeout_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '5 minutes')
+);
+
+CREATE INDEX idx_resource_locks_active 
+  ON execution_resource_locks(resource_type, released_at) 
+  WHERE released_at IS NULL;
+```
+
+**Lock Acquisition Protocol (Two-Phase Commit):**
+
+**Phase 1: Reserve Resources (Atomic Check-and-Lock)**
+
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+-- Calculate currently locked resources
+WITH locked_resources AS (
+  SELECT SUM(resource_amount) AS locked_capital
+  FROM execution_resource_locks
+  WHERE resource_type = 'capital'
+    AND released_at IS NULL
+)
+-- Check availability
+SELECT 
+  (:total_capital - COALESCE(locked_capital, 0)) AS available_capital,
+  :required_capital AS needed
+FROM locked_resources;
+
+-- If sufficient resources available
+IF available_capital >= required_capital THEN
+  -- Insert lock record (reserves resource)
+  INSERT INTO execution_resource_locks (
+    decision_id, resource_type, resource_amount, lock_holder, timeout_at
+  ) VALUES (
+    :decision_id, 'capital', :required_capital, :execution_id, now() + INTERVAL '5 minutes'
+  );
+  
+  COMMIT;
+  RETURN 'lock_acquired';
+ELSE
+  ROLLBACK;
+  RETURN error('Insufficient capital');
+END IF;
+```
+
+**SERIALIZABLE isolation level** ensures no other transaction can commit a conflicting lock between the availability check and lock insertion, eliminating race conditions.
+
+**Phase 2: Execute or Release**
+
+After acquiring lock:
+
+```sql
+-- If execution succeeds
+UPDATE execution_resource_locks
+SET released_at = now()
+WHERE lock_id = :lock_id;
+
+-- Actual capital deducted from portfolio (lock merely reserved capacity)
+UPDATE portfolio_state
+SET used_capital = used_capital + :amount;
+
+-- If execution fails
+UPDATE execution_resource_locks
+SET released_at = now()
+WHERE lock_id = :lock_id;
+
+-- No portfolio update; capital remains available
+```
+
+**Timeout Watchdog:**
+
+Prevents leaked locks from crashes:
+
+```sql
+-- Runs every minute
+UPDATE execution_resource_locks
+SET released_at = now()
+WHERE released_at IS NULL
+  AND timeout_at < now()
+RETURNING lock_id, decision_id, resource_type, resource_amount;
+
+-- Alert if locks frequently timing out (indicates stuck executions)
+IF COUNT(timed_out_locks) > 5:
+  ALERT operator 'Execution timeouts detected; investigate stuck workflows';
+```
+
+**Deadlock Prevention:**
+
+If multiple resources must be locked:
+
+1. **Acquire locks in deterministic order:** Always lock capital → position_slot → api_quota
+2. **Lock bundling:** Acquire all required locks in single transaction (atomic all-or-nothing)
+3. **Timeout escape:** If lock acquisition blocks >10 seconds, rollback and retry with exponential backoff
+
+---
+
+#### 2.3.3 Conflict Detection & Recovery
+
+**Conflict Scenarios:**
+
+| Scenario | Detection Method | Recovery Strategy |
+|----------|------------------|-------------------|
+| **Duplicate Recommendation** | Two Analysis workflows produce recommendations for same opportunity | Idempotency key on `recommendations` table; second insert rejected |
+| **Duplicate Simulation** | Two workers initiate same simulation scenario | Optimistic lock on `simulations` table via `(opportunity_id, scenario_id)` unique constraint |
+| **Duplicate Execution** | Retry triggers duplicate execution attempt | Idempotency key on `execution_actions` derived from `decision_id` |
+| **Concurrent Knowledge Update** | Two workflows update same knowledge entry | Optimistic locking via `version` field; conflict detected on UPDATE; retry with fresh read |
+| **Conflicting Approvals** | Two operators attempt to approve same request | Pessimistic lock via `SELECT FOR UPDATE` on `approvals` row; second approver waits |
+
+**Conflict Recovery Protocol:**
+
+```javascript
+function handle_conflict(operation, conflict_type):
+  switch (conflict_type):
+    case 'optimistic_lock_failure':
+      // Re-read entity with latest version
+      entity = SELECT * FROM table WHERE id = :id;
+      // Re-apply operation logic with fresh state
+      RETRY operation with entity.version;
+      
+    case 'unique_constraint_violation':
+      // Idempotency key collision = duplicate operation
+      existing = SELECT * FROM table WHERE idempotency_key = :key;
+      // Return existing record (operation already completed)
+      RETURN existing;
+      
+    case 'resource_exhausted':
+      // Capital/quota unavailable
+      // Do NOT retry immediately (would fail again)
+      DEFER operation to queue with priority=low;
+      RETRY when resource_availability_event received;
+      
+    case 'deadlock_detected':
+      // PostgreSQL detected deadlock
+      ROLLBACK transaction;
+      WAIT random_jitter (100ms - 500ms);
+      RETRY from beginning;
+      
+    default:
+      // Unrecognized conflict
+      LOG ERROR to error_log;
+      ESCALATE TO human;
+```
+
+**Conflict Metrics:**
+
+```sql
+-- Monitor conflict frequency
+SELECT 
+  conflict_type,
+  COUNT(*) AS conflict_count,
+  AVG(retry_count) AS avg_retries
+FROM operation_conflicts
+WHERE occurred_at > now() - INTERVAL '1 hour'
+GROUP BY conflict_type;
+
+-- Alert if conflict rate exceeds threshold
+IF conflict_count > 100 per hour:
+  ALERT 'High contention detected on resource: ' || resource_name;
+  RECOMMEND 'Increase concurrency limits or partition workload';
+```
+
+---
+
+### 2.4 Opportunity Lifecycle State Machine
+
+Every opportunity in AHOS progresses through a **deterministic state machine** governing its lifecycle from initial discovery through archival. This state machine is the **authoritative workflow model** for all opportunity processing.
+
+**Opportunity State Table:**
+
+```sql
+CREATE TABLE opportunity_state (
+  opportunity_id UUID PRIMARY KEY,
+  correlation_id UUID NOT NULL UNIQUE, -- Maps to event_bus correlation_id
+  current_state TEXT NOT NULL,
+  previous_state TEXT,
+  state_entered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  state_metadata JSONB NOT NULL DEFAULT '{}', -- State-specific context
+  workflow_version TEXT NOT NULL, -- Enables versioned workflow evolution
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  
+  CONSTRAINT chk_valid_state CHECK (
+    current_state IN (
+      'DISCOVERED', 'QUALIFIED', 'RESEARCHING', 'ANALYZING', 
+      'SIMULATING', 'SCORING', 'APPROVAL_PENDING', 'APPROVED',
+      'EXECUTING', 'EXECUTED', 'LEARNING', 'ARCHIVED',
+      'REJECTED', 'CANCELLED', 'FAILED', 'TIMEOUT'
+    )
+  )
+);
+
+CREATE INDEX idx_opportunity_state_current 
+  ON opportunity_state(current_state, state_entered_at);
+```
+
+**State Definitions:**
+
+| State | Meaning | Entry Condition | Exit Conditions |
+|-------|---------|-----------------|-----------------|
+| **DISCOVERED** | Raw signal identified, not yet qualified | Discovery Engine publishes `discovery.signal.ingested` | → QUALIFIED (validation passed)<br>→ REJECTED (validation failed) |
+| **QUALIFIED** | Discovery validated, candidate created | Discovery Engine publishes `discovery.candidate.qualified` | → RESEARCHING (analysis initiated)<br>→ REJECTED (disqualified during enrichment) |
+| **RESEARCHING** | Research Agent gathering evidence | Analysis Engine publishes `analysis.research.started` | → ANALYZING (research complete)<br>→ FAILED (research error)<br>→ TIMEOUT (research exceeded time limit) |
+| **ANALYZING** | Hypothesis Agent + Risk Scoring in progress | Analysis Engine publishes `analysis.hypothesis.started` | → SIMULATING (analysis complete, simulation required)<br>→ SCORING (analysis complete, simulation skipped)<br>→ FAILED (analysis error) |
+| **SIMULATING** | Simulation Engine running scenarios | Simulation Engine publishes `simulation.started` | → SCORING (simulation complete)<br>→ FAILED (simulation error)<br>→ TIMEOUT (simulation exceeded time limit) |
+| **SCORING** | Final recommendation synthesis | Recommendation Synthesizer publishes `recommendation.synthesized` | → APPROVAL_PENDING (recommendation complete, requires approval)<br>→ REJECTED (recommendation below threshold)<br>→ CANCELLED (operator intervention) |
+| **APPROVAL_PENDING** | Awaiting human approval (Hybrid/Human Zone) | Decision Router publishes `decision.approval.requested` | → APPROVED (human approved)<br>→ REJECTED (human rejected)<br>→ TIMEOUT (approval deadline expired)<br>→ CANCELLED (operator cancelled) |
+| **APPROVED** | Decision approved, ready for execution | Governance publishes `decision.approval.granted` | → EXECUTING (execution initiated)<br>→ CANCELLED (operator cancelled before execution) |
+| **EXECUTING** | Execution Controller processing action | Execution Controller publishes `execution.action.started` | → EXECUTED (execution successful)<br>→ FAILED (execution error) |
+| **EXECUTED** | Action completed | Execution Controller publishes `execution.action.completed` | → LEARNING (outcome observed, entering learning phase) |
+| **LEARNING** | Learning Engine capturing outcome | Learning Engine publishes `learning.outcome.recorded` | → ARCHIVED (learning complete, opportunity lifecycle finished) |
+| **ARCHIVED** | Opportunity lifecycle complete | Archival job publishes `opportunity.archived` | *Terminal state* |
+| **REJECTED** | Opportunity disqualified at any stage | Various engines | → ARCHIVED (after retention period) |
+| **CANCELLED** | Operator-initiated cancellation | Operator override | → ARCHIVED |
+| **FAILED** | Unrecoverable error at any stage | Error handler | → ARCHIVED (after investigation) |
+| **TIMEOUT** | Workflow stage exceeded time limit | Timeout watchdog | → FAILED (escalated for investigation) |
+
+**State Transition Diagram:**
+
+```
+DISCOVERED ──┬──> QUALIFIED ──> RESEARCHING ──> ANALYZING ──┬──> SIMULATING ──> SCORING
+             │                                               │
+             └──> REJECTED                                   └──> SCORING
+                                                                     │
+                                                                     ├──> APPROVAL_PENDING ──┬──> APPROVED ──> EXECUTING ──┬──> EXECUTED ──> LEARNING ──> ARCHIVED
+                                                                     │                       │                             │
+                                                                     ├──> REJECTED           ├──> REJECTED                 └──> FAILED ──> ARCHIVED
+                                                                     │                       │
+                                                                     └──> CANCELLED          ├──> TIMEOUT
+                                                                                             │
+                                                                                             └──> CANCELLED
+
+Failure states (FAILED, TIMEOUT) from any non-terminal state ──> ARCHIVED
+```
+
+**Allowed State Transitions (Enforced):**
+
+```sql
+CREATE TABLE opportunity_state_transitions (
+  from_state TEXT NOT NULL,
+  to_state TEXT NOT NULL,
+  transition_type TEXT NOT NULL CHECK (
+    transition_type IN ('forward', 'rejection', 'failure', 'cancellation', 'timeout')
+  ),
+  requires_approval BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (from_state, to_state)
+);
+
+-- Insert allowed transitions
+INSERT INTO opportunity_state_transitions (from_state, to_state, transition_type) VALUES
+  ('DISCOVERED', 'QUALIFIED', 'forward'),
+  ('DISCOVERED', 'REJECTED', 'rejection'),
+  ('QUALIFIED', 'RESEARCHING', 'forward'),
+  ('QUALIFIED', 'REJECTED', 'rejection'),
+  ('RESEARCHING', 'ANALYZING', 'forward'),
+  ('RESEARCHING', 'FAILED', 'failure'),
+  ('RESEARCHING', 'TIMEOUT', 'timeout'),
+  ('ANALYZING', 'SIMULATING', 'forward'),
+  ('ANALYZING', 'SCORING', 'forward'),
+  ('ANALYZING', 'FAILED', 'failure'),
+  ('SIMULATING', 'SCORING', 'forward'),
+  ('SIMULATING', 'FAILED', 'failure'),
+  ('SIMULATING', 'TIMEOUT', 'timeout'),
+  ('SCORING', 'APPROVAL_PENDING', 'forward'),
+  ('SCORING', 'REJECTED', 'rejection'),
+  ('SCORING', 'CANCELLED', 'cancellation'),
+  ('APPROVAL_PENDING', 'APPROVED', 'forward'),
+  ('APPROVAL_PENDING', 'REJECTED', 'rejection'),
+  ('APPROVAL_PENDING', 'TIMEOUT', 'timeout'),
+  ('APPROVAL_PENDING', 'CANCELLED', 'cancellation'),
+  ('APPROVED', 'EXECUTING', 'forward'),
+  ('APPROVED', 'CANCELLED', 'cancellation'),
+  ('EXECUTING', 'EXECUTED', 'forward'),
+  ('EXECUTING', 'FAILED', 'failure'),
+  ('EXECUTED', 'LEARNING', 'forward'),
+  ('LEARNING', 'ARCHIVED', 'forward'),
+  ('REJECTED', 'ARCHIVED', 'forward'),
+  ('CANCELLED', 'ARCHIVED', 'forward'),
+  ('FAILED', 'ARCHIVED', 'forward'),
+  ('TIMEOUT', 'FAILED', 'forward');
+```
+
+**State Transition Enforcement:**
+
+```sql
+CREATE OR REPLACE FUNCTION validate_state_transition()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Check if transition is allowed
+  IF NOT EXISTS (
+    SELECT 1 FROM opportunity_state_transitions
+    WHERE from_state = OLD.current_state
+      AND to_state = NEW.current_state
+  ) THEN
+    RAISE EXCEPTION 'Invalid state transition: % -> %', 
+      OLD.current_state, NEW.current_state;
+  END IF;
+  
+  -- Update previous_state
+  NEW.previous_state := OLD.current_state;
+  NEW.state_entered_at := now();
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validate_opportunity_state_transition
+  BEFORE UPDATE OF current_state ON opportunity_state
+  FOR EACH ROW
+  EXECUTE FUNCTION validate_state_transition();
+```
+
+**State Timeouts:**
+
+Each state has a maximum duration; exceeding triggers automatic `TIMEOUT` transition:
+
+```sql
+CREATE TABLE opportunity_state_timeouts (
+  state TEXT PRIMARY KEY,
+  max_duration INTERVAL NOT NULL,
+  timeout_action TEXT NOT NULL CHECK (
+    timeout_action IN ('transition_to_timeout', 'transition_to_failed', 'alert_only')
+  )
+);
+
+INSERT INTO opportunity_state_timeouts (state, max_duration, timeout_action) VALUES
+  ('DISCOVERED', INTERVAL '5 minutes', 'transition_to_timeout'),
+  ('QUALIFIED', INTERVAL '10 minutes', 'transition_to_timeout'),
+  ('RESEARCHING', INTERVAL '15 minutes', 'transition_to_timeout'),
+  ('ANALYZING', INTERVAL '30 minutes', 'transition_to_timeout'),
+  ('SIMULATING', INTERVAL '1 hour', 'transition_to_timeout'),
+  ('SCORING', INTERVAL '5 minutes', 'transition_to_timeout'),
+  ('APPROVAL_PENDING', INTERVAL '24 hours', 'transition_to_timeout'),
+  ('APPROVED', INTERVAL '10 minutes', 'transition_to_timeout'),
+  ('EXECUTING', INTERVAL '5 minutes', 'transition_to_failed'),
+  ('EXECUTED', INTERVAL '1 hour', 'alert_only'),
+  ('LEARNING', INTERVAL '30 minutes', 'alert_only');
+```
+
+**Timeout Watchdog Job:**
+
+```sql
+-- Runs every minute
+WITH timed_out_opportunities AS (
+  SELECT o.opportunity_id, o.current_state, t.timeout_action
+  FROM opportunity_state o
+  JOIN opportunity_state_timeouts t ON t.state = o.current_state
+  WHERE o.state_entered_at + t.max_duration < now()
+    AND o.current_state NOT IN ('ARCHIVED', 'REJECTED', 'CANCELLED', 'FAILED')
+)
+UPDATE opportunity_state
+SET current_state = CASE 
+    WHEN timeout_action = 'transition_to_timeout' THEN 'TIMEOUT'
+    WHEN timeout_action = 'transition_to_failed' THEN 'FAILED'
+    ELSE current_state
+  END,
+  state_metadata = state_metadata || jsonb_build_object(
+    'timeout_reason', 'exceeded_max_duration',
+    'previous_state', current_state
+  )
+FROM timed_out_opportunities t
+WHERE opportunity_state.opportunity_id = t.opportunity_id;
+
+-- Alert operator
+FOR EACH timed_out_opportunity:
+  PUBLISH EVENT 'opportunity.timeout' WITH details;
+  IF timeout_action = 'alert_only':
+    ALERT operator 'Opportunity stuck in state: ' || current_state;
+```
+
+**Rollback Transitions (Operator Override):**
+
+Operators MAY force specific state rollbacks via governance approval:
+
+```sql
+-- Requires approval record
+INSERT INTO approvals (
+  approval_type = 'state_rollback',
+  target_entity_type = 'opportunity',
+  target_entity_id = :opportunity_id,
+  payload = jsonb_build_object(
+    'from_state', 'APPROVAL_PENDING',
+    'to_state', 'SCORING',
+    'reason', 'Re-score with updated risk parameters'
+  ),
+  status = 'pending'
+);
+
+WAIT FOR approval.status = 'approved';
+
+-- After approval, execute rollback
+UPDATE opportunity_state
+SET current_state = 'SCORING',
+    state_metadata = state_metadata || jsonb_build_object(
+      'rollback_approved_by', :approver,
+      'rollback_reason', :reason,
+      'rollback_timestamp', now()
+    )
+WHERE opportunity_id = :opportunity_id;
+
+-- Log to audit_trail
+INSERT INTO audit_trail (...) VALUES (...);
+```
+
+**State Machine Metrics:**
+
+```sql
+-- Opportunity lifecycle analytics
+SELECT 
+  current_state,
+  COUNT(*) AS count_in_state,
+  AVG(EXTRACT(EPOCH FROM (now() - state_entered_at))) / 60 AS avg_minutes_in_state,
+  MAX(EXTRACT(EPOCH FROM (now() - state_entered_at))) / 60 AS max_minutes_in_state
+FROM opportunity_state
+WHERE current_state NOT IN ('ARCHIVED')
+GROUP BY current_state;
+
+-- State transition frequency
+SELECT 
+  from_state,
+  to_state,
+  COUNT(*) AS transition_count
+FROM audit_trail
+WHERE action_type = 'opportunity_state_transition'
+  AND event_timestamp > now() - INTERVAL '24 hours'
+GROUP BY from_state, to_state
+ORDER BY transition_count DESC;
+```
+
+---
+
+### 2.5 Architecture Decision Records (ADR) Integration
+
+AHOS employs **Architecture Decision Records** as first-class architectural artifacts, stored in the database and enforced as compliance checkpoints throughout the system lifecycle.
+
+**ADR Purpose:**
+
+ADRs document significant architectural decisions, providing:
+- **Historical context** for current design choices
+- **Traceability** linking implementation to architectural rationale
+- **Change management** via supersession chains
+- **Compliance validation** ensuring implementation aligns with approved decisions
+
+**ADR Registry Table:**
+
+```sql
+CREATE TABLE adr_registry (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  adr_number INTEGER UNIQUE NOT NULL, -- Sequential identifier (ADR-001, ADR-002, ...)
+  title TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (
+    status IN ('proposed', 'accepted', 'superseded', 'deprecated')
+  ),
+  context TEXT NOT NULL, -- Problem statement and motivation
+  decision TEXT NOT NULL, -- What was decided
+  consequences TEXT NOT NULL, -- Impacts and trade-offs
+  superseded_by_adr_id UUID REFERENCES adr_registry(id) ON DELETE SET NULL,
+  related_adr_ids JSONB NOT NULL DEFAULT '[]', -- Array of ADR IDs
+  affected_components JSONB NOT NULL DEFAULT '[]', -- Array of component names
+  decision_date DATE NOT NULL,
+  author TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_adr_status ON adr_registry(status);
+CREATE INDEX idx_adr_number ON adr_registry(adr_number);
+```
+
+**Core ADRs (Foundation):**
+
+The following ADRs establish AHOS architectural foundation:
+
+| ADR Number | Title | Status | Key Decision |
+|------------|-------|--------|--------------|
+| **ADR-001** | Event Bus as Primary Communication Mechanism | Accepted | All inter-tier and inter-engine communication MUST occur via PostgreSQL-backed Event Bus using LISTEN/NOTIFY + polling hybrid delivery |
+| **ADR-002** | Governance Fail-Closed Model | Accepted | All governance checks MUST default to denial on ambiguity; no autonomous action may proceed if governance state uncertain |
+| **ADR-003** | Knowledge Engine Versioning Strategy | Accepted | Knowledge entries and hypotheses MUST employ side-table versioning with immutable version history; current head tracked via foreign key |
+| **ADR-004** | AI Gateway as Mandatory Entry Point | Accepted | No engine MAY call AI providers directly; all AI interactions MUST route through AI Gateway for cost control, caching, and validation |
+| **ADR-005** | Simulation Engine Isolation Model | Accepted | Simulations MUST execute in isolated state; simulation MAY NOT modify production knowledge directly; promotion requires explicit approval |
+| **ADR-006** | Decision Router Zone Classification | Accepted | All decisions MUST be classified into Autonomous/Hybrid/Human zones; classification logic MUST be deterministic and governance-auditable |
+| **ADR-007** | Learning Engine Proposal-Only Constraint | Accepted | Learning Engine MAY generate improvement proposals; Learning Engine MUST NOT self-apply changes to production configuration or models |
+| **ADR-008** | Zero Trust Security Model | Accepted | All cross-tier calls MUST validate contracts; no component MAY trust upstream data without schema validation; RLS prepared for future activation |
+| **ADR-009** | Event Contract Versioning | Accepted | Event schemas MUST support semantic versioning; consumers MUST declare supported version ranges; breaking changes require dual-schema migration period |
+| **ADR-010** | Deployment Strategy: Consumer-First Migrations | Accepted | Schema migrations requiring coordination MUST deploy consumers before producers; producers MAY dual-write during transition; cutover after validation period |
+
+**ADR Creation Workflow:**
+
+```sql
+-- Step 1: Propose ADR
+INSERT INTO adr_registry (
+  adr_number, title, status, context, decision, consequences, 
+  affected_components, decision_date, author
+) VALUES (
+  11, -- Next sequential number
+  'Distributed Locking Strategy for Execution Concurrency',
+  'proposed',
+  'Multiple concurrent execution requests may compete for limited capital...',
+  'Implement two-phase resource locking using SERIALIZABLE transactions...',
+  'Guarantees no capital overdraft; introduces lock contention...',
+  '["execution_controller", "decision_router", "portfolio_manager"]',
+  CURRENT_DATE,
+  'senior_architect'
+);
+
+-- Step 2: Review & Approval
+-- Submitted to Architecture Review Layer
+-- Discussed, refined, approved
+
+UPDATE adr_registry
+SET status = 'accepted'
+WHERE adr_number = 11;
+
+-- Step 3: Implementation
+-- Architects and engineers implement decision per ADR-011 specification
+
+-- Step 4: Compliance Validation
+INSERT INTO architecture_compliance (
+  check_name, check_type, target_component, target_resource, result
+) VALUES (
+  'Validate execution_resource_locks table exists',
+  'adr_conformance',
+  'execution_controller',
+  'execution_resource_locks',
+  'passed'
+);
+```
+
+**ADR Supersession:**
+
+When architectural decisions evolve:
+
+```sql
+-- ADR-012 supersedes ADR-003 (hypothetical example)
+INSERT INTO adr_registry (
+  adr_number, title, status, context, decision, consequences,
+  related_adr_ids, decision_date, author
+) VALUES (
+  12,
+  'Enhanced Knowledge Versioning with Branching Support',
+  'accepted',
+  'Current versioning model (ADR-003) does not support knowledge branches...',
+  'Extend versioning with branch_parent_id field...',
+  'Enables divergent knowledge evolution...',
+  '[3]', -- Related to ADR-003
+  CURRENT_DATE,
+  'principal_architect'
+);
+
+-- Mark ADR-003 as superseded
+UPDATE adr_registry
+SET status = 'superseded',
+    superseded_by_adr_id = (SELECT id FROM adr_registry WHERE adr_number = 12)
+WHERE adr_number = 3;
+```
+
+**ADR Enforcement via Architecture Compliance:**
+
+```sql
+-- Automated ADR conformance checks
+SELECT 
+  adr.adr_number,
+  adr.title,
+  adr.status,
+  COUNT(DISTINCT ac.id) AS compliance_checks_run,
+  SUM(CASE WHEN ac.result = 'passed' THEN 1 ELSE 0 END) AS passed_checks,
+  SUM(CASE WHEN ac.result = 'failed' THEN 1 ELSE 0 END) AS failed_checks
+FROM adr_registry adr
+LEFT JOIN architecture_compliance ac 
+  ON ac.check_type = 'adr_conformance' 
+  AND ac.details->>'adr_number' = adr.adr_number::text
+WHERE adr.status = 'accepted'
+GROUP BY adr.adr_number, adr.title, adr.status;
+
+-- Alert if any accepted ADR has failed compliance checks
+IF failed_checks > 0:
+  ALERT 'ADR conformance violation detected: ADR-' || adr_number;
+  ESCALATE TO architecture_review_layer;
+```
+
+**ADR as Implementation Contract:**
+
+Every major implementation task references its governing ADR:
+
+```sql
+-- Example: Migration script header
+/*
+ * Migration: 20260720_add_execution_resource_locks
+ * Implements: ADR-011 (Distributed Locking Strategy for Execution Concurrency)
+ * Author: engineering_team
+ * Approved: 2026-07-15
+ */
+
+-- Schema changes implementing ADR-011...
+```
+
+---
+
+# Integration Notes
+
+**Enhancements integrated into Section 2:**
+
+1. **Event Version Migration Strategy (§2.2.3):** Complete production migration workflow including online migration, dual-schema support, batch historical transformation, validation protocol, rollback procedures, and safe deployment sequences
+
+2. **Distributed Locking Strategy (§2.3):** Comprehensive concurrency control covering optimistic locking, pessimistic locking, lease locking, advisory locks, resource lock protocol for execution, conflict detection, and recovery strategies
+
+3. **Opportunity Lifecycle State Machine (§2.4):** Formal state machine defining all allowed opportunity states (DISCOVERED → ARCHIVED), enforced state transitions via database triggers, timeout handling, rollback governance, and lifecycle metrics
+
+4. **Architecture Decision Records Integration (§2.5):** ADR registry as first-class database artifact, core foundational ADRs (ADR-001 through ADR-010), ADR lifecycle workflow, supersession handling, and automated compliance enforcement
+
+5. **Enterprise Resource Scheduler:** Deferred to engine-specific sections per architectural guidance (AI Queue → AI Gateway section; Simulation Queue → Simulation Engine section; scheduling priority and fairness algorithms belong in respective engine implementations)
+
+---
+
+**END OF SECTION 2**
+
+**WAITING FOR REVIEW**

@@ -1,0 +1,174 @@
+# AHOS Architecture Bible v4.1 — Production Lock Edition
+
+## Normative Language
+
+This Architecture Bible uses normative language as defined in RFC 2119:
+
+- **MUST** / **MUST NOT**: Absolute requirements with no exceptions
+- **SHOULD** / **SHOULD NOT**: Strong recommendations; deviations require architectural justification via ADR
+- **MAY**: Optional; implementer discretion permitted
+
+These keywords establish binding architectural requirements throughout this document. Violations of MUST/MUST NOT requirements constitute architectural non-conformance and are rejected at implementation review.
+
+---
+
+*[Rest of Section 1 content remains unchanged until the specific insertions below]*
+
+---
+
+## Section 1: System Identity, Scope & Foundational Principles
+
+*[... existing content through Principle 2 ...]*
+
+### 1.4 Core Architectural Principles
+
+**Principle 3: Immutable-First State Management**
+
+Default to append-only, versioned, immutable state:
+- Operational records: Append-only where feasible (discoveries, signals, events)
+- Versioned entities: Modifications create new version rows, prior versions retained (knowledge_entries, hypotheses, policies)
+- Audit/governance records: Absolutely immutable—no updates, no deletes, ever (audit_trail, override_log, event_bus)
+- Corrections: Represented as new records referencing erroneous predecessor, not in-place updates
+
+Deletion implemented as soft delete (status transition to 'deleted', deleted_at timestamp) except for compliance-mandated hard deletion (governed, logged, rare).
+
+**Immutable Exceptions:**
+
+The following tables MAY be updated through controlled mechanisms while preserving audit history:
+- **Configuration tables** (`system_config`, `policy_versions`): Updated through versioned updates; prior values stored in `previous_value` field or version history table
+- **Reference data** (`contract_registry`, `adr_registry`): Corrected in-place for factual errors (typos, outdated descriptions) with complete audit trail logging the correction
+- **Mutable metadata** (`knowledge_entries.current_confidence`, `knowledge_entries.aging_class`): Continuously recalculated values; updates logged but not versioned
+
+All other tables MUST follow append-only or soft-delete semantics. Hard updates outside these exceptions require explicit governance approval documented via ADR.
+
+*[... existing content through Principle 6 ...]*
+
+**Principle 7: Event-Driven Communication**
+
+Engines communicate exclusively through Event Bus (no direct engine-to-engine calls):
+- Cross-engine requests: Publish event, subscribe to response event
+- Synchronous calls prohibited except within single engine boundary
+- Event Bus implemented as PostgreSQL-backed queue (event_bus table + LISTEN/NOTIFY)
+- All events schema-validated against contract_registry before publication
+
+Exception: Low-latency read-only queries within same tier (e.g., Analysis Engine querying Knowledge Engine tables directly) permitted if:
+- Read-only (no state mutation)
+- Same tier (Tier 2 to Tier 2 acceptable; Tier 3 to Tier 1 prohibited)
+- Documented via explicit API contract in contract_registry
+
+**No engine MAY directly access another engine's private internal tables. Shared access is allowed only through explicitly documented public contracts.**
+
+*[... existing content through Principle 11 ...]*
+
+**Principle 12: Deterministic Execution**
+
+Given identical inputs, system produces identical outputs:
+- No randomness in core logic (scoring, validation, routing)
+- Timestamp-based operations use explicit event timestamps (occurred_at), not current system time
+- AI temperature = 0 for deterministic responses where possible
+- Floating-point operations use deterministic rounding rules
+- Random sampling (Monte Carlo) uses explicit seeds (recorded, reproducible)
+
+Determinism enables: reliable testing, event replay, audit verification, bug reproduction.
+
+**Determinism Scope Clarification:**
+
+External AI providers are inherently probabilistic. Deterministic behavior refers to orchestration, decision flow, validation, routing, state transitions, and reproducible execution, not to guaranteeing identical LLM wording. Given identical prompts and temperature=0, the system MUST produce functionally equivalent outputs (same decision classification, same zone routing, same governance outcome) even if exact AI-generated text varies.
+
+*[... existing content ...]*
+
+---
+
+### 1.7 Success Criteria & Failure Modes
+
+**System Success Defined:**
+
+AHOS succeeds if it achieves the following measurable outcomes:
+
+1. **Evidence Quality:** Evidence traceability threshold defined by Governance Policy `evidence.lineage.completeness_threshold` (full lineage reconstructible for recommendations)
+2. **Governance Compliance:** Zero autonomous actions executed outside approved governance zones (100% compliance)
+3. **Prediction Calibration:** Calibration accuracy threshold defined by Governance Policy `prediction.calibration.target_accuracy` over rolling evaluation window defined by `prediction.evaluation.window_days`
+4. **Operational Reliability:** Maximum unplanned downtime defined by Governance Policy `system.availability.max_monthly_downtime`; RTO defined by `disaster_recovery.rto_hours`
+5. **Cost Efficiency:** AI cost per actionable insight threshold defined by Governance Policy `cost.insight.max_cost_usd` (average over evaluation period defined by `cost.evaluation.period`)
+6. **Human Workflow Integration:** Operator interaction time threshold defined by Governance Policy `operator.max_daily_interaction_hours` (system SHOULD reduce workload, not create burden)
+
+All numerical thresholds are configurable via `system_config` table under governance approval. Architecture defines measurement methodology and success/failure classification; operational teams define specific threshold values appropriate to deployment context.
+
+**Critical Failure Modes Prevented:**
+
+*[... existing content unchanged ...]*
+
+---
+
+### 1.8 Architectural Invariants
+
+The following invariants define the immutable core of AHOS architecture. No architectural revision, optimization, or feature addition MAY violate these invariants without triggering a major version increment (e.g., v4.x → v5.0) and full Architecture Review Board approval.
+
+**Invariant 1: Single Source of Truth**
+
+PostgreSQL (via Supabase) MUST remain the exclusive authoritative source for all durable state. No second database, distributed ledger, or external system MAY be introduced as a co-equal source of truth. Ephemeral caches and performance optimizations are permitted only if fully rebuildable from PostgreSQL without loss of correctness.
+
+**Invariant 2: Governance Fail-Closed**
+
+All governance checks MUST default to denial on ambiguity, error, or missing information. The system MUST NOT assume permission, budget availability, or approval when state is uncertain. Human escalation is always preferable to incorrect autonomous action.
+
+**Invariant 3: Audit Trail Immutability**
+
+The `audit_trail`, `override_log`, and `event_bus` tables MUST remain absolutely immutable post-insertion. No UPDATE or DELETE operations are permitted under any circumstances, including disaster recovery, data migration, or compliance requests. Corrections MUST be represented as new audit entries referencing the erroneous record.
+
+**Invariant 4: Execution Optionality**
+
+Execution capability (external action initiation) MUST remain an optional, Phase 7+ capability, not a core architectural dependency. The system MUST provide full value as an intelligence and decision-support platform without any execution capability enabled. Execution, where implemented, MUST operate behind an independent Execution Firewall with mandatory re-validation.
+
+**Invariant 5: Evidence Lineage Preservation**
+
+Every decision, recommendation, and autonomous action MUST be traceable to specific evidence through an unbroken chain: raw signal → discovery → knowledge → hypothesis → analysis → decision. No component MAY sever this chain by generating conclusions without citing sources. Lineage reconstruction MUST be queryable in reverse from any decision to originating raw data.
+
+**Invariant 6: Human Governance Supremacy**
+
+No autonomous component MAY modify its own governance rules, override human decisions, or circumvent approval workflows. Self-governance is prohibited in production. Emergency Override capability MUST exist to pause any autonomous activity instantly. Multi-operator expansion MAY introduce delegation but MUST NOT eliminate ultimate human authority.
+
+**Invariant 7: Cryptocurrency Domain Exclusivity**
+
+AHOS architecture is purpose-built for cryptocurrency intelligence. Expansion into non-crypto domains (traditional finance, general analytics, social media monitoring beyond crypto-relevance) MUST NOT occur without explicit domain boundary revision documented via Architecture Bible major version increment.
+
+**Invariant Enforcement:**
+
+Proposed changes are evaluated against these invariants at Architecture Review. Any proposal violating an invariant is automatically rejected unless accompanied by:
+1. Explicit request for major version increment (v4.x → v5.0)
+2. Full justification for invariant modification
+3. Impact analysis across all existing components
+4. Migration plan for implementations depending on current invariant
+
+Minor version increments (v4.0 → v4.1) and patches (v4.1.0 → v4.1.1) MUST preserve all invariants.
+
+---
+
+# Integration Notes
+
+**Corrections applied to Section 1:**
+
+1. Added Normative Language section (RFC 2119 terminology: MUST, SHOULD, MAY)
+2. Added cross-engine table access restriction to Principle 7 (Event-Driven Communication)
+3. Added Immutable Exceptions subsection to Principle 3 with explicit allowed mutation cases
+4. Added Determinism Scope Clarification to Principle 12 regarding AI probabilistic nature
+5. Replaced fixed numerical values in Success Criteria with Governance Policy references
+6. Added new subsection 1.8: Architectural Invariants (7 invariants defined with enforcement policy)
+
+---
+
+**Section 1 corrections complete. Standing by for approval before proceeding to Section 2.**
+
+
+
+
+
+
+
+
+
+
+
+
+
+

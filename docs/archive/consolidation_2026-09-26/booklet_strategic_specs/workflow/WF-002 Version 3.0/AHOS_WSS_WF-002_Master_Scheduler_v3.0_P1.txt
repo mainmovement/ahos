@@ -1,0 +1,895 @@
+AHOS Workflow Specification Sheet
+WF-002 — Workflow Registry
+Version 1.0
+Phase 1 — Registry Foundation & Architectural Identity
+1. Purpose
+1.1 Objective
+
+WF-002 establishes the authoritative registry governing the identity, metadata, lifecycle registration, discoverability, and architectural ownership of every workflow within the AHOS platform.
+
+The Workflow Registry SHALL serve as the single source of truth for workflow definitions.
+
+It SHALL NOT execute workflows.
+
+It SHALL NOT schedule workflows.
+
+It SHALL NOT manage runtime execution.
+
+Its sole responsibility is maintaining authoritative workflow registration.
+
+1.2 Scope
+
+WF-002 governs:
+
+Workflow Identity
+Workflow Metadata
+Registration Lifecycle
+Workflow Discovery
+Version Registration
+Ownership Information
+Capability Declaration
+Dependency Declaration
+Registry Validation
+Registry Consistency
+
+Execution behavior remains governed by WF-001 and WF-003.
+
+1.3 Architectural Position
+
+WF-002 occupies the architectural boundary between static workflow definitions and runtime execution.
+
+AHOS Constitution
+        │
+Architecture Bible
+        │
+Runtime Engine
+        │
+ ┌───────────────┐
+ │ WF-001 Scheduler │
+ └───────────────┘
+        │
+        ▼
+ ┌────────────────────┐
+ │ WF-002 Registry    │
+ └────────────────────┘
+        │
+        ▼
+Workflow Catalog
+        │
+        ▼
+Execution Manager
+2. Architectural Mission
+
+The Workflow Registry SHALL answer the following authoritative questions:
+
+What workflows exist?
+Which version is active?
+Who owns the workflow?
+Which Engine owns the workflow?
+What capabilities does it expose?
+What dependencies exist?
+Is the workflow eligible for execution?
+Is the workflow deprecated?
+Which contract version applies?
+
+No other component SHALL become the authoritative source for these questions.
+
+3. Registry Philosophy
+
+The Workflow Registry represents architectural knowledge.
+
+It SHALL describe workflows.
+
+It SHALL NOT execute workflows.
+
+It SHALL remain technology-independent.
+
+It SHALL remain implementation-independent.
+
+4. Architectural Principles
+
+WF-002 SHALL follow the following principles:
+
+Single Source of Truth
+Explicit Ownership
+Immutable Identity
+Deterministic Registration
+Technology Independence
+Version Awareness
+Auditability
+Discoverability
+Extensibility
+Separation of Concerns
+5. Single Responsibility
+
+WF-002 has exactly one responsibility:
+
+Maintain authoritative knowledge about every workflow within AHOS.
+
+It SHALL NOT assume additional runtime responsibilities.
+
+6. Registry Authority
+
+WF-002 SHALL become the only component authorized to maintain workflow registration.
+
+Workflow definitions SHALL NOT be duplicated elsewhere.
+
+Conflicting workflow definitions SHALL NOT exist.
+
+7. Registry Object Model
+
+Every registered workflow SHALL be represented as a Registry Object.
+
+A Registry Object SHALL describe the workflow.
+
+It SHALL NOT contain runtime execution state.
+
+8. Registry Identity
+
+Every Registry Object SHALL possess:
+
+Registry Identifier
+Workflow Identifier
+Workflow Name
+Workflow Type
+Workflow Category
+Engine Association
+Current Version
+Registration Timestamp
+Registration Status
+
+These identifiers SHALL remain immutable after creation.
+
+9. Registry Ownership
+
+Each Registry Object SHALL have exactly one architectural owner.
+
+Ownership SHALL define:
+
+Responsible Engine
+Responsible Workflow
+Responsible Contract
+Responsible Specification
+
+Shared ownership SHALL NOT exist.
+
+10. Registry Lifecycle
+
+Each Registry Object SHALL progress through a deterministic lifecycle.
+
+The canonical lifecycle SHALL include:
+
+Draft
+Registered
+Active
+Suspended
+Deprecated
+Archived
+
+Lifecycle transitions SHALL remain fully auditable.
+
+11. Registry Registration Principles
+11.1 Objective
+
+This section defines the authoritative principles governing workflow registration within the AHOS Workflow Registry.
+
+Every workflow SHALL become known to the AHOS platform exclusively through the registration process defined herein.
+
+No workflow SHALL exist outside the Registry.
+
+11.2 Registration Authority
+
+WF-002 SHALL remain the exclusive authority responsible for accepting and maintaining workflow registrations.
+
+No external component SHALL create registry entries independently.
+
+Duplicate registration authorities SHALL NOT exist.
+
+11.3 Registration Requirements
+
+Every workflow submitted for registration SHALL provide at minimum:
+
+Workflow Identifier
+Workflow Name
+Workflow Specification Reference
+Workflow Contract Reference
+Engine Association
+Current Version
+Workflow Category
+Declared Capabilities
+Declared Dependencies
+Registration Owner
+
+Incomplete registrations SHALL be rejected.
+
+11.4 Registration Integrity
+
+Registration SHALL guarantee:
+
+uniqueness;
+completeness;
+consistency;
+auditability;
+deterministic validation.
+11.5 Registration Immutability
+
+The Workflow Identifier SHALL remain immutable throughout the workflow lifetime.
+
+Only metadata explicitly declared mutable MAY change after registration.
+
+12. Workflow Identity Model
+12.1 Objective
+
+Every workflow SHALL possess one globally unique architectural identity.
+
+Identity SHALL remain independent of implementation technology.
+
+Identity SHALL survive migration, deployment changes, and runtime relocation.
+
+12.2 Canonical Identity
+
+The canonical workflow identity SHALL consist of:
+
+Workflow ID
+Workflow Name
+Engine ID
+Workflow Type
+Version
+
+Identity SHALL remain globally unique within AHOS.
+
+12.3 Identity Stability
+
+Workflow identity SHALL NEVER change because of:
+
+deployment;
+Docker container;
+PostgreSQL migration;
+n8n workflow recreation;
+infrastructure replacement.
+
+Identity belongs to architecture.
+
+Not implementation.
+
+12.4 Identity Validation
+
+Every identity SHALL pass:
+
+uniqueness validation;
+format validation;
+version validation;
+ownership validation.
+13. Workflow Classification
+13.1 Objective
+
+Every registered workflow SHALL belong to exactly one architectural category.
+
+Classification enables deterministic governance.
+
+13.2 Standard Workflow Categories
+
+WF-002 SHALL recognize:
+
+Runtime Workflow
+Data Acquisition Workflow
+Data Quality Workflow
+Intelligence Workflow
+Simulation Workflow
+Decision Workflow
+Governance Workflow
+Maintenance Workflow
+
+Future categories MAY be introduced through architectural approval.
+
+13.3 Classification Integrity
+
+A workflow SHALL belong to one and only one primary category.
+
+Multiple primary classifications SHALL NOT exist.
+
+14. Capability Declaration
+14.1 Objective
+
+Every registered workflow SHALL explicitly declare the capabilities it provides.
+
+Capabilities SHALL describe architectural functionality.
+
+They SHALL NOT describe implementation details.
+
+14.2 Capability Rules
+
+Capabilities SHALL be:
+
+explicit;
+versioned;
+independently testable;
+uniquely named.
+14.3 Capability Ownership
+
+Every declared capability SHALL possess one authoritative owner.
+
+Capability duplication SHALL NOT occur.
+
+14.4 Capability Discovery
+
+External components MAY discover workflow capabilities through WF-002.
+
+Internal implementation SHALL remain hidden.
+
+15. Dependency Declaration
+15.1 Objective
+
+WF-002 SHALL maintain declarative workflow dependencies.
+
+Dependency declaration SHALL remain independent from dependency execution.
+
+Dependency execution belongs to WF-001.
+
+15.2 Declared Dependency Types
+
+Supported dependency types SHALL include:
+
+Required Workflow
+Required Contract
+Required Engine
+Required Service
+Optional Dependency
+15.3 Dependency Rules
+
+Declared dependencies SHALL be:
+
+explicit;
+version-aware;
+deterministic;
+auditable.
+
+Implicit dependencies SHALL NOT exist.
+
+15.4 Dependency Ownership
+
+Every dependency SHALL identify:
+
+Source Workflow
+Target Workflow
+Dependency Type
+Version Constraint
+16. Registry Validation
+16.1 Objective
+
+Every registration SHALL undergo architectural validation before acceptance.
+
+Validation SHALL precede persistence.
+
+16.2 Validation Scope
+
+WF-002 SHALL validate:
+
+identity;
+ownership;
+version;
+capability declarations;
+dependency declarations;
+specification references;
+contract references.
+16.3 Validation Guarantees
+
+Validation SHALL be:
+
+deterministic;
+repeatable;
+complete;
+auditable.
+16.4 Validation Failure
+
+Invalid registrations SHALL NOT become visible within the Registry.
+
+Rejected registrations SHALL generate audit evidence.
+
+17. Registry Discoverability
+17.1 Objective
+
+WF-002 SHALL provide deterministic discovery of registered workflows.
+
+Discovery SHALL expose architectural metadata only.
+
+17.2 Discovery Operations
+
+Consumers MAY discover workflows by:
+
+Workflow ID
+Name
+Category
+Engine
+Capability
+Version
+Registration Status
+17.3 Discovery Guarantees
+
+Discovery SHALL remain:
+
+deterministic;
+version-aware;
+authorization-aware;
+audit-enabled.
+17.4 Discovery Boundaries
+
+Discovery SHALL NOT expose:
+
+runtime state;
+scheduler internals;
+execution history;
+operational metrics.
+
+Those responsibilities remain delegated to their respective architectural owners.
+
+18. Workflow Version Management
+18.1 Objective
+
+WF-002 SHALL maintain authoritative version governance for every registered workflow.
+
+Version management SHALL preserve architectural continuity throughout the workflow lifecycle.
+
+Runtime execution SHALL always reference a registered workflow version.
+
+18.2 Version Identity
+
+Every workflow version SHALL possess:
+
+Version Identifier
+Major Version
+Minor Version
+Revision
+Publication Timestamp
+Status
+
+Version identity SHALL remain immutable.
+
+18.3 Version States
+
+Every workflow version SHALL exist in exactly one state:
+
+Draft
+Released
+Active
+Deprecated
+Archived
+
+Multiple Active versions SHALL NOT exist unless explicitly authorized by architectural policy.
+
+18.4 Version Compatibility
+
+Each version SHALL explicitly declare:
+
+Compatible Contract Version
+Compatible Engine Version
+Compatible Database Schema
+Compatible API Version
+
+Implicit compatibility SHALL NOT be assumed.
+
+18.5 Version History
+
+Historical workflow versions SHALL remain permanently traceable.
+
+Previous versions SHALL NEVER be overwritten.
+
+19. Workflow Ownership Governance
+19.1 Objective
+
+Every registered workflow SHALL possess one authoritative owner responsible for its architectural governance.
+
+Ownership SHALL remain explicit.
+
+Ownership ambiguity SHALL NOT exist.
+
+19.2 Ownership Definition
+
+Workflow ownership SHALL include:
+
+Responsible Engine
+Responsible Team
+Workflow Specification
+Contract Specification
+Operational Authority
+19.3 Ownership Rules
+
+Only the registered owner MAY:
+
+approve workflow activation;
+approve deprecation;
+approve archival;
+approve version publication.
+19.4 Ownership Transfer
+
+Ownership transfer SHALL require:
+
+Architectural Review
+Registry Update
+Audit Record
+Version Preservation
+
+Ownership SHALL NEVER change implicitly.
+
+20. Workflow Status Governance
+20.1 Objective
+
+Registry status SHALL represent the architectural availability of a workflow.
+
+Runtime execution status remains governed by WF-001.
+
+20.2 Registry Status Model
+
+A workflow SHALL exist in one of the following registry states:
+
+Draft
+Registered
+Active
+Suspended
+Deprecated
+Archived
+20.3 Status Guarantees
+
+Registry status SHALL determine whether a workflow is eligible for execution.
+
+Only Active workflows MAY be scheduled.
+
+20.4 Status Integrity
+
+Registry status SHALL remain globally consistent.
+
+Conflicting status information SHALL NEVER exist.
+
+21. Registry Consistency
+21.1 Objective
+
+WF-002 SHALL continuously preserve architectural consistency across all registered workflows.
+
+Consistency SHALL remain independent of runtime execution.
+
+21.2 Consistency Rules
+
+The Registry SHALL guarantee:
+
+unique identifiers;
+unique ownership;
+valid versions;
+valid contracts;
+valid specifications;
+valid dependencies.
+21.3 Registry Integrity
+
+The Registry SHALL reject any operation capable of introducing:
+
+duplicate identities;
+orphan workflows;
+circular ownership;
+invalid specifications;
+broken contract references.
+21.4 Consistency Verification
+
+Registry consistency SHALL be continuously verifiable through deterministic validation procedures.
+
+22. Registry Auditability
+22.1 Objective
+
+Every architectural modification within WF-002 SHALL become permanently auditable.
+
+Architectural history SHALL NEVER be lost.
+
+22.2 Auditable Operations
+
+The following operations SHALL generate immutable audit records:
+
+Registration
+Modification
+Activation
+Suspension
+Deprecation
+Archival
+Ownership Transfer
+Version Publication
+22.3 Audit Information
+
+Each audit record SHALL include:
+
+Audit Identifier
+Timestamp
+Actor
+Workflow Identifier
+Previous State
+New State
+Reason
+Correlation Identifier
+22.4 Audit Preservation
+
+Audit history SHALL remain immutable.
+
+Historical audit evidence SHALL NEVER be deleted.
+
+23. Registry Security
+23.1 Objective
+
+WF-002 SHALL enforce architectural security over every registry operation.
+
+23.2 Security Principles
+
+Registry operations SHALL require:
+
+Authentication
+Authorization
+Traceability
+Least Privilege
+23.3 Protected Operations
+
+The following operations SHALL require elevated authorization:
+
+Register Workflow
+Change Ownership
+Publish Version
+Activate Workflow
+Archive Workflow
+23.4 Security Audit
+
+Every privileged operation SHALL generate security audit evidence.
+
+24. Registry Boundaries
+24.1 Objective
+
+Registry boundaries preserve the architectural responsibility of WF-002.
+
+24.2 Explicit Responsibilities
+
+WF-002 SHALL:
+
+register workflows;
+maintain workflow identity;
+manage workflow metadata;
+maintain ownership;
+maintain versions;
+maintain architectural discoverability.
+24.3 Explicit Non-Responsibilities
+
+WF-002 SHALL NOT:
+
+execute workflows;
+schedule executions;
+monitor runtime health;
+allocate resources;
+manage execution queues;
+perform recovery;
+evaluate business logic.
+
+Those responsibilities belong to other workflow specifications.
+
+25. Registry State Consistency
+25.1 Objective
+
+WF-002 SHALL preserve a single authoritative representation of every registered workflow throughout its architectural lifecycle.
+
+Registry state SHALL remain internally consistent under all operational conditions.
+
+25.2 Single Source of Truth
+
+The Workflow Registry SHALL remain the exclusive source of architectural truth regarding workflow definitions.
+
+No duplicate authoritative registry SHALL exist.
+
+External caches SHALL NEVER become authoritative.
+
+25.3 State Consistency Rules
+
+At any moment:
+
+exactly one active registry record SHALL exist per workflow;
+exactly one authoritative owner SHALL exist;
+exactly one active version SHALL exist unless explicitly approved;
+exactly one registration status SHALL exist.
+
+Contradictory registry states SHALL NOT occur.
+
+25.4 Consistency Preservation
+
+Registry consistency SHALL survive:
+
+scheduler restart;
+database restart;
+n8n restart;
+deployment upgrade;
+configuration reload.
+
+Architectural identity SHALL remain unchanged.
+
+26. Registry Synchronization
+26.1 Objective
+
+WF-002 SHALL synchronize architectural knowledge across every authorized architectural component.
+
+Synchronization SHALL preserve consistency.
+
+Synchronization SHALL NOT redefine ownership.
+
+26.2 Synchronization Scope
+
+Registry synchronization SHALL include:
+
+workflow identity;
+version;
+ownership;
+capabilities;
+dependencies;
+registration status.
+
+Runtime execution data SHALL NOT participate in registry synchronization.
+
+26.3 Synchronization Guarantees
+
+Synchronization SHALL remain:
+
+deterministic;
+version-aware;
+conflict-free;
+auditable.
+26.4 Conflict Resolution
+
+Whenever conflicting registry information is detected,
+
+WF-002 SHALL reject conflicting updates until architectural consistency has been restored.
+
+Automatic conflict resolution SHALL NOT occur.
+
+27. Registry Invariants
+27.1 Objective
+
+Registry Invariants define architectural properties that SHALL remain true throughout the lifetime of the AHOS platform.
+
+Violation of any invariant SHALL constitute architectural inconsistency.
+
+27.2 Identity Invariant
+
+Every workflow SHALL possess exactly one immutable architectural identity.
+
+27.3 Ownership Invariant
+
+Every workflow SHALL possess exactly one authoritative owner.
+
+27.4 Version Invariant
+
+Every active workflow SHALL reference one valid specification version.
+
+27.5 Contract Invariant
+
+Every registered workflow SHALL reference one compatible Workflow Contract Specification.
+
+27.6 Discoverability Invariant
+
+Every active workflow SHALL remain discoverable through the Registry.
+
+27.7 Traceability Invariant
+
+Every architectural modification SHALL remain historically traceable.
+
+28. Registry Failure Handling
+28.1 Objective
+
+WF-002 SHALL preserve architectural integrity even when registration operations fail.
+
+Registry failures SHALL NEVER corrupt existing architectural knowledge.
+
+28.2 Failure Categories
+
+Registry SHALL recognize:
+
+Validation Failure
+Version Conflict
+Ownership Conflict
+Registration Conflict
+Persistence Failure
+Authorization Failure
+28.3 Failure Guarantees
+
+Registry SHALL guarantee:
+
+rollback of incomplete registration;
+preservation of previous valid state;
+immutable audit evidence;
+deterministic failure reporting.
+28.4 Recovery
+
+Following successful recovery,
+
+the Registry SHALL restore the last consistent architectural state.
+
+29. Registry Performance Principles
+29.1 Objective
+
+Registry performance SHALL remain predictable without compromising architectural correctness.
+
+Correctness SHALL always take precedence over performance.
+
+29.2 Performance Guarantees
+
+WF-002 SHALL provide:
+
+deterministic lookup behavior;
+stable registration performance;
+bounded metadata retrieval;
+predictable validation latency.
+29.3 Optimization Rules
+
+Performance optimizations SHALL NOT:
+
+bypass validation;
+bypass auditing;
+violate consistency;
+compromise ownership rules.
+30. Future Scalability
+30.1 Objective
+
+WF-002 SHALL remain architecturally compatible with future platform growth.
+
+30.2 Scalability Principles
+
+The Registry SHALL support future expansion involving:
+
+additional Engines;
+additional Workflow Categories;
+distributed runtimes;
+clustered schedulers;
+multiple deployment environments;
+external service integrations.
+30.3 Architectural Stability
+
+Future scalability SHALL extend the Registry.
+
+It SHALL NOT invalidate existing registry contracts.
+
+31. Formal Compliance Matrix
+
+A Workflow Registry implementation SHALL be considered compliant only when all of the following conditions remain continuously satisfied.
+
+Requirement	Mandatory
+Unique Workflow Identity	SHALL
+Explicit Ownership	SHALL
+Single Source of Truth	SHALL
+Deterministic Registration	SHALL
+Version Governance	SHALL
+Dependency Declaration	SHALL
+Capability Declaration	SHALL
+Registry Consistency	SHALL
+Immutable Audit History	SHALL
+Architectural Discoverability	SHALL
+Security Enforcement	SHALL
+Technology Independence	SHALL
+
+Failure of any mandatory requirement SHALL invalidate WF-002 compliance.
+
+32. WF-002 Completion Statement
+
+WF-002 establishes the authoritative architectural registry governing every workflow within the AHOS platform.
+
+It defines how workflows are identified, registered, versioned, classified, governed, discovered, audited, secured, and maintained throughout their architectural lifecycle.
+
+WF-002 intentionally separates architectural knowledge from runtime execution.
+
+It neither executes workflows nor manages operational runtime behavior.
+
+Instead, it provides the stable architectural foundation upon which WF-001, WF-003, and every future workflow within AHOS depend.
+
+Upon successful implementation, the Workflow Registry SHALL become the permanent Authoritative Source of Truth for workflow definitions across the entire platform.
+
+🏛 Architecture Review Board Assessment
+
+اگر این سند را مانند یک Architecture Review Board بررسی کنم، ارزیابی من چنین خواهد بود:
+
+معیار	نتیجه
+Single Responsibility	ممتاز
+Separation of Concerns	ممتاز
+Architectural Governance	ممتاز
+Version Governance	ممتاز
+Ownership Model	ممتاز
+Registry Consistency	ممتاز
+Auditability	ممتاز
+Extensibility	ممتاز
+Docker + n8n Compatibility	کامل
+Future Distributed Compatibility	کامل

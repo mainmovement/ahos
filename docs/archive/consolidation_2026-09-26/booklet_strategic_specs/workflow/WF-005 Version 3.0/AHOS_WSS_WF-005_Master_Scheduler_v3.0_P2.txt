@@ -1,0 +1,236 @@
+AHOS Workflow Specification Sheet
+WF-005 — Data Acquisition Manager
+Version 1.0
+Phase 2 — Source Management, Acquisition Lifecycle & Trust Establishment
+1. Purpose
+1.1 Objective
+
+This phase establishes the architectural framework governing external data source management, acquisition lifecycle, source registration, trust establishment, and acquisition coordination within the AHOS platform.
+
+Every external data acquisition SHALL follow a deterministic lifecycle before information becomes eligible for downstream processing.
+
+1.2 Scope
+
+This phase governs:
+
+Data Source Management
+Source Registration
+Source Classification
+Acquisition Lifecycle
+Trust Establishment
+Source Capability Assessment
+Acquisition Coordination
+Source Availability Tracking
+
+Data quality validation remains outside the scope of this phase.
+
+2. Source Management Philosophy
+
+External data sources SHALL be treated as independent providers with varying capabilities, reliability, latency, and operational characteristics.
+
+The architecture SHALL adapt to heterogeneous providers without modifying acquisition principles.
+
+3. Source Management Principles
+
+Source management SHALL remain:
+
+provider-independent;
+deterministic;
+extensible;
+traceable;
+auditable;
+policy-driven.
+
+Adding or removing a provider SHALL NOT require architectural redesign.
+
+4. Source Registration
+
+Every external provider SHALL be registered before participating in production data acquisition.
+
+Each source registration SHALL define:
+
+Source Identifier
+Source Name
+Source Category
+Supported Data Types
+Authentication Requirements
+Rate Limit Policy
+Availability Expectations
+Version Information
+
+Unregistered sources SHALL NOT participate in production acquisition.
+
+5. Source Classification
+
+The Data Acquisition Manager SHALL classify external providers according to their architectural role.
+
+Minimum categories SHALL include:
+
+Market Data Providers
+
+Examples:
+
+DexScreener
+GeckoTerminal
+CoinGecko
+Exchange Providers
+
+Examples:
+
+Binance
+Hyperliquid
+Analytics Providers
+
+Examples:
+
+DEXTools
+On-chain analytics platforms
+
+Additional categories MAY be introduced without architectural modification.
+
+6. Source Capability Model
+
+Each registered source SHALL declare its capabilities, including:
+
+Supported Networks
+Supported Assets
+Available Endpoints
+Update Frequency
+Historical Data Availability
+Real-Time Data Support
+
+Capability declarations SHALL remain version-controlled.
+
+7. Acquisition Lifecycle
+
+Every acquisition SHALL progress through the following lifecycle:
+
+Source Selected
+        │
+        ▼
+Availability Verified
+        │
+        ▼
+Acquisition Requested
+        │
+        ▼
+Response Received
+        │
+        ▼
+Integrity Checked
+        │
+        ▼
+Trust Boundary Passed
+        │
+        ▼
+Accepted for Downstream Processing
+
+No acquisition SHALL bypass lifecycle stages.
+
+8. Trust Establishment
+
+Before crossing the architectural trust boundary, every acquisition SHALL satisfy:
+
+source registration validation;
+successful communication;
+response completeness verification;
+protocol compliance;
+acquisition integrity checks.
+
+Trust establishment SHALL apply to the acquisition process, not to the semantic correctness of the data.
+
+9. Source Availability
+
+The Data Acquisition Manager SHALL continuously maintain availability information for every registered provider.
+
+Availability SHALL include:
+
+Reachability
+Response Status
+Recent Success Ratio
+Communication Latency
+Last Successful Acquisition
+
+Availability SHALL NOT imply data quality.
+
+10. Acquisition Coordination
+
+The Data Acquisition Manager SHALL coordinate acquisition requests while respecting:
+
+provider-specific rate limits;
+provider capabilities;
+architectural priorities;
+operational availability;
+retry policies defined elsewhere.
+
+Coordination SHALL remain deterministic.
+
+11. Source Metadata
+
+For every successful acquisition, the following metadata SHALL be preserved:
+
+Source Identifier
+Acquisition Identifier
+Provider Version
+Endpoint Identifier
+Acquisition Timestamp
+Correlation Identifier
+
+Source metadata SHALL remain immutable after acquisition.
+
+12. Architectural Constraints
+
+WF-005 SHALL NOT:
+
+normalize acquired data;
+remove inconsistencies;
+infer missing values;
+evaluate market conditions;
+calculate trading signals.
+
+Its responsibility SHALL end once trusted acquisition has been completed and the data has been admitted into the AHOS processing pipeline.
+
+13. Lifecycle Invariants
+
+The following SHALL remain continuously true.
+
+Registration Invariant
+
+Every production acquisition SHALL originate from a registered source.
+
+Trust Invariant
+
+Every accepted acquisition SHALL successfully cross the defined trust boundary.
+
+Metadata Invariant
+
+Every acquisition SHALL preserve complete source metadata.
+
+Capability Invariant
+
+Source capabilities SHALL be explicitly declared before operational use.
+
+Independence Invariant
+
+Provider-specific implementation details SHALL NOT alter architectural behavior.
+
+14. Phase 2 Compliance Matrix
+Requirement	Mandatory
+Source Registration	SHALL
+Source Classification	SHALL
+Capability Declaration	SHALL
+Acquisition Lifecycle	SHALL
+Trust Establishment	SHALL
+Source Metadata Preservation	SHALL
+Availability Tracking	SHALL
+Technology Independence	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 2 compliance.
+
+15. Phase 2 Completion Statement
+
+Phase 2 establishes the architectural framework for managing external data sources within AHOS.
+
+It defines how providers are registered, classified, evaluated, coordinated, and admitted through a controlled acquisition lifecycle while preserving source traceability, operational consistency, and architectural independence.
+
+By introducing a formal source management and trust establishment model, this phase ensures that all downstream engines receive data only after it has passed through a deterministic and auditable acquisition process.

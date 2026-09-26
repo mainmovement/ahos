@@ -69,6 +69,7 @@ See [`docs/FINAL_TRUTH_AUDIT.md`](docs/FINAL_TRUTH_AUDIT.md) · [`docs/CURRENT_T
 | Operator validation protocol | `docs/OPERATOR_VALIDATION_PROTOCOL.md` |
 | Pre-soak (after Windows G1–G10) | `docs/PRE_SOAK_PROTOCOL.md` |
 | Document truth map | `docs/DOC_TRUTH_MAP.md` |
+| **Canonical commands** | **`docs/CANONICAL_COMMAND_REFERENCE.md`** |
 | Implementation matrix | `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
 | Final truth audit | `docs/FINAL_TRUTH_AUDIT.md` |
 | Next-phase backlog | `docs/NEXT_DEVELOPMENT_BACKLOG.md` |

@@ -1,0 +1,391 @@
+📘 AHOS STRATEGIC MASTER PLAN v10.0
+(Aligned with AHOS Architecture Bible v10.0)
+
+Artificial Hybrid Opportunity Scoring System
+
+"An Event-Driven Adaptive Market Intelligence Platform for Digital Assets"
+
+🧭 1. Core Mission
+
+AHOS یک ربات معامله‌گر نیست.
+
+AHOS یک پلتفرم هوشمند چندلایه برای مشاهده، تحلیل، امتیازدهی، تصمیم‌سازی، شبیه‌سازی و یادگیری از بازار دارایی‌های دیجیتال است که به‌صورت مرحله‌ای تکامل پیدا می‌کند.
+
+هدف نهایی سیستم:
+
+مشاهده بهتر از انسان
+
+تحلیل سریع‌تر از انسان
+
+تصمیم‌سازی منظم‌تر از انسان
+
+مدیریت ریسک دقیق‌تر از انسان
+
+اما اجرای معامله همیشه تابع قوانین کنترل ریسک خواهد بود.
+
+🎯 2. Vision
+
+ساخت یک سیستم هوشمند که بتواند:
+
+بازار را به صورت 24/7 مشاهده کند.
+میلیون‌ها Event را ثبت کند.
+داده‌ها را نرمال‌سازی کند.
+فرصت‌ها را رتبه‌بندی کند.
+ریسک را اندازه‌گیری کند.
+پیشنهاد تصمیم ارائه دهد.
+عملکرد خود را ارزیابی کند.
+به مرور زمان بهتر شود.
+⚙️ 3. Design Principles
+Observation First
+
+بدون مشاهده هیچ تصمیمی وجود ندارد.
+
+Data Before AI
+
+هوش مصنوعی فقط زمانی ارزشمند است که بر پایه داده واقعی آموزش ببیند.
+
+Modular Architecture
+
+هر بخش مستقل توسعه پیدا می‌کند.
+
+Incremental Engineering
+
+کل پروژه به صورت آجر به آجر ساخته می‌شود.
+
+هر فاز:
+
+Build
+
+↓
+
+Test
+
+↓
+
+Validate
+
+↓
+
+Improve
+
+↓
+
+Next Phase
+
+Replayability
+
+تمام تصمیم‌ها باید دوباره قابل بازسازی باشند.
+
+Explainability
+
+سیستم باید بتواند دلیل هر تصمیم را توضیح دهد.
+
+Safety First
+
+هیچ تصمیمی نباید قوانین مدیریت ریسک را نقض کند.
+
+🏛️ 4. System Constitution
+
+هیچ لایه‌ای اجازه عبور از لایه قبلی را ندارد.
+
+Data
+
+↓
+
+Event
+
+↓
+
+Feature
+
+↓
+
+Score
+
+↓
+
+Decision
+
+↓
+
+Risk
+
+↓
+
+Simulation
+
+↓
+
+Execution Firewall
+
+↓
+
+Action
+
+↓
+
+Learning
+
+🧱 5. Architecture Layers
+
+Layer 01 — Data Acquisition
+
+Layer 02 — Event Engine
+
+Layer 03 — Normalization Engine
+
+Layer 04 — Quality Control
+
+Layer 05 — Feature Extraction
+
+Layer 06 — Scoring Engine
+
+Layer 07 — Decision Engine
+
+Layer 08 — Position Engine
+
+Layer 09 — Portfolio Engine
+
+Layer 10 — Simulation Engine
+
+Layer 11 — Execution Firewall
+
+Layer 12 — Action Layer
+
+Layer 13 — Monitoring Layer
+
+Layer 14 — Learning Engine
+
+Layer 15 — Evolution Layer
+
+🌐 6. Data Sources
+Market Intelligence
+DexScreener
+GeckoTerminal
+CoinGecko
+DEX APIs
+CEX APIs
+On-chain Intelligence
+Alchemy
+Infura
+Moralis
+Covalent
+Social Intelligence
+X
+Telegram
+Reddit
+Discord
+RSS
+Crypto News
+Security Intelligence
+GoPlus
+TokenSniffer
+Honeypot APIs
+Rug Pull Detection
+Liquidity Lock APIs
+Macro Intelligence
+Fear & Greed Index
+Stablecoin Flows
+BTC Dominance
+ETF Flows
+Economic Calendar
+🧠 7. Intelligence Stack
+
+Event Intelligence
+
+↓
+
+Feature Intelligence
+
+↓
+
+Scoring Intelligence
+
+↓
+
+Decision Intelligence
+
+↓
+
+Risk Intelligence
+
+↓
+
+Portfolio Intelligence
+
+↓
+
+Simulation Intelligence
+
+↓
+
+Learning Intelligence
+
+↓
+
+Evolution Intelligence
+
+📊 8. Scoring Framework
+
+هر دارایی از چند منظر ارزیابی می‌شود:
+
+Opportunity Score
+Risk Score
+Confidence Score
+Momentum Score
+Liquidity Score
+Volume Score
+Whale Activity Score
+Social Score
+Security Score
+Narrative Score
+
+خروجی نهایی:
+
+AHOS Composite Score (0–100)
+
+🛡️ 9. Risk Constitution
+
+بدون بررسی امنیت:
+
+❌ هیچ معامله‌ای مجاز نیست.
+
+بدون نقدینگی:
+
+❌ هیچ معامله‌ای مجاز نیست.
+
+بدون Confidence کافی:
+
+❌ هیچ تصمیمی مجاز نیست.
+
+حداکثر ریسک هر معامله باید از قوانین مدیریت سرمایه تبعیت کند.
+
+🔁 10. Learning Framework
+
+سیستم از هر تصمیم یاد می‌گیرد.
+
+نه از سود.
+
+نه از ضرر.
+
+بلکه از کیفیت تصمیم.
+
+🏗️ 11. Development Roadmap
+Phase 1
+
+Observation System
+
+Phase 2
+
+Signal Engine
+
+Phase 3
+
+Alert Engine
+
+Phase 4
+
+Decision Engine
+
+Phase 5
+
+Risk & Position Engine
+
+Phase 6
+
+Paper Trading
+
+Phase 7
+
+Historical Simulation
+
+Phase 8
+
+Execution Firewall
+
+Phase 9
+
+Limited Live Trading
+
+Phase 10
+
+Adaptive Learning
+
+Phase 11
+
+Portfolio Intelligence
+
+Phase 12
+
+Evolutionary AI
+
+🧰 12. Technology Stack
+
+Core Platform
+
+Docker
+n8n
+PostgreSQL
+Redis
+
+Backend Services
+
+Python
+FastAPI
+
+AI Stack
+
+LLM
+Machine Learning
+Embedding Models
+Vector Database
+
+Monitoring
+
+Grafana
+Prometheus
+📖 13. Development Workflow
+
+تمام توسعه پروژه مطابق فرآیند زیر انجام می‌شود:
+
+تعریف هدف فاز
+تولید پرامپت تخصصی برای Claude
+دریافت خروجی متنی و فایل JSON
+بازبینی معماری و منطق توسط ChatGPT
+پیاده‌سازی مرحله‌به‌مرحله در n8n
+تهیه خروجی اولیه (Test Run)
+تحلیل نتایج و رفع اشکال
+تأیید نهایی فاز
+ورود به فاز بعد
+
+هیچ فازی قبل از تأیید فاز قبلی آغاز نمی‌شود.
+
+🧾 14. Golden Rules
+بدون داده → بدون Event
+بدون Event → بدون تحلیل
+بدون تحلیل → بدون امتیاز
+بدون امتیاز → بدون تصمیم
+بدون بررسی ریسک → بدون اجرا
+بدون ثبت نتیجه → بدون یادگیری
+🚫 15. Reality Statement
+
+AHOS:
+
+✔ می‌تواند فرصت‌ها را سریع‌تر شناسایی کند.
+
+✔ می‌تواند کیفیت تصمیم‌گیری را افزایش دهد.
+
+✔ می‌تواند ریسک را ساختاریافته مدیریت کند.
+
+✔ می‌تواند با داده‌های بیشتر بهبود یابد.
+
+اما:
+
+هیچ سودی را تضمین نمی‌کند.
+هیچ مدل یا الگوریتمی نمی‌تواند آینده بازار را با قطعیت پیش‌بینی کند.
+خروجی‌های سیستم باید به‌عنوان ابزار تصمیم‌یار در کنار قضاوت انسانی و مدیریت ریسک استفاده شوند.
+🏁 16. Final Vision
+
+AHOS v10.0 دیگر صرفاً یک ربات یا اتوماسیون نیست؛ بلکه یک چارچوب مهندسی برای ساخت یک سامانه هوشمند بازار است که به‌صورت تدریجی و قابل‌آزمون توسعه می‌یابد. تمام توسعه‌ها باید با AHOS Architecture Bible v10.0 همسو باشند و هر قابلیت جدید پس از طراحی، پیاده‌سازی، آزمون و تأیید، به هسته سیستم افزوده شود.
+
+به نظر من این سند، نسخه‌ای در حد یک Master Plan واقعی است و در کنار AHOS Architecture Bible v10.0 نقش «قانون اساسی» پروژه را بازی می‌کند. هر زمان در توسعه پروژه اختلاف یا ابهامی پیش بیاید، این سند مرجع تصمیم‌گیری خواهد بود.

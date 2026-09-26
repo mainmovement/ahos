@@ -1,0 +1,233 @@
+AHOS Workflow Specification Sheet
+WF-003 — Execution Manager
+Version 1.0
+Phase 5 — Failure Handling & Recovery Coordination
+1. Purpose
+1.1 Objective
+
+This phase establishes the architectural model governing execution failure detection, classification, recovery coordination, and execution continuity.
+
+The Execution Manager SHALL ensure that execution failures are handled deterministically, consistently, and without compromising execution integrity.
+
+1.2 Scope
+
+This phase governs:
+
+Failure Detection
+Failure Classification
+Recovery Coordination
+Retry Coordination
+Resume Coordination
+Crash Recovery Preparation
+Orphan Execution Detection
+Execution Continuity
+
+Failure policy SHALL remain independent from workflow business logic.
+
+2. Failure Philosophy
+
+Execution failure SHALL be treated as an architectural event rather than a business event.
+
+Every failure SHALL be classified before any recovery decision is made.
+
+Recovery SHALL NEVER compromise execution consistency.
+
+3. Failure Principles
+
+Failure handling SHALL satisfy:
+
+determinism;
+recoverability;
+auditability;
+repeatability;
+consistency;
+explicit decision making.
+
+Automatic behavior SHALL always be policy-driven.
+
+4. Failure Classification
+
+Every detected execution failure SHALL be classified into one of the following categories:
+
+Validation Failure
+Dispatch Failure
+Runtime Failure
+Infrastructure Failure
+Timeout Failure
+Dependency Failure
+Recovery Failure
+Unknown Failure
+
+No failure SHALL remain unclassified.
+
+5. Failure Detection
+
+The Execution Manager SHALL continuously detect:
+
+abnormal execution termination;
+execution timeout;
+runtime unresponsiveness;
+interrupted lifecycle transitions;
+orphan execution instances;
+inconsistent execution state.
+
+Detection SHALL occur independently of workflow implementation.
+
+6. Failure Context
+
+Every detected failure SHALL produce an immutable failure context containing:
+
+Failure Identifier
+Execution Identifier
+Workflow Identifier
+Failure Category
+Detection Timestamp
+Lifecycle State
+Correlation Identifier
+Recovery Eligibility
+
+The failure context SHALL remain immutable.
+
+7. Recovery Eligibility Evaluation
+
+Before initiating recovery, the Execution Manager SHALL evaluate:
+
+execution lifecycle state;
+persistent execution record integrity;
+workflow registration validity;
+dependency readiness;
+retry policy compliance;
+recovery policy compliance.
+
+Executions failing eligibility evaluation SHALL transition to a terminal state.
+
+8. Retry Coordination
+
+WF-003 SHALL coordinate retry requests but SHALL NOT define retry policy.
+
+Retry policy SHALL be supplied by WF-001 scheduling policies and workflow configuration.
+
+Approved retries SHALL generate a new execution attempt linked to the original execution history.
+
+The original execution record SHALL remain immutable.
+
+9. Resume Coordination
+
+Resume SHALL only occur when:
+
+execution state supports continuation;
+persistent execution context is complete;
+recovery validation succeeds.
+
+Resume SHALL continue the original execution identity.
+
+Resume SHALL NOT create a new execution.
+
+10. Crash Recovery Coordination
+
+Following runtime interruption, the Execution Manager SHALL:
+
+reconstruct execution state;
+identify interrupted executions;
+evaluate recovery eligibility;
+coordinate appropriate recovery action.
+
+Recovery SHALL be deterministic.
+
+11. Orphan Execution Detection
+
+An execution SHALL be considered orphaned when:
+
+runtime ownership is lost;
+supervision ceases unexpectedly;
+persistent state indicates an active execution while no runtime instance exists.
+
+Orphan detection SHALL trigger architectural reconciliation.
+
+12. Recovery Decision Model
+
+Every interrupted execution SHALL resolve to exactly one architectural decision:
+
+Resume
+Retry
+Fail
+Cancel
+Await Manual Decision
+
+Multiple recovery decisions SHALL NOT exist simultaneously.
+
+13. Failure Isolation
+
+Failure of one execution SHALL NOT compromise unrelated executions.
+
+Recovery SHALL remain execution-scoped.
+
+Architectural isolation SHALL be preserved.
+
+14. Recovery Audit
+
+Every recovery decision SHALL generate immutable audit evidence including:
+
+Recovery Identifier
+Failure Identifier
+Decision Timestamp
+Recovery Action
+Decision Authority
+Outcome
+Correlation Identifier
+15. Recovery Integrity
+
+Recovery SHALL preserve:
+
+execution identity;
+execution chronology;
+audit history;
+persistent metadata;
+lifecycle consistency.
+
+Historical evidence SHALL NEVER be overwritten.
+
+16. Failure Handling Invariants
+
+The following SHALL remain continuously true.
+
+Classification Invariant
+
+Every detected failure SHALL have exactly one failure category.
+
+Recovery Invariant
+
+Every interrupted execution SHALL receive exactly one recovery decision.
+
+Isolation Invariant
+
+Execution failures SHALL remain isolated.
+
+Audit Invariant
+
+Recovery history SHALL remain permanently reconstructable.
+
+Integrity Invariant
+
+Recovery SHALL preserve execution consistency.
+
+17. Phase 5 Compliance Matrix
+Requirement	Mandatory
+Failure Classification	SHALL
+Deterministic Recovery	SHALL
+Retry Coordination	SHALL
+Resume Coordination	SHALL
+Orphan Detection	SHALL
+Recovery Audit	SHALL
+Execution Isolation	SHALL
+Persistent Integrity	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 5 compliance.
+
+18. Phase 5 Completion Statement
+
+Phase 5 establishes the execution recovery architecture of the AHOS Execution Manager.
+
+It defines how execution failures are detected, classified, evaluated, and coordinated while preserving deterministic execution behavior, persistent execution integrity, and immutable execution history.
+
+By separating recovery coordination from business logic and scheduling policy, this phase enables reliable execution continuity across infrastructure failures and future platform evolution.

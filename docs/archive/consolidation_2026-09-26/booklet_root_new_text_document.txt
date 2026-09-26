@@ -1,0 +1,534 @@
+با توجه به چیزی که تا الان با هم طراحی کرده‌ایم و با توجه به ساختار WF-001 Version 3.0، شما عملاً این مراحل را تکمیل کرده‌ای:
+
+✅ Phase 1 — Core Runtime Architecture
+✅ Phase 2 — Execution Coordination and Persistent Runtime State
+✅ Phase 3 — Queue Scheduling & Dispatch Specification
+✅ Phase 4 — Dependency Management Specification
+
+این چهار فاز ستون فقرات Scheduler را تشکیل می‌دهند.
+
+آیا WF-001 تمام شده است؟
+
+از نظر معماری، خیر.
+
+اگر هدفت ساخت یک Production-grade Enterprise Scheduler باشد (در حد Temporal، Airflow، Kubernetes Controller یا Netflix Conductor)، هنوز چند Phase مهم باقی می‌ماند.
+
+من برای AHOS این ساختار را پیشنهاد می‌کنم:
+
+✅ Phase 5 — Execution Lifecycle Management
+
+موضوعات:
+
+Workflow State Machine
+Pending
+Running
+Succeeded
+Failed
+Cancelled
+Timeout
+Duplicate prevention
+Completion detection
+Execution ownership
+✅ Phase 6 — Failure Handling & Recovery
+
+موضوعات:
+
+Retry Policy
+Crash Recovery
+Restart Recovery
+Orphan Execution Detection
+Dead Letter Handling
+Failure Classification
+Recovery Procedure
+✅ Phase 7 — Resource & Concurrency Management
+
+موضوعات:
+
+Parallel Execution
+Concurrency Limits
+CPU Protection
+Memory Protection
+Queue Backpressure
+Worker Capacity
+Fair Scheduling
+✅ Phase 8 — Health, Monitoring & Observability
+
+موضوعات:
+
+Health State
+Metrics
+Scheduler KPIs
+Prometheus Metrics
+Structured Logging
+Audit Trail
+Performance Statistics
+✅ Phase 9 — Security & Governance
+
+موضوعات:
+
+Authentication
+Authorization
+Scheduler Permissions
+Operator Roles
+API Security
+Secret Management
+Audit Compliance
+✅ Phase 10 — High Availability & Future Scalability
+
+(برای آینده، نه لپ‌تاپ فعلی)
+
+موضوعات:
+
+Leader Election
+Fencing
+Distributed Scheduler
+Multi-node Runtime
+Cluster Coordination
+HA Deployment
+پیشنهاد من برای AHOS
+
+از آنجایی که در حال حاضر هدف تو اجرای AHOS روی یک لپ‌تاپ با Docker Compose است، نیازی نیست همه این فازها را همین الآن بنویسی.
+
+من پیشنهاد می‌کنم WF-001 را در ۸ فاز نهایی کنیم:
+
+Phase	عنوان	وضعیت
+✅ Phase 1	Core Runtime Architecture	انجام شده
+✅ Phase 2	Execution Coordination & Persistent Runtime State	انجام شده
+✅ Phase 3	Queue Scheduling & Dispatch Specification	انجام شده
+✅ Phase 4	Dependency Management Specification	انجام شده
+⏳ Phase 5	Execution Lifecycle Management	باقی مانده
+⏳ Phase 6	Failure Handling & Recovery	باقی مانده
+⏳ Phase 7	Resource & Concurrency Management	باقی مانده
+⏳ Phase 8	Health, Monitoring & Observability	باقی مانده
+
+
+
+.
+.
+.
+بعد از بررسی کامل **Project Constitution** و تمام چیزی که تا امروز برای AHOS طراحی کرده‌ایم، به نظرم اگر هدفت واقعاً ساخت یک **Production-Grade Token Intelligence Platform** باشد (نه صرفاً یک پروژه n8n)، ساختار نباید ده‌ها Workflow ریز و درشت بدون معماری داشته باشد.
+
+بهترین معماری این است که کل سیستم حدود **۲۲ تا ۲۸ Workflow اصلی** داشته باشد که هر کدام فقط **یک مسئولیت (Single Responsibility)** داشته باشند.
+
+---
+
+# لایه اول — Runtime Layer
+
+این لایه ستون فقرات کل سیستم است.
+
+### WF-001 — Master Scheduler ✅
+
+(همین که الان کامل کردیم)
+
+---
+
+### WF-002 — Workflow Registry
+
+تمام Workflowهای سیستم را ثبت می‌کند.
+
+* نسخه
+* وضعیت
+* فعال / غیرفعال
+* مالک
+* Dependency
+
+---
+
+### WF-003 — Execution Manager
+
+مدیریت اجرای Workflowها
+
+* Start
+* Cancel
+* Retry
+* Resume
+* Timeout
+
+---
+
+### WF-004 — Health Monitor
+
+سلامت کل سیستم
+
+* CPU
+* RAM
+* PostgreSQL
+* Docker
+* n8n
+* API Status
+
+---
+
+---
+
+# لایه دوم — Data Acquisition
+
+### WF-005 — Token Discovery Engine
+
+کشف توکن‌های جدید
+
+منابع مثل:
+
+* DexScreener
+* GeckoTerminal
+* Birdeye
+* DEXTools
+* Pump.fun
+* Raydium
+* Jupiter
+* Uniswap
+
+---
+
+### WF-006 — Market Data Collector
+
+جمع‌آوری دیتا
+
+* Price
+* Liquidity
+* Volume
+* Holders
+
+---
+
+### WF-007 — On-Chain Collector
+
+آنچین
+
+* Transfers
+* Wallets
+* LP
+* Contracts
+
+---
+
+### WF-008 — Social Intelligence
+
+داده‌های اجتماعی
+
+* Telegram
+* X
+* Discord
+* Reddit
+
+---
+
+### WF-009 — News Intelligence
+
+اخبار
+
+RSS
+
+API
+
+Crypto News
+
+---
+
+---
+
+# لایه سوم — Data Quality
+
+### WF-010 — Data Normalization
+
+یکسان‌سازی داده‌ها
+
+---
+
+### WF-011 — Data Validation
+
+اعتبارسنجی
+
+---
+
+### WF-012 — Data Quality Engine
+
+Duplicate
+
+Missing
+
+Corrupted
+
+Outlier
+
+---
+
+---
+
+# لایه چهارم — Intelligence
+
+### WF-013 — Security Analysis
+
+بررسی
+
+* Honeypot
+* Rug Pull
+* Ownership
+* Proxy
+* Taxes
+
+---
+
+### WF-014 — Smart Money Intelligence
+
+والت‌های هوشمند
+
+---
+
+### WF-015 — Whale Intelligence
+
+ردیابی نهنگ‌ها
+
+---
+
+### WF-016 — Opportunity Scoring Engine
+
+امتیازدهی نهایی
+
+---
+
+### WF-017 — AI Intelligence
+
+تحلیل AI
+
+Claude
+
+GPT
+
+Gemini
+
+Qwen
+
+---
+
+---
+
+# لایه پنجم — Simulation
+
+### WF-018 — Trade Simulation Engine
+
+همان بخشی که بارها گفتی.
+
+هزاران سناریو
+
+Backtest
+
+Monte Carlo
+
+Scenario Testing
+
+Probability
+
+---
+
+### WF-019 — Learning Engine
+
+یادگیری از نتایج
+
+---
+
+### WF-020 — Strategy Evolution
+
+پیشنهاد بهبود استراتژی
+
+(بدون اعمال خودکار)
+
+---
+
+---
+
+# لایه ششم — Decision Support
+
+### WF-021 — Recommendation Engine
+
+ساخت پیشنهاد نهایی
+
+Buy
+
+Watch
+
+Reject
+
+---
+
+### WF-022 — Portfolio Advisor
+
+مدیریت سرمایه
+
+Position Size
+
+Risk
+
+R:R
+
+---
+
+---
+
+# لایه هفتم — Human Governance
+
+### WF-023 — Operator Control Center
+
+همان بخشی که در Phase 1 اشاره کردیم.
+
+---
+
+### WF-024 — Notification Engine
+
+Telegram
+
+Email
+
+Discord
+
+---
+
+### WF-025 — Audit Trail
+
+ثبت کامل
+
+چه کسی
+
+چه زمانی
+
+چه کاری
+
+---
+
+---
+
+# لایه هشتم — Maintenance
+
+### WF-026 — Backup Manager
+
+Backup
+
+Restore
+
+Retention
+
+---
+
+### WF-027 — Configuration Manager
+
+تمام Configها
+
+---
+
+### WF-028 — System Maintenance
+
+Cleanup
+
+Logs
+
+Rotation
+
+Optimization
+
+---
+
+# معماری نهایی
+
+```text
+Runtime
+│
+├── WF-001 Master Scheduler
+├── WF-002 Workflow Registry
+├── WF-003 Execution Manager
+└── WF-004 Health Monitor
+
+↓
+
+Data Acquisition
+│
+├── WF-005 Token Discovery
+├── WF-006 Market Collector
+├── WF-007 On-Chain Collector
+├── WF-008 Social Intelligence
+└── WF-009 News Intelligence
+
+↓
+
+Data Quality
+│
+├── WF-010 Normalization
+├── WF-011 Validation
+└── WF-012 Data Quality
+
+↓
+
+Intelligence
+│
+├── WF-013 Security
+├── WF-014 Smart Money
+├── WF-015 Whale
+├── WF-016 Opportunity Scoring
+└── WF-017 AI Intelligence
+
+↓
+
+Simulation
+│
+├── WF-018 Simulation
+├── WF-019 Learning
+└── WF-020 Strategy Evolution
+
+↓
+
+Decision
+│
+├── WF-021 Recommendation
+└── WF-022 Portfolio Advisor
+
+↓
+
+Governance
+│
+├── WF-023 Operator Control Center
+├── WF-024 Notification Engine
+└── WF-025 Audit Trail
+
+↓
+
+Maintenance
+│
+├── WF-026 Backup
+├── WF-027 Configuration
+└── WF-028 Maintenance
+```
+
+## اما اگر از دید یک معمار Enterprise با بیش از ۲۰ سال تجربه نگاه کنم...
+
+من یک تغییر مهم پیشنهاد می‌کنم: **WF-001 تا WF-028 نباید همگی در سطح یکسان باشند.**
+
+بهتر است این ۲۸ Workflow زیر مجموعه‌ی حدود **۸ Engine اصلی** باشند (Runtime Engine، Data Acquisition Engine، Intelligence Engine، Simulation Engine و ...). این ساختار با اصولی که در Constitution نوشته‌ای—مانند *Each Engine has one responsibility* و *Each Workflow has one responsibility*—کاملاً سازگار است و در آینده نگهداری، توسعه و مستندسازی را بسیار ساده‌تر می‌کند.
+
+در نتیجه، معماری نهایی AHOS از دید مهندسی چنین خواهد بود:
+
+* **۱ Constitution**
+* **۱ Architecture Bible**
+* **۸ Engine**
+* **حدود ۲۸ Workflow**
+* **برای هر Workflow یک Workflow Specification**
+* **برای هر Engine یک Engine Specification**
+* **Database Specifications**
+* **API Specifications**
+* **AI Prompt Specifications**
+* **Deployment Specifications**
+* **Operational Runbooks**
+
+این ساختار برای یک سیستم تک‌کاربره، مبتنی بر Docker، n8n و PostgreSQL روی لپ‌تاپ، در عین حال که برای شرایط ایران و محدودیت‌های سرویس‌ها مناسب است، از نظر معماری نیز استاندارد و قابل توسعه باقی می‌ماند.
+
+.
+سپس به Claude می‌گوییم:
+
+تمام این اسناد را مطالعه کن.
+اگر تناقض یا نقص معماری وجود دارد گزارش بده.
+اگر امکان بهبود وجود دارد پیشنهاد بده.
+سپس نسخه نهایی را تولید کن.
+سپس JSON کامل n8n را تولید کن.
+سپس JavaScript Code Nodeها را تولید کن.
+سپس SQL Migrationها را تولید کن.
+سپس Test Plan را تولید کن.
+
+یعنی Claude فقط Compiler است.

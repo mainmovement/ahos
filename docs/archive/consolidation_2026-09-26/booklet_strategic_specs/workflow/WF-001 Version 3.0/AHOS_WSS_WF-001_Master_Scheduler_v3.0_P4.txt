@@ -1,0 +1,1931 @@
+Section 35 Audit Patches
+PATCH 1
+
+Section: 35.2 Scope
+
+Original
+
+Phase 4 SHALL NOT modify execution scheduling policies defined in Phase 3.
+
+Instead, it SHALL determine execution eligibility before scheduler dispatch evaluation begins.
+
+Revised
+
+Phase 4 SHALL NOT modify scheduling policies, queue ordering, resource management, or dispatch behavior defined in Phase 3.
+
+Phase 4 SHALL only determine whether an execution satisfies dependency requirements before Phase 3 eligibility evaluation begins.
+
+Reason
+
+مرز مسئولیت بین Phase 3 و Phase 4 کاملاً مشخص می‌شود.
+
+PATCH 2
+
+Section: 35.3 Responsibilities
+
+Add after
+
+preventing circular dependencies,
+
+Add
+
+detecting orphan dependency references,
+
+preserving dependency graph consistency,
+
+Reason
+
+در ادامه Sectionهای بعدی از Graph Integrity صحبت می‌شود ولی اینجا مسئولیت آن ذکر نشده است.
+
+PATCH 3
+
+Section: 35.4 Design Principles
+
+Original
+
+Dependency definitions SHALL NOT change after execution acceptance.
+
+Revised
+
+Dependency definitions SHALL NOT change after execution acceptance unless an explicit operator-approved dependency reconstruction procedure (defined in a future specification) is executed.
+
+Reason
+
+از بن‌بست Specification جلوگیری می‌کند و همچنان اصل Immutable حفظ می‌شود.
+
+PATCH 4
+
+Section: Restart Safety
+
+Original
+
+Dependency state SHALL be recoverable entirely from PostgreSQL.
+
+Revised
+
+Dependency state SHALL be recoverable entirely from persistent PostgreSQL data without reconstructing dependency information from scheduler memory.
+
+Reason
+
+کلمه "recoverable" دقیق‌تر تعریف می‌شود.
+
+PATCH 5
+
+Section: 35.5 Integration
+
+Original
+
+Phase 4 inserts dependency validation before queue eligibility.
+
+Revised
+
+Phase 4 inserts dependency validation immediately before Phase 3 eligibility evaluation and SHALL complete dependency evaluation before an execution can enter the scheduler candidate selection process.
+
+Reason
+
+محل دقیق Dependency داخل Pipeline مشخص می‌شود.
+
+PATCH 6
+
+Section: 35.7 Dependency Processing Position
+
+Original
+Dependency validation.
+Dependency satisfaction evaluation.
+Revised
+Dependency validation.
+Dependency graph validation.
+Dependency satisfaction evaluation.
+Reason
+
+Graph Validation در ادامه Phase وجود دارد و باید از همین ابتدا داخل Pipeline قرار بگیرد.
+
+PATCH 7
+
+Section: 35.7 Dependency Processing Position
+
+Add after
+
+Dependency satisfaction evaluation.
+
+Add
+
+Dependency cycle detection.
+
+Reason
+
+Cycle Detection باید قبل از Release انجام شود.
+
+PATCH 8
+
+Section: 35.7 Dependency Processing Position
+
+Original
+
+Dependency release.
+
+Revised
+
+Dependency release (only after all required dependencies are satisfied).
+
+Reason
+
+شرط Release صریح می‌شود.
+
+PATCH 9
+
+Section: 35.8 Phase Goal
+
+Add
+
+every dependency graph is internally consistent,
+
+orphan dependency references cannot exist,
+
+dependency evaluation remains deterministic across scheduler restart.
+
+Reason
+
+اهداف نهایی کامل‌تر و منطبق با بخش‌های بعدی Phase 4 می‌شوند.
+
+PATCH 10
+
+Section: 35 (New subsection)
+
+Add
+35.9 Deterministic Evaluation Boundary
+
+Dependency evaluation SHALL be a pure decision process.
+
+Given identical:
+
+execution states;
+dependency definitions;
+dependency graph;
+configuration values;
+
+WF-001 SHALL always produce identical dependency evaluation results.
+
+Dependency evaluation SHALL NOT depend upon:
+
+scheduler timing;
+execution order;
+database insertion order;
+in-memory object ordering;
+system restart history.
+Reason
+
+این یکی از مهم‌ترین Patchهای کل Phase 4 است و Determinism را از همان ابتدای فاز به‌صورت رسمی تعریف می‌کند.
+
+PATCH 36-01
+Section 36.2 Dependency Entity
+Replace
+
+Dependencies SHALL therefore form a directed graph.
+
+With
+
+Dependencies SHALL therefore form a Directed Acyclic Graph (DAG). Any dependency registration that would introduce a cycle SHALL be rejected before the acceptance transaction commits.
+
+Reason
+
+از همان ابتدای مدل مشخص می‌شود که Cycle مجاز نیست و بعداً مجبور به تکرار آن نمی‌شویم.
+
+PATCH 36-02
+Section 36.4 Dependency Registration
+
+Replace
+
+Registration SHALL occur before the execution becomes visible to scheduler eligibility evaluation.
+
+With
+
+Registration SHALL occur before the acceptance transaction commits and before the execution becomes visible to Phase 3 eligibility evaluation.
+
+Reason
+
+همان اصلاحی که در Phase 3 انجام دادیم؛ لحظه Commit دقیقاً مشخص می‌شود.
+
+PATCH 36-03
+Section 36.5 Dependency Persistence
+
+Add after the final paragraph:
+
+Dependency records SHALL become visible only after the acceptance transaction commits. Uncommitted dependency records SHALL NEVER participate in dependency evaluation.
+
+Reason
+
+Transaction visibility کاملاً مشخص می‌شود.
+
+PATCH 36-04
+Section 36.6 Dependency Record
+
+Replace
+
+Each dependency record SHALL contain at minimum:
+
+with
+
+Each dependency record SHALL contain at minimum the following immutable identification fields and mutable evaluation fields:
+
+Reason
+
+مشخص می‌شود کدام فیلدها ثابت و کدام متغیر هستند.
+
+PATCH 36-05
+Section 36.8 Child Execution
+
+Replace
+
+Transition from waiting_dependency to ready SHALL occur only after successful dependency evaluation.
+
+with
+
+Transition from waiting_dependency to ready SHALL occur only after all mandatory dependencies evaluate to the satisfied result during dependency evaluation.
+
+Reason
+
+واژه «successful evaluation» مبهم بود.
+
+PATCH 36-06
+Section 36.10 Dependency Independence
+
+Add:
+
+Evaluation order SHALL NOT influence the final dependency result.
+
+Reason
+
+Determinism را کامل می‌کند.
+
+PATCH 36-07
+Section 36.12 Immutable Dependency Topology
+
+Add:
+
+Dependency topology SHALL remain immutable for the lifetime of the logical execution. Any modification SHALL require creation of a new logical execution.
+
+Reason
+
+جلوگیری از تغییر Dependency بعد از Acceptance.
+
+PATCH 36-08
+Section 36.13 Dependency Visibility
+
+Replace
+
+The scheduler SHALL evaluate only committed dependency records.
+
+with
+
+Phase 3 eligibility evaluation SHALL consider only committed dependency records visible under the PostgreSQL transaction isolation rules.
+
+Reason
+
+ارتباط دقیق با Phase 3 و PostgreSQL.
+
+PATCH 36-09
+Section 36.14 Dependency Consistency
+
+Add after the final sentence:
+
+Integrity validation SHALL execute within the acceptance transaction. Any validation failure SHALL roll back the entire acceptance transaction.
+
+Reason
+
+Rollback اتمیک را صریح می‌کند.
+
+PATCH 36-10
+Section 36.15 Dependency Lifecycle
+
+Replace
+
+Registered
+Persisted
+Awaiting Evaluation
+Evaluated
+Satisfied or Unsatisfied
+Archived with Execution History
+
+with
+
+Registered
+Persisted (Committed)
+Awaiting Evaluation
+Evaluated
+Satisfied or Unsatisfied
+Archived together with the associated execution history
+
+Reason
+
+مرحله Commit به چرخه اضافه می‌شود و ترتیب Lifecycle دقیق‌تر می‌شود.
+PATCH 1
+Section 37.2 — Supported Dependency Types
+
+Replace
+
+Every dependency SHALL use exactly one dependency type.
+
+With
+
+Every dependency SHALL reference exactly one immutable dependency type. The dependency type SHALL be assigned during dependency registration and SHALL NOT change thereafter.
+
+Reason
+
+صریح کردن زمان تعیین Type و جلوگیری از ابهام.
+
+PATCH 2
+Section 37.3 — Completion Dependency
+
+در انتهای Section اضافه شود:
+
+Once a prerequisite enters any terminal state other than completed, the dependency SHALL immediately transition to permanently_unsatisfied. Re-evaluation SHALL NOT change this result.
+
+Reason
+
+رفتار نهایی را قطعی می‌کند.
+
+PATCH 3
+Section 37.4 — Terminal Dependency
+
+بعد از لیست Terminal States اضافه شود:
+
+Dependency satisfaction SHALL occur immediately after the prerequisite transaction commits its terminal state.
+
+Reason
+
+لحظه دقیق Evaluation مشخص می‌شود.
+
+PATCH 4
+Section 37.9 — Multiple Dependencies
+
+بعد از جمله
+
+Dependency evaluation SHALL combine results using logical AND.
+
+اضافه شود:
+
+Evaluation order SHALL NOT influence the final dependency result. All dependency evaluations SHALL be logically commutative.
+
+Reason
+
+کاملاً Deterministic می‌شود.
+
+PATCH 5
+Section 37.10 — Dependency Satisfaction
+
+جایگزین شود با:
+
+A dependency SHALL always be in exactly one evaluation result:
+
+• satisfied
+• unsatisfied
+• permanently_unsatisfied
+
+The evaluation result SHALL be computed dynamically and SHALL NOT be stored as an independent persistent state.
+
+Reason
+
+مشخص می‌کند Evaluation Result در DB ذخیره نمی‌شود.
+
+PATCH 6
+Section 37.11 — Evaluation Timing
+
+بعد از لیست Events اضافه شود:
+
+Multiple triggering events occurring within a single PostgreSQL transaction SHALL result in only one dependency evaluation after the transaction commits.
+
+Reason
+
+از Duplicate Evaluation جلوگیری می‌کند.
+
+PATCH 7
+Section 37.12 — Deterministic Evaluation
+
+در انتهای بخش اضافه شود:
+
+Dependency evaluation SHALL be a pure function of committed database state and approved configuration. Scheduler timing SHALL NOT influence evaluation results.
+
+Reason
+
+یکی از مهم‌ترین اصول Deterministic بودن را صریح می‌کند.
+
+PATCH 8
+Section 37.13 — Dependency Resolution Matrix
+
+بعد از جدول اضافه شود:
+
+States not explicitly listed in this matrix SHALL NOT satisfy any dependency type until this specification is revised.
+
+Reason
+
+اگر در آینده State جدید اضافه شود، رفتار مشخص است.
+
+PATCH 9
+Section 37.14 — Immutable Dependency Type
+
+بعد از جمله آخر اضافه شود:
+
+Any attempt to modify an existing dependency type SHALL be rejected before transaction commit.
+
+Reason
+
+اجرایی شدن قانون Immutable.
+
+PATCH 10
+Section 37.15 — Completion Criteria
+
+آخرین Bullet را جایگزین کن با:
+
+all dependency evaluation rules are deterministic;
+the dependency resolution matrix is normative;
+all dependency type behavior is fully specified;
+no implementation ambiguity remains.
+
+Reason
+
+معیار Freeze کاملاً Objective می‌شود.
+PATCH 38-1
+Section 38.3 — Resolution Trigger Events
+
+Replace
+
+scheduler eligibility evaluation;
+
+with
+
+immediately after prerequisite execution state transitions, during scheduler eligibility evaluation, and during scheduler recovery.
+
+Reason
+
+وابستگی نباید فقط در سیکل Scheduler بررسی شود؛ وقتی Parent تمام شد باید Child بلافاصله آزاد شود.
+
+PATCH 38-2
+Section 38.6 — Aggregate Resolution
+
+بعد از جدول Aggregate اضافه شود:
+
+Aggregate evaluation SHALL process every dependency until either:
+
+a permanently unsatisfied dependency is detected; or
+all dependencies have been evaluated.
+
+The aggregate result SHALL therefore be deterministic and independent of dependency storage order.
+
+Reason
+
+تعیین دقیق قانون توقف (Early Exit).
+
+PATCH 38-3
+Section 38.8 — Waiting Behaviour
+
+بعد از جمله
+
+The scheduler SHALL continue normal processing of unrelated executions.
+
+اضافه شود:
+
+Waiting executions SHALL remain fully visible to dependency diagnostics and SHALL continue to participate in dependency reevaluation events.
+
+Reason
+
+Waiting از سیستم مخفی نشود.
+
+PATCH 38-4
+Section 38.9 — Immediate Release
+
+جمله آخر
+
+Scheduler eligibility SHALL be re-evaluated during the next scheduler cycle.
+
+تبدیل شود به:
+
+Scheduler eligibility SHALL be re-evaluated during the next scheduler cycle. No direct scheduler invocation SHALL occur from the dependency engine.
+
+Reason
+
+Dependency Engine نباید Scheduler را مستقیماً صدا بزند.
+
+PATCH 38-5
+Section 38.10 — Permanent Failure
+
+بعد از
+
+Further dependency evaluation SHALL cease.
+
+اضافه شود:
+
+The dependency failure reason SHALL be recorded for deterministic diagnostics and future replay.
+
+Reason
+
+Replay کامل‌تر می‌شود.
+
+PATCH 38-6
+Section 38.12 — Idempotent Evaluation
+
+بعد از
+
+Dependency resolution SHALL NOT modify persisted execution records.
+
+اضافه شود:
+
+State transitions resulting from dependency evaluation SHALL be performed only by the execution state transition mechanism defined in Phase 2 after dependency resolution completes.
+
+Reason
+
+Engine فقط تصمیم می‌گیرد؛ State Machine تغییر وضعیت را انجام می‌دهد.
+
+PATCH 38-7
+Section 38.13 — Scheduler Contract
+
+در انتها اضافه شود:
+
+The scheduler SHALL treat dependency results as authoritative and SHALL NOT override dependency eligibility decisions.
+
+Reason
+
+مرجع نهایی بودن Dependency Engine مشخص شود.
+
+PATCH 38-8
+Section 38.14 — Failure Handling
+
+آخر این بخش اضافه شود:
+
+Dependency evaluation failures SHALL be logged for observability but SHALL NOT automatically transition executions to blocked or failed states.
+
+Reason
+
+خطای Database با Dependency Failure یکی نیست.
+
+PATCH 38-9
+Section 38.17 — Performance Requirement
+
+بعد از جمله اول اضافه شود:
+
+Evaluation complexity SHALL be O(n), where n is the number of direct dependencies of the evaluated execution.
+
+Reason
+
+پیچیدگی الگوریتم صریح می‌شود.
+
+PATCH 38-10
+Section 38.18 — Completion Criteria
+
+دو مورد به انتهای لیست اضافه شود:
+
+scheduler contract is fully isolated;
+dependency evaluation remains side-effect free.
+
+Reason
+
+دقیقاً دو ویژگی اصلی این Section را به معیار Freeze تبدیل می‌کند.
+PATCH 39-01
+Section 39.2 — Validation Scope
+Replace
+
+Validation SHALL occur before the dependency becomes active.
+
+With
+
+Validation SHALL occur within the same PostgreSQL transaction that registers the dependency. A dependency SHALL become visible only after the transaction commits successfully.
+
+Reason
+
+مشخص شدن Atomic Boundary و جلوگیری از Active شدن Dependency قبل از Commit.
+
+PATCH 39-02
+Section 39.3 — Validation Inputs
+
+After
+
+Runtime execution state SHALL NOT influence graph validation.
+
+Add
+
+Validation SHALL operate only on committed dependency records. Uncommitted inserts, updates, or deletions SHALL NOT participate in graph validation.
+
+Reason
+
+حذف هرگونه ابهام مربوط به MVCC و Transaction Visibility.
+
+PATCH 39-03
+Section 39.5 — Existence Validation
+
+After
+
+References to nonexistent executions SHALL be rejected.
+
+Add
+
+Both referenced executions SHALL exist as committed execution records. Executions being created within the same acceptance transaction MAY be validated using the transaction-visible records before commit.
+
+Reason
+
+کاملاً مشخص می‌کند که Validation داخل همان Transaction پذیرش انجام می‌شود.
+
+PATCH 39-04
+Section 39.7 — Duplicate Dependency Validation
+
+Replace
+
+Only one active dependency MAY exist...
+
+With
+
+Only one active dependency SHALL exist for the combination:
+
+parent_execution_id
+child_execution_id
+dependency_type
+
+This uniqueness SHALL be enforced by both dependency validation and a PostgreSQL UNIQUE constraint.
+
+Reason
+
+صرفاً Validation کافی نیست؛ Database هم باید تضمین کند.
+
+PATCH 39-05
+Section 39.8 — Circular Dependency Validation
+
+After
+
+If a cycle would be created, activation SHALL be rejected.
+
+Add
+
+Cycle detection SHALL execute before dependency persistence completes. No dependency participating in a detected cycle SHALL be committed.
+
+Reason
+
+مشخص شدن زمان دقیق اجرای Cycle Detection.
+
+PATCH 39-06
+Section 39.11 — Cycle Detection Requirement
+
+After
+
+Any path returning to the originating execution SHALL constitute a cycle.
+
+Add
+
+Implementations MAY use Depth-First Search (DFS), Breadth-First Search (BFS), or any equivalent deterministic graph traversal algorithm, provided identical persisted graphs always produce identical validation results.
+
+Reason
+
+آزادی Implementation بدون تغییر Specification.
+
+PATCH 39-07
+Section 39.13 — Dependency Depth
+
+Replace
+
+Implementations MAY define operational limits through configuration.
+
+With
+
+Implementations MAY define an operational limit using the configuration parameter:
+
+maximum_dependency_depth
+
+Exceeding this limit SHALL reject creation of the new dependency without modifying the existing dependency graph.
+
+Reason
+
+نام Parameter مشخص می‌شود.
+
+PATCH 39-08
+Section 39.16 — Recovery Validation
+
+After
+
+Graph validation SHALL execute before dependency activation resumes.
+
+Add
+
+Scheduler dependency evaluation SHALL remain suspended until recovery validation completes successfully.
+
+Reason
+
+ترتیب صحیح Startup کاملاً مشخص می‌شود.
+
+PATCH 39-09
+Section 39.17 — Validation Failure Handling
+
+After
+
+Validation SHALL therefore be atomic.
+
+Add
+
+The PostgreSQL transaction performing dependency registration SHALL roll back completely upon validation failure.
+
+Reason
+
+Rollback به‌صورت صریح تعریف می‌شود.
+
+PATCH 39-10
+Section 39.19 — Audit Requirements
+
+After
+
+Audit records SHALL be immutable.
+
+Add
+
+Audit records SHALL be persisted before the validation transaction completes and SHALL survive scheduler restart.
+
+Reason
+
+ماندگاری Audit نیز دقیقاً مشخص می‌شود.
+PATCH 40-01
+Section 40.3 — Initial Evaluation
+Replace
+
+Immediately after an execution is accepted:
+
+WF-001 SHALL perform dependency evaluation.
+
+With
+
+Immediately after the execution acceptance transaction commits and dependency registration completes successfully (Section 36.4), WF-001 SHALL perform the initial dependency evaluation.
+
+The execution SHALL NOT become visible to Phase 3 queue eligibility evaluation before this evaluation completes.
+
+Reason
+
+دقیقاً ترتیب Acceptance → Registration → Evaluation → Queue را مشخص می‌کند.
+
+PATCH 40-02
+Section 40.5 — Dependency Satisfaction
+Replace
+
+Whenever a prerequisite execution changes state,
+
+WF-001 SHALL re-evaluate every directly dependent execution.
+
+With
+
+Whenever a prerequisite execution commits a state transition in PostgreSQL, WF-001 SHALL re-evaluate every directly dependent execution exactly once.
+
+Reevaluation SHALL occur only after the prerequisite state transition transaction has committed successfully.
+
+Reason
+
+Commit معیار رسمی Trigger است، نه تغییر موقت حافظه.
+
+PATCH 40-03
+Section 40.6 — Automatic Release
+
+After
+
+This transition SHALL occur automatically.
+
+Add
+
+Automatic release SHALL occur within the same dependency evaluation transaction.
+
+Reason
+
+اتمیک بودن آزادسازی مشخص می‌شود.
+
+PATCH 40-04
+Section 40.7 — Permanent Blocking
+
+After
+
+No further dependency evaluation SHALL occur unless dependency definitions are explicitly replaced.
+
+Add
+
+Routine dependency reevaluation SHALL cease after transition to blocked. Reevaluation MAY resume only after an operator-approved dependency replacement has been committed.
+
+Reason
+
+دقیقاً مشخص می‌کند چه زمانی دوباره Evaluation مجاز است.
+
+PATCH 40-05
+Section 40.12 — Multiple Dependency Transitions
+
+Replace
+
+When multiple prerequisite executions complete simultaneously:
+
+With
+
+When multiple prerequisite executions commit state transitions during the same scheduler cycle:
+
+After
+
+Duplicate transitions SHALL NOT occur.
+
+Add
+
+Only one committed aggregate dependency evaluation SHALL determine the resulting execution state.
+
+Reason
+
+Simultaneous در سیستم‌های پایگاه‌داده مفهوم دقیقی ندارد؛ Commit معیار قطعی است.
+
+PATCH 40-06
+Section 40.13 — Concurrent State Changes
+
+After
+
+dependency reevaluation SHALL execute using the latest committed PostgreSQL state.
+
+Add
+
+Uncommitted prerequisite state changes SHALL NOT participate in dependency evaluation.
+
+Reason
+
+رفتار Transaction کاملاً بدون ابهام می‌شود.
+
+PATCH 40-07
+Section 40.16 — State Transition Atomicity
+
+After
+
+Partial state transitions SHALL NOT occur.
+
+Add
+
+If dependency evaluation or execution state persistence fails, the PostgreSQL transaction SHALL roll back completely and no dependency-driven state transition SHALL become visible.
+
+Reason
+
+Rollback صریح تعریف می‌شود.
+
+PATCH 40-08
+Section 40.17 — Audit Requirements
+
+After
+
+Audit records SHALL be immutable.
+
+Add
+
+Audit records SHALL include the triggering dependency identifier and SHALL be persisted before the dependency state transition transaction commits.
+
+Reason
+
+Audit کامل‌تر و کاملاً قابل Replay می‌شود.
+PATCH 41-01
+Section 41.3 — Permanent Dependency Failure
+Replace
+
+Such failures SHALL immediately trigger dependency reevaluation.
+
+With
+
+Such failures SHALL trigger dependency reevaluation immediately after the prerequisite execution state transition transaction commits successfully.
+
+Reason
+
+زمان دقیق Trigger را بر اساس Commit مشخص می‌کند.
+
+PATCH 41-02
+Section 41.4 — Temporary Dependency Failure
+
+After
+
+until the prerequisite reaches a final deterministic state.
+
+Add
+
+Temporary execution states SHALL NOT by themselves produce dependency failure, dependency satisfaction, or execution state transitions.
+
+Reason
+
+جلوی برداشت‌های متفاوت از وضعیت‌های موقت را می‌گیرد.
+
+PATCH 41-03
+Section 41.5 — Failure Propagation
+
+After
+
+No unrelated execution SHALL be evaluated.
+
+Add
+
+Propagation SHALL be limited to directly dependent executions identified through committed dependency records.
+
+Reason
+
+Propagation را به رکوردهای Commit شده محدود می‌کند.
+
+PATCH 41-04
+Section 41.9 — Failure Aggregation
+
+After
+
+Only one aggregate dependency result SHALL be produced.
+
+Add
+
+Aggregate evaluation SHALL terminate immediately after the highest-precedence failure has been determined.
+
+Reason
+
+Short-Circuit Evaluation را مشخص می‌کند بدون تغییر رفتار.
+
+PATCH 41-05
+Section 41.11 — Dependency Definition Failure
+
+Replace
+
+WF-001 SHALL deactivate the dependency immediately.
+
+With
+
+WF-001 SHALL mark the dependency as invalid and exclude it from dependency evaluation until successful validation or approved replacement occurs.
+
+Reason
+
+"Deactivate" مبهم است؛ "invalid and excluded" دقیق‌تر است.
+
+PATCH 41-06
+Section 41.13 — Failure Atomicity
+
+After
+
+Partial failure handling SHALL NOT occur.
+
+Add
+
+If dependency failure processing cannot complete successfully, the PostgreSQL transaction SHALL roll back completely and no dependency-related state change or audit record SHALL become visible.
+
+Reason
+
+Rollback را صریح تعریف می‌کند.
+
+PATCH 41-07
+Section 41.15 — Scheduler Interaction
+
+After
+
+Only executions with dependency result:
+
+satisfied
+
+MAY become eligible for dispatch.
+
+Add
+
+The scheduler SHALL consume only the final dependency evaluation result and SHALL NOT independently interpret dependency failure categories.
+
+Reason
+
+مرز مسئولیت Scheduler و Dependency Engine را روشن می‌کند.
+
+PATCH 41-08
+Section 41.16 — Recovery Interaction
+
+After
+
+Recovery SHALL never bypass dependency validation.
+
+Add
+
+Dependency failure reevaluation SHALL complete before Phase 3 queue eligibility evaluation resumes.
+
+Reason
+
+ترتیب صحیح Recovery را مشخص می‌کند.
+PATCH 42-A — Recovery Checkpointing
+42.19 Recovery Checkpoints
+
+WF-001 SHALL create deterministic recovery checkpoints during long-running dependency recovery operations.
+
+Each checkpoint SHALL record:
+
+recovery sequence identifier;
+completed recovery stage;
+remaining recovery work;
+dependency graph version;
+checkpoint timestamp.
+
+Following interruption, recovery SHALL resume from the most recent valid checkpoint whenever possible.
+
+Recovery checkpoints SHALL NOT modify dependency evaluation semantics.
+
+PATCH 42-B — Recovery Batching
+42.20 Batched Recovery Execution
+
+When recovering a large dependency graph, WF-001 MAY process affected executions in deterministic recovery batches.
+
+Batch execution SHALL satisfy:
+
+deterministic ordering;
+transactional consistency per batch;
+complete dependency validation before batch commit;
+replay-safe execution.
+
+Batching SHALL improve scalability without affecting recovery correctness.
+
+PATCH 42-C — Recovery Progress Metrics
+42.21 Recovery Progress Monitoring
+
+During dependency recovery, WF-001 SHALL expose recovery progress metrics including:
+
+total executions scheduled for recovery;
+completed recoveries;
+remaining recoveries;
+recovery completion percentage;
+estimated completion time;
+recovery throughput.
+
+Progress reporting SHALL be observational only.
+
+PATCH 42-D — Recovery Consistency Verification
+42.22 Post-Recovery Consistency Verification
+
+Upon completion of dependency recovery, WF-001 SHALL perform a deterministic consistency verification.
+
+Verification SHALL confirm:
+
+dependency graph integrity;
+execution state consistency;
+dependency state consistency;
+absence of unresolved recovery conflicts;
+audit completeness.
+
+Successful verification SHALL mark recovery completion.
+
+PATCH 42-E — Recovery Failure Escalation
+42.23 Recovery Escalation Policy
+
+If dependency recovery repeatedly fails beyond the configured retry threshold,
+
+WF-001 SHALL:
+
+suspend additional recovery attempts for affected executions;
+generate a recovery escalation event;
+preserve current execution states;
+require operator intervention.
+
+Escalation SHALL NOT affect unrelated executions.
+
+PATCH 42-F — Recovery Performance Metrics
+42.24 Recovery Performance Statistics
+
+WF-001 SHALL maintain cumulative recovery statistics including:
+
+average recovery duration;
+maximum recovery duration;
+recovery throughput;
+recovery retry count;
+recovery success rate;
+recovery failure rate.
+
+Statistics SHALL survive scheduler restart.
+
+PATCH 42-G — Recovery Deterministic Ordering
+42.25 Stable Recovery Ordering
+
+Whenever multiple recoverable executions are simultaneously eligible,
+
+WF-001 SHALL recover them using a deterministic ordering algorithm.
+
+The ordering SHALL remain identical across identical recovery conditions.
+
+Ordering SHALL NOT depend upon thread scheduling or execution timing.
+
+PATCH 42-H — Recovery Safety Guarantees
+42.26 Recovery Safety Guarantees
+
+Dependency recovery SHALL guarantee that:
+
+no execution is recovered twice;
+no dependency is evaluated using stale metadata;
+no duplicate dependency activation occurs;
+recovery SHALL never bypass validation;
+recovery SHALL never bypass audit logging.
+
+These guarantees SHALL hold for every recovery cycle.
+
+PATCH 42-I — Recovery Traceability
+42.27 Recovery Trace Chain
+
+Every dependency recovery SHALL produce a complete recovery trace containing:
+
+recovery trigger;
+recovery sequence;
+evaluation steps;
+dependency decisions;
+state transitions;
+audit references.
+
+Recovery traces SHALL support deterministic replay.
+
+PATCH 42-J — Recovery Completion Extension
+42.28 Extended Completion Criteria
+
+Section 42 SHALL additionally be considered complete when:
+
+recovery checkpoints are supported;
+batched recovery is deterministic;
+recovery metrics are available;
+post-recovery verification succeeds;
+escalation policies are defined;
+recovery ordering is deterministic;
+recovery traceability is complete;
+recovery safety guarantees are formally specified.
+
+Phase 4 — Dependency Management
+Section 43 — Dependency Observability & Diagnostics
+
+Status: Production Specification
+
+43.1 Purpose
+
+This section defines the observability, diagnostics, monitoring, auditing, and operational introspection requirements for the WF-001 dependency subsystem.
+
+Dependency observability SHALL enable operators, monitoring systems, recovery components, and future workflow orchestration layers to fully inspect dependency behavior without affecting deterministic scheduler execution.
+
+Observability SHALL remain strictly read-only.
+
+No diagnostic activity SHALL influence:
+
+dependency evaluation;
+scheduler eligibility;
+execution ordering;
+execution priority;
+dispatch timing;
+recovery decisions.
+43.2 Dependency Visibility
+
+For every execution currently affected by dependency evaluation, WF-001 SHALL expose:
+
+execution identifier;
+workflow identifier;
+dependency state;
+dependency evaluation result;
+dependency status;
+dependency type;
+blocking prerequisite identifiers;
+dependency creation timestamp;
+last evaluation timestamp;
+next scheduled reevaluation timestamp;
+dependency age;
+total reevaluation count.
+
+Visibility SHALL always reflect committed PostgreSQL state.
+
+43.3 Blocking Execution Information
+
+For every unresolved dependency WF-001 SHALL expose:
+
+prerequisite execution identifier;
+prerequisite workflow identifier;
+prerequisite execution state;
+dependency type;
+dependency direction;
+dependency priority (if defined);
+blocking reason;
+blocking duration;
+expected reevaluation trigger.
+
+Multiple blocking dependencies SHALL be reported independently.
+
+43.4 Dependency Evaluation Metrics
+
+WF-001 SHALL maintain cumulative metrics including:
+
+total dependency evaluations;
+successful evaluations;
+waiting evaluations;
+permanently blocked evaluations;
+validation failures;
+reevaluations;
+dependency recovery operations;
+dependency release operations;
+dependency graph reconstructions;
+dependency cache refreshes (if implemented).
+
+Metrics SHALL survive scheduler restart.
+
+43.5 Dependency Queue Metrics
+
+WF-001 SHALL continuously expose:
+
+executions waiting for dependencies;
+average dependency wait duration;
+maximum dependency wait duration;
+dependency backlog size;
+dependency resolution throughput;
+dependency release throughput;
+dependency reevaluation rate.
+
+Metrics SHALL be continuously updated.
+
+43.6 Dependency Graph Metrics
+
+WF-001 SHALL expose:
+
+total dependency nodes;
+total dependency edges;
+graph density;
+maximum dependency depth;
+average dependency depth;
+maximum fan-in;
+maximum fan-out;
+orphan node count;
+disconnected graph count;
+cyclic dependency count.
+
+Graph metrics SHALL be recomputed after every committed graph modification.
+
+43.7 Dependency Evaluation Diagnostics
+
+Every dependency evaluation SHALL record:
+
+evaluation identifier;
+execution identifier;
+dependency identifier;
+evaluation timestamp;
+evaluation duration;
+evaluation trigger;
+evaluation result;
+failed prerequisite;
+evaluation reason;
+dependency snapshot identifier.
+
+Diagnostic records SHALL support deterministic replay.
+
+43.8 Waiting Analysis
+
+WF-001 SHALL determine the primary reason why an execution remains in:
+
+waiting_dependency
+
+Exactly one primary waiting cause SHALL be reported.
+
+Possible causes include:
+
+unresolved prerequisite;
+prerequisite failure;
+prerequisite cancellation;
+dependency timeout;
+dependency validation failure;
+graph reconstruction pending;
+cyclic dependency.
+43.9 Dependency Health
+
+The dependency subsystem SHALL continuously expose health indicators including:
+
+graph consistency;
+unresolved dependency count;
+recovery backlog;
+validation failure count;
+dependency timeout count;
+cyclic dependency count;
+dependency evaluation latency;
+dependency recovery latency;
+dependency subsystem availability.
+
+Health information SHALL remain continuously observable.
+
+43.10 Slow Dependency Detection
+
+WF-001 SHALL detect dependencies whose waiting duration exceeds:
+
+dependency_wait_warning_seconds
+
+Such executions SHALL be classified as slow dependencies.
+
+Detection SHALL NOT modify execution state.
+
+43.11 Dependency Timeout Diagnostics
+
+Whenever a dependency timeout occurs WF-001 SHALL permanently record:
+
+timeout identifier;
+timeout duration;
+dependency identifier;
+prerequisite execution;
+dependency policy;
+evaluation history;
+retry history;
+recovery attempts;
+final timeout decision.
+
+Timeout diagnostics SHALL be immutable.
+
+43.12 Dependency Failure Statistics
+
+WF-001 SHALL maintain cumulative statistics for:
+
+dependency failures;
+validation failures;
+recovery failures;
+graph corruption events;
+cyclic dependency detections;
+dependency timeouts;
+operator interventions;
+dependency replacements.
+
+Statistics SHALL survive restart.
+
+43.13 Dependency Timeline
+
+Every execution SHALL expose a deterministic dependency timeline containing:
+
+dependency creation;
+registration;
+validation;
+first evaluation;
+reevaluations;
+dependency changes;
+dependency recovery;
+dependency satisfaction;
+dependency timeout;
+dependency removal;
+archival.
+
+Timeline ordering SHALL be deterministic.
+
+43.14 Dependency Audit
+
+Every dependency-related decision SHALL generate an immutable audit record.
+
+Audit entries SHALL include:
+
+execution identifier;
+dependency identifier;
+decision;
+decision reason;
+previous dependency state;
+resulting dependency state;
+evaluation duration;
+triggering event;
+timestamp;
+scheduler cycle identifier.
+
+Audit records SHALL be immutable and permanently retained.
+
+43.15 Operator Diagnostics
+
+WF-001 SHALL provide read-only inspection capabilities for:
+
+unresolved dependencies;
+dependency chains;
+dependency graph;
+blocking executions;
+dependency history;
+dependency audit log;
+dependency metrics;
+dependency health.
+
+Inspection SHALL NEVER modify scheduler state.
+
+43.16 Alert Conditions
+
+WF-001 SHALL expose alert conditions including:
+
+excessive dependency backlog;
+cyclic dependency detection;
+dependency validation failures;
+graph corruption;
+excessive dependency latency;
+repeated dependency recovery failures;
+abnormal dependency growth;
+dependency timeout threshold exceeded.
+
+Alerts SHALL NOT automatically modify scheduler behavior.
+
+43.17 Performance Monitoring
+
+WF-001 SHALL continuously monitor:
+
+dependency evaluation latency;
+dependency query latency;
+dependency graph traversal latency;
+dependency validation latency;
+dependency recovery latency;
+dependency persistence latency;
+dependency audit latency.
+
+Performance measurements SHALL remain continuously available.
+
+43.18 Deterministic Diagnostics
+
+Given identical:
+
+dependency graph;
+execution states;
+dependency definitions;
+evaluation history;
+configuration;
+
+WF-001 SHALL always produce identical diagnostic results.
+
+Monitoring SHALL NEVER influence dependency evaluation or scheduler behavior.
+
+43.19 Observability Interfaces
+
+WF-001 SHALL expose dependency observability through standardized internal interfaces.
+
+Future implementations MAY provide:
+
+REST API;
+gRPC;
+OpenTelemetry;
+Prometheus metrics;
+Grafana dashboards;
+PostgreSQL monitoring views.
+
+All interfaces SHALL expose identical underlying dependency state.
+
+43.20 Completion Criteria
+
+Section 43 SHALL be considered complete when:
+
+dependency visibility is comprehensive;
+dependency diagnostics are deterministic;
+monitoring is continuously available;
+auditing is immutable;
+health metrics are complete;
+performance metrics are available;
+operator inspection is fully supported;
+observability remains strictly read-only;
+replayability is guaranteed;
+scheduler determinism is preserved.
+
+PATCH — Section 44
+44.xx Advanced Dependency Configuration & Operational Controls
+44.20 Dependency Configuration Versioning
+
+WF-001 SHALL maintain explicit version identifiers for every dependency configuration.
+
+Each dependency definition SHALL include:
+
+dependency_configuration_version;
+activation timestamp;
+configuration author;
+configuration checksum;
+configuration status.
+
+Historical configuration versions SHALL remain permanently recoverable.
+
+44.21 Configuration Snapshot Preservation
+
+Before any dependency configuration change becomes active,
+
+WF-001 SHALL automatically create an immutable configuration snapshot.
+
+Snapshots SHALL include:
+
+dependency graph;
+dependency policies;
+dependency types;
+validation parameters;
+recovery configuration.
+
+Snapshots SHALL support deterministic rollback.
+
+44.22 Runtime Configuration Consistency
+
+During scheduler execution,
+
+dependency configuration SHALL remain logically immutable.
+
+Configuration updates SHALL NOT affect:
+
+currently executing evaluations;
+active dependency traversals;
+recovery transactions.
+
+Updated configuration SHALL apply only to newly initiated dependency evaluations.
+
+44.23 Configuration Validation Pipeline
+
+Before activation,
+
+every dependency configuration SHALL successfully pass:
+
+syntax validation;
+schema validation;
+graph validation;
+semantic validation;
+integrity validation;
+compatibility validation.
+
+Activation SHALL fail if any validation stage fails.
+
+44.24 Configuration Compatibility Rules
+
+WF-001 SHALL verify compatibility between dependency configuration and:
+
+Phase 2 Execution State Model;
+Phase 3 Scheduler;
+Dependency Resolution Engine;
+Recovery Engine;
+Observability subsystem.
+
+Incompatible configurations SHALL be rejected.
+
+44.25 Configuration Rollback
+
+If a dependency configuration fails after deployment,
+
+WF-001 SHALL support deterministic rollback.
+
+Rollback SHALL restore:
+
+dependency definitions;
+graph topology;
+dependency policies;
+validation rules;
+operational parameters.
+
+Rollback SHALL NOT modify execution history.
+
+44.26 Configuration Change Audit
+
+Every configuration modification SHALL generate an immutable audit record containing:
+
+configuration identifier;
+previous version;
+new version;
+operator identity;
+activation timestamp;
+validation result;
+rollback availability.
+
+Audit history SHALL survive restart.
+
+44.27 Configuration Drift Detection
+
+WF-001 SHALL detect unauthorized differences between:
+
+persisted configuration;
+active runtime configuration.
+
+Configuration drift SHALL trigger diagnostic alerts.
+
+Drift detection SHALL NOT modify scheduler behavior.
+
+44.28 Configuration Integrity Verification
+
+Configuration integrity SHALL be continuously verified using cryptographic checksum validation.
+
+Checksum mismatches SHALL immediately invalidate configuration activation.
+
+44.29 Safe Configuration Activation
+
+Activation SHALL occur atomically.
+
+Either:
+
+the entire configuration becomes active,
+
+or
+
+no configuration changes become visible.
+
+Partial activation SHALL NOT occur.
+
+44.30 Configuration Recovery
+
+During scheduler recovery,
+
+WF-001 SHALL restore the latest validated dependency configuration before dependency evaluation resumes.
+
+Recovery SHALL guarantee identical operational behavior.
+
+44.31 Configuration Performance Metrics
+
+WF-001 SHALL expose configuration metrics including:
+
+configuration load duration;
+validation duration;
+activation duration;
+rollback duration;
+integrity verification duration.
+
+Metrics SHALL remain continuously observable.
+
+44.32 Configuration Determinism
+
+Given identical:
+
+dependency configuration;
+execution graph;
+scheduler configuration;
+database state;
+
+configuration behavior SHALL always produce identical operational results.
+
+44.33 Completion Criteria
+
+Section 44 SHALL be considered complete when:
+
+configuration versioning is deterministic;
+activation is atomic;
+rollback is supported;
+validation pipeline is complete;
+integrity verification is enforced;
+configuration drift detection is operational;
+recovery behavior is deterministic;
+auditability is guaranteed.
+.
+.
+.
+Phase 4 — Dependency Management
+Section 44 — Dependency Management Configuration
+
+Status: Normative Specification
+
+44.1 Purpose
+
+This section defines the configuration parameters governing dependency management.
+
+Configuration SHALL control operational behavior without altering deterministic dependency semantics.
+
+All configuration SHALL be persisted and version-controlled.
+
+Configuration changes SHALL be auditable.
+
+44.2 Configuration Scope
+
+Dependency configuration MAY define:
+
+dependency evaluation intervals;
+
+recovery behavior;
+
+timeout thresholds;
+
+warning thresholds;
+
+validation limits;
+
+diagnostic settings;
+
+performance limits;
+
+operator safety controls.
+
+Configuration SHALL NOT modify dependency correctness.
+
+44.3 Configuration Authority
+
+Only authorized system administrators MAY modify dependency configuration.
+
+Configuration changes SHALL require:
+
+authentication;
+
+authorization;
+
+audit recording.
+
+Unauthorized configuration changes SHALL be rejected.
+
+44.4 Configuration Persistence
+
+All dependency configuration SHALL be stored within PostgreSQL.
+
+Configuration SHALL survive:
+
+scheduler restart;
+
+crash recovery;
+
+database failover;
+
+system upgrade.
+
+Configuration SHALL NOT depend upon in-memory values.
+
+44.5 Configuration Versioning
+
+Each configuration revision SHALL include:
+
+configuration_version;
+
+creation_timestamp;
+
+effective_timestamp;
+
+operator_identifier;
+
+change_reason.
+
+Historical versions SHALL remain immutable.
+
+44.6 Dependency Timeout Configuration
+
+WF-001 SHALL support configurable timeout values including:
+
+dependency_timeout_seconds;
+
+dependency_wait_warning_seconds;
+
+recovery_retry_interval_seconds;
+
+validation_retry_interval_seconds.
+
+Timeout configuration SHALL NOT modify dependency semantics.
+
+44.7 Recovery Configuration
+
+Recovery behavior MAY be configured using:
+
+maximum_recovery_attempts;
+
+recovery_retry_policy;
+
+recovery_batch_size;
+
+recovery_parallelism_limit.
+
+Recovery configuration SHALL preserve deterministic ordering.
+
+44.8 Validation Configuration
+
+Validation configuration SHALL support:
+
+maximum_dependency_depth;
+
+maximum_dependency_fan_in;
+
+maximum_dependency_fan_out;
+
+maximum_validation_duration.
+
+Operational limits SHALL NOT compromise graph correctness.
+
+44.9 Diagnostic Configuration
+
+Diagnostic behavior MAY define:
+
+audit_retention_period;
+
+diagnostic_sampling_policy;
+
+metric_collection_interval;
+
+performance_monitoring_interval.
+
+Critical audit records SHALL NEVER be discarded before retention requirements expire.
+
+44.10 Alert Configuration
+
+Alert thresholds SHALL support configuration for:
+
+dependency backlog size;
+
+dependency latency;
+
+dependency timeout rate;
+
+graph validation failures;
+
+recovery failures;
+
+cyclic dependency detections.
+
+Alert configuration SHALL NOT modify scheduler decisions.
+
+44.11 Safe Configuration Changes
+
+Configuration updates SHALL become effective only after successful validation.
+
+If validation fails:
+
+existing configuration SHALL remain active.
+
+Partial configuration activation SHALL NOT occur.
+
+44.12 Runtime Configuration Reload
+
+WF-001 MAY reload dependency configuration without scheduler restart.
+
+Reload SHALL occur atomically.
+
+Executions currently undergoing dependency evaluation SHALL complete using the configuration version active at evaluation start.
+
+New evaluations SHALL use the newly activated configuration.
+
+44.13 Configuration Validation
+
+Before activation every configuration SHALL be validated.
+
+Validation SHALL verify:
+
+numeric ranges;
+
+required parameters;
+
+cross-parameter consistency;
+
+supported configuration values.
+
+Invalid configuration SHALL be rejected.
+
+44.14 Configuration Audit
+
+Every configuration modification SHALL record:
+
+configuration_version;
+
+changed_parameters;
+
+previous_values;
+
+new_values;
+
+operator_identifier;
+
+change_reason;
+
+activation_timestamp.
+
+Audit records SHALL be immutable.
+
+44.15 Configuration Safety
+
+Configuration SHALL NEVER permit:
+
+negative timeout values;
+
+invalid retry policies;
+
+unsupported dependency types;
+
+unsafe recovery ordering;
+
+disabled graph validation.
+
+Unsafe configurations SHALL be rejected before activation.
+
+44.16 Backward Compatibility
+
+Future configuration extensions SHALL preserve backward compatibility.
+
+Unknown configuration parameters SHALL be ignored until explicitly supported.
+
+Existing configuration SHALL remain valid across minor specification revisions.
+
+44.17 Deterministic Configuration
+
+Given identical:
+
+configuration version;
+
+dependency graph;
+
+execution states;
+
+dependency definitions;
+
+dependency evaluation SHALL always produce identical results.
+
+Configuration SHALL therefore be part of deterministic replay.
+
+44.18 Completion Criteria
+
+Section 44 SHALL be considered complete when:
+
+configuration authority is defined;
+
+configuration persistence is guaranteed;
+
+runtime reload behavior is specified;
+
+configuration validation is deterministic;
+
+auditability is complete;
+
+backward compatibility is preserved;
+
+dependency behavior remains deterministic.
+
+44.19 Configuration Snapshot
+
+WF-001 SHALL create an immutable configuration snapshot for every dependency evaluation cycle.
+
+The snapshot SHALL contain the effective configuration version used during evaluation.
+
+44.20 Feature Flags
+
+Experimental dependency features SHALL be enabled only through explicit feature flags.
+
+Disabled features SHALL have zero effect on dependency evaluation.
+
+44.21 Configuration Checksum
+
+Every configuration version SHALL include a deterministic checksum.
+
+The checksum SHALL be recorded in dependency audit records to support deterministic replay and forensic analysis.
+
+44.22 Configuration Freeze Guarantee
+
+Configuration changes SHALL NOT affect dependency evaluations already in progress.
+
+Each evaluation SHALL complete using the configuration snapshot captured at evaluation start.
+
+

@@ -8,10 +8,11 @@
 | Topic | Path |
 |-------|------|
 | Immutable master doctrine | `docs/canonical/MASTER_DIRECTIVE_v1.md` + `docs/canonical/master_directive_registry.json` |
-| Wave ops directive (living, not registry ACTIVE) | `docs/canonical/MASTER_DIRECTIVE_W43.md` |
+| Wave ops directive (living, not registry ACTIVE) | `docs/canonical/MASTER_DIRECTIVE_W43.md` — the latest **written directive**. Later waves have reports but no directive: W44 (`reports/W44_INTELLIGENCE_SPEED_UPGRADE.md`) is implemented and headline in `README.md` but has no directive of its own; W43 remains the governing one |
 | Project state pointer | `docs/canonical/PROJECT_STATE.md` → `reports/PHASE_STATE.md` |
 | Open operational gaps | `AHOS_GAP_REGISTER.md` |
 | Living change register | `AHOS_ISSUE_REGISTER.md` |
+| Canonical operational commands | `docs/CANONICAL_COMMAND_REFERENCE.md` — the ONE current command list; supersedes scattered command listings |
 | Local laptop gate (honest) | `AHOS_LOCAL_PRODUCTION_GATE_REPORT.md` |
 | Operator start | `README.md`, `QUICKSTART.md`, `AHOS_OPERATOR_QUICKSTART_WINDOWS.md` |
 | Lane-A freeze | `config/lane_a_freeze.sha256` + `scripts/freeze_lane_a.py` |
@@ -67,11 +68,14 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 | Operator validation report | `docs/OPERATOR_VALIDATION_REPORT.md` |
 | Current truth snapshot | `docs/CURRENT_TRUTH_SNAPSHOT.md` |
 | Merge / transfer audit | `docs/MERGE_READINESS_AUDIT.md` |
+| Canonical command reference | `docs/CANONICAL_COMMAND_REFERENCE.md` |
 | Pre-soak protocol | `docs/PRE_SOAK_PROTOCOL.md` |
 | Telegram E2E protocol | `docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md` |
 | n8n operational procedure | `docs/N8N_OPERATIONAL_PROCEDURE.md` |
 | Owner action checklist | `docs/OWNER_ACTION_REQUIRED.md` |
 | Gecko pair-created persist E2E (2026-09-09) | `docs/engineering/GECKO_PAIR_CREATED_TS_E2E.md` + `reports/gecko_pair_created_ts_e2e_RUNTIME_VERIFIED.json` |
+| Consolidation archive (2026-09-26) | `docs/archive/consolidation_2026-09-26/` — pre-canonical standards/specs preserved from external copies; **HISTORICAL_EVIDENCE only, not authority**; see its `MANIFEST.md` |
+| Consolidation report (2026-09-26) | `docs/CONSOLIDATION_REPORT_2026-09-26.md` — external-copy reconciliation, branch-discrepancy resolution, canonical command reference |
 | Stale design snapshots (bannered) | `docs/SECURITY_CHECKLIST.md`, `docs/MISSING_COMPONENT_REGISTER.md`, `docs/STRATEGIC_GAP_ANALYSIS.md` |
 
 **Classification pointer:** `INTEGRATION_READY` (agent-host) — see `docs/FINAL_TRUTH_AUDIT.md`.  

@@ -1,0 +1,249 @@
+AHOS Workflow Specification Sheet
+WF-002 — Workflow Registry
+Version 1.0
+Phase 5 — Registry Discovery & Integration Services
+1. Purpose
+1.1 Objective
+
+This phase defines the architectural services through which authorized AHOS components discover, retrieve, and consume workflow metadata maintained by the Workflow Registry.
+
+The Registry SHALL function as the authoritative architectural discovery service for the entire platform.
+
+1.2 Scope
+
+This phase governs:
+
+Workflow Discovery
+Metadata Retrieval
+Registry Query Services
+Integration Interfaces
+Discovery Authorization
+Registry Consumers
+Discovery Consistency
+Discovery Contracts
+
+Runtime execution SHALL remain outside the scope of WF-002.
+
+2. Discovery Philosophy
+
+Registry discovery SHALL expose architectural truth.
+
+Discovery SHALL NEVER expose runtime state.
+
+Discovery SHALL remain deterministic.
+
+Discovery SHALL preserve architectural consistency.
+
+3. Architectural Consumers
+
+The Registry SHALL serve the following architectural consumers:
+
+WF-001 Master Scheduler
+WF-003 Execution Manager
+WF-004 Health Monitor
+Runtime Engine
+Intelligence Engine
+Data Acquisition Engine
+Governance Components
+Administrative Interfaces
+
+Future architectural consumers MAY be added through approved revisions.
+
+4. Discovery Services
+
+WF-002 SHALL provide the following discovery services:
+
+Workflow Lookup
+Workflow Search
+Version Lookup
+Ownership Lookup
+Capability Lookup
+Dependency Lookup
+Engine Lookup
+Category Lookup
+
+Each service SHALL remain deterministic.
+
+5. Workflow Discovery
+
+Workflow discovery SHALL support retrieval by:
+
+Workflow Identifier
+Workflow Name
+Registry Identifier
+Category
+Engine
+Version
+Status
+
+Returned information SHALL represent the latest authoritative architectural state.
+
+6. Metadata Retrieval
+
+Metadata retrieval SHALL expose:
+
+Identity
+Version
+Owner
+Category
+Capabilities
+Dependencies
+Registration Status
+Contract Reference
+Specification Reference
+
+Implementation-specific metadata SHALL remain hidden.
+
+7. Registry Query Model
+
+Every registry query SHALL include:
+
+Query Identifier
+Consumer Identity
+Query Type
+Requested Resource
+Timestamp
+
+Queries SHALL remain read-only.
+
+8. Query Validation
+
+Before processing any registry query,
+
+WF-002 SHALL validate:
+
+query syntax;
+consumer authorization;
+supported operation;
+requested resource.
+
+Invalid queries SHALL be rejected.
+
+9. Registry Response Model
+
+Every registry response SHALL include:
+
+Correlation Identifier
+Registry Timestamp
+Registry Version
+Response Status
+Requested Metadata
+Consistency Indicator
+
+Responses SHALL NEVER expose internal persistence structures.
+
+10. Discovery Authorization
+
+Registry discovery SHALL be authorization-aware.
+
+Consumers SHALL receive only information appropriate to their authorization level.
+
+Unauthorized metadata SHALL remain inaccessible.
+
+11. Discovery Consistency
+
+Equivalent queries executed against equivalent registry states SHALL always produce identical results.
+
+Partial registry states SHALL NEVER become externally visible.
+
+12. Registry Read Isolation
+
+Registry discovery SHALL remain isolated from registry modification.
+
+Discovery operations SHALL:
+
+never modify metadata;
+never change ownership;
+never alter lifecycle state;
+never trigger workflow execution.
+13. Integration Principles
+
+WF-002 SHALL integrate with other architectural components exclusively through well-defined contracts.
+
+Direct database dependencies between consumers and registry SHALL NOT exist.
+
+Architectural consumers SHALL communicate through registry services rather than persistence implementation.
+
+14. Registry Contracts
+
+Every registry service SHALL define:
+
+Request Contract
+Response Contract
+Authorization Rules
+Error Model
+Version Compatibility
+
+Service behavior SHALL remain deterministic.
+
+15. Registry Availability
+
+Registry discovery services SHALL remain continuously available during normal platform operation.
+
+Temporary infrastructure failures SHALL NOT invalidate published architectural information.
+
+16. Discovery Audit
+
+Registry discovery SHALL remain fully auditable.
+
+Audit records SHALL include:
+
+Consumer
+Requested Resource
+Timestamp
+Outcome
+Correlation Identifier
+17. Registry Service Invariants
+
+The following properties SHALL remain continuously true.
+
+Discovery Invariant
+
+Every workflow SHALL remain discoverable while Active.
+
+Version Invariant
+
+Every discovery response SHALL identify one authoritative version.
+
+Ownership Invariant
+
+Every workflow SHALL expose one authoritative owner.
+
+Metadata Invariant
+
+Metadata SHALL remain internally consistent.
+
+Authorization Invariant
+
+Unauthorized consumers SHALL NEVER observe restricted architectural information.
+
+18. Integration Guarantees
+
+WF-002 SHALL guarantee:
+
+deterministic discovery;
+authorization-aware retrieval;
+immutable architectural identity;
+version consistency;
+complete traceability;
+technology independence.
+19. Phase 5 Compliance Matrix
+Requirement	Mandatory
+Deterministic Discovery	SHALL
+Read Isolation	SHALL
+Authorization Enforcement	SHALL
+Metadata Consistency	SHALL
+Discovery Auditability	SHALL
+Contract-Based Integration	SHALL
+Technology Independence	SHALL
+Architectural Traceability	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 5 compliance.
+
+20. Phase 5 Completion Statement
+
+Phase 5 establishes the Workflow Registry as the authoritative architectural discovery and integration service for AHOS.
+
+It defines how architectural consumers discover, retrieve, and consume workflow metadata through deterministic, secure, and contract-driven interfaces while preserving strict separation between architectural knowledge and runtime execution.
+
+By enforcing controlled discovery, immutable architectural truth, and technology-independent integration, this phase enables every Engine and Workflow within AHOS to rely upon a single authoritative source of architectural knowledge.

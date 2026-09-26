@@ -1,0 +1,801 @@
+AHOS PHASE 2 — DISCOVERY ENGINE
+ARCHITECTURE SPECIFICATION DOCUMENT
+Version 1.0
+Classification: Internal Engineering Reference
+Prepared by: Lead Enterprise Systems Architect
+Audience: Senior Systems Engineering Team
+
+================================================================================
+SECTION 1 — PURPOSE
+================================================================================
+
+The Discovery Engine is the first active intelligence layer of the AHOS system. Its singular purpose is to continuously scan the market ecosystem, identify candidate tokens that meet defined discovery criteria, and emit structured candidate records to downstream AHOS phases for deeper analysis.
+
+The Discovery Engine is the boundary between raw market noise and structured AHOS intelligence. It does not evaluate whether a candidate is worth acting on. It does not perform deep risk analysis. It does not invoke AI decision models. It discovers. It qualifies at a surface level. It emits.
+
+The Discovery Engine exists because no downstream system can analyze what it was never told about. Missed discovery is an irreversible failure mode. A false positive candidate costs downstream compute. A false negative means the opportunity was never seen by AHOS at all. The architecture must be biased toward recall over precision at this stage.
+
+The engine must be capable of operating continuously, autonomously, and resiliently across multiple blockchains, multiple data sources, and multiple token categories simultaneously, without human intervention during normal operation.
+
+================================================================================
+SECTION 2 — RESPONSIBILITIES
+================================================================================
+
+The Discovery Engine is exclusively responsible for the following:
+
+2.1 Continuous Source Polling
+Orchestrating the periodic or event-driven collection of raw token data from all registered external sources. This includes scheduling collection runs, managing source-specific rate limits, and ensuring no source goes stale beyond its defined maximum polling interval.
+
+2.2 Raw Data Ingestion
+Receiving raw API responses from all registered source collectors and storing them in their original form before any transformation occurs. This preserves the ability to reprocess raw data if parsing logic changes.
+
+2.3 Token Normalization
+Transforming heterogeneous source-specific token records into a canonical internal token schema that is consistent regardless of which source produced the data.
+
+2.4 Deduplication
+Detecting and collapsing duplicate token records that arrive from multiple sources into a single unified candidate entry, preserving the full source attribution history.
+
+2.5 Surface-Level Signal Detection
+Applying a defined set of pre-AI signal rules to each normalized token record to determine whether the token exhibits any of the target discovery patterns: new launch, trending behavior, abnormal volume, abnormal liquidity growth, or unusual market attention.
+
+2.6 Candidate Qualification
+Applying minimum threshold filters to reject tokens that are clearly below the quality bar for further analysis, based on observable on-chain and market metrics available at discovery time.
+
+2.7 Priority Score Assignment
+Assigning a numeric pre-AI priority score to each qualified candidate based on the strength and combination of signals detected. This score is used by downstream systems to sequence their analysis workload.
+
+2.8 Candidate Emission
+Publishing qualified candidate records to the AHOS internal event bus so that Phase 3 and subsequent phases can consume them.
+
+2.9 Candidate State Management
+Tracking the lifecycle state of every discovered token through the discovery process, from first seen to emitted or rejected, and maintaining that state in the Discovery Engine database.
+
+2.10 Source Health Monitoring
+Continuously monitoring the health and responsiveness of each registered data source and triggering alerts or fallback logic when a source degrades or fails.
+
+================================================================================
+SECTION 3 — NON-RESPONSIBILITIES
+================================================================================
+
+The following are explicitly outside the Discovery Engine's scope. Any design pressure to include these must be treated as scope violation and escalated.
+
+3.1 The Discovery Engine does not perform AI-based analysis or invoke any machine learning model for any purpose.
+
+3.2 The Discovery Engine does not make any determination about whether a token is a good opportunity. It determines only whether a token is worth analyzing further.
+
+3.3 The Discovery Engine does not perform deep security analysis. It does not invoke RugCheck, GoPlus, or equivalent services in their full analytical capacity. Contract address collection for later security scanning is permitted, but scoring against security data is a Phase 3 responsibility.
+
+3.4 The Discovery Engine does not analyze social sentiment, news content, or on-chain transaction graphs. These are Phase 3 responsibilities.
+
+3.5 The Discovery Engine does not execute, simulate, or recommend any trade, position, or financial action.
+
+3.6 The Discovery Engine does not persist candidate records beyond their defined retention window in the discovery database. Long-term historical storage is a Phase 5 responsibility.
+
+3.7 The Discovery Engine does not perform wallet analysis, holder distribution analysis, or team analysis.
+
+3.8 The Discovery Engine does not directly notify human operators except through the system's standard alerting infrastructure.
+
+================================================================================
+SECTION 4 — INPUTS
+================================================================================
+
+4.1 External Data Source Inputs
+
+The Discovery Engine receives raw data from all registered external source collectors. At the time of this specification, the following sources are planned or integrated. The architecture must support all without special-casing any single source.
+
+DEX-class sources: DexScreener, DEXTools, GeckoTerminal, Birdeye
+Aggregator-class sources: CoinGecko, CoinMarketCap
+On-chain explorer sources: Solscan, Etherscan, BscScan
+Security and contract analysis sources: RugCheck, GoPlus
+
+Each source delivers data in its own proprietary format. No source format is treated as canonical. All source data is ingested as raw payload and passed immediately to the normalization layer.
+
+4.2 Internal Configuration Inputs
+
+The Discovery Engine reads its operational configuration from the AHOS central configuration service. This includes: polling intervals per source, minimum qualification thresholds, signal detection rule parameters, priority scoring weights, chain inclusion list, token age windows, blacklist entries, and scheduler settings.
+
+Configuration is read at startup and at defined hot-reload intervals. The Discovery Engine must not require a restart to update non-structural configuration.
+
+4.3 Blacklist and Watchlist Inputs
+
+The Discovery Engine reads a maintained blacklist of known scam contracts, exploited addresses, and previously rejected token addresses from the AHOS shared data store. Tokens matching blacklist entries are rejected immediately at ingestion without consuming normalization or scoring resources.
+
+A watchlist of manually nominated tokens may also be provided by the AHOS operations team. Watchlisted tokens bypass minimum qualification thresholds but are still subject to deduplication and normalization.
+
+4.4 Internal Event Bus Inputs
+
+The Discovery Engine subscribes to specific internal AHOS event topics for operational control: discovery pause commands, source enable/disable commands, threshold override events, and emergency shutdown signals.
+
+================================================================================
+SECTION 5 — OUTPUTS
+================================================================================
+
+5.1 Candidate Token Events
+
+The primary output is a structured candidate token event published to the AHOS internal event bus. Each event contains: the canonical token record, the full source attribution list, the detected signal set, the pre-AI priority score, the qualification timestamp, the assigned candidate ID, and the discovery run identifier.
+
+5.2 Discovery Run Summary Events
+
+At the conclusion of each scheduled discovery run, the Discovery Engine publishes a run summary event containing: run ID, start and end timestamps, number of tokens evaluated per source, number of qualified candidates emitted, number of rejections by rejection reason, and source health status per source.
+
+5.3 Source Health Events
+
+When a source collector experiences degraded or failed responses, the Discovery Engine publishes a source health event containing: source identifier, failure type, failure timestamp, consecutive failure count, and recommended action flag.
+
+5.4 Raw Ingestion Archive
+
+All raw API responses are written to the raw ingestion archive store before any processing. This is a write-once append record, not an event. It exists for auditability, debugging, and future reprocessing.
+
+5.5 Discovery Engine State Writes
+
+The Discovery Engine writes candidate lifecycle state records to its internal database. This is not an external output but is accessible to the AHOS monitoring and operations layer.
+
+================================================================================
+SECTION 6 — INTERNAL MODULES
+================================================================================
+
+The Discovery Engine is composed of eight independently deployable and replaceable internal modules. Each module communicates with adjacent modules through defined internal interfaces. No module directly depends on the internal implementation of another.
+
+6.1 Source Collector Registry
+
+Responsibility: Maintains the authoritative registry of all registered data source collectors. Each collector registration entry contains: source identifier, source class (DEX, aggregator, explorer, security), supported chains, polling interval, rate limit profile, authentication credential reference, endpoint template, parser class reference, and enabled status flag.
+
+The registry is not a static configuration file. It is a managed data structure stored in the Discovery Engine database. New collectors are registered by inserting a new registry entry, not by modifying source code.
+
+The registry exposes an internal interface that the Scheduler Module uses to enumerate active collectors and retrieve their configuration. The registry also exposes an administrative interface for enabling, disabling, and updating collector registrations without system restart.
+
+6.2 Scheduler Module
+
+Responsibility: Determines when each registered source collector should execute and dispatches collection jobs accordingly.
+
+The Scheduler Module maintains an internal job queue for each registered source collector. Each queue entry contains: the source identifier, the target collection run time, the chain scope for that run, and the job priority. The Scheduler does not execute collection itself. It emits collection job tokens to the Collection Execution Module.
+
+Scheduling strategies supported by this module are defined in Section 13. The Scheduler is informed of source health events from the Health Monitor Module and adjusts scheduling accordingly, such as backing off failed sources or compensating for missed runs.
+
+The Scheduler is aware of system-level resource constraints communicated from the AHOS infrastructure layer and can throttle job emission if resource pressure is detected.
+
+6.3 Collection Execution Module
+
+Responsibility: Executes the actual HTTP calls or WebSocket connections to external data sources according to the collector registration.
+
+Each collector type has a corresponding collector driver that implements the standard Collector Driver Interface. The Collection Execution Module loads the appropriate driver for each job, executes the collection, captures the raw response, and routes the raw payload to the Raw Ingestion Buffer.
+
+The Collection Execution Module enforces rate limits per source using a token bucket pattern maintained in the shared rate limit store. It handles source-level authentication, request retry logic up to a defined maximum, and response timeout enforcement.
+
+On successful collection, the module emits a collection success signal to the Health Monitor Module. On failure after all retries, it emits a collection failure signal.
+
+The Collection Execution Module is horizontally scalable. Multiple instances can operate in parallel, each consuming job tokens from the shared Scheduler queue. Collector drivers are loaded from a driver registry at job execution time, not at module startup, enabling new drivers to be added without restarting the module.
+
+6.4 Raw Ingestion Buffer and Archive
+
+Responsibility: Receives all raw API response payloads from the Collection Execution Module, writes them to the raw archive store, and forwards normalized routing metadata with the raw payload reference to the Normalization Module.
+
+The Raw Ingestion Buffer decouples collection timing from normalization processing. Collection can proceed faster than normalization without data loss. The buffer implements a persistent queue backed by the AHOS message queue infrastructure so that unprocessed raw payloads survive a Discovery Engine restart.
+
+Each raw archive record is immutable once written. The raw archive is retained for a defined window, defaulting to 72 hours, to support reprocessing. Archive records are keyed by: collection job ID, source identifier, collection timestamp, and chain identifier.
+
+6.5 Normalization Module
+
+Responsibility: Transforms raw source-specific payloads into canonical AHOS Token Records conforming to the AHOS Canonical Token Schema.
+
+The Normalization Module reads raw payloads from the Raw Ingestion Buffer. For each payload, it identifies the source type from the routing metadata and selects the corresponding parser. Each parser is a stateless, independently testable transformation unit registered in the Parser Registry.
+
+The Parser Registry maps source identifiers to parser implementations. Adding a parser for a new source requires only registering a new parser class without modifying any other module.
+
+The canonical token record produced by normalization contains all fields defined in the AHOS Canonical Token Schema. Fields that a given source cannot provide are marked as absent rather than null, preserving the distinction between unknown and zero.
+
+If normalization fails for a record, the failure is logged with the raw payload reference for manual inspection. The raw archive record is not deleted.
+
+After normalization, each canonical token record is routed to the Deduplication Module.
+
+6.6 Deduplication Module
+
+Responsibility: Collapses multiple canonical token records representing the same token into a single unified candidate entry.
+
+A token is identified by its canonical key, which is the combination of: contract address and chain identifier. Token name and symbol are not used as canonical keys because they are not unique or trustworthy from external sources.
+
+The Deduplication Module maintains a rolling deduplication index in the Discovery Engine database, keyed by canonical token key with a configurable deduplication window. When a new canonical record arrives:
+
+If no entry exists for this canonical key within the window, a new candidate entry is created and the source is recorded as the first attribution.
+
+If an entry exists for this canonical key within the window, the new source attribution is appended to the existing candidate entry, and the canonical record fields are merged using a defined field authority priority order. DEX-class sources have authority over on-chain metrics. Aggregator-class sources have authority over market cap data. Explorer-class sources have authority over contract metadata.
+
+The Deduplication Module routes deduplicated candidate entries to the Signal Detection Module.
+
+6.7 Signal Detection Module
+
+Responsibility: Evaluates each deduplicated candidate entry against the full set of defined discovery signal rules and annotates the candidate with the set of signals it has triggered.
+
+Each signal rule is an independently defined, independently testable evaluation unit. Signal rules are loaded from the Signal Rule Registry at module startup and at hot-reload intervals. Adding a new signal rule requires only registering it in the Signal Rule Registry without modifying the Signal Detection Module itself.
+
+Signal rules are organized into signal categories corresponding to the discovery target types: new launch signals, recent launch signals, trending signals, abnormal volume signals, abnormal liquidity signals, and unusual attention signals. The full set of signal rules is defined in Section 10.
+
+Each candidate exits the Signal Detection Module with either a non-empty signal set meaning it triggered at least one rule or an empty signal set. Candidates with empty signal sets are routed to the Rejection Handler. Candidates with a non-empty signal set are routed to the Candidate Qualification and Scoring Module.
+
+6.8 Candidate Qualification and Scoring Module
+
+Responsibility: Applies minimum threshold qualification filters, assigns the pre-AI priority score, manages the final candidate state transition, and emits qualified candidates to the AHOS event bus.
+
+Qualification filters are applied first. A candidate that fails any mandatory qualification filter is rejected and routed to the Rejection Handler regardless of its signal set. Qualification filters and their thresholds are defined in Section 11.
+
+For candidates that pass qualification, the priority score is calculated according to the scoring model defined in Section 12. The score is attached to the candidate record.
+
+The module writes the qualified candidate record with its score to the Discovery Engine candidate database and transitions the candidate to the Emitted state.
+
+The module then publishes the candidate token event to the AHOS event bus. After successful event publication is confirmed by the event bus infrastructure, the candidate state is updated to Confirmed Emitted.
+
+If event bus publication fails, the module retries with exponential backoff. After defined maximum retry exhaustion, the candidate is placed in the Publication Failed state and the failure is logged for manual resolution.
+
+6.9 Health Monitor Module
+
+Responsibility: Aggregates health signals from all modules and sources, maintains the source health state machine, and publishes source health events to the AHOS event bus and internal alerting infrastructure.
+
+The Health Monitor tracks per-source consecutive failure counts, response time percentiles, and successful collection rates over rolling windows. Source health is classified into four states: Healthy, Degraded, Failed, and Suspended.
+
+Transitions between health states trigger corresponding events and adjust the Scheduler Module's behavior for that source. A Failed source is backed off with increasing intervals until it recovers or reaches the Suspended threshold, at which point the AHOS alerting infrastructure is notified for human review.
+
+================================================================================
+SECTION 7 — DISCOVERY WORKFLOW
+================================================================================
+
+The Discovery Engine operates as a continuous event-driven workflow. The following describes the complete flow from schedule trigger to candidate emission.
+
+Step 1: Schedule Trigger
+The Scheduler Module calculates that a source collector is due for execution based on its registered polling interval and the time of its last successful collection run. The Scheduler emits a collection job token to the Collection Execution Module's job queue. The job token contains: source identifier, target chain scope, job priority, and scheduled run time.
+
+Step 2: Collection Execution
+The Collection Execution Module dequeues the job token, selects the appropriate collector driver from the driver registry, checks the rate limit token bucket for the source, and executes the collection request to the external source API. The raw response is captured in full.
+
+Step 3: Raw Archive Write
+The raw response is written to the Raw Ingestion Archive with its collection metadata. The archive write is confirmed before processing continues. The raw payload reference is forwarded to the Raw Ingestion Buffer.
+
+Step 4: Normalization
+The Normalization Module reads the raw payload from the buffer, selects the appropriate parser, and transforms the payload into one or more canonical AHOS Token Records. A single API response may contain multiple tokens. Each canonical token record is forwarded individually to the Deduplication Module.
+
+Step 5: Deduplication
+The Deduplication Module checks each canonical token record against the deduplication index. New tokens create new candidate entries. Previously seen tokens within the deduplication window have their source attribution updated and fields merged. All resulting candidate entries are forwarded to the Signal Detection Module.
+
+Step 6: Signal Detection
+The Signal Detection Module evaluates each candidate entry against all registered signal rules. Candidates triggering no signals are sent to the Rejection Handler. Candidates triggering at least one signal proceed to the Candidate Qualification and Scoring Module.
+
+Step 7: Qualification and Scoring
+The Candidate Qualification and Scoring Module applies mandatory minimum filters. Candidates failing any filter are rejected. Passing candidates receive a priority score calculation. The candidate record is written to the discovery database.
+
+Step 8: Event Emission
+The qualified candidate event is published to the AHOS internal event bus. On confirmed publication, the candidate state transitions to Confirmed Emitted. The collection run summary accumulates the result of this candidate.
+
+Step 9: Run Summary Publication
+After all tokens from a collection run have been processed, the Scheduler Module receives completion confirmation and the Discovery Engine publishes the run summary event.
+
+================================================================================
+SECTION 8 — DATA FLOW
+================================================================================
+
+The data flow through the Discovery Engine follows a strict unidirectional pipeline with no upstream feedback loops within the engine.
+
+External Source APIs push data to or are polled by the Collection Execution Module. This is the only point at which the Discovery Engine communicates outward to external systems for data acquisition.
+
+Collection Execution Module writes raw payloads to the Raw Ingestion Archive and enqueues raw payload references in the Raw Ingestion Buffer. There is no data flow from downstream modules back to the Collection Execution Module.
+
+The Raw Ingestion Buffer is a persistent queue. The Normalization Module reads from it. This decoupling means the buffer can grow if normalization is temporarily slower than collection without blocking collection.
+
+The Normalization Module produces canonical token records and writes them to the Normalization Output Queue. This queue is an in-memory structure within the Discovery Engine process boundary, not a persistent external queue, because the raw archive already serves as the persistent recovery point.
+
+The Deduplication Module reads from the Normalization Output Queue and reads and writes the Deduplication Index in the Discovery Engine database. It writes candidate entries to the Candidate Store in the Discovery Engine database.
+
+The Signal Detection Module reads candidate entries from the Candidate Store, updates them with detected signals, and writes them back. It maintains no state of its own.
+
+The Candidate Qualification and Scoring Module reads from the Candidate Store, writes final candidate records back to the Candidate Store with their final state, and writes candidate token events to the AHOS internal event bus.
+
+The AHOS internal event bus is the only outbound data path. All AHOS phases downstream consume from the event bus. The Discovery Engine does not communicate with Phase 3 or any later phase directly.
+
+The Health Monitor Module reads health signals from all modules through the internal health signal channel and writes health state records to the Discovery Engine database and health events to the AHOS event bus.
+
+================================================================================
+SECTION 9 — CANDIDATE TOKEN LIFECYCLE
+================================================================================
+
+Every token that enters the Discovery Engine is assigned a candidate ID and is tracked through a defined set of lifecycle states. State transitions are recorded with timestamps in the Discovery Engine database.
+
+State 1: Raw Ingested
+The token was present in a raw API response that has been written to the archive. No processing has occurred yet. This state is implicit. There is no explicit candidate record at this stage.
+
+State 2: Normalized
+A canonical token record has been produced for this token from one or more raw payloads. A candidate entry exists in the Candidate Store with the normalized field values and source attribution.
+
+State 3: Deduplicated
+The candidate entry has passed through the Deduplication Module. If this was a new token, the entry was created fresh. If it was a previously seen token, the entry was merged. The candidate holds its complete source attribution at this point.
+
+State 4: Signal Evaluated
+The Signal Detection Module has evaluated the candidate. The candidate record contains the detected signal set. Candidates with no signals transition to Rejected. Candidates with signals continue.
+
+State 5: Qualification Evaluated
+The Candidate Qualification and Scoring Module has applied qualification filters. Candidates that fail transition to Rejected. Candidates that pass receive their priority score and continue.
+
+State 6: Scored
+The candidate holds its pre-AI priority score. It is ready for emission.
+
+State 7: Emitted
+The candidate event has been published to the AHOS event bus. Publication has been attempted but not yet confirmed.
+
+State 8: Confirmed Emitted
+The AHOS event bus infrastructure has confirmed receipt of the candidate event. The candidate is considered fully processed by the Discovery Engine. Downstream responsibility begins at this state.
+
+State 9: Rejected
+The candidate did not meet discovery criteria. The rejection record includes: the candidate ID, the rejection stage, the rejection reason code, and the timestamp. Rejected candidates are retained in the Candidate Store for the defined retention window and can be reviewed for threshold calibration purposes.
+
+State 10: Publication Failed
+The candidate qualified and scored but event bus publication failed after all retries. This is an error state requiring operational attention. Candidates in this state are held for manual reprocessing or automatic retry after system recovery.
+
+================================================================================
+SECTION 10 — DISCOVERY SOURCES
+================================================================================
+
+The Discovery Engine must treat every data source as an independently managed, independently replaceable component. No source is architecturally privileged. The following defines the source taxonomy, integration approach, and the discovery capabilities each source class provides.
+
+10.1 Source Classification
+
+DEX-class sources (DexScreener, DEXTools, GeckoTerminal, Birdeye) are the primary discovery sources for new and recently launched tokens, real-time price and volume data, liquidity pool data, and DEX-level trading activity. These sources have the highest polling frequency requirements because they reflect the most time-sensitive signals.
+
+Aggregator-class sources (CoinGecko, CoinMarketCap) are supplementary discovery sources for trending data, market cap rankings, and tokens that have achieved sufficient market visibility to be listed. These sources are less time-sensitive and have stricter rate limit profiles. They are particularly useful for detecting tokens entering mainstream visibility for the first time.
+
+On-chain explorer sources (Solscan, Etherscan, BscScan) are supplementary sources for contract deployment timestamps, verified contract status, token holder counts, and on-chain transaction counts. These sources are polled at lower frequency and are used to enrich candidate records rather than as primary discovery triggers.
+
+Security and contract analysis sources (RugCheck, GoPlus) are used in the Discovery Engine only for blacklist augmentation and basic contract flag collection. Full security scoring against these sources is a Phase 3 responsibility. In the Discovery Engine, these sources are consulted only when a new contract address is seen for the first time to check for known critical flags that would warrant immediate rejection.
+
+10.2 Collector Driver Interface
+
+Every source collector, regardless of class, must implement the Collector Driver Interface. This interface defines the following operations: initialize with configuration, execute collection for a given chain scope, return the raw response payload, return the collection metadata, and report the health signal.
+
+The Collector Driver Interface is the only contractual boundary between the Collection Execution Module and any specific source. A new source is integrated by implementing this interface for that source. No other Discovery Engine code changes are required.
+
+10.3 Source-Specific Collection Profiles
+
+Each source has a collection profile registered in the Source Collector Registry defining: the default polling interval per chain, the maximum tolerable staleness threshold beyond which the source is considered unhealthy, the rate limit parameters, the authentication method, the API endpoint structure, the chain identifiers the source supports, and the discovery categories the source can serve.
+
+10.4 Multi-Chain Source Handling
+
+Sources that support multiple chains must have separate collection jobs per chain. This prevents a slow chain's data from delaying collection for other chains. The chain scope is part of the collection job token. A source registered for five chains will have five independent scheduling tracks.
+
+10.5 Source Data Authority
+
+When multiple sources provide conflicting values for the same field on the same token, the field authority priority order determines which value is written into the canonical candidate record. The authority order is: on-chain explorer sources for contract-level facts, DEX-class sources for real-time price and volume, aggregator-class sources for market-wide metrics. The full authority mapping is maintained in the Normalization Module's field authority table.
+
+================================================================================
+SECTION 11 — CANDIDATE SELECTION RULES
+================================================================================
+
+Candidate selection rules are applied in two sequential stages: mandatory qualification filters applied in the Candidate Qualification and Scoring Module, and signal rules applied in the Signal Detection Module. Both stages must be passed for a candidate to be emitted.
+
+11.1 Mandatory Qualification Filters
+
+These are minimum threshold criteria. A candidate failing any one of these is rejected immediately. These thresholds are configuration-driven and adjustable without code changes.
+
+Minimum Liquidity Filter: The token must have at minimum the configured minimum liquidity value across all observed pools. Tokens below this threshold represent insufficient market depth for meaningful analysis by downstream phases.
+
+Minimum Transaction Count Filter: The token must have a minimum number of distinct transactions within the configured observation window. This filters out tokens with no real trading activity.
+
+Maximum Token Age Filter for New Launch Signal: If a candidate is being considered for the New Launch signal category specifically, its contract deployment timestamp must fall within the configured new launch age window. Tokens outside this window that are not triggering other signal categories are rejected.
+
+Contract Address Validity Filter: The contract address must conform to the expected format for its chain. Invalid or malformed addresses are rejected.
+
+Known Scam Filter: The contract address must not appear in the AHOS blacklist. Blacklisted addresses are rejected immediately.
+
+Minimum Holder Count Filter: The token must have a holder count above the configured minimum. Single-holder tokens or tokens with trivially few holders below the threshold are rejected.
+
+Honeypot Flag Filter: If the security source consultation at ingestion time has returned a confirmed honeypot flag for the contract, the candidate is rejected.
+
+11.2 Signal Rules
+
+Signal rules are evaluated against the candidate's normalized field values and calculated derivative metrics. Each rule is named, versioned, and independently configurable.
+
+New Launch Signal Rules: Contract deployment timestamp is within the new launch window. No prior appearance in historical AHOS data. Liquidity pool creation timestamp is within the new launch window and liquidity level is above minimum.
+
+Recent Launch Signal Rules: Contract deployment timestamp is within the recent launch window but outside the new launch window. Token has been actively traded within the recent activity window. Liquidity has grown since initial observation.
+
+Trending Signal Rules: Token appears in a source's explicitly trending list. Token's appearance count across multiple sources exceeds the cross-source trending threshold within the observation window. Token's price change percentage over the short window exceeds the trending price change threshold. Trade count velocity is increasing over consecutive observation windows.
+
+Abnormal Volume Signal Rules: Current volume over the short observation window divided by the median volume over the historical baseline window exceeds the volume anomaly multiplier threshold. Volume has increased monotonically over a defined number of consecutive observation windows. Buy-to-sell transaction ratio is above the abnormal buy pressure threshold.
+
+Abnormal Liquidity Signal Rules: Liquidity has grown by more than the configured liquidity growth percentage within the liquidity growth observation window. New liquidity pools have been created for the token within the recent window. The ratio of liquidity to market cap has changed by more than the liquidity ratio change threshold.
+
+Unusual Market Attention Signal Rules: The token has appeared in more than the attention threshold number of distinct sources within the attention observation window. The token's source appearance frequency has accelerated, meaning the interval between new source appearances is decreasing. The token has transitioned from appearing in no aggregator-class source to appearing in at least one within the attention window.
+
+Each signal rule produces a binary triggered or not-triggered result for a given candidate. The set of triggered signals is attached to the candidate record.
+
+================================================================================
+SECTION 12 — PRIORITY SCORING (BEFORE AI)
+================================================================================
+
+The pre-AI priority score is a numeric value between 0 and 100 assigned to each qualified candidate before emission. It communicates the relative urgency and signal strength of a candidate to downstream AHOS phases. It is not a quality score. It is a processing priority indicator.
+
+12.1 Scoring Philosophy
+
+The scoring model must be transparent, deterministic, and reproducible from the candidate record alone. Given the same candidate record and the same scoring configuration, the score must always be the same. There must be no stochastic elements in the pre-AI score calculation.
+
+The scoring model is intentionally simple because deep quality assessment belongs to Phase 3. Complexity at this stage creates maintenance burden without proportional benefit.
+
+12.2 Score Components
+
+Signal Strength Component (weight: 40 percent of total score): Calculated as the sum of individual signal weights for all triggered signals divided by the maximum possible signal weight sum, scaled to the component's weight ceiling. Each signal has a configured weight reflecting the discovery team's assessment of its discriminative value. Abnormal volume and abnormal liquidity signals carry higher individual weights because they are more specific indicators. New launch signals carry moderate weight because they generate high volume but lower specificity.
+
+Signal Diversity Component (weight: 20 percent of total score): Calculated based on the number of distinct signal categories triggered. A candidate triggering signals across three or more distinct categories receives the maximum component score. This rewards multi-dimensional discovery evidence.
+
+Source Corroboration Component (weight: 20 percent of total score): Calculated based on the number of distinct sources that contributed to the candidate record. A candidate seen across four or more independent sources receives the maximum component score. Single-source candidates receive a minimal contribution from this component, reflecting lower confidence.
+
+Metric Intensity Component (weight: 20 percent of total score): Calculated from the magnitude of the strongest triggered quantitative signals relative to their threshold values. A volume anomaly 10 times the threshold contributes more to this component than one that barely crosses the threshold. This rewards candidates with extreme rather than marginal signal values.
+
+12.3 Score Normalization
+
+The raw score from all components is summed and constrained to the 0-to-100 range. Rounding is to two decimal places. The score is stored with the candidate record alongside the scoring component breakdown so that downstream systems and operations staff can understand the basis for each score.
+
+12.4 Score Bands
+
+For operational and monitoring purposes, scored candidates are classified into bands: Critical Priority is 85 to 100, High Priority is 65 to 84, Standard Priority is 40 to 64, and Low Priority is 0 to 39. Downstream phases may use these bands to sequence their workload, but the bands are advisory only. All qualified candidates are emitted regardless of band.
+
+12.5 Score Configuration
+
+All component weights and individual signal weights are configuration-driven and adjustable without code changes. The scoring configuration has a version identifier so that the scoring configuration version is recorded with every candidate score, enabling historical comparison when weights change.
+
+================================================================================
+SECTION 13 — SCHEDULING STRATEGY
+================================================================================
+
+The Scheduling Strategy governs when each source collector executes, how the schedule adapts to source health, and how resource conflicts are resolved.
+
+13.1 Base Scheduling Model
+
+Each registered source collector has a configured base polling interval per chain. The Scheduler maintains an independent scheduling track per source-chain pair. The scheduling tracks are independent and do not block each other.
+
+The default scheduling model is interval-based: a collection job is scheduled to run at base interval offsets from the last successful collection completion time. This is a trailing-interval model rather than a fixed-clock model, preventing the accumulation of scheduling debt during processing delays.
+
+13.2 Frequency Tiers
+
+Source-chain pairs are assigned to frequency tiers. Tier 1 sources run at intervals of one to five minutes. DEX-class sources monitoring new launch activity are Tier 1 because time-to-discovery is critical. Tier 2 sources run at intervals of five to fifteen minutes. These are DEX-class sources for trending and volume monitoring where sub-minute latency is not required. Tier 3 sources run at intervals of fifteen to sixty minutes. Aggregator-class sources are Tier 3. Tier 4 sources run at intervals of one to six hours. On-chain explorer sources and security sources for enrichment purposes are Tier 4.
+
+Tier assignments are configuration-driven and can be changed per source-chain pair without code changes.
+
+13.3 Adaptive Scheduling
+
+The Scheduler responds to source health state changes from the Health Monitor Module.
+
+When a source transitions to Degraded state, the Scheduler reduces its polling frequency by a configured degradation factor, defaulting to two times the base interval. This reduces load on a struggling source while maintaining some visibility.
+
+When a source transitions to Failed state, the Scheduler applies exponential backoff with a configured base backoff interval, maximum backoff interval, and backoff multiplier. Collection jobs continue to be emitted at the backoff interval to detect recovery.
+
+When a source transitions to Suspended state, the Scheduler stops emitting collection jobs for that source until a human operator or the recovery protocol re-enables it.
+
+When a source recovers from Degraded or Failed to Healthy, the Scheduler gradually restores the base polling frequency over a configurable ramp-up period rather than immediately returning to full frequency.
+
+13.4 Resource-Aware Scheduling
+
+The Scheduler is aware of the total count of in-flight collection jobs across all sources. If this count exceeds the configured concurrency ceiling, new job emissions are queued rather than dispatched immediately. This prevents resource exhaustion during periods of simultaneous source activity.
+
+High-priority tiers receive preferential dispatch access during resource-constrained periods.
+
+13.5 Compensating Runs
+
+If a scheduled collection job was not dispatched within a configurable tolerance window beyond its scheduled time due to queue depth, the Scheduler records a missed run event. Missed runs are included in the run summary and are monitored for patterns that indicate systemic capacity issues.
+
+The Scheduler does not attempt to make up missed runs by firing multiple rapid consecutive jobs. One job per schedule slot per source-chain pair is the maximum dispatch rate.
+
+13.6 Manual Trigger Override
+
+The Scheduler exposes an internal interface allowing authorized AHOS operations commands to trigger an immediate collection run for a specific source-chain pair outside the scheduled interval. This is used for operational testing and for manually investigating a suspected new opportunity without waiting for the next scheduled run.
+
+================================================================================
+SECTION 14 — FAILURE RECOVERY STRATEGY
+================================================================================
+
+The Discovery Engine must be resilient to failures at every layer. The following defines the recovery behaviors for each failure category.
+
+14.1 External Source API Failures
+
+When a collection request to an external source fails due to network error, timeout, or HTTP error response, the Collection Execution Module retries the request with a configurable retry policy: maximum retry count, initial retry delay, backoff multiplier, and maximum retry delay. All retry attempts use exponential backoff with jitter to prevent thundering herd effects.
+
+After maximum retries are exhausted, the failure is reported to the Health Monitor Module and the collection job is marked as failed. The Scheduler will retry the source at the next scheduled interval, adjusted by adaptive scheduling logic if the source has transitioned to a degraded health state.
+
+No data loss occurs from API failures because the raw archive only records successful responses. The failure is logged with full context for operational review.
+
+14.2 Raw Ingestion Buffer Overflow
+
+The Raw Ingestion Buffer is backed by a persistent queue. If the buffer grows beyond the configured maximum depth, indicating that normalization is not keeping pace with collection, the Collection Execution Module implements backpressure by pausing job dispatch for Tier 3 and Tier 4 sources while Tier 1 and Tier 2 collection continues. This ensures the most time-sensitive discovery is prioritized during capacity stress.
+
+If the buffer exceeds a critical depth threshold, a system health alert is raised for capacity review.
+
+14.3 Normalization Failures
+
+If normalization fails for a specific raw payload, the failure is logged with the raw payload archive reference and the failure reason. The raw payload is not deleted from the archive. The payload is moved to a Dead Letter Store for manual reprocessing. Normalization failures do not stop the processing of subsequent records in the buffer.
+
+If a parser consistently fails for a specific source, the Health Monitor Module is notified and the source is transitioned to Degraded state pending investigation of the parser.
+
+14.4 Deduplication Database Failures
+
+The Deduplication Module's index is stored in the Discovery Engine database. If the database is temporarily unavailable, the Deduplication Module operates in a fallback mode where it treats every incoming canonical record as a new candidate without checking the index. This means temporary duplicate candidate events may be emitted. Downstream phases must be designed to handle duplicate candidate events idempotently. This is an acceptable trade-off for maintaining continuous discovery during database degradation.
+
+Upon database recovery, the deduplication index is rebuilt from the candidate store records within the active deduplication window.
+
+14.5 Discovery Engine Process Failure
+
+Because the Raw Ingestion Buffer is persistent, an unplanned Discovery Engine process restart does not lose raw payloads that were collected but not yet normalized. After restart, the Normalization Module resumes reading from the persistent buffer.
+
+The Scheduler rebuilds its scheduling state from the last successful run timestamps stored in the database. This ensures no source is rescheduled with an incorrect interval after restart.
+
+Candidates in the Emitted state but not yet in the Confirmed Emitted state at the time of a process failure are republished on restart. This may cause duplicate emission events on the AHOS event bus. Downstream phases must handle duplicate events idempotently.
+
+14.6 Event Bus Publication Failures
+
+When event bus publication fails for a qualified candidate, the Candidate Qualification and Scoring Module retries with exponential backoff up to the configured maximum. After maximum retries, the candidate transitions to Publication Failed state. A monitoring alert is raised.
+
+On event bus recovery, the Publication Failed candidates are automatically retried in the order of their qualification timestamp. This is a prioritized retry queue within the Discovery Engine database.
+
+14.7 Configuration Service Failures
+
+If the AHOS central configuration service is unavailable at Discovery Engine startup, the engine uses the last successfully loaded configuration cached to local storage. If no cached configuration exists, the engine will not start and will raise a critical startup failure alert.
+
+During operation, if the configuration service becomes unavailable during a hot-reload cycle, the engine continues operating with its current in-memory configuration and retries the reload at the next configured interval.
+
+================================================================================
+SECTION 15 — LOGGING STRATEGY
+================================================================================
+
+Logging in the Discovery Engine serves three distinct purposes: operational diagnostics, audit trail, and performance monitoring. The logging strategy must address all three without conflating them.
+
+15.1 Log Categories
+
+Operational logs capture the real-time state of the engine's operation. These include collection job dispatch events, collection success and failure events, normalization outcomes, deduplication outcomes, signal detection results, qualification outcomes, scoring events, and emission events. Operational logs are structured records, not free-text. Every log record contains: timestamp, module identifier, correlation ID linking the record to a collection run and a specific candidate where applicable, event type, and event payload.
+
+Audit logs capture all state transitions of candidate records and all configuration changes. Audit logs are immutable and written to an append-only audit log store separate from the operational log store. Audit logs must be retained for the full AHOS audit retention period regardless of the operational log retention policy.
+
+Performance logs capture timing data for each processing stage per collection run: time from job dispatch to collection completion, time from raw archive write to normalization completion, time from normalization to deduplication, time from deduplication to signal detection, time from signal detection to scoring, and time from scoring to confirmed emission. These are used for latency monitoring and capacity planning.
+
+15.2 Log Levels
+
+The Discovery Engine uses five log levels: Critical for failures requiring immediate human intervention, Error for failures that are automatically recovered or that degrade engine capability, Warning for anomalous conditions that do not immediately impair operation but warrant monitoring, Info for normal operational events, and Debug for detailed diagnostic information disabled in production by default.
+
+15.3 Correlation Strategy
+
+Every collection run is assigned a run ID at dispatch time. Every candidate is assigned a candidate ID at creation time. Every log record generated in the processing of a collection run or a specific candidate must carry the run ID and candidate ID as correlation fields. This enables complete trace reconstruction from initial collection job through to event emission for any candidate or run using standard log query tools.
+
+15.4 Log Routing
+
+Operational logs are routed to the AHOS centralized log aggregation service. Performance logs are additionally routed to the AHOS metrics store for dashboard visualization. Audit logs are routed to the separate audit log store. Critical-level operational logs trigger the AHOS alerting infrastructure in addition to being written to the log store.
+
+15.5 Log Volume Management
+
+At production polling frequencies across all registered sources and chains, the Discovery Engine will generate high log volume. Debug logging must be disabled in production by default. Info-level logging must use sampling for high-frequency events such as per-record normalization events in large batch responses. Sampling rate is configurable. Unsampled summary counts are logged at the run level.
+
+================================================================================
+SECTION 16 — DATABASE REQUIREMENTS
+================================================================================
+
+The Discovery Engine requires its own isolated database. It must not share a database schema or database instance with any other AHOS phase. Inter-phase data sharing occurs through the event bus and through the AHOS shared read store exposed by Phase 3 and beyond.
+
+16.1 Core Data Stores
+
+The Source Collector Registry Store maintains the registered collector entries described in Section 6.1. This is a low-volume, low-write-frequency store with high read frequency. It requires strong consistency because the Scheduler and Collection Execution Module read from it to configure collection behavior.
+
+The Raw Ingestion Archive Store is an append-only high-volume store. Every raw API response is written here. It must support high write throughput and efficient retrieval by collection job ID and source identifier within the retention window. It does not require indexing beyond those two retrieval dimensions. Data older than the configured retention window is eligible for purging.
+
+The Deduplication Index Store maintains the rolling index of canonical token keys seen within the deduplication window. It requires very fast key lookup and write performance. The working set for this store at any point is bounded by the number of distinct tokens seen within the deduplication window, which is estimated to be in the tens to hundreds of thousands of entries for a multi-chain deployment. An in-memory data structure store with persistence is the appropriate technology class for this store.
+
+The Candidate Store is the central state store for all candidate records. It must support: writes on candidate creation, reads and updates on state transitions, range queries by state for recovery and monitoring operations, range queries by score for priority ordering, and time-range queries for retention management. This store experiences moderate write volume and moderate read complexity.
+
+The Signal Rule Registry Store maintains the registered signal rules described in Section 6.7. This is a low-volume, configuration-like store read at startup and hot-reload intervals.
+
+The Scoring Configuration Store maintains the scoring weights and band definitions described in Section 12. Versioned records are required. This store is rarely written and frequently read.
+
+The Publication Failed Queue is a persistent ordered queue of candidates in the Publication Failed state. It supports ordered retry operations based on qualification timestamp.
+
+The Scheduler State Store maintains the last successful run timestamp per source-chain pair and the current adaptive scheduling parameters. It requires fast key-value read and write access.
+
+16.2 Data Consistency Requirements
+
+Strong consistency is required for the Source Collector Registry Store and the Scheduler State Store because inconsistency in these stores directly affects engine behavior.
+
+Eventual consistency is acceptable for the Candidate Store because the candidate lifecycle does not require cross-record transactions. Each candidate is an independent record.
+
+The Deduplication Index Store requires consistency within the scope of a single canonical token key entry. It does not require cross-key transactions.
+
+16.3 Retention Policies
+
+Raw Ingestion Archive: 72 hours default, configurable.
+Candidate Store for Confirmed Emitted records: 24 hours default, configurable.
+Candidate Store for Rejected records: 48 hours default, configurable, to support threshold calibration review.
+Candidate Store for Publication Failed records: indefinite until manually resolved or successfully reprocessed.
+Scheduling State Store: current state only, no retention of historical scheduling records.
+Deduplication Index: rolling window matching the configured deduplication window.
+
+16.4 Technology Selection Guidance
+
+The architecture does not prescribe specific database products. Technology selection must be driven by the following criteria: the raw archive store requires high write throughput with sequential access patterns; a time-series or log-oriented store is appropriate. The deduplication index requires sub-millisecond key lookup; a memory-first persistent store is appropriate. The candidate store requires flexible indexing and moderate relational query capability; a document store or relational store with JSONB capability is appropriate. The scheduler state store requires simple key-value access with persistence; a persistent key-value store is appropriate.
+
+================================================================================
+SECTION 17 — FUTURE EXPANSION STRATEGY
+================================================================================
+
+The Discovery Engine architecture is designed to accommodate expansion across four dimensions: new sources, new chains, new signal types, and new scheduling models. Each expansion dimension must be achievable without architectural redesign.
+
+17.1 New Source Integration
+
+Adding a new data source requires four steps: implement the Collector Driver Interface for the new source, implement the Parser for the new source's response format and register it in the Parser Registry, define the collection profile for the new source and register it in the Source Collector Registry, and define the field authority mappings for the new source's fields in the field authority table.
+
+No existing module code is modified. No Discovery Engine restart is required if the registry supports hot registration.
+
+17.2 New Chain Integration
+
+Adding a new blockchain requires: registering new source-chain pair entries in the Source Collector Registry for all sources that support the new chain, adding the new chain's address format validation to the Contract Address Validity Filter, and configuring the chain identifier mapping in the canonical token schema.
+
+For chains requiring new on-chain explorer sources, the new source integration process in 17.1 applies.
+
+17.3 New Signal Types
+
+Adding a new signal type requires: implementing a new signal rule class conforming to the Signal Rule Interface, registering it in the Signal Rule Registry with its weight and category, and adding corresponding configuration parameters for its thresholds.
+
+No existing module code is modified. New signals can be added, tested in shadow mode without affecting emission decisions, and then promoted to active status through configuration change.
+
+Shadow mode is a designed capability of the Signal Detection Module: signal rules can be configured as shadow rules meaning they are evaluated and their results are logged and stored but they do not contribute to the signal set that determines routing to qualification and scoring. This enables safe production testing of new signal rules.
+
+17.4 New Scheduling Models
+
+The Scheduler Module is designed to support multiple scheduling strategy implementations behind the Scheduler Strategy Interface. Currently, the interval-based strategy is implemented. Future strategies such as event-triggered scheduling, market-hours-aware scheduling, or AI-recommended frequency adjustment can be implemented as new strategy classes and selected through configuration without modifying the Scheduler Module.
+
+17.5 AI Integration Preparation
+
+Every candidate record emitted by the Discovery Engine is structured to be AI-consumable by Phase 4 without transformation. The canonical token schema includes all fields that AI models are anticipated to need, populated to the extent available at discovery time. Fields absent from discovery data are marked as absent rather than zero so that AI models can distinguish between absence of information and negative information.
+
+The scoring configuration versioning described in Section 12 allows the AI learning phase to correlate scoring configurations with outcome data and eventually recommend scoring weight adjustments back to the operations team.
+
+The signal rule shadow mode described in 17.3 allows the AI learning phase to propose new signal rules that are first evaluated in shadow mode for a training observation period before human review and potential promotion.
+
+17.6 WebSocket and Push Source Support
+
+The current architecture assumes polling-based collection for all sources. Some sources offer WebSocket or push-based data delivery. The Collector Driver Interface is designed to support both polling and streaming driver implementations. A streaming driver maintains a persistent connection, receives push events, and writes them to the Raw Ingestion Buffer using the same interface as a polling driver. The rest of the pipeline is unaffected.
+
+================================================================================
+SECTION 18 — INTEGRATION WITH LATER AHOS PHASES
+================================================================================
+
+18.1 Integration with Phase 3 — Analysis Engine
+
+Phase 3 consumes the candidate token events published by the Discovery Engine on the AHOS event bus. Phase 3 subscribes to the candidate topic and processes candidates according to their priority score bands.
+
+The Discovery Engine provides Phase 3 with: the canonical token record at discovery time, the complete source attribution list, the detected signal set, the priority score and its component breakdown, and the candidate lifecycle metadata.
+
+Phase 3 must handle duplicate candidate events idempotently as specified in the failure recovery strategy. Phase 3 uses the candidate ID as the idempotency key.
+
+The Discovery Engine does not receive feedback from Phase 3 during normal operation. If Phase 3 determines that a candidate is invalid based on deeper analysis, it does not instruct the Discovery Engine to change its behavior. However, Phase 3 may contribute to the AHOS blacklist, which the Discovery Engine reads, causing future instances of that contract address to be rejected at ingestion.
+
+18.2 Integration with Phase 4 — AI Intelligence Layer
+
+Phase 4 does not receive events directly from the Discovery Engine. Phase 4 consumes outputs from Phase 3 and Phase 5. However, the Discovery Engine architecture is designed with Phase 4 in mind in three ways.
+
+First, the canonical token schema produced by the Discovery Engine is the foundation for the feature vectors that Phase 4 will use. The schema is designed to be extensible so that new observable fields can be added without breaking Phase 4 feature extraction.
+
+Second, the scoring configuration versioning described in Section 12 allows Phase 4 to correlate discovery scoring decisions with eventual opportunity outcomes, enabling the AI layer to evaluate the discriminative quality of each signal and recommend weight adjustments.
+
+Third, the signal shadow mode capability described in Section 17.3 provides Phase 4 with a pathway to surface candidate signal rules derived from AI pattern recognition for evaluation in a controlled production environment before operational deployment.
+
+18.3 Integration with Phase 5 — Historical Knowledge Base
+
+Phase 5 consumes discovery records from the AHOS event bus for long-term storage. The Discovery Engine's raw archive and candidate store are not Phase 5's source of truth. Phase 5 builds its historical record from the emitted candidate events.
+
+The candidate ID emitted by the Discovery Engine is the primary key that Phase 5 uses to link discovery records to later analysis and outcome records. This linkage must be preserved throughout the candidate's life in the AHOS system.
+
+18.4 Integration with Phase 6 — Operations and Monitoring
+
+Phase 6 consumes Discovery Engine health events, run summary events, and source health events from the AHOS event bus. The Discovery Engine's logging output is consumed by the AHOS centralized log aggregation service, which Phase 6 interfaces with for operational dashboards and alerting.
+
+Phase 6 issues control commands to the Discovery Engine through the AHOS internal event bus. These commands include: source enable and disable, threshold override, emergency stop, and manual collection trigger. The Discovery Engine subscribes to the control command topic and applies commands through its administrative interfaces.
+
+18.5 Shared Infrastructure Dependencies
+
+The Discovery Engine depends on the following AHOS shared infrastructure components: the AHOS internal event bus for candidate emission and event consumption, the AHOS centralized configuration service for configuration management, the AHOS centralized log aggregation service for log routing, the AHOS alerting infrastructure for operational alerts, the AHOS authentication credential store for external source API credentials, and the AHOS shared blacklist store for rejected address data.
+
+These are infrastructure dependencies, not phase dependencies. The Discovery Engine does not have runtime dependencies on any other AHOS phase.
+
+================================================================================
+SECTION 19 — RISKS
+================================================================================
+
+19.1 Source API Rate Limit Violation
+
+Risk: Exceeding the rate limits of external source APIs will result in temporary or permanent banning of AHOS API credentials, causing discovery blindness for affected sources.
+
+Severity: High. Loss of a primary DEX-class source during a critical market event means missed discovery opportunities that cannot be recovered.
+
+Mitigation: The token bucket rate limiter enforced by the Collection Execution Module must be conservatively calibrated below the actual API rate limit with a safety margin. Rate limit parameters must be source-specific and configurable. The Health Monitor must detect rate limit response codes and immediately back off the affected source. Multiple credential sets per source should be maintained to allow rotation if one credential set is rate-limited.
+
+19.2 Token Schema Drift
+
+Risk: External source APIs change their response format without notice, causing normalization parsers to produce incorrect or absent field values without generating explicit errors.
+
+Severity: Medium. Silent schema drift causes degraded candidate record quality without obvious alerting.
+
+Mitigation: Parsers must perform field presence and type validation on each response. Unexpected schema changes must be detected and logged as parsing anomalies. The raw archive provides a recovery path for reprocessing once parsers are updated. Schema validation alerts must be raised when the rate of parsing anomalies for a source exceeds a threshold.
+
+19.3 Deduplication Window Miscalibration
+
+Risk: A deduplication window that is too short causes the same token to be emitted multiple times to Phase 3, wasting Phase 3 compute. A window that is too long causes legitimate re-emergence events, such as a token relaunching after a liquidity drain, to be suppressed as duplicates.
+
+Severity: Medium.
+
+Mitigation: The deduplication window must be configurable per signal category, not a single global setting. New launch signals may warrant shorter windows than trending signals. Operational monitoring must track duplicate emission rates and prompt recalibration.
+
+19.4 Signal Threshold Miscalibration
+
+Risk: Signal thresholds that are too permissive cause the Discovery Engine to emit excessive low-quality candidates, overwhelming Phase 3 and reducing the signal-to-noise ratio across the system. Thresholds that are too restrictive cause genuine opportunities to be missed.
+
+Severity: High at both extremes.
+
+Mitigation: Thresholds must be configuration-driven and adjustable without code changes. The rejection log, which includes rejection reasons, must be monitored to detect systematic over-rejection. The run summary, which includes qualified candidate counts, must be monitored to detect systematic over-emission. Threshold calibration must be treated as an ongoing operational process, not a one-time setup task.
+
+19.5 Single Source Dependency During Source Outage
+
+Risk: If the Discovery Engine's coverage of a specific token category or chain is dominated by a single source, an outage of that source creates a discovery blind spot.
+
+Severity: Medium to High depending on which source fails.
+
+Mitigation: The architecture requires that every discovery category and every supported chain has coverage from at least two independent sources at different source classes. The Source Collector Registry must be configured to enforce this minimum coverage requirement and alert when it is not met due to source health transitions.
+
+19.6 Event Bus Backpressure
+
+Risk: If Phase 3 or the event bus infrastructure cannot process candidate events as fast as the Discovery Engine emits them, event bus backpressure may cause emission failures or latency.
+
+Severity: Medium.
+
+Mitigation: The Discovery Engine's candidate emission path includes retry logic and the Publication Failed state queue. The priority score bands allow downstream consumers to implement priority-based consumption. Event bus capacity must be included in the AHOS infrastructure capacity planning process.
+
+19.7 Clock Synchronization Errors
+
+Risk: The new launch and recent launch signal rules rely on contract deployment timestamps compared to current time. If the Discovery Engine host's clock is skewed or if the external source's reported deployment timestamp is incorrect, tokens may be misclassified by age.
+
+Severity: Medium.
+
+Mitigation: The Discovery Engine must synchronize its clock to a reliable time source. Deployment timestamps from external sources must be cross-validated against on-chain explorer sources where possible. Anomalous timestamps such as future deployment dates must be flagged as data quality issues rather than used directly.
+
+19.8 Regulatory and Terms of Service Risk
+
+Risk: Automated high-frequency polling of external API sources may violate those sources' terms of service, creating legal or access risk for AHOS.
+
+Severity: High from a legal and operational continuity perspective.
+
+Mitigation: All source integrations must be reviewed against the terms of service of each source before deployment. API key agreements must be reviewed for automated use permissions. Rate limiting must be conservative. This risk is outside the technical architecture's full control and requires legal and operational oversight.
+
+================================================================================
+SECTION 20 — SUCCESS CRITERIA
+================================================================================
+
+The Discovery Engine is considered to be operating successfully when the following measurable criteria are sustained in production.
+
+20.1 Discovery Latency
+The time from a token's first qualifying on-chain or DEX event to the Discovery Engine emitting a candidate event for that token must be within the discovery latency target. For Tier 1 sources, the target is within two polling cycles of the token's qualifying event becoming visible on the source, excluding source-side delays. This criterion is measured by correlating candidate emission timestamps with the earliest on-chain timestamp for qualifying events.
+
+20.2 Source Coverage Continuity
+Every registered source-chain pair must have a successful collection run within two times its configured polling interval across a rolling 24-hour window. Sustained coverage below this level for any critical source-chain pair constitutes a criterion failure.
+
+20.3 Candidate Emission Rate
+The Discovery Engine must emit qualified candidates at a rate consistent with observed market activity. During normal market conditions, the absence of any candidate emissions over a sustained period must trigger an investigation rather than be accepted as a normal state. This criterion is evaluated by operational monitoring against baseline emission rates established during initial production deployment.
+
+20.4 False Rejection Rate
+A review of rejected candidates sampled across rejection reasons must demonstrate that the rejection rate is consistent with threshold calibration expectations. If manual review of rejected candidates identifies that a significant percentage would have been correctly qualified under better-calibrated thresholds, the thresholds require adjustment. The acceptable false rejection rate threshold is defined by the AHOS operations team during commissioning.
+
+20.5 System Availability
+The Discovery Engine must maintain continuous operation across all modules with a defined minimum availability percentage measured monthly. Planned maintenance windows are excluded from availability calculations. Unplanned downtime per month must not exceed the AHOS system availability budget allocated to the Discovery Engine.
+
+20.6 Recovery from Failure
+Following any single-component failure including external source outage, database degradation, event bus disruption, or process restart, the Discovery Engine must return to full operational state within the defined recovery time objective without manual intervention for all failure categories covered by the automated recovery procedures in Section 14.
+
+20.7 Modularity Verification
+The addition of a new source collector must be demonstrably completable without modifying any existing module's code, verified through the integration test suite. The addition of a new signal rule must be demonstrably completable without modifying any existing module's code. These are structural success criteria enforced through architectural governance and continuous integration.
+
+20.8 Downstream Phase Compatibility
+All candidate token events emitted by the Discovery Engine must be successfully consumed by Phase 3 without schema rejection or missing mandatory field errors. Any candidate that causes a Phase 3 schema rejection must be treated as a Discovery Engine defect, investigated, and resolved.
+
+20.9 Auditability
+For any qualified candidate emitted in the past 72 hours, an operations engineer must be able to reconstruct the complete processing path from raw API response through to emission using the correlation IDs in the log and audit stores, within a defined maximum investigation time, without access to any information not stored in the Discovery Engine's own logging and database infrastructure.
+
+================================================================================
+END OF DOCUMENT
+AHOS Phase 2 — Discovery Engine Architecture Specification v1.0
+================================================================================

@@ -1,0 +1,340 @@
+AHOS Development Convention v1.0
+Supplement to AHOS STRATEGIC MASTER PLAN v10.0
+(Aligned with AHOS Architecture Bible v10.0)
+سند مکمل تاریخ 06-07-2026
+هدف سند
+این سند، قوانین اجرایی توسعه AHOS را مشخص می‌کند و تمام توسعه‌های آینده باید مطابق این استانداردها انجام شوند.
+بخش ۱ — Development Methodology
+1.1 Incremental Development Rule
+هیچ فاز یا قابلیت جدیدی به صورت یکباره پیاده‌سازی نمی‌شود.
+ترتیب توسعه همیشه به این صورت خواهد بود:
+طراحی معماری
+تولید خروجی متنی
+بررسی خروجی
+تولید Workflow
+تست Node به Node
+تست End-to-End
+تهیه Backup
+سپس ورود به فاز بعدی
+1.2 Claude → ChatGPT Workflow
+Claude مسئول تولید اولیه معماری و کد است.
+ChatGPT مسئول:
+بررسی معماری
+اصلاح منطق
+استانداردسازی
+تبدیل به n8n
+تست
+Debug
+Refactor
+بخش ۲ — Workflow Standards
+از این نسخه به بعد:
+❌ Edit Fields برای تبدیل‌های پیچیده استفاده نمی‌شود.
+✅ تمام تبدیل‌ها داخل Code Node انجام می‌شوند.
+Code Node مسئول موارد زیر است:
+Validation
+Type Conversion
+Null Handling
+Default Values
+Field Standardization
+بخش ۳ — API Rules
+هیچ API قابل اعتماد کامل فرض نمی‌شود.
+تمام فیلدهای اختیاری باید مدیریت شوند.
+مثال:
+pair.liquidity?.usd ?? 0
+همین قانون برای:
+volume
+liquidity
+fdv
+marketCap
+socials
+websites
+نیز برقرار است.
+بخش ۴ — PostgreSQL Rules
+قبل از پایان هر فاز:
+باید بررسی شود:
+SELECT pg_typeof(column_name)
+تا مطمئن شویم داده‌ها با نوع صحیح ذخیره شده‌اند.
+بخش ۵ — Debugging Rules
+در صورت مشاهده رفتار غیرمنتظره:
+ابتدا بررسی می‌شود:
+Object.keys()
+سپس
+ورودی همان Node
+سپس
+JSON واقعی
+و در آخر Expression نوشته می‌شود.
+حدس زدن ممنوع است.
+بخش ۶ — Backup Policy
+قبل از هر تغییر بزرگ:
+Backup الزامی است.
+نام فایل:
+YYYY-MM-DD_AHOS_PhaseXX_Backup_vX.X.json
+نسخه پایدار:
+YYYY-MM-DD_AHOS_PhaseXX_Stable_vX.X.json
+بخش ۷ — Project Naming Convention
+Workflow
+AHOS_Phase01_MarketCollector
+Database
+market_events
+Code Node
+Normalize Market Data
+Collector
+DexScreener Collector
+بخش ۸ — Folder Structure
+AHOS/
+
+backups/
+
+collectors/
+
+docker/
+
+docs/
+
+postgres/
+
+redis/
+
+storage-service/
+
+n8n/
+
+exports/
+
+logs/
+داخل docs
+Architecture/
+
+Master-Plan/
+
+Roadmap/
+
+Meeting-Notes/
+
+Workflows/
+
+SOP/
+بخش ۹ — Testing Policy
+هر Node جداگانه تست می‌شود.
+سپس
+Workflow کامل تست می‌شود.
+سپس
+Database تست می‌شود.
+سپس
+Backup گرفته می‌شود.
+بخش ۱۰ — Lessons Learned (2026-07-06)
+درس‌های مهم فاز اول:
+Code Node نسبت به Edit Fields معماری بهتری دارد.
+فیلدهای API ممکن است در هر درخواست وجود نداشته باشند.
+استفاده از Optional Chaining و مقدار پیش‌فرض برای جلوگیری از شکست Workflow الزامی است.
+هر Expression باید بر اساس ساختار واقعی ورودی همان Node نوشته شود.
+Backup قبل از Refactor الزامی است.
+مسیرهای داده با تست و دیباگ مهندسی بررسی می‌شوند، نه با حدس.
+نوع داده‌ها در PostgreSQL با pg_typeof اعتبارسنجی می‌شود.
+پس از موفقیت نسخه جدید، نسخه قبلی تا پایان فاز بعدی نگهداری می‌شود.
+بخش ۱۱ — Golden Rules (قوانین طلایی AHOS)
+هیچ تغییری بدون Backup انجام نمی‌شود.
+هیچ Workflow تا زمان تست End-to-End، Production Ready محسوب نمی‌شود.
+هیچ API به عنوان منبع داده کاملاً پایدار فرض نمی‌شود.
+Code Node لایه استانداردسازی داده‌ها است.
+هر فاز تنها پس از تکمیل، مستندسازی، تست و Backup بسته می‌شود.
+تمام نام‌گذاری‌ها (Workflow، Backup، پوشه‌ها و نسخه‌ها) از استاندارد واحد پیروی می‌کنند.
+معماری، خوانایی و قابلیت نگهداری بر سرعت توسعه اولویت دارد.
+تمام توسعه‌ها باید با AHOS Architecture Bible v10.0 و Strategic Master Plan v10.0 هم‌راستا باشند.
+Project Mission Clarification (Approved on 2026-07-06)
+Mission Statement
+AHOS is an intelligent multi-source system designed to discover, evaluate, rank, and continuously monitor emerging crypto tokens. By combining market data, on-chain analytics, security assessments, and social intelligence, AHOS identifies and prioritizes high-potential opportunities based on evidence and data. The system is designed to support informed decision-making and risk management, not to guarantee or predict investment returns.
+
+Status: Approved as a strategic supplement to AHOS STRATEGIC MASTER PLAN v10.0 and will be incorporated into the next major revision of the Master Plan.
+Future Intelligence & Decision Engine
+Strategic Objective
+AHOS shall continuously monitor the crypto ecosystem to identify high-potential opportunities before and after token launches.
+The system shall aggregate and analyze information from multiple categories of sources, including but not limited to:
+Market Intelligence
+DexScreener
+DEXTools
+GeckoTerminal
+Birdeye
+CoinGecko
+CoinMarketCap
+On-Chain Intelligence
+Solscan
+Etherscan
+BscScan
+Wallet Activity
+Smart Money Tracking
+Liquidity Changes
+Holder Distribution
+Security Intelligence
+RugCheck
+GoPlus Security
+Contract Audits
+Token Permissions
+Ownership Status
+Mint & Freeze Analysis
+Social Intelligence
+X (Twitter)
+Telegram
+Discord
+Reddit
+YouTube
+Medium
+Official Project Websites
+Community Activity
+Influencer Signals
+News Intelligence
+Crypto News Websites
+Exchange Listings
+Partnership Announcements
+Airdrops
+Token Unlock Events
+Roadmap Updates
+Ecosystem Announcements
+AI Decision Engine Responsibilities
+The AI layer shall evaluate every candidate token using a comprehensive scoring framework.
+The evaluation shall include, but not be limited to:
+Market Momentum
+Liquidity Growth
+Volume Growth
+Holder Growth
+Smart Money Activity
+Whale Transactions
+Community Strength
+Social Sentiment
+Developer Activity
+Security Score
+Rug Risk
+Contract Quality
+Historical Pattern Matching
+Volatility
+Launch Stage
+Narrative Strength
+Trading Recommendation Framework
+Instead of issuing guaranteed predictions, AHOS shall generate structured recommendations including:
+Opportunity Score
+Confidence Score
+Risk Level
+Suggested Entry Zone
+Suggested Position Size
+Suggested Leverage Range (when applicable)
+Suggested Risk/Reward Ratio
+Suggested Take Profit Zones
+Suggested Stop Loss Zone
+Suggested Review Time
+All recommendations shall be evidence-based and continuously updated as new data becomes available.
+Continuous Learning
+The AI engine shall continuously learn from:
+Historical market behavior
+Successful and unsuccessful token launches
+Trading outcomes
+Prediction accuracy
+Market cycles
+to improve future recommendations over time.
+AHOS Long-Term Autonomous Intelligence Vision
+Vision Statement
+The long-term objective of AHOS is to evolve from a market monitoring system into a continuously learning autonomous intelligence platform capable of improving its analytical performance over time through real-world observations, historical data, mathematical modeling, simulations, and adaptive decision-making.
+Mathematical Intelligence
+AHOS shall gradually integrate advanced mathematical and statistical models, including but not limited to:
+Probability Models
+Bayesian Updating
+Time Series Analysis
+Monte Carlo Simulation
+Game Theory
+Risk Modeling
+Pattern Recognition
+Statistical Arbitrage Models
+Machine Learning Models
+Reinforcement Learning (future)
+Optimization Algorithms
+These models shall complement, not replace, market intelligence and risk management.
+Simulation Engine
+AHOS shall continuously perform simulations before making strategic decisions.
+Possible simulation dimensions include:
+Entry Timing
+Exit Timing
+Position Size
+Leverage Scenarios
+Holding Period
+Stop Loss Strategies
+Take Profit Strategies
+Portfolio Allocation
+Market Regimes
+Bull/Bear Scenarios
+Black Swan Events
+The objective is not to predict the future with certainty but to evaluate possible outcomes under different assumptions.
+Continuous Learning Engine
+AHOS shall continuously compare:
+Simulated outcomes
+Historical outcomes
+Real market outcomes
+The differences between these datasets shall be used to improve future models.
+Learning sources include:
+Trading history
+Market behavior
+Simulation accuracy
+Prediction accuracy
+Strategy performance
+Success/failure analysis
+Adaptive Workflow Architecture
+The system architecture shall be modular.
+Future workflow improvements may include:
+enabling new collectors
+disabling obsolete collectors
+changing scoring weights
+adding new indicators
+removing ineffective indicators
+Important principle: Any automatic modification of workflows or trading logic must be subject to human review and approval before deployment to production.
+Knowledge Base
+AHOS shall maintain its own structured knowledge base.
+The knowledge base shall contain:
+Successful token launches
+Failed launches
+Rug pulls
+Whale behavior
+Liquidity evolution
+Holderevolution
+Community growth
+Market cycles
+Historical patterns
+AI observations
+This knowledge base becomes part of future learning.
+Reporting Engine
+AHOS shall generate structured reports in Persian.
+Reports may include:
+Market Reports
+Important market events
+New token launches
+Trending narratives
+Whale activities
+Opportunity Reports
+Newly discovered opportunities
+AI rankings
+Confidence Scores
+Risk Scores
+Portfolio Reports
+Current positions
+Unrealized P/L
+Closed positions
+Performance statistics
+Simulation Reports
+Simulation results
+Comparison with real market
+Accuracy reports
+Strategy Reports
+Best performing strategies
+Weak strategies
+Recommended improvements
+Daily / Weekly / Monthly Reports
+Market summary
+Performance summary
+AI learning summary
+Reports shall be delivered automatically through Telegram in Persian.کنیم:
+AHOS must be self-improving, but never self-governing in production.
+
+سیستم باید خودش یاد بگیرد.
+خودش شبیه‌سازی کند.
+خودش عملکردش را ارزیابی کند.
+خودش پیشنهاد بهبود بدهد.
+اما تغییرات مهم مثل اصلاح Workflowها، تغییر منطق معاملات یا تغییر پارامترهای حساس، باید ابتدا برای تو گزارش شوند و پس از تأیید تو اعمال شوند. این هم از نظر مهندسی ایمن‌تر است و هم جلوی خطاهای پرهزینه را می‌گیرد:
+هدف AHOS ساخت یک اندیکاتور، یک اسکنر یا حتی یک ربات معامله‌گر نیست.
+هدف AHOS این است که به مرور زمان به یک سیستم تصمیم‌یار هوشمند تبدیل شود؛ سیستمی که داده‌های بازار، داده‌های آنچین، امنیت قراردادها، رفتار نهنگ‌ها، اخبار، احساسات بازار، مدل‌های آماری و نتایج شبیه‌سازی را با هم ترکیب کند، از عملکرد واقعی خود یاد بگیرد و پیشنهادهای سرمایه‌گذاری مبتنی بر شواهد و مدیریت ریسک ارائه دهد. این چشم‌انداز، به نظر من، ارزشمندترین بخش پروژه است و باعث می‌شود معماری‌ای که از امروز می‌سازیم، برای سال‌ها قابل توسعه باقی بماند.

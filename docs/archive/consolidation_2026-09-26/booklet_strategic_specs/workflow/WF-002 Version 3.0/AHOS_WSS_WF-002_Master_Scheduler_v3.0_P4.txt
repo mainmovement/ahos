@@ -1,0 +1,258 @@
+AHOS Workflow Specification Sheet
+WF-002 — Workflow Registry
+Version 1.0
+Phase 4 — Registry Validation & Consistency
+1. Purpose
+1.1 Objective
+
+This phase establishes the authoritative validation and consistency mechanisms governing all architectural information maintained by the Workflow Registry.
+
+The Registry SHALL guarantee that architectural knowledge remains internally consistent, complete, deterministic, and continuously verifiable.
+
+1.2 Scope
+
+This phase governs:
+
+Registry Validation
+Metadata Validation
+Identity Validation
+Dependency Validation
+Capability Validation
+Version Validation
+Consistency Verification
+Integrity Enforcement
+Registry Invariants
+
+Business validation remains outside the scope of WF-002.
+
+2. Validation Philosophy
+
+Validation SHALL protect architectural correctness.
+
+Validation SHALL occur before architectural acceptance.
+
+Validation SHALL NEVER depend upon runtime execution.
+
+Architectural correctness SHALL always take precedence over operational convenience.
+
+3. Validation Principles
+
+Registry validation SHALL satisfy:
+
+Determinism
+Repeatability
+Completeness
+Traceability
+Independence
+Auditability
+4. Validation Domains
+
+Every registration SHALL be validated across the following domains:
+
+Identity
+Ownership
+Metadata
+Version
+Capability
+Dependency
+Contract Reference
+Specification Reference
+Engine Association
+
+Additional domains MAY be introduced through future architectural revisions.
+
+5. Identity Validation
+5.1 Objective
+
+Every workflow identity SHALL be validated before registry acceptance.
+
+5.2 Identity Rules
+
+Validation SHALL verify:
+
+globally unique Workflow Identifier;
+immutable identity format;
+naming convention compliance;
+identifier uniqueness.
+5.3 Validation Result
+
+Identity validation SHALL produce exactly one result:
+
+Passed
+Failed
+6. Metadata Validation
+
+Registry metadata SHALL be validated for:
+
+completeness;
+structural correctness;
+semantic correctness;
+version consistency;
+ownership consistency.
+
+Missing mandatory metadata SHALL invalidate registration.
+
+7. Version Validation
+
+Every workflow version SHALL satisfy:
+
+valid version syntax;
+compatible contract version;
+compatible engine version;
+valid publication state.
+
+Unsupported versions SHALL NOT become Active.
+
+8. Capability Validation
+
+Every declared capability SHALL be validated for:
+
+uniqueness;
+ownership;
+naming;
+version compatibility;
+architectural consistency.
+
+Capability conflicts SHALL invalidate registration.
+
+9. Dependency Validation
+
+Dependency validation SHALL verify:
+
+referenced workflow existence;
+referenced version existence;
+dependency type validity;
+compatibility;
+architectural correctness.
+9.1 Circular Dependency Detection
+
+The Registry SHALL detect circular dependencies.
+
+Circular dependency chains SHALL be rejected before registration.
+
+9.2 Missing Dependency Detection
+
+Undefined dependencies SHALL invalidate registration.
+
+10. Contract Validation
+
+Every registered workflow SHALL reference:
+
+one Workflow Contract Specification;
+one compatible contract version.
+
+Undefined contract references SHALL NOT be accepted.
+
+11. Specification Validation
+
+Every registered workflow SHALL reference:
+
+one Workflow Specification;
+one Specification Version.
+
+Specification references SHALL remain valid throughout the workflow lifecycle.
+
+12. Registry Integrity Verification
+
+WF-002 SHALL continuously verify:
+
+identity uniqueness;
+metadata integrity;
+dependency integrity;
+ownership integrity;
+version integrity.
+
+Verification SHALL remain deterministic.
+
+13. Consistency Model
+
+Registry consistency SHALL guarantee that all architectural information represents one coherent architectural state.
+
+Consumers SHALL NEVER observe inconsistent registry knowledge.
+
+14. Consistency Rules
+
+At any moment:
+
+exactly one authoritative owner SHALL exist;
+exactly one active version SHALL exist;
+exactly one workflow identity SHALL exist;
+exactly one registration status SHALL exist.
+
+Architectural ambiguity SHALL NOT occur.
+
+15. Validation Outcomes
+
+Every validation process SHALL terminate with one of the following outcomes:
+
+Accepted
+Rejected
+Requires Architectural Review
+
+No additional outcome SHALL exist.
+
+16. Validation Audit
+
+Every validation SHALL generate immutable audit evidence.
+
+Validation records SHALL include:
+
+Validation Identifier
+Workflow Identifier
+Validation Timestamp
+Validation Scope
+Validation Outcome
+Validation Evidence
+17. Validation Failure Handling
+
+Validation failures SHALL preserve registry integrity.
+
+Incomplete validation SHALL NEVER create partial registry entries.
+
+Rollback SHALL restore the previous consistent architectural state.
+
+18. Registry Invariants
+
+The following architectural properties SHALL remain continuously true.
+
+Identity Invariant
+
+Every workflow SHALL possess one immutable identity.
+
+Ownership Invariant
+
+Every workflow SHALL possess one authoritative owner.
+
+Version Invariant
+
+Every active workflow SHALL possess one active version.
+
+Capability Invariant
+
+Every capability SHALL possess one authoritative owner.
+
+Dependency Invariant
+
+Every declared dependency SHALL reference valid architectural objects.
+
+Integrity Invariant
+
+Registry consistency SHALL remain continuously verifiable.
+
+19. Consistency Guarantees
+
+WF-002 SHALL guarantee:
+
+deterministic validation;
+repeatable verification;
+conflict detection;
+complete traceability;
+architectural correctness.
+20. Phase 4 Completion Statement
+
+Phase 4 establishes the Workflow Registry as the authoritative validation authority for workflow architecture.
+
+It guarantees that every registered workflow, capability, dependency, version, and ownership declaration remains internally consistent, continuously verifiable, and architecturally correct throughout its lifecycle.
+
+By enforcing deterministic validation and preserving immutable architectural integrity, this phase ensures that the Workflow Registry remains the trusted source of architectural truth for the entire AHOS platform.
+

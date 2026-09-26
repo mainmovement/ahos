@@ -1,0 +1,258 @@
+# AHOS Daily Supplement 003
+
+## تاریخ جلسه
+
+07/07/2026
+
+## زمان پایان جلسه
+
+19:27
+
+---
+
+# خلاصه جلسه
+
+در این جلسه تصمیم گرفته شد که به دلیل تثبیت و مرتب شدن اسناد رسمی AHOS، محیط توسعه n8n از وضعیت آزمایشی قبلی خارج شده و یک Clean Baseline جدید برای شروع رسمی Puzzle-Based Incremental Development ایجاد شود.
+
+ابتدا وضعیت موجود n8n بررسی شد:
+
+* n8n در Docker اجرا می‌شد.
+* Container قبلی با نام N8N فعال بود.
+* 6 Workflow موجود Backup شدند.
+* مشخص شد Container قبلی فاقد Docker Volume دائمی است.
+
+پس از تأیید تصمیم Reset، محیط جدید AHOS ساخته شد.
+
+---
+
+# تصمیمات معماری
+
+## AHOS-DEC-003
+
+### Environment Reset & Clean Baseline Initialization
+
+تصمیم:
+
+* محیط قبلی n8n حذف مستقیم نشود.
+* ابتدا Backup کامل تهیه شود.
+* توسعه رسمی AHOS از یک محیط تمیز آغاز شود.
+
+وضعیت:
+Approved ✅
+
+---
+
+## AHOS-DEC-004
+
+### Standard Clean Baseline Environment Initialization
+
+تصمیم:
+
+* ایجاد Docker Volume دائمی برای n8n.
+* ساخت Container جدید مخصوص AHOS.
+* حفظ امکان Rollback محیط قبلی.
+
+وضعیت:
+Completed ✅
+
+---
+
+# اقدامات انجام‌شده
+
+## Backup محیط قبلی
+
+انجام شد:
+
+* تعداد Workflowهای موجود: 6 عدد
+* Backup کامل Workflowها: 6/6
+
+Workflowهای Backup شده:
+
+1. AHOS Phase 1 - Backup
+2. AHOS - Market Observer
+3. AHOS - Phase 2 - Start v1.0
+4. My Sub-Workflow 1
+5. AHOS Phase 2.2 - DexScreener Collector v1.0
+6. AHOS Phase 2.1 - Discovery Scheduler v1.0
+
+---
+
+## تغییرات Docker Environment
+
+انجام شد:
+
+* Container قبلی:
+
+  * Name: N8N
+  * Status: Stopped
+
+* Volume جدید ایجاد شد:
+
+```
+ahos_n8n_data
+```
+
+* Container جدید ساخته شد:
+
+```
+AHOS-N8N
+```
+
+تنظیمات:
+
+```
+Image:
+n8nio/n8n:latest
+
+Port:
+5678:5678
+
+Volume:
+ahos_n8n_data:/home/node/.n8n
+```
+
+---
+
+# اسناد تولیدشده
+
+در این جلسه:
+
+* AHOS-DEC-003
+* AHOS-DEC-004
+* AHOS Pre-Reset Backup Inventory
+* AHOS Clean Baseline Verification v1.0
+
+تولید و ثبت شدند.
+
+---
+
+# نتایج تست‌ها
+
+## Docker Verification
+
+نتیجه:
+
+✅ Container جدید AHOS-N8N اجرا شد.
+
+## n8n Verification
+
+نتیجه:
+
+✅ صفحه Setup جدید نمایش داده شد.
+
+## Activation Verification
+
+نتیجه:
+
+✅ Activation n8n انجام شد.
+
+## Clean Environment Verification
+
+نتیجه:
+
+✅ Workflowهای قبلی در محیط جدید وجود ندارند.
+
+✅ محیط n8n کاملاً تمیز تأیید شد.
+
+---
+
+# تغییرات ساختار پروژه
+
+تغییرات انجام‌شده:
+
+## ایجاد
+
+Docker Volume:
+
+```
+ahos_n8n_data
+```
+
+## ایجاد
+
+Docker Container:
+
+```
+AHOS-N8N
+```
+
+## تغییر وضعیت
+
+Container قبلی:
+
+```
+N8N
+Running → Stopped
+```
+
+---
+
+# وضعیت فعلی پروژه
+
+وضعیت رسمی:
+
+```
+AHOS Clean Baseline v1.0
+```
+
+محیط فعلی:
+
+```
+AHOS-N8N
+    |
+    └── ahos_n8n_data
+
+Infrastructure:
+    |
+    ├── PostgreSQL
+    |
+    └── Redis
+```
+
+وضعیت توسعه:
+
+✅ آماده شروع Puzzle Development
+
+وضعیت Workflow:
+
+```
+0 Active Workflow
+0 Imported Workflow
+Clean Environment
+```
+
+---
+
+# برنامه جلسه بعد
+
+1. بررسی نهایی Architecture Bible و Phase Specification برای انتخاب Puzzle 001.
+2. تعیین اولین Puzzle Piece رسمی.
+3. تعریف Scope قطعه.
+4. تولید Specification در صورت نیاز.
+5. آغاز چرخه رسمی AHOS:
+
+Architecture
+↓
+Specification
+↓
+Claude Output
+↓
+ChatGPT Review
+↓
+Architecture Approval
+↓
+n8n Implementation
+↓
+Testing
+↓
+Backup
+↓
+Daily Supplement
+
+---
+
+# پایان Daily Supplement 003
+
+وضعیت پایان جلسه:
+
+**AHOS Development Environment آماده شروع توسعه رسمی Puzzleها است.**

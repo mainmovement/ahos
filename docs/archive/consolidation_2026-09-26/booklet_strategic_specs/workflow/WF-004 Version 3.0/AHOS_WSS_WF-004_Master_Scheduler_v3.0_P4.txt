@@ -1,0 +1,228 @@
+AHOS Workflow Specification Sheet
+WF-004 — Health Monitor
+Version 1.0
+Phase 4 — Health Assessment Lifecycle & Monitoring Coordination
+1. Purpose
+1.1 Objective
+
+This phase establishes the architectural lifecycle governing health assessment scheduling, monitoring coordination, reassessment behavior, evaluation frequency, and operational continuity.
+
+Health assessment SHALL remain continuous throughout the operational lifetime of the AHOS platform.
+
+1.2 Scope
+
+This phase governs:
+
+Health Assessment Lifecycle
+Assessment Scheduling
+Monitoring Frequency
+Event-Driven Reassessment
+Continuous Monitoring
+Assessment Coordination
+Health Freshness
+Monitoring Continuity
+
+Alert processing remains outside the scope of this phase.
+
+2. Monitoring Philosophy
+
+Health SHALL represent a continuously maintained operational fact.
+
+Health SHALL NEVER be considered permanently valid.
+
+Every health assessment SHALL eventually expire and require reassessment.
+
+3. Monitoring Principles
+
+Health monitoring SHALL remain:
+
+continuous;
+deterministic;
+lightweight;
+event-aware;
+time-aware;
+interruption-resistant.
+
+Monitoring SHALL minimize operational overhead while preserving assessment accuracy.
+
+4. Health Assessment Lifecycle
+
+Every health assessment SHALL progress through the following lifecycle.
+
+Assessment Scheduled
+        │
+        ▼
+Evidence Collection
+        │
+        ▼
+Evidence Validation
+        │
+        ▼
+Rule Evaluation
+        │
+        ▼
+Health Classification
+        │
+        ▼
+Publication
+        │
+        ▼
+Health Expiration
+        │
+        ▼
+Reassessment Scheduled
+
+Every assessment SHALL complete this lifecycle before replacement by a subsequent assessment.
+
+5. Assessment Scheduling
+
+The Health Monitor SHALL support multiple assessment triggers including:
+
+periodic assessment;
+event-driven assessment;
+startup assessment;
+recovery assessment;
+manual assessment.
+
+Scheduling strategy SHALL remain implementation-independent.
+
+6. Periodic Assessment
+
+Periodic assessments SHALL maintain continuous operational visibility.
+
+Assessment frequency SHALL be configurable.
+
+Configuration SHALL NOT alter assessment semantics.
+
+7. Event-Driven Assessment
+
+Health reassessment SHALL occur whenever significant architectural events occur.
+
+Examples include:
+
+workflow registration changes;
+execution failures;
+scheduler interruptions;
+database connectivity changes;
+infrastructure degradation;
+dependency recovery.
+
+The list above SHALL NOT be considered exhaustive.
+
+8. Assessment Freshness
+
+Every health assessment SHALL possess a validity period.
+
+Expired assessments SHALL NOT be considered authoritative.
+
+Freshness SHALL be evaluated independently for each monitored component.
+
+9. Continuous Monitoring
+
+Health monitoring SHALL continue throughout the operational lifetime of the platform.
+
+Temporary monitoring interruptions SHALL generate monitoring continuity records.
+
+Monitoring continuity SHALL be recoverable.
+
+10. Monitoring Coordination
+
+Concurrent health assessments MAY execute simultaneously.
+
+Assessment coordination SHALL guarantee:
+
+component isolation;
+deterministic results;
+duplicate prevention;
+consistent publication.
+
+Concurrent assessments SHALL NOT interfere with one another.
+
+11. Reassessment Policy
+
+Health reassessment SHALL occur when:
+
+assessment validity expires;
+monitored evidence changes;
+architectural events require reevaluation;
+manual reassessment is authorized.
+
+Reassessment SHALL replace, but SHALL NOT overwrite, historical assessments.
+
+12. Assessment Failure
+
+Failure of an individual assessment SHALL NOT terminate the overall monitoring process.
+
+Failed assessments SHALL be recorded for diagnostic purposes.
+
+Monitoring SHALL remain resilient.
+
+13. Monitoring Continuity
+
+The Health Monitor SHALL maintain continuous monitoring history including:
+
+assessment start;
+assessment completion;
+assessment interruption;
+reassessment scheduling;
+publication events.
+
+Continuity SHALL remain auditable.
+
+14. Lifecycle Audit
+
+Every lifecycle transition SHALL generate immutable audit evidence including:
+
+Assessment Identifier
+Lifecycle Stage
+Timestamp
+Component Identifier
+Correlation Identifier
+Assessment Outcome
+
+Lifecycle history SHALL remain permanently reconstructable.
+
+15. Monitoring Invariants
+
+The following SHALL remain continuously true.
+
+Lifecycle Invariant
+
+Every assessment SHALL complete the defined lifecycle.
+
+Freshness Invariant
+
+Authoritative health information SHALL always remain current.
+
+Continuity Invariant
+
+Monitoring SHALL remain continuous throughout platform operation.
+
+Isolation Invariant
+
+Concurrent assessments SHALL remain independent.
+
+History Invariant
+
+Historical assessments SHALL NEVER be overwritten.
+
+16. Phase 4 Compliance Matrix
+Requirement	Mandatory
+Continuous Monitoring	SHALL
+Health Lifecycle	SHALL
+Assessment Scheduling	SHALL
+Event-Driven Reassessment	SHALL
+Assessment Freshness	SHALL
+Lifecycle Audit	SHALL
+Monitoring Continuity	SHALL
+Technology Independence	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 4 compliance.
+
+17. Phase 4 Completion Statement
+
+Phase 4 establishes the lifecycle architecture governing health assessment within the AHOS platform.
+
+It defines how health assessments are scheduled, executed, refreshed, coordinated, and audited to ensure that health information remains continuously valid, operationally relevant, and architecturally consistent.
+
+By introducing a formal health assessment lifecycle, this phase ensures that monitoring evolves from isolated health checks into a persistent, deterministic, and enterprise-grade operational process.

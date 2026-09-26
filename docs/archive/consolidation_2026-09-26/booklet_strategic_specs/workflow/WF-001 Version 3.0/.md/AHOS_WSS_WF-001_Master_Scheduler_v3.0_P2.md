@@ -1,0 +1,924 @@
+ \# AHOS Workflow Specification Sheet
+
+\# WF-001 — Master Scheduler
+
+\#\# Version 3.0
+
+\#\# Phase 2 — Execution Coordination and Persistent Runtime State
+
+\---
+
+\# 9\. Phase 2 Purpose
+
+Phase 2 defines the persistent execution-coordination model of WF-001.
+
+It establishes how the Scheduler represents, claims, dispatches, observes, reconciles, and finalizes workflow executions while preserving deterministic behavior and preventing unsafe duplication.
+
+Phase 2 resolves the following production requirements:
+
+\- Scheduler-instance fencing.  
+\- Persistent execution identity.  
+\- Execution-attempt tracking.  
+\- Queue-to-dispatch coordination.  
+\- PostgreSQL and n8n boundary handling.  
+\- Duplicate execution prevention.  
+\- Completion-event correlation.  
+\- Timeout safety.  
+\- Crash recovery reconciliation.  
+\- Configuration consistency.  
+\- Database responsibility alignment.  
+\- Authenticated execution events.  
+\- Auditable execution history.
+
+Phase 2 does not define analytical workflow logic, market intelligence, portfolio management, AI behavior, or trading execution.
+
+\---
+
+\# 10\. Phase 2 Authority Model
+
+\#\# 10.1 Scheduler Authority
+
+WF-001 SHALL be the only component authorized to:
+
+\- Create scheduler-owned execution requests.  
+\- Assign execution identities.  
+\- Claim executions for dispatch.  
+\- Change scheduler-owned execution states.  
+\- Schedule retries.  
+\- Mark executions as timed out.  
+\- Resolve ambiguous dispatch outcomes.  
+\- Complete crash-recovery reconciliation.  
+\- Declare an execution terminal from the scheduler perspective.
+
+\#\# 10.2 PostgreSQL Authority
+
+PostgreSQL SHALL be the authoritative persistence layer for:
+
+\- Scheduler ownership generation.  
+\- Execution requests.  
+\- Execution attempts.  
+\- Dispatch records.  
+\- Completion-event records.  
+\- Reconciliation records.  
+\- State-transition history.  
+\- Active configuration snapshots.
+
+PostgreSQL SHALL persist coordination data but SHALL NOT independently execute scheduler policy.
+
+\#\# 10.3 n8n Authority
+
+WF-001 SHALL orchestrate workflow execution through the approved n8n execution interfaces defined by the AHOS implementation architecture.
+
+n8n SHALL NOT independently determine:
+
+\- Whether an AHOS execution request is valid.  
+\- Whether a retry is permitted.  
+\- Whether a timeout is safe to retry.  
+\- Whether a dependency is satisfied.  
+\- Whether a scheduler-owned execution is complete from the AHOS perspective.
+
+\#\# 10.4 Execution Status Distinction
+
+WF-001 SHALL distinguish between:
+
+1\. \*\*Scheduler execution state\*\*    
+   The state recorded by WF-001 for orchestration purposes.
+
+2\. \*\*n8n execution state\*\*    
+   The state reported by n8n for the actual workflow runtime.
+
+These states SHALL NOT be treated as interchangeable.
+
+A scheduler state transition SHALL not be inferred solely from the existence of an n8n request.
+
+\---
+
+\# 11\. Persistent Execution Identity
+
+\#\# 11.1 Logical Execution
+
+Each accepted workflow request SHALL receive one immutable logical execution identity.
+
+The logical execution identity SHALL remain stable throughout the complete lifecycle of that request, including retries and recovery.
+
+The logical execution identity SHALL be unique within AHOS.
+
+\#\# 11.2 Execution Attempt
+
+Each actual dispatch attempt SHALL receive a separate immutable execution-attempt identity.
+
+An execution attempt represents one possible n8n invocation associated with one logical execution.
+
+The execution-attempt identity SHALL be unique within AHOS.
+
+The following relationship SHALL apply:
+
+\`\`\`text  
+One logical execution  
+    └── One or more execution attempts  
+\`\`\`
+
+\#\# 11.3 Required Identity Fields
+
+Every execution request and event SHALL be associated with:
+
+\- AHOS workflow ID.  
+\- Workflow version.  
+\- Logical execution ID.  
+\- Execution-attempt ID.  
+\- Scheduler generation.  
+\- Correlation ID.  
+\- Configuration snapshot version.  
+\- Creation timestamp.  
+\- Trigger source.
+
+\#\# 11.4 Identity Immutability
+
+The following values SHALL never be reused for another logical execution:
+
+\- Logical execution ID.  
+\- Execution-attempt ID.  
+\- Correlation ID where it identifies the logical operation.
+
+Identity values SHALL remain globally unique for the lifetime of the AHOS deployment and SHALL NOT be recycled.
+
+Retries SHALL create new execution attempts.
+
+A retry SHALL not overwrite the historical identity of the previous attempt.
+
+\#\# 11.5 n8n Execution Identity
+
+When n8n provides an execution ID, WF-001 SHALL persist the n8n execution ID against the corresponding execution attempt.
+
+If n8n does not provide an execution ID during dispatch acknowledgement, the attempt SHALL remain correlated through the AHOS execution-attempt ID and the dispatch request identity.
+
+\---
+
+\# 12\. Execution Lifecycle Model
+
+\#\# 12.1 Scheduler Lifecycle States
+
+WF-001 SHALL support the following scheduler-owned execution states:
+
+\#\#\# \`accepted\`
+
+The execution request has been validated and persisted but has not yet entered dispatch preparation.
+
+\#\#\# \`waiting\_dependency\`
+
+The execution cannot proceed because one or more required dependencies are unresolved.
+
+\#\#\# \`ready\`
+
+All scheduling prerequisites currently known to WF-001 are satisfied.
+
+The execution is eligible for dispatch when capacity and policy permit.
+
+\#\#\# \`dispatching\`
+
+WF-001 has claimed the execution attempt and is sending the dispatch request to n8n.
+
+\#\#\# \`dispatch\_unknown\`
+
+The dispatch outcome cannot be conclusively determined.
+
+Examples include:
+
+\- Network failure after request transmission.  
+\- Scheduler termination during dispatch.  
+\- Missing dispatch acknowledgement.  
+\- n8n response unavailable after timeout.
+
+No automatic duplicate dispatch SHALL occur from this state without reconciliation.
+
+\#\#\# \`running\`
+
+n8n has acknowledged the execution request or a valid execution event confirms that the workflow is executing.
+
+\#\#\# \`completion\_pending\`
+
+The scheduler has evidence that n8n execution has ended or reported a terminal result, but final scheduler processing has not yet been committed.
+
+This state SHALL be short-lived and transactionally resolved.
+
+\#\#\# \`completed\`
+
+The execution completed successfully according to the accepted completion contract.
+
+\#\#\# \`failed\_retryable\`
+
+The execution attempt failed with a classified retryable failure and is eligible for a future retry.
+
+\#\#\# \`failed\_terminal\`
+
+The execution cannot be retried automatically under the active policy.
+
+\#\#\# \`timeout\_observed\`
+
+The scheduler determined that the configured execution deadline was exceeded.
+
+This state does not, by itself, prove that the n8n execution has stopped.
+
+\#\#\# \`termination\_pending\`
+
+The scheduler has requested or requires confirmation that the corresponding n8n execution has stopped.
+
+\#\#\# \`reconciliation\_required\`
+
+The scheduler cannot safely determine the relationship between scheduler state and n8n execution state.
+
+Operator review or an approved reconciliation procedure is required.
+
+\#\#\# \`cancel\_requested\`
+
+Cancellation has been requested but has not been confirmed.
+
+\#\#\# \`cancelled\`
+
+Cancellation has been confirmed or the execution was prevented from starting.
+
+\#\#\# \`blocked\`
+
+The execution cannot proceed because a required condition has failed or an approved manual intervention is required.
+
+\#\# 12.2 Terminal States
+
+The following are terminal scheduler states:
+
+\- \`completed\`  
+\- \`failed\_terminal\`  
+\- \`cancelled\`  
+\- \`blocked\`
+
+\`timeout\_observed\`, \`dispatch\_unknown\`, \`termination\_pending\`, and \`reconciliation\_required\` SHALL NOT be considered terminal because the external execution condition may remain unresolved.
+
+\#\# 12.3 Allowed State Transitions
+
+The following transitions SHALL be valid:
+
+\`\`\`text  
+accepted → waiting\_dependency  
+accepted → ready  
+accepted → cancelled  
+accepted → blocked
+
+waiting\_dependency → ready  
+waiting\_dependency → blocked  
+waiting\_dependency → cancelled
+
+ready → dispatching  
+ready → cancelled  
+ready → blocked
+
+dispatching → running  
+dispatching → dispatch\_unknown  
+dispatching → failed\_retryable  
+dispatching → failed\_terminal  
+dispatching → cancelled
+
+dispatch\_unknown → running  
+dispatch\_unknown → reconciliation\_required  
+dispatch\_unknown → termination\_pending  
+dispatch\_unknown → failed\_retryable  
+dispatch\_unknown → failed\_terminal
+
+running → completion\_pending  
+running → timeout\_observed  
+running → cancel\_requested  
+running → reconciliation\_required
+
+completion\_pending → completed  
+completion\_pending → failed\_retryable  
+completion\_pending → failed\_terminal  
+completion\_pending → cancelled
+
+timeout\_observed → termination\_pending  
+timeout\_observed → reconciliation\_required
+
+termination\_pending → failed\_retryable  
+termination\_pending → failed\_terminal  
+termination\_pending → reconciliation\_required  
+termination\_pending → cancelled
+
+cancel\_requested → cancelled  
+cancel\_requested → reconciliation\_required
+
+failed\_retryable → ready  
+failed\_retryable → failed\_terminal  
+failed\_retryable → blocked
+
+reconciliation\_required → running  
+reconciliation\_required → completed  
+reconciliation\_required → failed\_retryable  
+reconciliation\_required → failed\_terminal  
+reconciliation\_required → termination\_pending  
+reconciliation\_required → blocked  
+\`\`\`
+
+Invalid transitions SHALL be rejected and recorded as scheduler errors.
+
+\#\# 12.4 State-Transition Atomicity
+
+Every state transition SHALL:
+
+\- Be validated against the current persisted state.  
+\- Be performed within a PostgreSQL transaction.  
+\- Record the previous state.  
+\- Record the new state.  
+\- Record the transition reason.  
+\- Record the scheduler generation.  
+\- Record the event or command that caused the transition.  
+\- Be committed before the transition is considered effective.
+
+No in-memory state transition SHALL be authoritative until persisted successfully.
+
+If the transaction fails or is rolled back, the state transition SHALL be considered not to have occurred.
+
+\---
+
+\# 13\. Scheduler Generation and Fencing
+
+\#\# 13.1 Purpose
+
+WF-001 SHALL use a monotonically increasing scheduler generation to prevent an obsolete Scheduler instance from continuing to operate after ownership has changed.
+
+The generation SHALL act as a fencing token.
+
+\#\# 13.2 Generation Acquisition
+
+During successful Scheduler startup:
+
+1\. WF-001 SHALL request acquisition of the scheduler authority from PostgreSQL.  
+2\. PostgreSQL SHALL issue a new generation greater than every previously issued generation.  
+3\. The generation SHALL be associated with the current runtime instance.  
+4\. The generation SHALL be persisted before the Scheduler enters active operation.
+
+Only one generation SHALL be active at a time.
+
+\#\# 13.3 Fencing Validation
+
+Every operation that changes scheduler-owned execution state SHALL validate:
+
+\- The runtime instance identity.  
+\- The active scheduler generation.  
+\- The current ownership status.  
+\- The generation has not been superseded.
+
+Every dispatch operation SHALL validate the same ownership information immediately before dispatch preparation.
+
+\#\# 13.4 Fenced Instance Behavior
+
+If a Scheduler instance detects that its generation is no longer active, it SHALL:
+
+\- Stop creating new execution requests.  
+\- Stop dispatching workflow attempts.  
+\- Stop processing completion events as the active authority.  
+\- Stop scheduling retries.  
+\- Stop applying timeout transitions.  
+\- Publish a fenced-instance health event where possible.  
+\- Enter a non-active runtime condition.  
+\- Terminate or await external process supervision according to deployment policy.
+
+A fenced instance SHALL not attempt to reclaim authority autonomously.
+
+\#\# 13.5 Generation Persistence
+
+The active generation SHALL be included in:
+
+\- Scheduler health records.  
+\- Execution-attempt records.  
+\- Dispatch records.  
+\- State-transition records.  
+\- Completion-event processing records.  
+\- Reconciliation records.
+
+\#\# 13.6 Stale Instance Protection
+
+A stale lock or expired heartbeat SHALL never, by itself, authorize a new instance to assume operation without issuing a new generation.
+
+The new generation SHALL invalidate all operations from the previous generation.
+
+Fencing validation SHALL occur immediately before every scheduler-owned state mutation and every dispatch initiation.  
+\---
+
+\# 14\. Persistent Dispatch Coordination
+
+\#\# 14.1 Dispatch Problem
+
+WF-001 SHALL treat PostgreSQL persistence and n8n dispatch as separate operations.
+
+The Scheduler SHALL NOT assume that a PostgreSQL commit and an n8n request can be completed atomically.
+
+\#\# 14.2 Dispatch Record
+
+Before contacting n8n, WF-001 SHALL persist a dispatch record associated with the execution attempt.
+
+The dispatch record SHALL identify:
+
+\- Logical execution ID.  
+\- Execution-attempt ID.  
+\- Scheduler generation.  
+\- Workflow ID.  
+\- Workflow version.  
+\- Dispatch request identity.  
+\- Dispatch state.  
+\- Dispatch creation timestamp.  
+\- Dispatch acknowledgement timestamp, when available.  
+\- n8n execution ID, when available.  
+\- Last dispatch error, when applicable.
+
+\#\# 14.3 Dispatch States
+
+A dispatch record SHALL support at least:
+
+\- \`prepared\`  
+\- \`sending\`  
+\- \`accepted\`  
+\- \`rejected\`  
+\- \`unknown\`  
+\- \`reconciled\`
+
+\#\# 14.4 Dispatch Sequence
+
+WF-001 SHALL perform dispatch in the following logical order:
+
+1\. Validate active scheduler generation.  
+2\. Validate the execution is eligible for dispatch.  
+3\. Create or claim one execution attempt.  
+4\. Persist the attempt and dispatch record.  
+5\. Transition the scheduler execution to \`dispatching\`.  
+6\. Send the authenticated dispatch request to n8n.
+
+If request transmission cannot be initiated, the dispatch SHALL be classified according to the dispatch failure policy without assuming delivery.
+
+7\. Record the n8n response or communication failure.  
+8\. Resolve the dispatch result as \`accepted\`, \`rejected\`, or \`unknown\`.  
+9\. Transition the scheduler execution accordingly.  
+10\. Persist the complete dispatch outcome.
+
+\#\# 14.5 Ambiguous Dispatch
+
+If WF-001 cannot determine whether n8n received the request, the dispatch SHALL be marked \`unknown\`.
+
+WF-001 SHALL NOT immediately send a second dispatch for the same logical execution or attempt.
+
+The attempt SHALL enter reconciliation.
+
+\#\# 14.6 Dispatch Reconciliation
+
+For an \`unknown\` dispatch, WF-001 SHALL attempt to determine whether n8n created or executed the workflow using the approved n8n REST API or Webhook execution interface.
+
+Reconciliation SHALL use:
+
+\- Dispatch request identity.  
+\- AHOS execution-attempt identity.  
+\- n8n execution ID, if available.  
+\- Workflow ID.  
+\- Dispatch timestamp.  
+\- Correlation ID.
+
+If the n8n execution is confirmed:
+
+\- The attempt SHALL transition to \`running\` or the corresponding observed terminal state.
+
+If n8n confirms that no execution exists:
+
+\- The attempt MAY be classified as dispatch-failed.  
+\- A new execution attempt MAY be created according to failure policy.
+
+If the result remains unknown:
+
+\- The attempt SHALL remain in \`reconciliation\_required\`.  
+\- Automatic duplicate dispatch SHALL be prohibited.  
+\- Operator review SHALL be required unless an approved idempotency contract permits safe recovery.
+
+\#\# 14.7 Dispatch Acknowledgement
+
+A successful HTTP or internal-interface response SHALL not automatically mean that the workflow completed successfully.
+
+It SHALL indicate only the acknowledgement level defined by the n8n interface contract.
+
+WF-001 SHALL record whether the response means:
+
+\- Request received.  
+\- Request accepted.  
+\- n8n execution created.  
+\- n8n execution started.
+
+\---
+
+\# 15\. Execution Attempt Safety
+
+\#\# 15.1 One Active Attempt Rule
+
+Unless a workflow-specific approved concurrency policy explicitly permits otherwise, one logical execution SHALL have no more than one unresolved active execution attempt.
+
+An attempt is unresolved when it is in:
+
+\- \`dispatching\`  
+\- \`dispatch\_unknown\`  
+\- \`running\`  
+\- \`completion\_pending\`  
+\- \`timeout\_observed\`  
+\- \`termination\_pending\`  
+\- \`cancel\_requested\`  
+\- \`reconciliation\_required\`
+
+\#\# 15.2 Retry Eligibility
+
+A new execution attempt SHALL NOT be created while a previous attempt remains unresolved.
+
+A retry SHALL be eligible only when:
+
+\- The previous attempt has reached a safe terminal outcome.  
+\- n8n execution termination is confirmed where required.  
+\- The retry policy classifies the failure as retryable.  
+\- The active configuration permits retry.  
+\- No dependency, resource, or operator restriction prevents retry.
+
+\#\# 15.3 Non-Idempotent Workflows
+
+A workflow SHALL be classified as non-idempotent unless an approved workflow specification explicitly defines its idempotency behavior.
+
+For a non-idempotent workflow:
+
+\- Ambiguous dispatch SHALL require reconciliation.  
+\- Timeout SHALL require termination confirmation.  
+\- Crash recovery SHALL not automatically create a new attempt while execution status is uncertain.  
+\- Operator review SHALL be required when external side effects cannot be verified.
+
+\#\# 15.4 Idempotent Workflows
+
+An idempotent classification SHALL not be based only on a metadata flag.
+
+The responsible workflow specification SHALL define:
+
+\- Idempotency key.  
+\- Deduplication location.  
+\- Side effects covered.  
+\- Replay behavior.  
+\- Retry safety.  
+\- Completion behavior after duplicate delivery.
+
+WF-001 SHALL use the classification only according to that approved contract.
+
+\#\# 15.5 Attempt Versioning
+
+Every completion event SHALL include the execution-attempt identity.
+
+A completion event for an older attempt SHALL not update a newer attempt.
+
+\---
+
+\# 16\. Completion Event Coordination
+
+\#\# 16.1 Completion Event Authority
+
+n8n SHALL report execution results.
+
+WF-001 SHALL determine whether the event is valid for the current scheduler execution lifecycle.
+
+\#\# 16.2 Required Completion Event Identity
+
+Every completion event SHALL include:
+
+\- Event ID.  
+\- Logical execution ID.  
+\- Execution-attempt ID.  
+\- AHOS workflow ID.  
+\- Workflow version.  
+\- n8n execution ID where available.  
+\- Event type.  
+\- Reported status.  
+\- Event timestamp.  
+\- Correlation ID.  
+\- Interface version.  
+\- Authentication material or signature.
+
+\#\# 16.3 Event Authentication
+
+Completion events SHALL be authenticated before processing.
+
+Authentication SHALL verify:
+
+\- Sender identity.  
+\- Message integrity.  
+\- Interface authorization.  
+\- Event freshness.  
+\- Event identity uniqueness.
+
+Unauthenticated or invalid events SHALL not change scheduler state.
+
+\#\# 16.4 Event Replay Protection
+
+WF-001 SHALL persist or otherwise durably track processed completion-event IDs.
+
+Replay protection SHALL remain effective across scheduler restarts.
+
+If an event ID has already been processed:
+
+\- The event SHALL be treated as a duplicate.  
+\- No second state transition SHALL occur.  
+\- No retry SHALL be created.  
+\- The duplicate SHALL be logged.
+
+\#\# 16.5 Event Ordering
+
+Completion events SHALL be processed according to execution-attempt identity and current persisted state.
+
+An event SHALL be rejected or quarantined when:
+
+\- The attempt does not exist.  
+\- The event belongs to a superseded attempt.  
+\- The workflow identity does not match.  
+\- The event attempts an invalid transition.  
+\- The event is older than an already accepted terminal result.  
+\- The event cannot be authenticated.
+
+\#\# 16.6 Late Completion Events
+
+A late event received after timeout observation, cancellation request, or crash recovery SHALL be recorded.
+
+WF-001 SHALL not automatically overwrite the established scheduler state.
+
+The event SHALL trigger reconciliation when it materially conflicts with the current state.
+
+\#\# 16.7 Completion Processing Transaction
+
+Completion processing SHALL:
+
+1\. Authenticate the event.  
+2\. Validate the event identity.  
+3\. Begin a PostgreSQL transaction.  
+4\. Lock or otherwise safely claim the corresponding execution attempt.  
+5\. Verify the current scheduler generation where required.  
+6\. Verify the current attempt state.  
+7\. Record the event exactly once.  
+8\. Apply a valid state transition.  
+9\. Record the transition reason.  
+10\. Commit the transaction.
+
+A completion event SHALL not be considered processed until the transaction commits successfully.
+
+\---
+
+\# 17\. Timeout Safety
+
+\#\# 17.1 Timeout Observation
+
+WF-001 SHALL treat timeout as an observation that the configured execution deadline has been exceeded.
+
+A timeout observation SHALL not imply that the n8n execution has stopped.
+
+\#\# 17.2 Timeout Sequence
+
+When an execution exceeds its configured deadline, WF-001 SHALL:
+
+1\. Confirm that the execution attempt remains unresolved.  
+2\. Record the timeout observation.  
+3\. Transition the scheduler execution to \`timeout\_observed\`.  
+4\. Attempt approved n8n execution-status reconciliation.  
+5\. Request termination where the n8n interface supports it.  
+6\. Wait for termination confirmation according to configuration.  
+7\. Transition to a safe terminal or reconciliation state.
+
+\#\# 17.3 Timeout Retry Rule
+
+WF-001 SHALL not create a retry while the timed-out n8n execution remains unresolved.
+
+A retry SHALL require one of:
+
+\- Confirmed n8n termination.  
+\- Confirmed absence of an n8n execution.  
+\- An approved idempotency contract that explicitly permits concurrent or uncertain recovery.
+
+\#\# 17.4 Timeout Sources
+
+WF-001 SHALL distinguish:
+
+\- Scheduler-enforced timeout.  
+\- n8n-reported timeout.  
+\- Dispatch-request timeout.  
+\- Communication timeout.  
+\- Workflow self-termination due to timeout.
+
+The timeout source SHALL be recorded independently from the scheduler state.
+
+\---
+
+\# 18\. Crash Recovery and Reconciliation
+
+\#\# 18.1 Recovery Principle
+
+After an unexpected Scheduler termination, PostgreSQL state SHALL be treated as evidence of the last committed scheduler observation, not proof of the current n8n execution state.
+
+\#\# 18.2 Recovery Scope
+
+On startup after an incomplete shutdown, WF-001 SHALL identify executions and attempts that were unresolved when the previous instance stopped.
+
+These MAY include:
+
+\- \`dispatching\`  
+\- \`dispatch\_unknown\`  
+\- \`running\`  
+\- \`completion\_pending\`  
+\- \`timeout\_observed\`  
+\- \`termination\_pending\`  
+\- \`cancel\_requested\`  
+\- \`reconciliation\_required\`
+
+\#\# 18.3 Recovery Sequence
+
+For each unresolved attempt, WF-001 SHALL:
+
+1\. Record that recovery inspection has begun.  
+2\. Verify the current scheduler generation.  
+3\. Query the approved n8n REST API execution-status interface.  
+4\. Match any n8n execution using persisted correlation data.  
+5\. Record the observed n8n state.  
+6\. Process any available completion information.  
+7\. Determine whether the attempt is active, completed, failed, terminated, or unknown.  
+8\. Apply only a valid scheduler state transition.  
+9\. Prevent a new attempt while the previous attempt remains unresolved.  
+10\. Escalate unresolved ambiguity to operator review.
+
+\#\# 18.4 Automatic Recovery
+
+Automatic retry after crash SHALL be permitted only when:
+
+\- The previous attempt is conclusively terminated or confirmed absent.  
+\- The workflow’s approved idempotency contract permits retry.  
+\- The retry policy allows retry.  
+\- The active configuration is compatible.  
+\- No dependency or resource restriction blocks execution.
+
+\#\# 18.5 Unresolved Recovery
+
+If n8n status cannot be determined or execution side effects cannot be verified:
+
+\- The attempt SHALL enter \`reconciliation\_required\`.  
+\- No duplicate dispatch SHALL occur.  
+\- The condition SHALL be logged.  
+\- The Notification Engine SHALL receive a critical operational notification.  
+\- Operator review SHALL be required for resolution.
+
+\#\# 18.6 Recovery Completion
+
+Recovery SHALL be considered complete only when every previously unresolved execution attempt has been assigned exactly one of the following outcomes:
+
+\- Confirmed active state.  
+\- Confirmed completed state.  
+\- Confirmed failed state.  
+\- Confirmed terminated state eligible for retry.  
+\- \`reconciliation\_required\`.
+
+WF-001 SHALL NOT declare normal runtime readiness while any previously unresolved execution attempt remains unaccounted for, unless the approved startup policy explicitly permits limited operation with such attempts quarantined.
+
+Recovery SHALL be idempotent.
+
+Repeated execution of the recovery procedure SHALL produce identical scheduler state when the persisted PostgreSQL contents, active configuration, and scheduler generation have not changed.
+
+Recovery completion SHALL be recorded in the scheduler recovery log, including the recovery completion timestamp and final recovery status.
+
+\---
+
+\# 19\. Configuration Snapshot Consistency
+
+\#\# 19.1 Configuration Snapshot
+
+Every logical execution SHALL reference one immutable approved configuration snapshot.
+
+The snapshot SHALL include all scheduler policies required for the execution lifecycle.
+
+\#\# 19.2 Snapshot Assignment
+
+The configuration snapshot SHALL be assigned when the logical execution is accepted.
+
+Subsequent configuration changes SHALL not silently alter the policy governing an already accepted execution.
+
+\#\# 19.3 New Configuration
+
+A newly activated configuration SHALL apply only to executions accepted after its effective activation point unless a later approved policy explicitly permits migration.
+
+\#\# 19.4 Retry Configuration
+
+A retry SHALL retain the original configuration snapshot unless the approved retry policy explicitly allows migration to a newer configuration.
+
+Any migration SHALL be recorded with:
+
+\- Previous configuration version.  
+\- New configuration version.  
+\- Migration reason.  
+\- Approval reference.
+
+\#\# 19.5 Configuration Activation
+
+Configuration and workflow registration changes SHALL be activated as one coherent approved version.
+
+WF-001 SHALL not apply partial configuration updates.
+
+If validation fails:
+
+\- The new configuration SHALL not become active.  
+\- The previous valid configuration SHALL remain active.  
+\- The failure SHALL be recorded.  
+\- The Notification Engine SHALL receive an operational notification.
+
+\---
+
+\# 20\. Database Contract Requirements
+
+\#\# 20.1 Database Specification Alignment
+
+WF-001 SHALL use only database structures defined in the approved AHOS Database Design Specification or an explicitly approved WF-001 database extension.
+
+No runtime table, field, relationship, or constraint may be introduced implicitly during implementation.
+
+\#\# 20.2 Required Logical Data Domains
+
+The approved database contract SHALL provide logical persistence for:
+
+\- Scheduler authority generation.  
+\- Scheduler runtime instances.  
+\- Logical executions.  
+\- Execution attempts.  
+\- Dispatch records.  
+\- Completion events.  
+\- State-transition history.  
+\- Workflow configuration snapshots.  
+\- Workflow registrations.  
+\- Workflow dependencies.  
+\- Scheduler health.  
+\- Scheduler metrics.  
+\- Reconciliation records.
+
+\#\# 20.3 Database Constraints
+
+The database contract SHALL enforce, where applicable:
+
+\- Unique logical execution identities.  
+\- Unique execution-attempt identities.  
+\- Unique dispatch request identities.  
+\- Unique completion-event identities.  
+\- Valid scheduler state values.  
+\- Valid dispatch state values.  
+\- Referential integrity between executions and attempts.  
+\- Referential integrity between attempts and dispatch records.  
+\- Referential integrity between events and attempts.  
+\- One active scheduler generation.
+
+\#\# 20.4 Database as Source of Truth
+
+WF-001 SHALL treat PostgreSQL as the source of truth for persisted scheduler coordination.
+
+In-memory data SHALL be treated as a cache or temporary working set.
+
+An in-memory value conflicting with committed PostgreSQL state SHALL be discarded or reconciled according to the active runtime policy.
+
+\#\# 20.5 Transaction Requirement
+
+Any operation that changes scheduler-owned state SHALL use a PostgreSQL transaction.
+
+Scheduler coordination transactions SHALL use the PostgreSQL READ COMMITTED isolation level unless an explicitly approved specification revision defines otherwise.
+
+Related changes SHALL be committed atomically, including:
+
+\- State transition and transition history.  
+\- Completion-event recording and state transition.  
+\- Configuration activation and configuration-version update.  
+\- Scheduler-generation activation and prior-generation invalidation.
+
+\#\# 20.6 Uncertain Database Commit
+
+If WF-001 cannot determine whether a PostgreSQL transaction committed:
+
+\- The operation SHALL be treated as indeterminate.  
+\- WF-001 SHALL re-read authoritative state before repeating the operation.  
+\- The operation SHALL not be blindly repeated.  
+\- Duplicate state changes SHALL be prevented through identity and state validation.
+
+\# 21\. Phase 2 Completion Criteria
+
+Phase 2 SHALL be considered complete only when:
+
+\- WF-001 runtime state is represented separately from n8n execution state.  
+\- Logical execution and execution-attempt identities are defined.  
+\- Scheduler generations provide fencing.  
+\- Obsolete Scheduler instances cannot perform authoritative operations.  
+\- Dispatch outcomes can be represented as known or unknown.  
+\- Ambiguous dispatch is reconciled before duplicate dispatch.  
+\- Completion events are authenticated and replay-protected.  
+\- Completion events are correlated to immutable execution attempts.  
+\- Timeout observation is separated from external termination.  
+\- Retries cannot begin while an earlier attempt remains unresolved.  
+\- Crash recovery reconciles unresolved n8n executions.  
+\- Configuration snapshots are immutable per logical execution.  
+\- Database responsibilities are aligned with the approved DDS.  
+\- Required persistence domains and constraints are approved.  
+\- PostgreSQL transaction boundaries are defined.  
+\- WF-001 SHALL be implementable as an importable n8n workflow without requiring an external scheduler service.  
+\- No enterprise-scale infrastructure is required.  
+\- No code or database schema is generated as part of this phase.
+
+All SHALL requirements defined in Sections 9–21 SHALL be satisfied before Phase 2 is considered complete.
+

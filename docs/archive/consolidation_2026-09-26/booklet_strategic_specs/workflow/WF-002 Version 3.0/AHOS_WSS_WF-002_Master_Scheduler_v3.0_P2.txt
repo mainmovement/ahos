@@ -1,0 +1,696 @@
+AHOS Workflow Specification Sheet
+WF-002 — Workflow Registry
+Version 1.0
+Phase 2 — Registration Lifecycle & Version Governance
+1. Purpose
+1.1 Objective
+
+This phase defines the complete architectural lifecycle governing workflow registration, activation, version evolution, suspension, deprecation, and archival within the AHOS Workflow Registry.
+
+It establishes the authoritative rules ensuring that every registered workflow evolves through a deterministic, auditable, and governed lifecycle.
+
+1.2 Scope
+
+This phase governs:
+
+Registration Lifecycle
+Workflow Activation
+Workflow Suspension
+Workflow Deprecation
+Workflow Archival
+Version Governance
+Version Compatibility
+Publication Rules
+Lifecycle Validation
+Lifecycle Auditability
+
+Runtime execution lifecycle SHALL remain governed by WF-001 and WF-003.
+
+2. Registration Lifecycle Principles
+2.1 Architectural Philosophy
+
+Workflow registration represents an architectural commitment rather than a deployment activity.
+
+Registration SHALL precede any operational availability.
+
+Execution eligibility SHALL NEVER imply successful registration.
+
+2.2 Deterministic Lifecycle
+
+Every workflow SHALL progress through a predefined lifecycle.
+
+Undefined lifecycle transitions SHALL NOT occur.
+
+Lifecycle progression SHALL remain deterministic under all operating conditions.
+
+2.3 Lifecycle Ownership
+
+Lifecycle progression SHALL occur only through authorized architectural operations.
+
+Implicit lifecycle changes SHALL NOT occur.
+
+3. Registration Lifecycle Model
+
+Every workflow SHALL exist in exactly one lifecycle state.
+
+The canonical lifecycle SHALL consist of:
+
+Draft
+Submitted
+Registered
+Validated
+Active
+Suspended
+Deprecated
+Archived
+
+Additional implementation-specific states MAY exist internally.
+
+Only canonical states SHALL be architecturally visible.
+
+4. Registration Phase
+4.1 Registration Preconditions
+
+A workflow SHALL satisfy all mandatory architectural requirements before registration.
+
+Required artifacts SHALL include:
+
+Workflow Specification
+Workflow Contract
+Version Declaration
+Engine Association
+Ownership Declaration
+Capability Declaration
+Dependency Declaration
+4.2 Registration Guarantees
+
+Successful registration SHALL guarantee:
+
+globally unique identity;
+immutable workflow identifier;
+authoritative registry entry;
+audit record creation;
+lifecycle initialization.
+4.3 Registration Failure
+
+Incomplete registrations SHALL be rejected.
+
+Rejected workflows SHALL NOT become discoverable.
+
+5. Validation Phase
+5.1 Objective
+
+Validation confirms architectural correctness before operational activation.
+
+Validation SHALL verify architectural integrity.
+
+It SHALL NOT validate business functionality.
+
+5.2 Validation Domains
+
+Validation SHALL include:
+
+identity validation;
+ownership validation;
+version validation;
+dependency validation;
+capability validation;
+specification validation;
+contract validation.
+5.3 Validation Result
+
+Validation SHALL produce one of the following outcomes:
+
+Passed
+Failed
+Requires Review
+
+No undefined validation outcome SHALL exist.
+
+6. Activation Phase
+6.1 Objective
+
+Activation authorizes a registered workflow to become eligible for runtime scheduling.
+
+Activation SHALL NOT imply immediate execution.
+
+6.2 Activation Preconditions
+
+Before activation:
+
+validation SHALL succeed;
+ownership SHALL exist;
+compatible contract SHALL exist;
+compatible engine SHALL exist;
+version SHALL be approved.
+6.3 Activation Guarantees
+
+Activation SHALL guarantee:
+
+architectural discoverability;
+scheduler eligibility;
+version visibility;
+audit preservation.
+6.4 Activation Integrity
+
+Only one active architectural version SHALL exist unless explicitly approved by governance policy.
+
+7. Suspension Phase
+7.1 Objective
+
+Suspension temporarily removes a workflow from execution eligibility without removing architectural knowledge.
+
+7.2 Suspension Rules
+
+Suspended workflows SHALL:
+
+remain registered;
+remain discoverable;
+remain historically traceable;
+become ineligible for new execution scheduling.
+7.3 Reactivation
+
+Suspended workflows MAY return to Active following successful authorization.
+
+Historical continuity SHALL remain preserved.
+
+8. Deprecation Phase
+8.1 Objective
+
+Deprecation announces the planned retirement of a workflow while preserving compatibility during the transition period.
+
+8.2 Deprecation Guarantees
+
+Deprecated workflows SHALL:
+
+remain identifiable;
+remain auditable;
+remain versioned;
+clearly communicate replacement guidance when applicable.
+8.3 Consumer Responsibilities
+
+Consumers SHALL avoid adopting deprecated workflows for new integrations.
+
+Existing integrations MAY continue during the approved transition period.
+
+9. Archival Phase
+9.1 Objective
+
+Archival permanently retires a workflow from operational use while preserving complete architectural history.
+
+9.2 Archival Guarantees
+
+Archived workflows SHALL:
+
+remain historically available;
+remain immutable;
+remain auditable;
+remain uniquely identifiable.
+
+Archived workflows SHALL NOT become eligible for future activation.
+
+10. Lifecycle Transition Rules
+
+The Registry SHALL permit only architecturally valid transitions.
+
+The canonical lifecycle is defined as:
+
+Draft
+   │
+   ▼
+Submitted
+   │
+   ▼
+Registered
+   │
+   ▼
+Validated
+   │
+   ▼
+Active
+  │ │
+  │ └────────► Suspended
+  │              │
+  │              ▼
+  └────────────► Active
+  │
+  ▼
+Deprecated
+  │
+  ▼
+Archived
+
+Transitions outside this model SHALL be rejected.
+
+11. Version Governance
+11.1 Objective
+
+This section defines the authoritative governance model for workflow version evolution within the AHOS Workflow Registry.
+
+Version governance SHALL preserve architectural stability while enabling controlled evolution.
+
+11.2 Version Authority
+
+Every workflow version SHALL be governed exclusively by WF-002.
+
+No external architectural component SHALL modify workflow version metadata independently.
+
+Version authority SHALL remain centralized.
+
+11.3 Canonical Version Structure
+
+Every registered workflow version SHALL include:
+
+Major Version
+Minor Version
+Revision
+Publication Status
+Effective Date
+Registration Timestamp
+
+Version identifiers SHALL remain immutable after publication.
+
+11.4 Version Evolution Principles
+
+Workflow evolution SHALL be:
+
+deterministic;
+reviewable;
+auditable;
+backward-aware;
+architecture-driven.
+
+Version progression SHALL NEVER occur implicitly.
+
+12. Version Compatibility
+12.1 Objective
+
+Every workflow version SHALL explicitly declare its architectural compatibility.
+
+Compatibility SHALL NEVER be inferred.
+
+12.2 Compatibility Domains
+
+Each workflow version SHALL declare compatibility with:
+
+Workflow Contract Version
+Engine Version
+Database Schema Version
+Runtime Platform Version
+API Specification Version
+
+Additional compatibility domains MAY be introduced through future architectural revisions.
+
+12.3 Compatibility Validation
+
+Before activation,
+
+WF-002 SHALL validate declared compatibility.
+
+Incompatible versions SHALL NOT become Active.
+
+12.4 Compatibility Integrity
+
+Compatibility information SHALL remain immutable for published versions.
+
+Changes SHALL require publication of a new workflow version.
+
+13. Version Publication
+13.1 Objective
+
+Publication authorizes a validated workflow version to become an official architectural artifact.
+
+Publication SHALL precede activation.
+
+13.2 Publication Preconditions
+
+Before publication:
+
+architectural review SHALL be completed;
+validation SHALL succeed;
+ownership SHALL be confirmed;
+specifications SHALL exist;
+contracts SHALL exist.
+13.3 Publication Guarantees
+
+Publication SHALL guarantee:
+
+immutable version identity;
+permanent architectural traceability;
+registry discoverability;
+audit preservation.
+13.4 Publication Integrity
+
+Published workflow versions SHALL NEVER be modified.
+
+Subsequent corrections SHALL require publication of a new version.
+
+14. Version Retirement
+14.1 Objective
+
+Version retirement governs the controlled withdrawal of obsolete workflow versions.
+
+Retirement SHALL preserve historical integrity.
+
+14.2 Retirement Rules
+
+Retired versions SHALL:
+
+remain identifiable;
+remain auditable;
+remain historically reconstructable.
+
+Retired versions SHALL NOT become eligible for future activation.
+
+14.3 Historical Preservation
+
+Retirement SHALL NEVER remove architectural history.
+
+Historical references SHALL remain valid indefinitely.
+
+15. Lifecycle Transition Governance
+15.1 Objective
+
+Lifecycle transitions SHALL occur only through explicitly authorized architectural operations.
+
+Implicit transitions SHALL NOT exist.
+
+15.2 Authorized Transition Rules
+
+The following transitions SHALL be permitted:
+
+Draft → Submitted
+Submitted → Registered
+Registered → Validated
+Validated → Active
+Active → Suspended
+Suspended → Active
+Active → Deprecated
+Deprecated → Archived
+
+Every other transition SHALL require explicit architectural approval.
+
+15.3 Transition Validation
+
+Before every lifecycle transition,
+
+WF-002 SHALL validate:
+
+current state;
+target state;
+ownership;
+compatibility;
+architectural constraints.
+15.4 Transition Audit
+
+Every lifecycle transition SHALL generate immutable audit evidence.
+
+Audit records SHALL include transition rationale.
+
+16. Lifecycle Invariants
+16.1 Objective
+
+Lifecycle Invariants define architectural truths that SHALL remain valid regardless of workflow evolution.
+
+16.2 Identity Invariant
+
+Workflow identity SHALL remain immutable throughout the entire lifecycle.
+
+16.3 Ownership Invariant
+
+Every workflow SHALL maintain exactly one authoritative owner.
+
+16.4 Version Invariant
+
+Exactly one workflow version SHALL be architecturally Active unless explicitly authorized otherwise.
+
+16.5 Traceability Invariant
+
+Every lifecycle transition SHALL remain permanently reconstructable.
+
+16.6 Audit Invariant
+
+Every architectural decision SHALL generate immutable historical evidence.
+
+17. Lifecycle Failure Handling
+17.1 Objective
+
+Lifecycle failures SHALL preserve architectural correctness.
+
+Incomplete transitions SHALL NEVER corrupt registry state.
+
+17.2 Failure Categories
+
+WF-002 SHALL recognize:
+
+Validation Failure
+Compatibility Failure
+Authorization Failure
+Publication Failure
+Transition Failure
+Persistence Failure
+17.3 Failure Guarantees
+
+Following failure,
+
+the Registry SHALL guarantee:
+
+rollback of incomplete operations;
+preservation of previous valid lifecycle state;
+immutable failure audit records;
+deterministic failure reporting.
+17.4 Recovery
+
+After successful recovery,
+
+the workflow SHALL return to the last architecturally consistent lifecycle state.
+
+No partial lifecycle transition SHALL remain visible.
+
+18. Registry Change Governance
+18.1 Objective
+
+This section defines the governance model controlling all architectural modifications applied to the Workflow Registry.
+
+Every registry modification SHALL occur through an explicitly governed change process.
+
+Unauthorized architectural changes SHALL NOT occur.
+
+18.2 Governed Change Types
+
+The Registry SHALL govern the following change categories:
+
+Workflow Registration
+Metadata Modification
+Ownership Transfer
+Version Publication
+Lifecycle Transition
+Capability Update
+Dependency Update
+Registry Archival
+
+Any additional change category SHALL require architectural approval.
+
+18.3 Change Authority
+
+Every registry modification SHALL identify:
+
+Authorized Actor
+Requested Change
+Affected Workflow
+Justification
+Approval Reference
+
+Anonymous architectural modifications SHALL NOT be permitted.
+
+18.4 Change Validation
+
+Before applying any modification, WF-002 SHALL validate:
+
+authorization;
+ownership;
+version compatibility;
+architectural consistency;
+dependency integrity.
+18.5 Change Guarantees
+
+Every approved change SHALL guarantee:
+
+deterministic execution;
+immutable audit evidence;
+preservation of architectural integrity;
+historical traceability.
+19. Metadata Governance
+19.1 Objective
+
+WF-002 SHALL maintain authoritative governance over workflow metadata.
+
+Metadata SHALL describe architecture.
+
+Metadata SHALL NOT describe runtime state.
+
+19.2 Mandatory Metadata
+
+Every workflow SHALL define:
+
+Workflow Identifier
+Workflow Name
+Engine
+Category
+Owner
+Version
+Registration Status
+Contract Reference
+Specification Reference
+19.3 Mutable Metadata
+
+Only explicitly designated metadata MAY be modified.
+
+Identity-related metadata SHALL remain immutable.
+
+19.4 Metadata Integrity
+
+Metadata SHALL remain:
+
+complete;
+validated;
+version-aware;
+internally consistent.
+20. Capability Governance
+20.1 Objective
+
+Capabilities represent architectural services provided by workflows.
+
+Capabilities SHALL be governed independently from implementation.
+
+20.2 Capability Registration
+
+Every capability SHALL declare:
+
+Capability Identifier
+Capability Name
+Workflow Owner
+Version
+Contract Reference
+20.3 Capability Consistency
+
+Capability definitions SHALL remain unique.
+
+Duplicate capability definitions SHALL NOT exist.
+
+20.4 Capability Evolution
+
+Capability changes SHALL require:
+
+version review;
+compatibility validation;
+registry approval.
+21. Dependency Governance
+21.1 Objective
+
+Dependency governance ensures architectural correctness between workflows.
+
+Dependencies SHALL remain explicit throughout the workflow lifecycle.
+
+21.2 Dependency Ownership
+
+Every dependency SHALL identify:
+
+Source Workflow
+Target Workflow
+Dependency Type
+Required Version
+21.3 Dependency Integrity
+
+WF-002 SHALL reject dependencies that introduce:
+
+circular references;
+orphan references;
+incompatible versions;
+undefined workflows.
+21.4 Dependency Evolution
+
+Dependency modifications SHALL undergo the same governance process as workflow modifications.
+
+22. Registry Policy Enforcement
+22.1 Objective
+
+WF-002 SHALL enforce architectural policies uniformly across all registry operations.
+
+Policy enforcement SHALL precede persistence.
+
+22.2 Mandatory Policies
+
+The Registry SHALL enforce:
+
+Identity Policy
+Ownership Policy
+Version Policy
+Capability Policy
+Dependency Policy
+Lifecycle Policy
+Security Policy
+22.3 Policy Violations
+
+Policy violations SHALL result in immediate rejection of the requested operation.
+
+Partial policy enforcement SHALL NOT occur.
+
+22.4 Policy Traceability
+
+Every policy decision SHALL become permanently auditable.
+
+23. Registry Decision Model
+23.1 Objective
+
+WF-002 SHALL make deterministic architectural decisions regarding registry modifications.
+
+Decision-making SHALL remain transparent and reproducible.
+
+23.2 Decision Outcomes
+
+Every evaluated operation SHALL result in exactly one outcome:
+
+Approved
+Rejected
+Requires Manual Review
+
+No additional outcome SHALL exist.
+
+23.3 Decision Evidence
+
+Every decision SHALL record:
+
+Decision Identifier
+Evaluation Timestamp
+Decision Outcome
+Decision Basis
+Correlation Identifier
+23.4 Decision Consistency
+
+Equivalent architectural requests SHALL produce equivalent registry decisions under identical conditions.
+
+24. Phase 2 Compliance Requirements
+
+An implementation SHALL satisfy Phase 2 only if all of the following remain continuously true:
+
+Requirement	Mandatory
+Deterministic Registration Lifecycle	SHALL
+Controlled Version Governance	SHALL
+Explicit Ownership	SHALL
+Immutable Identity	SHALL
+Capability Governance	SHALL
+Dependency Governance	SHALL
+Registry Policy Enforcement	SHALL
+Complete Audit Trail	SHALL
+Architectural Consistency	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 2 compliance.
+
+25. Phase 2 Completion Statement
+
+Phase 2 establishes the complete governance framework for the architectural lifecycle of registered workflows.
+
+It defines how workflows are registered, validated, published, activated, versioned, governed, modified, suspended, deprecated, and archived while preserving architectural integrity, deterministic behavior, and complete auditability.
+
+Upon successful implementation, WF-002 SHALL ensure that every workflow within AHOS evolves through a controlled, policy-driven, and fully traceable lifecycle.

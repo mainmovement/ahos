@@ -1,0 +1,172 @@
+{
+  "name": "AHOS Phase 2.1 - Discovery Scheduler v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -512,
+        0
+      ],
+      "id": "3dafeb4f-aaa7-4725-b095-c277af2506f8",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date().toISOString();\n\nconst jobs = [\n  {\n    collector: \"DexScreener\",\n    chain: \"solana\",\n    priority: 1,\n    enabled: true,\n    interval: 60,\n    job_id: `job_${Date.now()}_${Math.floor(Math.random() * 1000000)}`,\n    scheduled_at: now\n  }\n];\n\nreturn jobs\n  .filter(job => job.enabled)\n  .map(job => ({\n    json: job\n  }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        0
+      ],
+      "id": "95eb1663-f0ec-425e-bd44-3b75021e65d0",
+      "name": "Generate Jobs"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "xZy0SgJpGphcjVz1",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/xZy0SgJpGphcjVz1",
+          "cachedResultName": "AHOS Phase 2.2 - DexScreener Collector v1.0"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "collector": "=={{ $json.collector }}",
+            "chain": "=={{ $json.chain }}",
+            "job_id": "=={{ $json.job_id }}",
+            "scheduled_at": "=={{ $json.scheduled_at }}",
+            "interval": "=$json.priority",
+            "priority": "=$json.priority"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "collector",
+              "displayName": "collector",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chain",
+              "displayName": "chain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "interval",
+              "displayName": "interval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "scheduled_at",
+              "displayName": "scheduled_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "76173a4e-0661-491e-afc4-47052a791a6d",
+      "name": "Call 'AHOS Phase 2.2 - DexScreener Collector v1.0'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Jobs": {
+      "main": [
+        [
+          {
+            "node": "Call 'AHOS Phase 2.2 - DexScreener Collector v1.0'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "22acd8ad-b4c0-4ddb-bf46-9d276db2dc3b",
+  "meta": {
+    "instanceId": "f8e78c29b370e9f13a85ab2c82383d75625dd8eabb59fcae77aab21df545c5ac"
+  },
+  "nodeGroups": [],
+  "id": "FFIgumT2XrV12xbH",
+  "tags": []
+}

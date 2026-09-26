@@ -1,0 +1,135 @@
+AHOS Workflow Specification Sheet
+WF-005 — Data Acquisition Manager
+
+Version 1.0
+
+Engine: Data Acquisition Engine
+
+Phase 1 — Data Acquisition Architecture & Core Principles
+1. Purpose
+1.1 Objective
+
+The Data Acquisition Manager SHALL serve as the authoritative architectural component responsible for acquiring, validating, coordinating, and supervising external market data entering the AHOS platform.
+
+It SHALL establish the trusted boundary between external information sources and the internal architecture.
+
+1.2 Scope
+
+WF-005 governs:
+
+External Data Acquisition
+Source Coordination
+Data Collection Lifecycle
+Acquisition Scheduling Requests
+Source Availability Verification
+Acquisition Integrity
+Data Origin Traceability
+Collection Supervision
+
+WF-005 SHALL NOT perform data normalization, feature extraction, market analysis, or trading decisions.
+
+2. Architectural Responsibility
+
+WF-005 SHALL be the single authoritative owner of external data acquisition.
+
+No other workflow SHALL independently collect production market data unless explicitly authorized by architectural policy.
+
+3. Architectural Position
+External Sources
+        │
+        ▼
+WF-005 Data Acquisition Manager
+        │
+        ▼
+Data Quality Engine
+        │
+        ▼
+Normalization Engine
+
+WF-005 SHALL represent the only architectural gateway through which external operational data enters AHOS.
+
+4. Acquisition Philosophy
+
+External information SHALL be considered untrusted until successfully acquired, validated, and accepted according to architectural policy.
+
+Successful retrieval of data SHALL NOT imply that the data is trustworthy.
+
+5. Core Principles
+
+Data acquisition SHALL remain:
+
+deterministic;
+traceable;
+source-aware;
+fault-tolerant;
+auditable;
+technology-independent;
+scalable.
+
+Every acquisition SHALL be independently reproducible.
+
+6. Source Independence
+
+WF-005 SHALL remain independent from specific providers.
+
+Supported providers MAY include:
+
+DexScreener
+DEXTools
+GeckoTerminal
+CoinGecko
+CoinMarketCap
+Binance
+Hyperliquid
+Future Providers
+
+The architectural behavior SHALL remain unchanged regardless of the provider.
+
+7. Trust Boundary
+
+WF-005 SHALL establish the official trust boundary between:
+
+External Systems
+Internal AHOS Components
+
+All downstream components SHALL consume only data that has successfully crossed this boundary.
+
+8. Data Ownership
+
+Before acceptance, external information SHALL remain owned by the originating provider.
+
+After successful acquisition and acceptance, AHOS SHALL become the authoritative owner of the internal acquisition record while preserving source attribution.
+
+9. Acquisition Constraints
+
+WF-005 SHALL NOT:
+
+normalize data;
+enrich data;
+score assets;
+evaluate opportunities;
+execute trading logic;
+modify external provider data.
+
+Its sole responsibility SHALL remain reliable acquisition and controlled admission of external information.
+
+10. Architectural Assumptions
+
+WF-005 assumes:
+
+external providers may become unavailable;
+data formats may differ;
+response latency may vary;
+rate limits may exist;
+partial responses may occur;
+network failures are expected.
+
+The architecture SHALL tolerate these conditions without compromising platform integrity.
+
+11. Phase 1 Completion Statement
+
+Phase 1 establishes the architectural foundation of the AHOS Data Acquisition Manager.
+
+It defines the role, authority, trust boundary, scope, and operational principles governing all external data entering the AHOS platform.
+
+This phase intentionally separates data acquisition from all downstream processing activities, ensuring that the acquisition layer remains focused solely on reliable, deterministic, and auditable ingestion of external information.

@@ -1,0 +1,235 @@
+AHOS Workflow Specification Sheet (WSS)
+WF-001 — Master Scheduler
+
+Version: 1.0
+
+Status: Draft
+
+Priority: Critical
+
+Phase: Core Infrastructure
+
+1. Purpose
+
+Master Scheduler is the central orchestration engine of AHOS.
+
+Its responsibility is to determine when, how, and under what conditions each workflow should execute.
+
+It acts as the heartbeat of the entire platform.
+
+No business logic, market analysis, scoring, or AI inference shall be performed inside this workflow.
+
+Its sole responsibility is orchestration.
+
+2. Mission
+
+The workflow shall:
+
+Trigger workflows according to schedule.
+Prevent duplicate executions.
+Respect workflow dependencies.
+Manage execution queues.
+Monitor workflow health.
+Handle retries.
+Record execution logs.
+Notify critical failures.
+Support manual execution.
+Support future dynamic scheduling.
+3. Scope
+In Scope
+Time scheduling
+Queue management
+Dependency checking
+Retry handling
+Execution logging
+Health monitoring
+Manual trigger support
+Out of Scope
+Token analysis
+AI calls
+Database analytics
+Telegram reporting (except critical system alerts)
+Market intelligence
+Scoring
+Portfolio management
+4. Inputs
+
+The scheduler may receive:
+
+Cron trigger
+Manual trigger
+System startup event
+Resume after restart
+Future external scheduling requests
+5. Outputs
+
+The scheduler produces:
+
+Workflow execution requests
+Execution status updates
+System logs
+Health events
+Error notifications
+6. Dependencies
+
+Required:
+
+PostgreSQL
+n8n
+Docker
+
+Optional (Future):
+
+Redis queue
+Message broker
+Cluster scheduler
+7. Execution Rules
+
+The scheduler shall:
+
+Never execute the same workflow twice simultaneously.
+Check if a workflow is already running.
+Respect execution priorities.
+Wait for dependent workflows.
+Prevent infinite retry loops.
+Apply configurable retry limits.
+Stop execution after repeated failures.
+Record all execution attempts.
+8. Error Handling
+
+Possible failures include:
+
+Workflow timeout
+Database unavailable
+Workflow crash
+Invalid configuration
+Missing dependency
+
+For each failure:
+
+Log the event.
+Retry according to policy.
+Notify if critical.
+Prevent cascading failures.
+9. Retry Policy
+
+Default:
+
+Retry Count: 3
+Retry Delay: 60 seconds
+Exponential backoff supported (future)
+Critical failures require operator review
+10. Logging
+
+Each execution shall record:
+
+Workflow ID
+Workflow Name
+Start Time
+End Time
+Duration
+Status
+Retry Count
+Error Message (if any)
+Trigger Source
+11. Database Tables
+
+Initial tables used:
+
+workflow_logs
+workflow_queue
+system_health
+configuration
+12. Performance Targets
+
+Execution startup:
+
+< 1 second
+
+Scheduling latency:
+
+< 500 ms
+
+CPU overhead:
+
+Minimal
+
+Memory usage:
+
+Optimized for laptop deployment
+
+13. Resource Constraints
+
+The scheduler shall continuously respect:
+
+Available RAM
+CPU utilization
+Network availability
+Database availability
+
+Future versions may dynamically delay non-critical workflows during high system load.
+
+14. Security
+
+Only authorized workflows may be executed.
+
+Workflow definitions must be immutable after approval unless a new version is deployed.
+
+15. Monitoring
+
+The scheduler shall monitor:
+
+Active workflows
+Failed workflows
+Waiting workflows
+Queue length
+Average execution time
+Failure rate
+16. Success Criteria
+
+The workflow is considered successful when:
+
+All scheduled workflows execute correctly.
+No duplicate execution occurs.
+No dependency violations occur.
+Errors are logged.
+System remains stable after failures.
+17. Testing Requirements
+
+The following tests are mandatory:
+
+Single workflow execution
+Multiple simultaneous triggers
+Dependency enforcement
+Retry behavior
+Timeout handling
+Database disconnection
+System restart recovery
+Long-duration stability test (24+ hours)
+18. Freeze Criteria
+
+WF-001 may only be frozen after:
+
+Functional tests pass.
+Stress tests pass.
+No duplicate execution is observed.
+Recovery tests pass.
+Resource usage is acceptable on the target laptop.
+19. Future Enhancements
+
+Planned but not included in Version 1.0:
+
+Dynamic scheduling based on market volatility.
+Resource-aware execution priorities.
+Distributed scheduling.
+AI-assisted scheduling optimization.
+20. Definition of Done (DoD)
+
+WF-001 is complete only when:
+
+WSS is approved.
+Claude implementation is reviewed.
+n8n workflow is operational.
+Tests pass.
+Logs are validated.
+Workflow is frozen.

@@ -1,0 +1,721 @@
+
+# Document 03
+
+# **AHOS System Architecture Overview (SAO)**
+
+## **Version 1.0**
+
+### **Strategic Architecture Foundation**
+
+---
+
+# 1. Purpose
+
+This document defines the overall architecture of AHOS at the highest level.
+
+It describes **what major components exist, how they interact, what constraints govern the system, and what engineering philosophy shall be followed.**
+
+This document intentionally avoids implementation details.
+
+Detailed architecture, workflows, database schemas, prompts, and source code are defined in later documents.
+
+This document is the architectural foundation upon which the entire AHOS platform will be built.
+
+---
+
+# 2. System Identity
+
+AHOS (Artificial Hybrid Opportunity Scoring System) is an autonomous Token Intelligence Platform designed to discover, evaluate, simulate, rank, monitor, and continuously learn from decentralized token opportunities.
+
+AHOS is **not** a trading bot.
+
+AHOS is **not** an automated trading system.
+
+AHOS is an evidence-driven intelligence platform that assists the operator in making disciplined trading decisions.
+
+---
+
+# 3. Target Deployment Environment
+
+The architecture of AHOS shall always prioritize its intended deployment environment.
+
+### Primary Environment
+
+* Single Operator
+* Single Laptop
+* Local Deployment
+* Docker-Based
+* n8n Workflow Engine
+* PostgreSQL Database
+* Telegram Integration
+* Internet Connected
+* Iran-Based Operation
+
+The architecture must never assume enterprise-scale infrastructure.
+
+---
+
+# 4. Architectural Constraints
+
+The following constraints are permanent engineering rules.
+
+## Single User First
+
+The system is designed for one professional operator.
+
+No multi-user architecture shall be introduced unless explicitly required in the future.
+
+---
+
+## Local First
+
+All critical components should execute locally whenever practical.
+
+Local ownership of data is mandatory.
+
+---
+
+## Sanction Friendly
+
+The architecture shall minimize dependency on services that may become unavailable due to sanctions.
+
+Alternative providers should always be considered.
+
+Provider lock-in is prohibited.
+
+---
+
+## Cost Efficient
+
+The system should prioritize:
+
+* Free APIs
+* Open-source software
+* Local execution
+* Low-cost AI providers
+* Efficient resource utilization
+
+Premium services shall only be adopted when they provide measurable strategic value.
+
+---
+
+## Low Resource Design
+
+Every engineering decision shall consider:
+
+* CPU usage
+* RAM usage
+* Disk usage
+* Network bandwidth
+* Storage growth
+
+Efficiency is a design requirement.
+
+---
+
+## Human Control
+
+The operator remains the final decision maker.
+
+No architectural component may perform irreversible production changes without explicit operator approval.
+
+---
+
+# 5. High-Level Architecture
+
+AHOS consists of six logical layers.
+
+### Layer 1 — Intelligence Sources
+
+Responsible for collecting external information.
+
+Examples:
+
+* Market Data
+* Blockchain Data
+* News
+* Social Platforms
+* Launch Platforms
+* Security Platforms
+
+---
+
+### Layer 2 — Data Acquisition
+
+Responsible for:
+
+* Collection
+* Validation
+* Normalization
+* Deduplication
+* Storage
+
+Only validated information may enter the intelligence system.
+
+---
+
+### Layer 3 — Intelligence Processing
+
+Responsible for:
+
+* Security Analysis
+* On-Chain Analysis
+* Market Analysis
+* Social Analysis
+* Opportunity Discovery
+* Opportunity Evaluation
+* Scoring
+* Simulation
+
+---
+
+### Layer 4 — Decision Support
+
+Responsible for:
+
+* Portfolio Analysis
+* Recommendation Generation
+* Risk Assessment
+* Capital Allocation Guidance
+
+The system supports decisions but does not execute trades automatically.
+
+---
+
+### Layer 5 — Learning
+
+Responsible for:
+
+* Historical Analysis
+* Prediction Evaluation
+* Simulation Evaluation
+* Continuous Learning
+* Knowledge Extraction
+
+---
+
+### Layer 6 — System Governance
+
+Responsible for:
+
+* Monitoring
+* Logging
+* Health Checks
+* Workflow Management
+* Improvement Proposals
+* Configuration Management
+
+---
+
+# 6. Architectural Principles
+
+Every component must satisfy the following principles.
+
+### Single Responsibility
+
+Each module shall perform one primary function.
+
+---
+
+### Modularity
+
+Components must remain independent.
+
+---
+
+### Replaceability
+
+Any AI provider, API, workflow, or module should be replaceable without redesigning the platform.
+
+---
+
+### Explainability
+
+Every recommendation shall be explainable.
+
+---
+
+### Traceability
+
+Every important decision must be logged.
+
+---
+
+### Recoverability
+
+Failures shall be recoverable.
+
+---
+
+### Scalability
+
+The architecture should allow future expansion without major redesign.
+
+---
+
+### Maintainability
+
+The system should remain understandable after years of development.
+
+---
+
+# 7. Workflow Philosophy
+
+AHOS shall not contain large monolithic workflows.
+
+Instead,
+
+many small workflows shall cooperate.
+
+Each workflow shall:
+
+* Have one responsibility
+* Be independently testable
+* Be independently replaceable
+* Be independently monitored
+* Produce clearly defined outputs
+
+Failure of one workflow should not compromise the entire system.
+
+---
+
+# 8. AI Philosophy
+
+Artificial Intelligence is an analytical assistant.
+
+It is not the owner of the system.
+
+Multiple AI providers may cooperate.
+
+Every AI output should be considered evidence rather than unquestionable truth.
+
+Critical decisions should be validated through independent evidence whenever possible.
+
+---
+
+# 9. Data Philosophy
+
+Data is the most valuable asset of AHOS.
+
+Therefore:
+
+* Data quality is more important than data quantity.
+* Historical data should be preserved whenever practical.
+* Every dataset should be versionable.
+* Data lineage should remain traceable.
+
+Knowledge is accumulated through reliable data.
+
+---
+
+# 10. Security Philosophy
+
+Capital protection has priority over opportunity discovery.
+
+The architecture should always prefer rejecting uncertain opportunities over accepting unsafe opportunities.
+
+False negatives are preferable to catastrophic false positives.
+
+---
+
+# 11. Evolution Philosophy
+
+AHOS shall continuously evolve.
+
+However,
+
+evolution must never compromise architectural simplicity.
+
+Every new capability must satisfy all of the following:
+
+* Solves a real problem.
+* Justifies its complexity.
+* Fits the existing architecture.
+* Does not unnecessarily increase maintenance costs.
+* Can be independently tested.
+
+---
+
+# 12. Engineering Decision Framework
+
+Before any new feature is added, five questions must be answered.
+
+1. Does it improve intelligence?
+
+2. Is it useful for a single-user deployment?
+
+3. Can it run efficiently on a single laptop?
+
+4. Is it practical under Iranian infrastructure constraints?
+
+5. Does its long-term value exceed its implementation and maintenance cost?
+
+If any answer is **No**, the feature should be redesigned or postponed.
+
+---
+
+# 13. Future Growth Strategy
+
+The architecture shall evolve incrementally.
+
+Every new engine, workflow, AI model, API integration, or database extension must integrate into the existing architecture rather than replacing it.
+
+Architectural stability is considered a strategic asset.
+
+---
+
+# 14. Architectural Success Criteria
+
+The architecture is considered successful when it enables AHOS to become:
+
+* More Intelligent
+* More Accurate
+* More Explainable
+* More Reliable
+* More Modular
+* More Maintainable
+* More Efficient
+* More Resilient
+* More Adaptable
+
+while remaining practical for execution on a single laptop by a single operator.
+
+---
+
+# 15. Final Architectural Law
+
+> **AHOS is designed to grow in intelligence, not in unnecessary complexity.**
+
+Every future engineering decision shall preserve this principle.
+
+**Simplicity, evidence, modularity, and continuous learning are the four permanent pillars of the AHOS architecture.**
+---
+
+# Appendix A
+
+# AHOS Technology Stack & Tool Selection
+
+## Version 1.0
+
+---
+
+# Purpose
+
+This appendix defines the official technology stack of the AHOS platform.
+
+Every future implementation, workflow, AI prompt, database design, API integration, automation, and software component should follow this technology stack unless an officially approved architectural change is made.
+
+Technology choices should prioritize:
+
+* Reliability
+* Simplicity
+* Long-term maintainability
+* Cost efficiency
+* Open-source technologies
+* Local execution
+* Sanction resilience
+* Provider independence
+
+---
+
+# Primary Deployment Environment
+
+AHOS is designed for:
+
+* Single Operator
+* Single Laptop
+* Local Deployment
+* Personal Research Environment
+* Long-term Continuous Operation
+
+The architecture is intentionally optimized for a single-user deployment rather than enterprise-scale infrastructure.
+
+---
+
+# Operating System
+
+Preferred:
+
+• Windows 11 Pro
+
+Supported:
+
+• Windows 10
+
+Future Optional:
+
+• Ubuntu LTS
+
+The architecture should remain operating-system independent whenever practical.
+
+---
+
+# Container Platform
+
+Official:
+
+Docker Desktop
+
+Container orchestration:
+
+Docker Compose
+
+Future migration to Kubernetes is intentionally out of scope.
+
+---
+
+# Workflow Engine
+
+Official:
+
+n8n
+
+Reason:
+
+* Visual development
+* Modular workflows
+* Large ecosystem
+* Docker support
+* Easy maintenance
+* Community support
+
+Every business process should be implemented as independent workflows.
+
+---
+
+# Database
+
+Primary Database
+
+PostgreSQL
+
+Reason
+
+* Reliability
+* ACID compliance
+* Excellent indexing
+* JSON support
+* Mature ecosystem
+* Open source
+
+Future Optional
+
+Redis
+
+Only when caching or queue optimization becomes necessary.
+
+---
+
+# Artificial Intelligence Layer
+
+The platform must remain AI-provider independent.
+
+Preferred providers include:
+
+* OpenAI
+* Claude
+* Gemini
+* OpenRouter compatible models
+* Local LLMs (future)
+
+The system should support replacing any AI provider without requiring workflow redesign.
+
+---
+
+# AI Provider Selection Strategy
+
+Whenever possible, the system should prioritize:
+
+1. Free providers
+2. Low-cost providers
+3. Highest reasoning quality
+4. Lowest latency
+5. Highest availability
+
+Provider selection should remain configurable.
+
+---
+
+# Communication Platform
+
+Primary
+
+Telegram Bot
+
+Purpose
+
+* Alerts
+* Reports
+* Approval requests
+* Improvement proposals
+* Daily summaries
+* Critical notifications
+
+Telegram is the primary communication interface between AHOS and the operator.
+
+---
+
+# Data Sources
+
+Preferred intelligence sources include:
+
+* DEXTools
+* DexScreener
+* GeckoTerminal
+* Birdeye
+* CoinGecko
+* CoinMarketCap
+* RugCheck
+* GoPlus
+* Blockchain Explorers
+* Whale Tracking Services
+* Smart Money Platforms
+* Official Project Websites
+* X (Twitter)
+* Telegram
+* Discord
+* Reddit
+* GitHub
+* Medium
+* Launchpad Platforms
+* Public APIs
+
+The architecture must support adding new intelligence sources without redesign.
+
+---
+
+# Programming Languages
+
+Primary
+
+JavaScript
+
+Reason
+
+Native support inside n8n.
+
+Secondary
+
+SQL
+
+Database queries.
+
+Future Optional
+
+Python
+
+Only for advanced analytics, machine learning, data science, or specialized processing.
+
+---
+
+# Version Control
+
+Preferred
+
+Git
+
+Repository platform
+
+GitHub
+
+Private repository recommended.
+
+---
+
+# Logging Strategy
+
+Every workflow should generate structured logs.
+
+Logs should include:
+
+* Timestamp
+* Workflow ID
+* Execution ID
+* Node
+* Severity
+* Error Code
+* Processing Time
+* AI Provider
+* API Provider
+
+Logs should support troubleshooting and long-term learning.
+
+---
+
+# Backup Strategy
+
+The platform should regularly back up:
+
+* PostgreSQL database
+* n8n workflows
+* Configuration files
+* Prompts
+* Logs
+* Learning datasets
+
+Backups should be automated whenever practical.
+
+---
+
+# Security Principles
+
+The system should never expose:
+
+* API Keys
+* Private Wallet Keys
+* Authentication Tokens
+* Sensitive Configuration Files
+
+Secrets should be stored using secure environment variables whenever possible.
+
+---
+
+# Resource Optimization
+
+Every workflow should minimize:
+
+* CPU usage
+* RAM usage
+* API requests
+* Database writes
+* AI token consumption
+
+Efficiency is a permanent engineering objective.
+
+---
+
+# Technology Evolution Policy
+
+Technologies may be replaced only when:
+
+* Significant performance improvements exist.
+* Long-term maintenance becomes easier.
+* Reliability increases.
+* Security improves.
+* Cost decreases.
+* Migration risk remains acceptable.
+
+Technology changes should never be performed without architectural review.
+
+---
+
+# Engineering Philosophy
+
+Technology exists to support intelligence.
+
+The objective is not to use the newest tools.
+
+The objective is to build the most reliable, maintainable, efficient, and intelligent Token Intelligence Platform possible.
+
+Every technology decision should contribute to that mission.
+
+---
+
+# Final Technology Rule
+
+> **AHOS shall remain simple enough to run efficiently on a single laptop, powerful enough to continuously evolve, modular enough to grow for years, and flexible enough to survive changes in AI providers, APIs, market conditions, and external infrastructure.**
+
+---
+
+
+

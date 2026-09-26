@@ -1,0 +1,344 @@
+
+
+
+
+# Document 05
+# AHOS Database Design Specification (DDS)
+
+## Version 1.0
+
+---
+
+# 1. Purpose
+
+This document defines the database architecture of the AHOS platform.
+
+The database is designed to serve as the persistent memory of the intelligence system.
+
+It stores raw data, processed intelligence, historical records, simulations, learning outcomes, portfolio information, workflow execution logs, and system knowledge.
+
+The database shall prioritize integrity, scalability, maintainability, and efficient querying while remaining optimized for execution on a single laptop.
+
+---
+
+# 2. Database Philosophy
+
+The database is not merely a storage system.
+
+It is the long-term memory of AHOS.
+
+Every piece of information collected by the platform should become reusable knowledge whenever appropriate.
+
+Historical information shall never be discarded unless explicitly archived.
+
+Knowledge accumulated over time is one of the platform's most valuable assets.
+
+---
+
+# 3. Database Engine
+
+Official Database Engine:
+
+**PostgreSQL**
+
+Reasons:
+
+* Open Source
+* Reliable
+* ACID compliant
+* JSON support
+* High performance
+* Excellent indexing
+* Long-term stability
+
+---
+
+# 4. Database Principles
+
+The database shall follow these principles:
+
+* Normalize data where practical.
+* Avoid unnecessary duplication.
+* Preserve historical records.
+* Every record should have timestamps.
+* Every table shall have a primary key.
+* Every important action shall be traceable.
+* Soft delete is preferred over permanent deletion where appropriate.
+
+---
+
+# 5. Database Categories
+
+The database is divided into logical domains.
+
+### Intelligence Data
+
+Stores discovered token information.
+
+Examples:
+
+* Token Profiles
+* Contracts
+* Chains
+* Pairs
+* Metadata
+
+---
+
+### Market Data
+
+Stores:
+
+* Price history
+* Liquidity
+* Volume
+* Holders
+* Market Cap
+* Transactions
+
+---
+
+### Security Data
+
+Stores:
+
+* RugCheck results
+* GoPlus analysis
+* Honeypot detection
+* Liquidity lock
+* Ownership status
+* Contract audit information
+
+---
+
+### Social Intelligence
+
+Stores:
+
+* News
+* Tweets
+* Telegram signals
+* Discord discussions
+* Reddit posts
+* GitHub activity
+
+---
+
+### Simulation
+
+Stores:
+
+* Simulation scenarios
+* Entry models
+* Exit models
+* Monte Carlo results
+* Historical replay results
+
+---
+
+### Portfolio
+
+Stores:
+
+* Available capital
+* Active positions
+* Closed positions
+* Trade journal
+* Risk exposure
+* Portfolio history
+
+---
+
+### Learning
+
+Stores:
+
+* Predictions
+* Actual outcomes
+* Model accuracy
+* Learned patterns
+* Strategy performance
+
+---
+
+### Workflow
+
+Stores:
+
+* Workflow execution logs
+* Runtime statistics
+* Errors
+* Retry history
+* Health reports
+
+---
+
+### Configuration
+
+Stores:
+
+* Settings
+* API configuration
+* AI configuration
+* Thresholds
+* Prompt versions
+
+---
+
+# 6. Database Naming Standards
+
+Table Names
+
+snake_case
+
+Examples:
+
+token_profiles
+
+market_data
+
+simulation_results
+
+workflow_logs
+
+portfolio_positions
+
+Columns
+
+snake_case
+
+Primary Key
+
+id
+
+Timestamp Fields
+
+created_at
+
+updated_at
+
+deleted_at (optional)
+
+---
+
+# 7. Audit Requirements
+
+Every important modification shall be auditable.
+
+Changes to:
+
+* Portfolio
+* Configuration
+* Prompt
+* Workflow
+* Risk settings
+
+must always be logged.
+
+---
+
+# 8. Performance Principles
+
+The database should:
+
+* Use indexes appropriately.
+* Avoid unnecessary joins.
+* Archive historical data when needed.
+* Minimize redundant writes.
+* Optimize frequently queried tables.
+
+---
+
+# 9. Backup Strategy
+
+Backups shall include:
+
+* Full database
+* Incremental backups
+* Configuration
+* Workflow definitions
+* Prompt library
+
+Backup verification shall be performed periodically.
+
+---
+
+# 10. Data Retention
+
+Historical market data should be preserved whenever storage permits.
+
+Archived data should remain recoverable.
+
+No intelligence should be permanently lost without explicit approval.
+
+---
+
+# 11. Security
+
+Sensitive information shall never be stored in plain text.
+
+API Keys
+
+Bot Tokens
+
+Passwords
+
+Secrets
+
+must be encrypted or stored using secure environment variables.
+
+---
+
+# 12. Versioning
+
+Schema changes shall be version controlled.
+
+Database migrations shall be reversible whenever practical.
+
+---
+
+# 13. Future Expansion
+
+The database architecture shall allow future support for:
+
+* Additional blockchains
+* Additional AI providers
+* Additional intelligence sources
+* Additional workflows
+* Additional portfolio types
+
+without redesigning existing tables.
+
+---
+
+# 14. Final Database Law
+
+> The database is the permanent memory of AHOS.
+
+Every schema decision shall prioritize data quality, traceability, historical preservation, and long-term intelligence growth over short-term convenience.
+
+---
+
+# Appendix A — Initial Core Tables
+
+The first implementation of AHOS should begin with the following core tables only:
+
+* tokens
+* token_pairs
+* token_security
+* token_scores
+* token_simulations
+* portfolio
+* portfolio_transactions
+* recommendations
+* workflow_logs
+* api_logs
+* ai_logs
+* learning_history
+* system_health
+* configuration
+* prompt_versions
+
+Additional tables should only be introduced when required by new workflows.
+
+---

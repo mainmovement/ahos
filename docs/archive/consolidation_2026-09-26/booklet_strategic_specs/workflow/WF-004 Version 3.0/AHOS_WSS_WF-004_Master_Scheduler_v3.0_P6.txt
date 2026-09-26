@@ -1,0 +1,211 @@
+AHOS Workflow Specification Sheet
+WF-004 — Health Monitor
+Version 1.0
+Phase 6 — Health State Transition, Event Publication & Operational Notification
+1. Purpose
+1.1 Objective
+
+This phase establishes the architectural framework governing health state transitions, operational event publication, state change consistency, and health notification readiness.
+
+The Health Monitor SHALL manage every health state transition as an explicit architectural event.
+
+1.2 Scope
+
+This phase governs:
+
+Health State Transition
+Transition Validation
+Health Event Publication
+Operational Notification Readiness
+State Change Audit
+Transition Consistency
+Event Correlation
+Operational Visibility
+
+Notification delivery mechanisms remain outside the scope of this specification.
+
+2. Transition Philosophy
+
+A health state SHALL change only after successful completion of an authoritative health assessment.
+
+Every transition SHALL represent an architectural fact rather than an operational assumption.
+
+3. Transition Principles
+
+Health transitions SHALL remain:
+
+deterministic;
+explicit;
+auditable;
+chronological;
+reproducible;
+policy-compliant.
+
+Implicit transitions SHALL NOT occur.
+
+4. State Transition Model
+
+Every health state transition SHALL follow the authoritative state model.
+
+Unknown
+   │
+   ▼
+Healthy
+   │
+ ┌─┴─────────────┐
+ ▼               ▼
+Degraded     Maintenance
+ │               │
+ └──────┬────────┘
+        ▼
+Unhealthy
+        │
+        ▼
+Unavailable
+
+Transitions outside this model SHALL NOT occur without architectural revision.
+
+5. Transition Validation
+
+Before accepting a new health state, the Health Monitor SHALL validate:
+
+assessment completion;
+evidence integrity;
+rule evaluation consistency;
+dependency consistency;
+transition eligibility.
+
+Invalid transitions SHALL be rejected.
+
+6. Transition Publication
+
+Every successful transition SHALL generate a Health State Event.
+
+Each event SHALL include:
+
+Event Identifier
+Component Identifier
+Previous Health State
+Current Health State
+Transition Timestamp
+Assessment Identifier
+Correlation Identifier
+
+Health events SHALL be immutable.
+
+7. Event Classification
+
+Health events SHALL be classified according to their operational significance.
+
+The minimum event categories SHALL include:
+
+Health Established
+Health Improved
+Health Degraded
+Health Lost
+Maintenance Entered
+Maintenance Completed
+Health Restored
+
+Additional categories MAY be introduced through future architectural revisions.
+
+8. Notification Readiness
+
+The Health Monitor SHALL expose sufficient operational information to enable notification services.
+
+WF-004 SHALL publish health facts.
+
+WF-024 Notification Engine SHALL determine notification policies and delivery mechanisms.
+
+WF-004 SHALL NOT send notifications directly.
+
+9. Duplicate Transition Prevention
+
+Repeated publication of identical health transitions SHALL be prevented.
+
+Equivalent consecutive transitions SHALL NOT generate duplicate operational events.
+
+Historical state SHALL remain unchanged.
+
+10. Transition Ordering
+
+Health events SHALL preserve chronological ordering.
+
+Publication order SHALL reflect actual transition order.
+
+Out-of-order publication SHALL NOT occur.
+
+11. Operational Visibility
+
+Every health transition SHALL become visible to authorized architectural components.
+
+Visibility SHALL remain independent from notification mechanisms.
+
+12. Transition Audit
+
+Every transition SHALL generate immutable audit evidence including:
+
+Transition Identifier
+Component Identifier
+Previous State
+New State
+Transition Timestamp
+Assessment Reference
+Correlation Identifier
+
+Audit evidence SHALL remain permanently reconstructable.
+
+13. Transition Recovery
+
+If transition publication fails:
+
+the health state SHALL remain committed;
+publication failure SHALL be recorded;
+publication MAY be retried according to implementation policy.
+
+Health assessment SHALL NOT be repeated solely because publication failed.
+
+14. Transition Invariants
+
+The following SHALL remain continuously true.
+
+Explicit Transition Invariant
+
+Every health state change SHALL result from a validated assessment.
+
+Event Invariant
+
+Every successful transition SHALL generate exactly one authoritative health event.
+
+Ordering Invariant
+
+Health events SHALL preserve chronological order.
+
+Notification Invariant
+
+WF-004 SHALL publish health information but SHALL NOT deliver notifications.
+
+Audit Invariant
+
+Every transition SHALL remain permanently traceable.
+
+15. Phase 6 Compliance Matrix
+Requirement	Mandatory
+Explicit State Transition	SHALL
+Transition Validation	SHALL
+Health Event Publication	SHALL
+Duplicate Prevention	SHALL
+Chronological Ordering	SHALL
+Immutable Transition Audit	SHALL
+Notification Readiness	SHALL
+Technology Independence	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 6 compliance.
+
+16. Phase 6 Completion Statement
+
+Phase 6 establishes the architectural model governing health state transitions and operational event publication within the AHOS platform.
+
+It defines how validated health changes become authoritative operational events while preserving determinism, auditability, chronological consistency, and strict separation between health assessment and notification delivery.
+
+By treating health transitions as first-class architectural events, this phase enables future integration with alerting systems, operational dashboards, automation workflows, and governance services without modifying the core Health Monitor architecture.

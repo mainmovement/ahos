@@ -1,0 +1,2137 @@
+AHOS Workflow Specification Sheet  
+WF-001 — Master Scheduler  
+Version 3.0  
+Phase 6 — Failure Handling & Recovery
+
+Status: Production Frozen Draft
+
+45\. Phase Purpose  
+45.1 Objective
+
+Phase 6 defines the authoritative failure governance and recovery framework for the AHOS Master Scheduler.
+
+Its purpose is to ensure that every scheduler-owned execution can survive unexpected operational disruptions without compromising execution integrity, deterministic behavior, auditability, or historical consistency.
+
+This phase establishes the contractual rules governing how WF-001 observes failures, classifies failures, evaluates recovery eligibility, coordinates recovery operations, and safely restores scheduler operation.
+
+Recovery SHALL always preserve truth.
+
+Recovery SHALL NEVER reconstruct assumptions.
+
+45.2 Failure Philosophy
+
+WF-001 SHALL adopt a fact-driven recovery philosophy.
+
+Every recovery decision SHALL originate from verifiable persisted evidence.
+
+The Scheduler SHALL NEVER recover from speculation.
+
+Whenever persisted evidence is insufficient, the Scheduler SHALL preserve safety by refusing unsafe recovery operations.
+
+Operational uncertainty SHALL always favor integrity over availability.
+
+45.3 Recovery Authority
+
+WF-001 SHALL remain the sole authority responsible for scheduler lifecycle recovery decisions.
+
+External components MAY report failures.
+
+External components SHALL NOT independently recover scheduler-owned executions.
+
+Recovery authority SHALL remain centralized.
+
+45.4 Recovery Scope
+
+Phase 6 governs:
+
+Failure observation.  
+Failure classification.  
+Recovery eligibility evaluation.  
+Crash recovery.  
+Restart recovery.  
+Recovery coordination.  
+Recovery persistence.  
+Recovery auditing.  
+Recovery consistency.
+
+Phase 6 SHALL NOT define retry algorithms, business recovery logic, AI recovery, or workflow-specific compensation logic.
+
+45.5 Relationship with Previous Phases
+
+Phase 6 SHALL build upon:
+
+Runtime guarantees defined in Phase 1\.  
+Persistent execution identity defined in Phase 2\.  
+Queue ownership defined in Phase 3\.  
+Dependency integrity defined in Phase 4\.  
+Lifecycle governance defined in Phase 5\.
+
+Recovery SHALL preserve every guarantee established by previous phases.
+
+45.6 Core Recovery Principles
+
+Every recovery implementation SHALL satisfy the following principles:
+
+Deterministic Recovery  
+Single Recovery Authority  
+Historical Preservation  
+Atomic Recovery  
+Immutable Identity  
+Auditability  
+Traceability  
+Idempotency  
+Safety Before Availability
+
+Violation of these principles SHALL constitute non-compliance with WF-001.
+
+46\. Failure Classification  
+46.1 Objective
+
+WF-001 SHALL classify every observed operational failure before any recovery action is considered.
+
+Recovery SHALL always be based upon classified failure types.
+
+Unclassified failures SHALL NOT enter automated recovery.
+
+46.2 Classification Principles
+
+Failure classification SHALL be:
+
+deterministic;  
+reproducible;  
+mutually exclusive where possible;  
+historically traceable;  
+operationally meaningful.
+
+The same failure SHALL always receive the same classification when evaluated under identical conditions.
+
+46.3 Scheduler Failures
+
+Scheduler Failures represent failures originating from WF-001 itself.
+
+Examples include:
+
+unexpected scheduler termination;  
+scheduler process crash;  
+scheduler panic;  
+scheduler deadlock;  
+scheduler internal consistency violation;  
+lifecycle corruption detection.
+
+Scheduler Failures SHALL receive highest recovery priority.
+
+46.4 Worker Failures
+
+Worker Failures represent failures occurring within workflow execution engines.
+
+Examples include:
+
+n8n process termination;  
+worker timeout;  
+execution engine crash;  
+execution worker freeze;  
+workflow runtime interruption.
+
+Worker failures SHALL NOT automatically imply scheduler failure.
+
+46.5 Infrastructure Failures
+
+Infrastructure Failures originate below the scheduler layer.
+
+Examples include:
+
+Docker container termination.  
+Host operating system restart.  
+Filesystem failure.  
+Storage exhaustion.  
+CPU starvation.  
+Memory exhaustion.  
+Power interruption.
+
+Infrastructure failures SHALL be evaluated independently of scheduler correctness.
+
+46.6 Database Failures
+
+Database Failures include:
+
+connection loss;  
+transaction rollback;  
+transaction timeout;  
+lock timeout;  
+write failure;  
+commit failure;  
+persistence inconsistency.
+
+Database failures SHALL always suspend lifecycle commitment until persistence integrity is restored.
+
+No lifecycle transition SHALL be considered successful without durable persistence.
+
+46.7 Network Failures
+
+Network Failures include:
+
+DNS resolution failure;  
+TCP connection interruption;  
+TLS negotiation failure;  
+API timeout;  
+RPC timeout;  
+packet loss exceeding policy thresholds.
+
+Network failures SHALL remain isolated from scheduler identity.
+
+46.8 External Dependency Failures
+
+External Dependency Failures originate from systems outside AHOS operational ownership.
+
+Examples include:
+
+DexScreener unavailable.  
+GeckoTerminal unavailable.  
+Blockchain RPC unavailable.  
+Webhook unavailable.  
+External authentication provider unavailable.
+
+WF-001 SHALL observe these failures.
+
+WF-001 SHALL NOT attempt to repair external systems.
+
+46.9 Unknown Failures
+
+When observed evidence cannot satisfy any approved failure category,
+
+WF-001 SHALL classify the event as:
+
+Unknown Failure
+
+Unknown Failures SHALL require elevated operational attention.
+
+Unknown Failure SHALL NEVER bypass audit logging.
+
+46.10 Composite Failures
+
+Multiple failures MAY occur simultaneously.
+
+Composite failures SHALL preserve individual failure identities.
+
+Recovery SHALL evaluate each classified failure independently before coordinating a unified recovery strategy.
+
+46.11 Failure Identity
+
+Every classified failure SHALL receive:
+
+Failure ID  
+Failure Category  
+Failure Severity  
+Detection Timestamp  
+Detection Component  
+Scheduler Generation  
+Runtime Instance  
+Correlation ID  
+Related Execution IDs  
+Persistence Status
+
+Failure identities SHALL remain immutable.
+
+46.12 Failure Traceability
+
+Every classified failure SHALL remain traceable throughout its complete operational lifetime.
+
+Traceability SHALL include:
+
+initial observation;  
+classification;  
+recovery evaluation;  
+recovery execution;  
+final resolution.
+
+Failure history SHALL NEVER be deleted.
+
+46.13 Classification Guarantees
+
+A compliant scheduler SHALL guarantee:
+
+every observed failure is classified;  
+every classification is persisted;  
+every classification is reproducible;  
+every classification is auditable;  
+every classification preserves correlation identity.  
+46.14 Formal Failure Classification Contract  
+Preconditions  
+Observable operational anomaly.  
+Valid scheduler runtime.  
+Active persistence subsystem.  
+Postconditions  
+Failure classified.  
+Failure identity assigned.  
+Classification persisted.  
+Recovery eligibility enabled.  
+Invariants  
+Classification never changes historical truth.  
+Failure identity is immutable.  
+Classification is deterministic.  
+Classification remains auditable.
+
+47\. Failure Detection  
+47.1 Objective
+
+Failure Detection defines the authoritative observation model by which WF-001 identifies abnormal operational conditions requiring scheduler attention.
+
+Failure Detection SHALL remain entirely observation-driven.
+
+The Scheduler SHALL detect operational reality.
+
+The Scheduler SHALL NEVER infer failure from assumptions, incomplete evidence, or speculative analysis.
+
+Failure Detection SHALL precede every classification, recovery evaluation, and recovery decision defined by this specification.
+
+47.2 Detection Authority
+
+WF-001 SHALL remain the sole authority responsible for confirming operational failures affecting scheduler-governed execution lifecycles.
+
+External systems MAY report observations.
+
+Only WF-001 SHALL determine whether those observations constitute a scheduler-recognized failure.
+
+Detection authority SHALL remain centralized.
+
+47.3 Detection Philosophy
+
+Failure Detection SHALL operate according to the following principles:
+
+Observe first.  
+Validate second.  
+Classify third.  
+Recover last.
+
+Recovery SHALL NEVER precede validated detection.
+
+Classification SHALL NEVER precede confirmed observation.
+
+Observation SHALL NEVER be influenced by desired recovery outcomes.
+
+47.4 Observable Evidence
+
+Scheduler-recognized failures SHALL originate only from observable evidence.
+
+Observable evidence MAY include:
+
+persisted lifecycle records;  
+scheduler runtime observations;  
+transaction failures;  
+heartbeat observations;  
+execution inactivity;  
+ownership inconsistencies;  
+dependency violations;  
+infrastructure health reports;  
+authenticated external observations.
+
+Evidence SHALL remain independently verifiable.
+
+47.5 Non-Evidence
+
+The following SHALL NOT constitute valid failure evidence:
+
+assumptions;  
+heuristics;  
+estimated execution status;  
+predicted outcomes;  
+AI-generated conclusions;  
+operator intuition;  
+incomplete logs;  
+missing optional telemetry.
+
+Scheduler SHALL reject speculative failure detection.
+
+47.6 Detection Sources
+
+WF-001 MAY collect observations from:
+
+Runtime Observation
+
+Internal scheduler state.
+
+Persistence Observation
+
+Lifecycle persistence consistency.
+
+Worker Observation
+
+n8n execution engine.
+
+Infrastructure Observation
+
+Docker.
+
+Operating System.
+
+Filesystem.
+
+Health Monitor
+
+WF-004 interfaces.
+
+External Interfaces
+
+Authenticated operational signals.
+
+Every source SHALL remain independently authenticated.
+
+47.7 Detection Categories
+
+Detected failures SHALL belong to one or more observation categories.
+
+Examples include:
+
+Lifecycle Observation Failure
+
+Persistence Observation Failure
+
+Ownership Observation Failure
+
+Heartbeat Observation Failure
+
+Infrastructure Observation Failure
+
+Dependency Observation Failure
+
+Scheduler Observation Failure
+
+Each category SHALL preserve independent evidence.
+
+47.8 Detection Consistency
+
+Detection SHALL remain deterministic.
+
+Given identical:
+
+persisted history;  
+scheduler generation;  
+runtime observations;  
+infrastructure state;
+
+WF-001 SHALL always detect identical operational failures.
+
+Randomized detection SHALL NOT exist.
+
+47.9 Detection Latency
+
+Failure Detection SHALL occur as soon as sufficient evidence exists.
+
+Early detection SHALL NOT compromise correctness.
+
+Late detection SHALL NOT compromise consistency.
+
+Operational correctness SHALL always have higher priority than detection speed.
+
+47.10 Detection Isolation
+
+Detection concerning one execution SHALL NOT influence unrelated executions.
+
+Observation SHALL remain execution-specific unless explicitly defined otherwise by scheduler policy.
+
+47.11 Detection Persistence
+
+Every confirmed failure detection SHALL persist:
+
+Detection ID  
+Detection Timestamp  
+Detection Source  
+Scheduler Generation  
+Runtime Instance  
+Correlation ID  
+Related Execution  
+Supporting Evidence Reference
+
+Detection SHALL become permanently auditable.
+
+47.12 False Positive Prevention
+
+WF-001 SHALL minimize false positive detection.
+
+No execution SHALL be classified as failed solely because one observation source became temporarily unavailable.
+
+Whenever conflicting observations exist,
+
+the Scheduler SHALL preserve execution integrity until authoritative evidence becomes available.
+
+47.13 Detection Guarantees
+
+The Scheduler SHALL guarantee:
+
+observation integrity;  
+evidence traceability;  
+deterministic detection;  
+auditability;  
+repeatability.  
+47.14 Formal Detection Contract  
+Preconditions  
+Observable operational evidence exists.  
+Scheduler runtime available.  
+Observation source authenticated.  
+Postconditions  
+Detection persisted.  
+Detection traceable.  
+Detection classified as pending evaluation.  
+Invariants  
+Detection never modifies history.  
+Detection never changes execution identity.  
+Detection never performs recovery.  
+Detection always precedes classification.  
+48\. Failure Severity  
+48.1 Objective
+
+Failure Severity defines the operational impact model governing how WF-001 prioritizes detected failures.
+
+Severity SHALL describe operational urgency.
+
+Severity SHALL NOT determine recovery strategy.
+
+Recovery policy SHALL remain governed independently.
+
+48.2 Severity Authority
+
+WF-001 SHALL assign exactly one authoritative severity level to every confirmed failure.
+
+Severity assignment SHALL occur immediately after successful failure classification.
+
+48.3 Severity Levels
+
+WF-001 SHALL support the following severity hierarchy.
+
+INFORMATIONAL
+
+No operational risk.
+
+No lifecycle interruption.
+
+No recovery required.
+
+Historical recording only.
+
+Examples:
+
+Minor observation mismatch.
+
+Repeated informational event.
+
+Expected operational notification.
+
+WARNING
+
+Operational degradation exists.
+
+Scheduler remains functional.
+
+Recovery MAY become necessary if conditions worsen.
+
+Examples:
+
+Temporary heartbeat interruption.
+
+External API degradation.
+
+Slow persistence response.
+
+ERROR
+
+Normal scheduler operation has been compromised.
+
+Execution integrity remains recoverable.
+
+Recovery evaluation SHALL become mandatory.
+
+Examples:
+
+Worker crash.
+
+Execution interruption.
+
+Database transaction rollback.
+
+Ownership inconsistency.
+
+CRITICAL
+
+Scheduler integrity is threatened.
+
+Multiple executions MAY become affected.
+
+Immediate recovery evaluation SHALL begin.
+
+Examples:
+
+Scheduler crash.
+
+Persistence corruption suspicion.
+
+Lost scheduler ownership.
+
+Generation conflict.
+
+FATAL
+
+Scheduler correctness can no longer be guaranteed.
+
+Automatic lifecycle progression SHALL stop.
+
+Only controlled recovery procedures SHALL continue.
+
+Examples:
+
+Persistent data corruption.
+
+Irrecoverable scheduler inconsistency.
+
+Repeated recovery failure beyond policy.
+
+Multiple contradictory lifecycle truths.
+
+48.4 Severity Escalation
+
+Severity MAY escalate.
+
+Severity SHALL NEVER decrease without explicit operational reevaluation.
+
+Escalation SHALL preserve complete historical traceability.
+
+48.5 Severity Independence
+
+Severity SHALL remain independent from:
+
+retry count;  
+workflow importance;  
+market value;  
+AI recommendation;  
+execution priority.
+
+Severity SHALL measure operational integrity only.
+
+48.6 Severity Persistence
+
+Severity SHALL become part of immutable failure history.
+
+Every severity change SHALL create a new severity history record.
+
+Existing records SHALL remain immutable.
+
+48.7 Formal Severity Contract  
+Preconditions  
+Failure classified.  
+Failure identity assigned.  
+Postconditions  
+Severity assigned.  
+Severity persisted.  
+Operational priority established.  
+Invariants  
+Every failure has one severity.  
+Severity history is immutable.  
+Severity never changes execution identity.  
+Severity never performs recovery.
+
+49\. Retry Governance  
+49.1 Objective
+
+Retry Governance defines the authoritative policy framework governing whether a scheduler-owned execution MAY be attempted again following an observed operational failure.
+
+Retry SHALL represent a controlled governance decision.
+
+Retry SHALL NEVER represent an automatic reaction.
+
+Every retry SHALL preserve scheduler determinism, execution identity integrity, lifecycle consistency, and historical truth.
+
+Retry SHALL always be considered a privileged recovery operation.
+
+49.2 Retry Authority
+
+WF-001 SHALL remain the sole authority responsible for approving scheduler lifecycle retry.
+
+No external component SHALL independently retry a scheduler-owned execution.
+
+Specifically:
+
+n8n SHALL NOT retry scheduler executions autonomously.  
+PostgreSQL SHALL NOT trigger retry.  
+External APIs SHALL NOT initiate retry.  
+Individual workflows SHALL NOT request self-retry.  
+Recovery workers SHALL execute only approved retry decisions.
+
+Retry authority SHALL remain centralized.
+
+49.3 Retry Philosophy
+
+Retry SHALL exist to restore operational continuity.
+
+Retry SHALL NOT exist to maximize execution success rate.
+
+Retry SHALL NEVER hide operational failures.
+
+Every retry SHALL preserve complete historical visibility.
+
+The Scheduler SHALL always prefer truth over apparent availability.
+
+49.4 Retry Eligibility
+
+Before approving retry, WF-001 SHALL validate:
+
+execution identity;  
+execution attempt history;  
+lifecycle consistency;  
+scheduler ownership;  
+scheduler generation;  
+dependency consistency;  
+persistence integrity;  
+timeout policy;  
+cancellation state;  
+completion state.
+
+Failure of any validation SHALL reject retry.
+
+49.5 Retry Prohibition
+
+Retry SHALL NOT be permitted when:
+
+execution has completed successfully;  
+execution has been cancelled;  
+execution identity cannot be verified;  
+persistence integrity is compromised;  
+dependency graph is inconsistent;  
+execution ownership is ambiguous;  
+duplicate execution cannot be excluded;  
+audit history is incomplete;  
+immutable lifecycle guarantees cannot be preserved.
+
+Safety SHALL override retry opportunity.
+
+49.6 Retry Approval Transaction
+
+Retry approval SHALL execute as one atomic scheduler transaction.
+
+The transaction SHALL:
+
+Validate retry eligibility.  
+Validate execution ownership.  
+Validate lifecycle integrity.  
+Allocate Retry Attempt Identity.  
+Persist retry approval.  
+Persist retry history.  
+Commit atomically.
+
+Partial retry approval SHALL NOT exist.
+
+49.7 Retry Attempt Identity
+
+Every retry SHALL create a new immutable Retry Attempt Identity.
+
+Retry SHALL NOT create a new Logical Execution ID.
+
+Logical execution identity SHALL remain unchanged throughout all retry attempts.
+
+Attempt identity SHALL distinguish operational execution attempts while preserving lifecycle continuity.
+
+49.8 Retry Attempt Numbering
+
+Retry attempts SHALL be sequential.
+
+Example:
+
+Execution ID
+
+↓
+
+Attempt 1
+
+↓
+
+Attempt 2
+
+↓
+
+Attempt 3
+
+↓
+
+Attempt N
+
+Attempt numbers SHALL NEVER be reused.
+
+Attempt numbers SHALL NEVER decrease.
+
+49.9 Retry Isolation
+
+Retry of one execution SHALL NOT influence retry eligibility of unrelated executions.
+
+Retry SHALL remain execution-specific.
+
+Shared retry decisions SHALL NOT exist.
+
+49.10 Retry Visibility
+
+Every approved retry SHALL become immediately observable within scheduler operational history.
+
+Visibility SHALL include:
+
+Retry Attempt Number  
+Retry Timestamp  
+Retry Authority  
+Retry Reason  
+Retry Policy Version  
+Scheduler Generation  
+Correlation ID
+
+Retry SHALL NEVER become an invisible operation.
+
+49.11 Retry Auditability
+
+Every retry SHALL permanently preserve:
+
+Original Failure
+
+↓
+
+Retry Evaluation
+
+↓
+
+Retry Approval
+
+↓
+
+Retry Execution
+
+↓
+
+Retry Result
+
+Auditors SHALL reconstruct the complete retry chain without ambiguity.
+
+49.12 Retry Determinism
+
+Given identical:
+
+execution history;  
+scheduler generation;  
+retry policy;  
+lifecycle observations;
+
+WF-001 SHALL always produce the identical retry approval decision.
+
+Retry SHALL NEVER depend upon randomness.
+
+49.13 Retry Idempotency
+
+Repeated retry requests referencing the same execution attempt SHALL produce exactly one authoritative retry approval.
+
+Duplicate retry requests SHALL NOT create duplicate retry attempts.
+
+Scheduler SHALL preserve operational idempotency.
+
+49.14 Retry Guarantees
+
+WF-001 SHALL guarantee:
+
+immutable execution identity;  
+unique retry attempt identity;  
+deterministic retry approval;  
+duplicate prevention;  
+audit preservation;  
+persistence integrity;  
+historical continuity.  
+49.15 Formal Retry Contract  
+Preconditions  
+Failure classified.  
+Recovery evaluation completed.  
+Lifecycle integrity confirmed.  
+Scheduler ownership valid.  
+Postconditions  
+Retry approved or rejected.  
+Retry history persisted.  
+Retry attempt identity assigned.  
+Invariants  
+Retry never changes execution identity.  
+Retry never rewrites lifecycle history.  
+Retry never bypasses recovery validation.  
+Retry never violates dependency integrity.  
+50\. Crash Recovery  
+50.1 Objective
+
+Crash Recovery defines the authoritative procedures by which WF-001 safely restores scheduler governance following an unexpected scheduler process termination.
+
+Crash Recovery SHALL restore operational truth.
+
+Crash Recovery SHALL NEVER reconstruct assumptions.
+
+The Scheduler SHALL resume governance exclusively from persisted facts.
+
+50.2 Definition of Crash
+
+For the purposes of this specification,
+
+a Scheduler Crash SHALL mean any unexpected termination preventing WF-001 from completing normal lifecycle governance.
+
+Examples include:
+
+Process termination.  
+Runtime panic.  
+Operating system termination.  
+Container crash.  
+Forced process kill.  
+Kernel interruption.  
+Unexpected runtime failure.
+
+Graceful shutdown SHALL NOT be classified as a crash.
+
+50.3 Crash Recovery Authority
+
+WF-001 SHALL remain solely responsible for recovering scheduler-owned execution governance following crash.
+
+Recovery SHALL begin only after successful scheduler initialization defined in Phase 1\.
+
+50.4 Recovery Philosophy
+
+Crash Recovery SHALL begin from persisted operational truth.
+
+Memory SHALL NOT be considered authoritative.
+
+Runtime cache SHALL NOT be considered authoritative.
+
+Uncommitted lifecycle state SHALL NOT be reconstructed.
+
+Only durable persistence SHALL define recovery reality.
+
+50.5 Recovery Initialization
+
+Following scheduler startup,
+
+WF-001 SHALL:
+
+Verify persistence availability.  
+Verify scheduler generation.  
+Verify runtime ownership.  
+Verify lifecycle consistency.  
+Load persisted execution registry.  
+Load persisted lifecycle history.  
+Validate execution ownership.  
+Begin recovery evaluation.
+
+No execution SHALL resume before initialization completes successfully.
+
+50.6 Recovery Scope
+
+Crash Recovery SHALL evaluate:
+
+Running executions.  
+Pending executions.  
+Paused executions.  
+Timed-out executions.  
+Recovery-eligible executions.  
+Interrupted lifecycle transitions.  
+Active ownership leases.  
+Incomplete persistence transactions.
+
+Completed executions SHALL NOT re-enter recovery evaluation except for audit verification.
+
+50.7 Recovery Ordering
+
+Crash Recovery SHALL occur in deterministic order.
+
+The recovery sequence SHALL follow:
+
+Scheduler Integrity  
+Persistence Integrity  
+Ownership Integrity  
+Lifecycle Integrity  
+Execution Integrity  
+Dependency Integrity  
+Recovery Eligibility  
+Operational Resume
+
+Recovery ordering SHALL NEVER depend upon execution priority.
+
+50.8 Interrupted Transactions
+
+Transactions interrupted during crash SHALL NOT be assumed committed.
+
+WF-001 SHALL determine transaction outcome exclusively through persistence verification.
+
+Scheduler SHALL NEVER infer commit success.
+
+50.9 Duplicate Prevention
+
+Crash Recovery SHALL guarantee that no execution becomes duplicated due to scheduler restart.
+
+Every recovered execution SHALL preserve:
+
+Logical Execution ID  
+Execution Attempt ID  
+Correlation ID  
+Historical Timeline
+
+Duplicate lifecycle creation SHALL constitute a critical integrity violation.
+
+50.10 Recovery Verification
+
+Before completing Crash Recovery,
+
+WF-001 SHALL verify:
+
+no orphan ownership;  
+no duplicate execution;  
+no incomplete lifecycle transition;  
+no inconsistent metadata;  
+no scheduler generation conflict;  
+no persistence ambiguity.
+
+Recovery SHALL remain incomplete until verification succeeds.
+
+50.11 Formal Crash Recovery Contract  
+Preconditions  
+Scheduler crash occurred.  
+Scheduler restarted successfully.  
+Persistence available.  
+Postconditions  
+Scheduler truth restored.  
+Lifecycle governance resumed.  
+Execution integrity preserved.  
+Recovery history persisted.  
+Invariants  
+Recovery never invents state.  
+Recovery never duplicates execution.  
+Recovery never modifies immutable history.  
+Recovery always begins from persisted truth.  
+51\. Restart Recovery  
+51.1 Objective
+
+Restart Recovery defines the authoritative governance by which WF-001 restores operational supervision following an intentional or controlled scheduler restart.
+
+Unlike Crash Recovery, Restart Recovery assumes that scheduler termination was expected and administrative shutdown procedures were successfully completed.
+
+Restart Recovery SHALL restore operational continuity without violating lifecycle integrity, execution ownership, deterministic behavior, or historical consistency.
+
+Restart SHALL preserve operational truth.
+
+Restart SHALL NOT reconstruct operational assumptions.
+
+51.2 Restart Definition
+
+For the purposes of this specification, a Restart SHALL mean an operational event in which the Scheduler terminates through an approved shutdown procedure and subsequently initializes a new runtime instance.
+
+Examples include:
+
+Planned software deployment.  
+Configuration reload.  
+Docker container recreation initiated by the operator.  
+Planned operating system reboot.  
+Controlled maintenance window.  
+Graceful scheduler shutdown.
+
+Unexpected termination SHALL NOT be classified as Restart.
+
+Unexpected termination SHALL remain governed by Section 50 (Crash Recovery).
+
+51.3 Restart Authority
+
+Only an approved administrative authority MAY initiate Restart Recovery.
+
+WF-001 SHALL verify that the previous scheduler instance completed graceful shutdown procedures before beginning Restart Recovery.
+
+If graceful shutdown evidence cannot be verified, Restart SHALL automatically transition into Crash Recovery evaluation.
+
+Scheduler SHALL NEVER assume graceful termination.
+
+51.4 Restart Initialization
+
+Before restoring lifecycle supervision, WF-001 SHALL perform the following sequence:
+
+Verify persistence availability.  
+Verify scheduler generation.  
+Verify previous shutdown record.  
+Verify lifecycle consistency.  
+Verify ownership records.  
+Verify incomplete transactions.  
+Load execution registry.  
+Restore scheduler supervision.
+
+Each step SHALL complete successfully before the next step begins.
+
+Partial initialization SHALL NOT occur.
+
+51.5 Restart Consistency Validation
+
+WF-001 SHALL validate:
+
+lifecycle consistency;  
+metadata integrity;  
+execution ownership;  
+dependency graph integrity;  
+queue consistency;  
+scheduler generation continuity.
+
+Validation SHALL complete before any execution resumes.
+
+51.6 Restart Safety
+
+Restart SHALL NEVER:
+
+duplicate executions;  
+replay completed executions;  
+skip lifecycle validation;  
+recreate execution identities;  
+overwrite historical records.
+
+Restart SHALL preserve complete operational continuity.
+
+51.7 Restart Persistence
+
+Every Restart SHALL permanently record:
+
+Restart ID  
+Previous Scheduler Generation  
+New Scheduler Generation  
+Restart Timestamp  
+Restart Cause  
+Runtime Instance Identity  
+Configuration Version  
+Operator Identity where applicable
+
+Restart history SHALL become permanently auditable.
+
+51.8 Formal Restart Recovery Contract  
+Preconditions  
+Controlled shutdown completed.  
+Scheduler initialization successful.  
+Persistence available.  
+Postconditions  
+Scheduler supervision restored.  
+Lifecycle continuity preserved.  
+Restart history persisted.  
+Invariants  
+Restart never creates new execution identity.  
+Restart never modifies historical truth.  
+Restart always validates ownership.  
+Restart always preserves deterministic state.  
+52\. Orphan Execution Detection  
+52.1 Objective
+
+Orphan Execution Detection defines the authoritative process by which WF-001 identifies scheduler-owned executions whose operational ownership can no longer be confidently verified.
+
+An Orphan Execution represents an execution whose lifecycle status cannot be safely supervised because authoritative ownership has been lost, interrupted, or become ambiguous.
+
+The Scheduler SHALL detect orphaned executions before any recovery decision is considered.
+
+Orphan detection SHALL protect execution uniqueness.
+
+Orphan detection SHALL prevent duplicate execution.
+
+52.2 Definition of Orphan Execution
+
+An execution SHALL be classified as an Orphan Execution when one or more of the following conditions exist:
+
+Active execution without a valid scheduler owner.  
+Running execution without a valid ownership lease.  
+Lifecycle supervision interrupted unexpectedly.  
+Runtime instance permanently unavailable.  
+Scheduler generation ownership invalid.  
+Ownership records inconsistent.  
+Persisted execution cannot be matched to an active supervisor.
+
+Missing heartbeat alone SHALL NOT create an orphan.
+
+Timeout alone SHALL NOT create an orphan.
+
+Worker failure alone SHALL NOT create an orphan.
+
+Evidence SHALL be evaluated collectively.
+
+52.3 Detection Philosophy
+
+The Scheduler SHALL assume that every execution remains valid until authoritative evidence proves otherwise.
+
+WF-001 SHALL NEVER classify an execution as orphaned based solely upon absence of activity.
+
+Operational silence SHALL NOT constitute orphan evidence.
+
+52.4 Orphan Detection Preconditions
+
+Before orphan evaluation begins, WF-001 SHALL verify:
+
+persistence integrity;  
+scheduler generation;  
+ownership registry;  
+lifecycle history;  
+execution metadata;  
+dependency integrity.
+
+If any prerequisite cannot be verified, orphan evaluation SHALL be postponed until operational truth can be established.
+
+52.5 Ownership Verification
+
+WF-001 SHALL verify:
+
+Active Scheduler Generation.  
+Active Runtime Instance.  
+Execution Lease.  
+Ownership Timestamp.  
+Ownership Expiration Policy.  
+Ownership Transfer History.
+
+Only verified ownership SHALL be considered authoritative.
+
+52.6 Lease Validation
+
+Every active execution SHALL possess exactly one active ownership lease.
+
+Lease validation SHALL confirm:
+
+lease identity;  
+lease owner;  
+lease validity period;  
+lease generation;  
+lease integrity.
+
+Expired lease SHALL trigger ownership evaluation.
+
+Expired lease SHALL NOT automatically create an orphan.
+
+52.7 Multi-Evidence Verification
+
+Before classifying an execution as orphaned, WF-001 SHALL collect evidence from multiple independent sources.
+
+Examples include:
+
+Persistence Layer
+
+Scheduler Runtime
+
+Worker Runtime
+
+Health Monitor
+
+Ownership Registry
+
+Execution Timeline
+
+Recovery History
+
+No single observation source SHALL independently create orphan classification.
+
+52.8 Orphan Classification
+
+Following successful evaluation, WF-001 SHALL classify orphan status as one of:
+
+Confirmed Orphan
+
+Ownership permanently lost.
+
+Suspected Orphan
+
+Evidence incomplete.
+
+Further evaluation required.
+
+False Orphan
+
+Ownership successfully verified.
+
+No recovery required.
+
+Classification SHALL remain auditable.
+
+52.9 Orphan Persistence
+
+Every orphan evaluation SHALL persist:
+
+Orphan Evaluation ID  
+Evaluation Timestamp  
+Evaluation Result  
+Supporting Evidence  
+Scheduler Generation  
+Correlation ID  
+Execution Identity  
+Evaluating Runtime Instance
+
+Evaluation SHALL NEVER overwrite previous evaluations.
+
+52.10 Recovery Boundary
+
+Orphan detection SHALL NOT recover executions.
+
+Orphan detection SHALL only establish authoritative operational truth.
+
+Recovery SHALL remain governed by subsequent sections of this specification.
+
+52.11 Formal Orphan Detection Contract  
+Preconditions  
+Execution under evaluation.  
+Scheduler ownership verification completed.  
+Persistence available.  
+Postconditions  
+Orphan status determined.  
+Evaluation persisted.  
+Recovery eligibility updated.  
+Invariants  
+Orphan detection never duplicates execution.  
+Orphan detection never changes execution identity.  
+Orphan detection never performs recovery.  
+Orphan detection always preserves historical evidence.  
+53\. Recovery Coordination  
+53.1 Objective
+
+Recovery Coordination defines the authoritative governance model by which WF-001 schedules, orders, isolates, and supervises recovery operations affecting scheduler-owned executions.
+
+Recovery SHALL remain an orchestrated operational process.
+
+Recovery SHALL NOT become a collection of independent recovery actions.
+
+WF-001 SHALL coordinate recovery using deterministic operational governance.
+
+53.2 Coordination Authority
+
+WF-001 SHALL remain the sole authority responsible for coordinating recovery operations.
+
+Individual recovery workers SHALL execute recovery tasks only after receiving explicit scheduler authorization.
+
+No recovery worker SHALL independently determine recovery order.
+
+Recovery coordination SHALL remain centralized.
+
+53.3 Coordination Principles
+
+Recovery Coordination SHALL satisfy the following principles:
+
+Deterministic Ordering  
+Single Recovery Authority  
+Isolation  
+Dependency Awareness  
+Fair Resource Allocation  
+Historical Preservation  
+Operational Traceability  
+Idempotent Coordination
+
+Violation of any coordination principle SHALL constitute scheduler non-compliance.
+
+53.4 Recovery Queue
+
+WF-001 SHALL maintain a logical Recovery Queue.
+
+The Recovery Queue SHALL represent scheduler-approved recovery work awaiting execution.
+
+Recovery Queue SHALL remain logically independent from:
+
+Dispatch Queue  
+Pending Queue  
+Execution Queue  
+Workflow Queue
+
+Recovery SHALL NOT reuse execution scheduling queues.
+
+53.5 Recovery Queue Entry
+
+Each Recovery Queue Entry SHALL include:
+
+Recovery Task ID  
+Logical Execution ID  
+Execution Attempt ID  
+Recovery Evaluation ID  
+Recovery Priority  
+Failure Category  
+Failure Severity  
+Scheduler Generation  
+Correlation ID  
+Queue Timestamp  
+Queue Position
+
+Queue entries SHALL remain immutable after acceptance except for scheduler-managed operational metadata.
+
+53.6 Recovery Ordering
+
+Recovery SHALL execute according to deterministic ordering.
+
+Ordering SHALL evaluate:
+
+Scheduler Integrity  
+Persistence Integrity  
+Ownership Integrity  
+Failure Severity  
+Dependency Constraints  
+Recovery Eligibility Timestamp  
+Queue Sequence Number
+
+Business importance SHALL NOT influence recovery order.
+
+Market value SHALL NOT influence recovery order.
+
+AI recommendations SHALL NOT influence recovery order.
+
+53.7 Dependency Coordination
+
+Recovery SHALL respect dependency relationships established by Phase 4\.
+
+Dependent executions SHALL NOT recover before mandatory prerequisite executions satisfy recovery requirements.
+
+Dependency violations SHALL postpone recovery rather than violate dependency integrity.
+
+53.8 Recovery Isolation
+
+Recovery operations SHALL remain isolated.
+
+Recovery failure affecting one execution SHALL NOT interrupt unrelated recovery operations.
+
+Shared recovery state SHALL NOT exist.
+
+Recovery SHALL preserve execution independence.
+
+53.9 Recovery Concurrency
+
+WF-001 MAY execute multiple recovery operations concurrently.
+
+Concurrent recovery SHALL require verification that:
+
+ownership remains unique;  
+dependency constraints remain satisfied;  
+resource policy permits concurrency;  
+recovery isolation remains preserved.
+
+Concurrency SHALL NEVER compromise deterministic recovery ordering.
+
+53.10 Recovery Cancellation
+
+Scheduler MAY cancel a queued recovery before execution begins.
+
+Cancellation SHALL require:
+
+scheduler authorization;  
+lifecycle validation;  
+persistence update;  
+audit recording.
+
+Recovery cancellation SHALL NOT modify historical recovery evaluations.
+
+53.11 Recovery Completion
+
+Successful recovery coordination SHALL permanently record:
+
+Recovery Completion ID  
+Recovery Result  
+Recovery Timestamp  
+Responsible Runtime  
+Scheduler Generation  
+Correlation ID  
+Recovery Outcome
+
+Completion SHALL become part of immutable scheduler history.
+
+53.12 Formal Recovery Coordination Contract  
+Preconditions  
+Recovery approved.  
+Recovery eligibility confirmed.  
+Recovery queue entry exists.  
+Postconditions  
+Recovery coordinated.  
+Recovery history persisted.  
+Queue state updated.  
+Invariants  
+Coordination never duplicates recovery.  
+Coordination never changes execution identity.  
+Coordination never bypasses dependency validation.  
+Coordination always preserves deterministic ordering.  
+54\. Recovery Persistence  
+54.1 Objective
+
+Recovery Persistence defines the durable storage model governing every recovery-related operation performed by WF-001.
+
+Recovery SHALL become durable operational truth before being considered successful.
+
+Recovery SHALL NEVER exist solely in volatile runtime memory.
+
+Persistence SHALL provide complete reconstructability of all recovery activities.
+
+54.2 Persistence Authority
+
+WF-001 SHALL remain solely responsible for persisting scheduler recovery information.
+
+Persistence SHALL remain the authoritative historical record for every recovery decision.
+
+54.3 Recovery Transaction
+
+Every recovery operation SHALL execute inside one atomic PostgreSQL transaction.
+
+The transaction SHALL persist:
+
+Recovery Decision  
+Recovery Metadata  
+Recovery Queue Update  
+Recovery Events  
+Recovery Audit Record
+
+Partial persistence SHALL NOT exist.
+
+54.4 Recovery Identity
+
+Every recovery SHALL possess:
+
+Recovery ID  
+Recovery Attempt ID  
+Recovery Version  
+Recovery Generation  
+Recovery Timestamp  
+Correlation ID
+
+Recovery identities SHALL remain immutable.
+
+54.5 Recovery History
+
+WF-001 SHALL permanently preserve:
+
+Recovery Detection
+
+↓
+
+Recovery Evaluation
+
+↓
+
+Recovery Approval
+
+↓
+
+Recovery Coordination
+
+↓
+
+Recovery Execution
+
+↓
+
+Recovery Completion
+
+↓
+
+Recovery Result
+
+Historical ordering SHALL remain immutable.
+
+54.6 Recovery Versioning
+
+Every recovery operation SHALL possess its own version.
+
+Recovery version SHALL increment whenever scheduler governance changes recovery state.
+
+Historical recovery versions SHALL NEVER be overwritten.
+
+54.7 Recovery Integrity
+
+WF-001 SHALL continuously validate:
+
+Recovery identity consistency.  
+Recovery sequence consistency.  
+Recovery ownership consistency.  
+Recovery persistence consistency.  
+Recovery audit consistency.
+
+Integrity violations SHALL suspend further recovery operations until evaluation completes.
+
+54.8 Recovery Replay Prevention
+
+Previously completed recovery operations SHALL NEVER execute again.
+
+Replay SHALL require explicit authorization under a future approved specification.
+
+Duplicate recovery SHALL constitute an operational anomaly.
+
+54.9 Recovery Traceability
+
+Every recovery SHALL remain traceable across:
+
+Scheduler Logs  
+Recovery History  
+Lifecycle History  
+PostgreSQL Records  
+Audit Trail  
+Operator Events
+
+No recovery SHALL become historically disconnected.
+
+54.10 Formal Recovery Persistence Contract  
+Preconditions  
+Approved recovery.  
+Valid scheduler authority.  
+Persistence available.  
+Postconditions  
+Recovery durably committed.  
+Recovery history synchronized.  
+Audit records completed.  
+Invariants  
+Recovery persistence is atomic.  
+Recovery history is immutable.  
+Recovery identity never changes.  
+Recovery survives restart.  
+55\. Recovery Safety Rules  
+55.1 Objective
+
+Recovery Safety Rules define the non-negotiable operational constraints governing every recovery operation performed by WF-001.
+
+These rules SHALL protect scheduler correctness under all operational conditions, including unexpected failures, concurrent recovery operations, infrastructure disruptions, and future architectural evolution.
+
+Safety SHALL always take precedence over recovery speed.
+
+Operational correctness SHALL always take precedence over operational throughput.
+
+No recovery operation SHALL violate these rules.
+
+55.2 Safety Philosophy
+
+Recovery SHALL restore operational truth.
+
+Recovery SHALL NEVER fabricate operational truth.
+
+Whenever uncertainty exists,
+
+WF-001 SHALL refuse unsafe recovery rather than risk lifecycle corruption.
+
+The Scheduler SHALL prefer temporary unavailability over permanent inconsistency.
+
+55.3 Safety Authority
+
+Only WF-001 SHALL evaluate recovery safety.
+
+External systems MAY provide operational observations.
+
+External observations SHALL NOT override scheduler safety evaluation.
+
+Safety authority SHALL remain centralized.
+
+55.4 Rule S-01 — Immutable Execution Identity
+
+Recovery SHALL NEVER create a new Logical Execution ID for an existing execution.
+
+Execution identity SHALL remain globally unique throughout the complete operational lifetime.
+
+Recovery SHALL preserve identity.
+
+Identity recreation SHALL constitute a Critical Integrity Violation.
+
+55.5 Rule S-02 — Immutable Historical Truth
+
+Committed lifecycle history SHALL NEVER be modified.
+
+Recovery SHALL append historical facts.
+
+Recovery SHALL NEVER rewrite historical facts.
+
+Historical integrity SHALL remain permanent.
+
+55.6 Rule S-03 — Single Active Ownership
+
+At every point in time,
+
+exactly one scheduler authority SHALL own one active execution.
+
+Multiple active owners SHALL NEVER exist simultaneously.
+
+Recovery SHALL verify ownership before performing any operational action.
+
+55.7 Rule S-04 — Duplicate Prevention
+
+Recovery SHALL NEVER create duplicate execution.
+
+Duplicate prevention SHALL remain mandatory even if recovery cannot continue.
+
+Scheduler SHALL reject unsafe recovery whenever duplicate prevention cannot be guaranteed.
+
+55.8 Rule S-05 — Persistence Before Action
+
+Every recovery decision SHALL become durably persisted before operational execution begins.
+
+Uncommitted recovery SHALL NOT become externally observable.
+
+Runtime memory SHALL NEVER become authoritative.
+
+Persistence SHALL always precede execution.
+
+55.9 Rule S-06 — Dependency Preservation
+
+Recovery SHALL preserve every dependency relationship established under Phase 4\.
+
+Recovery SHALL NEVER bypass dependency validation.
+
+Dependency integrity SHALL remain invariant.
+
+55.10 Rule S-07 — Atomic Recovery
+
+Recovery SHALL execute atomically.
+
+Partial recovery SHALL NOT exist.
+
+Whenever atomicity cannot be guaranteed,
+
+the complete recovery transaction SHALL be rolled back.
+
+55.11 Rule S-08 — Audit Preservation
+
+Every recovery decision SHALL become permanently auditable.
+
+Recovery SHALL NEVER produce invisible operational behavior.
+
+Every recovery SHALL preserve:
+
+decision;  
+authority;  
+timestamp;  
+evidence;  
+result.  
+55.12 Rule S-09 — Deterministic Recovery
+
+Given identical:
+
+persisted history;  
+scheduler generation;  
+runtime observations;  
+recovery policy;
+
+WF-001 SHALL always produce identical recovery decisions.
+
+Random recovery SHALL NOT exist.
+
+55.13 Rule S-10 — Recovery Isolation
+
+Recovery affecting one execution SHALL NOT modify unrelated executions.
+
+Recovery SHALL remain execution-scoped.
+
+Shared recovery SHALL NOT violate execution independence.
+
+55.14 Rule S-11 — Fail Safe
+
+Whenever recovery correctness cannot be established,
+
+WF-001 SHALL stop recovery.
+
+The Scheduler SHALL enter Safe Operational Mode.
+
+Unsafe continuation SHALL NEVER occur.
+
+55.15 Rule S-12 — Human Escalation
+
+If automated recovery reaches the limits defined by policy,
+
+WF-001 SHALL escalate to the Operator Control Center.
+
+The Scheduler SHALL preserve complete operational evidence for human investigation.
+
+Operator intervention SHALL never overwrite historical recovery records.
+
+55.16 Safety Verification
+
+Before completing any recovery operation,
+
+WF-001 SHALL verify compliance with every Safety Rule defined in this section.
+
+Failure of any verification SHALL invalidate the recovery operation.
+
+55.17 Formal Recovery Safety Contract  
+Preconditions  
+Recovery approved.  
+Recovery coordination completed.  
+Scheduler ownership valid.  
+Persistence available.  
+Postconditions  
+Recovery satisfies all safety rules.  
+Safety verification persisted.  
+Audit history updated.  
+Invariants  
+Safety rules are mandatory.  
+Safety rules override recovery speed.  
+Safety rules preserve operational truth.  
+Safety rules never become optional.  
+56\. Recovery Invariants  
+56.1 Objective
+
+Recovery Invariants define the fundamental operational truths that SHALL remain valid throughout every recovery operation performed by WF-001.
+
+These invariants SHALL remain independent of implementation technology, runtime environment, infrastructure topology, or deployment architecture.
+
+Violation of any invariant SHALL constitute a Scheduler Integrity Failure.
+
+56.2 Identity Invariant
+
+Logical Execution Identity SHALL remain immutable.
+
+Recovery SHALL NEVER create, replace, or duplicate execution identity.
+
+56.3 Ownership Invariant
+
+Exactly one authoritative owner SHALL exist for every active execution.
+
+Ownership SHALL NEVER become ambiguous.
+
+56.4 Persistence Invariant
+
+Committed recovery information SHALL remain durable.
+
+Recovery SHALL NEVER depend upon volatile runtime memory.
+
+56.5 Historical Invariant
+
+Historical recovery records SHALL NEVER be modified.
+
+Historical reconstruction SHALL always reproduce identical operational truth.
+
+56.6 Ordering Invariant
+
+Recovery ordering SHALL remain deterministic.
+
+Recovery SHALL NEVER violate previously committed scheduler ordering.
+
+56.7 Correlation Invariant
+
+Every recovery operation SHALL preserve one immutable Correlation ID.
+
+Correlation SHALL remain globally traceable.
+
+56.8 Audit Invariant
+
+Every recovery SHALL remain permanently auditable.
+
+Missing audit evidence SHALL invalidate operational trust.
+
+56.9 Consistency Invariant
+
+Recovery SHALL preserve:
+
+lifecycle consistency;  
+dependency consistency;  
+ownership consistency;  
+metadata consistency;  
+persistence consistency.
+
+Consistency SHALL remain stronger than availability.
+
+56.10 Safety Invariant
+
+Recovery SHALL NEVER sacrifice correctness to improve performance.
+
+Scheduler SHALL reject unsafe optimization.
+
+Operational integrity SHALL remain absolute.
+
+56.11 Formal Recovery Invariant Contract  
+Preconditions
+
+Recovery initiated.
+
+Postconditions
+
+All invariants preserved.
+
+Invariants
+
+Recovery invariants SHALL remain true before,
+
+during,
+
+and after every recovery operation.
+
+57\. Recovery Boundaries  
+57.1 Objective
+
+Recovery Boundaries explicitly define the architectural limits of Phase 6\.
+
+The purpose of this section is to preserve strict separation of responsibilities across the AHOS architecture while ensuring compliance with the Project Constitution.
+
+Recovery SHALL remain confined to scheduler-owned operational responsibilities.
+
+57.2 Scheduler Scope
+
+Phase 6 SHALL govern only:
+
+execution recovery;  
+lifecycle recovery;  
+scheduler recovery;  
+ownership recovery;  
+recovery coordination;  
+recovery persistence;  
+recovery auditing.
+
+Responsibilities outside this scope SHALL remain delegated to their respective architectural components.
+
+57.3 Business Logic Boundary
+
+Phase 6 SHALL NOT:
+
+execute business workflows;  
+interpret workflow payload;  
+evaluate domain-specific rules;  
+perform compensation logic.
+
+Business recovery SHALL belong exclusively to workflow implementations.
+
+57.4 Intelligence Boundary
+
+Phase 6 SHALL NOT:
+
+invoke AI models;  
+generate market analysis;  
+score opportunities;  
+evaluate trading strategies;  
+learn from recovery outcomes.
+
+Intelligence responsibilities belong to the Intelligence Engine.
+
+57.5 Infrastructure Boundary
+
+Phase 6 SHALL observe infrastructure failures.
+
+Phase 6 SHALL NOT repair infrastructure.
+
+Infrastructure remediation SHALL remain the responsibility of deployment and operational management components.
+
+57.6 Notification Boundary
+
+Phase 6 MAY emit recovery events.
+
+Phase 6 SHALL NOT directly notify operators.
+
+Notification delivery SHALL belong to WF-024.
+
+57.7 Configuration Boundary
+
+Phase 6 SHALL consume configuration.
+
+Phase 6 SHALL NOT govern configuration lifecycle.
+
+Configuration governance SHALL remain delegated to WF-027.
+
+57.8 Maintenance Boundary
+
+Phase 6 SHALL NOT perform:
+
+log cleanup;  
+backup;  
+restore;  
+database optimization;  
+storage maintenance.
+
+Maintenance SHALL remain outside scheduler recovery governance.
+
+57.9 Future Architecture Boundary
+
+This specification SHALL remain compatible with:
+
+Single-node runtime.  
+Docker Compose deployment.  
+Future High Availability deployments.  
+Distributed Scheduler architecture.  
+Cluster coordination.  
+Leader Election mechanisms defined in future specifications.
+
+Phase 6 SHALL NOT assume any specific deployment topology.
+
+57.10 Final Compliance Statement
+
+A WF-001 implementation SHALL be considered compliant with Phase 6 only if:
+
+every failure is deterministically detected;  
+every failure is authoritatively classified;  
+every recovery is explicitly approved;  
+every recovery preserves execution identity;  
+every recovery is durably persisted;  
+every recovery remains fully auditable;  
+every recovery satisfies all Safety Rules;  
+every Recovery Invariant remains continuously valid;  
+every architectural boundary defined by this specification remains uncompromised.
+
+Any implementation violating these guarantees SHALL be considered non-compliant with the AHOS WF-001 Version 3.0 Phase 6 specification.
+
+AHOS Workflow Specification Sheet  
+WF-001 — Master Scheduler  
+Version 3.0  
+Phase 6 — Failure Handling & Recovery  
+Appendix A — Recovery Compliance Matrix
+
+This appendix defines the mandatory compliance requirements for every implementation claiming conformance with WF-001 Phase 6\.
+
+Compliance SHALL be evaluated against architectural behavior rather than implementation technology.
+
+Requirement	SHALL	Verification  
+Every failure is detected	Yes	Integration Testing  
+Every failure is classified	Yes	Classification Validation  
+Failure Severity assigned	Yes	Runtime Verification  
+Recovery Authority centralized	Yes	Architecture Review  
+Retry governed by scheduler	Yes	Workflow Integration Test  
+Crash Recovery deterministic	Yes	Restart Simulation  
+Restart Recovery preserves lifecycle	Yes	Controlled Restart Test  
+Orphan Detection evidence-based	Yes	Failure Injection  
+Recovery Coordination deterministic	Yes	Queue Replay Test  
+Recovery Persistence atomic	Yes	Database Transaction Test  
+Recovery Safety Rules enforced	Yes	Compliance Validation  
+Recovery Invariants preserved	Yes	Formal Verification  
+Recovery Boundaries respected	Yes	Architecture Audit
+
+No implementation SHALL claim compliance unless every mandatory requirement is satisfied.
+
+Appendix B — Recovery State Transition Matrix
+
+The following matrix defines the normative recovery transitions.
+
+Current Operational State	Recovery Event	Result  
+Running	Worker Crash	Recovery Evaluation  
+Running	Scheduler Crash	Crash Recovery  
+Running	Graceful Restart	Restart Recovery  
+Running	Ownership Lost	Orphan Evaluation  
+Recovery Evaluation	Retry Approved	Retry Coordination  
+Recovery Evaluation	Retry Rejected	Recovery Completed  
+Recovery Queue	Recovery Executed	Lifecycle Resume  
+Recovery Queue	Recovery Cancelled	Recovery Closed  
+Recovery Completed	Audit Verification	Terminal  
+Recovery Failed	Escalation	Operator Control
+
+Transitions not defined by this matrix SHALL be considered invalid.
+
+Appendix C — Recovery Operational Sequence  
+Execution Running  
+        │  
+        ▼  
+Failure Detected  
+        │  
+        ▼  
+Failure Classification  
+        │  
+        ▼  
+Severity Assignment  
+        │  
+        ▼  
+Recovery Evaluation  
+        │  
+        ▼  
+Retry Eligibility  
+        │  
+        ▼  
+Recovery Coordination  
+        │  
+        ▼  
+Recovery Persistence  
+        │  
+        ▼  
+Safety Verification  
+        │  
+        ▼  
+Lifecycle Resume  
+        │  
+        ▼  
+Audit Complete
+
+Recovery SHALL proceed exactly in this logical order.
+
+Implementation MAY optimize execution.
+
+Implementation SHALL NOT violate ordering semantics.
+
+Appendix D — Recovery Guarantees
+
+WF-001 Phase 6 guarantees:
+
+Operational Guarantees  
+Deterministic Recovery  
+Evidence-Based Decisions  
+Centralized Recovery Authority  
+Historical Preservation  
+Atomic Recovery  
+Durable Recovery  
+Idempotent Recovery  
+Safe Recovery  
+Integrity Guarantees  
+Immutable Identity  
+Immutable History  
+Dependency Preservation  
+Ownership Consistency  
+Metadata Consistency  
+Audit Consistency  
+Recovery Guarantees  
+Crash Survival  
+Restart Continuity  
+Orphan Detection  
+Controlled Retry  
+Coordinated Recovery  
+Duplicate Prevention  
+Architectural Guarantees  
+Technology Independence  
+Runtime Independence  
+Storage Independence  
+Deployment Independence  
+Future HA Compatibility  
+Appendix E — Recovery Design Principles
+
+The following principles govern every future extension of Phase 6\.
+
+RP-01
+
+Recovery SHALL always begin from persisted truth.
+
+RP-02
+
+Recovery SHALL NEVER infer operational state from volatile runtime memory.
+
+RP-03
+
+Operational integrity SHALL always have higher priority than operational availability.
+
+RP-04
+
+Every recovery action SHALL remain auditable.
+
+RP-05
+
+Recovery SHALL preserve historical continuity.
+
+RP-06
+
+Scheduler SHALL never duplicate execution.
+
+RP-07
+
+Scheduler SHALL never violate lifecycle consistency.
+
+RP-08
+
+Scheduler SHALL remain deterministic under identical operational conditions.
+
+RP-09
+
+Safety SHALL override performance.
+
+RP-10
+
+Whenever operational truth cannot be established,
+
+the Scheduler SHALL stop recovery rather than risk corruption.
+
+Phase 6 Completion Statement
+
+Phase 6 establishes the complete governance framework for failure handling and operational recovery within the AHOS Master Scheduler.
+
+This phase defines how failures are observed, classified, prioritized, evaluated, coordinated, persisted, verified, and bounded while preserving deterministic behavior, immutable execution identity, historical integrity, and operational auditability.
+
+The specification intentionally separates Failure Intelligence, Recovery Governance, and Recovery Integrity, ensuring that operational recovery remains independent of business logic, workflow implementation details, infrastructure management, and domain-specific processing.
+
+Upon successful completion of Phase 6, WF-001 SHALL guarantee that every scheduler-governed recovery operation is:
+
+evidence-based,  
+deterministic,  
+centrally governed,  
+transactionally durable,  
+historically traceable,  
+operationally safe,  
+architecturally consistent,  
+and fully compliant with the AHOS Constitution.  
+ارزیابی معماری من
+
+اگر بخواهم این سند را مانند یک Architecture Review Board ارزیابی کنم، نتیجه چنین است:
+
+Phase	وضعیت	بلوغ  
+Phase 1 — Core Runtime Architecture	✅	10/10  
+Phase 2 — Execution Coordination & Persistent Runtime State	✅	10/10  
+Phase 3 — Queue Scheduling & Dispatch	✅	10/10  
+Phase 4 — Dependency Management	✅	10/10  
+Phase 5 — Execution Lifecycle Management	✅	10/10  
+Phase 6 — Failure Handling & Recovery	✅	10/10
+

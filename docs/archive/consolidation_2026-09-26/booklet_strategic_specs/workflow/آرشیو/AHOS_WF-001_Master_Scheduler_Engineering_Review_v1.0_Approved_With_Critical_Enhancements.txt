@@ -1,0 +1,683 @@
+# WF-001 Master Scheduler — Complete Engineering Review
+
+## Review Classification: **APPROVED WITH CRITICAL ENHANCEMENTS**
+
+---
+
+## Overall Assessment
+
+The WF-001 specification demonstrates **strong architectural foundations** and proper adherence to AHOS principles. The workflow correctly identifies its responsibility as pure orchestration without business logic contamination.
+
+However, several **critical engineering gaps** must be addressed before implementation to ensure production readiness, fault tolerance, and operational reliability on a single-laptop deployment.
+
+---
+
+# SECTION-BY-SECTION REVIEW
+
+---
+
+## ✅ Section 1: Purpose — **APPROVED**
+
+**Status:** No modification required.
+
+**Reasoning:**
+- Clear single responsibility principle
+- Correct scope limitation
+- Proper separation of concerns
+- Explicitly excludes business logic
+
+---
+
+## ✅ Section 2: Mission — **APPROVED WITH MINOR CLARIFICATION**
+
+**Issue Identified:**
+
+The mission includes "Support future dynamic scheduling" but does not specify **what constitutes valid criteria for dynamic scheduling**.
+
+**Why This Matters:**
+
+Without clear boundaries, future implementations might introduce inappropriate dependencies (e.g., market analysis inside the scheduler), violating architectural principles.
+
+**Recommended Enhancement:**
+
+Add one clarifying statement after the mission list:
+
+```
+Future dynamic scheduling must remain limited to:
+- System resource availability
+- Workflow queue depth
+- Execution time windows
+- Operator-defined priorities
+
+Market intelligence, token analysis, or business logic shall NEVER influence scheduling decisions directly.
+```
+
+---
+
+## ⚠️ Section 3: Scope — **REQUIRES CLARIFICATION**
+
+**Issue Identified:**
+
+"Out of Scope" correctly excludes business logic but does not address **system initialization** and **graceful shutdown**, which are critical orchestration responsibilities.
+
+**Why This Matters:**
+
+On laptop deployment:
+- System may restart unexpectedly (power loss, Windows updates, crashes)
+- Workflows may be mid-execution during shutdown
+- Startup must recover gracefully without data corruption
+
+**Recommended Addition:**
+
+Under **In Scope**, add:
+
+```
+- System initialization sequence
+- Graceful shutdown coordination
+- Recovery from unclean shutdown
+- Mid-execution workflow state persistence
+```
+
+---
+
+## ⚠️ Section 4: Inputs — **MISSING CRITICAL INPUT**
+
+**Issue Identified:**
+
+The specification does not include **workflow completion events** as inputs.
+
+**Why This Matters:**
+
+The Master Scheduler must know when workflows complete to:
+- Release execution locks
+- Update queue status
+- Trigger dependent workflows
+- Record completion in logs
+- Free system resources
+
+Without this, dependency management cannot function.
+
+**Recommended Enhancement:**
+
+Replace Section 4 entirely:
+
+```
+## 4. Inputs
+
+The scheduler shall receive:
+
+**Triggers:**
+- Cron schedule events
+- Manual operator triggers
+- System startup events
+- Resume after restart events
+- Future: External scheduling requests
+
+**Status Events:**
+- Workflow completion (success)
+- Workflow completion (failure)
+- Workflow timeout
+- Workflow heartbeat (for long-running workflows)
+
+**System Events:**
+- Database reconnection
+- Configuration reload
+- Emergency stop signal
+- Health check requests
+```
+
+---
+
+## ✅ Section 5: Outputs — **APPROVED**
+
+**Status:** No modification required.
+
+**Reasoning:**
+- Outputs are appropriate for orchestration
+- No business logic outputs included
+- Health and error outputs properly defined
+
+---
+
+## ⚠️ Section 6: Dependencies — **INCOMPLETE**
+
+**Issue Identified:**
+
+Missing **n8n internal API** as a critical dependency.
+
+**Why This Matters:**
+
+The Master Scheduler must programmatically trigger other n8n workflows. This requires n8n's internal webhook or HTTP request capabilities. Without explicitly acknowledging this dependency, implementation may fail.
+
+**Recommended Enhancement:**
+
+```
+## 6. Dependencies
+
+**Required:**
+- PostgreSQL (workflow state, logs, queue)
+- n8n (execution engine)
+- n8n HTTP Request node or Webhook capability
+- Docker (containerization)
+- System clock (accurate scheduling)
+
+**Optional (Future):**
+- Redis (advanced queue management)
+- Message broker (event-driven architecture)
+- Cluster scheduler (distributed execution)
+```
+
+---
+
+## ❌ Section 7: Execution Rules — **CRITICAL MISSING LOGIC**
+
+**Issues Identified:**
+
+1. **No definition of "workflow already running"**
+   - How is execution state determined?
+   - Where is state stored?
+   - What happens if state becomes inconsistent?
+
+2. **No execution timeout enforcement**
+   - Workflows may hang indefinitely
+   - System resources may be exhausted
+   - No recovery mechanism defined
+
+3. **No priority definition**
+   - What determines priority?
+   - How are priorities enforced?
+   - Can high-priority workflows preempt low-priority ones?
+
+4. **Dependency mechanism undefined**
+   - How are dependencies declared?
+   - Where are dependency graphs stored?
+   - What happens if a dependency fails?
+
+**Why These Matter:**
+
+On a single laptop:
+- Stuck workflows consume RAM/CPU indefinitely
+- Database locks may deadlock the system
+- Cascading failures cannot be prevented without proper dependency handling
+
+**Recommended Replacement:**
+
+```
+## 7. Execution Rules
+
+The scheduler shall enforce the following rules:
+
+### 7.1 Execution State Management
+
+**State Storage:**
+- Current execution state stored in `workflow_queue` table
+- States: `idle`, `queued`, `running`, `completed`, `failed`, `timeout`
+- State transitions logged with timestamps
+
+**Duplicate Prevention:**
+- Before triggering, check `workflow_queue.status` for workflow_id
+- If status = `running`, reject new execution
+- If status = `queued`, wait until completion
+- If status = `timeout` or `failed`, apply retry policy
+
+### 7.2 Timeout Enforcement
+
+**Default Timeout:**
+- Per-workflow configurable timeout (default: 15 minutes)
+- Stored in `configuration` table
+- Enforced via scheduled timeout check (every 60 seconds)
+
+**Timeout Handling:**
+- Mark workflow as `timeout` in database
+- Log timeout event
+- Attempt graceful termination (future)
+- Release execution lock
+- Notify operator if workflow is critical
+
+### 7.3 Priority Management
+
+**Priority Levels:**
+- `critical` (security checks, portfolio updates)
+- `high` (opportunity discovery, market intelligence)
+- `normal` (reporting, learning)
+- `low` (archival, cleanup)
+
+**Priority Enforcement:**
+- Higher priority workflows execute first when queue has capacity
+- Running workflows are NOT preempted
+- Priority stored in `workflow_queue.priority`
+
+### 7.4 Dependency Handling
+
+**Dependency Declaration:**
+- Dependencies stored in `workflow_dependencies` table
+- Schema: `workflow_id, depends_on_workflow_id, dependency_type`
+- Dependency types: `must_complete_successfully`, `must_complete`, `must_not_be_running`
+
+**Dependency Resolution:**
+- Before execution, query all dependencies
+- Check completion status of required workflows
+- If dependencies unsatisfied, mark as `waiting`
+- Retry dependency check every 60 seconds
+- Maximum wait time: configurable (default: 30 minutes)
+
+**Dependency Failure:**
+- If required workflow fails, dependent workflow transitions to `blocked`
+- Operator notification required
+- Manual approval required to override dependency
+
+### 7.5 Infinite Loop Prevention
+
+**Maximum Retry Limit:**
+- Per-workflow configurable (default: 3)
+- Tracked in `workflow_queue.retry_count`
+
+**Backoff Strategy:**
+- First retry: immediate
+- Second retry: 60 seconds
+- Third retry: 300 seconds
+- After max retries: mark as `permanently_failed`
+- Operator approval required to reset
+```
+
+---
+
+## ⚠️ Section 8: Error Handling — **INCOMPLETE**
+
+**Issue Identified:**
+
+Missing **specific operator notification thresholds** and **automatic degradation strategy**.
+
+**Why This Matters:**
+
+On laptop deployment:
+- Operator may not be monitoring Telegram 24/7
+- System must continue operating through non-critical failures
+- Critical vs non-critical failures must be distinguished
+
+**Recommended Enhancement:**
+
+Add after current content:
+
+```
+### 8.1 Notification Thresholds
+
+**Critical Failures (Immediate Telegram Alert):**
+- Database connection lost
+- Master Scheduler crash
+- All workflows failing simultaneously
+- Security workflow failure
+- Portfolio workflow failure
+
+**Non-Critical Failures (Batched Report):**
+- Single workflow retry
+- Low-priority workflow timeout
+- Temporary API unavailability
+- Learning workflow failures
+
+### 8.2 Degraded Mode Operation
+
+If database is temporarily unavailable:
+- Continue executing critical workflows if possible
+- Queue non-critical workflows for later execution
+- Log to local file system as fallback
+- Attempt database reconnection every 60 seconds
+- Alert operator after 5 minutes of database unavailability
+```
+
+---
+
+## ⚠️ Section 9: Retry Policy — **NEEDS PRECISION**
+
+**Issue Identified:**
+
+Retry policy does not distinguish between **transient failures** (network timeout) and **permanent failures** (invalid configuration).
+
+**Why This Matters:**
+
+Retrying a misconfigured workflow wastes resources and delays operator awareness of the problem.
+
+**Recommended Enhancement:**
+
+```
+## 9. Retry Policy
+
+### 9.1 Failure Classification
+
+**Transient Failures (Retry Automatically):**
+- Network timeout
+- API rate limit
+- Temporary database lock
+- External service unavailable
+
+**Permanent Failures (No Retry, Immediate Notification):**
+- Invalid workflow configuration
+- Missing database table
+- Authentication failure
+- Code error (null reference, syntax error)
+
+### 9.2 Retry Strategy
+
+**For Transient Failures:**
+- Retry Count: 3
+- Retry Delays: 0s, 60s, 300s (exponential backoff)
+- After 3 failures: mark as `failed`, notify operator
+
+**For Permanent Failures:**
+- No retry
+- Immediate operator notification
+- Workflow disabled until manually fixed
+
+### 9.3 Retry Reset
+
+- Successful execution resets retry counter
+- Retry history preserved in logs
+```
+
+---
+
+## ✅ Section 10: Logging — **APPROVED WITH MINOR ADDITION**
+
+**Recommended Addition:**
+
+Add one field:
+
+```
+- Operator Override (if manual execution)
+```
+
+This ensures traceability when the operator manually triggers workflows outside normal schedule.
+
+---
+
+## ⚠️ Section 11: Database Tables — **MISSING CRITICAL TABLES**
+
+**Issue Identified:**
+
+The specification references `workflow_queue` and `workflow_dependencies` in execution rules but does not list them here.
+
+**Recommended Replacement:**
+
+```
+## 11. Database Tables
+
+**Primary Tables:**
+- `workflow_queue` (execution state, locks, priorities)
+- `workflow_logs` (execution history)
+- `workflow_dependencies` (dependency graph)
+- `configuration` (timeouts, retry limits, priorities)
+- `system_health` (scheduler health metrics)
+
+**Schema Requirements:**
+
+All tables defined in Database Design Specification (DDS).
+
+Indexes required on:
+- `workflow_queue.workflow_id`
+- `workflow_queue.status`
+- `workflow_logs.workflow_id`
+- `workflow_logs.start_time`
+```
+
+---
+
+## ✅ Section 12: Performance Targets — **APPROVED**
+
+**Status:** Reasonable for laptop deployment.
+
+---
+
+## ⚠️ Section 13: Resource Constraints — **MISSING SPECIFIC THRESHOLDS**
+
+**Issue Identified:**
+
+"Respect resource constraints" is too vague for implementation.
+
+**Recommended Enhancement:**
+
+```
+## 13. Resource Constraints
+
+The scheduler shall monitor and respect:
+
+**Memory (RAM):**
+- Maximum total workflow RAM usage: 2 GB (configurable)
+- If exceeded, delay low-priority workflows
+- Alert operator if threshold exceeded for 10 minutes
+
+**CPU:**
+- Maximum CPU usage: 70% average over 5 minutes
+- If exceeded, delay non-critical workflows
+- Critical workflows always execute
+
+**Database Connections:**
+- Maximum concurrent connections: 10
+- Enforce connection pooling
+- Reject new workflows if connection pool exhausted
+
+**Future Enhancement:**
+- Dynamic scheduling based on resource availability
+```
+
+---
+
+## ✅ Section 14: Security — **APPROVED**
+
+---
+
+## ⚠️ Section 15: Monitoring — **MISSING SELF-MONITORING**
+
+**Issue Identified:**
+
+The scheduler monitors workflows but does not monitor **itself**.
+
+**Why This Matters:**
+
+If the Master Scheduler fails, no workflows execute, and the entire platform stops. The operator must be alerted immediately.
+
+**Recommended Addition:**
+
+```
+### 15.1 Self-Monitoring
+
+The Master Scheduler shall:
+- Send heartbeat to database every 60 seconds
+- Store heartbeat in `system_health.scheduler_heartbeat`
+- External monitoring script checks heartbeat freshness
+- If heartbeat missing for 5 minutes, alert operator via Telegram
+
+**Future Enhancement:**
+- Automatic restart via Docker health check
+```
+
+---
+
+## ✅ Sections 16-20 — **APPROVED**
+
+All remaining sections are architecturally sound.
+
+---
+
+# CRITICAL MISSING SECTIONS
+
+---
+
+## ❌ MISSING: Initial Execution Sequence
+
+**Problem:**
+
+The specification does not define **what happens when AHOS starts for the first time** or **restarts after a crash**.
+
+**Required New Section:**
+
+```
+## 21. System Initialization
+
+When Master Scheduler starts:
+
+1. Verify database connectivity
+2. Verify all required tables exist
+3. Check for workflows in `running` state
+   - If found, investigate crash
+   - Mark as `crashed`
+   - Log event
+   - Notify operator
+4. Load configuration from database
+5. Initialize workflow queue
+6. Resume `queued` workflows
+7. Begin normal scheduling
+8. Send "System Ready" notification to operator
+
+**Cold Start:**
+- First execution after fresh installation
+- Initialize default configuration
+- Populate workflow definitions
+- Execute health check workflow
+- Await operator confirmation before full operation
+```
+
+---
+
+## ❌ MISSING: Graceful Shutdown
+
+**Problem:**
+
+The specification does not define **how the system stops safely**.
+
+**Required New Section:**
+
+```
+## 22. Graceful Shutdown
+
+When shutdown signal received (SIGTERM, Docker stop):
+
+1. Stop accepting new workflow triggers
+2. Wait for running workflows to complete (max 5 minutes)
+3. Mark incomplete workflows as `interrupted`
+4. Flush all logs to database
+5. Close database connections gracefully
+6. Send "System Shutdown" notification
+7. Exit with code 0
+
+**Forced Shutdown (SIGKILL):**
+- Recovery handled during next startup (Section 21)
+```
+
+---
+
+## ❌ MISSING: Manual Intervention Protocol
+
+**Problem:**
+
+The specification does not define **how the operator manually controls workflows**.
+
+**Required New Section:**
+
+```
+## 23. Manual Control Interface
+
+The operator may issue commands via Telegram:
+
+**Commands:**
+- `/start_workflow <workflow_id>` — Manual execution
+- `/stop_workflow <workflow_id>` — Graceful stop
+- `/restart_workflow <workflow_id>` — Stop + Start
+- `/reset_workflow <workflow_id>` — Clear failed state
+- `/pause_scheduler` — Stop all new executions
+- `/resume_scheduler` — Resume normal operation
+- `/scheduler_status` — Display current state
+
+All manual commands:
+- Logged with operator ID
+- Require confirmation for critical workflows
+- Override normal priority rules
+```
+
+---
+
+# FINAL ARCHITECTURAL VALIDATION
+
+---
+
+## ✅ Constitution Compliance: **PASS**
+
+- Single responsibility: **PASS**
+- Modularity: **PASS**
+- Human governance: **PASS**
+- No trading logic: **PASS**
+
+---
+
+## ✅ System Vision Compliance: **PASS**
+
+- Supports continuous operation: **PASS**
+- Evidence-based (logs all decisions): **PASS**
+- No business logic contamination: **PASS**
+
+---
+
+## ✅ Technology Stack Compliance: **PASS**
+
+- n8n compatible: **YES**
+- PostgreSQL compatible: **YES**
+- Docker compatible: **YES**
+- Telegram compatible: **YES**
+- Laptop deployment: **YES**
+
+---
+
+## ⚠️ Iran Deployment Considerations: **NEEDS ATTENTION**
+
+**Potential Issue:**
+
+If n8n's internal workflow triggering requires external HTTP calls, network instability or sanctions may cause failures.
+
+**Mitigation Strategy:**
+
+- Prefer internal n8n trigger mechanisms over external HTTP
+- Implement local fallback queue if network unavailable
+- Document network dependency explicitly in deployment guide
+
+---
+
+# SUMMARY OF REQUIRED CHANGES
+
+## Critical (Must Fix Before Implementation):
+
+1. **Section 4:** Add workflow completion events as inputs
+2. **Section 7:** Complete execution rules with state management, timeout, priority, dependencies
+3. **Section 9:** Distinguish transient vs permanent failures
+4. **Section 11:** Add missing database tables
+5. **Section 13:** Define specific resource thresholds
+6. **Section 15:** Add self-monitoring
+7. **Add Section 21:** System initialization
+8. **Add Section 22:** Graceful shutdown
+9. **Add Section 23:** Manual control interface
+
+## Important (Should Fix):
+
+1. **Section 2:** Clarify dynamic scheduling boundaries
+2. **Section 3:** Add system lifecycle scope
+3. **Section 8:** Add notification thresholds
+
+## Minor (Recommended):
+
+1. **Section 10:** Add operator override field to logs
+
+---
+
+# FINAL VERDICT
+
+**WF-001 Status:** ✅ **APPROVED FOR REVISION**
+
+The specification demonstrates excellent architectural foundations but **requires critical enhancements** in execution state management, fault tolerance, system lifecycle, and operator control before implementation.
+
+Once the required changes are incorporated, WF-001 will be **production-ready** for a single-laptop deployment under AHOS architecture.
+
+**Estimated revision effort:** 2-4 hours
+
+**No code generation required at this stage.**
+
+---
+
+**Engineering Review Complete.**

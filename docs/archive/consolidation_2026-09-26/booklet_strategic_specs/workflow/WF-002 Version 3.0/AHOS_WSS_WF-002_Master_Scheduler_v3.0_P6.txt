@@ -1,0 +1,244 @@
+AHOS Workflow Specification Sheet
+WF-002 — Workflow Registry
+Version 1.0
+Phase 6 — Security, Governance & Change Control
+1. Purpose
+1.1 Objective
+
+This phase establishes the security, governance, authorization, and change control framework governing the Workflow Registry.
+
+The Registry SHALL preserve architectural integrity by ensuring that every modification is authorized, auditable, and policy-compliant.
+
+1.2 Scope
+
+This phase governs:
+
+Registry Security
+Authorization
+Governance Policies
+Change Management
+Approval Process
+Audit Compliance
+Registry Protection
+Administrative Operations
+
+Operational runtime security SHALL remain outside the scope of WF-002.
+
+2. Governance Philosophy
+
+Architectural governance SHALL prioritize integrity over convenience.
+
+No architectural modification SHALL bypass governance.
+
+Registry authority SHALL remain centralized.
+
+3. Governance Principles
+
+Registry governance SHALL remain:
+
+deterministic;
+transparent;
+policy-driven;
+auditable;
+technology-independent.
+
+Governance SHALL remain independent from implementation.
+
+4. Registry Authority
+
+WF-002 SHALL remain the exclusive authority responsible for governing architectural workflow metadata.
+
+No external component SHALL modify authoritative registry information directly.
+
+5. Authorization Model
+
+Every registry operation SHALL execute under an explicit authorization context.
+
+Anonymous registry modifications SHALL NOT be permitted.
+
+Authorization SHALL be evaluated before validation.
+
+6. Authorization Levels
+
+The Registry SHALL distinguish, at minimum, the following authorization levels:
+
+Registry Administrator
+Architecture Maintainer
+Engine Owner
+Workflow Owner
+Read-Only Consumer
+Automated System Component
+
+Additional authorization levels MAY be introduced through future revisions.
+
+7. Administrative Operations
+
+The following operations SHALL require explicit authorization:
+
+Workflow Registration
+Metadata Update
+Version Publication
+Lifecycle Transition
+Ownership Transfer
+Capability Modification
+Dependency Modification
+Workflow Archival
+
+Unauthorized requests SHALL be rejected before execution.
+
+8. Ownership Governance
+
+Every registered workflow SHALL maintain one authoritative owner.
+
+Ownership changes SHALL require:
+
+authorization;
+audit recording;
+registry approval;
+consistency verification.
+
+Implicit ownership transfer SHALL NOT occur.
+
+9. Change Control
+
+All architectural changes SHALL follow a governed change process.
+
+Each change SHALL include:
+
+Change Identifier
+Request Timestamp
+Requesting Authority
+Affected Workflow
+Change Category
+Approval Status
+Completion Status
+10. Approval Model
+
+Registry modifications MAY require approval according to governance policy.
+
+Approval SHALL remain explicit.
+
+Automatic approval SHALL NOT occur unless defined by architectural policy.
+
+11. Policy Enforcement
+
+The Registry SHALL enforce:
+
+Identity Policy
+Version Policy
+Ownership Policy
+Dependency Policy
+Capability Policy
+Lifecycle Policy
+Security Policy
+
+Policy evaluation SHALL precede persistence.
+
+12. Policy Violations
+
+Policy violations SHALL result in immediate rejection.
+
+Partial policy application SHALL NOT occur.
+
+Violation evidence SHALL remain permanently auditable.
+
+13. Audit Governance
+
+Every governance decision SHALL generate immutable audit evidence.
+
+Audit records SHALL include:
+
+Decision Identifier
+Actor
+Timestamp
+Decision Type
+Decision Outcome
+Justification
+Correlation Identifier
+
+Audit history SHALL remain immutable.
+
+14. Registry Protection
+
+WF-002 SHALL protect:
+
+workflow identities;
+ownership metadata;
+version metadata;
+capability metadata;
+dependency metadata;
+registry history.
+
+Protected information SHALL remain tamper-evident.
+
+15. Governance Consistency
+
+Equivalent governance requests evaluated under equivalent architectural conditions SHALL produce equivalent decisions.
+
+Governance SHALL remain deterministic.
+
+16. Security Boundaries
+
+WF-002 SHALL NOT:
+
+authenticate users;
+manage runtime credentials;
+store operational secrets;
+authorize runtime execution.
+
+Those responsibilities belong to dedicated security components.
+
+WF-002 governs architectural authorization only.
+
+17. Governance Invariants
+
+The following SHALL remain continuously true:
+
+Identity Governance Invariant
+
+Workflow identity SHALL remain immutable.
+
+Ownership Governance Invariant
+
+Every workflow SHALL have one authoritative owner.
+
+Policy Governance Invariant
+
+Every registry modification SHALL satisfy all applicable policies.
+
+Audit Governance Invariant
+
+Every governance decision SHALL remain historically reconstructable.
+
+Authorization Governance Invariant
+
+Unauthorized architectural modifications SHALL NEVER succeed.
+
+18. Governance Failure Handling
+
+Governance failures SHALL preserve architectural integrity.
+
+Incomplete governance operations SHALL be rolled back.
+
+No partial governance state SHALL remain visible.
+
+19. Phase 6 Compliance Matrix
+Requirement	Mandatory
+Authorization Enforcement	SHALL
+Governance Policies	SHALL
+Explicit Ownership	SHALL
+Immutable Audit Trail	SHALL
+Deterministic Decisions	SHALL
+Policy Enforcement	SHALL
+Change Control	SHALL
+Registry Protection	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 6 compliance.
+
+20. Phase 6 Completion Statement
+
+Phase 6 establishes the governance and security foundation of the Workflow Registry.
+
+It defines how architectural authority is exercised, how registry modifications are authorized, how policy compliance is enforced, and how immutable governance records are preserved.
+
+By separating architectural governance from operational security, this phase ensures that the Workflow Registry remains the trusted guardian of architectural integrity throughout the lifecycle of the AHOS platform.

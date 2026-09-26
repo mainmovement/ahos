@@ -1,0 +1,713 @@
+# AHOS Intelligence Pipeline (AIP)
+
+### Master Intelligence Flow
+
+### Version 1.0 (Frozen)
+
+---
+
+# 1. Purpose
+
+This document defines the complete intelligence pipeline of AHOS.
+
+It describes how information travels from the outside world to the final recommendation delivered to the operator.
+
+This document does **NOT** describe software implementation.
+
+It defines the logical intelligence flow that every workflow, AI model, database, API, and software component must follow.
+
+Every engineering decision must remain consistent with this pipeline.
+
+---
+
+# 2. Core Philosophy
+
+AHOS does not generate trading signals.
+
+AHOS builds intelligence.
+
+Intelligence is created by continuously transforming raw information into verified knowledge.
+
+Every stage of the pipeline increases information quality while reducing uncertainty.
+
+The pipeline exists to answer one question:
+
+**"Is this opportunity worthy of risking capital?"**
+
+---
+
+# 3. Intelligence Flow
+
+External World
+
+↓
+
+Signal Collection
+
+↓
+
+Data Validation
+
+↓
+
+Normalization
+
+↓
+
+Knowledge Extraction
+
+↓
+
+Evidence Correlation
+
+↓
+
+Risk Analysis
+
+↓
+
+Opportunity Discovery
+
+↓
+
+Security Verification
+
+↓
+
+On-Chain Analysis
+
+↓
+
+Market Analysis
+
+↓
+
+Social Intelligence
+
+↓
+
+Project Evaluation
+
+↓
+
+Opportunity Scoring
+
+↓
+
+Simulation
+
+↓
+
+Portfolio Evaluation
+
+↓
+
+Decision Support
+
+↓
+
+Human Approval
+
+↓
+
+Continuous Monitoring
+
+↓
+
+Outcome Evaluation
+
+↓
+
+Learning
+
+↓
+
+System Improvement
+
+↓
+
+Knowledge Base Update
+
+↓
+
+Start Again
+
+---
+
+# 4. Stage 1 — Signal Collection
+
+Mission
+
+Collect every possible signal related to decentralized token opportunities.
+
+Examples
+
+News
+
+DEXTools
+
+DexScreener
+
+Blockchain
+
+Twitter
+
+Telegram
+
+Discord
+
+GitHub
+
+Medium
+
+Official Websites
+
+Launchpads
+
+Whale Trackers
+
+Smart Money
+
+Community Platforms
+
+Future Sources
+
+Output
+
+Raw Signals
+
+---
+
+# 5. Stage 2 — Data Validation
+
+Mission
+
+Verify that collected information is authentic.
+
+Reject
+
+Duplicate information
+
+Corrupted data
+
+Invalid API responses
+
+Malformed records
+
+Spam
+
+Fake sources
+
+Output
+
+Validated Signals
+
+---
+
+# 6. Stage 3 — Data Normalization
+
+Mission
+
+Transform every data source into one unified format.
+
+Regardless of source,
+
+AHOS should understand every project using one common internal language.
+
+Output
+
+Normalized Intelligence Dataset
+
+---
+
+# 7. Stage 4 — Knowledge Extraction
+
+Mission
+
+Extract useful facts.
+
+Examples
+
+Project Name
+
+Contract
+
+Chain
+
+Liquidity
+
+Age
+
+Creator
+
+Market Cap
+
+Volume
+
+Wallets
+
+Social Links
+
+Developer Activity
+
+Output
+
+Knowledge Objects
+
+---
+
+# 8. Stage 5 — Evidence Correlation
+
+Mission
+
+Connect information from different sources.
+
+Examples
+
+Twitter + Blockchain
+
+DEX + Wallet
+
+Community + Liquidity
+
+Developer + Previous Projects
+
+Output
+
+Evidence Graph
+
+---
+
+# 9. Stage 6 — Risk Analysis
+
+Mission
+
+Estimate every measurable risk.
+
+Examples
+
+Honeypot
+
+Rug Pull
+
+Liquidity Risk
+
+Ownership Risk
+
+Developer Risk
+
+Community Risk
+
+Market Risk
+
+Portfolio Risk
+
+Output
+
+Risk Profile
+
+---
+
+# 10. Stage 7 — Opportunity Discovery
+
+Mission
+
+Detect opportunities earlier than the market.
+
+Output
+
+Candidate Opportunities
+
+---
+
+# 11. Stage 8 — Security Verification
+
+Mission
+
+Reject dangerous projects before further analysis.
+
+Output
+
+Security Report
+
+Projects that fail this stage are eliminated.
+
+---
+
+# 12. Stage 9 — On-Chain Intelligence
+
+Mission
+
+Understand blockchain behavior.
+
+Analyze
+
+Wallets
+
+Whales
+
+Smart Money
+
+Transfers
+
+Liquidity
+
+Holder Growth
+
+Output
+
+Blockchain Intelligence
+
+---
+
+# 13. Stage 10 — Market Intelligence
+
+Mission
+
+Understand market behavior.
+
+Analyze
+
+Trend
+
+Momentum
+
+Liquidity
+
+Volume
+
+Volatility
+
+Correlation
+
+Output
+
+Market Intelligence
+
+---
+
+# 14. Stage 11 — Social Intelligence
+
+Mission
+
+Measure human attention.
+
+Analyze
+
+Communities
+
+Developers
+
+Influencers
+
+Engagement
+
+News
+
+Sentiment
+
+Trust
+
+Output
+
+Social Intelligence
+
+---
+
+# 15. Stage 12 — Project Evaluation
+
+Mission
+
+Combine every evidence category.
+
+Output
+
+Project Quality Report
+
+---
+
+# 16. Stage 13 — Opportunity Scoring
+
+Mission
+
+Calculate explainable scores.
+
+Generate
+
+Opportunity Score
+
+Confidence Score
+
+Risk Score
+
+Security Score
+
+Growth Potential Score
+
+Evidence Score
+
+Output
+
+Final Opportunity Score
+
+---
+
+# 17. Stage 14 — Simulation
+
+Mission
+
+Ask one question:
+
+"What could happen if capital enters here?"
+
+Simulate
+
+Multiple entries
+
+Multiple exits
+
+Different volatility
+
+Different liquidity
+
+Historical replay
+
+Scenario analysis
+
+Portfolio impact
+
+Output
+
+Simulation Report
+
+---
+
+# 18. Stage 15 — Portfolio Evaluation
+
+Mission
+
+Determine whether the opportunity fits the current portfolio.
+
+Questions
+
+Should capital enter?
+
+How much?
+
+What position size?
+
+Should exposure increase?
+
+Should exposure decrease?
+
+Should no trade occur?
+
+Output
+
+Portfolio Decision
+
+---
+
+# 19. Stage 16 — Decision Support
+
+Mission
+
+Generate a professional recommendation.
+
+Every recommendation must explain
+
+Why
+
+Evidence
+
+Risks
+
+Confidence
+
+Entry
+
+Exit
+
+Portfolio Impact
+
+Monitoring Plan
+
+No recommendation may bypass previous stages.
+
+---
+
+# 20. Stage 17 — Human Approval
+
+Mission
+
+The operator always has final authority.
+
+The system may recommend.
+
+The operator decides.
+
+Future autonomous execution, if ever implemented, shall remain optional and separately governed.
+
+---
+
+# 21. Stage 18 — Continuous Monitoring
+
+Mission
+
+Monitor every recommended opportunity after recommendation.
+
+Track
+
+Price
+
+Liquidity
+
+Wallets
+
+Risk
+
+News
+
+Community
+
+Market Changes
+
+Output
+
+Live Intelligence
+
+---
+
+# 22. Stage 19 — Outcome Evaluation
+
+Mission
+
+Compare
+
+Prediction
+
+Reality
+
+Simulation
+
+Actual Market
+
+Operator Decision
+
+Output
+
+Performance Evaluation
+
+---
+
+# 23. Stage 20 — Learning
+
+Mission
+
+Convert experience into knowledge.
+
+Learn from
+
+Successes
+
+Failures
+
+False Positives
+
+False Negatives
+
+Simulation Errors
+
+Market Evolution
+
+Output
+
+Learning Dataset
+
+---
+
+# 24. Stage 21 — Self Improvement
+
+Mission
+
+Improve AHOS itself.
+
+Evaluate
+
+AI Prompts
+
+Thresholds
+
+Workflows
+
+Scoring
+
+Models
+
+Performance
+
+Generate improvement proposals only.
+
+Never modify production without explicit operator approval.
+
+---
+
+# 25. Stage 22 — Knowledge Base
+
+Mission
+
+Store organizational intelligence.
+
+Everything learned becomes reusable knowledge.
+
+Knowledge shall never be lost.
+
+---
+
+# 26. Golden Rules of the Pipeline
+
+No recommendation without evidence.
+
+No evidence without validation.
+
+No validation without normalization.
+
+No scoring without evaluation.
+
+No simulation without scoring.
+
+No recommendation without simulation.
+
+No production modification without approval.
+
+No learning without feedback.
+
+No intelligence without continuous improvement.
+
+---
+
+# 27. Architectural Law
+
+Every future Engine...
+
+Every Workflow...
+
+Every AI Prompt...
+
+Every Database Table...
+
+Every API...
+
+Every Dashboard...
+
+Every Telegram Message...
+
+Every Line of Code...
+
+must belong to one and only one stage of this Intelligence Pipeline.
+
+Nothing may exist outside this architecture.
+
+This pipeline is the nervous system of AHOS.
+
+Every future engineering decision shall remain consistent with this document.

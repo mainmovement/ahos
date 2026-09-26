@@ -1,0 +1,209 @@
+AHOS Workflow Specification Sheet
+WF-004 — Health Monitor
+Version 1.0
+Phase 2 — Health State Model & Assessment Framework
+1. Purpose
+1.1 Objective
+
+This phase establishes the architectural model governing health state definition, health assessment, health classification, and operational readiness evaluation across the AHOS platform.
+
+Health SHALL represent the architectural ability of a component to perform its assigned responsibilities.
+
+1.2 Scope
+
+This phase governs:
+
+Health State Model
+Health Classification
+Health Evaluation
+Operational Readiness
+Component Assessment
+Composite Health
+Health Consistency
+Health State Transition
+
+Corrective actions remain outside the scope of this phase.
+
+2. Health Philosophy
+
+Health SHALL represent operational capability rather than mere availability.
+
+A component SHALL be considered healthy only if it can successfully fulfill its architectural responsibilities.
+
+Availability alone SHALL NOT imply health.
+
+3. Health Principles
+
+Health assessment SHALL remain:
+
+deterministic;
+continuous;
+evidence-based;
+technology-independent;
+auditable;
+reproducible.
+
+Subjective health evaluation SHALL NOT occur.
+
+4. Health State Model
+
+Every monitored component SHALL exist in exactly one architectural health state.
+
+The authoritative health states SHALL be:
+
+Unknown
+    │
+    ▼
+Healthy
+    │
+ ┌──┴──────────┐
+ ▼             ▼
+Degraded    Maintenance
+ │             │
+ └──────┬──────┘
+        ▼
+Unhealthy
+        │
+        ▼
+Unavailable
+
+No additional health states SHALL exist without architectural revision.
+
+5. Unknown State
+
+Unknown SHALL indicate insufficient evidence to determine component health.
+
+Unknown SHALL NOT be interpreted as Healthy.
+
+The Health Monitor SHALL continue assessment until sufficient evidence becomes available.
+
+6. Healthy State
+
+A component SHALL be classified as Healthy only when:
+
+all mandatory operational checks succeed;
+architectural responsibilities are fulfilled;
+required dependencies are operational;
+no critical policy violations exist.
+7. Degraded State
+
+A component SHALL be classified as Degraded when:
+
+primary functionality remains operational;
+one or more non-critical conditions reduce operational quality;
+architectural responsibilities can still be fulfilled.
+
+Degraded components SHALL remain operational but SHALL require increased observation.
+
+8. Maintenance State
+
+Maintenance SHALL indicate an intentionally restricted operational condition.
+
+Maintenance SHALL be considered an authorized state rather than a failure condition.
+
+9. Unhealthy State
+
+A component SHALL be classified as Unhealthy when:
+
+one or more critical architectural requirements fail;
+operational integrity cannot be guaranteed;
+execution reliability becomes uncertain.
+
+Unhealthy components SHALL NOT automatically be considered unavailable.
+
+10. Unavailable State
+
+Unavailable SHALL indicate that the component cannot provide its architectural responsibilities.
+
+Unavailable SHALL represent complete operational unavailability.
+
+11. Composite Health
+
+System Health SHALL be derived from individual component health assessments.
+
+Composite health SHALL consider:
+
+Runtime Layer Health
+Database Health
+Infrastructure Health
+External Dependency Health
+Resource Health
+
+Composite health SHALL be deterministic.
+
+12. Health State Transition Rules
+
+Health state transitions SHALL occur only after successful completion of health evaluation.
+
+Transitions SHALL be explicit.
+
+Direct transitions that bypass the evaluation process SHALL NOT occur.
+
+13. Operational Readiness
+
+The Health Monitor SHALL continuously evaluate whether each component is operationally ready to perform its assigned architectural responsibilities.
+
+Operational readiness SHALL be assessed independently from component startup status.
+
+14. Health Assessment Integrity
+
+Every health assessment SHALL preserve:
+
+assessment timestamp;
+component identity;
+assessment evidence;
+resulting health state;
+correlation identifier.
+
+Health conclusions SHALL be traceable to supporting evidence.
+
+15. Health Consistency
+
+Equivalent assessment inputs SHALL always produce identical health classifications.
+
+Health evaluation SHALL remain deterministic across repeated assessments.
+
+16. Health Invariants
+
+The following SHALL remain continuously true.
+
+State Invariant
+
+Every monitored component SHALL have exactly one current health state.
+
+Assessment Invariant
+
+Every health state SHALL be supported by verifiable assessment evidence.
+
+Transition Invariant
+
+Every health transition SHALL follow the defined architectural model.
+
+Consistency Invariant
+
+Health evaluation SHALL remain deterministic.
+
+Composite Invariant
+
+Composite system health SHALL always be derived from authoritative component health states.
+
+17. Phase 2 Compliance Matrix
+Requirement	Mandatory
+Single Health State	SHALL
+Deterministic Assessment	SHALL
+Evidence-Based Evaluation	SHALL
+Composite Health Model	SHALL
+Explicit State Transitions	SHALL
+Operational Readiness	SHALL
+Immutable Assessment Evidence	SHALL
+Technology Independence	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 2 compliance.
+
+18. Phase 2 Completion Statement
+
+Phase 2 establishes the architectural health state model for the AHOS platform.
+
+It defines how component health is classified, evaluated, transitioned, and aggregated into a deterministic system-wide health assessment while preserving architectural consistency and operational transparency.
+
+This model provides the canonical health framework upon which all subsequent monitoring, alerting, metrics, and operational governance capabilities SHALL be built.

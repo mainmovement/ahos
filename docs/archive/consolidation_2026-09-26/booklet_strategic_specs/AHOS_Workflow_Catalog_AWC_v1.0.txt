@@ -1,0 +1,649 @@
+
+
+# Document 04
+
+# AHOS Workflow Catalog (AWC)
+
+## Master Workflow Registry
+
+### Version 1.0
+
+---
+
+# 1. Purpose
+
+This document defines the official workflow architecture of AHOS.
+
+Every workflow implemented inside the platform shall be registered in this catalog before development begins.
+
+The catalog provides a centralized registry that defines the responsibility, ownership, inputs, outputs, dependencies, execution rules, and lifecycle of every workflow.
+
+No workflow may exist outside this catalog.
+
+---
+
+# 2. Workflow Philosophy
+
+AHOS is intentionally designed as a collection of many small, independent workflows rather than a few large monolithic automations.
+
+Each workflow should solve one specific problem.
+
+Each workflow should remain independently testable, replaceable, maintainable, and deployable.
+
+System intelligence emerges through collaboration between workflows rather than through complexity inside a single workflow.
+
+---
+
+# 3. Workflow Engineering Principles
+
+Every workflow shall follow these engineering rules.
+
+### Single Responsibility
+
+One workflow.
+
+One mission.
+
+One primary output.
+
+---
+
+### Loose Coupling
+
+A workflow should not depend on the internal implementation of another workflow.
+
+Only defined interfaces may be used.
+
+---
+
+### High Cohesion
+
+All operations inside a workflow must contribute to the same business objective.
+
+---
+
+### Independent Deployment
+
+Every workflow should be deployable individually.
+
+---
+
+### Independent Testing
+
+Every workflow must support isolated testing.
+
+---
+
+### Independent Recovery
+
+Failure of one workflow shall never stop the entire platform.
+
+---
+
+### Versioning
+
+Every workflow shall maintain its own version number.
+
+---
+
+### Traceability
+
+Every execution shall be logged.
+
+---
+
+### Replaceability
+
+Any workflow may be replaced without redesigning the architecture.
+
+---
+
+# 4. Workflow Layers
+
+AHOS workflows are organized into logical layers.
+
+---
+
+## Layer 1
+
+### Intelligence Collection
+
+Mission
+
+Collect raw intelligence from external sources.
+
+Examples
+
+News
+
+DEX
+
+Social Media
+
+Blockchain
+
+Launch Platforms
+
+Whale Tracking
+
+Smart Money
+
+Output
+
+Raw Intelligence
+
+---
+
+## Layer 2
+
+### Data Processing
+
+Mission
+
+Transform raw information into reliable structured information.
+
+Tasks
+
+Validation
+
+Normalization
+
+Cleaning
+
+Deduplication
+
+Enrichment
+
+Output
+
+Trusted Data
+
+---
+
+## Layer 3
+
+### Security Intelligence
+
+Mission
+
+Identify dangerous opportunities.
+
+Tasks
+
+Contract Analysis
+
+Honeypot Detection
+
+Liquidity Verification
+
+Developer Analysis
+
+Ownership Verification
+
+Security Scoring
+
+Output
+
+Security Report
+
+---
+
+## Layer 4
+
+### Market Intelligence
+
+Mission
+
+Understand market behavior.
+
+Tasks
+
+Volume
+
+Liquidity
+
+Momentum
+
+Wallet Analysis
+
+Community
+
+Trend Analysis
+
+Output
+
+Market Intelligence
+
+---
+
+## Layer 5
+
+### Simulation
+
+Mission
+
+Estimate future scenarios.
+
+Tasks
+
+Entry Simulation
+
+Exit Simulation
+
+Portfolio Simulation
+
+Monte Carlo
+
+Scenario Analysis
+
+Historical Replay
+
+Output
+
+Simulation Results
+
+---
+
+## Layer 6
+
+### Decision Support
+
+Mission
+
+Produce actionable recommendations.
+
+Tasks
+
+Scoring
+
+Portfolio Evaluation
+
+Risk Assessment
+
+Recommendation
+
+Reporting
+
+Output
+
+Decision Report
+
+---
+
+## Layer 7
+
+### Learning & Governance
+
+Mission
+
+Continuously improve AHOS.
+
+Tasks
+
+Prediction Evaluation
+
+Learning
+
+Performance Analysis
+
+Workflow Health
+
+Improvement Proposal
+
+Knowledge Update
+
+Output
+
+Improved Intelligence
+
+---
+
+# 5. Workflow Lifecycle
+
+Every workflow shall follow the same lifecycle.
+
+Design
+
+↓
+
+Specification
+
+↓
+
+Review
+
+↓
+
+Approval
+
+↓
+
+Development
+
+↓
+
+Testing
+
+↓
+
+Deployment
+
+↓
+
+Monitoring
+
+↓
+
+Evaluation
+
+↓
+
+Optimization
+
+↓
+
+Version Update
+
+---
+
+# 6. Workflow Naming Convention
+
+Every workflow shall have:
+
+Permanent Workflow ID
+
+Example
+
+WF-001
+
+Permanent Name
+
+Example
+
+Market Intelligence Collector
+
+Short Name
+
+Example
+
+MIC
+
+Version
+
+Example
+
+v1.0
+
+Status
+
+Draft
+
+Testing
+
+Production
+
+Deprecated
+
+Retired
+
+---
+
+# 7. Workflow Specification Sheet (WSS)
+
+Every workflow must have its own specification sheet.
+
+Each specification shall contain:
+
+Workflow ID
+
+Workflow Name
+
+Purpose
+
+Business Objective
+
+Trigger
+
+Inputs
+
+Outputs
+
+Dependencies
+
+Database Tables
+
+APIs
+
+AI Providers
+
+Execution Schedule
+
+Retry Policy
+
+Timeout
+
+Failure Handling
+
+Logging Strategy
+
+Security Considerations
+
+Performance Metrics
+
+Future Improvements
+
+Version History
+
+No workflow may enter production without a completed Workflow Specification Sheet.
+
+---
+
+# 8. Workflow Communication Rules
+
+Workflows communicate only through approved mechanisms.
+
+Allowed communication methods:
+
+Database
+
+Webhook
+
+Queue
+
+Internal Events
+
+API
+
+Direct workflow-to-workflow dependencies should be minimized.
+
+---
+
+# 9. Error Handling Policy
+
+Every workflow must support:
+
+Retry
+
+Graceful Failure
+
+Logging
+
+Recovery
+
+Notification
+
+No workflow should silently fail.
+
+---
+
+# 10. Performance Principles
+
+Each workflow should:
+
+Consume minimal RAM.
+
+Consume minimal CPU.
+
+Minimize API requests.
+
+Minimize AI token usage.
+
+Avoid unnecessary database writes.
+
+Support long-term execution.
+
+The platform is optimized for continuous execution on a single personal laptop.
+
+---
+
+# 11. Human Approval Policy
+
+Workflows may analyze.
+
+Workflows may recommend.
+
+Workflows may learn.
+
+Workflows may generate improvement proposals.
+
+However,
+
+No workflow may modify production configurations, prompts, scoring models, architecture, or other workflows without explicit operator approval received through Telegram.
+
+---
+
+# 12. Workflow Registry
+
+Every workflow shall be permanently registered.
+
+Example:
+
+WF-001 — Master Scheduler
+
+WF-002 — News Intelligence Collector
+
+WF-003 — X Intelligence Collector
+
+WF-004 — Telegram Intelligence Collector
+
+WF-005 — Discord Collector
+
+WF-006 — GitHub Collector
+
+WF-007 — Medium Collector
+
+WF-008 — Official Website Collector
+
+WF-009 — DEXTools Collector
+
+WF-010 — DexScreener Collector
+
+WF-011 — GeckoTerminal Collector
+
+WF-012 — Birdeye Collector
+
+WF-013 — Blockchain Intelligence Collector
+
+WF-014 — Whale Tracker
+
+WF-015 — Smart Money Tracker
+
+...
+
+Additional workflows shall always receive new permanent IDs.
+
+Existing IDs shall never change.
+
+---
+
+# 13. Workflow Evolution
+
+AHOS is expected to grow.
+
+New workflows may be added whenever intelligence capabilities expand.
+
+However,
+
+Existing workflow responsibilities should remain stable.
+
+Prefer adding a new workflow over making an existing workflow excessively complex.
+
+---
+
+# 14. Architectural Law
+
+The intelligence of AHOS shall emerge from the cooperation of many small, specialized workflows.
+
+No workflow should become a monolithic automation.
+
+The platform shall always prioritize:
+
+* Simplicity
+* Modularity
+* Maintainability
+* Scalability
+* Reliability
+* Observability
+* Independent evolution
+
+over unnecessary complexity.
+
+---
+
+# Appendix A
+
+## Workflow Specification Sheet (Template)
+
+Every Workflow in AHOS shall follow this standard template:
+
+```text
+Workflow ID:
+Workflow Name:
+Short Name:
+Version:
+
+Purpose:
+
+Business Objective:
+
+Layer:
+
+Trigger:
+
+Inputs:
+
+Outputs:
+
+Dependencies:
+
+Database Tables:
+
+External APIs:
+
+AI Providers:
+
+Execution Schedule:
+
+Retry Policy:
+
+Timeout:
+
+Failure Handling:
+
+Logging Strategy:
+
+Telegram Notifications:
+
+Security Considerations:
+
+Performance KPIs:
+
+Future Improvements:
+
+Version History:
+
+Approval Status:
+```
+
+---
+

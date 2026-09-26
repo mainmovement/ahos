@@ -1,0 +1,2542 @@
+AHOS Data Architecture Specification v1.0
+Classification: Internal Engineering Document
+Audience: Architecture Review Layer & Engineering Team
+Status: Draft for Review
+Date: 14/07/2026
+time: 02:17
+Version: 1.0
+
+CURRENT PART: 1
+CURRENT SECTION RANGE: 1–4
+DOCUMENT PROGRESS: approximately 28%
+
+1. Purpose
+1.1 Objective
+This document defines the Data Architecture for the AHOS (Adaptive Hypergraph Operating System), establishing the logical and physical data modeling principles, domain decomposition, storage strategies, and governance mechanisms that enable deterministic, auditable, and evolvable cryptocurrency intelligence operations.
+
+The Data Architecture serves as the authoritative specification for all persistent state within AHOS, ensuring alignment with system-wide principles of immutability, versioning, traceability, and human governance supremacy.
+
+1.2 Role Within AHOS
+The Data Architecture operates as a foundational layer that supports:
+
+Technical Architecture: Provides persistent state storage for all Tier 1, Tier 2, and Tier 3 engines as defined in the AHOS Technical Architecture.
+Knowledge Architecture: Implements the storage substrate for knowledge entries, hypotheses, causal links, confidence decay modeling, and knowledge lifecycle governance.
+Execution Model: Enables event sourcing, replay capability, idempotent execution, and deterministic state transitions.
+Governance Framework: Ensures full auditability, immutable logging, approval tracking, and compliance with human override authority.
+1.3 Relationship to Other Architectural Documents
+Document	Relationship
+AHOS Ultimate Vision & Autonomous Intelligence Specification v1.0	Data Architecture implements persistent storage for autonomous intelligence primitives including confidence modeling, hypothesis evolution, and learning cycles.
+AHOS Strategic Master Plan v10.0	Data Architecture supports phased delivery milestones with schema evolution, backward compatibility, and migration governance.
+AHOS Engineering Transition & Documentation Roadmap v1.2.1	Data Architecture specification feeds into database implementation tasks and migration scripts defined in the roadmap.
+AHOS Development Convention v1.0	Data naming conventions, migration processes, and schema validation align with established development standards.
+AHOS Technical Architecture Specification	Data Architecture provides storage implementation for all engines; Technical Architecture defines execution boundaries; both enforce separation of concerns.
+1.4 Authoritative Data Layer
+Supabase (PostgreSQL) is designated as the single source of truth for all AHOS persistent state. All engines, workflows, and external integrations must treat Supabase as authoritative. No engine maintains independent persistent state outside this layer except for ephemeral runtime caches explicitly designed for performance optimization.
+
+2. Data Architecture Principles
+The following principles govern all data modeling, storage design, and schema evolution decisions within AHOS.
+
+2.1 Single Source of Truth
+Supabase (PostgreSQL) serves as the exclusive authoritative data store.
+All persistent state resides in Supabase tables.
+No distributed state across multiple database systems.
+No shadow databases or replicated truth sources.
+External caches (e.g., Redis) are ephemeral and must be rebuildable from Supabase.
+2.2 Immutable-First Modeling
+Operational records are append-only where feasible.
+Modification of historical records is prohibited; corrections are represented as new versioned entries.
+State transitions are captured as discrete events or version increments.
+Deletions are implemented as soft deletes with deleted_at timestamps or status flags.
+Immutable logs (audit trail, event bus) are never modified post-insertion.
+2.3 Explicit State Management
+All entities with lifecycle transitions maintain an explicit status field with enumerated values.
+State transitions are logged as events or captured in versioned records.
+No implicit state inference from absence of data.
+State machine definitions are documented and enforced via database constraints or application logic.
+2.4 Versioned Entities
+Knowledge entries, hypotheses, policies, and configuration objects support explicit versioning.
+Each version is stored as a separate row linked via parent_id or version_chain_id.
+Version metadata includes:
+version_number (integer, incrementing)
+created_at (timestamp of version creation)
+created_by (actor responsible for version)
+superseded_at (timestamp when version became non-current)
+is_current (boolean flag for active version)
+2.5 Idempotent Keys
+All write operations use idempotency keys to prevent duplicate execution.
+Event insertion includes idempotency_key field (unique constraint).
+Discovery ingestion uses deterministic content hashes as natural idempotency keys.
+Retry-safe operations depend on unique constraints enforced at the database level.
+2.6 Soft Delete Strategy
+Deletion of user-facing entities (discoveries, knowledge entries, insights) is implemented via:
+deleted_at timestamp (nullable)
+status = 'deleted' enumeration value
+Deleted records remain queryable for audit and compliance purposes.
+Retention policies govern eventual archival or purging of soft-deleted records.
+2.7 Time-Indexed Storage
+All tables include:
+created_at (timestamp with time zone, default now())
+updated_at (timestamp with time zone, auto-updated via trigger)
+Time-series data (metrics, logs, events) are partitioned by time ranges (daily or monthly).
+Historical queries are optimized via composite indexes including created_at.
+2.8 Multi-Tenant Ready
+Schema design anticipates future multi-tenant deployment without requiring breaking changes.
+All domain tables include optional tenant_id field (nullable in Phase 1, enforced in future phases).
+Row-Level Security (RLS) policies are designed to filter by tenant_id when activated.
+Single-tenant Phase 1 deployment operates with tenant_id = NULL or default value.
+2.9 Row-Level Security Compatibility
+All tables are designed to support PostgreSQL Row-Level Security (RLS).
+RLS policies enforce:
+Tenant isolation (when multi-tenancy is enabled)
+Role-based access control (read-only vs. write roles)
+Governance-controlled access (sensitive fields masked for non-admin roles)
+RLS activation is governance-gated and phased per Strategic Master Plan.
+2.10 Event Replay Capability
+All state-changing operations are captured as events in event_bus.
+Events include sufficient context to reconstruct state transitions.
+Events are immutable and ordered by created_at and sequence_number.
+System supports replay of event stream to restore state or test hypothetical scenarios.
+2.11 Audit-First Design
+All write operations are logged in audit_trail.
+Audit entries include:
+Actor (user, API key, or system component)
+Entity type and entity ID
+Operation type (create, update, delete, approve, override)
+Before and after state (JSONB snapshot)
+Timestamp and correlation ID
+Audit trail is immutable and retained per compliance requirements.
+3. Data Domain Decomposition
+The AHOS data layer is logically decomposed into eight data domains, each with defined boundaries, ownership, and relationships.
+
+3.1 Discovery Domain
+Purpose: Stores raw signals, candidates, and structured discoveries ingested from external sources.
+
+Key Entities:
+
+discoveries: Normalized discovery records.
+signals: Raw unprocessed signals from market data, on-chain events, social sentiment.
+candidates: Intermediate candidates awaiting validation or enrichment.
+Boundaries:
+
+Owns all incoming data prior to knowledge extraction.
+Does not store interpreted insights (Insight Domain responsibility).
+Does not store validated knowledge (Knowledge Domain responsibility).
+Relationships:
+
+Feeds Knowledge Domain via extraction workflows.
+Referenced by Hypothesis Domain for validation evidence.
+Logged in Observability Domain for ingestion metrics.
+3.2 Knowledge Domain
+Purpose: Stores validated, versioned, and confidence-scored knowledge entries, hypotheses, and causal relationships.
+
+Key Entities:
+
+knowledge_entries: Structured knowledge records with confidence scores and decay modeling.
+knowledge_versions: Immutable version history of knowledge entries.
+hypotheses: Testable propositions derived from knowledge or generated by engines.
+hypothesis_versions: Version history of hypotheses.
+causal_links: Directed relationships between knowledge entries representing causal or correlational dependencies.
+Boundaries:
+
+Owns all validated knowledge and hypotheses.
+Does not store raw discoveries (Discovery Domain responsibility).
+Does not store simulation results (Simulation Domain responsibility).
+Relationships:
+
+Built from Discovery Domain data.
+Referenced by Hypothesis Domain for testing.
+Referenced by Decision Domain for action justification.
+Governed by Governance Domain for approval and override.
+3.3 Hypothesis Domain
+Purpose: Stores hypotheses, testing protocols, validation outcomes, and branching logic for knowledge evolution.
+
+Key Entities:
+
+hypotheses: Core hypothesis records (shared with Knowledge Domain conceptually, but isolated for testing workflows).
+hypothesis_tests: Test execution records linking hypotheses to validation workflows.
+hypothesis_outcomes: Results of hypothesis validation (confirmed, refuted, indeterminate).
+Boundaries:
+
+Owns hypothesis lifecycle from generation to validation.
+Does not own knowledge entries (Knowledge Domain responsibility).
+Does not own predictive model performance (Learning Domain responsibility).
+Relationships:
+
+Consumes Discovery Domain data for validation.
+Updates Knowledge Domain upon hypothesis confirmation.
+Logged in Observability Domain for hypothesis test metrics.
+3.4 Simulation Domain
+Purpose: Stores simulation configurations, execution logs, and counterfactual scenario results.
+
+Key Entities:
+
+simulations: Simulation run metadata (scenario, parameters, execution timestamp).
+simulation_results: Output records from simulation executions.
+scenario_definitions: Reusable scenario templates for simulation.
+Boundaries:
+
+Owns all simulation execution state and outputs.
+Does not store operational decisions (Decision Domain responsibility).
+Does not store predictive model training data (Learning Domain responsibility).
+Relationships:
+
+References Knowledge Domain for input hypotheses and causal links.
+Feeds Decision Domain with simulated outcomes for decision evaluation.
+Logged in Observability Domain for simulation performance tracking.
+3.5 Decision Domain
+Purpose: Stores decisions, action logs, justifications, and execution outcomes.
+
+Key Entities:
+
+decisions: Decision records with rationale, confidence, and approval status.
+actions: Executable actions derived from decisions.
+action_executions: Logs of action execution attempts and results.
+insights: Structured insights generated by Insight Engine (precursors to decisions).
+Boundaries:
+
+Owns all decision and action execution state.
+Does not store hypotheses (Hypothesis Domain responsibility).
+Does not store knowledge entries (Knowledge Domain responsibility).
+Relationships:
+
+Consumes Knowledge Domain and Simulation Domain for decision inputs.
+Governed by Governance Domain for approval workflow.
+Logged in Observability Domain for decision outcome tracking.
+3.6 Governance Domain
+Purpose: Stores approval workflows, override logs, policy versions, and human governance actions.
+
+Key Entities:
+
+approvals: Approval request records for decisions, actions, or policy changes.
+override_log: Immutable log of human overrides to automated decisions.
+policy_versions: Versioned governance policies and configuration rules.
+Boundaries:
+
+Owns all governance state and human intervention records.
+Does not own operational decisions (Decision Domain responsibility).
+Does not own audit trail (Observability Domain responsibility).
+Relationships:
+
+References Decision Domain for approval targets.
+Enforces constraints on Knowledge Domain, Hypothesis Domain, and Decision Domain.
+Logged in Observability Domain for governance event tracking.
+3.7 Observability Domain
+Purpose: Stores logs, metrics, traces, audit trail, and system health records.
+
+Key Entities:
+
+event_bus: Immutable event log for all state-changing operations.
+audit_trail: Full audit log of user and system actions.
+system_logs: Application and engine logs.
+error_log: Structured error and exception records.
+system_metrics: Time-series performance and operational metrics.
+Boundaries:
+
+Owns all observability and diagnostic data.
+Does not store operational entities (owned by domain-specific tables).
+Does not own governance policies (Governance Domain responsibility).
+Relationships:
+
+Receives events from all domains.
+Provides diagnostic data to all engines and human operators.
+Retained per compliance and retention policies.
+3.8 Infrastructure Domain
+Purpose: Stores system configuration, contract registry, ADR registry, and architectural compliance metadata.
+
+Key Entities:
+
+system_config: Key-value configuration store for system parameters.
+contract_registry: Registry of API contracts, event schemas, and interface definitions.
+adr_registry: Architectural Decision Records stored as database entries.
+architecture_compliance: Compliance validation records for drift detection.
+Boundaries:
+
+Owns infrastructure metadata and architectural documentation.
+Does not store operational data (owned by domain-specific tables).
+Does not store logs or metrics (Observability Domain responsibility).
+Relationships:
+
+Referenced by all engines for configuration lookup.
+Enforces schema compliance via contract validation.
+Supports Architecture Review Layer via ADR and compliance records.
+### 3.9 Domain–Tier Alignment Clarification
+
+The data domains defined in this section represent logical storage boundaries only.
+
+They do NOT redefine or replace the canonical Tier 0–3 engine decomposition defined in the AHOS Engineering Transition Roadmap.
+
+Engine specifications remain authoritative for behavioral decomposition and runtime execution structure. Data domains exist solely to organize persistent storage and governance boundaries within the Supabase data layer.
+4. Core Table Groups
+This section defines the logical grouping of database tables, their purpose, key identifiers, and versioning logic. Physical schema definitions (DDL) are implementation artifacts; this section provides architectural intent.
+
+4.1 Operational Tables
+Purpose: Store active discoveries, signals, candidates, insights, and actions undergoing processing or execution.
+
+4.1.1 discoveries
+Purpose: Normalized discovery records post-validation and enrichment.
+
+Key Fields:
+
+id (UUID, primary key)
+source (text, origin system or feed)
+discovery_type (enum: signal, event, pattern, anomaly)
+content (JSONB, structured payload)
+confidence (numeric, 0.0–1.0)
+status (enum: pending, validated, rejected, archived)
+discovered_at (timestamp with time zone)
+created_at (timestamp with time zone)
+updated_at (timestamp with time zone)
+deleted_at (timestamp with time zone, nullable)
+Versioning: Not versioned; immutable post-validation. Status transitions logged in audit_trail.
+
+Relationships:
+
+Referenced by knowledge_entries via source_discovery_id.
+Referenced by hypothesis_tests as validation evidence.
+4.1.2 signals
+Purpose: Raw unprocessed signals from ingestion pipelines.
+
+Key Fields:
+
+id (UUID, primary key)
+source (text)
+signal_type (enum: price, volume, social, on_chain)
+raw_payload (JSONB)
+ingested_at (timestamp with time zone)
+processed (boolean, default false)
+created_at (timestamp with time zone)
+Versioning: Not versioned; append-only. Processed signals are soft-deleted or archived.
+
+Relationships:
+
+Feeds discoveries via Validator Engine processing.
+4.1.3 candidates
+Purpose: Intermediate candidates awaiting validation or enrichment.
+
+Key Fields:
+
+id (UUID, primary key)
+source (text)
+candidate_type (enum: hypothesis, insight, action)
+payload (JSONB)
+status (enum: pending, validated, rejected)
+created_at (timestamp with time zone)
+updated_at (timestamp with time zone)
+Versioning: Not versioned; transient lifecycle.
+
+Relationships:
+
+Feeds hypotheses, insights, or actions upon validation.
+4.1.4 insights
+Purpose: Structured insights generated by Insight Engine, ready for decision evaluation.
+
+Key Fields:
+
+id (UUID, primary key)
+insight_type (enum: opportunity, risk, trend, anomaly)
+title (text)
+description (text)
+confidence (numeric, 0.0–1.0)
+supporting_evidence (JSONB array of discovery IDs and knowledge entry IDs)
+status (enum: active, actioned, dismissed, expired)
+created_at (timestamp with time zone)
+updated_at (timestamp with time zone)
+expires_at (timestamp with time zone, nullable)
+Versioning: Not versioned; lifecycle managed via status transitions.
+
+Relationships:
+
+Referenced by decisions as decision justification.
+Referenced by actions for execution context.
+4.1.5 actions
+Purpose: Executable actions derived from decisions.
+
+Key Fields:
+
+id (UUID, primary key)
+decision_id (UUID, foreign key to decisions)
+action_type (enum: alert, trade, rebalance, report)
+parameters (JSONB)
+status (enum: pending_approval, approved, executed, failed, cancelled)
+approval_required (boolean)
+approved_by (UUID, nullable, references user or governance record)
+approved_at (timestamp with time zone, nullable)
+executed_at (timestamp with time zone, nullable)
+created_at (timestamp with time zone)
+updated_at (timestamp with time zone)
+Versioning: Not versioned; lifecycle managed via status and execution logs.
+
+Relationships:
+
+Parent: decisions.id
+Child: action_executions (execution attempt logs)
+Governed by: approvals (if approval required)
+END OF PART 1
+WAITING FOR CONTINUE
+# AHOS Data Architecture Specification v1.0
+
+**CURRENT PART:** 2  
+**CURRENT SECTION RANGE:** 4–7 (continuation)  
+**DOCUMENT PROGRESS:** approximately 55%
+
+---
+
+## 4. Core Table Groups (Continued)
+
+---
+
+### 4.2 Knowledge & Memory Tables
+
+**Purpose:** Store validated knowledge entries, version history, hypotheses, hypothesis versions, and causal relationships between knowledge entities.
+
+#### 4.2.1 `knowledge_entries`
+
+**Purpose:** Canonical knowledge records representing validated facts, patterns, or models within the cryptocurrency intelligence domain.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `knowledge_type` (enum: fact, pattern, model, rule)
+- `title` (text)
+- `content` (JSONB, structured knowledge payload)
+- `confidence_score` (numeric, 0.0–1.0, initial confidence upon creation)
+- `current_confidence` (numeric, 0.0–1.0, decays over time per decay model)
+- `decay_rate` (numeric, per-day decay factor)
+- `last_validated_at` (timestamp with time zone)
+- `validation_count` (integer, number of times re-validated)
+- `status` (enum: draft, active, superseded, deprecated, expired)
+- `aging_class` (enum: fresh, mature, stale, critical)
+- `current_version_id` (UUID, references latest version in `knowledge_versions`)
+- `source_discovery_ids` (JSONB array of UUIDs referencing source discoveries)
+- `created_by` (text, engine or human actor identifier)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+
+**Versioning Logic:**
+- Each mutation creates a new entry in `knowledge_versions`.
+- `current_version_id` always points to the latest approved version.
+- `is_current` flag on `knowledge_versions` determines active state.
+
+**Relationships:**
+- Parent/Child via `knowledge_versions.id` = `knowledge_entries.current_version_id`
+- Referenced by `causal_links` (both as cause and effect)
+- Referenced by `hypotheses` for testable proposition derivation
+
+---
+
+#### 4.2.2 `knowledge_versions`
+
+**Purpose:** Immutable version history of each knowledge entry.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `knowledge_entry_id` (UUID, foreign key to `knowledge_entries`)
+- `version_number` (integer, monotonically incrementing per knowledge entry)
+- `content` (JSONB, full content snapshot of this version)
+- `confidence_at_creation` (numeric)
+- `change_summary` (text, description of changes from prior version)
+- `superseded_by` (UUID, self-referencing FK to next version or NULL if current)
+- `superseded_at` (timestamp with time zone, nullable)
+- `is_current` (boolean, true only for active version)
+- `created_by` (text)
+- `created_at` (timestamp with time zone)
+
+**Versioning Logic:**
+- Insert-only; never updated or deleted.
+- Only one record per `knowledge_entry_id` may have `is_current = true`.
+- Enforced by database constraint or application-level transaction.
+- Lineage traversable via `superseded_by` chain.
+
+**Relationships:**
+- Belongs to: `knowledge_entries`
+- Self-referencing: `superseded_by` → next version's `id`
+
+---
+
+#### 4.2.3 `hypotheses`
+
+**Purpose:** Testable propositions derived from knowledge entries or generated by engines requiring validation.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `hypothesis_type` (enum: directional, causal, correlational, pattern_continuation)
+- `statement` (text, clear falsifiable statement)
+- `context` (JSONB, supporting context, assumptions, scope)
+- `status` (enum: proposed, testing, confirmed, refuted, indeterminate, retracted)
+- `confidence_level` (numeric, 0.0–1.0 based on validation outcomes)
+- `supporting_knowledge_ids` (JSONB array of UUIDs from `knowledge_entries`)
+- `conflicting_knowledge_ids` (JSONB array of UUIDs)
+- `test_protocol` (JSONB, defined test methodology)
+- `test_outcome_summary` (text, aggregate result of all tests)
+- `number_of_tests_run` (integer)
+- `current_version_id` (UUID, references latest version in `hypothesis_versions`)
+- `created_by` (text, engine or human originator)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+- `resolved_at` (timestamp with time zone, when status changed to terminal state)
+
+**Versioning Logic:**
+- Parallel to `knowledge_entries`: mutations create new `hypothesis_versions`.
+- `current_version_id` tracks active version.
+
+**Relationships:**
+- References `knowledge_entries` via `supporting_knowledge_ids`
+- Referenced by `hypothesis_tests`
+- Versioned in `hypothesis_versions`
+
+---
+
+#### 4.2.4 `hypothesis_versions`
+
+**Purpose:** Immutable version history of hypotheses (mirrors structure of `knowledge_versions`).
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `hypothesis_id` (UUID, foreign key to `hypotheses`)
+- `version_number` (integer)
+- `statement` (text, hypothesis statement at this version)
+- `context` (JSONB)
+- `confidence_at_creation` (numeric)
+- `change_rationale` (text)
+- `superseded_by` (UUID, self-referencing)
+- `superseded_at` (timestamp with time zone, nullable)
+- `is_current` (boolean)
+- `created_by` (text)
+- `created_at` (timestamp with time zone)
+
+**Versioning Logic:**
+- Identical principles as `knowledge_versions`.
+
+---
+
+#### 4.2.5 `causal_links`
+
+**Purpose:** Directed relationships between knowledge entries encoding causal, contributory, or dependency relationships.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `cause_knowledge_id` (UUID, foreign key to `knowledge_entries`)
+- `effect_knowledge_id` (UUID, foreign key to `knowledge_entries`)
+- `relationship_type` (enum: causes, contributes_to, enables, conflicts_with, reinforces)
+- `strength` (numeric, 0.0–1.0, confidence in the relationship itself)
+- `evidence_basis` (text, summary of evidence supporting this link)
+- `status` (enum: active, weakened, broken, under_review)
+- `established_at` (timestamp with time zone)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+
+**Versioning:**
+- Not individually versioned; changes create new records.
+- Broken links are soft-deleted via `status = 'broken'`.
+- Knowledge graph evolution tracked via `audit_trail` and temporal queries on `updated_at`.
+
+**Relationships:**
+- Bidirectional relationship between two `knowledge_entries` records.
+- Enables knowledge graph traversal and hypothesis generation.
+
+---
+
+### 4.3 Learning & Calibration Tables
+
+**Purpose:** Store prediction outcomes, calibration metrics, model versions, and performance records enabling continuous learning and confidence modeling.
+
+#### 4.3.1 `prediction_outcomes`
+
+**Purpose:** Records of predictions made versus actual outcomes, forming basis for calibration.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `prediction_source` (text, engine or model identifier that generated prediction)
+- `prediction_type` (enum: directional, magnitude, probability, categorical)
+- `prediction_payload` (JSONB, what was predicted)
+- `actual_outcome` (JSONB, what actually occurred)
+- `outcome_observed_at` (timestamp with time zone)
+- `prediction_horizon` (interval, time window prediction was made for)
+- `accuracy_score` (numeric, calculated post-outcome observation)
+- `calibration_error` (numeric, difference between predicted probability and observed frequency)
+- `resolved` (boolean)
+- `correlation_ids` (JSONB array of UUIDs linking to originating decision/action/event)
+- `created_at` (timestamp with time zone)
+
+**Versioning:** Not versioned; immutable outcome record.
+
+**Relationships:**
+- Aggregated into `calibration_metrics`
+- Referenced by model evaluation workflows
+
+---
+
+#### 4.3.2 `calibration_metrics`
+
+**Purpose:** Aggregated calibration statistics per prediction source over configurable windows.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `prediction_source` (text)
+- `metric_window_start` (timestamp with time zone)
+- `metric_window_end` (timestamp with time zone)
+- `total_predictions` (integer)
+- `correct_directional` (integer)
+- `correct_magnitude_band` (integer)
+- `brier_score` (numeric)
+- `expected_calibration_error` (numeric)
+- `reliability_diagram_data` (JSONB)
+- `computed_at` (timestamp with time zone)
+- `created_at` (timestamp with time zone)
+
+**Versioning:** Not versioned; snapshot metrics retained for historical analysis.
+
+**Relationships:**
+- Computed from aggregations of `prediction_outcomes`
+- Influences `model_versions` training decisions
+
+---
+
+#### 4.3.3 `model_versions`
+
+**Purpose:** Registry of deployed model versions with metadata for tracking performance drift.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `model_name` (text)
+- `version_identifier` (text, semantic version or hash)
+- `deployment_status` (enum: staging, production, deprecated)
+- `training_data_window` (daterange)
+- `hyperparameters` (JSONB, redacted sensitive parameters)
+- `performance_baseline` (JSONB, initial benchmark metrics)
+- `deployed_at` (timestamp with time zone)
+- `decommissioned_at` (timestamp with time zone, nullable)
+- `deployed_by` (text, CI/CD pipeline or engineer identity)
+- `artifacts_location` (text, reference to secure storage URI)
+- `sha256_hash` (text, cryptographic integrity verification)
+- `created_at` (timestamp with time zone)
+
+**Versioning:** Immutable registry entries; new deployment creates new row.
+
+**Relationships:**
+- Performance tracked against `prediction_outcomes` within deployment window
+
+---
+
+#### 4.3.4 `performance_records`
+
+**Purpose:** Time-series performance snapshots per model version for drift detection.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `model_version_id` (UUID, foreign key to `model_versions`)
+- `recorded_at` (timestamp with time zone)
+- `window_start` (timestamp with time zone)
+- `window_end` (timestamp with time zone)
+- `samples_in_window` (integer)
+- `metrics` (JSONB, accuracy, precision, recall, F1, calibration, latency percentiles)
+- `drift_detected` (boolean)
+- `drift_severity` (enum: none, low, medium, high, critical)
+- `created_at` (timestamp with time zone)
+
+**Versioning:** Append-only time-series; retention governed by archival policy.
+
+**Relationships:**
+- Child of `model_versions`
+- Triggers alerting when `drift_severity` exceeds thresholds
+
+---
+
+### 4.4 Infrastructure Tables
+
+**Purpose:** Support system operation via event bus, subscriptions, logging, error handling, configuration management, contract registry, and architectural compliance.
+
+#### 4.4.1 `event_bus`
+
+**Purpose:** Central immutable event log capturing all state-changing operations across the system.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `event_type` (text, domain.event.action naming convention)
+- `aggregate_type` (text, entity type affected)
+- `aggregate_id` (UUID, entity ID affected)
+- `payload` (JSONB, event-specific data)
+- `metadata` (JSONB, correlation IDs, trace context, causation IDs)
+- `sequence_number` (bigint, global ordering guarantee)
+- `idempotency_key` (text, unique constraint for deduplication)
+- `occurred_at` (timestamp with time zone)
+- `published_by` (text, producing service or engine)
+- `received_at` (timestamp with time zone)
+
+**Constraints:**
+- Unique constraint on `(idempotency_key)`.
+- Non-null on required fields.
+- No updates or deletes permitted after insertion.
+- Indexes on `(event_type)`, `(aggregate_type, aggregate_id)`, `(occurred_at)`, `(sequence_number)`.
+
+**Relationships:**
+- Consumed by `event_subscriptions` for routing and processing.
+- Source for audit trail reconstruction.
+
+---
+
+#### 4.4.2 `event_subscriptions`
+
+**Purpose:** Registry of consumers subscribing to specific event types for routing and projection.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `subscriber_id` (text, consumer identity)
+- `event_pattern` (text, SQL LIKE pattern or exact match on `event_type`)
+- `handler_endpoint` (text, target handler function or queue name)
+- `status` (enum: active, paused, error)
+- `last_processed_event_id` (UUID)
+- `last_processed_sequence` (bigint)
+- `error_count` (consecutive error counter)
+- `error_backoff_until` (timestamp with time zone)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+
+**Relationships:**
+- Tracks position in `event_bus` via `last_processed_sequence`
+
+---
+
+#### 4.4.3 `system_logs`
+
+**Purpose:** Structured application and engine logs for operational diagnostics.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `log_level` (enum: debug, info, warn, error, fatal)
+- `component` (text, engine or module source)
+- `message` (text)
+- `structured_data` (JSONB, contextual fields)
+- `trace_id` (UUID, distributed tracing correlation)
+- `span_id` (UUID, span within trace)
+- `logged_at` (timestamp with time zone)
+
+**Retention:** Configurable per log level; high-volume debug logs shortest retention.
+
+---
+
+#### 4.4.4 `error_log`
+
+**Purpose:** Dedicated structured error and exception capture with stack traces and context.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `error_code` (text)
+- `error_category` (enum: validation, integration, infrastructure, business_logic, governance)
+- `error_message` (text)
+- `stack_trace` (text)
+- `request_context` (JSONB, incoming request details)
+- `environment_context` (JSONB, system state at error time)
+- `severity` (enum: warning, error, critical, fatal)
+- `resolved` (boolean)
+- `resolution_note` (text)
+- `resolved_at` (timestamp with time zone, nullable)
+- `resolved_by` (text, nullable)
+- `occurred_at` (timestamp with time zone)
+- `created_at` (timestamp with time zone)
+
+**Relationships:**
+- Cross-referenced with `system_logs` via `trace_id`
+
+---
+
+#### 4.4.5 `system_metrics`
+
+**Purpose:** Time-series operational and business metrics storage.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `metric_name` (text, dot-separated namespace e.g., `engine.insight.count`)
+- `metric_value` (numeric)
+- `unit` (text, e.g., count, milliseconds, bytes, percentage)
+- `tags` (JSONB, dimensions like tenant_id, engine_id, market_pair)
+- `recorded_at` (timestamp with time zone)
+- `created_at` (timestamp with time zone)
+
+**Partitioning Strategy:**
+- Partitioned by `recorded_at` (daily partitions recommended).
+- Retention policies managed at partition level.
+
+---
+
+#### 4.4.6 `system_config`
+
+**Purpose:** Key-value configuration store for runtime parameters.
+
+**Key Fields:**
+- `key` (text, primary key, dot-separated path e.g., `engine.decay.default_rate`)
+- `value` (JSONB, typed value)
+- `value_type` (enum: string, number, boolean, json)
+- `description` (text)
+- `category` (enum: feature_flag, tuning_parameter, threshold, connection_string_encrypted)
+- `requires_governance_approval` (boolean)
+- `effective_from` (timestamp with time zone)
+- `expires_at` (timestamp with time zone, nullable)
+- `previous_value` (JSONB, audit trail of last value)
+- `changed_by` (text)
+- `changed_at` (timestamp with time zone)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+
+**Governance:**
+- Sensitive keys flagged with `requires_governance_approval = true`.
+- Changes require approval record in `approvals` before taking effect.
+
+---
+
+#### 4.4.7 `contract_registry`
+
+**Purpose:** Registry of API contracts, event schemas, and interface definitions enforcing structural consistency.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `contract_name` (text)
+- `contract_type` (enum: api_schema, event_schema, data_model, integration)
+- `schema_version` (text)
+- `schema_definition` (JSONB, JSON Schema or OpenAPI definition)
+- `status` (enum: draft, proposed, active, deprecated)
+- `owner_domain` (text, data domain owning this contract)
+- `dependencies` (JSONB array of contract IDs this depends on)
+- `governance_status` (enum: pending_review, approved, rejected)
+- `approved_at` (timestamp with time zone, nullable)
+- `approved_by` (text, nullable)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+
+**Relationships:**
+- Validated during schema migration and event emission.
+- Breakage detected logged in `architecture_compliance`.
+
+---
+
+#### 4.4.8 `adr_registry`
+
+**Purpose:** Persistent storage of Architectural Decision Records as queryable database artifacts.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `adr_number` (integer, sequential unique identifier)
+- `title` (text)
+- `status` (enum: proposed, accepted, superseded, deprecated)
+- `context` (text, problem statement and motivation)
+- `decision` (text, what was decided)
+- `consequences` (text, impacts of decision)
+- `superseded_by_adr_id` (UUID, nullable)
+- `related_adr_ids` (JSONB array of UUIDs)
+- `affected_components` (JSONB array of component names)
+- `decision_date` (date)
+- `author` (text)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+
+**Purpose of DB Storage:**
+- ADRs are not merely documentation; they drive compliance checks.
+- Architecture Review Layer can query ADRs to validate current design conformance.
+
+---
+
+#### 4.4.9 `architecture_compliance`
+
+**Purpose:** Records of compliance checks validating system architecture against defined contracts and ADRs.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `check_name` (text)
+- `check_type` (enum: schema_drift, contract_violation, adr_conformance, migration_validation)
+- `target_component` (text)
+- `target_resource` (text, table name, endpoint, etc.)
+- `result` (enum: passed, failed, warning, skipped)
+- `details` (JSONB, check output)
+- `baseline_snapshot_reference` (text, git commit SHA or config hash)
+- `checked_at` (timestamp with time zone)
+- `checked_by` (text, automated job or reviewer)
+- `remediation_required` (boolean)
+- `remediation_reference` (text, ticket or issue link, nullable)
+- `created_at` (timestamp with time zone)
+
+**Relationships:**
+- References `contract_registry` for contract violations.
+- References `adr_registry` for ADR conformance checks.
+
+---
+
+### 4.5 Governance Tables
+
+**Purpose:** Store approvals, overrides, policy versions, and audit trail supporting human governance supremacy and regulatory compliance.
+
+#### 4.5.1 `approvals`
+
+**Purpose:** Approval workflow records governing gated actions, decisions, and policy changes.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `approval_request_id` (UUID, unique correlation identifier)
+- `approval_type` (enum: decision_action, policy_change, config_change, override_authorization)
+- `target_entity_type` (text, e.g., 'decision', 'action', 'system_config')
+- `target_entity_id` (UUID)
+- `requester` (text, system component or user requesting approval)
+- `requested_at` (timestamp with time zone)
+- `payload` (JSONB, context for the approval request)
+- `assigned_approver` (text, role or user authorized to approve)
+- `status` (enum: pending, approved, rejected, expired, cancelled, escalated)
+- `approved_by` (text, approver identity)
+- `approved_at` (timestamp with time zone, nullable)
+- `rejection_reason` (text, nullable)
+- `commentary` (text, optional notes from approver)
+- `validity_duration` (interval, how long before expiration)
+- `expires_at` (timestamp with time zone)
+- `correlation_ids` (JSONB array of event IDs triggering this request)
+- `created_at` (timestamp with time zone)
+- `updated_at` (timestamp with time zone)
+
+**Versioning:** Workflow progression is append-only via `approval_history` or denormalized in this table.
+
+**Relationships:**
+- Triggers action execution in `actions` when approved.
+- Referenced by `override_log` for override authorization chain.
+
+---
+
+#### 4.5.2 `override_log`
+
+**Purpose:** Immutable log of human overrides to automated decisions, ensuring full accountability for human intervention.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `override_timestamp` (timestamp with time zone)
+- `overridden_decision_id` (UUID, references `decisions`)
+- `overridden_action_id` (UUID, references `actions`, nullable)
+- `original_system_recommendation` (JSONB, what the system recommended)
+- `human_directive` (JSONB, what the human instructed instead)
+- `override_reason` (text, mandatory justification)
+- `override_authority` (text, user identity with override authority)
+- `authorization_level` (enum: standard_operator, senior_analyst, risk_officer, admin)
+- `risk_acknowledged` (boolean, explicit risk acceptance checkbox equivalent)
+- `downstream_impacts_assessed` (boolean)
+- `notes` (text, additional context)
+- `approval_record_id` (UUID, references `approvals` if pre-authorized)
+- `created_at` (timestamp with time zone)
+
+**Immutability Constraint:**
+- This table **never permits updates or deletes**.
+- Corrections must be appended as override-correction events.
+
+**Relationships:**
+- References `decisions` and `actions`.
+- Referenced by `audit_trail` automatically.
+- Subject to long-term retention requirements.
+
+---
+
+#### 4.5.3 `policy_versions`
+
+**Purpose:** Versioned governance policies controlling automated behavior, access, and constraints.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `policy_name` (text, stable identifier)
+- `policy_domain` (enum: decision_thresholds, access_control, data_retention, risk_limits)
+- `version_number` (integer)
+- `policy_content` (JSONB, policy rules expressed as structured data)
+- `status` (enum: draft, effective, superseded, retired)
+- `effective_from` (timestamp with time zone)
+- `effective_until` (timestamp with time zone, nullable)
+- `superseded_by_policy_id` (UUID, self-referencing to newer version)
+- `change_rationale` (text)
+- `changed_by` (text)
+- `governance_approval_id` (UUID, references `approvals`)
+- `created_at` (timestamp with time zone)
+
+**Versioning:**
+- Policy changes always create new version rows.
+- Active policy resolved by querying `status = 'effective'` where current timestamp falls within range.
+
+**Relationships:**
+- Referenced by decision engines for runtime enforcement.
+- Referenced by RLS policies for access control derivation.
+
+---
+
+#### 4.5.4 `audit_trail`
+
+**Purpose:** Comprehensive immutable audit trail of all system modifications, accesses, and governance actions.
+
+**Key Fields:**
+- `id` (UUID, primary key)
+- `audit_id` (UUID, globally unique, indexed)
+- `event_timestamp` (timestamp with time zone)
+- `actor_type` (enum: human_user, api_key, service_account, system_engine, scheduled_job)
+- `actor_identity` (text)
+- `action_type` (enum: create, read_update, delete, approve, reject, override, login, logout, export, config_change)
+- `resource_type` (text, table/entity name)
+- `resource_id` (UUID, primary key of affected resource)
+- `old_state` (JSONB, null for creates)
+- `new_state` (JSONB, null for deletes)
+- `diff_summary` (text, high-level change description)
+- `ip_address` (inet,nullable, privacy-compliant storage)
+- `user_agent` (text, nullable)
+- `session_id` (UUID, nullable)
+- `correlation_id` (UUID, links to `event_bus` entry)
+- `source_module` (text, code module initiating the action)
+- `is_sensitive_operation` (boolean, marks GDPR/special-category touches)
+- `retention_expiry` (timestamp with time zone, auto-calculated from policy)
+- `created_at` (timestamp with time zone, equals event_timestamp)
+
+**Constraints:**
+- **INSERT ONLY** — no UPDATE, no DELETE ever.
+- Unique constraint on `audit_id`.
+- Mandatory non-null on core fields.
+- `retention_expiry` enforced via cron-based archiving job; records moved to cold storage, never purged without governance sign-off.
+
+**Indexing:**
+- Primary index: `audit_id`
+- Composite indexes: `(actor_identity, event_timestamp)`, `(resource_type, resource_id, event_timestamp)`, `(action_type, event_timestamp)`, `(correlation_id)`.
+
+---
+
+## 5. Versioning Strategy
+
+### 5.1 Entity Versioning Model
+
+AHOS employs a **side-table versioning model** for entities requiring historical lineage:
+
+| Pattern | Applies To | Mechanism |
+|---------|------------|-----------|
+| **Full Snapshot Versioning** | `knowledge_entries`, `hypotheses`, `policies` | Current entity references active version; history stored in `{entity}_versions` table |
+| **Append-Only Event Log** | All state changes | `event_bus` captures every mutation as immutable event |
+| **Audit Trail Versioning** | All tables | `audit_trail` captures before/after states |
+| **Immutable Records (No Versions)** | `signals`, `discoveries`, `predictions` | Records are logically immutable once committed |
+
+### 5.2 Immutable Records vs. Version Records
+
+**Immutable Records:**
+- Written once, never modified.
+- Errors corrected via supplementary correction records.
+- Examples: `signals`, `discovery_events`, `audit_trail`, `event_bus`, `override_log`.
+
+**Versioned Entities:**
+- Main table holds "current head" pointer and computed aggregates.
+- Version table holds full snapshot per version increment.
+- Version creation triggered by explicit mutation or periodic re-validation.
+
+**Decision Matrix for Versioning:**
+
+| Criterion | Version Required? | Rationale |
+|-----------|-------------------|-----------|
+| Knowledge validity changes | Yes | Confidence updates, re-validation outcomes require lineage |
+| Hypothesis refinement | Yes | Statement evolution, evidence addition require audit trail |
+| Configuration changes | Yes (via `policy_versions`) | Rollback capability requires predecessor reference |
+| Raw signal ingestion | No | Signals are immutable by nature |
+| Operational logs | No | Append-only semantics sufficient |
+
+### 5.3 Lineage Tracking
+
+Lineage chains enable answering questions such as:
+
+*"Why does this knowledge entry have confidence 0.87?"* → Trace through:
+1. `knowledge_entries.current_confidence`
+2. Most recent `knowledge_versions` entry showing update rationale
+3. Linked `prediction_outcomes` feeding calibration
+4. Original `discoveries` referenced in `source_discovery_ids`
+5. Any `override_log` affecting intervening decisions
+
+**Implementation:**
+- `causal_links` provide direct graph edges between knowledge entries.
+- `knowledge_versions.superseded_by` provides version-level forward chain.
+- Event bus `metadata.causation_id` provides execution-level backward chain.
+- Audit trail `correlation_id` provides cross-domain linkage.
+
+### 5.4 Rollback Referencing
+
+Rollback is supported **logically but not physically destructive**:
+
+1. Identify target version from `knowledge_versions`.
+2. Create NEW version copying content from rollback-target version.
+3. Update `knowledge_entries.current_version_id` to point to newly-created copy.
+4. Record rollback rationale in `audit_trail` and `event_bus`.
+5. Old version history preserved; no data destruction.
+
+**Prohibited Operations:**
+- Never delete version records.
+- Never mutate existing version records.
+- Never set `is_current = false` without successor version existing.
+
+### 5.5 Schema Evolution Principles
+
+Schema evolution follows these rules:
+
+1. **Additive Migrations Preferred**: New columns added via `ALTER TABLE ADD COLUMN`. New columns default to `NULL` or safe defaults.
+2. **Non-Breaking Type Changes**: Widening columns (`VARCHAR(50)` → `VARCHAR(255)`) permitted without deprecation window.
+3. **Breaking Changes Require Deprecation**: Column removal requires:
+   - Minimum 30-day deprecation period with warnings.
+   - Migration script preparing dependent systems.
+   - Governance approval recorded in `approvals`.
+   - ADR documenting change rationale.
+4. **Enum Additions Only**: Enum types support adding values; removal requires deprecation period.
+5. **Never Remove Tables Without Archival**: Table decommissioning triggers archival of all records to cold storage.
+
+### 5.6 Migration Governance
+
+All schema migrations MUST:
+
+1. Be version-controlled in dedicated migrations directory.
+2. Include forward and rollback scripts (rollback verified in staging).
+3. Reference applicable ADR or approval record in header comment.
+4. Pass `architecture_compliance` checks before deployment.
+5. Be executed during maintenance windows with rollback plan documented.
+6. Generate `event_bus` entry for schema modification audit trail.
+
+---
+
+## 6. Knowledge Lifecycle Modeling
+
+### 6.1 Initial Validation Pathway
+
+When a discovery emerges, the following lifecycle stages are modeled in the database:
+
+```
+Signal Ingestion → Discovery Creation → Knowledge Candidate → 
+Hypothesis Generation → Validation Testing → Knowledge Entry Creation
+```
+
+**Database State Transitions:**
+
+| Stage | Table(s) Affected | Status Values | Trigger Condition |
+|-------|-------------------|---------------|-------------------|
+| Signal Received | `signals.status` | `raw` | Ingestion event |
+| Discovery Formed | `discoveries.status` | `pending` | Validator Engine extracts structure |
+| Discovery Validated | `discoveries.status` | `validated` | Validation checks pass |
+| Knowledge Candidate | `candidates.status` | `pending` | Insight Engine proposes knowledge entry |
+| Knowledge Created | `knowledge_entries.status` | `draft` | Initial write to knowledge_entries + first version |
+| Knowledge Published | `knowledge_entries.status` | `active` | Governance approval OR auto-publishing for low-confidence entries |
+| Hypothesis Generated | `hypotheses.status` | `proposed` | Engine generates testable proposition |
+| Hypothesis Tested | `hypotheses.status` | `testing` | Test protocol executed |
+| Hypothesis Resolved | `hypotheses.status` | `confirmed` / `refuted` / `indeterminate` | Outcome determined |
+
+### 6.2 Continuous Re-validation
+
+Active knowledge entries undergo periodic re-validation:
+
+1. **Scheduler Engine** identifies `knowledge_entries` where `now() - last_validated_at > revalidation_interval`.
+2. **Re-validation Job** queries fresh `discoveries` and `signals` relevant to the knowledge entry.
+3. **Outcome** generates new `prediction_outcome`-style validation record linked to `knowledge_entry_id`.
+4. **Confidence Adjustment**:
+   - If validation supports knowledge: `current_confidence` adjusted upward (capped at 1.0).
+   - If validation contradicts knowledge: `current_confidence` adjusted downward.
+   - Significant contradiction triggers `hypothesis` to investigate discrepancy.
+5. **Version Update**: If confidence crosses threshold, new `knowledge_versions` created.
+
+**Database Representation:**
+
+```sql
+-- Conceptual representation (implementation in PostgreSQL):
+-- knowledge_entries includes re-validation scheduling fields
+-- validation_outcomes table captures per-validation results
+-- Links back to knowledge_entries for aggregation
+```
+
+### 6.3 Confidence Decay Modeling
+
+Confidence naturally decays over time absent reinforcing validation:
+
+**Decay Formula (Architectural):**
+```
+current_confidence(t) = base_confidence × e^(-λ × Δt)
+```
+
+Where:
+- `λ` = `decay_rate` (stored per knowledge entry or defaulted from `system_config`)
+- `Δt` = elapsed time since `last_validated_at`
+
+**Database Implementation Approach:**
+- **Option A (Computed)**: View or materialized view calculates live decayed value using `now()` minus `last_validated_at`.
+- **Option B (Snapshot)**: Scheduler periodically writes decayed value to `current_confidence`; view reads cached value.
+- **AHOS Selection**: Option B preferred for determinism; computed values introduce non-determinism in replay scenarios.
+
+**Fields Supporting Decay:**
+- `knowledge_entries.confidence_score`: Base confidence at last validation.
+- `knowledge_entries.current_confidence`: Decay-adjusted confidence (refreshed by scheduler).
+- `knowledge_entries.decay_rate`: Per-entry lambda parameter.
+- `knowledge_entries.last_validated_at`: Anchor timestamp for decay calculation.
+- `knowledge_entries.aging_class`: Derived classification bucket.
+
+### 6.4 Aging Classification
+
+Automatic aging classes categorize knowledge entries by staleness:
+
+| Aging Class | Confidence Range | Time Since Last Validation | Allowed Actions |
+|-------------|------------------|---------------------------|-----------------|
+| **fresh** | > 0.8 | < 7 days | Full participation in reasoning |
+| **mature** | 0.5 – 0.8 | 7 – 30 days | Participation with degraded weight |
+| **stale** | 0.2 – 0.5 | 30 – 90 days | Limited participation; flags re-validation priority |
+| **critical** | < 0.2 | > 90 days | Quarantined from automated decisions; alerts human analyst |
+
+**Database Field:** `knowledge_entries.aging_class` (enum, computed by scheduler).
+
+**Transition Rules:**
+- Class can move *up* (via successful re-validation).
+- Class can move *down* (via time passage or contradictory validation).
+- Manual override possible via governance action (logged in `override_log`).
+
+### 6.5 Branching Knowledge Versions
+
+When a knowledge entry requires divergent evolution:
+
+**Scenario Example:**
+- Entry K1 exists (confidence 0.85, mature class).
+- Conflicting validation suggests alternative interpretation.
+- Human analyst or qualified engine initiates branch.
+
+**Database Model:**
+
+1. **Existing `knowledge_versions` chain continues unmodified.**
+2. **New `knowledge_entries` record created** (K2) with:
+   - `branch_parent_id` → K1's `current_version_id`
+   - Own independent version chain starting at v1
+   - Status starts as `draft` regardless of parent status
+3. **Causal link created** in `causal_links`:
+   - Relationship type: `branched_from`
+   - Cause: K1 → Effect: K2
+4. **Both branches coexist** until:
+   - Branch confirmed superior → parent superseded, branch merges.
+   - Branch refuted → branch marked deprecated.
+   - Both remain valid alternatives → both persist as separate knowledge entries.
+
+**Merging (when one branch supersedes):**
+- Superseded entry gets `status = superseded`.
+- Winning entry may absorb relevant portions into new version (documented in version rationale).
+
+### 6.6 Knowledge Pruning vs. Archival
+
+**Pruning (Soft Delete):**
+- Applied when knowledge entry is definitively obsolete or incorrect.
+- Operation: Set `knowledge_entries.status = deprecated` or `'deleted'`.
+- Set `knowledge_entries.deleted_at = now()`.
+- Retain in hot storage per retention policy (default: 12 months).
+
+**Archival (Cold Storage):**
+- Applied when hot-storage retention expires for deprecated/deleted knowledge.
+- Operation: Move records to archival partition or external cold store (S3 Glacier, etc.).
+- Keep lightweight stub in Supabase indicating archival location and retrieval key.
+- Full restoration capability retained for regulatory or analysis needs.
+
+**Pruning Triggers:**
+- Explicit human governance decision (most common).
+- Automated pruning of `critical` aging class exceeding maximum staleness threshold (governance-configurable, disabled by default).
+- Regulatory obligation to remove specific information.
+
+**Archival Boundaries (conceptual):**
+
+| Data Category | Hot Storage Duration | Cold Storage Duration | Permanent Deletion |
+|---------------|----------------------|----------------------|--------------------|
+| Active Knowledge | Indefinite while active | N/A | Upon proper deprecation + retention expiry |
+| Deprecated Knowledge | 12 months | 7 years | After 7 years (configurable) |
+| Deleted Knowledge | 90 days | 3 years | After 3 years (configurable) |
+
+### 6.7 Knowledge Graph Evolution
+
+As knowledge entries are created, modified, pruned, branched, and archived, the knowledge graph evolves:
+
+**Graph Structure in Database:**
+- **Nodes**: `knowledge_entries` (plus `hypotheses` as provisional nodes).
+- **Edges**: `causal_links` connecting nodes.
+- **Node State**: Embedded in node properties (`status`, `confidence`, `aging_class`).
+- **Edge State**: Embedded in edge properties (`status`, `strength`).
+
+**Evolution Events Captured:**
+1. Node creation → `event_bus` entry + `audit_trail` entry.
+2. Edge creation → `causal_links` insert + `audit_trail` entry.
+3. Node confidence change → `knowledge_versions` insert + confidence update.
+4. Node pruning → status transition + `audit_trail` entry.
+5. Edge weakening/breaking → `causal_links.status` change + `audit_trail`.
+
+**Temporal Queries Supported:**
+- *"What did the knowledge graph look like on [date]?"* → Queryable via point-in-time recovery or `knowledge_versions.created_at` bounds.
+- *"What paths exist from Knowledge A to Knowledge B?"* → Recursive CTE on `causal_links` filtered by `status = 'active'`.
+
+---
+
+## 7. Event Storage Design
+
+### 7.1 Event Schema Structure
+
+All events written to `event_bus` conform to a standardized envelope:
+
+**Required Envelope Fields:**
+
+```sql
+/* Conceptual event schema */
+{
+    -- Envelope metadata (always present)
+    id                  : UUID           /* Primary key, server-generated */
+    event_type          : TEXT           /* Domain-prefixed, e.g., 'discovery.validated' */
+    aggregate_type      : TEXT           /* Entity type, e.g., 'knowledge_entry' */
+    aggregate_id        : UUID           /* Entity instance ID */
+    
+    -- Payload (domain-specific)
+    payload             : JSONB          /* Event-specific data, varies by event_type */
+    
+    -- Metadata (cross-cutting concerns)
+    metadata            : JSONB          {
+        correlation_id     : UUID    /* Request-scoped correlation */
+        causation_id       : UUID    /* Preceding event causing this one (for chains) */
+        trace_id           : UUID    /* Distributed trace root */
+        source_service     : TEXT    /* Producer identity */
+        schema_version     : TEXT    /* Contract version for payload shape */
+    }
+    
+    -- Idempotency & ordering
+    idempotency_key     : TEXT           /* Client-provided deduplication token */
+    sequence_number     : BIGINT         /* Globally monotonic sequence */
+    
+    -- Timing
+    occurred_at         : TIMESTAMPTZ    /* When the event happened in domain time */
+    published_by        : TEXT           /* Producing service/engine identity */
+    received_at         : TIMESTAMPTZ    /* When event bus received it */
+}
+```
+
+**Event Type Naming Convention:**
+- Format: `{domain}.{entity}.{action}`
+- Examples: `discovery.signal.ingested`, `knowledge.entry.created`, `decision.approval.granted`, `governance.override.executed`
+
+### 7.2 Correlation IDs
+
+**Purpose:** Enable tracing end-to-end request flows spanning multiple services, events, and tables.
+
+**Allocation:**
+1. External requests generate fresh `correlation_id` (UUID v4).
+2. Propagated through all downstream operations.
+3. Stored in: `event_bus.metadata.correlation_id`, `audit_trail.correlation_id`, `system_logs.trace_id`, `error_log.request_context.correlation_id`.
+
+**Query Capability:**
+- Retrieve complete event sequence for given `correlation_id`.
+- Link errors and exceptions to their originating request.
+- Reconstruct causality chains for incident investigation.
+
+### 7.3 Idempotency Handling
+
+**Client-Side Idempotency Key:**
+
+- Producers **MUST** include `idempotency_key` in every event submission.
+- Uniqueness enforced via **UNIQUE constraint** on `event_bus(idempotency_key)`.
+- On duplicate key detection:
+  - Existing event returned (no new insertion).
+  - No side effects triggered.
+  - Standard HTTP-like 200 OK with original event body returned to subscriber query.
+
+**Server-Safe Semantics:**
+- Idempotency key scoping: Global (recommended) or per-event-type (if domain isolation required).
+- Key lifetime: Effective indefinitely for `event_bus` (immutable log).
+- Key format: Suggestion: `{producer_id}:{domain}:{operation}:{hash_of_payload}` for deterministic generation.
+
+**Handling Non-Idempotent Sources:**
+- For sources unable to provide client-side keys, event bus generates deterministic key from: `{source}:{event_type}:{aggregate_id}:{occurred_at}`.
+- Collision resolution: Timestamp precision to microsecond + tiebreaker logic.
+
+### 7.4 Dead Letter Queue Design
+
+**Purpose:** Capture events that fail processing without losing them or blocking the main stream.
+
+**Table: `event_dead_letter`**
+
+**Fields:**
+- `id` (UUID, primary key)
+- `original_event_id` (UUID, references `event_bus`)
+- `subscriber_id` (text, which consumer failed)
+- `failure_reason` (text, error message)
+- `failure_details` (JSONB, exception stack, retry count)
+- `failure_timestamp` (timestamp with time zone)
+- `retry_count` (integer, attempts made so far)
+- `max_retries_exceeded` (boolean)
+- `next_retry_after` (timestamp with time zone, exponential backoff schedule)
+- `final_disposition` (enum: pending_retry, manually_resolved, permanently_failed, discarded_with_approval)
+- `resolved_by` (text, nullable)
+- `resolution_notes` (text, nullable)
+- `resolved_at` (timestamp with time zone, nullable)
+- `created_at` (timestamp with time zone)
+
+**Dead Letter Processing Policy:**
+
+| Retry Attempt | Backoff Delay | Action |
+|---------------|---------------|--------|
+| 1–3 | 30 seconds, 60 seconds, 120 seconds | Automatic retry by DLQ processor |
+| 4–6 | 5 minutes, 15 minutes, 1 hour | Automatic retry with alert escalation |
+| 7+ | 4 hours, then daily | Hold for manual investigation |
+
+**Resolution Paths:**
+1. **Retry Success**: Event processed successfully; DLQ record marked resolved.
+2. **Manual Correction**: Engineer fixes underlying issue; triggers targeted re-processing.
+3. **Discard With Approval**: Event acknowledged as unrecoverable and irrelevant; requires governance approval for discard.
+4. **Permanent Failure**: Event confirmed as corrupt or invalid; archived separately.
+
+### 7.5 Replay Strategy
+
+**Purpose:** Ability to reconstruct state by replaying events from `event_bus`.
+
+**Replay Modes:**
+
+| Mode | Use Case | Implementation |
+|------|----------|----------------|
+| **Full Replay** | Disaster recovery, environment bootstrap | Replay entire event bus in `sequence_number` order |
+| **Subset Replay** | Single entity state reconstruction | Filter events by `aggregate_type, aggregate_id`, replay in order |
+| **Time Window Replay** | Point-in-time state inspection | Filter by `occurred_at` range, replay ordered |
+| **Filtered Replay** | Re-process specific event types | Filter by `event_type` pattern match |
+
+**Replay Guarantees:**
+- At-least-once delivery during replay (subscribers handle deduplication).
+- Deterministic ordering by `sequence_number` within single-partition events.
+- Cross-partition ordering consistent up to clock-synchronization tolerance (configured <100ms).
+
+**Replay Safety Constraints:**
+- Replay environment isolated from production (separate database or schema).
+- Requires explicit governance approval before production-state reconstruction.
+- Cannot modify `event_bus` (append-only); replay projects to new state tables.
+- `event_bus.sequence_number` serves as linearization authority.
+
+### 7.6 Ordering Rules
+
+**Global Ordering Model:**
+- Monotonically increasing `sequence_number` assigned by database sequence.
+- Single-writer assignment (database-generated via trigger or application-enforced).
+- Gap detection: Monitoring alerts on any `sequence_number` gap > threshold (potential missed write).
+
+**Per-Aggregate Ordering:**
+- Within an entity's lifecycle, ordering guaranteed by `occurred_at` plus `sequence_number` tiebreaker.
+- Subscribers can rely on: events for same `aggregate_id` arrive/process in creation order.
+
+**Cross-Domain Ordering:**
+- No hard guarantees across different `aggregate_type` groups within same millisecond.
+- Use `causation_id` for explicit dependency chaining when ordering matters across domains.
+
+### 7.7 At-Least-Once Guarantee Modeling
+
+**Guarantee Level:** At-least-once delivery to subscribers.
+
+**Implications for Subscribers:**
+- Subscribers **MUST implement idempotent handlers**.
+- Duplicate event reception is expected (especially after failures and replays).
+- Idempotency checked via `event_bus.idempotency_key` or subscriber-maintained processed-set.
+
+**Modeling in Database:**
+
+```sql
+/* Subscriber position tracking avoids re-delivery in normal flow,
+   but duplicate delivery still possible around failure boundaries */
+
+event_subscriptions.last_processed_sequence 
+    -- Used by poller to avoid re-fetching completed events
+    -- Subscriber still checks idempotency as safety net
+```
+
+**At-Least-Once Acceptance Criteria:**
+- No event lost due to subscriber downtime or transient failure.
+- Duplicates possible; bounded by replay window + failure scenario width.
+- Exactly-once semantics achieved at subscriber layer via idempotency enforcement.
+
+---
+
+**END OF PART 2**  
+**WAITING FOR CONTINUE**
+# AHOS Data Architecture Specification v1.0
+
+**CURRENT PART:** 3  
+**CURRENT SECTION RANGE:** 8–11  
+**DOCUMENT PROGRESS:** approximately 80%
+
+---
+
+## 8. Audit & Compliance Design
+
+### 8.1 Audit Trail Requirements
+
+The `audit_trail` table constitutes the **primary compliance artifact** for all operations within AHOS. It is designed to satisfy regulatory frameworks applicable to cryptocurrency intelligence systems and financial data processing.
+
+**Mandatory Capture Requirements:**
+
+| Operation Category | Must Be Captured | Minimum Retention |
+|-------------------|-------------------|-------------------|
+| All writes (INSERT) | ✅ Yes | Per retention policy |
+| All updates (UPDATE) | ✅ Yes (with old/new state) | Per retention policy |
+| All soft deletes (STATUS change) | ✅ Yes | Per retention policy |
+| Hard delete attempts | ✅ Yes (even if blocked) | Permanent |
+| Read access to sensitive data | ✅ Yes (configurable logging level) | 12 months minimum |
+| Authentication events (login/logout/session) | ✅ Yes | 12 months minimum |
+| Authorization failures (denied access attempts) | ✅ Yes | 24 months |
+| Configuration changes | ✅ Yes | 7 years |
+| Governance actions (approvals/overrides) | ✅ Yes | 7 years |
+| Export/bulk data retrieval | ✅ Yes | 7 years |
+| System administration actions | ✅ Yes | 7 years |
+
+**Non-Capturable Operations:**
+- Internal database maintenance (VACUUM, reindexing) — logged in `system_logs`, not `audit_trail`.
+- Replication stream activity — handled at infrastructure layer.
+- Automated health checks — logged in `system_metrics`, not `audit_trail`.
+
+---
+
+### 8.2 Immutable Logs
+
+**Immutability Architecture:**
+
+`audit_trail` operates under **absolute immutability** constraints:
+
+1. **INSERT-only Table**: No UPDATE or DELETE permissions granted to any role including superuser (enforced via trigger).
+2. **Append-Only Access Pattern**: Application code exclusively uses INSERT.
+3. **Physical Protection**: Database-level triggers block modification attempts:
+   - On UPDATE: Raise exception "AUDIT_IMMUTABILITY_VIOLATION".
+   - On DELETE: Raise exception "AUDIT_IMMUTABILITY_VIOLATION".
+4. **Role-Based Enforcement**: Even database administrative roles cannot modify audit rows without explicit privilege escalation that itself generates audit records.
+
+**Extension to Other Immutable Tables:**
+
+| Table | Immutability Level | Rationale |
+|-------|-------------------|-----------|
+| `audit_trail` | Absolute (never updated/deleted) | Legal/compliance requirement |
+| `event_bus` | Absolute (append-only) | Event sourcing correctness |
+| `override_log` | Absolute (human accountability) | Governance integrity |
+| `policy_versions` | Logical (versioned; individual rows immutable) | Policy lineage |
+| `knowledge_versions` | Logical (versioned; individual rows immutable) | Knowledge provenance |
+
+**Immutability Violation Detection:**
+- `architecture_compliance` checks run periodically verifying no updates/deletes on protected tables.
+- Any violation detected triggers **critical alert** to security team and governance stakeholders.
+- Violation requires incident response per AHOS security protocol.
+
+---
+
+### 8.3 Governance Traceability
+
+Every governance-influenced action maintains a complete chain of custody:
+
+**Traceability Chain Elements:**
+
+```
+[Originating Event] 
+    → [Decision] 
+    → [Governance Review (if required)] 
+    → [Approval Record] 
+    → [Action Execution] 
+    → [Outcome Logging]
+```
+
+Each element stores references enabling forward and backward traversal:
+
+- **Forward**: From event → decision → approval → action → outcome.
+- **Backward**: From outcome → action → approval → decision → originating evidence.
+
+**Cross-Reference Fields:**
+
+```sql
+-- Example traceability linkages across tables:
+-- audit_trail.correlation_id  -> links to event_bus entry
+-- approvals.target_entity_id  -> links to decision/action being approved
+-- override_log.approval_record_id -> links to pre-authorization
+-- decisions.approval_required + decisions.approved_by -> governance involvement
+-- policy_versions.governance_approval_id -> policy change authorization source
+```
+
+**Traceability Query Patterns:**
+
+1. *"Show full chain for Decision X"*:
+   - SELECT from `decisions` where id = X.
+   - JOIN to `approvals` where target_entity_id = X.
+   - JOIN to `actions` where decision_id = X.
+   - JOIN to `action_executions` where action_id = action.id.
+   - JOIN to `audit_trail` where resource_id IN (all above IDs).
+
+2. *"What human governance actions affected this knowledge entry?"*:
+   - SELECT from `override_log` where overridden_decision_id references decisions linked to this knowledge.
+   - SELECT from `approvals` where target_entity_type = 'knowledge_entry' AND target_entity_id = X.
+
+---
+
+### 8.4 ADR Storage
+
+Architectural Decision Records are stored persistently as first-class database entities rather than documentation artifacts alone.
+
+**Rationale for Database Storage:**
+
+1. **Queryability**: ADRs can be programmatically referenced by compliance checks and architecture validation.
+2. **Versioning**: Changes to architectural understanding are versioned and auditable.
+3. **Linkage**: ADRs can reference and be referenced by contracts, compliance records, and components.
+4. **Governance**: ADR lifecycle (proposed → accepted → superseded) follows same governance patterns as other domain objects.
+
+**ADR Lifecycle States:**
+
+| State | Meaning | Transitions Allowed |
+|-------|---------|---------------------|
+| `proposed` | Draft under review | → accepted, rejected |
+| `accepted` | Current active decision | → superseded, deprecated |
+| `superseded` | Replaced by newer ADR | No further transitions (terminal) |
+| `deprecated` | No longer applicable | No further transitions (terminal) |
+
+**ADR Enforced Constraints:**
+
+When an ADR defines a system behavior rule:
+- `architecture_compliance` checks validate conformance against the ADR's stated implications (`affected_components` field).
+- Schema migrations referencing the ADR must include ADR number in migration header comment.
+- Components listed in `adr_registry.affected_components` are automatically included in compliance scans for that ADR.
+
+---
+
+### 8.5 Approval Logging
+
+All approval workflow activities are captured with full context:
+
+**What Is Logged:**
+
+1. **Request Initiation**: When item enters approval queue.
+2. **Assignment Change**: When approver assignment changes (escalation, delegation).
+3. **Approve Action**: Timestamp, identity, commentary when approved.
+4. **Reject Action**: Timestamp, identity, mandatory rejection reason.
+5. **Expiry Event**: When approval window expires without resolution.
+6. **Cancellation Event**: When request cancelled before resolution.
+
+**Approval Log Completeness Rules:**
+
+- Every state transition on `approvals` row generates corresponding `audit_trail` entry.
+- Commentary fields cannot be nullified post-submission (immutable upon write).
+- Rejections MUST include non-empty `rejection_reason`.
+- Approvals against governance-critical items require higher-resolution logging (full payload capture).
+
+---
+
+### 8.6 Override Tracking
+
+Human overrides receive the highest fidelity tracking due to governance supremacy principle requiring full accountability:
+
+**Override Tracking Requirements:**
+
+1. **Override Identity**: Exact human operator identity, never role-only.
+2. **Override Authority Level**: Which permission tier authorized the override.
+3. **Original System Position**: Full JSON snapshot of what the automated system recommended (not just summary).
+4. **Human Directive**: Full JSON snapshot of what human instructed instead.
+5. **Explicit Justification**: Free-text explanation of reasoning (mandatory, non-nullable).
+6. **Risk Acknowledgment**: Boolean confirming operator understood risks of deviation.
+7. **Authorization Pre-Approval Linkage**: If override required prior authorization, reference to approving `approvals` record.
+8. **Downstream Impact Assessment**: Confirmation whether override impacts were evaluated before execution.
+
+**Override Analytics Capability:**
+
+Database design enables periodic analysis:
+
+| Analytic Question | Supported Via |
+|------------------|---------------|
+| Override frequency per operator? | GROUP BY `override_authority` / `overridden_by` |
+| Override success rate vs. system recommendation? | Compare `original_system_recommendation` outcomes |
+| Most commonly overridden decision types? | Join to `decisions` table categorization |
+| Time-of-day override patterns? | Group by `override_timestamp` intervals |
+| Escalation path efficiency? | Trace `approval_record_id` chain duration |
+
+---
+
+### 8.7 Regulatory Retention Modeling
+
+**Applicable Regulatory Contexts:**
+
+AHOS data architecture anticipates retention requirements under potential regulatory frameworks applicable to cryptocurrency intelligence and financial technology systems.
+
+**Retention Category Model:**
+
+```sql
+/* Conceptual retention category classification applied to all audited records */
+
+retention_category enum (
+    -- Operational (short)
+    operational_logs       : 90 days hot, 1 year cold
+    
+    -- Transactional (medium)
+    transaction_records    : 7 years (financial-grade)
+    
+    -- Governance (long)
+    governance_records     : 10 years permanent-archive-ready
+    
+    -- Security Incident
+    security_incidents     : Indefinite
+    
+    -- Customer/User PII (per jurisdiction)
+    personal_data          : Per GDPR/local law + 7-year business minimum
+    
+    -- Architectural
+    adr_and_compliance     : System lifetime + 5 years decommissioning grace
+    
+    -- Knowledge Provenance
+    knowledge_lineage      : 7 years minimum after knowledge retirement
+)
+```
+
+**Retention Enforcement Implementation Approach:**
+
+1. **Hot Storage Period**: Record remains queryable in primary Supabase instance.
+2. **Warm Archival**: Record moved to lower-cost storage (partition archival or external object store); searchable index retained in Supabase.
+3. **Cold Archival**: Record moved to long-term archival (glacier-class); only retrieval by specific request.
+4. **Permanent Deletion**: After maximum retention period expires AND governance approval granted AND legal hold cleared: cryptographic erasure certification generated.
+
+**Hold Mechanism:**
+
+- `legal_hold` flag conceptually applicable (implementation may add column or external metadata service).
+- Records under legal hold bypass ALL retention expiration until hold released.
+- Hold placement/removal requires governance-level authorization and generates audit record.
+
+---
+
+## 9. Retention & Archival Policy
+
+### 9.1 Retention Durations by Data Class
+
+| Data Class | Table(s) | Hot Retention | Warm Archive | Cold Archive | Max Lifetime | Deletable After |
+|-----------|----------|--------------|-------------|-------------|--------------|-----------------|
+| **Raw Signals** | `signals` | 14 days | 180 days | 2 years | 5 years | 5 years + approval |
+| **Discoveries** | `discoveries` | 1 year | 3 years | 7 years | 10 years | 10 years + approval |
+| **Insights** | `insights` | 2 years | 5 years | 10 years | 15 years | 15 years + approval |
+| **Knowledge Entries** (active) | `knowledge_entries` | Indefinite while active | N/A | N/A | N/A | Upon deactivation → below |
+| **Knowledge Entries** (inactive) | `knowledge_entries` (status=deprecated/deleted) | 1 year | 5 years | 10 years | 25 years | Never without governance sign-off |
+| **Hypotheses** | `hypotheses` | 3 years | 7 years | 15 years | 20 years | 20 years + approval |
+| **Causal Links** | `causal_links` | Tied to linked knowledge entries lifetimes | Tied | Tied | Tied | Tied |
+| **Predictions / Outcomes** | `prediction_outcomes` | 2 years | 5 years | 10 years | 15 years | 15 years + approval |
+| **System Logs** | `system_logs` (debug) | 30 days | 90 days | 1 year | 18 months | 18 months |
+| **System Logs** | `system_logs` (info/warn) | 90 days | 1 year | 3 years | 5 years | 5 years |
+| **Error Log** | `error_log` | 1 year | 3 years | 7 years | 10 years | 10 years + approval |
+| **Event Bus** | `event_bus` | 1 year | 3 years | 7 years | 10 years | 10 years + approval |
+| **Audit Trail** | `audit_trail` | 3 years | 7 years | 15 years | 25+ years | Never without regulatory clearance |
+| **Overrides** | `override_log` | Match audit trail lifetime | Match | Match | Match | Match |
+| **Metrics** | `system_metrics` | 30 days (aggregated) | 1 year raw / 3 years daily aggregates | 7 years aggregated | 10 years aggregated | Aggregates retained; raw purged |
+| **Configuration History** | `system_config` (history) | 3 years current config always kept | 7 years changes | 15 years | Indefinite for active config | N/A |
+| **Contracts / ADRs** | `contract_registry`, `adr_registry` | Indefinite | Indefinite | Indefinite | System lifetime + 5 years | Never |
+
+### 9.2 Cold Storage Boundary (Conceptual)
+
+**Boundary Definition:**
+
+Cold storage boundary represents the transition point where data leaves the actively-queryable Supabase database and moves to external archival media optimized for infrequent access.
+
+**Boundary Characteristics:**
+
+| Dimension | Hot/Warm (Supabase) | Cold (External) |
+|-----------|---------------------|-----------------|
+| **Query Latency** | < 100ms typical | Minutes to hours (retrieval) |
+| **Cost Profile** | Higher (SSD-backed) | ~1/10th cost (object/storage class) |
+| **Availability** | High availability SLA | Best-effort retrieval |
+| **Query Interface** | Full SQL | Search API / restoration required |
+| **Indexing** | Full B-tree/JSONB/GiST indexes | Metadata index only; content opaque |
+
+**Transition Process (Conceptual):**
+
+1. **Identification**: Scheduler identifies records exceeding hot-retention threshold based on `created_at` + retention category rules.
+2. **Preparation**: Selected records exported to standardized format (JSONL, Parquet, or PostgreSQL dump fragment).
+3. **Validation**: Export checksum verified against database record hash.
+4. **Transfer**: File uploaded to cold storage destination (S3 Glacier, Azure Archive, equivalent).
+5. **Registration**: Metadata record created in Supabase indicating storage location, format, checksum, size.
+6. **Confirmation**: Original records marked for deletion (soft-delete); physical purge occurs after verification period (configurable, default 30 days).
+7. **Verification Spot-Check**: Random sampling of archived records retrieved and validated annually.
+
+**Restoration Process:**
+
+1. Restoration request submitted with justification (governance-approved).
+2. Locate via cold-storage metadata registry in Supabase.
+3. Initiate retrieval from cold storage (latency varies: minutes to hours depending on storage class).
+4. Restore to temporary restoration environment (isolated schema/database).
+5. Validate restored data checksums.
+6. Make available to requesting party with audit trail entry.
+7. Restoration expiry: Temporary restored data auto-purged after configurable access window (default: 72 hours).
+
+---
+
+## 10. Indexing & Performance Strategy
+
+### 10.1 Primary Key Strategy
+
+**Primary Key Type:** UUID (Universally Unique Identifier)
+
+**UUID Version Selection:**
+
+- **UUID v4** (random): Default for most tables.
+  - Pros: Simple generation; no coordination required; sufficiently collision-resistant.
+  - Cons: Index fragmentation over large tables; non-sequential page writes during INSERT-heavy workloads.
+
+- **UUID v7** (time-sortable, recommended for high-volume tables):
+  - Encodes timestamp in upper bits ensuring approximate chronological ordering.
+  - Preferred for: `event_bus`, `signals`, `audit_trail`, `system_metrics`, `prediction_outcomes`.
+
+**Recommendation:**
+- Adopt **UUID v7** for all new table definitions where insertion volume exceeds 1000 rows/day.
+- Existing v4 deployments maintained without forced migration unless performance issue identified.
+- Application layer responsible for UUID generation (not database DEFAULT).
+
+---
+
+### 10.2 Time-Based Indexing
+
+Time-based queries are the dominant access pattern for AHOS data.
+
+**Required Time Indexes (Minimum Set):**
+
+| Table | Index Definition | Purpose |
+|-------|-----------------|---------|
+| `event_bus` | `(occurred_at)` | Time-range event queries |
+| `event_bus` | `(sequence_number)` | Sequential replay ordering |
+| `discoveries` | `(discovered_at DESC)` | Chronological discovery browsing |
+| `discoveries` | `(updated_at)` | Modified-since sync queries |
+| `knowledge_entries` | `(last_validated_at)` | Staleness-driven re-validation scheduling |
+| `knowledge_entries` | `(created_at)` | Creation-time analytics |
+| `hypotheses` | `(resolved_at)` | Resolved hypothesis reporting |
+| `audit_trail` | `(event_timestamp DESC)` | Audit log time-range searches (critical for investigations) |
+| `system_metrics` | `(recorded_at)` | Metric time-series queries |
+| `error_log` | `(occurred_at)` | Error trend analysis |
+| `system_logs` | `(logged_at)` | Log time-range filtering |
+| `predictions` | `(outcome_observed_at)` | Prediction outcome aging |
+| `overrides` | `(override_timestamp DESC)` | Recent override reviews |
+| `approvals` | `(requested_at)` | Pending approval aging |
+
+**Index Maintenance:**
+- Time-based indexes never dropped (core access pattern).
+- Monitor bloat quarterly; REINDEX scheduled during maintenance windows if fragmentation exceeds 50%.
+
+---
+
+### 10.3 Composite Indexes
+
+**Defined Composite Indexes (Performance-Critical Queries):**
+
+| Table | Composite Index | Supporting Query Pattern |
+|-------|-----------------|--------------------------|
+| `event_bus` | `(event_type, occurred_at)` | Filter by type within time range |
+| `event_bus` | `(aggregate_type, aggregate_id, sequence_number)` | Entity history reconstruction |
+| `discoveries` | `(source, discovery_type, discovered_at)` | Source/type drill-down |
+| `knowledge_entries` | `(status, aging_class, last_validated_at)` | Staleness scanning for scheduler |
+| `knowledge_entries` | `(knowledge_type, status, current_confidence DESC)` | Confidence-ranked filtered retrieval |
+| `hypotheses` | `(status, confidence_level, resolved_at NULLS FIRST)` | Active hypotheses ranked by strength |
+| `audit_trail` | `(actor_identity, event_timestamp)` | User activity audit trail |
+| `audit_trail` | `(resource_type, resource_id, event_timestamp)` | Entity modification history |
+| `audit_trail` | `(action_type, event_timestamp)` | Operation-type frequency analysis |
+| `causal_links` | `(cause_knowledge_id, relationship_type, status)` | Outbound graph traversal |
+| `causal_links` | `(effect_knowledge_id, relationship_type, status)` | Inbound graph traversal (reverse lookup) |
+| `system_metrics` | `(metric_name, recorded_at)` | Single-metric time series |
+| `system_metrics` | `(metric_name, tags->>'engine_id', recorded_at)` | Tagged metric filtering |
+| `approvals` | `(status, requested_at)` | Pending approval队列查询 |
+| `errors` | `(error_category, severity, occurred_at)` | Error categorization dashboards |
+| `dead_letter` | `(subscriber_id, failure_timestamp, max_retries_exceeded)` | DLQ subscriber backlog review |
+
+**Composite Index Addition Governance:**
+- New composite indexes proposed via ADR process.
+- Performance testing required before production addition (index-write overhead measurement).
+- Removal of indexes requires equal governance oversight (query regression risk).
+
+---
+
+### 10.4 JSONB Usage Boundaries
+
+**Approved JSONB Usage:**
+
+| Field Category | JSONB Appropriate? | Rationale |
+|---------------|-------------------|-----------|
+| Structured payloads (variable schema) | ✅ Approved | Discovery content, signal raw payload have heterogeneous structures |
+| Flexible configuration | ✅ Approved | System config values, hyperparameters, test protocols |
+| Array collections of IDs | ✅ Approved | Supporting knowledge ID lists, correlation ID arrays, tag sets |
+| Schema evolution buffers | ⚠️ With caution | Temporarily acceptable during transition; migrate to columns once stable |
+| Frequently queried scalar values | ❌ Not approved | Extract to typed columns with proper indexing |
+| Large text blobs (>4KB average) | ⚠️ Evaluate | Consider separate storage with pointer; Supabase JSONB capacity adequate but query performance impacted |
+| Nested deeply (>3 levels) | ⚠️ Discourage | Impacts query complexity; prefer flattening or related tables |
+| GIN-indexed for containment queries | ✅ Approved | Where needed for `@>` or `?` operators on frequently-filtered fields |
+
+**JSONB Index Strategy:**
+
+```sql
+/* Where JSONB fields support equality or containment queries,
+   GIN indexes are specified architecturally: */
+--CREATE INDEX idx_table_field_gin ON table USING GIN (jsonb_field);
+/* Applied to: knowledge_entries.content, discoveries.content, 
+   signals.raw_payload, hypotheses.context, etc. where warranted by query pattern */
+```
+
+**Anti-Patterns Prohibited:**
+
+- Using JSONB solely to avoid schema discipline ("lazy modeling").
+- Storing relational foreign keys inside JSONB instead of dedicated FK columns.
+- Heavy computation on unindexed JSONB fields in WHERE clauses of frequent queries.
+
+---
+
+### 10.5 Query Optimization Principles
+
+**AHOS-Wide Query Principles:**
+
+1. **Targeted Fetches**: Always specify limiting conditions; avoid unconstrained `SELECT * FROM large_table`.
+2. **Pagination Mandatory**: User-facing queries require `LIMIT`/`OFFSET` or cursor-based pagination for result sets > 100 rows.
+3. **Covering Indexes Favorable**: For frequent read paths, include selected columns in index definition to enable index-only scans.
+4. **Materialized Views for Aggregations**: Computationally expensive aggregations (calibration metrics, performance summaries) materialized and refreshed on schedule.
+5. **EXPLAIN ANALYZE Culture**: Complex queries analyzed before production deployment; execution plans reviewed for sequential scans on large tables.
+6. **Connection Pooling**: Supabase connection pooler configured appropriately for concurrent workload; application layer implements its own pooling where beneficial.
+7. **Read Replicas Utilized**: Read-heavy workflows (reporting, analytics) directed to read replicas; single writer for mutations.
+8. **N+1 Prevention**: GraphQL-like relationship loading patterns avoided; batch fetching with `IN (...)` or JOIN semantics enforced.
+
+---
+
+### 10.6 Partitioning Strategy
+
+**Partitioning Applied To:**
+
+High-volume, time-series tables benefit from **range partitioning on `created_at` / equivalent timestamp column**:
+
+| Table | Partition Column | Partition Granularity | Rationale |
+|-------|-----------------|----------------------|-----------|
+| `event_bus` | `received_at` or `occurred_at` | Daily | Highest insert volume; strict ordering requirement |
+| `signals` | `ingested_at` | Daily | High-frequency ingestion pipeline |
+| `audit_trail` | `event_timestamp` | Weekly or Daily | Compliance-critical; large retention scope |
+| `system_logs` | `logged_at` | Daily | Volume scales with log verbosity |
+| `error_log` | `occurred_at` | Weekly | Lower volume than logs but still time-scoped queries |
+| `system_metrics` | `recorded_at` | Daily | Obvious time-series nature |
+| `prediction_outcomes` | `created_at` | Monthly | Moderate insert rate; long retention |
+| `performance_records` | `recorded_at` | Monthly | Aggregated metric snapshots |
+
+**Partition Management:**
+
+1. **Auto-creation**: Partitions created ahead of time (lookahead: create next week/month partitions before they're needed).
+2. **Drop/Detach Old Partitions**: Expired partitions detached (not immediately dropped) into archival staging before eventual cold storage transfer.
+3. **Attach New Partitions**: Controlled via migration scripts; no ad-hoc partition creation.
+4. **Default Partition**: No default/unbounded partition; ensures clean boundaries; misrouted data caught early.
+5. **Index Inheritance**: Global indexes inherited to partitions; local indexes consistent across partitions.
+
+**Partition Pruning Benefits:**
+
+- Time-range queries automatically prune irrelevant partitions via constraint exclusion.
+- Maintenance operations (VACUUM, REINDEX) scoped to single partitions.
+- Archival operations operate on whole partition units simplifying extraction.
+
+---
+
+## 11. Row-Level Security (RLS) Hooks
+
+### 11.1 Tenant Isolation (Future-Ready)
+
+**Schema Preparation:**
+
+All domain tables include optional `tenant_id` column (UUID, nullable):
+
+```sql
+/* Conceptual schema pattern applied uniformly: */
+tenant_id UUID REFERENCES tenants(id) ON DELETE RESTRICT
+         DEFAULT NULL  /* NULL represents default/single-tenant Phase 1 */
+```
+
+**Phase 1 Behavior (Single Tenant):**
+- `tenant_id` consistently `NULL` or set to predefined default tenant UUID.
+- RLS policies defined but disabled (`ENABLE ROW LEVEL SECURITY` not yet executed on tables).
+- Code paths respect tenant_id presence/absence transparently.
+
+**Phase N Behavior (Multi-Tenant Activation):**
+- `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` executed under governance sign-off.
+- Policies activate enforcing: `WHERE tenant_id = current_setting('app.current_tenant')::uuid`
+- All queries implicitly filtered; explicit circumvention blocked.
+- Migration path: backfill `tenant_id` across existing data; zero-downtime cutover.
+
+**RLS Policy Definition (Conceptual for Future Enablement):**
+
+```
+POLICY tenant_isolation ON {table_name}
+    FOR ALL TO authenticated_role
+    USING (
+        tenant_id IS NULL OR 
+        tenant_id = current_setting('app.current_tenant')::uuid
+    )
+    WITH CHECK (same condition)
+```
+
+---
+
+### 11.2 Role-Based Filtering
+
+**Role Hierarchy Anticipated:**
+
+| Role Level | Visibility Scope | Write Scope |
+|------------|-----------------|-------------|
+| `public` / anonymous | None (no direct DB access) | None |
+| `service_account` (engine) | Domain-appropriate subset | Assigned domain mutation rights |
+| `analyst` | Read most domains; write limited | Create insights, annotations |
+| `senior_analyst` | Full read; broader write | Approve/reject within authority |
+| `risk_officer` | Full read + override log; write overrides | Execute overrides within bounds |
+| `admin` | Full visibility | Infrastructure config (governance-bound) |
+| `auditor` | Read-only full visibility (including soft-deleted) | None (read-only by design) |
+| `architect` | Full visibility; write to infrastructure domain | Schema modifications (via migrations only) |
+
+**Implementation Note:**
+- RLS policies encode role check: `current_user = ...` or membership checked via `pg_has_role()`.
+- Role assignments managed externally (Supabase Auth or IAM integration); database reflects role assertions.
+
+---
+
+### 11.3 Governance-Controlled Access
+
+**Sensitive Data Masking:**
+
+Certain fields contain data requiring restricted access even among authenticated users:
+
+| Sensitive Field(s) | Containing Table(s) | Masking Rule | Who Sees Unmasked |
+|--------------------|----------------------|-------------|-------------------|
+| `raw_payload` (containing PII-adjacent data) | `signals`, `discoveries` | Replace value with `'***REDACTED***'` | Risk officer+, auditor |
+| `stack_trace` (may expose internals) | `error_log` | Redact internal paths/IP addresses | Admin, engineer roles |
+| `ip_address` | `audit_trail` | Hash display only or redact | Auditor, admin |
+| `value` for encrypted configs | `system_config` | Show `'***ENCRYPTED***'` | Config-admin role only |
+| Human justifications with names | `override_log.commentary` | Show commentary, mask author for peer review | Split view: reviewer sees content blind to who wrote |
+
+**Masking Implementation:**
+- PostgreSQL SECURITY DEFINER functions wrapping column access.
+- Or RLS WITH CHECK plus column-level privileges (GRANT/REVOKE on columns).
+- Preference: SECURITY DEFINER function approach for auditability of mask invocation.
+
+---
+
+### 11.4 Access Control Summary Matrix
+
+| Access Dimension | Phase 1 (Current) | Future Phase (RLS Enabled) |
+|------------------|-------------------|----------------------------|
+| Row-level tenant filter | Not active (single tenant) | `tenant_id = current_tenant()` enforced |
+| Role-based visibility | Application-layer enforcement only | Database-enforced via RLS policies |
+| Sensitive field masking | Application-layer | Database-level function masking |
+| Auditor read-all capability | Superuser or dedicated read replica user | Dedicated `auditor` role with RLS bypass on relevant tables |
+| Service account scoping | Connection string isolation | Scoped to assigned domain via RLS + function security |
+
+---
+
+**END OF PART 3**  
+**WAITING FOR CONTINUE**
+# AHOS Data Architecture Specification v1.0
+
+**CURRENT PART:** 4  
+**CURRENT SECTION RANGE:** 12–14 (Final)  
+**DOCUMENT PROGRESS:** approximately 100%
+
+---
+
+## 12. Backup & Restore Strategy
+
+### 12.1 Continuous Backup Principle
+
+AHOS data operates under a **continuous backup regime** ensuring point-in-time recoverability within configured recovery window objectives (RPO/RTO).
+
+**Backup Architecture:**
+
+| Component | Mechanism | Frequency | RPO Target |
+|-----------|-----------|-----------|------------|
+| **Base Backups** | PostgreSQL pg_basebackup or Supabase managed backup | Daily at low-activity window | 24 hours maximum data loss for base layer |
+| **WAL Archiving** | Write-Ahead Log continuous archival to durable object storage | Continuous (every WAL segment) | Near-zero theoretical RPO; practical RPO ~ minutes |
+| **Logical Export** | pg_dump / pg_dumpall in custom format | Weekly (supplemental) | Supplemental to base+WAL chain |
+| **Cross-Region Replication** | Streaming replication to standby in alternate region | Synchronous or asynchronous per table criticality | RPO varies: sync = 0; async = configurable lag tolerance |
+
+**Supabase-Specific Integration:**
+- Leverage Supabase built-in automated backups (daily, 7-day retention standard).
+- Configure extended retention where required by AHOS governance (critical tables → 30-day backup retention).
+- Enable Point-in-Time Recovery (PITR) across all backed-up databases.
+
+---
+
+### 12.2 Point-in-Time Recovery
+
+**Capability Scope:**
+
+Any database state within the **PITR window** (minimum 30 days, recommended 90 days for production) is recoverable to an exact timestamp with transaction-level granularity.
+
+**PITR Use Cases Supported by Data Architecture:**
+
+| Scenario | PITR Application |
+|----------|------------------|
+| Accidental data corruption by application bug | Restore to pre-corruption timestamp; extract correct rows; replay subsequent valid transactions selectively |
+| Malicious insider action detected late | Restore to pre-compromise timestamp; analyze delta to identify scope of damage |
+| Failed migration requiring rollback | Restore pre-migration state; validate migration in isolated environment before re-attempt |
+| Regulatory investigation requesting historical state as of specific date | Spin up read-only clone at specified timestamp for investigator access without affecting production |
+| Knowledge graph analysis at past point in time | Clone database to temporal snapshot; query knowledge entries and causal links as they existed historically |
+
+**Data Architecture Support for PITR:**
+
+- All mutable operations generate `event_bus` entries enabling **logical reconstruction** even outside PITR window.
+- Versioned entities (`knowledge_versions`, `hypothesis_versions`) enable **entity-level rollback** independent of full-database PITR.
+- Immutable audit trail provides **forensic trail** even if full PITR not available for older periods.
+- Soft-delete strategy ensures deleted records are restorable from PITR snapshot before physical purge windows expire.
+
+**PITR Procedure (Conceptual):**
+
+```
+1. Identify target recovery timestamp (precise, include timezone).
+2. Verify target timestamp falls within PITR retention window.
+3. Initiate restore to new database instance (never overwrite production directly).
+4. Validate restored instance: row counts, checksums on critical tables, sample data verification.
+5. Document restoration in system_logs and architecture_compliance records.
+6. If restoring to replace production: coordinate cutover during maintenance window with full validation cycle.
+7. If restoring for read-only analysis: grant appropriate access; set expiry for temporary instance.
+```
+
+---
+
+### 12.3 Snapshot Strategy
+
+**Snapshot Types:**
+
+| Snapshot Type | Frequency | Retention | Purpose |
+|---------------|-----------|-----------|---------|
+| **Production Snapshots** | Daily automatic + pre-maintenance manual | 7 days rolling (auto); 30 days for pre-maintenance | Rapid whole-database restore baseline |
+| **Schema Snapshots** | Pre- and post-every migration execution | Permanent (version-controlled) | Migration rollback baseline; schema history |
+| **Application-State Snapshots** | On-demand via operational procedure | 14 days default | Critical incident investigation starting point |
+| **Cross-Environment Sync Snapshots** | Before promotion staging→production | Until promotion validated + 48 hours | Promotion safety net |
+
+**Snapshot Governance:**
+
+- All snapshots logged in `system_config` or dedicated `snapshot_registry` (conceptual) with:
+  - Snapshot identifier
+  - Timestamp
+  - Trigger reason
+  - Estimated size
+  - Expiry date
+  - Creator identity
+- Automatic expiry enforced by scheduled job; extension requires explicit approval.
+- Production snapshots encrypted at-rest using organization-standard key management.
+
+---
+
+### 12.4 Backup Verification Alignment
+
+**Verification Requirements (aligned with Technical Architecture):**
+
+| Verification Type | Method | Frequency | Success Criteria |
+|-------------------|--------|-----------|------------------|
+| **Existence Check** | Confirm backup file present in destination store | Every backup creation | File exists; size > 0 bytes expected range |
+| **Integrity Check** | Run `pg_verifybackup` against base backup | Per base backup | Zero errors reported; all files pass checksum |
+| **Restore Test (Smoke)** | Automated restore to scratch instance; start database; run basic connectivity queries | Weekly | Database starts; returns results for SELECT 1; critical tables return non-zero row counts |
+| **Restore Test (Deep)** | Full restore to isolated environment; run validation suite against restored data | Monthly | All validation checks pass (row counts, foreign key integrity, index usability, sample data correctness) |
+| **WAL Replay Test** | Recover to arbitrary recent time point using WAL archive chain | Weekly | Target timestamp achieved; transaction log consistent |
+| **Cross-Region Sync Check** | Compare standby lag; verify replication status | Continuous monitoring via metrics | Replication lag < defined threshold; streaming active |
+
+**Failure Response:**
+
+- Any verification failure triggers **immediate alert** (P1 severity).
+- Failed backup trigger immediate **re-run attempt**.
+- Consecutive failures escalate to infrastructure team + governance notification.
+- Deep test failure blocks pending maintenance window until remediation confirmed.
+
+---
+
+### 12.5 Restore Test Governance
+
+**Scheduled Restore Testing Program:**
+
+1. **Weekly**: Automated smoke-test restore (scratch database, basic queries). Results logged to `system_metrics`.
+2. **Monthly**: Deep-validation restore including sample data spot-checks and consistency assertions. Results documented; any issues tracked as remediation items.
+3. **Quarterly**: Full disaster-recovery drill simulating complete primary failure scenario. Includes failover execution, cutover procedures, and validation by human operators. Post-drill report filed with Architecture Review Layer.
+4. **Annually**: Complete DR exercise involving external stakeholders (if applicable for regulatory requirements). Full documentation produced.
+
+**Restore Test Documentation Requirements:**
+
+Each restore test produces record containing:
+
+- Test type and scope
+- Target restore point selected
+- Duration of restore operation
+- Validation checks executed with pass/fail status
+- Deviations observed
+- Personnel involved
+- Lessons learned
+- Sign-off approving return-to-normal
+
+---
+
+### 12.6 Disaster Recovery Compatibility
+
+**DR Tier Classification:**
+
+AHOS data architecture supports multiple DR tiers based on RPO/RTO requirements:
+
+| DR Tier | RPO | RTO | Data Architecture Support | Applicable To |
+|---------|-----|-----|--------------------------|---------------|
+| **Tier 1 — Hot Standby** | < 5 min | < 15 min | Synchronous replication; instant failover | Real-time trading decisions, live market data pipelines |
+| **Tier 2 — Warm Standby** | < 1 hour | < 4 hours | Asynchronous replication; planned failover | Analytics reporting, batch processing, non-time-critical engines |
+| **Tier 3 — Cold Recovery** | < 24 hours | < 24 hours | Base backup + WAL archive PITR | Historical analysis environments, development clones, compliance investigations |
+
+**Data Architecture Features Enabling Each Tier:**
+
+**Tier 1 Enablers:**
+- Synchronous replication confirmed for `event_bus`, `actions`, `decisions` tables.
+- Idempotency keys prevent duplicate processing during failover scenarios.
+- Sequence numbers provide ordering guarantee even with replication switchover.
+
+**Tier 2 Enablers:**
+- All data eventually consistent after async catch-up.
+- Versioned entities tolerate brief inconsistency windows; current pointers resolve once caught up.
+- Audit trail preserved through both primary and standby with eventual reconciliation.
+
+**Tier 3 Enablers:**
+- PITR capable of recovering to any point in retention window.
+- Event sourcing pattern enables logical reconstruction beyond binary recovery.
+- Knowledge versioning enables entity-level recovery independent of full DB restore.
+
+**Recovery Priority Ordering (Precedence for restore sequence):**
+
+1. **Governance tables** (`audit_trail`, `override_log`, `approvals`) — non-negotiable priority; must never lose governance records.
+2. **Event stream** (`event_bus`) — reconstruction source for everything else.
+3. **Knowledge core** (`knowledge_entries`, `knowledge_versions`) — highest business value asset.
+4. **Operational state** (`discoveries`, `decisions`, `actions`, `hypotheses`) — current system state.
+5. **Observability** (`system_logs`, `error_log`, `system_metrics`) — diagnostic capability.
+6. **Infrastructure config** (`system_config`, `contract_registry`) — recoverable but may have cached alternatives.
+
+---
+
+## 13. Migration & Evolution Strategy
+
+### 13.1 Schema Migration Process
+
+**Migration Lifecycle Stages:**
+
+```
+[Design] → [Review] → [Staging] → [Production Planning] → [Execution] → [Verification] → [Documentation]
+```
+
+**Stage Details:**
+
+**1. Design**
+- Engineer drafts migration script following naming convention:
+  - `{timestamp}_{brief_description}.sql`
+  - Example: `20240615143000_add_confidence_decay_to_knowledge.sql`
+- Script includes header comment block:
+  - Purpose description
+  - Affected tables/columns
+  - ADR reference(s) if architectural decision driven
+  - Approval references if breaking change
+  - Rollback script path/inline content
+  - Estimated runtime and lock impact assessment
+- Schema changes modeled against `contract_registry` for forward compatibility validation.
+
+**2. Review**
+- Code review by peer engineer.
+- Architecture Review for changes crossing domain boundaries or introducing breaking changes.
+- Security review for changes affecting RLS policies, permissions, or sensitive columns.
+- Performance review for index additions/removals or large-table alterations.
+- Approval recorded (linked to `approvals` if governance-gated).
+
+**3. Staging Execution**
+- Migration applied to staging environment (production data copy where possible or synthetic data).
+- Full regression test suite executed post-migration.
+- Rollback tested on staging (reverse migration verified functional).
+- Performance benchmarks compared pre/post migration.
+
+**4. Production Planning**
+- Maintenance window identified (or zero-downtime strategy confirmed).
+- Backout plan documented with clear rollback triggers.
+- Communication sent to dependent teams/systems.
+- Monitoring dashboards prepared for migration-specific alerts.
+- On-call engineer designated for migration window.
+
+**5. Execution**
+- Migration deployed via controlled deployment pipeline.
+- Transaction boundaries respected (single logical migration per script).
+- Lock impact monitored via `pg_stat_activity` / Supabase monitoring.
+- If multi-statement migration: wrapped appropriately with error handling.
+
+**6. Verification**
+- Post-deployment checks execute automatically:
+  - Table structure matches expectation (column existence, types, constraints).
+  - Row count sanity checks (no accidental data loss/gain).
+  - Index validity confirmed (usable, not INVALID).
+  - Foreign key constraints intact.
+  - Sample query response times acceptable.
+- Application health checks pass against migrated schema.
+- Error rate within normal bounds for initial observation period (30-minute minimum).
+
+**7. Documentation**
+- Migration marked complete in tracking system.
+- ADR updated if structural change reflects or alters architectural decision.
+- `architecture_compliance` record created capturing change metadata.
+- Changelog updated for release notes.
+
+---
+
+### 13.2 Backward Compatibility
+
+**Backward Compatibility Principles:**
+
+1. **Column Addition Always Safe**: New nullable columns with defaults cause no breakage.
+2. **Column Removal Never Safe Without Deprecation**: Existing consumers require migration path.
+3. **Type Widening Generally Safe**: E.g., VARCHAR(50) → VARCHAR(255), INT → BIGINT.
+4. **Type Narrowing Always Breaking**: Requires deprecation + migration coordination.
+5. **Constraint Addition Potentially Breaking**: NOT NULL constraints on existing nullable columns require backfill strategy first.
+6. **Enum Value Addition Safe**: Enum value removal requires deprecation period.
+
+**Deprecation Protocol for Breaking Changes:**
+
+When a breaking schema change is necessary:
+
+| Phase | Duration | Actions |
+|-------|----------|---------|
+| **Announcement** | Day 0 | Document impending change; notify all consumers; tag affected contracts in `contract_registry` with `status = 'deprecation_announced'` |
+| **Compatibility Window** | Minimum 30 days (standard); 90 days (external/integration dependencies) | Consumers adapt to upcoming shape; dual-read/write support if needed |
+| **Warning Period** | Final 7 days of compatibility window | Log deprecation warnings on every access to soon-to-be-changed elements; alert on high usage |
+| **Cutover** | During maintenance window | Execute breaking migration; remove deprecated code paths; update contract registry to `status = 'active'` for new shape |
+| **Observation** | 72 hours minimum post-cutover | Monitor for unexpected errors; rapid rollback available if issue severity warrants |
+
+---
+
+### 13.3 Rolling Migration Approach
+
+**Database Migration Compatibility with Application Deployment:**
+
+AHOS supports **rolling deployments** where application instances are upgraded incrementally while remaining available. The database layer must tolerate mixed-version application instances briefly coexisting.
+
+**Schema Strategies Supporting Rolling Deployments:**
+
+| Change Type | Rolling-Compatible? | Technique |
+|-------------|-------------------|-----------|
+| Add column | ✅ Yes | Column added before deploy; apps ignore until activated; safe because NULL default or benign default value doesn't affect old code |
+| Add table | ✅ Yes | Table exists unused; only new code references it |
+| Add index | ⚠️ With caution | CONCURRENTLY index building avoids table locks but requires careful timing |
+| Modify column default | ⚠️ With caution | Old apps may write old defaults; handle in application logic or post-migration backfill |
+| Rename column | ❌ No | Breaks all existing reads/writes; use add-new-drop-old deprecation flow |
+| Change column type | ❌ No (usually) | Requires full column rewrite; schedule maintenance or use expand-contract pattern |
+| Remove column | ❌ No (until all consumers updated) | Deprecate first; only drop after confirming zero references |
+| Add constraint | ⚠️ Varies | NOT NULL requires data validation first; CHECK constraints may reject existing data |
+
+**Expand-Contract Pattern (for otherwise-breaking column changes):**
+
+1. **Expand**: Add new column alongside old column (e.g., `amount_cents` alongside `amount_decimal`).
+2. **Migrate**: Backfill new column from old column values.
+3. **Redirect**: Update all writers to populate new column (dual-write transition period).
+4. **Verify**: Confirm new column consistently populated; readers switch to new column.
+5. **Contract**: Remove old column (following deprecation protocol above).
+
+This pattern enables gradual migration without any single breaking moment requiring downtime.
+
+---
+
+### 13.4 Version Tagging
+
+Every schema migration carries semantic version linkage:
+
+**Version Tag Format:**
+
+```sql
+/* 
+ * Migration: 20240615143000_add_knowledge_branching_support
+ * AHOS Version: v1.2.0
+ * Domain: Knowledge Architecture
+ * ADR Reference: ADR-0042 (Knowledge Branching and Lineage Tracking)
+ * Breaking: No
+ * Previous Version Required: v1.1.0+
+ */
+```
+
+**Tag Relationships:**
+
+- **Single Source of Truth**: Database schema version derives from the highest migration applied.
+- **Application Compatibility Matrix**: Each application/engine version declares compatible schema version ranges.
+- **Deployment Gate**: System refuses startup if schema version falls outside declared compatibility range.
+- **Audit Trail**: Schema version recorded in `system_config` key `schema.current_version` after each successful migration.
+
+---
+
+### 13.5 Governance Approval Requirement for Breaking Changes
+
+**Breaking Change Definition (Triggers Mandatory Governance Review):**
+
+A schema change qualifies as "breaking" if ANY of the following conditions hold:
+
+| Condition | Examples |
+|-----------|----------|
+| Removes or renames any public-facing element (table, column, function, view, enum value) | Drop column, rename table, remove enum variant |
+| Changes data type of any column in a way that is lossy or incompatible | INT → TEXT is fine; TIMESTAMP without TZ → TIMESTAMP with TZ may be problematic depending on app handling |
+| Adds or modifies constraints that could reject existing valid data | Adding NOT NULL to nullable column with existing NULLs; adding CHECK that existing rows violate |
+| Modifies behavior of any function or stored procedure used by more than one consumer | Changing output format, parameter requirements, error behavior |
+| Alters partitioning scheme of a high-volume table | May invalidate existing queries expecting old partition layout |
+| Changes encryption, encoding, or collation settings for existing columns | Could affect comparison semantics |
+| Impacts RLS policy definitions in a way that could deny previously-granted access | Tightening security is good but may break legitimate workflows unexpectedly |
+
+**Governance Process for Breaking Changes:**
+
+1. **Breakage Assessment Form**: Engineer completes template documenting nature of breakage, affected consumers, risk assessment, mitigation plan.
+2. **Consumer Impact Analysis**: Identify all systems/codebases querying affected elements. Query `pg_stat_user_tables`, review application code search.
+3. **Architecture Review Submission**: Submit to Architecture Review Layer with ADR draft proposing change rationale.
+4. **Approval Record Creation**: `approvals` entry created with `approval_type = 'breaking_schema_change'`.
+5. **Approval Workflow Execution**: Assigned approvers (minimum: one architect, one representative from most-affected consuming domain) review and approve/reject.
+6. **Approval Recorded**: Approved migration tagged with `approval_record_id` in comments.
+7. **Proceed Only After Approval**: CI/CD pipeline gates on presence of approved `approval_id`; breaks build without it.
+
+---
+
+## 14. Validation Criteria
+
+### 14.1 Architectural Compliance Checklist
+
+**Pre-Migration and Periodic Compliance Checks:**
+
+Every schema modification and weekly automated scans verify these criteria:
+
+| # | Criterion | Validation Method | Failure Action |
+|---|-----------|-------------------|----------------|
+| C1 | All tables have `created_at` and `updated_at` columns with proper types (TIMESTAMPTZ) | Query information_schema.columns for all user tables | Block migration; add missing columns |
+| C2 | All tables use UUID primary keys (except junction/association tables which may use composite) | Query table definitions for PK type | Flag warning (junction tables exemptible) |
+| C3 | All domain tables include optional `tenant_id` column (nullable, UUID type) | Scan for tenant_id absence on tables in domain list | Block migration; add column |
+| C4 | Immutable tables have NO UPDATE/DELETE grants to any role except trigger context | Query privilege grants; validate trigger guards exist | Critical failure; immediate remediation |
+| C5 | Versioned entity tables have corresponding `{table}_versions` table with correct FK relationship | Cross-reference domain definition registry | Block migration; create missing versions table |
+| C6 | All foreign key relationships declare ON DELETE behavior explicitly (not defaulted) | Query foreign_keys for ON DELETE clause | Warning; enforce explicit declaration |
+| C7 | Indexes exist for all required fields per Section 10 specifications | Compare actual indexes against specification catalog | Create missing indexes |
+| C8 | No SELECT * exists in any materialized view or stored procedure definition (explicit column lists) | Search pg_views and pg_proc definitions | Refactor to explicit columns |
+| C9 | All JSONB columns accessing frequently-filtered fields have GIN indexes where appropriate | Cross-reference JSONB columns vs GIN index inventory | Evaluate and add if warranted |
+| C10 | Partitioned tables have partitioning configured according to Section 10.6 specifications | Verify partition schemes match defined strategy | Reconfigure partitioning |
+| C11 | RLS-compatible design patterns followed even if RLS not yet enabled (tenant_id presence, no bypass patterns) | Static analysis of schema vs RLS-ready checklist | Note for future enablement readiness |
+| C12 | Contract registry entry exists or is not-required-flagged for each public table | Cross-reference tables vs contract_registry | Register missing contracts |
+
+---
+
+### 14.2 Drift Prevention
+
+**Drift Detection Mechanisms:**
+
+| Drift Type | Detection Method | Prevention Strategy |
+|------------|-----------------|---------------------|
+| **Schema Drift** (unauthorized schema modifications outside migrations) | Hash of schema exported daily; compare to last known-good hash; deviation triggers alert | Only migration scripts modify schema; direct DDL blocked in production via role restrictions |
+| **Data Drift** (data violating model constraints introduced by buggy writes) | Constraint enforcement at DB level; periodic anomaly detection queries looking for nullity violations, orphaned FK references, status enum violations | Application-level validation plus DB-level constraints as defense-in-depth |
+| **Permission Drift** (grant creep, unauthorized role expansion) | Periodic permission dump compared to baseline; any new GRANT flagged | Role-based access control centralized; ad-hoc grants prohibited |
+| **Index Drift** (missing or extraneous indexes relative to spec) | Weekly reconciliation of actual indexes vs specification document | Index additions/removals via migration only |
+| **Config Drift** (system_config values deviating from approved baselines) | Config diff audit comparing current values to last-approved snapshot | Configuration changes go through approval workflow |
+| **Compliance Drift** (tables falling out of alignment with ADR-defined structures) | Architecture compliance scanner runs queries verifying ADR-derived invariants | Architecture Reviews approve structural changes |
+
+**Drift Response Protocol:**
+
+1. **Detection Alert**: Automated alert fires to on-call engineering channel.
+2. **Assessment**: Triage determines drift category (benign, concerning, critical).
+3. **Benign**: Documented as accepted variance; added to exclusion list for future scans.
+4. **Concerning**: Remedy plan created; scheduled fix within sprint cycle.
+5. **Critical**: Immediate incident response; potential rollback if recent change induced drift; involve Architecture Review Layer.
+
+---
+
+### 14.3 Determinism Validation
+
+**Deterministic Execution Guarantees Verified Through:**
+
+| Aspect | Validation Approach |
+|--------|-------------------|
+| **Event Ordering Determinism** | Event bus sequence numbers are monotonic and gap-free (within bounded tolerance); replay yields identical state to original execution order |
+| **Idempotency Determinism** | Duplicate idempotency keys produce idempotent results regardless of retry count or ordering of interleaved concurrent requests |
+| **Confidence Calculation Determinism** | Decay formula applied to same inputs always yields same output; scheduler recalculations converge identically given identical input snapshots |
+| **State Transition Determinism** | State machine transitions are deterministic functions of current state + event payload; no hidden variables, no randomness in state derivation |
+| **Validation Score**: Given identical input data and parameters, scoring algorithms produce identical numeric outcomes (floating-point determinism managed via deterministic rounding rules) |
+| **Query Result Stability** | Same query on unchanged data returns identical result sets; no non-deterministic ORDER BY clauses (always specify explicit sort keys); LIMIT/OFFSET pagination replaced with cursor-based for stability where order matters deterministically |
+
+**Testing Regime for Determinism:**
+
+- **Property-Based Testing**: Generate random but controlled inputs; assert that repeated execution with identical inputs produces identical outputs.
+- **Snapshot-Compare Tests**: Capture database state before operation; execute operation; capture after state; compare against known-good expected delta.
+- **Race Condition Simulation**: Concurrent client simulation executing overlapping writes protected by idempotency keys and serialization guarantees; verify no anomalies.
+- **Time-Freezing Tests**: Control simulated clock during confidence decay calculations; assert predictable values.
+
+---
+
+### 14.4 Governance Compatibility
+
+**Database Schema Validates Against Governance Framework:**
+
+| Governance Requirement | Schema Validation |
+|----------------------|-------------------|
+| Human governance supremacy is technically enforceable | Override capability exists; no autonomous pathway can circumvent override requirement; database constraints prevent actions gated by approvals from proceeding without approval record |
+| Approval workflows are auditable | Approvals table captures full workflow lifecycle; audit_trail captures every approval state change |
+| Policy versioning prevents silent rule changes | Policies are versioned; current version unambiguously identifiable; policy references use versioned identifiers |
+| Zero-trust compatibility | Row-Level Security design supports future activation; no implicit trust assumptions encoded in schema structure |
+| Separation of duties enforcable | Role definitions align with operational roles; sensitive operations require distinct actors from originating actors (enforced at application layer with DB supporting evidence via actor_identity separation) |
+| Regulatory retention achievable | Retention durations mapped to data categories; cold storage boundary defined; purge operations governed by approval requirement |
+
+---
+
+### 14.5 Replayability
+
+**Event Stream Replayability Validation:**
+
+| Replay Capability | Validation Criterion |
+|------------------|---------------------|
+| **Complete State Reconstruction** | Running entire event bus from empty database through current sequence number reproduces current state exactly (allowing for floating-point precision tolerance on computed fields like current_confidence) |
+| **Subset Entity Reconstruction** | Filtering events for specific aggregate_type/aggregate_id and replaying yields identical entity state to production for that entity |
+| **Point-in-Time Consistency** | Replaying events up to timestamp T produces state exactly matching what existed at time T (verified against snapshots taken near time T for sampling) |
+| **Deterministic Side Effects** | Events that trigger side effects (notifications, external calls) produce consistent results on replay (side-effect handlers themselves must be idempotent; database provides the deterministic foundation) |
+| **Idempotent Re-Replay** | Replaying already-replayed events does not corrupt state (idempotency keys protect) |
+| **Speed** | Replay throughput supports reconstructing state within SLA targets for DR scenarios (benchmarked; documented as performance requirement) |
+
+**Replay Validation Testing:**
+
+- **Weekly Smoke Test**: Take production database; spin up clone; reset to empty event-consuming tables; replay event bus subset (last 24 hours); compare resulting table states byte-for-byte (ignoring immutable metadata timestamps where slight clock skew permissible).
+- **Monthly Deep Test**: Full event bus replay from earliest retained event to current; measure duration; compare end-state hashes against production golden hash.
+- **Per-Migration Validation**: After schema migration, verify that preceding events can still replay through new schema without error (forward compatibility of event payloads with evolved schema).
+
+---
+
+### 14.6 Observability Completeness
+
+**Observability Coverage Validation:**
+
+All observable aspects of data layer are instrumented and queryable:
+
+| Observability Dimension | Completeness Criterion |
+|------------------------|----------------------|
+| **Write Path Instrumentation** | Every INSERT generates audit_trail entry and/or event_bus entry; no silent writes |
+| **Read Path Logging** | Sensitive data accesses captured per Section 8 configuration; read volumes reflected in connection pooling metrics |
+| **Error Capture** | Every exception/failure captured in error_log with sufficient context for diagnosis; no swallowed exceptions at data layer |
+| **Latency Visibility** | Database query latency measurable per operation type via system_logs correlation or direct metric emission |
+| **Volume Metrics** | Rows written/read per table per interval available via system_metrics aggregation |
+| **Schema Change Auditing** | Every DDL operation creates audit_trail entry (via trigger or tooling); schema versions trackable over time |
+| **Capacity Indicators** | Table sizes, index sizes, bloat indicators available via system_metrics or periodic informational queries |
+| **Connection Health** | Pool saturation, connection wait times, idle connections observable |
+| **Replication Lag** | If replication configured, lag between primary and replicas continuously visible |
+| **Lock Contention** | Long-running locks detectable via monitoring; blocking queries identifiable |
+
+**Observability Gap Scans:**
+
+Automated scan identifies:
+- Tables missing from `system_metrics` coverage for INSERT volume.
+- Operations lacking `system_logs` coverage.
+- Tables without `error_log` integration points for their domain's error scenarios.
+- Missing health-check endpoints touching database liveliness.
+- Gaps addressed systematically; each gap logged as technical debt item with remediation timeline.
+
+---
+
+## Document Closure
+
+### Specification Authority
+
+This **AHOS Data Architecture Specification v1.0** serves as the definitive reference for:
+
+- All database schema design decisions within the AHOS project.
+- Implementation guidance for Supabase (PostgreSQL) data layer engineering.
+- Baseline for architectural reviews evaluating proposed data layer changes.
+- Foundation for operational procedures including backup, migration, and compliance activities.
+
+### Version History
+
+| Version | Date | Author / Reviewer | Change Summary |
+|---------|------|-------------------|---------------|
+| v1.0 | Current | Primary Technical Document Generator | Initial comprehensive specification covering all 14 sections |
+
+### Related Documents
+
+This specification should be read in conjunction with:
+
+- **AHOS Ultimate Vision & Autonomous Intelligence Specification v1.0** — Strategic direction informing data priorities.
+- **AHOS Strategic Master Plan v10.0** — Phasing and roadmap alignment.
+- **AHOS Engineering Transition & Documentation Roadmap v1.2.1** — Implementation sequencing.
+- **AHOS Development Convention v1.0** — Coding and process standards.
+- **AHOS Technical Architecture Specification** — Engine-layer complement defining execution context for this data layer.
+- **AHOS Knowledge Architecture Specification** — Knowledge modeling specifics consuming this storage foundation.
+- **PostgreSQL Official Documentation** — Underlying platform capabilities and limits.
+- **Supabase Documentation** — Managed service features and conventions utilized.
+
+### Approval Status
+
+**Status:** Draft for Architecture Review Layer Approval
+
+**Required Approvals:**
+
+- [ ] Architecture Review Lead
+- [ ] Technical Architecture Owner
+- [ ] Knowledge Architecture Owner
+- [ ] Security/Compliance Representative
+- [ ] Engineering Team Lead Representative
+
+**Upon Approval:** This specification becomes binding for all data layer work within AHOS. Subsequent amendments follow the Migration & Evolution Strategy defined in Section 13.
+
+---
+
+**END OF PART 4 — DOCUMENT COMPLETE**

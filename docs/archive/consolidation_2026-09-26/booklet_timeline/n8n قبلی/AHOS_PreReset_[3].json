@@ -1,0 +1,257 @@
+{
+  "name": "AHOS - Phase 2 - Start v1.0.json",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "5e9c134c-9051-4aa5-9145-8a097ecbb340",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.dexscreener.com/latest/dex/search?q=PEPE",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        0
+      ],
+      "id": "7a5f665c-abdb-4958-92e2-45a4ac8a8502",
+      "name": "DexScreener - Get Market Data"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "market_events",
+          "mode": "list",
+          "cachedResultName": "market_events"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "price": "={{ $json.price }}",
+            "volume": "={{ $json.volume }}",
+            "liquidity": "={{ $json.liquidity }}",
+            "source": "={{ $json.source }}",
+            "event_type": "={{ $json.event_type }}",
+            "symbol": "={{ $json.symbol }}",
+            "chain_name": "={{ $json.chain_name }}",
+            "created_at": "={{ $json.created_at }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "symbol",
+              "displayName": "symbol",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "chain_name",
+              "displayName": "chain_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "volume",
+              "displayName": "volume",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "liquidity",
+              "displayName": "liquidity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        0
+      ],
+      "id": "8ca7d8bc-ef23-4217-9009-82d8b6f5627b",
+      "name": "PostgreSQL - Save Market Event",
+      "credentials": {
+        "postgres": {
+          "id": "VaATiUbqWpMUMECw",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    pg_typeof(price),\n    pg_typeof(volume),\n    pg_typeof(liquidity)\nFROM market_events\nLIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        640,
+        0
+      ],
+      "id": "c9622bb6-bd38-4c36-9641-ae1269475dd9",
+      "name": "PostgreSQL - Validate Insert",
+      "credentials": {
+        "postgres": {
+          "id": "VaATiUbqWpMUMECw",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = [];\n\nfor (const item of $input.all()) {\n  const pair = item.json.pairs?.[0] ?? {};\n\n  output.push({\n    json: {\n      source: \"DexScreener\",\n      event_type: \"MARKET_OBSERVATION\",\n      symbol: pair.baseToken?.symbol ?? \"\",\n      chain_name: pair.chainId ?? \"\",\n      price: Number(pair.priceUsd ?? 0),\n      volume: Number(pair.volume?.h24 ?? 0),\n      liquidity: Number(pair.liquidity?.usd ?? 0),\n      created_at: new Date().toISOString()\n    }\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        0
+      ],
+      "id": "45301b55-ed18-4407-b160-1859e83f0776",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "DexScreener - Get Market Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DexScreener - Get Market Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL - Save Market Event": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL - Validate Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL - Save Market Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c7dbd563-498b-4b09-b1e7-5454de3b8ec6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8e78c29b370e9f13a85ab2c82383d75625dd8eabb59fcae77aab21df545c5ac"
+  },
+  "nodeGroups": [],
+  "id": "h2sq3JlwdyxS5JmL",
+  "tags": []
+}

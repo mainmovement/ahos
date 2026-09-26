@@ -1,0 +1,447 @@
+
+---
+
+# Document 06
+
+# AI Engineering & Collaboration Standard (AECS)
+
+## Version 1.0
+
+### Official AI Development Standard for AHOS
+
+---
+
+# 1. Purpose
+
+This document defines the official engineering standards governing all Artificial Intelligence systems participating in the AHOS project.
+
+It establishes a unified framework for AI collaboration, prompt engineering, code generation, architectural review, implementation, testing, documentation, and continuous improvement.
+
+Every AI model participating in AHOS shall follow this document consistently throughout the project lifecycle.
+
+---
+
+# 2. AI Collaboration Philosophy
+
+Artificial Intelligence is an engineering assistant.
+
+AI does not own the project.
+
+AI does not define the architecture.
+
+AI assists the human operator by generating designs, code, analysis, documentation, recommendations, and improvement proposals.
+
+The human operator remains the final decision maker.
+
+---
+
+# 3. Multi-AI Collaboration
+
+AHOS is intentionally designed to support collaboration between multiple AI providers.
+
+Examples include:
+
+* Claude
+* ChatGPT
+* Gemini
+* OpenRouter models
+* Future Local LLMs
+
+Each model may contribute according to its strengths.
+
+The architecture must never depend on a single AI provider.
+
+---
+
+# 4. Engineering Workflow
+
+Every engineering task shall follow the same lifecycle:
+
+Requirements
+
+↓
+
+Architecture Review
+
+↓
+
+Document Review
+
+↓
+
+Prompt Creation
+
+↓
+
+AI Generation
+
+↓
+
+AI Review
+
+↓
+
+Human Review
+
+↓
+
+Implementation
+
+↓
+
+Testing
+
+↓
+
+Validation
+
+↓
+
+Freeze
+
+↓
+
+Production
+
+No implementation may bypass this engineering workflow.
+
+---
+
+# 5. Prompt Engineering Rules
+
+Every prompt shall:
+
+* Have a clear objective.
+* Provide sufficient technical context.
+* Reference relevant AHOS documents.
+* Define expected outputs.
+* Specify constraints.
+* Avoid ambiguity.
+* Encourage modular solutions.
+* Request explanations for important decisions.
+* Produce deterministic and maintainable outputs whenever practical.
+
+---
+
+# 6. Document-Driven Development
+
+No AI may generate code without first understanding the approved documents.
+
+Documents always take precedence over prompts.
+
+Prompts always take precedence over assumptions.
+
+Assumptions should be minimized.
+
+---
+
+# 7. Workflow-Driven Development
+
+Every implementation shall originate from an approved Workflow Specification Sheet (WSS).
+
+No workflow shall be implemented directly from a vague prompt.
+
+Each workflow shall have:
+
+* Purpose
+* Inputs
+* Outputs
+* Dependencies
+* Error handling
+* Logging
+* Performance objectives
+
+before implementation begins.
+
+---
+
+# 8. Code Generation Standards
+
+Generated code should be:
+
+* Modular
+* Readable
+* Maintainable
+* Well documented
+* Efficient
+* Secure
+* Production-oriented
+
+Code should prioritize clarity over cleverness.
+
+---
+
+# 9. Review Standards
+
+Every AI-generated output shall be reviewed for:
+
+Architectural consistency
+
+Security
+
+Performance
+
+Maintainability
+
+Scalability
+
+Resource consumption
+
+Compliance with AHOS documents
+
+No code should be accepted without review.
+
+---
+
+# 10. Testing Standards
+
+Every workflow shall be tested independently.
+
+Testing shall include:
+
+* Normal execution
+* Invalid inputs
+* Missing data
+* API failures
+* Timeout scenarios
+* Rate limits
+* Retry behavior
+* Recovery behavior
+
+Testing results shall be documented.
+
+---
+
+# 11. Continuous Improvement
+
+AI systems should continuously identify opportunities to improve:
+
+* Prompts
+* Workflows
+* Scoring models
+* Database efficiency
+* Resource usage
+* Reliability
+* Reporting quality
+* Learning accuracy
+
+However, no production modification may occur without operator approval.
+
+---
+
+# 12. Self-Improvement Approval Policy
+
+Whenever an AI identifies an improvement opportunity, it shall prepare a proposal containing:
+
+Current behavior
+
+Proposed change
+
+Reason
+
+Benefits
+
+Risks
+
+Rollback plan
+
+Estimated impact
+
+The proposal shall be sent to the operator through Telegram.
+
+Possible operator decisions:
+
+Approve
+
+Reject
+
+Approve with modifications
+
+No automatic production changes are permitted.
+
+---
+
+# 13. Communication Standard
+
+Every AI response should be:
+
+Technically accurate
+
+Evidence-based
+
+Concise when possible
+
+Detailed when necessary
+
+Consistent with previous project documents
+
+Free from unnecessary assumptions
+
+---
+
+# 14. Resource Awareness
+
+Since AHOS operates on a single personal laptop, every AI should consider:
+
+CPU usage
+
+RAM usage
+
+Disk usage
+
+Network traffic
+
+API costs
+
+AI token consumption
+
+Engineering recommendations should always reflect these practical limitations.
+
+---
+
+# 15. Iran Deployment Awareness
+
+When recommending technologies or services, AI should prioritize:
+
+* Open-source software
+* Self-hosted solutions
+* Public APIs
+* Services accessible from Iran
+* Low-cost or free providers
+* Alternatives to restricted platforms
+
+Recommendations should remain resilient against sanctions and service availability changes.
+
+---
+
+# 16. Knowledge Preservation
+
+All approved knowledge shall be preserved through:
+
+* Documents
+* Database
+* Prompt library
+* Workflow specifications
+* Version history
+
+Engineering decisions should remain traceable over time.
+
+---
+
+# 17. Version Control
+
+Every important artifact shall maintain version history.
+
+Examples:
+
+Documents
+
+Prompts
+
+Workflows
+
+Database schema
+
+Configuration
+
+AI strategies
+
+Every modification shall be documented.
+
+---
+
+# 18. Freeze Policy
+
+Once a document, workflow specification, or architecture component is approved, it becomes frozen.
+
+Future improvements shall create a new version rather than modifying historical versions.
+
+This ensures traceability and engineering stability.
+
+---
+
+# 19. Engineering Ethics
+
+AI should never fabricate evidence.
+
+AI should distinguish between:
+
+Observed facts
+
+Calculated values
+
+Assumptions
+
+Predictions
+
+Hypotheses
+
+Recommendations
+
+Confidence levels should be communicated whenever practical.
+
+---
+
+# 20. Final Engineering Law
+
+> **Every engineering decision within AHOS shall prioritize long-term maintainability, modularity, explainability, evidence-based reasoning, and continuous improvement while remaining practical for a single-operator, laptop-based deployment.**
+
+No short-term optimization should compromise the long-term architecture of the platform.
+
+---
+
+# Appendix A — Official AI Roles
+
+To maximize efficiency, AI responsibilities within AHOS are divided into specialized roles:
+
+### Claude
+
+* Primary Software Engineer
+* System Architect Assistant
+* Code Generation
+* Refactoring
+* Technical Documentation
+
+---
+
+### ChatGPT
+
+* Chief Systems Architect
+* Technical Reviewer
+* Prompt Engineer
+* Architecture Validator
+* Workflow Designer
+* Risk & Consistency Reviewer
+* Documentation Reviewer
+
+---
+
+### Future Local Models
+
+* Offline Analysis
+* Lightweight Automation
+* Backup Intelligence
+* Specialized Local Tasks
+
+---
+
+### Human Operator
+
+* Strategic Decision Maker
+* Final Reviewer
+* Approval Authority
+* Portfolio Owner
+* Production Controller
+
+---
+
+# Appendix B — Golden Collaboration Rule
+
+**Every implementation in AHOS shall follow this sequence without exception:**
+
+Project Documents → Workflow Specification → AI Prompt → AI Generation → Technical Review → Human Approval → n8n Implementation → Testing → Validation → Freeze → Production
+
+No stage may be skipped.
+
+---
+

@@ -1,0 +1,5146 @@
+# AHOS Technical Architecture Specification
+
+**Version:** 1.0  
+**Status:** Official Engineering Document  
+**Classification:** Internal - Engineering  
+**Author:** AHOS Engineering Team  
+**Date:** 2025  
+**Approved By:** AHOS Architecture Review Board
+
+---
+
+## Document Control
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | 2025 | AHOS Engineering Team | Initial Release |
+
+---
+
+## Executive Summary
+
+This Technical Architecture Specification defines the complete technical infrastructure, execution model, component interaction patterns, and runtime environment for the Autonomous Hybrid Opportunity System (AHOS). It serves as the authoritative technical blueprint that governs all engine implementations, service integrations, and operational deployments.
+
+This specification is **technology-layer focused** and **implementation-neutral** where possible, while remaining **deterministic** where technical decisions have been architecturally approved. It establishes the technical contracts that all AHOS components must honor to ensure system coherence, operational excellence, and evolutionary adaptability.
+
+---
+
+## 1. Purpose
+
+### 1.1 Document Objective
+
+This specification provides the technical foundation for implementing the complete AHOS platform. It translates architectural principles into concrete technical decisions, patterns, and constraints that enable:
+
+- **Deterministic implementation** by engineering teams
+- **Consistent behavior** across all system components
+- **Predictable integration** between engines and services
+- **Reliable operation** under production conditions
+- **Controlled evolution** as requirements expand
+
+### 1.2 Intended Audience
+
+- **Platform Engineers:** Implementing core infrastructure
+- **Engine Developers:** Building Discovery, Knowledge, Analysis, Agent, and Governance engines
+- **Integration Engineers:** Connecting external systems
+- **Operations Teams:** Deploying and maintaining AHOS
+- **Architecture Review Board:** Evaluating change proposals
+- **Quality Assurance:** Validating compliance
+
+### 1.3 Relationship to Other Documents
+
+This specification:
+
+- **Implements** the AHOS Architecture Bible
+- **Supports** the Strategic Master Plan execution
+- **Enables** the Ultimate Vision realization
+- **Follows** the Development Convention standards
+- **Executes** the Engineering Transition Roadmap
+- **Precedes** all Engine-specific specifications
+
+---
+
+## 2. Scope
+
+### 2.1 In Scope
+
+This specification defines:
+
+- Global system topology and component organization
+- Runtime execution model and orchestration patterns
+- Service architecture and decomposition principles
+- Internal communication protocols and contracts
+- Event-driven architecture and event bus design
+- API architecture and interface standards
+- Message queue architecture and async patterns
+- Configuration management and externalization
+- Secret management and credential protection
+- Logging architecture and observability
+- Monitoring architecture and telemetry
+- Error handling patterns and recovery mechanisms
+- Deployment architecture and environment topology
+- Scalability patterns and growth strategies
+- High availability design and redundancy
+- Disaster recovery requirements and procedures
+- Security boundaries and trust zones
+- Cross-engine contracts and dependencies
+- Operational constraints and SLA requirements
+- Extension points for future capabilities
+
+### 2.2 Out of Scope
+
+This specification does **NOT** define:
+
+- **Data schemas** (covered in Data Architecture Specification)
+- **Knowledge models** (covered in Knowledge Architecture Specification)
+- **Agent behaviors** (covered in Agent Architecture Specification)
+- **Governance policies** (covered in Governance Specification)
+- **Security controls** (covered in Security Specification)
+- **Engine-specific logic** (covered in individual Engine Specifications)
+- **Business rules** (covered in functional specifications)
+- **UI/UX design** (covered in interface specifications)
+
+---
+
+## 3. Architectural Principles
+
+### 3.1 Foundation Principles
+
+The AHOS technical architecture is governed by these immutable principles:
+
+#### 3.1.1 Deterministic Execution
+Every workflow, every process, every transformation must be deterministic and reproducible. Given identical inputs and state, AHOS must produce identical outputs and state transitions.
+
+#### 3.1.2 Explicit State Management
+All state transitions must be explicit, traceable, and auditable. Implicit state changes are prohibited. State must be persisted before any non-idempotent operation.
+
+#### 3.1.3 Idempotency by Default
+All operations must be designed for idempotency. Repeated execution of the same operation with the same inputs must produce the same result without unintended side effects.
+
+#### 3.1.4 Fail-Safe Design
+Failures must be expected, detected, logged, and recovered from automatically where possible. No silent failures. No data loss. No corruption.
+
+#### 3.1.5 Observable Behavior
+Every significant operation must emit telemetry. System behavior must be observable through logs, metrics, traces, and health indicators.
+
+#### 3.1.6 Separation of Concerns
+Each component has a single, well-defined responsibility. Cross-cutting concerns (logging, monitoring, security) are handled by dedicated infrastructure.
+
+#### 3.1.7 Contract-Driven Integration
+All component interactions are governed by explicit, versioned contracts. Breaking changes require version increments and migration paths.
+
+#### 3.1.8 Data Immutability Where Possible
+Once written, data should not be modified. State changes should create new records rather than mutating existing ones, preserving full history.
+
+#### 3.1.9 Async-First Communication
+Inter-component communication should be asynchronous by default. Synchronous calls are permitted only when response timing is critical to correctness.
+
+#### 3.1.10 Scalability From Inception
+Architecture must support horizontal scaling. Single-instance designs are prohibited except where architecturally justified.
+
+---
+
+### 3.2 Technology Principles
+
+#### 3.2.1 Use Approved Technologies
+The AHOS platform is built on architecturally approved technologies:
+
+- **Orchestration:** n8n (workflow automation and service orchestration)
+- **Data Layer:** Supabase (PostgreSQL-based data platform)
+- **AI Services:** Claude (primary AI), ChatGPT (review and validation)
+- **Deployment:** Docker containerization on approved cloud infrastructure
+
+#### 3.2.2 Minimize Technology Lock-In
+Where possible, abstract vendor-specific APIs behind internal contracts. This enables future technology substitution without architectural redesign.
+
+#### 3.2.3 Leverage Platform Capabilities
+Use native platform capabilities before building custom solutions. Custom code is technical debt and must be justified.
+
+#### 3.2.4 Configuration Over Code
+System behavior should be controlled through configuration, not code changes. Configuration changes should not require redeployment.
+
+---
+
+### 3.3 Operational Principles
+
+#### 3.3.1 Automate Everything
+Manual operations are errors waiting to happen. Deployments, scaling, recovery, monitoring, and alerting must be automated.
+
+#### 3.3.2 Immutable Infrastructure
+Infrastructure components should be replaced, not modified. Configuration changes should result in new component versions, not in-place updates.
+
+#### 3.3.3 Environment Parity
+Development, staging, and production environments must be architecturally identical. Differences must be configuration-only.
+
+#### 3.3.4 Continuous Validation
+System health, data quality, and behavioral correctness must be continuously validated. Issues must be detected before they impact users.
+
+---
+
+## 4. Global System Topology
+
+### 4.1 Logical Architecture
+
+The AHOS platform is organized into **five primary engines** and **three infrastructure layers**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AHOS Platform                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │  Discovery   │  │  Knowledge   │  │   Analysis   │     │
+│  │    Engine    │  │    Engine    │  │    Engine    │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│                                                             │
+│  ┌──────────────┐  ┌──────────────────────────────────┐   │
+│  │    Agent     │  │       Governance Engine          │   │
+│  │    Engine    │  │                                  │   │
+│  └──────────────┘  └──────────────────────────────────┘   │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│              Platform Services Layer                        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐     │
+│  │ Event Bus│ │ API Gate │ │  Config  │ │  Secret  │     │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘     │
+├─────────────────────────────────────────────────────────────┤
+│           Observability & Operations Layer                  │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐     │
+│  │ Logging  │ │Monitoring│ │  Health  │ │  Backup  │     │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘     │
+├─────────────────────────────────────────────────────────────┤
+│                 Data & Execution Layer                      │
+│  ┌────────────────────────┐  ┌──────────────────────┐     │
+│  │   Supabase (Data)      │  │   n8n (Orchestration)│     │
+│  └────────────────────────┘  └──────────────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 4.2 Engine Definitions
+
+#### 4.2.1 Discovery Engine
+**Responsibility:** Continuous discovery of opportunities, threats, and insights from configured sources.
+
+**Boundaries:**
+- Owns collector management and scheduling
+- Owns data collection and raw buffering
+- Owns normalization and deduplication
+- Owns signal detection and qualification
+- **Does NOT** own deep analysis (Analysis Engine responsibility)
+- **Does NOT** own knowledge persistence (Knowledge Engine responsibility)
+
+#### 4.2.2 Knowledge Engine
+**Responsibility:** Centralized knowledge storage, retrieval, evolution, and distribution.
+
+**Boundaries:**
+- Owns knowledge schema and ontology
+- Owns knowledge storage and indexing
+- Owns knowledge versioning and evolution
+- Owns knowledge query and retrieval
+- **Does NOT** own knowledge creation logic (owned by source engines)
+- **Does NOT** own knowledge application (consumed by other engines)
+
+#### 4.2.3 Analysis Engine
+**Responsibility:** Deep AI-powered analysis of discoveries, generating insights, recommendations, and predictions.
+
+**Boundaries:**
+- Owns AI prompt construction and execution
+- Owns analysis result interpretation
+- Owns insight generation and scoring
+- Owns recommendation synthesis
+- **Does NOT** own data collection (Discovery Engine responsibility)
+- **Does NOT** own decision execution (Agent Engine responsibility)
+
+#### 4.2.4 Agent Engine
+**Responsibility:** Autonomous execution of approved actions based on analysis and governance rules.
+
+**Boundaries:**
+- Owns agent role definitions and capabilities
+- Owns action planning and execution
+- Owns external system interaction
+- Owns execution result validation
+- **Does NOT** own governance policy (Governance Engine responsibility)
+- **Does NOT** own analysis (Analysis Engine responsibility)
+
+#### 4.2.5 Governance Engine
+**Responsibility:** Policy enforcement, compliance validation, audit trail maintenance, and organizational control.
+
+**Boundaries:**
+- Owns policy definition and versioning
+- Owns compliance rule enforcement
+- Owns audit trail capture and retention
+- Owns approval workflow orchestration
+- **Does NOT** own data schemas (Data Architecture responsibility)
+- **Does NOT** own engine-specific logic (Engine responsibility)
+
+---
+
+### 4.3 Cross-Engine Dependencies
+
+Engines interact through **well-defined contracts** enforced by the Platform Services Layer:
+
+```
+Discovery Engine
+    ↓ (publishes discoveries)
+Knowledge Engine
+    ↓ (provides knowledge context)
+Analysis Engine
+    ↓ (generates insights and recommendations)
+Agent Engine
+    ↓ (requests approvals and logs actions)
+Governance Engine
+    ↓ (provides audit trail)
+[All Engines]
+```
+
+**Dependency Rules:**
+- Engines communicate via Event Bus (async) or API Gateway (sync)
+- Direct engine-to-engine calls are prohibited
+- All inter-engine data flows must be auditable
+- Circular dependencies are prohibited at the contract level
+
+---
+
+## 5. Runtime Architecture
+
+### 5.1 Execution Model
+
+AHOS executes on an **orchestration-based runtime model** where n8n workflows are the fundamental unit of execution.
+
+#### 5.1.1 Workflow Execution Principles
+
+**Workflow as Primary Abstraction**
+All business logic, data transformations, and integrations are implemented as n8n workflows. Workflows are:
+- Versioned and stored in source control
+- Deployed as immutable artifacts
+- Executed by the n8n runtime engine
+- Monitored and logged automatically
+
+**Workflow Composition**
+Complex operations are composed from simpler workflows through:
+- **Synchronous sub-workflow calls** (when immediate response required)
+- **Asynchronous workflow triggers** (when fire-and-forget acceptable)
+- **Event-driven workflow activation** (when reacting to state changes)
+
+**Workflow State Management**
+Workflows must be designed as state machines:
+- Entry state is explicit
+- State transitions are deterministic
+- Exit states are well-defined (success, failure, retry)
+- State is persisted to Supabase before non-idempotent operations
+
+#### 5.1.2 Execution Context
+
+Every workflow execution operates within a **context** that includes:
+
+- **Execution ID:** Unique identifier for this execution instance
+- **Workflow ID:** Identifier of the workflow definition
+- **Version:** Workflow version being executed
+- **Trigger:** What initiated this execution (schedule, event, API call)
+- **Parent Execution ID:** If this is a sub-workflow, ID of parent execution
+- **Correlation ID:** Business-level identifier for tracing across workflows
+- **User Context:** Identity of user or system that initiated execution (if applicable)
+- **Tenant Context:** Multi-tenancy identifier (future-proofing)
+- **Timestamp:** Execution start time (UTC)
+
+This context must be:
+- Captured at workflow start
+- Propagated to all sub-workflows and external calls
+- Logged with every significant operation
+- Available for debugging and auditing
+
+#### 5.1.3 Execution Lifecycle
+
+```
+[Trigger] → [Validate Input] → [Load Context] → [Execute Logic] 
+    → [Persist State] → [Handle Result] → [Emit Events] → [Complete]
+                              ↓
+                         [Error Handler]
+                              ↓
+                    [Retry or Dead Letter Queue]
+```
+
+**Lifecycle Phases:**
+
+1. **Trigger:** Workflow activation (schedule, webhook, event)
+2. **Validate Input:** Ensure input meets contract requirements
+3. **Load Context:** Retrieve execution context and necessary state
+4. **Execute Logic:** Perform business operations
+5. **Persist State:** Save state changes to durable storage
+6. **Handle Result:** Process execution outcome
+7. **Emit Events:** Publish events for downstream consumers
+8. **Complete:** Mark execution as complete, log outcome
+9. **Error Handler:** Capture errors, determine retry strategy
+10. **Retry or DLQ:** Retry if transient, send to dead letter queue if persistent
+
+---
+
+### 5.2 Concurrency Model
+
+#### 5.2.1 Parallel Execution
+n8n supports parallel execution of workflow nodes. AHOS workflows must:
+- Explicitly define parallelizable operations
+- Ensure parallel operations are independent (no shared mutable state)
+- Use synchronization points where parallel streams converge
+- Limit parallelism to prevent resource exhaustion
+
+#### 5.2.2 Rate Limiting
+All workflows that interact with external systems or resource-constrained services must implement rate limiting:
+- Maximum requests per second/minute/hour
+- Exponential backoff on rate limit errors
+- Queue-based request buffering
+- Priority-based request scheduling
+
+#### 5.2.3 Resource Constraints
+Workflow execution must respect:
+- **CPU limits:** Workflows must not monopolize compute resources
+- **Memory limits:** Large data processing must use streaming or pagination
+- **I/O limits:** Database and API calls must be batched where possible
+- **Time limits:** Workflows must have maximum execution timeouts
+
+---
+
+### 5.3 Scheduling Architecture
+
+#### 5.3.1 Schedule Types
+
+AHOS supports three scheduling models:
+
+**Cron-Based Scheduling**
+Traditional time-based schedules using cron expressions:
+- Used for periodic data collection, report generation, maintenance tasks
+- Defined in workflow configuration
+- Managed by n8n native scheduler
+
+**Event-Driven Scheduling**
+Workflows triggered by events from Event Bus:
+- Used for reactive processing (e.g., new discovery → trigger analysis)
+- Decouples producers from consumers
+- Enables dynamic workflow composition
+
+**On-Demand Scheduling**
+Workflows triggered by explicit API calls:
+- Used for user-initiated operations, testing, emergency procedures
+- Requires authentication and authorization
+- Logged with user identity
+
+#### 5.3.2 Schedule Persistence
+
+All schedules must be:
+- Stored in Supabase (`workflow_schedules` table)
+- Versioned (schedule changes create new versions)
+- Audited (schedule changes logged with who/when/why)
+- Recoverable (schedules can be reconstructed from database)
+
+#### 5.3.3 Schedule Conflict Resolution
+
+When multiple workflows could execute simultaneously:
+- Priority-based execution order
+- Resource-based queuing
+- Execution slot reservation
+- Conflict detection and alerting
+
+---
+
+## 6. Service Architecture
+
+### 6.1 Service Decomposition Strategy
+
+AHOS services are decomposed by **engine boundaries** and **functional cohesion**, not by technology or data access patterns.
+
+#### 6.1.1 Engine Services
+
+Each engine is implemented as a **collection of related workflows** that share:
+- Common data models
+- Common business logic domain
+- Common operational characteristics
+- Common scaling requirements
+
+**Service Independence Criteria:**
+- Can be deployed independently
+- Can be scaled independently
+- Can fail independently (with graceful degradation)
+- Has clearly defined API surface
+- Owns its data (no shared database tables with other engines)
+
+#### 6.1.2 Platform Services
+
+Platform services provide cross-cutting capabilities:
+
+**Event Bus Service**
+- Publishes and subscribes to domain events
+- Routes events to appropriate consumers
+- Ensures event delivery guarantees
+- Implements event schema validation
+
+**API Gateway Service**
+- Exposes synchronous APIs
+- Handles authentication and authorization
+- Implements rate limiting and throttling
+- Routes requests to appropriate engines
+
+**Configuration Service**
+- Manages externalized configuration
+- Provides environment-specific overrides
+- Supports dynamic configuration updates
+- Validates configuration schema
+
+**Secret Management Service**
+- Stores and retrieves sensitive credentials
+- Implements encryption at rest
+- Provides credential rotation
+- Audits secret access
+
+---
+
+### 6.2 Service Communication Patterns
+
+#### 6.2.1 Synchronous Communication (Request-Response)
+
+Used when:
+- Immediate response is required for correctness
+- Transaction coordination is necessary
+- Query operations need real-time data
+
+**Implementation:**
+- n8n webhook nodes (for inbound requests)
+- n8n HTTP request nodes (for outbound requests)
+- RESTful API contracts
+- JSON request/response payloads
+- Timeout enforcement (max 30 seconds)
+
+**Example Use Cases:**
+- API Gateway → Engine (user-initiated query)
+- Analysis Engine → Knowledge Engine (retrieve context for analysis)
+- Agent Engine → Governance Engine (request approval)
+
+#### 6.2.2 Asynchronous Communication (Event-Driven)
+
+Used when:
+- Fire-and-forget semantics are acceptable
+- Decoupling producer and consumer is desired
+- Temporal independence is required
+- Fan-out to multiple consumers is needed
+
+**Implementation:**
+- Event Bus (Supabase table + n8n polling or triggers)
+- Message Queue (if high throughput required)
+- Event schema contracts
+- At-least-once delivery guarantee
+- Idempotent consumers
+
+**Example Use Cases:**
+- Discovery Engine → Knowledge Engine (new discovery published)
+- Knowledge Engine → Analysis Engine (knowledge updated)
+- Analysis Engine → Agent Engine (new recommendation available)
+- All Engines → Governance Engine (audit events)
+
+---
+
+### 6.3 Service Contracts
+
+#### 6.3.1 Contract Definition
+
+All service interactions are governed by explicit, versioned contracts that define:
+
+- **Endpoint/Event Name:** Unique identifier
+- **Version:** Semantic versioning (major.minor.patch)
+- **Request/Event Schema:** JSON schema definition
+- **Response Schema:** JSON schema definition (for synchronous)
+- **Error Codes:** Enumeration of possible error conditions
+- **SLA:** Expected response time, availability
+- **Authorization Requirements:** Who can invoke this service
+
+#### 6.3.2 Contract Versioning
+
+**Version Increment Rules:**
+- **Major version:** Breaking changes (incompatible schema changes)
+- **Minor version:** Backward-compatible additions (new optional fields)
+- **Patch version:** Bug fixes (no schema changes)
+
+**Deprecation Policy:**
+- Deprecated contracts must be supported for minimum 6 months
+- Deprecation notices must be published in release notes
+- Consumers must be notified via monitoring alerts
+- Migration guides must be provided
+
+#### 6.3.3 Contract Enforcement
+
+Contracts are enforced through:
+- **Schema validation:** All requests/events validated against schema
+- **Version checking:** Incompatible versions rejected with clear error
+- **Contract testing:** Automated tests validate producer/consumer compatibility
+- **Runtime monitoring:** Contract violations logged and alerted
+
+---
+
+## 7. Internal Communication Architecture
+
+### 7.1 Communication Topology
+
+AHOS internal communication follows a **hub-and-spoke model** with the Event Bus and API Gateway as central hubs:
+
+```
+┌─────────────┐         ┌─────────────┐         ┌─────────────┐
+│  Discovery  │────────▶│  Event Bus  │◀────────│  Knowledge  │
+│   Engine    │         │             │         │   Engine    │
+└─────────────┘         └─────────────┘         └─────────────┘
+       │                       ▲                        │
+       │                       │                        │
+       ▼                       ▼                        ▼
+┌─────────────┐         ┌─────────────┐         ┌─────────────┐
+│     API     │◀───────▶│  Analysis   │◀───────▶│    Agent    │
+│   Gateway   │         │   Engine    │         │   Engine    │
+└─────────────┘         └─────────────┘         └─────────────┘
+       │                       │
+       │                       ▼
+       │                ┌─────────────┐
+       └───────────────▶│ Governance  │
+                        │   Engine    │
+                        └─────────────┘
+```
+
+**Communication Rules:**
+- Engines **MUST NOT** call each other directly
+- Engines **MUST** communicate via Event Bus (async) or API Gateway (sync)
+- Platform services are accessible to all engines
+- External systems interact only via API Gateway
+
+---
+
+### 7.2 Communication Protocols
+
+#### 7.2.1 HTTP/REST (Synchronous)
+
+**Protocol:** HTTPS with TLS 1.2+
+
+**Message Format:** JSON
+
+**Request Headers (Required):**
+```
+Content-Type: application/json
+X-Request-ID: <unique-request-identifier>
+X-Correlation-ID: <business-correlation-identifier>
+X-API-Version: <contract-version>
+Authorization: Bearer <token>
+```
+
+**Response Headers (Standard):**
+```
+Content-Type: application/json
+X-Request-ID: <echoed-request-identifier>
+X-Response-Time: <processing-time-ms>
+```
+
+**HTTP Status Codes:**
+- **200 OK:** Successful request
+- **201 Created:** Resource created successfully
+- **400 Bad Request:** Invalid request (schema validation failure)
+- **401 Unauthorized:** Authentication failure
+- **403 Forbidden:** Authorization failure
+- **404 Not Found:** Resource does not exist
+- **409 Conflict:** Resource conflict (e.g., duplicate)
+- **429 Too Many Requests:** Rate limit exceeded
+- **500 Internal Server Error:** Server-side error
+- **503 Service Unavailable:** Service temporarily unavailable
+
+#### 7.2.2 Event Bus (Asynchronous)
+
+**Protocol:** Database polling or database triggers (Supabase)
+
+**Message Format:** JSON event payload + metadata
+
+**Event Structure:**
+```json
+{
+  "event_id": "uuid",
+  "event_type": "discovery.published",
+  "event_version": "1.0.0",
+  "timestamp": "2025-01-01T00:00:00Z",
+  "source": "discovery-engine",
+  "correlation_id": "business-correlation-id",
+  "payload": {
+    // Event-specific data
+  },
+  "metadata": {
+    "tenant_id": "optional-tenant-id",
+    "user_id": "optional-user-id"
+  }
+}
+```
+
+**Event Delivery Guarantees:**
+- **At-least-once delivery:** Events may be delivered multiple times
+- **Order preservation:** Events from same source are ordered
+- **Durability:** Events persisted before acknowledgment
+
+---
+
+### 7.3 Message Serialization
+
+#### 7.3.1 JSON Serialization Standards
+
+All messages (requests, responses, events) use JSON with these rules:
+
+- **UTF-8 encoding** only
+- **ISO 8601 timestamps** (UTC): `YYYY-MM-DDTHH:MM:SSZ`
+- **Numeric precision:** Decimals as strings for financial data to avoid floating-point errors
+- **Null vs. absent:** Null values should be omitted unless semantically significant
+- **Empty collections:** Represent as `[]` not `null`
+- **Boolean values:** `true` / `false` (lowercase)
+- **Enumerations:** String values (not numeric codes)
+
+#### 7.3.2 Schema Validation
+
+All messages must be validated against JSON Schema (Draft 7 or later):
+
+- Schemas versioned and stored in schema registry
+- Unknown fields rejected (strict validation)
+- Required fields enforced
+- Type constraints enforced
+- Format constraints enforced (e.g., email, URI, UUID)
+
+---
+
+## 8. Event Bus Architecture
+
+### 8.1 Event Bus Purpose
+
+The Event Bus is the **primary asynchronous communication mechanism** in AHOS. It enables:
+
+- **Temporal decoupling:** Producers and consumers operate independently
+- **Scalability:** Multiple consumers can process events in parallel
+- **Resilience:** Consumer failures do not impact producers
+- **Extensibility:** New consumers can subscribe without producer changes
+- **Auditability:** All events are persisted for audit trail
+
+---
+
+### 8.2 Event Bus Implementation
+
+#### 8.2.1 Physical Implementation
+
+The Event Bus is implemented using **Supabase tables** with n8n polling or trigger-based consumption:
+
+**Event Store Table:**
+```sql
+CREATE TABLE event_bus (
+    event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_type VARCHAR(255) NOT NULL,
+    event_version VARCHAR(20) NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    source VARCHAR(255) NOT NULL,
+    correlation_id VARCHAR(255),
+    payload JSONB NOT NULL,
+    metadata JSONB,
+    processed BOOLEAN DEFAULT FALSE,
+    processed_at TIMESTAMP WITH TIME ZONE,
+    retry_count INTEGER DEFAULT 0,
+    error_message TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_event_type ON event_bus(event_type);
+CREATE INDEX idx_processed ON event_bus(processed);
+CREATE INDEX idx_timestamp ON event_bus(timestamp);
+CREATE INDEX idx_correlation_id ON event_bus(correlation_id);
+```
+
+**Subscription Table:**
+```sql
+CREATE TABLE event_subscriptions (
+    subscription_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_type VARCHAR(255) NOT NULL,
+    subscriber VARCHAR(255) NOT NULL,
+    workflow_id VARCHAR(255) NOT NULL,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(event_type, subscriber)
+);
+```
+
+#### 8.2.2 Publishing Events
+
+Engines publish events by:
+1. Constructing event payload according to schema
+2. Inserting into `event_bus` table
+3. Event automatically visible to all subscribers
+
+**Publishing Workflow:**
+```
+[Construct Event] → [Validate Schema] → [Insert into event_bus] 
+    → [Log Publication] → [Return event_id]
+```
+
+#### 8.2.3 Consuming Events
+
+Engines consume events through:
+
+**Polling Pattern:**
+- n8n workflow polls `event_bus` table at regular interval (e.g., every 5 seconds)
+- Queries for unprocessed events matching subscription
+- Processes events in batch
+- Marks events as processed
+- Updates `processed_at` timestamp
+
+**Trigger Pattern (if supported):**
+- Supabase trigger fires on new event insertion
+- Invokes n8n webhook
+- n8n workflow processes event
+- Updates event status
+
+---
+
+### 8.3 Event Taxonomy
+
+AHOS events follow a hierarchical naming convention:
+
+```
+<domain>.<entity>.<action>
+```
+
+**Examples:**
+- `discovery.signal.detected`
+- `knowledge.entry.created`
+- `analysis.insight.generated`
+- `agent.action.executed`
+- `governance.approval.requested`
+
+**Event Categories:**
+
+| Domain | Purpose |
+|--------|---------|
+| `discovery.*` | Discovery Engine events |
+| `knowledge.*` | Knowledge Engine events |
+| `analysis.*` | Analysis Engine events |
+| `agent.*` | Agent Engine events |
+| `governance.*` | Governance Engine events |
+| `system.*` | System-level events (health, config, etc.) |
+
+---
+
+### 8.4 Event Ordering and Consistency
+
+#### 8.4.1 Ordering Guarantees
+
+- Events from **same source** are processed in timestamp order
+- Events from **different sources** have no ordering guarantee
+- Consumers requiring global ordering must implement coordination
+
+#### 8.4.2 Exactly-Once Processing
+
+While Event Bus provides **at-least-once delivery**, consumers must implement **idempotency** to achieve exactly-once semantics:
+
+- Use `event_id` as idempotency key
+- Check if event already processed before executing logic
+- Store processed event IDs in consumer-specific table
+
+---
+
+### 8.5 Dead Letter Queue
+
+Events that fail processing repeatedly are moved to **Dead Letter Queue** for manual investigation:
+
+```sql
+CREATE TABLE event_dlq (
+    dlq_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID REFERENCES event_bus(event_id),
+    failure_count INTEGER NOT NULL,
+    last_error TEXT,
+    moved_to_dlq_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    resolved BOOLEAN DEFAULT FALSE,
+    resolution_notes TEXT
+);
+```
+
+**DLQ Rules:**
+- Event moved to DLQ after 5 failed processing attempts
+- DLQ events trigger alerts to operations team
+- DLQ events require manual resolution or workflow fix
+- Resolved events can be replayed
+
+---
+
+## 9. API Architecture
+
+### 9.1 API Gateway Purpose
+
+The API Gateway is the **single entry point** for all synchronous external and internal requests. It provides:
+
+- **Unified interface:** Single API surface for all engines
+- **Authentication:** Centralized identity verification
+- **Authorization:** Centralized permission enforcement
+- **Rate limiting:** Protection against abuse
+- **Request routing:** Intelligent routing to engine services
+- **Monitoring:** Centralized request telemetry
+
+---
+
+### 9.2 API Gateway Implementation
+
+The API Gateway is implemented as a **collection of n8n webhook workflows** that:
+
+1. Receive incoming HTTP requests
+2. Authenticate and authorize requests
+3. Validate request schema
+4. Route to appropriate engine workflow
+5. Transform and return response
+6. Log request/response for audit
+
+**Gateway Workflow Pattern:**
+```
+[Webhook Trigger] → [Authenticate] → [Authorize] → [Validate Schema]
+    → [Route to Engine] → [Transform Response] → [Return to Client]
+                ↓
+           [Log Request]
+```
+
+---
+
+### 9.3 API Design Standards
+
+#### 9.3.1 RESTful Principles
+
+AHOS APIs follow REST principles:
+
+- **Resources** identified by URIs
+- **HTTP methods** represent operations (GET, POST, PUT, DELETE)
+- **Stateless** requests (no server-side session state)
+- **Hypermedia** links for discoverability (HATEOAS where appropriate)
+
+#### 9.3.2 URI Structure
+
+```
+https://{domain}/api/{version}/{engine}/{resource}/{id?}/{sub-resource?}
+```
+
+**Examples:**
+```
+GET  /api/v1/discovery/collectors
+GET  /api/v1/discovery/collectors/{id}
+POST /api/v1/discovery/collectors
+PUT  /api/v1/discovery/collectors/{id}
+DELETE /api/v1/discovery/collectors/{id}
+
+GET  /api/v1/knowledge/entries
+POST /api/v1/knowledge/entries/{id}/versions
+
+GET  /api/v1/analysis/insights
+GET  /api/v1/analysis/insights/{id}
+```
+
+#### 9.3.3 HTTP Method Semantics
+
+| Method | Semantics | Idempotent | Safe |
+|--------|-----------|------------|------|
+| GET | Retrieve resource | Yes | Yes |
+| POST | Create resource | No | No |
+| PUT | Update/replace resource | Yes | No |
+| PATCH | Partial update | No | No |
+| DELETE | Remove resource | Yes | No |
+
+---
+
+### 9.4 API Versioning
+
+#### 9.4.1 Versioning Strategy
+
+APIs are versioned using **URI path versioning**:
+
+```
+/api/v1/...
+/api/v2/...
+```
+
+**Version Lifecycle:**
+- New major version introduced for breaking changes
+- Old versions supported for minimum 12 months
+- Deprecation warnings in response headers
+- Migration guides provided
+
+#### 9.4.2 Backward Compatibility
+
+Within a major version:
+- New optional fields can be added
+- Existing required fields cannot be removed
+- Field types cannot change
+- Field semantics cannot change
+
+---
+
+### 9.5 API Authentication and Authorization
+
+#### 9.5.1 Authentication
+
+**Token-Based Authentication** using JWT (JSON Web Tokens):
+
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Token Claims:**
+```json
+{
+  "sub": "user-id",
+  "name": "User Name",
+  "email": "user@example.com",
+  "roles": ["analyst", "admin"],
+  "iat": 1640000000,
+  "exp": 1640086400
+}
+```
+
+**Token Validation:**
+- Signature verification (HMAC or RSA)
+- Expiration check
+- Issuer validation
+- Audience validation
+
+#### 9.5.2 Authorization
+
+**Role-Based Access Control (RBAC):**
+
+Each API endpoint requires specific roles:
+
+```
+GET  /api/v1/discovery/collectors    → requires: [viewer, analyst, admin]
+POST /api/v1/discovery/collectors    → requires: [admin]
+DELETE /api/v1/discovery/collectors  → requires: [admin]
+```
+
+**Authorization Enforcement:**
+- Extract roles from JWT token
+- Check if user has required role
+- Reject with 403 Forbidden if unauthorized
+
+---
+
+### 9.6 API Rate Limiting
+
+#### 9.6.1 Rate Limit Tiers
+
+| Tier | Requests per Minute | Requests per Hour |
+|------|---------------------|-------------------|
+| Anonymous | 10 | 100 |
+| Authenticated | 100 | 5000 |
+| Service Account | 500 | 50000 |
+| Admin | 1000 | Unlimited |
+
+#### 9.6.2 Rate Limit Headers
+
+Responses include rate limit status:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 87
+X-RateLimit-Reset: 1640000460
+```
+
+#### 9.6.3 Rate Limit Exceeded Response
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 60
+
+{
+  "error": "rate_limit_exceeded",
+  "message": "Rate limit of 100 requests per minute exceeded",
+  "retry_after_seconds": 60
+}
+```
+
+---
+
+## 10. Message Queue Architecture
+
+### 10.1 Message Queue Purpose
+
+While the Event Bus handles most asynchronous communication, a dedicated **Message Queue** may be required for:
+
+- **High-throughput scenarios** (thousands of messages per second)
+- **Guaranteed delivery** with persistent queues
+- **Priority queuing** for time-sensitive operations
+- **Dead letter handling** with automatic retry
+
+---
+
+### 10.2 Message Queue Implementation Options
+
+#### 10.2.1 Initial Implementation (Supabase-Based)
+
+For initial deployment, the Event Bus (Supabase table) serves as message queue.
+
+#### 10.2.2 Future Enhancement (Dedicated Queue)
+
+If throughput or latency requirements exceed Supabase capabilities, introduce dedicated message queue:
+
+**Options:**
+- RabbitMQ (AMQP protocol, rich routing)
+- Redis Streams (high throughput, low latency)
+- AWS SQS (managed, serverless)
+- Google Cloud Pub/Sub (managed, serverless)
+
+**Decision Criteria:**
+- Throughput: >1000 messages/second
+- Latency: <100ms processing time
+- Ordering: Strict ordering required
+- Durability: Message persistence critical
+
+---
+
+### 10.3 Queue Topology
+
+When message queue is introduced:
+
+```
+[Producer] → [Exchange/Topic] → [Queue] → [Consumer]
+                                   ↓
+                            [Dead Letter Queue]
+```
+
+**Queue Types:**
+
+| Queue Name | Purpose | Consumer |
+|------------|---------|----------|
+| `discovery.raw` | Raw collected data | Normalization workflow |
+| `discovery.normalized` | Normalized data | Deduplication workflow |
+| `analysis.pending` | Discoveries awaiting analysis | Analysis Engine |
+| `agent.actions` | Approved actions for execution | Agent Engine |
+| `system.dlq` | Failed messages | Manual intervention |
+
+---
+
+## 11. Configuration Architecture
+
+### 11.1 Configuration Principles
+
+#### 11.1.1 Externalized Configuration
+
+All environment-specific and operational parameters must be externalized from workflow code:
+
+- Database connection strings
+- API endpoints
+- Credentials and secrets
+- Feature flags
+- Timeouts and limits
+- Retry policies
+- Logging levels
+
+#### 11.1.2 Environment-Specific Overrides
+
+Configuration must support environment-specific values:
+
+- **Development:** Local database, verbose logging, no rate limits
+- **Staging:** Staging database, normal logging, relaxed rate limits
+- **Production:** Production database, error logging, strict rate limits
+
+#### 11.1.3 Dynamic Configuration Updates
+
+Where safe, configuration should be updateable without redeployment:
+
+- Feature flags toggled via UI
+- Rate limits adjusted for load
+- Logging levels changed for debugging
+- **NOT for:** Database schemas, API contracts, security policies
+
+---
+
+### 11.2 Configuration Storage
+
+#### 11.2.1 Configuration Database
+
+Configuration stored in Supabase:
+
+```sql
+CREATE TABLE system_config (
+    config_key VARCHAR(255) PRIMARY KEY,
+    config_value JSONB NOT NULL,
+    environment VARCHAR(50) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_by VARCHAR(255)
+);
+
+CREATE INDEX idx_environment ON system_config(environment);
+```
+
+**Example Configuration:**
+```json
+{
+  "config_key": "discovery.collection_interval_seconds",
+  "config_value": 300,
+  "environment": "production",
+  "description": "Default collection interval for discovery collectors"
+}
+```
+
+#### 11.2.2 Configuration Caching
+
+To minimize database queries:
+
+- Configuration cached in n8n memory
+- Cache TTL: 5 minutes
+- Cache invalidation on configuration update
+- Fallback to database if cache miss
+
+---
+
+### 11.3 Configuration Schema
+
+All configuration values must be:
+
+- **Typed:** String, number, boolean, JSON object
+- **Validated:** Against schema before persisting
+- **Documented:** Description field explains purpose and valid values
+- **Versioned:** Configuration changes logged in audit trail
+
+---
+
+## 12. Secret Management
+
+### 12.1 Secret Management Principles
+
+#### 12.1.1 Never Store Secrets in Code or Configuration
+
+Secrets (passwords, API keys, tokens) must **NEVER** be:
+- Hard-coded in workflows
+- Stored in configuration files
+- Committed to version control
+- Logged in plaintext
+
+#### 12.1.2 Encrypt Secrets at Rest
+
+All secrets must be encrypted using strong encryption (AES-256) before storage.
+
+#### 12.1.3 Minimize Secret Exposure
+
+- Secrets loaded only when needed
+- Secrets never logged or displayed
+- Secrets transmitted over encrypted channels only (TLS)
+- Secrets purged from memory after use
+
+---
+
+### 12.2 Secret Storage
+
+#### 12.2.1 Supabase Vault (Preferred)
+
+Use Supabase's built-in secrets management:
+
+```sql
+-- Store secret
+SELECT vault.create_secret('api_key_external_system', 'secret-value-here');
+
+-- Retrieve secret
+SELECT vault.decrypt_secret('api_key_external_system');
+```
+
+#### 12.2.2 Environment Variables (Fallback)
+
+For secrets not suitable for database storage:
+
+- Store in environment variables
+- Load at n8n startup
+- Reference via `{{$env.SECRET_NAME}}`
+
+---
+
+### 12.3 Secret Rotation
+
+#### 12.3.1 Rotation Policy
+
+Secrets must be rotated:
+- **API Keys:** Every 90 days
+- **Database Passwords:** Every 180 days
+- **Encryption Keys:** Every 365 days
+- **Service Account Tokens:** Every 30 days
+
+#### 12.3.2 Rotation Procedure
+
+1. Generate new secret
+2. Update secret in vault
+3. Update dependent systems
+4. Test connectivity
+5. Deprecate old secret (grace period: 24 hours)
+6. Revoke old secret
+
+---
+
+### 12.4 Secret Auditing
+
+All secret access must be audited:
+
+```sql
+CREATE TABLE secret_audit_log (
+    audit_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    secret_name VARCHAR(255) NOT NULL,
+    accessed_by VARCHAR(255) NOT NULL,
+    accessed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    operation VARCHAR(50) NOT NULL, -- 'read', 'create', 'update', 'delete'
+    ip_address INET
+);
+```
+
+---
+
+## 13. Logging Architecture
+
+### 13.1 Logging Principles
+
+#### 13.1.1 Comprehensive Logging
+
+Every significant operation must emit log entries:
+
+- Workflow executions (start, complete, fail)
+- API requests and responses
+- Data transformations
+- External system calls
+- Errors and exceptions
+- State changes
+- Security events
+
+#### 13.1.2 Structured Logging
+
+Logs must be structured (JSON) not unstructured text:
+
+**Bad (Unstructured):**
+```
+User john@example.com accessed discovery collector 12345 at 2025-01-01 10:30:00
+```
+
+**Good (Structured):**
+```json
+{
+  "timestamp": "2025-01-01T10:30:00Z",
+  "level": "INFO",
+  "service": "api-gateway",
+  "event": "collector_accessed",
+  "user_id": "john@example.com",
+  "collector_id": "12345",
+  "ip_address": "192.168.1.100"
+}
+```
+
+#### 13.1.3 Correlation Identifiers
+
+All logs must include:
+- **request_id:** Unique per request
+- **correlation_id:** Business-level identifier spanning multiple requests
+- **workflow_id:** Workflow generating the log
+- **execution_id:** Specific execution instance
+
+---
+
+### 13.2 Log Levels
+
+| Level | Purpose | Examples |
+|-------|---------|----------|
+| **DEBUG** | Detailed diagnostic information | Variable values, intermediate state |
+| **INFO** | General informational messages | Workflow started, API request received |
+| **WARN** | Warning conditions (not errors) | Slow response time, deprecated API used |
+| **ERROR** | Error conditions | Failed API call, validation error |
+| **CRITICAL** | Critical system failures | Database unavailable, service crash |
+
+**Log Level by Environment:**
+- **Development:** DEBUG
+- **Staging:** INFO
+- **Production:** WARN (ERROR for critical services)
+
+---
+
+### 13.3 Log Storage
+
+#### 13.3.1 Centralized Log Storage
+
+All logs stored in Supabase:
+
+```sql
+CREATE TABLE system_logs (
+    log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    level VARCHAR(20) NOT NULL,
+    service VARCHAR(255) NOT NULL,
+    event VARCHAR(255) NOT NULL,
+    message TEXT,
+    correlation_id VARCHAR(255),
+    request_id VARCHAR(255),
+    workflow_id VARCHAR(255),
+    execution_id VARCHAR(255),
+    user_id VARCHAR(255),
+    details JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_timestamp ON system_logs(timestamp DESC);
+CREATE INDEX idx_level ON system_logs(level);
+CREATE INDEX idx_correlation_id ON system_logs(correlation_id);
+CREATE INDEX idx_service ON system_logs(service);
+```
+
+#### 13.3.2 Log Retention
+
+| Log Level | Retention Period |
+|-----------|------------------|
+| DEBUG | 7 days |
+| INFO | 30 days |
+| WARN | 90 days |
+| ERROR | 180 days |
+| CRITICAL | 365 days |
+
+Archived logs moved to cold storage after retention period.
+
+---
+
+### 13.4 Log Analysis and Search
+
+#### 13.4.1 Query Capabilities
+
+Logs must be queryable by:
+- Timestamp range
+- Log level
+- Service/workflow
+- Correlation ID
+- User ID
+- Event type
+- Full-text search on message
+
+#### 13.4.2 Log Aggregation
+
+Support log aggregation for:
+- Error rate by service
+- Request volume by endpoint
+- Response time percentiles
+- User activity patterns
+
+---
+
+## 14. Monitoring Architecture
+
+### 14.1 Monitoring Principles
+
+#### 14.1.1 Proactive Monitoring
+
+Monitor system health continuously to detect issues **before** they impact users.
+
+#### 14.1.2 Multi-Layer Monitoring
+
+Monitor at all layers:
+- **Infrastructure:** CPU, memory, disk, network
+- **Platform:** n8n health, Supabase health
+- **Application:** Workflow success rate, API latency
+- **Business:** Discoveries per hour, insights generated
+
+#### 14.1.3 Alerting on Anomalies
+
+Alerts triggered when metrics deviate from baseline:
+- Sudden spike in error rate
+- Latency exceeds threshold
+- Throughput drops below minimum
+- Resource utilization exceeds capacity
+
+---
+
+### 14.2 Metrics Collection
+
+#### 14.2.1 System Metrics
+
+| Metric | Unit | Alert Threshold |
+|--------|------|-----------------|
+| CPU Utilization | Percentage | >80% for 5 minutes |
+| Memory Utilization | Percentage | >85% for 5 minutes |
+| Disk Utilization | Percentage | >90% |
+| Database Connections | Count | >80% of max connections |
+| Query Response Time | Milliseconds | >500ms (p95) |
+
+#### 14.2.2 Application Metrics
+
+| Metric | Unit | Alert Threshold |
+|--------|------|-----------------|
+| Workflow Success Rate | Percentage | <95% |
+| API Request Rate | Requests/minute | >rate limit threshold |
+| API Error Rate | Percentage | >5% |
+| API Latency (p50) | Milliseconds | >200ms |
+| API Latency (p95) | Milliseconds | >1000ms |
+| Event Processing Lag | Seconds | >300 seconds |
+
+#### 14.2.3 Business Metrics
+
+| Metric | Unit | Alert Threshold |
+|--------|------|-----------------|
+| Discoveries Published | Count/hour | <baseline - 50% |
+| Insights Generated | Count/hour | <baseline - 50% |
+| Knowledge Entries Created | Count/day | <baseline - 30% |
+| Agent Actions Executed | Count/day | Tracked, no alert |
+
+---
+
+### 14.3 Metrics Storage
+
+Metrics stored in time-series optimized table:
+
+```sql
+CREATE TABLE system_metrics (
+    metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    metric_name VARCHAR(255) NOT NULL,
+    metric_value NUMERIC NOT NULL,
+    metric_unit VARCHAR(50),
+    tags JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_metric_timestamp ON system_metrics(timestamp DESC);
+CREATE INDEX idx_metric_name ON system_metrics(metric_name);
+```
+
+**Metric Retention:**
+- Raw metrics: 30 days
+- 5-minute aggregates: 90 days
+- 1-hour aggregates: 365 days
+- 1-day aggregates: Indefinite
+
+---
+
+### 14.4 Health Checks
+
+#### 14.4.1 Health Check Endpoints
+
+Each engine exposes health check endpoint:
+
+```
+GET /health
+```
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "version": "1.0.0",
+  "timestamp": "2025-01-01T10:00:00Z",
+  "checks": {
+    "database": "healthy",
+    "event_bus": "healthy",
+    "external_apis": "degraded"
+  }
+}
+```
+
+**Health Status Values:**
+- `healthy`: All systems operational
+- `degraded`: Non-critical issues detected
+- `unhealthy`: Critical failures present
+
+#### 14.4.2 Health Check Frequency
+
+- Internal health checks: Every 30 seconds
+- External health checks (from monitoring service): Every 60 seconds
+
+---
+
+### 14.5 Alerting
+
+#### 14.5.1 Alert Channels
+
+Alerts delivered via:
+- **Email:** For non-urgent alerts
+- **Slack/Teams:** For medium-priority alerts
+- **PagerDuty/OpsGenie:** For critical alerts requiring immediate response
+
+#### 14.5.2 Alert Severity
+
+| Severity | Description | Response Time |
+|----------|-------------|---------------|
+| **INFO** | Informational notice | No action required |
+| **WARN** | Potential issue | Review within 24 hours |
+| **ERROR** | Service degradation | Review within 2 hours |
+| **CRITICAL** | Service outage | Immediate response required |
+
+#### 14.5.3 Alert De-duplication
+
+Alerts de-duplicated to prevent alert fatigue:
+- Same alert not sent more than once per 15 minutes
+- Alert escalation if not acknowledged within SLA
+
+---
+
+## 15. Error Handling Architecture
+
+### 15.1 Error Handling Principles
+
+#### 15.1.1 Explicit Error Handling
+
+Every workflow must explicitly handle errors. Silent failures are prohibited.
+
+#### 15.1.2 Error Classification
+
+Errors classified by:
+- **Severity:** INFO, WARN, ERROR, CRITICAL
+- **Type:** Validation, business logic, infrastructure, external system
+- **Recoverability:** Transient (retryable), permanent (not retryable)
+
+#### 15.1.3 Error Propagation
+
+Errors must be propagated with context:
+- Original error message
+- Stack trace (if applicable)
+- Correlation identifiers
+- State at time of error
+
+---
+
+### 15.2 Error Types
+
+#### 15.2.1 Validation Errors
+
+**Cause:** Invalid input data
+
+**Handling:**
+- Return 400 Bad Request
+- Include detailed validation error messages
+- Log for audit, not alert
+
+**Example:**
+```json
+{
+  "error": "validation_error",
+  "message": "Invalid collector configuration",
+  "details": [
+    {
+      "field": "collection_interval_seconds",
+      "error": "must be between 60 and 86400"
+    }
+  ]
+}
+```
+
+#### 15.2.2 Business Logic Errors
+
+**Cause:** Business rule violation
+
+**Handling:**
+- Return 409 Conflict or 422 Unprocessable Entity
+- Include explanation of business rule violation
+- Log for audit
+
+**Example:**
+```json
+{
+  "error": "duplicate_collector",
+  "message": "Collector with name 'rss-feed-tech' already exists",
+  "existing_collector_id": "12345"
+}
+```
+
+#### 15.2.3 Infrastructure Errors
+
+**Cause:** Database failure, network timeout, resource exhaustion
+
+**Handling:**
+- Retry with exponential backoff (if transient)
+- Return 503 Service Unavailable (if persistent)
+- Alert operations team
+- Log with CRITICAL severity
+
+**Example:**
+```json
+{
+  "error": "database_unavailable",
+  "message": "Unable to connect to database after 3 retry attempts",
+  "retry_after_seconds": 60
+}
+```
+
+#### 15.2.4 External System Errors
+
+**Cause:** Third-party API failure, timeout, rate limit
+
+**Handling:**
+- Retry with exponential backoff (if 5xx or timeout)
+- Return error to caller (if 4xx)
+- Circuit breaker pattern (if repeated failures)
+- Log external system errors separately
+
+**Example:**
+```json
+{
+  "error": "external_api_error",
+  "message": "External API returned 503 Service Unavailable",
+  "external_system": "news-api",
+  "retry_after_seconds": 300
+}
+```
+
+---
+
+### 15.3 Retry Strategy
+
+#### 15.3.1 Retry Policy
+
+**Transient errors** (network timeout, 503 responses) trigger automatic retry:
+
+- **Max retry attempts:** 3
+- **Backoff strategy:** Exponential with jitter
+- **Initial delay:** 1 second
+- **Max delay:** 60 seconds
+
+**Retry Calculation:**
+```
+delay = min(initial_delay * (2 ^ attempt) + random_jitter, max_delay)
+```
+
+**Example:**
+- Attempt 1: 1 second + jitter
+- Attempt 2: 2 seconds + jitter
+- Attempt 3: 4 seconds + jitter
+
+#### 15.3.2 Non-Retryable Errors
+
+**Permanent errors** (validation, authorization, 404 Not Found) are **not retried**:
+
+- Return error immediately
+- Log for audit
+- Do not retry
+
+---
+
+### 15.4 Circuit Breaker Pattern
+
+For external system calls, implement **circuit breaker** to prevent cascading failures:
+
+**Circuit States:**
+- **CLOSED:** Normal operation, requests pass through
+- **OPEN:** Too many failures, requests immediately rejected
+- **HALF-OPEN:** Testing if external system recovered
+
+**State Transitions:**
+- CLOSED → OPEN: After 5 consecutive failures
+- OPEN → HALF-OPEN: After 60 seconds
+- HALF-OPEN → CLOSED: After 1 successful request
+- HALF-OPEN → OPEN: After 1 failed request
+
+---
+
+### 15.5 Error Storage
+
+All errors logged to centralized error table:
+
+```sql
+CREATE TABLE error_log (
+    error_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    severity VARCHAR(20) NOT NULL,
+    error_type VARCHAR(100) NOT NULL,
+    error_message TEXT NOT NULL,
+    stack_trace TEXT,
+    correlation_id VARCHAR(255),
+    workflow_id VARCHAR(255),
+    execution_id VARCHAR(255),
+    context JSONB,
+    resolved BOOLEAN DEFAULT FALSE,
+    resolution_notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_error_timestamp ON error_log(timestamp DESC);
+CREATE INDEX idx_severity ON error_log(severity);
+CREATE INDEX idx_resolved ON error_log(resolved);
+```
+
+---
+
+## 16. Deployment Architecture
+
+### 16.1 Deployment Principles
+
+#### 16.1.1 Immutable Infrastructure
+
+Infrastructure components are **replaced**, not modified:
+
+- New workflow version → deploy new workflow, deprecate old
+- Configuration change → deploy new configuration, remove old
+- Schema migration → create new version, migrate data, deprecate old
+
+#### 16.1.2 Environment Isolation
+
+Each environment is completely isolated:
+
+- Separate Supabase projects (dev, staging, production)
+- Separate n8n instances (dev, staging, production)
+- Separate credentials and secrets
+- No cross-environment data access
+
+#### 16.1.3 Automated Deployment
+
+All deployments automated via CI/CD pipeline:
+
+- Code committed to version control
+- Automated tests executed
+- Workflow exported and deployed
+- Health checks validate deployment
+- Rollback if health checks fail
+
+---
+
+### 16.2 Environment Topology
+
+#### 16.2.1 Development Environment
+
+**Purpose:** Active development and testing
+
+**Characteristics:**
+- Single-instance deployment
+- Synthetic/anonymized data
+- Verbose logging (DEBUG level)
+- No rate limiting
+- Relaxed security policies
+
+**Access:** Developers only
+
+#### 16.2.2 Staging Environment
+
+**Purpose:** Pre-production validation
+
+**Characteristics:**
+- Production-equivalent architecture
+- Production-like data volume
+- Production logging levels
+- Production security policies
+- Full integration testing
+
+**Access:** Developers, QA, Product Managers
+
+#### 16.2.3 Production Environment
+
+**Purpose:** Live user-facing system
+
+**Characteristics:**
+- High-availability deployment
+- Real data
+- Strict logging (WARN/ERROR)
+- Full rate limiting
+- Maximum security policies
+- Automated backups
+- Disaster recovery enabled
+
+**Access:** Operations team only (read-only access for developers)
+
+---
+
+### 16.3 Deployment Pipeline
+
+```
+[Commit Code] → [Run Tests] → [Build Workflow] → [Deploy to Dev]
+    → [Integration Tests] → [Deploy to Staging] → [Smoke Tests]
+    → [Manual Approval] → [Deploy to Production] → [Health Check]
+    → [Monitor] → [Rollback if Failure]
+```
+
+**Pipeline Stages:**
+
+1. **Commit Code:** Developer commits to version control (Git)
+2. **Run Tests:** Automated unit and integration tests execute
+3. **Build Workflow:** Workflow exported from n8n or generated
+4. **Deploy to Dev:** Workflow deployed to development environment
+5. **Integration Tests:** Automated end-to-end tests execute
+6. **Deploy to Staging:** Workflow deployed to staging environment
+7. **Smoke Tests:** Basic functionality validated
+8. **Manual Approval:** Product owner approves production deployment
+9. **Deploy to Production:** Workflow deployed to production
+10. **Health Check:** Automated health checks validate deployment
+11. **Monitor:** Continuous monitoring for anomalies
+12. **Rollback if Failure:** Automatic rollback if health checks fail
+
+---
+
+### 16.4 Rollback Strategy
+
+#### 16.4.1 Automatic Rollback
+
+Deployment automatically rolled back if:
+- Health checks fail within 5 minutes of deployment
+- Error rate exceeds 10% within 15 minutes
+- Critical system metric exceeds threshold
+
+#### 16.4.2 Manual Rollback
+
+Operations team can manually trigger rollback:
+- Revert to previous workflow version
+- Restore previous configuration
+- Notify engineering team
+- Incident investigation initiated
+
+---
+
+### 16.5 Blue-Green Deployment
+
+For zero-downtime deployments:
+
+**Blue Environment:** Current production version
+
+**Green Environment:** New version being deployed
+
+**Deployment Process:**
+1. Deploy new version to Green environment
+2. Run health checks on Green
+3. Route small percentage of traffic to Green (canary)
+4. Monitor metrics for anomalies
+5. Gradually increase traffic to Green
+6. Fully switch to Green
+7. Keep Blue online for 24 hours (rollback capability)
+8. Decommission Blue
+
+---
+
+## 17. Scalability Strategy
+
+### 17.1 Scalability Principles
+
+#### 17.1.1 Horizontal Scaling Preferred
+
+Scale by adding instances, not by increasing instance size:
+
+- Multiple n8n instances behind load balancer
+- Stateless workflow design enables instance replication
+- Database connection pooling prevents connection exhaustion
+
+#### 17.1.2 Bottleneck Identification
+
+Continuously monitor for bottlenecks:
+- Database query performance
+- Event bus throughput
+- Workflow execution concurrency
+- External API rate limits
+
+#### 17.1.3 Proactive Scaling
+
+Scale before reaching capacity:
+- CPU utilization >70% → trigger scaling
+- Database connections >60% of max → increase pool size
+- Queue depth >1000 → add consumers
+
+---
+
+### 17.2 Scaling Dimensions
+
+#### 17.2.1 Workflow Execution Scaling
+
+**Horizontal Scaling:**
+- Add n8n worker instances
+- Load balancer distributes webhook requests
+- Event consumers run on multiple instances
+
+**Vertical Scaling:**
+- Increase n8n instance CPU/memory
+- Only when horizontal scaling insufficient
+
+#### 17.2.2 Database Scaling
+
+**Read Scaling:**
+- Supabase read replicas for read-heavy workloads
+- Caching layer (Redis) for frequently accessed data
+
+**Write Scaling:**
+- Batch writes where possible
+- Asynchronous writes via Event Bus
+- Database partitioning for large tables (time-based partitioning)
+
+#### 17.2.3 Event Bus Scaling
+
+**Partition by Event Type:**
+- High-volume events (e.g., raw discoveries) in separate table
+- Low-volume events (e.g., approvals) in shared table
+
+**Parallel Consumers:**
+- Multiple consumer instances process events concurrently
+- Each consumer claims batch of events using database locking
+
+---
+
+### 17.3 Performance Optimization
+
+#### 17.3.1 Database Query Optimization
+
+- Indexes on all foreign keys and frequently queried columns
+- EXPLAIN ANALYZE for slow queries
+- Query result caching for expensive queries
+- Materialized views for complex aggregations
+
+#### 17.3.2 Workflow Optimization
+
+- Minimize database round-trips (batch operations)
+- Parallel execution for independent operations
+- Pagination for large result sets
+- Streaming for large data transfers
+
+#### 17.3.3 API Optimization
+
+- Response caching for cacheable endpoints
+- Compression (gzip) for large responses
+- Pagination for list endpoints
+- Conditional requests (ETags, If-Modified-Since)
+
+---
+
+### 17.4 Capacity Planning
+
+#### 17.4.1 Baseline Metrics
+
+Establish baseline for:
+- Discoveries processed per hour
+- Insights generated per hour
+- API requests per minute
+- Database queries per second
+- Event bus messages per second
+
+#### 17.4.2 Growth Projections
+
+Project capacity needs:
+- Expected growth rate (e.g., 20% increase in discoveries per quarter)
+- Peak load scenarios (e.g., 5x baseline during major news events)
+- Resource requirements for projected load
+
+#### 17.4.3 Capacity Monitoring
+
+Continuously monitor capacity utilization:
+- Current load vs. maximum capacity
+- Trending toward capacity limits
+- Alerts when 80% capacity reached
+
+---
+
+## 18. High Availability
+
+### 18.1 High Availability Principles
+
+#### 18.1.1 No Single Points of Failure
+
+Every critical component must have redundancy:
+- Multiple n8n instances
+- Database replication (Supabase managed)
+- Load balancer redundancy
+- Multi-AZ deployment
+
+#### 18.1.2 Automated Failover
+
+Failures detected and recovered automatically:
+- Health checks detect instance failures
+- Load balancer removes unhealthy instances
+- New instances automatically provisioned
+- Database failover managed by Supabase
+
+#### 18.1.3 Graceful Degradation
+
+System remains partially functional during failures:
+- Discovery Engine down → Analysis Engine continues processing existing data
+- Knowledge Engine down → Discoveries cached, published when restored
+- External API down → Circuit breaker prevents cascading failures
+
+---
+
+### 18.2 Availability Targets
+
+#### 18.2.1 Service Level Objectives (SLOs)
+
+| Component | Availability Target | Max Downtime per Month |
+|-----------|---------------------|------------------------|
+| API Gateway | 99.9% | 43 minutes |
+| Discovery Engine | 99.5% | 3.6 hours |
+| Knowledge Engine | 99.9% | 43 minutes |
+| Analysis Engine | 99.5% | 3.6 hours |
+| Agent Engine | 99.5% | 3.6 hours |
+| Governance Engine | 99.9% | 43 minutes |
+| Database (Supabase) | 99.95% | 21 minutes |
+
+#### 18.2.2 Planned Maintenance Windows
+
+- **Frequency:** Monthly
+- **Duration:** Maximum 2 hours
+- **Timing:** Low-traffic period (e.g., Sunday 2:00 AM UTC)
+- **Notification:** 72 hours advance notice
+
+---
+
+### 18.3 Redundancy Design
+
+#### 18.3.1 Application Tier Redundancy
+
+- **Minimum instances:** 2 (development/staging), 3 (production)
+- **Load balancing:** Round-robin with health checks
+- **Session affinity:** None required (stateless workflows)
+
+#### 18.3.2 Data Tier Redundancy
+
+- **Database replication:** Managed by Supabase (multi-AZ)
+- **Backup frequency:** Continuous (Supabase point-in-time recovery)
+- **Backup retention:** 30 days
+
+#### 18.3.3 Network Tier Redundancy
+
+- **Load balancer:** Redundant load balancers in multiple AZs
+- **DNS:** Multiple DNS servers with health checks
+- **Failover:** Automatic DNS failover to healthy instances
+
+---
+
+### 18.4 Disaster Scenarios and Responses
+
+| Scenario | Detection | Response | Recovery Time |
+|----------|-----------|----------|---------------|
+| Single instance failure | Health check failure | Remove from load balancer, provision new instance | <5 minutes |
+| Database primary failure | Supabase managed detection | Automatic failover to replica | <1 minute |
+| Entire AZ failure | Multiple health check failures | Route traffic to other AZ | <2 minutes |
+| Complete region failure | No healthy endpoints | Failover to DR region | <30 minutes |
+
+---
+
+## 19. Disaster Recovery
+
+### 19.1 Disaster Recovery Principles
+
+#### 19.1.1 Data is Sacred
+
+Data loss is unacceptable. All data must be backed up and recoverable.
+
+#### 19.1.2 Recovery Time Objective (RTO)
+
+**RTO:** Maximum acceptable downtime
+
+- **Critical Services:** 1 hour
+- **Non-Critical Services:** 4 hours
+
+#### 19.1.3 Recovery Point Objective (RPO)
+
+**RPO:** Maximum acceptable data loss
+
+- **Critical Data:** 5 minutes (continuous backup)
+- **Non-Critical Data:** 1 hour (hourly snapshots)
+
+---
+
+### 19.2 Backup Strategy
+
+#### 19.2.1 Database Backups
+
+**Continuous Backup (Supabase Point-in-Time Recovery):**
+- Transaction log continuously backed up
+- Recovery to any point within last 30 days
+- Automated by Supabase
+
+**Daily Snapshots:**
+- Full database snapshot every 24 hours
+- Retained for 90 days
+- Stored in separate region
+
+**Weekly Archives:**
+- Full database export every 7 days
+- Retained for 365 days
+- Stored in cold storage (e.g., S3 Glacier)
+
+#### 19.2.2 Workflow Backups
+
+- All workflows versioned in Git repository
+- Git repository backed up to multiple locations
+- Workflow export generated before each deployment
+
+#### 19.2.3 Configuration Backups
+
+- Configuration table snapshotted with database
+- Configuration changes logged in audit trail
+- Ability to restore previous configuration
+
+---
+
+### 19.3 Disaster Recovery Procedures
+
+#### 19.3.1 Scenario: Database Corruption
+
+**Detection:**
+- Query failures
+- Data inconsistencies detected
+- Automated integrity checks fail
+
+**Response:**
+1. Isolate corrupted database (stop writes)
+2. Identify last known good state
+3. Restore from point-in-time backup
+4. Validate data integrity
+5. Resume normal operations
+6. Post-mortem to identify root cause
+
+**RTO:** 2 hours  
+**RPO:** 5 minutes
+
+#### 19.3.2 Scenario: Complete Region Failure
+
+**Detection:**
+- All health checks fail
+- No connectivity to region
+- Cloud provider status page confirms outage
+
+**Response:**
+1. Activate disaster recovery plan
+2. Failover DNS to DR region
+3. Restore database from latest backup
+4. Deploy workflows to DR region
+5. Validate system functionality
+6. Resume normal operations
+7. Post-mortem after region restored
+
+**RTO:** 30 minutes  
+**RPO:** 15 minutes
+
+---
+
+### 19.4 Disaster Recovery Testing
+
+#### 19.4.1 Test Frequency
+
+- **Backup restoration test:** Monthly
+- **Partial failover test:** Quarterly
+- **Full DR drill:** Annually
+
+#### 19.4.2 Test Procedures
+
+**Backup Restoration Test:**
+1. Restore database backup to isolated environment
+2. Validate data integrity
+3. Execute test queries
+4. Document restoration time
+5. Identify issues and remediate
+
+**Full DR Drill:**
+1. Simulate complete region failure
+2. Execute full DR procedure
+3. Measure RTO and RPO
+4. Identify gaps in DR plan
+5. Update DR documentation
+
+---
+
+## 20. Security Boundaries
+
+### 20.1 Trust Zones
+
+The AHOS platform is divided into **trust zones** with explicit boundaries:
+
+```
+┌─────────────────────────────────────────────────────┐
+│              PUBLIC ZONE (Untrusted)                │
+│  - External users                                   │
+│  - External systems                                 │
+└─────────────────────────────────────────────────────┘
+                       ↓ (HTTPS + Auth)
+┌─────────────────────────────────────────────────────┐
+│              DMZ (API Gateway)                      │
+│  - Authentication                                   │
+│  - Authorization                                    │
+│  - Rate limiting                                    │
+└─────────────────────────────────────────────────────┘
+                       ↓ (Internal HTTPS)
+┌─────────────────────────────────────────────────────┐
+│         APPLICATION ZONE (Trusted)                  │
+│  - Engine workflows                                 │
+│  - Platform services                                │
+│  - Event Bus                                        │
+└─────────────────────────────────────────────────────┘
+                       ↓ (Encrypted connection)
+┌─────────────────────────────────────────────────────┐
+│            DATA ZONE (Highly Trusted)               │
+│  - Supabase database                                │
+│  - Secret vault                                     │
+│  - Backup storage                                   │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+### 20.2 Security Controls by Zone
+
+#### 20.2.1 Public Zone → DMZ
+
+**Controls:**
+- TLS 1.2+ encryption mandatory
+- Authentication required (JWT tokens)
+- Rate limiting enforced
+- Input validation and sanitization
+- DDoS protection
+
+#### 20.2.2 DMZ → Application Zone
+
+**Controls:**
+- Internal HTTPS with mutual TLS (if supported)
+- Service-to-service authentication
+- Request origin validation
+- Audit logging of all requests
+
+#### 20.2.3 Application Zone → Data Zone
+
+**Controls:**
+- Database credentials in secret vault
+- Connection encryption (SSL)
+- Query parameterization (prevent SQL injection)
+- Row-level security (RLS) in Supabase
+- Audit logging of data access
+
+---
+
+### 20.3 Data Classification
+
+| Classification | Description | Examples | Access Control |
+|----------------|-------------|----------|----------------|
+| **Public** | Publicly available information | Published insights, public API documentation | No restrictions |
+| **Internal** | Internal use only | Workflow definitions, system architecture | Authenticated users |
+| **Confidential** | Sensitive business information | Discovery sources, analysis results | Role-based access |
+| **Restricted** | Highly sensitive data | Credentials, personal information, financial data | Strict need-to-know basis |
+
+---
+
+### 20.4 Encryption Requirements
+
+#### 20.4.1 Data in Transit
+
+All data in transit must be encrypted:
+- **External communications:** TLS 1.2+ (HTTPS, WSS)
+- **Internal communications:** TLS 1.2+ (preferred) or trusted network
+- **Database connections:** SSL/TLS encryption
+
+#### 20.4.2 Data at Rest
+
+Sensitive data at rest must be encrypted:
+- **Database:** Encryption managed by Supabase (AES-256)
+- **Backups:** Encrypted before storage
+- **Secrets:** Encrypted in secret vault (AES-256)
+- **Logs:** Logs containing sensitive data encrypted
+
+---
+
+## 21. Technology Independence Rules
+
+### 21.1 Abstraction Principles
+
+#### 21.1.1 Vendor-Specific APIs Abstracted
+
+Direct use of vendor-specific APIs must be isolated:
+
+**Bad:**
+```
+Workflow calls Supabase-specific function directly
+```
+
+**Good:**
+```
+Workflow calls generic "StoreData" workflow
+    → "StoreData" workflow encapsulates Supabase-specific logic
+```
+
+This enables:
+- Future migration to alternative database
+- Mocking for testing
+- Behavior customization per environment
+
+#### 21.1.2 Configuration-Driven Technology Selection
+
+Where multiple technology options exist, selection should be configuration-driven:
+
+**Example:**
+```json
+{
+  "messaging_backend": "supabase_table", // or "rabbitmq", "sqs"
+  "cache_backend": "in_memory" // or "redis"
+}
+```
+
+---
+
+### 21.2 Technology Substitution Points
+
+#### 21.2.1 Data Layer Substitution
+
+If Supabase must be replaced:
+
+**Requirements:**
+- Alternative must support PostgreSQL-compatible SQL
+- Alternative must support connection pooling
+- Alternative must support point-in-time backup
+- Alternative must support row-level security (or equivalent)
+
+**Migration Path:**
+- Export database schema
+- Migrate data using ETL process
+- Update connection configuration
+- Validate data integrity
+- Switch traffic to new database
+
+#### 21.2.2 Orchestration Layer Substitution
+
+If n8n must be replaced:
+
+**Requirements:**
+- Alternative must support workflow-as-code
+- Alternative must support webhook triggers
+- Alternative must support scheduling
+- Alternative must support HTTP request nodes
+- Alternative must support conditional logic and loops
+
+**Migration Path:**
+- Translate workflows to alternative platform DSL
+- Deploy translated workflows
+- Run parallel operations (n8n and alternative)
+- Validate output equivalence
+- Switch traffic to alternative platform
+
+---
+
+### 21.3 Open Standards Compliance
+
+Where possible, use open standards:
+
+- **APIs:** RESTful HTTP/JSON (not proprietary RPC)
+- **Authentication:** OAuth 2.0, OpenID Connect (not custom auth)
+- **Data Exchange:** JSON, CSV (not proprietary formats)
+- **Logging:** Structured JSON logs (compatible with ELK, Splunk, etc.)
+- **Metrics:** Prometheus-compatible metrics (if feasible)
+
+---
+
+## 22. Cross-Service Contracts
+
+### 22.1 Contract Definition and Governance
+
+#### 22.1.1 Contract Ownership
+
+Each contract has a single **owner** responsible for:
+- Contract definition and versioning
+- Backward compatibility
+- Deprecation notices
+- Documentation
+
+#### 22.1.2 Contract Registry
+
+All contracts registered in central registry:
+
+```sql
+CREATE TABLE service_contracts (
+    contract_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    contract_name VARCHAR(255) NOT NULL UNIQUE,
+    contract_type VARCHAR(50) NOT NULL, -- 'api', 'event', 'message'
+    version VARCHAR(20) NOT NULL,
+    owner_service VARCHAR(255) NOT NULL,
+    schema JSONB NOT NULL,
+    deprecated BOOLEAN DEFAULT FALSE,
+    deprecation_date TIMESTAMP WITH TIME ZONE,
+    removal_date TIMESTAMP WITH TIME ZONE,
+    documentation TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+---
+
+### 22.2 Event Contracts
+
+#### 22.2.1 Event Contract Template
+
+```json
+{
+  "event_name": "discovery.signal.detected",
+  "version": "1.0.0",
+  "owner": "discovery-engine",
+  "description": "Published when a new signal is detected",
+  "schema": {
+    "type": "object",
+    "required": ["signal_id", "signal_type", "detected_at"],
+    "properties": {
+      "signal_id": { "type": "string", "format": "uuid" },
+      "signal_type": { "type": "string", "enum": ["opportunity", "threat", "insight"] },
+      "detected_at": { "type": "string", "format": "date-time" },
+      "metadata": { "type": "object" }
+    }
+  }
+}
+```
+
+#### 22.2.2 Key Event Contracts
+
+**Discovery Engine Events:**
+- `discovery.collector.registered`
+- `discovery.collector.executed`
+- `discovery.signal.detected`
+- `discovery.signal.qualified`
+- `discovery.published`
+
+**Knowledge Engine Events:**
+- `knowledge.entry.created`
+- `knowledge.entry.updated`
+- `knowledge.entry.versioned`
+
+**Analysis Engine Events:**
+- `analysis.insight.generated`
+- `analysis.recommendation.created`
+
+**Agent Engine Events:**
+- `agent.action.planned`
+- `agent.action.executed`
+- `agent.action.completed`
+
+**Governance Engine Events:**
+- `governance.approval.requested`
+- `governance.approval.granted`
+- `governance.approval.denied`
+- `governance.audit.logged`
+
+---
+
+### 22.3 API Contracts
+
+#### 22.3.1 API Contract Template
+
+```json
+{
+  "api_name": "GetDiscoveryCollector",
+  "version": "1.0.0",
+  "owner": "discovery-engine",
+  "method": "GET",
+  "path": "/api/v1/discovery/collectors/{collector_id}",
+  "description": "Retrieve a discovery collector by ID",
+  "request": {
+    "path_parameters": {
+      "collector_id": { "type": "string", "format": "uuid" }
+    }
+  },
+  "response": {
+    "200": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "collector_id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "inactive"] }
+        }
+      }
+    },
+    "404": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## 23. Infrastructure Responsibilities
+
+### 23.1 Infrastructure Ownership Model
+
+#### 23.1.1 Platform Team Responsibilities
+
+The **Platform Team** owns:
+- n8n infrastructure and upgrades
+- Supabase infrastructure and configuration
+- Event Bus implementation
+- API Gateway implementation
+- Logging infrastructure
+- Monitoring infrastructure
+- Secret management infrastructure
+- Backup and disaster recovery infrastructure
+
+#### 23.1.2 Engine Team Responsibilities
+
+**Engine Teams** (Discovery, Knowledge, Analysis, Agent, Governance) own:
+- Engine-specific workflows
+- Engine-specific data schemas
+- Engine-specific business logic
+- Engine-specific API endpoints
+- Engine-specific event publishing/consumption
+- Engine-specific error handling
+
+---
+
+### 23.2 Shared Responsibilities
+
+#### 23.2.1 Performance Optimization
+
+- **Platform Team:** Provides monitoring, profiling tools
+- **Engine Teams:** Optimize workflow logic, database queries
+
+#### 23.2.2 Security
+
+- **Platform Team:** Provides authentication, authorization, encryption infrastructure
+- **Engine Teams:** Implement secure coding practices, input validation, access control
+
+#### 23.2.3 Operational Excellence
+
+- **Platform Team:** Provides deployment pipelines, health check infrastructure
+- **Engine Teams:** Implement health check endpoints, operational runbooks
+
+---
+
+## 24. Operational Constraints
+
+### 24.1 Resource Constraints
+
+#### 24.1.1 Workflow Execution Constraints
+
+- **Max workflow execution time:** 15 minutes (timeout)
+- **Max parallel workflow executions:** 100 (per n8n instance)
+- **Max workflow payload size:** 10 MB
+- **Max workflow nodes:** 200 nodes per workflow
+
+#### 24.1.2 Database Constraints
+
+- **Max query execution time:** 30 seconds (timeout)
+- **Max connections:** 100 (Supabase connection pool)
+- **Max table size:** No hard limit (monitor and partition)
+- **Max row size:** 1 GB (TOAST limit)
+
+#### 24.1.3 API Constraints
+
+- **Max request size:** 1 MB (JSON payload)
+- **Max response size:** 10 MB
+- **Max request timeout:** 30 seconds
+- **Rate limits:** Per tier (see section 9.6)
+
+---
+
+### 24.2 Data Retention Constraints
+
+| Data Type | Retention Period | Archival Strategy |
+|-----------|------------------|-------------------|
+| Raw discoveries | 90 days | Archive to cold storage |
+| Normalized discoveries | 180 days | Archive to cold storage |
+| Published discoveries | 365 days | Archive to cold storage |
+| Knowledge entries | Indefinite | Active database |
+| Insights | 365 days | Archive to cold storage |
+| Logs (DEBUG) | 7 days | Delete |
+| Logs (INFO) | 30 days | Delete |
+| Logs (ERROR) | 180 days | Archive |
+| Metrics | 30 days (raw), 365 days (aggregated) | Archive |
+| Audit trail | 7 years | Archive (compliance requirement) |
+
+---
+
+### 24.3 Compliance Constraints
+
+#### 24.3.1 Data Privacy (GDPR, CCPA)
+
+- **Right to access:** Users can request all data about them
+- **Right to deletion:** Users can request data deletion
+- **Right to portability:** Users can export their data
+- **Consent management:** Explicit consent required for personal data processing
+
+#### 24.3.2 Audit Requirements
+
+- All data access logged with user identity
+- All data modifications logged with before/after state
+- All configuration changes logged with approver identity
+- Audit logs retained for 7 years
+- Audit logs tamper-proof (write-once, immutable)
+
+---
+
+## 25. Future Extension Points
+
+### 25.1 Multi-Tenancy
+
+While AHOS is currently single-tenant, architecture supports future multi-tenancy:
+
+**Tenant Isolation:**
+- Tenant ID column in all tables
+- Row-level security (RLS) enforces tenant isolation
+- Workflows scoped to tenant context
+- API requests include tenant identifier
+
+**Tenant Provisioning:**
+- Automated tenant setup workflow
+- Tenant-specific configuration
+- Tenant-specific resources (databases, workflows)
+
+---
+
+### 25.2 Machine Learning Integration
+
+**Extension Point:** Analysis Engine can integrate ML models:
+
+- **Model Training:** Offline training on historical data
+- **Model Deployment:** Models deployed as API endpoints
+- **Model Inference:** Analysis Engine calls model API
+- **Model Monitoring:** Track model accuracy, drift
+
+**ML Use Cases:**
+- Anomaly detection in discoveries
+- Predictive scoring of opportunities
+- Natural language understanding of insights
+
+---
+
+### 25.3 Real-Time Streaming
+
+**Extension Point:** Event Bus can be upgraded to real-time streaming:
+
+- Replace polling with streaming (Supabase Realtime, Kafka, Kinesis)
+- Sub-second event delivery
+- Stream processing for complex event patterns
+
+---
+
+### 25.4 GraphQL API
+
+**Extension Point:** API Gateway can support GraphQL:
+
+- GraphQL endpoint alongside REST APIs
+- Schema-driven API design
+- Client-specified response shapes
+- Reduced over-fetching/under-fetching
+
+---
+
+### 25.5 Blockchain Integration
+
+**Extension Point:** Governance Engine can leverage blockchain:
+
+- Immutable audit trail on blockchain
+- Smart contracts for governance policies
+- Decentralized approval workflows
+- Tamper-proof compliance evidence
+
+---
+
+## 26. Interfaces Required by All Engines
+
+### 26.1 Mandatory Engine Interfaces
+
+Every AHOS engine **MUST** implement these interfaces:
+
+#### 26.1.1 Health Check Interface
+
+**Endpoint:** `GET /health`
+
+**Response Schema:**
+```json
+{
+  "status": "healthy | degraded | unhealthy",
+  "version": "1.0.0",
+  "timestamp": "2025-01-01T00:00:00Z",
+  "checks": {
+    "database": "healthy | unhealthy",
+    "dependencies": "healthy | degraded | unhealthy"
+  }
+}
+```
+
+#### 26.1.2 Metrics Interface
+
+**Endpoint:** `GET /metrics`
+
+**Response Schema:**
+```json
+{
+  "timestamp": "2025-01-01T00:00:00Z",
+  "metrics": [
+    {
+      "name": "workflows_executed_total",
+      "value": 12345,
+      "unit": "count"
+    },
+    {
+      "name": "workflow_execution_duration_seconds",
+      "value": 2.5,
+      "unit": "seconds",
+      "percentile": "p95"
+    }
+  ]
+}
+```
+
+#### 26.1.3 Configuration Interface
+
+**Capability:** Engines must support external configuration
+
+**Implementation:**
+- Read configuration from Supabase `system_config` table
+- Cache configuration with TTL
+- Reload configuration on update signal
+- Validate configuration schema on load
+
+#### 26.1.4 Logging Interface
+
+**Capability:** Engines must emit structured logs
+
+**Implementation:**
+- Write logs to Supabase `system_logs` table
+- Include correlation IDs in all logs
+- Use standard log levels (DEBUG, INFO, WARN, ERROR, CRITICAL)
+- Log all significant operations
+
+#### 26.1.5 Event Publishing Interface
+
+**Capability:** Engines must publish domain events
+
+**Implementation:**
+- Write events to Supabase `event_bus` table
+- Validate event schema before publishing
+- Include correlation IDs in all events
+
+#### 26.1.6 Event Consumption Interface
+
+**Capability:** Engines must consume subscribed events
+
+**Implementation:**
+- Poll `event_bus` table for subscribed events
+- Process events idempotently
+- Mark events as processed after successful handling
+- Implement retry logic for transient failures
+
+---
+
+### 26.2 Optional Engine Interfaces
+
+Engines **MAY** implement these interfaces if needed:
+
+#### 26.2.1 Admin API
+
+For engine-specific administrative operations
+
+#### 26.2.2 Query API
+
+For engine-specific data queries
+
+#### 26.2.3 Webhook Endpoints
+
+For external system integrations
+
+---
+
+## 27. Architectural Invariants
+
+### 27.1 Invariants Definition
+
+**Architectural Invariants** are rules that must **NEVER** be violated. They define the immutable characteristics of the AHOS platform.
+
+---
+
+### 27.2 Core Invariants
+
+#### 27.2.1 Workflow-Based Execution
+
+**Invariant:** All business logic executes within n8n workflows.
+
+**Rationale:** Ensures observability, debuggability, and operational consistency.
+
+**Exception:** None permitted.
+
+---
+
+#### 27.2.2 Database as Source of Truth
+
+**Invariant:** Supabase database is the single source of truth for all persistent state.
+
+**Rationale:** Ensures data consistency and recoverability.
+
+**Exception:** Transient caches permitted (with TTL).
+
+---
+
+#### 27.2.3 Event-Driven Inter-Engine Communication
+
+**Invariant:** Engines communicate via Event Bus (async) or API Gateway (sync), never directly.
+
+**Rationale:** Ensures loose coupling and independent evolution.
+
+**Exception:** None permitted.
+
+---
+
+#### 27.2.4 Idempotent Operations
+
+**Invariant:** All operations are designed for idempotency.
+
+**Rationale:** Enables safe retries and exactly-once semantics.
+
+**Exception:** Operations explicitly documented as non-idempotent (rare).
+
+---
+
+#### 27.2.5 Explicit State Transitions
+
+**Invariant:** All state transitions are explicit and auditable.
+
+**Rationale:** Ensures traceability and compliance.
+
+**Exception:** None permitted.
+
+---
+
+#### 27.2.6 Configuration Externalization
+
+**Invariant:** All configuration is externalized from workflow code.
+
+**Rationale:** Enables environment-specific behavior without code changes.
+
+**Exception:** Constants that are truly universal (e.g., mathematical constants).
+
+---
+
+#### 27.2.7 Schema Validation
+
+**Invariant:** All inter-service messages validated against schemas.
+
+**Rationale:** Ensures contract compliance and early error detection.
+
+**Exception:** Internal sub-workflow calls within same engine (trusted context).
+
+---
+
+#### 27.2.8 Audit Logging
+
+**Invariant:** All significant operations are logged with full context.
+
+**Rationale:** Enables compliance, debugging, and forensic analysis.
+
+**Exception:** High-frequency low-value operations (sampled logging acceptable).
+
+---
+
+#### 27.2.9 No Shared Mutable State
+
+**Invariant:** Engines do not share mutable state.
+
+**Rationale:** Prevents coupling and race conditions.
+
+**Exception:** Database tables owned by single engine (not shared mutable state).
+
+---
+
+#### 27.2.10 Versioned Contracts
+
+**Invariant:** All service contracts are versioned and backward-compatible within major version.
+
+**Rationale:** Enables independent deployment and evolution.
+
+**Exception:** None permitted.
+
+---
+
+## 28. Acceptance Criteria
+
+This Technical Architecture Specification is considered **complete and acceptable** when:
+
+### 28.1 Completeness Criteria
+
+- [ ] All 30 required sections present and detailed
+- [ ] All architectural decisions justified
+- [ ] All technology choices documented
+- [ ] All contracts and interfaces defined
+- [ ] All operational constraints specified
+- [ ] All invariants clearly stated
+
+### 28.2 Consistency Criteria
+
+- [ ] No internal contradictions
+- [ ] Aligned with AHOS Architecture Bible
+- [ ] Aligned with Strategic Master Plan
+- [ ] Aligned with Development Convention
+- [ ] Aligned with Engineering Transition Roadmap
+
+### 28.3 Clarity Criteria
+
+- [ ] Unambiguous language throughout
+- [ ] Clear definitions for all terms
+- [ ] Sufficient detail for implementation
+- [ ] Diagrams included where helpful
+
+### 28.4 Reviewability Criteria
+
+- [ ] Document structure supports navigation
+- [ ] Sections are logically organized
+- [ ] Cross-references are accurate
+- [ ] Table of contents included (implied)
+
+### 28.5 Implementability Criteria
+
+- [ ] Engineering teams can implement from this specification
+- [ ] No missing technical details
+- [ ] All extension points identified
+- [ ] All constraints explicit
+
+### 28.6 Governability Criteria
+
+- [ ] Document is versionable
+- [ ] Change history trackable
+- [ ] Approval workflow defined
+- [ ] Maintenance ownership assigned
+
+---
+
+## 29. Non-Goals
+
+This specification explicitly does **NOT** cover:
+
+### 29.1 Out of Scope
+
+- **Data schemas:** Covered in Data Architecture Specification
+- **Knowledge models:** Covered in Knowledge Architecture Specification
+- **Agent behaviors:** Covered in Agent Architecture Specification
+- **Governance policies:** Covered in Governance Specification
+- **Security controls:** Covered in Security Specification (beyond boundaries)
+- **UI/UX design:** Covered in separate interface specifications
+- **Business requirements:** Covered in functional specifications
+- **Pricing and licensing:** Business concern, not technical architecture
+
+### 29.2 Future Specifications
+
+These topics require dedicated specifications:
+
+- **Data Architecture Specification:** Database schemas, relationships, migrations
+- **Knowledge Architecture Specification:** Ontologies, knowledge graphs, evolution
+- **Agent Architecture Specification:** Agent roles, capabilities, coordination
+- **Governance Specification:** Policies, approval workflows, compliance
+- **Security Specification:** Detailed security controls, threat models, incident response
+- **Testing Specification:** Test strategies, coverage requirements, automation
+- **Deployment and Operations Specification:** Runbooks, procedures, SLAs
+
+---
+
+## 30. Appendix
+
+### 30.1 Glossary
+
+| Term | Definition |
+|------|------------|
+| **AHOS** | Autonomous Hybrid Opportunity System |
+| **Engine** | Major functional subsystem (Discovery, Knowledge, Analysis, Agent, Governance) |
+| **Workflow** | n8n workflow implementing business logic |
+| **Event Bus** | Asynchronous message-passing infrastructure |
+| **API Gateway** | Synchronous HTTP API entry point |
+| **Contract** | Versioned schema defining inter-service communication |
+| **Idempotent** | Operation that produces same result when executed multiple times |
+| **Invariant** | Rule that must never be violated |
+| **RTO** | Recovery Time Objective (maximum acceptable downtime) |
+| **RPO** | Recovery Point Objective (maximum acceptable data loss) |
+
+---
+
+### 30.2 References
+
+- **AHOS Architecture Bible:** Foundational architectural principles
+- **AHOS Strategic Master Plan:** Strategic objectives and roadmap
+- **AHOS Ultimate Vision:** Long-term vision and goals
+- **AHOS Development Convention:** Coding and workflow standards
+- **AHOS Engineering Transition Roadmap:** Implementation sequencing
+- **Discovery Engine Architecture:** Detailed Discovery Engine design
+
+---
+
+### 30.3 Document Maintenance
+
+#### 30.3.1 Version History
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | 2025 | AHOS Engineering Team | Initial release |
+
+#### 30.3.2 Change Management
+
+Changes to this specification require:
+
+1. **Proposal:** Written proposal with rationale
+2. **Review:** Architecture Review Board evaluation
+3. **Approval:** ARB approval (consensus or majority vote)
+4. **Version Increment:** Major version for breaking changes, minor for additions
+5. **Communication:** Notification to all engineering teams
+6. **Documentation:** Update to this specification and related documents
+
+#### 30.3.3 Ownership
+
+**Document Owner:** AHOS Platform Architect
+
+**Review Frequency:** Quarterly
+
+**Next Review Date:** 2025-Q2
+
+---
+
+### 30.4 Contact Information
+
+**Architecture Review Board:**
+- architecture-review@ahos.internal
+
+**Platform Engineering Team:**
+- platform-engineering@ahos.internal
+
+**Support:**
+- engineering-support@ahos.internal
+
+---
+
+## Document Status
+
+**This Technical Architecture Specification is APPROVED and EFFECTIVE immediately.**
+
+All AHOS engineering activities must comply with this specification.
+
+Deviations require explicit Architecture Review Board approval.
+
+---
+
+**END OF DOCUMENT**
+
+---
+
+**Document Metadata:**
+- **Total Pages:** 48
+- **Total Sections:** 30
+- **Total Words:** ~15,000
+- **Estimated Reading Time:** 60 minutes
+- **Classification:** Internal - Engineering
+- **Distribution:** All AHOS Engineering Teams
+# AHOS Technical Architecture Specification
+## Version 1.1 Patch
+
+**Document Status:** Approved Patch Release  
+**Base Version:** 1.0  
+**Patch Version:** 1.1  
+**Release Type:** PATCH (Backward Compatible)  
+**Date:** 2025  
+**Author:** AHOS Lead Enterprise Architect  
+
+---
+
+## Patch Summary
+
+This patch release adds **eight architectural improvements** to the Technical Architecture Specification v1.0 without modifying any existing architectural decisions or content. All additions are backward-compatible and enhance governance, testability, security, and operational excellence.
+
+**Changes:**
+1. Documentation Architecture Map (Section 2.3)
+2. Enterprise Error Code Standard (Section 15.6)
+3. Zero Trust Architecture Principles (Section 20.5)
+4. Architecture Decision Records Reference (Section 27.3)
+5. Contract Testing Requirements (Section 22.4)
+6. Operational Profiles (Section 16.6)
+7. Backup Verification Policy (Section 19.2.4)
+8. Architecture Compliance Checklist Reference (Section 28.7)
+
+---
+
+## MODIFICATION 1: Documentation Architecture Map
+
+**Existing Section:** 2. Scope  
+**New Subsection:** 2.3  
+**Insertion Point:** After Section 2.2 (Out of Scope)  
+**Rationale:** Clarifies document ownership and prevents specification duplication
+
+---
+
+### 2.3 Documentation Architecture Map
+
+#### 2.3.1 Document Hierarchy and Authority
+
+The AHOS platform documentation is organized hierarchically with clear ownership and authority boundaries. Each document has a **single authoritative source** for each architectural topic.
+
+**Hierarchy:**
+
+```
+AHOS Architecture Bible (Foundational)
+    ├─→ Strategic Master Plan (Strategic)
+    ├─→ Ultimate Vision (Visionary)
+    └─→ Technical Architecture Specification (Technical Foundation)
+            ├─→ Data Architecture Specification
+            ├─→ Knowledge Architecture Specification
+            ├─→ Agent Architecture Specification
+            ├─→ Governance Specification
+            ├─→ Security Specification
+            ├─→ Integration Specification
+            ├─→ Testing and Quality Specification
+            ├─→ Deployment and Operations Specification
+            └─→ Engine Specifications
+                    ├─→ Discovery Engine Specification
+                    ├─→ Knowledge Engine Specification
+                    ├─→ Analysis Engine Specification
+                    ├─→ Agent Engine Specification
+                    └─→ Governance Engine Specification
+```
+
+---
+
+#### 2.3.2 Authoritative Document by Topic
+
+| Topic | Authoritative Document | Owner |
+|-------|------------------------|-------|
+| **Runtime Architecture** | Technical Architecture Specification | Platform Architect |
+| **Service Architecture** | Technical Architecture Specification | Platform Architect |
+| **Event Bus Design** | Technical Architecture Specification | Platform Architect |
+| **API Standards** | Technical Architecture Specification | Platform Architect |
+| **Configuration Management** | Technical Architecture Specification | Platform Architect |
+| **Logging Standards** | Technical Architecture Specification | Platform Architect |
+| **Monitoring Standards** | Technical Architecture Specification | Platform Architect |
+| **Error Handling Patterns** | Technical Architecture Specification | Platform Architect |
+| **Deployment Architecture** | Deployment and Operations Specification | Operations Lead |
+| **Database Schemas** | Data Architecture Specification | Data Architect |
+| **Table Relationships** | Data Architecture Specification | Data Architect |
+| **Data Retention Policies** | Data Architecture Specification | Data Architect |
+| **Knowledge Models** | Knowledge Architecture Specification | Knowledge Architect |
+| **Ontology Design** | Knowledge Architecture Specification | Knowledge Architect |
+| **Knowledge Evolution** | Knowledge Architecture Specification | Knowledge Architect |
+| **Agent Roles** | Agent Architecture Specification | Agent Architect |
+| **Agent Capabilities** | Agent Architecture Specification | Agent Architect |
+| **Agent Coordination** | Agent Architecture Specification | Agent Architect |
+| **Governance Policies** | Governance Specification | Governance Lead |
+| **Approval Workflows** | Governance Specification | Governance Lead |
+| **Compliance Rules** | Governance Specification | Governance Lead |
+| **Audit Requirements** | Governance Specification | Governance Lead |
+| **Authentication** | Security Specification | Security Architect |
+| **Authorization (RBAC/ABAC)** | Security Specification | Security Architect |
+| **Encryption Standards** | Security Specification | Security Architect |
+| **Threat Models** | Security Specification | Security Architect |
+| **Security Incident Response** | Security Specification | Security Architect |
+| **External System Integrations** | Integration Specification | Integration Architect |
+| **API Contracts (External)** | Integration Specification | Integration Architect |
+| **Data Exchange Formats** | Integration Specification | Integration Architect |
+| **Testing Strategies** | Testing and Quality Specification | QA Lead |
+| **Quality Gates** | Testing and Quality Specification | QA Lead |
+| **Test Automation** | Testing and Quality Specification | QA Lead |
+| **Deployment Procedures** | Deployment and Operations Specification | Operations Lead |
+| **Operational Runbooks** | Deployment and Operations Specification | Operations Lead |
+| **Incident Management** | Deployment and Operations Specification | Operations Lead |
+| **Discovery Engine Logic** | Discovery Engine Specification | Discovery Engine Lead |
+| **Knowledge Engine Logic** | Knowledge Engine Specification | Knowledge Engine Lead |
+| **Analysis Engine Logic** | Analysis Engine Specification | Analysis Engine Lead |
+| **Agent Engine Logic** | Agent Engine Specification | Agent Engine Lead |
+| **Governance Engine Logic** | Governance Engine Specification | Governance Engine Lead |
+
+---
+
+#### 2.3.3 Cross-Document Reference Rules
+
+**Rule 1: Single Source of Truth**  
+Each architectural topic must have exactly one authoritative document. Duplication is prohibited.
+
+**Rule 2: Reference, Don't Duplicate**  
+When a document needs information owned by another document, it must **reference** the authoritative document, not duplicate the content.
+
+**Example (Correct):**
+```
+For database connection pooling configuration, 
+see Section 5.2 of the Data Architecture Specification.
+```
+
+**Example (Incorrect):**
+```
+Database connection pooling is configured as follows: [duplicated content]
+```
+
+**Rule 3: Contradiction Resolution**  
+If contradiction discovered between documents:
+1. Authoritative document (per table above) takes precedence
+2. Issue raised to Architecture Review Board
+3. Contradiction resolved via document patch
+4. All affected documents updated
+
+**Rule 4: Document Dependencies**  
+Documents may depend on other documents, but dependency must be explicit:
+
+```
+Dependencies:
+  - Technical Architecture Specification v1.1+ (REQUIRED)
+  - Security Specification v1.0+ (REQUIRED)
+  - Data Architecture Specification v1.0+ (OPTIONAL, for schema details)
+```
+
+---
+
+#### 2.3.4 Document Ownership Responsibilities
+
+Each document owner is responsible for:
+
+- **Content Accuracy:** Ensuring document content is correct and current
+- **Version Management:** Managing document versioning and change history
+- **Review Coordination:** Coordinating technical reviews and approvals
+- **Conflict Resolution:** Resolving conflicts with other documents
+- **Stakeholder Communication:** Notifying affected parties of changes
+- **Archival:** Maintaining historical versions
+
+---
+
+#### 2.3.5 Document Update Coordination
+
+When a change impacts multiple documents:
+
+1. **Identify Impact:** Document owner identifies all affected documents
+2. **Notify Owners:** Document owner notifies all affected document owners
+3. **Coordinate Updates:** Owners coordinate to ensure consistency
+4. **Synchronized Release:** Related documents released together when possible
+5. **Cross-Reference Validation:** All cross-references validated before release
+
+---
+
+## MODIFICATION 2: Enterprise Error Code Standard
+
+**Existing Section:** 15. Error Handling Architecture  
+**New Subsection:** 15.6  
+**Insertion Point:** After Section 15.5 (Error Storage)  
+**Rationale:** Standardizes error codes for consistent troubleshooting and monitoring
+
+---
+
+### 15.6 Enterprise Error Code Standard
+
+#### 15.6.1 Error Code Purpose
+
+Standardized error codes enable:
+
+- **Rapid Troubleshooting:** Engineers quickly identify error type and location
+- **Automated Monitoring:** Monitoring systems aggregate errors by code
+- **Documentation:** Error codes map to detailed troubleshooting guides
+- **User Communication:** User-friendly error messages linked to error codes
+- **Trend Analysis:** Error code trends identify systemic issues
+
+---
+
+#### 15.6.2 Error Code Structure
+
+All AHOS error codes follow this structure:
+
+```
+AHOS-{ENGINE}-{CATEGORY}-{NUMBER}
+```
+
+**Components:**
+
+- **AHOS:** Platform prefix (identifies AHOS errors vs. external errors)
+- **ENGINE:** Two-letter engine code (see table below)
+- **CATEGORY:** Three-letter error category (see table below)
+- **NUMBER:** Four-digit sequential number within category
+
+**Example:**
+```
+AHOS-DI-VAL-0001
+```
+- Platform: AHOS
+- Engine: Discovery (DI)
+- Category: Validation (VAL)
+- Number: 0001
+
+---
+
+#### 15.6.3 Engine Codes
+
+| Engine | Code | Example |
+|--------|------|---------|
+| Discovery Engine | DI | AHOS-DI-* |
+| Knowledge Engine | KN | AHOS-KN-* |
+| Analysis Engine | AN | AHOS-AN-* |
+| Agent Engine | AG | AHOS-AG-* |
+| Governance Engine | GO | AHOS-GO-* |
+| Platform Services | PL | AHOS-PL-* |
+| API Gateway | AP | AHOS-AP-* |
+| Event Bus | EB | AHOS-EB-* |
+
+---
+
+#### 15.6.4 Error Categories
+
+| Category | Code | Description | Examples |
+|----------|------|-------------|----------|
+| Validation | VAL | Input validation failures | Invalid schema, missing required field |
+| Business Logic | BUS | Business rule violations | Duplicate entity, invalid state transition |
+| Database | DAT | Database operation failures | Connection timeout, query failure, constraint violation |
+| External API | EXT | External system failures | Third-party API error, timeout, rate limit |
+| Authentication | AUT | Authentication failures | Invalid token, expired credentials |
+| Authorization | AUZ | Authorization failures | Insufficient permissions, role violation |
+| Configuration | CFG | Configuration errors | Missing configuration, invalid value |
+| Workflow | WFL | Workflow execution errors | Workflow timeout, node failure |
+| Resource | RES | Resource exhaustion | Memory limit, disk full, connection pool exhausted |
+| System | SYS | System-level failures | Service unavailable, internal error |
+
+---
+
+#### 15.6.5 Error Code Ranges
+
+Each engine has reserved error code ranges:
+
+**Discovery Engine (AHOS-DI-*):**
+- VAL: 0001-0999
+- BUS: 1000-1999
+- DAT: 2000-2999
+- EXT: 3000-3999
+- WFL: 4000-4999
+- (Other categories): 5000-9999
+
+**Knowledge Engine (AHOS-KN-*):**
+- VAL: 0001-0999
+- BUS: 1000-1999
+- DAT: 2000-2999
+- WFL: 4000-4999
+- (Other categories): 5000-9999
+
+**Analysis Engine (AHOS-AN-*):**
+- VAL: 0001-0999
+- BUS: 1000-1999
+- DAT: 2000-2999
+- EXT: 3000-3999 (AI API errors)
+- WFL: 4000-4999
+- (Other categories): 5000-9999
+
+**Agent Engine (AHOS-AG-*):**
+- VAL: 0001-0999
+- BUS: 1000-1999
+- DAT: 2000-2999
+- EXT: 3000-3999
+- AUZ: 6000-6999
+- WFL: 4000-4999
+- (Other categories): 5000-9999
+
+**Governance Engine (AHOS-GO-*):**
+- VAL: 0001-0999
+- BUS: 1000-1999
+- DAT: 2000-2999
+- AUT: 7000-7999
+- AUZ: 8000-8999
+- WFL: 4000-4999
+- (Other categories): 5000-9999
+
+**Platform Services (AHOS-PL-*):**
+- CFG: 0001-0999
+- RES: 1000-1999
+- DAT: 2000-2999
+- SYS: 3000-3999
+
+**API Gateway (AHOS-AP-*):**
+- AUT: 0001-0999
+- AUZ: 1000-1999
+- VAL: 2000-2999
+- RES: 3000-3999 (rate limiting)
+
+**Event Bus (AHOS-EB-*):**
+- VAL: 0001-0999
+- DAT: 1000-1999
+- RES: 2000-2999
+
+---
+
+#### 15.6.6 Error Code Registry
+
+All error codes registered in centralized registry:
+
+```sql
+CREATE TABLE error_code_registry (
+    error_code VARCHAR(50) PRIMARY KEY,
+    engine VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    description TEXT NOT NULL,
+    severity VARCHAR(20) NOT NULL,
+    retryable BOOLEAN NOT NULL,
+    troubleshooting_guide TEXT,
+    documentation_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_engine ON error_code_registry(engine);
+CREATE INDEX idx_category ON error_code_registry(category);
+```
+
+**Example Registry Entries:**
+
+```sql
+INSERT INTO error_code_registry VALUES
+(
+    'AHOS-DI-VAL-0001',
+    'discovery-engine',
+    'validation',
+    'Collector configuration validation failed: missing required field',
+    'ERROR',
+    false,
+    'Verify collector configuration includes all required fields: name, type, interval',
+    'https://docs.ahos.internal/errors/DI-VAL-0001',
+    NOW(),
+    NOW()
+),
+(
+    'AHOS-DI-DAT-2001',
+    'discovery-engine',
+    'database',
+    'Database connection timeout during collector registration',
+    'CRITICAL',
+    true,
+    'Check database connectivity and connection pool availability. Retry operation.',
+    'https://docs.ahos.internal/errors/DI-DAT-2001',
+    NOW(),
+    NOW()
+);
+```
+
+---
+
+#### 15.6.7 Error Code Usage in Responses
+
+All error responses must include standardized error code:
+
+**HTTP API Error Response:**
+```json
+{
+  "error_code": "AHOS-DI-VAL-0001",
+  "error": "validation_error",
+  "message": "Collector configuration validation failed",
+  "details": {
+    "field": "collection_interval_seconds",
+    "constraint": "must be between 60 and 86400"
+  },
+  "documentation_url": "https://docs.ahos.internal/errors/DI-VAL-0001",
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "timestamp": "2025-01-01T10:30:00Z"
+}
+```
+
+**Event Bus Error Event:**
+```json
+{
+  "event_type": "system.error.occurred",
+  "payload": {
+    "error_code": "AHOS-AN-EXT-3001",
+    "error": "external_api_error",
+    "message": "Claude API returned 503 Service Unavailable",
+    "external_system": "claude-api",
+    "retry_after_seconds": 60,
+    "correlation_id": "abc123"
+  }
+}
+```
+
+**Log Entry:**
+```json
+{
+  "timestamp": "2025-01-01T10:30:00Z",
+  "level": "ERROR",
+  "error_code": "AHOS-KN-DAT-2005",
+  "message": "Failed to insert knowledge entry due to unique constraint violation",
+  "details": {
+    "table": "knowledge_entries",
+    "constraint": "unique_knowledge_key"
+  },
+  "correlation_id": "xyz789"
+}
+```
+
+---
+
+#### 15.6.8 Error Code Governance
+
+**New Error Code Approval Process:**
+
+1. **Proposal:** Engineer proposes new error code with justification
+2. **Registry Check:** Verify code not already assigned
+3. **Range Validation:** Verify code within allocated range
+4. **Documentation:** Create troubleshooting guide and documentation
+5. **Registry Update:** Add to error code registry
+6. **Communication:** Notify engineering teams of new error code
+
+**Error Code Deprecation:**
+
+- Deprecated error codes remain in registry marked as deprecated
+- Deprecation date and replacement code documented
+- Deprecated codes supported for minimum 12 months
+- After deprecation period, code can be reassigned
+
+---
+
+## MODIFICATION 3: Zero Trust Architecture Principles
+
+**Existing Section:** 20. Security Boundaries  
+**New Subsection:** 20.5  
+**Insertion Point:** After Section 20.4 (Encryption Requirements)  
+**Rationale:** Enhances security posture with modern zero trust principles
+
+---
+
+### 20.5 Zero Trust Architecture Principles
+
+#### 20.5.1 Zero Trust Foundation
+
+AHOS security architecture follows **Zero Trust** principles: **"Never trust, always verify."**
+
+Traditional perimeter-based security assumes everything inside the network is trusted. Zero Trust assumes:
+
+- **No implicit trust:** Trust is never assumed based on network location
+- **Verify explicitly:** Every access request is authenticated and authorized
+- **Least privilege:** Minimum necessary access granted
+- **Assume breach:** Architecture designed assuming attackers have network access
+
+---
+
+#### 20.5.2 Zero Trust Principles
+
+#### Principle 1: Verify Explicitly
+
+**Requirement:** Always authenticate and authorize based on all available data points.
+
+**Implementation:**
+- Every API request authenticated (JWT token validation)
+- Every database query authorized (row-level security)
+- Every workflow execution associated with identity
+- Every inter-service call includes service identity token
+- Authentication factors include: identity, location, device, time, behavior
+
+**Example:**
+```
+API Request → Validate JWT → Verify user identity → Check user roles 
+    → Verify request origin → Validate request timestamp 
+    → Check rate limits → Authorize access → Execute
+```
+
+---
+
+#### Principle 2: Use Least Privilege Access
+
+**Requirement:** Limit access with just-in-time and just-enough-access (JIT/JEA).
+
+**Implementation:**
+- Role-Based Access Control (RBAC) with minimum required permissions
+- Time-limited access tokens (short expiration, e.g., 1 hour)
+- Workflow-specific service accounts (not shared admin accounts)
+- Resource-level permissions (not broad wildcard permissions)
+- Elevated privileges require explicit approval and expire automatically
+
+**Example:**
+```
+User: analyst
+Permissions:
+  - discovery.collectors: READ
+  - discovery.signals: READ, WRITE (own discoveries only)
+  - knowledge.entries: READ
+  - analysis.insights: READ
+  - NOT ALLOWED: DELETE, ADMIN operations
+```
+
+---
+
+#### Principle 3: Assume Breach
+
+**Requirement:** Minimize blast radius and segment access. Assume attackers have gained access.
+
+**Implementation:**
+- Network segmentation (DMZ, Application Zone, Data Zone)
+- Micro-segmentation within application zone (engine isolation)
+- Encrypt all data in transit and at rest
+- Continuous monitoring for anomalous behavior
+- Automated threat detection and response
+- Comprehensive audit logging (immutable, tamper-proof)
+
+**Example:**
+```
+If Discovery Engine compromised:
+  - Attacker cannot directly access Knowledge Engine data
+  - Attacker cannot bypass API Gateway authentication
+  - Attacker access logged and detected by anomaly detection
+  - Compromised credentials automatically revoked
+```
+
+---
+
+#### Principle 4: Continuous Authentication and Validation
+
+**Requirement:** Don't trust, verify continuously throughout session.
+
+**Implementation:**
+- Token expiration and refresh mechanism
+- Continuous session validation (not just at login)
+- Behavioral analysis (detect anomalous access patterns)
+- Device compliance verification
+- Context-aware authentication (location, time, risk score)
+
+**Example:**
+```
+User authenticates → Receives 1-hour token
+At 30 minutes → Token refresh attempted
+    → Verify user still active
+    → Verify user location unchanged (or within acceptable range)
+    → Verify user behavior normal
+    → Issue new token or deny if anomaly detected
+```
+
+---
+
+#### Principle 5: Service Identity and Mutual Authentication
+
+**Requirement:** Services must authenticate to each other, not just users authenticating to services.
+
+**Implementation:**
+- Service accounts with unique identities
+- Mutual TLS (mTLS) for service-to-service communication (where supported)
+- Service-to-service tokens with limited scope
+- Service identity validated on every inter-service call
+- Service credentials rotated regularly (see Section 12.3)
+
+**Example:**
+```
+Discovery Engine calls Knowledge Engine:
+  → Discovery Engine authenticates with service token
+  → Knowledge Engine validates token signature
+  → Knowledge Engine verifies token scope includes required permissions
+  → Knowledge Engine verifies token not expired
+  → Request processed or rejected
+```
+
+---
+
+#### 20.5.3 Zero Trust in AHOS Architecture
+
+**Trust Boundary Enforcement:**
+
+Every trust zone boundary (see Section 20.1) enforces zero trust principles:
+
+**Public → DMZ:**
+- Strong authentication required (no anonymous access to protected resources)
+- Rate limiting prevents abuse
+- Input validation prevents injection attacks
+- All requests logged
+
+**DMZ → Application Zone:**
+- Service identity verification
+- Authorization for each requested operation
+- Audit trail for compliance
+
+**Application Zone → Data Zone:**
+- Database credentials from secure vault
+- Row-level security enforces data isolation
+- Query audit logging
+- Connection encryption
+
+**Application Zone ↔ Application Zone (Engine to Engine):**
+- All communication via Event Bus or API Gateway (no direct calls)
+- Event/API schema validation
+- Correlation IDs for traceability
+
+---
+
+#### 20.5.4 Zero Trust Monitoring
+
+**Continuous Monitoring for Zero Trust:**
+
+- **Authentication Failures:** Alert on repeated authentication failures
+- **Authorization Violations:** Alert on access attempts to unauthorized resources
+- **Anomalous Behavior:** Alert on unusual access patterns (time, location, volume)
+- **Privilege Escalation Attempts:** Alert on attempts to gain elevated privileges
+- **Lateral Movement:** Alert on unusual inter-service communication patterns
+- **Data Exfiltration:** Alert on large data transfers or unusual export patterns
+
+---
+
+#### 20.5.5 Zero Trust Compliance Validation
+
+All engines must demonstrate zero trust compliance:
+
+- [ ] All API endpoints require authentication
+- [ ] All database queries enforce row-level security
+- [ ] All inter-service calls include identity verification
+- [ ] All access attempts logged with full context
+- [ ] All tokens have expiration (no permanent tokens)
+- [ ] All elevated privileges require explicit approval
+- [ ] All anomalous behavior triggers alerts
+
+---
+
+## MODIFICATION 4: Architecture Decision Records Reference
+
+**Existing Section:** 27. Architectural Invariants  
+**New Subsection:** 27.3  
+**Insertion Point:** After Section 27.2 (Core Invariants)  
+**Rationale:** Establishes governance for future architectural changes
+
+---
+
+### 27.3 Architecture Decision Records (ADR)
+
+#### 27.3.1 ADR Purpose
+
+All significant architectural decisions must be documented in **Architecture Decision Records (ADRs)**. ADRs ensure:
+
+- **Traceability:** Why decisions were made
+- **Context Preservation:** Understanding constraints and alternatives considered
+- **Knowledge Transfer:** New team members understand architectural history
+- **Governance:** Changes follow formal review and approval process
+- **Accountability:** Clear ownership of decisions
+
+---
+
+#### 27.3.2 When ADR Required
+
+ADR is **required** for:
+
+- **Technology Selection:** Choosing new technology or replacing existing technology
+- **Architectural Pattern Changes:** Modifying core patterns (e.g., event bus design)
+- **Cross-Engine Contracts:** Defining or modifying inter-engine contracts
+- **Security Architecture:** Changes to authentication, authorization, encryption
+- **Data Architecture:** Changes to schema design, retention policies
+- **Scalability Strategy:** Changes to scaling approach
+- **Deployment Architecture:** Changes to deployment model or infrastructure
+- **Invariant Modifications:** Proposing exceptions to architectural invariants
+
+ADR is **optional but recommended** for:
+
+- **Engine-Specific Logic:** Internal engine implementation decisions
+- **Performance Optimizations:** Optimization techniques
+- **Operational Procedures:** Runbook or procedure changes
+
+---
+
+#### 27.3.3 ADR Numbering Convention
+
+ADRs numbered sequentially:
+
+```
+ADR-{NUMBER}: {Title}
+```
+
+**Examples:**
+- ADR-001: Use Supabase for Data Layer
+- ADR-002: Use n8n for Workflow Orchestration
+- ADR-003: Implement Event Bus with Database Polling
+- ADR-004: Adopt Zero Trust Security Architecture
+
+**Numbering Rules:**
+- Numbers assigned sequentially (001, 002, 003, ...)
+- Numbers never reused (even if ADR superseded)
+- Gaps in numbering acceptable (deprecated ADRs)
+
+---
+
+#### 27.3.4 ADR Template
+
+All ADRs follow standardized template:
+
+```markdown
+# ADR-{NUMBER}: {Title}
+
+**Status:** [Proposed | Accepted | Deprecated | Superseded by ADR-XXX]
+**Date:** YYYY-MM-DD
+**Author:** Name
+**Reviewers:** Name1, Name2, Name3
+**Deciders:** Architecture Review Board
+
+## Context
+
+What is the issue we're facing? What factors are influencing this decision?
+
+## Decision
+
+What decision are we making? Be specific and prescriptive.
+
+## Consequences
+
+### Positive Consequences
+- What benefits does this decision provide?
+
+### Negative Consequences  
+- What drawbacks or limitations does this decision introduce?
+
+### Risks
+- What risks does this decision introduce?
+- How are risks mitigated?
+
+## Alternatives Considered
+
+### Alternative 1: {Name}
+**Description:** ...
+**Pros:** ...
+**Cons:** ...
+**Reason for Rejection:** ...
+
+### Alternative 2: {Name}
+**Description:** ...
+**Pros:** ...
+**Cons:** ...
+**Reason for Rejection:** ...
+
+## References
+
+- Link to related documents
+- Link to prior ADRs
+- Link to external resources
+```
+
+---
+
+#### 27.3.5 ADR Approval Process
+
+**Process:**
+
+1. **Draft:** Author creates ADR draft with status "Proposed"
+2. **Review:** ADR reviewed by subject matter experts
+3. **Revision:** Author revises based on feedback
+4. **ARB Review:** Architecture Review Board reviews ADR
+5. **Decision:** ARB accepts, rejects, or requests further revision
+6. **Publication:** Accepted ADR published with status "Accepted"
+7. **Implementation:** Decision implemented according to ADR
+8. **Retrospective:** Post-implementation review validates decision
+
+**Approval Criteria:**
+
+- [ ] Context clearly articulates problem
+- [ ] Decision is specific and actionable
+- [ ] Consequences (positive and negative) are realistic
+- [ ] Alternatives were genuinely considered
+- [ ] Decision aligns with AHOS architectural principles
+- [ ] Decision does not violate architectural invariants (unless explicit exception approved)
+- [ ] Implementation plan is feasible
+
+---
+
+#### 27.3.6 ADR Lifecycle
+
+**Status Transitions:**
+
+```
+Proposed → Accepted → [Implemented]
+    ↓
+Rejected (with reason)
+
+Accepted → Deprecated (when no longer relevant)
+Accepted → Superseded by ADR-XXX (when replaced by newer decision)
+```
+
+**Deprecated ADRs:**
+- Marked as "Deprecated" with date
+- Reason for deprecation documented
+- Remain in ADR repository for historical reference
+- Not removed (preserve decision history)
+
+**Superseded ADRs:**
+- Marked as "Superseded by ADR-XXX"
+- Link to superseding ADR
+- Explain why decision changed
+- Remain in ADR repository for historical reference
+
+---
+
+#### 27.3.7 ADR Storage and Access
+
+**Storage:**
+- ADRs stored in version control (Git repository)
+- Path: `/docs/architecture/adr/`
+- Filename format: `ADR-{NUMBER}-{short-title}.md`
+
+**Access:**
+- All engineers have read access
+- ARB members have write access
+- Changes require pull request and review
+- ADR index maintained (`/docs/architecture/adr/README.md`)
+
+---
+
+#### 27.3.8 Relationship to Technical Architecture Specification
+
+**ADRs vs. Specification:**
+
+- **ADRs:** Document individual decisions and rationale
+- **Specification:** Consolidates accepted decisions into coherent architecture
+
+**Update Process:**
+
+When ADR is accepted:
+1. Specification updated to reflect decision (if applicable)
+2. Specification references ADR for detailed rationale
+3. Specification version incremented appropriately (major, minor, patch)
+
+**Example:**
+
+```
+Section 8.2.1: Event Bus Implementation
+
+The Event Bus is implemented using Supabase tables with n8n polling 
+(see ADR-003 for detailed rationale and alternatives considered).
+```
+
+---
+
+#### 27.3.9 Cross-Reference to Governance
+
+ADRs are governed by the **Governance Engine** (when implemented):
+
+- Approval workflows enforced programmatically
+- ADR status transitions tracked in Governance audit trail
+- ADR compliance monitored (implementation matches decision)
+- ADR effectiveness measured (post-implementation review results)
+
+See **Governance Specification** for complete governance processes.
+
+---
+
+## MODIFICATION 5: Contract Testing Requirements
+
+**Existing Section:** 22. Cross-Service Contracts  
+**New Subsection:** 22.4  
+**Insertion Point:** After Section 22.3 (API Contracts)  
+**Rationale:** Ensures contracts remain valid as services evolve
+
+---
+
+### 22.4 Contract Testing Requirements
+
+#### 22.4.1 Contract Testing Purpose
+
+Contract testing validates that:
+
+- **Producers** generate messages conforming to published contracts
+- **Consumers** correctly handle messages conforming to contracts
+- **Schema changes** don't break existing consumers
+- **Version compatibility** is maintained
+
+**Benefits:**
+- Detect breaking changes before deployment
+- Enable independent service evolution
+- Prevent integration failures in production
+- Document expected behavior
+
+---
+
+#### 22.4.2 Consumer-Driven Contract Testing (CDCT)
+
+**Principle:** Consumers define expectations, producers validate they meet them.
+
+**Process:**
+
+1. **Consumer Defines Contract:** Consumer creates contract test specifying expected request/response or event format
+2. **Contract Published:** Contract test published to shared registry
+3. **Producer Validates:** Producer runs consumer's contract test against implementation
+4. **Validation Result:** Producer confirms compliance or identifies incompatibility
+5. **Continuous Validation:** Contract tests run on every producer code change
+
+**Example:**
+
+**Consumer (Analysis Engine) Contract Test:**
+```json
+{
+  "consumer": "analysis-engine",
+  "producer": "discovery-engine",
+  "contract": "discovery.signal.detected",
+  "version": "1.0.0",
+  "expectations": {
+    "event_type": "discovery.signal.detected",
+    "required_fields": ["signal_id", "signal_type", "detected_at"],
+    "field_types": {
+      "signal_id": "string",
+      "signal_type": "enum[opportunity, threat, insight]",
+      "detected_at": "datetime"
+    },
+    "example_payload": {
+      "signal_id": "550e8400-e29b-41d4-a716-446655440000",
+      "signal_type": "opportunity",
+      "detected_at": "2025-01-01T10:00:00Z",
+      "metadata": {
+        "confidence": 0.85
+      }
+    }
+  }
+}
+```
+
+**Producer (Discovery Engine) Validation:**
+
+Producer runs automated test:
+- Generate `discovery.signal.detected` event
+- Validate against Analysis Engine's contract expectations
+- Verify all required fields present
+- Verify field types correct
+- Test passes → Contract compliance confirmed
+- Test fails → Breaking change detected, deployment blocked
+
+---
+
+#### 22.4.3 Event Contract Validation
+
+**Validation Layers:**
+
+**1. Schema Validation (Mandatory):**
+- Every published event validated against JSON schema
+- Schema defines required fields, types, formats
+- Invalid events rejected before publication
+- Schema validation errors logged and alerted
+
+**2. Contract Validation (Mandatory):**
+- Events validated against consumer contract expectations
+- Validates semantic meaning, not just syntax
+- Ensures backward compatibility with all registered consumers
+- Contract validation failures block deployment
+
+**3. Integration Testing (Recommended):**
+- End-to-end tests with real producer and consumer
+- Validates complete event flow (publish → bus → consume)
+- Validates consumer correctly processes event
+- Run in staging environment before production deployment
+
+---
+
+#### 22.4.4 API Contract Regression Testing
+
+**Purpose:** Ensure API changes don't break existing clients.
+
+**Implementation:**
+
+**1. API Contract Test Suite:**
+- One test per supported API endpoint and version
+- Tests validate request/response schemas
+- Tests validate error handling
+- Tests validate authentication and authorization
+
+**Example Test:**
+```yaml
+test: "GET /api/v1/discovery/collectors/{id}"
+version: "1.0.0"
+request:
+  method: GET
+  path: "/api/v1/discovery/collectors/550e8400-e29b-41d4-a716-446655440000"
+  headers:
+    Authorization: "Bearer {valid_token}"
+expected_response:
+  status: 200
+  schema:
+    type: object
+    required: [collector_id, name, status]
+    properties:
+      collector_id: {type: string, format: uuid}
+      name: {type: string}
+      status: {type: string, enum: [active, inactive]}
+```
+
+**2. Automated Regression Testing:**
+- Contract tests run on every API change
+- Tests run in CI/CD pipeline before deployment
+- Failing tests block deployment
+- Test results published to monitoring dashboard
+
+**3. Backward Compatibility Validation:**
+- New API versions tested against old client expectations
+- Breaking changes detected automatically
+- If breaking change necessary, major version increment required
+- Migration guide auto-generated from contract differences
+
+---
+
+#### 22.4.5 Contract Test Registry
+
+All contract tests registered centrally:
+
+```sql
+CREATE TABLE contract_tests (
+    test_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    contract_name VARCHAR(255) NOT NULL,
+    contract_version VARCHAR(20) NOT NULL,
+    consumer VARCHAR(255) NOT NULL,
+    producer VARCHAR(255) NOT NULL,
+    test_definition JSONB NOT NULL,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_contract_name ON contract_tests(contract_name);
+CREATE INDEX idx_producer ON contract_tests(producer);
+CREATE INDEX idx_consumer ON contract_tests(consumer);
+```
+
+---
+
+#### 22.4.6 Contract Test Execution Schedule
+
+**When Contract Tests Execute:**
+
+- **On Code Commit:** Developer commits code → Contract tests run automatically
+- **On Pull Request:** PR opened → Contract tests run before merge approval
+- **On Deployment:** Pre-deployment gate → Contract tests must pass
+- **Scheduled (Daily):** Detect drift in production vs. expected contracts
+- **On Contract Change:** Consumer updates contract expectations → Producer notified and must re-validate
+
+---
+
+#### 22.4.7 Contract Versioning and Evolution
+
+**Contract Version Lifecycle:**
+
+1. **Initial Contract:** Consumer defines contract v1.0.0
+2. **Producer Implements:** Producer validates against v1.0.0
+3. **Consumer Evolves:** Consumer adds optional field (minor version bump to v1.1.0)
+4. **Backward Compatibility:** Producer still compatible with v1.0.0 and v1.1.0
+5. **Breaking Change Required:** Consumer requires new mandatory field (major version bump to v2.0.0)
+6. **Migration Period:** Producer supports both v1.x and v2.0.0 during transition
+7. **Deprecation:** v1.x deprecated after migration period
+8. **Removal:** v1.x removed after deprecation period
+
+**Contract Test Versioning:**
+
+- Contract tests versioned alongside contracts
+- Old contract test versions retained for legacy support
+- Test version maps to contract version
+- Multiple test versions can run concurrently
+
+---
+
+#### 22.4.8 Contract Testing Tools
+
+**Recommended Tools:**
+
+- **Pact:** Consumer-driven contract testing framework
+- **Spring Cloud Contract:** Contract testing for REST APIs
+- **JSON Schema Validator:** Schema validation library
+- **Postman/Newman:** API contract testing and automation
+
+**Tool Selection Criteria:**
+
+- Supports JSON schema validation
+- Supports version management
+- Integrates with CI/CD pipeline
+- Provides clear failure reporting
+- Supports both API and event contracts
+
+---
+
+#### 22.4.9 Contract Test Ownership
+
+**Consumer Responsibilities:**
+- Define contract expectations
+- Maintain contract tests
+- Update contracts when requirements change
+- Communicate contract changes to producer
+
+**Producer Responsibilities:**
+- Validate against all consumer contracts
+- Notify consumers of proposed breaking changes
+- Support multiple contract versions during migration
+- Run contract tests in CI/CD pipeline
+
+**Platform Team Responsibilities:**
+- Maintain contract test infrastructure
+- Provide contract testing tools and frameworks
+- Monitor contract test execution and results
+- Enforce contract testing in deployment pipeline
+
+---
+
+## MODIFICATION 6: Operational Profiles
+
+**Existing Section:** 16. Deployment Architecture  
+**New Subsection:** 16.6  
+**Insertion Point:** After Section 16.5 (Blue-Green Deployment)  
+**Rationale:** Defines environment-specific operational characteristics
+
+---
+
+### 16.6 Operational Profiles
+
+#### 16.6.1 Operational Profile Purpose
+
+Each environment operates under a specific **operational profile** that defines:
+
+- **Resource allocation:** CPU, memory, storage limits
+- **Availability requirements:** Uptime targets, failover configuration
+- **Performance targets:** Latency, throughput expectations
+- **Security policies:** Authentication, encryption, audit requirements
+- **Data management:** Backup frequency, retention policies
+- **Monitoring and alerting:** What is monitored, alert thresholds
+- **Deployment policies:** Change control, approval requirements
+
+Operational profiles ensure environments are configured appropriately for their purpose.
+
+---
+
+#### 16.6.2 Development Profile
+
+**Purpose:** Active development and debugging
+
+**Characteristics:**
+
+| Aspect | Configuration |
+|--------|---------------|
+| **Availability Target** | Best effort (no SLA) |
+| **Resource Allocation** | Single instance, minimal resources |
+| **Data** | Synthetic/anonymized test data |
+| **Backup Frequency** | None (data is disposable) |
+| **Logging Level** | DEBUG (verbose logging) |
+| **Monitoring** | Basic health checks |
+| **Alerting** | None |
+| **Security** | Relaxed (development credentials, no encryption required) |
+| **Rate Limiting** | Disabled |
+| **Deployment** | On-demand, no approval required |
+| **Downtime** | Acceptable during working hours |
+
+**Access Control:**
+- Developers: Full access (read, write, delete, deploy)
+- QA: Read access
+- Others: No access
+
+**Use Cases:**
+- Feature development
+- Bug reproduction
+- Workflow debugging
+- Experimentation
+
+---
+
+#### 16.6.3 Testing Profile
+
+**Purpose:** Automated testing (unit, integration, end-to-end)
+
+**Characteristics:**
+
+| Aspect | Configuration |
+|--------|---------------|
+| **Availability Target** | 95% (best effort) |
+| **Resource Allocation** | Single instance, moderate resources |
+| **Data** | Test fixtures, synthetic data |
+| **Backup Frequency** | None (data reset between test runs) |
+| **Logging Level** | INFO |
+| **Monitoring** | Health checks, test execution metrics |
+| **Alerting** | Test failure notifications |
+| **Security** | Production-equivalent authentication, encryption enabled |
+| **Rate Limiting** | Enabled (lower thresholds than production) |
+| **Deployment** | Automated via CI/CD pipeline |
+| **Downtime** | Acceptable during test runs |
+
+**Access Control:**
+- CI/CD System: Full access
+- Developers: Read access
+- QA: Read access
+- Others: No access
+
+**Use Cases:**
+- Automated test execution
+- Contract testing
+- Performance testing
+- Security testing
+
+---
+
+#### 16.6.4 Staging Profile
+
+**Purpose:** Pre-production validation and user acceptance testing
+
+**Characteristics:**
+
+| Aspect | Configuration |
+|--------|---------------|
+| **Availability Target** | 99% (approximates production) |
+| **Resource Allocation** | Production-equivalent architecture (multi-instance) |
+| **Data** | Production-like volume, anonymized production data |
+| **Backup Frequency** | Daily (for data preservation) |
+| **Logging Level** | INFO (WARN for high-traffic components) |
+| **Monitoring** | Full production-equivalent monitoring |
+| **Alerting** | Enabled (notify engineering team) |
+| **Security** | Full production security policies |
+| **Rate Limiting** | Production-equivalent |
+| **Deployment** | Automated with manual approval gate |
+| **Downtime** | Planned maintenance windows only |
+
+**Access Control:**
+- Operations: Full access
+- Developers: Read access, limited write (with approval)
+- QA: Read/Write access (test data only)
+- Product Managers: Read access
+- External Stakeholders: Read-only via demo accounts
+
+**Use Cases:**
+- User acceptance testing
+- Smoke testing before production deployment
+- Performance validation
+- Training and demos
+- Production deployment rehearsal
+
+---
+
+#### 16.6.5 Production Profile
+
+**Purpose:** Live user-facing system
+
+**Characteristics:**
+
+| Aspect | Configuration |
+|--------|---------------|
+| **Availability Target** | 99.9% (per SLO in Section 18.2) |
+| **Resource Allocation** | High-availability multi-instance deployment |
+| **Data** | Live production data |
+| **Backup Frequency** | Continuous (point-in-time recovery) + daily snapshots |
+| **Logging Level** | WARN (ERROR for critical services) |
+| **Monitoring** | Comprehensive monitoring (all layers) |
+| **Alerting** | Full alerting with escalation |
+| **Security** | Maximum security policies enforced |
+| **Rate Limiting** | Strict enforcement |
+| **Deployment** | Automated with change control approval required |
+| **Downtime** | Only during planned maintenance windows (72 hours notice) |
+
+**Access Control:**
+- Operations: Read-only access (write requires change ticket)
+- Developers: No direct access (read-only via monitoring dashboards)
+- Emergency Access: Requires approval, time-limited, fully audited
+- End Users: Role-based access per authorization policies
+
+**Use Cases:**
+- Live user operations
+- Production workloads
+- Real-time data processing
+- Customer-facing APIs
+
+**Change Control:**
+- All production changes require approved change ticket
+- Changes deployed during maintenance windows
+- Rollback plan required for all changes
+- Post-deployment validation mandatory
+
+---
+
+#### 16.6.6 Disaster Recovery Profile
+
+**Purpose:** Standby environment for disaster recovery
+
+**Characteristics:**
+
+| Aspect | Configuration |
+|--------|---------------|
+| **Availability Target** | 99.5% (standby readiness) |
+| **Resource Allocation** | Production-equivalent (hot standby or warm standby) |
+| **Data** | Synchronized from production (replication lag <15 minutes) |
+| **Backup Frequency** | Same as production |
+| **Logging Level** | WARN |
+| **Monitoring** | Health checks, replication lag monitoring |
+| **Alerting** | Replication failures, health check failures |
+| **Security** | Full production security policies |
+| **Rate Limiting** | Production-equivalent |
+| **Deployment** | Synchronized with production deployments |
+| **Downtime** | Only during disaster recovery activation |
+
+**Access Control:**
+- Operations: Full access (for DR procedures)
+- Developers: No access
+- DR Coordinator: Full access (during DR event)
+
+**Use Cases:**
+- Disaster recovery failover target
+- DR testing and validation
+- Backup restoration testing
+
+**Activation:**
+- Activated only during regional failure (see Section 19.3.2)
+- Activation requires DR Coordinator approval
+- DNS failover to DR environment
+- Production traffic routed to DR
+
+**Deactivation:**
+- Occurs when primary region restored
+- Data synchronized back to primary
+- Traffic failed back to primary
+- DR environment returned to standby
+
+---
+
+#### 16.6.7 Profile Configuration Management
+
+**Configuration Storage:**
+
+Operational profiles stored as configuration:
+
+```sql
+CREATE TABLE operational_profiles (
+    profile_name VARCHAR(50) PRIMARY KEY,
+    environment VARCHAR(50) NOT NULL,
+    availability_target NUMERIC(4,2),
+    resource_tier VARCHAR(50),
+    logging_level VARCHAR(20),
+    backup_enabled BOOLEAN,
+    backup_frequency_hours INTEGER,
+    monitoring_level VARCHAR(50),
+    alerting_enabled BOOLEAN,
+    security_policy VARCHAR(50),
+    rate_limiting_enabled BOOLEAN,
+    configuration JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+**Profile Selection:**
+
+Environment determines profile:
+
+```
+Environment Variable: AHOS_ENVIRONMENT
+Values: development | testing | staging | production | disaster-recovery
+
+On startup:
+  → Read AHOS_ENVIRONMENT
+  → Load corresponding operational profile
+  → Configure system per profile
+```
+
+---
+
+#### 16.6.8 Profile Compliance Validation
+
+Each environment validated against its operational profile:
+
+**Automated Checks:**
+- [ ] Resource allocation matches profile
+- [ ] Logging level configured correctly
+- [ ] Backup schedule matches profile
+- [ ] Monitoring coverage matches profile
+- [ ] Security policies enforced
+- [ ] Rate limiting configured correctly
+
+**Manual Validation:**
+- Quarterly review of profile compliance
+- Discrepancies documented and remediated
+- Profile updates require ARB approval
+
+---
+
+## MODIFICATION 7: Backup Verification Policy
+
+**Existing Section:** 19.2 Backup Strategy  
+**New Subsection:** 19.2.4  
+**Insertion Point:** After Section 19.2.3 (Configuration Backups)  
+**Rationale:** Ensures backups are actually restorable when needed
+
+---
+
+### 19.2.4 Backup Verification Policy
+
+#### 19.2.4.1 Verification Purpose
+
+**Critical Principle:** *Untested backups are not backups.*
+
+Backups must be regularly verified to ensure:
+
+- **Backup integrity:** Backup files are not corrupted
+- **Restore functionality:** Restore process works correctly
+- **Data completeness:** Restored data matches source data
+- **RTO compliance:** Restore completes within RTO target
+- **Operational readiness:** Operations team can execute restore
+
+---
+
+#### 19.2.4.2 Backup Integrity Verification
+
+**Automated Integrity Checks:**
+
+**1. Checksum Validation (Daily):**
+- Calculate checksum of backup file
+- Compare against expected checksum
+- Alert if checksum mismatch (corruption detected)
+- Trigger re-backup if corruption detected
+
+**2. Backup File Completeness (Daily):**
+- Verify backup file size within expected range
+- Verify backup contains all expected tables/collections
+- Alert if backup incomplete
+
+**3. Backup Metadata Validation (Daily):**
+- Verify backup timestamp accurate
+- Verify backup version matches source system version
+- Verify backup metadata complete
+
+**Automated Verification Workflow:**
+```
+[Backup Completed] → [Calculate Checksum] → [Compare with Expected]
+    → [Verify File Size] → [Validate Metadata] → [Log Results]
+    → [Alert if Failure]
+```
+
+**Verification Results Storage:**
+```sql
+CREATE TABLE backup_verification_log (
+    verification_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    backup_id UUID NOT NULL,
+    verification_type VARCHAR(50) NOT NULL,
+    verification_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    status VARCHAR(20) NOT NULL, -- 'passed', 'failed', 'warning'
+    details JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_backup_id ON backup_verification_log(backup_id);
+CREATE INDEX idx_verification_timestamp ON backup_verification_log(verification_timestamp DESC);
+```
+
+---
+
+#### 19.2.4.3 Restore Testing Schedule
+
+**Testing Frequency:**
+
+| Backup Type | Restore Test Frequency | Environment |
+|-------------|------------------------|-------------|
+| Continuous Backup (Point-in-Time) | Monthly | Isolated test environment |
+| Daily Snapshots | Weekly (random sample) | Isolated test environment |
+| Weekly Archives | Monthly | Isolated test environment |
+| Monthly Archives | Quarterly | Isolated test environment |
+| Full DR Backup | Quarterly (full DR drill) | DR environment |
+
+---
+
+#### 19.2.4.4 Restore Test Procedure
+
+**Standard Restore Test:**
+
+**1. Preparation:**
+- Select backup to test (latest for scheduled test, random for sample)
+- Provision isolated test environment (not staging or production)
+- Document test scope and acceptance criteria
+
+**2. Restore Execution:**
+- Execute restore procedure per documented runbook
+- Time restore operation (validate RTO compliance)
+- Log all steps and any issues encountered
+
+**3. Validation:**
+- Verify database schema matches production
+- Verify row counts match expected values (within acceptable variance)
+- Execute data integrity queries (checksums, constraints)
+- Validate critical workflows execute successfully
+- Compare sample records against production (if available)
+
+**4. Documentation:**
+- Document restore duration (compare against RTO)
+- Document any issues or discrepancies
+- Document validation results
+- Generate restore test report
+
+**5. Cleanup:**
+- Destroy test environment
+- Archive test data
+- Update restore test log
+
+**Restore Test Report Template:**
+```markdown
+# Backup Restore Test Report
+
+**Test Date:** YYYY-MM-DD
+**Backup Date:** YYYY-MM-DD
+**Backup Type:** [Continuous | Daily | Weekly | Monthly]
+**Environment:** [Test Environment ID]
+**Tester:** [Name]
+
+## Restore Execution
+- **Start Time:** HH:MM:SS
+- **End Time:** HH:MM:SS
+- **Duration:** X minutes (RTO: Y minutes)
+- **Issues Encountered:** [None | List issues]
+
+## Validation Results
+- [ ] Schema validated
+- [ ] Row counts validated
+- [ ] Data integrity validated
+- [ ] Sample workflows executed successfully
+- [ ] Data completeness verified
+
+## Findings
+- [List any issues, discrepancies, or concerns]
+
+## Recommendations
+- [List any improvements to backup or restore process]
+
+## Conclusion
+**Status:** [PASSED | FAILED | PASSED WITH WARNINGS]
+```
+
+---
+
+#### 19.2.4.5 Automated Restore Testing
+
+**Partial Automation:**
+
+Where feasible, automate restore testing:
+
+**Automated Restore Test Workflow:**
+```
+[Scheduled Trigger] → [Provision Test Environment] 
+    → [Select Backup] → [Execute Restore] → [Run Validation Queries]
+    → [Compare Results] → [Generate Report] → [Alert if Failed]
+    → [Destroy Environment]
+```
+
+**Validation Queries (Examples):**
+```sql
+-- Validate table row counts
+SELECT 
+    table_name, 
+    COUNT(*) as row_count,
+    expected_count
+FROM validation_tables
+GROUP BY table_name;
+
+-- Validate data integrity (example: no null values in required fields)
+SELECT COUNT(*) as null_violations
+FROM discoveries
+WHERE signal_id IS NULL OR detected_at IS NULL;
+
+-- Validate referential integrity
+SELECT COUNT(*) as orphaned_records
+FROM qualified_signals
+WHERE discovery_id NOT IN (SELECT discovery_id FROM discoveries);
+```
+
+**Automated vs. Manual Testing:**
+
+- **Automated:** Routine integrity checks, schema validation, query validation
+- **Manual:** Complex workflows, end-to-end scenarios, edge cases
+
+---
+
+#### 19.2.4.6 Restore Test Failure Response
+
+**When Restore Test Fails:**
+
+**1. Immediate Actions:**
+- Alert operations team (CRITICAL priority)
+- Halt reliance on failed backup
+- Trigger fresh backup immediately
+- Investigate root cause
+
+**2. Root Cause Analysis:**
+- Determine why restore failed
+- Was backup corrupt?
+- Was restore procedure incorrect?
+- Was validation criteria too strict?
+
+**3. Remediation:**
+- Fix root cause (backup process, restore procedure, validation)
+- Re-test with new backup
+- Update documentation if procedure changed
+
+**4. Prevention:**
+- Implement safeguards to prevent recurrence
+- Enhance monitoring/alerting
+- Update backup verification checks
+
+**5. Communication:**
+- Notify stakeholders of backup issue
+- Confirm resolution
+- Document lessons learned
+
+---
+
+#### 19.2.4.7 Restore Test Metrics
+
+**Tracked Metrics:**
+
+| Metric | Target | Alert Threshold |
+|--------|--------|-----------------|
+| Restore Test Success Rate | 100% | <100% |
+| Restore Duration (RTO Compliance) | <RTO target | >RTO target |
+| Backup Integrity Check Pass Rate | 100% | <100% |
+| Data Completeness Validation | 100% | <100% |
+| Restore Procedure Execution Errors | 0 | >0 |
+
+**Metrics Dashboard:**
+- Real-time backup verification status
+- Restore test history and trends
+- RTO compliance tracking
+- Backup failure rate
+
+---
+
+#### 19.2.4.8 Backup Verification Governance
+
+**Responsibilities:**
+
+**Operations Team:**
+- Execute scheduled restore tests
+- Monitor automated verification results
+- Respond to verification failures
+- Maintain restore test documentation
+
+**Database Administrator:**
+- Ensure backup integrity
+- Optimize backup/restore performance
+- Update backup procedures as needed
+
+**Architecture Review Board:**
+- Review backup verification policy annually
+- Approve changes to verification procedures
+- Review post-incident reports for backup failures
+
+**Audit:**
+- Verify restore tests executed per schedule
+- Review restore test reports
+- Validate RTO/RPO compliance
+
+---
+
+## MODIFICATION 8: Architecture Compliance Checklist Reference
+
+**Existing Section:** 28. Acceptance Criteria  
+**New Subsection:** 28.7  
+**Insertion Point:** After Section 28.6 (Governability Criteria)  
+**Rationale:** Establishes mandatory compliance validation for all engines
+
+---
+
+### 28.7 Architecture Compliance Validation
+
+#### 28.7.1 Compliance Requirement
+
+Every AHOS engine **MUST** pass architecture compliance validation before approval for production deployment.
+
+**Compliance validates:**
+- Adherence to Technical Architecture Specification
+- Implementation of mandatory interfaces
+- Compliance with architectural invariants
+- Alignment with cross-cutting concerns (logging, monitoring, security)
+- Contract testing completeness
+- Operational readiness
+
+---
+
+#### 28.7.2 Architecture Compliance Checklist
+
+**Section A: Mandatory Interfaces (Section 26)**
+
+- [ ] **Health Check Interface Implemented**
+  - Endpoint: `GET /health`
+  - Returns status: healthy | degraded | unhealthy
+  - Includes dependency health checks
+  - Response schema compliant
+
+- [ ] **Metrics Interface Implemented**
+  - Endpoint: `GET /metrics`
+  - Exposes key engine metrics
+  - Metrics format compliant
+
+- [ ] **Configuration Interface Implemented**
+  - Reads configuration from `system_config` table
+  - Caches configuration with TTL
+  - Reloads configuration on update signal
+  - Validates configuration schema
+
+- [ ] **Logging Interface Implemented**
+  - Writes structured logs to `system_logs` table
+  - Includes correlation IDs in all logs
+  - Uses standard log levels
+  - Logs all significant operations
+
+- [ ] **Event Publishing Interface Implemented**
+  - Publishes events to `event_bus` table
+  - Validates event schema before publishing
+  - Includes correlation IDs in events
+
+- [ ] **Event Consumption Interface Implemented**
+  - Polls `event_bus` for subscribed events
+  - Processes events idempotently
+  - Marks events as processed
+  - Implements retry logic
+
+---
+
+**Section B: Architectural Invariants (Section 27)**
+
+- [ ] **Workflow-Based Execution**
+  - All business logic executes in n8n workflows
+
+- [ ] **Database as Source of Truth**
+  - Supabase database is single source of truth
+  - No persistent state outside database (except transient caches)
+
+- [ ] **Event-Driven Communication**
+  - Engine communicates via Event Bus or API Gateway
+  - No direct engine-to-engine calls
+
+- [ ] **Idempotent Operations**
+  - All operations designed for idempotency
+  - Retry-safe implementations
+
+- [ ] **Explicit State Transitions**
+  - All state changes explicit and auditable
+  - State transitions logged
+
+- [ ] **Configuration Externalization**
+  - No hard-coded configuration
+  - Environment-specific configuration external
+
+- [ ] **Schema Validation**
+  - All inter-service messages validated against schemas
+
+- [ ] **Audit Logging**
+  - All significant operations logged with full context
+
+- [ ] **No Shared Mutable State**
+  - Engine owns its data exclusively
+
+- [ ] **Versioned Contracts**
+  - All contracts versioned
+  - Backward compatibility maintained
+
+---
+
+**Section C: Error Handling (Section 15)**
+
+- [ ] **Standardized Error Codes**
+  - All errors use enterprise error code format (Section 15.6)
+  - Error codes registered in error code registry
+  - Documentation URLs provided
+
+- [ ] **Error Classification**
+  - Errors classified by type and severity
+  - Retryable vs. non-retryable errors identified
+
+- [ ] **Retry Strategy Implemented**
+  - Transient errors trigger retry with exponential backoff
+  - Max retry attempts enforced
+  - Permanent errors not retried
+
+- [ ] **Circuit Breaker Pattern**
+  - Circuit breaker implemented for external system calls
+  - Circuit state transitions logged
+
+- [ ] **Error Storage**
+  - All errors logged to `error_log` table
+  - Error context captured
+
+---
+
+**Section D: Security (Section 20)**
+
+- [ ] **Authentication Required**
+  - All API endpoints require authentication (except public endpoints)
+  - JWT token validation implemented
+
+- [ ] **Authorization Enforced**
+  - Role-based access control enforced
+  - Authorization failures logged
+
+- [ ] **Zero Trust Principles (Section 20.5)**
+  - Verify explicitly (no implicit trust)
+  - Least privilege access
+  - Continuous authentication
+  - Service identity implemented
+
+- [ ] **Encryption**
+  - Data in transit encrypted (TLS)
+  - Sensitive data at rest encrypted
+  - Secrets stored in vault
+
+- [ ] **Input Validation**
+  - All inputs validated against schema
+  - Injection attacks prevented
+
+---
+
+**Section E: Contract Testing (Section 22.4)**
+
+- [ ] **Consumer Contract Tests Defined**
+  - Engine defines contract tests for dependencies
+
+- [ ] **Producer Contract Tests Executed**
+  - Engine validates against consumer contracts
+  - Contract tests run in CI/CD pipeline
+
+- [ ] **Schema Validation**
+  - All published events/APIs validated against schemas
+
+- [ ] **Backward Compatibility Validated**
+  - Breaking changes detected
+  - Version increments appropriate
+
+---
+
+**Section F: Operational Readiness**
+
+- [ ] **Monitoring Configured**
+  - Key metrics exposed
+  - Metrics collected and stored
+  - Dashboards created
+
+- [ ] **Alerting Configured**
+  - Alert rules defined for critical failures
+  - Alert channels configured
+  - Alert severity appropriate
+
+- [ ] **Backup Verified (Section 19.2.4)**
+  - Engine data included in backups
+  - Restore tested
+  - Backup integrity verified
+
+- [ ] **Deployment Automated**
+  - Deployment pipeline implemented
+  - Rollback capability tested
+  - Blue-green deployment supported (if applicable)
+
+- [ ] **Documentation Complete**
+  - Engine specification document complete
+  - API documentation published
+  - Operational runbooks created
+
+- [ ] **Disaster Recovery Tested**
+  - Engine can be restored in DR environment
+  - DR procedures documented and tested
+
+---
+
+**Section G: Performance and Scalability**
+
+- [ ] **Performance Targets Defined**
+  - Latency targets specified
+  - Throughput targets specified
+  - Performance tested
+
+- [ ] **Scalability Validated**
+  - Horizontal scaling tested
+  - Resource limits documented
+  - Bottlenecks identified and addressed
+
+- [ ] **Load Testing Executed**
+  - Load tests demonstrate capacity
+  - Performance degradation characterized
+
+---
+
+#### 28.7.3 Compliance Validation Process
+
+**Process:**
+
+1. **Self-Assessment:** Engine team completes compliance checklist
+2. **Evidence Gathering:** Team collects evidence of compliance (test results, documentation, code references)
+3. **Peer Review:** Another engine team reviews compliance evidence
+4. **ARB Review:** Architecture Review Board reviews compliance checklist and evidence
+5. **Compliance Decision:** ARB certifies compliance or identifies gaps
+6. **Gap Remediation:** Team addresses identified gaps
+7. **Re-validation:** Compliance re-validated after remediation
+8. **Approval:** ARB approves engine for production deployment
+
+**Compliance Evidence Examples:**
+- Health check endpoint test results
+- Contract test execution logs
+- Security scan reports
+- Performance test results
+- Backup restore test reports
+- Documentation links
+
+---
+
+#### 28.7.4 Compliance Certification
+
+Upon successful compliance validation, engine receives **Architecture Compliance Certification**:
+
+```
+AHOS Architecture Compliance Certification
+
+Engine: [Engine Name]
+Version: [Engine Version]
+Certification Date: YYYY-MM-DD
+Certified By: Architecture Review Board
+Valid Until: YYYY-MM-DD (12 months from certification)
+
+This certifies that [Engine Name] v[Version] has been validated 
+against the AHOS Technical Architecture Specification v1.1 
+and complies with all mandatory architectural requirements.
+
+Signed: [ARB Chair]
+```
+
+**Certification Validity:**
+- Certification valid for 12 months
+- Re-certification required annually
+- Re-certification required after major version changes
+- Certification revoked if non-compliance discovered
+
+---
+
+#### 28.7.5 Compliance Monitoring
+
+**Post-Deployment Compliance Monitoring:**
+
+Even after certification, compliance is continuously monitored:
+
+- **Automated Compliance Checks:** Contract tests, health checks, metric collection
+- **Periodic Audits:** Quarterly compliance audits
+- **Incident Reviews:** Compliance re-evaluated after incidents
+- **Architecture Changes:** Compliance re-validated when architecture changes
+
+**Non-Compliance Response:**
+
+If non-compliance detected:
+1. Incident created (severity based on impact)
+2. Engine team notified
+3. Remediation plan required within 48 hours
+4. Compliance restored within agreed timeframe
+5. Certification suspended if critical non-compliance
+
+---
+
+#### 28.7.6 Compliance Checklist Storage
+
+Compliance checklists stored for audit:
+
+```sql
+CREATE TABLE architecture_compliance (
+    compliance_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    engine_name VARCHAR(255) NOT NULL,
+    engine_version VARCHAR(50) NOT NULL,
+    checklist_version VARCHAR(50) NOT NULL,
+    compliance_status VARCHAR(50) NOT NULL, -- 'passed', 'failed', 'in_progress'
+    checklist_data JSONB NOT NULL,
+    evidence JSONB,
+    certified_by VARCHAR(255),
+    certification_date TIMESTAMP WITH TIME ZONE,
+    expiration_date TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_engine_name ON architecture_compliance(engine_name);
+CREATE INDEX idx_compliance_status ON architecture_compliance(compliance_status);
+CREATE INDEX idx_certification_date ON architecture_compliance(certification_date);
+```
+
+---
+
+## Version Control Update
+
+**Existing Section:** 30.3 Document Maintenance  
+**Modification:** Update version history table
+
+---
+
+### 30.3.1 Version History
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | 2025 | AHOS Engineering Team | Initial release |
+| 1.1 | 2025 | AHOS Lead Enterprise Architect | **PATCH:** Added Documentation Architecture Map (2.3), Enterprise Error Code Standard (15.6), Zero Trust Architecture Principles (20.5), Architecture Decision Records (27.3), Contract Testing Requirements (22.4), Operational Profiles (16.6), Backup Verification Policy (19.2.4), Architecture Compliance Checklist (28.7) |
+
+---
+
+## Summary of Changes
+
+**This patch release (v1.1) adds eight architectural enhancements:**
+
+1. **Section 2.3 - Documentation Architecture Map:** Defines document ownership and prevents specification duplication
+2. **Section 15.6 - Enterprise Error Code Standard:** Standardizes error codes for troubleshooting and monitoring
+3. **Section 20.5 - Zero Trust Architecture Principles:** Enhances security posture with zero trust model
+4. **Section 27.3 - Architecture Decision Records:** Establishes governance for architectural changes
+5. **Section 22.4 - Contract Testing Requirements:** Ensures contract validity and backward compatibility
+6. **Section 16.6 - Operational Profiles:** Defines environment-specific operational characteristics
+7. **Section 19.2.4 - Backup Verification Policy:** Ensures backups are restorable when needed
+8. **Section 28.7 - Architecture Compliance Checklist:** Mandates compliance validation for all engines
+
+**Backward Compatibility:** All changes are additive. No existing content modified or removed. Existing implementations remain valid.
+
+**Approval Status:** This patch release is approved and effective immediately.
+
+---
+
+**END OF PATCH DOCUMENT**
+
+---
+
+**Document Metadata:**
+- **Base Version:** 1.0
+- **Patch Version:** 1.1
+- **Release Type:** PATCH
+- **Total New Sections:** 8
+- **Total Pages Added:** ~12
+- **Backward Compatible:** YES
+- **Breaking Changes:** NONE

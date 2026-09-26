@@ -1,0 +1,197 @@
+AHOS Workflow Specification Sheet
+WF-004 — Health Monitor
+Version 1.0
+Phase 5 — Composite Health Evaluation & Dependency Awareness
+1. Purpose
+1.1 Objective
+
+This phase establishes the architectural framework governing composite health evaluation, dependency-aware health calculation, hierarchical health propagation, and overall platform readiness assessment.
+
+The Health Monitor SHALL derive system-wide health from authoritative component assessments while preserving deterministic evaluation and dependency integrity.
+
+1.2 Scope
+
+This phase governs:
+
+Composite Health
+Dependency Health
+Health Propagation
+Runtime Readiness
+Service Dependency Evaluation
+Critical Component Assessment
+Overall Platform Health
+Dependency Integrity
+
+Corrective actions remain outside the scope of this specification.
+
+2. Composite Health Philosophy
+
+Platform health SHALL be an architectural conclusion derived from component health rather than an independently measured value.
+
+The platform SHALL NOT be considered healthy if mandatory architectural dependencies are unhealthy.
+
+3. Composite Evaluation Principles
+
+Composite health evaluation SHALL remain:
+
+deterministic;
+hierarchical;
+dependency-aware;
+reproducible;
+auditable;
+technology-independent.
+
+Component health SHALL remain the only authoritative input for composite evaluation.
+
+4. Health Hierarchy
+
+The Health Monitor SHALL evaluate health across the following hierarchy.
+
+Platform Health
+       │
+       ▼
+Runtime Engine
+       │
+ ┌─────┼─────────────┐
+ ▼     ▼             ▼
+WF-001 WF-002     WF-003
+       │
+       ▼
+WF-004 (Self Monitoring)
+       │
+       ▼
+Infrastructure
+       │
+       ▼
+External Dependencies
+
+Additional architectural layers MAY be introduced through future revisions.
+
+5. Dependency Awareness
+
+Health evaluation SHALL explicitly recognize dependency relationships.
+
+A component SHALL NOT be classified as Fully Healthy if one or more mandatory dependencies remain unavailable.
+
+Dependency relationships SHALL remain explicitly defined.
+
+6. Critical Dependencies
+
+The Health Monitor SHALL distinguish between:
+
+Mandatory Dependencies
+
+Failure directly impacts operational capability.
+
+Optional Dependencies
+
+Failure reduces functionality but SHALL NOT invalidate overall operational readiness.
+
+Dependency classification SHALL remain policy-driven.
+
+7. Health Propagation
+
+Health degradation MAY propagate upward through the architectural hierarchy.
+
+Propagation SHALL preserve:
+
+dependency relationships;
+severity;
+assessment evidence;
+architectural traceability.
+
+Health propagation SHALL NEVER propagate downward.
+
+8. Runtime Readiness
+
+The Health Monitor SHALL continuously determine whether the Runtime Engine is operationally ready.
+
+Runtime readiness SHALL require successful evaluation of all mandatory runtime components.
+
+Readiness SHALL remain distinct from component availability.
+
+9. Composite Evaluation Rules
+
+Composite evaluation SHALL:
+
+evaluate each component independently;
+validate dependency integrity;
+aggregate authoritative health states;
+derive overall platform health;
+preserve assessment determinism.
+
+Evaluation order SHALL NOT influence the final result.
+
+10. Partial Failure Handling
+
+Partial component failures SHALL remain isolated whenever possible.
+
+Failure of a non-critical component SHALL NOT automatically invalidate unrelated architectural domains.
+
+Failure isolation SHALL preserve operational continuity.
+
+11. Health Stability
+
+Temporary fluctuations SHALL NOT immediately produce unstable platform health transitions.
+
+The Health Monitor MAY require confirmation before publishing significant health state changes.
+
+Confirmation policies SHALL remain implementation-specific.
+
+12. Composite Assessment Audit
+
+Every composite evaluation SHALL generate immutable audit evidence including:
+
+Composite Assessment Identifier
+Platform Health State
+Component Summary
+Dependency Evaluation Result
+Assessment Timestamp
+Correlation Identifier
+
+Composite assessments SHALL remain permanently reconstructable.
+
+13. Composite Invariants
+
+The following SHALL remain continuously true.
+
+Dependency Invariant
+
+Mandatory dependencies SHALL participate in every composite evaluation.
+
+Hierarchy Invariant
+
+Composite health SHALL always be derived from lower-level authoritative assessments.
+
+Propagation Invariant
+
+Health propagation SHALL preserve dependency direction.
+
+Readiness Invariant
+
+Operational readiness SHALL depend upon mandatory architectural components only.
+
+Determinism Invariant
+
+Equivalent health inputs SHALL always produce identical composite health results.
+
+14. Phase 5 Compliance Matrix
+Requirement	Mandatory
+Composite Health Evaluation	SHALL
+Dependency Awareness	SHALL
+Health Propagation	SHALL
+Runtime Readiness	SHALL
+Critical Dependency Classification	SHALL
+Composite Audit	SHALL
+Deterministic Evaluation	SHALL
+Technology Independence	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 5 compliance.
+
+15. Phase 5 Completion Statement
+
+Phase 5 establishes the architectural model governing composite health evaluation across the AHOS platform.
+
+It defines how individual component health assessments are combined, validated, and propagated to produce a deterministic, dependency-aware representation of overall platform health.
+
+By separating component assessment from platform-level health evaluation, this phase enables scalable operational monitoring while preserving architectural clarity, dependency integrity, and long-term extensibility.

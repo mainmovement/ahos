@@ -1,0 +1,65 @@
+{
+  "name": "AHOS - Market Observer",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c580ac31-44b3-4b79-b549-baf1c4ab5ba5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM market_events;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "729b9993-0835-4d79-8402-22446027e876",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "VaATiUbqWpMUMECw",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d83b0ae8-d7d1-4c44-a873-5634c988ee1e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8e78c29b370e9f13a85ab2c82383d75625dd8eabb59fcae77aab21df545c5ac"
+  },
+  "nodeGroups": [],
+  "id": "ekiJ8ygQb9HvCpWL",
+  "tags": []
+}

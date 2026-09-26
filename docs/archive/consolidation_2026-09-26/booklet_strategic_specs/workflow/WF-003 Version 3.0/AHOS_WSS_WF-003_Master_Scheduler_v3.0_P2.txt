@@ -1,0 +1,272 @@
+AHOS Workflow Specification Sheet
+WF-003 — Execution Manager
+Version 1.0
+Phase 2 — Execution Lifecycle Management
+1. Purpose
+1.1 Objective
+
+This phase defines the complete lifecycle governing every workflow execution managed by the Execution Manager.
+
+Every execution SHALL follow one deterministic lifecycle from creation until final termination.
+
+Execution lifecycle SHALL remain immutable, observable, auditable, and recoverable.
+
+1.2 Scope
+
+This phase governs:
+
+Execution Creation
+Execution Registration
+Execution Activation
+Execution Progression
+Execution Suspension
+Execution Resumption
+Execution Completion
+Execution Cancellation
+Execution Timeout
+Finalization
+
+Execution scheduling remains governed by WF-001.
+
+2. Lifecycle Philosophy
+
+Every execution SHALL exist within one and only one lifecycle.
+
+Execution SHALL NEVER bypass lifecycle management.
+
+Lifecycle transitions SHALL always be explicit.
+
+Implicit execution transitions SHALL NOT occur.
+
+3. Lifecycle Principles
+
+Execution lifecycle SHALL satisfy:
+
+determinism;
+traceability;
+auditability;
+recoverability;
+consistency;
+explicit ownership.
+4. Execution State Machine
+
+Every execution SHALL transition through the following architectural states.
+
+Created
+      │
+      ▼
+Registered
+      │
+      ▼
+Ready
+      │
+      ▼
+Starting
+      │
+      ▼
+Running
+ ┌────┼────┐
+ │    │    │
+ ▼    ▼    ▼
+Paused Cancelled Timeout
+ │
+ ▼
+Running
+ │
+ ▼
+Completing
+ │
+ ▼
+Completed
+
+No additional lifecycle state SHALL exist without architectural revision.
+
+5. Created State
+
+The Created state represents the existence of a newly instantiated execution.
+
+At this stage:
+
+execution identity SHALL exist;
+execution context SHALL be allocated;
+no runtime activity SHALL begin.
+6. Registered State
+
+Registration SHALL verify that:
+
+workflow exists;
+workflow version is valid;
+execution context is complete;
+execution authorization succeeds.
+
+Unregistered executions SHALL NEVER proceed.
+
+7. Ready State
+
+Ready indicates that the execution satisfies all prerequisites required for activation.
+
+Ready executions SHALL remain inactive until activation is explicitly authorized.
+
+8. Starting State
+
+Starting represents runtime initialization.
+
+Initialization MAY include:
+
+resource allocation;
+runtime preparation;
+dependency verification;
+execution ownership establishment.
+
+Execution SHALL NOT begin before successful initialization.
+
+9. Running State
+
+Running represents active workflow execution.
+
+During Running:
+
+execution SHALL possess one owner;
+execution SHALL expose one runtime state;
+execution SHALL remain observable;
+execution SHALL remain controllable.
+10. Pause State
+
+Paused executions SHALL temporarily suspend runtime progression.
+
+Pause SHALL preserve:
+
+execution context;
+execution ownership;
+execution identity;
+execution history.
+
+Pause SHALL NOT create a new execution.
+
+11. Resume State
+
+Resuming SHALL restore the existing execution.
+
+Resume SHALL continue the original execution identity.
+
+New execution creation SHALL NOT occur.
+
+12. Completing State
+
+Completing represents controlled execution shutdown.
+
+During this phase:
+
+pending runtime activities SHALL finish;
+execution results SHALL be finalized;
+execution metadata SHALL be updated;
+audit information SHALL be committed.
+13. Completed State
+
+Completed represents successful lifecycle termination.
+
+Completed executions SHALL become immutable.
+
+Completed executions SHALL NEVER re-enter Running.
+
+14. Cancelled State
+
+Cancellation SHALL terminate execution before normal completion.
+
+Cancellation SHALL preserve:
+
+execution history;
+audit records;
+lifecycle evidence.
+
+Cancelled executions SHALL NEVER resume.
+
+15. Timeout State
+
+Timeout SHALL represent abnormal lifecycle termination caused by execution duration exceeding architectural policy.
+
+Timeout SHALL trigger recovery evaluation during Phase 5.
+
+16. Lifecycle Finalization
+
+Every execution SHALL terminate with exactly one final state:
+
+Completed
+Cancelled
+Timeout
+Failed
+
+Multiple final states SHALL NOT exist.
+
+17. Lifecycle Metadata
+
+The Execution Manager SHALL maintain:
+
+Creation Timestamp
+Registration Timestamp
+Activation Timestamp
+Completion Timestamp
+Final State
+Lifecycle Duration
+Execution Owner
+Correlation Identifier
+
+Lifecycle metadata SHALL remain immutable after completion.
+
+18. Lifecycle Integrity
+
+Execution lifecycle SHALL guarantee:
+
+exactly one creation;
+exactly one activation;
+exactly one completion;
+exactly one final state.
+
+Lifecycle ambiguity SHALL NOT occur.
+
+19. Lifecycle Invariants
+
+The following SHALL remain continuously true.
+
+Identity Invariant
+
+Execution identity SHALL remain immutable throughout the lifecycle.
+
+Ownership Invariant
+
+Execution ownership SHALL remain explicitly defined.
+
+State Invariant
+
+Every execution SHALL possess exactly one lifecycle state.
+
+Timeline Invariant
+
+Lifecycle chronology SHALL remain monotonic.
+
+Time SHALL NEVER move backwards.
+
+Finalization Invariant
+
+Every execution SHALL terminate exactly once.
+
+20. Phase 2 Compliance Matrix
+Requirement	Mandatory
+Deterministic Lifecycle	SHALL
+Explicit State Machine	SHALL
+Immutable Identity	SHALL
+Explicit Ownership	SHALL
+Single Final State	SHALL
+Complete Lifecycle Audit	SHALL
+Recoverable Lifecycle	SHALL
+Architectural Consistency	SHALL
+
+Failure of any mandatory requirement SHALL invalidate Phase 2 compliance.
+
+21. Phase 2 Completion Statement
+
+Phase 2 establishes the complete execution lifecycle model governing all workflow executions within the AHOS Runtime Engine.
+
+It defines the architectural state machine, lifecycle transitions, state integrity, execution metadata, and termination guarantees that every execution SHALL follow.
+
+By enforcing one deterministic lifecycle from creation through finalization, this phase ensures that workflow execution remains consistent, auditable, recoverable, and architecturally predictable regardless of runtime implementation.
