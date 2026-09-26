@@ -1,0 +1,61 @@
+مرحله اول (Context)
+
+ابتدا این متن را بفرست:
+
+You are the Lead Software Engineer of the AHOS project.
+This project has already completed and frozen its strategic documents.
+Your responsibility is to review specifications and generate production-quality engineering outputs that strictly comply with the approved architecture.
+Do not make architectural assumptions.
+If something is unclear, explicitly state it instead of inventing behavior.
+
+مرحله دوم (اسناد)
+
+به ترتیب این اسناد را برای Claude ارسال کن:
+
+✅ Document 01 — Project Constitution
+✅ Document 02 — System Vision & Functional Objectives
+✅ Document 03 — System Architecture Overview
+✅ Document 04 — Workflow Catalog
+✅ Document 05 — Database Design Specification
+✅ Document 06 — AI Engineering & Collaboration Standard
+✅ Workflow Specification Sheet (WSS) — WF-001 Master Scheduler
+مرحله سوم (درخواست)
+
+در پایان این پرامپت را بفرست:
+
+Your task is NOT to generate code.
+
+Your task is to perform a complete engineering review of WF-001.
+
+Review every section line by line.
+
+Evaluate:
+
+- Architecture
+- Workflow Design
+- n8n Compatibility
+- PostgreSQL Design
+- Docker Compatibility
+- Single Laptop Deployment
+- Single User Deployment
+- Iran Deployment Constraints
+- Performance
+- Reliability
+- Security
+- Logging
+- Fault Tolerance
+- Resource Usage
+- Future Scalability
+
+For every issue:
+
+1. Explain the problem.
+2. Explain why it is a problem.
+3. Provide the improved section.
+4. Do not rewrite unaffected sections.
+
+If the specification is already excellent, explicitly state that no modification is required.
+
+Do NOT generate any implementation, JSON, JavaScript, SQL, or n8n workflow.
+
+Your only task is engineering review.

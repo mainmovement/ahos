@@ -1,0 +1,11 @@
+ترتیب پیشنهادی من برای ساخت هسته سیستم
+WF-001 — Master Scheduler
+WF-002 — Token Discovery Engine
+WF-003 — Data Normalizer
+WF-004 — Security Intelligence Engine
+WF-005 — Market Intelligence Engine
+WF-006 — Opportunity Scoring Engine
+WF-007 — Simulation Engine
+WF-008 — Portfolio Intelligence Engine
+WF-009 — Recommendation & Telegram Engine
+WF-010 — Learning & Self-Improvement Engine

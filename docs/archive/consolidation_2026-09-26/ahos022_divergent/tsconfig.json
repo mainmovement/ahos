@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "plugins": [{ "name": "next" }]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "scripts/web_api_auth_selftest.ts",
+    "scripts/canonical_read_model_selftest.ts",
+    "scripts/canonical_security_selftest.ts",
+    "01",
+    "advanced-3d-audiovisual-website",
+    "advanced-3d-audiovisual-website (1)",
+    "سایت درختadvanced-3d-audiovisual-platform",
+    "درخت کاملتر immersive-3d-audiovisual-website"
+  ]
+}

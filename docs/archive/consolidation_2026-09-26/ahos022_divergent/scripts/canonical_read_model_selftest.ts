@@ -1,0 +1,329 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  alertsAllowedFromCanonical,
+  canonicalFocusTokenKey,
+  countCanonicalOutcomesForTokens,
+  findCanonicalDecision,
+  overlayOpportunity,
+  paperAllowedFromCanonical,
+  parseCanonicalReadModel,
+  presentCanonicalDecisions,
+  toBackendDecision,
+  unavailableModel,
+} from "../canonical_read_model.ts";
+
+const NOW = 1_800_000_000;
+
+function availableBuy() {
+  return parseCanonicalReadModel(
+    {
+      version: "canonical-decision-read-model-v1",
+      status: "AVAILABLE",
+      generated_ts: NOW,
+      decisions: [
+        {
+          token_key: "solana:so11111111111111111111111111111111111111112",
+          chain: "solana",
+          address: "So11111111111111111111111111111111111111112",
+          outcome: "BUY",
+          advisor_action: "ENTER",
+          identity_state: "VERIFIED",
+          security_state: "PASS",
+          is_positive: true,
+          paper_allowed: true,
+          alerts_allowed: true,
+          confidence_level: "HIGH",
+          opportunity_score: 88,
+        },
+      ],
+    },
+    NOW,
+  );
+}
+
+test("missing model is unavailable and cannot mint WATCH", () => {
+  const model = unavailableModel("missing_read_model");
+  const over = overlayOpportunity(
+    { chain: "solana", address: "So11111111111111111111111111111111111111112", decision: "WATCH", confidence: "HIGH" },
+    model,
+  );
+  assert.equal(over.decision, "UNAVAILABLE");
+  assert.equal(over.paperAllowed, false);
+  assert.equal(toBackendDecision(null, "UNAVAILABLE"), null);
+});
+
+test("python BUY is presented without TS inventing it", () => {
+  const model = availableBuy();
+  const over = overlayOpportunity(
+    { chain: "solana", address: "So11111111111111111111111111111111111111112", decision: "WATCH", confidence: "LOW" },
+    model,
+  );
+  assert.equal(over.decision, "BUY");
+  assert.equal(over.canonicalOutcome, "BUY");
+  assert.equal(over.paperAllowed, true);
+  assert.equal(over.confidence, "HIGH");
+  const backend = toBackendDecision(model.decisions[0], model.status);
+  assert.equal(backend?.outcome, "BUY");
+});
+
+test("MONITOR_ONLY and REJECT stay non-positive", () => {
+  const model = parseCanonicalReadModel(
+    {
+      status: "AVAILABLE",
+      generated_ts: NOW,
+      decisions: [
+        {
+          token_key: "solana:aaa",
+          chain: "solana",
+          address: "aaa",
+          outcome: "MONITOR_ONLY",
+          paper_allowed: false,
+          is_positive: false,
+        },
+        {
+          token_key: "solana:bbb",
+          chain: "solana",
+          address: "bbb",
+          outcome: "REJECT",
+          paper_allowed: false,
+          is_positive: false,
+        },
+      ],
+    },
+    NOW,
+  );
+  assert.equal(overlayOpportunity({ chain: "solana", address: "aaa", decision: "WATCH" }, model).decision, "MONITOR_ONLY");
+  assert.equal(overlayOpportunity({ chain: "solana", address: "bbb", decision: "WATCH" }, model).decision, "REJECT");
+  assert.equal(paperAllowedFromCanonical(model, "solana", "aaa"), false);
+});
+
+test("stale/unavailable presentation strips positives", () => {
+  const stale = parseCanonicalReadModel(
+    {
+      status: "AVAILABLE",
+      generated_ts: NOW - 48 * 3600,
+      decisions: [
+        {
+          token_key: "solana:so11111111111111111111111111111111111111112",
+          chain: "solana",
+          address: "So11111111111111111111111111111111111111112",
+          outcome: "BUY",
+          paper_allowed: true,
+          is_positive: true,
+          advisor_action: "ENTER",
+          identity_state: "VERIFIED",
+          security_state: "PASS",
+          confidence_level: "HIGH",
+        },
+      ],
+    },
+    NOW,
+  );
+  const views = presentCanonicalDecisions(stale);
+  assert.equal(stale.status, "STALE");
+  assert.equal(stale.reason, "stale_read_model");
+  assert.equal(stale.decisions[0].outcome, "STALE");
+  assert.equal(stale.decisions[0].recorded_outcome, "BUY");
+  assert.equal(stale.decisions[0].advisor_action, null);
+  assert.equal(stale.decisions[0].recorded_advisor_action, "ENTER");
+  assert.equal(stale.decisions[0].identity_state, "STALE");
+  assert.equal(stale.decisions[0].security_state, "STALE");
+  assert.equal(stale.decisions[0].confidence_level, "UNKNOWN");
+  assert.equal(stale.decisions[0].recorded_identity_state, "VERIFIED");
+  assert.equal(stale.decisions[0].recorded_security_state, "PASS");
+  assert.equal(stale.decisions[0].recorded_confidence_level, "HIGH");
+  assert.equal(views[0].outcome, "STALE");
+  assert.equal(views[0].identityState, "STALE");
+  assert.equal(views[0].securityState, "STALE");
+  assert.equal(views[0].confidence, "UNKNOWN");
+  assert.equal(views[0].paperAllowed, false);
+  assert.equal(views[0].isPositive, false);
+  const over = overlayOpportunity(
+    { chain: "solana", address: "So11111111111111111111111111111111111111112", decision: "BUY" },
+    stale,
+  );
+  assert.equal(over.decision, "STALE");
+  assert.equal(over.canonicalOutcome, "STALE");
+  assert.equal(over.identityState, "STALE");
+  assert.equal(over.securityState, "STALE");
+  assert.equal(over.confidence, "UNKNOWN");
+  assert.equal(over.paperAllowed, false);
+  assert.equal(toBackendDecision(stale.decisions[0], stale.status), null);
+});
+
+test("presentCanonicalDecisions shows python BUY only when available", () => {
+  const views = presentCanonicalDecisions(availableBuy());
+  assert.equal(views[0].outcome, "BUY");
+  assert.equal(views[0].isPositive, true);
+  assert.equal(views[0].paperAllowed, true);
+});
+
+test("presentCanonicalDecisions does not invent BUY from empty model", () => {
+  const views = presentCanonicalDecisions(unavailableModel("missing_read_model"));
+  assert.deepEqual(views, []);
+});
+
+test("unmatched token is UNAVAILABLE even if TS said WATCH", () => {
+  const model = availableBuy();
+  const over = overlayOpportunity(
+    { chain: "solana", address: "OtherToken1111111111111111111111111111111", decision: "WATCH" },
+    model,
+  );
+  assert.equal(over.decision, "UNAVAILABLE");
+  assert.equal(over.paperAllowed, false);
+});
+
+test("TS WATCH cannot alert unless python alerts_allowed", () => {
+  const watchOnly = parseCanonicalReadModel(
+    {
+      status: "AVAILABLE",
+      generated_ts: NOW,
+      decisions: [
+        {
+          token_key: "solana:so11111111111111111111111111111111111111112",
+          chain: "solana",
+          address: "So11111111111111111111111111111111111111112",
+          outcome: "WATCH",
+          alerts_allowed: false,
+          is_positive: false,
+        },
+      ],
+    },
+    NOW,
+  );
+  assert.equal(
+    alertsAllowedFromCanonical(unavailableModel("missing"), "solana", "So11111111111111111111111111111111111111112"),
+    false,
+  );
+  assert.equal(
+    alertsAllowedFromCanonical(watchOnly, "solana", "So11111111111111111111111111111111111111112"),
+    false,
+  );
+  assert.equal(
+    alertsAllowedFromCanonical(availableBuy(), "solana", "So11111111111111111111111111111111111111112"),
+    true,
+  );
+});
+
+test("findings counts Python outcomes not TS WATCH", () => {
+  const model = parseCanonicalReadModel(
+    {
+      status: "AVAILABLE",
+      generated_ts: NOW,
+      decisions: [
+        { token_key: "solana:buy", chain: "solana", address: "buy", outcome: "BUY" },
+        { token_key: "solana:watch", chain: "solana", address: "watch", outcome: "WATCH" },
+        { token_key: "solana:rej", chain: "solana", address: "rej", outcome: "REJECT" },
+        { token_key: "solana:rej2", chain: "solana", address: "rej2", outcome: "REJECT" },
+        { token_key: "solana:miss", chain: "solana", address: "miss", outcome: "INSUFFICIENT_EVIDENCE" },
+      ],
+    },
+    NOW,
+  );
+  const counts = countCanonicalOutcomesForTokens(model, [
+    { chain: "solana", address: "buy" },
+    { chain: "solana", address: "watch" },
+    { chain: "solana", address: "rej" },
+    { chain: "solana", address: "rej2" },
+    { chain: "solana", address: "miss" },
+    { chain: "solana", address: "unmatched-ts-watch" },
+  ]);
+  assert.equal(counts.buy, 1);
+  assert.equal(counts.watch, 1);
+  assert.equal(counts.reject, 2);
+  // unmatched + INSUFFICIENT_EVIDENCE; TS WATCH on unmatched must not count as WATCH
+  assert.equal(counts.insufficientOrMissing, 2);
+});
+
+test("unavailable/stale tokens count as missing not WATCH", () => {
+  const missing = countCanonicalOutcomesForTokens(unavailableModel("missing_read_model"), [
+    { chain: "solana", address: "aaa" },
+    { chain: "solana", address: "bbb" },
+  ]);
+  assert.equal(missing.watch, 0);
+  assert.equal(missing.reject, 0);
+  assert.equal(missing.buy, 0);
+  assert.equal(missing.insufficientOrMissing, 2);
+
+  const stale = parseCanonicalReadModel(
+    {
+      status: "AVAILABLE",
+      generated_ts: NOW - 48 * 3600,
+      decisions: [{ token_key: "solana:aaa", chain: "solana", address: "aaa", outcome: "WATCH" }],
+    },
+    NOW,
+  );
+  const staleCounts = countCanonicalOutcomesForTokens(stale, [{ chain: "solana", address: "aaa" }]);
+  assert.equal(stale.status, "STALE");
+  assert.equal(staleCounts.watch, 0);
+  assert.equal(staleCounts.insufficientOrMissing, 1);
+});
+
+test("chat focus prefers Python BUY then WATCH/MONITOR_ONLY", () => {
+  const views = presentCanonicalDecisions(
+    parseCanonicalReadModel(
+      {
+        status: "AVAILABLE",
+        generated_ts: NOW,
+        decisions: [
+          {
+            token_key: "solana:mon",
+            chain: "solana",
+            address: "mon",
+            outcome: "MONITOR_ONLY",
+            symbol: "MON",
+          },
+          {
+            token_key: "solana:buy",
+            chain: "solana",
+            address: "buy",
+            outcome: "BUY",
+            symbol: "BUY",
+          },
+        ],
+      },
+      NOW,
+    ),
+  );
+  assert.equal(canonicalFocusTokenKey(views), "solana:buy");
+  assert.equal(
+    canonicalFocusTokenKey(views.filter((d) => d.outcome !== "BUY")),
+    "solana:mon",
+  );
+  assert.equal(canonicalFocusTokenKey([]), null);
+  assert.equal(canonicalFocusTokenKey(presentCanonicalDecisions(unavailableModel("missing"))), null);
+});
+
+test("findCanonicalDecision uses Python rows not DB opportunities", () => {
+  const views = presentCanonicalDecisions(
+    parseCanonicalReadModel(
+      {
+        status: "AVAILABLE",
+        generated_ts: NOW,
+        decisions: [
+          {
+            token_key: "solana:rej",
+            chain: "solana",
+            address: "rej",
+            outcome: "REJECT",
+            symbol: "REJ",
+            primary_reason: "honeypot",
+          },
+          {
+            token_key: "solana:buy",
+            chain: "solana",
+            address: "buy",
+            outcome: "BUY",
+            symbol: "ALPHA",
+          },
+        ],
+      },
+      NOW,
+    ),
+  );
+  assert.equal(findCanonicalDecision(views, "چرا ALPHA رد شد", null)?.outcome, "BUY");
+  assert.equal(findCanonicalDecision(views, "این یکی چطوره", "solana:rej")?.outcome, "REJECT");
+  assert.equal(findCanonicalDecision(views, "unknownxyz", null), null);
+  assert.equal(findCanonicalDecision([], "ALPHA", "solana:buy"), null);
+});

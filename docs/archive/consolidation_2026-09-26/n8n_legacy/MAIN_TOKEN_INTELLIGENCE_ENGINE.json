@@ -1,0 +1,507 @@
+{
+  "name": "MAIN_TOKEN_INTELLIGENCE_ENGINE",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "schedule_trigger",
+      "name": "Schedule_30s",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\n// A01: Solana Token Discovery\nconst { run_discovery } = require('/home/user/ahos_engine/agents/team01_solana_discovery.js');\ntry {\n  const tokens = run_discovery();\n  return tokens.map(t => ({ json: t }));\n} catch (error) {\n  console.error('A01 Error:', error.message);\n  return [{ json: { error: error.message, agent: 'A01' } }];\n}\n"
+      },
+      "id": "a01_discovery",
+      "name": "A01_Solana_Discovery",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.pump_potential_score}}",
+              "operation": "largerEqual",
+              "value2": 25
+            },
+            {
+              "value1": "={{$json.discovery_confidence}}",
+              "operation": "largerEqual",
+              "value2": 0.4
+            }
+          ]
+        }
+      },
+      "id": "filter_quality",
+      "name": "Filter_Quality",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\n// A02: Solana On-Chain\nconst { run_onchain_analysis } = require('/home/user/ahos_engine/agents/team02_solana_onchain.js');\ntry {\n  const contract = $input.first().json.contract;\n  const result = run_onchain_analysis(contract);\n  if (!result) return [];\n  return [{ json: { ...$input.first().json, onchain: result } }];\n} catch (error) {\n  console.error('A02 Error:', error.message);\n  return [{ json: { ...$input.first().json, onchain: { error: error.message, confidence: 0 } } }];\n}\n"
+      },
+      "id": "a02_onchain",
+      "name": "A02_OnChain",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\n// A03: Social Intelligence\nconst { run_social_analysis } = require('/home/user/ahos_engine/agents/team03_solana_social.js');\ntry {\n  const data = $input.first().json;\n  const result = run_social_analysis(data.contract, data.symbol);\n  if (!result) return [];\n  return [{ json: { ...data, social: result } }];\n} catch (error) {\n  console.error('A03 Error:', error.message);\n  return [{ json: { ...data, social: { error: error.message, confidence: 0 } } }];\n}\n"
+      },
+      "id": "a03_social",
+      "name": "A03_Social",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\n// A04: Team 01 Supervisor\nconst { review_team01 } = require('/home/user/ahos_engine/agents/team04_supervisor_v3.js');\ntry {\n  const data = $input.first().json;\n  const result = review_team01(data.contract, data, data.onchain, data.social);\n  return [{ json: { ...data, supervision_a04: result } }];\n} catch (error) {\n  console.error('A04 Error:', error.message);\n  return [{ json: { ...data, supervision_a04: { decision: 'REQUIRE_MORE_DATA', error: error.message } } }];\n}\n"
+      },
+      "id": "a04_supervisor",
+      "name": "A04_Supervisor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.supervision_a04.decision}}",
+              "operation": "equal",
+              "value2": "APPROVE"
+            }
+          ]
+        }
+      },
+      "id": "if_a04",
+      "name": "If_A04_Approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\n// A07: Explainable Scoring\nconst { run_scoring } = require('/home/user/ahos_engine/agents/team07_scoring_v3.js');\ntry {\n  const data = $input.first().json;\n  const result = run_scoring(data, data.onchain || {}, data.social || {});\n  return [{ json: { ...data, scoring: result } }];\n} catch (error) {\n  console.error('A07 Error:', error.message);\n  return [{ json: { ...data, scoring: { error: error.message, composite_score: 0 } } }];\n}\n"
+      },
+      "id": "a07_scoring",
+      "name": "A07_Scoring",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\n// A13: Self-Learning - Record Prediction\nconst learner = require('/home/user/ahos_engine/agents/team13_self_learner.js').learner;\ntry {\n  const data = $input.first().json;\n  if (data.scoring) {\n    const predId = learner.record_prediction(data.scoring);\n    return [{ json: { ...data, prediction_id: predId } }];\n  }\n  return [{ json: data }];\n} catch (error) {\n  console.error('A13 Error:', error.message);\n  return [{ json: { ...$input.first().json, learning_error: error.message } }];\n}\n"
+      },
+      "id": "a13_learn",
+      "name": "A13_Record_Prediction",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.scoring.decision}}",
+              "operation": "isIn",
+              "value2": "STRONG_BUY,BUY,EARLY_OPPORTUNITY"
+            }
+          ]
+        }
+      },
+      "id": "if_alert",
+      "name": "If_Should_Alert",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2220,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.TELEGRAM_ADMIN_ID}}",
+        "text": "={{$json.scoring ? formatOpportunityAlert($json.scoring) : 'No data'}}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "a11_telegram",
+      "name": "A11_Telegram_Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        2440,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO tokens (contract, symbol, name, chain, first_seen_at) VALUES ('{{$json.contract}}', '{{$json.symbol}}', '{{$json.name}}', 'solana', NOW()) ON CONFLICT (contract) DO NOTHING;"
+      },
+      "id": "db_save",
+      "name": "DB_Save",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "error_trigger",
+      "name": "Error_Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "\n// Error Handler\nconst data = $input.first().json;\nreturn [{ json: {\n  error_caught: true,\n  workflow: 'MAIN_TOKEN_INTELLIGENCE_ENGINE',\n  error: data.error || 'Unknown',\n  node: data.node || 'Unknown',\n  timestamp: new Date().toISOString()\n}}];\n"
+      },
+      "id": "error_handler",
+      "name": "A12_Error_Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.TELEGRAM_ADMIN_ID}}",
+        "text": "\ud83d\udea8 AHOS ERROR\n\nWorkflow: {{$json.workflow}}\nNode: {{$json.node}}\nError: {{$json.error}}\nTime: {{$json.timestamp}}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "error_telegram",
+      "name": "Error_Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        680,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "learn_schedule",
+      "name": "Daily_Learning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        900,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\n// A13: Daily Self-Learning\nconst learner = require('/home/user/ahos_engine/agents/team13_self_learner.js').learner;\ntry {\n  const insight = learner.analyze_and_adapt();\n  const status = learner.get_status();\n  return [{ json: {\n    insight: insight || 'No insight (insufficient data)',\n    status: status,\n    timestamp: new Date().toISOString()\n  }}];\n} catch (error) {\n  return [{ json: { error: error.message } }];\n}\n"
+      },
+      "id": "learn_code",
+      "name": "A13_Learning_Loop",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.TELEGRAM_ADMIN_ID}}",
+        "text": "\ud83e\udde0 *Daily Learning Update*\n\n{{JSON.stringify($json, null, 2)}}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "learn_telegram",
+      "name": "Learning_Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        800
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule_30s": {
+      "main": [
+        [
+          {
+            "node": "A01_Solana_Discovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A01_Solana_Discovery": {
+      "main": [
+        [
+          {
+            "node": "Filter_Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter_Quality": {
+      "main": [
+        [
+          {
+            "node": "A02_OnChain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "A03_Social",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A02_OnChain": {
+      "main": [
+        [
+          {
+            "node": "A03_Social",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A03_Social": {
+      "main": [
+        [
+          {
+            "node": "A04_Supervisor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A04_Supervisor": {
+      "main": [
+        [
+          {
+            "node": "If_A04_Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If_A04_Approved": {
+      "main": [
+        [
+          {
+            "node": "A07_Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "A13_Record_Prediction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A07_Scoring": {
+      "main": [
+        [
+          {
+            "node": "A13_Record_Prediction",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If_Should_Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A13_Record_Prediction": {
+      "main": [
+        [
+          {
+            "node": "DB_Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If_Should_Alert": {
+      "main": [
+        [
+          {
+            "node": "A11_Telegram_Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Error_Trigger": {
+      "main": [
+        [
+          {
+            "node": "A12_Error_Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A12_Error_Handler": {
+      "main": [
+        [
+          {
+            "node": "Error_Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily_Learning": {
+      "main": [
+        [
+          {
+            "node": "A13_Learning_Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A13_Learning_Loop": {
+      "main": [
+        [
+          {
+            "node": "Learning_Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "AHOS"
+    },
+    {
+      "name": "Solana"
+    },
+    {
+      "name": "SelfLearning"
+    },
+    {
+      "name": "Production"
+    }
+  ],
+  "active": false,
+  "versionId": "3.0.0"
+}

@@ -1,0 +1,108 @@
+
+
+سند شماره ۱ (همیشه ابتدای هر چت ارسال شود) ✅
+
+AHOS Project Constitution
+
+فقط شامل:
+
+Vision
+Mission
+Core Philosophy
+Guiding Principles
+Scope
+Engineering Rules
+Collaboration Rules
+
+حدود ۳ تا ۵ صفحه.
+
+سند شماره ۲
+
+AHOS Functional Vision
+
+شامل:
+
+Token Intelligence
+Discovery
+Learning
+Simulation
+Portfolio Intelligence
+Reporting
+Telegram
+AI
+Self Improvement
+
+حدود ۱۰ تا ۱۵ صفحه.
+
+سند شماره ۳
+
+Architecture Bible
+
+که بعداً می‌سازیم.
+
+اگر بخواهم این سند را برای شروع هر چت بازنویسی کنم، فقط این بخش‌ها را نگه می‌دارم:
+1. Project Identity
+
+AHOS چیست؟
+
+2. Ultimate Mission
+
+هدف پروژه چیست؟
+
+3. Core Philosophy
+
+Token Hunter
+Early Discovery
+Evidence First
+
+4. Scope
+
+تمرکز روی توکن‌های تازه لانچ‌شده در DEXها، نه کل بازار کریپتو.
+
+5. Engineering Principles
+
+Modular
+Workflow per Responsibility
+Engine per Responsibility
+Database per Responsibility
+
+6. Collaboration Rules
+
+قوانین همکاری بین ChatGPT، Claude و سایر AIها.
+
+7. Deployment Target
+
+لپ‌تاپ شخصی، یک کاربر، ایران، Docker، n8n، PostgreSQL، استفاده حداکثری از ابزارهای رایگان و متن‌باز.
+
+همه بخش‌های زیر را از این سند حذف می‌کنم و برایشان سند مستقل می‌سازم:
+Autonomous Intelligence Capabilities
+Continuous Discovery
+Comprehensive Evaluation
+Autonomous Simulation
+Continuous Learning
+Adaptive Self Improvement
+Reporting
+Portfolio Intelligence
+
+این‌ها همگی نیازمندی‌های سیستم (System Requirements) هستند، نه قانون اساسی پروژه.
+
+پیشنهاد نهایی من
+
+من برای AHOS چیزی شبیه پروژه‌های بزرگ نرم‌افزاری طراحی می‌کنم:
+
+AHOS/
+│
+├── 00_Project_Constitution.md        ← همیشه ابتدای هر چت
+├── 01_Project_Vision.md
+├── 02_System_Objectives.md
+├── 03_Architecture_Bible.md
+├── 04_Functional_Requirements.md
+├── 05_Data_Architecture.md
+├── 06_AI_Architecture.md
+├── 07_Workflow_Architecture.md
+├── 08_Implementation_Roadmap.md
+└── ...
+
+به نظر من این ساختار بسیار حرفه‌ای‌تر، مقیاس‌پذیرتر و قابل نگهداری‌تر است.
+
+از تجربه‌ای که از پروژه‌های بزرگ دارم، اگر از همین ابتدا «سند قانون اساسی» را کوچک و پایدار نگه داری و جزئیات را در اسناد تخصصی جداگانه قرار دهی، هم ChatGPT و هم Claude در طول پروژه پاسخ‌های منسجم‌تر و دقیق‌تری خواهند داد و مدیریت تغییرات هم بسیار ساده‌تر خواهد شد.
