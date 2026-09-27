@@ -169,6 +169,16 @@ Verification posture at push time: full `tests/` 2349 passed / 5 failed (all fiv
 
 Excluded from the push: the pre-existing `.cursor/hooks.json` modification, `.cursor/hooks.json.local-backup`, `ahos-hooks-local-diff.txt`, and `reports/canonical_decision_read_model.json` (a generated read-model artifact written as a side effect of running the suite; unstaged and left on disk, not committed).
 
+### Addendum 2026-09-28 — orphan-module audit: 4 of 10 are live, not dead
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-030 (10 leaf modules never imported — dead-code candidates) | **PARTIALLY RECLASSIFIED** | The validator's own docstring says removal "is a governance decision, never an automatic action by this gate". Verified against live invocation: **4 are operational entrypoints, not dead code** — `engine/data_audit.py` and `engine/research_report_bot.py` are invoked by `engine/run_all_checks.sh` (the CI gate) and by n8n workflows `ahos_11_data_update` / `ahos_12_research_report`; `engine/acquire_3yr.py` is invoked by n8n `ahos_11_data_update`; `engine/pal_probe.py` is cited as evidence in `config/agent_registry.yaml` (PRB-20260813-001..017) and `config/cognitive_principles.yaml` (R-28 protocol). All four also have `__main__` blocks. The scanner counts shell-invoked CLIs as unreferenced because it only traces Python import paths. |
+| M-GAP-031 (4 genuine unreferenced entrypoints) | **OPEN** (governance disposition) | `engine/oss_audit`, `engine/coverage_audit`, `engine/doc_hygiene`, `engine/agent_matrix_v2` are CLI entrypoints with `__main__` blocks that nothing invokes. These are the true dead-code candidates. Note `engine/oss_audit` is already flagged in the taxonomy map as the dead substrate behind M0 role H (GitHub/OSS Intelligence), where AG-25 is PLANNED. Deleting them would remove the only implementation substrate for that role, so disposition must consider the role gap, not just import counts. |
+| M-GAP-032 (`paper_trading/cycle.py` orphan status) | **OPEN** (Lane-A gated) | Also appears in the orphan list, but it is one of the 36 files pinned in `config/lane_a_freeze.sha256`. Its disposition requires a reviewed governance request; it is not an autonomous-cleanup candidate under any circumstance. |
+
+Action taken: none of the 10 modules was modified or deleted. The earlier intent to "clean up the 9 non-Lane-A orphans" was abandoned once verification showed 4 of them are live. This row is the correction.
+
 
 Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates. Dual-store redesign remains an architecture STOP.
 
