@@ -1,0 +1,403 @@
+{
+  "artifact_id": "AGENT_TAXONOMY_MAP",
+  "version": "0.1.0",
+  "status": "RECONCILED_NOT_MERGED",
+  "created_utc": "2026-09-27T00:00:00+00:00",
+  "purpose": "Explicit cross-taxonomy mapping of AHOS agent models. Provenance is recorded per mapping. Taxonomies are preserved as distinct namespaces; NOTHING IS MERGED.",
+  "law": [
+    "SILENT_MERGE_FORBIDDEN: overlapping roles are recorded as relations, never collapsed into one id.",
+    "PROVENANCE_REQUIRED: every relation names its source file and the id it cites.",
+    "AUTHORITY_INFLATION_FORBIDDEN: a relation never grants authority the source taxonomy denies.",
+    "NO_AGENT_IS_OPERATIONAL_BY_VIRTUE_OF_BEING_MAPPED: mapping is a policy record, not a capability grant.",
+    "NAMESPACE_COLLISIONS_ARE_EXPLICIT: identical short ids in different taxonomies are listed as collisions, not aliases."
+  ],
+  "taxonomies": {
+    "slice1_logical": {
+      "namespace": "agent.*",
+      "source": "ahos_org/registry.py",
+      "symbol": "CANONICAL_AGENT_IDS",
+      "count": 19,
+      "authority_vocabulary": "ahos_org/policy.py INTERNAL_CAPABILITIES / GLOBAL_DENY_CAPABILITIES",
+      "seeded_maturity": "REGISTERED (0) for all 19",
+      "enforcement": "ahos_org/governance.py GovernanceEngine (fail-closed; unknown -> DENY)",
+      "honest_class": "[IMPLEMENTED] policy model — no runtime, no external I/O"
+    },
+    "ops_matrix": {
+      "namespace": "AG-*",
+      "source": "config/agent_registry.yaml",
+      "symbol": "agents[]",
+      "count": 25,
+      "authority_vocabulary": "allowed_authority / forbidden_authority (OBSERVE / ANALYZE / ADVISE / CHALLENGE / VETO / DECIDE / PROMOTE)",
+      "status_counts": {"EXISTS": 9, "PARTIAL": 12, "PLANNED": 3, "MISSING": 1},
+      "operability_totals": {"implemented": 21, "contracted": 6, "orchestrated": 0, "live": 15},
+      "honest_class": "machine-readable ops registry; orchestrated=0 for every agent"
+    },
+    "runtime_map": {
+      "namespace": "AGENT-*",
+      "source": "docs/AGENT_MAPPING.md",
+      "symbol": "runtime agents table (Phase-1 frozen lock)",
+      "count": 10,
+      "expert_roles": 15,
+      "honest_class": "frozen two-layer map: 10 runtime actors x 15 review roles; documentary"
+    },
+    "specialist_blueprint": {
+      "namespace": "agent.org.*",
+      "source": "docs/agents/PLANNED_19_AGENT_MAP.md",
+      "symbol": "Registry (provisional)",
+      "count": 19,
+      "status": "PLANNED for all 19; SEEDED_IN_CODE = NO",
+      "honest_class": "[PLANNED] documentary blueprint; explicitly not operational, not a grant of capabilities"
+    },
+    "m0_evaluation": {
+      "namespace": "A-H",
+      "source": "M0 MULTI-AGENT REALITY MATRIX (this audit wave)",
+      "count": 8,
+      "honest_class": "evaluation roles for the multi-agent architecture assessment; not repo ids"
+    }
+  },
+  "namespace_collisions": [
+    {
+      "short_id": "01",
+      "collision": "Four distinct meanings; these are NOT aliases.",
+      "members": [
+        {"taxonomy": "slice1_logical", "id": "agent.chief-orchestrator", "meaning": "Chief Orchestrator — logical coordinator, no unrestricted authority"},
+        {"taxonomy": "ops_matrix", "id": "AG-01", "meaning": "Master Orchestrator — status MISSING, ABSENT BY DESIGN, form n8n_workflow"},
+        {"taxonomy": "runtime_map", "id": "AGENT-01", "meaning": "DataFetch — DATA group, CCXT/LBank ingest; NOT an orchestrator"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.01-chief-architect", "meaning": "Chief Architect — documentary organizational architecture leadership"}
+      ]
+    },
+    {
+      "short_id": "10",
+      "collision": "Same number, unrelated roles.",
+      "members": [
+        {"taxonomy": "slice1_logical", "id": "agent.frontend-ux", "meaning": "position 10 in CANONICAL_AGENT_IDS ordering"},
+        {"taxonomy": "runtime_map", "id": "AGENT-10", "meaning": "FinalAuditor — AUDIT group, veto power, final approval"},
+        {"taxonomy": "ops_matrix", "id": "AG-10", "meaning": "Narrative Intelligence — rss-only, ADVISORY boot class"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.10-token-security-scam-intelligence", "meaning": "Token Security / Scam Intelligence"}
+      ]
+    }
+  ],
+  "authority_invariants": [
+    {
+      "id": "INV-DECIDE-HOLDERS",
+      "claim": "Only AG-15 (Decision Engine) and AG-16 (Paper-Trading Agent) hold allowed_authority [DECIDE].",
+      "source": "config/agent_registry.yaml",
+      "enforced_by": "this map's mappings.decision_authority field must be a subset of {AG-15, AG-16}"
+    },
+    {
+      "id": "INV-VETO-DETERMINISTIC",
+      "claim": "AG-09 holds VETO as a deterministic safety veto; never an AI veto.",
+      "source": "config/agent_registry.yaml AG-09 notes (F5 resolution)"
+    },
+    {
+      "id": "INV-PROMOTE-HUMAN-ONLY",
+      "claim": "AG-23 holds PROMOTE+VETO but ONLY as a documented human gateway; never implementable as software.",
+      "source": "config/agent_registry.yaml AG-23 notes (F5 resolution)"
+    },
+    {
+      "id": "INV-NO-SLICE1-EXECUTION",
+      "claim": "All 19 Slice-1 canonical agents are seeded at MaturityLevel.REGISTERED (0); MINIMUM_MATURITY_FOR_ALLOW = 2 (IMPLEMENTED). Therefore NO Slice-1 agent can currently be granted execution authority.",
+      "source": "ahos_org/registry.py seed_canonical_agents; ahos_org/policy.py MINIMUM_MATURITY_FOR_ALLOW",
+      "consequence": "Any control-plane orchestration must raise documented maturity with evidence before execution authority can flow."
+    },
+    {
+      "id": "INV-GLOBAL-DENY",
+      "claim": "GLOBAL_DENY_CAPABILITIES (trading.live, production.operate, credentials.access, ahos.lane_a, ahos.lane_b, ahos.connect, telegram.access, n8n.access, provider.connect, ...) are never ALLOW.",
+      "source": "ahos_org/policy.py",
+      "enforced_by": "ahos_org/governance.py deny path"
+    },
+    {
+      "id": "INV-RESEARCH-FORBIDDEN",
+      "claim": "A research agent context cannot receive IDENTITY_MANAGE, APPROVAL_ISSUE, KNOWLEDGE_PROMOTE, AUTHORITY_DELEGATE, EXECUTION, POLICY_MODIFY, VERIFICATION_RECORD or TASK_MANAGE.",
+      "source": "agent_org/research_host/contracts.py FORBIDDEN_RESEARCH_CAPABILITIES"
+    },
+    {
+      "id": "INV-AI-NO-UPGRADE",
+      "claim": "An AI council challenge can only DOWNGRADE or ABSTAIN; upgrade_blocked is set for council ENTER when gates are closed.",
+      "source": "architecture/decision/authority.py _ai_challenge"
+    },
+    {
+      "id": "INV-PAPER-ONLY",
+      "claim": "Real trading is disabled: hygiene.py vetoes AHOS_ALLOW_REAL_FUNDS / AHOS_EXECUTE_LIVE_TRADES; Resource.AHOS_LIVE_TRADING is a protected resource; Operation.EXECUTE and Capability.EXECUTION are global denies.",
+      "source": "architecture/security/hygiene.py; agent_org/contracts.py; agent_org/governance.py"
+    }
+  ],
+  "mappings": [
+    {
+      "anchor": "agent.chief-orchestrator",
+      "slice1_role": "Chief Orchestrator",
+      "slice1_allowed": ["orchestrate.plan", "task.propose", "task.inspect", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-01", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-01 Master Orchestrator status MISSING ABSENT BY DESIGN"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.01-chief-architect", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 01 vs 02 vs 14; NOT MERGED"},
+        {"taxonomy": "m0_evaluation", "id": "A", "relation": "evaluation-role", "provenance": "M0 matrix row A Orchestrator: conceptual only"}
+      ],
+      "runtime_map_relation": "NONE — docs/AGENT_MAPPING.md AGENT-01 is DataFetch, not an orchestrator; collision recorded above",
+      "decision_authority": false,
+      "gap": "No orchestrator runtime exists (orchestrated=0/25). Agent One is not implemented.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.reality-forensics",
+      "slice1_role": "Reality Forensics",
+      "slice1_allowed": ["evidence.record", "audit.read", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-21", "relation": "adjacent-not-identical", "provenance": "config/agent_registry.yaml AG-21 Evidence/Provenance is hashing/linkage/manifests; forensics reconstructs claims from evidence"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.05-epistemic-reasoning", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "E", "relation": "evaluation-role", "provenance": "M0 matrix row E Evidence Authority"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.evidence-transport",
+      "slice1_role": "Evidence Transport",
+      "slice1_allowed": ["evidence.record", "audit.read", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-21", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-21 Evidence/Provenance sha-linked-v1"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.05-epistemic-reasoning", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "E", "relation": "evaluation-role", "provenance": "M0 matrix row E Evidence Authority"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.security",
+      "slice1_role": "Security",
+      "slice1_allowed": ["security.inspect", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-09", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-09 Security/Scam Defense, allowed_authority [OBSERVE, ANALYZE, VETO], deterministic veto"},
+        {"taxonomy": "runtime_map", "id": "AGENT-04", "relation": "closest-counterpart", "provenance": "docs/AGENT_MAPPING.md AGENT-04 Security EXEC group, secrets/auth/kill switch"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.03-security-architect", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 03 vs 10; NOT MERGED"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.10-token-security-scam-intelligence", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 03 vs 10; NOT MERGED"},
+        {"taxonomy": "m0_evaluation", "id": "B", "relation": "partial", "provenance": "M0 matrix row B Engineering Governor/Chief Critic: partially specified"},
+        {"taxonomy": "m0_evaluation", "id": "D", "relation": "partial", "provenance": "M0 matrix row D Adversarial Verifier/Repair"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.identity",
+      "slice1_role": "Identity",
+      "slice1_allowed": ["identity.inspect", "registry.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "NONE", "relation": "gap", "provenance": "no AG agent owns identity; identity resolution lives in architecture/identity/ (Lane B overlay), not an agent"},
+        {"taxonomy": "m0_evaluation", "id": "NONE", "relation": "gap", "provenance": "identity is a Lane B subsystem, not an A-H evaluation role"}
+      ],
+      "decision_authority": false,
+      "gap": "No ops-matrix or runtime counterpart owns identity as an agent capability.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.canonical-decision-auditor",
+      "slice1_role": "Canonical Decision Audit",
+      "slice1_allowed": ["audit.read", "verification.review", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "NONE", "relation": "gap", "provenance": "no AG agent audits the canonical decision; CanonicalDecisionAuthority (architecture/decision/authority.py) is a subsystem, not an agent"},
+        {"taxonomy": "runtime_map", "id": "AGENT-10", "relation": "closest-counterpart", "provenance": "docs/AGENT_MAPPING.md AGENT-10 FinalAuditor AUDIT group veto power"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.16-qa-verification", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 16 vs 19; NOT MERGED"},
+        {"taxonomy": "m0_evaluation", "id": "B", "relation": "partial", "provenance": "M0 matrix row B"}
+      ],
+      "decision_authority": false,
+      "gap": "Canonical decision audit has no agent owner; it must remain a read-only audit over CanonicalDecisionAuthority.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.scoring-science",
+      "slice1_role": "Scoring Science",
+      "slice1_allowed": ["scoring.inspect", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-04", "relation": "adjacent-not-identical", "provenance": "config/agent_registry.yaml AG-04 Market Intelligence ranks; OpportunityScorer is score-only and does not decide"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.12-quant-backtesting", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "NONE", "relation": "gap", "provenance": "scoring is an AGENTS.md authority surface, not an A-H evaluation role"}
+      ],
+      "decision_authority": false,
+      "gap": "Scoring has no dedicated agent owner; OpportunityScorer scores and must never decide (AGENTS.md).",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.paper-trading",
+      "slice1_role": "Paper Trading",
+      "slice1_allowed": ["paper.analyze", "audit.read"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-15", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-15 Decision Engine, allowed_authority [DECIDE], PT-X3-v2"},
+        {"taxonomy": "ops_matrix", "id": "AG-16", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-16 Paper-Trading Agent, allowed_authority [DECIDE], PAPER ONLY — LIVE TRADING CLOSED forever by law"},
+        {"taxonomy": "runtime_map", "id": "AGENT-03", "relation": "closest-counterpart", "provenance": "docs/AGENT_MAPPING.md AGENT-03 Execution EXEC group, only PAPER until gates pass"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.12-quant-backtesting", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "NONE", "relation": "gap", "provenance": "paper trading is a Lane A authority surface, not an A-H evaluation role"}
+      ],
+      "decision_authority": false,
+      "slice1_note": "Slice-1 paper-trading role is ANALYZE only; DECIDE lives exclusively with AG-15/AG-16 in the ops matrix. This relation must not inflate the Slice-1 role.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.learning-memory",
+      "slice1_role": "Learning / Memory",
+      "slice1_allowed": ["evidence.record", "audit.read"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-17", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-17 Memory Agent eventstore-v3-F1S1"},
+        {"taxonomy": "ops_matrix", "id": "AG-18", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-18 Learning Agent lessons-v1"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.13-ai-ml-intelligence", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "NONE", "relation": "gap", "provenance": "memory is an AGENTS.md Lane B substrate, not an A-H evaluation role"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.calibration",
+      "slice1_role": "Calibration",
+      "slice1_allowed": ["calibration.inspect", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "NONE", "relation": "gap", "provenance": "no AG agent owns calibration; score-ledger calibration lives in architecture/learning/"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.13-ai-ml-intelligence", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"}
+      ],
+      "decision_authority": false,
+      "gap": "Calibration has no agent owner.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.cognitive-agi-aci",
+      "slice1_role": "Cognitive / AGI-ACI",
+      "slice1_allowed": ["cognitive.inspect", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "NONE", "relation": "gap", "provenance": "no AG agent owns cognition; architecture/cognitive/ (P3 loop, P4.x benchmarks) is the Lane B substrate and is explicitly NOT AGI/ACI"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.13-ai-ml-intelligence", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "NONE", "relation": "gap", "provenance": "AGI/ACI is an architectural north star, not an achieved A-H role"}
+      ],
+      "decision_authority": false,
+      "gap": "No cognition owner agent. AGI/ACI label must not be claimed from agent count or file names (directive section 9; DOC_TRUTH_MAP ACI-GAP-002 OPEN).",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.windows-runtime",
+      "slice1_role": "Windows Runtime",
+      "slice1_allowed": ["windows.inspect", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "NONE", "relation": "gap", "provenance": "no AG agent owns the Windows runtime; operation is operator-run via .bat/.ps1 launchers"},
+        {"taxonomy": "m0_evaluation", "id": "G", "relation": "partial", "provenance": "M0 matrix row G Operations/Soak/Release Guardian"}
+      ],
+      "decision_authority": false,
+      "gap": "Windows runtime is operator-run; OPERATOR_READY = NOT_VERIFIED pending real Windows gate artifacts.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.provider-data",
+      "slice1_role": "Provider / Data",
+      "slice1_allowed": ["policy.inspect", "audit.read"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-02", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-02 Data Intelligence collection/normalization/provenance"},
+        {"taxonomy": "ops_matrix", "id": "AG-12", "relation": "adjacent", "provenance": "config/agent_registry.yaml AG-12 AI Model Router capability routing"},
+        {"taxonomy": "runtime_map", "id": "AGENT-01", "relation": "closest-counterpart", "provenance": "docs/AGENT_MAPPING.md AGENT-01 DataFetch DATA group"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.07-data-intelligence", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.08-crypto-market-intelligence", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 08 vs 09 vs 11 vs 12; NOT MERGED"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.integration",
+      "slice1_role": "Integration",
+      "slice1_allowed": ["integration.inspect", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "NONE", "relation": "gap", "provenance": "no AG agent owns integration; Telegram and n8n are interaction/automation edges, not agents"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.14-agent-runtime-engineering", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 01 vs 02 vs 14; NOT MERGED"}
+      ],
+      "decision_authority": false,
+      "gap": "Integration has no agent owner; telegram.access and n8n.access are GLOBAL_DENY_CAPABILITIES.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.frontend-ux",
+      "slice1_role": "Frontend / UX",
+      "slice1_allowed": ["frontend.inspect", "task.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "NONE", "relation": "gap", "provenance": "no AG agent owns the frontend; the TS surface is a read model and presentation layer with no independent authority"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.17-product-ux-intelligence", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 17 vs 18; NOT MERGED"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.18-frontend-visualization", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 17 vs 18; NOT MERGED"}
+      ],
+      "decision_authority": false,
+      "gap": "Frontend has no agent owner and must not become a second decision authority (AGENTS.md).",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.independent-verification",
+      "slice1_role": "Independent Verification",
+      "slice1_allowed": ["verification.review", "audit.read", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-14", "relation": "adjacent-not-identical", "provenance": "config/agent_registry.yaml AG-14 Red Team may veto claims, never data; not an independent verifier"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.16-qa-verification", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 16 vs 19; NOT MERGED"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.19-independent-red-team", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 16 vs 19; NOT MERGED"},
+        {"taxonomy": "m0_evaluation", "id": "D", "relation": "evaluation-role", "provenance": "M0 matrix row D Adversarial Verifier/Repair: partially implemented (verify yes, repair no)"}
+      ],
+      "decision_authority": false,
+      "gap": "Self-check is not independent verification; no runtime currently provides independent identity+authority+execution path.",
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.red-team",
+      "slice1_role": "Red Team",
+      "slice1_allowed": ["redteam.probe", "audit.read", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-14", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-14 Red Team linter-W11, allowed_authority [CHALLENGE, VETO], verdict enum only"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.19-independent-red-team", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "B", "relation": "partial", "provenance": "M0 matrix row B"},
+        {"taxonomy": "m0_evaluation", "id": "D", "relation": "partial", "provenance": "M0 matrix row D"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.change-architect",
+      "slice1_role": "Change Architecture",
+      "slice1_allowed": ["change.propose", "task.propose", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-20", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-20 Controlled Self-Evolution PLANNED, allowed_authority [ADVISE], no approval means no promotion"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.02-systems-architect", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 01 vs 02 vs 14; NOT MERGED"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.14-agent-runtime-engineering", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md ROLE_OVERLAP 01 vs 02 vs 14; NOT MERGED"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    },
+    {
+      "anchor": "agent.release-governance-reviewer",
+      "slice1_role": "Release / Governance",
+      "slice1_allowed": ["release.review", "audit.read", "policy.inspect"],
+      "relations": [
+        {"taxonomy": "ops_matrix", "id": "AG-23", "relation": "closest-counterpart", "provenance": "config/agent_registry.yaml AG-23 Governance/Policy, allowed_authority [VETO, PROMOTE] but human-only by law (F5); runtime engine MISSING by law"},
+        {"taxonomy": "ops_matrix", "id": "AG-22", "relation": "adjacent", "provenance": "config/agent_registry.yaml AG-22 Observability/Health ledger-W11"},
+        {"taxonomy": "runtime_map", "id": "AGENT-10", "relation": "adjacent", "provenance": "docs/AGENT_MAPPING.md AGENT-10 FinalAuditor, human gate above AGENT-10 for LIVE only"},
+        {"taxonomy": "specialist_blueprint", "id": "agent.org.04-governance-constitution", "relation": "role_overlap", "provenance": "docs/agents/PLANNED_19_AGENT_MAP.md"},
+        {"taxonomy": "m0_evaluation", "id": "G", "relation": "evaluation-role", "provenance": "M0 matrix row G Operations/Soak/Release Guardian: PARTIAL, human-gated"}
+      ],
+      "decision_authority": false,
+      "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
+    }
+  ],
+  "m0_roles_without_slice1_anchor": [
+    {
+      "m0_role": "C",
+      "m0_name": "Builder",
+      "finding": "NO Slice-1 anchor exists. Closest implemented substance is research_worker/analyst.py (Class A research analyst) and the agent_org research-host facade, neither of which is a builder agent.",
+      "gap": "A builder agent would need capability grants inside the TCB; none exists. Prerequisite: control-plane boot of at least one agent."
+    },
+    {
+      "m0_role": "F",
+      "m0_name": "Research Intelligence",
+      "finding": "Implemented as a research WORKER + HOST, not as a Slice-1 logical agent. research_worker/ + agent_org/research_host/ are Class A IMPLEMENTED; AG-03 Research Agent EXISTS in Lane A.",
+      "gap": "Process isolation is claimed but not provided (PROCESS_ISOLATION_PROVIDED = false; SAME_PROCESS_RESIDUAL = true)."
+    },
+    {
+      "m0_role": "H",
+      "m0_name": "GitHub / Open-Source Intelligence",
+      "finding": "NO Slice-1 anchor exists. AG-25 Open-Source Capability Intelligence is PLANNED; engine/oss_audit is an orphaned dead module (validate_imports.py).",
+      "gap": "The entire Agent-H substrate is dead code with one manual audit report."
+    }
+  ],
+  "explicit_non_claims": [
+    "This map does not create, promote, or activate any agent.",
+    "This map does not merge any taxonomy or role.",
+    "This map does not grant, imply, or escalate any capability or authority.",
+    "Mapping a role is not evidence that the role is implemented, tested, or operational.",
+    "All 19 Slice-1 anchors remain at maturity REGISTERED (0); none can execute."
+  ]
+}
