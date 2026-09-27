@@ -103,6 +103,8 @@ The map is pinned to live code by `tests/test_agent_taxonomy_map.py`. The test f
 - any mapping gains `decision_authority` or cites a globally-denied capability;
 - any capability token outside `INTERNAL_CAPABILITIES` is cited (it would be un-enforceable);
 - the `REGISTERED` maturity or the paper-only protections are dropped;
+- the governed maturity exit ramp (`INV-MATURITY-ADVANCE-GOVERNED`) is dropped, or the code
+  stops making it true;
 - a positive readiness label appears in a claim-bearing field, or the disclaimer is deleted.
 
 Edit `agent_taxonomy_map.json` and the test together. A change to the set of anchors is a
