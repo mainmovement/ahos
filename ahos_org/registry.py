@@ -224,6 +224,84 @@ class AgentRegistry:
         )
         return updated
 
+    def advance_maturity(
+        self,
+        agent_id: str,
+        *,
+        actor: str,
+        evidence: str,
+        target: MaturityLevel,
+    ) -> AgentRecord:
+        """Raise one agent to IMPLEMENTED, or refuse.
+
+        This is the only path from REGISTERED toward IMPLEMENTED. It is the
+        lifecycle foundation a real control-plane boot needs, and it grants
+        nothing by itself: the GovernanceEngine still checks the maturity floor
+        and the human-approval gate at authorize() time.
+
+        Fail-closed by construction:
+        - evidence is mandatory and non-empty (no blank rubric stamping);
+        - only IMPLEMENTED is accepted as a target - VERIFIED and above need
+          the verified path, which this method deliberately does not provide;
+        - targets below the ALLOW floor are refused, since they could not change
+          any authorize() outcome and would only inflate the record;
+        - descent and no-op are rejected, so maturity can never be laundered
+          sideways;
+        - every attempt, including the refused ones, is audit-logged.
+        """
+        current = self.get(agent_id)
+
+        def _refuse(reason: str) -> AgentRecord:
+            self._audit.append(
+                event_type=EventType.AGENT_UPDATED,
+                actor=actor,
+                action="advance_maturity",
+                target=agent_id,
+                reason=reason,
+                decision="DENY",
+            )
+            raise ValidationError(f"maturity advance refused for {agent_id}: {reason}")
+
+        if not evidence or not evidence.strip():
+            _refuse("evidence required")
+        if int(target) <= int(current.maturity_level):
+            _refuse(
+                "target must be strictly higher than the current level "
+                f"({current.maturity_level.name} -> {target.name}); "
+                "descent and no-op are not valid advances"
+            )
+        if target is not MaturityLevel.IMPLEMENTED:
+            _refuse(
+                f"advance to {target.name} requires the verified path, "
+                "which is not provided by this method"
+            )
+        # The policy floor for ALLOW is IMPLEMENTED (2), so an advance that
+        # stops below it changes nothing observable at authorize() time. Refuse
+        # it rather than record a maturity level that cannot matter.
+        if int(target) < int(MaturityLevel.IMPLEMENTED):
+            _refuse(
+                f"advance to {target.name} is below MINIMUM_MATURITY_FOR_ALLOW; "
+                "raise to IMPLEMENTED with evidence instead"
+            )
+
+        updated = replace(
+            current,
+            maturity_level=target,
+            governance_status=GovernanceStatus.ACTIVE,
+            updated_at=isoformat_utc(self._clock.now()),
+        )
+        self._agents[agent_id] = updated
+        self._audit.append(
+            event_type=EventType.AGENT_UPDATED,
+            actor=actor,
+            action="advance_maturity",
+            target=agent_id,
+            reason=evidence.strip(),
+            decision="ALLOW",
+            evidence_refs=(f"maturity={target.name}",),
+        )
+        return updated
+
     def get(self, agent_id: str) -> AgentRecord:
         try:
             return self._agents[agent_id]
