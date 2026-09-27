@@ -150,6 +150,26 @@ Owner/env gates below remain blocked.
 |---|---|---|
 | M-GAP-026 (Command Center did not fetch `/api/alerts`) | **CLOSED** (unit/selftest) | `evaluateWebAlertBanner` re-checks live Python BUY + overlay PASS; expired/WATCH/UNAVAILABLE stay inactive. Command Center shows a non-FOMO `monitor-banner`. Live Telegram E2E remains M-GAP-009. |
 
+### Push record 2026-09-28 — first governed push of the working branch
+
+| Item | Value |
+|---|---|
+| Remote branch created | `origin/ahos` (new; no prior `origin/ahos` existed) |
+| Commit range pushed | `e0ac1dd` .. `916b786` (6 commits: M1+M2 taxonomy map, sqlite handle-leak fix, gap-register addendum, `advance_maturity` lifecycle ramp + invariant, maintenance note) |
+| Local HEAD after push | `916b786fda1ab96973ff332b19f49d4199fac886` |
+| Remote HEAD after push | `916b786fda1ab96973ff332b19f49d4199fac886` |
+| Upstream | `origin/ahos` (set by the push) |
+| Divergence | `0 0` — verified in sync |
+| `origin/main` touched | NO — only the working branch; main remains 2 ahead / 9 behind on unrelated history |
+| Force-push used | NO |
+
+Authorization scope: ordinary governed push to the working branch only. This is **not** merge-to-main, release, live-trading, governance change, or authority increase.
+
+Verification posture at push time: full `tests/` 2349 passed / 5 failed (all five pre-existing and environmental — 3 x Windows symlink privilege, 2 x stale local operation report; none touched by this range). `tests2b/` 256 passed. Lane-A integrity OK (36 files pinned).
+
+Excluded from the push: the pre-existing `.cursor/hooks.json` modification, `.cursor/hooks.json.local-backup`, `ahos-hooks-local-diff.txt`, and `reports/canonical_decision_read_model.json` (a generated read-model artifact written as a side effect of running the suite; unstaged and left on disk, not committed).
+
+
 Owner/env blockers unchanged: M-GAP-003, M-GAP-007 (Windows), M-GAP-008 measurement, M-GAP-009 token, M-GAP-010 nights, OV-* Windows gates. Dual-store redesign remains an architecture STOP.
 
 ### Addendum 2026-09-27 — Agent taxonomy map pinned (M2) + knowledge-store handle leak
