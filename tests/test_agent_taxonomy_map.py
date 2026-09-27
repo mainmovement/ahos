@@ -275,6 +275,7 @@ def test_inv_paper_only_and_no_upgrade_invariants_named(taxonomy_map):
         "INV-VETO-DETERMINISTIC",
         "INV-PROMOTE-HUMAN-ONLY",
         "INV-NO-SLICE1-EXECUTION",
+        "INV-MATURITY-ADVANCE-GOVERNED",
         "INV-GLOBAL-DENY",
         "INV-RESEARCH-FORBIDDEN",
         "INV-AI-NO-UPGRADE",
@@ -282,6 +283,52 @@ def test_inv_paper_only_and_no_upgrade_invariants_named(taxonomy_map):
     ):
         assert required in ids, f"authority invariant {required} was dropped"
 
+
+def test_advance_maturity_is_the_governed_exit_ramp(taxonomy_map):
+    """The map claims INV-MATURITY-ADVANCE-GOVERNED; the code must make it true.
+
+    All 19 anchors must still seed at REGISTERED (the map's blocking finding),
+    while the fail-closed advance path exists and refuses to over-claim.
+    """
+    from ahos_org.clock import FrozenClock
+    from ahos_org.ids import SequentialIdFactory
+    from ahos_org.models import MaturityLevel
+    from ahos_org.organization import AgentOrganization
+
+    org = AgentOrganization(clock=FrozenClock(), ids=SequentialIdFactory())
+    org.agents.seed_canonical_agents()
+
+    # Blocking finding still holds: nothing was auto-promoted.
+    assert all(
+        a.maturity_level is MaturityLevel.REGISTERED for a in org.agents.list_agents()
+    )
+
+    anchor = "agent.chief-orchestrator"
+    from ahos_org.errors import ValidationError
+
+    # The governed ramp refuses every shortcut and logs the attempt.
+    for bad_target in (MaturityLevel.VERIFIED, MaturityLevel.OPERATIONALLY_TRUSTED):
+        with pytest.raises(ValidationError):
+            org.agents.advance_maturity(
+                anchor, actor="self", evidence="shortcut", target=bad_target
+            )
+    with pytest.raises(ValidationError):
+        org.agents.advance_maturity(
+            anchor, actor="self", evidence="", target=MaturityLevel.IMPLEMENTED
+        )
+    assert org.agents.get(anchor).maturity_level is MaturityLevel.REGISTERED
+
+    # A lawful advance clears the seed default and is audit-logged.
+    org.agents.advance_maturity(
+        anchor,
+        actor="human-governance",
+        evidence="governed review under M-GAP-028",
+        target=MaturityLevel.IMPLEMENTED,
+    )
+    assert org.agents.get(anchor).maturity_level is MaturityLevel.IMPLEMENTED
+    events = [e for e in org.audit.events() if e.action == "advance_maturity"]
+    assert any(e.decision == "ALLOW" for e in events)
+    assert any(e.decision == "DENY" for e in events), "refused attempts must be logged too"
 
 def test_paper_only_still_disabled_in_live_code():
     """The map says trading is disabled; the code must still say so."""

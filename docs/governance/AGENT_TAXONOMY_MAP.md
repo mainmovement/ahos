@@ -52,6 +52,11 @@ documentation gap or a missing wiring task — the maturity floor is a deliberat
 every canonical agent sits below it. Any real control-plane boot must raise documented
 maturity **with evidence**, not edit the floor.
 
+As of 2026-09-27 that ramp exists: `AgentRegistry.advance_maturity` is the only legal path
+from `REGISTERED` to `IMPLEMENTED`. It is fail-closed and audit-logged, and nothing calls it
+automatically — the decision to advance a specific anchor stays with human governance. This
+removes the missing-mechanism half of the blocker; the missing-evidence half remains.
+
 The ops matrix says the same thing differently: `operability_totals: orchestrated: 0`, and
 `AGENTS.md` confirms Agent One "not implemented".
 
@@ -63,6 +68,7 @@ The ops matrix says the same thing differently: `operability_totals: orchestrate
 | `INV-VETO-DETERMINISTIC` | AG-09 holds VETO as a **deterministic** safety veto — never an AI veto. |
 | `INV-PROMOTE-HUMAN-ONLY` | AG-23 holds PROMOTE+VETO but **only as a documented human gateway** — never implementable as software. |
 | `INV-NO-SLICE1-EXECUTION` | Maturity 0 < floor 2 ⇒ no Slice-1 execution. |
+| `INV-MATURITY-ADVANCE-GOVERNED` | The only path from REGISTERED to IMPLEMENTED is `AgentRegistry.advance_maturity` — fail-closed, evidence-mandatory, audit-logged, and never called by any seed or production path. Levels above IMPLEMENTED are not reachable through it. |
 | `INV-GLOBAL-DENY` | `GLOBAL_DENY_CAPABILITIES` (`trading.live`, `production.operate`, `credentials.access`, `ahos.lane_a`, `telegram.access`, `n8n.access`, …) are never ALLOW. |
 | `INV-RESEARCH-FORBIDDEN` | A research context cannot receive `IDENTITY_MANAGE`, `APPROVAL_ISSUE`, `KNOWLEDGE_PROMOTE`, `AUTHORITY_DELEGATE`, `EXECUTION`, `POLICY_MODIFY`, `VERIFICATION_RECORD`, `TASK_MANAGE`. |
 | `INV-AI-NO-UPGRADE` | An AI council challenge can only **downgrade** or abstain; `upgrade_blocked` is set for council ENTER when gates are closed. |

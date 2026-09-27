@@ -101,6 +101,12 @@
       "consequence": "Any control-plane orchestration must raise documented maturity with evidence before execution authority can flow."
     },
     {
+      "id": "INV-MATURITY-ADVANCE-GOVERNED",
+      "claim": "The only path from REGISTERED to IMPLEMENTED is AgentRegistry.advance_maturity, which is fail-closed and audit-logged; no agent is promoted automatically, and levels above IMPLEMENTED are not reachable by it.",
+      "source": "ahos_org/registry.py advance_maturity; enforced by tests/test_registry.py AdvanceMaturityTests",
+      "consequence": "A maturity raise is a governed, reviewable act requiring evidence, never a seed-time default. VERIFIED and above need a separate verified path this method does not provide."
+    },
+    {
       "id": "INV-GLOBAL-DENY",
       "claim": "GLOBAL_DENY_CAPABILITIES (trading.live, production.operate, credentials.access, ahos.lane_a, ahos.lane_b, ahos.connect, telegram.access, n8n.access, provider.connect, ...) are never ALLOW.",
       "source": "ahos_org/policy.py",
