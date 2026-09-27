@@ -85,3 +85,33 @@ def test_columnar_knowledge_store():
         assert stats["total_hypotheses"] == 2
         assert stats["accepted_count"] == 1
         assert stats["rejected_count"] == 1
+
+
+def test_knowledge_store_releases_db_file_on_windows():
+    """Every store call must close its sqlite connection.
+
+    sqlite3.Connection.__exit__ only commits the transaction; it never closes
+    the connection. If a call site uses a bare `with sqlite3.connect(...)` the
+    handle leaks and stays open until GC, which on Windows keeps the db file
+    locked and breaks TemporaryDirectory teardown with WinError 32.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test_knowledge.db"
+        store = ColumnarKnowledgeStore(db_path=db_path)
+        store.record_hypothesis_evaluation(
+            hypothesis_id="HYP-LOCK",
+            title="Handle leak check",
+            category="MOMENTUM",
+            status="ACCEPTED",
+            sharpe_ratio=1.8,
+            max_drawdown=0.10,
+            win_rate=0.6,
+            oos_efficiency=0.7,
+            created_at_utc="2026-09-27T00:00:00Z",
+        )
+        assert store.query_accepted_hypotheses(min_sharpe=1.0)
+        assert store.summary_stats()["total_hypotheses"] == 1
+        # Exiting this block rmdir's tmpdir. If any connection is still open
+        # the teardown raises PermissionError on Windows. On POSIX an open
+        # handle is not fatal, so assert directly against the file lock too.
+        db_path.unlink()

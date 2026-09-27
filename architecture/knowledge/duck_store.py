@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -21,7 +22,11 @@ class ColumnarKnowledgeStore:
         self._init_db()
 
     def _init_db(self) -> None:
-        with sqlite3.connect(str(self.db_path)) as conn:
+        # closing() is required: sqlite3.Connection.__exit__ only commits the
+        # transaction, it does not close the connection. Without it every call
+        # leaks a handle, which on Windows keeps the db file locked and breaks
+        # TemporaryDirectory teardown (WinError 32).
+        with closing(sqlite3.connect(str(self.db_path))) as conn:
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS research_hypotheses (
@@ -61,7 +66,7 @@ class ColumnarKnowledgeStore:
     ) -> None:
         """Inserts or updates a hypothesis evaluation record."""
         meta_str = json.dumps(metadata or {}, sort_keys=True)
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with closing(sqlite3.connect(str(self.db_path))) as conn:
             conn.execute(
                 """
                 INSERT OR REPLACE INTO research_hypotheses (
@@ -89,7 +94,7 @@ class ColumnarKnowledgeStore:
         self, min_sharpe: float = 1.2, max_dd: float = 0.25
     ) -> List[Dict[str, Any]]:
         """Queries all validated hypotheses meeting acceptance thresholds."""
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with closing(sqlite3.connect(str(self.db_path))) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute(
@@ -112,7 +117,7 @@ class ColumnarKnowledgeStore:
 
     def summary_stats(self) -> Dict[str, Any]:
         """Returns aggregate research statistics."""
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with closing(sqlite3.connect(str(self.db_path))) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute(
