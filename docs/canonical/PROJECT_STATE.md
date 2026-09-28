@@ -1,11 +1,23 @@
-# AHOS CANONICAL — PROJECT STATE (always-current pointer)
-**Status:** Wave-7 · 2026-08-11 · Full detail: `reports/PHASE_STATE.md` (live page) and
-`AHOS_PROJECT_STATE_MAP.md` (forensic map, waves 1–7 addenda). This file = pointer only (compression law).
-**Wave-7 delta:** hygiene engine + cleanup 11/11 manifested · pal_probe permanent (GoPlus↑, pollinations✗402) ·
+# AHOS CANONICAL — PROJECT STATE (pointer; wave-7 snapshot — NOT always-current)
+
+**Status: dated snapshot, last verified 2026-08-11 (Wave-7).** This file is **not** an
+always-current view. It is a wave-7 snapshot preserved under the compression law; it does **not**
+reflect waves W43/W44 or the M2–M4 governance work of 2026-09-28.
+
+**For current state, read these instead (both live, both authoritative):**
+- `docs/DOC_TRUTH_MAP.md` — current canonical authority map; the agreed entry point.
+- `AHOS_GAP_REGISTER.md` — addenda 2026-09-28 (1)–(7): soak-evidence defects, M-GAP-035
+  reclassification, M3 reconciliation, M-GAP-038 resolution.
+
+**Detail pages for this snapshot (also as-of 2026-08-11):** `reports/PHASE_STATE.md` (live page)
+and `AHOS_PROJECT_STATE_MAP.md` (forensic map, waves 1–7 addenda).
+Entry node for the snapshot: `docs/canonical/KNOWLEDGE_MAP.md`.
+
+**Wave-7 delta (content of this snapshot):** hygiene engine + cleanup 11/11 manifested · pal_probe permanent (GoPlus↑, pollinations✗402) ·
 H14–H20 registered (7 computable/3 blocked) + conjunction+materializer · telegram_ai core 25 tests ·
 CI 80 tests green (stages 3d/3e added) · entry node = docs/canonical/KNOWLEDGE_MAP.md.
 
-## One-line truth per subsystem
+## One-line truth per subsystem — as of 2026-08-11 (wave-7 snapshot)
 | Subsystem | Letter | Where proven |
 |---|---|---|
 | Backtest engine (frozen) + data audit + acquisition | D | reports/{BACKTEST_REPORT_EXACT,validation_results}.json etc. |
@@ -21,7 +33,13 @@ CI 80 tests green (stages 3d/3e added) · entry node = docs/canonical/KNOWLEDGE_
 | Research registry H14–H20 | C (registered, machinery tested, real scan gated) | research/SEARCH_SPACE_REGISTRY.json |
 | Evolution layer | A (OFF by doctrine) | — |
 
-## Binding constraints right now
+## Binding constraints — as of 2026-08-11 (wave-7 snapshot)
 - LIVE trading CLOSED: 0/13 strategies + 0 promoted features (E-01 < 8 weeks).
 - User blockers: ① Telegram token rotation+chat-id ② Production VPS.
 - Scores to users: NONE until research gate (ranks + evidence bullets only).
+
+These were the binding constraints at the snapshot. The **live-trading prohibition is not a
+snapshot artifact** — it is durable doctrine (`AGENTS.md`: PAPER_ONLY, never a trading bot;
+`MASTER_DIRECTIVE_v1.md`; `MASTER_DIRECTIVE_W43.md`: `NO REAL TRADING`, `NO WALLET SIGNING`).
+Whether the other two rows still hold is a current-state question: verify against
+`docs/DOC_TRUTH_MAP.md` and `AHOS_GAP_REGISTER.md`, not against this file.
