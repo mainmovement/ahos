@@ -315,3 +315,26 @@ M3 is not a new mechanism — it is the existing one applied to the whole corpus
 constitutional change, no maturity change, no Lane-A change, no new authority granted, no runtime
 effect. The reconciliation document's header states `AUTHORITY = NONE CREATED` and
 `RUNTIME_EFFECT = NONE`.
+
+**Verification of C.3.1 against source** (the most consequential new finding): both glob sites in
+`tests/test_master_directive.py` — line 61 (`test_required_invariants_and_protocol_shape`) and
+line 90 (`test_no_orphan_files_and_sha_match`) — glob `CANON.glob("MASTER_DIRECTIVE_v*.md")`.
+`MASTER_DIRECTIVE_W43.md` matches neither, so W43 escapes **both** the non-weakenable-invariants
+check and the orphan/disk-vs-registry check. `docs/canonical/` holds exactly two directive files
+(`MASTER_DIRECTIVE_v1.md`, `MASTER_DIRECTIVE_W43.md`); the registry's `directives` array lists
+only v1, while its own `law` field states "every version file on disk must be listed." The
+loophole is real and it is in a CI-enforced law.
+
+**Repository reality — governed push #6 (2026-09-28).** Fast-forward `8dbd1ec..21d8104` →
+`origin/ahos`, no force. One commit: `21d8104` `docs(governance): M3 constitutional and knowledge
+reconciliation`. Changeset was `docs/governance/M3_CONSTITUTIONAL_AND_KNOWLEDGE_RECONCILIATION.md`
+(new), `AHOS_GAP_REGISTER.md`, `docs/DOC_TRUTH_MAP.md` — documentation only, no code, no control-
+plane component touched. All four checks verified: local HEAD
+`21d810407ec0e8e6a45128a001122dc47610e94b`, remote `refs/heads/ahos` identical, upstream
+`origin/ahos` tracked, divergence `0 0`. The three pre-existing `.cursor` working-tree items and
+the untracked `reports/validate_imports_run_20260928T045640Z.json` probe were again excluded.
+Gates: IMPORTS FAIL is the known M-GAP-037 gitignored-artifact condition with zero substantive
+violations (the only non-artifact output is the unchanged 10-record dead-code candidate list);
+**LANE-A FREEZE OK (36 files)**; `tests/test_master_directive.py` + `tests/test_agent_taxonomy_map.py`
+25 passed. No `main` push, no force-push, no merge, no release, no live trading, no governance or
+maturity change.
