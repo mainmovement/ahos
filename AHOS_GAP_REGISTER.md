@@ -456,3 +456,32 @@ Windows path-separator difference (`pkg\__pycache__`) is handled separator-agnos
 `.venv/bin/python scripts/validate_imports.py` is exactly what now passes, so no documentation
 diverges. The soak was not started. No commit of the probe artifact
 `reports/validate_imports_run_20260928T045640Z.json`, whose `FAIL` verdict predates the fix.
+
+---
+
+### Addendum 2026-09-28 (9) — M5: the Master Directive's wave-opening verification is now mechanised (M-GAP-040 RESOLVED)
+
+**M-GAP-040 status: OPEN → RESOLVED.**
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-040 (the doctrine mandates logging wave-opening verification facts; nothing did) | **RESOLVED** (new tool + canonical pointer + pins; strictly additive) | `MASTER_DIRECTIVE_v1.md` OPERATIONAL REGISTRATION §3 requires the 12-step protocol's verification facts to be "logged in the wave's ledger entry" at every session/wave start. **Nothing mechanised this.** Verified: `VERIFY WORKSPACE` / `VERIFY EXPERIMENT STATE` / `VERIFY OPEN RISKS` appear in exactly two places repo-wide — the doctrine file and its test pin. `R-42` recorded the facts as a hand-written prose paragraph; every wave re-derived them by reading documents, which is the chat-prompt dependency M5 exists to remove. The ingredients all existed (`evidence_common.git_meta`, `freeze_lane_a.verify`, the doctrine registry, the system-state snapshot, both registers) but nothing composed them. New `scripts/execution_state.py` does, computing steps 1–5 as structured facts into one append-only `reports/execution_state_<utc>.json`. |
+
+**What the record is, and is not — pinned, not promised.** It **describes** state; it decides nothing. Directive step 6 (SELECT HIGHEST-VALUE SAFE NEXT ACTION) stays a human choice, and the record says so in-band. The verdict vocabulary is `VERIFIED` / `DEGRADED` / `NOT_VERIFIED` with deliberately **no `PASS`** — this register's own law (line 7) forbids PASS without an artifact, and a description of state is not an artifact of the thing described. The record carries no authority, maturity, permission, or trading field; `tests/test_execution_state.py::test_record_grants_no_authority_and_selects_no_mission` asserts that by scanning the flattened JSON for any authorizing term, so a future refactor cannot quietly turn the advisory list into a decision.
+
+**Three defects found by running it on this host and fixed before committing** — the reason the tool was exercised against real state rather than assumed correct:
+
+1. A missing store was scored as a **failed integrity check**. `ahos_cognitive_memory.sqlite` is absent on this host (honest `NO_DATA` — the daemon has not run), and the predicate included absent stores, so every clean checkout would have read `DEGRADED`. Absent and corrupt are different conditions; only *present* stores are now scored.
+2. `implementable_now` was a **false positive**. The marker `IMPLEMENTED` matched historical prose inside M-GAP-011's row ("adapter IMPLEMENTED") and listed a gap the register does not mark implementable. Now only the register's own exact `IMPLEMENTABLE NOW` verdict counts; the list is honestly empty on this register, whose 2026-08-27 verdict is "no remaining gap is IMPLEMENTABLE NOW" (marked stale, nothing new marks one).
+3. `owner_blocked` **missed 5 of 6** gaps. The register puts `USER:` in the owner/action column (col 8), not the status column — M-GAP-003's status reads `OPEN` while its action column reads "USER: keep laptop awake 168h". Searching only the status cell found one gap; searching the correct column finds four.
+
+**Verified on this warm Windows host** (`7ebea7a`): `steps_ok: 5`, verdict `DEGRADED` with the single signal `working_tree_not_clean` — correct, because the tree holds the four pre-existing excluded items. All 16 summary-table rows classified with zero unclassified; `status_counts` CLOSED 6 / OPEN 6 / MITIGATED 3 / OPTIONAL 1 (OPTIONAL is the register's "not an acceptance item" class and is reported separately, not counted as risk). Step 2's five registry laws all evaluate `true` against the real registry.
+
+**Additivity.** No existing file's semantics changed. Lane A untouched — `freeze_lane_a.verify` is called read-only, exactly as `scripts/validate_imports.py` already calls it; `git status` lists no `discovery/` or `paper_trading/` path. No governance, authority, maturity, execution, or trading-permission control was modified. Files: 3 new (`scripts/execution_state.py`, `docs/canonical/EXECUTION_STATE.md`, `tests/test_execution_state.py`) + 2 edited (`AHOS_GAP_REGISTER.md`, `docs/DOC_TRUTH_MAP.md` one row). `RUNTIME_EFFECT = NONE` — the tool starts no daemon, writes no store, and records only.
+
+**No R-series entry, by convention.** The issue register's R-series is reserved for build/gate work and its last entry is R-81 (2026-08-27); every 2026-09-28 gap resolution — M-GAP-033/034/036/037/038/039 — was recorded as a gap-register addendum with no R entry, because the register, not the ledger, is where gap state lives. This entry follows the same convention. No existing issue ID was touched or reused.
+
+**Regression pins** — `tests/test_execution_state.py`, 9 tests, all PASS. They lock the honesty contract rather than the shape: all five steps present with no `PASS` verdict; the five doctrine laws computed not assumed; unreachable git yields `UNKNOWN` and propagates to `NOT_VERIFIED` (never smoothed into a verifiable-looking record); a missing store reads `NO_DATA` and never `ok`; `VERIFIED` is not awarded on a partial pass; an existing `--out` is refused without `--force` and the prior record survives; every summary-table row classifies; the implementable-now marker refuses a fabricated row; and the record grants nothing and selects nothing.
+
+**Red team (step 9, disclosed honestly).** The record is only as honest as the register it parses: it reads the summary table and deliberately not the 39 addendum rows, so `open_total` is a floor, not a census — stated in the record's own `honest_limitations`. The register is hand-maintained markdown; if a future editor drops a bolded status token, that row lands in `unclassified_rows` and is reported by name rather than guessed at, but a *misleading* status would be carried through faithfully. The verdict is a description of the repository at one instant and carries no forward guarantee — a `VERIFIED` record does not mean the next action is safe, only that the five facts held when it was written.
+
