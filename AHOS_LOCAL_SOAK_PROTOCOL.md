@@ -79,6 +79,9 @@ python3 -m venv .venv
 .venv/bin/python scripts/validate_imports.py
 .venv/bin/python -m pytest tests/ -q
 # record those two commands via scripts/record_test_run.py before starting soak
+# note: the full suite takes ~1h on this laptop. record_test_run.py scales its
+# timeout for pytest-class commands (7200s) so the artifact records the real
+# result rather than a timeout. An explicit --timeout overrides this.
 
 # start (foreground terminal you will leave open, or a user-level process)
 .venv/bin/python -m architecture.runtime --daemon --interval-sec 60 --observation-cycle

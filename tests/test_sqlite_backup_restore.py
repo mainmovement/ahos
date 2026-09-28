@@ -93,3 +93,14 @@ def test_record_test_run_parses_pytest_summary():
     assert parsed is not None
     assert parsed["passed"] == 10
     assert parse_pytest_summary("no summary here\n") is None
+
+
+def test_record_test_run_default_timeout_scales_for_pytest():
+    # The full suite runs ~1h; the blanket default was half that, so recording
+    # `pytest tests/` as soak evidence would have timed out and been written
+    # down as a FAIL. The default must scale for pytest-class commands.
+    from scripts.record_test_run import default_timeout
+
+    assert default_timeout(["python", "-m", "pytest", "tests/", "-q"]) > 3600
+    assert default_timeout(["python", "scripts/validate_imports.py"]) == 1800
+    assert default_timeout(["python", "scripts/soak_snapshot.py", "--window-hours", "6"]) == 1800

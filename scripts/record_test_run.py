@@ -127,6 +127,20 @@ def record_run(command: list[str], out_path: Path, timeout: int = 1800) -> dict:
     return artifact
 
 
+DEFAULT_TIMEOUT_SEC = 1800
+# The full `pytest tests/ -q` suite runs ~1h on the soak laptop (3672s measured
+# 2026-09-28). The blanket default is half that, so recording the suite the soak
+# protocol §4 asks for would hit the timeout and be written down as a spurious
+# FAIL. Scale the default for pytest-class commands instead of forcing every
+# caller to remember the flag.
+PYTEST_DEFAULT_TIMEOUT_SEC = 7200
+
+
+def default_timeout(command: list[str]) -> int:
+    """Timeout used when the caller did not pass --timeout explicitly."""
+    return PYTEST_DEFAULT_TIMEOUT_SEC if "pytest" in " ".join(command) else DEFAULT_TIMEOUT_SEC
+
+
 def default_out_path(command: list[str]) -> Path:
     stamp = utc_now().replace(":", "").replace("-", "")
     label = "cmd"
@@ -141,7 +155,8 @@ def default_out_path(command: list[str]) -> Path:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Record a command run as JSON evidence")
     ap.add_argument("--out", default=None, help="artifact path (default: reports/<label>_run_<ts>.json)")
-    ap.add_argument("--timeout", type=int, default=1800)
+    ap.add_argument("--timeout", type=int, default=None,
+                    help="command timeout in seconds (default: 1800, or 7200 for pytest-class commands)")
     ap.add_argument("command", nargs=argparse.REMAINDER, help="command after --")
     args = ap.parse_args(argv)
 
@@ -152,8 +167,10 @@ def main(argv: list[str] | None = None) -> int:
         print("usage: python scripts/record_test_run.py -- <command>", file=sys.stderr)
         return 2
 
+    timeout = args.timeout if args.timeout is not None else default_timeout(command)
+
     out_path = Path(args.out) if args.out else default_out_path(command)
-    artifact = record_run(command, out_path, timeout=args.timeout)
+    artifact = record_run(command, out_path, timeout=timeout)
     print(json.dumps({
         "verdict": artifact["verdict"],
         "exit_code": artifact["exit_code"],
