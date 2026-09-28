@@ -338,3 +338,68 @@ violations (the only non-artifact output is the unchanged 10-record dead-code ca
 **LANE-A FREEZE OK (36 files)**; `tests/test_master_directive.py` + `tests/test_agent_taxonomy_map.py`
 25 passed. No `main` push, no force-push, no merge, no release, no live trading, no governance or
 maturity change.
+
+---
+
+### Addendum 2026-09-28 (7) — M4: M-GAP-038 RESOLVED by declaring the second authority class and pinning it (additively)
+
+**M-GAP-038 status: OPEN → RESOLVED (declaration + mechanical pin; no constitutional change).**
+
+M3 described this as "the doctrine-registry enforcement glob does not cover
+`MASTER_DIRECTIVE_W43.md`" and "a loophole in a CI-enforced constitutional law". **That framing is
+corrected by the M4 trace: the glob's substance is right and the defect is elsewhere — the
+constitution operates two classes of master directive but declares, pins, and enforces only one.**
+
+The decisive simulation (widening the glob to `MASTER_DIRECTIVE_*.md`, as the obvious fix) would
+have failed the constitutional suite: `MASTER_DIRECTIVE_W43.md` is missing **5/5** required
+non-weakening invariants and **12/12** required protocol steps, and the orphan check reports it
+on-disk-only. W43 is **not an unregistered doctrine version** — it is a **wave-scoped operational
+directive**, a different class of authority. The registry schema (`version` numeric, ACTIVE = `max`)
+has no slot for it: registering it would either break `max()` or demote v1 to SUPERSEDED, which
+v1's own R-42 change law forbids and which W43's content never asks for. W43's own text is
+wave-scoped ("هدف این موج" — the goal of *this wave*, plus a 13-point Definition of Done for that
+wave) and substantively **consistent with** v1 (`UNKNOWN > fabricated`, `PAPER_ONLY`, `NO REAL
+TRADING`, `NO WALLET SIGNING`, and an explicit order not to break Governance/Safety boundaries).
+
+The real defect, and what M4 closed: W43 is the **operationally governing** directive
+(`DOC_TRUTH_MAP.md` section A) yet its sha256 was pinned **nowhere** as an integrity pin — v1's
+sha is pinned in three places, W43's in zero. It could have drifted silently with nothing to notice.
+That is exactly the failure mode v1's registry was built to prevent, applied to the other class.
+Its exclusion from the registry also *looked accidental*, because the introducing commit
+(`5ccb0c0`, owner, 2026-08-21, message "register Master Directive") touched only `README.md`,
+`MASTER_DIRECTIVE_W43.md`, `news.ts`, `page.tsx` — never the registry, the test, or the issue
+register. A future reader could not tell "correctly excluded" from "registration was forgotten".
+
+**Resolution adopted (option 5 of 5 considered) — strictly additive, fully reversible.** A new
+declaration classifies both classes exhaustively and a new test pins it:
+
+- `docs/governance/M4_WAVE_DIRECTIVE_DECLARATION.md` — declares CLASS A (permanent doctrine,
+  `MASTER_DIRECTIVE_v{n}.md`, registry-enforced, R-42 change law) and CLASS B (wave operational
+  directive, `MASTER_DIRECTIVE_<WAVE>.md`, **not in the registry by declaration, not omission**,
+  never supersedes or demotes Class A; where the two could be read to conflict, **Class A
+  prevails**). It grants **no authority** and has **`RUNTIME_EFFECT = NONE`** — it declares a
+  classification `DOC_TRUTH_MAP.md` already made and pins it.
+- `tests/test_wave_directive_declaration.py` — 5 additive pins: (1) the Class A / Class B partition
+  on disk is exhaustive and matches the declaration; (2) Class B files are absent from the registry
+  (declared, not accidental); (3) each Class B file's sha256 is pinned — W43 =
+  `87627c0a61142fdfd0fcedeabbddf54f9f618f6c5851d162ccfaa749e2d2b4fd` — so silent drift is now a
+  test failure; (4) Class B files must not claim ACTIVE or supersession; (5) the Class A registry
+  still has exactly one ACTIVE = highest version, re-asserted untouched.
+
+**No existing pin weakened, no registry change, no rename, no deletion, no test modification, no
+code change.** `tests/test_master_directive.py` is untouched; the registry is untouched; W43 is
+untouched. `tests/test_wave_directive_declaration.py` + `tests/test_master_directive.py` together:
+**10 passed**. The additive claim is itself test-pinned — the 5 existing master-directive pins
+still pass against the unchanged suite.
+
+| M-GAP-038 (`MASTER_DIRECTIVE_W43.md` is not covered by doctrine-registry enforcement) | **RESOLVED (declaration + pin)** — the *description* changed, not the law | M3's "loophole" framing was too strong. The `MASTER_DIRECTIVE_v*.md` glob is **correct** — v1's change law and the registry schema are written in terms of `MASTER_DIRECTIVE_v{n}`. W43 is a **second, undeclared class of authority** (wave operational), and the `DOCUMENTED ≠ ENFORCED` gap was that the constitution never named, pinned, or enforced it. Closed additively: the partition is now exhaustive and each Class B file's sha256 is pinned, so the operationally governing directive has the same tamper evidence v1 always had. Two disposition options remain human-gated (below). |
+
+**Remaining human-gated (carried, not resolved by M4):**
+
+| Item | Class | Why it stays human-gated |
+|---|---|---|
+| Add a `wave_directives` key to `master_directive_registry.json` (schema 1 → 2) | **DECISION REQUIRED** | The cleanest model, but it changes the registry schema, which is constitutional enforcement. AGENTS.md forbids weakening tests and the owner must ratify; needs an R-series entry. |
+| Rename `MASTER_DIRECTIVE_W43.md` so it cannot be mistaken for doctrine | **DECISION REQUIRED** | Breaks 9 referencing files; disposition of an operationally governing document is owner review under `docs/canonical/GOVERNANCE.md` (autonomous deletion prohibited). M4 deliberately did neither. |
+| M-GAP-037 (`validate_imports.py` FAIL is 100% gitignored build artifacts) | **OPEN** (enforcing-control policy decision) | Carried unchanged. Confirmed again at M4: 44 FAIL lines, all `__pycache__/` or `.pytest_cache/` — gitignored (`.gitignore:1`), produced by running Python, invisible to CI. IMPORTS / EVIDENCE-BOUNDARY / LANE-A FREEZE / SECRETS all OK; the 10 dead-code candidates are unchanged from the prior baseline. |
+| M-GAP-039 (`PROJECT_STATE.md` stale) | **OPEN** (autonomously fixable) | Still open; see next-mission note. |
+
