@@ -1,0 +1,186 @@
+{
+ "probe_set": "M0ROLEH-20260928",
+ "ts": "2026-09-28T05:16Z",
+ "mode": "READ-ONLY metadata audit (GitHub public API); NO clone/install/execute (PART O law)",
+ "pipeline_stage_reached": "ARCHITECTURE_AUDIT (metadata depth); BENCHMARK/REPLAY/CI = NOT_RUN by law",
+ "tool": "engine/oss_audit.py (versioned Tier-1 executor; AG-25 duty #1/#10)",
+ "candidates": [
+  {
+   "repo": "temporalio/sdk-python",
+   "capability_lanes": [
+    "workflow/orchestration",
+    "replay",
+    "fault-tolerant long-running"
+   ],
+   "license": "MIT",
+   "language": "Python",
+   "stars": 1199,
+   "forks": 246,
+   "open_issues": 113,
+   "pushed_at": "2026-09-22T23:06:27Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "promptfoo/promptfoo",
+   "capability_lanes": [
+    "red team",
+    "model evaluation"
+   ],
+   "license": "MIT",
+   "language": "TypeScript",
+   "stars": 25508,
+   "forks": 2385,
+   "open_issues": 755,
+   "pushed_at": "2026-09-28T04:49:11Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "crewAIInc/crewAI",
+   "capability_lanes": [
+    "multi-agent systems",
+    "agent runtime"
+   ],
+   "license": "MIT",
+   "language": "Python",
+   "stars": 59112,
+   "forks": 8584,
+   "open_issues": 506,
+   "pushed_at": "2026-09-27T08:27:46Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "langchain-ai/langgraph",
+   "capability_lanes": [
+    "agent orchestration",
+    "graph workflows"
+   ],
+   "license": "MIT",
+   "language": "Python",
+   "stars": 42385,
+   "forks": 7174,
+   "open_issues": 831,
+   "pushed_at": "2026-09-27T21:34:56Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "mem0ai/mem0",
+   "capability_lanes": [
+    "agent memory"
+   ],
+   "license": "Apache-2.0",
+   "language": "Python",
+   "stars": 66138,
+   "forks": 7777,
+   "open_issues": 752,
+   "pushed_at": "2026-09-25T17:36:35Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "langfuse/langfuse",
+   "capability_lanes": [
+    "observability",
+    "evaluation tracing"
+   ],
+   "license": "NOASSERTION",
+   "language": "TypeScript",
+   "stars": 35119,
+   "forks": 3857,
+   "open_issues": 949,
+   "pushed_at": "2026-09-28T05:14:15Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "microsoft/autogen",
+   "capability_lanes": [
+    "multi-agent systems",
+    "agent runtime"
+   ],
+   "license": "CC-BY-4.0",
+   "language": "Python",
+   "stars": 61194,
+   "forks": 9256,
+   "open_issues": 1105,
+   "pushed_at": "2026-04-15T11:59:09Z",
+   "archived": false,
+   "maintenance": "STALE_OR_SLOW",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "PrefectHQ/prefect",
+   "capability_lanes": [
+    "workflow orchestration",
+    "fault-tolerant long-running"
+   ],
+   "license": "Apache-2.0",
+   "language": "Python",
+   "stars": 23937,
+   "forks": 2541,
+   "open_issues": 849,
+   "pushed_at": "2026-09-27T15:15:07Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  },
+  {
+   "repo": "opentelemetry/opentelemetry-python",
+   "capability_lanes": [
+    "observability"
+   ],
+   "verdict": "UNVERIFIED \u2014 API error: HTTP Error 404: Not Found"
+  },
+  {
+   "repo": "prometheus/client_python",
+   "capability_lanes": [
+    "metrics"
+   ],
+   "license": "Apache-2.0",
+   "language": "Python",
+   "stars": 4375,
+   "forks": 877,
+   "open_issues": 151,
+   "pushed_at": "2026-09-15T22:21:55Z",
+   "archived": false,
+   "maintenance": "ACTIVE",
+   "dependency_posture": "UNVERIFIED (Tier-1: dependency tree not audited)",
+   "security_posture": "UNVERIFIED (Tier-1: no vuln scan executed)",
+   "tier_reached": "T1_METADATA",
+   "verdict": "CANDIDATE_HELD_UNVERIFIED"
+  }
+ ]
+}
