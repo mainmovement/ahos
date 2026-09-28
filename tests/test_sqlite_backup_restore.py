@@ -138,3 +138,31 @@ def test_record_test_run_records_launch_failure_instead_of_crashing():
     assert artifact["verdict"] == "FAIL"
     assert "LAUNCH FAILED" in artifact["stderr"]
 
+
+def test_record_test_run_refuses_to_overwrite_existing_artifact(tmp_path):
+    # Evidence is append-only: AHOS_LOCAL_SOAK_PROTOCOL.md commits reports/ and
+    # never overwrites. A reused --out would silently destroy a prior receipt,
+    # which is exactly how a historical run gets lost. Refuse unless --force.
+    from scripts.record_test_run import main
+
+    existing = tmp_path / "prior_run.json"
+    existing.write_text('{"schema": "ahos.test_run.v1", "timestamp_utc": "2026-08-20T12:15:06Z"}',
+                        encoding="utf-8")
+
+    argv = ["--out", str(existing), "--", sys.executable, "-c", "print('new')"]
+    rc = main(argv)
+    assert rc == 3, "an existing artifact must not be overwritten without --force"
+    # the prior receipt must be byte-identical
+    assert '"timestamp_utc": "2026-08-20T12:15:06Z"' in existing.read_text(encoding="utf-8")
+
+
+def test_record_test_run_force_overrides_the_guard(tmp_path):
+    from scripts.record_test_run import main
+
+    existing = tmp_path / "prior_run.json"
+    existing.write_text("stale", encoding="utf-8")
+
+    rc = main(["--out", str(existing), "--force", "--", sys.executable, "-c", "print('new')"])
+    assert rc == 0
+    assert "stale" not in existing.read_text(encoding="utf-8")
+

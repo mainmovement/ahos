@@ -184,6 +184,10 @@ def default_out_path(command: list[str]) -> Path:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Record a command run as JSON evidence")
     ap.add_argument("--out", default=None, help="artifact path (default: reports/<label>_run_<ts>.json)")
+    ap.add_argument("--force", action="store_true",
+                    help=" overwrite an existing artifact. Off by default: evidence is append-only -- "
+                         "AHOS_LOCAL_SOAK_PROTOCOL.md commits reports/ and never overwrites them, so a "
+                         "reuse of --out would silently destroy a prior run's receipt.")
     ap.add_argument("--timeout", type=int, default=None,
                     help="command timeout in seconds (default: 1800, or 7200 for pytest-class commands)")
     ap.add_argument("command", nargs=argparse.REMAINDER, help="command after --")
@@ -199,6 +203,13 @@ def main(argv: list[str] | None = None) -> int:
     timeout = args.timeout if args.timeout is not None else default_timeout(command)
 
     out_path = Path(args.out) if args.out else default_out_path(command)
+    if out_path.exists() and not args.force:
+        print(
+            f"refuse to overwrite existing artifact {out_path}; evidence is append-only. "
+            "Re-run without --out (a UTC timestamp is appended), or pass --force to overwrite.",
+            file=sys.stderr,
+        )
+        return 3
     artifact = record_run(command, out_path, timeout=timeout)
     print(json.dumps({
         "verdict": artifact["verdict"],
