@@ -42,6 +42,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -132,12 +133,22 @@ def test_cli_still_runs_and_exits_zero(tmp_path: Path, script: str) -> None:
 
     AHOS_ROOT relocates BOTH the reports output and ``get_research_dir()``, so
     the dataset the scripts read has to be reachable from the temp root too.
-    Symlinking keeps the input real while the output stays disposable --
+    The input is exposed via a symlink where the host allows it and a copy
+    otherwise, keeping the data real while the output stays disposable --
     otherwise the test would be asserting against fabricated data.
     """
     research_src = ROOT / "research"
     if research_src.is_dir():
-        (tmp_path / "research").symlink_to(research_src, target_is_directory=True)
+        # A symlink is preferred (zero-copy) but needs SeCreateSymbolicLinkPrivilege
+        # on Windows, which non-admin accounts do not hold (WinError 1314). A copy of
+        # the real dataset is equally real -- the docstring's requirement is that the
+        # input not be fabricated -- and is strictly safer: a symlinked input could in
+        # principle redirect a simulated write back into the committed research tree,
+        # while a copy cannot. Fallback keeps the assertion identical on every host.
+        try:
+            (tmp_path / "research").symlink_to(research_src, target_is_directory=True)
+        except OSError:
+            shutil.copytree(research_src, tmp_path / "research")
 
     env = os.environ.copy()
     env["PYTHONDONTWRITEBYTECODE"] = "1"

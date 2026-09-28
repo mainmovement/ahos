@@ -122,6 +122,11 @@ def main() -> int:
     out_file = get_reports_dir() / "data_integrity_audit.json"
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
+    # Pin stdout to UTF-8 like the file write above: the span arrow (U+2192) below is
+    # non-ASCII and a stock Windows console is cp1252, which would crash this CLI with
+    # UnicodeEncodeError even though the audit itself succeeded (M-GAP-033 class).
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     for r in results:
         first = (r.get('first') or 'n/a')[:10]; last = (r.get('last') or 'n/a')[:10]
         spans = f"{first} → {last}"
