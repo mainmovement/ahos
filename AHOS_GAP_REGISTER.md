@@ -245,7 +245,7 @@ Third and fourth defects found in the same local-evidence pipeline, again all in
 | Gap | Classification | What changed |
 |---|---|---|
 | M-GAP-036 (recorder could not launch the documented relative-path command on Windows) | **CLOSED** (fix + 2 regression tests) | `scripts/record_test_run.py` spawned the child with `cwd=ROOT` but a *relative* executable. Windows `CreateProcess` does not search the `cwd=` parameter for the executable, so the exact form the soak protocol and `AHOS_WINDOWS_OPERATOR_RUNBOOK.md:64` document — `.venv/Scripts/python.exe …` — died with `FileNotFoundError: [WinError 2]` and the recorder **crashed, recording nothing**. Reproduced in isolation: identical `subprocess.run` with a relative path fails, with an absolute path succeeds. Fixed by anchoring a path-containing first element against `ROOT` before spawning (bare names still go to PATH). The artifact now also carries `command_resolved` so what actually ran is transparent. `record_run` additionally catches `OSError` and records it as `exit_code: 127` with a `LAUNCH FAILED` stderr — an evidence recorder that crashes on a launch failure records no evidence at all. |
-| M-GAP-037 (`validate_imports.py` fails on every warm host, so the soak pre-registration gate cannot pass) | **OPEN** (enforcing-control policy decision — deliberately NOT changed autonomously) | `AHOS_LOCAL_SOAK_PROTOCOL.md:79` lists `scripts/validate_imports.py` as a pre-soak gate, and line 81 asks for it to be recorded as evidence. Recorded it for real: **exit code 1, `verdict: FAIL`, 44 FAIL lines — every single one `build artifact present: __pycache__/…` or `.pytest_cache/`. Zero substantive violations.** These are gitignored (`git status` never lists them) and are produced by the unavoidable act of running Python. CI passes because it checks out a clean tree; the operator's own soak host cannot, because it has run Python. So the gate is unpassable in exactly the context it exists for. The correct semantics is "the *committed* tree must not contain artifacts" — which `git` already answers — rather than "the working tree must be artifact-free". **Not fixed:** `AGENTS.md` names `scripts/validate_imports.py` as an enforcing control and the safety section forbids weakening tests, so changing its artifact check needs human review. Candidate approaches, in order of how much they change the control: (a) ignore gitignored paths in the artifact scan; (b) add a flag such as `--allow-gitignored-artifacts` and have the soak protocol pass it; (c) leave the validator alone and restate the protocol to evaluate `validate_imports` on a fresh clone. (a) is the most principled; (c) is the smallest. |
+| M-GAP-037 (`validate_imports.py` fails on every warm host, so the soak pre-registration gate cannot pass) | **OPEN (at this addendum; RESOLVED 2026-09-28 by Option A — Addendum (8))** | `AHOS_LOCAL_SOAK_PROTOCOL.md:79` lists `scripts/validate_imports.py` as a pre-soak gate, and line 81 asks for it to be recorded as evidence. Recorded it for real: **exit code 1, `verdict: FAIL`, 44 FAIL lines — every single one `build artifact present: __pycache__/…` or `.pytest_cache/`. Zero substantive violations.** These are gitignored (`git status` never lists them) and are produced by the unavoidable act of running Python. CI passes because it checks out a clean tree; the operator's own soak host cannot, because it has run Python. So the gate is unpassable in exactly the context it exists for. The correct semantics is "the *committed* tree must not contain artifacts" — which `git` already answers — rather than "the working tree must be artifact-free". **Not fixed:** `AGENTS.md` names `scripts/validate_imports.py` as an enforcing control and the safety section forbids weakening tests, so changing its artifact check needs human review. Candidate approaches, in order of how much they change the control: (a) ignore gitignored paths in the artifact scan; (b) add a flag such as `--allow-gitignored-artifacts` and have the soak protocol pass it; (c) leave the validator alone and restate the protocol to evaluate `validate_imports` on a fresh clone. (a) is the most principled; (c) is the smallest. |
 
 Verified end to end after the fix: `record_test_run.py --out reports/validate_imports_run.json -- .venv/Scripts/python.exe scripts/validate_imports.py` ran in 71.5s at `e112d01` and produced a well-formed artifact with `command_resolved` anchored — the documented invocation now works on Windows. The resulting `reports/validate_imports_run.json` was deliberately **not** committed: it is a local pipeline probe whose `FAIL` verdict is entirely the M-GAP-037 artifact condition, and committing it without that context would read as a real validation failure.
 
@@ -258,7 +258,7 @@ Verified end to end after the fix: `record_test_run.py --out reports/validate_im
 
 Final state, all four checks verified: local HEAD `e97ea903584545bbb6a6c828162d29d99c4511dd`, remote `refs/heads/ahos` identical, upstream `origin/ahos` tracked, divergence `0 0`. Working tree holds only the three pre-existing `.cursor` items (not mine, not committed) plus one deliberately untracked probe artifact `reports/validate_imports_run_20260928T045640Z.json` — uncommitted because its `FAIL` verdict is entirely the M-GAP-037 gitignored-artifact condition and would read as a real validation failure without that context. Gates across both: IMPORTS OK, EVIDENCE-BOUNDARY OK, **LANE-A FREEZE OK (36 files)**, SECRETS OK; `tests/test_sqlite_backup_restore.py` 10 passed. No `main` push, no force-push, no merge, no release, no live trading, no governance or maturity change.
 
-**Session tally (2026-09-28):** 5 governed pushes, 4 defects found in the local soak-evidence pipeline. M-GAP-033 (collection blocked), M-GAP-034 (timeout), M-GAP-036 (Windows launch) are CLOSED with regression tests; M-GAP-037 (validator fails on every warm host) is OPEN as an enforcing-control policy decision. One structural finding, M-GAP-035 (three control-plane surfaces, two test-only, the daemon consults none), recorded without code change because the choice of which plane is canonical needs review. All four were unreachable before today: M-GAP-033 unblocked the suite, and the other three were behind it.
+**Session tally (2026-09-28):** 5 governed pushes, 4 defects found in the local soak-evidence pipeline. M-GAP-033 (collection blocked), M-GAP-034 (timeout), M-GAP-036 (Windows launch) are CLOSED with regression tests; M-GAP-037 (validator fails on every warm host) is **now RESOLVED by Option A** — see Addendum (8). One structural finding, M-GAP-035 (three control-plane surfaces, two test-only, the daemon consults none), recorded without code change because the choice of which plane is canonical needs review. All four were unreachable before today: M-GAP-033 unblocked the suite, and the other three were behind it.
 
 ### Addendum 2026-09-28 (5) — role H substrate is live: first real OSS Tier-1 evidence (M-GAP-031 progress)
 
@@ -293,8 +293,8 @@ component renamed, deleted, merged, or migrated** — per M3's binding non-goals
 | Gap | Classification | What changed |
 |---|---|---|
 | M-GAP-035 (three control-plane surfaces, two test-only, the daemon consults none) | **OPEN, REFRAMED** | My own framing was materially imprecise. `ahos_org/__init__.py` declares *"an independent organizational control plane. It is not an AHOS runtime, not a trading system, and not an AGI"*, and `SLICE_2A` §0 declares its TCB/epistemic core is *"not: an AHOS implementation or integration; … an agent runtime, Agent One, or a 19-agent council."* These are **not three competing planes for one system** — they are one AHOS plane plus a self-declared-independent organizational layer (the MVOR/AGI-research direction). The register's phrase "the choice of which plane is canonical" rested on a category error. The accurate residual gap is a **composition-root ambiguity** between `python -m architecture.runtime --daemon` and `ControlPlane().start()`: two documented ways to "run AHOS", no integration, no recorded precedence. **Verified live:** `ControlPlane().start()` boots to `SAFE_HALT` (`run-c4ccb36c02e23b0a`) over 8 components and reads the `AG-*` namespace — it fabricates nothing and works as documented. Also corrected: the daemon's non-use is substantially *by design* (`orchestrated=0 by design this wave`), not oversight. |
-| M-GAP-038 (the doctrine-registry enforcement glob does not cover `MASTER_DIRECTIVE_W43.md`) | **OPEN** (constitutional loophole — human decision required) | `tests/test_master_directive.py` globs `CANON.glob("MASTER_DIRECTIVE_v*.md")` for the "no orphan doctrine files" and sha-registration laws. `MASTER_DIRECTIVE_W43.md` does not match `v*`, so **the registry law never applies to it** — despite the name, despite self-describing as the main command, and despite carrying operational doctrine ("برای هر تغییر معمول مهندسی از کاربر اجازه نگیر. اما مرزهای Governance و Safety را نشکن"). `DOC_TRUTH_MAP.md:11` treats it as a wave directive ("living, not registry ACTIVE"), which is a description, not an enforcement. This is a **loophole in a CI-enforced constitutional law**, and the law v1 itself establishes ("every version file on disk must be listed"). Resolution needs a human: either widen the glob to `MASTER_DIRECTIVE_*.md` (which would force W43 registration or removal) or rename W43 so it cannot be mistaken for unregistered doctrine. **Not fixed — M3 forbids changing constitutional governance, and this is exactly that.** |
-| M-GAP-039 (`PROJECT_STATE.md` is stale despite claiming to be always-current) | **OPEN** (doc defect — autonomously fixable) | `docs/canonical/PROJECT_STATE.md` self-describes as an "always-current pointer" but is pinned to "Wave-7 · 2026-08-11" while the register tracks 2026-09-28 and `DOC_TRUTH_MAP.md` references W43/W44. Its pointer (→ `reports/PHASE_STATE.md`) is correct; its content is not. Cheap fix: collapse to a pointer-only state with a single honest line. |
+| M-GAP-038 (the doctrine-registry enforcement glob does not cover `MASTER_DIRECTIVE_W43.md`) | **OPEN (at M3; RESOLVED 2026-09-28 by Addendum (7) — reframed and pinned)** | `tests/test_master_directive.py` globs `CANON.glob("MASTER_DIRECTIVE_v*.md")` for the "no orphan doctrine files" and sha-registration laws. `MASTER_DIRECTIVE_W43.md` does not match `v*`, so **the registry law never applies to it** — despite the name, despite self-describing as the main command, and despite carrying operational doctrine ("برای هر تغییر معمول مهندسی از کاربر اجازه نگیر. اما مرزهای Governance و Safety را نشکن"). `DOC_TRUTH_MAP.md:11` treats it as a wave directive ("living, not registry ACTIVE"), which is a description, not an enforcement. This is a **loophole in a CI-enforced constitutional law**, and the law v1 itself establishes ("every version file on disk must be listed"). Resolution needs a human: either widen the glob to `MASTER_DIRECTIVE_*.md` (which would force W43 registration or removal) or rename W43 so it cannot be mistaken for unregistered doctrine. **Not fixed — M3 forbids changing constitutional governance, and this is exactly that.** *(M4 correction: the "loophole" framing was too strong — W43 is a second, undeclared class of authority, not an unregistered version; resolved by declaring the two-class partition and pinning it.)* |
+| M-GAP-039 (`PROJECT_STATE.md` is stale despite claiming to be always-current) | **OPEN (at M3; RESOLVED 2026-09-28 at `46eeaef`)** | `docs/canonical/PROJECT_STATE.md` self-describes as an "always-current pointer" but is pinned to "Wave-7 · 2026-08-11" while the register tracks 2026-09-28 and `DOC_TRUTH_MAP.md` references W43/W44. Its pointer (→ `reports/PHASE_STATE.md`) is correct; its content is not. Cheap fix: collapse to a pointer-only state with a single honest line. *(Resolved later: the file became an honestly-dated wave-7 snapshot pointing at the two live authorities.)* |
 
 Contradictions recorded, not merged (per M3: "Do not silently merge conflicting taxonomies or
 decisions"): (1) M-GAP-038 above; (2) M-GAP-039 above; (3) two live unmapped agent namespaces at
@@ -400,6 +400,59 @@ still pass against the unchanged suite.
 |---|---|---|
 | Add a `wave_directives` key to `master_directive_registry.json` (schema 1 → 2) | **DECISION REQUIRED** | The cleanest model, but it changes the registry schema, which is constitutional enforcement. AGENTS.md forbids weakening tests and the owner must ratify; needs an R-series entry. |
 | Rename `MASTER_DIRECTIVE_W43.md` so it cannot be mistaken for doctrine | **DECISION REQUIRED** | Breaks 9 referencing files; disposition of an operationally governing document is owner review under `docs/canonical/GOVERNANCE.md` (autonomous deletion prohibited). M4 deliberately did neither. |
-| M-GAP-037 (`validate_imports.py` FAIL is 100% gitignored build artifacts) | **OPEN** (enforcing-control policy decision) | Carried unchanged. Confirmed again at M4: 44 FAIL lines, all `__pycache__/` or `.pytest_cache/` — gitignored (`.gitignore:1`), produced by running Python, invisible to CI. IMPORTS / EVIDENCE-BOUNDARY / LANE-A FREEZE / SECRETS all OK; the 10 dead-code candidates are unchanged from the prior baseline. |
-| M-GAP-039 (`PROJECT_STATE.md` stale) | **OPEN** (autonomously fixable) | Still open; see next-mission note. |
+| M-GAP-037 (`validate_imports.py` FAIL is 100% gitignored build artifacts) | **RESOLVED (Option A, owner-approved)** | Fixed by Addendum (8) below: the check now protects the *committed* tree via `git check-ignore`, `.pytest_cache/` added to `.gitignore`, 4 regression pins. |
+| M-GAP-039 (`PROJECT_STATE.md` stale) | **RESOLVED** | Fixed at commit `46eeaef`: the file is now an honestly-dated wave-7 snapshot pointing at the two live authorities, rather than claiming to be always-current. |
 
+
+---
+
+### Addendum 2026-09-28 (8) — M-GAP-037 RESOLVED (Option A): the artifact check now protects the committed tree, not the working tree
+
+**Owner decision: Option A approved and implemented.** The M-GAP-037 decision packet was prepared
+read-only (evidence: `check_artifacts()` walked `ROOT.rglob()` git-blind; `__pycache__/` was
+`.gitignore:1` yet failed; the committed Linux receipt at `b039fb0` had PASSED the same check on a
+clean checkout; `engine/run_all_checks.sh` never invokes the validator; zero tests pinned
+`check_artifacts`). The packet returned **HUMAN DECISION REQUIRED**; the owner approved Option A.
+
+**The semantics change, stated exactly.** Before: "no `__pycache__`/`.pytest_cache` may exist in the
+working tree." After: "no `__pycache__`/`.pytest_cache` may be part of the **committed** tree." The
+check now consults git's own ignore state (`git check-ignore -q`), which is the authoritative test
+for what a clean checkout contains. Transient ignored caches are excluded; a cache git would stage
+still fails with `build artifact present (not gitignored): …`. The note line changed from "no build
+artifacts expected in a clean checkout" to "no non-ignored build artifacts in the committed tree
+(ignored transient caches excluded)", and the module docstring §5 was updated to match. If git is
+unreachable the helper fails **closed** (reports the path rather than silently excluding it).
+
+**Why this is not a weakening.** The guarantee the check exists for — "a clean checkout is clean" —
+is what `git` already answers, and it is preserved for every path git would track. The other four
+checks are untouched: IMPORTS (236 modules, `IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE`
+HOLD), EVIDENCE-BOUNDARY (66 surfaces), LANE-A FREEZE (36 files), SECRETS (3386 files). The ORPHANS
+baseline is unchanged at the same 10 dead-code candidates. The validator's own import probe already
+set `PYTHONDONTWRITEBYTECODE=1` and `-B`, so the validator never created the artifacts it reported —
+on a warm host they came from the `pytest` run the soak protocol mandates one line *before* the gate.
+
+**The `.pytest_cache` gap, closed as a required consequence.** Implementing Option A on this warm
+host removed all 43 `__pycache__` failures but left one real failure: `.pytest_cache/`, which was
+**not** in `.gitignore` (unlike `__pycache__/` at line 1 and `*.py[cod]` at line 2). pytest's own
+cache directory is the same class of transient Python artifact those two rules already cover, so its
+omission was a gap in an existing invariant, not new policy — and without it the soak gate stayed red
+on a transient cache, so Option A could not take effect. Added `.pytest_cache/` at line 2 of
+`.gitignore`. One line, completing the existing cache rule.
+
+**Verification on the warm Windows working tree** (the exact context the gate exists for):
+`scripts/validate_imports.py` now prints **VALIDATION PASSED — repository wiring is clean.** This is
+the first green run of the soak pre-registration gate on a warm host. Confirmed unchanged: Lane A
+touched zero files (`git status` lists no `discovery/` or `paper_trading/` path); no governance,
+authority, maturity, execution, or trading-permission control was modified.
+
+**Regression pins** — `tests/test_validate_imports_artifacts.py`, 4 tests, all PASS: (1) a gitignored
+`__pycache__` on disk produces **no** artifact failure; (2) a `__pycache__` git does **not** ignore
+still fails, and the message names "not gitignored" so the operator knows git would stage it; (3)
+`.pytest_cache` follows the same rule; (4) `ARTIFACT_SKIP_DIRS` behaviour for vendored dirs is
+unchanged. Both halves of the contract are locked, so it cannot regress in either direction. The
+Windows path-separator difference (`pkg\__pycache__`) is handled separator-agnostically.
+
+**Not done, deliberately:** `AHOS_LOCAL_SOAK_PROTOCOL.md` was not changed — the documented command
+`.venv/bin/python scripts/validate_imports.py` is exactly what now passes, so no documentation
+diverges. The soak was not started. No commit of the probe artifact
+`reports/validate_imports_run_20260928T045640Z.json`, whose `FAIL` verdict predates the fix.

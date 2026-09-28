@@ -17,8 +17,10 @@ Checks (each section fails the run independently):
   4. SECRETS — non-test source files must not contain secret-looking strings
      (reuses architecture.security.hygiene._SECRET_PATTERNS). Test fixtures and
      *.example placeholder docs are exempt.
-  5. ARTIFACTS — no __pycache__ / .pytest_cache leftovers may exist in a clean
-     checkout.
+  5. ARTIFACTS — no __pycache__ / .pytest_cache leftovers may be part of the
+     committed tree. Transient caches git ignores (present on any warm host
+     merely because Python ran) are excluded; a cache that git would stage
+     still fails.
 
 Usage:
     python scripts/validate_imports.py            # full gate
@@ -306,14 +308,44 @@ def check_secrets() -> tuple[list[str], list[str]]:
 ARTIFACT_SKIP_DIRS = {".git", ".venv", "venv", "env", "node_modules", "data"}
 
 
+def _is_gitignored(path: Path) -> bool:
+    """True if git considers `path` ignored.
+
+    The artifact check exists to protect the *committed* tree: its docstring
+    says "no __pycache__ / .pytest_cache leftovers may exist in a clean
+    checkout". A clean checkout is what `git` answers, so git's own ignore
+    state is the authoritative test rather than a hardcoded guess.
+
+    A warm host accumulates ignored caches merely by running Python (the soak
+    protocol itself runs pytest before this gate). Those are transient and
+    non-authoritative -- they are never tracked and `git status` never lists
+    them. A cache that is NOT ignored would be staged by `git add -A`, so it
+    still fails here. Ignored paths stay excluded, which makes the check
+    passable on the warm host while preserving its real guarantee.
+    """
+    if not path.is_absolute():
+        path = (ROOT / path).resolve()
+    try:
+        proc = subprocess.run(
+            ["git", "check-ignore", "-q", "--", str(path)],
+            cwd=str(ROOT), capture_output=True, timeout=15)
+    except (OSError, subprocess.SubprocessError):
+        # If git is unavailable, fail closed: report the path rather than
+        # silently excluding it.
+        return False
+    return proc.returncode == 0
+
+
 def check_artifacts() -> tuple[list[str], list[str]]:
     failures: list[str] = []
     for name in ("__pycache__", ".pytest_cache"):
         for path in ROOT.rglob(name):
             if ARTIFACT_SKIP_DIRS & set(path.relative_to(ROOT).parts):
                 continue
-            failures.append(f"build artifact present: {path.relative_to(ROOT)}/")
-    return failures, ["no build artifacts expected in a clean checkout"]
+            if _is_gitignored(path):
+                continue
+            failures.append(f"build artifact present (not gitignored): {path.relative_to(ROOT)}/")
+    return failures, ["no non-ignored build artifacts in the committed tree (ignored transient caches excluded)"]
 
 
 def _module_import_paths(path: Path) -> set[str]:
