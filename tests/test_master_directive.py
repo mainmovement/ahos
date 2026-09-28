@@ -44,7 +44,7 @@ def _sha(p: Path) -> str:
 
 
 def _registry() -> dict:
-    return json.loads(REGISTRY.read_text())
+    return json.loads(REGISTRY.read_text(encoding="utf-8"))
 
 
 def test_v1_immutable_and_present() -> None:
@@ -59,7 +59,7 @@ def test_v1_immutable_and_present() -> None:
 def test_required_invariants_and_protocol_shape() -> None:
     # every version on disk must carry the non-weakenable core laws + ordered 12-step protocol
     for f in sorted(CANON.glob("MASTER_DIRECTIVE_v*.md")):
-        body = f.read_text()
+        body = f.read_text(encoding="utf-8")
         for inv in REQUIRED_INVARIANTS:
             assert inv in body, f"{f.name}: required invariant missing: {inv!r}"
         pos = -1
@@ -94,7 +94,7 @@ def test_no_orphan_files_and_sha_match() -> None:
 
 
 def test_every_version_registered_in_issue_register() -> None:
-    reg_text = REGISTER.read_text()
+    reg_text = REGISTER.read_text(encoding="utf-8")
     for d in _registry()["directives"]:
         assert d["sha256"] in reg_text, (
             f"MASTER_DIRECTIVE_v{d['version']} sha256 absent from AHOS_ISSUE_REGISTER.md — "

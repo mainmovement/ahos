@@ -1614,5 +1614,10 @@ class HealthSnapshotEngine:
         snap = self.generate_snapshot()
         out = Path(output_path) if output_path else (get_reports_dir() / "canonical_health_snapshot.json")
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(asdict(snap), indent=2, ensure_ascii=False))
+        # encoding must be pinned: ensure_ascii=False emits raw non-ASCII, so the
+        # default locale encoding would write cp1252 bytes on a Windows host and the
+        # committed artifact would not be readable as UTF-8 anywhere else.
+        out.write_text(
+            json.dumps(asdict(snap), indent=2, ensure_ascii=False), encoding="utf-8"
+        )
         return out

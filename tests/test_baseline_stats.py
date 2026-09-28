@@ -87,5 +87,5 @@ def test_search_space_registry(tmp_path):
     assert n == 1
     n = bs.register_search_cells(cells, "B-test2", str(reg_path))
     assert n == 2
-    reg = json.loads(reg_path.read_text())
+    reg = json.loads(reg_path.read_text(encoding="utf-8"))
     assert len(reg["batches"]) == 2 and reg["cells"][0]["batch_id"] == "B-test"

@@ -18,7 +18,7 @@ def test_protocol_hash_matches_preregistration():
 
 
 def test_protocol_carries_binding_rules_r1_to_r8():
-    text = DOC.read_text()
+    text = DOC.read_text(encoding="utf-8")
     for rule in ("## R1", "## R2", "## R3", "## R4", "## R5", "## R6", "## R7", "## R8"):
         assert rule in text, f"missing binding rule {rule}"
     assert "NOT YET VALIDATED" in text          # default verdict language must exist
@@ -27,6 +27,6 @@ def test_protocol_carries_binding_rules_r1_to_r8():
 
 def test_preregistration_precedes_gate_clock():
     """R-39 registration must timestamp BEFORE the 2026-08-14 18:00Z gate — the whole point."""
-    reg = (ROOT / "AHOS_ISSUE_REGISTER.md").read_text()
+    reg = (ROOT / "AHOS_ISSUE_REGISTER.md").read_text(encoding="utf-8")
     r39 = reg.split("### R-39", 1)[1].split("### R-40", 1)[0] if "### R-39" in reg else ""
     assert "2026-08-13" in r39 and REGISTERED_SHA in r39

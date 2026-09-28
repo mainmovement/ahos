@@ -32,7 +32,7 @@ def test_canonical_health_snapshot_generation(tmp_path):
     engine.export_snapshot(out_file)
 
     assert out_file.exists()
-    data = json.loads(out_file.read_text())
+    data = json.loads(out_file.read_text(encoding="utf-8"))
 
     assert data["overall_verdict"] in ("GREEN", "DEGRADED", "WARNING", "CRITICAL", "UNKNOWN")
     assert "timestamp_utc" in data

@@ -78,7 +78,7 @@ def test_cognitive_registry_100_unique_thinkers():
     import yaml
     reg_path = ROOT_DIR / "config" / "cognitive_registry_100.yaml"
     assert reg_path.exists()
-    data = yaml.safe_load(reg_path.read_text())
+    data = yaml.safe_load(reg_path.read_text(encoding="utf-8"))
     assert data.get("total_thinkers") == 100
 
     thinker_names = []

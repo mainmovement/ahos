@@ -91,7 +91,7 @@ def test_stale_base_trigger_follows_inherited_invalid_law():
 
 
 def test_v1_card_and_logic_are_immutable_artifacts():
-    cards = json.loads((ROOT / "paper_trading" / "strategies.json").read_text())["strategies"]
+    cards = json.loads((ROOT / "paper_trading" / "strategies.json").read_text(encoding="utf-8"))["strategies"]
     vers = {c["version"] for c in cards}
     assert {"PT-X3-v1", "PT-X3-v2"} <= vers
     assert dv3.EXIT_V3["version"] == "PT-X3-v1"               # frozen object still present

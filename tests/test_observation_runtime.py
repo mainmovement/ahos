@@ -136,7 +136,7 @@ def test_safety_gate_fails_closed_on_lane_a_drift(tmp_path):
     shutil.copy(ROOT / "config" / "lane_a_freeze.sha256",
                 fake_root / "config" / "lane_a_freeze.sha256")
     (fake_root / "discovery" / "__init__.py").write_text(
-        (fake_root / "discovery" / "__init__.py").read_text() + "\n# drifted\n",
+        (fake_root / "discovery" / "__init__.py").read_text(encoding="utf-8") + "\n# drifted\n",
         encoding="utf-8")
 
     verdict = RuntimeSafetyGate(root=fake_root).check()

@@ -116,7 +116,7 @@ def test_live_guards_exactly_match_classified_set():
 def test_live_apply_report_proves_zero_data_change():
     reports = sorted((ROOT / "reports").glob("f1_s1_apply_*.json"))
     assert reports, "no F1-S1 apply report found"
-    rep = json.loads(reports[-1].read_text())
+    rep = json.loads(reports[-1].read_text(encoding="utf-8"))
     assert rep["verdict"] == "OK"
     assert rep["e01"]["data_identical"] and rep["ahos_local"]["data_identical"]
     assert rep["e01"]["census_before"] == rep["e01"]["census_after"]
@@ -131,9 +131,9 @@ def test_paper_store_regression_unchanged():
 
 def test_registry_and_matrix_text_now_measured():
     import yaml
-    reg = yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text())
+    reg = yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text(encoding="utf-8"))
     ag17 = next(a for a in reg["agents"] if a["agent_id"] == "AG-17")
     assert "F1-S1" in ag17["evidence"] or "f1s1" in ag17["evidence"].lower()
-    m = yaml.safe_load((ROOT / "config" / "cognitive_principles.yaml").read_text())
+    m = yaml.safe_load((ROOT / "config" / "cognitive_principles.yaml").read_text(encoding="utf-8"))
     c2 = next(p for p in m["principles"] if p["principle_id"] == "CRYPTO-02")
     assert "S1" in c2["ahos_application"]

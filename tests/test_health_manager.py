@@ -25,7 +25,7 @@ def test_health_manager_export_report(tmp_path):
     out_json = tmp_path / "health_report.json"
     manager.export_health_report(out_json)
     assert out_json.exists()
-    data = json.loads(out_json.read_text())
+    data = json.loads(out_json.read_text(encoding="utf-8"))
     assert data["overall_status"] in ("GREEN", "YELLOW")
     assert "timestamp_utc" in data
 

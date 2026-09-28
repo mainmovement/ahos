@@ -30,7 +30,7 @@ def mk_paper(tmp_path):
 def mk_discovery(tmp_path):
     path = tmp_path / "disc.sqlite"
     conn = sqlite3.connect(path)
-    conn.executescript((ROOT / "discovery" / "schema_sqlite.sql").read_text())
+    conn.executescript((ROOT / "discovery" / "schema_sqlite.sql").read_text(encoding="utf-8"))
     conn.close()
     return path
 

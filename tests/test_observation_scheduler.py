@@ -320,7 +320,7 @@ def test_classification_matches_frozen_lifecycle_property():
 
 
 def test_scheduler_is_generic_no_hardcoded_targets():
-    src = (ROOT / "discovery" / "observation_scheduler.py").read_text()
+    src = (ROOT / "discovery" / "observation_scheduler.py").read_text(encoding="utf-8")
     assert "paper_trading" not in src                          # no PT coupling in the scheduler
     assert "tracked" in src.lower()                            # tracked-set is INJECTED
 

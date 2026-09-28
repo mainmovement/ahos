@@ -37,8 +37,11 @@ def test_runtime_shutdown_hooks_error_isolation(tmp_path):
     # Setup test workspace
     (tmp_path / "data").mkdir(parents=True, exist_ok=True)
     (tmp_path / "docs" / "canonical").mkdir(parents=True, exist_ok=True)
-    master_doc = Path(str(ROOT_DIR / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md")).read_text()
-    (tmp_path / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md").write_text(master_doc)
+    master_doc = Path(str(ROOT_DIR / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md")).read_text(encoding="utf-8")
+    # encoding must be pinned: the directive contains U+2192 (->), which cp1252
+    # cannot encode, so the default locale encoding raises UnicodeEncodeError on
+    # a Windows host and the round-trip copy is not byte-identical to the repo file.
+    (tmp_path / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md").write_text(master_doc, encoding="utf-8")
 
     for db_name in ["e01_discovery.sqlite", "paper_trading.sqlite", "ahos_local.sqlite"]:
         c = sqlite3.connect(tmp_path / "data" / db_name)
@@ -89,8 +92,8 @@ def test_json_formatter_with_meta_and_exception():
 def test_startup_validator_corrupted_database(tmp_path):
     (tmp_path / "data").mkdir(parents=True, exist_ok=True)
     (tmp_path / "docs" / "canonical").mkdir(parents=True, exist_ok=True)
-    master_doc = Path(str(ROOT_DIR / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md")).read_text()
-    (tmp_path / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md").write_text(master_doc)
+    master_doc = Path(str(ROOT_DIR / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md")).read_text(encoding="utf-8")
+    (tmp_path / "docs" / "canonical" / "MASTER_DIRECTIVE_v1.md").write_text(master_doc, encoding="utf-8")
 
     # Create corrupted file
     corrupt_db = tmp_path / "data" / "e01_discovery.sqlite"

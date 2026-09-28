@@ -16,8 +16,8 @@ sys.path.insert(0, str(ROOT))
 
 from architecture import contracts, registry  # noqa: E402
 
-MATRIX = yaml.safe_load((ROOT / "config" / "cognitive_principles.yaml").read_text())
-REG = yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text())
+MATRIX = yaml.safe_load((ROOT / "config" / "cognitive_principles.yaml").read_text(encoding="utf-8"))
+REG = yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text(encoding="utf-8"))
 
 
 def test_contract_schema_has_all_10_fields():
@@ -148,7 +148,7 @@ def test_lane_isolation_static():
     bad = []
     for f in (ROOT / "architecture").glob("*.py"):
         for pat in ("discovery", "paper_trading", "research", "telegram_ai", "engine"):
-            if re.search(rf"^\s*(from|import)\s+{pat}(\.|$|\s)", f.read_text(), re.M):
+            if re.search(rf"^\s*(from|import)\s+{pat}(\.|$|\s)", f.read_text(encoding="utf-8"), re.M):
                 bad.append(f.name)
     assert bad == []
 

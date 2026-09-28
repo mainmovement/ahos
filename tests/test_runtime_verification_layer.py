@@ -30,7 +30,7 @@ def test_no_real_telegram_token_outside_tests():
 
 
 def test_gateway_env_and_contracts():
-    assert "AHOS_GATEWAY_URL" in (ROOT / "telegram_ai" / "service.py").read_text()
-    assert "createAlertEvent" in (ROOT / "alert_canonical.ts").read_text()
-    assert "fromScored" in (ROOT / "opportunity_canonical.ts").read_text()
-    assert "mayEmitCritical" in (ROOT / "opportunity_canonical.ts").read_text()
+    assert "AHOS_GATEWAY_URL" in (ROOT / "telegram_ai" / "service.py").read_text(encoding="utf-8")
+    assert "createAlertEvent" in (ROOT / "alert_canonical.ts").read_text(encoding="utf-8")
+    assert "fromScored" in (ROOT / "opportunity_canonical.ts").read_text(encoding="utf-8")
+    assert "mayEmitCritical" in (ROOT / "opportunity_canonical.ts").read_text(encoding="utf-8")

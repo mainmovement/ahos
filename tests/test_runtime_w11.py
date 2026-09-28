@@ -22,8 +22,8 @@ from architecture import council as cc                             # noqa: E402
 from architecture import contracts, registry                       # noqa: E402
 
 NOW = 1_787_000_000.0
-MATRIX = yaml.safe_load((ROOT / "config" / "cognitive_principles.yaml").read_text())
-REG = yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text())
+MATRIX = yaml.safe_load((ROOT / "config" / "cognitive_principles.yaml").read_text(encoding="utf-8"))
+REG = yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text(encoding="utf-8"))
 
 
 # ---------------- fixtures: simulated deployments ----------------
@@ -497,7 +497,7 @@ def test_matrix_honest_counts():
 def test_lane_isolation_new_modules():
     bad = []
     for name in ("control_plane.py", "provider_router.py", "council.py"):
-        text = (ROOT / "architecture" / name).read_text()
+        text = (ROOT / "architecture" / name).read_text(encoding="utf-8")
         for pat in ("discovery", "paper_trading", "research", "telegram_ai", "engine"):
             if re.search(rf"^\s*(from|import)\s+{pat}(\.|$|\s)", text, re.M):
                 bad.append(name)

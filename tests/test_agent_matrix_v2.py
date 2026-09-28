@@ -16,23 +16,23 @@ import agent_matrix_v2 as gen  # noqa: E402
 
 
 def _reg():
-    return yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text())
+    return yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text(encoding="utf-8"))
 
 
 def test_matrix_v2_doc_is_fresh():
     """Hand-drift protection: the file must equal a fresh regeneration, byte-identically."""
-    assert DOC.read_text() == gen.render(_reg())
+    assert DOC.read_text(encoding="utf-8") == gen.render(_reg())
 
 
 def test_matrix_v2_covers_every_agent_exactly_once():
     agents = _reg()["agents"]
-    text = DOC.read_text()
+    text = DOC.read_text(encoding="utf-8")
     for a in agents:
         assert text.count(f"### {a['agent_id']} ·") == 1, a["agent_id"]
 
 
 def test_matrix_v2_sixteen_fields_present_per_agent():
-    text = DOC.read_text()
+    text = DOC.read_text(encoding="utf-8")
     blocks = [b for b in text.split("### ")[1:]]
     assert len(blocks) == len(_reg()["agents"]) == 25
     for b in blocks:
@@ -41,7 +41,7 @@ def test_matrix_v2_sixteen_fields_present_per_agent():
 
 
 def test_matrix_v2_owner_and_authority_laws():
-    text = DOC.read_text()
+    text = DOC.read_text(encoding="utf-8")
     ag23 = next(b for b in text.split("### ")[1:] if b.startswith("AG-23"))
     assert "human operator" in ag23
     reg = _reg()
@@ -57,5 +57,5 @@ def test_matrix_v2_never_invents_io():
     """Agents without declared state_tables must show the DEFINED marker, not ad-hoc output."""
     for a in _reg()["agents"]:
         if not (a["ops"].get("state_tables") or []):
-            blk = next(b for b in DOC.read_text().split("### ")[1:] if b.startswith(a["agent_id"]))
+            blk = next(b for b in DOC.read_text(encoding="utf-8").split("### ")[1:] if b.startswith(a["agent_id"]))
             assert "**outputs**: — DEFINED" in blk

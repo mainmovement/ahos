@@ -205,7 +205,7 @@ def test_feature_store_has_no_outcome_import():
     """Rule L2 (architecture test): feature_store must not import the outcomes module
     (dependency direction enforced in code, not in docs)."""
     import ast
-    tree = ast.parse(Path(str(ROOT_DIR / "discovery" / "feature_store.py")).read_text())
+    tree = ast.parse(Path(str(ROOT_DIR / "discovery" / "feature_store.py")).read_text(encoding="utf-8"))
     bad = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -215,7 +215,7 @@ def test_feature_store_has_no_outcome_import():
             bad += [n for n in names if "outcome" in n]
     assert bad == [], f"outcome imports found: {bad}"
     # and no SQL access to the outcome table either:
-    src = Path(str(ROOT_DIR / "discovery" / "feature_store.py")).read_text()
+    src = Path(str(ROOT_DIR / "discovery" / "feature_store.py")).read_text(encoding="utf-8")
     assert "FROM outcome_label" not in src and "INSERT INTO outcome_label" not in src
 
 

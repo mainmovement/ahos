@@ -41,8 +41,8 @@ def test_gateway_and_canonical_modules_exist():
         "engine_metrics.ts",
     ):
         assert (ROOT / name).is_file(), name
-    assert "conversationGateway" in (ROOT / "app" / "api" / "chat" / "route.ts").read_text()
-    body = (ROOT / "types.ts").read_text()
+    assert "conversationGateway" in (ROOT / "app" / "api" / "chat" / "route.ts").read_text(encoding="utf-8")
+    body = (ROOT / "types.ts").read_text(encoding="utf-8")
     for s in (
         "LIVE",
         "DEGRADED",
