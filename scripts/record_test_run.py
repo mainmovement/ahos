@@ -78,15 +78,36 @@ def parse_pytest_summary(text: str) -> dict | None:
     return found
 
 
+def _resolve_command(command: list[str]) -> list[str]:
+    """Anchor a relative executable against ROOT before spawning.
+
+    Windows CreateProcess does not search the ``cwd=`` parameter for the
+    executable, so a relative path that works in a shell -- the exact form the
+    soak protocol and the Windows operator runbook use, ``.venv/Scripts/python.exe``
+    -- dies with ``WinError 2`` the moment subprocess runs it with ``cwd=ROOT``.
+    Anchoring it explicitly makes the documented invocation work on Windows.
+    A bare name (``python3``) is left alone: PATH resolution is correct for it.
+    """
+    if not command:
+        return command
+    exe = command[0]
+    has_sep = os.path.sep in exe or (os.path.altsep and os.path.altsep in exe)
+    if not has_sep:
+        return command
+    anchored = str(ROOT / exe)
+    return ([anchored] + command[1:]) if os.path.exists(anchored) else command
+
+
 def record_run(command: list[str], out_path: Path, timeout: int = 1800) -> dict:
     meta = git_meta()
     started = time.time()
     started_utc = utc_now()
     env = os.environ.copy()
     env["PYTHONDONTWRITEBYTECODE"] = "1"
+    resolved = _resolve_command(command)
     try:
         proc = subprocess.run(
-            command,
+            resolved,
             cwd=str(ROOT),
             capture_output=True,
             text=True,
@@ -102,6 +123,13 @@ def record_run(command: list[str], out_path: Path, timeout: int = 1800) -> dict:
         stdout = exc.stdout or ""
         stderr = (exc.stderr or "") + f"\nTIMEOUT after {timeout}s"
         timed_out = True
+    except OSError as exc:
+        # A recorder that crashes records nothing. A launch failure is itself
+        # evidence -- write it down rather than propagate.
+        exit_code = 127
+        stdout = ""
+        stderr = f"LAUNCH FAILED ({exc.__class__.__name__}: {exc}) for {resolved}"
+        timed_out = False
 
     duration = round(time.time() - started, 3)
     artifact = {
@@ -111,6 +139,7 @@ def record_run(command: list[str], out_path: Path, timeout: int = 1800) -> dict:
         "duration_sec": duration,
         "command": command,
         "command_str": " ".join(command),
+        "command_resolved": resolved,
         "cwd": str(ROOT),
         "executable": sys.executable,
         "git": meta,

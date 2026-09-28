@@ -7,8 +7,10 @@ integrity_check=ok; missing sources fail closed; a tampered restore is FAIL.
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,3 +106,35 @@ def test_record_test_run_default_timeout_scales_for_pytest():
     assert default_timeout(["python", "-m", "pytest", "tests/", "-q"]) > 3600
     assert default_timeout(["python", "scripts/validate_imports.py"]) == 1800
     assert default_timeout(["python", "scripts/soak_snapshot.py", "--window-hours", "6"]) == 1800
+
+
+def test_record_test_run_anchors_relative_executable():
+    # Windows CreateProcess does not search the cwd= parameter for the
+    # executable, so the relative venv path the soak protocol and the Windows
+    # operator runbook both document dies with WinError 2. It must be anchored
+    # against ROOT. A bare name is left for PATH resolution.
+    from scripts.record_test_run import _resolve_command
+
+    rel = _resolve_command([".venv/Scripts/python.exe", "scripts/validate_imports.py"])
+    assert rel[0].endswith(("python.exe", "python"))
+    assert os.path.isabs(rel[0]), "a documented relative invocation must resolve to an absolute path"
+    assert rel[1] == "scripts/validate_imports.py"
+
+    # bare names go to PATH, not ROOT
+    assert _resolve_command(["python3", "-m", "pytest"]) == ["python3", "-m", "pytest"]
+    assert _resolve_command([]) == []
+
+
+def test_record_test_run_records_launch_failure_instead_of_crashing():
+    # A recorder that crashes records nothing. A launch failure is evidence.
+    from scripts.record_test_run import record_run
+
+    artifact = record_run(
+        ["definitely_not_a_real_executable_xyz.py", "--help"],
+        Path(tempfile.gettempdir()) / f"ahos_launch_fail_{os.getpid()}.json",
+        timeout=30,
+    )
+    assert artifact["exit_code"] == 127
+    assert artifact["verdict"] == "FAIL"
+    assert "LAUNCH FAILED" in artifact["stderr"]
+
