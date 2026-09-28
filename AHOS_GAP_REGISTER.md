@@ -281,3 +281,37 @@ Artifact committed: `reports/oss_capability_audit_20260928T051552Z.json` (probe_
 6. **Area 4 — ACI cognitive runtime.** Extensive `architecture/cognitive/` surface, but `AGENTS.md` forbids uncontrolled self-evolution and `evolution_gate.py` is the guardrail. Sensitive by construction; doable work is limited to gate-hardening and does not belong in an autonomous pass.
 
 Separately flagged, not acted on: **137 of 1648 tracked files (8.3%) sit in four root directories that appear unrelated to AHOS** — `01/` (37), `advanced-3d-audiovisual-website/` (33), `advanced-3d-audiovisual-website (1)/` (60), `درخت کاملتر immersive-3d-audiovisual-website/` (7). They look like unrelated audiovisual-website projects committed into the repo root. Not deleted and not modified — the mission forbids deleting anything classified as orphan without live-use verification, and `AGENTS.md` forbids destroying data. This row is the flag; disposition is the owner's.
+
+### Addendum 2026-09-28 (6) — M3 reconciliation: M-GAP-035 reclassified, two constitutional contradictions recorded (M-GAP-038, M-GAP-039)
+
+M3 (PROJECT CONSTITUTIONAL AND KNOWLEDGE RECONCILIATION) performed read-only. Full reconciliation
+model, source inventory, decision provenance/supersession table (14 decisions), minimum
+composition-root path, and organizational memory model:
+`docs/governance/M3_CONSTITUTIONAL_AND_KNOWLEDGE_RECONCILIATION.md`. **No code was modified, no
+component renamed, deleted, merged, or migrated** — per M3's binding non-goals.
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-035 (three control-plane surfaces, two test-only, the daemon consults none) | **OPEN, REFRAMED** | My own framing was materially imprecise. `ahos_org/__init__.py` declares *"an independent organizational control plane. It is not an AHOS runtime, not a trading system, and not an AGI"*, and `SLICE_2A` §0 declares its TCB/epistemic core is *"not: an AHOS implementation or integration; … an agent runtime, Agent One, or a 19-agent council."* These are **not three competing planes for one system** — they are one AHOS plane plus a self-declared-independent organizational layer (the MVOR/AGI-research direction). The register's phrase "the choice of which plane is canonical" rested on a category error. The accurate residual gap is a **composition-root ambiguity** between `python -m architecture.runtime --daemon` and `ControlPlane().start()`: two documented ways to "run AHOS", no integration, no recorded precedence. **Verified live:** `ControlPlane().start()` boots to `SAFE_HALT` (`run-c4ccb36c02e23b0a`) over 8 components and reads the `AG-*` namespace — it fabricates nothing and works as documented. Also corrected: the daemon's non-use is substantially *by design* (`orchestrated=0 by design this wave`), not oversight. |
+| M-GAP-038 (the doctrine-registry enforcement glob does not cover `MASTER_DIRECTIVE_W43.md`) | **OPEN** (constitutional loophole — human decision required) | `tests/test_master_directive.py` globs `CANON.glob("MASTER_DIRECTIVE_v*.md")` for the "no orphan doctrine files" and sha-registration laws. `MASTER_DIRECTIVE_W43.md` does not match `v*`, so **the registry law never applies to it** — despite the name, despite self-describing as the main command, and despite carrying operational doctrine ("برای هر تغییر معمول مهندسی از کاربر اجازه نگیر. اما مرزهای Governance و Safety را نشکن"). `DOC_TRUTH_MAP.md:11` treats it as a wave directive ("living, not registry ACTIVE"), which is a description, not an enforcement. This is a **loophole in a CI-enforced constitutional law**, and the law v1 itself establishes ("every version file on disk must be listed"). Resolution needs a human: either widen the glob to `MASTER_DIRECTIVE_*.md` (which would force W43 registration or removal) or rename W43 so it cannot be mistaken for unregistered doctrine. **Not fixed — M3 forbids changing constitutional governance, and this is exactly that.** |
+| M-GAP-039 (`PROJECT_STATE.md` is stale despite claiming to be always-current) | **OPEN** (doc defect — autonomously fixable) | `docs/canonical/PROJECT_STATE.md` self-describes as an "always-current pointer" but is pinned to "Wave-7 · 2026-08-11" while the register tracks 2026-09-28 and `DOC_TRUTH_MAP.md` references W43/W44. Its pointer (→ `reports/PHASE_STATE.md`) is correct; its content is not. Cheap fix: collapse to a pointer-only state with a single honest line. |
+
+Contradictions recorded, not merged (per M3: "Do not silently merge conflicting taxonomies or
+decisions"): (1) M-GAP-038 above; (2) M-GAP-039 above; (3) two live unmapped agent namespaces at
+the runtime seam — `control_plane.py` reads `AG-*` from `config/agent_registry.yaml` while
+`ahos_org` defines 19 `CANONICAL_AGENT_IDS`, and the M2 taxonomy map recorded the collision
+without connecting them at the code seam; (4) M-GAP-037, carried. Also reaffirmed as a
+*coexistence*, not a contradiction: the four simultaneously-true Agent-One statements
+(intended root / FUTURE_NON_AUTHORITY_ROOT / no wiring / maturity 0) — `AGENT_14` §3.
+
+**M3's methodological precedent found inside the repo:** `ADR_ACI_001` ("dual authority with an
+explicit conflict record (chosen)") and `AGENT_14`'s L0–L5 evidence doctrine with
+`[VERIFIED]`/`[PROPOSED]` labels. M3's memory model (AUTHORITY + PROVENANCE + TEMPORAL VERSIONING
++ SUPERSESSION + REALITY VERIFICATION + CONTRADICTION DETECTION + DECISION HISTORY) is those two
+patterns generalized. The exemplar matters: it is already an *accepted* pattern in this repo, so
+M3 is not a new mechanism — it is the existing one applied to the whole corpus.
+
+**What M3 does NOT claim:** no AGI/ACI achievement (a continuing research objective), no
+constitutional change, no maturity change, no Lane-A change, no new authority granted, no runtime
+effect. The reconciliation document's header states `AUTHORITY = NONE CREATED` and
+`RUNTIME_EFFECT = NONE`.
