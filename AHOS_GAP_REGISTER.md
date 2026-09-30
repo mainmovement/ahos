@@ -485,3 +485,69 @@ diverges. The soak was not started. No commit of the probe artifact
 
 **Red team (step 9, disclosed honestly).** The record is only as honest as the register it parses: it reads the summary table and deliberately not the 39 addendum rows, so `open_total` is a floor, not a census — stated in the record's own `honest_limitations`. The register is hand-maintained markdown; if a future editor drops a bolded status token, that row lands in `unclassified_rows` and is reported by name rather than guessed at, but a *misleading* status would be carried through faithfully. The verdict is a description of the repository at one instant and carries no forward guarantee — a `VERIFIED` record does not mean the next action is safe, only that the five facts held when it was written.
 
+
+### Addendum 2026-09-30 (10) — the failure matrix shelled out to POSIX `grep`, so six soak-pre-registration tests could never pass on Windows (M-GAP-041 RESOLVED)
+
+Another defect in the same local-evidence pipeline, same theme as M-GAP-033/036: the soak evidence
+path was written against a Linux checkout and never exercised on the warm Windows soak host until
+the M-GAP-033 unblock made a full suite collection possible there.
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-041 (`scripts/month1_failure_matrix.py` invoked the POSIX `grep` binary, which does not exist on a default Windows install) | **RESOLVED** (one-file portable replacement + 2 regression pins) | Scenario 28, "no real-money execution surface", ran `sp.run(["grep", "-rEn", "--include=*.py", <pattern>, architecture, telegram_ai, paper_trading])`. `grep` is not a Windows binary — it exists on this host only because Git for Windows installs one into `…\Git\usr\bin`, and that directory is not reliably on the launching process's PATH. So the call died with `FileNotFoundError: [WinError 2]` and took six tests with it: `test_full_failure_matrix_all_pass`, all four `test_matrix_category_coverage[…]` parametrisations, and `test_run_challenge_all_required_pass` (which reaches the same code via `reliability_challenge.py:83` → `fm.run_all`). Every scenario up to 27 printed `[PASS]`; only scenario 28 crashed. This is the same class as M-GAP-036: a POSIX tool treated as universally available. Replaced with a pure-Python `scan_execution_surface()` using the idiom the repo already uses for its other static scans (`scripts/validate_imports.py`: `rglob("*.py")` per surface, `__pycache__` skipped). The regex and the three covered directories are unchanged module-level constants; hits keep `grep`'s `path:lineno:line` shape, so the recorded evidence string is unchanged in form. |
+
+**Parity, established before the change and again after it:** the old `grep` call and the new scan
+both return **0 hits** over `architecture` / `telegram_ai` / `paper_trading` — the scan reports
+`hits=0[]` on this host. The negative case is what scenario 28 asserts, so the replacement was also
+pinned *positively*: a planted `import ccxt` and a planted `.create_order(` call are both detected,
+in the expected format.
+
+**Regression pins** — `tests/test_month1_failure_matrix.py`, 2 new tests. (1)
+`test_execution_surface_scan_needs_no_external_binary` monkeypatches `subprocess.run` **and**
+`subprocess.Popen` to raise, deletes `PATH`, and requires the scan of the real repo to still return
+`[]` — the Windows condition is simulated directly rather than assumed, so a future regression to a
+subprocess call fails this test on any host. (2)
+`test_execution_surface_scan_still_detects_an_order_call` plants an exchange import and an order call
+and requires both hits in `path:lineno:line` form, while a neighbouring file that only names an order
+API in prose produces none — so the scan cannot be quietly weakened to always-pass.
+
+**Verification on the warm Windows host** (`28653ec`): `tests/test_month1_failure_matrix.py` 7 passed
+(was 5 failed), `tests/test_reliability_challenge.py` 2 passed (was 1 failed). End-to-end:
+`scripts/month1_failure_matrix.py` → **TOTAL=29 PASS=29 FAIL=0**, renewing the committed canonical
+record `reports/month1_failure_matrix.json` on the soak host (the prior record was the same 29/29,
+produced on Linux 2026-08-28; the number is now reproduced on Windows, which is the point).
+`scripts/reliability_challenge.py` → `result: PASS, passed: 7, failed: 0`, writing the canonical
+`reports/reliability_matrix.json` plus the timestamped `reliability_matrix_20260930T221559Z.json`.
+`scripts/validate_imports.py` → **VALIDATION PASSED**, LANE-A FREEZE OK (36 files). Targeted
+regression alongside: `test_validate_imports_artifacts.py`, `test_validate_orphans.py`,
+`test_observation_runtime.py` all PASS.
+
+**Two pre-registration failures remain, deliberately untouched.** The fresh suite still reports 8
+failures, not 6, because two Phase-13 tests fail for reasons that are *not* this defect and were
+classified as needing a human decision, not a code change:
+- `test_operation_report_dependency_hashes_are_real` — **WINDOWS-ENVIRONMENT (CRLF normalisation)**,
+  not Lane-A drift. The report documents the committed blob's sha256; the test hashes working-tree
+  bytes, and this checkout has `core.autocrlf=true` with no `.gitattributes` rule for `*.sha256`.
+  `git diff HEAD` is empty and `freeze_lane_a.verify()` is clean, so the freeze is intact.
+  *Decision needed:* pin `*.sha256` line endings, or hash the committed blob. Neither was changed.
+- `test_no_fake_calibration_on_this_host` — **STALE-EVIDENCE in the test**, not fake calibration. It
+  asserts `INSUFFICIENT_DATA` / `joined_pairs == 0`, but the laptop has since accrued **6,037 real
+  joined pairs** (source `local` only, each with an evidence sha and a real provider), so the harness
+  correctly graduates to `DESCRIPTIVE_OK`. The anti-fabrication intent holds; the literal assertion
+  pins a transient empty-host state.
+  *Decision needed:* re-pin it to provenance rather than emptiness. The test, `.gitattributes`, and
+  the hashing/calibration semantics were all left exactly as found.
+
+**Additivity and scope.** One code file (`scripts/month1_failure_matrix.py`), one test file, this
+register. `scripts/` is outside Lane A — the freeze pins 36 files, all under `discovery/` and
+`paper_trading/`, zero under `scripts/` or `tests/` (verified against the manifest and by
+`freeze_lane_a.verify()`). No governance, authority, maturity, execution, PAPER_ONLY, or
+trading-permission control was modified; `.gitignore`, `.gitattributes`, the soak protocol's entry
+criteria, and both remaining failures are untouched. `subprocess` remains imported and used elsewhere
+in the matrix (crash-injection scenarios); only the redundant local `import subprocess as sp` at the
+call site was removed. `RUNTIME_EFFECT = NONE`.
+
+**No R-series entry**, by the convention established at Addendum (9): gap state lives in this
+register. The soak was not started, and `reports/PRE_SOAK_STATUS.txt` still reads
+`pre_soak_entry_ok=False` (G2/G3/G10 `NOT_VERIFIED`) — a green pytest is necessary evidence, not the
+entry condition.

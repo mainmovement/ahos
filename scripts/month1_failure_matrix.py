@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -475,6 +476,50 @@ def matrix_collector(workdir: Path) -> None:
 
 # ================================== SAFETY =====================================
 
+# Execution-surface patterns the static scan looks for: an exchange SDK import
+# or an order-placement call. Fixed before the scan runs, never widened.
+_EXECUTION_SURFACE_RE = re.compile(
+    r"import ccxt|import web3|from web3|\.place_order\(|\.create_order\(")
+
+# The same three surfaces the scan has always covered.
+_EXECUTION_SURFACE_DIRS = ("architecture", "telegram_ai", "paper_trading")
+
+
+def scan_execution_surface(root: Path | None = None) -> list[str]:
+    """Static scan for a real-money execution surface (exchange SDK imports,
+    order-placement calls). Pure Python, no external binary.
+
+    Replaces a ``grep -rEn --include=*.py`` subprocess call (M-GAP-041). That
+    POSIX binary is absent on a default Windows install, so scenario 28 died
+    with ``FileNotFoundError`` at the exact scenario that proves no execution
+    surface exists -- six tests went red on the first Windows suite run for
+    want of a shell tool. This follows the idiom the repo already uses for its
+    other static scans (``scripts/validate_imports.py``: ``rglob('*.py')`` per
+    surface), so the matrix now depends on nothing outside the interpreter.
+
+    Hits keep grep's ``path:lineno:line`` shape, so the recorded evidence
+    string is unchanged in form.
+    """
+    root = Path(root if root is not None else ROOT)
+    hits: list[str] = []
+    for name in _EXECUTION_SURFACE_DIRS:
+        base = root / name
+        if not base.is_dir():
+            continue
+        for path in sorted(base.rglob("*.py")):
+            if "__pycache__" in path.parts:
+                continue
+            try:
+                text = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            for lineno, line in enumerate(text.splitlines(), start=1):
+                if _EXECUTION_SURFACE_RE.search(line):
+                    hits.append(
+                        f"{path.relative_to(root)}:{lineno}:{line.strip()}")
+    return hits
+
+
 def matrix_safety(workdir: Path) -> None:
     # 24. no fabrication on total provider failure
     outcome = ProviderCollector(transport=ExplodingTransport()).collect("solana", "SAF")
@@ -517,13 +562,7 @@ def matrix_safety(workdir: Path) -> None:
            f"ok={verdict27.ok} reasons={verdict27.reasons[:1]}")
 
     # 28. no real-money execution surface (static)
-    import subprocess as sp
-    grep = sp.run(
-        ["grep", "-rEn", "--include=*.py",
-         r"import ccxt|import web3|from web3|\.place_order\(|\.create_order\(",
-         str(ROOT / "architecture"), str(ROOT / "telegram_ai"), str(ROOT / "paper_trading")],
-        capture_output=True, text=True)
-    hits = [ln for ln in grep.stdout.splitlines() if ln.strip()]
+    hits = scan_execution_surface()
     ok = len(hits) == 0
     record("SAFETY", "no_execution_surface",
            "static scan (execution-surface patterns: SDK imports, order calls)",
