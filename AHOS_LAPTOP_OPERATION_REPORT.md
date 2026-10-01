@@ -250,3 +250,16 @@ this environment — and asserting otherwise would be a fabricated milestone.
 | Execution surface | **NO_EXECUTION_SURFACE** |
 | TLS verification | never bypassed (scan-enforced) |
 | Calibration | `INSUFFICIENT_DATA`, 0 eligible pairs — no fake calibration |
+
+**Since this snapshot.** The row above was correct at `50d047d`, when the host
+held no eligible prediction/outcome pairs. It is no longer the live state and is
+kept only as the historical record of that commit. The laptop has since accrued
+real evidence — the score ledger now joins **6,037 eligible pairs** (`source=local`
+only, `24h` / `+50%`, 6,037 distinct `evidence_sha256`, provider `dexscreener`),
+so the harness correctly graduates to `DESCRIPTIVE_OK` under its pre-registered
+guards. That is the outcome the pipeline exists to produce, not a regression:
+the anti-fabrication guarantee it evidences is now asserted on provenance rather
+than on emptiness, pinned by
+`tests/test_phase13_laptop_operation.py::test_no_fake_calibration_on_this_host`
+(M-GAP-043). Re-derive the live row from `scripts/calibration_report.py` rather
+than citing this one as current.

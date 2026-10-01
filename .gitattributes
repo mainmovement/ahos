@@ -15,3 +15,27 @@
 *.yaml text eol=lf
 *.yml  text eol=lf
 *.json text eol=lf
+
+# Byte-hashed evidence files must have canonical bytes on every host.
+#
+# Two files are pinned by sha256 over raw bytes -- config/lane_a_freeze.sha256
+# and requirements.txt -- by AHOS_LAPTOP_OPERATION_REPORT.md /
+# reports/local_laptop_baseline.json and by
+# tests/test_phase13_laptop_operation.py::test_operation_report_dependency_hashes_are_real.
+# A checkout is free to rewrite the line endings of any path with no rule here
+# (core.autocrlf does exactly that on Windows), which makes such a byte hash a
+# property of the host rather than the repository: one commit then records a
+# different hash on Linux and Windows. That is how M-GAP-042 presented --
+# lane_a_freeze.sha256 is committed with LF but was checked out with CRLF on
+# this Windows host, so its working-tree sha256 (8d35cd2b...) stopped matching
+# the documented one (2f5d67dd...).
+#
+# -text pins the working-tree bytes to the committed blob in BOTH directions:
+# no conversion on check-out and none on check-in, so sha256(read_bytes()) is
+# a property of the repository on any host. text eol=lf|crlf was rejected for
+# these two: eol= only governs check-out, and git still normalises on check-in
+# (verified -- staging requirements.txt under `text eol=crlf` rewrote its blob
+# from CRLF to LF, which would have silently changed its documented hash).
+# Neither file's committed content changes here.
+*.sha256         -text
+requirements.txt -text

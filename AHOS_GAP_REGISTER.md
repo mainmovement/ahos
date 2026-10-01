@@ -551,3 +551,85 @@ call site was removed. `RUNTIME_EFFECT = NONE`.
 register. The soak was not started, and `reports/PRE_SOAK_STATUS.txt` still reads
 `pre_soak_entry_ok=False` (G2/G3/G10 `NOT_VERIFIED`) — a green pytest is necessary evidence, not the
 entry condition.
+
+### Addendum 2026-10-01 (11) — the last two pre-registration failures: a byte-hash that moved with the host, and a test pinning emptiness instead of provenance (M-GAP-042, M-GAP-043 RESOLVED)
+
+These were the two failures deliberately left open at Addendum (10), each classified as needing a
+human decision rather than a code change. Re-verified from evidence here, both turned out to have a
+determinate resolution that does not touch Lane A, governance, authority, or the soak entry criteria.
+
+| Gap | Classification | What changed |
+|---|---|---|
+| M-GAP-042 (`test_operation_report_dependency_hashes_are_real` failed on a clean tree) | **RESOLVED** (root cause re-verified; the prior classification named the right files and the wrong mechanism) | The failure is NOT the test and NOT the report. Both hash `read_bytes()` of `requirements.txt` and `config/lane_a_freeze.sha256`, and both are correct in intent — the report is in fact the more correct of the two. The defect is that `config/lane_a_freeze.sha256` is the only byte-hashed evidence file in the repository with **no `.gitattributes` rule**, so `core.autocrlf=true` rewrites its bytes on checkout: the committed blob is LF (3600 B, 0 CRLF) and the Windows working tree is CRLF (3644 B, 44 CRLF). Working-tree sha256 `8d35cd2b…` therefore stopped matching the documented `2f5d67dd…`, which is the sha256 of the committed blob (identical to the LF-normalised working tree). The report was generated on Linux, where the working tree is LF, so generator and test agreed there and disagreed here purely on line endings. Fix: `*.sha256 -text` and `requirements.txt -text` in `.gitattributes` — `-text` pins the working-tree bytes to the committed blob in BOTH directions, so `sha256(read_bytes())` becomes a property of the repository rather than the host. `text eol=lf\|crlf` was explicitly rejected for these two files: `eol=` governs only check-out, and git still normalises on check-in — verified by staging `requirements.txt` under `text eol=crlf`, which rewrote its blob from CRLF to LF and would have silently changed its documented hash. Neither file's committed content changes; only the working-tree bytes are canonicalised. |
+| M-GAP-043 (`test_no_fake_calibration_on_this_host` failed) | **RESOLVED** (test re-pinned to provenance, not emptiness) | Re-verified classification: **STALE-EVIDENCE in the test**, not fake calibration and not synthetic data. The test asserted `verdict == "INSUFFICIENT_DATA"` and `joined_pairs == 0`, which pins a transient property of an *empty* laptop rather than the anti-fabrication invariant it was written to protect. The harness's own verdict logic is sound: `DESCRIPTIVE_OK` is awarded only when at least one score band clears the pre-registered guards (n≥200, positives≥20). Provenance verified independently against the raw stores, bypassing the harness entirely — for the default cohort (`24h` / `+50%` / `source='local'`): 6037 pairs, 6037 distinct `score_id` (no join inflation), 6037 distinct `evidence_sha256`, 100% non-null, provider 100% dexscreener; exclusion accounting closes exactly (`29501 − 2016 ineligible − 21446 no-matching-label − 2 label-predates = 6037`); zero no-peeking violations (`resolved_ts > scored_ts`); and 564 sandbox rows that satisfy every join condition *except* the eligible-source filter, which is exactly why that filter exists. `CALIBRATION_ELIGIBLE_SOURCES` is a hardcoded `frozenset({SOURCE_LOCAL})`, not env-overridable. The test was re-pinned rather than weakened — see below. |
+
+**Why Option A and not Option B for M-GAP-042.** Option A (pin the bytes) makes the artifact
+canonical and fixes the generator *and* the test *and* any future consumer in one line, with the
+assertion unchanged — the test still compares working-tree bytes against the documented hash, so a
+locally-tampered freeze manifest still fails it. Option B (hash the committed git blob instead of
+working-tree bytes) would have required changing three surfaces, would have added a `git` subprocess
+dependency to evidence code — the exact Windows-portability smell M-GAP-041 just removed — and would
+have stopped the test detecting a locally-tampered manifest. The general principle applied: *a file
+whose bytes are pinned by sha256 must have canonical bytes*, so its hash belongs to the repository,
+not the host. `requirements.txt` was pinned for the same reason (its committed blob is CRLF, so it
+takes `-text`, not `eol=lf`): it is the other half of the same assertion and carried the identical
+latent non-determinism, invisible only because this host's config happens to agree with its blob.
+
+**How M-GAP-043 was re-pinned rather than weakened.** The replacement does not hard-code
+`DESCRIPTIVE_OK`, does not assert a specific pair count, and does not relax anything. It asserts the
+durable form of "no calibration may be manufactured": (1) the verdict is in the pre-registered honest
+vocabulary `{INSUFFICIENT_DATA, DESCRIPTIVE_OK}`; (2) the cohort is **independently recomputed**
+straight from the stores using the harness's own published constants, and must equal
+`report.joined_pairs` — so the harness cannot report a count it did not derive; (3) only eligible
+sources are present; (4) every pair carries a real 64-hex `evidence_sha256` and no two pairs share
+one; (5) the `dataset_fingerprint` is a real 64-hex digest; (6) the harness's reported
+`ineligible_source` count equals the actual number of non-eligible rows in the store. Three further
+tests carry the cases the single old assertion used to cover implicitly: an empty store must still
+yield `INSUFFICIENT_DATA` / 0 pairs with no band cleared; a fixture planting `sandbox`/`test`/
+`synthetic` predictions that have *perfect* non-peeking resolved labels must still yield 0 pairs
+(positively proving the eligible-source filter is load-bearing); and the restated `outcome_label`
+fixture schema is compared column-by-column against the live Lane-A store so the fixtures cannot
+drift from the join they model. The teeth of the source-filter pin were proven by mutation: the same
+50 rows join under a widened `eligible_sources` and are excluded under the default one.
+
+**Verification on the warm Windows host** (`d9dd012`, pre-full-suite):
+`tests/test_phase13_laptop_operation.py` **23 passed / 0 failed** (was 17 passed / 2 failed
+before this wave; the module gained 5 new test items and lost 2 failures). All
+calibration-and-ledger-adjacent tests — 84 passed. `tests/test_month1_failure_matrix.py` 7 passed,
+`tests/test_reliability_challenge.py` 2 passed. `scripts/validate_imports.py` **VALIDATION PASSED**,
+Lane-A integrity OK (36 files pinned). `freeze_lane_a.verify()` → `([], [], [])`. No
+live-trading/execution env flag set; the execution-surface scan returns `[]`.
+
+**Authoritative full suite, recorded after the repairs** —
+`scripts/record_test_run.py -- ./.venv/Scripts/python.exe -m pytest tests/ -q`, receipt
+`reports/pytest_run_20261001T004801Z.json`: **2385 passed, 0 failed, 1 xfailed, 2805.5 s (46:44),
+exit_code 0, `timed_out: false`, `verdict: PASS`**, at `d9dd012` on the Windows soak host. The
+single `x` in the progress trace is the one pre-existing expected failure; there are no others. The
+prior run at this commit's parent lineage was 2370 passed / 8 failed / 1 xfailed, so this run
+converts all 8 failures — the 6 from M-GAP-041 and the 2 above — with 15 net new tests added by the
+two waves' regression pins. **A green suite is evidence the pre-registration pytest is satisfiable,
+not a readiness claim**: `pre_soak_entry_ok` remains `False` and the soak was not started.
+
+**Scope and protected surfaces.** Four files changed: `.gitattributes`,
+`tests/test_phase13_laptop_operation.py`, `AHOS_LAPTOP_OPERATION_REPORT.md`, and this register.
+No Lane-A file was modified —
+the freeze manifest's committed content is byte-identical before and after, and `.gitattributes` is
+not among the 36 pinned paths. No governance, authority, maturity, canonical-decision, PAPER_ONLY,
+or execution-permission control was modified; `.gitignore` and the soak entry criteria are
+untouched. No failure was suppressed with `skip`, `xfail`, a weakened assertion, or a hard-coded
+verdict, and no invariant was traded for a green suite. `RUNTIME_EFFECT = NONE` — the calibration
+harness opens both stores `mode=ro` and the byte-canonicalisation touched no committed content.
+
+**The one documentation correction.** `AHOS_LAPTOP_OPERATION_REPORT.md` §14 is a standing-gates
+table pinned to `50d047d`, and its calibration row reads
+"`INSUFFICIENT_DATA`, 0 eligible pairs — no fake calibration". That was correct at that commit and
+is kept as the historical record, but it is now materially misleading as a *standing* gate: the
+host has since accrued the 6,037 pairs above and the harness graduates to `DESCRIPTIVE_OK`. The row
+was not rewritten (that would be rewriting historical evidence); a "Since this snapshot" note was
+appended stating the live figure, why the change is the intended outcome rather than a regression,
+and that the live row must be re-derived from `scripts/calibration_report.py` rather than cited from
+the snapshot. No readiness claim was added — the report's `READY_FOR_REAL_LOCAL_DATA` classification
+is unchanged, and the note explicitly does not promote it.
+
+**No R-series entry**, by the convention established at Addendum (9). The soak was not started;
+`reports/PRE_SOAK_STATUS.txt` still reads `pre_soak_entry_ok=False`.
