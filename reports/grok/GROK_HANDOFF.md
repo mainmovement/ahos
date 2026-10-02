@@ -3,7 +3,9 @@
 <!-- PHASE3:START -->
 ## Phase 3 status (Grok, 2026-10-02, foundation missions): read this first
 
-Same constraints as Phase 2. Every commit was preceded by a fetch with fast-forward only, staged by explicit path, pushed normally, and checked for HEAD == @{u}.
+**PUSHES ARE PAUSED BY OWNER INSTRUCTION (2026-10-02 14:52 Tehran).** Everything after `a6638bf` exists **only as local commits** on branch `ahos` in `G:\robat\ahos`; none of it is on GitHub. Claude: review these with `git log origin/ahos..ahos`. Do not assume `origin/ahos` is current, and do not push them yourself unless the owner says so.
+
+Same constraints as Phase 2. Every commit was preceded by a fetch with fast-forward only and staged by explicit path. P3-M1 (`a6638bf`) was pushed and checked for HEAD == @{u}. Later commits are local only.
 - PAPER_ONLY.
 - Lane A frozen.
 - Canonical Decision Authority untouched.
@@ -19,8 +21,8 @@ Blocker A (for Claude) is still open. See the Phase 2 note below.
 
 | Mission | Status | Ladder | Commit |
 |---|---|---|---|
-| P3-M1 tsconfig exclude `docs/archive` | IMPLEMENTED_VERIFIED (self-tests) | TESTED | the commit adding `tests/test_tsconfig_archive_exclusion.py` |
-| GM-08 mission/engineering ledger | pending | | |
+| P3-M1 tsconfig exclude `docs/archive` | IMPLEMENTED_VERIFIED (self-tests) | TESTED | `a6638bf` (pushed) |
+| GM-08 mission/engineering ledger | IMPLEMENTED_VERIFIED (self-tests) | IMPLEMENTED + TESTED (not INTEGRATED) | local commit adding `architecture/mission/ledger.py` (not pushed) |
 | GM-09 AI provider status model | pending | | |
 
 ### P3-M1: tsconfig
@@ -31,6 +33,45 @@ Blocker A (for Claude) is still open. See the Phase 2 note below.
   - `tsc --noEmit`: exit 0, **0 errors** (it was 9).
   - npm selftests: web-api-auth 9/9, canonical-read-model 13/13, canonical-security 19/19, alert-banner 8/8, dashboard-truth 34/34.
   - pytest: tsconfig + canonical_decision_authority, 31 passed.
+
+### GM-08: mission/engineering ledger (`architecture/mission/ledger.py`, CLI `scripts/mission_ledger.py`)
+- **Inspected first; no duplicates created:**
+  - `scripts/execution_state.py` (M5) is a read-only session-start state recorder. It is not a mission ledger.
+  - `ahos_org/audit.py` + `ahos_org/tasks.py` are the hash-chained audit and task lifecycle of the org *policy model*. The ledger reuses their hash convention (sha256 over canonical JSON, a genesis hash of 64 zeros), but does not import from or extend governance.
+  - No other ledger, checkpoint or resume code exists.
+  - The four agent taxonomies are **referenced, not merged**. `CURRENT_AGENT` must be namespaced as `engineering:*`, `agent:*`, `AG:*`, `AGENT:*`, `agent.org:*` or `M0:*`, and a bare "01" is rejected. Every entry carries `agent_taxonomy_ref = docs/governance/agent_taxonomy_map.json`.
+- **Storage:**
+  - A local append-only JSONL at `<AHOS data dir>/mission_ledger/mission_ledger.jsonl`, written with O_APPEND + fsync. Database paths are refused.
+  - No existing DB is read or written.
+  - Resolving the default path creates nothing. The ledger has **not** been seeded on the laptop, so no file exists yet.
+- **Fields:** the 13 required fields. Each line is a full state snapshot; unknown fields are rejected.
+- **States:** PENDING, RUNNING, PAUSED, WAIT_FOR_AI, BLOCKED, RESUMED, COMPLETED_UNVERIFIED, FAILED, CANCELLED, with a legal-transition table.
+  - There is **no DONE or COMPLETED state**. Verification goes in LAST_VERIFICATION.
+  - Terminal states cannot be reopened.
+- **Checkpoint and resume:**
+  - `checkpoint()` stores up to 64 KB of JSON.
+  - `pause()` moves to PAUSED, WAIT_FOR_AI or BLOCKED.
+  - `resume()` returns the stored checkpoint unchanged and cannot reset it.
+  - `start()` refuses an existing id, so a mission is never restarted from zero.
+  - After a crash: `resume(crash_recovery=True)`.
+  - A torn final line (crash mid-write, including a record cut just before its newline) blocks appends until `recover_torn_tail()` appends a hashed acknowledgement of the torn line's sha256. Nothing is rewritten, and the unconfirmed write is not trusted.
+- **Tamper evidence:**
+  - `seq` + `prev_hash` + `entry_hash` detect a modified, re-hashed, deleted, swapped, duplicated, blank or garbage line. The ledger never appends onto a broken chain.
+  - Limit: a keyless chain cannot detect a *whole-file* rewrite. Record `head_hash` externally and check it with `verify(anchor_hash=...)` or the CLI `--anchor`; this is tested.
+- **Secrets:**
+  - Secret-looking content in keys and values is redacted **before hashing**. Covered patterns: OpenAI/Anthropic/xAI/Groq/GitHub/Google/AWS/Slack keys, Telegram tokens, JWTs, EVM keys, URL credentials, Bearer tokens, `*_KEY=`/`password:` assignments, and PEM private keys. Redaction is idempotent.
+  - `strict=True` rejects the write instead, and writes nothing.
+  - A secret-looking MISSION_ID is refused.
+  - Over-redaction of benign `token=...` text is possible by design.
+- **Not an authority:**
+  - `authority: "NONE"` on every entry.
+  - Static tests confirm the ledger imports no decision, trading or telegram code, and that nothing in decision/risk/positions/scoring/paper_trading/discovery/engine imports it.
+- **Tests:** `tests/test_mission_ledger.py`, 72 cases.
+  - Box: 72 passed.
+  - Box regression set (architecture graph, zero-money, config validation, boundaries, architecture_p1, engine import safety, agent taxonomy, phase12): 183 passed, 1 xfailed.
+  - Box `validate_imports`: PASSED.
+  - Windows: `test_mission_ledger` + `test_agent_taxonomy_map`: 92 passed (72 + 20).
+- **Next:** wire GM-09 provider status into the ledger (pause with a checkpoint). Optionally, Claude and Grok record missions here.
 <!-- PHASE3:END -->
 
 <!-- PHASE2:START -->

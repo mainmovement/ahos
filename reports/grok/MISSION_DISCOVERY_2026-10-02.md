@@ -84,7 +84,7 @@ No new agents are proposed. No mission touches Lane A, Canonical Decision Author
 
 ### GM-08 — Mission ledger / multi-agent handoff schema
 - Objective: one append-only schema for Claude+Grok mission/handoff records (extend M5 `execution_state.py` vocabulary; no authority fields), with a test.
-- Why: today ledgers are ad-hoc untracked JSON; two agents share one tree. Status: DESIGN_ONLY. Foundation.
+- Why: today ledgers are ad-hoc untracked JSON; two agents share one tree. Status: IMPLEMENTED_VERIFIED (self-tests; ladder IMPLEMENTED+TESTED, not INTEGRATED): `architecture/mission/ledger.py` + `scripts/mission_ledger.py`; append-only hash-chained JSONL, checkpoint/resume, secret redaction, not an authority. Local commit only (pushes paused by owner).
 
 ### GM-09 — Provider abstraction states
 - Objective: add QUOTA_EXHAUSTED (and AUTH_FAILED parity) to Python `architecture/providers/contracts.py` and TS `types.ts`, with mapping tests (HTTP 402/429-quota vs 401/403). Status: PARTIAL → executable, low risk, but touches `tests/test_one_brain_architecture.py` pins → review.
