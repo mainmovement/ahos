@@ -76,7 +76,7 @@ No new agents are proposed. No mission touches Lane A, Canonical Decision Author
 ### GM-06 — Quarantine n8n AHOS-03 + validator rules
 - Objective: mark `ahos_03_telegram_control.json` quarantined; extend `tests/validate_n8n.py` to reject interpolated SQL, DELETE on audit tables, and `trade_decisions.execution_status` mutation.
 - Why: dormant now (0 imported) but target tables exist; import would bypass canonical authority, allow SQL injection, delete audit.
-- Authority: governance-visible but non-runtime; changing workflow JSON content may need owner sign-off → start with validator test (failing → xfail with reason) + report. Status: DESIGN_ONLY.
+- Authority: governance-visible but non-runtime; changing workflow JSON content may need owner sign-off → start with validator test (failing → xfail with reason) + report. Status: IMPLEMENTED_VERIFIED (static self-tests). ahos_03 QUARANTINED via `QUARANTINED_WORKFLOWS` in `tests/validate_n8n.py` + `reports/grok/GM06_N8N_QUARANTINE.md`; file kept; G12 unchanged. Lifting quarantine = rewrite + security review. Next: GM-04 review.
 
 ### GM-07 — prediction_lifecycle census honesty fix
 - Objective: compute (or label UNKNOWN) `eligible_join_pairs_estimate` instead of hard-coded 0 (`architecture/learning/prediction_lifecycle.py:326`). Lane B, not frozen.

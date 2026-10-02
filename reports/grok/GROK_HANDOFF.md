@@ -33,7 +33,7 @@ Self-tests are **not** independent verification.
 | GM-02 Telegram offline edge harness | IMPLEMENTED_VERIFIED (offline/self-test only); live E2E = LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED | the commit that adds `tests/test_telegram_offline_harness.py` (`git log -- tests/test_telegram_offline_harness.py`) |
 | GM-03 dashboard truthfulness | IMPLEMENTED_VERIFIED (self-tests; presentation only; browser view not visually checked) | `git log -- dashboard_truth.ts` |
 | GM-05 gateway port single source + diagnosis | IMPLEMENTED_VERIFIED (self-tests + one real read-only diagnosis run); port choice = OWNER_ACTION_REQUIRED | `git log -- scripts/gateway_port.py` |
-| GM-06 n8n validator + ahos_03 quarantine | pending | |
+| GM-06 n8n validator + ahos_03 quarantine | IMPLEMENTED_VERIFIED (static self-tests); ahos_03 QUARANTINED (file kept) | `git log -- tests/test_n8n_governance_rules.py` |
 | GM-04 Telegram control capability gate | DESIGN_ONLY (proposal doc pending) | |
 
 ### GM-02: what changed
@@ -126,6 +126,23 @@ Self-tests are **not** independent verification.
 
   Grok edited no `.env` and restarted nothing.
 - Next: GM-06.
+
+### GM-06: n8n governance rules and ahos_03 quarantine (details: `reports/grok/GM06_N8N_QUARANTINE.md`)
+- `tests/validate_n8n.py` gains `governance_findings`. These rules are **errors**:
+  - AUDIT_TAMPER (DELETE, TRUNCATE or UPDATE on `agent_audit_trail`)
+  - AUTHORITY_BYPASS (`UPDATE trade_decisions … execution_status`)
+  - SQL_INTERPOLATION_FROM_EXTERNAL_TRIGGER (`{{ }}` in SQL in a telegram, webhook, form or chat triggered workflow)
+
+  These are **warnings**:
+  - SQL_INTERPOLATION (internal schedule workflows)
+  - DECISION_WRITE_OUTSIDE_CANONICAL_AUTHORITY (`INSERT INTO trade_decisions`)
+- `QUARANTINED_WORKFLOWS` = {`ahos_03_telegram_control.json`}, matched by exact filename only. For that file the errors become `QUARANTINED <rule>` warnings, and the CLI prints `[QUARANTINED(do-not-import)]`. G12 stays `STRUCTURAL_VALID` (exit code unchanged). **The file is not deleted or edited.**
+- `docs/N8N_OPERATIONAL_PROCEDURE.md`: quarantine banner, and import step 2 now excludes quarantined workflows.
+- Tests: `tests/test_n8n_governance_rules.py` has 24 cases, covering positives, benign negatives, disabled nodes, the look-alike filename, ahos_03 failing once un-quarantined, and the CLI.
+  - Box: 24 + `test_validate_n8n_utf8` + `test_operator_validation_gate` + `test_ahos -k n8n` all pass.
+  - Windows results are in the next commit message / final report.
+- Finding: `ahos_02_signal_pipeline.json` has a node **`Record PENDING (LIVE)`** that INSERTs into `trade_decisions`, plus SQL interpolation on an internal schedule. It produces warnings only, and the workflow is dormant (0 imported). Review it before any import.
+- Next: GM-04 design doc (`reports/grok/GM04_TELEGRAM_CONTROL_CAPABILITY_GATE_PROPOSAL.md`) for review by سپهر/قاسم/رضا.
 <!-- PHASE2:END -->
 
 > Below: Phase 1 handoff (2026-10-02 10:36Z), kept for history.
