@@ -63,7 +63,12 @@ def test_existing_paths_are_not_reported(tmp_path, monkeypatch):
 
 
 def test_intentional_refs_are_ignored(tmp_path, monkeypatch):
-    p = _doc(tmp_path, "write reports/nightly_backup_series.json nightly")
+    # Uses a still-planned artifact: an INTENTIONAL_REFS entry is only a licence
+    # to reference a file that does not exist yet. Once such a file is actually
+    # produced its entry must be removed (see
+    # test_intentional_reasons_are_substantive), and this example must move to
+    # another still-planned artifact.
+    p = _doc(tmp_path, "write reports/local_soak_interruptions.json nightly")
     assert _scan_in(tmp_path, monkeypatch, p) == {}
 
 

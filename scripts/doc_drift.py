@@ -75,8 +75,11 @@ CORRUPTION_PATTERNS: dict[str, str] = {
 #: reference is ignored only when it appears in this exact set; anything
 #: else that does not exist is reported.
 INTENTIONAL_REFS: dict[str, str] = {
-    "reports/nightly_backup_series.json": "planned artifact produced by "
-        "scripts/sqlite_backup_restore.py nightly runs (7 distinct days)",
+    # NOTE: reports/nightly_backup_series.json was removed from this registry on
+    # 2026-10-02 once the first `sqlite_backup_restore.py nightly` run actually
+    # produced it. An intentional-ref entry is a licence for canonical docs to
+    # reference a NOT-YET-EXISTING file; once the file exists the entry must be
+    # dropped (tests/test_doc_drift.py::test_intentional_reasons_are_substantive).
     "reports/local_soak_interruptions.json": "planned artifact produced "
         "during the laptop soak (AHOS_LOCAL_SOAK_PROTOCOL.md)",
     "reports/local_soak_interruptions.jsonl": "operator-logged soak interruptions (protocol section: log UTC in this file)",
