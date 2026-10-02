@@ -11,14 +11,10 @@ if str(ROOT_DIR) not in sys.path:
 
 from config.paths import get_local_db_path
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s", stream=sys.stdout)
 log = logging.getLogger("ahos-bot")
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 ADMIN_CHAT = os.environ.get("TELEGRAM_ADMIN_CHAT_ID")
-if not TOKEN or not ADMIN_CHAT:
-    log.error("TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing — refusing to start (Agent-04 rule).")
-    sys.exit(2)
 
 READ_CMDS = {"start", "status", "report", "risk", "signals", "daily", "help"}
 HIGH_CMDS = {"kill", "emergency_stop", "close_all", "approve", "reject", "update_params"}
@@ -57,7 +53,14 @@ async def handle(update, context):
         await update.message.reply_text("Unknown command. /help for list.")
 
 def main():
+    if not TOKEN or not ADMIN_CHAT:
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
+                            stream=sys.stdout)
+        log.error("TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing — refusing to start (Agent-04 rule).")
+        sys.exit(2)
     from telegram.ext import Application, MessageHandler, filters
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
+                        stream=sys.stdout)
     app = Application.builder().token(TOKEN).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.StatusUpdate.ALL, handle))
     log.info("AHOS bot started (admin gate active).")

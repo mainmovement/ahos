@@ -178,6 +178,18 @@ class ProductionScheduler:
                 "SELECT token_id, first_seen_ts FROM observation_state WHERE state IN ('DISCOVERED', 'OBSERVING')"
             ).fetchall()
 
+            # M9: the dedup check below used to run one SELECT per (token, slot)
+            # pair against gap_register, which carries no index on
+            # (token_id, kind). That is O(tokens * slots * rows) -- a full table
+            # scan per probe, which stalled execute_scheduled_cycle indefinitely
+            # against a real discovery DB. gap_register is Lane A-owned and
+            # frozen, so we do not add the index: we read the keys once and do
+            # the membership test in memory, which is O(rows) total.
+            existing = {
+                (r["token_id"], r["kind"])
+                for r in conn.execute("SELECT token_id, kind FROM gap_register")
+            }
+
             for tok in tokens:
                 tid = tok["token_id"]
                 t0 = tok["first_seen_ts"]
@@ -192,15 +204,12 @@ class ProductionScheduler:
                     if ts > expected_time + tol:
                         covered = any(abs(t - expected_time) <= tol for t in obs_times)
                         if not covered:
-                            dup = conn.execute(
-                                "SELECT 1 FROM gap_register WHERE token_id=? AND kind=? LIMIT 1",
-                                (tid, f"missed:{label}")
-                            ).fetchone()
-                            if not dup:
+                            if (tid, f"missed:{label}") not in existing:
                                 conn.execute(
                                     "INSERT INTO gap_register(token_id, kind, expected_ts, noted_ts, detail) VALUES (?,?,?,?,?)",
                                     (tid, f"missed:{label}", expected_time, ts, "scheduler detected overdue window")
                                 )
+                                existing.add((tid, f"missed:{label}"))
                                 counts[label] = counts.get(label, 0) + 1
             conn.commit()
             conn.close()

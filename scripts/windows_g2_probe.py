@@ -16,11 +16,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-os.chdir(ROOT)
 
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    # chdir belongs in main(), not at module scope: importing this module must
+    # not move the interpreter's CWD out from under the caller.
+    os.chdir(ROOT)
     out = ROOT / "reports" / "g2_validate_windows_latest.json"
     if "--json-out" in argv:
         i = argv.index("--json-out")

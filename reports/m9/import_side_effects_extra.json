@@ -1,0 +1,364 @@
+{
+ "roots": [
+  "engine",
+  "telegram_ai",
+  "discovery",
+  "ahos_org",
+  "ahos_compose"
+ ],
+ "module_count": 54,
+ "static_candidates": {
+  "engine.acquire_3yr": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.bot_skeleton": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))",
+   "module-scope call logging.basicConfig() logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', st",
+   "module-scope call log.error() log.error('TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing — refusing to start (Agent-",
+   "module-scope call sys.exit() sys.exit(2)"
+  ],
+  "engine.data_audit": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.dryrun_simulation": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))",
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR / 'engine'))"
+  ],
+  "engine.health_manager": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.pal_probe": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(Path(__file__).resolve().parents[1]))"
+  ],
+  "engine.research_report_bot": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.run_validation": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))",
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR / 'engine'))",
+   "module-scope loop: For",
+   "module-scope with-open: with open(out_file, 'w', encoding='utf-8') as f:\n    json.dump(out, f, indent=2)",
+   "module-scope loop: For",
+   "module-scope call print() print(f'\\nSaved {out_file}')"
+  ],
+  "engine.telegram_live_test": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.update_manager": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "telegram_ai.intent": [
+   "module-scope call _DIGIT_MAP.update() _DIGIT_MAP.update({c: str(i) for i, c in enumerate(_AR_DIGITS)})"
+  ],
+  "discovery.collect": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(Path(__file__).resolve().parents[1]))"
+  ]
+ },
+ "runtime_confirmed_side_effects": {},
+ "import_failures": {
+  "engine.bot_skeleton": "HARNESS_NO_RESULT: 2026-10-03 00:17:09,157 ERROR TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing � refusing to start (Agent-04 rule).\n",
+  "engine.run_validation": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\Sniper\\\\AppData\\\\Local\\\\Temp\\\\ahos_import_audit__bp8prli\\\\research\\\\data\\\\BTCUSDT_1h_3yr.csv'"
+ },
+ "runtime_detail": {
+  "engine.acquire_3yr": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.agent_matrix_v2": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.ahos_backtest": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.bot_skeleton": {
+   "imported": false,
+   "error": "HARNESS_NO_RESULT: 2026-10-03 00:17:09,157 ERROR TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing � refusing to start (Agent-04 rule).\n",
+   "events": []
+  },
+  "engine.coverage_audit": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.data_audit": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.doc_hygiene": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.dryrun_simulation": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.event_backtest": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.f1_s1_migration": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.health_manager": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.oss_audit": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.pal_probe": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.research_report_bot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.run_validation": {
+   "imported": false,
+   "error": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\Sniper\\\\AppData\\\\Local\\\\Temp\\\\ahos_import_audit__bp8prli\\\\research\\\\data\\\\BTCUSDT_1h_3yr.csv'",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.telegram_live_test": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.update_manager": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.adapter": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.alerts": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.bot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.envelope": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.intent": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.positions": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.providers": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.pump_alert": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.response_contract": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.service": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.collect": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.feature_store": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.holders": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.identity": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.lifecycle": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.materialize": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.observation_scheduler": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.observations": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.observe_active": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.outcomes": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.pal": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.ranker": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.security_gate": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.audit": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.clock": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.errors": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.governance": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.ids": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.models": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.organization": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.policy": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.registry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.resources": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.tasks": {
+   "imported": true,
+   "error": "",
+   "events": []
+  }
+ }
+}

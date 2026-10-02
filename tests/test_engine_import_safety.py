@@ -227,19 +227,20 @@ def test_reusable_api_survives_the_refactor(module: str) -> None:
         assert callable(getattr(mod, name, None)), f"{module}.{name}() is not importable"
 
 
-# ------------------------------------------------- 5. related, still-unfixed
-@pytest.mark.xfail(reason="engine/run_validation.py still runs + writes at module scope", strict=True)
+# ------------------------------------------------- 5. related pattern, fixed under M9
 def test_related_pattern_run_validation_is_import_safe() -> None:
-    """Pins the neighbouring instance of the same defect.
+    """Pins the neighbouring instance of the same defect (M9 part B).
 
-    It is excluded from validate_imports' probe, which hides it rather than
-    fixes it. When someone applies the same treatment, this test flips to
-    XPASS and strict=True makes that a failure -- prompting removal of the
-    xfail marker and of the IMPORT_EXCLUDE entry.
+    Previously an xfail(strict=True): engine/run_validation.py ran the whole
+    backtest and wrote reports/validation_results.json at module scope. M9
+    moved that into build_report()/main(). The test now asserts the invariant
+    directly -- importing must not touch tracked evidence.
     """
     before = _tracked_reports_snapshot()
-    subprocess.run([sys.executable, "-B", "-c", _import_code("engine.run_validation")],
-                   cwd=ROOT, capture_output=True, text=True, timeout=180)
+    proc = subprocess.run([sys.executable, "-B", "-c", _import_code("engine.run_validation")],
+                          cwd=ROOT, capture_output=True, text=True, timeout=180)
     after = _tracked_reports_snapshot()
     mutated = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
     assert not mutated, f"engine.run_validation mutated tracked evidence: {mutated}"
+    assert "IMPORTED_OK" in proc.stdout, "engine.run_validation failed to import"
+

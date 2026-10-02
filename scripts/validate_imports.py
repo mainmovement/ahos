@@ -56,14 +56,9 @@ RUNTIME_PACKAGES = [
 
 # Modules that are executable entrypoints by design, not importable surfaces.
 # The bar is that everything else imports. Every entry here needs its reason.
+# M9 part B removed engine.bot_skeleton and engine.run_validation from this
+# list: both now import side-effect free (guards moved into main()).
 IMPORT_EXCLUDE: dict[str, str] = {
-    # executable skeleton: reads env at module level and sys.exit(2) when the
-    # bot credentials are absent (Agent-04 rule) — correct for a CLI, fatal
-    # for an import. Its logic is exercised by tests/test_run_bot_launcher.py.
-    "engine.bot_skeleton": "executable CLI skeleton (sys.exit at module level by design)",
-    # executable validation tool: runs the whole backtest/validation pipeline
-    # at module level and writes reports on import — a script, not a module.
-    "engine.run_validation": "executable validation runner (module-level execution by design)",
 }
 
 # Evidence Architecture law: these surfaces consume EvidenceBundle / derived
@@ -142,9 +137,9 @@ def _import_in_fresh_interpreter(module: str) -> tuple[int, str]:
 # this gate replaced recorded evidence with fresh results (in one case, an
 # audit of a *different* dataset that reported FAIL over a recorded PASS).
 #
-# engine/run_validation.py still has the pattern; it is in IMPORT_EXCLUDE and
-# therefore not probed here. It is pinned by an xfail test in
-# tests/test_engine_import_safety.py rather than hidden.
+# engine/run_validation.py had the same pattern; M9 part B moved its pipeline
+# into build_report()/main() and removed it from IMPORT_EXCLUDE, so it is now
+# probed here like every other module.
 #
 # Cost: two content snapshots of the evidence tree per run (cheap). The
 # per-module bisect only executes when something actually moved.

@@ -1,0 +1,1497 @@
+{
+ "roots": [
+  "architecture",
+  "scripts",
+  "engine",
+  "telegram_ai",
+  "discovery",
+  "ahos_org",
+  "ahos_compose"
+ ],
+ "module_count": 266,
+ "static_candidates": {
+  "architecture.knowledge.assistants": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "architecture.scheduling.watchdog": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(Path(__file__).resolve().parents[2]))"
+  ],
+  "scripts.architecture_graph": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.backfill_lane_a_from_production": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.benchmark_performance": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.calibration_diff": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.calibration_report": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.execution_state": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.init_databases": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.local_activation_report": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.mission_ledger": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.month1_failure_matrix": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.operator_validation_gate": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.prediction_lifecycle_status": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.propose_improvement": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.record_local_laptop_baseline": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.record_test_run": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.regression_report": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.reliability_challenge": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.run_cognitive_benchmark": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.run_sun_sniper_bot": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.soak_snapshot": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.soak_t0_snapshot": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.sqlite_backup_restore": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.system_state_snapshot": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.validate_imports": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "scripts.windows_g2_probe": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT))"
+  ],
+  "engine.acquire_3yr": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.bot_skeleton": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.data_audit": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.dryrun_simulation": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))",
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR / 'engine'))"
+  ],
+  "engine.health_manager": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.pal_probe": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(Path(__file__).resolve().parents[1]))"
+  ],
+  "engine.research_report_bot": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.run_validation": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))",
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR / 'engine'))"
+  ],
+  "engine.telegram_live_test": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "engine.update_manager": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
+  ],
+  "telegram_ai.intent": [
+   "module-scope call _DIGIT_MAP.update() _DIGIT_MAP.update({c: str(i) for i, c in enumerate(_AR_DIGITS)})"
+  ],
+  "discovery.collect": [
+   "module-scope call sys.path.insert() sys.path.insert(0, str(Path(__file__).resolve().parents[1]))"
+  ]
+ },
+ "runtime_confirmed_side_effects": {},
+ "import_failures": {},
+ "runtime_detail": {
+  "architecture.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.clients": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.council_live": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.credential_store": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.debate_council": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.gemini_chat": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.gemini_phraser": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.mission_guard": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.provider_status": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.router": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.ai.wincred_reader": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.alerts.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.alerts.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.agents": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.cases": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.corpus": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.evaluator": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.match_reasons": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.metrics": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.p5_eval": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.report": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.reproducibility": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.scenarios": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.benchmark.thresholds": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.capability": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.contracts": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.counterfactual": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.evaluation": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.evolution_gate": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.experiment_bridge": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.hypothesis": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.adapters": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.benchmark": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.binding": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.context": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.contracts": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.episode": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.inference": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.metacognition": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.metrics": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.modes": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.orchestrator": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.reason": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.retrieval": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.support": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.tools": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.loop.world_boundary": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.memory.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.memory.consolidation": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.memory.observation": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.memory.record": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.memory.self_query": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.memory.store": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.memory.types": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.novelty": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.reasoning": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.sandbox": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.self_research": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.cognitive.world_model": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.collector.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.collector.circuit_breaker": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.collector.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.collector.retry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.contracts": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.control_plane": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.council": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.decision.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.decision.advisor": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.decision.authority": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.decision.paper_eligibility": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.decision.read_model": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.evolution.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.evolution.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.evolution.experiment": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.evolution.findings": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.evolution.hindsight": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.evolution.selection": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.evolution.validate": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.explanations.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.explanations.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.features.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.features.extractor": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.dex_registry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.fusion": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.gates": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.keccak256": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.resolution": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.types": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.identity.validate": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.analytics_bridge": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.catalyst": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.exitability": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.forensics": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.market_structure": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.news": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.regimes": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.tokenomics": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.viral": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intel.whales": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.adapters": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.evidence": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.whales.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.whales.smart_money_detector": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.whales.wallet_activity": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.intelligence.whales.whale_signals": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.anti_echo": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.assistants": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.contracts": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.dossier": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.duck_store": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.evidence_graph": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.feedback": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.lenses": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.oss_pipeline": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.panel": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.store": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.sync": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.knowledge.trust_registry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.learning.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.learning.calibration": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.learning.drift": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.learning.prediction_lifecycle": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.learning.score_ledger": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.mission.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.mission.ledger": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.observability": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.pipeline.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.pipeline.orchestrator": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.positions.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.positions.manager": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.provider_router": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.adapters": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.chain_explorer": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.coingecko": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.coinmarketcap": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.collect": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.contracts": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.defillama": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.dex_pools": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.probe": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.pumpfun": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.providers.registry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.registry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.risk.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.risk.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.runtime.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.runtime.__main__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.runtime.lifecycle": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.runtime.logging": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.runtime.metrics": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.runtime.observability_snapshot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.runtime.observation_loop": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.scheduling.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.scheduling.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.scheduling.watchdog": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.scoring.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.scoring.calculator": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.scoring.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.contract_analysis": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.engine": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.gate": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.holder_analysis": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.hygiene": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.liquidity_analysis": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.manipulation_detection": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.security.overlay_query": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.tools.mcp_registry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "architecture.tools.sandbox": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.architecture_graph": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.audit_import_side_effects": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.backfill_lane_a_from_production": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.benchmark_performance": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.calibration_diff": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.calibration_report": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.doc_drift": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.evidence_common": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.execution_state": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.freeze_lane_a": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.gateway_port": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.init_databases": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.local_activation_report": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.m9_batch": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.mission_ledger": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.month1_failure_matrix": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.operator_validation_gate": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.prediction_lifecycle_status": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.propose_improvement": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.record_local_laptop_baseline": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.record_test_run": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.regression_report": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.reliability_challenge": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.run_cognitive_benchmark": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.run_sun_sniper_bot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.soak_snapshot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.soak_t0_snapshot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.sqlite_backup_restore": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.store_ai_key": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.system_state_snapshot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.validate_imports": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.verify_cursor_foundation": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "scripts.windows_g2_probe": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.acquire_3yr": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.agent_matrix_v2": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.ahos_backtest": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.bot_skeleton": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.coverage_audit": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.data_audit": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.doc_hygiene": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.dryrun_simulation": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.event_backtest": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.f1_s1_migration": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.health_manager": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.oss_audit": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.pal_probe": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.research_report_bot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.run_validation": {
+   "imported": true,
+   "error": "",
+   "events": [
+    {
+     "kind": "dependency_subprocess",
+     "origin": "dependency:pandas/compat/_constants.py",
+     "detail": "spawn attempted ('ver',)"
+    }
+   ]
+  },
+  "engine.telegram_live_test": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "engine.update_manager": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.adapter": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.alerts": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.bot": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.envelope": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.intent": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.positions": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.providers": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.pump_alert": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.response_contract": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "telegram_ai.service": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.collect": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.feature_store": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.holders": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.identity": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.lifecycle": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.materialize": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.observation_scheduler": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.observations": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.observe_active": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.outcomes": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.pal": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.ranker": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "discovery.security_gate": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.__init__": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.audit": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.clock": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.errors": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.governance": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.ids": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.models": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.organization": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.policy": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.registry": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.resources": {
+   "imported": true,
+   "error": "",
+   "events": []
+  },
+  "ahos_org.tasks": {
+   "imported": true,
+   "error": "",
+   "events": []
+  }
+ }
+}

@@ -35,34 +35,54 @@ REMOVED_ROWS_REGISTRY = [  # honest registry — bad OHLCV rows removed by Phase
     {"symbol": "BTCUSDT", "timestamp": "2026-06-13T01:00:00Z", "reason": "open < low (source data defect)"},
 ]
 
-out = {"generated_by": "ahos_backtest.py v1.0", "strategy_spec": "STRATEGY_SPEC_v1.0 (frozen)",
-       "data_limitation": "~83 days (2000c) real LBank data; 3-year dataset NOT yet acquired — OOS/WF/MC marked LIMITED",
-       "removed_rows_registry": REMOVED_ROWS_REGISTRY, "symbols": {}}
+def build_report(data: dict[str, str] | None = None) -> dict:
+    """Run the full validation recomputation. Pure: returns the report dict.
 
-for sym, path in DATA.items():
-    df = load(path)
-    # Full-sample
-    bt = run_backtest(df, sym)
-    m_full = metrics(bt)
-    # OOS split: train first 70%, test last 30% (no parameter tuning at all — fixed spec)
-    cut = int(len(df)*0.7)
-    m_train = metrics(run_backtest(df.iloc[:cut].copy(), sym))
-    m_oos = metrics(run_backtest(pd.concat([df.iloc[:cut].tail(60), df.iloc[cut:]]).copy(), sym))
-    # Walk-forward (limited windows)
-    wf = walk_forward(df, sym)
-    # Monte Carlo on full-sample trade sequence
-    mc = monte_carlo(bt.trades) if bt.trades else None
-    out["symbols"][sym] = dict(full=m_full, train_70=m_train, oos_30=m_oos, walk_forward=wf, monte_carlo=mc)
+    Kept out of module scope so that importing this module does not read data,
+    run backtests or write reports -- the runner only works when executed.
+    """
+    data = DATA if data is None else data
+    out = {"generated_by": "ahos_backtest.py v1.0", "strategy_spec": "STRATEGY_SPEC_v1.0 (frozen)",
+           "data_limitation": "~83 days (2000c) real LBank data; 3-year dataset NOT yet acquired — OOS/WF/MC marked LIMITED",
+           "removed_rows_registry": REMOVED_ROWS_REGISTRY, "symbols": {}}
 
-out_file = get_reports_dir() / "validation_results.json"
-with open(out_file, "w", encoding="utf-8") as f:
-    json.dump(out, f, indent=2)
+    for sym, path in data.items():
+        df = load(path)
+        # Full-sample
+        bt = run_backtest(df, sym)
+        m_full = metrics(bt)
+        # OOS split: train first 70%, test last 30% (no parameter tuning at all — fixed spec)
+        cut = int(len(df)*0.7)
+        m_train = metrics(run_backtest(df.iloc[:cut].copy(), sym))
+        m_oos = metrics(run_backtest(pd.concat([df.iloc[:cut].tail(60), df.iloc[cut:]]).copy(), sym))
+        # Walk-forward (limited windows)
+        wf = walk_forward(df, sym)
+        # Monte Carlo on full-sample trade sequence
+        mc = monte_carlo(bt.trades) if bt.trades else None
+        out["symbols"][sym] = dict(full=m_full, train_70=m_train, oos_30=m_oos,
+                                   walk_forward=wf, monte_carlo=mc)
+    return out
 
-for sym, r in out["symbols"].items():
-    print(f"\n===== {sym} =====")
-    print("FULL :", json.dumps({k: r['full'][k] for k in ('trades','win_rate','profit_factor','total_return_pct','max_drawdown_pct','sharpe_annualized','expectancy')}, default=str))
-    print("TRAIN:", json.dumps({k: r['train_70'][k] for k in ('trades','win_rate','profit_factor')}, default=str))
-    print("OOS30:", json.dumps({k: r['oos_30'][k] for k in ('trades','win_rate','profit_factor')}, default=str))
-    for w in r["walk_forward"]: print("WF   :", json.dumps(w, default=str))
-    if r["monte_carlo"]: print("MC   :", json.dumps(r["monte_carlo"]))
-print(f"\nSaved {out_file}")
+
+def print_report(out: dict) -> None:
+    for sym, r in out["symbols"].items():
+        print(f"\n===== {sym} =====")
+        print("FULL :", json.dumps({k: r['full'][k] for k in ('trades','win_rate','profit_factor','total_return_pct','max_drawdown_pct','sharpe_annualized','expectancy')}, default=str))
+        print("TRAIN:", json.dumps({k: r['train_70'][k] for k in ('trades','win_rate','profit_factor')}, default=str))
+        print("OOS30:", json.dumps({k: r['oos_30'][k] for k in ('trades','win_rate','profit_factor')}, default=str))
+        for w in r["walk_forward"]: print("WF   :", json.dumps(w, default=str))
+        if r["monte_carlo"]: print("MC   :", json.dumps(r["monte_carlo"]))
+
+
+def main() -> int:
+    out = build_report()
+    out_file = get_reports_dir() / "validation_results.json"
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2)
+    print_report(out)
+    print(f"\nSaved {out_file}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
