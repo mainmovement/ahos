@@ -1,0 +1,130 @@
+{
+  "schema": "ahos.nightly_backup_series.v1",
+  "updated_utc": "2026-10-02T03:15:29Z",
+  "git": {
+    "commit_sha": "6cf3f5ab71c4e367c17ca3e1b0dbb24f83253799",
+    "branch": "ahos",
+    "working_tree_clean": false
+  },
+  "backup_root": "data\\backups",
+  "target_nights": 7,
+  "runs_recorded": 1,
+  "distinct_dates": [
+    "2026-10-02"
+  ],
+  "distinct_passing_dates": [
+    "2026-10-02"
+  ],
+  "nights_completed": 1,
+  "series_complete": false,
+  "latest_verdict": "PASS",
+  "nights": [
+    {
+      "night_utc": "20261002T031507Z",
+      "date_utc": "2026-10-02",
+      "backup_dir": "data\\backups\\20261002T031507Z",
+      "stores": [
+        {
+          "store": "e01_discovery",
+          "source": "G:\\robat\\ahos\\data\\e01_discovery.sqlite",
+          "backup": "data\\backups\\20261002T031507Z\\e01_discovery.sqlite",
+          "source_sha256": "0bc82fa9897b0655503bd494bb41d71e45d6219481c9dbf0b9b6fe56ebfe9c4d",
+          "backup_sha256": "d390291476d78ecc41647ee02766f90238b565d2db3f35756b9a4257c9fa5ddf",
+          "row_counts": {
+            "discovery_observations": 111104,
+            "feature_definitions": 0,
+            "feature_vector": 0,
+            "gap_register": 55998,
+            "gate_summary": 0,
+            "holder_snapshot": 0,
+            "lifecycle_events": 76452,
+            "observation_state": 22245,
+            "opportunity_assessments": 3789,
+            "opportunity_rank": 0,
+            "outcome_label": 508,
+            "pairs": 0,
+            "production_observations": 33341,
+            "provider_failure_events": 234,
+            "raw_payloads": 8655,
+            "security_verdicts": 0,
+            "tokens": 22245,
+            "wallet_observation": 0
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        },
+        {
+          "store": "paper_trading",
+          "source": "G:\\robat\\ahos\\data\\paper_trading.sqlite",
+          "backup": "data\\backups\\20261002T031507Z\\paper_trading.sqlite",
+          "source_sha256": "dd9b3f2b3f5d3a5efbe712a269fc6ae9fdcdd2c2f722d056c62e8736190dd77a",
+          "backup_sha256": "c815140b75c551084b6a2c2401128f2f3e30ce40b84799317c1a014733fcefa5",
+          "row_counts": {
+            "decision_snapshot": 0,
+            "decision_snapshot_v2": 0,
+            "invalidation": 0,
+            "learning_stats_snapshot": 0,
+            "monitor_event": 0,
+            "paper_exit": 0,
+            "paper_exit_v2": 0,
+            "paper_exit_v3": 0,
+            "paper_position_events": 0,
+            "paper_positions": 0,
+            "paper_trade": 0,
+            "paper_trade_v2": 0,
+            "portfolio_ledger": 0,
+            "position_decision_event": 0,
+            "position_state_event": 0,
+            "post_trade_lesson": 0,
+            "realizable_snapshot": 0,
+            "scam_assessment": 0,
+            "strategy_version": 0
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        },
+        {
+          "store": "ahos_local",
+          "source": "G:\\robat\\ahos\\data\\ahos_local.sqlite",
+          "backup": "data\\backups\\20261002T031507Z\\ahos_local.sqlite",
+          "source_sha256": "34d11ef5656c4cf71b095658b46c86941e86d49c90bc754877466cb1b710571e",
+          "backup_sha256": "e8ec9bf983e14e9556a7d68d5f8b21beca69caa2bdf604743bda613b3f341ca7",
+          "row_counts": {
+            "control_flags": 0,
+            "opportunity_score_ledger": 29547,
+            "position_ledger": 0,
+            "runtime_lifecycle_events": 0,
+            "runtime_operational_metrics": 21224,
+            "scheduler_heartbeats": 2,
+            "scheduler_locks": 1,
+            "scheduler_runs": 2640
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        },
+        {
+          "store": "ahos_knowledge",
+          "source": "G:\\robat\\ahos\\data\\ahos_knowledge.sqlite",
+          "backup": "data\\backups\\20261002T031507Z\\ahos_knowledge.sqlite",
+          "source_sha256": "2efadb3c579030fda1569a5ec085c765d5fd6e341482fb14d48c3f40bae77b4c",
+          "backup_sha256": "fc2b537a830589ac7c0d63295cb24bdcb545035c55c2c13eb73d5678f16b8da0",
+          "row_counts": {
+            "claim_contradiction_edges": 0,
+            "knowledge_claims": 0
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        }
+      ],
+      "verdict": "PASS"
+    }
+  ],
+  "unproven_until_operator_runs_them": [
+    "7 consecutive nightly backups on the laptop (1/7 distinct days so far)",
+    "restore onto a FRESH host (different machine) \u2014 USER-ACTION-REQUIRED"
+  ]
+}
