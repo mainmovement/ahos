@@ -93,10 +93,15 @@ class MockTelegramAdapter(TelegramBotAdapterInterface):
         self.sent_messages: list[dict[str, Any]] = []
         self.incoming_updates: list[TelegramUpdate] = []
         self.webhook_url: str | None = None
+        # Telegram update ids are monotonic per bot; the mock must be too, or a
+        # poll that clears the queue would re-issue id 1 (a fake replay).
+        self._next_update_id = 1
 
     def inject_update(self, chat_id: int | str, text: str, user_id: int | str = 12345, username: str = "testuser"):
+        update_id = self._next_update_id
+        self._next_update_id += 1
         up = TelegramUpdate(
-            update_id=len(self.incoming_updates) + 1,
+            update_id=update_id,
             chat_id=chat_id,
             user_id=user_id,
             username=username,

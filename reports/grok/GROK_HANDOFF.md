@@ -1,5 +1,68 @@
 # GROK HANDOFF (living document) — for Claude Code
 
+<!-- PHASE2:START -->
+## Phase 2 status (Grok, 2026-10-02, implementation): read this first
+
+**Note for Claude about blocker A (still open, not touched by Grok):** your commit `25b33cc` makes the canonical docs cite `reports/nightly_backup_series.json`. That file is **untracked** in the working tree on this laptop. `scripts/doc_drift.py::_exists` checks the working tree, so the test passes here. On a clean checkout or in CI, `tests/test_doc_drift.py::test_canonical_docs_have_zero_real_stale_refs` will fail. You need to choose one fix (GM-01):
+- (a) commit the artifact, or
+- (b) give doc_drift "exists-but-untracked" semantics or an exemption.
+
+Grok has not touched `scripts/doc_drift.py`, the artifact, or any of your dirty or untracked files.
+
+Constraints held in every Phase 2 commit:
+- PAPER_ONLY.
+- Lane A frozen.
+- Canonical Decision Authority untouched.
+- `.cursor/hooks.json` overlay and `ahos-guard.py` untouched.
+- `.env` and the pgdump file not committed.
+- No secrets.
+- No DB writes.
+- No service started or stopped.
+- Files staged by explicit path only.
+
+Self-tests are **not** independent verification.
+
+| Mission | Status | Commit |
+|---|---|---|
+| GM-02 Telegram offline edge harness | IMPLEMENTED_VERIFIED (offline/self-test only); live E2E = LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED | the commit that adds `tests/test_telegram_offline_harness.py` (`git log -- tests/test_telegram_offline_harness.py`) |
+| GM-03 dashboard truthfulness | pending | |
+| GM-05 gateway port single source + diagnosis | pending | |
+| GM-06 n8n validator + ahos_03 quarantine | pending | |
+| GM-04 Telegram control capability gate | DESIGN_ONLY (proposal doc pending) | |
+
+### GM-02: what changed
+- `telegram_ai/envelope.py` (new, pure, no network or authority imports):
+  - versioned update envelope `ahos.telegram.update_envelope.v1`
+  - `hash_identifier` (sha256 prefix)
+  - `redact_envelope` (removes raw chat_id/user_id)
+  - `ReplayGuard` (bounded LRU of update_ids: ACCEPT / DUPLICATE / INVALID)
+  - `TelegramAuditLog` (in-memory, plus an optional append-only JSONL; hashed ids, length and sha of the text, **never raw text**)
+- `telegram_ai/bot.py`:
+  - new optional `replay_guard` and `audit_log` constructor arguments. Defaults keep the old behaviour, plus a default in-memory guard and log.
+  - Duplicate and invalid update_ids are rejected before auth, rate-limit or gateway are touched.
+  - Every exit path is audited: PROCESSED, UNAUTHORIZED, RATE_LIMITED, DUPLICATE_REJECTED, INVALID_UPDATE_REJECTED.
+  - The context passed to the service now carries `user_id`. This fixes the empty `user_id` that `service.py:84` forwarded to the gateway; `service.py` itself is unchanged. The caller's dict is not mutated.
+- `telegram_ai/adapter.py`: `MockTelegramAdapter` update_ids are now monotonic. Before this, ids restarted at 1 after a poll, which the new replay guard would have rejected.
+- `tests/test_telegram_offline_harness.py` (new): 20 test functions, 28 cases.
+  - Covers the end-to-end path MockTelegramAdapter → TelegramBotRunner → TelegramDomainService → stub HTTP gateway on 127.0.0.1 (no proxy, no credentials).
+  - Checks: envelope contract, sender identity in the gateway body, fail-closed empty allowlist, unauthorized rejection with no gateway call, rate-limit, duplicate and invalid update_id rejection, audit with no raw text and no raw ids, JSONL append-only, offline fallback when the gateway is down, non-PAPER mode not echoed.
+
+### GM-02: tests (Windows `.venv` Python 3.11.9, plus box)
+- Telegram suites + `test_run_bot_launcher` + `test_engine_import_safety`: **203 passed, 1 xfailed** (Windows, 255 s; same on box).
+- `validate_imports.py --imports-only`: PASSED on Windows. Full `validate_imports.py` PASSED on box (pre-existing orphan warnings only).
+- Mutation checks:
+  - removing identity propagation → 2 harness tests fail
+  - disabling the replay check → 9 fail
+
+### Current reality / blockers / next
+- Live Telegram E2E (G11) stays **LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED**. The running bot only picks this up after the owner restarts it; Grok restarted nothing.
+- The Telegram → `chat.ts` start/stop free-text control leak is **still open**. See GM-04 (design only).
+- Next: GM-03.
+<!-- PHASE2:END -->
+
+> Below: Phase 1 handoff (2026-10-02 10:36Z), kept for history.
+
+
 | Field | Value |
 |---|---|
 | Timestamp (UTC) | 2026-10-02T10:36Z (14:06 Tehran) |

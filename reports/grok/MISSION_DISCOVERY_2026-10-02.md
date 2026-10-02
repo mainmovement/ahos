@@ -52,7 +52,7 @@ No new agents are proposed. No mission touches Lane A, Canonical Decision Author
 - Authority: Lane B edge code; no authority surfaces. Capability gating of `start/stop/paper_buy` for `channel=telegram` in `chat.ts` touches the paper path → **design note + review first** (GM-04).
 - Files: `tests/test_telegram_integration_harness.py` (new), later `telegram_ai/bot.py`, `telegram_ai/service.py`, `telegram_ai/audit.py` (new).
 - Runtime impact: none until bot restarted by owner. Tests: new harness + existing 150. Evidence: `reports/grok/GM02_telegram_harness_<utc>.json`. Rollback: revert commit.
-- Status: DESIGN_ONLY. Next: GM-04.
+- Status: IMPLEMENTED_VERIFIED offline (self-tests, Phase 2 Grok commit; 203 passed/1 xfailed). Live E2E LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED. Note: implemented as `telegram_ai/envelope.py` + `tests/test_telegram_offline_harness.py` (not audit.py / integration_harness names). Next: GM-03.
 
 ### GM-03 — Dashboard truthfulness (stale-READY)
 - Objective: when a poll fails after a successful load, mark the whole view STALE (age + red banner, run pill neutral); add freshness thresholds to health dims; render policy dims as POLICY not OK.
