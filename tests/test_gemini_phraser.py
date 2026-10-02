@@ -145,6 +145,7 @@ def test_cli_round_trip_persian_bytes_without_credential(tmp_path):
 def test_gateway_wiring_keeps_refusals_locked_and_key_out_of_node():
     chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
     assert "getDefaultPhraser()" in chat
+    assert 'locked: intent === "trade_signal"' in chat   # Phase 7: policy reply never phrased
     refusal_line = next(l for l in chat.splitlines() if "locked: true" in l)
     assert "phraser" not in refusal_line            # GM-04 refusals are never phrased
     ts = (ROOT / "gemini_phraser.ts").read_text(encoding="utf-8")

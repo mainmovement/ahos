@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { addPaper, addWatch, getState, PaperSecurityDenied } from "./engine";
-import { detectControlCommand, gateChatControl, looksLikePaperBuy, recordControlAudit } from "./chat_control_gate";
+import { gateChatControl, recordControlAudit } from "./chat_control_gate";
 import {
   canonicalFocusTokenKey,
   findCanonicalDecision,
@@ -15,6 +15,7 @@ import { FINAL_USER_LINE } from "./types";
 import { blocksFromText, bullet, gap, line, note, title, type ReplyBlock } from "./reply_format";
 import { finalizeReply } from "./response_composer";
 import { getDefaultPhraser } from "./gemini_phraser";
+import { detectMajorAsset, extractTicker, isPronounQuery, routeIntent } from "./chat_intent";
 import {
   ENGINE_OFF_NOTE,
   confidenceFa,
@@ -25,15 +26,16 @@ import {
   greetingBlocks,
   healthBlocks,
   helpBlocks,
-  isNewsRequest,
-  isStopLossQuestion,
   learningBlocks,
   marketBlocks,
   newsBlocks,
   oppBlocks,
   paperBlocks,
+  priceBlocks,
   stateFa,
   stopLossBlocks,
+  thanksBlocks,
+  tradeSignalBlocks,
   watchBlocks,
   whyBlocks,
   whyCanonicalBlocks,
@@ -116,6 +118,13 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     else if (top) focus = top.tokenKey;
   } else if (intent === "news") {
     blocks = newsBlocks(snap, text);
+  } else if (intent === "price") {
+    blocks = priceBlocks(snap, detectMajorAsset(text), extractTicker(text));
+  } else if (intent === "trade_signal") {
+    // PAPER_ONLY: no leverage / long-short / TP-SL signals, no coin picks.
+    blocks = tradeSignalBlocks();
+  } else if (intent === "thanks") {
+    blocks = thanksBlocks();
   } else if (intent === "stop_loss") {
     const hit = findOpp(snap, text, focus);
     blocks = stopLossBlocks(hit);
@@ -282,7 +291,8 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   // falls back to the deterministic text (see gemini_phraser.ts).
   const phraser = getDefaultPhraser();
   const phraseStarted = Date.now();
-  const composed = await finalizeReply({ intent, blocks, footer: FINAL_USER_LINE }, phraser);
+  // trade_signal is a PAPER_ONLY policy reply: locked so no phraser can add a coin pick.
+  const composed = await finalizeReply({ intent, blocks, footer: FINAL_USER_LINE, locked: intent === "trade_signal" }, phraser);
   const reply = composed.plain;
   const replyHtml = composed.html;
   evidence.composer = composed.composer;
@@ -315,10 +325,6 @@ export async function chatHistory(limit = 24) {
   }
 }
 
-function isPronounQuery(text: string): boolean {
-  return /(این یکی|همون|همین|این توکن|همون توکن|این چطوره|خوبه\؟|ریسکش)/i.test(text);
-}
-
 function extractFocusFromHistory(
   history?: Array<{ role: "user" | "assistant"; content: string }>,
 ): string | null {
@@ -331,30 +337,13 @@ function extractFocusFromHistory(
 }
 
 function detectIntent(text: string): string {
-  const t = text.toLowerCase();
-  if (/^(سلام|درود|هی|hello|hi|hey)(\s|$|[!.،,])/i.test(text.trim()) || /چطوری|خوبی/.test(text)) return "greeting";
-  if (/(راهنما|کمک|چه کار|چیکار میکنی|help|commands)/i.test(text)) return "help";
-  // GM-04: explicit whole-message commands only ("stop loss", "start-up" never match).
-  const control = detectControlCommand(text);
-  if (control) return control;
-  if (/(زیر نظر|واچ|watch)/i.test(text)) return "watch_add";
-  if (looksLikePaperBuy(text)) return "paper_buy";
-  if (/(پورتف|موقعیت|کاغذی‌ها)/i.test(text)) return "paper_list";
-  if (/(واچ‌لیست|watchlist|تحت نظر)/i.test(text)) return "watchlist";
-  if (isStopLossQuestion(text)) return "stop_loss";
-  if (/(رد شد|چرا رد|reject)/i.test(text)) return "reject";
-  if (/(چرا|دلیل|شواهد|explain)/i.test(text)) return "why";
-  // "بازار چه خبر؟" is a market question, not a news request.
-  if (isNewsRequest(text)) return "news";
-  if (/(فرصت|بهترین|پامپ|opportunity|چی بخرم)/i.test(text)) return "opportunities";
-  if (/(نهنگ|whale)/i.test(text)) return "whales";
-  if (/(شورا|کارشناس|تیم|council)/i.test(text)) return "council";
-  if (/(سلامت|وضعیت سیستم|health|کالیبر)/i.test(text)) return "health";
-  if (/(درس|یاد گرفت|اشتباه|hindsight|learning)/i.test(text)) return "learning";
-  if (/(بازار|رژیم|بیت‌کوین|بیتکوین|اتریوم|سولانا|btc|eth|sol)/i.test(t)) return "market";
-  if (/[a-z]{2,10}/i.test(text) && /(توکن|امن|تحلیل|قیمت)/.test(text)) return "token";
-  if (isPronounQuery(text)) return "why";
-  return "general";
+  // Phase 7: the router lives in chat_intent.ts (pure, regression-tested).
+  // Order is kept: GM-04 control/paper_buy first, then trade_signal, stop_loss,
+  // reject (رد شد|چرا رد|reject) before why (چرا|دلیل|شواهد|explain), price, ...
+  return routeIntent(text, {
+    isReject: (t) => /(رد شد|چرا رد|reject)/i.test(t),
+    isWhy: (t) => /(چرا|دلیل|شواهد|explain)/i.test(t),
+  });
 }
 
 function greetingReply(snap: Snap): ReplyBlock[] {

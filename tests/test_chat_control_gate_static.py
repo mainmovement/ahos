@@ -41,8 +41,19 @@ def test_chat_no_substring_stop_or_start_patterns():
     src = _read("chat.ts")
     assert "(توقف|استاپ|stop|خاموش)" not in src
     assert "(شروع|استارت|start|روشن)" not in src
-    assert "detectControlCommand(text)" in src
-    assert "looksLikePaperBuy(text)" in src
+    # Phase 7: the router moved to chat_intent.ts (pure); chat.ts delegates to it.
+    assert "routeIntent(text" in src
+    router = _read("chat_intent.ts")
+    assert "(توقف|استاپ|stop|خاموش)" not in router
+    assert "(شروع|استارت|start|روشن)" not in router
+    body = router[router.index("export function routeIntent"):]
+    i_control = body.index("detectControlCommand(text)")
+    i_paper = body.index("looksLikePaperBuy(text)")
+    i_trade = body.index("isTradeSignalRequest(text)")
+    i_stop = body.index("isStopLossQuestion(text)")
+    i_price = body.index("isPriceQuestion(text)")
+    # GM-04 control/paper detection runs before every new intent, so the gate still sees them.
+    assert i_control < i_paper < i_trade < i_stop < i_price
 
 
 def test_canonical_paper_pins_still_hold():

@@ -24,7 +24,7 @@ export function isStopLossQuestion(text: string): boolean {
 export const ENGINE_OFF_NOTE = "موتور خاموش است و داده‌ها به‌روز نمی‌شوند. روشن کردن فقط از داشبورد محلی.";
 
 export function engineNoticeRelevant(intent: string, text: string): boolean {
-  if (intent === "help" || intent === "greeting" || intent === "health" || intent === "opportunities") return true;
+  if (intent === "help" || intent === "greeting" || intent === "health" || intent === "opportunities" || intent === "price") return true;
   return /(موتور|engine)/i.test(text);
 }
 
@@ -99,6 +99,7 @@ export function helpBlocks(): ReplyBlock[] {
     title("🤖 راهنمای AHOS"),
     line("می‌توانی این‌ها را بپرسی:"),
     bullet("«بازار چه خبر؟» — قیمت و حال بیت‌کوین، اتریوم و سولانا"),
+    bullet("«قیمت بیت‌کوین چنده؟» — آخرین قیمت ثبت‌شده با زمان به‌روزرسانی"),
     bullet("«فرصت‌ها» — توکن‌های در حال پایش"),
     bullet("«اخبار» یا «اخبار سولانا» — تیترهای اخیر"),
     bullet("«چرا PEPE؟» — دلیل حکم یک توکن"),
@@ -303,6 +304,74 @@ export function whyBlocks(o: Opp): ReplyBlock[] {
   if (o.invalidationFa) out.push(line(`شرط ابطال: ${o.invalidationFa}`));
   out.push(note("فقط کاغذی — توصیه خرید واقعی نیست."));
   return out;
+}
+
+const ASSET_FA: Record<string, string> = { BTC: "بیت‌کوین", ETH: "اتریوم", SOL: "سولانا" };
+
+/**
+ * Phase 7: price question. Only the last recorded market snapshot is used
+ * (BTC/ETH/SOL); freshness is always shown; a missing value is said honestly.
+ * `asset` null + `ticker` = a symbol whose price the system does not record.
+ */
+export function priceBlocks(snap: Snap, asset: "BTC" | "ETH" | "SOL" | null, ticker: string | null, now: Date = new Date()): ReplyBlock[] {
+  if (!asset) {
+    const sym = ticker || "این نماد";
+    return [
+      title(`💰 قیمت ${sym}`),
+      line(`قیمت ${sym} در داده‌های سیستم ثبت نمی‌شود و آن را حدس نمی‌زنم.`),
+      line("سیستم فقط قیمت بیت‌کوین، اتریوم و سولانا را ثبت می‌کند."),
+      ticker ? bullet(`«چرا ${ticker}؟» — اگر در فهرست پایش باشد، تحلیل سیستم را نشان می‌دهد.`) : gap(),
+    ];
+  }
+  const name = ASSET_FA[asset];
+  const m = snap.market;
+  if (!m) return [title(`💰 قیمت ${name}`), line("هنوز داده‌ای از بازار ثبت نشده (داده کافی نیست). عددی حدس نمی‌زنم.")];
+  const price = asset === "BTC" ? m.btcPrice : asset === "ETH" ? m.ethPrice : m.solPrice;
+  const chg = asset === "BTC" ? m.btcChange24h : asset === "ETH" ? m.ethChange24h : m.solChange24h;
+  const createdAt = m.createdAt as unknown as string | Date | null;
+  const age = faAge(createdAt, now);
+  const ageMs = createdAt ? now.getTime() - new Date(createdAt).getTime() : NaN;
+  const stale = !Number.isFinite(ageMs) || ageMs > 60 * 60 * 1000;
+  if (price == null || !Number.isFinite(price)) {
+    return [
+      title(`💰 قیمت ${name}`),
+      line(`قیمت ${name} در آخرین داده ثبت‌شده موجود نیست (داده کافی نیست). عددی حدس نمی‌زنم.`),
+      note(age ? `آخرین به‌روزرسانی بازار: ${age}` : "زمان به‌روزرسانی نامشخص است."),
+    ];
+  }
+  const out: ReplyBlock[] = [
+    title(`💰 قیمت ${name}`),
+    line(`${name}: ${priceFa(price)}${chg != null && Number.isFinite(chg) ? ` (${faPct(chg)} در ۲۴ ساعت)` : ""}`),
+    gap(),
+    note(
+      age
+        ? `آخرین به‌روزرسانی: ${age}${stale ? " — این قیمت لحظه‌ای نیست و ممکن است قدیمی باشد" : ""}`
+        : "زمان به‌روزرسانی نامشخص است؛ این قیمت ممکن است قدیمی باشد.",
+    ),
+  ];
+  return out;
+}
+
+/**
+ * Phase 7: trading-signal / futures-advice requests (leverage, long/short,
+ * take-profit + stop-loss, "pick me a coin"). PAPER_ONLY: no signal, no coin pick.
+ */
+export function tradeSignalBlocks(): ReplyBlock[] {
+  return [
+    title("🙏 سیگنال معاملاتی نمی‌دهم"),
+    line("AHOS فقط برای تحلیل و معامله کاغذی است؛ پیشنهاد اهرم یا درصد فیوچرز، لانگ/شورت، حد سود و حد ضرر نمی‌دهم و ارزی را برای سود معرفی نمی‌کنم."),
+    gap(),
+    line("کاری که می‌توانم بکنم:"),
+    bullet("«فرصت‌ها» — توکن‌هایی که سیستم بررسی کرده، همراه با نکات ریسک"),
+    bullet("«چرا <نماد>؟» — دلیل حکم سیستم برای یک توکن، مثلاً «چرا PEPE؟»"),
+    bullet("«قیمت بیت‌کوین چنده؟» — آخرین قیمت ثبت‌شده"),
+    gap(),
+    note("معامله با اهرم ریسک از دست رفتن کل سرمایه را دارد."),
+  ];
+}
+
+export function thanksBlocks(): ReplyBlock[] {
+  return [line("خواهش می‌کنم 🙏 اگر سؤال دیگری داری بپرس؛ مثلاً «بازار چه خبر؟» یا «فرصت‌ها».")];
 }
 
 /** Fallback for unrecognised questions. `buyCount` = system BUY decisions (paper only). */
