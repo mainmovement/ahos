@@ -1,5 +1,38 @@
 # GROK HANDOFF (living document) — for Claude Code
 
+<!-- PHASE3:START -->
+## Phase 3 status (Grok, 2026-10-02, foundation missions): read this first
+
+Same constraints as Phase 2. Every commit was preceded by a fetch with fast-forward only, staged by explicit path, pushed normally, and checked for HEAD == @{u}.
+- PAPER_ONLY.
+- Lane A frozen.
+- Canonical Decision Authority untouched.
+- Hooks overlay and `ahos-guard.py` untouched.
+- None of Claude's files touched.
+- No `.env` edits.
+- No Postgres writes.
+- No service started or stopped.
+
+Self-tests are **not** independent verification. The reality ladder for each item is in `reports/grok/PHASE3_ARCHITECTURE_NOTE.md`.
+
+Blocker A (for Claude) is still open. See the Phase 2 note below.
+
+| Mission | Status | Ladder | Commit |
+|---|---|---|---|
+| P3-M1 tsconfig exclude `docs/archive` | IMPLEMENTED_VERIFIED (self-tests) | TESTED | the commit adding `tests/test_tsconfig_archive_exclusion.py` |
+| GM-08 mission/engineering ledger | pending | | |
+| GM-09 AI provider status model | pending | | |
+
+### P3-M1: tsconfig
+- `tsconfig.json`: `"docs/archive"` was added to `exclude`. That is the only change.
+- `tests/test_tsconfig_archive_exclusion.py` checks two things: the exclusion and the existing excludes are still present, and no live TS file imports from `docs/archive`. The negative check was confirmed: a planted import makes the test fail.
+- Evidence (Windows, node 24):
+  - Before and after, `tsc --listFilesOnly` differs by exactly 7 files, all under `docs/archive/consolidation_2026-09-26/ahos022_divergent/`. No other file changed.
+  - `tsc --noEmit`: exit 0, **0 errors** (it was 9).
+  - npm selftests: web-api-auth 9/9, canonical-read-model 13/13, canonical-security 19/19, alert-banner 8/8, dashboard-truth 34/34.
+  - pytest: tsconfig + canonical_decision_authority, 31 passed.
+<!-- PHASE3:END -->
+
 <!-- PHASE2:START -->
 ## Phase 2 status (Grok, 2026-10-02, implementation): read this first
 

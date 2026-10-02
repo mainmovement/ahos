@@ -29,6 +29,7 @@
   ],
   "exclude": [
     "node_modules",
+    "docs/archive",
     "01",
     "advanced-3d-audiovisual-website",
     "advanced-3d-audiovisual-website (1)",

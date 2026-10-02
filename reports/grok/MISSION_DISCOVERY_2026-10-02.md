@@ -98,6 +98,9 @@ No new agents are proposed. No mission touches Lane A, Canonical Decision Author
 ### GM-12 — Credential Manager abstraction
 - DESIGN only (Windows Credential Manager behind an interface; env fallback); boundary-sensitive → owner + security review. NOT executable now.
 
+### P3-M1 — tsconfig excludes docs/archive
+- Status: IMPLEMENTED_VERIFIED (self-tests): `tsc --noEmit` 0 errors (was 9, all archive); file list diff = exactly 7 archive files.
+
 ### Gated / not selectable
 | Item | Status |
 |---|---|
