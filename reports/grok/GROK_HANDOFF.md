@@ -30,11 +30,11 @@ Self-tests are **not** independent verification.
 
 | Mission | Status | Commit |
 |---|---|---|
-| GM-02 Telegram offline edge harness | IMPLEMENTED_VERIFIED (offline/self-test only); live E2E = LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED | the commit that adds `tests/test_telegram_offline_harness.py` (`git log -- tests/test_telegram_offline_harness.py`) |
-| GM-03 dashboard truthfulness | IMPLEMENTED_VERIFIED (self-tests; presentation only; browser view not visually checked) | `git log -- dashboard_truth.ts` |
-| GM-05 gateway port single source + diagnosis | IMPLEMENTED_VERIFIED (self-tests + one real read-only diagnosis run); port choice = OWNER_ACTION_REQUIRED | `git log -- scripts/gateway_port.py` |
-| GM-06 n8n validator + ahos_03 quarantine | IMPLEMENTED_VERIFIED (static self-tests); ahos_03 QUARANTINED (file kept) | `git log -- tests/test_n8n_governance_rules.py` |
-| GM-04 Telegram control capability gate | DESIGN_ONLY (proposal doc pending) | |
+| GM-02 Telegram offline edge harness | IMPLEMENTED_VERIFIED (offline/self-test only); live E2E = LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED | `552eda7` |
+| GM-03 dashboard truthfulness | IMPLEMENTED_VERIFIED (self-tests; presentation only; browser view not visually checked) | `789dfa2` |
+| GM-05 gateway port single source + diagnosis | IMPLEMENTED_VERIFIED (self-tests + one real read-only diagnosis run); port choice = OWNER_ACTION_REQUIRED | `06e44e6` |
+| GM-06 n8n validator + ahos_03 quarantine | IMPLEMENTED_VERIFIED (static self-tests); ahos_03 QUARANTINED (file kept) | `8e48cf3` |
+| GM-04 Telegram control capability gate | DESIGN_ONLY: `reports/grok/GM04_TELEGRAM_CONTROL_CAPABILITY_GATE_PROPOSAL.md`, awaiting security review (سپهر/قاسم/رضا) | the docs commit that adds that file |
 
 ### GM-02: what changed
 - `telegram_ai/envelope.py` (new, pure, no network or authority imports):
@@ -143,6 +143,40 @@ Self-tests are **not** independent verification.
   - Windows results are in the next commit message / final report.
 - Finding: `ahos_02_signal_pipeline.json` has a node **`Record PENDING (LIVE)`** that INSERTs into `trade_decisions`, plus SQL interpolation on an internal schedule. It produces warnings only, and the workflow is dormant (0 imported). Review it before any import.
 - Next: GM-04 design doc (`reports/grok/GM04_TELEGRAM_CONTROL_CAPABILITY_GATE_PROPOSAL.md`) for review by سپهر/قاسم/رضا.
+
+### GM-04: design only (no code)
+- Proposal: `reports/grok/GM04_TELEGRAM_CONTROL_CAPABILITY_GATE_PROPOSAL.md`.
+  - an intent → capability map
+  - default deny of start/stop/paper_buy from remote channels
+  - the body-asserted `channel` is not trusted (two options for reviewers)
+  - an optional admin principal plus a single-use confirmation nonce
+  - word-boundary intent hardening
+  - append-only audit with hashed ids
+  - the canonical authority is untouched
+- New adversarial finding recorded there: the `chat.ts` `stop` regex `/(توقف|استاپ|stop|خاموش)/` has **no word boundary**, so a message containing "stop loss" or "stoploss" stops the engine (T2). The fix is waiting for the GM-04 review; nothing has been changed.
+
+### Remaining blockers (end of Phase 2)
+1. **Blocker A** (Claude): 2 untracked artifacts are cited by canonical docs, and `test_doc_drift` fails on a clean checkout. See the note at the top of this file.
+2. Telegram start/stop control leak and the `stop`-substring false positive. Status: DESIGN_ONLY (GM-04), awaiting review.
+3. Gateway port: .env says 3000, the listener is on 3500. OWNER_ACTION_REQUIRED (restart on 3000, or set AHOS_GATEWAY_PORT/URL).
+4. G11 live Telegram E2E: LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED.
+5. `tsc --noEmit` has 9 pre-existing errors under `docs/archive/.../ahos022_divergent/`. Suggestion: exclude `docs/archive` in tsconfig (small and separate; not done).
+6. ahos_02 `Record PENDING (LIVE)` node needs review before any n8n import.
+7. Wall-clock items unchanged: T+72h labels not before 2026-10-05T02:54Z (06:24 Tehran); soak and nightly backup nights 2–7.
+
+### Next recommended missions
+- GM-01 (Claude's call: blocker A).
+- GM-04 implementation after review.
+- tsconfig exclusion of `docs/archive` (tiny).
+- GM-08 (mission ledger schema).
+- GM-09 (provider QUOTA_EXHAUSTED state).
+- GM-07 after owner approval.
+
+### May Claude safely continue?
+**YES.**
+- Grok's Phase 2 commits touch only these paths: `telegram_ai/{envelope,bot,adapter}.py`, `dashboard_truth.ts`, `snapshot.ts`, `CommandCenter.tsx`, `package.json` (+1 script), `scripts/{gateway_port.py,dashboard_truth_selftest.ts,operator_validation_gate.py,windows_run_operator_gate.ps1}`, `tests/{validate_n8n.py,test_telegram_offline_harness.py,test_dashboard_truth_static.py,test_gateway_port.py,test_n8n_governance_rules.py}`, `docs/N8N_OPERATIONAL_PROCEDURE.md`, `reports/grok/*`.
+- None of your dirty or untracked files were touched.
+- Fast-forward `origin/ahos` before your next commit.
 <!-- PHASE2:END -->
 
 > Below: Phase 1 handoff (2026-10-02 10:36Z), kept for history.
