@@ -1,4 +1,4 @@
-# CLAUDE CONTINUATION GUIDE: Grok session 2026-10-02 (Phases 1–6)
+# CLAUDE CONTINUATION GUIDE: Grok session 2026-10-02 (Phases 1–7)
 
 **Audience:** Claude Code, continuing work on `G:\robat\ahos`, branch `ahos`.
 **Written by:** Grok, 2026-10-02 (Tehran time, UTC+3:30).
@@ -31,7 +31,9 @@ git log --oneline origin/ahos..ahos
 | `b4e67be` | GM-09 provider_status, credential_store interface, mission_guard | **local only** |
 | `527c433` | GM-04 chat control gate + G11 live-E2E runbook | **local only** |
 | `7dd075f` | Phase 5 reply presentation and shared response composer | **local only** |
-| (commit adding this file) | Phase 6 Gemini phraser + read-only Credential Manager backend + this guide | **local only** |
+| `1d72d71` | Phase 6 Gemini phraser + read-only Credential Manager backend + this guide | **local only** |
+| `231e7ac` | Phase 7a intent router fix (price, trade_signal, thanks; `chat_intent.ts`) | **local only** |
+| (commit adding §2 Phase 7 below) | Phase 7b conversational agent + confirm-gated owner paper commands | **local only** |
 
 The box mirror (`/workspace/repo`, Grok's Linux clone) holds identical trees. It is not a remote.
 
@@ -120,14 +122,16 @@ Remove-Variable tok
 
 ## 1. Invariants you must not break
 
-1. **GM-04 gate**
-   - `/api/chat` **always refuses** start, stop and paper_buy for every channel. The reason is `CHAT_PATH_CANNOT_PROVE_LOCAL_DASHBOARD`, and the body-asserted `channel` is not trusted.
-   - Engine control is only possible through `app/api/engine/route.ts` (dashboard buttons).
+1. **GM-04 gate, changed by the owner authority decision of 2026-10-02 (Phase 7b; pending سپهر/قاسم/رضا review; see GM04 doc §8)**
+   - **Non-owners:** `/api/chat` refuses start, stop and paper_buy, and the refusal is audited REFUSED, exactly as in Phase 4.
+   - **Owner** (Telegram user_id in `TELEGRAM_ADMIN_USER_IDS` ∪ `TELEGRAM_ALLOWED_CHAT_IDS`, or dashboard channel `web`/`dashboard`): gets a **proposal only**. Execution requires a whole-message `تایید CODE` from the same identity within 5 minutes; the code works once. It then runs through the same functions as the dashboard routes (`chat_actions.ts`).
+   - Never add an execute tool for the model. Never let a bare «تایید»/«بله» or any substring confirm anything.
+   - No chat path may reach live trading, keys/secrets, constitution/authority settings, or Lane A.
    - Command detection matches the whole message after normalization (NFKC, zero-width and bidi stripping, Arabic→Persian letters). Do not reintroduce substring regexes: "stop loss" used to stop the engine.
-   - Refusal drafts are `locked: true` and are **never** phrased by an LLM.
+   - Refusal, proposal and confirmation texts are `locked: true` and are **never** phrased by an LLM.
 2. **Control audit chain**
    - `data/control_audit/chat_control_audit.jsonl` is append-only and hash-chained. `FileAuditSink` isolates a torn tail.
-   - Every REFUSED decision (chat) and ALLOWED decision (engine route) appends one line. Never rewrite or delete lines.
+   - Every REFUSED decision (chat), ALLOWED decision (engine route) and Phase 7b `chat_confirm` decision (PROPOSED/CONFIRMED/CANCELLED/EXPIRED/DENIED/FAILED) appends one line. Never rewrite or delete lines.
    - Verify with `npm run audit:control-verify`.
 3. **Mission ledger (GM-08)**
    - `architecture/mission/ledger.py`: append-only JSONL, hash chain, no DONE state, `resume()` never resets a checkpoint, secrets redacted before hashing, `authority: "NONE"`.
@@ -146,10 +150,11 @@ Remove-Variable tok
    - Otherwise the deterministic text is used.
    - Phrased HTML is rebuilt from escaped plain text (`phrasedHtml`); phraser HTML is never trusted.
    - The phraser is wording only and has zero authority.
+   - **Phase 7b agent** (`chat_agent.ts`): answers are accepted only if `validateAgentAnswer` passes. The checks: no jargon, no execution claims, no TRADE_PICK (leverage or TP/SL figures), and every number from tool output, the user message or earlier assistant turns. One corrective retry is allowed; otherwise the deterministic 7a path runs with an honest note. Read tools return Persian labels only (`faLabel`). Do not widen the tool registry without review.
 6. **Gemini key handling**
    - The key lives **only** in Windows Credential Manager: generic target `AHOS/ai/gemini`, user `gemini`, UTF-16-LE blob, stored by the owner.
    - **Never** put it in `.env`, logs, argv, env vars, test files, reports, commits or chat.
-   - Only `architecture/ai/gemini_phraser.py` (helper process) calls `get_secret`, and Node never sees the key.
+   - Only the helper processes `architecture/ai/gemini_phraser.py` and `architecture/ai/gemini_chat.py` call `get_secret`; Node never sees the key. `gemini_phraser.ts::HELPER_MODULES` whitelists the spawnable modules.
    - `wincred_reader.py` is read-only (no CredWrite, CredDelete or CredEnumerate; pinned by a test) and only reads `AHOS/ai/*` targets.
 7. **Telegram edge (GM-02)**
    - The replay guard runs before auth, rate-limit and gateway.
@@ -311,9 +316,116 @@ cmd /c ".venv\Scripts\python.exe -m architecture.ai.gemini_phraser < %TEMP%\req.
 
 ---
 
+### Phase 7 (2026-10-02, Grok): conversational AI for Telegram and dashboard (Gemini + tools + confirm-gated paper commands)
+
+**Pushes are still paused by the owner: local commits only.** Status: IMPLEMENTED / TESTED (self-tests and a live gateway check). Not independently verified. **The owner's authority decision of 2026-10-02 changes the GM-04 invariant for owners. It is flagged for سپهر/قاسم/رضا review** (see `GM04_TELEGRAM_CONTROL_CAPABILITY_GATE_PROPOSAL.md` §8).
+
+#### 7a: intent router fix (`231e7ac`)
+- New pure `chat_intent.ts`: price intent (BTC/ETH/SOL spelling variants, freshness and stale flag, no invented numbers), trade_signal intent (locked PAPER_ONLY policy reply that outranks stop_loss), thanks, greeting-prefix routing, watchlist view checked before watch_add.
+- `scripts/chat_intent_selftest.ts`: 52 Persian regression cases (`npm run test:chat-intent`).
+- The GM-04 whole-message control detection still runs first.
+- 7a is now the **deterministic fallback** under 7b.
+
+#### 7b: owner scope change at 17:35. The chat is a real conversational AI.
+The owner asked for free-form, multi-turn Persian chat like ChatGPT/Grok, not keyword intents. The same backend (`chat.ts::handleChat`) serves Telegram (`telegram_ai/service.py` → `/api/chat`, channel `telegram` plus the real user_id) and the dashboard chat panel.
+
+**Flow per message (`chat.ts::handleChat`):**
+1. A whole-message `تایید CODE` / `لغو [CODE]` goes to `chat_actions.handleConfirmation` (before any intent detection).
+2. `detectIntent` runs, then the GM-04 gate (whole message, so «stop loss» is never a stop).
+   - **Non-owner** control intent: REFUSED, audited (unchanged).
+   - **Owner** control intent: a confirm-gated proposal. Nothing executes.
+3. The snapshot is taken. **`ChatAgent.run` comes first** (Gemini function calling over a whitelisted tool registry, max 4 model steps).
+   - On success: the reply is the agent's grounded Persian answer, or the locked proposal/denial text.
+   - On failure (provider down, quota, breaker open, validation rejected twice): the deterministic 7a path runs, with an honest note at the top. The note says either «دستیار هوشمند الان در دسترس نیست…» or «پاسخ دستیار هوشمند با داده‌های سیستم تطبیق نداشت…».
+4. Memory is updated and the chat rows are written (same `chat_messages` table as before).
+
+**Files:**
+- `chat_agent.ts` (new)
+  - Tool registry:
+    - READ: `get_market`, `list_opportunities`, `explain_token{symbol}`, `get_news{query}`, `get_engine_status`, `get_paper_positions`, `get_watchlist`, `get_system_health`
+    - PROPOSE: `propose_engine_start`, `propose_engine_stop`, `propose_paper_buy{symbol,quantity}`, `propose_watch_add{symbol}`
+  - `runReadTool` is pure over the existing `commandSnapshot()` read model. It returns Persian labels plus freshness (`updatedAgoFa`, `stale`) and never raw English status codes (`faLabel`). For BTC/ETH/SOL, `explain_token` returns market data and the note "no TP/SL".
+  - **Validator** `validateAgentAnswer`. It rejects:
+    - EMPTY or TOO_LONG answers
+    - JARGON (GM-xx, canonical, UNKNOWN, INSUFFICIENT_EVIDENCE, tool names)
+    - CLAIMS_EXECUTION (first-person "I turned it off")
+    - **TRADE_PICK** (leverage figures, `20x`, حد ضرر/حد سود/stop loss/take profit followed by a number)
+    - **NEW_NUMBER**: every number must appear in tool output, the user message or earlier assistant turns. Persian and Arabic digits and separators are normalized; rounded and هزار/میلیون/میلیارد/تریلیون scaled forms are accepted; 0–10 is always allowed.
+  - One corrective round: a rejected draft goes back to the model with an internal Persian reason (`correctionFa`). A second rejection means fallback.
+  - Breaker: 3 failures → open 60 s; auth, quota or credential failure → open 10 min.
+  - `systemPrompt` (Persian): PAPER_ONLY, tools-first, admit stale data, trading-advice policy (analysis/paper only, not a personal signal, no invented leverage/TP/SL or tokens outside tool output), commands only via `propose_*`, «stop loss» ≠ stop engine, no secrets/authority changes.
+- `architecture/ai/gemini_chat.py` (new)
+  - One `generateContent` step with `tools.functionDeclarations` and `toolConfig AUTO`. Key read here only (Credential Manager `AHOS/ai/gemini`, read-only), same rules as the phraser.
+  - Model parts are relayed verbatim, so Gemini 3 thought signatures survive; `thought` parts are dropped.
+  - Two models, 4 s each, 9 s total budget. No retry on AUTH, QUOTA or BLOCKED.
+  - `gemini_phraser.py` gained `call_model_payload`. `gemini_phraser.ts` gained `spawnPythonJson`, with a module whitelist `HELPER_MODULES`.
+- `chat_actions.ts` (new)
+  - Owner check `isOwner`:
+    - Telegram user_id must be in `TELEGRAM_ADMIN_USER_IDS` ∪ `TELEGRAM_ALLOWED_CHAT_IDS`. If both are empty, nobody qualifies.
+    - Channel `web`/`dashboard` counts as the owner (same bearer token as the dashboard buttons).
+    - `api` or any other channel is not the owner.
+  - `PendingActionStore`: 6-character code from an unambiguous alphabet, 5-minute TTL, single use, bound to the proposer's identity, in memory.
+  - `parseConfirmation`: whole message only. `تایید|تأیید|تائید|confirm|yes CODE` confirms; `لغو|کنسل|cancel|انصراف [CODE]` cancels. A bare «تایید», «بله» or «stop loss» is never a confirmation.
+  - `handleConfirmation` checks identity, owner, expiry and single use, then executes through the **same functions as the dashboard routes**:
+    - `engine.startEngine` / `stopEngine` (= `/api/engine`)
+    - `engine.addWatch`
+    - paper buy = `paperAllowedFromCanonical` + `addPaper` (= `/api/paper`; the Canonical Decision Authority still decides)
+  - Every step is appended to the hash-chained control audit with surface `chat_confirm`. Decisions: PROPOSED / CONFIRMED / CANCELLED / EXPIRED / DENIED / FAILED.
+- `chat_memory.ts` (new): per-conversation memory keyed by `sha256(channel|userId)`. Last 10 exchanges, 6 h TTL, 200 conversations max, secrets redacted (API keys, Telegram tokens, JWTs, private keys, Bearer, PEM, `*_TOKEN=`). In memory only.
+- `chat_control_gate.ts`: `Capability` adds `WATCH_WRITE`; the audit gains the `chat_confirm` surface and the new decision values. The gate function and the non-owner refusal are unchanged.
+- Plumbing:
+  - `ChatResponse.pendingAction` → `conversation_gateway` → `/api/chat` `pending_action {code, kind, summaryFa, expiresAt}`.
+  - `CommandCenter.tsx`: multi-turn chat display (unchanged) plus **تایید / لغو buttons** under a proposal. They send `تایید CODE` / `لغو CODE`.
+- Tests:
+  - `scripts/chat_agent_selftest.ts` (`npm run test:chat-agent`): 23 cases with a fake runner, no network, temp audit path.
+  - `tests/test_gemini_chat.py`: 5 cases.
+  - `tests/test_gemini_phraser.py` and `tests/test_telegram_reply_presentation.py`: static pins updated.
+
+**Env (none set in `.env`):**
+- `AHOS_CHAT_AGENT=off` disables the agent (back to 7a deterministic replies).
+- `AHOS_GEMINI_MODELS` is shared with the phraser.
+- `AHOS_CHAT_AGENT_TIMEOUT_MS`: per-attempt timeout, default 4000.
+
+**Tests (Windows, 18:00–18:20 Tehran):**
+- tsc exit 0; eslint 0 on all touched files.
+- npm: chat-agent 23/23; chat-intent 52/52; chat-reply-format 40/40; gemini-phraser 12/12; chat-control-gate 126/126.
+- pytest gemini/telegram/canonical/provider set: 230 passed, 2 skipped.
+
+**Live check** via gateway `127.0.0.1:3500/api/chat`, model `gemini-flash-lite-latest`, 2.5–7 s per reply. Verbatim replies are in the final Phase 7 report. Summary:
+1. «قیمت بیت کویین الان چقدر هست؟» → `get_market` → BTC ۷۹٬۷۳۲ دلار, +۰٫۱۵٪, «داده‌ها قدیمی هستند… ۳۵ روز پیش».
+2. The futures/leverage/TP/SL request → `list_opportunities` → "paper/analysis only, no signal/leverage/TP/SL; no token has an approved verdict", plus a risk warning.
+3. A 3-turn free conversation (market mood → lowest-risk opportunity → «چرا؟») was answered from tools with context carried over.
+4. «موتور تحلیل رو خاموش کن» → `propose_engine_stop` → proposal with code → «لغو CODE» → «لغو شد… هیچ تغییری اعمال نشد.»
+   - Audit lines: PROPOSED, then CANCELLED.
+   - The engine was already off; nothing executed.
+5. A non-owner Telegram id got «⛔ این دستور فقط برای مالک سیستم مجاز است» (audit DENIED NOT_OWNER).
+6. «stop loss بیت کوین رو کجا بذارم؟» was answered as analysis only, with no stop and no number.
+
+**Open items (Phase 7):**
+- Telegram has no inline confirm buttons; it confirms by text «تایید CODE». The dashboard has buttons.
+- The pending store and memory are in memory, so a gateway reload drops them. This is the safe default; dropped proposals simply expire.
+- Anyone holding `AHOS_WEB_API_TOKEN` can claim channel `web` and therefore owner. This is the same exposure as `/api/engine` and `/api/paper`.
+- `TELEGRAM_ADMIN_USER_IDS` is empty in `.env`, so Telegram owner identity currently comes from `TELEGRAM_ALLOWED_CHAT_IDS` (the owner's private chat id equals his user id).
+- Latency is about 5 s for tool answers (2 model calls plus 2 Python spawns). A long-lived helper would cut about 1 s per call.
+- The agent reads the snapshot taken at message time; market data is 35 days old because the engine is off (the model says so).
+- GM-04 owner-authority change and GM-12 Credential Manager read path still need **سپهر/قاسم/رضا review**.
+
+**How to continue**
+```powershell
+npm run test:chat-agent            # 23, fake Gemini runner, temp audit path
+npm run test:chat-intent           # 52 (deterministic fallback router)
+.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider tests\test_gemini_chat.py tests\test_gemini_phraser.py tests\test_telegram_reply_presentation.py tests\test_canonical_read_model.py
+npm run audit:control-verify       # hash chain incl. chat_confirm lines
+```
+- `evidence.agent` on each `/api/chat` response holds `{ok, reason, toolsUsed, steps, model, latencyMs}`. `evidence.composer` is `gemini_agent` or `deterministic`.
+- To add a read tool: add it to `READ_TOOLS` plus a `runReadTool` case (pure, Persian labels, freshness) plus a selftest.
+- To add a command: add it to `ActionKind` plus `PROPOSE_TOOLS` plus `CAPABILITY` plus `defaultActionDeps` (must reuse the dashboard route function), plus selftests for confirm/cancel/expiry/non-owner. It must be PAPER_ONLY and needs review.
+
+---
+
 ## 3. Known limitations and open items (all phases)
 1. Blocker A (Claude, GM-01).
-2. GM-04 independent review; `/api/engine` token exposure; `watch` ungated; `AHOS_CONTROL_AUDIT_PATH` not in the config scan.
+2. GM-04 independent review, now including the **Phase 7b owner confirm-gated path** (GM04 doc §8); `/api/engine` token exposure (also lets a token holder claim chat owner via channel `web`); `AHOS_CONTROL_AUDIT_PATH` not in the config scan.
 3. Port mismatch: `.env` 3000 vs listener 3500 (OWNER_ACTION).
 4. GM-12 review (Credential Manager read path, now IMPLEMENTED read-only).
 5. GM-09 runtime wiring (council/router → `guard_provider_call`) not done; the ledger is not seeded.
@@ -321,3 +433,4 @@ cmd /c ".venv\Scripts\python.exe -m architecture.ai.gemini_phraser < %TEMP%\req.
 7. Windows `validate_imports` (Phase 5 run) failed its evidence-mutation check because of a timing artefact. Box runs PASS. Re-run on Windows when the laptop is idle.
 8. The bot log warns that no proxy is set; Telegram connects anyway.
 9. `tests/test_sqlite_backup_restore.py::test_record_test_run_anchors_relative_executable` fails on Linux only (Windows path). Not a Windows issue.
+10. Phase 7: Telegram has no inline confirm buttons (it confirms by text); the pending store and memory are in-process; agent latency is about 5 s; `TELEGRAM_ADMIN_USER_IDS` is empty, so owner = allowlisted chat ids.

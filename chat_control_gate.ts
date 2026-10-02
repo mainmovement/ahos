@@ -26,7 +26,7 @@ import { dirname, join } from "node:path";
 export const CONTROL_AUDIT_SCHEMA = "ahos.chat_control_audit.v1";
 export const GENESIS_HASH = "0".repeat(64);
 
-export type Capability = "ENGINE_CONTROL" | "PAPER_WRITE";
+export type Capability = "ENGINE_CONTROL" | "PAPER_WRITE" | "WATCH_WRITE";
 export const CONTROL_INTENTS: Readonly<Record<string, Capability>> = Object.freeze({
   start: "ENGINE_CONTROL",
   stop: "ENGINE_CONTROL",
@@ -113,6 +113,7 @@ const REFUSE_FA: Record<Capability, string> = {
   PAPER_WRITE:
     "⛔ ثبت خرید کاغذی از طریق گفتگو غیرفعال است.\n" +
     "ثبت کاغذی فقط از داشبورد محلی انجام می‌شود و خرید واقعی هرگز انجام نمی‌شود. هیچ تغییری اعمال نشد.",
+  WATCH_WRITE: "⛔ تغییر واچ‌لیست از طریق گفتگو برای شما مجاز نیست. هیچ تغییری اعمال نشد.",
 };
 
 /** Chat-path decision. Deny-by-default for every control capability, every channel. */
@@ -150,13 +151,21 @@ function canonicalJson(v: unknown): string {
   return `{${Object.keys(o).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(o[k])}`).join(",")}}`;
 }
 
+export type AuditSurface = "chat" | "engine_api" | "chat_confirm";
+/**
+ * ALLOWED/REFUSED: Phase 4. Phase 7b (owner authority decision 2026-10-02):
+ * confirm-gated chat commands add PROPOSED → CONFIRMED (executed) | CANCELLED |
+ * EXPIRED | DENIED | FAILED.
+ */
+export type AuditDecision = "ALLOWED" | "REFUSED" | "PROPOSED" | "CONFIRMED" | "CANCELLED" | "EXPIRED" | "DENIED" | "FAILED";
+
 export type ControlAuditRecord = {
   schema: string;
   ts: string;
-  surface: "chat" | "engine_api";
+  surface: AuditSurface;
   intent: string;
   capability: Capability | null;
-  decision: "ALLOWED" | "REFUSED";
+  decision: AuditDecision;
   reason: string;
   channel_claimed: string;
   user_id_hash: string;
@@ -236,10 +245,10 @@ export function defaultAuditPath(env: Record<string, string | undefined> = proce
 
 export function buildAuditRecord(
   p: {
-    surface: "chat" | "engine_api";
+    surface: AuditSurface;
     intent: string;
     capability: Capability | null;
-    decision: "ALLOWED" | "REFUSED";
+    decision: AuditDecision;
     reason: string;
     channelClaimed?: string | null;
     userId?: string | null;

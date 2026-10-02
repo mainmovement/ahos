@@ -210,11 +210,23 @@ export function resolvePython(cwd: string = process.cwd(), src: EnvMap = process
   return existsSync(posix) ? posix : "python3";
 }
 
-/** Default runner: spawn (no shell, fixed argv), UTF-8 JSON over stdin/stdout, hard kill. */
-export const spawnHelperRunner: HelperRunner = (req, killAfterMs) =>
-  new Promise((resolve) => {
+const HELPER_MODULES = new Set(["architecture.ai.gemini_phraser", "architecture.ai.gemini_chat"]);
+
+/**
+ * Spawn a whitelisted Python helper module (no shell, fixed argv), send UTF-8
+ * JSON on stdin, parse UTF-8 JSON from stdout, hard-kill after `killAfterMs`.
+ * Resolves (never rejects) with the parsed object or a synthetic failure.
+ */
+export function spawnPythonJson<T extends object>(module: string, req: unknown, killAfterMs: number): Promise<T | null> {
+  return new Promise((resolve) => {
+    const fail = (reason: string, latency = 0) =>
+      ({ ok: false, text: null, parts: [], model: null, status: "UNAVAILABLE", reason_code: reason, latency_ms: latency }) as unknown as T;
+    if (!HELPER_MODULES.has(module)) {
+      resolve(fail("HELPER_NOT_ALLOWED"));
+      return;
+    }
     let settled = false;
-    const done = (v: HelperResult | null) => {
+    const done = (v: T | null) => {
       if (!settled) {
         settled = true;
         resolve(v);
@@ -222,7 +234,7 @@ export const spawnHelperRunner: HelperRunner = (req, killAfterMs) =>
     };
     let child: ReturnType<typeof spawn>;
     try {
-      child = spawn(resolvePython(), ["-m", "architecture.ai.gemini_phraser"], {
+      child = spawn(resolvePython(), ["-m", module], {
         cwd: process.cwd(),
         env: helperEnv() as NodeJS.ProcessEnv,
         shell: false,
@@ -230,7 +242,7 @@ export const spawnHelperRunner: HelperRunner = (req, killAfterMs) =>
         stdio: ["pipe", "pipe", "ignore"],
       });
     } catch {
-      done({ ok: false, text: null, model: null, status: "UNAVAILABLE", reason_code: "HELPER_SPAWN_FAILED", latency_ms: 0 });
+      done(fail("HELPER_SPAWN_FAILED"));
       return;
     }
     const chunks: Buffer[] = [];
@@ -241,20 +253,20 @@ export const spawnHelperRunner: HelperRunner = (req, killAfterMs) =>
       } catch {
         /* ignore */
       }
-      done({ ok: false, text: null, model: null, status: "UNAVAILABLE", reason_code: "HELPER_TIMEOUT", latency_ms: killAfterMs });
+      done(fail("HELPER_TIMEOUT", killAfterMs));
     }, killAfterMs);
     child.on("error", () => {
       clearTimeout(timer);
-      done({ ok: false, text: null, model: null, status: "UNAVAILABLE", reason_code: "HELPER_SPAWN_FAILED", latency_ms: 0 });
+      done(fail("HELPER_SPAWN_FAILED"));
     });
     child.stdout?.on("data", (c: Buffer) => {
       size += c.length;
-      if (size <= 256 * 1024) chunks.push(c);
+      if (size <= 512 * 1024) chunks.push(c);
     });
     child.on("close", () => {
       clearTimeout(timer);
       try {
-        const parsed = JSON.parse(Buffer.concat(chunks).toString("utf8")) as HelperResult;
+        const parsed = JSON.parse(Buffer.concat(chunks).toString("utf8")) as T;
         done(parsed && typeof parsed === "object" ? parsed : null);
       } catch {
         done(null);
@@ -265,6 +277,11 @@ export const spawnHelperRunner: HelperRunner = (req, killAfterMs) =>
     });
     child.stdin?.end(Buffer.from(JSON.stringify(req), "utf8"));
   });
+}
+
+/** Default phraser runner. */
+export const spawnHelperRunner: HelperRunner = (req, killAfterMs) =>
+  spawnPythonJson<HelperResult>("architecture.ai.gemini_phraser", req, killAfterMs);
 
 let singleton: GeminiPhraser | null | undefined;
 

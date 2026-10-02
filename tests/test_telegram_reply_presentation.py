@@ -149,7 +149,8 @@ def test_single_shared_composer_for_all_chat_surfaces():
     """Dashboard chat (`reply`) and Telegram (`answer_html`) come from one composer."""
     chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
     assert 'from "./response_composer"' in chat
-    assert chat.count("finalizeReply(") == 2  # normal replies + locked refusals
+    # normal replies + one locked helper (refusals, proposals, confirmations; Phase 7b)
+    assert chat.count("finalizeReply(") == 2 and "async function lockedReply" in chat
     assert "renderPlain(" not in chat and "renderTelegramHtml(" not in chat
     assert "locked: true" in chat
     comp = (ROOT / "response_composer.ts").read_text(encoding="utf-8")

@@ -174,7 +174,8 @@ type Snap = {
   teams: Array<{ id: string; fa: string; size: number }>;
 };
 
-type ChatMsg = { role: "user" | "assistant"; content: string };
+type PendingActionView = { code: string; kind: string; summaryFa: string; expiresAt: string };
+type ChatMsg = { role: "user" | "assistant"; content: string; pending?: PendingActionView | null };
 type TabId = "dash" | "opp" | "news" | "council" | "watch" | "evo";
 
 const TABS: ReadonlyArray<readonly [TabId, string]> = [
@@ -404,10 +405,12 @@ export default function CommandCenter() {
     [load],
   );
 
-  const send = useCallback(async () => {
-    const message = draft.trim();
+  const [usedCodes, setUsedCodes] = useState<Record<string, true>>({});
+
+  const send = useCallback(async (override?: string) => {
+    const message = (override ?? draft).trim();
     if (!message) return;
-    setDraft("");
+    if (override === undefined) setDraft("");
     setChat((c) => {
       const next: ChatMsg[] = [...c, { role: "user", content: message }];
       return next.length > MAX_CHAT ? next.slice(next.length - MAX_CHAT) : next;
@@ -419,9 +422,12 @@ export default function CommandCenter() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
       });
-      const json = (await res.json()) as { reply?: string };
+      const json = (await res.json()) as { reply?: string; pending_action?: PendingActionView | null };
       setChat((c) => {
-        const next: ChatMsg[] = [...c, { role: "assistant", content: json.reply || "UNKNOWN" }];
+        const next: ChatMsg[] = [
+          ...c,
+          { role: "assistant", content: json.reply || "UNKNOWN", pending: json.pending_action ?? null },
+        ];
         return next.length > MAX_CHAT ? next.slice(next.length - MAX_CHAT) : next;
       });
       beep(true, soundRef.current);
@@ -954,6 +960,34 @@ export default function CommandCenter() {
                 }`}
               >
                 {m.content}
+                {m.role === "assistant" && m.pending && !usedCodes[m.pending.code] && (
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      type="button"
+                      className="hud-btn !px-3 !py-1 text-xs"
+                      disabled={busy === "chat"}
+                      onClick={() => {
+                        const code = m.pending!.code;
+                        setUsedCodes((u) => ({ ...u, [code]: true }));
+                        void send(`تایید ${code}`);
+                      }}
+                    >
+                      تایید
+                    </button>
+                    <button
+                      type="button"
+                      className="hud-btn !px-3 !py-1 text-xs"
+                      disabled={busy === "chat"}
+                      onClick={() => {
+                        const code = m.pending!.code;
+                        setUsedCodes((u) => ({ ...u, [code]: true }));
+                        void send(`لغو ${code}`);
+                      }}
+                    >
+                      لغو
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

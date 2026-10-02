@@ -146,10 +146,11 @@ def test_gateway_wiring_keeps_refusals_locked_and_key_out_of_node():
     chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
     assert "getDefaultPhraser()" in chat
     assert 'locked: intent === "trade_signal"' in chat   # Phase 7: policy reply never phrased
-    refusal_line = next(l for l in chat.splitlines() if "locked: true" in l)
-    assert "phraser" not in refusal_line            # GM-04 refusals are never phrased
+    locked_line = next(l for l in chat.splitlines() if "locked: true" in l)
+    assert "phraser" not in locked_line             # refusals/proposals/confirmations never phrased
     ts = (ROOT / "gemini_phraser.ts").read_text(encoding="utf-8")
-    assert "shell: false" in ts and '"-m", "architecture.ai.gemini_phraser"' in ts
+    assert "shell: false" in ts and '["-m", module]' in ts
+    assert 'HELPER_MODULES = new Set(["architecture.ai.gemini_phraser", "architecture.ai.gemini_chat"])' in ts
     assert "x-goog-api-key" not in ts and "generativelanguage" not in ts   # key/endpoint only in the helper
     assert "DATABASE_URL" not in ts.split("export function helperEnv")[1].split("return env")[0].split("const keep")[1].split("];")[0]
 

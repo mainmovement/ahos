@@ -73,7 +73,7 @@ const JARGON = [/GM-\d/i, /canonical/i, /کانونیکال/, /\bUNKNOWN\b/];
 const DIGITS_FA = "۰۱۲۳۴۵۶۷۸۹";
 const DIGITS_AR = "٠١٢٣٤٥٦٧٨٩";
 
-function numberTokens(s: string): Set<string> {
+export function numberTokens(s: string): Set<string> {
   const ascii = String(s ?? "").replace(/[۰-۹٠-٩]/g, (c) => {
     const i = DIGITS_FA.indexOf(c);
     return String(i >= 0 ? i : DIGITS_AR.indexOf(c));

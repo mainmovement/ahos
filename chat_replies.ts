@@ -44,7 +44,7 @@ const STATE_FA: Record<string, string> = {
   UNKNOWN: "نامشخص",
   VERIFIED: "تأیید شده",
 };
-const REGIME_FA: Record<string, string> = {
+export const REGIME_FA: Record<string, string> = {
   EXTREME_GREED: "طمع شدید",
   EXTREME_FEAR: "ترس شدید",
   RISK_ON: "ریسک‌پذیر (رو به رشد)",
@@ -52,7 +52,7 @@ const REGIME_FA: Record<string, string> = {
   RANGE: "خنثی (نوسان در محدوده)",
   UNKNOWN: "نامشخص",
 };
-const FEAR_GREED_FA: Record<string, string> = {
+export const FEAR_GREED_FA: Record<string, string> = {
   "extreme fear": "ترس شدید",
   fear: "ترس",
   neutral: "خنثی",

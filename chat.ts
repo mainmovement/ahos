@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { desc } from "drizzle-orm";
-import { addPaper, addWatch, getState, PaperSecurityDenied } from "./engine";
+import { addPaper, getState, PaperSecurityDenied } from "./engine";
 import { gateChatControl, recordControlAudit } from "./chat_control_gate";
 import {
   canonicalFocusTokenKey,
@@ -13,9 +13,23 @@ import {
 import { commandSnapshot } from "./snapshot";
 import { FINAL_USER_LINE } from "./types";
 import { blocksFromText, bullet, gap, line, note, title, type ReplyBlock } from "./reply_format";
-import { finalizeReply } from "./response_composer";
+import { finalizeReply, phrasedHtml } from "./response_composer";
 import { getDefaultPhraser } from "./gemini_phraser";
 import { detectMajorAsset, extractTicker, isPronounQuery, routeIntent } from "./chat_intent";
+import {
+  getPendingStore,
+  handleConfirmation,
+  isOwner,
+  parseConfirmation,
+  proposalTextFa,
+  propose,
+  toPublic,
+  type ActionKind,
+  type Identity,
+  type PublicPendingAction,
+} from "./chat_actions";
+import { getDefaultChatAgent } from "./chat_agent";
+import { getConversationMemory, memoryKey } from "./chat_memory";
 import {
   ENGINE_OFF_NOTE,
   confidenceFa,
@@ -44,12 +58,31 @@ import {
 
 export type ChatResponse = {
   reply: string;
-  /** Same content as `reply`, formatted for Telegram parse_mode=HTML (escaped). */
+  /** Same content as "reply", formatted for Telegram parse_mode=HTML (escaped). */
   replyHtml?: string;
   intent: string;
   evidence: Record<string, unknown>;
   focusToken?: string | null;
+  /** Phase 7b: a confirm-gated owner action awaiting «تایید <code>» (dashboard shows buttons). */
+  pendingAction?: PublicPendingAction | null;
 };
+
+const AGENT_DOWN_NOTE = "دستیار هوشمند الان در دسترس نیست؛ این پاسخ استاندارد سیستم است.";
+const AGENT_UNVERIFIED_NOTE = "پاسخ دستیار هوشمند با داده‌های سیستم تطبیق نداشت؛ این پاسخ استاندارد سیستم است.";
+
+/** Locked (verbatim) reply: refusals, proposals, confirmations. */
+async function lockedReply(intent: string, textFa: string) {
+  return finalizeReply({ intent, blocks: blocksFromText(textFa), footer: FINAL_USER_LINE, locked: true });
+}
+
+async function persistChat(text: string, reply: string, intent: string, evidence: Record<string, unknown>) {
+  try {
+    await db.insert(chatMessages).values({ role: "user", content: text, intent, evidence });
+    await db.insert(chatMessages).values({ role: "assistant", content: reply, intent, evidence });
+  } catch {
+    /* DB optional when DATABASE_URL missing */
+  }
+}
 
 export type ChatContext = {
   focusToken?: string | null;
@@ -62,14 +95,31 @@ export type ChatContext = {
 
 export async function handleChat(message: string, ctx: ChatContext = {}): Promise<ChatResponse> {
   const text = message.trim();
+  const identity: Identity = { channel: ctx.channel ?? "web", userId: ctx.userId ?? null };
+  const memKey = memoryKey(identity.channel, identity.userId);
+  const memory = getConversationMemory();
+  const store = getPendingStore();
+
+  // Phase 7b: whole-message «تایید <code>» / «لغو» for a pending owner action.
+  // Executes only via chat_actions.ts (same functions as the dashboard buttons), audited.
+  const confirmation = parseConfirmation(text);
+  if (confirmation) {
+    const r = await handleConfirmation(store, confirmation, identity, text);
+    const out = await lockedReply("confirm", r.replyFa);
+    const evidence = { intent: "confirm", at: new Date().toISOString(), confirm: { op: confirmation.op, executed: r.executed, kind: r.kind } };
+    memory.append(memKey, text, out.plain);
+    await persistChat(text, out.plain, "confirm", evidence);
+    return { reply: out.plain, replyHtml: out.html, intent: "confirm", evidence, focusToken: ctx.focusToken ?? null, pendingAction: null };
+  }
+
   const intent = detectIntent(text);
 
-  // GM-04 capability gate (deny-by-default). The chat path cannot prove it is the
-  // local dashboard (shared bearer token, client-supplied channel), so engine
-  // start/stop and paper_buy are refused here for EVERY channel. Dashboard
-  // buttons (/api/engine, /api/paper) are unchanged. Audited with hashed ids.
+  // GM-04 capability gate (whole-message detection; «stop loss» is never a stop).
+  // Non-owners are refused and audited exactly as before. Owners (Telegram id
+  // allowlist / dashboard) get a confirm-gated proposal instead (owner authority
+  // decision 2026-10-02, pending سپهر/قاسم/رضا review). Dashboard buttons unchanged.
   const gate = gateChatControl({ intent, text, channelClaimed: ctx.channel, userId: ctx.userId });
-  if (gate.controlled) {
+  if (gate.controlled && !isOwner(identity)) {
     recordControlAudit({
       surface: "chat",
       intent,
@@ -81,7 +131,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       text,
     });
     // Locked: control refusals are always shown verbatim (never rephrased).
-    const refusal = await finalizeReply({ intent, blocks: blocksFromText(gate.replyFa ?? ""), footer: FINAL_USER_LINE, locked: true });
+    const refusal = await lockedReply(intent, gate.replyFa ?? "");
     return {
       reply: refusal.plain,
       replyHtml: refusal.html,
@@ -94,6 +144,26 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       focusToken: ctx.focusToken ?? null,
     };
   }
+  if (gate.controlled) {
+    // Phase 7b (owner authority decision 2026-10-02): the owner gets a confirm-gated
+    // proposal instead of a refusal. Nothing runs until «تایید <code>».
+    const kind: ActionKind = intent === "start" ? "engine_start" : intent === "stop" ? "engine_stop" : "paper_buy";
+    const params: { symbol?: string | null; tokenKey?: string | null; chain?: string | null; address?: string | null } = {};
+    if (kind === "paper_buy") {
+      const s0 = await commandSnapshot();
+      const hit = findOpp(s0, text, ctx.focusToken ?? null);
+      Object.assign(params, { symbol: hit?.symbol ?? extractSymbol(text), tokenKey: hit?.tokenKey ?? null, chain: hit?.chain ?? null, address: hit?.address ?? null });
+    }
+    const r = propose(store, kind, params, identity, text);
+    const msg = r.ok
+      ? proposalTextFa(r.action)
+      : "برای ثبت خرید کاغذی، نماد توکنی را بنویس که در فهرست بررسی سیستم باشد. هیچ تغییری اعمال نشد.";
+    const out = await lockedReply("proposal", msg);
+    const evidence = { intent, at: new Date().toISOString(), control: { capability: gate.capability, decision: r.ok ? "PROPOSED" : "DENIED" } };
+    memory.append(memKey, text, out.plain);
+    await persistChat(text, out.plain, "proposal", evidence);
+    return { reply: out.plain, replyHtml: out.html, intent: "proposal", evidence, focusToken: ctx.focusToken ?? null, pendingAction: r.ok ? toPublic(r.action) : null };
+  }
   const snap = await commandSnapshot();
   let focus =
     ctx.focusToken ||
@@ -105,6 +175,29 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     at: new Date().toISOString(),
     focusIn: focus,
   };
+
+  // Phase 7b: conversational agent first (Gemini + whitelisted read tools +
+  // confirm-gated proposals). Any failure → deterministic path below + honest note.
+  const agent = getDefaultChatAgent();
+  let agentNote: string | null = null;
+  if (agent) {
+    const agentStarted = Date.now();
+    const r = await agent.run({ text, snap, history: memory.get(memKey), identity, store, footer: FINAL_USER_LINE });
+    evidence.agent = { ok: r.ok, reason: r.ok ? "OK" : r.reason, toolsUsed: r.toolsUsed, steps: r.steps, model: r.ok ? r.model : null, latencyMs: Date.now() - agentStarted };
+    if (r.ok) {
+      const out = r.locked
+        ? await lockedReply(r.proposal ? "proposal" : "agent", r.plain)
+        : { plain: r.plain + "\n\n— " + FINAL_USER_LINE, html: phrasedHtml(r.plain + "\n\n— " + FINAL_USER_LINE, FINAL_USER_LINE) };
+      const agentIntent = r.proposal ? "proposal" : "agent";
+      evidence.composer = r.locked ? "deterministic" : "gemini_agent";
+      memory.append(memKey, text, r.plain);
+      await persistChat(text, out.plain, agentIntent, evidence);
+      return { reply: out.plain, replyHtml: out.html, intent: agentIntent, evidence, focusToken: focus, pendingAction: r.proposal ? toPublic(r.proposal) : null };
+    }
+    if (r.reason !== "CIRCUIT_OPEN" || agent.isOpen()) {
+      agentNote = r.reason.startsWith("VALIDATION") ? AGENT_UNVERIFIED_NOTE : AGENT_DOWN_NOTE;
+    }
+  }
 
   if (intent === "market") {
     blocks = marketBlocks(snap);
@@ -153,24 +246,19 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
         ];
     if (hit) focus = hit.tokenKey;
   } else if (intent === "watch_add") {
+    // Phase 7b: watchlist writes from chat are confirm-gated too (owner only).
     const hit = findOpp(snap, text, focus);
     if (!hit) {
       blocks = [line("این نماد در فهرست فعلی نیست. نماد را دقیق‌تر بنویس؛ حدس نمی‌زنم.")];
     } else {
-      await addWatch({
-        tokenKey: hit.tokenKey,
-        symbol: hit.symbol,
-        chain: hit.chain,
-        address: hit.address,
-        thesisFa: `پایش به درخواست کاربر: ${text}`,
-      });
-      blocks = [
-        title(`👀 ${hit.symbol} به واچ‌لیست اضافه شد`),
-        bullet(`شبکه: ${hit.chain}`),
-        bullet(`حکم فعلی: ${decisionFa(hit.decision)} · اطمینان: ${confidenceFa(hit.confidence)}`),
-        hit.invalidationFa ? bullet(`شرط ابطال: ${hit.invalidationFa}`) : gap(),
-      ];
-      evidence.tokenKey = hit.tokenKey;
+      const r = propose(store, "watch_add", { symbol: hit.symbol, tokenKey: hit.tokenKey, chain: hit.chain, address: hit.address }, identity, text);
+      if (r.ok) {
+        const out = await lockedReply("proposal", proposalTextFa(r.action));
+        memory.append(memKey, text, out.plain);
+        await persistChat(text, out.plain, "proposal", evidence);
+        return { reply: out.plain, replyHtml: out.html, intent: "proposal", evidence, focusToken: hit.tokenKey, pendingAction: toPublic(r.action) };
+      }
+      blocks = [line("⛔ افزودن به واچ‌لیست فقط برای مالک سیستم مجاز است. هیچ تغییری اعمال نشد.")];
       focus = hit.tokenKey;
     }
   } else if (intent === "paper_buy") {
@@ -289,7 +377,9 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   // Shared composer for dashboard chat and Telegram. Phase 6: the Gemini phraser
   // may rewrite the grounded draft; validatePhrased() guards it and any failure
   // falls back to the deterministic text (see gemini_phraser.ts).
-  const phraser = getDefaultPhraser();
+  if (agentNote) blocks.unshift(note(agentNote), gap());
+  // When the agent just failed, Gemini is likely down too: skip the phraser.
+  const phraser = agentNote ? null : getDefaultPhraser();
   const phraseStarted = Date.now();
   // trade_signal is a PAPER_ONLY policy reply: locked so no phraser can add a coin pick.
   const composed = await finalizeReply({ intent, blocks, footer: FINAL_USER_LINE, locked: intent === "trade_signal" }, phraser);
@@ -307,13 +397,9 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   }
   evidence.focusToken = focus;
 
-  try {
-    await db.insert(chatMessages).values({ role: "user", content: text, intent, evidence });
-    await db.insert(chatMessages).values({ role: "assistant", content: reply, intent, evidence });
-  } catch {
-    /* DB optional when DATABASE_URL missing */
-  }
-  return { reply, replyHtml, intent, evidence, focusToken: focus };
+  memory.append(memKey, text, reply);
+  await persistChat(text, reply, intent, evidence);
+  return { reply, replyHtml, intent, evidence, focusToken: focus, pendingAction: null };
 }
 
 export async function chatHistory(limit = 24) {

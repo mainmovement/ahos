@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **IMPLEMENTED / TESTED (self-tests only), conservative capability-reducing form; PENDING INDEPENDENT REVIEW** by سپهر/قاسم/رضا. Phase 4 (2026-10-02), local commit only (pushes paused by owner). Not INTEGRATED/OPERATIONAL until the owner's live Telegram E2E (`reports/grok/G11_LIVE_E2E_RUNBOOK.md`). §1–§6 are the original design, kept for review history; §7 is what was implemented. |
+| Status | **IMPLEMENTED / TESTED (self-tests only), conservative capability-reducing form; PENDING INDEPENDENT REVIEW** by سپهر/قاسم/رضا. Phase 4 (2026-10-02), local commit only (pushes paused by owner). Not INTEGRATED/OPERATIONAL until the owner's live Telegram E2E (`reports/grok/G11_LIVE_E2E_RUNBOOK.md`). §1–§6 are the original design, kept for review history; §7 is what was implemented in Phase 4. **§8: OWNER AUTHORITY DECISION 2026-10-02 (Phase 7b) replaces the blanket refusal with a confirm-gated path for the owner only; flagged for سپهر/قاسم/رضا review.** |
 | Reviewers requested | سپهر, قاسم, رضا (security review), then owner approval |
 | Author / date | Grok, 2026-10-02 (Phase 2) |
 | Scope | TS gateway route behaviour for the `start`, `stop` and `paper_buy` intents (`chat.ts`) when the request arrives through `/api/chat` |
@@ -171,3 +171,35 @@ The audit is append-only JSONL with a hash chain:
 2. Should the residual `/api/engine` bearer exposure be closed with a loopback check plus a second secret (GM-04 phase 2)?
 3. Should the chat `watch` intent (watchlist write via `addWatch`) also be gated? It is out of this scope and unchanged.
 4. Should `AHOS_CONTROL_AUDIT_PATH` be registered in the config schema? `tests/test_config_validation.py` only scans the fixed file list, which does not include the new module.
+
+## 8. Owner authority decision, 2026-10-02 (Phase 7b): confirm-gated owner commands
+
+| Field | Value |
+|---|---|
+| Decided by | Owner (Mehrdad Ghodrati), scope change relayed at 17:35 Tehran, 2026-10-02 |
+| Status | IMPLEMENTED / TESTED (self-tests and live gateway check). **FLAGGED FOR سپهر/قاسم/رضا REVIEW.** Local commit only. |
+| What changes | For the **owner only**, the §7 blanket refusal of start, stop and paper_buy over chat is replaced by a confirm-gated path. Non-owners are still refused and audited exactly as in §7. |
+| What does not change | PAPER_ONLY; live trading stays DISABLED; Lane A, the Canonical Decision Authority (still decides every paper buy), the hooks overlay, keys/secrets/constitution/authority settings. None of these are reachable from chat. Whole-message command detection (normalized) stays, so «stop loss» never stops anything. |
+
+**Owner identity** (`chat_actions.ts::isOwner`):
+- Telegram: the sender's user_id must be in `TELEGRAM_ADMIN_USER_IDS` ∪ `TELEGRAM_ALLOWED_CHAT_IDS` (the existing bot allowlist; empty means nobody).
+- Dashboard chat: channel `web`/`dashboard` behind the dashboard bearer token. This is the same trust as the `/api/engine` and `/api/paper` buttons.
+- Any other channel is not the owner.
+
+**Flow:**
+1. The model (or the deterministic gate) proposes. Commands are limited to the whitelist: engine start/stop, paper buy, watch add.
+2. The bot shows a Persian summary plus a 6-character code: «برای اجرا دقیقاً بفرست: تایید CODE». The code expires after 5 minutes, works once, and is bound to the proposer's identity.
+3. Execution happens only on a whole-message `تایید CODE` from the same identity, re-checked as owner. It runs through the same functions as the dashboard routes (`startEngine`/`stopEngine`/`addWatch`; paper buy = `paperAllowedFromCanonical` + `addPaper`).
+4. Every step is appended to the hash-chained control audit (surface `chat_confirm`): PROPOSED, then CONFIRMED / CANCELLED / EXPIRED / DENIED / FAILED.
+- The model has no execute tool. It can only call `propose_*`, and an answer claiming execution is rejected by the validator.
+
+**Residual risks for reviewers:**
+1. Anyone holding `AHOS_WEB_API_TOKEN` can claim channel `web`, which is equal to the existing dashboard-button exposure.
+2. A compromised allowlisted Telegram account can propose and confirm.
+   - Mitigations: the confirmation is explicit, short-lived and audited.
+   - It cannot reach live trading or secrets.
+3. The pending store is in memory, so a gateway restart drops proposals (fail-safe).
+4. Telegram has no inline buttons yet; confirmation is by text.
+
+**Rollback:** set `AHOS_CHAT_AGENT=off` (agent off). To restore the full §7 refusal for everyone, revert the owner branch in `chat.ts::handleChat` (`if (gate.controlled) {…propose…}`), so that `isOwner` is no longer consulted.
+

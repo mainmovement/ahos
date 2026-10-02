@@ -32,6 +32,8 @@ export async function conversationGateway(
     answer: result.reply,
     // Presentation only: same content escaped for Telegram parse_mode=HTML.
     answer_html: result.replyHtml,
+    // Phase 7b: confirm-gated owner action (dashboard renders confirm/cancel buttons).
+    pending_action: result.pendingAction ?? null,
     intent: result.intent || "unknown",
     entities: { focusToken: result.focusToken ?? null, channel: req.channel },
     focus_token: result.focusToken ?? null,

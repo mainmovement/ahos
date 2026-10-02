@@ -305,6 +305,8 @@ export type ConversationResponse = {
   answer: string;
   /** Optional Telegram HTML rendering of `answer` (all dynamic values escaped). */
   answer_html?: string;
+  /** Phase 7b: confirm-gated owner action awaiting «تایید <code>». */
+  pending_action?: { code: string; kind: string; summaryFa: string; expiresAt: string } | null;
   intent: string;
   entities: Record<string, unknown>;
   focus_token: string | null;

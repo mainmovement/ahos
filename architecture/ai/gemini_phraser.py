@@ -87,10 +87,11 @@ def _default_opener(req: urllib.request.Request, timeout: float):
     return urllib.request.urlopen(req, timeout=timeout)  # noqa: S310 - fixed https endpoint
 
 
-def call_model(model: str, body: bytes, key: Any, timeout_s: float, opener: Opener = _default_opener):
-    """One generateContent call. Returns (text|None, assessment, error_kind). Never raises, never echoes the key.
+def call_model_payload(model: str, body: bytes, key: Any, timeout_s: float, opener: Opener = _default_opener):
+    """One generateContent call. Returns (payload|None, assessment, error_kind).
 
-    ``error_kind`` is an exception class name only (e.g. ``URLError:TimeoutError``), never a message."""
+    Never raises, never echoes the key. ``error_kind`` is an exception class name
+    only (e.g. ``URLError:TimeoutError``), never a message."""
     from architecture.ai.provider_status import AIProviderStatus, ProviderAssessment, classify_provider_error
 
     secret = key.reveal()
@@ -104,10 +105,9 @@ def call_model(model: str, body: bytes, key: Any, timeout_s: float, opener: Open
         with opener(req, timeout_s) as resp:
             raw = resp.read()
         payload = json.loads(raw.decode("utf-8"))
-        text = extract_text(payload)
-        if not text:
-            return None, ProviderAssessment(PROVIDER, AIProviderStatus.DEGRADED, "EMPTY_COMPLETION", 200, True), ""
-        return text, ProviderAssessment(PROVIDER, AIProviderStatus.READY, "OK", 200), ""
+        if not isinstance(payload, dict):
+            return None, ProviderAssessment(PROVIDER, AIProviderStatus.DEGRADED, "BAD_PAYLOAD", 200, True), ""
+        return payload, ProviderAssessment(PROVIDER, AIProviderStatus.READY, "OK", 200), ""
     except urllib.error.HTTPError as exc:
         try:
             detail = exc.read().decode("utf-8", errors="replace")
@@ -123,6 +123,19 @@ def call_model(model: str, body: bytes, key: Any, timeout_s: float, opener: Open
         return None, a, kind
     finally:
         del secret
+
+
+def call_model(model: str, body: bytes, key: Any, timeout_s: float, opener: Opener = _default_opener):
+    """One generateContent call → (text|None, assessment, error_kind)."""
+    from architecture.ai.provider_status import AIProviderStatus, ProviderAssessment
+
+    payload, assessment, kind = call_model_payload(model, body, key, timeout_s, opener)
+    if payload is None:
+        return None, assessment, kind
+    text = extract_text(payload)
+    if not text:
+        return None, ProviderAssessment(PROVIDER, AIProviderStatus.DEGRADED, "EMPTY_COMPLETION", 200, True), ""
+    return text, assessment, ""
 
 
 _NO_RETRY_ON_OTHER_MODEL = {"AUTH_FAILED", "QUOTA_EXHAUSTED", "BLOCKED"}
