@@ -206,7 +206,36 @@ def _web_api_auth_blocked(code: int, body: str, url: str, *,
     return None
 
 
+def _resolve_gateway() -> dict[str, Any]:
+    """GM-05: one resolution path (AHOS_GATEWAY_URL > AHOS_GATEWAY_PORT > :3000)."""
+    try:
+        from scripts.gateway_port import resolve_gateway
+
+        return resolve_gateway(os.environ)
+    except Exception:  # noqa: BLE001 - never let diagnostics break the gate
+        return {"url": "http://127.0.0.1:3000/api/chat", "port": 3000,
+                "source": "DEFAULT", "warnings": ["GATEWAY_PORT_MODULE_UNAVAILABLE"]}
+
+
 def g2_gateway(skip_network: bool) -> dict[str, Any]:
+    """G2 probe plus a read-only loopback port diagnosis when it does not PASS.
+
+    The diagnosis (CONFIGURED_PORT_NO_LISTENER etc.) never changes the gate
+    status and never edits .env; it only tells the owner where a gateway is
+    actually listening.
+    """
+    result = _g2_gateway_probe(skip_network)
+    if not skip_network and result.get("status") != "PASS":
+        try:
+            from scripts.gateway_port import diagnose
+
+            result["gateway_port_diagnosis"] = diagnose(os.environ)
+        except Exception:  # noqa: BLE001
+            pass
+    return result
+
+
+def _g2_gateway_probe(skip_network: bool) -> dict[str, Any]:
     if skip_network:
         return _gate(
             "G2", "Gateway", "NOT_VERIFIED",
@@ -225,7 +254,7 @@ def g2_gateway(skip_network: bool) -> dict[str, Any]:
     # Empty AHOS_GATEWAY_URL= (common from older .env.example) must NOT BLOCK:
     # treat blank as unset and use the local PAPER_ONLY default.
     raw_url = (os.environ.get("AHOS_GATEWAY_URL") or "").strip()
-    url = raw_url or "http://127.0.0.1:3000/api/chat"
+    url = raw_url or _resolve_gateway()["url"]
 
     # One-Brain chat uses Postgres; missing DATABASE_URL yields HTTP 500 while
     # Next is up. Surface that as BLOCKED/OWNER_ACTION rather than "start npm".
@@ -770,6 +799,7 @@ def main(argv: list[str] | None = None) -> int:
             "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
             "DATABASE_URL",
             "AHOS_GATEWAY_URL",
+            "AHOS_GATEWAY_PORT",
             "AHOS_PAPER_ONLY",
             "AHOS_EVIDENCE_SOURCE",
         ):
@@ -779,9 +809,14 @@ def main(argv: list[str] | None = None) -> int:
         pass
 
     # Normalize empty AHOS_GATEWAY_URL= from older .env.example (G2 must not BLOCK).
+    # GM-05: an AHOS_GATEWAY_PORT override is honoured for this run only; the
+    # historical .env persistence still happens ONLY for the plain default.
     if not (os.environ.get("AHOS_GATEWAY_URL") or "").strip():
-        os.environ["AHOS_GATEWAY_URL"] = "http://127.0.0.1:3000/api/chat"
-        if _persist_env_key(ROOT / ".env", "AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat"):
+        resolved = _resolve_gateway()
+        os.environ["AHOS_GATEWAY_URL"] = resolved["url"]
+        if resolved["source"] == "DEFAULT" and _persist_env_key(
+            ROOT / ".env", "AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat"
+        ):
             print(
                 "Normalized empty AHOS_GATEWAY_URL in .env -> "
                 "http://127.0.0.1:3000/api/chat",

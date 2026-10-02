@@ -4,7 +4,9 @@
 # Prerequisites:
 #   - Already on main with web_api_auth (PR #31+)
 #   - .env has DATABASE_URL + AHOS_WEB_API_TOKEN (use windows_ensure_web_api_token.ps1)
-#   - npm run dev is listening on 127.0.0.1:3000 (other terminal)
+#   - npm run dev is listening on the resolved gateway port (other terminal);
+#     default 127.0.0.1:3000, override with AHOS_GATEWAY_URL or AHOS_GATEWAY_PORT
+#     (single source of truth: scripts\gateway_port.py)
 #   - Never db:migrate / db:push (STATE B)
 #
 # Usage:
@@ -43,6 +45,7 @@ if (Test-Path -LiteralPath $envPath) {
         "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
         "DATABASE_URL",
         "AHOS_GATEWAY_URL",
+        "AHOS_GATEWAY_PORT",
         "AHOS_PAPER_ONLY",
         "AHOS_EVIDENCE_SOURCE"
     )
@@ -59,17 +62,6 @@ if (Test-Path -LiteralPath $envPath) {
     }
 }
 
-# .env.example ships AHOS_GATEWAY_URL= (empty). Empty-but-set BLOCKS G2.
-if ([string]::IsNullOrWhiteSpace($env:AHOS_GATEWAY_URL)) {
-    $env:AHOS_GATEWAY_URL = "http://127.0.0.1:3000/api/chat"
-    Write-Host "  AHOS_GATEWAY_URL was empty -- using http://127.0.0.1:3000/api/chat for this gate run" -ForegroundColor Yellow
-    # Persist into .env so the next bat/preflight does not BLOCK again.
-    $ensure = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
-    if (Test-Path -LiteralPath $ensure) {
-        & powershell -NoProfile -ExecutionPolicy Bypass -File $ensure | Out-Host
-    }
-}
-
 # Windows console often defaults to charmap; force UTF-8 for G12 n8n JSON reads.
 $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
@@ -77,6 +69,33 @@ $env:PYTHONIOENCODING = "utf-8"
 $py = Join-Path $RepoRoot ".venv\Scripts\python.exe"
 if (-not (Test-Path -LiteralPath $py)) {
     $py = "python"
+}
+
+# GM-05: one resolution path for the gateway URL (scripts\gateway_port.py):
+#   AHOS_GATEWAY_URL > AHOS_GATEWAY_PORT > http://127.0.0.1:3000/api/chat
+# .env.example ships AHOS_GATEWAY_URL= (empty). Empty-but-set BLOCKS G2.
+$gatewayPortTool = Join-Path $RepoRoot "scripts\gateway_port.py"
+if ([string]::IsNullOrWhiteSpace($env:AHOS_GATEWAY_URL)) {
+    $resolvedGateway = ""
+    if (Test-Path -LiteralPath $gatewayPortTool) {
+        try { $resolvedGateway = (& $py $gatewayPortTool --url-only 2>$null | Select-Object -First 1) } catch { $resolvedGateway = "" }
+    }
+    if ([string]::IsNullOrWhiteSpace($resolvedGateway)) { $resolvedGateway = "http://127.0.0.1:3000/api/chat" }
+    $env:AHOS_GATEWAY_URL = $resolvedGateway.Trim()
+    Write-Host ("  AHOS_GATEWAY_URL was empty -- using " + $env:AHOS_GATEWAY_URL + " for this gate run") -ForegroundColor Yellow
+    # Persist into .env so the next bat/preflight does not BLOCK again
+    # (only for the plain default; an AHOS_GATEWAY_PORT override is per-run).
+    if ([string]::IsNullOrWhiteSpace($env:AHOS_GATEWAY_PORT)) {
+        $ensure = Join-Path $RepoRoot "scripts\windows_ensure_web_api_token.ps1"
+        if (Test-Path -LiteralPath $ensure) {
+            & powershell -NoProfile -ExecutionPolicy Bypass -File $ensure | Out-Host
+        }
+    }
+}
+
+# Read-only loopback diagnosis (CONFIGURED_PORT_NO_LISTENER etc.). Never edits .env.
+if (Test-Path -LiteralPath $gatewayPortTool) {
+    try { & $py $gatewayPortTool | Out-Host } catch { Write-Host "  gateway_port diagnosis unavailable" -ForegroundColor DarkGray }
 }
 
 $env:AHOS_PAPER_ONLY = "1"

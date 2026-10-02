@@ -71,7 +71,7 @@ No new agents are proposed. No mission touches Lane A, Canonical Decision Author
 - Objective: introduce one source for gateway port/URL used by launchers and gate, plus a read-only preflight that reports "configured URL has no listener; AHOS gateway detected on :NNNN".
 - Why: `.env:99` (3000) vs running 3500; ~40 refs on 3000; Claude bypassed main() to get G2.
 - Authority: script change OK; choosing 3000 vs 3500 and editing `.env` = **OWNER_ACTION**. Do NOT blind-replace 3000→3500.
-- Files: `scripts/operator_validation_gate.py`, `scripts/windows_run_operator_gate.ps1`, tests. Status: DESIGN_ONLY.
+- Files: `scripts/operator_validation_gate.py`, `scripts/windows_run_operator_gate.ps1`, tests. Status: IMPLEMENTED_VERIFIED (self-tests; `scripts/gateway_port.py`; default 3000 kept, env override honoured, .env untouched). Real diagnosis: CONFIGURED_PORT_NO_LISTENER, listener on 3500. Canonical port choice = OWNER_ACTION_REQUIRED. Next: GM-06.
 
 ### GM-06 — Quarantine n8n AHOS-03 + validator rules
 - Objective: mark `ahos_03_telegram_control.json` quarantined; extend `tests/validate_n8n.py` to reject interpolated SQL, DELETE on audit tables, and `trade_decisions.execution_status` mutation.

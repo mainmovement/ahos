@@ -32,7 +32,7 @@ Self-tests are **not** independent verification.
 |---|---|---|
 | GM-02 Telegram offline edge harness | IMPLEMENTED_VERIFIED (offline/self-test only); live E2E = LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED | the commit that adds `tests/test_telegram_offline_harness.py` (`git log -- tests/test_telegram_offline_harness.py`) |
 | GM-03 dashboard truthfulness | IMPLEMENTED_VERIFIED (self-tests; presentation only; browser view not visually checked) | `git log -- dashboard_truth.ts` |
-| GM-05 gateway port single source + diagnosis | pending | |
+| GM-05 gateway port single source + diagnosis | IMPLEMENTED_VERIFIED (self-tests + one real read-only diagnosis run); port choice = OWNER_ACTION_REQUIRED | `git log -- scripts/gateway_port.py` |
 | GM-06 n8n validator + ahos_03 quarantine | pending | |
 | GM-04 Telegram control capability gate | DESIGN_ONLY (proposal doc pending) | |
 
@@ -95,6 +95,37 @@ Self-tests are **not** independent verification.
 - Adversarial: the selftest covers future timestamps, NaN or empty timestamps, the refresh-error-with-fresh-snapshot case, green→STALE, VIOLATION not masked, and non-green statuses passing through unchanged.
 - Not verified: how the page actually renders in a browser (no service restart, no screenshot). The Next dev server hot-reloads on its own.
 - Next: GM-05.
+
+### GM-05: what changed (non-breaking option; `.env` NOT edited; 3000 NOT mass-replaced)
+- `scripts/gateway_port.py` (new, stdlib only, read-only):
+  - `resolve_gateway`: precedence is `AHOS_GATEWAY_URL` > `AHOS_GATEWAY_PORT` > `http://127.0.0.1:3000/api/chat`.
+  - It warns on an invalid port, on a port that disagrees with the URL, and on an unparseable URL.
+  - `diagnose` probes loopback ports only (the configured port plus `AHOS_GATEWAY_CANDIDATE_PORTS`, default 3000,3500). Verdicts: `CONFIGURED_PORT_LISTENING`, `CONFIGURED_PORT_NO_LISTENER` (with an OWNER_ACTION hint), `NO_GATEWAY_LISTENING`, `NON_LOCAL_URL_NOT_PROBED`.
+  - CLI: `--json`, `--url-only`, `--env-file`. It never writes anything.
+- `scripts/operator_validation_gate.py`:
+  - G2's default URL comes from the resolver.
+  - `AHOS_GATEWAY_PORT` is loaded from .env.
+  - When G2 is not PASS, a `gateway_port_diagnosis` is attached. The **status is unchanged**.
+  - The historical .env persistence of the 3000 default happens only when source = DEFAULT, never for a port override.
+- `scripts/windows_run_operator_gate.ps1` (BOM and CRLF preserved; parser: 0 errors):
+  - It now uses `gateway_port.py --url-only` (same resolution), falling back to 3000.
+  - It persists via the ensure script only when no port override is set.
+  - It prints the read-only diagnosis.
+- `tests/test_gateway_port.py` (new): 26 cases.
+
+### GM-05: tests and real diagnosis
+- Windows: `test_gateway_port` + `test_operator_validation_gate` + `test_web_api_auth_gate` + `test_phase18_launchers`: **110 passed**. `validate_imports --imports-only`: PASSED.
+- Real run on the laptop, read-only (.env hash unchanged before and after):
+  `verdict=CONFIGURED_PORT_NO_LISTENER`, `listening_candidates=3500`. So .env says 3000, and the gateway is actually listening on 3500.
+- Mutation checks (each made one test fail):
+  - hard-coding 3000 back in G2
+  - removing the loopback-only guard
+- **OWNER_ACTION_REQUIRED:** choose one:
+  - (a) restart the gateway on 3000, or
+  - (b) set `AHOS_GATEWAY_PORT=3500` (or `AHOS_GATEWAY_URL`) yourself.
+
+  Grok edited no `.env` and restarted nothing.
+- Next: GM-06.
 <!-- PHASE2:END -->
 
 > Below: Phase 1 handoff (2026-10-02 10:36Z), kept for history.
