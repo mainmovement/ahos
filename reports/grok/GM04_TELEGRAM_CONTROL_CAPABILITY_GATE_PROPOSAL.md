@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **DESIGN_ONLY**. No code has been written. Implementation waits for security review. |
+| Status | **IMPLEMENTED / TESTED (self-tests only), conservative capability-reducing form; PENDING INDEPENDENT REVIEW** by سپهر/قاسم/رضا. Phase 4 (2026-10-02), local commit only (pushes paused by owner). Not INTEGRATED/OPERATIONAL until the owner's live Telegram E2E (`reports/grok/G11_LIVE_E2E_RUNBOOK.md`). §1–§6 are the original design, kept for review history; §7 is what was implemented. |
 | Reviewers requested | سپهر, قاسم, رضا (security review), then owner approval |
 | Author / date | Grok, 2026-10-02 (Phase 2) |
 | Scope | TS gateway route behaviour for the `start`, `stop` and `paper_buy` intents (`chat.ts`) when the request arrives through `/api/chat` |
@@ -80,3 +80,94 @@
 2. Is remote engine control wanted at all? If so, should the nonce be required?
 3. Should `paper_buy` from Telegram be allowed, given that it is canonical-gated and PAPER only?
 4. Where should the audit be stored: JSONL under `data/`, or the existing audit table? A table would need a DB write path, which needs governance.
+
+## 7. Implementation (Phase 4, 2026-10-02): conservative, capability-reducing form
+
+**Status:** IMPLEMENTED / TESTED with self-tests only. **PENDING INDEPENDENT REVIEW** by سپهر, قاسم and رضا. This change only removes capability, so the owner instructed that it does not need governance approval before implementation. It has not been independently verified.
+
+### 7.1 What was chosen
+
+This is option 3(b) of §3, the safest option that needs no new secret.
+
+- `/api/chat` cannot prove the request came from the local dashboard:
+  - It uses one shared bearer, `AHOS_WEB_API_TOKEN`.
+  - Telegram and dashboard chat reach the same route.
+  - `channel` and `user_id` are client-asserted body fields.
+- So the chat path now **refuses `start`, `stop` and `paper_buy` for every channel**, including a claimed `web`, `local` or `dashboard`.
+- The refusal is a Persian reply. The decision never reads the `channel` field. That field is recorded in the audit only, sanitized and labelled `channel_claimed`.
+
+### 7.2 Dashboard behaviour (documented change)
+
+Dashboard **chat** was exactly as exposed as Telegram: same route, same token, client-asserted channel. Per the task rule, this change is documented here rather than made silently.
+
+- **Changed:** typing «شروع» / «توقف» / «خریدم …» in the dashboard *chat box* is now refused. The reply points to the dashboard buttons.
+- **Unchanged:**
+  - The dashboard **Start/Stop buttons** still call `/api/engine`.
+  - The dashboard **paper buy** still calls `/api/paper`, which keeps the canonical BUY requirement and the overlay.
+- `/api/engine` start/stop now also appends an `ALLOWED` audit line (surface `engine_api`).
+- Residual (not changed, for review): any holder of `AHOS_WEB_API_TOKEN` can still call `/api/engine` directly. Closing that needs a real local-only proof such as a loopback check or a second secret. That is GM-04 phase 2 and needs review.
+
+### 7.3 Intent matching fix (T2)
+
+`detectControlCommand` (in `chat_control_gate.ts`) matches the **whole message** against explicit phrase lists only. Before matching it normalizes the text:
+
+- NFKC (folds fullwidth characters)
+- strips zero-width and bidi marks
+- ZWNJ becomes a space
+- Arabic ي/ى/ك become ی/ک
+- strips harakat
+- lowercases and collapses whitespace
+- removes trailing punctuation
+- removes an optional «لطفا»/please
+- rewrites `/cmd@bot` to `cmd`
+
+Results:
+
+| Matches? | Messages |
+|---|---|
+| Never | "stop loss", "stoploss", "Stop-Loss", "start-up", "startup", "restart", "nonstop", "قیمت توقف ضرر چنده", "توقف ضرر", "چرا موتور خاموشه؟", "start the analysis of BTC" |
+| Yes | "STOP", " stop! ", "/stop@Sun_sniperbot", "لطفا خاموش کن", "شروع کن؟", "ｓｔｏｐ", "st\u200Bop" |
+
+These matches are refused anyway. `paper_buy` now needs an explicit phrase (خریدم / خرید کاغذی / ثبت خرید / paper buy), so a bare "paper" (as in "paper trading چیه") no longer counts as a buy.
+
+### 7.4 Audit (T5)
+
+The audit is append-only JSONL with a hash chain:
+
+- **Location:** `AHOS_CONTROL_AUDIT_PATH`, otherwise `(AHOS_DATA_DIR || <cwd>/data)/control_audit/chat_control_audit.jsonl`. `data/` is gitignored.
+- **Schema:** `ahos.chat_control_audit.v1`
+- **Fields:** ts, surface, intent, capability, decision, reason, channel_claimed, `user_id_hash` (sha256 of `ahos:user:<id>`, first 16 hex chars), `message_sha256`, message_len, prev_hash, entry_hash
+- **No raw text and no raw ids.**
+- A torn tail is isolated on its own line and never rewritten.
+- A sink failure never throws, and the refusal still applies (fail-closed).
+- `verifyAuditLines` detects tampering and deletion.
+
+### 7.5 Replay (T4)
+
+- A replayed update reaching `/api/chat` is simply refused again and audited again. The repeat is visible as the same `message_sha256`. Since nothing is granted, a replay cannot cause action.
+- Bot-side, the GM-02 `ReplayGuard` still drops duplicate `update_id`s.
+
+### 7.6 Files
+
+| File | Change |
+|---|---|
+| `chat_control_gate.ts` | New, pure module |
+| `chat.ts` | Gate runs right after `detectIntent`, before any snapshot or DB access. `startEngine`/`stopEngine` imports and branches removed. The paper_buy branch is kept as unreachable defence in depth, with canonical pins intact. Help, greeting and hint wording updated. |
+| `conversation_gateway.ts` | Forwards `channel`/`user_id` for the audit only |
+| `app/api/engine/route.ts` | ALLOWED audit line |
+| `scripts/chat_control_gate_selftest.ts` | New, plus npm `test:chat-control-gate` |
+| `tests/test_chat_control_gate_static.py` | New |
+| `scripts/verify_control_audit.ts` | New, read-only chain verifier; npm `audit:control-verify` |
+
+**Self-tests** (not independent verification): npm `test:chat-control-gate` 126/126; Windows pytest Telegram + canonical sets 271 passed / 1 xfailed; `tsc --noEmit` 0 errors; eslint clean.
+
+### 7.7 Rollback
+
+`git revert <commit>`. No data migration is needed. The audit file can stay.
+
+### 7.8 Questions for reviewers
+
+1. Is refusing dashboard chat control acceptable, given that the buttons are unchanged?
+2. Should the residual `/api/engine` bearer exposure be closed with a loopback check plus a second secret (GM-04 phase 2)?
+3. Should the chat `watch` intent (watchlist write via `addWatch`) also be gated? It is out of this scope and unchanged.
+4. Should `AHOS_CONTROL_AUDIT_PATH` be registered in the config schema? `tests/test_config_validation.py` only scans the fixed file list, which does not include the new module.

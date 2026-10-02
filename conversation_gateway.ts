@@ -24,6 +24,9 @@ export async function conversationGateway(
   const result: ChatResponse = await handleChat(message, {
     focusToken: req.focus_token ?? req.referenced_token ?? null,
     history: req.history,
+    // GM-04: forwarded for the audit only; never used as a grant.
+    channel: req.channel ?? null,
+    userId: req.user_id ?? null,
   });
   return {
     answer: result.reply,

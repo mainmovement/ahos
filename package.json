@@ -10,6 +10,8 @@
     "test:canonical-security": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/canonical_security_selftest.ts",
     "test:alert-banner": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/alert_banner_selftest.ts",
     "test:dashboard-truth": "node --experimental-strip-types --test scripts/dashboard_truth_selftest.ts",
+    "test:chat-control-gate": "node --experimental-strip-types --test scripts/chat_control_gate_selftest.ts",
+    "audit:control-verify": "node --experimental-strip-types scripts/verify_control_audit.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",

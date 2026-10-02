@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { desc } from "drizzle-orm";
-import { addPaper, addWatch, getState, startEngine, stopEngine, PaperSecurityDenied } from "./engine";
+import { addPaper, addWatch, getState, PaperSecurityDenied } from "./engine";
+import { detectControlCommand, gateChatControl, looksLikePaperBuy, recordControlAudit } from "./chat_control_gate";
 import {
   canonicalFocusTokenKey,
   findCanonicalDecision,
@@ -23,11 +24,43 @@ export type ChatResponse = {
 export type ChatContext = {
   focusToken?: string | null;
   history?: Array<{ role: "user" | "assistant"; content: string }>;
+  /** Client-claimed channel: recorded in the audit only, NEVER a grant (GM-04). */
+  channel?: string | null;
+  /** Client-claimed sender id: hashed in the audit, never stored raw. */
+  userId?: string | null;
 };
 
 export async function handleChat(message: string, ctx: ChatContext = {}): Promise<ChatResponse> {
   const text = message.trim();
   const intent = detectIntent(text);
+
+  // GM-04 capability gate (deny-by-default). The chat path cannot prove it is the
+  // local dashboard (shared bearer token, client-supplied channel), so engine
+  // start/stop and paper_buy are refused here for EVERY channel. Dashboard
+  // buttons (/api/engine, /api/paper) are unchanged. Audited with hashed ids.
+  const gate = gateChatControl({ intent, text, channelClaimed: ctx.channel, userId: ctx.userId });
+  if (gate.controlled) {
+    recordControlAudit({
+      surface: "chat",
+      intent,
+      capability: gate.capability,
+      decision: "REFUSED",
+      reason: gate.reason,
+      channelClaimed: ctx.channel,
+      userId: ctx.userId,
+      text,
+    });
+    return {
+      reply: `${gate.replyFa}\n\n${FINAL_USER_LINE}`,
+      intent,
+      evidence: {
+        intent,
+        at: new Date().toISOString(),
+        control: { gm: "GM-04", capability: gate.capability, decision: "REFUSED", reason: gate.reason },
+      },
+      focusToken: ctx.focusToken ?? null,
+    };
+  }
   const snap = await commandSnapshot();
   let focus =
     ctx.focusToken ||
@@ -40,14 +73,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     focusIn: focus,
   };
 
-  if (intent === "start") {
-    await startEngine();
-    reply =
-      "روشن شد. از همین لحظه چرخه‌ها پشت‌سرهم می‌روند (حدود هر ۷۰ ثانیه) تا خودت بگی توقف. وسط کار وای نمی‌ایستم. اگر پروایدری قطع باشه همان DOWN یا UNKNOWN می‌مونه — چیزی جعل نمی‌کنم. هروقت خواستی خودمونی بپرس: بازار چه خبر؟ فرصت‌ها؟ این توکن چطوره؟";
-  } else if (intent === "stop") {
-    await stopEngine();
-    reply = "متوقف شد. داده‌های قبلی سر جاشون هستن. هر وقت خواستی دوباره بگو شروع کن.";
-  } else if (intent === "market") {
+  if (intent === "market") {
     reply = marketReply(snap);
   } else if (intent === "opportunities") {
     reply = oppReply(snap);
@@ -92,6 +118,8 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       focus = hit.tokenKey;
     }
   } else if (intent === "paper_buy") {
+    // Unreachable from chat while the GM-04 gate refuses PAPER_WRITE (above).
+    // Kept as defence in depth: even if reached, only canonical BUY may record paper.
     const hit = findOpp(snap, text, focus);
     const price =
       extractNumber(text, /(?:قیمت|با|@)\s*([0-9]+(?:\.[0-9]+)?)/) ??
@@ -188,7 +216,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     running = false;
   }
   if (!running && intent !== "start" && intent !== "stop" && intent !== "greeting" && intent !== "help") {
-    reply += "\n\nموتور الان خاموشه. اگر بخوای خودم از اینجا روشن کنم بگو «شروع کن» — بعدش خودش پشت‌سرهم جمع می‌کنه.";
+    reply += "\n\nموتور الان خاموشه. برای روشن کردن از دکمهٔ «شروع» داشبورد محلی استفاده کن (کنترل موتور از گفتگو غیرفعال است — GM-04).";
   }
   reply += `\n\n${FINAL_USER_LINE}`;
   evidence.focusToken = focus;
@@ -230,10 +258,11 @@ function detectIntent(text: string): string {
   const t = text.toLowerCase();
   if (/^(سلام|درود|هی|hello|hi|hey)(\s|$|[!.،,])/i.test(text.trim()) || /چطوری|خوبی/.test(text)) return "greeting";
   if (/(راهنما|کمک|چه کار|چیکار میکنی|help|commands)/i.test(text)) return "help";
-  if (/(^|\s)(شروع|استارت|start|روشن)(\s|$)/i.test(text) && !/خرید/.test(text)) return "start";
-  if (/(توقف|استاپ|stop|خاموش)/i.test(text)) return "stop";
+  // GM-04: explicit whole-message commands only ("stop loss", "start-up" never match).
+  const control = detectControlCommand(text);
+  if (control) return control;
   if (/(زیر نظر|واچ|watch)/i.test(text)) return "watch_add";
-  if (/(خریدم|خرید کاغذی|ثبت خرید|paper)/i.test(text)) return "paper_buy";
+  if (looksLikePaperBuy(text)) return "paper_buy";
   if (/(پورتف|موقعیت|کاغذی‌ها)/i.test(text)) return "paper_list";
   if (/(واچ‌لیست|watchlist|تحت نظر)/i.test(text)) return "watchlist";
   if (/(رد شد|چرا رد|reject)/i.test(text)) return "reject";
@@ -261,7 +290,7 @@ function greetingReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): strin
     "سلام! من AHOS هستم — همون همکار صریح که حدس رو جای داده نمی‌ذاره.",
     running
       ? `الان موتور روشنه و ${n} حکم کانونیکال پایتون در خواندنی موجود است (نه امتیاز فرانت‌اند).`
-      : "موتور فعلاً خاموشه؛ بگو «شروع کن» تا جمع‌آوری شروع بشه.",
+      : "موتور فعلاً خاموشه؛ از دکمهٔ «شروع» داشبورد محلی روشنش کن تا جمع‌آوری شروع بشه.",
     "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ اخبار سولانا؟ این توکن رو تحت نظر بگیر. سیستم کجاش لنگه؟",
     "خرید واقعی انجام نمی‌دم — فقط کاغذی و پایش.",
   ].join(" ");
@@ -273,9 +302,9 @@ function helpReply(): string {
     "• بازار / بیت‌کوین / اتریوم / سولانا",
     "• بهترین فرصت‌ها / پامپ / چی بخرم (فقط پایش — نه سفارش واقعی)",
     "• اخبار / اخبار سولانا",
-    "• این توکن رو تحت نظر بگیر / خرید کاغذی ثبت کن",
+    "• این توکن رو تحت نظر بگیر",
     "• شورا چه گفت / نهنگ‌ها / سلامت سیستم / درس‌ها",
-    "• شروع کن / توقف",
+    "• شروع/توقف موتور و ثبت خرید کاغذی فقط از داشبورد محلی (نه از گفتگو — GM-04)",
     "مثل چت عادی حرف بزن؛ اگر داده نباشه می‌گم UNKNOWN.",
   ].join("\n");
 }

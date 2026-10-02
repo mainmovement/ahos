@@ -1,5 +1,86 @@
 # GROK HANDOFF (living document) — for Claude Code
 
+<!-- PHASE4:START -->
+## Phase 4 (2026-10-02, Grok): GM-04 conservative capability gate and G11 live-E2E runbook
+
+**Pushes are still paused by the owner: local commits only.** Claude/reviewers: `git log origin/ahos..ahos`.
+
+### What changed
+
+GM-04 was implemented in its capability-reducing form. It **only removes capability**. Status: IMPLEMENTED/TESTED (self-tests only), **PENDING INDEPENDENT REVIEW by سپهر/قاسم/رضا**.
+
+**Start/stop matching**
+- `chat.ts` start/stop detection is now **whole-message explicit commands** (`chat_control_gate.ts` `detectControlCommand`).
+- "stop loss", "stoploss", "start-up", "restart", "توقف ضرر" never match.
+- `paper_buy` needs an explicit phrase; a bare "paper" no longer counts.
+
+**Refusal on `/api/chat`**
+- `/api/chat` refuses `start`, `stop` and `paper_buy` for **every** channel, with a Persian reply.
+- The client `channel` field is never a grant: it is recorded as `channel_claimed` only.
+- `startEngine`/`stopEngine` were removed from `chat.ts`.
+- Reason: the chat path cannot prove the local dashboard (shared bearer, client-asserted channel). See the GM04 doc §7.
+
+**Documented dashboard change**
+- Dashboard *chat* typing «شروع/توقف/خریدم» is now refused and points to the buttons. It was equally exposed.
+- The dashboard **buttons** (`/api/engine`, `/api/paper`) are unchanged. `/api/engine` start/stop now writes an ALLOWED audit line.
+
+**Audit**
+- Append-only, hash-chained JSONL with hashed ids and no raw text.
+- Location: `data/control_audit/chat_control_audit.jsonl` (override `AHOS_CONTROL_AUDIT_PATH` / `AHOS_DATA_DIR`).
+- Verify with `npm run audit:control-verify`.
+
+**Other**
+- `conversation_gateway.ts` forwards `channel`/`user_id` into ChatContext, for the audit only.
+
+### Tests (self-tests, not independent verification)
+
+**On Windows (node 24):**
+- npm `test:chat-control-gate`: 126/126. Covers:
+  - the negative/positive matrix
+  - case, fullwidth (NFKC), zero-width, bidi and Arabic-letter variants
+  - Persian phrases
+  - spoofed channels (web/local/dashboard/null/injection)
+  - replay
+  - tamper and deletion detection
+  - torn tail
+  - sink failure staying fail-closed
+- Other npm selftests:
+
+  | Suite | Result |
+  |---|---|
+  | web-api-auth | 9/9 |
+  | canonical-read-model | 13/13 |
+  | canonical-security | 19/19 |
+  | alert-banner | 8/8 |
+  | dashboard-truth | 34/34 |
+
+- `tsc --noEmit`: 0 errors. eslint on the changed files: clean.
+- pytest: `test_chat_control_gate_static` plus the canonical, config, one-brain, Telegram (offline harness / adapter / service / launcher / ai / conversational / html / NLU matrix), engine-import-safety, web-api-auth and dashboard-truth sets: **271 passed, 1 xfailed**.
+- `scripts/validate_imports.py --imports-only`: **VALIDATION PASSED** (242 modules, no evidence mutated).
+
+**On the box (python 3, bun):** the same pytest sets gave 250 passed, 1 xfailed (subset without canonical/config). The selftest also ran under bun: 126/126.
+
+### Files
+
+| Status | Files |
+|---|---|
+| New | `chat_control_gate.ts`, `scripts/chat_control_gate_selftest.ts`, `scripts/verify_control_audit.ts`, `tests/test_chat_control_gate_static.py`, `reports/grok/G11_LIVE_E2E_RUNBOOK.md` |
+| Modified | `chat.ts`, `conversation_gateway.ts`, `app/api/engine/route.ts`, `package.json`, GM04 doc, MISSION_DISCOVERY |
+
+### Runtime
+
+- No `run_bot.py` is running.
+- The gateway (`next dev`, 127.0.0.1:3500) hot-reloads `chat.ts`.
+- Live E2E: **OWNER_ACTION_REQUIRED**. Follow `reports/grok/G11_LIVE_E2E_RUNBOOK.md`. Its port override is the bot-session `$env:AHOS_GATEWAY_URL="http://127.0.0.1:3500/api/chat"`; `service.py` ignores `AHOS_GATEWAY_PORT`. `.env` is unchanged.
+
+### Residuals for review
+
+1. Any holder of `AHOS_WEB_API_TOKEN` can still call `/api/engine` (GM-04 phase 2: loopback check / second secret).
+2. The chat `watch` intent (watchlist write) is ungated (out of scope).
+3. `AHOS_CONTROL_AUDIT_PATH` is not in the config-validation scan list.
+4. Blocker A (`test_doc_drift`, Claude) is unchanged.
+<!-- PHASE4:END -->
+
 <!-- PHASE3:START -->
 ## Phase 3 status (Grok, 2026-10-02, foundation missions): read this first
 
