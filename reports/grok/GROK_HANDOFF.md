@@ -22,8 +22,8 @@ Blocker A (for Claude) is still open. See the Phase 2 note below.
 | Mission | Status | Ladder | Commit |
 |---|---|---|---|
 | P3-M1 tsconfig exclude `docs/archive` | IMPLEMENTED_VERIFIED (self-tests) | TESTED | `a6638bf` (pushed) |
-| GM-08 mission/engineering ledger | IMPLEMENTED_VERIFIED (self-tests) | IMPLEMENTED + TESTED (not INTEGRATED) | local commit adding `architecture/mission/ledger.py` (not pushed) |
-| GM-09 AI provider status model | pending | | |
+| GM-08 mission/engineering ledger | IMPLEMENTED_VERIFIED (self-tests) | IMPLEMENTED + TESTED (not INTEGRATED) | `d1571c4` (local, not pushed) |
+| GM-09 AI provider status model | IMPLEMENTED_VERIFIED (offline self-tests); credential store interface only; Windows Credential Manager backend DESIGN_ONLY | IMPLEMENTED + TESTED (not INTEGRATED) | local commit adding `architecture/ai/provider_status.py` (not pushed) |
 
 ### P3-M1: tsconfig
 - `tsconfig.json`: `"docs/archive"` was added to `exclude`. That is the only change.
@@ -72,6 +72,46 @@ Blocker A (for Claude) is still open. See the Phase 2 note below.
   - Box `validate_imports`: PASSED.
   - Windows: `test_mission_ledger` + `test_agent_taxonomy_map`: 92 passed (72 + 20).
 - **Next:** wire GM-09 provider status into the ledger (pause with a checkpoint). Optionally, Claude and Grok record missions here.
+
+### GM-09: AI provider status + credential-store abstraction (details: `reports/grok/GM09_PROVIDER_STATUS_AND_CREDENTIAL_STORE.md`)
+- **Inspected first:**
+  - `architecture/ai/clients.py` (`AIResponse`: OK, DOWN, NO_KEY, SKIPPED_PAID) and `architecture/ai/router.py`.
+  - The market-data provider statuses (`types.ts` `PROVIDER_STATUSES`, `architecture/providers`) are a separate vocabulary and were **not changed**.
+  - GM-09 is additive.
+- **`architecture/ai/provider_status.py`:**
+  - The seven-state `AIProviderStatus` and `classify_provider_error`: 401/403 → AUTH_FAILED (geo 403 → BLOCKED); 402/429/quota text → QUOTA_EXHAUSTED (an explicitly transient 429 → DEGRADED); 404/model text → MODEL_UNAVAILABLE; 5xx/timeout/network → UNAVAILABLE.
+  - `classify_ai_response` for the existing envelopes.
+  - `safe_provider_call`: an outage never crashes the runtime.
+  - Error detail is redacted.
+- **`architecture/ai/credential_store.py`:**
+  - The interface has no raw getter. `SecretValue` never prints its value and cannot be pickled.
+  - Null and Fake stores.
+  - `WindowsCredentialManagerStore` = DESIGN_ONLY: it refuses every access and imports nothing OS-level.
+  - The Persian new-key message tells the owner to use Credential Manager target `AHOS/ai/<provider>`, and never to paste the key in chat, Telegram or .env.
+- **`architecture/ai/mission_guard.py`:**
+  - QUOTA_EXHAUSTED / AUTH_FAILED → the ledger mission is PAUSED with its checkpoint kept and an owner message is returned.
+  - Outage → WAIT_FOR_AI.
+  - READY → RUNNING.
+- **Tests:** `tests/test_ai_provider_status.py`, 64 cases.
+  - Fake providers and fake transports only, with a socket guard.
+  - Box: 64 passed. AI/provider regression set: 327 passed, 1 xfailed. `validate_imports`: PASSED.
+  - Windows: GM-09 + ledger + ai_council_live + ai_router_and_debate + provider_abstraction: 168 passed. `validate_imports --imports-only`: PASSED.
+  - Mutation checks: disabling the credential-pause branch makes 4 tests fail; removing redaction makes 1 fail.
+
+### Remaining blockers (Phase 3)
+1. **Blocker A** (Claude): two untracked artifacts are cited by canonical docs, so `test_doc_drift` fails on a clean checkout. Unchanged.
+2. **Pushes paused** (owner instruction). Commits `d1571c4` and the GM-09 commit exist only locally.
+3. GM-04 still waits for security review. That includes the `stop` regex false positive.
+4. The gateway port choice is OWNER_ACTION (.env says 3000, the listener is on 3500). G11 live Telegram E2E is OWNER_ACTION.
+5. The Windows Credential Manager backend needs owner + security review (GM-12) before any OS credential access. GM-09 runtime wiring (calling `guard_provider_call` from the council or router) is not done.
+6. Wall-clock items are unchanged.
+
+### Next recommended missions
+- Wire `guard_provider_call` / `classify_ai_response` into `LiveCouncil` as advisory status reporting.
+- Seed the ledger with real Claude and Grok missions; record `head_hash` in the handoff.
+- GM-12 review.
+- GM-04 implementation after review.
+- GM-01 (Claude).
 <!-- PHASE3:END -->
 
 <!-- PHASE2:START -->
