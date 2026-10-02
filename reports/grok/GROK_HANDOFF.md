@@ -1,0 +1,73 @@
+# GROK HANDOFF (living document) — for Claude Code
+
+| Field | Value |
+|---|---|
+| Timestamp (UTC) | 2026-10-02T10:36Z (14:06 Tehran) |
+| Agent | Grok (parallel Autonomous Engineering / Research agent), Phase 1 = reality inspection + mission discovery |
+| Mission IDs | GROK-P1-20261002 (inspection); discovered GM-01 … GM-12 (see MISSION_DISCOVERY_2026-10-02.md) |
+| Branch | `ahos` |
+| Upstream | `origin/ahos` (not origin/main) |
+| Starting HEAD | `25b33cceb280b5b3d67bf37586500ba297bdb65f` (== origin/ahos, 0 ahead / 0 behind after `git fetch origin`) |
+| Ending HEAD | the single Grok docs commit that adds this file (parent `25b33cc`); message `docs(grok): session 2026-10-02 reality inspection, mission discovery, handoff [PAPER_ONLY]`. If absent from `git log`, the commit/push did not happen — see final Grok report |
+| origin/main | `8ae411a` (ahos is 30 ahead / 2 behind main; not merged, not touched) |
+
+## Files changed by Grok
+Added only (new files):
+- `reports/grok/GROK_SESSION_2026-10-02_REALITY_INSPECTION.md`
+- `reports/grok/TELEGRAM_REALITY_MAP.md`
+- `reports/grok/DOCKER_N8N_DEPENDENCY_MAP.md`
+- `reports/grok/DASHBOARD_ONECLICK_REALITY.md`
+- `reports/grok/MISSION_DISCOVERY_2026-10-02.md`
+- `reports/grok/GROK_HANDOFF.md`
+
+NOT changed / NOT staged: all source, `.env`, `.cursor/hooks.json` (+ `.local-backup`, `ahos-hooks-local-diff.txt`), Claude's modified `reports/backup_restore_drill.json`, `reports/month1_failure_matrix.json`, `reports/reliability_matrix.json`, Claude's ~40 untracked `reports/*` evidence files, `next-env.d.ts`. No service/container/gateway started, stopped, or restarted. No DB writes (one read-only psql session with `default_transaction_read_only=on`).
+
+## Tests run (all exit 0)
+- pytest cognitive set + test_doc_drift: 117 passed (448.7 s)
+- pytest Telegram set + test_engine_import_safety: 150 passed, 1 xfailed (387.4 s)
+- npm: canonical-read-model 13/13, canonical-security 19/19, web-api-auth 9/9, alert-banner 8/8
+- `validate_imports.py --imports-only`: PASSED (236 modules)
+- `freeze_lane_a.py` verify: OK (36 files)
+Interpreter: `.venv\Scripts\python.exe` (Python 3.11.9).
+
+## Runtime evidence (~10:10–10:34Z)
+- Gateway: node PID 13120 LISTEN 127.0.0.1:3500 (manual `npm run dev -- -p 3500`), GET / 200. Port 3000 free.
+- Docker Desktop + WSL2 running; `ahos_postgres_win` healthy (pg_isready OK); `ahos_runtime_win` unhealthy (5 s healthcheck timeout, stale container config); `ahos_n8n_win` up, **0 workflows imported**.
+- VHDX backups re-hashed by Grok: ext4 + docker_data both match recorded SHA256.
+- Nightly backup night 1/7 verified (spot hash); **no scheduled task exists**.
+- Native `start_ahos.bat` daemon not running; container `python3 -m architecture.runtime` is the only observer writing `data/` via bind mount.
+
+## Unresolved issues / known regressions
+1. **KNOWN REGRESSION (STRONGLY INDICATED): 25b33cc + untracked `reports/nightly_backup_series.json`** — `scripts/doc_drift.py::_exists` checks the working tree; the artifact is untracked (not ignored); canonical docs cite it (`AHOS_GAP_REGISTER.md:24`, `AHOS_LOCAL_ACTIVATION_CHECKLIST.md:131`, `AHOS_OPERATOR_QUICKSTART_WINDOWS.md:206`, `AHOS_SOAK_OPERATOR_START.md:151`). Clean checkout/CI → `test_canonical_docs_have_zero_real_stale_refs` fails. Claude: decide commit-the-artifact vs exemption (GM-01). Grok did not touch it.
+2. Telegram → gateway can trigger `startEngine/stopEngine` by free-text regex (`chat.ts:233-234`, `:43-48`) with no capability check/audit; sender `user_id` is sent empty (`telegram_ai/service.py:84`).
+3. n8n `ahos_03_telegram_control.json`: SQL interpolation, audit-row DELETE on `/reset`, `/approve` writes `trade_decisions.execution_status` bypassing canonical authority. Dormant (not imported) but target tables exist. Do not import.
+4. Dashboard stale-READY: after a successful load, a failed poll keeps old green health (`CommandCenter.tsx:304-306`).
+5. Port: `.env:99` = 3000, running gateway = 3500, no tracked reference to 3500; ~40 repo refs to 3000. Not a one-line script drift.
+6. `ahos_runtime_win` config drift (created 2026-08-28; healthcheck enabled; port 18000 vs compose 8000).
+7. `prediction_lifecycle.py:326` hard-coded `eligible_join_pairs_estimate=0` (Claude finding, Lane B) — pending owner approval.
+8. M0 audit report file not found in repo or `G:\AHOS_FORENSIC_REPORT`; Gate 4 cache report not present.
+9. `reports/pgdump_ahos_chat_messages_20261002T002200Z.sql` contains operator chat rows — privacy review before anyone commits it.
+
+## OWNER_ACTION items
+- G11 Telegram live E2E (archive `reports/telegram_e2e_<UTC>.md`).
+- Canonical gateway port decision (restart on 3000, or edit `.env:99` to 3500).
+- Scheduled task for nightly backups (nights 2–7) or manual nightly runs.
+- Recreate `ahos_runtime_win` from committed compose (service restart).
+- Approve `prediction_lifecycle` census fix; decide single runtime owner (container vs native daemon).
+- Cleanup of exited legacy containers (`AHOS-N8N`, `ahos-postgres`, `ahos-redis`) — deletion.
+
+## Wall-clock dependencies
+- T+72h outcome labels: not before 2026-10-05T02:54:19Z (T0 2026-10-02T02:54:19Z).
+- Soak / nightly backup nights 2–7: one per calendar night (2026-10-03 … 2026-10-08 at the earliest).
+- Calibration sufficiency: NOT proven; never report CLOSED.
+
+## Security / governance
+- Lane A untouched and verified; Canonical Decision Authority untouched; PAPER_ONLY held; no secrets printed or written (Telegram token = CREDENTIAL_PRESENT_BUT_REDACTED; leak scan: 0 real hits, 1 synthetic fixture `tests/test_engine_import_safety.py:101`; git history not scanned).
+- `.cursor/hooks.json` failClosed guard (`ahos-guard.py`) preserved, not modified.
+- No Credential Manager abstraction exists (DESIGN_ONLY).
+
+## Next recommended mission
+GM-01 (doc-drift clean-checkout regression — Claude's call, small) → GM-02 (Telegram offline harness, tests only) → GM-03 (dashboard stale-READY).
+
+## May Claude safely continue?
+**YES.** Grok changed no source, no config, no Claude file, and no runtime state; the only repo change is the new `reports/grok/` directory. Claude should pull/fast-forward `origin/ahos` before its next commit if Grok's docs commit was pushed (it only adds `reports/grok/*`, so no conflict is possible with Claude's dirty files). Coordinate before either agent edits `scripts/doc_drift.py`, `telegram_ai/`, `chat.ts`, or `CommandCenter.tsx`.
