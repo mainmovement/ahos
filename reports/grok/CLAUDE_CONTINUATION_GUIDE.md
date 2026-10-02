@@ -1,4 +1,4 @@
-# CLAUDE CONTINUATION GUIDE: Grok session 2026-10-02 (Phases 1–7)
+# CLAUDE CONTINUATION GUIDE: Grok session 2026-10-02 (Phases 1–8)
 
 **Audience:** Claude Code, continuing work on `G:\robat\ahos`, branch `ahos`.
 **Written by:** Grok, 2026-10-02 (Tehran time, UTC+3:30).
@@ -412,14 +412,41 @@ The owner asked for free-form, multi-turn Persian chat like ChatGPT/Grok, not ke
 
 **How to continue**
 ```powershell
-npm run test:chat-agent            # 23, fake Gemini runner, temp audit path
-npm run test:chat-intent           # 52 (deterministic fallback router)
+npm run test:chat-agent            # 30 (was 23; +7 dev-mission cases), fake Gemini runner, temp audit path
+npm run test:chat-intent           # 72 (was 52; +20 dev-mission cases) (deterministic fallback router)
+npm run test:dev-missions          # 14 (hash chain, redaction, tamper, fail-closed)
 .venv\Scripts\python.exe -m pytest -q -p no:cacheprovider tests\test_gemini_chat.py tests\test_gemini_phraser.py tests\test_telegram_reply_presentation.py tests\test_canonical_read_model.py
 npm run audit:control-verify       # hash chain incl. chat_confirm lines
 ```
 - `evidence.agent` on each `/api/chat` response holds `{ok, reason, toolsUsed, steps, model, latencyMs}`. `evidence.composer` is `gemini_agent` or `deterministic`.
 - To add a read tool: add it to `READ_TOOLS` plus a `runReadTool` case (pure, Persian labels, freshness) plus a selftest.
 - To add a command: add it to `ActionKind` plus `PROPOSE_TOOLS` plus `CAPABILITY` plus `defaultActionDeps` (must reuse the dashboard route function), plus selftests for confirm/cancel/expiry/non-owner. It must be PAPER_ONLY and needs review.
+
+---
+
+### Phase 8 (2026-10-02, Claude/Atria): dev-mission intake + University/agents discovery
+
+**8a — dev-mission intake, `d10383e` (local).** The chat assistant cannot write code, so when the owner asks for engineering work it now proposes recording a **development mission** through the *same* confirm flow and words as the paper commands: request → PROPOSAL (Persian summary + one-time 6-char code, 5 min, identity-bound) → «تایید <code>» → one QUEUED line appended to a hash-chained append-only JSONL queue → reply «ثبت شد… کاری هنوز انجام نشده است». `list_dev_missions` is an owner-only read tool. Non-owners refused and audited.
+
+New file `dev_missions.ts` (`DevMissionStore`, schema `ahos.dev_missions.v1`, default `<AHOS data dir>/dev_missions/dev_missions.jsonl` or `AHOS_DEV_MISSIONS_PATH`). It reuses `FileAuditSink` / `verifyAuditLines` / `hashId` / `canonicalJson` from `chat_control_gate.ts` (canonicalJson is now exported). Secret-like substrings are redacted **before** hashing/writing, and the replacement marker carries only the rule name — an earlier draft leaked the first 12 chars of the secret into the marker and the self-test caught it. The raw chat message is never stored.
+
+Touched: `chat_actions.ts` (new `dev_mission` kind, `MISSION_WRITE` capability, `EMPTY_SUMMARY` denial, `recordDevMission` dep, warm locked intro «حتماً! من خودم کد نمی‌نویسم…»), `chat_agent.ts` (`submit_dev_mission` propose tool, `list_dev_missions` read tool, `ReadToolCtx { missions?, owner? }`, jargon guard now blocks `submit_*`/`list_*`), `chat_intent.ts` (conservative `dev_mission` intent: needs both a dev topic and a build verb), `chat.ts` (deterministic fallback branch, store injected into `ChatAgent.run`), `package.json` (`test:dev-missions`).
+
+**Tests, all exit 0:** tsc; eslint; `test:dev-missions` 14/14; `test:chat-agent` 30/30 (was 23); `test:chat-intent` 72/72 (was 52); chat-control-gate 126/126; chat-reply-format 40/40; gemini-phraser 12/12; canonical-read-model 13/13; `audit:control-verify` OK; pytest static set 60 passed / 1 skipped; `validate_imports.py --imports-only` exit 0.
+
+**8b — discovery, no code changed.** `reports/grok/UNIVERSITY_AND_AGENTS_DISCOVERY.md` (new). Findings: the University is **docs only** (part1 §21–26, §92–95; no research/skill/failure registry code, though substrates exist in `architecture/cognitive/`, `architecture/evolution/`, `architecture/knowledge/`, `architecture/learning/`); the 19 agents are a **policy model, not a runtime** — `docs/governance/AGENT_TAXONOMY_MAP.md` records five unmerged namespaces and the "agent 01" collision, with all 19 Slice-1 anchors at `MaturityLevel.REGISTERED` (0) below `MINIMUM_MATURITY_FOR_ALLOW = 2`, so none can hold execution authority; the nine teams are names in two documents with no code namespace; `architecture/control_plane.py` has no non-test importer; no Mission Controller exists. Plan: U0 truth baseline → U1 launcher (M10) → U2 evidence + maturity ramp → U3 control-plane service → U4 mission controller / queue consumer (M13) → U5 University (M15) → U6 teams.
+
+**How to continue (Phase 8)**
+```powershell
+npm run test:dev-missions      # 14
+npm run test:chat-agent        # 30
+npm run test:chat-intent       # 72
+npm run audit:control-verify   # hash chain incl. the new MISSION_QUEUED lines
+```
+- The queue has a writer and **no reader**. The M13 mission controller is the intended consumer; until it exists the assistant's «کاری هنوز انجام نشده است» is literally true. Do not add a DONE/COMPLETED status — there deliberately is none.
+- Deletion of only the *last* line of the queue is invisible to a keyless hash chain (documented limitation, self-tested). Anchor `head_hash` outside the file (handoff doc, commit) as the chain's checkpoint.
+- Not verified: no live gateway POST this run. A real «دانشگاه رو بساز» → code → «تایید CODE» → queued line round trip is still unverified. A gateway reload loses only pending proposals, never queued missions (on disk).
+- `AHOS_DEV_MISSIONS_PATH` is not in the config-validation scan (same pre-existing gap as `AHOS_CONTROL_AUDIT_PATH`).
 
 ---
 
@@ -434,3 +461,4 @@ npm run audit:control-verify       # hash chain incl. chat_confirm lines
 8. The bot log warns that no proxy is set; Telegram connects anyway.
 9. `tests/test_sqlite_backup_restore.py::test_record_test_run_anchors_relative_executable` fails on Linux only (Windows path). Not a Windows issue.
 10. Phase 7: Telegram has no inline confirm buttons (it confirms by text); the pending store and memory are in-process; agent latency is about 5 s; `TELEGRAM_ADMIN_USER_IDS` is empty, so owner = allowlisted chat ids.
+11. Phase 8: the dev-mission queue has **no consumer** (no mission controller yet); no live gateway round trip verified this run; `AHOS_DEV_MISSIONS_PATH` is outside the config-validation scan; last-line deletion is invisible to the keyless chain (documented). University and the nine teams remain docs-only; all 19 Slice-1 agents sit below the maturity floor, so M11 needs per-agent evidence before any execution authority.

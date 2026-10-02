@@ -1,6 +1,43 @@
 # GROK HANDOFF (living document) — for Claude Code
 
-> **Claude: start with [`reports/grok/CLAUDE_CONTINUATION_GUIDE.md`](CLAUDE_CONTINUATION_GUIDE.md)**. It covers Phases 1–7 (Phase 7 = conversational AI with confirm-gated paper commands, owner authority decision 2026-10-02, pending سپهر/قاسم/رضا review): what was built, where the code lives, exact Windows commands, invariants, process setup, local-only commits (pushes paused), and blocker A.
+> **Claude: start with [`reports/grok/CLAUDE_CONTINUATION_GUIDE.md`](CLAUDE_CONTINUATION_GUIDE.md)**. It covers Phases 1–8 (Phase 7 = conversational AI with confirm-gated paper commands, owner authority decision 2026-10-02, pending سپهر/قاسم/رضا review; Phase 8 = dev-mission intake + University/agents discovery): what was built, where the code lives, exact Windows commands, invariants, process setup, local-only commits (pushes paused), and blocker A.
+
+<!-- PHASE8:START -->
+## Phase 8 (2026-10-02, Claude/Atria): dev-mission intake in the chat assistant + University/agents discovery
+
+Mission 8. The previous Phase 8 run died with an API 400 and produced nothing; this run started clean (nothing was reused). Pushes still paused: **local commits only**. Status: IMPLEMENTED / TESTED (self-tests; no live gateway check this run). Not independently verified.
+
+### 8a: dev-mission intake (`d10383e`)
+
+The chat assistant cannot write code. When the owner asks for engineering work (new features, the university, operationalizing agents), it now proposes recording it as a **development mission**, using **exactly the same confirm flow and words as the paper commands**: model or whole-message request → PROPOSAL (Persian summary + one-time 6-char code, 5 min, bound to the proposer's identity) → «تایید <code>» → one line appended to a hash-chained queue with status QUEUED → reply that it is recorded for the engineering team and that **no work is done**. `list_dev_missions` is a read tool showing queued-mission status. Non-owners are refused and audited.
+
+**Files:**
+- `dev_missions.ts` (new): `DevMissionStore`, an append-only JSONL queue (schema `ahos.dev_missions.v1`, default `<AHOS data dir>/dev_missions/dev_missions.jsonl`, or `AHOS_DEV_MISSIONS_PATH`). One record per mission: `seq, ts, id (DM-000001), confirmCode, titleFa, summaryFa, status: "QUEUED", channelClaimed, userIdHash, prev_hash, entry_hash`. It reuses `FileAuditSink` (torn-tail isolation, never rewrites), `verifyAuditLines` (edit/deletion/reorder detection) and `hashId` (sender id hashed, never raw) from `chat_control_gate.ts`. Secret-like substrings in the summary are redacted **before** hashing/writing (`redactMissionSecrets`; the marker carries the rule name only — an earlier draft leaked the first 12 chars of the secret into the marker and the self-test caught it). The raw chat message is never stored: `cleanSummaryFa` keeps the owner's own words but strips greetings, zero-width/bidi marks and newlines, and truncates to 280 chars. No status but QUEUED is writable from the chat path, and the module executes nothing.
+- `chat_actions.ts`: `ActionKind` gains `dev_mission`; `ActionParams` gains `missionSummaryFa`; `Capability` gains `MISSION_WRITE` (with a deny-by-default refusal text); `propose()` rejects an empty summary (DENIED `EMPTY_SUMMARY`, audited); `ActionDeps` gains `recordDevMission`, bound in `defaultActionDeps()` to `getDevMissionStore().append()`; `handleConfirmation` appends the QUEUED line and audits `PROPOSED → CONFIRMED` (reason `MISSION_QUEUED`). `proposalTextFa` now emits a warm locked intro for dev missions («حتماً! من خودم کد نمی‌نویسم…») and the header «آماده ثبت است (هنوز ثبت نشده)».
+- `chat_agent.ts`: new PROPOSE tool `submit_dev_mission{summaryFa}` and READ tool `list_dev_missions`; `runReadTool` takes an optional `ReadToolCtx { missions?, owner? }` — the read tool is owner-only (non-owners get an empty view with a Persian note); the jargon guard now also blocks `submit_*`/`list_*` tool names in answers; the Persian system prompt tells the model it writes no code, may never claim work is done/started, and must answer warmly before proposing.
+- `chat_intent.ts`: new conservative `dev_mission` intent (requires BOTH a development topic and an explicit build verb, so complaints and questions do not match). It is the **deterministic fallback** for when the agent is off/circuit-open; when the agent is up it is never reached (the agent answers first).
+- `chat.ts`: passes the store into `ChatAgent.run`; deterministic `dev_mission` branch mirrors the `watch_add` pattern (propose or refuse).
+- `chat_control_gate.ts`: `canonicalJson` is now exported (reused by `dev_missions.ts` for the hash chain).
+
+**Tests (Windows, all exit 0):**
+- tsc 0; eslint 0 on all touched files.
+- `npm run test:dev-missions` (new): 14/14 — hash chain and stable ids, empty-summary refusal, greeting/truncation cleaning, secret redaction, hashed sender id, newest-first Persian age labels, tamper detection (edit / delete-first / reorder), the documented keyless-chain limitation (deleting only the last line is invisible; `head_hash` must be anchored outside the file), fail-closed append.
+- `npm run test:chat-agent`: 30/30 (was 23; +7 dev-mission cases: warm locked proposal, non-owner denial, empty summary, owner-only queue read, confirm appends exactly once and audits PROPOSED→CONFIRMED, cancel/wrong-identity never queue, system-prompt pins).
+- `npm run test:chat-intent`: 72/72 (was 52; +20 Persian dev-mission cases incl. negatives).
+- chat-control-gate 126/126, chat-reply-format 40/40, gemini-phraser 12/12, canonical-read-model 13/13; `npm run audit:control-verify` OK.
+- pytest static set (`test_chat_control_gate_static`, `test_gemini_chat`, `test_telegram_reply_presentation`, `test_gemini_phraser`, `test_agent_taxonomy_map`): 60 passed, 1 skipped.
+
+**Not done / open:**
+- No live gateway POST this run (the gateway was not restarted; hot-reload picks up the TS on the next request). A live end-to-end «دانشگاه رو بساز» → code → «تایید CODE» → queued line is **unverified**.
+- The queue has **no consumer**: nothing reads it yet. The future mission-controller layer (M12 in the mission plan) is the intended reader; the store's own docstring says so.
+- `AHOS_DEV_MISSIONS_PATH` is not in any config-validation scan (same as `AHOS_CONTROL_AUDIT_PATH` — pre-existing gap).
+- A gateway reload does not lose queued missions (they are on disk), only pending proposals.
+- Recorded missions are never shown as done; there is deliberately no DONE/COMPLETED status.
+
+### 8b: University + agents discovery
+See `reports/grok/UNIVERSITY_AND_AGENTS_DISCOVERY.md` (new this phase). Read-only; no code changed.
+<!-- PHASE8:END -->
+
 
 <!-- PHASE7:START -->
 ## Phase 7 (2026-10-02, Grok): conversational AI for Telegram and dashboard (Gemini + tools + confirm-gated paper commands)
