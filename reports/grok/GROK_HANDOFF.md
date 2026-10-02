@@ -1,5 +1,87 @@
 # GROK HANDOFF (living document) — for Claude Code
 
+> **Claude: start with [`reports/grok/CLAUDE_CONTINUATION_GUIDE.md`](CLAUDE_CONTINUATION_GUIDE.md)**. It covers Phases 1–6: what was built, where the code lives, exact Windows commands, invariants, process setup, local-only commits (pushes paused), and blocker A.
+
+<!-- PHASE6:START -->
+## Phase 6 (2026-10-02, Grok): Gemini reply phraser behind the ReplyPhraser seam
+
+**Pushes are still paused by the owner: local commits only.** Full continuation notes for Claude: `reports/grok/CLAUDE_CONTINUATION_GUIDE.md`.
+
+### What was built
+- **Read-only Windows Credential Manager backend** (owner-approved; GM-12 independent review still pending):
+  - `architecture/ai/wincred_reader.py`: CredReadW, `AHOS/ai/*` targets only, buffer zeroed before CredFree.
+  - `architecture/ai/credential_store.py`: `WindowsCredentialManagerStore` now reads instead of raising NotImplementedError; adds `CredentialUnavailable`.
+  - Details in the GM09 doc, section "Phase 6 update".
+- **`architecture/ai/gemini_phraser.py`:** a Python helper run as `python -m architecture.ai.gemini_phraser`.
+  - It reads the key in-process from `AHOS/ai/gemini` and calls `generativelanguage.googleapis.com/v1beta/models/<model>:generateContent` with the `x-goog-api-key` header.
+  - It tries at most 2 models, with 4 s per attempt and a 9 s total budget.
+  - A follow-up attempt is skipped on AUTH, QUOTA or BLOCKED.
+  - Errors are classified through `provider_status.classify_provider_error`.
+  - The output JSON on stdout carries no key, and a key literal is scrubbed from any error detail.
+- **`gemini_phraser.ts`:** `GeminiPhraser implements ReplyPhraser`.
+  - It spawns the helper with no shell and fixed argv. The env is minimal (no `DATABASE_URL` or tokens), with `PYTHONIOENCODING=utf-8` and `PYTHONUTF8=1`. Stdin and stdout are UTF-8.
+  - The circuit breaker opens for 60 s after 3 failures, and for 10 min after one AUTH, QUOTA, NO_CREDENTIAL or NOT_WINDOWS failure.
+  - Drafts that contain links (news) are skipped.
+  - It strips a model-written footer and markdown, then appends the footer itself.
+  - `getDefaultPhraser()` is the singleton.
+- **`response_composer.ts`:** `phrasedHtml()`.
+  - Accepted phrased text is escaped line by line; the only markup is `<b>` on a short title and `<i>` on the footer.
+  - Any HTML supplied by the phraser is ignored.
+  - `validatePhrased` is unchanged: no new numbers, no jargon, footer exactly once, length limit.
+- **`chat.ts`:**
+  - The normal-reply `finalizeReply(..., getDefaultPhraser())` call now gets the phraser.
+  - **The GM-04 refusal call is still `locked: true` with no phraser.**
+  - Evidence gains `phraser {used, rejected, reason, model, latencyMs}`.
+- **Config (env):**
+  - `AHOS_PHRASER=off` disables the phraser. The default is on, and it falls back to deterministic text if the key or network is missing.
+  - `AHOS_GEMINI_MODELS` (default `gemini-flash-lite-latest,gemini-3.5-flash-lite`; at most 2 are used)
+  - `AHOS_PHRASER_TIMEOUT_MS` (default 4000)
+  - `AHOS_PHRASER_PYTHON`
+  - None of these are in `.env`, and `.env` was not edited.
+
+### Tests (self-tests, not independent verification)
+
+**Windows**
+- `tests/test_gemini_phraser.py` + `tests/test_ai_provider_status.py`: 78 passed, 2 skipped (two non-Windows-only tests).
+- The earlier set with telegram_reply_presentation, chat_control_gate_static and canonical_read_model: 112 passed, 2 skipped.
+- npm selftests:
+
+  | Suite | Result |
+  |---|---|
+  | `test:gemini-phraser` (new) | 12/12 |
+  | chat-reply-format | 40/40 |
+  | chat-control-gate | 126/126 |
+  | web-api-auth | 9/9 |
+  | canonical-read-model | 13/13 |
+  | canonical-security | 19/19 |
+  | alert-banner | 8/8 |
+  | dashboard-truth | 34/34 |
+
+- `tsc --noEmit`: 0 errors. eslint: clean.
+
+**Box**
+- Full pytest suite: 2636 passed, 3 failed. All 3 failures are pre-existing or environmental:
+  - `test_doc_drift` and `test_evidence_package` doc-drift (blocker A)
+  - `test_sqlite_backup_restore::...relative_executable` (a Windows path on Linux)
+- Phase 6 tests after the timeout tweak: 80 passed.
+- `validate_imports`: PASSED.
+
+### Live evidence (laptop, 2026-10-02, Tehran time)
+- **Direct helper:** 3 consecutive calls OK, about 1.1 s model latency each.
+  - Example: input draft «📊 وضعیت بازار / • بیت‌کوین: ۶۴٬۲۰۰ دلار (۲۴ساعت: +۱٫۲٪) / • اتریوم: ۳٬۱۰۰ دلار / • حال کلی بازار: نامشخص»
+  - Output: «وضعیت بازار ارزهای دیجیتال / • بیت‌کوین: ۶۴٬۲۰۰ دلار (۲۴ساعت: +۱٫۲٪) / • اتریوم: ۳٬۱۰۰ دلار / • حال کلی بازار: نامشخص»
+  - All numbers were kept. Persian UTF-8 round-tripped intact.
+- **Node-spawned helper** (the same runner the gateway uses): 3/3 OK, about 2.0 s end to end (about 0.9 s is Python spawn).
+- **The one live gateway smoke** (17:21 Tehran, POST «بازار چه خبر؟» to 127.0.0.1:3500/api/chat):
+  - HTTP 200 in 9.3 s, `intent=market`.
+  - Evidence: `phraser {used:false, rejected:NO_OUTPUT, reason:NETWORK, latencyMs:7676}`.
+  - The deterministic reply was returned correctly (the fallback worked). It wrote the normal 2 chat rows.
+  - Cause: the first connection through the owner's local proxy (`127.0.0.1:10809`, registry proxy) stalled for more than 5 s after an idle period. The first direct run showed the same stall; every later run was about 1.1 s.
+  - Mitigation committed: 4 s per attempt and a 9 s total budget, so a stalled first attempt leaves a full second attempt. Attempts now record `error_kind` (exception class only).
+  - **A phrased reply through the live gateway has NOT been observed yet** (one-smoke limit). Next chat messages will show `evidence.phraser.used`.
+- **Processes:** the gateway was not restarted; Next hot-reloaded `chat.ts` and `gemini_phraser.ts`. The bot was not restarted (no Python Telegram change). The owner's own `scripts/store_ai_key.py` process (PID 15216, untracked owner script) was left alone.
+<!-- PHASE6:END -->
+
 <!-- PHASE5:START -->
 ## Phase 5 (2026-10-02, Grok): Telegram/chat reply presentation cleanup (presentation only)
 

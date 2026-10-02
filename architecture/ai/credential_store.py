@@ -1,8 +1,12 @@
-"""Credential-store abstraction for AI provider keys (GM-09). INTERFACE ONLY.
+"""Credential-store abstraction for AI provider keys (GM-09).
 
-No implementation here reads or writes a real credential. The interface
-deliberately has **no method that returns a raw key to callers that only want
-status**. The future Windows Credential Manager backend is DESIGN_ONLY (see
+The ``CredentialStore`` protocol deliberately has **no method that returns a raw
+key to callers that only want status**. Phase 6 (owner-approved 2026-10-02):
+``WindowsCredentialManagerStore`` is a READ-ONLY backend (CredReadW via
+``architecture/ai/wincred_reader.py``) for targets ``AHOS/ai/<provider>``.
+Its ``get_secret`` is used only in-process by a provider transport (the Gemini
+phraser helper); the value never leaves that process. GM-12 independent
+security review is still pending (see
 ``reports/grok/GM09_PROVIDER_STATUS_AND_CREDENTIAL_STORE.md``).
 
 Rules
@@ -136,23 +140,54 @@ class FakeCredentialStore(NullCredentialStore):
         return req
 
 
-class WindowsCredentialManagerStore:
-    """DESIGN_ONLY placeholder. Every method refuses; it never touches the OS store."""
-    backend = "WINDOWS_CREDENTIAL_MANAGER_DESIGN_ONLY"
+class CredentialUnavailable(Exception):
+    """Reason code only: NOT_WINDOWS | NO_CREDENTIAL | EMPTY_CREDENTIAL | READ_FAILED | TARGET_NOT_ALLOWED."""
 
-    def _refuse(self) -> None:
-        raise NotImplementedError(
-            "DESIGN_ONLY: Windows Credential Manager backend needs owner + security review (GM-12); "
-            "see reports/grok/GM09_PROVIDER_STATUS_AND_CREDENTIAL_STORE.md")
+    def __init__(self, reason_code: str) -> None:
+        super().__init__(reason_code)
+        self.reason_code = reason_code
+
+
+class WindowsCredentialManagerStore:
+    """READ-ONLY Windows Credential Manager backend (generic credentials, AHOS/ai/*).
+
+    No write/delete/enumerate. ``reader`` is injectable for offline tests; the
+    default reads the OS store via CredReadW.
+    """
+    backend = "WINDOWS_CREDENTIAL_MANAGER_READONLY"
+
+    def __init__(self, reader=None) -> None:
+        self._reader = reader
+
+    def _read(self, ref: CredentialRef) -> bytes | None:
+        from architecture.ai import wincred_reader as w
+        reader = self._reader or w.read_generic_credential_blob
+        try:
+            return reader(ref.target)
+        except w.CredentialReadError as exc:
+            reason = exc.reason_code if exc.reason_code in ("NOT_WINDOWS", "TARGET_NOT_ALLOWED") else "READ_FAILED"
+            raise CredentialUnavailable(reason) from None
+        except Exception:  # noqa: BLE001 - never surface OS/ctypes detail
+            raise CredentialUnavailable("READ_FAILED") from None
 
     def has_credential(self, ref: CredentialRef) -> bool | None:
-        self._refuse()
+        try:
+            return self._read(ref) is not None
+        except CredentialUnavailable as exc:
+            return None if exc.reason_code in ("NOT_WINDOWS", "READ_FAILED") else False
 
     def request_new_credential(self, ref: CredentialRef, reason_code: str,
                                mission_id: str | None = None) -> CredentialRequest:
-        # Building the owner message reads nothing, so this part is safe to offer.
+        # Building the owner message reads nothing.
         return NullCredentialStore().request_new_credential(ref, reason_code, mission_id)
 
     def get_secret(self, ref: CredentialRef) -> SecretValue:
-        self._refuse()
-        raise AssertionError("unreachable")
+        """For the provider transport only. Raises CredentialUnavailable(reason) on any problem."""
+        from architecture.ai.wincred_reader import decode_key_blob
+        blob = self._read(ref)
+        if blob is None:
+            raise CredentialUnavailable("NO_CREDENTIAL")
+        key = decode_key_blob(blob)
+        if not key:
+            raise CredentialUnavailable("EMPTY_CREDENTIAL")
+        return SecretValue(key)

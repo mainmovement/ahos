@@ -167,19 +167,65 @@ def test_interface_has_no_raw_getter_and_stores_conform():
     assert NullCredentialStore().has_credential(CredentialRef("groq")) is None
 
 
-def test_windows_backend_is_design_only_and_touches_nothing():
-    w = WindowsCredentialManagerStore()
-    with pytest.raises(NotImplementedError, match="DESIGN_ONLY"):
-        w.has_credential(CredentialRef("groq"))
-    with pytest.raises(NotImplementedError, match="DESIGN_ONLY"):
-        w.get_secret(CredentialRef("groq"))
-    req = w.request_new_credential(CredentialRef("groq"), "QUOTA_EXHAUSTED", "M1")
+def test_windows_backend_is_read_only_and_injectable():
+    """Phase 6: owner-approved READ-ONLY CredReadW backend. No write/delete/enumerate anywhere."""
+    from architecture.ai.credential_store import CredentialUnavailable
+    from architecture.ai import wincred_reader as w
+
+    seen = []
+    def reader(target):
+        seen.append(target)
+        return FAKE_KEY.encode("utf-16-le") + b"\x00\x00"
+    store = WindowsCredentialManagerStore(reader=reader)
+    assert store.has_credential(CredentialRef("gemini")) is True
+    assert store.get_secret(CredentialRef("gemini")).reveal() == FAKE_KEY
+    assert seen == ["AHOS/ai/gemini", "AHOS/ai/gemini"]
+    assert FAKE_KEY not in repr(store.get_secret(CredentialRef("gemini")))
+
+    missing = WindowsCredentialManagerStore(reader=lambda t: None)
+    assert missing.has_credential(CredentialRef("gemini")) is False
+    with pytest.raises(CredentialUnavailable, match="NO_CREDENTIAL"):
+        missing.get_secret(CredentialRef("gemini"))
+    with pytest.raises(CredentialUnavailable, match="EMPTY_CREDENTIAL"):
+        WindowsCredentialManagerStore(reader=lambda t: b"").get_secret(CredentialRef("gemini"))
+
+    def boom(t):
+        raise OSError("ctypes detail " + FAKE_KEY)
+    with pytest.raises(CredentialUnavailable) as ei:
+        WindowsCredentialManagerStore(reader=boom).get_secret(CredentialRef("gemini"))
+    assert ei.value.reason_code == "READ_FAILED" and FAKE_KEY not in str(ei.value)
+    assert ei.value.__cause__ is None and ei.value.__suppress_context__
+
+    req = store.request_new_credential(CredentialRef("groq"), "QUOTA_EXHAUSTED", "M1")
     assert req.target == "AHOS/ai/groq"
-    src = (ROOT / "architecture" / "ai" / "credential_store.py").read_text(encoding="utf-8")
-    tree = ast.parse(src)
-    imported = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names} | \
-               {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module}
-    assert not imported & {"ctypes", "keyring", "win32cred", "subprocess", "os", "winreg"}
+    assert w.decode_key_blob("abc".encode("utf-8")) == "abc"
+    assert w.decode_key_blob("abcd".encode("utf-16-le")) == "abcd"
+    with pytest.raises(w.CredentialReadError, match="TARGET_NOT_ALLOWED"):
+        w.read_generic_credential_blob("Other/target")
+
+    # credential_store itself stays free of OS/ctypes imports; the reader module
+    # only binds CredReadW + CredFree (no CredWrite/CredDelete/CredEnumerate).
+    for mod, banned in (("credential_store.py", {"ctypes", "keyring", "win32cred", "subprocess", "winreg"}),
+                        ("wincred_reader.py", {"keyring", "win32cred", "subprocess", "winreg", "os"})):
+        src = (ROOT / "architecture" / "ai" / mod).read_text(encoding="utf-8")
+        tree = ast.parse(src)
+        imported = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names} | \
+                   {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module}
+        assert not imported & banned, mod
+    rsrc = (ROOT / "architecture" / "ai" / "wincred_reader.py").read_text(encoding="utf-8")
+    for bad in ("CredWrite", "CredDelete", "CredEnumerate", "print(", "logging"):
+        assert bad not in rsrc
+
+
+def test_windows_backend_off_windows_reports_unknown():
+    from architecture.ai.credential_store import CredentialUnavailable
+    import sys as _sys
+    if _sys.platform == "win32":
+        pytest.skip("non-Windows behaviour")
+    store = WindowsCredentialManagerStore()
+    assert store.has_credential(CredentialRef("gemini")) is None
+    with pytest.raises(CredentialUnavailable, match="NOT_WINDOWS"):
+        store.get_secret(CredentialRef("gemini"))
 
 
 def test_target_name_is_sanitised():

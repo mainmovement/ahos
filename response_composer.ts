@@ -6,8 +6,9 @@
  *   verified structured data ──(chat_replies.ts builders)──▶ ReplyBlock[]
  *        ──▶ GroundedDraft ──▶ [optional ReplyPhraser seam] ──▶ ComposedReply
  *
- * Today only the deterministic composer runs. The ReplyPhraser seam exists so
- * a free LLM can later *rewrite the grounded draft* in the same style. It is
+ * Phase 6: the ReplyPhraser seam is filled by gemini_phraser.ts (cloud free
+ * tier, key in Windows Credential Manager, read only inside a Python helper).
+ * The phraser only *rewrites the grounded draft* in the same style. It is
  * never a source of facts: its output is accepted only if validatePhrased()
  * passes (no new numbers, no internal jargon, length limit, footer kept);
  * otherwise the deterministic draft is used. Locked drafts (e.g. GM-04
@@ -45,7 +46,7 @@ export type GroundedDraft = {
 
 export type PhrasedReply = { plain: string; html?: string | null };
 
-/** Seam for a future LLM rewriter. Not implemented/configured today. */
+/** Seam for an LLM rewriter (implementation: gemini_phraser.ts). Output is untrusted. */
 export interface ReplyPhraser {
   readonly name: string;
   phrase(draft: GroundedDraft, deterministic: { plain: string; html: string }, style: readonly string[]): Promise<PhrasedReply | null>;
@@ -95,7 +96,27 @@ export function validatePhrased(draftPlain: string, phrased: string, footer: str
 }
 
 /**
- * Final step for every chat reply. Without a phraser (today) this is exactly
+ * HTML for accepted phrased text. The phrased text is untrusted: every line is
+ * escaped; the only markup we add is <b> on a short first line (when a body
+ * follows) and <i> on the footer line.
+ */
+export function phrasedHtml(plain: string, footer: string): string {
+  const lines = String(plain ?? "").trim().split("\n");
+  const footerLine = `— ${footer}`;
+  const isFooter = (l: string) => l.trim() === footerLine || l.trim() === footer;
+  const bodyLines = lines.filter((l) => !isFooter(l) && l.trim() !== "");
+  return lines
+    .map((l, i) => {
+      const e = escapeHtml(l);
+      if (isFooter(l)) return `<i>${e}</i>`;
+      if (i === 0 && bodyLines.length >= 2 && l.trim().length > 0 && l.trim().length <= 60) return `<b>${e}</b>`;
+      return e;
+    })
+    .join("\n");
+}
+
+/**
+ * Final step for every chat reply. Without a phraser this is exactly
  * composeDeterministic(). Never throws; any phraser failure falls back.
  */
 export async function finalizeReply(draft: GroundedDraft, phraser?: ReplyPhraser | null): Promise<ComposedReply> {
@@ -106,8 +127,10 @@ export async function finalizeReply(draft: GroundedDraft, phraser?: ReplyPhraser
     if (!out) return { ...det, phraserRejected: "NO_OUTPUT" };
     const reason = validatePhrased(det.plain, out.plain, draft.footer);
     if (reason) return { ...det, phraserRejected: reason };
-    // Phrased text is treated as untrusted: HTML is rebuilt by escaping plain text.
-    return { plain: out.plain.trim(), html: escapeHtml(out.plain.trim()), composer: phraser.name };
+    // Phrased text is untrusted: any phraser-supplied HTML is ignored and HTML is
+    // rebuilt from escaped plain text (phrasedHtml).
+    const plain = out.plain.trim();
+    return { plain, html: phrasedHtml(plain, draft.footer), composer: phraser.name };
   } catch {
     return { ...det, phraserRejected: "PHRASER_ERROR" };
   }

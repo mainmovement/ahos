@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Date / agent | 2026-10-02, Grok (Phase 3) |
-| Status | Status model + classifier + ledger integration: **IMPLEMENTED_VERIFIED (offline self-tests)**. Credential store: **interface only**. Windows Credential Manager backend: **DESIGN_ONLY** |
+| Status | Status model + classifier + ledger integration: **IMPLEMENTED_VERIFIED (offline self-tests)**. Credential store: **interface only**. Windows Credential Manager backend: **IMPLEMENTED (read-only, Phase 6, owner-approved 2026-10-02; GM-12 independent security review still pending)** |
 | Ladder | IMPLEMENTED + TESTED. Not INTEGRATED: no runtime path calls `guard_provider_call` yet. Not OPERATIONAL. |
 | Files | `architecture/ai/provider_status.py`, `architecture/ai/credential_store.py`, `architecture/ai/mission_guard.py`, `tests/test_ai_provider_status.py` |
 
@@ -58,7 +58,7 @@ READY · DEGRADED · UNAVAILABLE · QUOTA_EXHAUSTED · AUTH_FAILED · MODEL_UNAV
 - There is **no raw getter in the interface**.
 - `SecretValue`: repr, str and format all print `***`; it cannot be pickled and is immutable. Only `reveal()` returns the value, for the transport layer only.
 - `NullCredentialStore` (default; reports UNKNOWN) and `FakeCredentialStore` (presence booleans only; it cannot hold a value).
-- `WindowsCredentialManagerStore` is a **DESIGN_ONLY placeholder**. Every access raises `NotImplementedError`. It imports no ctypes, keyring, win32cred or os.
+- `WindowsCredentialManagerStore` was a DESIGN_ONLY placeholder until Phase 6. See the Phase 6 update below: it is now a read-only CredReadW backend.
 
 ## Windows Credential Manager backend: design (NOT implemented)
 1. **Storage:** Generic credentials (`CRED_TYPE_GENERIC`), target `AHOS/ai/<provider>`, `CRED_PERSIST_LOCAL_MACHINE` scoped to the current Windows user (DPAPI-protected). UserName = `ahos`. The blob is UTF-16 key bytes.
@@ -67,6 +67,27 @@ READY · DEGRADED · UNAVAILABLE · QUOTA_EXHAUSTED · AUTH_FAILED · MODEL_UNAV
 4. **Fallback order:** Credential Manager, then env var (`key_env` in `config/ai_council_providers.yaml`, current behaviour), then NO_KEY. On non-Windows hosts it falls back to env.
 5. **Governance:** `credentials.access` is a GLOBAL_DENY capability for agents (`AGENT_TAXONOMY_MAP.md`). The runtime transport is not an agent, but this boundary needs **owner + security review (GM-12)** before any code reads the OS store.
 6. **Tests to add with the implementation:** a fake `advapi32` shim; assert the key never appears in logs, the ledger or exceptions; assert a missing target maps to NO_KEY → AUTH_FAILED → PAUSED with the Persian message.
+
+
+## Phase 6 update (2026-10-02): read-only Windows backend IMPLEMENTED
+
+The owner explicitly approved reading the Gemini key from Windows Credential Manager. The owner stored it with an untracked owner script (`scripts/store_ai_key.py`, not Grok's, not committed): generic credential, target `AHOS/ai/gemini`, user `gemini`, UTF-16-LE blob.
+
+- **`architecture/ai/wincred_reader.py`:**
+  - one function, `read_generic_credential_blob(target)`: `CredReadW(target, CRED_TYPE_GENERIC)` → raw bytes, or `None` on ERROR_NOT_FOUND (1168)
+  - the blob buffer is zeroed (`memset`) before `CredFree`
+  - only targets starting with `AHOS/ai/` are allowed (`TARGET_NOT_ALLOWED` otherwise)
+  - `NOT_WINDOWS` off Windows
+  - no CredWrite/CredDelete/CredEnumerate, no printing or logging (pinned by a static test)
+  - `decode_key_blob` reads UTF-16-LE (falls back to UTF-8) and strips NULs and whitespace.
+- **`credential_store.WindowsCredentialManagerStore(reader=None)`:**
+  - `has_credential` → True, False, or None (unknown: non-Windows or read error)
+  - `get_secret` → `SecretValue`, or raises `CredentialUnavailable(reason_code)`. The reason codes are `NO_CREDENTIAL`, `EMPTY_CREDENTIAL`, `NOT_WINDOWS`, `READ_FAILED` and `TARGET_NOT_ALLOWED`. The exception carries the reason code only; OS detail is suppressed with `from None`.
+  - `reader` can be injected for offline tests.
+- **Who calls `get_secret`:** only the Gemini phraser helper process (`architecture/ai/gemini_phraser.py`). It uses the key for the `x-goog-api-key` header and nothing else. The key never goes to stdout or stderr, argv, env, files or logs, and Node never sees it.
+- The Null and Fake stores still have no `get_secret`, and the status-only interface is unchanged.
+- The env-var fallback from the original design is **not** implemented for Gemini, because the owner requires the key never to be in `.env`.
+- **Still open:** independent GM-12 security review of this read path.
 
 ## Tests (offline; a socket guard fails any network attempt)
 `tests/test_ai_provider_status.py`, 64 cases:

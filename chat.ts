@@ -14,6 +14,7 @@ import { commandSnapshot } from "./snapshot";
 import { FINAL_USER_LINE } from "./types";
 import { blocksFromText, bullet, gap, line, note, title, type ReplyBlock } from "./reply_format";
 import { finalizeReply } from "./response_composer";
+import { getDefaultPhraser } from "./gemini_phraser";
 import {
   ENGINE_OFF_NOTE,
   confidenceFa,
@@ -276,12 +277,24 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   if (!running && engineNoticeRelevant(intent, text)) {
     blocks.push(gap(), note(ENGINE_OFF_NOTE));
   }
-  // Shared composer for dashboard chat and Telegram. No phraser is configured
-  // (LLM seam documented in response_composer.ts); deterministic text is final.
-  const composed = await finalizeReply({ intent, blocks, footer: FINAL_USER_LINE });
+  // Shared composer for dashboard chat and Telegram. Phase 6: the Gemini phraser
+  // may rewrite the grounded draft; validatePhrased() guards it and any failure
+  // falls back to the deterministic text (see gemini_phraser.ts).
+  const phraser = getDefaultPhraser();
+  const phraseStarted = Date.now();
+  const composed = await finalizeReply({ intent, blocks, footer: FINAL_USER_LINE }, phraser);
   const reply = composed.plain;
   const replyHtml = composed.html;
   evidence.composer = composed.composer;
+  if (phraser) {
+    evidence.phraser = {
+      used: composed.composer === phraser.name,
+      rejected: composed.phraserRejected ?? null,
+      reason: phraser.stats.lastReason,
+      model: composed.composer === phraser.name ? phraser.stats.lastModel : null,
+      latencyMs: Date.now() - phraseStarted,
+    };
+  }
   evidence.focusToken = focus;
 
   try {
