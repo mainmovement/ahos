@@ -12,10 +12,7 @@
    "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
   ],
   "engine.bot_skeleton": [
-   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))",
-   "module-scope call logging.basicConfig() logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', st",
-   "module-scope call log.error() log.error('TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing — refusing to start (Agent-",
-   "module-scope call sys.exit() sys.exit(2)"
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
   ],
   "engine.data_audit": [
    "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
@@ -35,11 +32,7 @@
   ],
   "engine.run_validation": [
    "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))",
-   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR / 'engine'))",
-   "module-scope loop: For",
-   "module-scope with-open: with open(out_file, 'w', encoding='utf-8') as f:\n    json.dump(out, f, indent=2)",
-   "module-scope loop: For",
-   "module-scope call print() print(f'\\nSaved {out_file}')"
+   "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR / 'engine'))"
   ],
   "engine.telegram_live_test": [
    "module-scope call sys.path.insert() sys.path.insert(0, str(ROOT_DIR))"
@@ -55,10 +48,7 @@
   ]
  },
  "runtime_confirmed_side_effects": {},
- "import_failures": {
-  "engine.bot_skeleton": "HARNESS_NO_RESULT: 2026-10-03 00:17:09,157 ERROR TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing � refusing to start (Agent-04 rule).\n",
-  "engine.run_validation": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\Sniper\\\\AppData\\\\Local\\\\Temp\\\\ahos_import_audit__bp8prli\\\\research\\\\data\\\\BTCUSDT_1h_3yr.csv'"
- },
+ "import_failures": {},
  "runtime_detail": {
   "engine.acquire_3yr": {
    "imported": true,
@@ -88,8 +78,8 @@
    ]
   },
   "engine.bot_skeleton": {
-   "imported": false,
-   "error": "HARNESS_NO_RESULT: 2026-10-03 00:17:09,157 ERROR TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID missing � refusing to start (Agent-04 rule).\n",
+   "imported": true,
+   "error": "",
    "events": []
   },
   "engine.coverage_audit": {
@@ -155,8 +145,8 @@
    "events": []
   },
   "engine.run_validation": {
-   "imported": false,
-   "error": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\Sniper\\\\AppData\\\\Local\\\\Temp\\\\ahos_import_audit__bp8prli\\\\research\\\\data\\\\BTCUSDT_1h_3yr.csv'",
+   "imported": true,
+   "error": "",
    "events": [
     {
      "kind": "dependency_subprocess",
