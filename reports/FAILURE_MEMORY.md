@@ -158,3 +158,42 @@ most valuable signal here.
   someone else's process.
 - **Memory.** The four module-scope statements to grep for in every new module:
   `os.chdir`, `logging.basicConfig`, `sys.exit`, `os.environ[...] =`.
+
+## FM-007 — The lifecycle census always reported 0 eligible calibration pairs
+
+- **Incident.** `lifecycle_status()` (the read-only census of the
+  prediction→outcome pipeline) emitted `eligible_join_pairs_estimate` hard-coded
+  at `0` — on a host whose live ledger holds 27,493 `local` predictions and 508
+  outcome labels. The census contradicted the calibration report generated from
+  the same two databases (6,037 eligible pairs).
+- **Root cause.** The field was initialized to `0` in the returned dict and
+  never recomputed. The discovery DB (`outcome_label`) and the ledger DB
+  (`opportunity_score_ledger`) are separate SQLite connections, so the obvious
+  cross-database JOIN is unavailable — and rather than approximate, the original
+  code had silently returned the sentinel.
+- **Impact.** `architecture/cognitive/self_research.py:89-106` reads this field
+  and treats `0` as a "where I fail" signal: *"zero pairs means calibration
+  cannot advance from this snapshot."* A self-diagnosis input was being fed a
+  constant falsehood, and any consumer of the census would conclude the entire
+  Lane-B learning loop was dead while it was merely thin.
+- **Failed assumption.** "An unimplemented cross-database aggregate is best left
+  at a safe zero." A hard-coded zero is not honest uncertainty — it is a false
+  claim presented as a measurement.
+- **Control.** `tests/test_prediction_lifecycle_bridge.py::
+  test_lifecycle_status_counts_eligible_join_pairs` builds two predicted tokens,
+  labels exactly one of them via frozen `materialize_outcomes`, and asserts the
+  census returns `1` (not `0`); the pre-existing empty-set test now also pins
+  that the estimate is `0` only when it genuinely is.
+- **Remediation.** Each side is read into a Python set of distinct `token_id`s
+  and the estimate is the intersection size — no cross-DB JOIN needed. The
+  docstring states it is horizon/event-class agnostic by design, and the exact
+  pair count for a given (horizon, class) belongs to the calibration report.
+  Against the live DBs this now returns **10** (19 labeled tokens ∩ 20,744
+  predicted tokens) instead of `0`.
+- **Regression.** 6 passed in `tests/test_prediction_lifecycle_bridge.py`.
+- **Lesson.** When two databases cannot be joined in SQL, the sets can still be
+  joined in memory. Do not let a storage boundary turn into an honesty boundary.
+- **Memory.** Grep for numeric literals returned in status/census dicts that are
+  never reassigned — every one is a hard-coded measurement. `self_research`'s
+  `where_i_fail` list turns a stale zero into a system-wide false diagnosis, so
+  any field it reads is load-bearing, not cosmetic.

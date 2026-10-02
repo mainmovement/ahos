@@ -343,6 +343,18 @@ def lifecycle_status(*, discovery_db: str | None = None,
                 "SELECT COUNT(*) FROM production_observations").fetchone()[0]
         except sqlite3.Error:
             out["production_observations"] = 0
+        # M9: this used to be hard-coded 0, which made the census claim
+        # "no calibration-eligible join" even while the live ledger held
+        # thousands of eligible pairs. The estimate is the count of distinct
+        # tokens carrying BOTH a local prediction and an outcome label. It is
+        # horizon/event-class agnostic by design; the exact pair count for a
+        # given (horizon, class) belongs to the calibration report.
+        try:
+            label_tokens = {
+                r[0] for r in dconn.execute(
+                    "SELECT DISTINCT token_id FROM outcome_label") if r[0]}
+        except sqlite3.Error:
+            label_tokens = set()
         dconn.close()
     except sqlite3.Error as e:
         out["notes"].append(f"discovery_read_error: {e}")
@@ -352,6 +364,17 @@ def lifecycle_status(*, discovery_db: str | None = None,
         out["local_predictions"] = lconn.execute(
             "SELECT COUNT(*) FROM opportunity_score_ledger WHERE source='local'"
         ).fetchone()[0]
+        try:
+            pred_tokens = {
+                r[0] for r in lconn.execute(
+                    "SELECT DISTINCT token_id FROM opportunity_score_ledger "
+                    "WHERE source='local'") if r[0]}
+        except sqlite3.Error:
+            pred_tokens = set()
+        # Only meaningful once both sides were read; a read error on either
+        # leaves the estimate at its 0 default rather than a partial count.
+        if label_tokens is not None and pred_tokens:
+            out["eligible_join_pairs_estimate"] = len(label_tokens & pred_tokens)
         lconn.close()
     except sqlite3.Error as e:
         out["notes"].append(f"ledger_read_error: {e}")

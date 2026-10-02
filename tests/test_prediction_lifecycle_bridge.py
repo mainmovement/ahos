@@ -222,3 +222,65 @@ def test_lifecycle_status_notes_empty_active_set(tmp_path):
     st = lifecycle_status(discovery_db=str(disc), ledger_db=str(led))
     assert st["schema"] == "ahos.prediction_lifecycle_status.v1"
     assert isinstance(st["notes"], list)
+    # No labels and no predictions → estimate is genuinely zero.
+    assert st["eligible_join_pairs_estimate"] == 0
+
+
+def test_lifecycle_status_counts_eligible_join_pairs(tmp_path):
+    """The census must report real overlap, not a hard-coded 0 (M9 FM-007).
+
+    A token carrying BOTH a local prediction and a materialized outcome label
+    is an eligible calibration join; the census used to emit 0 unconditionally,
+    which downstream self-research read as "calibration cannot advance" even
+    while eligible pairs existed.
+    """
+    disc = tmp_path / "d.sqlite"
+    led = tmp_path / "l.sqlite"
+    t0 = 1_600_000_000.0
+    addr = "EstimateAddr4444444444444444444444"
+    tid = token_id("solana", addr)
+    other = "NoLabelAddr5555555555555555555555"  # predicted, never labeled
+
+    for a in (addr, other):
+        register_for_observation(
+            [_rec(token_address=a, retrieved_ts=t0,
+                  metrics={"price_usd": 1.0, "liquidity_usd": 80_000.0})],
+            discovery_db=str(disc), now=t0,
+        )
+    conn = obs.open_store(str(disc))
+    conn.execute(
+        "INSERT OR IGNORE INTO raw_payloads(payload_sha256,provider,endpoint,retrieved_ts,payload_json)"
+        " VALUES ('ep1','dexscreener','t',?, '{}')",
+        (t0,),
+    )
+    for i, (off, price) in enumerate(((3600.0, 1.2), (86400.0, 2.5))):
+        conn.execute(
+            "INSERT INTO discovery_observations(obs_id,token_id,provider,retrieved_ts,price_usd,raw_ref)"
+            " VALUES (?,?,?,?,?,?)",
+            (f"ep{i}", tid, "dexscreener", t0 + off, price, "ep1"),
+        )
+    conn.commit()
+    conn.close()
+
+    for a in (addr, other):
+        candidate = NormalizedTokenCandidate(
+            chain="solana", address=a, symbol="EST", name="Estimate",
+            source_provider="dexscreener", retrieved_ts=t0,
+            metrics=MarketMetrics(price_usd=1.0, liquidity_usd=80_000.0),
+            security=SecuritySignals(is_honeypot=False),
+        )
+        ScoreLedger(db_path=str(led), source=SOURCE_LOCAL).record(
+            OpportunityScorer().evaluate(candidate, now=t0), run_id="est", now=t0
+        )
+
+    conn = obs.open_store(str(disc))
+    mat = materialize_outcomes(conn, now=t0 + 73 * 3600.0)
+    assert mat["outcome_rows_written"] > 0
+    conn.close()
+
+    st = lifecycle_status(discovery_db=str(disc), ledger_db=str(led))
+    assert st["outcome_labels"] > 0
+    assert st["local_predictions"] == 2
+    # Exactly one of the two predicted tokens carries a label.
+    assert st["eligible_join_pairs_estimate"] == 1
+
