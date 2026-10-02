@@ -28,13 +28,16 @@ import {
   type AuditFn,
 } from "../chat_actions.ts";
 import { ConversationMemory, memoryKey, redactSecrets } from "../chat_memory.ts";
+import { DevMissionStore } from "../dev_missions.ts";
 import type { Snap } from "../chat_replies.ts";
 
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-// Never touch the real audit log from a self-test.
-process.env.AHOS_CONTROL_AUDIT_PATH = join(mkdtempSync(join(tmpdir(), "ahos-agent-")), "audit.jsonl");
+// Never touch the real audit log or the real dev-mission queue from a self-test.
+const TMP = mkdtempSync(join(tmpdir(), "ahos-agent-"));
+process.env.AHOS_CONTROL_AUDIT_PATH = join(TMP, "audit.jsonl");
+process.env.AHOS_DEV_MISSIONS_PATH = join(TMP, "dev_missions.jsonl");
 
 const FOOTER = "تصمیم نهایی با کاربر است.";
 const NOW = new Date("2026-10-02T14:00:00Z");
@@ -74,8 +77,8 @@ function fakeRunner(steps: Step[]) {
 const call = (name: string, args: Record<string, unknown> = {}): Part => ({ functionCall: { name, args }, thoughtSignature: "sig" });
 const say = (text: string): Part => ({ text });
 
-function input(text: string, store = new PendingActionStore(), identity = OWNER, history = []) {
-  return { text, snap: SNAP, history, identity, store, footer: FOOTER, now: NOW };
+function input(text: string, store = new PendingActionStore(), identity = OWNER, history = [], missions?: DevMissionStore) {
+  return { text, snap: SNAP, history, identity, store, missions: missions ?? new DevMissionStore(join(TMP, "missions.jsonl")), footer: FOOTER, now: NOW };
 }
 
 describe("read tools", () => {
@@ -97,7 +100,7 @@ describe("read tools", () => {
   });
   it("registry is whitelisted: only read + propose tools; unknown tool is inert", () => {
     const names = [...READ_TOOLS, ...PROPOSE_TOOLS].map((t) => t.name);
-    for (const n of names) assert.match(n, /^(get_|list_|explain_|propose_)/);
+    for (const n of names) assert.match(n, /^(get_|list_|explain_|propose_|submit_)/);
     assert.ok(!names.some((n) => /key|secret|token_set|constitution|authority|live|withdraw|transfer/i.test(n)));
     assert.deepEqual(runReadTool("delete_everything", {}, SNAP, NOW), { error: "UNKNOWN_TOOL" });
   });
@@ -239,12 +242,18 @@ describe("confirm-gated commands", () => {
     audits.push({ decision: p.decision, intent: p.intent });
     return null;
   }) as unknown as AuditFn;
-  function deps(log: string[]): ActionDeps {
+  function deps(log: string[], missions = new DevMissionStore(join(TMP, "missions.jsonl"))): ActionDeps {
     return {
       startEngine: async () => log.push("start"),
       stopEngine: async () => log.push("stop"),
       addWatch: async (i) => log.push(`watch:${i.symbol}`),
       paperBuy: async (p) => (log.push(`paper:${p.symbol}`), { ok: true, messageFa: "ثبت شد — فقط کاغذی." }),
+      recordDevMission: async (i) => {
+        const rec = missions.append({ summaryFa: i.summaryFa, channel: i.channel, userId: i.userId });
+        return rec
+          ? { ok: true, messageFa: `✅ ماموریت توسعه ثبت شد (شناسه ${rec.id}).` }
+          : { ok: false, messageFa: "ماموریت توسعه ثبت نشد." };
+      },
     };
   }
 
@@ -291,6 +300,123 @@ describe("confirm-gated commands", () => {
     assert.equal(isOwner({ channel: "telegram", userId: "111" }, {}), false); // empty allowlist → nobody
     assert.equal(isOwner(DASH, ENV), true);
     assert.equal(isOwner({ channel: "api", userId: null }, ENV), false);
+  });
+});
+
+describe("dev missions (Phase 8)", () => {
+  const seen: Array<{ decision: string; intent: string }> = [];
+  const audit = ((p: { decision: string; intent: string }) => {
+    seen.push({ decision: p.decision, intent: p.intent });
+    return null;
+  }) as unknown as AuditFn;
+  function deps(_log: string[], missions: DevMissionStore): ActionDeps {
+    return {
+      startEngine: async () => undefined,
+      stopEngine: async () => undefined,
+      addWatch: async () => undefined,
+      paperBuy: async () => ({ ok: false, messageFa: "—" }),
+      recordDevMission: async (i) => {
+        const rec = missions.append({ summaryFa: i.summaryFa, channel: i.channel, userId: i.userId });
+        return rec
+          ? { ok: true, messageFa: `✅ ماموریت توسعه ثبت شد (شناسه ${rec.id}) و در صف تیم مهندسی است. کاری هنوز انجام نشده است.` }
+          : { ok: false, messageFa: "ماموریت توسعه ثبت نشد." };
+      },
+    };
+  }
+
+  it("owner: submit_dev_mission → warm locked proposal with code; nothing queued yet", async () => {
+    const store = new PendingActionStore(() => 0);
+    const ms = new DevMissionStore(join(TMP, "ms-a.jsonl"));
+    const { runner } = fakeRunner([[call("submit_dev_mission", { summaryFa: "ساخت دانشگاه برای یادگیری مهارت‌ها" })]]);
+    const r = await new ChatAgent({ runner, env: ENV }).run(input("دانشگاه رو بساز", store, OWNER, [], ms));
+    assert.equal(r.ok, true);
+    if (r.ok) {
+      assert.equal(r.locked, true);
+      assert.ok(r.proposal);
+      assert.match(r.plain, /خودم کد نمی‌نویسم/);
+      assert.match(r.plain, /آماده ثبت است \(هنوز ثبت نشده\)/);
+      assert.match(r.plain, new RegExp(`تایید ${r.proposal!.code}`));
+    }
+    assert.equal(ms.records().length, 0); // confirmed? not yet → nothing queued
+  });
+  it("non-owner: submit_dev_mission is denied, nothing queued", async () => {
+    const store = new PendingActionStore(() => 0);
+    const ms = new DevMissionStore(join(TMP, "ms-b.jsonl"));
+    const { runner } = fakeRunner([[call("submit_dev_mission", { summaryFa: "یک فیچر جدید اضافه کن" })]]);
+    const r = await new ChatAgent({ runner, env: ENV }).run(input("فیچر جدید اضافه کن", store, STRANGER, [], ms));
+    assert.ok(r.ok && !r.proposal);
+    assert.ok(r.ok && /فقط برای مالک/.test(r.plain));
+    assert.equal(ms.records().length, 0);
+  });
+  it("empty summary is not proposed", async () => {
+    const store = new PendingActionStore(() => 0);
+    const ms = new DevMissionStore(join(TMP, "ms-c.jsonl"));
+    const { runner } = fakeRunner([[call("submit_dev_mission", { summaryFa: "   " })]]);
+    const r = await new ChatAgent({ runner, env: ENV }).run(input("دانشگاه", store, OWNER, [], ms));
+    assert.ok(r.ok && !r.proposal && /خالی است/.test(r.plain));
+    assert.equal(ms.records().length, 0);
+  });
+  it("list_dev_missions: owner sees the queue, non-owner does not", () => {
+    const ms = new DevMissionStore(join(TMP, "ms-d.jsonl"), { now: () => NOW });
+    ms.append({ summaryFa: "راه‌اندازی عامل اخبار", channel: "telegram", userId: "111" });
+    const owner = runReadTool("list_dev_missions", {}, SNAP, NOW, { missions: ms, owner: true }) as {
+      count: number;
+      items: Array<{ id: string; statusFa: string }>;
+    };
+    assert.equal(owner.count, 1);
+    assert.equal(owner.items[0].id, "DM-000001");
+    assert.equal(owner.items[0].statusFa, "در صف");
+    const stranger = runReadTool("list_dev_missions", {}, SNAP, NOW, { missions: ms, owner: false }) as {
+      count: number;
+      noteFa: string;
+    };
+    assert.equal(stranger.count, 0);
+    assert.match(stranger.noteFa, /فقط مالک/);
+    const none = runReadTool("list_dev_missions", {}, SNAP, NOW, {}) as { count: number };
+    assert.equal(none.count, 0);
+  });
+  it("confirm appends one QUEUED mission, single use, audited PROPOSED→CONFIRMED", async () => {
+    let t = 0;
+    const store = new PendingActionStore(() => t);
+    const ms = new DevMissionStore(join(TMP, "ms-e.jsonl"), { now: () => NOW });
+    const p = propose(store, "dev_mission", { missionSummaryFa: "اضافه کردن هشدار طلا" }, OWNER, "هشدار طلا رو اضافه کن", { env: ENV, audit });
+    assert.ok(p.ok);
+    const code = p.ok ? p.action.code : "";
+    const parsed = parseConfirmation(`تایید ${code}`)!;
+    const r1 = await handleConfirmation(store, parsed, OWNER, "x", { env: ENV, audit, deps: deps([], ms) });
+    assert.equal(r1.executed, true);
+    assert.match(r1.replyFa, /ثبت شد/);
+    assert.match(r1.replyFa, /هنوز انجام نشده/);
+    // Single use: re-confirming the same code does not append a second mission.
+    const r2 = await handleConfirmation(store, parsed, OWNER, "x", { env: ENV, audit, deps: deps([], ms) });
+    assert.equal(r2.executed, false);
+    const recs = ms.records();
+    assert.equal(recs.length, 1);
+    assert.equal(recs[0].status, "QUEUED");
+    assert.equal(recs[0].summaryFa, "اضافه کردن هشدار طلا");
+    assert.ok(!recs[0].userIdHash.includes("111")); // hashed, never raw
+    assert.equal(ms.verify().ok, true);
+    assert.deepEqual(seen.slice(-2).map((a) => a.decision), ["PROPOSED", "CONFIRMED"]);
+    t += 1;
+  });
+  it("cancel never queues; wrong identity never queues", async () => {
+    const store = new PendingActionStore(() => 0);
+    const ms = new DevMissionStore(join(TMP, "ms-f.jsonl"));
+    const p = propose(store, "dev_mission", { missionSummaryFa: "بهتر کردن داشبورد" }, OWNER, "داشبورد رو بهتر کن", { env: ENV, audit });
+    const code = p.ok ? p.action.code : "";
+    const c = await handleConfirmation(store, { op: "cancel", code }, OWNER, "لغو", { env: ENV, audit, deps: deps([], ms) });
+    assert.match(c.replyFa, /لغو شد/);
+    const p2 = propose(store, "dev_mission", { missionSummaryFa: "فیچر X" }, OWNER, "x", { env: ENV, audit });
+    const code2 = p2.ok ? p2.action.code : "";
+    const s = await handleConfirmation(store, { op: "confirm", code: code2 }, STRANGER, "x", { env: ENV, audit, deps: deps([], ms) });
+    assert.equal(s.executed, false);
+    assert.equal(ms.records().length, 0);
+  });
+  it("system prompt tells the model it does not write code and must not claim work done", () => {
+    const s = systemPrompt(NOW);
+    assert.match(s, /کدی نمی‌نویسی/);
+    assert.match(s, /submit_dev_mission/);
+    assert.match(s, /انجام شده/);
   });
 });
 

@@ -15,7 +15,7 @@ import { FINAL_USER_LINE } from "./types";
 import { blocksFromText, bullet, gap, line, note, title, type ReplyBlock } from "./reply_format";
 import { finalizeReply, phrasedHtml } from "./response_composer";
 import { getDefaultPhraser } from "./gemini_phraser";
-import { detectMajorAsset, extractTicker, isPronounQuery, routeIntent } from "./chat_intent";
+import { detectMajorAsset, extractDevMissionSummary, extractTicker, isPronounQuery, routeIntent } from "./chat_intent";
 import {
   getPendingStore,
   handleConfirmation,
@@ -30,6 +30,7 @@ import {
 } from "./chat_actions";
 import { getDefaultChatAgent } from "./chat_agent";
 import { getConversationMemory, memoryKey } from "./chat_memory";
+import { getDevMissionStore } from "./dev_missions";
 import {
   ENGINE_OFF_NOTE,
   confidenceFa,
@@ -99,6 +100,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   const memKey = memoryKey(identity.channel, identity.userId);
   const memory = getConversationMemory();
   const store = getPendingStore();
+  const missions = getDevMissionStore();
 
   // Phase 7b: whole-message «تایید <code>» / «لغو» for a pending owner action.
   // Executes only via chat_actions.ts (same functions as the dashboard buttons), audited.
@@ -182,7 +184,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   let agentNote: string | null = null;
   if (agent) {
     const agentStarted = Date.now();
-    const r = await agent.run({ text, snap, history: memory.get(memKey), identity, store, footer: FINAL_USER_LINE });
+    const r = await agent.run({ text, snap, history: memory.get(memKey), identity, store, missions, footer: FINAL_USER_LINE });
     evidence.agent = { ok: r.ok, reason: r.ok ? "OK" : r.reason, toolsUsed: r.toolsUsed, steps: r.steps, model: r.ok ? r.model : null, latencyMs: Date.now() - agentStarted };
     if (r.ok) {
       const out = r.locked
@@ -260,6 +262,22 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       }
       blocks = [line("⛔ افزودن به واچ‌لیست فقط برای مالک سیستم مجاز است. هیچ تغییری اعمال نشد.")];
       focus = hit.tokenKey;
+    }
+  } else if (intent === "dev_mission") {
+    // Phase 8 (deterministic fallback when the conversational agent is off):
+    // an engineering-work request becomes a confirm-gated dev mission (owner only).
+    const summary = extractDevMissionSummary(text);
+    if (!summary) {
+      blocks = [line("درخواستی برای ثبت پیدا نشد؛ لطفاً دقیق‌تر بنویس که چه کاری می‌خواهی انجام شود.")];
+    } else {
+      const r = propose(store, "dev_mission", { missionSummaryFa: summary }, identity, text);
+      if (r.ok) {
+        const out = await lockedReply("proposal", proposalTextFa(r.action));
+        memory.append(memKey, text, out.plain);
+        await persistChat(text, out.plain, "proposal", evidence);
+        return { reply: out.plain, replyHtml: out.html, intent: "proposal", evidence, focusToken: ctx.focusToken ?? null, pendingAction: toPublic(r.action) };
+      }
+      blocks = [line("⛔ ثبت ماموریت توسعه فقط برای مالک سیستم مجاز است. هیچ تغییری اعمال نشد.")];
     }
   } else if (intent === "paper_buy") {
     // Unreachable from chat while the GM-04 gate refuses PAPER_WRITE (above).

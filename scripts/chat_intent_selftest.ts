@@ -85,6 +85,29 @@ const CASES: Array<[string, string]> = [
   // GM-04 control still detected first (whole message)
   ["توقف", "stop"],
   ["stop loss", "stop_loss"],
+  // Phase 8: dev-mission requests (topic + explicit build verb)
+  ["دانشگاه رو بساز", "dev_mission"],
+  ["دانشگاه رو راه‌اندازی کن", "dev_mission"],
+  ["عامل‌ها رو فعال کن", "dev_mission"],
+  ["اجنت‌ها رو راه بنداز", "dev_mission"],
+  ["یک فیچر جدید اضافه کن", "dev_mission"],
+  ["قابلیت جدید برای هشدار طلا بساز", "dev_mission"],
+  ["برنامه رو آپدیت کن", "dev_mission"],
+  ["سیستم رو بهتر کن", "dev_mission"],
+  ["ماموریت توسعه: تحلیل طلا رو اضافه کن", "dev_mission"],
+  ["build the university", "dev_mission"],
+  ["please add a feature for gold alerts", "dev_mission"],
+  // Phase 8: NOT dev missions (no build verb, or a market question)
+  ["چرا برنامه ارور میده؟", "why"],
+  ["داده‌ها آپدیت شدن؟", "general"],
+  ["قیمت طلا چنده؟", "general"], // gold is not a major asset; the agent answers it
+  ["اخبار طلا رو بده", "news"],
+  ["یکی از عامل‌ها خرابه", "general"],
+  ["وضعیت سیستم چطوره؟", "health"],
+  ["دانشگاه یعنی چی؟", "general"],
+  ["عامل", "general"],
+  // No dev topic: "بهتر کن" alone is not an engineering request (the agent handles it).
+  ["تحلیل بازار رو بهتر کن", "market"],
 ];
 
 describe("intent router regression (Persian phrasings)", () => {

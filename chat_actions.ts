@@ -23,7 +23,7 @@
 import { randomInt } from "node:crypto";
 import { recordControlAudit, type Capability } from "./chat_control_gate";
 
-export type ActionKind = "engine_start" | "engine_stop" | "paper_buy" | "watch_add";
+export type ActionKind = "engine_start" | "engine_stop" | "paper_buy" | "watch_add" | "dev_mission";
 
 export type ActionParams = {
   symbol?: string | null;
@@ -31,6 +31,8 @@ export type ActionParams = {
   chain?: string | null;
   address?: string | null;
   quantity?: number | null;
+  /** dev_mission only: the owner-confirmed engineering request summary. */
+  missionSummaryFa?: string | null;
 };
 
 export type Identity = { channel: string | null; userId: string | null };
@@ -55,6 +57,7 @@ const CAPABILITY: Record<ActionKind, Capability> = {
   engine_stop: "ENGINE_CONTROL",
   paper_buy: "PAPER_WRITE",
   watch_add: "WATCH_WRITE",
+  dev_mission: "MISSION_WRITE",
 };
 
 type EnvMap = Record<string, string | undefined>;
@@ -102,6 +105,10 @@ export function summaryFaFor(kind: ActionKind, p: ActionParams): string {
       return `ثبت خرید کاغذی ${sym}${p.quantity ? ` به مقدار ${p.quantity}` : ""} (فقط اگر حکم سیستم «خرید» باشد)`;
     case "watch_add":
       return `افزودن ${sym} به واچ‌لیست`;
+    case "dev_mission": {
+      const s = String(p.missionSummaryFa ?? "").trim();
+      return `ثبت ماموریت توسعه${s ? `: ${s.slice(0, 80)}` : ""}`;
+    }
   }
 }
 
@@ -178,12 +185,17 @@ export function toPublic(a: PendingAction): PublicPendingAction {
   return { code: a.code, kind: a.kind, summaryFa: a.summaryFa, expiresAt: new Date(a.expiresAt).toISOString() };
 }
 
+export const DEV_MISSION_INTRO_FA =
+  "حتماً! من خودم کد نمی‌نویسم، اما این درخواست را می‌توانم به‌عنوان یک ماموریت توسعه برای تیم مهندسی ثبت کنم.";
+
 export function proposalTextFa(a: PendingAction): string {
+  const isMission = a.kind === "dev_mission";
   return [
-    "📝 درخواست شما آماده اجراست (هنوز اجرا نشده):",
+    ...(isMission ? [DEV_MISSION_INTRO_FA, ""] : []),
+    isMission ? "📝 این ماموریت توسعه آماده ثبت است (هنوز ثبت نشده):" : "📝 درخواست شما آماده اجراست (هنوز اجرا نشده):",
     `• ${a.summaryFa}`,
     "",
-    `برای اجرا دقیقاً بفرست: تایید ${a.code}`,
+    `برای ثبت: تایید ${a.code}`,
     `برای انصراف: لغو ${a.code}`,
     "این کد ۵ دقیقه اعتبار دارد و فقط یک‌بار قابل استفاده است.",
   ].join("\n");
@@ -195,12 +207,15 @@ export type ActionDeps = {
   addWatch: (input: { tokenKey: string; symbol: string; chain: string; address?: string | null; thesisFa?: string }) => Promise<unknown>;
   /** Canonical gate + addPaper, exactly as /api/paper. Returns a Persian result line. */
   paperBuy: (p: ActionParams) => Promise<{ ok: boolean; messageFa: string }>;
+  /** Append one QUEUED mission to the hash-chained dev-mission queue. Never executes work. */
+  recordDevMission: (input: { summaryFa: string; channel: string | null; userId: string | null }) => Promise<{ ok: boolean; messageFa: string }>;
 };
 
 /** Lazily bind the same functions the dashboard routes use (keeps this module DB-free in tests). */
 export async function defaultActionDeps(): Promise<ActionDeps> {
   const engine = await import("./engine");
   const canon = await import("./canonical_read_model");
+  const dm = await import("./dev_missions");
   return {
     startEngine: () => engine.startEngine(),
     stopEngine: () => engine.stopEngine(),
@@ -226,6 +241,16 @@ export async function defaultActionDeps(): Promise<ActionDeps> {
         if (err instanceof engine.PaperSecurityDenied) return { ok: false, messageFa: "خرید کاغذی ثبت نشد: بررسی امنیت تأیید نشده." };
         return { ok: false, messageFa: "خرید کاغذی ثبت نشد — خطا در ثبت." };
       }
+    },
+    recordDevMission: async (input) => {
+      const summary = String(input.summaryFa ?? "").trim();
+      if (!summary) return { ok: false, messageFa: "ماموریت توسعه ثبت نشد: متن درخواست خالی بود." };
+      const rec = dm.getDevMissionStore().append({ summaryFa: summary, channel: input.channel, userId: input.userId });
+      if (!rec) return { ok: false, messageFa: "ماموریت توسعه ثبت نشد — خطا در نوشتن فایل صف." };
+      return {
+        ok: true,
+        messageFa: `✅ ماموریت توسعه ثبت شد (شناسه ${rec.id}) و در صف تیم مهندسی است. کاری هنوز انجام نشده است.`,
+      };
     },
   };
 }
@@ -260,7 +285,7 @@ export function propose(
   id: Identity,
   text: string | null,
   opts: { env?: EnvMap; audit?: AuditFn } = {},
-): { ok: true; action: PendingAction } | { ok: false; reason: "NOT_OWNER" | "MISSING_TOKEN" } {
+): { ok: true; action: PendingAction } | { ok: false; reason: "NOT_OWNER" | "MISSING_TOKEN" | "EMPTY_SUMMARY" } {
   if (!isOwner(id, opts.env)) {
     auditAction({ kind }, "DENIED", "NOT_OWNER", id, text, opts.audit);
     return { ok: false, reason: "NOT_OWNER" };
@@ -268,6 +293,10 @@ export function propose(
   if ((kind === "paper_buy" || kind === "watch_add") && !(params.tokenKey && params.chain && params.symbol)) {
     auditAction({ kind }, "DENIED", "TOKEN_NOT_RESOLVED", id, text, opts.audit);
     return { ok: false, reason: "MISSING_TOKEN" };
+  }
+  if (kind === "dev_mission" && !String(params.missionSummaryFa ?? "").trim()) {
+    auditAction({ kind }, "DENIED", "EMPTY_SUMMARY", id, text, opts.audit);
+    return { ok: false, reason: "EMPTY_SUMMARY" };
   }
   const action = store.create(kind, params, id);
   auditAction(action, "PROPOSED", "OWNER_PROPOSAL_AWAITING_CONFIRMATION", id, text, opts.audit);
@@ -323,6 +352,15 @@ export async function handleConfirmation(
         address: a.params.address ?? null,
       });
       replyFa = `✅ ${String(a.params.symbol).toUpperCase()} به واچ‌لیست اضافه شد.`;
+    } else if (a.kind === "dev_mission") {
+      // Not an execution: one QUEUED line is appended to the hash-chained queue.
+      const r = await deps.recordDevMission({
+        summaryFa: String(a.params.missionSummaryFa ?? ""),
+        channel: id.channel,
+        userId: id.userId,
+      });
+      auditAction(a, r.ok ? "CONFIRMED" : "FAILED", r.ok ? "MISSION_QUEUED" : "QUEUE_WRITE_FAILED", id, text, audit);
+      return { replyFa: (r.ok ? "" : "⛔ ") + r.messageFa, executed: r.ok, kind: a.kind };
     } else {
       const r = await deps.paperBuy(a.params);
       auditAction(a, r.ok ? "CONFIRMED" : "FAILED", r.ok ? "EXECUTED_VIA_DASHBOARD_PATH" : "PAPER_GATE_DENIED", id, text, audit);

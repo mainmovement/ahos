@@ -26,7 +26,7 @@ import { dirname, join } from "node:path";
 export const CONTROL_AUDIT_SCHEMA = "ahos.chat_control_audit.v1";
 export const GENESIS_HASH = "0".repeat(64);
 
-export type Capability = "ENGINE_CONTROL" | "PAPER_WRITE" | "WATCH_WRITE";
+export type Capability = "ENGINE_CONTROL" | "PAPER_WRITE" | "WATCH_WRITE" | "MISSION_WRITE";
 export const CONTROL_INTENTS: Readonly<Record<string, Capability>> = Object.freeze({
   start: "ENGINE_CONTROL",
   stop: "ENGINE_CONTROL",
@@ -114,6 +114,8 @@ const REFUSE_FA: Record<Capability, string> = {
     "⛔ ثبت خرید کاغذی از طریق گفتگو غیرفعال است.\n" +
     "ثبت کاغذی فقط از داشبورد محلی انجام می‌شود و خرید واقعی هرگز انجام نمی‌شود. هیچ تغییری اعمال نشد.",
   WATCH_WRITE: "⛔ تغییر واچ‌لیست از طریق گفتگو برای شما مجاز نیست. هیچ تغییری اعمال نشد.",
+  MISSION_WRITE:
+    "⛔ ثبت ماموریت توسعه از طریق گفتگو برای شما مجاز نیست. هیچ تغییری اعمال نشد.",
 };
 
 /** Chat-path decision. Deny-by-default for every control capability, every channel. */
@@ -144,7 +146,7 @@ export function hashId(kind: string, value: string | null | undefined): string {
   return v ? sha256Hex(`ahos:${kind}:${v}`).slice(0, 16) : "UNKNOWN";
 }
 
-function canonicalJson(v: unknown): string {
+export function canonicalJson(v: unknown): string {
   if (v === null || typeof v !== "object") return JSON.stringify(v);
   if (Array.isArray(v)) return `[${v.map(canonicalJson).join(",")}]`;
   const o = v as Record<string, unknown>;

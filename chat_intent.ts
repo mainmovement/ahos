@@ -10,6 +10,7 @@
  * predicates (their order is pinned by tests/test_canonical_read_model.py).
  */
 import { detectControlCommand, looksLikePaperBuy } from "./chat_control_gate";
+import { cleanSummaryFa } from "./dev_missions";
 import { isNewsRequest, isStopLossQuestion } from "./chat_replies";
 
 export type MajorAsset = "BTC" | "ETH" | "SOL";
@@ -107,6 +108,26 @@ export function isPronounQuery(text: string): boolean {
   return /(این یکی|همون|همین|این توکن|همون توکن|این چطوره|خوبه\؟|ریسکش)/i.test(text);
 }
 
+// Phase 8: engineering-work requests. Deliberately conservative — a false positive
+// hijacks a normal market conversation, a false negative just falls through to the
+// conversational agent (which can call submit_dev_mission itself). Requires BOTH a
+// development topic and an explicit build/request verb, so complaints and questions
+// ("چرا برنامه ارور میده؟", "داده‌ها آپدیت شدن؟") do not match.
+const DEV_TOPIC_RE = /(دانشگاه|دانش گاه|عامل(ها|های)?|اجنت|agents?|سیستم|توسعه|آپدیت|اپدیت|به روزرسانی|به‌روزرسانی|فیچر|قابلیت جدید|ماموریت توسعه|مهندس|کد ?نویس|university|features?|engineering)/;
+const DEV_VERB_RE = /(بساز|ساختن|اضافه کن|اضافه شود|آپدیت کن|اپدیت کن|بنویس|نوشتن|راه انداز|راه‌انداز|راه بنداز|بنداز|پیاده کن|پیاده‌سازی|بهتر کن|بهبود بده|فعال کن|راه‌اندازی کن|توسعه بده|\bbuild\b|\bcreate\b|\badd\b|\bimplement\b|\bupdate\b|\boperationalize\b|\bset up\b)/;
+
+/** "دانشگاه رو بساز", "عامل‌ها رو راه بنداز", "add a feature for gold alerts" … */
+export function isDevMissionRequest(text: string): boolean {
+  const t = normalizeIntentText(text);
+  if (!t) return false;
+  return DEV_TOPIC_RE.test(t) && DEV_VERB_RE.test(t);
+}
+
+/** The mission summary shown to the owner (and stored after confirmation). */
+export function extractDevMissionSummary(text: string): string {
+  return cleanSummaryFa(text);
+}
+
 export type IntentPredicates = {
   /** "why was X rejected" (checked before isWhy). */
   isReject: (text: string) => boolean;
@@ -133,6 +154,8 @@ export function routeIntent(raw: string, p: IntentPredicates): string {
   if (looksLikePaperBuy(text)) return "paper_buy";
   // Trading-signal requests outrank stop-loss / opportunities (PAPER_ONLY refusal-style reply).
   if (isTradeSignalRequest(text)) return "trade_signal";
+  // Phase 8: engineering-work request → confirm-gated dev mission (owner only).
+  if (isDevMissionRequest(text)) return "dev_mission";
   if (/(پورتف|موقعیت|کاغذی‌ها|کاغذی ها)/i.test(text)) return "paper_list";
   if (isStopLossQuestion(text)) return "stop_loss";
   if (p.isReject(text)) return "reject";
