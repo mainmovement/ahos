@@ -30,6 +30,8 @@ export async function conversationGateway(
   });
   return {
     answer: result.reply,
+    // Presentation only: same content escaped for Telegram parse_mode=HTML.
+    answer_html: result.replyHtml,
     intent: result.intent || "unknown",
     entities: { focusToken: result.focusToken ?? null, channel: req.channel },
     focus_token: result.focusToken ?? null,

@@ -52,8 +52,16 @@ class TelegramDomainService:
                 text_out = gw.get("text") or gw.get("answer") or gw.get("reply") or ""
                 if text_out and FOOTER_MANDATED not in text_out:
                     text_out = text_out + "\n\n" + FOOTER_MANDATED
+                # Presentation only: optional pre-escaped Telegram HTML from the
+                # gateway. The plain `text` stays authoritative for fallback.
+                html_out = gw.get("answer_html") or ""
+                if not isinstance(html_out, str):
+                    html_out = ""
+                if html_out and FOOTER_MANDATED not in html_out:
+                    html_out = html_out + "\n\n<i>" + FOOTER_MANDATED + "</i>"
                 return {
                     "text": text_out,
+                    "text_html": html_out or None,
                     "intent": gw.get("intent", "gateway"),
                     "status": "OK",
                     "source": "conversation_gateway",

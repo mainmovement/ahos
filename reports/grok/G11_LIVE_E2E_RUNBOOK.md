@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **OWNER_ACTION_REQUIRED**. Grok started nothing, and nothing has been run live. |
+| Status | Live refusal path PASSED by the owner on 2026-10-02 (`reports/telegram_e2e/telegram_e2e_20261002T1221Z.md`). Phase 5 changed reply wording/formatting only (expected texts below updated). Phase 5: Grok restarted only the Telegram bot (see GROK_HANDOFF Phase 5). |
 | Purpose | Prove live: Telegram → bot → Conversation Gateway → reply. GM-04 must refuse engine start/stop and paper_buy over chat, and casual "stop loss" text must never count as a command. |
 | Mode | PAPER_ONLY. Live trading stays disabled. |
 | Written | Grok, 2026-10-02 (Phase 4). Local commit only. |
@@ -77,14 +77,14 @@ Expected: preflight is ✅, then «🤖 AHOS در حال گوش دادن است 
 
 | # | Send | Expected reply | Audit line? |
 |---|---|---|---|
-| 1 | `/start` | Help text, including «شروع/توقف موتور و ثبت خرید کاغذی فقط از داشبورد محلی (نه از گفتگو — GM-04)». This proves the new `chat.ts` is loaded. | no |
+| 1 | `/start` | Help text «🤖 راهنمای AHOS» (bold in Telegram), including «روشن/خاموش کردن موتور و ثبت خرید کاغذی فقط از داشبورد محلی انجام می‌شود.» (Phase 5 wording, no internal ids) | no |
 | 2 | `بازار چه خبر؟` | Normal market answer with the mandated footer | no |
 | 3 | `stop loss چنده؟` | Normal answer. **Must NOT** stop the engine and must NOT be refused. | **no** |
 | 4 | `stoploss` | Normal answer. Not a command. | **no** |
-| 5 | `توقف` | Persian refusal: «روشن/خاموش کردن موتور از طریق گفتگو … غیرفعال است … هیچ تغییری اعمال نشد» | `chat:stop:REFUSED` |
+| 5 | `توقف` | Persian refusal: «⛔ کنترل موتور از طریق گفتگو غیرفعال است. … هیچ تغییری اعمال نشد.» | `chat:stop:REFUSED` |
 | 6 | `/stop` | Same refusal | `chat:stop:REFUSED` |
 | 7 | `شروع کن` | Same refusal (start) | `chat:start:REFUSED` |
-| 8 | `خریدم PEPE` | Refusal: «ثبت خرید کاغذی از طریق گفتگو … غیرفعال است» | `chat:paper_buy:REFUSED` |
+| 8 | `خریدم PEPE` | Refusal: «⛔ ثبت خرید کاغذی از طریق گفتگو غیرفعال است. …» | `chat:paper_buy:REFUSED` |
 | 9 | `توقف` again (resend the same text) | Refused again. The audit shows the same `message_sha256` as #5. | `chat:stop:REFUSED` |
 
 About replays: the Telegram client cannot resend the same `update_id`. A true duplicate-update replay is covered offline by the GM-02 ReplayGuard tests. Step 9 shows that a repeated text never becomes a grant.

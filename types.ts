@@ -303,6 +303,8 @@ export type ConversationRequest = {
 
 export type ConversationResponse = {
   answer: string;
+  /** Optional Telegram HTML rendering of `answer` (all dynamic values escaped). */
+  answer_html?: string;
   intent: string;
   entities: Record<string, unknown>;
   focus_token: string | null;

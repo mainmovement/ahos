@@ -74,6 +74,7 @@ export async function POST(req: Request) {
       evidence: gw.evidence,
       focusToken: gw.focus_token,
       answer: gw.answer,
+      answer_html: gw.answer_html ?? null,
       focus_token: gw.focus_token,
       uncertainty: gw.uncertainty,
       timestamp: gw.timestamp,

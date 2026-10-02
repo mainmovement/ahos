@@ -1,5 +1,127 @@
 # GROK HANDOFF (living document) — for Claude Code
 
+<!-- PHASE5:START -->
+## Phase 5 (2026-10-02, Grok): Telegram/chat reply presentation cleanup (presentation only)
+
+**Pushes are still paused by the owner: local commits only.**
+
+### Trigger
+
+The owner ran the live G11 test (`reports/telegram_e2e/telegram_e2e_20261002T1221Z.md`). Refusals worked and the audit returned CHAIN_OK, but the replies were cluttered:
+- internal "GM-04" text
+- a news dump instead of a market summary for «بازار چه خبر؟»
+- filler text, «0 حکم BUY کانونیکال»
+- the engine-off notice on every reply
+
+### What changed (wording and format only)
+
+**No change to:**
+- decision, authority or canonical logic
+- the GM-04 gate behaviour (it still always refuses; the selftest is unchanged at 126/126)
+- data sources
+- PAPER_ONLY
+
+**New modules**
+- `reply_format.ts` (pure): block model with `renderPlain`, `renderTelegramHtml` and `escapeHtml`.
+  - Only http(s) links are kept.
+  - Replies are cut at whole blocks within a 3600-character budget, so they stay under 4096 and the HTML stays balanced.
+- `chat_replies.ts` (pure): reply builders.
+  - Persian labels replace raw enum codes.
+  - Missing values show «نامشخص» or a single «داده کافی نیست» note.
+  - No internal ids in user text.
+
+**Routing and notices in `chat.ts`**
+- `chat.ts` keeps routing; the pinned function names are kept as thin wrappers.
+- «بازار چه خبر؟» now routes to **market**: BTC/ETH/SOL price and 24h change first, then the market mood, fear and greed, and data age with a staleness flag. At most 3 Persian headlines follow.
+- News: at most 5 items, one line each, original source plus link.
+  - Half-translated titles fall back to the original title, with one note.
+  - No English summary, importance or classification dump.
+- New `stop_loss` intent (presentation routing only): asks which token, shows only the recorded invalidation condition, never invents a number.
+- The general fallback is a short "didn't understand" line plus suggestions; the filler text is gone.
+- The engine-off notice now appears only for help/greeting, opportunities, health, or questions that mention the engine.
+- The footer «تصمیم نهایی با کاربر است.» appears once per reply.
+
+**Refusal text**
+- `chat_control_gate.ts`: refusal text shortened to «⛔ … غیرفعال است. … هیچ تغییری اعمال نشد.» with no "GM-04".
+
+**Telegram HTML path**
+- `conversation_gateway.ts`, `types.ts` and `app/api/chat/route.ts` add an optional `answer_html` field.
+- The dashboard keeps using plain `reply`/`answer`.
+
+**Telegram bot**
+- `telegram_ai/service.py` and `bot.py` send `answer_html` with `parse_mode=HTML`.
+- They fall back to plain text when the HTML is missing, longer than 4096, or rejected by Telegram (an HTTP 400 parse error).
+- Plain text is clamped to 4096 with the footer kept.
+- The gateway-unavailable path is unchanged (plain).
+
+### Shared response composer and the future LLM seam
+
+The owner wants to back replies with a free AI model later, using the same style on Telegram and the Windows dashboard. This phase prepares for that without implementing it.
+
+**One composer for every chat surface: `response_composer.ts`**
+- Dashboard chat reads `reply` from `/api/chat`; Telegram reads `answer_html`. Both come from the same `finalizeReply()` call in `chat.ts`.
+
+**Pipeline**
+1. Verified snapshot / read-model data.
+2. `chat_replies.ts` builders turn it into `ReplyBlock[]` (grounded facts only).
+3. These become a `GroundedDraft {intent, blocks, footer, locked?}`.
+4. `finalizeReply(draft, phraser?)` produces a `ComposedReply {plain, html, composer}`.
+
+**House style**
+- `RESPONSE_STYLE_FA` holds the shared rules. It is meant to become the future LLM prompt's style section, so the deterministic output and any LLM output follow the same rules.
+
+**The seam**
+- `interface ReplyPhraser { name; phrase(draft, deterministic, style) }`. **None is configured today**, so the deterministic text is final, and `evidence.composer = "deterministic"`.
+- A future phraser may only *rewrite the grounded draft*. Its output is accepted only if `validatePhrased()` passes:
+  - not empty and within the length limit
+  - footer exactly once
+  - no jargon (GM-xx / canonical / UNKNOWN)
+  - **no number that is not in the deterministic draft**
+- Otherwise the deterministic text is used, and the rejection reason is recorded in `phraserRejected`.
+- Phraser output is treated as untrusted: its HTML is rebuilt by escaping.
+- `locked: true` drafts (the GM-04 refusals) are never rephrased.
+- The phraser never decides anything and never sees credentials.
+
+**To add an LLM later (not done)**
+1. Implement `ReplyPhraser` using the GM-09 provider status / credential-store interfaces (free model, with a timeout).
+2. Pass it into the two `finalizeReply` calls in `chat.ts`, behind an off-by-default flag.
+3. Keep the deterministic composer as the fallback.
+4. Add evals.
+5. Independent review is required before enabling.
+
+### Tests (self-tests, not independent verification)
+
+**npm selftests**
+
+| Suite | Result |
+|---|---|
+| `test:chat-reply-format` (new) | 40/40: snapshot, escaping, 4096 limit, jargon scan, no fabricated digits when data is missing, stale flag, intent helpers, composer and phraser-seam guard |
+| chat-control-gate | 126/126 |
+| web-api-auth | 9/9 |
+| canonical-read-model | 13/13 |
+| canonical-security | 19/19 |
+| alert-banner | 8/8 |
+| dashboard-truth | 34/34 |
+
+**Other checks**
+- `tsc --noEmit`: 0 errors. eslint on the changed files: clean.
+- pytest: the new `tests/test_telegram_reply_presentation.py` (11) plus the static, canonical, config, one-brain, all Telegram, engine-import-safety, web-api-auth and dashboard-truth sets: **281 passed, 1 xfailed**.
+- `validate_imports --imports-only`:
+  - **Box mirror (identical tree): PASSED**, 242 modules, no evidence mutated.
+  - **Windows run: FAILED** its evidence-mutation check. That run started at 12:36:10Z. During it, the bot restart created `reports/telegram_e2e/bot_*_20261002T123754Z.log`, the empty logs from the intermediate start were deleted, and two docs were deployed. The check blamed `telegram_ai.envelope`, which writes no files. This is a timing artefact, not an import side effect.
+  - The Windows run was not repeated: it takes about 47 minutes under load.
+
+### Runtime
+
+- The gateway (`next dev`, 127.0.0.1:3500) hot-reloaded. Verified with a local POST «توقف»: the new short refusal came back with `answer_html` and the decision was REFUSED. That POST was refused before any DB access; it appended one audit line.
+- **Telegram bot restarted (only the bot):**
+  - Old PIDs 13096/8500 were stopped with `taskkill` (non-forced; the parent accepted the signal and the child exited with it).
+  - The bot was started hidden via `Start-Process`, with `PYTHONIOENCODING=utf-8`, `PYTHONUNBUFFERED=1` (added so the logs are visible) and `AHOS_GATEWAY_URL=http://127.0.0.1:3500/api/chat`.
+  - Logs: `reports/telegram_e2e/bot_{stdout,stderr}_20261002T123754Z.log`.
+  - An intermediate start at 12:36:39Z (buffered, empty logs) was stopped and its empty logs removed.
+- `.env` unchanged.
+<!-- PHASE5:END -->
+
 <!-- PHASE4:START -->
 ## Phase 4 (2026-10-02, Grok): GM-04 conservative capability gate and G11 live-E2E runbook
 

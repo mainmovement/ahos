@@ -18,6 +18,18 @@ from .response_contract import FOOTER_MANDATED
 from .envelope import ReplayGuard, TelegramAuditLog, build_update_envelope, redact_envelope
 
 
+TELEGRAM_MAX_CHARS = 4096
+
+
+def clamp_telegram_text(text: str, limit: int = TELEGRAM_MAX_CHARS) -> str:
+    """Keep plain text within Telegram's limit; the mandated footer is preserved."""
+    text = text or ""
+    if len(text) <= limit:
+        return text
+    tail = "\n…\n\n" + FOOTER_MANDATED
+    return text[: max(0, limit - len(tail))].rstrip() + tail
+
+
 class TelegramBotRunner:
     def __init__(self, adapter: TelegramBotAdapterInterface,
                  service: TelegramDomainService | None = None,
@@ -90,8 +102,18 @@ class TelegramBotRunner:
                 "current_token": {"address": cand.address, "chain": cand.chain}
             }
 
-        # 6. Send response
-        send_res = self.adapter.send_message(update.chat_id, result["text"], parse_mode=None)
+        # 6. Send response (presentation only). Prefer the gateway's escaped
+        # Telegram HTML; fall back to plain text if it is absent, too long, or
+        # rejected by Telegram (e.g. HTTP 400 parse error).
+        send_res = None
+        html_text = result.get("text_html")
+        if isinstance(html_text, str) and html_text and len(html_text) <= TELEGRAM_MAX_CHARS:
+            send_res = self.adapter.send_message(update.chat_id, html_text, parse_mode="HTML")
+            if not (isinstance(send_res, dict) and send_res.get("ok") is not False):
+                send_res = None
+        if send_res is None:
+            send_res = self.adapter.send_message(
+                update.chat_id, clamp_telegram_text(result["text"]), parse_mode=None)
         self.audit_log.record(envelope, "PROCESSED", intent=result.get("intent"),
                               source=result.get("source"))
         return {"status": "PROCESSED", "intent": result.get("intent"), "send_result": send_res,

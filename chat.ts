@@ -10,12 +10,39 @@ import {
   paperAllowedFromCanonical,
   type CanonicalDecisionView,
 } from "./canonical_read_model";
-import { faNumber, faPct, faUsd } from "./persian";
 import { commandSnapshot } from "./snapshot";
 import { FINAL_USER_LINE } from "./types";
+import { blocksFromText, bullet, gap, line, note, title, type ReplyBlock } from "./reply_format";
+import { finalizeReply } from "./response_composer";
+import {
+  ENGINE_OFF_NOTE,
+  confidenceFa,
+  councilBlocks,
+  decisionFa,
+  engineNoticeRelevant,
+  generalBlocks,
+  greetingBlocks,
+  healthBlocks,
+  helpBlocks,
+  isNewsRequest,
+  isStopLossQuestion,
+  learningBlocks,
+  marketBlocks,
+  newsBlocks,
+  oppBlocks,
+  paperBlocks,
+  stateFa,
+  stopLossBlocks,
+  watchBlocks,
+  whyBlocks,
+  whyCanonicalBlocks,
+  type Snap,
+} from "./chat_replies";
 
 export type ChatResponse = {
   reply: string;
+  /** Same content as `reply`, formatted for Telegram parse_mode=HTML (escaped). */
+  replyHtml?: string;
   intent: string;
   evidence: Record<string, unknown>;
   focusToken?: string | null;
@@ -50,8 +77,11 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       userId: ctx.userId,
       text,
     });
+    // Locked: control refusals are always shown verbatim (never rephrased).
+    const refusal = await finalizeReply({ intent, blocks: blocksFromText(gate.replyFa ?? ""), footer: FINAL_USER_LINE, locked: true });
     return {
-      reply: `${gate.replyFa}\n\n${FINAL_USER_LINE}`,
+      reply: refusal.plain,
+      replyHtml: refusal.html,
       intent,
       evidence: {
         intent,
@@ -66,7 +96,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     ctx.focusToken ||
     extractFocusFromHistory(ctx.history) ||
     null;
-  let reply = "";
+  let blocks: ReplyBlock[] = [];
   const evidence: Record<string, unknown> = {
     intent,
     at: new Date().toISOString(),
@@ -74,9 +104,9 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   };
 
   if (intent === "market") {
-    reply = marketReply(snap);
+    blocks = marketBlocks(snap);
   } else if (intent === "opportunities") {
-    reply = oppReply(snap);
+    blocks = oppBlocks(snap);
     const fromCanon = canonicalFocusTokenKey(snap.canonicalDecisions ?? []);
     const top =
       snap.opportunities.find((o) => o.decision === "BUY") ||
@@ -84,27 +114,38 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     if (fromCanon) focus = fromCanon;
     else if (top) focus = top.tokenKey;
   } else if (intent === "news") {
-    reply = newsReply(snap, text);
+    blocks = newsBlocks(snap, text);
+  } else if (intent === "stop_loss") {
+    const hit = findOpp(snap, text, focus);
+    blocks = stopLossBlocks(hit);
+    if (hit) focus = hit.tokenKey;
   } else if (intent === "health") {
-    reply = healthReply(snap);
+    blocks = healthBlocks(snap);
   } else if (intent === "council") {
-    reply = councilReply(snap, text, focus);
+    blocks = councilBlocks(snap, findOpp(snap, text, focus));
   } else if (intent === "learning") {
-    reply = learningReply(snap);
+    blocks = learningBlocks(snap);
   } else if (intent === "watchlist") {
-    reply = watchReply(snap);
+    blocks = watchBlocks(snap);
   } else if (intent === "paper_list") {
-    reply = paperReply(snap);
+    blocks = paperBlocks(snap);
   } else if (intent === "whales") {
     const hit = findOpp(snap, text, focus);
-    reply = hit
-      ? `برای ${hit.symbol}: بدون سند نقش کیف پول، wallet_role=UNKNOWN می‌ماند. تمرکز دارندگان و فشار خرید/فروش استخر فقط وقتی evidence باشد گزارش می‌شود. امنیت فعلی: ${hit.securityStatus}.`
-      : "برای نهنگ‌ها سخت‌گیرم: اگر سند نقش کیف پول نباشد می‌گویم wallet_role=UNKNOWN. اسمارت‌مانی جعلی نمی‌سازم. توکن را نام ببر یا اول فرصتی را باز کن تا «این» معنا داشته باشد.";
+    blocks = hit
+      ? [
+          title(`🐋 نهنگ‌ها — ${hit.symbol}`),
+          line("نقش کیف پول‌های بزرگ مشخص نیست (سندی ثبت نشده)؛ اسمارت‌مانی را حدس نمی‌زنم."),
+          bullet(`امنیت فعلی: ${stateFa(hit.securityStatus)}`),
+        ]
+      : [
+          title("🐋 نهنگ‌ها"),
+          line("بدون سند نقش کیف پول چیزی نمی‌سازم. نماد توکن را بنویس تا همان را بررسی کنم."),
+        ];
     if (hit) focus = hit.tokenKey;
   } else if (intent === "watch_add") {
     const hit = findOpp(snap, text, focus);
     if (!hit) {
-      reply = "این نماد رو تو فرصت‌های همین چرخه پیدا نکردم. اسم یا سمبل رو دقیق‌تر بگو؛ حدس نمی‌زنم.";
+      blocks = [line("این نماد در فهرست فعلی نیست. نماد را دقیق‌تر بنویس؛ حدس نمی‌زنم.")];
     } else {
       await addWatch({
         tokenKey: hit.tokenKey,
@@ -113,13 +154,19 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
         address: hit.address,
         thesisFa: `پایش به درخواست کاربر: ${text}`,
       });
-      reply = `${hit.symbol} روی ${hit.chain} رفت تو واچ‌لیست. حکم فعلی: ${hit.decision} با اطمینان ${hit.confidence}. ${hit.invalidationFa}`;
+      blocks = [
+        title(`👀 ${hit.symbol} به واچ‌لیست اضافه شد`),
+        bullet(`شبکه: ${hit.chain}`),
+        bullet(`حکم فعلی: ${decisionFa(hit.decision)} · اطمینان: ${confidenceFa(hit.confidence)}`),
+        hit.invalidationFa ? bullet(`شرط ابطال: ${hit.invalidationFa}`) : gap(),
+      ];
       evidence.tokenKey = hit.tokenKey;
       focus = hit.tokenKey;
     }
   } else if (intent === "paper_buy") {
     // Unreachable from chat while the GM-04 gate refuses PAPER_WRITE (above).
     // Kept as defence in depth: even if reached, only canonical BUY may record paper.
+    let reply = "";
     const hit = findOpp(snap, text, focus);
     const price =
       extractNumber(text, /(?:قیمت|با|@)\s*([0-9]+(?:\.[0-9]+)?)/) ??
@@ -130,8 +177,9 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     } else {
       const model = await loadCanonicalReadModel();
       if (!paperAllowedFromCanonical(model, hit?.chain, hit?.address || null)) {
-        reply =
-          "خرید کاغذی ثبت نشد — CANONICAL_PAPER_DENIED. فقط حکم BUY کانونیکال پایتون اجازه ثبت کاغذی می‌دهد. لایه گفتگو تصمیم نمی‌سازد.";
+        // Internal reason code CANONICAL_PAPER_DENIED is kept in evidence, not in user text.
+        evidence.paperDenied = "CANONICAL_PAPER_DENIED";
+        reply = "خرید کاغذی ثبت نشد: فقط وقتی حکم سیستم «خرید» باشد ثبت کاغذی مجاز است.";
       } else {
         const symbol = hit?.symbol || extractSymbol(text) || "UNKNOWN";
         try {
@@ -145,32 +193,36 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
             thesisFa: `خرید کاغذی کاربر: ${text}`,
             targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
           });
-          reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "UNKNOWN"}. مقدار ${qty ?? "UNKNOWN"}. هیچ سفارشی به صرافی نرفت.`;
+          reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "نامشخص"}. مقدار ${qty ?? "نامشخص"}. هیچ سفارشی به صرافی نرفت.`;
           evidence.positionId = row.id;
           if (hit) focus = hit.tokenKey;
         } catch (err) {
           if (err instanceof PaperSecurityDenied) {
-            reply = `خرید کاغذی ثبت نشد — دروازه امنیت PASS نیست (${err.canonicalSecurityState}).`;
+            reply = `خرید کاغذی ثبت نشد: بررسی امنیت تأیید نشده (${err.canonicalSecurityState}).`;
           } else {
             reply = "خرید کاغذی ثبت نشد — خطا در ثبت. خرید واقعی انجام نشد.";
           }
         }
       }
     }
+    blocks = blocksFromText(reply);
   } else if (intent === "why" || intent === "token") {
     const hit = findOpp(snap, text, focus);
     const canonHit = hit ? null : findCanonicalDecision(snap.canonicalDecisions ?? [], text, focus);
     if (hit) {
-      reply = whyReply(hit);
+      blocks = whyBlocks(hit);
       focus = hit.tokenKey;
     } else if (canonHit) {
-      reply = whyCanonicalReply(canonHit);
+      blocks = whyCanonicalReply(canonHit);
       focus = canonHit.tokenKey;
     } else {
-      reply =
-        intent === "why"
-          ? "بگو کدوم توکن — یا اول یک فرصت را باز کن تا «این یکی» معنا داشته باشد. بدون مصداق دلیل اختراع نمی‌کنم."
-          : "این نماد رو تو کاندیدهای فعلی ندارم. اول شروع رو بزن تا کشف انجام بشه، یا اسم رو دقیق‌تر بگو.";
+      blocks = [
+        line(
+          intent === "why"
+            ? "کدام توکن؟ نماد را بنویس (مثلاً «چرا PEPE؟»). بدون مصداق، دلیل نمی‌سازم."
+            : "این نماد در فهرست فعلی نیست. نماد را دقیق‌تر بنویس.",
+        ),
+      ];
     }
   } else if (intent === "reject") {
     const rejectedCanon = (snap.canonicalDecisions ?? [])
@@ -178,33 +230,37 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       .slice(0, 5);
     const rejectedOpp = snap.opportunities.filter((o) => o.decision === "REJECT").slice(0, 5);
     if (rejectedCanon.length) {
-      reply = [
-        "رد شده‌های کانونیکال پایتون (ضدهایپ):",
-        ...rejectedCanon.map(
-          (d) =>
-            `• ${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"}: ${d.outcome} / هویت ${d.identityState || "UNKNOWN"} / امنیت ${d.securityState || "UNKNOWN"}${d.primaryReason ? ` — ${d.primaryReason}` : ""}`,
+      blocks = [
+        title("🚫 توکن‌های رد شده"),
+        ...rejectedCanon.map((d) =>
+          bullet(
+            `${d.symbol || "نامشخص"} (${d.chain || "نامشخص"}) — امنیت: ${stateFa(d.securityState)}${d.primaryReason ? ` — ${d.primaryReason}` : ""}`,
+          ),
         ),
-      ].join("\n");
+      ];
+    } else if (rejectedOpp.length) {
+      blocks = [
+        title("🚫 توکن‌های رد شده"),
+        ...rejectedOpp.map((o) => bullet(`${o.symbol}: ${(o.risksFa || []).slice(0, 2).join(" ") || "دلیل ثبت نشده"}`)),
+      ];
     } else {
-      reply = rejectedOpp.length
-        ? `رد شده‌ها (ضدهایپ):\n${rejectedOpp.map((o) => `• ${o.symbol}: ${(o.risksFa || []).slice(0, 2).join(" ")}`).join("\n")}`
-        : "تو آخرین چرخه REJECT ثبت نشده یا هنوز چرخه‌ای نیست.";
+      blocks = [line("در آخرین بررسی توکنی رد نشده، یا هنوز بررسی‌ای انجام نشده.")];
     }
   } else if (intent === "greeting") {
-    reply = greetingReply(snap);
+    blocks = greetingReply(snap);
   } else if (intent === "help") {
-    reply = helpReply();
+    blocks = helpReply();
   } else {
     const hit = findOpp(snap, text, focus);
     const canonHit = hit ? null : findCanonicalDecision(snap.canonicalDecisions ?? [], text, focus);
     if (hit && isPronounQuery(text)) {
-      reply = whyReply(hit);
+      blocks = whyBlocks(hit);
       focus = hit.tokenKey;
     } else if (canonHit && isPronounQuery(text)) {
-      reply = whyCanonicalReply(canonHit);
+      blocks = whyCanonicalReply(canonHit);
       focus = canonHit.tokenKey;
     } else {
-      reply = await generalReply(text, snap);
+      blocks = await generalReply(text, snap);
     }
   }
 
@@ -215,10 +271,17 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   } catch {
     running = false;
   }
-  if (!running && intent !== "start" && intent !== "stop" && intent !== "greeting" && intent !== "help") {
-    reply += "\n\nموتور الان خاموشه. برای روشن کردن از دکمهٔ «شروع» داشبورد محلی استفاده کن (کنترل موتور از گفتگو غیرفعال است — GM-04).";
+  // Engine-off notice only where it matters (help/greeting, opportunities,
+  // system health, or the user asked about the engine) — not on every reply.
+  if (!running && engineNoticeRelevant(intent, text)) {
+    blocks.push(gap(), note(ENGINE_OFF_NOTE));
   }
-  reply += `\n\n${FINAL_USER_LINE}`;
+  // Shared composer for dashboard chat and Telegram. No phraser is configured
+  // (LLM seam documented in response_composer.ts); deterministic text is final.
+  const composed = await finalizeReply({ intent, blocks, footer: FINAL_USER_LINE });
+  const reply = composed.plain;
+  const replyHtml = composed.html;
+  evidence.composer = composed.composer;
   evidence.focusToken = focus;
 
   try {
@@ -227,7 +290,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   } catch {
     /* DB optional when DATABASE_URL missing */
   }
-  return { reply, intent, evidence, focusToken: focus };
+  return { reply, replyHtml, intent, evidence, focusToken: focus };
 }
 
 export async function chatHistory(limit = 24) {
@@ -265,9 +328,11 @@ function detectIntent(text: string): string {
   if (looksLikePaperBuy(text)) return "paper_buy";
   if (/(پورتف|موقعیت|کاغذی‌ها)/i.test(text)) return "paper_list";
   if (/(واچ‌لیست|watchlist|تحت نظر)/i.test(text)) return "watchlist";
+  if (isStopLossQuestion(text)) return "stop_loss";
   if (/(رد شد|چرا رد|reject)/i.test(text)) return "reject";
   if (/(چرا|دلیل|شواهد|explain)/i.test(text)) return "why";
-  if (/(خبر|اخبار|news)/i.test(text)) return "news";
+  // "بازار چه خبر؟" is a market question, not a news request.
+  if (isNewsRequest(text)) return "news";
   if (/(فرصت|بهترین|پامپ|opportunity|چی بخرم)/i.test(text)) return "opportunities";
   if (/(نهنگ|whale)/i.test(text)) return "whales";
   if (/(شورا|کارشناس|تیم|council)/i.test(text)) return "council";
@@ -279,201 +344,32 @@ function detectIntent(text: string): string {
   return "general";
 }
 
-function greetingReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  const running = snap.state?.running;
+function greetingReply(snap: Snap): ReplyBlock[] {
   const status = snap.canonicalReadModel?.status;
   const n =
     status === "AVAILABLE"
       ? (snap.canonicalDecisions ?? []).filter((d) => d.outcome && d.outcome !== "REJECT").length
-      : 0;
-  return [
-    "سلام! من AHOS هستم — همون همکار صریح که حدس رو جای داده نمی‌ذاره.",
-    running
-      ? `الان موتور روشنه و ${n} حکم کانونیکال پایتون در خواندنی موجود است (نه امتیاز فرانت‌اند).`
-      : "موتور فعلاً خاموشه؛ از دکمهٔ «شروع» داشبورد محلی روشنش کن تا جمع‌آوری شروع بشه.",
-    "می‌تونی خودمونی بپرسی: بازار چه خبر؟ فرصت‌ها؟ اخبار سولانا؟ این توکن رو تحت نظر بگیر. سیستم کجاش لنگه؟",
-    "خرید واقعی انجام نمی‌دم — فقط کاغذی و پایش.",
-  ].join(" ");
+      : null;
+  return greetingBlocks(n);
 }
 
-function helpReply(): string {
-  return [
-    "چی می‌تونی ازم بپرسی:",
-    "• بازار / بیت‌کوین / اتریوم / سولانا",
-    "• بهترین فرصت‌ها / پامپ / چی بخرم (فقط پایش — نه سفارش واقعی)",
-    "• اخبار / اخبار سولانا",
-    "• این توکن رو تحت نظر بگیر",
-    "• شورا چه گفت / نهنگ‌ها / سلامت سیستم / درس‌ها",
-    "• شروع/توقف موتور و ثبت خرید کاغذی فقط از داشبورد محلی (نه از گفتگو — GM-04)",
-    "مثل چت عادی حرف بزن؛ اگر داده نباشه می‌گم UNKNOWN.",
-  ].join("\n");
+function helpReply(): ReplyBlock[] {
+  return helpBlocks();
 }
 
-function marketReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  const m = snap.market;
-  if (!m) return "هنوز اسنپ‌شات بازار ندارم — INSUFFICIENT_EVIDENCE. یک‌بار شروع رو بزن تا از منابع آزاد جمع کنم.";
-  return [
-    `بازار الان (شواهد زنده، نه حدس): رژیم ${m.regime}.`,
-    `بیت‌کوین ${faUsd(m.btcPrice)} (${faPct(m.btcChange24h)}).`,
-    `اتریوم ${faUsd(m.ethPrice)} (${faPct(m.ethChange24h)}).`,
-    `سولانا ${faUsd(m.solPrice)} (${faPct(m.solChange24h)}).`,
-    `ارزش کل بازار ${faUsd(m.totalMcap)}، دامیننس بیت‌کوین ${faNumber(m.btcDominance, 1)}٪.`,
-    `ترس/طمع: ${m.fearGreed ?? "UNKNOWN"} (${m.fearGreedLabel ?? "UNKNOWN"}).`,
-    `TVL دیفای: ${faUsd(m.defiTvl)}.`,
-    "این‌ها زمینه است، نه سیگنال خرید.",
-  ].join(" ");
+function whyCanonicalReply(d: CanonicalDecisionView): ReplyBlock[] {
+  return whyCanonicalBlocks(d);
 }
 
-function oppReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  const status = snap.canonicalReadModel?.status;
-  if (status && status !== "AVAILABLE") {
-    return `حکم کانونیکال پایتون ${status} است — فرصت مثبت نمایش داده نمی‌شود. لایه وب BUY نمی‌سازد.`;
-  }
-  const canon = snap.canonicalDecisions ?? [];
-  const canonBuys = canon.filter((d) => d.outcome === "BUY");
-  const canonWatch = canon.filter((d) => d.outcome === "WATCH" || d.outcome === "MONITOR_ONLY" || d.outcome === "NO_TRADE");
-  const buys = snap.opportunities.filter((o) => o.decision === "BUY");
-  const watch = snap.opportunities.filter((o) => o.decision === "WATCH" || o.decision === "MONITOR_ONLY");
-  const rejected =
-    snap.opportunities.filter((o) => o.decision === "REJECT").length ||
-    canon.filter((d) => d.outcome === "REJECT").length;
-  if (!snap.opportunities.length && !canon.length) {
-    return "فرصتی در حافظه نیست و حکم کانونیکال پایتون هم خالی است. لایه وب BUY نمی‌سازد.";
-  }
-  if (canonBuys.length) {
-    return [
-      "حکم BUY کانونیکال پایتون (نه امتیاز فرانت‌اند):",
-      ...canonBuys.slice(0, 5).map(
-        (d, i) =>
-          `${i + 1}) ${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"} — ${d.outcome} / ${d.confidence || "UNKNOWN"} / هویت ${d.identityState || "UNKNOWN"} / امنیت ${d.securityState || "UNKNOWN"}.`,
-      ),
-    ].join("\n");
-  }
-  if (!buys.length && !watch.length && !canonWatch.length) {
-    return `BUY کانونیکال ندارم. ${rejected} مورد رد شد. امتیاز نمایشی به‌تنهایی فرصت نیست.`;
-  }
-  if (canonWatch.length && !buys.length) {
-    return [
-      "پایش/مانیتور/NO_TRADE کانونیکال — خرید نیست:",
-      ...canonWatch.slice(0, 5).map(
-        (d, i) =>
-          `${i + 1}) ${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"} — ${d.outcome} / هویت ${d.identityState || "UNKNOWN"} / امنیت ${d.securityState || "UNKNOWN"}.`,
-      ),
-    ].join("\n");
-  }
-  const list = (buys.length ? buys : watch).slice(0, 5);
-  return [
-    buys.length ? "حکم BUY کانونیکال پایتون (نه امتیاز فرانت‌اند):" : "پایش/مانیتور کانونیکال — خرید نیست:",
-    ...list.map(
-      (o, i) =>
-        `${i + 1}) ${o.symbol} روی ${o.chain} — ${o.decision} / ${o.confidence} / هویت ${o.identityState || "UNKNOWN"} / امنیت ${o.securityState || "UNKNOWN"}. ${(o.reasonsFa || [])[0] || ""}`,
-    ),
-    `${rejected} توکن رد شدن.`,
-  ].join("\n");
-}
-
-function newsReply(snap: Awaited<ReturnType<typeof commandSnapshot>>, text: string): string {
-  let items = snap.news;
-  if (/solana|سولانا/i.test(text))
-    items = items.filter(
-      (n) => n.relatedChains?.includes("solana") || /سولانا|solana/i.test(`${n.titleFa} ${n.titleOriginal}`),
-    );
-  if (/bitcoin|بیت/i.test(text))
-    items = items.filter(
-      (n) => n.relatedTokens?.includes("BTC") || /بیت‌کوین|bitcoin/i.test(`${n.titleFa} ${n.titleOriginal}`),
-    );
-  const top = items.slice(0, 6);
-  if (!top.length) return "خبری مطابق فیلتر تو در حافظه نیست — SOURCE_UNAVAILABLE یا هنوز جمع نشده.";
-  return [
-    "اخبار با بازنویسی فارسی (عنوان اصلی حفظ شده):",
-    ...top.map((n) => `• ${n.titleFa} — ${n.source} — اهمیت ${n.importance} — ${n.summaryFa}`),
-  ].join("\n");
-}
-
-function healthReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  const lines = snap.health.dimensions.map((d) => `• ${d.nameFa}: ${d.status} — ${d.evidenceFa}`);
-  return [`وضعیت سیستم (ابعاد جدا، یک نمره فریبنده نمی‌سازم):`, ...lines, `چرخه‌ها: ${snap.state.cycleCount}. آخرین: ${snap.state.lastCycleStatus}.`].join("\n");
-}
-
-function councilReply(
-  snap: Awaited<ReturnType<typeof commandSnapshot>>,
-  text: string,
-  focus: string | null,
-): string {
-  if (!snap.council.length) return "هنوز گزارش شورا نیست. بعد از اولین چرخه، اختلاف ۱۰ تیم رو می‌بینی.";
-  const hit = findOpp(snap, text, focus);
-  const c =
-    (hit && snap.council.find((x) => x.tokenKey === hit.tokenKey)) || snap.council[0];
-  return `آخرین حکم شورا برای ${c.tokenKey}: ${c.verdict}. WATCH=${c.watchCount} REJECT=${c.rejectCount} ABSTAIN=${c.abstainCount}. ${c.summaryFa} اختلاف مخفی نشد.`;
-}
-
-function learningReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  if (!snap.lessons.length) {
-    return "هنوز درس افق‌بسته ندارم. پیش‌بینی‌ها باید به افق برسن تا outcome واقعی ساخته بشه. No peeking.";
-  }
-  return ["درس‌های ثبت‌شده:", ...snap.lessons.slice(0, 5).map((l) => `• ${l.titleFa}: ${l.bodyFa}`)].join("\n");
-}
-
-function watchReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  if (!snap.watchlist.length) return "واچ‌لیست خالی است. بگو «این توکن را تحت نظر بگیر».";
-  return snap.watchlist.map((w) => `• ${w.symbol} (${w.chain}) — ${w.thesisFa || "بدون تز"}`).join("\n");
-}
-
-function paperReply(snap: Awaited<ReturnType<typeof commandSnapshot>>): string {
-  const open = snap.paper.filter((p) => p.status === "OPEN");
-  if (!open.length) return "موقعیت کاغذی باز ندارم.";
-  return open
-    .map((p) => {
-      const pnl =
-        p.entryPrice && p.lastPrice ? faPct(((p.lastPrice - p.entryPrice) / p.entryPrice) * 100) : "UNKNOWN";
-      return `• ${p.symbol} ورود ${p.entryPrice ?? "UNKNOWN"} آخرین ${p.lastPrice ?? "UNKNOWN"} بازده ${pnl} MFE ${p.maxFavorable ?? "UNKNOWN"} MAE ${p.maxAdverse ?? "UNKNOWN"}`;
-    })
-    .join("\n");
-}
-
-function whyCanonicalReply(d: CanonicalDecisionView): string {
-  return [
-    `${d.symbol || "UNKNOWN"} روی ${d.chain || "unknown"}: حکم کانونیکال پایتون ${d.outcome} با اطمینان ${d.confidence || "UNKNOWN"}. هویت ${d.identityState || "UNKNOWN"} امنیت ${d.securityState || "UNKNOWN"}.`,
-    d.primaryReason || "دلیل تکمیلی در فایل پایتون نیست.",
-    d.monitoringOnly ? "MONITOR_ONLY — فرصت/کاغذی نیست." : "",
-    "لایه گفتگو تصمیم نمی‌سازد. این توصیه خرید واقعی نیست.",
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
-function whyReply(o: Awaited<ReturnType<typeof commandSnapshot>>["opportunities"][number]): string {
-  return [
-    `${o.symbol} روی ${o.chain}: تصمیم ${o.decision} با اطمینان ${o.confidence}. امنیت ${o.securityStatus}. حکم شورا ${o.councilVerdict}${o.disagreement ? " (اختلاف‌دار)" : ""}.`,
-    `چرا؟ ${(o.reasonsFa || []).join(" ")}`,
-    `ریسک‌ها: ${(o.risksFa || []).join(" ")}`,
-    `UNKNOWNها: ${(o.unknownsFa || []).join(" ") || "ثبت نشده"}`,
-    `داده کم: ${(o.missingFa || []).join("، ") || "—"}`,
-    `ابطال: ${o.invalidationFa}`,
-    "این توصیه خرید واقعی نیست.",
-  ].join("\n");
-}
-
-async function generalReply(text: string, snap: Awaited<ReturnType<typeof commandSnapshot>>): Promise<string> {
+async function generalReply(text: string, snap: Snap): Promise<ReplyBlock[]> {
   const hit = findOpp(snap, text, null);
-  if (hit) return whyReply(hit);
-  const m = snap.market;
-  const q = text.slice(0, 120);
-  return [
-    "فهمیدم چی گفتی — مثل همکار جواب می‌دم، نه ربات خشک.",
-    m
-      ? `الان رژیم ${m.regime} است، بیت‌کوین ${faUsd(m.btcPrice)} (${faPct(m.btcChange24h)}).`
-      : "اسنپ‌شات بازار هنوز UNKNOWN است.",
-    (snap.canonicalDecisions ?? []).length || snap.opportunities.length
-      ? `${(snap.canonicalDecisions ?? []).filter((d) => d.outcome === "BUY").length} حکم BUY کانونیکال و ${(snap.canonicalDecisions ?? []).filter((d) => d.outcome === "REJECT").length} رد.`
-      : "فرصتی جمع نشده.",
-    snap.news[0] ? `تازه‌ترین خبر فارسی: ${snap.news[0].titleFa}` : "خبری نیست.",
-    `اگر منظورت چیز دقیق‌تری بود از «${q}»، همون رو شفاف‌تر بگو: فرصت‌ها؟ یک توکن خاص؟ وضعیت سیستم؟`,
-  ].join(" ");
+  if (hit) return whyBlocks(hit);
+  const buyCount = (snap.canonicalDecisions ?? []).filter((d) => d.outcome === "BUY").length;
+  return generalBlocks(buyCount);
 }
 
 function findOpp(
-  snap: Awaited<ReturnType<typeof commandSnapshot>>,
+  snap: Snap,
   text: string,
   focus: string | null,
 ) {
