@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { webApiFetch } from "@/web_api_client";
+import { deriveViewTruth, presentRunning, presentStatus } from "@/dashboard_truth";
 
 type Dim = { nameFa: string; status: string; evidenceFa: string };
 type Opp = {
@@ -261,6 +262,8 @@ export default function CommandCenter() {
   const [selected, setSelected] = useState<Opp | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
   const [alertBanner, setAlertBanner] = useState<WebAlertBanner>(INACTIVE_ALERT);
+  // GM-03: wall clock for staleness; ticks from a timer callback only.
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
 
   const chatRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -272,6 +275,19 @@ export default function CommandCenter() {
   useEffect(() => {
     soundRef.current = sound;
   }, [sound]);
+
+  useEffect(() => {
+    const clock = setInterval(() => setNowMs(Date.now()), 15_000);
+    return () => clearInterval(clock);
+  }, []);
+
+  // GM-03: a failed refresh or an old snapshot must not keep green health.
+  const view = useMemo(
+    () => deriveViewTruth({ generatedAt: snap?.generatedAt ?? null, lastRefreshError: bootError, nowMs }),
+    [snap?.generatedAt, bootError, nowMs],
+  );
+  const viewStale = Boolean(snap) && view.stale;
+  const runPill = presentRunning(running, viewStale);
 
   const load = useCallback(async () => {
     loadAbortRef.current?.abort();
@@ -297,10 +313,12 @@ export default function CommandCenter() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as Snap;
       if (ac.signal.aborted) return;
+      // A successful refresh clears the error even if the payload is unchanged.
+      setBootError(null);
+      setNowMs(Date.now());
       if (json.generatedAt && json.generatedAt === snapGenRef.current) return;
       snapGenRef.current = json.generatedAt ?? null;
       setSnap(json);
-      setBootError(null);
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
       setBootError(e instanceof Error ? e.message : "UNKNOWN");
@@ -529,6 +547,15 @@ export default function CommandCenter() {
           <small>{snap?.state.lastError || "CODE_FAILURE — چرخه اخیر ناموفق"}</small>
         </div>
       )}
+      {viewStale && (
+        <div className="alarm-banner">
+          داده‌های نمایش‌داده‌شده کهنه است — STALE
+          <small>
+            آخرین تصویر موفق: {snap?.generatedAt ?? "UNKNOWN"} — دلیل: {view.reason}
+            {bootError ? ` (${bootError})` : ""} — وضعیت‌های سبز تا به‌روزرسانی موفق معتبر نیستند.
+          </small>
+        </div>
+      )}
       {snap?.canonicalReadModel?.status && snap.canonicalReadModel.status !== "AVAILABLE" && (
         <div className="alarm-banner">
           حکم کانونیکال پایتون {snap.canonicalReadModel.status}
@@ -555,10 +582,18 @@ export default function CommandCenter() {
         <div className="flex flex-wrap items-center gap-2">
           <span
             className={`rounded-full px-3 py-1 text-xs ${
-              running ? "bg-emerald-400/20 text-emerald-200" : "bg-white/10 text-white/70"
+              runPill === "RUNNING"
+                ? "bg-emerald-400/20 text-emerald-200"
+                : runPill === "UNKNOWN"
+                  ? "bg-amber-400/15 text-amber-100"
+                  : "bg-white/10 text-white/70"
             }`}
           >
-            {running ? "در حال مشاهده خودکار" : "متوقف"}
+            {runPill === "RUNNING"
+              ? "در حال مشاهده خودکار"
+              : runPill === "UNKNOWN"
+                ? "وضعیت نامعلوم — STALE"
+                : "متوقف"}
           </span>
           <span className="rounded-full bg-amber-300/15 px-3 py-1 text-xs text-amber-200">
             فقط کاغذی — معامله واقعی خاموش
@@ -678,7 +713,7 @@ export default function CommandCenter() {
                         <div className="text-sm">{d.nameFa}</div>
                         <div className="text-xs text-white/60">{d.evidenceFa}</div>
                       </div>
-                      <StatusPill status={d.status} />
+                      <StatusPill status={presentStatus(d.status, viewStale)} />
                     </div>
                   ))}
                   {!snap?.health?.dimensions?.length && <Empty text="هنوز ابعادی نیست — موتور را روشن کن." />}
@@ -1050,6 +1085,7 @@ const StatusPill = memo(function StatusPill({ status }: { status: string }) {
           status === "DOWN" ||
           status === "HONEYPOT" ||
           status === "DISABLED" ||
+          status === "VIOLATION" ||
           status === "CODE_FAILURE"
         ? "bg-rose-400/15 text-rose-200"
         : status === "UNKNOWN" ||

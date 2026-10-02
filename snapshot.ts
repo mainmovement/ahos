@@ -25,6 +25,13 @@ import {
   presentCanonicalDecisions,
   type CanonicalReadModel,
 } from "./canonical_read_model";
+import {
+  evidenceFreshnessLimitMs,
+  executionModeStatus,
+  freshnessStatus,
+  lastCycleStatusHealth,
+  paperPortfolioStatus,
+} from "./dashboard_truth";
 
 function deepestErrorMessage(error: unknown): string {
   let cur: unknown = error;
@@ -147,20 +154,41 @@ async function buildDbCommandSnapshot(canonicalModel: CanonicalReadModel) {
   const successProviders = providers.filter((p) => p.status === "SUCCESS").length;
   const downProviders = providers.filter((p) => ["DOWN", "RATE_LIMIT", "AUTH_REQUIRED", "NO_KEY", "COST_BLOCKED", "OUT_OF_POLICY"].includes(p.status));
 
+  // GM-03: OK only for real, recent evidence; policy dims read the persisted
+  // execution_mode instead of a hard-coded "OK".
+  const nowMs = Date.now();
+  const freshLimitMs = evidenceFreshnessLimitMs(state.intervalSec);
+  const freshLimitMin = Math.round(freshLimitMs / 60_000);
   const health = {
     dimensions: [
-      dim("امنیت داده", state.lastCycleStatus === "SUCCESS" ? "OK" : "UNKNOWN", "UNKNOWN هرگز با داده جعلی پر نشد."),
+      dim(
+        "امنیت داده",
+        lastCycleStatusHealth(state.lastCycleStatus, state.lastCycleAt, nowMs, freshLimitMs),
+        `UNKNOWN هرگز با داده جعلی پر نشد. حد تازگی ${freshLimitMin} دقیقه`,
+      ),
       dim("سلامت پروایدر", providers.length ? (successProviders > 0 ? "OK" : "DEGRADED") : "UNKNOWN", `${successProviders} موفق از ${providers.length || 0}`),
-      dim("تازگی شواهد", cycle?.finishedAt ? "OK" : "UNKNOWN", cycle?.finishedAt ? cycle.finishedAt.toISOString() : "NO_DATA"),
+      dim(
+        "تازگی شواهد",
+        freshnessStatus(cycle?.finishedAt ?? null, nowMs, freshLimitMs),
+        cycle?.finishedAt ? `${cycle.finishedAt.toISOString()} (حد ${freshLimitMin} دقیقه)` : "NO_DATA",
+      ),
       dim("کیفیت شواهد", typeof cycle?.unknownShare === "number" ? "OK" : "UNKNOWN", `سهم UNKNOWN/ناکافی=${cycle?.unknownShare ?? "UNKNOWN"}`),
       dim("کالیبراسیون", lastOutcomes.length ? "OK" : "INSUFFICIENT_EVIDENCE", lastOutcomes.length ? `${lastOutcomes.length} نتیجه ثبت‌شده` : "هنوز outcome محلی کافی نیست"),
       dim("یادگیری", lastLessons.length ? "OK" : "INSUFFICIENT_EVIDENCE", lastLessons.length ? `${lastLessons.length} درس` : "درس جدیدی نیست"),
       dim("تکامل", lastFindings.length ? "OK" : "UNKNOWN", lastFindings.length ? `${lastFindings.length} یافته` : "یافته‌ای نیست"),
       dim("رژیم بازار", market?.regime && market.regime !== "UNKNOWN" ? "OK" : "UNKNOWN", market?.regime ?? "UNKNOWN"),
       dim("شورای کارشناسان", lastCouncil.length ? "OK" : "UNKNOWN", "۱۰۰ نقش در ۱۰ تیم — مشورتی"),
-      dim("پورتفوی کاغذی", "OK", `${papers.filter((p) => p.status === "OPEN").length} موقعیت باز — اجرای واقعی DISABLED`),
+      dim(
+        "پورتفوی کاغذی",
+        paperPortfolioStatus(state.executionMode, Array.isArray(papers)),
+        `${papers.filter((p) => p.status === "OPEN").length} موقعیت باز — اجرای واقعی DISABLED`,
+      ),
       dim("خبر فارسی", news.length ? "OK" : "UNKNOWN", `${news.length} خبر با بازنویسی فارسی`),
-      dim("صفرپولی", "OK", "NO REAL TRADING / PAPER_ONLY"),
+      dim(
+        "صفرپولی",
+        executionModeStatus(state.executionMode),
+        `NO REAL TRADING — execution_mode=${state.executionMode || "UNKNOWN"}`,
+      ),
       dim(
         "حکم کانونیکال پایتون",
         canonicalModel.status,

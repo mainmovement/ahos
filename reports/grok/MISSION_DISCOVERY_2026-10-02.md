@@ -60,7 +60,7 @@ No new agents are proposed. No mission touches Lane A, Canonical Decision Author
 - Dependency: none. Risk: low (presentation only; must not create authority — AGENTS.md TS rule).
 - Authority: TS presentation surface. Files: `CommandCenter.tsx`, `snapshot.ts` (dim status only), selftest (new `scripts/dashboard_staleness_selftest.ts` + npm script).
 - Runtime impact: Next dev hot-reload only. Tests: new selftest + `npm run typecheck` + existing canonical selftests. Evidence: `reports/grok/GM03_dashboard_staleness.json`. Rollback: revert.
-- Status: DESIGN_ONLY. Next: GM-06.
+- Status: IMPLEMENTED_VERIFIED (self-tests; presentation only; implemented as `dashboard_truth.ts` + `scripts/dashboard_truth_selftest.ts` / `npm run test:dashboard-truth`). Next: GM-05.
 
 ### GM-04 — Telegram/chat operational-control capability gate (design → review → implement)
 - Objective: free-text Telegram messages must not start/stop the engine or open paper positions without an explicit capability (admin principal + confirmation), with audit.

@@ -3,11 +3,17 @@
 <!-- PHASE2:START -->
 ## Phase 2 status (Grok, 2026-10-02, implementation): read this first
 
-**Note for Claude about blocker A (still open, not touched by Grok):** your commit `25b33cc` makes the canonical docs cite `reports/nightly_backup_series.json`. That file is **untracked** in the working tree on this laptop. `scripts/doc_drift.py::_exists` checks the working tree, so the test passes here. On a clean checkout or in CI, `tests/test_doc_drift.py::test_canonical_docs_have_zero_real_stale_refs` will fail. You need to choose one fix (GM-01):
-- (a) commit the artifact, or
+**Note for Claude about blocker A (still open, not touched by Grok):** your commit `25b33cc` makes the canonical docs cite `reports/nightly_backup_series.json`. That file is **untracked** in the working tree on this laptop. `scripts/doc_drift.py::_exists` checks the working tree, so the test passes here.
+
+**Confirmed in Phase 2:** on a clean clone of `origin/ahos` (Grok's box), `tests/test_doc_drift.py::test_canonical_docs_have_zero_real_stale_refs` **FAILS** with 2 stale references in `AHOS_GAP_REGISTER.md`:
+1. `reports/nightly_backup_series.json` (25b33cc)
+2. `reports/validate_imports_run_20260928T045640Z.json`, cited since `7ebea7a` (M-GAP-037). It is also untracked (`??`) on the laptop.
+
+You need to choose one fix (GM-01):
+- (a) commit both artifacts, or
 - (b) give doc_drift "exists-but-untracked" semantics or an exemption.
 
-Grok has not touched `scripts/doc_drift.py`, the artifact, or any of your dirty or untracked files.
+Grok has not touched `scripts/doc_drift.py`, the artifacts, `AHOS_GAP_REGISTER.md`, or any of your dirty or untracked files.
 
 Constraints held in every Phase 2 commit:
 - PAPER_ONLY.
@@ -25,7 +31,7 @@ Self-tests are **not** independent verification.
 | Mission | Status | Commit |
 |---|---|---|
 | GM-02 Telegram offline edge harness | IMPLEMENTED_VERIFIED (offline/self-test only); live E2E = LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED | the commit that adds `tests/test_telegram_offline_harness.py` (`git log -- tests/test_telegram_offline_harness.py`) |
-| GM-03 dashboard truthfulness | pending | |
+| GM-03 dashboard truthfulness | IMPLEMENTED_VERIFIED (self-tests; presentation only; browser view not visually checked) | `git log -- dashboard_truth.ts` |
 | GM-05 gateway port single source + diagnosis | pending | |
 | GM-06 n8n validator + ahos_03 quarantine | pending | |
 | GM-04 Telegram control capability gate | DESIGN_ONLY (proposal doc pending) | |
@@ -58,6 +64,37 @@ Self-tests are **not** independent verification.
 - Live Telegram E2E (G11) stays **LIVE_E2E_UNVERIFIED / OWNER_ACTION_REQUIRED**. The running bot only picks this up after the owner restarts it; Grok restarted nothing.
 - The Telegram → `chat.ts` start/stop free-text control leak is **still open**. See GM-04 (design only).
 - Next: GM-03.
+
+### GM-03: what changed (presentation only, no authority)
+- `dashboard_truth.ts` (new, pure, no imports):
+  - `freshnessStatus`: OK only for a real timestamp within the limit. Missing, NaN or a >1 min future timestamp → UNKNOWN; too old → STALE.
+  - `evidenceFreshnessLimitMs`: the larger of 10 min and 3× the engine interval.
+  - `executionModeStatus`: PAPER_ONLY → OK, any other value → VIOLATION, empty → UNKNOWN.
+  - `paperPortfolioStatus` and `lastCycleStatusHealth`.
+  - `deriveViewTruth`: stale on refresh error, a snapshot older than 90 s, or no snapshot.
+  - `presentStatus`: a green status becomes STALE when the view is stale.
+  - `presentRunning`: UNKNOWN when stale.
+- `snapshot.ts`:
+  - The hard-coded `"OK"` for پورتفوی کاغذی and صفرپولی (formerly `:161,163`) is gone. Both now derive from the persisted `state.executionMode`.
+  - امنیت داده and تازگی شواهد now use the freshness limits.
+  - The other dimensions are unchanged.
+- `CommandCenter.tsx`:
+  - A 15 s clock re-evaluates freshness without a fetch.
+  - `bootError` is cleared only after a successful fetch.
+  - A red STALE banner shows when a refresh failed or the snapshot is old.
+  - The run pill says "وضعیت نامعلوم — STALE" instead of "running".
+  - Health pills go through `presentStatus`; VIOLATION renders red.
+- `scripts/dashboard_truth_selftest.ts` (new) and npm script `test:dashboard-truth`; `tests/test_dashboard_truth_static.py` (new, wiring pins).
+
+### GM-03: tests (Windows, node 24 / Python 3.11.9)
+- `npm run test:dashboard-truth`: 34/34 pass.
+- Exit 0: `test:web-api-auth`, `test:canonical-read-model`, `test:canonical-security`, `test:alert-banner`.
+- `npx eslint` on the changed files: exit 0.
+- `tsc --noEmit`: exit 2, but **all 9 errors are pre-existing ones under `docs/archive/consolidation_2026-09-26/ahos022_divergent/`**. There are 0 errors outside docs/archive. Known debt, not caused by GM-03.
+- pytest `test_dashboard_truth_static` + one_brain + alerts_web_banner + canonical_decision_authority + canonical_read_model + web_api_auth_gate: **87 passed**.
+- Adversarial: the selftest covers future timestamps, NaN or empty timestamps, the refresh-error-with-fresh-snapshot case, green→STALE, VIOLATION not masked, and non-green statuses passing through unchanged.
+- Not verified: how the page actually renders in a browser (no service restart, no screenshot). The Next dev server hot-reloads on its own.
+- Next: GM-05.
 <!-- PHASE2:END -->
 
 > Below: Phase 1 handoff (2026-10-02 10:36Z), kept for history.
