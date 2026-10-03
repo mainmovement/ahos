@@ -9,6 +9,7 @@ function SetStatus($id,$st){ $c=[IO.File]::ReadAllText($qf,[Text.Encoding]::UTF8
 while($true){
   try{
     if(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | ?{ $_.CommandLine -match 'run_mission\.ps1' }){ Start-Sleep 120; continue }
+    $h="$ap\HOLD.flag"; if((Test-Path $h) -and ((Get-Date)-(Get-Item $h).LastWriteTime).TotalHours -lt 6){ Start-Sleep 120; continue }   # Grok review hold, auto-expires after 6h
     $rows=[regex]::Matches([IO.File]::ReadAllText($qf,[Text.Encoding]::UTF8),'(?m)^\| (M[\w.\-]+|BL) \| ([A-Z_]+) \| (.+?) \|\s*$')
     $run=$rows | ?{ $_.Groups[2].Value -eq 'RUNNING' } | Select -First 1
     if($run){ SetStatus $run.Groups[1].Value 'NEEDS_REVIEW'; continue }   # finished outside autopilot (e.g. M11.1): Grok/owner review

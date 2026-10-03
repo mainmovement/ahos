@@ -19,7 +19,7 @@ while($true){
         New-Item "$g\_watchdog_kill_$n.flag" -ItemType File -Force | Out-Null
         foreach($c in $cl){ Stop-Process -Id $c.ProcessId -Force -ErrorAction SilentlyContinue }
         Start-Sleep 90
-        if(-not (Get-Process -Id $r.ProcessId -ErrorAction SilentlyContinue)){
+        if($n -notlike 'ap_*' -and -not (Get-Process -Id $r.ProcessId -ErrorAction SilentlyContinue)){  # autopilot missions are retried by claude_autopilot.ps1 itself
           L "runner exited -> relaunch mission $n continueFresh"
           Start-Process powershell.exe -WindowStyle Hidden -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$g\run_mission.ps1`" -n $n -continueFresh"
         }

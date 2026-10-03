@@ -6,6 +6,11 @@ Statuses: PENDING, RUNNING, DONE, PARTIAL (retry), NEEDS_REVIEW, BLOCKED_OWNER (
 | ID | STATUS | MISSION (see plan/vision for full spec + acceptance criteria) |
 |---|---|---|
 | M11.1 | RUNNING | Launcher finish (single icon, zero consoles, Status/Stop/Restart in CommandCenter.tsx, gateway port) - run by run_mission.ps1 -n 11_1 |
+| M11.2 | PENDING | launcher/ahos.ps1 hidden path: Tee-Object -Encoding invalid in PS 5.1 (log never written) + no double-run on stderr (spec: reports/grok/autopilot/missions/M11.2-launcher-ps51-log.md) |
+| M11.3 | PENDING | Gateway process identity: marker never matches npm wrapper -> second start calls own gateway foreign (spec: reports/grok/autopilot/missions/M11.3-gateway-identity.md) |
+| M11.4 | PENDING | Telegram health = stable process/readiness, not pid alive at spawn (spec: reports/grok/autopilot/missions/M11.4-telegram-health.md) |
+| M48.1 | PENDING | Next 16.2.6 -> 16.3.8 security update (critical advisory), proposal + rollback (spec: reports/grok/autopilot/missions/M48.1-next-security-update.md) |
+| M10.1 | PENDING | Launcher initialises empty PGlite store (schema-only restore) + real table probe (spec: reports/grok/autopilot/missions/M10.1-pglite-init-in-launcher.md) |
 | M10 | PENDING | Native portable PostgreSQL/PGlite switch, Docker/n8n retirement (plan "M10 decision") |
 | BL | PENDING | Close open BL/MJ items and all QA (16) BLOCKERs listed in reports/grok (GROK_HANDOFF, ORCHESTRATION_LOG, remaining-work inventory) |
 | M12 | PENDING | Agent organisation: 37+ agents in config/agent_registry.yaml using the owner charter template, authority NONE by default, no auto-creation |
@@ -34,3 +39,4 @@ Statuses: PENDING, RUNNING, DONE, PARTIAL (retry), NEEDS_REVIEW, BLOCKED_OWNER (
 | M40 | PENDING | Treasury request flow + negative tests (no real transfers) |
 | M14-M33 | PENDING | Remaining plan missions in plan order (markets, university, arena, crisis sim, debate, memory, wealth panel M17 dashboard, mother-fund simulation, Token Hunter M33 paper-only) - take the NEXT unfinished one each run |
 | M36 | PENDING | Autonomous world orchestration (after all above) |
+| M53 | PENDING | Quarantine dead scaffold trees, run_ahos.sh, tests2b, slills (spec: reports/grok/autopilot/missions/M53-cleanup-dead-trees.md) |
