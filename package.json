@@ -23,7 +23,8 @@
     "db:migrate": "drizzle-kit migrate",
     "test:chat-auth": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_auth_selftest.ts",
     "test:chat-actions": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_actions_selftest.ts",
-    "test:chat-handlechat": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_handlechat_selftest.ts"
+    "test:chat-handlechat": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_handlechat_selftest.ts",
+    "test:gemini-egress": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/gemini_egress_selftest.ts"
   },
   "dependencies": {
     "dotenv": "17.3.1",

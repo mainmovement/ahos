@@ -1,0 +1,9 @@
+{
+  "approved": true,
+  "approvedAt": "2026-10-03T00:00:00+03:30",
+  "approvedBy": "owner — explicit opt-in recorded for Mission 9.6 (MN-4)",
+  "scope": ["phraser", "chat_agent"],
+  "recipients": ["Google Gemini free tier. The API key lives only in Windows Credential Manager (AHOS/ai/gemini) and is never read from this file."],
+  "note": "AHOS is PAPER_ONLY. This file is the record that the owner approved sending the listed data to Gemini. It holds no secret. Deleting it, setting approved to false, or setting revokedAt disables both channels. AHOS_PHRASER=off / AHOS_CHAT_AGENT=off / AHOS_GEMINI_EGRESS=off disable egress without editing this file.",
+  "revokedAt": null
+}

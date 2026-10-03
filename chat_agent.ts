@@ -15,6 +15,7 @@
  *  - length limit. Failure → deterministic composer with an honest note.
  */
 import { spawnPythonJson, cleanModelText, DEFAULT_GEMINI_MODELS, type EnvMap } from "./gemini_phraser";
+import { egressApproved } from "./gemini_egress_config";
 import { faAge } from "./reply_format";
 import { RESPONSE_STYLE_FA } from "./response_composer";
 import {
@@ -587,11 +588,11 @@ export class ChatAgent {
 }
 
 let defaultAgent: ChatAgent | null | undefined;
-/** Process-wide agent (null when AHOS_CHAT_AGENT=off). */
+/** Process-wide agent (null when egress is not approved — see
+ * gemini_egress_config.ts; AHOS_CHAT_AGENT=off is the channel kill switch). */
 export function getDefaultChatAgent(src: EnvMap = process.env): ChatAgent | null {
   if (defaultAgent !== undefined) return defaultAgent;
-  const mode = (src.AHOS_CHAT_AGENT || "").trim().toLowerCase();
-  if (["off", "0", "false", "none"].includes(mode)) {
+  if (!egressApproved("chat_agent", src)) {
     defaultAgent = null;
     return null;
   }
@@ -602,4 +603,9 @@ export function getDefaultChatAgent(src: EnvMap = process.env): ChatAgent | null
   const t = Number(src.AHOS_CHAT_AGENT_TIMEOUT_MS);
   defaultAgent = new ChatAgent({ models, timeoutMs: Number.isFinite(t) && t > 0 ? t : undefined });
   return defaultAgent;
+}
+
+/** Reset the singleton memo. Production code never needs this; tests do. */
+export function resetDefaultChatAgentForTests(): void {
+  defaultAgent = undefined;
 }

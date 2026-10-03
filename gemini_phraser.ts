@@ -19,6 +19,11 @@
  *                           the helper's total budget is 9 s for at most 2 models)
  *   AHOS_PHRASER_PYTHON     python executable (default .venv\Scripts\python.exe / .venv/bin/python)
  *
+ * Mission 9.6 (MN-4): sending anything to Gemini requires the owner's explicit
+ * approval recorded in config/gemini_egress.json (see gemini_egress_config.ts).
+ * getDefaultPhraser() returns null unless that record exists, is valid and
+ * lists "phraser" in scope, and no kill switch is set. Egress fails closed.
+ *
  * Circuit breaker (in memory, per gateway process): 3 consecutive failures →
  * skip for 60 s; credential/quota problems (AUTH_FAILED, QUOTA_EXHAUSTED,
  * NO_CREDENTIAL, NOT_WINDOWS, ...) → skip for 10 min. While open, phrase()
@@ -27,6 +32,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { egressApproved } from "./gemini_egress_config";
 import type { GroundedDraft, PhrasedReply, ReplyPhraser } from "./response_composer";
 import { renderPlain, REPLY_BUDGET_CHARS } from "./reply_format";
 
@@ -285,11 +291,14 @@ export const spawnHelperRunner: HelperRunner = (req, killAfterMs) =>
 
 let singleton: GeminiPhraser | null | undefined;
 
-/** Process-wide phraser (null when AHOS_PHRASER=off). */
+/**
+ * Process-wide phraser (null when egress is not approved — see
+ * gemini_egress_config.ts: the committed approval record must exist and be
+ * valid, the channel must be in scope, and no kill switch may be set).
+ */
 export function getDefaultPhraser(src: EnvMap = process.env): GeminiPhraser | null {
   if (singleton !== undefined) return singleton;
-  const mode = (src.AHOS_PHRASER || "").trim().toLowerCase();
-  if (mode === "off" || mode === "0" || mode === "false" || mode === "none") {
+  if (!egressApproved("phraser", src)) {
     singleton = null;
     return singleton;
   }
@@ -300,4 +309,9 @@ export function getDefaultPhraser(src: EnvMap = process.env): GeminiPhraser | nu
   const t = Number(src.AHOS_PHRASER_TIMEOUT_MS);
   singleton = new GeminiPhraser({ models, timeoutMs: Number.isFinite(t) && t > 0 ? t : undefined });
   return singleton;
+}
+
+/** Reset the singleton memo. Production code never needs this; tests do. */
+export function resetDefaultPhraserForTests(): void {
+  singleton = undefined;
 }
