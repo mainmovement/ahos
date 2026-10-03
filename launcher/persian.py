@@ -96,10 +96,63 @@ def fa(value) -> str:
 
 
 def component_label(name: str) -> str:
-    return {
+    return PANEL.get("labels", {}).get(name, name)
+
+
+# ----------------------------------------------------------------- dashboard --
+# The status/stop/restart panel inside CommandCenter (Parvaneh P1): the owner
+# reads component names in Persian. Latin technical words (PID, port) stay as-is
+# because transliterating them makes them slower to read, not faster.
+PANEL = {
+    "labels": {
         "stores": "پایگاه داده",
         "db_backend": "بک‌اند پایگاه داده",
         "gateway": "درگاه و داشبورد",
         "telegram": "ربات تلگرام",
         "engine": "موتور کاغذی",
-    }.get(name, name)
+    },
+    "title": "وضعیت سرویس‌ها",
+    "stop": "توقف",
+    "restart": "راه‌اندازی دوباره",
+    "refresh": "به‌روزرسانی",
+    "confirm_stop": "همهٔ سرویس‌های AHOS متوقف شوند؟",
+    "confirm_restart": "همهٔ سرویس‌ها دوباره راه‌اندازی شوند؟",
+    "busy": "…در حال انجام…",
+    "confirm": "تایید",
+    "cancel": "لغو",
+    "already_running": "یک کار دیگر در حال انجام است؛ چند ثانیه صبر کنید.",
+    "no_report": "هنوز گزارشی وجود ندارد.",
+}
+
+# status strings the panel renders for each component.
+STATUS_FA = {
+    "HEALTHY": "سالم",
+    "UNHEALTHY": "ناسالم",
+    "UNAVAILABLE": "غیرفعال",
+    "UNKNOWN": "نامشخص",
+    "STOPPED": "متوقف‌شده",
+    "SKIPPED": "رد شد",
+}
+
+# the panel shows how long a component has been up; never raw seconds.
+HEALTH_FA = {
+    "ONLINE": "آنلاین",
+    "DEGRADED": "با هشدار",
+    "FAILED": "ناموفق",
+    "DOWN": "قطع",
+    "STOPPED": "متوقف",
+    "NOT_RUNNING": "در حال اجرا نیست",
+}
+
+
+def age_fa(seconds: float) -> str:
+    """Uptime in Persian words, coarse on purpose: the owner wants "a quarter of
+    an hour", not a stopwatch."""
+    s = max(0, int(seconds or 0))
+    if s < 60:
+        return f"{fa(s)} ثانیه"
+    if s < 3600:
+        return f"{fa(s // 60)} دقیقه"
+    if s < 86400:
+        return f"{fa(s // 3600)} ساعت"
+    return f"{fa(s // 86400)} روز"

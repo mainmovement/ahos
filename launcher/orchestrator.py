@@ -73,10 +73,28 @@ class AhosOrchestrator:
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.report_dir.mkdir(parents=True, exist_ok=True)
+        # The gateway the launcher will actually use on this host. Selected once
+        # per START (the Windows reserved-port ranges move across reboots, so the
+        # choice is not cacheable) and pushed to every child so they agree. Falls
+        # back to the pure resolver for read-only paths (status) and for tests
+        # that inject their own resolution.
+        self.gateway = C.resolve_gateway(self.env)
 
     # ------------------------------------------------------------------ paths --
     def log_path(self, name: str) -> Path:
         return self.log_dir / f"{name}.log"
+
+    def dashboard_url(self) -> str:
+        """The dashboard address, from the *selected* gateway.
+
+        Everything that displays or probes the gateway goes through here, so the
+        port the children were actually handed is the port the report names. A
+        report that advertised the configured port while the gateway listened on
+        the fallback would send the owner to a dead page.
+        """
+        host = self.gateway.get("host") or "127.0.0.1"
+        port = int(self.gateway.get("port") or 3000)
+        return f"http://{host}:{port}/"
 
     def report_name(self) -> str:
         ts = datetime.fromtimestamp(self.clock(), timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -131,7 +149,7 @@ class AhosOrchestrator:
         if info and pk.pid_is_ours(info.get("pid"), self.marker(name)):
             return "ours_running"
         if name == "gateway":
-            info_gw = C.resolve_gateway(self.env)
+            info_gw = self.gateway
             host = info_gw.get("host") or "127.0.0.1"
             port = int(info_gw.get("port") or 3000)
             if pk.port_in_use(host, port):
@@ -144,7 +162,7 @@ class AhosOrchestrator:
         if name == "db_backend":
             return C.probe_db_backend(C.database_target(self.env), self.clock())
         if name == "gateway":
-            return C.probe_gateway(C.dashboard_url(self.env), self.clock())
+            return C.probe_gateway(self.dashboard_url(), self.clock())
         if name == "telegram":
             return C.probe_process(self._pid_info("telegram"), self.marker("telegram"))
         if name == "engine":
@@ -358,7 +376,7 @@ class AhosOrchestrator:
                                  pid=pid, started_ts=self.clock(), fresh=True)
 
     def _child_env(self, *, extra: dict | None = None) -> dict:
-        env = C.child_env(self.root, self.env)
+        env = C.child_env(self.root, self.env, gateway=self.gateway)
         if extra:
             env.update(extra)
         return env
@@ -366,6 +384,20 @@ class AhosOrchestrator:
     # ------------------------------------------------------------------- start --
     def start(self) -> dict:
         t0 = self.clock()
+        # Pick the gateway address before anything spawns: the configured port
+        # can be Windows-reserved on this host, and children must all be told the
+        # same address. A warning here is reported, never fatal — the gateway
+        # reports its own real bind failure honestly if nothing bound at all.
+        sel = C.select_gateway(self.env)
+        self.gateway = sel
+        gw_note = None
+        if sel.get("chosen_via") == "CANDIDATE_BINDABLE":
+            gw_note = (f"configured port {sel.get('configured_port')} was not "
+                       f"bindable on this host; using {sel.get('port')}")
+        if sel.get("warnings"):
+            gw_note = (gw_note + "; " if gw_note else "") + "; ".join(sel["warnings"])
+        if gw_note:
+            self.emit(f"  {P.component_label('gateway')}: {gw_note}")
         self.emit(P.PROGRESS["preflight"])
         pf = self.preflight()
         for chk in pf.checks:
@@ -405,7 +437,7 @@ class AhosOrchestrator:
                 fmt: dict = {}
                 if name == "gateway":
                     if res.detail == "foreign_busy":
-                        gw = C.resolve_gateway(self.env)
+                        gw = self.gateway
                         fmt["port"] = P.fa(gw.get("port") or 3000)
                     else:
                         fmt["sec"] = P.fa(int(self.health_wait.get(name, 60)))
@@ -452,7 +484,7 @@ class AhosOrchestrator:
         if overall in ("ONLINE", "DEGRADED") and results.get("gateway") and \
                 results["gateway"].status == C.HEALTHY and self.open_dashboard and not idle:
             self.emit(P.PROGRESS["dashboard"])
-            pk.open_url(C.dashboard_url(self.env))
+            pk.open_url(self.dashboard_url())
 
         self.emit(P.PROGRESS["done_online"] if overall == "ONLINE"
                   else P.PROGRESS["done_degraded"])
@@ -568,7 +600,7 @@ class AhosOrchestrator:
         else:
             overall = "ONLINE"
         return self._report("status", overall, results, None,
-                            cp_status=cp_status.get("system"))
+                            archive=False, cp_status=cp_status.get("system"))
 
     # ------------------------------------------------------- control plane wiring --
     def _control_plane(self, results: dict[str, C.ComponentResult]) -> LauncherControlPlane:
@@ -582,8 +614,28 @@ class AhosOrchestrator:
         return LauncherControlPlane(probers, ledger_path=self.ledger_path, clock=self.clock)
 
     # ----------------------------------------------------------------- reports --
+    # How many timestamped status archives we keep. Only state-changing actions
+    # (start/stop/restart) archive anything, so this bounds the receipt history;
+    # a plain status poll refreshes `status.json` alone, otherwise the dashboard's
+    # few-second poll cadence would bury the receipts under thousands of copies
+    # (e5).
+    MAX_STATUS_ARCHIVES = 12
+
+    def _prune_archives(self, keep: int = MAX_STATUS_ARCHIVES) -> None:
+        """Keep the newest ``keep`` timestamped status archives."""
+        try:
+            archives = sorted(self.report_dir.glob("status_*.json"))
+        except OSError:
+            return
+        for old in archives[:-keep]:
+            try:
+                old.unlink()
+            except OSError:
+                continue
+
     def _report(self, action: str, overall: str,
-                results: dict[str, object], pf: C.Preflight | None = None, **extra) -> dict:
+                results: dict[str, object], pf: C.Preflight | None = None, *,
+                archive: bool = True, **extra) -> dict:
         comp = {}
         for name, res in (results or {}).items():
             comp[name] = {"status": res.status, "detail": res.detail[:400],
@@ -597,17 +649,25 @@ class AhosOrchestrator:
             "overall": overall,
             "paper_only": True,
             "components": comp,
-            "dashboard_url": C.dashboard_url(self.env),
+            "dashboard_url": self.dashboard_url(),
+            # The port children were actually handed. Need not equal the
+            # configured one on a host where it is Windows-reserved (scope d).
+            "gateway_port": self.gateway.get("port"),
+            "gateway_chosen_via": self.gateway.get("chosen_via") or "RESOLVED",
+            "gateway_warnings": list(self.gateway.get("warnings") or []),
             "db_backend": C.database_target(self.env),
             "preflight": ([{"name": c["name"], "ok": c["ok"], "detail": c["detail"]}
                            for c in pf.checks] if pf else None),
         }
         report.update({k: v for k, v in extra.items() if v is not None})
-        # latest + timestamped archive; both small JSON, overwritten deliberately
+        # status.json is the mutable "latest"; a timestamped archive is the
+        # receipt. Only state-changing actions get a receipt.
         (self.report_dir / "status.json").write_text(
             json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-        (self.report_dir / self.report_name()).write_text(
-            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        if archive:
+            (self.report_dir / self.report_name()).write_text(
+                json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+            self._prune_archives()
         return report
 
 

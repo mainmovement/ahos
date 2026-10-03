@@ -84,6 +84,21 @@ def resolve_gateway(env: dict) -> dict:
     return gwp.resolve_gateway(env)
 
 
+def select_gateway(env: dict) -> dict:
+    """The gateway the launcher will *actually* use on this host.
+
+    ``resolve_gateway`` is the pure URL resolver; this is the launcher entry
+    point that adds a real ``bind`` test; on a host where the configured port is
+    Windows-reserved (Hyper-V/WSL exclusion range) it walks the non-secret
+    ``config/gateway_ports.json`` candidate list and picks the first port it can
+    hold. The choice is recorded in the status report and pushed to every child
+    as ``AHOS_GATEWAY_URL``/``PORT``, so one resolver stays the source of truth
+    for every consumer and children never disagree about the gateway address.
+    """
+    gwp = _load_gateway_port_module()
+    return gwp.select_port(env)
+
+
 def dashboard_url(env: dict) -> str:
     info = resolve_gateway(env)
     host = info.get("host") or "127.0.0.1"
@@ -219,11 +234,20 @@ def stores_command(python: Path) -> list[str]:
 
 
 # ------------------------------------------------------------- child env ---
-def child_env(root: Path, env: dict | None = None, *, telegram_owner: bool = True) -> dict:
-    """Environment for launcher children: paper-only hard, URL resolved once."""
+def child_env(root: Path, env: dict | None = None, *,
+              telegram_owner: bool = True,
+              gateway: dict | None = None) -> dict:
+    """Environment for launcher children: paper-only hard, URL resolved once.
+
+    ``gateway`` is the *selected* gateway (``select_gateway``) — the port this
+    host can actually bind, which need not be the configured one. Passing it in
+    keeps every child on the same address the launcher recorded; when it is
+    omitted the pure resolver is used, which is what pre-M11.1 callers and the
+    tests exercise.
+    """
     out = dict(os.environ if env is None else env)
     out.update(ENGINE_ENV_HARD)
-    info = resolve_gateway(out)
+    info = gateway if gateway is not None else resolve_gateway(out)
     if info.get("url"):
         out["AHOS_GATEWAY_URL"] = info["url"]
     port = info.get("port")
@@ -256,8 +280,9 @@ def probe_db_backend(target: dict, now: float) -> tuple[str, str]:
         if not ddir:
             return UNHEALTHY, "pglite scheme without a data dir"
         p = Path(ddir)
-        return (HEALTHY if p.exists() and any(p.iterdir())
-                else UNAVAILABLE, f"pglite data dir {p} not initialised")
+        if p.exists() and any(p.iterdir()):
+            return HEALTHY, f"pglite data dir {p} initialised"
+        return UNAVAILABLE, f"pglite data dir {p} not initialised"
     if target["scheme"] in ("postgres", "postgresql"):
         host, port = target["host"], int(target["port"] or 5432)
         if pk.port_in_use(host, port):

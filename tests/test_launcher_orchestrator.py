@@ -64,6 +64,22 @@ class TestPersian:
         for name in C.START_ORDER:
             assert P.component_label(name) != name
 
+    def test_panel_and_status_lexicons_cover_every_state(self):
+        """Every status the orchestrator can emit has a Persian rendering, so the
+        dashboard never falls back to an English enum the owner reads as noise."""
+        for status in (C.HEALTHY, C.UNHEALTHY, C.UNAVAILABLE, C.UNKNOWN):
+            assert status in P.STATUS_FA
+        for name in C.START_ORDER:
+            assert name in P.PANEL["labels"]
+
+    def test_age_fa_is_coarse_and_persian(self):
+        assert P.age_fa(0) == "۰ ثانیه"
+        assert P.age_fa(59) == "۵۹ ثانیه"
+        assert P.age_fa(120) == "۲ دقیقه"
+        assert P.age_fa(5400) == "۱ ساعت"
+        assert P.age_fa(90000) == "۱ روز"
+        assert P.age_fa(None) == "۰ ثانیه"
+
 
 # ---------------------------------------------------------------- processkit ---
 class TestProcessKit:
@@ -353,7 +369,14 @@ class TestOrchestrator:
         report = orch.start()
         assert report["overall"] == "ONLINE"
 
-    def test_status_writes_latest_and_archived_reports(self, tmp_path, monkeypatch):
+    def test_status_writes_latest_but_no_archive(self, tmp_path, monkeypatch):
+        """A status poll refreshes `status.json` and writes NO timestamped
+        archive (e5).
+
+        Regression: the dashboard polls status every few seconds, and each poll
+        wrote an immutable archive entry too — 51 receipts in 40 minutes, none of
+        them a receipt. Archives are for state-changing actions only.
+        """
         orch = make_orchestrator(tmp_path)
         monkeypatch.setattr(orch, "_component_probe",
                             lambda name, **kw: (C.HEALTHY, "simulated"))
@@ -361,10 +384,33 @@ class TestOrchestrator:
         latest = orch.report_dir / "status.json"
         assert latest.exists()
         assert json.loads(latest.read_text(encoding="utf-8")) == report
-        archives = list(orch.report_dir.glob("status_*.json"))
-        assert len(archives) == 1
+        assert not list(orch.report_dir.glob("status_*.json"))
         assert set(report["components"]) == set(C.START_ORDER)
         assert report["paper_only"] is True
+
+    def test_status_archives_are_bounded(self, tmp_path, monkeypatch):
+        """Only the newest ``MAX_STATUS_ARCHIVES`` receipts survive (e5).
+
+        Without pruning, state-changing actions would bury the interesting
+        receipts under the dashboard's poll cadence from the other direction:
+        hundreds of identical start receipts, none prunable by hand.
+        """
+        orch = make_orchestrator(tmp_path)
+        n = orch.MAX_STATUS_ARCHIVES + 5
+        for i in range(n):
+            # fixed sortable names: lexicographic order == chronological order
+            (orch.report_dir / f"status_20260101T0000{i:02d}Z.json").write_text(
+                "{}", encoding="utf-8")
+        orch._prune_archives()
+        kept = sorted(orch.report_dir.glob("status_*.json"))
+        assert len(kept) == orch.MAX_STATUS_ARCHIVES
+        # the newest survive, the oldest are dropped
+        assert kept[0].name == f"status_20260101T0000{n - orch.MAX_STATUS_ARCHIVES:02d}Z.json"
+        assert kept[-1].name == f"status_20260101T0000{n - 1:02d}Z.json"
+        # an unreadable/foreign file in the directory must not raise
+        (orch.report_dir / "status_19700101T000000Z.json").write_text("x", encoding="utf-8")
+        orch._prune_archives()
+        assert not (orch.report_dir / "status_19700101T000000Z.json").exists()
 
     def test_status_optional_down_is_degraded_not_down(self, tmp_path, monkeypatch):
         """The optional gateway being absent must not read DOWN.
@@ -392,6 +438,44 @@ class TestOrchestrator:
                 else (C.HEALTHY, "simulated")
         monkeypatch.setattr(orch, "_component_probe", probe)
         assert orch.status()["overall"] == "DOWN"
+
+    def test_report_advertises_the_port_children_were_given(self, tmp_path, monkeypatch):
+        """Scope (d): on a host where the configured port is Windows-reserved the
+        launcher picks a bindable candidate. The report must advertise *that*
+        port — sending the owner to the configured one would send them to a dead
+        page — and every child must be handed the same address."""
+        orch = make_orchestrator(tmp_path)
+        selected = {"host": "127.0.0.1", "port": 8300,
+                    "url": "http://127.0.0.1:8300/api/chat",
+                    "source": "candidate", "configured_port": 3000,
+                    "chosen_via": "CANDIDATE_BINDABLE",
+                    "tried": [3000, 8300], "notes": [], "warnings": []}
+        monkeypatch.setattr(C, "select_gateway", lambda env: selected)
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "simulated"))
+        report = orch.start()
+        assert report["gateway_port"] == 8300
+        assert report["gateway_chosen_via"] == "CANDIDATE_BINDABLE"
+        assert report["dashboard_url"] == "http://127.0.0.1:8300/"
+        env = orch._child_env()
+        assert env["AHOS_GATEWAY_URL"] == "http://127.0.0.1:8300/api/chat"
+        assert env["PORT"] == "8300"
+
+    def test_configured_port_that_binds_is_kept(self, tmp_path, monkeypatch):
+        """The common case: the configured port binds, so nothing is substituted
+        and the report says so."""
+        orch = make_orchestrator(tmp_path)
+        selected = {"host": "127.0.0.1", "port": 3000,
+                    "url": "http://127.0.0.1:3000/api/chat",
+                    "source": "env", "configured_port": 3000,
+                    "chosen_via": "CONFIGURED_BINDABLE",
+                    "tried": [3000], "notes": [], "warnings": []}
+        monkeypatch.setattr(C, "select_gateway", lambda env: selected)
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "simulated"))
+        report = orch.start()
+        assert report["gateway_port"] == 3000
+        assert report["gateway_chosen_via"] == "CONFIGURED_BINDABLE"
 
     def test_stop_reports_stopped_components_without_crashing(self, tmp_path, monkeypatch):
         """Regression: stop passed plain dicts into the report builder, which
