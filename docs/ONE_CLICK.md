@@ -203,8 +203,74 @@ Three defects only fire on the real CLI path and each one alone kept the smoke's
 - `launcher/smoke.py` — real-process receipts under `reports/launcher/`:
   `idempotent` and `port-busy`. Never leaves a component behind.
 
-## What this does not do
+## M11.1 review notes (2026-10-03, Asia/Tehran)
 
-No trading, no wallet, no order execution. The launcher hard-sets paper-only
-for every child. It does not change credentials, does not edit `.env`, and does
-not decide the gateway port — that is an owner action.
+Mission 11.1 — launcher finish. Every review stage is recorded here: agent
+name, role, findings, verdict, and how the finding was resolved. Stage 1 ran
+*before any code was written*; its findings were folded into the build plan.
+
+### Stage 1 — prompt review (before code)
+
+**آرش / Arash — architecture and plan.** Verdict: `CHANGES`.
+Finding A1: the prompt's scope (d) said "a NON-SECRET launcher config/settings
+key (e.g. `config/launcher.json`)" while the repo already resolves gateway
+settings through `scripts/gateway_port.py` + `load_repo_env`; adding a second
+settings channel risks two sources of truth. Resolved: one resolver is
+extended, not duplicated — `gateway_port.py` gains `can_bind()` and
+`select_port()`, candidates come from a non-secret `config/gateway_ports.json`
+(env `AHOS_GATEWAY_CANDIDATE_PORTS` still outranks it), and the *launcher*
+writes the chosen port back into `reports/launcher/` state, never into `.env`.
+Finding A2: `resolve_gateway()` has ~40 references and existing tests pin the
+3000 default; a rewrite would break them for no owner-visible gain. Resolved:
+`resolve_gateway()` stays pure and unchanged; `select_port()` is the new
+entry point for "which port will I actually use".
+
+**رستم / Rostam — launcher and Windows process plumbing.** Verdict: `CHANGES`.
+Finding R1: `spawn_detached` uses `DETACHED_PROCESS | CREATE_NO_WINDOW`, and
+on Windows `CREATE_NO_WINDOW` is *ignored* in that combination; a console-less
+`cmd /c npm` child then allocates its own **visible** console. Resolved: flags
+become `CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW` and the docstring states
+that survival on console-close now comes from the launcher's own hidden
+console rather than detachment. Finding R2: the prompt's "prefer
+`.venv\Scripts\pythonw.exe`" is the wrong call — `pythonw` has no console, so
+the graceful CTRL_BREAK path is dead on arrival and unredirected stderr pops a
+GUI dialog. Resolved: keep `python.exe`; "no visible window" is delivered by
+`-WindowStyle Hidden` on the launching powershell, not by pythonw. Finding R3:
+`_sweep_ours` identifies processes by substring markers, and the gateway
+marker `<repo>\node_modules` matches *any* node/cmd process started from this
+checkout — including `next dev`, vitest or tsc launched by an editor session.
+Resolved: the sweep is rewritten on strict **parentage** (one CIM snapshot +
+`descendant_of` against recorded pid-record roots and the launcher pid), so
+markers can no longer be the reason a foreign process dies.
+
+**پروانه / Parvaneh — owner UX and Persian text.** Verdict: `CHANGES`.
+Finding P1: one desktop icon only — the prompt keeps `AHOS Status.lnk` /
+`AHOS Stop.lnk` implied by the old code; the owner rule is a *single* `AHOS.lnk`
+with Status/Stop/Restart living inside the dashboard. Resolved:
+`shortcuts.py:ACTIONS` becomes `{"start": "AHOS"}` and the dashboard gains the
+panel (scope c). Finding P2: `$lnk.WindowStyle = 7` is *minimized*, not
+invisible; the owner rule "no visible console at any point" is only satisfied
+by `-WindowStyle Hidden` in the shortcut arguments. Resolved: the arguments
+carry `-WindowStyle Hidden` and `WindowStyle = 7` is kept as the fallback
+presentation hint, documented as such. Finding P3: the panel needs owner-grade
+Persian for statuses and ages, not English enum names. Resolved: `persian.py`
+gains `STATUS_FA`, `HEALTH_FA`, `PANEL` and `age_fa`; the TS side mirrors the
+same word list.
+
+**گیتی / Giti — safety and governance.** Verdict: `CHANGES`.
+Finding G1: the dashboard control endpoint must reject non-loopback callers
+*before* it does any work; the prompt listed loopback and auth in the wrong
+order. Resolved: the route does `isLoopbackRequest` → 403, *then*
+`authorizeDashboardEndpoint`, *then* the audit write-ahead. Finding G2: "spawn
+`python -m launcher stop`" detached from the gateway must not inherit the
+gateway's own console group or a Ctrl-C event could kill the stop mid-flight.
+Resolved: the route spawns `powershell -WindowStyle Hidden -File ahos.ps1`
+`detached` + `windowsHide`, and `ahos.ps1` no longer blocks on `Read-Host` in
+its default (hidden) path. Finding G3: no duplicate modules — the prompt's
+wording allowed a second launcher surface. Resolved: extend `launcher/`, the
+existing app routes and `CommandCenter.tsx` only; the only new files are the
+one API route the panel calls and the non-secret ports config.
+
+**Stage-1 conclusion:** no reviewer returned `APPROVE` without changes; all
+eight findings above were folded into the build plan before the first edit.
+

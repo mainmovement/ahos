@@ -20,11 +20,20 @@ has a listener and which candidate ports do::
 
 This module never writes ``.env`` and never starts/stops anything.
 
+The launcher additionally calls ``select_port()`` (see below): the same
+resolution, plus a REAL ``bind`` test, so on a host where the configured port is
+Windows-reserved the launcher walks the non-secret ``config/gateway_ports.json``
+candidate list and picks the first port it can actually hold. The chosen port is
+recorded in ``reports/launcher/status.json`` and pushed to the gateway/Telegram/
+engine children as ``AHOS_GATEWAY_URL``/``PORT`` — so one resolver stays the
+source of truth for every consumer.
+
 CLI::
 
     python scripts/gateway_port.py              # human summary
     python scripts/gateway_port.py --json       # machine-readable diagnosis
     python scripts/gateway_port.py --url-only   # print the resolved URL
+    python scripts/gateway_port.py --select     # which port the launcher would use, and why
     python scripts/gateway_port.py --env-file .env   # read keys from .env (read-only)
 """
 from __future__ import annotations
@@ -42,6 +51,10 @@ DEFAULT_GATEWAY_HOST = "127.0.0.1"
 DEFAULT_GATEWAY_PORT = 3000
 CHAT_PATH = "/api/chat"
 DEFAULT_CANDIDATE_PORTS = (3000, 3500)
+# In-repo, non-secret fallback list. ``candidate_ports()`` only reads it when a
+# caller explicitly passes the file (the launcher does); the bare default stays
+# (3000, 3500) so standalone diagnostics and their tests are unaffected.
+GATEWAY_PORTS_CONFIG = Path(__file__).resolve().parent.parent / "config" / "gateway_ports.json"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 GATEWAY_ENV_KEYS = ("AHOS_GATEWAY_URL", "AHOS_GATEWAY_PORT", "AHOS_GATEWAY_CANDIDATE_PORTS")
 
@@ -94,17 +107,161 @@ def resolve_gateway(env: Mapping[str, str] | None = None) -> dict:
             "port": DEFAULT_GATEWAY_PORT, "source": "DEFAULT", "warnings": warnings}
 
 
-def candidate_ports(env: Mapping[str, str] | None = None) -> tuple[int, ...]:
+def candidate_ports(env: Mapping[str, str] | None = None,
+                    config_file: Path | str | None = None) -> tuple[int, ...]:
+    """Ordered fallback list. Env ``AHOS_GATEWAY_CANDIDATE_PORTS`` wins, then the
+    non-secret config file (when a caller passes one), then the in-code default.
+
+    ``config_file`` is opt-in on purpose: this module is also ``exec``'d by path
+    from ``launcher/components.py`` and used as a read-only diagnostic, so its
+    default behaviour must not depend on a config file being present.
+    """
     env = os.environ if env is None else env
     raw = (env.get("AHOS_GATEWAY_CANDIDATE_PORTS") or "").strip()
-    if not raw:
-        return DEFAULT_CANDIDATE_PORTS
-    ports = tuple(p for p in (_parse_port(x) for x in raw.split(",")) if p is not None)
-    return ports or DEFAULT_CANDIDATE_PORTS
+    if raw:
+        ports = tuple(p for p in (_parse_port(x) for x in raw.split(",")) if p is not None)
+        if ports:
+            return ports
+    if config_file is not None:
+        configured = _read_candidate_config(Path(config_file))
+        if configured:
+            return configured
+    return DEFAULT_CANDIDATE_PORTS
+
+
+def _read_candidate_config(path: Path) -> tuple[int, ...]:
+    """The candidate_ports list from a non-secret JSON config, or () if absent.
+
+    Malformed JSON or a bad shape is ignored (never raises): a broken config
+    file must not make port selection fail, it only shrinks the fallback list.
+    """
+    try:
+        if not path.is_file():
+            return ()
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return ()
+    if not isinstance(raw, dict):
+        return ()
+    vals = raw.get("candidate_ports")
+    if not isinstance(vals, list):
+        return ()
+    ports = tuple(p for p in (_parse_port(str(x)) for x in vals) if p is not None)
+    return ports
+
+
+def can_bind(host: str, port: int) -> bool:
+    """Can THIS process actually listen on host:port? A real ``bind``.
+
+    A TCP ``connect`` probe is not enough on Windows: wide port ranges are
+    reserved for Hyper-V/WSL and ``bind`` fails with ``WinError 10013`` while a
+    connect probe reports the port as free. No ``SO_REUSEADDR`` here — on Windows
+    it permits a duplicate bind and would silently weaken the caller's squat test.
+    """
+    family = socket.AF_INET6 if ":" in host else socket.AF_INET
+    s = socket.socket(family, socket.SOCK_STREAM)
+    try:
+        s.bind((host, int(port)))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
+
+def select_port(env: Mapping[str, str] | None = None,
+                *, config_file: Path | str | None = GATEWAY_PORTS_CONFIG,
+                probe: Callable[[str, int], bool] | None = None) -> dict:
+    """The port the gateway will actually use on THIS host (real bind test).
+
+    The configured port (``AHOS_GATEWAY_URL`` > ``AHOS_GATEWAY_PORT`` > default)
+    is kept when it is usable — either because we can ``bind`` it now, or because
+    something is already listening on it (almost certainly our own gateway from a
+    previous start; the launcher reuses it rather than fighting itself). Only
+    when it is neither bindable nor listening does the walk down
+    ``candidate_ports`` begin, and the first port that binds wins.
+
+    This is the *launcher* entry point; ``resolve_gateway`` stays the pure URL
+    resolver everything else uses. Returns::
+
+        {host, port, url, source, configured_port, chosen_via,
+         tried: [...], notes: [...], warnings: [...]}
+
+    Never raises: if nothing binds at all, the configured port is returned with
+    a warning so the gateway fails with its own honest error instead of a made-up
+    one, and the caller reports the real situation.
+    """
+    env = os.environ if env is None else env
+    probe = probe or port_listening
+    res = resolve_gateway(env)
+    warnings = list(res["warnings"])
+    notes: list[str] = []
+    tried: list[dict] = []
+    host = res["host"] or DEFAULT_GATEWAY_HOST
+    port = res["port"]
+    if host.lower() not in LOOPBACK_HOSTS:
+        # Non-loopback configured URL: the owner pointed the gateway at another
+        # machine. We cannot and should not bind-test it.
+        return {"host": host, "port": port, "url": res["url"],
+                "source": res["source"], "configured_port": port,
+                "chosen_via": "NON_LOCAL_CONFIGURED_NOT_PROBED",
+                "tried": tried, "notes": ["configured host is not loopback; no bind test"],
+                "warnings": warnings}
+    if port is None:
+        port = DEFAULT_GATEWAY_PORT
+        notes.append("configured URL had no parseable port; using the default")
+    bind_host = DEFAULT_GATEWAY_HOST if host.lower() == "localhost" else host
+
+    def _usable(p: int) -> tuple[bool, str]:
+        if can_bind(bind_host, p):
+            return True, "bindable"
+        if probe(bind_host, p):
+            return True, "already_listening"
+        return False, "unusable"
+
+    ok, how = _usable(int(port))
+    tried.append({"port": int(port), "bindable": ok and how == "bindable",
+                  "listening": ok and how == "already_listening"})
+    if ok:
+        return {"host": bind_host, "port": int(port), "url": res["url"],
+                "source": res["source"], "configured_port": int(port),
+                "chosen_via": "CONFIGURED_" + how.upper(),
+                "tried": tried, "notes": notes, "warnings": warnings}
+
+    notes.append(f"configured port {port} is not bindable and has no listener on {bind_host}")
+    for cand in candidate_ports(env, config_file=config_file):
+        if cand == int(port):
+            continue
+        # Candidates must be BINDABLE, not merely "has a listener": a listener we
+        # cannot bind past is someone else's process, and handing the gateway that
+        # port would just reproduce the original bind failure. (Reuse of our own
+        # already-running gateway is handled by the configured-port case above,
+        # because the launcher feeds its recorded choice back as the configured
+        # port on the next start.)
+        ok = can_bind(bind_host, cand)
+        tried.append({"port": cand, "bindable": ok, "listening": probe(bind_host, cand)})
+        if ok:
+            notes.append(f"selected candidate port {cand} (bindable)")
+            return {"host": bind_host, "port": cand,
+                    "url": default_gateway_url(cand), "source": "CANDIDATE_PORT",
+                    "configured_port": int(port), "chosen_via": "CANDIDATE_BINDABLE",
+                    "tried": tried, "notes": notes, "warnings": warnings}
+    warnings.append("NO_BINDABLE_PORT")
+    notes.append("no candidate port could be bound; keeping the configured port "
+                 "so the gateway reports its own real bind failure")
+    return {"host": bind_host, "port": int(port), "url": res["url"],
+            "source": res["source"], "configured_port": int(port),
+            "chosen_via": "CONFIGURED_UNUSABLE_KEPT_ANYWAY",
+            "tried": tried, "notes": notes, "warnings": warnings}
 
 
 def port_listening(host: str, port: int, timeout: float = 0.5) -> bool:
-    """TCP connect probe. Callers must only pass loopback hosts."""
+    """TCP connect probe. Callers must only pass loopback hosts.
+
+    Note this reports a Windows-reserved port (Hyper-V/WSL exclusion range) as
+    free while ``bind`` fails — use ``can_bind`` whenever the question is "can
+    *I* listen here" rather than "is something already there".
+    """
     try:
         with socket.create_connection((host, port), timeout=timeout):
             return True
@@ -177,6 +334,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="AHOS gateway URL resolution + read-only port diagnosis")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--url-only", action="store_true")
+    ap.add_argument("--select", action="store_true",
+                    help="show which port the launcher would bind on this host and why")
     ap.add_argument("--env-file", default="", help="read gateway keys from this dotenv file (read-only; overrides process env like the gate does)")
     args = ap.parse_args(argv)
     env: dict[str, str] = {k: v for k, v in os.environ.items() if k in GATEWAY_ENV_KEYS}
@@ -184,6 +343,10 @@ def main(argv: list[str] | None = None) -> int:
         env.update(read_env_file(Path(args.env_file)))
     if args.url_only:
         print(resolve_gateway(env)["url"])
+        return 0
+    if args.select:
+        sel = select_port(env)
+        print(json.dumps(sel, indent=2))
         return 0
     d = diagnose(env)
     if args.json:

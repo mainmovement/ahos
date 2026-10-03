@@ -1140,3 +1140,22 @@ GM-01 (doc-drift clean-checkout regression — Claude's call, small) → GM-02 (
 
 ## May Claude safely continue?
 **YES.** Grok changed no source, no config, no Claude file, and no runtime state; the only repo change is the new `reports/grok/` directory. Claude should pull/fast-forward `origin/ahos` before its next commit if Grok's docs commit was pushed (it only adds `reports/grok/*`, so no conflict is possible with Claude's dirty files). Coordinate before either agent edits `scripts/doc_drift.py`, `telegram_ai/`, `chat.ts`, or `CommandCenter.tsx`.
+
+## MISSION 11.1 — LAUNCHER FINISH (Claude, 2026-10-03, Asia/Tehran)
+
+Follow-up to M11 (commits 2270146, 9e74645, 4feecd0). Stage-1 prompt review by
+four agents ran BEFORE any code was written; all four returned CHANGES and all
+eight findings were folded into the plan. Full notes: `docs/ONE_CLICK.md`
+"M11.1 review notes". Summary: (A1/A2) one gateway-port resolver, not two;
+`resolve_gateway()` untouched, new `select_port()`; (R1) spawn flags lose
+`DETACHED_PROCESS`; (R2) `python.exe` not `pythonw.exe`; (R3) sweep rewritten
+on parentage, not substring markers; (P1) one desktop icon, controls inside the
+dashboard; (P2) `-WindowStyle Hidden` is what makes nothing visible,
+`WindowStyle 7` is only a hint; (P3) Persian status/age strings added;
+(G1) loopback 403 before auth; (G2) stop/restart spawned detached so a gateway
+restart cannot kill the stop itself; (G3) no duplicate modules.
+
+### Phase log
+| UTC | Part | Files | Result |
+|---|---|---|---|
+| start | Stage-1 review | docs/ONE_CLICK.md, this file | 4 agents, 8 findings, all folded into plan |

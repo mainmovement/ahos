@@ -9,8 +9,11 @@ Design notes that matter for honesty:
   failures (stores, engine) abort the boot and SAFE-HALT the run; OPTIONAL
   failures (db_backend, gateway, telegram) degrade it — which is exactly what
   the gateway and bot already implement themselves.
-* "Ours" is decided by a repo-specific marker in the process command line, so
-  `stop` never touches a process that does not belong to this AHOS checkout.
+* "Ours" is decided by strict parentage (one process snapshot, walking ppid
+  chains to the launcher or a recorded component pid) plus a command-line marker
+  as a second check, so `stop` never touches a process that does not belong to
+  this launcher run — including editor-spawned node/tsc processes that merely
+  happen to run from this checkout.
 * Nothing here reads the Telegram token, the Gemini secret, or DATABASE_URL's
   credentials; only schemes, hosts, ports and key *presence*.
 """
@@ -502,37 +505,39 @@ class AhosOrchestrator:
         return stopped
 
     def _sweep_ours(self) -> list[int]:
-        """Stop processes matching our repo markers but missing pid records.
+        """Stop processes this launcher (or a recorded component) actually spawned.
 
-        Marker = the repo's own .venv python or its node_modules path, so a
-        process from another checkout or another project is never touched.
+        Identification is strict **parentage**, not a substring marker: one
+        Toolhelp32 snapshot gives pid+ppid for the whole system, and a candidate
+        qualifies only if walking its parents reaches the launcher pid or one of
+        the recorded component pids. A marker alone cannot prove ownership — the
+        old sweep matched editor-spawned ``next dev``/``tsc``/vitest processes
+        that merely ran from this checkout (Rostam R3). The marker check survives
+        as a second line of defence on the handful of candidates that passed.
         """
-        markers = [(m, n) for m, n in self.sweep_markers() if m]
+        roots = {(self._pid_info(n) or {}).get("pid") for n in PROCESS_COMPONENTS}
+        roots.add(os.getpid())
+        markers = [m for m, _ in self.sweep_markers() if m]
+
+        procs = pk.process_snapshot()
+        if not procs:
+            return []
+        candidates = []
+        for pid, info in procs.items():
+            if pid in roots or not pk.pid_alive(pid):
+                continue
+            if (info.get("name") or "").lower() not in ("python.exe", "node.exe",
+                                                        "cmd.exe", "pythonw.exe"):
+                continue
+            if pk.descendant_of(pid, roots, procs):
+                candidates.append(pid)
+        if not candidates:
+            return []
+        pk.fill_cmdlines(procs, candidates)
         found: list[int] = []
-        try:
-            res = subprocess.run(["tasklist", "/FO", "CSV", "/NH"],
-                                 capture_output=True, text=True, timeout=20,
-                                 creationflags=pk.CREATE_NO_WINDOW if os.name == "nt" else 0)
-        except Exception:
-            return []
-        if res.returncode != 0:
-            return []
-        known = {(self._pid_info(n) or {}).get("pid") for n in PROCESS_COMPONENTS}
-        for row in (res.stdout or "").splitlines():
-            parts = row.replace('"', "").split(",")
-            if len(parts) < 2:
-                continue
-            pname, pid_s = parts[0].strip(), parts[1].strip()
-            if pname.lower() not in ("python.exe", "node.exe", "cmd.exe"):
-                continue
-            try:
-                pid = int(pid_s)
-            except ValueError:
-                continue
-            if pid in known or pid == os.getpid():
-                continue
-            cmdline = pk.process_cmdline(pid) or ""
-            if any(m.lower() in cmdline.lower() for m, _ in markers):
+        for pid in candidates:
+            cmdline = procs.get(pid, {}).get("cmdline") or ""
+            if any(m.lower() in cmdline.lower() for m in markers):
                 pk.terminate(pid)
                 found.append(pid)
         return found

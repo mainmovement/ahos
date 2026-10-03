@@ -72,6 +72,114 @@ def test_candidate_ports_parsing():
     assert gp.candidate_ports({"AHOS_GATEWAY_CANDIDATE_PORTS": "x,y"}) == (3000, 3500)
 
 
+def test_candidate_ports_from_config_file(tmp_path):
+    cfg = tmp_path / "gateway_ports.json"
+    cfg.write_text(json.dumps({"candidate_ports": [3100, 3200, 8300]}), encoding="utf-8")
+    assert gp.candidate_ports({}, config_file=cfg) == (3100, 3200, 8300)
+    # env still outranks the config file
+    assert gp.candidate_ports({"AHOS_GATEWAY_CANDIDATE_PORTS": "9000"}, config_file=cfg) == (9000,)
+    # a broken config must degrade to the default, never raise
+    cfg.write_text("{ not json", encoding="utf-8")
+    assert gp.candidate_ports({}, config_file=cfg) == (3000, 3500)
+    # an absent file likewise
+    assert gp.candidate_ports({}, config_file=tmp_path / "nope.json") == (3000, 3500)
+    # a config with no candidate_ports key
+    cfg.write_text(json.dumps({"note": "no list"}), encoding="utf-8")
+    assert gp.candidate_ports({}, config_file=cfg) == (3000, 3500)
+
+
+# ------------------------------------------------------------- bind selection --
+
+def _bind_ok(ports: set[int]):
+    """Fake can_bind: only the given ports are bindable."""
+    return lambda host, port: int(port) in ports
+
+
+def test_select_port_keeps_configured_when_bindable():
+    with mock.patch.object(gp, "can_bind", _bind_ok({3000})):
+        sel = gp.select_port({}, probe=lambda h, p: False)
+    assert sel["port"] == 3000 and sel["chosen_via"] == "CONFIGURED_BINDABLE"
+    assert sel["url"] == D3000
+
+
+def test_select_port_keeps_configured_when_already_listening():
+    # we cannot bind it, but our own gateway is already up there
+    with mock.patch.object(gp, "can_bind", _bind_ok(set())):
+        sel = gp.select_port({}, probe=lambda h, p: p == 3000)
+    assert sel["port"] == 3000 and sel["chosen_via"] == "CONFIGURED_ALREADY_LISTENING"
+
+
+def test_select_port_walks_candidates(tmp_path):
+    # The real-world shape on the dev host: 3000/3100/3200 are Windows-reserved,
+    # only 8300 binds. probe reports nothing listening.
+    cfg = tmp_path / "gateway_ports.json"
+    cfg.write_text(json.dumps({"candidate_ports": [3100, 3200, 8300]}), encoding="utf-8")
+    with mock.patch.object(gp, "can_bind", _bind_ok({8300})):
+        sel = gp.select_port({}, config_file=cfg, probe=lambda h, p: False)
+    assert sel["port"] == 8300
+    assert sel["source"] == "CANDIDATE_PORT"
+    assert sel["configured_port"] == 3000
+    assert sel["chosen_via"] == "CANDIDATE_BINDABLE"
+    assert [t["port"] for t in sel["tried"]] == [3000, 3100, 3200, 8300]
+    assert not sel["warnings"]
+
+
+def test_select_port_skips_candidates_that_only_have_listeners(tmp_path):
+    # a stray listener on a candidate is NOT the gateway we want to reuse; the
+    # walk must continue to a bindable port
+    cfg = tmp_path / "gateway_ports.json"
+    cfg.write_text(json.dumps({"candidate_ports": [3100, 8300]}), encoding="utf-8")
+
+    def probe(host, port):
+        return port == 3100  # occupied by something else
+
+    with mock.patch.object(gp, "can_bind", _bind_ok({8300})):
+        sel = gp.select_port({}, config_file=cfg, probe=probe)
+    assert sel["port"] == 8300
+
+
+def test_select_port_keeps_configured_when_nothing_binds(tmp_path):
+    cfg = tmp_path / "gateway_ports.json"
+    cfg.write_text(json.dumps({"candidate_ports": [3100, 3200]}), encoding="utf-8")
+    with mock.patch.object(gp, "can_bind", _bind_ok(set())):
+        sel = gp.select_port({}, config_file=cfg, probe=lambda h, p: False)
+    assert sel["port"] == 3000  # never invents a port
+    assert "NO_BINDABLE_PORT" in sel["warnings"]
+
+
+def test_select_port_env_override_still_selects(tmp_path):
+    cfg = tmp_path / "gateway_ports.json"
+    cfg.write_text(json.dumps({"candidate_ports": [8300]}), encoding="utf-8")
+    with mock.patch.object(gp, "can_bind", _bind_ok({3500})):
+        sel = gp.select_port(
+            {"AHOS_GATEWAY_PORT": "8123", "AHOS_GATEWAY_CANDIDATE_PORTS": "3500"},
+            config_file=cfg, probe=lambda h, p: False)
+    assert sel["port"] == 3500 and sel["configured_port"] == 8123
+
+
+def test_select_port_non_loopback_is_not_bind_tested():
+    sel = gp.select_port({"AHOS_GATEWAY_URL": "https://example.invalid/api/chat"})
+    assert sel["host"].endswith("example.invalid")
+    assert sel["chosen_via"] == "NON_LOCAL_CONFIGURED_NOT_PROBED"
+    assert not sel["tried"]
+
+
+def test_select_port_real_bind_on_localhost():
+    """A real socket on this host: whatever binds, can_bind must report truthfully."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+        assert gp.can_bind("127.0.0.1", port) is False  # we hold it
+        s.close()
+        assert gp.can_bind("127.0.0.1", port) is True   # released
+    finally:
+        try:
+            s.close()
+        except OSError:
+            pass
+
+
 # ----------------------------------------------------------------- diagnosis --
 
 def _probe(listening: set[int]):

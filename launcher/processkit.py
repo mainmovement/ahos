@@ -22,6 +22,33 @@ CTRL_BREAK_EVENT = 1
 
 _KERNEL32 = ctypes.WinDLL("kernel32", use_last_error=True) if os.name == "nt" else None
 
+if _KERNEL32 is not None:
+    # Toolhelp32 process snapshot (pid + parent pid) for the parentage walk.
+    _KERNEL32.CreateToolhelp32Snapshot.argtypes = [ctypes.c_uint32, ctypes.c_uint32]
+    _KERNEL32.CreateToolhelp32Snapshot.restype = ctypes.c_void_p
+    _KERNEL32.Process32FirstW.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    _KERNEL32.Process32FirstW.restype = ctypes.c_int
+    _KERNEL32.Process32NextW.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    _KERNEL32.Process32NextW.restype = ctypes.c_int
+    _KERNEL32.CloseHandle.argtypes = [ctypes.c_void_p]
+    _KERNEL32.CloseHandle.restype = ctypes.c_int
+
+TH32CS_SNAPPROCESS = 0x00000002
+_NO_PARENT = 0  # a parent pid of 0 means the process has no recorded parent
+
+
+class _PROCESSENTRY32W(ctypes.Structure):
+    _fields_ = [("dwSize", ctypes.c_uint32),
+                ("cntUsage", ctypes.c_uint32),
+                ("th32ProcessID", ctypes.c_uint32),
+                ("th32DefaultHeapID", ctypes.c_void_p),
+                ("th32ModuleID", ctypes.c_uint32),
+                ("cntThreads", ctypes.c_uint32),
+                ("th32ParentProcessID", ctypes.c_uint32),
+                ("pcPriClassBase", ctypes.c_int32),
+                ("dwFlags", ctypes.c_uint32),
+                ("szExeFile", ctypes.c_wchar * 260)]
+
 
 # ---------------------------------------------------------------- pid files ---
 def pid_path(state_dir: Path, name: str) -> Path:
@@ -94,6 +121,112 @@ def process_cmdline(pid: int, timeout: float = 5.0) -> str | None:
     return line[0] if line else None
 
 
+def process_snapshot(timeout: float = 20.0) -> dict[int, dict]:
+    """One pid -> {pid, ppid, name, cmdline} snapshot of all processes.
+
+    Replaces the old pattern of one powershell invocation *per candidate pid*,
+    which made a sweep over every python/node/cmd process on the box cost dozens
+    of process spawns. Toolhelp32 gives pid+ppid natively; the command line still
+    needs one CIM query (kept), but only for the handful of candidates that
+    survived the parentage filter.
+    """
+    if _KERNEL32 is None:
+        return {}
+    snap = _KERNEL32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    if not snap:
+        return {}
+    try:
+        entry = _PROCESSENTRY32W()
+        entry.dwSize = ctypes.sizeof(entry)
+        out: dict[int, dict] = {}
+        ok = _KERNEL32.Process32FirstW(snap, ctypes.byref(entry))
+        while ok:
+            pid = int(entry.th32ProcessID)
+            out[pid] = {"pid": pid, "ppid": int(entry.th32ParentProcessID),
+                        "name": entry.szExeFile or "", "cmdline": ""}
+            ok = _KERNEL32.Process32NextW(snap, ctypes.byref(entry))
+        return out
+    except Exception:
+        return {}
+    finally:
+        _KERNEL32.CloseHandle(snap)
+
+
+def fill_cmdlines(procs: dict[int, dict], only: list[int],
+                  timeout: float = 20.0) -> None:
+    """Fill the ``cmdline`` of the listed pids with ONE CIM query (in place).
+
+    Only the survivors of the parentage filter are queried — a marker check still
+    runs on the command line as a second line of defence, but it no longer has to
+    be the *only* one.
+    """
+    if not only or os.name != "nt":
+        return
+    pids = ",".join(str(int(p)) for p in only if p in procs)
+    if not pids:
+        return
+    try:
+        res = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+             "Get-CimInstance Win32_Process "
+             f"-Filter \"ProcessId={pids.replace(',', ' OR ProcessId=')}\" "
+             "| Select-Object ProcessId,CommandLine | "
+             "ConvertTo-Csv -NoTypeInformation -Delimiter '`n'"],
+            capture_output=True, text=True, timeout=timeout,
+            creationflags=CREATE_NO_WINDOW)
+    except Exception:
+        return
+    if res.returncode != 0:
+        return
+    # ConvertTo-Csv quotes each cell; line 1 is the header. Splitting on a
+    # backtick-newline delimiter keeps a single record together even when a
+    # command line itself contains newlines.
+    for block in (res.stdout or "").split("`n"):
+        block = block.strip()
+        if not block or block.startswith('"ProcessId"'):
+            continue
+        parts = [c.strip().strip('"') for c in block.split(",", 1)]
+        if len(parts) != 2:
+            continue
+        try:
+            pid = int(parts[0])
+        except ValueError:
+            continue
+        if pid in procs:
+            procs[pid]["cmdline"] = parts[1]
+
+
+def descendant_of(pid: int, roots, procs: dict[int, dict],
+                  *, max_depth: int = 64) -> bool:
+    """Is ``pid`` reachable by walking parents from ``pid`` up to one of ``roots``?
+
+    Strict parentage: the only processes we ever stop are ones this launcher
+    (or a recorded component pid) actually spawned. A substring marker cannot
+    prove that, which is why the sweep used to match foreign editor/node
+    processes that merely happened to run from this checkout.
+    """
+    roots = set(int(r) for r in roots if r)
+    pid = int(pid)
+    if pid in roots:
+        return True
+    seen: set[int] = set()
+    cur = pid
+    for _ in range(max_depth):
+        if cur in seen:
+            return False  # cycle guard; process trees are acyclic, so be safe
+        seen.add(cur)
+        info = procs.get(cur)
+        if not info:
+            return False
+        parent = info.get("ppid") or _NO_PARENT
+        if parent == _NO_PARENT:
+            return False
+        if parent in roots:
+            return True
+        cur = parent
+    return False
+
+
 def pid_is_ours(pid: int, marker: str) -> bool:
     """A live pid whose command line contains our marker (repo path / module)."""
     if not pid_alive(pid):
@@ -162,14 +295,17 @@ def terminate(pid: int, *, graceful_timeout: float = 15.0,
 def spawn_detached(cmd: list[str], *, cwd: Path, env: dict, log_path: Path) -> int:
     """Start a long-lived child whose stdout/stderr lands in log_path.
 
-    The child gets its own process group (needed for graceful stop) and a
-    detached handle so it survives the launcher console closing.
+    Flags are ``CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW`` (Rostam R1):
+    ``DETACHED_PROCESS`` is deliberately *not* used, because Windows ignores
+    ``CREATE_NO_WINDOW`` in that combination, so a console-less ``cmd /c npm``
+    child would AllocConsole its own *visible* window. The process group is what
+    makes graceful stop work (CTRL_BREAK reaches the child's group); survival on
+    console-close comes from the launcher's own hidden console (``ahos.ps1
+    -WindowStyle Hidden``), not from detachment.
     """
     log_path.parent.mkdir(parents=True, exist_ok=True)
     logf = open(log_path, "ab", buffering=0)
-    flags = CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS
-    if os.name == "nt":
-        flags |= CREATE_NO_WINDOW
+    flags = CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW
     try:
         proc = subprocess.Popen(
             cmd, cwd=str(cwd), env=env, stdout=logf, stderr=subprocess.STDOUT,

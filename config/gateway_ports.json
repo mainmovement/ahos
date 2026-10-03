@@ -1,0 +1,5 @@
+{
+  "$schema": "ahos.gateway_ports.v1",
+  "candidate_ports": [3100, 3200, 8300],
+  "note": "NON-SECRET launcher config. Ordered fallback the one-click launcher walks when the configured gateway port cannot be bound on this host (Windows excludes wide ranges for Hyper-V/WSL; see docs/ONE_CLICK.md). The first port that can actually be bound on 127.0.0.1 wins. Env AHOS_GATEWAY_CANDIDATE_PORTS overrides this list; AHOS_GATEWAY_URL / AHOS_GATEWAY_PORT still select the primary port. Never put a secret or a credential in this file."
+}
