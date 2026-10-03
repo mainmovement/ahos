@@ -242,7 +242,9 @@ export function parseConfirmation(text: string): { op: "confirm" | "cancel"; cod
     .replace(/\u200c/g, " ")
     .replace(/[.!؟?]+$/g, "")
     .trim();
-  const m = t.match(/^(تایید|تأیید|تائید|confirm|yes)\s+([A-Za-z0-9]{6})$/i);
+  // MN-8: confirmation words are Persian and explicit only. English "yes"/"confirm"
+  // were an extra guessable surface; the proposal text only ever shows «تایید <code>».
+  const m = t.match(/^(تایید|تأیید|تائید)\s+([A-Za-z0-9]{6})$/i);
   if (m) return { op: "confirm", code: m[2].toUpperCase() };
   const c = t.match(/^(لغو|کنسل|cancel|انصراف)(?:\s+([A-Za-z0-9]{6}))?$/i);
   if (c) return { op: "cancel", code: c[2] ? c[2].toUpperCase() : null };

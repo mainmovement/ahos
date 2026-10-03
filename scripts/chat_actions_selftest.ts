@@ -237,7 +237,9 @@ describe("non-owner and spoof attempts", () => {
     assert.equal(parseConfirmation("stop loss"), null);
     assert.equal(parseConfirmation("تایید ABC123 و بعد موتور رو روشن کن"), null);
     assert.equal(parseConfirmation("تایید ABC123")?.op, "confirm");
-    assert.equal(parseConfirmation("confirm ABC123")?.op, "confirm");
+    // MN-8: English confirm words are no longer accepted (Persian and explicit only).
+    assert.equal(parseConfirmation("confirm ABC123"), null);
+    assert.equal(parseConfirmation("yes ABC123"), null);
     assert.equal(parseConfirmation("لغو ABC123")?.op, "cancel");
   });
 });
