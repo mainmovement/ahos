@@ -301,7 +301,7 @@ Per binding constraints and part1 §28/§72/§91:
 
 | Stage | Scope | Status |
 |---|---|---|
-| 1 | Inventory + decision (this document) | `COMPLETE` (pending local commit) |
+| 1 | Inventory + decision (this document) | `COMPLETE` — committed `d80b5b7`, pushed to `origin/ahos` |
 | 2 | Backup + parity baseline | `VERIFIED` — 19/19 tables, 778/778 rows |
 | 3 | Native replacement (PGlite client + restore path + 6 n8n jobs) | `VERIFIED` for the PGlite client + restore path (§3a): 19/19 tables, 778/778 rows via the permanent tool. The 6 n8n jobs are still `NOT_STARTED` — they are zero at runtime (§1d) and move in Stage 4/5. |
 | 4 | Switch-over behind config + full tests + runtime smoke; defaults flipped only after green; rollback path documented | `NOT_STARTED` |
