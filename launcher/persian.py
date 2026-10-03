@@ -67,9 +67,18 @@ _ERROR_TMPL = {
 
 
 def error(kind: str, *, action: str | None = None, **fmt) -> str:
-    """Render a short Persian error: what failed + what to do."""
-    tmpl = _ERROR_TMPL.get(kind, _ERROR_TMPL["generic"])
+    """Render a short Persian error: what failed + what to do.
+
+    ``ACTIONS`` templates may themselves carry placeholders (``{port}``,
+    ``{sec}``), and ``str.format`` does not recurse into a substituted value,
+    so the action is rendered against ``fmt`` before being folded into the body.
+    """
     act = action or ACTIONS.get("unknown")
+    try:
+        act = act.format(**fmt)
+    except Exception:
+        pass
+    tmpl = _ERROR_TMPL.get(kind, _ERROR_TMPL["generic"])
     try:
         body = tmpl.format(action=act, **fmt)
     except Exception:

@@ -236,8 +236,9 @@ def child_env(root: Path, env: dict | None = None, *, telegram_owner: bool = Tru
 
 # ------------------------------------------------------------- health probes ---
 def _sqlite_files() -> list[Path]:
-    return [get_discovery_db_path(), get_paper_trading_db_path(),
-            get_local_db_path(), get_knowledge_db_path()]
+    # the get_*_db_path helpers return str (they double as env values)
+    return [Path(p) for p in (get_discovery_db_path(), get_paper_trading_db_path(),
+                              get_local_db_path(), get_knowledge_db_path())]
 
 
 def probe_stores(now: float) -> tuple[str, str]:

@@ -273,6 +273,7 @@ class AhosOrchestrator:
             return C.ComponentResult(name, C.UNAVAILABLE, f"spawn failed: {type(e).__name__}: {e}")
 
         deadline = self.clock() + self.health_wait.get(name, 60)
+        last: tuple[str, str] | None = None
         while self.clock() < deadline:
             if name == "telegram":
                 # run_bot.py exits fast when its own preflight fails; catch that.
@@ -287,13 +288,26 @@ class AhosOrchestrator:
                 if status == C.HEALTHY:
                     return C.ComponentResult("telegram", status, detail, pid=pid,
                                              fresh=True)
+                last = (status, detail)
             else:
                 status, detail = self._component_probe(name)
                 if status == C.HEALTHY:
                     return C.ComponentResult(name, status, detail, pid=pid,
                                              started_ts=self.clock(), fresh=True)
+                last = (status, detail)
             time.sleep(1.0)
         tail = self._log_tail(name)
+        # A live process that simply never turned healthy (the engine's first
+        # scheduler cycle can take longer than the wait) is UNHEALTHY, not
+        # UNAVAILABLE — the owner is told what it was last seen doing.
+        alive = pk.pid_alive(pid)
+        if alive and last and last[0] != C.UNAVAILABLE:
+            return C.ComponentResult(
+                name, C.UNHEALTHY,
+                f"still not healthy after {self.health_wait.get(name, 60)}s"
+                f" (process alive; last probe: {last[1]})"
+                + (f"; log tail: {tail[-200:]}" if tail else ""),
+                pid=pid, started_ts=self.clock(), fresh=True)
         return C.ComponentResult(name, C.UNAVAILABLE,
                                  f"health check timed out after {self.health_wait.get(name, 60)}s"
                                  + (f"; log tail: {tail[-200:]}" if tail else ""),
@@ -342,8 +356,19 @@ class AhosOrchestrator:
                                   action=P.ACTIONS.get(
                                       {"stores": "db", "engine": "engine_down"}.get(name, "unknown"))))
             else:
+                # The Persian templates carry {port}/{sec} placeholders; a
+                # substitution left out would reach the owner literally.
+                fmt: dict = {}
+                if name == "gateway":
+                    if res.detail == "foreign_busy":
+                        gw = C.resolve_gateway(self.env)
+                        fmt["port"] = P.fa(gw.get("port") or 3000)
+                    else:
+                        fmt["sec"] = P.fa(int(self.health_wait.get(name, 60)))
                 self.emit(f"  {P.component_label(name)}: ⚠ " +
-                          P.error("generic", action=P.ACTIONS.get(_optional_action(name, res), "unknown")))
+                          P.error("generic",
+                                  action=P.ACTIONS.get(_optional_action(name, res), "unknown"),
+                                  **fmt))
             if name in C.CRITICAL:
                 # Roll back the processes we brought up; leave nothing half-alive.
                 # Components that were already running before us are left alone.

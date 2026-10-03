@@ -47,6 +47,17 @@ class TestPersian:
     def test_error_falls_back_to_generic_action(self):
         assert P.error("engine") == P.error("engine", action=P.ACTIONS["unknown"])
 
+    def test_action_placeholders_are_substituted(self):
+        """An unsubstitated {port} would reach the owner literally."""
+        busy = P.error("generic", action=P.ACTIONS["gateway_port_busy"], port=P.fa(3450))
+        assert "{port}" not in busy and "۳۴۵۰" in busy
+        down = P.error("generic", action=P.ACTIONS["gateway_down"], sec=P.fa(120))
+        assert "{sec}" not in down and "۱۲۰" in down
+
+    def test_action_without_placeholders_is_untouched(self):
+        assert P.ACTIONS["telegram_missing_token"] in \
+            P.error("generic", action=P.ACTIONS["telegram_missing_token"])
+
     def test_component_labels_cover_all_five(self):
         for name in C.START_ORDER:
             assert P.component_label(name) != name
@@ -184,6 +195,15 @@ class TestComponents:
     def test_preflight_passes_on_real_repo(self):
         pf = C.preflight(ROOT, C.load_repo_env(ROOT, {}))
         assert pf.ok is True
+
+    def test_probe_stores_accepts_str_paths(self):
+        """config.paths helpers return str; probe_stores must not assume Path."""
+        status, _detail = C.probe_stores(0.0)
+        assert status in (C.HEALTHY, C.UNAVAILABLE)
+
+    def test_engine_heartbeat_age_takes_a_str_path(self, tmp_path):
+        # A nonexistent file must yield None, never an AttributeError.
+        assert C.engine_heartbeat_age(str(tmp_path / "nope.sqlite")) is None
 
 
 # -------------------------------------------------------------- orchestrator ---
