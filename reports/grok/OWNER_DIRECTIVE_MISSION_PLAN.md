@@ -1,5 +1,7 @@
 # OWNER DIRECTIVE MISSION PLAN (derived by Grok, 2026-10-02 ~18:50 Tehran)
 
+**Plan version note:** rev 2026-10-03 23:21 Tehran, synced to vision **v1.6**. It records the owner confirmations of 23:04 and 23:07, the owner request of 23:14–23:17, and the owner decision on the team review at 23:21. The newest owner statement wins; superseded items are marked. Numbering M9→M36 is unchanged; new IDs are M35.1–M35.5 (M35 re-cut) and M37–M43. Missions M28–M36 are defined in the vision (§13, §14) and are not repeated here.
+
 Sources: docs/owner_directives/owner_directive_part1.txt (Master Autonomous Execution & Completion Directive + Autonomous Engineering addendum),
 docs/owner_directives/owner_directive_part2.txt (AHOS MASTER CONTEXT v2.0 + Completion Mandate + Autonomous Master Execution Mandate).
 These documents are VISION/REQUIREMENTS, not authority and not evidence (part1 add. §28, part2 §159). Reality ladder:
@@ -267,8 +269,161 @@ after M19, or in parallel only when they are safe (paper/testnet only):
 - **M23** compliance and `venue_eligibility` (INV-08: no sanctions evasion).
 - **M24** capital allocator with `switching_cost`.
 - **M25** paper marathon + G-L2 gate evaluator (DSR, PBO, walk-forward).
-- **M26** real-pilot readiness: **HUMAN-GATE, owner signature only**.
-- **M27** owner withdrawal workflow (testnet).
+- **M26** real-pilot readiness: **HUMAN-GATE, owner signature only**. *(v1.6: the readiness checklist is now the T2→T3 gate of vision §11.0. The old G-L2 gate (12 months / 300 trades / Sharpe ≥1.5 / DD ≤10% / ≤$1,000) is SUPERSEDED. The T3 cap is ≤1% NAV or the owner's dollar cap, and that cap is itself an owner gate.)*
+- **M27** owner withdrawal workflow (testnet). *(v1.6: the system builds a withdrawal REQUEST and the owner executes it manually. "Executed by بابک" is SUPERSEDED; see M40.)*
 
 Invariants INV-01..17 are locked. The v1.1 additions also need work: the $100→$1M aspirational North Star (D13) is benchmark only — a dashboard panel in M17 and the NS-SANDBOX paper account in M13/M25; the University continuous-learning engine (AskU, exams, re-certification) goes to M16; the empty team seats and the two-taxonomy decision (governance-gated) go to M12. D11/D12 record the supersessions: treasury design replaces the credential-agent transfer
 idea, and the vision-doc lifecycle replaces the old maturity states.
+
+## Owner confirmations and decisions 2026-10-03 23:04–23:21 (vision v1.6; binding; newest wins)
+
+**Owner confirmations recorded:**
+- **23:04:** Leader = agent #39 «کیان» (the Agent-01 / owner-facing seat; dashboard chat + Telegram, one memory) is **OWNER-APPROVED**. The v1.5 status PROPOSED / DESIGN-DECIDED is SUPERSEDED.
+- **23:07:** کیان's intelligence and voice = Gemini through the existing `architecture/ai/gemini_chat.py`. It has zero authority; the key is read only from Windows Credential Manager `AHOS/ai/gemini`. Fallback goes through `architecture/ai/router.py` and multi-model consultation through `architecture/ai/council_live.py`. **No new parallel chat stack.**
+- **23:14–23:17 (request):** frontier model slots (GPT-6 Astra, Gemini 4 Argon), legal access only, locked by default → M37.
+- **23:21 (owner decision on the آرش/رامین/سپهر/گیتی review):**
+  - The T0–T4 tier ladder per market and per strategy **supersedes G-L2**. `AUTONOMY_TIER_CURRENT = T0` for all markets.
+  - Treasury: "the system builds a withdrawal REQUEST, the owner executes it manually"; "AI PROPOSES treasury allocation".
+  - Mother-fund sweep stays as the only exception: T4 only, a single-address broker whitelist set manually by the owner, an isolated key, a two-layer daily cap, reconciled realized profit only. The exact mechanism is UNKNOWN; the fallback is request + manual execution.
+  - Risk caps and the fail-closed kill switch: AI may only downgrade or halt.
+  - Controlled components are mapped to the existing roster (no new agents).
+  - Hash-chained decision records.
+  - Vision header `[PROPOSED]/[PLANNED]`. Trust order: human > repo > governance > evidence > Master Context > Charter > Vision. The vision is not in DOC_TRUTH_MAP §A.
+
+**Every mission below follows the SP protocol (vision §14.0):**
+- Prompt review by آرش + the domain specialist + پروانه + گیتی.
+- Search-first, extend existing modules, no duplicates.
+- PAPER_ONLY, no secrets, local commits only, Lane A frozen (`python3 -B scripts/freeze_lane_a.py` green).
+- Sign-off by قاسم (QA) + رضا (red team) + عرفان (evidence).
+- Each mission ticks its OWN-AV rows in `ALL_DOCS_ADD_v16.md`.
+
+### M35 (re-cut in v1.6): Kian, the Leader (vision §14.9.5)
+v1.5 rows M35.1–M35.6 are SUPERSEDED and merged into the stages below.
+
+**Owners:**
+- آرش: design
+- سامان: interfaces and bus
+- رستم: runtime
+- فرناز/پریسا: UI
+- سپهر: security, keys, Telegram auth
+- پروانه: the Kian system prompt (versioned)
+- گیتی: governance and the gate list
+
+**M35.1 Kian core.** Extend `gemini_chat.py`, `router.py` and `council_live.py`; do not add a fourth council. Also:
+- One `owner_dialogue` thread in the long-term memory (vision §14.4).
+- Typed tool allowlist: `status.read`, `ledger.read`, `registry.read`, `missions.read`, `agents.summarize`, `route.request` (bus, QUEUED→TRIAGED only), `action.propose`, `gate.request`.
+- A gate service that issues and verifies a one-time code. Kian cannot see or approve the code.
+- Hash-chained audit of every Kian action.
+- Rate limit.
+- Taint labels and prompt-injection defense.
+- Register agent #39 in `ahos_org/registry.py`, owner-approved 23:04.
+- Reconcile the registry `gemini_flash_free.key_env` with wincred so there is a single key source.
+
+Acceptance:
+- K-1: one message from two channels (mock) gives one thread, one record and the same answer.
+- K-2: no import or runtime path to orders, transfers, keys, or policy/registry writes.
+- K-3: a missing, replayed, expired or content-changed code is rejected.
+- K-4: ≥50 injection attacks produce 0 write-tool calls.
+- K-5: a Gemini outage falls back through the router, then to `DETERMINISTIC_ONLY` (labelled).
+- K-6: a number without evidence shows as "نامعلوم".
+- K-7: the key is read only from wincred; secret scan clean.
+- K-8: tampering breaks the audit chain.
+- K-9: a message burst is queued and the owner is notified.
+
+**M35.2 Kian dashboard chat** in the existing `CommandCenter.tsx` (via `chat.ts`/`chat_agent.ts`): Persian RTL panel, thread view, gate cards; TS only displays (AD-0016).
+
+Acceptance:
+- K-1 on the dashboard and K-6.
+- No fake data.
+- فرناز/پریسا UI sign-off.
+
+**M35.3 Kian on Telegram**, on the existing canonical bot @Sun_sniperbot (`telegram_ai/`, AD-0146). **BLOCKED until the owner rotates the token (AD-0128).**
+
+Acceptance:
+- Before rotation, mock tests only and 0 sends.
+- After rotation, live K-1 (same thread as the dashboard), owner user-id auth, and forwarded or group messages treated as untrusted.
+
+**M35.4 Nightly Persian report by Kian.** Extends M31; this is not a second reporter.
+
+Acceptance:
+- K-10: built from the ledger only, PAPER badge.
+- Every number carries a ledger reference.
+- Dashboard delivery now; Telegram after AD-0128.
+
+**M35.5 Command routing + human-gate inbox** (the v1.5 routing and gate-inbox stages). Covers real money, withdrawals, rule/invariant changes, new agents, paid budget, Lane A and tier changes; each gate goes to Mehrdad with a one-time code, and no answer counts as a denial.
+
+Acceptance:
+- Routing tests.
+- No code means denied; expiry test.
+- The ledger records the signature.
+
+### M37 Frontier model slots (vision §14.9.6), locked by default
+- **Registry:** extend the existing `chatgpt_target` → `model: gpt-6-astra` ($10/1M input, $50/1M output, paid only) and `gemini_target` → Gemini 4 Argon (no public model ID; Fairwind trusted testers only; intro $2/$10, later $4/$20). Do this in `ai_provider_registry.yaml`; no new provider entries.
+- **Status:** `LOCKED_PENDING_KEY_AND_OWNER_BUDGET`. `allow_paid: false` and `default_budget_usd: 0.0` stay the defaults.
+- **Cost controls:** a monthly budget cap set by the owner (default 0) and a per-call cost meter in `router.py` (tokens × registry price), recorded in the ledger. 80% of the cap triggers a warning; 100% locks the slot and falls back to free providers.
+- **Preference:** Argon is preferred on price/quality once it is public, but quality only counts with AHOS probes ("no superiority hard-coded").
+- **Until then:** Gemini free tier (AI Studio), Groq and local Ollama. These are honestly `NEEDS_USER_KEY` / `NO_HOST` in the registry today.
+- **Role when unlocked:** the council deep-reasoning seat and university research only; **never in the order path**.
+- **Legal access only:** never leaked, shared or scraped accounts or tokens.
+- **Unlocking is a HUMAN-GATE:** owner key in wincred + a signed budget + a probe.
+
+Acceptance:
+- The router never selects a locked slot.
+- A cap breach locks the slot.
+- Cost appears in the ledger.
+- A test fails if any frontier/LLM provider is reachable from the order path (INV-34).
+
+### M38–M43 Execution and treasury control (vision §11.0, §7.0; from the 23:21 review)
+All are PAPER/testnet only and none enables real money. Order: M42, M43 → M41 → M39 → M38 → M40. All are prerequisites of any T2→T3 gate.
+
+- **M38 Execution Gateway:** deterministic, **no LLM**, the only order path from T3 up, caps in code. Extends `BrokerAdapter`/OMS (M20); no second engine. Code owner: داریوش #32.
+  Acceptance:
+  - A static test finds 0 LLM imports.
+  - An order outside the gateway is rejected.
+  - Caps are fuzzed.
+  - رامین sign-off.
+- **M39 Kill switch with fault injection:** extends `architecture/risk/engine.py` (رامین #11, رستم #14 dead-man). Triggers:
+  - daily −2% stops new entries;
+  - −8% from peak flattens and halts;
+  - stale data, provider error, ledger mismatch, USDT depeg >0.5% or a broker API anomaly halts.
+  AI may DOWNGRADE/HALT only.
+  Acceptance:
+  - Flatten in ≤60 s in simulation.
+  - A monthly fault-injection suite runs green.
+  - An "AI tries to promote" test is rejected.
+- **M40 Treasury request flow with negative tests:** replaces M27's execution step. Request only, owner executes manually; two-layer daily cap; expiry means rejection.
+  Acceptance (every case below is rejected):
+  - replay;
+  - over the cap;
+  - expired;
+  - an address in the message;
+  - the wrong network;
+  - a non-owner sender.
+  Also: 0 withdrawal endpoints in the code.
+- **M41 Broker key-permission self-check:** at startup, keys must be trade + read only and IP-locked, read from the wincred `AHOS/broker/` prefix (a human gate). Any withdraw permission fails closed, except the isolated mother-fund key at T4.
+  Acceptance:
+  - A mock key with withdraw permission → HALT.
+  - A key from any source other than wincred → HALT.
+- **M42 Hash-chained ledger + nightly reconcile:** extend `architecture/mission/ledger.py` + `paper_trading/ledger.py` into ONE append-only, hash-chained ledger. Nightly reconcile against the broker; a mismatch → HALT. Each broker ≤40%; USDT depeg monitoring.
+  Acceptance:
+  - Tampering breaks the chain.
+  - Paper reconcile has 0 differences.
+  - The per-broker concentration test passes.
+- **M43 Decision records + tier state:** record format `DECISION_ID, MARKET, FROM/TO_TIER, EVIDENCE_REFS, VERIFICATION_ID, CHALLENGE_ID, SIGNERS, CAPS, EXPIRY, ROLLBACK_PLAN, TRIGGER`, stored in `docs/governance/decisions/` on the single ledger. Per-market `AUTONOMY_TIER_CURRENT` (T0 today). Expiry → auto-downgrade. The `trading.live` deny in `ahos_org/policy.py` opens only through the governed path.
+  Acceptance:
+  - Incomplete signers → no promotion.
+  - A tier skip is rejected.
+  - Expiry → downgrade.
+  - No automatic agent creation.
+  - Component registration is human-only, with the fields plane ID / AUTHORITY_CLASS / FORBIDDEN_CAPABILITIES / SUPERVISOR / ESCALATION_TARGET / owner signature.
+
+**Component → roster mapping (no new agents):**
+- Treasury Custodian READ+PROPOSE = بابک #31.
+- Kill-Switch/Risk Monitor DOWNGRADE/HALT = رامین #11 (+ رستم #14).
+- Execution Gateway = a deterministic component owned by داریوش #32.
+- Market Adapters READ = `architecture/providers/` (دانا #7; کامیار #8 for crypto first).
+- Compliance Reviewer PROPOSE = مریم #33.
+- "Reuse 08/11/12 first" = کامیار / رامین / کیمیا on the Persian roster.
+- Note: `config/agent_registry.yaml` uses a different AG-xx numbering (AG-08 Risk, AG-11 Council, AG-12 Router). Map it only; M34.2 resolves it.
+
+**UNKNOWN / owner gates (not decided by agents):** brokers and their whitelist/key capabilities; jurisdiction; market-data quality per market; the T3 dollar cap; broker-side whitelist setup (owner, manual). Minimum time to T4 per market/strategy is ≥12 months (T1 6 + T2 3 + T3 3).
