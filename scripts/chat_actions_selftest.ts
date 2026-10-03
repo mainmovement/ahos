@@ -30,6 +30,8 @@ import { DevMissionStore } from "../dev_missions.ts";
 
 const TMP = mkdtempSync(join(tmpdir(), "ahos-actions-"));
 process.env.AHOS_CONTROL_AUDIT_PATH = join(TMP, "audit.jsonl");
+// MN-1: a stable test pepper so the self-test never creates ./data/.id_pepper
+process.env.AHOS_ID_PEPPER = "selftest-pepper-chat-actions";
 process.env.AHOS_DEV_MISSIONS_PATH = join(TMP, "dev_missions.jsonl");
 
 const ENV = { TELEGRAM_ADMIN_USER_IDS: "111", TELEGRAM_ALLOWED_CHAT_IDS: "222" };

@@ -28,8 +28,18 @@
  *
  * Pure apart from the default file writer. Run: npm run test:chat-control-gate
  */
-import { createHash } from "node:crypto";
-import { appendFileSync, closeSync, existsSync, fstatSync, mkdirSync, openSync, readSync } from "node:fs";
+import { createHash, createHmac, randomBytes } from "node:crypto";
+import {
+  appendFileSync,
+  closeSync,
+  existsSync,
+  fstatSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 
 export const CONTROL_AUDIT_SCHEMA = "ahos.chat_control_audit.v1";
@@ -150,9 +160,59 @@ export function sha256Hex(s: string): string {
   return createHash("sha256").update(s, "utf8").digest("hex");
 }
 
-export function hashId(kind: string, value: string | null | undefined): string {
+/**
+ * MN-1: the audit log stores hashed ids and message digests, so they must not
+ * be brute-forceable back to Telegram ids (about 10 digits) or dictionary
+ * reversed from short commands. HMAC-SHA256 keyed by a local pepper achieves
+ * that. The pepper is, in order of preference:
+ *
+ * 1. `AHOS_ID_PEPPER` (for tests and explicit operator supply),
+ * 2. `<data dir>/.id_pepper` (0600, gitignored, generated once),
+ * 3. a random value kept only for the process if neither is writable.
+ *
+ * Option 3 still salts the ids; the cost is that hashes are not stable across
+ * restarts. The value is never loaded from the repo.
+ */
+const PEPPER_FILE = ".id_pepper";
+let processPepper: string | null = null;
+
+export function idPepper(env: Record<string, string | undefined> = process.env): string {
+  const explicit = (env.AHOS_ID_PEPPER || "").trim();
+  if (explicit) return explicit;
+  const dataDir = (env.AHOS_DATA_DIR || "").trim() || join(process.cwd(), "data");
+  const path = join(dataDir, PEPPER_FILE);
+  try {
+    if (existsSync(path)) {
+      const fromFile = readFileSync(path, "utf8").trim();
+      if (fromFile) return fromFile;
+    }
+    const fresh = randomBytes(32).toString("hex") + "\n";
+    mkdirSync(dataDir, { recursive: true });
+    writeFileSync(path, fresh, { encoding: "utf8", mode: 0o600 });
+    return fresh.trim();
+  } catch {
+    if (!processPepper) processPepper = randomBytes(32).toString("hex");
+    return processPepper;
+  }
+}
+
+/** MN-1: HMAC-SHA256 of the value keyed by the local pepper, 16 hex chars. */
+export function hashId(
+  kind: string,
+  value: string | null | undefined,
+  env: Record<string, string | undefined> = process.env,
+): string {
   const v = String(value ?? "").trim();
-  return v ? sha256Hex(`ahos:${kind}:${v}`).slice(0, 16) : "UNKNOWN";
+  if (!v) return "UNKNOWN";
+  return createHmac("sha256", idPepper(env)).update(`ahos:${kind}:${v}`, "utf8").digest("hex").slice(0, 16);
+}
+
+/** MN-1: HMAC-SHA256 of the message text keyed by the same local pepper. */
+export function messageHash(
+  text: string,
+  env: Record<string, string | undefined> = process.env,
+): string {
+  return createHmac("sha256", idPepper(env)).update(text, "utf8").digest("hex");
 }
 
 export function canonicalJson(v: unknown): string {
@@ -276,6 +336,7 @@ export function buildAuditRecord(
   },
   prevHash: string,
   now: Date = new Date(),
+  env: Record<string, string | undefined> = process.env,
 ): ControlAuditRecord {
   const body = {
     schema: CONTROL_AUDIT_SCHEMA,
@@ -286,8 +347,8 @@ export function buildAuditRecord(
     decision: p.decision,
     reason: p.reason,
     channel_claimed: String(p.channelClaimed ?? "unspecified").slice(0, 32).replace(/[^\w.-]/g, "_") || "unspecified",
-    user_id_hash: hashId("user", p.userId),
-    message_sha256: p.text == null ? null : sha256Hex(String(p.text)),
+    user_id_hash: hashId("user", p.userId, env),
+    message_sha256: p.text == null ? null : messageHash(String(p.text), env),
     message_len: p.text == null ? null : String(p.text).length,
     prev_hash: prevHash,
   };

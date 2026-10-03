@@ -17,12 +17,19 @@ import {
   detectControlCommand,
   gateChatControl,
   hashId,
+  idPepper,
+  messageHash,
   looksLikePaperBuy,
   normalizeCommandText,
   recordControlAudit,
+  sha256Hex,
   verifyAuditLines,
   type AuditSink,
 } from "../chat_control_gate.ts";
+
+// MN-1: a stable test pepper so the suite never creates ./data/.id_pepper. The
+// file-fallback path is still covered explicitly by the MN-1 describe block.
+process.env.AHOS_ID_PEPPER = "selftest-pepper-control-gate";
 
 const NEGATIVES = [
   "stop loss", "stop loss چنده؟", "stoploss", "Stop-Loss", "start-up", "startup", "restart",
@@ -173,5 +180,51 @@ describe("append-only hashed audit", () => {
   it("defaultAuditPath honours AHOS_CONTROL_AUDIT_PATH then AHOS_DATA_DIR", () => {
     assert.equal(defaultAuditPath({ AHOS_CONTROL_AUDIT_PATH: "/x/a.jsonl" }), "/x/a.jsonl");
     assert.equal(defaultAuditPath({ AHOS_DATA_DIR: "/d" }), join("/d", "control_audit", "chat_control_audit.jsonl"));
+  });
+});
+
+describe("MN-1: ids and message digests are peppered (not brute-forceable)", () => {
+  // A 10-digit Telegram id, the exact space the review said is brute-forceable.
+  const TG_ID = "987654321";
+  it("the stored hash is NOT the unsalted sha256 of the id, even of a prefix", () => {
+    const env = { AHOS_ID_PEPPER: "test-pepper-AAAA" };
+    const h = hashId("user", TG_ID, env);
+    assert.notEqual(h, sha256Hex(`ahos:user:${TG_ID}`).slice(0, 16));
+    assert.ok(!sha256Hex(`ahos:user:${TG_ID}`).includes(h));
+    assert.equal(h.length, 16);
+    assert.ok(!h.includes(TG_ID));
+  });
+  it("different peppers give different hashes for the same id", () => {
+    const a = hashId("user", TG_ID, { AHOS_ID_PEPPER: "pepper-A" });
+    const b = hashId("user", TG_ID, { AHOS_ID_PEPPER: "pepper-B" });
+    assert.notEqual(a, b);
+    // same pepper is stable (so a replay still shows the same hash)
+    assert.equal(a, hashId("user", TG_ID, { AHOS_ID_PEPPER: "pepper-A" }));
+  });
+  it("empty ids stay UNKNOWN regardless of the pepper", () => {
+    assert.equal(hashId("user", null, { AHOS_ID_PEPPER: "z" }), "UNKNOWN");
+    assert.equal(hashId("user", "", {}), "UNKNOWN");
+  });
+  it("a short command is not dictionary-reversible to its plain sha256", () => {
+    const env = { AHOS_ID_PEPPER: "test-pepper-BBBB" };
+    const m = messageHash("تایید ABC123", env);
+    assert.notEqual(m, sha256Hex("تایید ABC123"));
+    // the plain digest of every short command is different from the peppered one
+    for (const t of ["stop", "start", "تایید ABC123"]) {
+      assert.notEqual(messageHash(t, env), sha256Hex(t));
+    }
+  });
+  it("falls back to a generated pepper file when AHOS_ID_PEPPER is absent", () => {
+    const dir = mkdtempSync(join(tmpdir(), "mn1-pepper-"));
+    try {
+      const env = { AHOS_DATA_DIR: dir };
+      const first = hashId("user", TG_ID, env);
+      // the pepper was persisted (0600) and reloads to the same hash
+      const pepper = idPepper(env);
+      assert.ok(pepper.length >= 64);
+      assert.equal(hashId("user", TG_ID, { AHOS_ID_PEPPER: pepper }), first);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

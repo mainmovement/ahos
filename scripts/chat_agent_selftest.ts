@@ -38,6 +38,8 @@ import { join } from "node:path";
 // Never touch the real audit log or the real dev-mission queue from a self-test.
 const TMP = mkdtempSync(join(tmpdir(), "ahos-agent-"));
 process.env.AHOS_CONTROL_AUDIT_PATH = join(TMP, "audit.jsonl");
+// MN-1: a stable test pepper so the self-test never creates ./data/.id_pepper
+process.env.AHOS_ID_PEPPER = "selftest-pepper-chat-agent";
 process.env.AHOS_DEV_MISSIONS_PATH = join(TMP, "dev_missions.jsonl");
 
 const FOOTER = "تصمیم نهایی با کاربر است.";

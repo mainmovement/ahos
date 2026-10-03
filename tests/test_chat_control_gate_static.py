@@ -101,7 +101,13 @@ def test_audit_record_has_no_raw_text_or_raw_id_fields():
     for banned in ("message:", "text:", "user_id:", "chat_id:", "username:"):
         assert banned not in rec
     assert "appendFileSync" in src
-    assert "writeFileSync" not in src  # append-only
+    # append-only: the audit sink must never rewrite the audit file. The pepper
+    # file (MN-1) is a separate, once-created secret and is not the audit file.
+    sink = src[src.index("class FileAuditSink"):]
+    sink = sink[: sink.index("\nexport function")]
+    assert "appendFileSync" in sink
+    assert "writeFileSync" not in sink
+    assert "mode: 0o600" in sink
 
 
 def test_gateway_forwards_resolved_identity_and_assertion_for_audit_only():

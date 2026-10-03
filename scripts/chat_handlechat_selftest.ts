@@ -35,6 +35,8 @@ const AUDIT_PATH = join(TMP, "audit.jsonl");
 const MISSIONS_PATH = join(TMP, "dev_missions.jsonl");
 process.env.AHOS_CONTROL_AUDIT_PATH = AUDIT_PATH;
 process.env.AHOS_DEV_MISSIONS_PATH = MISSIONS_PATH;
+// MN-1: a stable test pepper so the self-test never creates ./data/.id_pepper
+process.env.AHOS_ID_PEPPER = "selftest-pepper-handlechat";
 // No network: the conversational agent and the Gemini phraser are both opt-out.
 process.env.AHOS_CHAT_AGENT = "off";
 process.env.AHOS_PHRASER = "off";
