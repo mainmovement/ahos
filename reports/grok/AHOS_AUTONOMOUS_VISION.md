@@ -1,8 +1,9 @@
 # AHOS: سند چشم‌انداز مالک و معماری معامله‌گری خودمختار
-**نسخه:** v1.3 · **تاریخ:** ۱۴۰۵/۰۷/۱۱ (2026-10-03، به‌روزرسانی 21:52) · **مالک:** مهرداد قدرتی · **وضعیت سامانه:** `PAPER_ONLY`
+**نسخه:** v1.4 · **تاریخ:** ۱۴۰۵/۰۷/۱۱ (2026-10-03، به‌روزرسانی 22:48) · **مالک:** مهرداد قدرتی · **وضعیت سامانه:** `PAPER_ONLY`
 **نوع سند:** Owner Vision + Target Architecture. این سند هدف را تعریف می‌کند. دستور فعال‌سازی پول واقعی نیست.
 **قاعدهٔ برچسب:** هر قابلیت یکی از این برچسب‌ها را دارد: `VISION` (هدف، هنوز ساخته نشده)، `PARTIAL` (کدی هست اما سیم‌کشی یا شواهدش کامل نیست)، `IMPLEMENTED` (کد، تست و شواهد کامیت دارد). هر ادعایی که شاهد نداشته باشد `VISION` حساب می‌شود.
 **وضعیت تأیید:** ۱۸ عامل جدید (۲۰ تا ۳۷) و طراحی این سند: **owner approved 2026-10-03 20:43**. این تأیید، تأیید منشورها و طراحی است. فعال‌سازی عامل‌ها همچنان از چرخهٔ عمر P1§14 و گواهی دانشگاه می‌گذرد، و همهٔ قفل‌ها (PAPER_ONLY، بدون secret، Lane A) سر جای خود هستند.
+**تغییرات v1.4 (22:48؛ owner approved for design 2026-10-03 22:40 + افزودهٔ 22:48):** OA-17 «شکارچی توکن» (۱۴.۸، M33.1 تا M33.15). شامل: کشف (DexScreener، GeckoTerminal، pump.fun، رویدادهای زنجیره)؛ دروازهٔ ضدکلاهبرداری تینا با شبیه‌سازی خرید و فروش روی fork؛ گراف نهنگ و smart money (نیما)؛ لایهٔ OSINT قانونی با شهرت منبع و تشخیص shill و گروه pump (نگار)؛ لایهٔ white-hat با Slither، Mythril و افشاهای عمومی (تینا)؛ وتوی انطباق (مریم)؛ sleeve کوچک spot و long؛ بک‌تست PIT بدون survivorship. INV-26 تا INV-30 و R76 تا R94. عامل جدید ساخته نشد.
 **تغییرات v1.3 (21:52، owner approved 2026-10-03 21:52):** شش قابلیت جدید در بخش ۱۴: OA-11 میدان رقابت استراتژی‌ها (M28)؛ OA-12 شبیه‌ساز بحران (M29)؛ OA-13 ذهن چندلایه با داور مستقل (M15.6 تا M15.11، عامل پیشنهادی ۳۸ سروش)؛ OA-14 حافظهٔ بلندمدت (M30)؛ OA-15 گزارش شبانهٔ تلگرام (M31)؛ OA-16 صندوق امنیت مادر (M32، ۷.۶). همچنین INV-20 تا INV-25، مراجع R52 تا R75، و شماره‌گذاری تازهٔ مراجع (۱۵) و افزوده‌ها (۱۶).
 **تغییرات v1.2 (20:44):** OA-08 سرمایه‌گذاری مجدد پیش‌فرض و برداشت به درخواست مالک (۷.۴، INV-18)؛ OA-09 پنل ثروت «مهرداد — مالک» (۷.۵، INV-19، M17)؛ OA-10 دفترچه‌های معاملاتی هر بازار و لایهٔ چرخش بین‌دارایی (۴.۵، ۴.۶، ۸.۳، M24).
 **تغییرات v1.1 (20:20):** ستارهٔ شمالی آرمانی «۱۰۰ دلار ← ۱ میلیون دلار» (۱.۳، INV-15)؛ موتور یادگیری پیوستهٔ دانشگاه با آزمون، Knowledge Store، AskU و تیکت (۸.۳)؛ بازنویسی منشور ۱۸ عامل جدید بر اساس قالب اسناد مالک، همراه با ثبت عدم تکرار و نگاشت دو taxonomy (۲.۳، ۲.۵ تا ۲.۷)؛ شماره‌گذاری پیوستهٔ مراجع و افزودن FinBen.
@@ -654,6 +655,7 @@ AHOS یک **صندوق خودمختارِ چندعاملی و حاکمیت‌پ�
   - stop زمانی + stop قیمتی، و **برنامهٔ خروج قبل از ورود**.
 - **ساعات:** ۲۴ ساعته، ۷ روز هفته.
 - **ریسک‌های خاص:** rug pull، honeypot، حذف نقدشوندگی، قرارداد جعلی با نماد یکسان، MEV و sandwich، wash trading، ریسک امنیتی کیف‌پول.
+- **v1.4:** طراحی کامل کشف، گیت، سیگنال، OSINT، white-hat و اجرا در **۱۴.۸ «شکارچی توکن» (M33)**. سقف‌های این playbook همان سقف‌های sleeve آنجاست (INV-27).
 
 #### PB-US, سهام آمریکا (سارا)
 - **داده و سیگنال:** فاکتورهای value، momentum و quality [R31]؛ شگفتی سود و drift پس از اعلام سود (PEAD، Bernard & Thomas [R51])؛ بازنگری تحلیلگران؛ 8-K و 10-Q (EDGAR)؛ نوسان ضمنی آپشن؛ breadth بازار.
@@ -768,7 +770,7 @@ class BrokerAdapter(Protocol):          # architecture/execution/ (extend, no pa
 | بازار | ابزار هدف | API یا کتابخانه |
 |---|---|---|
 | کریپتو spot و perp | صرافی‌های متمرکز | CCXT [R23] (رابط یکپارچهٔ صرافی‌ها) |
-| توکن‌های DeFi | DEX، فقط پس از بررسی تینا | فاز بعدی (`VISION`)؛ خطر MEV و قرارداد |
+| توکن‌های DeFi | DEX، فقط پس از بررسی تینا | فاز بعدی (`VISION`)؛ خطر MEV و قرارداد؛ مسیر خصوصی، `minOut` و شبیه‌سازی در ۱۴.۸ |
 | سهام آمریکا، اروپا و آسیا | بروکر چندبازاره مثل Interactive Brokers | TWS/IB Gateway API (مثلاً کتابخانهٔ `ib_async`) |
 | طلا | آتی COMEX GC/MGC، ETF، CFD؛ یا توکن طلا (PAXG/XAUT) روی صرافی کریپتو | IBKR / CCXT |
 | نفت | آتی NYMEX CL/MCL و ICE Brent؛ یا CFD | IBKR / بروکر CFD |
@@ -1044,6 +1046,7 @@ OPEN → TRIAGED(faculty, priority P0..P3, owner_professor)
 | انتخاب جمعیتی استراتژی‌ها (۱۴.۱) | PBT [R52]، MAP-Elites [R53]، DSR/PBO [R25، R26] | میدان رقابت با گیت آماری و تخصیص ضد overfitting | `VISION` (M28) |
 | ذهن چندلایه با داور مستقل (۱۴.۳) | TradingAgents [R1]، debate [R66، R67] | حکم کالیبره + ثبت dissent | `PARTIAL` (شورا و anti-echo وجود دارد؛ داور نه) |
 | حافظهٔ بلندمدت PIT (۱۴.۴) | CoALA [R70]، MemGPT [R71]، FinMem [R2] | حافظهٔ چندنوعی هر بازار بدون نگاه به آینده | `PARTIAL` (ماژول هست، DB خالی) |
+| شکارچی توکن با گیت ضدکلاهبرداری (۱۴.۸) | [R76]–[R94] | کشف زودهنگام + اجتناب از rug با احتمال کالیبره، OSINT قانونی و white-hat | `VISION` (پایه‌های identity و security gate `IMPLEMENTED+TESTED`) |
 
 **فازها:** `C1` جامعهٔ ذهن‌های کالیبره (M12/M15) ← `C2` یادگیرندهٔ تجربی (M13/M14) ← `C3` پژوهشگر خودکار (M16) ← `C4` مدل جهان و تعمیم (M16/M19) ← `C5` خودبهبودی باز (open-ended) زیر حاکمیت.
 **اندازه‌گیری:** scorecard صادق در داشبورد (NS-10). هر سطح فقط با شاهد بنچمارک ارتقا می‌یابد. **واژهٔ AGI یا SI هرگز به‌عنوان وضعیت فعلی به کار نمی‌رود.**
@@ -1128,6 +1131,11 @@ OPEN → TRIAGED(faculty, priority P0..P3, owner_professor)
 | INV-23 | حافظه append-only و point-in-time است: بازیابی در زمان t فقط آیتم‌های `available_at ≤ t` را می‌بیند. تثبیت، ادعای مستقیم نمی‌سازد. تغییر رویه‌ای فقط از گیت انجام می‌شود. خطای ایمنی‌محور پوسیده نمی‌شود | هومن، دانا، فرزانه |
 | INV-24 | گزارش شبانه: اعداد فقط از snapshot ledger، نشان PAPER/LIVE در خط اول، بدون secret یا آدرس، فقط chat_id مالک، فقط ربات canonical (AD-0146). عدد ناسازگار حذف و «—» نوشته می‌شود | پریسا، ژاله، آیدا |
 | INV-25 | صندوق امنیت مادر هرگز معامله، وثیقه، stake یا قرض داده نمی‌شود. برای جبران زیان استفاده نمی‌شود و از NAV معاملاتی جداست. امضاکنندهٔ آن فقط مالک است. آزادسازی فقط به کیف مالک، با درخواست و تأیید او (۷.۴) انجام می‌شود. تغییر X فقط با امضای مالک است. **استثنای محدود INV-18:** sweep خودکار فقط به آدرس ثابت صندوق مجاز است. این استثنا از تأیید OA-16 در 21:52 می‌آید، اما چون بخش ۱۲ قفل است، تا تأیید صریح مالک `OWNER-CONFIRMED 2026-10-03 22:07` می‌ماند | بابک، سپهر، ژاله، رامین |
+| INV-26 | ورود در شکارچی توکن فقط با هویت RESOLVED (≥ ۲ منبع، بدون حدس آدرس) **و** دروازهٔ تینا PASS و شبیه‌سازی فروش موفق (حداکثر ۶۰ ثانیه پیش از ورود). UNKNOWN بحرانی = INCOMPLETE = عدم ورود. PRE-LAUNCH = MONITOR_ONLY. یافتهٔ تینا بازنویسی نمی‌شود. Lane A تغییر نمی‌کند | تینا، کامیار، رامین |
+| INV-27 | sleeve توکن: فقط spot و long، بدون اهرم. هر توکن ≤ ۱٪ NAV، مجموع ≤ ۵٪، ≤ ۱٪ نقدشوندگی pool. برنامهٔ خروج پیش از ورود. `minOut` و مسیر خصوصی. **AHOS هرگز sandwich، front-run یا MEV علیه دیگران انجام نمی‌دهد.** فقط paper؛ LIVE = HUMAN-GATE | رامین، داریوش، کامیار |
+| INV-28 | **فقط دادهٔ عمومی یا قانونی** با رعایت ToS. **بدون اطلاعات محرمانهٔ مهم (MNPI)** و بدون نشت داخلی یا اطلاعات خریداری‌شده از افراد داخلی. ادعا و شایعهٔ UNVERIFIED وزن صفر دارد. هر منبع جدید تأیید مریم را می‌خواهد | مریم، نگار |
+| INV-29 | **بدون هک، exploit، نفوذ یا دسترسی غیرمجاز**، و بدون دور زدن ToS یا rate limit. تحلیل امنیتی فقط دفاعی است (Slither، Mythril، شبیه‌سازی) و در fork محلی یا sandbox اجرا می‌شود. آسیب‌پذیری کشف‌شده فقط از کانال مسئولانه گزارش می‌شود، با تأیید مالک و مریم | تینا، سپهر، مریم |
+| INV-30 | **بدون دستکاری بازار:** بدون wash trade، shill، تبلیغ، انتشار شایعه، و **بدون پیوستن به گروه‌های pump** یا پرداخت برای «signal». تشخیص گروه pump فقط سیگنال کلاهبرداری است: هدف REJECT و خروج. وتوی مریم غیرقابل‌لغو است | مریم، نگار، رضا |
 
 ---
 
@@ -1158,12 +1166,13 @@ OPEN → TRIAGED(faculty, priority P0..P3, owner_professor)
 | **M30 (v1.3)** حافظهٔ بلندمدت | bitemporal، PIT، هر بازار، error/success، تثبیت شبانه (۱۴.۴)؛ بستن NS-03 | ۰ نشت در ۱۰k؛ recall@10 ≥ ۰٫۸ |
 | **M31 (v1.3)** گزارش شبانهٔ تلگرام | گسترش ربات canonical، number-consistency، idempotent (۱۴.۵) | ۰ عدد ناسازگار؛ ۳۰ شب پیاپی؛ ارسال `BLOCKED` تا AD-0128 |
 | **M32 (v1.3)** صندوق امنیت مادر | sweep بالای HWM، custody جدا، کاشی پنل، آزادسازی با ۷.۴ (۱۴.۶، ۷.۶) | ۰ مسیر معامله روی صندوق؛ testnet؛ مرحلهٔ LIVE = HUMAN-GATE |
+| **M33 (v1.4)** شکارچی توکن | کشف، هویت، دروازهٔ ایمنی v2 با شبیه‌سازی fork، گراف کیف‌پول، OSINT قانونی، white-hat، تجمیع کالیبره، بک‌تست PIT، paper، هشدار (۱۴.۸) | وتوی fixture ۱۰۰٪؛ ۰ ورود UNKNOWN بحرانی؛ RUG در ورودها ≤ ۲٪ (OOS)؛ ۰ تخلف INV-28 تا INV-30؛ M33.15 = HUMAN-GATE |
 
 > **یادداشت v1.3:** بند «stress replay» در M21 به **M29** منتقل شد. M21 فقط verdict را مصرف می‌کند. ترتیب اجرای مأموریت‌های v1.3 در ۱۴.۷ آمده است.
 
 ---
 
-## ۱۴. شش قابلیت مصوب مالک (OA-11 تا OA-16؛ owner approved 2026-10-03 21:52)
+## ۱۴. قابلیت‌های مصوب مالک (OA-11 تا OA-16: owner approved 2026-10-03 21:52 · OA-17: approved for design 22:40 و افزودهٔ 22:48)
 
 > **برچسب کلی:** هر شش قابلیت امروز `VISION` هستند، مگر جایی که ماژول پایه‌ای وجود دارد و صریحاً `PARTIAL` نوشته شده است. هیچ‌کدام PAPER_ONLY، قانون «بدون secret» یا Lane A را تغییر نمی‌دهند. **تأیید مالک یعنی تأیید طراحی، نه فعال‌سازی پول واقعی.**
 
@@ -1609,7 +1618,370 @@ PAPER: همان محاسبه روی ledger کاغذی → ledger(MOTHER_FUND_SWE
 5. **M31** گزارش شبانه. نیازمند ledger از M18 است. ارسال تلگرام تا AD-0128 `BLOCKED` است.
 6. **M32** صندوق مادر. نیازمند M22 و M27 است. مرحلهٔ LIVE آن HUMAN-GATE است.
 
+7. **M33** شکارچی توکن (M33.1 تا M33.15؛ ۱۴.۸). پیش‌نیازها: M13 (paper)، M28.1 (آمار)، M29 (stress)، M30 (حافظه)، M15.6+ (داور). M33.1 تا M33.9 می‌توانند موازی با M28 آغاز شوند، چون فقط پژوهش و رصد هستند. M33.15 = HUMAN-GATE.
+
 ترتیب قبلی M9→M19 تغییر نمی‌کند.
+
+
+---
+
+### ۱۴.۸ شکارچی توکن (Token Hunter، OA-17؛ owner approved for design 2026-10-03 22:40)
+**هدف:** این قابلیت توکن‌هایی را پیدا می‌کند که احتمال جهش قوی قیمت دارند. سه گروه را پوشش می‌دهد: پیش از عرضه، چند روز پس از عرضه، و توکن‌های قدیمی‌تری که کمتر دیده شده‌اند. منابع آن جریان کیف‌پول‌های نهنگ و smart money، خبر و ویروسی‌شدن اجتماعی، و مومنتوم و نقدشوندگی است. هدف، ورود **پیش از جهش** است، اما **فقط پس از عبور از دروازهٔ ضدکلاهبرداری**.
+- **برچسب:** `VISION` برای کل خط لوله.
+- **پایه‌های `PARTIAL` / `IMPLEMENTED+TESTED` در repo** (از ماتریس ردیابی؛ گسترش داده می‌شوند و تکرار نمی‌شوند):
+  - هویت: `architecture/identity/` و `discovery/identity.py` (AD-0013، AD-0015، AD-0430).
+  - امنیت: `architecture/security/gate.py` و `discovery/security_gate.py` (AD-0058، AD-0665).
+  - providerها: `architecture/providers/` (pumpfun، dex_pools، coingecko، defillama، chain_explorer) و `discovery/providers.yaml` (AD-0367).
+  - `architecture/intel/` (market_structure، tokenomics، catalyst؛ AD-0369).
+  - `research/baseline_stats.py` (AD-0355).
+  - `paper_trading/cycle.py` و `exit_rules.py` (AD-0349).
+  - `telegram_ai/pump_alert.py`.
+  - تصمیم canonical در Lane A: `app/api/canonical/route.ts`، **منجمد**.
+
+#### ۱۴.۸.۰ پایه در اسناد مالک (نقل و مبنا؛ جدیدترین گفته برنده است)
+- **P2§6 (سه کلاس فرصت):** «A. PRE-LAUNCH … B. NEWLY LAUNCHED … C. EXISTING HIDDEN OPPORTUNITIES». و: «**Opportunity discovery and danger discovery are equally important.**»
+- **P2§5 و P1§42 (هویت):** «A token's identity must be correct before its intelligence can be trusted». فهرست Name، Symbol، Chain، Contract، Pool/Pair، DEX، Quote Asset، Pair Creation Time، Provenance و Identity Confidence. «**Never Guess Contract**». «Ambiguous Identity: **AMBIGUOUS**». «Authoritative Identity unavailable: **MONITOR_ONLY / UNRESOLVED**».
+- **P1§41 و P2§8 (منابع):** DexScreener، DEXTools، GeckoTerminal، pump.fun، CoinGecko، explorers، RPC، deployer wallets، smart-money، whale activity، transaction graphs، X/CT، Telegram، Reddit، Discord، TikTok، GitHub. «Source Reliability باید ثبت شود».
+- **P1§43 و P2§11 (امنیت):** Honeypot، Sellability، Blacklist/Whitelist، Mint، Freeze، Upgradeability/Proxy، Tax/Fees، Max TX، Max Wallet، Trading Controls، Liquidity Ownership/Lock/Removal، Holder/Insider/Deployer Concentration، Bundled/Related Wallets، Developer History، Previous Tokens، Contract History. وضعیت‌ها: «PASS / UNKNOWN / INCOMPLETE / FAIL» و «**UNKNOWN ≠ SAFE**». «HIGH OPPORTUNITY + CRITICAL SECURITY RISK = REJECT».
+- **P1§44 (تصمیم canonical):**
+  - «one market source → UNRESOLVED»؛
+  - «unresolved pool → MONITOR_ONLY»؛
+  - «AI challenge can downgrade but cannot upgrade ENTER»؛
+  - «UNKNOWN → INCOMPLETE»؛
+  - «missing pair_created_ts → fail closed»؛
+  - «GoPlus missing honeypot → None».
+- **P1§46 و P2§9–§10 (FOMO):** «VIRAL ≠ VALID · INFLUENCER ≠ EVIDENCE · ENGAGEMENT ≠ FUNDAMENTAL VALUE · FOMO ≠ BUY SIGNAL». FOMO باید این زنجیره را طی کند: «INVESTIGATE → VERIFY → ASSESS MANIPULATION RISK → ASSESS LIQUIDITY → ASSESS SECURITY → ASSESS SUSTAINABILITY».
+- **P2§12–§14 (پرونده و خط لوله):**
+  - پروندهٔ کامل «**not just a score**»، با WHY، EVIDENCE، COUNTER-EVIDENCE، RISKS، REJECT CONDITIONS، سناریوهای Bull/Base/Bear/Extreme Risk، و «WHAT IS STILL UNKNOWN».
+  - «Opportunity = HIGH, Confidence = LOW is valid».
+  - قیف «1000 → 500 → 100 → 20 → 5 → 1». قاعدهٔ «**A correct skip is a successful decision**».
+- **P2§15 (شورای تخصصی):**
+  - Crypto Market (DEX/CEX structure، liquidity)؛
+  - Blockchain & On-Chain (wallets، whales، smart money، transaction graphs)؛
+  - Cybersecurity (honeypots، contract security)؛
+  - Investigative/OSINT (developer investigation، wallet connections)؛
+  - Social & Narrative.
+- **P2§27 (یادگیری از شکست):** «Were whales deceptive? Was social activity artificial? Was security analysis incomplete? Was liquidity underestimated? Was slippage underestimated?»
+- **P2§49 (هشدارها):** Token Discovery، High Opportunity، Security Alert، Exit Alert، Whale Alert. «Alerts must contain evidence/context».
+- **P2§93 (نقشهٔ راه):** «PHASE 1 Token Discovery Intelligence … PHASE 3 **Automated Token Trading: Future only after sufficient evidence and governance**».
+- **P1§109 و P2 «NEVER»:** هرگز Token Address، Contract، Pool، Holder، Whale، Liquidity، Launch Date یا Security Result را حدس نزن. «Invent token addresses» ممنوع است.
+- **P1A§24:** این افزوده نباید Lane A، CanonicalDecisionAuthority، Token Identity Requirements، Security Gates، UNRESOLVED/MONITOR_ONLY یا رفتار Fail-Closed را دور بزند.
+- **پیام مالک (انتهای P2):** گروه خبری باید خبر را به لاین توکن برساند، «که باعث بشه زودتر بخرن و به موقع بخرن و به موقع بفروشن».
+- **قواعد repo (ماتریس ردیابی):**
+  - هزینهٔ سقف **‎$0 در ماه**؛ API پولی هرگز وابستگی سخت نیست (AD-0358).
+  - API پولی DEXTools و CMC کنار گذاشته شده‌اند (AD-0359). Chainalysis و TRM پولی هرگز (AD-0360).
+  - payload خام با sha256 ذخیره می‌شود (AD-0361).
+  - برای SOL: RugCheck، و UNKNOWN برای چک‌هایی که فقط GoPlus دارد (AD-0347).
+  - گیت هرگز UNKNOWN را بی‌صدا PASS نمی‌کند (AD-0348).
+  - fixtureهای وتو باید ۱۰۰٪ رد شوند (AD-0349، AD-0053).
+  - شمار holder روی RPC رایگان = UNKNOWN، هرگز جعلی (AD-0345).
+  - WalletReputation مشتق است، نه دستی (AD-0367).
+  - دو خانوادهٔ ویژگی اجتماعی و روایی هرگز بالادست ادغام نمی‌شوند (AD-0370).
+  - جهش ‎+۱۰۰٪ در توکن کم‌نقدشونده ≠ فرصت سالم (AD-0353).
+  - strataها شامل توکن‌های مرده، rug‌شده و رد امنیتی هستند (AD-0357).
+  - OOS = هفته‌های بعدی تقویمی (AD-0365).
+  - هر سلول n ≥ ۲۰۰ و ≥ ۲۰ مثبت لازم دارد (AD-0364)، با CI ویلسون (AD-0356).
+  - یافتهٔ تینا هرگز بازنویسی نمی‌شود (AD-0665).
+  - سه واژگان verdict ترکیب می‌شوند و **واژگان چهارمی ساخته نمی‌شود** (AD-0985).
+  - Lane A ورود «PASS WITH UNKNOWN» را QUALIFIED می‌داند. این محدودیت منجمد است و تغییر نمی‌کند (AD-0995). **دروازهٔ Lane B شکارچی سخت‌گیرتر است.**
+- **سند جداگانهٔ مالک:** اسناد repo به نام‌های `docs/mission_v1_1/E_SECURITY_GATE_DESIGN.md`، `F_PUMP_EVENT_RESEARCH_SPEC.md`، `F_STATE_MACHINE_72H.md`، `G_PROVIDER_MATRIX.md`، `I_HOLDER_WHALE_ARCHITECTURE.md`، `J_SOCIAL_NARRATIVE_ARCHITECTURE.md` و `docs/SUN_SNIPER_TELEGRAM.md` در فهرست ماتریس هستند. متن کامل آن‌ها روی این سامانه نیست. **M33.1 باید آن‌ها را بخواند و با این بخش آشتی دهد.** جدیدترین گفتهٔ مالک (22:40) برنده است، مگر در invariantهای قفل‌شده.
+
+#### ۱۴.۸.۱ نرخ پایه (صادقانه)
+بیشتر توکن‌های جدید شکست می‌خورند:
+- **Solidus Labs (۲۰۲۵) [R84]:** حدود ۹۸٫۶٪ توکن‌های pump.fun (ژانویهٔ ۲۰۲۴ تا مارس ۲۰۲۵) به نقدشوندگی زیر ۱٬۰۰۰ دلار رسیدند.
+- **Chainalysis (۲۰۲۵) [R85]:** حدود ۳٫۵۹٪ از ۲٫۰۶ میلیون توکن عرضه‌شده در ۲۰۲۴ الگوی pump-and-dump داشتند (با تعریف سخت‌گیرانه). ۹۴٪ poolهای درگیر را خود سازندهٔ pool، rug کرده بود.
+- **Cernera و همکاران (USENIX Security 2023) [R76]:** حدود ۶۰٪ توکن‌های اتریوم و BSC کمتر از یک روز عمر کردند. «1-day rug pull» و sniper botها رایج‌اند.
+- **Xia و همکاران (SIGMETRICS 2021) [R77]:** حدود نیمی از توکن‌های فهرست‌شده در Uniswap V2 کلاهبرداری بودند.
+
+**نتیجه:**
+- خروجی پیش‌فرض این قابلیت `SKIP` است.
+- «اول بودن» در لحظهٔ عرضه اغلب یعنی نقدشوندگی خروج دیگران شدن.
+- انتظار درست این است: **چند برد بزرگ، باخت‌های کوچک و زیاد، و عدم‌ورود فراوان.**
+- هیچ ادعای «پیش‌بینی پامپ» بدون شاهد OOS پذیرفته نیست.
+
+#### ۱۴.۸.۲ منابع داده (بررسی‌شده با جستجوی وب، 2026-10-03؛ سیاست ‎$0 در ماه)
+| منبع | کاربرد | وضعیت دسترسی (بررسی‌شده) | نقش در طراحی |
+|---|---|---|---|
+| DexScreener API [R87] | pairهای جدید، token-profiles و boosts، قیمت، نقدشوندگی، حجم، txns | رایگان. ۶۰ درخواست در دقیقه (profiles/boosts) و ۳۰۰ (pairs/tokens/search). WebSocket دارد | **منبع اصلی کشف** |
+| GeckoTerminal API [R87] | `/networks/{network}/new_pools`، OHLCV، `pool_created_at`، `reserve_in_usd` | عمومی، ۳۰ درخواست در دقیقه. صفحه‌بندی محدود | **منبع دوم مستقل** (P1§44: یک منبع = UNRESOLVED) |
+| pump.fun / PumpSwap (Solana) | توکن‌های bonding-curve و graduation | از طریق provider موجود `architecture/providers/pumpfun` | کشف پیش‌عرضه و اوایل عرضه |
+| RPC و رویدادهای زنجیره | `PairCreated` در factoryها، Mint و Transfer، رویدادهای LP، کیف deployer؛ mempool فقط برای **رصد** addLiquidity | RPC رایگان یا عمومی (محدود)؛ شمار holder ممکن است UNKNOWN باشد (AD-0345) | **حقیقت زنجیره، بازسازی تاریخی بدون survivorship** |
+| GoPlus Token Security [R88] | `is_honeypot`، `buy_tax`/`sell_tax`، `cannot_sell_all`، `slippage_modifiable`، `owner_change_balance`، blacklist، proxy، mint، holders و LP holders | سطح رایگان با کلید. «No return means unknown» | امنیت EVM. نبود فیلد = UNKNOWN (P1§44) |
+| Honeypot.is [R88] | شبیه‌سازی خرید و فروش، مالیات واقعی، pair | فقط Ethereum، BSC و Base؛ Uniswap V2/V3-محور؛ فعلاً بدون کلید | امنیت EVM (منبع مستقل دوم) |
+| RugCheck [R88] | گزارش توکن Solana: ریسک‌ها، `lpLockedPct`، mint و freeze، insider graph | کلید رایگان FluxRPC؛ bulk پولی است | **امنیت Solana** (AD-0347) |
+| Birdeye [R87] | دادهٔ بازار Solana؛ `/defi/token_security` | سطح رایگان امنیت را **ندارد** (از ۳۹ دلار در ماه) | اختیاری، Tier-4، **هرگز وابستگی سخت** (AD-0358) |
+| TokenSniffer [R88] | امتیاز ۰ تا ۱۰۰ و Smell Test | API کلیددار و تجاری | اختیاری، Tier-4 |
+| DEXTools | رتبه‌بندی و نمای بازار | API پولی **کنار گذاشته شده** (AD-0359) | فقط مرجع دستی، نه وابستگی |
+| خبر و اجتماعی | X/CT، Telegram، Reddit، Discord، GitHub، RSS/GDELT | با رعایت ToS و robots.txt؛ API رسمی | نگار؛ ویژگی‌های جدا (AD-0370) |
+| شبیه‌سازی fork [R89] | Foundry `anvil --fork-url --fork-block-number` (EVM)؛ Solana RPC `simulateTransaction` | ابزار متن‌باز / RPC | **آزمون مستقل خرید و فروش** |
+| ارسال خصوصی [R89] | Flashbots Protect و MEV Blocker (Ethereum)؛ Jito block engine + `jitodontfront` (Solana) | عمومی | محافظت MEV (فقط برای اجرای آینده) |
+
+هر پاسخ پیش از نرمال‌سازی با sha256 ذخیره می‌شود (AD-0361). هر منبع امتیاز اعتبار (Source Reliability) دارد (P1§41). کلیدها فقط در خزانهٔ اسرار مالک نگهداری می‌شوند و هرگز در repo نیستند.
+
+#### ۱۴.۸.۳ خط لوله
+```
+S0 DISCOVER   DexScreener + GeckoTerminal + pumpfun + PairCreated/RPC  →  candidate(chain, contract, pool, first_seen_ts, sources[])
+S1 IDENTITY   architecture/identity/  →  RESOLVED | AMBIGUOUS | UNRESOLVED   (≥ ۲ منبع مستقل؛ pair_created_ts لازم؛ هرگز حدس)
+              AMBIGUOUS/UNRESOLVED → MONITOR_ONLY (پایان)
+S2 SAFETY GATE (تینا؛ architecture/security/gate.py گسترش)  →  PASS | UNKNOWN | INCOMPLETE | FAIL  (همان واژگان؛ واژگان چهارم ممنوع)
+S3 SIGNALS    نیما: گراف نهنگ/smart-money/deployer · نگار: خبر و اجتماعی (+ دستکاری) · کامیار: مومنتوم، نقدشوندگی، حجم، wash
+S4 FUSE       p(PUMP)، p(RUG)، p(FLAT) کالیبره + پروندهٔ P2§12 (WHY/EVIDENCE/COUNTER/RISKS/UNKNOWN)
+S5 DECIDE     گیت‌های ۱۴.۲ (stress) و ۱۴.۳ (داور) برای ورودهای بالای آستانه؛ رامین (سقف‌ها)؛ مریم (قانون)
+S6 EXECUTE    paper: AMM simulator در PaperAdapter · آینده: داریوش با ارسال خصوصی و minOut
+S7 MANAGE     پایش مداوم امنیت و نهنگ‌ها؛ نردبان سود؛ stop زمانی؛ خروج اضطراری
+S8 LEARN      هومن: پرسش‌های P2§27؛ حافظهٔ ۱۴.۴؛ تیکت دانشگاه
+```
+**کلاس‌ها و قواعد ورود:**
+- **PRE-LAUNCH** همیشه `MONITOR_ONLY` است: pool و `pair_created_ts` ندارد، پس fail-closed (P1§44). خرید presale یا whitelist ممنوع است. فقط رصد و پرونده انجام می‌شود تا پس از عرضه آماده باشد.
+- **NEWLY LAUNCHED:** ورود فقط پس از **حداقل پنجرهٔ مشاهده** مجاز است. پیشنهاد: ≥ ۱۵ دقیقه و ≥ ۵۰ معامله پس از ایجاد pool. نقش این پنجره رصد تغییرات اولیهٔ مالیات، رفتار sniperها و برداشت LP است. **sniping در بلوک عرضه انجام نمی‌شود** [R76].
+- **EXISTING HIDDEN:** همان گیت، به‌اضافهٔ تاریخچهٔ عمر (بقای LP، رشد holderها، تکرار نشدن rug).
+
+**S2، دروازهٔ ایمنی (مالک: تینا؛ وتوی مستقل؛ یافته‌اش بازنویسی نمی‌شود، AD-0665).** چک‌ها و قاعدهٔ FAIL:
+| دسته | چک | FAIL اگر | منبع |
+|---|---|---|---|
+| فروش‌پذیری | **شبیه‌سازی خرید ← فروش کامل** روی fork در بلوک فعلی، با کیف تازه و مقدار واقعی موقعیت | فروش revert شود، **دریافت کمتر از ۹۰٪ انتظار پس از مالیات و slippage باشد**، یا امکان فروش کل موجودی نباشد (`cannot_sell_all`) | Anvil / simulateTransaction [R89]؛ Honeypot.is و GoPlus برای مقایسه |
+| مالیات | buy_tax، sell_tax و transfer_tax اندازه‌گیری‌شده | هر کدام > ۵٪، یا **قابل‌تغییر** (`slippage_modifiable`، تابع setFee یا setTax) | GoPlus، شبیه‌سازی، bytecode |
+| محدودیت | max TX، max wallet، cooldown، trading pause، anti-whale پنهان | محدودیت فروش جزئی یا pause فعال‌شدنی توسط owner | GoPlus، bytecode |
+| اختیارات | mint، freeze (SPL)، blacklist/whitelist، `owner_change_balance`، hidden owner، proxy/upgradeable، `selfdestruct`/external call | هر اختیار فعال **و** owner غیر renounced. proxy قابل‌ارتقا = FAIL | GoPlus، RugCheck، بررسی ایستای bytecode (الگوهای honeypot [R78]) |
+| نقدشوندگی | مالکیت LP، قفل یا سوزاندن، مدت قفل، نسبت LP به mcap | LP قفل‌نشده و نسوزانده، قفل کمتر از ۳۰ روز، یا نقدشوندگی کمتر از ۲۰ هزار دلار | GoPlus (LP holders)، RugCheck (`lpLockedPct`)، رویدادهای LP |
+| تمرکز | سهم top-10 holder (بدون pool و قفل‌ها)، insider/deployer، **کیف‌های bundled** (تأمین مالی از یک منبع در یک بلوک) | top-10 بیش از ۳۰٪، deployer و مرتبطان بیش از ۱۰٪، یا خوشهٔ bundled بیش از ۲۰٪ | گراف نیما؛ RugCheck insider graph |
+| سابقه | **گراف deployer:** توکن‌های قبلی، rugهای قبلی، منبع تأمین مالی (mixer/bridge)، کیف‌های مرتبط | هر rug قبلی deployer یا خوشهٔ تأمین مالی او (prior-rug creator، AD-0349) | RPC/explorer؛ WalletReputation مشتق (AD-0367) |
+| هویت | نماد تقلیدی (impersonation)، چند قرارداد با یک نماد | AMBIGUOUS | identity resolver |
+
+- **قاعدهٔ تجمیع:** هر FAIL یعنی `REJECT`.
+- **در شکارچی، هر UNKNOWN روی چک‌های بحرانی** (فروش‌پذیری، مالیات، اختیارات، LP) یعنی `INCOMPLETE`، یعنی **عدم ورود**. این از Lane A سخت‌گیرتر است (AD-0995)، اما Lane A بدون تغییر می‌ماند.
+- UNKNOWN روی چک‌های غیربحرانی، اندازه را دست‌کم ۵۰٪ کوچک می‌کند.
+- **چک مجدد پیوسته:** هر ۵ دقیقه برای موقعیت باز. تغییر مالیات، اختیار یا LP، خروج فوری می‌خواهد.
+- **پایهٔ علمی:** honeypotها در قرارداد [R78]؛ تشخیص توکن‌های کلاهبردار با ویژگی و یادگیری [R77]؛ rug یک‌روزه و sniper [R76].
+- **آستانه‌ها پیشنهاد من هستند،** نه تصمیم مالک. پس از بک‌تست با دادهٔ واقعی تنظیم می‌شوند، فقط با گیت و هرگز برای «بیشتر وارد شدن».
+
+**S3، سیگنال‌ها (سه خانوادهٔ جدا؛ ادغام فقط در S4):**
+- **نیما، گراف کیف‌پول:**
+  - گراف جهت‌دار انتقال‌ها و swapها؛ خوشه‌بندی کیف‌ها (هم‌تأمین، هم‌زمانی).
+  - **WalletReputation مشتق** (AD-0367): بازده تاریخی کیف روی توکن‌های قبلی، **فقط as-of**، با shrinkage برای نمونهٔ کم.
+  - ویژگی‌ها: «smart money» (کیف‌های با سابقهٔ سودِ تکرارشونده خارج از نمونه)، ورود خالص نهنگ‌ها، تمرکز رو به کاهش یا افزایش، رفتار deployer.
+  - تشخیص کیف‌های sniper و bundler.
+  - روش GNN (به سبک [R83]) فقط پس از اینکه baseline ساده شکست بخورد (AD-0355).
+  - **هشدار P2§27:** «Were whales deceptive?»؛ نهنگ ممکن است طعمه باشد.
+- **نگار، خبر و اجتماعی** (+ صندلی `SOCIAL` مالک، P2§15، فعلاً بی‌متصدی؛ ۲.۷):
+  - سرعت و شتاب ذکر، تنوع منابع مستقل، ورود حساب‌های معتبر، و روایت (meta).
+  - **تشخیص مصنوعی بودن:** bot و ربات‌واره، حساب‌های تازه، پیام‌های تکراری، کمپین پولی، boost پولی DexScreener (که «تبلیغ» است، نه شاهد).
+  - تشخیص الگوی گروه‌های pump هماهنگ [R82].
+  - «VIRAL ≠ VALID».
+- **کامیار، بازار:**
+  - مومنتوم چندافقی، نسبت خرید به فروش، تعداد خریداران یکتا، رشد نقدشوندگی، حجم به نقدشوندگی، عمق در برابر اندازهٔ موقعیت.
+  - **اصالت حجم** (wash trading: الگوهای Benford و خوشه‌بندی اعداد گرد [R81])؛ ناهنجاری قیمت و حجم به سبک [R82].
+  - «‎+۱۰۰٪ کم‌نقدشونده ≠ فرصت» (AD-0353).
+
+**S4، تجمیع و احتمال کالیبره:**
+- **تعریف پیامد** (برچسب فقط با داده‌های پس از زمان تصمیم):
+  - `PUMP` = بیشینهٔ بازده **قابل‌خروج** ≥ ‎+۱۰۰٪ ظرف ۷۲ ساعت، پس از هزینه، مالیات و slippage شبیه‌سازی‌شده با اندازهٔ واقعی.
+  - `RUG` = از دست رفتن بیش از ۸۰٪ ارزش یا ناممکن شدن فروش.
+  - `FLAT` = هیچ‌کدام.
+  - پنجرهٔ ۷۲ ساعت با `F_STATE_MACHINE_72H.md` هم‌خوان است.
+- **مدل:**
+  - چندکلاسهٔ competing-risk: ابتدا logistic/GBM ساده، سپس پیچیده‌تر فقط با گیت.
+  - کالیبراسیون isotonic یا Platt روی OOS زمانی [R46].
+  - گزارش Brier و ECE به تفکیک chain و هفته (AD-0356). **مقایسه با baseline اجباری است** (AD-0355): «خرید تصادفی از واجدان گیت» و «فقط گیت».
+- **پرونده:** قالب کامل P2§12، با «Opportunity» و «Confidence» **جدا** (P2§13).
+- **قاعدهٔ ورود (پیشنهادی):**
+  - p(PUMP) ≥ ۰٫۲۵؛
+  - و p(RUG) ≤ ۰٫۰۵؛
+  - و امید ریاضی خالص پس از هزینه > ۰ با فاصلهٔ اطمینان؛
+  - و ≥ ۲ خانوادهٔ سیگنال مستقل هم‌جهت. اجتماعی تنها کافی نیست.
+- **AI** فقط می‌تواند تصمیم را پایین بیاورد، نه بالا (P1§44).
+
+**S5 و S6، اندازه، خروج و اجرا (sleeve سخت و کوچک؛ هم‌خوان با `PB-TOKEN` ۴.۶):**
+- **ابزار:** فقط spot، فقط long، **بدون اهرم**، بدون وام و بدون LP دادن.
+- **سقف‌ها:**
+  - هر توکن ≤ ۱٪ NAV؛
+  - مجموع sleeve ≤ ۵٪ NAV؛
+  - موقعیت ≤ ۱٪ نقدشوندگی pool، و price impact شبیه‌سازی‌شده ≤ ۱٪؛
+  - حداکثر ۵ موقعیت هم‌زمان؛ حداکثر ۲ ورود در هر chain در روز.
+  - Kelly کسری c ≤ ۰٫۱۰ روی p کالیبره، با سقف‌های بالا (۵.۱).
+- **ترمز sleeve:** افت ‎−۳۰٪ از اوج sleeve، ورود جدید را برای ۷ روز متوقف می‌کند. سقف‌ها و نردبان DD کلی (۵.۳) هم برقرارند.
+- **برنامهٔ خروج پیش از ورود (پیشنهادی):**
+  - در ‎۲×، ۵۰٪ فروخته می‌شود و اصل سرمایه برمی‌گردد.
+  - در ‎۳× و ‎۵×، هر بار ۱۵٪.
+  - باقی‌مانده با trailing stop ‏۳۰٪.
+  - stop قیمتی ‎−۳۵٪.
+  - **stop زمانی:** اگر ظرف ۲۴ ساعت ‎+۲۰٪ نشود، خروج. سقف نگهداری ۷۲ ساعت، مگر در کلاس HIDDEN با بازبینی.
+- **خروج اضطراری فوری:**
+  - تغییر مالیات، اختیار یا LP؛
+  - فروش deployer یا خوشهٔ insider؛
+  - افت نقدشوندگی بیش از ۳۰٪ در یک ساعت؛
+  - شکست شبیه‌سازی فروش.
+- **کنترل slippage:**
+  - `minOut` بر اساس quote شبیه‌سازی‌شده؛
+  - slippage مجاز ۱ تا ۳٪، با تفکیک ورود و خروج؛
+  - قیمت quote و قیمت شبیه‌سازی نباید بیش از ۰٫۵٪ اختلاف داشته باشند؛
+  - هرگز «slippage نامحدود».
+- **محافظت MEV و sandwich** [R79، R80]:
+  - Ethereum: فقط از RPC خصوصی (Flashbots Protect یا MEV Blocker).
+  - Solana: از Jito با `jitodontfront`.
+  - chainهایی که مسیر خصوصی تأییدشده ندارند: اندازه ۵۰٪، یا عدم ورود.
+  - تقسیم سفارش به قطعه‌های کوچک؛ عدم استفاده از mempool عمومی.
+  - **AHOS هرگز خودش sandwich، front-run یا MEV علیه کاربران دیگر انجام نمی‌دهد.**
+- **Paper:**
+  - شبیه‌ساز AMM در `PaperAdapter`: constant-product و V3، کارمزد، **مالیات اندازه‌گیری‌شده**، تأخیر واقعی، haircut برای MEV.
+  - هر ورود paper همان گیت و همان شبیه‌سازی فروش را دارد.
+
+#### ۱۴.۸.۳-الف لایهٔ OSINT قانونی (افزودهٔ مالک 22:48؛ مالک: نگار؛ وتوی قانونی: مریم)
+**هدف:** کانال‌های **عمومی** تلگرام، X/Twitter، اینستاگرام، سایت‌های خبری و گفتگوهای «alpha» و شایعه به **سیگنال با اعتبار سنجیده** تبدیل می‌شوند. **هر ادعا تا اثبات `UNVERIFIED` است.** این لایه سه هدف دارد: اطلاع زودهنگام (پیام مالک: «زودتر بخرن و به موقع بفروشن»)، **تشخیص کلاهبرداری و دستکاری**، و ثبت شهرت منبع.
+
+**منابع و دسترسی (بررسی‌شده، 2026-10-03):**
+| منبع | راه قانونی | وضعیت |
+|---|---|---|
+| کانال‌های عمومی تلگرام | API رسمی تلگرام، فقط کانال‌های **عمومی**، فقط خواندنی، با رعایت ToS. Bot API فقط پیام کانال‌هایی را می‌بیند که ربات عضو آن‌هاست [R74] | راه دقیق و حساب مورد استفاده = تصمیم مالک و مریم. تا آن زمان `UNKNOWN` |
+| X/Twitter | API رسمی X. **از ۲۰۲۶ سطح رایگان ندارد و پرداخت به ازای مصرف است** (حدود ۰٫۰۰۵ دلار برای هر پست خوانده‌شده) | با سیاست ‎$0 در ماه (AD-0358) تعارض دارد. **اختیاری، Tier-4، نیازمند بودجهٔ مالک.** scrape برخلاف ToS ممنوع |
+| Instagram | فقط API رسمی Meta، در حدود مجاز آن | محدود. `UNKNOWN` |
+| سایت‌های خبری، RSS و GDELT | RSS و API رسمی؛ robots.txt | موجود در ۳.۲ |
+| Reddit، Discord عمومی، GitHub | API رسمی و ToS | Discord فقط سرورهای عمومی، فقط خواندنی |
+
+**قواعد سخت:**
+- فقط محتوای **عمومی** یا مجاز. هرگز گروه خصوصی، اشتراک پولی «signal» یا «premium pump»، حساب جعلی یا هویت ساختگی.
+- **پیوستن به گروه‌های pump برای معامله ممنوع است.** AHOS هیچ پیامی در این محیط‌ها منتشر نمی‌کند (فقط خواندن). داده‌های شخصی فقط در حد لازم نگه داشته می‌شوند.
+
+**اجزا:**
+1. **Claim Extractor:** پیام به ادعای ساختاریافته تبدیل می‌شود. نمونه‌ها: «listing در صرافی X»، «همکاری با Y»، «عرضهٔ ساعت T»، «نهنگ Z خرید». هر ادعا شناسهٔ توکن را **فقط از متن صریح** می‌گیرد و هرگز آدرس را حدس نمی‌زند (P1§109). سپس از resolver هویت (S1) می‌گذرد.
+2. **وضعیت ادعا:**
+   - چرخه: `UNVERIFIED → CORROBORATED (≥ ۲ منبع مستقل و غیرهماهنگ) → VERIFIED (منبع رسمی یا زنجیره) | REFUTED | EXPIRED`.
+   - **فقط CORROBORATED و VERIFIED وزن مثبت دارند.** UNVERIFIED فقط باعث «پیگیری» می‌شود (P2§10: INVESTIGATE → VERIFY).
+3. **Source Reputation Ledger:**
+   - ساختار: `source(id, platform, handle, first_seen, claims_n, verified_n, refuted_n, lead_time_median, pump_promo_n, rug_assoc_n, coordination_cluster_id, reliability)`.
+   - **reliability** = Beta-Bernoulli posterior روی ادعاهای تأییدشده در برابر ردشده، با پوسیدگی زمانی.
+   - **«پیش‌خبر سودمند»** جدا سنجیده می‌شود: lead time تا حرکت بازار، فقط as-of.
+   - منبعی که بارها توکن‌های rug‌شده را تبلیغ کرده، **امتیاز منفی** می‌گیرد و حضورش سیگنال خطر است.
+4. **تشخیص shill هماهنگ و bot** (Pacheco و همکاران [R90]):
+   - گراف هماهنگی از ردهای رفتاری مشترک: هم‌زمانی ارسال، متن تقریباً تکراری (MinHash)، لینک یا آدرس مشترک، الگوی hashtag، حساب‌های تازه و انبوه.
+   - خوشهٔ هماهنگ = **سیگنال خطر**، نه هیجان.
+   - boost پولی DexScreener و تبلیغ اینفلوئنسری بدون افشا، «تبلیغ» هستند، نه شاهد.
+5. **تشخیص گروه pump-and-dump** (La Morgia و همکاران [R91]؛ Kamps و Kleinberg [R82]):
+   - الگوهای اعلام زمان‌دار («pump at 18:00 UTC»)، شمارش معکوس، الگوی قیمت و حجم ثانیه‌ای.
+   - **کاربرد فقط دفاعی:** توکن هدف `REJECT` و `PUMP_GROUP_TARGET` می‌گیرد. موقعیت باز در آن توکن خروج فوری می‌گیرد. منبع در ledger شهرت ثبت می‌شود.
+   - **هرگز برای ورود پیش از اعلام استفاده نمی‌شود** (INV-29).
+6. **شایعه و «alpha»:** فقط به‌عنوان فرضیه (HYPOTHESIS، AD-0112) با برچسب UNVERIFIED. وزن آن در S4 صفر است، مگر پس از تأیید مستقل با زنجیره، اعلام رسمی یا ≥ ۲ منبع غیرهماهنگ با reliability بالا.
+
+**خروجی به S4:** `social_features` (جدا از on-chain؛ AD-0370)، `claims[]` با وضعیت، `coordination_risk`، `pump_group_flag` و `source_reliability_mean`.
+
+#### ۱۴.۸.۳-ب لایهٔ امنیتی white-hat (مالک: تینا)
+**هدف:** کشف خطر قرارداد **فقط با تحلیل دفاعی کد عمومی و گزارش‌های عمومی**. AHOS هرگز exploit نمی‌کند، به سامانه‌ای نفوذ نمی‌کند و روی mainnet آزمون حمله اجرا نمی‌کند.
+
+**اجزا:**
+1. **تحلیل ایستای منبع verified:** Slither [R92] (crytic/slither؛ SlithIR، detectorهای آسیب‌پذیری و اختیارات) روی کد verified در explorer. خروجی به چک‌های S2 نگاشت می‌شود: توابع `onlyOwner` که مالیات، blacklist، pause یا mint را تغییر می‌دهند، و upgradeability.
+2. **تحلیل bytecode و اجرای نمادین:** Mythril [R93] (ConsenSys؛ symbolic execution روی EVM bytecode) برای قراردادهای **بدون منبع verified**، با `--execution-timeout` و `--max-depth` محدود.
+   - **کد بدون منبع verified، به‌خودی‌خود ریسک بالاست:** یا INCOMPLETE یا کاهش اندازه.
+   - **محدودیت ابزار ثبت می‌شود:** Mythril «unsound» است و منطق کسب‌وکار را کشف نمی‌کند [R93]. **نبود یافته ≠ امن** (UNKNOWN ≠ SAFE).
+3. **الگوهای honeypot و rug:** مقایسهٔ bytecode با الگوهای شناخته‌شده [R78] و fixtureهای AD-0349، و تشابه bytecode با قراردادهای rug‌شدهٔ قبلی (clone detection).
+4. **اجرای همه‌چیز در محیط ایزوله:** fork محلی (Anvil) و sandbox بدون کلید واقعی. هیچ تراکنشی از این لایه به شبکهٔ واقعی ارسال نمی‌شود.
+5. **پیگیری افشاهای عمومی به‌عنوان سیگنال ایمنی:**
+   - پایگاه هک‌های DeFiLlama و leaderboard سایت rekt.news [R94]؛
+   - برنامه‌های bug bounty و گزارش‌های audit عمومی (Immunefi، Code4rena و گزارش‌های منتشرشدهٔ شرکت‌های audit) [R94]؛
+   - حساب‌ها و بلاگ‌های عمومی پژوهشگران امنیتی (در ledger شهرت منبع، مثل OSINT).
+   - **کاربرد:** هشدار exploit یا rug در توکن، deployer یا قرارداد مشابه، **ورود را مسدود می‌کند و موقعیت را می‌بندد.** وجود audit معتبر **فقط** کمی از عدم قطعیت می‌کاهد و هرگز به‌تنهایی PASS نمی‌دهد (رخدادهای «audited but rekt» در rekt.news).
+6. **افشای مسئولانه:** اگر AHOS در تحلیل دفاعی به آسیب‌پذیری‌ای برسد، **هرگز از آن بهره نمی‌برد.** موضوع با تأیید مالک و مریم فقط از کانال رسمی bug bounty یا افشای مسئولانه گزارش می‌شود.
+
+#### ۱۴.۸.۳-ج وتوی انطباق (مریم)
+مریم **وتوی مستقل** روی سه چیز دارد: هر منبع دادهٔ جدید (قانونی بودن، ToS، حریم خصوصی)، هر ورود که سیگنال اصلی آن OSINT است، و هر رفتار لایهٔ امنیتی. پرسش‌های گیت قانونی:
+1. آیا داده عمومی یا مجاز است؟
+2. آیا ممکن است اطلاعات محرمانهٔ مهم (MNPI) باشد، مثل نشت listing از داخل صرافی یا تیم؟
+3. آیا ورود ما به دستکاری کمک می‌کند؟
+4. آیا تحریم یا ToS نقض می‌شود؟
+
+**هر «بله» یا «نامعلوم» یعنی وتو.**
+
+#### ۱۴.۸.۴ بک‌تست point-in-time بدون survivorship
+- **جهان کامل:** **همهٔ** poolهای ایجادشده از رویدادهای `PairCreated` در factoryهای اصلی (Uniswap V2/V3، PancakeSwap، Aerodrome و غیره) و رویدادهای ایجاد در pump.fun، Raydium و PumpSwap. این شامل توکن‌های مرده، rug‌شده و ردشده است (AD-0357)، نه فقط آنچه امروز در DexScreener دیده می‌شود.
+- **as-of واقعی:**
+  - امنیت با **fork در همان بلوک تصمیم** (`--fork-block-number`) دوباره شبیه‌سازی می‌شود.
+  - برای Solana تاریخی، شبیه‌سازی محدود است و برچسب `PARTIAL` می‌گیرد.
+  - دادهٔ اجتماعی فقط آنچه **زنده ثبت شده** حساب می‌شود. scrape پسینی = `LOOKAHEAD-RISK`.
+  - حافظهٔ ۱۴.۴ همان فیلتر `available_at ≤ t` را دارد.
+- **تقسیم زمانی:** OOS = هفته‌های بعدی (AD-0365). n ≥ ۲۰۰ و ≥ ۲۰ مثبت در هر سلول، وگرنه `INSUFFICIENT DATA` (AD-0364).
+- **ارزیابی آماری:** DSR و PBO و آزمون چندگانه از کتابخانهٔ M28. هر واریانت قاعده یک trial است.
+- **هزینه:** کارمزد DEX، gas، مالیات، slippage شبیه‌سازی‌شده، و haircut برای MEV و تأخیر.
+- **سنجه‌ها:**
+  - precision@k برای PUMP؛
+  - **نرخ اجتناب از rug** در میان ورودها در برابر نرخ پایه؛
+  - Brier، ECE و reliability؛
+  - بازده خالص و max DD برای sleeve؛
+  - نرخ قابل‌خروج بودن؛
+  - مقایسه با دو baseline.
+
+#### ۱۴.۸.۵ عامل‌ها (استفادهٔ مجدد؛ **عامل جدید لازم نیست**)
+| عامل | نقش در شکارچی |
+|---|---|
+| **تینا (۱۰)** | مالک S2، دروازهٔ ایمنی و شبیه‌سازی خرید و فروش؛ **لایهٔ white-hat (Slither، Mythril، افشاها و auditها؛ ۱۴.۸.۳-ب)**؛ وتوی مستقل؛ پایش مجدد امنیت. گزارش به رامین |
+| **نیما (۹)** | گراف نهنگ، smart money و deployer؛ WalletReputation؛ تشخیص bundler و sniper. پروفایل `نیما@osint` موقتاً صندلی `OSINT` مالک (P2§15) را پوشش می‌دهد تا governance متصدی آن را تعیین کند |
+| **نگار (۲۷)** | **مالک لایهٔ OSINT قانونی (۱۴.۸.۳-الف):** خبر، اجتماعی، ادعا و شایعه (UNVERIFIED)، ledger شهرت منبع، تشخیص shill، bot و گروه pump. پروفایل `نگار@social` برای صندلی `SOCIAL` (۲.۷) |
+| **کامیار (۸)** | **مالک قابلیت و `PB-TOKEN`**؛ کشف، مومنتوم، نقدشوندگی، wash، تجمیع S4 و پرونده |
+| **مریم (۳۳)** | **وتوی انطباق (۱۴.۸.۳-ج):** منبع جدید، ورود OSINT‌محور، رفتار امنیتی؛ MNPI، دستکاری، تحریم و ToS |
+| رامین / داریوش | سقف‌ها و ترمز؛ اجرا (paper، و در آینده ارسال خصوصی) |
+| کیمیا / روشا / هومن / سروش | مدل و کالیبراسیون؛ روش بک‌تست؛ یادگیری از شکست؛ داوری ورودهای بالای آستانه |
+
+**دلیل نساختن عامل جدید:** هر چهار تخصص لازم در شورای P2§15 (Crypto Market، On-Chain، Cybersecurity، Social) عامل یا صندلی دارند. ساختن «Token Hunter Agent» جدید با کامیار تکرار می‌شد (۲.۵). **پیشنهاد:** مالک متصدی صندلی‌های `OSINT` و `SOCIAL` را جداگانه تعیین کند (۲.۷).
+
+#### ۱۴.۸.۶ ملاحظات حقوقی و انطباق (توضیح است، نه مشاورهٔ حقوقی؛ مالک: مریم)
+- **دستکاری بازار ممنوع است:** AHOS هرگز در گروه‌های pump هماهنگ شرکت نمی‌کند. توکنی را تبلیغ یا shill نمی‌کند. شایعه منتشر نمی‌کند. wash trade نمی‌کند. MEV علیه دیگران انجام نمی‌دهد. MiCA ماده ۹۱ [R86] دستکاری را برای کریپتوهای پذیرفته‌شده در پلتفرم‌ها ممنوع می‌کند. در آمریکا هم pump-and-dump طبق قوانین عمومی تقلب پیگرد دارد.
+- **اطلاعات محرمانه (MNPI):** فقط دادهٔ عمومی یا قانونی استفاده می‌شود. نشت داخلی listing یا اطلاعات خریداری‌شده از افراد داخلی ممنوع است. «رصد mempool» فقط برای کشف عرضه است، نه front-run.
+- **بدون هک:** هیچ exploit، نفوذ، دسترسی غیرمجاز، credential stuffing، دور زدن rate limit یا ToS، یا آزمون حمله روی mainnet انجام نمی‌شود. تحلیل امنیتی فقط دفاعی است و در fork محلی اجرا می‌شود.
+- **گروه‌های pump:** فقط رصد عمومی و دفاعی. عضویت برای معامله، پرداخت برای «signal» و انتشار پیام ممنوع است.
+- **تحریم و دسترسی** (INV-08، ۶.۴): front-endها و ناشران stablecoin ممکن است دسترسی را geoblock کنند یا موجودی را freeze کنند. مریم پیش از هر فاز LIVE ارزیابی می‌کند.
+- **ToS منابع:** فقط API رسمی، با رعایت rate limit. API پولی DEXTools کنار گذاشته شده است و scrape برخلاف ToS ممنوع است.
+- **مالیات و گزارش‌دهی:** ثبت کامل در ledger ژاله. تعهد مالیاتی با مالک است.
+- **امنیت کیف‌پول:** کیف sleeve جدا و hot، با سقف موجودی. هرگز `approve` نامحدود به قراردادهای ناشناس داده نمی‌شود و approvalها پس از هر خروج لغو می‌شوند. کلید معاملاتی مجوز برداشت ندارد (INV-13).
+
+#### ۱۴.۸.۷ Invariantها: INV-26 تا INV-30 (بخش ۱۲)
+
+#### ۱۴.۸.۸ معیار پذیرش
+- **fixtureهای وتو:**
+  - مجموعهٔ موجود (AD-0349) و افزودهٔ جدید: مالیات قابل‌تغییر، فروش جزئی، blacklist فعال، proxy قابل‌ارتقا، mint فعال، LP قفل‌نشده، deployer با سابقهٔ rug، خوشهٔ bundled، و نماد تقلیدی.
+  - **۱۰۰٪ وتو.** برچسب `FIXTURE` دارند و هرگز «نرخ کشف واقعی» گزارش نمی‌شوند.
+- **۰ ورود** با هویت AMBIGUOUS یا UNRESOLVED، یا با UNKNOWN روی چک بحرانی (تست خصمانهٔ رضا).
+- ۱۰۰٪ ورودها شبیه‌سازی فروش موفق دارند که حداکثر ۶۰ ثانیه پیش از ورود اجرا شده است، با شناسه در پرونده.
+- **بک‌تست OOS:**
+  - نرخ RUG در میان ورودها ≤ ۲٪، در برابر نرخ پایهٔ جهان، با CI ویلسون.
+  - Brier skill نسبت به نرخ پایه > ۰ (CI ‏۹۵٪ بالای صفر). ECE ≤ ۰٫۰۵.
+  - بازده خالص sleeve پس از همهٔ هزینه‌ها > ۰ با DSR ≥ ۰٫۹۵ (M28.1)، **و بهتر از هر دو baseline**.
+- **paper زنده:** ≥ ۳ ماه، ≥ ۵۰ ورود. slippage تحقق‌یافته ≤ حد مجاز در ≥ ۹۵٪. ۰ نقض سقف.
+- **تأخیر:** کشف تا پرونده در p95 ≤ ۹۰ ثانیه، با بودجهٔ rate limit رایگان.
+- ۱۰۰٪ پرونده‌ها قالب P2§12 را دارند و counter-evidence و UNKNOWN آن‌ها خالی نیست.
+- هزینهٔ عملیاتی ‎$0 در ماه، بدون وابستگی سخت پولی. X/Twitter فقط با بودجهٔ مصوب مالک.
+- **OSINT:**
+  - ۰ ادعای UNVERIFIED با وزن مثبت در S4.
+  - روی مجموعهٔ برچسب‌دار: کشف خوشه‌های shill کاشته‌شده با recall ≥ ۰٫۸۵.
+  - کشف رخدادهای گروه pump (fixture و داده‌های [R91]) با F1 ≥ ۰٫۸.
+  - ۱۰۰٪ توکن‌های `PUMP_GROUP_TARGET` رد شوند.
+  - reliability منبع روی ادعاهای بعدی کالیبره باشد (Brier بهتر از میانگین ساده).
+- **white-hat:**
+  - fixtureهای قرارداد مخرب (مالیات قابل‌تغییر، blacklist، mint پنهان، proxy) با Slither یا Mythril یا شبیه‌سازی ۱۰۰٪ پرچم بخورند.
+  - ۰ تراکنش از لایهٔ امنیتی به شبکهٔ واقعی (ممیزی سپهر).
+  - هشدار exploit عمومی ظرف ۵ دقیقه، ورود را مسدود کند.
+- **انطباق:**
+  - ۱۰۰٪ منابع جدید تأیید مریم را در ledger دارند.
+  - تست خصمانهٔ رضا ۰ عبور می‌دهد: پیام «نشت listing»، دعوت به گروه pump، و درخواست اجرای exploit، همگی رد شوند.
+
+#### ۱۴.۸.۹ مأموریت M33، «Token Hunter» (پروتکل SP ۱۴.۰)
+**بازبینی prompt:** آرش + **متخصص حوزه** + پروانه + گیتی. متخصص هر مرحله: تینا برای S2، نیما برای S3 on-chain، نگار برای S3 اجتماعی، کامیار برای کشف، تجمیع و اجرا.
+**sign-off:** قاسم + رضا + عرفان. فقط commit محلی. Lane A دست‌نخورده است (`python3 -B scripts/freeze_lane_a.py` سبز).
+
+| مرحله | کار (گسترش ماژول موجود) | تست و شاهد |
+|---|---|---|
+| M33.1 | **search-first و آشتی اسناد:** خواندن E_SECURITY_GATE_DESIGN، F_PUMP_EVENT_RESEARCH_SPEC، F_STATE_MACHINE_72H، G_PROVIDER_MATRIX، I_HOLDER_WHALE، J_SOCIAL_NARRATIVE و SUN_SNIPER_TELEGRAM؛ نقشهٔ «موجود / گسترش / شکاف» | گزارش آشتی با ارجاع خط؛ ۰ ماژول موازی |
+| M33.2 | **کشف:** adapterهای DexScreener و GeckoTerminal در `architecture/providers/` با rate limiter، sha256 خام و پایش PairCreated | تست rate limit با mock؛ تست «یک منبع = UNRESOLVED» |
+| M33.3 | **هویت:** گسترش `architecture/identity/` برای candidateهای جدید (نماد تقلیدی، چند pool) | تست AMBIGUOUS؛ تست «pair_created_ts نبود = fail closed» |
+| M33.4 | **دروازهٔ ایمنی v2 (تینا):** گسترش `architecture/security/gate.py` با GoPlus، Honeypot.is و RugCheck (همان واژگان، بدون واژگان چهارم)، UNKNOWN بحرانی = INCOMPLETE | fixtureهای وتوی گسترش‌یافته ۱۰۰٪؛ تست «GoPlus missing honeypot → None» |
+| M33.5 | **شبیه‌سازی خرید و فروش با fork:** Anvil fork برای EVM و `simulateTransaction` برای Solana؛ اندازه‌گیری مالیات واقعی | قرارداد honeypot نمونه روی fork محلی رد شود؛ قرارداد سالم PASS شود |
+| M33.6 | **گراف کیف‌پول (نیما):** خوشه‌بندی، WalletReputation مشتق as-of، bundler، sniper و deployer history | تست نشت PIT؛ تست خوشهٔ bundled کاشته‌شده |
+| M33.7 | **OSINT قانونی (نگار) + گیت قانونی مریم:** adapterهای رسمی (تلگرام عمومی، RSS و GDELT، Reddit؛ X فقط با بودجهٔ مالک)، Claim Extractor، وضعیت ادعا، ledger شهرت منبع | تست «UNVERIFIED وزن صفر»؛ تست «آدرس از متن صریح، نه حدس»؛ تست وتوی مریم |
+| M33.8 | **تشخیص shill هماهنگ، bot و گروه pump** (گراف هماهنگی، MinHash، الگوی اعلام) | recall ≥ ۰٫۸۵ برای خوشهٔ کاشته‌شده؛ F1 ≥ ۰٫۸ برای رخداد pump؛ `PUMP_GROUP_TARGET` = ۱۰۰٪ رد |
+| M33.9 | **white-hat (تینا):** Slither روی منبع verified، Mythril روی bytecode (timeout)، clone detection، پیگیری DeFiLlama hacks، rekt، Immunefi و Code4rena؛ همه در sandbox | fixtureهای مخرب ۱۰۰٪؛ ۰ تراکنش واقعی؛ تست «audit ≠ PASS» |
+| M33.10 | **بازار و wash (کامیار) + تجمیع S4:** مدل competing-risk + کالیبراسیون + پروندهٔ P2§12 | Brier و ECE روی OOS؛ مقایسه با baseline |
+| M33.11 | **بک‌تست PIT بدون survivorship:** جهان کامل از رویدادهای زنجیره، fork تاریخی و آمار M28 | گزارش با n، CI ویلسون و DSR؛ `INSUFFICIENT DATA` در صورت کمبود |
+| M33.12 | **Paper و اجرا:** شبیه‌ساز AMM در `PaperAdapter`، سقف‌ها، نردبان خروج، stop زمانی، خروج اضطراری، پایش ۵ دقیقه‌ای، `minOut` | تست سقف‌ها؛ تست خروج با تغییر مالیات کاشته‌شده |
+| M33.13 | **هشدار و داشبورد:** Token Discovery، Security و Exit Alert روی ربات canonical (P2§49، INV-24)؛ نقشهٔ توکن در داشبورد | پیام بدون عدد جعلی؛ `BLOCKED` تا AD-0128 |
+| M33.14 | **paper ماراتن ≥ ۳ ماه + یادگیری** (هومن، حافظهٔ ۱۴.۴) | معیارهای ۱۴.۸.۸ |
+| M33.15 (HUMAN-GATE) | ارسال خصوصی واقعی (Flashbots، Jito) و LIVE فقط با پایلوت M26 و امضای مالک | فقط با تأیید مالک؛ ابتدا testnet |
 
 ---
 
@@ -1689,6 +2061,25 @@ PAPER: همان محاسبه روی ledger کاغذی → ledger(MOTHER_FUND_SWE
 - **[R73]** Snodgrass. *Developing Time-Oriented Database Applications in SQL.* Morgan Kaufmann (1999).
 - **[R74]** Telegram. *Telegram Bot API* (core.telegram.org/bots/api), official documentation.
 - **[R75]** nof1.ai. *Alpha Arena* (Season 1, Oct–Nov 2025): a live-capital LLM trading contest, cited here only as a warning about luck in short contests.
+- **[R76]** Cernera, La Morgia, Mei, Sassi. *Token Spammers, Rug Pulls, and Sniper Bots: An Analysis of the Ecosystem of Tokens in Ethereum and in the Binance Smart Chain (BNB).* USENIX Security (2023); arXiv:2206.08202.
+- **[R77]** Xia, Wang, Gao, et al. *Trade or Trick? Detecting and Characterizing Scam Tokens on Uniswap Decentralized Exchange.* Proc. ACM Meas. Anal. Comput. Syst. (SIGMETRICS) 5(3) (2021); arXiv:2109.00229.
+- **[R78]** Torres, Steichen, State. *The Art of The Scam: Demystifying Honeypots in Ethereum Smart Contracts.* USENIX Security (2019).
+- **[R79]** Daian, Goldfeder, Kell, et al. *Flash Boys 2.0: Frontrunning, Transaction Reordering, and Consensus Instability in Decentralized Exchanges.* IEEE S&P (2020).
+- **[R80]** Qin, Zhou, Gervais. *Quantifying Blockchain Extractable Value: How dark is the forest?* IEEE S&P (2022).
+- **[R81]** Cong, Li, Tang, Yang. *Crypto Wash Trading.* Management Science 69(11):6427–6454 (2023).
+- **[R82]** Kamps, Kleinberg. *To the moon: defining and detecting cryptocurrency pump-and-dumps.* Crime Science 7:18 (2018).
+- **[R83]** Weber, Domeniconi, Chen, et al. *Anti-Money Laundering in Bitcoin: Experimenting with Graph Convolutional Networks for Financial Forensics.* KDD Workshop (2019); arXiv:1908.02591.
+- **[R84]** Solidus Labs. *Solana Rug Pulls & Pump-and-Dumps* (Rug Pull Report, 2025): about 98.6% of pump.fun tokens (Jan 2024–Mar 2025) fell below $1,000 liquidity.
+- **[R85]** Chainalysis. *The 2025 Crypto Crime Report*, market-manipulation chapter: 3.59% of 2,063,519 tokens launched in 2024 showed pump-and-dump patterns.
+- **[R86]** Regulation (EU) 2023/1114 (MiCA), Title VI, Art. 91: prohibition of market manipulation.
+- **[R87]** Market data API docs: DEX Screener API reference (docs.dexscreener.com); GeckoTerminal API guide (apiguide.geckoterminal.com); Birdeye Data docs (docs.birdeye.so).
+- **[R88]** Token security API docs: GoPlus Security Token Security API (docs.gopluslabs.io); Honeypot.is API (docs.honeypot.is); RugCheck API (api.rugcheck.xyz/swagger); TokenSniffer API (tokensniffer.readme.io).
+- **[R89]** Simulation and private order-flow docs: Foundry Anvil forking (getfoundry.sh); Solana RPC `simulateTransaction` (solana.com/docs); Flashbots Protect (docs.flashbots.net); MEV Blocker; Jito block engine and `jitodontfront` (docs.jito.wtf, solana.com/docs/defi/mev-protection).
+- **[R90]** Pacheco, Hui, Torres-Lugo, Truong, Flammini, Menczer. *Uncovering Coordinated Networks on Social Media: Methods and Case Studies.* ICWSM (2021).
+- **[R91]** La Morgia, Mei, Sassi, Stefa. *The Doge of Wall Street: Analysis and Detection of Pump and Dump Cryptocurrency Manipulations.* ACM Transactions on Internet Technology 23(1) (2023).
+- **[R92]** Feist, Grieco, Groce. *Slither: A Static Analysis Framework for Smart Contracts.* IEEE/ACM WETSEB (2019); github.com/crytic/slither.
+- **[R93]** ConsenSys Diligence. *Mythril*: symbolic-execution security analysis for EVM bytecode (github.com/ConsenSysDiligence/mythril). The documentation notes it is unsound and does not find business-logic flaws.
+- **[R94]** Public security disclosure sources: DefiLlama Hacks database (defillama.com/hacks); rekt.news leaderboard; Immunefi bug-bounty programs; Code4rena audit reports.
 - **ابزارها و مقررات:** NautilusTrader، LEAN (QuantConnect)، vectorbt، backtrader، freqtrade، hummingbot، Safe (multisig)، NIST AI RMF 1.0 (2023)، SEC Rule 15c3-5، MiFID II RTS 6، OFAC ITSR (31 CFR 560)، EU Reg. 267/2012.
 
 ---
@@ -1715,7 +2106,7 @@ PAPER: همان محاسبه روی ledger کاغذی → ledger(MOTHER_FUND_SWE
 | OA-14 | 2026-10-03 21:52 | حافظهٔ بلندمدت episodic، semantic و procedural هر بازار؛ حافظهٔ خطا و موفقیت؛ بازیابی با پوسیدگی زمانی و PIT؛ پیوند با Knowledge Store (۱۴.۴، INV-23) | M30 | **APPROVED (owner approved 2026-10-03 21:52)** |
 | OA-15 | 2026-10-03 21:52 | گزارش شبانهٔ کوتاه فارسی در تلگرام: چه شد، چرا، چه آموختیم؛ ربات موجود؛ اعداد فقط از ledger؛ PAPER/LIVE (۱۴.۵، INV-24) | M31 | **APPROVED (owner approved 2026-10-03 21:52)**؛ ارسال BLOCKED تا AD-0128 |
 | OA-16 | 2026-10-03 21:52 | صندوق امنیت مادر: X٪ سود محقق‌شده پس از LIVE (پیشنهاد ۲۰٪ بالای HWM، هفتگی)؛ هرگز معامله نمی‌شود؛ custody سرد؛ در پنل؛ آزادسازی فقط به کیف مالک با درخواست و تأیید؛ در PAPER شبیه‌سازی (۱۴.۶، ۷.۶، INV-25) | M32 | **APPROVED (owner approved 2026-10-03 21:52)**؛ X پیش‌فرض در انتظار تأیید مالک |
-| OA-17 | | *(ایدهٔ بعدی مالک)* | | |
-
+| OA-17 | 2026-10-03 22:40 (+22:48) | «شکارچی توکن»: کشف توکن‌های پیش از عرضه، تازه یا قدیمیِ کم‌دیده با احتمال جهش (DexTools/DexScreener و مشابه)؛ نهنگ و smart money، خبر و ویروسی‌شدن؛ ورود پیش از جهش؛ ضدکلاهبرداری (honeypot، فروش جزئی، مالیات زیاد یا قابل‌تغییر، قفل یا سوزاندن LP، mint، blacklist، اختیارات owner، تمرکز، گراف deployer). افزودهٔ 22:48: لایهٔ OSINT قانونی (تلگرام، X، اینستاگرام، خبر، alpha و شایعه به‌صورت UNVERIFIED، شهرت منبع، تشخیص shill، bot و گروه pump فقط به‌عنوان سیگنال کلاهبرداری)، لایهٔ white-hat (Slither، Mythril، افشاها، bug bounty و audit)، قیدهای قانونی (۱۴.۸، INV-26 تا INV-30) | M33 | **APPROVED for design (owner 2026-10-03 22:40)**؛ آستانه‌ها پیشنهاد سند و در انتظار تأیید مالک؛ بودجهٔ X در انتظار مالک |
+| OA-18 | | *(ایدهٔ بعدی مالک)* | | |
 
 > **Owner confirmation 2026-10-03 22:07 (Tehran):** Mehrdad approved (1) 20% weekly sweep of realised profit above high-water mark to the Mother Safety Fund, (2) the narrow INV-18 exception allowing automatic transfer ONLY to that one fixed fund address, (3) new agent #38 سروش (independent judge). PAPER_ONLY unchanged; live use still requires the real-money gate.
