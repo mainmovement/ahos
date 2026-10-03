@@ -22,9 +22,11 @@ import {
   proposalTextFa,
   propose,
   toPublic,
+  type ActionDeps,
   type ActionKind,
   type Identity,
   type PublicPendingAction,
+  type PendingActionStore,
 } from "./chat_actions";
 import { getDefaultChatAgent } from "./chat_agent";
 import { getConversationMemory, memoryKey, redactSecrets, stripConfirmCodes } from "./chat_memory";
@@ -105,6 +107,31 @@ export type ChatContext = {
   proven?: boolean;
 };
 
+/**
+ * MJ-12: a behaviour-test seam. Overriding the snapshot source and the confirm
+ * deps removes every database and network dependency from `handleChat` (the
+ * snapshot is the only place it reads live data; the confirm deps are the only
+ * place it executes anything), so the confirm-gated control surface can be
+ * exercised offline: owner/non-owner, propose/confirm/wrong-code/expired/cancel.
+ * The override is process-local and never reachable from a request body.
+ */
+let testDeps: {
+  snapshot?: () => Promise<Snap>;
+  actionDeps?: ActionDeps;
+  store?: PendingActionStore;
+} | null = null;
+
+export function setChatTestDeps(
+  d: { snapshot?: () => Promise<Snap>; actionDeps?: ActionDeps; store?: PendingActionStore } | null,
+): void {
+  testDeps = d;
+}
+
+async function takeSnapshot(): Promise<Snap> {
+  if (testDeps?.snapshot) return await testDeps.snapshot();
+  return await commandSnapshot();
+}
+
 export async function handleChat(message: string, ctx: ChatContext = {}): Promise<ChatResponse> {
   const text = message.trim();
   const identity: Identity = {
@@ -114,14 +141,15 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   };
   const memKey = memoryKey(identity.channel, identity.userId);
   const memory = getConversationMemory();
-  const store = getPendingStore();
+  const store = testDeps?.store ?? getPendingStore();
   const missions = getDevMissionStore();
 
   // Phase 7b: whole-message «تایید <code>» / «لغو» for a pending owner action.
   // Executes only via chat_actions.ts (same functions as the dashboard buttons), audited.
   const confirmation = parseConfirmation(text);
   if (confirmation) {
-    const r = await handleConfirmation(store, confirmation, identity, text);
+    const r = await handleConfirmation(store, confirmation, identity, text,
+      testDeps?.actionDeps ? { deps: testDeps.actionDeps } : {});
     const out = await lockedReply("confirm", r.replyFa);
     const evidence = { intent: "confirm", at: new Date().toISOString(), confirm: { op: confirmation.op, executed: r.executed, kind: r.kind } };
     memory.append(memKey, text, out.plain);
@@ -169,7 +197,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     const kind: ActionKind = intent === "start" ? "engine_start" : intent === "stop" ? "engine_stop" : "paper_buy";
     const params: { symbol?: string | null; tokenKey?: string | null; chain?: string | null; address?: string | null } = {};
     if (kind === "paper_buy") {
-      const s0 = await commandSnapshot();
+      const s0 = await takeSnapshot();
       const hit = findOpp(s0, text, ctx.focusToken ?? null);
       Object.assign(params, { symbol: hit?.symbol ?? extractSymbol(text), tokenKey: hit?.tokenKey ?? null, chain: hit?.chain ?? null, address: hit?.address ?? null });
     }
@@ -183,7 +211,7 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     await persistChat(text, out.plain, "proposal", evidence);
     return { reply: out.plain, replyHtml: out.html, intent: "proposal", evidence, focusToken: ctx.focusToken ?? null, pendingAction: r.ok ? toPublic(r.action) : null };
   }
-  const snap = await commandSnapshot();
+  const snap = await takeSnapshot();
   let focus =
     ctx.focusToken ||
     extractFocusFromHistory(ctx.history) ||

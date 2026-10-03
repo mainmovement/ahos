@@ -417,3 +417,84 @@ describe("shared response composer + phraser seam (no LLM configured)", () => {
     assert.ok(RESPONSE_STYLE_FA.some((r) => r.includes("GM-xx")));
   });
 });
+
+describe("MJ-11 phraser grounding guard: order, direction, advice", () => {
+  const FOOT = "تصمیم نهایی با کاربر است.";
+  // Two assets, opposite directions — the classic swap/flip target.
+  const draftPlain = [
+    "بیت‌کوین: ۶۴٬۲۰۰ دلار (۲۴ ساعت: +۱٫۲٪) — صعودی",
+    "اتریوم: ۳٬۱۰۰ دلار (۲۴ ساعت: -۰٫۸٪) — نزولی",
+    `— ${FOOT}`,
+  ].join("\n");
+  const ok = (phrased: string) => validatePhrased(draftPlain, phrased, FOOT);
+
+  it("accepts a rewording that keeps each asset's numbers and direction", () => {
+    assert.equal(
+      ok(
+        [
+          "بیت‌کوین در حال صعود است و حدود ۶۴٬۲۰۰ دلار معامله می‌شود.",
+          "اتریوم کمی کاهش داشته و الان ۳٬۱۰۰ دلار است.",
+          `— ${FOOT}`,
+        ].join("\n"),
+      ),
+      null,
+    );
+  });
+  it("accepts reordering the lines (each segment still grounded)", () => {
+    assert.equal(
+      ok([`اتریوم: ۳٬۱۰۰ دلار — نزولی`, `بیت‌کوین: ۶۴٬۲۰۰ دلار — صعودی`, `— ${FOOT}`].join("\n")),
+      null,
+    );
+  });
+  it("rejects swapping the two assets' numbers", () => {
+    const reason = ok(
+      [`بیت‌کوین: ۳٬۱۰۰ دلار — صعودی`, `اتریوم: ۶۴٬۲۰۰ دلار — نزولی`, `— ${FOOT}`].join("\n"),
+    );
+    assert.ok(reason !== null, "a number swap must be rejected");
+    // The swapped number does exist in the draft, but only in the *other* asset's
+    // segment — the one whose direction is نزولی. So the guard reports it as a
+    // direction that is not grounded in the segment that owns those numbers.
+    assert.match(
+      reason ?? "",
+      /^(NEW_NUMBER|SEGMENT_NUMBERS_NOT_GROUNDED|DIRECTION_NOT_GROUNDED)/,
+    );
+  });
+  it("rejects flipping a direction word", () => {
+    const reason = ok([`بیت‌کوین: ۶۴٬۲۰۰ دلار — نزولی`, `اتریوم: ۳٬۱۰۰ دلار — نزولی`, `— ${FOOT}`].join("\n"));
+    assert.match(reason ?? "", /^DIRECTION_NOT_GROUNDED/);
+  });
+  it("rejects a negation that flips a direction", () => {
+    const single = ["بیت‌کوین ۶۴٬۲۰۰ دلار رشد داشت", `— ${FOOT}`].join("\n");
+    const flipped = ["بیت‌کوین ۶۴٬۲۰۰ دلار رشد نداشت", `— ${FOOT}`].join("\n");
+    assert.equal(validatePhrased(single, flipped, FOOT), "DIRECTION_NOT_GROUNDED:NEG:رشد");
+  });
+  it("rejects added buy/sell advice", () => {
+    const reason = ok([`بیت‌کوین: ۶۴٬۲۰۰ دلار — صعودی`, `الان بخر!`, `— ${FOOT}`].join("\n"));
+    assert.equal(reason, "BUY_ADVICE");
+    const reason2 = ok([`بیت‌کوین: ۶۴٬۲۰۰ دلار — صعودی`, `پیشنهاد می‌کنم بخرید`, `— ${FOOT}`].join("\n"));
+    assert.equal(reason2, "BUY_ADVICE");
+  });
+  it("rejects a number that is not in the draft at all", () => {
+    const reason = ok([`بیت‌کوین: ۹۹٬۹۹۹ دلار — صعودی`, `— ${FOOT}`].join("\n"));
+    assert.match(reason ?? "", /^NEW_NUMBER/);
+  });
+  it("does not let one segment's negation leak into the next (lastIndex hazard)", () => {
+    // The negation window is scanned with a global regex. If its lastIndex
+    // survived from one segment to the next, the SECOND segment's negation
+    // marker would be skipped whenever it sat before the stale index. The draft
+    // has a negated direction in line 1 (so its lastIndex advances) while the
+    // phrased version drops that line — line 2 is byte-identical on both sides
+    // and must therefore be scored identically: a faithful rephrasing, accepted.
+    const draft = [
+      "بیت‌کوین ۶۴٬۲۰۰ دلار رشد بسیار کمی نداشت",
+      "اتریوم بدون افزایش ۳٬۱۰۰ ماند",
+      `— ${FOOT}`,
+    ].join("\n");
+    const phrased = [
+      "بیت‌کوین ۶۴٬۲۰۰ دلار معامله می‌شود.",
+      "اتریوم بدون افزایش ۳٬۱۰۰ ماند",
+      `— ${FOOT}`,
+    ].join("\n");
+    assert.equal(validatePhrased(draft, phrased, FOOT), null);
+  });
+});

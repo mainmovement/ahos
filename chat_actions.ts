@@ -432,7 +432,11 @@ export async function handleConfirmation(
   text: string,
   opts: { env?: EnvMap; audit?: AuditFn; deps?: ActionDeps } = {},
 ): Promise<{ replyFa: string; executed: boolean; kind: ActionKind | null }> {
-  const audit = opts.audit;
+  // Mission 9.6 (MN-8/m5 residual): a confirm-path denial is audited by default.
+  // handleChat does not inject an audit fn, so without this default a wrong-code
+  // or locked-out attempt from the live chat path would leave no audit line at
+  // all — the lockout would be invisible in the chain.
+  const audit = opts.audit ?? recordControlAudit;
   if (parsed.op === "cancel") {
     const a = parsed.code ? store.get(parsed.code) : store.latestFor(id);
     if (!a || a.identityKey !== identityKey(id)) return { replyFa: "درخواست در انتظاری برای لغو پیدا نشد.", executed: false, kind: null };
