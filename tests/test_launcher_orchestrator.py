@@ -566,15 +566,17 @@ class TestIconAndShortcuts:
 
     def test_shortcut_specs_target_the_console_wrapper(self):
         specs = shortcut_specs(ROOT, ROOT / "launcher" / "ahos.ico", user="sniper")
-        assert [s["name"] for s in specs] == ["AHOS.lnk", "AHOS Stop.lnk", "AHOS Status.lnk"]
+        # One icon only (owner rule): Status/Stop/Restart live in the dashboard.
+        assert [s["name"] for s in specs] == ["AHOS.lnk"]
         for s in specs:
             assert s["target_path"].endswith("powershell.exe")
             assert "ahos.ps1" in s["arguments"]
             assert s["icon_location"].endswith("ahos.ico,0")
             assert "ExecutionPolicy Bypass" in s["arguments"]
+            # -WindowStyle Hidden is what makes the launch invisible; the .lnk
+            # WindowStyle of 7 is only a fallback hint.
+            assert "-WindowStyle Hidden" in s["arguments"]
         assert "-Action start" in specs[0]["arguments"]
-        assert "-Action stop" in specs[1]["arguments"]
-        assert "-Action status" in specs[2]["arguments"]
 
     def test_create_shortcuts_writes_real_lnk_files(self, tmp_path):
         """The marshalled PowerShell must actually parse and save (a bare ``[``
@@ -583,19 +585,33 @@ class TestIconAndShortcuts:
         icon = tmp_path / "ahos.ico"
         build_icon(icon, sizes=(32,))
         desktop = tmp_path / "Desktop"
+        # A stale pre-M11.1 pair on the desktop must be retired, not deleted.
+        legacy = []
+        for name in S.LEGACY_NAMES:
+            f = desktop / name
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(b"not a real lnk, just a placeholder")
+            legacy.append(f)
+        retire = tmp_path / "retired"
+        moved = S.retire_legacy_shortcuts(desktop, retire)
+        assert sorted(Path(m).name for m in moved) == sorted(S.LEGACY_NAMES)
+        assert all(not p.exists() for p in legacy)
+        assert len(list(retire.glob("*.lnk.*"))) == 2
+
         wrote = S.create_shortcuts(tmp_path, icon=icon, desktop=desktop)
-        assert [w["name"] for w in wrote] == \
-            ["AHOS.lnk", "AHOS Stop.lnk", "AHOS Status.lnk"]
+        assert [w["name"] for w in wrote] == ["AHOS.lnk"]
         # Re-resolve through WScript.Shell: the .lnk must point at the wrapper.
         import subprocess
         lnk = str(desktop / "AHOS.lnk")
         res = subprocess.run(
             ["powershell", "-NoProfile", "-NonInteractive", "-Command",
              "$s = (New-Object -ComObject WScript.Shell).CreateShortcut('%s');"
-             "$s.TargetPath + ' ' + $s.Arguments" % lnk],
+             "$s.TargetPath + ' ' + $s.Arguments + ' | style=' + $s.WindowStyle" % lnk],
             capture_output=True, text=True, timeout=60)
         assert res.returncode == 0, res.stderr
         assert "ahos.ps1" in res.stdout and "-Action start" in res.stdout
+        assert "-WindowStyle Hidden" in res.stdout
+        assert res.stdout.rstrip().endswith("style=7")
 
 
 # --------------------------------------------------------------------- cli ---

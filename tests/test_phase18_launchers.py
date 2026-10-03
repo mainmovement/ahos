@@ -40,6 +40,19 @@ def _read(name: str) -> str:
     return (ROOT / name).read_text(encoding="utf-8")
 
 
+def _strip_ps_comments(text: str) -> str:
+    """Drop PowerShell comments, so a structural test never matches a word that
+    only appears in prose explaining the rule.
+
+    Both forms: ``<# ... #>`` blocks and ``#`` to end-of-line. Inside a string
+    literal a ``#`` is not a comment, but the wrapper has none, and the check is
+    only ever applied to files that must not hide a prompt either way.
+    """
+    text = re.sub(r"<#.*?#>", "", text, flags=re.S)
+    return "\n".join(line for line in text.splitlines()
+                     if not line.lstrip().startswith("#"))
+
+
 def _engine_cmd() -> list[str]:
     """The real daemon command, built by the code that actually launches it.
 
@@ -496,3 +509,117 @@ def test_documentation_still_requires_the_gated_soak_procedure():
         flat = " ".join(_read(doc).split())
         assert "AHOS_OPERATOR_QUICKSTART_WINDOWS.md" in flat, (
             f"{doc} must still point at the gated procedure")
+
+
+# ------------------------------------------------------- no visible console ---
+class TestNoVisibleConsole:
+    """M11.1 scope (b): no path the one-click launcher takes may flash a console.
+
+    On Windows a subprocess that lacks ``CREATE_NO_WINDOW`` allocates its own
+    console; ``DETACHED_PROCESS`` makes Windows *ignore* ``CREATE_NO_WINDOW``,
+    which was the original defect. This is an AST-level scan so a new call site
+    cannot slip through unnoticed.
+    """
+
+    LAUNCHER_MODULES = ("launcher/",)
+
+    def _call_sites(self):
+        """(file, call_node, enclosing_function) for every child-process call.
+
+        The enclosing name comes from a parent map, so nested and sibling
+        functions are both resolved correctly (``ast.walk`` alone cannot answer
+        "who contains this node" without one).
+        """
+        import ast
+        CALL_FUNCS = ("run", "Popen", "call", "check_call", "check_output",
+                      "system", "popen")
+        for py in ROOT.glob("launcher/**/*.py"):
+            if "__pycache__" in py.parts:
+                continue
+            tree = ast.parse(py.read_text(encoding="utf-8"))
+            parents: dict[int, ast.AST] = {}
+            for node in ast.walk(tree):
+                for child in ast.iter_child_nodes(node):
+                    parents[id(child)] = node
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call):
+                    continue
+                fn = node.func
+                qual = []
+                while isinstance(fn, ast.Attribute):
+                    qual.append(fn.attr)
+                    fn = fn.value
+                if isinstance(fn, ast.Name):
+                    qual.append(fn.id)
+                qual = ".".join(reversed(qual))
+                if qual.rsplit(".", 1)[-1] not in CALL_FUNCS:
+                    continue
+                if not (qual.startswith("subprocess.") or qual in
+                        ("os.system", "os.popen")):
+                    continue
+                enclosing, cur = None, node
+                while cur is not None:
+                    cur = parents.get(id(cur))
+                    if isinstance(cur, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        enclosing = cur.name
+                        break
+                yield py, node, enclosing
+
+    # Call sites that may legitimately omit the flag. Kept explicit and tiny so
+    # a new entry is a visible decision, not an accident: open_url's branch runs
+    # only on POSIX and launches a GUI browser, never a console.
+    FLAG_ALLOWLIST = {"open_url"}
+
+    def test_every_subprocess_call_suppresses_a_window(self):
+        names = {"creationflags", "shell", "windowsHide"}
+        bad = []
+        for py, node, enclosing in self._call_sites():
+            kw = {k.arg for k in node.keywords if isinstance(k.arg, str)}
+            if not names.isdisjoint(kw) or enclosing in self.FLAG_ALLOWLIST:
+                continue
+            bad.append(f"{py}:{node.lineno} {ast.unparse(node)[:90]}")
+        assert not bad, ("subprocess without a window-suppressing flag: "
+                         + "; ".join(bad))
+
+    def test_spawn_detached_does_not_combine_detached_with_no_window(self):
+        """The exact Windows defect: DETACHED_PROCESS makes CREATE_NO_WINDOW a
+        no-op, so a console-less npm child allocates a *visible* console."""
+        import launcher.processkit as pk
+        flags = pk.CREATE_NEW_PROCESS_GROUP | pk.CREATE_NO_WINDOW
+        assert not flags & pk.DETACHED_PROCESS
+
+    def test_shortcut_and_wrapper_carry_windowstyle_hidden(self):
+        assert "-WindowStyle Hidden" in _read("launcher/shortcuts.py")
+        assert "-WindowStyle Hidden" in _read("launcher/ahos.ps1")
+
+    def test_hidden_wrapper_path_never_blocks_on_read_host(self):
+        """A hidden window has no keyboard; a Read-Host there pins the process
+        forever and the dashboard's next action finds the module lock held."""
+        text = _read("launcher/ahos.ps1")
+        assert "$Console" in text, "the interactive prompt must be opt-in"
+        # Structural check: delete every `if ($Console) { ... }` block by brace
+        # matching, then no Read-Host may remain anywhere.
+        marker = "if ($Console) {"
+        out = text
+        while marker in out:
+            start = out.index(marker) + len(marker)
+            depth = 1
+            i = start
+            while i < len(out) and depth:
+                if out[i] == "{":
+                    depth += 1
+                elif out[i] == "}":
+                    depth -= 1
+                i += 1
+            assert depth == 0, "unbalanced braces in the $Console guard"
+            out = out[: out.index(marker)] + out[i:]
+        assert "Read-Host" not in _strip_ps_comments(
+            out), "a Read-Host lives outside the -Console guard"
+        # and the hidden path must tee to a log instead of discarding output
+        assert "launcher.log" in text
+
+    def test_ahos_ps1_does_not_shadow_the_automatic_args_variable(self):
+        """Shadowing ``$args`` breaks splatting of the real arguments."""
+        source = _strip_ps_comments(_read("launcher/ahos.ps1"))
+        assert "$args = " not in source
+        assert "$PyArgs = " in source

@@ -1,23 +1,33 @@
-"""Desktop shortcuts for the owner, created with WScript.Shell (built into
+"""The single owner desktop shortcut, created with WScript.Shell (built into
 Windows, no pywin32 needed).
 
-Three shortcuts on the desktop of the user named in ``--user`` (default: the
-current user): AHOS (start), AHOS Stop, AHOS Status. Each runs the PowerShell
-console wrapper, which keeps the window UTF-8 and delegates to the Python
-orchestrator.
+One icon: ``AHOS.lnk`` (start). Status, Stop and Restart live *inside the
+dashboard* (Parvaneh P1) — a second desktop surface would contradict the
+owner rule of one icon, and three icons invite a click on "Stop" as the first
+reflex. The shortcut runs the PowerShell console wrapper hidden, so no black
+window appears at any point: ``-WindowStyle Hidden`` on the launcher is what
+makes it invisible, while the .lnk's own ``WindowStyle = 7`` (minimised) is
+only a fallback presentation hint for hosts that ignore the argument.
 
 The command-line pieces are pure functions so they can be unit-tested without
 touching the real desktop; ``create_shortcuts()`` performs the COM writes via a
-short PowerShell invocation.
+short PowerShell invocation, and retires the two pre-M11.1 shortcuts by *moving*
+them into ``launcher/_retired_shortcuts/`` (never deleting the owner's files).
 """
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
-ACTIONS = {"start": "AHOS", "stop": "AHOS Stop", "status": "AHOS Status"}
+ACTIONS = {"start": "AHOS"}
+
+# Shortcuts this module created before M11.1. If one of these is still on the
+# desktop it is moved aside, not removed: the owner may have arranged them.
+LEGACY_NAMES = ("AHOS Stop.lnk", "AHOS Status.lnk")
 
 _PS_TEMPLATE = r"""
 $ErrorActionPreference = 'Stop'
@@ -29,7 +39,9 @@ foreach ($spec in $specs) {
   $lnk.Arguments = $spec.Arguments
   $lnk.WorkingDirectory = $spec.WorkingDirectory
   $lnk.IconLocation = $spec.IconLocation
-  $lnk.WindowStyle = 1
+  # 7 = minimised. The shortcut is invisible in practice because the arguments
+  # carry -WindowStyle Hidden; this is only the hint a host falls back to.
+  $lnk.WindowStyle = 7
   $lnk.Description = $spec.Description
   $lnk.Save()
 }
@@ -42,17 +54,16 @@ def shortcut_specs(root: Path, icon: Path,
     root = Path(root).resolve()
     icon = Path(icon).resolve()
     ps = Path(sys.executable).resolve()
-    # Prefer the Windows PowerShell console for the .lnk target so a double
-    # click opens a readable window with the right code page.
+    # Prefer the system PowerShell console for the .lnk target; it exists on
+    # every supported Windows box regardless of how AHOS itself was installed.
     powershell = Path(os.environ.get("SystemRoot", r"C:\Windows")) / \
         "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
     target = str(powershell) if powershell.exists() else str(ps)
     script = str(root / "launcher" / "ahos.ps1")
     specs = []
     for action, label in ACTIONS.items():
-        args = f'-NoProfile -ExecutionPolicy Bypass -File "{script}" -Action {action}'
-        if action == "status":
-            args += " -Json"
+        args = (f'-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden '
+                f'-File "{script}" -Action {action}')
         specs.append({
             "name": f"{label}.lnk",
             "target_path": target,
@@ -70,11 +81,33 @@ def desktop_dir(user: str | None = None) -> Path:
     return Path(os.path.expanduser("~")) / "Desktop"
 
 
+def retire_legacy_shortcuts(desktop: Path, retire_dir: Path) -> list[str]:
+    """Move pre-M11.1 shortcuts into ``retire_dir``. Returns what was moved.
+
+    Never deletes: the owner's desktop layout is theirs. A move is reversible,
+    a delete is not, and a stale "AHOS Stop" icon left beside the new one would
+    be exactly the duplicate surface M11.1 removes.
+    """
+    moved: list[str] = []
+    retire_dir.mkdir(parents=True, exist_ok=True)
+    for name in LEGACY_NAMES:
+        src = Path(desktop) / name
+        if not src.is_file():
+            continue
+        dst = retire_dir / f"{name}.{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        try:
+            shutil.move(str(src), str(dst))
+        except OSError:
+            continue
+        moved.append(str(src))
+    return moved
+
+
 def create_shortcuts(root: Path | str | None = None, *,
                      icon: Path | str | None = None,
                      user: str | None = None,
                      desktop: Path | str | None = None) -> list[dict]:
-    """Create the .lnk files and report what was written."""
+    """Create the .lnk file(s) and report what was written."""
     root = Path(root) if root else Path(__file__).resolve().parent.parent
     icon = Path(icon) if icon else root / "launcher" / "ahos.ico"
     if not icon.exists():
@@ -91,10 +124,14 @@ def create_shortcuts(root: Path | str | None = None, *,
             s["name"], s["target_path"], s["arguments"].replace('"', "`\""),
             s["working_directory"], s["icon_location"], s["description"])
         for s in specs) + ")"
+    # A single-quoted PowerShell string needs its own apostrophes doubled, or a
+    # desktop path containing one truncates the argument silently.
+    ps_out_dir = str(out_dir).replace("'", "''")
     cmd = ["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
            "-Command",
-           f"$out_dir = '{str(out_dir)}'; $specs = {ps_specs}; {_PS_TEMPLATE}"]
-    res = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+           f"$out_dir = '{ps_out_dir}'; $specs = {ps_specs}; {_PS_TEMPLATE}"]
+    res = subprocess.run(cmd, capture_output=True, text=True, timeout=60,
+                         creationflags=0x08000000 if os.name == "nt" else 0)
     if res.returncode != 0:
         raise RuntimeError(f"shortcut creation failed ({res.returncode}): "
                            f"{(res.stderr or '').strip()[:400]}")
@@ -104,7 +141,7 @@ def create_shortcuts(root: Path | str | None = None, *,
 
 def main(argv: list[str] | None = None) -> int:
     import argparse
-    ap = argparse.ArgumentParser(description="Create the AHOS desktop shortcuts")
+    ap = argparse.ArgumentParser(description="Create the AHOS desktop shortcut")
     ap.add_argument("--user", default=None, help="desktop owner (default: current user)")
     ap.add_argument("--root", default=None, help="repository root")
     ap.add_argument("--icon", default=None, help="path to ahos.ico")

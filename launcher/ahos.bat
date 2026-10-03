@@ -1,5 +1,12 @@
 @echo off
-REM AHOS one-click console wrapper: keeps the window UTF-8 and readable.
+REM AHOS console wrapper -- MANUAL TERMINAL USE ONLY.
+REM
+REM The owner's desktop shortcut and the dashboard control panel go through
+REM ahos.ps1 with -WindowStyle Hidden, which leaves no console behind. This .bat
+REM is the opposite contract: it always opens a visible console and waits, so a
+REM human running it from a terminal can read the result. Nothing on the
+REM one-click path may call it, and no child of the launcher may be spawned
+REM through cmd.exe without CREATE_NO_WINDOW (see launcher/processkit.py).
 REM Usage: ahos.bat [start|stop|status|restart|preflight]
 setlocal
 chcp 65001 > nul

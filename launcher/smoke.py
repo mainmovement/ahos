@@ -39,6 +39,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 REPORT_DIR = ROOT / "reports" / "launcher"
 PY = ROOT / ".venv" / "Scripts" / "python.exe"
+# Every child this module spawns must be window-less: the smoke runs the real
+# CLI, and a console flashing open on the owner's desktop would violate the
+# one-click contract the launcher exists to deliver.
+_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
 
 # Per-action wall clocks. The engine's first scheduler cycle is the long pole:
 # HEALTH_WAIT["engine"] alone is 420s, and the first observation cycle on a cold
@@ -100,7 +104,8 @@ def _run(action: str, *, env: dict, skip: tuple[str, ...] = (), expect_rc=(0,)) 
     try:
         res = subprocess.run(cmd, cwd=str(ROOT), env=env, capture_output=True,
                              text=True, timeout=TIMEOUTS.get(action, 240.0),
-                             encoding="utf-8", errors="replace")
+                             encoding="utf-8", errors="replace",
+                             creationflags=_NO_WINDOW)
     except subprocess.TimeoutExpired as e:
         return {"action": action, "cmd": cmd, "seconds": round(time.time() - t0, 1),
                 "outcome": "TIMEOUT", "stdout": (e.stdout or "")[-1500:],
