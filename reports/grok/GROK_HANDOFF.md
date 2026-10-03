@@ -57,7 +57,7 @@ nothing pushed.
 
 - `npx tsc --noEmit -p .` → 0 errors.
 - `npm run lint` → 0 problems.
-- 15/15 self-test suites, 414 tests, 0 failures: web-api-auth 9,
+- 15/15 self-test suites, 466 tests, 0 failures: web-api-auth 9,
   canonical-read-model 13, canonical-security 19, alert-banner 8,
   dashboard-truth 34, chat-reply-format 48, chat-intent 76, chat-control-gate
   131, chat-agent 30, dev-missions 14, gemini-phraser 12, chat-auth 23,
@@ -75,8 +75,15 @@ nothing pushed.
 2. A stray `data/.id_pepper` was written into the repo during the first test
    run. Root cause: `recordControlAudit` with the default env resolves the
    pepper through `process.cwd()/data`. Fixed by pinning `AHOS_ID_PEPPER` in
-   all four self-tests that touch the audit path; `data/` is gitignored, so
-   nothing was committed.
+   the self-tests that touch the audit path; `data/` is gitignored, so
+   nothing was committed. Re-checked after the fix by running every suite
+   with the file deleted between runs: it is no longer created. One more
+   writer surfaced in the re-check — `dev_missions_selftest.ts` goes through
+   `DevMissionStore.append`, which hashes the confirm code internally, so it
+   needed the same pin (`ba40fb7` follow-up).
+3. The test total first recorded for this phase was 414; the per-suite list
+   already summed to 466. Re-measured suite by suite and corrected to 466 in
+   the matrix, this handoff and the guide.
 
 ### Remaining unknowns / next action
 

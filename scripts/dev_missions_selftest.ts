@@ -19,6 +19,9 @@ import {
 } from "../dev_missions.ts";
 
 const TMP = mkdtempSync(join(tmpdir(), "ahos-dm-"));
+// MN-1: a stable test pepper so the self-test never creates ./data/.id_pepper.
+// DevMissionStore hashes the confirm code and the user id through idPepper().
+process.env.AHOS_ID_PEPPER = "selftest-pepper-dev-missions";
 const path = (n: string) => join(TMP, n);
 const NOW = new Date("2026-10-02T14:00:00Z");
 

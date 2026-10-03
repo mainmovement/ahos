@@ -560,7 +560,7 @@ short commands are not dictionary-reversible.
 |---|---|
 | `npx tsc --noEmit -p .` | 0 errors |
 | `npm run lint` | 0 problems |
-| self-test suites | 15/15, 414 tests, 0 failures |
+| self-test suites | 15/15, 466 tests, 0 failures |
 | `pytest tests/test_chat_control_gate_static.py` | 12 passed |
 
 Suite breakdown: chat-control-gate 131, chat-intent 76, chat-reply-format 48,

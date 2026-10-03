@@ -77,7 +77,7 @@ gitignored `data/`) was re-checked and still holds.
 ## Verification after the last fix (`dbc9125`)
 
 - `npx tsc --noEmit -p .` → 0 errors.
-- 15/15 self-test suites pass, 414 tests, 0 failures: web-api-auth 9,
+- 15/15 self-test suites pass, 466 tests, 0 failures: web-api-auth 9,
   canonical-read-model 13, canonical-security 19, alert-banner 8,
   dashboard-truth 34, chat-reply-format 48, chat-intent 76, chat-control-gate
   131, chat-agent 30, dev-missions 14, gemini-phraser 12, chat-auth 23,
