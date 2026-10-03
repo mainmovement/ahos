@@ -25,8 +25,25 @@ export function redactSecrets(text: string): string {
   return t;
 }
 
+/**
+ * Mission 9.5 m4: strip live one-time confirm codes (and their Persian/English
+ * cancel words) so a «تایید ABCD12» never rides from memory into the next
+ * Gemini request or the `chat_messages` DB. Only whole-message confirmations are
+ * matched — the same anchor chat_actions.parseConfirmation uses — so a sentence
+ * that merely contains the word «تایید» is untouched.
+ */
+const CONFIRM_CODE_WORDS = "(?:تایید|تأیید|تائید|لغو|کنسل|انصراف|confirm|cancel|yes)";
+const CONFIRM_CODE_RE = new RegExp(`\\b${CONFIRM_CODE_WORDS}\\s+[A-Z0-9]{6}\\b`, "giu");
+
+export function stripConfirmCodes(text: string): string {
+  return String(text ?? "").replace(CONFIRM_CODE_RE, "[کد حذف شد]");
+}
+
 export function memoryKey(channel: string | null | undefined, userId: string | null | undefined): string {
-  const raw = `${String(channel ?? "web").toLowerCase()}|${String(userId ?? "")}`;
+  // Mission 9.5 m2: no default to an owner channel. A dashboard caller is keyed
+  // by its per-session id, so two browsers never share memory or pending codes;
+  // an anonymous caller gets its own anonymous key.
+  const raw = `${String(channel ?? "anonymous").toLowerCase()}|${String(userId ?? "")}`;
   return createHash("sha256").update(raw, "utf8").digest("hex").slice(0, 32);
 }
 
@@ -54,12 +71,14 @@ export class ConversationMemory {
     return [...turns];
   }
 
-  /** Store one exchange (user + assistant). Content is redacted and capped. */
+  /** Store one exchange (user + assistant). Content is redacted, confirm codes
+   * are stripped and it is capped — what is remembered is what may leave the
+   * process (e.g. for the Gemini helper on a later turn). */
   append(key: string, user: string, assistant: string): void {
     const t = this.now();
     const turns = this.get(key);
-    turns.push({ role: "user", content: redactSecrets(user).slice(0, 1500), at: t });
-    turns.push({ role: "assistant", content: redactSecrets(assistant).slice(0, 2000), at: t });
+    turns.push({ role: "user", content: stripConfirmCodes(redactSecrets(user)).slice(0, 1500), at: t });
+    turns.push({ role: "assistant", content: stripConfirmCodes(redactSecrets(assistant)).slice(0, 2000), at: t });
     const keep = turns.slice(-this.maxTurns * 2);
     this.map.delete(key);
     this.map.set(key, keep);

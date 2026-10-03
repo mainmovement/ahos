@@ -27,8 +27,9 @@ import {
   type ActionDeps,
   type AuditFn,
 } from "../chat_actions.ts";
-import { ConversationMemory, memoryKey, redactSecrets } from "../chat_memory.ts";
+import { ConversationMemory, memoryKey, redactSecrets, stripConfirmCodes } from "../chat_memory.ts";
 import { DevMissionStore } from "../dev_missions.ts";
+import { MemoryAuditSink, recordControlAudit } from "../chat_control_gate.ts";
 import type { Snap } from "../chat_replies.ts";
 
 import { mkdtempSync } from "node:fs";
@@ -41,10 +42,15 @@ process.env.AHOS_DEV_MISSIONS_PATH = join(TMP, "dev_missions.jsonl");
 
 const FOOTER = "تصمیم نهایی با کاربر است.";
 const NOW = new Date("2026-10-02T14:00:00Z");
-const OWNER = { channel: "telegram", userId: "111" };
-const STRANGER = { channel: "telegram", userId: "999" };
-const DASH = { channel: "web", userId: null };
-const ENV = { TELEGRAM_ADMIN_USER_IDS: "111", TELEGRAM_ALLOWED_CHAT_IDS: "" };
+// Mission 9.5: owner identity is proven server-side. A claimed channel without
+// `proven: true` is never the owner.
+const OWNER = { channel: "telegram", userId: "111", proven: true as const };
+const STRANGER = { channel: "telegram", userId: "999", proven: true as const };
+const DASH = { channel: "dashboard", userId: "session-id-abc", proven: true as const };
+const READER_ONLY = { channel: "telegram", userId: "222", proven: true as const };
+const UNPROVEN_WEB = { channel: "web", userId: null };
+const UNPROVEN_TG = { channel: "telegram", userId: "111" };
+const ENV = { TELEGRAM_ADMIN_USER_IDS: "111", TELEGRAM_ALLOWED_CHAT_IDS: "222" };
 
 const SNAP = {
   market: {
@@ -237,10 +243,15 @@ describe("confirm-gated commands", () => {
     assert.ok(r.ok && !r.proposal && /در فهرست/.test(r.plain));
   });
 
+  // Mission 9.5 MJ-1: the audit must actually WRITE (write-ahead EXECUTING).
+  // A fake that returns null now correctly aborts the action — see the
+  // dedicated test in scripts/chat_actions_selftest.ts.
   const audits: Array<{ decision: string; intent: string }> = [];
-  const audit = ((p: { decision: string; intent: string }) => {
-    audits.push({ decision: p.decision, intent: p.intent });
-    return null;
+  const sink = new MemoryAuditSink();
+  const audit = ((p: Parameters<AuditFn>[0]) => {
+    const rec = recordControlAudit(p, sink);
+    if (rec) audits.push({ decision: rec.decision, intent: rec.intent });
+    return rec;
   }) as unknown as AuditFn;
   function deps(log: string[], missions = new DevMissionStore(join(TMP, "missions.jsonl"))): ActionDeps {
     return {
@@ -249,7 +260,7 @@ describe("confirm-gated commands", () => {
       addWatch: async (i) => log.push(`watch:${i.symbol}`),
       paperBuy: async (p) => (log.push(`paper:${p.symbol}`), { ok: true, messageFa: "ثبت شد — فقط کاغذی." }),
       recordDevMission: async (i) => {
-        const rec = missions.append({ summaryFa: i.summaryFa, channel: i.channel, userId: i.userId });
+        const rec = missions.append({ summaryFa: i.summaryFa, confirmCode: i.confirmCode, channel: i.channel, userId: i.userId });
         return rec
           ? { ok: true, messageFa: `✅ ماموریت توسعه ثبت شد (شناسه ${rec.id}).` }
           : { ok: false, messageFa: "ماموریت توسعه ثبت نشد." };
@@ -270,7 +281,12 @@ describe("confirm-gated commands", () => {
     const r2 = await handleConfirmation(store, parsed, OWNER, "x", { env: ENV, audit, deps: deps(log) });
     assert.equal(r2.executed, false);
     assert.deepEqual(log, ["stop"]);
-    assert.deepEqual(audits.slice(-2).map((a) => a.decision), ["PROPOSED", "CONFIRMED"]);
+    // Mission 9.5 MJ-1: PROPOSED → EXECUTING (write-ahead) → CONFIRMED.
+// Mission 9.5: write-ahead EXECUTING sits between PROPOSED and CONFIRMED,
+    // and the replayed (already-consumed) code is now audited DENIED.
+    assert.deepEqual(audits.map((a) => a.decision), ["PROPOSED", "EXECUTING", "CONFIRMED", "DENIED"]);
+    assert.deepEqual(audits.slice(0, 3).map((a) => a.intent), ["engine_stop", "engine_stop", "engine_stop"]);
+    assert.equal(audits[3]!.intent, "confirm");
     t += 1;
   });
   it("wrong identity, expiry, cancel, bare words never execute", async () => {
@@ -293,21 +309,28 @@ describe("confirm-gated commands", () => {
     for (const t2 of ["تایید", "stop loss", "تایید کن موتور رو", "توقف", "بله"]) assert.equal(parseConfirmation(t2), null, t2);
     assert.equal(parseConfirmation("لغو")?.op, "cancel");
   });
-  it("owner identity rules", () => {
+  it("owner identity rules (Mission 9.5: server-proven only)", () => {
     assert.equal(isOwner(OWNER, ENV), true);
     assert.equal(isOwner(STRANGER, ENV), false);
-    assert.equal(isOwner({ channel: "telegram", userId: "" }, ENV), false);
-    assert.equal(isOwner({ channel: "telegram", userId: "111" }, {}), false); // empty allowlist → nobody
-    assert.equal(isOwner(DASH, ENV), true);
-    assert.equal(isOwner({ channel: "api", userId: null }, ENV), false);
+    assert.equal(isOwner(READER_ONLY, ENV), false); // reader allowlist no longer grants control
+    assert.equal(isOwner({ channel: "telegram", userId: "", proven: true }, ENV), false);
+    assert.equal(isOwner({ channel: "telegram", userId: "111", proven: true }, {}), false); // empty admin list → nobody
+    assert.equal(isOwner(DASH, ENV), true); // verified dashboard session
+    // A claimed channel without a server-side proof is never the owner:
+    assert.equal(isOwner(UNPROVEN_WEB, ENV), false);
+    assert.equal(isOwner(UNPROVEN_TG, ENV), false);
+    assert.equal(isOwner({ channel: null, userId: null }, ENV), false);
+    assert.equal(isOwner({ channel: undefined, userId: undefined } as never, ENV), false);
   });
 });
 
 describe("dev missions (Phase 8)", () => {
   const seen: Array<{ decision: string; intent: string }> = [];
-  const audit = ((p: { decision: string; intent: string }) => {
-    seen.push({ decision: p.decision, intent: p.intent });
-    return null;
+  const dSink = new MemoryAuditSink();
+  const audit = ((p: Parameters<AuditFn>[0]) => {
+    const rec = recordControlAudit(p, dSink);
+    if (rec) seen.push({ decision: rec.decision, intent: rec.intent });
+    return rec;
   }) as unknown as AuditFn;
   function deps(_log: string[], missions: DevMissionStore): ActionDeps {
     return {
@@ -316,7 +339,7 @@ describe("dev missions (Phase 8)", () => {
       addWatch: async () => undefined,
       paperBuy: async () => ({ ok: false, messageFa: "—" }),
       recordDevMission: async (i) => {
-        const rec = missions.append({ summaryFa: i.summaryFa, channel: i.channel, userId: i.userId });
+        const rec = missions.append({ summaryFa: i.summaryFa, confirmCode: i.confirmCode, channel: i.channel, userId: i.userId });
         return rec
           ? { ok: true, messageFa: `✅ ماموریت توسعه ثبت شد (شناسه ${rec.id}) و در صف تیم مهندسی است. کاری هنوز انجام نشده است.` }
           : { ok: false, messageFa: "ماموریت توسعه ثبت نشد." };
@@ -396,7 +419,8 @@ describe("dev missions (Phase 8)", () => {
     assert.equal(recs[0].summaryFa, "اضافه کردن هشدار طلا");
     assert.ok(!recs[0].userIdHash.includes("111")); // hashed, never raw
     assert.equal(ms.verify().ok, true);
-    assert.deepEqual(seen.slice(-2).map((a) => a.decision), ["PROPOSED", "CONFIRMED"]);
+    assert.deepEqual(seen.map((a) => a.decision), ["PROPOSED", "EXECUTING", "CONFIRMED", "DENIED"]);
+    assert.equal(seen[3]!.intent, "confirm"); // the replayed code: no guessed action kind
     t += 1;
   });
   it("cancel never queues; wrong identity never queues", async () => {

@@ -1,0 +1,35 @@
+=== tsc ===
+tsc: exit 0, 0 errors
+=== eslint ===
+
+G:\robat\ahos\tests\test_chat_control_gate_static.py
+  0:0  warning  File ignored because no matching configuration was supplied
+
+✖ 1 problem (0 errors, 1 warning)
+
+eslint: exit 0
+=== selftests ===
+test:chat-auth               ℹ tests 23 ℹ pass 23 ℹ fail 0 
+test:chat-actions            ℹ tests 18 ℹ pass 18 ℹ fail 0 
+test:chat-control-gate       ℹ tests 126 ℹ pass 126 ℹ fail 0 
+test:chat-agent              ℹ tests 30 ℹ pass 30 ℹ fail 0 
+test:dev-missions            ℹ tests 14 ℹ pass 14 ℹ fail 0 
+test:chat-intent             ℹ tests 72 ℹ pass 72 ℹ fail 0 
+test:chat-reply-format       ℹ tests 40 ℹ pass 40 ℹ fail 0 
+test:gemini-phraser          ℹ tests 12 ℹ pass 12 ℹ fail 0 
+test:web-api-auth            ℹ tests 9 ℹ pass 9 ℹ fail 0 
+test:canonical-read-model    ℹ tests 13 ℹ pass 13 ℹ fail 0 
+test:canonical-security      ℹ tests 19 ℹ pass 19 ℹ fail 0 
+test:dashboard-truth         ℹ tests 34 ℹ pass 34 ℹ fail 0 
+test:alert-banner            ℹ tests 8 ℹ pass 8 ℹ fail 0 
+=== audit:control-verify ===
+    "chat_confirm:engine_stop:DENIED": 1
+  }
+}
+=== poc ===
+titleFa  leaks fake key: false
+summaryFa leaks fake key: false
+second key survives redaction: false
+URL_CREDENTIALS output: postgres://[REDACTED:URL_CREDENTIALS]@host/db
+tamper then append: null (fail-closed)
+no duplicate id written: true

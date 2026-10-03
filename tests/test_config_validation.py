@@ -32,6 +32,12 @@ if str(ROOT) not in sys.path:
 
 ENV_READ_RE = re.compile(r'os\.environ\.(?:get|getenv)\(\s*["\']([A-Z_][A-Z0-9_]*)["\']')
 TS_ENV_READ_RE = re.compile(r'process\.env\.([A-Z_][A-Z0-9_]*)')
+# Mission 9.5: chat_auth.ts reads env through an injected EnvMap
+# (`readSecret(env, "KEY")`) so tests can pass a fake env — the key is a quoted
+# literal, not a `process.env.KEY` member access. Catch that form too, or an
+# injected env read would silently escape the documentation law.
+TS_INJECTED_ENV_READ_RE = re.compile(
+    r'readSecret\(\s*[A-Za-z_][A-Za-z0-9_]*\s*,\s*["\']([A-Z_][A-Z0-9_]*)["\']')
 
 SCAN_DIRS = (
     "architecture",
@@ -40,9 +46,10 @@ SCAN_DIRS = (
 )
 SCAN_FILES = ("run_bot.py",)
 # One-Brain TypeScript modules at repo root (pinned by architecture tests).
-# web_api_client.ts is the Command Center fetch helper; it is the only
-# canonical reader of NEXT_PUBLIC_AHOS_WEB_API_TOKEN (must match server
-# AHOS_WEB_API_TOKEN). Omitting it made .env.example look like dead docs.
+# Mission 9.5: web_api_client.ts no longer reads any token — the dashboard
+# authenticates with a server-issued httpOnly session cookie + CSRF header
+# (chat_auth.ts), because a NEXT_PUBLIC_* value was compiled into the browser
+# bundle and readable by anyone who could load the page (review BLOCKER B1).
 # canonical_read_model.ts is the only TypeScript reader of
 # AHOS_CANONICAL_READ_MODEL (Python writes; TS must not invent BUY).
 SCAN_TS_FILES = (
@@ -54,6 +61,7 @@ SCAN_TS_FILES = (
     "web_api_client.ts",
     "canonical_read_model.ts",
     "web_api_auth.ts",
+    "chat_auth.ts",
 )
 
 #: Explicit exceptions — every entry must carry a reason.
@@ -63,6 +71,10 @@ LEGACY_ENV_KEYS: dict[str, str] = {
     "TELEGRAM_ADMIN_CHAT_ID": "legacy alias for TELEGRAM_ADMIN_USER_IDS",
     "AHOS_LOCAL_DB": "legacy lane only (engine/bot_skeleton.py, a documented "
                      "excluded entrypoint)",
+    "NEXT_PUBLIC_AHOS_WEB_API_TOKEN": "still written/synced by operator scripts "
+                                      "(windows_ensure_web_api_token.ps1) and used as a "
+                                      "server-side bearer by probes; no browser code reads "
+                                      "it since the Mission 9.5 session-cookie switch",
 }
 
 
@@ -85,7 +97,9 @@ def _scanned_source_keys() -> set[str]:
     for f in SCAN_TS_FILES:
         p = ROOT / f
         if p.exists():
-            keys.update(TS_ENV_READ_RE.findall(p.read_text(encoding="utf-8")))
+            text = p.read_text(encoding="utf-8")
+            keys.update(TS_ENV_READ_RE.findall(text))
+            keys.update(TS_INJECTED_ENV_READ_RE.findall(text))
     # AI providers consume keys through `key_env:` fields in the two provider
     # registries (architecture/ai/clients.py reads them) — same documentation
     # law applies.

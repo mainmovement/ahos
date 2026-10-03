@@ -28,7 +28,8 @@ import {
   type Snap,
 } from "./chat_replies";
 import { faNumber, faPct, faUsd } from "./persian";
-import { isOwner, proposalTextFa, propose, type ActionKind, type ActionParams, type Identity, type PendingAction, type PendingActionStore, type AuditFn } from "./chat_actions";
+import { isOwner, proposalTextFa, propose, MAX_PAPER_QUANTITY, type ActionKind, type ActionParams, type Identity, type PendingAction, type PendingActionStore, type AuditFn } from "./chat_actions";
+import { redactSecrets, stripConfirmCodes } from "./chat_memory";
 import type { DevMissionReader } from "./dev_missions";
 import type { Turn } from "./chat_memory";
 import { detectMajorAsset } from "./chat_intent";
@@ -82,7 +83,8 @@ export const PROPOSE_TOOLS: FunctionDeclaration[] = [
   { name: "propose_engine_stop", description: "پیشنهاد خاموش کردن موتور تحلیل. اجرا نمی‌کند؛ کاربر باید با کد تأیید کند. فقط وقتی کاربر صریحاً خاموش کردن موتور را خواسته (نه «حد ضرر/stop loss»)." },
   {
     name: "propose_paper_buy",
-    description: "پیشنهاد ثبت خرید کاغذی برای توکنی که در فهرست سیستم است. اجرا نمی‌کند؛ نیاز به تأیید کاربر و حکم «خرید» سیستم دارد.",
+    description:
+      "پیشنهاد ثبت خرید کاغذی برای توکنی که در فهرست سیستم است. اجرا نمی‌کند؛ نیاز به تأیید کاربر و حکم «خرید» سیستم دارد. مقدار (quantity) حداکثر ۱۰۰۰ است.",
     parameters: { type: "OBJECT", properties: { symbol: { type: "STRING" }, quantity: { type: "NUMBER" } }, required: ["symbol"] },
   },
   { name: "propose_watch_add", description: "پیشنهاد افزودن توکن به واچ‌لیست. اجرا نمی‌کند؛ نیاز به تأیید کاربر دارد.", parameters: SYMBOL_PARAM },
@@ -482,12 +484,17 @@ export class ChatAgent {
     if (this.isOpen()) return { ok: false, reason: "CIRCUIT_OPEN", status: "UNAVAILABLE", toolsUsed: [], steps: 0 };
     const now = input.now ?? new Date(this.clock());
     const contents: Content[] = [];
-    const sources: string[] = [input.text];
+    // Mission 9.5 MJ-5: the current message is redacted BEFORE it leaves the
+    // process. Gemini is a third party (free tier); a key pasted into chat must
+    // not be relayed, and live confirm codes must not be replayed into a later
+    // turn. Numbers survive redaction, so number-grounding is unaffected.
+    const safeText = stripConfirmCodes(redactSecrets(input.text));
+    const sources: string[] = [safeText];
     for (const t of input.history.slice(-20)) {
       contents.push({ role: t.role === "user" ? "user" : "model", parts: [{ text: t.content }] });
       if (t.role === "assistant") sources.push(t.content);
     }
-    contents.push({ role: "user", parts: [{ text: input.text }] });
+    contents.push({ role: "user", parts: [{ text: safeText }] });
     const tools = [...READ_TOOLS, ...PROPOSE_TOOLS];
     const toolsUsed: string[] = [];
     const system = systemPrompt(now);
@@ -563,7 +570,8 @@ export class ChatAgent {
       params.chain = o?.chain ?? d?.chain ?? null;
       params.address = o?.address ?? (d as { address?: string | null } | null)?.address ?? null;
       const q = fin(args.quantity);
-      params.quantity = q != null && q > 0 ? q : null;
+      // Mission 9.5 m6: the model chooses the quantity; cap it (paper only).
+      params.quantity = q != null && q > 0 ? Math.min(q, MAX_PAPER_QUANTITY) : null;
     }
     const r = propose(input.store, kind, params, input.identity, input.text, { env: this.env, audit: this.audit });
     this.lastReason = r.ok ? "PROPOSED" : `PROPOSAL_${r.reason}`;

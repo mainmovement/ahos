@@ -295,10 +295,19 @@ export type ConversationRequest = {
   message: string;
   conversation_id?: string | null;
   user_id?: string | null;
-  channel: "web" | "telegram" | "api";
+  /** Client-asserted channel; never a grant. The verified identity travels in
+   * `identity` (Mission 9.5: server-side proof, chat_auth.ts). */
+  channel: string | null;
   history?: Array<{ role: "user" | "assistant"; content: string }>;
   focus_token?: string | null;
   referenced_token?: string | null;
+  /** Resolved by /api/chat from the Telegram HMAC or the dashboard session. */
+  identity?: {
+    channel: string | null;
+    userId: string | null;
+    proven: boolean;
+    proof: "telegram_hmac" | "dashboard_session" | "none";
+  } | null;
 };
 
 export type ConversationResponse = {

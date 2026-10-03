@@ -1,13 +1,11 @@
 import { db } from "@/db";
 import { chatMessages } from "@/db/schema";
 import { desc } from "drizzle-orm";
-import { addPaper, getState, PaperSecurityDenied } from "./engine";
+import { getState } from "./engine";
 import { gateChatControl, recordControlAudit } from "./chat_control_gate";
 import {
   canonicalFocusTokenKey,
   findCanonicalDecision,
-  loadCanonicalReadModel,
-  paperAllowedFromCanonical,
   type CanonicalDecisionView,
 } from "./canonical_read_model";
 import { commandSnapshot } from "./snapshot";
@@ -29,7 +27,7 @@ import {
   type PublicPendingAction,
 } from "./chat_actions";
 import { getDefaultChatAgent } from "./chat_agent";
-import { getConversationMemory, memoryKey } from "./chat_memory";
+import { getConversationMemory, memoryKey, redactSecrets, stripConfirmCodes } from "./chat_memory";
 import { getDevMissionStore } from "./dev_missions";
 import {
   ENGINE_OFF_NOTE,
@@ -76,10 +74,16 @@ async function lockedReply(intent: string, textFa: string) {
   return finalizeReply({ intent, blocks: blocksFromText(textFa), footer: FINAL_USER_LINE, locked: true });
 }
 
+/** Persist one exchange. Mission 9.5 m3: secrets and live confirm codes are
+ * redacted before the DB write — a key pasted into chat must not land in
+ * `chat_messages`, and the proposal text (which carries the one-time code) must
+ * not either. The DB is best-effort; a missing DATABASE_URL is fine. */
 async function persistChat(text: string, reply: string, intent: string, evidence: Record<string, unknown>) {
   try {
-    await db.insert(chatMessages).values({ role: "user", content: text, intent, evidence });
-    await db.insert(chatMessages).values({ role: "assistant", content: reply, intent, evidence });
+    const cleanUser = stripConfirmCodes(redactSecrets(text));
+    const cleanReply = stripConfirmCodes(redactSecrets(reply));
+    await db.insert(chatMessages).values({ role: "user", content: cleanUser, intent, evidence });
+    await db.insert(chatMessages).values({ role: "assistant", content: cleanReply, intent, evidence });
   } catch {
     /* DB optional when DATABASE_URL missing */
   }
@@ -88,15 +92,26 @@ async function persistChat(text: string, reply: string, intent: string, evidence
 export type ChatContext = {
   focusToken?: string | null;
   history?: Array<{ role: "user" | "assistant"; content: string }>;
-  /** Client-claimed channel: recorded in the audit only, NEVER a grant (GM-04). */
+  /**
+   * The RESOLVED channel/user id (Mission 9.5): for a /api/chat call these come
+   * from chat_auth.ts — a verified Telegram HMAC or a verified dashboard
+   * session — and `proven` records which. For any other caller they are the
+   * client's assertion, `proven` is false, and the caller is not the owner.
+   * Both are still written to the audit as `channel_claimed` / a hashed id;
+   * neither is ever a grant.
+   */
   channel?: string | null;
-  /** Client-claimed sender id: hashed in the audit, never stored raw. */
   userId?: string | null;
+  proven?: boolean;
 };
 
 export async function handleChat(message: string, ctx: ChatContext = {}): Promise<ChatResponse> {
   const text = message.trim();
-  const identity: Identity = { channel: ctx.channel ?? "web", userId: ctx.userId ?? null };
+  const identity: Identity = {
+    channel: ctx.channel ?? null,
+    userId: ctx.userId ?? null,
+    proven: Boolean(ctx.proven),
+  };
   const memKey = memoryKey(identity.channel, identity.userId);
   const memory = getConversationMemory();
   const store = getPendingStore();
@@ -117,9 +132,11 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
   const intent = detectIntent(text);
 
   // GM-04 capability gate (whole-message detection; «stop loss» is never a stop).
-  // Non-owners are refused and audited exactly as before. Owners (Telegram id
-  // allowlist / dashboard) get a confirm-gated proposal instead (owner authority
-  // decision 2026-10-02, pending سپهر/قاسم/رضا review). Dashboard buttons unchanged.
+  // Mission 9.5: the owner decision uses the SERVER-VERIFIED identity only.
+  // Non-owners are refused and audited. Owners (a Telegram admin id proven by
+  // the bot's HMAC, or a verified dashboard session) get a confirm-gated
+  // proposal instead (owner authority decision 2026-10-02, pending
+  // سپهر/قاسم/رضا review). Dashboard buttons unchanged.
   const gate = gateChatControl({ intent, text, channelClaimed: ctx.channel, userId: ctx.userId });
   if (gate.controlled && !isOwner(identity)) {
     recordControlAudit({
@@ -279,49 +296,6 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
       }
       blocks = [line("⛔ ثبت ماموریت توسعه فقط برای مالک سیستم مجاز است. هیچ تغییری اعمال نشد.")];
     }
-  } else if (intent === "paper_buy") {
-    // Unreachable from chat while the GM-04 gate refuses PAPER_WRITE (above).
-    // Kept as defence in depth: even if reached, only canonical BUY may record paper.
-    let reply = "";
-    const hit = findOpp(snap, text, focus);
-    const price =
-      extractNumber(text, /(?:قیمت|با|@)\s*([0-9]+(?:\.[0-9]+)?)/) ??
-      (hit?.payload ? num(hit.payload.priceUsd) : null);
-    const qty = extractNumber(text, /(?:مقدار|تعداد|تا)\s*([0-9]+(?:\.[0-9]+)?)/);
-    if (!hit && !extractSymbol(text)) {
-      reply = "برای ثبت خرید کاغذی باید نماد مشخص باشه. خرید واقعی انجام نمی‌دم.";
-    } else {
-      const model = await loadCanonicalReadModel();
-      if (!paperAllowedFromCanonical(model, hit?.chain, hit?.address || null)) {
-        // Internal reason code CANONICAL_PAPER_DENIED is kept in evidence, not in user text.
-        evidence.paperDenied = "CANONICAL_PAPER_DENIED";
-        reply = "خرید کاغذی ثبت نشد: فقط وقتی حکم سیستم «خرید» باشد ثبت کاغذی مجاز است.";
-      } else {
-        const symbol = hit?.symbol || extractSymbol(text) || "UNKNOWN";
-        try {
-          const row = await addPaper({
-            tokenKey: hit?.tokenKey || `manual:${symbol}`,
-            symbol,
-            chain: hit?.chain || "unknown",
-            address: hit?.address,
-            quantity: qty,
-            entryPrice: price,
-            thesisFa: `خرید کاغذی کاربر: ${text}`,
-            targetPrice: extractNumber(text, /(?:هدف|تا)\s*([0-9]+(?:\.[0-9]+)?)/),
-          });
-          reply = `ثبت شد — فقط کاغذی. نماد ${symbol}. ورود ${price ?? "نامشخص"}. مقدار ${qty ?? "نامشخص"}. هیچ سفارشی به صرافی نرفت.`;
-          evidence.positionId = row.id;
-          if (hit) focus = hit.tokenKey;
-        } catch (err) {
-          if (err instanceof PaperSecurityDenied) {
-            reply = `خرید کاغذی ثبت نشد: بررسی امنیت تأیید نشده (${err.canonicalSecurityState}).`;
-          } else {
-            reply = "خرید کاغذی ثبت نشد — خطا در ثبت. خرید واقعی انجام نشد.";
-          }
-        }
-      }
-    }
-    blocks = blocksFromText(reply);
   } else if (intent === "why" || intent === "token") {
     const hit = findOpp(snap, text, focus);
     const canonHit = hit ? null : findCanonicalDecision(snap.canonicalDecisions ?? [], text, focus);

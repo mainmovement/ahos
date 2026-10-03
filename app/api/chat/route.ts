@@ -1,5 +1,7 @@
-import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
+import { authorizeDashboardEndpoint, sanitizePublicError } from "@/web_api_auth";
 import { conversationGateway } from "@/conversation_gateway";
+import { resolveChatIdentity } from "@/chat_auth";
+import { createHash } from "node:crypto";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -26,12 +28,17 @@ async function sleep(ms: number): Promise<void> {
 }
 
 export async function POST(req: Request) {
-  const denied = authorizeWebApi(req);
+  const denied = authorizeDashboardEndpoint(req);
   if (denied) return denied;
   try {
-    const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-    const history = Array.isArray(body.history)
-      ? (body.history as Array<{ role?: string; content?: string }>)
+    // Mission 9.5: the body is hashed BEFORE parsing so the Telegram HMAC can
+    // be verified over the exact bytes the bot signed.
+    const raw = await req.text();
+    const bodySha256 = createHash("sha256").update(raw, "utf8").digest("hex");
+    const parsed = (await JSON.parse(raw).catch(() => ({}))) as Record<string, unknown>;
+    const identity = resolveChatIdentity({ headers: req.headers, bodySha256, body: parsed });
+    const history = Array.isArray(parsed.history)
+      ? (parsed.history as Array<{ role?: string; content?: string }>)
           .filter(
             (h) =>
               h &&
@@ -45,14 +52,15 @@ export async function POST(req: Request) {
           .slice(-12)
       : [];
     const payload = {
-      message: String(body.message || ""),
-      conversation_id: (body.conversation_id as string) ?? null,
-      user_id: (body.user_id as string) ?? null,
-      channel: (body.channel as "web" | "telegram" | "api") ?? "web",
+      message: String(parsed.message || ""),
+      conversation_id: (parsed.conversation_id as string) ?? null,
+      user_id: (parsed.user_id as string) ?? null,
+      channel: (parsed.channel as string) ?? null,
+      identity,
       history,
       focus_token:
-        (body.focus_token as string) ?? (body.focusToken as string) ?? null,
-      referenced_token: (body.referenced_token as string) ?? null,
+        (parsed.focus_token as string) ?? (parsed.focusToken as string) ?? null,
+      referenced_token: (parsed.referenced_token as string) ?? null,
     };
     // One transient retry for Postgres just-started / Next pool race (Windows G2).
     // Permanent errors (auth, missing relation) still fail honestly — no invented PASS.

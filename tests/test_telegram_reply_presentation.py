@@ -123,7 +123,10 @@ def test_chat_ts_user_text_has_no_internal_ids():
     """Static scan of the reply builders' string literals (user-facing text)."""
     for rel in ("chat_replies.ts", "chat.ts"):
         src = (ROOT / rel).read_text(encoding="utf-8")
-        literals = re.findall(r'"([^"\n]*[\u0600-\u06FF][^"\n]*)"|`([^`]*[\u0600-\u06FF][^`]*)`', src)
+        # A template literal is matched on a single line only: a doc comment
+        # wrapping a word in backticks must not be read as a user-facing
+        # literal spanning code down to the next backtick (Mission 9.5).
+        literals = re.findall(r'"([^"\n]*[\u0600-\u06FF][^"\n]*)"|`([^`\n]*[\u0600-\u06FF][^`\n]*)`', src)
         # Drop ${...} interpolations: identifiers are code, not user text.
         texts = [re.sub(r"\$\{[^}]*\}", "", a or b) for a, b in literals]
         assert texts, rel

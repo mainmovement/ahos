@@ -24,9 +24,12 @@ export async function conversationGateway(
   const result: ChatResponse = await handleChat(message, {
     focusToken: req.focus_token ?? req.referenced_token ?? null,
     history: req.history,
-    // GM-04: forwarded for the audit only; never used as a grant.
-    channel: req.channel ?? null,
-    userId: req.user_id ?? null,
+    // Mission 9.5: identity is what the server verified (HMAC or session), not
+    // what the client asserted. The asserted channel/user id are still carried
+    // through for the audit (`channel_claimed`, hashed id) — never as a grant.
+    channel: req.identity?.channel ?? req.channel ?? null,
+    userId: req.identity?.userId ?? req.user_id ?? null,
+    proven: Boolean(req.identity?.proven),
   });
   return {
     answer: result.reply,

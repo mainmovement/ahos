@@ -1,4 +1,4 @@
-import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
+import { authorizeDashboardEndpoint, sanitizePublicError } from "@/web_api_auth";
 import { evaluateWebAlertBanner } from "@/alert_banner";
 import { loadCanonicalReadModel } from "@/canonical_read_model";
 import { readFile } from "fs/promises";
@@ -19,7 +19,7 @@ const FAIL_CLOSED = {
 
 /** Latest opportunity-monitor banner. Re-checks live canonical BUY + overlay PASS. */
 export async function GET(req: Request) {
-  const denied = authorizeWebApi(req);
+  const denied = authorizeDashboardEndpoint(req);
   if (denied) return denied;
   try {
     const file = path.join(process.cwd(), "reports", "pump_alert_state.json");

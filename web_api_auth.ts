@@ -10,6 +10,7 @@
  */
 
 import { timingSafeEqual } from "crypto";
+import { verifyDashboardSession } from "./chat_auth";
 
 export type WebApiGateMode = "RESTRICTED" | "OPEN_ACCESS" | "LOCKED_NO_TOKEN";
 
@@ -90,6 +91,29 @@ export function authorizeWebApi(req: Request): Response | null {
     );
   }
   return null;
+}
+
+/**
+ * Dashboard-facing routes accept EITHER the shared bearer (server-side callers:
+ * the Telegram bot, operator scripts, probes — the token never leaves the
+ * server process) OR a verified dashboard session cookie + CSRF header (the
+ * browser, which holds no shared secret since Mission 9.5 removed the
+ * NEXT_PUBLIC token from the client bundle).
+ *
+ * Returns a 401 Response when the request must be rejected; null when allowed.
+ */
+export function authorizeDashboardEndpoint(req: Request): Response | null {
+  if (!authorizeWebApi(req)) return null; // bearer (server-side callers) OK
+  if (verifyDashboardSession(req.headers).ok) return null; // browser session OK
+  return Response.json(
+    {
+      ok: false,
+      error: "WEB_API_UNAUTHORIZED",
+      mode: webApiGateMode(),
+      hint: "dashboard calls need the session cookie + X-AHOS-CSRF header, or a server-side bearer token",
+    },
+    { status: 401 },
+  );
 }
 
 /** Public-facing error text — never leak secrets or long raw stacks. */

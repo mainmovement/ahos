@@ -1,21 +1,30 @@
 /**
- * GM-04: chat/Telegram operational-control capability gate.
- * This is the conservative form: it can only take capability away.
+ * GM-04 / Mission 9.5: chat/Telegram operational-control capability gate.
  *
- * Every /api/chat caller authenticates with the same bearer token, and the
- * `channel` field is supplied by the client. So the chat path cannot prove that
- * a message came from the local dashboard (see
- * reports/grok/GM04_TELEGRAM_CONTROL_CAPABILITY_GATE_PROPOSAL.md, option 3(b)).
- * Because of that, ENGINE_CONTROL (start/stop) and PAPER_WRITE (paper_buy) are
- * REFUSED on the chat path for EVERY channel, including "web".
- * The dashboard's dedicated buttons (/api/engine, /api/paper) are unchanged.
+ * HISTORY — read before changing the owner model:
+ *  - Phase 4 (527c433) refused ENGINE_CONTROL (start/stop) and PAPER_WRITE
+ *    (paper_buy) on the chat path for EVERY channel, because a /api/chat caller
+ *    authenticates with one shared bearer and `channel` is client-supplied, so
+ *    the chat path could not prove a message came from the local dashboard.
+ *  - Phase 7b (71fe160, owner authority decision 2026-10-02, pending
+ *    سپهر/قاسم/رضا review) replaced that refusal with a confirm-gated proposal
+ *    for verified owners: propose → one-time code → «تایید <code>» → execute
+ *    through the same functions the dashboard buttons use.
+ *  - Mission 9.5 (2026-10-03, corrective security) removed the trust the
+ *    reviews flagged: the owner decision is now made over a SERVER-VERIFIED
+ *    identity (chat_auth.ts — a Telegram HMAC or a dashboard session cookie +
+ *    CSRF), never over the client-asserted `channel`/`user_id`, and there is no
+ *    default to an owner channel. See chat_actions.isOwner.
  *
- * `channel` is recorded in the audit as `channel_claimed` and is never used as
- * a grant. No new secret is needed.
+ * What this module still owns: the whole-message control-command detector
+ * («stop loss» is never a stop) and the capability vocabulary, plus the
+ * append-only hash-chained audit used by every surface. The client-asserted
+ * channel is recorded as `channel_claimed` and is NEVER a grant.
  *
  * Audit: an append-only JSONL with a hash chain and hashed ids. It never
- * stores the raw message or the raw user id. If the audit write fails, the
- * request stays refused (fail-closed) and the chat keeps working.
+ * stores the raw message or the raw user id. Mission 9.5 MJ-1/MJ-2: EXECUTING
+ * records are now written BEFORE the action and a missing record aborts it,
+ * so an action can no longer run un-audited.
  *
  * Pure apart from the default file writer. Run: npm run test:chat-control-gate
  */
@@ -156,10 +165,19 @@ export function canonicalJson(v: unknown): string {
 export type AuditSurface = "chat" | "engine_api" | "chat_confirm";
 /**
  * ALLOWED/REFUSED: Phase 4. Phase 7b (owner authority decision 2026-10-02):
- * confirm-gated chat commands add PROPOSED → CONFIRMED (executed) | CANCELLED |
- * EXPIRED | DENIED | FAILED.
+ * confirm-gated chat commands add PROPOSED → EXECUTING (write-ahead, Mission
+ * 9.5) → CONFIRMED (executed) | CANCELLED | EXPIRED | DENIED | FAILED.
  */
-export type AuditDecision = "ALLOWED" | "REFUSED" | "PROPOSED" | "CONFIRMED" | "CANCELLED" | "EXPIRED" | "DENIED" | "FAILED";
+export type AuditDecision =
+  | "ALLOWED"
+  | "REFUSED"
+  | "PROPOSED"
+  | "EXECUTING"
+  | "CONFIRMED"
+  | "CANCELLED"
+  | "EXPIRED"
+  | "DENIED"
+  | "FAILED";
 
 export type ControlAuditRecord = {
   schema: string;

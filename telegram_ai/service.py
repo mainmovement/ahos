@@ -6,9 +6,20 @@ Production path:
 
 Without AHOS_GATEWAY_URL:
   EMERGENCY_FALLBACK_ONLY (status message; no scoring / ranking / opportunity decisions).
+
+Mission 9.5 (corrective security): the gateway no longer trusts a client-asserted
+`user_id`/`channel`. Every request is signed with AHOS_TELEGRAM_GATEWAY_SECRET
+(a server-only value from .env; never printed, never in NEXT_PUBLIC_*) over
+`user_id|timestamp|sha256(body)` via HMAC-SHA256, with a short replay window and
+a constant-time compare on the gateway side (chat_auth.ts). The bot still sends
+AHOS_WEB_API_TOKEN as the API-access bearer; that is transport auth, not identity.
+When the signing secret is missing the headers are simply omitted and the gateway
+treats the caller as unverified (fail-closed: not the owner).
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import os
 import sqlite3
@@ -18,6 +29,11 @@ from pathlib import Path
 from typing import Any
 
 AHOS_GATEWAY_URL = os.environ.get("AHOS_GATEWAY_URL", "").strip()
+
+# Mission 9.5: identity headers verified by chat_auth.ts.
+TG_UID_HEADER = "X-AHOS-TG-Uid"
+TG_TS_HEADER = "X-AHOS-TG-Ts"
+TG_SIG_HEADER = "X-AHOS-TG-Sig"
 
 from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTENTS
 from .response_contract import FOOTER_MANDATED
@@ -89,12 +105,16 @@ class TelegramDomainService:
                 "history": user_context.get("history") or [],
                 "user_id": str(user_context.get("user_id") or ""),
             }
-            data = json.dumps(payload).encode("utf-8")
-            headers = {"Content-Type": "application/json"}
+            data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+            headers = {"Content-Type": "application/json; charset=utf-8"}
             # Mirror Lane-B web API gate: send token when configured (fail-closed server-side).
             web_token = (os.environ.get("AHOS_WEB_API_TOKEN") or "").strip()
             if web_token:
                 headers["Authorization"] = f"Bearer {web_token}"
+            # Mission 9.5: prove the sender identity to the gateway so the owner
+            # decision can be made server-side. Fail-closed: without the secret
+            # the gateway treats this caller as unverified (not the owner).
+            self._sign_identity(headers, payload["user_id"], data)
             req = urllib.request.Request(
                 AHOS_GATEWAY_URL,
                 data=data,
@@ -106,6 +126,22 @@ class TelegramDomainService:
                 return body if isinstance(body, dict) else None
         except Exception:
             return None
+
+    @staticmethod
+    def _sign_identity(headers: dict[str, str], user_id: str, body: bytes) -> None:
+        """HMAC-SHA256 over `user_id|timestamp|sha256(body)` with the shared
+        server-only secret. Adds the three identity headers, or nothing when the
+        secret is absent (gateway then sees an unverified caller)."""
+        secret = (os.environ.get("AHOS_TELEGRAM_GATEWAY_SECRET") or "").strip()
+        uid = str(user_id or "").strip()
+        if not secret or not uid:
+            return
+        ts = str(int(time.time()))
+        body_sha = hashlib.sha256(body).hexdigest()
+        sig = hmac.new(secret.encode("utf-8"), f"{uid}|{ts}|{body_sha}".encode("utf-8"), hashlib.sha256).hexdigest()
+        headers[TG_UID_HEADER] = uid
+        headers[TG_TS_HEADER] = ts
+        headers[TG_SIG_HEADER] = sig
 
     def _require_scorer_forbidden(self) -> None:
         raise RuntimeError("W57_BRAIN_LOCKDOWN: Telegram independent scoring forbidden")

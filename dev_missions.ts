@@ -1,5 +1,6 @@
 /**
- * Phase 8: hash-chained development-mission queue (owner-authored, chat intake).
+ * Phase 8 / Mission 9.5: hash-chained development-mission queue (owner-authored,
+ * chat intake).
  *
  * The chat assistant cannot write code. When the owner asks for engineering work
  * (new features, the university, operationalizing agents, …) the assistant
@@ -17,9 +18,22 @@
  * A keyless chain cannot detect a whole-file rewrite: record `head_hash`
  * somewhere outside the file (handoff doc, commit) to anchor it.
  *
- * Privacy: the raw user message is never stored. Only the cleaned mission summary
- * the owner confirmed, plus the channel and a *hash* of the sender id. Secret-like
- * substrings in the summary are redacted before hashing, so they never reach disk.
+ * Privacy (Mission 9.5, review BL-1/BL-2/MJ-7/MJ-8/MJ-9):
+ *  - The summary is cleaned, REDACTED FIRST and only then derived into `titleFa`
+ *    and `summaryFa`. Earlier code derived the title from the unredacted text, so
+ *    a secret in the first clause reached disk, and the redaction regexes lacked
+ *    the global flag, so a second secret survived.
+ *  - The owner confirms the FULL stored text (chat_actions.summaryFaFor); a
+ *    hash of it is bound into the pending action.
+ *  - The summary is model-authored and therefore untrusted: `injectionFlags`
+ *    records prompt-injection-looking patterns and `source` marks the origin, so
+ *    the future engineering consumer never mistakes it for owner-written prose.
+ *  - The raw chat message is never stored: only the cleaned summary the owner
+ *    confirmed, plus the channel and a *hash* of the sender id and of the confirm
+ *    code. (The raw user text does remain in the `chat_messages` DB — documented
+ *    in chat.ts::persistChat, which redacts it.)
+ *  - `append` refuses when the chain is already broken: it never restarts at
+ *    seq 0 to produce duplicate ids.
  *
  * Not an authority: grants nothing, unlocks no gate, is imported by no
  * decision/trading code. PAPER_ONLY is unaffected.
@@ -35,7 +49,7 @@ import {
   verifyAuditLines,
 } from "./chat_control_gate";
 
-export const DEV_MISSION_SCHEMA = "ahos.dev_missions.v1";
+export const DEV_MISSION_SCHEMA = "ahos.dev_missions.v2";
 export const DEV_MISSION_STATUS = "QUEUED" as const;
 export const MAX_SUMMARY_LEN = 280;
 export const MAX_TITLE_LEN = 60;
@@ -47,11 +61,17 @@ export type DevMissionRecord = {
   kind: "MISSION";
   /** Stable, human-readable id: DM-000001. Unique within the file (seq + 1). */
   id: string;
-  /** The 6-char confirm code of the chat action that created this entry (audit link). */
-  confirmCode: string | null;
+  /** sha256 of the one-time confirm code that created this entry (audit link).
+   * The code itself is never stored; this is enough to tie the queue entry to
+   * the chat_confirm audit line. */
+  confirmCodeHash: string | null;
   titleFa: string;
   summaryFa: string;
   status: typeof DEV_MISSION_STATUS;
+  /** The summary is model-authored and untrusted: flags recorded, not acted on. */
+  injectionFlags: string[];
+  /** Always "chat_model_summary_untrusted" from the chat path. */
+  source: string;
   channelClaimed: string;
   userIdHash: string;
   prev_hash: string;
@@ -72,21 +92,24 @@ export interface DevMissionReader {
 }
 
 // ------------------------------------------------------------------ secrets --
-
+// Mission 9.5 BL-2: every pattern carries the `g` flag. Without it, replace()
+// redacted only the FIRST match per rule and a second secret reached disk.
+// Mission 9.5 MN-5: URL_CREDENTIALS captures the scheme so the replacement does
+// not inject the match offset into the marker.
 const SECRET_RULES: Array<[string, RegExp]> = [
-  ["PRIVATE_KEY_BLOCK", /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----[\s\S]*?(-----END [A-Z0-9 ]*PRIVATE KEY-----|$)/],
-  ["TELEGRAM_BOT_TOKEN", /\b\d{8,12}:[A-Za-z0-9_-]{30,50}\b/],
-  ["GOOGLE_API_KEY", /\bAIza[0-9A-Za-z_-]{30,}/],
-  ["ANTHROPIC_KEY", /\bsk-ant-[A-Za-z0-9_-]{16,}/],
-  ["OPENAI_STYLE_KEY", /\bsk-(?:proj-)?[A-Za-z0-9_-]{16,}/],
-  ["GITHUB_TOKEN", /\b(?:ghp|gho|ghs|ghu|github_pat)_[A-Za-z0-9_]{20,}/],
-  ["JWT", /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/],
-  ["EVM_PRIVATE_KEY", /\b0x[0-9a-fA-F]{64}\b/],
-  ["URL_CREDENTIALS", /(?:[a-z][a-z0-9+.-]*:\/\/)[^/\s:@]+:[^/\s@]+@/i],
-  ["BEARER", /\bbearer\s+[A-Za-z0-9._~+/=-]{12,}/i],
+  ["PRIVATE_KEY_BLOCK", /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----[\s\S]*?(-----END [A-Z0-9 ]*PRIVATE KEY-----|$)/g],
+  ["TELEGRAM_BOT_TOKEN", /\b\d{8,12}:[A-Za-z0-9_-]{30,50}\b/g],
+  ["GOOGLE_API_KEY", /\bAIza[0-9A-Za-z_-]{30,}/g],
+  ["ANTHROPIC_KEY", /\bsk-ant-[A-Za-z0-9_-]{16,}/g],
+  ["OPENAI_STYLE_KEY", /\bsk-(?:proj-)?[A-Za-z0-9_-]{16,}/g],
+  ["GITHUB_TOKEN", /\b(?:ghp|gho|ghs|ghu|github_pat)_[A-Za-z0-9_]{20,}/g],
+  ["JWT", /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g],
+  ["EVM_PRIVATE_KEY", /\b0x[0-9a-fA-F]{64}\b/g],
+  ["URL_CREDENTIALS", /([a-z][a-z0-9+.-]*:\/\/)([^/\s:@]+):([^/\s@]+)@/gi],
+  ["BEARER", /\bbearer\s+[A-Za-z0-9._~+/=-]{12,}/gi],
   [
     "ASSIGNED_SECRET",
-    /\b([A-Z0-9_]*(?:api[_-]?key|secret|token|passw(?:or)?d|private[_-]?key|credential)[A-Z0-9_]*)\s*[:=]\s*(['"]?)(?!\[REDACTED)([^\s'\",;]{6,})/i,
+    /\b([A-Z0-9_]*(?:api[_-]?key|secret|token|passw(?:or)?d|private[_-]?key|credential)[A-Z0-9_]*)\s*[:=]\s*(['"]?)(?!\[REDACTED)([^\s'\",;]{6,})/gi,
   ],
 ];
 
@@ -102,6 +125,35 @@ export function redactMissionSecrets(text: string): string {
     });
   }
   return out;
+}
+
+/**
+ * Patterns that mark a mission summary as prompt-injection-looking. The summary
+ * is model-authored and may have consumed untrusted tool output (news titles),
+ * so the queue records these flags for the engineering consumer and the owner
+ * sees the full text before confirming. Flagged, never silently dropped.
+ */
+const INJECTION_RULES: Array<[string, RegExp]> = [
+  ["IGNORE_PRIOR", /(?:ignore|disregard|forget)\s+(?:all\s+)?(?:previous|prior|above|earlier)\s+instructions?/i],
+  ["SYSTEM_ROLE", /(?:you\s+are|act\s+as|behave\s+as|pretend\s+(?:to\s+be|you(?:'re| are)))\s+(?:a|an|the)\s+/i],
+  ["REVEAL_PROMPT", /(?:reveal|print|show|repeat|output)\s+(?:the\s+)?(?:system\s+)?(?:prompt|instructions?|rules?|secrets?)/i],
+  ["CODE_FENCE", /```/],
+  ["MARKUP_TAG", /<\/?(?:system|user|assistant|prompt|instructions?|tool)\b/i],
+  ["URL", /https?:\/\/\S{4,}/i],
+  ["SECRET_MARKER", /(?:api[_-]?key|token|secret|password|credential|private[_-]?key)\s*[:=]/i],
+];
+
+/** Names of the injection patterns found in the text (may be empty). */
+export function injectionFlagsFa(text: string): string[] {
+  const out: string[] = [];
+  for (const [name, re] of INJECTION_RULES) if (re.test(String(text ?? ""))) out.push(name);
+  return out;
+}
+
+/** Clean + redact a mission summary at proposal time so the owner confirms
+ * exactly what is queued (M3/MJ-7). Returns "" when nothing is left. */
+export function cleanDevMissionSummary(raw: string | null | undefined): string {
+  return redactMissionSecrets(cleanSummaryFa(String(raw ?? ""))).trim();
 }
 
 // ------------------------------------------------------------------ summary --
@@ -164,27 +216,48 @@ export class DevMissionStore implements DevMissionReader {
   }
 
   verify(): { ok: boolean; entries: number; headHash: string; firstBadLine: number } {
-    const lines = existsSync(this.path) ? readFileSync(this.path, "utf8").split("\n").filter((l) => l.trim()) : [];
+    let lines: string[] = [];
+    try {
+      lines = existsSync(this.path) ? readFileSync(this.path, "utf8").split("\n").filter((l) => l.trim()) : [];
+    } catch {
+      return { ok: false, entries: 0, headHash: GENESIS_HASH, firstBadLine: 0 };
+    }
     const bad = verifyAuditLines(lines);
-    const last = lines.length ? (JSON.parse(lines[lines.length - 1]) as DevMissionRecord).entry_hash : GENESIS_HASH;
-    return { ok: bad === -1, entries: lines.length, headHash: last, firstBadLine: bad };
+    let headHash = GENESIS_HASH;
+    try {
+      headHash = lines.length ? (JSON.parse(lines[lines.length - 1]) as DevMissionRecord).entry_hash : GENESIS_HASH;
+    } catch {
+      return { ok: false, entries: lines.length, headHash: GENESIS_HASH, firstBadLine: Math.max(0, lines.length - 1) };
+    }
+    return { ok: bad === -1, entries: lines.length, headHash, firstBadLine: bad };
   }
 
-  /** Append one QUEUED mission. Refuses an empty summary; never throws. */
+  /**
+   * Append one QUEUED mission. Refuses an empty summary, and — Mission 9.5 MJ-8 —
+   * refuses to write when the existing chain is already broken (previously it
+   * restarted at seq 0 and produced duplicate DM-000001 ids). Never throws.
+   */
   append(input: AppendInput): DevMissionRecord | null {
-    const summary = cleanSummaryFa(input.summaryFa);
-    if (!summary) return null;
-    const seq = this.records().length;
+    // Clean first, then redact, then derive the title from the redacted text
+    // (BL-1: the title used to be cut from the unredacted summary).
+    const cleaned = cleanSummaryFa(input.summaryFa);
+    if (!cleaned) return null;
+    const summary = redactMissionSecrets(cleaned);
+    const chain = this.verify();
+    if (!chain.ok) return null;
+    const seq = chain.entries;
     const body = {
       schema: DEV_MISSION_SCHEMA,
       seq,
       ts: this.now().toISOString(),
       kind: "MISSION" as const,
       id: `DM-${String(seq + 1).padStart(6, "0")}`,
-      confirmCode: input.confirmCode ?? null,
+      confirmCodeHash: input.confirmCode ? hashId("confirm_code", input.confirmCode) : null,
       titleFa: titleFromSummaryFa(summary),
-      summaryFa: redactMissionSecrets(summary),
+      summaryFa: summary,
       status: DEV_MISSION_STATUS,
+      injectionFlags: injectionFlagsFa(summary),
+      source: "chat_model_summary_untrusted",
       channelClaimed: String(input.channel ?? "unspecified").slice(0, 32).replace(/[^\w.-]/g, "_") || "unspecified",
       userIdHash: hashId("user", input.userId),
       prev_hash: this.sink.lastHash(),

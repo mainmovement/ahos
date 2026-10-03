@@ -1,11 +1,11 @@
-import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
+import { authorizeDashboardEndpoint, sanitizePublicError } from "@/web_api_auth";
 import { addPaper, PaperSecurityDenied } from "@/engine";
 import { loadCanonicalReadModel, paperAllowedFromCanonical } from "@/canonical_read_model";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const denied = authorizeWebApi(req);
+  const denied = authorizeDashboardEndpoint(req);
   if (denied) return denied;
   try {
     const body = (await req.json().catch(() => ({}))) as {

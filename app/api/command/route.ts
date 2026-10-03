@@ -1,4 +1,4 @@
-import { authorizeWebApi, sanitizePublicError } from "@/web_api_auth";
+import { authorizeDashboardEndpoint, sanitizePublicError } from "@/web_api_auth";
 import { failClosedCommandSnapshot, commandSnapshot } from "@/snapshot";
 import { restoreDaemonIfNeeded } from "@/engine";
 import { loadCanonicalReadModel } from "@/canonical_read_model";
@@ -6,7 +6,7 @@ import { loadCanonicalReadModel } from "@/canonical_read_model";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const denied = authorizeWebApi(req);
+  const denied = authorizeDashboardEndpoint(req);
   if (denied) return denied;
   try {
     try {

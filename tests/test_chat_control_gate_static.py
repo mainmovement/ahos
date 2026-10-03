@@ -22,18 +22,20 @@ def test_chat_does_not_import_engine_control():
     assert not re.search(r"\bstopEngine\b", src)
 
 
-def test_chat_gate_runs_before_snapshot_and_paper_branch():
+def test_chat_gate_runs_before_snapshot_and_agent():
     src = _read("chat.ts")
     body = src[src.index("export async function handleChat"):]
     i_detect = body.index("detectIntent(text)")
     i_gate = body.index("gateChatControl(")
     i_audit = body.index("recordControlAudit(")
-    i_snapshot = body.index("commandSnapshot()")
-    i_paper = body.index('intent === "paper_buy"')
-    assert i_detect < i_gate < i_audit < i_snapshot < i_paper
-    gate_block = body[i_gate:i_snapshot]
+    i_main_snapshot = body.index("const snap = await commandSnapshot()")
+    # MJ-4: control intents are gated and (for owners) turned into proposals
+    # BEFORE the main snapshot is taken or the conversational agent runs.
+    assert i_detect < i_gate < i_audit < i_main_snapshot
+    gate_block = body[i_gate:i_main_snapshot]
     assert "if (gate.controlled)" in gate_block
     assert 'decision: "REFUSED"' in gate_block
+    assert "propose(store, kind" in gate_block  # owner → proposal, never execution
     assert "return {" in gate_block
 
 
@@ -57,11 +59,16 @@ def test_chat_no_substring_stop_or_start_patterns():
 
 
 def test_canonical_paper_pins_still_hold():
-    src = _read("chat.ts")
-    assert "paperAllowedFromCanonical" in src
-    assert "CANONICAL_PAPER_DENIED" in src
-    assert "running = Boolean(state?.running)" in src
-    assert src.index("(رد شد|چرا رد|reject)") < src.index("(چرا|دلیل|شواهد|explain)")
+    """MJ-4: chat.ts has no direct paper write at all. The canonical BUY gate
+    guards the only paper-buy path, which is the confirm flow in chat_actions
+    (the same functions /api/paper uses)."""
+    chat = _read("chat.ts")
+    assert "addPaper(" not in chat
+    actions = _read("chat_actions.ts")
+    assert "paperAllowedFromCanonical" in actions
+    assert "addPaper(" in actions
+    paper = _read("app/api/paper/route.ts")
+    assert "paperAllowedFromCanonical" in paper
 
 
 def test_gate_module_is_deny_by_default():
@@ -90,19 +97,73 @@ def test_audit_record_has_no_raw_text_or_raw_id_fields():
     assert "writeFileSync" not in src  # append-only
 
 
-def test_gateway_forwards_channel_and_user_for_audit_only():
+def test_gateway_forwards_resolved_identity_and_assertion_for_audit_only():
+    """MJ-3/MJ-4: the server-verified identity wins; the client assertion is
+    carried through for the audit only and is never a grant."""
     src = _read("conversation_gateway.ts")
-    assert "channel: req.channel ?? null" in src
-    assert "userId: req.user_id ?? null" in src
+    assert "channel: req.identity?.channel ?? req.channel ?? null" in src
+    assert "userId: req.identity?.userId ?? req.user_id ?? null" in src
+    assert "proven: Boolean(req.identity?.proven)" in src
+    assert "never as a grant" in src
 
 
-def test_dashboard_engine_and_paper_routes_unchanged_capability():
+def test_dashboard_engine_and_paper_routes_audit_write_ahead():
+    """MJ-2: the dashboard engine route writes an EXECUTING record BEFORE it
+    touches the engine, refuses when the write fails, then records the outcome."""
     eng = _read("app/api/engine/route.ts")
     assert "startEngine()" in eng and "stopEngine()" in eng
-    assert "authorizeWebApi(req)" in eng
-    assert 'decision: "ALLOWED"' in eng  # audited
+    assert "authorizeDashboardEndpoint(req)" in eng
+    assert 'decision: "EXECUTING"' in eng  # write-ahead (MJ-2)
+    assert "AUDIT_WRITE_FAILED" in eng  # refused when the audit write fails
+    i_executing = eng.index('decision: "EXECUTING"')
+    i_start = eng.index("startEngine()")
+    assert i_executing < i_start  # audit precedes the action
+    assert 'decision: "CONFIRMED"' in eng  # outcome record
+    assert 'decision: "FAILED"' in eng
     paper = _read("app/api/paper/route.ts")
     assert "addPaper(" in paper
+
+
+def test_chat_reaches_engine_only_through_the_confirm_flow():
+    """MJ-4: chat.ts may not call the engine/paper/watch functions directly.
+    The only route to them is chat_actions.handleConfirmation, which checks
+    owner identity, expiry and identity binding and consumes the code (take)
+    before executing anything."""
+    src = _read("chat.ts")
+    for banned in ("startEngine(", "stopEngine(", "addPaper(", "addWatch("):
+        assert banned not in src, banned
+    assert "handleConfirmation(" in src
+    actions = _read("chat_actions.ts")
+    fn = actions[actions.index("export async function handleConfirmation"):]
+    # Order matters: identity binding and owner check run BEFORE the code is
+    # consumed and before anything executes.
+    i_identity = fn.index("a.identityKey !== identityKey(id)")
+    i_owner = fn.index("if (!isOwner(id, opts.env))")
+    i_expired = fn.index("store.isExpired(a)")
+    i_take = fn.index("store.take(code); // single use")
+    i_executing = fn.index('"EXECUTING"')
+    i_execute = fn.index("await deps.startEngine()")
+    assert i_identity < i_owner < i_expired < i_take < i_executing < i_execute
+    # The code is consumed before execution, so a failed run can never replay.
+    assert "single use, even if execution fails" in fn
+    # MJ-1: an audit write failure aborts the action.
+    assert "AUDIT_WRITE_AHEAD" in fn
+    # m5: wrong guesses are counted and lock the identity out.
+    assert "store.registerFailure(id)" in fn
+    assert "isLocked(id)" in fn
+
+
+def test_chat_actions_owner_gate_never_trusts_a_claim():
+    """MJ-4/MJ-6: isOwner requires a server-proven identity and the admin list."""
+    src = _read("chat_actions.ts")
+    fn = src[src.index("export function isOwner"):]
+    fn = fn[: fn.index("\n}\n")]
+    assert "if (!id.proven) return false;" in fn  # BL-3: never an owner unproven
+    # The proven check must precede any channel comparison.
+    assert fn.index("!id.proven") < fn.index('"telegram"') < fn.index('"dashboard"')
+    assert "TELEGRAM_ADMIN_USER_IDS" in fn
+    assert "TELEGRAM_ALLOWED_CHAT_IDS" not in fn  # MJ-6: readers are not owners
+
 
 
 def test_npm_selftest_registered():
