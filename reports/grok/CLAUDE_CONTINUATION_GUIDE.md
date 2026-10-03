@@ -450,6 +450,78 @@ npm run audit:control-verify   # hash chain incl. the new MISSION_QUEUED lines
 
 ---
 
+### Phase 9 (2026-10-03, Claude/Atria): Mission 9 — truth baseline + Remaining Reality Register
+
+**Read this before quoting any readiness claim.** M9 replaced prose-based
+readiness with a measured capability graph. Two new standing artifacts:
+
+- **`reports/grok/REMAINING_REALITY_REGISTER.md`** — the Remaining Capability
+  Graph per owner directive part1 §76–§80: 33 capability areas (§1–§33) + 5
+  cross-cutting findings (CC-1..CC-5), each with ladder state, evidence path,
+  dependencies, proof requirement, governance gate. **Where it disagrees with
+  an older map, the register wins.** Every live count in it was re-queried,
+  not quoted.
+- **`reports/m9/BASELINE.md`** — exact pytest / tsc / eslint / self-test
+  counts plus the reason for every skip and xfail. Re-run per directory when
+  you need a fresh baseline; do not re-run the whole Windows suite in one go.
+
+**Status vocabulary is now the owner's reality ladder**
+(PLANNED < PARTIAL < IMPLEMENTED < TESTED < VERIFIED < OPERATIONAL, plus
+BLOCKED / UNKNOWN / CONTRADICTED). The guide's own line-5 vocabulary
+(IMPLEMENTED / TESTED / VERIFIED / OWNER_ACTION / DESIGN_ONLY) is superseded
+for *new* writing; it stays accurate for the Phase 1–8 facts it was written
+against. Docs-only caps at PLANNED/DESIGN; self-tests cap at TESTED.
+
+**One real bug fixed — FM-007, `0b878be`.**
+`architecture/learning/prediction_lifecycle.py` hard-coded
+`eligible_join_pairs_estimate = 0` (the two stores are separate sqlite
+connections, so a cross-DB JOIN is unavailable and the original code returned
+the sentinel). Fixed by intersecting token-id sets in memory: 19 labeled ∩
+20,744 predicted = **10** live. Regression test in
+`tests/test_prediction_lifecycle_bridge.py` (6/6). **This resolves the
+handoff's unresolved item 7** and the guide's implicit census gap. Units
+differ and both are right: the census's 10 = distinct tokens; the calibration
+report's 6,037 = (prediction, label) pairs per (horizon, event-class).
+
+**Twelve stale readiness maps bannered** (STALE/SUPERSEDED, pointing at the
+register), including `AHOS_PROJECT_STATE_MAP.md`, `reports/PHASE_STATE.md`,
+`reports/G2_MISSION_REPORT_20261002.md`. `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`
+was corrected, not just bannered. FM-001..FM-007 appended to
+`reports/FAILURE_MEMORY.md`. Full M9 narrative: handoff §Phase 9.
+
+**Top 3 next actions, all dependency-safe, none governance-gated**
+1. **Wire `paper_trading/cycle.py:run_full_cycle` into the daemon** — the
+   register's highest-leverage node; unblocks calibration, outcome tracking,
+   the live decision authority, trade-derived learning, accounting. All 19
+   `paper_trading.sqlite` tables hold 0 rows today. No new capability needed.
+2. **CC-3** — `architecture/ai/debate_council.py::_risk_manager_evaluation`
+   annotates a bare `Tuple` it never imports (one-line fix + test).
+3. **CC-1** — route the daemon through `ControlPlane` so START/STOP/SAFE_HALT
+   are operator-reachable; required by the one-click launcher mission.
+   (`assert_safe_environment` *is* wired — this is control parity, not a
+   safety hole.)
+
+Also open: CC-4 (`cycle_duration_ms` max 58.6M ms = clock-drift/suspend
+contamination, 250/2,644 samples > 60 s) and CC-5 (`chain_id='robinhood'`
+labels 3,635 observations but is not a blockchain — correction touches Lane A
+semantics, so reviewed migration only).
+
+**How to continue (Phase 9)**
+```powershell
+cd G:\robat\ahos
+git log --oneline -8               # M9 commits: 629e757 3b0da90 0b878be 1834779 f056256 a9a2820 d2aa09b
+.venv\Scripts\python.exe tests\test_prediction_lifecycle_bridge.py   # 6/6
+```
+- Mission plan order is unchanged; `OWNER_DIRECTIVE_MISSION_PLAN.md` gained an
+  "M9 outcome" evidence section. Note the plan's internal numbering drift:
+  "M12" means *agents* in the 18:47/18:49 owner order but *paper trading* in
+  the original list. **Use the 18:49 order.**
+- Nothing in M9 created or enabled an execution surface. PAPER_ONLY held;
+  Lane A untouched and re-verified; no secrets read or printed; local commits
+  only.
+
+---
+
 ## 3. Known limitations and open items (all phases)
 1. Blocker A (Claude, GM-01).
 2. GM-04 independent review, now including the **Phase 7b owner confirm-gated path** (GM04 doc §8); `/api/engine` token exposure (also lets a token holder claim chat owner via channel `web`); `AHOS_CONTROL_AUDIT_PATH` not in the config scan.
@@ -462,3 +534,5 @@ npm run audit:control-verify   # hash chain incl. the new MISSION_QUEUED lines
 9. `tests/test_sqlite_backup_restore.py::test_record_test_run_anchors_relative_executable` fails on Linux only (Windows path). Not a Windows issue.
 10. Phase 7: Telegram has no inline confirm buttons (it confirms by text); the pending store and memory are in-process; agent latency is about 5 s; `TELEGRAM_ADMIN_USER_IDS` is empty, so owner = allowlisted chat ids.
 11. Phase 8: the dev-mission queue has **no consumer** (no mission controller yet); no live gateway round trip verified this run; `AHOS_DEV_MISSIONS_PATH` is outside the config-validation scan; last-line deletion is invisible to the keyless chain (documented). University and the nine teams remain docs-only; all 19 Slice-1 agents sit below the maturity floor, so M11 needs per-agent evidence before any execution authority.
+12. Phase 9 (M9): the paper-trading closed loop has never run — all 19 `paper_trading.sqlite` tables hold 0 rows, so calibration, outcome tracking, the live decision authority, trade-derived learning, and accounting all rest on an empty store. CC-3 (`Tuple` NameError in `debate_council.py`, latent), CC-4 (`cycle_duration_ms` clock-drift contamination), CC-5 (`chain_id='robinhood'` on 3,635 observations), and CC-1 (daemon not routed through `ControlPlane`) are open and recorded in `reports/grok/REMAINING_REALITY_REGISTER.md`. Twelve older readiness maps are bannered STALE; quote the register, not them.
+

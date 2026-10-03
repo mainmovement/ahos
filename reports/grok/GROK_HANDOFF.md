@@ -1,6 +1,130 @@
 # GROK HANDOFF (living document) — for Claude Code
 
-> **Claude: start with [`reports/grok/CLAUDE_CONTINUATION_GUIDE.md`](CLAUDE_CONTINUATION_GUIDE.md)**. It covers Phases 1–8 (Phase 7 = conversational AI with confirm-gated paper commands, owner authority decision 2026-10-02, pending سپهر/قاسم/رضا review; Phase 8 = dev-mission intake + University/agents discovery): what was built, where the code lives, exact Windows commands, invariants, process setup, local-only commits (pushes paused), and blocker A.
+> **Claude: start with [`reports/grok/CLAUDE_CONTINUATION_GUIDE.md`](CLAUDE_CONTINUATION_GUIDE.md)**. It covers Phases 1–9 (Phase 7 = conversational AI with confirm-gated paper commands, owner authority decision 2026-10-02, pending سپهر/قاسم/رضا review; Phase 8 = dev-mission intake + University/agents discovery; Phase 9 = Mission 9 truth baseline + Remaining Reality Register): what was built, where the code lives, exact Windows commands, invariants, process setup, local-only commits (pushes paused), and blocker A.
+
+<!-- PHASE9:START -->
+## Phase 9 (2026-10-03, Claude/Atria): Mission 9 — truth baseline + Remaining Reality Register
+
+Owner-directive mission M9, five parts, all complete. **Grok's source, config,
+and runtime state were untouched**; every commit is docs, one Lane-B bug fix,
+or a previously untracked evidence file. Pushes still paused — local commits
+only. Lane A untouched and verified.
+
+### 9a: Test baseline + import side-effect audit (A, B)
+
+- `reports/m9/BASELINE.md` — exact pytest / tsc / eslint / self-test counts
+  with the reason for every skip and xfail. Genuine failures were small and
+  root-caused with regression tests; nothing was silently quarantined
+  (`629e757`).
+- `reports/m9/IMPORT_SIDE_EFFECTS.md` — Mandate §12 item 2: 266 modules in
+  `architecture/`, `scripts/`, `src/` audited for network / IO / DB / env /
+  thread mutation at import time. **0 confirmed** side effects (`3b0da90`).
+
+### 9b: The one real bug found and fixed (FM-007, `0b878be`)
+
+`architecture/learning/prediction_lifecycle.py` hard-coded
+`eligible_join_pairs_estimate = 0`, so the census claimed "no
+calibration-eligible join" while the live ledger held thousands of eligible
+pairs. Root cause: the two stores are separate sqlite connections, so the
+obvious cross-DB JOIN is unavailable and the original code silently returned
+the sentinel instead of approximating. Fixed by intersecting the two token-id
+sets in memory; verified against the live DBs (19 labeled tokens ∩ 20,744
+predicted tokens = **10**) and pinned by a new regression test in
+`tests/test_prediction_lifecycle_bridge.py` (6/6). Failure Memory entry
+FM-007 appended to `reports/FAILURE_MEMORY.md`.
+
+> **This resolves the handoff's unresolved item 7** ("prediction_lifecycle
+> census fix — pending owner approval"). The fix is in `0b878be`; re-derive
+> live counts with `scripts/calibration_report.py` rather than quoting the
+> old `0`. Note the units differ: the census's **10** is distinct tokens; the
+> calibration report's **6,037** is (prediction, label) pairs per
+> (horizon, event-class). Both are correct.
+
+### 9c: Remaining Reality Register (C) — the new standing authority
+
+`reports/grok/REMAINING_REALITY_REGISTER.md` — the Remaining Capability Graph
+per owner directive part1 §76–§80: **33 capability areas** (§1–§33) plus **5
+cross-cutting findings** (CC-1..CC-5), each with ladder state, evidence path,
+dependencies, proof requirement, and governance gate. Every live count was
+re-queried for the register, not quoted from prose.
+
+Read this file before quoting any readiness claim. Where it disagrees with an
+older map, **the register wins**. Headline states: discovery pipeline
+`OPERATIONAL`; provider fallback, scoring, Lane-A freeze, calibration and
+backup/restore `VERIFIED`; paper trading `PARTIAL` (the loop never closed);
+scheduler / runtime / identity / decision authority `TESTED`; n8n
+`CONTRADICTED`; live trading `ABSENT BY CONSTRUCTION`.
+
+### 9d: Stale-map banners (D)
+
+Twelve historical readiness maps now carry dated STALE / SUPERSEDED banners
+pointing at the register, including `AHOS_PROJECT_STATE_MAP.md` (its A–E
+taxonomy and its "Verified = re-checked by automated tooling" definition are
+exactly what §76 forbids), `reports/PHASE_STATE.md` (its "first live cycle
+executed" is contradicted by `paper_exits = 0` and a 100%-empty
+`paper_trading.sqlite`), and `reports/G2_MISSION_REPORT_20261002.md` (its
+`pre_soak_entry_ok = TRUE` is transitory; the standing
+`reports/PRE_SOAK_STATUS.txt` holds `False` with G2/G3/G10 `NOT_VERIFIED`).
+`docs/CANONICAL_IMPLEMENTATION_MATRIX.md` was corrected, not only bannered:
+two narrative-intel paths fixed to their `architecture/` roots and its summary
+recounted by hand (COMPLETE 17 / PARTIAL 10 / BLOCKED_EXTERNAL 3 /
+DEFERRED_BY_DESIGN 2 / NOT_IMPLEMENTED 1 = 33 rows; a prior 29 had drifted).
+`reports/FAILURE_MEMORY.md` gained FM-001..FM-007; `reports/nightly_backup_series.json`
+was committed as tracked (`1834779`) because four canonical docs cite it and a
+clean checkout was failing the doc-drift check.
+
+### 9e: Mission-plan notes (E)
+
+`reports/grok/OWNER_DIRECTIVE_MISSION_PLAN.md` gained an "M9 outcome" section.
+The owner's binding order is **unchanged**; the section records evidence that
+affects later missions. Two things in that plan are inconsistent and a future
+mission should reconcile them: the original mission list and the 18:47 owner
+update disagree on what "M12" means (agents vs paper trading + learning), and
+the 18:49 order follows the 18:47 renumbering while the original list was
+never renumbered. **Use the 18:49 order; treat the original list as mission
+definitions only.**
+
+### Findings the next mission should act on (all dependency-safe, none gated)
+
+1. **Wire `paper_trading/cycle.py:run_full_cycle` into the daemon.** The
+   register's single highest-leverage node: it unblocks calibration, outcome
+   tracking, the live decision authority, trade-derived learning, and
+   accounting — five capabilities, all currently sitting on a 0-row database.
+   No new capability needed, no governance gate, no Lane A write.
+2. **CC-3** — `architecture/ai/debate_council.py::_risk_manager_evaluation`
+   annotates a bare `Tuple` it never imports. One-line fix plus a test; latent
+   `NameError`, never triggered because the council has never run on a real
+   token.
+3. **CC-4** — `cycle_duration_ms` max is 58,621,870 ms (~16.3 h) on a 60 s
+   cadence daemon: clock-drift / suspend contamination, not a real cycle. Any
+   latency SLO derived from that column must sanitize it first (250/2,644
+   samples exceed 60 s).
+4. **CC-5** — `chain_id = 'robinhood'` labels 3,635 observations (3.3%);
+   robinhood is not a blockchain. Per-chain stats and identity joins must
+   treat it as invalid. Correction touches Lane A semantics → reviewed
+   migration, not a drive-by fix.
+5. **CC-1** — route the daemon through `ControlPlane` so START/STOP/SAFE_HALT
+   are actually reachable by an operator. `assert_safe_environment` *is* wired
+   into the live loop, so this is operator-control parity, not a safety hole —
+   but the one-click launcher mission cannot deliver clean stop/health without
+   it.
+
+### Tests run this phase (Windows, all exit 0)
+
+Targeted only, per the per-directory chunking rule: `tests/test_prediction_lifecycle_bridge.py`
+6/6 (incl. the new FM-007 regression test), plus the m9 baseline suites
+recorded in `reports/m9/BASELINE.md`. The full suite count is in that file,
+not re-run wholesale here.
+
+### Security / governance
+
+PAPER_ONLY held. Lane A untouched and re-verified. No execution surface
+created or enabled (`NO_EXECUTION_SURFACE` stands). No secrets printed or
+written — the Gemini key stayed in Windows Credential Manager `AHOS/ai/gemini`
+and was never read. `.cursor/hooks.json`, `*.local-backup`,
+`ahos-hooks-local-diff.txt`, and `reports/pgdump_*.sql` were not touched.
+No push; no force, reset, rebase, or history rewrite.
+<!-- PHASE9:END -->
 
 <!-- PHASE8:START -->
 ## Phase 8 (2026-10-02, Claude/Atria): dev-mission intake in the chat assistant + University/agents discovery
