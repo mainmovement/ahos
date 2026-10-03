@@ -84,6 +84,17 @@ def resolve_gateway(env: dict) -> dict:
     return gwp.resolve_gateway(env)
 
 
+def candidate_ports(env: dict, config_file: Path | str | None = None) -> tuple[int, ...]:
+    """Ordered gateway fallback list, delegated to gateway_port.py.
+
+    Non-secret: ``AHOS_GATEWAY_CANDIDATE_PORTS`` env, then ``config/gateway_ports.json``
+    (when a caller passes it), then the in-code default. Exposed so the smoke and
+    any other launcher-side caller walk the same list the resolver does.
+    """
+    gwp = _load_gateway_port_module()
+    return gwp.candidate_ports(env, config_file=config_file)
+
+
 def select_gateway(env: dict) -> dict:
     """The gateway the launcher will *actually* use on this host.
 

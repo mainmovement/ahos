@@ -80,19 +80,31 @@ def _can_bind(host: str, port: int) -> tuple[bool, str | None]:
         s.close()
 
 
-def _bindable_port(host: str, preferred: int) -> tuple[int, list[str]]:
-    """The preferred port if the OS lets us bind it, else the first that works."""
+def _bindable_port(host: str, preferred: int,
+                   candidates: tuple[int, ...] = ()) -> tuple[int, list[str]]:
+    """The preferred port if the OS lets us bind it, else the first candidate
+    that works.
+
+    ``candidates`` comes from the shared resolver (env > config/gateway_ports.json
+    > in-code default). This module carried its own ``range(3450, 3950)`` once,
+    which silently drifted from the list the launcher actually walks (e8): a
+    smoke that squats on a port the launcher would never consider proves nothing.
+    """
     notes: list[str] = []
     ok, why = _can_bind(host, int(preferred))
     if ok:
         return int(preferred), notes
     notes.append(f"preferred port {preferred} is not bindable on this host ({why})")
-    for cand in range(3450, 3950):
+    for cand in candidates:
+        if cand == int(preferred):
+            continue
         ok, _ = _can_bind(host, cand)
         if ok:
-            notes.append(f"using AHOS_GATEWAY_PORT={cand} for this test run only")
+            notes.append(f"using port {cand} for this test run only (shared candidate list)")
             return cand, notes
-    raise SystemExit("no bindable port found in 3450-3949 for the injection")
+    raise SystemExit(
+        "no bindable port found for the injection; tried the configured port and "
+        f"the shared candidate list {tuple(candidates) or '(empty)'}")
 
 
 def _run(action: str, *, env: dict, skip: tuple[str, ...] = (), expect_rc=(0,)) -> dict:
@@ -200,7 +212,11 @@ def smoke_port_busy(mode: str, *, skip: tuple[str, ...]) -> dict:
     if not port:
         raise SystemExit("could not resolve the gateway port to occupy")
     # Windows may refuse to bind the configured port (Hyper-V reservations).
-    port, notes = _bindable_port(host, port)
+    # The fallback list is the shared one so the smoke squats on a port the
+    # launcher itself might have been redirected to.
+    port, notes = _bindable_port(
+        host, port,
+        C.candidate_ports(env, config_file=ROOT / "config" / "gateway_ports.json"))
     # AHOS_GATEWAY_URL outranks AHOS_GATEWAY_PORT (scripts/gateway_port.py), so
     # to retarget the launcher the URL itself must be rewritten. Test-run only.
     env["AHOS_GATEWAY_URL"] = f"http://{host}:{port}/api/chat"
