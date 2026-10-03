@@ -21,12 +21,15 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:restore-pglite": "node --experimental-strip-types scripts/pglite_restore.ts",
     "test:chat-auth": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_auth_selftest.ts",
     "test:chat-actions": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_actions_selftest.ts",
     "test:chat-handlechat": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_handlechat_selftest.ts",
-    "test:gemini-egress": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/gemini_egress_selftest.ts"
+    "test:gemini-egress": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/gemini_egress_selftest.ts",
+    "test:pglite-backend": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/pglite_backend_selftest.ts"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "dotenv": "17.3.1",
     "drizzle-orm": "0.45.2",
     "next": "16.2.6",

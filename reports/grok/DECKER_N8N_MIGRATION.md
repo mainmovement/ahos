@@ -224,6 +224,45 @@ the repo (would risk committing data).
 **Where SQLite is justified instead:** Lane B stays on SQLite as-is — no change
 needed, no change wanted. PGlite replaces only the Postgres the gateway used.
 
+### 3a. STAGE 3 IMPLEMENTATION — `VERIFIED` (restore path), switch-over NOT started
+
+What was actually built this session, all behind the existing config surface:
+
+| Artifact | Path | What it proves |
+|---|---|---|
+| Dual-backend client | `db/index.ts` | `DATABASE_URL` scheme selects the backend. `pglite:<dataDir>` → embedded PGlite 16 via `drizzle-orm/pglite`; anything else → the existing node-postgres Pool, byte-for-byte unchanged. Both expose the same drizzle `PgDatabase` API, so the 4 live consumers (`snapshot.ts`, `engine.ts`, `chat.ts`, `news.ts`) are unmodified. |
+| Restore + parity tool | `scripts/pglite_restore.ts` (CLI), `scripts/pglite_restore_lib.ts` (library) | Applies the canonical Drizzle migration to a dataDir, restores `ahos_*` COPY blocks from the Stage 2 dump, verifies exact row-count parity. Exit 1 on any parity gap so the launcher can treat restore as a real gate. PAPER_ONLY: read-only on the dump/counts files, writes only into `--dataDir`, never deletes the source. |
+| Self-test | `scripts/pglite_backend_selftest.ts` → `npm run test:pglite-backend` | 14 tests, 14 pass: URL-scheme selection, dataDir extraction (Windows absolute / leading-slash / relative), end-to-end round-trip through the real drizzle layer (`serial`, `jsonb` as a parsed object, `timestamptz` as a UTC-exact `Date`, naive `timestamp`), COPY parser (block filtering, `\N`→NULL, `\t`/`\\` unescaping, empty blocks), full restore to exact parity, and that the legacy `pool` refuses to masquerade on the embedded path. |
+| Package config | `package.json`, `next.config.ts` | `@electric-sql/pglite@^0.5.8` added; `serverExternalPackages` keeps the WASM module out of the webpack server bundle (it must resolve at runtime, not be bundled). |
+
+**Verification on the real backup** (not a fixture) — the permanent tool,
+restoring `pg_20261003T091351Z/ahos_full.sql` into a throwaway dataDir:
+
+```
+migration: applied 33 statements
+restore: copied 778 rows across 19 tables
+PARITY: 19 OK / 0 FAIL of 19
+jsonb spot check: {"at":"2026-08-30T10:09:09.821Z","intent":"general",...}
+timestamptz spot check: 2026-08-30T10:09:10.036Z
+EXIT=0
+```
+
+This reproduces the Stage 2 throwaway-script result with the permanent code
+path: same 19/19 tables, same 778 rows, same exit code.
+
+**Gates run after the change:** `tsc --noEmit` clean; `eslint` clean on all
+touched files; `test:pglite-backend` 14/14; `test:chat-handlechat` 18/18 and
+`test:chat-agent` 30/30 (these transitively load `@/db` through `chat.ts` /
+`snapshot.ts`, so they are the regression signal that the client change did
+not break the import surface).
+
+**Deliberate non-changes:** the legacy Postgres path is untouched — PGlite is
+loaded through a lazy `require` so the legacy path never pays the WASM import
+cost and never inherits its failure mode; `pool` still works there and throws
+a clear message only on the embedded path. No Lane A file, no Python file, no
+compose file, no n8n workflow, and no `.env` value was modified. The live
+`DATABASE_URL` was NOT flipped — that is Stage 4 and stays owner-gated.
+
 ---
 
 ## 4. WHAT MUST NOT CHANGE (safety surface)
@@ -264,7 +303,7 @@ Per binding constraints and part1 §28/§72/§91:
 |---|---|---|
 | 1 | Inventory + decision (this document) | `COMPLETE` (pending local commit) |
 | 2 | Backup + parity baseline | `VERIFIED` — 19/19 tables, 778/778 rows |
-| 3 | Native replacement (PGlite client + restore path + 6 n8n jobs) | `NOT_STARTED` — de-risked: migration, restore, and parity all proven |
+| 3 | Native replacement (PGlite client + restore path + 6 n8n jobs) | `VERIFIED` for the PGlite client + restore path (§3a): 19/19 tables, 778/778 rows via the permanent tool. The 6 n8n jobs are still `NOT_STARTED` — they are zero at runtime (§1d) and move in Stage 4/5. |
 | 4 | Switch-over behind config + full tests + runtime smoke; defaults flipped only after green; rollback path documented | `NOT_STARTED` |
 | 5 | Archive (not delete) `archive/docker_n8n_<date>/` + README; update docs/runbooks/truth maps | `NOT_STARTED` |
 
