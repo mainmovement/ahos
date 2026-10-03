@@ -215,3 +215,60 @@ paper engines v1/v2/v3 + 3 schemas (M13); council in `council_live.py` / `debate
 positions in `telegram_ai/positions.py` vs `architecture/positions/` (M13); 6 launchers (M11); 3 DB schemas (M10); 5 provider
 registries (M13/M14); overlapping registers (`docs/supervision/OWNER_VISION_REGISTRY.md`, `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`,
 `docs/COMPONENT_REUSE_MAP.md`, `REMAINING_REALITY_REGISTER.md`); the traceability matrix cross-references them.
+
+## All-docs traceability, supersession and North Star (Grok, 2026-10-03 evening)
+
+**Matrix set (one interlinked set):** `reports/grok/OWNER_DIRECTIVE_TRACEABILITY.md` (OD rows, owner directive part1/part2 =
+Master Directive, MASTER CONTEXT v2.0, AGI/ACI Charter v1.0, Completion Mandate, owner notes) + `reports/grok/ALL_DOCS_TRACEABILITY.md`
+(AD rows from every other governing doc, CH rows = owner chat instructions 2026-10-03, NS rows = North Star capability items,
+plus the doc inventory, the supersession register, DECIDED contradictions and North Star alignment). **Each mission ticks its OD/AD/CH/NS rows.**
+
+**Supersession rule (binding):** the newest owner statement wins (by doc or commit date). Older versions are SUPERSEDED (with a pointer)
+and deleted items are REMOVED; neither is ever an active requirement. Locked regardless of date: PAPER_ONLY, no secrets, no push
+(push URL `NO_PUSH_owner_rule_local_only`), constitution/governance/authority/Lane A changes. Trust order: owner instruction > repo
+reality > governance/safety > evidence > MASTER CONTEXT > Charter > roadmap > experimental.
+
+**DECIDED (no owner question needed):**
+- D3: M10 store = **embedded PGlite** (d80b5b7, parity 7ace415). Native portable PostgreSQL via pg_ctl stays the documented fallback.
+  This supersedes the earlier "native portable PostgreSQL" wording in "Decisions 2026-10-03"; the other constraints there still
+  hold (data outside git, 127.0.0.1/local only, parity tests, Docker volumes untouched for rollback).
+- D4: the gold-paper track runs inside M13 (OWN-18 gold first); mission order M9→M19 unchanged.
+- D1/D2: PAPER_ONLY stays; autonomy covers all safe reversible engineering, and the locked items stay gated.
+- D5–D10: see the matrix §3.
+
+**Owner chat instructions 2026-10-03 (newest; assigned):**
+- M11: one-click desktop icon, no Docker, **no visible console windows** (CH-01/02). Extend the M11 launcher package.
+- M17 (+ any chat work): world-class, beautiful dashboard with a super-intelligence feel, honest, no fake data; extend
+  `CommandCenter.tsx`/`app/` (CH-03). Bot replies fully Persian, short and tidy (CH-04).
+- **Every mission, starting now:**
+  - Prompt review by آرش + the domain specialist + پروانه + گیتی before work (CH-05).
+  - Build by the domain agents (CH-06).
+  - Delivery sign-off by قاسم, رضا, عرفان before acceptance (CH-07).
+  - M14 makes these stage records first-class in `architecture/mission/ledger.py` (extend it; no new module).
+- No duplicates (CH-08). Local commits only, never push (CH-09).
+
+**North Star capability items added (NS rows; extend the named modules):**
+- M13: closed learning loop (NS-01).
+- M14: self-evaluation per mission (NS-02), populated memory (NS-03), autonomous engineering under gates (NS-05).
+- M15: dissent-preserving multi-agent reasoning (NS-04) and metacognition (NS-06).
+- M16: world model (NS-07), novelty→University (NS-08), governed self-improvement (NS-09).
+- M17: honest VISION/IMPLEMENTED capability scorecard (NS-10).
+- M13/M18/M19: one cognitive loop across markets (NS-11).
+
+AGI/ACI/SI stays a north star, never a claim.
+
+**Owner vision doc (2026-10-03, newest): `reports/grok/AHOS_AUTONOMOUS_VISION.md`.** It is the target architecture, not an order
+to enable money. Its OWN-AV rows are in `ALL_DOCS_TRACEABILITY.md` §5b. The mission order M9→M19 is unchanged. New missions run
+after M19, or in parallel only when they are safe (paper/testnet only):
+- **M20** broker abstraction: `BrokerAdapter` + OMS. `paper_trading/` becomes the PaperAdapter; no parallel engine.
+- **M21** risk engine v2: fractional Kelly, vol targeting, exposure/correlation caps, drawdown ladder, kill switches,
+  stress replay. Extends `architecture/risk/engine.py` + `paper_trading/risk.py`.
+- **M22** treasury/custody design on **testnet only**.
+- **M23** compliance and `venue_eligibility` (INV-08: no sanctions evasion).
+- **M24** capital allocator with `switching_cost`.
+- **M25** paper marathon + G-L2 gate evaluator (DSR, PBO, walk-forward).
+- **M26** real-pilot readiness: **HUMAN-GATE, owner signature only**.
+- **M27** owner withdrawal workflow (testnet).
+
+Invariants INV-01..17 are locked. The v1.1 additions also need work: the $100→$1M aspirational North Star (D13) is benchmark only — a dashboard panel in M17 and the NS-SANDBOX paper account in M13/M25; the University continuous-learning engine (AskU, exams, re-certification) goes to M16; the empty team seats and the two-taxonomy decision (governance-gated) go to M12. D11/D12 record the supersessions: treasury design replaces the credential-agent transfer
+idea, and the vision-doc lifecycle replaces the old maturity states.

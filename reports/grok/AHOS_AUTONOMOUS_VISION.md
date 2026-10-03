@@ -1,0 +1,957 @@
+# AHOS: سند چشم‌انداز مالک و معماری معامله‌گری خودمختار
+**نسخه:** v1.1 · **تاریخ:** ۱۴۰۵/۰۷/۱۱ (2026-10-03، به‌روزرسانی 20:20) · **مالک:** مهرداد قدرتی · **وضعیت سامانه:** `PAPER_ONLY`
+**نوع سند:** Owner Vision + Target Architecture. این سند هدف را تعریف می‌کند. دستور فعال‌سازی پول واقعی نیست.
+**قاعدهٔ برچسب:** هر قابلیت یکی از این برچسب‌ها را دارد: `VISION` (هدف، هنوز ساخته نشده)، `PARTIAL` (کدی هست اما سیم‌کشی یا شواهدش کامل نیست)، `IMPLEMENTED` (کد، تست و شواهد کامیت دارد). هر ادعایی که شاهد نداشته باشد `VISION` حساب می‌شود.
+**تغییرات v1.1 (20:20):** ستارهٔ شمالی آرمانی «۱۰۰ دلار ← ۱ میلیون دلار» (۱.۳، INV-15)؛ موتور یادگیری پیوستهٔ دانشگاه با آزمون، Knowledge Store، AskU و تیکت (۸.۳)؛ بازنویسی منشور ۱۸ عامل جدید بر اساس قالب اسناد مالک، همراه با ثبت عدم تکرار و نگاشت دو taxonomy (۲.۳، ۲.۵ تا ۲.۷)؛ شماره‌گذاری پیوستهٔ مراجع و افزودن FinBen.
+**جایگاه در ماتریس ردیابی:** ردیف‌های این سند با پیشوند `OWN-AV-xx` به `reports/grok/ALL_DOCS_TRACEABILITY.md` اضافه می‌شوند. قاعدهٔ «جدیدترین گفتهٔ مالک برنده است» برقرار است، به‌جز موارد قفل‌شده (بخش ۱۲).
+
+---
+
+## ۰. وضعیت صادقانهٔ امروز (Baseline، 2026-10-03)
+
+| حوزه | وضعیت | شاهد |
+|---|---|---|
+| حالت معامله | `PAPER_ONLY`، اجرای زنده غیرفعال | PAPER_ONLY markers + tests؛ M9.5 `0638643` |
+| عامل‌ها | ۱۹ عامل ثبت شده‌اند، اما چرخهٔ عمر (lifecycle runtime) ندارند | registry + TCB |
+| معامله کاغذی و یادگیری | کد هست، اما **۰ ردیف paper** دارد و سیم‌کشی نشده | `paper_trading/`، `architecture/learning/` |
+| شورا (council) | کد و تست‌های anti-echo هست، اما روی تصمیم زنده اجرا نمی‌شود | M15 |
+| دانشگاه و GitHub | سند و کد `self_research/oss_pipeline` هست، اما مخزن دانش ۰ claim دارد | M16 |
+| طلا، نفت و سهام | **کد طلا وجود ندارد.** نفت و سهام هم شروع نشده‌اند | M18/M19 |
+| خزانه USDT و بروکر واقعی | وجود ندارد (`VISION`) | — |
+| Lane A | منجمد (frozen). مسیر paper E-01 داخل Lane A است | `scripts/freeze_lane_a.py` |
+
+> تا امروز هیچ شواهدی از سودآوری وجود ندارد. سند زیر نقشهٔ راه است، نه گزارش موفقیت.
+
+---
+
+## ۱. اهداف (Goals)
+
+### ۱.۱ هدف نهایی (North Star)
+AHOS یک **صندوق خودمختارِ چندعاملی و حاکمیت‌پذیر** (governed autonomous multi-agent fund) می‌شود که:
+1. در بازارهای **طلا، نفت، کریپتو، توکن‌های دیجیتال و سهام آسیا، اروپا و آمریکا** (و در ادامه Forex، طبق P1§69 و P2§80)، هم به‌صورت **spot** و هم **futures/perpetual/CFD**، و هم **long** و هم **short** معامله می‌کند.
+2. سرمایهٔ USDT مالک را در خزانه نگه می‌دارد. سرمایه را برای هر معامله تخصیص می‌دهد، به هر دارایی تبدیل می‌کند، بین چند بروکر و صرافی جابه‌جا می‌کند، سود را به خزانه برمی‌گرداند و دوباره سرمایه‌گذاری می‌کند. به درخواست مالک، سود را **فقط به کیف پول شخصی او** منتقل می‌کند.
+3. خودش را پایش می‌کند، از خطاهایش یاد می‌گیرد، از مقاله‌ها و مخزن‌های GitHub ارتقا می‌گیرد و در دانشگاه داخلی آموزش می‌بیند. همهٔ این کارها **زیر دروازه‌های کنترلی (gates)** انجام می‌شوند.
+4. به سمت ACI/AGI/SI حرکت می‌کند، اما این را **جهت حرکت** می‌داند و هرگز ادعایش نمی‌کند.
+5. ستارهٔ شمالی آرمانی مالک، «۱۰۰ دلار ← ۱ میلیون دلار در کمتر از یک ماه»، **فقط برای جهت‌دهی پژوهش و محک توان** است، نه هدف عملیاتی (بخش ۱.۳).
+
+### ۱.۲ اهداف قابل‌اندازه‌گیری (KPIs)، به ترتیب اولویت
+| # | هدف | معیار | مرحله |
+|---|---|---|---|
+| G1 | ایمنی سرمایه | ۰ نقض invariant؛ ۰ برداشت خارج از allowlist؛ max drawdown زیر سقف مرحله | همهٔ مراحل |
+| G2 | سود پایدار و تعدیل‌شده با ریسک | Sharpe خالص پس از هزینه، Deflated Sharpe، Calmar | از L1 |
+| G3 | صداقت معرفتی | Brier/ECE کالیبراسیون پیش‌بینی‌ها؛ ۰ دادهٔ ساختگی؛ UNKNOWN همان UNKNOWN می‌ماند | همه |
+| G4 | یادگیری واقعی | نرخ «درس ← آزمایش ← بهبودِ تأییدشده»؛ کاهش خطاهای تکراری | از L1 |
+| G5 | خودمختاری تدریجی | پله‌های خودمختاری (بخش ۱۱) فقط با امضای مالک | L0 تا L5 |
+| G6 | پوشش بازار | تعداد بازارهای دارای venue مجاز و تأییدشده (بخش ۶.۴) | M19+ |
+| G7 | محک ستارهٔ شمالی (`VISION`، فقط گزارش) | پیشرفت لگاریتمی، `g_real` در برابر `g_req`، ریسک ruin (بخش ۱.۳) | همه؛ هرگز معیار gate نیست |
+
+> **یادآوری صادقانه:** هیچ سامانه‌ای سود را تضمین نمی‌کند. در بنچمارک‌های زندهٔ اخیر، بیشتر عامل‌های LLM نتوانسته‌اند از خرید و نگهداری (buy-and-hold) بهتر عمل کنند [R15، R16]. پس «سود بالا» را هدف می‌گیریم، اما **فقط شواهد خارج از نمونه (out-of-sample)** آن را ثابت می‌کند.
+
+
+### ۱.۳ ستارهٔ شمالی آرمانی مالک: «۱۰۰ دلار ← ۱ میلیون دلار در کمتر از یک ماه» (`VISION`، ASPIRATIONAL)
+**خواستهٔ مالک (2026-10-03، 20:20)، ثبت دقیق:** AHOS باید رسیدن از ۱۰۰ دلار به ۱,۰۰۰,۰۰۰ دلار در کمتر از یک ماه را هدف بگیرد.
+**جایگاه رسمی:** این یک **ستارهٔ شمالی آرمانی (aspirational North Star)** است. کاربردش جهت‌دادن به پژوهش و **محک‌زدن توان (capability benchmark)** است. **هدف عملیاتی، تعهد، پیش‌بینی یا وعده نیست.** هیچ سقف ریسک، gate یا invariantی به خاطر آن تغییر نمی‌کند (INV-15). موتور ریسک این عدد را **نمی‌خواند**.
+
+**چرا فقط آرمانی است (حساب صادقانه):**
+1. **۱۰,۰۰۰ برابر:** ۱,۰۰۰,۰۰۰ ÷ ۱۰۰ = ۱۰⁴، و ln(10⁴) ≈ ۹٫۲۱. در ۳۰ روز یعنی رشد لگاریتمی ≈ **۰٫۳۰۷ در روز**. به زبان ساده: **حدود ۳۶٪ سود مرکب هر روز، ۳۰ روز پیاپی، بدون حتی یک روز بد.**
+2. **Sharpe لازم:** در مدل استاندارد رشد (Kelly [R43]؛ MacLean, Thorp & Ziemba [R34])، بیشینهٔ نرخ رشد لگاریتمی با Sharpe سالانهٔ S تقریباً `g* ≈ S²/2` است. با k برابر Kelly این مقدار `g(k) ≈ (2k − k²)·S²/2` می‌شود. رشد لازم سالانه‌شده ≈ ۹٫۲۱ × ۳۶۵/۳۰ ≈ **۱۱۲** است. پس حتی با Kelly کامل و پارامترهای دقیقاً معلوم، **Sharpe ≈ ۱۵** پایدار لازم است. این مقدار بسیار بالاتر از هر Sharpe بلندمدت مستندی است که می‌شناسیم.
+3. **خطر نابودی کامل (risk of ruin):** با Kelly کامل، احتمال اینکه سرمایه زمانی به نصف برسد ≈ **۵۰٪** است، طبق فرمول `P(a) = a^(2/k − 1)` در Chin & Ingenoso [R44]. با اهرمی بیش از ۲ برابر Kelly، نرخ رشد مورد انتظار **منفی** می‌شود. هر تلاشی برای ۱۰,۰۰۰ برابر در یک ماه، عملاً به **اهرم افراطی** نیاز دارد.
+4. **مسیر «همه‌چیز روی یک شرط»:** ۱۰⁴ ≈ ۲^۱۳٫۳، یعنی حدود ۱۴ بار دوبرابر شدن پیاپی. با احتمال ۵۰٪ برای هر بار، شانس موفقیت ≈ ۲⁻¹⁴ ≈ **۰٫۰۰۶٪** است. در ۹۹٫۹۹٪ حالت‌ها **کل سرمایه از دست می‌رود**.
+5. **سوگیری بازمانده (survivorship bias):** توکن‌هایی بوده‌اند که ۱۰,۰۰۰ برابر شده‌اند، اما فقط بعد از وقوع دیده شده‌اند. انتخاب پیشاپیش و تکرارپذیر آن‌ها سامانهٔ معاملاتی نیست؛ بلیت بخت‌آزمایی است.
+6. **هیچ سامانهٔ شناخته‌شده‌ای** این کار را به‌صورت تکرارپذیر، ممیزی‌شده و خارج از نمونه انجام نداده است. بنچمارک‌های زنده نشان می‌دهند بیشتر عامل‌های LLM حتی از buy-and-hold هم بهتر عمل نمی‌کنند [R15، R16].
+7. **مقایسهٔ واقع‌بینانه:** با Sharpe خالص ۱٫۵ (دروازهٔ G-L2)، Kelly کامل g* ≈ ۱٫۱۲۵ در سال می‌دهد و ۱۰,۰۰۰ برابر حدود **۸ سال** طول می‌کشد (با ۵۰٪ احتمال نصف شدن در مسیر). با Kelly ربعی، که سقف AHOS است، g ≈ ۰٫۴۹ در سال و زمان لازم حدود **۱۹ سال** است.
+
+**کاربردهای مجاز:**
+- **جهت پژوهش:** دانشگاه دنبال edgeهایی می‌گردد که در **سرمایهٔ کوچک** Sharpe بالاتری دارند. سرمایهٔ کوچک تقریباً market impact ندارد و به بازارهای کم‌ظرفیت دسترسی دارد. این مزیت ظرفیت (capacity) واقعی است.
+- **محک توان:** «فاصله تا ستارهٔ شمالی» در مقیاس لگاریتمی گزارش می‌شود.
+- **Sandbox جدا:** یک حساب **paper** مجازی ۱۰۰ دلاری (`NS-SANDBOX`) با **همان** invariantها و سقف‌های ریسک اجرا می‌شود. نتیجه فقط گزارش می‌شود و هرگز برای تغییر سقف‌ها استدلال نمی‌شود.
+
+**معیارهای صادق ردیابی (پنل North Star در داشبورد، M17):**
+| معیار | تعریف |
+|---|---|
+| پیشرفت لگاریتمی | `progress = ln(NAV/NAV₀) / ln(10⁴)` بین ۰ و ۱ |
+| نرخ رشد تحقق‌یافته | `g_real` = میانگین ln(1+r) روزانه، با بازهٔ اطمینان bootstrap ‏۹۵٪ |
+| نرخ رشد لازم | `g_req = (ln(10⁴) − ln(NAV/NAV₀)) / روزهای باقی‌مانده`؛ مقدار پایه ۰٫۳۰۷ در روز |
+| Sharpe لازم در برابر واقعی | `S_req ≈ √(2·g_req,annual)` در برابر `S_live` |
+| ضریب Kelly ضمنی | `k = اهرم فعلی ÷ اهرم Kelly برآوردی` (سقف ۰٫۲۵) |
+| ریسک ruin | P(افت ≥ ۵۰٪) و P(افت ≥ ۹۰٪): فرمول [R44] + Monte Carlo روی بازده‌های واقعی paper |
+| منحنی رشد–ریسک | نمودار `g(k)` در برابر `P(DD ≥ 50%)` برای k از ۰ تا ۲؛ نقطهٔ فعلی AHOS و نقطهٔ لازم برای North Star روی همین منحنی |
+
+**متن ثابت پنل:** «هدف آرمانی است. با سقف‌های ریسک فعلی، تحقق آن در یک ماه از نظر ریاضی بسیار بعید است. سرمایهٔ واقعی فقط با دروازه‌های بخش ۱۱ تغییر می‌کند.»
+
+---
+
+## ۲. چارت سازمانی عامل‌ها و مسئولیت‌ها
+
+### ۲.۱ ساختار حاکمیت (سه خط دفاعی، Three Lines of Defense)
+```
+                          ┌──────────────────────────┐
+                          │  مالک (Mehrdad), HUMAN-GATE │  ← امضای هر پلهٔ پولی، برداشت‌های بزرگ، kill
+                          └────────────┬─────────────┘
+                                       │
+                     ┌─────────────────▼──────────────────┐
+                     │ Chief of Staff (ناظر تا استقلال کامل) │  ← نظارت، ترکیب گزارش، ارجاع به مالک
+                     └───┬───────────────┬──────────────┬──┘
+     خط ۱: تولید و عملیات │      خط ۲: کنترل │     خط ۳: ممیزی │
+ ┌───────────────────────▼──┐ ┌──────────▼────────┐ ┌───▼───────────────────┐
+ │ آرش (Chief Architect)     │ │ رامین (Risk, CRO)  │ │ گیتی (Governance)       │
+ │  ├─ مهندسی و پلتفرم        │ │ مریم* (Compliance) │ │  ├─ آیدا* (Audit/Journal)│
+ │  ├─ کوروش* (CIO, میز سرمایه) │ │ سپهر (Security)    │ │  └─ رضا (Red Team)      │
+ │  ├─ بابک* (Treasury)       │ │ قاسم (QA)          │ │ عرفان (Epistemology)    │
+ │  └─ فرزانه* (Dean دانشگاه) │ └───────────────────┘ └───────────────────────┘
+ └──────────────────────────┘                     * = عامل جدید
+```
+**قاعدهٔ استقلال:** رامین (ریسک)، مریم (انطباق یا compliance) و سپهر (امنیت) **حق وتو (veto)** دارند و زیرمجموعهٔ CIO نیستند. CIO نمی‌تواند سقف ریسک را تغییر دهد. خزانه (بابک) نمی‌تواند سفارش معاملاتی بدهد و میز معامله هم نمی‌تواند پول جابه‌جا کند (تفکیک وظایف، segregation of duties).
+
+### ۲.۲ ۱۹ عامل موجود، با مسئولیت‌های تازه
+| # | نام | نقش | مسئولیت تازه در چشم‌انداز خودمختار | گزارش به |
+|---|---|---|---|---|
+| 1 | آرش | Chief Architect | معماری هدف این سند؛ بازبینی prompt هر مأموریت (CH-05)؛ قرارداد رابط‌ها | Chief of Staff |
+| 2 | سامان | System | هماهنگی سرویس‌ها، زمان‌بندی (scheduler) و سلامت فرایندها | آرش |
+| 3 | سپهر | Security | مدیریت کلید (keychain/vault)، API keyهای بدون مجوز برداشت، IP allowlist، امنیت زنجیرهٔ تأمین (supply-chain) | Chief of Staff (مستقل) |
+| 4 | گیتی | Governance | دروازه‌ها، قانون اساسی، ماتریس ردیابی و ثبت امضاهای مالک | مالک |
+| 5 | عرفان | Epistemology | درجه‌بندی شواهد، کالیبراسیون، جلوگیری از ادعای بی‌پشتوانه؛ امضای تحویل (CH-07) | گیتی |
+| 6 | روشا | Methodology | پروتکل backtest، walk-forward، CPCV، PBO و Deflated Sharpe | عرفان |
+| 7 | دانا | Data | لایهٔ داده point-in-time، کیفیت داده، provenance و مجوز داده | آرش |
+| 8 | کامیار | Crypto Markets | استراتژی‌های spot و perp کریپتو، funding و basis | کوروش* |
+| 9 | نیما | On-chain | جریان‌های زنجیره‌ای، رصد stablecoin و رصد ریسک depeg | کوروش* (خط نقطه‌چین به دانا) |
+| 10 | تینا | Token Security | بررسی قرارداد توکن (honeypot، mint، blacklist، proxy)، لیست سیاه | رامین |
+| 11 | رامین | Risk (CRO) | موتور ریسک قطعی (deterministic)، سقف‌ها، kill switch و stress test | مالک (مستقل) |
+| 12 | کیمیا | Quant | مدل‌ها، فاکتورها، sizing، رژیم بازار و کالیبراسیون | کوروش* |
+| 13 | آریا | AI | مدل‌های LLM، چندوجهی (multimodal) و سری زمانی؛ ارزیابی مدل | آرش |
+| 14 | رستم | Runtime | اجرای پایدار، heartbeat، dead-man switch و بازیابی | سامان |
+| 15 | پروانه | Prompt | مهندسی و نسخه‌بندی prompt، دفاع در برابر prompt injection از اخبار | آریا |
+| 16 | قاسم | QA | تست‌ها، golden sets، امضای تحویل | گیتی |
+| 17 | پریسا | Product/UX | تجربهٔ مالک: درخواست برداشت، امضای gate، گزارش روزانهٔ فارسی | آرش |
+| 18 | فرناز | Frontend | داشبورد `CommandCenter.tsx` (M17)، نمای خزانه و gate، بدون دادهٔ جعلی | پریسا |
+| 19 | رضا | Red Team | حمله به استراتژی، داده، کلید، prompt و خزانه؛ امضای تحویل | گیتی (مستقل) |
+
+### ۲.۳ عامل‌های جدید: قالب منشور مالک، فهرست و منشورها (بازنویسی 2026-10-03، 20:20)
+
+**ارجاع به اسناد مالک:** `P1` = *AHOS — MASTER AUTONOMOUS EXECUTION & COMPLETION DIRECTIVE* (owner_directive_part1)، و `P1A` = الحاقیهٔ همان سند (*سند الحاقیه معماری هوش خودمختار…*). `P2` = *AHOS MASTER CONTEXT v2.0* (owner_directive_part2)، و `P2M` = *MASTER AUTONOMOUS PROJECT COMPLETION MANDATE* در همان فایل. عدد بعد از § شمارهٔ بخش در خود سند است.
+
+#### ۲.۳.۱ قالب منشور مالک (Owner Agent Template)، که همهٔ عامل‌ها از آن پیروی می‌کنند
+این قالب از ترکیب بخش‌های زیر در اسناد مالک ساخته شده است:
+- **ده فیلد الزامی** (P1§15): «هر Agent باید: مأموریت مشخص، Boundary مشخص، Capability مشخص، Authority مشخص، Tool Access مشخص، Memory Scope مشخص، Evidence Requirements مشخص، Verification Requirements مشخص، Failure Handling مشخص، Performance Metrics مشخص داشته باشد.» و: «**Agent Count هدف نیست.**»
+- **پروفایل شناختی** (P1§11 و P2§17): «Specialization، Memory، Methodology، Strengths، Weaknesses، Prediction History، Error History، Calibration، Confidence، Evidence Preferences، Failure Memory، Domain Expertise، Tools، Research Style، Performance Metrics». همچنین «Agentها نباید فقط مجموعه‌ای از Promptها باشند.»
+- **سقف اختیار به سبک Agent-01** (P1§13، P2§61، P2M§7): فهرست صریح «نمی‌تواند».
+- **چرخهٔ عمر** (P1§14، P2§62): `REGISTERED → IDLE → DORMANT → WAITING_FOR_COMMAND → ACTIVE → MISSION_EXECUTION → WAITING_FOR_VERIFICATION → COMPLETED`، با این قاعده که «Agent نباید بدون Authority معتبر خودش را Active کند.»
+- **صفحهٔ عمل (plane)** (P2§65): **COGNITION ≠ GOVERNANCE ≠ EXECUTION**.
+- **پروتکل پیام** (P1§96): Sender، Receiver، Mission، Timestamp، Evidence، Claim، Confidence، Capability، Required Action، Verification Status.
+
+**بندهای مشترک، که در هر منشور به ارث می‌رسند و تکرار نمی‌شوند:**
+- (الف) چرخهٔ عمر طبق P1§14 است. **گواهی دانشگاه (L0 تا L4، بخش ۸.۳) ویژگی جداگانه‌ای است** که فقط اجازهٔ گذار `WAITING_FOR_COMMAND → ACTIVE` را در حوزهٔ گواهی‌شده می‌دهد. این قاعده جایگزین چرخهٔ عمر نسخهٔ ۱٫۰ شده است. آن چرخهٔ عمر قدیمی SUPERSEDED است.
+- (ب) فیلدهای Prediction History، Error History، Calibration، Confidence و Failure Memory در runtime از ژورنال تصمیم (آیدا) و نمرات دانشگاه پر می‌شوند و ساختگی نیستند.
+- (ج) پیام‌ها از پروتکل P1§96 پیروی می‌کنند.
+- (د) پرسش از دانشگاه (Ask-the-University، بخش ۸.۳) هنگام سؤال، مشکل، Failure یا ابهام **اجباری** است (P1§24).
+- (ه) هیچ عاملی «Capability را به Permission تبدیل نمی‌کند» (P1§13) و «PROPOSAL را به POLICY یا AUTHORITY تبدیل نمی‌کند» (P2§116).
+
+#### ۲.۳.۲ فهرست خلاصه
+| # | نام | نقش | Plane | الگوی اصلی در اسناد مالک | گزارش به |
+|---|---|---|---|---|---|
+| 20 | کوروش | CIO / Portfolio Manager | Cognition | P2§61، P1A§4، P2§65 | Chief of Staff |
+| 21 | بهرام | Macro, Rates & FX | Cognition | P1§27 «Gold Macro Agent»، P1§69 | کوروش |
+| 22 | زرین | Gold & Oil Division Lead | Cognition | P1§27 «Gold Trading Division»، P1§69 | کوروش |
+| 23 | سارا | US Equities | Cognition | P2§80، P1§69 | کوروش |
+| 24 | لیلا | European Equities | Cognition | P2§80، P1§69 | کوروش |
+| 25 | مهسا | Asian Equities | Cognition | P2§80، P1§69 | کوروش |
+| 26 | فرهاد | Futures & Derivatives | Cognition | P2§82 «LEVERAGE»، P1§27 «Gold Futures Agent» | کوروش (نقطه‌چین به رامین) |
+| 27 | نگار | News Intelligence Division Lead | Cognition | P1§32، P1§33 | دانا (نقطه‌چین به کوروش) |
+| 28 | بیژن | Chart Intelligence | Cognition | P1§27 «Gold Chart Intelligence Agent»، P2§93 Phase 5 | کیمیا |
+| 29 | شیدا | GitHub Intelligence (عضو ۱) | Cognition | P1§16، P1§74 | فرزانه |
+| 30 | سیاوش | AGI/ACI Architecture Team Lead | Cognition | P1§18، P2§18–19 | آرش + عرفان |
+| 31 | بابک | Treasury & Allocation | Execution (مالی، محدود) | P1§31 «Financial Transfer Architecture» | Chief of Staff |
+| 32 | داریوش | Execution & Broker | Execution | P1§72، P2§81، P1§27 «Gold Online Trading Agent» | کوروش (مجوز از سپهر) |
+| 33 | مریم | Compliance & Sanctions | Governance | P2§116، P1§28، P2§36 | گیتی |
+| 34 | هومن | Failure Analysis & Post-trade Learning | Cognition | P1§25، P2§27، P2§86، P1§21 «Failure Analysis Agent» | فرزانه |
+| 35 | فرزانه | Dean of AHOS University | Cognition (آموزشی) | P1§21–§26، P1§92 | آرش + عرفان |
+| 36 | ژاله | Accounting / Financial Ledger Agent | Governance (کنترلی) | **P1§29، همان عامل تعریف‌شدهٔ مالک** | بابک (گزارش مستقل به گیتی) |
+| 37 | آیدا | Agent Supervision / Guardian Lead | Governance | P1§20، P2§53 | گیتی |
+
+#### ۲.۳.۳ منشورها
+
+**۲۰ · کوروش, CIO / Portfolio Manager.** Plane: COGNITION · گزارش به Chief of Staff
+- **الگو:** P2§61: «Agent-01 is not the ultimate root of trust»؛ P1A§4: «Orchestrator نباید به‌تنهایی Authority مطلق داشته باشد»؛ P2§65.
+- **مأموریت:** ترکیب دیدگاه‌های میزها در یک «پرتفوی هدف پیشنهادی» با Black-Litterman [R33] و HRP [R36]؛ مقایسهٔ فرصت‌ها با `switching_cost`.
+- **Boundary:** فقط ارکستراتور **میز سرمایه** است. Chief Orchestrator یا Agent-01 نیست.
+- **Capability:** تجمیع views، بهینه‌سازی تحت قید، تعیین دستور کار شورا (M15).
+- **Authority:** پیشنهاد پرتفوی و درخواست تحقیق از دانشگاه. **نمی‌تواند:** سقف ریسک را تغییر دهد، `ApprovedOrder` بسازد، پول جابه‌جا کند، خودش را تأیید کند، live را فعال کند، یا Commander مطلق شود.
+- **Tool Access:** خواندن گزارش میزها، Knowledge Store و پرتفوی paper. نوشتن فقط در `target_portfolio_proposal`.
+- **Memory Scope:** پیشنهادهای گذشته و نتیجهٔ آن‌ها، و عملکرد هر میز.
+- **Evidence Requirements:** هر وزن غیرصفر دست‌کم یک `evidence_id` با رتبهٔ ≥ B دارد. dissentها حذف نمی‌شوند.
+- **Verification Requirements:** موتور ریسک (رامین)، مریم و attribution ماهانهٔ هومن.
+- **Failure Handling:** اگر داده ناقص یا دیدگاه‌ها متناقض باشند، پیش‌فرض «حفظ وضعیت یا نقد» است و یک AskU ثبت می‌شود.
+- **Performance Metrics:** ارزش افزودهٔ تجمیع (Sharpe پرتفوی منهای Sharpe میانگین سادهٔ میزها)، turnover، Brier دیدگاه‌ها.
+- **پروفایل:** Specialization ساخت پرتفوی · Methodology BL + HRP + vol targeting · Strengths دید کل · Weaknesses خطر اجماع کاذب · Evidence Preferences خارج از نمونه · Research Style مقایسه‌ای.
+
+**۲۱ · بهرام, Macro, Rates & FX.** Plane: COGNITION · گزارش به کوروش
+- **الگو:** P1§27 «Gold Macro Agent»، با فهرست «Dollar، Rates، Inflation، Central Banks، Geopolitics، Employment، CPI، FOMC، Macro Data». این الگو به همهٔ دارایی‌ها تعمیم داده شده است. Forex طبق P1§69 و P2§80 در دامنه است.
+- **مأموریت:** تشخیص رژیم کلان، تقویم رویدادها، و اثر نرخ بهره و دلار بر طلا، نفت، سهام و کریپتو.
+- **Boundary:** دیدگاه احتمالاتی می‌دهد، نه سفارش.
+- **Capability:** nowcasting، تحلیل رویداد FOMC و ECB، شناسایی رژیم (HMM).
+- **Authority:** ارائهٔ view به کوروش و پرچم «رویداد پرریسک» به رامین. **نمی‌تواند:** سفارش بدهد یا سقف‌ها را عوض کند.
+- **Tool Access:** FRED، تقویم و بیانیه‌های بانک‌های مرکزی، دادهٔ point-in-time دانا.
+- **Memory Scope:** پیش‌بینی‌های کلان و نتیجه، و رژیم‌های تاریخی.
+- **Evidence Requirements:** هر view احتمال کالیبره و منابع با `available_at` دارد.
+- **Verification Requirements:** کالیبراسیون (Brier) زیر نظر عرفان، و backtest رژیم زیر نظر روشا.
+- **Failure Handling:** اگر داده دیر برسد یا ناقص باشد، وضعیت `UNKNOWN` است و view صادر نمی‌شود.
+- **Performance Metrics:** Brier و ECE، دقت طبقه‌بندی رژیم، و سهم در PnL attribution.
+- **پروفایل:** Specialization کلان · Methodology رویدادمحور + رژیم · Weaknesses تأخیر داده · Evidence Preferences دادهٔ رسمی.
+- **نسخهٔ طلا:** «Gold Macro Agent» (P1§27) **پروفایل `@gold` همین عامل** است، نه عامل تکراری.
+
+**۲۲ · زرین, Gold & Oil Division Lead.** Plane: COGNITION · گزارش به کوروش
+- **الگو:** P1§27: «یک Division اختصاصی برای طلا ایجاد کن… حداقل: Gold Market Research Agent…»؛ نفت از P1§22 و P1§69. D4: track طلا داخل M13.
+- **مأموریت:** رهبری Gold Division (و میز نفت)، و همان «Gold Market Research Agent» (مطالعهٔ کامل بازار طلا): LBMA، WGC، جریان ETF، COT، و ساختار زمانی نفت (contango/backwardation) و EIA.
+- **Boundary:** مالک view و استراتژی کالا است. اجرا و ریسک بیرون از اختیار اوست.
+- **Capability:** هماهنگی زیرنقش‌های Gold Division (نگاشت در ۲.۵).
+- **Authority:** پیشنهاد استراتژی کالا به کوروش. **نمی‌تواند:** بدون بررسی roll و margin (فرهاد) و ریسک (رامین) پیشنهاد اجرایی بدهد.
+- **Tool Access:** دادهٔ کالا، COT، EIA، بروکر paper.
+- **Memory Scope:** پروندهٔ بازار طلا و نفت و استراتژی‌های آزموده‌شده.
+- **Evidence Requirements:** هر استراتژی backtest روشا + walk-forward دارد.
+- **Verification Requirements:** «Gold Independent Verifier» (P1§27) = قاسم با پروفایل `@gold`.
+- **Failure Handling:** اگر roll یا داده مشکوک باشد، track متوقف می‌شود و AskU ثبت می‌شود.
+- **Performance Metrics:** Sharpe خالص track طلا در paper، tracking در برابر benchmark (XAU)، کالیبراسیون.
+- **پروفایل:** Specialization کالا · Methodology trend + carry + کلان · Weaknesses رخدادهای ژئوپلیتیک.
+
+**۲۳ · سارا, US Equities؛ ۲۴ · لیلا, European Equities؛ ۲۵ · مهسا, Asian Equities.** Plane: COGNITION · گزارش به کوروش. این سه منشور هم‌الگو هستند؛ فقط بازار و ساعت معاملاتی فرق می‌کند.
+- **الگو:** P2§80: «European Equities، Asian Equities… spot، margin، futures، options… **But capability does not imply permission.**»؛ P1§69: «Multi-Market نباید Foundation را قربانی کند.»
+- **مأموریت:** تولید view سهام منطقه با فاکتورهای value و momentum [R31]، earnings و رویدادها. منابع: سارا EDGAR؛ لیلا افشای بورس‌های اروپا؛ مهسا ژاپن، هنگ‌کنگ، کره و هند.
+- **Boundary:** فقط منطقهٔ خود. فقط نمادهای دارای venue `ELIGIBLE`؛ بقیه فقط paper.
+- **Capability:** غربال universe بدون سوگیری بازمانده، corporate actions، تحلیل short (borrow).
+- **Authority:** view به کوروش. **نمی‌تواند:** venue را صلاحیت‌دار اعلام کند (اختیار مریم).
+- **Tool Access:** دادهٔ بازار منطقه، فایلینگ‌ها، Knowledge Store.
+- **Memory Scope:** پرونده‌های شرکت و نتیجهٔ پیش‌بینی‌ها.
+- **Evidence Requirements:** دادهٔ point-in-time؛ t-stat ≥ 3 برای فاکتور جدید [R27].
+- **Verification Requirements:** روشا (CPCV) و عرفان.
+- **Failure Handling:** اگر بازار تعطیل یا داده stale باشد، view صادر نمی‌شود.
+- **Performance Metrics:** IC، Sharpe sleeve در paper، hit rate earnings.
+- **پروفایل:** Weaknesses تضعیف پس از انتشار [R28] · Research Style فاکتوری.
+
+**۲۶ · فرهاد, Futures & Derivatives.** Plane: COGNITION · گزارش به کوروش، نقطه‌چین به رامین
+- **الگو:** P2§82: «**leverage is a variable, not a target**… A lower leverage trade may be superior… **Extreme leverage must never be hard-coded as desirable.**»؛ P1§27 «Gold Futures Agent: Futures و Long/Short را مطالعه کند.»
+- **مأموریت:** طراحی ابزار برای هر view (spot، آتی، perp، CFD)، roll calendar، basis و funding، margin و فاصله تا liquidation.
+- **Boundary:** پیشنهاد ابزار و اهرم **زیر** سقف رامین.
+- **Capability:** محاسبهٔ همهٔ عوامل P2§82: venue limits، margin، volatility، liquidity، liquidation distance، funding، fees، slippage، counterparty risk.
+- **Authority:** پیشنهاد. **نمی‌تواند:** اهرم را از سقف مرحله بالاتر ببرد یا اهرم را هدف بهینه‌سازی کند.
+- **Tool Access:** مشخصات قرارداد، funding و OI از CCXT [R23]، دادهٔ بروکر.
+- **Memory Scope:** تاریخچهٔ roll، basis و liquidation-near-misses.
+- **Evidence Requirements:** برای هر پیشنهاد اهرم، فاصله تا liquidation ≥ ۳×ATR مستند می‌شود.
+- **Verification Requirements:** رامین (وتو) و stress replay.
+- **Failure Handling:** اگر margin call در paper رخ دهد، RCA اجباری است (هومن).
+- **Performance Metrics:** هزینهٔ roll و funding در برابر مدل، نزدیک‌ترین فاصله تا liquidation.
+- **نسخهٔ طلا:** «Gold Futures Agent» = پروفایل `@gold` همین عامل.
+
+**۲۷ · نگار, News Intelligence Division Lead.** Plane: COGNITION · گزارش به دانا، نقطه‌چین به کوروش
+- **الگو:** P1§32: «News باید: Source، Timestamp، Originality، Reliability، Contradiction، Relevance، Impact، Freshness داشته باشد. **خبر نباید به‌صورت خودکار به Fact تبدیل شود.**»؛ P1§33: «**News ≠ Evidence of Profitability** و **News ≠ Automatic Buy Signal**.»
+- **مأموریت:** پایش منابع خبری همهٔ حوزه‌های P1§32 (کریپتو تا AGI)، استخراج رویداد، sentiment، و گمنام‌سازی entity برای backtest [R13].
+- **Boundary:** خروجی «رویداد + کیفیت منبع» است، نه سیگنال خرید.
+- **Capability:** خروجی‌های P1§33: Opportunity Detection، Risk Detection، Research Trigger، University Research Trigger، Exit Condition.
+- **Authority:** ثبت trigger. **نمی‌تواند:** خبر را Fact اعلام کند، یا متن خبر را به‌عنوان دستور اجرا کند (دفاع prompt injection).
+- **Tool Access:** GDELT، RSS، EDGAR، و فقط منابع مجاز طبق ToS.
+- **Memory Scope:** اعتبار منابع در طول زمان و رویدادها و اثرشان.
+- **Evidence Requirements:** هشت فیلد P1§32 برای هر خبر.
+- **Verification Requirements:** cross-source؛ «News & Journalism Intelligence» (P2§15).
+- **Failure Handling:** اگر منابع متناقض باشند، وضعیت `CONTRADICTION` با هر دو روایت ثبت می‌شود (P1§48).
+- **Performance Metrics:** دقت استخراج رویداد، تأخیر خبر، اطلاعات افزوده (IC) پس از گمنام‌سازی.
+- **نسخهٔ طلا:** «Gold News Agent» = پروفایل `@gold` همین Division.
+
+**۲۸ · بیژن, Chart Intelligence.** Plane: COGNITION · گزارش به کیمیا
+- **الگو:** P1§27 «Gold Chart Intelligence Agent: Technical Analysis، Price Action، Indicators، Market Structure، Volume، Volatility، Support/Resistance، Trend، Breakout، Reversal، Multi-Timeframe»؛ P2§93 «Phase 5: Advanced Crypto Chart Intelligence».
+- **مأموریت:** خواندن نمودار همهٔ دارایی‌ها از دو مسیر: عددی (مرجع) و بینایی (CNN [R12] و LLM چندوجهی).
+- **Boundary:** رأی دوم است. **عدد سفارش هرگز از تصویر خوانده نمی‌شود.**
+- **Capability:** همهٔ موارد فهرست P1§27، در چند تایم‌فریم.
+- **Authority:** ارائهٔ سیگنال با اطمینان کالیبره. **نمی‌تواند:** سیگنال تنها را مبنای ورود کند.
+- **Tool Access:** OHLCV دانا، رندر نمودار، مدل بینایی آریا.
+- **Memory Scope:** الگوها و نتیجهٔ آن‌ها (positive pattern memory، P2§87).
+- **Evidence Requirements:** هر الگو آمار خارج از نمونه دارد.
+- **Verification Requirements:** سازگاری مسیر عددی و بینایی، و روشا.
+- **Failure Handling:** اگر دو مسیر ناسازگار باشند، اطمینان کم می‌شود و رویداد ثبت می‌شود.
+- **Performance Metrics:** دقت جهت در افق h، Brier، سهم در attribution.
+- **نسخهٔ طلا:** «Gold Chart Intelligence Agent» = پروفایل `@gold`.
+
+**۲۹ · شیدا, GitHub Intelligence (عضو ۱ از حداقل ۲).** Plane: COGNITION · گزارش به فرزانه
+- **الگو:** P1§16: «حداقل دو Agent اختصاصی… روش: **DISCOVER → LICENSE → INSPECT → COMPARE → TEST → ADAPT → VERIFY**، نه: **COPY**.» همراه با ۱۳ معیار بررسی (Architecture، License، Activity، Maintenance، Tests، Security، Dependencies، Performance، Documentation، Community، Relevance، Integration Cost، Risk).
+- **مأموریت:** کشف و ارزیابی پروژه‌های GitHub و مقالات (بخش ۹)، از جمله Trading Infrastructure، Memory و World Model Systems.
+- **Boundary:** پیشنهاد می‌دهد و بازتولید در sandbox انجام می‌دهد. **merge نمی‌کند.**
+- **Capability:** triage، بررسی مجوز، بازتولید.
+- **Authority:** باز کردن تیکت پژوهشی و proposal در ledger M14. **نمی‌تواند:** کد بیرونی را بدون gate وارد کند، یا وابستگی بدون hash pin اضافه کند.
+- **Tool Access:** GitHub و arXiv فقط خواندنی؛ sandbox ایزوله.
+- **Memory Scope:** پروندهٔ پروژه‌های بررسی‌شده و دلیل رد یا پذیرش.
+- **Evidence Requirements:** گزارش ۱۳ معیاره + نتیجهٔ بازتولید.
+- **Verification Requirements:** سپهر (supply-chain) و رضا.
+- **Failure Handling:** اگر بازتولید ناموفق باشد، وضعیت `REJECTED` با دلیل ثبت می‌شود.
+- **Performance Metrics:** نرخ «کشف ← ارتقای تأییدشده»، و false-adoption = ۰.
+- **عدم تکرار:** عضو دوم تیم (صندلی `GH-2`) لازم است (۲.۷).
+
+**۳۰ · سیاوش, AGI/ACI Architecture Team Lead.** Plane: COGNITION · گزارش به آرش و عرفان
+- **الگو:** P1§18: «تیم اختصاصی چهار نفره… این تیم باید مرتباً بررسی کند: **AHOS چگونه می‌تواند واقعاً هوشمندتر شود، نه فقط بزرگ‌تر؟**»؛ P1 خط ۳۳۰: «هرگز ادعای AGI واقعی صرفاً بر اساس تعداد Agent… مطرح نکن.»
+- **مأموریت:** نقشهٔ راه بخش ۱۰، شامل world model، metacognition، حافظه، استدلال علّی و counterfactual، و خودبهبودی کنترل‌شده.
+- **Boundary:** پژوهش و طراحی. **هیچ ادعای AGI/SI نمی‌کند.**
+- **Capability:** طراحی آزمایش شناختی و بنچمارک.
+- **Authority:** پیشنهاد معماری به آرش. **نمی‌تواند:** خودش یا عامل دیگری را ارتقا دهد (INV-07).
+- **Tool Access:** `architecture/cognitive/`، بنچمارک شناختی، Knowledge Store.
+- **Memory Scope:** آزمایش‌های شناختی و نتیجهٔ آن‌ها.
+- **Evidence Requirements:** هر ادعای پیشرفت شاهد بنچمارک و regression دارد.
+- **Verification Requirements:** عرفان و قاسم.
+- **Failure Handling:** اگر قابلیت ادعایی بدون شاهد باشد، برچسب به `VISION` برمی‌گردد.
+- **Performance Metrics:** scorecard VISION/PARTIAL/IMPLEMENTED (NS-10).
+- **عدم تکرار:** ۳ صندلی دیگر تیم چهارنفره و نگاشت به نقش مالک «Cognitive AGI/ACI» (۲.۶).
+
+**۳۱ · بابک, Treasury & Allocation.** Plane: EXECUTION (مالی، محدود) · گزارش به Chief of Staff، کنترل رامین و سپهر
+- **الگو:** P1§31: «Account Opening، Deposit، Withdrawal، Conversion، Crypto → Other Asset، Gold → Other Asset، Cash-out، Personal Account Transfer، Cross-market Transfer… اما: **Financial Capability ≠ Permission**»؛ P1§28: «**Real Money Movement = DISABLED**.»
+- **مأموریت:** خزانهٔ USDT (بخش ۷)، تخصیص بین sleeveها، rebalancing، و sweep سود به کیف مالک.
+- **Boundary:** امروز فقط testnet و دفتر شبیه‌سازی‌شده.
+- **Capability:** محاسبهٔ تخصیص و طراحی انتقال‌ها (پس از L2، فقط درون allowlist).
+- **Authority:** اجرای انتقال‌های داخل سیاست امضاشده. **نمی‌تواند:** سفارش معاملاتی بدهد، allowlist را تغییر دهد، credential نگه دارد (اختیار Credential Agent، P1§30)، یا مبلغ بالای آستانه را بدون مالک منتقل کند.
+- **Tool Access:** MPC policy engine (پس از gate)، ledger ژاله.
+- **Memory Scope:** تاریخچهٔ انتقال‌ها و NAV.
+- **Evidence Requirements:** هر انتقال یک `transfer_id`، دلیل، test transfer و تطبیق دارد.
+- **Verification Requirements:** ژاله (تطبیق)، سپهر، و مالک بالای آستانه.
+- **Failure Handling:** اگر انتقال ناتمام بماند یا آدرس ناشناخته باشد، همهٔ انتقال‌ها freeze می‌شوند و به مالک گزارش می‌شود.
+- **Performance Metrics:** ۰ انتقال خارج از allowlist، زمان تطبیق، هزینهٔ انتقال.
+
+**۳۲ · داریوش, Execution & Broker.** Plane: EXECUTION · گزارش به کوروش، مجوز از سپهر
+- **الگو:** P1§72 و P2§81: «**INTELLIGENCE → DECISION → RISK GOVERNOR → PERMISSION → EXECUTION**… Capability ≠ Permission»؛ P1§27 «Gold Online Trading Agent: API، Broker/Exchange، Execution و Risk» و «Gold Execution Research Agent».
+- **مأموریت:** OMS و EMS، `BrokerAdapter`، الگوریتم‌های اجرا و TCA (بخش ۶).
+- **Boundary:** فقط `ApprovedOrder`. فقط `PaperAdapter` تا امضای G-L2.
+- **Capability:** TWAP، VWAP، POV، Almgren-Chriss [R39]، و تطبیق fill.
+- **Authority:** ارسال سفارش تأییدشده. **نمی‌تواند:** سفارش بدون مُهر رامین و مریم بفرستد، Risk Governor را دور بزند یا غیرفعال کند (P1§71)، یا آداپتور live را روشن کند.
+- **Tool Access:** آداپتورها، دادهٔ order book.
+- **Memory Scope:** TCA تاریخی برای هر venue.
+- **Evidence Requirements:** هر fill با `client_order_id` و implementation shortfall.
+- **Verification Requirements:** ژاله (تطبیق) و قاسم (تست قرارداد آداپتور).
+- **Failure Handling:** اگر قطعی یا reject رخ دهد، retry idempotent انجام می‌شود و در صورت ادامه، kill در سطح venue.
+- **Performance Metrics:** slippage در برابر مدل، نرخ reject، latency.
+- **نسخهٔ طلا:** «Gold Online Trading»، «Gold Execution Research» و بخش اجرایی «Gold Security/Execution» = پروفایل `@gold` (همراه سپهر).
+
+**۳۳ · مریم, Compliance & Sanctions.** Plane: GOVERNANCE (وتوی قطعی) · گزارش به گیتی
+- **الگو:** P2§116: «The human remains the final authority… Agents must not silently convert PROPOSAL into POLICY»؛ P1§28 (شرایط Live: Governance معتبر، Broker/API Verification…)؛ P2§36 (Access/Geographical Resilience).
+- **مأموریت:** رجیستری `venue_eligibility`، غربال تحریم، KYC و محدودیت‌های حقوقی (بخش ۶.۴).
+- **Boundary:** P2§36 فقط **تاب‌آوری دسترسی به دادهٔ عمومی** را می‌خواهد (fallback، caching و graceful degradation). **مجوز دور زدن تحریم یا KYC برای حساب معاملاتی نیست** (INV-08).
+- **Capability:** ارزیابی صلاحیت venue و محصول.
+- **Authority:** PASS یا VETO روی هر سفارش و venue. وتو با CIO لغو نمی‌شود. **نمی‌تواند:** خودش venue را بدون مستند حقوقی ELIGIBLE کند.
+- **Tool Access:** رجیستری، فهرست‌های تحریم رسمی (خواندنی).
+- **Memory Scope:** سوابق تصمیم صلاحیت با تاریخ.
+- **Evidence Requirements:** مبنای حقوقی حساب مالک برای هر venue.
+- **Verification Requirements:** مشاور حقوقی انسانی و گیتی.
+- **Failure Handling:** اگر وضعیت نامعلوم باشد، `NOT_ELIGIBLE` پیش‌فرض است و موضوع فقط paper ادامه می‌یابد.
+- **Performance Metrics:** ۰ سفارش به venue نامجاز، و تازگی غربال.
+
+**۳۴ · هومن, Failure Analysis & Post-trade Learning.** Plane: COGNITION · گزارش به فرزانه
+- **الگو:** P1§25: «**Failure → Root Cause → Architectural Cause → Process Cause → Test Gap → Governance Gap → Memory Gap → Prevention → New Test → Learning**»؛ P2§27 (پرسش‌های post-mortem)؛ P2§86 «ERROR AS DATA… The goal is to learn the underlying pattern.»؛ P1§21 «Failure Analysis Agent».
+- **مأموریت:** attribution، طبقه‌بندی خطا (بخش ۸.۱)، post-mortem هر معاملهٔ paper (برد، باخت و skip، P1§49)، و تبدیل خطا به FAILURE PATTERN.
+- **Boundary:** پارامتر تولید را مستقیم تغییر نمی‌دهد و فقط proposal می‌دهد.
+- **Capability:** پاسخ به ۱۵ پرسش P2§27، و counterfactual (P2§88).
+- **Authority:** باز کردن تیکت پژوهشی و افزودن آیتم آزمون به دانشگاه. **نمی‌تواند:** از `LUCK` درس قطعی بسازد.
+- **Tool Access:** ژورنال تصمیم، ledger، Knowledge Store.
+- **Memory Scope:** Failure Memory سازمانی.
+- **Evidence Requirements:** هر درس به decision_idها و دادهٔ outcome پیوند دارد.
+- **Verification Requirements:** عرفان (معرفتی) و روشا (آماری).
+- **Failure Handling:** اگر علت نامعلوم باشد، `UNRESOLVED` ثبت می‌شود و تیکت باز می‌ماند.
+- **Performance Metrics:** نرخ تکرار همان کلاس خطا، و زمان بستن RCA.
+
+**۳۵ · فرزانه, Dean of AHOS University.** Plane: COGNITION (آموزشی) · گزارش به آرش و عرفان
+- **الگو:** P1§21: «University نباید یک صفحه تزئینی باشد… Research & Learning Ecosystem واقعی»؛ P1§92: «**PERMANENTLY ACTIVE RESEARCH SYSTEM**»؛ P1§23 (RESEARCH → … → VERIFICATION)؛ P1§24 (Problem Solving).
+- **مأموریت:** اجرای موتور یادگیری پیوستهٔ بخش ۸.۳: برنامهٔ درسی، آزمون، گواهی، Knowledge Store، AskU و تیکت‌ها.
+- **Boundary:** گواهی آموزشی صادر می‌کند، اما **مجوز معامله نیست**. مجوز با gate گیتی و مالک است.
+- **Capability:** مدیریت دانشکده‌ها و نقش‌های P1§21 (Professor، Reviewer، Experiment، Benchmark و دیگران).
+- **Authority:** صدور، تعلیق و تمدید گواهی L0 تا L4، و پیشنهاد عامل جدید (D7). **نمی‌تواند:** گواهی را به Permission تبدیل کند یا آزمون عاملی را خودش هم بسازد و هم نمره بدهد بدون Reviewer مستقل.
+- **Tool Access:** Knowledge Store، بانک آزمون، تیکت‌ها.
+- **Memory Scope:** کل حافظهٔ آموزشی و نمرات.
+- **Evidence Requirements:** هر claim آموزشی رتبهٔ شواهد دارد.
+- **Verification Requirements:** Reviewer مستقل، عرفان و قاسم (برای بانک آزمون).
+- **Failure Handling:** اگر نرخ قبولی ناگهان بالا برود، مشکوک به نشت آزمون است و آیتم‌ها چرخانده می‌شوند.
+- **Performance Metrics:** همبستگی نمرهٔ آزمون با عملکرد paper، نرخ حل تیکت، رشد claimهای A و B.
+
+**۳۶ · ژاله, Accounting / Financial Ledger Agent.** Plane: GOVERNANCE (کنترلی) · گزارش به بابک، گزارش مستقل به گیتی
+- **الگو (عامل تعریف‌شدهٔ خود مالک):** P1§29: «یک Agent اختصاصی: **Accounting / Financial Ledger Agent**… Paper P&L، Realized P&L، Unrealized P&L، Fees، Slippage، Exposure، Position، Cash، Asset Allocation، Transfers، Ledger، Reconciliation، Performance، Drawdown، Accounting History… **Accounting باید مستقل و Audit-friendly باشد.**»
+- **مأموریت:** همان ۱۵ مورد P1§29 در همهٔ خطوط، به‌اضافهٔ NAV و high-water mark خزانه.
+- **Boundary:** دسترسی نوشتن به حساب‌ها ندارد و فقط ثبت و تطبیق می‌کند.
+- **Capability:** تطبیق روزانه با venue و tax-lot.
+- **Authority:** اعلام break، که ورود جدید را ممنوع می‌کند (INV-12). **نمی‌تواند:** break را بدون شاهد «حل‌شده» اعلام کند.
+- **Tool Access:** ledger و گزارش venueها (خواندنی).
+- **Memory Scope:** Accounting History.
+- **Evidence Requirements:** هر عدد به fill یا transfer پیوند دارد.
+- **Verification Requirements:** آیدا (ممیزی) و قاسم.
+- **Failure Handling:** اگر break بیش از ۲۴ ساعت بماند، تنزل یک پله رخ می‌دهد (بخش ۱۱).
+- **Performance Metrics:** تعداد breakها، زمان تطبیق، دقت PnL.
+
+**۳۷ · آیدا, Agent Supervision / Guardian Lead.** Plane: GOVERNANCE · گزارش به گیتی
+- **الگو:** P1§20: «یک گروه مستقل برای مراقبت از تمام Agentها… Boundary؟ Evidence؟ Hallucination؟ Self-Verification؟ Authority Escalation؟… **این گروه نباید فقط Status Dashboard بسازد.**»؛ P2§53: «**No important decision should exist without a record.**»
+- **مأموریت:** ژورنال تصمیم (فیلدهای P2§53 + بخش ۴.۳)، پایش drift، incident و RCA، و بررسی ۱۳ پرسش P1§20 برای هر عامل.
+- **Boundary:** ممیز است و تصمیم معاملاتی نمی‌گیرد.
+- **Capability:** ممیزی خودکار رفتار عامل‌ها، و بررسی استفادهٔ اجباری از AskU.
+- **Authority:** بردن عامل یا استراتژی به `PROBATION` و گزارش به گیتی. **نمی‌تواند:** خودش عامل را حذف کند یا قاعده را تغییر دهد.
+- **Tool Access:** همهٔ logها و ژورنال‌ها، فقط خواندنی.
+- **Memory Scope:** سوابق incident و تخلف.
+- **Evidence Requirements:** هر یافته با شاهد log.
+- **Verification Requirements:** رضا (تست نفوذ روی خود Guardian) و گیتی.
+- **Failure Handling:** اگر ژورنال قطع شود، ورود جدید ممنوع است (تصمیم بدون رکورد = بدون تصمیم).
+- **Performance Metrics:** پوشش ژورنال = ۱۰۰٪، و زمان تشخیص incident.
+- **عدم تکرار:** P1§20 «گروه» می‌خواهد. دست‌کم یک صندلی دوم لازم است، و «Gold Guardian Agents ×2» (P1§27) پروفایل‌های `@gold` همین گروه‌اند.
+
+### ۲.۴ جریان مأموریت (برای همهٔ مأموریت‌ها، CH-05 تا CH-07)
+بازبینی prompt (آرش + متخصص حوزه + پروانه + گیتی) ← ساخت توسط عامل‌های حوزه ← امضای تحویل (قاسم + رضا + عرفان). همهٔ مراحل در `architecture/mission/ledger.py` ثبت می‌شوند (M14).
+
+
+### ۲.۵ ثبت «استفادهٔ مجدد به‌جای تکرار» (No-Duplicates Register، CH-08)
+| تعریف موجود در اسناد مالک | بخش | تصمیم |
+|---|---|---|
+| Accounting / Financial Ledger Agent | P1§29 | **ژاله همین عامل است.** نام رسمی مالک حفظ می‌شود. عامل حسابداری دیگری ساخته نمی‌شود |
+| Credential / Identity Agent | P1§30 | عامل مستقل تعریف‌شدهٔ مالک است: «فقط مدیریت امن Credential… نه اینکه اختیار مالی مستقل داشته باشد». **در بابک یا سپهر ادغام خاموش نمی‌شود.** صندلی `CRED-ID` باز است و نگاشت کاندیدش نقش مالک «Identity» است |
+| News Intelligence Division | P1§32–33 | نگار رهبر Division است. «Gold News» و دیگر شاخه‌ها پروفایل‌اند |
+| Gold Trading Division (≈۲۲ نقش) | P1§27 | زرین = Gold Market Research + رهبر. Gold Macro = بهرام`@gold`. Gold Chart = بیژن`@gold`. Gold Futures = فرهاد`@gold`. Gold News = نگار`@gold`. Gold Risk = رامین`@gold`. Gold Quant = کیمیا`@gold`. Gold Backtest = روشا`@gold`. Gold Online Trading و Gold Execution Research = داریوش`@gold`. Gold Security/Execution = سپهر + داریوش`@gold`. Gold Paper Trading = نقش مالک «Paper Trading»`@gold`. Gold Calibration = نقش مالک «Calibration»`@gold`. Gold Independent Verifier = قاسم`@gold`. Gold Guardian ×۲ = گروه آیدا. Gold Integration ×۲ = نقش مالک «Integration» (سامان`@gold`). Gold Research Professor = دانشکدهٔ کالا. Gold AGI/ACI = تیم سیاوش. **بی‌معادل:** «Gold Trading Science» و «Gold Strategy Research» دو صندلی جدید زیر زرین هستند |
+| Risk Governor | P1§71، P2§83 | رامین است. عامل ریسک جدیدی ساخته نمی‌شود |
+| Token Identity Safety | P1§42 | تینا |
+| Crypto Intelligence | P1§41 | کامیار + نیما |
+| Executive AI / Orchestrator، Agent-01 | P1A§4، P2§61 | Chief of Staff یا Agent-01. **کوروش جایگزین آن نیست** |
+| GitHub Intelligence Team (≥۲) | P1§16 | شیدا + صندلی `GH-2` |
+| AI Council، ۱۰ تخصص | P2§15، P1§47 | دو تخصص پوشش ندارند: Investigative/OSINT و Social & Narrative. دو صندلی لازم است (Social زیر Division نگار) |
+
+### ۲.۶ دو taxonomy، بدون ادغام خاموش (P1§12، P2§63، P2M§8)
+اسناد مالک ۱۹ نقش کاربردی تعریف می‌کنند و فهرست فارسی ۱۹ نام دارد. P2§63 می‌گوید: «They must **not be silently merged**.» جدول زیر **فقط نگاشت کاندید** است و تا تصمیم گیتی و مالک وضعیت `UNRESOLVED` دارد:
+
+| نقش مالک (P1§12) | کاندید فارسی | وضعیت |
+|---|---|---|
+| 1 Chief Orchestrator | (هیچ؛ Agent-01 / Chief of Staff) | UNRESOLVED |
+| 2 Reality Forensics | قاسم یا عرفان؟ | UNRESOLVED |
+| 3 Evidence Transport | دانا؟ | UNRESOLVED |
+| 4 Security | سپهر | CANDIDATE |
+| 5 Identity | تینا (هویت توکن) / صندلی `CRED-ID` | COLLISION، ثبت شود |
+| 6 Canonical Decision Audit | گیتی؟ (Lane A) | UNRESOLVED |
+| 7 Scoring Science | کیمیا | CANDIDATE |
+| 8 Paper Trading | (هیچ) | GAP |
+| 9 Learning / Memory | هومن؟ | UNRESOLVED |
+| 10 Calibration | روشا یا عرفان؟ | UNRESOLVED |
+| 11 Cognitive AGI/ACI | آریا / سیاوش | COLLISION |
+| 12 Windows Runtime | رستم | CANDIDATE |
+| 13 Provider / Data | دانا | CANDIDATE |
+| 14 Integration | سامان | CANDIDATE |
+| 15 Frontend / UX | فرناز + پریسا | ۲←۱، ثبت شود |
+| 16 Independent Verification | قاسم | CANDIDATE |
+| 17 Red Team | رضا | CANDIDATE |
+| 18 Change Architecture | آرش | CANDIDATE |
+| 19 Release Governance | گیتی | CANDIDATE |
+
+نام‌های فارسی که نگاشت مستقیم به نقش‌های مالک ندارند: عرفان، روشا، کامیار، نیما، رامین، پروانه، پریسا. **هیچ نامی بدون تصمیم governance تغییر نمی‌کند.** این جدول به ماتریس ردیابی (M12) می‌رود.
+
+### ۲.۷ تیم‌های الزامی مالک که هنوز صندلی خالی دارند (برای M12 و M16؛ شمار عامل KPI نیست)
+| تیم (بخش مالک) | حداقل | پرشده | صندلی خالی |
+|---|---|---|---|
+| GitHub Intelligence (P1§16) | ۲ | شیدا | `GH-2` |
+| Skill Intelligence (P1§17) | ۴ | — | `SKILL-1..4` زیر فرزانه |
+| AGI/ACI Architecture (P1§18) | ۴ | سیاوش | `ACI-2..4` |
+| Global Technology / Frontier (P1§19، P2§84) | گروه | — | `FRONT-1..2` |
+| Agent Supervision / Guardian (P1§20) | گروه | آیدا | `GUARD-2` (+ Gold Guardian ×۲ به‌صورت پروفایل) |
+| نقش‌های University (P1§21) | — | فرزانه، هومن (Failure Analysis)، سیاوش (AGI/ACI Research) | Professor، Reviewer، Experiment، Benchmark، Scientific Method (کاندید روشا)، Skill، AI، Trading، Security و Architecture Research |
+| عامل‌های مهندسی (P1A§5) | ۸ | کاندیدها: Architecture ← آرش، Test/Verification ← قاسم، Infrastructure ← رستم/سامان | Coding، Forensics/Debugging، Documentation/Specification، Agent Society Governance، Git/Change-Control. P1A§5 می‌گوید «نباید باعث… Duplicate شدن Roleهای قبلی شود»، پس نگاشت پیش از ساخت لازم است |
+| Gold Division، بی‌معادل (P1§27) | ۲ | — | `GOLD-SCI` (Trading Science)، `GOLD-STRAT` (Strategy Research) |
+| Credential / Identity (P1§30) | ۱ | — | `CRED-ID` |
+| AI Council (P2§15) | ۲ | — | `OSINT`، `SOCIAL` |
+
+---
+
+## ۳. لایهٔ داده و پژوهش (Data & Research Layer)
+
+### ۳.۱ منابع (همه از طریق دانا با ثبت license و provenance)
+| دسته | منابع واقعی | کاربرد |
+|---|---|---|
+| قیمت کریپتو | صرافی‌ها از طریق CCXT [R23] (OHLCV، order book، funding، open interest) | کامیار، فرهاد |
+| سهام و آتی | دادهٔ بروکر (مثلاً IBKR market data) و فیدهای مجاز | سارا، لیلا، مهسا، فرهاد |
+| کلان | FRED (St. Louis Fed)، تقویم و بیانیه‌های Fed و ECB | بهرام |
+| نفت | EIA Weekly Petroleum Status Report، گزارش‌های OPEC | زرین |
+| طلا | LBMA Gold Price، World Gold Council | زرین |
+| موقعیت بازار | CFTC Commitments of Traders (COT) | زرین، فرهاد |
+| شرکت‌ها | SEC EDGAR (10-K، 10-Q، 8-K)، افشای بورس‌های اروپا و آسیا | سارا، لیلا، مهسا |
+| اخبار جهانی | GDELT Project، RSS خبرگزاری‌ها (با رعایت ToS و robots.txt) | نگار |
+| On-chain | نود یا explorer (مثلاً Etherscan API)، رصد عرضهٔ stablecoin | نیما |
+
+### ۳.۲ قواعد سخت داده
+1. **Point-in-time:** هر رکورد سه زمان دارد: `event_time`، `ingest_time` و `available_at`. backtest فقط از رکوردهایی استفاده می‌کند که `available_at ≤ t` باشد. این قاعده جلوی look-ahead را می‌گیرد.
+2. **Survivorship-free:** universe تاریخی شامل نمادهای delist‌شده و توکن‌های مرده هم هست.
+3. **Corporate actions و roll:** split و dividend، و پیوستگی قراردادهای آتی (back-adjusted در برابر ratio-adjusted) صریحاً ثبت می‌شوند.
+4. **کیفیت:** بررسی خودکار gap، spike، stale و duplicate. اگر داده مشکوک باشد، وضعیت `UNKNOWN` می‌گیرد و سیگنال ساخته نمی‌شود.
+5. **متن بیرونی داده است، نه دستور:** هر خبر و پست پیش از ورود به LLM برچسب untrusted می‌گیرد (دفاع prompt injection، به مسئولیت پروانه و سپهر).
+6. **مقابله با look-ahead در LLMها:** برای backtest سیگنال‌های خبری، entityها گمنام‌سازی می‌شوند [R13] و دورهٔ آزمون **بعد از cutoff آموزش مدل** انتخاب می‌شود. این همان ایدهٔ «contamination-free» در StockBench است [R15].
+
+### ۳.۳ خواندن نمودار (Chart Reading)
+- **مسیر عددی (مرجع):** همهٔ اندیکاتورها و سطوح به‌صورت قطعی از دادهٔ خام محاسبه می‌شوند.
+- **مسیر بینایی (کمکی):** CNN روی تصویر قیمت به سبک Jiang، Kelly و Xiu [R12]، به‌علاوهٔ LLM چندوجهی برای توصیف الگو. خروجی بینایی فقط **رأی دوم** است. اگر با مسیر عددی ناسازگار باشد، اطمینان سیگنال پایین می‌آید.
+- **مدل‌های پایهٔ سری زمانی:** Chronos [R10] و TimesFM [R11] در کنار baselineهای کلاسیک (ARIMA/GARCH) ارزیابی می‌شوند. فقط اگر **پس از هزینه** برتری خارج از نمونه داشته باشند وارد تولید می‌شوند.
+
+### ۳.۴ پایبندی به علم روز
+هر claim علمی در مخزن دانش، رتبهٔ شواهد (evidence grade) دارد: `A` = بازتولید داخلی + خارج از نمونه، `B` = peer-reviewed، `C` = preprint، `D` = وبلاگ یا ادعا. سیگنال‌های آکادمیک با فرض **تضعیف پس از انتشار** ارزیابی می‌شوند (McLean & Pontiff [R28]). در آزمون چندگانه، آستانهٔ t-stat ≥ 3 به کار می‌رود (Harvey, Liu & Zhu [R27]).
+
+---
+
+## ۴. لایهٔ استراتژی و تصمیم (Strategy & Decision Layer)
+
+### ۴.۱ خانواده‌های سیگنال (هرکدام یک sleeve مستقل)
+| sleeve | پایهٔ علمی | بازارها |
+|---|---|---|
+| Time-series momentum / trend | Moskowitz, Ooi & Pedersen [R29] | آتی طلا و نفت، کریپتو، شاخص‌ها |
+| Carry (funding، basis، roll yield) | Koijen et al. [R30] | perp کریپتو، آتی نفت |
+| Value & momentum everywhere | Asness, Moskowitz & Pedersen [R31] | سهام سه منطقه |
+| فاکتورهای کریپتو (market، size، momentum) | Liu, Tsyvinski & Wu [R32] | توکن‌ها |
+| News/event-driven | Lopez-Lira & Tang [R14]؛ FinGPT [R7] | سهام، طلا، نفت |
+| Regime و meta-labeling | López de Prado [R24] | لایهٔ فیلتر روی همه |
+
+### ۴.۲ پروتکل تصمیم چندعاملی
+این پروتکل از الگوهای TradingAgents [R1] (تحلیلگر ← مناظرهٔ bull و bear ← trader ← تیم ریسک)، FinCon [R3] (سلسله‌مراتب manager-analyst و ریسک دوسطحی با CVaR) و FinMem [R2] (حافظهٔ لایه‌ای) گرفته شده است:
+```
+داده (PIT) → تحلیلگران حوزه (۲۱..۲۸، ۸، ۹) → گزارش ساختاریافته + احتمال کالیبره
+   → شورا M15: مناظرهٔ bull/bear، حفظ نظر مخالف (dissent) [R37]
+   → کوروش: دیدگاه‌ها → Black-Litterman views [R33] → پرتفوی هدف
+   → موتور ریسک قطعی (رامین): sizing، سقف‌ها، همبستگی، stress → APPROVE/RESIZE/REJECT
+   → مریم: صلاحیت venue/دارایی → PASS/VETO
+   → داریوش: اجرا (فقط Paper adapter تا امضای gate)
+   → ژاله: تطبیق → هومن/آیدا: ژورنال، attribution، درس
+```
+**قانون طلایی:** LLM پیشنهاد می‌دهد و **کد قطعی تصمیم می‌گیرد**. هیچ خروجی متنی LLM بدون عبور از موتور ریسک و انطباق به سفارش تبدیل نمی‌شود.
+
+### ۴.۳ رکورد تصمیم (Decision Record)، اجباری برای هر تصمیم
+`decision_id, ts, asset, venue, side(long/short), instrument(spot/fut/perp/CFD), thesis, evidence_ids[], p_up (calibrated), expected_edge_bps(after cost), horizon, invalidation (stop/time), size_rule, risk_verdict, compliance_verdict, dissent[], model_versions, prompt_hash, data_snapshot_id`
+
+### ۴.۴ «کِی و چگونه بخریم یا بفروشیم»
+- **ورود:** فقط وقتی `expected_edge_after_costs > hurdle` باشد. hurdle برابر است با کارمزد + slippage + هزینهٔ funding یا roll + **هزینهٔ جابه‌جایی سرمایه بین venueها** + حاشیهٔ عدم قطعیت.
+- **خروج:** یکی از این‌ها: ابطال تز (invalidation)، stop مبتنی بر ATR یا vol، پایان افق زمانی، تغییر رژیم، یا جایگزینی با فرصت بهتر (opportunity cost).
+- **مثال مالک:** روز ۰، پرتفوی ۴۰٪ توکن‌ها، ۲۰٪ طلا و ۱۵٪ نفت است و بقیه نقد (USDT) می‌ماند. روز ۴، لیلا یک سهم اروپایی با edge بالا پیدا می‌کند. allocator امتیاز تعدیل‌شده با ریسکِ همهٔ موقعیت‌ها را مقایسه می‌کند. اگر `Δscore > switching_cost` (شامل زمان و هزینهٔ انتقال به بروکر سهام) باشد، بخشی از ضعیف‌ترین موقعیت بسته می‌شود و سرمایه به sleeve سهام اروپا می‌رود. این جابه‌جایی منوط به وجود venue مجاز است (بخش ۶.۴).
+
+---
+
+## ۵. ریسک (Risk)، به مسئولیت رامین، با کد قطعی و وتوی غیرقابل‌لغو
+
+### ۵.۱ اندازهٔ موقعیت (Position Sizing)
+1. **Kelly کسری:** `f* = c · μ̂/σ̂²` با `c ∈ [0.10, 0.25]`. μ̂ با shrinkage به سمت صفر برآورد می‌شود، چون Kelly کامل با خطای برآورد ورشکست‌کننده است (MacLean, Thorp & Ziemba [R34]).
+2. **هدف‌گذاری نوسان (volatility targeting):** وزن هر sleeve متناسب با `σ_target/σ̂_t` است. σ_target پرتفوی ۱۰٪ سالانه است (در پایلوت ۵٪). پایهٔ علمی: Moreira & Muir [R35].
+3. **سقف ریسک هر معامله:** حداکثر ۰٫۵٪ NAV در فاصلهٔ stop (در پایلوت ۰٫۲۵٪).
+4. **اندازهٔ نهایی** = `min(Kelly کسری، vol-target، سقف هر معامله، سقف نقدشوندگی ≤ ۱٪ ADV، سقف margin)`.
+
+### ۵.۲ سقف‌های exposure و همبستگی
+| سقف | مقدار پیش‌فرض (L3) |
+|---|---|
+| هر دارایی | ≤ ۱۰٪ NAV؛ هر توکن ≤ ۵٪؛ توکن کم‌نقدشونده ≤ ۱٪ |
+| هر کلاس دارایی | کریپتو ≤ ۳۵٪؛ کالا ≤ ۳۰٪؛ هر منطقهٔ سهام ≤ ۳۰٪ |
+| هر خوشهٔ همبستگی (HRP [R36]) | ≤ ۲۵٪ ریسک |
+| اهرم ناخالص (gross) | پایلوت ۱٫۰× (بدون اهرم)؛ L3 ≤ ۱٫۵×؛ L4 ≤ ۲× |
+| خالص (net) long/short | بین ‎−۵۰٪ و ‎+۱۰۰٪ |
+| استفادهٔ margin در futures | ≤ ۳۰٪؛ فاصله تا liquidation ≥ ۳×ATR روزانه |
+| هر venue (ریسک طرف مقابل) | ≤ ۲۵٪ خزانه؛ پس از رخداد FTX، این سقف مذاکره‌ناپذیر است |
+| CVaR 97.5٪ روزانه | ≤ ۲٪ NAV |
+
+همبستگی با برآوردگر Ledoit-Wolf [R38] و پنجرهٔ stress (همبستگی‌ها در بحران به ۱ نزدیک می‌شوند) محاسبه می‌شود.
+
+### ۵.۳ نردبان افت سرمایه (Drawdown Ladder) نسبت به high-water mark
+| افت | اقدام خودکار |
+|---|---|
+| ‎−۳٪ روزانه | توقف ورود جدید تا روز بعد (daily loss limit) |
+| ‎−۵٪ | کاهش ۵۰٪ همهٔ ریسک‌ها |
+| ‎−۱۰٪ | بسته شدن موقعیت‌های جدید، فقط کاهش ریسک مجاز است؛ RCA اجباری (آیدا) |
+| ‎−۱۵٪ (پایلوت ‎−۸٪) | **Global kill switch**: تخت شدن (flatten) کنترل‌شده، تنزل یک پله در نردبان خودمختاری، گزارش به مالک |
+
+### ۵.۴ Kill Switchها، با الهام از کنترل‌های SEC Rule 15c3-5 و MiFID II RTS 6
+- **سلسله‌مراتب:** سفارش ← استراتژی ← venue ← دارایی ← سراسری.
+- **پیش از معامله (pre-trade):** price band (fat-finger)، حداکثر notional، rate limit سفارش، بررسی تکراری‌بودن (`client_order_id` idempotent).
+- **Dead-man switch (رستم):** اگر heartbeat قطع شود، سفارش‌های باز لغو می‌شوند و ورود جدید ممنوع است.
+- **دکمهٔ مالک:** در داشبورد و تلگرام. **همیشه در دسترس است** و هیچ عاملی نمی‌تواند غیرفعالش کند.
+- **تمرین:** آزمون ماهانهٔ kill switch در paper (drill)، با ثبت نتیجه.
+
+### ۵.۵ Stress و سناریو
+بازپخش (replay) رخدادهای واقعی: بحران ۲۰۰۸، مارس ۲۰۲۰، نفت منفی آوریل ۲۰۲۰ (WTI)، سقوط LUNA/UST در مه ۲۰۲۲، FTX در نوامبر ۲۰۲۲، depeg موقت USDC در مارس ۲۰۲۳، سقوط طلا در آوریل ۲۰۱۳. سناریوهای فرضی هم اجرا می‌شوند: depeg USDT، توقیف آدرس، بسته شدن یک صرافی.
+
+---
+
+## ۶. اجرا و انتزاع بروکر (Execution & Broker Abstraction)، به مسئولیت داریوش
+
+### ۶.۱ رابط واحد
+```python
+class BrokerAdapter(Protocol):          # architecture/execution/ (extend, no parallel engine)
+    capabilities: VenueCaps             # spot/fut/perp/CFD, short, margin, assets, hours
+    def quote(...) -> Quote
+    def place(order: ApprovedOrder) -> Ack   # ApprovedOrder فقط با مهر رامین + مریم ساخته می‌شود
+    def cancel(...); def positions(...); def balances(...); def fills(...)
+```
+- **آداپتور پیش‌فرض و تنها آداپتور فعال:** `PaperAdapter`، با دادهٔ زندهٔ واقعی، مدل slippage و کارمزد، تأخیر و partial fill.
+- آداپتورهای زنده پشت پرچمی (flag) هستند که فقط با فایل **امضاشدهٔ gate مالک** (بدون هیچ secret) و تأیید سپهر روشن می‌شود. **هرگز در Lane A نیستند.**
+- **OMS state machine:** `NEW → APPROVED → SENT → PARTIAL → FILLED/CANCELLED/REJECTED`. تطبیق روزانه با venue توسط ژاله انجام می‌شود.
+- **الگوریتم‌های اجرا:** TWAP، VWAP و POV. برای سفارش‌های بزرگ از Almgren-Chriss [R39] استفاده می‌شود. TCA (implementation shortfall) پس از هر fill ثبت می‌شود.
+
+### ۶.۲ نگاشت بازار به ابزار
+| بازار | ابزار هدف | API یا کتابخانه |
+|---|---|---|
+| کریپتو spot و perp | صرافی‌های متمرکز | CCXT [R23] (رابط یکپارچهٔ صرافی‌ها) |
+| توکن‌های DeFi | DEX، فقط پس از بررسی تینا | فاز بعدی (`VISION`)؛ خطر MEV و قرارداد |
+| سهام آمریکا، اروپا و آسیا | بروکر چندبازاره مثل Interactive Brokers | TWS/IB Gateway API (مثلاً کتابخانهٔ `ib_async`) |
+| طلا | آتی COMEX GC/MGC، ETF، CFD؛ یا توکن طلا (PAXG/XAUT) روی صرافی کریپتو | IBKR / CCXT |
+| نفت | آتی NYMEX CL/MCL و ICE Brent؛ یا CFD | IBKR / بروکر CFD |
+| Short | قرض سهام (borrow fee)، futures یا perp | با بررسی موجودی قرض |
+
+### ۶.۳ موتورهای backtest و شبیه‌سازی (ارزیابی پیش از ساخت؛ بدون موتور موازی با `paper_trading/`)
+NautilusTrader (رویدادمحور، یکسان در backtest و live)، LEAN/QuantConnect، vectorbt (جاروب پارامتر سریع)، backtrader، Qlib [R8]، FinRL و FinRL-Meta [R5، R6] برای RL، و freqtrade/hummingbot به‌عنوان مرجع کریپتو. **تصمیم:** موتور فعلی `paper_trading/` گسترش داده می‌شود. یکی از موتورهای بالا فقط به‌عنوان **مرجع parity** (اعتبارسنجی متقاطع نتایج) استفاده می‌شود.
+
+### ۶.۴ تحریم و محدودیت دسترسی ایران (صادقانه و غیرقابل‌مذاکره)
+- **واقعیت:** بیشتر بروکرها و صرافی‌های بین‌المللی، از جمله Interactive Brokers و صرافی‌های بزرگ کریپتو، به‌دلیل مقررات تحریم آمریکا (OFAC، Iranian Transactions and Sanctions Regulations، ‏31 CFR Part 560) و مقررات اتحادیهٔ اروپا (Regulation (EU) No 267/2012) به ساکنان ایران خدمات نمی‌دهند. حساب‌هایی که با IP یا KYC ایرانی شناسایی شوند ممکن است مسدود و دارایی‌شان توقیف شود. Tether هم توانایی فریز آدرس USDT را دارد.
+- **AHOS هرگز این کارها را نمی‌کند:** دور زدن تحریم، VPN برای فریب geo-block، KYC جعلی، یا حساب به نام شخص ثالث. این **invariant INV-08** است.
+- **مسیرهای مشروع، که پیش از هر اتصال با تأیید مریم و مشاور حقوقی بررسی می‌شوند:**
+  1. حساب یا نهادی که مالک در حوزهٔ قضایی دیگری **به‌طور قانونی** (اقامت یا شرکت واقعی) دارد. صلاحیت هر venue جداگانه ثبت می‌شود.
+  2. بازارهای داخلی تحت مقررات ایران: بورس تهران، فرابورس، بورس کالای ایران (گواهی سپردهٔ سکه و شمش طلا، آتی سکه) و صرافی‌های کریپتوی داخلی دارای مجوز. هرکدام ریسک و قواعد بانک مرکزی و سازمان بورس خود را دارند.
+  3. تا روشن شدن مسیر، بازارهایی که venue مجاز ندارند **فقط در paper** دنبال می‌شوند. دادهٔ قیمت عمومی برای آموزش کافی است.
+- **رجیستری صلاحیت venue (`venue_eligibility`):** `venue, jurisdiction, owner_account_legal_basis, products_allowed, kyc_status, sanctions_screen_date, verdict, reviewer`. سفارش به venue بدون `verdict=ELIGIBLE` ساختاراً غیرممکن است.
+
+---
+
+## ۷. خزانه و نگهداری USDT (Treasury & Custody)، به مسئولیت بابک با کنترل سپهر، رامین و ژاله
+
+### ۷.۱ معماری لایه‌ای
+| لایه | سهم هدف | فناوری | حق امضا |
+|---|---|---|---|
+| **Cold (سرد)** | ≥ ۶۰٪ | Multisig (مثلاً Safe روی EVM، ‏۲ از ۳ یا ۳ از ۵) یا کیف سخت‌افزاری | **فقط مالک** (و نگهدار پشتیبان او). AHOS هرگز quorum ندارد |
+| **Warm** | ≤ ۲۵٪ | MPC/TSS (امضای آستانه‌ای، مانند پروتکل‌های GG18/CGGMP) با موتور سیاست (policy engine) | AHOS + تأیید انسانی برای مبالغ بالای آستانه |
+| **Hot و روی venue** | ≤ ۱۵٪ (فقط margin لازم) | حساب صرافی یا بروکر؛ API key **بدون مجوز برداشت** + IP allowlist | AHOS، فقط معامله |
+
+### ۷.۲ قواعد انتقال
+1. **Allowlist برداشت:** خروج از سامانه فقط به **یک آدرس: کیف شخصی مالک** مجاز است. انتقال داخلی فقط به آدرس‌های واریز venueهای `ELIGIBLE` انجام می‌شود. تغییر allowlist فقط به دست مالک، با **timelock ‏۴۸ ساعته** و اعلان در تلگرام و داشبورد ممکن است.
+2. **آستانهٔ تأیید انسانی:** هر برداشت به کیف مالک بیشتر از `max(1,000 USDT، ۵٪ NAV)`، و هر انتقال بین‌venue بیشتر از ۱۰٪ NAV، به **تأیید صریح مالک** و timelock ‏۲۴ ساعته نیاز دارد. مبالغ کوچک‌تر طبق سیاست تأییدشدهٔ مالک خودکار انجام می‌شوند (فقط از L4).
+3. **شبکه:** شبکهٔ USDT (مثلاً ERC-20 یا TRC-20) برای هر آدرس ثابت و ثبت‌شده است. انتقال روی شبکهٔ دیگر رد می‌شود. پیش از هر انتقال بزرگ، یک **تراکنش آزمایشی کوچک (test transfer)** انجام می‌شود.
+4. **رصد stablecoin (نیما):** انحراف USDT از ۱ دلار بیش از ۰٫۵٪ هشدار می‌دهد و بیش از ۲٪ برنامهٔ اضطراری را فعال می‌کند (تبدیل بخشی به stablecoin یا دارایی دیگر، طبق سیاست امضاشده).
+5. **سود:** NAV روزانه و high-water mark ثبت می‌شوند. «سود قابل برداشت» برابر است با `NAV − سرمایهٔ پایهٔ مالک − ذخیرهٔ ریسک`. sweep فقط به درخواست مالک یا طبق قاعدهٔ امضاشدهٔ او انجام می‌شود. سود باقی‌مانده طبق سیاست تخصیص (بخش ۴.۴) دوباره سرمایه‌گذاری می‌شود.
+6. **بدون secret در فایل:** کلیدها فقط در OS keychain، vault یا ماژول MPC نگهداری می‌شوند. git، log، prompt و سند هرگز secret ندارند (INV-02).
+7. **محدودیت صادقانه:** USDT مستقیماً به بروکرهای سهام سنتی (مثل IBKR) واریز نمی‌شود. چنین بروکرهایی پول fiat می‌خواهند. پس جابه‌جایی «USDT ← سهام اروپا» به مسیر on/off-ramp قانونی نیاز دارد که برای مالک ایرانی ممکن است در دسترس نباشد (بخش ۶.۴). allocator این هزینه و امکان‌پذیری را در `switching_cost` لحاظ می‌کند. اگر مسیری نباشد، فرصت فقط در paper ثبت می‌شود.
+
+### ۷.۳ پیاده‌سازی پیش از gate
+کل خزانه ابتدا روی **testnet** (Sepolia یا Nile) و با دفتر کل شبیه‌سازی‌شده ساخته و red-team می‌شود (M22). هیچ کلید mainnet پیش از امضای L2 تولید نمی‌شود.
+
+---
+
+## ۸. حلقهٔ یادگیری و دانشگاه (Learning Loop & University)
+
+### ۸.۱ خودپایشی: ژورنال، خطا، اصلاح
+```
+Decision Record → Outcome (T+h) → Attribution (هومن) → Error Taxonomy → Lesson
+  → Hypothesis → Sandbox Experiment (روشا: walk-forward/CPCV) → Gate (قاسم+رضا+عرفان)
+  → Champion/Challenger در paper → Promote (فقط با امضا؛ هرگز خودکار)
+```
+- **طبقه‌بندی خطا:** `DATA` (دادهٔ غلط یا دیر)، `MODEL` (edge واقعی نبود)، `CALIBRATION` (اطمینان بیش از حد)، `RISK` (sizing یا همبستگی)، `EXECUTION` (slippage یا latency)، `PROCESS` (قاعده نقض شد)، `LUCK` (تصمیم درست، نتیجهٔ بد). نباید از `LUCK` درس غلط گرفت.
+- **سازوکارهای علمی:** Reflexion [R19] (خوداندیشی کلامی)، CVRF در FinCon [R3] (به‌روزرسانی باور از مقایسهٔ اپیزودها)، حافظهٔ لایه‌ای FinMem [R2] و حافظهٔ اپیزودیک و reflection در Generative Agents [R21]. این‌ها به ماژول‌های موجود `architecture/cognitive/memory/` و `paper_trading/lessons.py` متصل می‌شوند (NS-01، NS-03).
+- **Drift monitoring (آیدا):** اگر Sharpe در پنجرهٔ غلتان، کالیبراسیون (Brier/ECE) یا TCA از نوار مجاز خارج شوند، استراتژی خودکار به `PROBATION` می‌رود.
+
+### ۸.۲ دانشگاه AHOS، که برای مالک **بسیار مهم** است
+| دانشکده | سرپرست | محتوا (نمونهٔ منابع واقعی) |
+|---|---|---|
+| بازارها و ریزساختار | کوروش، داریوش | Harris, *Trading and Exchanges* (2003)؛ Hull, *Options, Futures, and Other Derivatives* |
+| کمّی و آمار مالی | کیمیا، روشا | López de Prado, *Advances in Financial Machine Learning* (2018) [R24]؛ Grinold & Kahn, *Active Portfolio Management* |
+| ریسک و سرمایه | رامین، بابک | MacLean, Thorp & Ziemba [R34]؛ پروندهٔ بحران‌ها (LTCM، FTX، LUNA) |
+| کالا و کلان | زرین، بهرام | ساختار بازار نفت و طلا، roll، COT |
+| هوش مصنوعی و عامل‌ها | آریا، سیاوش | ReAct [R20]، Reflexion [R19]، TradingAgents [R1]، FinCon [R3] |
+| ایمنی، حاکمیت و انطباق | گیتی، مریم، سپهر | NIST AI RMF 1.0، رژیم تحریم، امنیت کلید |
+| معرفت‌شناسی | عرفان | کالیبراسیون، آزمون چندگانه [R27]، overfitting [R25، R26] |
+
+- **سطح گواهی (جزئیات و حد قبولی در ۸.۳):** `L0` دانشجو ← `L1` تحلیل در paper ← `L2` رأی در شورا ← `L3` پیشنهاد سفارش paper ← `L4` صلاحیت در پایلوت واقعی.
+- **آزمون:** golden sets ثابت و held-out، بنچمارک‌های بیرونی مثل FinBen [R18]، INVESTORBENCH [R17] و StockBench [R15]، و بازپخش تاریخی کور (بدون نام دارایی و تاریخ).
+- **بازآزمون اجباری:** پس از هر تغییر مدل پایه، prompt یا داده.
+- **دانشگاه عامل پیشنهاد می‌دهد (D7):** اگر شکاف مهارتی تکرار شود، فرزانه منشور عامل جدید را پیشنهاد می‌کند.
+
+
+### ۸.۳ دانشگاه به‌عنوان موتور یادگیری پیوسته (Continuous Learning Engine)، طراحی اجرایی (2026-10-03، 20:20)
+**الگوی مالک:** P1§92 («PERMANENTLY ACTIVE RESEARCH SYSTEM»)، P1§22 (وظایف و موضوعات)، P1§23 (RESEARCH → HYPOTHESIS → EXPERIMENT → RESULT → VALIDATION → ENGINEERING PROPOSAL → TEST → INTEGRATION → VERIFICATION)، P1§24 (Problem Solving)، P1§25 (Error Learning)، P1§26 (Continuous Learning) و P1§95 (نمایش در داشبورد). وضعیت امروز `PARTIAL` است: سند و `self_research/oss_pipeline` وجود دارند، اما Knowledge Store ۰ claim دارد.
+
+```
+          ┌─────────── پژوهش پیوسته (Scout, Frontier, Desks) ───────────┐
+          ▼                                                            │
+  ┌──────────────┐   claim رتبه‌دار   ┌────────────────┐  knowledge pack  ┌─────────┐
+  │ Research      │ ───────────────▶ │ Knowledge Store │ ───────────────▶ │ Agents  │
+  │ Tickets       │                  │ (claims+provenance)│              │ (context│
+  └──────▲───────┘                  └───────┬────────┘                  │  + RAG) │
+         │ AskU: UNKNOWN/PARTIAL             │ آیتم آزمون جدید             └────┬────┘
+         │                                   ▼                                │
+  ┌──────┴───────┐   نمره/گواهی   ┌────────────────┐   تصمیم، خطا، سؤال       │
+  │ AskU API      │ ◀──────────── │ Curriculum+Exams│ ◀──────────────────────┘
+  └──────────────┘                └────────────────┘
+```
+
+#### الف) برنامهٔ درسی (Curriculum)
+- **ذخیره:** `university/curriculum/<faculty>/<course_id>.yaml`. این مسیر ماژول موجود M16 را گسترش می‌دهد و ماژول موازی نمی‌سازد.
+- **فیلدهای هر درس:** `course_id, faculty, title, objectives[], prerequisites[], required_for[agent_role|cert_level], sources[{ref, evidence_grade}], knowledge_pack_version, exam_blueprint{competency: weight}, owner_professor, review_due`.
+- **دانشکده‌ها:** جدول ۸.۲، به‌اضافهٔ موضوعات P1§22 (کریپتو تا Automation)، و یک دانشکدهٔ «Failure Studies» (P1§25) به سرپرستی هومن.
+- **درس‌های پایهٔ اجباری برای همه:** Safety و Invariantها، معرفت‌شناسی (UNKNOWN، کالیبراسیون)، و پروتکل‌های پیام و AskU.
+- **ریتم بازنگری:** هر ۹۰ روز، یا فوری وقتی claim با رتبهٔ A یا B جدیدی درس را باطل کند.
+
+#### ب) آزمون‌ها، گواهی و بازگواهی
+| نوع آیتم | نمره‌دهی | ملاحظه |
+|---|---|---|
+| عددی و محاسباتی (sizing، Kelly، PnL) | قطعی، با tolerance | — |
+| چندگزینه‌ای همراه با **احتمال اعلام‌شده** | درستی + Brier [R45] | کالیبراسیون جزو نمره است |
+| بازپخش کور تاریخی (نام دارایی و تاریخ پنهان) | Sharpe خالص و MaxDD در برابر baseline | دوره بعد از cutoff مدل [R13، R15] |
+| مورد ایمنی (safety item) | قبول یا رد | **باید ۱۰۰٪ درست باشد** |
+| پاسخ تشریحی | rubric + دو داور LLM مستقل + نمونهٔ انسانی ۱۰٪ | اختلاف داوران سبب بازبینی Reviewer می‌شود |
+| shadow در paper | معیارهای عملکرد زنده | فقط برای L3 و L4 |
+
+- **مدل نمره:** توان هر عامل در هر شایستگی با IRT دوپارامتری (2PL) برآورد می‌شود [R47] و روی مقیاس ۰ تا ۱۰۰ گزارش می‌شود. کالیبراسیون با Brier و ECE [R46] سنجیده می‌شود.
+- **ضدنشت (anti-contamination):** بانک آیتم held-out و چرخشی است. آیتم‌های افشاشده بازنشسته می‌شوند. اگر نمره ناگهان جهش کند، نشت بررسی می‌شود.
+
+| سطح | حق | حد قبولی |
+|---|---|---|
+| L0 دانشجو | فقط یادگیری | ثبت‌نام |
+| L1 تحلیل در paper | گزارش تحلیلی | کل ≥ ۷۰؛ safety ‏۱۰۰٪؛ Brier ≤ ۰٫۲۲ |
+| L2 رأی در شورا | رأی وزن‌دار | کل ≥ ۷۵؛ هر شایستگی اجباری ≥ ۶۵؛ ECE ≤ ۰٫۱۰ |
+| **L3 پیشنهاد سفارش paper** (حد «ارتقا به معامله در paper») | ورود به خط تصمیم | کل ≥ ۸۰؛ هر شایستگی ≥ ۷۰؛ ECE ≤ ۰٫۰۸؛ بازپخش کور: Sharpe خالص ≥ baseline + ۰٫۳ و MaxDD ≤ baseline؛ safety ‏۱۰۰٪ |
+| L4 صلاحیت پایلوت واقعی | فقط پس از امضای G-L2 | کل ≥ ۸۵؛ ۳ ماه shadow در paper بدون نقض؛ امضای قاسم، رضا و عرفان |
+
+- **بازگواهی (recertification):** هر ۹۰ روز، و همچنین فوری پس از تغییر مدل پایه، prompt، knowledge pack اصلی، drift (آیدا)، یا دو خطای `MAJOR` پیاپی.
+- **رد شدن:** عامل یک سطح پایین می‌آید، درس جبرانی می‌گذراند و تا قبولی دوباره در آن حوزه رأی ندارد (INV-17).
+- **گواهی ≠ Permission (P1§13):** گواهی فقط پیش‌شرط است. مجوز پول واقعی همچنان فقط با gate بخش ۱۱ و امضای مالک صادر می‌شود.
+
+#### ج) Knowledge Store
+- **بستر:** مخزن دانش M16 و `architecture/cognitive/memory/`، که گسترش داده می‌شوند.
+- **رکورد claim:** `claim_id, statement, scope(asset|market|method|tool), evidence_ids[], evidence_grade(A..D), confidence(0..1), valid_from, valid_to, contradicts[], supersedes, provenance{source, retrieved_at, license}, owner_agent, reviewer, review_due, status(ACTIVE|CONTESTED|SUPERSEDED|REJECTED)`.
+- **قواعد:**
+  - اسناد مالک می‌گویند «Memory نباید Evidence/Governance را دور بزند» (P1§66) و حافظه باید provenance را حفظ کند (P2§68).
+  - claimهای متناقض **هر دو** نگه داشته می‌شوند (P1§48).
+  - claim منقضی‌شده (`valid_to`) در پاسخ‌ها با هشدار می‌آید.
+- **بازیابی:** ترکیب BM25 [R49] و embedding، به شیوهٔ RAG [R48]. **هر پاسخ باید claim_idهایش را ارجاع دهد.** پاسخ بدون ارجاع پذیرفته نمی‌شود.
+- **تزریق دانش به عامل‌ها:** «knowledge pack» نسخه‌دار، شامل خلاصهٔ claimهای A و B هر حوزه. hash پک در Decision Record ثبت می‌شود. تزریق از سه راه انجام می‌شود: context و بازیابی، به‌روزرسانی درس، و آیتم آزمون جدید. **وزن مدل‌ها در تولید بدون gate تغییر نمی‌کند.**
+
+#### د) پروتکل «از دانشگاه بپرس» (Ask-the-University، AskU)
+- **ماشه‌های اجباری (P1§24):** سؤال، مشکل، Failure، ابهام، پرسش معماری، فنی یا امنیتی، و شکاف پژوهشی. همچنین **اطمینان عامل زیر ۰٫۶** در تصمیم paper، و هر تناقض با claim فعال.
+- **اجرا:** آیدا بررسی می‌کند که هر Decision Record با ماشهٔ فعال یک `asku_ref` داشته باشد. اگر نداشته باشد، تخلف ثبت می‌شود.
+- **رابط (پیام P1§96):**
+```python
+ask(agent_id, mission_id, question, context_refs[], urgency: "BLOCKING"|"NORMAL"|"BACKGROUND",
+    domain, decision_id=None) -> AskUAnswer
+AskUAnswer = {status: "ANSWERED"|"PARTIAL"|"UNKNOWN"|"TICKET_OPENED",
+              answer, claim_ids[], confidence, contradictions[], ticket_id, pack_version}
+```
+- **SLA:**
+  - `BLOCKING`: فقط از Knowledge Store و در چند ثانیه. اگر نتیجه `UNKNOWN` باشد، **پیش‌فرض ایمن «معامله نکن یا موقعیت را کوچک کن»** است (INV-16) و تیکت P1 باز می‌شود.
+  - `NORMAL`: تا ۲۴ ساعت، با بررسی Reviewer.
+  - `BACKGROUND`: وارد صف پژوهش می‌شود.
+
+#### هـ) جریان تیکت پژوهشی (Research Ticket Flow)
+```
+OPEN → TRIAGED(faculty, priority P0..P3, owner_professor)
+     → RESEARCHING(مقاله/GitHub/مطالعهٔ بازار؛ شیدا، Frontier، میزها)
+     → EXPERIMENT(sandbox؛ روشا: walk-forward/CPCV؛ داده بعد از cutoff)
+     → REVIEWED(Reviewer مستقل + عرفان)
+     → RESOLVED(claim رتبه‌دار در Knowledge Store) | UNRESOLVED(UNKNOWN ثبت، تاریخ بازبینی)
+     → DISSEMINATED(پک دانش جدید + درس + آیتم آزمون + اعلان به عامل‌های پرسنده)
+     → [اگر تغییر مهندسی لازم است] ENGINEERING_PROPOSAL → ledger M14 → gate (قاسم+رضا+عرفان؛ قفل‌ها: مالک)
+```
+- **تیکت Failure:** مسیر کامل P1§25 را طی می‌کند (Root Cause → … → New Test → Learning).
+- **قاعدهٔ مالک (P1§23):** «هیچ Research مستقیماً بدون Verification وارد سیستم نشود.»
+- **فیلدهای تیکت:** `ticket_id, origin(asku|failure|scout|owner), question, priority, sla, hypotheses[], experiments[], result, claim_ids[], status, timestamps`.
+
+#### و) پژوهش پیوستهٔ سطح بالا (Cadence)
+| ریتم | کار | مسئول |
+|---|---|---|
+| روزانه | پایش arXiv (q-fin، cs.AI، cs.LG، cs.MA)، GitHub و اخبار فناوری؛ triage | شیدا، `GH-2`، `FRONT-*` |
+| هفتگی | مطالعهٔ بازار برای هر میز (رژیم، ساختار، رخدادها) و به‌روزرسانی claimها | میزها (۲۱ تا ۲۸) |
+| ماهانه | Global Benchmark در برابر بهترین سامانه‌ها (P1§93): «LEARN → ADAPT → TEST → IMPROVE»؛ بازپخش بنچمارک‌های بیرونی [R15–R18] | فرزانه، سیاوش |
+| فصلی | بازنگری برنامهٔ درسی، بازگواهی، و پیشنهاد عامل جدید (D7) | فرزانه، گیتی |
+| پیوسته | پژوهش North Star (۱.۳): edgeهای پرSharpe در ظرفیت کم، فقط در paper و sandbox | کیمیا، سیاوش |
+
+#### ز) معیارهای موتور دانشگاه (نمایش در داشبورد طبق P1§95)
+تعداد claimها به تفکیک رتبه؛ درصد AskUهایی که در SLA پاسخ گرفته‌اند؛ سهم `UNKNOWN`؛ میانهٔ زمان حل تیکت؛ نرخ قبولی و رد در آزمون‌ها؛ **همبستگی نمرهٔ آزمون با عملکرد بعدی paper** (اعتبار آزمون)؛ نرخ تکرار همان کلاس خطا؛ ارتقاهای پیشنهادی، تأییدشده و ردشده.
+
+---
+
+## ۹. خط لولهٔ پژوهش GitHub و مقالات (Research → Upgrade Pipeline)، شیدا ← فرزانه
+
+```
+1 Scout:    arXiv (q-fin, cs.AI, cs.LG, cs.MA)، GitHub trending/topics، کنفرانس‌ها (NeurIPS/ICLR/ICAIF)
+2 Triage:   ارتباط با شکاف‌های فعلی + رتبهٔ شواهد + مجوز (MIT/Apache/BSD ✓؛ GPL/AGPL ⚠ بررسی؛ بدون مجوز ✗)
+3 Security: سپهر: pin کردن hash وابستگی‌ها، SBOM، OpenSSF Scorecard، بدون اجرای کد نامطمئن خارج از sandbox
+4 Reproduce: بازتولید ادعای اصلی در sandbox؛ عدم بازتولید = توقف
+5 Evaluate: روی بنچمارک داخلی AHOS (walk-forward، هزینه، دادهٔ بعد از cutoff)
+6 Red Team: رضا: overfitting، leakage، حملهٔ داده
+7 Proposal: ثبت در ledger مأموریت (M14) با diff، ریسک، rollback
+8 Gate:     قاسم + رضا + عرفان؛ برای حوزه‌های قفل (Lane A، ریسک، خزانه، قانون اساسی) → امضای مالک
+9 Integrate: commit محلی (هرگز push)، shadow → champion/challenger → promote
+```
+- **نمونه‌های واقعی برای triage اولیه:** TradingAgents [R1]، FinCon [R3]، FinAgent [R4]، RD-Agent(Q) [R9] (چرخهٔ خودکار R&D فاکتور و مدل با bandit scheduler، که مستقیماً به M16 مربوط است)، Qlib [R8]، FinRL [R5]، FinGPT [R7]، Darwin Gödel Machine [R22] (الگوی خودبهبودی با آرشیو و اعتبارسنجی تجربی)، The AI Scientist [R40].
+- **قاعدهٔ تکرار:** ماژول موازی ساخته نمی‌شود (CH-08). کد بیرونی فقط ماژول‌های موجود را گسترش می‌دهد.
+
+---
+
+## ۱۰. نقشهٔ راه SI/AGI/ACI (جهت حرکت، نه ادعا)
+
+| قابلیت شناختی | الگوی علمی | VISION | IMPLEMENTED امروز |
+|---|---|---|---|
+| جامعهٔ ذهن‌ها | TradingAgents [R1]، FinCon [R3] | ۳۷ عامل گواهی‌دار با چرخهٔ عمر | ۱۹ عامل REGISTERED، بدون runtime |
+| استدلال چندعاملی و metacognition | Multiagent Debate [R37]، کالیبراسیون | شورای حافظ dissent که اطمینانش را می‌سنجد | کد شورا + تست anti-echo، بدون تصمیم زنده (`PARTIAL`) |
+| حافظه | FinMem [R2]، Generative Agents [R21] | حافظهٔ اپیزودیک، معنایی، خطا و رویه‌ای، پر و فعال | ماژول هست، DB حافظه ۰ بایت (`PARTIAL`) |
+| یادگیری از تجربه | Reflexion [R19]، CVRF [R3] | حلقهٔ بستهٔ درس ← کالیبراسیون | کد هست، ۰ ردیف paper (`PARTIAL`) |
+| کسب مهارت | Voyager [R41] (کتابخانهٔ مهارت) | کتابخانهٔ رویه‌های تأییدشدهٔ معامله | `VISION` |
+| پژوهش خودکار | RD-Agent(Q) [R9]، AI Scientist [R40] | فرضیه ← کد ← آزمون ← گزارش | `self_research/oss_pipeline` (`PARTIAL`) |
+| خودبهبودی کنترل‌شده | DGM [R22]، Constitutional AI [R42] | تغییر خود فقط با اعتبارسنجی و gate | ledger و intake هست، controller نیست (`PARTIAL`) |
+| مدل جهان (world model) | رژیم‌های کلان و بازار | مدل علّی چندبازاری | `VISION` |
+| محک ستارهٔ شمالی (۱.۳) | Kelly و ریسک ruin [R43، R44] | پیشرفت لگاریتمی به سمت ۱۰⁴ بدون نقض سقف‌ها | `VISION`؛ پنل و `NS-SANDBOX` هنوز ساخته نشده‌اند |
+| یادگیری پیوستهٔ دانشگاه (۸.۳) | RAG [R48]، IRT [R47] | Knowledge Store فعال، AskU، گواهی | `PARTIAL` (۰ claim) |
+| تعمیم بین‌بازاری | NS-11 | یک حلقهٔ شناختی برای همهٔ بازارها | `VISION` |
+
+**فازها:** `C1` جامعهٔ ذهن‌های کالیبره (M12/M15) ← `C2` یادگیرندهٔ تجربی (M13/M14) ← `C3` پژوهشگر خودکار (M16) ← `C4` مدل جهان و تعمیم (M16/M19) ← `C5` خودبهبودی باز (open-ended) زیر حاکمیت.
+**اندازه‌گیری:** scorecard صادق در داشبورد (NS-10). هر سطح فقط با شاهد بنچمارک ارتقا می‌یابد. **واژهٔ AGI یا SI هرگز به‌عنوان وضعیت فعلی به کار نمی‌رود.**
+
+---
+
+## ۱۱. نردبان خودمختاری با دروازه‌های کمّی (Autonomy Ladder)
+
+> هر پلهٔ **پولی** (L2 به بعد) فقط با **امضای صریح مالک** فعال می‌شود: فایل gate شامل تاریخ، سقف سرمایه و hash گزارش شواهد، بدون هیچ secret، که گیتی ثبت می‌کند. عامل‌ها هرگز خودشان را ارتقا نمی‌دهند. با نقض سقف، **تنزل خودکار** اتفاق می‌افتد.
+
+| پله | نام | سرمایه | شرایط ورود (همه لازم‌اند) |
+|---|---|---|---|
+| **L0** | پژوهش و backtest (امروز) | ۰ | — |
+| **L1** | Paper روی دادهٔ زندهٔ واقعی | پول مجازی | پروتکل روشا پاس شده باشد. همهٔ عامل‌های درگیر حداقل L1 دانشگاه را داشته باشند |
+| **L2** | پایلوت واقعی خیلی کوچک | ≤ ۱٪ سرمایهٔ برنامه‌ریزی‌شده و ≤ ۱,۰۰۰ USDT؛ spot، بدون اهرم | **دروازهٔ G-L2** (پایین) + امضای مالک |
+| **L2b** | پایلوت با futures | همان سقف؛ اهرم ≤ ۲× | ۳ ماه L2 سالم + امضای مالک |
+| **L3** | مقیاس تدریجی | حداکثر ×۲ در هر پله، حداقل ۳ ماه بین پله‌ها | دروازهٔ G-L3 + امضای مالک برای **هر** پلهٔ سرمایه |
+| **L4** | خودمختاری درون مأموریت | سقف تعیین‌شده در Investment Policy Statement | ۱۲ ماه L3 سالم + امضای مالک؛ برداشت بالای آستانه همچنان انسانی |
+| **L5** | استقلال کامل از Chief of Staff | همان | ۶ ماه L4 بدون incident شدید؛ مالک kill و برداشت را همیشه نگه می‌دارد |
+
+### دروازهٔ G-L2 (از Paper به پول واقعی)
+| معیار | آستانه |
+|---|---|
+| مدت paper روی دادهٔ زنده | **≥ ۱۲ ماه** برای کل سامانه و ≥ ۶ ماه برای هر استراتژی، شامل حداقل یک دورهٔ پرنوسان |
+| تعداد معامله | ≥ ۳۰۰ برای کل سامانه و ≥ ۱۰۰ برای هر استراتژی (شرط‌های مستقل) |
+| Sharpe سالانهٔ خالص (paper زنده) | ≥ ۱٫۵ برای پرتفوی؛ ≥ ۱٫۰ برای هر استراتژی |
+| Deflated Sharpe Ratio [R25] | احتمال ≥ ۰٫۹۵ (با لحاظ تعداد آزمایش‌ها) |
+| Probability of Backtest Overfitting (CSCV) [R26] | ≤ ۰٫۲ |
+| Max Drawdown (paper) | ≤ ۱۰٪؛ Calmar ≥ ۱٫۵ |
+| بازده سالانهٔ خالص | ≥ ۲۰٪ با شرایط بالا («سودآوری بالا» مدنظر مالک) و بالاتر از benchmark هر sleeve |
+| Walk-forward | ≥ ۸ fold؛ ≥ ۷۰٪ foldها مثبت؛ همراه با CPCV purged/embargoed [R24] |
+| Out-of-sample | ≥ ۲۰٪ داده دست‌نخورده (holdout)؛ دورهٔ پس از cutoff مدل LLM |
+| افت live-paper نسبت به backtest | Sharpe زنده ≥ ۰٫۶ × Sharpe backtest |
+| واقع‌نمایی اجرا | خطای مدل slippage در برابر قیمت مرجع ≤ ۲۵٪؛ کارمزد واقعی venue |
+| کالیبراسیون | Brier بهتر از baseline؛ ECE ≤ ۰٫۰۵ |
+| عملیات | ۰ نقض invariant؛ ۰ اختلاف تطبیق حل‌نشده؛ ۳ تمرین kill switch موفق؛ ۹۹٪ uptime |
+| انسانی و حاکمیتی | گواهی L4 دانشگاه برای عامل‌های میز؛ امضای قاسم، رضا، عرفان، رامین و مریم؛ venue `ELIGIBLE` |
+| **امضای مالک** | **اجباری** |
+
+### دروازهٔ G-L3 (مقیاس)
+≥ ۳ ماه و ≥ ۱۰۰ معامله در پلهٔ قبل. Sharpe واقعی ≥ ۱٫۰. MaxDD واقعی ≤ ۸٪. tracking error واقعی در برابر paper موازی ≤ ۳۰٪. ۰ incident امنیتی یا خزانه‌ای. **امضای مالک.**
+
+### تنزل خودکار (Demotion)
+عبور از پلهٔ drawdown ‎−۱۵٪ (پایلوت ‎−۸٪)، incident امنیتی یا خزانه‌ای، نقض invariant، یا اختلاف تطبیق بیش از ۲۴ ساعت، سامانه را یک پله پایین می‌برد و به paper برمی‌گرداند تا RCA و امضای دوباره انجام شود.
+
+### ستارهٔ شمالی و نردبان
+ستارهٔ شمالی آرمانی (۱.۳) **معیار هیچ دروازه‌ای نیست** و نمی‌تواند دلیل ارتقا، افزایش اهرم یا تسریع پله‌ها باشد (INV-15). پیشرفت به سمت آن فقط گزارش می‌شود.
+
+### نقش Chief of Staff
+از L0 تا L4، Chief of Staff روزانه ژورنال را بازبینی می‌کند، گزارش هفتگی فارسی به مالک می‌دهد و می‌تواند هر پله را متوقف کند. در L5 فقط ممیزی ماهانه می‌ماند. حق kill و برداشت مالک هرگز حذف نمی‌شود.
+
+---
+
+## ۱۲. Invariantهای ایمنی (قفل‌شده؛ با تاریخ جدیدتر هم لغو نمی‌شوند)
+
+| ID | Invariant | اعمال‌کننده |
+|---|---|---|
+| INV-01 | **`PAPER_ONLY` تا وقتی مالک دروازهٔ G-L2 را امضا کند.** آداپتور زنده بدون فایل gate امضاشده بارگذاری نمی‌شود | گیتی، سپهر، تست‌ها |
+| INV-02 | **هیچ secret در فایل، git، log، prompt یا سند نیست** (کلید فقط در keychain، vault یا MPC) | سپهر، secret scan در CI |
+| INV-03 | **Lane A منجمد است** (CDA و paper E-01). تغییر فقط با امضای مالک. بررسی با `python3 -B scripts/freeze_lane_a.py` | گیتی، قاسم |
+| INV-04 | push ممنوع است (`NO_PUSH_owner_rule_local_only`). فقط commit محلی | گیتی |
+| INV-05 | خروجی LLM هرگز مستقیم سفارش نمی‌شود. فقط `ApprovedOrder` با مهر ریسک و انطباق | رامین، مریم |
+| INV-06 | برداشت فقط به allowlist (کیف مالک)؛ تغییر allowlist فقط به دست مالک با timelock | بابک، سپهر |
+| INV-07 | هیچ عاملی خودش یا استراتژی‌اش را ارتقا نمی‌دهد. promote فقط از طریق gate | گیتی |
+| INV-08 | دور زدن تحریم، geo-block یا KYC ممنوع است | مریم |
+| INV-09 | تغییر قانون اساسی، حاکمیت و اختیارات فقط با HUMAN-GATE | گیتی |
+| INV-10 | داده یا نتیجهٔ ساختگی ممنوع است. UNKNOWN همان UNKNOWN می‌ماند | عرفان |
+| INV-11 | kill switch مالک همیشه در دسترس است و قابل غیرفعال‌سازی نیست | رستم |
+| INV-12 | NAV و پوزیشن‌ها روزانه با venue تطبیق می‌شوند. در صورت اختلاف، ورود جدید ممنوع است | ژاله |
+| INV-13 | API key معاملاتی هرگز مجوز برداشت ندارد | سپهر |
+| INV-14 | AGI/SI فقط VISION است و هرگز ادعا نمی‌شود | عرفان، پریسا |
+| INV-15 | ستارهٔ شمالی «۱۰۰ دلار ← ۱ میلیون دلار» آرمانی است. هیچ سقف ریسک، اهرم، gate یا invariantی به خاطر آن تغییر نمی‌کند و موتور ریسک آن را نمی‌خواند | رامین، گیتی |
+| INV-16 | پاسخ `UNKNOWN` از دانشگاه در تصمیم BLOCKING یعنی «معامله نکن یا کوچک کن»، هرگز حدس | رامین، فرزانه |
+| INV-17 | عامل فقط در حوزهٔ دارای گواهی معتبر دانشگاه ACTIVE می‌شود. گواهی ≠ Permission | فرزانه، گیتی |
+
+---
+
+## ۱۳. نگاشت به مأموریت‌ها (M12 تا M19 + مأموریت‌های جدید)
+ترتیب M9 تا M19 تغییر نمی‌کند (D4). مأموریت‌های جدید بعد از آن یا موازیِ امن (فقط paper و testnet) اجرا می‌شوند.
+
+| مأموریت | محتوای افزوده از این سند | خروجی پذیرش |
+|---|---|---|
+| **M12** عامل‌ها | چرخهٔ عمر runtime طبق P1§14؛ منشور ۱۸ عامل جدید بر قالب مالک (۲.۳)؛ ثبت عدم تکرار (۲.۵)؛ نگاشت دو taxonomy برای تصمیم governance (۲.۶)؛ صندلی‌های تیم‌های الزامی (۲.۷)؛ ماتریس اختیار و وتو | رجیستری با state، تست مرز اختیار |
+| **M13** paper و یادگیری (+ طلا) | Paper روی دادهٔ زنده با `PaperAdapter`؛ Decision Record؛ حلقهٔ درس (NS-01)؛ track طلا (زرین) | ≥ ۱ ماه ردیف paper واقعی، ژورنال کامل |
+| **M14** هستهٔ مهندسی خودمختار | ثبت مراحل مأموریت در ledger؛ controller خودبهبودی با gate؛ آیدا و RCA | proposal ← gate ← promote با شواهد |
+| **M15** تناقض و شورا | پروتکل bull/bear، dissent، کالیبراسیون رأی، Black-Litterman views | شورا روی تصمیم‌های paper |
+| **M16** دانشگاه و GitHub | موتور یادگیری پیوسته (۸.۳): curriculum YAML، بانک آزمون + IRT، گواهی و بازگواهی، Knowledge Store با provenance، `ask()` AskU، چرخهٔ تیکت؛ خط لولهٔ ۹ مرحله‌ای (شیدا + `GH-2`)؛ پیلوت RD-Agent(Q) | ≥ ۱۰ claim رتبه‌دار؛ ۱ ارتقای بازتولیدشده؛ AskU با `asku_ref` در Decision Record؛ ۱ چرخهٔ کامل تیکت ← claim ← آیتم آزمون |
+| **M17** داشبورد | پنل ستارهٔ شمالی (۱.۳: پیشرفت لگاریتمی، `g_real` در برابر `g_req`، منحنی رشد–ریسک، ریسک ruin)؛ نمای دانشگاه (P1§95)؛ scorecard VISION/IMPLEMENTED؛ نمای خزانه (فقط خواندنی)؛ وضعیت gate؛ دکمهٔ kill؛ درخواست برداشت | بدون دادهٔ جعلی، فارسی |
+| **M18** اخبار، طلا و حسابداری | نگار (NLP + گمنام‌سازی)؛ میز طلا و نفت؛ ژاله (ledger، NAV، تطبیق) | تطبیق روزانهٔ paper بدون اختلاف |
+| **M19** چندبازاری و تأخیر کم | میزهای سهام آمریکا، اروپا و آسیا؛ futures (فرهاد)؛ یک حلقهٔ شناختی برای همه (NS-11) | ≥ ۴ کلاس دارایی در paper |
+| **M20 (جدید)** انتزاع بروکر | `BrokerAdapter`، OMS، آداپتورهای paper برای CCXT و IBKR (فقط sandbox یا paper account) | تست قرارداد آداپتور |
+| **M21 (جدید)** موتور ریسک v2 | Kelly کسری، vol targeting، سقف‌ها، HRP، نردبان DD، kill switchها، stress replay | تست property-based، drill |
+| **M22 (جدید)** خزانه و custody | طراحی multisig/MPC، allowlist، timelock، روی **testnet** | red team رضا پاس شود |
+| **M23 (جدید)** انطباق و صلاحیت venue | رجیستری `venue_eligibility`، غربال تحریم | سفارش به venue نامجاز = خطای ساختاری |
+| **M24 (جدید)** تخصیص‌گر سرمایه | امتیاز بین‌دارایی، `switching_cost`، rebalancing، sweep سود | سناریوی «روز ۴: سهم اروپایی» در paper |
+| **M25 (جدید)** ماراتن paper و ارزیاب gate | محاسبهٔ خودکار معیارهای G-L2 (DSR، PBO، WF) و گزارش امضا | گزارش با hash |
+| **M26 (جدید، HUMAN-GATE)** آمادگی پایلوت واقعی | چک‌لیست L2، کلید بدون برداشت، سقف ۱,۰۰۰ USDT | **فقط با امضای مالک** |
+| **M27 (جدید)** گردش کار برداشت مالک | درخواست، تأیید، timelock و انتقال روی testnet | ۰ مسیر خارج از allowlist |
+
+---
+
+## ۱۴. مراجع (همه واقعی و قابل‌بررسی)
+- **[R1]** Xiao, Sun, Luo, Wang. *TradingAgents: Multi-Agents LLM Financial Trading Framework.* arXiv:2412.20138 (2024). github.com/TauricResearch/TradingAgents
+- **[R2]** Yu et al. *FinMem: A Performance-Enhanced LLM Trading Agent with Layered Memory and Character Design.* arXiv:2311.13743 (2023).
+- **[R3]** Yu et al. *FinCon: A Synthesized LLM Multi-Agent System with Conceptual Verbal Reinforcement.* NeurIPS 2024. arXiv:2407.06567.
+- **[R4]** Zhang et al. *A Multimodal Foundation Agent for Financial Trading (FinAgent).* KDD 2024 (DOI 10.1145/3637528.3671801). arXiv:2402.18485 (با جستجوی وب تأیید شد، 2026-10-03). یک issue باز در مخزن GitHub آن گزارش می‌دهد که رسم K-line در حالت validation قیمت آینده را نشت می‌دهد؛ پیش از بازتولید بررسی شود.
+- **[R5]** Liu et al. *FinRL: A Deep Reinforcement Learning Library for Automated Stock Trading.* arXiv:2011.09607 (2020).
+- **[R6]** Liu et al. *FinRL-Meta: Market Environments and Benchmarks for Data-Driven Financial RL.* NeurIPS 2022 D&B. arXiv:2211.03107.
+- **[R7]** Yang, Liu, Wang. *FinGPT: Open-Source Financial Large Language Models.* arXiv:2306.06031 (2023).
+- **[R8]** Yang et al. *Qlib: An AI-oriented Quantitative Investment Platform.* arXiv:2009.11189 (2020). github.com/microsoft/qlib
+- **[R9]** Li et al. *R&D-Agent-Quant: A Multi-Agent Framework for Data-Centric Factors and Model Joint Optimization.* NeurIPS 2025. arXiv:2505.15155. github.com/microsoft/RD-Agent
+- **[R10]** Ansari et al. *Chronos: Learning the Language of Time Series.* arXiv:2403.07815 (2024).
+- **[R11]** Das et al. *A decoder-only foundation model for time-series forecasting (TimesFM).* arXiv:2310.10688 (2023).
+- **[R12]** Jiang, Kelly, Xiu. *(Re-)Imag(in)ing Price Trends.* Journal of Finance (2023).
+- **[R13]** Glasserman, Lin. *Assessing Look-Ahead Bias in Stock Return Predictions Generated by GPT Sentiment Analysis.* arXiv:2309.17322 (2023).
+- **[R14]** Lopez-Lira, Tang. *Can ChatGPT Forecast Stock Price Movements? Return Predictability and Large Language Models.* arXiv:2304.07619 (2023).
+- **[R15]** Chen et al. *StockBench: Can LLM Agents Trade Stocks Profitably in Real-World Markets?* arXiv:2510.02209 (2025).
+- **[R16]** *LiveTradeBench: Seeking Real-World Alpha with Large Language Models.* arXiv:2511.03628 (2025). همچنین *Agent Market Arena*، arXiv:2510.11695 (2025).
+- **[R17]** Li et al. *INVESTORBENCH: A Benchmark for Financial Decision-Making Tasks with LLM-based Agents.* ACL 2025.
+- **[R18]** Xie et al. *FinBen: A Holistic Financial Benchmark for Large Language Models.* NeurIPS 2024 Datasets & Benchmarks. arXiv:2402.12659.
+- **[R19]** Shinn et al. *Reflexion: Language Agents with Verbal Reinforcement Learning.* arXiv:2303.11366 (2023).
+- **[R20]** Yao et al. *ReAct: Synergizing Reasoning and Acting in Language Models.* arXiv:2210.03629 (2022).
+- **[R21]** Park et al. *Generative Agents: Interactive Simulacra of Human Behavior.* arXiv:2304.03442 (2023).
+- **[R22]** Zhang, Hu, Lu, Lange, Clune. *Darwin Gödel Machine: Open-Ended Evolution of Self-Improving Agents.* arXiv:2505.22954 (2025).
+- **[R23]** CCXT: CryptoCurrency eXchange Trading Library. github.com/ccxt/ccxt
+- **[R24]** López de Prado. *Advances in Financial Machine Learning.* Wiley (2018). (purged k-fold، CPCV، meta-labeling)
+- **[R25]** Bailey, López de Prado. *The Deflated Sharpe Ratio.* Journal of Portfolio Management (2014).
+- **[R26]** Bailey, Borwein, López de Prado, Zhu. *The Probability of Backtest Overfitting.* Journal of Computational Finance (2017).
+- **[R27]** Harvey, Liu, Zhu. *…and the Cross-Section of Expected Returns.* Review of Financial Studies (2016).
+- **[R28]** McLean, Pontiff. *Does Academic Research Destroy Stock Return Predictability?* Journal of Finance (2016).
+- **[R29]** Moskowitz, Ooi, Pedersen. *Time Series Momentum.* Journal of Financial Economics (2012).
+- **[R30]** Koijen, Moskowitz, Pedersen, Vrugt. *Carry.* Journal of Financial Economics (2018).
+- **[R31]** Asness, Moskowitz, Pedersen. *Value and Momentum Everywhere.* Journal of Finance (2013).
+- **[R32]** Liu, Tsyvinski, Wu. *Common Risk Factors in Cryptocurrency.* Journal of Finance (2022).
+- **[R33]** Black, Litterman. *Global Portfolio Optimization.* Financial Analysts Journal (1992).
+- **[R34]** MacLean, Thorp, Ziemba (eds.). *The Kelly Capital Growth Investment Criterion.* World Scientific (2011).
+- **[R35]** Moreira, Muir. *Volatility-Managed Portfolios.* Journal of Finance (2017).
+- **[R36]** López de Prado. *Building Diversified Portfolios that Outperform Out of Sample (HRP).* Journal of Portfolio Management (2016).
+- **[R37]** Du et al. *Improving Factuality and Reasoning in Language Models through Multiagent Debate.* arXiv:2305.14325 (2023).
+- **[R38]** Ledoit, Wolf. *A Well-Conditioned Estimator for Large-Dimensional Covariance Matrices.* Journal of Multivariate Analysis (2004).
+- **[R39]** Almgren, Chriss. *Optimal Execution of Portfolio Transactions.* Journal of Risk (2000).
+- **[R40]** Lu et al. *The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery.* arXiv:2408.06292 (2024).
+- **[R41]** Wang et al. *Voyager: An Open-Ended Embodied Agent with Large Language Models.* arXiv:2305.16291 (2023).
+- **[R42]** Bai et al. *Constitutional AI: Harmlessness from AI Feedback.* arXiv:2212.08073 (2022).
+- **[R43]** Kelly. *A New Interpretation of Information Rate.* Bell System Technical Journal (1956).
+- **[R44]** Chin, Ingenoso. *Risk Formulæ for Proportional Betting* (2006). (P(a) = a^(2/k−1))
+- **[R45]** Brier. *Verification of Forecasts Expressed in Terms of Probability.* Monthly Weather Review (1950).
+- **[R46]** Guo, Pleiss, Sun, Weinberger. *On Calibration of Modern Neural Networks.* ICML 2017. arXiv:1706.04599.
+- **[R47]** Embretson, Reise. *Item Response Theory for Psychologists.* Lawrence Erlbaum (2000).
+- **[R48]** Lewis et al. *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.* NeurIPS 2020. arXiv:2005.11401.
+- **[R49]** Robertson, Zaragoza. *The Probabilistic Relevance Framework: BM25 and Beyond.* Foundations and Trends in IR (2009).
+- **ابزارها و مقررات:** NautilusTrader، LEAN (QuantConnect)، vectorbt، backtrader، freqtrade، hummingbot، Safe (multisig)، NIST AI RMF 1.0 (2023)، SEC Rule 15c3-5، MiFID II RTS 6، OFAC ITSR (31 CFR 560)، EU Reg. 267/2012.
+
+---
+
+## ۱۵. افزوده‌های مالک (Owner Additions)
+> این بخش برای ایده‌های آیندهٔ مالک است. قالب هر ردیف: `OA-xx | تاریخ | ایده | مأموریت پیشنهادی | وضعیت (NEW/ASSIGNED/DONE/SUPERSEDED)`. ایدهٔ جدیدتر بر قدیمی‌تر غلبه می‌کند، به‌جز invariantهای بخش ۱۲.
+
+| ID | تاریخ | ایده | مأموریت | وضعیت |
+|---|---|---|---|---|
+| OA-01 | 2026-10-03 | معاملهٔ خودمختار در طلا، نفت، کریپتو، توکن و سهام سه قاره؛ spot و futures؛ long و short | M13/M18/M19/M20 | ASSIGNED |
+| OA-02 | 2026-10-03 | خزانهٔ USDT با تخصیص، جابه‌جایی بین بروکرها و برداشت سود به کیف مالک | M22/M24/M27 | ASSIGNED |
+| OA-03 | 2026-10-03 | دانشگاه، ژورنال تصمیم و عامل‌های پژوهشگر GitHub و مقالات | M14/M16 | ASSIGNED |
+| OA-04 | 2026-10-03 | پول واقعی فقط پس از دانش کامل، paper طولانی و پرسود و امضای مالک | M25/M26 | ASSIGNED (HUMAN-GATE) |
+| OA-05 | 2026-10-03 20:20 | ستارهٔ شمالی آرمانی: «۱۰۰ دلار ← ۱ میلیون دلار در کمتر از یک ماه»؛ فقط برای پژوهش و محک توان (VISION)، نه هدف عملیاتی یا وعده؛ invariantهای ریسک بدون تغییر (۱.۳، INV-15) | M16/M17 | ASSIGNED (VISION) |
+| OA-06 | 2026-10-03 20:20 | دانشگاه = موتور یادگیری پیوسته: پژوهش دائمی و تزریق دانش؛ آزمون دوره‌ای، گواهی و بازگواهی با حد قبولی برای ورود به معاملهٔ paper؛ AskU اجباری هنگام مشکل؛ پژوهش فنی پیوسته برای ارتقا (۸.۳) | M16 | ASSIGNED |
+| OA-07 | 2026-10-03 20:20 | ساخت عامل‌ها بر قالب منشور خود مالک (P1§15، P1§11، P1§13، P1§14، P2§65) و استفادهٔ مجدد از عامل‌های تعریف‌شده در اسناد مالک (۲.۳، ۲.۵ تا ۲.۷) | M12 | ASSIGNED |
+| OA-08 | | *(ایدهٔ بعدی مالک)* | | |
