@@ -115,11 +115,15 @@ export function isPronounQuery(text: string): boolean {
 // ("چرا برنامه ارور میده؟", "داده‌ها آپدیت شدن؟") do not match.
 const DEV_TOPIC_RE = /(دانشگاه|دانش گاه|عامل(ها|های)?|اجنت|agents?|سیستم|توسعه|آپدیت|اپدیت|به روزرسانی|به‌روزرسانی|فیچر|قابلیت جدید|ماموریت توسعه|مهندس|کد ?نویس|university|features?|engineering)/;
 const DEV_VERB_RE = /(بساز|ساختن|اضافه کن|اضافه شود|آپدیت کن|اپدیت کن|بنویس|نوشتن|راه انداز|راه‌انداز|راه بنداز|بنداز|پیاده کن|پیاده‌سازی|بهتر کن|بهبود بده|فعال کن|راه‌اندازی کن|توسعه بده|\bbuild\b|\bcreate\b|\badd\b|\bimplement\b|\bupdate\b|\boperationalize\b|\bset up\b)/;
+// MN-12: inspection/status requests are not engineering work even when they name a
+// dev topic — "سیستم رو چک کن", "agents رو بررسی کن" must stay normal conversation.
+const DEV_NEGATIVE_RE = /(چک کن|چک کردن|بررسی کن|بررسی کنم|کنترل کن|وضعیت|گزارش|عیب ?یابی|دیباگ|اشکال ?زدایی|check|inspect|debug|status)/i;
 
 /** "دانشگاه رو بساز", "عامل‌ها رو راه بنداز", "add a feature for gold alerts" … */
 export function isDevMissionRequest(text: string): boolean {
   const t = normalizeIntentText(text);
   if (!t) return false;
+  if (DEV_NEGATIVE_RE.test(t)) return false;
   return DEV_TOPIC_RE.test(t) && DEV_VERB_RE.test(t);
 }
 

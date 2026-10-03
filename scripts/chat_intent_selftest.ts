@@ -108,6 +108,11 @@ const CASES: Array<[string, string]> = [
   ["عامل", "general"],
   // No dev topic: "بهتر کن" alone is not an engineering request (the agent handles it).
   ["تحلیل بازار رو بهتر کن", "market"],
+  // MN-12: inspection/status phrasings are not engineering work, even with a dev topic.
+  ["سیستم رو چک کن", "general"],
+  ["سیستم رو بررسی کن", "general"],
+  ["agents رو بررسی کن", "general"],
+  ["وضعیت سیستم رو کنترل کن", "health"],
 ];
 
 describe("intent router regression (Persian phrasings)", () => {

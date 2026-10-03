@@ -91,7 +91,7 @@ A repository-wide search for `university`, `research_registry`, `skill_registry`
 
 | Namespace | Source | Count | Honest class |
 |---|---|---|---|
-| `agent.*` | `architecture/registry.py` (`CANONICAL_AGENT_IDS`) | 19 | **[IMPLEMENTED]** policy model — no runtime, no external I/O |
+| `agent.*` | `ahos_org/registry.py` (`CANONICAL_AGENT_IDS` at line 14; `AgentRegistry` at line 177 — verified at 3eea757) | 19 | **[IMPLEMENTED]** policy model — no runtime, no external I/O |
 | `AG-*` | `config/agent_registry.yaml` | 25 | machine-readable ops registry; `orchestrated: 0` for every agent |
 | `AGENT-*` | `docs/AGENT_MAPPING.md` (Phase-1 frozen lock) | 10 (+15 expert roles) | frozen two-layer map; documentary |
 | `agent.org.*` | `docs/agents/PLANNED_19_AGENT_MAP.md` | 19 | **[PLANNED]** documentary blueprint; not seeded in code |
@@ -145,7 +145,7 @@ In dependency order — each row blocks the rows below it:
 Each phase is strictly gated: nothing below starts before the row above reports TESTED with receipts, and no phase claims more than its own ladder state. All work stays PAPER_ONLY; no phase touches live trading, credentials, or Lane A.
 
 ### Phase U0 — Truth baseline for the org (before any agent code)
-- Freeze a single **canonical agent inventory** sheet: for each of the 19 Slice-1 anchors, its current code anchor, its maturity, its capability set, and *what evidence would be needed* for `advance_maturity`. Source from `architecture/registry.py`, `agent_taxonomy_map.json` and `docs/agents/PLANNED_19_AGENT_MAP.md`; do not merge namespaces, just tabulate them side by side.
+- Freeze a single **canonical agent inventory** sheet: for each of the 19 Slice-1 anchors, its current code anchor, its maturity, its capability set, and *what evidence would be needed* for `advance_maturity`. Source from `ahos_org/registry.py` (verified at 3eea757), `agent_taxonomy_map.json` and `docs/agents/PLANNED_19_AGENT_MAP.md`; do not merge namespaces, just tabulate them side by side.
 - Add a **regression guard** that fails if a new namespace silently collapses an existing one (extends `tests/test_agent_taxonomy_map.py`).
 - Deliverable: a reviewed document, no behaviour change. Ladder target: VERIFIED (it is a document about code, and it is checkable).
 - Human-gated input needed: which namespace is authoritative for M11. Do not decide this unilaterally.

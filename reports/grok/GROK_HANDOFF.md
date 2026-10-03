@@ -153,7 +153,7 @@ The chat assistant cannot write code. When the owner asks for engineering work (
 
 **Not done / open:**
 - No live gateway POST this run (the gateway was not restarted; hot-reload picks up the TS on the next request). A live end-to-end «دانشگاه رو بساز» → code → «تایید CODE» → queued line is **unverified**.
-- The queue has **no consumer**: nothing reads it yet. The future mission-controller layer (M12 in the mission plan) is the intended reader; the store's own docstring says so.
+- The queue has **no consumer**: nothing reads it yet. The future mission-controller layer (M13, "autonomous engineering core", in the mission plan) is the intended reader; the store's own docstring says so.
 - `AHOS_DEV_MISSIONS_PATH` is not in any config-validation scan (same as `AHOS_CONTROL_AUDIT_PATH` — pre-existing gap).
 - A gateway reload does not lose queued missions (they are on disk), only pending proposals.
 - Recorded missions are never shown as done; there is deliberately no DONE/COMPLETED status.
