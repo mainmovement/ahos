@@ -673,3 +673,20 @@ npm run test:chat-control-gate    # 131 — includes the MN-1 pepper block
   - **M19 (new)** = multi-market, low-latency research path, environment/audio polish.
   - The gold-paper track runs inside M13 (OWN-18).
   - OWN-6 (autonomy) and OWN-7 (live everywhere) are HUMAN-GATE contradictions; PAPER_ONLY stands.
+
+## All-docs traceability + supersession rule (added 2026-10-03 evening by Grok)
+
+- The matrix is one interlinked set: `reports/grok/OWNER_DIRECTIVE_TRACEABILITY.md` (OD rows) + `reports/grok/ALL_DOCS_TRACEABILITY.md`.
+  The second file holds AD rows (every governing doc), CH rows (owner chat 2026-10-03), NS rows (North Star capability items),
+  the doc inventory, the supersession register and the DECIDED contradictions.
+- **Every mission ticks its rows** (OD/AD/CH/NS) at close: update Status/Evidence with the commit and test. No evidence means the row stays open.
+- **Newest owner statement wins.** Treat SUPERSEDED/REMOVED rows as history, never as requirements. Locked regardless of date:
+  PAPER_ONLY, no secrets, no push, constitution/authority/Lane A changes.
+- **Mission stages (owner, 2026-10-03):**
+  - Prompt review by آرش + the domain specialist + پروانه + گیتی.
+  - Build by the domain agents.
+  - Delivery sign-off by قاسم, رضا, عرفان.
+  - Record each stage in the mission report (M14 moves this into `architecture/mission/ledger.py`).
+- M10 store is embedded PGlite (D3), with portable PG via pg_ctl as the fallback. The launcher has no Docker and no visible console windows.
+- Owner vision `reports/grok/AHOS_AUTONOMOUS_VISION.md` (2026-10-03) is the newest owner statement for target architecture.
+  It adds missions M20–M27, the aspirational $100→$1M North Star (benchmark only, INV-15) and invariants INV-01..17 (locked). Its rows are OWN-AV-## in ALL_DOCS_TRACEABILITY.md.

@@ -709,3 +709,7 @@ Each mission must tick off its rows: when it closes, change the Status cell to I
 | OD-593 | OWN-36 | Telegram bot run by an agent group: easy chat for any request; same super-AI inside local dashboard; AGI/ACI; learn from Grok bot | TGAI | IMPLEMENTED+TESTED | telegram_ai/ + chat.ts/chat_agent.ts (71fe160, 231e7ac), GM-02 552eda7, W57 82dcfb7, tests/test_telegram_*.py, scripts/chat_agent_selftest.ts | M17 extend |
 | OD-594 | OWN-37 | Propose dashboard design; replace tree/roots if unsuitable with most beautiful patterns; AGI/ACI in dashboard design | DASHDESIGN | EXISTS-PARTIAL (reuse/extend) | advanced-3d-audiovisual-website/, 01/src (wise-tree, atmosphere), 3 more 3D trees (duplicates) | M17 (consolidate first) |
 
+
+## Companion matrix
+
+All other governing docs, CH/NS/OWN-AV rows, supersession register and DECIDED contradictions: [ALL_DOCS_TRACEABILITY.md](ALL_DOCS_TRACEABILITY.md). Every mission ticks its OD/AD/CH/NS rows at close; the newest owner statement wins. OD-416 is SUPERSEDED on priority by OD-575 (D4).
