@@ -28,15 +28,22 @@ def test_chat_gate_runs_before_snapshot_and_agent():
     i_detect = body.index("detectIntent(text)")
     i_gate = body.index("gateChatControl(")
     i_audit = body.index("recordControlAudit(")
-    i_main_snapshot = body.index("const snap = await commandSnapshot()")
-    # MJ-4: control intents are gated and (for owners) turned into proposals
-    # BEFORE the main snapshot is taken or the conversational agent runs.
+    # MJ-4/MJ-12: handleChat never calls the live snapshot directly — it goes
+    # through the takeSnapshot() seam (which in production delegates to
+    # commandSnapshot). Control intents are therefore always gated before any
+    # data is read or the conversational agent runs.
+    i_main_snapshot = body.index("const snap = await takeSnapshot()")
     assert i_detect < i_gate < i_audit < i_main_snapshot
     gate_block = body[i_gate:i_main_snapshot]
     assert "if (gate.controlled)" in gate_block
     assert 'decision: "REFUSED"' in gate_block
     assert "propose(store, kind" in gate_block  # owner → proposal, never execution
     assert "return {" in gate_block
+    # The live snapshot is reachable only through the seam.
+    seam = src[src.index("async function takeSnapshot"):]
+    seam = seam[: seam.index("\n}\n")]
+    assert "commandSnapshot()" in seam
+    assert "commandSnapshot()" not in body
 
 
 def test_chat_no_substring_stop_or_start_patterns():
