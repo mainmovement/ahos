@@ -1,4 +1,15 @@
 # AHOS — PROJECT STATE MAP (Forensic Audit) — 2026-08-11 (wave-4)
+
+> **SUPERSEDED — do not quote statuses.** This map's own taxonomy
+> (A Designed → E Production Ready) predates the owner-directive evidence ladder
+> (§76: `PLANNED < PARTIAL < IMPLEMENTED < TESTED < VERIFIED < OPERATIONAL`),
+> and its line-4 definition of "Verified" — "independently re-checked by
+> automated tooling this session" — is exactly what directive §76 forbids as
+> grounds for `VERIFIED`: self-tests cap a capability at `TESTED`. Several
+> capabilities marked D/E here had, and still have, no runtime artifact at all.
+> Authoritative per-capability state with evidence tiers:
+> `reports/grok/REMAINING_REALITY_REGISTER.md` (2026-10-03).
+
 # Project: Artificial Hybrid Opportunity Scoring System (Early Crypto Opportunity Intelligence & Decision Support; NOT a trading bot).
 # Status taxonomy (mandatory): A Designed · B Implemented · C Tested · D Verified · E Production Ready
 # "Verified" = independently re-checked by automated tooling this session, not just claimed.

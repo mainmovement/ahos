@@ -1,4 +1,14 @@
 # AHOS Phase XXII — Global Intelligence Reality Audit Report
+
+> **STALE — 2026-08-15, superseded.** Where this audit marks an intelligence
+> capability `VERIFIED`/`COMPLETE`, the current evidence does not support above
+> `PLANNED` or `IMPLEMENTED`: news collection is wired in `news.ts` but **no news
+> payload or news row exists in any committed store**; the university has no
+> code namespace at all (mission-ordered to M15); gold is directive text only;
+> and the epistemic contradiction graph (`architecture/knowledge/`) has 0 live
+> claims. Authoritative state per capability:
+> `reports/grok/REMAINING_REALITY_REGISTER.md` (2026-10-03).
+
 **Audit Date:** 2026-08-15  
 **Auditor:** Senior Lead System Architect & Production Engineer  
 **Epistemic Standard:** DATA > AI | EVIDENCE > OPINION | PROVENANCE MANDATE

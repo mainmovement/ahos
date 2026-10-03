@@ -1,4 +1,14 @@
 # AHOS — COMPONENT REUSE MAP — 2026-08-11
+
+> **STALE PATHS — 2026-10-03 (M9).** This map was written before the Lane
+> A/Lane B split and cites bare module paths that no longer resolve as written
+> (e.g. `engine/acquire_3yr.py`, `strategy_lab/lab_engine.py` under their old
+> roots). Treat the *reuse patterns* as still valid guidance, but verify every
+> cited path against the current tree before acting on it; canonical paths now
+> live under `architecture/` (Lane B) and `discovery/` + `paper_trading/`
+> (frozen Lane A). For capability state rather than reuse guidance see
+> `reports/grok/REMAINING_REALITY_REGISTER.md`.
+
 | New need | Reuse | Action | Maturity after |
 |---|---|---|---|
 | Market klines/funding/OI | engine/acquire_3yr.py + research/data | REUSE as-is | D |

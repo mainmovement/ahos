@@ -1,5 +1,15 @@
 # AHOS — Canonical Implementation Matrix
 
+> **SNAPSHOT — 2026-08-27, superseded for readiness purposes.** This matrix was
+> compiled on branch `cursor/ahos-cleanup-alignment-4bde` (no longer active; the
+> project now runs on `ahos`) and its statuses have not been re-derived since.
+> It is retained as the implementation map it is — canonical source, expected
+> capability, relevant files and tests per requirement. For the **current**
+> capability state read `reports/grok/REMAINING_REALITY_REGISTER.md`, which
+> re-queried live artifacts on 2026-10-03 and applies the owner-directive
+> evidence ladder (docs cap at `PLANNED`/`DESIGN`; self-tests cap at `TESTED`).
+> Where the two disagree, the register is authoritative.
+
 **Date:** 2026-08-27  
 **Branch:** `cursor/ahos-cleanup-alignment-4bde`  
 **Authority inputs:** `docs/canonical/MASTER_DIRECTIVE_v1.md`, `MASTER_DIRECTIVE_W43.md`, `AHOS_GAP_REGISTER.md`, `docs/DOC_TRUTH_MAP.md`, source + tests  
@@ -10,7 +20,7 @@ Status alphabet: `COMPLETE` · `PARTIAL` · `MISSING` · `BROKEN` · `BLOCKED_EX
 | Requirement | Canonical Source | Expected Capability | Current Implementation | Relevant Files | Relevant Tests | Evidence | Status | Gap | Priority | Blocking Reason | Required Action |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | Early multi-source discovery | Doctrine + DMS | Collect emerging pairs with provenance | Collector + discovery poller implemented | `architecture/collector/`, `discovery/`, `architecture/providers/` | `tests/test_discovery.py`, provider tests | Agent-host LIVE SUCCESS 2026-08-27 | COMPLETE | Laptop re-probe residual | Med | Operator egress may differ | OA-3 on Windows laptop |
-| Narrative intel feed-through | R-69/R-80 | News atoms in scored reports | `attach_narrative` + orchestrator prefetch | `architecture/intel/news.py`, `scoring/engine.py`, `pipeline/orchestrator.py` | `test_narrative_and_intel_feed_through` | Live DERIVED atoms | COMPLETE | — | — | — | Keep AHOS_NARRATIVE_FETCH documented |
+| Narrative intel feed-through | R-69/R-80 | News atoms in scored reports | `attach_narrative` + orchestrator prefetch | `architecture/intel/news.py`, `architecture/scoring/engine.py`, `architecture/pipeline/orchestrator.py` | `test_narrative_and_intel_feed_through` | Live DERIVED atoms | COMPLETE | — | — | — | Keep AHOS_NARRATIVE_FETCH documented |
 | Market structure / tokenomics / catalysts | Backlog P1 | Honest microstructure + tokenomics + catalysts | Lane B intel modules | `architecture/intel/market_structure.py`, `tokenomics.py`, `catalyst.py` | feed-through + contract tests | Live DERIVED | COMPLETE | Unlock schedules UNKNOWN by design | Low | Data scarcity | Do not fabricate vesting |
 | Scoring semantic contract | P1-5 | Shared field dictionary Py↔TS | Contract JSON + tests | `docs/contracts/scoring_contract_v1.json` | `test_scoring_contract_v1` | Present | COMPLETE | Numeric parity deferred | Low | Dual engines | Optional parity harness |
 | Multi-chain / DEX / launchpad | Provider registry | Replaceable providers + pump.fun | Router + CMC + pumpfun adapters | `architecture/providers/*` | `test_coinmarketcap_adapter`, `test_pumpfun_adapter`, `test_provider_yaml_sync` | Offline PASS | COMPLETE | Live probe | Med | Egress | M-GAP-007 |
@@ -45,14 +55,24 @@ Status alphabet: `COMPLETE` · `PARTIAL` · `MISSING` · `BROKEN` · `BLOCKED_EX
 
 ## Summary counts (rows above)
 
+Recounted 2026-10-03 (M9) against the 33 rows in this table; a prior count of
+29 rows had drifted as rows were added without recounting.
+
 | Status | Count |
 |--------|------:|
-| COMPLETE | 16 |
-| PARTIAL | 8 |
-| BLOCKED_EXTERNAL | 2 (+ live legs of COMPLETE rows) |
+| COMPLETE | 17 |
+| PARTIAL | 10 |
+| BLOCKED_EXTERNAL | 3 (+ live legs of COMPLETE rows) |
 | DEFERRED_BY_DESIGN | 2 |
 | NOT_IMPLEMENTED | 1 (AG-25 live harvest) |
 | MISSING / BROKEN / CONTRADICTORY | 0 in scanned core after acceptance pass |
+
+**These statuses date from 2026-08-27 and several have since moved.** For the
+current ladder position of each capability see
+`reports/grok/REMAINING_REALITY_REGISTER.md` — that register is evidence-tiered
+(tests / runtime / soak / docs) and re-queried live artifacts, whereas this
+matrix is a single-date snapshot. Where the two disagree, the register is
+authoritative.
 
 ## Closable now vs not
 

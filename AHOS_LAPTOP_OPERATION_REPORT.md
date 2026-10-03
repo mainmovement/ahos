@@ -1,5 +1,13 @@
 # AHOS Laptop Operation Report
 
+> **STALE ROW — corrected 2026-10-03 (M9).** Any row in this report claiming
+> zero eligible prediction↔outcome join pairs is wrong and was traced to
+> `lifecycle_status()` hard-coding `eligible_join_pairs_estimate = 0` (failure
+> memory FM-007, fixed in `0b878be`). The live intersection of 19 labeled tokens
+> with 20,744 predicted tokens is **10**, and the calibration report built from
+> the same databases holds **6,037 eligible pairs**. Re-derive any number here
+> from the current artifacts rather than quoting it.
+
 **Phase 13 — Local Laptop Real Operation Gate**
 **Report status:** `AWAITING_LAPTOP_EXECUTION`
 **Last agent-side verification:** 2026-08-18 · commit `50d047d` · branch `arena/01a015c9-ahos`

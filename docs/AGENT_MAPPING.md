@@ -1,4 +1,16 @@
 # AHOS — AGENT MAPPING FINAL
+
+> **SUPERSEDED AGENT MODEL — 2026-08-27 reconciliation.** The "10 system AGENTS
+> × 15 expert ROLES (frozen)" model below is **not** the current agent registry.
+> The live registry is `ahos_org/registry.py::CANONICAL_AGENT_IDS` — 19 logical
+> agents (`agent.chief-orchestrator` … `agent.release-governance-reviewer`) —
+> pinned by `config/agent_registry.yaml` and governed by
+> `ahos_org/policy.py` (maturity floor 2 = `IMPLEMENTED` before any agent may
+> execute; `trading.live` is a global-deny capability for all 19). The
+> M3 reconciliation reclassified this file's two-layer model as a separate org
+> layer, not the runtime plane. None of the 19 agents has yet reached the
+> maturity floor, and no orchestrator dispatches to them — see register §3-part2
+> in `reports/grok/REMAINING_REALITY_REGISTER.md`.
 # Two-layer model (frozen): 10 system AGENTS (runtime actors) × 15 expert ROLES (review function).
 # The 15 expert roles never bypass the 10-agent chain; they REVIEW its outputs per MULTI AGENT REVIEW RULE.
 

@@ -1,4 +1,15 @@
 # AHOS — UNIFIED PHASE STATE (2026-08-11, wave-5: Mission v1.1 Discovery Core online)
+
+> **SUPERSEDED — 2026-10-03 (M9).** This page is the source of several
+> readiness claims the current evidence contradicts — most notably P15 presented
+> as "C Tested (first live cycle executed)" for paper trading while **no position
+> has ever been closed** (`paper_exits = 0`, `winning_trades = 0`,
+> `losing_trades = 0` across all 15 cycle reports; `data/paper_trading.sqlite`
+> is 100% empty). Its own line 12 — "paper loop not yet run live-instance" — is
+> the accurate statement. The scorecard below also predates the directive §76
+> evidence ladder. Authoritative state:
+> `reports/grok/REMAINING_REALITY_REGISTER.md`.
+
 # Single page truth for "where are we". Cross-refs ISSUES_REGISTER for contradictions resolved.
 # Mission v1.1: Early Opportunity Discovery Core = PAL + E-01 + feature store + security gate;
 # rank-first (no numeric score until research gate); LIVE execution CLOSED (unchanged, binding).

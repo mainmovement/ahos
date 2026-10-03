@@ -1,4 +1,13 @@
 # AHOS Phase XXI — Production Reality Audit Report
+
+> **STALE — 2026-08-15, superseded for ladder purposes.** This audit assigns
+> `VERIFIED` on the strength of unit tests and agent-side re-checks. Owner
+> directive §76 is explicit: passing self-tests support `TESTED` at most;
+> independent verification against real data is what separates `TESTED` from
+> `VERIFIED`. Treat every `VERIFIED` in this file as `TESTED` unless a later
+> runtime artifact substantiates it. Authoritative, evidence-tiered state:
+> `reports/grok/REMAINING_REALITY_REGISTER.md` (2026-10-03).
+
 **Audit Date:** 2026-08-15  
 **Auditor:** Senior Lead System Architect & Production Engineer  
 **Standard:** Strict Truth-to-Code Audit (Evidence > Claims, Executable Verification Mandatory)

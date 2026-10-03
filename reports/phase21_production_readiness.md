@@ -1,4 +1,14 @@
 # AHOS Phase XXI — Production Readiness Scorecard
+
+> **STALE — 2026-08-15, superseded.** This scorecard's headline readiness rating
+> (a numeric score out of 100 with a "PRODUCTION READY" reading) predates the
+> owner-directive evidence ladder (§76), under which self-tests and
+> agent-computed scores cannot support a readiness verdict above `TESTED`. No
+> soak has run, no paper position has ever been closed (0/30), and
+> `OPERATOR_READY` remains `NOT_VERIFIED`. **Do not quote its score as current.**
+> Authoritative capability state: `reports/grok/REMAINING_REALITY_REGISTER.md`
+> (evidence-tiered, live artifacts re-queried 2026-10-03).
+
 **Audit Date:** 2026-08-15  
 **Evaluation Standard:** Zero-Inflation Objective Evidence Scoring
 

@@ -1,5 +1,12 @@
 # AHOS — Canonical System Status & Reality Audit Report
 
+> **SUPERSEDED — 2026-08-19.** The branch this report audits
+> (`arena/01a01b0c-ahos`, PR #10) no longer exists; the project runs on `ahos`.
+> Its `VERIFIED`/`READY` classifications were not derived under the
+> owner-directive evidence ladder and are not current. Retained as a historical
+> audit record only. Current authority: `docs/DOC_TRUTH_MAP.md` →
+> `reports/grok/REMAINING_REALITY_REGISTER.md`.
+
 **Date of Audit:** 2026-08-19  
 **System Identity:** AHOS (Autonomous Hybrid Opportunity System)  
 **Repository:** `https://github.com/mainmovement/ahos`  

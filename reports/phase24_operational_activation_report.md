@@ -1,4 +1,13 @@
 # AHOS PHASE XXIV — OPERATIONAL ACTIVATION REPORT
+
+> **STALE — 2026-08-15, superseded.** Any "READY" verdicts in this report
+> describe design or component completeness, not operational status. Under the
+> owner-directive evidence ladder, `OPERATIONAL` requires a documented soak with
+> an externally observable feed; the pre-soak entry condition itself is still
+> `NOT_VERIFIED` (`reports/PRE_SOAK_STATUS.txt`). No capability in this report
+> was operating continuously then, and none is now. Authoritative capability
+> state: `reports/grok/REMAINING_REALITY_REGISTER.md`.
+
 **Execution Timestamp:** 2026-08-15  
 **Mission:** Operational Activation & Continuous Intelligence System Hardening  
 **Auditor:** Senior Lead System Architect & Production Engineer
