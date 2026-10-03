@@ -170,6 +170,10 @@ Remove-Variable tok
 
 ## 2. Per-phase summary
 
+**Newest first: Phase 9.5 + 9.6** — corrective mission closing every finding in
+two independent reviews; see its own section below and
+`reports/grok/reviews/FIX_MATRIX_PHASE9_5_9_6.md`.
+
 ### Phase 1: reality inspection (docs only), `78fa1e2`
 - **Built:** `reports/grok/GROK_SESSION_2026-10-02_REALITY_INSPECTION.md`, `TELEGRAM_REALITY_MAP.md`, `DOCKER_N8N_DEPENDENCY_MAP.md`, `DASHBOARD_ONECLICK_REALITY.md`, `MISSION_DISCOVERY_2026-10-02.md` (missions GM-01…GM-12), `GROK_HANDOFF.md`.
 - **Findings that drove later phases:**
@@ -522,7 +526,73 @@ git log --oneline -8               # M9 commits: 629e757 3b0da90 0b878be 1834779
 
 ---
 
-## 3. Known limitations and open items (all phases)
+### Phase 9.5 + 9.6 (2026-10-03, Claude/Atria, 12:14 Tehran): corrective mission — every finding in two independent reviews closed
+
+Two independent reviews of the local commits landed and were worked through to
+exhaustion:
+
+- `reports/grok/reviews/REDTEAM_19_LOCAL_COMMITS_20261002-2313.md` — B1, M1–M4, m1–m7
+- `reports/grok/reviews/LOCAL_COMMITS_5_HARDMODE_REVIEW.md` — BL-1..3, MJ-1..13, MN-1..12
+
+**Authoritative record: `reports/grok/reviews/FIX_MATRIX_PHASE9_5_9_6.md`** —
+one row per finding id → status → commit → the exact test a reviewer re-runs.
+No row is NOT FIXED, PARTIAL, or HUMAN-GATED. Full narrative: handoff
+§Phase 9.5 + 9.6.
+
+Commits: `0638643` (9.5) and `8e54953`, `832f0ce`, `6b2e0f6`, `5974da0`,
+`e22a154`, `da651af`, `c127f68`, `dbc9125` (9.6). All local; pushes still paused.
+
+**What this changed about the chat control path** (the substance, not the
+bookkeeping): identity is server-proven or it is nothing — `isOwner` requires
+`id.proven` plus `TELEGRAM_ADMIN_USER_IDS`, and the reader allowlist grants read
+only; the client-claimed channel is recorded in the audit as a claim and never
+consulted for the decision. An EXECUTING audit record is written before anything
+runs and a broken sink aborts the action and burns the code. Confirm codes are
+single-use, bound to the identity that proposed them, hashed in the queue, and
+rate-limited at 5 guesses. Secrets are redacted globally — summary, title, DB
+insert, memory copy, and before Gemini. As of `dbc9125` the audit hashes are
+HMAC-SHA256 keyed by a local pepper, so Telegram ids are not brute-forceable and
+short commands are not dictionary-reversible.
+
+**Verification state (all exit 0)**
+
+| Check | Result |
+|---|---|
+| `npx tsc --noEmit -p .` | 0 errors |
+| `npm run lint` | 0 problems |
+| self-test suites | 15/15, 414 tests, 0 failures |
+| `pytest tests/test_chat_control_gate_static.py` | 12 passed |
+
+Suite breakdown: chat-control-gate 131, chat-intent 76, chat-reply-format 48,
+dashboard-truth 34, chat-agent 30, canonical-security 19, chat-auth 23,
+canonical-read-model 13, dev-missions 14, gemini-egress 13, gemini-phraser 12,
+chat-actions 18, chat-handlechat 18, alert-banner 8, web-api-auth 9.
+
+**How to continue (Phase 9.5 + 9.6)**
+```powershell
+cd G:\robat\ahos
+git log --oneline -10   # 9.6: dbc9125 c127f68 da651af e22a154 5974da0 6b2e0f6 832f0ce 8e54953; 9.5: 0638643
+cat reports/grok/reviews/FIX_MATRIX_PHASE9_5_9_6.md   # re-run any row's test column
+npm run test:chat-handlechat      # 18 — DB-free end-to-end gate harness
+npm run test:chat-control-gate    # 131 — includes the MN-1 pepper block
+.venv\Scripts\python.exe tests\test_chat_control_gate_static.py   # 12
+```
+
+- **Reality-ladder cap for this phase: TESTED.** The two reviews were the
+  independent pass; the fixes are pinned by self-tests. A third party re-running
+  the matrix's test column is what lifts it to VERIFIED — no claim here says
+  that has happened.
+- Two failures were hit and fixed in-phase (both recorded in the handoff): the
+  append-only static pin tripped on the pepper file's `writeFileSync` (re-scoped
+  to `FileAuditSink`, the invariant's real subject, and strengthened with a
+  `mode: 0o600` assertion), and a stray `data/.id_pepper` written during tests
+  (fixed by pinning `AHOS_ID_PEPPER` in every suite that touches the audit path;
+  `data/` is gitignored, so nothing was committed).
+- No new execution surface; PAPER_ONLY unchanged; Lane A untouched; no secret
+  printed or committed (the masked scan of `5974da0` found 0 hits).
+
+---
+
 1. Blocker A (Claude, GM-01).
 2. GM-04 independent review, now including the **Phase 7b owner confirm-gated path** (GM04 doc §8); `/api/engine` token exposure (also lets a token holder claim chat owner via channel `web`); `AHOS_CONTROL_AUDIT_PATH` not in the config scan.
 3. Port mismatch: `.env` 3000 vs listener 3500 (OWNER_ACTION).
