@@ -80,6 +80,24 @@ class TestPersian:
         assert P.age_fa(90000) == "۱ روز"
         assert P.age_fa(None) == "۰ ثانیه"
 
+    def test_dashboard_panel_lexicon_mirrors_the_persian_module(self):
+        """CommandCenter.tsx cannot import Python, so it keeps its own copy of the
+        labels/status lexicon. Left ungoverned the two drift apart silently and the
+        owner reads a mix of Persian and Latin in the same panel; this pins the copy
+        to launcher/persian.py."""
+        import re
+        cc = (ROOT / "CommandCenter.tsx").read_text(encoding="utf-8")
+
+        def flat_object(name: str) -> dict:
+            start = cc.index(f"const {name}: Record<string, string> = {{")
+            block = cc[start:cc.index("};", start)]
+            return dict(re.findall(r'(\w+):\s*"([^"]*)"', block))
+
+        assert flat_object("LAUNCHER_LABELS_FA") == P.PANEL["labels"]
+        # STOPPED is both a component status and an overall one; STATUS_FA wins so
+        # the component rows (the ones the owner scans) stay single-source.
+        assert flat_object("LAUNCHER_STATUS_FA") == {**P.HEALTH_FA, **P.STATUS_FA}
+
 
 # ---------------------------------------------------------------- processkit ---
 class TestProcessKit:

@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type MutableRefObject,
   type ReactNode,
 } from "react";
 import { webApiFetch } from "@/web_api_client";
@@ -81,6 +82,24 @@ const INACTIVE_ALERT: WebAlertBanner = {
   payload: null,
   disclaimerFa: "هشدار فرصت پایش است — سیگنال خرید واقعی نیست. PAPER ONLY.",
 };
+type LauncherComponent = {
+  status?: string;
+  detail?: string;
+  pid?: number | null;
+  started_ts?: number | null;
+};
+type LauncherSnapshot = {
+  status: {
+    action?: string;
+    ts?: string;
+    overall?: string;
+    paper_only?: boolean;
+    dashboard_url?: string;
+    components?: Record<string, LauncherComponent>;
+  } | null;
+  staleAfterSec?: number;
+} | null;
+
 type Snap = {
   generatedAt: string;
   state: {
@@ -263,6 +282,7 @@ export default function CommandCenter() {
   const [selected, setSelected] = useState<Opp | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
   const [alertBanner, setAlertBanner] = useState<WebAlertBanner>(INACTIVE_ALERT);
+  const [launcher, setLauncher] = useState<LauncherSnapshot | null>(null);
   // GM-03: wall clock for staleness; ticks from a timer callback only.
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
 
@@ -271,6 +291,9 @@ export default function CommandCenter() {
   const soundRef = useRef(sound);
   const snapGenRef = useRef<string | null>(null);
   const loadAbortRef = useRef<AbortController | null>(null);
+  // MISSION 11.1: while a launcher stop/restart is in flight the poll is paused
+  // so a refresh cannot clobber the panel mid-operation.
+  const launcherBusyRef = useRef(false);
   const running = snap?.state.running ?? false;
 
   useEffect(() => {
@@ -295,9 +318,10 @@ export default function CommandCenter() {
     const ac = new AbortController();
     loadAbortRef.current = ac;
     try {
-      const [res, alertRes] = await Promise.all([
+      const [res, alertRes, launcherRes] = await Promise.all([
         webApiFetch("/api/command", { cache: "no-store", signal: ac.signal }),
         webApiFetch("/api/alerts", { cache: "no-store", signal: ac.signal }).catch(() => null),
+        webApiFetch("/api/launcher", { cache: "no-store", signal: ac.signal }).catch(() => null),
       ]);
       if (alertRes && alertRes.ok) {
         try {
@@ -310,6 +334,18 @@ export default function CommandCenter() {
         }
       } else if (!ac.signal.aborted) {
         setAlertBanner(INACTIVE_ALERT);
+      }
+      // MISSION 11.1: launcher status is best-effort — a missing report is a
+      // normal state (stopped stack), never an error banner.
+      if (launcherRes && launcherRes.ok) {
+        try {
+          const launcherJson = (await launcherRes.json()) as LauncherSnapshot;
+          if (!ac.signal.aborted) setLauncher(launcherJson);
+        } catch {
+          if (!ac.signal.aborted) setLauncher(null);
+        }
+      } else if (!ac.signal.aborted) {
+        setLauncher(null);
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as Snap;
@@ -332,6 +368,7 @@ export default function CommandCenter() {
 
     const tick = () => {
       if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      if (launcherBusyRef.current) return;
       void load();
     };
 
@@ -750,6 +787,13 @@ export default function CommandCenter() {
                   {!providers.length && <Empty text="بعد از اولین چرخه وضعیت واقعی پروایدر می‌آید." />}
                 </div>
               </Card>
+              <LauncherPanel
+                launcher={launcher}
+                busyRef={launcherBusyRef}
+                onSettled={() => {
+                  void load();
+                }}
+              />
             </div>
           )}
 
@@ -1063,6 +1107,148 @@ export default function CommandCenter() {
   );
 }
 
+// M11.1: these mirror launcher/persian.py PANEL/STATUS_FA/HEALTH_FA. The
+// component cannot import Python, so tests/test_launcher_orchestrator.py
+// asserts the two stay in sync — edit both together.
+const LAUNCHER_LABELS_FA: Record<string, string> = {
+  stores: "پایگاه داده",
+  db_backend: "بک‌اند پایگاه داده",
+  gateway: "درگاه و داشبورد",
+  telegram: "ربات تلگرام",
+  engine: "موتور کاغذی",
+};
+// component statuses (orchestrator HEALTHY/…) + overall (ONLINE/…) in one map,
+// mirroring persian.STATUS_FA ∪ persian.HEALTH_FA.
+const LAUNCHER_STATUS_FA: Record<string, string> = {
+  HEALTHY: "سالم",
+  UNHEALTHY: "ناسالم",
+  UNAVAILABLE: "غیرفعال",
+  UNKNOWN: "نامشخص",
+  SKIPPED: "رد شد",
+  STOPPED: "متوقف‌شده",
+  ONLINE: "آنلاین",
+  DEGRADED: "با هشدار",
+  FAILED: "ناموفق",
+  DOWN: "قطع",
+  NOT_RUNNING: "در حال اجرا نیست",
+};
+const statusFa = (s: string | undefined): string => LAUNCHER_STATUS_FA[s ?? "UNKNOWN"] ?? s ?? "نامشخص";
+
+const LauncherPanel = memo(function LauncherPanel({
+  launcher,
+  busyRef,
+  onSettled,
+}: {
+  launcher: LauncherSnapshot;
+  busyRef: MutableRefObject<boolean>;
+  onSettled: () => void;
+}) {
+  const [confirm, setConfirm] = useState<null | "stop" | "restart">(null);
+  const [hint, setHint] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const run = useCallback(
+    async (action: "stop" | "restart") => {
+      setBusy(true);
+      busyRef.current = true;
+      setHint(null);
+      try {
+        const res = await webApiFetch("/api/launcher", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action }),
+        });
+        const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+        if (!res.ok || !json.ok) {
+          // 409 ALREADY_RUNNING → a previous op is still running; wait for it.
+          setHint(json.error === "ALREADY_RUNNING" ? "یک عملیات در حال اجراست؛ صبر کنید" : json.error || "UNKNOWN");
+        }
+      } catch {
+        setHint("UNKNOWN");
+      } finally {
+        setBusy(false);
+        busyRef.current = false;
+        onSettled();
+      }
+    },
+    [busyRef, onSettled],
+  );
+
+  const status = launcher?.status ?? null;
+  const components = status?.components ?? null;
+  const rows = components ? Object.entries(components) : [];
+
+  return (
+    <Card title="وضعیت سرویس‌ها">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <StatusPill status={status?.overall ?? "UNKNOWN"} label={statusFa(status?.overall)} />
+        {status?.paper_only && (
+          <span className="text-xs text-amber-200">فقط کاغذی — معامله واقعی خاموش</span>
+        )}
+      </div>
+      {status && rows.length > 0 ? (
+        <div className="grid gap-2">
+          {rows.map(([key, c]) => (
+            <div
+              key={key}
+              className="flex items-start justify-between gap-3 rounded-2xl bg-white/5 px-3 py-2"
+            >
+              <div>
+                <div className="text-sm">{LAUNCHER_LABELS_FA[key] ?? key}</div>
+                <div className="text-xs text-white/60">
+                  {c.detail ?? null}
+                  {c.pid ? ` — PID ${c.pid}` : null}
+                </div>
+              </div>
+              <StatusPill status={c.status ?? "UNKNOWN"} label={statusFa(c.status)} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Empty text="هنوز گزارشی وجود ندارد" />
+      )}
+      {confirm ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-2xl bg-white/5 px-3 py-2">
+          <span className="text-sm">
+            {confirm === "stop" ? "همهٔ سرویس‌های AHOS متوقف شوند؟" : "همهٔ سرویس‌ها دوباره راه‌اندازی شوند؟"}
+          </span>
+          <button
+            type="button"
+            className="hud-btn !px-3 !py-1 text-xs"
+            disabled={busy}
+            onClick={() => {
+              const action = confirm;
+              setConfirm(null);
+              if (action) void run(action);
+            }}
+          >
+            تایید
+          </button>
+          <button
+            type="button"
+            className="hud-btn !px-3 !py-1 text-xs"
+            disabled={busy}
+            onClick={() => setConfirm(null)}
+          >
+            لغو
+          </button>
+        </div>
+      ) : (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Hud loading={busy} onClick={() => setConfirm("stop")}>
+            توقف
+          </Hud>
+          <Hud loading={busy} onClick={() => setConfirm("restart")}>
+            راه‌اندازی دوباره
+          </Hud>
+          {busy && <span className="text-xs text-white/60">…در حال انجام…</span>}
+        </div>
+      )}
+      {hint && <p className="mt-2 text-xs text-amber-200/80">{hint}</p>}
+    </Card>
+  );
+});
+
 const Hud = memo(function Hud({
   children,
   onClick,
@@ -1111,16 +1297,21 @@ const Metric = memo(function Metric({ label, value, sub }: { label: string; valu
   );
 });
 
-const StatusPill = memo(function StatusPill({ status }: { status: string }) {
+const StatusPill = memo(function StatusPill({ status, label }: { status: string; label?: string }) {
+  // M11.1: the launcher panel passes the Persian rendering as `label` while
+  // keeping `status` as the tone key, so an owner never reads a Latin enum.
   const tone =
-    status === "SUCCESS" || status === "OK" || status === "BUY" || status === "PASS" || status === "HIGH"
+    status === "SUCCESS" || status === "OK" || status === "BUY" || status === "PASS" || status === "HIGH" ||
+      status === "HEALTHY" || status === "ONLINE"
       ? "bg-emerald-400/15 text-emerald-200"
       : status === "REJECT" ||
           status === "DOWN" ||
           status === "HONEYPOT" ||
           status === "DISABLED" ||
           status === "VIOLATION" ||
-          status === "CODE_FAILURE"
+          status === "CODE_FAILURE" ||
+          status === "UNHEALTHY" ||
+          status === "FAILED"
         ? "bg-rose-400/15 text-rose-200"
         : status === "UNKNOWN" ||
             status === "NO_DATA" ||
@@ -1131,10 +1322,12 @@ const StatusPill = memo(function StatusPill({ status }: { status: string }) {
             status === "NO_TRADE" ||
             status === "MONITOR_ONLY" ||
             status === "WATCH" ||
-            status === "INCOMPLETE"
+            status === "INCOMPLETE" ||
+            status === "DEGRADED" ||
+            status === "SKIPPED"
           ? "bg-amber-400/15 text-amber-100"
           : "bg-white/10 text-white/80";
-  return <span className={`rounded-full px-2 py-0.5 text-[11px] ${tone}`}>{status}</span>;
+  return <span className={`rounded-full px-2 py-0.5 text-[11px] ${tone}`}>{label ?? status}</span>;
 });
 
 const Empty = memo(function Empty({ text }: { text: string }) {
