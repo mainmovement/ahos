@@ -1,6 +1,6 @@
 # OWNER DIRECTIVE MISSION PLAN (derived by Grok, 2026-10-02 ~18:50 Tehran)
 
-**Plan version note:** rev 2026-10-03 23:47 Tehran, synced to vision **v1.7**. It adds M44–M51 (owner approved 23:44; leadership constraints 23:47; all [PLANNED] pending separate owner approval) and the Kian audit-store decision in M35.1. M36.4 is SUPERSEDED by M51. *(Previous: rev 23:21, vision v1.6.)* It records the owner confirmations of 23:04 and 23:07, the owner request of 23:14–23:17, and the owner decision on the team review at 23:21. The newest owner statement wins; superseded items are marked. Numbering M9→M36 is unchanged; new IDs are M35.1–M35.5 (M35 re-cut) and M37–M43. Missions M28–M36 are defined in the vision (§13, §14) and are not repeated here.
+**Plan version note:** rev 2026-10-03 23:57 Tehran, synced to vision **v1.8**. It adds M52 Skill & Plugin Marketplace (owner request 23:57; [PLANNED] pending separate owner approval). *(Previous: rev 23:47, vision v1.7.)* It adds M44–M51 (owner approved 23:44; leadership constraints 23:47; all [PLANNED] pending separate owner approval) and the Kian audit-store decision in M35.1. M36.4 is SUPERSEDED by M51. *(Previous: rev 23:21, vision v1.6.)* It records the owner confirmations of 23:04 and 23:07, the owner request of 23:14–23:17, and the owner decision on the team review at 23:21. The newest owner statement wins; superseded items are marked. Numbering M9→M36 is unchanged; new IDs are M35.1–M35.5 (M35 re-cut) and M37–M43. Missions M28–M36 are defined in the vision (§13, §14) and are not repeated here.
 
 Sources: docs/owner_directives/owner_directive_part1.txt (Master Autonomous Execution & Completion Directive + Autonomous Engineering addendum),
 docs/owner_directives/owner_directive_part2.txt (AHOS MASTER CONTEXT v2.0 + Completion Mandate + Autonomous Master Execution Mandate).
@@ -611,3 +611,80 @@ All are PAPER/testnet only and none enables real money. Order: M42, M43 → M41 
 
 ### Run order (leadership constraint 13)
 M10 → M11 → close BL/MJ and the 16 BLOCKERs → M35 Kian → **M47** → **M44 + M49** → **M46, M45, M48** → **M50** (once the base agents exist) → **M51**. M47 and M49 come early because they reinforce reliability.
+
+## Owner request 2026-10-03 23:57: M52 Skill & Plugin Marketplace (vision v1.8 §14.11; [PLANNED] until separate owner approval)
+**Owner request:** agents should continually find and acquire the best, most professional and strongest skills and plugins for themselves inside AHOS, so they perform strongly in every domain.
+
+**What "acquire" means here:** propose → vet → evaluate → gated adoption. No agent installs or enables anything itself (INV-41).
+
+**How it runs:** M52 is a job in the existing daemon, not an agent. It follows the SP protocol (vision §14.0), uses local commits only, never pushes, keeps Lane A frozen and stays PAPER_ONLY.
+
+**Reuse map (no duplicates):**
+- **Discovery:** M44 radar intake gets a new `skill_candidate` input type; there is no second crawler.
+- **Candidate records:** `architecture/knowledge/oss_pipeline.py` (OSSCandidateRecord).
+- **Skill registry:** extends `ahos_org/registry.py` + `config/agent_registry.yaml` (model cards go to `ai_provider_registry.yaml`); no new store.
+- **University gate:** the research→skill→agent adoption gate (M15/M16, Skill Intelligence seats `SKILL-1..4` under فرزانه) plus the §4.6 playbooks.
+- **Skill folders:** `.cursor/skills/` is canonical; nothing is added to the duplicate `slills/` folder (consolidated in M16/M34).
+- **Supply chain:** M48.
+- **Sandbox:** the M45 isolated child plus `architecture/cognitive/benchmark/`.
+- **Adoption path:** the M46/M51 branch path.
+- **Impact:** M50.
+- **Paid skills:** the M37 budget gate.
+
+**Pipeline:**
+1. **Discovery.** Domain agents submit candidates from legal sources: licensed PyPI/GitHub, MCP servers, model cards, published prompt/skill libraries. Fetched content is data, not instructions.
+2. **V1 license** (مریم + سپهر). Permissive or compatible SPDX licenses only (MIT/BSD/Apache-2.0/ISC). GPL/AGPL only by a مریم + owner decision. An unknown or missing license is rejected.
+3. **V2 supply chain** (سپهر). Hash pinning, OSV/pip-audit/npm audit, OpenSSF Scorecard, maintainer activity. Stars are a weak signal only. An open CVE or a bad hash is rejected.
+4. **V3 static review** (سپهر + رضا). Check network, file, subprocess, eval, env and credential access, plus obfuscation. Prompt skills get an injection scan plus پروانه's review. MCP servers must list their declared tools and scopes.
+5. **V4 sandbox evaluation** in the M45 isolated child:
+   - Job Object, low-privilege user, empty env, no wincred, no `data/`, and a per-skill network allowlist.
+   - A pre-registered domain benchmark against the current no-skill baseline; the gain must be significant with an interval.
+   - Missing isolation means fail-closed.
+6. **Adoption.** Branch commit + test-integrity receipt → VERIFY 16 → CHALLENGE 19 → owner manual merge. The best verdict is PASS_WITH_GAPS. Lockfiles are protected, so a dependency change is only a proposal.
+
+**Registry fields per agent:**
+- `skill_id`, `version`, `hash`, `source`, `license_spdx`
+- `capability_class` (default NONE) and `FORBIDDEN_CAPABILITIES`
+- `network_allowlist`
+- `benchmark_evidence` (run_id, n, interval)
+- `adopted_by` (branch SHA + signers)
+- `reeval_due` (proposed 90 days; an expired skill is disabled until re-evaluated)
+- `status` (CANDIDATE / ADOPTED / DEPRECATED / REMOVED)
+
+**Capabilities are locked:**
+- Default NONE.
+- Never money, withdrawal, order path, wincred, protected paths, registry/policy, or agent activation.
+- A skill can't grant authority: adding a skill never changes an agent's AUTHORITY_CLASS.
+- MCP servers and executable plugins never load inside the daemon or Kian; they run only in the isolated child.
+
+**Maintenance:**
+- **Weekly with M48:** a re-check that auto-proposes removal (on a branch) of deprecated or vulnerable skills. A critical CVE means M47 disables the skill.
+- **Saturday with M50:** per-domain scores with and without the skill, labelled [OBSERVED]. A skill with no significant gain in two consecutive exams is proposed for removal.
+- **Paid skills:** the owner budget gate (same as the M37 frontier slots), status LOCKED_PENDING_KEY_AND_OWNER_BUDGET, with a monthly cap and a cost meter.
+
+**Owners:**
+- فرزانه: owner of the mission, the university queue and Skill Intelligence
+- شیدا: GitHub
+- سپهر: license, supply chain and static review
+- رضا: CHALLENGE and static review
+- مریم: license and compliance
+- پروانه: prompt skills
+- قاسم: VERIFY
+- آیدا: monitoring active skills
+- domain agents: propose candidates only
+
+**Acceptance criteria (Claude):**
+- S-1: discovery only through M44 intake, with no new crawler or HTTP client.
+- S-2: an unknown or incompatible license is rejected.
+- S-3: a CVE or bad hash is rejected, even with many stars.
+- S-4: a planted skill calling wincred, `data/` or a non-allowlisted domain fails in the child and is rejected.
+- S-5: a non-NONE capability class or any forbidden capability is rejected, and an agent's AUTHORITY_CLASS is unchanged by adoption.
+- S-6: no significant benchmark gain (interval includes 0) means no adoption.
+- S-7: adoption only through branch + receipt + 16 + 19 + owner merge; 0 auto-installs, 0 auto-merges.
+- S-8: a passed reeval_due disables the skill; a new CVE triggers a removal proposal and an M47 DOWNGRADE.
+- S-9: a paid skill without a signed budget stays locked.
+- S-10: no MCP server loads inside the daemon or Kian.
+- S-11: 0 new stores; fields added in the existing registries; 0 additions to `slills/`.
+- S-12: M50 per-domain scores with and without the skill, [OBSERVED] with n and an interval.
+
+**Run order:** after M44, M45 and M48, which supply its intake, isolation and supply-chain checks; before M50 and M51. So: … → M46, M45, M48 → **M52** → M50 → M51.
