@@ -428,8 +428,21 @@ def main(argv: list[str] | None = None) -> int:
     try:
         signal.signal(signal.SIGINT, _sig_handler)
         signal.signal(signal.SIGTERM, _sig_handler)
+        # On Windows, a detached launcher stops us with GenerateConsoleCtrlEvent
+        # (CTRL_BREAK_EVENT) or `taskkill` (CTRL_CLOSE_EVENT); CPython raises
+        # both as SIGBREAK, whose default action terminates without a shutdown.
+        if hasattr(signal, "SIGBREAK"):
+            signal.signal(signal.SIGBREAK, _sig_handler)
     except Exception:
         pass
+
+    # Telegram ownership: the daemon polls Telegram inline, but a dedicated
+    # bot process (run_bot.py) long-polls the same token with offset
+    # persistence. Two `getUpdates` pollers on one token re-deliver the same
+    # unconfirmed updates and duplicate replies to the owner. When the launcher
+    # starts the dedicated bot, it sets AHOS_TELEGRAM_POLL=0 here; the default
+    # preserves standalone-daemon behaviour.
+    telegram_poll_enabled = os.environ.get("AHOS_TELEGRAM_POLL", "1").strip() not in ("0", "false", "no")
 
     # Execution Task
     def _execute_full_cycle():
@@ -476,9 +489,12 @@ def main(argv: list[str] | None = None) -> int:
             evidence_refs=[rep.run_id]
         )
         # 2. Process Telegram updates
-        processed_updates = bot_runner.process_pending_updates()
-        if processed_updates > 0:
-            logger.info(f"Processed {processed_updates} Telegram updates")
+        if telegram_poll_enabled:
+            processed_updates = bot_runner.process_pending_updates()
+            if processed_updates > 0:
+                logger.info(f"Processed {processed_updates} Telegram updates")
+        else:
+            logger.debug("Telegram inline polling disabled (AHOS_TELEGRAM_POLL=0)")
 
     # Observation task: fail-closed by the runtime safety gate (a vetoed cycle
     # is reported as BLOCKED and never touches the discovery store).
@@ -557,7 +573,12 @@ def main(argv: list[str] | None = None) -> int:
                         logger.warning(
                             "soak snapshot cycle produced no artifacts "
                             "(see snapshot warnings above)")
-            time.sleep(args.interval_sec)
+            # Interruptible idle: a launcher stop signal must land within ~1s,
+            # not after the full interval.
+            remaining = args.interval_sec
+            while running and remaining > 0:
+                time.sleep(min(1.0, remaining))
+                remaining -= 1.0
 
         app.shutdown(reason="Daemon stopped")
         return 0

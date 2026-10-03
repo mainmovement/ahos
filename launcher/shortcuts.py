@@ -22,7 +22,7 @@ ACTIONS = {"start": "AHOS", "stop": "AHOS Stop", "status": "AHOS Status"}
 _PS_TEMPLATE = r"""
 $ErrorActionPreference = 'Stop'
 $ws = New-Object -ComObject WScript.Shell
-$desktop = [Environment]::GetFolderPath('Desktop')
+$desktop = $out_dir
 foreach ($spec in $specs) {
   $lnk = $ws.CreateShortcut((Join-Path $desktop $spec.Name))
   $lnk.TargetPath = $spec.TargetPath
@@ -82,16 +82,18 @@ def create_shortcuts(root: Path | str | None = None, *,
     specs = shortcut_specs(root, icon, user)
     out_dir = Path(desktop) if desktop else desktop_dir(user)
     out_dir.mkdir(parents=True, exist_ok=True)
-    # Marshal the specs into PowerShell as a here-string; the COM object does
-    # the actual .lnk writing.
-    ps_specs = "[" + ",".join(
+    # Marshal the specs into PowerShell as an array subexpression; the COM
+    # object does the actual .lnk writing. (@(...) not [...]: a bare bracket
+    # literal is a type cast in PowerShell and fails to parse.)
+    ps_specs = "@(" + ",".join(
         '@{Name="%s";TargetPath="%s";Arguments="%s";WorkingDirectory="%s";'
         'IconLocation="%s";Description="%s"}' % (
             s["name"], s["target_path"], s["arguments"].replace('"', "`\""),
             s["working_directory"], s["icon_location"], s["description"])
-        for s in specs) + "]"
+        for s in specs) + ")"
     cmd = ["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
-           "-Command", f"$specs = {ps_specs}; {_PS_TEMPLATE}"]
+           "-Command",
+           f"$out_dir = '{str(out_dir)}'; $specs = {ps_specs}; {_PS_TEMPLATE}"]
     res = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
     if res.returncode != 0:
         raise RuntimeError(f"shortcut creation failed ({res.returncode}): "

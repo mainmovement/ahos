@@ -15,6 +15,7 @@ import socket
 import struct
 import sys
 import threading
+import time
 import zlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -27,6 +28,7 @@ sys.path.insert(0, str(ROOT))
 import launcher.components as C  # noqa: E402
 import launcher.persian as P  # noqa: E402
 import launcher.processkit as pk  # noqa: E402
+from launcher.smoke import _parse_report  # noqa: E402
 from launcher.control_plane_bridge import LauncherControlPlane, build_config  # noqa: E402
 from launcher.make_icon import build as build_icon  # noqa: E402
 from launcher.orchestrator import AhosOrchestrator  # noqa: E402
@@ -205,6 +207,68 @@ class TestComponents:
         # A nonexistent file must yield None, never an AttributeError.
         assert C.engine_heartbeat_age(str(tmp_path / "nope.sqlite")) is None
 
+    def test_engine_stale_heartbeat_during_our_own_cycle_is_healthy(self, monkeypatch):
+        """The scheduler beats once per cycle; a long observation cycle ages the
+        heartbeat legitimately. A RUNNING cycle begun by this pid is evidence
+        the engine is working, not hung."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        now = time.time()
+        # heartbeat 600s old, but a cycle we started 60s ago is still running
+        healthy = C.probe_engine({"pid": 4242}, marker="engine",
+                                 heartbeat_age=600.0,
+                                 cycle=("RUNNING", now - 60.0),
+                                 pid_started_ts=now - 600.0)
+        assert healthy[0] == C.HEALTHY
+        assert "in scheduler cycle" in healthy[1]
+
+    def test_engine_stale_heartbeat_from_a_killed_daemon_is_not_healthy(self, monkeypatch):
+        """A RUNNING row left behind by a previous (force-killed) daemon must
+        not pass a freshly-spawned engine as healthy."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        now = time.time()
+        # this engine started 30s ago, yet a cycle was "running" 120s ago — that
+        # row belongs to the daemon we replaced, not to us.
+        verdict = C.probe_engine({"pid": 4242}, marker="engine",
+                                 heartbeat_age=3600.0,
+                                 cycle=("RUNNING", now - 120.0),
+                                 pid_started_ts=now - 30.0)
+        assert verdict[0] == C.UNHEALTHY
+        assert "stale" in verdict[1]
+
+    def test_engine_wedged_cycle_is_reported_unhealthy(self, monkeypatch):
+        """A RUNNING cycle that has outlived the cycle budget is a stall, not
+        busy work."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        verdict = C.probe_engine({"pid": 4242}, marker="engine",
+                                 heartbeat_age=7200.0,
+                                 cycle=("RUNNING", 1000.0 + 60.0),
+                                 pid_started_ts=1000.0,
+                                 max_cycle_sec=60.0)
+        assert verdict[0] == C.UNHEALTHY
+        assert "wedged" in verdict[1]
+
+    def test_engine_no_heartbeat_is_still_booting(self, monkeypatch):
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        verdict = C.probe_engine({"pid": 4242}, marker="engine",
+                                 heartbeat_age=None,
+                                 cycle=("RUNNING", time.time() - 10.0))
+        assert verdict[0] == C.UNHEALTHY
+        assert "still booting" in verdict[1]
+
+    def test_engine_cycle_state_reads_the_scheduler_table(self, tmp_path):
+        import sqlite3
+        db = tmp_path / "ahos_local.sqlite"
+        conn = sqlite3.connect(db)
+        conn.executescript(
+            "CREATE TABLE scheduler_runs(run_id TEXT, schedule_name TEXT, "
+            "started_ts REAL, status TEXT);"
+            "INSERT INTO scheduler_runs VALUES('r2','DAEMON_CYCLE',200.0,'RUNNING');"
+            "INSERT INTO scheduler_runs VALUES('r1','DAEMON_CYCLE',100.0,'SUCCESS');")
+        conn.commit()
+        conn.close()
+        assert C.engine_cycle_state(str(db)) == ("RUNNING", 200.0)
+        assert C.engine_cycle_state(str(tmp_path / "nope.sqlite")) == (None, None)
+
 
 # -------------------------------------------------------------- orchestrator ---
 def make_orchestrator(tmp_path, **kw):
@@ -302,6 +366,52 @@ class TestOrchestrator:
         assert set(report["components"]) == set(C.START_ORDER)
         assert report["paper_only"] is True
 
+    def test_status_optional_down_is_degraded_not_down(self, tmp_path, monkeypatch):
+        """The optional gateway being absent must not read DOWN.
+
+        Regression: status ranked UNAVAILABLE below UNHEALTHY and mapped it to
+        DOWN, so on this host — where port 3000 cannot be bound — `AHOS Status`
+        reported a fully working stack as DOWN and exited 1 while the engine ran
+        cycles. `start` already called this DEGRADED; status now matches it.
+        """
+        orch = make_orchestrator(tmp_path)
+
+        def probe(name, **kw):
+            return (C.UNAVAILABLE, "gateway not answering") if name == "gateway" \
+                else (C.HEALTHY, "simulated")
+        monkeypatch.setattr(orch, "_component_probe", probe)
+        report = orch.status()
+        assert report["overall"] == "DEGRADED"
+        assert report["components"]["engine"]["status"] == C.HEALTHY
+
+    def test_status_critical_down_is_down(self, tmp_path, monkeypatch):
+        orch = make_orchestrator(tmp_path)
+
+        def probe(name, **kw):
+            return (C.UNAVAILABLE, "no pid record") if name in C.CRITICAL \
+                else (C.HEALTHY, "simulated")
+        monkeypatch.setattr(orch, "_component_probe", probe)
+        assert orch.status()["overall"] == "DOWN"
+
+    def test_stop_reports_stopped_components_without_crashing(self, tmp_path, monkeypatch):
+        """Regression: stop passed plain dicts into the report builder, which
+        read ``res.status`` and raised AttributeError — so every real stop did
+        its job and *then* exited 1, which the smoke scored as a failure."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(orch, "_stop_components", lambda order: {
+            "engine": {"pid": 5768, "how": "force", "secs": 0.6},
+            "telegram": {"pid": 14544, "how": "ctrl-break", "secs": 0.4},
+        })
+        monkeypatch.setattr(orch, "_sweep_ours", lambda: [])
+        monkeypatch.setattr(orch, "_control_plane",
+                            lambda results: type("CP", (), {
+                                "stop": lambda self: {"status": "SYSTEM_OFFLINE"}})())
+        report = orch.stop()
+        assert report["overall"] == "STOPPED"
+        assert report["components"]["engine"]["status"] == "STOPPED"
+        assert report["components"]["engine"]["detail"] == "stopped (force, 0.6s)"
+        assert report["swept"] == []
+
     def test_skip_excludes_a_component(self, tmp_path, monkeypatch):
         orch = make_orchestrator(tmp_path, skip={"telegram"})
         monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
@@ -312,6 +422,80 @@ class TestOrchestrator:
     def test_stores_command_uses_existing_bootstrap(self):
         cmd = C.stores_command(Path(sys.executable))
         assert "init_databases.py" in cmd[-1] or any("init_databases" in a for a in cmd)
+
+
+class TestProcessMarkers:
+    """The marker must be a substring of the command line we actually spawn.
+
+    Regression: the engine marker was written as
+    ``python.exe architecture.runtime`` while the real argv is
+    ``python.exe -m architecture.runtime --daemon ...``. The missing ``-m`` made
+    ``pid_is_ours`` return False forever, so the engine always looked dead,
+    every start spawned a second one, and stop never reclaimed either. Telegram
+    (no ``-m`` in its argv) probed healthy the whole time, which is what
+    isolated the cause.
+    """
+
+    def test_engine_marker_matches_the_spawned_command(self, tmp_path):
+        orch = make_orchestrator(tmp_path)
+        py = C.venv_python(orch.root) or Path(sys.executable)
+        cmd = " ".join(C.engine_command(py))
+        assert orch.marker("engine").lower() in cmd.lower()
+
+    def test_telegram_marker_matches_the_spawned_command(self, tmp_path):
+        orch = make_orchestrator(tmp_path)
+        py = C.venv_python(orch.root) or Path(sys.executable)
+        cmd = " ".join(C.telegram_command(py))
+        assert orch.marker("telegram").lower() in cmd.lower()
+
+    def test_engine_marker_matches_the_base_interpreter_relaunch(self, tmp_path):
+        """The .venv python is a launcher that re-execs the base interpreter, so
+        the real child command line has no venv path — the sweep needs a marker
+        that still matches it."""
+        orch = make_orchestrator(tmp_path)
+        base = (r'"C:\Users\Sniper\AppData\Local\Programs\Python\Python311\python.exe" '
+                r"-m architecture.runtime --daemon --interval-sec 60 "
+                r"--observation-cycle --evidence-source local")
+        marks = [m for m, name in orch.sweep_markers() if name == "engine"]
+        assert any(m.lower() in base.lower() for m in marks), marks
+
+    def test_sweep_markers_still_identify_the_repo(self, tmp_path):
+        """A foreign project's python must never match any sweep marker."""
+        orch = make_orchestrator(tmp_path)
+        foreign = r"C:\other\project\.venv\Scripts\python.exe app.py"
+        assert not any(m.lower() in foreign.lower() for m, _ in orch.sweep_markers())
+
+
+class TestSmokeReportParsing:
+    """The smoke harness must be able to read the report the CLI prints.
+
+    Regression: ``--json`` still prints the Persian progress lines first and the
+    report pretty-printed with ``indent=2`` afterwards, so taking the last line
+    of stdout yielded ``}`` and the parse always failed. That left
+    ``report: null`` on every step, and the smoke scored a genuinely idempotent
+    second start as ``second_start_was_idempotent_replay: false`` — the smoke
+    had never been able to see its own result.
+    """
+
+    def test_parses_report_after_persian_progress_lines(self):
+        stdout = (
+            "بررسی پیش‌نیازها…\n"
+            "  موتور کاغذی: ✓\n"
+            "AHOS با هشدار روشن است.\n"
+            '{\n  "action": "start",\n  "overall": "DEGRADED",\n'
+            '  "paper_only": true\n}\n'
+        )
+        report = _parse_report(stdout)
+        assert report == {"action": "start", "overall": "DEGRADED",
+                          "paper_only": True}
+
+    def test_returns_none_when_no_report_is_printed(self):
+        assert _parse_report("همهٔ سرویس‌های AHOS متوقف شدند.\n") is None
+
+    def test_skips_a_brace_in_progress_text(self):
+        """A stray brace in the progress text is not mistaken for the report."""
+        stdout = "پیکربندی {port} OK\n" '{\n  "action": "status"\n}\n'
+        assert _parse_report(stdout) == {"action": "status"}
 
 
 # ------------------------------------------------------- control plane bridge ---
@@ -391,6 +575,27 @@ class TestIconAndShortcuts:
         assert "-Action start" in specs[0]["arguments"]
         assert "-Action stop" in specs[1]["arguments"]
         assert "-Action status" in specs[2]["arguments"]
+
+    def test_create_shortcuts_writes_real_lnk_files(self, tmp_path):
+        """The marshalled PowerShell must actually parse and save (a bare ``[``
+        array literal is a cast in PowerShell and silently breaks this)."""
+        import launcher.shortcuts as S
+        icon = tmp_path / "ahos.ico"
+        build_icon(icon, sizes=(32,))
+        desktop = tmp_path / "Desktop"
+        wrote = S.create_shortcuts(tmp_path, icon=icon, desktop=desktop)
+        assert [w["name"] for w in wrote] == \
+            ["AHOS.lnk", "AHOS Stop.lnk", "AHOS Status.lnk"]
+        # Re-resolve through WScript.Shell: the .lnk must point at the wrapper.
+        import subprocess
+        lnk = str(desktop / "AHOS.lnk")
+        res = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+             "$s = (New-Object -ComObject WScript.Shell).CreateShortcut('%s');"
+             "$s.TargetPath + ' ' + $s.Arguments" % lnk],
+            capture_output=True, text=True, timeout=60)
+        assert res.returncode == 0, res.stderr
+        assert "ahos.ps1" in res.stdout and "-Action start" in res.stdout
 
 
 # --------------------------------------------------------------------- cli ---

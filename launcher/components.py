@@ -298,8 +298,43 @@ def engine_heartbeat_age(db_path: str, component: str = "DAEMON_CYCLE") -> float
     return time.time() - float(row[0])
 
 
+def engine_cycle_state(db_path: str, schedule: str = "DAEMON_CYCLE") \
+        -> tuple[str | None, float | None]:
+    """The daemon's latest scheduler run: ``(status, started_ts)``.
+
+    The scheduler beats once per cycle, at the top of
+    ``execute_scheduled_cycle``; an observation cycle can legitimately run for
+    many minutes, so a stale heartbeat alone does not mean the engine is sick.
+    A ``RUNNING`` row started by *this* process is real evidence it is working.
+    """
+    try:
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT status, started_ts FROM scheduler_runs WHERE schedule_name=? "
+            "ORDER BY started_ts DESC LIMIT 1", (schedule,)).fetchone()
+        conn.close()
+    except Exception:
+        return None, None
+    if not row:
+        return None, None
+    started = None
+    if row[1]:
+        try:
+            started = float(row[1])
+        except Exception:
+            started = None
+    return (row[0] if isinstance(row[0], str) else None), started
+
+
+# A daemon cycle may legitimately run this long before the next heartbeat lands.
+MAX_CYCLE_SEC = 3600.0
+
+
 def probe_engine(pid_info: dict | None, marker: str, *,
-                 heartbeat_age: float | None, max_age: float = 200.0) -> tuple[str, str]:
+                 heartbeat_age: float | None, max_age: float = 200.0,
+                 cycle: tuple[str | None, float | None] | None = None,
+                 pid_started_ts: float | None = None,
+                 max_cycle_sec: float = MAX_CYCLE_SEC) -> tuple[str, str]:
     base, detail = probe_process(pid_info, marker)
     if base != HEALTHY:
         return base, detail
@@ -307,9 +342,24 @@ def probe_engine(pid_info: dict | None, marker: str, *,
     if heartbeat_age is None:
         # starting up: the first DAEMON_CYCLE has not landed yet
         return UNHEALTHY, f"pid {pid} alive but no scheduler heartbeat yet (still booting)"
-    if heartbeat_age > max_age:
-        return UNHEALTHY, f"pid {pid} alive but heartbeat is {heartbeat_age:.0f}s stale"
-    return HEALTHY, f"pid {pid} alive, heartbeat {heartbeat_age:.0f}s ago"
+    if heartbeat_age <= max_age:
+        return HEALTHY, f"pid {pid} alive, heartbeat {heartbeat_age:.0f}s ago"
+    # Stale heartbeat. The scheduler beats once per cycle, so a long cycle ages
+    # it; a RUNNING cycle begun by this very process is evidence it is working,
+    # not hung. A RUNNING row left behind by a *previous* (killed) daemon must
+    # not count: tie the row to this pid by requiring it started after the pid.
+    cycle = cycle or (None, None)
+    cycle_status, cycle_started = cycle
+    own = (pid_started_ts is None or cycle_started is None
+           or cycle_started >= pid_started_ts - 30.0)
+    if cycle_status == "RUNNING" and cycle_started is not None and own:
+        cycle_age = time.time() - cycle_started
+        if cycle_age <= max_cycle_sec:
+            return HEALTHY, (f"pid {pid} alive, in scheduler cycle for "
+                             f"{cycle_age:.0f}s (heartbeat {heartbeat_age:.0f}s ago)")
+        return UNHEALTHY, (f"pid {pid} alive but its scheduler cycle has run for "
+                           f"{cycle_age:.0f}s without beating (wedged)")
+    return UNHEALTHY, f"pid {pid} alive but heartbeat is {heartbeat_age:.0f}s stale"
 
 
 # ---------------------------------------------------------------- preflight ---

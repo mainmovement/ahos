@@ -170,7 +170,36 @@ Remove-Variable tok
 
 ## 2. Per-phase summary
 
-**Newest first: Phase 9.5 + 9.6** — corrective mission closing every finding in
+**Newest first: Phase 11 — one-click launcher (Mission 11, the owner's final goal).**
+Double-click one desktop icon and the whole observation stack comes up without
+Docker. In-repo `launcher/` package: `ahos.ps1`/`ahos.bat` console wrapper,
+`orchestrator.py` (start/stop/status/restart/preflight, idempotent, with
+rollback), `components.py` (boot order + criticality), `processkit.py`,
+`persian.py` (short Persian operator messages), `shortcuts.py` (three `.lnk`
+for user `Sniper` via `WScript.Shell` + in-repo `ahos.ico`), `smoke.py`
+(real-process receipts). Documented in `docs/ONE_CLICK.md`.
+- **Status:** `TESTED` — 124 unit tests (`test_launcher_orchestrator.py` 58,
+  `test_phase18_launchers.py` + `test_run_bot_launcher.py` 66), plus real-process
+  receipts under `reports/launcher/`. `VERIFIED` needs the owner to run
+  `AHOS.lnk` and read the receipt; `OPERATIONAL` needs the owner to say so.
+- **Root cause found and fixed this phase:** the process-identity marker was
+  hand-written `python.exe architecture.runtime`, but the engine is spawned as
+  `python.exe -m architecture.runtime --daemon …` — the missing `-m` meant the
+  marker was never a substring of any live command line. Consequences: every
+  probe said the engine "is not a live AHOS process" while cycles completed,
+  every `start` spawned a *new* engine instead of replaying, and `stop` never
+  reclaimed the orphans. Telegram (no `-m` in its argv) probed healthy the whole
+  time — that contrast isolated it. Markers are now derived from the spawned
+  argv and pinned by `TestProcessMarkers`; the second smoke `start` then
+  correctly reported `engine: HEALTHY "already running (idempotent)"` at the
+  *same* pid as the first start.
+- **Standing owner action:** gateway port 3000 is unbindable on this host
+  (Hyper-V/WSL excluded port range, `WinError 10013`), so the gateway is
+  `UNAVAILABLE` in every receipt and the stack reports `DEGRADED`. Picking
+  another port (`AHOS_GATEWAY_PORT` / `AHOS_GATEWAY_URL`) is OWNER_ACTION; I do
+  not edit `.env`.
+
+**Next: Phase 9.5 + 9.6** — corrective mission closing every finding in
 two independent reviews; see its own section below and
 `reports/grok/reviews/FIX_MATRIX_PHASE9_5_9_6.md`.
 

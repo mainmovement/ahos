@@ -95,6 +95,144 @@ the independent pass; a third-party re-run of the matrix's test column is the
 next step up the reality ladder.
 
 <!-- PHASE9_6:END -->
+<!-- PHASE11:START -->
+## Phase 11 (2026-10-03, Claude/Atria, ~19:30 Tehran): Mission 11 — one-click launcher, no Docker
+
+The owner's final goal: double-click one desktop icon and the whole observation
+stack comes up without Docker. Built the in-repo `launcher/` package
+(`ahos.ps1`/`ahos.bat` console wrapper, `orchestrator.py`, `components.py`,
+`processkit.py`, `persian.py`, `shortcuts.py`, `make_icon.py`, `smoke.py`) plus
+`docs/ONE_CLICK.md`. Reality ladder: **TESTED** (124 unit tests) + real-process
+smoke receipts under `reports/launcher/`; nothing is OPERATIONAL until the owner
+runs it and says so.
+
+Commits: `2270146` (package + tests), `9e74645` (real-process evidence), and the
+marker-fix commit this phase. All local; nothing pushed.
+
+### What changed
+
+- **Boot order + criticality** — `START_ORDER = stores, db_backend, gateway,
+  telegram, engine`; only `stores` and `engine` are CRITICAL. An optional
+  component failing reports `DEGRADED`, a critical one rolls back exactly the
+  processes that run spawned (reverse boot order) and never a service that was
+  already healthy (`ComponentResult.fresh`).
+- **Paper-only is structural** — `ENGINE_ENV_HARD` hard-sets `AHOS_PAPER_ONLY=1`
+  and `AHOS_EVIDENCE_SOURCE=local` on every child; the launcher refuses to start
+  the engine in any non-paper mode.
+- **Health by real work, not pings** — the engine is judged by
+  `scheduler_heartbeats.last_heartbeat_ts` plus the latest `scheduler_runs` row
+  (status, started_ts) for `DAEMON_CYCLE`. Because `record_heartbeat` fires once
+  per cycle *before* its tasks, a long observation cycle legitimately ages the
+  heartbeat; a `RUNNING` row begun by *this* pid within `MAX_CYCLE_SEC` (3600s)
+  is `HEALTHY "in scheduler cycle"`, while the same row started before this pid
+  (an orphan from a killed daemon) is `UNHEALTHY "stale"`. On a cold host the
+  first cycle is ~21 minutes, so a heartbeat-only check reported a working
+  engine as dead.
+- **Persian operator messages** — every progress/error line is short Persian,
+  Persian digits, and each `ACTIONS` template is rendered through
+  `persian.error` with `{port}`/`{sec}` substituted; a literal placeholder is a
+  tested bug.
+- **Shortcuts** — `AHOS.lnk`, `AHOS Stop.lnk`, `AHOS Status.lnk` for user
+  `Sniper` via `WScript.Shell`, targeting the console wrapper with the in-repo
+  `launcher/ahos.ico`.
+
+### Root cause this phase — identity marker missed the `-m` (postmortem)
+
+The launcher decides "is this process ours" by a substring match of a marker
+against the live command line. The engine marker was hand-written as
+
+```
+G:\robat\ahos\.venv\Scripts\python.exe architecture.runtime
+```
+
+but the engine is spawned as `python -m architecture.runtime --daemon …` — the
+`-m` sits between interpreter and module, so the marker was **never** a
+substring of any real command line. Three failures followed, all visible in the
+`reports/launcher/status_*.json` receipts:
+
+1. `pid_is_ours` → False, so every probe reported *"recorded pid N is not a live
+   AHOS process"* while `logs/launcher/engine.log` showed cycles completing; the
+   420s health wait expired and the CRITICAL engine failed the boot (rc=1).
+2. `component_state("engine")` always returned `down`, so `start` spawned a
+   **new** engine on each invocation instead of an idempotent replay — the
+   receipts show pids 6296 → 17584 → 17532 across three starts.
+3. `_sweep_ours` is blinded by the same marker, so `stop` never reclaimed the
+   orphans it exists to catch; pid 6296 was still alive 43 minutes after the
+   smoke's final stop.
+
+Telegram probed `HEALTHY` in every single receipt throughout — its argv has no
+`-m` (`python run_bot.py`), so its marker matched. That controlled contrast
+isolated the cause. **Fix:** markers are now derived from the commands the
+launcher actually builds, and `TestProcessMarkers` asserts exactly that
+relationship (4 new tests). The sweep also carries the canonical daemon argv as
+a fallback, because the venv shim's base-interpreter child carries no repo path
+at all. The orphan was killed with `taskkill /T /F` on the shim pid.
+
+### Three more latent bugs the smoke surfaced once the marker was fixed
+
+With the engine finally detectable, the smoke got far enough to expose three
+defects that had each independently kept `verdict.passed` false in every receipt
+so far. None was visible in unit tests; each only fires on the real CLI path.
+
+1. **`stop` crashed after doing its job.** `_report` reads `res.status`, but
+   `stop` passed it plain dicts (`{"pid", "how", "secs"}`), so a stop that
+   successfully halted the engine and telegram then raised `AttributeError` and
+   exited 1. The Persian output said "all AHOS services stopped" while rc was 1.
+   Fixed: stop now builds real `ComponentResult` objects with status `STOPPED`
+   and the termination method as detail, so the receipt names what was halted.
+2. **`status` reported a working stack as `DOWN`.** Its verdict ranked
+   `UNAVAILABLE` below `UNHEALTHY` and mapped it to `DOWN`, so with the optional
+   gateway absent (unbindable port 3000 — see below) the whole stack read `DOWN`
+   and exited 1 while the engine ran cycles. `start` already called this
+   `DEGRADED`; `status` now uses the same ladder — critical component down →
+   `DOWN`, optional down → `DEGRADED`, all healthy → `ONLINE`.
+3. **The smoke could not read its own result.** `_run` parsed the CLI's JSON
+   report from the *last line* of stdout, but `--json` still prints the Persian
+   progress lines first and the report pretty-printed with `indent=2` — so the
+   last line is `}` and the parse always failed, leaving `report: null` on every
+   step. A genuinely idempotent second start was therefore scored
+   `second_start_was_idempotent_replay: false`. Fixed with `_parse_report`, which
+   tries each `{` in stdout and takes the first that decodes to end-of-output.
+
+The processes that kept reappearing after each stop were not a launcher bug: two
+orphaned `ahos.ps1 -Action start` consoles (from earlier double-click attempts)
+were still alive with their own `python -m launcher start` children, which
+re-spawned the engine and telegram as soon as the smoke stopped them. Killed with
+`taskkill /T /F` on each console tree before the final smoke run.
+
+### Real-process evidence (first green receipts)
+
+`reports/launcher/smoke_idempotent_20261003T171539Z.json` — 8 steps, **all rc=0,
+`passed: true`**. start (engine pid 6664, heartbeat 2s) → status (DEGRADED, same
+pid) → start again (**"already running (idempotent)", same pid 6664**, control
+plane `idempotent_replay: true`) → stop (STOPPED) → start (fresh pid 13064) →
+status → stop → stop again (NOT_RUNNING clean no-op). This is the first receipt
+where the second start did not re-spawn the engine and where `stop` exited 0.
+
+`reports/launcher/smoke_port-busy_20261003T173201Z.json` — failure injection:
+port 3450 held by a foreign listener, gateway correctly `UNHEALTHY
+foreign_busy`, overall `DEGRADED` (never ONLINE), the Persian port-busy line
+emitted with the port number substituted, `passed: true`. The host was left with
+no AHOS processes after both runs.
+
+### Standing items (owner action, not mine)
+
+- **Gateway port 3000 is unbindable on this host** — it lies inside a Hyper-V/WSL
+  excluded port range (`WinError 10013` on `bind`, while a `connect` probe says
+  free). The gateway is therefore `UNAVAILABLE` in every receipt and its log is
+  empty. Choosing another port (e.g. 3450 via `AHOS_GATEWAY_PORT` /
+  `AHOS_GATEWAY_URL`) or excluding 3000 from the reservation is **OWNER_ACTION**;
+  I do not edit `.env`.
+- The `DATABASE_URL` pglite flip is M10 Stage 4 and owner-gated.
+- Blocker A (GM-01 doc-drift clean-checkout regression) remains open.
+
+### Next action
+
+Owner runs `AHOS.lnk`, reads the Persian console, and either sees the dashboard
+open or the named failing component; the receipt under `reports/launcher/` is
+what turns TESTED into VERIFIED.
+
+<!-- PHASE11:END -->
 <!-- PHASE9:START -->
 ## Phase 9 (2026-10-03, Claude/Atria): Mission 9 — truth baseline + Remaining Reality Register
 

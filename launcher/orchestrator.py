@@ -33,7 +33,10 @@ import launcher.processkit as pk
 from launcher.control_plane_bridge import LauncherControlPlane
 
 PROCESS_COMPONENTS = ["gateway", "telegram", "engine"]
-HEALTH_WAIT = {"stores": 60, "db_backend": 10, "gateway": 120, "telegram": 25, "engine": 150}
+# The engine's cold boot (runtime init + first scheduler cycle) can take a few
+# minutes on a loaded host; the probe turns healthy the moment the first
+# DAEMON_CYCLE heartbeat lands.
+HEALTH_WAIT = {"stores": 60, "db_backend": 10, "gateway": 120, "telegram": 25, "engine": 420}
 
 
 class AhosOrchestrator:
@@ -78,13 +81,39 @@ class AhosOrchestrator:
 
     # ---------------------------------------------------------------- markers --
     def marker(self, name: str) -> str:
+        """A substring of the *live* command line that identifies our process.
+
+        Derived from the command we actually spawn, never hand-written: the
+        engine is launched as ``python -m architecture.runtime``, and a marker
+        written without the ``-m`` never matched the live command line. That
+        made every probe say the engine "is not a live AHOS process" even while
+        it was running cycles, so it was re-spawned on every start and never
+        reclaimed by stop. See docs/ONE_CLICK.md, "Process identification".
+        """
         py = C.venv_python(self.root)
-        if name in ("engine", "telegram"):
-            mod = "architecture.runtime" if name == "engine" else "run_bot.py"
-            return (str(py) + " " + mod) if py else mod
+        if name == "engine":
+            return ((str(py) + " -m architecture.runtime")
+                    if py else "-m architecture.runtime")
+        if name == "telegram":
+            return (str(py) + " run_bot.py") if py else "run_bot.py"
         if name == "gateway":
             return str(self.root / "node_modules")
         return str(self.root)
+
+    def sweep_markers(self) -> list[tuple[str, str]]:
+        """Markers the orphan sweep matches, each paired with its component.
+
+        The primary marker is the venv one above. The venv ``python.exe`` is a
+        launcher that re-execs the base interpreter, and that base child's
+        command line carries no repo path at all — so an engine whose shim has
+        already died matches nothing above. The fallback is the canonical daemon
+        argv, which no other project on this machine uses.
+        """
+        out = [(self.marker("engine"), "engine"), (self.marker("telegram"), "telegram")]
+        # contiguous in both the shim's and the base interpreter's argv
+        out.append(("-m architecture.runtime --daemon", "engine"))
+        out.append((self.marker("gateway"), "gateway"))
+        return [(m, n) for m, n in out if m]
 
     # ------------------------------------------------------------- live state --
     def _pid_info(self, name: str) -> dict | None:
@@ -118,8 +147,11 @@ class AhosOrchestrator:
         if name == "engine":
             if heartbeat_age is None:
                 heartbeat_age = C.engine_heartbeat_age(get_local_db_path())
-            return C.probe_engine(self._pid_info("engine"), self.marker("engine"),
-                                  heartbeat_age=heartbeat_age)
+            info = self._pid_info("engine")
+            return C.probe_engine(info, self.marker("engine"),
+                                  heartbeat_age=heartbeat_age,
+                                  cycle=C.engine_cycle_state(get_local_db_path()),
+                                  pid_started_ts=(info or {}).get("started_ts"))
         return C.UNKNOWN, f"unknown component {name}"
 
     # --------------------------------------------------------------- preflight --
@@ -145,7 +177,8 @@ class AhosOrchestrator:
                                 log_path=self.log_path(name))
         pk.write_pid(self.state_dir, name, pid,
                      {"cmd": " ".join(cmd), "marker": self.marker(name),
-                      "log": str(self.log_path(name))})
+                      "log": str(self.log_path(name)),
+                      "started_ts": self.clock()})
         return pid
 
     def _start_component(self, name: str) -> C.ComponentResult:
@@ -272,8 +305,10 @@ class AhosOrchestrator:
         except Exception as e:
             return C.ComponentResult(name, C.UNAVAILABLE, f"spawn failed: {type(e).__name__}: {e}")
 
-        deadline = self.clock() + self.health_wait.get(name, 60)
+        t0 = self.clock()
+        deadline = t0 + self.health_wait.get(name, 60)
         last: tuple[str, str] | None = None
+        booting_note = False
         while self.clock() < deadline:
             if name == "telegram":
                 # run_bot.py exits fast when its own preflight fails; catch that.
@@ -295,6 +330,12 @@ class AhosOrchestrator:
                     return C.ComponentResult(name, status, detail, pid=pid,
                                              started_ts=self.clock(), fresh=True)
                 last = (status, detail)
+            # The engine's boot can run minutes; say so once after the first
+            # minute instead of leaving the owner staring at a frozen line.
+            if (name == "engine" and not booting_note
+                    and self.clock() - t0 > 45.0 and last and last[0] != C.HEALTHY):
+                booting_note = True
+                self.emit(P.PROGRESS["engine_booting"])
             time.sleep(1.0)
         tail = self._log_tail(name)
         # A live process that simply never turned healthy (the engine's first
@@ -430,8 +471,21 @@ class AhosOrchestrator:
         else:
             self.emit(P.PROGRESS["nothing_to_stop"])
         return self._report("stop", "STOPPED" if (stopped or swept) else "NOT_RUNNING",
-                            stopped, cp_status=cp_stop.get("status"),
+                            self._stop_results(stopped), cp_status=cp_stop.get("status"),
                             swept=swept, duration=self.clock() - t0)
+
+    def _stop_results(self, stopped: dict[str, dict]) -> dict[str, C.ComponentResult]:
+        """``_stop_components`` returns plain dicts; the report builder needs
+        ``ComponentResult`` objects. A component we just stopped is reported as
+        ``STOPPED`` with the termination method as its detail, so the receipt
+        names what was halted instead of crashing on the dict."""
+        out: dict[str, C.ComponentResult] = {}
+        for name, info in stopped.items():
+            out[name] = C.ComponentResult(
+                name, "STOPPED",
+                f"stopped ({info.get('how', '?')}, {info.get('secs', '?')}s)",
+                pid=info.get("pid"))
+        return out
 
     def _stop_components(self, order: list[str]) -> dict[str, dict]:
         stopped: dict[str, dict] = {}
@@ -453,8 +507,7 @@ class AhosOrchestrator:
         Marker = the repo's own .venv python or its node_modules path, so a
         process from another checkout or another project is never touched.
         """
-        markers = [self.marker("engine"), self.marker("telegram"), self.marker("gateway")]
-        markers = [m for m in markers if m]
+        markers = [(m, n) for m, n in self.sweep_markers() if m]
         found: list[int] = []
         try:
             res = subprocess.run(["tasklist", "/FO", "CSV", "/NH"],
@@ -479,7 +532,7 @@ class AhosOrchestrator:
             if pid in known or pid == os.getpid():
                 continue
             cmdline = pk.process_cmdline(pid) or ""
-            if any(m.lower() in cmdline.lower() for m in markers):
+            if any(m.lower() in cmdline.lower() for m, _ in markers):
                 pk.terminate(pid)
                 found.append(pid)
         return found
@@ -495,12 +548,20 @@ class AhosOrchestrator:
                                               started_ts=info.get("started_ts") if info else None)
         cp = self._control_plane(results)
         cp_status = cp.status()
-        worst = C.HEALTHY
-        rank = {C.HEALTHY: 0, C.UNKNOWN: 1, C.UNHEALTHY: 2, C.UNAVAILABLE: 3, "SKIPPED": 0}
-        for r in results.values():
-            worst = r.status if rank[r.status] > rank[worst] else worst
-        overall = ("ONLINE" if worst == C.HEALTHY else
-                   "DEGRADED" if worst in (C.UNKNOWN, C.UNHEALTHY) else "DOWN")
+        # The same ladder as ``start``: an OPTIONAL component that is down leaves
+        # the stack degraded, not down. Mapping UNAVAILABLE to DOWN made a fully
+        # working stack report DOWN and exit 1 whenever the (optional, and on
+        # this host unbindable) gateway was absent, so `AHOS Status` looked red
+        # while the engine was healthy.
+        down = [n for n, r in results.items()
+                if r.status in (C.UNHEALTHY, C.UNAVAILABLE)]
+        critical_down = [n for n in down if n in C.CRITICAL]
+        if critical_down:
+            overall = "DOWN"
+        elif down:
+            overall = "DEGRADED"
+        else:
+            overall = "ONLINE"
         return self._report("status", overall, results, None,
                             cp_status=cp_status.get("system"))
 

@@ -32,11 +32,18 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+# Running this file as a script puts *its own directory* on sys.path, not the
+# repo root, so `import launcher.components` would fail without this. The
+# idempotent case needs no imports, but port-busy does.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 REPORT_DIR = ROOT / "reports" / "launcher"
 PY = ROOT / ".venv" / "Scripts" / "python.exe"
 
-# Per-action wall clocks. The engine's first scheduler cycle is the long pole.
-TIMEOUTS = {"start": 300.0, "status": 45.0, "stop": 90.0, "restart": 420.0}
+# Per-action wall clocks. The engine's first scheduler cycle is the long pole:
+# HEALTH_WAIT["engine"] alone is 420s, and the first observation cycle on a cold
+# host has been measured at ~21 minutes.
+TIMEOUTS = {"start": 1500.0, "status": 45.0, "stop": 90.0, "restart": 1500.0}
 
 
 def _utcstamp() -> str:
@@ -104,12 +111,29 @@ def _run(action: str, *, env: dict, skip: tuple[str, ...] = (), expect_rc=(0,)) 
            "rc_ok": res.returncode in expect_rc,
            "stdout": (res.stdout or "")[-4000:],
            "stderr": (res.stderr or "")[-1500:]}
-    # The CLI prints the JSON report last; capture it if it did.
-    try:
-        rec["report"] = json.loads((res.stdout or "").strip().splitlines()[-1])
-    except Exception:
-        rec["report"] = None
+    # The CLI prints the JSON report last, after the Persian progress lines and
+    # pretty-printed with indent=2 — so it is *not* the final line of stdout.
+    rec["report"] = _parse_report(res.stdout or "")
     return rec
+
+
+def _parse_report(stdout: str) -> dict | None:
+    """Find the JSON report the CLI prints at the end of its stdout.
+
+    ``--json`` still emits the Persian progress lines first, then the report
+    indented across many lines, so ``splitlines()[-1]`` is just ``}`` and never
+    parsed. Every candidate ``{`` is tried in order and the first that decodes
+    all the way to end-of-output wins, which keeps this correct even if a
+    progress line ever contained a brace.
+    """
+    for i, ch in enumerate(stdout):
+        if ch != "{":
+            continue
+        try:
+            return json.loads(stdout[i:])
+        except ValueError:
+            continue
+    return None
 
 
 def _latest_report() -> dict | None:
