@@ -49,7 +49,7 @@ Later (after foundation stable): low-latency research path, dynamic environment/
 
 ## Owner update 2026-10-02 18:47 Tehran (binding on ordering)
 Claude has a large budget (Atria): missions are BIG and broad. FINAL GOAL: AHOS fully usable and launched from ONE desktop icon
-(Desktop of user Sniper): double-click -> Docker/DB up, gateway/dashboard, Telegram bot, engine in PAPER mode, health checks,
+(Desktop of user Sniper): double-click -> ~~Docker/DB up~~ [SUPERSEDED 2026-10-03: no Docker; native portable PostgreSQL started by the launcher via pg_ctl, see 'Decisions 2026-10-03' below], gateway/dashboard, Telegram bot, engine in PAPER mode, health checks,
 opens dashboard; robust startup/health/error messages in short Persian; idempotent (already-running services detected), clean stop option.
 Revised order: M9 truth baseline -> M10 ONE-CLICK LAUNCHER (+stop/status, health, Persian errors, desktop .lnk) ->
 M11 Agent Organization designed creatively per docs with Claude (19 agents + teams: GitHub Intelligence, Skill Intelligence,
@@ -140,3 +140,78 @@ about the plan's assumptions, plus two inconsistencies the plan should absorb.
 **Unchanged:** the human-gated list above stands exactly as written. M9 touched
 none of it — no live trading, no constitution or governance change, no Lane A
 edit, no secret rotation, no push.
+
+## Decisions 2026-10-03 (owner, binding) + Owner Directive Traceability (Grok)
+
+### HARD RULE — search first, extend, never duplicate (applies to every mission)
+Before building anything, Claude must search the repo (`rg -i <concept>` across architecture/, agent_org/, ahos_org/,
+paper_trading/, discovery/, telegram_ai/, research_worker/, strategy_lab/, engine/, app/, root *.ts, scripts/, tests/, docs/,
+reports/) and the matrix's Evidence column, then **extend the existing module**. No parallel/duplicate modules, no "v2" copies,
+no second registry/council/engine/launcher/gate for a concept that already has a home. If a new file is unavoidable, the mission
+report must list the paths searched and say why the existing module could not be extended. If a mission finds an existing
+duplicate, it records the duplicate and does not add a third copy. Consolidation happens only in the missions listed below.
+
+### M10 decision — safe Docker/n8n removal on native portable PostgreSQL (supersedes the "Docker/DB up" launcher wording above)
+- Native **portable PostgreSQL on Windows** (zip binaries, managed by `pg_ctl`). Data dir lives **outside git**
+  (e.g. `C:\Users\Sniper\ahos_pg\data`). Bind to **127.0.0.1 only**.
+- Migrate with `pg_dump` from the Docker DB, then restore into native PG. Prove it with **parity tests** (row counts, schema,
+  key queries) before switching. SQLite stays canonical where it already is (M9 finding).
+- **Docker volumes are left untouched** for rollback. Compose and n8n files are archived, not deleted. n8n workflows move to
+  existing Python/Node schedulers (`architecture/scheduling/engine.py`, `observation_loop.py`); don't write a new scheduler.
+  The n8n governance validator (`8e48cf3`) is reused for the inventory.
+- Reuse: `docker-compose.yml`, `n8n/workflows/`, `database/postgresql_schema.sql`, `reports/grok/DOCKER_N8N_DEPENDENCY_MAP.md`.
+  `reports/pgdump_*.sql` must never be committed.
+
+### M11 decision — one-click launcher
+One desktop .lnk that starts native PG (pg_ctl), the runtime routed through `ControlPlane` (CC-1), gateway/dashboard, the
+Telegram bot and the engine in PAPER mode. It runs health checks, gives short Persian errors, is idempotent, and has
+stop/status. **No Docker.** Consolidate the existing launchers (`start_ahos.bat`, `start_ahos.ps1`, `AHOS_WINDOWS_OPS.bat`,
+`AHOS_PRE_SOAK_NOW.bat`, `AHOS_MAIN_FIRST.bat`, `install_windows.ps1`) into one entry point instead of adding a sixth.
+
+### Traceability matrix
+`reports/grok/OWNER_DIRECTIVE_TRACEABILITY.md` splits both owner directive docs into 594 atomic requirements:
+73 IMPLEMENTED+TESTED, 417 EXISTS-PARTIAL (reuse/extend), 13 PLANNED, 68 MISSING (now assigned below), 18 HUMAN-GATE, 5 UNKNOWN.
+**Each mission must tick off its rows.** At mission close, update the Status/Evidence cells of the rows whose Mission column names
+it, and cite the commit and test. A row with no evidence stays open.
+
+### MISSING items now assigned to missions (from the matrix)
+- **M12 agents:** a real agent lifecycle (REGISTERED→IDLE→…→MISSION_EXECUTION→WAITING_FOR_VERIFICATION), built by extending the
+  `ahos_org/registry.py` REGISTERED→IMPLEMENTED path (`c7ed457`). An agent message protocol (sender/receiver/mission/evidence/
+  claim/confidence/capability), built by extending `contracts/agent_contract_v1.json` + `agent_org/research_host/contracts.py`.
+  Also decide the `agent_org/` vs `ahos_org/` split; don't add a third plane.
+- **M13 paper+learning (+ gold-paper track, per OWN-18 "gold first"):** missing security checks (whitelist, fees, max-tx,
+  max-wallet, trading controls, liquidity removal, insider concentration, developer history, previous tokens, contract history)
+  go into `architecture/security/contract_analysis.py` / `holder_analysis.py`. Pick ONE paper engine
+  (`paper_trading/engine*.py` v1/v2/v3) and wire `cycle.py:run_full_cycle`. Gold paper trading on real-market data with fake money
+  reuses `paper_trading/` + `architecture/providers/` (new gold price adapter only). Live gold stays HUMAN-GATE.
+- **M14 autonomous engineering core:** a Mission Controller built on `architecture/mission/ledger.py` (`d1571c4`) +
+  `dev_missions.ts` (`d10383e`), not a new package. An Architecture Agent registered via `ahos_org/registry.py`.
+- **M16 University/GitHub:** the University (professors/students, help-desk, failure-learning department, dashboard view,
+  University→engineering pipeline, proposals to add agents or duties). Build it on `architecture/cognitive/self_research.py`,
+  `strategy_lab/`, `research_worker/`, `architecture/knowledge/oss_pipeline.py`. Design input:
+  `reports/grok/UNIVERSITY_AND_AGENTS_DISCOVERY.md` (`3eea757`).
+- **M17 dashboard:** Memory and System Evolution views. First consolidate the 5 parallel website/3D trees
+  (`advanced-3d-audiovisual-website*`, `درخت کاملتر…`, `سایت درخت…`, `01/src`) into the live `CommandCenter.tsx` + `app/`.
+  Preserve them (P1 §106); don't add another tree.
+- **M18 news/gold/accounting:** the Gold Division agents (22 rows) are registered in the existing registry, not a new org. A
+  development-activity data source goes into `architecture/providers/`. The financial-transfer/account-opening study is a
+  **design doc only**; any transfer is HUMAN-GATE. Accounting extends `paper_trading/ledger.py` + `cost_model.py`.
+- **NEW M19 multi-market + low-latency + environment/audio polish (after a stable foundation):** forex/equities/oil/macro
+  adapters in `architecture/providers/`, a low-latency order-book/websocket research path (research/paper only), and
+  environment/audio engines extending `01/src/components/atmosphere.tsx` and
+  `advanced-3d-audiovisual-website/src/utils/audio.ts`.
+
+### Contradictions recorded as HUMAN-GATE (not resolved by agents)
+- OWN-6 "no permission for self-development": autonomy only for safe reversible ops (P1A §15). Gated ops (P1A §16) and the list
+  above still need the owner.
+- OWN-7 "live trade for all parts": PAPER_ONLY stands. Per OWN-18, gold paper comes first, then other lines after real paper
+  profit. Any live step is an explicit owner decision.
+
+### Existing duplicates (do not extend the duplication; consolidate only in the named mission)
+4+1 website/3D trees (M17); `slills/` vs `.cursor/skills/` (M16); `agent_org/` vs `ahos_org/` (M12); `tests/` vs `tests2b/` (M14);
+paper engines v1/v2/v3 + 3 schemas (M13); council in `council_live.py` / `debate_council.py` / `council.ts` (M15); whales in
+`architecture/intel/whales.py` vs `architecture/intelligence/whales/` (M18); identity in `discovery/identity.py` vs
+`architecture/identity/` (M13); security gate in `discovery/security_gate.py` vs `architecture/security/gate.py` (M13);
+positions in `telegram_ai/positions.py` vs `architecture/positions/` (M13); 6 launchers (M11); 3 DB schemas (M10); 5 provider
+registries (M13/M14); overlapping registers (`docs/supervision/OWNER_VISION_REGISTRY.md`, `docs/CANONICAL_IMPLEMENTATION_MATRIX.md`,
+`docs/COMPONENT_REUSE_MAP.md`, `REMAINING_REALITY_REGISTER.md`); the traceability matrix cross-references them.

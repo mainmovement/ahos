@@ -606,3 +606,41 @@ npm run test:chat-control-gate    # 131 — includes the MN-1 pepper block
 11. Phase 8: the dev-mission queue has **no consumer** (no mission controller yet); no live gateway round trip verified this run; `AHOS_DEV_MISSIONS_PATH` is outside the config-validation scan; last-line deletion is invisible to the keyless chain (documented). University and the nine teams remain docs-only; all 19 Slice-1 agents sit below the maturity floor, so M11 needs per-agent evidence before any execution authority.
 12. Phase 9 (M9): the paper-trading closed loop has never run — all 19 `paper_trading.sqlite` tables hold 0 rows, so calibration, outcome tracking, the live decision authority, trade-derived learning, and accounting all rest on an empty store. CC-3 (`Tuple` NameError in `debate_council.py`, latent), CC-4 (`cycle_duration_ms` clock-drift contamination), CC-5 (`chain_id='robinhood'` on 3,635 observations), and CC-1 (daemon not routed through `ControlPlane`) are open and recorded in `reports/grok/REMAINING_REALITY_REGISTER.md`. Twelve older readiness maps are bannered STALE; quote the register, not them.
 
+
+## Owner directive traceability + NO-DUPLICATES hard rule (added 2026-10-03 by Grok)
+
+- **Matrix:** `reports/grok/OWNER_DIRECTIVE_TRACEABILITY.md` splits `owner_directive_part1.txt` + `part2.txt` into 594 atomic
+  requirements, each with a status, existing-file evidence and an assigned mission (73 IMPLEMENTED+TESTED, 417 EXISTS-PARTIAL
+  (reuse/extend), 13 PLANNED, 68 MISSING (now in the plan), 18 HUMAN-GATE, 5 UNKNOWN).
+- **Each mission must tick off its rows.** At close, update the Status/Evidence cells of every row whose Mission column names the
+  mission, citing the commit + test. No evidence means the row stays open. Never mark an EXISTS row done just because the file exists.
+- **HARD RULE — search first, extend, never duplicate.** Before building anything:
+  1. `rg -i <concept>` across architecture/, agent_org/, ahos_org/, paper_trading/, discovery/, telegram_ai/, research_worker/,
+     strategy_lab/, engine/, app/, root *.ts, scripts/, tests/, docs/, reports/.
+  2. Read the matrix's Evidence column.
+  3. Extend the module found.
+
+  No parallel modules, no `*_v2` copies, no second registry/council/engine/launcher/gate/website tree. If a new file is truly
+  needed, the mission report lists the paths searched and why extension was impossible.
+- **Known duplicates (don't add a third copy; consolidate only in the named mission):**
+  - 5 website/3D trees (M17)
+  - `slills/` vs `.cursor/skills/`
+  - `agent_org/` vs `ahos_org/` (M12)
+  - `tests/` vs `tests2b/`
+  - `paper_trading/engine{,_v2,_v3}.py` (M13)
+  - council ×3 (M15)
+  - whales ×2
+  - identity ×2
+  - security gate ×2
+  - positions ×2
+  - 6 launchers (M11)
+  - 3 DB schemas (M10)
+  - 5 provider registries
+  - See the matrix's "Existing duplicate / parallel implementations" section.
+- **Decisions 2026-10-03:**
+  - **M10** = safe Docker/n8n removal using native portable PostgreSQL on Windows: `pg_ctl`, data dir outside git, bind
+    127.0.0.1, migrate via pg_dump/restore + parity tests, Docker volumes untouched for rollback.
+  - **M11** = one-click launcher (no Docker). The older "Docker/DB up" launcher wording is superseded.
+  - **M19 (new)** = multi-market, low-latency research path, environment/audio polish.
+  - The gold-paper track runs inside M13 (OWN-18).
+  - OWN-6 (autonomy) and OWN-7 (live everywhere) are HUMAN-GATE contradictions; PAPER_ONLY stands.
