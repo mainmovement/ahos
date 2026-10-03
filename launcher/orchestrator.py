@@ -154,6 +154,15 @@ class AhosOrchestrator:
             port = int(info_gw.get("port") or 3000)
             if pk.port_in_use(host, port):
                 return "foreign_busy"
+            # Nothing accepts — but if we cannot bind either, the port is still
+            # not ours to serve on. A foreign listener that never accepts makes
+            # the connect probe above hang and read as free, and a Windows
+            # excluded range fails bind with nobody listening at all. Spawning in
+            # either case just burns the whole health budget on a listen error
+            # ``select_gateway`` had already diagnosed. (Had the listener been
+            # ours, the pid check above would have said "ours_running".)
+            if not pk.can_bind(host, port):
+                return "unusable"
         return "down"
 
     def _component_probe(self, name: str, *, heartbeat_age: float | None = None):
@@ -212,6 +221,10 @@ class AhosOrchestrator:
                                      pid=info.get("pid"), started_ts=info.get("started_ts"))
         if state == "foreign_busy":
             return C.ComponentResult(name, C.UNHEALTHY, "foreign_busy")
+        if state == "unusable":
+            # Distinguished from foreign_busy because the Persian action for a
+            # port another program holds would be a lie here: the OS reserves it.
+            return C.ComponentResult(name, C.UNHEALTHY, "port_not_bindable")
 
         if name == "stores":
             return self._start_stores()
@@ -437,9 +450,8 @@ class AhosOrchestrator:
                 fmt: dict = {}
                 if name == "gateway":
                     if res.detail == "foreign_busy":
-                        gw = self.gateway
-                        fmt["port"] = P.fa(gw.get("port") or 3000)
-                    else:
+                        fmt["port"] = P.fa(self.gateway.get("port") or 3000)
+                    elif res.detail != "port_not_bindable":
                         fmt["sec"] = P.fa(int(self.health_wait.get(name, 60)))
                 self.emit(f"  {P.component_label(name)}: ⚠ " +
                           P.error("generic",
@@ -677,6 +689,8 @@ def _optional_action(name: str, res: C.ComponentResult) -> str:
     if name == "gateway":
         if res.detail == "foreign_busy":
             return "gateway_port_busy"
+        if res.detail == "port_not_bindable":
+            return "gateway_port_reserved"
         return "gateway_down"
     if name == "telegram":
         return "telegram_missing_token"

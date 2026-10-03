@@ -329,6 +329,26 @@ def port_in_use(host: str, port: int, timeout: float = 0.6) -> bool:
         return False
 
 
+def can_bind(host: str, port: int) -> bool:
+    """Can THIS process actually listen on host:port? A real ``bind``, then close.
+
+    A connect probe is not a substitute on Windows: wide port ranges are reserved
+    for Hyper-V/WSL, so ``bind`` fails with ``WinError 10013`` while a connect
+    probe reports the port as free — and a foreign listener that never calls
+    ``accept`` makes a connect probe *hang*, which reads as "nothing there".
+    Mirrors ``scripts/gateway_port.py`` (kept in sync because the launcher and
+    the resolver must agree about the same port).
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind((host, int(port)))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
+
 def http_ok(url: str, timeout: float = 5.0) -> tuple[bool, int | None, str]:
     """Plain GET; returns (ok, status_code, reason). Uses urllib (no extra deps)."""
     import urllib.request

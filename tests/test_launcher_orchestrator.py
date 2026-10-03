@@ -31,7 +31,7 @@ import launcher.processkit as pk  # noqa: E402
 from launcher.smoke import _parse_report  # noqa: E402
 from launcher.control_plane_bridge import LauncherControlPlane, build_config  # noqa: E402
 from launcher.make_icon import build as build_icon  # noqa: E402
-from launcher.orchestrator import AhosOrchestrator  # noqa: E402
+from launcher.orchestrator import AhosOrchestrator, _optional_action  # noqa: E402
 from launcher.shortcuts import shortcut_specs  # noqa: E402
 
 
@@ -327,6 +327,40 @@ class TestOrchestrator:
         assert res.status == C.UNHEALTHY
         assert res.detail == "foreign_busy"
         assert "AHOS_GATEWAY_PORT" in P.ACTIONS["gateway_port_busy"]
+
+    def test_gateway_port_we_cannot_bind_is_reported_without_spawning(self, tmp_path, monkeypatch):
+        """A foreign listener that never ``accept`` makes the connect probe hang,
+        so ``port_in_use`` reads the port as free while ``bind`` still fails. The
+        launcher used to spawn the gateway anyway and spend its whole health
+        budget on a listen error; it must classify the port as unusable first."""
+        orch = make_orchestrator(tmp_path)
+        spawned = []
+        monkeypatch.setattr("launcher.processkit.port_in_use",
+                            lambda host, port, timeout=0.6: False)
+        monkeypatch.setattr("launcher.processkit.can_bind",
+                            lambda host, port: False)
+        monkeypatch.setattr(orch, "_start_process",
+                            lambda name: spawned.append(name) or C.ComponentResult(
+                                name, C.UNAVAILABLE, "should not have spawned"))
+        res = orch._start_component("gateway")
+        assert spawned == []
+        assert res.status == C.UNHEALTHY
+        assert res.detail == "port_not_bindable"
+        # The owner-facing action names the OS reservation, not a rival program:
+        # "occupied by another program" would be a guess, and UNKNOWN > fabricated.
+        assert P.ACTIONS["gateway_port_reserved"] != P.ACTIONS["gateway_port_busy"]
+        assert "Hyper-V" in P.ACTIONS["gateway_port_reserved"]
+        assert _optional_action("gateway", res) == "gateway_port_reserved"
+
+    def test_gateway_port_we_can_bind_still_spawns(self, tmp_path, monkeypatch):
+        """The new bind check must not shadow the normal path: a port nobody holds
+        and the OS releases is still spawned into."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr("launcher.processkit.port_in_use",
+                            lambda host, port, timeout=0.6: False)
+        monkeypatch.setattr("launcher.processkit.can_bind", lambda host, port: True)
+        res = orch._start_component("gateway")
+        assert res.detail != "port_not_bindable"
 
     def test_idempotent_when_our_pid_is_alive(self, tmp_path, monkeypatch):
         orch = make_orchestrator(tmp_path)

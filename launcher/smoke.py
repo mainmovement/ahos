@@ -28,6 +28,7 @@ import os
 import socket
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -63,7 +64,7 @@ def _base_env(mode: str) -> dict:
 
 
 def _can_bind(host: str, port: int) -> tuple[bool, str | None]:
-    """Can this process actually listen on host:port?
+    """Can this process actually listen on host:port? Returns the failure reason.
 
     Windows reserves wide TCP ranges for Hyper-V/WSL (``netsh int ipv4 show
     excludedportrange protocol=tcp``); a ``port_in_use`` connect probe reports
@@ -105,6 +106,19 @@ def _bindable_port(host: str, preferred: int,
     raise SystemExit(
         "no bindable port found for the injection; tried the configured port and "
         f"the shared candidate list {tuple(candidates) or '(empty)'}")
+
+
+def _drain(sock: socket.socket) -> None:
+    """Accept and drop every connection offered to the injection socket."""
+    while True:
+        try:
+            conn, _ = sock.accept()
+        except OSError:
+            return  # closed from the main thread
+        try:
+            conn.close()
+        except OSError:
+            pass
 
 
 def _run(action: str, *, env: dict, skip: tuple[str, ...] = (), expect_rc=(0,)) -> dict:
@@ -224,7 +238,15 @@ def smoke_port_busy(mode: str, *, skip: tuple[str, ...]) -> dict:
     squat = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     squat.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     squat.bind((host, int(port)))
-    squat.listen(1)
+    squat.listen(8)
+    # A real foreign server accepts the connections it is offered. A socket that
+    # only listens never fills its backlog past one pending connection, so the
+    # launcher's second connect probe hangs past its timeout, reads the port as
+    # free, spawns a gateway it cannot bind, and burns 120s on a listen error —
+    # the injection would then be measuring the launcher's timeout, not its
+    # port-busy handling. Closing the socket ends the thread.
+    drain = threading.Thread(target=_drain, args=(squat,), daemon=True)
+    drain.start()
     steps: list[dict] = []
     out: dict = {}
     try:
@@ -237,6 +259,7 @@ def smoke_port_busy(mode: str, *, skip: tuple[str, ...]) -> dict:
             "db_scheme": target.get("scheme"),
             "gateway_status": gw.get("status") if gw else None,
             "gateway_detail": gw.get("detail") if gw else None,
+            "gateway_chosen_via": (report or {}).get("gateway_chosen_via"),
             "overall": (report or {}).get("overall"),
             "persian_action_named": "AHOS_GATEWAY_PORT" in stdout
                                     or "AHOS_GATEWAY_PORT" in json.dumps(gw or {}),
