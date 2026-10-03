@@ -2298,3 +2298,5 @@ S8 LEARN      هومن: پرسش‌های P2§27؛ حافظهٔ ۱۴.۴؛ تیک
 > **Owner confirmation 2026-10-03 22:07 (Tehran):** Mehrdad approved (1) 20% weekly sweep of realised profit above high-water mark to the Mother Safety Fund, (2) the narrow INV-18 exception allowing automatic transfer ONLY to that one fixed fund address, (3) new agent #38 سروش (independent judge). PAPER_ONLY unchanged; live use still requires the real-money gate.
 
 > **Owner confirmation 2026-10-03 23:04 (Tehran):** Mehrdad approved the Leader = agent #39 «کیان» (Agent-01 / owner-facing seat; dashboard chat + Telegram, one memory). Status PROPOSED -> APPROVED.
+
+> **Owner confirmation 2026-10-03 23:07 (Tehran):** Kian (#39) intelligence/voice = Gemini, reusing the existing `architecture/ai/gemini_chat.py` (zero authority, key in Windows Credential Manager `AHOS/ai/gemini`) with `architecture/ai/router.py` fallback and `council_live.py` for multi-model consultation. No new parallel chat stack.
