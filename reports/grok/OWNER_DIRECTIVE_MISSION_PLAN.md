@@ -1,6 +1,6 @@
 # OWNER DIRECTIVE MISSION PLAN (derived by Grok, 2026-10-02 ~18:50 Tehran)
 
-**Plan version note:** rev 2026-10-03 23:21 Tehran, synced to vision **v1.6**. It records the owner confirmations of 23:04 and 23:07, the owner request of 23:14–23:17, and the owner decision on the team review at 23:21. The newest owner statement wins; superseded items are marked. Numbering M9→M36 is unchanged; new IDs are M35.1–M35.5 (M35 re-cut) and M37–M43. Missions M28–M36 are defined in the vision (§13, §14) and are not repeated here.
+**Plan version note:** rev 2026-10-03 23:47 Tehran, synced to vision **v1.7**. It adds M44–M51 (owner approved 23:44; leadership constraints 23:47; all [PLANNED] pending separate owner approval) and the Kian audit-store decision in M35.1. M36.4 is SUPERSEDED by M51. *(Previous: rev 23:21, vision v1.6.)* It records the owner confirmations of 23:04 and 23:07, the owner request of 23:14–23:17, and the owner decision on the team review at 23:21. The newest owner statement wins; superseded items are marked. Numbering M9→M36 is unchanged; new IDs are M35.1–M35.5 (M35 re-cut) and M37–M43. Missions M28–M36 are defined in the vision (§13, §14) and are not repeated here.
 
 Sources: docs/owner_directives/owner_directive_part1.txt (Master Autonomous Execution & Completion Directive + Autonomous Engineering addendum),
 docs/owner_directives/owner_directive_part2.txt (AHOS MASTER CONTEXT v2.0 + Completion Mandate + Autonomous Master Execution Mandate).
@@ -427,3 +427,187 @@ All are PAPER/testnet only and none enables real money. Order: M42, M43 → M41 
 - Note: `config/agent_registry.yaml` uses a different AG-xx numbering (AG-08 Risk, AG-11 Council, AG-12 Router). Map it only; M34.2 resolves it.
 
 **UNKNOWN / owner gates (not decided by agents):** brokers and their whitelist/key capabilities; jurisdiction; market-data quality per market; the T3 dollar cap; broker-side whitelist setup (owner, manual). Minimum time to T4 per market/strategy is ≥12 months (T1 6 + T2 3 + T3 3).
+
+## Owner approval 2026-10-03 23:44 + leadership constraints 23:47 (vision v1.7; binding; newest wins)
+**Owner approved (23:44):** a self-completing, self-updating, self-debugging layer that keeps AHOS at the scientific frontier, moving toward AGI/ACI/SI (a north star, never a claim). It is implemented as missions M44–M51 (vision §14.10).
+
+**Leadership review (23:47; آرش 01, سامان 02, سپهر 03, گیتی 04, قاسم 16), accepted in full:**
+- **Status:** all eight missions stay **[PLANNED]** until the owner separately approves each one.
+- **Jobs, not agents:** they are jobs in the existing daemon (`architecture.runtime`), not agents. If one ever becomes an agent, it is registered with a plane ID, authority NONE and LOCKED, signed by the owner. Dual-19 stays BLOCKED.
+- **Protocol:** every mission follows the SP protocol (vision §14.0). Sign-off is 16 VERIFY / 19 CHALLENGE / 05 evidence. Local commits only, never push. Lane A frozen.
+
+### Kian audit store (leadership decision 01; added to M35.1; final owner approval required)
+- **Store:** a Lane B SQLite under `data/`, append-only and hash-chained, with an inventory row and inclusion in the M10 backup.
+- **سپهر's 4 conditions:**
+  1. Append only.
+  2. Chained sha256.
+  3. The last hash is recorded in the M10 backup receipt **and** in PGlite.
+  4. No secrets; text is redacted before it is written.
+- **قاسم's 3 tests:**
+  - (T-A1) Deleting the last rows is detected via the recorded last hash, giving FAIL.
+  - (T-A2) A missing file is FAIL; no empty file is created.
+  - (T-A3) After a failed verify, append is refused and the chain never restarts from 1.
+- **Boot order:** Next → daemon + Kian endpoint → Telegram last.
+- **Decision records** (format WHY/WHAT/EXPECTED/TEST/ROLLBACK; both need final owner approval):
+  - DR-KIAN-AUDIT-01: the audit store.
+  - DR-KIAN-TS-GEMINI-02: archive (not delete) the Gemini logic in the TS path; TS only calls the Kian endpoint (AD-0016, INV-31).
+
+### Shared guardrails for M44–M51 (vision §14.10.2; INV-37..INV-40)
+1. **Protected paths.** M46/M48/M51 output is only a local commit on a separate branch via 16/19/05.
+   - No auto-merge and no push; the owner merges manually.
+   - Protected list: `architecture/security/hygiene.py`, `ahos_org/policy.py`, `scripts/freeze_lane_a.py`, registry/authority, gate tests, Kian's system prompt, `.github/workflows/`, `.git/`, the launcher, `wincred_reader.py`, dependency lockfiles, and the checker script itself.
+   - Changing the list, gates, caps or governance docs needs an owner L2 record in `AHOS_ISSUE_REGISTER.md`.
+   - Test: a patch touching a protected path is rejected.
+2. **Anti test-weakening.** Patches are rejected if they:
+   - add skip/xfail;
+   - remove asserts;
+   - loosen tolerances or timeouts;
+   - reduce the test count;
+   - touch `conftest.py`.
+
+   Each patch needs a test-integrity receipt:
+   - test and assert counts before and after, with no decrease;
+   - zero diff on `tests/` unless the patch is an explicit new test;
+   - a full pytest run on the branch SHA with raw output.
+
+   Test: a skip-only patch is rejected.
+3. **Proposer ≠ verifier.**
+   - Kian, Gemini and the mission itself never VERIFY; VERIFY is 16 only, CHALLENGE is 19 only.
+   - At most one open automatic proposal in VERIFY; any extra gets a "queue full" receipt.
+   - The best verdict is PASS_WITH_GAPS, bound to the branch SHA.
+4. **Isolation (M44/M45/M48).**
+   - Web and paper content is data, not instructions.
+   - Execution runs in a short-lived child process:
+     - Windows Job Object caps (RAM, CPU, process count, time);
+     - a low-privilege user, an empty env, no wincred, no `data/` access;
+     - a Windows Firewall rule with default outbound deny plus an allowlist.
+   - Child output is accepted only against a fixed schema with a size cap.
+   - The low-privilege user and the firewall rule are a **one-time owner human gate** with a setup doc; without them, M45 fails closed.
+   - Tests: the child reading `data/` or calling wincred fails; curl to a non-allowlisted domain fails.
+5. **One scheduler.**
+   - All of these are jobs in the existing daemon.
+   - At most one heavy job runs at a time.
+   - M45 and M50 never run in parallel (8 GB RAM).
+   - Test: when two heavy jobs are due at once, the second is queued.
+6. **Stores.** M49 and the M50 results use the same append-only hash-chained SQLite pattern under `data/`, with قاسم's 3 tests, an inventory row and the M10 backup. No new store without an inventory row.
+7. **One-way flow.**
+   - M47 and M46 detect problems and write lessons to M49.
+   - M51 only reads M49 and puts patches on the separate branch.
+   - M51 never writes to M49, and M46 never applies patches.
+
+### Missions (each with Claude-ready acceptance criteria; details in vision §14.10.3)
+- **M44 Science Radar**
+  - **Builds on:** `research_worker/` + `engine/research_report_bot.py` + `architecture/knowledge/oss_pipeline.py`; absorbs n8n workflows `ahos_10_research_lab`, `ahos_11_data_update` and `ahos_12_research_report` once, in Python (after M10 archives them).
+  - **Owners:** شیدا, فرزانه, نگار, دانا.
+  - **Sources:** legal APIs only (arXiv API with its rate guidance; GitHub REST Search instead of scraping the trending page; Hugging Face Hub + official model changelogs; OpenAlex / Semantic Scholar).
+  - **Daily job:** dedupe (DOI/arXiv ID/canonical URL/MinHash) → score → Persian summary tagged [UNVERIFIED] → university queue.
+  - **Acceptance:**
+    - a rate-limit mock test;
+    - one paper from 3 sources becomes 1 row;
+    - an injection hidden in an abstract causes 0 side effects;
+    - 0 code execution;
+    - an n8n parity test, with no second copy left behind;
+    - no access to the M50 answer key.
+- **M45 Auto Lab**
+  - **Builds on:** `strategy_lab/` + `architecture/cognitive/sandbox.py` + `architecture/evolution/` + the M28.1 stats library.
+  - **Owners:** روشا, کیمیا, سپهر.
+  - **Pre-registration:** metrics, thresholds, data and splits are hashed before the run.
+  - **Method:** walk-forward/OOS (purged/embargoed) against the current baseline, with DSR/PBO and every trial logged; runs only in the isolated child.
+  - **Acceptance:**
+    - changing a metric after the run voids it;
+    - the isolation tests pass;
+    - missing isolation means fail-closed;
+    - the same seed and data reproduce the result;
+    - promotion happens only through 16/19/05 → owner.
+- **M46 Self-Debug**
+  - **Builds on:** `engine/health_manager.py` + `AHOS_SELF_REPAIR_DESIGN.md` + `scripts/regression_report.py` / `record_test_run.py` + Failure Memory + `improvement_proposal_v1`.
+  - **Owners:** رستم, هومن, قاسم, رضا.
+  - **Flow:** capture → redact → RCA with evidence_refs to real log or audit rows (Gemini-only text stays [UNVERIFIED] and never reaches M49) → patch on a separate branch → full pytest + integrity receipt → auto-revert on failure.
+  - **Acceptance:**
+    - a fake error with no log gets no definitive root cause;
+    - a protected-path patch is rejected;
+    - a skip-only patch is rejected;
+    - 0 pushes and 0 applies.
+- **M47 Health Monitor**
+  - **Builds on:** `architecture/runtime/observability_snapshot.py` + `deployment/healthcheck.py` + `architecture/scheduling/watchdog.py` + the M11 launcher status/ControlPlane + the Claude watchdog pattern (search-first to find its path).
+  - **Owners:** رستم, سامان, آیدا.
+  - **Authority:** READ/DOWNGRADE/HALT only.
+    - It restarts only listed safe components, with a retry cap and backoff.
+    - It never restarts risk, treasury or execution.
+    - It cannot silence or delete alerts or logs.
+    - Only the owner reverses a HALT, and escalation goes to Kian.
+  - **Acceptance:**
+    - fault injection (kill the daemon, fill the disk, lock PGlite, break the audit chain) produces an alert or HALT within the set time (proposed ≤60 s), otherwise FAIL;
+    - a "cannot delete logs" test;
+    - an "unHALT only by the owner" test.
+- **M48 Safe Dependency/Model Updates**
+  - **Builds on:** `engine/update_manager.py` (CHECK_ONLY default) + `AHOS_UPDATE_POLICY.md` (its NEVER rules stay; an update is only a proposal) + `ai_provider_registry.yaml`.
+  - **Owners:** سپهر, آریا, قاسم.
+  - **Weekly job:** check → upgrade in the sandbox → tests green or automatic rollback → a proposal on a branch with a new lockfile.
+  - **Supply chain:**
+    - hash-pinned installs (`--require-hashes`) from the pinned lock only;
+    - OSV / pip-audit / npm audit;
+    - TLS never disabled;
+    - downloaded code is never auto-executed.
+  - **Acceptance:**
+    - a bad hash or a known CVE is rejected;
+    - a failing test triggers rollback;
+    - 0 direct lockfile edits on the main branch.
+- **M49 Lessons Ledger**
+  - **Builds on:** `paper_trading/lessons.py` + `architecture/cognitive/memory/` (memory §14.4/M30) + the §8.1 error taxonomy.
+  - **Owners:** هومن, ژاله, قاسم.
+  - **Record fields:** LESSON_ID, SOURCE, MARKET, TAXONOMY, EVIDENCE_REFS, CLAIM, COUNTERFACTUAL, STATUS ([UNVERIFIED] until 16 reviews it), VALID_FROM, PREV_HASH.
+  - **Retrieval:** as-of retrieval before decisions, through `cognitive/loop/retrieval.py`.
+  - **Rules:** a lesson never changes a gate or cap; it can only become a proposal, and becoming a rule needs L2.
+  - **Acceptance:**
+    - قاسم's 3 tests;
+    - 0 future leakage;
+    - an [UNVERIFIED] lesson carries zero decision weight;
+    - an inventory row and the M10 backup.
+- **M50 Weekly Intelligence Exam**
+  - **Schedule:** every Saturday, 08:00 Tehran, as a daemon job; never in parallel with M45.
+  - **Builds on:** `architecture/cognitive/benchmark/` + `scripts/run_cognitive_benchmark.py` + the golden sets + `architecture/learning/calibration.py`.
+  - **Owners:** عرفان, روشا, قاسم; Kian reports.
+  - **Suite:** fixed and versioned, with 5 areas:
+    1. forecast calibration;
+    2. reasoning;
+    3. token-scam detection;
+    4. bug fixing (SWE-bench-style, on AHOS's own closed bugs);
+    5. Persian communication.
+  - **Anti-overfitting and anti-contamination:**
+    - a held-out split;
+    - the question set and answer key are outside the runtime's reach (hashes only), so M51 can't see them and M44 can't fetch them;
+    - a contamination check drops questions seen in M44 or M49 outputs.
+  - **Records and reporting:**
+    - each run records model version, prompt hash and seed;
+    - the fixed baseline is re-run every Saturday;
+    - scores are reported with an uncertainty interval and n, labelled [OBSERVED];
+    - the trend appears on the dashboard (M17, no fake numbers) and Kian reports it (M35.4).
+  - **Never** reported as "progress to AGI" or "ready", and never used as promotion evidence.
+  - **Acceptance:**
+    - runtime access to the key fails;
+    - the contamination check works;
+    - the baseline is reproducible within its interval;
+    - a report without an interval is rejected;
+    - M45 and M50 due together means the second is queued.
+- **M51 Self-Improvement Loop**
+  - **Supersedes M36.4**, which remains only a scheduling hook.
+  - **Builds on:** `architecture/cognitive/evolution_gate.py` + the M14 controller + the M28 Arena.
+  - **Owners:** آرش, پروانه, گیتی.
+  - **Scope:** prompts (except Kian's protected system prompt), sandboxed strategy parameters and non-protected tools, evaluated through M45 and the M50 dev split only.
+  - **Anti-loop:**
+    - one proposal per cycle;
+    - a time and token budget, and a retry cap;
+    - a rejected goal is not regenerated until human review;
+    - never run on its own output.
+  - **Output:** a branch commit → 16/19/05 → owner manual merge; the best verdict is PASS_WITH_GAPS.
+  - **Forbidden:** gates, `policy.py`, risk caps, its own authority, the registry, the protected list.
+  - **Acceptance:**
+    - a proposal touching policy or caps is rejected;
+    - a second proposal in the same cycle is rejected;
+    - input equal to M51's own output is rejected;
+    - a full VERIFY queue produces a "queue full" receipt;
+    - 0 auto-merges.
+
+### Run order (leadership constraint 13)
+M10 → M11 → close BL/MJ and the 16 BLOCKERs → M35 Kian → **M47** → **M44 + M49** → **M46, M45, M48** → **M50** (once the base agents exist) → **M51**. M47 and M49 come early because they reinforce reliability.
