@@ -366,7 +366,325 @@ wiring the existing `run_full_cycle` into the daemon and running it long enough.
 
 ---
 
-*Part 2 of this register (learning/pattern memory, quota-stop, agent
-organization, university, contradiction intelligence, AI council, news,
-visualization, gold, accounting, low-latency, multi-market, live-trading
-prohibition) is appended in the next section.*
+## Part 2 — capabilities §21–§33 (appended 2026-10-03)
+
+All live counts in this part were re-queried for this register on 2026-10-03
+and are quoted verbatim. Where a capability has tests but no live artifact,
+it is capped at `TESTED` per §76 — no exceptions for machinery that "is wired
+but has never fired."
+
+### 21. Learning / pattern memory — `TESTED` (discovery lane), trade-derived loop `PLANNED`
+
+- **Evidence (tests):** `architecture/cognitive/memory/` + `architecture/cognitive/loop/`
+  with passing suites; the discovery-side learning path (`learning` component in
+  the metrics table — 2,352 `scores_persisted`) records real runtime activity.
+- **Evidence (runtime, negative):** the trade-derived lesson loop has **never
+  fired**. `data/paper_trading.sqlite` `post_trade_lesson` = **0 rows**,
+  `learning_stats_snapshot` = **0 rows**. `data/ahos_cognitive_memory.sqlite`
+  is **0 bytes** — the schema was never applied to the live file, so the
+  isolated cognitive-memory store holds nothing at all.
+- **Depends on:** paper trading closing trades (§7) — lessons need trades.
+- **Proof:** ≥30 closed paper trades producing non-zero `post_trade_lesson`
+  rows, and one replayed lesson demonstrably changing a downstream score.
+- **Gov:** no — but note the DB file is currently 0 bytes, so even the
+  substrate is not live. **Contradiction risk:** `docs/architecture/
+  AHOS_COGNITIVE_MEMORY_ARCHITECTURE_v1.0.md` describes an active memory; the
+  live store is empty. Docs-only ⇒ `PLANNED` for the memory itself.
+- **Honest split:** discovery-lane learning `TESTED`; trade-derived lesson loop
+  `PLANNED`; cognitive memory substrate `PLANNED` (0-byte DB).
+
+### 22. Quota-stop / credential-request — `TESTED`, breaker path `VERIFIED`
+
+- **Evidence (tests):** `architecture/ai/provider_status.py` maps 429/402/RESOURCE_EXHAUSTED
+  to `QUOTA_EXHAUSTED` and sets `needs_credential_action`; pinned by
+  `test_ai_provider_status.py` (7 cases) and `test_gemini_chat.py` /
+  `test_gemini_phraser.py` (QUOTA_EXHAUSTED assertions). Circuit-breaker
+  fail-fast pinned by `test_collector_failure_visibility.py`
+  (`test_breaker_open_skip_is_durable`, `test_failure_events_survive_process_replacement`).
+- **Evidence (runtime):** `data/e01_discovery.sqlite` `provider_failure_events` —
+  **232 `FETCH_ERROR`** (real `ConnectionError` on both providers) and
+  **2 `BREAKER_OPEN_SKIP`** — the open-breaker fail-fast path really tripped in
+  production and was recorded rather than silently skipped.
+- **Evidence (runtime, negative):** **0 `QUOTA_EXHAUSTED` events** anywhere in the
+  live DBs. The quota→credential-request path has never fired against a live
+  provider; it is correct-by-construction and unproven-by-event.
+- **Depends on:** AI provider routing (§23).
+- **Proof:** one live `QUOTA_EXHAUSTED` event that surfaces a credential-request
+  to the operator without degrading the decision path.
+- **Gov:** no. Note the Gemini key lives in Windows Credential Manager
+  (`AHOS/ai/gemini`) via `architecture/ai/wincred_reader.py`; rotating it is
+  human-gated.
+
+### 23. AI council / advisory downgrade — `TESTED`
+
+- **Evidence (tests):** `architecture/ai/debate_council.py` + `config/ai_*`;
+  wired into the canonical decision path at
+  `architecture/decision/authority.py::_ai_challenge` as a **safety ratchet —
+  AI may downgrade or abstain, never upgrade**. Passing tests exist for the
+  council and for the downgrade-only invariant.
+- **Evidence (runtime, negative):** no live verdict artifact exists —
+  `reports/` contains no council/debate verdict JSON, and no `decision_snapshot`
+  row records an AI challenge. The council has never advised on a real token.
+- **Depends on:** decision authority having real inputs (§12, which itself has
+  0 runtime decisions).
+- **Proof:** ≥1 persisted council verdict attached to a real candidate,
+  showing the downgrade-only contract held under a live call.
+- **Gov:** no, but a live Gemini call costs paid quota — credential use requires
+  explicit owner approval per the binding constraints.
+- **Latent defect (M9, found not fixed):** `architecture/ai/debate_council.py::_risk_manager_evaluation`
+  annotates a bare `Tuple` return type without importing it. That path raises
+  `NameError` if ever executed. It has never executed (no live verdicts), which
+  is why no test caught it. Listed here, not fixed — fixing it is a one-line
+  import and belongs in the next code-touch mission on that module.
+
+### 24. Agent organization (19 logical agents) — `PLANNED` / org layer
+
+- **Evidence (docs + code):** `ahos_org/registry.py::CANONICAL_AGENT_IDS` (19
+  logical agents, `agent.chief-orchestrator` … `agent.release-governance-reviewer`),
+  pinned by `config/agent_registry.yaml`, governed by `ahos_org/policy.py`
+  (maturity floor `MINIMUM_MATURITY_FOR_ALLOW = 2` = `IMPLEMENTED` before any
+  agent may execute; `trading.live` is a global-deny capability for all 19).
+  Reconciled by M3 as a **separate org layer, not the runtime plane**.
+- **Evidence (runtime, negative):** **none of the 19 agents has reached the
+  maturity floor**, and no orchestrator dispatches to them — all sit at
+  `REGISTERED` (0). There is no live mission-controller dispatch record.
+- **Depends on:** governance maturity ramp (human-gated); runtime plane (§10).
+- **Proof:** one agent reaching floor 2 *and* one dispatched, dispatched-to
+  action recorded in a live artifact.
+- **Gov:** **yes** — advancing agent maturity is a governance-authority change
+  and is human-gated. Listed, not started.
+- **Namespace collision (M9, open):** the `AG-*` taxonomy and
+  `CANONICAL_AGENT_IDS` share no reconciliation rule; `docs/AGENT_MAPPING.md`
+  (bannered STALE this mission) still documents a third, frozen "10 AGENTS ×
+  15 ROLES" model. Three taxonomies, one policy — an ambiguity, not yet a
+  contradiction, because nothing dispatches.
+
+### 25. University (knowledge curriculum) — `PLANNED` (docs-only)
+
+- **Evidence (docs):** university material exists in `docs/` only.
+- **Evidence (runtime, negative):** the knowledge namespace is **absent** —
+  `data/ahos_knowledge.sqlite` has `knowledge_claims` = **0 rows** and
+  `claim_contradiction_edges` = **0 rows** (20,480 bytes = schema only).
+  Nothing has ever written a claim.
+- **Depends on:** knowledge-claim ingestion, which does not exist at runtime.
+- **Proof:** ≥1 persisted claim with a source pointer, and one curriculum node
+  derived from it.
+- **Gov:** no (capability itself), but see §26 — the claim store it would
+  populate is currently empty.
+
+### 26. Contradiction intelligence — `PARTIAL`
+
+- **Evidence (tests, IMPLEMENTED+TESTED):** the **doc-drift** half is real and
+  tested — stale-truth-map detection is pinned by tests and was exercised at
+  scale this mission (12 files bannered, counts re-derived).
+- **Evidence (runtime, negative):** the **claim-graph** half is empty —
+  `ahos_knowledge.sqlite::claim_contradiction_edges` = **0 rows** and
+  `knowledge_claims` = **0 rows**. No contradiction has ever been detected from
+  runtime knowledge. Prior reports describing "contradiction graphs" describe
+  the schema, not data.
+- **Depends on:** claim ingestion (§25), which produces the nodes.
+- **Proof:** ≥1 contradiction edge derived from real claims with a resolution
+  verdict recorded.
+- **Gov:** no.
+- **Note:** the two open constitutional contradictions are governance items
+  (§18), not knowledge-graph edges — they are human-gated and listed, not
+  auto-detected.
+
+### 27. News / narrative intelligence — `IMPLEMENTED`, never harvested
+
+- **Evidence (code):** wired into the TS read model (`news.ts`, `engine.ts`)
+  and the Python advisory path.
+- **Evidence (runtime, negative):** **no committed news payload and no
+  persisted harvest rows** exist anywhere in `data/` or `reports/`. The surface
+  is implemented; it has never produced an artifact.
+- **Depends on:** an external feed with a stored key (news APIs are paid) —
+  this is why it has never fired.
+- **Proof:** ≥1 persisted news item joined to a candidate, with provenance.
+- **Gov:** **yes** — a live news API requires a paid credential; paid services
+  require explicit owner approval.
+
+### 28. Visualization / "wise tree" — `PLANNED` (docs-only)
+
+- **Evidence (docs):** the wise-tree / visualization concept exists in `docs/`.
+- **Evidence (code, negative):** no charting or graph-layout dependency is
+  present in `package.json` / `requirements.txt`; no rendering code exists.
+- **Depends on:** nothing upstream — it is a pure presentation capability.
+- **Proof:** a rendered, interactive tree built from real data in the dashboard.
+- **Gov:** no.
+
+### 29. Gold / reserve-asset intelligence — `PLANNED` (docs-only)
+
+- **Evidence (docs):** gold appears in directive text as an asset class of
+  interest. There is no ingestion path, no feature, and no row for it.
+- **Depends on:** a market-data provider for the asset class (none configured).
+- **Proof:** ≥1 gold observation with provenance and a feature vector.
+- **Gov:** **yes**, indirectly — any execution on non-crypto reserves is
+  outside this system's authority.
+
+### 30. Accounting / portfolio ledger — `TESTED` (0 rows)
+
+- **Evidence (tests):** `paper_trading` persistence + portfolio-ledger logic is
+  covered by passing tests.
+- **Evidence (runtime, negative):** all **19 tables in `data/paper_trading.sqlite`
+  hold 0 rows** — `paper_trade`, `paper_exit`, `portfolio_ledger`,
+  `position_state_event`, `decision_snapshot`, the `_v2`/`_v3` tables, all
+  empty. The schema is applied; nothing has ever been booked.
+- **Depends on:** paper trading opening positions (§7).
+- **Proof:** ≥1 closed position with a realized-PnL row in `portfolio_ledger`
+  and a reconciled balance.
+- **Gov:** no.
+
+### 31. Low-latency / intelligence-speed — `IMPLEMENTED`, measurement `VERIFIED`
+
+- **Evidence (runtime, verified):** `runtime_operational_metrics` holds 2,644
+  real `pipeline/cycle_duration_ms` samples: **p50 ≈ 30.5 s, p95 ≈ 142.2 s,
+  min 2.8 s, max 58,621.9 s**; **250/2,644 cycles (9.5%) exceeded 60 s**.
+  Observation cycles: 2,192 samples, p50 ≈ 30.2 s, p95 ≈ 117.3 s. This is
+  measured on the live daemon, not benchmarked in a lab.
+- **Capability vs. measurement:** the *measurement* is `VERIFIED` (real
+  samples). The *latency capability* is `IMPLEMENTED` — the pipeline runs at
+  ~30 s/cycle, which meets the intelligence-speed requirement on the median
+  but has a long tail.
+- **Data-quality defect (M9, found not fixed):** the **58,621,870 ms max
+  (~16.3 h)** is not a plausible single-cycle duration for a 60 s-cadence
+  daemon; it indicates clock-drift or suspension contamination in
+  `cycle_duration_ms`, not a real 16-hour cycle. Any latency SLO derived from
+  this column must first sanitize outliers. Listed, not fixed.
+- **Depends on:** scheduler (§9).
+- **Proof for OPERATIONAL:** the p95 held below the SLO over a continuous soak
+  with outlier contamination removed.
+- **Gov:** no.
+
+### 32. Multi-market coverage — data ingestion `OPERATIONAL`, execution `ABSENT`
+
+- **Evidence (runtime):** `data/e01_discovery.sqlite`, observations joined to
+  chain: **solana 104,789 · `robinhood` 3,635 · base 2,208 · bsc 519 ·
+  ethereum 23 · arbitrum 11**. Multi-chain ingestion is live.
+- **Data-quality defect (M9, found not fixed):** **`robinhood` is not a
+  blockchain.** 3,635 observations carry a mislabeled `chain_id` — almost
+  certainly a provider source tag written into the chain column. 3,635/111,185
+  = **3.3% of all observations are chain-mislabeled**. Any per-chain stat or
+  canonical-identity join built on `chain_id` must treat `robinhood` as
+  invalid pending a correction. Listed, not fixed; correcting it touches Lane A
+  semantics and needs a reviewed migration.
+- **Execution surface:** `ABSENT BY CONSTRUCTION` — there is no order path for
+  any market, solana included (see §33).
+- **Depends on:** identity being chain-aware (§11), which it is by design.
+- **Proof:** a canonical-identity dedupe pass across ≥2 chains on real data
+  with the `robinhood` label resolved.
+- **Gov:** no for data; **yes** for any execution.
+
+### 33. Live trading — `ABSENT BY CONSTRUCTION` (permanently prohibited)
+
+- **State:** not "blocked," not "pending" — **structurally absent**, and this is
+  the intended end state for this system. AHOS is a PAPER_ONLY
+  opportunity-intelligence system, never a trading bot.
+- **Four independent enforcement layers (all verified present this mission):**
+  1. `architecture/hygiene.py::assert_safe_environment` — environment veto at
+     startup.
+  2. `scripts/month1_failure_matrix.py::_EXECUTION_SURFACE_RE` — the failure
+     matrix scan asserts no execution surface exists.
+  3. `ahos_org/policy.py::GLOBAL_DENY_CAPABILITIES` — `trading.live` denied for
+     all 19 agents, with no override path in the policy file.
+  4. Decision-level gating — the canonical authority emits paper/abstain
+     verdicts only; there is no order-capable output.
+- **Evidence (runtime):** `reports/PRE_SOAK_STATUS.txt` —
+  `execution_surface = NO_EXECUTION_SURFACE`, `STATE B: do not db:migrate /
+  db:push`. No wallet, key, or signing primitive exists in the codebase.
+- **Proof:** there is no proof that moves this up the ladder, because the
+  ladder does not apply. The correct evidence is *negative and durable*: every
+  future scan must keep finding no execution surface.
+- **Gov:** **yes — permanently.** Enabling live trading would require a
+  constitution change (`MASTER_DIRECTIVE_v1.md`, Class A doctrine) and an owner
+  decision outside this system's authority. It is not a mission, not a roadmap
+  item, and not a "next step." It is listed here only so no future register
+  reads its absence as an oversight.
+
+---
+
+## Cross-cutting findings (M9) — defects and ambiguities, found and listed
+
+These cut across capability areas and belong to no single node. Each was
+verified against code this mission. The three data/code defects are **listed,
+not fixed** — fixing them is dependency-safe and belongs in the next
+code-touch mission.
+
+### CC-1. Composition-root split — the documented operator surface is not the one the daemon uses
+
+- `architecture/control_plane.py::ControlPlane` documents itself as "**ONE**
+  operator surface: START / STOP / STATUS / SAFE_HALT / RESUME — idempotent,
+  ledger-resumable," with stale-lock SAFE_HALT, dependency-cycle detection, and
+  CRITICAL-fail halting.
+- It is instantiated **only in tests** (`test_control_plane_soak.py`,
+  `test_runtime_w11.py`). No production entry point imports it.
+- The live daemon (`python -m architecture.runtime --daemon`) instead runs
+  `architecture/runtime/observation_loop.py` directly.
+- **This is not a safety hole** — the paper-only veto
+  (`assert_safe_environment`) *is* wired into the production path
+  (`observation_loop.py:129`, re-asserted per cycle, and `lifecycle.py:93`).
+  The gap is operator-control parity: SAFE_HALT, ledger-resumable START/STOP,
+  and stale-lock recovery exist but cannot be reached by the operator of the
+  running daemon.
+- **Proof to close:** one entry point that starts the daemon *through* the
+  control plane, with a live SAFE_HALT record reachable from the operator.
+
+### CC-2. Agent-namespace collision — three taxonomies, one policy
+
+- `agent.*` (19 `CANONICAL_AGENT_IDS` in `ahos_org/registry.py`), `AG-*` (used
+  by the control-plane / runtime tests), and `AGENT-*` (the frozen 10-agent
+  model in the now-bannered `docs/AGENT_MAPPING.md`).
+- `docs/governance/AGENT_TAXONOMY_MAP.md` maps all of them and pins the
+  collision, but no reconciliation rule says which id a new component must use.
+- Harmless today because nothing dispatches (§24); it becomes a contradiction
+  the moment one agent reaches the maturity floor.
+
+### CC-3. `Tuple` not imported in `debate_council.py` (latent `NameError`)
+
+- `architecture/ai/debate_council.py::_risk_manager_evaluation` annotates a
+  bare `Tuple` return type; `Tuple` is not imported. Annotations on a function
+  definition are evaluated at import time, so a caller that reaches that
+  definition path raises `NameError`.
+- Never triggered because the council has never run on a real token (§23).
+- **Fix:** one line (`from typing import Tuple`) plus a test that calls that
+  evaluator. Dependency-safe, no governance gate.
+
+### CC-4. `cycle_duration_ms` outlier contamination
+
+- Max 58,621,870 ms (~16.3 h) on a 60 s-cadence daemon is not a real cycle
+  (§31) — clock drift or suspend/resume. Any SLO or p95 trend derived from this
+  column must first sanitize it; 250/2,644 samples exceed 60 s and much of the
+  tail is likely the same artifact.
+
+### CC-5. `robinhood` chain mislabel
+
+- 3,635 observations (3.3%) carry `chain_id='robinhood'`, which is not a
+  blockchain (§32). Correcting it touches Lane A semantics and needs a reviewed
+  migration; until then every per-chain stat must treat the label as invalid.
+
+---
+
+## Updated next missions (parts 1 + 2 combined)
+
+The critical path from part 1 is unchanged — pre-soak entry → closed paper
+loop → outcome labels → calibration → live decisions → soak. **None of the 13
+areas added in part 2 is on it:** they are docs-only (§25, §28, §29), gated
+behind the same paper-loop node (§21, §30), already at their correct terminal
+state (§33), or measurement rather than capability (§31).
+
+**Dependency-safe next missions, revised:**
+
+1. **Wire `paper_trading/cycle.py:run_full_cycle` into the daemon** and run to
+   ≥30 closed trades with realized PnL. Unblocks §6, §8, §12, §21, §30. No
+   governance gate, no Lane A write (Lane B persistence only). **Still the
+   single highest-leverage node.**
+2. **Fix CC-3, CC-4, CC-5** — all three are small, root-caused,
+   dependency-safe, and they protect every future metric quoted from these
+   tables. CC-5's correction touches Lane A semantics and needs a reviewed
+   migration; CC-3 and CC-4 do not.
+3. **Persist security verdicts** (§5) — human-gated; prepare the migration and
+   list it.
+4. **Wire identity resolution into the live pipeline** and persist resolutions
+   (§11) — pure Lane B, no gate, upstream of §12.
+5. **Close CC-1 (composition root)** — route the daemon through `ControlPlane`
+   so the operator actually gets START/STOP/SAFE_HALT. No governance gate, but
+   it changes the daemon's startup path and deserves its own reviewed diff.
