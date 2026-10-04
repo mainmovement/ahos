@@ -39,7 +39,13 @@ PROCESS_COMPONENTS = ["gateway", "telegram", "engine"]
 # The engine's cold boot (runtime init + first scheduler cycle) can take a few
 # minutes on a loaded host; the probe turns healthy the moment the first
 # DAEMON_CYCLE heartbeat lands.
-HEALTH_WAIT = {"stores": 60, "db_backend": 10, "gateway": 120, "telegram": 25, "engine": 420}
+# The gateway's budget has to cover a *cold* dev compile: the probe targets
+# /api/launcher (the cheapest route in the app) but on a slow filesystem
+# Turbopack's first compile of even that one route has been measured past the
+# 120s this once allowed, so a healthy gateway read UNAVAILABLE and an OPTIONAL
+# failure degraded a boot whose only defect was the compile. The smoke pins dev
+# mode, so this is the cost a real cold boot pays, not a hypothetical.
+HEALTH_WAIT = {"stores": 60, "db_backend": 10, "gateway": 240, "telegram": 25, "engine": 420}
 
 
 class AhosOrchestrator:
@@ -140,6 +146,77 @@ class AhosOrchestrator:
     def _pid_info(self, name: str) -> dict | None:
         return pk.read_pid(self.state_dir, name)
 
+    def _our_live_gateway_port(self) -> int | None:
+        """The port our own running gateway bound, or None if it is not ours.
+
+        ``select_port`` can only ask "could I bind this?"; a port held by our own
+        listener answers no, even though it is perfectly serviceable. This reads
+        the port recorded when the gateway was spawned and accepts it only when
+        that pid is still ours and still alive — a stale pid record left by a
+        crashed gateway is not adopted.
+        """
+        info = self._pid_info("gateway") or {}
+        pid = info.get("pid")
+        port = info.get("port")
+        if not pid or not isinstance(port, int) or port < 1:
+            return None
+        # The gateway is launched as ``cmd /c npm run start``, whose live command
+        # line carries no repo substring, so the marker test that identifies the
+        # engine and the bot cannot identify it. The pid record itself is
+        # authoritative here — only we write it — so confirm the recorded pid is
+        # still the process we spawned (a pid Windows re-issued to an unrelated
+        # program after a gateway crash is not adopted) and that it is still
+        # listening: the record's port is the address the gateway actually bound.
+        if not pk.pid_alive(pid):
+            return None
+        if not self._pid_is_recorded_one(pid, info):
+            return None
+        return port if pk.port_in_use(info.get("host") or "127.0.0.1", port) else None
+
+    @staticmethod
+    def _pid_is_recorded_one(pid: int, info: dict) -> bool:
+        """``pid`` is still the process the pid record says we spawned.
+
+        Windows re-issues pids, so a live pid is not by itself evidence the
+        recorded gateway is still that process. The record holds the command we
+        launched it with; the live command line quotes it differently (``cmd /c
+        "npm run start"`` vs the argv we passed), so both are flattened before
+        comparing. ``None`` live command lines read as "not ours".
+        """
+        live = pk.process_cmdline(pid)
+        if not live:
+            return False
+        recorded = info.get("cmd") or ""
+        norm = lambda s: " ".join(s.replace('"', "").split()).lower()
+        return bool(recorded) and norm(live) == norm(recorded)
+
+
+    def _adopted_gateway(self, sel: dict) -> dict:
+        """``sel`` with our own already-running listener's port substituted in.
+
+        ``select_port`` can only ask "could I bind this?"; a port held by our own
+        listener answers no, so a *start* that re-runs while our gateway is up
+        walks off the configured port and every candidate, and a *status* poll
+        probes the configured address and reports the gateway down while the
+        dashboard is in fact serving on the port chosen last time. The pid record
+        written at spawn time names that port, and is accepted only when the pid
+        is still ours and still listening — a stale record left by a crashed
+        gateway is not adopted. ``start`` and ``status`` both route through here
+        so the probe and the owner's browser always open the address serving.
+        """
+        live = self._our_live_gateway_port()
+        configured = int(sel.get("port") or 3000)
+        if not live or live == configured:
+            return sel
+        via = sel.get("chosen_via")
+        if via not in (None, "CONFIGURED_UNUSABLE_KEPT_ANYWAY"):
+            return sel
+        return {**sel, "port": live,
+                "url": C.gateway_url_at(sel.get("host") or "127.0.0.1", live),
+                "chosen_via": "ADOPTED_OUR_LIVE_LISTENER",
+                "notes": list(sel.get("notes") or [])
+                + [f"adopted port {live} from our already-running gateway"]}
+
     def component_state(self, name: str) -> str:
         """ours_running | foreign_busy | down — the idempotency primitive."""
         if name not in PROCESS_COMPONENTS:
@@ -201,14 +278,15 @@ class AhosOrchestrator:
             return ""
 
     # ------------------------------------------------------------- components --
-    def _spawn(self, name: str, cmd: list[str], env: dict) -> int:
+    def _spawn(self, name: str, cmd: list[str], env: dict,
+               extra: dict | None = None) -> int:
         self.emit(P.PROGRESS[name] if name in P.PROGRESS else f"{name} …")
         pid = pk.spawn_detached(cmd, cwd=self.root, env=env,
                                 log_path=self.log_path(name))
         pk.write_pid(self.state_dir, name, pid,
                      {"cmd": " ".join(cmd), "marker": self.marker(name),
                       "log": str(self.log_path(name)),
-                      "started_ts": self.clock()})
+                      "started_ts": self.clock(), **(extra or {})})
         return pid
 
     def _start_component(self, name: str) -> C.ComponentResult:
@@ -334,8 +412,13 @@ class AhosOrchestrator:
             else:
                 return C.ComponentResult(name, C.UNKNOWN, "no command")
         env = self._child_env(extra={} if name == "gateway" else {})
+        # Record the port the gateway was told to bind. The next `start` process
+        # cannot re-bind it (our own listener holds it), so it reads this record
+        # and adopts the live port instead of reporting the dead configured one.
+        spawn_extra = {"port": int(self.gateway.get("port") or 0)} \
+            if name == "gateway" else None
         try:
-            pid = self._spawn(name, cmd, env)
+            pid = self._spawn(name, cmd, env, extra=spawn_extra)
         except Exception as e:
             return C.ComponentResult(name, C.UNAVAILABLE, f"spawn failed: {type(e).__name__}: {e}")
 
@@ -402,6 +485,14 @@ class AhosOrchestrator:
         # same address. A warning here is reported, never fatal — the gateway
         # reports its own real bind failure honestly if nothing bound at all.
         sel = C.select_gateway(self.env)
+        # A fresh `start` process cannot re-bind the port our own already-running
+        # gateway holds, so the candidate walk finds nothing bindable and falls
+        # back to the configured port — which may be unbindable on this host
+        # while the dashboard is in fact reachable on the port we chose last
+        # time. The pid record written at spawn time is authoritative here: if
+        # our gateway is live, adopt its real port so the status report and the
+        # browser open the address actually serving.
+        sel = self._adopted_gateway(sel)
         self.gateway = sel
         gw_note = None
         if sel.get("chosen_via") == "CANDIDATE_BINDABLE":
@@ -427,6 +518,12 @@ class AhosOrchestrator:
 
         results: dict[str, C.ComponentResult] = {}
         started_stack: list[str] = []  # long-lived processes THIS run spawned
+        # Record the exclusions this start was asked to honour, before the
+        # results loop makes them invisible: a component never spawned has no pid
+        # record, so the next read-only poll reads it as UNAVAILABLE, the marker
+        # is lost, and a dashboard restart brings up the whole stack. ``status``
+        # and ``stop`` both read this record back.
+        self._persist_skips(self.skip)
         for name in C.START_ORDER:
             if name in self.skip:
                 results[name] = C.ComponentResult(name, "SKIPPED", "skipped by request")
@@ -517,8 +614,13 @@ class AhosOrchestrator:
             self.emit(P.PROGRESS["stopped"])
         else:
             self.emit(P.PROGRESS["nothing_to_stop"])
+        # The stop receipt is also the status.json the dashboard's restart reads
+        # next, so the carried-forward exclusions must survive it too: without
+        # them the restart after a stop would start everything.
+        report_results = self._stop_results(stopped)
+        report_results.update(self._report_skips())
         return self._report("stop", "STOPPED" if (stopped or swept) else "NOT_RUNNING",
-                            self._stop_results(stopped), cp_status=cp_stop.get("status"),
+                            report_results, cp_status=cp_stop.get("status"),
                             swept=swept, duration=self.clock() - t0)
 
     def _stop_results(self, stopped: dict[str, dict]) -> dict[str, C.ComponentResult]:
@@ -586,8 +688,56 @@ class AhosOrchestrator:
                 found.append(pid)
         return found
 
+    def _skips_path(self) -> Path:
+        return self.state_dir / "skips.json"
+
+    def _persist_skips(self, names) -> None:
+        """Record the components a start was asked to skip (DEFECT A).
+
+        A skipped component is never spawned, so it leaves no pid record; the
+        next ``status`` poll then reads it as UNAVAILABLE and reports the stack
+        wider than the owner asked. Writing the request down here lets ``status``
+        and ``stop`` restore the SKIPPED marker so the dashboard's restart
+        re-applies the same exclusions instead of silently widening the stack.
+        An empty set clears the record: a start with no skips wants everything.
+        """
+        path = self._skips_path()
+        keep = sorted(n for n in (names or []) if n in C.START_ORDER)
+        try:
+            if keep:
+                path.write_text(json.dumps({"skipped": keep}, ensure_ascii=False,
+                                           indent=2), encoding="utf-8")
+            elif path.exists():
+                path.unlink()
+        except OSError:
+            pass
+
+    def _applied_skips(self) -> set[str]:
+        """The exclusions the last start honoured (empty when it wanted all)."""
+        path = self._skips_path()
+        if not path.exists():
+            return set()
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return set()
+        return {n for n in (data.get("skipped") or []) if n in C.START_ORDER}
+
+    def _report_skips(self) -> dict[str, C.ComponentResult]:
+        """SKIPPED entries for the exclusions the last start honoured."""
+        return {n: C.ComponentResult(n, "SKIPPED",
+                                     "skipped by request (carried forward)")
+                for n in self._applied_skips()}
+
     # ------------------------------------------------------------------ status --
     def status(self) -> dict:
+        # Probe the address actually serving, not the configured one. The
+        # configured port is Windows-reserved on this host; the gateway chose a
+        # bindable candidate at spawn time and has served on it since. A
+        # read-only poll that opens the configured port reports the gateway down
+        # while the dashboard is in fact reachable — see the companion adoption
+        # in ``start``, which must agree with this on the address it reports.
+        self.gateway = self._adopted_gateway(self.gateway)
         results: dict[str, C.ComponentResult] = {}
         for name in C.START_ORDER:
             status, detail = self._component_probe(name)
@@ -595,6 +745,14 @@ class AhosOrchestrator:
             results[name] = C.ComponentResult(name, status, detail,
                                               pid=info.get("pid") if info else None,
                                               started_ts=info.get("started_ts") if info else None)
+        # Restore the SKIPPED marker the probe cannot see: a component the last
+        # start was asked to skip has no pid record, so it probes UNAVAILABLE and
+        # the dashboard's restart would widen the stack. Only a component that
+        # probes UNAVAILABLE or UNKNOWN is relabelled — a live one keeps whatever
+        # the probe said, even if it was started by hand.
+        for name, res in self._report_skips().items():
+            if results.get(name) and results[name].status in (C.UNAVAILABLE, C.UNKNOWN):
+                results[name] = res
         cp = self._control_plane(results)
         cp_status = cp.status()
         # The same ladder as ``start``: an OPTIONAL component that is down leaves
