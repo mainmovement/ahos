@@ -237,6 +237,34 @@ class TestComponents:
         status, _detail = C.probe_stores(0.0)
         assert status in (C.HEALTHY, C.UNAVAILABLE)
 
+    def test_probe_gateway_probes_the_status_route_not_the_page(self, monkeypatch):
+        """``/`` is the heaviest compile in the app; probing it made a gateway that
+        had been serving API traffic for minutes read UNAVAILABLE. The probe must
+        hit the route the dashboard polls."""
+        seen = {}
+
+        def _fake(url, timeout=5.0):
+            seen["url"] = url
+            return True, 200, "OK"
+
+        monkeypatch.setattr(C.pk, "http_ok", _fake)
+        C.probe_gateway("http://127.0.0.1:8300/", 0.0)
+        assert seen["url"] == "http://127.0.0.1:8300/api/launcher"
+
+    def test_probe_gateway_counts_a_401_as_listening(self, monkeypatch):
+        # The status route demands a bearer token; an unauthenticated probe gets
+        # 401 and that still proves the server is up.
+        monkeypatch.setattr(C.pk, "http_ok", lambda url, timeout=5.0: (True, 401, ""))
+        status, detail = C.probe_gateway("http://127.0.0.1:8300/", 0.0)
+        assert status == C.HEALTHY
+
+    def test_probe_gateway_refused_connection_is_unavailable(self, monkeypatch):
+        monkeypatch.setattr(C.pk, "http_ok",
+                            lambda url, timeout=5.0: (False, None, "TimeoutError"))
+        status, detail = C.probe_gateway("http://127.0.0.1:8300/", 0.0)
+        assert status == C.UNAVAILABLE
+        assert "api/launcher" in detail
+
     def test_engine_heartbeat_age_takes_a_str_path(self, tmp_path):
         # A nonexistent file must yield None, never an AttributeError.
         assert C.engine_heartbeat_age(str(tmp_path / "nope.sqlite")) is None
@@ -371,6 +399,44 @@ class TestOrchestrator:
         assert "idempotent" in res.detail
         assert res.pid == 4242
 
+    def test_our_live_gateway_is_ours_not_foreign(self, tmp_path, monkeypatch):
+        """The gateway is launched as ``cmd /c "npm run start --silent"``, whose
+        command line carries no repo substring, so the marker that identifies the
+        engine and the bot can never match it. A second ``start`` therefore read
+        our own live gateway as a foreign listener: ``foreign_busy``, a DEGRADED
+        report, and a Persian line telling the owner some *other* program held
+        the port. The pid record is authoritative for the gateway."""
+        orch = make_orchestrator(tmp_path)
+        live_cmd = 'cmd /c "npm run start --silent"'
+        pk.write_pid(orch.state_dir, "gateway", 7332,
+                     {"cmd": live_cmd, "port": 8300, "host": "127.0.0.1"})
+        # The marker test must fail, as it does for the real command line.
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: live_cmd if pid == 7332 else None)
+        res = orch._start_component("gateway")
+        assert res.status == C.HEALTHY
+        assert "idempotent" in res.detail
+        assert res.pid == 7332
+
+    def test_reissued_gateway_pid_is_not_adopted(self, tmp_path, monkeypatch):
+        """Windows re-issues pids, so a live pid is not evidence the recorded
+        gateway is still that process: a foreign program handed our old pid must
+        read as foreign, not as ours."""
+        orch = make_orchestrator(tmp_path)
+        pk.write_pid(orch.state_dir, "gateway", 7332,
+                     {"cmd": 'cmd /c "npm run start --silent"', "port": 8300})
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: "C:\\other\\program.exe unrelated")
+        monkeypatch.setattr("launcher.processkit.port_in_use",
+                            lambda host, port, timeout=0.6: True)
+        res = orch._start_component("gateway")
+        assert res.status == C.UNHEALTHY
+        assert res.detail == "foreign_busy"
+
     def test_critical_failure_rolls_back_and_halts(self, tmp_path, monkeypatch):
         """A dead engine must not leave a half-booted stack behind: the gateway
         and bot we just spawned are stopped, a service already running before us
@@ -420,6 +486,78 @@ class TestOrchestrator:
             name, C.HEALTHY, "already running (idempotent)"))
         report = orch.start()
         assert report["overall"] == "ONLINE"
+
+    def test_start_adopts_our_live_gateway_port(self, tmp_path, monkeypatch):
+        """The configured port is unbindable on this host and our own gateway is
+        already serving on a candidate port. ``select_port`` cannot re-bind that
+        port (our own listener holds it) and used to fall back to the configured
+        port, advertising a URL nothing listens on while the dashboard was
+        reachable elsewhere — the browser opened a closed port.
+
+        Regression observed live: a second ``launcher start`` reported
+        ``dashboard_url http://127.0.0.1:3000/`` (``CONFIGURED_UNUSABLE_KEPT_ANYWAY``)
+        while the gateway served on 8300, so every probe and the browser missed.
+        """
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(
+            "launcher.components.select_gateway",
+            lambda env: {"host": "127.0.0.1", "port": 3000, "url": "http://127.0.0.1:3000/api/chat",
+                         "source": "AHOS_GATEWAY_URL", "configured_port": 3000,
+                         "chosen_via": "CONFIGURED_UNUSABLE_KEPT_ANYWAY",
+                         "tried": [], "notes": ["none bindable"], "warnings": ["NO_BINDABLE_PORT"]})
+        # our gateway, live on the port we chose last time
+        pk.write_pid(orch.state_dir, "gateway", 4242,
+                     {"cmd": "next dev", "marker": orch.marker("gateway"), "port": 8300})
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        monkeypatch.setattr("launcher.processkit.port_in_use",
+                            lambda host, port, timeout=0.6: port == 8300)
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "already running (idempotent)"))
+        report = orch.start()
+        assert report["gateway_port"] == 8300
+        assert report["dashboard_url"] == "http://127.0.0.1:8300/"
+        assert report["gateway_chosen_via"] == "ADOPTED_OUR_LIVE_LISTENER"
+
+    def test_start_does_not_adopt_a_dead_pid_record(self, tmp_path, monkeypatch):
+        """A pid record left behind by a crashed gateway must not be adopted:
+        the port could since have been taken by another program."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(
+            "launcher.components.select_gateway",
+            lambda env: {"host": "127.0.0.1", "port": 3000, "url": "http://127.0.0.1:3000/api/chat",
+                         "source": "AHOS_GATEWAY_URL", "configured_port": 3000,
+                         "chosen_via": "CONFIGURED_UNUSABLE_KEPT_ANYWAY",
+                         "tried": [], "notes": [], "warnings": []})
+        pk.write_pid(orch.state_dir, "gateway", 4242,
+                     {"cmd": "next dev", "marker": orch.marker("gateway"), "port": 8300})
+        # the pid is no longer ours
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "simulated"))
+        report = orch.start()
+        assert report["gateway_port"] == 3000
+        assert report["gateway_chosen_via"] == "CONFIGURED_UNUSABLE_KEPT_ANYWAY"
+
+    def test_start_does_not_adopt_silent_listener(self, tmp_path, monkeypatch):
+        """Our pid is alive but nothing accepts on the recorded port (it is
+        mid-shutdown): adopting it would send the browser at a half-closed
+        listener."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(
+            "launcher.components.select_gateway",
+            lambda env: {"host": "127.0.0.1", "port": 3000, "url": "http://127.0.0.1:3000/api/chat",
+                         "source": "AHOS_GATEWAY_URL", "configured_port": 3000,
+                         "chosen_via": "CONFIGURED_UNUSABLE_KEPT_ANYWAY",
+                         "tried": [], "notes": [], "warnings": []})
+        pk.write_pid(orch.state_dir, "gateway", 4242,
+                     {"cmd": "next dev", "marker": orch.marker("gateway"), "port": 8300})
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        monkeypatch.setattr("launcher.processkit.port_in_use",
+                            lambda host, port, timeout=0.6: False)
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "simulated"))
+        report = orch.start()
+        assert report["gateway_port"] == 3000
 
     def test_status_writes_latest_but_no_archive(self, tmp_path, monkeypatch):
         """A status poll refreshes `status.json` and writes NO timestamped
@@ -756,3 +894,15 @@ class TestCli:
         from launcher.__main__ import main
         rc = main(["--root", str(ROOT / "launcher"), "preflight"])
         assert rc == 1
+
+    def test_skip_accepts_repeated_and_comma_joined(self):
+        """The dashboard route cannot emit a repeated -Skip: Start-Process
+        re-parses -ArgumentList into one command line and PowerShell's binder
+        rejects it, so the exclusions arrive as a single comma-joined value.
+        Both spellings must resolve to the same set."""
+        from launcher.__main__ import _skip_set
+        assert _skip_set([]) == set()
+        assert _skip_set(["engine"]) == {"engine"}
+        assert _skip_set(["engine", "telegram"]) == {"engine", "telegram"}
+        assert _skip_set(["engine,telegram"]) == {"engine", "telegram"}
+        assert _skip_set([" telegram , engine ,", "", "  "]) == {"telegram", "engine"}

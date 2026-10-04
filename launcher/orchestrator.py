@@ -190,6 +190,23 @@ class AhosOrchestrator:
         norm = lambda s: " ".join(s.replace('"', "").split()).lower()
         return bool(recorded) and norm(live) == norm(recorded)
 
+    def _pid_is_recorded_or_marked(self, name: str, info: dict) -> bool:
+        """The recorded pid is still the process we spawned.
+
+        The engine and the bot are identified by a repo substring in their live
+        command line. The gateway is launched as ``cmd /c npm run start``, whose
+        command line carries no such substring, so the marker test can never
+        match it — without this branch a second ``start`` read our own live
+        gateway as a foreign listener (``foreign_busy``), told the owner some
+        other program held the port, and went DEGRADED. The pid record is
+        authoritative for the gateway: only we write it, and the recorded
+        command is compared against the live one so a pid Windows re-issued to
+        an unrelated program after a crash is not adopted.
+        """
+        if name == "gateway":
+            return self._pid_is_recorded_one(info.get("pid"), info)
+        return pk.pid_is_ours(info.get("pid"), self.marker(name))
+
 
     def _adopted_gateway(self, sel: dict) -> dict:
         """``sel`` with our own already-running listener's port substituted in.
@@ -223,7 +240,7 @@ class AhosOrchestrator:
             # No long-lived process to track: "ours" means the probe passes.
             return "ours_running" if self._component_probe(name)[0] == C.HEALTHY else "down"
         info = self._pid_info(name)
-        if info and pk.pid_is_ours(info.get("pid"), self.marker(name)):
+        if info and self._pid_is_recorded_or_marked(name, info):
             return "ours_running"
         if name == "gateway":
             info_gw = self.gateway
