@@ -37,6 +37,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
 try {
   [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
   $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
@@ -59,47 +60,52 @@ $env:PYTHONIOENCODING = 'utf-8'
 $env:PYTHONUTF8 = '1'
 Set-Location -LiteralPath $Root
 
+# The hidden path tees python's own output into the log the owner reads later;
+# the console path needs no tee because the owner is watching that window.
+$LogDir = Join-Path $Root 'logs\launcher'
+if (-not $Console) {
+  try {
+    if (-not (Test-Path -LiteralPath $LogDir)) {
+      New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
+    }
+    $env:AHOS_LAUNCHER_LOG = Join-Path $LogDir 'launcher.log'
+  } catch {
+    # A log we cannot name must never break the launcher itself.
+    Remove-Item Env:\AHOS_LAUNCHER_LOG -ErrorAction SilentlyContinue
+  }
+} else {
+  Remove-Item Env:\AHOS_LAUNCHER_LOG -ErrorAction SilentlyContinue
+}
+
 # $args is an automatic variable; shadowing it breaks splatting of real args.
 $PyArgs = @('-X', 'utf8', '-m', 'launcher', $Action)
 if ($Json) { $PyArgs += '--json' }
 foreach ($component in $Skip) {
   if ([string]::IsNullOrWhiteSpace($component)) { continue }
+  # $Skip may carry a comma-joined list from the dashboard route: Start-Process
+  # re-parses -ArgumentList into a single command line and PowerShell's binder
+  # rejects a repeated -Skip, so the exclusions arrive as one element here and
+  # launcher/__main__ splits them again.
   $PyArgs += @('--skip', $component)
 }
 
 if ($Console) {
   & $Python @PyArgs
 } else {
-  # Hidden path: nobody is watching, so keep the progress lines as a log the
-  # owner can read later instead of dropping them. UTF-8 so Persian survives.
+  # Hidden path: nobody is watching, so python tees its progress lines to
+  # $env:AHOS_LAUNCHER_LOG (set above) instead of dropping them.
   #
-  # Two PowerShell 5.1 traps live here, and both silently cost us the log:
-  #   1. Tee-Object has no -Encoding on 5.1 (that is a PowerShell 7 parameter),
-  #      so the whole pipeline threw "a parameter cannot be found" before python
-  #      ever ran, and the catch below re-ran python with no log at all.
-  #   2. Under $ErrorActionPreference='Stop' a native command's stderr line is
-  #      a terminating error, so the first warning from python aborted the pipe
-  #      and dropped everything after it.
-  # Out-File -Encoding utf8 plus a local 'Continue' preference fixes both, and
-  # $LASTEXITCODE still comes from python (verified: exit 7 reaches exit $rc).
-  $LogDir = Join-Path $Root 'logs\launcher'
-  try {
-    if (-not (Test-Path -LiteralPath $LogDir)) {
-      New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
-    }
-    $LogPath = Join-Path $LogDir 'launcher.log'
-    $prevEAP = $ErrorActionPreference
-    $ErrorActionPreference = 'Continue'
-    try {
-      & $Python @PyArgs 2>&1 |
-        Out-File -FilePath $LogPath -Encoding utf8 -Append
-    } finally {
-      $ErrorActionPreference = $prevEAP
-    }
-  } catch {
-    # A log we cannot write must never break the launcher itself.
-    & $Python @PyArgs
-  }
+  # Do NOT redirect python through a PowerShell pipe here (`... | Out-File`):
+  # a pipe does not end when python ends, it ends when the write end of the
+  # pipe closes, and python's detached children inherit that handle. A restart
+  # stops the very gateway that spawned this shell, python then exits, and the
+  # shell stays pinned on the pipe reader forever -- a hidden powershell.exe
+  # holding the module lock the dashboard's next stop/restart reports as
+  # ALREADY_RUNNING. Confirmed on this host: the wedged shell's only live child
+  # was conhost.exe, python was long gone. With python writing the log itself
+  # the shell waits on nothing but python, and $LASTEXITCODE still reaches
+  # exit $rc.
+  & $Python @PyArgs
 }
 $rc = $LASTEXITCODE
 
