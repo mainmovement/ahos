@@ -233,15 +233,44 @@ export function resolveChatIdentity(args: {
   };
 }
 
-/** True when the request arrived over the loopback dashboard listener. */
+/** Addresses that count as "this machine" for the loopback guard. */
+const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]", "::1"]);
+
+function isLoopbackHost(host: string): boolean {
+  // A Host header may carry a port (127.0.0.1:8300) — strip it before matching,
+  // but leave bracketed IPv6 intact so [::1]:8300 still matches [::1].
+  const lower = host.trim().toLowerCase();
+  const noPort = lower.startsWith("[")
+    ? lower.slice(0, lower.indexOf("]") + 1) || lower
+    : lower.split(":")[0];
+  return LOOPBACK_HOSTS.has(noPort);
+}
+
+/** True when the request arrived over the loopback dashboard listener.
+
+The Next.js dev server proxies *every* request through its own local router,
+which appends `x-forwarded-for: 127.0.0.1` and `x-forwarded-host` even to a
+caller that connected directly to the loopback listener. Rejecting on the mere
+*presence* of a forwarded header therefore locks the dashboard panel out of its
+own route in development — observed live as a 403 LOOPBACK_REQUIRED on a raw
+loopback socket. The guard instead inspects the chain: every hop must be
+loopback. A forwarded request whose first hop is another machine is still
+rejected, which is the threat the check exists for (an off-host caller cannot
+lie its way past it, because the hop closest to us is the one we can see). */
 export function isLoopbackRequest(req: Request): boolean {
-  if (req.headers.get("x-forwarded-for")) return false;
-  const host = String(req.headers.get("host") ?? "").toLowerCase();
-  if (host.startsWith("127.0.0.1") || host.startsWith("localhost") || host.startsWith("[::1]")) return true;
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    // Every hop in the comma-separated chain must be loopback; a chain that
+    // left the machine has at least one non-loopback address in it.
+    const hops = xff.split(",").map((h) => h.trim());
+    if (!hops.every((h) => isLoopbackHost(h))) return false;
+  }
+  const host = String(req.headers.get("host") ?? "");
+  if (isLoopbackHost(host)) return true;
   // The Host header is absent on a bare Request object; fall back to the URL.
   try {
     const u = new URL(req.url);
-    return u.hostname === "127.0.0.1" || u.hostname === "localhost" || u.hostname === "[::1]";
+    return isLoopbackHost(u.hostname) || u.hostname === "[::1]";
   } catch {
     return false;
   }

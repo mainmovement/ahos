@@ -244,4 +244,28 @@ describe("helpers", () => {
     });
     assert.equal(isLoopbackRequest(proxied), false);
   });
+  it("loopback check accepts a forwarded chain that never left this machine", () => {
+    // The Next.js dev router appends x-forwarded-for: 127.0.0.1 to every
+    // request, including one on a raw loopback socket; that must still pass or
+    // the dashboard panel cannot reach its own route in development.
+    const dev = new Request("http://127.0.0.1:8300/api/launcher", {
+      headers: { "x-forwarded-for": "127.0.0.1",
+        "x-forwarded-host": "127.0.0.1:8300",
+        "x-forwarded-proto": "http" },
+    });
+    assert.equal(isLoopbackRequest(dev), true);
+  });
+  it("loopback check rejects a forwarded chain with one off-host hop", () => {
+    const mixed = new Request("http://127.0.0.1:8300/api/launcher", {
+      headers: { "x-forwarded-for": "127.0.0.1, 192.168.1.5" },
+    });
+    assert.equal(isLoopbackRequest(mixed), false);
+  });
+  it("loopback check ignores a port on a loopback host", () => {
+    const withPort = new Request("http://127.0.0.1:8300/api/launcher", {
+      headers: { host: "127.0.0.1:8300",
+        "x-forwarded-for": "localhost" },
+    });
+    assert.equal(isLoopbackRequest(withPort), true);
+  });
 });

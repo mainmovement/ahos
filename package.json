@@ -26,7 +26,8 @@
     "test:chat-actions": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_actions_selftest.ts",
     "test:chat-handlechat": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_handlechat_selftest.ts",
     "test:gemini-egress": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/gemini_egress_selftest.ts",
-    "test:pglite-backend": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/pglite_backend_selftest.ts"
+    "test:pglite-backend": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/pglite_backend_selftest.ts",
+    "test:launcher-route": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/launcher_route_selftest.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",

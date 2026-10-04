@@ -68,6 +68,20 @@ export async function GET(req: Request) {
 // POST — stop | restart. The child is reparented outside this gateway's process
 // tree: a stop/restart kills *this* process with `taskkill /T`, which fells every
 // descendant, and the launcher child is the one pulling the trigger.
+/**
+ * The exclusions to hand the reparented launcher child, as launcher/ahos.ps1
+ * `-Skip` arguments. Exactly ONE `-Skip` may appear: ``Start-Process`` re-parses
+ * ``-ArgumentList`` back into a single command line, so a repeated ``-Skip``
+ * reaches the child as one command line and PowerShell's binder rejects it with
+ * "parameter 'Skip' is specified more than once" — the child exits 1 before it
+ * runs a single statement, which is exactly the dashboard-restart defect. The
+ * comma-joined value is split again on the Python side by ``launcher/__main__``.
+ */
+export function launcherSkipArgs(skipped: readonly string[]): string[] {
+  if (!skipped.length) return [];
+  return ["-Skip", skipped.join(",")];
+}
+
 async function spawnLauncher(action: string, ps1: string, skipArgs: string[]): Promise<number | null> {
   // Node's own `detached: true` is not an escape on this host. Windows PowerShell
   // 5.1 started with DETACHED_PROCESS has no console host, so it exits 0 without
@@ -152,8 +166,7 @@ export async function POST(req: Request) {
   lockedAt = Date.now();
   const lockToken = lockedAt;
   const skipped = action === "restart" ? await priorSkips() : [];
-  const skipArgs: string[] = [];
-  for (const name of skipped) skipArgs.push("-Skip", name);
+  const skipArgs = launcherSkipArgs(skipped);
   const ps1 = path.join(process.cwd(), "launcher", "ahos.ps1");
 
   const pid = await spawnLauncher(action, ps1, skipArgs);
@@ -168,7 +181,7 @@ export async function POST(req: Request) {
     });
     if (lockToken === lockedAt) lockedAt = 0;
     return Response.json(
-      { ok: false, error: "LAUNCHER_SPAWN_ERROR", hint: "rep parented launcher did not report a pid" },
+      { ok: false, error: "LAUNCHER_SPAWN_ERROR", hint: "reparented launcher did not report a pid" },
       { status: 500 },
     );
   }

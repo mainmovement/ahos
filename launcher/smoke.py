@@ -30,6 +30,8 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -49,6 +51,19 @@ _NO_WINDOW = 0x08000000 if os.name == "nt" else 0
 # HEALTH_WAIT["engine"] alone is 420s, and the first observation cycle on a cold
 # host has been measured at ~21 minutes.
 TIMEOUTS = {"start": 1500.0, "status": 45.0, "stop": 90.0, "restart": 1500.0}
+# The dashboard route re-spawns the whole orchestrator, so a restart costs a
+# full start of the same component set and a stop a full sequential teardown.
+# Derived from TIMEOUTS so the poll budget cannot drift below the timeout the
+# table already budgets for that work: hand-typed 900/300 once proved shorter
+# than the cold restart the route was actually performing, so the smoke reported
+# a restart as failed ~44 minutes into one that succeeded. The route forwards the
+# running stack's SKIPPED set (see app/api/launcher/route.ts), so with the engine
+# skipped the real cost is seconds — but the budget must hold for the full stack.
+_CHILD_SLACK = 180.0  # child report write + poll cadence + a slower-than-CLI teardown
+_RESTART_DEADLINE = TIMEOUTS["restart"] + _CHILD_SLACK
+_STOP_DEADLINE = TIMEOUTS["stop"] + _CHILD_SLACK
+# Where the control audit ledger lives (chat_control_gate.defaultAuditPath).
+AUDIT_PATH = ROOT / "data" / "control_audit" / "chat_control_audit.jsonl"
 
 
 def _utcstamp() -> str:
@@ -182,6 +197,313 @@ def _cleanup(env: dict) -> list[dict]:
     return out
 
 
+def _web_api_token() -> str | None:
+    """The bearer token the dashboard route requires, read from .env.
+
+    Presence only is ever returned out of here: the value goes straight into a
+    request header and is never echoed into stdout or into an evidence record
+    (the audit ledger and the route's own responses hold nothing of it either).
+    """
+    import re
+    try:
+        text = (ROOT / ".env").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    for line in text.splitlines():
+        m = re.match(r"\s*AHOS_WEB_API_TOKEN\s*=\s*(.+?)\s*$", line)
+        if not m or m.group(1).strip().lower() in ("", "change-me", "changeme"):
+            continue
+        val = m.group(1).strip()
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in "\"'":
+            val = val[1:-1]
+        return val or None
+    return None
+
+
+def _http_json(url: str, *, method: str = "GET", headers: dict,
+               body: dict | None = None) -> dict:
+    """One HTTP call. Records only what the server sent back, never the headers
+    we sent (they carry the token), and never lets an exception escape."""
+    data = json.dumps(body).encode("utf-8") if body is not None else None
+    req = urllib.request.Request(url, data=data, method=method, headers=headers)
+    t0 = time.time()
+    rec: dict = {"url": url, "method": method, "seconds": round(time.time() - t0, 1)}
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            raw = r.read(4000).decode("utf-8", "replace")
+            rec.update(status=int(r.status), body=raw)
+            rec["json"] = _try_json(raw)
+            return rec
+    except urllib.error.HTTPError as e:
+        # 401/403/409 are *expected* outcomes of the guard checks; capture them.
+        raw = e.read(4000).decode("utf-8", "replace")
+        rec.update(status=int(e.code), body=raw)
+        rec["json"] = _try_json(raw)
+        return rec
+    except Exception as e:
+        rec.update(status=None, error=type(e).__name__)
+        return rec
+
+
+def _try_json(raw: str) -> dict | None:
+    try:
+        v = json.loads(raw)
+        return v if isinstance(v, dict) else None
+    except ValueError:
+        return None
+
+
+def _wait_for_report(pred, deadline: float, *, poll: float = 3.0) -> tuple[bool, float, dict | None]:
+    """Poll reports/launcher/status.json on disk until ``pred`` holds or the
+    deadline passes. Disk, not HTTP: during a restart the gateway itself is
+    being killed and re-spawned, so the route is gone exactly when the verdict
+    needs it most."""
+    t0 = time.time()
+    while time.time() - t0 < deadline:
+        rep = _latest_report()
+        try:
+            if pred(rep):
+                return True, round(time.time() - t0, 1), rep
+        except Exception:
+            pass
+        time.sleep(poll)
+    return False, round(time.time() - t0, 1), _latest_report()
+
+
+def _audit_records() -> list[dict]:
+    """The tail of the control audit ledger, most recent last."""
+    if not AUDIT_PATH.exists():
+        return []
+    try:
+        lines = AUDIT_PATH.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return []
+    out = []
+    for line in lines[-40:]:
+        try:
+            v = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(v, dict):
+            out.append(v)
+    return out
+
+
+def _window_census() -> dict:
+    """Every process that owns a visible window, plus the component pids from the
+    last status report. The one-click contract is that no AHOS child ever owns a
+    window, so this is the evidence: each component pid must be absent from the
+    census (or present with an empty title)."""
+    procs: list[dict] = []
+    if os.name == "nt":
+        try:
+            res = subprocess.run(
+                ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+                 "Get-Process | Where-Object { $_.MainWindowTitle -ne '' } | "
+                 "Select-Object Id,ProcessName,MainWindowTitle | "
+                 "ConvertTo-Json -Compress -Depth 2"],
+                capture_output=True, text=True, timeout=30, encoding="utf-8",
+                errors="replace", creationflags=_NO_WINDOW)
+        except Exception as e:
+            return {"error": type(e).__name__, "procs": [], "titled_pids": []}
+        try:
+            data = json.loads(res.stdout or "[]")
+        except ValueError:
+            data = []
+        for p in data if isinstance(data, list) else [data]:
+            if not isinstance(p, dict):
+                continue
+            procs.append({"pid": p.get("Id"), "name": p.get("ProcessName"),
+                          "title": (p.get("MainWindowTitle") or "")[:120]})
+    rep = _latest_report() or {}
+    component_pids = {}
+    for name, info in (rep.get("components") or {}).items():
+        if isinstance(info, dict) and info.get("pid"):
+            component_pids[str(name)] = int(info["pid"])
+    titled = {int(p["pid"]) for p in procs if p.get("pid")}
+    return {"procs": procs, "titled_pids": sorted(titled),
+            "component_pids": component_pids,
+            "components_owning_windows": sorted(
+                set(component_pids.values()) & titled)}
+
+
+def smoke_dashboard_api(mode: str, *, skip: tuple[str, ...] = ()) -> dict:
+    """The dashboard's Stop/Restart buttons talk to POST /api/launcher. This case
+    proves the whole chain against the real gateway: loopback guard, auth guard,
+    write-ahead audit, an actual child orchestrator that moves the stack, and a
+    GET poll that reads status.json without touching a live socket.
+
+    The engine is skippable (and skipped by default in ``main``): its first
+    observation cycle dominates a cold boot for ~6 minutes and proves nothing
+    about this route that the idempotent case does not already cover, while
+    every minute here is a minute the harness can be interrupted and leave the
+    stack behind."""
+    env = _base_env(mode)
+    steps: list[dict] = []
+    notes: list[str] = []
+    verdict: dict = {}
+    try:
+        steps.append({"step": "start (real)",
+                      **_run("start", env=env, skip=skip, expect_rc=(0,))})
+        first = _latest_report()
+        base = ((first or {}).get("dashboard_url") or "").rstrip("/")
+        if not base:
+            raise SystemExit("start did not report a dashboard_url to probe")
+
+        token = _web_api_token()
+        auth = {"Authorization": f"Bearer {token}"} if token else {}
+        if not token:
+            notes.append("AHOS_WEB_API_TOKEN not found in .env; auth checks will fail")
+
+        # GET: the poll path the dashboard uses every few seconds.
+        steps.append({"step": "GET status (auth)",
+                      **_http_json(f"{base}/api/launcher", headers=auth)})
+        got = steps[-1]
+        status_ok = (got.get("status") == 200
+                     and isinstance(got.get("json"), dict)
+                     and got["json"].get("ok") is True
+                     and got["json"].get("staleAfterSec") is not None
+                     and isinstance(got["json"].get("status"), dict))
+        if status_ok:
+            verdict["reported_overall"] = got["json"]["status"].get("overall")
+
+        # The loopback guard must reject a request that a proxy could have
+        # forged. The hop has to be non-loopback: the Next.js dev server appends
+        # `x-forwarded-for: 127.0.0.1` to *every* request, including one on a raw
+        # loopback socket, so a loopback hop is a legitimate arrival on the
+        # loopback-only listener and must pass (see docs/ONE_CLICK.md). An
+        # off-machine hop is the thing the guard exists to refuse.
+        steps.append({"step": "GET with off-host x-forwarded-for",
+                      **_http_json(f"{base}/api/launcher",
+                                   headers={**auth,
+                                            "X-Forwarded-For": "10.0.0.1"})})
+        loopback_refused = steps[-1].get("status") == 403
+        steps.append({"step": "GET with loopback x-forwarded-for",
+                      **_http_json(f"{base}/api/launcher",
+                                   headers={**auth,
+                                            "X-Forwarded-For": "127.0.0.1"})})
+        verdict["dev_forwarded_header_accepted"] = (
+            steps[-1].get("status") == 200
+            and isinstance(steps[-1].get("json"), dict)
+            and steps[-1]["json"].get("ok") is True)
+
+        # No credentials at all: 401, not the status body.
+        steps.append({"step": "GET unauthenticated",
+                      **_http_json(f"{base}/api/launcher", headers={})})
+        auth_demanded = steps[-1].get("status") == 401
+
+        # Evidence for scope (b): while the stack is really up, no AHOS child may
+        # own a window.
+        census = _window_census()
+
+        audit_before = len(_audit_records())
+
+        steps.append({"step": "POST restart",
+                      **_http_json(f"{base}/api/launcher", method="POST", headers=auth,
+                                   body={"action": "restart"})})
+        post = steps[-1]
+        restart_ok = (post.get("status") == 202 and isinstance(post.get("json"), dict)
+                      and post["json"].get("ok") is True
+                      and post["json"].get("action") == "restart"
+                      and bool(post["json"].get("pid")))
+        if restart_ok:
+            verdict["restart_child_pid"] = post["json"].get("pid")
+        # The route must forward the previous run's explicit exclusions:
+        # Restart restores the stack that was running, it does not widen it.
+        verdict["restart_preserved_skip"] = bool(
+            restart_ok
+            and sorted(post["json"].get("skipped") or []) == sorted(skip))
+
+        # The gateway is mid-restart; poll the artefact, not the route. Keyed on
+        # ts because the *previous* report is still ONLINE and would otherwise
+        # satisfy the predicate before the child had done anything. The skipped
+        # components must still read SKIPPED in the child's own report: that is
+        # the evidence the forwarded -Skip set actually reached the orchestrator
+        # and the restart did not silently widen the running stack.
+        prior_ts = (first or {}).get("ts")
+
+        def _restart_done(r: dict | None) -> bool:
+            if not (r and r.get("overall") in ("ONLINE", "DEGRADED")
+                    and r.get("action") == "start"
+                    and r.get("ts") and r.get("ts") != prior_ts):
+                return False
+            comps = r.get("components") or {}
+            return all((comps.get(s) or {}).get("status") == "SKIPPED" for s in skip)
+
+        waited, restart_secs, after = _wait_for_report(_restart_done, _RESTART_DEADLINE)
+        verdict["restart_brought_stack_back"] = bool(waited)
+        verdict["restart_seconds"] = restart_secs
+
+        # The route must be served by the *new* gateway.
+        steps.append({"step": "GET status after restart",
+                      **_http_json(f"{base}/api/launcher", headers=auth)})
+        route_back = (steps[-1].get("status") == 200
+                      and isinstance(steps[-1].get("json"), dict)
+                      and steps[-1]["json"].get("ok") is True)
+        verdict["route_served_after_restart"] = bool(route_back)
+
+        # Every action must have its EXECUTING + CONFIRMED pair in the ledger.
+        led = _audit_records()
+        verdict["audit_lines_appended"] = len(led) - audit_before
+        verdict["audit_pair_for_restart"] = _audit_pair(led, "restart")
+
+        steps.append({"step": "POST stop",
+                      **_http_json(f"{base}/api/launcher", method="POST", headers=auth,
+                                   body={"action": "stop"})})
+        stop_post = steps[-1]
+        verdict["stop_accepted"] = (stop_post.get("status") == 202
+                                    and isinstance(stop_post.get("json"), dict)
+                                    and stop_post["json"].get("action") == "stop")
+        stopped, stop_secs, after_stop = _wait_for_report(
+            lambda r: bool(r and r.get("overall") in ("NOT_RUNNING", "STOPPED", "DOWN")
+                           and r.get("ts") and r.get("ts") != prior_ts),
+            _STOP_DEADLINE)
+        verdict["stack_stopped"] = bool(stopped)
+        verdict["stop_seconds"] = stop_secs
+        led_after = _audit_records()
+        verdict["audit_pair_for_stop"] = _audit_pair(led_after, "stop")
+
+        verdict.update({
+            "get_status_ok": bool(status_ok),
+            "loopback_refused": bool(loopback_refused),
+            "auth_demanded": bool(auth_demanded),
+            "restart_accepted": bool(restart_ok),
+            "window_census": census,
+            "components_owning_windows": census.get("components_owning_windows"),
+        })
+        verdict["passed"] = bool(verdict["get_status_ok"]
+                                 and verdict["loopback_refused"]
+                                 and verdict["dev_forwarded_header_accepted"]
+                                 and verdict["auth_demanded"]
+                                 and verdict["restart_accepted"]
+                                 and verdict["restart_preserved_skip"]
+                                 and verdict["restart_brought_stack_back"]
+                                 and verdict["route_served_after_restart"]
+                                 and verdict["audit_pair_for_restart"]
+                                 and verdict["audit_pair_for_stop"]
+                                 and verdict["stack_stopped"]
+                                 and not verdict["components_owning_windows"])
+        return {"case": "dashboard-api", "steps": steps, "verdict": verdict,
+                "notes": notes}
+    finally:
+        steps.extend(_cleanup(env))
+
+
+def _audit_pair(led: list[dict], action: str) -> bool:
+    """The write-ahead contract: EXECUTING recorded before the child was spawned,
+    then CONFIRMED once it was — both on the dashboard channel.
+
+    The key is ``channel_claimed`` (snake_case): ``buildAuditRecord`` serialises
+    the ledger record from the TS param ``channelClaimed`` to a snake_case field,
+    so a reader keyed on the parameter name matches nothing and every pair reads
+    as broken. Match the wire format on disk, not the source-language name.
+    """
+    ours = [r for r in led if r.get("intent") == action
+            and r.get("channel_claimed") == "dashboard_launcher_api"]
+    return any(r.get("decision") == "EXECUTING" for r in ours) \
+        and any(r.get("decision") == "CONFIRMED" for r in ours)
+
+
 def smoke_idempotent(mode: str) -> dict:
     env = _base_env(mode)
     steps = []
@@ -283,13 +605,16 @@ def smoke_port_busy(mode: str, *, skip: tuple[str, ...]) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("case", choices=["idempotent", "port-busy"],
+    ap.add_argument("case", choices=["idempotent", "port-busy", "dashboard-api"],
                     help="which smoke scenario to run")
     ap.add_argument("--mode", default="dev",
                     help="AHOS_GATEWAY_MODE for the run (default dev)")
     ap.add_argument("--skip", action="append", default=[],
                     help="component to skip (repeatable); port-busy defaults to"
-                         " skipping telegram and engine to keep the injection fast")
+                         " skipping telegram and engine, dashboard-api to"
+                         " skipping telegram and engine too — the owner's real"
+                         " stack excludes both, and a 2-skip run is what reaches"
+                         " the dashboard route's comma-joined -Skip path")
     args = ap.parse_args(argv)
 
     if not PY.exists():
@@ -298,9 +623,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.case == "idempotent":
         result = smoke_idempotent(args.mode)
-    else:
+    elif args.case == "port-busy":
         skip = tuple(args.skip) or ("telegram", "engine")
         result = smoke_port_busy(args.mode, skip=skip)
+    else:
+        skip = tuple(args.skip) or ("telegram", "engine")
+        result = smoke_dashboard_api(args.mode, skip=skip)
 
     result["mode"] = args.mode
     result["utc"] = _utcstamp()
