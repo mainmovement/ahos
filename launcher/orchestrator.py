@@ -241,6 +241,22 @@ class AhosOrchestrator:
             return "ours_running" if self._component_probe(name)[0] == C.HEALTHY else "down"
         info = self._pid_info(name)
         if info and self._pid_is_recorded_or_marked(name, info):
+            if name == "gateway":
+                # The pid record proves we *spawned* something still alive, not
+                # that it is still serving our app. A stale server left over from
+                # an older build or another checkout holds the port, answers the
+                # probe, and 404s every route the dashboard needs — and because
+                # it is recorded as ours it is replayed as "already running" on
+                # every later start, so the real gateway is never restarted and
+                # the panel reads ONLINE while every control is dead. Once the
+                # gateway has had its boot budget, require the route probe as
+                # well: during boot the compile can legitimately outrun the
+                # probe, so a young gateway is trusted on its pid record alone.
+                started = info.get("started_ts")
+                budget = self.health_wait.get("gateway", 60)
+                if started is None or self.clock() - float(started) > budget:
+                    if self._component_probe("gateway")[0] != C.HEALTHY:
+                        return "down"
             return "ours_running"
         if name == "gateway":
             info_gw = self.gateway

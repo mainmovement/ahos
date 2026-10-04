@@ -265,6 +265,20 @@ class TestComponents:
         assert status == C.UNAVAILABLE
         assert "api/launcher" in detail
 
+    def test_probe_gateway_rejects_a_404(self, monkeypatch):
+        """A 404 means a Next server *is* up but this route is not registered in
+        the server holding the port: a stale server from an older build or another
+        checkout. Counting it HEALTHY made the panel announce ONLINE while every
+        control returned 404, and a restart spent its whole budget waiting for an
+        audit line the dead route could never write. ``http_ok`` must not paper
+        over it here."""
+        monkeypatch.setattr(C.pk, "http_ok",
+                            lambda url, timeout=5.0: (True, 404, "Not Found"))
+        status, detail = C.probe_gateway("http://127.0.0.1:8300/", 0.0)
+        assert status == C.UNAVAILABLE
+        assert "404" in detail
+        assert "api/launcher" in detail
+
     def test_engine_heartbeat_age_takes_a_str_path(self, tmp_path):
         # A nonexistent file must yield None, never an AttributeError.
         assert C.engine_heartbeat_age(str(tmp_path / "nope.sqlite")) is None
@@ -437,6 +451,51 @@ class TestOrchestrator:
         assert res.status == C.UNHEALTHY
         assert res.detail == "foreign_busy"
 
+    def test_stale_gateway_404_is_down_not_ours(self, tmp_path, monkeypatch):
+        """A gateway we spawned can outlive the app it was built from: a stale
+        server from an older build keeps holding the port and 404s every route
+        the dashboard needs. Its pid was still recorded as ours, so every later
+        start replayed it as "already running" and reported ONLINE while every
+        control was dead. Past its boot budget it must be probed like anything
+        else, and a route that is not served reads as ``down``."""
+        now = 1_000_000.0
+        orch = make_orchestrator(tmp_path, clock=lambda: now)
+        live_cmd = 'cmd /c "npm run start --silent"'
+        pk.write_pid(orch.state_dir, "gateway", 7332,
+                     {"cmd": live_cmd, "port": 8300, "host": "127.0.0.1",
+                      "started_ts": now - 1000})  # past the 240s boot budget
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: live_cmd if pid == 7332 else None)
+        monkeypatch.setattr("launcher.processkit.port_in_use",
+                            lambda host, port, timeout=0.6: True)
+        monkeypatch.setattr("launcher.components.probe_gateway",
+                            lambda url, t: (C.UNAVAILABLE, "answers 404"))
+        assert orch.component_state("gateway") == "down"
+
+    def test_booting_gateway_is_trusted_on_its_pid_record(self, tmp_path, monkeypatch):
+        """The boot budget is not a loophole for the stale-gateway probe: a
+        gateway that just bound has not compiled the launcher route yet, so the
+        probe can legitimately fail for the first seconds. A young pid record is
+        still evidence the gateway is ours — without this grace every start would
+        spawn a second gateway while the first was still booting."""
+        now = 1_000_000.0
+        orch = make_orchestrator(tmp_path, clock=lambda: now)
+        live_cmd = 'cmd /c "npm run start --silent"'
+        pk.write_pid(orch.state_dir, "gateway", 7332,
+                     {"cmd": live_cmd, "port": 8300, "host": "127.0.0.1",
+                      "started_ts": now - 5})  # still inside the boot budget
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: live_cmd if pid == 7332 else None)
+        monkeypatch.setattr("launcher.processkit.port_in_use",
+                            lambda host, port, timeout=0.6: True)
+        monkeypatch.setattr("launcher.components.probe_gateway",
+                            lambda url, t: (C.UNAVAILABLE, "route not compiled yet"))
+        assert orch.component_state("gateway") == "ours_running"
+
     def test_critical_failure_rolls_back_and_halts(self, tmp_path, monkeypatch):
         """A dead engine must not leave a half-booted stack behind: the gateway
         and bot we just spawned are stopped, a service already running before us
@@ -509,6 +568,12 @@ class TestOrchestrator:
         pk.write_pid(orch.state_dir, "gateway", 4242,
                      {"cmd": "next dev", "marker": orch.marker("gateway"), "port": 8300})
         monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        # The recorded gateway must still be alive to adopt it; 4242 is a dummy,
+        # so say it is alive and report the command line we recorded, rather than
+        # depending on Windows having that pid open at the moment the suite runs.
+        monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: "next dev")
         monkeypatch.setattr("launcher.processkit.port_in_use",
                             lambda host, port, timeout=0.6: port == 8300)
         monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(

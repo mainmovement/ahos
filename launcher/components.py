@@ -117,6 +117,16 @@ def dashboard_url(env: dict) -> str:
     return f"http://{host}:{int(port)}/"
 
 
+def gateway_url_at(host: str, port: int) -> str:
+    """The gateway API URL for an explicit host/port pair.
+
+    ``resolve_gateway`` reads the configured URL; this builds one for a port the
+    launcher discovered at runtime (e.g. adopted from its own live listener),
+    where there is no configuration to resolve.
+    """
+    return f"http://{host}:{int(port)}/api/chat"
+
+
 def database_target(env: dict) -> dict:
     """Resolve the configured DB backend WITHOUT exposing any credential.
 
@@ -303,11 +313,35 @@ def probe_db_backend(target: dict, now: float) -> tuple[str, str]:
 
 
 def probe_gateway(url: str, now: float) -> tuple[str, str]:
-    base = url.rsplit("/api/", 1)[0] if "/api/" in url else url
-    ok, code, reason = pk.http_ok(base, timeout=5.0)
-    if ok:
-        return HEALTHY, f"gateway answers HTTP {code} on {base}"
-    return UNAVAILABLE, f"gateway not answering on {base} ({reason})"
+    # Probe the status route, not the page root. ``/`` is the heaviest compile in
+    # the app (page plus client bundles): on a slow filesystem its first compile
+    # can outlast the whole health budget while the server has been listening and
+    # answering API requests for minutes, so a healthy gateway was reported
+    # UNAVAILABLE and a restart turned into a ~2 minute wait for nothing.
+    # /api/launcher is the route the dashboard polls every few seconds and costs
+    # a fraction of the compile; http_ok counts its 401/403 as "listening", so the
+    # probe still passes before the dashboard's own auth is set up. A 404 is
+    # *not* counted as listening: see the branch below.
+    base = (url.rsplit("/api/", 1)[0] if "/api/" in url else url).rstrip("/")
+    probe = f"{base}/api/launcher"
+    ok, code, reason = pk.http_ok(probe, timeout=15.0)
+    if not ok:
+        return UNAVAILABLE, f"gateway not answering on {probe} ({reason})"
+    if code == 404:
+        # A Next server *is* answering (http_ok reached it), but this route is
+        # not registered in the server that holds the port. That is not a boot
+        # delay — an unregistered route is never compiled on demand into a
+        # running server — it means the listener is not our app: a stale server
+        # left over from an older build or another checkout, or a foreign
+        # program that happens to render our 404 page. Reporting it HEALTHY
+        # makes the dashboard announce ONLINE while every control is dead, and
+        # a restart then waits its whole budget for an audit line that can
+        # never be written. Call it what it is.
+        return UNAVAILABLE, (f"server on {probe} answers 404: a Next server is "
+                             f"up but this route is not registered in it "
+                             f"(stale build, another checkout, or a foreign "
+                             f"listener holds the port)")
+    return HEALTHY, f"gateway answers HTTP {code} on {probe}"
 
 
 def probe_process(pid_info: dict | None, marker: str) -> tuple[str, str]:
