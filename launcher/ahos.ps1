@@ -18,11 +18,18 @@
 
 .PARAMETER Console
   Keep an interactive console open after the run (terminal use only).
+
+.PARAMETER Skip
+  Components to leave out of a start/restart (repeatable). The dashboard control
+  panel forwards the previous run's explicit exclusions so that Restart restores
+  the stack that was actually running instead of silently widening it.
 #>
 param(
   [Parameter(Position = 0)]
   [ValidateSet('start', 'stop', 'status', 'restart', 'preflight')]
   [string]$Action = 'start',
+
+  [string[]]$Skip = @(),
 
   [switch]$Json,
 
@@ -55,21 +62,40 @@ Set-Location -LiteralPath $Root
 # $args is an automatic variable; shadowing it breaks splatting of real args.
 $PyArgs = @('-X', 'utf8', '-m', 'launcher', $Action)
 if ($Json) { $PyArgs += '--json' }
+foreach ($component in $Skip) {
+  if ([string]::IsNullOrWhiteSpace($component)) { continue }
+  $PyArgs += @('--skip', $component)
+}
 
 if ($Console) {
   & $Python @PyArgs
 } else {
   # Hidden path: nobody is watching, so keep the progress lines as a log the
   # owner can read later instead of dropping them. UTF-8 so Persian survives.
+  #
+  # Two PowerShell 5.1 traps live here, and both silently cost us the log:
+  #   1. Tee-Object has no -Encoding on 5.1 (that is a PowerShell 7 parameter),
+  #      so the whole pipeline threw "a parameter cannot be found" before python
+  #      ever ran, and the catch below re-ran python with no log at all.
+  #   2. Under $ErrorActionPreference='Stop' a native command's stderr line is
+  #      a terminating error, so the first warning from python aborted the pipe
+  #      and dropped everything after it.
+  # Out-File -Encoding utf8 plus a local 'Continue' preference fixes both, and
+  # $LASTEXITCODE still comes from python (verified: exit 7 reaches exit $rc).
   $LogDir = Join-Path $Root 'logs\launcher'
   try {
     if (-not (Test-Path -LiteralPath $LogDir)) {
       New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
     }
     $LogPath = Join-Path $LogDir 'launcher.log'
-    & $Python @PyArgs 2>&1 |
-      Tee-Object -FilePath $LogPath -Encoding utf8 -Append |
-      Out-Null
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+      & $Python @PyArgs 2>&1 |
+        Out-File -FilePath $LogPath -Encoding utf8 -Append
+    } finally {
+      $ErrorActionPreference = $prevEAP
+    }
   } catch {
     # A log we cannot write must never break the launcher itself.
     & $Python @PyArgs
