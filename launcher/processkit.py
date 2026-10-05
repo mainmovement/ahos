@@ -390,12 +390,12 @@ def can_bind(host: str, port: int) -> bool:
 def port_owner(host: str, port: int, timeout: float = 10.0) -> int | None:
     """The pid owning the LISTEN socket on ``port``, or None if none does.
 
-    ``can_bind`` answers "is the port free?" but not "who is still holding it?".
-    The gateway is spawned as ``cmd /c npm run start`` and its ``next start``
-    child is reparented the moment the ``launcher start`` that spawned it exits,
-    so the pid record can go stale while the listener is still very much alive.
-    Windows keeps the owner in the TCP table, which is the only authoritative
-    answer here — a parentage sweep can never reach a reparented process.
+    The gateway is spawned directly as ``node <next cli> start`` (M11.3) — the
+    pid we record is the server — but a hard kill of the launcher (console close)
+    instead of ``AHOS Stop`` still orphans the detached children, so the pid
+    record can go stale while the listener is still very much alive. Windows
+    keeps the owner in the TCP table, which is the only authoritative answer
+    here — a parentage sweep can never reach an orphaned process.
     """
     if os.name != "nt":
         return None

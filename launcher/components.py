@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -231,18 +232,62 @@ def build_stale(root: Path) -> tuple[bool, str]:
 
 # ------------------------------------------------------------------ commands ---
 def _npm_cmd(script: str) -> list[str]:
+    """One-shot foreground scripts (``next build``, ``db:restore-pglite``).
+
+    Long-lived components are NOT started through npm: the ``cmd /c npm``
+    wrapper exits and reparents its child, so the pid we record is a stub whose
+    own command line carries nothing identifying (M11.3). The gateway is spawned
+    directly via ``gateway_command`` for that reason; npm stays for the scripts
+    that finish and exit on their own.
+    """
     if os.name == "nt":
         return ["cmd", "/c", f"npm run {script} --silent"]
     return ["npm", "run", script, "--silent"]
 
 
+def node_executable() -> str | None:
+    """node on PATH — the interpreter npm would hand ``next`` to.
+
+    ``npm run start`` resolves to ``node node_modules/next/dist/bin/next``, so
+    this is the same binary the package.json scripts use, found the same way.
+    ``None`` when node is not on PATH at all, in which case npm could not work
+    either and the caller reports UNAVAILABLE rather than silently degrading.
+    """
+    return shutil.which("node")
+
+
+def next_cli(root: Path) -> Path | None:
+    """The CLI script ``npm run start`` resolves to (``node_modules/next/dist/bin/next``).
+
+    ``None`` when next is not installed; ``preflight``'s ``node_modules`` check
+    covers that before we get here, but the argv is never built on an assumption.
+    """
+    cli = Path(root) / "node_modules" / "next" / "dist" / "bin" / "next"
+    return cli if cli.exists() else None
+
+
 def gateway_command(root: Path, mode: str = "prod") -> list[str]:
     """(argv) for the gateway in the given mode (prod = `next start`, dev = `next dev`).
 
-    Reuses the existing package.json scripts (no second server entry point).
-    PORT honours the resolved gateway port.
+    Spawned directly as ``[node, <next cli>, start|dev, --hostname, 127.0.0.1]``
+    — the argv ``npm run start`` / ``npm run dev`` resolve to, including the
+    loopback flag from package.json — so the pid we record IS the server and its
+    own command line carries the marker. The package.json scripts stay the human
+    entry point; the launcher just skips the ``cmd /c npm`` wrapper whose exit
+    reparents ``next`` and leaves a listener no pid record can name (M11.3).
+
+    ``[]`` when node or the next CLI is missing: the caller reports UNAVAILABLE
+    with the reason rather than falling back to the wrapper this function exists
+    to avoid. ``PORT`` still honours the resolved gateway port (``child_env``).
     """
-    return _npm_cmd("start" if mode == "prod" else "dev")
+    node = node_executable()
+    if node is None:
+        return []
+    cli = next_cli(Path(root))
+    if cli is None:
+        return []
+    return [node, str(cli), "start" if mode == "prod" else "dev",
+            "--hostname", "127.0.0.1"]
 
 
 def engine_command(python: Path) -> list[str]:

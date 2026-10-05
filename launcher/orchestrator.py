@@ -124,7 +124,13 @@ class AhosOrchestrator:
         if name == "telegram":
             return (str(py) + " run_bot.py") if py else "run_bot.py"
         if name == "gateway":
-            return str(self.root / "node_modules")
+            # The argv we actually spawn (M11.3): the next CLI path, which every
+            # component's marker is derived from. Never hand-written — an earlier
+            # hand-written engine marker never matched the live command line and
+            # broke identification wholesale; see docs/ONE_CLICK.md,
+            # "Process identification".
+            gw_cmd = C.gateway_command(self.root, "prod")
+            return gw_cmd[1] if len(gw_cmd) > 1 else str(self.root / "node_modules")
         return str(self.root)
 
     def sweep_markers(self) -> list[tuple[str, str]]:
@@ -160,51 +166,34 @@ class AhosOrchestrator:
         port = info.get("port")
         if not pid or not isinstance(port, int) or port < 1:
             return None
-        # The gateway is launched as ``cmd /c npm run start``, whose live command
-        # line carries no repo substring, so the marker test that identifies the
-        # engine and the bot cannot identify it. The pid record itself is
-        # authoritative here — only we write it — so confirm the recorded pid is
-        # still the process we spawned (a pid Windows re-issued to an unrelated
-        # program after a gateway crash is not adopted) and that it is still
-        # listening: the record's port is the address the gateway actually bound.
         if not pk.pid_alive(pid):
             return None
-        if not self._pid_is_recorded_one(pid, info):
+        # The gateway is spawned as ``node <next cli> start``, so its live command
+        # line carries the same marker the engine and the bot are identified by
+        # (M11.3). Before that it ran as ``cmd /c npm run start``, whose command
+        # line carried no repo substring at all, and this check was a cmdline
+        # comparison against the record instead; that fallback is gone because a
+        # true marker makes it unnecessary — and because its quoting/casing
+        # normalisation would now compete with a check that already answers.
+        if not pk.pid_is_ours(pid, self.marker("gateway")):
             return None
         return port if pk.port_in_use(info.get("host") or "127.0.0.1", port) else None
-
-    @staticmethod
-    def _pid_is_recorded_one(pid: int, info: dict) -> bool:
-        """``pid`` is still the process the pid record says we spawned.
-
-        Windows re-issues pids, so a live pid is not by itself evidence the
-        recorded gateway is still that process. The record holds the command we
-        launched it with; the live command line quotes it differently (``cmd /c
-        "npm run start"`` vs the argv we passed), so both are flattened before
-        comparing. ``None`` live command lines read as "not ours".
-        """
-        live = pk.process_cmdline(pid)
-        if not live:
-            return False
-        recorded = info.get("cmd") or ""
-        norm = lambda s: " ".join(s.replace('"', "").split()).lower()
-        return bool(recorded) and norm(live) == norm(recorded)
 
     def _pid_is_recorded_or_marked(self, name: str, info: dict) -> bool:
         """The recorded pid is still the process we spawned.
 
-        The engine and the bot are identified by a repo substring in their live
-        command line. The gateway is launched as ``cmd /c npm run start``, whose
-        command line carries no such substring, so the marker test can never
-        match it — without this branch a second ``start`` read our own live
-        gateway as a foreign listener (``foreign_busy``), told the owner some
-        other program held the port, and went DEGRADED. The pid record is
-        authoritative for the gateway: only we write it, and the recorded
-        command is compared against the live one so a pid Windows re-issued to
-        an unrelated program after a crash is not adopted.
+        Every long-lived component is spawned with an argv whose own command line
+        carries its marker — including the gateway, which was the last one still
+        launched through a ``cmd /c npm`` wrapper whose command line carried
+        nothing identifying (M11.3). Without a true marker, a second ``start``
+        read our own live gateway as a foreign listener (``foreign_busy``), told
+        the owner some other program held the port, and went DEGRADED; the
+        stop-gap was a recorded-vs-live cmdline comparison, which a true marker
+        makes redundant — and which would now be a second, stricter opinion on a
+        question the marker already answers, so it is gone. Windows re-issues
+        pids, but a re-issued pid's command line does not contain this checkout's
+        next CLI path.
         """
-        if name == "gateway":
-            return self._pid_is_recorded_one(info.get("pid"), info)
         return pk.pid_is_ours(info.get("pid"), self.marker(name))
 
 
@@ -438,6 +427,16 @@ class AhosOrchestrator:
             if name == "gateway":
                 mode = self._gateway_mode()
                 cmd = C.gateway_command(self.root, mode)
+                if not cmd:
+                    # node or node_modules/next is missing. The old fallback was
+                    # the ``cmd /c npm`` wrapper, which is exactly the argv this
+                    # component's identity is built on (M11.3): spawning it
+                    # anyway would put up a dashboard the launcher can never
+                    # recognise as its own. Report it, do not paper over it.
+                    return C.ComponentResult(
+                        name, C.UNAVAILABLE,
+                        "node or node_modules/next not found; cannot start the gateway "
+                        "(install node and run `npm install`)")
             elif name == "engine":
                 cmd = C.engine_command(py)
             elif name == "telegram":
@@ -643,11 +642,11 @@ class AhosOrchestrator:
         # listener (the wedge behind every failed dashboard-api receipt).
         pk.arm_console_break_immunity()
         t0 = self.clock()
-        # The gateway's listening socket outlives the ``cmd /c npm`` that spawned
-        # it and can outlive its pid record: ``launcher start`` exits as soon as
-        # the health probe passes, leaving ``next start`` reparented, and a
-        # record cleared while the listener still runs makes it unreachable by
-        # the parentage sweep below. Capture the address before anything clears
+        # The gateway's listening socket can outlive its pid record: a hard kill
+        # of the launcher (console close, harness timeout) orphans the detached
+        # children, ``launcher start`` exits as soon as the health probe passes,
+        # and a record cleared while the listener still runs makes it unreachable
+        # by the parentage sweep below. Capture the address before anything clears
         # the record, so a stranded listener can still be reclaimed.
         gw_addr = self._gateway_listen_addr()
         order = [n for n in reversed(C.START_ORDER) if n in PROCESS_COMPONENTS]
@@ -821,13 +820,14 @@ class AhosOrchestrator:
     def _reclaim_gateway_port(self, host: str, port: int) -> int | None:
         """Stop a gateway listener that survived the shutdown of its recorded pid.
 
-        The gateway is ``cmd /c npm run start``; its ``next start`` child is
-        reparented the moment the ``launcher start`` that spawned it exits, so a
-        pid record cleared while the process still runs leaves a listener the
-        parentage sweep can never reach — and every later ``start`` then reports
-        ``foreign_busy`` forever. Windows names the socket's owner, so after the
-        recorded tree is stopped we ask the TCP table who is still listening and
-        stop that tree too.
+        The gateway runs as ``node <next cli> start``, so the recorded pid *is*
+        the server and stopping the record's tree already stops the listener.
+        What still strands one is a hard kill of the launcher itself (console
+        close, harness timeout) rather than ``AHOS Stop``: the detached children
+        survive with no parent to issue the tree kill, the pid record goes stale,
+        and every later ``start`` then reports ``foreign_busy`` forever. Windows
+        names the socket's owner, so after the recorded tree is stopped we ask
+        the TCP table who is still listening and stop that tree too.
 
         Returns the reclaimed pid, or None when the port is already free — or
         when the survivor is not provably ours, which is left running and named
@@ -838,8 +838,8 @@ class AhosOrchestrator:
         owner = pk.port_owner(host, port)
         if not owner:
             return None
-        # Never kill a process we cannot prove is ours: the gateway marker is the
-        # repo's own node_modules path, which only our gateway's command line
+        # Never kill a process we cannot prove is ours: the gateway marker is this
+        # checkout's own next CLI path, which only our gateway's command line
         # carries. A foreign server squatting on the same port is reported, not
         # terminated.
         cmdline = pk.process_cmdline(owner) or ""
