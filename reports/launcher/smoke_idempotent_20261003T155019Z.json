@@ -1,0 +1,185 @@
+{
+  "case": "idempotent",
+  "steps": [
+    {
+      "action": "start",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "start",
+        "--json"
+      ],
+      "rc": 1,
+      "seconds": 558.9,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": false,
+      "stdout": "بررسی پیش‌نیازها…\n  پایگاه داده: از قبل در حال اجراست (pid None)\n  پایگاه داده: ✓\n  بک‌اند پایگاه داده: از قبل در حال اجراست (pid None)\n  بک‌اند پایگاه داده: ✓\nراه‌اندازی درگاه و داشبورد…\n  درگاه و داشبورد: ⚠ یک سرویس اجرا نشد. درگاه پس از ۱۲۰ ثانیه جواب نداد. فایل لاگ را در logs/launcher ببینید.\nراه‌اندازی ربات تلگرام…\n  ربات تلگرام: ✓\nراه‌اندازی موتور در حالت کاغذی…\nموتور در حال اجرای اولین چرخهٔ خود است؛ چند دقیقه طول می‌کشد…\n  موتور کاغذی: ✗ موتور اجرا نشد. موتور شروع نشد. فایل لاگ را در logs/launcher ببینید.\n  ربات تلگرام: متوقف شد (۱۵.۵s, failed)\n{\n  \"action\": \"start\",\n  \"ts\": \"2026-10-03T15:31:06.315840+00:00\",\n  \"overall\": \"FAILED\",\n  \"paper_only\": true,\n  \"components\": {\n    \"stores\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"already running (idempotent)\",\n      \"pid\": null,\n      \"critical\": true\n    },\n    \"db_backend\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"already running (idempotent)\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"gateway\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"health check timed out after 120s\",\n      \"pid\": 17396,\n      \"critical\": false,\n      \"started_ts\": 1791041028.8923793\n    },\n    \"telegram\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"pid 15240 alive\",\n      \"pid\": 15240,\n      \"critical\": false\n    },\n    \"engine\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"health check timed out after 420s; log tail: ahos.main\\\", \\\"service\\\": \\\"ahos-runtime\\\", \\\"version\\\": \\\"1.0.0\\\", \\\"message\\\": \\\"Executing Opportunity Intelligence Cycle (chain=solana)\\\", \\\"module\\\": \\\"__main__\\\", \\\"line\\\": 450, \\\"run_id\\\": \\\"run_1791041031_55b8c144\\\"}\",\n      \"pid\": 6296,\n      \"critical\": true,\n      \"started_ts\": 1791041450.6936424\n    }\n  },\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": [\n    {\n      \"name\": \"repo\",\n      \"ok\": true,\n      \"detail\": \"workspace root G:\\\\robat\\\\ahos\"\n    },\n    {\n      \"name\": \"venv\",\n      \"ok\": true,\n      \"detail\": \".venv\\\\Scripts\\\\python.exe\"\n    },\n    {\n      \"name\": \"node_modules\",\n      \"ok\": true,\n      \"detail\": \"node_modules\"\n    },\n    {\n      \"name\": \"scheduler_config\",\n      \"ok\": true,\n      \"detail\": \"existing scheduler (n8n replacement)\"\n    },\n    {\n      \"name\": \"db_reachable\",\n      \"ok\": true,\n      \"detail\": \"postgres on 127.0.0.1:5432\"\n    },\n    {\n      \"name\": \"gemini_cred\",\n      \"ok\": true,\n      \"detail\": \"Credential Manager AHOS/ai/gemini (presence only)\"\n    }\n  ],\n  \"cp_status\": \"SAFE_HALT\",\n  \"failure\": \"engine\"\n}\n",
+      "stderr": "",
+      "report": null
+    },
+    {
+      "action": "status",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "status",
+        "--json"
+      ],
+      "rc": 1,
+      "seconds": 3.5,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": false,
+      "stdout": "{\n  \"action\": \"status\",\n  \"ts\": \"2026-10-03T15:31:09.857893+00:00\",\n  \"overall\": \"DOWN\",\n  \"paper_only\": true,\n  \"components\": {\n    \"stores\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"4 Lane-B stores present\",\n      \"pid\": null,\n      \"critical\": true\n    },\n    \"db_backend\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"Postgres reachable on 127.0.0.1:5432\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"gateway\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"gateway not answering on http://127.0.0.1:3000/ (URLError)\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"telegram\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"no launcher pid record (never started by us)\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"engine\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"recorded pid 6296 is not a live AHOS process\",\n      \"pid\": 6296,\n      \"critical\": true,\n      \"started_ts\": 1791041030.1740408\n    }\n  },\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": null,\n  \"cp_status\": \"SAFE_HALT\"\n}\n",
+      "stderr": "",
+      "report": null
+    },
+    {
+      "action": "start",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "start",
+        "--json"
+      ],
+      "rc": 1,
+      "seconds": 561.4,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": false,
+      "stdout": "بررسی پیش‌نیازها…\n  پایگاه داده: از قبل در حال اجراست (pid None)\n  پایگاه داده: ✓\n  بک‌اند پایگاه داده: از قبل در حال اجراست (pid None)\n  بک‌اند پایگاه داده: ✓\nراه‌اندازی درگاه و داشبورد…\n  درگاه و داشبورد: ⚠ یک سرویس اجرا نشد. درگاه پس از ۱۲۰ ثانیه جواب نداد. فایل لاگ را در logs/launcher ببینید.\nراه‌اندازی ربات تلگرام…\n  ربات تلگرام: ✓\nراه‌اندازی موتور در حالت کاغذی…\nموتور در حال اجرای اولین چرخهٔ خود است؛ چند دقیقه طول می‌کشد…\n  موتور کاغذی: ✗ موتور اجرا نشد. موتور شروع نشد. فایل لاگ را در logs/launcher ببینید.\n  ربات تلگرام: متوقف شد (۱۵.۶s, failed)\n{\n  \"action\": \"start\",\n  \"ts\": \"2026-10-03T15:40:31.276978+00:00\",\n  \"overall\": \"FAILED\",\n  \"paper_only\": true,\n  \"components\": {\n    \"stores\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"already running (idempotent)\",\n      \"pid\": null,\n      \"critical\": true\n    },\n    \"db_backend\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"already running (idempotent)\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"gateway\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"health check timed out after 120s\",\n      \"pid\": 13032,\n      \"critical\": false,\n      \"started_ts\": 1791041592.475134\n    },\n    \"telegram\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"pid 7412 alive\",\n      \"pid\": 7412,\n      \"critical\": false\n    },\n    \"engine\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"health check timed out after 420s; log tail: ahos.main\\\", \\\"service\\\": \\\"ahos-runtime\\\", \\\"version\\\": \\\"1.0.0\\\", \\\"message\\\": \\\"Executing Opportunity Intelligence Cycle (chain=solana)\\\", \\\"module\\\": \\\"__main__\\\", \\\"line\\\": 450, \\\"run_id\\\": \\\"run_1791041595_c43e58f5\\\"}\",\n      \"pid\": 17584,\n      \"critical\": true,\n      \"started_ts\": 1791042015.5450323\n    }\n  },\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": [\n    {\n      \"name\": \"repo\",\n      \"ok\": true,\n      \"detail\": \"workspace root G:\\\\robat\\\\ahos\"\n    },\n    {\n      \"name\": \"venv\",\n      \"ok\": true,\n      \"detail\": \".venv\\\\Scripts\\\\python.exe\"\n    },\n    {\n      \"name\": \"node_modules\",\n      \"ok\": true,\n      \"detail\": \"node_modules\"\n    },\n    {\n      \"name\": \"scheduler_config\",\n      \"ok\": true,\n      \"detail\": \"existing scheduler (n8n replacement)\"\n    },\n    {\n      \"name\": \"db_reachable\",\n      \"ok\": true,\n      \"detail\": \"postgres on 127.0.0.1:5432\"\n    },\n    {\n      \"name\": \"gemini_cred\",\n      \"ok\": true,\n      \"detail\": \"Credential Manager AHOS/ai/gemini (presence only)\"\n    }\n  ],\n  \"cp_status\": \"SAFE_HALT\",\n  \"failure\": \"engine\"\n}\n",
+      "stderr": "",
+      "report": null
+    },
+    {
+      "action": "stop",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "stop",
+        "--json"
+      ],
+      "rc": 1,
+      "seconds": 6.9,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": false,
+      "stdout": "توقف سرویس‌ها (ترتیب معکوس)…\n  موتور کاغذی: متوقف شد (۰.۴s, force)\nهمهٔ سرویس‌های AHOS متوقف شدند.\n",
+      "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"G:\\robat\\ahos\\launcher\\__main__.py\", line 68, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\__main__.py\", line 49, in main\n    report = orch.stop()\n             ^^^^^^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\orchestrator.py\", line 447, in stop\n    return self._report(\"stop\", \"STOPPED\" if (stopped or swept) else \"NOT_RUNNING\",\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\orchestrator.py\", line 538, in _report\n    comp[name] = {\"status\": res.status, \"detail\": res.detail[:400],\n                            ^^^^^^^^^^\nAttributeError: 'dict' object has no attribute 'status'\n",
+      "report": null
+    },
+    {
+      "action": "start",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "start",
+        "--json"
+      ],
+      "rc": 1,
+      "seconds": 559.7,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": false,
+      "stdout": "بررسی پیش‌نیازها…\n  پایگاه داده: از قبل در حال اجراست (pid None)\n  پایگاه داده: ✓\n  بک‌اند پایگاه داده: از قبل در حال اجراست (pid None)\n  بک‌اند پایگاه داده: ✓\nراه‌اندازی درگاه و داشبورد…\n  درگاه و داشبورد: ⚠ یک سرویس اجرا نشد. درگاه پس از ۱۲۰ ثانیه جواب نداد. فایل لاگ را در logs/launcher ببینید.\nراه‌اندازی ربات تلگرام…\n  ربات تلگرام: ✓\nراه‌اندازی موتور در حالت کاغذی…\nموتور در حال اجرای اولین چرخهٔ خود است؛ چند دقیقه طول می‌کشد…\n  موتور کاغذی: ✗ موتور اجرا نشد. موتور شروع نشد. فایل لاگ را در logs/launcher ببینید.\n  ربات تلگرام: متوقف شد (۱۵.۴s, failed)\n{\n  \"action\": \"start\",\n  \"ts\": \"2026-10-03T15:49:57.930881+00:00\",\n  \"overall\": \"FAILED\",\n  \"paper_only\": true,\n  \"components\": {\n    \"stores\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"already running (idempotent)\",\n      \"pid\": null,\n      \"critical\": true\n    },\n    \"db_backend\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"already running (idempotent)\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"gateway\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"health check timed out after 120s\",\n      \"pid\": 3268,\n      \"critical\": false,\n      \"started_ts\": 1791042159.2908297\n    },\n    \"telegram\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"pid 6008 alive\",\n      \"pid\": 6008,\n      \"critical\": false\n    },\n    \"engine\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"health check timed out after 420s; log tail: sage\\\": \\\"Pipeline executed in 82691.40ms: candidates=12, scores=12, persisted=12, alerts=0, lane_a_registered=10, lane_a_obs=12\\\", \\\"module\\\": \\\"__main__\\\", \\\"line\\\": 453, \\\"run_id\\\": \\\"run_1791042162_7103b03a\\\"}\",\n      \"pid\": 17532,\n      \"critical\": true,\n      \"started_ts\": 1791042582.3244438\n    }\n  },\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": [\n    {\n      \"name\": \"repo\",\n      \"ok\": true,\n      \"detail\": \"workspace root G:\\\\robat\\\\ahos\"\n    },\n    {\n      \"name\": \"venv\",\n      \"ok\": true,\n      \"detail\": \".venv\\\\Scripts\\\\python.exe\"\n    },\n    {\n      \"name\": \"node_modules\",\n      \"ok\": true,\n      \"detail\": \"node_modules\"\n    },\n    {\n      \"name\": \"scheduler_config\",\n      \"ok\": true,\n      \"detail\": \"existing scheduler (n8n replacement)\"\n    },\n    {\n      \"name\": \"db_reachable\",\n      \"ok\": true,\n      \"detail\": \"postgres on 127.0.0.1:5432\"\n    },\n    {\n      \"name\": \"gemini_cred\",\n      \"ok\": true,\n      \"detail\": \"Credential Manager AHOS/ai/gemini (presence only)\"\n    }\n  ],\n  \"cp_status\": \"SAFE_HALT\",\n  \"failure\": \"engine\"\n}\n",
+      "stderr": "",
+      "report": null
+    },
+    {
+      "action": "status",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "status",
+        "--json"
+      ],
+      "rc": 1,
+      "seconds": 3.5,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": false,
+      "stdout": "{\n  \"action\": \"status\",\n  \"ts\": \"2026-10-03T15:50:01.395437+00:00\",\n  \"overall\": \"DOWN\",\n  \"paper_only\": true,\n  \"components\": {\n    \"stores\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"4 Lane-B stores present\",\n      \"pid\": null,\n      \"critical\": true\n    },\n    \"db_backend\": {\n      \"status\": \"HEALTHY\",\n      \"detail\": \"Postgres reachable on 127.0.0.1:5432\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"gateway\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"gateway not answering on http://127.0.0.1:3000/ (URLError)\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"telegram\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"no launcher pid record (never started by us)\",\n      \"pid\": null,\n      \"critical\": false\n    },\n    \"engine\": {\n      \"status\": \"UNAVAILABLE\",\n      \"detail\": \"recorded pid 17532 is not a live AHOS process\",\n      \"pid\": 17532,\n      \"critical\": true,\n      \"started_ts\": 1791042160.777712\n    }\n  },\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": null,\n  \"cp_status\": \"SAFE_HALT\"\n}\n",
+      "stderr": "",
+      "report": null
+    },
+    {
+      "action": "stop",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "stop",
+        "--json"
+      ],
+      "rc": 1,
+      "seconds": 9.0,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": false,
+      "stdout": "توقف سرویس‌ها (ترتیب معکوس)…\n  موتور کاغذی: متوقف شد (۰.۵s, force)\nهمهٔ سرویس‌های AHOS متوقف شدند.\n",
+      "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"G:\\robat\\ahos\\launcher\\__main__.py\", line 68, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\__main__.py\", line 49, in main\n    report = orch.stop()\n             ^^^^^^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\orchestrator.py\", line 447, in stop\n    return self._report(\"stop\", \"STOPPED\" if (stopped or swept) else \"NOT_RUNNING\",\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\orchestrator.py\", line 538, in _report\n    comp[name] = {\"status\": res.status, \"detail\": res.detail[:400],\n                            ^^^^^^^^^^\nAttributeError: 'dict' object has no attribute 'status'\n",
+      "report": null
+    },
+    {
+      "action": "stop",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "stop",
+        "--json"
+      ],
+      "rc": 0,
+      "seconds": 8.7,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": true,
+      "stdout": "توقف سرویس‌ها (ترتیب معکوس)…\nهیچ سرویس AHOS در حال اجرا نیست.\n{\n  \"action\": \"stop\",\n  \"ts\": \"2026-10-03T15:50:19.062384+00:00\",\n  \"overall\": \"NOT_RUNNING\",\n  \"paper_only\": true,\n  \"components\": {},\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": null,\n  \"cp_status\": \"HALTED\",\n  \"swept\": [],\n  \"duration\": 8.085849046707153\n}\n",
+      "stderr": "",
+      "report": null
+    }
+  ],
+  "verdict": {
+    "started_once": false,
+    "second_start_was_idempotent_replay": false,
+    "restart_after_stop_worked": false,
+    "gateway_url": "http://127.0.0.1:3000/",
+    "paper_only": true,
+    "all_steps_rc_ok": false,
+    "passed": false
+  },
+  "mode": "dev",
+  "utc": "20261003T155019Z",
+  "host": "DESKTOP-DH7QOCK"
+}

@@ -1,0 +1,112 @@
+{
+  "case": "port-busy",
+  "steps": [
+    {
+      "action": "start",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "start",
+        "--json",
+        "--skip",
+        "telegram",
+        "--skip",
+        "engine"
+      ],
+      "rc": 1,
+      "seconds": 0.5,
+      "rc_expected": [
+        0,
+        1
+      ],
+      "rc_ok": true,
+      "stdout": "بررسی پیش‌نیازها…\n",
+      "stderr": "omponent_probe(name)[0] == C.HEALTHY else \"down\"\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\orchestrator.py\", line 111, in _component_probe\n    return C.probe_stores(self.clock())\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\components.py\", line 244, in probe_stores\n    missing = [str(p) for p in _sqlite_files() if not p.exists() or p.stat().st_size == 0]\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"G:\\robat\\ahos\\launcher\\components.py\", line 244, in <listcomp>\n    missing = [str(p) for p in _sqlite_files() if not p.exists() or p.stat().st_size == 0]\n                                                      ^^^^^^^^\nAttributeError: 'str' object has no attribute 'exists'\n",
+      "report": null
+    },
+    {
+      "action": "stop",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "stop",
+        "--json"
+      ],
+      "rc": 0,
+      "seconds": 8.0,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": true,
+      "stdout": "توقف سرویس‌ها (ترتیب معکوس)…\nهیچ سرویس AHOS در حال اجرا نیست.\n{\n  \"action\": \"stop\",\n  \"ts\": \"2026-10-03T13:28:48.821717+00:00\",\n  \"overall\": \"NOT_RUNNING\",\n  \"paper_only\": true,\n  \"components\": {},\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": null,\n  \"cp_status\": \"HALTED\",\n  \"swept\": [],\n  \"duration\": 7.56044602394104\n}\n",
+      "stderr": "",
+      "report": null
+    },
+    {
+      "action": "stop",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "stop",
+        "--json"
+      ],
+      "rc": 0,
+      "seconds": 6.2,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": true,
+      "stdout": "توقف سرویس‌ها (ترتیب معکوس)…\nهیچ سرویس AHOS در حال اجرا نیست.\n{\n  \"action\": \"stop\",\n  \"ts\": \"2026-10-03T13:28:54.976746+00:00\",\n  \"overall\": \"NOT_RUNNING\",\n  \"paper_only\": true,\n  \"components\": {},\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": null,\n  \"cp_status\": \"HALTED\",\n  \"swept\": [],\n  \"duration\": 5.789069890975952\n}\n",
+      "stderr": "",
+      "report": null
+    },
+    {
+      "action": "stop",
+      "cmd": [
+        "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "launcher",
+        "stop",
+        "--json"
+      ],
+      "rc": 0,
+      "seconds": 4.6,
+      "rc_expected": [
+        0
+      ],
+      "rc_ok": true,
+      "stdout": "توقف سرویس‌ها (ترتیب معکوس)…\nهیچ سرویس AHOS در حال اجرا نیست.\n{\n  \"action\": \"stop\",\n  \"ts\": \"2026-10-03T13:28:59.583417+00:00\",\n  \"overall\": \"NOT_RUNNING\",\n  \"paper_only\": true,\n  \"components\": {},\n  \"dashboard_url\": \"http://127.0.0.1:3000/\",\n  \"db_backend\": {\n    \"scheme\": \"postgres\",\n    \"host\": \"127.0.0.1\",\n    \"port\": 5432,\n    \"configured\": true\n  },\n  \"preflight\": null,\n  \"cp_status\": \"HALTED\",\n  \"swept\": [],\n  \"duration\": 4.218597888946533\n}\n",
+      "stderr": "",
+      "report": null
+    }
+  ],
+  "verdict": {
+    "occupied": "127.0.0.1:3450",
+    "db_scheme": "postgres",
+    "gateway_status": null,
+    "gateway_detail": null,
+    "overall": null,
+    "persian_action_named": false,
+    "persian_error_shown": false,
+    "did_not_claim_online": true,
+    "passed": false
+  },
+  "port_notes": [
+    "preferred port 3000 is not bindable on this host (winerror=10013 [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions)",
+    "using AHOS_GATEWAY_PORT=3450 for this test run only"
+  ],
+  "mode": "dev",
+  "utc": "20261003T132859Z",
+  "host": "DESKTOP-DH7QOCK"
+}
