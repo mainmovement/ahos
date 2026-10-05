@@ -5,8 +5,8 @@ Statuses: PENDING, RUNNING, DONE, PARTIAL (retry), NEEDS_REVIEW, BLOCKED_OWNER (
 
 | ID | STATUS | MISSION (see plan/vision for full spec + acceptance criteria) |
 |---|---|---|
-| M11.1 | RUNNING | Launcher finish (single icon, zero consoles, Status/Stop/Restart in CommandCenter.tsx, gateway port) - run by run_mission.ps1 -n 11_1 |
-| M11.2 | PENDING | launcher/ahos.ps1 hidden path: Tee-Object -Encoding invalid in PS 5.1 (log never written) + no double-run on stderr (spec: reports/grok/autopilot/missions/M11.2-launcher-ps51-log.md) |
+| M11.1 | NEEDS_REVIEW | Launcher finish (single icon, zero consoles, Status/Stop/Restart in CommandCenter.tsx, gateway port) - run by run_mission.ps1 -n 11_1 |
+| M11.2 | NEEDS_REVIEW | launcher/ahos.ps1 hidden path: Tee-Object -Encoding invalid in PS 5.1 (log never written) + no double-run on stderr (spec: reports/grok/autopilot/missions/M11.2-launcher-ps51-log.md) |
 | M11.3 | PENDING | Gateway process identity: marker never matches npm wrapper -> second start calls own gateway foreign (spec: reports/grok/autopilot/missions/M11.3-gateway-identity.md) |
 | M11.4 | PENDING | Telegram health = stable process/readiness, not pid alive at spawn (spec: reports/grok/autopilot/missions/M11.4-telegram-health.md) |
 | M48.1 | PENDING | Next 16.2.6 -> 16.3.8 security update (critical advisory), proposal + rollback (spec: reports/grok/autopilot/missions/M48.1-next-security-update.md) |

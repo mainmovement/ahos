@@ -623,3 +623,176 @@ class TestNoVisibleConsole:
         source = _strip_ps_comments(_read("launcher/ahos.ps1"))
         assert "$args = " not in source
         assert "$PyArgs = " in source
+
+
+# --------------------------------------------- M11.2: PS 5.1 hidden-path log ---
+class TestM11_2_Ps51HiddenPath:
+    r"""M11.2 — the hidden path must log under the real .lnk target.
+
+    The desktop shortcut runs ``C:\Windows\System32\WindowsPowerShell\v1.0\
+    powershell.exe``, i.e. Windows PowerShell 5.1, not PowerShell 7. Two 5.1
+    specifics broke the original hidden path there and are pinned here:
+
+    * ``Tee-Object -Encoding`` is a 7.2+ parameter (CHANGELOG 7.2 / #12135), so
+      it threw under 5.1 and the log was never written;
+    * ``$ErrorActionPreference = 'Stop'`` turns a redirected native ``stderr``
+      line into a terminating ``NativeCommandError``, which re-entered a
+      ``catch`` and ran the action a second time.
+
+    Both were resolved structurally by M11.1 (commit ``d0141a9``, Finding R6 in
+    ``docs/ONE_CLICK.md``): python owns the log file, so the shell runs a plain
+    ``& $Python @PyArgs`` with no pipe and no redirection. These tests pin that
+    shape so it cannot come back, plus the one defect M11.2's scope still held:
+    the script is UTF-8 *with a BOM*, because Windows PowerShell 5.1 decodes a
+    BOM-less file with the system ANSI codepage and its own Persian literals
+    arrive as mojibake.
+    """
+
+    def test_ahos_ps1_is_utf8_with_a_bom(self):
+        """WinPS 5.1 has no encoding sniffing: no BOM means cp1252 decoding.
+
+        The fatal no-venv branch prints Persian from the shell itself -- python
+        cannot be started to print it -- so the file must declare its encoding.
+        Verified against the real 5.1 binary on the owner host: without the BOM
+        ``محیط پایتون پیدا نشد`` arrived as
+        ``Ù…Ø­ÛŒØ· Ù¾Ø§ÛŒØªÙˆÙ† Ù¾ÛŒØ¯Ø§ Ù†Ø´Ø¯``; with it, correctly.
+        """
+        raw = (ROOT / "launcher/ahos.ps1").read_bytes()
+        assert raw[:3] == b"\xef\xbb\xbf", (
+            "launcher/ahos.ps1 must start with a UTF-8 BOM so Windows "
+            "PowerShell 5.1 decodes its Persian literals instead of reading "
+            "them as the system ANSI codepage")
+
+    def test_no_tee_object_encoding_in_the_launcher(self):
+        """``-Encoding`` on Tee-Object is 7.2+ and threw under PS 5.1.
+
+        Stronger than the spec's wording: ``Tee-Object`` is absent from the
+        whole launcher tree, so neither the parameter nor the cmdlet can return.
+        """
+        for py in ROOT.glob("launcher/**/*.ps1"):
+            text = py.read_text(encoding="utf-8")
+            assert "Tee-Object" not in text, (
+                f"{py}: Tee-Object is a PS 7.2+ surface in the one-click path; "
+                "python writes the log itself (M11.1 Finding R6)")
+
+    def test_the_python_action_is_never_re_run_from_a_catch(self):
+        """A ``catch`` must never re-invoke python.
+
+        Under ``$ErrorActionPreference = 'Stop'`` a redirected stderr line
+        throws; a python call in the handler would run the action twice -- a
+        double start, or a stop followed by a start. Brace-match every
+        ``catch`` and require the handler body to be python-free.
+        """
+        text = _strip_ps_comments(_read("launcher/ahos.ps1"))
+        for body in _ps_catch_bodies(text):
+            assert "$Python" not in body, (
+                "a catch block must not invoke python (double-run risk under "
+                f"$ErrorActionPreference='Stop'): {body.strip()[:80]!r}")
+
+    def test_no_powershell_pipe_wraps_the_python_call(self):
+        """The R6 defect: a pipe outlives python and wedges the hidden shell.
+
+        A PowerShell pipe ends when its *write* end closes, not when python
+        exits, and the launcher's detached children inherit that handle. A
+        restart stops the gateway that spawned the shell, python exits, and the
+        shell stays pinned on the pipe reader forever, holding the module lock
+        the dashboard's next stop/restart needs. So the hidden path must not
+        wrap the python call in a pipe.
+        """
+        text = _strip_ps_comments(_read("launcher/ahos.ps1"))
+        assert "Tee-Object" not in text
+        # No `| Out-File` / `| Tee-Object` redirecting python's output.
+        assert not re.search(r"\|\s*(Out-File|Tee-File|Tee-Object)", text), (
+            "the hidden path must not capture python through a PowerShell pipe")
+        assert not re.search(r"&\s*\$Python[^|\r\n]*\|", text), (
+            "python must be invoked bare; a pipe outlives it and wedges the shell")
+
+    def test_hidden_path_names_the_log_python_writes(self):
+        """The hidden path's log contract: the ps1 names the file, python writes it.
+
+        The spec lists ``[IO.File]::AppendAllText`` / ``Out-File -Encoding utf8``
+        as the mechanism. That was the R5 design, superseded by R6 in M11.1:
+        the ps1 now exports ``AHOS_LAUNCHER_LOG`` and
+        ``launcher/__main__.py:_install_log_tee`` appends to it from Python,
+        file-first and UTF-8. Pinning the R5 cmdlets would re-forbid the fix.
+        """
+        text = _strip_ps_comments(_read("launcher/ahos.ps1"))
+        # The contract: the hidden (non-Console) branch sets the env var.
+        assert "AHOS_LAUNCHER_LOG" in text, (
+            "the hidden path must name the log file so python can write it")
+        assert re.search(r"if\s*\(\s*-not\s+\$Console\s*\)", text), (
+            "the log contract belongs to the hidden path, not -Console")
+        # The writer, on the python side: file-first so a bad console codepage
+        # can never cost the log line.
+        py = _read("launcher/__main__.py")
+        assert "AHOS_LAUNCHER_LOG" in py, (
+            "launcher/__main__.py must honour the AHOS_LAUNCHER_LOG contract")
+        assert 'encoding="utf-8"' in py, "the log must be written as UTF-8"
+        assert "_install_log_tee" in py
+
+    def test_pythons_exit_code_reaches_the_shell_exit(self):
+        """``$LASTEXITCODE`` must propagate so a failed start is not reported OK."""
+        text = _strip_ps_comments(_read("launcher/ahos.ps1"))
+        assert re.search(r"\$rc\s*=\s*\$LASTEXITCODE", text), (
+            "the shell must capture python's exit code")
+        assert re.search(r"exit\s+\$rc", text), (
+            "the shell must exit with python's exit code")
+
+    def test_ps51_renders_the_fatal_message_correctly(self, tmp_path):
+        r"""Acceptance: the real PS 5.1 binary decodes the committed script.
+
+        The script is copied into a venv-less ``sub/`` so ``$PSScriptRoot\..``
+        has no ``.venv\Scripts\python.exe``; that is the fatal branch, where
+        python cannot print anything and the shell's own Persian message is the
+        only diagnostic the owner ever sees. Skips only where no PowerShell
+        exists (the Linux CI box).
+        """
+        pwsh = _find_pwsh()
+        if pwsh is None:
+            pytest.skip("no powershell/pwsh available to run the wrapper")
+
+        sub = tmp_path / "sub"
+        sub.mkdir()
+        victim = sub / "ahos.ps1"
+        # Copy bytes so the BOM and the CRLF both survive.
+        victim.write_bytes((ROOT / "launcher/ahos.ps1").read_bytes())
+
+        proc = subprocess.run(
+            [pwsh, "-NoProfile", "-ExecutionPolicy", "Bypass",
+             "-File", str(victim), "-Action", "start"],
+            capture_output=True, timeout=120,
+        )
+        # exit 3 is the documented no-venv code; the message must be intact.
+        assert proc.returncode == 3, (
+            f"expected exit 3 on the missing-venv path, got "
+            f"{proc.returncode}\nstdout={proc.stdout!r}\nstderr={proc.stderr!r}")
+        text = proc.stdout.decode("utf-8", "replace")
+        assert "محیط پایتون پیدا نشد" in text, (
+            "the fatal no-venv message arrived as mojibake under this "
+            f"PowerShell (a missing UTF-8 BOM): {text[:120]!r}")
+
+
+def _ps_catch_bodies(text: str):
+    """Yield the body of every ``catch { ... }`` block in a PowerShell script.
+
+    Brace-matched from the handler's own opening brace (depth starts at 1), so
+    a nested ``try { }`` inside the handler does not end the match early. A
+    ``catch`` may carry a filter (``catch [System.Exception] {``).
+    """
+    for m in re.finditer(r"\bcatch\b", text):
+        i = m.end()
+        # Skip an optional exception filter, which may itself brace-balance.
+        while i < len(text) and text[i] not in "{":
+            i += 1
+        if i >= len(text):
+            break
+        depth, start, j = 1, i + 1, i + 1
+        while j < len(text) and depth:
+            if text[j] == "{":
+                depth += 1
+            elif text[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    yield text[start:j]
+                    break
+            j += 1

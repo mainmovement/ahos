@@ -1,0 +1,38 @@
+{
+  "mission": "M11.2",
+  "purpose": "Owner-run receipt: the real .lnk path (Windows PowerShell 5.1, -WindowStyle Hidden) writes logs/launcher/launcher.log in UTF-8 with each Persian progress line once, for exactly one start action.",
+  "host": "owner Windows 10 Home Single Language 10.0.19045",
+  "shell": "C:\\Windows\\System32\\WindowsPowerShell\u000b1.0\\powershell.exe",
+  "shell_version_note": "Windows PowerShell 5.1 -- the binary AHOS.lnk targets",
+  "invocation": "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"G:\robat\u0007hos\\launcher\u0007hos.ps1\" -Action start",
+  "exit_code": 0,
+  "action_count_for_this_run": 1,
+  "started_at_utc": "2026-10-05T04:35:19.276463+00:00",
+  "log": {
+    "path": "logs/launcher/launcher.log",
+    "gitignored": true,
+    "total_bytes_after_run": 3193,
+    "bytes_appended_by_this_run": 903,
+    "valid_utf8": true,
+    "note": "The log is append-only across runs; this receipt captures only the segment this start produced so no earlier run is claimed.",
+    "segment": "  درگاه و داشبورد: configured port 3000 was not bindable on this host; using 8300\r\nبررسی پیش‌نیازها…\r\n  پایگاه داده: از قبل در حال اجراست (pid None)\r\n  پایگاه داده: ✓\r\n  بک‌اند پایگاه داده: از قبل در حال اجراست (pid None)\r\n  بک‌اند پایگاه داده: ✓\r\nراه‌اندازی درگاه و داشبورد…\r\n  درگاه و داشبورد: ✓\r\nراه‌اندازی ربات تلگرام…\r\n  ربات تلگرام: ✓\r\nراه‌اندازی موتور در حالت کاغذی…\r\nموتور در حال اجرای اولین چرخهٔ خود است؛ چند دقیقه طول می‌کشد…\r\n  موتور کاغذی: ✓\r\nبررسی سلامت سرویس‌ها…\r\nAHOS از قبل در حال اجراست؛ کاری انجام نشد.\r\nAHOS روشن است.\r\noverall: ONLINE\r\n"
+  },
+  "status_report": {
+    "committed_copy": "reports/launcher/status_20261005T043519Z.json",
+    "latest_alias": "reports/launcher/status.json",
+    "same_report": true,
+    "ts": "2026-10-05T04:35:19.276463+00:00",
+    "action": "start",
+    "overall": "ONLINE",
+    "paper_only": true,
+    "gateway_chosen_via": "CANDIDATE_BINDABLE",
+    "gateway_port": 8300
+  },
+  "ps51_bom_check": {
+    "file": "launcher/ahos.ps1",
+    "starts_with_utf8_bom": true,
+    "note": "Without the BOM, PS 5.1 decoded the script as cp1252 and the fatal no-venv message arrived as mojibake; proven against the real 5.1 binary before and after the fix."
+  },
+  "paper_only": true,
+  "no_secrets": "log segment and status report carry only Persian progress lines, ports and PIDs"
+}

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   AHOS one-click console (PowerShell 5.1 compatible).
 

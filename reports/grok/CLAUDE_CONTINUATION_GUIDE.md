@@ -717,6 +717,73 @@ cd G:\robat\ahos
 12. Phase 9 (M9): the paper-trading closed loop has never run — all 19 `paper_trading.sqlite` tables hold 0 rows, so calibration, outcome tracking, the live decision authority, trade-derived learning, and accounting all rest on an empty store. CC-3 (`Tuple` NameError in `debate_council.py`, latent), CC-4 (`cycle_duration_ms` clock-drift contamination), CC-5 (`chain_id='robinhood'` on 3,635 observations), and CC-1 (daemon not routed through `ControlPlane`) are open and recorded in `reports/grok/REMAINING_REALITY_REGISTER.md`. Twelve older readiness maps are bannered STALE; quote the register, not them.
 
 
+### Mission 11.2 (2026-10-05, Claude/Atria): the hidden path under real PS 5.1
+
+Spec: `reports/grok/autopilot/missions/M11.2-launcher-ps51-log.md`. Full report:
+`reports/grok/autopilot/M11.2_review.md`.
+
+**What the mission actually found.** The two defects the spec was written
+against — `Tee-Object -Encoding` (PS 7.2+) and the `catch` re-run — were already
+gone at HEAD, closed structurally by M11.1 `d0141a9` (Finding R6 in
+`docs/ONE_CLICK.md`, which **supersedes** the R5 `Out-File` fix the spec quotes).
+`git grep -n "Tee-Object" -- launcher/` is empty; the only `catch` blocks set
+`[Console]::OutputEncoding` and the log-dir name, neither calls python. Redoing
+them would have duplicated M11.1, so M11.2 pins them instead and closes the one
+defect the spec's scope still genuinely held:
+
+**The real defect.** `launcher/ahos.ps1` was UTF-8 **without a BOM**. Windows
+PowerShell 5.1 (the exact binary `AHOS.lnk` targets) does no encoding sniffing —
+it decoded the file as the system ANSI codepage (cp1252 here), so the script's
+*own* fatal no-venv message reached the owner as
+`Ù…Ø­ÛŒØ· Ù¾Ø§ÛŒØªÙˆÙ† Ù¾ÛŒØ¯Ø§ Ù†Ø´Ø¯`. That is the one branch where python cannot
+start to print anything, so the shell's message is the only diagnostic. Proven
+against the real 5.1 binary before and after the fix, not argued.
+
+**Fix (one byte order, zero logic):** prepend `EF BB BF`. Content is
+byte-identical; CRLF untouched; git sees a one-line text diff, not binary.
+
+**Tests added** (`tests/test_phase18_launchers.py::TestM11_2_Ps51HiddenPath`):
+BOM present; `Tee-Object` absent from the whole launcher tree; no python call
+inside any `catch` (brace-matched helper); no PowerShell pipe wrapping python
+(the R6 wedge); the `AHOS_LAUNCHER_LOG` contract exists on both sides of the
+shell/python boundary; `$LASTEXITCODE` → `exit $rc`; and a live test that runs
+the committed script through the real PowerShell on the no-venv branch and
+asserts the Persian arrives intact (env-skips where no shell exists).
+
+**Mutation-verified:** each of six regressions (BOM dropped, `Tee-Object`
+reintroduced, python in a `catch`, `| Out-File` wrap, env var renamed away,
+`exit 0`) was injected into a temp copy and confirmed to fire its guard. The
+catch-scan helper needed a real fix for this — it started brace depth at 0
+instead of 1, so it stopped at the first nested close brace and missed the rest
+of a handler. Caught by the red-team, not by luck.
+
+**Owner-run receipt:** `reports/launcher/m11_2_owner_run_20261005T043519Z.json` —
+the real `.lnk` invocation (`-WindowStyle Hidden -File ... -Action start`) exited
+0, appended 903 bytes of valid UTF-8 Persian progress to
+`logs/launcher/launcher.log`, and produced exactly ONE start action, ONLINE,
+`paper_only: true` (`reports/launcher/status_20261005T043519Z.json`;
+`reports/launcher/status.json` is the same report). The live log is gitignored,
+so only the receipt is committed.
+
+**Open gaps, honestly:**
+1. `tests/test_alerts_web_banner.py::test_alerts_route_rechecks_canonical_buy_and_overlay`
+   **fails at HEAD**, unrelated to M11.2: it asserts `authorizeWebApi` is in
+   `app/api/alerts/route.ts`, but that file uses `authorizeDashboardEndpoint`
+   (0 occurrences of the asserted name in HEAD). Neither file is in M11.2's
+   diff. Out of scope — flagging, not fixing.
+2. PowerShell 7 is not installed on this host, so the BOM'd file was not run
+   under `pwsh`. PS 7 honours a UTF-8 BOM by design, but that is reasoning, not
+   a run. `pwsh` should be installed before any PS 7 acceptance claim.
+3. `launcher/ahos.bat` (manual terminal use only, not the one-click path) still
+   carries 110 non-ASCII bytes; it sets `chcp 65001` first, so it renders, but
+   it is not BOM-protected. Left out of M11.2 deliberately.
+4. The owner-run receipt left the full AHOS stack **running** (gateway on port
+   8300, telegram pid 8836, engine pid 16460) — that is what double-clicking
+   `AHOS.lnk` does. Stop it with `launcher/ahos.ps1 -Action stop` if the stack
+   was not wanted; note that a stop would rewrite `reports/launcher/status.json`
+   (the timestamped copy at `status_20261005T043519Z.json` is immutable).
+
+
 ## Owner directive traceability + NO-DUPLICATES hard rule (added 2026-10-03 by Grok)
 
 - **Matrix:** `reports/grok/OWNER_DIRECTIVE_TRACEABILITY.md` splits `owner_directive_part1.txt` + `part2.txt` into 594 atomic
