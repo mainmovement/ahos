@@ -220,9 +220,29 @@ class TestComponents:
         stale, _ = C.build_stale(tmp_path)
         assert stale is False
 
-    def test_gateway_command_modes(self, tmp_path):
-        assert "start" in C.gateway_command(tmp_path, "prod")[2]
-        assert "dev" in C.gateway_command(tmp_path, "dev")[2]
+    def test_gateway_command_modes(self, tmp_path, monkeypatch):
+        # The argv is this checkout's own next CLI — the script `npm run start`
+        # resolves `next` to — so stand it up rather than depending on a checkout.
+        cli = tmp_path / "node_modules" / "next" / "dist" / "bin" / "next"
+        cli.parent.mkdir(parents=True, exist_ok=True)
+        cli.write_text("#!/usr/bin/env node\n")
+        monkeypatch.setattr(C, "node_executable", lambda: r"C:\Program Files\nodejs\node.exe")
+        prod = C.gateway_command(tmp_path, "prod")
+        dev = C.gateway_command(tmp_path, "dev")
+        assert prod == [r"C:\Program Files\nodejs\node.exe", str(cli),
+                        "start", "--hostname", "127.0.0.1"]
+        assert dev[:3] == [r"C:\Program Files\nodejs\node.exe", str(cli), "dev"]
+        # the package.json scripts' loopback bind is reproduced exactly
+        assert dev[3:5] == ["--hostname", "127.0.0.1"]
+
+    def test_gateway_command_is_empty_without_node_or_the_cli(self, tmp_path, monkeypatch):
+        """``[]`` is reported UNAVAILABLE by the caller. Falling back to npm here
+        would re-introduce the ``cmd /c npm`` wrapper whose command line carries
+        nothing identifying — the exact defect M11.3 removes."""
+        monkeypatch.setattr(C, "node_executable", lambda: None)
+        assert C.gateway_command(tmp_path, "prod") == []
+        monkeypatch.setattr(C, "node_executable", lambda: r"C:\Program Files\nodejs\node.exe")
+        assert C.gateway_command(tmp_path, "prod") == []  # no node_modules/next
 
     def test_engine_command_is_paper_and_local(self):
         py = C.venv_python(ROOT) or sys.executable
@@ -427,21 +447,27 @@ class TestOrchestrator:
         assert res.pid == 4242
 
     def test_our_live_gateway_is_ours_not_foreign(self, tmp_path, monkeypatch):
-        """The gateway is launched as ``cmd /c "npm run start --silent"``, whose
-        command line carries no repo substring, so the marker that identifies the
-        engine and the bot can never match it. A second ``start`` therefore read
-        our own live gateway as a foreign listener: ``foreign_busy``, a DEGRADED
-        report, and a Persian line telling the owner some *other* program held
-        the port. The pid record is authoritative for the gateway."""
+        """The gateway used to be launched as ``cmd /c "npm run start --silent"``,
+        whose command line carried no identifying substring, so a second
+        ``start`` read our own live gateway as a foreign listener:
+        ``foreign_busy``, a DEGRADED report, and a Persian line telling the owner
+        some *other* program held the port. The gateway is now spawned as
+        ``node <next cli> start``, whose own argv carries the marker like every
+        other component, so a live recorded pid is recognised as ours through the
+        marker and replayed idempotently (M11.3)."""
         orch = make_orchestrator(tmp_path)
-        live_cmd = 'cmd /c "npm run start --silent"'
+        cli = C.next_cli(orch.root)
+        assert cli is not None, "node_modules/next must be installed for this suite"
+        # Get-CimInstance quotes the interpreter and the script; the marker must
+        # survive that quoting, which is what the old cmdline-equality fallback
+        # could not be trusted to do.
+        live_cmd = (f'"C:\\Program Files\\nodejs\\node.exe" "{cli}" '
+                    "start --hostname 127.0.0.1")
+        assert orch.marker("gateway").lower() in live_cmd.lower()
         pk.write_pid(orch.state_dir, "gateway", 7332,
                      {"cmd": live_cmd, "port": 8300, "host": "127.0.0.1"})
-        # The marker test must fail, as it does for the real command line.
-        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
         monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
-        monkeypatch.setattr("launcher.processkit.process_cmdline",
-                            lambda pid, timeout=5.0: live_cmd if pid == 7332 else None)
         res = orch._start_component("gateway")
         assert res.status == C.HEALTHY
         assert "idempotent" in res.detail
@@ -450,14 +476,12 @@ class TestOrchestrator:
     def test_reissued_gateway_pid_is_not_adopted(self, tmp_path, monkeypatch):
         """Windows re-issues pids, so a live pid is not evidence the recorded
         gateway is still that process: a foreign program handed our old pid must
-        read as foreign, not as ours."""
+        read as foreign, not as ours. The marker, not the pid number, decides."""
         orch = make_orchestrator(tmp_path)
         pk.write_pid(orch.state_dir, "gateway", 7332,
-                     {"cmd": 'cmd /c "npm run start --silent"', "port": 8300})
+                     {"cmd": "node next start", "port": 8300})
         monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
         monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
-        monkeypatch.setattr("launcher.processkit.process_cmdline",
-                            lambda pid, timeout=5.0: "C:\\other\\program.exe unrelated")
         monkeypatch.setattr("launcher.processkit.port_in_use",
                             lambda host, port, timeout=0.6: True)
         res = orch._start_component("gateway")
@@ -467,20 +491,18 @@ class TestOrchestrator:
     def test_stale_gateway_404_is_down_not_ours(self, tmp_path, monkeypatch):
         """A gateway we spawned can outlive the app it was built from: a stale
         server from an older build keeps holding the port and 404s every route
-        the dashboard needs. Its pid was still recorded as ours, so every later
-        start replayed it as "already running" and reported ONLINE while every
-        control was dead. Past its boot budget it must be probed like anything
-        else, and a route that is not served reads as ``down``."""
+        the dashboard needs. Its pid is still recorded and still ours, so every
+        later start replayed it as "already running" and reported ONLINE while
+        every control was dead. Past its boot budget it must be probed like
+        anything else, and a route that is not served reads as ``down``."""
         now = 1_000_000.0
         orch = make_orchestrator(tmp_path, clock=lambda: now)
-        live_cmd = 'cmd /c "npm run start --silent"'
+        live_cmd = 'node "G:\\robat\\ahos\\node_modules\\next\\dist\\bin\\next" start'
         pk.write_pid(orch.state_dir, "gateway", 7332,
                      {"cmd": live_cmd, "port": 8300, "host": "127.0.0.1",
                       "started_ts": now - 1000})  # past the 240s boot budget
-        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
         monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
-        monkeypatch.setattr("launcher.processkit.process_cmdline",
-                            lambda pid, timeout=5.0: live_cmd if pid == 7332 else None)
         monkeypatch.setattr("launcher.processkit.port_in_use",
                             lambda host, port, timeout=0.6: True)
         monkeypatch.setattr("launcher.components.probe_gateway",
@@ -490,19 +512,17 @@ class TestOrchestrator:
     def test_booting_gateway_is_trusted_on_its_pid_record(self, tmp_path, monkeypatch):
         """The boot budget is not a loophole for the stale-gateway probe: a
         gateway that just bound has not compiled the launcher route yet, so the
-        probe can legitimately fail for the first seconds. A young pid record is
-        still evidence the gateway is ours — without this grace every start would
-        spawn a second gateway while the first was still booting."""
+        probe can legitimately fail for the first seconds. A young pid record
+        that is still ours is evidence the gateway is ours — without this grace
+        every start would spawn a second gateway while the first was booting."""
         now = 1_000_000.0
         orch = make_orchestrator(tmp_path, clock=lambda: now)
-        live_cmd = 'cmd /c "npm run start --silent"'
+        live_cmd = 'node "G:\\robat\\ahos\\node_modules\\next\\dist\\bin\\next" start'
         pk.write_pid(orch.state_dir, "gateway", 7332,
                      {"cmd": live_cmd, "port": 8300, "host": "127.0.0.1",
                       "started_ts": now - 5})  # still inside the boot budget
-        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
         monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
-        monkeypatch.setattr("launcher.processkit.process_cmdline",
-                            lambda pid, timeout=5.0: live_cmd if pid == 7332 else None)
         monkeypatch.setattr("launcher.processkit.port_in_use",
                             lambda host, port, timeout=0.6: True)
         monkeypatch.setattr("launcher.components.probe_gateway",
@@ -797,7 +817,7 @@ class TestOrchestrator:
         orch = self._stopped_orch(tmp_path, monkeypatch)
         pk.write_pid(orch.state_dir, "gateway", 4242,
                      {"port": 8300, "host": "127.0.0.1",
-                      "cmd": "cmd /c npm run start"})
+                      "cmd": "node next start"})
         monkeypatch.setattr(orch, "_reclaim_gateway_port",
                             lambda host, port: None)
         remaining = {"n": 2}
@@ -825,11 +845,11 @@ class TestOrchestrator:
         assert report["overall"] == "DEGRADED"
 
     def test_stop_reclaims_a_listener_the_pid_record_lost(self, tmp_path, monkeypatch):
-        """The gateway is ``cmd /c npm run start`` whose ``next start`` child is
-        reparented the moment the ``launcher start`` that spawned it exits. With
-        the pid record gone the parentage sweep cannot reach it, so stop asks the
-        TCP table who still owns the port and terminates that tree — otherwise one
-        failed restart strands the port and every later start reads foreign_busy."""
+        """A hard kill of the launcher (console close instead of ``AHOS Stop``)
+        orphans the detached gateway: the pid record is gone or stale, so the
+        parentage walk cannot reach the survivor and stop asks the TCP table who
+        still owns the port and terminates that tree — otherwise one failed
+        restart strands the port and every later start reads foreign_busy."""
         orch = self._stopped_orch(tmp_path, monkeypatch)
         monkeypatch.setattr("launcher.processkit.can_bind", lambda host, port: False)
         monkeypatch.setattr("launcher.processkit.port_owner",
@@ -894,7 +914,7 @@ class TestOrchestrator:
     def test_listen_addr_prefers_the_recorded_port(self, tmp_path):
         orch = make_orchestrator(tmp_path)
         pk.write_pid(orch.state_dir, "gateway", 4242,
-                     {"port": 8300, "host": "127.0.0.1", "cmd": "cmd /c npm run start"})
+                     {"port": 8300, "host": "127.0.0.1", "cmd": "node next start"})
         orch.gateway = {"host": "127.0.0.1", "port": 3000}
         assert orch._gateway_listen_addr() == ("127.0.0.1", 8300)
 
@@ -970,6 +990,32 @@ class TestProcessMarkers:
         py = C.venv_python(orch.root) or Path(sys.executable)
         cmd = " ".join(C.telegram_command(py))
         assert orch.marker("telegram").lower() in cmd.lower()
+
+    @pytest.mark.parametrize("mode", ["prod", "dev"])
+    def test_gateway_marker_matches_the_spawned_command(self, tmp_path, mode):
+        """M11.3: the gateway marker used to be ``<root>/node_modules`` — a
+        directory the ``cmd /c npm run start`` argv never contained, so it could
+        never match. It is now derived from the argv the launcher spawns, like
+        every other component."""
+        orch = make_orchestrator(tmp_path)
+        cmd = " ".join(C.gateway_command(orch.root, mode))
+        assert "npm" not in cmd and "cmd /c" not in cmd   # no wrapper in the argv
+        assert orch.marker("gateway").lower() in cmd.lower()
+
+    def test_gateway_marker_is_not_the_node_modules_directory(self, tmp_path):
+        """The old marker was the whole ``node_modules`` path; a marker that wide
+        matched any node process started from this checkout (R3). The new one
+        names this checkout's own next CLI, so it does not match a foreign node
+        process that merely happens to run under the repo, nor the wrapper that
+        used to be spawned."""
+        orch = make_orchestrator(tmp_path)
+        cli = C.next_cli(orch.root)
+        assert cli is not None, "node_modules/next must be installed for this suite"
+        marker = orch.marker("gateway").lower()
+        assert marker == str(cli).lower()
+        foreign = r"C:\Program Files\nodejs\node.exe G:\robat\ahos\scripts\tool.js"
+        assert marker not in foreign.lower()
+        assert marker not in 'cmd /c "npm run start --silent"'.lower()
 
     def test_engine_marker_matches_the_base_interpreter_relaunch(self, tmp_path):
         """The .venv python is a launcher that re-execs the base interpreter, so

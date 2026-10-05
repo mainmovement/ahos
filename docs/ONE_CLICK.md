@@ -193,6 +193,45 @@ The base-interpreter child of the shim carries no repo path at all, so the sweep
 also carries the canonical daemon argv (`-m architecture.runtime --daemon`) as a
 fallback marker for an engine whose shim has already died.
 
+### The gateway marker, and why the npm wrapper is gone (M11.3)
+
+The gateway was the last component whose marker could not match. It was spawned
+as `cmd /c "npm run start --silent"`, a command line containing no path at all,
+while its marker was `<root>\node_modules` — a directory, not a substring of any
+command line. Every identity question about the gateway therefore went through a
+special case: the pid record was trusted outright and the recorded command line
+compared against the live one (Finding R7), while `stop` had to ask the TCP table
+which process had inherited the port — the pid we recorded was the `cmd` wrapper,
+which exits and reparents its `next start` child, so killing the recorded pid
+never touched the listener.
+
+The marker is now derived the same way as the engine's and telegram's — from the
+argv the launcher spawns, which is
+
+```
+node <root>\node_modules\next\dist\bin\next start --hostname 127.0.0.1
+```
+
+the same script and flags `npm run start` resolves to (`dev` for the dev mode),
+so `package.json`'s scripts stay the human entry point and no second entry point
+exists. The recorded pid *is* the server, its own command line carries the
+marker, and `pid_is_ours` answers on any OS — the special case is gone and `stop`
+terminates the real listener. The marker is also *tighter* than what it replaced:
+`<root>\node_modules` matched any node process started from this checkout, while
+`...\node_modules\next\dist\bin\next` matches only a process running this
+checkout's own next binary.
+
+What the marker does *not* identify, unchanged: route health. A stale build that
+404s every dashboard route has a perfectly good marker, so past its boot budget
+the gateway is still route-probed like any other component. Port reclamation
+stays too — a hard kill of the launcher (console close instead of `AHOS Stop`)
+still orphans the listener — but that orphan is now the process we spawned, not a
+reparented grandchild we can never reach by parentage.
+
+If `node` or `node_modules/next` is missing, the gateway reports `UNAVAILABLE`
+with a named reason rather than silently falling back to the npm wrapper, which
+would reintroduce the identification defect.
+
 ### Honest verdicts, and how `stop` reports what it halted (postmortem)
 
 Three defects only fire on the real CLI path and each one alone kept the smoke's
@@ -265,7 +304,9 @@ marker `<repo>\node_modules` matches *any* node/cmd process started from this
 checkout — including `next dev`, vitest or tsc launched by an editor session.
 Resolved: the sweep is rewritten on strict **parentage** (one CIM snapshot +
 `descendant_of` against recorded pid-record roots and the launcher pid), so
-markers can no longer be the reason a foreign process dies.
+markers can no longer be the reason a foreign process dies. M11.3 tightens the
+gateway marker itself to this checkout's own `next` binary path, so the substring
+no longer matches an editor's `next dev`/vitest/tsc either.
 
 **پروانه / Parvaneh — owner UX and Persian text.** Verdict: `CHANGES`.
 Finding P1: one desktop icon only — the prompt keeps `AHOS Status.lnk` /
@@ -462,7 +503,12 @@ write it), with the recorded command compared against the live one so a pid
 Windows re-issued to an unrelated program is still rejected. Verified live: a
 second `start` while ONLINE now reports the gateway idempotent at its recorded
 pid and stays ONLINE. Two regression tests pin both the adopted and the
-reissued-pid cases.
+reissued-pid cases. **Superseded by M11.3** (like R6 superseded R5): the root
+cause was that the gateway was spawned through an npm wrapper whose command line
+carried no marker, so the comparison above was a stop-gap over a marker that
+could never match. The gateway is now spawned as `node <next cli> start` and the
+marker is derived from that argv, so this special case is deleted — see "The
+gateway marker, and why the npm wrapper is gone" above.
 
 *Finding R8 — a dashboard Restart silently widened the stack (DEFECT A).* A
 skipped component leaves no pid record, so a read-only poll read it as
