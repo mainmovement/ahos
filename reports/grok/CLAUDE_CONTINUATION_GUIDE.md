@@ -620,6 +620,87 @@ npm run test:chat-control-gate    # 131 — includes the MN-1 pepper block
 - No new execution surface; PAPER_ONLY unchanged; Lane A untouched; no secret
   printed or committed (the masked scan of `5974da0` found 0 hits).
 
+### Missions 11 / 11.1 (2026-10-03 → 2026-10-04, Claude/Atria): the one-click launcher, no Docker
+
+Mission 11 built the launcher; **Mission 11.1 finished it.** The authoritative
+record for both is `docs/ONE_CLICK.md` (contract + "M11.1 review notes"), and the
+phase narrative is handoff §Mission 11.1. Read `docs/ONE_CLICK.md` before
+touching anything under `launcher/`.
+
+**The two latent defects M11.1 closed** — both invisible to the unit suite, both
+only reproducible on the real CLI path:
+
+1. **The dashboard Stop/Restart buttons did nothing.** `POST /api/launcher`
+   returned `202` and the stack never moved. Node's `detached: true` is
+   `DETACHED_PROCESS`, under which Windows PowerShell 5.1 has no console host and
+   **exits 0 without executing the script** — proven by a four-variant matrix.
+   The 202 was the starter shell's silent no-op. Worse, `detached` would not have
+   protected the child anyway: the orchestrator stops the gateway with
+   `taskkill /T` (a process-tree kill by parentage) and `detached` does not break
+   parentage. The fix is `Start-Process -PassThru` (ShellExecute), which
+   **reparents** the worker onto a shell host; the route returns that reparented
+   pid. A failed spawn now returns `500` + a `FAILED` audit line instead of a
+   lying 202.
+2. **`logs/launcher/launcher.log` was never written.** Two silent PowerShell 5.1
+   traps: `Tee-Object` has no `-Encoding` on 5.1 (PS7-only), so the pipeline
+   threw *before python started* and the `catch` re-ran python with no log; and
+   under `$ErrorActionPreference='Stop'` a native command's stderr line is a
+   *terminating* error. Fixed with `Out-File -Encoding utf8 -Append` inside a
+   local `'Continue'` scope; `$LASTEXITCODE` still propagates.
+
+Also: `HEALTH_WAIT["gateway"]` 120s → 240s (a cold Turbopack compile of even the
+cheapest route outlasted 120s on this slow G: drive, so a healthy boot was
+reported `DEGRADED`); one desktop icon only (`ACTIONS = {"start": "AHOS"}`) with
+Status/Stop/Restart inside the dashboard; gateway port resolved by a **real bind
+test** (`can_bind`/`select_port`), never onto a port the OS will not hold.
+
+**A third defect, found only at delivery sign-off (R12b): `stop()` signalled its
+own process group.** The route spawns the orchestrator as a descendant of the
+gateway it must stop, and `GenerateConsoleCtrlEvent` targets a *group*, not one
+process — so the SIGBREAK aimed at the gateway killed the orchestrator mid-stop,
+right after it printed the "stopping" header, leaving the listener bound and the
+pid record in place. Fixed by `processkit.arm_console_break_immunity()`
+(a `SetConsoleCtrlHandler` returning `TRUE` for CTRL_C/CTRL_BREAK), armed as the
+first action of `stop()`, plus `_live_our_gateway_port()`, which adopts a
+stranded listener only when its owner's command line proves it is ours. One
+residue is recorded `UNKNOWN`, not fixed: a route-hosting hidden `ahos.ps1` shell
+once stayed idle ~30 min past its python child's exit (invisible, no port);
+four minimal reproductions all exited cleanly, so no mechanism is claimed.
+
+**Verification state** (all counts measured, not estimated)
+
+| Check | Result |
+|---|---|
+| `pytest tests/test_launcher_orchestrator.py` | 89 passed (~5.5 min) |
+| `pytest tests/test_launcher_smoke.py` | 25 passed |
+| `pytest tests/test_phase18_launchers.py tests/test_gateway_port.py` | 81 passed |
+| `pytest tests/test_run_bot_launcher.py tests/test_control_plane_soak.py` | 33 passed (~5.3 min) |
+| `npx tsc --noEmit -p .` | 0 errors |
+| real-process smoke receipts | `reports/launcher/smoke_{idempotent,port-busy,dashboard-api}_*.json` |
+| closing control-chain receipt | `smoke_dashboard-api_20261005T021119Z.json` — `verdict.passed: true`, all 8 control predicates true, `components_owning_windows: []` |
+| owner-readable log | `logs/launcher/launcher.log` (UTF-8 Persian, written by the reparented child) |
+
+The R12b fixes (console-break immunity in `stop()`, marker-proven live-port lookup)
+are covered by the 7 newest orchestrator tests; the earlier `94`/`181` aggregates
+in this guide predate them and are superseded by the per-file counts above.
+
+**How to continue (M11 / M11.1)**
+```powershell
+cd G:\robat\ahos
+.venv\Scripts\python.exe -m launcher status          # read-only; never probes a live socket
+.venv\Scripts\python.exe -m launcher.smoke dashboard-api --skip engine   # ~15 min, real receipts
+.venv\Scripts\python.exe -m pytest tests/test_launcher_orchestrator.py    # 89 launcher tests
+```
+
+- **Reality-ladder cap: TESTED.** The smoke receipts are real-process evidence,
+  but `VERIFIED` requires an owner to read them; `OPERATIONAL` requires the owner
+  to run `AHOS.lnk` on their own machine and say so. No claim here says either.
+- Leave the stack **stopped** at the end of any launcher session
+  (`.venv\Scripts\python.exe -m launcher stop`).
+- Never push (owner rule, local-only). Never touch `.cursor/hooks.json`,
+  `*.local-backup`, `ahos-hooks-local-diff.txt`, or `reports/pgdump_*.sql`.
+
+
 ---
 
 1. Blocker A (Claude, GM-01).

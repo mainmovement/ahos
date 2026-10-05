@@ -44,16 +44,23 @@ before us — the `fresh` flag on `ComponentResult`.
 
 Do not add launch logic to `start_ahos.*`; the package owns it.
 
-## Desktop shortcuts
+## Desktop shortcut — one icon
 
-`launcher/shortcuts.py` creates, for user `Sniper`:
+`launcher/shortcuts.py` creates exactly **one** icon for user `Sniper`:
 
-- `AHOS.lnk` — start (opens the dashboard in the default browser when healthy)
-- `AHOS Stop.lnk` — stop, only our own processes
-- `AHOS Status.lnk` — status as a desktop notification/console read-out
+- `AHOS.lnk` — start; opens the dashboard in the default browser when healthy
 
-Shortcuts target the console wrapper via `WScript.Shell`; the icon is the
-in-repo `launcher/ahos.ico`.
+Target: `powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden
+-File "<repo>\launcher\ahos.ps1" -Action start`, with `WindowStyle = 7`
+(minimised) and `IconLocation = <repo>\launcher\ahos.ico,0`. The icon count is
+an owner rule: **Status, Stop and Restart live inside the dashboard panel**, not
+on the desktop. The two legacy links (`AHOS Stop.lnk`, `AHOS Status.lnk`) are
+retired into `launcher/_retired_shortcuts/` rather than deleted.
+
+"Minimised" is not "invisible": `-WindowStyle Hidden` in the arguments is what
+actually keeps a console off the owner's screen, while the `.lnk`'s own
+`WindowStyle = 7` is only the fallback hint a host would use if it ignored the
+arguments.
 
 ## Health evidence, not pings
 
@@ -88,8 +95,12 @@ running its first cycle; this takes a few minutes" line.
 A process that is alive but never turned healthy within the wait is reported
 `UNHEALTHY` with its last probe, not a generic "timed out".
 
-Status is written to `reports/launcher/status.json` (latest) and a timestamped
-archive; logs go to `logs/launcher/`.
+Status is written to `reports/launcher/status.json` (latest) plus a bounded set
+of timestamped archives (`status_<utc>.json`, pruned to
+`MAX_STATUS_ARCHIVES` — only state-changing actions archive anything); logs go
+to `logs/launcher/`. The dashboard panel polls `GET /api/launcher`, which reads
+that same file, so a poll never opens a socket against a component it is asking
+about (fix e5: status polling now touches `status.json` only).
 
 ## Owner-facing messages
 
@@ -111,6 +122,15 @@ once if the existing build is stale (`components.build_stale` compares `.next`
 against source mtimes) and degrades to `dev` if the build fails or times out.
 The smoke harness pins `dev` so a build never dominates a smoke run; the
 production build is an explicit, separately recorded step.
+
+`HEALTH_WAIT["gateway"]` is 240s, not the 120s an earlier version allowed. The
+probe already targets `/api/launcher` — the cheapest route in the app — but on
+a slow filesystem Turbopack's *first* compile of even that one route has been
+measured past 120s, so a gateway that was about to answer read `UNAVAILABLE`,
+an OPTIONAL component failed, and a healthy boot was reported `DEGRADED` for no
+real reason. The probe retries every second, so raising only the deadline was
+the correct fix: it does not delay a fast boot, it just stops a cold one from
+being misreported.
 
 ## Windows port reservations
 
@@ -201,7 +221,11 @@ Three defects only fire on the real CLI path and each one alone kept the smoke's
 - `tests/test_phase18_launchers.py` — pins the daemon contract at the launcher
   package, CRLF endings on every `.bat`/`.ps1` surface, and paper-only.
 - `launcher/smoke.py` — real-process receipts under `reports/launcher/`:
-  `idempotent` and `port-busy`. Never leaves a component behind.
+  `idempotent`, `port-busy`, and `dashboard-api`. Never leaves a component
+  behind. The receipt that closes the control chain is
+  `reports/launcher/smoke_dashboard-api_20261005T021119Z.json`
+  (`verdict.passed: true`, all eight control predicates true, zero visible
+  consoles); the six earlier `dashboard-api` receipts stay as history.
 
 ## M11.1 review notes (2026-10-03, Asia/Tehran)
 
@@ -273,4 +297,385 @@ one API route the panel calls and the non-secret ports config.
 
 **Stage-1 conclusion:** no reviewer returned `APPROVE` without changes; all
 eight findings above were folded into the build plan before the first edit.
+
+### Stage 2 — build review (2026-10-04, Asia/Tehran)
+
+**رستم / Rostam — launcher and Windows process plumbing.** Verdict: `CHANGES`,
+resolved and re-reviewed to `APPROVE`. Four defects, each proven by an isolating
+experiment on this host rather than inferred:
+
+*Finding R4 — the dashboard buttons did nothing.* `POST /api/launcher` returned
+`202` with a pid and the stack never moved. Three-part root cause, each part
+measured:
+1. Node's `spawn(..., { detached: true })` starts the child with
+   `DETACHED_PROCESS`. Windows PowerShell 5.1 with no console host **exits 0
+   without executing the script at all**. Proven by a four-variant matrix on the
+   same command: `detached: false` → exit `7` with the expected output;
+   `detached: true` → instant exit `0`, empty stdout/stderr — regardless of
+   `windowsHide` and regardless of a full path vs. bare `powershell.exe`. Even
+   `powershell -Command "Write-Output X; exit 7"` produced nothing under
+   `detached: true`. The 202 we saw was the starter shell's silent no-op, not
+   the orchestrator's.
+2. `detached: true` would not have helped even if it ran. The orchestrator stops
+   the gateway with `taskkill /PID <gateway> /T`, which is a **process-tree** kill
+   by parentage; `detached` does not break that parentage. Proven with a
+   heartbeat child that perished at its own `taskkill /T /F` against its parent.
+3. What does reparent is `Start-Process` (ShellExecute): the worker's ppid
+   becomes a shell host rather than the gateway pid, and the same heartbeat child
+   then survived `taskkill /T /F` on its grandparent and ran to completion.
+   *Resolved:* the route now starts `ahos.ps1` through a hidden
+   `Start-Process -PassThru` and returns the **reparented** pid in the 202 body,
+   so the dashboard reports the worker that actually runs. The lock no longer
+   clears on the starter shell's exit (that would clear instantly); it holds to
+   its TTL and the orchestrator's per-component idempotency answers a late second
+   click with `ALREADY_RUNNING`.
+
+*Finding R5 — `logs/launcher/launcher.log` was never written.* The hidden path's
+tee branch threw every run. Two independent PowerShell 5.1 traps, both silent:
+(a) `Tee-Object` has **no `-Encoding` parameter** on 5.1 (it is a PowerShell 7
+parameter) — the pipeline failed with "a parameter cannot be found" before
+python started, and the `catch` re-ran python with no log; (b) under
+`$ErrorActionPreference = 'Stop'` a native command's stderr line is a
+*terminating* error, so the first python warning would have aborted the pipe
+mid-stream even if (a) were fixed. *Resolved:* the tee is replaced by
+`Out-File -Encoding utf8 -Append` wrapped in a local
+`$ErrorActionPreference = 'Continue'` that is restored in a `finally`.
+Verified on this host: Persian output survives as real UTF-8 (BOM + correct
+glyphs), python's stderr lines land in the log instead of killing it, and
+`$LASTEXITCODE` still propagates to `exit $rc` (a deliberate `sys.exit(7)`
+reached the shell's exit code).
+
+**گیتی / Giti — safety and governance, on R4.** Verdict: `APPROVE` on the
+direction, one constraint recorded. The write-ahead audit chain is unchanged:
+`EXECUTING` is still recorded before anything is spawned, `FAILED` if no
+reparented pid comes back, `CONFIRMED` only after one does. The one consequence
+worth naming: the launcher's exit code can no longer be observed by the route,
+because the worker is deliberately outside our tree — so the panel's source of
+truth for "did it work" is the `status.json` it polls, never the spawn call
+itself. That is the honest dependency: the route can only promise *it handed the
+work to a live, reparented process*.
+
+**Stage-2 conclusion:** both build findings are resolved with measured fixes;
+the dashboard stop/restart path now actually executes, and the owner-readable
+launcher log exists.
+
+**سامان / Saman — TypeScript surfaces and the dashboard contract.** Verdict:
+`CHANGES`, resolved. Two findings, both about what the panel may *infer* from
+the route's answers:
+
+*Finding S1 — the 202 lied on the one path that matters.* The old handler
+returned `202` for a spawn whose child never ran, so the panel rendered
+"در حال اجرا" for a stop that did not happen and the owner had no way to tell a
+real in-flight action from a silent no-op. Resolved: the route now distinguishes
+the three outcomes honestly — a starter-shell failure or a non-numeric pid
+returns `500` `LAUNCHER_SPAWN_ERROR` *and* writes the `FAILED` audit line, so
+the ledger never claims an action that was never handed off; only a reparented
+pid returns `202`. The panel's own guidance is that a `202` means "handed to a
+live worker", never "done" — the work is done when `status.json` says so.
+
+*Finding S2 — `priorSkips` could carry a stale marker.* The restart forwards the
+previous run's `SKIPPED` components so Restart restores the stack that was
+running instead of widening it. But `SKIPPED` was read without checking *which*
+run wrote it: a status file left over from an earlier, unrelated boot would have
+forwarded that boot's exclusions into this one. Resolved: `priorSkips` reads the
+same status file the GET returns, and the marker is only meaningful because the
+orchestrator writes a fresh report on every run; the smoke's
+`restart_preserved_skip` asserts the forwarded set equals the set the smoke
+asked for, which is the end-to-end check that the round trip is not stale.
+Constraint recorded, deliberately not "fixed": the file has no run-id of its own,
+so the freshness guarantee rests on the orchestrator always rewriting it — a
+property the idempotency tests pin, not something the route can verify alone.
+
+**فرناز / Farnaz — evidence, receipts and the reality ladder.** Verdict:
+`CHANGES`, resolved.
+
+*Finding F1 — the smoke's own deadlines were shorter than the work it
+measures.* The hand-typed 900s restart / 300s stop waits once expired *inside* a
+restart that was still succeeding, so the receipt recorded `passed: false` for a
+stack that came back correctly ~44 minutes in. Resolved: both deadlines are now
+derived from `TIMEOUTS` plus a `_CHILD_SLACK` of 180s, so the poll budget can
+never drift below the timeout the table already budgets for that action. The
+comment naming the incident stays in `smoke.py` so the number is not quietly
+re-tightened later.
+
+*Finding F2 — a run killed mid-case leaves no receipt, and that used to read as
+an ambiguous result.* `main()` writes the JSON only after the case returns
+normally, so a harness kill mid-run lands nothing at all — an empty output file
+that says neither pass nor fail. Two things were genuinely missing and one
+deliberately was not. Resolved: each case's own `finally` runs two real `stop`
+invocations, so no started component survives an interrupted case even when the
+receipt never lands; and a receipt that *does* land with `passed: false` names
+the specific wait that expired (`restart_seconds`, `stop_seconds`) instead of a
+bare boolean, so a false verdict is diagnosable. What is deliberately not fixed
+and is recorded as a limitation: the receipt itself cannot be written from a
+`finally` at the process level, because a hard kill cannot run Python. The
+honest reading of a missing receipt is therefore "interrupted, no evidence",
+never "failed".
+
+*Finding F3 — the gateway health budget misreported a cold compile.* A cold
+Turbopack compile of `/api/launcher` on this slow drive outlasted the 120s
+`HEALTH_WAIT["gateway"]`, so an OPTIONAL component failed on a boot whose only
+defect was the compile, and the run reported `DEGRADED`. The probe target was
+already the cheapest route in the app, so the deadline was the wrong number.
+Resolved: the budget is 240s (see "Gateway mode" above). A fast boot is not
+slowed at all — the probe turns healthy the moment the route answers.
+
+**Stage-2 conclusion (final):** all build findings are resolved with measured
+fixes; the dashboard stop/restart path executes through a reparented worker, the
+owner-readable `launcher.log` is written in UTF-8 Persian, and the health
+budgets cover the cold-boot costs this host actually exhibits.
+
+### Stage 2 — follow-up findings during delivery verification
+
+Four more defects surfaced while exercising the real hidden path end to end.
+Each is recorded here because a reviewer reading only the sections above would
+otherwise believe the resolutions above were the last word. Two of them
+supersede a resolution above; that is stated rather than rewritten.
+
+*Finding R6 — the `Out-File` tee that resolved R5 wedged the shell.* The R5
+resolution (a PowerShell `| Out-File -Append` pipe) was itself the defect: a
+PowerShell pipe ends when its **write** end closes, not when python exits, and
+`spawn_detached`'s children inherit that handle. A `restart` stops the very
+gateway that spawned the shell, python then exits, and the shell stays pinned on
+the pipe reader forever — a hidden `powershell.exe` holding the module lock the
+next stop/restart reports as `ALREADY_RUNNING`. Proven on this host: the wedged
+shell's only live child was `conhost.exe`; python was long gone. Eight such
+shells had accumulated before this was found. *Resolved (supersedes R5's
+resolution):* the pipe is gone. `ahos.ps1` runs a plain `& $Python @PyArgs` and
+exports `AHOS_LAUNCHER_LOG`; `launcher/__main__.py` installs a `_Tee` on
+`sys.stdout`/`sys.stderr` that appends to that file, **file first** so a console
+whose codepage cannot render Persian still gets every line into the UTF-8 log. A
+file has no reader to block on, so the shell waits on nothing but python and
+`$LASTEXITCODE` still reaches `exit $rc`. Verified through the route's exact
+`Start-Process -WindowStyle Hidden` spawn: the `status` shell exits in 0.8s, the
+`restart --skip telegram,engine` shell exits in 21s with the stack back ONLINE
+and both skips carried forward. The eight zombie shells were cleared.
+
+*Finding R7 — a second `start` called our own gateway a foreign port.*
+`component_state` identified a live pid by a repo substring in its command line,
+but the gateway runs as `cmd /c "npm run start --silent"`, whose command line
+carries no repo substring. A second `start` therefore read our own live gateway
+as `foreign_busy`, reported `DEGRADED`, and emitted the Persian line for "another
+program holds the port" — a fabricated claim about a service we spawned
+ourselves. *Resolved:* the pid record is authoritative for the gateway (only we
+write it), with the recorded command compared against the live one so a pid
+Windows re-issued to an unrelated program is still rejected. Verified live: a
+second `start` while ONLINE now reports the gateway idempotent at its recorded
+pid and stays ONLINE. Two regression tests pin both the adopted and the
+reissued-pid cases.
+
+*Finding R8 — a dashboard Restart silently widened the stack (DEFECT A).* A
+skipped component leaves no pid record, so a read-only poll read it as
+`UNAVAILABLE`, the route's `priorSkips()` returned `[]`, and Restart brought up
+components the owner had excluded. *Resolved:* the skip set is persisted to
+`data/launcher/skips.json` before the results loop, and `status`/`stop` relabel
+those components `SKIPPED` ("skipped by request (carried forward)"). The smoke's
+`restart_preserved_skip` is the end-to-end assertion.
+
+*Finding R9 — `status` probed the configured port while the gateway served
+another (DEFECT B).* `status()` probed port 3000 while the gateway had walked to
+8300 because 3000 is Windows-reserved here, so the panel reported the dashboard
+down while the owner's browser had it open. *Resolved:* an `_adopted_gateway`
+pass runs in both `start()` and `status()`, keyed off the port the live listener
+actually bound (`chosen_via: ADOPTED_OUR_LIVE_LISTENER`), guarded by the same
+recorded-pid check as R7 so a stale record left by a crashed gateway is not
+adopted.
+
+*Finding R10 — the "new wedge" was not a code defect at all.* After R6 the
+hidden `restart` path appeared to wedge again: a smoke run died mid-restart and
+left an orphaned route-spawned shell. My first hypothesis was that
+`pk.send_ctrl_break` — `GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid)` — was
+killing the *caller*, since a hidden `-WindowStyle Hidden` shell shares one
+console with its children. **That hypothesis is disproven, not merely abandoned.**
+A faithful repro under a real hidden PowerShell console (a ps1 spawning a python
+that spawns a detached `cmd`, then calling `send_ctrl_break` on that pid)
+recorded `send_ctrl_break -> True`, `caller still alive after ctrl_break`,
+`SURVIVED`, `ps1 rc=0`. The caller survives. Two related measurements came out of
+the same experiment and are worth keeping: against a console-less detached tree
+`GenerateConsoleCtrlEvent` returns `True` with `lasterror=0` but does **nothing**
+(spurious success), and `taskkill /PID <pid> /T` **without** `/F` fails with
+rc=128 ("this process can only be terminated forcefully") — which is exactly why
+`pk.terminate`'s real stops land on the final `taskkill /F /T` branch and report
+`(۰.۹s, force)`. That is correct behaviour, not a bug to fix.
+
+The actual cause was in my own harness, not the launcher: the outer wrapper used
+`timeout 1500`, which is **180s shorter than the smoke's own internal
+`_RESTART_DEADLINE` of 1680s** (`TIMEOUTS["restart"] 1500 + _CHILD_SLACK 180`),
+so I strangled my own smoke mid-restart and the orphaned shell was the corpse.
+The smoke's deadlines were already correct (F1); the outer budget was not.
+*Resolved:* the outer wrapper budget is 3500s — above every internal deadline
+combined — and the exact path that failed (`restart --skip telegram,engine`,
+hidden, through the route's own spawn shape) was then run directly and completed
+in **8 seconds**, ONLINE, gateway pid 10688 on 8300,
+`gateway_chosen_via: CANDIDATE_BINDABLE`, `cp_status: SYSTEM_ONLINE`,
+`idempotent_replay: true`, both skips carried forward. The standing rule for any
+re-run: the outer budget must never fall below 3500s.
+
+**Follow-up conclusion:** R6–R10 are all resolved; R6 and R7 supersede the R5 and
+foreign-port resolutions above respectively, and R10 exonerates code that a
+weaker diagnosis would have "fixed" wrongly.
+
+*Finding R11 — a Next server answering 404 for the control route is not our
+gateway, and the launcher used to say it was.* The `dashboard-api` smoke run at
+`20261004T162806Z` failed with **every** HTTP step at `status=404, sec=0.0` and
+`audit_lines_appended: 0`, after `restart_seconds: 1680.7` (the full budget) and
+`stop_seconds: 270.1`. The 404 bodies were our own rendered 404 page
+(`lang="fa" dir="rtl"`, vazirmatn/orbitron), so a Next server was definitely up
+on 8300 — it simply did not have `/api/launcher` registered in the server that
+held the port.
+
+Two independent checks pinned the source tree as innocent: the production build
+does carry the route (`.next/server/app/api/launcher/route.js`, and both
+`app-path-routes-manifest.json` and `routes-manifest.json` list it), and a
+**fresh** `next dev` started from this repo answered `HTTP 401`
+`WEB_API_UNAUTHORIZED` on the same route in 40s. The route is correct; the server
+on 8300 was not built from it — a stale listener from an earlier run that no
+later `start` replaced.
+
+Why no later `start` replaced it is the actual defect, and it had two layers:
+
+1. `probe_gateway` treated *any* answer under HTTP 500 as "listening", so a 404
+   read `HEALTHY` — the status report literally said *"gateway answers HTTP 404
+   on http://127.0.0.1:8300/api/launcher"* and declared the gateway HEALTHY and
+   the stack ONLINE. A 404 is not a boot delay and not a slow compile: it means
+   the route is not registered in the server that answered, so it is now
+   `UNAVAILABLE` with the reason named in the detail.
+2. `component_state` returned `ours_running` for the gateway from the pid record
+   alone. The record proves we *spawned* a process that is still alive, not that
+   the process is still serving this app — so the stale server was replayed as
+   "already running (idempotent)" on every subsequent start and the real gateway
+   was never restarted. Past the gateway's boot budget the pid record is no
+   longer sufficient: the route probe must agree. Inside the budget a young
+   gateway is still trusted on its pid record, because the launcher route is not
+   compiled until first request and a booting gateway can legitimately miss the
+   probe for the first seconds — without that grace every `start` would spawn a
+   second gateway while the first was still booting.
+
+This is also why the failure cost 28 minutes instead of seconds: the smoke polls
+`status.json` on disk while it waits for the restart report, and the audit ledger
+never gained the line the dead route could not write. With the probe honest, the
+same condition now fails fast with a diagnosable message instead of waiting out
+its budget.
+
+*Resolved:* commit `863819f` (probe + idempotency), with four regression tests —
+the 404 probe, a stale gateway past budget reading `down`, a booting gateway
+inside budget still reading `ours_running`, and the previously host-flaky
+`test_start_adopts_our_live_gateway_port` made deterministic (pid 4242 is a
+dummy; `pid_alive`/`process_cmdline` were not stubbed, so it passed only when
+Windows happened to have that pid open).
+
+**Follow-up conclusion (final):** R6–R11 are all resolved. R6, R7 and R11
+supersede R5, the foreign-port resolution and the R3 health-probe target
+respectively — each replaced a mechanism that was correct under one condition
+and silently wrong under another (a tee that wedged the shell, a pid record that
+outlived the app it named, a probe that counted a 404 as listening). R10
+exonerates code that a weaker diagnosis would have "fixed" wrongly.
+
+### Stage 3 — delivery sign-off (2026-10-04, Asia/Tehran)
+
+Each reviewer walked the scope list (a)–(f) item by item against the delivered
+tree, not the plan. A `CHANGES` verdict would have to be fixed and re-signed
+before the final commit; all three returned `APPROVE` with the deviations below
+recorded in place of silence.
+
+**قاسم / Ghasem — owner contract, scope (a), (b), (e).** Verdict: `APPROVE`.
+
+- (a) One shortcut is created by `launcher/shortcuts.py` (`ACTIONS = {"start":
+  "AHOS"}`), pointing at `launcher/ahos.ps1 -Action start` with
+  `-WindowStyle Hidden` and `launcher/ahos.ico,0`. No second icon is created
+  anywhere in the delivery; the retired shortcut templates live in
+  `launcher/_retired_shortcuts/` outside the install path. Recorded deviation:
+  the icon file was replaced during the mission and the previous copy is kept as
+  `launcher/ahos.ico.old-20261003-200745`, a local artifact that is not
+  installed and not committed.
+- (b) No visible console at any point: `ahos.ps1` runs hidden, children inherit
+  `CREATE_NO_WINDOW`, and the smoke case proves it with a window census rather
+  than an assertion — it enumerates the visible-window processes on the host and
+  requires none of them to be ours. Recorded deviation from the original plan:
+  the ps1 pipeline had to stop using a PowerShell tee (R6) because the tee's
+  write end closing wedged the detached children; the log is now written by a
+  Python-side `_Tee` that writes the file first, so "no visible console" and
+  "the launcher log exists" are both true at once.
+- (e) All eight Stage-1 findings are closed with code, and the five delivery
+  findings that followed (R6–R10) plus the 404 (R11) are closed too. Ghasem's one
+  caveat is about coverage, not correctness: R11 was found by evidence, not by a
+  test that would have caught it — a stale-listener condition is not reproducible
+  in a unit test without a live port, so the regression tests pin the *decision
+  rules* (404 → UNAVAILABLE; pid record alone is not enough past the boot budget)
+  rather than the scenario.
+
+**رضا / Reza — evidence and the reality ladder, scope (f).** Verdict: `APPROVE`.
+
+- Launcher pytest, measured per file: `test_launcher_orchestrator.py` 89 passed,
+  `test_launcher_smoke.py` 25 passed, `test_phase18_launchers.py` +
+  `test_gateway_port.py` 81 passed, `test_run_bot_launcher.py` +
+  `test_control_plane_soak.py` 33 passed — plus 4 `test:launcher-route` and 26
+  `test:chat-auth` TypeScript selftests, and `npx tsc --noEmit -p .` clean. One
+  test (`test_gateway_port_we_can_bind_still_spawns`) spawns a real gateway and
+  is slow; it passes, but it is why targeted runs name node ids instead of
+  running the whole file blindly. The orchestrator file's 7 newest tests cover
+  the R12b fixes (console-break immunity, marker-proven live-port lookup).
+- Real-process receipts land under `reports/launcher/`: `smoke_idempotent_*` for
+  the idempotency contract and `smoke_dashboard-api_*` for the full control
+  chain. The dashboard-api receipt that closes this mission is
+  `reports/launcher/smoke_dashboard-api_20261005T021119Z.json`, which reads
+  `verdict.passed: true` with every control-chain predicate true —
+  `restart_accepted`, `restart_preserved_skip`, `restart_brought_stack_back`,
+  `route_served_after_restart`, `audit_pair_for_restart`, `stop_accepted`,
+  `stack_stopped`, `audit_pair_for_stop` — and `components_owning_windows: []`,
+  zero visible consoles. Six earlier dashboard-api receipts stay in place as
+  history and are not overwritten: `…20261004T012011Z.json` and
+  `…20261004T014054Z.json` (the first control-chain attempts),
+  `…20261004T162806Z.json` (404 on a stale listener, R11),
+  `…20261004T182940Z.json` (a leftover dev server from my own probe script blocked
+  out of `.next/dev`, so the gateway never bound and every control timed out — an
+  artifact of the investigation, not a launcher defect; the probe scripts were
+  deleted), `…20261004T190910Z.json` and `…20261004T223502Z` (the two that exposed
+  R12b: `stop()` signalled its own process group and died mid-stop, leaving the
+  gateway listener bound — fixed by `arm_console_break_immunity` plus a
+  marker-proven live-port lookup; see `GROK_HANDOFF.md` R12b).
+- One residue is recorded as `UNKNOWN` rather than fixed: the hidden
+  `ahos.ps1` shell that hosted a route-spawned orchestrator once stayed idle
+  ~30 min past its python child's exit, invisible and holding no port. Four
+  minimal reproductions all exited cleanly, so no mechanism is claimed. It does
+  not affect the no-console rule or later control actions.
+- Reality ladder: self-tests cap at `TESTED`. `VERIFIED` needs an owner-read
+  receipt, and `OPERATOR_READY` / `PRODUCTION_READY` need real operator
+  evidence. Nothing in this delivery claims past `TESTED`; OD-249 and OD-257 are
+  ticked `IMPLEMENTED+TESTED` with the counts above, and the "pending owner read
+  for VERIFIED" clause is kept rather than dropped.
+- Deviation recorded: the stack is left stopped at the end of the delivery, as
+  the scope requires, and the receipts are the only thing still warm.
+
+**عرفان / Erfan — safety and authority boundaries, scope (c), (d).** Verdict:
+`APPROVE`.
+
+- (c) The panel's Status/Stop/Restart live inside `CommandCenter.tsx` and go
+  through `POST /api/launcher`, which demands loopback *and* the web API token
+  and writes the audit line before anything is spawned (`EXECUTING` →
+  `CONFIRMED`/`FAILED`, ledger `data/control_audit/chat_control_audit.jsonl`).
+  Read-only status polling reads `reports/launcher/status.json` only and never
+  opens a socket against the component it is asking about — the smoke case
+  asserts exactly that separation. No second recommendation authority was
+  created: the route moves processes, it does not score or decide, and
+  PAPER_ONLY is untouched.
+- (d) The gateway port comes from non-secret `config/gateway_ports.json` with a
+  real `bind` test (`can_bind`, not a connect probe — a Windows exclusion range
+  fails bind with nothing listening, and the delivery proved this on 3000). The
+  chosen port is pushed to children as `AHOS_GATEWAY_URL`/`PORT` and recorded in
+  `status.json`; `.env` is never written and no secret lands in the config or the
+  log. `AHOS_WEB_API_TOKEN` is never logged by any path in this delivery; the
+  smoke reads it only to prove the auth guard demands it, and prints status, not
+  the value.
+- Deviation recorded, and it is a real one: the health probe had to change target
+  from `/api/chat` to `/api/launcher` (R3 → R11). `/api/launcher` is the cheapest
+  route in the app and the one the panel itself polls, so the probe costs a
+  fraction of the compile — but it is also an *authenticated* route, so the probe
+  sees `401` on a healthy gateway. That is why `http_ok`'s "any answer under 500
+  counts" was correct for liveness and wrong for identity, and why the 404 case
+  is now named explicitly instead of folded into "listening".
+
+**Stage-3 conclusion:** all three sign off. The delivery is `TESTED`, not
+`VERIFIED` — the difference is the owner-read receipt, and it is the owner's to
+give. The stack is stopped.
 
