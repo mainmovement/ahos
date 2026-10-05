@@ -18,6 +18,7 @@ from pathlib import Path
 CREATE_NEW_PROCESS_GROUP = 0x00000200
 DETACHED_PROCESS = 0x00000008
 CREATE_NO_WINDOW = 0x08000000
+CTRL_C_EVENT = 0
 CTRL_BREAK_EVENT = 1
 
 _KERNEL32 = ctypes.WinDLL("kernel32", use_last_error=True) if os.name == "nt" else None
@@ -249,6 +250,43 @@ def send_ctrl_break(pid: int) -> bool:
     return bool(_KERNEL32.GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, int(pid)))
 
 
+_CONSOLE_HANDLER = None
+
+
+def arm_console_break_immunity() -> bool:
+    """Make this process ignore console CTRL_C/BREAK events (Windows).
+
+    ``GenerateConsoleCtrlEvent`` targets a *process group*, not one process, and
+    every descendant of the gateway inherits its group. The dashboard's
+    stop/restart route launches this orchestrator as a descendant of the very
+    gateway ``stop()`` must terminate, so ``send_ctrl_break`` on the gateway
+    delivers a SIGBREAK to the orchestrator as well — which has no handler and
+    dies mid-stop, right after emitting the "stopping" header, leaving the
+    gateway listener alive and its port stranded (R12). Installing a handler
+    that returns TRUE for both events stops the default handler from ever
+    running, so the orchestrator survives its own shutdown signal. No-op and
+    harmless everywhere else: the desktop-icon ``stop`` is not in the gateway's
+    group, and a foreground console loses Ctrl-C/Break only while a launcher
+    stop is in flight, which is what an interactive abort should not do anyway.
+    """
+    global _CONSOLE_HANDLER
+    if _KERNEL32 is None or _CONSOLE_HANDLER is not None:
+        return _CONSOLE_HANDLER is not None
+    try:
+        proto = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)
+        cb = proto(_swallow_console_break)
+        if _KERNEL32.SetConsoleCtrlHandler(cb, True):
+            _CONSOLE_HANDLER = cb
+            return True
+    except OSError:
+        pass
+    return False
+
+
+def _swallow_console_break(ctrl_type: int) -> bool:
+    return ctrl_type in (CTRL_C_EVENT, CTRL_BREAK_EVENT)
+
+
 def taskkill(pid: int, force: bool = False) -> bool:
     args = ["taskkill", "/PID", str(int(pid)), "/T"]
     if force:
@@ -347,6 +385,32 @@ def can_bind(host: str, port: int) -> bool:
         return False
     finally:
         s.close()
+
+
+def port_owner(host: str, port: int, timeout: float = 10.0) -> int | None:
+    """The pid owning the LISTEN socket on ``port``, or None if none does.
+
+    ``can_bind`` answers "is the port free?" but not "who is still holding it?".
+    The gateway is spawned as ``cmd /c npm run start`` and its ``next start``
+    child is reparented the moment the ``launcher start`` that spawned it exits,
+    so the pid record can go stale while the listener is still very much alive.
+    Windows keeps the owner in the TCP table, which is the only authoritative
+    answer here — a parentage sweep can never reach a reparented process.
+    """
+    if os.name != "nt":
+        return None
+    try:
+        res = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+             "(Get-NetTCPConnection -LocalPort %d -ErrorAction SilentlyContinue "
+             "| Where-Object { $_.State -eq 2 } | Select-Object -First 1"
+             ").OwningProcess" % int(port)],
+            capture_output=True, text=True, timeout=timeout,
+            creationflags=CREATE_NO_WINDOW)
+    except Exception:
+        return None
+    v = (res.stdout or "").strip()
+    return int(v) if v.isdigit() else None
 
 
 def http_ok(url: str, timeout: float = 5.0) -> tuple[bool, int | None, str]:

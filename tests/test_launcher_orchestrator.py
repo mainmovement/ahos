@@ -112,6 +112,19 @@ class TestProcessKit:
     def test_clear_pid_is_idempotent(self, tmp_path):
         pk.clear_pid(tmp_path, "engine")  # no file: must not raise
 
+    def test_break_immunity_handler_only_swallows_c_and_break(self):
+        """R12: the handler must claim CTRL_C and CTRL_BREAK (return True) and
+        nothing else, so a CLOSE/LOGOFF event still reaches the default handler."""
+        assert pk._swallow_console_break(pk.CTRL_C_EVENT) is True
+        assert pk._swallow_console_break(pk.CTRL_BREAK_EVENT) is True
+        assert pk._swallow_console_break(5) is False
+
+    def test_break_immunity_reports_unavailable_without_kernel32(self, monkeypatch):
+        """No kernel32 (POSIX, or a stubbed build) means no console events to
+        swallow: the call reports False instead of raising."""
+        monkeypatch.setattr(pk, "_KERNEL32", None)
+        monkeypatch.setattr(pk, "_CONSOLE_HANDLER", None)
+        assert pk.arm_console_break_immunity() is False
     def test_pid_alive_rejects_garbage(self):
         assert pk.pid_alive(0) is False
         assert pk.pid_alive(-1) is False
@@ -761,6 +774,177 @@ class TestOrchestrator:
     def test_stores_command_uses_existing_bootstrap(self):
         cmd = C.stores_command(Path(sys.executable))
         assert "init_databases.py" in cmd[-1] or any("init_databases" in a for a in cmd)
+
+    # --------------------------------------------------------- port lifecycle --
+    def _stopped_orch(self, tmp_path, monkeypatch):
+        """An orchestrator whose stop path touches no real processes."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(orch, "_stop_components", lambda order: {})
+        monkeypatch.setattr(orch, "_sweep_ours", lambda: [])
+        monkeypatch.setattr(orch, "_control_plane",
+                            lambda results: type("CP", (), {
+                                "stop": lambda self: {"status": "SYSTEM_OFFLINE"}})())
+        # _wait_port_free's real sleep has no place in a unit test.
+        monkeypatch.setattr("launcher.orchestrator.time.sleep", lambda _s: None)
+        return orch
+
+    def test_restart_waits_for_the_port_to_be_released(self, tmp_path, monkeypatch):
+        """Regression (R12): restart used to ``sleep(1.0)`` between stop and
+        start, but the killed gateway's socket is released around 1.1s after
+        ``taskkill /F`` returns, so the new gateway raced it and came back
+        ``port_not_bindable`` — DEGRADED, no gateway. Restart now polls the port
+        and starts only once a real bind succeeds."""
+        orch = self._stopped_orch(tmp_path, monkeypatch)
+        pk.write_pid(orch.state_dir, "gateway", 4242,
+                     {"port": 8300, "host": "127.0.0.1",
+                      "cmd": "cmd /c npm run start"})
+        monkeypatch.setattr(orch, "_reclaim_gateway_port",
+                            lambda host, port: None)
+        remaining = {"n": 2}
+
+        def fake_bind(host, port):
+            remaining["n"] -= 1
+            return remaining["n"] <= 0
+
+        monkeypatch.setattr("launcher.processkit.can_bind", fake_bind)
+        started = []
+        monkeypatch.setattr(orch, "start",
+                            lambda: started.append(True) or {"overall": "ONLINE"})
+        report = orch.restart()
+        assert started == [True]                      # never started before the port freed
+        assert report["overall"] == "ONLINE"
+
+    def test_restart_returns_a_report_when_the_port_never_frees(self, tmp_path, monkeypatch):
+        """The wait is bounded: a port nothing releases must not hang the owner's
+        desktop icon. ``start`` still runs and reports its own honest failure."""
+        orch = self._stopped_orch(tmp_path, monkeypatch)
+        monkeypatch.setattr(orch, "_reclaim_gateway_port", lambda host, port: None)
+        monkeypatch.setattr("launcher.processkit.can_bind", lambda host, port: False)
+        monkeypatch.setattr(orch, "start", lambda: {"overall": "DEGRADED"})
+        report = orch.restart()
+        assert report["overall"] == "DEGRADED"
+
+    def test_stop_reclaims_a_listener_the_pid_record_lost(self, tmp_path, monkeypatch):
+        """The gateway is ``cmd /c npm run start`` whose ``next start`` child is
+        reparented the moment the ``launcher start`` that spawned it exits. With
+        the pid record gone the parentage sweep cannot reach it, so stop asks the
+        TCP table who still owns the port and terminates that tree — otherwise one
+        failed restart strands the port and every later start reads foreign_busy."""
+        orch = self._stopped_orch(tmp_path, monkeypatch)
+        monkeypatch.setattr("launcher.processkit.can_bind", lambda host, port: False)
+        monkeypatch.setattr("launcher.processkit.port_owner",
+                            lambda host, port, timeout=10.0: 5232)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0:
+                            f"node {ROOT}\\node_modules\\next\\dist\\bin\\next start")
+        terminated = []
+        monkeypatch.setattr("launcher.processkit.terminate",
+                            lambda pid, **kw: terminated.append(pid) or ("force", 0.1))
+        report = orch.stop()
+        assert terminated == [5232]
+        assert report["overall"] == "STOPPED"
+        assert report["reclaimed"] == 5232
+
+    def test_stop_leaves_a_foreign_listener_on_our_port_alone(self, tmp_path, monkeypatch):
+        """The reclaim is marker-gated: an unrelated program squatting on the port
+        is reported, never killed — UNKNOWN > fabricated, and blind taskkill of a
+        pid we cannot prove is ours is a destructive guess."""
+        orch = self._stopped_orch(tmp_path, monkeypatch)
+        monkeypatch.setattr("launcher.processkit.can_bind", lambda host, port: False)
+        monkeypatch.setattr("launcher.processkit.port_owner",
+                            lambda host, port, timeout=10.0: 777)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: r"C:\Elsewhere\server.exe")
+        terminated = []
+        monkeypatch.setattr("launcher.processkit.terminate",
+                            lambda pid, **kw: terminated.append(pid) or ("force", 0.1))
+        report = orch.stop()
+        assert terminated == []
+        assert "reclaimed" not in report
+
+    def test_stop_arms_break_immunity_before_it_signals(self, tmp_path, monkeypatch):
+        """R12: the dashboard's stop/restart route launches this orchestrator as a
+        descendant of the gateway it must stop, and terminate() signals the
+        gateway's whole process group — CTRL_BREAK reaches the orchestrator too
+        and kills it mid-stop, after the "stopping" header and before any report.
+        Immunity must therefore be armed *before* the first signal goes out."""
+        orch = self._stopped_orch(tmp_path, monkeypatch)
+        order = []
+
+        def fake_terminate(pid, **kw):
+            order.append(("terminated", pid))
+            return "force", 0.1
+
+        def fake_stop_components(order_):
+            # If immunity is armed after this runs, the orchestrator is already
+            # dead in the real failure mode; the assertion below would still pass
+            # while the bug persisted, so record what was armed when we ran.
+            order.append(("stopped", None))
+            return {}
+
+        monkeypatch.setattr("launcher.processkit.terminate", fake_terminate)
+        monkeypatch.setattr(orch, "_stop_components", fake_stop_components)
+        monkeypatch.setattr("launcher.processkit.arm_console_break_immunity",
+                            lambda: order.append(("immune", None)) or True)
+        monkeypatch.setattr(orch, "_reclaim_gateway_port", lambda host, port: None)
+        orch.stop()
+        assert order[0][0] == "immune"                      # before anything is signalled
+        assert [step for step, _ in order] == ["immune", "stopped"]
+
+    def test_listen_addr_prefers_the_recorded_port(self, tmp_path):
+        orch = make_orchestrator(tmp_path)
+        pk.write_pid(orch.state_dir, "gateway", 4242,
+                     {"port": 8300, "host": "127.0.0.1", "cmd": "cmd /c npm run start"})
+        orch.gateway = {"host": "127.0.0.1", "port": 3000}
+        assert orch._gateway_listen_addr() == ("127.0.0.1", 8300)
+
+    def test_listen_addr_finds_our_live_listener_without_the_record(self, tmp_path, monkeypatch):
+        """A stop that died after clearing the record (the R12 wedge) leaves the
+        gateway listening on a candidate port the launcher chose at start time —
+        never the configured one, which Windows reserves on this host. Stop has to
+        find it in the TCP table or it can never reclaim the port again."""
+        orch = make_orchestrator(tmp_path)
+        orch.gateway = {"host": "127.0.0.1", "port": 3000}
+        monkeypatch.setattr("launcher.components.candidate_ports",
+                            lambda env, config_file=None: (3100, 3200, 8300))
+        seen = []
+
+        def fake_owner(host, port, timeout=10.0):
+            seen.append(port)
+            return 5232 if port == 8300 else None
+
+        monkeypatch.setattr("launcher.processkit.port_owner", fake_owner)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0:
+                            f"node {ROOT}\\node_modules\\next\\dist\\bin\\next dev")
+        assert orch._gateway_listen_addr() == ("127.0.0.1", 8300)
+        assert seen == [3100, 3200, 8300]                 # walked in order, stopped at the hit
+
+    def test_listen_addr_ignores_a_foreign_listener_on_a_candidate(self, tmp_path, monkeypatch):
+        """Only a listener the gateway marker proves is ours is adopted; a foreign
+        server on a candidate port must not make stop claim an address that is not
+        ours. The configured port remains the last resort."""
+        orch = make_orchestrator(tmp_path)
+        orch.gateway = {"host": "127.0.0.1", "port": 3000}
+        monkeypatch.setattr("launcher.components.candidate_ports",
+                            lambda env, config_file=None: (3100, 8300))
+        monkeypatch.setattr("launcher.processkit.port_owner",
+                            lambda host, port, timeout=10.0: 5232)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: r"C:\Elsewhere\server.exe")
+        assert orch._gateway_listen_addr() == ("127.0.0.1", 3000)
+
+    def test_listen_addr_skips_the_tcp_scan_for_a_non_loopback_gateway(self, tmp_path, monkeypatch):
+        """A non-loopback gateway address points at another machine: the TCP table
+        of this host says nothing useful about it, so the scan is skipped and the
+        configured address is used as-is."""
+        orch = make_orchestrator(tmp_path)
+        orch.gateway = {"host": "10.0.0.5", "port": 3000}
+        monkeypatch.setattr("launcher.components.candidate_ports",
+                            lambda env, config_file=None: (3100, 8300))
+        monkeypatch.setattr("launcher.processkit.port_owner",
+                            lambda host, port, timeout=10.0: pytest.fail("scanned"))
+        assert orch._gateway_listen_addr() == ("10.0.0.5", 3000)
 
 
 class TestProcessMarkers:

@@ -63,6 +63,47 @@ class TestAuditPair:
         assert not S._audit_pair(camel, "restart")
 
 
+class TestAuditBaseline:
+    """The audit evidence must be scoped to *this* run.
+
+    Regression: ``_audit_records`` returned only the last 40 lines, so the
+    append delta saturated at zero once the ledger grew past 40 records and every
+    run looked as if it had written nothing; and the pair check scanned the whole
+    tail, so a *previous* run's EXECUTING/CONFIRMED pair satisfied the predicate
+    even when this run wrote none.
+    """
+
+    def test_records_since_baseline_skips_older_records(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(S, "AUDIT_PATH", tmp_path / "audit.jsonl")
+        S.AUDIT_PATH.write_text(
+            "\n".join(json.dumps(r) for r in _audit("EXECUTING", "CONFIRMED")),
+            encoding="utf-8")
+        # baseline taken before this run: the pre-existing pair must not show up
+        assert S._audit_records_since(2) == []
+        assert len(S._audit_records_since(0)) == 2
+
+    def test_records_since_baseline_counts_past_the_old_tail_cap(self, tmp_path, monkeypatch):
+        """The 40-line tail cap made the append count saturate; the whole file is
+        the only honest numerator."""
+        monkeypatch.setattr(S, "AUDIT_PATH", tmp_path / "audit.jsonl")
+        records = _audit("EXECUTING")
+        S.AUDIT_PATH.write_text(
+            "\n".join(json.dumps(r) for r in records * 3), encoding="utf-8")
+        assert len(S._audit_records_since(0)) == 3
+        assert len(S._audit_records_since(2)) == 1
+
+    def test_a_stale_pair_from_an_earlier_run_does_not_satisfy_the_predicate(
+            self, tmp_path, monkeypatch):
+        monkeypatch.setattr(S, "AUDIT_PATH", tmp_path / "audit.jsonl")
+        older = _audit("EXECUTING", "CONFIRMED", intent="restart")
+        mine = _audit("EXECUTING", intent="stop")
+        S.AUDIT_PATH.write_text(
+            "\n".join(json.dumps(r) for r in older + mine), encoding="utf-8")
+        since = S._audit_records_since(len(older))
+        assert S._audit_pair(since, "stop") is False   # this run has no CONFIRMED
+        assert S._audit_pair(S._audit_parse_all(), "restart") is True  # old pair still there
+
+
 class TestTryJson:
     def test_object_decodes(self):
         assert S._try_json('{"ok": true}') == {"ok": True}

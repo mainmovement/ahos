@@ -122,10 +122,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.action == "stop":
         report = orch.stop()
     elif args.action == "restart":
-        orch.stop()
-        import time
-        time.sleep(1.0)
-        report = orch.start()
+        report = orch.restart()
     else:  # status
         report = orch.status()
 

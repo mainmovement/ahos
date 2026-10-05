@@ -636,14 +636,29 @@ class AhosOrchestrator:
     # -------------------------------------------------------------------- stop --
     def stop(self) -> dict:
         self.emit(P.PROGRESS["stopping"])
+        # R12: when the dashboard's stop/restart route launched this orchestrator
+        # it is a descendant of the gateway it must stop, and terminate() signals
+        # the gateway's whole process group. Immunity has to be armed before a
+        # single signal goes out, or this process dies mid-stop and strands the
+        # listener (the wedge behind every failed dashboard-api receipt).
+        pk.arm_console_break_immunity()
         t0 = self.clock()
+        # The gateway's listening socket outlives the ``cmd /c npm`` that spawned
+        # it and can outlive its pid record: ``launcher start`` exits as soon as
+        # the health probe passes, leaving ``next start`` reparented, and a
+        # record cleared while the listener still runs makes it unreachable by
+        # the parentage sweep below. Capture the address before anything clears
+        # the record, so a stranded listener can still be reclaimed.
+        gw_addr = self._gateway_listen_addr()
         order = [n for n in reversed(C.START_ORDER) if n in PROCESS_COMPONENTS]
         stopped = self._stop_components(order)
         # Sweep for AHOS processes that lost their pid bookkeeping.
         swept = self._sweep_ours()
+        # And the listener itself, which no pid record may still name.
+        reclaimed = self._reclaim_gateway_port(*gw_addr) if gw_addr else None
         cp = self._control_plane({})
         cp_stop = cp.stop()
-        if stopped or swept:
+        if stopped or swept or reclaimed:
             self.emit(P.PROGRESS["stopped"])
         else:
             self.emit(P.PROGRESS["nothing_to_stop"])
@@ -652,9 +667,29 @@ class AhosOrchestrator:
         # them the restart after a stop would start everything.
         report_results = self._stop_results(stopped)
         report_results.update(self._report_skips())
-        return self._report("stop", "STOPPED" if (stopped or swept) else "NOT_RUNNING",
+        return self._report("stop", "STOPPED" if (stopped or swept or reclaimed) else "NOT_RUNNING",
                             report_results, cp_status=cp_stop.get("status"),
-                            swept=swept, duration=self.clock() - t0)
+                            swept=swept, reclaimed=reclaimed,
+                            duration=self.clock() - t0)
+
+    # ----------------------------------------------------------------- restart --
+    def restart(self) -> dict:
+        """Stop, wait for the gateway's port to be released, then start.
+
+        A fixed sleep cannot do this: the listening socket is freed about a
+        second after ``taskkill /F`` returns (measured 1.1s here), so starting
+        the next gateway immediately raced it and came back
+        ``port_not_bindable`` — the stack restarted DEGRADED with no gateway,
+        and the stranded listener then blocked every later start. The port is
+        only safe to rebind once a real ``bind`` succeeds, so that is what we
+        wait for, bounded: a port that never frees still returns a report
+        instead of hanging the owner's desktop icon.
+        """
+        gw_addr = self._gateway_listen_addr()
+        self.stop()
+        if gw_addr:
+            self._wait_port_free(gw_addr[0], gw_addr[1], 20.0)
+        return self.start()
 
     def _stop_results(self, stopped: dict[str, dict]) -> dict[str, C.ComponentResult]:
         """``_stop_components`` returns plain dicts; the report builder needs
@@ -723,6 +758,102 @@ class AhosOrchestrator:
 
     def _skips_path(self) -> Path:
         return self.state_dir / "skips.json"
+
+    def _gateway_listen_addr(self) -> tuple[str, int] | None:
+        """The address our gateway bound, to be reclaimed on stop.
+
+        Read from the pid record while it is still authoritative. When the record
+        is gone — a stop that cleared it before dying, which is exactly the R12
+        wedge this class now survives, or a crash — the *configured* port is the
+        wrong answer on a host where Windows reserves it: the gateway is actually
+        listening on a candidate port the launcher selected at start time. Ask
+        the TCP table which candidate our own process holds and reclaim that, so
+        a stranded listener stays reachable by ``stop``. Falls back to the
+        configured port last, for a non-loopback or unrecognised setup.
+        """
+        info = self._pid_info("gateway") or {}
+        port = info.get("port")
+        if not isinstance(port, int) or port < 1:
+            port = self._live_our_gateway_port()
+        if not isinstance(port, int) or port < 1:
+            port = self.gateway.get("port")
+        if not isinstance(port, int) or port < 1:
+            return None
+        host = info.get("host") or self.gateway.get("host") or "127.0.0.1"
+        return str(host), int(port)
+
+    def _live_our_gateway_port(self) -> int | None:
+        """A candidate port our own gateway is listening on right now.
+
+        Only the TCP table can answer this once the pid record is gone, and only
+        a listener we can prove is ours by the gateway marker counts — a foreign
+        server on a candidate port is reported by the caller, not adopted here.
+        """
+        host = str(self.gateway.get("host") or "127.0.0.1")
+        if host.lower() not in ("127.0.0.1", "localhost"):
+            return None
+        markers = [m for m, name in self.sweep_markers() if name == "gateway" and m]
+        for cand in C.candidate_ports(self.env, config_file=C.GATEWAY_PORTS_CONFIG):
+            owner = pk.port_owner(host, int(cand))
+            if not owner:
+                continue
+            cmdline = pk.process_cmdline(owner) or ""
+            if any(m.lower() in cmdline.lower() for m in markers):
+                return int(cand)
+        return None
+
+    def _wait_port_free(self, host: str, port: int, timeout: float) -> bool:
+        """Poll until ``host:port`` is bindable again. Returns the bind verdict.
+
+        A fixed ``sleep`` races the kernel: the listening socket is released
+        roughly a second after ``taskkill /F`` returns (measured 1.1s on this
+        host), so a restart that starts immediately finds its own just-killed
+        port still occupied and reports ``port_not_bindable`` for a gateway it
+        had stopped cleanly. Only a real ``bind`` proves the port is ours again.
+        """
+        deadline = self.clock() + timeout
+        while self.clock() < deadline:
+            if pk.can_bind(host, port):
+                return True
+            time.sleep(0.2)
+        return pk.can_bind(host, port)
+
+    def _reclaim_gateway_port(self, host: str, port: int) -> int | None:
+        """Stop a gateway listener that survived the shutdown of its recorded pid.
+
+        The gateway is ``cmd /c npm run start``; its ``next start`` child is
+        reparented the moment the ``launcher start`` that spawned it exits, so a
+        pid record cleared while the process still runs leaves a listener the
+        parentage sweep can never reach — and every later ``start`` then reports
+        ``foreign_busy`` forever. Windows names the socket's owner, so after the
+        recorded tree is stopped we ask the TCP table who is still listening and
+        stop that tree too.
+
+        Returns the reclaimed pid, or None when the port is already free — or
+        when the survivor is not provably ours, which is left running and named
+        in the receipt rather than killed blindly.
+        """
+        if pk.can_bind(host, port):
+            return None
+        owner = pk.port_owner(host, port)
+        if not owner:
+            return None
+        # Never kill a process we cannot prove is ours: the gateway marker is the
+        # repo's own node_modules path, which only our gateway's command line
+        # carries. A foreign server squatting on the same port is reported, not
+        # terminated.
+        cmdline = pk.process_cmdline(owner) or ""
+        markers = [m for m, n in self.sweep_markers() if n == "gateway"]
+        markers.append(str(self.root))
+        if not any(m and m.lower() in cmdline.lower() for m in markers):
+            self.emit(f"  {P.component_label('gateway')}: پورت هنوز توسط فرآیند "
+                      f"ناشناس در استفاده است (pid {owner})؛ متوقف نشد")
+            return None
+        pk.terminate(owner)
+        self._wait_port_free(host, port, 10.0)
+        self.emit(f"  {P.component_label('gateway')}: شنود رها‌شدهٔ متروک متوقف شد "
+                  f"(pid {owner})")
+        return owner
 
     def _persist_skips(self, names) -> None:
         """Record the components a start was asked to skip (DEFECT A).

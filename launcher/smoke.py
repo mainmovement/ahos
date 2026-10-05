@@ -289,6 +289,42 @@ def _audit_records() -> list[dict]:
     return out
 
 
+def _audit_parse_all() -> list[dict]:
+    """Every record in the control audit ledger, most recent last.
+
+    ``_audit_records`` returns only the last 40 lines, which saturates the
+    append delta the moment the ledger grows past 40 lines: the count then reads
+    zero forever and every run looks as if it wrote no audit evidence. The whole
+    file is the only honest numerator.
+    """
+    if not AUDIT_PATH.exists():
+        return []
+    try:
+        lines = AUDIT_PATH.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return []
+    out = []
+    for line in lines:
+        try:
+            v = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(v, dict):
+            out.append(v)
+    return out
+
+
+def _audit_records_since(baseline: int) -> list[dict]:
+    """Records appended after the ledger already held ``baseline`` records.
+
+    The pair check must not scan the whole ledger: a *previous* run's EXECUTING
+    and CONFIRMED pair for the same action satisfies the predicate even when this
+    run wrote nothing at all. Slicing from a baseline taken before the action
+    makes the pair evidence strictly this run's.
+    """
+    return _audit_parse_all()[baseline:]
+
+
 def _window_census() -> dict:
     """Every process that owns a visible window, plus the component pids from the
     last status report. The one-click contract is that no AHOS child ever owns a
@@ -396,7 +432,7 @@ def smoke_dashboard_api(mode: str, *, skip: tuple[str, ...] = ()) -> dict:
         # own a window.
         census = _window_census()
 
-        audit_before = len(_audit_records())
+        audit_before = len(_audit_parse_all())
 
         steps.append({"step": "POST restart",
                       **_http_json(f"{base}/api/launcher", method="POST", headers=auth,
@@ -443,8 +479,8 @@ def smoke_dashboard_api(mode: str, *, skip: tuple[str, ...] = ()) -> dict:
         verdict["route_served_after_restart"] = bool(route_back)
 
         # Every action must have its EXECUTING + CONFIRMED pair in the ledger.
-        led = _audit_records()
-        verdict["audit_lines_appended"] = len(led) - audit_before
+        led = _audit_records_since(audit_before)
+        verdict["audit_lines_appended"] = len(led)
         verdict["audit_pair_for_restart"] = _audit_pair(led, "restart")
 
         steps.append({"step": "POST stop",
@@ -460,7 +496,7 @@ def smoke_dashboard_api(mode: str, *, skip: tuple[str, ...] = ()) -> dict:
             _STOP_DEADLINE)
         verdict["stack_stopped"] = bool(stopped)
         verdict["stop_seconds"] = stop_secs
-        led_after = _audit_records()
+        led_after = _audit_records_since(audit_before)
         verdict["audit_pair_for_stop"] = _audit_pair(led_after, "stop")
 
         verdict.update({
@@ -552,7 +588,7 @@ def smoke_port_busy(mode: str, *, skip: tuple[str, ...]) -> dict:
     # launcher itself might have been redirected to.
     port, notes = _bindable_port(
         host, port,
-        C.candidate_ports(env, config_file=ROOT / "config" / "gateway_ports.json"))
+        C.candidate_ports(env, config_file=C.GATEWAY_PORTS_CONFIG))
     # AHOS_GATEWAY_URL outranks AHOS_GATEWAY_PORT (scripts/gateway_port.py), so
     # to retarget the launcher the URL itself must be rewritten. Test-run only.
     env["AHOS_GATEWAY_URL"] = f"http://{host}:{port}/api/chat"

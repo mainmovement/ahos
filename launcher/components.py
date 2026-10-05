@@ -95,6 +95,12 @@ def candidate_ports(env: dict, config_file: Path | str | None = None) -> tuple[i
     return gwp.candidate_ports(env, config_file=config_file)
 
 
+# The non-secret candidate-port list, and the config file it is read from. The
+# resolver in gateway_port.py owns the path; re-exporting it here keeps the
+# orchestrator and the smoke from re-hardcoding "config/gateway_ports.json".
+GATEWAY_PORTS_CONFIG = _load_gateway_port_module().GATEWAY_PORTS_CONFIG
+
+
 def select_gateway(env: dict) -> dict:
     """The gateway the launcher will *actually* use on this host.
 
