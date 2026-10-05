@@ -1,10 +1,22 @@
 # AHOS Claude watchdog: restarts a stalled headless Claude mission. Never touches PID 4708 or interactive claude.
-$proj='C:\Users\Sniper\.claude\projects\G--robat-ahos'; $g='G:\robat\ahos\reports\grok'; $log="$g\_watchdog_log.txt"; $stallMin=20
+# Phase 4 (2026-10-05): also REPORTS a stalled autopilot runner by heartbeat age. Detection only --
+# this watchdog never advances the queue, never relaunches ap_* missions, and never kills the runner.
+$proj='C:\Users\Sniper\.claude\projects\G--robat-ahos'; $g='G:\robat\ahos\reports\grok'; $log="$g\_watchdog_log.txt"; $stallMin=20; $runnerStallMin=45
 function L($m){ "$(Get-Date -f s) $m" | Out-File -Append -Encoding utf8 $log }
+function ReportRunnerStall{
+  $hb="$g\autopilot\heartbeat.json"
+  if(-not (Test-Path $hb)){ return }
+  try{
+    $h=Get-Content -Raw -LiteralPath $hb | ConvertFrom-Json
+    $age=((Get-Date)-[datetime]$h.ts).TotalMinutes
+    if($age -gt $runnerStallMin){ L "STALL_RUNNER heartbeat age=$([int]$age)m phase=$($h.phase) mission=$($h.mission) pid=$($h.pid) -- REPORT ONLY, queue not advanced" }
+  } catch { L "heartbeat read err $_" }
+}
 if(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | ?{ $_.CommandLine -match 'claude_watchdog\.ps1' -and $_.ProcessId -ne $PID }){ exit } # single-instance
 L "watchdog start pid=$PID"
 while($true){
   try{
+    ReportRunnerStall
     $runners=Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | ?{ $_.CommandLine -match 'run_mission\.ps1' -and $_.ProcessId -ne $PID }
     foreach($r in $runners){
       $n=[regex]::Match($r.CommandLine,'-n\s+(\S+)').Groups[1].Value
