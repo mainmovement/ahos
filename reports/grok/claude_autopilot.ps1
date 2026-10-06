@@ -323,8 +323,9 @@ function Start-MissionAttempt($state, $row) {
 
   # A retry must not inherit the previous attempt's result file: if the new child died
   # before overwriting it, the stale text would be classified again and the attempt
-  # charged against output the child never produced.
-  if (Test-Path -LiteralPath $resultPath) { Clear-Content -LiteralPath $resultPath }
+  # charged against output the child never produced. Move it aside rather than delete,
+  # so the record of what the previous attempt actually printed survives as evidence.
+  if (Test-Path -LiteralPath $resultPath) { Move-Item -LiteralPath $resultPath -Destination ($resultPath + '.superseded') -Force }
 
   $cf = ''; if ([int]$state[$id] -gt 0) { $cf = '-continueFresh' }
   SetStatus $id 'RUNNING'

@@ -304,9 +304,14 @@ function Test-J {
   $null = New-Item -ItemType Directory -Force -Path $cd
   @{ mission='M11.4'; safe='ap_M11_4'; verdict='MALFORMED'; ts=(Get-Date -Format o) } |
     ConvertTo-Json | Out-File -Encoding utf8 (Join-Path $cd 'ap_M11_4.json')
+  # A stale result from the previous attempt must be moved aside and preserved, not
+  # re-read as if the new child had produced it.
+  $stale = Join-Path $sandbox '_claude_ap_M11_4_result.txt'
+  [IO.File]::WriteAllText($stale, "stale`r`nAUTOPILOT_RESULT: PARTIAL remains=stale`r`n", (New-Object Text.UTF8Encoding $false))
   $state = @{ 'M11.4' = 1 }
   $ok = Start-MissionAttempt $state (Get-MissionRows | Select -First 1)
   if (-not $ok) { Fail 'J retryable_after_partial' 'a MALFORMED marker blocked the retry launch'; return }
+  if (-not (Test-Path -LiteralPath ($stale + '.superseded'))) { Fail 'J retryable_after_partial' 'the stale result was not preserved as .superseded'; return }
   $c = Get-Content -Raw -LiteralPath (Join-Path $sandbox 'CLAUDE_AUTOPILOT_QUEUE.md')
   if ($c -notmatch '\| M11\.4 \| DONE \|') { Fail 'J retryable_after_partial' "retry did not reach DONE: $c"; return }
   $m = Get-Content -Raw -LiteralPath (Join-Path $cd 'ap_M11_4.json') | ConvertFrom-Json
