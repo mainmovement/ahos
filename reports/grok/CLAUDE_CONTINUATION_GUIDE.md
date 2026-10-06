@@ -1229,3 +1229,81 @@ Open item, honestly: the leftover engine daemon (pid 324) from the interrupted
 box start is still running. It is ours and healthy, but it was not shut down by
 the session that started it; the next `launcher stop` will retire it. Not a
 defect in M11.4, recorded so the state is not silently tidy.
+
+## M48.1 closed DONE -- 2026-10-06 by Claude (owner-authorized, resumed session)
+
+Next.js 16.2.6 -> 16.3.8 (critical advisory: middleware/proxy bypass + Server
+Actions DoS, range 9.3.4-canary.0 - 16.3.5). `eslint-config-next` moved in
+lockstep. Committed as `0b9e0d6`; **no other dependency changed and zero
+application code** -- `git diff --name-only -- '*.ts' '*.tsx' '*.js' '*.mjs'`
+was empty, which is also the decisive proof that the update caused no behaviour
+change.
+
+Measured: `npm audit --omit=dev` 0 critical for next/postcss/sharp (the single
+high, `source-map-js@1.2.1`, resolves to 1.2.1 at HEAD too -- pre-existing,
+`effects: []`, left out of scope per the spec's "no other dependency changes");
+`tsc --noEmit` clean; `eslint .` clean; `next build` exit 0 with the same 3
+pre-existing Turbopack warnings as the 16.2.6 baseline (stash-compared);
+487 passed / 0 failed / 0 skipped across 17 suites.
+
+Rollback is one line, `git checkout HEAD~1 -- package.json package-lock.json &&
+npm ci`, verified against the pre-change lockfile sha256
+`9044e00bdef86cc75229a03d571388edf1626b77e78d35912aef1212fa723903` (post-change
+`2e0557daafb1c0f5e4601281824a8b9e65ea3824a66d4feaaebe62e735d7d9de`). Full
+proposal + evidence:
+`reports/grok/autopilot/M48.1_security_update_evidence.md`.
+
+The spec's live "403 for Host evil.example" line is **satisfiable only in the
+box's framing** (a `Request` whose URL is off-host). On a live socket bound to
+127.0.0.1, `req.url` is always loopback and `isLoopbackRequest` returns true
+regardless of the attacker-supplied Host header -- by design, per the
+`chat_auth.ts` docstring: the loopback *connection* is the trust boundary. Proven
+non-regressive from the empty app-code diff, and reproduced deterministically in
+both framings by `scripts/m481_host_header_probe.mjs` (4/4 assertions). That
+probe also surfaced one pre-existing hardening note -- the Host header is
+consulted before `req.url`, so a spoofed loopback Host header over an off-host
+URL is accepted; reachable only from a process already inside the loopback
+boundary, so not an exploitable bypass under the stated threat model. Filed to
+the BL backlog for its own security mission rather than widened inside a
+dependency-update mission.
+
+## Forensic conclusion on the recurring `API Error: 400 Bad Request`
+
+Stated plainly, because the owner asked for the cause and local evidence bounds
+what can be claimed:
+
+**It is a Claude Code / Atria session-level failure, not an AHOS/project
+failure.** The repository state is sound and no corrective change to the project
+is required or was made.
+
+- The interrupted session's transcript pairs cleanly: 141 `tool_result` records
+  for 142 `tool_use` records, the single unmatched `tool_use` being the call that
+  was in flight when the session died. The session did **not** enter an invalid
+  tool-use/tool-result state, so the 400 is not a malformed-tool-sequence error.
+- The 400 appears as assistant text at transcript lines 417 and 444, each
+  preceded by intermittent `Atria-Dawn-Preview is temporarily unavailable`
+  classifier timeouts and followed by system records and a fresh resume prompt.
+- Cumulative context had grown to ~1.55-1.59 MB, with one 230,807-character tool
+  result line.
+
+**The exact server-side rejection reason is not recoverable from local
+evidence.** No persisted 400 response body exists: `~/.claude/daemon.log` (101
+lines) has no Bad Request entries, there is no `errors/` directory, settings hold
+no model/endpoint overrides, and telemetry retains only Oct-3 failed-event files.
+Correlated factors -- very large cumulative context and intermittent upstream
+classifier unavailability -- are the closest the local record supports; the
+precise rejection reason is not, and I am not guessing it.
+
+Knock-on effect on the autopilot, worth recording so it is not mistaken for a
+technical failure: the runner escalated M48.1 to `NEEDS_REVIEW` purely because
+all three launches exited before an `AUTOPILOT_RESULT:` marker could be written
+(`consumed/ap_M48_1.json` records `verdict: MALFORMED`). The deliverable was
+complete; only the marker was missing. Resolved by the queue decision record
+`reports/grok/autopilot/QUEUE_DECISION_M48_1_done.md`, committed as `624f025`,
+which also releases the `OWNER_GATE_HOLD` blocking M10.1.
+
+Practical consequence for any resumed long session: the 400s arrived after ~40
+minutes at very high context. Keeping a resumed session's context smaller, and
+letting the runner launch short per-mission sessions, is the mitigation that
+follows from the evidence -- not a config change, which the owner did not
+authorise and I did not make.
