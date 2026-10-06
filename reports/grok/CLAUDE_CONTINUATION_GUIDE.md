@@ -1028,30 +1028,51 @@ PS 5.1 harness cases A-J, 11 static pins, two of them new: the template's
 one-shot rule and the launcher's verdict requirement). Both scripts parse
 clean under the PS 5.1 language parser.
 
-### The attempt-budget voiding (this is deliberately loud, not silent)
+### The attempt-budget voiding, and what actually freed the queue
 
 The fix landed after M11.3 had already exhausted `MAX_ATTEMPTS=3` and escalated
 to NEEDS_REVIEW, which held the whole queue (`owner gate: M11.3 at
-NEEDS_REVIEW holds M11.4`). I reset `autopilot/state.json` from `{"M11.3": 3}`
-to `{"M11.3": 0}` and the queue row from NEEDS_REVIEW back to PARTIAL, so the
-runner relaunches M11.3 on the fixed harness.
+NEEDS_REVIEW holds M11.4`). I set `autopilot/state.json` to `{"M11.3": 0}`
+and the queue row from NEEDS_REVIEW back to PARTIAL, intending the runner to
+relaunch M11.3 on the fixed harness with a full budget.
 
-Why this is legitimate and not gate-weakening:
+**Correction -- only one of those two edits took effect, and it was not the
+budget reset.** `Invoke-RunnerLoop` calls `Load-AttemptState` once at loop
+entry (line ~375) and holds the counters in memory for the runner's whole
+life; `Save-AttemptState` writes them back after each attempt. So a live
+runner cannot pick up a `state.json` edit, and it overwrites the edit when the
+attempt it is already running ends. The relaunch at `08:48:50` happened
+because the queue's STATUS column is re-read on every iteration
+(`Get-MissionRows`), and PARTIAL is launchable; the budget reset was silently
+ignored. This attempt therefore runs with the runner's in-memory counter
+already at 3, so any verdict other than DONE escalates straight back to
+NEEDS_REVIEW.
+
+That is a runner defect worth fixing, and it is recorded here as an open gap:
+**the attempt state is load-once, so an out-of-band budget correction cannot
+be applied without a runner restart.** The documented workaround (consistent
+with the runner's dot-source behaviour) is to stop and restart the runner so
+it re-reads `state.json`; that must be done while no attempt is in flight, or
+the in-flight result is orphaned.
+
+Why the voiding is still legitimate and not gate-weakening:
 
 - `MAX_ATTEMPTS` is a runner-internal operational budget, not an AHOS
   governance, safety, or authority gate. Nothing in `hygiene.py`,
   `ahos_org/policy.py`, the authority registry, or any Lane A boundary is
   touched.
-- The three attempts were voided by the infrastructure defect fixed in
-  8f059cd, not by the mission's work. Every one of them exited 0 with
-  coherent output and no verdict line. Charging a mission's budget for the
-  harness's bug would manufacture a failure that the evidence does not
-  support.
+- The attempts were voided by the infrastructure defect fixed in 8f059cd, not
+  by the mission's work. Every one of them exited 0 with coherent output and
+  no verdict line. Charging a mission's budget for the harness's bug would
+  manufacture a failure that the evidence does not support.
 - The retry is also the end-to-end production test of the fix: if the
   one-shot rule is not respected in practice, this is how we find out, on the
   mission that exposed it.
 
 The mission's engineering deliverable is already committed and verified
 (`95f1364`, `ca0c1bb`, 4/4 marker tests at HEAD, owner receipt
-`smoke_idempotent_20261005T234018Z.json` 8/8). The only remaining gap is the
-قاسم (QA) sign-off's `<FULL_SUITE_SUMMARY>` placeholder.
+`smoke_idempotent_20261005T234018Z.json` 8/8, independently re-checked this
+session: step[0] start and step[2] second start both report gateway pid
+12048, with `second_start_was_idempotent_replay: true` and `paper_only:
+true`). The only remaining gap is the قاسم (QA) sign-off's
+`<FULL_SUITE_SUMMARY>` placeholder.
