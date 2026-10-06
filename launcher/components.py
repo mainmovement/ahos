@@ -221,11 +221,11 @@ def database_target(env: dict) -> dict:
         return {"scheme": "invalid", "host": None, "port": None, "configured": True}
     scheme = (parsed.scheme or "unknown").lower()
     if scheme.startswith("pglite"):
-        host = parsed.hostname
-        port = parsed.port
+        # Use pglite_data_dir (mirrors db/index.ts) — urlparse.path.lstrip
+        # wrongly turns POSIX absolute stores into cwd-relative paths.
         return {"scheme": "pglite",
-                "host": host or "127.0.0.1", "port": port or 5432,
-                "data_dir": parsed.path.lstrip("/\\") or None,
+                "host": "127.0.0.1", "port": 5432,
+                "data_dir": pglite_data_dir(raw),
                 "configured": True}
     if scheme.startswith("postgres"):
         return {"scheme": "postgres", "host": parsed.hostname or "127.0.0.1",
@@ -333,6 +333,77 @@ def node_executable() -> str | None:
     return shutil.which("node")
 
 
+
+def pglite_pg_version_path(data_dir: str | Path) -> Path:
+    """PGlite writes PG_VERSION when it first opens a store."""
+    return Path(data_dir) / "PG_VERSION"
+
+
+def pglite_needs_schema_init(data_dir: str | Path | None) -> bool:
+    """True when the store has no PG_VERSION (empty or never opened).
+
+    Mission M10.1: an empty dir (or junk without PG_VERSION) needs a one-shot
+    schema-only restore before the gateway starts. Presence of *any* file is
+    not enough — only PG_VERSION proves PGlite initialised the store.
+    """
+    if not data_dir:
+        return False
+    return not pglite_pg_version_path(data_dir).is_file()
+
+
+def decide_pglite_init_action(target: dict) -> str:
+    """Decision logic for launcher PGlite init (unit-tested with a fake runner).
+
+    Returns one of:
+      - ``noop_not_pglite`` — postgres / unset / other schemes (never migrate)
+      - ``noop_no_dir`` — pglite URL without a resolvable dataDir
+      - ``restore`` — PG_VERSION missing; run schema-only restore once
+      - ``skip_already_init`` — PG_VERSION present; do not re-run restore
+    """
+    if not target or target.get("scheme") != "pglite":
+        return "noop_not_pglite"
+    ddir = target.get("data_dir")
+    if not ddir:
+        return "noop_no_dir"
+    if pglite_needs_schema_init(ddir):
+        return "restore"
+    return "skip_already_init"
+
+
+def pglite_tool_argv(root: Path, data_dir: str, *extra_flags: str) -> list[str]:
+    """argv for scripts/pglite_restore.ts (schema-only unless caller adds --dump).
+
+    Uses ``node --experimental-strip-types`` directly — same as package.json
+    ``db:restore-pglite`` — so we never wrap through ``cmd /c npm`` for a
+    one-shot gate the launcher must observe.
+    """
+    node = node_executable()
+    if node is None:
+        return []
+    script = str(Path(root) / "scripts" / "pglite_restore.ts")
+    return [node, "--experimental-strip-types", script,
+            "--dataDir", str(data_dir), *extra_flags]
+
+
+def pglite_restore_argv(root: Path, data_dir: str) -> list[str]:
+    """Schema-only restore (no --dump)."""
+    return pglite_tool_argv(root, data_dir)
+
+
+def pglite_check_argv(root: Path, data_dir: str) -> list[str]:
+    """Read-only readiness probe (PG_VERSION + ahos_system_state)."""
+    return pglite_tool_argv(root, data_dir, "--check")
+
+
+def run_pglite_tool(argv: list[str], *, cwd: Path, env: dict | None = None,
+                    timeout: float = 600.0) -> subprocess.CompletedProcess:
+    """Foreground one-shot; CREATE_NO_WINDOW on Windows, plain posix elsewhere."""
+    return subprocess.run(
+        argv, cwd=str(cwd), env=env, capture_output=True, text=True,
+        timeout=timeout,
+        creationflags=pk.CREATE_NO_WINDOW if os.name == "nt" else 0)
+
+
 def next_cli(root: Path) -> Path | None:
     """The CLI script ``npm run start`` resolves to (``node_modules/next/dist/bin/next``).
 
@@ -421,7 +492,16 @@ def probe_stores(now: float) -> tuple[str, str]:
     return HEALTHY, f"{len(_sqlite_files())} Lane-B stores present"
 
 
-def probe_db_backend(target: dict, now: float) -> tuple[str, str]:
+def probe_db_backend(target: dict, now: float, *,
+                     root: Path | None = None,
+                     check_runner=None) -> tuple[str, str]:
+    """Probe the configured DB backend.
+
+    For PGlite (M10.1): HEALTHY only when PG_VERSION exists AND
+    ``scripts/pglite_restore.ts --check`` confirms table ``ahos_system_state``.
+    ``check_runner`` is ``(root, data_dir) -> (returncode, detail)`` for tests.
+    Never runs db:migrate / db:push (STATE B).
+    """
     if not target["configured"]:
         return UNKNOWN, "DATABASE_URL not configured; gateway will fail closed"
     if target["scheme"] == "pglite":
@@ -429,9 +509,30 @@ def probe_db_backend(target: dict, now: float) -> tuple[str, str]:
         if not ddir:
             return UNHEALTHY, "pglite scheme without a data dir"
         p = Path(ddir)
-        if p.exists() and any(p.iterdir()):
-            return HEALTHY, f"pglite data dir {p} initialised"
-        return UNAVAILABLE, f"pglite data dir {p} not initialised"
+        if pglite_needs_schema_init(ddir):
+            return UNAVAILABLE, f"pglite data dir {p} missing PG_VERSION"
+
+        def _default_check(r: Path, d: str) -> tuple[int, str]:
+            argv = pglite_check_argv(r, d)
+            if not argv:
+                return 127, "node not on PATH; cannot run pglite --check"
+            try:
+                res = run_pglite_tool(argv, cwd=r, timeout=60.0)
+            except Exception as e:
+                return 1, f"{type(e).__name__}: {e}"
+            tail = ((res.stdout or "") + (res.stderr or "")).strip().splitlines()
+            return res.returncode, (" | ".join(tail[-5:])[:400]
+                                    or f"exit {res.returncode}")
+
+        runner = check_runner or _default_check
+        if root is None and check_runner is None:
+            return UNAVAILABLE, (
+                f"pglite PG_VERSION present at {p} but table check skipped (no root)")
+        code, detail = runner(Path(root) if root is not None else Path("."),
+                              str(ddir))
+        if code == 0:
+            return HEALTHY, f"pglite ready at {p} (PG_VERSION + ahos_system_state)"
+        return UNAVAILABLE, f"pglite check failed at {p}: {detail}"
     if target["scheme"] in ("postgres", "postgresql"):
         host, port = target["host"], int(target["port"] or 5432)
         if pk.port_in_use(host, port):

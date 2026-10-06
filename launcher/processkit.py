@@ -411,6 +411,20 @@ def terminate(pid: int, *, marker: str | None = None,
     return _done("force")
 
 
+
+def port_in_use(host: str, port: int, timeout: float = 0.6) -> bool:
+    """TCP connect probe; loopback only in practice (the gateway binds 127.0.0.1).
+
+    Restored after the box-security merge dropped it; components/orchestrator
+    and the M11 launcher tests still call this name.
+    """
+    try:
+        with socket.create_connection((host, int(port)), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def can_bind(host: str, port: int) -> bool:
     """Can THIS process actually listen on host:port? A real ``bind``, then close.
 

@@ -162,3 +162,23 @@ export async function resetSchema(client: SqlClient): Promise<number> {
   await client.query(`DROP TABLE ${tableNames.map((t) => `"${t}"`).join(", ")} CASCADE;`);
   return tableNames.length;
 }
+
+/**
+ * Read-only readiness: table ``ahos_system_state`` must exist (M10.1 probe).
+ * Does not create, migrate, or write rows.
+ */
+export async function checkReady(client: SqlClient): Promise<{ ok: boolean; reason: string }> {
+  const rows = (
+    await client.query(`
+      SELECT 1 AS ok
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'ahos_system_state'
+      LIMIT 1
+    `)
+  ).rows as { ok: number }[];
+  if (!rows.length) {
+    return { ok: false, reason: "table ahos_system_state missing" };
+  }
+  return { ok: true, reason: "ahos_system_state present" };
+}
+

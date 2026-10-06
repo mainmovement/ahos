@@ -64,3 +64,8 @@ pglite absolute dataDir — treat as ALREADY DONE here. Prefer extending tests o
   dashboard-api control chain, and related tests were **kept** where they conflicted with older box launcher hunks.
 - Box security semantics (F1/F2/F3/F4/F5/F8 + chat parse + pglite abs) were **forced present**.
 
+
+## M10.1 (Grok, 2026-10-07 Asia/Tehran)
+
+PGlite launcher init + `--check` probe — **DONE**. See `reports/grok/M10_1_DONE_BY_GROK.md`.
+Claude: do not re-implement. HOLD.flag still present (model/quota), unrelated to this code.

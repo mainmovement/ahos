@@ -289,7 +289,7 @@ class AhosOrchestrator:
         if name == "stores":
             return C.probe_stores(self.clock())
         if name == "db_backend":
-            return C.probe_db_backend(C.database_target(self.env), self.clock())
+            return C.probe_db_backend(C.database_target(self.env), self.clock(), root=self.root)
         if name == "gateway":
             return C.probe_gateway(self.dashboard_url(), self.clock())
         if name == "telegram":
@@ -387,31 +387,82 @@ class AhosOrchestrator:
         return C.ComponentResult("stores", status, detail)
 
     def _start_db_backend(self) -> C.ComponentResult:
+        """Bring up / verify the DB backend before the gateway (M10.1).
+
+        PGlite: when PG_VERSION is missing, run schema-only
+        ``scripts/pglite_restore.ts`` once (no --dump), CREATE_NO_WINDOW on
+        Windows. Postgres: probe only — never db:migrate / db:push (STATE B).
+        """
         self.emit(P.PROGRESS["db_backend"])
         target = C.database_target(self.env)
         if not target["configured"]:
             return C.ComponentResult("db_backend", C.UNKNOWN,
                                      "DATABASE_URL not configured; gateway will fail closed")
-        if target["scheme"] == "pglite":
-            ddir = target.get("data_dir")
-            if ddir and not (Path(ddir).exists() and any(Path(ddir).iterdir())):
-                # Stage-3 restore path already exists; initialise the data dir once.
-                self.emit("  در حال مقداردهی اولیهٔ پایگاه دادهٔ توکار…")
-                try:
-                    res = subprocess.run(
-                        ["cmd", "/c", "npm run db:restore-pglite -- --dataDir", ddir],
-                        cwd=str(self.root), env=self._child_env(),
-                        capture_output=True, text=True, timeout=600,
-                        creationflags=pk.CREATE_NO_WINDOW if os.name == "nt" else 0)
+
+        evidence: dict = {"scheme": target.get("scheme"),
+                          "init_action": C.decide_pglite_init_action(target)}
+        action = evidence["init_action"]
+
+        if action == "noop_not_pglite":
+            status, detail = C.probe_db_backend(target, self.clock(), root=self.root)
+            return C.ComponentResult("db_backend", status, detail, evidence=evidence)
+
+        if action == "noop_no_dir":
+            return C.ComponentResult(
+                "db_backend", C.UNHEALTHY,
+                "pglite scheme without a data dir", evidence=evidence)
+
+        ddir = target.get("data_dir")
+        if action == "restore":
+            self.emit("  داده‌ی PGlite خالی است؛ اسکیما اعمال می‌شود.")
+            argv = (self.command_overrides.get("db_backend_restore")
+                    or C.pglite_restore_argv(self.root, ddir))
+            if not argv:
+                return C.ComponentResult(
+                    "db_backend", C.UNAVAILABLE,
+                    "node not on PATH; cannot run pglite schema restore",
+                    evidence=evidence)
+            runner = self.command_overrides.get("db_backend_restore_runner")
+            try:
+                if callable(runner):
+                    code, tail = runner(argv, str(self.root), self._child_env())
+                    evidence["restore"] = {"returncode": code, "detail": tail[:400]}
+                    if code != 0:
+                        return C.ComponentResult(
+                            "db_backend", C.UNAVAILABLE,
+                            f"pglite schema restore failed ({code}): {tail[:300]}",
+                            evidence=evidence)
+                else:
+                    res = C.run_pglite_tool(
+                        argv, cwd=self.root, env=self._child_env(), timeout=600.0)
+                    tail = ((res.stdout or "") + (res.stderr or "")).strip()
+                    evidence["restore"] = {
+                        "returncode": res.returncode,
+                        "detail": tail[-400:],
+                    }
                     if res.returncode != 0:
                         return C.ComponentResult(
                             "db_backend", C.UNAVAILABLE,
-                            f"db:restore-pglite failed ({res.returncode})")
-                except Exception as e:
-                    return C.ComponentResult("db_backend", C.UNAVAILABLE,
-                                             f"restore exception: {type(e).__name__}")
-        status, detail = C.probe_db_backend(target, self.clock())
-        return C.ComponentResult("db_backend", status, detail)
+                            f"pglite schema restore failed ({res.returncode}): "
+                            f"{tail[-300:]}",
+                            evidence=evidence)
+            except Exception as e:
+                evidence["restore"] = {"error": type(e).__name__}
+                return C.ComponentResult(
+                    "db_backend", C.UNAVAILABLE,
+                    f"restore exception: {type(e).__name__}: {e}",
+                    evidence=evidence)
+            evidence["restore_ran"] = True
+        else:
+            evidence["restore_ran"] = False
+
+        # After optional restore: real table probe via --check (injectable).
+        check_runner = self.command_overrides.get("db_backend_check_runner")
+        status, detail = C.probe_db_backend(
+            target, self.clock(), root=self.root,
+            check_runner=check_runner if callable(check_runner) else None)
+        evidence["probe"] = {"status": status, "detail": detail[:300]}
+        return C.ComponentResult("db_backend", status, detail, evidence=evidence)
 
     def _gateway_mode(self) -> str:
         """prod | dev, with a one-time production build when the owner asks for
@@ -1029,6 +1080,8 @@ class AhosOrchestrator:
                           "pid": res.pid, "critical": name in C.CRITICAL}
             if res.started_ts is not None:
                 comp[name]["started_ts"] = res.started_ts
+            if getattr(res, "evidence", None):
+                comp[name]["evidence"] = res.evidence
         ts = datetime.fromtimestamp(self.clock(), timezone.utc).isoformat()
         report = {
             "action": action,

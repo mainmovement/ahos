@@ -10,7 +10,7 @@ Statuses: PENDING, RUNNING, DONE, PARTIAL (retry), NEEDS_REVIEW, BLOCKED_OWNER (
 | M11.3 | DONE | Gateway process identity: marker never matches npm wrapper -> second start calls own gateway foreign (spec: reports/grok/autopilot/missions/M11.3-gateway-identity.md) |
 | M11.4 | DONE | Telegram health = stable process/readiness, not pid alive at spawn (spec: reports/grok/autopilot/missions/M11.4-telegram-health.md) |
 | M48.1 | DONE | Next 16.2.6 -> 16.3.8 security update (critical advisory), proposal + rollback (spec: reports/grok/autopilot/missions/M48.1-next-security-update.md) |
-| M10.1 | RUNNING | Launcher initialises empty PGlite store (schema-only restore) + real table probe (spec: reports/grok/autopilot/missions/M10.1-pglite-init-in-launcher.md) |
+| M10.1 | DONE | Launcher initialises empty PGlite store (schema-only restore) + real table probe — implemented by Grok 2026-10-07 (see reports/grok/M10_1_DONE_BY_GROK.md); HOLD remains for Claude model/quota only |
 | M10 | PENDING | Native portable PostgreSQL/PGlite switch, Docker/n8n retirement (plan "M10 decision") |
 | BL | PENDING | Close open BL/MJ items and all QA (16) BLOCKERs listed in reports/grok (GROK_HANDOFF, ORCHESTRATION_LOG, remaining-work inventory) |
 | M12 | PENDING | Agent organisation: 37+ agents in config/agent_registry.yaml using the owner charter template, authority NONE by default, no auto-creation |

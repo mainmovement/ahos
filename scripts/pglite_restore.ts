@@ -6,7 +6,8 @@
  * and verifies exact row-count parity against a recorded baseline.
  *
  * PAPER_ONLY. Read-only against the dump and counts files. Never deletes the
- * source dump. Everything it writes goes into --dataDir.
+ * source dump. Everything it writes goes into --dataDir (except --check, which
+ * is read-only and never creates the store).
  *
  * Usage:
  *   node --experimental-strip-types scripts/pglite_restore.ts \
@@ -14,20 +15,24 @@
  *      --dump   G:/robat/ahos_backups/pg_20261003T091351Z/ahos_full.sql \
  *      --counts G:/robat/ahos_backups/pg_20261003T091351Z/row_counts.txt
  *
- *   --dataDir (required) target PGlite directory (created if absent)
+ *   --dataDir (required) target PGlite directory (created if absent; not for --check)
  *   --dump    (optional) pg_dump plain file to restore
  *   --counts  (optional) "<table>|<count>" baseline to verify against
  *   --reset   (optional) drop and recreate the ahos_* schema before restore
+ *   --check   (optional) read-only readiness: PG_VERSION + ahos_system_state
+ *             (M10.1 launcher probe). Exit 0 only when both are present.
  *
- * Exit codes: 0 = success including full parity, 1 = any failure or parity gap.
- * Exit code is deliberate so the launcher can treat restore as a real gate.
+ * Exit codes: 0 = success including full parity / check OK, 1 = any failure or
+ * parity gap / check FAIL, 2 = bad usage. Exit code is deliberate so the
+ * launcher can treat restore as a real gate.
  */
-import { mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import {
   applyMigration,
+  checkReady,
   insertBlocks,
   parseCopyBlocks,
   resetSchema,
@@ -46,10 +51,34 @@ const dataDir = flag("--dataDir");
 const dumpPath = flag("--dump");
 const countsPath = flag("--counts");
 const doReset = args.includes("--reset");
+const doCheck = args.includes("--check");
 
 if (!dataDir) {
   console.error("missing --dataDir");
   process.exit(2);
+}
+
+if (doCheck) {
+  // Read-only path: never mkdir, never migrate, never write.
+  const pgVersion = join(dataDir, "PG_VERSION");
+  if (!existsSync(pgVersion)) {
+    console.error(`check FAIL: PG_VERSION missing under ${dataDir}`);
+    process.exit(1);
+  }
+  const { PGlite } = await import("@electric-sql/pglite");
+  const db = new PGlite(dataDir);
+  try {
+    const result = await checkReady(db);
+    if (!result.ok) {
+      console.error(`check FAIL: ${result.reason}`);
+      process.exitCode = 1;
+    } else {
+      console.log(`check OK: PG_VERSION + ${result.reason}`);
+    }
+  } finally {
+    await db.close();
+  }
+  process.exit(process.exitCode ?? 0);
 }
 
 const { PGlite } = await import("@electric-sql/pglite");
@@ -109,6 +138,10 @@ try {
     "timestamptz spot check:",
     ts.length ? ts[0].created_at : "(none)",
   );
+
+  // Confirm the launcher probe table exists after schema-only / restore.
+  const ready = await checkReady(db);
+  console.log(`ready: ${ready.reason}`);
 } finally {
   await db.close();
 }

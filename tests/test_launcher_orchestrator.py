@@ -1500,3 +1500,157 @@ def test_soft_preflight_warning_is_not_reported_as_failed_service(tmp_path, monk
     assert orch.start()["overall"] == "ONLINE"
     generic = P.error("generic", action=P.ACTIONS["unknown"]).split("{")[0][:12]
     assert not any(l.startswith(generic) for l in lines), lines
+
+
+class TestPgliteInitM101:
+    """M10.1: decision logic + probe with a fake runner (no real PGlite)."""
+
+    def test_decide_restore_when_pg_version_missing(self, tmp_path):
+        d = tmp_path / "empty"
+        d.mkdir()
+        (d / "junk.txt").write_text("x", encoding="utf-8")
+        target = {"scheme": "pglite", "data_dir": str(d), "configured": True}
+        assert C.decide_pglite_init_action(target) == "restore"
+        assert C.pglite_needs_schema_init(d) is True
+
+    def test_decide_skip_when_pg_version_present(self, tmp_path):
+        d = tmp_path / "store"
+        d.mkdir()
+        (d / "PG_VERSION").write_text("15\n", encoding="utf-8")
+        target = {"scheme": "pglite", "data_dir": str(d), "configured": True}
+        assert C.decide_pglite_init_action(target) == "skip_already_init"
+        assert C.pglite_needs_schema_init(d) is False
+
+    def test_decide_never_restore_postgres(self):
+        target = {"scheme": "postgres", "host": "127.0.0.1", "port": 5432,
+                  "configured": True}
+        assert C.decide_pglite_init_action(target) == "noop_not_pglite"
+
+    def test_decide_no_dir(self):
+        target = {"scheme": "pglite", "data_dir": None, "configured": True}
+        assert C.decide_pglite_init_action(target) == "noop_no_dir"
+
+    def test_restore_argv_is_schema_only_node_strip(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(C, "node_executable", lambda: "node")
+        argv = C.pglite_restore_argv(tmp_path, "G:/data/pglite")
+        assert argv[0] == "node"
+        assert "--experimental-strip-types" in argv
+        assert argv[-2:] == ["--dataDir", "G:/data/pglite"]
+        assert "--dump" not in argv
+        assert "--check" not in argv
+
+    def test_check_argv_adds_check_flag(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(C, "node_executable", lambda: "node")
+        argv = C.pglite_check_argv(tmp_path, "/tmp/store")
+        assert argv[-3:] == ["--dataDir", "/tmp/store", "--check"]
+
+    def test_probe_unavailable_without_pg_version(self, tmp_path):
+        d = tmp_path / "empty"
+        d.mkdir()
+        target = {"scheme": "pglite", "data_dir": str(d), "configured": True,
+                  "host": "127.0.0.1", "port": 5432}
+        status, detail = C.probe_db_backend(target, 0.0, root=tmp_path)
+        assert status == C.UNAVAILABLE
+        assert "PG_VERSION" in detail
+
+    def test_probe_healthy_when_check_runner_ok(self, tmp_path):
+        d = tmp_path / "store"
+        d.mkdir()
+        (d / "PG_VERSION").write_text("15\n", encoding="utf-8")
+        target = {"scheme": "pglite", "data_dir": str(d), "configured": True,
+                  "host": "127.0.0.1", "port": 5432}
+
+        def ok_runner(root, data_dir):
+            assert data_dir == str(d)
+            return 0, "check OK"
+
+        status, detail = C.probe_db_backend(
+            target, 0.0, root=tmp_path, check_runner=ok_runner)
+        assert status == C.HEALTHY
+        assert "ahos_system_state" in detail
+
+    def test_probe_unavailable_when_check_runner_fails(self, tmp_path):
+        d = tmp_path / "store"
+        d.mkdir()
+        (d / "PG_VERSION").write_text("15\n", encoding="utf-8")
+        target = {"scheme": "pglite", "data_dir": str(d), "configured": True,
+                  "host": "127.0.0.1", "port": 5432}
+
+        def bad_runner(root, data_dir):
+            return 1, "table ahos_system_state missing"
+
+        status, detail = C.probe_db_backend(
+            target, 0.0, root=tmp_path, check_runner=bad_runner)
+        assert status == C.UNAVAILABLE
+        assert "ahos_system_state" in detail
+
+    def test_start_runs_restore_once_via_fake_runner(self, tmp_path, monkeypatch):
+        from launcher.orchestrator import AhosOrchestrator
+
+        d = tmp_path / "pglite"
+        d.mkdir()
+        calls = []
+
+        def fake_restore_runner(argv, cwd, env):
+            calls.append(list(argv))
+            assert "--dump" not in argv
+            assert "--dataDir" in argv
+            # Simulate successful schema init.
+            (d / "PG_VERSION").write_text("15\n", encoding="utf-8")
+            return 0, "migration: applied 33 statements"
+
+        def fake_check(root, data_dir):
+            return 0, "check OK: ahos_system_state present"
+
+        monkeypatch.setattr(C, "node_executable", lambda: "node")
+        # Avoid real preflight / other components.
+        orch = AhosOrchestrator(
+            root=tmp_path, state_dir=tmp_path / "state",
+            report_dir=tmp_path / "reports",
+            env={"DATABASE_URL": f"pglite:{d.as_posix()}"},
+            clock=lambda: 1_700_000_000.0,
+            open_dashboard=False,
+        )
+        orch.command_overrides["db_backend_restore_runner"] = fake_restore_runner
+        orch.command_overrides["db_backend_check_runner"] = fake_check
+
+        res = orch._start_db_backend()
+        assert res.status == C.HEALTHY, res.detail
+        assert len(calls) == 1
+        assert res.evidence.get("init_action") == "restore"
+        assert res.evidence.get("restore_ran") is True
+
+        # Second start: PG_VERSION present -> skip restore.
+        calls.clear()
+        res2 = orch._start_db_backend()
+        assert res2.status == C.HEALTHY, res2.detail
+        assert calls == []
+        assert res2.evidence.get("init_action") == "skip_already_init"
+        assert res2.evidence.get("restore_ran") is False
+
+    def test_start_never_restores_postgres(self, tmp_path, monkeypatch):
+        from launcher.orchestrator import AhosOrchestrator
+
+        calls = []
+
+        def fake_restore_runner(argv, cwd, env):
+            calls.append(argv)
+            return 0, "should not run"
+
+        orch = AhosOrchestrator(
+            root=tmp_path, state_dir=tmp_path / "state",
+            report_dir=tmp_path / "reports",
+            env={"DATABASE_URL": "postgres://u:p@127.0.0.1:5432/ahos"},
+            clock=lambda: 1_700_000_000.0,
+            open_dashboard=False,
+        )
+        orch.command_overrides["db_backend_restore_runner"] = fake_restore_runner
+        # Avoid depending on processkit.port_in_use (probe path); we only assert
+        # that the restore runner is never invoked for postgres (STATE B).
+        monkeypatch.setattr(C, "probe_db_backend",
+                            lambda *a, **k: (C.HEALTHY, "postgres reachable (stub)"))
+        res = orch._start_db_backend()
+        assert calls == []
+        assert res.evidence.get("init_action") == "noop_not_pglite"
+        assert res.status == C.HEALTHY
+
