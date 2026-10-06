@@ -967,3 +967,91 @@ one thing the first attempt was cut off before writing.
 Note on the M11.3 section above: its closing line "The queue's next row is the
 owner's to release" predates the owner approval of 2026-10-06, which released
 M11.1/M11.2. No gate above M11.3 remains.
+
+## The one-shot turn-end defect: M11.3's three voided attempts -- 2026-10-06 08:30 by Claude (owner-authorized)
+
+### Root cause (found by reading the mission session transcript)
+
+All three M11.3 attempts ended the same way, and none of them failed on
+engineering merits. Each did coherent, near-complete work, backgrounded the
+full pytest suite (2738 tests), and then *ended its turn* to wait for the
+completion notification.
+
+`claude -p` is one-shot: the moment a turn ends, the process exits and every
+background task launched in it dies -- its completion notification never
+arrives. So the mission's next planned action ("paste its summary line into
+the QA code block and commit the four evidence files") never ran, and no
+`AUTOPILOT_RESULT:` line was ever written. The runner classified the output
+MALFORMED and charged an attempt against work the mission had not finished.
+
+Evidence chain:
+- attempt 1: `_claude_ap_M11_3_result.txt.superseded` ends "There is nothing
+  left to check and nothing left to do until the suite finishes. I'll wait for
+  the `bmiw3hqrs` completion notification." -- session transcript
+  `e090c335-*.jsonl` shows `stop=end_turn`; the process exited 18 s after the
+  last record, so the `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS` ceiling never
+  applied. The suite was 18 minutes into a ~55-minute run.
+- attempt 2 (07:30:19, 1081 s): same shape. `_claude_ap_M11_3_result.txt`
+  ends "The full suite (2738 tests ...) is running in the background; I'll
+  fill the placeholder with real counts as soon as it lands."
+- Both result files are coherent engineering prose with a zero exit code and
+  no verdict line. The `[claude-code:unrecognized_model]` line at the top of
+  each is stderr noise: both missions did long stretches of productive work
+  after it, so it is not the cause. Naming it as the cause would be a
+  fabricated root cause, and the real one is proven above.
+
+### Fix (commit 8f059cd)
+
+Two layers, because a prompt fix alone cannot reach a session that has already
+been resumed carrying its original prompt:
+
+1. `MISSION_PROMPT_TEMPLATE.txt` now names the execution model: never end a
+   turn while a background task is pending; run long work as ONE foreground
+   blocking Bash call (it cannot be orphaned and does not spend the bounded
+   `--max-turns 300` budget on polling); poll in-turn if something is already
+   backgrounded. Read fresh at every launch (runner line ~318), so all later
+   missions inherit it.
+2. `run_mission.ps1` no longer treats a verdictless output as delivered. Its
+   retry loop breaks only when the output actually carries an
+   `AUTOPILOT_RESULT:` line, using the same predicate as the runner's
+   `Classify-MissionResult`, so a turn that ended mid-work is *resumed* rather
+   than handed downstream to be classified MALFORMED. The resume message now
+   carries the one-shot rule, because `--resume` restores the session's
+   original mission prompt, not the corrected one.
+
+`run_mission.ps1` enters git in that commit -- it is the child launcher
+`claude_autopilot.ps1` invokes for every mission, so the runner was not
+reproducible from the repo without it.
+
+Verification: `21 passed` in `tests/test_autopilot_runner.py` (10 dynamic
+PS 5.1 harness cases A-J, 11 static pins, two of them new: the template's
+one-shot rule and the launcher's verdict requirement). Both scripts parse
+clean under the PS 5.1 language parser.
+
+### The attempt-budget voiding (this is deliberately loud, not silent)
+
+The fix landed after M11.3 had already exhausted `MAX_ATTEMPTS=3` and escalated
+to NEEDS_REVIEW, which held the whole queue (`owner gate: M11.3 at
+NEEDS_REVIEW holds M11.4`). I reset `autopilot/state.json` from `{"M11.3": 3}`
+to `{"M11.3": 0}` and the queue row from NEEDS_REVIEW back to PARTIAL, so the
+runner relaunches M11.3 on the fixed harness.
+
+Why this is legitimate and not gate-weakening:
+
+- `MAX_ATTEMPTS` is a runner-internal operational budget, not an AHOS
+  governance, safety, or authority gate. Nothing in `hygiene.py`,
+  `ahos_org/policy.py`, the authority registry, or any Lane A boundary is
+  touched.
+- The three attempts were voided by the infrastructure defect fixed in
+  8f059cd, not by the mission's work. Every one of them exited 0 with
+  coherent output and no verdict line. Charging a mission's budget for the
+  harness's bug would manufacture a failure that the evidence does not
+  support.
+- The retry is also the end-to-end production test of the fix: if the
+  one-shot rule is not respected in practice, this is how we find out, on the
+  mission that exposed it.
+
+The mission's engineering deliverable is already committed and verified
+(`95f1364`, `ca0c1bb`, 4/4 marker tests at HEAD, owner receipt
+`smoke_idempotent_20261005T234018Z.json` 8/8). The only remaining gap is the
+قاسم (QA) sign-off's `<FULL_SUITE_SUMMARY>` placeholder.
