@@ -23,6 +23,10 @@ CTRL_BREAK_EVENT = 1
 
 _KERNEL32 = ctypes.WinDLL("kernel32", use_last_error=True) if os.name == "nt" else None
 
+# Set once arm_console_break_immunity installs its handler, so a second call is
+# a no-op rather than registering a second callback the GC could drop.
+_CONSOLE_HANDLER = None
+
 if _KERNEL32 is not None:
     # Toolhelp32 process snapshot (pid + parent pid) for the parentage walk.
     _KERNEL32.CreateToolhelp32Snapshot.argtypes = [ctypes.c_uint32, ctypes.c_uint32]
@@ -410,6 +414,51 @@ def terminate(pid: int, *, marker: str | None = None,
         return "failed", _clock() - t0
     return _done("force")
 
+
+# ------------------------------------------------------------------- spawn ---
+def spawn_detached(cmd: list[str], *, cwd: Path, env: dict, log_path: Path) -> int:
+    """Start a long-lived child whose stdout/stderr lands in log_path.
+
+    Windows flags are ``CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW`` (Rostam
+    R1): ``DETACHED_PROCESS`` is deliberately *not* used, because Windows
+    ignores ``CREATE_NO_WINDOW`` in that combination, so a console-less
+    ``cmd /c npm`` child would AllocConsole its own *visible* window. The
+    process group is what makes graceful stop work (CTRL_BREAK reaches the
+    child's group); survival on console-close comes from the launcher's own
+    hidden console (``ahos.ps1 -WindowStyle Hidden``), not from detachment.
+
+    POSIX uses ``start_new_session=True`` so the child leads its own session:
+    ``posix_group_ok`` refuses to ``killpg`` unless ``getpgid(pid) == pid``,
+    which only holds for a session leader. Without it a spawned ``npm`` would
+    share the launcher's group and a stop would signal the wrong tree.
+
+    Restored after the box-security merge (``d9492cb``) dropped the body while
+    the orchestrator's ``_spawn`` and both launcher suites kept calling it; the
+    POSIX branch is new so the process layer stays usable off Windows.
+    """
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    logf = open(log_path, "ab", buffering=0)
+    try:
+        if os.name == "nt":
+            flags = CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW
+            proc = subprocess.Popen(
+                cmd, cwd=str(cwd), env=env, stdout=logf,
+                stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                close_fds=True, creationflags=flags, restore_signals=False)
+        else:
+            # creationflags=0 keeps the AST scan for a window-suppressing flag
+            # honest on POSIX, where any non-zero value raises ValueError.
+            proc = subprocess.Popen(
+                cmd, cwd=str(cwd), env=env, stdout=logf,
+                stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                close_fds=True, creationflags=0, start_new_session=True,
+                restore_signals=False)
+    finally:
+        try:
+            logf.close()
+        except Exception:
+            pass
+    return proc.pid
 
 
 def port_in_use(host: str, port: int, timeout: float = 0.6) -> bool:

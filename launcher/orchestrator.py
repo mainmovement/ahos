@@ -93,6 +93,50 @@ class AhosOrchestrator:
         # back to the pure resolver for read-only paths (status) and for tests
         # that inject their own resolution.
         self.gateway = C.resolve_gateway(self.env)
+        # A later process (dashboard Status/Stop, `ahos.ps1 status`) must see the
+        # port the start-time selection actually handed the children, not the
+        # configured one -- but only while our gateway is the live listener.
+        recorded = self._recorded_gateway()
+        if recorded is not None:
+            self.gateway = recorded
+
+    # ------------------------------------------------------- gateway record --
+    GATEWAY_RECORD = "gateway_selected.json"
+
+    def _gateway_record_path(self) -> Path:
+        return self.state_dir / self.GATEWAY_RECORD
+
+    def _write_gateway_record(self, sel: dict) -> None:
+        keep = {k: sel.get(k) for k in ("host", "port", "url", "source",
+                                         "configured_port", "chosen_via")}
+        keep["recorded_ts"] = self.clock()
+        try:
+            self._gateway_record_path().write_text(
+                json.dumps(keep, ensure_ascii=False), encoding="utf-8")
+        except OSError:
+            pass  # a missing record degrades to the pure resolver; never fatal
+
+    def _clear_gateway_record(self) -> None:
+        try:
+            self._gateway_record_path().unlink()
+        except OSError:
+            pass
+
+    def _recorded_gateway(self) -> dict | None:
+        """The start-time selection, if our gateway process is still the one the
+        pid file names. A record whose gateway is gone is ignored (never pins a
+        dead port)."""
+        try:
+            rec = json.loads(self._gateway_record_path().read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        if not isinstance(rec, dict) or not isinstance(rec.get("port"), int):
+            return None
+        info = self._pid_info("gateway")
+        if not (info and pk.pid_is_ours(info.get("pid"), self.marker("gateway"))):
+            return None
+        rec.setdefault("warnings", [])
+        return rec
 
     # ------------------------------------------------------------------ paths --
     def log_path(self, name: str) -> Path:
@@ -618,14 +662,15 @@ class AhosOrchestrator:
         # same address. A warning here is reported, never fatal — the gateway
         # reports its own real bind failure honestly if nothing bound at all.
         sel = C.select_gateway(self.env)
-        # A fresh `start` process cannot re-bind the port our own already-running
-        # gateway holds, so the candidate walk finds nothing bindable and falls
-        # back to the configured port — which may be unbindable on this host
-        # while the dashboard is in fact reachable on the port we chose last
-        # time. The pid record written at spawn time is authoritative here: if
-        # our gateway is live, adopt its real port so the status report and the
-        # browser open the address actually serving.
-        sel = self._adopted_gateway(sel)
+        recorded = self._recorded_gateway()
+        if recorded is not None:
+            # Our gateway already listens on the recorded port. A fresh select
+            # would see that port busy (ours) and walk on to the next candidate,
+            # handing the children an address nobody serves.
+            sel = dict(recorded, chosen_via="RECORDED_RUNNING")
+        else:
+            sel = self._adopted_gateway(sel)
+            self._write_gateway_record(sel)
         self.gateway = sel
         gw_note = None
         if sel.get("chosen_via") == "CANDIDATE_BINDABLE":
@@ -757,6 +802,7 @@ class AhosOrchestrator:
         stopped = self._stop_components(order)
         # Sweep for AHOS processes that lost their pid bookkeeping.
         swept = self._sweep_ours()
+        self._clear_gateway_record()
         # And the listener itself, which no pid record may still name.
         reclaimed = self._reclaim_gateway_port(*gw_addr) if gw_addr else None
         cp = self._control_plane({})
