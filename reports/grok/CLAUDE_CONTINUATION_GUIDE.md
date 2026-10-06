@@ -1076,3 +1076,56 @@ session: step[0] start and step[2] second start both report gateway pid
 12048, with `second_start_was_idempotent_replay: true` and `paper_only:
 true`). The only remaining gap is the قاسم (QA) sign-off's
 `<FULL_SUITE_SUMMARY>` placeholder.
+
+## 2026-10-06 — M11.3 closed: full-suite counts measured, QA sign-off completed
+
+The retry's last gap is filled. The قاسم section of
+`reports/grok/autopilot/M11.3_review.md` had the only literal placeholder left in
+the mission (`<FULL_SUITE_SUMMARY>`); it is now replaced with measured numbers,
+and two unverified draft figures in the same section were corrected rather than
+kept.
+
+**What was done this session (documentation/evidence only — no code changed):**
+
+- Measured the full suite in four alphabetical chunks (a single run outruns both
+  the 600 s foreground cap and the 30 min background cap of this harness):
+  A–F 970 collected (962 passed / 7 failed / 1 skipped, 928.26 s), G–P 1081
+  collected (1080 / 1 skipped, 1352.77 s, `test_launcher_orchestrator.py`
+  excluded by an explicit shell guard because pytest 9.1.1's `--ignore=` does not
+  exclude alongside positional paths), Q–Z 691 collected (689 / 2 failed,
+  787.70 s), and `tests/test_launcher_orchestrator.py` itself 93 collected
+  (93 passed, 322.70 s). **Total 2835 collected → 2824 passed, 9 failed,
+  2 skipped.** The four collected counts sum exactly, so no test was double-run
+  or dropped.
+- Proved the 9 failures are not M11.3's in a detached worktree at `f6eb34f`
+  (the parent of `95f1364`): the same 9 ids → 7 failed, 2 passed in 4.04 s. The
+  7 code failures fail identically before M11.3; the other 2 pass in a pristine
+  tree because gitignored `data/` is absent there. None were skipped, xfailed,
+  or loosened.
+- Corrected two draft figures in the review: the identity-specific selection is
+  **11 tests / 11 passed / 82 deselected in 2.97 s**, not "22 tests in 246 s"
+  (the draft count was never measured — the correction is recorded in the
+  section itself, not silently overwritten); and the targeted-file time is
+  322.70 s, not 341.74 s.
+- Re-verified the owner receipt `reports/launcher/smoke_idempotent_20261005T234018Z.json`
+  field by field: `passed`, `second_start_was_idempotent_replay`,
+  `restart_after_stop_worked`, `paper_only`, `all_steps_rc_ok` all true, 8/8
+  steps rc 0, and the gateway pid is **12048 across start → status → second
+  start → stop** — the spec's same-pid idempotent-replay requirement, met on the
+  real host.
+- Exercised the mission's own stop path against a real orphan: an earlier attempt
+  left a gateway on port 8300 (node pid 9184, parent already dead). Its live CIM
+  command line matched the new marker with no pid record to consult, so
+  `python -m launcher stop` stopped it proven-ours, freed 8300, and touched
+  nothing foreign. Added as red-team attack 8 and as an evidence row.
+
+**Evidence:** `reports/grok/autopilot/M11.3_review.md` (قاسم / رضا / عرفان, all
+three sign-offs complete, no placeholder remains); receipt
+`reports/launcher/smoke_idempotent_20261005T234018Z.json`; commits `95f1364`,
+`ca0c1bb` (code, unchanged this session).
+
+**Open gaps:** none from M11.3. Next mission in the queue per
+`reports/grok/CLAUDE_AUTOPILOT_QUEUE.md`. Full-suite caveat that is *not* this
+mission's: the 7 pre-existing failures (auth-gate, canonical read model,
+ops-document contracts) and the 2 `data/`-dependent ones remain real and should
+be triaged separately.

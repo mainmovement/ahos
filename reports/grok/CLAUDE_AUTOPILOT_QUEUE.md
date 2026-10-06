@@ -7,7 +7,7 @@ Statuses: PENDING, RUNNING, DONE, PARTIAL (retry), NEEDS_REVIEW, BLOCKED_OWNER (
 |---|---|---|
 | M11.1 | DONE | Launcher finish (single icon, zero consoles, Status/Stop/Restart in CommandCenter.tsx, gateway port) - run by run_mission.ps1 -n 11_1 |
 | M11.2 | DONE | launcher/ahos.ps1 hidden path: Tee-Object -Encoding invalid in PS 5.1 (log never written) + no double-run on stderr (spec: reports/grok/autopilot/missions/M11.2-launcher-ps51-log.md) |
-| M11.3 | PARTIAL | Gateway process identity: marker never matches npm wrapper -> second start calls own gateway foreign (spec: reports/grok/autopilot/missions/M11.3-gateway-identity.md) |
+| M11.3 | DONE | Gateway process identity: marker never matches npm wrapper -> second start calls own gateway foreign (spec: reports/grok/autopilot/missions/M11.3-gateway-identity.md) |
 | M11.4 | PENDING | Telegram health = stable process/readiness, not pid alive at spawn (spec: reports/grok/autopilot/missions/M11.4-telegram-health.md) |
 | M48.1 | PENDING | Next 16.2.6 -> 16.3.8 security update (critical advisory), proposal + rollback (spec: reports/grok/autopilot/missions/M48.1-next-security-update.md) |
 | M10.1 | PENDING | Launcher initialises empty PGlite store (schema-only restore) + real table probe (spec: reports/grok/autopilot/missions/M10.1-pglite-init-in-launcher.md) |
