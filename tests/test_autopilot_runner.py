@@ -39,6 +39,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 HARNESS = ROOT / "reports" / "grok" / "autopilot" / "test_runner.ps1"
 RUNNER = ROOT / "reports" / "grok" / "claude_autopilot.ps1"
+MISSION_LAUNCHER = ROOT / "reports" / "grok" / "run_mission.ps1"
+MISSION_TEMPLATE = ROOT / "reports" / "grok" / "autopilot" / "MISSION_PROMPT_TEMPLATE.txt"
 WATCHDOG = ROOT / "reports" / "grok" / "claude_watchdog.ps1"
 
 RESULT_RE = re.compile(r"^RESULT: (PASS|FAIL) (\S+)(?:\s+(.*))?$", re.M)
@@ -188,6 +190,58 @@ def test_the_launch_guard_distinguishes_terminal_from_retryable():
         assert verdict in body, f"{verdict} must be terminal"
     for verdict in ("PARTIAL", "MALFORMED", "MISSING", "LIMIT"):
         assert verdict not in body, f"{verdict} must not be treated as terminal"
+
+
+def test_the_mission_prompt_forbids_ending_a_turn_with_work_pending():
+    r"""The M11.3 double-MALFORMED was a prompt gap, not a runner bug.
+
+    A mission backgrounded a ~55-minute pytest suite, then ended its turn to wait for
+    the completion notification. ``claude -p`` is one-shot: ending the turn exits the
+    process and kills every background task with it, so the notification never arrived,
+    the QA counts were never pasted and no ``AUTOPILOT_RESULT`` line was ever written.
+    The mission must be told this constraint before it can respect it.
+    """
+    text = MISSION_TEMPLATE.read_text(encoding="utf-8")
+    assert "ONE-SHOT" in text, "the template must name the execution model"
+    assert "NEVER end your turn while a background task is" in text, (
+        "the template must forbid ending a turn with a background task pending")
+    assert "poll it inside the SAME turn" in text, (
+        "the template must prescribe in-turn polling as the alternative")
+    assert "in the FOREGROUND as a" in text, (
+        "the template must prefer one blocking foreground call, which cannot be "
+        "orphaned and does not burn the bounded --max-turns budget on polling")
+
+
+def test_the_mission_launcher_treats_a_verdictless_output_as_undelivered():
+    r"""A turn that ends mid-work must be resumed, not accepted as a final result.
+
+    ``run_mission.ps1`` used to break out of its retry loop on ``-not (IsFail $txt)``
+    alone, so an output with no ``AUTOPILOT_RESULT`` line was treated as a delivered
+    result and handed to the runner, which classified it MALFORMED -- charging an
+    attempt against output the mission never finished. The break must now require a
+    verdict, using the same predicate as the runner's ``Classify-MissionResult`` so the
+    two scripts cannot disagree about what a verdict looks like.
+    """
+    text = MISSION_LAUNCHER.read_text(encoding="utf-8")
+    assert "hasVerdict" in text, "the launcher must compute verdict presence"
+    assert "AUTOPILOT_RESULT:\\s*(DONE|PARTIAL|BLOCKED_OWNER)" in text, (
+        "the predicate must match the runner's Classify-MissionResult")
+    # The old bare break condition must be gone from non-comment lines. The new
+    # condition still ends in `-not (IsFail $txt)) { break }`, so the pin is on the
+    # full superseded form, which lacked the verdict term.
+    for i, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue
+        assert "-not $wd -and -not (IsFail $txt)) { break }" not in stripped, (
+            f"run_mission.ps1:{i} still breaks on a verdictless result: {stripped}")
+    assert "$hasVerdict -and -not (IsFail $txt)) { break }" in text, (
+        "the break must now require a verdict")
+    # And the resume path must carry the one-shot rule to the session it revives,
+    # because --resume restores the original mission prompt, not a corrected one.
+    resume = text.split("$resumeMsg", 1)[1]
+    assert "one-shot" in resume, (
+        "a resumed session must be told that ending its turn kills background work")
 
 
 def test_the_owner_gate_is_preserved_not_converted():

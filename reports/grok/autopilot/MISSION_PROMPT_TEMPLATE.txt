@@ -23,6 +23,16 @@ DELIVERY:
 - Commit incrementally with clear messages.
 - Append a section to reports/grok/CLAUDE_CONTINUATION_GUIDE.md: what was done, evidence, open gaps, next step.
 - Write reports/grok/autopilot/{ID}_review.md containing the agent reviews and the three sign-offs.
+- You run ONE-SHOT (claude -p): the moment your turn ends, the process EXITS and every
+  background task you launched dies with it -- its completion notification never
+  arrives and its result is lost. So NEVER end your turn while a background task is
+  still running. Run long work (test suites, builds, soaks) in the FOREGROUND as a
+  single blocking Bash call, which consumes one turn and cannot be orphaned. If a task
+  is already backgrounded, poll it inside the SAME turn (short sleeps reading its
+  output file, or Monitor) until it finishes, and only then continue -- and keep your
+  turn budget in mind: you have --max-turns 300 for the whole mission, so prefer one
+  long foreground call over hundreds of polling turns. If you have nothing to do but
+  wait, that is the signal to poll rather than to end the turn.
 - FINAL OUTPUT (last lines, <=15 short lines) MUST end with exactly one of:
   AUTOPILOT_RESULT: DONE
   AUTOPILOT_RESULT: PARTIAL <what remains>
