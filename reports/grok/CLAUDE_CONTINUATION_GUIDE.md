@@ -1173,3 +1173,59 @@ gate preserved, no change`) and never reached the DONE branch that resets the
 counter. `state.json` therefore still reads `{"M11.3": 3}`. It cannot matter:
 the DONE marker is terminal, so `Test-ConsumedTerminal` guards the row
 regardless of the counter, and the mission is never re-executed.
+
+## M11.4 closed DONE -- 2026-10-06 by Claude (owner-authorized, resumed session)
+
+The M11.4 attempt (telegram health = stable, polling bot) delivered its code
+and tests in commit `4e1cb91` ("launcher: telegram health requires a stable,
+polling bot (M11.4)", 2026-10-06 13:15:54 +0330) and then lost its Atria quota
+mid-sign-off -- the `M11.4_review.md` sign-off block still read
+"(appended after implementation)". The runner later recorded the attempt as
+`MALFORMED` (`consumed/ap_M11_4.json`, exit 1073807364) and put the row at
+`NEEDS_REVIEW`, which held M48.1 at the owner gate. The machine was restarted;
+no runtime process from that session survived except the engine daemon
+(pid 324, still ours and healthy by its recorded marker).
+
+This session resumed from that exact point -- no code was rewritten, no test
+was re-authored, no box start was repeated:
+
+- **Verification only.** `launcher/`, `tests/` and `docs/` are byte-identical to
+  the committed tree (`git diff --stat` empty on all three), so the existing
+  artifacts were valid and redoing them was forbidden by the owner's recovery
+  instruction.
+- **Targeted suite:** `tests/test_launcher_orchestrator.py` → 106 passed /
+  0 failed / 0 skipped in 95.04 s (contains the 13 `TestTelegramReadiness`
+  tests, including the real-child acceptance test). Companion
+  `test_phase18_launchers.py` → 53 passed in 4.10 s.
+- **Full suite deliberately not re-run.** M11.4's diff touches only
+  `launcher/components.py`, `launcher/orchestrator.py`, `launcher/persian.py`,
+  `docs/ONE_CLICK.md` and the test file; an import scan found zero importers of
+  the changed modules outside `launcher/` and `tests/`. The last full-suite
+  measurement stays M11.3's at `2c6d90f` (2835 → 2824 passed / 9 failed /
+  2 skipped, 9 proven pre-existing). Recorded as a choice, not a gap.
+- **Box acceptance already met:** `reports/launcher/status_20261006T145908Z.json`
+  (byte-identical to `status.json`) is a real `launcher start` from 14:59:08Z,
+  after the 13:15 commit, showing telegram `UNAVAILABLE` "exited during its own
+  preflight" and `overall: DEGRADED` -- the exact pre-M11.4 failure it had to
+  stop producing, produced by the M11.4 boot branch itself.
+- **Red team:** 10 probes against `probe_telegram` / `redact_log` /
+  `read_log_tail` (stale-mark-through-`log_offset`, stability bar before
+  readiness, rotated-log leniency on the status path, missing `started_ts`,
+  clock skew, real token shape, idempotent redaction, multibyte tail). All
+  behaved correctly; one probe initially produced a false HEALTHY because the
+  harness omitted `pid_info["log"]` and read the real
+  `logs/launcher/telegram.log` -- a harness bug, and a live demonstration that
+  the append-only/stale-mark hazard the `log_offset` rule guards is real.
+- **Governance:** Lane A re-verified end to end (every sha256 in
+  `config/lane_a_freeze.sha256` recomputed, 0 bad, 0 missing);
+  `scripts/validate_imports.py` exit 0, "VALIDATION PASSED"; the token value
+  was set to a sentinel and confirmed absent from every Persian action string.
+
+The three sign-offs (قاسم QA / رضا red team / عرفان evidence) are appended to
+`reports/grok/autopilot/M11.4_review.md`, and the queue row M11.4 is set to
+DONE below, which releases the M48.1 owner gate.
+
+Open item, honestly: the leftover engine daemon (pid 324) from the interrupted
+box start is still running. It is ours and healthy, but it was not shut down by
+the session that started it; the next `launcher stop` will retire it. Not a
+defect in M11.4, recorded so the state is not silently tidy.
