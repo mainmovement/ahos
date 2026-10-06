@@ -32,7 +32,7 @@
  *  - Wrong confirm codes are counted per identity and lock out after 5 tries.
  *  - Paper-buy quantity is capped.
  */
-import { randomInt } from "node:crypto";
+import { randomBytes, randomInt } from "node:crypto";
 import { recordControlAudit, sha256Hex, type Capability } from "./chat_control_gate";
 import { cleanDevMissionSummary } from "./dev_missions";
 
@@ -60,6 +60,8 @@ export type Identity = {
 
 export type PendingAction = {
   code: string;
+  /** Opaque handle for the dashboard (REDTEAM-19 F1). Never usable to confirm. */
+  ref: string;
   kind: ActionKind;
   params: ActionParams;
   identityKey: string;
@@ -70,7 +72,16 @@ export type PendingAction = {
   summaryHash: string | null;
 };
 
-export type PublicPendingAction = { code: string; kind: ActionKind; summaryFa: string; expiresAt: string };
+/**
+ * What an HTTP response may carry about a pending action. REDTEAM-19 F1: the
+ * one-time confirm code is NOT part of it. A JSON body that contained the code
+ * let any caller that could open a proposal read the code and confirm it in a
+ * second scripted request, with no human in the loop. The code reaches the
+ * owner only through the owner channel: the Telegram chat (the bot relays the
+ * proposal text to the admin) or the dashboard's session-only reveal
+ * (`revealPendingCode`, /api/chat/pending).
+ */
+export type PublicPendingAction = { ref: string; kind: ActionKind; summaryFa: string; expiresAt: string };
 
 export const ACTION_TTL_MS = 5 * 60 * 1000;
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -176,6 +187,7 @@ export class PendingActionStore {
     const t = this.now();
     const a: PendingAction = {
       code,
+      ref: randomBytes(16).toString("hex"),
       kind,
       params,
       identityKey: identityKey(id),
@@ -191,6 +203,11 @@ export class PendingActionStore {
 
   get(code: string): PendingAction | undefined {
     return this.items.get(code);
+  }
+
+  getByRef(ref: string): PendingAction | undefined {
+    for (const a of this.items.values()) if (a.ref === ref) return a;
+    return undefined;
   }
 
   take(code: string): PendingAction | undefined {
@@ -252,22 +269,48 @@ export function parseConfirmation(text: string): { op: "confirm" | "cancel"; cod
 }
 
 export function toPublic(a: PendingAction): PublicPendingAction {
-  return { code: a.code, kind: a.kind, summaryFa: a.summaryFa, expiresAt: new Date(a.expiresAt).toISOString() };
+  return { ref: a.ref, kind: a.kind, summaryFa: a.summaryFa, expiresAt: new Date(a.expiresAt).toISOString() };
+}
+
+/**
+ * Dashboard owner channel (REDTEAM-19 F1): hand the confirm code of a pending
+ * action to the SAME verified dashboard session that it is bound to, and to
+ * nobody else. The route calling this accepts a verified session only (not
+ * the bearer, not a Telegram HMAC). Unknown, foreign, expired, or non-dashboard
+ * refs all return null without saying which.
+ */
+export function revealPendingCode(store: PendingActionStore, ref: unknown, id: Identity): string | null {
+  if (typeof ref !== "string" || !/^[0-9a-f]{32}$/.test(ref)) return null;
+  if (!id.proven || String(id.channel ?? "").toLowerCase() !== "dashboard") return null;
+  const a = store.getByRef(ref);
+  if (!a || a.identityKey !== identityKey(id) || store.isExpired(a)) return null;
+  return a.code;
 }
 
 export const DEV_MISSION_INTRO_FA =
   "حتماً! من خودم کد نمی‌نویسم، اما این درخواست را می‌توانم به‌عنوان یک ماموریت توسعه برای تیم مهندسی ثبت کنم.";
 
+/**
+ * The proposal text. It carries the confirm code ONLY for a Telegram-bound
+ * action: the bot relays this text to the admin's own Telegram chat, which is
+ * the owner channel, and the human types «تایید <code>» back. For every other
+ * identity (the dashboard) the text has no code; the dashboard reveals it to
+ * the bound session only (`revealPendingCode`) — REDTEAM-19 F1.
+ */
 export function proposalTextFa(a: PendingAction): string {
   const isMission = a.kind === "dev_mission";
+  const viaTelegram = a.identityKey.startsWith("telegram:");
   return [
     ...(isMission ? [DEV_MISSION_INTRO_FA, ""] : []),
     isMission ? "📝 این ماموریت توسعه آماده ثبت است (هنوز ثبت نشده):" : "📝 درخواست شما آماده اجراست (هنوز اجرا نشده):",
     `• ${a.summaryFa}`,
     "",
-    `برای ثبت: تایید ${a.code}`,
-    `برای انصراف: لغو ${a.code}`,
-    "این کد ۵ دقیقه اعتبار دارد و فقط یک‌بار قابل استفاده است.",
+    ...(viaTelegram
+      ? [`برای ثبت: تایید ${a.code}`, `برای انصراف: لغو ${a.code}`]
+      : ["برای ثبت: دکمهٔ «تایید» زیر همین پیام را بزن.", "برای انصراف: دکمهٔ «لغو»."]),
+    viaTelegram
+      ? "این کد ۵ دقیقه اعتبار دارد و فقط یک‌بار قابل استفاده است."
+      : "این درخواست ۵ دقیقه اعتبار دارد و فقط یک‌بار قابل تایید است.",
   ].join("\n");
 }
 

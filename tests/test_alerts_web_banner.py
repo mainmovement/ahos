@@ -11,7 +11,9 @@ def test_alerts_route_rechecks_canonical_buy_and_overlay():
     text = (ROOT / "app" / "api" / "alerts" / "route.ts").read_text(encoding="utf-8")
     assert "evaluateWebAlertBanner" in text
     assert "loadCanonicalReadModel" in text
-    assert "authorizeWebApi" in text
+    # Mission 9.5 gate (bearer OR verified session); see test_web_api_auth_gate.
+    assert "authorizeDashboardEndpoint(req)" in text
+    assert "if (denied) return denied" in text
     assert "active: true" not in text
 
 

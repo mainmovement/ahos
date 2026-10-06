@@ -9,7 +9,7 @@
 1. Copy `.env.example` → `.env`
 2. Set `TELEGRAM_BOT_TOKEN` from BotFather
 3. Set `TELEGRAM_ALLOWED_CHAT_IDS` to your chat id (empty allowlist is LOCKED unless `AHOS_TELEGRAM_ALLOW_OPEN_ACCESS=1`)
-4. Set matching `AHOS_WEB_API_TOKEN` and `NEXT_PUBLIC_AHOS_WEB_API_TOKEN` (or run `scripts\windows_ensure_web_api_token.ps1`)
+4. Set `AHOS_WEB_API_TOKEN` (server-side only; `NEXT_PUBLIC_AHOS_WEB_API_TOKEN` must stay unset) (or run `scripts\windows_ensure_web_api_token.ps1`)
 5. Start One-Brain: `npm run dev` (binds `127.0.0.1`)
 6. Set `AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat`
 7. Start Telegram domain service / bot per `docs/WINDOWS_OPERATOR_HANDOFF.md`

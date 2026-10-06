@@ -19,11 +19,11 @@
  *     AHOS_TELEGRAM_GATEWAY_SECRET over `user_id|timestamp|sha256(body)`.
  *     A ±300 s replay window and a constant-time compare are enforced, and the
  *     signature covers the exact request body, so `user_id` cannot be swapped.
- *  2. Dashboard browser -> gateway. `POST /api/auth/session` issues an
- *     httpOnly + SameSite=Lax session cookie plus a CSRF token (a second
- *     cookie the browser may read and must echo back in the `X-AHOS-CSRF`
- *     header). Both are HMAC-signed with AHOS_DASHBOARD_SESSION_SECRET.
- *     The browser holds no shared secret at all.
+ *  2. Dashboard browser -> gateway. `POST /api/auth/session` — gated on a
+ *     launcher-issued one-time bootstrap token (REDTEAM-19 F1) — issues an
+ *     httpOnly + SameSite=Strict session cookie plus a CSRF token in the
+ *     response body that the browser echoes in the `X-AHOS-CSRF` header.
+ *     Both are HMAC-signed with AHOS_DASHBOARD_SESSION_SECRET.
  *
  * Everything else — a bare bearer from a script, a body-asserted channel, a
  * header without a valid signature — resolves to `proven: false` and can never
@@ -31,17 +31,19 @@
  * `user_id` are still carried through to the audit as `channel_claimed` /
  * hashed id, exactly as before; they are simply no longer a grant.
  *
- * Pure apart from `issueDashboardSession` (which generates the tokens). No
- * network, no DB, no file writes. Run: npm run test:chat-auth
+ * Pure apart from `issueDashboardSession` (random tokens) and
+ * `consumeBootstrapToken` (reads/rewrites the boot-token file). No network,
+ * no DB. Run: npm run test:chat-auth
  */
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { readFileSync, renameSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 export const TG_UID_HEADER = "x-ahos-tg-uid";
 export const TG_TS_HEADER = "x-ahos-tg-ts";
 export const TG_SIG_HEADER = "x-ahos-tg-sig";
 export const CSRF_HEADER = "x-ahos-csrf";
 export const SID_COOKIE = "AHOS_SID";
-export const CSRF_COOKIE = "AHOS_CSRF";
 
 /** The bot and the gateway must agree to within this skew (both are local). */
 export const TG_REPLAY_WINDOW_MS = 300_000;
@@ -143,47 +145,175 @@ function verifySignedToken(secret: string, kind: string, raw: string, extra: str
   return id;
 }
 
+/**
+ * The session cookie name is namespaced per server instance: a short tag
+ * derived from AHOS_DASHBOARD_SESSION_SECRET (REDTEAM-19 F6). Cookies are not
+ * port-scoped, so a page or another AHOS checkout on a different 127.0.0.1
+ * port could otherwise plant or collide with a bare `AHOS_SID` cookie. A cookie
+ * issued under another secret has another name and is never even read; a
+ * forged value under our name still fails the HMAC.
+ */
+export function sessionCookieName(secret: string): string {
+  return `${SID_COOKIE}_${hmacHex(secret, "cookie-namespace").slice(0, 12)}`;
+}
+
 export type IssuedSession = { sessionId: string; csrfToken: string; cookies: string[] };
 
 /**
- * Mint a dashboard session: an httpOnly session id cookie plus a CSRF token
- * the browser may read and must echo in the `X-AHOS-CSRF` header. Returns null
- * when the server secret is unset or too short (fail closed).
+ * Mint a dashboard session: ONE httpOnly session id cookie (namespaced, see
+ * `sessionCookieName`) plus a CSRF token returned in the response BODY only.
+ * The browser keeps the token in origin-scoped storage (localStorage is
+ * per host:port, unlike cookies) and echoes it in the `X-AHOS-CSRF` header.
+ *
+ * There is deliberately no readable CSRF cookie any more (REDTEAM-19 F6):
+ * cookies are sent to every 127.0.0.1 port, so a local server on another port
+ * that the owner's browser talked to received BOTH the session and the CSRF
+ * cookie and could replay them. The session cookie alone is useless without
+ * the header token. Returns null when the secret is unset/short (fail closed).
+ *
+ * Callers must gate this on `checkSessionIssuance` + `consumeBootstrapToken`;
+ * it does no request checks itself.
  */
 export function issueDashboardSession(env: EnvMap = process.env): IssuedSession | null {
   const secret = readSecret(env, "AHOS_DASHBOARD_SESSION_SECRET");
   if (!secret) return null;
   const sessionId = randomBytes(24).toString("hex");
-  const csrfToken = randomBytes(18).toString("hex");
+  const csrfToken = signToken(secret, "csrf", randomBytes(18).toString("hex"), sessionId);
   const sidCookie = signToken(secret, "sid", sessionId, "");
-  const csrfCookie = signToken(secret, "csrf", csrfToken, sessionId);
-  const common = `Path=/; Max-Age=${SESSION_MAX_AGE_S}; SameSite=Lax`;
   const cookies = [
-    `${SID_COOKIE}=${sidCookie}; HttpOnly; ${common}`,
-    `${CSRF_COOKIE}=${csrfCookie}; ${common}`,
+    `${sessionCookieName(secret)}=${sidCookie}; HttpOnly; Path=/; Max-Age=${SESSION_MAX_AGE_S}; SameSite=Strict`,
   ];
   return { sessionId, csrfToken, cookies };
 }
 
 /**
  * Verify the session cookie AND that the request carries its bound CSRF token
- * (either in the echo header or the readable cookie — the browser sends both).
- * Fail closed on any missing piece, a bad signature, or a token bound to a
- * different session id.
+ * in the `X-AHOS-CSRF` header. Fail closed on any missing piece, a bad
+ * signature, or a token bound to a different session id.
+ *
+ * The header is mandatory: a cross-origin page cannot set a custom header
+ * without a CORS preflight, which this server never answers with
+ * Access-Control-Allow-Origin, and it cannot read the token (it lives in the
+ * dashboard origin's localStorage, not in a cookie).
  */
 export function verifyDashboardSession(headers: Headers, env: EnvMap = process.env): SessionProof {
   const secret = readSecret(env, "AHOS_DASHBOARD_SESSION_SECRET");
   if (!secret) return { ok: false, reason: "NO_SERVER_SECRET" };
   const cookies = readCookies(headers.get("cookie"));
-  const sidRaw = cookies.get(SID_COOKIE);
+  const sidRaw = cookies.get(sessionCookieName(secret));
   if (!sidRaw) return { ok: false, reason: "NO_SESSION_COOKIE" };
   const sessionId = verifySignedToken(secret, "sid", sidRaw, "");
   if (!sessionId) return { ok: false, reason: "BAD_SESSION_SIGNATURE" };
-  const csrfRaw = headers.get(CSRF_HEADER) || cookies.get(CSRF_COOKIE);
+  const csrfRaw = headers.get(CSRF_HEADER);
   if (!csrfRaw) return { ok: false, reason: "NO_CSRF_TOKEN" };
-  const csrfId = verifySignedToken(secret, "csrf", csrfRaw, sessionId);
+  const csrfId = verifySignedToken(secret, "csrf", csrfRaw.trim(), sessionId);
   if (!csrfId) return { ok: false, reason: "BAD_CSRF_TOKEN" };
   return { ok: true, sessionId };
+}
+
+// --------------------------------------------- session bootstrap (F1) --
+
+/**
+ * REDTEAM-19 F1: reaching 127.0.0.1 is NOT proof of being the owner. Any local
+ * process, another OS user, a local service with SSRF, or a TCP forwarder can
+ * reach the loopback listener, and the old issuance (loopback + an
+ * x-forwarded-for value the client controls) minted owner sessions for all of
+ * them. Issuance now needs a ONE-TIME bootstrap token that only the launcher
+ * (or `python -m launcher bootstrap-url`) creates and hands to the owner's
+ * browser in the URL fragment it opens.
+ *
+ * Server side only the sha256 of each token is stored, in a JSON file in the
+ * launcher state dir (`AHOS_DASHBOARD_BOOT_FILE`, default
+ * `<AHOS_DATA_DIR|./data>/launcher/dashboard_boot.json`). Tokens expire after a
+ * short TTL and are removed on first use. The token is never logged, never a
+ * NEXT_PUBLIC value, and never in a status report.
+ */
+export const BOOT_FILE_ENV = "AHOS_DASHBOARD_BOOT_FILE";
+
+export function defaultBootFile(env: EnvMap = process.env): string {
+  const explicit = String(env.AHOS_DASHBOARD_BOOT_FILE ?? "").trim();
+  if (explicit) return explicit;
+  const dataDir = String(env.AHOS_DATA_DIR ?? "").trim() || join(process.cwd(), "data");
+  return join(dataDir, "launcher", "dashboard_boot.json");
+}
+
+type BootEntry = { sha256: string; expires_ts: number; issued_ts?: number };
+
+function sha256Hex(s: string): string {
+  return createHash("sha256").update(s, "utf8").digest("hex");
+}
+
+export type BootResult = { ok: true } | { ok: false; reason: string };
+
+/**
+ * Consume a bootstrap token: true exactly once per token, before expiry.
+ * Fails closed on a missing/corrupt file, a malformed token, an unknown or
+ * expired token. The matched entry (and every expired one) is removed with an
+ * atomic rewrite; the read-modify-write is synchronous, so two requests in this
+ * process cannot both consume the same token.
+ */
+export function consumeBootstrapToken(
+  token: unknown,
+  opts: { file?: string; now?: number; env?: EnvMap } = {},
+): BootResult {
+  const raw = typeof token === "string" ? token.trim() : "";
+  if (!/^[0-9a-f]{32,128}$/.test(raw)) return { ok: false, reason: "NO_BOOT_TOKEN" };
+  const file = opts.file ?? defaultBootFile(opts.env ?? process.env);
+  const nowS = (opts.now ?? Date.now()) / 1000;
+  let entries: BootEntry[];
+  try {
+    const doc = JSON.parse(readFileSync(file, "utf8")) as { tokens?: unknown };
+    entries = Array.isArray(doc.tokens) ? (doc.tokens as BootEntry[]) : [];
+  } catch {
+    return { ok: false, reason: "BOOT_STORE_UNAVAILABLE" };
+  }
+  const want = sha256Hex(raw);
+  let hit = false;
+  const keep: BootEntry[] = [];
+  for (const e of entries) {
+    if (!e || typeof e.sha256 !== "string" || typeof e.expires_ts !== "number") continue;
+    if (e.expires_ts <= nowS) continue; // expired: drop
+    if (!hit && constTimeEqual(e.sha256, want)) {
+      hit = true; // single use: drop it
+      continue;
+    }
+    keep.push(e);
+  }
+  try {
+    const tmp = `${file}.${process.pid}.tmp`;
+    writeFileSync(tmp, JSON.stringify({ version: 1, tokens: keep }), { encoding: "utf8", mode: 0o600 });
+    renameSync(tmp, file);
+  } catch {
+    // A token we could not remove must not be accepted (it would stay replayable).
+    return { ok: false, reason: "BOOT_STORE_UNWRITABLE" };
+  }
+  return hit ? { ok: true } : { ok: false, reason: "BAD_OR_EXPIRED_BOOT_TOKEN" };
+}
+
+const LOOPBACK_HOST = /^(127\.0\.0\.1|localhost|\[::1\])(:\d{1,5})?$/;
+
+/**
+ * Request-shape checks for POST /api/auth/session (all must pass):
+ *  - a Host header that is exactly a loopback name (+ optional port), so a
+ *    DNS-rebinding page (`evil.example`, `127.0.0.1.evil.example`) is refused;
+ *  - `Sec-Fetch-Site` present and `same-origin` or `none`: every current
+ *    browser sends it, and a cross-site or same-site-other-port page gets
+ *    `cross-site`/`same-site`;
+ *  - `Origin`, when present, exactly `http://<Host>`.
+ * x-forwarded-for is deliberately NOT consulted: Next copies a client-supplied
+ * value verbatim, so it proves nothing (REDTEAM-19 F1). These checks narrow the
+ * browser attack surface; the bootstrap token is what proves the owner.
+ */
+export function checkSessionIssuance(req: Request): BootResult {
+  const host = String(req.headers.get("host") ?? "").trim().toLowerCase();
+  if (!host || !LOOPBACK_HOST.test(host)) return { ok: false, reason: "HOST_NOT_LOOPBACK" };
+  const site = String(req.headers.get("sec-fetch-site") ?? "").trim().toLowerCase();
+  if (site !== "same-origin" && site !== "none") return { ok: false, reason: "SEC_FETCH_SITE_REFUSED" };
+  const origin = req.headers.get("origin");
+  if (origin !== null && origin.trim().toLowerCase() !== `http://${host}`) {
+    return { ok: false, reason: "ORIGIN_MISMATCH" };
+  }
+  return { ok: true };
 }
 
 // ------------------------------------------------------- route integration --
@@ -233,45 +363,70 @@ export function resolveChatIdentity(args: {
   };
 }
 
-/** Addresses that count as "this machine" for the loopback guard. */
-const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]", "::1"]);
-
-function isLoopbackHost(host: string): boolean {
-  // A Host header may carry a port (127.0.0.1:8300) — strip it before matching,
-  // but leave bracketed IPv6 intact so [::1]:8300 still matches [::1].
-  const lower = host.trim().toLowerCase();
-  const noPort = lower.startsWith("[")
-    ? lower.slice(0, lower.indexOf("]") + 1) || lower
-    : lower.split(":")[0];
-  return LOOPBACK_HOSTS.has(noPort);
+/**
+ * Parse the raw /api/chat body into a plain object; anything else -> {}.
+ *
+ * The route hashes the exact bytes first (Telegram HMAC), then parses. It used
+ * `await JSON.parse(raw).catch(...)`, but JSON.parse is synchronous and returns
+ * a plain value with no .catch, so EVERY chat request threw "JSON.parse(...)
+ * .catch is not a function" and answered with an internal-error reply (since
+ * 0638643). Malformed JSON, arrays, null and primitives all map to {}.
+ */
+export function parseChatBody(raw: string): Record<string, unknown> {
+  try {
+    const v: unknown = JSON.parse(raw);
+    return v !== null && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
 }
 
-/** True when the request arrived over the loopback dashboard listener.
+const BOOT_HINT =
+  "Open the dashboard from the AHOS launcher, or run `python -m launcher bootstrap-url` and open the printed URL.";
 
-The Next.js dev server proxies *every* request through its own local router,
-which appends `x-forwarded-for: 127.0.0.1` and `x-forwarded-host` even to a
-caller that connected directly to the loopback listener. Rejecting on the mere
-*presence* of a forwarded header therefore locks the dashboard panel out of its
-own route in development — observed live as a 403 LOOPBACK_REQUIRED on a raw
-loopback socket. The guard instead inspects the chain: every hop must be
-loopback. A forwarded request whose first hop is another machine is still
-rejected, which is the threat the check exists for (an off-host caller cannot
-lie its way past it, because the hop closest to us is the one we can see). */
-export function isLoopbackRequest(req: Request): boolean {
-  const xff = req.headers.get("x-forwarded-for");
-  if (xff) {
-    // Every hop in the comma-separated chain must be loopback; a chain that
-    // left the machine has at least one non-loopback address in it.
-    const hops = xff.split(",").map((h) => h.trim());
-    if (!hops.every((h) => isLoopbackHost(h))) return false;
+/**
+ * The whole POST /api/auth/session decision, kept here (not in the route) so
+ * the attack reproductions in scripts/chat_auth_selftest.ts exercise exactly
+ * what the server runs. Order: request shape (403) -> server secret (503,
+ * checked before the token so a misconfigured server never burns it) ->
+ * one-time bootstrap token (401) -> session.
+ */
+export async function handleSessionIssuance(
+  req: Request,
+  opts: { env?: EnvMap; bootFile?: string; now?: number } = {},
+): Promise<Response> {
+  const env = opts.env ?? process.env;
+  const shape = checkSessionIssuance(req);
+  if (!shape.ok) {
+    return Response.json({ ok: false, error: "SESSION_ISSUANCE_REFUSED", reason: shape.reason }, { status: 403 });
   }
-  const host = String(req.headers.get("host") ?? "");
-  if (isLoopbackHost(host)) return true;
-  // The Host header is absent on a bare Request object; fall back to the URL.
+  let boot: unknown = null;
   try {
-    const u = new URL(req.url);
-    return isLoopbackHost(u.hostname) || u.hostname === "[::1]";
+    const body = (await req.json()) as { boot?: unknown } | null;
+    boot = body && typeof body === "object" ? body.boot : null;
   } catch {
-    return false;
+    boot = null;
   }
+  const issued = issueDashboardSession(env);
+  if (!issued) {
+    return Response.json(
+      {
+        ok: false,
+        error: "SESSION_SECRET_UNAVAILABLE",
+        hint: "AHOS_DASHBOARD_SESSION_SECRET must be set server-side (>= 16 chars).",
+      },
+      { status: 503 },
+    );
+  }
+  const consumed = consumeBootstrapToken(boot, { file: opts.bootFile, now: opts.now, env });
+  if (!consumed.ok) {
+    // A fixed reason code; the token itself is never echoed or logged.
+    return Response.json(
+      { ok: false, error: "BOOTSTRAP_TOKEN_REQUIRED", reason: consumed.reason, hint: BOOT_HINT },
+      { status: 401 },
+    );
+  }
+  const headers = new Headers({ "Cache-Control": "no-store" });
+  for (const c of issued.cookies) headers.append("Set-Cookie", c);
+  return Response.json({ ok: true, csrfToken: issued.csrfToken, csrfHeader: CSRF_HEADER }, { headers });
 }

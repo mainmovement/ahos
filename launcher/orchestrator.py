@@ -110,6 +110,16 @@ class AhosOrchestrator:
         port = int(self.gateway.get("port") or 3000)
         return f"http://{host}:{port}/"
 
+    def bootstrap_url(self) -> str:
+        """A fresh one-time dashboard login URL (``#boot=<token>``).
+
+        Used when the launcher opens the browser, and by
+        ``python -m launcher bootstrap-url`` for a browser opened by hand.
+        Callers must not log the result; it is a short-lived credential.
+        """
+        token = C.issue_dashboard_boot_token(C.dashboard_boot_file(self.state_dir))
+        return C.bootstrap_url(self.dashboard_url(), token)
+
     def report_name(self) -> str:
         ts = datetime.fromtimestamp(self.clock(), timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         return f"status_{ts}.json"
@@ -577,7 +587,10 @@ class AhosOrchestrator:
         self.emit(P.PROGRESS["preflight"])
         pf = self.preflight()
         for chk in pf.checks:
-            if not chk["ok"]:
+            # Soft findings (pf.warnings, e.g. no Gemini credential) are not a
+            # failed service; printing "a service did not run" for them made a
+            # fully ONLINE start open with an error line.
+            if not chk["ok"] and chk["detail"] not in pf.warnings:
                 kind = {"venv": "venv", "node_modules": "node", "repo": "repo"}.get(
                     chk["name"], "generic")
                 self.emit(P.error(kind, action=P.ACTIONS.get(
@@ -665,7 +678,7 @@ class AhosOrchestrator:
         if overall in ("ONLINE", "DEGRADED") and results.get("gateway") and \
                 results["gateway"].status == C.HEALTHY and self.open_dashboard and not idle:
             self.emit(P.PROGRESS["dashboard"])
-            pk.open_url(self.dashboard_url())
+            pk.open_url(self.bootstrap_url())
 
         self.emit(P.PROGRESS["done_online"] if overall == "ONLINE"
                   else P.PROGRESS["done_degraded"])

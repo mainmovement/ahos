@@ -3,7 +3,7 @@
 > **CURRENT PATH (2026-08-28, post PR #31):** Do **not** start soak from this page until Windows operator gates pass.
 > Canonical handoff: `docs/WINDOWS_OPERATOR_HANDOFF.md` · one-shot: `scripts/windows_post_merge_reconcile.ps1` then `scripts/windows_run_operator_gate.ps1` (PR #32) · or:
 > `python scripts\operator_validation_gate.py --platform windows --probe-providers --backup-drill`
-> Requires: `DATABASE_URL`, matching `AHOS_WEB_API_TOKEN` + `NEXT_PUBLIC_AHOS_WEB_API_TOKEN`, `npm run dev` on `127.0.0.1:3000`.
+> Requires: `DATABASE_URL`, `AHOS_WEB_API_TOKEN` (server-side only; no `NEXT_PUBLIC_` copy), `npm run dev` on `127.0.0.1:3000`.
 > **STATE B:** do **not** `db:migrate` / `db:push`. **OPERATOR_READY** is NOT invented by this quickstart.
 
 ---

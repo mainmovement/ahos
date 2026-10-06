@@ -256,7 +256,7 @@ Verified end to end after the fix: `record_test_run.py --out reports/validate_im
 - Push #4: `e112d01..77984ce` — `fix(evidence): anchor the recorder's relative executable so it launches on Windows` (M-GAP-036). Changeset `scripts/record_test_run.py` + `tests/test_sqlite_backup_restore.py` + this register.
 - Push #5: `77984ce..e97ea90` — `fix(evidence): refuse to overwrite an existing artifact unless --force is passed`. Same two code files plus this register.
 
-Final state, all four checks verified: local HEAD `e97ea903584545bbb6a6c828162d29d99c4511dd`, remote `refs/heads/ahos` identical, upstream `origin/ahos` tracked, divergence `0 0`. Working tree holds only the three pre-existing `.cursor` items (not mine, not committed) plus one deliberately untracked probe artifact `reports/validate_imports_run_20260928T045640Z.json` — uncommitted because its `FAIL` verdict is entirely the M-GAP-037 gitignored-artifact condition and would read as a real validation failure without that context. Gates across both: IMPORTS OK, EVIDENCE-BOUNDARY OK, **LANE-A FREEZE OK (36 files)**, SECRETS OK; `tests/test_sqlite_backup_restore.py` 10 passed. No `main` push, no force-push, no merge, no release, no live trading, no governance or maturity change.
+Final state, all four checks verified: local HEAD `e97ea903584545bbb6a6c828162d29d99c4511dd`, remote `refs/heads/ahos` identical, upstream `origin/ahos` tracked, divergence `0 0`. Working tree holds only the three pre-existing `.cursor` items (not mine, not committed) plus one deliberately untracked import-validation probe JSON (run 20260928T045640Z; never committed) — uncommitted because its `FAIL` verdict is entirely the M-GAP-037 gitignored-artifact condition and would read as a real validation failure without that context. Gates across both: IMPORTS OK, EVIDENCE-BOUNDARY OK, **LANE-A FREEZE OK (36 files)**, SECRETS OK; `tests/test_sqlite_backup_restore.py` 10 passed. No `main` push, no force-push, no merge, no release, no live trading, no governance or maturity change.
 
 **Session tally (2026-09-28):** 5 governed pushes, 4 defects found in the local soak-evidence pipeline. M-GAP-033 (collection blocked), M-GAP-034 (timeout), M-GAP-036 (Windows launch) are CLOSED with regression tests; M-GAP-037 (validator fails on every warm host) is **now RESOLVED by Option A** — see Addendum (8). One structural finding, M-GAP-035 (three control-plane surfaces, two test-only, the daemon consults none), recorded without code change because the choice of which plane is canonical needs review. All four were unreachable before today: M-GAP-033 unblocked the suite, and the other three were behind it.
 
@@ -332,7 +332,7 @@ reconciliation`. Changeset was `docs/governance/M3_CONSTITUTIONAL_AND_KNOWLEDGE_
 plane component touched. All four checks verified: local HEAD
 `21d810407ec0e8e6a45128a001122dc47610e94b`, remote `refs/heads/ahos` identical, upstream
 `origin/ahos` tracked, divergence `0 0`. The three pre-existing `.cursor` working-tree items and
-the untracked `reports/validate_imports_run_20260928T045640Z.json` probe were again excluded.
+the untracked import-validation probe JSON (run 20260928T045640Z) were again excluded.
 Gates: IMPORTS FAIL is the known M-GAP-037 gitignored-artifact condition with zero substantive
 violations (the only non-artifact output is the unchanged 10-record dead-code candidate list);
 **LANE-A FREEZE OK (36 files)**; `tests/test_master_directive.py` + `tests/test_agent_taxonomy_map.py`
@@ -454,8 +454,8 @@ Windows path-separator difference (`pkg\__pycache__`) is handled separator-agnos
 
 **Not done, deliberately:** `AHOS_LOCAL_SOAK_PROTOCOL.md` was not changed — the documented command
 `.venv/bin/python scripts/validate_imports.py` is exactly what now passes, so no documentation
-diverges. The soak was not started. No commit of the probe artifact
-`reports/validate_imports_run_20260928T045640Z.json`, whose `FAIL` verdict predates the fix.
+diverges. The soak was not started. No commit of the untracked
+import-validation probe JSON (run 20260928T045640Z), whose `FAIL` verdict predates the fix.
 
 ---
 
@@ -548,7 +548,8 @@ in the matrix (crash-injection scenarios); only the redundant local `import subp
 call site was removed. `RUNTIME_EFFECT = NONE`.
 
 **No R-series entry**, by the convention established at Addendum (9): gap state lives in this
-register. The soak was not started, and `reports/PRE_SOAK_STATUS.txt` still reads
+register. The soak was not started, and the generated pre-soak status (written by
+`scripts/operator_validation_gate.py`; gitignored, never in the repo) still reads
 `pre_soak_entry_ok=False` (G2/G3/G10 `NOT_VERIFIED`) — a green pytest is necessary evidence, not the
 entry condition.
 
@@ -632,4 +633,4 @@ the snapshot. No readiness claim was added — the report's `READY_FOR_REAL_LOCA
 is unchanged, and the note explicitly does not promote it.
 
 **No R-series entry**, by the convention established at Addendum (9). The soak was not started;
-`reports/PRE_SOAK_STATUS.txt` still reads `pre_soak_entry_ok=False`.
+the generated pre-soak status (gitignored) still reads `pre_soak_entry_ok=False`.

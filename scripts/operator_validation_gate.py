@@ -188,8 +188,8 @@ def _web_api_auth_blocked(code: int, body: str, url: str, *,
     if "WEB_API_LOCKED_NO_TOKEN" in blob:
         return _gate(
             "G2", "Gateway", "BLOCKED",
-            "HTTP 401 WEB_API_LOCKED_NO_TOKEN — set AHOS_WEB_API_TOKEN and "
-            "NEXT_PUBLIC_AHOS_WEB_API_TOKEN (same value) in .env, or run "
+            "HTTP 401 WEB_API_LOCKED_NO_TOKEN — set AHOS_WEB_API_TOKEN in .env "
+            "(server-side only; never a NEXT_PUBLIC_ copy), or run "
             "scripts\\windows_ensure_web_api_token.ps1, then restart npm run dev",
             artifact=body[:200], http_status=code, url=url,
             database_url_set=db_url_set, web_api_token_set=token_set,
@@ -795,7 +795,6 @@ def main(argv: list[str] | None = None) -> int:
         loaded = load_dotenv(ROOT / ".env")
         for key in (
             "AHOS_WEB_API_TOKEN",
-            "NEXT_PUBLIC_AHOS_WEB_API_TOKEN",
             "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
             "DATABASE_URL",
             "AHOS_GATEWAY_URL",

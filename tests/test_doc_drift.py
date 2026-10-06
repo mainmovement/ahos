@@ -75,7 +75,10 @@ def test_intentional_refs_are_ignored(tmp_path, monkeypatch):
 def test_intentional_reasons_are_substantive():
     for ref, reason in dd.INTENTIONAL_REFS.items():
         assert len(reason) > 20, f"{ref} ignore reason too thin"
-        assert not (ROOT / ref).exists(), (
+        # Same existence rule the scanner uses (tracked in git when ROOT is a
+        # work tree), so an untracked local copy of a cited artifact cannot make
+        # this pass on one machine and fail on another.
+        assert not dd._exists(ref), (
             f"{ref} exists but is listed as intentional — move it to a real fix")
 
 
@@ -120,3 +123,46 @@ def test_malformed_jsonl_and_sha256_extensions_are_reported(tmp_path, monkeypatc
     out = _scan_in(tmp_path, monkeypatch, p)
     refs = {row["reference"] for row in next(iter(out.values()))}
     assert refs == {"jsonll", "pya256"}
+
+
+def test_only_tracked_files_satisfy_a_reference(tmp_path, monkeypatch):
+    """Blocker A / GM-01 + REDTEAM-19 F5 / QA MAJOR-1: inside a git work tree
+    only a TRACKED file counts. A stray untracked copy, and equally a gitignored
+    generated/runtime artifact that some earlier run left on disk, must not,
+    or the verdict depends on one machine's leftovers or on test order."""
+    import subprocess
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / ".gitignore").write_text("data/\n", encoding="utf-8")
+    (tmp_path / "reports").mkdir()
+    (tmp_path / "reports" / "tracked.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "reports" / "stray.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "runtime.sqlite").write_text("", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", ".gitignore", "reports/tracked.json"],
+                   check=True)
+    monkeypatch.setattr(dd, "_TRACKED_CACHE", {})
+    p = _doc(tmp_path, "see reports/tracked.json, reports/stray.json and data/runtime.sqlite")
+    out = _scan_in(tmp_path, monkeypatch, p)
+    refs = sorted(d["reference"] for v in out.values() for d in v)
+    assert refs == ["data/runtime.sqlite", "reports/stray.json"]
+
+
+def test_canonical_docs_verdict_does_not_depend_on_generated_artifacts(tmp_path, monkeypatch):
+    """QA MAJOR-1: the canonical-docs verdict is the same with and without the
+    gitignored files that tools/tests generate into the checkout (simulated by
+    an ignored file appearing on disk mid-session)."""
+    gen = dd.ROOT / "reports" / "PRE_SOAK_STATUS.txt"
+    before = dd.scan_docs()
+    existed = gen.exists()
+    saved = gen.read_bytes() if existed else None
+    try:
+        gen.write_text("pre_soak_entry_ok=False\n", encoding="utf-8")
+        with_file = dd.scan_docs()
+        gen.unlink()
+        without_file = dd.scan_docs()
+    finally:
+        if existed:
+            gen.write_bytes(saved)
+        elif gen.exists():
+            gen.unlink()
+    assert before == with_file == without_file == {}

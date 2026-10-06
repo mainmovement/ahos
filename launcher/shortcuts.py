@@ -21,7 +21,7 @@ import shutil
 import subprocess
 import sys
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 ACTIONS = {"start": "AHOS"}
 
@@ -53,12 +53,15 @@ def shortcut_specs(root: Path, icon: Path,
     """Pure: what each shortcut should point at. No filesystem writes."""
     root = Path(root).resolve()
     icon = Path(icon).resolve()
-    ps = Path(sys.executable).resolve()
-    # Prefer the system PowerShell console for the .lnk target; it exists on
-    # every supported Windows box regardless of how AHOS itself was installed.
-    powershell = Path(os.environ.get("SystemRoot", r"C:\Windows")) / \
+    # The .lnk target is always Windows PowerShell 5.1: it ships with every
+    # supported Windows and is the only host the arguments below are valid for.
+    # (The old fallback to sys.executable produced a shortcut that ran
+    # ``python.exe -NoProfile -ExecutionPolicy Bypass ...``, which can never
+    # start.) PureWindowsPath keeps the string correct even when the specs are
+    # computed on a non-Windows host (tests, review boxes).
+    powershell = PureWindowsPath(os.environ.get("SystemRoot") or r"C:\Windows") / \
         "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
-    target = str(powershell) if powershell.exists() else str(ps)
+    target = str(powershell)
     script = str(root / "launcher" / "ahos.ps1")
     specs = []
     for action, label in ACTIONS.items():

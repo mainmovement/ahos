@@ -131,9 +131,20 @@ def preflight(verbose: bool = True) -> tuple[bool, list[str]]:
         notes.append(f"❌ لایه تحلیل بالا نیامد: {type(e).__name__}: {e}")
 
     allowed = _ids(os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS"))
-    notes.append(f"🔒 دسترسی محدود به {len(allowed)} چت." if allowed
-                 else "⚠️ TELEGRAM_ALLOWED_CHAT_IDS خالی است — "
-                      "هرکسی که آدرس ربات را بداند می‌تواند از آن استفاده کند.")
+    # Must describe what TelegramAdapter.is_authorized actually does: an empty
+    # allowlist is FAIL-CLOSED unless AHOS_TELEGRAM_ALLOW_OPEN_ACCESS is set.
+    # (The old text claimed the opposite - "anyone can use it" - which is false
+    # by default and pushes the owner to "fix" it by opening access.)
+    open_access = (os.environ.get("AHOS_TELEGRAM_ALLOW_OPEN_ACCESS") or "").strip().lower() \
+        in {"1", "true", "yes", "on"}
+    if allowed:
+        notes.append(f"🔒 دسترسی محدود به {len(allowed)} چت.")
+    elif open_access:
+        notes.append("⚠️ TELEGRAM_ALLOWED_CHAT_IDS خالی است و AHOS_TELEGRAM_ALLOW_OPEN_ACCESS=1 — "
+                     "هرکسی که آدرس ربات را بداند می‌تواند از آن استفاده کند (فقط برای آزمایش محلی).")
+    else:
+        notes.append("🔒 TELEGRAM_ALLOWED_CHAT_IDS خالی است — ربات به هیچ‌کس پاسخ نمی‌دهد "
+                     "(قفل پیش‌فرض). شناسهٔ چت خودتان را در .env بگذارید.")
 
     # Live connectivity last: it is the slowest and the most likely to fail.
     if token:

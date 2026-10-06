@@ -128,7 +128,9 @@ def test_snapshot_overlays_canonical_and_command_center_does_not_green_watch():
 
 def test_canonical_api_route_is_auth_gated():
     src = (ROOT / "app" / "api" / "canonical" / "route.ts").read_text(encoding="utf-8")
-    assert "authorizeWebApi" in src
+    # Mission 9.5 gate (bearer OR verified session); see test_web_api_auth_gate.
+    assert "authorizeDashboardEndpoint(req)" in src
+    assert "if (denied) return denied" in src
     assert "loadCanonicalReadModel" in src
 
 
@@ -229,8 +231,16 @@ def test_paper_api_requires_canonical_buy():
     src = (ROOT / "app" / "api" / "paper" / "route.ts").read_text(encoding="utf-8")
     assert "paperAllowedFromCanonical" in src
     assert "CANONICAL_PAPER_DENIED" in src
+    # Phase 7b moved chat-initiated paper buys behind the confirm gate in
+    # chat_actions.ts (the same functions the dashboard routes use). chat.ts
+    # must not write paper rows itself; the canonical BUY check must run in
+    # chat_actions' paperBuy before engine.addPaper.
     chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
-    assert "paperAllowedFromCanonical" in chat
-    assert "CANONICAL_PAPER_DENIED" in chat
+    assert "addPaper(" not in chat
+    assert "./chat_actions" in chat
+    actions = (ROOT / "chat_actions.ts").read_text(encoding="utf-8")
+    paper_buy = actions.split("paperBuy: async")[1].split("recordDevMission")[0]
+    assert "paperAllowedFromCanonical(" in paper_buy
+    assert paper_buy.index("paperAllowedFromCanonical(") < paper_buy.index("addPaper(")
 
 

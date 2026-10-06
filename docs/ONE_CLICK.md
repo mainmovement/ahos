@@ -758,3 +758,16 @@ recorded in place of silence.
 `VERIFIED` — the difference is the owner-read receipt, and it is the owner's to
 give. The stack is stopped.
 
+## Dashboard bootstrap (one-time `#boot=` token)
+
+Session issuance requires a one-time bootstrap token. After `python -m launcher start`
+opens the dashboard, the URL fragment carries `#boot=<token>` (5 minutes, single use).
+If you open the dashboard by hand, print a fresh URL:
+
+```bash
+python -m launcher bootstrap-url
+```
+
+Paste that URL into a browser on this machine. Do not share the token; it is single-use.
+CSRF continues to be required on every later API call via the `X-AHOS-CSRF` header.
+

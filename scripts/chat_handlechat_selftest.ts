@@ -25,7 +25,7 @@ import { describe, it } from "node:test";
 import { handleChat, setChatTestDeps, type ChatResponse } from "../chat.ts";
 import { failClosedCommandSnapshot } from "../snapshot.ts";
 import { loadCanonicalReadModel } from "../canonical_read_model.ts";
-import { PendingActionStore, type ActionDeps, type Identity } from "../chat_actions.ts";
+import { PendingActionStore, revealPendingCode, type ActionDeps, type Identity } from "../chat_actions.ts";
 import { verifyAuditLines } from "../chat_control_gate.ts";
 
 type Snap = Awaited<ReturnType<typeof failClosedCommandSnapshot>>;
@@ -118,6 +118,12 @@ function harness(withOpp = false): Harness {
   };
 }
 
+/** The confirm code of a proposal, read from the harness's own store (the
+ * public response carries only an opaque ref since REDTEAM-19 F1). */
+function codeOf(h: { store: PendingActionStore }, r: ChatResponse): string {
+  return h.store.getByRef(r.pendingAction?.ref ?? "")?.code ?? "";
+}
+
 /** Every audit line the harness wrote, across all tests (append-only file). */
 function auditEntries(): Array<{ decision: string; reason: string }> {
   try {
@@ -175,7 +181,11 @@ describe("MJ-12 handleChat behavioural harness", () => {
     const h = harness();
     const r = await h.run(STOP_TEXT, OWNER);
     assert.equal(r.intent, "proposal");
-    assert.ok(r.pendingAction?.code, "a one-time code is returned to the owner");
+    assert.ok(r.pendingAction?.ref, "an opaque ref is returned for the pending action");
+    // REDTEAM-19 F1: the code is never in the structured response...
+    assert.equal("code" in (r.pendingAction ?? {}), false);
+    // ...it reaches a Telegram owner only in the text the bot relays to the admin chat.
+    assert.ok(r.reply.includes(`تایید ${codeOf(h, r)}`));
     assert.match(r.reply, /تأیید|تایید/);
     assert.deepEqual(h.executed, []); // nothing ran: only a proposal exists
     assert.ok(auditDecisions().includes("PROPOSED"));
@@ -184,7 +194,7 @@ describe("MJ-12 handleChat behavioural harness", () => {
   it("an owner confirming the code executes through the injected deps once", async () => {
     const h = harness();
     const p = await h.run(STOP_TEXT, OWNER);
-    const code = p.pendingAction?.code ?? "";
+    const code = codeOf(h, p);
     const r = await h.run(`تایید ${code}`, OWNER);
     assert.equal(r.intent, "confirm");
     assert.deepEqual(h.executed, ["stop"]); // single use, executed exactly once
@@ -212,7 +222,7 @@ describe("MJ-12 handleChat behavioural harness", () => {
   it("five wrong codes lock the identity out", async () => {
     const h = harness();
     const p = await h.run(STOP_TEXT, OWNER);
-    const code = p.pendingAction?.code ?? "";
+    const code = codeOf(h, p);
     for (let i = 0; i < 5; i++) await h.run("تایید ZZZZZZ", OWNER);
     const r = await h.run(`تایید ${code}`, OWNER); // even the real code is refused now
     assert.deepEqual(h.executed, []);
@@ -222,7 +232,7 @@ describe("MJ-12 handleChat behavioural harness", () => {
   it("an expired code does not execute", async () => {
     const h = harness();
     const p = await h.run(STOP_TEXT, OWNER);
-    const code = p.pendingAction?.code ?? "";
+    const code = codeOf(h, p);
     clock = 6 * 60 * 1000; // past the 5-minute TTL
     const r = await h.run(`تایید ${code}`, OWNER);
     assert.deepEqual(h.executed, []);
@@ -233,7 +243,7 @@ describe("MJ-12 handleChat behavioural harness", () => {
   it("an owner can cancel a proposal and nothing executes", async () => {
     const h = harness();
     const p = await h.run(STOP_TEXT, OWNER);
-    const code = p.pendingAction?.code ?? "";
+    const code = codeOf(h, p);
     const r = await h.run(`لغو ${code}`, OWNER);
     assert.deepEqual(h.executed, []);
     assert.match(r.reply, /لغو شد/);
@@ -243,7 +253,7 @@ describe("MJ-12 handleChat behavioural harness", () => {
   it("another session cannot confirm a foreign code (m2)", async () => {
     const h = harness();
     const p = await h.run(STOP_TEXT, OWNER);
-    const code = p.pendingAction?.code ?? "";
+    const code = codeOf(h, p);
     const r = await h.run(`تایید ${code}`, DASH); // different identity key
     assert.deepEqual(h.executed, []);
     assert.equal(r.intent, "confirm");
@@ -252,7 +262,7 @@ describe("MJ-12 handleChat behavioural harness", () => {
   it("a non-owner cannot confirm an owner's code", async () => {
     const h = harness();
     const p = await h.run(STOP_TEXT, OWNER);
-    const code = p.pendingAction?.code ?? "";
+    const code = codeOf(h, p);
     const r = await h.run(`تایید ${code}`, STRANGER); // same store, foreign identity
     assert.deepEqual(h.executed, []);
     assert.equal(r.intent, "confirm");
@@ -262,8 +272,9 @@ describe("MJ-12 handleChat behavioural harness", () => {
     const h = harness(true);
     const p = await h.run("خرید کاغذی PEPE", OWNER);
     assert.equal(p.intent, "proposal");
-    assert.ok(p.pendingAction?.code);
-    const code = p.pendingAction?.code ?? "";
+    assert.ok(p.pendingAction?.ref);
+    const code = codeOf(h, p);
+    assert.match(code, /^[A-Z0-9]{6}$/);
     const r = await h.run(`تایید ${code}`, OWNER);
     assert.deepEqual(h.executed, ["paper:PEPE:null"]); // no quantity asked → null, capped
     assert.equal(r.intent, "confirm");
@@ -287,7 +298,7 @@ describe("MJ-12 handleChat behavioural harness", () => {
   it("each harness instance sees only its own pending store", async () => {
     const a = harness();
     const pa = await a.run(STOP_TEXT, OWNER);
-    const codeA = pa.pendingAction?.code ?? "";
+    const codeA = codeOf(a, pa);
     const b = harness(); // fresh store: the first harness's code is unknown here
     const rb = await b.run(`تایید ${codeA}`, OWNER);
     assert.deepEqual(b.executed, []);
@@ -295,6 +306,50 @@ describe("MJ-12 handleChat behavioural harness", () => {
     // The first harness can still confirm its own action with the same code.
     await a.run(`تایید ${codeA}`, OWNER);
     assert.deepEqual(a.executed, ["stop"]);
+  });
+
+  it("REDTEAM-19 F1: a dashboard proposal never shows its code in the reply or the structured response", async () => {
+    const h = harness();
+    const r = await h.run(STOP_TEXT, DASH);
+    assert.equal(r.intent, "proposal");
+    const code = codeOf(h, r);
+    assert.match(code, /^[A-Z0-9]{6}$/);
+    assert.equal(r.reply.includes(code), false, "dashboard reply text must not contain the code");
+    assert.equal((r.replyHtml ?? "").includes(code), false);
+    assert.equal(JSON.stringify(r).includes(code), false, "no field of the response carries the code");
+    assert.deepEqual(h.executed, []);
+  });
+
+  it("REDTEAM-19 F1: the code is revealed only to the bound dashboard session", async () => {
+    const h = harness();
+    const r = await h.run(STOP_TEXT, DASH);
+    const ref = r.pendingAction?.ref ?? "";
+    assert.equal(revealPendingCode(h.store, ref, DASH), codeOf(h, r));
+    assert.equal(revealPendingCode(h.store, ref, { channel: "dashboard", userId: "sess-other", proven: true }), null);
+    assert.equal(revealPendingCode(h.store, ref, { channel: "dashboard", userId: "sess-a", proven: false }), null);
+    assert.equal(revealPendingCode(h.store, ref, OWNER), null, "a Telegram identity cannot use the dashboard reveal");
+    assert.equal(revealPendingCode(h.store, ref, UNPROVEN_WEB), null);
+    assert.equal(revealPendingCode(h.store, "not-a-ref", DASH), null);
+    clock = 6 * 60 * 1000;
+    assert.equal(revealPendingCode(h.store, ref, DASH), null, "expired actions are not revealed");
+    clock = 0;
+  });
+
+  it("REDTEAM-19 F1: a scripted caller without a proven identity can neither propose nor confirm", async () => {
+    const h = harness();
+    for (const id of [UNPROVEN_WEB, UNPROVEN_TG_ADMIN]) {
+      const p = await h.run(STOP_TEXT, id);
+      assert.equal(p.pendingAction ?? null, null, "no proposal for an unproven caller");
+    }
+    // Even holding a real code (from the owner's own proposal) it cannot confirm.
+    const owner = await h.run(STOP_TEXT, DASH);
+    const code = codeOf(h, owner);
+    await h.run(`تایید ${code}`, UNPROVEN_WEB);
+    await h.run(`تایید ${code}`, UNPROVEN_TG_ADMIN);
+    assert.deepEqual(h.executed, []);
+    // The bound session still can, exactly once.
+    await h.run(`تایید ${code}`, DASH);
+    assert.deepEqual(h.executed, ["stop"]);
   });
 
   it("the audit chain written by the harness is intact", () => {

@@ -37,7 +37,6 @@ def main(argv: list[str] | None = None) -> int:
         loaded = load_dotenv(ROOT / ".env")
         for key in (
             "AHOS_WEB_API_TOKEN",
-            "NEXT_PUBLIC_AHOS_WEB_API_TOKEN",
             "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
             "DATABASE_URL",
             "AHOS_GATEWAY_URL",

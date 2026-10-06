@@ -94,8 +94,13 @@ def _resolve_command(command: list[str]) -> list[str]:
     has_sep = os.path.sep in exe or (os.path.altsep and os.path.altsep in exe)
     if not has_sep:
         return command
-    anchored = str(ROOT / exe)
-    return ([anchored] + command[1:]) if os.path.exists(anchored) else command
+    if os.path.isabs(exe):
+        return command
+    # Anchor unconditionally: the child runs with cwd=ROOT, so ROOT/exe is the
+    # path the relative form already meant. Gating this on os.path.exists made
+    # the result depend on which venv layout happens to exist on the host, and
+    # a missing interpreter is reported more clearly by its absolute path.
+    return [str(ROOT / exe)] + command[1:]
 
 
 def record_run(command: list[str], out_path: Path, timeout: int = 1800) -> dict:

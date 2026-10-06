@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -94,14 +95,65 @@ INTENTIONAL_REFS: dict[str, str] = {
         "record of a cycle artifact not retained in git",
     "data/ahos_cognitive_memory.sqlite": "gitignored runtime CognitiveMemoryStore "
         "path from config.paths.get_cognitive_memory_db_path; never a committed soak DB",
+    # REDTEAM-19 F5: gitignored runtime/generated paths no longer satisfy a
+    # reference just because some earlier run created them on this machine,
+    # so the docs that legitimately NAME them are listed here instead.
+    "data/ahos_knowledge.sqlite": "gitignored runtime SQLite store "
+        "(config.paths.get_knowledge_db_path), created by scripts/init_databases.py; never committed",
+    "data/e01_discovery.sqlite": "gitignored runtime SQLite store "
+        "(config.paths.get_discovery_db_path), created by scripts/init_databases.py; never committed",
+    "data/paper_trading.sqlite": "gitignored runtime SQLite store "
+        "(config.paths.get_paper_trading_db_path), created by scripts/init_databases.py; never committed",
+    "data/ahos_local.sqlite": "gitignored runtime SQLite store "
+        "(config.paths.get_local_db_path), created by scripts/init_databases.py; never committed",
+    "reports/canonical_decision_read_model.json": "gitignored generated read model "
+        "(architecture.decision.read_model.canonical_read_model_path default when AHOS_CANONICAL_READ_MODEL is unset); never committed",
 }
+
+
+_TRACKED_CACHE: dict[str, frozenset[str] | None] = {}
+
+
+def _tracked_files(root: Path) -> frozenset[str] | None:
+    """Files tracked in git (``git ls-files``), repo-relative posix; None when
+    ``root`` is not the top of a git work tree or git is unavailable."""
+    key = str(root)
+    if key in _TRACKED_CACHE:
+        return _TRACKED_CACHE[key]
+    result: frozenset[str] | None = None
+    try:
+        top = subprocess.run(["git", "-C", key, "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True, timeout=30)
+        if top.returncode == 0 and Path(top.stdout.strip()).resolve() == root.resolve():
+            ls = subprocess.run(["git", "-C", key, "ls-files", "-z"],
+                                capture_output=True, text=True, timeout=60)
+            if ls.returncode == 0:
+                result = frozenset(p for p in ls.stdout.split("\0") if p)
+    except (OSError, subprocess.SubprocessError):
+        result = None
+    _TRACKED_CACHE[key] = result
+    return result
 
 
 def _exists(rel: str) -> bool:
     """Existence check, tolerant of trailing characters (commas, parens,
-    code spans, backticks)."""
+    code spans, backticks).
+
+    Inside a git work tree only a TRACKED file that is on disk counts. Neither
+    a stray untracked copy (Blocker A / GM-01: the laptop passed while every
+    clean clone failed) nor a gitignored generated artifact counts: the latter
+    made the verdict depend on which tests or tools had already run on this
+    checkout (REDTEAM-19 F5 / QA MAJOR-1: reports/PRE_SOAK_STATUS.txt, written
+    by operator_validation_gate.py, satisfied a gap-register citation only after
+    an earlier test run). A doc that must name a generated or runtime-only path
+    lists it in INTENTIONAL_REFS with a reason. Outside a git work tree the
+    plain filesystem check applies.
+    """
     token = rel.strip().rstrip(",.;:)]}'\">`")
-    return (ROOT / token).exists()
+    if not (ROOT / token).exists():
+        return False
+    tracked = _tracked_files(ROOT)
+    return tracked is None or token in tracked
 
 
 def scan_docs(docs: list[Path] | None = None) -> dict[str, list[dict[str, str]]]:

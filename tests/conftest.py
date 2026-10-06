@@ -44,7 +44,13 @@ REQUIRED_DATABASES = (
 
 
 def _missing_databases() -> list[str]:
-    data_dir = ROOT / "data"
+    # Same resolver init_databases.py writes through (AHOS_DATA_DIR, else
+    # <root>/data). Checking a hard-coded ROOT/"data" made a clean clone with
+    # AHOS_DATA_DIR set abort the whole session: the bootstrap created the
+    # stores in AHOS_DATA_DIR, then this check looked elsewhere.
+    from config.paths import get_data_dir
+
+    data_dir = get_data_dir(create=False)
     return [name for name in REQUIRED_DATABASES if not (data_dir / name).exists()]
 
 

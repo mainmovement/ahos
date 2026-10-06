@@ -41,7 +41,6 @@ $envPath = Join-Path $RepoRoot ".env"
 if (Test-Path -LiteralPath $envPath) {
     $forceKeys = @(
         "AHOS_WEB_API_TOKEN",
-        "NEXT_PUBLIC_AHOS_WEB_API_TOKEN",
         "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
         "DATABASE_URL",
         "AHOS_GATEWAY_URL",

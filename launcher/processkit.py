@@ -90,6 +90,13 @@ def pid_alive(pid: int) -> bool:
             os.kill(pid, 0)
         except OSError:
             return False
+        # A zombie (exited, not yet reaped) still answers kill(0); it is not running.
+        try:
+            stat = Path(f"/proc/{int(pid)}/stat").read_text()
+            if stat[stat.rindex(")") + 2:].startswith("Z"):
+                return False
+        except (OSError, ValueError):
+            pass
         return True
     SYNCHRONIZE = 0x00100000
     h = _KERNEL32.OpenProcess(SYNCHRONIZE, False, int(pid))
@@ -106,7 +113,13 @@ def process_cmdline(pid: int, timeout: float = 5.0) -> str | None:
     secrets out of another process.
     """
     if os.name != "nt":
-        return None
+        # POSIX: /proc/<pid>/cmdline is NUL-separated argv (Linux). Elsewhere
+        # (no /proc) we cannot confirm identity, so stay fail-closed: None.
+        try:
+            raw = Path(f"/proc/{int(pid)}/cmdline").read_bytes()
+        except OSError:
+            return None
+        return raw.replace(b"\0", b" ").decode("utf-8", "replace").strip() or None
     try:
         out = subprocess.run(
             ["powershell", "-NoProfile", "-NonInteractive", "-Command",
@@ -239,18 +252,16 @@ def pid_is_ours(pid: int, marker: str) -> bool:
 
 
 # ---------------------------------------------------------------- terminate ---
-def send_ctrl_break(pid: int) -> bool:
-    """CTRL_BREAK_EVENT to a child created with CREATE_NEW_PROCESS_GROUP."""
+def send_ctrl_break(pid: int, *, group: bool = False) -> bool:
+    """CTRL_BREAK_EVENT to a child created with CREATE_NEW_PROCESS_GROUP.
+
+    POSIX: SIGINT to the verified group (``group=True``, see
+    ``posix_group_ok``) -- signalling `npm` alone orphaned its `next-server`
+    child, which kept the gateway port -- or to the pid alone."""
     if _KERNEL32 is None:
-        try:
-            os.kill(pid, 2)  # SIGINT on POSIX
-            return True
-        except OSError:
-            return False
+        import signal
+        return _posix_signal(pid, signal.SIGINT, group)
     return bool(_KERNEL32.GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, int(pid)))
-
-
-_CONSOLE_HANDLER = None
 
 
 def arm_console_break_immunity() -> bool:
@@ -287,7 +298,11 @@ def _swallow_console_break(ctrl_type: int) -> bool:
     return ctrl_type in (CTRL_C_EVENT, CTRL_BREAK_EVENT)
 
 
-def taskkill(pid: int, force: bool = False) -> bool:
+def taskkill(pid: int, force: bool = False, *, group: bool = False) -> bool:
+    if os.name != "nt":
+        # POSIX equivalent of `taskkill /T [/F]`: the verified group only.
+        import signal
+        return _posix_signal(pid, signal.SIGKILL if force else signal.SIGTERM, group)
     args = ["taskkill", "/PID", str(int(pid)), "/T"]
     if force:
         args.append("/F")
@@ -299,72 +314,101 @@ def taskkill(pid: int, force: bool = False) -> bool:
     return res.returncode == 0
 
 
-def terminate(pid: int, *, graceful_timeout: float = 15.0,
-              _sleep=time.sleep) -> tuple[str, float]:
+def posix_group_ok(pid: int, marker: str | None, recorded_start: int | None) -> bool:
+    """May ``pid``'s whole process group be signalled? (REDTEAM-19 F3, POSIX.)
+
+    Only when ALL hold: ``pid`` leads its own group (spawn_detached starts each
+    child as a session leader), that group is not the caller's own, the pid
+    passes the ownership check, and its kernel start time equals the one
+    recorded at spawn. A stale pid file whose pid was reused by a non-leader
+    would otherwise have ``getpgid`` hand back a foreign group, or ours.
+    """
+    if os.name == "nt" or recorded_start is None:
+        return False
+    try:
+        pgid = os.getpgid(int(pid))
+        if pgid != int(pid) or pgid == os.getpgid(0):
+            return False
+    except OSError:
+        return False
+    if not owned(pid, marker, recorded_start):
+        return False
+    return process_start_time(pid) == recorded_start
+
+
+def _posix_signal(pid: int, sig: int, group: bool) -> bool:
+    """Signal the verified group ``pid`` leads, or the single pid.
+
+    ``group`` must come from ``posix_group_ok``: the group id used is ``pid``
+    itself (never ``getpgid(pid)``, which for a non-leader is someone else's
+    group -- possibly the user's terminal or the launcher's own)."""
+    try:
+        if group:
+            os.killpg(int(pid), sig)
+        else:
+            os.kill(int(pid), sig)
+        return True
+    except OSError:
+        return False
+
+
+def terminate(pid: int, *, marker: str | None = None,
+              recorded_start: int | None = None,
+              graceful_timeout: float = 15.0,
+              force_timeout: float = 10.0, _sleep=time.sleep,
+              _clock=time.time) -> tuple[str, float]:
     """Stop one of our processes: gentle first, force only as a last resort.
 
-    Returns (how, seconds_taken): how ∈ {'already_gone','signal','force','failed'}.
+    Returns (how, seconds_taken), how in:
+      already_gone  nothing was alive
+      not_ours      POSIX: the pid failed the ownership check (stale pid file,
+                    reused pid) -- nothing was signalled
+      signal        it exited on SIGINT/CTRL_BREAK or SIGTERM
+      force         it ignored those and died only on SIGKILL / taskkill /F
+      failed        still alive after every stage, or (POSIX group) members
+                    of its group survived SIGKILL -- NOT stopped
+
+    Each stage gets its own wait window (f149e68). Liveness is re-checked after
+    every window before escalating (REDTEAM-19 F4), so a process that ignores
+    SIGTERM is never reported as stopped by a signal.
+
+    POSIX (REDTEAM-19 F3): when ``marker``/``recorded_start`` are given, the
+    pid must pass ``owned`` first. The process GROUP is signalled only when
+    ``posix_group_ok`` holds (own leader, not our group, owned, start time
+    matches); otherwise only the pid is signalled. Windows behaviour is
+    unchanged (taskkill /T on the pid).
     """
     if not pid_alive(pid):
         return "already_gone", 0.0
-    t0 = time.time()
-    if send_ctrl_break(pid):
-        deadline = t0 + graceful_timeout
-        while time.time() < deadline:
+    posix = os.name != "nt"
+    checked = marker is not None or recorded_start is not None
+    if posix and checked and not owned(pid, marker, recorded_start):
+        return "not_ours", 0.0
+    group = posix and checked and posix_group_ok(pid, marker, recorded_start)
+    t0 = _clock()
+
+    def _wait(window: float) -> bool:
+        deadline = _clock() + window
+        while _clock() < deadline:
             _sleep(0.5)
             if not pid_alive(pid):
-                return "signal", time.time() - t0
-    if taskkill(pid, force=False):
-        deadline = t0 + graceful_timeout
-        while time.time() < deadline:
-            _sleep(0.5)
-            if not pid_alive(pid):
-                return "signal", time.time() - t0
-    if taskkill(pid, force=True):
-        deadline = t0 + 10.0
-        while time.time() < deadline:
-            _sleep(0.5)
-            if not pid_alive(pid):
-                return "force", time.time() - t0
-    return "failed" if pid_alive(pid) else "force", time.time() - t0
+                return True
+        return not pid_alive(pid)
 
+    def _done(how: str) -> tuple[str, float]:
+        if group and not _drain_posix_group(pid, force_timeout, _sleep, _clock):
+            return "failed", _clock() - t0
+        return how, _clock() - t0
 
-# ------------------------------------------------------------------- spawn ---
-def spawn_detached(cmd: list[str], *, cwd: Path, env: dict, log_path: Path) -> int:
-    """Start a long-lived child whose stdout/stderr lands in log_path.
-
-    Flags are ``CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW`` (Rostam R1):
-    ``DETACHED_PROCESS`` is deliberately *not* used, because Windows ignores
-    ``CREATE_NO_WINDOW`` in that combination, so a console-less ``cmd /c npm``
-    child would AllocConsole its own *visible* window. The process group is what
-    makes graceful stop work (CTRL_BREAK reaches the child's group); survival on
-    console-close comes from the launcher's own hidden console (``ahos.ps1
-    -WindowStyle Hidden``), not from detachment.
-    """
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    logf = open(log_path, "ab", buffering=0)
-    flags = CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW
-    try:
-        proc = subprocess.Popen(
-            cmd, cwd=str(cwd), env=env, stdout=logf, stderr=subprocess.STDOUT,
-            stdin=subprocess.DEVNULL, close_fds=True, creationflags=flags,
-            restore_signals=False)
-    finally:
-        try:
-            logf.close()
-        except Exception:
-            pass
-    return proc.pid
-
-
-# ------------------------------------------------------------------ network ---
-def port_in_use(host: str, port: int, timeout: float = 0.6) -> bool:
-    """TCP connect probe; loopback only in practice (the gateway binds 127.0.0.1)."""
-    try:
-        with socket.create_connection((host, int(port)), timeout=timeout):
-            return True
-    except OSError:
-        return False
+    if send_ctrl_break(pid, group=group) and _wait(graceful_timeout):
+        return _done("signal")
+    if taskkill(pid, force=False, group=group) and _wait(min(5.0, graceful_timeout)):
+        return _done("signal")
+    if taskkill(pid, force=True, group=group) and _wait(force_timeout):
+        return _done("force")
+    if pid_alive(pid):
+        return "failed", _clock() - t0
+    return _done("force")
 
 
 def can_bind(host: str, port: int) -> bool:

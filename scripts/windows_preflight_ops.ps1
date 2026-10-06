@@ -118,12 +118,14 @@ if ([string]::IsNullOrWhiteSpace($token)) {
     }
 } else {
     Write-Check "AHOS_WEB_API_TOKEN" "PASS" "set"
-    if ($pub -ne $token) {
-        Write-Check "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" "FAIL" "must match AHOS_WEB_API_TOKEN"
-        $fails++
-    } else {
-        Write-Check "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" "PASS" "matches"
-    }
+}
+# REDTEAM-19 F8: a NEXT_PUBLIC_* value is compiled into the client JS bundle,
+# so the server token must never be copied there.
+if (-not [string]::IsNullOrWhiteSpace($pub)) {
+    Write-Check "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" "FAIL" "must be EMPTY (leaks into client bundle) - run windows_ensure_web_api_token.ps1"
+    $fails++
+} else {
+    Write-Check "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" "PASS" "not set"
 }
 
 $gw = Get-EnvValue -Path $envPath -Key "AHOS_GATEWAY_URL"
