@@ -3,7 +3,11 @@
 #
 # What this does:
 #   - If AHOS_WEB_API_TOKEN is missing/empty in .env, generate a random token
-#   - Write BOTH AHOS_WEB_API_TOKEN and NEXT_PUBLIC_AHOS_WEB_API_TOKEN (same value)
+#   - Write AHOS_WEB_API_TOKEN ONLY. It is a server-side secret: the browser
+#     dashboard logs in with a one-time launcher bootstrap token instead
+#     (docs/ONE_CLICK.md "Dashboard login"). A NEXT_PUBLIC_* copy would be
+#     compiled into the client JS bundle (REDTEAM-19 F8), so a non-empty
+#     NEXT_PUBLIC_AHOS_WEB_API_TOKEN left by older versions is BLANKED.
 #   - Force AHOS_WEB_API_ALLOW_OPEN_ACCESS=0 when absent
 #   - Never overwrite a non-empty existing AHOS_WEB_API_TOKEN
 #   - Never migrate / reset / stash / touch Lane-A
@@ -98,17 +102,16 @@ $created = $false
 if ([string]::IsNullOrWhiteSpace($existing)) {
     $token = ([guid]::NewGuid().ToString("N") + [guid]::NewGuid().ToString("N"))
     Set-Or-Append-EnvKey -Path $EnvPath -Key "AHOS_WEB_API_TOKEN" -Value $token
-    Set-Or-Append-EnvKey -Path $EnvPath -Key "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" -Value $token
     $created = $true
-    Write-Host "Generated new AHOS_WEB_API_TOKEN (+ matching NEXT_PUBLIC_)." -ForegroundColor Green
+    Write-Host "Generated new AHOS_WEB_API_TOKEN (server-side only)." -ForegroundColor Green
 } else {
     Write-Host "AHOS_WEB_API_TOKEN already set -- left unchanged." -ForegroundColor Green
-    if ([string]::IsNullOrWhiteSpace($pubExisting) -or ($pubExisting -ne $existing)) {
-        Set-Or-Append-EnvKey -Path $EnvPath -Key "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" -Value $existing
-        Write-Host "Synced NEXT_PUBLIC_AHOS_WEB_API_TOKEN to match server token." -ForegroundColor Yellow
-    } else {
-        Write-Host "NEXT_PUBLIC_AHOS_WEB_API_TOKEN already matches." -ForegroundColor Green
-    }
+}
+# REDTEAM-19 F8: never write the server token into a NEXT_PUBLIC_* key (it is
+# compiled into the browser bundle). Blank a value left by older versions.
+if (-not [string]::IsNullOrWhiteSpace($pubExisting)) {
+    Set-Or-Append-EnvKey -Path $EnvPath -Key "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" -Value ""
+    Write-Host "Blanked NEXT_PUBLIC_AHOS_WEB_API_TOKEN (would leak the server token into the client bundle). Rebuild/restart the dashboard." -ForegroundColor Yellow
 }
 
 $open = Get-EnvValue -Path $EnvPath -Key "AHOS_WEB_API_ALLOW_OPEN_ACCESS"

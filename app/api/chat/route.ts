@@ -1,6 +1,6 @@
 import { authorizeDashboardEndpoint, sanitizePublicError } from "@/web_api_auth";
 import { conversationGateway } from "@/conversation_gateway";
-import { resolveChatIdentity } from "@/chat_auth";
+import { parseChatBody, resolveChatIdentity } from "@/chat_auth";
 import { createHash } from "node:crypto";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     // be verified over the exact bytes the bot signed.
     const raw = await req.text();
     const bodySha256 = createHash("sha256").update(raw, "utf8").digest("hex");
-    const parsed = (await JSON.parse(raw).catch(() => ({}))) as Record<string, unknown>;
+    const parsed = parseChatBody(raw);
     const identity = resolveChatIdentity({ headers: req.headers, bodySha256, body: parsed });
     const history = Array.isArray(parsed.history)
       ? (parsed.history as Array<{ role?: string; content?: string }>)

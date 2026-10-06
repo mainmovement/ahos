@@ -18,6 +18,7 @@ the one surface where a silent regression costs the operator real days.
 """
 from __future__ import annotations
 
+import ast
 import os
 import re
 import subprocess

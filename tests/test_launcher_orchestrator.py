@@ -10,6 +10,7 @@ start → status → stop evidence lives under reports/launcher/.
 """
 from __future__ import annotations
 
+import os
 import json
 import socket
 import struct
@@ -178,6 +179,18 @@ class TestComponents:
         env = {"DATABASE_URL": url}
         t = C.database_target(env)
         assert t["scheme"] == scheme and t["host"] == host and t["port"] == port
+
+    @pytest.mark.parametrize("url, data_dir", [
+        ("pglite:G:/robat/ahos_runtime/pglite/ahos", "G:/robat/ahos_runtime/pglite/ahos"),
+        ("pglite:/G:/somewhere/db", "G:/somewhere/db"),
+        ("pglite://G:/somewhere/db", "G:/somewhere/db"),
+        # POSIX absolute must stay absolute (regression: became cwd-relative).
+        ("pglite:/tmp/ahos-pg", "/tmp/ahos-pg"),
+        ("pglite:///tmp/ahos-pg", "/tmp/ahos-pg"),
+        ("pglite:data/pglite", "data/pglite"),
+    ])
+    def test_database_target_pglite_data_dir_matches_ts_client(self, url, data_dir):
+        assert C.database_target({"DATABASE_URL": url})["data_dir"] == data_dir
 
     def test_database_target_never_returns_credentials(self):
         t = C.database_target({"DATABASE_URL": "postgres://user:SEKRIT@db:5432/x"})
@@ -748,6 +761,65 @@ class TestOrchestrator:
         env = orch._child_env()
         assert env["AHOS_GATEWAY_URL"] == "http://127.0.0.1:8300/api/chat"
         assert env["PORT"] == "8300"
+
+    _SELECTED_8300 = {"host": "127.0.0.1", "port": 8300,
+                      "url": "http://127.0.0.1:8300/api/chat",
+                      "source": "candidate", "configured_port": 3000,
+                      "chosen_via": "CANDIDATE_BINDABLE",
+                      "tried": [3000, 8300], "notes": [], "warnings": []}
+
+    def test_selected_port_survives_into_a_new_process_status(self, tmp_path, monkeypatch):
+        """The dashboard's Status button and `ahos.ps1 status` run in a *new*
+        process. If the start-time choice (fallback 8300) is not recorded, that
+        process falls back to the configured 3000, probes a dead port, reports the
+        gateway UNAVAILABLE and writes a dashboard_url that sends the owner to a
+        dead page -- the very failure scope (d) exists to prevent."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(C, "select_gateway", lambda env: dict(self._SELECTED_8300))
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "simulated"))
+        orch.start()
+        # Our gateway is still the live process the pid file names.
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        pk.write_pid(orch.state_dir, "gateway", 4242, {"cmd": "x"})
+        later = make_orchestrator(tmp_path)  # fresh process, same state dir
+        assert later.dashboard_url() == "http://127.0.0.1:8300/"
+        monkeypatch.setattr(later, "_component_probe", lambda name: (C.HEALTHY, "ok"))
+        assert later.status()["gateway_port"] == 8300
+        assert later._child_env()["PORT"] == "8300"
+
+    def test_second_start_reuses_our_running_gateway_port(self, tmp_path, monkeypatch):
+        """Second start while our gateway still listens on the fallback: the
+        configured port is still reserved and the fallback is now *busy* (ours),
+        so a fresh select would walk on to the next candidate and hand the
+        children a port nobody serves. The recorded choice must win."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(C, "select_gateway", lambda env: dict(self._SELECTED_8300))
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "simulated"))
+        orch.start()
+        pk.write_pid(orch.state_dir, "gateway", 4242, {"cmd": "x"})
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        moved = dict(self._SELECTED_8300, port=3100, url="http://127.0.0.1:3100/api/chat")
+        monkeypatch.setattr(C, "select_gateway", lambda env: moved)
+        again = make_orchestrator(tmp_path)
+        monkeypatch.setattr(again, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "already running (idempotent)"))
+        report = again.start()
+        assert report["gateway_port"] == 8300
+        assert report["dashboard_url"] == "http://127.0.0.1:8300/"
+
+    def test_recorded_port_ignored_when_our_gateway_is_gone(self, tmp_path, monkeypatch):
+        """A stale record must never pin a dead port: once our gateway process is
+        gone the pure resolver applies again."""
+        orch = make_orchestrator(tmp_path)
+        monkeypatch.setattr(C, "select_gateway", lambda env: dict(self._SELECTED_8300))
+        monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(
+            name, C.HEALTHY, "simulated"))
+        orch.start()
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        later = make_orchestrator(tmp_path)
+        assert later.gateway.get("port") == C.resolve_gateway(later.env).get("port")
 
     def test_configured_port_that_binds_is_kept(self, tmp_path, monkeypatch):
         """The common case: the configured port binds, so nothing is substituted
@@ -1349,6 +1421,12 @@ class TestIconAndShortcuts:
         assert all(not p.exists() for p in legacy)
         assert len(list(retire.glob("*.lnk.*"))) == 2
 
+        # Same precedent as tests/test_phase18_launchers.py (skip when pwsh is
+        # absent): the .lnk write needs Windows PowerShell + WScript.Shell COM.
+        # The retire assertions above still run on every host.
+        import shutil
+        if os.name != "nt" or not shutil.which("powershell"):
+            pytest.skip("Windows PowerShell + WScript.Shell COM not available on this host")
         wrote = S.create_shortcuts(tmp_path, icon=icon, desktop=desktop)
         assert [w["name"] for w in wrote] == ["AHOS.lnk"]
         # Re-resolve through WScript.Shell: the .lnk must point at the wrapper.
@@ -1383,3 +1461,42 @@ class TestCli:
         assert _skip_set(["engine", "telegram"]) == {"engine", "telegram"}
         assert _skip_set(["engine,telegram"]) == {"engine", "telegram"}
         assert _skip_set([" telegram , engine ,", "", "  "]) == {"telegram", "engine"}
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX branch of processkit")
+class TestPosixProcessKit:
+    """The launcher's process layer must not crash off Windows: a non-zero
+    creationflags raises ValueError on POSIX, so every spawn used to fail
+    with 'creationflags is only supported on Windows platforms'."""
+
+    def test_spawn_identify_and_terminate_a_real_child(self, tmp_path):
+        marker = f"ahos-posix-selftest-{os.getpid()}"
+        pid = pk.spawn_detached(
+            [sys.executable, "-c", "import time,sys; time.sleep(60)", marker],
+            cwd=tmp_path, env=dict(os.environ), log_path=tmp_path / "child.log")
+        try:
+            assert pk.pid_alive(pid)
+            assert pk.pid_is_ours(pid, marker)
+            assert not pk.pid_is_ours(pid, "some-other-marker")
+            how, _secs = pk.terminate(pid, graceful_timeout=5.0)
+            assert how in ("signal", "force")
+            assert not pk.pid_alive(pid)
+        finally:
+            if pk.pid_alive(pid):
+                os.kill(pid, 9)
+
+
+def test_soft_preflight_warning_is_not_reported_as_failed_service(tmp_path, monkeypatch):
+    """A non-fatal preflight finding (e.g. no Gemini credential) must not print
+    the generic 'a service did not run' error at the top of an ONLINE start."""
+    lines = []
+    orch = AhosOrchestrator(ROOT, env=C.load_repo_env(ROOT, {}), state_dir=tmp_path / "s",
+                            log_dir=tmp_path / "l", report_dir=tmp_path / "r",
+                            ledger_path=tmp_path / "ledger.sqlite", emit=lines.append,
+                            open_dashboard=False)
+    pf = C.Preflight(ok=True, checks=[{"name": "gemini_cred", "ok": False, "detail": "cred missing"}],
+                     warnings=["cred missing"])
+    monkeypatch.setattr(orch, "preflight", lambda: pf)
+    monkeypatch.setattr(orch, "_start_component", lambda name: C.ComponentResult(name, C.HEALTHY, "sim"))
+    assert orch.start()["overall"] == "ONLINE"
+    generic = P.error("generic", action=P.ACTIONS["unknown"]).split("{")[0][:12]
+    assert not any(l.startswith(generic) for l in lines), lines

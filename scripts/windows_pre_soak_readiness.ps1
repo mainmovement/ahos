@@ -72,11 +72,12 @@ if ([string]::IsNullOrWhiteSpace($token)) {
     $fails++
 } else {
     Write-Check "AHOS_WEB_API_TOKEN" "PASS" "set"
-    if ($pub -ne $token) {
-        Write-Check "NEXT_PUBLIC_match" "FAIL" "NEXT_PUBLIC must match token"
+    # REDTEAM-19 F8: the server token must never be in a NEXT_PUBLIC_* key.
+    if (-not [string]::IsNullOrWhiteSpace($pub)) {
+        Write-Check "NEXT_PUBLIC_unset" "FAIL" "NEXT_PUBLIC_AHOS_WEB_API_TOKEN must be EMPTY (client-bundle leak)"
         $fails++
     } else {
-        Write-Check "NEXT_PUBLIC_match" "PASS" "matches"
+        Write-Check "NEXT_PUBLIC_unset" "PASS" "not set"
     }
 }
 

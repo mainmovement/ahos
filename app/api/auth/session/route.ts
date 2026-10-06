@@ -1,22 +1,24 @@
 /**
- * Mission 9.5: dashboard session bootstrap.
+ * Mission 9.5 + REDTEAM-19 F1: dashboard session bootstrap.
  *
- * The browser dashboard holds no shared secret. A page load (or the first
- * `webApiFetch`) POSTs here; the server answers with an httpOnly + SameSite
- * session cookie plus a CSRF token cookie that the browser may read and must
- * echo back in the `X-AHOS-CSRF` header on every later call. Both are
- * HMAC-signed with the server-only AHOS_DASHBOARD_SESSION_SECRET.
+ * The browser dashboard holds no shared secret. It POSTs here once with the
+ * ONE-TIME bootstrap token the launcher put in the URL fragment it opened
+ * (`/#boot=<token>`; `python -m launcher bootstrap-url` prints a fresh URL for
+ * a browser opened by hand). The server answers with an httpOnly SameSite
+ * session cookie and, in the body, a CSRF token the client keeps in
+ * origin-scoped storage and echoes in `X-AHOS-CSRF` on every later call.
  *
- * This replaces the NEXT_PUBLIC_AHOS_WEB_API_TOKEN, which was compiled into
- * the client bundle and therefore readable by anyone who could load the page
- * (review BLOCKER B1).
+ * Reaching 127.0.0.1 is not proof of ownership (any local process can), so
+ * issuance requires, in this order:
+ *   1. exact loopback Host, `Sec-Fetch-Site: same-origin|none`, and an Origin
+ *      equal to `http://<Host>` when present (`checkSessionIssuance`);
+ *   2. a valid, unexpired, unused bootstrap token (`consumeBootstrapToken`).
+ * x-forwarded-for is not consulted (client-controlled under Next).
  *
- * Issuance is loopback-only: the gateway dev server binds 127.0.0.1, and the
- * owner's physical control of the machine is the trust boundary. A session
- * makes the caller eligible for owner proposals; it is not itself a grant of
- * execution — every action still needs the one-time confirm code.
+ * A session makes the caller eligible for owner proposals; every action still
+ * needs the one-time confirm code.
  */
-import { issueDashboardSession, isLoopbackRequest } from "@/chat_auth";
+import { handleSessionIssuance } from "@/chat_auth";
 import { sanitizePublicError } from "@/web_api_auth";
 
 export const dynamic = "force-dynamic";
@@ -24,28 +26,9 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    if (!isLoopbackRequest(req)) {
-      return Response.json(
-        { ok: false, error: "SESSION_ISSUANCE_NON_LOOPBACK" },
-        { status: 403 },
-      );
-    }
-    const issued = issueDashboardSession();
-    if (!issued) {
-      // The server secret is unset or too short: fail closed, and say so
-      // without printing the secret or hinting at its value.
-      return Response.json(
-        {
-          ok: false,
-          error: "SESSION_SECRET_UNAVAILABLE",
-          hint: "AHOS_DASHBOARD_SESSION_SECRET must be set server-side (>= 16 chars).",
-        },
-        { status: 503 },
-      );
-    }
-    const headers = new Headers();
-    for (const c of issued.cookies) headers.append("Set-Cookie", c);
-    return Response.json({ ok: true, sessionId: issued.sessionId }, { headers });
+    // The full decision (shape checks, secret, one-time token) lives in
+    // chat_auth.handleSessionIssuance so the selftests run the same code.
+    return await handleSessionIssuance(req);
   } catch (error) {
     return Response.json({ ok: false, error: sanitizePublicError(error) }, { status: 500 });
   }

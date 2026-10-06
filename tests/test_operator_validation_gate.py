@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from unittest import mock
@@ -19,6 +20,36 @@ from scripts.operator_validation_gate import (  # noqa: E402
     remediation_actions,
     _resolve_executable,
 )
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _isolate_process_env():
+    """Undo main()'s side effects on the process and the checkout.
+
+    main() force-loads the checkout's real .env into os.environ (by design,
+    see the G2 401 trap). Without this, keys such as AHOS_EVIDENCE_SOURCE leak
+    into every later test in the session and break the evidence-namespace
+    boundary tests depending on the operator's .env contents."""
+    saved = dict(os.environ)
+    # main() also writes into the checkout: reports/PRE_SOAK_STATUS.txt (a
+    # gitignored file the gap register used to cite, which made doc_drift's
+    # verdict depend on whether this module had run first -- QA MAJOR-1) and,
+    # on a fresh clone with no .env, a NEW .env holding AHOS_GATEWAY_URL.
+    # Restore both byte-for-byte so a test run leaves no state behind.
+    side_effects = [ROOT / "reports" / "PRE_SOAK_STATUS.txt", ROOT / ".env"]
+    before = {p: (p.read_bytes() if p.is_file() else None) for p in side_effects}
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(saved)
+        for p, content in before.items():
+            if content is None:
+                p.unlink(missing_ok=True)
+            else:
+                p.write_bytes(content)
 
 
 def _pass_gates(n_end: int = 12) -> list[dict]:

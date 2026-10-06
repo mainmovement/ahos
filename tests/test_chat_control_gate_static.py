@@ -120,19 +120,23 @@ def test_gateway_forwards_resolved_identity_and_assertion_for_audit_only():
     assert "never as a grant" in src
 
 
-def test_dashboard_engine_and_paper_routes_audit_write_ahead():
-    """MJ-2: the dashboard engine route writes an EXECUTING record BEFORE it
-    touches the engine, refuses when the write fails, then records the outcome."""
-    eng = _read("app/api/engine/route.ts")
-    assert "startEngine()" in eng and "stopEngine()" in eng
+def test_dashboard_engine_route_only_proposes_start_stop():
+    """REDTEAM-19 F2 (replaces the MJ-2 direct-execution pin): /api/engine may
+    no longer start/stop the engine itself. It creates a proposal through the
+    same chat_actions.propose gate, bound to the caller's verified dashboard
+    session; execution happens only in handleConfirmation, which writes the
+    EXECUTING audit record first and consumes the code before acting (pinned by
+    test_chat_reaches_engine_only_through_the_confirm_flow below)."""
+    eng = re.sub(r"/\*.*?\*/", "", _read("app/api/engine/route.ts"), flags=re.S)
+    eng = re.sub(r"^\s*//.*$", "", eng, flags=re.M)  # code only, not the comments
     assert "authorizeDashboardEndpoint(req)" in eng
-    assert 'decision: "EXECUTING"' in eng  # write-ahead (MJ-2)
-    assert "AUDIT_WRITE_FAILED" in eng  # refused when the audit write fails
-    i_executing = eng.index('decision: "EXECUTING"')
-    i_start = eng.index("startEngine()")
-    assert i_executing < i_start  # audit precedes the action
-    assert 'decision: "CONFIRMED"' in eng  # outcome record
-    assert 'decision: "FAILED"' in eng
+    for banned in ("startEngine", "stopEngine", "handleConfirmation", ".code"):
+        assert banned not in eng, banned
+    assert "propose(getPendingStore()" in eng
+    assert "verifyDashboardSession(req.headers)" in eng
+    # a bearer-only caller is an unproven identity -> isOwner false -> 403
+    assert "proven: false" in eng and "status: 403" in eng
+    assert "toPublic(r.action)" in eng  # public view: ref, no code
     paper = _read("app/api/paper/route.ts")
     assert "addPaper(" in paper
 

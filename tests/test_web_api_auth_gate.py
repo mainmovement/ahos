@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from unittest import mock
@@ -21,11 +22,38 @@ API_ROUTES = sorted((ROOT / "app" / "api").glob("*/route.ts"))
 
 
 def test_all_api_routes_call_authorize_web_api():
+    """Every route handler is gated before doing anything.
+
+    Mission 9.5 (0638643) moved the routes from ``authorizeWebApi`` to
+    ``authorizeDashboardEndpoint`` = server bearer (``authorizeWebApi``) OR a
+    verified dashboard session + CSRF, so the browser no longer needs a
+    NEXT_PUBLIC token. This test still demanded the old name and failed on
+    every checkout since. It now pins the new gate *and* that the new gate is
+    built on ``authorizeWebApi``, and it is stricter than before: one gate call
+    and one ``if (denied) return denied`` per exported handler.
+    """
     assert API_ROUTES, "expected app/api/*/route.ts"
     for path in API_ROUTES:
         text = path.read_text(encoding="utf-8")
-        assert "authorizeWebApi" in text, f"{path.name} missing authorizeWebApi"
+        name = path.parent.name
         assert "from \"@/web_api_auth\"" in text or "from '@/web_api_auth'" in text
+        handlers = len(re.findall(r"export (?:async )?function (?:GET|POST|PUT|PATCH|DELETE)\b", text))
+        assert handlers >= 1, f"{name}: no exported handler found"
+        assert text.count("authorizeDashboardEndpoint(req)") == handlers, (
+            f"{name}: every handler must call authorizeDashboardEndpoint(req)")
+        assert text.count("if (denied) return denied") == handlers, (
+            f"{name}: every handler must return the gate's 401")
+
+
+def test_dashboard_gate_is_bearer_or_verified_session_only():
+    """authorizeDashboardEndpoint must accept exactly the server bearer
+    (authorizeWebApi) or a verified session, and otherwise answer 401."""
+    src = (ROOT / "web_api_auth.ts").read_text(encoding="utf-8")
+    body = src.split("export function authorizeDashboardEndpoint")[1].split("\nexport ")[0]
+    assert "authorizeWebApi(req)" in body
+    assert "verifyDashboardSession(req.headers).ok" in body
+    assert "status: 401" in body
+    assert "OPEN_ACCESS" not in body
 
 
 def test_command_center_uses_web_api_client():
@@ -44,8 +72,12 @@ def test_windows_ensure_web_api_token_script_exists():
     path = ROOT / "scripts" / "windows_ensure_web_api_token.ps1"
     text = path.read_text(encoding="utf-8")
     assert "AHOS_WEB_API_TOKEN" in text
-    assert "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" in text
     assert "db:migrate" in text.lower() or "Will NOT migrate" in text
+    # REDTEAM-19 F8: the script may only BLANK the public key, never copy the
+    # server token into it.
+    assert '-Key "NEXT_PUBLIC_AHOS_WEB_API_TOKEN" -Value ""' in text
+    assert not re.search(
+        r'-Key\s+"NEXT_PUBLIC_AHOS_WEB_API_TOKEN"\s+-Value\s+\$', text)
 
 
 def test_windows_ops_toward_pre_soak_script_exists():
@@ -341,9 +373,13 @@ def test_windows_run_this_first_points_at_ops_bat():
     assert "db:migrate" in text.lower()
     assert "windows_bootstrap_presoak.ps1" in text or "AHOS_APPLY_TIP.bat" in text
     assert "OWNER_PASTE_WINDOWS_GATE.txt" in text
+    # Phase 11 (9e74645) turned start_ahos.ps1 into a thin delegate to the
+    # one-click launcher; its full contract is pinned in
+    # tests/test_phase18_launchers.py. Here we only pin that it still points at
+    # the single launcher entry point instead of carrying its own launch logic.
     start_ps1 = (ROOT / "start_ahos.ps1").read_text(encoding="utf-8")
-    assert "AHOS_WINDOWS_OPS.bat" in start_ps1
-    assert "OWNER_PASTE_WINDOWS_GATE.txt" in start_ps1
+    assert "launcher\\ahos.ps1" in start_ps1
+    assert "-Action start" in start_ps1
 
 
 def test_windows_restart_next_dev_script_exists():
@@ -373,8 +409,34 @@ def test_install_windows_gate_cli_matches_runner():
 def test_env_example_documents_web_api_token_keys():
     text = (ROOT / ".env.example").read_text(encoding="utf-8")
     assert "AHOS_WEB_API_TOKEN=" in text
-    assert "NEXT_PUBLIC_AHOS_WEB_API_TOKEN=" in text
+    # REDTEAM-19 F8: the server token must not be offered as a public key.
+    assert not re.search(r"^NEXT_PUBLIC_AHOS_WEB_API_TOKEN=", text, flags=re.M)
     assert "AHOS_WEB_API_ALLOW_OPEN_ACCESS=0" in text
+
+
+def test_no_script_copies_the_server_token_into_a_next_public_key():
+    """REDTEAM-19 F8: any NEXT_PUBLIC_* value is compiled into the browser
+    bundle. No operator script may write the web API token there, preflight
+    scripts must FAIL (not demand a match) when it is set, and no example env
+    file may offer the key."""
+    scripts = ROOT / "scripts"
+    write_re = re.compile(
+        r'(Set-Or-Append-EnvKey|Set-EnvKey|_persist_env_key)[^\n]*NEXT_PUBLIC_[A-Z_]*TOKEN[^\n]*'
+    )
+    for p in sorted(scripts.rglob("*")):
+        if p.suffix not in {".ps1", ".py", ".sh", ".cmd", ".bat"} or not p.is_file():
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace")
+        for m in write_re.finditer(text):
+            assert m.group(0).rstrip().endswith('-Value ""'), (
+                f"{p.name} writes a NEXT_PUBLIC token value: {m.group(0)!r}")
+        assert "NEXT_PUBLIC must match" not in text, p.name
+        assert '"must match AHOS_WEB_API_TOKEN"' not in text, p.name
+    for rel in (".env.example", "deployment/.env.example"):
+        text = (ROOT / rel).read_text(encoding="utf-8")
+        assert not re.search(r"^NEXT_PUBLIC_[A-Z_]*TOKEN=", text, flags=re.M), rel
+    pre = (scripts / "windows_preflight_ops.ps1").read_text(encoding="utf-8")
+    assert 'must be EMPTY' in pre
 
 
 def test_gateway_sends_authorization_when_web_token_set(monkeypatch):

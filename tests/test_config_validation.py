@@ -71,10 +71,10 @@ LEGACY_ENV_KEYS: dict[str, str] = {
     "TELEGRAM_ADMIN_CHAT_ID": "legacy alias for TELEGRAM_ADMIN_USER_IDS",
     "AHOS_LOCAL_DB": "legacy lane only (engine/bot_skeleton.py, a documented "
                      "excluded entrypoint)",
-    "NEXT_PUBLIC_AHOS_WEB_API_TOKEN": "still written/synced by operator scripts "
-                                      "(windows_ensure_web_api_token.ps1) and used as a "
-                                      "server-side bearer by probes; no browser code reads "
-                                      "it since the Mission 9.5 session-cookie switch",
+    "NEXT_PUBLIC_AHOS_WEB_API_TOKEN": "RETIRED (REDTEAM-19 F8): no code or script "
+                                      "writes it; operator preflight scripts read it only "
+                                      "to FAIL when it is still set, because a NEXT_PUBLIC_* "
+                                      "value is compiled into the client bundle",
 }
 
 

@@ -134,7 +134,7 @@ $lines += ("git_branch=" + $branch)
 $lines += ("git_head=" + $head)
 $lines += ("host=windows_ops_bat")
 $lines += ("AHOS_WEB_API_TOKEN_set=" + $tokenOk)
-$lines += ("NEXT_PUBLIC_match=" + (($pub -eq $tok) -and $tokenOk))
+$lines += ("NEXT_PUBLIC_unset=" + [string]::IsNullOrWhiteSpace($pub))
 $lines += ("AHOS_GATEWAY_URL_set=" + $gwOk)
 if ($gwOk) { $lines += ("AHOS_GATEWAY_URL=" + $gw) } else { $lines += "AHOS_GATEWAY_URL=" }
 $lines += ("DATABASE_URL_set=" + (-not [string]::IsNullOrWhiteSpace($db)))

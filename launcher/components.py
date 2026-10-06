@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import re
 import shutil
 import sqlite3
 import subprocess
@@ -134,6 +135,77 @@ def gateway_url_at(host: str, port: int) -> str:
     return f"http://{host}:{int(port)}/api/chat"
 
 
+def pglite_data_dir(raw: str) -> str | None:
+    """dataDir of a ``pglite:<dataDir>`` URL; mirrors ``db/index.ts::pgliteDataDir``.
+
+    ``pglite:G:/x``, ``pglite:/G:/x``, ``pglite://G:/x`` -> ``G:/x`` (Windows
+    drive); ``pglite:/abs`` and ``pglite:///abs`` stay POSIX absolute;
+    ``pglite:rel`` stays relative. Stripping every leading slash made a POSIX
+    absolute store look cwd-relative, so the probe inspected the wrong place.
+    """
+    if not raw.lower().startswith("pglite:"):
+        return None
+    d = raw[len("pglite:"):]
+    if d.startswith("//"):
+        d = d[2:]
+    if re.match(r"^[/\\]+[A-Za-z]:", d):
+        d = d.lstrip("/\\")
+    return d or None
+
+
+BOOT_FILE_NAME = "dashboard_boot.json"
+BOOT_TOKEN_TTL_S = 300.0
+BOOT_MAX_ENTRIES = 8
+
+
+def dashboard_boot_file(state_dir: Path) -> Path:
+    return Path(state_dir) / BOOT_FILE_NAME
+
+
+def issue_dashboard_boot_token(path: Path, *, ttl: float = BOOT_TOKEN_TTL_S,
+                               now: float | None = None) -> str:
+    """Create a fresh single-use token, store its hash, return the token.
+
+    Expired entries are pruned and at most ``BOOT_MAX_ENTRIES`` live tokens are
+    kept (oldest dropped). The file is replaced atomically and is owner-only
+    where the OS supports it. Format (shared with chat_auth.ts):
+    ``{"version": 1, "tokens": [{"sha256", "expires_ts", "issued_ts"}]}``.
+    """
+    import hashlib
+    import json
+    import secrets
+
+    t = time.time() if now is None else float(now)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        entries = [e for e in doc.get("tokens", [])
+                   if isinstance(e, dict) and isinstance(e.get("sha256"), str)
+                   and isinstance(e.get("expires_ts"), (int, float)) and e["expires_ts"] > t]
+    except (OSError, ValueError, AttributeError):
+        entries = []
+    token = secrets.token_hex(32)
+    entries.append({"sha256": hashlib.sha256(token.encode("utf-8")).hexdigest(),
+                    "expires_ts": t + float(ttl), "issued_ts": t})
+    entries = entries[-BOOT_MAX_ENTRIES:]
+    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+    fd = os.open(str(tmp), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        json.dump({"version": 1, "tokens": entries}, fh)
+    os.replace(tmp, path)
+    return token
+
+
+def bootstrap_url(dashboard_url: str, token: str) -> str:
+    """The dashboard URL with the token in the fragment (never sent in the page
+    request, so it cannot land in a server access log)."""
+    return dashboard_url.split("#", 1)[0] + "#boot=" + token
+
+
+# ------------------------------------------------------------- health probes ---
+
+
 def database_target(env: dict) -> dict:
     """Resolve the configured DB backend WITHOUT exposing any credential.
 
@@ -202,7 +274,12 @@ def repo_root_marker(root: Path) -> bool:
 
 
 def venv_python(root: Path) -> Path | None:
-    cand = root / ".venv" / "Scripts" / "python.exe"
+    """The repo venv interpreter: ``Scripts/python.exe`` on Windows, ``bin/python``
+    elsewhere (``run_ahos.sh`` and review boxes run the same launcher)."""
+    if os.name == "nt":
+        cand = root / ".venv" / "Scripts" / "python.exe"
+    else:
+        cand = root / ".venv" / "bin" / "python"
     return cand if cand.exists() else None
 
 
@@ -635,7 +712,8 @@ def preflight(root: Path, env: dict | None = None) -> Preflight:
 
     add("repo", repo_root_marker(root), f"workspace root {root}")
     py = venv_python(root)
-    add("venv", py is not None, ".venv\\Scripts\\python.exe")
+    add("venv", py is not None,
+        ".venv\\Scripts\\python.exe" if os.name == "nt" else ".venv/bin/python")
     add("node_modules", node_present(root), "node_modules")
     add("scheduler_config", (root / "architecture" / "scheduling" / "engine.py").exists(),
         "existing scheduler (n8n replacement)")

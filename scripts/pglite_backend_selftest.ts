@@ -13,7 +13,7 @@
  */
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { describe, it } from "node:test";
 import os from "node:os";
 import path from "node:path";
@@ -63,6 +63,15 @@ describe("DATABASE_URL backend selection", () => {
   it("handles a relative dataDir", () => {
     assert.equal(pgliteDataDir("pglite:data/pglite"), "data/pglite");
   });
+  it("keeps a POSIX absolute dataDir absolute", () => {
+    // Regression: `/workspace/x` used to become cwd-relative `workspace/x`,
+    // so the gateway opened an empty database under the working directory.
+    assert.equal(pgliteDataDir("pglite:/var/lib/ahos/pglite"), "/var/lib/ahos/pglite");
+    assert.equal(pgliteDataDir("pglite:///var/lib/ahos/pglite"), "/var/lib/ahos/pglite");
+  });
+  it("accepts the pglite:// authority form for a Windows drive", () => {
+    assert.equal(pgliteDataDir("pglite://G:/robat/db"), "G:/robat/db");
+  });
 });
 
 describe("embedded client round-trip", () => {
@@ -81,6 +90,8 @@ describe("embedded client round-trip", () => {
       "CREATE TABLE selftest_rt (id serial PRIMARY KEY, meta jsonb NOT NULL, " +
         "at timestamptz NOT NULL, at_naive timestamp NOT NULL, qty integer);",
     );
+    // The store must live in the configured dataDir, not a cwd-relative copy.
+    assert.ok(existsSync(path.join(dir, "PG_VERSION")), "PGlite did not open the configured dataDir");
 
     const meta = { intent: "paper_check", focusToken: "SOL", nested: { ok: true } };
     await client.query(

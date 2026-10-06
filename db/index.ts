@@ -57,9 +57,21 @@ export function isPgliteBackend(databaseUrl = getDatabaseUrl()): boolean {
   return databaseUrl.startsWith(PGLITE_PREFIX);
 }
 
-/** dataDir from a `pglite:<dataDir>` URL, tolerating a leading slash. */
+/**
+ * dataDir from a `pglite:<dataDir>` URL.
+ *
+ * Accepted forms: `pglite:G:/x`, `pglite:/G:/x` and `pglite://G:/x` (Windows
+ * drive; the leading slashes are dropped), `pglite:/abs/path` and
+ * `pglite:///abs/path` (POSIX absolute; kept absolute), `pglite:rel/path`.
+ * Stripping every leading slash unconditionally turned a POSIX absolute path
+ * into a cwd-relative one, so the gateway silently opened a fresh, empty
+ * database under the working directory instead of the configured store.
+ */
 export function pgliteDataDir(databaseUrl = getDatabaseUrl()): string {
-  return databaseUrl.slice(PGLITE_PREFIX.length).replace(/^\/+/, "");
+  let dir = databaseUrl.slice(PGLITE_PREFIX.length);
+  if (dir.startsWith("//")) dir = dir.slice(2); // URL authority form: pglite://<path>
+  if (/^\/+[A-Za-z]:/.test(dir)) dir = dir.replace(/^\/+/, ""); // /G:/x -> G:/x
+  return dir;
 }
 
 function getPool(): Pool {
