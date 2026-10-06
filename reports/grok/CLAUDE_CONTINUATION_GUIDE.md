@@ -1129,3 +1129,47 @@ three sign-offs complete, no placeholder remains); receipt
 mission's: the 7 pre-existing failures (auth-gate, canonical read model,
 ops-document contracts) and the 2 `data/`-dependent ones remain real and should
 be triaged separately.
+
+## M11.3 closed DONE -- 2026-10-06 11:58 by Claude (owner-authorized)
+
+The attempt launched at 08:48:50 on the fixed harness delivered:
+
+- Verdict `AUTOPILOT_RESULT: DONE`; consumed marker `ap_M11_3.json` records
+  `verdict=DONE`, exit 0, waited 11408 s.
+- The runner advanced the queue immediately: `11:59:29 M11.4 -> RUNNING`,
+  `launch M11.4 safe=ap_M11_4 child=8544 attempt=0`.
+
+Independent verification of the mission's claims:
+
+- Commit `2c6d90f` contains exactly the three documentation files
+  (`CLAUDE_AUTOPILOT_QUEUE.md`, this guide, `M11.3_review.md`); no protected
+  path, no source, no push.
+- `<FULL_SUITE_SUMMARY>` is no longer a placeholder: **2835 collected ->
+  2824 passed / 9 failed / 2 skipped** in four alphabetical chunks, with the
+  four collected counts summing to 2835. The 9 failures are proven
+  pre-existing at pre-M11.3 `f6eb34f` (7 fail identically there; the other 2
+  pass in a pristine tree only because gitignored `data/` is absent). The
+  identity-specific selection is 11 tests / 11 passed in 2.97 s, and the draft
+  figure of "22 tests in 246 s" is corrected in-document rather than silently
+  overwritten. Targeted file stays 93/93.
+- Owner receipt re-verified field by field: gateway pid 12048 across
+  start -> status -> second start -> stop, `second_start_was_idempotent_replay:
+  true`, 8/8 steps rc 0.
+
+The decisive production evidence for commit `8f059cd` came during this attempt
+and is worth recording: the fresh attempt ran 9852 s and exited with **no**
+`AUTOPILOT_RESULT` in its output -- the exact condition the old
+`run_mission.ps1` would have called `DONE attempts=1` and handed to the runner
+as MALFORMED, burning the attempt. Instead the launcher logged
+`no AUTOPILOT_RESULT in output -> resume` and re-launched
+`claude --resume f3108f2b-*`, which finished the sign-offs and wrote the
+verdict. The foreground rule was honoured throughout: all four suite chunks
+ran as blocking calls inside the turn, and no background task was orphaned.
+
+One minor cosmetic artifact, harmless and recorded rather than silently
+fixed: the mission flipped its own queue row to DONE inside `2c6d90f`, so
+`Apply-Verdict` correctly short-circuited (`row is DONE not RUNNING -> owner
+gate preserved, no change`) and never reached the DONE branch that resets the
+counter. `state.json` therefore still reads `{"M11.3": 3}`. It cannot matter:
+the DONE marker is terminal, so `Test-ConsumedTerminal` guards the row
+regardless of the counter, and the mission is never re-executed.
