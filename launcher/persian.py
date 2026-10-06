@@ -50,7 +50,11 @@ ACTIONS = {
     "gateway_down": (
         "درگاه پس از {sec} ثانیه جواب نداد. فایل لاگ را در logs/launcher ببینید."
     ),
-    "telegram_missing_token": "توکن ربات تلگرام پیدا نشد؛ بدون آن ربات اجرا نمی‌شود.",
+    "telegram_missing_token": (
+        "توکن ربات تلگرام پیدا نشد؛ بدون آن ربات اجرا نمی‌شود. "
+        "متغیر محیطی TELEGRAM_BOT_TOKEN را تنظیم کنید "
+        "(مقدار آن هرگز در گزارش‌ها نوشته نمی‌شود)."
+    ),
     "engine_down": "موتور شروع نشد. فایل لاگ را در logs/launcher ببینید.",
     "no_gemini_cred": (
         "کلید هوش مصنوعی در Windows Credential Manager نیست (AHOS/ai/gemini). "

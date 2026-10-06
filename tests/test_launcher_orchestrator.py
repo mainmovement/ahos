@@ -1035,6 +1035,188 @@ class TestProcessMarkers:
         assert not any(m.lower() in foreign.lower() for m, _ in orch.sweep_markers())
 
 
+# --------------------------------------------------------- telegram readiness ---
+# M11.4: telegram health is a stable, polling process — not "pid alive at
+# spawn". run_bot.py's own preflight (token, stores, a live get_me() through a
+# tunnel) can take many seconds, and the child is *alive* for every one of them,
+# so a liveness-only probe reported HEALTHY the instant it spawned and a start
+# announced ONLINE for a bot that was already dying.
+class TestTelegramReadiness:
+    # the exact line run_bot.py prints once its poll loop starts; copied from
+    # run_bot.run_polling, and pinned here so a silent wording change there
+    # breaks this suite instead of quietly un-fixing M11.4.
+    READY = "🤖 AHOS در حال گوش دادن است (offset=0). برای توقف: Ctrl+C"
+
+    def _rec(self, tmp_path, started, *, offset=0):
+        return {"pid": 4242, "started_ts": started, "log": str(tmp_path / "telegram.log"),
+                "log_offset": offset}
+
+    def test_a_pid_alive_for_one_second_is_still_booting(self, monkeypatch, tmp_path):
+        """The bug: a pid alive at spawn was reported HEALTHY."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        verdict = C.probe_telegram(self._rec(tmp_path, 1000.0), "telegram", now=1001.0)
+        assert verdict[0] == C.UNHEALTHY
+        assert "preflight" in verdict[1]
+
+    def test_stable_and_marked_is_healthy(self, monkeypatch, tmp_path):
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        log = tmp_path / "telegram.log"
+        log.write_text(f"preflight note\n{self.READY}\n", encoding="utf-8")
+        verdict = C.probe_telegram(self._rec(tmp_path, 1000.0), "telegram", now=1010.0)
+        assert verdict[0] == C.HEALTHY
+        assert "polling" in verdict[1]
+
+    def test_stable_but_no_mark_yet_is_still_booting(self, monkeypatch, tmp_path):
+        """Alive past the stability window but the poll loop has not started."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        log = tmp_path / "telegram.log"
+        log.write_text("still in preflight\n", encoding="utf-8")
+        verdict = C.probe_telegram(self._rec(tmp_path, 1000.0), "telegram", now=1010.0)
+        assert verdict[0] == C.UNHEALTHY
+        assert "readiness line" in verdict[1]
+
+    def test_a_previous_run_s_mark_does_not_satisfy_this_boot(self, monkeypatch, tmp_path):
+        """The log is append-only across restarts, so the whole-file search the
+        naive fix implies would read the *last* bot's readiness line while this
+        bot is still failing preflight — announcing ONLINE for the same dying
+        process the fix was written for."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        log = tmp_path / "telegram.log"
+        log.write_text(f"{self.READY}\n", encoding="utf-8")
+        rec = self._rec(tmp_path, 1000.0, offset=log.stat().st_size)
+        # this spawn has written nothing yet
+        verdict = C.probe_telegram(rec, "telegram", now=1001.0)
+        assert verdict[0] == C.UNHEALTHY
+
+    def test_the_status_poll_does_not_require_a_live_log(self, monkeypatch, tmp_path):
+        """A bot that has served for hours can have had its log rotated or
+        removed by hand; a read-only ``status`` must not then report a working
+        bot as sick. Liveness and the stability window still apply."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        rec = self._rec(tmp_path, 1000.0)  # no log file at all
+        assert C.probe_telegram(rec, "telegram", now=2000.0,
+                                require_ready=False)[0] == C.HEALTHY
+        # ...but a young one is still booting, even without a log to check
+        assert C.probe_telegram(rec, "telegram", now=1001.0,
+                                require_ready=False)[0] == C.UNHEALTHY
+
+    def test_stability_threshold_is_configurable(self, monkeypatch, tmp_path):
+        """``min_uptime`` is the knob HEALTH_WAIT surfaces."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        rec = self._rec(tmp_path, 1000.0)
+        assert C.probe_telegram(rec, "telegram", now=1002.0,
+                                min_uptime=1.0, require_ready=False)[0] == C.HEALTHY
+
+    def test_a_dead_pid_is_unavailable_not_booting(self, monkeypatch, tmp_path):
+        """The stability rule must not swallow the exit: a recorded pid that is
+        no longer ours is UNAVAILABLE."""
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: False)
+        verdict = C.probe_telegram(self._rec(tmp_path, 1000.0), "telegram", now=1010.0)
+        assert verdict[0] == C.UNAVAILABLE
+
+    def test_log_tail_never_splits_a_multibyte_character(self, tmp_path):
+        log = tmp_path / "telegram.log"
+        log.write_text("خط یک\nخط دو\nخط سه\n", encoding="utf-8")
+        assert C.read_log_tail(log, lines=2) == "خط دو\nخط سه"
+        assert C.read_log_tail(tmp_path / "absent.log", lines=3) == ""
+
+    def test_redact_log_strips_a_token_echo_and_is_idempotent(self):
+        once, kinds = C.redact_log("TELEGRAM_BOT_TOKEN=1234567890:ABC-def_ghI")
+        assert "1234567890:ABC" not in once
+        assert "REDACTED" in once
+        assert kinds  # at least one pattern fired
+        twice, _ = C.redact_log(once)
+        assert twice == once, "redacting twice must not double-wrap"
+
+    def test_redact_log_leaves_plain_text_alone(self):
+        clean, kinds = C.redact_log("❌ پیش‌نیازها کامل نیست.")
+        assert clean == "❌ پیش‌نیازها کامل نیست."
+        assert kinds == []
+
+    # --- start-level, with a real child the boot loop really has to watch ---
+    def _fake_child(self, marker, body):
+        """A real interpreter whose command line carries ``marker`` (so
+        ``pid_is_ours`` matches it) and which runs ``body``."""
+        code = f"import time, sys\n{body}"
+        return [sys.executable, "-c", code, marker]
+
+    @staticmethod
+    def _only_telegram_is_real(orch, monkeypatch):
+        """Run the REAL telegram boot path (real spawn, real pid, real loop)
+        while every other component is simulated healthy, so the overall verdict
+        reflects telegram alone instead of a SAFE_HALT for a missing daemon."""
+        real = orch._start_component
+        monkeypatch.setattr(orch, "_start_component",
+                            lambda name: real("telegram") if name == "telegram"
+                            else C.ComponentResult(name, C.HEALTHY, "simulated"))
+        monkeypatch.setattr("launcher.processkit.open_url", lambda url: True)
+
+    def test_a_child_exiting_after_one_second_reports_unavailable_and_degraded(
+            self, tmp_path, monkeypatch):
+        """M11.4 acceptance: a fake child that exits after 1 s -> start reports
+        telegram UNAVAILABLE, overall DEGRADED (not ONLINE)."""
+        orch = make_orchestrator(tmp_path,
+                                 health_wait={"telegram": 30, "telegram_stable": 600})
+        marker = "_ahos_fake_telegram_child_"
+        cmd = self._fake_child(marker, "time.sleep(1.0); sys.exit(1)\n")
+        orch.command_overrides["telegram"] = cmd
+        monkeypatch.setattr(orch, "marker", lambda name: marker)
+        # the fake child's live command line carries our marker
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: " ".join(cmd))
+        self._only_telegram_is_real(orch, monkeypatch)
+        report = orch.start()
+        assert report["components"]["telegram"]["status"] == C.UNAVAILABLE
+        assert "exited during its own preflight" in report["components"]["telegram"]["detail"]
+        assert report["overall"] == "DEGRADED"
+
+    def test_a_child_that_reaches_the_poll_loop_is_healthy(self, tmp_path, monkeypatch):
+        """The happy path through the same loop: the child survives the stability
+        window and prints the readiness line, so it is reported HEALTHY."""
+        orch = make_orchestrator(tmp_path,
+                                 health_wait={"telegram": 60, "telegram_stable": 2})
+        marker = "_ahos_fake_telegram_child_"
+        ready = C.TELEGRAM_READY_MARK
+        # sleep past the 2 s stability bar, then print the real readiness line,
+        # then stay alive long enough for the loop to see it
+        cmd = self._fake_child(
+            marker,
+            "time.sleep(3.0)\n"
+            f"print({ready!r}, flush=True)\n"
+            "time.sleep(120.0)\n")
+        orch.command_overrides["telegram"] = cmd
+        monkeypatch.setattr(orch, "marker", lambda name: marker)
+        monkeypatch.setattr("launcher.processkit.process_cmdline",
+                            lambda pid, timeout=5.0: " ".join(cmd))
+        self._only_telegram_is_real(orch, monkeypatch)
+        try:
+            report = orch.start()
+        finally:
+            # the fake poller outlives the boot loop by design; stop it by pid
+            info = pk.read_pid(orch.state_dir, "telegram")
+            if info:
+                pk.taskkill(info["pid"], force=True)
+        assert report["components"]["telegram"]["status"] == C.HEALTHY
+        assert "polling" in report["components"]["telegram"]["detail"]
+
+    def test_a_concurrent_start_reports_the_bot_as_it_is(self, tmp_path, monkeypatch):
+        """``already running`` must not assert HEALTHY for a bot still in its own
+        preflight — the second ``start`` would announce ONLINE for the same dying
+        bot the fix was written for. The idempotency decision (do not spawn a
+        second bot on the same token) is untouched."""
+        orch = make_orchestrator(tmp_path, health_wait={"telegram_stable": 600})
+        monkeypatch.setattr("launcher.processkit.pid_is_ours", lambda pid, marker: True)
+        monkeypatch.setattr("launcher.processkit.pid_alive", lambda pid: True)
+        pk.write_pid(orch.state_dir, "telegram", 4242,
+                     {"cmd": "run_bot.py", "marker": orch.marker("telegram"),
+                      "log": str(orch.log_path("telegram")),
+                      "started_ts": time.time()})
+        assert orch.component_state("telegram") == "ours_running"  # no second spawn
+        res = orch._start_component("telegram")
+        assert res.status == C.UNHEALTHY
+        assert "preflight" in res.detail
+
+
 class TestSmokeReportParsing:
     """The smoke harness must be able to read the report the CLI prints.
 

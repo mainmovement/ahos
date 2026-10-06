@@ -404,6 +404,134 @@ def probe_process(pid_info: dict | None, marker: str) -> tuple[str, str]:
     return HEALTHY, f"pid {pid} alive"
 
 
+# The line run_bot.py prints once its own preflight has passed and the long-poll
+# loop is actually serving (see run_bot.run_polling). It is a readiness signal
+# rather than a liveness one: a bot whose tunnel drops mid-poll is still alive
+# and still has this line in its log, while a bot that failed preflight never
+# printed it. Substring of a fixed Persian line, so nothing here reads the token.
+TELEGRAM_READY_MARK = "AHOS در حال گوش دادن است"
+
+# A pid alive this soon after spawn proves only that the interpreter started.
+# run_bot.py runs its own preflight first (token presence and format, the Lane-B
+# stores, a live get_me() against api.telegram.org that can take many seconds
+# through a filtered tunnel) and exits the moment it fails, so a probe that asks
+# only "is the pid ours?" reports HEALTHY in the instant the child spawns. The
+# launcher then announced ONLINE for a bot that was already dying (M11.4).
+# HEALTHY now requires the process to have survived this long as well.
+TELEGRAM_STABLE_SEC = 8.0
+
+
+def read_log_tail(log_path: str | Path, lines: int = 3) -> str:
+    """The last ``lines`` of a component log, "" when it cannot be read.
+
+    Component logs are opened in append-binary mode and never truncated, so a
+    record of every boot survives. Reading only the tail keeps the size bounded
+    when a log has grown across many restarts.
+    """
+    try:
+        path = Path(log_path)
+        if not path.exists():
+            return ""
+        data = path.read_bytes()[-4000:]
+        return "\n".join(data.decode("utf-8", errors="replace").strip().splitlines()[-lines:])
+    except Exception:
+        return ""
+
+
+def redact_log(text: str) -> tuple[str, list[str]]:
+    """Run the project's two existing secret patterns over owner-facing log text.
+
+    ``architecture.security.hygiene`` is the canonical security boundary and
+    carries the Telegram token shape; ``architecture.mission.ledger`` adds the
+    assignment form (``KEY=value``) a preflight echo can print. Both are loaded
+    lazily so the launcher's import graph stays out of Lane B's module-load
+    timing. Returns the redacted text and the kinds it found (empty = nothing
+    needed redacting). Idempotent: ledger's ASSIGNED rule carries a
+    ``(?![REDACTED)`` guard and hygiene's REDACTED text matches nothing.
+    """
+    if not text:
+        return text, []
+    try:
+        from architecture.security.hygiene import sanitize_secrets
+        text = sanitize_secrets(text)
+    except Exception:
+        pass
+    kinds: list[str] = []
+    try:
+        from architecture.mission.ledger import redact_secrets
+        text, kinds = redact_secrets(text)
+    except Exception:
+        pass
+    return text, (list(kinds) if kinds else [])
+
+
+def probe_telegram(pid_info: dict | None, marker: str, *,
+                   now: float | None = None,
+                   min_uptime: float = TELEGRAM_STABLE_SEC,
+                   ready_mark: str = TELEGRAM_READY_MARK,
+                   require_ready: bool = True) -> tuple[str, str]:
+    """Telegram health = a stable, polling bot — not a pid alive at spawn.
+
+    ``run_bot.py`` runs its own preflight before it ever polls Telegram and
+    exits when it fails (no token, no stores, no tunnel). The child is *alive*
+    for every one of those seconds, so ``probe_process`` reported HEALTHY the
+    moment the launcher spawned it and a start announced ONLINE for a bot that
+    was already on its way out (M11.4). HEALTHY now requires the process to have
+    been alive for ``min_uptime`` seconds and, in the boot window, to have
+    printed its readiness line — the mark ``run_bot.py`` emits once the poll
+    loop starts. Anything less is UNHEALTHY ("still booting / preflight"), never
+    HEALTHY, so a start never reports ONLINE for a bot in preflight.
+
+    ``require_ready`` is the stability/robustness trade-off. The fresh-spawn
+    boot window always demands the mark: the log is new there and the question
+    is precisely "did the bot reach the poll loop?". A read-only ``status`` poll
+    does not: a bot that has served for hours can have had its log rotated or
+    removed by hand, and reporting a working bot as sick would be worse than
+    the disease. The pid-record liveness and stability checks apply in both.
+
+    Never reads the token. The mark is a fixed Persian substring and the log is
+    only ever surfaced through ``redact_log``; callers that must show the owner
+    a tail do that themselves.
+    """
+    base, detail = probe_process(pid_info, marker)
+    if base != HEALTHY:
+        return base, detail
+    pid = pid_info["pid"]
+    started = pid_info.get("started_ts")
+    if not isinstance(started, (int, float)) or isinstance(started, bool):
+        # A pid record without a start time predates this rule; the pid is alive
+        # and ours, so this is not the boot window the stability rule guards.
+        return HEALTHY, f"pid {pid} alive"
+    now = time.time() if now is None else float(now)
+    uptime = max(0.0, now - float(started))
+    if uptime < min_uptime:
+        return UNHEALTHY, (f"pid {pid} alive for {uptime:.0f}s, still in its own "
+                           f"preflight (needs {min_uptime:.0f}s to count as stable)")
+    log_path = pid_info.get("log")
+    if require_ready and log_path:
+        # Only the text written after THIS spawn counts: the log is append-only
+        # across restarts, so a mark from a previous run would satisfy a naive
+        # whole-file search while this bot is still failing preflight. The pid
+        # record carries the offset the spawn saw.
+        if not _log_contains(log_path, ready_mark, pid_info.get("log_offset") or 0):
+            return UNHEALTHY, (f"pid {pid} alive for {uptime:.0f}s but has not printed "
+                               f"its readiness line yet (poll loop not started)")
+    return HEALTHY, f"pid {pid} alive for {uptime:.0f}s and polling"
+
+
+def _log_contains(log_path: str | Path, needle: str, offset: int) -> bool:
+    """Does ``log_path`` contain ``needle`` at or after ``offset`` bytes?"""
+    try:
+        path = Path(log_path)
+        if not path.exists():
+            return False
+        with open(path, "rb") as fh:
+            fh.seek(max(0, int(offset)))
+            return needle.encode("utf-8") in fh.read()
+    except Exception:
+        return False
+
+
 def engine_heartbeat_age(db_path: str, component: str = "DAEMON_CYCLE") -> float | None:
     """Seconds since the daemon's scheduler heartbeat — real evidence, not a ping."""
     try:

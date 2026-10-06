@@ -95,6 +95,39 @@ running its first cycle; this takes a few minutes" line.
 A process that is alive but never turned healthy within the wait is reported
 `UNHEALTHY` with its last probe, not a generic "timed out".
 
+Telegram is judged by the same principle — alive is not ready. `run_bot.py`
+runs its own preflight (token presence, proxy, discovery stores, a live
+`get_me()`) and exits 1 on any failure, so a bot that is *dying* is still
+alive for the first second of its life. `probe_telegram` therefore requires
+three things before it will say `HEALTHY`:
+
+| situation | verdict |
+|---|---|
+| pid not ours / not alive | `UNAVAILABLE`, plus the last 3 redacted log lines |
+| pid alive for less than `telegram_stable` (8s) | `UNHEALTHY "still in its own preflight"` |
+| alive past the bar, but the readiness line has not appeared yet | `UNHEALTHY "readiness line ... (poll loop not started)"` |
+| alive past the bar **and** the readiness line is in the log | `HEALTHY "alive for Ns and polling"` |
+
+The readiness line is the one `run_bot.py` already prints once its long-poll
+loop starts (`🤖 AHOS در حال گوش دادن است (offset=…)`) — a process that has
+not reached the polls cannot print it, so it is a real readiness signal rather
+than a second heartbeat. Because the launcher log is append-only, the search
+starts at the byte offset recorded in the pid record at spawn time; a line
+left by a *previous* bot cannot satisfy a fresh boot. The boot path demands
+the line; the `status` poll and the "already running" path only use it when
+it is there (`require_ready=False`), because a bot that has been up for hours
+may have rotated its log.
+
+If the bot exits inside the window, the report is `UNAVAILABLE` with the last
+3 lines of `logs/launcher/telegram.log`, passed through both existing redaction
+layers (`architecture.security.hygiene` and `architecture.mission.ledger`).
+The token is never read or printed — only the *name* `TELEGRAM_BOT_TOKEN`
+appears in the Persian action string.
+
+This is a health-reporting change only. The idempotency decision is untouched:
+a young-but-alive recorded pid is still `ours_running`, so a second concurrent
+`start` never spawns a second bot polling the same token.
+
 Status is written to `reports/launcher/status.json` (latest) plus a bounded set
 of timestamped archives (`status_<utc>.json`, pruned to
 `MAX_STATUS_ARCHIVES` — only state-changing actions archive anything); logs go

@@ -45,7 +45,15 @@ PROCESS_COMPONENTS = ["gateway", "telegram", "engine"]
 # 120s this once allowed, so a healthy gateway read UNAVAILABLE and an OPTIONAL
 # failure degraded a boot whose only defect was the compile. The smoke pins dev
 # mode, so this is the cost a real cold boot pays, not a hypothetical.
-HEALTH_WAIT = {"stores": 60, "db_backend": 10, "gateway": 240, "telegram": 25, "engine": 420}
+HEALTH_WAIT = {"stores": 60, "db_backend": 10, "gateway": 240, "telegram": 25,
+               "engine": 420,
+               # Telegram health requires the bot to have *survived* its own
+               # preflight, not merely to have started (M11.4): how many seconds
+               # a recorded pid must have been alive before HEALTHY is even
+               # possible. The boot loop also waits for run_bot.py's readiness
+               # line; this is the minimum bar, and it is shorter than the
+               # "telegram" budget so a healthy bot is not held hostage to it.
+               "telegram_stable": 8}
 
 
 class AhosOrchestrator:
@@ -264,6 +272,9 @@ class AhosOrchestrator:
                 return "unusable"
         return "down"
 
+    def _telegram_stable_sec(self) -> float:
+        return float(self.health_wait.get("telegram_stable", C.TELEGRAM_STABLE_SEC))
+
     def _component_probe(self, name: str, *, heartbeat_age: float | None = None):
         if name == "stores":
             return C.probe_stores(self.clock())
@@ -272,7 +283,15 @@ class AhosOrchestrator:
         if name == "gateway":
             return C.probe_gateway(self.dashboard_url(), self.clock())
         if name == "telegram":
-            return C.probe_process(self._pid_info("telegram"), self.marker("telegram"))
+            # Read-only path: a bot that has served for hours may have had its
+            # log rotated by hand, so the readiness mark is not required here —
+            # but liveness and the stability window always are. Nothing weaker
+            # than probe_process can ever decide telegram health again (M11.4).
+            return C.probe_telegram(self._pid_info("telegram"),
+                                    self.marker("telegram"),
+                                    now=self.clock(),
+                                    min_uptime=self._telegram_stable_sec(),
+                                    require_ready=False)
         if name == "engine":
             if heartbeat_age is None:
                 heartbeat_age = C.engine_heartbeat_age(get_local_db_path())
@@ -289,15 +308,7 @@ class AhosOrchestrator:
 
     # ------------------------------------------------------------- log helpers --
     def _log_tail(self, name: str, lines: int = 6) -> str:
-        path = self.log_path(name)
-        if not path.exists():
-            return ""
-        try:
-            data = path.read_bytes()[-4000:]
-            txt = data.decode("utf-8", errors="replace").strip().splitlines()
-            return "\n".join(txt[-lines:])
-        except Exception:
-            return ""
+        return C.read_log_tail(self.log_path(name), lines=lines)
 
     # ------------------------------------------------------------- components --
     def _spawn(self, name: str, cmd: list[str], env: dict,
@@ -317,6 +328,18 @@ class AhosOrchestrator:
         if state == "ours_running":
             info = self._pid_info(name) or {}
             self.emit(f"  {P.component_label(name)}: از قبل در حال اجراست (pid {info.get('pid')})")
+            if name == "telegram":
+                # "One of ours is alive" is not "healthy": a bot a few seconds
+                # old is still inside its own preflight, and asserting HEALTHY
+                # here would announce ONLINE for a bot about to exit (M11.4).
+                # Probe it by the same rule the boot loop uses, so a second
+                # concurrent start reports what the bot actually is.
+                status, detail = C.probe_telegram(
+                    info, self.marker("telegram"), now=self.clock(),
+                    min_uptime=self._telegram_stable_sec(), require_ready=False)
+                return C.ComponentResult(name, status, detail,
+                                         pid=info.get("pid"),
+                                         started_ts=info.get("started_ts"))
             return C.ComponentResult(name, C.HEALTHY, "already running (idempotent)",
                                      pid=info.get("pid"), started_ts=info.get("started_ts"))
         if state == "foreign_busy":
@@ -449,6 +472,13 @@ class AhosOrchestrator:
         # and adopts the live port instead of reporting the dead configured one.
         spawn_extra = {"port": int(self.gateway.get("port") or 0)} \
             if name == "gateway" else None
+        if name == "telegram":
+            # The readiness search must ignore everything a *previous* bot wrote:
+            # the log is append-only across restarts, so a mark from the last run
+            # would satisfy it while this bot is still failing preflight. The
+            # byte offset at spawn is where this bot's output begins.
+            lp = self.log_path("telegram")
+            spawn_extra = {"log_offset": lp.stat().st_size if lp.exists() else 0}
         try:
             pid = self._spawn(name, cmd, env, extra=spawn_extra)
         except Exception as e:
@@ -460,15 +490,21 @@ class AhosOrchestrator:
         booting_note = False
         while self.clock() < deadline:
             if name == "telegram":
-                # run_bot.py exits fast when its own preflight fails; catch that.
+                # run_bot.py exits fast when its own preflight fails; catch that
+                # and report it with its last lines instead of letting the loop
+                # run out the clock on a pid that is already gone (M11.4).
                 if pk.pid_alive(pid) is False:
-                    tail = self._log_tail("telegram")
-                    hint = "توکن" if "توکن" in tail or "token" in tail.lower() else ""
-                    return C.ComponentResult("telegram", C.UNAVAILABLE,
-                                             f"exited during preflight; {tail[-160:]}",
-                                             pid=pid, fresh=True)
-                status, detail = C.probe_process(self._pid_info("telegram"),
-                                                 self.marker("telegram"))
+                    tail, kinds = C.redact_log(self._log_tail("telegram", lines=3))
+                    note = (" (a stored secret was redacted from this log)"
+                            if kinds else "")
+                    return C.ComponentResult(
+                        "telegram", C.UNAVAILABLE,
+                        f"exited during its own preflight{note}; last log lines: {tail}",
+                        pid=pid, fresh=True)
+                status, detail = C.probe_telegram(
+                    self._pid_info("telegram"), self.marker("telegram"),
+                    now=self.clock(), min_uptime=self._telegram_stable_sec(),
+                    require_ready=True)
                 if status == C.HEALTHY:
                     return C.ComponentResult("telegram", status, detail, pid=pid,
                                              fresh=True)
@@ -487,6 +523,10 @@ class AhosOrchestrator:
                 self.emit(P.PROGRESS["engine_booting"])
             time.sleep(1.0)
         tail = self._log_tail(name)
+        if name == "telegram":
+            # The bot's log can carry the token in a preflight echo; the tail
+            # reaches the owner-facing report, so redact it (M11.4).
+            tail = C.redact_log(tail)[0]
         # A live process that simply never turned healthy (the engine's first
         # scheduler cycle can take longer than the wait) is UNHEALTHY, not
         # UNAVAILABLE — the owner is told what it was last seen doing.
