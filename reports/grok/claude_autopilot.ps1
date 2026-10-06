@@ -372,18 +372,32 @@ function Start-MissionAttempt($state, $row) {
 
 # --- control loop -----------------------------------------------------------------------
 function Invoke-RunnerLoop {
-  $state = Load-AttemptState
   $iterations = 0
   while ($true) {
     $iterations++
     # Test seam: a positive budget makes the loop exit after N iterations.
     if ($script:LoopBudget -gt 0 -and $iterations -gt $script:LoopBudget) { break }
+    # Reload every iteration. The on-disk counters are authoritative, and this is the
+    # only route by which an out-of-band correction -- an attempt budget voided after a
+    # harness defect was fixed -- can reach a runner that is already running. Earlier the
+    # load happened once at loop entry, so a live runner kept its stale counters in
+    # memory and Save-AttemptState clobbered the correction when the in-flight attempt
+    # ended. Save-AttemptState is the sole writer and persists the whole table, so a
+    # reload mid-loop returns exactly what the last save wrote.
+    $state = Load-AttemptState
     try {
       Write-Heartbeat 'LOOP_START' '' 0 0
 
-      # Never overlap a live mission child, whether ours or Grok's.
+      # Never overlap a live mission child, whether ours or Grok's. Match the child
+      # script this runner actually spawns rather than a hardcoded name: in production
+      # that is run_mission.ps1, and in the test harness it is the generated stub, whose
+      # path is unique per harness run. Matching the literal script keeps an unrelated
+      # powershell that merely mentions run_mission.ps1 from being mistaken for a mission
+      # child -- and, from the other side, stops a sandbox loop from deferring forever to
+      # a production mission child that is not its own.
       $me = $PID
-      if (Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | ?{ $_.CommandLine -match 'run_mission\.ps1' -and $_.ProcessId -ne $me }) {
+      $childRe = [regex]::Escape($childScript)
+      if (Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | ?{ $_.CommandLine -match $childRe -and $_.ProcessId -ne $me }) {
         Write-Heartbeat 'CHILD_RUNNING' '' 0 0 'another mission child is live'
         Start-Sleep -Seconds $CHILD_POLL_SEC; continue
       }

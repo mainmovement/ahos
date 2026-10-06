@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Autopilot runner repair -- pytest wrapper for the PowerShell TESTS A-J.
+"""Autopilot runner repair -- pytest wrapper for the PowerShell TESTS A-K.
 
 The AHOS Grok/Claude autopilot runner (``reports/grok/claude_autopilot.ps1``)
 stalled for 34h+ on 2026-10-05 because a child mission exited cleanly with a
@@ -74,9 +74,9 @@ def _assert_pass(test_id: str, out: str, rc: int) -> None:
     assert verdict == "PASS", f"test {test_id} failed: {ours[0][2]}\nfull:\n{out}"
 
 
-@pytest.mark.parametrize("test_id", list("ABCDEFGHIJ"))
+@pytest.mark.parametrize("test_id", list("ABCDEFGHIJK"))
 def test_runner_repair_case(test_id: str) -> None:
-    """TESTS A-J from the repair directive, executed by the real PS 5.1 harness."""
+    """TESTS A-K from the repair directive, executed by the real PS 5.1 harness."""
     rc, out = _run_harness(test_id)
     _assert_pass(test_id, out, rc)
 
@@ -242,6 +242,31 @@ def test_the_mission_launcher_treats_a_verdictless_output_as_undelivered():
     resume = text.split("$resumeMsg", 1)[1]
     assert "one-shot" in resume, (
         "a resumed session must be told that ending its turn kills background work")
+
+
+def test_the_attempt_state_is_reloaded_every_iteration():
+    r"""An out-of-band budget correction must reach a runner that is already running.
+
+    ``Load-AttemptState`` used to be called once at loop entry, so the counters lived in
+    memory for the runner's whole life: a ``state.json`` edit made while the runner was
+    running was never read, and ``Save-AttemptState`` clobbered it when the in-flight
+    attempt ended. The load must happen inside the loop, where ``Save-AttemptState`` is
+    the sole writer and a reload therefore returns exactly what the last save wrote.
+    """
+    text = RUNNER.read_text(encoding="utf-8")
+    body = text.split("function Invoke-RunnerLoop", 1)[1]
+    body = body.split("\n}\n", 1)[0]
+    assert "$state = Load-AttemptState" in body, "the loop must load the attempt state"
+    # The load must be inside the while loop, not at function entry. The loop body is
+    # everything after the `while ($true) {` line, so a load appearing there and NOT
+    # before that line is the structural guarantee.
+    head, _, tail = body.partition("while ($true) {")
+    assert "$state = Load-AttemptState" not in head, (
+        "the attempt state must not be loaded once at loop entry")
+    assert "$state = Load-AttemptState" in tail, (
+        "the attempt state must be reloaded on every iteration")
+    assert "Save-AttemptState is the sole writer" in body, (
+        "the invariant the reload depends on must be stated in the code")
 
 
 def test_the_owner_gate_is_preserved_not_converted():

@@ -19,6 +19,7 @@ $realTemplate = Join-Path $here 'MISSION_PROMPT_TEMPLATE.txt'
 # selected by STUB_MODE instead, which the stub reads at run time.
 #   default  -> write a UTF-8 result ending in AUTOPILOT_RESULT: DONE
 #   utf16    -> same, but UTF-16LE with an FF FE BOM (the real M11.2 shape)
+#   partial  -> write a UTF-8 result ending in AUTOPILOT_RESULT: PARTIAL
 #   noresult -> exit without writing anything
 $stub = Join-Path $env:TEMP ('ahos_stub_' + [IO.Path]::GetRandomFileName().Replace('.','') + '.ps1')
 Set-Content -LiteralPath $stub -Encoding UTF8 @'
@@ -28,6 +29,9 @@ Start-Sleep -Seconds 1
 $mode = $env:STUB_MODE; if (-not $mode) { $mode = 'default' }
 switch ($mode) {
   'noresult' { }
+  'partial' {
+    [IO.File]::WriteAllText($out, "stub partial`r`n`r`nAUTOPILOT_RESULT: PARTIAL remains=stub`r`n", (New-Object Text.UTF8Encoding $false))
+  }
   'utf16' {
     $body = "persian test`r`n`r`nAUTOPILOT_RESULT: DONE`r`n"
     $payload = [Text.Encoding]::Unicode.GetBytes($body)
@@ -319,7 +323,49 @@ function Test-J {
   Pass 'J retryable_after_partial'
 }
 
-$wanted = if ($Test -eq 'ALL') { 'A','B','C','D','E','F','G','H','I','J' } else { @($Test) }
+# ---------------------------------------------------------------------------
+# TEST K: an out-of-band attempt-budget correction reaches a LIVE runner.
+#         (the defect this session: state.json was loaded once at loop entry, so a
+#          correction made while the runner was running was ignored and then
+#          clobbered by the next Save-AttemptState)
+# ---------------------------------------------------------------------------
+function Test-K {
+  Clear-SandboxState
+  New-Queue @('M11.4 | PENDING | t4')
+  $statePath = Join-Path $sandbox 'autopilot\state.json'
+  # The loop's own save is the only internal writer, so the reload is invisible in the
+  # normal flow -- the only thing that can prove it is a write from OUTSIDE the loop,
+  # landing between two iterations. A background job is used rather than a threadpool
+  # timer on purpose: an error in a delegate-invoked scriptblock terminates the process
+  # from a threadpool thread, whereas a job is a separate process whose failure cannot
+  # take the harness down. It writes at T+3s, after iteration 1's save at ~T+1.1s and
+  # well before iteration 2's load at ~T+31s (the 30s post-launch sleep).
+  $jb = Start-Job -ArgumentList $statePath -ScriptBlock {
+    param($p) Start-Sleep -Seconds 3
+    @{ 'M11.4' = 2 } | ConvertTo-Json | Out-File -Encoding utf8 $p
+  }
+  try {
+    With-StubMode 'partial' {
+      $script:LoopBudget = 2
+      Invoke-RunnerLoop
+    }
+  } finally {
+    $jb | Wait-Job -Timeout 15 | Out-Null
+    Remove-Job $jb -Force -ErrorAction SilentlyContinue
+  }
+
+  # Iteration 1 loads an empty state -> PARTIAL -> counter 1 -> PARTIAL. The job then
+  # writes counter 2. Iteration 2 must load THAT: 2 + 1 = 3 >= MAX_ATTEMPTS ->
+  # NEEDS_REVIEW. Under the old load-once code iteration 2 would still see its
+  # in-memory 1 -> 2 -> PARTIAL, and the correction would be silently ignored.
+  $c = Get-Content -Raw -LiteralPath (Join-Path $sandbox 'CLAUDE_AUTOPILOT_QUEUE.md')
+  if ($c -notmatch '\| M11\.4 \| NEEDS_REVIEW \|') { Fail 'K out_of_band_state_read' "expected NEEDS_REVIEW from the reloaded counter, got: $c"; return }
+  $s = Get-Content -Raw -LiteralPath $statePath | ConvertFrom-Json
+  if ([int]$s.'M11.4' -ne 3) { Fail 'K out_of_band_state_read' "counter should be 3 after the reloaded 2 was incremented, got $($s.'M11.4')"; return }
+  Pass 'K out_of_band_state_read'
+}
+
+$wanted = if ($Test -eq 'ALL') { 'A','B','C','D','E','F','G','H','I','J','K' } else { @($Test) }
 foreach ($t in $wanted) {
   switch ($t) {
     'A' { Test-A }
@@ -332,6 +378,7 @@ foreach ($t in $wanted) {
     'H' { Test-H }
     'I' { Test-I }
     'J' { Test-J }
+    'K' { Test-K }
     default { Fail "TEST_$t" 'unknown test id' }
   }
 }
