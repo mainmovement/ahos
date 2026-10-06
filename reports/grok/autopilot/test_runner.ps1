@@ -277,7 +277,44 @@ function Test-I {
   Pass 'I loop_respects_owner_gate'
 }
 
-$wanted = if ($Test -eq 'ALL') { 'A','B','C','D','E','F','G','H','I' } else { @($Test) }
+# ---------------------------------------------------------------------------
+# TEST J: a retryable verdict does not permanently block re-execution.
+#         (the M11.3 deadlock: MALFORMED result, PARTIAL row, retry never ran)
+# ---------------------------------------------------------------------------
+function Test-J {
+  # The predicate: only terminal verdicts are permanent no-re-execution guards.
+  Clear-SandboxState
+  $cd = Join-Path $sandbox 'autopilot\consumed'
+  $null = New-Item -ItemType Directory -Force -Path $cd
+  foreach ($v in 'DONE','BLOCKED_OWNER','TIMEOUT') {
+    @{ mission='M11.4'; safe='ap_M11_4'; verdict=$v; ts=(Get-Date -Format o) } |
+      ConvertTo-Json | Out-File -Encoding utf8 (Join-Path $cd 'ap_M11_4.json')
+    if (-not (Test-ConsumedTerminal 'ap_M11_4')) { Fail 'J retryable_after_partial' "verdict $v was not treated as terminal"; return }
+  }
+  foreach ($v in 'PARTIAL','MALFORMED','MISSING','LIMIT') {
+    @{ mission='M11.4'; safe='ap_M11_4'; verdict=$v; ts=(Get-Date -Format o) } |
+      ConvertTo-Json | Out-File -Encoding utf8 (Join-Path $cd 'ap_M11_4.json')
+    if (Test-ConsumedTerminal 'ap_M11_4') { Fail 'J retryable_after_partial' "verdict $v blocked the retry path"; return }
+  }
+
+  # End to end: a mission left at PARTIAL by a MALFORMED result is re-launched, and the
+  # fresh result replaces the old marker.
+  Clear-SandboxState
+  New-Queue @('M11.4 | PARTIAL | t4')
+  $null = New-Item -ItemType Directory -Force -Path $cd
+  @{ mission='M11.4'; safe='ap_M11_4'; verdict='MALFORMED'; ts=(Get-Date -Format o) } |
+    ConvertTo-Json | Out-File -Encoding utf8 (Join-Path $cd 'ap_M11_4.json')
+  $state = @{ 'M11.4' = 1 }
+  $ok = Start-MissionAttempt $state (Get-MissionRows | Select -First 1)
+  if (-not $ok) { Fail 'J retryable_after_partial' 'a MALFORMED marker blocked the retry launch'; return }
+  $c = Get-Content -Raw -LiteralPath (Join-Path $sandbox 'CLAUDE_AUTOPILOT_QUEUE.md')
+  if ($c -notmatch '\| M11\.4 \| DONE \|') { Fail 'J retryable_after_partial' "retry did not reach DONE: $c"; return }
+  $m = Get-Content -Raw -LiteralPath (Join-Path $cd 'ap_M11_4.json') | ConvertFrom-Json
+  if ($m.verdict -ne 'DONE') { Fail 'J retryable_after_partial' "marker not overwritten with the new verdict: $($m.verdict)"; return }
+  Pass 'J retryable_after_partial'
+}
+
+$wanted = if ($Test -eq 'ALL') { 'A','B','C','D','E','F','G','H','I','J' } else { @($Test) }
 foreach ($t in $wanted) {
   switch ($t) {
     'A' { Test-A }
@@ -289,6 +326,7 @@ foreach ($t in $wanted) {
     'G' { Test-G }
     'H' { Test-H }
     'I' { Test-I }
+    'J' { Test-J }
     default { Fail "TEST_$t" 'unknown test id' }
   }
 }

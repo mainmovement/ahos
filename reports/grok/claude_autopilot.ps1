@@ -192,6 +192,26 @@ function Write-ConsumedMarker([string]$Safe, $info) {
 }
 function Test-Consumed([string]$Safe) { Test-Path -LiteralPath "$consumedDir\$Safe.json" }
 
+# Terminal-vs-retryable split of the marker above. DONE and BLOCKED_OWNER take the row
+# out of the launchable set permanently, and TIMEOUT escalates it to NEEDS_REVIEW, so
+# their markers are permanent no-re-execution guards. The retryable verdicts (PARTIAL,
+# MALFORMED, MISSING, LIMIT) deliberately leave the row at PARTIAL so the next loop
+# pass re-launches it; if such a marker blocked re-launch, the retry branch of
+# Apply-Verdict would be dead code and the queue would stall on the very first PARTIAL
+# -- which is exactly the M11.3 deadlock this fixed (MALFORMED result, PARTIAL row,
+# "result already consumed -> skip launch" on every iteration).
+function Test-ConsumedTerminal([string]$Safe) {
+  $p = "$consumedDir\$Safe.json"
+  if (-not (Test-Path -LiteralPath $p)) { return $false }
+  try {
+    $m = Get-Content -Raw -LiteralPath $p | ConvertFrom-Json
+    if ($m.verdict) { return @('DONE','BLOCKED_OWNER','TIMEOUT') -contains $m.verdict }
+  } catch { }
+  # An unreadable or verdict-less marker is treated conservatively as terminal:
+  # refusing to re-run is the fail-closed direction, and it is logged on every pass.
+  return $true
+}
+
 # Reconciles the in-flight record left by a previous runner generation.
 #   child alive + phase LAUNCHED      -> leave it alone, the loop guard will wait
 #   child gone  + phase LAUNCHED      -> classify the result now (crash recovery)
@@ -284,8 +304,10 @@ function Start-MissionAttempt($state, $row) {
   $resultPath = "$g\_claude_${safe}_result.txt"
 
   # Duplicate-execution guard: an in-flight attempt with a live child is never
-  # re-launched, and a result already applied is never applied again.
-  if (Test-Consumed $safe) { L "$id : result already consumed -> skip launch"; return $false }
+  # re-launched, and a result whose verdict was terminal is never executed again. A
+  # retryable verdict does NOT block here -- its marker records only that the previous
+  # result was applied to the queue, not that the mission may never run again.
+  if (Test-ConsumedTerminal $safe) { L "$id : result already consumed with a terminal verdict -> skip launch"; return $false }
   if (Test-Path -LiteralPath $activeFile) {
     $a = Get-Content -Raw -LiteralPath $activeFile | ConvertFrom-Json
     if ($a.safe -eq $safe -and $a.phase -eq 'LAUNCHED' -and $a.child_pid -and (Get-Process -Id $a.child_pid -ErrorAction SilentlyContinue)) {
@@ -298,6 +320,11 @@ function Start-MissionAttempt($state, $row) {
     $p += "`n`nSPECIAL: pick the NEXT unfinished mission in M14..M33 (plan order) and deliver it. If every one of M14..M33 is done or owner-blocked, end with AUTOPILOT_RESULT: DONE NO_REMAINING. Otherwise end with AUTOPILOT_RESULT: PARTIAL <which missions remain>."
   }
   [IO.File]::WriteAllText($taskPath, $p, (New-Object Text.UTF8Encoding $false))
+
+  # A retry must not inherit the previous attempt's result file: if the new child died
+  # before overwriting it, the stale text would be classified again and the attempt
+  # charged against output the child never produced.
+  if (Test-Path -LiteralPath $resultPath) { Clear-Content -LiteralPath $resultPath }
 
   $cf = ''; if ([int]$state[$id] -gt 0) { $cf = '-continueFresh' }
   SetStatus $id 'RUNNING'
@@ -322,6 +349,7 @@ function Start-MissionAttempt($state, $row) {
   if ($r.Found -and $r.Text -match 'usage limit|quota exceeded|credit balance') {
     Write-ConsumedMarker $safe @{ mission=$id; safe=$safe; verdict='LIMIT'; ts=(Get-Date -Format o) }
     Apply-Verdict $state $id $safe 'PARTIAL' '' $wait
+    Clear-ActiveState
     L "limit hit - sleeping $LIMIT_SLEEP_SEC`s"
     Start-Sleep -Seconds $LIMIT_SLEEP_SEC
     return $true
@@ -334,6 +362,10 @@ function Start-MissionAttempt($state, $row) {
 
   Write-ConsumedMarker $safe @{ mission=$id; safe=$safe; verdict=$verdict; argument=$argument; wait_outcome=$wait.Outcome; exit_code=$wait.ExitCode; waited_sec=$wait.WaitedSec; source='live'; ts=(Get-Date -Format o) }
   Apply-Verdict $state $id $safe $verdict $argument $wait
+  # The in-flight record has served its purpose once its verdict is on the queue and
+  # the marker is down; leaving it would make every later pass reconcile a finished
+  # mission.
+  Clear-ActiveState
   return $true
 }
 

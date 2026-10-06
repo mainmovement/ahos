@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Autopilot runner repair -- pytest wrapper for the PowerShell TESTS A-I.
+"""Autopilot runner repair -- pytest wrapper for the PowerShell TESTS A-J.
 
 The AHOS Grok/Claude autopilot runner (``reports/grok/claude_autopilot.ps1``)
 stalled for 34h+ on 2026-10-05 because a child mission exited cleanly with a
@@ -21,7 +21,10 @@ Governance pins
   path may convert it to DONE on the strength of a result file alone.
 * BLOCKED_OWNER stays "(human gate; skipped)" per the queue header.
 * A result is applied to the queue at most once.
-* A completed result must never cause the mission to be re-executed.
+* A terminally completed result (DONE / BLOCKED_OWNER / TIMEOUT) must never cause the
+  mission to be re-executed. A retryable verdict (PARTIAL / MALFORMED / MISSING / LIMIT)
+  must not block re-execution either, or the retry branch of ``Apply-Verdict`` is
+  unreachable and the queue deadlocks on its first PARTIAL -- the M11.3 stall.
 """
 from __future__ import annotations
 
@@ -69,9 +72,9 @@ def _assert_pass(test_id: str, out: str, rc: int) -> None:
     assert verdict == "PASS", f"test {test_id} failed: {ours[0][2]}\nfull:\n{out}"
 
 
-@pytest.mark.parametrize("test_id", list("ABCDEFGHI"))
+@pytest.mark.parametrize("test_id", list("ABCDEFGHIJ"))
 def test_runner_repair_case(test_id: str) -> None:
-    """TESTS A-I from the repair directive, executed by the real PS 5.1 harness."""
+    """TESTS A-J from the repair directive, executed by the real PS 5.1 harness."""
     rc, out = _run_harness(test_id)
     _assert_pass(test_id, out, rc)
 
@@ -159,6 +162,32 @@ def test_the_runner_is_powershell_51_compatible():
             f"{path}: ?? null-coalescing is not 5.1-safe")
         assert "Tee-Object" not in stripped, (
             f"{path}: Tee-Object is a 7.2+ surface (M11.2 defect class)")
+
+
+def test_the_launch_guard_distinguishes_terminal_from_retryable():
+    """A consumed marker means "this result was applied", not "never run again".
+
+    The M11.3 stall was exactly this conflation: a MALFORMED result left the row at
+    PARTIAL so ``Apply-Verdict`` could retry it, but the launch guard refused on bare
+    marker existence, so the retry was unreachable and the queue spun forever. The
+    launch guard must consult the terminal-only predicate; reconciliation keeps the
+    existence predicate, since there "already applied" correctly declines a re-apply.
+    """
+    text = RUNNER.read_text(encoding="utf-8")
+    assert "function Test-ConsumedTerminal" in text
+    launch_guard = text.split("Duplicate-execution guard", 1)[1][:900]
+    assert "Test-ConsumedTerminal" in launch_guard, (
+        "the launch guard must use the terminal-only predicate")
+    assert "if (Test-Consumed $safe)" not in launch_guard, (
+        "the launch guard must not fall back to bare marker existence")
+    # The terminal set is exactly the verdicts that take the row out of the
+    # launchable set; every retryable verdict must be absent from it.
+    body = text.split("function Test-ConsumedTerminal", 1)[1]
+    body = body.split("\n}\n", 1)[0]
+    for verdict in ("DONE", "BLOCKED_OWNER", "TIMEOUT"):
+        assert verdict in body, f"{verdict} must be terminal"
+    for verdict in ("PARTIAL", "MALFORMED", "MISSING", "LIMIT"):
+        assert verdict not in body, f"{verdict} must not be treated as terminal"
 
 
 def test_the_owner_gate_is_preserved_not_converted():
