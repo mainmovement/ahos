@@ -838,3 +838,132 @@ so only the receipt is committed.
 - M10 store is embedded PGlite (D3), with portable PG via pg_ctl as the fallback. The launcher has no Docker and no visible console windows.
 - Owner vision `reports/grok/AHOS_AUTONOMOUS_VISION.md` (2026-10-03) is the newest owner statement for target architecture.
   It adds missions M20–M27, the aspirational $100→$1M North Star (benchmark only, INV-15) and invariants INV-01..17 (locked). Its rows are OWN-AV-## in ALL_DOCS_TRACEABILITY.md.
+
+## Owner approval + queue release (2026-10-06 by Claude, owner-authorized)
+
+The owner gave explicit approval for the owner-gated items M11.1 and M11.2, and directed
+autonomous continuation through the queue. Recorded in
+`reports/grok/autopilot/OWNER_APPROVAL_20261006.md` (what the approval IS and is NOT:
+owner approval, not inferred from any agent sign-off, test pass, or commit; does not raise
+either delivery above TESTED; does not touch PAPER_ONLY or Lane A).
+
+`CLAUDE_AUTOPILOT_QUEUE.md` rows 8-9 went NEEDS_REVIEW -> DONE (STATUS column only). The
+runner (pid 15432) detected the change on its next hold poll and released M11.3 at
+01:34:16 (log line "launch M11.3 safe=ap_M11_3 child=3992"). Verified end to end: the
+governed path — gate hold, release, bounded wait, heartbeat — works.
+
+Baseline verified before M11.3 could touch anything: `tests/test_autopilot_runner.py`
+17 passed, and `tests/test_launcher_orchestrator.py` + `tests/test_phase18_launchers.py`
+142 passed (350s).
+
+Note for M11.3 reviewers: the spec's root-cause section was written 2026-10-04 02:32 from
+a receipt dated Oct 3 20:19, and predates the M11.1 R7 fix `44ada75` (Oct 4 18:00) that
+resolved the same defect by a different route. The last idempotent smoke receipt
+(`smoke_idempotent_20261003T231146Z.json`) already read `passed: true` with
+`second_start_was_idempotent_replay: true`. M11.3 is implementing spec option (a)
+(spawn `node <next cli>` directly so the argv carries the marker), which supersedes
+R7's recorded-vs-live cmdline stopgap rather than merely re-fixing the original bug.
+
+## M11.3 — Gateway process identity (2026-10-06 by Claude)
+
+**Done.** The gateway was the last long-lived component spawned through a
+`cmd /c npm run start` wrapper whose command line carries no identifying
+substring, while its marker was the `<root>/node_modules` directory — so
+identity never matched and every gateway question went through a recorded-cmdline
+special case (R7) plus TCP-table reclamation of a reparented listener. It now
+spawns `[node, node_modules/next/dist/bin/next, start|dev, --hostname,
+127.0.0.1]` directly: the recorded pid *is* the server, its own argv carries the
+marker, and `_pid_is_recorded_or_marked` is one line for every component.
+`gateway_command` returns `[]` when node or the next CLI is absent and
+`_start_process` reports that as `UNAVAILABLE` rather than silently falling back
+to the wrapper.
+
+**Evidence.**
+- Commits `95f1364` (launcher source: `components.py`, `orchestrator.py`,
+  `processkit.py` docstrings) and `ca0c1bb` (tests + `docs/ONE_CLICK.md`).
+- Marker pinned by unit tests: `TestProcessMarkers::test_gateway_marker_matches_the_spawned_command`
+  (prod + dev) and `test_gateway_marker_is_not_the_node_modules_directory`
+  (marker no longer matches a foreign node process under the repo).
+- Owner receipt: `reports/launcher/smoke_idempotent_20261005T234018Z.json` —
+  8/8 steps rc 0, `passed: true`, `second_start_was_idempotent_replay: true`,
+  `restart_after_stop_worked: true`, `paper_only: true`. Step 2 (second `start`)
+  reads `gateway pid 12048 "already running (idempotent)"` — the exact case the
+  spec's root cause described. After the final stop, port 8300 is bindable, no
+  listeners remain on 3000/8300, and no pid records are left.
+- Marker verified against the real spawned process (not a monkeypatch):
+  `Get-CimInstance` returned `"C:\Program Files\nodejs\node.EXE"
+  G:\robat\ahos\node_modules\next\dist\bin\next dev --hostname 127.0.0.1` and
+  `pid_is_ours(pid, marker)` returned `True`.
+- Full launcher suite (orchestrator, phase18, smoke, run_bot launcher): 196 passed.
+- Reviews and sign-offs: `reports/grok/autopilot/M11.3_review.md`.
+
+**Open gaps (honest, none blocking).**
+1. `next`'s graceful shutdown under CTRL_BREAK is **not determined**. Both
+   receipt `stop` steps report `gateway: stopped (force, ~1.0s)` — but engine and
+   telegram, whose argv did not change, escalate the same way, so it is the
+   host-wide behaviour for detached children rather than a property of `next`.
+   A direct probe was inconclusive in this harness (no detached child fired its
+   handler under either `CREATE_NO_WINDOW` or `CREATE_NEW_CONSOLE`), so it is
+   reported as not determined, not as a finding. `terminate()`'s escalation path
+   bounds it either way.
+2. `_reclaim_gateway_port` can still terminate an *owner-started* dev server that
+   happens to bind a gateway candidate port. This pre-dates M11.3 (the old
+   directory marker matched it too) and the new marker narrows it. Not fixed here.
+3. `orchestrator.py:369` inlines `cmd /c npm run db:restore-pglite` instead of
+   `C._npm_cmd(...)` — a pre-existing duplication of the one-shot-script helper,
+   unrelated to identity, left alone so restore behaviour is untouched.
+
+**Next step.** M11.3 closes the launcher identity line (M11.1 stop-gap, M11.2
+console immunity, M11.3 true marker). The queue's next row is the owner's to
+release; no follow-on is implied by this work.
+
+## Runner retry-path deadlock fixed -- 2026-10-06 05:20 by Claude (owner-authorized)
+
+M11.3's first attempt produced a `MALFORMED` result (the child exited 0 while
+still waiting on the full pytest suite, so it never wrote its
+`AUTOPILOT_RESULT:` line). The runner applied the verdict correctly --
+PARTIAL, attempt 1 of 3 -- but then refused to re-launch the mission on every
+subsequent pass, spinning `result already consumed -> skip launch` every 30 s
+for over an hour. The whole queue was stopped behind it.
+
+Root cause: the consumed marker means "this result was applied to the queue",
+but the launch guard used bare marker existence, which reads as "this mission
+may never run again". Those are different claims. `Apply-Verdict`'s retry branch
+(PARTIAL/MALFORMED/MISSING, capped by `MAX_ATTEMPTS`) was therefore unreachable
+-- dead code since the marker was introduced. The first PARTIAL of any mission
+was a permanent queue deadlock.
+
+Fixes, commits `2001f80` and `9b11776` (`reports/grok/claude_autopilot.ps1`):
+
+1. **`Test-ConsumedTerminal`** splits the two claims. DONE/BLOCKED_OWNER/TIMEOUT
+   take a row out of the launchable set, so their markers stay permanent
+   no-re-execution guards. PARTIAL/MALFORMED/MISSING/LIMIT leave the row at
+   PARTIAL specifically so the next pass re-launches it, so they must not block.
+   An unreadable or verdict-less marker fails closed to terminal.
+2. **A retry no longer inherits the previous result file.** The old text would
+   otherwise be classified again and the attempt charged against output the new
+   child never produced. It is moved to `<result>.superseded` rather than
+   deleted, so the audit trail for the retry survives.
+3. **`Clear-ActiveState` is now called** once the verdict is on the queue and the
+   marker is down. It was defined and never invoked, so a finished mission's
+   `active.json` was reconciled on every loop pass and every runner restart.
+
+Verification: TEST J added to the PS 5.1 harness (`test_runner.ps1`) covering
+both the predicate and an end-to-end retry; the pytest wrapper now parametrizes
+A-J; a static pin guards the terminal/retryable split. `19 passed` (10 dynamic,
+9 static). TEST F, which pins "a completed result is never executed again",
+still passes -- the terminal guarantee it asserts is exactly what
+`Test-ConsumedTerminal` preserves.
+
+Production confirmation: the stalled runner (pid 15432) was restarted at
+05:20:42 and immediately logged `M11.3 -> RUNNING` /
+`launch M11.3 safe=ap_M11_3 child=6948 attempt=1`, i.e. the retry path that was
+unreachable for an hour now works. The retry runs with `-continueFresh`, whose
+continuation note instructs finishing the uncommitted work rather than redoing
+the committed commits `95f1364`/`ca0c1bb`. Its remaining gap is the قاسم (QA)
+sign-off in `M11.3_review.md`, which needs the pasted full-suite counts -- the
+one thing the first attempt was cut off before writing.
+
+Note on the M11.3 section above: its closing line "The queue's next row is the
+owner's to release" predates the owner approval of 2026-10-06, which released
+M11.1/M11.2. No gate above M11.3 remains.
