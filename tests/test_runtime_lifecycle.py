@@ -69,6 +69,71 @@ def test_startup_validator_missing_db(tmp_path):
     assert res["checks"]["db_e01_discovery.sqlite"]["ok"] is False
 
 
+
+def test_startup_validator_follows_ahos_data_dir(tmp_path, monkeypatch):
+    """M54: without workspace_root override, stores come from AHOS_DATA_DIR via config.paths."""
+    data = tmp_path / "custom_data"
+    data.mkdir()
+    for name in ("e01_discovery.sqlite", "paper_trading.sqlite", "ahos_local.sqlite"):
+        c = sqlite3.connect(str(data / name))
+        c.execute("CREATE TABLE IF NOT EXISTS probe (id INT)")
+        c.commit()
+        c.close()
+
+    # Empty sibling under project-style layout must NOT be consulted when env is set.
+    decoy_root = tmp_path / "decoy_root"
+    (decoy_root / "data").mkdir(parents=True)
+    # Leave decoy_root/data empty — if validator ignored AHOS_DATA_DIR it would fail DBs.
+
+    monkeypatch.setenv("AHOS_DATA_DIR", str(data))
+    # Ensure paper-only safety check can pass in this isolated env.
+    monkeypatch.setenv("AHOS_PAPER_ONLY", "1")
+    monkeypatch.delenv("AHOS_ALLOW_REAL_FUNDS", raising=False)
+    monkeypatch.delenv("AHOS_EXECUTE_LIVE_TRADES", raising=False)
+
+    validator = StartupValidator()  # no workspace_root override
+    res = validator.validate()
+
+    assert res["checks"]["db_e01_discovery.sqlite"]["ok"] is True
+    assert res["checks"]["db_paper_trading.sqlite"]["ok"] is True
+    assert res["checks"]["db_ahos_local.sqlite"]["ok"] is True
+
+    # Paths must resolve under the env data dir, not <project>/data.
+    from config.paths import (
+        get_discovery_db_path,
+        get_paper_trading_db_path,
+        get_local_db_path,
+    )
+    assert Path(get_discovery_db_path(create_dir=False)).resolve() == (data / "e01_discovery.sqlite").resolve()
+    assert Path(get_paper_trading_db_path(create_dir=False)).resolve() == (data / "paper_trading.sqlite").resolve()
+    assert Path(get_local_db_path(create_dir=False)).resolve() == (data / "ahos_local.sqlite").resolve()
+    assert list(validator._required_db_paths()) == [
+        Path(get_discovery_db_path(create_dir=False)),
+        Path(get_paper_trading_db_path(create_dir=False)),
+        Path(get_local_db_path(create_dir=False)),
+    ]
+
+
+def test_startup_validator_workspace_override_ignores_ahos_data_dir(tmp_path, monkeypatch):
+    """Explicit workspace_root still pins stores to <root>/data for temp-tree tests."""
+    env_data = tmp_path / "env_data"
+    env_data.mkdir()
+    for name in ("e01_discovery.sqlite", "paper_trading.sqlite", "ahos_local.sqlite"):
+        c = sqlite3.connect(str(env_data / name))
+        c.execute("CREATE TABLE IF NOT EXISTS probe (id INT)")
+        c.commit()
+        c.close()
+    monkeypatch.setenv("AHOS_DATA_DIR", str(env_data))
+
+    tree = tmp_path / "tree"
+    (tree / "data").mkdir(parents=True)
+    # No DBs under tree/data — override must look here and report missing.
+    validator = StartupValidator(tree)
+    res = validator.validate()
+    assert res["checks"]["db_e01_discovery.sqlite"]["ok"] is False
+    assert res["valid"] is False
+
+
 def test_lifecycle_manager_startup_and_shutdown(tmp_path):
     # Setup mock workspace structure
     (tmp_path / "data").mkdir(parents=True, exist_ok=True)

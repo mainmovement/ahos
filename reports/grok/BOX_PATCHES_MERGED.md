@@ -1,4 +1,4 @@
-# BOX_PATCHES_MERGED
+﻿# BOX_PATCHES_MERGED
 
 Written: 2026-10-07 00:25 Asia/Tehran
 Source: Grok box branch `grok-box-debug` @ b2c3859 (patches 0001–0023).
@@ -68,4 +68,9 @@ pglite absolute dataDir — treat as ALREADY DONE here. Prefer extending tests o
 ## M10.1 (Grok, 2026-10-07 Asia/Tehran)
 
 PGlite launcher init + `--check` probe — **DONE**. See `reports/grok/M10_1_DONE_BY_GROK.md`.
+Claude: do not re-implement. HOLD.flag still present (model/quota), unrelated to this code.
+
+## M54 (Grok, 2026-10-07 Asia/Tehran)
+
+StartupValidator + 	est_f1_s1 honour AHOS_DATA_DIR via config.paths — **DONE**. See eports/grok/M54_DONE_BY_GROK.md.
 Claude: do not re-implement. HOLD.flag still present (model/quota), unrelated to this code.

@@ -82,7 +82,23 @@ class HealthCheckRegistry:
 
 class StartupValidator:
     def __init__(self, workspace_root: Path | str | None = None):
+        # Explicit workspace_root keeps temp-tree tests isolated from AHOS_DATA_DIR.
+        # When omitted, stores resolve through config.paths (honours AHOS_DATA_DIR).
+        self._workspace_override = workspace_root is not None
         self.root = Path(workspace_root) if workspace_root else get_project_root()
+
+    def _required_db_paths(self) -> list[Path]:
+        if self._workspace_override:
+            return [
+                self.root / "data" / "e01_discovery.sqlite",
+                self.root / "data" / "paper_trading.sqlite",
+                self.root / "data" / "ahos_local.sqlite",
+            ]
+        return [
+            Path(get_discovery_db_path(create_dir=False)),
+            Path(get_paper_trading_db_path(create_dir=False)),
+            Path(get_local_db_path(create_dir=False)),
+        ]
 
     def validate(self) -> dict[str, Any]:
         """Validates environment, storage files, non-trading invariants, and governance pins."""
@@ -96,12 +112,8 @@ class StartupValidator:
             report["checks"]["env_safety"] = {"ok": False, "error": str(e)}
             report["valid"] = False
 
-        # 2. Database paths & integrity
-        required_dbs = [
-            self.root / "data" / "e01_discovery.sqlite",
-            self.root / "data" / "paper_trading.sqlite",
-            self.root / "data" / "ahos_local.sqlite"
-        ]
+        # 2. Database paths & integrity (single data-dir resolver unless workspace override)
+        required_dbs = self._required_db_paths()
         for db in required_dbs:
             if not db.exists():
                 report["checks"][f"db_{db.name}"] = {"ok": False, "error": "Database file missing"}
@@ -140,6 +152,7 @@ class StartupValidator:
 class ApplicationLifecycleManager:
     def __init__(self, workspace_root: Path | str | None = None,
                  service_name: str = "ahos-runtime", version: str = "1.0.0"):
+        self._workspace_override = workspace_root is not None
         self.root = Path(workspace_root) if workspace_root else get_project_root()
         self.service_name = service_name
         self.version = version
@@ -147,13 +160,19 @@ class ApplicationLifecycleManager:
         self.state = RuntimeState.INITIALIZING
         self.logger = get_logger("ahos.runtime", run_id=self.run_id)
         self.health = HealthCheckRegistry()
-        self.validator = StartupValidator(self.root)
+        # Pass through None so StartupValidator uses config.paths / AHOS_DATA_DIR.
+        self.validator = StartupValidator(workspace_root)
         self._shutdown_callbacks: list[Callable[[], None]] = []
         self._setup_default_health_probes()
 
+    def _local_db_path(self) -> Path:
+        if self._workspace_override:
+            return self.root / "data" / "ahos_local.sqlite"
+        return Path(get_local_db_path(create_dir=False))
+
     def _setup_default_health_probes(self):
         def db_probe():
-            db_path = self.root / "data" / "ahos_local.sqlite"
+            db_path = self._local_db_path()
             if not db_path.exists():
                 return False, {"error": "db_missing"}
             from config.paths import connect_sqlite_ro
@@ -207,7 +226,7 @@ class ApplicationLifecycleManager:
 
     def _record_lifecycle_event(self, action: str, state: str, meta: dict):
         try:
-            db_path = self.root / "data" / "ahos_local.sqlite"
+            db_path = self._local_db_path()
             conn = sqlite3.connect(str(db_path))
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS runtime_lifecycle_events (

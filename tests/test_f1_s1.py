@@ -17,10 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from engine import f1_s1_migration as mig                     # noqa: E402
+from config.paths import get_paper_trading_db_path             # noqa: E402
 
 E01 = ROOT / "data" / "e01_discovery.sqlite"
 LOCAL = ROOT / "data" / "ahos_local.sqlite"
-PAPER = ROOT / "data" / "paper_trading.sqlite"
+PAPER = Path(get_paper_trading_db_path(create_dir=False))
 HISTORY_E01 = ["discovery_observations", "raw_payloads", "gap_register", "lifecycle_events", "gate_summary"]
 MUTABLE_E01 = ["tokens", "pairs", "observation_state", "opportunity_rank", "outcome_label",
                "security_verdicts", "feature_definitions", "feature_vector", "holder_snapshot"]

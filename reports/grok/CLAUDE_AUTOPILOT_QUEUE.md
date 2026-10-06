@@ -1,4 +1,4 @@
-# CLAUDE AUTOPILOT QUEUE (owner order 2026-10-04 00:01)
+﻿# CLAUDE AUTOPILOT QUEUE (owner order 2026-10-04 00:01)
 Owner rule: if Grok is disconnected or out of tokens, Claude continues these missions ONE BY ONE from the docs, automatically.
 Driver: reports/grok/claude_autopilot.ps1 (hidden). Watchdog: claude_watchdog.ps1. Details of every mission: OWNER_DIRECTIVE_MISSION_PLAN.md + AHOS_AUTONOMOUS_VISION.md (newest version wins).
 Statuses: PENDING, RUNNING, DONE, PARTIAL (retry), NEEDS_REVIEW, BLOCKED_OWNER (human gate; skipped). Edit only the STATUS column.
@@ -11,6 +11,7 @@ Statuses: PENDING, RUNNING, DONE, PARTIAL (retry), NEEDS_REVIEW, BLOCKED_OWNER (
 | M11.4 | DONE | Telegram health = stable process/readiness, not pid alive at spawn (spec: reports/grok/autopilot/missions/M11.4-telegram-health.md) |
 | M48.1 | DONE | Next 16.2.6 -> 16.3.8 security update (critical advisory), proposal + rollback (spec: reports/grok/autopilot/missions/M48.1-next-security-update.md) |
 | M10.1 | DONE | Launcher initialises empty PGlite store (schema-only restore) + real table probe — implemented by Grok 2026-10-07 (see reports/grok/M10_1_DONE_BY_GROK.md); HOLD remains for Claude model/quota only |
+| M54 | DONE | StartupValidator + tests honour AHOS_DATA_DIR via config.paths — implemented by Grok 2026-10-07 (see reports/grok/M54_DONE_BY_GROK.md); HOLD remains for Claude model/quota only |
 | M10 | PENDING | Native portable PostgreSQL/PGlite switch, Docker/n8n retirement (plan "M10 decision") |
 | BL | PENDING | Close open BL/MJ items and all QA (16) BLOCKERs listed in reports/grok (GROK_HANDOFF, ORCHESTRATION_LOG, remaining-work inventory) |
 | M12 | PENDING | Agent organisation: 37+ agents in config/agent_registry.yaml using the owner charter template, authority NONE by default, no auto-creation |
