@@ -2,6 +2,43 @@
 
 > **Claude: start with [`reports/grok/CLAUDE_CONTINUATION_GUIDE.md`](CLAUDE_CONTINUATION_GUIDE.md)**. It covers Phases 1–9 (Phase 7 = conversational AI with confirm-gated paper commands, owner authority decision 2026-10-02, pending سپهر/قاسم/رضا review; Phase 8 = dev-mission intake + University/agents discovery; Phase 9 = Mission 9 truth baseline + Remaining Reality Register; Phase 9.5 + 9.6 = corrective mission closing every finding in two independent reviews): what was built, where the code lives, exact Windows commands, invariants, process setup, local-only commits (pushes paused), and blocker A.
 
+<!-- M48_1_CARRIED:START -->
+## M48.1 carried-forward items (2026-10-06, Claude/Atria) — for the BL mission
+
+Two pre-existing findings surfaced while verifying M48.1 (Next.js 16.2.6 -> 16.3.8,
+closed DONE as commit `0b9e0d6`). Both are **pre-existing** — verified against
+HEAD, not introduced by the update — and both were deliberately left untouched
+because the spec's "no other dependency changes" constraint and the AGENTS.md
+rule that security changes take their own reviewed mission forbid folding them
+into a dependency update. Neither is closed; both belong on the BL open-items
+list.
+
+1. **`source-map-js@1.2.1` — high advisory, transitive.** GHSA-68fv-2mgg-jv7q
+   (event-loop DoS through indexed source-map section offsets, range
+   `>=1.0.0 <1.2.2`, CVSS 7.5). `npm audit --omit=dev` reports it with
+   `effects: []`, so it touches nothing AHOS exercises; `fixAvailable: true`.
+   Proven pre-existing: `git show HEAD:package-lock.json` resolves
+   `node_modules/source-map-js` to `1.2.1` at HEAD too. A dependency bump is a
+   one-line M48-class change with its own proposal + rollback.
+2. **`isLoopbackRequest` consults the Host header before `req.url`** — hardening,
+   not a reachable bypass. A spoofed loopback `Host` header over an off-host URL
+   returns `true` (`isLoopbackRequest(new Request("https://evil.example/...",
+   {host:"127.0.0.1:3000"})) === true`). Under the stated threat model this is
+   not exploitable: the gateway binds 127.0.0.1, so an off-host peer cannot open
+   the socket in the first place, and the module docstring names the loopback
+   *connection* — plus the owner's physical control of the machine — as the trust
+   boundary. Worth fixing as defence in depth (evaluate `req.url` before the
+   Host header, or require both), but it needs an independent security reviewer
+   per AGENTS.md, not a side effect of a package bump. Reproduced by
+   `scripts/m481_host_header_probe.mjs`.
+
+Related, and already closed rather than carried: the spec's live "403 for Host
+evil.example" line is satisfiable in the box's off-host-URL framing and returns
+200 by design on a live loopback socket — proven non-regressive from M48.1's
+empty application-code diff. See
+`reports/grok/autopilot/M48.1_security_update_evidence.md`.
+<!-- M48_1_CARRIED:END -->
+
 <!-- M11_1:START -->
 ## Mission 11.1 (2026-10-04, Claude/Atria): launcher finish — the dashboard buttons, the log, and the health budgets
 
