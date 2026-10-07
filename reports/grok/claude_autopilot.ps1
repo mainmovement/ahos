@@ -371,6 +371,17 @@ function Start-MissionAttempt($state, $row) {
 }
 
 # --- control loop -----------------------------------------------------------------------
+# Yield to an interactive (non -p) claude.exe that wrote a G--robat-ahos session log in the last 20 min.
+function Test-InteractiveClaudeActive([int]$Minutes = 20) {
+  if ($env:AHOS_RUNNER_TEST_MODE -eq '1' -and -not $env:AHOS_TEST_INTERACTIVE) { return $false }
+  $procs = @(Get-CimInstance Win32_Process -Filter "Name='claude.exe'" | ?{ $_.CommandLine -notmatch '(\s|^)(-p|--print)(\s|$)' })
+  if ($env:AHOS_TEST_INTERACTIVE) { $procs = @(1) }
+  if (-not $procs.Count) { return $false }
+  $dir = if ($env:AHOS_TEST_PROJ_DIR) { $env:AHOS_TEST_PROJ_DIR } else { "$env:USERPROFILE\.claude\projects\G--robat-ahos" }
+  $cut = (Get-Date).AddMinutes(-$Minutes)
+  return [bool](Get-ChildItem $dir -Filter *.jsonl -EA SilentlyContinue | ?{ $_.LastWriteTime -ge $cut } | Select-Object -First 1)
+}
+
 function Invoke-RunnerLoop {
   $iterations = 0
   while ($true) {
@@ -405,6 +416,12 @@ function Invoke-RunnerLoop {
       $h = "$ap\HOLD.flag"
       if ((Test-Path $h) -and (((Get-Date) - (Get-Item $h).LastWriteTime).TotalHours -lt $HOLD_HOURS)) {
         Write-Heartbeat 'HOLD' '' 0 0 'Grok review hold active'
+        Start-Sleep -Seconds $GATE_SLEEP_SEC; continue
+      }
+
+      if (Test-InteractiveClaudeActive) {
+        L 'interactive Claude active -> not launching'
+        Write-Heartbeat 'INTERACTIVE_CLAUDE' '' 0 0 'interactive Claude active'
         Start-Sleep -Seconds $GATE_SLEEP_SEC; continue
       }
 

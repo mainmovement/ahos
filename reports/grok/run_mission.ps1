@@ -1,5 +1,7 @@
 param([string]$n, [int]$maxAttempts = 14, [switch]$continueFresh)
 Set-Location G:\robat\ahos
+# Use the CURRENT Claude account (User env, same as interactive Claude), not env inherited from a long-lived runner.
+foreach ($v in 'ANTHROPIC_BASE_URL','ANTHROPIC_AUTH_TOKEN','ANTHROPIC_API_KEY','ANTHROPIC_MODEL') { $x = [Environment]::GetEnvironmentVariable($v,'User'); if ($x) { Set-Item env:$v $x } elseif (Test-Path env:$v) { Remove-Item env:$v } }
 $env:PYTHONIOENCODING='utf-8'
 $OutputEncoding = New-Object System.Text.UTF8Encoding($false)  # pipe the prompt to claude as UTF-8 (Persian names), PS5 default is ASCII
 $env:CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS='1800000'
