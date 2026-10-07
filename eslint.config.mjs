@@ -9,6 +9,9 @@ export default defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // TS ambient declarations have no runtime code and the JS parser cannot
+    // read type-only syntax; db/pglite_url.d.mts is types for the .mjs parser.
+    "**/*.d.mts",
     "01/**",
     "advanced-3d-audiovisual-website/**",
     "advanced-3d-audiovisual-website (1)/**",

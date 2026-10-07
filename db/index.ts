@@ -2,10 +2,20 @@ import { createRequire } from "node:module";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
+// The canonical pglite URL parser lives in a plain .mjs so node scripts (the
+// readiness probe) and this module read the exact same code. Two copies would
+// let a green probe describe a store the gateway never opens.
+export { isPgliteBackend, pgliteDataDir, PGLITE_PREFIX } from "./pglite_url.mjs";
 // Type-only: erased at compile time, so this never loads the WASM module. The
 // runtime import stays lazy (lazyRequire below) so the legacy Postgres path
 // never pays for PGlite or inherits its failure mode.
 import type { PGlite } from "@electric-sql/pglite";
+// Value binding: `export { pgliteDataDir } from ...` re-exports the name but does
+// NOT bind it locally, so getPgliteClient()'s call below used to throw
+// ReferenceError at runtime — the gateway booted and then failed closed with
+// "pgliteDataDir is not defined" on every pglite: URL (caught by the Stage 4c
+// gateway smoke, 2026-10-07). Both names are imported here as values.
+import { isPgliteBackend, pgliteDataDir } from "./pglite_url.mjs";
 
 /**
  * Two backends, selected by the DATABASE_URL scheme:
@@ -19,8 +29,9 @@ import type { PGlite } from "@electric-sql/pglite";
  * Both expose the same drizzle PgDatabase API, so callers stay backend-agnostic.
  * The native path exists so the gateway no longer requires Docker; see
  * reports/grok/DECKER_N8N_MIGRATION.md (Mission 10).
+ *
+ * `isPgliteBackend` / `pgliteDataDir` are re-exported from ./pglite_url.mjs.
  */
-const PGLITE_PREFIX = "pglite:";
 
 type AhosDb = ReturnType<typeof drizzle<typeof schema>>;
 
@@ -50,28 +61,6 @@ function getDatabaseUrl(): string {
     );
   }
   return databaseUrl;
-}
-
-/** True when DATABASE_URL selects the native embedded backend. */
-export function isPgliteBackend(databaseUrl = getDatabaseUrl()): boolean {
-  return databaseUrl.startsWith(PGLITE_PREFIX);
-}
-
-/**
- * dataDir from a `pglite:<dataDir>` URL.
- *
- * Accepted forms: `pglite:G:/x`, `pglite:/G:/x` and `pglite://G:/x` (Windows
- * drive; the leading slashes are dropped), `pglite:/abs/path` and
- * `pglite:///abs/path` (POSIX absolute; kept absolute), `pglite:rel/path`.
- * Stripping every leading slash unconditionally turned a POSIX absolute path
- * into a cwd-relative one, so the gateway silently opened a fresh, empty
- * database under the working directory instead of the configured store.
- */
-export function pgliteDataDir(databaseUrl = getDatabaseUrl()): string {
-  let dir = databaseUrl.slice(PGLITE_PREFIX.length);
-  if (dir.startsWith("//")) dir = dir.slice(2); // URL authority form: pglite://<path>
-  if (/^\/+[A-Za-z]:/.test(dir)) dir = dir.replace(/^\/+/, ""); // /G:/x -> G:/x
-  return dir;
 }
 
 function getPool(): Pool {
@@ -119,7 +108,7 @@ function getPgliteClient() {
 
 function getDb(): AhosDb {
   if (!globalForDb.__ahosDb) {
-    if (isPgliteBackend()) {
+    if (isPgliteBackend(getDatabaseUrl())) {
       const { drizzle: drizzlePglite } = lazyRequire("drizzle-orm/pglite");
       globalForDb.__ahosDb = drizzlePglite(getPgliteClient(), { schema });
     } else {
@@ -141,7 +130,7 @@ function getDb(): AhosDb {
  */
 export const pool = new Proxy({} as Pool, {
   get(_target, prop) {
-    if (isPgliteBackend()) {
+    if (isPgliteBackend(getDatabaseUrl())) {
       throw new Error(
         "[ahos/db] `pool` is the legacy node-postgres Pool and is not available " +
           "on the embedded pglite backend. Use `db` instead.",

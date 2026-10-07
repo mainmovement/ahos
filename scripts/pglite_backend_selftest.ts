@@ -77,6 +77,34 @@ describe("DATABASE_URL backend selection", () => {
 describe("embedded client round-trip", () => {
   let dir: string | undefined;
 
+  it("opens the configured dataDir through the gateway client (not a re-export shadow)", async () => {
+    // Regression (2026-10-07): db/index.ts re-exported pgliteDataDir without a
+    // local value import, so getPgliteClient() threw ReferenceError and the
+    // gateway failed closed with "pgliteDataDir is not defined" on every pglite:
+    // URL. The two assertions below fail loudly on that bug: the client must
+    // really open the directory the URL names, which only happens when the
+    // parser binding is live inside db/index.ts.
+    dir = mkdtempSync(path.join(os.tmpdir(), "ahos-pglite-bind-"));
+    process.env.DATABASE_URL = `pglite:${dir}`;
+    const g = globalThis as Record<string, unknown>;
+    g.__ahosDb = undefined;
+    g.__ahosPgliteClient = undefined;
+    try {
+      const client = db.$client;
+      await client.query("SELECT 1");
+      assert.ok(
+        existsSync(path.join(dir, "PG_VERSION")),
+        "the gateway client must initialise the configured dataDir",
+      );
+    } finally {
+      g.__ahosDb = undefined;
+      g.__ahosPgliteClient = undefined;
+      // The "cleans up" test only removes the final `dir`, so clear this one now.
+      rmSync(dir, { recursive: true, force: true });
+      dir = undefined;
+    }
+  });
+
   it("boots Postgres, round-trips types through drizzle", async () => {
     dir = mkdtempSync(path.join(os.tmpdir(), "ahos-pglite-rt-"));
     process.env.DATABASE_URL = `pglite:${dir}`;
