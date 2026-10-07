@@ -1,4 +1,4 @@
-# AHOS Claude autopilot: runs CLAUDE_AUTOPILOT_QUEUE.md missions one by one via run_mission.ps1, independent of Grok.
+﻿# AHOS Claude autopilot: runs CLAUDE_AUTOPILOT_QUEUE.md missions one by one via run_mission.ps1, independent of Grok.
 #
 # ---------------------------------------------------------------------------
 # Repair 2026-10-05 -- root cause J (runner orchestration failure)
@@ -372,7 +372,14 @@ function Start-MissionAttempt($state, $row) {
 
 # --- control loop -----------------------------------------------------------------------
 # Yield to an interactive (non -p) claude.exe that wrote a G--robat-ahos session log in the last 20 min.
-function Test-InteractiveClaudeActive([int]$Minutes = 20) {
+# A session file untouched 10+ min means the window is parked on a prompt -> treat as idle.
+function Get-InteractiveIdleMinutes {
+  $dir = if ($env:AHOS_TEST_PROJ_DIR) { $env:AHOS_TEST_PROJ_DIR } else { "$env:USERPROFILE\.claude\projects\G--robat-ahos" }
+  $n = Get-ChildItem $dir -Filter *.jsonl -EA SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  if (-not $n) { return 99999 }
+  return [int]((Get-Date) - $n.LastWriteTime).TotalMinutes
+}
+function Test-InteractiveClaudeActive([int]$Minutes = 10) {
   if ($env:AHOS_RUNNER_TEST_MODE -eq '1' -and -not $env:AHOS_TEST_INTERACTIVE) { return $false }
   $procs = @(Get-CimInstance Win32_Process -Filter "Name='claude.exe'" | ?{ $_.CommandLine -notmatch '(\s|^)(-p|--print)(\s|$)' })
   if ($env:AHOS_TEST_INTERACTIVE) { $procs = @(1) }
@@ -414,6 +421,10 @@ function Invoke-RunnerLoop {
       }
 
       $h = "$ap\HOLD.flag"
+      if ((Test-Path $h) -and (Get-InteractiveIdleMinutes) -ge 15) {
+        L "HOLD.flag removed: interactive session idle $(Get-InteractiveIdleMinutes) min (>=15) -> resuming queue"
+        Remove-Item -LiteralPath $h -Force -EA SilentlyContinue
+      }
       if ((Test-Path $h) -and (((Get-Date) - (Get-Item $h).LastWriteTime).TotalHours -lt $HOLD_HOURS)) {
         Write-Heartbeat 'HOLD' '' 0 0 'Grok review hold active'
         Start-Sleep -Seconds $GATE_SLEEP_SEC; continue
