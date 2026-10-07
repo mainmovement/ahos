@@ -48,7 +48,11 @@ services:
       - "127.0.0.1:5678:5678"
     volumes:
       - n8n_data_win:/home/node/.n8n
-      - ../n8n/workflows:/opt/workflows:ro
+      # M10 Stage 5: the six workflow JSONs were archived (never deleted) under
+      # docs/archive/quarantine_2026-10/docker_n8n/n8n/. Mounted read-only from
+      # the archive so a Postgres rollback still finds the real workflows
+      # instead of an empty host directory Docker would silently create.
+      - ../docs/archive/quarantine_2026-10/docker_n8n/n8n:/opt/workflows:ro
     depends_on:
       postgres:
         condition: service_healthy
