@@ -35,7 +35,7 @@ AHOS has successfully completed Phase XX engineering objectives in accordance wi
 11. `telegram_ai/bot.py` (Telegram Bot Runner & message dispatcher)
 12. `docs/architecture/PRODUCTION_RUNTIME_SPEC.md` (Runtime specification)
 13. `deployment/Dockerfile` (Multi-stage container image)
-14. `deployment/docker-compose.production.yml` (Production orchestration template)
+14. `docs/archive/quarantine_2026-10/docker_n8n/deployment/docker-compose.production.yml` (Production orchestration template; retired into the M10 archive — design-only, never built)
 15. `deployment/.env.example` (Safe environment template)
 16. `deployment/healthcheck.py` (Container healthcheck probe)
 

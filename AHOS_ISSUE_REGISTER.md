@@ -1111,7 +1111,7 @@
   4. Update Governance (`engine/update_manager.py`): Operates in CHECK_ONLY mode by default; enforces Master Directive hash locks and human approval gates.
   5. Logical AI Assistant Roles (`config/ai_assistants.yaml`, `architecture/knowledge/assistants.py`): Defined 9 logical assistant roles (Architect, Researcher, Auditor, Developer, Data Scientist, Risk Manager, Historian, Documentation Manager, Guardian).
   6. Docker Windows Compose (`deployment/docker-compose.windows.yml`, `docker-compose.yml`): Configured PostgreSQL, n8n, and AHOS runtime.
-  7. Documentation Suite: Created `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `INSTALLATION.md`, `ARCHITECTURE.md`, `docs/n8n_setup_guide.md`, `AHOS_REALITY_AUDIT_REPORT.md`, `AHOS_PRODUCTION_READINESS_REPORT.md`, `AHOS_WINDOWS_DEPLOYMENT_GUIDE.md`, `AHOS_SELF_REPAIR_DESIGN.md`, `AHOS_UPDATE_POLICY.md`, `AHOS_FINAL_STATUS.md`.
+  7. Documentation Suite: Created `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `INSTALLATION.md`, `ARCHITECTURE.md`, the n8n setup guide (now retired into the M10 archive, `docs/archive/quarantine_2026-10/docker_n8n/n8n_setup_guide.md`), `AHOS_REALITY_AUDIT_REPORT.md`, `AHOS_PRODUCTION_READINESS_REPORT.md`, `AHOS_WINDOWS_DEPLOYMENT_GUIDE.md`, `AHOS_SELF_REPAIR_DESIGN.md`, `AHOS_UPDATE_POLICY.md`, `AHOS_FINAL_STATUS.md`.
   8. Testing Expansion: Expanded test suite to **493 passed tests (100% green, 0 failures, 0 warnings)** across 53 test suites. Manifest `ahos_snap_w25_after.txt`. Zero live trading, zero credential leaks.
 
 ## R-58 · 2026-08-16 · AHOS Phase 1 Reality-Locked Hardening & Cognitive Expansion

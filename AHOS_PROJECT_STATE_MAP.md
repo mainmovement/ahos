@@ -37,7 +37,7 @@
 | engine/bot_skeleton.py (Agent-05 local bot) | **C** | logic reviewed + simulated; needs live token for D |
 | database/postgresql_schema.sql v1.1 | **C** | lint PASS (balanced, no destructive ops, 8 tables/25 CHECKs/4 FKs); D pending live Postgres boot |
 | n8n/workflows ahos_01/02/03 (+10/11/12) (JSON) | **D (import)** / **C (execution)** | structural validation 6/6 + LIVE import 6/6 into real n8n 2.8.4 (wave-4, evidence R-11); activation credential-gated, execution pending env |
-| deployment/docker-compose.yml | **B** | config reviewed; not booted here (no docker daemon) |
+| `docs/archive/quarantine_2026-10/docker_n8n/docker-compose.yml` (root compose, retired by M10 Stage 5) | **B** | config reviewed; not booted here (no docker daemon) |
 | engine/run_all_checks.sh (CI gate, 5 steps) | **D** | executed green end-to-end |
 | docs/* (architecture, security, runbook, telegram test, spec, mapping) | **D** | consistent with evidence files |
 | config/.env.template, config/rollback_v1.0.json | **D** | hygiene scanned; rollback enforced by test |

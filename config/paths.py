@@ -97,7 +97,10 @@ def get_contracts_dir() -> Path:
 
 
 def get_n8n_workflows_dir() -> Path:
-    return get_project_root() / "n8n" / "workflows"
+    # M10 Stage 5: the six workflow JSONs were archived (never deleted) under
+    # docs/archive/quarantine_2026-10/docker_n8n/. The function name is a stable
+    # internal API, so it keeps resolving the files — now at their real path.
+    return get_project_root() / "docs" / "archive" / "quarantine_2026-10" / "docker_n8n" / "n8n"
 
 
 def get_research_dir() -> Path:

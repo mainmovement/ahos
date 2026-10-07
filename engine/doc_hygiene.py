@@ -174,10 +174,12 @@ def plan_cleanup(records: list[dict], dup_groups: list[list[dict]]) -> list[dict
         plan.append({"action": "delete_tree", "class": "G", "source": "n8n_runtime", "dest": None,
                      "pre_sha256": None, "size_bytes": size, "file_count": n,
                      "reason": "throwaway n8n 2.8.4 runtime (registry='npm install n8n@2.8.4'); "
-                               "workflows persist in ahos/n8n/workflows/*.json; live-import evidence in "
+                               "workflows persist in the M10 archive "
+                               "docs/archive/quarantine_2026-10/docker_n8n/n8n/*.json; "
+                               "live-import evidence in "
                                "reports/N8N_LIVE_SMOKE_TEST_EVIDENCE.txt; owner account was throwaway, "
                                "cookies purged wave-4; regenerable on demand",
-                     "canonical_ref": "ahos/n8n/workflows/", "reversible": True,
+                     "canonical_ref": "docs/archive/quarantine_2026-10/docker_n8n/n8n/", "reversible": True,
                      "ts_note": ts.isoformat(timespec="seconds")})
     return plan
 

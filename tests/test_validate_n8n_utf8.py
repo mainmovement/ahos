@@ -4,10 +4,12 @@ from __future__ import annotations
 import glob
 from pathlib import Path
 
+from config.paths import get_n8n_workflows_dir
 from tests.validate_n8n import validate
 
-ROOT = Path(__file__).resolve().parents[1]
-WF = ROOT / "n8n" / "workflows"
+# M10 Stage 5: the workflows moved into the M10 archive; the helper is the
+# single source of truth for their location.
+WF = get_n8n_workflows_dir()
 
 
 def test_n8n_workflows_validate_with_utf8_open():

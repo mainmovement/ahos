@@ -56,7 +56,7 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   `config/agent_registry.yaml` (ops blocks; F2 cycle repaired; acyclic CI-pinned)
 - Contracts: `contracts/{control_plane_contract_v1,ai_provider_contract_v1,
   ai_council_contract_v1,improvement_proposal_v1}.json` (+ additive ops-fields in agent_contract_v1)
-- Docker target (design-only, not built): `deployment/docker-compose.target.yml`
+- Docker target (design-only, not built; retired into the M10 archive): `docs/archive/quarantine_2026-10/docker_n8n/deployment/docker-compose.target.yml`
 - Tests: `tests/test_runtime_w11.py` (44) — suite 145 → 191
 
 ## W12 additions (Lane B, execution + intelligence) — 2026-08-13

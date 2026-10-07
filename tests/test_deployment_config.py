@@ -13,7 +13,12 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
-COMPOSE = ROOT / "docker-compose.yml"
+# M10 Stage 5: the root compose was retired into the M10 archive (never
+# deleted). These checks keep validating it there — an archived artifact that
+# is still internally consistent is a real, testable property. The Dockerfile
+# and entrypoint stay in the live tree: they are the rollback path while
+# `.env` still points at Postgres.
+COMPOSE = ROOT / "docs" / "archive" / "quarantine_2026-10" / "docker_n8n" / "docker-compose.yml"
 DOCKERFILE = ROOT / "deployment" / "Dockerfile"
 ENTRYPOINT = ROOT / "deployment" / "entrypoint.sh"
 

@@ -14,10 +14,12 @@ try:
     from engine.ahos_backtest import (P, load, add_indicators, position_size, leverage_allowed,
                                      run_backtest, metrics, monte_carlo, walk_forward)
     from tests.validate_n8n import validate
+    from config.paths import get_n8n_workflows_dir
 except ImportError:
     from ahos_backtest import (P, load, add_indicators, position_size, leverage_allowed,
                                run_backtest, metrics, monte_carlo, walk_forward)
     from validate_n8n import validate
+    from config.paths import get_n8n_workflows_dir
 
 UPLOAD_BTC = Path("/home/user/uploads/LBANK_BTCUSDT_1h_2000_clean.csv")
 RESEARCH_BTC = ROOT_DIR / "research" / "data" / "BTCUSDT_1h_3yr.csv"
@@ -69,7 +71,8 @@ def test_monte_carlo_deterministic_seeded():
 
 # ---------- n8n artifacts (Agent-04/09) ----------
 def test_n8n_workflows_valid():
-    wf_dir = ROOT_DIR / "n8n" / "workflows"
+    # M10 Stage 5: workflows archived under docs/archive/quarantine_2026-10/.
+    wf_dir = get_n8n_workflows_dir()
     for f in sorted(wf_dir.glob("*.json")):
         errs, _ = validate(str(f))
         assert not errs, f"{f}: {errs}"

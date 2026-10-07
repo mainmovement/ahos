@@ -75,7 +75,8 @@ Any sentence claiming `READY_FOR_DEPLOYMENT`, `PRODUCTION_READY`, or a readiness
 | Canonical command reference | `docs/CANONICAL_COMMAND_REFERENCE.md` |
 | Pre-soak protocol | `docs/PRE_SOAK_PROTOCOL.md` |
 | Telegram E2E protocol | `docs/TELEGRAM_OPERATOR_E2E_PROTOCOL.md` |
-| n8n operational procedure | `docs/N8N_OPERATIONAL_PROCEDURE.md` |
+| n8n operational procedure | `docs/N8N_OPERATIONAL_PROCEDURE.md` (its `n8n/workflows/` paths point at the M10 archive; see `docs/archive/quarantine_2026-10/docker_n8n/README.md`) |
+| Docker + n8n retirement archive (M10, 2026-10) | `docs/archive/quarantine_2026-10/docker_n8n/` — the retired compose files, all six workflow JSONs, and the setup guide, moved verbatim with `git mv`; **HISTORICAL_EVIDENCE only, not a live path**; the GM-06 quarantine is name-enforced and followed the file |
 | Owner action checklist | `docs/OWNER_ACTION_REQUIRED.md` |
 | Gecko pair-created persist E2E (2026-09-09) | `docs/engineering/GECKO_PAIR_CREATED_TS_E2E.md` + `reports/gecko_pair_created_ts_e2e_RUNTIME_VERIFIED.json` |
 | Consolidation archive (2026-09-26) | `docs/archive/consolidation_2026-09-26/` — pre-canonical standards/specs preserved from external copies; **HISTORICAL_EVIDENCE only, not authority**; see its `MANIFEST.md` |

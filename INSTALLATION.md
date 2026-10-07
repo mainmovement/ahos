@@ -54,9 +54,14 @@ AHOS supports standalone Python execution on Windows 11, Linux, Mac, and contain
 
 ---
 
-## 4. Docker Compose Setup (Production / VPS)
-```bash
-cp deployment/.env.example deployment/.env
-# Edit deployment/.env with your configuration
-docker compose -f deployment/docker-compose.production.yml up -d --build
-```
+## 4. Docker Compose (Production / VPS) — archived
+
+The Docker/n8n stack was retired by Mission 10 and **archived, never deleted**,
+at `docs/archive/quarantine_2026-10/docker_n8n/` (see its `README.md` for what
+each file was and how to restore it). The native backend is the documented
+default: the gateway's store is embedded PostgreSQL (PGlite) selected by
+`DATABASE_URL=pglite:<dataDir>`, with no container and no port.
+
+`deployment/docker-compose.production.yml` is retained in the archive as the
+historical VPS target. To run the original stack, restore it with
+`git mv` to `deployment/` per the archive README.

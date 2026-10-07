@@ -16,9 +16,13 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from config.paths import get_n8n_workflows_dir  # noqa: E402
 from tests import validate_n8n as v  # noqa: E402
 
-WF = ROOT / "n8n" / "workflows"
+# M10 Stage 5: the workflows were archived (never deleted) under
+# docs/archive/quarantine_2026-10/docker_n8n/. The GM-06 quarantine is
+# name-based (`ahos_03_telegram_control.json`), so it follows the file.
+WF = get_n8n_workflows_dir()
 AHOS03 = WF / "ahos_03_telegram_control.json"
 
 

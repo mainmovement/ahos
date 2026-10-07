@@ -133,7 +133,15 @@ def validate(path):
 if __name__ == "__main__":
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]
-    wf_dir = root / "n8n" / "workflows"
+    # Run as a script (engine/run_all_checks.sh), so the repo root is not on
+    # sys.path the way it is under pytest's rootdir conftest.
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+    from config.paths import get_n8n_workflows_dir
+    # M10 Stage 5: the workflows were archived (never deleted); resolve them via
+    # the shared helper so this validator and the path inventory can never
+    # disagree about where the JSONs live.
+    wf_dir = get_n8n_workflows_dir()
     fail_total = 0
     for path in sorted(wf_dir.glob("*.json")):
         errs, warns = validate(str(path))
