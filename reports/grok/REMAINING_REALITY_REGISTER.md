@@ -272,18 +272,29 @@ implement, list it.)
 - **Proof:** a documented live e2e per `reports/grok/G11_LIVE_E2E_RUNBOOK.md`.
 - **Gov:** the live e2e run is owner-gated.
 
-### 17. n8n automation edge — `CONTRADICTED`
+### 17. n8n automation edge — `RESOLVED BY M10` (was `CONTRADICTED`)
 
-- **Claim:** `docs/N8N_OPERATIONAL_PROCEDURE.md` + `docs/n8n_setup_guide.md`
-  present an operational automation edge.
-- **Reality:** `reports/grok/DOCKER_N8N_DEPENDENCY_MAP.md` (73 lines) maps the
-  live topology as Next gateway + Postgres + SQLite Lane B — **n8n is not in
-  the live dependency set**; `reports/grok/GM06_N8N_QUARANTINE.md` records the
-  quarantine. The integration is dormant.
-- **Depends on:** governance (§18).
-- **Proof:** either a running n8n instance wired to a live edge, or a banner
-  marking the procedure HISTORICAL.
-- **Gov:** **yes** — deployment topology changes are human-gated.
+- **Claim:** `docs/N8N_OPERATIONAL_PROCEDURE.md` + the setup guide presented an
+  operational automation edge.
+- **Reality:** `reports/grok/DOCKER_N8N_DEPENDENCY_MAP.md` (73 lines) mapped the
+  live topology as Next gateway + Postgres + SQLite Lane B — n8n was never in
+  the live dependency set; `reports/grok/GM06_N8N_QUARANTINE.md` records the
+  quarantine. The integration was dormant.
+- **Resolution (M10, 2026-10-08, commits `73279bf` + `f6a3bb9`):** the
+  contradiction is closed by the *second* of the two proofs this row named —
+  the operational procedure is now explicitly superseded, and the ownership map
+  is `architecture/scheduling/n8n_migration.py` (1 already-running, 1
+  superseded, 3 deferred to M44, 1 quarantined). The retired artifacts are
+  archived, not deleted, at
+  `docs/archive/quarantine_2026-10/docker_n8n/`. `test > claim`: the registry
+  is asserted by `tests/test_n8n_migration_registry.py` (42 passed) and the
+  quarantine still fires from the archive path.
+- **The first proof (a running n8n instance wired to a live edge) is still
+  NOT delivered and never will be** — M10 retired the edge rather than wiring
+  it. The owner decision (2026-10-07) is prepare-and-document, no live flip.
+- **Depends on:** governance (§18) — the topology change was human-gated, and
+  the live `.env` flip remains the owner's one remaining act.
+- **Gov:** **yes** — and still open for the flip itself.
 
 ### 18. Governance / constitution — `TESTED`
 
