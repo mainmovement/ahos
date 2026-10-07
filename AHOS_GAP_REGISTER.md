@@ -109,7 +109,7 @@ Classification alphabet: **IMPLEMENTABLE NOW** · **REQUIRES USER ACTION** ·
 |---|---|---|
 | M-GAP-017 (Telegram tests contradicted W57 lockdown) | **CLOSED** | Stale `handle_message` expectations realigned to `EMERGENCY_FALLBACK_ONLY`; gateway success/failure paths pinned |
 | M-GAP-018 (undocumented AHOS_GATEWAY_URL / alert env keys) | **CLOSED** | Documented in `.env.example`; config validation test green |
-| M-GAP-019 (n8n guide claimed Telegram → independent NLU) | **CLOSED** | `docs/n8n_setup_guide.md` states gateway-only law |
+| M-GAP-019 (n8n guide claimed Telegram → independent NLU) | **CLOSED** | the setup guide (now retired into the M10 archive, `docs/archive/quarantine_2026-10/docker_n8n/n8n_setup_guide.md`) states gateway-only law |
 | Dual-stack ownership (TS chat vs Python daemon) | **DOCUMENTED** | `docs/DOC_TRUTH_MAP.md` §C + `docs/CANONICAL_IMPLEMENTATION_MATRIX.md` |
 | `strategies.json` outside Lane-A freeze | **DOCUMENTED** | Intentional exclusion note in `scripts/freeze_lane_a.py` |
 | M-GAP-020 (exchange-key env veto dead-check) | **CLOSED** | `assert_safe_environment` now truthy-flags live trading; exchange key presence → `credentials_isolated=False` |
@@ -276,7 +276,7 @@ Artifact committed: `reports/oss_capability_audit_20260928T051552Z.json` (probe_
 1. **Area 1 — Agent H / GitHub-OSS Intelligence.** Doable now, demonstrated above. Next step: a candidate-refresh pass (fix the `open-telemetry/` path, add lanes AHOS actually lacks) then Tier-1 sweeps at a cadence. No credentials.
 2. **Area 2 — control-plane bootability.** Evidence pipeline fixed this session (M-GAP-033/034/036). The remaining step is *wiring* the daemon to one control plane (M-GAP-035) — blocked on an architecture decision about which plane is canonical, not on code ability.
 3. **Area 5 — local dashboard.** `app/` is a real Next.js surface (`api/`, `layout.tsx`, `page.tsx`). Doable but needs a design decision about what the dashboard must show; no external blocker.
-4. **Area 6 — n8n automation.** 6 workflows exist (`n8n/workflows/ahos_01..12`) plus `docs/n8n_setup_guide.md`. Migration depends on the external n8n instance, so it is owner/externally gated.
+4. **Area 6 — n8n automation.** 6 workflows exist (archived by M10 Stage 5 under `docs/archive/quarantine_2026-10/docker_n8n/n8n/`; the live Python replacements are recorded in `architecture/scheduling/n8n_migration.py`) plus the setup guide (same archive). Migration depends on the external n8n instance, so it is owner/externally gated.
 5. **Area 3 — skill discovery and acquisition.** `architecture/cognitive/` has the pieces (`capability.py`, `contracts.py`, `evaluation.py`, `novelty.py`, `evolution_gate.py`) but no skill-acquisition substrate. Needs design.
 6. **Area 4 — ACI cognitive runtime.** Extensive `architecture/cognitive/` surface, but `AGENTS.md` forbids uncontrolled self-evolution and `evolution_gate.py` is the guardrail. Sensitive by construction; doable work is limited to gate-hardening and does not belong in an autonomous pass.
 

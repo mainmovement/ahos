@@ -24,6 +24,7 @@ agents:
     required_probes: [REPLAY_PROBE, DETERMINISM_PROBE]
     version: "design-W9"
     evidence: "docs/architecture/ (blueprint only; no runtime) — designed absence, no fake orchestrator"
+    retirement_note: "form: n8n_workflow is the historical DESIGN form (status MISSING, never built). M10 (2026-10-07) retires n8n: the six shipped cadences now have recorded Python homes in architecture/scheduling/n8n_migration.py, and no future orchestrator may assume an n8n runtime."
     ops:
       runtime: none
       boot_class: CRITICAL

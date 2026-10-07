@@ -48,8 +48,8 @@ infrastructure:
      purpose: "NATS/Kafka — replayable event log only at justified scale", health: {kind: none, ref: none},
      fallback: "append-only ledger + cycle files"}
   - {component: n8n, boot_class: OPTIONAL, availability: BLOCKED_NO_HOST,
-     purpose: "external automation/IO edge only (Telegram, webhooks, admin) — never the brain (W11 §18)",
-     health: {kind: probe, ref: defined}, fallback: "cli entrypoints; telegram currently env-blocked anyway (R-28)"}
+     purpose: "external automation/IO edge only (Telegram, webhooks, admin) — never the brain (W11 §18); retired by M10, cadences recorded in architecture/scheduling/n8n_migration.py",
+     health: {kind: probe, ref: defined}, fallback: "M10: the six cadences have Python homes recorded in architecture/scheduling/n8n_migration.py (registry is the ownership map; cli entrypoints; ahos_03 stays GM-06 quarantined; telegram env-blocked anyway R-28)"}
   - {component: observability, boot_class: NON_CRITICAL, availability: DESIGN_ONLY,
      purpose: "OTel/Prometheus/Grafana target; interim = run-ledger + periodic reports",
      health: {kind: none, ref: none}, fallback: "reports/ + ledger STATUS surface"}
