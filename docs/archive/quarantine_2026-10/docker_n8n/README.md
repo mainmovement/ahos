@@ -5,8 +5,10 @@
 the file back to its original path (listed below) and revert the re-anchors that
 point at this directory: `config/paths.py::get_n8n_workflows_dir()`,
 `engine/doc_hygiene.py:177`, `tests/validate_n8n.py`, `tests/test_ahos.py`,
-`tests/test_n8n_governance_rules.py`, `tests/test_validate_n8n_utf8.py`, and
-`tests/test_deployment_config.py::COMPOSE`. That is the whole undo procedure.
+`tests/test_n8n_governance_rules.py`, `tests/test_validate_n8n_utf8.py`,
+`tests/test_deployment_config.py::COMPOSE`, and the n8n volume mount in
+`deployment/docker-compose.windows.yml` (it points at this archive's `n8n/`
+since `e1641a2`). That is the whole undo procedure.
 
 ## Why this is dead
 
@@ -48,7 +50,11 @@ These are the **live rollback path** while `.env` still points at Postgres, so
 they move only after the owner flips and confirms green (second half, per the
 flip runbook):
 
-- `deployment/docker-compose.windows.yml` — the compose `.env`'s URL points at
+- `deployment/docker-compose.windows.yml` — the compose `.env`'s URL points at.
+  Its n8n volume mount was **re-pointed at this archive** (`e1641a2`): the old
+  `../n8n/workflows` source no longer exists, and Docker would have silently
+  created an empty host directory on a rollback, starting n8n with zero
+  workflows.
 - `deployment/Dockerfile`, `deployment/entrypoint.sh`, `deployment/healthcheck.py`
 - `database/postgresql_schema.sql`
 - `scripts/windows_diagnose_docker_health.ps1` (invoked by the live G2 pipeline)
