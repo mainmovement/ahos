@@ -37,6 +37,38 @@ evil.example" line is satisfiable in the box's off-host-URL framing and returns
 200 by design on a live loopback socket — proven non-regressive from M48.1's
 empty application-code diff. See
 `reports/grok/autopilot/M48.1_security_update_evidence.md`.
+
+### Resolution 2026-10-08 (BL, commit `b9eba89`) — item 2 was misdiagnosed
+
+Item 2 above was filed as "hardening worth fixing" on the strength of the probe.
+Investigating it for the BL mission showed the diagnosis was inverted. The real
+defect was that **`isLoopbackRequest` did not exist at all**: `0638643` defined
+it and `d9492cb` deleted the definition while keeping `app/api/launcher/route.ts`,
+which imports it at both gates. Every launcher request therefore threw on
+import, so the loopback guard never ran — the route had *no* guard, not a
+permissive one. `f6c4f20` restored six sibling orphans from that same merge and
+filed the resulting tsc error as "pre-existing unrelated"; it was the same
+defect, seventh of seven, and it was live-red (`npm run test:launcher-route`
+failed outright with a `SyntaxError`).
+
+The Host-before-`req.url` ordering that item 2 proposed to fix was **not** a bug
+and is now deliberately kept: the probe's own fourth assertion requires a
+loopback URL under a spoofed off-loopback Host to stay `true`, because the
+socket *bind* is the trust boundary. Evaluating `req.url` first, or requiring
+both, would have broken that contract. The restored implementation satisfies
+all four probe assertions plus a fifth case the original body got wrong —
+`127.0.0.1.evil.example` (the rebinding domain `checkSessionIssuance` names)
+was accepted by `startsWith("127.0.0.1")` and is now refused by the anchored
+`LOOPBACK_HOST`. It also omits the original's `x-forwarded-for` read, matching
+the REDTEAM-19 F1 posture the module adopted after `0638643`.
+
+So item 2 is **CLOSED**, closed by restoring the missing function rather than by
+changing the documented ordering. Item 1 (`source-map-js@1.2.1`) remains open and
+is still a one-line M48-class bump with its own proposal + rollback. Verification
+for this item: `npm run test:chat-auth` 47/47, `npm run test:launcher-route`
+4/4 (was 0/1), the probe 4/4, `npx tsc --noEmit` exit 0 — the "pre-existing"
+tsc error is gone — eslint clean, and 179 pytest passes across the launcher,
+web-api-auth and deployment-config surfaces.
 <!-- M48_1_CARRIED:END -->
 
 <!-- M11_1:START -->
