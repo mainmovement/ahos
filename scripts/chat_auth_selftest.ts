@@ -18,6 +18,7 @@ import {
   consumeBootstrapToken,
   defaultBootFile,
   handleSessionIssuance,
+  isLoopbackRequest,
   sessionCookieName,
   TG_SIG_HEADER,
   TG_TS_HEADER,
@@ -389,6 +390,45 @@ describe("helpers", () => {
     assert.equal(m.get("b"), "22");
     assert.equal(m.get("c"), "xyz");
     assert.equal(readCookies(null).size, 0);
+  });
+});
+
+describe("isLoopbackRequest (/api/launcher gate)", () => {
+  // Restored by BL after d9492cb deleted the definition and kept the caller:
+  // every launcher request threw on import, so the gate never ran. The five
+  // framings are the ones scripts/m481_host_header_probe.mjs documents.
+  it("rejects an off-host URL whose Host header matches it (the box acceptance line)", () => {
+    assert.equal(
+      isLoopbackRequest(new Request("https://evil.example/api/launcher", { headers: { host: "evil.example" } })),
+      false,
+    );
+  });
+  it("rejects an off-host URL with no Host header", () => {
+    assert.equal(isLoopbackRequest(new Request("http://192.168.1.5:3000/api/launcher")), false);
+  });
+  it("accepts a loopback URL with no Host header", () => {
+    assert.equal(isLoopbackRequest(new Request("http://127.0.0.1:3000/api/launcher")), true);
+  });
+  it("keeps a loopback URL true under a spoofed off-loopback Host (the bind is the boundary)", () => {
+    assert.equal(
+      isLoopbackRequest(new Request("http://127.0.0.1:3000/api/launcher", { headers: { host: "evil.example" } })),
+      true,
+    );
+  });
+  it("accepts a loopback Host header over an off-host URL (Host consulted before the URL)", () => {
+    assert.equal(
+      isLoopbackRequest(new Request("https://evil.example/api/launcher", { headers: { host: "127.0.0.1:3000" } })),
+      true,
+    );
+  });
+  it("refuses a DNS-rebinding Host that a startsWith check would accept", () => {
+    assert.equal(
+      isLoopbackRequest(new Request("https://127.0.0.1.evil.example/api/launcher", {
+        headers: { host: "127.0.0.1.evil.example" },
+      })),
+      false,
+      "the rebinding domain named in checkSessionIssuance",
+    );
   });
 });
 

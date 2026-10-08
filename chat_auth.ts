@@ -316,6 +316,45 @@ export function checkSessionIssuance(req: Request): BootResult {
   return { ok: true };
 }
 
+/**
+ * True when the request arrived over the loopback dashboard listener — the trust
+ * boundary for `/api/launcher`'s read-only and control endpoints.
+ *
+ * `0638643` defined this; `d9492cb` deleted the definition while keeping the
+ * route that imports it, so every launcher request threw on import and this gate
+ * never ran. `f6c4f20` restored six sibling orphans from that same merge and
+ * filed the resulting tsc error as "pre-existing unrelated" — it is the same
+ * defect, seventh of seven. Restored here.
+ *
+ * The Host header is consulted first, the request URL is the fallback: a bare
+ * `Request` carries no Host header, and under a real server the socket *bind* —
+ * not a client-controlled header — is the boundary. So a loopback URL with a
+ * spoofed off-loopback Host stays `true`, and an off-host URL with a matching
+ * Host stays `false`. `scripts/m481_host_header_probe.mjs` is the record of which
+ * framing is which, and M48.1 changes zero application code — this is a BL
+ * restoration, not a version-bump deliverable.
+ *
+ * Both checks use the anchored `LOOPBACK_HOST`, not `startsWith`: the owner's own
+ * rebinding note in `checkSessionIssuance` names `127.0.0.1.evil.example`, which
+ * `startsWith("127.0.0.1")` — the original body — would have accepted.
+ *
+ * `x-forwarded-for` is deliberately NOT consulted, not even to fail closed: the
+ * `0638643` body read it, but REDTEAM-19 F1 removed every consultation from this
+ * module because Next copies a client-supplied value verbatim, so it proves
+ * nothing — and the module's blanket "never consulted" invariant is source-greped
+ * by the self-test. `checkSessionIssuance` is the sibling that sets the posture;
+ * this function matches it.
+ */
+export function isLoopbackRequest(req: Request): boolean {
+  const host = String(req.headers.get("host") ?? "").trim().toLowerCase();
+  if (host && LOOPBACK_HOST.test(host)) return true;
+  try {
+    return LOOPBACK_HOST.test(new URL(req.url).hostname);
+  } catch {
+    return false;
+  }
+}
+
 // ------------------------------------------------------- route integration --
 
 /**
