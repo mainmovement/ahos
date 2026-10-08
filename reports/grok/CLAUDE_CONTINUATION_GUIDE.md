@@ -52,7 +52,7 @@ The box mirror (`/workspace/repo`, Grok's Linux clone) holds identical trees. It
 - PAPER_ONLY always.
 - `scripts/store_ai_key.py` is an **untracked owner script**. Do not commit it, edit it, or run it.
 
-### 0.3 Blocker A (yours, Claude): still open
+### 0.3 Blocker A (GM-01): RESOLVED 2026-10-08 (was misreported as open)
 `tests/test_doc_drift.py::test_canonical_docs_have_zero_real_stale_refs` fails on a clean checkout. Two stale refs in `AHOS_GAP_REGISTER.md` point at **untracked** artifacts:
 1. `reports/nightly_backup_series.json` (cited since your `25b33cc`)
 2. `reports/validate_imports_run_20260928T045640Z.json` (cited since `7ebea7a`, M-GAP-037)
@@ -64,6 +64,25 @@ Fix (GM-01), choose one:
 - (b) teach doc_drift "exists but untracked" semantics or an exemption.
 
 Grok did not touch `doc_drift.py`, the artifacts, or the register.
+
+**Resolution (2026-10-08, BL, proof not claim).** This is closed, and it had
+already closed before it was last reported open. Verified by building a fresh
+`git clone` of HEAD (tracked files only — by construction a clean checkout),
+loading *that clone's* `scripts/doc_drift.py` so `ROOT` resolved into the clone,
+and running `scan_docs()`: **95 canonical docs scanned, ZERO stale references**.
+The untracked `validate_imports_run_20260928T045640Z.json` is genuinely absent in
+a clean clone and *no canonical doc cites it* — its only citations are in
+`GROK_HANDOFF.md` and this file, neither of which is in `CANONICAL_DOCS`
+(`docs/canonical/*.md` + `docs/architecture/*.md` + root `AHOS_*.md`). The
+register still cites `reports/nightly_backup_series.json`, but that file is
+**tracked** as of `1834779`, so the citation resolves. Both named tests pass
+here (11/11 and 7/7).
+
+So neither fix (a) nor (b) is needed, and the remaining untracked artifact is
+harmless — though committing it would still be the tidy thing. The "remains
+open" lines in `GROK_HANDOFF.md` are stale; see the correction appended there.
+This is why the box patches 0007/0021 (`BOX_PATCHES_MERGED.md`) landed without
+matching handoff text.
 
 ### 0.4 Current process setup (laptop, as of 17:30 Tehran)
 **Gateway**

@@ -2,6 +2,18 @@
 
 > **Claude: start with [`reports/grok/CLAUDE_CONTINUATION_GUIDE.md`](CLAUDE_CONTINUATION_GUIDE.md)**. It covers Phases 1–9 (Phase 7 = conversational AI with confirm-gated paper commands, owner authority decision 2026-10-02, pending سپهر/قاسم/رضا review; Phase 8 = dev-mission intake + University/agents discovery; Phase 9 = Mission 9 truth baseline + Remaining Reality Register; Phase 9.5 + 9.6 = corrective mission closing every finding in two independent reviews): what was built, where the code lives, exact Windows commands, invariants, process setup, local-only commits (pushes paused), and blocker A.
 
+> **Correction 2026-10-08 (BL) — Blocker A / GM-01 is RESOLVED, and had closed
+> before it was last reported open.** Every "Blocker A remains open" / "still
+> open" / "unchanged" line below is stale (see §M11.1 standing items, the Phase 3
+> and Phase 11 blockers lists, and the Phase-9.6-era notes). Proven by a fresh
+> `git clone` of HEAD running `scan_docs()` from inside the clone: **95 canonical
+> docs, ZERO stale references**, despite the untracked
+> `reports/validate_imports_run_20260928T045640Z.json` being absent there — no
+> canonical doc cites it, and `reports/nightly_backup_series.json` is tracked as
+> of `1834779`. Both named tests pass (11/11, 7/7). Full write-up in
+> `CLAUDE_CONTINUATION_GUIDE.md` §0.3.
+
+
 <!-- M48_1_CARRIED:START -->
 ## M48.1 carried-forward items (2026-10-06, Claude/Atria) — for the BL mission
 
