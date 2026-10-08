@@ -21,6 +21,7 @@ $realTemplate = Join-Path $here 'MISSION_PROMPT_TEMPLATE.txt'
 #   utf16    -> same, but UTF-16LE with an FF FE BOM (the real M11.2 shape)
 #   partial  -> write a UTF-8 result ending in AUTOPILOT_RESULT: PARTIAL
 #   noresult -> exit without writing anything
+#   infra    -> the real M12 shape: a quota/model death with NO verdict line
 $stub = Join-Path $env:TEMP ('ahos_stub_' + [IO.Path]::GetRandomFileName().Replace('.','') + '.ps1')
 Set-Content -LiteralPath $stub -Encoding UTF8 @'
 param([string]$n, [switch]$continueFresh)
@@ -29,6 +30,12 @@ Start-Sleep -Seconds 1
 $mode = $env:STUB_MODE; if (-not $mode) { $mode = 'default' }
 switch ($mode) {
   'noresult' { }
+  'infra' {
+    # The CLI's real quota-death output: a model/429 error and no AUTOPILOT_RESULT
+    # line, because the mission never ran. From _claude_ap_M12_result.txt.
+    $body = "claude.exe : [claude-code:unrecognized_model] {""model"":""Atria-Dawn-Preview"",""query_source"":""sdk""}`r`n`r`nAPI Error: Request rejected (429) . Token quota exhausted.`r`n"
+    [IO.File]::WriteAllText($out, $body, (New-Object Text.UTF8Encoding $false))
+  }
   'partial' {
     [IO.File]::WriteAllText($out, "stub partial`r`n`r`nAUTOPILOT_RESULT: PARTIAL remains=stub`r`n", (New-Object Text.UTF8Encoding $false))
   }
@@ -70,7 +77,7 @@ function Fail([string]$name, [string]$why) {
 function Clear-SandboxState {
   # Wipe every mutable artifact so tests cannot leak verdicts into each other.
   $apd = Join-Path $sandbox 'autopilot'
-  foreach ($f in @('active.json','heartbeat.json','state.json','startup_reconciliation.json')) {
+  foreach ($f in @('active.json','heartbeat.json','state.json','startup_reconciliation.json','infra_state.json')) {
     $p = Join-Path $apd $f; if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force }
   }
   $cd = Join-Path $apd 'consumed'; if (Test-Path -LiteralPath $cd) { Remove-Item -LiteralPath $cd -Recurse -Force }
@@ -365,7 +372,68 @@ function Test-K {
   Pass 'K out_of_band_state_read'
 }
 
-$wanted = if ($Test -eq 'ALL') { 'A','B','C','D','E','F','G','H','I','J','K' } else { @($Test) }
+# ---------------------------------------------------------------------------
+# TEST L: a platform/quota failure is infrastructure, not a mission failure.
+#         (the M10/M12 false escalation: a dead token quota froze the whole queue)
+# ---------------------------------------------------------------------------
+function Test-L {
+  # 1. The classifier must match the CLI's REAL wording. The old 'quota exceeded'
+  #    pattern does not, which is why M12 escalated.
+  $infraText = "claude.exe : [claude-code:unrecognized_model] {""model"":""Atria-Dawn-Preview""}`r`n`r`nAPI Error: Request rejected (429) . Token quota exhausted.`r`n"
+  if (-not (Test-InfraFailure $infraText)) { Fail 'L infra_failure_is_not_mission_failure' 'the real CLI quota output was not classified as infrastructure'; return }
+
+  # 2. A mission whose child died on a dead quota returns to PENDING, charges no
+  #    attempt, and does NOT escalate to NEEDS_REVIEW.
+  Clear-SandboxState
+  New-Queue @('M12 | PENDING | agent org')
+  With-StubMode 'infra' {
+    $state = @{}
+    $null = Start-MissionAttempt $state (Get-MissionRows | Select -First 1)
+    $c = Get-Content -Raw -LiteralPath (Join-Path $sandbox 'CLAUDE_AUTOPILOT_QUEUE.md')
+    if ($c -notmatch '\| M12 \| PENDING \|') { Fail 'L infra_failure_is_not_mission_failure' "infra failure did not return the row to PENDING: $c"; return }
+    if ($state.Count -ne 0 -and [int]$state['M12'] -ne 0) { Fail 'L infra_failure_is_not_mission_failure' "an infra failure charged an attempt: $($state | ConvertTo-Json -Compress)"; return }
+    if ($c -match '\| M12 \| NEEDS_REVIEW \|') { Fail 'L infra_failure_is_not_mission_failure' 'an infra failure escalated to an owner gate and would freeze the queue'; return }
+  }
+
+  # 3. The marker records INFRA and is NOT terminal, so the row stays launchable.
+  $cd = Join-Path $sandbox 'autopilot\consumed'
+  $m = Get-Content -Raw -LiteralPath (Join-Path $cd 'ap_M12.json') | ConvertFrom-Json
+  if ($m.verdict -ne 'INFRA') { Fail 'L infra_failure_is_not_mission_failure' "marker verdict was $($m.verdict), expected INFRA"; return }
+  if (Test-ConsumedTerminal 'ap_M12') { Fail 'L infra_failure_is_not_mission_failure' 'an INFRA marker blocked re-execution; the queue would stall on a dead quota'; return }
+
+  # 4. The queue below an infra-affected row is NOT held -- only NEEDS_REVIEW holds.
+  Clear-SandboxState
+  New-Queue @('M12 | PENDING | agent org', 'M34 | PENDING | coherence audit')
+  $sel = Select-NextMission (Get-MissionRows)
+  if ($sel.Held) { Fail 'L infra_failure_is_not_mission_failure' 'a PENDING row held the queue (only NEEDS_REVIEW may hold)'; return }
+  if ($sel.Mission.Id -ne 'M12') { Fail 'L infra_failure_is_not_mission_failure' "expected M12 to be launchable, got $($sel.Mission.Id)"; return }
+
+  # 5. Backoff is monotonic, positive, and saturates at its declared ceiling. The
+  #    ceiling is the test-overridable $LIMIT_SLEEP_SEC, so the invariants are
+  #    asserted rather than any production value.
+  $cap = $LIMIT_SLEEP_SEC
+  $prev = 0
+  foreach ($n in 1..8) {
+    $got = Get-InfraBackoffSec $n
+    if ($got -lt 1) { Fail 'L infra_failure_is_not_mission_failure' "backoff for n=$n was ${got}s, must be positive"; return }
+    if ($got -lt $prev) { Fail 'L infra_failure_is_not_mission_failure' "backoff must be monotonic: $prev then $got"; return }
+    if ($got -gt $cap) { Fail 'L infra_failure_is_not_mission_failure' "backoff ${got}s exceeded the ceiling ${cap}s"; return }
+    $prev = $got
+  }
+  if ((Get-InfraBackoffSec 99) -ne $cap) { Fail 'L infra_failure_is_not_mission_failure' 'backoff must saturate at its ceiling'; return }
+
+  # 6. The REAL M12 evidence file is classified as infrastructure. This is the
+  #    regression pin against the exact wording that froze the queue on 2026-10-08.
+  $real = Join-Path (Split-Path -Parent (Split-Path -Parent $here)) '_claude_ap_M12_result.txt'
+  if (Test-Path -LiteralPath $real) {
+    $rr = Read-MissionResult $real
+    if ($rr.Found -and -not (Test-InfraFailure $rr.Text)) { Fail 'L infra_failure_is_not_mission_failure' 'the committed M12 result file is not recognised as an infrastructure failure'; return }
+  }
+
+  Pass 'L infra_failure_is_not_mission_failure'
+}
+
+$wanted = if ($Test -eq 'ALL') { 'A','B','C','D','E','F','G','H','I','J','K','L' } else { @($Test) }
 foreach ($t in $wanted) {
   switch ($t) {
     'A' { Test-A }
@@ -379,6 +447,7 @@ foreach ($t in $wanted) {
     'I' { Test-I }
     'J' { Test-J }
     'K' { Test-K }
+    'L' { Test-L }
     default { Fail "TEST_$t" 'unknown test id' }
   }
 }

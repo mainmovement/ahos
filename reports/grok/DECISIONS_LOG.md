@@ -5,6 +5,27 @@ Decisions taken without waiting for owner approval, per `AGENTS.md`
 judgement calls within the safety surface — it is not a place to log work items
 (the autopilot queue owns those) and nothing here overrides an owner decision.
 
+## 2026-10-08
+
+**Q: The autopilot runner escalates a dead token quota to `NEEDS_REVIEW`, which freezes all 43 rows below it. Repair the orchestration, or leave it?**
+**A:** Repair it — classify quota/model/auth failures as `INFRA`, not mission failures.
+**Reason:** The escalation was provably a category error: the CLI emits `Token quota
+exhausted` / `Request rejected (429)` / `unrecognized_model`, none of which the
+runner's `quota exceeded` pattern matched, so a platform outage fell through to
+`MALFORMED` and then to an owner gate. A non-product infrastructure failure was being
+represented as an AHOS mission failure. The repair charges no attempt, freezes no
+queue, and backs off instead — the queue stays launchable for the whole outage.
+
+**Q: Reset M12's escalation, or leave it for the owner?**
+**A:** Return it to `PENDING` and zero its attempt counter. Do **not** mark it DONE.
+**Reason:** All three attempts were quota deaths with no `AUTOPILOT_RESULT` line, so
+the `NEEDS_REVIEW` was produced by the runner defect above, not by a human reviewing
+the work. Restoring the launchable state is the correction of a false escalation. It
+is explicitly not a completeness claim — the runner will re-execute M12 and deliver
+its own verdict, and the row's "37+ agents, authority NONE by default" description does
+not match the current 25-agent registry, so the re-run may find real work remaining.
+Recorded in `autopilot/QUEUE_DECISION_M12_infra_false_escalation.md`.
+
 ## 2026-10-07
 
 **Q: M10 Stage 4 — execute the live `.env` `DATABASE_URL` flip, or only prepare it?**

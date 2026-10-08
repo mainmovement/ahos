@@ -74,9 +74,9 @@ def _assert_pass(test_id: str, out: str, rc: int) -> None:
     assert verdict == "PASS", f"test {test_id} failed: {ours[0][2]}\nfull:\n{out}"
 
 
-@pytest.mark.parametrize("test_id", list("ABCDEFGHIJK"))
+@pytest.mark.parametrize("test_id", list("ABCDEFGHIJKL"))
 def test_runner_repair_case(test_id: str) -> None:
-    """TESTS A-K from the repair directive, executed by the real PS 5.1 harness."""
+    """TESTS A-L from the repair directive, executed by the real PS 5.1 harness."""
     rc, out = _run_harness(test_id)
     _assert_pass(test_id, out, rc)
 
@@ -308,3 +308,88 @@ def test_no_protected_file_is_modified_by_the_diff():
         for bad in forbidden:
             if path.startswith(bad) and path not in pre_existing:
                 pytest.fail(f"repair touched a protected path: {path}")
+
+
+# ------------------------------------------------------- infra-failure pins ---
+# A platform outage (dead token quota, unavailable model) is NOT a mission failure.
+# Charging it against the attempt budget escalated it to NEEDS_REVIEW, which
+# Select-NextMission honours as an owner gate -- so a dead token quota froze all 43
+# rows below M12 on 2026-10-08 (and M10 on 2026-10-07, resolved in c7fbfc5). The
+# immediate cause was a wording mismatch: the CLI emits "Token quota exhausted" /
+# "Request rejected (429)" / "unrecognized_model", none of which the old
+# 'quota exceeded' pattern matched, so every attempt fell through to MALFORMED.
+
+# The exact strings the CLI emitted, taken from the committed M12 evidence. The
+# bracketed form appears literally in the artifact; the regexes match the bare token
+# (brackets are character-class delimiters in PowerShell, so escaping them would
+# only add noise -- the bare token is unambiguous).
+REAL_INFRA_SIGNATURES = (
+    "Token quota exhausted",
+    "Request rejected (429)",
+    "unrecognized_model",
+)
+
+
+def test_the_runner_classifies_infrastructure_failure_separately():
+    """A quota/model failure must be recognisable, so it is never a mission verdict."""
+    text = RUNNER.read_text(encoding="utf-8")
+    assert "function Test-InfraFailure" in text, (
+        "the runner needs a named infrastructure-failure classifier")
+    for sig in REAL_INFRA_SIGNATURES:
+        assert sig in text, f"the classifier must match the real CLI wording: {sig!r}"
+    # The superseded narrow pattern must no longer be the only gate.
+    assert "$r.Text -match 'usage limit|quota exceeded|credit balance'" not in text
+
+
+def test_an_infra_failure_never_escalates_to_an_owner_gate():
+    """The M10/M12 false escalation: an outage must not become NEEDS_REVIEW."""
+    text = RUNNER.read_text(encoding="utf-8")
+    assert "'INFRA'" in text, "Apply-Verdict needs an INFRA branch"
+    # The INFRA branch must return the row to PENDING, not charge a retry.
+    infra = text.split("'INFRA'", 1)[1]
+    infra = infra.split("'TIMEOUT'", 1)[0]
+    assert "PENDING" in infra, "an infra failure must leave the row launchable"
+    assert "attempt budget" in infra, (
+        "the intent must be stated: no attempt is charged for work that never ran")
+    # And it must NOT be in the terminal set, or the queue would stall on a dead quota.
+    terminal = text.split("function Test-ConsumedTerminal", 1)[1]
+    terminal = terminal.split("\n}\n", 1)[0]
+    assert "INFRA" not in terminal, (
+        "an INFRA marker must not permanently block re-execution")
+
+
+def test_infra_backoff_is_bounded_and_never_freezes_the_queue():
+    """A dead quota is retried with a growing but bounded delay, never a freeze."""
+    text = RUNNER.read_text(encoding="utf-8")
+    assert "function Get-InfraBackoffSec" in text
+    assert "function Save-InfraCount" in text
+    assert "function Reset-InfraCount" in text
+    # The ceiling must reuse the existing limit knob rather than a new magic number.
+    backoff = text.split("function Get-InfraBackoffSec", 1)[1]
+    backoff = backoff.split("\n}\n", 1)[0]
+    assert "LIMIT_SLEEP_SEC" in backoff, "the backoff ceiling must be the existing knob"
+
+
+def test_the_mission_launcher_stops_retrying_a_dead_quota():
+    """The child must not burn all its retries against an unavailable platform."""
+    text = MISSION_LAUNCHER.read_text(encoding="utf-8")
+    assert "function IsInfraFailure" in text, (
+        "the launcher needs the same infrastructure classifier as the runner")
+    for sig in REAL_INFRA_SIGNATURES:
+        assert sig in text, f"the launcher must stop on the real wording: {sig!r}"
+    # The superseded inline pattern must be gone.
+    assert "-match 'usage limit|quota exceeded|credit balance" not in text
+
+
+def test_the_real_m12_evidence_is_classified_as_infrastructure():
+    """The committed artifact that froze the queue must now be recognised correctly."""
+    m12 = ROOT / "reports" / "grok" / "_claude_ap_M12_result.txt"
+    if not m12.exists():
+        pytest.skip("M12 result artifact not present on this host")
+    # The file is UTF-16LE (the CLI writes it that way through the redirect).
+    raw = m12.read_bytes()
+    text = raw.decode("utf-16", errors="replace")
+    assert "Token quota exhausted" in text or "Request rejected (429)" in text, (
+        "the M12 artifact no longer shows the quota-death signature")
+    assert "AUTOPILOT_RESULT" not in text, (
+        "a quota death never delivered a mission verdict -- that is the whole point")

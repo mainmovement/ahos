@@ -49,6 +49,7 @@ $stateFile      = "$ap\state.json"          # per-mission attempt counters
 $activeFile     = "$ap\active.json"         # durable in-flight mission record
 $heartbeatFile  = "$ap\heartbeat.json"      # runner liveness / stall visibility
 $consumedDir    = "$ap\consumed"            # idempotent result-application markers
+$infraFile      = "$ap\infra_state.json"    # consecutive infrastructure-failure counter
 $childScript    = if ($env:AHOS_RUNNER_CHILD_SCRIPT) { $env:AHOS_RUNNER_CHILD_SCRIPT } else { "$g\run_mission.ps1" }
 
 $CHILD_POLL_SEC    = 15        # deterministic poll interval, never a busy spin
@@ -143,6 +144,40 @@ function Classify-MissionResult([string]$Text) {
   return @{ Verdict=$m.Groups[1].Value; Argument=$m.Groups[2].Value }
 }
 
+# --- infrastructure-failure classification ----------------------------------------
+# An infrastructure failure is NOT a mission failure. A dead token quota, an
+# unavailable model, or an auth/rate rejection means the mission never ran at all.
+# Charging that against the mission attempt budget is a category error, and the
+# escalation it produces (NEEDS_REVIEW) is a false owner gate -- which
+# Select-NextMission then honours by holding every row below it.
+#
+# This is the defect that froze the queue twice: M10 (2026-10-07, resolved in
+# c7fbfc5) and M12 (2026-10-08). Both burned all three attempts on the CLI's REAL
+# quota wording -- "Token quota exhausted", "Request rejected (429)",
+# "unrecognized_model" -- which the older 'quota exceeded' pattern never matched,
+# so every attempt fell through to MALFORMED and escalated. The patterns below are
+# the exact strings the CLI emits, verified against
+# reports/grok/_claude_ap_M12_result.txt.
+function Test-InfraFailure([string]$Text) {
+  return ($Text -match 'Token quota exhausted|quota exceeded|usage limit|credit balance|Request rejected \(429\)|unrecognized_model|invalid api key|authentication_error|rate[- ]?limited')
+}
+
+# Consecutive-infra backoff. A dead quota is retried with a growing delay so the
+# runner does not hammer a platform that is down, but the delay is BOUNDED and the
+# queue is never frozen: the row stays PENDING and launchable the whole time.
+function Get-InfraCount {
+  if (-not (Test-Path -LiteralPath $infraFile)) { return 0 }
+  try { return [int](Get-Content -Raw -LiteralPath $infraFile | ConvertFrom-Json).count } catch { return 0 }
+}
+function Save-InfraCount([int]$n) {
+  @{ count = $n; ts = (Get-Date -Format o) } | ConvertTo-Json -Compress | Out-File -Encoding utf8 $infraFile
+}
+function Reset-InfraCount { if (Test-Path -LiteralPath $infraFile) { Save-InfraCount 0 } }
+# 60s, 120s, 240s, 480s, 960s, then capped at $LIMIT_SLEEP_SEC (30 min).
+function Get-InfraBackoffSec([int]$n) {
+  return [int][Math]::Min(60 * [Math]::Pow(2, [Math]::Min($n - 1, 5)), $LIMIT_SLEEP_SEC)
+}
+
 # --- bounded child wait (Phase 1) ------------------------------------------------
 # Replaces `Start-Process -Wait`. The parent polls HasExited at a fixed interval,
 # publishes a heartbeat on every poll, and surrenders control after $TimeoutSec.
@@ -230,6 +265,15 @@ function Reconcile-ActiveState {
   }
   $r = Read-MissionResult $a.result_path
   if ($r.Found) {
+    if (Test-InfraFailure $r.Text) {
+      # A previous generation died while the platform was down. The mission never
+      # ran, so it must NOT be left RUNNING: the main loop would hand a platform
+      # outage to the owner as a NEEDS_REVIEW gate and freeze the queue.
+      Write-ConsumedMarker $a.safe @{ mission=$a.mission; safe=$a.safe; verdict='INFRA'; argument='platform_unavailable'; source='reconcile'; ts=(Get-Date -Format o) }
+      Apply-Verdict (Load-AttemptState) $a.mission $a.safe 'INFRA' 'platform_unavailable' @{ WaitedSec = 0 }
+      L "reconcile $($a.mission): child gone, infra failure -> PENDING (not an owner gate)"
+      return @{ Action='APPLIED'; Record=$a; Verdict='INFRA'; Argument='platform_unavailable' }
+    }
     $c = Classify-MissionResult $r.Text
     Write-ConsumedMarker $a.safe @{ mission=$a.mission; safe=$a.safe; verdict=$c.Verdict; argument=$c.Argument; source='reconcile'; ts=(Get-Date -Format o) }
     L "reconcile $($a.mission): child gone, result $($c.Verdict) -> applied"
@@ -252,15 +296,27 @@ function Apply-Verdict($state, [string]$Id, [string]$Safe, $verdict, [string]$ar
   switch ($verdict) {
     'DONE' {
       if ($Id -eq 'M14-M33' -and $argument -notmatch 'NO_REMAINING') { break }
-      SetStatus $Id 'DONE'; $state[$Id] = 0
+      SetStatus $Id 'DONE'; $state[$Id] = 0; Reset-InfraCount
     }
-    'BLOCKED_OWNER' { SetStatus $Id 'BLOCKED_OWNER'; L "$Id owner: $argument" }
+    'BLOCKED_OWNER' { SetStatus $Id 'BLOCKED_OWNER'; L "$Id owner: $argument"; Reset-InfraCount }
+    'INFRA' {
+      # The mission never ran: the platform (quota/model/auth) was unavailable.
+      # Return the row to PENDING with its attempt budget untouched. This is the
+      # correction for the M10/M12 false escalations: an outage must never become an
+      # owner gate, because Select-NextMission would then hold the whole queue below
+      # it for as long as the quota stayed dead.
+      SetStatus $Id 'PENDING'
+      L "$Id infra failure -> PENDING (attempt budget untouched, queue NOT frozen): $argument"
+    }
     'TIMEOUT' {
       # A timeout is an anomaly, not a retryable transient: escalate to the human gate.
       SetStatus $Id 'NEEDS_REVIEW'; L "$Id child timeout after $($wait.WaitedSec)s -> NEEDS_REVIEW (owner gate)"
     }
     default {
-      # PARTIAL / MALFORMED / MISSING: retry, capped at $MAX_ATTEMPTS.
+      # PARTIAL / MALFORMED / MISSING: retry, capped at $MAX_ATTEMPTS. This is a
+      # genuine mission outcome, so it may legitimately escalate. A real outcome also
+      # breaks any infra streak, so the backoff does not linger after a recovery.
+      Reset-InfraCount
       $state[$Id] = [int]$state[$Id] + 1
       if ($state[$Id] -ge $MAX_ATTEMPTS) { SetStatus $Id 'NEEDS_REVIEW' } else { SetStatus $Id 'PARTIAL' }
     }
@@ -347,12 +403,23 @@ function Start-MissionAttempt($state, $row) {
   L "wait $id : $($wait.Outcome) after $($wait.WaitedSec)s code=$($wait.ExitCode)"
 
   $r = Read-MissionResult $resultPath
-  if ($r.Found -and $r.Text -match 'usage limit|quota exceeded|credit balance') {
-    Write-ConsumedMarker $safe @{ mission=$id; safe=$safe; verdict='LIMIT'; ts=(Get-Date -Format o) }
-    Apply-Verdict $state $id $safe 'PARTIAL' '' $wait
+  if ($r.Found -and (Test-InfraFailure $r.Text)) {
+    # Infrastructure failure (quota/model/auth): the mission never ran. Charge no
+    # attempt, freeze no queue, back off, and leave the row PENDING for when the
+    # platform recovers. The old branch here matched only 'usage limit|quota
+    # exceeded|credit balance', which never matched the CLI's real wording, so a
+    # dead quota fell through to MALFORMED and escalated to a false owner gate.
+    $infraN = Get-InfraCount + 1
+    Save-InfraCount $infraN
+    $infraSleep = Get-InfraBackoffSec $infraN
+    Write-ConsumedMarker $safe @{ mission=$id; safe=$safe; verdict='INFRA'; argument='platform_unavailable';
+                                 wait_outcome=$wait.Outcome; exit_code=$wait.ExitCode; waited_sec=$wait.WaitedSec;
+                                 backoff_sec=$infraSleep; consecutive=$infraN; source='live'; ts=(Get-Date -Format o) }
+    Apply-Verdict $state $id $safe 'INFRA' 'platform_unavailable' $wait
     Clear-ActiveState
-    L "limit hit - sleeping $LIMIT_SLEEP_SEC`s"
-    Start-Sleep -Seconds $LIMIT_SLEEP_SEC
+    L "infra failure (quota/model) on $id : attempt NOT charged, queue NOT frozen -> backoff ${infraSleep}s (consecutive infra #$infraN)"
+    Write-Heartbeat 'INFRA_BACKOFF' $id $childPid $wait.WaitedSec "platform unavailable; queue left launchable; backoff ${infraSleep}s"
+    Start-Sleep -Seconds $infraSleep
     return $true
   }
 

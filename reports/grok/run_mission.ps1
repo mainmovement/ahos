@@ -17,6 +17,12 @@ $resumeMsg = "Continue the same mission exactly where you stopped. If your last 
 $backoff = @(0, 120, 300, 600, 600, 900)
 function NewestSession($since) { (Get-ChildItem $proj -Filter *.jsonl | Where-Object { $_.LastWriteTime -ge $since } | Sort-Object LastWriteTime -Descending | Select-Object -First 1).BaseName }
 function IsFail($t) { return ($t -match 'API Error|Background tasks still running|408 status|overloaded|ECONNRESET|socket hang|issue with the selected model|Reached max turns') }
+# A platform failure is not a mission failure. The CLI's real quota wording --
+# "Token quota exhausted", "Request rejected (429)", "unrecognized_model" -- is what
+# killed M10 and M12: the older 'quota exceeded' pattern never matched it, so this
+# loop burned every retry against a dead quota and then handed the verdictless
+# output to the runner, which escalated a platform outage to an owner gate.
+function IsInfraFailure($t) { return ($t -match 'Token quota exhausted|quota exceeded|usage limit|credit balance|Request rejected \(429\)|unrecognized_model|invalid api key|authentication_error|rate[- ]?limited') }
 "START $(Get-Date) continueFresh=$continueFresh" | Out-File -Append -Encoding utf8 $log
 $mode = 'fresh'; $sess = $null; $fastFails = 0; $failCount = 0
 for ($a = 0; $a -lt $maxAttempts; $a++) {
@@ -41,7 +47,7 @@ for ($a = 0; $a -lt $maxAttempts; $a++) {
   $hasVerdict = ($txt -match 'AUTOPILOT_RESULT:\s*(DONE|PARTIAL|BLOCKED_OWNER)')
   if (-not $hasVerdict) { "no AUTOPILOT_RESULT in output -> resume" | Out-File -Append -Encoding utf8 $log }
   if (-not $wd -and $hasVerdict -and -not (IsFail $txt)) { break }
-  if ($txt -match 'usage limit|quota exceeded|credit balance|invalid api key|authentication_error') { "STOP: limit/auth" | Out-File -Append -Encoding utf8 $log; break }
+  if (IsInfraFailure $txt) { "STOP: infra/quota failure -- the mission never ran, no attempt is chargeable" | Out-File -Append -Encoding utf8 $log; break }
   $failCount++
   Copy-Item $out "reports\grok\_claude_${n}_result_fail$failCount.txt" -Force
   if ($dur -lt 180) { $fastFails++ } else { $fastFails = 0 }
