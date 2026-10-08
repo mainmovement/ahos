@@ -5,6 +5,45 @@ Decisions taken without waiting for owner approval, per `AGENTS.md`
 judgement calls within the safety surface — it is not a place to log work items
 (the autopilot queue owns those) and nothing here overrides an owner decision.
 
+## 2026-10-09
+
+**Q: The positive-value path is structurally unreachable — every token resolves identity `UNRESOLVED` forever, so no positive decision can ever be earned. Repair it?**
+**A:** Yes — build a multi-provider identity resolver in `architecture/identity/` and inject it at the daemon wiring point.
+**Reason:** `identity_from_candidate` (authority.py:165) collapses the whole
+provider fan-out into ONE `IdentitySource` whose `provider` is the joined string
+`"dexscreener+geckoterminal"`, so `resolve_identity`'s independence gate
+(`_independent_enough`, ≥2 distinct provider names) sees `len(providers) == 1`
+and returns `insufficient_independent_sources` unconditionally. This was a
+wiring defect, not a safety control: the gate exists to demand corroboration,
+and it was being fed evidence that could never count. The repair supplies real
+per-provider evidence to the *same* arbiter — it adds no identity rule, no new
+gate, and no second decision brain. CONFLICT / single-source / UNKNOWN remain
+non-PASS exactly as before. Recorded in
+`reports/grok/MULTI_SOURCE_IDENTITY_RECEIPT.md`.
+
+**Q: GeckoTerminal's per-token adapter echoed the queried address back as its answer. Fix that too?**
+**A:** Yes — report the address the payload actually carries, empty if it carries none.
+**Reason:** An adapter that returns whatever it was asked cannot corroborate
+anything; it would "confirm" any address and make the two-source gate falsely
+satisfiable — corroboration that was never given. The same fallback existed in
+DexScreener's `base.get("address", address)`. Both now emit an empty address
+when the payload omits one, so such a token contributes no identity source
+rather than a rubber stamp. No existing test depended on the echo, and
+`ProviderCollector`'s merge never overwrites the base candidate's address, so
+the metrics path is unaffected.
+
+**Q: A stale autopilot runner (PID 4516, started 2026-10-07 08:25 — before the INFRA fix reached disk) re-ran M12 at 22:27, hit the same quota death, and re-escalated it to `NEEDS_REVIEW` with counter 3, reverting the committed correction. Kill the process?**
+**A:** No. Correct the queue state again and leave the process running.
+**Reason:** The watchdog respawns `run_mission.ps1` children but does NOT respawn
+the main `claude_autopilot.ps1` runner, so killing PID 4516 would stop the queue
+being driven entirely until the owner restarts it — a worse outcome than one
+mis-escalated row, and restarting an owner-started daemon is the owner's call.
+The committed code is correct: the script re-defines its functions on each
+dot-source, so a fresh process picks up the INFRA classifier. Only the
+long-running loop holds the pre-fix definitions in memory. The regression was
+reverted on disk (M12 → `PENDING`, counter 0) with the cause recorded in the
+queue row; a restart flushes it for good.
+
 ## 2026-10-08
 
 **Q: The autopilot runner escalates a dead token quota to `NEEDS_REVIEW`, which freezes all 43 rows below it. Repair the orchestration, or leave it?**

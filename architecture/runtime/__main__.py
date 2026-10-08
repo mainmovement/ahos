@@ -27,6 +27,7 @@ from ..collector.engine import CollectorEngine
 from ..learning.score_ledger import ScoreLedger
 from ..scheduling.engine import ProductionScheduler, ScheduleTask
 from ..pipeline.orchestrator import OpportunityPipelineOrchestrator
+from ..identity import build_production_resolver
 from telegram_ai.adapter import MockTelegramAdapter, ProductionTelegramAdapter, TelegramSecurityGate
 from telegram_ai.bot import TelegramBotRunner
 from telegram_ai.service import TelegramDomainService
@@ -405,11 +406,21 @@ def main(argv: list[str] | None = None) -> int:
                 + ("" if score_ledger.source == "local"
                    else "  (NOT calibration-eligible)"))
 
+    # Identity resolution for the canonical decision. The default resolver
+    # (identity_from_candidate) is fail-closed single-source, which makes the
+    # identity gate permanently UNRESOLVED and blocks every positive decision.
+    # This resolver asks each independent market provider the same per-address
+    # question and hands the answers to the same resolve_identity arbiter -- it
+    # adds no rule of its own, so CONFLICT / single-source / UNKNOWN still
+    # cannot become PASS. Disabled unless both keyless providers are configured.
+    identity_resolver = build_production_resolver()
+
     orchestrator = OpportunityPipelineOrchestrator(
         collector=collector,
         telegram_adapter=telegram_adapter,
         target_chat_id=allowed_chats[0] if allowed_chats else None,
-        score_ledger=score_ledger
+        score_ledger=score_ledger,
+        identity_resolver=identity_resolver,
     )
 
     # Observation runtime (Phase 6): wraps the frozen Lane-A poller; every

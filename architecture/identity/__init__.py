@@ -7,6 +7,10 @@ from architecture.identity.gates import (
     pool_liquidity_claims_allowed,
     token_monitoring_allowed,
 )
+from architecture.identity.multi_source import (
+    MultiSourceIdentityResolver,
+    build_production_resolver,
+)
 from architecture.identity.resolution import resolve_identity
 from architecture.identity.types import (
     ChainIdentity,
@@ -24,8 +28,10 @@ __all__ = [
     "IdentityResolution",
     "IdentitySource",
     "IdentityState",
+    "MultiSourceIdentityResolver",
     "PoolIdentity",
     "TokenIdentity",
+    "build_production_resolver",
     "identity_allows_alert",
     "identity_allows_identity_mutation",
     "identity_allows_paper_candidate",

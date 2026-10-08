@@ -228,7 +228,13 @@ class DexScreenerAdapter(BaseHttpProviderAdapter):
             )
             tok = NormalizedTokenCandidate(
                 chain=p.get("chainId", chain).lower(),
-                address=base.get("address", address),
+                # The provider's own baseToken.address is the evidence. Do NOT
+                # fall back to the queried address: echoing the query would let
+                # this adapter "confirm" any address and so make a two-source
+                # identity gate pass on corroboration never given. If the
+                # payload omits it, the token carries no address claim and
+                # contributes no identity source.
+                address=base.get("address") or "",
                 symbol=base.get("symbol", "UNKNOWN"),
                 name=base.get("name", "Unknown Token"),
                 pair_address=p.get("pairAddress"),
@@ -327,16 +333,27 @@ class GeckoTerminalAdapter(BaseHttpProviderAdapter):
                 raw = resp.read()
                 status_code = resp.status
             data = json.loads(raw)
-            attrs = data.get("data", {}).get("attributes", {})
+            resource = data.get("data", {})
+            # GeckoTerminal may wrap the token in {"data": {...}} or return the
+            # attributes directly; accept both, prefer the wrapper.
+            attrs = resource.get("attributes", resource)
             metrics = MarketMetrics(
                 price_usd=float(attrs["price_usd"]) if attrs.get("price_usd") else None,
                 fdv_usd=float(attrs["fdv_usd"]) if attrs.get("fdv_usd") else None,
                 liquidity_usd=float(attrs["total_reserve_in_usd"]) if attrs.get("total_reserve_in_usd") else None,
                 volume_24h=float(attrs.get("volume_usd", {}).get("h24") or 0) if attrs.get("volume_usd") else None
             )
+            # Report the address the PROVIDER returned, not the one we asked
+            # about. Echoing the query back would make this adapter "confirm"
+            # any address, which would let a two-source identity gate pass on
+            # corroboration that was never actually given. The provider's own
+            # id/attributes are the evidence; a payload that carries neither
+            # makes no address claim (empty), and so contributes no identity
+            # source. Real payloads always carry `data.id`.
+            gt_address = attrs.get("address") or resource.get("id") or ""
             tok = NormalizedTokenCandidate(
-                chain=chain,
-                address=address,
+                chain=attrs.get("chain_id") or resource.get("chain_id") or chain,
+                address=gt_address,
                 symbol=attrs.get("symbol", "UNKNOWN"),
                 name=attrs.get("name", "Unknown Token"),
                 metrics=metrics,
