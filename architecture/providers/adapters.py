@@ -94,6 +94,13 @@ def _maybe_tax_pct(result: dict, key: str) -> float | None:
 
 
 class BaseHttpProviderAdapter(BaseMarketProvider):
+    # Credential requirement, declared on the adapter because the adapter is the
+    # authority on how it authenticates. Defaults to True (needs a key) so a
+    # provider that forgets to declare itself keyless is never silently treated
+    # as a free unattended source. See DEXToolsAdapter.is_enabled for the same
+    # idea on a keyed provider.
+    requires_credentials: bool = True
+
     def __init__(self, provider_id: str, base_url: str,
                  capabilities: list[str], rate_limit_rps: float = 2.0,
                  timeout_sec: float = 10.0, transport: Callable = urllib.request.urlopen):
@@ -132,6 +139,9 @@ class BaseHttpProviderAdapter(BaseMarketProvider):
 
 
 class DexScreenerAdapter(BaseHttpProviderAdapter):
+    # Public, keyless API -- no credential is needed to query it.
+    requires_credentials = False
+
     def __init__(self, transport: Callable = urllib.request.urlopen):
         super().__init__(
             provider_id="dexscreener",
@@ -264,6 +274,9 @@ class DexScreenerAdapter(BaseHttpProviderAdapter):
 
 
 class GeckoTerminalAdapter(BaseHttpProviderAdapter):
+    # Public, keyless API -- no credential is needed to query it.
+    requires_credentials = False
+
     def __init__(self, transport: Callable = urllib.request.urlopen):
         super().__init__(
             provider_id="geckoterminal",

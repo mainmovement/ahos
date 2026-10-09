@@ -366,6 +366,55 @@ def test_production_resolver_uses_the_real_independent_provider_set():
     assert isinstance(resolver._providers["geckoterminal"], GeckoTerminalAdapter)
 
 
+def test_both_default_providers_declare_themselves_keyless():
+    """The two providers the resolver relies on must declare
+    requires_credentials = False, or the resolver will not build them."""
+    assert DexScreenerAdapter.requires_credentials is False
+    assert GeckoTerminalAdapter.requires_credentials is False
+    # Fail-closed default for anything that forgets to declare it.
+    from architecture.providers.adapters import BaseHttpProviderAdapter
+
+    assert BaseHttpProviderAdapter.requires_credentials is True
+
+
+def test_a_keyed_provider_is_not_built_into_the_production_resolver():
+    """A keyed provider is absent on most hosts. If it were silently counted,
+    the two-source gate would degrade to one source and quietly kill every
+    positive decision -- fail-closed, but invisible. Refuse to build instead."""
+    from architecture.identity.multi_source import (
+        DEFAULT_MARKET_PROVIDER_IDS,
+        MultiSourceIdentityResolver,
+        _provider_is_keyless,
+    )
+
+    class _Keyed(DexScreenerAdapter):
+        requires_credentials = True
+
+    assert _provider_is_keyless(_Keyed()) is False
+    assert _provider_is_keyless(DexScreenerAdapter()) is True
+
+    # The DEFAULT construction path filters: a keyless-only request excludes a
+    # keyed adapter even when it sits in the requested ids.
+    resolver = MultiSourceIdentityResolver(provider_ids=["dexscreener", "geckoterminal"])
+    assert set(resolver._providers) == {"dexscreener", "geckoterminal"}
+
+    # And the whole production resolver refuses to build when the default set
+    # is not fully keyless -- the daemon then keeps the fail-closed default,
+    # so identity stays single-source UNRESOLVED rather than silently one-source.
+    import architecture.identity.multi_source as msrc
+
+    real = msrc._default_providers
+    try:
+        msrc._default_providers = lambda transport: {
+            "dexscreener": _Keyed(),
+            "geckoterminal": GeckoTerminalAdapter(),
+        }
+        assert msrc.build_production_resolver() is None
+        assert set(DEFAULT_MARKET_PROVIDER_IDS) == {"dexscreener", "geckoterminal"}
+    finally:
+        msrc._default_providers = real
+
+
 def test_collect_sources_is_repeatable_and_ordered():
     """Deterministic provider order keeps provenance stable across runs."""
     providers = [

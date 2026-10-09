@@ -7,6 +7,56 @@ judgement calls within the safety surface — it is not a place to log work item
 
 ## 2026-10-09
 
+**Q: The daemon wiring comment promised "Disabled unless both keyless providers are configured", but `build_production_resolver()` had no such check — comment and code disagreed. Fix which side?**
+**A:** Make the code match the comment, with a real fail-closed check.
+**Reason:** Deleting the comment would have removed a correct safety promise; the
+alternative was to keep it. `BaseHttpProviderAdapter` now declares
+`requires_credentials` defaulting to `True` (fail-closed: a provider that
+forgets to declare itself keyless is never treated as a free unattended source),
+and the two genuinely keyless adapters override it to `False`.
+`build_production_resolver()` returns `None` unless every provider in the default
+set is present AND keyless, and the daemon then keeps the fail-closed
+single-source default with a WARNING explaining why, rather than silently
+running on one source. A keyed provider is absent on most hosts; counting it
+would degrade the two-source gate to one source — still never PASS, but it would
+quietly kill every positive decision without a diagnostic.
+
+**Q: The decision read model persists only the resulting `identity_state`, not which providers answered, so a live two-source VERIFIED could not be evidenced. Add the evidence to the read model?**
+**A:** No — log it at the point it is produced, in the resolver.
+**Reason:** The read model is written by `architecture/decision/authority.py`,
+which is on the forbidden-paths list (`test_no_protected_file_is_modified_by_the
+diff`). Editing it is not available. The resolver (`architecture/identity/`, not
+forbidden) already has the evidence in hand, so it emits one structured
+`identity_probe` line per candidate: chain, symbol, address, providers asked,
+providers that answered, resulting state, reason, conflicts. Read-only
+provenance — it gates nothing and cannot upgrade a token.
+
+**Q: The `identity_probe` evidence lines never appeared in the engine log on the first restarted daemon, even though it was provably running the new code (the "Executing Opportunity Intelligence Cycle" line number moved 450→471). Add them another way?**
+**A:** Yes — wire the logger in the daemon, not in the resolver.
+**Reason:** `architecture/runtime/logging.py::get_logger` installs its JSON
+handler only on the logger it is asked to name, and `__main__.py` named only
+`ahos.main`. `architecture/identity/multi_source.py` used a bare
+`logging.getLogger("ahos.identity")`, which had no handler and no configured
+root to fall back on, so the records were silently dropped. Importing the
+runtime logging layer from inside `architecture/identity` would invert the
+dependency (runtime depends on identity, not the reverse), so instead the daemon
+— which already owns logging setup — calls `get_logger("ahos.identity",
+run_id=...)` next to its `ahos.main` call. The resolver stays dependency-free,
+and the evidence now lands in the same JSON stream with the same correlation id.
+A second restart (PID 11220 → 12820, 04:31:56 +03:30) picked it up.
+
+
+**A:** Only the engine, driven through the launcher's own single-component path.
+**Reason:** `launcher restart` stops and starts every component including the
+gateway and the Telegram bot, and `launcher start --skip ...` persists a skip
+record that changes the launcher's durable state for later status/stop runs. A
+small script (`scripts/restart_engine_only.py`) instead terminates only the
+recorded engine pid with the launcher's `processkit.terminate` (gentle first,
+force last) and re-spawns it via the same `_start_process("engine")` the start
+loop calls — same command, env, log path, and pid-record bookkeeping. The old
+daemon (PID 12036, started 2026-10-08 14:46, pre-commit) was stopped; PID 11220
+started 04:11:14 +03:30, after the commit.
+
 **Q: The positive-value path is structurally unreachable — every token resolves identity `UNRESOLVED` forever, so no positive decision can ever be earned. Repair it?**
 **A:** Yes — build a multi-provider identity resolver in `architecture/identity/` and inject it at the daemon wiring point.
 **Reason:** `identity_from_candidate` (authority.py:165) collapses the whole

@@ -362,6 +362,12 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args.workspace)
     app = ApplicationLifecycleManager(workspace_root=root)
     logger = get_logger("ahos.main", run_id=app.run_id)
+    # The identity resolver logs its per-candidate evidence on "ahos.identity"
+    # (which providers answered, what the arbiter ruled). Give it the same JSON
+    # stream and run_id correlation as the main logger, so that evidence is
+    # auditable in the engine log; without this the records are dropped, since
+    # only loggers named here get a handler.
+    get_logger("ahos.identity", run_id=app.run_id)
     metrics_tracker = OperationalMetricsTracker(db_path=get_local_db_path())
 
     # 1. Startup & Validation
@@ -412,8 +418,18 @@ def main(argv: list[str] | None = None) -> int:
     # This resolver asks each independent market provider the same per-address
     # question and hands the answers to the same resolve_identity arbiter -- it
     # adds no rule of its own, so CONFLICT / single-source / UNKNOWN still
-    # cannot become PASS. Disabled unless both keyless providers are configured.
+    # cannot become PASS. build_production_resolver() returns None unless every
+    # provider in the default set is present AND keyless, in which case we keep
+    # the fail-closed default and say why rather than quietly running on one
+    # source.
     identity_resolver = build_production_resolver()
+    if identity_resolver is None:
+        logger.warning(
+            "Multi-source identity resolver disabled: the default provider set "
+            "is not fully keyless/available. Identity stays fail-closed "
+            "single-source (UNRESOLVED) until both providers are configured."
+        )
+        identity_resolver = None
 
     orchestrator = OpportunityPipelineOrchestrator(
         collector=collector,

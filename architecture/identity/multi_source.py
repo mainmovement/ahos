@@ -43,12 +43,15 @@ evidence to the existing arbiter.
 """
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
 from architecture.identity.resolution import resolve_identity
 from architecture.identity.types import IdentityResolution, IdentitySource
+
+logger = logging.getLogger("ahos.identity")
 
 # The providers that answer a per-address market question. Order is irrelevant
 # to the verdict (resolve_identity arbitrates) but is kept stable so the
@@ -130,7 +133,15 @@ class MultiSourceIdentityResolver:
             }
         else:
             built = _default_providers(transport)
-            self._providers = {pid: built[pid] for pid in provider_ids if pid in built}
+            # Only keyless providers are eligible as unattended sources; a keyed
+            # one is absent on most hosts and would silently degrade the
+            # two-source gate to a single source. Same filter as
+            # build_production_resolver, so the two paths cannot disagree.
+            self._providers = {
+                pid: built[pid]
+                for pid in provider_ids
+                if pid in built and _provider_is_keyless(built[pid])
+            }
 
     # -- collection ---------------------------------------------------------
 
@@ -179,7 +190,7 @@ class MultiSourceIdentityResolver:
         chain = getattr(candidate, "chain", None)
         address = getattr(candidate, "address", None)
         sources = self.collect_sources(chain, address, now=ts)
-        return resolve_identity(
+        resolution = resolve_identity(
             chain=chain,
             address=address,
             symbol=getattr(candidate, "symbol", None),
@@ -192,13 +203,56 @@ class MultiSourceIdentityResolver:
             pool_base_token=address if getattr(candidate, "pair_address", None) else None,
             now=ts,
         )
+        # One structured line per candidate so a live run can be audited: which
+        # independent providers actually answered this address, and what the
+        # arbiter consequently ruled. The decision read model persists only the
+        # resulting state, not the evidence, and the arbiter (authority.py) must
+        # not be edited to add it -- so the evidence is logged here, at the point
+        # it is produced. Never used to gate anything; read-only provenance.
+        logger.info(
+            "identity_probe chain=%s symbol=%s address=%s asked=%s answered=%s "
+            "state=%s reason=%s conflicts=%s",
+            chain,
+            getattr(candidate, "symbol", None),
+            address,
+            ",".join(self._providers) or "-",
+            ",".join(s.provider for s in sources) or "-",
+            resolution.token.state.value,
+            resolution.token.reason,
+            ";".join(resolution.conflicts) or "-",
+        )
+        return resolution
 
 
-def build_production_resolver(transport: Callable | None = None) -> MultiSourceIdentityResolver:
+def build_production_resolver(transport: Callable | None = None) -> MultiSourceIdentityResolver | None:
     """The resolver the daemon wires into the opportunity pipeline.
 
     Uses the real adapters and the real (default) independent provider set.
     Keep this construction in ONE place so the production provider set is never
     silently different from the tested one.
+
+    Returns ``None`` -- and the caller falls back to the fail-closed
+    single-source default -- unless *every* provider in the default set is
+    present AND keyless. A keyed provider is absent on most hosts, and its
+    absence would silently degrade the two-source gate to a single source:
+    still fail-closed UNRESOLVED, never PASS, but it would quietly kill every
+    positive decision without a diagnostic. Refusing to build says why instead.
     """
-    return MultiSourceIdentityResolver(transport=transport)
+    providers = _default_providers(transport)
+    usable = {pid: p for pid, p in providers.items() if _provider_is_keyless(p)}
+    if set(usable) != set(DEFAULT_MARKET_PROVIDER_IDS):
+        return None
+    return MultiSourceIdentityResolver(
+        providers=tuple(usable.items()), transport=transport
+    )
+
+
+def _provider_is_keyless(provider: object) -> bool:
+    """A provider can serve as an *unattended* identity source only when it
+    needs no credential.
+
+    Read off the adapter's own declaration rather than a second registry, so
+    the two cannot drift. The default is fail-closed: an adapter that never
+    declares ``requires_credentials`` is treated as keyed and excluded.
+    """
+    return not getattr(type(provider), "requires_credentials", True)
