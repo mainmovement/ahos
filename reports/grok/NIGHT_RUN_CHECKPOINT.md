@@ -142,7 +142,7 @@ Step 3 is DONE. Commit `bd93360`.
 - Module attribute, not a function parameter, so every existing caller of
   `main()` is unchanged and the patch point is one line.
 
-## Step 4 — M12, agent organisation — DONE, commit `<see below>`
+## Step 4 — M12, agent organisation — DONE, commit `a2715ba`
 
 The queue row: "37+ agents in `config/agent_registry.yaml` using the owner
 charter template, authority NONE by default, no auto-creation."
