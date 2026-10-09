@@ -125,11 +125,13 @@ Claude active -> not launching". `claude.exe` (interactive) untouched.
 
 `autopilot/state.json` M12 counter reset 3 -> 0: the 3 measured quota death,
 not work quality (already recorded as the intent in `DECISIONS_LOG.md`; the
-stale runner had overwritten the earlier reset). M12 stays at `NEEDS_REVIEW`
-while step 4 works it interactively, so the runner holds the queue and cannot
-launch a duplicate headless M12 against my own session.
+stale runner had overwritten the earlier reset). It turned out HEAD already had
+`M12: 0` committed, so the edit restored the committed value and is not in the
+diff. M12 stays at `NEEDS_REVIEW` while step 4 works it interactively, so the
+runner holds the queue and cannot launch a duplicate headless M12 against my
+own session.
 
-Commit follows.
+Step 3 is DONE. Commit `bd93360`.
 
 ### Judgement calls (also in `reports/grok/DECISIONS_LOG.md`)
 - Prevent-by-redirect over restore-after: restore-in-`finally` still leaves the
