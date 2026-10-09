@@ -168,7 +168,7 @@ document says which is the entrypoint when both exist.
   references W43/W44. Its own header says "always-current pointer". The pointer is correct
   (→ `reports/PHASE_STATE.md`); the content is not.
 - **C.3.3 Two "agent" namespaces remain live and unmapped at the runtime seam.** `control_plane.py`
-  reads `config/agent_registry.yaml` (AG-01…AG-25); `ahos_org` defines 19 `CANONICAL_AGENT_IDS`.
+  reads `config/agent_registry.yaml` (AG-01…AG-43); `ahos_org` defines 19 `CANONICAL_AGENT_IDS`.
   M2 mapped the taxonomies as a policy record, which does not connect them at the code seam.
 - **C.3.4 (from M-GAP-037, carried)** `validate_imports.py` exits 1 on any warm host because its
   44 FAIL lines are gitignored `__pycache__`, making the soak pre-registration gate unpassable in
@@ -189,7 +189,7 @@ operator surface       ?   architecture/control_plane.py  ← DECISION REQUIRED:
                           keep as the parallel honest-reporting surface (C.2)
    │
    ▼
-agent organization     D   config/agent_registry.yaml (AG-01..AG-25); orchestrated=0 by design
+agent organization     D   config/agent_registry.yaml (AG-01..AG-43); orchestrated=0 by design
    │
    ▼
 capability/policy      R   registry validation + dependency graph (cycle ⇒ SAFE_HALT) —

@@ -8,10 +8,11 @@ encodes four INDEPENDENT machine-readable booleans per agent (ops.operability), 
 tests (test_operability_totals_truthful):
 - implemented — an executable artifact exists (file evidence linted for EXISTS agents)
 - contracted — an enforceable contract covers its I/O (envelope/council/provider/proposal)
-- orchestrated — the control plane can actually boot it (TODAY: 0/25 — honest)
+- orchestrated — the control plane can actually boot it (TODAY: 0/43 — honest)
 - live — it has run in the current runtime (Lane-A agents run via standing cycles = live)
 Invariant: live ⇒ implemented (validator-enforced; fake liveness fails validation).
-Status letters (measured 2026-08-13 post-W12): 9 EXISTS / 12 PARTIAL / 3 PLANNED / 1 MISSING
+Status letters at W12 close (2026-08-13): 9 EXISTS / 12 PARTIAL / 3 PLANNED / 1 MISSING (25 total);
+after M12 (2026-10-09) the same 43-agent registry reads 9 EXISTS / 12 PARTIAL / 21 PLANNED / 1 MISSING
 (43 total — 25 W10..W12 plus the 18 vision §2.3 agents registered by M12) — never promoted without executable workspace evidence. W12 deltas: AG-17 promoted
 PARTIAL→EXISTS after F1-S1 made its append-only claim measured-true on all governed stores
 (probe refs in its registry block; R-34); AG-25 (OSS Capability Intelligence) registered PLANNED.

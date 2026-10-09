@@ -207,11 +207,85 @@ Queue row M12 flipped to DONE with the evidence appended; `state.json` M12
 already reads 0. The runner now sees DONE (not launchable), so no duplicate
 headless M12.
 
+## Step 4.5 — the owner's model-name report, resolved — commit `59b2548`
+
+The owner asked (interactively, after the queue went quiet) that the autopilot
+runner stop hard-coding the preview model name and use whatever this interactive
+session uses. Investigated before editing, because step 3 had already concluded
+the name was not the blocker — and the live M34 runlog confirms it again:
+
+- `_claude_ap_M34_result.txt` (19:55 and 20:11 attempts) = `API Error: Request
+  rejected (429), Token quota exhausted` on stdout, **no verdict**.
+- `_claude_ap_M34_stderr.txt` = only the `unrecognized_model` catalog notice.
+- Direct dry-run: `claude -p --model <derived>` → the notice on stderr and a
+  correct reply on stdout, in one process. The notice is cosmetic and prints on
+  every run against this gateway; the run-killer is transient account quota.
+
+So the letter of the ask (change the name) would have changed nothing, and the
+spirit is now enforced structurally: `run_mission.ps1` derives the model from
+the same source this session uses (User `ANTHROPIC_MODEL`, then the User
+`settings.json` `model` field), passes it as an explicit `--model` on both
+invocations, and **aborts loudly** if it cannot be derived — a silent fallback
+would 400 against a gateway that serves one id. No code or config names the
+model now; the only two literals left are test fixtures reproducing the CLI's
+real wording. `M10_1_MODEL_BLOCKER.md` — whose title steered two investigations
+at the name — gets a dated correction appended (not a rewrite; it is evidence),
+retracting its owner-facing "set a model string" items.
+
+`HOLD.flag` refreshed for M34 the same way it was used for M10/M12: M34 is now
+the first launchable queue row, so without a hold the headless runner relaunches
+it between my turns, duplicating the mission against the same tree. Runner
+heartbeat confirms `phase=HOLD note="Grok review hold active"`.
+`tests/test_autopilot_runner.py` — 29 passed.
+
+## Step 5 — M34 coherence audit — DONE
+
+Deliverable: `reports/grok/M34_COHERENCE_AUDIT.md` — the seven-axis
+canonical-source map, the measured ledger census, the number-mapping table, the
+stale-doc corrections, and the deprecate-with-shim merge plan.
+
+Findings in brief:
+- **Mandate-level:** INV-31 names **seven** canonical sources; the queue row
+  names six and drops the design system. Mapped seven; the count conflict is
+  itself a finding (**M-AXIS-7**), listed for the owner.
+- **One genuine duplicate implementation:** `engine/bot_skeleton.py` — no live
+  caller, its stated consumer (n8n) retired by M10. Merge plan row 1,
+  owner-gated. The five agent namespaces are separated **by law** (P2§63); no
+  merge proposed. The two cores are a documented, test-pinned boundary.
+- **Event bus: zero implementations.** The contradiction is between three ops
+  docs saying NOT_JUSTIFIED and the vision's INV-31 law with 11 topics M33.17
+  consumes. An owner act, not a code one (**M-BUS-1**).
+- **Ledger fragmentation measured** (fresh, `mode=ro`): 6 stores, only
+  `paper_trading` (34 triggers/19 tables) and `control_plane_ledger` (6/4)
+  fully guarded. `config/control_plane.yaml:60`'s "3 governed sqlite stores"
+  was the 2026-08-13 W10A-02 census scope; fixed to carry provenance + the
+  current measurement.
+- **Nine stale 25-census docs corrected** — M12 fixed five and missed these,
+  including `config/agent_registry.yaml`'s own header contradicting its
+  `totals`, and `AHOS_REALITY_MAP_v1.md`, whose purpose is stopping census
+  overclaims. New `tests/test_m34_coherence.py` pins the three relations that
+  broke (204 passed; negative paths verified to fire).
+- **Three inherited claims corrected on re-check:** `slills/` is uploaded
+  third-party material, **not** a `.cursor/skills` duplicate (routed to M53);
+  `data/mission_ledger/` is lazy-by-design, not a defect; the model name was
+  never the run-killer (the `M10_1_MODEL_BLOCKER.md` correction, step 4.5).
+- **Vision internal defect recorded, not fixed:** its header says 18 new agents
+  (20–37) while its own §2.3 table lists 20 through #39 — so **#38 سروش and
+  #39 کیان are unregistered**. The vision is the owner's approved charter and
+  counts as evidence; it was not edited.
+
+LISTED for the owner (not decided): M-DB-1, M-TRADE-1, M-TAX-1, M-TAX-2,
+M-WIN-1, M-AXIS-7, M-BUS-1, M-LEDGER-3, M-MEM-1, M-LAUNCH-1, plus OWN-AV-04/06/
+56/62 and the §2.7 seats carried from M12.
+
+NOT done, by design: no merge executed (M34.3 is the *plan*; rows are gated to
+M42 / M30 / M53 / owner); M34.5 coherence score not attempted — scoring before
+the merges land would measure the fragmentation, not the fix.
+
 ## Next steps (in order)
 
-5. M34 coherence audit + merge plan (list owner-gated contradictions).
 6. M13 gold-first paper cycle (Lane B only; write the exact blocker if Lane A
-   is needed).
+   is needed). ← next
 7. CC-3 / CC-4 / CC-1 if blocking; CC-5 prepare migration only, never apply.
 8. Dashboard missions M-D1..M-D4 (`OWNER_DECISIONS_Q1-Q10.md` wins over the
    missions file). No M-D5+ tonight.

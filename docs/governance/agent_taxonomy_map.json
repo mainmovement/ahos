@@ -142,7 +142,7 @@
       ],
       "runtime_map_relation": "NONE — docs/AGENT_MAPPING.md AGENT-01 is DataFetch, not an orchestrator; collision recorded above",
       "decision_authority": false,
-      "gap": "No orchestrator runtime exists (orchestrated=0/25). Agent One is not implemented.",
+      "gap": "No orchestrator runtime exists (orchestrated=0/43). Agent One is not implemented.",
       "maturity": {"level": 0, "name": "REGISTERED", "evidence": "ahos_org/registry.py seed default"}
     },
     {

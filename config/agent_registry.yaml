@@ -1,4 +1,4 @@
-# AHOS W11→W12 — AGENT REGISTRY (25-agent matrix; machine-readable ops blocks; source of truth for
+# AHOS W11→W12 — AGENT REGISTRY (43-agent matrix; machine-readable ops blocks; source of truth for
 # Master Orchestration). Laws: PARTIAL/PLANNED never promoted without executable evidence;
 # operability flags are independent booleans (implemented ⇒ executable artifact; contracted ⇒
 # envelope-conformant; orchestrated ⇒ control-plane bootable; live ⇒ ran in current runtime);

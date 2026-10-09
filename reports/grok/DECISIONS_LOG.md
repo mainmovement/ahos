@@ -362,3 +362,48 @@ reason it was used on 10-07: M34 is now the first launchable queue row, and
 while it is being worked in this interactive session the headless runner would
 otherwise re-launch it between turns — duplicating the mission and spending
 quota on a second writer against the same tree.
+
+---
+
+### 2026-10-09 21:40 — step 5: M34 coherence audit, the three judgement calls
+
+**Q: The queue row says six axes; INV-31 names seven (it adds the design
+system). Which set does the audit map?**
+**A:** Seven, and the discrepancy itself becomes a finding (M-AXIS-7).
+**Reason:** INV-31 is the law ("her concern has one canonical source"), and the
+queue row is a one-line summary of it. Mapping six would have silently dropped
+an axis that has a live deliverable (`docs/design/`, `app/` tokens, Persian RTL)
+and no declared owner, test or lint -- precisely the thing the audit exists to
+expose. Recording the count conflict as a finding keeps the owner as the one who
+decides whether the mandate covers design.
+
+**Q: The registry had grown to 43 but nine live docs still stated 25 as present
+fact, including `config/agent_registry.yaml`'s own header and
+`AHOS_REALITY_MAP_v1.md` -- the file whose entire purpose is stopping census
+overclaims. Fix them in an audit, or leave them for a doc mission?**
+**A:** Fix them. This is M34's job, and M12 should have caught them.
+**Reason:** leaving a live doc stating a superseded census is the exact
+incoherence M34 exists to remove, and the source-of-truth file contradicting its
+own `totals` is the defect that propagated the drift in the first place. All
+nine are doc/config-only, no code semantics, no test pinned them. Archives and
+dated historical statements were left untouched: editing them would falsify the
+record. Then `tests/test_m34_coherence.py` pins the three relations that broke,
+so the next registration cannot update the rows and leave the census behind.
+
+**Q: Vision §14.9.1 calls `slills/` a misspelled duplicate of the skills folder
+"with same-sized files". Treat it as an M34 duplicate?**
+**A:** No -- the claim does not survive re-checking, and saying so is part of
+the audit.
+**Reason:** `slills/` holds 16 third-party `SKILL (1..15).md` files; the
+canonical `.cursor/skills/` has 11 curated AHOS skill directories. Neither the
+sizes nor the names correspond, nothing references it outside the archive, and
+`docs/archive/.../DOC_TRUTH_MAP.md:22` already records it as uploaded
+third-party material. An audit that confirmed a duplication it could not see
+would be exactly the fabricated-positive the `UNKNOWN > fabricated` rule
+forbids. It is recorded as unmanaged untrusted material and routed to M53, and
+the correction is written into the audit so the vision line does not send a
+future pass looking for a duplication that is not there. Same discipline applied
+to two other inherited claims: `data/mission_ledger/` is lazy-by-design
+(`mkdir` at first write), not a defect; and the `architecture_registry.sqlite`
+absence is a builder with no production caller, which is a real gap but a
+different one.

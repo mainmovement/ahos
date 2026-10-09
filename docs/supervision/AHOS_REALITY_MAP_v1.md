@@ -47,7 +47,7 @@ Epistemic labels used: `IMPLEMENTED_AND_VERIFIED` · `IMPLEMENTED_BUT_UNVERIFIED
 - Module itself says it does not decide, verify identity, or mint facts.
 
 ### Agent organization
-- **Census:** 25 registered IDs, not 19. Folk “19” must not overwrite `agent_registry.yaml`.
+- **Census:** 43 registered IDs (25 W10..W12 + 18 vision §2.3 registered by M12), not 19. Folk “19” must not overwrite `agent_registry.yaml`, and neither may the older folk “25”.
 - **Runtime:** AG-01 Master Orchestrator `MISSING` (“ABSENT BY DESIGN”). Registry is ops truth for *design status*, not proof of a cognitive society.
 - Cursor `.cursor/skills/` = developer instructions (AGENTS.md / charter).
 

@@ -82,7 +82,7 @@ DOCUMENTED ≠ SENT ≠ RECEIVED ≠ UNDERSTOOD ≠ IMPLEMENTED ≠ VERIFIED ≠
 | **Agent Organization** | `G:\robat\ahos-agent-org` | Control-plane workspace | NO |
 | **AHOS (product)** | `G:\robat\ahos` | Evidence-first crypto intelligence platform | NO (read-only reference) |
 
-`[VERIFIED]` Zero cross-repo references exist. AHOS has 25 product agents (`AG-01`…`AG-25`); org has separate registries. AHOS `orchestrated=0/25`; AG-01 missing by design. Org must not assume AHOS runtime capabilities.
+`[VERIFIED]` Zero cross-repo references exist. AHOS has 43 product agents (`AG-01`…`AG-43`; 25 at W12 close, plus the 18 vision §2.3 agents registered by M12); org has separate registries. AHOS `orchestrated=0/43`; AG-01 missing by design. Org must not assume AHOS runtime capabilities.
 
 ### 2.2 Mission references
 

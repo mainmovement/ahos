@@ -1801,7 +1801,7 @@ Frontend **must not** directly mutate AHOS. Status: `[NOT IMPLEMENTED]`.
 
 ### 35.4 What org UI must never assume from AHOS
 
-- AHOS agent roster (AG-01..AG-25) ≠ org agent roster
+- AHOS agent roster (AG-01..AG-43) ≠ org agent roster
 - AHOS "ROOTS LIVE" status ≠ org operational status
 - AHOS paper trading state ≠ org mission state
 

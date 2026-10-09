@@ -57,7 +57,7 @@ infrastructure:
      purpose: "deterministic Lane-A core (collector/cycle) — runs via standing schedule until host exists",
      health: {kind: probe, ref: cycle_report_freshness}, fallback: "none — this IS the floor"}
   - {component: evidence_stores, boot_class: CRITICAL, availability: LIVE,
-     purpose: "3 governed sqlite stores", health: {kind: probe, ref: "trigger/integrity census (W10A-02)"},
+     purpose: "governed sqlite stores — 3 in the W10A-02 census scope (paper_trading, e01_discovery, ahos_local); 6 exist today, of which only paper_trading (34 triggers/19 tables) and control_plane_ledger (6/4) carry full UPDATE/DELETE-abort guards (M34 measured 2026-10-09)", health: {kind: probe, ref: "trigger/integrity census (W10A-02)"},
      fallback: "RO law + conservation invariants"}
 agents_source: config/agent_registry.yaml
 startup_rules:
