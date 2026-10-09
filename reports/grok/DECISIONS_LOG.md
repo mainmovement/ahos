@@ -192,3 +192,60 @@ That is a complete argument independent of the real `.env`'s contents — unlike
 a byte-identity-only test, which a pre-existing identical line could mask. Not
 worth burning more of the remaining quota on a retry loop; the tree was verified
 clean after the attempt.
+
+---
+
+## 2026-10-09 (night run, step 3) — the autopilot model failure
+
+**Q: The order says "find where that model name is set and use a valid model or
+the CLI default". Is `Atria-Dawn-Preview` the defect?**
+**A:** No. The model name is correct and must be kept; the defect is how its
+diagnostic notice was consumed.
+**Reason:** A live probe (`claude -p --model Atria-Dawn-Preview`, one turn)
+returned a real reply, so the name is valid and the gateway serves it — the
+authenticated `GET /v1/models` lists it as the single id. But the local Claude
+Code catalog does not describe it, so the CLI prints an `unrecognized_model`
+notice to stderr on EVERY run, successful or not. `run_mission.ps1` merged the
+streams with `*>`, and the INFRA matcher tests `unrecognized_model` as a plain
+substring, so finished missions were being thrown away as platform failures.
+Blaming and replacing the model name would have "fixed" it by hiding the real
+consumption bug and left the stderr-merging defect for the next noisy
+diagnostic to trip.
+
+**Q: Then how should the notice be handled — delete the matcher, or separate the
+streams?**
+**A:** Separate the streams, and keep the matcher exactly as written.
+**Reason:** The matcher exists for a real failure mode (a dead quota prints to
+stderr and produces no reply), and its patterns are the CLI's verbatim wording —
+weakening it would reintroduce the M10/M12 false escalations it was written to
+prevent. Setting `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` (the
+CLI's own documented escape hatch) plus capturing stdout and stderr separately
+fixes the poisoning without touching a single safety pattern. stderr is folded
+into the classified text only when stdout carries no verdict, so the genuine
+quota/auth failure still reaches the matcher and a successful run's notices
+cannot.
+
+**Q: The M12 counter is 3 again after an earlier on-disk reset. Reset it while
+the old runner is still alive?**
+**A:** No — stop the runner first, then reset, then restart.
+**Reason:** `Load-AttemptState` runs inside the loop, so a live runner would
+read the correction, but `Save-AttemptState` rewrites the whole table when an
+in-flight attempt ends — a race the loop-reload commit itself documents. With
+the runner stopped there is no writer, so the reset is durable. Order: stop
+watchdog, stop runner, reset, start watchdog, start runner.
+
+**Q: Should M12 be flipped to PENDING so the restarted runner takes it?**
+**A:** No. Leave it at NEEDS_REVIEW while step 4 works it interactively.
+**Reason:** The runner only launches PENDING/PARTIAL rows and honours a
+NEEDS_REVIEW row above them as an owner gate, so leaving the row where it is
+holds the queue and makes a duplicate headless M12 impossible. Step 4 performs
+M12 in this interactive session and flips the row to DONE with a receipt; if M12
+turns out to be genuinely blocked, the row goes to PENDING then and the fixed
+runner picks it up after this session ends.
+
+**Q: `git commit --no-verify` was used for the step-2 commit.**
+**A:** Harmless here (the repo has no git hooks at all, so it was a no-op), but
+do not repeat it.
+**Reason:** Skipping verification is only defensible when a hook is genuinely
+broken and the underlying issue is being investigated. There is nothing to skip,
+so the flag adds no value and would mask a real hook if one is ever added.

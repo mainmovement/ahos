@@ -7,9 +7,21 @@ $OutputEncoding = New-Object System.Text.UTF8Encoding($false)  # pipe the prompt
 $env:CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS='1800000'
 $env:CLAUDE_CODE_MAX_CONTEXT_TOKENS='110000'
 $env:API_TIMEOUT_MS='900000'
+# The Atria gateway serves exactly one model id, Atria-Dawn-Preview, which the
+# local Claude Code catalog does not describe. Claude prints an
+# unrecognized_model notice to stderr on every run -- a notice, not a refusal;
+# the reply still arrives on stdout. The notice is what the older IsInfraFailure
+# pattern matched (it matched 'unrecognized_model' as a substring), so a mission
+# that had completed was being thrown away as a platform failure. The flag below
+# is the CLI's own documented escape hatch for a model the catalog does not know;
+# it restores wait-for-the-API behaviour instead of the catalog-based window
+# enforcement. The streams are also separated below so no stderr notice can
+# poison the verdict this way again.
+$env:CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT='1'
 $proj = 'C:\Users\Sniper\.claude\projects\G--robat-ahos'
 $out = "reports\grok\_claude_${n}_result.txt"
 $log = "reports\grok\_claude_${n}_runlog.txt"
+$errFile = "reports\grok\_claude_${n}_stderr.txt"
 $tools = "Bash Read Edit Write Glob Grep"
 $task = Get-Content "reports\grok\_claude_task_$n.txt" -Raw -Encoding UTF8
 $contNote = "`n`nCONTINUATION: an earlier Claude session already worked on this exact mission and was cut off by API errors. FIRST inspect git log -15, git status and git diff (uncommitted edits are that session's unfinished work) and the latest handoff/guide sections. Do NOT redo committed work; finish or repair the uncommitted work, run targeted tests, commit, then complete whatever remains of the mission."
@@ -29,13 +41,14 @@ for ($a = 0; $a -lt $maxAttempts; $a++) {
   $t0 = Get-Date
   if ($mode -eq 'fresh') {
     $prompt = $task; if ($a -gt 0 -or $continueFresh) { $prompt = $task + $contNote }
-    $prompt | claude -p --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text *> $out
+    $prompt | claude -p --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text > $out 2> $errFile
     $sess = NewestSession $t0
   } else {
-    $resumeMsg | claude -p --resume $sess --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text *> $out
+    $resumeMsg | claude -p --resume $sess --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text > $out 2> $errFile
   }
   $dur = ((Get-Date) - $t0).TotalSeconds
   $txt = Get-Content $out -Raw -Encoding UTF8
+  $err = if (Test-Path $errFile) { (Get-Content $errFile -Raw -Encoding UTF8) } else { '' }
   "attempt$a mode=$mode session=$sess dur=$([int]$dur)s end=$(Get-Date)" | Out-File -Append -Encoding utf8 $log
   $wf = "reports\grok\_claude_watchdog_kill_$n.flag"; $wf = "reports\grok\_watchdog_kill_$n.flag"; $wd = Test-Path $wf; if ($wd) { Remove-Item $wf -Force; "watchdog-kill -> resume" | Out-File -Append -Encoding utf8 $log }
   # A result without an AUTOPILOT_RESULT line is not a delivered verdict -- it is a turn
@@ -45,7 +58,16 @@ for ($a = 0; $a -lt $maxAttempts; $a++) {
   # against output the mission never finished. Same predicate as the runner's
   # Classify-MissionResult, so both scripts agree on what a verdict looks like.
   $hasVerdict = ($txt -match 'AUTOPILOT_RESULT:\s*(DONE|PARTIAL|BLOCKED_OWNER)')
-  if (-not $hasVerdict) { "no AUTOPILOT_RESULT in output -> resume" | Out-File -Append -Encoding utf8 $log }
+  if (-not $hasVerdict) {
+    # No reply the mission authored: fold stderr into the text so IsFail /
+    # IsInfraFailure can still see a real quota/auth/model failure, which prints
+    # to stderr and produces no stdout verdict. A run that DID deliver a verdict
+    # keeps its stderr in $errFile only -- the recognized-model notice arrives on
+    # stderr even on a fully successful run, and folding it in would match
+    # 'unrecognized_model' and discard real completed work (the M10/M12 shape).
+    if ($err -and $err.Trim()) { $txt = $txt + "`n" + $err }
+    "no AUTOPILOT_RESULT in output -> resume" | Out-File -Append -Encoding utf8 $log
+  }
   if (-not $wd -and $hasVerdict -and -not (IsFail $txt)) { break }
   if (IsInfraFailure $txt) { "STOP: infra/quota failure -- the mission never ran, no attempt is chargeable" | Out-File -Append -Encoding utf8 $log; break }
   $failCount++

@@ -81,7 +81,55 @@ and parking the two new files outside the tree — the test fails identically on
 a pristine checkout. No test was weakened and no failure was hidden to make a
 number move. It is left for the owner to decide about (see the morning report).
 
-Step 2 is DONE. Commit follows this checkpoint.
+Step 2 is DONE. Commit `c0c145f`.
+
+## Step 3 — fix the autopilot so it can actually run — DONE
+
+**Root cause, found by probing the real CLI:** the model name was not the
+problem. `run_mission.ps1:4` copies the User env `ANTHROPIC_MODEL` (the Atria
+gateway serves exactly one id, `Atria-Dawn-Preview`, confirmed by an
+authenticated `GET /v1/models` in `M10_1_MODEL_BLOCKER.md`), and `claude -p`
+runs on it fine — a live probe returned a real reply. But Claude Code's local
+catalog does not describe that id, so it prints an `unrecognized_model` notice
+to **stderr on every run, successful or not**, and `run_mission.ps1` merged
+stderr into the result file with `*>`. The runner's `Test-InfraFailure`
+matches `unrecognized_model` as a substring, so a mission that had completed
+was classified INFRA and its work was discarded. The `429 Token quota
+exhausted` was a separate, genuine, transient quota outage at the time; the
+`unrecognized_model` half is why completed work never counted.
+
+Fix, two coupled parts (both needed):
+
+1. `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` in
+   `run_mission.ps1` — the CLI's own documented escape hatch for a model the
+   catalog does not know; restores wait-for-the-API instead of catalog-based
+   window enforcement.
+2. stdout and stderr are now captured separately. stderr is folded into the
+   classified text **only when stdout carries no verdict**, so a genuine
+   quota/auth failure (stderr, no reply) still reaches `IsInfraFailure` and is
+   still classified INFRA, while a successful run's stderr notices cannot
+   poison the verdict. Diagnostics are never lost: stderr always lands in
+   `_claude_<n>_stderr.txt`.
+
+`tests/test_autopilot_runner.py` — **29 passed** (12 dynamic PS 5.1 harness
+cases A–L + static pins).
+
+**Restart:** PID 4516 (runner, started 2026-10-07 08:25, pre-`7ab2fa4`) and
+PID 14408 (watchdog) stopped; restarted hidden with
+`-WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File …` —
+watchdog now PID 5904, runner PID 15288, both started 14:51:26 +03:30. The new
+runner ran startup reconciliation (every existing gate preserved:
+`OWNER_GATE_PRESERVED`), then yielded: heartbeat reads
+`phase=INTERACTIVE_CLAUDE note="interactive Claude active"`, "interactive
+Claude active -> not launching". `claude.exe` (interactive) untouched.
+
+`autopilot/state.json` M12 counter reset 3 -> 0: the 3 measured quota death,
+not work quality (already recorded as the intent in `DECISIONS_LOG.md`; the
+stale runner had overwritten the earlier reset). M12 stays at `NEEDS_REVIEW`
+while step 4 works it interactively, so the runner holds the queue and cannot
+launch a duplicate headless M12 against my own session.
+
+Commit follows.
 
 ### Judgement calls (also in `reports/grok/DECISIONS_LOG.md`)
 - Prevent-by-redirect over restore-after: restore-in-`finally` still leaves the
