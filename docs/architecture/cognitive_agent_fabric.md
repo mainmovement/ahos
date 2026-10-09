@@ -1,5 +1,5 @@
 # AHOS — COGNITIVE AGENT FABRIC (how agents become real)
-W10/W11/W12 · sources of truth: config/agent_registry.yaml (25 agents, ops blocks) ·
+W10/W11/W12 · sources of truth: config/agent_registry.yaml (43 agents, ops blocks) ·
 contracts/agent_contract_v1.json (+ ops-fields) · architecture/control_plane.py
 
 ## 1. Agent existence is earned, never declared
@@ -12,7 +12,7 @@ tests (test_operability_totals_truthful):
 - live — it has run in the current runtime (Lane-A agents run via standing cycles = live)
 Invariant: live ⇒ implemented (validator-enforced; fake liveness fails validation).
 Status letters (measured 2026-08-13 post-W12): 9 EXISTS / 12 PARTIAL / 3 PLANNED / 1 MISSING
-(25 total) — never promoted without executable workspace evidence. W12 deltas: AG-17 promoted
+(43 total — 25 W10..W12 plus the 18 vision §2.3 agents registered by M12) — never promoted without executable workspace evidence. W12 deltas: AG-17 promoted
 PARTIAL→EXISTS after F1-S1 made its append-only claim measured-true on all governed stores
 (probe refs in its registry block; R-34); AG-25 (OSS Capability Intelligence) registered PLANNED.
 

@@ -142,20 +142,79 @@ Step 3 is DONE. Commit `bd93360`.
 - Module attribute, not a function parameter, so every existing caller of
   `main()` is unchanged and the patch point is one line.
 
+## Step 4 — M12, agent organisation — DONE, commit `<see below>`
+
+The queue row: "37+ agents in `config/agent_registry.yaml` using the owner
+charter template, authority NONE by default, no auto-creation."
+
+The 18 owner-approved agents of `reports/grok/AHOS_AUTONOMOUS_VISION.md` §2.3
+(charter set approved 2026-10-03 20:43, #20–#37) are registered as
+**AG-26..AG-43**, one per charter, in vision order. The registry now holds 43;
+`validate_registry()` returns `{}`.
+
+Key encodings (so nothing is re-derived on a restart):
+- **authority NONE by default = `allowed_authority: []`** — omitting the field
+  fails the contract's required check; `[]` is the only encoding that both
+  validates and is assertable.
+- **status `PLANNED`, not the vision's `REGISTERED`** — the registry enum has no
+  REGISTERED member; that is the P1§14 *lifecycle* vocabulary. PLANNED keeps the
+  EXISTS-needs-real-evidence lint honest: not one of the 18 has an artifact, and
+  all 18 have operability all-false.
+- **مریم (AG-39) holds VETO in neither list** — her charter grants an
+  uncancellable veto, so forbidding it would deny an owner fact, and granting it
+  is a governance promotion. Recorded in `ops.notes`.
+- **Cross-taxonomy reporting lines are notes, not dependencies** — an AG↔agent.*
+  edge would be a silent piece of the OWN-AV-56 mapping (human gate).
+- `form: service` everywhere (M10 retired n8n); `lane: B` everywhere.
+
+Deliverables:
+- `config/agent_registry.yaml` — 18 entries, `totals` recomputed
+  (agents 43, PLANNED 21, boot CRITICAL 16 / ADVISORY 18; operability unchanged).
+- `docs/architecture/agent_matrix_v2.md` — regenerated via the generator, FRESH.
+- `docs/agents/M12_REGISTERED_AGENTS.md` — the owner-charter index (the vision
+  §2.3.3 stays the charter authority; this is an index, never a second source).
+- `tests/test_m12_agent_registration.py` — 18 new invariants: the vision#→AG
+  mapping table, empty allowed authority, no DECIDE/PROMOTE, charter
+  traceability, no Slice-1 auto-creation, acyclic AG-only dependencies,
+  non-duplication vs the 19, totals truthfulness.
+- `docs/governance/agent_taxonomy_map.json` — stale census corrected
+  (25→43, PLANNED 3→21), version 0.1.0 → 0.1.1 with a dated delta note.
+- Five docs' census quotes corrected to 43 (incl. `AHOS_REALITY_MAP_v1.md`, whose
+  purpose is preventing census overclaims).
+- Count pins 25→43 in `tests/test_agent_matrix_v2.py:37` and
+  `tests/test_architecture_p1.py:69,72,73,108,110` — the invariants they check
+  (doc == generator output, no duplicate ids, totals computed) are unchanged.
+
+Two defects fixed along the way:
+1. `engine/agent_matrix_v2.py` wrote the generated doc in the platform codepage
+   instead of UTF-8 — the regeneration crashed on Windows (reads were already
+   UTF-8). Now the write is too.
+2. The census drift in (5) above — the suite does not catch doc census quotes;
+   grep is the only check.
+
+Evidence: `reports/grok/autopilot/M12_review.md` — four pre-coding reviews
+(آرش / domain specialist / پروانه / گیتی) recorded BEFORE any edit, then the
+three sign-offs. **Full suite 2971 passed, 4 skipped, 0 failed** (57:22),
+`tests/test_execution_state.py` excluded; its single pre-existing failure is
+unchanged and left for the owner. Targeted set: 100 passed.
+
+LISTED for the owner, not decided: the OWN-AV-06 conflict (register via
+`ahos_org/registry.py` vs the charter template's prohibition — M34 should carry
+it); §2.7 open seats (GH-2, second Guardian, three more AGI/ACI team seats);
+OWN-AV-04 (veto matrix, still not encoded); OWN-AV-56 and OWN-AV-62 untouched.
+
+Queue row M12 flipped to DONE with the evidence appended; `state.json` M12
+already reads 0. The runner now sees DONE (not launchable), so no duplicate
+headless M12.
+
 ## Next steps (in order)
 
-3. Autopilot fix: `claude_autopilot.ps1` sets the model name
-   `Atria-Dawn-Preview`, which M12 failed on (`unrecognized_model`) alongside
-   `429 Token quota exhausted`. Use a valid model or the CLI default, then
-   restart the runner (PID 4516) and watchdog (PID 14408) hidden, the same way
-   they were started. Keep yielding while an interactive Claude session is
-   active. Do NOT kill `claude.exe` (PID 9580).
-4. M12 from `reports/grok/CLAUDE_AUTOPILOT_QUEUE.md`.
 5. M34 coherence audit + merge plan (list owner-gated contradictions).
 6. M13 gold-first paper cycle (Lane B only; write the exact blocker if Lane A
    is needed).
 7. CC-3 / CC-4 / CC-1 if blocking; CC-5 prepare migration only, never apply.
 8. Dashboard missions M-D1..M-D4 (`OWNER_DECISIONS_Q1-Q10.md` wins over the
    missions file). No M-D5+ tonight.
+
 
 Morning report by 10:00 Tehran: `reports/grok/NIGHT_RUN_REPORT.md`.

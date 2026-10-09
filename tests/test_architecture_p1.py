@@ -66,11 +66,11 @@ def test_matrix_domains_cover_six():
 
 def test_registry_agents_and_spec_conformance():
     agents = REG["agents"]
-    assert len(agents) == 25                                      # 24 + AG-25 (W12 PART F)
+    assert len(agents) == 43                                     # 25 + 18 vision §2.3 agents (M12)
     assert registry.validate_registry(REG) == {}                  # zero spec violations
     counts = {a["agent_id"] for a in agents}
-    assert len(counts) == 25                                      # no duplicate ids
-    assert REG["totals"]["agents"] == 25
+    assert len(counts) == 43                                     # no duplicate ids
+    assert REG["totals"]["agents"] == 43
     by_status = {}
     for a in agents:
         by_status[a["status"]] = by_status.get(a["status"], 0) + 1
@@ -105,9 +105,9 @@ def test_authority_model_enforced():
 def test_registry_build_isolated_idempotent_append_only(tmp_path):
     store = tmp_path / "architecture_registry.sqlite"
     r1 = registry.build_registry(store, now=1_800_000_000.0)
-    assert r1["built"] and r1["agents"] == 25 and r1["inserted_new"] == 25
+    assert r1["built"] and r1["agents"] == 43 and r1["inserted_new"] == 43
     r2 = registry.build_registry(store, now=1_800_000_100.0)
-    assert r2["inserted_new"] == 0 and r2["total_rows"] == 25    # idempotent, append-only
+    assert r2["inserted_new"] == 0 and r2["total_rows"] == 43    # idempotent, append-only
     conn = sqlite3.connect(store)
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("UPDATE agent SET status='MISSING'")

@@ -34,7 +34,7 @@ def test_matrix_v2_covers_every_agent_exactly_once():
 def test_matrix_v2_sixteen_fields_present_per_agent():
     text = DOC.read_text(encoding="utf-8")
     blocks = [b for b in text.split("### ")[1:]]
-    assert len(blocks) == len(_reg()["agents"]) == 25
+    assert len(blocks) == len(_reg()["agents"]) == 43     # 25 + 18 vision §2.3 agents (M12)
     for b in blocks:
         for f in gen.FIELDS[1:]:            # identity is the block header
             assert f"**{f}**:" in b, f"missing field {f} in block {b.splitlines()[0]}"

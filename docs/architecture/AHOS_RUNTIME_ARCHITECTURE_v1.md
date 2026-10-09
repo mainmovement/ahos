@@ -54,7 +54,7 @@ laws require in view — optional layers never affect system status, test-pinned
    (CRITICAL)       (NON_CRIT)     NOT_JUST.)    NOT_JUST.)       webhooks)     (NON_CRITICAL)
         └───────────────┴───────────┴───────────────┴────────────────┴──────┬──────┘
                                                                             │
-                          AGENT WORKERS (25 registered; boot_class ordered; orchestrated=0 today)
+                          AGENT WORKERS (43 registered; boot_class ordered; orchestrated=0 today)
                           ┌───────────────┬───────────────┬───────────────┐
                      MODEL ROUTER      AI COUNCIL      RED TEAM        OSS CAPABILITY
                      (ADVISORY,        (ADVISORY,      (NON_CRITICAL,  INTEL AG-25
@@ -193,7 +193,7 @@ Owner-mandated loop (PART N directive), registered here as the governed target:
                           │
               ┌───────────┼───────────┐
               ▼           ▼           ▼
-            Data        Agents      Memory     ── e01/paper stores · 25-agent registry · AG-17/18
+            Data        Agents      Memory     ── e01/paper stores · 43-agent registry · AG-17/18
               │           │           │
               └───────────┼───────────┘
                           ▼

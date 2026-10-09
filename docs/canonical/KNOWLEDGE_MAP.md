@@ -73,7 +73,7 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   only); spec `docs/architecture/OSS_CAPABILITY_DISCOVERY.md`; first read-only audit
   `reports/oss_capability_audit_1.json` (probe W12A-OSS-1): temporalio/sdk-python ⇒ NO_INTEGRATION
   (host-gated), promptfoo + crewAI ⇒ CANDIDATE_HELD_UNVERIFIED.
-- Registry/matrix counters refreshed (25 agents; principles EXISTING 24 / PARTIAL 20 / DEFINED 19);
+- Registry/matrix counters refreshed (43 agents; principles EXISTING 24 / PARTIAL 20 / DEFINED 19);
   tests 191 → **198** (`tests/test_f1_s1.py`, 7).
 
 ## W12 addendum (directive re-issue — Lane-A t13 + PART J/K/N closure) — 2026-08-13 ~03:30Z
@@ -82,7 +82,7 @@ uploads/_archive_exact_dups_wave7/ (sha-manifested)
   `research/experiments/e01_collection_t13_20260813.json`, `reports/paper_cycle_20260813_032731.json`,
   `reports/pal_probe_20260813_*_sandbox.json`.
 - PART J closed: `engine/agent_matrix_v2.py` (deterministic generator, never hand-edited) →
-  `docs/architecture/agent_matrix_v2.md` (25 agents × 16 mandated fields; typed-IO honestly
+  `docs/architecture/agent_matrix_v2.md` (43 agents × 16 mandated fields; typed-IO honestly
   queued to contract v2/F3) + `tests/test_agent_matrix_v2.py` (5: freshness/once-coverage/
   16-fields/owner+authority/no-invented-IO).
 - PART K closed: `docs/architecture/SELF_EVOLUTION_LOOP.md` — 15-stage owner loop mapped onto

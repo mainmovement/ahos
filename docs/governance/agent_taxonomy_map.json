@@ -1,6 +1,6 @@
 {
   "artifact_id": "AGENT_TAXONOMY_MAP",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "status": "RECONCILED_NOT_MERGED",
   "created_utc": "2026-09-27T00:00:00+00:00",
   "purpose": "Explicit cross-taxonomy mapping of AHOS agent models. Provenance is recorded per mapping. Taxonomies are preserved as distinct namespaces; NOTHING IS MERGED.",
@@ -26,11 +26,13 @@
       "namespace": "AG-*",
       "source": "config/agent_registry.yaml",
       "symbol": "agents[]",
-      "count": 25,
+      "count": 43,
       "authority_vocabulary": "allowed_authority / forbidden_authority (OBSERVE / ANALYZE / ADVISE / CHALLENGE / VETO / DECIDE / PROMOTE)",
-      "status_counts": {"EXISTS": 9, "PARTIAL": 12, "PLANNED": 3, "MISSING": 1},
+      "status_counts": {"EXISTS": 9, "PARTIAL": 12, "PLANNED": 21, "MISSING": 1},
       "operability_totals": {"implemented": 21, "contracted": 6, "orchestrated": 0, "live": 15},
-      "honest_class": "machine-readable ops registry; orchestrated=0 for every agent"
+      "honest_class": "machine-readable ops registry; orchestrated=0 for every agent",
+      "last_updated_utc": "2026-10-09",
+      "delta_2026_10_09": "M12 registered the 18 owner-approved vision §2.3 agents as AG-26..AG-43 (all PLANNED, allowed_authority [], no Slice-1 auto-creation). 25 -> 43 agents; PLANNED 3 -> 21; operability unchanged (all 18 false). The AG-* and agent.org.* namespaces remain distinct — this is a count update, not a mapping."
     },
     "runtime_map": {
       "namespace": "AGENT-*",

@@ -16,7 +16,7 @@ PostgreSQL  Temporal            Redis*        NATS*/Kafka*      n8n (external ed
   BLOCKED    interim)
   NO_HOST)
                        │
-                Agent Workers (25; boot_class ordered; W12: AG-25 registered)
+                Agent Workers (43; boot_class ordered; W12: AG-25, M12: AG-26..AG-43 registered)
                        │
         ┌──────────────┼─────────────────────┐
    Model Router    Red Team            Observability (run-ledger now;

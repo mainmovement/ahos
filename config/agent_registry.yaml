@@ -737,15 +737,542 @@ agents:
       shutdown_policy: {graceful: true, flush: []}
       failure_policy: {on_failure: SKIP, retries: 0, backoff_s: 0}
       notes: "DISCOVERY→ANALYSIS→PROPOSAL only; NO direct integration right — promotion exclusively via governance/Red-Team/human approval (PART F law)"
+# M12 delta (2026-10-09): the 18 owner-approved agents of vision §2.3 (charter set
+# approved 2026-10-03 20:43) registered as AG-26..AG-43. authority NONE by default
+# (allowed_authority: [] — empty is the schema-valid, testable form of "no runtime
+# authority granted"); status PLANNED (spec only, no artifact); no auto-creation in
+# the Slice-1 ahos_org store; the two-taxonomy mapping (OWN-AV-56) stays human-gated.
+  - agent_id: AG-26
+    name: Kourosh (CIO / Portfolio Manager)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [portfolio_management, mandate_translation, sleeve_allocation, cross_market_view, escalation]
+    dependencies: []
+    failure_behavior: "no mandate without subordinate evidence; UNKNOWN rather than a synthesized directive"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [MANDATE_FIDELITY_PROBE, CROSS_MARKET_CONSISTENCY_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #20 (کوروش charter) — owner-approved charter set 2026-10-03 20:43"
+    ops:
+      runtime: none
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [ENG-01, ENG-07, HUM-03, MATH-10]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "vision #20 · plane COGNITION · charter reporting line: Chief of Staff (vision #39 کیان, registration deferred to M35.1 — no AG edge created). Owns the portfolio mandate across sleeves; subordinate views enter as evidence, never as orders."
+  - agent_id: AG-27
+    name: Bahram (Macro, Rates & FX)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [nowcasting, regime_classification_hmm, fomc_ecb_analysis, macro_calendar, probability_views]
+    dependencies: [AG-26]
+    failure_behavior: "late or incomplete data => status UNKNOWN, no view issued"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [CALIBRATION_BRIER_PROBE, REGIME_BACKTEST_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #21 (بهرام charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-09, MATH-10, SCI-02, ENG-11]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-26], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #21 · plane COGNITION · reports کوروش (AG-26). Probabilistic view only — never an order; may raise a high-risk-event flag to the risk anchor (رامین, Slice-1 — cross-taxonomy edge human-gated, OWN-AV-56). 'Gold Macro Agent' (P1§27) is a @gold profile of this same agent, not a duplicate."
+  - agent_id: AG-28
+    name: Zarrin (Gold & Oil Division Lead)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [gold_market_research, lbma_wgc_flows, etf_flows, cot, oil_term_structure, eia_data, division_coordination]
+    dependencies: [AG-26]
+    failure_behavior: "suspect roll or data => track stopped and an AskU ticket recorded"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [BACKTEST_CPCV_PROBE, WALK_FORWARD_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #22 (زرین charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-03, SCI-01, ENG-08]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-26], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #22 · plane COGNITION · reports کوروش (AG-26). Owns commodity view/strategy only — execution and risk are outside her authority; no executable proposal without roll/margin (AG-32) and risk review. Sub-role mapping of the Gold Division is §2.5, governance-gated."
+  - agent_id: AG-29
+    name: Sara (US Equities)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [regional_equity_views, value_factors, momentum_factors, earnings_analysis, universe_screening, short_borrow_analysis]
+    dependencies: [AG-26]
+    failure_behavior: "market closed or stale data => no view issued"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #23 (سارا charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-04, SCI-02, ENG-08]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-26], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #23 · plane COGNITION · reports کوروش (AG-26). Own region only; only venues declared ELIGIBLE, everything else paper-only. Declaring a venue eligible is NOT hers (compliance, AG-39). EDGAR sources."
+  - agent_id: AG-30
+    name: Leila (European Equities)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [regional_equity_views, value_factors, momentum_factors, earnings_analysis, universe_screening, short_borrow_analysis]
+    dependencies: [AG-26]
+    failure_behavior: "market closed or stale data => no view issued"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #24 (لیلا charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-04, SCI-02, ENG-08]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-26], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #24 · plane COGNITION · reports کوروش (AG-26). Same charter shape as AG-29, European market and hours only; exchange-disclosure sources."
+  - agent_id: AG-31
+    name: Mahsa (Asian Equities)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [regional_equity_views, value_factors, momentum_factors, earnings_analysis, universe_screening, short_borrow_analysis]
+    dependencies: [AG-26]
+    failure_behavior: "market closed or stale data => no view issued"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #25 (مهسا charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-04, SCI-02, ENG-08]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-26], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #25 · plane COGNITION · reports کوروش (AG-26). Same charter shape as AG-29, Asian market and hours only; Japan, Hong Kong, Korea and India sources."
+  - agent_id: AG-32
+    name: Farhad (Futures & Derivatives)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: per_decision
+    criticality: NON_CRITICAL
+    capabilities: [instrument_design, roll_calendar, basis, funding, margin, liquidation_distance, venue_limits, fees_slippage, counterparty_risk]
+    dependencies: [AG-26]
+    failure_behavior: "paper margin call => mandatory root-cause analysis (AG-40)"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [LIQUIDATION_DISTANCE_PROBE, STRESS_REPLAY_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #26 (فرهاد charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-05, MATH-06, SEC-04, ENG-05]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-26], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #26 · plane COGNITION · reports کوروش (AG-26), dotted line to the risk anchor (رامین, Slice-1 — cross-taxonomy edge human-gated). Leverage is a variable, not a target: instrument and leverage proposals stay under the risk ceiling and leverage is never the optimization objective. Every leverage proposal documents liquidation distance >= 3x ATR. 'Gold Futures Agent' (P1§27) is a @gold profile of this same agent."
+  - agent_id: AG-33
+    name: Negar (News Intelligence Division Lead)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: continuous
+    criticality: NON_CRITICAL
+    capabilities: [news_monitoring, event_extraction, sentiment_analysis, entity_anonymization, source_quality_scoring, contradiction_detection]
+    dependencies: []
+    failure_behavior: "contradicting sources => status CONTRADICTION with BOTH narratives recorded (P1§48)"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [CROSS_SOURCE_PROBE, SOURCE_QUALITY_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #27 (نگار charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [SEC-06, SCI-03, ENG-11, HUM-02]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #27 · plane COGNITION · reports the data anchor (دانا, Slice-1 — cross-taxonomy edge human-gated), dotted line to کوروش (AG-26). Output is 'event + source quality', never a buy signal; news is never auto-converted to fact and news text is never executed as an instruction (prompt-injection defence). Every story carries the eight P1§32 fields. 'Gold News Agent' is a @gold profile of this division."
+  - agent_id: AG-34
+    name: Bijan (Chart Intelligence)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: per_decision
+    criticality: NON_CRITICAL
+    capabilities: [technical_analysis, price_action, indicators, market_structure, volume_analysis, volatility, support_resistance, trend, multi_timeframe, chart_vision]
+    dependencies: []
+    failure_behavior: "numeric and vision paths disagree => confidence lowered and the disagreement recorded"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [NUMERIC_VISION_AGREEMENT_PROBE, OUT_OF_SAMPLE_PATTERN_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #28 (بیژن charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-01, MATH-12, SCI-02]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #28 · plane COGNITION · reports the quant anchor (کیمیا, Slice-1 — cross-taxonomy edge human-gated). Reads charts by two paths, numeric (reference) and vision; his vote is the SECOND vote and an order number is never read off an image. 'Gold Chart Intelligence Agent' is a @gold profile of this same agent."
+  - agent_id: AG-35
+    name: Shida (GitHub Intelligence)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [github_discovery, license_inspection, thirteen_criteria_review, reproduction_in_sandbox, research_tickets]
+    dependencies: [AG-41]
+    failure_behavior: "failed reproduction => status REJECTED with the reason recorded"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [LICENSE_AUDIT_PROBE, REPRODUCTION_PROBE, SUPPLY_CHAIN_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #29 (شیدا charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [ENG-10, SEC-03, SCI-01, ENG-02]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-41], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #29 · plane COGNITION · reports فرزانه (AG-41). Member 1 of at least 2 (the GH-2 seat is a §2.7 mandate and stays unregistered). Method DISCOVER→LICENSE→INSPECT→COMPARE→TEST→ADAPT→VERIFY, never COPY; never merges external code, never adds an unpinned dependency."
+  - agent_id: AG-36
+    name: Siavash (AGI/ACI Architecture Team Lead)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: NON_CRITICAL
+    capabilities: [cognitive_experiment_design, cognitive_benchmarks, world_model_research, metacognition, causal_counterfactual, controlled_self_improvement]
+    dependencies: []
+    failure_behavior: "claimed capability without a witness => label returns to VISION"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [COGNITIVE_BENCHMARK_PROBE, REGRESSION_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #30 (سیاوش charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [ENG-01, ENG-09, SCI-01, HUM-05]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #30 · plane COGNITION · reports the architecture and epistemology anchors (آرش, عرفان, Slice-1 — cross-taxonomy edges human-gated). Research and design only; makes NO AGI/SI claim and promotes neither himself nor any other agent (INV-07). Three further seats on the owner's four-person team (§2.7) stay unregistered."
+  - agent_id: AG-37
+    name: Babak (Treasury & Allocation)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: event_driven
+    criticality: CRITICAL
+    capabilities: [treasury_management, sleeve_allocation, rebalancing, profit_sweep, transfer_design]
+    dependencies: []
+    failure_behavior: "incomplete transfer or unknown address => ALL transfers freeze and the owner is notified"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [TRANSFER_RECONCILIATION_PROBE, ALLOWLIST_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #31 (بابک charter)"
+    ops:
+      runtime: none
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [SEC-01, SEC-08, HUM-04, ENG-03]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "vision #31 · plane EXECUTION (financial, restricted) · charter reporting line: Chief of Staff (vision #39 کیان, deferred to M35.1); control by the risk and security anchors (رامین, سپهر, Slice-1). TODAY testnet and a simulated ledger only (Real Money Movement = DISABLED, P1§28). Cannot trade, cannot alter the allowlist, holds no credentials, and moves nothing above threshold without the owner."
+  - agent_id: AG-38
+    name: Dariush (Execution & Broker)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [oms, ems, broker_adapter, twap, vwap, pov, almgren_chriss, tca, fill_reconciliation]
+    dependencies: [AG-26]
+    failure_behavior: "outage or reject => idempotent retry, then a venue-level kill"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [ADAPTER_CONTRACT_PROBE, TCA_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #32 (داریوش charter)"
+    ops:
+      runtime: none
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [ENG-05, ENG-06, MATH-07, SEC-04]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-26], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "vision #32 · plane EXECUTION · reports کوروش (AG-26); permission from the security anchor (سپهر, Slice-1). Executes ApprovedOrder only, PaperAdapter only until the G-L2 signature; never bypasses or disables the Risk Governor (P1§71) and never switches on a live adapter. The chain is INTELLIGENCE → DECISION → RISK GOVERNOR → PERMISSION → EXECUTION; capability is not permission."
+  - agent_id: AG-39
+    name: Maryam (Compliance & Sanctions)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: per_decision
+    criticality: CRITICAL
+    capabilities: [venue_eligibility, sanctions_screening, kyc, legal_limits, product_eligibility]
+    dependencies: []
+    failure_behavior: "unknown status => NOT_ELIGIBLE by default, paper-only continuation"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [SANCTIONS_SCREEN_PROBE, VENUE_EVIDENCE_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #33 (مریم charter)"
+    ops:
+      runtime: none
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [SEC-09, HUM-01, HUM-06, ENG-04]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "vision #33 · plane GOVERNANCE · reports the governance anchor (گیتی, Slice-1 — cross-taxonomy edge human-gated). DESIGNED authority, NOT granted at registration: PASS or VETO on every order and venue, a veto the CIO cannot cancel. VETO is therefore deliberately absent from forbidden_authority (forbidding it would deny an owner-approved charter fact) and granting it is a governance promotion, not a registration act. P2§36 access-resilience is data resilience only — never a licence to bypass sanctions or KYC (INV-08)."
+  - agent_id: AG-40
+    name: Homan (Failure Analysis & Post-trade Learning)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: event_driven
+    criticality: NON_CRITICAL
+    capabilities: [attribution, error_classification, post_mortem, root_cause_analysis, counterfactual, failure_patterns]
+    dependencies: [AG-41]
+    failure_behavior: "unknown cause => status UNRESOLVED and the ticket stays open"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [ROOT_CAUSE_PROBE, ERROR_CLASSIFICATION_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #34 (هومن charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [SCI-03, ENG-09, MATH-13, HUM-08]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-41], on_missing_dep: SKIP, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #34 · plane COGNITION · reports فرزانه (AG-41). Error as data: every paper trade (win, loss and skip, P1§49) gets a post-mortem along Failure → Root Cause → Architectural/Process/Test/Governance/Memory gap → Prevention → New test → Learning. Proposes only, never edits production parameters; never draws a definitive lesson from LUCK."
+  - agent_id: AG-41
+    name: Farzaneh (Dean of AHOS University)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: continuous
+    criticality: NON_CRITICAL
+    capabilities: [curriculum, examinations, certification_l0_l4, knowledge_store, asku_tickets, faculty_roles]
+    dependencies: []
+    failure_behavior: "pass rate jumps suddenly => exam leak suspected and items rotated"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [EXAM_LEAK_PROBE, CERTIFICATE_CORRELATION_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #35 (فرزانه charter)"
+    ops:
+      runtime: none
+      boot_class: ADVISORY
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [ENG-10, SCI-01, HUM-05, ENG-02]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: DEGRADE, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: DEGRADE, retries: 2, backoff_s: 60}
+      notes: "vision #35 · plane COGNITION (educational) · reports the architecture and epistemology anchors (آرش, عرفان, Slice-1). Runs the permanently active research system: curriculum, exams, Knowledge Store, AskU. A certificate is NOT trade permission — permission sits with the governance anchor and the owner; she never both builds and scores an agent exam without an independent Reviewer."
+  - agent_id: AG-42
+    name: Zhaleh (Accounting / Financial Ledger)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: periodic
+    criticality: CRITICAL
+    capabilities: [paper_pnl, realized_pnl, unrealized_pnl, fees, slippage, exposure, positions, cash, asset_allocation, transfers, ledger, reconciliation, nav, high_water_mark]
+    dependencies: [AG-37]
+    failure_behavior: "a break older than 24h triggers a one-step downgrade (vision §11)"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [RECONCILIATION_PROBE, AUDIT_TRAIL_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #36 (ژاله charter) — the agent the owner defined at P1§29"
+    ops:
+      runtime: none
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [MATH-02, SEC-08, ENG-04, HUM-07]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [AG-37], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "vision #36 · plane GOVERNANCE (control) · reports بابک (AG-37) with an INDEPENDENT report to the governance anchor (گیتی, Slice-1). The owner-defined P1§29 agent: all fifteen items plus treasury NAV and high-water mark. No write access to the accounts — records and reconciles only; declares breaks, which block new entries (INV-12), and never declares a break solved without a witness. Independent and audit-friendly by charter."
+  - agent_id: AG-43
+    name: Ayda (Agent Supervision / Guardian Lead)
+    status: PLANNED
+    lane: B
+    form: service
+    cadence: continuous
+    criticality: CRITICAL
+    capabilities: [decision_journal, drift_monitoring, incident_rca, agent_audit, asku_enforcement, probation]
+    dependencies: []
+    failure_behavior: "journal interrupted => new entries forbidden — a decision without a record is not a decision"
+    allowed_authority: []
+    forbidden_authority: [DECIDE, PROMOTE]
+    required_probes: [JOURNAL_COVERAGE_PROBE, DRIFT_PROBE]
+    version: "spec-M12"
+    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #37 (آیدا charter)"
+    ops:
+      runtime: none
+      boot_class: CRITICAL
+      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      health: {kind: none, ref: none}
+      circuit: {state: CLOSED, failures: 0}
+      contract: agent_contract_v1 (envelope target; spec only — not satisfied)
+      cognitive_principles: [SEC-10, SCI-03, HUM-06, ENG-11]
+      probe_refs: []
+      state_tables: []
+      startup_policy: {depends_on: [], on_missing_dep: SAFE_HALT, idempotent: true}
+      shutdown_policy: {graceful: true, flush: []}
+      failure_policy: {on_failure: SAFE_HALT, retries: 0, backoff_s: 0}
+      notes: "vision #37 · plane GOVERNANCE · reports the governance anchor (گیتی, Slice-1). Auditor, takes no trading decision; may take an agent or strategy to PROBATION and report upward, never deletes an agent or changes a rule. No important decision exists without a record (P2§53). At least one second seat is mandated (§2.7) and stays unregistered; the 'Gold Guardian Agents x2' (P1§27) are @gold profiles of this group."
 totals:
-  agents: 25
+  agents: 43
   EXISTS: 9
   PARTIAL: 12
-  PLANNED: 3
+  PLANNED: 21
   MISSING: 1
   operability_totals:
     implemented: 21
     contracted: 6
     orchestrated: 0
     live: 15
-  boot_class_totals: {CRITICAL: 10, NON_CRITICAL: 9, OPTIONAL: 0, ADVISORY: 6}
+  boot_class_totals: {CRITICAL: 16, NON_CRITICAL: 9, OPTIONAL: 0, ADVISORY: 18}

@@ -249,3 +249,78 @@ do not repeat it.
 **Reason:** Skipping verification is only defensible when a hook is genuinely
 broken and the underlying issue is being investigated. There is nothing to skip,
 so the flag adds no value and would mask a real hook if one is ever added.
+
+## 2026-10-09 — step 4 (M12, agent organisation)
+
+**Q: The vision says register "با وضعیت `REGISTERED`" but the registry's status
+enum has no REGISTERED member. Use PLANNED or invent the value?**
+**A:** `PLANNED`. Never extend the enum.
+**Reason:** The two documents use different vocabularies: the vision's
+`REGISTERED` is the P1§14 *lifecycle* state; the registry's enum
+(`EXISTS/PARTIAL/PLANNED/MISSING/DUPLICATED/UNKNOWN`) is build status. `PLANNED`
+is the honest member — "spec only; enters runtime solely through the
+self-evolution loop" — and it keeps the EXISTS-needs-real-evidence lint
+untouched, because not one of the 18 has an executable artifact. Inventing a
+`REGISTERED` value would have weakened the contract to make a label fit, which
+is the exact move the locked list forbids.
+
+**Q: How is "authority NONE by default" expressed so a machine can check it?**
+**A:** `allowed_authority: []` — the empty list, not omitted, not null.
+**Reason:** the contract's required-field check rejects an omitted or null
+authority field, so `[]` is the only encoding that both validates and is
+assertable. `tests/test_m12_agent_registration.py` pins it per agent. The
+designed authorities the vision grants (مریم's uncancellable veto, آیدا's
+probation, ژاله's break declaration) are recorded in `ops.notes` as
+not-yet-granted; granting them is a governance promotion, not a registration.
+
+**Q: مریم's charter veto — put VETO in her forbidden list to stay uniform with
+the other 17?**
+**A:** No. VETO is in *neither* of her lists, on the record in the notes.
+**Reason:** `forbidden_authority` is what an agent may never hold. Her charter
+says she holds a veto the CIO cannot cancel, so forbidding it would deny an
+owner-approved fact — the uniform 18-way `[DECIDE, PROMOTE]` list would have
+been tidier and wrong. Leaving it out of `allowed` keeps runtime authority at
+NONE; the designed veto is visible and waiting for governance.
+
+**Q: The charter reporting lines that point at one of the 19 Slice-1 anchors
+(رامین, گیتی, دانا, کیمیا, آرش, عفران) — express them as `dependencies`?**
+**A:** No. Only AG-to-AG lines; cross-taxonomy lines go in `ops.notes`.
+**Reason:** the registry header law is "dependencies are agent ids only", and a
+cross-registry edge would be a silent piece of the two-taxonomy mapping, which
+OWN-AV-56 locks behind a human gate. Recording the line as text preserves the
+charter fact without smuggling in the mapping.
+
+**Q: Where do the 18 charters live — rewrite them into `docs/agents/NN-*.md`?**
+**A:** No. The vision §2.3.3 is the charter text; write an *index*, not a copy.
+**Reason:** the owner authored and approved those charters in Persian on
+2026-10-03. Re-authoring them creates a competing authority that will drift,
+and the mission's own no-parallel-module rule applies to documents as well as
+code. `docs/agents/M12_REGISTERED_AGENTS.md` carries the owner template's ten
+fields per agent, each condensed with its source cited, and the registry's
+`evidence` field points back at the vision — with a test asserting the cited
+charter name is actually present in the owner's document.
+
+**Q: Register the mandated-but-open §2.7 seats (GH-2, the second Guardian, the
+three remaining AGI/ACI team seats) so the org looks complete?**
+**A:** No. Leave them unregistered and list them for the owner.
+**Reason:** registering one member of a mandated team without its seats presents
+a complete team that does not exist. The vision itself calls these open seats a
+governance decision. An honest registry carries 18 of the 18 approved charters,
+not 18 plus placeholders.
+
+**Q: The count assertions say 25. Raise them to 43?**
+**A:** Yes — the invariant, not the number, is what is being preserved.
+**Reason:** those pins exist to assert "the generated doc is byte-identical to a
+fresh run, there are no duplicate ids, and the totals block is computed from the
+rows". Every one of those still holds at 43; raising the literal keeps all of
+them true. Leaving them at 25 would have failed the suite; weakening a test to
+avoid changing a number would have been the violation.
+
+**Q: `engine/agent_matrix_v2.py` crashed regenerating the doc — cp1252 encode
+error on the pre-existing `→` in its own health line.**
+**A:** Fix the generator's `write_text` to specify UTF-8.
+**Reason:** the read side already passed `encoding='utf-8'`; the write side
+omitted it, so the generator only ever worked under a UTF-8 locale and would
+have failed the freshness contract on this host the moment anything non-ASCII
+reached the output. Same class as the step-2 `.env` leak: make the correct
+behaviour the only behaviour, and document it.

@@ -5,7 +5,7 @@ Laws honored: no agent exists by declaration alone (PART J) — MISSING/PARTIAL/
 promoted without executable evidence; no filler agents; every field is either registry-derived
 or an explicit DEFINED marker; typed payload-level IO is queued for contract v2 (F3), and
 until then inputs/outputs are declared at dependency/state-table granularity — never invented.
-Census (computed, not asserted): 25 agents — EXISTS 9 / PARTIAL 12 / PLANNED 3 / MISSING 1
+Census (computed, not asserted): 43 agents — EXISTS 9 / PARTIAL 12 / PLANNED 21 / MISSING 1
 
 Each block below carries exactly the 16 PART J fields: identity, version, status, capabilities,
 owner, dependencies, inputs, outputs, authority, evidence_requirements, probes, health,
@@ -460,3 +460,327 @@ circuit, failure_mode, fallback, runtime, cadence.
 - **fallback**: on_failure=SKIP, retries=0, backoff_s=0 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
 - **runtime**: pipeline
 - **cadence**: event_driven
+
+### AG-26 · Kourosh (CIO / Portfolio Manager) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: portfolio_management, mandate_translation, sleeve_allocation, cross_market_view, escalation
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [MANDATE_FIDELITY_PROBE, CROSS_MARKET_CONSISTENCY_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: MANDATE_FIDELITY_PROBE, CROSS_MARKET_CONSISTENCY_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: no mandate without subordinate evidence; UNKNOWN rather than a synthesized directive
+- **fallback**: on_failure=SAFE_HALT, retries=0, backoff_s=0 · boot_class=CRITICAL ⇒ SAFE_HALT semantics; floor unaffected only if non-critical path
+- **runtime**: none
+- **cadence**: per_decision
+
+### AG-27 · Bahram (Macro, Rates & FX) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: nowcasting, regime_classification_hmm, fomc_ecb_analysis, macro_calendar, probability_views
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-26
+- **inputs**: agent deps [AG-26] + probe feeds [CALIBRATION_BRIER_PROBE, REGIME_BACKTEST_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: CALIBRATION_BRIER_PROBE, REGIME_BACKTEST_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: late or incomplete data => status UNKNOWN, no view issued
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-28 · Zarrin (Gold & Oil Division Lead) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: gold_market_research, lbma_wgc_flows, etf_flows, cot, oil_term_structure, eia_data, division_coordination
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-26
+- **inputs**: agent deps [AG-26] + probe feeds [BACKTEST_CPCV_PROBE, WALK_FORWARD_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: BACKTEST_CPCV_PROBE, WALK_FORWARD_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: suspect roll or data => track stopped and an AskU ticket recorded
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-29 · Sara (US Equities) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: regional_equity_views, value_factors, momentum_factors, earnings_analysis, universe_screening, short_borrow_analysis
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-26
+- **inputs**: agent deps [AG-26] + probe feeds [FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: market closed or stale data => no view issued
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-30 · Leila (European Equities) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: regional_equity_views, value_factors, momentum_factors, earnings_analysis, universe_screening, short_borrow_analysis
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-26
+- **inputs**: agent deps [AG-26] + probe feeds [FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: market closed or stale data => no view issued
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-31 · Mahsa (Asian Equities) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: regional_equity_views, value_factors, momentum_factors, earnings_analysis, universe_screening, short_borrow_analysis
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-26
+- **inputs**: agent deps [AG-26] + probe feeds [FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: FACTOR_TSTAT_PROBE, POINT_IN_TIME_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: market closed or stale data => no view issued
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-32 · Farhad (Futures & Derivatives) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: instrument_design, roll_calendar, basis, funding, margin, liquidation_distance, venue_limits, fees_slippage, counterparty_risk
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-26
+- **inputs**: agent deps [AG-26] + probe feeds [LIQUIDATION_DISTANCE_PROBE, STRESS_REPLAY_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: LIQUIDATION_DISTANCE_PROBE, STRESS_REPLAY_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: paper margin call => mandatory root-cause analysis (AG-40)
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: per_decision
+
+### AG-33 · Negar (News Intelligence Division Lead) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: news_monitoring, event_extraction, sentiment_analysis, entity_anonymization, source_quality_scoring, contradiction_detection
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [CROSS_SOURCE_PROBE, SOURCE_QUALITY_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: CROSS_SOURCE_PROBE, SOURCE_QUALITY_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: contradicting sources => status CONTRADICTION with BOTH narratives recorded (P1§48)
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: continuous
+
+### AG-34 · Bijan (Chart Intelligence) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: technical_analysis, price_action, indicators, market_structure, volume_analysis, volatility, support_resistance, trend, multi_timeframe, chart_vision
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [NUMERIC_VISION_AGREEMENT_PROBE, OUT_OF_SAMPLE_PATTERN_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: NUMERIC_VISION_AGREEMENT_PROBE, OUT_OF_SAMPLE_PATTERN_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: numeric and vision paths disagree => confidence lowered and the disagreement recorded
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: per_decision
+
+### AG-35 · Shida (GitHub Intelligence) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: github_discovery, license_inspection, thirteen_criteria_review, reproduction_in_sandbox, research_tickets
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-41
+- **inputs**: agent deps [AG-41] + probe feeds [LICENSE_AUDIT_PROBE, REPRODUCTION_PROBE, SUPPLY_CHAIN_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: LICENSE_AUDIT_PROBE, REPRODUCTION_PROBE, SUPPLY_CHAIN_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: failed reproduction => status REJECTED with the reason recorded
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-36 · Siavash (AGI/ACI Architecture Team Lead) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: cognitive_experiment_design, cognitive_benchmarks, world_model_research, metacognition, causal_counterfactual, controlled_self_improvement
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [COGNITIVE_BENCHMARK_PROBE, REGRESSION_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: COGNITIVE_BENCHMARK_PROBE, REGRESSION_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: claimed capability without a witness => label returns to VISION
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-37 · Babak (Treasury & Allocation) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: treasury_management, sleeve_allocation, rebalancing, profit_sweep, transfer_design
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [TRANSFER_RECONCILIATION_PROBE, ALLOWLIST_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: TRANSFER_RECONCILIATION_PROBE, ALLOWLIST_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: incomplete transfer or unknown address => ALL transfers freeze and the owner is notified
+- **fallback**: on_failure=SAFE_HALT, retries=0, backoff_s=0 · boot_class=CRITICAL ⇒ SAFE_HALT semantics; floor unaffected only if non-critical path
+- **runtime**: none
+- **cadence**: event_driven
+
+### AG-38 · Dariush (Execution & Broker) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: oms, ems, broker_adapter, twap, vwap, pov, almgren_chriss, tca, fill_reconciliation
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-26
+- **inputs**: agent deps [AG-26] + probe feeds [ADAPTER_CONTRACT_PROBE, TCA_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: ADAPTER_CONTRACT_PROBE, TCA_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: outage or reject => idempotent retry, then a venue-level kill
+- **fallback**: on_failure=SAFE_HALT, retries=0, backoff_s=0 · boot_class=CRITICAL ⇒ SAFE_HALT semantics; floor unaffected only if non-critical path
+- **runtime**: none
+- **cadence**: per_decision
+
+### AG-39 · Maryam (Compliance & Sanctions) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: venue_eligibility, sanctions_screening, kyc, legal_limits, product_eligibility
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [SANCTIONS_SCREEN_PROBE, VENUE_EVIDENCE_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: SANCTIONS_SCREEN_PROBE, VENUE_EVIDENCE_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: unknown status => NOT_ELIGIBLE by default, paper-only continuation
+- **fallback**: on_failure=SAFE_HALT, retries=0, backoff_s=0 · boot_class=CRITICAL ⇒ SAFE_HALT semantics; floor unaffected only if non-critical path
+- **runtime**: none
+- **cadence**: per_decision
+
+### AG-40 · Homan (Failure Analysis & Post-trade Learning) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: attribution, error_classification, post_mortem, root_cause_analysis, counterfactual, failure_patterns
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-41
+- **inputs**: agent deps [AG-41] + probe feeds [ROOT_CAUSE_PROBE, ERROR_CLASSIFICATION_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: ROOT_CAUSE_PROBE, ERROR_CLASSIFICATION_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: unknown cause => status UNRESOLVED and the ticket stays open
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: event_driven
+
+### AG-41 · Farzaneh (Dean of AHOS University) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=NON_CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: curriculum, examinations, certification_l0_l4, knowledge_store, asku_tickets, faculty_roles
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [EXAM_LEAK_PROBE, CERTIFICATE_CORRELATION_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: EXAM_LEAK_PROBE, CERTIFICATE_CORRELATION_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: pass rate jumps suddenly => exam leak suspected and items rotated
+- **fallback**: on_failure=DEGRADE, retries=2, backoff_s=60 · boot_class=ADVISORY ⇒ SYSTEM_DEGRADED; DETERMINISTIC_ONLY floor continues unimpaired
+- **runtime**: none
+- **cadence**: continuous
+
+### AG-42 · Zhaleh (Accounting / Financial Ledger) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: paper_pnl, realized_pnl, unrealized_pnl, fees, slippage, exposure, positions, cash, asset_allocation, transfers, ledger, reconciliation, nav, high_water_mark
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: AG-37
+- **inputs**: agent deps [AG-37] + probe feeds [RECONCILIATION_PROBE, AUDIT_TRAIL_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: RECONCILIATION_PROBE, AUDIT_TRAIL_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: a break older than 24h triggers a one-step downgrade (vision §11)
+- **fallback**: on_failure=SAFE_HALT, retries=0, backoff_s=0 · boot_class=CRITICAL ⇒ SAFE_HALT semantics; floor unaffected only if non-critical path
+- **runtime**: none
+- **cadence**: periodic
+
+### AG-43 · Ayda (Agent Supervision / Guardian Lead) · form=service · lane=B
+- **version**: spec-M12
+- **status**: PLANNED · criticality=CRITICAL · operability impl/contract/orch/live = False/False/False/False
+- **capabilities**: decision_journal, drift_monitoring, incident_rca, agent_audit, asku_enforcement, probation
+- **owner**: AHOS governance — promotion only via improvement_proposal_v1 → human gate
+- **dependencies**: ∅
+- **inputs**: agent deps [∅] + probe feeds [JOURNAL_COVERAGE_PROBE, DRIFT_PROBE] (deps/table granularity; payload-typed IO = contract v2, F3 queue)
+- **outputs**: — DEFINED (no tables declared; payload-typed IO is a contract-v2 field, W10 F3 queue)
+- **authority**: allowed:  · forbidden: DECIDE, PROMOTE
+- **evidence_requirements**: spec only; enters runtime solely through self-evolution loop (PART K)
+- **probes**: required: JOURNAL_COVERAGE_PROBE, DRIFT_PROBE · refs: —
+- **health**: none → none
+- **circuit**: CLOSED (failures=0)
+- **failure_mode**: journal interrupted => new entries forbidden — a decision without a record is not a decision
+- **fallback**: on_failure=SAFE_HALT, retries=0, backoff_s=0 · boot_class=CRITICAL ⇒ SAFE_HALT semantics; floor unaffected only if non-critical path
+- **runtime**: none
+- **cadence**: continuous

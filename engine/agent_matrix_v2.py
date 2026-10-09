@@ -122,7 +122,7 @@ def main():
             return 1
         print("FRESH: agent_matrix_v2.md matches generator output")
         return 0
-    OUT.write_text(out)
+    OUT.write_text(out, encoding="utf-8")
     print(f"wrote {OUT} ({len(out)} bytes, {len(reg['agents'])} agents)")
     return 0
 

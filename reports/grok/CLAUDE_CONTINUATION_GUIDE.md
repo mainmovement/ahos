@@ -1326,3 +1326,60 @@ minutes at very high context. Keeping a resumed session's context smaller, and
 letting the runner launch short per-mission sessions, is the mitigation that
 follows from the evidence -- not a config change, which the owner did not
 authorise and I did not make.
+
+## M12 closed DONE — 2026-10-09 by Claude (owner-authorized night run, step 4)
+
+Agent organisation. The queue row asked for "37+ agents in
+`config/agent_registry.yaml` using the owner charter template, authority NONE by
+default, no auto-creation."
+
+What was done: the 18 owner-approved agents of `reports/grok/AHOS_AUTONOMOUS_VISION.md`
+§2.3 (charter set approved 2026-10-03 20:43, agents #20–#37) are registered as
+**AG-26..AG-43**, one per charter, in vision order. `config/agent_registry.yaml`
+now holds 43 agents; its `totals` block is recomputed (PLANNED 3→21; boot_class
+CRITICAL 10→16, ADVISORY 6→18; operability unchanged). The generated review
+`docs/architecture/agent_matrix_v2.md` was regenerated — always regenerate it
+with `engine/agent_matrix_v2.py`, never hand-edit; `tests/test_agent_matrix_v2.py`
+asserts the file is byte-identical to a fresh run.
+
+Key encodings, so a continuation does not re-derive them:
+- **authority NONE by default** = `allowed_authority: []`. Omitting the field
+  fails the contract's required check; `[]` is the only encoding that both
+  validates and is assertable. `tests/test_m12_agent_registration.py` pins it.
+- **status is `PLANNED`, not the vision's `REGISTERED`** — the registry enum has
+  no REGISTERED member; that is the P1§14 *lifecycle* state, a different
+  vocabulary. PLANNED keeps the EXISTS-needs-real-evidence lint honest: none of
+  the 18 has an artifact.
+- مریم (AG-39) holds VETO in **neither** list: her charter grants an
+  uncancellable veto, so forbidding it would deny an owner fact, and granting it
+  is a governance promotion, not a registration. It is recorded in `ops.notes`.
+- Cross-taxonomy reporting lines (to رامین, گیتی, دانا, کیمیا, آرش, عرفان) are
+  in `ops.notes`, **not** `dependencies` — a cross-registry edge would be a
+  silent piece of the OWN-AV-56 mapping, which stays human-gated.
+
+Left for the owner (LISTED in `reports/grok/autopilot/M12_review.md`, not
+decided): the OWN-AV-06 conflict ("register via `ahos_org/registry.py`" vs the
+charter template's prohibition on seeding it — M34 should carry this); the §2.7
+open seats (GH-2, the second Guardian seat, three more AGI/ACI team seats);
+OWN-AV-04 (veto matrix, still not encoded); OWN-AV-56 (two-taxonomy mapping) and
+OWN-AV-62 (ACTIVE needs a certificate), both untouched.
+
+Two defects fixed along the way:
+1. `engine/agent_matrix_v2.py` wrote the generated doc with the platform codepage
+   instead of UTF-8 — the regeneration crashed on Windows. Reads were already
+   UTF-8; the write now is too.
+2. Doc drift: five docs and `docs/governance/agent_taxonomy_map.json` still
+   stated the pre-registration census (25 agents / PLANNED 3). All updated to
+   43/21; the map's version bumped 0.1.0 → 0.1.1 with a `delta_2026_10_09` note.
+
+Count pins raised 25 → 43 in `tests/test_agent_matrix_v2.py` and
+`tests/test_architecture_p1.py`. The invariants those pins check (doc ==
+generator output, no duplicate ids, totals computed from the rows) are
+unchanged; only the literal moved.
+
+If M12 needs reopening: the new invariants live in
+`tests/test_m12_agent_registration.py` — the mapping table at its top
+(vision # → AG id → Persian name) is the thing to keep correct, and its
+charter-traceability test asserts every cited charter name is present in the
+vision. The vision §2.3.3 remains the charter authority;
+`docs/agents/M12_REGISTERED_AGENTS.md` is only an index, never a second source.
