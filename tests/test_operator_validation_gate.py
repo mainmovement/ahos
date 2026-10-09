@@ -25,31 +25,36 @@ import pytest  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
-def _isolate_process_env():
-    """Undo main()'s side effects on the process and the checkout.
+def _sandbox_env_file(tmp_path, monkeypatch):
+    """Point the gate's env path at a temp file so the real repo .env is never
+    touched.
 
-    main() force-loads the checkout's real .env into os.environ (by design,
-    see the G2 401 trap). Without this, keys such as AHOS_EVIDENCE_SOURCE leak
-    into every later test in the session and break the evidence-namespace
-    boundary tests depending on the operator's .env contents."""
+    main() force-loads the checkout's .env into os.environ and, when
+    AHOS_GATEWAY_URL is empty, PERSISTS the default URL back into that same
+    file (by design, for the operator). Before this fixture existed, a full
+    pytest run rewrote the operator's real .env (2026-10-09 01:44). Restoring
+    the bytes in a finally block was not enough -- a crashed or interrupted
+    run left the write behind -- so the write is prevented instead, by
+    redirecting scripts.operator_validation_gate.ENV_FILE. Any test that calls
+    main() therefore loads and persists a throwaway file.
+    """
+    import scripts.operator_validation_gate as ovg
+
     saved = dict(os.environ)
-    # main() also writes into the checkout: reports/PRE_SOAK_STATUS.txt (a
-    # gitignored file the gap register used to cite, which made doc_drift's
-    # verdict depend on whether this module had run first -- QA MAJOR-1) and,
-    # on a fresh clone with no .env, a NEW .env holding AHOS_GATEWAY_URL.
-    # Restore both byte-for-byte so a test run leaves no state behind.
-    side_effects = [ROOT / "reports" / "PRE_SOAK_STATUS.txt", ROOT / ".env"]
-    before = {p: (p.read_bytes() if p.is_file() else None) for p in side_effects}
+    sandbox = tmp_path / "sandbox.env"
+    monkeypatch.setattr(ovg, "ENV_FILE", sandbox)
     try:
-        yield
+        yield sandbox
     finally:
         os.environ.clear()
         os.environ.update(saved)
-        for p, content in before.items():
-            if content is None:
-                p.unlink(missing_ok=True)
-            else:
-                p.write_bytes(content)
+
+
+@pytest.fixture
+def _real_env_snapshot():
+    """Byte snapshot of the real repo .env, for the never-written regression."""
+    env = ROOT / ".env"
+    return env, (env.read_bytes() if env.is_file() else None)
 
 
 def _pass_gates(n_end: int = 12) -> list[dict]:
@@ -200,6 +205,69 @@ def test_runner_exit_3_on_windows_without_operator_ready(tmp_path):
         assert rc == 2
     else:
         assert rc == 3
+
+
+def test_main_persists_gateway_url_to_the_sandbox_not_the_repo_env(
+    tmp_path, monkeypatch, _real_env_snapshot,
+):
+    """Regression for the 2026-10-09 01:44 leak: a full pytest run rewrote the
+    operator's real .env via main()'s AHOS_GATEWAY_URL normalization.
+
+    This test reproduces the exact write-triggering condition -- AHOS_GATEWAY_URL
+    empty so _resolve_gateway() falls back to the DEFAULT source -- and proves
+    the write lands in the sandboxed env file while the real repo .env stays
+    byte-identical. If ENV_FILE ever gets re-inlined as ROOT / ".env", the
+    assertion on the real file fails immediately."""
+    import scripts.operator_validation_gate as ovg
+
+    real_env, before = _real_env_snapshot
+    sandbox = tmp_path / "direct.env"
+    monkeypatch.setattr(ovg, "ENV_FILE", sandbox)
+    # The trigger: no gateway URL anywhere, so _resolve_gateway yields DEFAULT.
+    monkeypatch.delenv("AHOS_GATEWAY_URL", raising=False)
+    monkeypatch.delenv("AHOS_GATEWAY_PORT", raising=False)
+    # Keep resolve_gateway from noticing a live listener on :3000.
+    monkeypatch.setattr(
+        "scripts.gateway_port.resolve_gateway",
+        lambda env: {"url": "http://127.0.0.1:3000/api/chat", "source": "DEFAULT"},
+    )
+
+    main(["--platform", "agent-host", "--skip-network",
+          "--json-out", str(tmp_path / "p.json")])
+
+    # The write happened (the code path really executed)...
+    assert sandbox.is_file()
+    assert "AHOS_GATEWAY_URL=http://127.0.0.1:3000/api/chat" in \
+        sandbox.read_text(encoding="utf-8")
+    # ...and the real repo .env is untouched, whether or not it existed.
+    after = real_env.read_bytes() if real_env.is_file() else None
+    assert after == before, "the real repo .env was modified by the test suite"
+
+
+def test_windows_runner_never_writes_the_real_env(
+    tmp_path, monkeypatch, _real_env_snapshot,
+):
+    """The exact 2026-10-09 01:44 reproduction: this file's windows-platform
+    runner tests call the real main(), which used to persist the normalized
+    AHOS_GATEWAY_URL into the operator's live .env. Same trigger as the
+    agent-host regression, plus the windows branch's extra writes, to prove the
+    whole windows path is sandboxed too."""
+    import scripts.operator_validation_gate as ovg
+
+    real_env, before = _real_env_snapshot
+    monkeypatch.setattr(ovg, "ENV_FILE", tmp_path / "win.env")
+    monkeypatch.delenv("AHOS_GATEWAY_URL", raising=False)
+    monkeypatch.delenv("AHOS_GATEWAY_PORT", raising=False)
+    monkeypatch.setattr(
+        "scripts.gateway_port.resolve_gateway",
+        lambda env: {"url": "http://127.0.0.1:3000/api/chat", "source": "DEFAULT"},
+    )
+
+    main(["--platform", "windows", "--skip-network",
+          "--json-out", str(tmp_path / "w.json")])
+
+    after = real_env.read_bytes() if real_env.is_file() else None
+    assert after == before, "the real repo .env was modified by the test suite"
 
 
 def test_g2_http_error_4xx_is_pass_not_connection_fail(monkeypatch):

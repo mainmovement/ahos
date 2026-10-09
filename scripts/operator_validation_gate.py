@@ -37,6 +37,13 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+# The single place main() looks for the operator's env. Kept as a module
+# attribute (not an inline ROOT / ".env") so the test suite can point it at a
+# sandbox: the real repo .env must never be written by a test run. See
+# reports/grok/IDENTITY_RESOLVER_LIVE_RECEIPT.md's sibling notes and the
+# 2026-10-09 .env-leak fix in DECISIONS_LOG.md.
+ENV_FILE = ROOT / ".env"
+
 SCHEMA = "ahos.operator_validation_report.v1"
 ALLOWED_STATUS = (
     "PASS", "FAIL", "BLOCKED", "NOT_VERIFIED", "OWNER_ACTION_REQUIRED",
@@ -792,7 +799,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         from run_bot import load_dotenv
 
-        loaded = load_dotenv(ROOT / ".env")
+        loaded = load_dotenv(ENV_FILE)
         for key in (
             "AHOS_WEB_API_TOKEN",
             "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
@@ -814,7 +821,7 @@ def main(argv: list[str] | None = None) -> int:
         resolved = _resolve_gateway()
         os.environ["AHOS_GATEWAY_URL"] = resolved["url"]
         if resolved["source"] == "DEFAULT" and _persist_env_key(
-            ROOT / ".env", "AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat"
+            ENV_FILE, "AHOS_GATEWAY_URL", "http://127.0.0.1:3000/api/chat"
         ):
             print(
                 "Normalized empty AHOS_GATEWAY_URL in .env -> "

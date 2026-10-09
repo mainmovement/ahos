@@ -151,3 +151,44 @@ not worth it, and `.env.template` is not a live runtime path.
 Rewriting it for this Windows shell would diverge the local and CI paths for
 every future run. The shim is host-local, uncommitted, and leaves the artifact
 untouched.
+
+---
+
+## 2026-10-09 (night run, step 2) — the .env-writing test leak
+
+**Q: The suite rewrites the operator's live `.env`. Fix by restoring the bytes
+in a `finally`, or by making the write impossible?**
+**A:** Make the write impossible. `scripts/operator_validation_gate.py` gains a
+module attribute `ENV_FILE = ROOT / ".env"`; both `.env` touches in `main()`
+go through it, and the test fixture monkeypatches that attribute to a temp
+file.
+**Reason:** The 01:44 incident showed restore-after is not a guarantee — an
+interrupted or crashed run leaves the write behind, and the restore itself
+relies on every path returning cleanly. Redirecting the path means the write is
+physically incapable of landing in the repo. Cost is two changed lines plus one
+indirection; no caller of `main()` changes because it is a module attribute,
+not a parameter.
+
+**Q: How should the regression test prove the leak is closed?**
+**A:** By deliberately triggering the exact write and asserting where it lands.
+Both new tests delete `AHOS_GATEWAY_URL`, pin `resolve_gateway` to yield
+`source="DEFAULT"` (the only condition that calls `_persist_env_key`), then
+assert the sandbox file exists with the normalized URL AND that the real repo
+`.env` is byte-identical before/after.
+**Reason:** A test that merely runs `main()` under the fixture and asserts
+nothing about the write would pass against the vulnerable code too — it never
+exercises the leak. Asserting the write *happened*, just elsewhere, is what
+makes it a regression test rather than a comfort blanket. Two variants
+(agent-host and the `windows` platform that actually leaked) because the two
+branches have different downstream writes.
+
+**Q: An empirical revert-and-rerun to prove the new tests fail against the
+unpatched code was blocked by repeated classifier timeouts.**
+**A:** Accept the static argument and record the limit honestly.
+**Reason:** The tests assert `sandbox.is_file()`. If `main()` inlines
+`ROOT / ".env"` again, `monkeypatch.setattr(ovg, "ENV_FILE", …)` patches an
+attribute nothing reads, no sandbox is ever created, and the assertion fails.
+That is a complete argument independent of the real `.env`'s contents — unlike
+a byte-identity-only test, which a pre-existing identical line could mask. Not
+worth burning more of the remaining quota on a retry loop; the tree was verified
+clean after the attempt.
