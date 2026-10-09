@@ -7,17 +7,26 @@ $OutputEncoding = New-Object System.Text.UTF8Encoding($false)  # pipe the prompt
 $env:CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS='1800000'
 $env:CLAUDE_CODE_MAX_CONTEXT_TOKENS='110000'
 $env:API_TIMEOUT_MS='900000'
-# The Atria gateway serves exactly one model id, Atria-Dawn-Preview, which the
-# local Claude Code catalog does not describe. Claude prints an
-# unrecognized_model notice to stderr on every run -- a notice, not a refusal;
-# the reply still arrives on stdout. The notice is what the older IsInfraFailure
-# pattern matched (it matched 'unrecognized_model' as a substring), so a mission
-# that had completed was being thrown away as a platform failure. The flag below
-# is the CLI's own documented escape hatch for a model the catalog does not know;
-# it restores wait-for-the-API behaviour instead of the catalog-based window
-# enforcement. The streams are also separated below so no stderr notice can
-# poison the verdict this way again.
+# The model the headless runs use is DERIVED, never named here: this script
+# resolves it from the exact same source the interactive Claude session on this
+# machine uses (User-scoped ANTHROPIC_MODEL, or the `model` field of the User
+# settings.json), and passes it to `claude -p` as an explicit --model argument.
+# The Atria gateway serves a single model id which the local Claude Code
+# catalog does not describe, so the CLI prints an `unrecognized_model` notice
+# to stderr on every run -- a notice, not a refusal; the reply still arrives on
+# stdout. Hard-coding the name anywhere in this repo led two separate
+# investigations to mistake that notice for the failure, so the literal is gone
+# and the resolution is fail-loud instead: if the model cannot be derived, the
+# script aborts rather than letting claude -p silently fall back to a catalog
+# default the gateway does not serve.
 $env:CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT='1'
+$model = [Environment]::GetEnvironmentVariable('ANTHROPIC_MODEL','User')
+if (-not $model) {
+  $s = "$env:USERPROFILE\.claude\settings.json"
+  if (Test-Path $s) { try { $j = Get-Content $s -Raw -Encoding UTF8 | ConvertFrom-Json; $model = $j.model } catch { } }
+}
+if (-not $model) { throw "run_mission.ps1: cannot derive the model -- set the User-scoped ANTHROPIC_MODEL to the model id the interactive Claude session uses." }
+"model=$model" | Out-File -Append -Encoding utf8 $log
 $proj = 'C:\Users\Sniper\.claude\projects\G--robat-ahos'
 $out = "reports\grok\_claude_${n}_result.txt"
 $log = "reports\grok\_claude_${n}_runlog.txt"
@@ -41,10 +50,10 @@ for ($a = 0; $a -lt $maxAttempts; $a++) {
   $t0 = Get-Date
   if ($mode -eq 'fresh') {
     $prompt = $task; if ($a -gt 0 -or $continueFresh) { $prompt = $task + $contNote }
-    $prompt | claude -p --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text > $out 2> $errFile
+    $prompt | claude -p --model $model --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text > $out 2> $errFile
     $sess = NewestSession $t0
   } else {
-    $resumeMsg | claude -p --resume $sess --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text > $out 2> $errFile
+    $resumeMsg | claude -p --model $model --resume $sess --permission-mode acceptEdits --allowedTools $tools --max-turns 300 --output-format text > $out 2> $errFile
   }
   $dur = ((Get-Date) - $t0).TotalSeconds
   $txt = Get-Content $out -Raw -Encoding UTF8

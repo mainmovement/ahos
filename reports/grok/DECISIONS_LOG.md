@@ -324,3 +324,41 @@ omitted it, so the generator only ever worked under a UTF-8 locale and would
 have failed the freshness contract on this host the moment anything non-ASCII
 reached the output. Same class as the step-2 `.env` leak: make the correct
 behaviour the only behaviour, and document it.
+
+---
+
+### 2026-10-09 21:00 — step 5 preamble: the autopilot `unrecognized_model` report
+
+**Q:** The owner reported autopilot headless runs failing with
+`unrecognized_model "Atria-Dawn-Preview"` and asked for the model name to be
+fixed in the runner config, using the model this interactive session uses, with
+no hard-coded preview names.
+**A:** Implement exactly that — derive the model from the source the interactive
+session uses and pass it explicitly — while correcting the record that the model
+name was ever the failure.
+**Reason:** the two M34 headless attempts of 19:55 and 20:11
+(`_claude_ap_M34_result.txt`, `_claude_ap_M34_stderr.txt`) are dispositive:
+stdout carried `API Error: Request rejected (429), Token quota exhausted` and
+**no** `AUTOPILOT_RESULT` verdict, while stderr carried only the catalog notice.
+A direct dry-run (`claude -p --model <derived>`) returned a correct reply with
+that same notice on stderr, in one process. So the notice is cosmetic and prints
+on every run; the run-killer was account quota exhaustion, which is transient.
+`M10_1_MODEL_BLOCKER.md` titled the page for the notice and two investigations
+chased it; a dated correction is appended there rather than a rewrite, because
+the record is evidence.
+
+The chosen derivation: User-scoped `ANTHROPIC_MODEL`, falling back to the User
+`settings.json` `model` field, then **abort** if neither is present. Aborting is
+better than a silent fallback because this gateway serves exactly one id and a
+catalog default would be a 400 — a loud failure surfaces a missing env var where
+an empty string would have produced a confusing one. The literal is removed from
+`run_mission.ps1`'s prose and no code or config names the model now; the two
+remaining occurrences are test fixtures that must reproduce the CLI's real
+wording. `tests/test_autopilot_runner.py` pins launcher structure and was
+unaffected.
+
+`reports/grok/autopilot/HOLD.flag` is refreshed (6 h, auto-expires) for the same
+reason it was used on 10-07: M34 is now the first launchable queue row, and
+while it is being worked in this interactive session the headless runner would
+otherwise re-launch it between turns — duplicating the mission and spending
+quota on a second writer against the same tree.
