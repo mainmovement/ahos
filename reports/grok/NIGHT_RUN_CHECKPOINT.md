@@ -282,13 +282,102 @@ NOT done, by design: no merge executed (M34.3 is the *plan*; rows are gated to
 M42 / M30 / M53 / owner); M34.5 coherence score not attempted — scoring before
 the merges land would measure the fragmentation, not the fix.
 
+## Step 6 — M13 gold-first paper cycle — DONE, commit `5988620`
+
+The M13 acceptance set named by DEDUP_MERGE_MAP v1.20 line 183 — *"only after
+M13 gold passes its acceptance (two-source price witness, exit rules, risk,
+M42 judge, M39 breaker)"* — is complete, all five on Lane B:
+
+| Gate | Where | Evidence |
+|---|---|---|
+| two-source price witness | `architecture/providers/gold.py` | commit `95d4618` |
+| exit rules | frozen `paper_trading.exit_rules` (import-only) | `check_exits`, EXIT_V1 |
+| risk | `architecture/markets/risk.py` | §5 sizing + §12 ruin bootstrap |
+| M42 judge | `architecture/markets/judge.py` | independent reconcile, CLEAN |
+| M39 breaker | wired into `GoldPaperTrack.run_cycle` | paper half — entry gate |
+
+**The breaker is an entry gate, evaluated every cycle.** A breaker nobody
+consults is not a gate, so `PaperBreaker.check` runs before every entry; it
+holds *new risk only* and never flattens an open position — flattening within
+60 s is M39's live-trading action, there is no live trading here, and the frozen
+exit card has no breaker reason, so extending the vocabulary would be a Lane A
+edit through the back door. The §12 history (closed-trade blotter, equity curve)
+is replayed from the ledger by `_track_from_ledger`, so a restart cannot reset
+the loss limits. Only settled closes enter the blotter: an invalidated trade has
+no price and therefore no PnL to bootstrap from, so counting it would let the
+track buy the 30-trade threshold with trades that never happened.
+
+**The judge never imports the track it audits** (DEDUP:141's independent-reviewer
+principle). It replays the ledger and re-derives every number from the recorded
+bytes, so a track that wrote a flattering equity claim is *checked*, not
+believed. It verifies the chain, the paper form (`paper_only is not True` is a
+finding), position continuity, the §49 double-entry on every settled close, the
+money identity, that an unpriceable close carries zero PnL, and the track's own
+counters against its own claims. One finding is a `DISCREPANCY` — there is no
+verdict that means "mostly fine", which is the HALT the vision specifies.
+
+**The judge caught my own bug.** The first `_track_from_ledger` read `history()`
+raw rows, where the checkpoint is nested under `state`, so the rebuilt track
+always started at cycle 1 and wrote duplicate cycle 1s into the canonical
+ledger. The judge reported `J-CYCLE` x2 — evidence the judge works. The
+pre-correction ledger was **archived verbatim** at
+`data/mission_ledger/archived/M13-GOLD-PAPER_pre_correct_cycles_20261010.jsonl`
+(chain verified `CHAIN_INTACT`, head `416c6d6b…`) rather than rewritten in
+place, because the ledger's purpose is tamper-evidence; a fresh ledger under
+the corrected writer now reconciles **CLEAN**.
+
+Tests: 124 passed across the four M13 modules
+(`test_gold_two_source`, `test_gold_paper_cycle`, `test_gold_risk`,
+`test_gold_judge`). The judge suite's negative paths were rewritten around
+*chain-intact crafted lies* — the first draft used `assert … or True`, which
+was vacuous and I flagged it myself. A crafted ledger is the dishonest-track
+case the judge exists for; editing a real ledger only ever produces
+`BROKEN_CHAIN`.
+
+**Remaining for M13's *target***: 30 closed paper trades. No position has
+opened yet — the live feeds have been UNRESOLVED between COMEX sessions. The
+gate is honest about that rather than trading a single source.
+
+### The watchdog resume — DONE, tested live
+
+`reports/grok/claude_resume.ps1` replaces the ad-hoc `claude -c -p` restart.
+Both failure modes had concrete causes and neither was the key:
+
+- **`claude -c` continues "the most recent conversation in this directory"** —
+  it does not name the stalled session, so it can exit with nothing to say
+  (the silent exit) or block on one that cannot continue (the hang). On this
+  machine the newest transcript is the *interactive* session, which a headless
+  resume would write turns into. The script resolves the session from the
+  runner's own runlog instead, and refuses to guess — the first dry-run proved
+  the point by resolving to this very interactive session.
+- **The 401** was a stale process-scoped `ANTHROPIC_API_KEY` shadowing the
+  working `ANTHROPIC_AUTH_TOKEN`, so the gateway rejected a key that is
+  individually valid. Fixed by normalising the four `ANTHROPIC_*` vars from
+  the User scope and *removing* the process value when the User one is absent
+  — never by picking a key.
+
+**Tested once, live.** Mission 10's session resolved from its runlog, the model
+derived without a literal, and the reply came back `429 Token quota exhausted`
+— a real account limit, not an auth failure. The `unrecognized_model` stderr
+notice did not poison the verdict, because stderr is folded into the classified
+text only when stdout carries no reply. Four defects the test exposed, all
+fixed: the `claude.ps1` shim writes UTF-16LE (now decoded by BOM); `Stop-Job
+-Force` is not a PS 5.1 parameter (now `Stop-Job` plus a CIM sweep that kills
+the orphaned `claude.exe` — that orphan *is* the hang); `Get-Process` has no
+`CommandLine` in PS 5.1 (now `Get-CimInstance`); and a logging failure would
+have aborted the script before it could report.
+
 ## Next steps (in order)
 
-6. M13 gold-first paper cycle (Lane B only; write the exact blocker if Lane A
-   is needed). ← next
 7. CC-3 / CC-4 / CC-1 if blocking; CC-5 prepare migration only, never apply.
+   CC-3 assessed NOT blocking — a latent `Tuple` NameError in
+   `architecture/ai/debate_council.py`, unreachable from the live path.
 8. Dashboard missions M-D1..M-D4 (`OWNER_DECISIONS_Q1-Q10.md` wins over the
    missions file). No M-D5+ tonight.
+
+Then M13.1–M13.6 per README v1.20: one adapter at a time on the same gold
+pipeline (oil, crypto majors, US, EU, Asia, tokens), each gated by unit tests +
+a 7-day paper soak + honest M42 judge numbers.
 
 
 Morning report by 10:00 Tehran: `reports/grok/NIGHT_RUN_REPORT.md`.
