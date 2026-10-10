@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "browser_order": ["chrome", "edge"],
+  "window_size": [1600, 900],
+  "profile_name": "app-window-profile"
+}

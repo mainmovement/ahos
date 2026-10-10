@@ -33,6 +33,7 @@ from config.paths import get_data_dir, get_local_db_path, get_project_root
 import launcher.components as C
 import launcher.persian as P
 import launcher.processkit as pk
+from launcher.appwindow import open_app_window
 from launcher.control_plane_bridge import LauncherControlPlane
 
 PROCESS_COMPONENTS = ["gateway", "telegram", "engine"]
@@ -141,6 +142,20 @@ class AhosOrchestrator:
     # ------------------------------------------------------------------ paths --
     def log_path(self, name: str) -> Path:
         return self.log_dir / f"{name}.log"
+
+    def _log_app_window(self, line: str) -> None:
+        """Sink for the app-window module's status lines.
+
+        Written to ``logs/launcher/launcher.log``. The app window module never
+        passes the URL here -- it carries the one-time boot token -- and this
+        method does not take it either, so the token cannot reach the log by way
+        of a logging call that happens to interpolate it.
+        """
+        try:
+            with open(self.log_path("launcher"), "a", encoding="utf-8") as fh:
+                fh.write(f"{datetime.now().isoformat(timespec='seconds')} {line}\n")
+        except OSError:
+            pass                     # a log write must never fail a launch
 
     def dashboard_url(self) -> str:
         """The dashboard address, from the *selected* gateway.
@@ -770,11 +785,15 @@ class AhosOrchestrator:
                                    if results.get(n) and results[n].status == C.HEALTHY])
             cp.safe_halt("control plane declared SAFE_HALT after component health snapshot")
 
-        # Dashboard only when the gateway is actually serving.
+        # Dashboard only when the gateway is actually serving. M-D1: the dashboard
+        # opens in its own app window (no tabs, no address bar, own profile,
+        # loopback only) rather than a browser tab; open_app_window falls back to
+        # the legacy open_url when no browser is installed or the spawn fails, so
+        # this can never make the dashboard *less* reachable than it was.
         if overall in ("ONLINE", "DEGRADED") and results.get("gateway") and \
                 results["gateway"].status == C.HEALTHY and self.open_dashboard and not idle:
             self.emit(P.PROGRESS["dashboard"])
-            pk.open_url(self.bootstrap_url())
+            open_app_window(self.bootstrap_url(), log=self._log_app_window)
 
         self.emit(P.PROGRESS["done_online"] if overall == "ONLINE"
                   else P.PROGRESS["done_degraded"])
