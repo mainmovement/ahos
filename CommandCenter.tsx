@@ -13,191 +13,23 @@ import {
 import { webApiFetch } from "@/web_api_client";
 import { deriveViewTruth, presentRunning, presentStatus } from "@/dashboard_truth";
 import { TruthBadge } from "@/TruthBadge";
+import {
+  faNum,
+  faPct,
+  faUsd,
+  INACTIVE_ALERT,
+  type ChatMsg,
+  type Dim,
+  type LauncherSnapshot,
+  type News,
+  type Opp,
+  type PendingActionView,
+  type Provider,
+  type Snap,
+  type WebAlertBanner,
+} from "@/dashboard_snapshot";
 
-type Dim = { nameFa: string; status: string; evidenceFa: string };
-type Opp = {
-  id: number;
-  tokenKey: string;
-  symbol: string;
-  name: string | null;
-  chain: string;
-  address: string | null;
-  decision: string;
-  rankScore: number | null;
-  confidence: string;
-  securityStatus: string;
-  evidenceCoverage: number | null;
-  reasonsFa: string[] | null;
-  risksFa: string[] | null;
-  unknownsFa: string[] | null;
-  invalidationFa: string | null;
-  missingFa: string[] | null;
-  councilVerdict: string | null;
-  disagreement: boolean;
-  payload: Record<string, unknown> | null;
-  canonicalStatus?: string;
-  canonicalOutcome?: string | null;
-  identityState?: string | null;
-  securityState?: string | null;
-  paperAllowed?: boolean;
-  canonicalUnavailable?: boolean;
-};
-type News = {
-  id: number;
-  source: string;
-  sourceUrl: string | null;
-  titleOriginal: string;
-  titleFa: string | null;
-  summaryFa: string | null;
-  publishedAt: string | null;
-  importance: string;
-  category: string;
-  sentiment: string;
-};
-type Provider = {
-  provider: string;
-  category: string;
-  status: string;
-  latencyMs: number | null;
-  itemCount: number | null;
-  messageFa: string | null;
-};
-type WebAlertBanner = {
-  active: boolean;
-  reason?: string;
-  ageSec: number | null;
-  lastToken: string | null;
-  payload: {
-    symbol: string | null;
-    chain: string | null;
-    decision: string | null;
-    canonicalSecurityState: string | null;
-  } | null;
-  disclaimerFa: string;
-};
-
-const INACTIVE_ALERT: WebAlertBanner = {
-  active: false,
-  ageSec: null,
-  lastToken: null,
-  payload: null,
-  disclaimerFa: "هشدار فرصت پایش است — سیگنال خرید واقعی نیست. PAPER ONLY.",
-};
-type Snap = {
-  generatedAt: string;
-  state: {
-    running: boolean;
-    lastCycleAt: string | null;
-    lastCycleStatus: string;
-    cycleCount: number;
-    lastError: string | null;
-    intervalSec: number;
-  };
-  cycle: {
-    id: number;
-    status: string;
-    durationMs: number | null;
-    tokenCount: number | null;
-    newsCount: number | null;
-    opportunityCount: number | null;
-    unknownShare: number | null;
-    notesFa: string | null;
-  } | null;
-  market: {
-    regime: string;
-    fearGreed: number | null;
-    fearGreedLabel: string | null;
-    btcPrice: number | null;
-    btcChange24h: number | null;
-    ethPrice: number | null;
-    ethChange24h: number | null;
-    solPrice: number | null;
-    solChange24h: number | null;
-    totalMcap: number | null;
-    btcDominance: number | null;
-    defiTvl: number | null;
-  } | null;
-  opportunities: Opp[];
-  canonicalReadModel?: {
-    status: string;
-    reason: string | null;
-    generatedTs: number | null;
-    decisionCount: number;
-    stale: boolean;
-    authorityVersion: string | null;
-  };
-  overlayCensus?: {
-    pythonDecisionCount: number;
-    tsOpportunityCount: number;
-    matched: number;
-    unmatchedTs: number;
-    unmatchedPython: number;
-    note: string;
-  };
-  canonicalDecisions?: Array<{
-    tokenKey: string;
-    symbol: string | null;
-    chain: string | null;
-    address: string | null;
-    outcome: string;
-    identityState: string | null;
-    securityState: string | null;
-    confidence: string | null;
-    opportunityScore: number | null;
-    paperAllowed: boolean;
-    isPositive: boolean;
-    monitoringOnly: boolean;
-    primaryReason: string | null;
-  }>;
-  news: News[];
-  providers: Provider[];
-  watchlist: Array<{ id: number; symbol: string; chain: string; thesisFa: string | null }>;
-  paper: Array<{
-    id: number;
-    symbol: string;
-    status: string;
-    entryPrice: number | null;
-    lastPrice: number | null;
-    maxFavorable: number | null;
-    maxAdverse: number | null;
-  }>;
-  lessons: Array<{ id: number; titleFa: string; bodyFa: string }>;
-  findings: Array<{ id: number; titleFa: string; evidenceFa: string; severity: string }>;
-  council: Array<{
-    tokenKey: string;
-    verdict: string;
-    summaryFa: string;
-    watchCount: number;
-    rejectCount: number;
-    abstainCount: number;
-  }>;
-  health: { dimensions: Dim[] };
-  blocked: Array<{ item: string; status: string }>;
-  teams: Array<{ id: string; fa: string; size: number }>;
-};
-
-// REDTEAM-19 F1: no confirm code in API responses; `ref` is revealed to this session on click.
-type PendingActionView = { ref: string; kind: string; summaryFa: string; expiresAt: string };
-type ChatMsg = { role: "user" | "assistant"; content: string; pending?: PendingActionView | null };
 type TabId = "dash" | "opp" | "news" | "council" | "watch" | "evo";
-
-type LauncherComponent = {
-  status?: string;
-  detail?: string;
-  pid?: number | null;
-  started_ts?: number | null;
-};
-type LauncherSnapshot = {
-  status: {
-    action?: string;
-    ts?: string;
-    overall?: string;
-    paper_only?: boolean;
-    dashboard_url?: string;
-    components?: Record<string, LauncherComponent>;
-  } | null;
-  staleAfterSec?: number;
-} | null;
 
 const TABS: ReadonlyArray<readonly [TabId, string]> = [
   ["dash", "داشبورد"],
@@ -219,30 +51,6 @@ const QUICK_PROMPTS = [
 const MAX_CHAT = 80;
 const POLL_RUNNING_MS = 10_000;
 const POLL_IDLE_MS = 25_000;
-
-const faFmt = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 2 });
-const faFmt0 = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
-const faFmt6 = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 6 });
-
-function faNum(n: number | null | undefined, d = 2) {
-  if (n == null || !Number.isFinite(n)) return "نامشخص";
-  if (d === 0) return faFmt0.format(n);
-  if (d >= 6) return faFmt6.format(n);
-  return faFmt.format(n);
-}
-function faUsd(n: number | null | undefined) {
-  if (n == null || !Number.isFinite(n)) return "نامشخص";
-  const a = Math.abs(n);
-  if (a >= 1e12) return `${faNum(n / 1e12)} ت دلار`;
-  if (a >= 1e9) return `${faNum(n / 1e9)} م‌م دلار`;
-  if (a >= 1e6) return `${faNum(n / 1e6)} م دلار`;
-  if (a >= 1e3) return `${faNum(n / 1e3)} ه دلار`;
-  return `${faNum(n, n < 1 ? 6 : 2)} دلار`;
-}
-function faPct(n: number | null | undefined) {
-  if (n == null || !Number.isFinite(n)) return "نامشخص";
-  return `${n > 0 ? "+" : ""}${faNum(n)}٪`;
-}
 
 let sharedAudioCtx: AudioContext | null = null;
 function beep(ok: boolean, enabled: boolean) {
