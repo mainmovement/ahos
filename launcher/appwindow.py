@@ -291,7 +291,8 @@ def open_app_window(url: str, *, cfg: AppWindowConfig | None = None,
             subprocess.Popen(argv, stdin=subprocess.DEVNULL,
                              stdout=subprocess.DEVNULL,
                              stderr=subprocess.DEVNULL,
-                             close_fds=True, start_new_session=True)
+                             close_fds=True, start_new_session=True,
+                             windowsHide=True)
     except OSError:
         say(f"app_window: {browser} failed to start; falling back to the "
             f"default browser")
