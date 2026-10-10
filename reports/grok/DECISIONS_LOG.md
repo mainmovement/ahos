@@ -407,3 +407,143 @@ to two other inherited claims: `data/mission_ledger/` is lazy-by-design
 (`mkdir` at first write), not a defect; and the `architecture_registry.sqlite`
 absence is a builder with no production caller, which is a real gap but a
 different one.
+
+## 2026-10-10 (M13, gold track) — source pair deviation from the approved map
+
+**Question.** AHOS_TRADING_SKILLS_v2 §0 names the gold pair as "FRED (fredapi) /
+EIA free key | Stooq via pandas-datareader / yfinance futures (GC=F)", and
+README_FOR_CLAUDE rule 2 says to use the approved sources and not reinvent
+them. The two-source witness needs two fresh independent feeds. Which sources
+does M13 actually wire?
+
+**Choice.** Source B exactly as approved: Yahoo `GC=F` COMEX gold futures (the
+same upstream tape yfinance reads). Source A as a **recorded deviation**:
+gold-api.com XAU spot, instead of Stooq or FRED.
+
+**Reason.** Both approved Source A options were measured and neither can serve
+a fresh keyless witness. Stooq now serves a JavaScript browser-verification
+wall and returns HTTP 404 for every CSV endpoint tried (`/q/l/?s=xauusd`,
+`/q/l/?s=gc.f`, `/q/d/l/?s=xauusd`, plus CL=F, ^SPX, BTCUSD) — a plain HTTP
+client cannot read it at all. FRED's gold series is the daily London bullion
+fix (once-a-day settlement, a day behind) behind an API key, so it fails the
+freshness window even with the sanctioned Credential Manager key wired, and a
+keyed source cannot be part of a keyless unattended pair. gold-api.com XAU is
+free, keyless, live-verified (16 s old at probe, $4195.60) and is a different
+vendor from the COMEX tape, so it satisfies the law's independence clause
+("different providers with different upstream data"). FRED's daily fix remains
+the obvious *third*, corroborating source once its key is wired — corroborating
+only, because a daily fix is not a fresh feed.
+
+## 2026-10-10 (M13, gold track) — disagreement tolerance set to 1.0%
+
+**Question.** What disagreement tolerance does the gold two-source witness use?
+
+**Choice.** `GOLD_TOLERANCE_PCT = 1.0` — the **top** of the owner-approved
+0.5–1% band (DEDUP_MERGE_MAP v1.20: "same 0.5-1% agreement rule"; TRADING_SKILLS
+v2 §0: disagreement past tolerance is CONFLICT and gets no signal), replacing
+my earlier 2.0%.
+
+**Reason.** 2.0% was my own number and was 2–4× looser than the approved band;
+the approved band is the rule to follow. The top rather than the bottom of the
+band, because the gold pair is spot-vs-futures: it carries a basis and the two
+tapes tick at different instants, so the tolerance must absorb both. Measured
+live: spot 4196.90 vs futures 4220.30 = 0.56%, comfortably inside 1.0%. The
+boundary is tested at both sides of the constant so the number is code, not
+judgement. Not loosened to make a trade pass — the measured spread sits near
+the middle of the band either way.
+
+## 2026-10-10 (M13, gold track) — futures freshness gate left at one hour
+
+**Question.** The COMEX front-month print ticks far less often than the spot
+tape (measured 2026-10-10: Yahoo `regularMarketTime` 7862 s old at every
+interval 1m/2m/1d, while gold-api spot was 16 s old). Should the futures feed
+get a wider freshness window than the spot feed?
+
+**Choice.** No. One uniform `GOLD_MAX_AGE_SEC = 3600` for both feeds.
+
+**Reason.** A wider futures window would be tuning the freshness gate to make
+the trade happen — exactly the gate-loosening the locked list forbids. The
+honest consequence is accepted and recorded: between COMEX sessions the witness
+reports UNRESOLVED and the paper track records NO_DATA rather than trading on
+spot alone. The live run confirmed this is what actually happens (ledger cycle
+2: `insufficient_independent_sources (only ['goldapi_spot'] answered fresh;
+stale: ['yahoo_gc_futures'])`, no position opened).
+
+## 2026-10-10 (M13, ledger hygiene) — archived the pre-correction gold ledger
+
+**Question.** The canonical `M13-GOLD-PAPER` ledger held six rows: a correct
+START and cycles 1-2, then two rows written by a defect of mine
+(`_track_from_ledger` read `CHECKPOINT` off the raw `history()` record, where
+it is nested under `state` and only `ledger.latest()` flattens it), so the
+runner rebuilt a fresh track and wrote `cycle 1` twice more. Zero trades were
+ever closed. Should those rows be removed?
+
+**Choice.** Not removed — archived verbatim, then the ledger restarted.
+
+**Reason.** The ledger's whole purpose is tamper-evidence, so rewriting it in
+place is not available, and the duplicate rows are not a defect of the paper
+track: they are a defect of the writer I had just written and already fixed.
+Left in place they would make the M42 reconcile permanently DISCREPANCY for a
+reason unrelated to the system's own behaviour, which would teach the wrong
+lesson (that the judge's verdict is noise). The archived copy keeps its intact
+hash chain and remains verifiable, so nothing is lost; the fresh ledger is the
+one the corrected writer produces. Recorded here rather than in the ledger
+itself because the ledger is the audited object, not the audit log. The judge
+reported the duplicates as `J-CYCLE` before the archive, which is the
+behaviour the tests pin.
+
+## 2026-10-10 (M13, acceptance) — risk and breaker wired as an entry gate
+
+**Question.** `architecture/markets/risk.py` implements §5 sizing and §12
+limits, but a breaker that nothing consults is not a gate. Where does it bind?
+
+**Choice.** It gates *new risk only*, and it is evaluated on every cycle.
+
+**Reason.** Evaluating it only on entries would let it sit silently ARMED
+while the limits drift past; evaluating it always keeps its state on the
+record. It does not flatten an open position: flattening within 60 s is M39's
+live-trading action, there is no live trading here, and the frozen exit card
+has no breaker reason — inventing one would extend Lane A's vocabulary through
+the back door. The §12 history (closed-trade blotter, equity curve) is replayed
+from the ledger by `_track_from_ledger`, so a restart cannot reset the limits.
+Only settled closes enter the blotter: an invalidated trade has no price and
+therefore no PnL distribution to bootstrap from, so counting it would let the
+track buy the 30-trade threshold with trades that never happened.
+
+## 2026-10-10 — the watchdog's `claude -c -p` restart, made reliable
+
+**Question.** The ad-hoc watchdog restart (`claude -c -p`) exits silently, hangs,
+and once returned `401 Invalid API key` although both keys work. Fix how?
+
+**Choice.** Replace it with `reports/grok/claude_resume.ps1`, which names the
+session instead of continuing "the newest conversation", and which normalises the
+four `ANTHROPIC_*` vars from the User scope the same way `run_mission.ps1` does.
+
+**Reason.** Both failure modes had a concrete cause, and neither was the key.
+`claude -c` means *the most recent conversation in this directory* — it does not
+name the stalled session, so it can latch onto a different transcript and exit
+with nothing to say (the silent exit) or block on one that cannot continue (the
+hang). On this machine the newest transcript is the *interactive* session, which
+a headless resume would write turns into. The 401 was the same shadowing bug
+`run_mission.ps1:4` already solved: a process-scoped `ANTHROPIC_API_KEY` left in
+the launching shell's environment shadows the working `ANTHROPIC_AUTH_TOKEN`, so
+the gateway rejects a key that is individually valid. The fix is to copy from the
+User scope and *remove* the process value when the User one is absent — never to
+pick a key.
+
+**Tested once, live:** mission 10's session resolved from its own runlog, the
+model derived without a literal, and the reply came back `429 Token quota
+exhausted` — a real account limit, not an auth failure. The `unrecognized_model`
+notice on stderr did not poison the verdict, because stderr is folded into the
+classified text only when stdout carries no reply. The same classifier regexes as
+`run_mission.ps1` are reused, so a quota outage stays a non-chargeable INFRA and
+is never escalated to an owner gate as though the mission had failed.
+
+**Four defects the test exposed, all fixed:** the `claude.ps1` shim writes
+UTF-16LE, so the log read mojibake (now decoded by BOM); `Stop-Job -Force` is not
+a PS 5.1 parameter and crashed the timeout path (now `Stop-Job` plus a CIM sweep
+that kills the orphaned `claude.exe`, which `Stop-Job` alone leaves running —
+that orphan *is* the hang); `Get-Process` has no `CommandLine` in PS 5.1, so the
+first kill filter matched nothing (now `Get-CimInstance`); and a logging failure
+under `$ErrorActionPreference='Stop'` would have aborted the script before it
+could report (now `try`/`catch` around every `Log`).

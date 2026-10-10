@@ -21,14 +21,31 @@ companies, different upstream tapes -- not two endpoints of one feed:
   keyless, answers ``regularMarketPrice``/``regularMarketTime``. The gold
   clause says "spot **or futures**", so a futures tape satisfies it.
 
-The spot-vs-futures basis is why :data:`GOLD_TOLERANCE_PCT` is 2.0% rather than
-the ~0.1% a same-venue pair would justify: a futures contract prices expected
-future delivery and normally sits a fraction of a percent from spot, but the
-two tapes also tick at different instants, so the tolerance must absorb both
-the basis and the sampling skew or the witness would report CONFLICT on data
-that actually agrees. Measured 2026-10-09: spot 4196.90 vs futures 4220.30,
-0.55% apart. The tolerance is a named constant, tested at both sides, and is
-not consulted as a judgement at decision time.
+The spot-vs-futures basis is why :data:`GOLD_TOLERANCE_PCT` sits at the top of
+the owner-approved 0.5-1% band rather than at its bottom: a futures contract
+prices expected future delivery and normally sits a fraction of a percent from
+spot, but the two tapes also tick at different instants, so the tolerance must
+absorb both the basis and the sampling skew or the witness would report
+CONFLICT on data that actually agrees. Measured 2026-10-09: spot 4196.90 vs
+futures 4220.30, 0.56% apart. The tolerance is a named constant, tested at
+both sides, and is not consulted as a judgement at decision time.
+
+On the choice of sources, and why this is a recorded deviation from the
+approved source map: AHOS_TRADING_SKILLS_v2 section 0 names the gold pair as
+"FRED (fredapi) / EIA free key | Stooq via pandas-datareader / yfinance
+futures (GC=F)". The futures half is implemented exactly as approved (Yahoo
+``GC=F``, which is the same upstream tape yfinance reads). The spot half is
+not, for two measured reasons: Stooq now serves a JavaScript
+browser-verification wall and returns 404 for its CSV endpoints
+(``/q/l/?s=...``, ``/q/d/l/?s=...``), so a plain HTTP client cannot read it at
+all; and FRED's gold series is the daily London bullion fix (a once-a-day
+settlement, a day behind) behind an API key, so it cannot serve a freshness
+witness even once the sanctioned Credential Manager key is wired. A daily
+fix is genuinely useful as *corroborating* evidence and is the obvious third
+source once that key exists -- but not as one of two fresh feeds. gold-api.com
+XAU spot is free, keyless, live-verified (16s old at probe time) and is a
+different vendor from the futures tape, so it satisfies the law's independence
+clause; the deviation is recorded in DECISIONS_LOG.md.
 
 A PAXG-style token price is deliberately NOT used as a source. It is a proxy
 for spot, not spot itself (Astra reverse-engineering memo, 2026-10-09: "Never
@@ -62,9 +79,16 @@ from typing import Callable
 GOLD_MARKET = "gold"                     # XAU/USD, US dollars per troy ounce
 GOLD_UNIT = "USD/oz t"                   # COMEX and XAU/USD both quote per troy oz
 
-#: Disagreement tolerance for the gold pair. See the module docstring for why
-#: this is percent-scale and not basis-points-scale.
-GOLD_TOLERANCE_PCT = 2.0
+#: Disagreement tolerance for the gold pair. The owner-approved agreement band
+#: for every market's two sources is 0.5-1%
+#: (reports/grok/queue_2050/DEDUP_MERGE_MAP.md v1.20; AHOS_TRADING_SKILLS_v2
+#: section 0: "If A and B disagree by more than a tolerance, the asset is
+#: CONFLICT and gets no signal"). The top of the band is used because a spot
+#: tape and a futures tape carry a basis *and* tick at different instants, so
+#: the tolerance must absorb both. Measured 2026-10-09: spot 4196.90 vs futures
+#: 4220.30, 0.56% apart -- comfortably inside. A spot/spot pair would sit at
+#: the bottom of the band instead.
+GOLD_TOLERANCE_PCT = 1.0
 
 #: A quote whose provider-declared timestamp is older than this is STALE and
 #: contributes nothing. One uniform window for both feeds -- the spot tape and
@@ -275,14 +299,19 @@ def _parse_timestamp(value: object) -> float | None:
 
 
 def production_gold_adapters(
-    transport: Callable = urllib.request.urlopen,
+    transport: Callable | None = None,
 ) -> tuple[GoldPriceAdapter, ...]:
     """The unattended gold pair, in independence order.
 
     Both adapters declare ``requires_credentials = False``; this function is
     the place that choice becomes structural, and it is what a caller uses when
     it wants the witness the law describes rather than a hand-picked list.
+    ``transport=None`` means "use the default urlopen", not "use no transport"
+    -- passing None on through would later blow up as a TypeError that the
+    resolver would faithfully report as an unreachable provider.
     """
+    if transport is None:
+        transport = urllib.request.urlopen
     return (
         GoldApiSpotAdapter(transport=transport),
         YahooGoldFuturesAdapter(transport=transport),
