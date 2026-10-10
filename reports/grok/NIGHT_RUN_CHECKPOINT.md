@@ -367,6 +367,81 @@ the orphaned `claude.exe` — that orphan *is* the hang); `Get-Process` has no
 `CommandLine` in PS 5.1 (now `Get-CimInstance`); and a logging failure would
 have aborted the script before it could report.
 
+## Step 8a — M-D1 app window — DONE, commit `e9d2ddf`
+
+The owner's double-click now opens a dedicated window, not a browser tab.
+`launcher/appwindow.py` builds the Chromium `--app=<url>` command line: an
+isolated profile at `%LOCALAPPDATA%\AHOS\app-window-profile` (never the user's
+Chrome Default), a fixed window size, and a host-resolver rule
+`MAP * ~NOTFOUND , EXCLUDE 127.0.0.1` that blocks every non-loopback DNS lookup
+at the browser itself. Nine switches keep it a closed loop — no extensions, no
+sync, no background networking, no component update, no pings, no proxy. The
+argv is a list, never a shell string, so the URL is never visible to other
+processes through `cmd.exe`.
+
+The URL carries a one-time boot token, so `open_app_window` never logs it: the
+log line names only the browser, the `profile_marker` used to find the process is
+the profile switch and never the URL, and an error describing an argv describes it
+without the value. Every failure degrades to the legacy `open_url` rather than
+failing a launch — no browser installed, a spawn refusal, an unwritable profile
+directory — and the fallback prints the Persian line the mission specifies.
+`tests/test_launcher_appwindow.py` (24 tests) pins the argv order, the resolver
+rule, the profile isolation and the token-reaches-no-log-line property.
+
+## Step 8b — M-D3 design tokens and the truth-badge contract — DONE
+
+The precedence that makes an honest state impossible to style as success,
+implemented as data:
+
+    REJECTED > CONFLICT > UNKNOWN > STALE > VERIFIED
+
+A display may only downgrade along that chain. `dashboard_truth_badge.ts` maps
+the **real** enum values of the authority chain — `CanonicalReadStatus`,
+`IdentityState`, `SecurityState`, `CanonicalOutcome` and the council's
+`DISAGREEMENT` — onto badge states, and an unrecognised value falls through to
+UNKNOWN. `dashboard_tokens.ts` holds the two owner-approved themes at the spec's
+exact hexes (§2.1 Imperial, §2.2 Neon), and `globals.css` is the only place the
+theme switches.
+
+Verification — `npm run test:truth-badge` **44/44**, covering every acceptance
+criterion the mission names: UNKNOWN and CONFLICT never get the VERIFIED colour,
+the ✓ glyph, the glow class or the success sound id; a stale VERIFIED becomes
+STALE; `UNAVAILABLE` gives UNKNOWN; a disagreement beats a VERIFIED; an
+unrecognised enum gives UNKNOWN. `npm run test:dashboard-truth` 34/34
+regression, `npx tsc --noEmit` clean, `npx eslint` clean.
+
+The selftest also guards its own honesty: it re-reads the four Python enum
+declarations and `canonical_read_model.ts` and asserts every key in the mapping
+table is a value one of them actually declares. My first draft of the table
+contained seven invented enum names (`PAPER_CANDIDATE`, `SECURITY_REJECT`,
+`SINGLE_SOURCE`, `INSUFFICIENT_SOURCES`, `SOURCE_DISAGREEMENT`,
+`PROVIDER_ADDRESS_MISMATCH`, `INSUFFICIENT_LIQUIDITY`) — plausible names for
+things no module declares. That is fixed and now mechanically impossible to
+reintroduce. See `reports/grok/DECISIONS_LOG.md` for the full account.
+
+The badge is wired into the two truth-bearing surfaces of `CommandCenter.tsx`:
+the opportunity dossier (canonical status, identity, security) and the canonical
+decisions card (identity, security), replacing the old tone-mapped `StatusPill`
+there. The decision and confidence pills stay as `StatusPill` — the display score
+is non-authoritative analysis and must not borrow the badge's contract.
+
+**Verified in a real browser, not only in assertions.** A dev server rendered the
+spec'd dev-only badge sheet at `app/badge_sheet/page.tsx` (watermarked FIXTURE,
+names no token): 25 badges SSR'd with the correct modifier classes, a DOM check
+that exactly the five VERIFIED badges read `--ahos-status-verified` while zero
+non-VERIFIED badges do, and inspection of the compiled CSS confirming both
+`[data-theme]` blocks and all five status variables ship at the spec hexes. That
+pass caught a bug the unit tests structurally could not: the badge `fill` strings
+named the CSS variable without `var()`, producing plausible-looking invalid CSS
+that renders nothing. Fixed, and now asserted.
+
+**Two open items, recorded as UNKNOWN rather than guessed:** whether Vazirmatn's
+binary carries the `tnum` feature (Google's CSS enables nothing; the direct
+`.ttf` download returned an error page — settled by M-D2's owner-gated font
+package), and the two screenshot deliverables, which were not taken because the
+repo has no screenshot capability and no tooling may be installed. The badge
+sheet renders at `/badge_sheet` in the M-D1 app window for the owner to capture.
+
 ## Next steps (in order)
 
 7. CC-3 / CC-4 / CC-1 if blocking; CC-5 prepare migration only, never apply.
@@ -374,6 +449,13 @@ have aborted the script before it could report.
    `architecture/ai/debate_council.py`, unreachable from the live path.
 8. Dashboard missions M-D1..M-D4 (`OWNER_DECISIONS_Q1-Q10.md` wins over the
    missions file). No M-D5+ tonight.
+   - M-D1 app window — **DONE**, `e9d2ddf`.
+   - M-D3 tokens + truth badge — **DONE** (this step).
+   - M-D2 fonts — **OWNER_GATE**: `npm i vazirmatn@33.0.3` /
+     `@fontsource/vazirmatn@5.3.0` + `@fontsource/lalezar@5.3.0`, or vendor the
+     woff2 with the OFL text. Skip until the owner opens the gate; the `tnum`
+     question is recorded UNKNOWN for it to settle.
+   - M-D4 RTL 2D shell refactor — next, no new dependencies needed.
 
 Then M13.1–M13.6 per README v1.20: one adapter at a time on the same gold
 pipeline (oil, crypto majors, US, EU, Asia, tokens), each gated by unit tests +

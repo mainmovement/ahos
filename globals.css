@@ -1,5 +1,56 @@
 @import "tailwindcss";
 
+/*
+ * AHOS theme tokens (M-D3, spec reports/grok/dashboard/DASHBOARD_DESIGN_SPEC.md
+ * §2.1 Imperial and §2.2 Neon). This file is the only place the theme switches;
+ * the values here are the hexes of that spec, verbatim, and
+ * scripts/dashboard_truth_badge_selftest.ts asserts the agreement so the table in
+ * dashboard_tokens.ts and this stylesheet cannot drift apart.
+ *
+ * DERIVED: spec §2.2 gives Neon no panel-edge row. The Neon hairline is its panel
+ * blended 15% toward its own body text (#0A1330 -> #2B354F), the same rule that
+ * reproduces Imperial's #372E2E beside the spec-given #3A2A1C. Imperial's edge is
+ * the spec's value and is never derived.
+ */
+:root,
+[data-theme="imperial"] {
+  --ahos-bg: #0B0709;
+  --ahos-panel: #160E12;
+  --ahos-border: #3A2A1C;
+  --ahos-text: #EFE4CC;
+  --ahos-text-muted: #A99A80;
+  --ahos-gold: #D4AF5A;
+  --ahos-gold-hi: #F1D58E;
+  --ahos-crimson: #9E1C26;
+  --ahos-crimson-hi: #D2343E;
+  --ahos-ember: #E8834A;
+}
+
+[data-theme="neon"] {
+  --ahos-bg: #040714;
+  --ahos-panel: #0A1330;
+  --ahos-border: #2B354F;                   /* DERIVED, see above */
+  --ahos-text: #E6F6FF;
+  --ahos-text-muted: #8FA6C8;
+  --ahos-gold: #D4AF5A;
+  --ahos-accent: #3FD0FF;
+  --ahos-accent-2: #4C82FF;
+}
+
+/*
+ * Status palette, spec §2.3. Identical in both themes, never used as decoration,
+ * and never brand gold or crimson. Every state also has a non-colour cue
+ * (border treatment and glyph), carried by the classes below, so the badge is
+ * still readable in monochrome and to a colour-blind reader.
+ */
+:root {
+  --ahos-status-verified: #2EC4A6;
+  --ahos-status-unknown: #9AA3B2;
+  --ahos-status-conflict: #E07BE8;
+  --ahos-status-stale: #B8A27A;
+  --ahos-status-rejected: #FF5A4E;
+}
+
 :root {
   --bg: #02040c;
   --cyan: #4df2ff;
@@ -71,6 +122,31 @@ button, input, textarea { font-family: inherit; }
 .enter-up { animation: enterUp 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
 .scroll-thin::-webkit-scrollbar-thumb { background: rgba(77, 242, 255, 0.32); border-radius: 99px; }
+
+/*
+ * Truth badge (M-D3). The colour comes from the --ahos-status-* variables, the
+ * shape from these classes. `truth-badge--ok` is the only success treatment in
+ * the system: there is no second route to it, so an UNKNOWN or CONFLICT cannot be
+ * styled right by any caller.
+ */
+.truth-badge {
+  display: inline-flex; align-items: center; gap: 0.3em;
+  padding: 0.15rem 0.5rem; border-radius: 0.4rem;
+  font-size: 0.75rem; font-weight: 600; line-height: 1.35;
+  font-family: var(--font-vazir), Tahoma, sans-serif;
+  border: 1px solid currentColor; color: var(--badge-color, var(--ahos-text-muted));
+  background: var(--badge-fill, transparent);
+}
+.truth-badge > .truth-badge__glyph { font-weight: 700; }
+.truth-badge--ok { border-style: solid; }
+.truth-badge--stale { border-style: dotted; filter: saturate(0.5); }   /* §2.3: 50% desaturated */
+.truth-badge--unknown { border-style: dashed; }
+.truth-badge--conflict { border-style: double; border-width: 3px; }    /* §2.3: double border */
+.truth-badge--rejected { border-left: 4px solid currentColor; }        /* §2.3: solid red bar */
+.truth-badge--glow {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--badge-color) 55%, transparent),
+              0 0 18px color-mix(in srgb, var(--badge-color) 35%, transparent);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .stage-grid, .orb-spin, .float-y, .pulse-ring, .ticker, .alarm-banner, .stage-scan { animation: none !important; }

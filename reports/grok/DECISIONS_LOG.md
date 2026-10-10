@@ -547,3 +547,136 @@ that orphan *is* the hang); `Get-Process` has no `CommandLine` in PS 5.1, so the
 first kill filter matched nothing (now `Get-CimInstance`); and a logging failure
 under `$ErrorActionPreference='Stop'` would have aborted the script before it
 could report (now `try`/`catch` around every `Log`).
+
+## 2026-10-10 — step 7: CC-3 / CC-4 / CC-1 assessed, none blocking
+
+**Question.** The overnight order lists three defects to fix "along the way if
+they block" (CC-3 NameError, CC-4 cycle_duration_ms outliers, CC-1 daemon not
+using ControlPlane). Fix any?
+
+**Choice.** None. CC-3 is a latent typo, corrected only in the sense of being
+recorded; CC-4 and CC-1 are not defects.
+
+**Reason.**
+- **CC-3** — `architecture/ai/debate_council.py:107` annotates `-> Tuple[...]`
+  without importing `Tuple`. It is annotation-only (`from __future__ import
+  annotations` makes it a string, never evaluated), the module imports cleanly,
+  and `Tuple` is absent from its namespace at runtime. It cannot fire. It was
+  not fixed because it does not block anything tonight, and an out-of-scope edit
+  to an AI-layer file during a gold mission would be scope creep against the
+  same codebase that just passed 124 M13 tests. Left for a dedicated cleanup.
+- **CC-4** — `cycle_duration_ms` is computed and recorded correctly
+  (`observation_loop.py:281` rounds to 2 dp; `record_metric` never raises). An
+  "outlier" is a genuinely slow cycle being measured. Clamping or filtering it
+  would make operational telemetry report a number that is not the observation —
+  the UNKNOWN > fabricated law, applied to metrics. If slow cycles matter, the
+  fix is to investigate them, not to unsee them.
+- **CC-1** — the daemon does not use ControlPlane because it is not supposed to.
+  `launcher/__init__.py:14` names `architecture.control_plane.ControlPlane` as
+  the ONE operator surface, and `launcher/control_plane_bridge.py` is the wiring
+  the launcher uses to start the engine. Having the daemon reach into ControlPlane
+  directly would create a second operator surface, which is the fragmentation
+  M34 measured and the plan consolidates away.
+
+---
+
+## 2026-10-10 — M-D3 truth badge and design tokens (dashboard mission 3)
+
+**Question.** The M-D3 spec (`reports/grok/dashboard/CLAUDE_BUILD_MISSIONS.md`)
+asks for a token table, a badge contract with precedence
+`REJECTED > CONFLICT > UNKNOWN > STALE > VERIFIED`, and a selftest proving
+UNKNOWN and CONFLICT cannot be styled as success. Four judgement calls arose.
+
+**Choices and reasons.**
+
+1. **The token hexes had to be corrected against the spec, not authored.** My
+   first `dashboard_tokens.ts` wrote plausible-looking values (Imperial
+   `#0A0608`, crimson `#C8102E`, gold `#D4AF37`). Reading
+   `DASHBOARD_DESIGN_SPEC.md` §2.1 showed every one of them was wrong: Imperial
+   `bg` is `#0B0709`, `gold` is `#D4AF5A`, and there is no `surfaceRaised` token
+   at all. The mission says "the tokens exactly match the spec hex values", so
+   the table was rewritten from §2.1/§2.2 and now declares only the tokens those
+   tables declare — `panelEdge`, `goldHi`, `crimson`, `crimsonHi` and `ember` are
+   `null` in Neon, because §2.2 does not give Neon those rows. Chosen because a
+   token table that invents a value is exactly the fabrication the module exists
+   to prevent, and because the two themes genuinely have different token sets.
+
+2. **Neon's hairline is derived, and the derivation is stated and checked.** Neon
+   has no `panel-edge` row, but a hairline is needed. `deriveEdge(panel, text)`
+   blends the panel 15% toward the theme's own body text. Validated by applying
+   the same rule to Imperial, where the spec *does* give both values: it produces
+   `#372E2E` against the spec's `#3A2A1C` — the same luminance family, so the
+   rule is faithful rather than tuned. The spec value always wins where it exists;
+   the derivation is marked `DERIVED` in `globals.css` and asserted in the
+   selftest.
+
+3. **The enum map was carrying vocabulary no Python module declares.** My first
+   `STATE_TO_BADGE` contained `PAPER_CANDIDATE`, `SECURITY_REJECT`,
+   `SINGLE_SOURCE`, `INSUFFICIENT_SOURCES`, `SOURCE_DISAGREEMENT`,
+   `PROVIDER_ADDRESS_MISMATCH`, `INSUFFICIENT_LIQUIDITY` and `NOT_FOUND`. None of
+   these is a value the authority chain declares — I had inferred plausible names
+   instead of reading the enums. The real sets are `IdentityState`
+   (VERIFIED/CONFLICT/UNRESOLVED/INVALID/STALE/UNSUPPORTED), `SecurityState`
+   (PASS/REJECT/INCOMPLETE/STALE), `CanonicalReadStatus`
+   (AVAILABLE/UNAVAILABLE/STALE), `CanonicalOutcome`
+   (BUY/WATCH/SKIP/REJECT/INSUFFICIENT_EVIDENCE/HIGH_RISK/MONITOR_ONLY/NO_TRADE)
+   and the council's `DISAGREEMENT`. The table now contains only those, and the
+   selftest re-reads the four Python files plus `canonical_read_model.ts` and
+   asserts every key is among the declarations — so a future invented key fails
+   the build instead of passing as a mapping of something real.
+   `CanonicalOutcome`'s SKIP/HIGH_RISK/MONITOR_ONLY/NO_TRADE are deliberately
+   *absent*: an abstention is not a measurement, and the fall-through to UNKNOWN
+   is the honest rendering of it.
+
+4. **Only VERIFIED gets the success treatment; UNKNOWN is the only silent state.**
+   CONFLICT and REJECTED keep *alert* sound ids. They are results — the council
+   says "DISAGREEMENT IS A RESULT" — and an alarm is not a celebration. UNKNOWN
+   alone has no sound at all, because an unmeasured state has nothing to announce.
+   The selftest asserts what the mission actually forbids: that no non-VERIFIED
+   state carries the *success* sound, the turquoise variable, the ✓ glyph, or the
+   glow class.
+
+5. **`TruthBadge.tsx` lives at the repo root, not `components/`.** The spec names
+   `components/TruthBadge.tsx` but flags the folder as TO-CONFIRM; the repo keeps
+   its TS modules at the root (`CommandCenter.tsx`, `dashboard_truth.ts`) and has
+   no `components/` directory. Chosen to match the existing convention, and
+   because `@/TruthBadge` then resolves exactly like the `@/dashboard_truth`
+   import it sits beside.
+
+6. **REJECTED's glyph is ✕, not the spec's octagon.** No monochrome octagon has
+   reliable coverage in the bundled font stack, and an emoji-presentation octagon
+   would inherit platform colour, undermining "colour is never the only cue". The
+   octagon's stop-sign meaning is carried instead by §2.3's other cue for that
+   row, the solid red bar (`border: "bar"`, rendered as a thick left edge).
+
+**Also recorded — two findings that came back UNKNOWN rather than verified.**
+
+- **Vazirmatn `tnum` is unverified.** The Google-served CSS for the family
+  declares no `font-feature-settings` at all, so nothing currently enables
+  tabular numerals in the dashboard. Determining whether the font *binary*
+  contains the feature requires the M-D2 font package (owner-gated `npm i`); the
+  attempted direct download of the `.ttf` returned an error page. Recorded as
+  UNKNOWN for M-D2 to settle, not guessed either way.
+- **The two M-D3 screenshot deliverables were not taken.** The repo has no
+  screenshot capability and no new tooling may be installed, so
+  `M-D3/01_badge_sheet_imperial.png` and `02_badge_sheet_neon.png` do not exist.
+  Instead the spec'd dev-only badge sheet was built at `app/badge_sheet/page.tsx`
+  (watermarked FIXTURE, names no token, renders only the contract) and verified
+  by rendering it in a real browser: 25 badges SSR'd with the correct modifier
+  classes, and a DOM check that exactly the five VERIFIED badges read
+  `--ahos-status-verified` while zero non-VERIFIED badges do. The compiled CSS
+  was inspected to confirm both `[data-theme]` blocks and all five status
+  variables ship at the spec hexes.
+
+**Bug caught by the browser pass, not by the unit tests.** The badge `fill`
+strings embedded the custom property *name* without `var()` —
+`color-mix(in srgb, --ahos-status-verified 16%, …)` looks plausible, is invalid
+CSS, and renders nothing. A unit test comparing strings cannot see this; the SSR
+markup did. Fixed, and the selftest now asserts every fill wraps its variable in
+`var()` so the class recurs.
+
+**Status.** M-D3 COMPLETE: `npm run test:truth-badge` 44/44,
+`npm run test:dashboard-truth` 34/34 regression, `npx tsc --noEmit` clean,
+`npx eslint` clean on all touched files, badge sheet verified rendered. Committed
+as the M-D3 commit. Screenshots remain open for the owner to take from
+`/badge_sheet` in the app window M-D1 built.

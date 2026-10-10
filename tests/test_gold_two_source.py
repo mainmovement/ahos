@@ -254,7 +254,10 @@ def test_conflict_boundary_is_the_coded_tolerance():
 
 
 def test_the_tolerance_is_a_named_constant_not_a_judgement():
-    assert GOLD_TOLERANCE_PCT == 2.0
+    """The owner-approved agreement band for every market is 0.5-1%
+    (DEDUP_MERGE_MAP v1.20). The gold pair sits at the top of the band because
+    spot carries a basis against futures."""
+    assert GOLD_TOLERANCE_PCT == 1.0
     assert isinstance(GOLD_MAX_AGE_SEC, (int, float))
 
 

@@ -12,6 +12,7 @@ import {
 } from "react";
 import { webApiFetch } from "@/web_api_client";
 import { deriveViewTruth, presentRunning, presentStatus } from "@/dashboard_truth";
+import { TruthBadge } from "@/TruthBadge";
 
 type Dim = { nameFa: string; status: string; evidenceFa: string };
 type Opp = {
@@ -770,8 +771,11 @@ export default function CommandCenter() {
                           <span className="text-white/40">{d.chain || "unknown"}</span>
                         </div>
                         <div className="text-xs text-white/60">
-                          هویت {d.identityState || "UNKNOWN"} — امنیت {d.securityState || "UNKNOWN"}
-                          {d.primaryReason ? ` — ${d.primaryReason}` : ""}
+                          {d.primaryReason ? `${d.primaryReason} — ` : ""}
+                          <span className="inline-flex flex-wrap gap-1">
+                            <TruthBadge state={d.identityState} label="هویت" />
+                            <TruthBadge state={d.securityState} label="امنیت" />
+                          </span>
                         </div>
                       </div>
                       <StatusPill status={d.outcome} />
@@ -879,9 +883,17 @@ export default function CommandCenter() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <StatusPill status={o.decision} />
-                      <StatusPill status={o.canonicalStatus || "UNAVAILABLE"} />
-                      <StatusPill status={o.identityState || "IDENTITY_UNKNOWN"} />
-                      <StatusPill status={o.securityState || "SECURITY_UNKNOWN"} />
+                      {/* M-D3: the three pills that carry the canonical authority's
+                        own states render as truth badges — identity, security and
+                        the read model. They can only ever downgrade along
+                        REJECTED > CONFLICT > UNKNOWN > STALE > VERIFIED, so an
+                        unmeasured or disagreeing state cannot look like a PASS.
+                        The decision and the confidence pills stay as StatusPill:
+                        the display score is non-authoritative analysis and must
+                        not borrow the badge's contract. */}
+                      <TruthBadge state={o.canonicalStatus} label="کانونیکال" />
+                      <TruthBadge state={o.identityState} label="هویت" />
+                      <TruthBadge state={o.securityState} label="امنیت" />
                       <StatusPill status={o.confidence} />
                     </div>
                   </div>
