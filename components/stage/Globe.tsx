@@ -9,17 +9,24 @@
  * external requests at runtime" holds, and §1's "generated procedurally (no
  * copied art)" holds with it.
  *
- * What it deliberately is not: a map. No continents, no coastlines, no
- * implied geography, because the globe carries *no data*. It is the observatory's
- * ornament, and ornament in this system may use exactly one glow — the brand
- * gold (`themeColors.goldEmissive`) — never a status colour (spec §2.3: status
- * colours are never decoration). A token's verdict is not expressed by lighting a
- * continent; the truth badge in the DOM says what the evidence said.
+ * What it deliberately is not: a *data* globe. The continents it now traces
+ * (M-D6.3) are ornament — they carry no values, they do not light up on a
+ * verdict, and a token's result is never expressed by brightening a region. The
+ * truth badge in the DOM says what the evidence said. Everything here is still
+ * one glow only — the brand gold — because spec §2.3 forbids status colours as
+ * decoration.
+ *
+ * Geography, where it appears, comes from licensed-free Natural Earth polygons
+ * via `world-atlas` + `topojson-client`, bundled rather than fetched, so §0.5's
+ * "zero external requests at runtime" still holds and §1's "no copied art" holds
+ * with it. If land ever has to mean something, the values must arrive through
+ * `/api/command` as labelled data — never as a colour change here.
  *
  * Tiers. Spec §11's ladder sets the density; the counts stay under the 30k the
- * owner's list caps a point globe at, and T1 keeps a single draw call with no
- * postprocessing. The fresnel rim is one overdrawn shell, not a bloom pass — at
- * T2/T3 the real bloom chain arrives with M-D5.6's pipeline and may replace it.
+ * owner's list caps a point globe at (T3 is 24 000 dust + 4 800 land), and T1
+ * costs two draw calls with no postprocessing. The fresnel rim is one overdrawn
+ * shell, not a bloom pass — at T2/T3 the real bloom chain arrives with M-D5.6's
+ * pipeline and may replace it.
  */
 "use client";
 
@@ -30,6 +37,7 @@ import * as THREE from "three";
 import { useStageStore } from "@/components/stage/store";
 import { stageColors } from "@/components/stage/themeColors";
 import { fibonacciSphere, GLOBE_RADIUS, pointShades } from "@/components/stage/globeGeometry";
+import { landDots, landShades, LAND_DOTS_RADIUS } from "@/components/stage/landDots";
 
 /** Spec §8.1: idle motion is 0.5°/s — one full turn in twelve minutes. */
 const IDLE_RAD_PER_SEC = (0.5 * Math.PI) / 180;
@@ -115,11 +123,21 @@ const RIM_FRAG = /* glsl */ `
 `;
 
 export interface GlobeProps {
-  /** How many dots, from the tier's budget. Zero renders the body and rim only. */
+  /** How many dust dots, from the tier's budget. Zero renders the body and rim only. */
   points: number;
   /** The rotation rate the tier allows; 0 is a static globe. */
   rotate: number;
 }
+
+/**
+ * The land layer's budget. It is proportional rather than fixed so every tier
+ * shows the same globe at a different resolution: the continents keep their
+ * shape and their dot density relative to the dust as the ladder climbs.
+ *
+ * 20% keeps the two highest tiers together under the owner's 30k cap (T3 is
+ * 24 000 dust + 4 800 land) while making the continents legible at T1's 1 200.
+ */
+const LAND_FRACTION = 0.2;
 
 export default function Globe({ points, rotate }: GlobeProps) {
   const ref = useRef<THREE.Group>(null);
@@ -155,6 +173,30 @@ export default function Globe({ points, rotate }: GlobeProps) {
   }, [dotPositions, dotColors]);
 
   const pointTexture = useMemo(() => softPointTexture(), []);
+
+  // M-D6.3: the land dots. Natural Earth polygons from `world-atlas`, decoded by
+  // `topojson-client`, sampled from the same kind of lattice the dust uses — see
+  // `landDots.ts`. They sit a hair above the dust field and read as the figure
+  // over its ground: brighter, larger, and all of them still brand gold.
+  const landCount = Math.round(points * LAND_FRACTION);
+  const landPositions = useMemo(() => landDots(landCount), [landCount]);
+  const landColors = useMemo(() => {
+    const shades = landShades(landCount);
+    const arr = new Float32Array(shades.length * 3);
+    for (let i = 0; i < shades.length; i++) {
+      const s = shades[i]!;
+      arr[i * 3] = warmGold.r * s;
+      arr[i * 3 + 1] = warmGold.g * s;
+      arr[i * 3 + 2] = warmGold.b * s;
+    }
+    return new THREE.BufferAttribute(arr, 3);
+  }, [warmGold, landCount]);
+  const landGeometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(landPositions, 3));
+    geo.setAttribute("color", landColors);
+    return geo;
+  }, [landPositions, landColors]);
 
   const rimMaterial = useMemo(
     () =>
@@ -217,6 +259,23 @@ export default function Globe({ points, rotate }: GlobeProps) {
             // three of them saturate to pure white-gold. Backed off, and with the
             // 1.6× scale spreading the field, the rim reads as dust again.
             opacity={0.78}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </points>
+      ) : null}
+      {/* The land. M-D6.3: brighter and larger than the dust, on its own shell
+          a hair above it, so the continents read as a layer over the field rather
+          than a denser patch of it. One more draw call at every tier. */}
+      {landCount > 0 ? (
+        <points geometry={landGeometry}>
+          <pointsMaterial
+            map={pointTexture}
+            size={0.088}
+            sizeAttenuation
+            vertexColors
+            transparent
+            opacity={0.95}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
