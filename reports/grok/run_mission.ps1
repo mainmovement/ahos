@@ -27,7 +27,7 @@ if (-not $model) {
 }
 if (-not $model) { throw "run_mission.ps1: cannot derive the model -- set the User-scoped ANTHROPIC_MODEL to the model id the interactive Claude session uses." }
 "model=$model" | Out-File -Append -Encoding utf8 $log
-$proj = 'C:\Users\Sniper\.claude\projects\G--robat-ahos'
+$proj = Join-Path $env:USERPROFILE '.claude\projects\G--robat-ahos'
 $out = "reports\grok\_claude_${n}_result.txt"
 $log = "reports\grok\_claude_${n}_runlog.txt"
 $errFile = "reports\grok\_claude_${n}_stderr.txt"

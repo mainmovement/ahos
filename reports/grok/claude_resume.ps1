@@ -56,7 +56,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-Location 'G:\robat\ahos'
-$proj = 'C:\Users\Sniper\.claude\projects\G--robat-ahos'
+$proj = Join-Path $env:USERPROFILE '.claude\projects\G--robat-ahos'
 $tools = 'Bash Read Edit Write Glob Grep'
 if (-not $Tag) { $Tag = if ($MissionId) { "resume_$MissionId" } else { 'resume' } }
 $log = "reports\grok\_claude_${Tag}_runlog.txt"
