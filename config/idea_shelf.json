@@ -1,0 +1,50 @@
+{
+  "_doc": "The idea shelf (M59.S). Seeded at M-D5.F from Asi's 2026-10-11 vetting and the owner's 19:42 QA list, so the Hardware Tier Panel lists real vetted tools under 'منتظر ارتقا' instead of UNKNOWN. Every tier tag below is a tier the vetting actually assigned; where the vetting left a tool's hardware fit unverified the tag is null, and the panel deliberately does not list such a tool as awaiting an upgrade it was never said to need. Provenance for each entry is the vetting record in reports/grok/queue_2050/; est_ram_mb is omitted everywhere because no vetting line gave a number, and no number is invented.",
+  "ideas": [
+    {
+      "id": "vane",
+      "title": "Vane",
+      "tier": "T16"
+    },
+    {
+      "id": "opensandbox",
+      "title": "OpenSandbox",
+      "tier": "T16"
+    },
+    {
+      "id": "browser-use",
+      "title": "Browser Use",
+      "tier": "T16"
+    },
+    {
+      "id": "anythingllm",
+      "title": "AnythingLLM",
+      "tier": "T16"
+    },
+    {
+      "id": "uptime-kuma",
+      "title": "Uptime Kuma",
+      "tier": "T8"
+    },
+    {
+      "id": "light-ocr",
+      "title": "light-ocr",
+      "tier": "T8"
+    },
+    {
+      "id": "bitnet-b158",
+      "title": "BitNet b1.58 2B4T",
+      "tier": "T8"
+    },
+    {
+      "id": "laya",
+      "title": "Laya",
+      "tier": null
+    },
+    {
+      "id": "kev",
+      "title": "Kev",
+      "tier": null
+    }
+  ]
+}

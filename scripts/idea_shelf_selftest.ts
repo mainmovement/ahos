@@ -11,8 +11,13 @@
  * What this proves is the negative that matters: that a missing or unreadable
  * registry can never become an empty list of ideas, and that an idea with an
  * unknown tier tag can never be classified as runnable or as blocked.
+ *
+ * The last suite reads the *committed* registry, which M-D5.F seeded from Asi's
+ * 2026-10-11 vetting: it must parse, and a tier tag may only appear where the
+ * vetting actually assigned one.
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import {
@@ -22,6 +27,7 @@ import {
   ramGuardState,
   type ShelfIdea,
 } from "../components/shelf/ideaShelf.ts";
+import { HARDWARE_TIERS } from "../components/stage/quality.ts";
 
 const IDEA = (over: Partial<ShelfIdea>): ShelfIdea => ({
   id: "x",
@@ -197,5 +203,53 @@ describe("M-D5.5: the RAM-guard line", () => {
     for (const v of [null, 4, 8, 16] as const) {
       assert.ok(ramGuardState(v).fa, "the RAM line must have Persian text");
     }
+  });
+});
+
+describe("M-D5.F: the committed registry is the vetted one", () => {
+  const raw = readFileSync(new URL("../config/idea_shelf.json", import.meta.url), "utf8");
+
+  it("parses as a shelf, so a file that is there is not presented as UNKNOWN", () => {
+    assert.equal(parseShelf(raw).status, "OK");
+  });
+
+  it("has unique ids and tags every idea with a real rung or with nothing", () => {
+    const parsed = parseShelf(raw);
+    if (parsed.status !== "OK") throw new Error("the seed registry did not parse");
+    const ids = parsed.ideas.map((i) => i.id);
+    assert.equal(new Set(ids).size, ids.length, "two shelf entries share an id");
+    for (const idea of parsed.ideas) {
+      assert.ok(
+        idea.tier === null || (HARDWARE_TIERS as readonly string[]).includes(idea.tier),
+        `${idea.id} carries a tier tag that is not a ladder rung`,
+      );
+    }
+  });
+
+  it("leaves the tier null only where the vetting did not assign one", () => {
+    // Asi's 2026-10-11 vetting approved Laya and Kev but left their hardware fit
+    // open — "RAM unverified" and "verify Windows CPU fit". A tier tag on either
+    // would be a measurement the vetting never made, so an edit that tags them
+    // must also update the vetting record this file is seeded from: change the
+    // two names in the expectation along with it.
+    const parsed = parseShelf(raw);
+    if (parsed.status !== "OK") throw new Error("the seed registry did not parse");
+    const untagged = parsed.ideas
+      .filter((i) => i.tier === null)
+      .map((i) => i.id)
+      .sort();
+    assert.deepEqual(untagged, ["kev", "laya"]);
+  });
+
+  it("lists real vetted ideas as awaiting on this machine's own tier", () => {
+    // The registry is not a fixture: on the owner's T8 machine the panel must
+    // show exactly the four tools the vetting tagged T16, and nothing it tagged
+    // T8 or left untagged. Order is not asserted — the four share a rung.
+    const parsed = parseShelf(raw);
+    if (parsed.status !== "OK") throw new Error("the seed registry did not parse");
+    assert.deepEqual(
+      awaitingUpgrade(parsed.ideas, "T8").map((i) => i.id).sort(),
+      ["anythingllm", "browser-use", "opensandbox", "vane"],
+    );
   });
 });

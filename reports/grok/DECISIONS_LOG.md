@@ -1001,3 +1001,66 @@ a capture more flattering than the truth, only more patient.
 
 **Result.** `canvas: 1` in both the measured-T1 and forced-T3 captures, with the
 chip text and the badge computed styles reported alongside.
+
+---
+
+## 2026-10-11 — the idea-shelf seed: tags only where the vetting assigned them
+
+**Question.** Item 2 of the owner's 19:42 list asks for a seed
+`config/idea_shelf.json` from the real approved items, "with tiers from Asi's
+vetting". Laya and Kev are approved but their hardware fit was never vetted. Tag
+them anyway, since a 421M model and a 0.8B one obviously fit in 8 GB?
+
+**Choice.** No. Ship them with `tier: null`. The registry carries the nine tools
+the owner named plus the two later same-day approvals (light-ocr, BitNet b1.58),
+with a tag only where a vetting line actually assigned one: T16 for Vane,
+OpenSandbox, Browser Use and AnythingLLM; T8 for Uptime Kuma, light-ocr and
+BitNet's 2B4T helper. `est_ram_mb` is absent everywhere, because no vetting line
+gave a number and the panel only renders a RAM count when one exists.
+
+**Reason.** The shelf's own contract is that an untagged idea is neither runnable
+nor awaiting — listing Laya as awaiting would claim a requirement the registry
+never recorded, and tagging it T8 would claim the opposite, that this machine is
+known-good for it. Either is a hardware fact manufactured from a guess, and the
+DEDUP notes are explicit that both are open ("RAM unverified", "verify Windows CPU
+fit") — their «Kev-0.8B likely T8» is a hunch in a vetting whose whole point is to
+convert hunches into measurements. Obviousness is not the test; `UNKNOWN >
+fabricated` is. The selftest pins the choice: the `null` set must be exactly
+Laya and Kev, so a future edit that tags them fails the suite unless the
+expectation moves with it — which is the prompt to update the vetting record the
+file is seeded from.
+
+**Result.** `test:idea-shelf` 26/26 (22 + 4 new, all four reading the committed
+file rather than a fixture). On a T8 machine the panel now lists exactly the four
+T16 tools under «منتظر ارتقا». One judgement call recorded against the grain: the
+14:33 AJI note says «AnythingLLM/Hermes3D/GitBot SKIP» while 06:48 says «AnythingLLM
+shelf T16» and the owner's 19:26 list names it; the most recent explicit
+instruction wins and it is seeded at T16, with the contradiction noted here rather
+than silently resolved.
+
+---
+
+## 2026-10-11 — declined to open the Web API gate for a capture
+
+**Question.** The panel's OK branch cannot be photographed headlessly:
+`/api/idea_shelf` answers 401 RESTRICTED without a dashboard session, which only
+the launcher establishes. Start a second dev server with
+`AHOS_WEB_API_ALLOW_OPEN_ACCESS=1` on a free port to capture it?
+
+**Choice.** No. Ship the selftest as the proof and capture the branch the
+headless browser can actually reach.
+
+**Reason.** The flag is documented as local/mock-only, so the choice is legal, but
+it weakens an enforcing control to produce a screenshot, and the control is one
+AGENTS.md names explicitly — the gate is what keeps a headless browser, and
+anything else without a session, off the dashboard routes. Two dev servers in one
+tree would also contend over `.next`. The unproven link is thin: the route is
+unchanged since M-D5.5, the panel is unchanged, and the only new artifact is the
+registry, which four new assertions read from disk through the same `parseShelf`
+and `awaitingUpgrade` the route uses. The capture that *was* taken proves the
+other half of item 2 — the 401 branch renders grey UNKNOWN text with no hatch,
+because item 1 moved the fill off the label.
+
+**Result.** The receipt names the gap instead of papering over it: the owner's own
+window shows the OK branch, the suite proves its contents, and no auth gate was
+loosened for a picture.
