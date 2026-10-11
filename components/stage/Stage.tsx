@@ -107,7 +107,11 @@ function ObservatoryFloor({ rotate }: { rotate: number }) {
   const env = useProceduralEnv();
 
   const shamseh = useMemo(() => shamsehGeometry(RING_RADIUS * 0.92), []);
-  const ringGeo = useMemo(() => new THREE.RingGeometry(RING_RADIUS - 0.045, RING_RADIUS, 128), []);
+  // Owner QA 00:24: the ring was a 0.09-unit tube that read as a thick flat
+  // neon-yellow band. Thinned to a hairline — §14 asks for a "gold rim", and a
+  // rim is a line, not a tyre — and its materials below are taken off the pale
+  // `goldHi` token for the same reason the globe's were.
+  const ringGeo = useMemo(() => new THREE.RingGeometry(RING_RADIUS - 0.02, RING_RADIUS, 128), []);
 
   useFrame((_, delta) => {
     if (ref.current && rotate > 0) {
@@ -132,17 +136,20 @@ function ObservatoryFloor({ rotate }: { rotate: number }) {
           envMapIntensity={0.55}
         />
       </mesh>
-      {/* The gold edge ring, §14's "gold rim (metalness 1, roughness 0.28)". */}
+      {/* The gold edge ring, §14's "gold rim (metalness 1, roughness 0.28)". The
+          warm `gold` token rather than `goldHi` (owner QA 00:24) and the env/em
+          turned down so the metal reflects the room instead of painting itself
+          flat neon. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]}>
         <primitive object={ringGeo} attach="geometry" />
         <meshStandardMaterial
-          color={goldEmissive(colors)}
+          color={colors.gold}
           metalness={1}
           roughness={0.28}
-          emissive={goldEmissive(colors)}
-          emissiveIntensity={0.18}
+          emissive={colors.gold}
+          emissiveIntensity={0.1}
           envMap={env}
-          envMapIntensity={1.2}
+          envMapIntensity={0.7}
         />
       </mesh>
       {/* The faint shamseh engraving, drawn as hairlines just above the lacquer. */}
@@ -165,8 +172,11 @@ function StageLights() {
       <ambientLight intensity={0.22} color={colors.textMuted} />
       {/* Warm key from stage-right — the dusk the Imperial concept is lit by. */}
       <directionalLight position={[-5, 3, 2]} intensity={1.1} color={rim} />
-      {/* Gold point light above the centre, where the globe will hang. */}
-      <pointLight position={[0, 4.5, 0]} intensity={9} distance={14} color={goldEmissive(colors)} />
+      {/* Gold point light above the globe's crown. Owner QA 00:24: at intensity 9
+          on the old, smaller globe the crown sat ~1.5 units from the bulb and
+          blew out to flat gold. The globe is larger now and the bulb is higher
+          and softer, so the top reads as lit lacquer rather than a hot patch. */}
+      <pointLight position={[0, 5.6, 0]} intensity={3.6} distance={16} color={goldEmissive(colors)} />
       {/* A low cool fill so the shadow side is not flat black. */}
       <pointLight position={[0, -1.5, 5]} intensity={2.4} distance={12} color={colors.bg} />
     </>

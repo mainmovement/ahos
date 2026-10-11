@@ -28,18 +28,27 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import { useStageStore } from "@/components/stage/store";
-import { goldEmissive, stageColors } from "@/components/stage/themeColors";
+import { stageColors } from "@/components/stage/themeColors";
 import { fibonacciSphere, GLOBE_RADIUS, pointShades } from "@/components/stage/globeGeometry";
 
-/**
- * Spec §8.1: idle motion is 0.5°/s. The budget scales it per tier and zeroes it
- * under reduced motion, so a still screenshot is a still globe.
- */
+/** Spec §8.1: idle motion is 0.5°/s — one full turn in twelve minutes. */
 const IDLE_RAD_PER_SEC = (0.5 * Math.PI) / 180;
 /** An aesthetic axial tilt, so the globe reads as a planet and not a ball bearing. */
 const TILT = 0.31;
-/** Where the globe hangs, above the floor's shamseh. */
-const POSITION: [number, number, number] = [0, 1.42, 0];
+/**
+ * Owner QA 00:24: the globe was too small and floating above the floor ring. 1.6×
+ * fills the ring the way the owner asked, and as a side effect it spreads the same
+ * dot count over ~2.56× the screen area, which is most of why the rim stopped
+ * stacking into hot spots — see `RIM_*` and the dot opacity below.
+ */
+const SCALE = 1.6;
+/**
+ * Where the globe hangs. The floor's ring surface sits at y = -0.5 + 0.002, and
+ * the globe is a sphere of `SCALE * GLOBE_RADIUS`, so seating it on the ring is
+ * `ringY + SCALE * GLOBE_RADIUS`. The tilt does not enter that arithmetic — a
+ * sphere's extent is the same in every orientation.
+ */
+const POSITION: [number, number, number] = [0, -0.498 + SCALE * GLOBE_RADIUS, 0];
 
 /**
  * A soft round point, painted on a canvas at startup so no image is fetched.
@@ -72,6 +81,11 @@ function softPointTexture(): THREE.Texture {
  * inside, additive, brightest where the surface turns away from the camera. That
  * is the "gold rim light" the owner's list asks for, and it costs one triangle
  * shell rather than a postprocessing pass — which is why T1 may have it too.
+ *
+ * Owner QA 00:24 tuned the falloff: `uPower` 3.0 made the rim a broad flat band
+ * that read as a cartoon outline, so it is narrowed, the intensity is brought
+ * back so the edge glows rather than paints, and the shell is pulled in to hug
+ * the dot field instead of floating around it.
  *
  * The shader is two lines of fresnel arithmetic; `precision` is set because a
  * WebGL1 context is still possible at T1 and the default there is not guaranteed.
@@ -110,7 +124,12 @@ export interface GlobeProps {
 export default function Globe({ points, rotate }: GlobeProps) {
   const ref = useRef<THREE.Group>(null);
   const colors = stageColors(useStageStore((s) => s.theme));
-  const gold = goldEmissive(colors);
+  // Owner QA 00:24: the token's `goldHi` (#F1D58E) is the pale gold used where
+  // something must *glow*, but on the globe it read as lemon/neon rather than
+  // warm gold. The deep token `gold` (#D4AF5A) is still brand gold — never a
+  // status colour, §2.3 — and it is the warm one, so the dots and the rim take
+  // it from the same token table and no hex is invented here.
+  const warmGold = colors.gold;
 
   // A procedural environment gives the lacquer body something to reflect; the
   // floor builds the same one, and reusing the PMREM cache is M-D6.2's job, so
@@ -121,12 +140,12 @@ export default function Globe({ points, rotate }: GlobeProps) {
     const arr = new Float32Array(points * 3);
     for (let i = 0; i < points; i++) {
       const s = dotShades[i]!;
-      arr[i * 3] = gold.r * s;
-      arr[i * 3 + 1] = gold.g * s;
-      arr[i * 3 + 2] = gold.b * s;
+      arr[i * 3] = warmGold.r * s;
+      arr[i * 3 + 1] = warmGold.g * s;
+      arr[i * 3 + 2] = warmGold.b * s;
     }
     return new THREE.BufferAttribute(arr, 3);
-  }, [dotShades, gold, points]);
+  }, [dotShades, warmGold, points]);
 
   const dotGeometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -143,26 +162,33 @@ export default function Globe({ points, rotate }: GlobeProps) {
         vertexShader: RIM_VERT,
         fragmentShader: RIM_FRAG,
         uniforms: {
-          uColor: { value: gold.clone() },
-          uPower: { value: 3.0 },
-          uIntensity: { value: 1.35 },
+          uColor: { value: warmGold.clone() },
+          // Narrowed from 3.0 and softened from 1.35 (owner QA 00:24): the rim
+          // is now a thin hot edge that falls off quickly, not a flat band.
+          uPower: { value: 6.0 },
+          uIntensity: { value: 0.72 },
         },
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
         side: THREE.BackSide,
       }),
-    [gold],
+    [warmGold],
   );
 
   useFrame((_, delta) => {
     if (ref.current && rotate > 0) {
-      ref.current.rotation.y += delta * IDLE_RAD_PER_SEC * rotate;
+      // §8.1's idle rate is the centrepiece's rate at every tier: one slow turn
+      // in twelve minutes. The budget's multiplier scales the loose particles and
+      // the drift, not the one object the eye is on — at T1's 0.5 the turn was
+      // 0.25°/s, which is not perceptible as motion at all (owner QA 00:24).
+      // `rotate` still gates this, so reduced motion keeps a still globe.
+      ref.current.rotation.y += delta * IDLE_RAD_PER_SEC;
     }
   });
 
   return (
-    <group ref={ref} position={POSITION} rotation={[0, 0, TILT]}>
+    <group ref={ref} position={POSITION} scale={SCALE} rotation={[0, 0, TILT]}>
       {/* The body: dark lacquer, clearcoat, lit by the stage's gold point light.
           Opaque and depth-writing, so it occludes the dots on the far side and
           the globe reads as a solid object rather than a dust cloud. */}
@@ -182,19 +208,23 @@ export default function Globe({ points, rotate }: GlobeProps) {
         <points geometry={dotGeometry}>
           <pointsMaterial
             map={pointTexture}
-            size={0.062}
+            size={0.056}
             sizeAttenuation
             vertexColors
             transparent
-            opacity={0.95}
+            // Owner QA 00:24: the two hot spots were additive overexposure —
+            // dots near the silhouette stack in screen space, and at opacity 0.95
+            // three of them saturate to pure white-gold. Backed off, and with the
+            // 1.6× scale spreading the field, the rim reads as dust again.
+            opacity={0.78}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
         </points>
       ) : null}
-      {/* The fresnel rim shell. */}
+      {/* The fresnel rim shell, pulled in to hug the dot field. */}
       <mesh material={rimMaterial}>
-        <sphereGeometry args={[GLOBE_RADIUS * 1.035, 64, 48]} />
+        <sphereGeometry args={[GLOBE_RADIUS * 1.014, 64, 48]} />
       </mesh>
     </group>
   );
