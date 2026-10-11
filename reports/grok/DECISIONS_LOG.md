@@ -680,3 +680,105 @@ markup did. Fixed, and the selftest now asserts every fill wraps its variable in
 `npx eslint` clean on all touched files, badge sheet verified rendered. Committed
 as the M-D3 commit. Screenshots remain open for the owner to take from
 `/badge_sheet` in the app window M-D1 built.
+
+---
+
+## 2026-10-11 — M-D4, and the M-D5 Dashi pivot
+
+**M-D4 committed as-is** (`e73ff7b`), per the owner's instruction. The snapshot
+vocabulary moved out of `CommandCenter.tsx` into `dashboard_snapshot.ts`
+(−207/+15 in CommandCenter), `tsc --noEmit` clean. Polishing of the old Command
+Center stops here.
+
+**A regression I introduced in M-D1 was caught by the full suite.**
+`test_phase18_launchers.py::TestNoVisibleConsole` statically scans every
+`subprocess.Popen` for a console-suppressing flag, and
+`launcher/appwindow.py:291` — the POSIX branch of M-D1's window launcher — had
+neither `creationflags` nor `windowsHide`. The Windows branch did, which is why
+it slipped past the targeted launcher tests. Fixed with `windowsHide=True`,
+which is the correct default for a GUI launcher on any platform and a no-op off
+Windows; 77/77 in the two launcher files. Committed as `37977a2`.
+
+**Full suite result after M-D3: 2 failed, 3350 passed, 4 skipped** (62 min).
+One failure is the known pre-existing `test_execution_state` isolation defect
+(this host's baseline; not a regression). The other was the appwindow one above,
+now fixed. Baseline for future runs is therefore 1 known failure.
+
+**The owner's pivot: build the new Dashi main screen from scratch.** The old UI
+is rejected. The queue is authoritative: `TEAM_QUEUE_2026-10-11.md` M-D5.1..M-D5.6,
+and the owner removed the M-D5.0 package gate at 02:17 ("install the listed free
+packages … without asking"). I followed it.
+
+**M-D5.1 — prototype review** (`docs/dashboard/PROTOTYPE_REVIEW.md`, committed
+`73a03e4`). The headline: of the "five three.js prototypes" exactly one contains
+real R3F, and it uses `<Environment preset="night">` — the exact
+raw.githack.com fetch REFERENCE_BOARD ref 9 forbids. Its `Math.random()`
+placement breaks spec §1's "deterministic hash of tokenKey so it stays stable
+between refreshes", and its cyan/violet/pink decoration lands on top of
+VERIFIED's and CONFLICT's status hexes, which §2.3 forbids as decoration. Six
+patterns are carried forward *rewritten*; three are rejected with reasons.
+
+**M-D5.3 — the quality probe is written and proven** (uncommitted, see below).
+`components/stage/quality.ts` splits measurement (impure) from decision (pure):
+`resolveTier` is a pure function of a plain record, so the whole T0..T3 ladder is
+assertable on a machine with no GPU. `scripts/quality_selftest.ts` is 39/39.
+The decisions worth recording:
+
+- **An unavailable measurement is never a low one.** A null `fps` or null `ramGb`
+  does not demote — null is "we could not measure", and reading it as "slow"
+  would turn UNKNOWN into a fabrication, the exact thing the badge law forbids.
+  This is asserted explicitly.
+- **The override may raise but the limits still win.** A user can wish for T3 on
+  an 8-core machine; they cannot wish for a backend that does not exist. When a
+  cap bites an override, the reason becomes `override-capped` and the Persian
+  line says the wish was lowered, so the chip never implies the user got what
+  they asked for.
+- **`prefers-reduced-motion` is not an input to `resolveTier`.** Spec §11 says it
+  is combinable with any tier; it changes the motion budget, not the renderer.
+  Putting it here would have made it demote the tier, which is wrong.
+- **The frame test is documented as synthetic.** 2000 scissored clears per frame
+  for 2 s on a 512² context, shader-free so it measures the same on every driver.
+  Its number is *not* the scene's fps — that is M-D5.6's overlay — and the
+  docstring says so, because presenting a synthetic number as the app's
+  performance would be a fabrication.
+- **The "never from the machine name" rule is asserted mechanically, not in
+  prose.** The selftest strips comments and then asserts no `userAgent` /
+  `platform` / `vendor` / `hostname` / `oscpu` identifier reaches code, and that
+  `navigator` is touched only through the three measured properties. It scans
+  property *names* rather than `navigator.` chains, because a chain can be hidden
+  behind a local alias — that distinction cost two iterations to get right.
+
+**M-D5.2 — the stage and shell are written** (uncommitted). `Stage.tsx` is the
+empty gold-lit observatory floor: lacquer disc with clearcoat, a gold edge ring
+at §14's metalness 1 / roughness 0.28, and a 10-fold shamseh engraving generated
+by index arithmetic (no copied art). The metal reflects a PMREM environment built
+from two emissive quads in code, so gold reads as gold with zero fetches — that
+is the direct replacement for the prototype's banned `<Environment preset>`.
+`DashiShell.tsx` is the 56px RTL top bar with the PAPER ONLY pill bound to
+`/api/command`'s `executionMode` (a missing mode renders UNKNOWN, never "paper"),
+the measured tier chip, and the M-D5.4 context-loss fallback to a Persian notice
+with a retry. `/command_center` keeps the old surface alive and reachable.
+
+### BLOCKED_TOOL_PERMISSION — the M-D5.0 install
+
+`npm install` was **denied by the Claude Code auto-mode safety classifier**
+("Stage 2 classifier error — blocking based on stage 1 assessment"), after
+several classifier timeouts on the same command. Per OWNER_DECISIONS Q3 this is
+recorded rather than routed around: the exact command, the pins and the licence
+table are in `docs/dashboard/PACKAGES.md`, and I did not retry it through another
+tool, shell or interpreter.
+
+Consequence, stated plainly: `npx tsc --noEmit` has **46 errors**, all of them
+missing-module resolution for `three`, `@react-three/fiber`, `zustand` and
+`detect-gpu` (plus the JSX intrinsic elements R3F's types provide). Not one is a
+logic error in the new code; `quality.ts` has exactly one, the `detect-gpu`
+import. **The stage has never rendered and no M-D5.2 screenshot exists.**
+`npm run test:stage-quality` (39/39) and `npm run test:truth-badge` are the
+regression signals that still work, since they need none of the blocked packages.
+
+I therefore committed only what compiles — the two docs and the
+`/command_center` route — and left the stage, the shell, the store, the probe and
+the modified `app/page.tsx`, `package.json` and `globals.css` in the working
+tree. The committed main route still renders the old Command Center, which is
+the safe state: no half-built main screen ships while the gate is closed. When
+the install clears, one commit lands M-D5.2/M-D5.3 and flips the main route.

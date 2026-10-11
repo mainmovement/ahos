@@ -463,3 +463,62 @@ a 7-day paper soak + honest M42 judge numbers.
 
 
 Morning report by 10:00 Tehran: `reports/grok/NIGHT_RUN_REPORT.md`.
+
+---
+
+## Step 9 — the owner's pivot to the new Dashi main screen
+
+The owner rejected the current dashboard look ("it is the 4-month-old UI") and
+directed: stop polishing `CommandCenter`, build the new Dashi design from scratch
+as the main screen, pulling M-D5..M-D8 forward. `TEAM_QUEUE_2026-10-11.md` is the
+authoritative order; `README_FOR_CLAUDE.md` v1.22+ and the 2026-10-11 02:17 note
+remove the M-D5.0 package gate ("install the listed free packages … without
+asking").
+
+Done this step:
+
+- **M-D4 committed as-is** — `e73ff7b`, the snapshot vocabulary extracted.
+- **M-D1 regression fixed** — `37977a2`. The full suite after M-D3 came back
+  `2 failed, 3350 passed, 4 skipped`; one was the known pre-existing
+  `test_execution_state` isolation defect, the other was
+  `launcher/appwindow.py:291` (the POSIX branch had no console-suppressing flag).
+  Baseline for future full runs is now **1 known failure**.
+- **M-D5.1 prototype review** — committed `73a03e4`. One real R3F prototype out
+  of five; its `<Environment preset>` is the raw.githack.com fetch the reference
+  board forbids. Patterns carried forward rewritten, three defects rejected.
+- **M-D5.0 package manifest** — `docs/dashboard/PACKAGES.md`, pinned and
+  licence-checked, including the one non-MIT row (postprocessing is **Zlib**).
+- **M-D5.3 quality probe** — written, **39/39** in
+  `npm run test:stage-quality`. `resolveTier` is pure, so the T0..T3 ladder is
+  proven without a GPU. See DECISIONS_LOG for the four judgement calls.
+- **M-D5.2 stage + shell** — written. Empty gold-lit observatory floor with a
+  procedural shamseh engraving, a procedural PMREM environment (the replacement
+  for the banned HDR fetch), a 56px RTL top bar with the PAPER ONLY pill bound to
+  real `executionMode`, the measured tier chip, and the M-D5.4 context-loss
+  fallback. `/command_center` keeps the old real-data surface alive.
+
+### BLOCKED — the install
+
+`npm install` for the pre-approved set was **denied by the Claude Code auto-mode
+safety classifier**, after repeated classifier timeouts. Recorded as
+`BLOCKED_TOOL_PERMISSION` per OWNER_DECISIONS Q3 — not routed around, not
+retried through another tool. Exact command, pins and licences are in
+`docs/dashboard/PACKAGES.md`.
+
+**State:** `npx tsc --noEmit` reports 46 errors, all missing-module resolution
+(`three`, `@react-three/fiber`, `zustand`, `detect-gpu`) plus the R3F JSX
+intrinsics those types provide. **The stage has never rendered and no M-D5.2
+screenshot exists.** I committed only what compiles (docs + the
+`/command_center` route) and held the stage, shell, store, probe and the
+modified `app/page.tsx`, `package.json`, `globals.css` in the working tree — so
+the committed main route still renders the old Command Center and no half-built
+main screen ships.
+
+Working signals while blocked: `npm run test:stage-quality` 39/39,
+`npm run test:truth-badge` 44/44.
+
+**Next, the moment the install clears:** one commit lands M-D5.2/M-D5.3 and
+flips `app/page.tsx` to the Dashi shell; then `next dev` on a loopback port to
+SSR-verify the shell and take the `reports/dashboard/screens/M-D5.2/` screenshot
+the owner's step process asks for; then M-D5.5's TierPanel reading
+`config/idea_shelf.json`, and M-D6's globe.

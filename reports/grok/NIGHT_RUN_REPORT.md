@@ -1,96 +1,81 @@
-# AHOS night run report — INTERIM
+# Night run report — 2026-10-11
 
-Written 2026-10-09 ~14:55 Asia/Tehran (the 10:00 target passed while the full
-suite was running; this is an interim report, the run continues).
-Order: `حافظه_ادامه/2026-10-09_04-20_دستور_شبانه_ادامه_کار.md`.
-Branch `ahos`, local commits only, nothing pushed. Every locked rule held:
-no `.env` access, no `DATABASE_URL` change, no Lane A touch, no Telegram token,
-no live trading, no gate loosened, no secret printed, `claude.exe` untouched.
+Branch `ahos`, local commits only, nothing pushed. Started from
+`NIGHT_RUN_CHECKPOINT.md` step 8b (M-D3 done).
 
-## Finished
+## Shipped (committed)
 
-| Step | What | Commit |
-|---|---|---|
-| 1 | Identity resolver live + fail-closed keyless gate + audit log | `b5929a7` |
-| 2 | `.env`-writing test leak fixed + regression tests + full suite run | `c0c145f` |
-| 3 | Autopilot unblocked (stderr model notice no longer discards finished missions) + stale runner/watchdog restarted | `bd93360` |
+| Commit | What |
+|---|---|
+| `e73ff7b` | **M-D4** — the shared snapshot vocabulary extracted from `CommandCenter.tsx` into `dashboard_snapshot.ts`. −207/+15 in CommandCenter, `tsc` clean. The owner's "commit M-D4 as-is" instruction, executed. |
+| `37977a2` | **An M-D1 regression fixed.** The full suite after M-D3 returned `2 failed, 3350 passed, 4 skipped`. One failure is the known pre-existing `test_execution_state` isolation defect; the other was `launcher/appwindow.py:291`, whose POSIX branch had no console-suppressing flag. `windowsHide=True`. |
+| `73a03e4` | **M-D5.1 prototype review + M-D5.0 package manifest**, plus `/command_center` so the existing real-data surface has a stable URL while the new shell becomes the main screen. |
 
-### Step 1 — two-source identity, live
-`build_production_resolver()` is fail-closed: it returns `None` unless every
-default provider is present AND declares `requires_credentials = False`, so a
-provider that forgets the declaration is never a free unattended source. The
-daemon keeps the single-source UNRESOLVED default and logs the reason rather
-than silently degrading the gate. Live on daemon PID 12820
-(`run_1791507717_6810cfbd`, engine-only restart): first cycle of 12 candidates
-gave 1 VERIFIED (base SOL, both dexscreener+geckoterminal answered),
-1 CONFLICT (`provider_address_mismatch` -> REJECT), 10 UNRESOLVED
-(`insufficient_independent_sources`). That VERIFIED token's decision is still
-`paper_allowed=False` — the identity gate passes and the SECURITY gate stops it
-(INCOMPLETE / unknown_critical_security). The blocker moved one gate down the
-chain; nothing was loosened. Receipt:
-`reports/grok/IDENTITY_RESOLVER_LIVE_RECEIPT.md`. 21 tests.
+## Written, tested, held in the working tree
 
-### Step 2 — the `.env` leak and the full suite
-A full pytest run rewrote the operator's live `.env` at 01:44 because `main()`
-persists the normalized `AHOS_GATEWAY_URL` back into it. Fixed
-prevent-by-redirect: a module attribute `ENV_FILE` holds the one path `main()`
-reads, and the test fixture points it at a temp file, so the write is
-physically incapable of landing in the repo. Restore-in-a-`finally` would still
-have left the write behind on a crash. Two regression tests deliberately trigger
-the exact write and assert it lands in the sandbox while the real `.env` stays
-byte-identical.
+The owner's pivot: build the new Dashi main screen from scratch; the old UI is
+rejected. Following `TEAM_QUEUE_2026-10-11.md` M-D5.1..M-D5.6.
 
-**Full suite: 2961 passed, 4 skipped, 1 failed** (59:37). The one failure is
-`tests/test_execution_state.py::test_missing_store_reads_no_data_never_ok`,
-proven **pre-existing** by stashing every change of mine and parking the new
-files outside the tree — it fails identically on a pristine checkout. It is
-left for the owner; no test was weakened to hide it.
+- **M-D5.3 quality probe** — `components/stage/quality.ts`.
+  `npm run test:stage-quality` **39/39**. `resolveTier` is a pure function of a
+  plain record, so the whole T0..T3 ladder is provable on a machine with no GPU.
+  Judgement calls are in `DECISIONS_LOG.md`; the load-bearing ones are that an
+  unavailable measurement is never read as a low one (null fps / null RAM do not
+  demote), and that `prefers-reduced-motion` is deliberately not an input because
+  §11 makes it combinable with any tier.
+- **M-D5.2 stage + shell** — the empty gold-lit observatory floor with a
+  procedurally generated 10-fold shamseh engraving, a procedural PMREM
+  environment (the direct replacement for the prototype's banned
+  `<Environment preset>` fetch), a 56px RTL top bar with the PAPER ONLY pill
+  bound to real `executionMode`, the measured tier chip, and the M-D5.4
+  context-loss fallback to a Persian notice.
 
-### Step 3 — the autopilot
-The blocker was **not** the model name. `M10_1_MODEL_BLOCKER.md` had concluded
-`Atria-Dawn-Preview` was the problem and paused the queue; a live probe shows
-`claude -p` runs fine on it and returns a real reply. Claude Code's local
-catalog does not describe the id, so it prints an `unrecognized_model` **notice
-to stderr on every run, successful or not**, and `run_mission.ps1` merged the
-streams into one file where the INFRA matcher tests the substring — so finished
-missions were discarded as platform failures. The `429` was a separate genuine
-transient quota outage. Fixed with the CLI's own documented flag plus stream
-separation (stderr reaches the classifier only when stdout has no verdict, so a
-real quota failure is still classified INFRA — no safety pattern weakened).
-The stale runner (PID 4516, from 2026-10-07 08:25, pre-`7ab2fa4`) and watchdog
-(14408) were restarted hidden: watchdog 5904, runner 15288. Startup
-reconciliation preserved every owner gate; the runner yields to this
-interactive session as required.
+## BLOCKED_TOOL_PERMISSION — the M-D5.0 install
 
-## In progress
+This is the one thing I could not do, and it gates everything above from
+rendering.
 
-**Step 4 — M12 (agent organisation).** Surface exploration is running; the
-queue row's deliverable is "37+ agents in `config/agent_registry.yaml` using the
-owner charter template, authority NONE by default, no auto-creation", with the
-vision's lifecycle, veto matrix and taxonomy mapping as the fuller spec.
+`npm install` for the owner-pre-approved set was **denied by the Claude Code
+auto-mode safety classifier** ("Stage 2 classifier error — blocking based on
+stage 1 assessment"), after several classifier timeouts on the same command. Per
+OWNER_DECISIONS Q3 ("If the tool's permission system blocks it, record
+`BLOCKED_TOOL_PERMISSION` … do not route around it") I stopped and did not retry
+it through another tool, shell or interpreter.
 
-## Still queued
-5. M34 coherence audit + merge plan (owner-gated contradictions listed, not
-   decided).
-6. M13 gold-first paper cycle (Lane B only; write the exact blocker if Lane A
-   is needed).
-7. CC-3 / CC-4 / CC-1 if blocking; CC-5 migration prepared only.
-8. Dashboard M-D1..M-D4 (`OWNER_DECISIONS_Q1-Q10.md` wins over the missions
-   file). No M-D5+.
+The exact command, the pinned versions and the licence table are in
+`docs/dashboard/PACKAGES.md`. Consequences, stated plainly:
 
-## Blocked / owner actions outstanding
-- **M10**: one owner act remains — set
-  `DATABASE_URL=pglite:G:/robat/ahos_runtime/pglite/ahos` in `.env` and restart
-  the gateway. Everything else is prepared, tested and receipted
-  (`M10_STAGE4_FLIP_RUNBOOK.md`). Never done on the owner's behalf.
-- **M35.3**: Telegram, needs a token rotation (AD-0128).
-- **M45**: Auto Lab, needs a low-privilege user + firewall setup.
-- **M48**: the `source-map-js@1.2.2` bump is prepared but the `npm install` was
-  classifier-denied.
-- The pre-existing `test_missing_store_reads_no_data_never_ok` failure above.
+- `npx tsc --noEmit` reports **46 errors**, every one of them missing-module
+  resolution for `three`, `@react-three/fiber`, `zustand` and `detect-gpu`, plus
+  the JSX intrinsic elements R3F's types provide. None is a logic error in the
+  new code; `quality.ts` has exactly one, the `detect-gpu` import.
+- **The stage has never rendered. No M-D5.2 screenshot exists.**
+- I committed only what compiles and held the stage, shell, store, probe and the
+  modified `app/page.tsx` / `package.json` / `globals.css` in the working tree,
+  so the committed main route still renders the old Command Center. No
+  half-built main screen ships while the gate is closed.
 
-## Honest status
-`INTEGRATION_READY` (agent-host) — unchanged and unclaimed higher. The
-classification did not move and nothing was done to make it move.
+Working regression signals while blocked: `npm run test:stage-quality` 39/39,
+`npm run test:truth-badge` 44/44.
 
-Closed paper trades: **0**. M13 (step 6) has not started.
+## What the owner can do
+
+Either re-run the install command from `docs/dashboard/PACKAGES.md` (it is
+pre-approved and pinned), or add a Bash permission rule for `npm install`. Once
+it lands, the remaining work is mechanical and already written: one commit lands
+M-D5.2/M-D5.3 and flips `app/page.tsx` to the Dashi shell, then `next dev` on a
+loopback port SSR-verifies the shell and the
+`reports/dashboard/screens/M-D5.2/` screenshot is taken, then M-D5.5's TierPanel
+and M-D6's globe.
+
+## Not done, and why
+
+- **M-D5.2/M-D5.4/M-D5.5/M-D5.6** — written or designed, all gated on the
+  install. M-D5.5's TierPanel reads `config/idea_shelf.json`, which does not
+  exist yet (it is Aji's M59.S deliverable); the panel is specified to render a
+  grey UNKNOWN for the missing file rather than to hard-code idea names.
+- **Screenshots** — no capability exists in the repo and the stage cannot render.
+- **Full suite** — last run is the 62-minute one above (2 failed → now 1 known).
+  Not re-run: nothing committed since touches Python, and the owner's rule is a
+  full suite at the end of each mission, which M-D5 is not.
+- **The M10 .env flip** — still owner-gated, untouched, as instructed.
