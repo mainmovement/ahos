@@ -150,7 +150,11 @@ button, input, textarea { font-family: inherit; }
 .truth-badge > .truth-badge__glyph { font-weight: 700; }
 .truth-badge--ok { border-style: solid; }
 .truth-badge--stale { border-style: dotted; filter: saturate(0.5); }   /* §2.3: 50% desaturated */
-.truth-badge--unknown { border-style: dashed; }
+/* Owner QA, 2026-10-11 23:03: this was `border-style: dashed` and at chip scale
+ * it read as a defect rather than as a cue, so it states the solid base rule
+ * explicitly — the UNKNOWN identity is carried by the ? glyph and the hatch on
+ * the swatch, not by the border. Spelled out so a later edit does not re-dash it. */
+.truth-badge--unknown { border-style: solid; }
 .truth-badge--conflict { border-style: double; border-width: 3px; }    /* §2.3: double border */
 .truth-badge--rejected { border-left: 4px solid currentColor; }        /* §2.3: solid red bar */
 .truth-badge--glow {

@@ -130,9 +130,35 @@ describe("M-D3: VERIFIED is the only success", () => {
 });
 
 describe("M-D3: colour is never the only cue", () => {
-  it("gives every state a distinct border treatment", () => {
-    const shapes = BADGE_STATES.map((s) => styleFor(s).border);
-    assert.equal(new Set(shapes).size, BADGE_STATES.length, "two states share a border shape");
+  it("keeps every state identifiable without colour", () => {
+    // §2.3's requirement is that colour is never the *only* cue. This used to be
+    // checked on the border column alone — five states, five distinct border
+    // treatments — but the owner's 2026-10-11 23:03 QA made UNKNOWN's border
+    // solid: at chip scale a 1px dashed border reads as a rendering defect, not
+    // as a deliberate cue, exactly as the hatch behind the label did (M-D5.F).
+    // So the invariant is asserted where it actually lives, on the full set of
+    // monochrome cues a badge has. Two states may now share a border, but only
+    // when the glyph and the fill still tell them apart — and no column is
+    // allowed to be the sole cue for any state.
+    const cue = (s: (typeof BADGE_STATES)[number]) => {
+      const st = styleFor(s);
+      return `${st.glyph ?? "none"}|${st.border}|${st.fill}`;
+    };
+    const cues = BADGE_STATES.map(cue);
+    assert.equal(
+      new Set(cues).size,
+      BADGE_STATES.length,
+      "two states share a glyph, border and fill — they are indistinguishable in monochrome",
+    );
+    // The owner's decision, pinned: UNKNOWN's border is solid and its identity is
+    // the ? glyph over the hatch swatch, which is what separates it from VERIFIED's
+    // ✓ over a flat fill. If someone re-dashes the border this fails first, before
+    // the monochrome check above ever could.
+    assert.equal(
+      styleFor("UNKNOWN").border,
+      "solid",
+      "UNKNOWN's border is solid by owner QA 23:03; its cue is the glyph and the swatch",
+    );
   });
 
   it("gives every state a glyph, so it reads in monochrome", () => {

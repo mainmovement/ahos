@@ -251,7 +251,16 @@ export function styleFor(state: BadgeState): BadgeStyle {
         kind: "neutral",
         glyph: "?",
         colorVar: STATUS_COLOURS.UNKNOWN.var,
-        border: "dashed",          // §2.3: dashed border
+        // Owner QA, 2026-10-11 23:03: the dashed border must be solid. At chip
+        // scale a 1px dashed border does not read as a deliberate cue — it reads
+        // as a rendering defect, the same way the 45° hatch did behind the label
+        // (M-D5.F). §2.3's requirement is that colour is never the *only* cue,
+        // and UNKNOWN keeps two cues that are not colour and not the border: the
+        // "?" glyph and the hatch on the swatch. VERIFIED also has a solid border
+        // and the two stay distinguishable in monochrome — ✓ over a flat fill
+        // against ? over a hatch. The selftest pins that on the cue triple rather
+        // than on the border column.
+        border: "solid",
         fill: `repeating-linear-gradient(45deg, var(${STATUS_COLOURS.UNKNOWN.var}) 0 1px, transparent 1px 6px)`,  // §2.3: 45° hatch
         glow: false,
         soundId: null,

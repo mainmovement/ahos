@@ -8,8 +8,14 @@
  * that can drift.
  *
  * The only branch here is the per-state modifier class, which carries the
- * non-colour cue (dashed / dotted / double / bar) that spec §2.3 requires because
+ * non-colour cue (dotted / double / bar) that spec §2.3 requires because
  * "colour is never the only cue". Colour, fill and glow come from `styleFor`.
+ *
+ * UNKNOWN is the exception: its modifier states the base solid border rather
+ * than replacing it, because at chip scale a 1px dashed border read to the owner
+ * as a rendering defect (QA 2026-10-11 23:03). Its non-colour identity is the
+ * "?" glyph plus the hatch on the swatch, so nothing is lost — see
+ * `dashboard_truth_badge.ts`.
  *
  * Presentation only (AGENTS.md): this shows a state the Python canonical
  * authority already decided. It never derives, gates, or upgrades one.

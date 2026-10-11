@@ -158,6 +158,11 @@ const probe = async () => {
         root: cs.backgroundImage === 'none' ? 'none' : 'PATTERN',
         label: !cl ? null : cl.backgroundImage === 'none' ? 'none' : 'PATTERN',
         swatch: !cw ? null : cw.backgroundImage === 'none' ? 'none' : 'PATTERN',
+        // The owner's 23:03 QA: the UNKNOWN chip's border must read solid, not
+        // dashed. A dashed 1px border at chip scale is a visual defect rather
+        // than a cue, and nothing else in the capture would reveal it — pixel
+        // counts cannot see a dash pattern. Computed style is the only witness.
+        border: cs.borderTopStyle + '/' + cs.borderLeftStyle,
         text: label ? label.textContent.trim() : null,
       });
     })();
