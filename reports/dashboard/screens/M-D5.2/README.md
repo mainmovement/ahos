@@ -20,12 +20,14 @@ and reachable at `/command_center`.
 | `03-stage-live-t1.png` | **The same machine after the fix.** Real `<canvas>` mounted, verdict T1 "کم‌مصرف" on 8 cores, no fallback. |
 | `04-command-center-route-intact.png` | The old surface still serves at its stable URL after the main route flipped. |
 | `05-prod-build-t1.png` | The committed code, built and served by `next build` + `next start` — not just `next dev`. Same honest T1 verdict, stage mounted (see `05-prod-build-t1.json`). |
+| `06-core-count-honest.png` | The chip states the *measured* count, «۴ هستهٔ منطقی», not the band it was clamped into. The title names the band as a band: «دستهٔ کمتر از ۱۲ هسته». |
 
-## Two defects the screenshots exposed
+## Three defects the screenshots exposed
 
-Both were fabrications of a hardware fact, and both were invisible from inside
-the code — `resolveTier` is pure and 44/44 correct; the wrong verdicts came
-entirely from *when* and *what* was measured.
+All three were fabrications of a hardware fact, and all three were invisible from
+inside the code — `resolveTier` is pure and correct; the wrong verdicts came
+entirely from *when* and *what* was measured, and from presenting a
+classification as a measurement.
 
 **1. The probe raced the bundle it was measuring.** `StageLazy` mounted on the
 store's T1 *default*, so three.js/R3F parsed on the main thread while
@@ -47,6 +49,15 @@ anything unreadable or unrecognised, so the absence of a match is never read as
 evidence of integration. Five new selftest cases cover it, including this
 laptop's literal renderer string and an Intel-Arc-substring ordering trap.
 
+**3. The chip claimed «۸ هسته» (8 cores) on a 4-core machine.** The chip rendered
+`HARDWARE_LABELS[verdict.hardware]`, but `hardwareTierSync` clamps *every* count
+below 12 into the T8 band — a band name stated as a point measurement. The
+T8/T16/T32 ladder is M-D5.3's own addition; CLAUDE_DASHBOARD_2050 rule 3 defines
+only a two-valued hardware axis (discrete vs integrated). The verdict now carries
+the measured count as `verdict.cores`, the chip states that (with "logical",
+because `hardwareConcurrency` counts hyperthreads), and the band labels name
+their edges, appearing only in the title as a band.
+
 ## Not done, and why
 
 - **M-D5.5 TierPanel** and **M-D5.6 perf overlay** are next. The panel reads
@@ -60,8 +71,8 @@ laptop's literal renderer string and an Intel-Arc-substring ordering trap.
 
 ## Evidence
 
-- `npm run test:stage-quality` — 44/44 (was 39/39; the +5 is the new
-  `dedicatedClass` suite).
+- `npm run test:stage-quality` — 48/48 (was 39/39; +5 for the `dedicatedClass`
+  suite, +4 for the band-vs-measurement suite).
 - `npm run test:truth-badge` — 44/44.
 - `npx tsc --noEmit` — 0 errors (was 46 before the M-D5.0 install, 1 after it).
 - `npx eslint` on every touched file — clean.

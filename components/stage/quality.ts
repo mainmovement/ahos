@@ -71,10 +71,18 @@ export const TIER_LABELS: Record<RenderTier, TierLabels> = {
   },
 };
 
+/**
+ * Labels for the **bands** `hardwareTierSync` clamps into, not point
+ * measurements. The T8 band covers every count below 12, so naming it
+ * "8 cores" would state a number a 4-core machine does not have — the chip shows
+ * `verdict.cores` (the count actually read) and these labels are for the receipt
+ * and M-D5.5's panel, which present them as the bands they are. The edges mirror
+ * `hardwareTierSync` exactly.
+ */
 export const HARDWARE_LABELS: Record<HardwareTier, { en: string; fa: string }> = {
-  T8: { en: "8 cores", fa: "۸ هسته" },
-  T16: { en: "16 cores", fa: "۱۶ هسته" },
-  T32: { en: "32 cores", fa: "۳۲ هسته" },
+  T8: { en: "under 12 cores", fa: "کمتر از ۱۲ هسته" },
+  T16: { en: "12–23 cores", fa: "۱۲ تا ۲۳ هسته" },
+  T32: { en: "24 cores or more", fa: "۲۴ هسته یا بیشتر" },
   GPU: { en: "discrete GPU", fa: "گرافیک مجزا" },
 };
 
@@ -111,6 +119,13 @@ export const BENCHMARKS_URL = "/benchmarks";
  */
 export interface TierMeasure {
   hardware: HardwareTier | null;
+  /**
+   * The logical core count actually read from `navigator.hardwareConcurrency`,
+   * or null. Carried *alongside* `hardware` because the band and the measurement
+   * are different facts: `hardware` is the rung the count was clamped into, this
+   * is the count. A surface may not present the rung's name as the count.
+   */
+  cores: number | null;
   backend: GpuBackend | null;
   /** Frames per second sustained during `FRAME_TEST_MS` of synthetic load, or null. */
   fps: number | null;
@@ -250,12 +265,15 @@ export function resolveTier(m: TierMeasure, nowMs: number = Date.now()): TierVer
 // ------------------------------------------------------- the impure measuring ---
 
 /**
- * The CPU core class, T8/T16/T32. A dedicated-class result promotes to `GPU` and
+ * The CPU core *band*, T8/T16/T32. A dedicated-class result promotes to `GPU` and
  * short-circuits the count — see `probeQuality` for what "dedicated-class"
  * actually measured (detect-gpu's 30 fps benchmark floor, not a card name).
  *
- * `navigator.hardwareConcurrency` is a *logical* core count and is clamped to
- * the nearest rung; it is not a measurement of speed, only of width.
+ * `navigator.hardwareConcurrency` is a *logical* core count and is clamped to the
+ * nearest band; it is not a measurement of speed, only of width. The band is a
+ * classification, **not** the measurement: this returns `T8` for a 4-core machine
+ * too, so a band's name is never a core count a surface may state. The count
+ * itself is carried on the verdict as `cores` — see `measuredCores`.
  */
 export function hardwareTierSync(gpuDiscrete: boolean | null): HardwareTier | null {
   if (gpuDiscrete === true) return "GPU";
@@ -395,6 +413,20 @@ export function readOverride(): RenderTier | null {
   }
 }
 
+/**
+ * `navigator.hardwareConcurrency`, or null when the browser will not say.
+ *
+ * This is a **logical** processor count — hyperthreads, not physical cores — so
+ * a surface presenting it must say "logical" or it overstates the machine. It is
+ * a count of width, not of speed. Null is the honest "not measured" and must not
+ * be read as a low count, for the same reason `ramUpperBoundGb`'s null must not.
+ */
+export function measuredCores(): number | null {
+  const c = typeof navigator !== "undefined" ? navigator.hardwareConcurrency : undefined;
+  if (typeof c !== "number" || !Number.isFinite(c) || c <= 0) return null;
+  return c;
+}
+
 export function writeOverride(tier: RenderTier | null): void {
   try {
     if (tier === null) globalThis.localStorage?.removeItem(OVERRIDE_KEY);
@@ -486,6 +518,7 @@ export async function probeQuality(): Promise<TierVerdict> {
 
   return resolveTier({
     hardware: hardwareTierSync(discrete),
+    cores: measuredCores(),
     backend,
     fps: frame.fps,
     meanFrameMs: frame.meanFrameMs,

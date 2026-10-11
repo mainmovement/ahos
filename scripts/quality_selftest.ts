@@ -25,8 +25,10 @@ import {
   detectBackend,
   FPS_FLOOR_2D,
   frameProbe,
+  HARDWARE_LABELS,
   HARDWARE_TIERS,
   hardwareTierSync,
+  measuredCores,
   RAM_FLOOR_GB,
   ramUpperBoundGb,
   readOverride,
@@ -41,7 +43,7 @@ import {
   type TierMeasure,
 } from "../components/stage/quality.ts";
 
-const ANY = { hardware: null, backend: null, fps: null, meanFrameMs: null, ramGb: null, override: null };
+const ANY = { hardware: null, cores: null, backend: null, fps: null, meanFrameMs: null, ramGb: null, override: null };
 const at = (over: Partial<TierMeasure>) => ({ ...ANY, ...over });
 
 describe("M-D5.3: the ladder is what the spec says", () => {
@@ -177,8 +179,9 @@ describe("M-D5.3: an unavailable measurement is not a low measurement", () => {
   });
 
   it("reports every measurement it actually made", () => {
-    const v = resolveTier(at({ hardware: "T16", backend: "webgl2", fps: 58, ramGb: 16 }), 1234);
+    const v = resolveTier(at({ hardware: "T16", cores: 14, backend: "webgl2", fps: 58, ramGb: 16 }), 1234);
     assert.equal(v.hardware, "T16");
+    assert.equal(v.cores, 14);
     assert.equal(v.fps, 58);
     assert.equal(v.ramGb, 16);
     assert.equal(v.measuredAt, 1234);
@@ -407,5 +410,61 @@ describe("M-D5.3: a framerate is never read as a card class", () => {
   it("a null class falls back to the core count, not to a low tier", () => {
     // hardwareTierSync(null-discrete) must still report the measured width.
     assert.equal(hardwareTierSync(null), "T8");
+  });
+});
+
+describe("M-D5.3: a band name is never a core count", () => {
+  // The chip used to render HARDWARE_LABELS[verdict.hardware], which read
+  // «۸ هسته» (8 cores) on this machine's 4 logical cores: hardwareTierSync puts
+  // every count below 12 into the T8 band, so the band's name was being stated
+  // as a measurement. The verdict now carries the measured count separately, and
+  // the band labels name the band's edges rather than a count inside it.
+  it("clamps a 4-core machine into the T8 band while the measurement stays 4", () => {
+    const v = resolveTier(at({ hardware: hardwareTierSync(null), cores: 4, backend: "webgl2" }));
+    assert.equal(v.hardware, "T8");
+    assert.equal(v.cores, 4);
+    assert.equal(v.tier, "T1");
+  });
+
+  it("labels each band with the edges it actually covers", () => {
+    // The boundaries hardwareTierSync clamps at: 24+ → T32, 12–23 → T16, below 12
+    // → T8. A label naming a single count would misstate every other member.
+    for (const [hw, label] of [
+      ["T8", "under 12 cores"],
+      ["T16", "12–23 cores"],
+      ["T32", "24 cores or more"],
+    ] as const) {
+      assert.ok(HARDWARE_LABELS[hw].en === label, `${hw} must be labelled as a band`);
+    }
+  });
+
+  it("a null core count is unknown, never read as a low one", () => {
+    // The same law as a null fps or a null RAM: absence is not a measurement.
+    const v = resolveTier(at({ hardware: "T32", backend: "webgpu", cores: null }));
+    assert.equal(v.tier, "T3");
+    assert.equal(v.cores, null);
+  });
+
+  it("measuredCores reports what the browser said, and null when it will not", () => {
+    const restoreNav = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    const setNav = (props: object) => {
+      Object.defineProperty(globalThis, "navigator", {
+        value: props as Navigator,
+        configurable: true,
+        writable: true,
+      });
+    };
+    try {
+      setNav({ hardwareConcurrency: 4 });
+      assert.equal(measuredCores(), 4);
+      setNav({ hardwareConcurrency: 16 });
+      assert.equal(measuredCores(), 16);
+      setNav({});
+      assert.equal(measuredCores(), null, "no hardwareConcurrency is not '1 core'");
+      setNav({ hardwareConcurrency: 0 });
+      assert.equal(measuredCores(), null, "zero is not a core count");
+    } finally {
+      Object.defineProperty(globalThis, "navigator", { ...restoreNav, configurable: true });
+    }
   });
 });

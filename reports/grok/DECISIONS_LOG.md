@@ -866,3 +866,30 @@ unrecognised, so absence of a match is never read as evidence of integration.
 `FALLBACK`/`SSR` are detect-gpu guessing. Covered by five new selftest cases
 (44/44 total), including the laptop's literal renderer string and an
 Intel-Arc-substring ordering trap.
+
+---
+
+### 2026-10-11 16:00 — the tier chip claimed 8 cores on a 4-core machine
+
+**Q:** the production capture (`05-prod-build-t1.json`) reported
+`navigator.hardwareConcurrency = 4`, but the chip's hardware span read
+«۸ هسته» — "8 cores".
+**A:** the chip rendered `HARDWARE_LABELS[verdict.hardware]`, and
+`hardwareTierSync` clamps **every** count below 12 into the `T8` band. The band's
+label was being stated as a point measurement. The T8/T16/T32 ladder is not in
+the spec — CLAUDE_DASHBOARD_2050 rule 3 defines a two-valued hardware axis
+(discrete vs integrated); the core ladder is M-D5.3's own addition, and its names
+were never measurements.
+**Why it matters:** the third fabrication of a hardware fact in this probe, and
+the same class as the other two: a classification presented as a measurement.
+The chip is the surface the owner reads to trust the tier, and "8 cores" on a
+4-core machine is a false hardware claim, not a rounding.
+**Fix:** the verdict now carries the measured count (`verdict.cores`, from a new
+`measuredCores()` impure getter) *alongside* the band, and the chip states the
+count — «۴ هستهٔ منطقی», with "logical" because `hardwareConcurrency` counts
+hyperthreads, not physical cores. `HARDWARE_LABELS` now name the **edges** each
+band covers ("under 12 cores" / "12–23 cores" / "24 cores or more", mirroring
+`hardwareTierSync`'s clamp boundaries) and appear only in the title, introduced
+as a band. A null count is unknown, never a low one — the same law as a null fps.
+Covered by a new selftest suite (48/48 total). Verified live: chip text
+«۴ هستهٔ منطقی», title ending «دستهٔ کمتر از ۱۲ هسته».

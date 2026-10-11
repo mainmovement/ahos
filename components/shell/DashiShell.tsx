@@ -35,6 +35,10 @@ import { HARDWARE_LABELS, TIER_LABELS, type TierVerdict } from "@/components/sta
 import { probeQuality, writeOverride } from "@/components/stage/quality";
 import StageLazy from "@/components/stage/StageLazy";
 
+/** Rule 5: numbers shown to the owner are Persian digits. */
+const faDigits = (n: number): string =>
+  String(n).replace(/[0-9]/g, (c) => "۰۱۲۳۴۵۶۷۸۹"[Number(c)]);
+
 type ModePill =
   | { kind: "ok" }
   | { kind: "violation"; fa: string }
@@ -207,8 +211,24 @@ function TierChip({
     );
   }
   const labels = TIER_LABELS[verdict.tier];
-  const hw = verdict.hardware === null ? null : HARDWARE_LABELS[verdict.hardware];
-  const title = `${labels.faWhy} — ${verdict.reasonFa}${hw === null ? "" : ` (${hw.fa})`}`;
+  const band = verdict.hardware === null ? null : HARDWARE_LABELS[verdict.hardware];
+  // The hardware span states what was *measured*, never the name of the band the
+  // count was clamped into. `hardwareTierSync` puts every count below 12 in the
+  // T8 band, so showing a band label here would have claimed «۸ هسته» (8 cores)
+  // on this machine's 4 logical cores — a hardware fact the probe never returned,
+  // the same fabrication `dedicatedClass` exists to prevent. The band stays in
+  // the title, where it is presented as a band. `hardwareConcurrency` counts
+  // logical processors, so the span says "logical" or it overstates the machine.
+  const cores =
+    verdict.cores === null ? null : `${faDigits(verdict.cores)} هستهٔ منطقی`;
+  const title = [
+    labels.faWhy,
+    verdict.reasonFa,
+    cores ?? "تعداد هسته‌ها نامعلوم",
+    band === null ? null : `دستهٔ ${band.fa}`,
+  ]
+    .filter((part) => part !== null)
+    .join(" — ");
   const step = () => {
     const order = ["T0", "T1", "T2", "T3"] as const;
     const i = order.indexOf(verdict.tier);
@@ -225,7 +245,7 @@ function TierChip({
       title={title}
       aria-label={`طبقهٔ نمایش: ${labels.fa}. ${verdict.reasonFa}`}
     >
-      <span className="dashi-tier__hw">{hw === null ? "سخت‌افزار نامعلوم" : hw.fa}</span>
+      <span className="dashi-tier__hw">{cores ?? "سخت‌افزار نامعلوم"}</span>
       <span className="dashi-tier__render">{labels.fa}</span>
     </button>
   );
