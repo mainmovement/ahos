@@ -19,6 +19,7 @@ and reachable at `/command_center`.
 | `02-t0-fallback-pre-fix.png` | **The bug.** The probe had run alongside the bundle parse, measured bundle-load contention as a frame rate, and demoted the machine to T0 it does not have — so the stage never mounted and the fallback notice rendered. |
 | `03-stage-live-t1.png` | **The same machine after the fix.** Real `<canvas>` mounted, verdict T1 "کم‌مصرف" on 8 cores, no fallback. |
 | `04-command-center-route-intact.png` | The old surface still serves at its stable URL after the main route flipped. |
+| `05-prod-build-t1.png` | The committed code, built and served by `next build` + `next start` — not just `next dev`. Same honest T1 verdict, stage mounted (see `05-prod-build-t1.json`). |
 
 ## Two defects the screenshots exposed
 
@@ -64,5 +65,8 @@ laptop's literal renderer string and an Intel-Arc-substring ordering trap.
 - `npm run test:truth-badge` — 44/44.
 - `npx tsc --noEmit` — 0 errors (was 46 before the M-D5.0 install, 1 after it).
 - `npx eslint` on every touched file — clean.
+- `npx next build` — exit 0; `/` and `/command_center` both route.
+- `next start` on 127.0.0.1:3000 — both routes HTTP 200, no console errors, and
+  the probe's own replicated fill-rate test held 59 fps while the scene ran.
 - Live probe of this machine: WebGL2 present, 60 fps sustained with a competing
-  scene, 4 physical cores, 8 GB — the ladder's honest answer is T1.
+  scene, 4 logical cores, 8 GB — the ladder's honest answer is T1.
