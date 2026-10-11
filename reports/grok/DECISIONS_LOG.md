@@ -782,3 +782,87 @@ the modified `app/page.tsx`, `package.json` and `globals.css` in the working
 tree. The committed main route still renders the old Command Center, which is
 the safe state: no half-built main screen ships while the gate is closed. When
 the install clears, one commit lands M-D5.2/M-D5.3 and flips the main route.
+
+### 2026-10-11 — M-D5.0 install cleared; the detect-gpu API was wrong in two ways
+
+Soltan ran the pinned install on the laptop (2026-10-11 10:04, exact
+`PACKAGES.md` command, 99 packages added). All 11 pins verified at their exact
+versions. `npx tsc --noEmit` went 46 errors → 1 → 0; `test:stage-quality` 39/39.
+
+**Q: the one remaining tsc error was `getGpuDevice` — how should detect-gpu be
+called?**
+**A:** `getGPUTier`, not `getGpuDevice`. The package exports only `getGPUTier`
+and returns `{ tier, type, isMobile, fps, gpu, device }`.
+**Why:** the name I had written does not exist in 5.0.70. README_FOR_CLAUDE
+v1.38 flagged it.
+
+**Q: `benchmarksURL` — file or directory?**
+**A:** **Directory.** detect-gpu fetches `${benchmarksURL}/${model}.json` per GPU
+family (`d-intel.json`, `d-nvidia.json`, …), so the `/benchmarks/benchmarks.json`
+I had wired would have 404'd every lookup.
+**Why:** read from `detect-gpu/dist/detect-gpu.esm.js` and its `.d.ts` rather
+than guessing. **How to apply:** the 16 JSONs (713 KB) are now vendored at
+`public/benchmarks/` and `BENCHMARKS_URL = "/benchmarks"`, which closes PACKAGES
+"Open" item 1 and keeps the M-D2 zero-external-request contract real rather than
+documented.
+
+**Q: detect-gpu's `tier` means discrete GPU — yes?**
+**A:** **No.** Its ladder is framerate, not card class: tier 1 ≥ 15 fps,
+tier 2 ≥ 30 fps, tier 3 ≥ 60 fps in its benchmark scene. My comment claiming
+"tier ≥ 2 is a dedicated-class card" conflated the two.
+**Why:** the library's own README, line 44. **How to apply:** the probe now
+treats tier ≥ 2 as "sustained 30 fps in the benchmark", documents that as what
+it is, and — the load-bearing part — accepts **only** `type: "BENCHMARK"` as a
+measurement. `FALLBACK` (no renderer string) and `SSR` (no window) are the
+library guessing, and a guess handing back `false` would read "we don't know" as
+"it is slow", the exact fabrication AHOS law forbids. They hand back `null`
+instead, which `resolveTier` never reads as a low value.
+
+**Q: is `hardwareTierSync`'s "GPU" promotion still honest?**
+**A:** Yes, with the wording fixed. The `true` arm no longer says "a dedicated
+card is the stronger signal"; it points at `probeQuality` for what was actually
+measured. The spec's T3 wording ("WebGPU + discrete GPU") is unchanged — that is
+the design's vocabulary for the rung.
+
+### 2026-10-11 — M-D5.2 renders; two probe defects that were fabricating the tier
+
+The stage rendered for the first time. Capturing it required a CDP-driven
+screenshot harness (`scripts/screenshot_dashi.mjs`) because `chrome --screenshot`
+fires at the load event, before the `ssr:false` dynamic import resolves — every
+plain screenshot was byte-identical to the loading placeholder. The harness polls
+the tier chip and captures only after the probe lands.
+
+**Q: the chip said T0 / "بدون WebGL" on a machine that has WebGL2 and 60 fps.**
+**A:** The probe was racing the bundle parse. `StageLazy` mounted on the store's
+T1 *default*, so `three.js`/R3F was being parsed on the main thread while
+`frameProbe` counted `requestAnimationFrame` ticks. The fill-rate test therefore
+measured bundle-load contention, reported < 24 fps, and `resolveTier` honestly
+demoted to T0 from a dishonest number — the stage then never mounted, so the bug
+was self-confirming.
+**Why it matters:** the defect was invisible from inside the code. `resolveTier`
+is pure and 44/44 correct; the wrong verdict came entirely from *when* the
+measurement was taken. Honest logic fed a contaminated input still fabricates.
+**How I found it:** the CDP harness traced every `getContext` call from boot —
+all succeeded, which ruled out a missing backend and left timing as the only
+explanation.
+**Fix:** `DashiShell` no longer loads the stage until `verdict !== null`, and a
+third render state ("در حال سنجشِ توانِ گرافیکی") covers the measuring period
+instead of the T0 fallback — nothing has failed while the probe is in flight, so
+the fallback notice would have been a false claim. After the fix the same machine
+probes **T1** with a real `<canvas>` mounted.
+
+**Q: an Intel HD integrated part was labelled "گرافیک مجزا" (discrete GPU).**
+**A:** `probeQuality` read detect-gpu's `tier >= 2` as a dedicated-class flag.
+detect-gpu's tier is a **framerate** ladder (1 ≥ 15, 2 ≥ 30, 3 ≥ 60 fps), not a
+card class, so an integrated part clearing 30 fps introduced itself as discrete —
+and the chip stated that as a hardware fact.
+**Why it matters:** this is the exact fabrication `UNKNOWN > fabricated` exists to
+prevent. The chip is presentation, but the label asserts a hardware class the
+measurement never established.
+**Fix:** new `dedicatedClass(renderer)` reads the renderer *string* instead, and
+only excludes known-integrated families — `null` for anything unreadable or
+unrecognised, so absence of a match is never read as evidence of integration.
+`probeQuality` also now accepts only `type: "BENCHMARK"` as a measurement, since
+`FALLBACK`/`SSR` are detect-gpu guessing. Covered by five new selftest cases
+(44/44 total), including the laptop's literal renderer string and an
+Intel-Arc-substring ordering trap.

@@ -151,3 +151,102 @@ button, input, textarea { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .stage-grid, .orb-spin, .float-y, .pulse-ring, .ticker, .alarm-banner, .stage-scan { animation: none !important; }
 }
+
+/*
+ * Dashi shell (M-D5.2). All positioning uses logical properties (start/end,
+ * inline/block) so the RTL source and a hypothetical LRT translation cannot
+ * disagree; the visual authoring is §4's 56px top bar with the stage centred.
+ * Colour never carries meaning alone here — the tier chip pairs its hue with a
+ * Persian label, per §2.3's "colour is never the only cue".
+ */
+.dashi {
+  display: flex; flex-direction: column;
+  min-height: 100vh; min-height: 100dvh;
+  background: var(--ahos-bg); color: var(--ahos-text);
+  font-family: var(--font-vazir), Tahoma, sans-serif;
+}
+.dashi-topbar {
+  display: flex; align-items: center; gap: 1rem;
+  block-size: 56px; padding-inline: 1rem;
+  border-bottom: 1px solid var(--ahos-border);
+  background: color-mix(in srgb, var(--ahos-panel) 88%, transparent);
+  position: relative; z-index: 2;
+}
+.dashi-emblem { display: flex; align-items: baseline; gap: 0.45rem; margin-inline-end: auto; }
+.dashi-emblem__mark { color: var(--ahos-gold); font-size: 1.05rem; }
+.dashi-emblem__word {
+  font-family: var(--font-orbitron), monospace;
+  letter-spacing: 0.08em; color: var(--ahos-text); font-size: 1rem;
+}
+.dashi-topbar__pills { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+
+.dashi-pill {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.78rem; color: var(--ahos-text-muted);
+  border: 1px solid var(--ahos-border); border-radius: 0.4rem;
+  padding: 0.2rem 0.55rem; white-space: nowrap;
+}
+.dashi-pill--paper bdi { color: var(--ahos-gold); font-weight: 700; }
+.dashi-pill--violation {
+  color: var(--ahos-status-rejected); font-weight: 700;
+  border-color: var(--ahos-status-rejected);
+}
+
+/* The measured tier chip. Each tier has its own hairline treatment so the rung
+ * reads without colour, and the Persian label is always present. */
+.dashi-tier {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.78rem; color: var(--ahos-text);
+  background: color-mix(in srgb, var(--ahos-panel) 70%, transparent);
+  border: 1px solid var(--ahos-border); border-radius: 0.4rem;
+  padding: 0.25rem 0.6rem; cursor: pointer; min-block-size: 32px;   /* §10: 32px targets */
+  transition: border-color 160ms ease;
+}
+.dashi-tier:hover { border-color: var(--ahos-gold); }
+.dashi-tier__hw { color: var(--ahos-text-muted); }
+.dashi-tier__render { font-weight: 700; }
+.dashi-tier--pending { border-style: dashed; color: var(--ahos-text-muted); cursor: default; }
+.dashi-tier--t0 { border-style: dashed; }
+.dashi-tier--t1 { border-style: dotted; }
+.dashi-tier--t2 { border-style: solid; }
+.dashi-tier--t3 { border-style: solid; border-color: var(--ahos-gold); }
+
+.dashi-theme {
+  font-family: inherit; font-size: 0.78rem; color: var(--ahos-text-muted);
+  background: transparent; border: 1px solid var(--ahos-border);
+  border-radius: 0.4rem; padding: 0.25rem 0.7rem; min-block-size: 32px;
+  cursor: pointer; transition: border-color 160ms ease;
+}
+.dashi-theme:hover { border-color: var(--ahos-gold); color: var(--ahos-text); }
+
+.dashi-main { flex: 1; position: relative; display: grid; place-items: center; min-block-size: 0; }
+.dashi-main > canvas { display: block; }
+
+.stage-fallback {
+  color: var(--ahos-text-muted); font-size: 0.9rem;
+  padding: 1rem 1.5rem; border: 1px dashed var(--ahos-border); border-radius: 0.6rem;
+}
+.dashi-scope {
+  position: absolute; inset-block-end: 0.9rem; inset-inline: 0;
+  margin: 0; text-align: center; font-size: 0.72rem;
+  color: var(--ahos-text-muted); opacity: 0.85; pointer-events: none;
+  padding: 0 1rem;
+}
+.dashi-fallback {
+  display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+  text-align: center; max-inline-size: 34rem; padding: 2rem 1.5rem;
+  border: 1px solid var(--ahos-border); border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--ahos-panel) 88%, transparent);
+}
+.dashi-fallback__title { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--ahos-text); }
+.dashi-fallback__body { margin: 0; font-size: 0.85rem; color: var(--ahos-text-muted); line-height: 1.7; }
+.dashi-retry {
+  font-family: inherit; font-size: 0.82rem; color: var(--ahos-gold);
+  background: transparent; border: 1px solid var(--ahos-gold);
+  border-radius: 0.4rem; padding: 0.4rem 1.1rem; min-block-size: 32px; cursor: pointer;
+}
+.dashi-retry:hover { background: color-mix(in srgb, var(--ahos-gold) 12%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dashi-tier, .dashi-theme, .dashi-retry { transition: none; }
+}

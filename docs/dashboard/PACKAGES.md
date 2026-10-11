@@ -26,7 +26,7 @@ postinstall step can reach the network at install time (spec §0.5: local only).
 | `@react-three/postprocessing` | `3.1.3` | **MIT** (ref 10) | the R3F binding | one merged EffectComposer pass, per §12. |
 | `three-globe` | `2.45.3` | **MIT** (ref 13) | M-D6 land/arcs | from npm only; never the README's jsdelivr `<script>`. |
 | `zustand` | `5.0.15` | **MIT** (ref 8) | UI-only state | holds theme/sound/motion/quality; **never authority data** (ref 8). |
-| `detect-gpu` | `5.0.70` | **MIT** (ref 11) | M-D5.3 probe | **offline caveat:** its benchmark data loads from UNPKG by default. `quality.ts` always passes a local `benchmarksURL` (`/benchmarks/benchmarks.json`); a missing file makes it warn and fall back to tier 1 rather than hitting the network. The file is not vendored yet — see "Open" below. |
+| `detect-gpu` | `5.0.70` | **MIT** (ref 11) | M-D5.3 probe | **offline caveat:** its benchmark data loads from UNPKG by default, and `benchmarksURL` is a *directory* it fetches `${url}/${model}.json` from per GPU family. `quality.ts` always passes the local `public/benchmarks/` (all 16 files vendored, 713 KB). Only a `type: "BENCHMARK"` result counts as a measurement — `FALLBACK`/`SSR` are the library guessing and are read as null, never as a tier. |
 | `world-atlas` | `2.0.2` | **ISC** (ref 14) | M-D6 land geometry | the pre-built Natural Earth 110m TopoJSON, ~100 KB. |
 | `topojson-client` | `3.1.0` | **ISC** (ref 14) | M-D6 decoding | decodes the TopoJSON above. |
 | `@react-three/rapier` | `2.2.0` | **MIT / Apache-2.0** (addendum v1.19) | M-D8 walk collisions | ships prebuilt WASM; only M-D8 needs it, installed now because the gate is open. Peers `@react-three/fiber ^9.0.4` — satisfied by 9.8.1. |
@@ -37,16 +37,28 @@ kinematic controller is the default and avoids the dependency). Not installed:
 — those sit behind the M-D5/M-D9 gates in `CLAUDE_DASHBOARD_2050.md` and are not
 on the pre-approved list above, so they still need Soltan.
 
-## Status: BLOCKED_TOOL_PERMISSION
+## Status: INSTALLED (2026-10-11 10:04)
 
-The install did not run. `npm install` was denied by the Claude Code auto-mode
-safety classifier ("Stage 2 classifier error — blocking based on stage 1
-assessment"). Per OWNER_DECISIONS Q3 ("If the tool's permission system blocks
-it, record `BLOCKED_TOOL_PERMISSION` with the exact command and move on — do not
-route around it"), the attempt was stopped and not retried through another tool,
-interpreter or shell.
+The install was run by Soltan on the laptop with the exact command below
+(`--save-exact --ignore-scripts`, 99 packages added). All 11 pins verified present
+at their exact versions in `node_modules`:
 
-The exact command, for when the gate clears:
+```
+three 0.186.1 · @react-three/fiber 9.8.1 · @react-three/drei 10.7.9
+postprocessing 6.39.5 · @react-three/postprocessing 3.1.3 · three-globe 2.45.3
+zustand 5.0.15 · detect-gpu 5.0.70 · world-atlas 2.0.2
+topojson-client 3.1.0 · @react-three/rapier 2.2.0
+```
+
+`npx tsc --noEmit` is clean (0 errors; it was 46 while the packages were
+missing). `npm run test:stage-quality` 39/39, `test:truth-badge` 44/44.
+
+The earlier `BLOCKED_TOOL_PERMISSION` (the Claude Code auto-mode safety
+classifier denied `npm install`; OWNER_DECISIONS Q3 — recorded, not routed
+around) is cleared. It is kept here as the record of why the M-D5.2 stage spent
+a night written-but-unrendered.
+
+The exact command that was run:
 
 ```bash
 npm install --save-exact --ignore-scripts \
@@ -63,20 +75,15 @@ npm install --save-exact --ignore-scripts \
   @react-three/rapier@2.2.0
 ```
 
-Consequence: the M-D5.2/M-D5.3 modules are written and the pure logic is tested
-(39/39 in `npm run test:stage-quality`, which imports only `quality.ts` and
-needs none of these packages), but `npx tsc --noEmit` cannot resolve the
-`three` / `@react-three/fiber` imports until the install lands, and the stage
-cannot render. `npm run test:stage-quality` is the regression signal that works
-in the meantime; `test:truth-badge` likewise.
-
 ## Open
 
-1. **Vendor detect-gpu's benchmark data** to `/benchmarks/benchmarks.json` so the
-   probe is genuinely offline (M-D2's CSP and the zero-external-request rule).
-   The URL is already wired; only the file is missing, and the fallback in its
-   absence is tier 1 (integrated-class), which is the safe answer for this
-   laptop.
+1. ~~**Vendor detect-gpu's benchmark data**~~ — **DONE.** `public/benchmarks/`
+   now holds all 16 JSONs (713 KB) copied from `detect-gpu/dist/benchmarks/`,
+   and `BENCHMARKS_URL` points at the directory. Two details mattered: the URL
+   is a *directory* (detect-gpu fetches `${url}/${model}.json` per GPU family),
+   not the single `benchmarks.json` path the doc first assumed; and only a
+   `type: "BENCHMARK"` result is treated as a measurement, because `FALLBACK`
+   and `SSR` are detect-gpu guessing.
 2. **`postprocessing` is Zlib, not MIT.** Kept, but recorded here rather than in
    a footnote so the licence table is not misread.
 3. **`three` 0.186.1 vs a newer minor.** Pinned to stay inside
