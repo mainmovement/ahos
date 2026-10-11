@@ -198,9 +198,11 @@ export default function DashiShell() {
           <FallbackNotice contextLost={contextLost} tier={tier} onRetry={retryStage} />
         )}
 
-        {/* The honest scope caption: this step ships the stage, not the panels. */}
+        {/* The honest scope caption: the globe has landed, its rings and the
+            telemetry strips have not. */}
         <p className="dashi-scope" dir="rtl">
-          صحنهٔ رصدخانه — M-D5.2. ستون کانونی، حلقه‌ها و نوارهای تله‌متری در M-D۶ و M-D۷.
+          صحنهٔ رصدخانه — M-D۶.۱. گویِ نقطه‌ای روی صحنه است؛ حلقه‌ها و نوارهای
+          تله‌متری در M-D۶ و M-D۷ می‌آیند.
           {budget.particles === 0 && budget.rotate === 0
             ? " حالت کم‌مصرف: حرکت و ذرات خاموش است."
             : ""}

@@ -137,19 +137,27 @@ export function motionBudget(tier: RenderTier, reducedMotion: boolean): {
   rotate: number;
   particles: number;
   drift: number;
+  /** How many dots the M-D6 globe draws. Always under the 30k the owner capped a
+   *  point globe at; one draw call, so even T1 may have a populated globe. */
+  globePoints: number;
 } {
-  if (reducedMotion) return { rotate: 0, particles: 0, drift: 0 };
+  if (reducedMotion) {
+    // Nothing moves, but a static globe is still a globe: the density is the T1
+    // count and the rotation is the only thing the preference takes away.
+    return { rotate: 0, particles: 0, drift: 0, globePoints: 6000 };
+  }
   switch (tier) {
     case "T3":
-      return { rotate: 1, particles: 900, drift: 1 };
+      return { rotate: 1, particles: 900, drift: 1, globePoints: 24000 };
     case "T2":
-      return { rotate: 1, particles: 450, drift: 0.6 };
+      return { rotate: 1, particles: 450, drift: 0.6, globePoints: 14000 };
     case "T1":
-      // §11 Low-power: no particles; DPR 1. Slow rotation is still allowed but
-      // at half rate, so the stage reads as alive rather than frozen.
-      return { rotate: 0.5, particles: 0, drift: 0.2 };
+      // §11 Low-power: no loose particles; DPR 1. The globe is geometry, not
+      // particles, and one draw call of 6k dots is not what T1 is protecting
+      // against — so the centrepiece stays populated and only the extras go.
+      return { rotate: 0.5, particles: 0, drift: 0.2, globePoints: 6000 };
     case "T0":
     default:
-      return { rotate: 0, particles: 0, drift: 0 };
+      return { rotate: 0, particles: 0, drift: 0, globePoints: 0 };
   }
 }

@@ -18,6 +18,7 @@
     "test:chat-intent": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_intent_selftest.ts",
     "test:chat-agent": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/chat_agent_selftest.ts",
     "test:dev-missions": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/dev_missions_selftest.ts",
+    "test:globe": "node --experimental-strip-types --test scripts/globe_selftest.ts",
     "test:gemini-phraser": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/gemini_phraser_selftest.ts",
     "audit:control-verify": "node --experimental-strip-types scripts/verify_control_audit.ts",
     "lint": "eslint .",

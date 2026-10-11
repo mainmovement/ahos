@@ -1064,3 +1064,50 @@ because item 1 moved the fill off the label.
 **Result.** The receipt names the gap instead of papering over it: the owner's own
 window shows the OK branch, the suite proves its contents, and no auth gate was
 loosened for a picture.
+
+---
+
+## 2026-10-11 — the globe renders no data, and gold is its only light
+
+**Question.** The owner's item 3 asks for a globe and item 4 asks for it now. Does
+the stage get to show anything about the market on it — a lit region, a marker, a
+colour shift?
+
+**Choice.** No. The globe is ornament: no geography, no markers, no verdict
+colours. Its only emissive surface is the brand gold.
+
+**Reason.** Two rules converge. The TS lane is presentation-only and must not
+become a recommendation authority, and a marker on the globe *is* a recommendation
+if it is not labelled data. And spec §2.3 forbids status colours as decoration —
+lighting a hemisphere in VERIFIED's turquoise would tell the owner something the
+truth badge in the DOM is the only permitted voice for. So the globe's contract is
+written into its receipt, not just its code: if a marker ever appears it has to
+come from `/api/command` and be labelled, and nothing in `Globe.tsx` is wired for
+it. This also keeps M-D6 honest — the data rings are a separate artifact with
+their own authority questions, and bolting them onto a decorative globe now would
+blur the line.
+
+**Result.** The stage gained a centrepiece and gained zero authority surface.
+`test:stage-quality` stays 48/48 because nothing it asserts moved.
+
+---
+
+## 2026-10-11 — a fresnel shell instead of a bloom pass, at every tier
+
+**Question.** Item 3 asks for "a gold rim light and soft bloom done in a shader or
+CSS" but also "no heavy postprocessing on T1". Give T1 the rim only and T2/T3 the
+real bloom chain?
+
+**Choice.** Ship one overdrawn fresnel shell on a BackSide sphere for all tiers.
+Do not bring the bloom chain in this step at all.
+
+**Reason.** The item's own wording allows the shader route, and the shell is it:
+additive, one extra draw call, no render targets, no cost worth measuring
+separately — the capture's scene fps is 56 at T1 and 60 at T3 *with* it. Adding a
+second, tier-gated implementation of the same visual idea would mean two code
+paths for one silhouette and a T1/T3 look that diverges for no owner-visible
+reason. The bloom chain is M-D5.6's pipeline; when it lands it can replace the
+shell where the tier pays for it, and the shell remains the T1 answer.
+
+**Result.** One rim implementation, four tiers, `test:globe` 8/8 and no
+postprocessing dependency added to the T1 bundle.

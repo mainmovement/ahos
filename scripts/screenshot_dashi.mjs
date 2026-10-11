@@ -18,7 +18,8 @@
  *
  * Reads only DOM state. Never touches .env, tokens, or any authority surface.
  */
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { spawn } from "node:child_process";
 
 const url = process.argv[2] ?? "http://127.0.0.1:3199/";
@@ -303,11 +304,99 @@ const probe = async () => {
     glTrace = { probeError: e.message };
   }
 
+  // The scene's own frame rate, not the synthetic fill-rate probe above. R3F
+  // drives `requestAnimationFrame` when its frameloop is "always", so counting
+  // the page's rAF ticks over a window is the number the owner actually sees —
+  // and the number that says a tier's dot budget is safe on this GPU.
+  let sceneFps = null;
+  try {
+    sceneFps = JSON.parse(
+      (
+        await sendTo("Runtime.evaluate", {
+          expression: `(async () => {
+            const MS = 1500;
+            const start = performance.now();
+            let frames = 0;
+            await new Promise((resolve) => {
+              const tick = (now) => {
+                if (now - start >= MS) return resolve();
+                frames++;
+                requestAnimationFrame(tick);
+              };
+              requestAnimationFrame(tick);
+            });
+            const elapsed = performance.now() - start;
+            return JSON.stringify({ frames, fps: Math.round((frames * 1000) / elapsed) });
+          })()`,
+          awaitPromise: true,
+          returnByValue: true,
+        })
+      ).result.value,
+    );
+  } catch (e) {
+    sceneFps = { error: e.message };
+  }
+
   const shot = await sendTo("Page.captureScreenshot", {
     format: "png",
     captureBeyondViewport: false,
   });
+  mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, Buffer.from(shot.data, "base64"));
+
+  // The capture cannot be eyeballed from this script, so it is read back and
+  // measured: Chrome decodes its own PNG and counts the brand-gold pixels, with
+  // their centroid. A globe that did not render has a near-empty gold field and
+  // a centroid somewhere in the topbar; one that did renders a warm field whose
+  // centroid sits where the globe hangs. This is the check that catches a
+  // silent scene — a canvas that mounted and drew nothing.
+  const analyse = `(async () => {
+    const img = new Image();
+    const done = new Promise((res, rej) => { img.onload = () => res(); img.onerror = (e) => rej(e); });
+    img.src = "data:image/png;base64,${shot.data}";
+    await done;
+    const c = document.createElement("canvas");
+    c.width = img.width; c.height = img.height;
+    const ctx = c.getContext("2d");
+    if (!ctx) return JSON.stringify({ error: "no 2d context" });
+    ctx.drawImage(img, 0, 0);
+    const { data } = ctx.getImageData(0, 0, c.width, c.height);
+    const W = c.width, H = c.height;
+    let gold = 0, bright = 0, sx = 0, sy = 0, nonBg = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      // Brand gold and its highlights: warm, red the strongest channel.
+      if (r > g && g > b && r > 90) {
+        gold++;
+        const at = i / 4;
+        sx += at % W;
+        sy += Math.floor(at / W);
+        if (r > 200 && b < 160) bright++;
+      }
+      if (r + g + b > 60) nonBg++;
+    }
+    return JSON.stringify({
+      size: [W, H],
+      goldPx: gold,
+      brightGoldPx: bright,
+      goldCentroid: gold ? [Math.round(sx / gold), Math.round(sy / gold)] : null,
+      nonBgPx: nonBg,
+    });
+  })()`;
+  let pixels = null;
+  try {
+    pixels = JSON.parse(
+      (
+        await sendTo("Runtime.evaluate", {
+          expression: analyse,
+          awaitPromise: true,
+          returnByValue: true,
+        })
+      ).result.value,
+    );
+  } catch (e) {
+    pixels = { error: e.message };
+  }
 
   const consoleErrors = events
     .filter(
@@ -323,12 +412,14 @@ const probe = async () => {
 
   ws.close();
   chrome.kill();
-  return { state, capability, frameProbe, glTrace, consoleErrors, bytes: Buffer.from(shot.data, "base64").length };
+  return { state, capability, frameProbe, glTrace, consoleErrors, pixels, sceneFps, bytes: Buffer.from(shot.data, "base64").length };
 };
 
 probe().then(
-  ({ state, capability, frameProbe, glTrace, consoleErrors, bytes }) => {
+  ({ state, capability, frameProbe, glTrace, consoleErrors, pixels, sceneFps, bytes }) => {
     console.log("state:", JSON.stringify(state, null, 2));
+    console.log("pixels:", JSON.stringify(pixels, null, 2));
+    console.log("sceneFps:", JSON.stringify(sceneFps, null, 2));
     console.log("capability:", JSON.stringify(capability, null, 2));
     console.log("frameProbe:", JSON.stringify(frameProbe, null, 2));
     console.log("glTrace:", JSON.stringify(glTrace, null, 2));

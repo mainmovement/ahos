@@ -1,14 +1,15 @@
 "use client";
 
 /**
- * M-D5.2 — the empty stage: a gold-lit lacquer observatory floor, centred in
- * the RTL shell where the globe will sit in ref 3.
+ * M-D5.2 / M-D6.1 — the gold-lit lacquer observatory, centred in the RTL shell.
  *
- * Deliberately *empty*. This step proves the pipeline — a lazily-imported R3F
- * island inside the Next shell, lit in the spec's tokens, tier-aware, and able
- * to lose its WebGL context without losing anything else — before any content
- * is placed on it. The globe (M-D6), the rings and beads (M-D6) and the tower
- * (M-D8) arrive onto a stage whose lighting, palette and fallbacks already work.
+ * M-D5.2 shipped this deliberately *empty*: a lazily-imported R3F island inside
+ * the Next shell, lit in the spec's tokens, tier-aware, and able to lose its
+ * WebGL context without losing anything else — the pipeline proven before any
+ * content was placed on it. M-D6.1 sets the centrepiece on it, `Globe`: a point
+ * globe above the shamseh, its density and rotation drawn from the same motion
+ * budget the floor reads. The rings and beads (M-D6) and the tower (M-D8) arrive
+ * onto a stage whose lighting, palette and fallbacks already work.
  *
  * Procedural only (M-D5.1's verdict). No textures, no models, no HDR fetch —
  * REFERENCE_BOARD ref 9: drei `Environment preset=` loads an HDRI from
@@ -27,6 +28,7 @@ import * as THREE from "three";
 import { useStageStore, motionBudget } from "@/components/stage/store";
 import { edgeColor, goldEmissive, rimLight, stageColors } from "@/components/stage/themeColors";
 import type { TierVerdict } from "@/components/stage/quality";
+import Globe from "@/components/stage/Globe";
 
 const FLOOR_RADIUS = 6;
 const RING_RADIUS = 5.2;
@@ -225,6 +227,9 @@ export default function Stage({ verdict, onContextLost }: StageProps) {
     >
       <StageLights />
       <ObservatoryFloor rotate={budget.rotate} />
+      {/* M-D6.1: the centrepiece. Density and rotation come from the same budget
+          the floor reads, so one tier decision moves the whole stage together. */}
+      <Globe points={budget.globePoints} rotate={budget.rotate} />
       <StageLifecycle onContextLost={onContextLost ?? (() => undefined)} />
     </Canvas>
   );
