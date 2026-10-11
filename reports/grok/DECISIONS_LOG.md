@@ -893,3 +893,26 @@ band covers ("under 12 cores" / "12–23 cores" / "24 cores or more", mirroring
 as a band. A null count is unknown, never a low one — the same law as a null fps.
 Covered by a new selftest suite (48/48 total). Verified live: chip text
 «۴ هستهٔ منطقی», title ending «دستهٔ کمتر از ۱۲ هسته».
+
+---
+
+### 2026-10-11 16:35 — M-D5.4 verified by provoking a real context loss
+
+**Q:** the fallback path (`StageLifecycle` → `FallbackNotice` → `retryStage`)
+was written in M-D5.2 but nothing had ever forced a WebGL context loss, so the
+listener was unverified code.
+**A:** `scripts/screenshot_contextloss.mjs` calls `WEBGL_lose_context.loseContext()`
+on the stage's own context — the driver then raises a **real** `webglcontextlost`,
+the exact event the listener must survive. Dispatching a synthetic Event would
+have tested only the `addEventListener` call.
+**Why it matters:** the acceptance criteria ("fallback to 2D with a Persian
+notice; no data loss on a live tier switch") are not reachable from the app on
+its own; without provoking them, "it works" would have been an assumption about
+error-path code that had never run.
+**Result:** canvas 1→0 with the `role="alert"` notice, retry re-probes and
+restores it, and a down-then-up tier switch (T1→T0→T1) keeps the shell's pill and
+caption data intact. `overrideAfter: null` confirms the floor click clears the
+override rather than stranding the machine at T0. Two polling bugs in the first
+draft of the test would have passed a switch that had not happened — the chip
+never returns to `pending` during a re-probe, and a second consecutive switch
+needs its own reference class. Both are documented in the step README.

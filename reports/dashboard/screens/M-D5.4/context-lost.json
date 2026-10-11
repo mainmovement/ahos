@@ -1,0 +1,50 @@
+provoked loss: {
+  "lost": true
+}
+before: {
+  "chip": "dashi-tier--t1",
+  "chipText": "۴ هستهٔ منطقیکم‌مصرف",
+  "pillText": "?حالت اجرا",
+  "canvas": 1,
+  "fallback": null,
+  "title": null,
+  "retry": false,
+  "scope": "صحنهٔ رصدخانه — M-D5.2. ستون کانونی، حلقه‌ها و نوارهای تله‌متری در M-D۶ و M-D۷."
+}
+after loss: {
+  "chip": "dashi-tier--t1",
+  "chipText": "۴ هستهٔ منطقیکم‌مصرف",
+  "pillText": "?حالت اجرا",
+  "canvas": 0,
+  "fallback": "صحنهٔ سه‌بعدی از دسترس خارج شدگرافیک پاسخ نداد؛ نمایش دو‌بعدی جایگزین شد. داده‌ها از بین نرفته‌اند.اندازه‌گیریِ دوباره",
+  "title": "صحنهٔ سه‌بعدی از دسترس خارج شد",
+  "retry": true,
+  "scope": "صحنهٔ رصدخانه — M-D5.2. ستون کانونی، حلقه‌ها و نوارهای تله‌متری در M-D۶ و M-D۷."
+}
+after retry: {
+  "chip": "dashi-tier--t1",
+  "chipText": "۴ هستهٔ منطقیکم‌مصرف",
+  "pillText": "?حالت اجرا",
+  "canvas": 1,
+  "fallback": null,
+  "title": null,
+  "retry": false,
+  "scope": "صحنهٔ رصدخانه — M-D5.2. ستون کانونی، حلقه‌ها و نوارهای تله‌متری در M-D۶ و M-D۷."
+}
+tier switch: {
+  "before": "dashi-tier--t1",
+  "downClass": "dashi-tier--t0",
+  "upClass": "dashi-tier--t1",
+  "noticeAtT0": "نمای دو‌بعدیاین ماشین WebGL ندارد یا طبقهٔ نمایش آن T0 است (T0). همان داده‌ها، بدون سه‌بعدی.اندازه‌گیریِ دوباره",
+  "overrideAfter": null,
+  "upTitle": "WebGL2 با اثرات کاهش‌یافته — مناسب باتری یا ۸ گیگابایت — گرافیک یکپارچه یا هسته کم — سطح کم‌مصرف — ۴ هستهٔ منطقی — دستهٔ کمتر از ۱۲ هسته",
+  "pillBefore": "?حالت اجرا",
+  "pillAfter": "?حالت اجرا",
+  "scopeBefore": "صحنهٔ رصدخانه — M-D5.2. ستون کانونی، حلقه‌ها و نوارهای تله‌متری در M-D۶ و M-D۷.",
+  "scopeAfter": "صحنهٔ رصدخانه — M-D5.2. ستون کانونی، حلقه‌ها و نوارهای تله‌متری در M-D۶ و M-D۷.",
+  "pillSurvived": true,
+  "scopeSurvived": true,
+  "stageReturned": 1
+}
+console errors: none
+wrote reports/dashboard/screens/M-D5.4/context-lost.png (32391 bytes) + reports/dashboard/screens/M-D5.4/context-lost-recovered.png (140394 bytes)
