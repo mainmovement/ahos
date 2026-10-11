@@ -1,21 +1,21 @@
 {
   "soak": "M13-GOLD-PAPER",
   "paper_only": true,
-  "started_hint": "2026-10-11T22:09:50Z",
+  "started_hint": "2026-10-11T22:24:50Z",
   "cycle_interval_sec": 900.0,
   "planned_days": 7.0,
-  "cycles_ok": 1,
+  "cycles_ok": 2,
   "cycles_failed": 0,
   "last_day_report": "2026-10-11",
   "last_cycle": {
-    "ts": "2026-10-11T22:09:49Z",
+    "ts": "2026-10-11T22:24:49Z",
     "kind": "cycle",
     "ok": true,
-    "cycle": 7,
-    "witness_state": "UNRESOLVED",
-    "witness_reason": "insufficient_independent_sources (only ['goldapi_spot'] answered fresh; stale: ['yahoo_gc_futures'])",
-    "price_usd": null,
-    "spread_pct": null,
+    "cycle": 8,
+    "witness_state": "VERIFIED",
+    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.662%",
+    "price_usd": 4200.649902499999,
+    "spread_pct": 0.6616078219675076,
     "equity_usd": 10000.0,
     "position_open": true,
     "exit": null,
@@ -28,7 +28,7 @@
       "allowed": true,
       "reasons": []
     },
-    "duration_s": 1.17
+    "duration_s": 1.02
   },
   "ledger_state": {
     "bankroll_usd": 10000.0,
@@ -44,12 +44,12 @@
     },
     "closed_trades": 0,
     "cumulative_realized_pnl_usd": 0.0,
-    "cycle": 7,
+    "cycle": 8,
     "equity_usd": 10000.0,
     "exit": null,
     "exit_card": "PT-X1-v1",
     "market": "gold",
-    "open_unpriced": true,
+    "open_unpriced": false,
     "paper_only": true,
     "position": {
       "cycle": 1,
@@ -59,8 +59,8 @@
       "notional_usd": 1000.0,
       "qty_oz": 0.2378573807145236
     },
-    "price_usd": null,
-    "realizable_equity_usd": 10000.0,
+    "price_usd": 4200.649902499999,
+    "realizable_equity_usd": 9998.156427524262,
     "realized_pnl_usd": null,
     "round_trip_bps": 20.0,
     "settled_trades": 0,
@@ -69,22 +69,22 @@
       "quotes": [
         {
           "instrument": "spot",
-          "observed_at": 1791756578.0,
-          "price_usd": 4191.299805,
+          "observed_at": 1791757478.0,
+          "price_usd": 4186.799805,
           "provider_id": "goldapi_spot",
-          "raw_sha256": "6f90c016652c61779c4d74b3809950e3540d9f1d8e459f1feee6b148c38612d3"
+          "raw_sha256": "3d7e61e0ccd1a1e8eb96cd0685455fa0a778ca1739f7c831b2c344e7c2c29524"
         },
         {
           "instrument": "futures",
-          "observed_at": 1791579599.0,
-          "price_usd": 4216.3,
+          "observed_at": 1791756887.0,
+          "price_usd": 4214.5,
           "provider_id": "yahoo_gc_futures",
-          "raw_sha256": "444b01e9f1bf945caf084846f158d568bec4c5dd56e98ebf55a14d0cca45a318"
+          "raw_sha256": "43d26b76761a46a24a6ba9178c66e98ec3af025c707819e361e1de06a183bb06"
         }
       ],
-      "reason": "insufficient_independent_sources (only ['goldapi_spot'] answered fresh; stale: ['yahoo_gc_futures'])",
-      "spread_pct": null,
-      "state": "UNRESOLVED",
+      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.662%",
+      "spread_pct": 0.6616078219675076,
+      "state": "VERIFIED",
       "tolerance_pct": 1.0
     }
   }

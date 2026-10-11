@@ -1111,3 +1111,28 @@ shell where the tier pays for it, and the shell remains the T1 answer.
 
 **Result.** One rim implementation, four tiers, `test:globe` 8/8 and no
 postprocessing dependency added to the T1 bundle.
+
+## 2026-10-12
+
+**Q: The G2 gateway gate FAILed while a Next.js dev server was plainly running —
+which side moves, the server or `.env`?**
+**A:** Move `.env`'s `AHOS_GATEWAY_URL` to the live server, not the server to
+the configured port.
+**Reason:** The running gateway was launched deliberately as
+`next dev --hostname 127.0.0.1 --port 3199`, and M-D5.5 already recorded that
+this process is not an agent session's to stop. Nothing at all was listening on
+`:3000`, so every consumer pointed at `:3000` was already broken — the config
+was stale relative to the host, not the other way round. Retargeting one loopback
+URL changes no credential, touches no Lane A, and is reversible in one line; it
+is also the change the gate's own remediation text asks for when it says "ensure
+npm run dev is up **and** `AHOS_GATEWAY_URL=...`". The force-load in
+`operator_validation_gate.py:798` exists to stop a *stale shell export* from
+beating `.env`, so exporting `AHOS_GATEWAY_PORT=3199` could not win and editing
+the file was the only route that actually closes the gate. After the retarget,
+G2 reads `http_200 from http://127.0.0.1:3199/api/chat` and G1-G10 are all PASS,
+`pre_soak_entry_ok=true` — the entry condition the owner's 00:01 note asked for.
+The one-line rewrite printed only that one line, never the file, and `.env`
+stays gitignored.
+**Result:** `VERDICT: PRE_SOAK entry OK on this Windows host`; G11 stays
+NOT_VERIFIED because it is OPERATOR_READY-only and the owner holds the Telegram
+E2E artifact.
