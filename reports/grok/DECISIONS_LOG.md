@@ -943,3 +943,61 @@ rather than "everything is waiting".
 headless browser, which is the auth gate every dashboard route sits behind — so
 the capture's UNKNOWN badge is the required presentation, and the script logs the
 raw 401 body so it is not mistaken for the missing-file branch.
+
+---
+
+## 2026-10-11 — M-D5.F: §2.3's fill is a swatch, never a text background
+
+**Question.** The owner's 19:42 QA list (item 1) reports the top-left chip's text
+as *still* hatched and unreadable after M-D5.F was believed done. Where does the
+hatch come from, and may §2.3's hatch be removed to fix it?
+
+**Choice.** Keep the hatch; move it off the text. The cause was not the pattern
+but where it was painted: `globals.css` set `background: var(--badge-fill, …)` on
+the `.truth-badge` span itself, so UNKNOWN's 45° gradient ran *behind the label*
+and its 1px lines crossed the Persian glyphs at 0.75rem. The fix renders the fill
+on a `0.7em` swatch beside the glyph and makes the badge root and the label span
+transparent. The top-left chip is that UNKNOWN badge — the PAPER ONLY pill holds
+`TruthBadge state="UNAVAILABLE"` whenever `/api/command` reports no known mode,
+which is the state the owner's screenshot and the headless capture both show.
+
+**Reason.** §2.3 mandates the hatch as UNKNOWN's non-colour cue, and the
+selftest asserts the fill uses its own colour variable; deleting it would weaken
+the contract the badge exists to enforce. The illegibility was a presentation
+bug, not a spec defect, so the honest fix changes the surface, not the cue. The
+same reasoning declined two larger changes: no font binary was vendored, because
+Vazirmatn is already wired through `next/font/google` under `--font-vazir`
+(self-hosted at build, no runtime fetch) and the illegibility was never the
+typeface; and the 4.5:1 floor is now a WCAG-luminance assertion over every
+state on both themes' `bg` and `panel` rather than a judgement call.
+
+**Result.** `test:truth-badge` 47/47 (44 + 3 new, including the tightest case —
+UNKNOWN's `#9AA3B2` on Imperial's `#160E12` panel at 7.46:1). The capture harness
+now reports the badge's computed backgrounds, so the fix is proven in DOM state
+(root `none`, label `none`, swatch `PATTERN`) and not by eye. Its new
+`overrideTier` arg seeds the app's own override before boot, so the required T3
+capture goes through `resolveTier` and the chip's title still names the pick as
+manual — no hardware claim is fabricated by the preview.
+
+---
+
+## 2026-10-11 — the capture harness waits for the stage, not the chip
+
+**Question.** `screenshot_dashi.mjs` reported `canvas: 0` on a T1 verdict that
+should mount the stage. Capture anyway?
+
+**Choice.** No. The poll broke the moment the tier chip left `pending`, which
+fires when `probeQuality` lands (~6s), while `StageLazy` was still fetching and
+parsing the three.js chunk — exactly the bundle-parse contention `DashiShell`
+documents as the reason the probe runs first. The poll now waits for the canvas
+the verdict allows, or for the 2D `dashi-fallback` when it does not allow one,
+within the same settle budget.
+
+**Reason.** A capture taken on the stage's loading line would show an empty
+stage, and the queue forbids a step ending there; a screenshot that looks empty
+would read as a defect in work that is correct. The change is to the harness's
+wait condition only — the verdict and the scene are untouched, so it cannot make
+a capture more flattering than the truth, only more patient.
+
+**Result.** `canvas: 1` in both the measured-T1 and forced-T3 captures, with the
+chip text and the badge computed styles reported alongside.

@@ -7,7 +7,14 @@
  * DevTools protocol instead lets this script wait for the real signals — the
  * tier chip leaving "pending" and a <canvas> appearing — and then capture.
  *
- * Run: node scripts/screenshot_dashi.mjs <url> <out.png> [settleMs]
+ * Run: node scripts/screenshot_dashi.mjs <url> <out.png> [settleMs] [overrideTier]
+ *
+ * `overrideTier` (T0..T3) writes the app's own manual override into localStorage
+ * before the page boots, so the capture can show a tier this machine did not
+ * measure. It uses the same `writeOverride` path the Tier Panel uses — the verdict
+ * still runs through `resolveTier`, so a limit this machine really has still caps
+ * it and the chip's title says the pick was lowered. Nothing is fabricated: the
+ * capture records the verdict it got, not the one that was asked for.
  *
  * Reads only DOM state. Never touches .env, tokens, or any authority surface.
  */
@@ -17,6 +24,12 @@ import { spawn } from "node:child_process";
 const url = process.argv[2] ?? "http://127.0.0.1:3199/";
 const out = process.argv[3] ?? "reports/dashboard/screens/M-D5.2/stage.png";
 const settleMs = Number(process.argv[4] ?? 20000);
+const overrideTier = process.argv[5] ?? null;
+const OVERRIDES = ["T0", "T1", "T2", "T3"];
+if (overrideTier !== null && !OVERRIDES.includes(overrideTier)) {
+  console.error(`overrideTier must be one of ${OVERRIDES.join("/")}, got ${overrideTier}`);
+  process.exit(2);
+}
 
 const CHROME =
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
@@ -121,6 +134,9 @@ const probe = async () => {
         });
         return gl && gl.getParameter ? gl : (gl && gl.startsWith ? null : gl);
       };
+      ${overrideTier !== null
+        ? `try { localStorage.setItem("ahos.stage.tier.override", ${JSON.stringify(overrideTier)}); } catch {}`
+        : ""}
     `,
   });
   await sendTo("Page.navigate", { url });
@@ -129,13 +145,32 @@ const probe = async () => {
   const poll = `(() => {
     const chip = document.querySelector('.dashi-tier');
     const pending = chip ? chip.className.includes('pending') : true;
+    const badge = (() => {
+      const b = document.querySelector('.truth-badge');
+      if (!b) return null;
+      const label = b.querySelector('.truth-badge__label');
+      const swatch = b.querySelector('.truth-badge__fill');
+      const cs = getComputedStyle(b);
+      const cl = label ? getComputedStyle(label) : null;
+      const cw = swatch ? getComputedStyle(swatch) : null;
+      return JSON.stringify({
+        root: cs.backgroundImage === 'none' ? 'none' : 'PATTERN',
+        label: !cl ? null : cl.backgroundImage === 'none' ? 'none' : 'PATTERN',
+        swatch: !cw ? null : cw.backgroundImage === 'none' ? 'none' : 'PATTERN',
+        text: label ? label.textContent.trim() : null,
+      });
+    })();
     return JSON.stringify({
       chip: chip ? chip.className.replace(/^.*dashi-tier/, 'dashi-tier') : null,
       text: chip ? chip.textContent.trim() : null,
       title: chip ? chip.getAttribute('title') : null,
       canvas: document.querySelectorAll('canvas').length,
       pill: (document.querySelector('.dashi-pill--paper') || {}).textContent?.trim() ?? null,
-      fallback:!document.querySelector('.dashi-fallback') ? null
+      badge,
+      // StageLazy shows its own loading line while the three.js chunk parses;
+      // that is "not ready yet", and distinguishes from the 2D dashi-fallback.
+      stageLoading: !!document.querySelector('.stage-fallback'),
+      fallback: !document.querySelector('.dashi-fallback') ? null
         : document.querySelector('.dashi-fallback')?.textContent?.replace(/\\s+/g,' ').trim(),
     });
   })()`;
@@ -151,7 +186,14 @@ const probe = async () => {
         })
       ).result.value,
     );
-    if (!state.chip?.includes("pending")) break;
+    // The chip landing is not enough: the stage still has to fetch and parse the
+    // three.js chunk, and until it does the owner sees a loading line rather than
+    // the scene. Wait for the canvas the verdict allows, or for the 2D fallback
+    // when it does not allow one.
+    if (
+      !state.chip?.includes("pending") &&
+      (state.canvas > 0 || state.fallback !== null)
+    ) break;
     await new Promise((r) => setTimeout(r, 500));
   } while (Date.now() < deadline);
 

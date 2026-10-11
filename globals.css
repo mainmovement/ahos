@@ -135,8 +135,18 @@ button, input, textarea { font-family: inherit; }
   font-size: 0.75rem; font-weight: 600; line-height: 1.35;
   font-family: var(--font-vazir), Tahoma, sans-serif;
   border: 1px solid currentColor; color: var(--badge-color, var(--ahos-text-muted));
+  /* M-D5.F: the badge carries no background of its own. §2.3's fill is painted
+   * only on the swatch below, so the label always sits on a solid surface and
+   * the hatch can never strike through the glyphs it is meant to sit beside. */
+  background: transparent;
+}
+.truth-badge > .truth-badge__fill {
+  flex: none;
+  inline-size: 0.7em; block-size: 0.7em;
+  border-radius: 0.18em;
   background: var(--badge-fill, transparent);
 }
+.truth-badge > .truth-badge__label { background: transparent; }
 .truth-badge > .truth-badge__glyph { font-weight: 700; }
 .truth-badge--ok { border-style: solid; }
 .truth-badge--stale { border-style: dotted; filter: saturate(0.5); }   /* §2.3: 50% desaturated */

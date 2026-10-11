@@ -415,3 +415,56 @@ describe("M-D3: the stylesheet agrees with the tables", () => {
     assert.ok(css.includes("truth-badge--glow"), "missing the glow treatment");
   });
 });
+
+describe("M-D5.F: the badge's label is solid and legible", () => {
+  // Owner QA (M-D5.5 item 1): the top-left chip read as struck-through. The
+  // cause was §2.3's fill painted as the *badge's* background — the 45° hatch of
+  // an UNKNOWN crossed the Persian word behind the glyph strokes. The pattern is
+  // a cue and may not be a text background; this keeps it on a swatch.
+  const css = readFileSync(new URL("../globals.css", import.meta.url), "utf8");
+  const tsx = readFileSync(new URL("../TruthBadge.tsx", import.meta.url), "utf8");
+
+  /** WCAG relative luminance, for the contrast floor M-D5.F sets. */
+  const luminance = (hex: string): number => {
+    const channels = [1, 3, 5].map((at) => {
+      const c = Number.parseInt(hex.slice(at, at + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * channels[0]! + 0.7152 * channels[1]! + 0.0722 * channels[2]!;
+  };
+  const contrast = (a: string, b: string): number => {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  it("never paints §2.3's fill as the badge's own background", () => {
+    const start = css.indexOf(".truth-badge {");
+    assert.ok(start > -1, "no .truth-badge rule to guard");
+    // The base rule is flat, so the first closing brace after it ends it.
+    const rule = css.slice(start, css.indexOf("}", start));
+    assert.ok(!rule.includes("--badge-fill"), "the badge root must not carry the fill");
+    assert.ok(rule.includes("background: transparent"), "the badge root must be transparent");
+  });
+
+  it("gives the fill a swatch and the label a span of its own", () => {
+    assert.ok(css.includes(".truth-badge__fill"), "missing the swatch rule");
+    assert.ok(css.includes("var(--badge-fill, transparent)"), "the swatch must read the fill var");
+    assert.ok(css.includes(".truth-badge__label"), "missing the label rule");
+    assert.ok(tsx.includes('className="truth-badge__fill"'), "the component renders the swatch");
+    assert.ok(tsx.includes('className="truth-badge__label"'), "the component wraps the label");
+  });
+
+  it("keeps every state's label at 4.5:1 or better on both theme surfaces", () => {
+    for (const state of BADGE_STATES) {
+      for (const [name, tokens] of Object.entries(THEMES)) {
+        for (const surface of [tokens.bg, tokens.panel]) {
+          const ratio = contrast(STATUS_COLOURS[state].hex, surface);
+          assert.ok(
+            ratio >= 4.5,
+            `${state}'s label on the ${name} ${surface === tokens.bg ? "bg" : "panel"} is ${ratio.toFixed(2)}:1, under 4.5:1`,
+          );
+        }
+      }
+    }
+  });
+});

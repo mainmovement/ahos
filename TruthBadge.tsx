@@ -57,8 +57,16 @@ export const TruthBadge = memo(function TruthBadge({ state, label, title }: Trut
       title={title ?? `${gloss.en} — ${gloss.fa}`}
       data-truth={badge}
     >
+      {s.fill !== "none" ? (
+        /* §2.3's pattern is painted on a *swatch*, never as the badge's
+         * background. Behind the label it strikes the glyphs through — the 45°
+         * hatch of an UNKNOWN crossed the Persian word and made the chip
+         * unreadable (owner QA, M-D5.5 item 1). The cue survives; the text is
+         * solid. */
+        <span className="truth-badge__fill" aria-hidden="true" />
+      ) : null}
       {s.glyph ? <span className="truth-badge__glyph" aria-hidden="true">{s.glyph}</span> : null}
-      <span>{label ?? gloss.fa}</span>
+      <span className="truth-badge__label">{label ?? gloss.fa}</span>
     </span>
   );
 });
