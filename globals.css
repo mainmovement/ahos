@@ -222,6 +222,61 @@ button, input, textarea { font-family: inherit; }
 .dashi-main { flex: 1; position: relative; display: grid; place-items: center; min-block-size: 0; }
 .dashi-main > canvas { display: block; }
 
+.dashi-body { flex: 1; display: flex; min-block-size: 0; }
+.dashi-body > .dashi-main { flex: 1; }
+
+.dashi-panel-toggle {
+  font-family: inherit; font-size: 0.78rem; color: var(--ahos-text-muted);
+  background: transparent; border: 1px solid var(--ahos-border);
+  border-radius: 0.4rem; padding: 0.25rem 0.7rem; min-block-size: 32px;
+  cursor: pointer; transition: border-color 160ms ease;
+}
+.dashi-panel-toggle:hover { border-color: var(--ahos-gold); color: var(--ahos-text); }
+.dashi-panel-toggle[aria-expanded="true"] { border-color: var(--ahos-gold); color: var(--ahos-gold); }
+
+/* M-D5.5: the panel is a rail, not a dialogue — it takes space from the stage
+ * rather than overlaying it, so the captured stage stays the same size whether
+ * the panel is open or not and a screenshot remains comparable. */
+.tier-panel {
+  inline-size: 320px; flex: none;
+  overflow-y: auto;
+  border-inline-start: 1px solid var(--ahos-border);
+  background: color-mix(in srgb, var(--ahos-panel) 62%, var(--ahos-bg));
+  padding: 1.1rem 1.2rem 1.4rem;
+  color: var(--ahos-text);
+  font-size: 0.84rem;
+}
+.tier-panel__title { margin: 0 0 0.8rem; font-weight: 700; color: var(--ahos-gold); }
+.tier-panel__subtitle { margin: 0 0 0.5rem; font-weight: 700; color: var(--ahos-text-muted); }
+.tier-panel__row { display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.35rem 0; align-items: baseline; }
+.tier-panel__key { color: var(--ahos-text-muted); flex: none; }
+.tier-panel__hw b, .tier-panel__tier b { color: var(--ahos-text); }
+.tier-panel__tier-id { font-family: var(--font-mono, ui-monospace, monospace); color: var(--ahos-gold); }
+.tier-panel__band, .tier-panel__reach, .tier-panel__hint { color: var(--ahos-text-muted); font-size: 0.78rem; }
+.tier-panel__reason {
+  margin: 0.3rem 0 0.6rem; color: var(--ahos-text-muted); font-size: 0.8rem;
+  line-height: 1.6; padding-inline-start: 0.6rem; border-inline-start: 2px solid var(--ahos-border);
+}
+.tier-panel__warn { color: var(--ahos-status-unknown); }
+.tier-panel__muted { color: var(--ahos-text-muted); font-size: 0.8rem; line-height: 1.6; }
+.tier-panel__pending { color: var(--ahos-text-muted); font-size: 0.8rem; }
+.tier-panel__divider { block-size: 1px; background: var(--ahos-border); margin: 0.9rem 0; }
+.tier-panel__clear {
+  font-family: inherit; font-size: 0.78rem; color: var(--ahos-text);
+  background: transparent; border: 1px solid var(--ahos-border);
+  border-radius: 0.35rem; padding: 0.15rem 0.55rem; cursor: pointer;
+}
+.tier-panel__clear:hover { border-color: var(--ahos-gold); }
+.tier-panel__unknown { display: grid; gap: 0.4rem; }
+.tier-panel__ideas { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.tier-panel__idea {
+  padding: 0.45rem 0.6rem; border: 1px solid var(--ahos-border);
+  border-radius: 0.45rem; background: color-mix(in srgb, var(--ahos-panel) 45%, transparent);
+}
+.tier-panel__idea-title { display: block; color: var(--ahos-text); }
+.tier-panel__idea-meta { display: block; color: var(--ahos-text-muted); font-size: 0.75rem; margin-top: 0.15rem; }
+.tier-panel__footnote { margin: 1rem 0 0; color: var(--ahos-text-muted); font-size: 0.7rem; line-height: 1.6; }
+
 .stage-fallback {
   color: var(--ahos-text-muted); font-size: 0.9rem;
   padding: 1rem 1.5rem; border: 1px dashed var(--ahos-border); border-radius: 0.6rem;

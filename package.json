@@ -32,7 +32,8 @@
     "test:pglite-backend": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/pglite_backend_selftest.ts",
     "test:launcher-route": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/launcher_route_selftest.ts",
     "test:truth-badge": "node --experimental-strip-types --test scripts/dashboard_truth_badge_selftest.ts",
-    "test:stage-quality": "node --experimental-strip-types --test scripts/quality_selftest.ts"
+    "test:stage-quality": "node --experimental-strip-types --test scripts/quality_selftest.ts",
+    "test:idea-shelf": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/idea_shelf_selftest.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",

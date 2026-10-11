@@ -916,3 +916,30 @@ override rather than stranding the machine at T0. Two polling bugs in the first
 draft of the test would have passed a switch that had not happened — the chip
 never returns to `pending` during a re-probe, and a second consecutive switch
 needs its own reference class. Both are documented in the step README.
+
+---
+
+### 2026-10-11 17:10 — M-D5.5 the shelf registry is served by one route, and a missing registry is never an empty list
+
+**Q:** the panel must list ideas «منتظر ارتقا» from `config/idea_shelf.json`,
+which does not exist yet (M59.S has not shipped). Serve it from `public/`, or
+through an API route? And what does a missing file render as?
+**A:** one server-side route (`app/api/idea_shelf/route.ts`) reads the file from
+`config/`; the registry is deliberately **not** copied into `public/`. A missing
+or unparseable file renders a grey `TruthBadge` UNKNOWN, never an empty list, and
+there is no fallback list of idea names anywhere in the panel.
+**Why it matters:** a file in `public/` would put a second, browser-fetchable copy
+of the registry beside the one M59.S reads as its single source — the two could
+drift, and the dashboard would be showing a roadmap the owner's registry never
+issued. The route keeps the read through one place. And `parseShelf(null)` →
+`UNAVAILABLE`, because an empty list is a *claim* ("everything fits on this
+machine") that a missing file cannot support; this is `UNKNOWN > fabricated` at
+the layer where a corrupted registry would otherwise look like good news. The
+same law governs the edges: an idea with an unrecognised tier tag is neither
+runnable nor blocked, and an unknown *machine* tier means the panel says unknown
+rather than "everything is waiting".
+**Result:** 22/22 in the new selftest; the capture records `/idea_shelf.json` →
+404 (the decision showing up in the browser) and `/api/idea_shelf` → 401 in the
+headless browser, which is the auth gate every dashboard route sits behind — so
+the capture's UNKNOWN badge is the required presentation, and the script logs the
+raw 401 body so it is not mistaken for the missing-file branch.

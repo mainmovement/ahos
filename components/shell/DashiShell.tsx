@@ -34,6 +34,7 @@ import { motionBudget, useStageStore } from "@/components/stage/store";
 import { HARDWARE_LABELS, TIER_LABELS, type TierVerdict } from "@/components/stage/quality";
 import { probeQuality, writeOverride } from "@/components/stage/quality";
 import StageLazy from "@/components/stage/StageLazy";
+import TierPanel from "@/components/shelf/TierPanel";
 
 /** Rule 5: numbers shown to the owner are Persian digits. */
 const faDigits = (n: number): string =>
@@ -112,6 +113,14 @@ export default function DashiShell() {
     void probeQuality().then(setVerdict);
   }, [setContextLost, setVerdict]);
 
+  // M-D5.5: the panel re-probes after the override is cleared, so its tier line
+  // and the chip cannot disagree about the same measurement.
+  const reprobe = useCallback(() => {
+    void probeQuality().then(setVerdict);
+  }, [setVerdict]);
+
+  const [panelOpen, setPanelOpen] = useState(false);
+
   const tier = verdict?.tier ?? "T1";
   const budget = motionBudget(tier, useStageStore.getState().reducedMotion);
   // The stage is not loaded until the probe has landed. `StageLazy` pulls the
@@ -156,9 +165,22 @@ export default function DashiShell() {
         >
           {theme === "imperial" ? "شاهنشاهی" : "نئون"}
         </button>
+
+        <button
+          type="button"
+          className="dashi-panel-toggle"
+          onClick={() => setPanelOpen((open) => !open)}
+          aria-expanded={panelOpen}
+          aria-controls="dashi-tier-panel"
+          aria-label="پنل طبقهٔ سخت‌افزار"
+          title="پنل طبقهٔ سخت‌افزار و ایده‌های در انتظارِ ارتقا"
+        >
+          {panelOpen ? "بستن پنل" : "سخت‌افزار"}
+        </button>
       </header>
 
-      <main className="dashi-main">
+      <div className="dashi-body">
+        <main className="dashi-main">
         {verdict === null ? (
           // The probe is still running. This is deliberately *not* the fallback
           // notice: nothing has failed and no measurement has been refused, the
@@ -184,6 +206,11 @@ export default function DashiShell() {
             : ""}
         </p>
       </main>
+
+      {panelOpen ? (
+        <TierPanel verdict={verdict} onReprobe={reprobe} />
+      ) : null}
+      </div>
     </div>
   );
 }
