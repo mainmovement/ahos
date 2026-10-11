@@ -1,0 +1,11 @@
+{
+  "schema": "ahos.paper_digest.v1",
+  "mission_id": "M13-GOLD-PAPER",
+  "day": "2026-10-11",
+  "entries": 4,
+  "digest_sha256": "04038ab874f82d2346ba261f17981be954a77a9b920ed6c3ca68390eafa298d7",
+  "head_hash": "9b2259ae4b11895b10a7ef86a670cc91ab78e860b8de790753d1e507feb6b547",
+  "signed": false,
+  "unsigned_reason": "signature awaits a sanctioned Credential Manager key under owner approval; no key is fabricated",
+  "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+}
