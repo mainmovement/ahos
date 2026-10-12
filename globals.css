@@ -319,3 +319,55 @@ button, input, textarea { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .dashi-tier, .dashi-theme, .dashi-retry { transition: none; }
 }
+
+/* M-D7 — the bottom telemetry strips. Frosted glass per the owner's WOW-on-8GB
+ * list (backdrop-filter on panels only, never on the stage), one hairline edge,
+ * and UNKNOWN always rendered as plain grey text rather than a hatched box. */
+.telemetry {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem; padding: 0.55rem 1rem 0.7rem;
+  border-top: 1px solid var(--ahos-border);
+  background: color-mix(in srgb, var(--ahos-panel) 78%, transparent);
+  backdrop-filter: blur(8px); position: relative; z-index: 2;
+}
+.telemetry__cell {
+  min-inline-size: 0; padding: 0.35rem 0.6rem;
+  border: 1px solid var(--ahos-border); border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--ahos-panel) 45%, transparent);
+}
+.telemetry__cell-title {
+  margin: 0 0 0.4rem; font-size: 0.72rem; font-weight: 700;
+  color: var(--ahos-gold); letter-spacing: 0.04em;
+  display: flex; align-items: baseline; gap: 0.45rem; flex-wrap: wrap;
+}
+.telemetry__stale { color: var(--ahos-status-unknown); font-weight: 400; font-size: 0.68rem; }
+.telemetry__line { margin: 0 0 0.3rem; font-size: 0.78rem; color: var(--ahos-text); display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.telemetry__line:last-child { margin-block-end: 0; }
+.telemetry__line--muted { color: var(--ahos-text-muted); font-size: 0.72rem; }
+.telemetry__line--err { color: var(--ahos-status-rejected); font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.telemetry__value { color: var(--ahos-text); font-size: 0.78rem; }
+
+.telemetry__gates { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.28rem; }
+.telemetry__gate { display: flex; align-items: center; gap: 0.45rem; min-inline-size: 0; }
+.telemetry__gate-name {
+  color: var(--ahos-text); font-size: 0.74rem; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+
+.telemetry__ledger { list-style: none; margin: 0.3rem 0 0; padding: 0; display: grid; gap: 0.22rem; }
+.telemetry__ledger-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; }
+.telemetry__sym { font-family: var(--font-mono, ui-monospace, monospace); color: var(--ahos-text); }
+.telemetry__side { color: var(--ahos-text-muted); font-size: 0.68rem; }
+.telemetry__status { color: var(--ahos-text-muted); font-size: 0.68rem; margin-inline-start: auto; }
+
+.telemetry__age {
+  position: absolute; inset-block-end: 0.2rem; inset-inline-end: 0.7rem;
+  margin: 0; font-size: 0.64rem; color: var(--ahos-text-muted); opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+  .telemetry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .telemetry { backdrop-filter: none; }
+}

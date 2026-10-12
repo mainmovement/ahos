@@ -35,6 +35,7 @@ import { HARDWARE_LABELS, TIER_LABELS, type TierVerdict } from "@/components/sta
 import { probeQuality, writeOverride } from "@/components/stage/quality";
 import StageLazy from "@/components/stage/StageLazy";
 import TierPanel from "@/components/shelf/TierPanel";
+import { TelemetryStrips } from "@/components/shell/TelemetryStrips";
 
 /** Rule 5: numbers shown to the owner are Persian digits. */
 const faDigits = (n: number): string =>
@@ -198,11 +199,11 @@ export default function DashiShell() {
           <FallbackNotice contextLost={contextLost} tier={tier} onRetry={retryStage} />
         )}
 
-        {/* The honest scope caption: the globe and its rings have landed, the
-            telemetry strips have not. */}
+        {/* The honest scope caption: the globe, its rings and the telemetry
+            strips have landed; the evidence graph and the tower are next. */}
         <p className="dashi-scope" dir="rtl">
-          صحنهٔ رصدخانه — M-D۶.۵. گویِ نقطه‌ای، خشکی‌ها، پایانِ شب‌روزی و
-          حلقه‌های زنجیره روی صحنه است؛ نوارهای تله‌متری در M-D۷ می‌آیند.
+          صحنهٔ رصدخانه — M-D۷. گویِ نقطه‌ای، حلقه‌های زنجیره و نوارهای تله‌متری
+          (اجرا، دروازه‌ها، هزینه، دفتر) روی صحنه است؛ گرافِ شواهد و برج در ادامه.
           {budget.particles === 0 && budget.rotate === 0
             ? " حالت کم‌مصرف: حرکت و ذرات خاموش است."
             : ""}
@@ -213,6 +214,10 @@ export default function DashiShell() {
         <TierPanel verdict={verdict} onReprobe={reprobe} />
       ) : null}
       </div>
+
+      {/* M-D7: the bottom telemetry strips — run log, gates, spend, ledger.
+          Real data from /api/command, grey UNKNOWN where it has not loaded. */}
+      <TelemetryStrips />
     </div>
   );
 }
