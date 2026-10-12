@@ -3,13 +3,15 @@
  * shamseh floor.
  *
  * What it is: a field of gold dots on a Fibonacci lattice (see
- * `globeGeometry.ts`), wrapped around a dark lacquer body, with a fresnel rim
- * that puts a hot gold edge along the silhouette. Everything is generated in
- * code — no textures fetched, no models loaded, no HDR — so §0.5's "zero
- * external requests at runtime" holds, and §1's "generated procedurally (no
- * copied art)" holds with it.
+ * `globeGeometry.ts`), wrapped around a dark lacquer body, with a fresnel
+ * atmosphere (`Atmosphere.tsx`) that puts a warm halo along the silhouette.
+ * Everything is generated in code except one 111 KB land mask (see below), so
+ * §0.5's "zero external requests at runtime" holds — the mask is served from
+ * the app's own origin as `/geo/earth_specular_1k.png` — and §1's "generated
+ * procedurally (no copied art)" holds with it, the mask being public-domain
+ * *data* about where the land is rather than art.
  *
- * What it deliberately is not: a *data* globe. The continents it now traces
+ * What it deliberately is not: a *data* globe. The continents it traces
  * (M-D6.3) are ornament — they carry no values, they do not light up on a
  * verdict, and a token's result is never expressed by brightening a region. The
  * truth badge in the DOM says what the evidence said. Everything here is still
@@ -17,10 +19,11 @@
  * decoration.
  *
  * Geography, where it appears, comes from licensed-free Natural Earth polygons
- * via `world-atlas` + `topojson-client`, bundled rather than fetched, so §0.5's
- * "zero external requests at runtime" still holds and §1's "no copied art" holds
- * with it. If land ever has to mean something, the values must arrive through
- * `/api/command` as labelled data — never as a colour change here.
+ * via `world-atlas` + `topojson-client`, bundled rather than fetched, and from
+ * the NASA Black Marble water mask in `public/geo/` (public domain, copied from
+ * the owner's vendor kit per the 18:00 rule). Both stay ornament: if land ever
+ * has to mean something, the values must arrive through `/api/command` as
+ * labelled data — never as a colour change here.
  *
  * Tiers. Spec §11's ladder sets the density; the counts stay under the 30k the
  * owner's list caps a point globe at (T3 is 24 000 dust + 4 800 land), and T1
@@ -30,34 +33,29 @@
  */
 "use client";
 
-import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { Suspense, useMemo, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { useTexture } from "@react-three/drei";
 
 import { useStageStore } from "@/components/stage/store";
 import { stageColors } from "@/components/stage/themeColors";
 import { fibonacciSphere, GLOBE_RADIUS, pointShades } from "@/components/stage/globeGeometry";
 import { landDots, landShades, LAND_DOTS_RADIUS } from "@/components/stage/landDots";
+import { LAND_MASK_URL } from "@/components/stage/landMask";
 import { sunDirection, terminatorWeight } from "@/components/stage/sun";
+import { Atmosphere } from "@/components/stage/Atmosphere";
 
 /** Spec §8.1: idle motion is 0.5°/s — one full turn in twelve minutes. */
 const IDLE_RAD_PER_SEC = (0.5 * Math.PI) / 180;
 
-// TEMPORARY ABLATION HARNESS (M-D6.4 glow-spot hunt) — REVERT BEFORE COMMITING.
-// ?ablate=nolights|nodir|nobody|noshell|noland|nodots, comma-joined. Any value
-// also freezes the spin and pins the sun so every variant shot is pixel-comparable.
-const ABLATE = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ablate") ?? "" : "";
-const ablate = (k: string) => ABLATE.includes(k);
-const FROZEN = ABLATE.length > 0;
-const FROZEN_DATE = new Date("2026-10-12T12:00:00Z");
-
 /** An aesthetic axial tilt, so the globe reads as a planet and not a ball bearing. */
 const TILT = 0.31;
 /**
- * Owner QA 00:24: the globe was too small and floating above the floor ring. 1.6×
+ * Owner QA 00:24: the globe was too small and floating above the floor ring. 1.6x
  * fills the ring the way the owner asked, and as a side effect it spreads the same
- * dot count over ~2.56× the screen area, which is most of why the rim stopped
- * stacking into hot spots — see `RIM_*` and the dot opacity below.
+ * dot count over ~2.56x the screen area, which is most of why the silhouette
+ * stopped stacking into hot spots — see the dot opacity below.
  */
 const SCALE = 1.6;
 /**
@@ -88,6 +86,18 @@ const POSITION: [number, number, number] = [0, -0.498 + SCALE * GLOBE_RADIUS, 0]
  */
 const DUST_NIGHT = 0.07;
 const LAND_NIGHT = 0.16;
+
+/**
+ * The atmosphere's fresnel tuning. Measured, not guessed — see the M-D6.4
+ * receipt for the before/after luminance numbers. `coefficient` sets how much
+ * glow survives at the shell's own limb (where the dot product with the view is
+ * ~0.1), `power` how fast the glow rises toward the globe, and `scale` how far
+ * the shell reaches past the dot field. The old rim's flat 0.72 annulus is
+ * replaced by a gradient that is dim at the edge and warm where the planet is.
+ */
+const ATMOSPHERE_SCALE = 1.05;
+const ATMOSPHERE_COEFFICIENT = 0.4;
+const ATMOSPHERE_POWER = 2.0;
 /**
  * How often the terminator is recomputed. The sun moves at 15°/hour and the
  * globe's idle spin is 0.5°/s, so a second is half a degree of travel — well
@@ -201,65 +211,80 @@ function softPointTexture(): THREE.Texture {
 }
 
 /**
- * The fresnel rim: a shell slightly larger than the globe, rendered from the
- * inside, additive, brightest where the surface turns away from the camera. That
- * is the "gold rim light" the owner's list asks for, and it costs one triangle
- * shell rather than a postprocessing pass — which is why T1 may have it too.
+ * The land layer's shaders, ported from cobe (MIT, ~5 kB WebGL dotted globe;
+ * see `vendor_assets/globe/reference/cobe-2.0.1`). cobe samples a land-mask
+ * texture per dot and shades each dot in the fragment shader, at a *fixed*
+ * alpha with no distance fade — and it is the fade that makes a sparse,
+ * low-tier dot field read as faint: the old soft radial sprite was at full
+ * alpha only in its centre few pixels, so a dot whose visible core is one or
+ * two pixels contributes almost nothing additively over a dark body.
  *
- * Owner QA 00:24 tuned the falloff: `uPower` 3.0 made the rim a broad flat band
- * that read as a cartoon outline, so it is narrowed, the intensity is brought
- * back so the edge glows rather than paints, and the shell is pulled in to hug
- * the dot field instead of floating around it.
+ * The disc is therefore hard-edged and a fixed screen size. `uPxSize` is in
+ * framebuffer pixels and is multiplied by the renderer's pixel ratio in JS, so
+ * a dot covers the same *screen* area at every tier and every DPR, and a dot at
+ * the globe's limb is exactly as large as one dead centre — no perspective
+ * attenuation, which is the other half of "faint at the edges".
  *
- * Owner QA 02:48 (item 3) — the actual cause, found by ablation. Two rounds of
- * raising `uPower` changed nothing, because the shader could not use it. Every
- * fragment this shell renders is back-facing, so its geometric normal points
- * *away* from the camera and `dot(normal, view)` is negative; the old `max(…, 0)`
- * clamp sent that to zero and made the fresnel term identically 1. `pow(1, n)` is
- * 1 for any `n`, so no exponent could thin the edge. The shell was painting a
- * constant-brightness annulus whose width was set by how far it reached past the
- * occluding body — the "thick beaded neon ring" was that annulus plus the
- * additive dust stacking at the silhouette. Using `abs` instead of the clamp
- * restores the gradient, dark where the shell faces away and bright at the limb,
- * and `uPower` now genuinely folds the edge against it. See `RIM_FRAG`.
+ * The mask term keeps the continents honest at the coast: the polygon sampler
+ * in `landDots.ts` decides where a dot goes, and the NASA water mask decides
+ * how much of it shows, so a dot straddling a shoreline is dimmed by the
+ * fraction of it that is water. Interior land is at the fixed alpha, which is
+ * the cobe look the owner's kit points at.
  *
- * The shader is two lines of fresnel arithmetic; `precision` is set because a
- * WebGL1 context is still possible at T1 and the default there is not guaranteed.
+ * The day/night terminator is *not* re-derived here: the colour attribute
+ * already carries it (see `litColors`/`relight`), so this shader only shapes
+ * the dot and weights it by the mask, and M-D6.4's verified sun wiring stays
+ * the single place the sun is applied.
+ *
+ * `precision` is set because a WebGL1 context is still possible at T1 and the
+ * default there is not guaranteed. `vertexColors: true` on the material makes
+ * three declare `attribute vec3 color`, so it is not redeclared here.
  */
-const RIM_VERT = /* glsl */ `
-  varying vec3 vNormalView;
-  varying vec3 vViewDir;
+const LAND_VERT = /* glsl */ `
+  varying vec3 vDir;
+  varying vec3 vColor;
+  uniform float uPxSize;
   void main() {
-    vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    vNormalView = normalize(normalMatrix * normal);
-    vViewDir = normalize(-mv.xyz);
-    gl_Position = projectionMatrix * mv;
+    vColor = color;
+    // The dot's own direction from the globe's centre, in the geometry's frame —
+    // the same frame landDots.ts used for its lon/lat, so the mask's continents
+    // land where the sampler put the dots.
+    vDir = normalize(position);
+    gl_PointSize = uPxSize;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
-const RIM_FRAG = /* glsl */ `
+const LAND_FRAG = /* glsl */ `
   precision mediump float;
-  uniform vec3 uColor;
-  uniform float uPower;
-  uniform float uIntensity;
-  varying vec3 vNormalView;
-  varying vec3 vViewDir;
+  uniform sampler2D uMask;
+  uniform float uAlpha;
+  uniform float uFeather;
+  varying vec3 vDir;
+  varying vec3 vColor;
   void main() {
-    // Owner QA 02:48 (item 3): this was 1.0 - max(dot(vNormalView, vViewDir), 0.0),
-    // and on a back-facing fragment the geometric normal always points away from
-    // the camera, so the dot product is negative, the clamp sends it to zero, and
-    // the fresnel term is identically 1 — on *every* fragment of the shell. The
-    // exponent then had nothing to shape: pow(1, uPower) is 1 for any power, which
-    // is why two rounds of raising uPower never thinned the edge. The shell was
-    // painting a solid constant-brightness annulus, and its width was set by how
-    // far the shell extended past the occluding body, not by the falloff at all.
-    // Taking the absolute value restores the gradient the shader was written for:
-    // bright at the silhouette where the normal turns across the view, dark where
-    // the shell faces away. uPower now genuinely folds the edge against the limb.
-    float fresnel = 1.0 - abs(dot(vNormalView, vViewDir));
-    float rim = pow(fresnel, uPower);
-    gl_FragColor = vec4(uColor * rim * uIntensity, rim);
+    // A fixed-alpha disc, not a soft sprite: uFeather is a few percent of the
+    // disc's radius, so the dot is solid out to nearly its edge.
+    float r = length(gl_PointCoord - vec2(0.5)) * 2.0;
+    float disc = 1.0 - smoothstep(1.0 - uFeather, 1.0, r);
+    // lon/lat from the dot's direction — the arithmetic in landMask.ts's
+    // landMaskUV, in GLSL, pinned against the same named geography.
+    float lon = atan(vDir.z, vDir.x);
+    float lat = asin(clamp(vDir.y, -1.0, 1.0));
+    vec2 uv = vec2(0.5 + lon * 0.15915494309189535, 0.5 - lat * 0.3183098861837907);
+    float land = 1.0 - texture2D(uMask, uv).r;
+    gl_FragColor = vec4(vColor, disc * uAlpha * land);
   }
 `;
+
+/**
+ * The land dot's screen size, in CSS pixels. The dust field's soft sprite is
+ * ~2.1 CSS px at the globe's depth; the land is the *figure* over that ground,
+ * so it is larger, and being a hard disc its visible area is its full size
+ * rather than the centre fraction a radial gradient leaves.
+ */
+const LAND_DOT_PX = 5.5;
+/** The disc's edge feather, as a fraction of its radius. */
+const LAND_DOT_FEATHER = 0.32;
 
 export interface GlobeProps {
   /** How many dust dots, from the tier's budget. Zero renders the body and rim only. */
@@ -267,6 +292,15 @@ export interface GlobeProps {
   /** The rotation rate the tier allows; 0 is a static globe. */
   rotate: number;
 }
+
+/**
+ * The land dot's fixed alpha. cobe's dots are at a fixed alpha with no fade; the
+ * catch on a *point* globe is that a hard, fully-opaque disc stacks additively
+ * at the silhouette, which is how the globe's hot spots were born (see the
+ * 4f51c21 fix). The mask already softens coasts; this stays a hair under 1 so
+ * two overlapping dots at the limb do not saturate.
+ */
+const LAND_ALPHA = 0.85;
 
 /**
  * The land layer's budget. It is proportional rather than fixed so every tier
@@ -310,7 +344,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
   // so the per-second terminator pass is one divide-free dot product per dot.
   const dotInvR = 1 / GLOBE_RADIUS;
   const dotColors = useMemo(
-    () => litColors(dotBase, dotPositions, dotInvR, sunLocalFor(0, FROZEN ? FROZEN_DATE : new Date()), DUST_NIGHT),
+    () => litColors(dotBase, dotPositions, dotInvR, sunLocalFor(0, new Date()), DUST_NIGHT),
     [dotBase, dotPositions, dotInvR],
   );
 
@@ -342,7 +376,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
   }, [warmGold, landCount]);
   const landInvR = 1 / LAND_DOTS_RADIUS;
   const landColors = useMemo(
-    () => litColors(landBase, landPositions, landInvR, sunLocalFor(0, FROZEN ? FROZEN_DATE : new Date()), LAND_NIGHT),
+    () => litColors(landBase, landPositions, landInvR, sunLocalFor(0, new Date()), LAND_NIGHT),
     [landBase, landPositions, landInvR],
   );
   const landGeometry = useMemo(() => {
@@ -352,31 +386,49 @@ export default function Globe({ points, rotate }: GlobeProps) {
     return geo;
   }, [landPositions, landColors]);
 
-  const rimMaterial = useMemo(
+  // The atmosphere's shell. Two knobs (`coefficient`, `power`) that both work on
+  // a back-facing fragment — see Atmosphere.tsx — instead of the old rim's three,
+  // one of which was inert. The segments follow the tier: T1's shell is a 32×32,
+  // T2/T3 a 64×64, matching the globe body's own subdivision ladder.
+  const shellSegments = points >= 10000 ? 64 : 32;
+
+  // The land layer's mask, loaded from the app's own origin. `useTexture`
+  // suspends, so the layer is mounted inside a <Suspense> below and the rest of
+  // the globe renders immediately rather than waiting on the 111 KB image.
+  // No colour space is set: it is a data mask, not a colour texture, and a
+  // loader-made `Texture` is already `NoColorSpace` by construction (three's
+  // own default, three.core.js:7311), so the shoreline ramp samples as the
+  // bytes it is without the component having to mutate the object.
+  const landMask = useTexture(LAND_MASK_URL);
+
+  const gl = useThree((state) => state.gl);
+  const landMaterial = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        vertexShader: RIM_VERT,
-        fragmentShader: RIM_FRAG,
+        vertexShader: LAND_VERT,
+        fragmentShader: LAND_FRAG,
         uniforms: {
-          uColor: { value: warmGold.clone() },
-          // Narrowed from 3.0 and softened from 1.35 (owner QA 00:24): the rim
-          // is now a thin hot edge that falls off quickly, not a flat band.
-          uPower: { value: 6.0 },
-          uIntensity: { value: 0.72 },
+          uMask: { value: landMask },
+          uAlpha: { value: LAND_ALPHA },
+          uFeather: { value: LAND_DOT_FEATHER },
+          // three's own points shader multiplies the size by the pixel ratio
+          // (`material.size * pixelRatio`); a fixed screen size has to do the
+          // same or the dots shrink on a high-DPR panel.
+          uPxSize: { value: LAND_DOT_PX * gl.getPixelRatio() },
         },
         transparent: true,
         depthWrite: false,
+        vertexColors: true,
         blending: THREE.AdditiveBlending,
-        side: THREE.BackSide,
       }),
-    [warmGold],
+    [landMask, gl],
   );
 
   const lastSun = useRef(0);
 
   useFrame((_, delta) => {
     if (!ref.current) return;
-    if (rotate > 0 && !FROZEN) {
+    if (rotate > 0) {
       // §8.1's idle rate is the centrepiece's rate at every tier: one slow turn
       // in twelve minutes. The budget's multiplier scales the loose particles and
       // the drift, not the one object the eye is on — at T1's 0.5 the turn was
@@ -392,7 +444,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
     const now = performance.now() / 1000;
     if (now - lastSun.current >= TERMINATOR_REFRESH_S) {
       lastSun.current = now;
-      const sun = sunLocalFor(ref.current.rotation.y, FROZEN ? FROZEN_DATE : new Date());
+      const sun = sunLocalFor(ref.current.rotation.y, new Date());
       relight(dotBase, dotColors, dotPositions, dotInvR, sun, DUST_NIGHT);
       if (landColors.array.length === landBase.length) {
         relight(landBase, landColors, landPositions, landInvR, sun, LAND_NIGHT);
@@ -405,7 +457,6 @@ export default function Globe({ points, rotate }: GlobeProps) {
       {/* The body: dark lacquer, clearcoat, lit by the stage's gold point light.
           Opaque and depth-writing, so it occludes the dots on the far side and
           the globe reads as a solid object rather than a dust cloud. */}
-      {!ablate("nobody") ? (
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS * 0.965, 64, 48]} />
         <meshPhysicalMaterial
@@ -416,10 +467,9 @@ export default function Globe({ points, rotate }: GlobeProps) {
           clearcoatRoughness={0.28}
         />
       </mesh>
-      ) : null}
       {/* The dots. Additive over the body, so a dense field reads as glow without
           a bloom pass; depth-tested, so the far side stays hidden behind it. */}
-      {points > 0 && !ablate("nodots") ? (
+      {points > 0 ? (
         <points geometry={dotGeometry}>
           <pointsMaterial
             map={pointTexture}
@@ -437,29 +487,27 @@ export default function Globe({ points, rotate }: GlobeProps) {
           />
         </points>
       ) : null}
-      {/* The land. M-D6.3: brighter and larger than the dust, on its own shell
-          a hair above it, so the continents read as a layer over the field rather
-          than a denser patch of it. One more draw call at every tier. */}
-      {landCount > 0 && !ablate("noland") ? (
-        <points geometry={landGeometry}>
-          <pointsMaterial
-            map={pointTexture}
-            size={0.088}
-            sizeAttenuation
-            vertexColors
-            transparent
-            opacity={0.95}
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </points>
+      {/* The land. M-D6.3 placed it with Natural Earth polygons; M-D6.4 shades
+          it the cobe way — a fixed-size, fixed-alpha disc weighted by the NASA
+          water mask — so the continents are legible at T1's 1 200 dots without
+          gaining a reason to stack at T3's 4 800. Suspended on the mask load:
+          the globe renders at once and the land appears when the image lands. */}
+      {landCount > 0 ? (
+        <Suspense fallback={null}>
+          <points geometry={landGeometry} material={landMaterial} />
+        </Suspense>
       ) : null}
-      {/* The fresnel rim shell, pulled in to hug the dot field. */}
-      {!ablate("noshell") ? (
-      <mesh material={rimMaterial}>
-        <sphereGeometry args={[GLOBE_RADIUS * 1.014, 64, 48]} />
-      </mesh>
-      ) : null}
+      {/* M-D6.4: the fresnel atmosphere, replacing the hand-rolled rim shell.
+          Slightly larger than the dot field, so its glow sits over the outer dust
+          rather than at the silhouette itself. */}
+      <Atmosphere
+        radius={GLOBE_RADIUS}
+        scale={ATMOSPHERE_SCALE}
+        color={warmGold}
+        coefficient={ATMOSPHERE_COEFFICIENT}
+        power={ATMOSPHERE_POWER}
+        segments={shellSegments}
+      />
     </group>
   );
 }
