@@ -198,11 +198,11 @@ export default function DashiShell() {
           <FallbackNotice contextLost={contextLost} tier={tier} onRetry={retryStage} />
         )}
 
-        {/* The honest scope caption: the globe has landed, its rings and the
+        {/* The honest scope caption: the globe and its rings have landed, the
             telemetry strips have not. */}
         <p className="dashi-scope" dir="rtl">
-          صحنهٔ رصدخانه — M-D۶.۴. گویِ نقطه‌ای، خشکی‌ها و پایانِ شب‌روزی روی
-          صحنه است؛ حلقه‌ها و نوارهای تله‌متری در M-D۶ و M-D۷ می‌آیند.
+          صحنهٔ رصدخانه — M-D۶.۵. گویِ نقطه‌ای، خشکی‌ها، پایانِ شب‌روزی و
+          حلقه‌های زنجیره روی صحنه است؛ نوارهای تله‌متری در M-D۷ می‌آیند.
           {budget.particles === 0 && budget.rotate === 0
             ? " حالت کم‌مصرف: حرکت و ذرات خاموش است."
             : ""}

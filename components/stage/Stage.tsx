@@ -28,7 +28,8 @@ import * as THREE from "three";
 import { useStageStore, motionBudget } from "@/components/stage/store";
 import { edgeColor, goldEmissive, rimLight, stageColors } from "@/components/stage/themeColors";
 import type { TierVerdict } from "@/components/stage/quality";
-import Globe from "@/components/stage/Globe";
+import Globe, { GLOBE_POSITION, GLOBE_SCALE } from "@/components/stage/Globe";
+import { ChainRings } from "@/components/stage/ChainRings";
 
 const FLOOR_RADIUS = 2.86;
 const RING_RADIUS = 2.1;
@@ -255,6 +256,17 @@ export default function Stage({ verdict, onContextLost }: StageProps) {
       {/* M-D6.1: the centrepiece. Density and rotation come from the same budget
           the floor reads, so one tier decision moves the whole stage together. */}
       <Globe points={budget.globePoints} rotate={budget.rotate} />
+      {/* M-D6.5: the chain rings, on the globe's own centre and scale. They sit
+          outside the atmosphere and carry no data — see ChainRings.tsx. */}
+      <group position={GLOBE_POSITION} scale={GLOBE_SCALE}>
+        <ChainRings
+          segments={budget.ringSegments}
+          nodes={budget.ringNodes}
+          rotate={budget.rotate}
+          color={goldEmissive(colors)}
+          muted={edgeColor(colors)}
+        />
+      </group>
       <StageLifecycle onContextLost={onContextLost ?? (() => undefined)} />
     </Canvas>
   );

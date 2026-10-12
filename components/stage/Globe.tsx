@@ -58,13 +58,19 @@ const TILT = 0.31;
  * stopped stacking into hot spots — see the dot opacity below.
  */
 const SCALE = 1.6;
+
 /**
- * Where the globe hangs. The floor's ring surface sits at y = -0.5 + 0.002, and
- * the globe is a sphere of `SCALE * GLOBE_RADIUS`, so seating it on the ring is
+ * Where the globe's group sits, and how large it is. Exported so the rings
+ * (M-D6.5) can be seated on the *same* centre and scale without re-deriving
+ * either — the two must agree exactly or the orbits drift off the planet.
+ *
+ * The floor's ring surface sits at y = -0.5 + 0.002, and the globe is a sphere
+ * of `SCALE * GLOBE_RADIUS`, so seating it on the ring is
  * `ringY + SCALE * GLOBE_RADIUS`. The tilt does not enter that arithmetic — a
  * sphere's extent is the same in every orientation.
  */
-const POSITION: [number, number, number] = [0, -0.498 + SCALE * GLOBE_RADIUS, 0];
+export const GLOBE_POSITION: [number, number, number] = [0, -0.498 + SCALE * GLOBE_RADIUS, 0];
+export const GLOBE_SCALE = SCALE;
 
 /**
  * M-D6.4: the night side keeps a floor rather than going black. A globe that is
@@ -451,7 +457,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
   });
 
   return (
-    <group ref={ref} position={POSITION} scale={SCALE} rotation={[0, 0, TILT]}>
+    <group ref={ref} position={GLOBE_POSITION} scale={GLOBE_SCALE} rotation={[0, 0, TILT]}>
       {/* The body: dark lacquer, clearcoat, lit by the stage's gold point light.
           Opaque and depth-writing, so it occludes the dots on the far side and
           the globe reads as a solid object rather than a dust cloud. */}

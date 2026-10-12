@@ -140,24 +140,31 @@ export function motionBudget(tier: RenderTier, reducedMotion: boolean): {
   /** How many dots the M-D6 globe draws. Always under the 30k the owner capped a
    *  point globe at; one draw call, so even T1 may have a populated globe. */
   globePoints: number;
+  /** The M-D6.5 chain rings' segment count. Lines are cheap, but a 256-segment
+   *  ring is still 256 vertices the low tier does not need. */
+  ringSegments: number;
+  /** How many nodes ride the rings. The vendor reference caps this at 8; the low
+   *  tier drops to travelling rings only, as its note prescribes. */
+  ringNodes: number;
 } {
   if (reducedMotion) {
     // Nothing moves, but a static globe is still a globe: the density is the T1
-    // count and the rotation is the only thing the preference takes away.
-    return { rotate: 0, particles: 0, drift: 0, globePoints: 6000 };
+    // count and the rotation is the only thing the preference takes away. The
+    // rings likewise stay drawn and still.
+    return { rotate: 0, particles: 0, drift: 0, globePoints: 6000, ringSegments: 64, ringNodes: 3 };
   }
   switch (tier) {
     case "T3":
-      return { rotate: 1, particles: 900, drift: 1, globePoints: 24000 };
+      return { rotate: 1, particles: 900, drift: 1, globePoints: 24000, ringSegments: 256, ringNodes: 6 };
     case "T2":
-      return { rotate: 1, particles: 450, drift: 0.6, globePoints: 14000 };
+      return { rotate: 1, particles: 450, drift: 0.6, globePoints: 14000, ringSegments: 128, ringNodes: 4 };
     case "T1":
       // §11 Low-power: no loose particles; DPR 1. The globe is geometry, not
       // particles, and one draw call of 6k dots is not what T1 is protecting
       // against — so the centrepiece stays populated and only the extras go.
-      return { rotate: 0.5, particles: 0, drift: 0.2, globePoints: 6000 };
+      return { rotate: 0.5, particles: 0, drift: 0.2, globePoints: 6000, ringSegments: 64, ringNodes: 0 };
     case "T0":
     default:
-      return { rotate: 0, particles: 0, drift: 0, globePoints: 0 };
+      return { rotate: 0, particles: 0, drift: 0, globePoints: 0, ringSegments: 0, ringNodes: 0 };
   }
 }
