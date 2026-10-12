@@ -223,6 +223,60 @@ def _tier_report(soak_dir: Path, ledger_path: Path | None,
     return record
 
 
+def _reconcile_report(soak_dir: Path, ledger_path: Path | None,
+                      *, day: str | None = None) -> dict[str, Any]:
+    """Run the M42 nightly reconcile over the soak's ledger (vision M42).
+
+    This is the reconcile the vision makes halt-capable: the chain, the frozen
+    paper store bound to it by anchor, this soak's own paper book through the
+    judge, and the §7.0 treasury checks (each broker <= 40%, USDT depeg > 0.5%).
+    It runs in-process, so the soak stays the ledger's single writer — a
+    second process appending to the same chain could interleave an entry with
+    a cycle's checkpoint and break the chain the soak records.
+
+    On a measured breach it records a HALT on the ledger, which the paper track
+    reads back before taking new risk. It is wrapped like the tier gate: a
+    reconcile that cannot run is reported, and the cadence continues, because a
+    soak that stopped on a reporting fault would soak nothing.
+    """
+    record: dict[str, Any] = {
+        "ts": _utc_stamp(),
+        "kind": "m42_reconcile",
+        "day": day if day is not None else _utc_day(),
+        "ok": False,
+    }
+    try:
+        from architecture.mission.ledger import MissionLedger, default_ledger_path
+        from architecture.treasury.reconcile import run_reconcile, write_reconcile_report
+        from architecture.treasury.surveillance import collect_usdt_quotes
+
+        ledger = MissionLedger(ledger_path
+                               if ledger_path is not None
+                               else default_ledger_path())
+        report = run_reconcile(
+            ledger,
+            mission_id=GOLD_PAPER_MISSION,
+            depeg_quotes=collect_usdt_quotes(),
+            agent="engineering:m13-soak",
+        )
+        path = soak_dir / f"{record['day']}_reconcile.md"
+        write_reconcile_report(report, path)
+        record.update(
+            ok=True,
+            verdict=report.verdict,
+            findings=len(report.findings),
+            entries=report.entries,
+            head_hash=report.head_hash,
+            recorded=report.recorded,
+            halt_recorded=report.halt_recorded,
+            reconcile_md=str(path),
+        )
+    except Exception as exc:  # noqa: BLE001 - a soak continues past a bad report
+        record["error"] = f"{type(exc).__name__}: {exc}"
+        record["traceback"] = traceback.format_exc(limit=3)
+    return record
+
+
 def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
     soak_dir.mkdir(parents=True, exist_ok=True)
     path = soak_dir / "soak_status.json"
@@ -267,11 +321,23 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
                   f"-> {tier['gate_md']}", flush=True)
         else:
             print(f"[m13-soak] tier gate FAILED: {tier.get('error')}", flush=True)
-        return 0 if record["verdict"] != "BROKEN_CHAIN" else 1
+        reconcile = _reconcile_report(soak_dir, ledger_path)
+        _append_jsonl(runlog, reconcile)
+        if reconcile["ok"]:
+            print(f"[m13-soak] M42 reconcile: {reconcile['verdict']} "
+                  f"({reconcile['findings']} findings, "
+                  f"halt_recorded={reconcile['halt_recorded']}) "
+                  f"-> {reconcile['reconcile_md']}", flush=True)
+        else:
+            print(f"[m13-soak] M42 reconcile FAILED: {reconcile.get('error')}",
+                  flush=True)
+        bad = record["verdict"] == "BROKEN_CHAIN" or reconcile.get("verdict") == "BROKEN_CHAIN"
+        return 0 if not bad else 1
 
     deadline = (time.time() + days * 86400.0) if days and days > 0 else None
     last_day: str | None = None
     tier: dict[str, Any] | None = None
+    reconcile: dict[str, Any] | None = None
     cycles_ok = cycles_fail = 0
 
     while True:
@@ -308,6 +374,17 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
             else:
                 print(f"[m13-soak] tier gate for {today} FAILED: "
                       f"{tier.get('error')}", flush=True)
+            # The M42 reconcile runs beside the judge on the same ledger, so a
+            # mismatch the judge finds is a HALT on the chain the soak records.
+            reconcile = _reconcile_report(soak_dir, ledger_path, day=today)
+            _append_jsonl(runlog, reconcile)
+            if reconcile["ok"]:
+                print(f"[m13-soak] M42 reconcile for {today}: "
+                      f"{reconcile['verdict']} ({reconcile['findings']} findings, "
+                      f"halt_recorded={reconcile['halt_recorded']})", flush=True)
+            else:
+                print(f"[m13-soak] M42 reconcile for {today} FAILED: "
+                      f"{reconcile.get('error')}", flush=True)
 
         state = _latest_state(ledger_path)
         _write_status(soak_dir, {
@@ -321,6 +398,7 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
             "last_day_report": last_day,
             "last_cycle": record,
             "last_tier_gate": tier,
+            "last_m42_reconcile": reconcile,
             "ledger_state": state,
         })
 

@@ -130,10 +130,26 @@ class GoldCycleResult:
     recorded: bool = False
     ledger_error: str | None = None
     breaker: BreakerState | None = None
+    halt: "HaltGate | None" = None
 
     @property
     def traded(self) -> bool:
         return self.exit is not None
+
+
+@dataclass(frozen=True)
+class HaltGate:
+    """The M42 HALT, read back off the single ledger.
+
+    ``allowed`` answers "may this cycle take new risk?" and is False whenever a
+    HALT is on record or the ledger cannot be verified, so the entry gate that
+    reads it stops rather than passing on a missing measurement.
+    """
+
+    state: str                        # ARMED | HALTED | UNMEASURED
+    allowed: bool
+    source: str | None = None
+    reason: str | None = None
 
 
 def _cost_bps(price: float, bps: float) -> float:
@@ -201,8 +217,13 @@ class GoldPaperTrack:
         # cycle -- not only on entries -- so its state is always on the record;
         # it cannot quietly sit armed while the limits silently drift past.
         breaker_state = self._check_breaker(now=now)
+        # The M42 HALT on the single ledger gates new risk the same way: a
+        # mismatch the nightly reconcile found (a store rewrite, a broken chain,
+        # a breached limit, a depeg) is the vision's stop, and the track reads
+        # it back here rather than trusting the reconcile to have stopped it.
+        halt_state = self._check_halt(ledger)
         entry_blocked = (price is not None and self.position is None
-                         and not breaker_state.allowed)
+                         and not (breaker_state.allowed and halt_state.allowed))
 
         if self.position is None and not entry_blocked:
             if price is not None:
@@ -260,7 +281,7 @@ class GoldPaperTrack:
         recorded, ledger_error = self._record(
             ledger=ledger, cycle=cycle, now=now, witness=witness,
             price=price, exit_event=exit_event, realized=realized,
-            unpriced_for=unpriced_for, breaker=breaker_state)
+            unpriced_for=unpriced_for, breaker=breaker_state, halt=halt_state)
 
         return GoldCycleResult(
             cycle=cycle,
@@ -300,6 +321,39 @@ class GoldPaperTrack:
             open_exposure_usd=open_usd,
             market_exposure_usd=open_usd,
             equity_usd=self.equity_usd)
+
+    def _check_halt(self, ledger: MissionLedger | None) -> HaltGate:
+        """Read the M42 HALT off the single ledger before new risk.
+
+        This is the leg of the kill switch the *treasury* sounds: the nightly
+        reconcile records a HALT when the chain, the anchored store, the paper
+        book, a concentration limit or the peg disagrees, and the track reads it
+        back here so the stop actually binds instead of being a log line.
+
+        Fail-closed where the ledger is present but unreadable -- a chain that
+        cannot be verified cannot be shown to be un-halted, which is the same
+        law the ledger's own ``halted()`` applies. A track with no ledger at all
+        is ungoverned by this gate (it records nothing, so it has no chain to
+        read); the breaker still binds it.
+        """
+        if ledger is None:
+            return HaltGate("UNMEASURED", allowed=True, source=None,
+                            reason="no ledger; this track records no chain, so the "
+                                   "M42 halt has nothing to read (the §12 breaker "
+                                   "still gates entries)")
+        try:
+            halted, entry = ledger.halted()
+        except Exception as exc:            # noqa: BLE001 - unreadable = unverified
+            return HaltGate("UNMEASURED", allowed=False,
+                            source="chain",
+                            reason=f"the ledger cannot be verified: "
+                                   f"{type(exc).__name__}: {exc}")
+        if not halted:
+            return HaltGate("ARMED", allowed=True, source=None, reason=None)
+        payload = (entry or {}).get("payload") or {}
+        return HaltGate("HALTED", allowed=False,
+                        source=payload.get("source"),
+                        reason=payload.get("reason"))
 
     # ------------------------------------------------------------- internals --
 
@@ -349,7 +403,8 @@ class GoldPaperTrack:
                 witness: GoldPriceWitness, price: float | None,
                 exit_event: dict | None, realized: float | None,
                 unpriced_for: float | None,
-                breaker: BreakerState | None) -> tuple[bool, str | None]:
+                breaker: BreakerState | None,
+                halt: "HaltGate | None" = None) -> tuple[bool, str | None]:
         if ledger is None:
             return False, None
         payload = {
@@ -397,6 +452,12 @@ class GoldPaperTrack:
                 "daily_loss_pct": breaker.daily_loss_pct,
                 "weekly_loss_pct": breaker.weekly_loss_pct,
                 "open_exposure_pct": breaker.open_exposure_pct,
+            },
+            "halt": None if halt is None else {
+                "state": halt.state,
+                "allowed": halt.allowed,
+                "source": halt.source,
+                "reason": halt.reason,
             },
             "paper_only": True,
         }
