@@ -42,6 +42,15 @@ import { sunDirection, terminatorWeight } from "@/components/stage/sun";
 
 /** Spec §8.1: idle motion is 0.5°/s — one full turn in twelve minutes. */
 const IDLE_RAD_PER_SEC = (0.5 * Math.PI) / 180;
+
+// TEMPORARY ABLATION HARNESS (M-D6.4 glow-spot hunt) — REVERT BEFORE COMMITING.
+// ?ablate=nolights|nodir|nobody|noshell|noland|nodots, comma-joined. Any value
+// also freezes the spin and pins the sun so every variant shot is pixel-comparable.
+const ABLATE = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ablate") ?? "" : "";
+const ablate = (k: string) => ABLATE.includes(k);
+const FROZEN = ABLATE.length > 0;
+const FROZEN_DATE = new Date("2026-10-12T12:00:00Z");
+
 /** An aesthetic axial tilt, so the globe reads as a planet and not a ball bearing. */
 const TILT = 0.31;
 /**
@@ -301,7 +310,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
   // so the per-second terminator pass is one divide-free dot product per dot.
   const dotInvR = 1 / GLOBE_RADIUS;
   const dotColors = useMemo(
-    () => litColors(dotBase, dotPositions, dotInvR, sunLocalFor(0, new Date()), DUST_NIGHT),
+    () => litColors(dotBase, dotPositions, dotInvR, sunLocalFor(0, FROZEN ? FROZEN_DATE : new Date()), DUST_NIGHT),
     [dotBase, dotPositions, dotInvR],
   );
 
@@ -333,7 +342,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
   }, [warmGold, landCount]);
   const landInvR = 1 / LAND_DOTS_RADIUS;
   const landColors = useMemo(
-    () => litColors(landBase, landPositions, landInvR, sunLocalFor(0, new Date()), LAND_NIGHT),
+    () => litColors(landBase, landPositions, landInvR, sunLocalFor(0, FROZEN ? FROZEN_DATE : new Date()), LAND_NIGHT),
     [landBase, landPositions, landInvR],
   );
   const landGeometry = useMemo(() => {
@@ -367,7 +376,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
 
   useFrame((_, delta) => {
     if (!ref.current) return;
-    if (rotate > 0) {
+    if (rotate > 0 && !FROZEN) {
       // §8.1's idle rate is the centrepiece's rate at every tier: one slow turn
       // in twelve minutes. The budget's multiplier scales the loose particles and
       // the drift, not the one object the eye is on — at T1's 0.5 the turn was
@@ -383,7 +392,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
     const now = performance.now() / 1000;
     if (now - lastSun.current >= TERMINATOR_REFRESH_S) {
       lastSun.current = now;
-      const sun = sunLocalFor(ref.current.rotation.y, new Date());
+      const sun = sunLocalFor(ref.current.rotation.y, FROZEN ? FROZEN_DATE : new Date());
       relight(dotBase, dotColors, dotPositions, dotInvR, sun, DUST_NIGHT);
       if (landColors.array.length === landBase.length) {
         relight(landBase, landColors, landPositions, landInvR, sun, LAND_NIGHT);
@@ -396,6 +405,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
       {/* The body: dark lacquer, clearcoat, lit by the stage's gold point light.
           Opaque and depth-writing, so it occludes the dots on the far side and
           the globe reads as a solid object rather than a dust cloud. */}
+      {!ablate("nobody") ? (
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS * 0.965, 64, 48]} />
         <meshPhysicalMaterial
@@ -406,9 +416,10 @@ export default function Globe({ points, rotate }: GlobeProps) {
           clearcoatRoughness={0.28}
         />
       </mesh>
+      ) : null}
       {/* The dots. Additive over the body, so a dense field reads as glow without
           a bloom pass; depth-tested, so the far side stays hidden behind it. */}
-      {points > 0 ? (
+      {points > 0 && !ablate("nodots") ? (
         <points geometry={dotGeometry}>
           <pointsMaterial
             map={pointTexture}
@@ -429,7 +440,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
       {/* The land. M-D6.3: brighter and larger than the dust, on its own shell
           a hair above it, so the continents read as a layer over the field rather
           than a denser patch of it. One more draw call at every tier. */}
-      {landCount > 0 ? (
+      {landCount > 0 && !ablate("noland") ? (
         <points geometry={landGeometry}>
           <pointsMaterial
             map={pointTexture}
@@ -444,9 +455,11 @@ export default function Globe({ points, rotate }: GlobeProps) {
         </points>
       ) : null}
       {/* The fresnel rim shell, pulled in to hug the dot field. */}
+      {!ablate("noshell") ? (
       <mesh material={rimMaterial}>
         <sphereGeometry args={[GLOBE_RADIUS * 1.014, 64, 48]} />
       </mesh>
+      ) : null}
     </group>
   );
 }

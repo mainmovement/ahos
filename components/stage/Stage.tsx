@@ -177,18 +177,27 @@ function ObservatoryFloor({ rotate }: { rotate: number }) {
 function StageLights() {
   const colors = stageColors(useStageStore((s) => s.theme));
   const rim = rimLight(colors);
+  // TEMPORARY ABLATION HARNESS (M-D6.4 glow-spot hunt) — REVERT BEFORE COMMITING.
+  const sp = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const ablate = (k: string) => (sp?.get("ablate") ?? "").includes(k);
   return (
     <>
       <ambientLight intensity={0.22} color={colors.textMuted} />
       {/* Warm key from stage-right — the dusk the Imperial concept is lit by. */}
+      {!ablate("nodir") ? (
       <directionalLight position={[-5, 3, 2]} intensity={1.1} color={rim} />
+      ) : null}
       {/* Gold point light above the globe's crown. Owner QA 00:24: at intensity 9
           on the old, smaller globe the crown sat ~1.5 units from the bulb and
           blew out to flat gold. The globe is larger now and the bulb is higher
           and softer, so the top reads as lit lacquer rather than a hot patch. */}
+      {!ablate("nolights") ? (
       <pointLight position={[0, 5.6, 0]} intensity={3.6} distance={16} color={goldEmissive(colors)} />
+      ) : null}
       {/* A low cool fill so the shadow side is not flat black. */}
+      {!ablate("nolights") ? (
       <pointLight position={[0, -1.5, 5]} intensity={2.4} distance={12} color={colors.bg} />
+      ) : null}
     </>
   );
 }
