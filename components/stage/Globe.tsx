@@ -257,6 +257,45 @@ export interface GlobeProps {
  * 24 000 dust + 4 800 land) while making the continents legible at T1's 1 200.
  */
 const LAND_FRACTION = 0.2;
+/**
+ * The land opacity, and why it is not a constant. The back-off is a *density*
+ * compensation: it exists because where the field is dense, dots stack
+ * additively and saturate. At T1 there are a quarter as many land dots over the
+ * same sphere (1 200 against T3's 4 800), they barely overlap, and applying the
+ * same back-off there only made the continents illegible — owner QA 02:48,
+ * item 6. So the opacity ramps with the count the tier actually draws, and only
+ * the dense tiers are held down.
+ */
+const LAND_OPACITY_DENSE = 0.62;
+const LAND_OPACITY_SPARSE = 0.95;
+/**
+ * The land dot size, ramping the other way. The continents are 20% of the dots
+ * at every tier, so a tier with a quarter of the budget draws a quarter as many
+ * of them over the *same* sphere — T1's land is not faint because its dots are
+ * dim but because 1 200 of them are scattered sparsely enough that the
+ * coastlines do not join up. Enlarging them in proportion to the sparsity keeps
+ * the continents legible at the low tiers without giving the dense tiers a
+ * reason to stack (owner QA 02:48, item 6).
+ */
+const LAND_SIZE_DENSE = 0.088;
+const LAND_SIZE_SPARSE = 0.132;
+/** The counts the ramp runs between: T1's 1 200 land dots and T3's 4 800. */
+const LAND_COUNT_SPARSE = 1200;
+const LAND_COUNT_DENSE = 4800;
+/** Where the tier's count sits on the sparse-to-dense ramp, in [0, 1]. */
+function landDensity(count: number): number {
+  if (count <= LAND_COUNT_SPARSE) return 0;
+  if (count >= LAND_COUNT_DENSE) return 1;
+  return (count - LAND_COUNT_SPARSE) / (LAND_COUNT_DENSE - LAND_COUNT_SPARSE);
+}
+function landOpacity(count: number): number {
+  const t = landDensity(count);
+  return LAND_OPACITY_SPARSE + (LAND_OPACITY_DENSE - LAND_OPACITY_SPARSE) * t;
+}
+function landSize(count: number): number {
+  const t = landDensity(count);
+  return LAND_SIZE_SPARSE + (LAND_SIZE_DENSE - LAND_SIZE_SPARSE) * t;
+}
 
 export default function Globe({ points, rotate }: GlobeProps) {
   const ref = useRef<THREE.Group>(null);
@@ -422,7 +461,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
         <points geometry={landGeometry}>
           <pointsMaterial
             map={pointTexture}
-            size={0.088}
+            size={landSize(landCount)}
             sizeAttenuation
             vertexColors
             transparent
@@ -432,8 +471,10 @@ export default function Globe({ points, rotate }: GlobeProps) {
             // of them saturate to a pale patch that reads as a glitch rather than
             // a landmass. Backed off as the dust was (see the dust note above):
             // the continents still read as the brighter layer over the field, but
-            // a cluster of them no longer sums to white.
-            opacity={0.62}
+            // a cluster of them no longer sums to white. The amount ramps with
+            // the tier's count — see `landOpacity` and `landSize`; T1 is spared
+            // the back-off and given larger dots instead, which is item 6's fix.
+            opacity={landOpacity(landCount)}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
