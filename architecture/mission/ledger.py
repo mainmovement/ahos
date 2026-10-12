@@ -32,6 +32,19 @@ detected. Appending is refused until ``recover_torn_tail()`` writes an explicit,
 hashed recovery entry that names the torn line's sha256. Nothing is rewritten.
 
 Single writer per file. Times are UTC ISO-8601.
+
+The M42 evidence surface
+-----------------------
+Vision M42 makes this file the *single* ledger: ``record()`` appends the
+non-mission evidence -- an anchor of another append-only store
+(``KIND_ANCHOR``), a counterparty reconcile verdict (``KIND_RECONCILE``), a
+treasury surveillance result -- so one chain binds every check that can stop
+the system and no second ledger is created. ``halt()`` / ``clear_halt()`` /
+``halted()`` are the fail-closed protocol over it: a mismatch sounds a HALT
+that is itself on the chain, and only a written release naming the halt's own
+hash lifts it. The ledger still grants nothing -- ``authority`` is ``"NONE"``
+on every evidence row -- and the callers that gate new risk on ``halted()``
+are what gives the record its effect.
 """
 from __future__ import annotations
 
@@ -50,6 +63,26 @@ GENESIS_HASH = "0" * 64
 AGENT_TAXONOMY_REF = "docs/governance/agent_taxonomy_map.json"
 MAX_CHECKPOINT_BYTES = 64 * 1024
 MAX_TEXT_LEN = 4000
+
+# ---- record kinds ---------------------------------------------------------
+# STATE rows are mission snapshots, written only through start()/update().
+# The kinds below are the single ledger's *shared* evidence surface (vision
+# M42: "extend ``architecture/mission/ledger.py`` and ``paper_trading/ledger.py``
+# into ONE ledger"). Every M42 check that can sound a HALT -- an anchor of an
+# append-only store, a counterparty reconcile, a treasury surveillance result --
+# records itself here, so one chain binds them all and no second ledger exists.
+KIND_STATE = "STATE"
+KIND_TORN_TAIL_RECOVERED = "TORN_TAIL_RECOVERED"
+KIND_ANCHOR = "ANCHOR"                     # a store's row set, bound to the chain
+KIND_RECONCILE = "RECONCILE"               # a counterparty reconcile verdict
+KIND_HALT = "HALT"                         # a fail-closed stop, recorded
+KIND_HALT_CLEARED = "HALT_CLEARED"         # the owner's explicit release
+
+#: The evidence kinds that carry a payload rather than a mission state.
+EVIDENCE_KINDS = frozenset({
+    KIND_ANCHOR, KIND_RECONCILE, KIND_HALT, KIND_HALT_CLEARED,
+})
+HALT_KINDS = frozenset({KIND_HALT, KIND_HALT_CLEARED})
 
 FIELDS = (
     "MISSION_ID",
@@ -465,3 +498,113 @@ class MissionLedger:
             fields["CURRENT_AGENT"] = agent
         return self.update(mission_id, status=TaskStatus.RESUMED,
                            event="CRASH_RECOVERY_RESUME" if crash_recovery else "RESUME", **fields)
+
+    # ------------------------------------------------- M42 evidence surface --
+    #
+    # The single ledger's non-state records. These are *evidence*, not
+    # authority: writing a HALT grants nobody anything, and reading one grants
+    # nothing either -- the callers that gate new risk on ``is_halted()`` are
+    # what gives the record its effect, exactly as ``authority: "NONE"`` below
+    # states. Keeping the surface here rather than in a second file is the
+    # "ONE ledger" of vision M42: there is one chain, and every check that can
+    # stop the system is bound to it.
+
+    def record(self, kind: str, payload: Any, *, agent: str | None = None,
+               authority: str = "NONE") -> dict[str, Any]:
+        """Append one evidence record of the given kind.
+
+        ``payload`` must be a JSON mapping (the record's own fields, not a
+        mission state). It is secret-scanned and size-checked by the same laws
+        as a checkpoint, so a key can never reach the chain even by this route.
+        """
+        if kind not in EVIDENCE_KINDS:
+            raise LedgerError(f"unknown evidence kind: {kind!r} "
+                              f"(STATE rows are written by start()/update())")
+        if not isinstance(payload, dict):
+            raise LedgerError("evidence payload must be a mapping")
+        clean, kinds = redact_secrets(payload)
+        if kinds and self.strict:
+            raise SecretRejectedError(f"secret-looking content rejected ({sorted(set(kinds))}); "
+                                      "nothing written")
+        for k, v in clean.items():
+            if isinstance(k, str) and k.startswith("_"):
+                raise LedgerError(f"evidence payload key {k!r} must not be private")
+            if isinstance(v, str) and len(v) > MAX_TEXT_LEN:
+                clean[k] = v[:MAX_TEXT_LEN] + "...[TRUNCATED]"
+        try:
+            size = len(canonical_json(clean))
+        except (TypeError, ValueError) as exc:
+            raise LedgerError(f"evidence payload must be JSON-serialisable: {exc}") from exc
+        if size > MAX_CHECKPOINT_BYTES:
+            raise LedgerError(f"evidence payload too large ({size} > {MAX_CHECKPOINT_BYTES} bytes)")
+        return self._append({"kind": kind, "payload": clean,
+                             "agent": validate_agent(agent), "authority": authority})
+
+    def evidence(self, *kinds: str) -> list[dict[str, Any]]:
+        """Evidence records, in chain order. No kinds = every evidence kind."""
+        want = frozenset(kinds) if kinds else EVIDENCE_KINDS
+        return [e for e in self.entries() if e.get("kind") in want]
+
+    def halt(self, source: str, reason: str, *, detail: str = "",
+             agent: str | None = None) -> dict[str, Any]:
+        """Record a fail-closed HALT. M42: a ledger mismatch or a USDT depeg
+        beyond the owner threshold stops the system, and the stop is itself on
+        the chain so it cannot be quietly dropped.
+
+        A HALT names its ``source`` (a stable id a caller can gate on) and is
+        released only by ``clear_halt()`` naming this entry's hash. The ledger
+        never lifts a halt on its own: an unexplained clear is not possible,
+        and neither is clearing the wrong halt.
+        """
+        return self.record(KIND_HALT, {"source": source, "reason": reason,
+                                      "detail": detail},
+                           agent=agent)
+
+    def clear_halt(self, halt_hash: str, *, note: str = "",
+                   agent: str | None = None) -> dict[str, Any]:
+        """Release one recorded HALT, by the hash of its own entry.
+
+        This is the only leg of the protocol a machine does not get for free:
+        releasing a halt that a reconcile sounded is an owner act with a
+        written reason, because the halt is the evidence that something did not
+        agree. The entry names the released hash, so a clear cannot be replayed
+        against a later, different halt.
+        """
+        if not isinstance(halt_hash, str) or len(halt_hash) != 64:
+            raise LedgerError("clear_halt takes the entry_hash of the HALT to release")
+        return self.record(KIND_HALT_CLEARED, {"released_hash": halt_hash, "note": note},
+                           agent=agent)
+
+    def halted(self) -> tuple[bool, dict[str, Any] | None]:
+        """Is an unresolved HALT on record? Returns (halted, the halt entry).
+
+        Fail-closed: a chain that cannot be verified cannot be shown to be
+        un-halted, so a tamper reads as halted with the break as its reason.
+        """
+        try:
+            rows = self.evidence(*HALT_KINDS)
+        except LedgerTamperError as exc:
+            return True, {"source": "chain", "reason": f"chain unverifiable: {exc}"}
+        unresolved: dict[str, Any] | None = None
+        released: set[str] = set()
+        # Two passes: every clear must be collected *before* any halt is
+        # tested, because a clear follows its halt in chain order. A single
+        # pass would see the halt first, test it against a still-empty released
+        # set, and report as standing a halt the owner has already released.
+        for row in rows:
+            if row.get("kind") == KIND_HALT_CLEARED:
+                h = (row.get("payload") or {}).get("released_hash")
+                if isinstance(h, str):
+                    released.add(h)
+        for row in rows:
+            if row.get("kind") == KIND_HALT_CLEARED:
+                continue            # a clear is not itself cleared by a later clear
+            if row.get("entry_hash") in released:
+                continue
+            unresolved = row       # the latest unreleased HALT wins
+        return unresolved is not None, (unresolved or None)
+
+    def head_hash(self) -> str:
+        """The chain head. Record this outside the file to anchor the history."""
+        return self._scan()["head"]
+
