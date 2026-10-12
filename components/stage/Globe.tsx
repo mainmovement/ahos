@@ -38,6 +38,7 @@ import { useStageStore } from "@/components/stage/store";
 import { stageColors } from "@/components/stage/themeColors";
 import { fibonacciSphere, GLOBE_RADIUS, pointShades } from "@/components/stage/globeGeometry";
 import { landDots, landShades, LAND_DOTS_RADIUS } from "@/components/stage/landDots";
+import { sunDirection, terminatorWeight } from "@/components/stage/sun";
 
 /** Spec §8.1: idle motion is 0.5°/s — one full turn in twelve minutes. */
 const IDLE_RAD_PER_SEC = (0.5 * Math.PI) / 180;
@@ -57,6 +58,101 @@ const SCALE = 1.6;
  * sphere's extent is the same in every orientation.
  */
 const POSITION: [number, number, number] = [0, -0.498 + SCALE * GLOBE_RADIUS, 0];
+
+/**
+ * M-D6.4: the night side keeps a floor rather than going black. A globe that is
+ * half invisible reads as broken, and the dust field is what makes the globe read
+ * as a globe at all — so at night it dims to a low ember instead of vanishing.
+ * Land stays brighter than dust at night, because the continents are the layer
+ * the eye follows across the terminator.
+ */
+const DUST_NIGHT = 0.16;
+const LAND_NIGHT = 0.34;
+/**
+ * How often the terminator is recomputed. The sun moves at 15°/hour and the
+ * globe's idle spin is 0.5°/s, so a second is half a degree of travel — well
+ * inside the dot spacing, which makes the refresh invisible while keeping the
+ * per-frame cost off the render loop.
+ */
+const TERMINATOR_REFRESH_S = 1.0;
+
+/** Rotation axes, allocated once for the per-second sun transform. */
+const UP_Y = new THREE.Vector3(0, 1, 0);
+const AXIS_Z = new THREE.Vector3(0, 0, 1);
+
+/**
+ * The sun in the globe's own frame. The group's transform is `Ry(spin) * Rz(tilt)`,
+ * so the inverse — applied right-to-left — is `Rz(-tilt) * Ry(-spin)`. Doing it to
+ * the *sun* rather than to every dot is what keeps the terminator at one vector
+ * per refresh instead of a matrix per dot, and it is exact, not an approximation.
+ */
+function sunLocalFor(spin: number, date: Date): THREE.Vector3 {
+  const [x, y, z] = sunDirection(date);
+  return new THREE.Vector3(x, y, z)
+    .applyAxisAngle(UP_Y, -spin)
+    .applyAxisAngle(AXIS_Z, -TILT)
+    .normalize();
+}
+
+/**
+ * One dot field's colours, lit by a sun already in the globe's frame. Pure: the
+ * same base, positions and sun give the same buffer, which is what makes the
+ * mount-time lighting and the per-second refresh provably agree.
+ */
+function litColors(
+  base: Float32Array,
+  positions: Float32Array,
+  invR: number,
+  sun: THREE.Vector3,
+  night: number,
+): THREE.BufferAttribute {
+  const arr = new Float32Array(base.length);
+  const n = base.length / 3;
+  const [sx, sy, sz] = [sun.x, sun.y, sun.z];
+  for (let i = 0; i < n; i++) {
+    const at = i * 3;
+    const w = terminatorWeight(
+      [positions[at]! * invR, positions[at + 1]! * invR, positions[at + 2]! * invR],
+      [sx, sy, sz],
+    );
+    const lit = night + (1 - night) * w;
+    arr[at] = base[at]! * lit;
+    arr[at + 1] = base[at + 1]! * lit;
+    arr[at + 2] = base[at + 2]! * lit;
+  }
+  return new THREE.BufferAttribute(arr, 3);
+}
+
+/**
+ * Re-light an existing attribute in place, as the world turns. Mutating the
+ * attribute's own array is what avoids rebuilding 28 800 dots' worth of geometry
+ * every second; `needsUpdate` is what makes the change reach the card.
+ */
+function relight(
+  base: Float32Array,
+  attribute: THREE.BufferAttribute,
+  positions: Float32Array,
+  invR: number,
+  sun: THREE.Vector3,
+  night: number,
+): void {
+  const arr = attribute.array as Float32Array;
+  if (arr.length !== base.length) return;
+  const n = base.length / 3;
+  const [sx, sy, sz] = [sun.x, sun.y, sun.z];
+  for (let i = 0; i < n; i++) {
+    const at = i * 3;
+    const w = terminatorWeight(
+      [positions[at]! * invR, positions[at + 1]! * invR, positions[at + 2]! * invR],
+      [sx, sy, sz],
+    );
+    const lit = night + (1 - night) * w;
+    arr[at] = base[at]! * lit;
+    arr[at + 1] = base[at + 1]! * lit;
+    arr[at + 2] = base[at + 2]! * lit;
+  }
+  attribute.needsUpdate = true;
+}
 
 /**
  * A soft round point, painted on a canvas at startup so no image is fetched.
@@ -154,7 +250,10 @@ export default function Globe({ points, rotate }: GlobeProps) {
   // this shell's own env is omitted and the body reads by light alone.
   const dotPositions = useMemo(() => fibonacciSphere(points), [points]);
   const dotShades = useMemo(() => pointShades(points), [points]);
-  const dotColors = useMemo(() => {
+  // The base gold of each dot, before the sun. Kept unlit so the terminator can
+  // be re-applied to it as the world turns — the lit value is `base * night`
+  // on the dark side and `base` in full day.
+  const dotBase = useMemo(() => {
     const arr = new Float32Array(points * 3);
     for (let i = 0; i < points; i++) {
       const s = dotShades[i]!;
@@ -162,8 +261,15 @@ export default function Globe({ points, rotate }: GlobeProps) {
       arr[i * 3 + 1] = warmGold.g * s;
       arr[i * 3 + 2] = warmGold.b * s;
     }
-    return new THREE.BufferAttribute(arr, 3);
+    return arr;
   }, [dotShades, warmGold, points]);
+  // The dust sits on `GLOBE_RADIUS`; the inverse is the normal, precomputed once
+  // so the per-second terminator pass is one divide-free dot product per dot.
+  const dotInvR = 1 / GLOBE_RADIUS;
+  const dotColors = useMemo(
+    () => litColors(dotBase, dotPositions, dotInvR, sunLocalFor(0, new Date()), DUST_NIGHT),
+    [dotBase, dotPositions, dotInvR],
+  );
 
   const dotGeometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -180,7 +286,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
   // over its ground: brighter, larger, and all of them still brand gold.
   const landCount = Math.round(points * LAND_FRACTION);
   const landPositions = useMemo(() => landDots(landCount), [landCount]);
-  const landColors = useMemo(() => {
+  const landBase = useMemo(() => {
     const shades = landShades(landCount);
     const arr = new Float32Array(shades.length * 3);
     for (let i = 0; i < shades.length; i++) {
@@ -189,8 +295,13 @@ export default function Globe({ points, rotate }: GlobeProps) {
       arr[i * 3 + 1] = warmGold.g * s;
       arr[i * 3 + 2] = warmGold.b * s;
     }
-    return new THREE.BufferAttribute(arr, 3);
+    return arr;
   }, [warmGold, landCount]);
+  const landInvR = 1 / LAND_DOTS_RADIUS;
+  const landColors = useMemo(
+    () => litColors(landBase, landPositions, landInvR, sunLocalFor(0, new Date()), LAND_NIGHT),
+    [landBase, landPositions, landInvR],
+  );
   const landGeometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(landPositions, 3));
@@ -218,14 +329,31 @@ export default function Globe({ points, rotate }: GlobeProps) {
     [warmGold],
   );
 
+  const lastSun = useRef(0);
+
   useFrame((_, delta) => {
-    if (ref.current && rotate > 0) {
+    if (!ref.current) return;
+    if (rotate > 0) {
       // §8.1's idle rate is the centrepiece's rate at every tier: one slow turn
       // in twelve minutes. The budget's multiplier scales the loose particles and
       // the drift, not the one object the eye is on — at T1's 0.5 the turn was
       // 0.25°/s, which is not perceptible as motion at all (owner QA 00:24).
       // `rotate` still gates this, so reduced motion keeps a still globe.
       ref.current.rotation.y += delta * IDLE_RAD_PER_SEC;
+    }
+    // M-D6.4: the terminator follows the real sun and the globe's own spin. It
+    // refreshes on a timer rather than every frame: the sun moves 15°/hour and
+    // the spin is 0.5°/s, so a second is half a degree — inside the dot spacing,
+    // which makes the refresh invisible. This runs even when `rotate` is 0,
+    // because a still globe still has a real day and night.
+    const now = performance.now() / 1000;
+    if (now - lastSun.current >= TERMINATOR_REFRESH_S) {
+      lastSun.current = now;
+      const sun = sunLocalFor(ref.current.rotation.y, new Date());
+      relight(dotBase, dotColors, dotPositions, dotInvR, sun, DUST_NIGHT);
+      if (landColors.array.length === landBase.length) {
+        relight(landBase, landColors, landPositions, landInvR, sun, LAND_NIGHT);
+      }
     }
   });
 
