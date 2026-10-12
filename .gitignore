@@ -35,3 +35,7 @@ tsconfig.tsbuildinfo
 .next/
 .cursor-local/
 .cursor/ralph/
+
+# Vendor asset kit (Soltan 18:00 owner rule): downloaded third-party assets,
+# never committed to the repo. Index lives in vendor_assets/README.md.
+vendor_assets/
