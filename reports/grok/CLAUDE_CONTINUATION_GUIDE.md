@@ -1458,3 +1458,201 @@ a home, so it is not begun and stays an open gap.
 Governance: Lane A re-verified (`scripts/freeze_lane_a.py`: 36 files pinned, OK);
 `scripts/validate_imports.py` clean; no risk cap, gate, hygiene rule, policy,
 registry or authority surface touched; no push.
+
+## M42 DONE — 2026-10-12 by Claude (one-shot session, finishing a cut-off attempt)
+
+**What M42 is.** Vision M42 / OWNER_DIRECTIVE_MISSION_PLAN.md:407: extend
+`architecture/mission/ledger.py` and `paper_trading/ledger.py` into ONE
+append-only, hash-chained ledger; nightly reconcile against the counterparty,
+a mismatch is a HALT; each broker ≤ 40%; USDT depeg monitoring. Acceptance:
+tampering breaks the chain; the paper reconcile has 0 differences; the
+per-broker concentration test passes.
+
+**What was already on disk.** A previous session had written the whole
+machinery but committed and tested nothing, and had only ever run it with
+`--dry-run`. Uncommitted: `architecture/mission/ledger.py` (the evidence
+surface), untracked: `architecture/treasury/{__init__,reconcile,surveillance}.py`,
+`architecture/markets/paper_anchor.py`, `config/broker_registry.yaml`,
+`scripts/m42_nightly_reconcile.py`.
+
+**What this session did.**
+
+1. Ran the reconcile **live** — the recording path had never executed — and
+   found it crashed: the first-run binding reassigned `anchor` to a bare
+   `StoreFingerprint`, so the report renderer raised `AttributeError` inside
+   `record()`, which swallowed the verdict as an `R-RECORD` finding. The store
+   bound and the verdict was silently lost. Fixed by re-witnessing after the
+   binding (`architecture/treasury/reconcile.py`).
+2. Wrote `tests/test_m42_single_ledger.py` — 68 tests over the ledger surface,
+   the anchor, the surveillance checks, the driver, the three named acceptance
+   criteria, the authority laws and the CLI. It found four more real bugs:
+   - `halted()` tested each HALT against a `released` set the matching clear
+     had not been reached yet (single pass over chain order), so an owner's
+     release never took effect. Now two passes.
+   - Seven `findings=(...)` constructions in `surveillance.py` were
+     parenthesised *strings*, not 1-tuples — implicit concatenation ate the
+     comma — so iterating `findings` yielded one character per finding and would
+     have filled the recorded chain with noise. All seven closed properly.
+   - An undeclared broker flipped the concentration verdict to `BREACH`, so
+     "not eligible" read as "the 40% limit broke". Eligibility is now reported
+     as a finding but only the 40% law sets `BREACH`.
+   - An unmeasured leg (no quote / no feeds agreeing) raised `R-DEPEG`, making
+     a network blip indistinguishable from a broken peg. Unmeasured legs now
+     carry `R-DEPEG-UNMEASURED` / `R-CONCENTRATION-UNMEASURED`, and
+     `UNMEASURED_CODES` gates the verdict.
+3. Made the report honest: the "no discrepancy" line used to print under a
+   `DISCREPANCY` verdict when the breach came from a leg with no fills; the
+   findings section now never contradicts its own verdict.
+4. Corrected `AnchorVerdict`'s docstring — `extensions` reports *new tables*,
+   not row growth; appended rows are silent because the anchor binds a
+   row-count prefix, which is the asymmetry an append-only store wants.
+
+**Evidence.**
+
+- `tests/test_m42_single_ledger.py`: **68 passed** (`.venv`, targeted run).
+- Live reconcile receipt: `reports/grok/M42/2026-10-12_reconcile.md` —
+  verdict `UNKNOWN` (honestly: the counterparty leg is unmeasured), chain
+  verified over 80 entries, paper store `ANCHORED_CLEAN`, paper judge `CLEAN`
+  over 77 cycles with 0 findings, concentration `UNMEASURED`, depeg `ARMED` at
+  0.0763% (threshold 0.5%).
+- The chain now carries `78 STATE + 1 ANCHOR + 2 RECONCILE`; the M13 soak's
+  `STATE` rows interleaved with these writes and the chain stayed intact, which
+  is the cross-writer evidence the shared-append design needs.
+- Reviews and sign-offs: `reports/grok/autopilot/M42_review.md`.
+- Decisions: `reports/grok/DECISIONS_LOG.md` (2026-10-12, three M42 entries).
+
+**Acceptance, mapped.**
+
+| Criterion | Where |
+|---|---|
+| Tampering breaks the chain | `TestM42Acceptance::test_acceptance_tampering_breaks_the_chain` → `BROKEN_CHAIN` |
+| Paper reconcile has 0 differences | `test_acceptance_paper_reconcile_has_zero_differences` + live receipt (judge `CLEAN`, 0 findings) |
+| Each broker ≤ 40% | `test_acceptance_per_broker_concentration`; exactly 40.00% passes, 40.01% breaches |
+
+**Open gaps (honest, not blocking).**
+
+- **The counterparty leg is `UNMEASURED`.** `config/broker_registry.yaml`
+  ships empty by design — the vision makes brokers, whitelists and key
+  capabilities an owner UNKNOWN (§11.0.3). Until the owner declares a broker,
+  this leg cannot be measured and the live verdict stays `UNKNOWN`. This is the
+  correct output, not a defect.
+- **The depeg leg depends on two keyless public feeds** (CoinGecko simple/price,
+  DefiLlama). Both were reachable this run. If both become unreachable the leg
+  reports `UNMEASURED` — it never fabricates a quote.
+- **The hash chain is keyless.** An attacker who rewrites the whole file can
+  recompute every hash; the mitigation is recording the chain head outside the
+  file, which the committed report now does, and `verify(anchor_hash=...)`.
+- **The paper store's anchored row count is 0.** The gold paper track records
+  its cycles on the mission ledger, not in `paper_trading.sqlite`, so the anchor
+  currently binds an empty store. The machinery is correct and would catch a
+  mutation if rows existed; it is simply unexercised by real data.
+
+**Next, in order:** M43 (decision records + tier state) per the plan's ordering
+"M42, M43 → M41 → M39 → M38 → M40". M43 can reuse the `KIND_*` evidence surface
+added here — a tier record is another evidence kind on the same chain, which is
+what "one ledger" was for.
+
+Governance: Lane A untouched (nothing under `discovery/` or `paper_trading/`
+modified; the store is opened read-only); no gate, hygiene rule, policy,
+registry, authority surface or risk cap touched; no push; secrets never written.
+
+## M42 committed — 2026-10-13 by Claude (finishing an uncommitted hand-off)
+
+The 2026-10-12 session wrote the machinery, the tests and the reviews, and
+committed **none of it** — every M42 artifact existed only in the working tree,
+so the reviews pointed at files history did not hold. This session verified the
+inherited state, closed the one real defect it found, ran the reconcile for a
+second night, ran the full suite, and landed it in five commits.
+
+**What this session did.**
+
+1. **Verified the hand-off before touching it.** The live chain was
+   `CHAIN_INTACT` at 100 entries (`97 STATE, 2 RECONCILE, 1 ANCHOR`), not
+   halted; a `--dry-run` reproduced the recorded verdict without writing. Then
+   the counterparty leg.
+2. **Closed the one real defect: the counterparty leg crashed instead of
+   halting.** It was the only leg not wrapped in a `try/except`, so a statement
+   that could not be read — a row that does not parse, or an adapter whose
+   `statement()` raises — killed the process with a traceback. Vision §11.0
+   lists a broker API anomaly among the halt triggers, so an anomalous broker
+   now reports `R-COUNTERPARTY` and records a `m42:counterparty` HALT instead of
+   dying. Two tests pin it, for both shapes a statement arrives in.
+3. **Ran the nightly reconcile live for a second night**, while the M13 soak
+   was appending its own `STATE` rows to the same chain.
+4. **Ran the full suite** as four shards and pasted the counts into the QA
+   sign-off rather than summarising them.
+5. **Committed in five stages**, files by name, so the parallel stage work in
+   the same tree stayed out of the M42 commits.
+
+**Evidence.**
+
+- `tests/test_m42_single_ledger.py`: **70 passed** (`.venv`, targeted run), up
+  from 68.
+- Regression surface for the touched modules: `test_mission_ledger.py` +
+  `test_gold_judge.py` **104 passed**; `test_gold_paper_cycle.py` +
+  `test_m13_gold_soak.py` **42 passed**.
+- Full suite, four shards: **3435 passed, 4 skipped, 1 failed**. The one
+  failure is `tests/test_execution_state.py::test_missing_store_reads_no_data_never_ok`,
+  a known pre-existing test-isolation defect on this host (proven on a pristine
+  checkout 2026-10-09), not an M42 regression. Not relaxed.
+- Live receipt `reports/grok/M42/2026-10-13_reconcile.md`: paper judge **CLEAN
+  over 102 cycles, 0 findings**; depeg `ARMED` at 0.0799% against the 0.5%
+  threshold; anchor `ANCHORED_CLEAN`; verdict `UNKNOWN`.
+- The chain verified `CHAIN_INTACT` at 107 entries (`103 STATE, 3 RECONCILE,
+  1 ANCHOR`) with the soak writing between my runs — the shared-append property
+  observed rather than asserted, on two nights.
+- validate_imports: all six gates pass. The five in-process gates — ARTIFACTS,
+  EVIDENCE-BOUNDARY (66 surfaces), LANE-A FREEZE (36 files pinned, no drift),
+  SECRETS (3848 files scanned), ORPHANS (none of the M42 modules are orphans) —
+  and the IMPORTS probe: **259/259 modules import cleanly in a fresh
+  interpreter, 0 failures**. The serial probe produced no output in 35 minutes,
+  so the same per-module check was re-run 12-way parallel against the identical
+  module list from `validate_imports.collect_modules()`.
+- Lane A: `freeze_lane_a.verify()` reports no drift, no missing, no untracked.
+- Commits: `98ff2c4` ledger surface, `14f835a` treasury + anchor + registry +
+  CLI, `67b232f` gold halt gate + soak cadence, `7a95831` tests,
+  `ab7721a` receipts, reviews, decisions.
+- Reviews and the three sign-offs: `reports/grok/autopilot/M42_review.md`.
+- Decisions: `reports/grok/DECISIONS_LOG.md` (2026-10-13, three entries).
+
+**Acceptance, mapped.**
+
+| Criterion | Where |
+|---|---|
+| Tampering breaks the chain | `TestM42Acceptance::test_acceptance_tampering_breaks_the_chain` → `BROKEN_CHAIN`; live `verify()` is `CHAIN_INTACT` |
+| Paper reconcile has 0 differences | `test_acceptance_paper_reconcile_has_zero_differences` + the 2026-10-13 live receipt (judge `CLEAN`, 102 cycles, **0 findings**) |
+| Each broker ≤ 40% | `test_acceptance_per_broker_concentration`; exactly 40.00% passes, 40.01% breaches |
+
+**Open gaps (honest, all owner-gated, none blocking delivery).**
+
+- **The counterparty leg is `UNMEASURED`, so the live verdict is `UNKNOWN`.**
+  `config/broker_registry.yaml` ships empty by design — §11.0.3 makes brokers,
+  their whitelists and their key capabilities an owner UNKNOWN. Until the owner
+  declares a broker this leg cannot be measured, and no `CLEAN` verdict may rest
+  on it. This is the correct output, not a defect.
+- **Vision :808 names key rotation under M42.** It sits inside the wincred
+  `AHOS/broker/` human-gate clause, so it needs broker keys in the owner's
+  Credential Manager. There are none — M41, which owns the key self-check, is
+  itself owner-gated. The plan's M42 acceptance criteria (the newest statement,
+  which wins) do not include it, so it is left to M41 rather than built against
+  keys that do not exist.
+- **The depeg leg depends on two keyless public feeds** (CoinGecko simple/price,
+  DefiLlama). Both reachable on both nights. If both become unreachable the leg
+  reports `UNMEASURED` — it never fabricates a quote.
+- **The hash chain is keyless.** An attacker who rewrites the whole file can
+  recompute every hash. The mitigation is recording the chain head outside the
+  file, which both committed receipts do, and `MissionLedger.verify(anchor_hash=...)`.
+- **The paper store's anchored row count is 0.** The gold paper track records its
+  cycles on the mission ledger, not in `paper_trading.sqlite`, so the anchor
+  binds an empty store. The machinery is correct and would catch a mutation if
+  rows existed; it is unexercised by real data.
+
+**Next, in order:** M43 (decision records + tier state) per the plan's ordering
+"M42, M43 → M41 → M39 → M38 → M40". M43 can reuse the `KIND_*` evidence surface
+committed here — a tier record is another evidence kind on the same chain, which
+is what "one ledger" was for.
+
+Governance: Lane A untouched (nothing under `discovery/` or `paper_trading/`
+modified; the store is opened read-only; `freeze_lane_a.verify()` clean); no
+gate, hygiene rule, policy, registry, authority surface or risk cap touched; no
+push; secrets never written.
