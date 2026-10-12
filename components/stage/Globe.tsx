@@ -88,16 +88,14 @@ const DUST_NIGHT = 0.07;
 const LAND_NIGHT = 0.16;
 
 /**
- * The atmosphere's fresnel tuning. Measured, not guessed — see the M-D6.4
- * receipt for the before/after luminance numbers. `coefficient` sets how much
- * glow survives at the shell's own limb (where the dot product with the view is
- * ~0.1), `power` how fast the glow rises toward the globe, and `scale` how far
- * the shell reaches past the dot field. The old rim's flat 0.72 annulus is
- * replaced by a gradient that is dim at the edge and warm where the planet is.
+ * The atmosphere's tuning is the vendor kit's own defaults (see
+ * `Atmosphere.tsx`): `scale` 1.15, `coefficient` 0.1, `power` 3.5. These are
+ * taken as-is rather than hand-tuned — the old rim went through two rounds of
+ * exponent tuning that changed nothing, because two of its three knobs were
+ * inert on a back-facing fragment. Only the shell's subdivision is ours, and it
+ * follows the tier so T1's halo is a 32×32 and T2/T3's a 64×64.
  */
-const ATMOSPHERE_SCALE = 1.05;
-const ATMOSPHERE_COEFFICIENT = 0.4;
-const ATMOSPHERE_POWER = 2.0;
+const SHELL_SEGMENTS_T3 = 64;
 /**
  * How often the terminator is recomputed. The sun moves at 15°/hour and the
  * globe's idle spin is 0.5°/s, so a second is half a degree of travel — well
@@ -386,11 +384,11 @@ export default function Globe({ points, rotate }: GlobeProps) {
     return geo;
   }, [landPositions, landColors]);
 
-  // The atmosphere's shell. Two knobs (`coefficient`, `power`) that both work on
-  // a back-facing fragment — see Atmosphere.tsx — instead of the old rim's three,
-  // one of which was inert. The segments follow the tier: T1's shell is a 32×32,
-  // T2/T3 a 64×64, matching the globe body's own subdivision ladder.
-  const shellSegments = points >= 10000 ? 64 : 32;
+  // The atmosphere's shell. Its tuning is the vendor kit's defaults — see
+  // Atmosphere.tsx — instead of the old rim's three knobs, one of which was
+  // inert. The segments follow the tier: T1's shell is a 32×32, T2/T3 a 64×64,
+  // matching the globe body's own subdivision ladder.
+  const shellSegments = points >= 10000 ? SHELL_SEGMENTS_T3 : 32;
 
   // The land layer's mask, loaded from the app's own origin. `useTexture`
   // suspends, so the layer is mounted inside a <Suspense> below and the rest of
@@ -499,13 +497,11 @@ export default function Globe({ points, rotate }: GlobeProps) {
       ) : null}
       {/* M-D6.4: the fresnel atmosphere, replacing the hand-rolled rim shell.
           Slightly larger than the dot field, so its glow sits over the outer dust
-          rather than at the silhouette itself. */}
+          rather than at the silhouette itself. Tuning is the vendor kit's own
+          defaults; see Atmosphere.tsx. */}
       <Atmosphere
         radius={GLOBE_RADIUS}
-        scale={ATMOSPHERE_SCALE}
         color={warmGold}
-        coefficient={ATMOSPHERE_COEFFICIENT}
-        power={ATMOSPHERE_POWER}
         segments={shellSegments}
       />
     </group>

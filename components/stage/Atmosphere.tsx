@@ -78,13 +78,20 @@ export interface AtmosphereProps {
   segments?: number;
 }
 
+/**
+ * The defaults are the vendor kit's own, taken as-is rather than hand-tuned
+ * (vendor_assets/globe/reference/AtmosphereR3F.tsx): `scale` 1.15, `coefficient`
+ * 0.1, `power` 3.5. Two rounds of tuning the old rim's exponents changed
+ * nothing because two of its knobs were inert on a back-facing fragment, so the
+ * tuning instinct is not trusted here — the shipped values are the vendor's.
+ */
 export function Atmosphere({
   radius,
-  scale = 1.05,
-  coefficient = 0.4,
-  power = 2.0,
+  scale = 1.15,
+  coefficient = 0.1,
+  power = 3.5,
   color = "#D4AF5A",
-  segments = 48,
+  segments = 64,
 }: AtmosphereProps) {
   const material = useMemo(
     () =>
