@@ -1,0 +1,23 @@
+version: "broker-registry-v1"
+
+# Brokers AHOS may place exposure through. OWNER-GATED by the vision itself:
+# §11.0.3 lists brokers, their whitelists and their key capabilities among the
+# system's UNKNOWNs that only the owner declares. The list is therefore empty
+# by design, and M42's per-broker concentration check reports UNMEASURED while
+# it stays empty rather than assuming a safe distribution (an unmeasured limit
+# is not a satisfied limit).
+#
+# Adding a row is an owner act, and it does NOT grant anything: eligibility is
+# declared by compliance (AG-39, `venue_eligibility`), never assumed by the
+# system, and a key self-check (M41) still has to pass at startup before any
+# broker is used. This file is data, not permission.
+#
+# Row fields:
+#   broker_id    stable id; the counterparty statement uses the same one
+#   eligible     bool, declared by AG-39. Missing/null = undeclared, which the
+#                concentration check reports rather than treats as eligible
+#   exposure_usd optional declared book size, for a manual dry-run only. The
+#                live exposure comes from the counterparty statement at
+#                reconcile time; do not maintain it here.
+#   notes        factual state only
+brokers: []
