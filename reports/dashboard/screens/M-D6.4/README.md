@@ -129,3 +129,46 @@ T1 gains the terminator at no added draw call: the colour attribute already exis
 and the per-second re-light is a CPU pass over 28 800 floats, not a render change.
 The `relight` path mutates the existing attribute's array in place and sets
 `needsUpdate`, so no geometry is rebuilt as the world turns.
+
+## Owner QA 02:48 items 2 and 5 — crown clearance and the seat, verified
+
+Items 2 (crown clipped by the header) and 5 (globe not seated in the floor ring)
+were one geometric problem, and the fix for both landed in `73a7f85`. This section
+records the measurement that verifies them against `seated_t3.png`.
+
+**Method.** A single bounding box is not enough here, because the shell's own gold
+chrome (the M-D5.G chip borders in the header) is the same hue as the ring and sits
+in the same frame. Every number below is restricted to the stage area, x 350..1250
+and y 150..740, which excludes the header band entirely. The ring was then isolated
+by ablation rather than by colour threshold: two captures of the floor with the
+globe removed, one with the ring mesh and one without, differ in exactly the ring.
+That removes the globe's dust and the shell's chrome at once. The floor rotates
+between captures, so the diff also picks up the shamseh's motion — the ring's own
+pixels are identified as the dim saturated-gold metal and measured in
+`floor_ring_t3.png` directly.
+
+| Object | Measurement |
+|---|---|
+| Header chrome, centre column | last non-stage-background pixel at **y = 48** |
+| Globe crown, centre column | first non-stage-background pixel at **y = 135** |
+| **Crown clearance** | **87 px** — the crown is not clipped (item 2) |
+| Globe (bright dust, stage area) | x 483..1089, y 150..729, centre (786, 440), half-width 303, half-height 290 |
+| Ring (dim gold metal, stage area) | x 477..1102, y 329..731, centre (790, 530), half-width 313, half-height 201 |
+| Ring aspect (half-width / half-height) | 1.56 — a tilted circle, as a floor ring must read |
+
+The two shapes carry the answer. The globe's projection is near-circular (303 × 290),
+which is what a sphere must give; the ring's is an ellipse (313 × 201), which is what
+a horizontal circle seen from above must give. The globe's horizontal span sits inside
+the ring's by 6 px on the left and 13 px on the right, and the globe's vertical centre
+(440) stands above the ring's (530) while the globe's base (729) meets the ring's near
+edge (731). That is a ball in a hoop, not a halo at the equator. The ring's near edge
+at y = 731 stays inside the 748 px frame.
+
+A hand-rolled pinhole projection (camera `[0, 5.8, 8.8]`, 42° vertical, aspect
+1582/748) agrees on the shape but renders both objects about 1.6× smaller than the
+capture shows them. The origin projects to exactly (791, 374), the frame centre, so
+the camera's aim is right; the disagreement is in the scale, and I did not resolve
+it. It does not affect the verdict, because the two facts that settle items 2 and 5 —
+the crown's clearance and the ring's containment of the globe — are measured against
+each other in the same frame, and cancel any scale error. Recorded here so the next
+pass does not re-derive the projection and trust it.
