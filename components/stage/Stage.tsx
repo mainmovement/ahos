@@ -30,8 +30,18 @@ import { edgeColor, goldEmissive, rimLight, stageColors } from "@/components/sta
 import type { TierVerdict } from "@/components/stage/quality";
 import Globe from "@/components/stage/Globe";
 
-const FLOOR_RADIUS = 6;
-const RING_RADIUS = 5.2;
+const FLOOR_RADIUS = 2.86;
+const RING_RADIUS = 2.1;
+/**
+ * Owner QA 01:17 / 02:48: the globe never read as seated in the ring. The reason
+ * was a proportion, not a position — the ring's 5.2 inner edge stood against a
+ * globe of radius 1.76, so the ring crossed the globe's *equator* and its near
+ * edge ran off the bottom of every frame that kept the crown below the header.
+ * No camera fixes both at once; a ring three times the globe is a halo, not a
+ * cradle. The ring now sits just outside the globe's silhouette (2.1 against
+ * 1.76), the shamseh fits inside it, and the lacquer disc extends a little
+ * beyond. The globe itself is untouched.
+ */
 
 /**
  * A 10-fold shamseh (sun rosette) as line geometry: two concentric decagons and
@@ -228,7 +238,12 @@ export default function Stage({ verdict, onContextLost }: StageProps) {
       // §11 Low-power: render only on change. With an empty stage and no motion
       // budget this draws one frame and stops — near-zero idle GPU cost.
       frameloop={budget.rotate > 0 ? "always" : "demand"}
-      camera={{ position: [0, 3.4, 7.6], fov: 42 }}
+      // Raised and moved back (from [0, 3.4, 7.6]): at the old position the
+      // globe's crown projected 5 px above the top of the frame. This is the one
+      // point the geometry search found where the crown clears the header *and*
+      // the ring's near edge stays on-frame, so the hoop passes in front of the
+      // globe's base instead of reading as a halo at its equator.
+      camera={{ position: [0, 5.8, 8.8], fov: 42 }}
       dpr={[1, tier === "T3" ? 1.5 : tier === "T2" ? 1.25 : 1]}
       gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
