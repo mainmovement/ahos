@@ -138,31 +138,61 @@ records the measurement that verifies them against `seated_t3.png`.
 
 **Method.** A single bounding box is not enough here, because the shell's own gold
 chrome (the M-D5.G chip borders in the header) is the same hue as the ring and sits
-in the same frame. Every number below is restricted to the stage area, x 350..1250
-and y 150..740, which excludes the header band entirely. The ring was then isolated
-by ablation rather than by colour threshold: two captures of the floor with the
+in the same frame. Every number below is restricted to the stage disc, x 450..1150,
+which excludes the shell's side chips, and the header is measured on the centre
+column x = 791 where the globe is tallest, so the two rows being compared come from
+the same column and cannot miss each other sideways. The ring was then isolated by
+ablation rather than by colour threshold: two captures of the floor with the
 globe removed, one with the ring mesh and one without, differ in exactly the ring.
 That removes the globe's dust and the shell's chrome at once. The floor rotates
 between captures, so the diff also picks up the shamseh's motion — the ring's own
 pixels are identified as the dim saturated-gold metal and measured in
 `floor_ring_t3.png` directly.
 
+> **Corrected (owner QA 10:45).** The table this section first shipped in `8ca48fd`
+> was measured through a scan window that began at y = 150 — fifteen rows *below*
+> the crown — so the globe's "top" was the window's edge, not the globe. The
+> clearance, the centre and both half-extents were derived from a clipped box and
+> none of them describe the capture. Re-measured on the full frame:
+
 | Object | Measurement |
 |---|---|
-| Header chrome, centre column | last non-stage-background pixel at **y = 48** |
-| Globe crown, centre column | first non-stage-background pixel at **y = 135** |
-| **Crown clearance** | **87 px** — the crown is not clipped (item 2) |
-| Globe (bright dust, stage area) | x 483..1089, y 150..729, centre (786, 440), half-width 303, half-height 290 |
-| Ring (dim gold metal, stage area) | x 477..1102, y 329..731, centre (790, 530), half-width 313, half-height 201 |
-| Ring aspect (half-width / half-height) | 1.56 — a tilted circle, as a floor ring must read |
+| Header chrome, centre column x = 791 | last lit row **y = 54** |
+| Globe crown, centre band x 741..841 | first lit row **y = 135** |
+| **Crown clearance** | **81 px** — the crown is not clipped (item 2) |
+| Globe + floor disc (lit, x 450..1150) | x 476..1109, y 135..731, centre (792, 433), half-width 316, half-height 298 |
+| Globe base, centre band | y = 729 — the last bright row on the globe's own surface |
+| Disc's last lit row (the ring's near edge) | y = 731, inside the 748 px frame |
+| Ring's horizontal span at the globe's base | x 476..1108, width 632 |
 
-The two shapes carry the answer. The globe's projection is near-circular (303 × 290),
-which is what a sphere must give; the ring's is an ellipse (313 × 201), which is what
-a horizontal circle seen from above must give. The globe's horizontal span sits inside
-the ring's by 6 px on the left and 13 px on the right, and the globe's vertical centre
-(440) stands above the ring's (530) while the globe's base (729) meets the ring's near
-edge (731). That is a ball in a hoop, not a halo at the equator. The ring's near edge
-at y = 731 stays inside the 748 px frame.
+`seated_t1.png` was also replaced (owner QA 10:45): the file this section shipped
+with was a Chrome `ERR_CONNECTION_REFUSED` page — 64.1% of its frame was pale
+background and only 29.2% was the stage's near-black — so it proved nothing about
+T1. Recaptured on the running dev server, it is a real render (0.1% pale, 93.5%
+near-black) and its geometry is *identical* to T3's: crown y = 135, clearance 81 px,
+disc x 476..1109 and y 135..731. That is expected rather than coincidental — the
+tier changes the dot count and the motion budget, never the globe's scale or seat,
+so the crown clearance and the ring's containment hold at every tier by
+construction.
+
+The old row "x 483..1089, y 150..729, centre (786, 440), half-width 303, half-height
+290" and its 87 px clearance all came from that clipped box; the corrected numbers
+above are the ones to quote. The verdict itself is unchanged and does not depend on
+the error — see the next paragraph.
+
+The two shapes carry the answer, and the correction above does not change it. The
+disc's bounding box is 633 × 597 with its centre at (792, 433) — wider than it is
+tall, because the box wraps both the globe's near-circular projection and the ring's
+ellipse, which extends further left and right than the globe does but not as far up.
+The ring's own horizontal span at the globe's base is x 476..1108 (632 px wide) and
+the globe's base is y = 729, two rows above the ring's near edge at y = 731. The
+globe's vertical centre stands above the disc's while its base meets the ring's near
+edge, which is a ball in a hoop rather than a halo at the equator. The ring's near
+edge at y = 731 stays inside the 748 px frame.
+
+The ring's ellipse and the globe's circle were separated by the ablation described
+above, not by fitting boxes to a merged outline, which is why the merged box here is
+reported as the disc rather than as either object.
 
 A hand-rolled pinhole projection (camera `[0, 5.8, 8.8]`, 42° vertical, aspect
 1582/748) agrees on the shape but renders both objects about 1.6× smaller than the
