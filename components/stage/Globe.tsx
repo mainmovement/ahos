@@ -426,7 +426,14 @@ export default function Globe({ points, rotate }: GlobeProps) {
             sizeAttenuation
             vertexColors
             transparent
-            opacity={0.95}
+            // Owner QA 02:48 (item 1): the two glow spots were this layer. The
+            // land dots are larger and brighter than the dust, so where a
+            // continent is dense they stack additively in screen space and three
+            // of them saturate to a pale patch that reads as a glitch rather than
+            // a landmass. Backed off as the dust was (see the dust note above):
+            // the continents still read as the brighter layer over the field, but
+            // a cluster of them no longer sums to white.
+            opacity={0.62}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
