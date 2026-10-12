@@ -1180,3 +1180,19 @@ stacks read 248.9/248.5 at T3/T1 — the same white-gold as the day side, becaus
 base is multiplied by the floor and the additive dots above still saturate. Halving the
 floors took those to 164.1/200.4 and dropped every band above 32 lum at both tiers.
 Halved rather than zeroed on purpose: a half-invisible globe reads as broken.
+
+## 2026-10-12 — the 8ca48fd README numbers were clipped by their own scan window
+**Question.** Owner QA 10:45: the crown-clearance numbers in 8ca48fd do not match
+seated_t3. Fix or remove them.
+**Choice.** Keep the section, correct the numbers, and record the cause of the error
+rather than silently overwriting.
+**Reason.** The measurement scan started at y = 150, but the globe's crown sits at
+y = 135 — fifteen rows above the window. The "top" being measured was the window's
+edge, so the clearance (87 vs the true 81), the centre, and both half-extents were
+derived from a clipped box. Re-measured on the full frame with the header taken on
+the centre column so the two rows being compared share a column.
+**Consequence.** The verdict (crown clears the header, globe seated in the ring) did
+not depend on the clipped numbers and still holds; the corrected README now says so
+and names the old figures so the next pass does not re-derive them. Also replaced
+seated_t1.png, which was a Chrome ERR_CONNECTION_REFUSED page — 64.1% pale background,
+29.2% stage near-black — and proved nothing.
