@@ -1383,3 +1383,78 @@ If M12 needs reopening: the new invariants live in
 charter-traceability test asserts every cited charter name is present in the
 vision. The vision §2.3.3 remains the charter authority;
 `docs/agents/M12_REGISTERED_AGENTS.md` is only an index, never a second source.
+
+## M13 closed DONE — 2026-10-12 by Claude (one-shot session, gold first)
+
+Paper trading, gold first, and the T0→T1 machinery of vision §11.0. Two prior
+attempts had built and committed the track itself; this session finished their
+uncommitted work and closed the one gap the queue row names that nothing had
+wired.
+
+**What was already committed before this session** (not redone):
+`architecture/providers/gold.py` (two-source XAU witness, `95d4618`);
+`architecture/markets/risk.py` (§5 sizing + §12 breaker);
+`architecture/markets/judge.py` (the M42 independent reconcile);
+`architecture/markets/gold_paper.py` (the track, the witness law as gold's safety
+gate, the breaker as an every-cycle entry gate, ledger-replayed risk history);
+`architecture/markets/tier_gate.py` (the ten-criterion evaluator);
+`scripts/m13_gold_soak.py` + the soak README (`a258fa0`, `1a64b4a`). The five-gate
+acceptance set named by `DEDUP_MERGE_MAP` v1.20 line 183 — two-source price
+witness, exit rules, risk, M42 judge, M39 breaker — was already complete.
+
+**What this session did** (`db33741`):
+
+1. **Wired the T0→T1 machinery into the evidence cadence.** `tier_gate.py` had no
+   caller at all — a promotion-gate evaluator that never evaluates is VISION, not
+   IMPLEMENTED. The soak's daily step now evaluates it over the same ledger the
+   M42 judge just reconciled and writes `reports/grok/M13_SOAK/<day>_tier_gate.md`,
+   one record per UTC day in `soak_runlog.jsonl` (`kind: "tier_gate"`) and the
+   state in `soak_status.json` as `last_tier_gate`.
+2. **`paper_history(ledger)`** in `gold_paper.py` — the read-only bridge from the
+   ledger to the gate's arguments: the settled closes, each carrying the drawdown
+   recorded at its exit, and the recorded data span in months. It reuses the
+   settled-only selection rule the risk replay already uses, deliberately, so the
+   risk limits and the promotion gate cannot drift apart on what counts as a
+   trade; the drawdown uses `risk.drawdown_pct`'s peak-to-equity definition.
+3. **Fixed a hole in the evaluator found by reviewing it as a caller.**
+   `max_drawdown_pct` was `max(t.get('drawdown_pct') or 0.0)`, so trades with no
+   drawdown field scored a **0.00% PASS** on the ≤15% criterion — the vacuous pass
+   the module's own docstring refuses for the empty case. No recorded drawdown is
+   now UNMEASURABLE, which blocks readiness harder than a FAIL. A tightening: all
+   existing tests supply `drawdown_pct`, none was affected.
+4. **Committed the previous attempt's untracked `tests/test_tier_gate.py`**
+   (20 cases) and added 2 more for the tightening + 5 wiring cases in
+   `tests/test_m13_gold_soak.py`. M13-targeted suite: **158 passed, 0 failed**.
+5. **Restarted the soak onto the new runner** (PID 12616 → 8484) with `--days
+   6.872`, the *remaining* time on the original deadline, so the planned end did
+   not move; logs rotated to `.1`. Verified live: cycle 20, judge CLEAN, tier gate
+   written — decision record in `DECISIONS_LOG.md`.
+
+**What the machinery actually reports today, over the live ledger**:
+`2026-10-12_tier_gate.md` — T0, **0/2 measurable, 9 unmeasurable, NOT READY**:
+0.05 months of a required 6, 0 trades of a required 200. That is the honest state
+of a soak whose first position has not reached its 48h horizon (first TIME_EXIT
+expected ~2026-10-12 12:32Z). Two criteria are owner questions, not code bugs:
+`M-REGIME-4` (the gate asks ≥3 of 4 regimes; `architecture/intel/regimes.py`
+defines 3, and `n_regimes=4` silently relabels to `NEUTRAL_CHOP`) and
+`M-DD-BACKTEST` (the drawdown-vs-backtest multiple needs a backtest MaxDD
+reference).
+
+**LISTED for the owner, not decided:** `M-REGIME-4`, `M-DD-BACKTEST`, the measured
+cost model the T1 gate requires (gold's `GOLD_ROUND_TRIP_BPS = 20` is a declared
+paper *assumption* and the gate correctly refuses to accept it), and the T1
+promotion itself — by §11.0 an owner act plus قاسم AG-16 / رضا AG-19 / سپهر AG-03,
+never a code decision, and INV-35 forbids any automatic upgrade.
+
+**Next, in order:** the soak completes 2026-10-18T22:09Z (deadline preserved); its
+first closed trade is expected at the 48h TIME_EXIT. Per `DEDUP_MERGE_MAP` v1.20,
+M13.1 (oil, WTI/Brent) is gated on M13 gold passing its acceptance — which it has
+— plus unit tests, a 7-day soak without crashes and honestly recorded M42 numbers.
+The learning-loop rows (NS-01, OWN-AV-37) point at frozen Lane A
+`paper_trading/lessons.py`, which is token-shaped and reads `paper_trade_v2`; a
+gold lesson builder would be a second implementation of a concept that already has
+a home, so it is not begun and stays an open gap.
+
+Governance: Lane A re-verified (`scripts/freeze_lane_a.py`: 36 files pinned, OK);
+`scripts/validate_imports.py` clean; no risk cap, gate, hygiene rule, policy,
+registry or authority surface touched; no push.

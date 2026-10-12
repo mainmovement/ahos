@@ -828,7 +828,7 @@ The Charter (`docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`, P2C 
 | M10 de-Docker (PGlite) | Robust memory substrate | durable local stores without external services | PGlite client + restore, parity verified (7ace415) |
 | M11 one-click launcher | Embodiment / homeostasis | self-starting, self-checking organism | launcher package in progress (2270146, 9e74645) |
 | M12 agents | Society of minds | lifecycle-managed specialist agents | 19 agents REGISTERED; registry + TCB exist; no lifecycle runtime |
-| M13 paper + learning (+gold paper) | Learning from experience; calibration | closed loop outcome→lesson→calibration | code exists; 0 paper rows; not wired |
+| M13 paper + learning (+gold paper) | Learning from experience; calibration | closed loop outcome→lesson→calibration | gold paper track runs daily: two-source XAU witness, §12 breaker, M42 judge, T0→T1 gate (`95d4618`, `5988620`, `db33741`); outcomes recorded to the mission ledger and measured per UTC day; the lesson→calibration half is still unwired — frozen Lane A `lessons.py` is token-shaped and reads `paper_trade_v2` (still 0 rows), so no gold lesson builder exists |
 | M14 autonomous engineering core | Self-improvement under governance; self-evaluation | governed self-development with checkpoints and sign-off | ledger + provider status + intake exist; no controller |
 | M15 contradictions + council | Multi-agent reasoning; metacognition | dissent-preserving calibrated council | council code + anti-echo tests; not on live decisions |
 | M16 University / GitHub | Research, novelty, world model, knowledge acquisition | continuous research ecosystem | docs + self_research/oss_pipeline code; knowledge store 0 claims |
@@ -840,7 +840,7 @@ The Charter (`docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`, P2C 
 
 | ID | Requirement | Status | Evidence (extend these) | Mission |
 |---|---|---|---|---|
-| NS-01 | Closed learning loop: paper outcome → lesson → calibration → scoring-change proposal (never auto-promote) | EXISTS-PARTIAL (reuse/extend) | paper_trading/lessons.py, architecture/learning/{calibration,prediction_lifecycle,score_ledger}.py, 202f8c9 | M13 |
+| NS-01 | Closed learning loop: paper outcome → lesson → calibration → scoring-change proposal (never auto-promote) | EXISTS-PARTIAL (reuse/extend) | paper_trading/lessons.py, architecture/learning/{calibration,prediction_lifecycle,score_ledger}.py, 202f8c9. The outcome→measurement half exists for gold: `architecture/markets/tier_gate.py` evaluates the ten T1 criteria over recorded outcomes every soak day and never promotes (`db33741`, `tests/test_tier_gate.py`); the lesson→calibration half does not | M13 |
 | NS-02 | Self-evaluation on every mission: cognitive benchmark + regression scorecard recorded in the mission ledger | EXISTS-PARTIAL (reuse/extend) | architecture/cognitive/benchmark/, scripts/run_cognitive_benchmark.py, architecture/mission/ledger.py | M14 |
 | NS-03 | Persistent cognitive/organizational memory actually populated (episodic, semantic, failure, procedural) | EXISTS-PARTIAL (reuse/extend) | architecture/cognitive/memory/ (store, consolidation, self_query); ahos_cognitive_memory.sqlite = 0 bytes (M9) | M14/M16 |
 | NS-04 | Multi-agent reasoning with preserved dissent and calibrated aggregation | EXISTS-PARTIAL (reuse/extend) | architecture/ai/council_live.py, debate_council.py, architecture/knowledge/anti_echo.py, tests/test_multi_mind_council_anti_echo.py | M15 |
@@ -850,7 +850,7 @@ The Charter (`docs/architecture/AHOS_AGI_ACI_ARCHITECTURE_CHARTER_v1.0.md`, P2C 
 | NS-08 | Novelty → research task → University → validated knowledge pipeline | EXISTS-PARTIAL (reuse/extend) | architecture/cognitive/novelty.py, self_research.py, architecture/knowledge/oss_pipeline.py | M16 |
 | NS-09 | Governed self-improvement: proposals via evolution_gate with independent verification before adoption | EXISTS-PARTIAL (reuse/extend) | architecture/cognitive/evolution_gate.py, architecture/evolution/engine.py, contracts/improvement_proposal_contract_v1.json | M16 |
 | NS-10 | Honest capability scorecard in the dashboard: each capability labeled VISION / DESIGN / IMPLEMENTED / TESTED / OPERATING | MISSING→added to plan | no UI; data in reports/grok/REMAINING_REALITY_REGISTER.md + this matrix | M17 |
-| NS-11 | Cross-domain transfer: the same cognitive loop serves crypto, gold and later markets (no per-market forks) | EXISTS-PARTIAL (reuse/extend) | architecture/cognitive/loop/ is domain-agnostic; gold/multi-market not wired | M13/M18/M19 |
+| NS-11 | Cross-domain transfer: the same cognitive loop serves crypto, gold and later markets (no per-market forks) | EXISTS-PARTIAL (reuse/extend) | architecture/cognitive/loop/ is domain-agnostic; gold wired to the shared paper cadence (witness → track → ledger → judge → tier gate) with no gold-specific fork of the loop (`db33741`); M13.1–M13.6 adapters gated on the 7-day soak (DEDUP v1.20) | M13/M18/M19 |
 
 ## 5. Owner chat instructions 2026-10-03 (newest; they win over older statements)
 

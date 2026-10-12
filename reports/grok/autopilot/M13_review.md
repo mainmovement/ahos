@@ -192,3 +192,169 @@ Checked against the hard rules before writing any code:
 5. `reports/grok/M13_SOAK/README.md` — the tier report joins the reading order.
 6. The soak is restarted onto the new runner, deadline preserved.
 7. Queue row + continuation guide + this review's sign-offs.
+
+---
+
+## Sign-off 1 — قاسم (AG-16, QA)
+
+**Targeted suite, the six M13 modules** (`tests/test_tier_gate.py`,
+`tests/test_m13_gold_soak.py`, `tests/test_gold_two_source.py`,
+`tests/test_gold_paper_cycle.py`, `tests/test_gold_risk.py`,
+`tests/test_gold_judge.py`):
+
+```
+158 passed, 0 failed in 31.75s
+```
+
+**Full suite**, run in four partitions (a single-process run is not viable on
+this Windows host — the M9 baseline, `reports/m9/BASELINE.md`, had to partition
+into 11 for the same reason, and a first attempt here was killed at the 10-minute
+background limit):
+
+| partition | result |
+|---|---|
+| modules 1–20 | 238 passed, 1 skipped (150.61s) |
+| modules 21–30 | 215 passed (189.69s) |
+| modules 31–40 | 126 passed (422.99s) |
+| modules 41–200 | 2788 passed, 3 skipped, 1 failed (2729.08s) |
+| **total** | **3367 passed, 4 skipped, 1 failed (~52 min)** |
+
+The one failure is `tests/test_execution_state.py::test_missing_store_reads_no_data_never_ok`
+— the **known pre-existing host defect**, not a regression:
+
+- It reproduces **in isolation**: `1 failed in 0.55s`.
+- `tests/test_execution_state.py` is **not in this commit** —
+  `git diff --name-only HEAD~1 -- tests/` returns nothing for it.
+- It was proven pre-existing on 2026-10-09 by stashing the then-current change
+  and removing the new files: it failed identically on a pristine checkout.
+- Its own comment admits the cause: it monkeypatches `es.ROOT` while "the path
+  getter is resolved against the real config", so it asserts an absent
+  cognitive-memory store on a host where that file genuinely exists.
+
+I did not relax it, skip it, or block on it.
+
+**Test integrity receipt** (the M44–M51 anti-weakening rule, applied here):
+
+- skips/xfails added: **0**. Asserts removed: **0**. Tolerances or timeouts
+  loosened: **0**. `conftest.py` touched: **no**.
+- Test count: **+7 new cases** (2 in `test_tier_gate.py`, 5 in
+  `test_m13_gold_soak.py`) and **+20 previously untracked cases** in
+  `test_tier_gate.py` that the prior attempt wrote and never committed — now
+  committed and green. No test file's count decreased.
+- The one behavioural change in production code (`max_drawdown_pct` on missing
+  readings) is a **tightening**: a former vacuous PASS is now UNMEASURABLE. All
+  pre-existing cases supply `drawdown_pct` and are unaffected.
+
+**Lane A**: `python -B scripts/freeze_lane_a.py` → `Lane-A integrity OK (36
+files pinned)`. No Lane A file edited.
+
+**`scripts/validate_imports.py`**: **pre-existing FAIL, and I report it as a
+FAIL.** It exits 1 with 12 never-imported modules (`discovery.collect`,
+`engine.acquire_3yr`, `engine.agent_matrix_v2`, `engine.bot_skeleton`,
+`engine.coverage_audit`, `engine.data_audit`, `engine.doc_hygiene`,
+`engine.oss_audit`, `engine.pal_probe`, `engine.research_report_bot`,
+`engine.run_validation`, `paper_trading.cycle`). Proven not mine: I reverted
+`gold_paper.py`, `tier_gate.py` and `m13_gold_soak.py` to `HEAD~1`, re-ran it,
+and got the **byte-identical** FAIL line and the identical 12-module list; the
+files were then restored from `HEAD` and the M13 suite re-run green. None of the
+12 modules is in this diff. Fixing that dead-code set is a governance-review job
+of its own, not an M13 change, and I did not touch it.
+
+**Verdict: PASS.** All targeted tests green; the full suite's single failure is
+proven pre-existing and unrelated; test integrity is up, not down.
+
+---
+
+## Sign-off 2 — رضا (AG-19, red team)
+
+Attacks were **run**, not asserted (ad-hoc probe script, not committed — it
+probes, it pins nothing).
+
+1. **Fabricate a perfect track** — 250 fake winners, 8 months of data, a
+   measured cost model, a backtest reference, walk-forward supplied: the gate
+   reports `promoted: False`, `ready_for_owner_review: False`, 9/9 measurable
+   pass but **2 criteria stay unmeasurable** (`regime_coverage`, and
+   `profit_factor` — 250 all-winners give no losers, so PF is genuinely
+   undefined rather than infinitely good). The gate cannot be talked into
+   readiness even by perfect numbers.
+2. **Infinite-Sharpe injection** — 300 trades with identical PnL (zero variance):
+   `sharpe.measured is None`. No division-by-zero, no `inf` leak, no pass.
+3. **The vacuous-drawdown hole** (the one this mission fixed) — 300 trades with
+   no `drawdown_pct` field: `passed is None`, detail reads `UNMEASURABLE: no
+   recorded trade carries a drawdown reading…`. Before the fix this path
+   returned a 0.00% **PASS** on the ≤15% criterion.
+4. **A crafted "ready" report** — a hand-built `TierGateReport` with one passing
+   criterion renders `**Ready for owner review.**` **and still** `Promoted by
+   this evaluation: **False**`. The renderer can style readiness without ever
+   styling a promotion.
+5. **The real live ledger** — 0 recorded trades, 0.052 months: `promoted: False`,
+   `ready: False`.
+
+Attacks considered and rejected as not applicable here: prompt injection (no LLM
+anywhere in this path — the gate is pure arithmetic), and chain tampering (the
+M42 judge's territory, already tested in `test_gold_judge.py` with
+chain-intact crafted lies).
+
+**The one thing I would attack next, and why I did not:** `paper_history` is the
+bridge that decides what counts as a trade, and it is the one new surface. Its
+settled-only rule is a filter, not a guard — a ledger row that *claims* a settled
+exit with a fabricated `equity_usd` would be counted, and its drawdown would be
+whatever the crafted equity says. This is not exploitable from outside (only the
+track writes the ledger, and the judge independently re-derives every close from
+the recorded position and price), but the honest statement is that the gate
+measures the ledger's truthfulness only as well as the judge already does. It
+does not add a second layer of its own, and it does not claim to.
+
+**Verdict: PASS.** No path to a promotion claim, no vacuous pass, no crash on
+degenerate input, and the pre-existing hole is closed.
+
+---
+
+## Sign-off 3 — عرفان (evidence)
+
+Every claim above points at a file, a test, or a commit.
+
+| Claim | Evidence |
+|---|---|
+| Five acceptance gates complete | `NIGHT_RUN_CHECKPOINT.md` step 6; commits `95d4618`, `5988620` |
+| The evaluator had no caller | `git grep evaluate_tier_gate` at session start: only `tier_gate.py` defining it and `tests/test_tier_gate.py` calling it — no production caller |
+| The wiring | `scripts/m13_gold_soak.py:_tier_report`, called from the day rollover and from `--report-only` (`db33741`) |
+| The bridge | `architecture/markets/gold_paper.py:paper_history` (`db33741`) |
+| The drawdown tightening | `architecture/markets/tier_gate.py` (`db33741`); pinned by `test_a_track_with_no_drawdown_readings_scores_no_vacuous_pass` and `test_a_non_numeric_drawdown_is_ignored_not_crashed` |
+| The tests exist and pass | `tests/test_tier_gate.py` 22 passed; with the five other M13 modules → 158 passed |
+| The full-suite counts | partition table in قاسم's sign-off, from actual runs this session |
+| The known failure is pre-existing | `1 failed in 0.55s` in isolation; proven by stash on 2026-10-09; file not in `git diff HEAD~1` |
+| validate_imports FAIL is pre-existing | reverted-tree re-run produced the identical FAIL and the identical 12-module list |
+| The machinery runs on the live ledger | `reports/grok/M13_SOAK/2026-10-12_tier_gate.md` — T0, 0/2 measurable, 9 unmeasurable, NOT READY; `soak_runlog.jsonl` line `"kind": "tier_gate"` at `2026-10-12T01:15:49Z` |
+| The soak survived the restart | PID 12616 → 8484, cycle 20 recorded, judge CLEAN; `DECISIONS_LOG.md` 2026-10-12 entry |
+| Lane A unchanged | `scripts/freeze_lane_a.py`: 36 files pinned, OK |
+| Traceability rows updated | `ALL_DOCS_TRACEABILITY.md` (M13 capability row, NS-01, NS-11); `ALL_DOCS_ADD_v16.md` (OWN-AV-146, OWN-AV-147) |
+| What remains | continuation guide, "LISTED for the owner" + "Next, in order" |
+
+Honest gaps in this mission's own evidence, stated plainly: there are **no closed
+trades yet**, so the gate's trade-consuming criteria (Sharpe, DSR/PSR, profit
+factor, month concentration) have never been exercised on real recorded data —
+only on the synthetic fixtures and the red-team probes. The first close is
+expected at the 48h `TIME_EXIT` (~2026-10-12 12:32Z). The M42 judge has been
+exercised on real data and is CLEAN, but a soak that has settled nothing cannot
+prove its settlement path end to end on the live ledger; it proves it on the
+fixture (`closed trades: 1`, `(1 settled, 0 invalidated)`).
+
+**Verdict: PASS.** Every load-bearing claim resolves to an artifact; the two
+things not yet proven on live data are named, not hidden.
+
+---
+
+## Verdict
+
+**M13: DONE** for the scope the queue row names — the gold paper track (all five
+acceptance gates, committed before this session) and the T0→T1 machinery of
+vision §11.0 (built, wired into the daily evidence cadence, tested, and now
+turning over on the live ledger).
+
+Not DONE, by law and by calendar, and not claimed: the T1 promotion itself (an
+owner act plus three gate agents, INV-35 forbids any automatic upgrade, and the
+gate honestly reports NOT READY at 0.05/6 months and 0/200 trades); M13.1–M13.6,
+gated on the 7-day soak completing without crashes; and the learning-loop half
+(NS-01's lesson→calibration arm), whose natural home is frozen Lane A and which
+would need a duplicate to extend today.

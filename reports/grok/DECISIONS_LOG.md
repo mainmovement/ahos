@@ -1136,3 +1136,23 @@ stays gitignored.
 **Result:** `VERDICT: PRE_SOAK entry OK on this Windows host`; G11 stays
 NOT_VERIFIED because it is OPERATOR_READY-only and the owner holds the Telegram
 E2E artifact.
+
+**Q: The running M13 soak (PID 12616) was started by a previous attempt on the
+pre-wiring runner. Restart it onto the new code, or leave it?**
+**A:** Restart it, with `--days` set to the *remaining* time on the original
+deadline.
+**Reason:** The T0→T1 machinery this mission wires lives in the runner script
+itself, which a running process loaded once at start — the only way the running
+soak could have produced a tier-gate report is by being restarted. The soak's own
+README documents restart as the safe, intended upgrade path ("the runner
+rebuilds the track from the ledger each cycle, so a restart loses at most the
+elapsed time"), and the soak is this mission's own artifact, not a harness
+process. The restart preserves the planned end exactly: the old process started
+2026-10-11T22:09:49Z with `--days 7`, deadline 2026-10-18T22:09:49Z; the new one
+(PID 8484) got `--days 6.872`, which is the remaining time at restart, so the
+soak ends a few seconds *early* rather than 2.4 hours late. Its stdout/stderr
+were rotated to `.1` first so the earlier process output is not overwritten. The
+restart was verified end to end: cycle 20 ran, the judge reported CLEAN, and the
+tier gate wrote `2026-10-12_tier_gate.md` with a `kind: "tier_gate"` runlog line.
+**Result:** the soak now produces judge + tier-gate + digest per UTC day on the
+same ledger, from a single process.
