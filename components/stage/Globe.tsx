@@ -191,6 +191,18 @@ function softPointTexture(): THREE.Texture {
  * back so the edge glows rather than paints, and the shell is pulled in to hug
  * the dot field instead of floating around it.
  *
+ * Owner QA 02:48 (item 3) — the actual cause, found by ablation. Two rounds of
+ * raising `uPower` changed nothing, because the shader could not use it. Every
+ * fragment this shell renders is back-facing, so its geometric normal points
+ * *away* from the camera and `dot(normal, view)` is negative; the old `max(…, 0)`
+ * clamp sent that to zero and made the fresnel term identically 1. `pow(1, n)` is
+ * 1 for any `n`, so no exponent could thin the edge. The shell was painting a
+ * constant-brightness annulus whose width was set by how far it reached past the
+ * occluding body — the "thick beaded neon ring" was that annulus plus the
+ * additive dust stacking at the silhouette. Using `abs` instead of the clamp
+ * restores the gradient, dark where the shell faces away and bright at the limb,
+ * and `uPower` now genuinely folds the edge against it. See `RIM_FRAG`.
+ *
  * The shader is two lines of fresnel arithmetic; `precision` is set because a
  * WebGL1 context is still possible at T1 and the default there is not guaranteed.
  */
@@ -212,7 +224,18 @@ const RIM_FRAG = /* glsl */ `
   varying vec3 vNormalView;
   varying vec3 vViewDir;
   void main() {
-    float fresnel = 1.0 - max(dot(vNormalView, vViewDir), 0.0);
+    // Owner QA 02:48 (item 3): this was 1.0 - max(dot(vNormalView, vViewDir), 0.0),
+    // and on a back-facing fragment the geometric normal always points away from
+    // the camera, so the dot product is negative, the clamp sends it to zero, and
+    // the fresnel term is identically 1 — on *every* fragment of the shell. The
+    // exponent then had nothing to shape: pow(1, uPower) is 1 for any power, which
+    // is why two rounds of raising uPower never thinned the edge. The shell was
+    // painting a solid constant-brightness annulus, and its width was set by how
+    // far the shell extended past the occluding body, not by the falloff at all.
+    // Taking the absolute value restores the gradient the shader was written for:
+    // bright at the silhouette where the normal turns across the view, dark where
+    // the shell faces away. uPower now genuinely folds the edge against the limb.
+    float fresnel = 1.0 - abs(dot(vNormalView, vViewDir));
     float rim = pow(fresnel, uPower);
     gl_FragColor = vec4(uColor * rim * uIntensity, rim);
   }

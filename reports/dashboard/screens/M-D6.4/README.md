@@ -172,3 +172,58 @@ it. It does not affect the verdict, because the two facts that settle items 2 an
 the crown's clearance and the ring's containment of the globe — are measured against
 each other in the same frame, and cancel any scale error. Recorded here so the next
 pass does not re-derive the projection and trust it.
+
+## Owner QA 02:48, item 3 — the "thick beaded neon ring"
+
+Captures: `ablation_rim_full_old.png` (the committed `max(dot, 0)` shader) and
+`ablation_rim_full.png` (the `abs(dot)` fix), both T3, both with the globe's spin
+and the floor's rotation frozen so the pair is comparable. `clean_shell.png`,
+`clean_shell_old.png` and `clean_noshell.png` isolate the shell on a bare globe
+with the dot fields switched off, so the shell's own contribution can be seen with
+nothing additive on top of it.
+
+### The cause
+
+Not a tuning problem. Two rounds of raising `uPower` moved the saturation barely at
+all (755 -> 723 px) because the shader could not use the exponent. The shell renders
+`side: THREE.BackSide`, so every fragment it draws is back-facing: its geometric
+normal points *away* from the camera, and `dot(normal, view)` is negative. The old
+line clamped it:
+
+```glsl
+float fresnel = 1.0 - max(dot(vNormalView, vViewDir), 0.0);
+```
+
+A negative dot goes to 0 under `max`, so `fresnel` is identically 1 — on every
+fragment of the shell. `pow(1, uPower)` is 1 for any `uPower`, which is why the
+exponent was inert. The shell was not painting a fresnel edge at all; it was
+painting a solid constant-brightness annulus, and the width of that annulus was set
+entirely by how far the shell's sphere (1.014 * R) reached past the occluding body
+(0.965 * R) — about 15 px at this camera. The "beaded" texture was the additive
+dust stacking at the silhouette on top of it. Replacing the clamp with `abs` is the
+whole fix; no uniform was retuned.
+
+### Measurement
+
+Measured against each capture's own unlit background 22 px clear of the silhouette,
+so the moving sun between page loads cannot contaminate it:
+
+| Quantity | `max(dot, 0)` | `abs(dot)` |
+|---|---|---|
+| Peak luminance above local background at the limb | 123.8 | **85.5** |
+| Saturated (> 238) pixels in the limb band | 1.18% | **1.03%** |
+| Peak position relative to the silhouette | d = -3 | d = -3 |
+
+The limb is still a strong gold edge — 85.5 above the background is not subtle —
+but it is no longer the overblown band it was, and the saturated share fell with it.
+On the bare globe, the shell's own contribution across the band where only it can be
+lit (between the body's silhouette and the shell's) grades with the fix instead of
+sitting flat, and the total light it puts into that band drops from 157.6 to 109.0.
+
+What I could not get a clean number on, and am not claiming: the exact half-width of
+the edge. The shell's annulus is only ~15 px wide and the floor ring occludes the
+lower part of it, so a radial average over all angles is diluted by angles that have
+no shell at all, and the two page loads differ by ~0.25 deg of sun, which relights
+dots near the terminator and shows up in a plain diff as noise that is not the rim.
+The three numbers above are the ones measured against a per-frame reference, and are
+the ones I would stand behind.
