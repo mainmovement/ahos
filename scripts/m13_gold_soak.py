@@ -167,6 +167,62 @@ def _daily_report(soak_dir: Path, ledger_path: Path | None,
     }
 
 
+def _tier_report(soak_dir: Path, ledger_path: Path | None,
+                 *, day: str | None = None) -> dict[str, Any]:
+    """Evaluate the T0 -> T1 promotion gate over the soak's ledger (M13).
+
+    The gate measures the ten vision-11.0 exit criteria against the recorded
+    trades and reports which are met, unmet and *unmeasurable as specified*. It
+    never promotes -- promotion is an owner act plus the three gate agents -- so
+    a day with no closed trades reports `0/200 trades, NOT READY`, which is the
+    honest state of a young soak and the successful outcome here. A report that
+    said \"ready\" would be proof the gate is broken.
+
+    Like the judge, this reads only the ledger it is handed. It is wrapped so a
+    fault in the gate cannot kill the cadence: the soak survives a bad report
+    the same way it survives a bad cycle.
+    """
+    record: dict[str, Any] = {
+        "ts": _utc_stamp(),
+        "kind": "tier_gate",
+        "day": day if day is not None else _utc_day(),
+        "ok": False,
+    }
+    try:
+        from architecture.mission.ledger import MissionLedger, default_ledger_path
+        from architecture.markets.gold_paper import GOLD_PAPER_MISSION, paper_history
+        from architecture.markets.tier_gate import evaluate_tier_gate, write_gate_report
+
+        ledger = MissionLedger(ledger_path
+                               if ledger_path is not None
+                               else default_ledger_path())
+        history = paper_history(ledger)
+        report = evaluate_tier_gate(
+            market="gold",
+            trades=list(history.trades),
+            months_of_data=history.months_of_data,
+        )
+        path = soak_dir / f"{record['day']}_tier_gate.md"
+        write_gate_report(report, path)
+        record.update(
+            ok=True,
+            tier=report.tier_today,
+            promoted=report.promoted,
+            trades=len(history.trades),
+            months_of_data=history.months_of_data,
+            measurable_passed=report.measurable_and_passed,
+            measurable_total=report.measurable_total,
+            unmeasurable=list(report.unmeasurable),
+            ready_for_owner_review=report.ready_for_owner_review,
+            open_questions=list(report.open_questions),
+            gate_md=str(path),
+        )
+    except Exception as exc:  # noqa: BLE001 - a soak continues past a bad report
+        record["error"] = f"{type(exc).__name__}: {exc}"
+        record["traceback"] = traceback.format_exc(limit=3)
+    return record
+
+
 def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
     soak_dir.mkdir(parents=True, exist_ok=True)
     path = soak_dir / "soak_status.json"
@@ -202,10 +258,20 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
         _append_jsonl(runlog, record)
         print(f"[m13-soak] daily report: {record['verdict']} "
               f"({record['findings']} findings) -> {record['judge_md']}")
+        tier = _tier_report(soak_dir, ledger_path)
+        _append_jsonl(runlog, tier)
+        if tier["ok"]:
+            print(f"[m13-soak] tier gate: {tier['tier']} "
+                  f"{tier['measurable_passed']}/{tier['measurable_total']} "
+                  f"measurable, {len(tier['unmeasurable'])} unmeasurable "
+                  f"-> {tier['gate_md']}", flush=True)
+        else:
+            print(f"[m13-soak] tier gate FAILED: {tier.get('error')}", flush=True)
         return 0 if record["verdict"] != "BROKEN_CHAIN" else 1
 
     deadline = (time.time() + days * 86400.0) if days and days > 0 else None
     last_day: str | None = None
+    tier: dict[str, Any] | None = None
     cycles_ok = cycles_fail = 0
 
     while True:
@@ -222,7 +288,9 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
             print(f"[m13-soak] cycle FAILED: {record.get('error')}", flush=True)
 
         # The daily judge runs whenever the UTC day rolls over, and also on the
-        # first cycle of a soak whose day is already old (a --once smoke).
+        # first cycle of a soak whose day is already old (a --once smoke). The
+        # tier gate runs beside it, so the T0 -> T1 machinery turns over on the
+        # same evidence the judge just reconciled.
         today = _utc_day()
         if last_day is None or today != last_day:
             daily = _daily_report(soak_dir, ledger_path, day=today)
@@ -230,6 +298,16 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
             last_day = today
             print(f"[m13-soak] daily judge for {today}: {daily['verdict']} "
                   f"({daily['findings']} findings)", flush=True)
+            tier = _tier_report(soak_dir, ledger_path, day=today)
+            _append_jsonl(runlog, tier)
+            if tier["ok"]:
+                print(f"[m13-soak] tier gate for {today}: {tier['tier']} "
+                      f"{tier['measurable_passed']}/{tier['measurable_total']} "
+                      f"measurable, {len(tier['unmeasurable'])} unmeasurable",
+                      flush=True)
+            else:
+                print(f"[m13-soak] tier gate for {today} FAILED: "
+                      f"{tier.get('error')}", flush=True)
 
         state = _latest_state(ledger_path)
         _write_status(soak_dir, {
@@ -242,6 +320,7 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
             "cycles_failed": cycles_fail,
             "last_day_report": last_day,
             "last_cycle": record,
+            "last_tier_gate": tier,
             "ledger_state": state,
         })
 

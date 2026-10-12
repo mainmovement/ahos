@@ -559,6 +559,95 @@ def _track_from_ledger(ledger: MissionLedger) -> GoldPaperTrack:
     return track
 
 
+#: A month, as the tier gate measures data depth in months.
+MONTH_S = 30.0 * 24.0 * 3600.0
+
+
+@dataclass(frozen=True)
+class PaperHistory:
+    """The track's recorded history, as the T0 -> T1 gate consumes it.
+
+    ``months_of_data`` is the span of *recorded* cycles, first entry to last, so
+    it is a property of the evidence rather than of the clock reading at report
+    time. It is None on a ledger with fewer than two entries, which is the
+    gate's UNMEASURABLE case rather than a zero.
+    """
+
+    trades: tuple[dict, ...] = ()
+    months_of_data: float | None = None
+
+
+def paper_history(ledger: MissionLedger) -> PaperHistory:
+    """Read the ledger as the T0 -> T1 promotion gate measures it (M13).
+
+    The gate (:mod:`architecture.markets.tier_gate`) is deliberately pure: it
+    takes trades and numbers, and imports nothing from this module, so it
+    measures the record rather than asking the track how it did -- the same
+    separation the M42 judge already keeps. This function is the bridge, and it
+    lives here because this module owns the record's shape.
+
+    One pass over the mission history produces both gate inputs:
+
+    * the **settled** closes, each carrying the drawdown recorded *at its exit*.
+      The settled-only selection rule is the one :func:`_track_from_ledger`
+      already uses for the risk blotter, and it is shared on purpose: a close
+      with no corroborated price has no PnL, so counting it would let either the
+      risk limits or the 200-trade threshold be bought with trades that never
+      happened. Both consumers must keep agreeing on what a trade is.
+    * the **data span**, from the first recorded entry to the last.
+
+    The drawdown is peak-to-current-equity in percent, with non-positive equity
+    skipped -- the same definition as :func:`architecture.markets.risk.drawdown_pct`,
+    so the breaker and the gate cannot disagree about the track's worst moment.
+    Attaching it per trade is what keeps the gate's drawdown criterion a
+    measurement: without it the gate reports UNMEASURABLE rather than scoring a
+    vacuous 0.00%.
+
+    Read-only. Nothing here can write, promote, or close a position.
+    """
+    trades: list[dict] = []
+    first_ts: float | None = None
+    last_ts: float | None = None
+    peak: float | None = None
+    for entry in ledger.history(GOLD_PAPER_MISSION):
+        ts = _ledger_ts_to_epoch(entry.get("ts"))
+        if ts is not None:
+            if first_ts is None:
+                first_ts = ts
+            last_ts = ts
+        each = (entry.get("state") or {}).get("CHECKPOINT")
+        if not isinstance(each, dict):
+            continue
+        try:
+            equity = float(each["equity_usd"]) if each.get("equity_usd") is not None else None
+        except (TypeError, ValueError):
+            equity = None
+        if equity is not None and equity > 0:
+            if peak is None or equity > peak:
+                peak = equity
+        # A settled close: an exit was taken *and* a corroborated price existed
+        # to settle it on. Anything else is an unpriceable close with no PnL.
+        if each.get("exit") is None or each.get("price_usd") is None:
+            continue
+        try:
+            realized = float(each["realized_pnl_usd"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        drawdown = None
+        if peak is not None and peak > 0 and equity is not None:
+            drawdown = (peak - equity) / peak * 100.0
+        trades.append({
+            "exit_ts": ts,
+            "realized_pnl_usd": realized,
+            "drawdown_pct": drawdown,
+            "equity_after": equity,
+        })
+    months = None
+    if first_ts is not None and last_ts is not None and last_ts >= first_ts:
+        months = (last_ts - first_ts) / MONTH_S
+    return PaperHistory(trades=tuple(trades), months_of_data=months)
+
+
 def _ledger_ts_to_epoch(value: object) -> float | None:
     """The ledger's own UTC timestamp, as epoch seconds.
 

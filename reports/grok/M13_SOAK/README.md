@@ -20,13 +20,23 @@ a flag it sets.
    are derived from evidence rather than from the process's memory. `CLEAN` means
    every closed trade re-derives from the position and the corroborated price the
    ledger records; anything else is a finding worth reading.
-2. **`<UTC-day>_digest.json`** — the same day as a machine-readable digest.
+2. **`<UTC-day>_tier_gate.md`** — the day's T0→T1 gate evaluation, the vision
+   §11.0 machinery. It measures the ten T1 exit criteria against the same ledger
+   and reports which are met, which are unmet, and which are *unmeasurable as
+   specified*. It never promotes — promotion is an owner act plus the three gate
+   agents — so on a young soak it says `NOT READY` with the numbers, and a report
+   that said otherwise would be proof the gate is broken. Two criteria are owner
+   questions, not code bugs: `M-REGIME-4` (the gate asks for ≥3 of 4 regimes; the
+   code defines 3) and `M-DD-BACKTEST` (the drawdown-vs-backtest multiple needs a
+   backtest reference).
+3. **`<UTC-day>_digest.json`** — the same day as a machine-readable digest.
    `signed` is `false` by design: this is paper, and nothing here is an attestation.
-3. **`soak_status.json`** — the runner's live state: cycle counts, the last cycle,
-   the ledger's checkpoint. Written after every cycle.
-4. **`soak_runlog.jsonl`** — one JSON line per cycle and per daily report, failure
-   included. This is the record to grep when something looks wrong.
-5. **`soak_stdout.log` / `soak_stderr.log`** — the process's own output.
+4. **`soak_status.json`** — the runner's live state: cycle counts, the last cycle,
+   the last tier-gate evaluation, the ledger's checkpoint. Written after every cycle.
+5. **`soak_runlog.jsonl`** — one JSON line per cycle, per daily report and per
+   tier-gate evaluation, failure included. This is the record to grep when
+   something looks wrong.
+6. **`soak_stdout.log` / `soak_stderr.log`** — the process's own output.
    `soak_pid.txt` is its PID.
 
 ## What this soak will actually produce
@@ -70,6 +80,11 @@ $p = Start-Process -FilePath $py -ArgumentList 'scripts\m13_gold_soak.py','--day
 Set-Content 'reports\grok\M13_SOAK\soak_pid.txt' -Value $p.Id -Encoding ASCII
 ```
 
+`--days` is measured from the new process's start. Restarting a soak that is
+already partway through should pass the *remaining* time, not 7, so the planned
+end does not silently move; and the two log files are overwritten, so rotate them
+first if the earlier process's output is worth keeping.
+
 A single advance, or today's report alone, without touching the cadence:
 
 ```bash
@@ -82,8 +97,13 @@ A single advance, or today's report alone, without touching the cadence:
 - `scripts/m13_gold_soak.py` — the runner. Its docstring is the contract.
 - `tests/test_m13_gold_soak.py` — pins the two properties that make it a soak:
   a failing cycle is recorded rather than raised, and `--report-only`
-  reconciles the ledger with no network of its own.
-- `architecture/markets/gold_paper.py` — the track and the witness law.
+  reconciles the ledger with no network of its own. It also pins that the daily
+  step runs the tier gate and that the gate counts the same trades the judge
+  settles.
+- `architecture/markets/gold_paper.py` — the track, the witness law, and
+  `paper_history`, the ledger→gate bridge.
+- `architecture/markets/tier_gate.py` — the T0→T1 evaluator. Pure: it takes
+  trades and numbers, imports nothing from the track, and never promotes.
 - `architecture/markets/judge.py` — the M42 judge the daily report runs.
 - `reports/PRE_SOAK_STATUS.txt` — the host's pre-soak gates (G1–G10 PASS as of
   2026-10-12).

@@ -151,6 +151,90 @@ def test_report_only_touches_no_network(populated_ledger, soak_dir, monkeypatch)
                       "--ledger-path", str(populated_ledger)]) == 0
 
 
+# ------------------------------------------------- the T0 -> T1 gate (M13) --
+
+
+def test_report_only_also_evaluates_the_tier_gate(populated_ledger, soak_dir):
+    """--report-only runs the T0 -> T1 machinery, not just the judge.
+
+    A gate evaluator that nothing calls is VISION, not IMPLEMENTED, so the daily
+    step must turn it over on the same ledger the judge just reconciled.
+    """
+    assert soak.main(["--report-only", "--soak-dir", str(soak_dir),
+                      "--ledger-path", str(populated_ledger)]) == 0
+
+    # The gate's own file, for the owner to read.
+    reports = sorted(soak_dir.glob("*_tier_gate.md"))
+    assert reports, "no tier gate report was written"
+    text = reports[0].read_text(encoding="utf-8")
+    assert "Tier today: **T0**" in text
+    # The ladder law: code measures, the owner promotes.
+    assert "Promoted by this evaluation: **False**" in text
+    assert "Not ready for owner review" in text
+    # The structural unmeasurability stays visible instead of being papered over.
+    assert "M-REGIME-4" in text
+
+
+def test_the_gate_counts_the_same_trades_the_judge_settled(populated_ledger, soak_dir):
+    """The bridge and the risk replay must agree on what counts as a trade.
+
+    The fixture closes one trade at the 48h TIME_EXIT. Both the judge's settled
+    count and the gate's trade count must see that one; a bridge that counted
+    unpriceable closes would let the 200-trade threshold be bought with trades
+    that never happened.
+    """
+    from architecture.markets.gold_paper import paper_history
+    from architecture.mission.ledger import MissionLedger
+
+    assert soak.main(["--report-only", "--soak-dir", str(soak_dir),
+                      "--ledger-path", str(populated_ledger)]) == 0
+
+    history = paper_history(MissionLedger(populated_ledger))
+    assert len(history.trades) == 1
+    judge = sorted(soak_dir.glob("*_judge.md"))[0].read_text(encoding="utf-8")
+    assert "closed trades: 1" in judge
+
+
+def test_the_gate_receives_a_measured_drawdown_not_a_vacuous_zero(populated_ledger, soak_dir):
+    """The bridge attaches the drawdown at each exit, so the <=15% criterion is
+    a measurement. Without it the gate reports UNMEASURABLE -- never 0.00%."""
+    from architecture.markets.gold_paper import paper_history
+    from architecture.mission.ledger import MissionLedger
+
+    history = paper_history(MissionLedger(populated_ledger))
+    assert history.trades, "fixture produced no settled trades"
+    for trade in history.trades:
+        assert trade["drawdown_pct"] is not None
+        assert trade["drawdown_pct"] >= 0.0
+
+
+def test_the_gate_reports_the_data_span_not_the_clock(populated_ledger, soak_dir):
+    """months_of_data comes from the recorded span, so a young soak reports a
+    young span against the >=6-month criterion instead of an UNMEASURABLE hole."""
+    from architecture.markets.gold_paper import paper_history
+    from architecture.mission.ledger import MissionLedger
+
+    history = paper_history(MissionLedger(populated_ledger))
+    assert history.months_of_data is not None
+    # The fixture spans T0 to T0 + 50h, which is under three days.
+    assert 0.0 < history.months_of_data < 0.2
+
+
+def test_the_tier_report_survives_a_broken_gate(populated_ledger, soak_dir, monkeypatch):
+    """A fault in the gate must not kill the cadence; the soak outlives its
+    report the way it outlives a bad cycle."""
+    import architecture.markets.tier_gate as tg
+
+    def broken(**kwargs):
+        raise RuntimeError("gate unavailable")
+
+    monkeypatch.setattr(tg, "evaluate_tier_gate", broken)
+    record = soak._tier_report(soak_dir, populated_ledger)
+    assert record["ok"] is False
+    assert "gate unavailable" in record["error"]
+    assert record["traceback"]
+
+
 # ------------------------------------------------------------- the argument --
 
 

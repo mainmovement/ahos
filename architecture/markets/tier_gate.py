@@ -209,14 +209,33 @@ def evaluate_tier_gate(
             f"declared cost model: {declared_cost_model}"))
 
     # --- drawdown -----------------------------------------------------------
-    dd = max((float(t.get("drawdown_pct") or 0.0) for t in trades), default=None)
-    if dd is None:
-        # An empty track has no drawdown to measure: a 0.00% reading would be
-        # a vacuous PASS and could let readiness drift true on no evidence.
+    # Only a trade that actually carries a drawdown reading counts. A track
+    # whose trades carry none at all must not score a vacuous 0.00% PASS: the
+    # criterion would be passing on evidence that does not exist, which is the
+    # hazard the empty-track case below exists for. UNMEASURABLE blocks
+    # readiness harder than a FAIL -- the direction every other missing number
+    # in this module takes.
+    dd_readings: list[float] = []
+    for t in trades:
+        raw = t.get("drawdown_pct")
+        if raw is None:
+            continue
+        try:
+            value = float(raw)
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(value):
+            dd_readings.append(value)
+    if not dd_readings:
+        dd = None
         results.append(CriterionResult(
             "max_drawdown_pct", f"<={CRITERIA['max_drawdown_pct']}%",
-            None, None, "no trades recorded, drawdown undefined"))
+            None, None,
+            "UNMEASURABLE: no recorded trade carries a drawdown reading, so a "
+            "0.00% figure would be a vacuous pass rather than a measured one"
+            if trades else "no trades recorded, drawdown undefined"))
     else:
+        dd = max(dd_readings)
         dd_ok = dd <= CRITERIA["max_drawdown_pct"]
         results.append(CriterionResult(
             "max_drawdown_pct", f"<={CRITERIA['max_drawdown_pct']}%",
