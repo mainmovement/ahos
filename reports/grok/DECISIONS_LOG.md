@@ -1156,3 +1156,27 @@ restart was verified end to end: cycle 20 ran, the judge reported CLEAN, and the
 tier gate wrote `2026-10-12_tier_gate.md` with a `kind: "tier_gate"` runlog line.
 **Result:** the soak now produces judge + tier-gate + digest per UTC day on the
 same ledger, from a single process.
+
+## 2026-10-12 — the two globe glow spots were the land layer, not the lights or the body
+**Question.** Owner QA 02:48 item 1 reports two glow spots ("pale top, orange-red
+upper-left") that read as glitches. Remove them or turn the Tehran one into a gold ping.
+**Choice.** Remove them by backing the land layer's opacity off (0.95 -> 0.62 at the
+dense tiers), same treatment the dust layer already had.
+**Reason.** Ablation, not guessing. The spots survived a fully matte body (metalness 0,
+roughness 1, clearcoat 0), survived removing the warm directional light, and survived
+removing the gold crown point light — which rules out body specular and stage lighting.
+Removing the land layer dropped them (185->56 and 148->71 at the two coordinates). The
+spots are additive dot stacking: land dots are larger (0.088 vs 0.056) and were the last
+layer still at 0.95, so where a continent is dense, three of them sum to a pale patch.
+**Consequence.** The opacity now ramps with the tier's dot count rather than being a
+constant, because the back-off is a *density* compensation and T1 draws a quarter as many
+land dots over the same sphere — applying it at T1 made the continents illegible (item 6).
+
+## 2026-10-12 — the night floors were halved, not removed
+**Question.** Owner QA 04:16: the night side reads as a second dimmer day, not as night.
+**Choice.** DUST_NIGHT 0.16 -> 0.07, LAND_NIGHT 0.34 -> 0.16.
+**Reason.** On a frozen sun (so both captures share a terminator), the brightest night
+stacks read 248.9/248.5 at T3/T1 — the same white-gold as the day side, because a dot's
+base is multiplied by the floor and the additive dots above still saturate. Halving the
+floors took those to 164.1/200.4 and dropped every band above 32 lum at both tiers.
+Halved rather than zeroed on purpose: a half-invisible globe reads as broken.
