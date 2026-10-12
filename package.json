@@ -49,6 +49,7 @@
     "detect-gpu": "5.0.70",
     "dotenv": "17.3.1",
     "drizzle-orm": "0.45.2",
+    "echarts": "6.1.0",
     "gsap": "3.15.0",
     "howler": "2.2.4",
     "leva": "0.10.1",

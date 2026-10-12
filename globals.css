@@ -371,3 +371,28 @@ button, input, textarea { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .telemetry { backdrop-filter: none; }
 }
+
+/* M-D7 — the evidence graph panel. Same column idiom as the tier panel so the
+ * two read as one right-hand rail, frosted glass per the WOW-on-8GB list. */
+.evidence-panel {
+  inline-size: 360px; flex: none; overflow-y: auto;
+  border-inline-start: 1px solid var(--ahos-border);
+  background: color-mix(in srgb, var(--ahos-panel) 62%, var(--ahos-bg));
+  padding: 1.1rem 1.2rem 1.4rem; color: var(--ahos-text); font-size: 0.84rem;
+}
+.evidence-panel__title {
+  margin: 0 0 0.4rem; font-size: 0.95rem; font-weight: 700; color: var(--ahos-gold);
+}
+.evidence-panel__hint {
+  margin: 0 0 0.9rem; font-size: 0.74rem; line-height: 1.7; color: var(--ahos-text-muted);
+}
+.evidence-panel__canvas { inline-size: 100%; block-size: 62vh; min-block-size: 320px; }
+.evidence-panel__unknown {
+  display: flex; align-items: center; gap: 0.5rem; margin: 0.8rem 0 0;
+  padding: 0.7rem 0.8rem; border: 1px solid var(--ahos-border); border-radius: 0.5rem;
+  color: var(--ahos-text-muted); font-size: 0.78rem; line-height: 1.7;
+}
+.evidence-panel__unknown-glyph { color: var(--ahos-status-unknown); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  .evidence-panel { backdrop-filter: none; }
+}

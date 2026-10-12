@@ -30,6 +30,7 @@ postinstall step can reach the network at install time (spec §0.5: local only).
 | `world-atlas` | `2.0.2` | **ISC** (ref 14) | M-D6 land geometry | the pre-built Natural Earth 110m TopoJSON, ~100 KB. |
 | `topojson-client` | `3.1.0` | **ISC** (ref 14) | M-D6 decoding | decodes the TopoJSON above. |
 | `@react-three/rapier` | `2.2.0` | **MIT / Apache-2.0** (addendum v1.19) | M-D8 walk collisions | ships prebuilt WASM; only M-D8 needs it, installed now because the gate is open. Peers `@react-three/fiber ^9.0.4` — satisfied by 9.8.1. |
+| `echarts` | `6.1.0` | **Apache-2.0** (owner's vendor kit, `vendor_assets/charts/echarts-6.1.0`) | M-D7 evidence graph | added 2026-10-12 for the force-layout graph, per the 18:00 rule (take the vendor kit's chart lib rather than hand-writing a force simulation). Only `GraphChart` + `TooltipComponent` + `CanvasRenderer` are imported from `echarts/core`, so the bundle carries those and not the whole library. The vendor copy in `vendor_assets` is the same version — the pin and the kit agree. |
 
 Not installed: `ecctrl` (addendum v1.19 marks it optional; a ~150-line custom
 kinematic controller is the default and avoids the dependency). Not installed:

@@ -35,6 +35,7 @@ import { HARDWARE_LABELS, TIER_LABELS, type TierVerdict } from "@/components/sta
 import { probeQuality, writeOverride } from "@/components/stage/quality";
 import StageLazy from "@/components/stage/StageLazy";
 import TierPanel from "@/components/shelf/TierPanel";
+import { EvidencePanel } from "@/components/shelf/EvidencePanel";
 import { TelemetryStrips } from "@/components/shell/TelemetryStrips";
 
 /** Rule 5: numbers shown to the owner are Persian digits. */
@@ -65,6 +66,16 @@ export default function DashiShell() {
   // The probe runs once on mount. Until it resolves the stage stays at the
   // store's T1 default — the ladder only ever runs down, so defaulting high is
   // the safe direction.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    // A deep link (`?panel=hardware` / `?panel=evidence`) opens a rail on load,
+    // so a view can be pointed at directly — a screenshot, a share, or a refresh
+    // that should land back on the same rail. Anything unrecognised opens nothing.
+    const which = new URLSearchParams(window.location.search).get("panel");
+    if (which === "hardware") setPanelOpen(true);
+    else if (which === "evidence") setEvidenceOpen(true);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     void probeQuality().then((v) => {
@@ -121,6 +132,10 @@ export default function DashiShell() {
   }, [setVerdict]);
 
   const [panelOpen, setPanelOpen] = useState(false);
+  // A deep link (`?panel=hardware` / `?panel=evidence`) opens a rail on load, so
+  // a view can be pointed at directly — for a screenshot, a share, or a refresh
+  // that should land back on the same rail. Anything unrecognised opens nothing.
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
 
   const tier = verdict?.tier ?? "T1";
   const budget = motionBudget(tier, useStageStore.getState().reducedMotion);
@@ -178,6 +193,18 @@ export default function DashiShell() {
         >
           {panelOpen ? "بستن پنل" : "سخت‌افزار"}
         </button>
+
+        <button
+          type="button"
+          className="dashi-panel-toggle"
+          onClick={() => setEvidenceOpen((open) => !open)}
+          aria-expanded={evidenceOpen}
+          aria-controls="dashi-evidence-panel"
+          aria-label="گرافِ شواهد"
+          title="گرافِ شواهد: خط لولهٔ کانونیکال"
+        >
+          {evidenceOpen ? "بستن شواهد" : "شواهد"}
+        </button>
       </header>
 
       <div className="dashi-body">
@@ -212,6 +239,12 @@ export default function DashiShell() {
 
       {panelOpen ? (
         <TierPanel verdict={verdict} onReprobe={reprobe} />
+      ) : null}
+
+      {evidenceOpen ? (
+        <div id="dashi-evidence-panel">
+          <EvidencePanel />
+        </div>
       ) : null}
       </div>
 
