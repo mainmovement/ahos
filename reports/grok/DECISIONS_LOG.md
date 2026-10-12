@@ -1196,3 +1196,179 @@ not depend on the clipped numbers and still holds; the corrected README now says
 and names the old figures so the next pass does not re-derive them. Also replaced
 seated_t1.png, which was a Chrome ERR_CONNECTION_REFUSED page — 64.1% pale background,
 29.2% stage near-black — and proved nothing.
+
+---
+
+## 2026-10-12 18:00+03:30 — Soltan 18:00 owner note: download the vendor asset kit
+
+**Question.** Soltan's 18:00 note (README_FOR_CLAUDE.md) orders the kit fetched
+locally into `vendor_assets/<category>/` (copying from Soltan's box failed), with
+"small, free, permissive only", keep each LICENSE, gitignore the tree, never
+commit it, then write `vendor_assets/README.md`. No app files may be touched
+(another Claude owns Globe.tsx/Stage.tsx).
+
+**Choices made.**
+1. Fetch via `npm pack --pack-destination` (no `node_modules` mutation) for
+   icons/tokens/hud/charts/loaders, Google Fonts CSS API for the six OFL
+   families, kenney.nl zips for characters/sounds, and
+   `dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/` for the HDRIs. Reason: every
+   item on the list is obtainable from a public permissive source; npm pack
+   avoids the permission-gated install path and keeps each LICENSE at the
+   package root.
+2. `vendor_assets/` added to `.gitignore` as a whole (the globe subtree it
+   already contained is untracked anyway) — the 18:00 rule says never commit the
+   vendor tree, so the index README stays local as the note's own words state
+   ("Write vendor_assets\README.md index. Commit only your app files by path").
+3. Icons pruned to SVGs + LICENSE only; VFX gets licence copies only because
+   `@react-three/postprocessing`/`postprocessing` are already in `node_modules`,
+   so nothing new is installed.
+4. Polyhaven selection: indoor = hotel_room, art_studio, blocky_photo_studio;
+   night = rogland_clear_night, dikhololo_night, solitude_night, qwantani_night.
+   Reason: the 18:00 note fixes the counts (3 indoor + 4 night) and 1k but not the
+   slugs, so the API (`api.polyhaven.com/assets`) was used to pick real assets
+   with `environment=indoor` / `time_of_day=night`; the legacy `hi.php` endpoint
+   is dead (Backblaze 404) and the 1k `ph-assets` path is the working one.
+5. Kept the Kenney PNG previews (732 files) instead of deleting them: the
+   deletion command was blocked by the built-in safety check on a wide glob, and
+   the previews are useful pickers, so the index now says to exclude them from
+   the bundle rather than pretending they were removed.
+
+**Consequence.** ~200 MB of CC0/MIT/ISC/Apache-2.0/OFL assets now sit locally
+under `vendor_assets/` with per-directory licence files and a full index
+(versions pinned, usage rules incl. "sounds never on T0/T1", TradingView
+attribution retention, 1k HDRI ceiling on 8 GB). The only repo change is the
+`.gitignore` line; no app file was touched.
+
+## 2026-10-12 — M42: bind the paper store to the chain rather than add a chain column to it
+
+**Question.** The M42 spec says "extend `architecture/mission/ledger.py` and
+`paper_trading/ledger.py` into ONE append-only, hash-chained ledger". Lane A
+is FROZEN, so `paper_trading.sqlite` cannot carry a `prev_hash` column. Which
+reading of the spec satisfies both?
+
+**Choice.** One chain, with the frozen store as a *branch* of it:
+`architecture/markets/paper_anchor.py` fingerprints the store's rows read-only
+(the `mode=ro` uri idiom the lab itself uses for the discovery store) and
+records the fingerprint on the mission ledger as a `KIND_ANCHOR` evidence row.
+The store is never written and `paper_trading/ledger.py` is never edited.
+
+**Reason.** The intent of "ONE ledger" is that a single chain binds every check
+that can stop the system, so no check lives beside the chain instead of on it.
+A frozen store cannot host the chain, so the anchor is the only legal bridge —
+and `tests/test_m42_single_ledger.py::test_there_is_one_chain_not_two` pins the
+other half of the law: the paper lab must not grow a second chain of its own.
+
+## 2026-10-12 — M42: UNMEASURED is the verdict for the counterparty leg, not CLEAN
+
+**Question.** The broker registry is empty (owner gate §11.0.3). Should the
+nightly reconcile report the concentration leg as passing?
+
+**Choice.** No. It reports `UNMEASURED`, which makes the whole verdict
+`UNKNOWN` — never `CLEAN`. Only a *measured* breach sounds a HALT, so an empty
+registry is neither a green light nor an emergency.
+
+**Reason.** "An unmeasured limit is not a satisfied limit, and it is not an
+emergency either." A `CLEAN` verdict resting on a leg that never ran would be a
+fabricated assurance, which the `UNKNOWN > fabricated` law forbids. The owner
+unblocks this by declaring brokers in `config/broker_registry.yaml`; M41 then
+owns the key self-check that gates their use.
+
+## 2026-10-12 — M42: ran the reconcile live once, knowing the M13 soak shares the ledger
+
+**Question.** The M13 gold soak appends a `STATE` row to
+`data/mission_ledger/mission_ledger.jsonl` roughly every 15 minutes, and the
+M42 reconcile appends to the same file. Run live, or dry-run only?
+
+**Choice.** Run live. One `ANCHOR` and one `RECONCILE` row were appended.
+
+**Reason.** The ledger is append-only with per-entry `prev_hash`, and a soak
+cycle landed between two of my runs with the chain still intact — the writer
+cross-check passed in practice, which is the only evidence that matters for a
+shared-append design. The alternative (dry-run) binds nothing and leaves the
+store unanchored, which would have shipped M42 with its central control never
+exercised. The recording path had in fact never run at all, and that is exactly
+how a silent bug hides until the night it matters.
+
+## 2026-10-13 — M42: a broker statement that cannot be read halts, it does not crash
+
+**Question.** The counterparty leg was the only leg of the reconcile not wrapped
+in a `try/except`: legs 1-3 (chain, anchor, paper judge) and leg 5 (the peg) all
+report an `R-*` finding on failure, but a statement that could not be read — a
+row that does not parse, or an adapter whose `statement()` raises — propagated
+the exception and killed the process. Leave it, or wrap it?
+
+**Choice.** Wrap it, and make the failure a HALT. An unreadable statement now
+appends an `R-COUNTERPARTY` finding with the exception's own message and a
+`m42:counterparty` halt source.
+
+**Reason.** Vision §11.0 lists "broker API anomaly" alongside a ledger mismatch
+and a USDT depeg among the triggers that halt the system. A control whose
+response to an anomalous broker is to die has not halted — it has crashed, and a
+watchdog reading its exit code sees a generic failure instead of a verdict and a
+recorded stop. The reconcile is an alarm clock; an alarm clock that crashes on
+the one input that comes from outside the machine is the input it is least
+robust against. Pinned by
+`tests/test_m42_single_ledger.py::test_an_unreadable_statement_halts_rather_than_crashing`
+(dict row) and `test_a_statement_object_that_raises_halts_too` (adapter object),
+because the law has to hold for both shapes a statement arrives in.
+
+## 2026-10-13 — M42: ran the reconcile on its second night, while the soak wrote to the same chain
+
+**Question.** The 2026-10-12 run had already proven the recording path. Run the
+2026-10-13 reconcile live again, or leave the chain alone?
+
+**Choice.** Run it live. One more `RECONCILE` row, verdict `UNKNOWN`, paper
+judge `CLEAN` over 102 cycles.
+
+**Reason.** A *nightly* control that has executed once is a control that ran
+once. The second run is the cheapest available evidence that the cadence
+repeats rather than being a one-shot — and it happened while the M13 soak was
+appending its own `STATE` rows to the same file, so the chain was verified
+`CHAIN_INTACT` at 107 entries with two writers interleaved. That is the
+shared-append property the design rests on, observed rather than asserted. The
+chain is append-only and the reconcile writes a single row, so the downside is
+bounded to one row that the next `verify()` would catch as a break.
+
+## 2026-10-13 — M42: commit the prior session's uncommitted work as-is
+
+**Question.** The previous M42 session wrote the machinery, the 68 tests and
+these reviews, and committed none of it. Rewrite any of it, or commit it?
+
+**Choice.** Commit it as-is, adding only the counterparty-leg fix, its two
+tests, the live second-night receipt and the QA sign-off.
+
+**Reason.** The work was tested and reviewed; the defect was that it existed
+only in the working tree, so a review pointing at "commit X" was pointing at
+nothing. Redoing reviewed work to claim ownership of it would cost the review
+evidence that already exists. The one real defect found this session — the
+unwrapped leg — is small and additive, so the honest path is to land what was
+built, note exactly what was added, and keep the prior session's authorship
+legible in the history.
+
+## 2026-10-12 — M-D6.4 glow spots: stop hand-tuning, take the vendor atmosphere as-is
+
+**Question.** The two bright spots on the globe (pale upper-centre, orange-red
+upper-left) survived four fix attempts (land opacity 0.95->0.62, T1 land ramp,
+night floors, and the vendor fresnel shell at hand-picked coefficient/power).
+Continue diagnosing, or stop?
+
+**Choice.** Stop. Owner direction: the glow-spot measurement loop has failed
+more than twice, so per the standing "no rework loops" rule the current glow is
+replaced with the ready-made vendor solution **as-is** —
+`vendor_assets/globe/reference/AtmosphereR3F.tsx` at its own shipped defaults
+(scale 1.15, coefficient 0.1, power 3.5, segments 64), with Globe.tsx no longer
+overriding them. Only the tier-driven segment count (32 at T1, 64 at T2/T3) is
+ours. Committed 36c289f.
+
+**Reason.** The diagnosis already established the mechanism — the spots hold a
+fixed screen position while the globe rotates, so they are light/view-dependent,
+not land stacking — but knowing the mechanism did not produce a fix in two more
+attempts, and each extra round costs an owner QA cycle on an 8 GB laptop. The
+vendor kit was curated specifically for this ("no point sprite, which should fix
+the glow-spot artifacts"), and second-guessing its shipped values is the exact
+hand-tuning the owner's rule forbids after two failures. The remaining suspects
+(both stage point lights, the clearcoat body) stay in place; if a future QA still
+flags the spots, the next step is the light ablation, not another exponent.
+
+Also removed: `scripts/spot_rotation.mjs` and its two rotation captures, which
+were built for the abandoned measurement and never committed.
