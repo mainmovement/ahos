@@ -341,6 +341,29 @@ class AhosOrchestrator:
                 return "unusable"
         return "down"
 
+    def _dashboard_reachable(self, gateway_result: C.ComponentResult | None) -> bool:
+        """Can the owner be shown the dashboard right now?
+
+        A gateway we spawned and found healthy is the simple case. A gateway
+        reported ``foreign_busy`` is one a process we did not start is holding
+        the port for -- reported UNHEALTHY, deliberately, because we cannot stop
+        or restart it and the component snapshot must say so. But the window
+        does not depend on ownership, it depends on reachability, and a hand
+        started dev server on the configured port serves the dashboard as well
+        as one the launcher spawned. Refusing to open the window in that case is
+        the "double-click opens nothing" bug, so the URL is asked directly.
+        Anything else UNHEALTHY or worse -- a foreign listener that is not
+        answering, or no gateway result at all -- keeps the window closed, which
+        is the honest thing to show.
+        """
+        if gateway_result is None:
+            return False
+        if gateway_result.status == C.HEALTHY:
+            return True
+        if gateway_result.detail != "foreign_busy":
+            return False
+        return self._component_probe("gateway")[0] == C.HEALTHY
+
     def _telegram_stable_sec(self) -> float:
         return float(self.health_wait.get("telegram_stable", C.TELEGRAM_STABLE_SEC))
 
@@ -790,8 +813,24 @@ class AhosOrchestrator:
         # loopback only) rather than a browser tab; open_app_window falls back to
         # the legacy open_url when no browser is installed or the spawn fails, so
         # this can never make the dashboard *less* reachable than it was.
-        if overall in ("ONLINE", "DEGRADED") and results.get("gateway") and \
-                results["gateway"].status == C.HEALTHY and self.open_dashboard and not idle:
+        #
+        # M-D1.1: two guards that made the desktop icon a no-op are gone.
+        # ``not idle``: ``idle`` means the control plane found an already-completed
+        # START in its ledger and replayed it instead of re-activating the stack --
+        # the *normal* path on a machine where AHOS stays up. Replaying a START is
+        # not the same as declining to show the dashboard: the owner clicking the
+        # icon is asking to *see* AHOS, not to boot it. Chromium de-duplicates
+        # ``--app`` windows for a given URL and user-data-dir, so a repeat click
+        # focuses the window it already opened instead of stacking a second one.
+        # The strict ``HEALTHY`` term: a gateway we do not own is reported
+        # UNHEALTHY by the component model, correctly, because we cannot stop or
+        # restart it -- but a dev server started by hand from a terminal still
+        # serves the dashboard, and a launcher that refuses to open a window while
+        # the dashboard is plainly up is the bug. ``_dashboard_reachable`` asks the
+        # question the window actually depends on, without weakening what the
+        # component snapshot reports.
+        if overall in ("ONLINE", "DEGRADED") and self.open_dashboard and \
+                self._dashboard_reachable(results.get("gateway")):
             self.emit(P.PROGRESS["dashboard"])
             open_app_window(self.bootstrap_url(), log=self._log_app_window)
 

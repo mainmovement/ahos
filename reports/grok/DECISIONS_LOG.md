@@ -1542,3 +1542,60 @@ unvalidated it would name a port with no listener, which fails loudly rather tha
 silently. Proven by `node scripts/screenshot_dashi.mjs` opening the resolved
 `http://127.0.0.1:3000/` and capturing a mounted canvas with no console errors
 (`reports/dashboard/screens/M-D7/bootstrap_port_fix.png`).
+
+## 2026-10-14 — M-D1.1: the desktop icon opened nothing (two guards, one new helper)
+
+**Question.** The owner reported that double-clicking the desktop icon opens
+nothing, even though the dashboard was up in a browser. The launcher log ended at
+"بررسی سلامت سرویس‌ها…" with no `app_window` line. Two independent guards were
+silently suppressing the window. Fix both, and if so how — without lying in the
+component snapshot?
+
+**Choice.** Fix both. (1) Delete the `not idle` term from the dashboard gate.
+(2) Add `AhosOrchestrator._dashboard_reachable(gateway_result)` and consult it
+from the gate only; leave `_start_component`'s `foreign_busy` → UNHEALTHY branch
+exactly as it was.
+
+**Reason.** The two blockers were unrelated, and each was a real bug, not a
+misreading.
+
+*Blocker 1 — `not idle`.* `ControlPlane.start()` returns `idempotent_replay:
+True` whenever a prior START closed with a derived final status, and the last
+START in `data/control_plane_ledger.sqlite` closed
+`FINAL_STATUS=SYSTEM_ONLINE` on 2026-10-03. So on this machine *every* `launcher
+start` is a replay. The guard treated "replay" as "the owner did not ask to see
+anything", but the owner clicking the icon is asking to *see* AHOS, not to boot
+it. Removing the term cannot stack windows: Chromium de-duplicates `--app`
+windows for a given URL and user-data-dir, so a repeat click focuses the existing
+one. `idle` is still used for the "already running" progress line, so no variable
+went dead.
+
+*Blocker 2 — `foreign_busy`.* Port 3000 was held by a hand-started
+`next dev` the launcher did not spawn, so `component_state("gateway")` returns
+`foreign_busy` and `_start_component` reports UNHEALTHY. That report is correct
+and the unit test `test_gateway_port_busy_is_reported_not_hidden` depends on it:
+we do not own that process, cannot stop or restart it, and the component snapshot
+must not claim otherwise. My first attempt widened `_start_component` itself to
+probe-and-report-HEALTHY; it broke that test and made the result host-dependent
+(a live dev server on 3000 flipped the assertion), so it was reverted. The
+reachability question instead moved into `_dashboard_reachable`, which the
+*window* gate consults without weakening what the component model reports: a
+gateway we own and found healthy → yes; a `foreign_busy` gateway → ask the URL
+directly, because a hand-started dev server serves the dashboard as well as one
+we spawned and "refuses to open while the dashboard is plainly up" *is* the bug;
+anything else UNHEALTHY or worse, or no gateway result at all → no, which is the
+honest thing to show.
+
+**Evidence.** Two end-to-end runs. 01:50:03Z and 02:25:33Z, both ending in
+`app_window: opened via chrome` in `logs/launcher/launcher.log`; a live
+`chrome.exe --app=http://127.0.0.1:3000/#boot=…` process in both cases;
+`reports/dashboard/screens/M-D1.1/app_window.png` (01:50) and
+`app_window_relaunch.png` (02:34) — 1536×864, 447 then 1211 distinct sampled
+colours, dark `#0b0709` field with white text and gold/cyan accents, i.e. a real
+render and not a blank frame (verified with `scripts/png_probe.mjs` because this
+agent cannot view images). The second run additionally exercised the failure path
+the first did not: the gateway read as `down` at that instant, so the launcher
+attempted a production `next build`, that failed, and it fell back to dev mode
+and still opened the window — the resilience path is live, not theoretical.
+`tests/test_launcher_orchestrator.py` + `tests/test_launcher_appwindow.py`:
+151 passed, 1 skipped.
