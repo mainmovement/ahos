@@ -26,6 +26,10 @@ import {
   type CanonicalReadModel,
 } from "./canonical_read_model";
 import {
+  loadSoakReadModel,
+  type SoakReadModel,
+} from "./soak_read_model";
+import {
   evidenceFreshnessLimitMs,
   executionModeStatus,
   freshnessStatus,
@@ -53,7 +57,7 @@ function deepestErrorMessage(error: unknown): string {
   return last;
 }
 
-export function failClosedCommandSnapshot(error: unknown, canonicalModel: CanonicalReadModel) {
+export function failClosedCommandSnapshot(error: unknown, canonicalModel: CanonicalReadModel, soak: SoakReadModel) {
   const root = deepestErrorMessage(error);
   const msg = error instanceof Error ? error.message : String(error);
   const message =
@@ -89,6 +93,7 @@ export function failClosedCommandSnapshot(error: unknown, canonicalModel: Canoni
     council: [],
     votes: [],
     teams: TEAM_META,
+    soak,
     health: {
       dimensions: [
         dim("راه‌اندازی", "CODE_FAILURE", message),
@@ -109,15 +114,23 @@ export function failClosedCommandSnapshot(error: unknown, canonicalModel: Canoni
 }
 
 export async function commandSnapshot() {
-  const canonicalModel = await loadCanonicalReadModel();
+  // The soak file is read alongside the canonical model so the strips can show
+  // the runner that is actually cycling, even when Postgres is unreachable.
+  const [canonicalModel, soak] = await Promise.all([
+    loadCanonicalReadModel(),
+    loadSoakReadModel(),
+  ]);
   try {
-    return await buildDbCommandSnapshot(canonicalModel);
+    return await buildDbCommandSnapshot(canonicalModel, soak);
   } catch (error) {
-    return failClosedCommandSnapshot(error, canonicalModel);
+    return failClosedCommandSnapshot(error, canonicalModel, soak);
   }
 }
 
-async function buildDbCommandSnapshot(canonicalModel: CanonicalReadModel) {
+async function buildDbCommandSnapshot(
+  canonicalModel: CanonicalReadModel,
+  soak: SoakReadModel,
+) {
   try {
     await ensureState();
   } catch (error) {
@@ -310,6 +323,7 @@ async function buildDbCommandSnapshot(canonicalModel: CanonicalReadModel) {
     council: lastCouncil,
     votes: lastVotes,
     teams: TEAM_META,
+    soak,
     health,
     blocked: [
       { item: "معامله واقعی", status: "DISABLED" },

@@ -10,6 +10,7 @@
     "start": "next start --hostname 127.0.0.1",
     "test:web-api-auth": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/web_api_auth_selftest.ts",
     "test:canonical-read-model": "node --experimental-strip-types --test scripts/canonical_read_model_selftest.ts",
+    "test:soak-read-model": "node --experimental-strip-types --test scripts/soak_read_model_selftest.ts",
     "test:canonical-security": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/canonical_security_selftest.ts",
     "test:alert-banner": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/alert_banner_selftest.ts",
     "test:dashboard-truth": "node --experimental-strip-types --test scripts/dashboard_truth_selftest.ts",
@@ -36,7 +37,8 @@
     "test:launcher-route": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/launcher_route_selftest.ts",
     "test:truth-badge": "node --experimental-strip-types --test scripts/dashboard_truth_badge_selftest.ts",
     "test:stage-quality": "node --experimental-strip-types --test scripts/quality_selftest.ts",
-    "test:idea-shelf": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/idea_shelf_selftest.ts"
+    "test:idea-shelf": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/idea_shelf_selftest.ts",
+    "test:tehran": "node --experimental-strip-types --test scripts/tehran_selftest.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",

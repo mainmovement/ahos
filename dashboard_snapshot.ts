@@ -11,6 +11,14 @@
  * A field the snapshot does not emit is not added here.
  */
 
+import type { SoakReadModel } from "./soak_read_model";
+
+// ------------------------------------------------------- the M13 soak read model --
+//
+// Re-exported here so the view layer has one spelling of the soak payload, next
+// to the snapshot's own vocabulary it is carried in.
+export type { SoakReadModel, SoakReadStatus, SoakRunView, SoakGatesView, SoakLedgerView } from "./soak_read_model";
+
 // ------------------------------------------------------- the command snapshot --
 
 export type Dim = { nameFa: string; status: string; evidenceFa: string };
@@ -166,6 +174,12 @@ export type Snap = {
   health: { dimensions: Dim[] };
   blocked: Array<{ item: string; status: string }>;
   teams: TeamRow[];
+  /**
+   * The local M13 paper soak, when its status file is present. The telemetry
+   * strips present this where the engine has no live cycle of its own; null when
+   * the soak is not running on this host.
+   */
+  soak?: SoakReadModel | null;
 };
 
 // ----------------------------------------------------------- the alert banner --

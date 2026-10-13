@@ -15,8 +15,9 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
+import { defaultDashboardUrl } from "./gateway_url.mjs";
 
-const url = process.argv[2] ?? "http://127.0.0.1:3199/";
+const url = process.argv[2] ?? (await defaultDashboardUrl()).url;
 const out = process.argv[3] ?? "reports/dashboard/screens/M-D5.5/tier-panel.png";
 const settleMs = Number(process.argv[4] ?? 25000);
 
