@@ -214,3 +214,8 @@ Work loop (never idle, never ask the owner for technical approval):
 6. Then go straight to the next item. Never stop just because one item is done.
 Safety: never git add -A, never push, paper-only, HOLD.flag stays, never Read reports/grok/M13_SOAK/* directly (copy to TEMP), never print keys.
 If API 400 or context near full: commit, write the next step in PROGRESS_LOG.md, and stop; the watchdog restarts a fresh session that continues from PROGRESS_LOG.md.
+
+## OWNER NOTE 2026-10-13 21:43 Tehran (top priority, before other items)
+- AHOS is a DESKTOP DASHBOARD APP, not a website. The owner must open it like an app (own window, no browser tabs/address bar). Make the desktop shortcut open it as an app window (e.g. Edge/Chrome --app=URL kiosk-style, or the planned packaged app) that also starts the dev/prod server itself if not running.
+- BUG: clicking the desktop icon opens nothing. Fix the launcher end to end (server start + correct port + app window). Test by actually launching it; screenshot proof.
+- The owner dislikes the current icon. Replace it with a premium 2050-style AHOS icon assembled from vendor_assets (icons/fonts/palette), gold-on-dark, crisp at 16-256 px, as .ico. Screenshot proof.
