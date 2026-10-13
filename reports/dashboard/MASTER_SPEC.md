@@ -37,3 +37,10 @@ Open each image and study it before coding. Describe in PROGRESS_LOG.md what you
 4. KPI cards, market scan, decision card, risk gauge, intelligence feed, quick actions - all on real data.
 5. Bottom row panels, then each sidebar screen (University, Office, Evidence graph, Ledger, Chat).
 6. Then QUEUE v2 A-H and the rest of the AHOS queue (see README STANDING ORDER).
+
+## Use ALL existing design work and assets (owner order 2026-10-13 23:03)
+Before building any part, check these and REUSE them; do not redo work that already exists:
+- Soltan/Dashi designs: reports/grok/queue_2050/CLAUDE_DASHBOARD_2050.md, CLAUDE_DASHBOARD_2050_ADDENDUM_v1.19.md, OWNER_FEATURES_5_ADDENDUM_v1.md, M57_M59_UNIVERSITY_TEAMS_MEMORY_ADDENDUM_v1.md, FREE_HERO_FX_SOURCES_v1.md; reports/grok/dashboard/DASHBOARD_DESIGN_SPEC.md; reports/grok/autopilot/missions/M57-agent-subteams-org-design.md. Where they conflict, this MASTER_SPEC and the owner reference images win.
+- Downloaded assets: vendor_assets/ (characters, charts, fonts, globe, hdri, hud, icons, loaders, sounds, tokens, vfx) - index in vendor_assets/README.md.
+- If something needed is missing: download a FREE, license-safe (MIT/Apache/CC0/OFL) ready-made asset or library into vendor_assets/<area>/ and add it to vendor_assets/README.md, instead of hand-building it. Never paid, never GPL linked into AHOS.
+- Goal: move FORWARD fast; no rework, no rebuilding what exists.
