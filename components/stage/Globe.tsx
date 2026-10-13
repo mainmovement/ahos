@@ -230,11 +230,12 @@ function softPointTexture(): THREE.Texture {
  * the globe's limb is exactly as large as one dead centre — no perspective
  * attenuation, which is the other half of "faint at the edges".
  *
- * The mask term keeps the continents honest at the coast: the polygon sampler
- * in `landDots.ts` decides where a dot goes, and the NASA water mask decides
- * how much of it shows, so a dot straddling a shoreline is dimmed by the
- * fraction of it that is water. Interior land is at the fixed alpha, which is
- * the cobe look the owner's kit points at.
+ * The mask term keeps the continents honest at the coast: a dot straddling a
+ * shoreline is dimmed by the fraction of it that is water, and interior land
+ * sits at the fixed alpha, which is the cobe look the owner's kit points at.
+ * Where the continents *are* is this mask's say-so, so `scripts/land_selftest.ts`
+ * checks it against the Natural Earth atlas — an independent second source,
+ * because a mask that agreed with itself would still pass any mask-only test.
  *
  * The day/night terminator is *not* re-derived here: the colour attribute
  * already carries it (see `litColors`/`relight`), so this shader only shapes
@@ -273,10 +274,17 @@ const LAND_FRAG = /* glsl */ `
     float r = length(gl_PointCoord - vec2(0.5)) * 2.0;
     float disc = 1.0 - smoothstep(1.0 - uFeather, 1.0, r);
     // lon/lat from the dot's direction — the arithmetic in landMask.ts's
-    // landMaskUV, in GLSL, pinned against the same named geography.
+    // landMaskUV, in GLSL, pinned against named geography in
+    // `scripts/land_selftest.ts`'s mask-versus-atlas section.
     float lon = atan(vDir.z, vDir.x);
     float lat = asin(clamp(vDir.y, -1.0, 1.0));
-    vec2 uv = vec2(0.5 + lon * 0.15915494309189535, 0.5 - lat * 0.3183098861837907);
+    // The mask's row 0 is the *north* pole, and `three` uploads textures with
+    // `flipY` on, which puts row 0 at v = 1. So latitude enters with a + sign:
+    // the north pole samples v = 1 and the south pole v = 0. A minus sign here
+    // still renders continents — upside down, Africa pointing at the sky — and
+    // nothing in the frame says which way is up, which is why the axis is
+    // asserted against the atlas rather than eyeballed.
+    vec2 uv = vec2(0.5 + lon * 0.15915494309189535, 0.5 + lat * 0.3183098861837907);
     float land = 1.0 - texture2D(uMask, uv).r;
     gl_FragColor = vec4(vColor, disc * uAlpha * land);
   }
@@ -346,8 +354,10 @@ const LAND_FRAG = /* glsl */ `
 const LAND_PX_DENSE = 5.5;
 const LAND_PX_SPARSE = 8.25;
 /** The counts the ramp runs between: T1's 1 200 land dots and T3's 4 800. */
-const LAND_COUNT_SPARSE = 1200;
-const LAND_COUNT_DENSE = 4800;
+// Candidate budgets now (M-D6.3 → 2026-10-13 rescale): the land layer is a full
+// mask-gated lattice, so these are candidate counts, ~29% of which render.
+const LAND_COUNT_SPARSE = 12000;
+const LAND_COUNT_DENSE = 48000;
 /** Where the tier's count sits on the sparse-to-dense ramp, in [0, 1]. */
 function landDensity(count: number): number {
   if (count <= LAND_COUNT_SPARSE) return 0;
@@ -386,10 +396,15 @@ export interface GlobeProps {
  * shows the same globe at a different resolution: the continents keep their
  * shape and their dot density relative to the dust as the ladder climbs.
  *
- * 20% keeps the two highest tiers together under the owner's 30k cap (T3 is
- * 24 000 dust + 4 800 land) while making the continents legible at T1's 1 200.
+ * Owner QA 2026-10-13: 20% was patchy and the continents were not recognizable.
+ * The land layer is now a *full* lattice gated by the NASA water mask, so this
+ * number counts candidates, not visible dots — roughly 29% of them, the earth's
+ * land fraction, actually render, the rest taking alpha 0 from the mask. 2× the
+ * dust count gives T1 ~7 000 visible land dots and T3 ~14 000, which is what
+ * traces a coastline. The candidates over ocean cost vertex time in one draw
+ * call and nothing else; the visible count is what the owner's 30k cap is about.
  */
-const LAND_FRACTION = 0.2;
+const LAND_CANDIDATES = 2.0;
 
 export default function Globe({ points, rotate }: GlobeProps) {
   const ref = useRef<THREE.Group>(null);
@@ -440,7 +455,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
   // `topojson-client`, sampled from the same kind of lattice the dust uses — see
   // `landDots.ts`. They sit a hair above the dust field and read as the figure
   // over its ground: brighter, larger, and all of them still brand gold.
-  const landCount = Math.round(points * LAND_FRACTION);
+  const landCount = Math.round(points * LAND_CANDIDATES);
   const landPositions = useMemo(() => landDots(landCount), [landCount]);
   const landBase = useMemo(() => {
     const shades = landShades(landCount);

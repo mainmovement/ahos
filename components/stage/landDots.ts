@@ -49,14 +49,13 @@ import {
 export const LAND_DOTS_RADIUS = GLOBE_RADIUS * 1.004;
 
 /**
- * The candidate lattice is `CANDIDATE × count` points. Land is ~29% of the
- * surface, so 4× is comfortably more inside-land points than are asked for, and
- * the subsample below is the thing that keeps them evenly spread. If the atlas
- * were ever swapped for one with less land, the code still yields what it can
- * rather than throwing in a render path.
+ * The polygon machinery below (`POLYGONS`, `isLand`) is the selftest's
+ * independent second source: it says where land is, so the NASA mask's
+ * continents can be pinned against named geography rather than against
+ * themselves. Two sources, one answer — the two-source rule, applied to a map.
+ * Nothing in the render path calls it; `landDots` places dots everywhere and the
+ * mask selects.
  */
-const CANDIDATE_MULTIPLIER = 4;
-
 /** A GeoJSON position, as `[lon, lat]` in degrees. */
 type Position = number[];
 /** A closed ring of positions. */
@@ -150,54 +149,39 @@ export function isLand(lon: number, lat: number): boolean {
 }
 
 /**
- * `count` dots spread over the world's land, as a flat `[x, y, z]` attribute.
+ * `count` dots over the *whole* sphere, as a flat `[x, y, z]` attribute.
  *
- * Deterministic by construction: the lattice is deterministic and the atlas is a
- * pinned dependency, so the same count is the same continents on every machine.
+ * Owner QA 2026-10-13: the dots were patchy and the continents were not
+ * recognizable, because the sampler was subsampling to a small budget
+ * (`LAND_FRACTION` 0.2 of the dust count) and even an even subsample of ~4 800
+ * dots over the world's land leaves too few per continent to trace a coastline.
+ * The fix is the owner's: place at *full* density and let the NASA water mask
+ * decide which dots show. That is also the cobe model the vendor kit points at —
+ * cobe samples a land-mask texture per dot on a Fibonacci sphere and multiplies
+ * the mask into the dot's alpha (`Globe.tsx`'s `LAND_FRAG` already does this).
+ *
+ * So `landDots` is now a plain Fibonacci lattice over the whole sphere — every
+ * candidate, no filtering — and *where land is* is a rendering decision made by
+ * the mask, not a geometry decision made here. A dot over the open ocean is
+ * still in the buffer; the shader gives it alpha 0 and it costs vertex time, not
+ * fill. The count is therefore a *candidate* budget, and only ~29% of it (the
+ * earth's land fraction) is visible.
+ *
+ * Deterministic by construction: the lattice is deterministic, so the same count
+ * is the same sphere on every machine.
+ *
+ * The polygon machinery below (`POLYGONS`, `isLand`) stays for the selftest: it
+ * is the independent second source that says where land is, so the mask's
+ * continents can be pinned against named geography rather than against
+ * themselves. Two sources, one answer — the two-source rule, applied to a map.
  */
 export function landDots(
   count: number,
   radius: number = LAND_DOTS_RADIUS,
 ): Float32Array {
   const n = Math.max(0, Math.floor(count));
-  const out = new Float32Array(n * 3);
-  if (n === 0) return out;
-
-  const candidates = fibonacciSphere(n * CANDIDATE_MULTIPLIER, radius);
-  const inside: number[] = [];
-  for (let i = 0; i < candidates.length; i += 3) {
-    const x = candidates[i]!;
-    const y = candidates[i + 1]!;
-    const z = candidates[i + 2]!;
-    // Unit direction → lon/lat. `atan2` and `asin` take the sign conventions
-    // GeoJSON expects: lon east-positive, lat north-positive.
-    const lat = (Math.asin(y / radius) * 180) / Math.PI;
-    const lon = (Math.atan2(z, x) * 180) / Math.PI;
-    if (isLand(lon, lat)) inside.push(i);
-  }
-
-  // Even subsample. The inside list is in spiral order, so its entries are
-  // ordered by *land area*, not by latitude — a region's share of the list is its
-  // share of the world's land. Picking uniformly across the list therefore gives
-  // each continent dots in proportion to what it actually has.
-  //
-  // The stride must stay fractional. `inside.length` is land-area-proportional
-  // while `n` is a tier budget, so they are not multiples; an integer stride
-  // rounds down to 1 whenever land yields more candidates than were asked for —
-  // which is every realistic tier — and the sampler then keeps the northernmost
-  // dots, leaving the whole southern hemisphere empty. The selftest pins that.
-  const stride = inside.length / n;
-  for (let j = 0; j < n; j++) {
-    // `min` clamps a shortfall: an atlas with less land than the budget asked
-    // for re-uses the last found dot rather than emitting a zero at the globe's
-    // centre, which would render as a stray dot inside the body.
-    const at = inside[Math.min(inside.length - 1, Math.round(j * stride))]!;
-    const o = j * 3;
-    out[o] = candidates[at]!;
-    out[o + 1] = candidates[at + 1]!;
-    out[o + 2] = candidates[at + 2]!;
-  }
-  return out;
+  if (n === 0) return new Float32Array(0);
+  return fibonacciSphere(n, radius);
 }
 
 /**
