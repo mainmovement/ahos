@@ -1,0 +1,1 @@
+Earth textures derived from NASA Visible Earth Blue Marble / Black Marble (public domain, NASA media guidelines). Downsampled copies of images shipped in three-globe 2.45.4 example/img (MIT repo).

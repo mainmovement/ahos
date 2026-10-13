@@ -1,0 +1,1 @@
+three-glow-mesh 0.1.2: package.json says MIT; upstream repo has no LICENSE file (404). Shader in AtmosphereR3F.tsx is equivalently present in three-globe (MIT, LICENSE file + npm) so that is the cited source.
