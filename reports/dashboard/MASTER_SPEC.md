@@ -44,3 +44,11 @@ Before building any part, check these and REUSE them; do not redo work that alre
 - Downloaded assets: vendor_assets/ (characters, charts, fonts, globe, hdri, hud, icons, loaders, sounds, tokens, vfx) - index in vendor_assets/README.md.
 - If something needed is missing: download a FREE, license-safe (MIT/Apache/CC0/OFL) ready-made asset or library into vendor_assets/<area>/ and add it to vendor_assets/README.md, instead of hand-building it. Never paid, never GPL linked into AHOS.
 - Goal: move FORWARD fast; no rework, no rebuilding what exists.
+
+## STRATEGY CHANGE - TEMPLATE FIRST (owner order 2026-10-14 00:06, highest priority)
+Stop hand-writing the dashboard. Do this instead:
+1. Download a complete FREE open-source (MIT/Apache) dark admin/command-center dashboard template built on React/Next + Tailwind that is closest to owner_reference/01_dashboard_target.jpg (glassmorphism, sidebar, KPI cards, charts, feed). Candidates to evaluate quickly (pick 1, max 30 min): shadcn/ui dashboard blocks (shadcn-admin), Tremor dashboard templates, TailAdmin Next.js (free), Horizon UI, Mosaic Lite, Magic UI / Aceternity UI free components for glow/hologram effects. Put it in vendor_assets/templates/<name>/.
+2. Reskin it to the AHOS look (dark navy + gold from 02/03, cyan holographic accents from 01), add the AHOS icon, Persian/English text, and drop the existing 3D globe component into the center.
+3. Wire its cards/tables/charts to real local AHOS data.
+4. Keep only what the template lacks as custom code. Target: a full first version of the whole layout in one working session, then polish.
+Same quality gate (side-by-side with 01, score >= 8) and commit-by-path rules apply.

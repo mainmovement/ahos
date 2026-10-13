@@ -222,3 +222,6 @@ If API 400 or context near full: commit, write the next step in PROGRESS_LOG.md,
 
 ## TOP PRIORITY (Soltan 2026-10-13 23:00): read reports/dashboard/MASTER_SPEC.md first; it overrides older dashboard plans. Follow its build order and quality gate.
 
+
+## TOP PRIORITY 2026-10-14 00:06: MASTER_SPEC section 'STRATEGY CHANGE - TEMPLATE FIRST' overrides everything: adopt a complete free dashboard template and reskin it; stop hand-writing.
+
