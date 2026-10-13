@@ -1,4 +1,4 @@
-﻿# claude_fresh.ps1 - start a FRESH headless Claude session (no -c, no resume). Used by Soltan's watchdog
+# claude_fresh.ps1 - start a FRESH headless Claude session (no -c, no resume). Used by Soltan's watchdog
 # when the interactive session dies with API 400 (overloaded context) or stalls. Portable: no hard-coded user path.
 param([int]$MaxTurns = 200, [int]$TimeoutSec = 28800, [int]$StallMin = 30)
 $ErrorActionPreference = 'Stop'
@@ -16,12 +16,15 @@ $log = Join-Path $root "reports\grok\_claude_fresh_$stamp.txt"
 "$(Get-Date -Format s) start model=$model" | Out-File -Encoding utf8 $log
 # Stream output into the log so its mtime reflects activity. Only kill on (a) no log writes for $StallMin min, or (b) the 8h safety cap.
 $job = Start-Job -ScriptBlock { param($r,$p,$m,$t) Set-Location $r; & claude -p $p --model $m --max-turns $t --permission-mode bypassPermissions 2>&1 } -ArgumentList $root,$prompt,$model,$MaxTurns
+$projDir = Join-Path $env:USERPROFILE (".claude\projects\" + ($root -replace '[:\\/]','-'))
 $t0 = Get-Date; $last = Get-Date; $reason = $null
 while ($job.State -eq 'Running') {
   Start-Sleep -Seconds 30
   $out = Receive-Job $job
   if ($out) { $out | Out-File -Append -Encoding utf8 $log }
   $w = (Get-Item $log).LastWriteTime; if ($w -gt $last) { $last = $w }
+  # claude -p prints only at the end, so the log alone looks stalled while Claude works. Also count transcript writes as activity.
+  $tw = (Get-ChildItem $projDir -Filter *.jsonl -EA SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime; if ($tw -and $tw -gt $last) { $last = $tw }
   if (((Get-Date) - $last).TotalMinutes -ge $StallMin) { $reason = "STALLED (no log writes for $StallMin min)"; break }
   if (((Get-Date) - $t0).TotalSeconds -ge $TimeoutSec) { $reason = "TIMEOUT (safety cap $TimeoutSec s)"; break }
 }
