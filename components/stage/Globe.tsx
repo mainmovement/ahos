@@ -275,11 +275,11 @@ const LAND_FRAG = /* glsl */ `
     float disc = 1.0 - smoothstep(1.0 - uFeather, 1.0, r);
     // lon/lat from the dot's direction — the arithmetic in landMask.ts's
     // landMaskUV, in GLSL, pinned against named geography in
-    // `scripts/land_selftest.ts`'s mask-versus-atlas section.
+    // \`scripts/land_selftest.ts\`'s mask-versus-atlas section.
     float lon = atan(vDir.z, vDir.x);
     float lat = asin(clamp(vDir.y, -1.0, 1.0));
-    // The mask's row 0 is the *north* pole, and `three` uploads textures with
-    // `flipY` on, which puts row 0 at v = 1. So latitude enters with a + sign:
+    // The mask's row 0 is the *north* pole, and \`three\` uploads textures with
+    // \`flipY\` on, which puts row 0 at v = 1. So latitude enters with a + sign:
     // the north pole samples v = 1 and the south pole v = 0. A minus sign here
     // still renders continents — upside down, Africa pointing at the sky — and
     // nothing in the frame says which way is up, which is why the axis is
@@ -568,12 +568,7 @@ export default function Globe({ points, rotate }: GlobeProps) {
           fully rough, low metalness. The lights are untouched, so the dusk key
           still lights the floor ring M-D6.2 QA'd, and the body now takes it as a
           smooth gradient instead of a hot patch. */}
-        <meshPhysicalMaterial
-          color={colors.panel}
-          metalness={0.18}
-          roughness={1.0}
-          clearcoat={0}
-        />
+        <meshBasicMaterial color={colors.panel} />
       </mesh>
       {/* The dots. Additive over the body, so a dense field reads as glow without
           a bloom pass; depth-tested, so the far side stays hidden behind it. */}
