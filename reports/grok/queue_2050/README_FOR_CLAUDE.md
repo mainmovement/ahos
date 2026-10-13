@@ -219,3 +219,6 @@ If API 400 or context near full: commit, write the next step in PROGRESS_LOG.md,
 - AHOS is a DESKTOP DASHBOARD APP, not a website. The owner must open it like an app (own window, no browser tabs/address bar). Make the desktop shortcut open it as an app window (e.g. Edge/Chrome --app=URL kiosk-style, or the planned packaged app) that also starts the dev/prod server itself if not running.
 - BUG: clicking the desktop icon opens nothing. Fix the launcher end to end (server start + correct port + app window). Test by actually launching it; screenshot proof.
 - The owner dislikes the current icon. Replace it with a premium 2050-style AHOS icon assembled from vendor_assets (icons/fonts/palette), gold-on-dark, crisp at 16-256 px, as .ico. Screenshot proof.
+
+## TOP PRIORITY (Soltan 2026-10-13 23:00): read reports/dashboard/MASTER_SPEC.md first; it overrides older dashboard plans. Follow its build order and quality gate.
+
