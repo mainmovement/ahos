@@ -1372,3 +1372,39 @@ flags the spots, the next step is the light ablation, not another exponent.
 
 Also removed: `scripts/spot_rotation.mjs` and its two rotation captures, which
 were built for the abandoned measurement and never committed.
+
+## 2026-10-13 — M-D6.4 glow spots: the light ablation found them, and they are two
+different defects
+
+**Question.** The previous entry ended "if a future QA still flags the spots, the
+next step is the light ablation, not another exponent." Run it: kill each stage
+light and each emissive geometry in turn, and read the two hottest pixels in the
+globe's upper box — (739,162) and (723,244) — at fixed screen coordinates.
+
+**Choice.** Attribute by ablation, commit the attribution, and deliberately do *not*
+apply a fix. Record both candidate interventions with their tradeoffs in the receipt
+and leave the stage exactly as the owner last saw it.
+
+**Reason.** The two spots have two unrelated causes, so no single change fixes both,
+and each candidate fix trades against something an earlier QA already signed off —
+dot opacity against the globe reading as a globe, body roughness against the lacquer,
+directional intensity against the floor ring M-D6.2 QA'd. Applying one blind, with no
+way to see the result in this session, risks burning another owner QA cycle for a
+change that might be worse. Attribution is real and measured; closure is not, and the
+honest rule is to ship the one and say so.
+
+Measured: (739,162) falls 125.3 → 0.2 when the two additive dot clouds are hidden and
+is invariant across six captures with four different light sets, because the dots are
+shaded by the sun, not the stage rig — additive stacking near the silhouette, the
+mechanism `Globe.tsx`'s 00:24 comment already names. (723,244) reads 0.0 in both
+captures with the directional key off and survives hiding the dots — a clearcoat
+specular, fixed by light and view, which is why it measured bit-identical while the
+globe turned under it. Ruled out by measurement: a DOM overlay (`elementFromPoint`
+returns the canvas, and it is `alpha:false`), both stage point lights, and the fresnel
+shell (5.19% of pixels changed, neither spot moved).
+
+Also corrected in the receipt: the crown-clearance geometry table predates M-D7's
+telemetry strips, which shrank the canvas to y 93..397, so its "disc y 135..731,
+centre (792, 433)" cannot describe the current layout. Flagged stale rather than
+re-measured, because re-measuring needs the strips' height subtracted and the
+clearance is not what this pass was asked about.

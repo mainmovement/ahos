@@ -257,3 +257,103 @@ no shell at all, and the two page loads differ by ~0.25 deg of sun, which religh
 dots near the terminator and shows up in a plain diff as noise that is not the rim.
 The three numbers above are the ones measured against a per-frame reference, and are
 the ones I would stand behind.
+
+## The two glow spots — attributed by ablation, not fixed
+
+Captures (all T3 via the app's own tier override, 1582×748):
+`spot_base_t3.png` (everything on), `spot_nodots_t3.png` (both additive dot clouds
+hidden, lights and body on), `spot_nodir_t3.png` (only the directional key removed),
+`spot_nolights_t3.png` (all four stage lights removed), `spot_nocanvas_t3.png`
+(the `<canvas>` set to `display:none` after mount).
+
+**Nothing here is claimed to be fixed.** What follows is the cause of each spot,
+measured at fixed pixels. Two earlier passes closed this item on visual guesses that
+the owner's screenshots disproved; this pass deliberately closes nothing.
+
+### The two hottest pixels
+
+Peaks in the globe's upper box (x 590..895, y 105..320), non-max-suppressed:
+
+| Pixel | L | Colour |
+|---|---|---|
+| (739,162) | 125.3 | rgb(193,133,39) |
+| (723,244) | 104.6 | rgb(206,120,61) |
+
+Both warm gold, both in the globe's upper-left — the two spots the owner flagged.
+
+### The ablation table
+
+| Pixel | baseline | dots+land hidden | directional off | all four lights off |
+|---|---|---|---|---|
+| (739,162) | 125.3 | **0.2** | 134.8 | 134.8 |
+| (723,244) | 104.6 | 134.0 | **0.0** | **0.0** |
+| (790,176) | 88.8 | 135.5 | 135.3 | 0.0 |
+| (680,184) | 74.0 | **12.2** | 109.7 | 126.6 |
+| (659,252) | 65.2 | **0.0** | 41.2 | — |
+
+The globe spins at T3, so a pixel's surface changes between captures. Additive dots
+can only ever *add* light, so any cell that went **up** between the baseline and the
+dots-hidden capture is rotation, not the ablation — those cells are not read as
+evidence. The cells in bold are unambiguous, because they are drops the ablation
+alone can produce.
+
+**Spot 1, (739,162) — additive dot stacking.** It falls to 0.2 when the dot clouds
+are hidden and is invariant across six captures with four different light sets
+(134.5, 138.0, 135.7, 138.9, 134.8, 134.8 — both point lights off, the atmosphere
+shell hidden, the directional off, and all four lights off). Nothing the stage lights
+do reaches it, because the dot fields are shaded by the sun (`sun.ts`), not by the
+stage rig. This is the mechanism `Globe.tsx`'s own 00:24 comment names — "dots near
+the silhouette stack in screen space" — and the opacity 0.95 → 0.78 change already
+backed it off without removing it: the pixel still reads L ≈ 125.
+
+**Spot 2, (723,244) — the directional key's specular on the clearcoat body.** It
+reads 0.0 in both captures where the directional light is off, including the one
+where both point lights are still on, and it survives hiding the dots. A clearcoat
+specular is fixed by light direction and view direction, not by surface rotation,
+which is why this pixel measured bit-identical (134.0) across captures that differed
+elsewhere: the globe turns under the highlight, the highlight does not move.
+
+### What was ruled out
+
+**A DOM overlay.** `document.elementFromPoint` at all six probe pixels returns the
+`<canvas>` itself, with a transparent computed background and no blend mode. The
+canvas is created `alpha: false` and cleared with an opaque colour, so nothing behind
+it can show through anyway, and hiding the canvas by style drops the whole region to
+the page background. The spots are painted by WebGL.
+
+**The two point lights.** Removing both left (739,162) unchanged and moved (723,244)
+by less than the sun's drift between page loads. The `StageLights` gold point light
+above the crown — the obvious suspect, and the one a previous pass retuned — is not
+either spot.
+
+**The atmosphere shell.** Hiding the fresnel shell changed 5.19 % of the frame's
+pixels, so the ablation took, but neither spot's pixel moved.
+
+### Two causes, so no single change fixes both
+
+The candidate interventions, with their tradeoffs, none of them applied:
+
+- Spot 1 is additive stacking near the silhouette. Reducing `pointsMaterial.opacity`
+  (0.78 today) or `size` (0.056) scales it directly, but dims the dust field the
+  globe's roundness depends on (§"the dust field is what makes the globe read as a
+  globe at all"). A size or alpha ramp by distance from the limb would address only
+  the silhouette, at the cost of a shader or a per-dot attribute.
+- Spot 2 is a clearcoat highlight. Raising the body's `roughness` (0.5) softens it
+  but flattens the lacquer; dimming the directional (1.1) darkens the whole stage's
+  dusk key, including the floor ring M-D6.2 already QA'd.
+
+The owner's 00:24 option — make them intentional city/market pings, or remove — is a
+visual judgement this measurement cannot make. Both spots are within the range the
+00:24 retune was aiming at (neither is saturated: rgb(193,133,39) and rgb(206,120,61)
+are warm gold, not the white-gold of the pre-fix 0.95 stacking).
+
+### A correction to the numbers above
+
+The geometry table in the "crown clearance" section was measured when the stage held
+the full frame. Since M-D7's telemetry strips landed, the canvas occupies
+x 15..1569, y 93..397 — a 305 px band — so that table's "disc y 135..731, centre
+(792, 433)" is stale and the disc it describes cannot exist in the current layout.
+The globe still centres near x = 792, but vertically it sits in the upper third of
+that band. The crown-clearance verdict is not re-measured here; it needs the
+strips' height subtracted before any of those numbers are quoted again.
+
