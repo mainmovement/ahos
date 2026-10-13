@@ -1480,3 +1480,65 @@ to a sibling position and waiting one hot-reload cycle returned 3000 to 200 and
 reproduced the verified Spot 2 numbers exactly (L 32.3, neighbourhood 27–29), so
 nothing else was disturbed. Noted because the failure mode is silent in the
 screenshot — a broken render still writes a plausible-looking PNG.
+
+### 2026-10-13 — Ship a size-up/alpha-down land ramp, and drop the 2550aae yardstick
+**Question.** `bfab049` regressed owner QA item 6 by flattening `2550aae`'s land
+ramp to a single 5.5 px / 0.85. Restore it as-is, or re-derive the direction?
+**Choice.** Re-derive. Shipped a ramp that runs the *opposite* way to `2550aae`'s:
+8.25 px / 0.55 at the sparse (T1) end, both dense ends pinned to the shipped
+5.5 px / 0.85 so T3 is bit-identical. Also dropped `2550aae`'s accepted-PARTIAL
+figures from the sweep table in `Globe.tsx` rather than comparing against them.
+**Reason.** `2550aae` ramped alpha *up* (0.62 → 0.95) at a fixed size, on a soft
+radial sprite that tails off at the edges. The cobe port draws hard additive
+discs, where a disc's coverage and its stacking at a dense coastline both scale
+as r²·α — the same knob. Measured, copying `2550aae`'s direction put a T1
+coastline at L 195.0, rgb(255,249,59), worse than the L 134 clearcoat spot the
+mission had just removed. A six-point sweep on `land_legibility.mjs` found the
+shipped pair to be the knee (+15.0% core for +34.8 peak, where 9.5 px / 0.50
+costs another +18.4 peak for +2.2% core), and a wider feather to be a pure
+dimmer that lowers core *and* peak together. T1's peak does rise 111.8 → 146.6,
+which is a real cost, accepted because it is still below the L 233 that the same
+coastline already renders at on the accepted T3 baseline.
+
+  T1 (1 200 dots), canvas band box   core px   mean L   core share   peak L
+    5.5 px / 0.85  (dense, = base)    10 532    59.6      34.0%       111.8
+    5.5 px / 0.85 / feather 0.60       9 570    55.1      31.6%        91.0
+    7.0 px / 0.85                    11 220    68.5      35.8%       153.7
+    8.25 px / 0.85                   12 197    75.5      37.9%       185.6
+    9.5 px / 0.50                    12 394    65.6      38.0%       165.0
+    8.25 px / 0.55  (SHIPPED)        12 115    61.6      37.4%       146.6
+
+Dropping the yardstick was the harder half of the call. An earlier draft claimed
+the shipped share "lands within the 1.7% sun-drift noise band of the 23.2%
+`2550aae` was accepted PARTIAL on". That is not a comparison at all:
+`2550aae`'s 23.2% is land *as a fraction of the disc*, a different denominator
+from the script's core-share-of-lit, and it was measured on the pre-M-D7 layout
+where the globe spanned y 135..731 against today's 305 px canvas band. Quoting a
+number that cannot be compared would have dressed an unknown up as parity, which
+AGENTS.md forbids (`UNKNOWN > fabricated`). What survives measurement is the
+within-layout delta above and T3's bit-identity; item 6 is recorded PARTIAL and
+pending owner QA, not closed.
+
+### 2026-10-13 — Dashboard bootstrap URL 3199 vs the live dev server on 3000
+**Question.** Captures and the browser were reaching `127.0.0.1:3199` while the
+dev server actually listens on 3000, so the "browser opens the 3D dashboard" step
+photographed a dead page. Where is the port fixed?
+**Choice.** Removed the hardcoded `127.0.0.1:3199` from the three capture scripts
+(`screenshot_dashi.mjs`, `screenshot_tierpanel.mjs`, `screenshot_contextloss.mjs`)
+and routed all three through the new `scripts/gateway_url.mjs`, which asks
+`scripts/gateway_port.py --url-only` — the same resolver the launcher uses — and
+falls back to the Next.js default of 3000, printing why. Left the launcher's own
+`dashboard_url()` alone: it already reads the *selected* gateway record, and that
+record validates its pid before it pins a port.
+**Reason.** 3199 was a port a launcher start picked on 2026-10-13 14:22Z, recorded
+in the gitignored `data/launcher/gateway_selected.json`. That gateway (pid 15084)
+is dead, and `AhosOrchestrator._recorded_gateway` ignores any record whose pid is
+not still our own gateway, so the launcher already resolves 3000 — confirmed by
+`python -m launcher bootstrap-url` and by `gateway_port.py --env-file .env`
+(`CONFIGURED_PORT_LISTENING`). The only consumers still pinned to 3199 were the
+capture scripts. Not deleting the stale record: it is validated away in every code
+path, and AGENTS.md forbids destroying data; if the record were ever read
+unvalidated it would name a port with no listener, which fails loudly rather than
+silently. Proven by `node scripts/screenshot_dashi.mjs` opening the resolved
+`http://127.0.0.1:3000/` and capturing a mounted canvas with no console errors
+(`reports/dashboard/screens/M-D7/bootstrap_port_fix.png`).
