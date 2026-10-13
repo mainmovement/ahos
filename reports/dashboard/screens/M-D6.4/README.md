@@ -357,3 +357,98 @@ The globe still centres near x = 792, but vertically it sits in the upper third 
 that band. The crown-clearance verdict is not re-measured here; it needs the
 strips' height subtracted before any of those numbers are quoted again.
 
+
+---
+
+## 2026-10-13 — Spot 2 fixed; Spots 1 and the "white-gold" line are correct lighting
+
+Continuation session. The two vendor fixes (fresnel `Atmosphere`, cobe-style land
+dots) were already committed, so this pass worked the two remaining hot spots
+directly. Both were re-measured against the committed ablation values before
+anything was changed, because the canvas geometry had moved.
+
+**Spot 2 (723, 244) — fixed.** Re-measured at L = 134.0, bit-identical to the
+committed ablation value, with the same sharp falloff (134.0 centre → 62–88 at
+10 px → 14–16 at 20 px). That re-confirmed the clearcoat diagnosis independently.
+`clearcoatRoughness` 0.28 → 0.5 — broadening the clearcoat rather than the base
+`roughness`, so the lacquer sheen survives and the directional key that also
+lights the M-D6.2 floor ring is untouched. After the change the same pixel reads
+L = 32.3 rgb(69,24,7) and the 10 px neighbourhood went from a spike to flat:
+
+| pixel | before | after |
+|---|---|---|
+| (723,244) | 134.0 | 32.3 |
+| (713,244) | 87.7 | 36.6 |
+| (733,244) | 61.4 | 27.2 |
+| (723,234) | 64.9 | 28.8 |
+| (723,254) | 69.1 | 28.6 |
+| (703,244) | 14.0 | 17.9 |
+| (743,244) | 15.6 | 16.8 |
+
+The neighbours rising a few luminance points is the intended behaviour — the same
+energy spread over more pixels rather than a dimmer light. Spot 2 no longer
+appears in the canvas peak list.
+
+**Spot 1 (739, 162) — not a defect, and the silhouette attribution above is
+wrong.** The receipt's candidate intervention assumed additive stacking *near the
+silhouette*. Measured, it is not near the silhouette: on the current layout the
+disc spans roughly x 659..951 at y = 200, i.e. centre ≈ (805, 245) and radius ≈
+150 px, which puts (739,162) at 106 px from centre — 45° from the view axis, and
+(921,310) at 133 px — 62°. Neither is grazing.
+
+What Spot 1 actually is: a dense dot patch at the day-side edge of the terminator.
+A 9-point grid shows (745,162) at L = 94.5 and (745,168), six pixels directly
+below it, at L = 0.4 — day to night in six pixels. `terminatorWeight`'s 0.3
+spread is a ±17° band on the sphere, and the terminator happens to lie almost
+edge-on to the camera here, so its projection compresses to a near-vertical line.
+That is correct physics for a terminator seen nearly edge-on, not stacking.
+
+**The "white-gold" region at (921, 310) — also correct lighting.** This became the
+globe's hottest pixel once Spot 2 was spread (L = 231.6, rgb(255,241,69)), and it
+matches the white-gold the 00:24 note warned about. It is a narrow bright streak,
+under 20 px wide and at least 35 px tall, and it is a dense, fully-lit land-dot
+coastline on the day side: the land layer's dots are larger (`LAND_DOT_PX` 5.5)
+and brighter, and where the mask is dense the additive blending saturates the
+channel. The M-D6.5 chain rings were ruled out first — they sit at
+`RING_RADII × GLOBE_RADIUS × SCALE` = 2.32–3.06 world units, about 197 px from
+centre, entirely outside the 150 px disc, and they are `lineWidth` 1 at
+`opacity` 0.6.
+
+**The 1 px rim is the atmosphere shell, not the dots.** A row scan at y = 200 is
+bit-identical before and after the dot work below (left edge x = 659, peak 92.2
+above backdrop at offset 0, 0–2 at ±2 px and +4 px): the vendored fresnel shell is
+what paints the silhouette, so no change to the dot fields can touch it. This is
+the "confirm beaded rim" item — the rim is present, one to two pixels wide, and
+comes from the vendor shell the owner's rule asked for.
+
+### A limb ramp was built, measured, and reverted
+
+The receipt's own suggestion — "a size or alpha ramp by distance from the limb" —
+was implemented and then thrown away, because the measurements above killed the
+premise. A per-dot `smoothstep(0, 0.3, dot(normal, viewLocal))` was folded into
+both `litColors` and `relight` (so mount-time lighting and the per-second refresh
+still provably agree), with the view vector derived as `sunLocalFor`'s twin — the
+inverse of the group's `Ry(spin) * Rz(tilt)`, applied to a constant camera-to-centre
+direction, valid because the camera at `[0, 5.8, 8.8]` has no controls.
+
+It compiled clean and was geometrically right, but it did nothing: Spot 1 moved
+87.1 → 85.0, the (921,310) streak 218.8 → 231.6, and the row-200 limb profile was
+unchanged to the digit. An initial sign error dimmed the front of the globe to
+L ≈ 1.4 and exposed the bug immediately, which is worth noting as the reason the
+ramp's effect was verified at all rather than assumed. Reverting leaves the globe
+as the vendor kit and the §8.1 tuning intended; the negative result is recorded
+here so the limb-stacking hypothesis is not re-attempted. If a future pass still
+wants the silhouette softened, the lever is the atmosphere shell, not the dots.
+
+### Open
+
+- The 00:24 owner option — make the remaining bright regions intentional
+  city/market pings, or remove — is still a visual judgement. Both remaining
+  regions are warm gold in a plausible band, not saturated white-gold, and both
+  are now explained as correct lighting rather than artefacts.
+- `scripts/stage_luminance.mjs` still defaults its peak box to `476,135,1109,731`
+  — the stale geometry this file corrected. Left alone here; quoting its default
+  output quotes DOM below the canvas (peaks near y ≈ 691). Pass
+  `--box 15,93,1569,397` or the numbers will be wrong.
+- The crown-clearance table is still stale (see the correction above) and is not
+  re-measured here.

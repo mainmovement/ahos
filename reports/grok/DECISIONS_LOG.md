@@ -1438,12 +1438,45 @@ a0ca3f3, vendor defaults 36c289f, cobe land dots in the same commit), so the
 remaining work is the two spots the 07:27 attribution named but deliberately did
 not fix, verified against the current code rather than against prose.
 
-**Q: Is it safe to run `next dev` on 3199 while the M13 soak and the autopilot
-runner are active?**
-**A:** Yes, on 3199 with the hostname pinned to 127.0.0.1, and without touching
-any database or `.env`.
-**Reason:** 3199 is the port the screenshot harness and the prior M-D6 captures
-already use, so a new port would diverge from every existing screen's
-provenance. The dev server is a read-only presentation surface over the frozen
-Lanes; it writes nothing, and AGENTS.md lets TypeScript run as presentation only.
-The soak's own state files stay untouched — its writes are not mine to commit.
+**Q: Is it safe to run `next dev` while the M13 soak and the autopilot runner are
+active, and on which port?**
+**A:** Yes — but not on 3199. A server was already running from the previous
+session (PID 1888) on **3000**, and Next refuses a second dev server in the same
+directory, so the 3199 start exited 1. Reuse the existing 3000 server and pass its
+URL to the screenshot harness, which takes one as an argument.
+**Reason:** 3199 is what the screenshot harness defaults to and what the prior
+M-D6 captures used, so it was the first choice — but killing PID 1888 to take
+the port would have destroyed a server another session may still depend on, and
+the harness accepts any URL, so nothing is lost by reusing 3000. The dev server
+is a read-only presentation surface over the frozen Lanes; it writes nothing, and
+AGENTS.md lets TypeScript run as presentation only. The soak's own state files
+stay untouched — its writes are not mine to commit.
+
+### 2026-10-13 — Revert the per-dot limb ramp after measurement disproved its premise
+**Question.** The M-D6.4 receipt proposed "a size or alpha ramp by distance from
+the limb" for glow Spot 1. Implement it?
+**Choice.** Built it, measured it, reverted it. `clearcoatRoughness` 0.28 → 0.5
+(the Spot 2 fix) is the only stage change kept.
+**Reason.** The ramp's premise was that both hot spots sit at the silhouette.
+Measured, neither does: the disc is ≈ 150 px about (805, 245), so (739,162) is
+45° from the view axis and (921,310) is 62°. Spot 1 is a dense dot patch at the
+day-side edge of a terminator seen nearly edge-on (L 94.5 → 0.4 in 6 px — correct
+physics for `terminatorWeight`'s ±17° band compressed by the viewing angle), and
+the (921,310) streak is a dense lit land-dot coastline. The ramp moved Spot 1
+87.1 → 85.0 and left the row-200 limb profile bit-identical, because the 1 px rim
+is the vendored fresnel shell, not the dots. Keeping an unverified aesthetic
+change built on a disproven hypothesis is worse than reverting it; the negative
+result is recorded in the M-D6.4 receipt so the limb-stacking idea is not
+re-attempted. If the silhouette ever does need softening, the lever is the
+atmosphere shell.
+
+### 2026-10-13 — A `{/* */}` block between a component's attributes 500s the page
+**Question.** The clearcoat fix's explanation comment would not fit above the
+element neatly; nest it inside `<meshPhysicalMaterial>` between attributes?
+**Choice.** No — moved it above the element as a sibling comment block.
+**Reason.** Nesting it there 500ed the dev server (white page, every sampled
+pixel rgb(255,255,255), capture 81 KB instead of ~140 KB). Restoring the comment
+to a sibling position and waiting one hot-reload cycle returned 3000 to 200 and
+reproduced the verified Spot 2 numbers exactly (L 32.3, neighbourhood 27–29), so
+nothing else was disturbed. Noted because the failure mode is silent in the
+screenshot — a broken render still writes a plausible-looking PNG.

@@ -463,12 +463,22 @@ export default function Globe({ points, rotate }: GlobeProps) {
           the globe reads as a solid object rather than a dust cloud. */}
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS * 0.965, 64, 48]} />
+        {/* M-D6.4: the clearcoat's specular from the directional key was the
+            globe's second hot spot — a tight highlight that read L=134.0 at one
+            pixel (rgb(206,120,61)) and fell to L≈14 only 20 px away, and being a
+            clearcoat it did not move while the globe turned under it. Broadening
+            the clearcoat rather than the base roughness keeps the lacquer sheen
+            and leaves the stage's dusk key alone: this spreads the same energy
+            over more pixels instead of dimming the light that also lights the
+            floor ring M-D6.2 already QA'd. Measured, not assumed: the same pixel
+            reads L=32.3 and its 10 px neighbourhood flattened from 62–88 to
+            27–37 — see ccr_t3.png. */}
         <meshPhysicalMaterial
           color={colors.panel}
           metalness={0.45}
           roughness={0.5}
           clearcoat={1}
-          clearcoatRoughness={0.28}
+          clearcoatRoughness={0.5}
         />
       </mesh>
       {/* The dots. Additive over the body, so a dense field reads as glow without
