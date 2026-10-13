@@ -488,10 +488,8 @@ function Invoke-RunnerLoop {
       }
 
       $h = "$ap\HOLD.flag"
-      if ((Test-Path $h) -and (Get-InteractiveIdleMinutes) -ge 15) {
-        L "HOLD.flag removed: interactive session idle $(Get-InteractiveIdleMinutes) min (>=15) -> resuming queue"
-        Remove-Item -LiteralPath $h -Force -EA SilentlyContinue
-      }
+      # HOLD.flag is READ-ONLY here: only a human/Grok may remove it. (Auto-removal on interactive idle
+      # was deleting it repeatedly and letting the autopilot trade without review.)
       if ((Test-Path $h) -and (((Get-Date) - (Get-Item $h).LastWriteTime).TotalHours -lt $HOLD_HOURS)) {
         Write-Heartbeat 'HOLD' '' 0 0 'Grok review hold active'
         Start-Sleep -Seconds $GATE_SLEEP_SEC; continue
