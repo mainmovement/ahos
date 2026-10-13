@@ -266,8 +266,9 @@ const LAND_FRAG = /* glsl */ `
   varying vec3 vDir;
   varying vec3 vColor;
   void main() {
-    // A fixed-alpha disc, not a soft sprite: uFeather is a few percent of the
-    // disc's radius, so the dot is solid out to nearly its edge.
+    // A hard-edged disc, not a soft sprite: uFeather is a third of the radius,
+    // so the dot is solid out to two thirds of its edge and fades over the rest.
+    // Widening this is not a coverage lever — see the sweep table on landDotPx.
     float r = length(gl_PointCoord - vec2(0.5)) * 2.0;
     float disc = 1.0 - smoothstep(1.0 - uFeather, 1.0, r);
     // lon/lat from the dot's direction — the arithmetic in landMask.ts's
@@ -281,12 +282,94 @@ const LAND_FRAG = /* glsl */ `
 `;
 
 /**
- * The land dot's screen size, in CSS pixels. The dust field's soft sprite is
- * ~2.1 CSS px at the globe's depth; the land is the *figure* over that ground,
- * so it is larger, and being a hard disc its visible area is its full size
- * rather than the centre fraction a radial gradient leaves.
+ * The land dot's screen size, and why it is not a constant. It ramps with the
+ * count the tier actually draws, and the reason is arithmetic: the land is a
+ * fixed 20% of the dots at every tier, so a tier with a quarter of the budget
+ * draws a quarter as many discs over the *same* sphere. T1's 1 200 do not
+ * overlap, and at a fixed 5.5 px each they leave gaps a coastline falls through —
+ * which is owner QA 02:48's item 6, "the continents do not read at T1", and it is
+ * a *sparsity* problem, not a brightness one. Backing the whole layer off to fix
+ * the dense tiers' stacking was what made it appear (see 2550aae, and its
+ * regression at bfab049, which reverted the ramp and left the flat value).
+ *
+ * So both the size and the alpha ramp as the field thins, and *together* rather
+ * than in the direction 2550aae used. The discs are hard-edged, so a hard look at
+ * 2550aae's own ramp (alpha 0.62 -> 0.95 at a fixed size) was measured before it
+ * was copied: at 0.95 a T1 coastline stacked to L=195.0, rgb(255,249,59) — a
+ * saturated yellow-white worse than the L=134 clearcoat spot the M-D6.4 fix had
+ * just removed, because a hard disc adds its full alpha where two of them meet,
+ * where 2550aae's soft radial sprite tailed off at the edges. Brightness is not
+ * what T1 was missing; coverage was.
+ *
+ * The ramp therefore runs the other way: the discs get *wider* and *dimmer* as
+ * the tier thins. The arithmetic of why that is the only efficient direction was
+ * established by a sweep on `land_legibility.mjs`, and it is not obvious, so here
+ * it is. A disc's contribution to a threshold-25 continent core scales with its
+ * area, r², times its alpha — and its additive stack at a dense coastline scales
+ * with exactly the same product. Coverage and stacking are the same knob, which
+ * means there is no free lunch in either parameter alone:
+ *
+ *   T1 (1 200 dots), canvas band box   core px   mean L   core share   peak L
+ *     5.5 px / 0.85  (dense, = base)    10 532    59.6      34.0%       111.8
+ *     5.5 px / 0.85 / feather 0.60       9 570    55.1      31.6%        91.0
+ *     7.0 px / 0.85                    11 220    68.5      35.8%       153.7
+ *     8.25 px / 0.85                   12 197    75.5      37.9%       185.6
+ *     9.5 px / 0.50                    12 394    65.6      38.0%       165.0
+ *     8.25 px / 0.55  (SHIPPED)        12 115    61.6      37.4%       146.6
+ *
+ * Widening at a fixed alpha is the worst trade on the table: 7.0 px buys +6.5%
+ * core for +41.9 peak, and 8.25 px / 0.85 buys +15.8% for +73.8. Widening *and*
+ * dimming is the only direction that buys coverage cheaply — 8.25 px / 0.55 gets
+ * +15.0% core for +34.8 peak, and 9.5 px / 0.50's extra +2.2% core costs another
+ * +18.4 peak, so the shipped pair is the knee. A wider feather was tried as a
+ * third lever and is a pure dimmer — it shrinks the disc's solid core, so at
+ * 5.5 px / feather 0.60 both the core count *and* the peak fall together.
+ *
+ * 2550aae's accepted-PARTIAL figures (23.2% of the disc, mean 40.6, 27.1k core)
+ * are deliberately *not* compared against this table: they were measured on the
+ * pre-M-D7 layout, where the globe spanned y 135..731 against today's 305 px
+ * canvas band, and "23.2% of the disc" is a different denominator from the
+ * core-share-of-lit column. Only the within-layout delta above is a like-for-like
+ * measurement. What the shipped pair gives up is peak: 146.6 against the base's
+ * 111.8, on the same dense day-side coastline that T3 renders at L=233 — so T1
+ * is still below its own accepted high-tier rendering of that feature, but the
+ * margin is narrower than it was, and this is the knee of what the hard-disc
+ * layer can do for itself. Item 6 stays PARTIAL pending owner QA — see the
+ * M-D6.4 README.
+ *
+ * Both ramps' dense ends are pinned to the constants the cobe port shipped (5.5
+ * px, 0.85), so T3 renders bit-identically and the M-D6.4 spot attribution
+ * awaiting owner QA is not perturbed by this fix — item 6 is deliberately not
+ * tied to the spots.
  */
-const LAND_DOT_PX = 5.5;
+const LAND_PX_DENSE = 5.5;
+const LAND_PX_SPARSE = 8.25;
+/** The counts the ramp runs between: T1's 1 200 land dots and T3's 4 800. */
+const LAND_COUNT_SPARSE = 1200;
+const LAND_COUNT_DENSE = 4800;
+/** Where the tier's count sits on the sparse-to-dense ramp, in [0, 1]. */
+function landDensity(count: number): number {
+  if (count <= LAND_COUNT_SPARSE) return 0;
+  if (count >= LAND_COUNT_DENSE) return 1;
+  return (count - LAND_COUNT_SPARSE) / (LAND_COUNT_DENSE - LAND_COUNT_SPARSE);
+}
+function landDotPx(count: number): number {
+  const t = landDensity(count);
+  return LAND_PX_SPARSE + (LAND_PX_DENSE - LAND_PX_SPARSE) * t;
+}
+/**
+ * cobe's dots sit at a fixed alpha with no fade; the catch on a *point* globe is
+ * that a hard, fully-opaque disc stacks additively at the silhouette, which is
+ * how the globe's hot spots were born (see the 4f51c21 fix). The dense end stays
+ * a hair under 1 so two overlapping discs do not saturate, and the sparse end
+ * trades brightness for area — see the sweep table on `landDotPx`.
+ */
+const LAND_ALPHA_DENSE = 0.85;
+const LAND_ALPHA_SPARSE = 0.55;
+function landDotAlpha(count: number): number {
+  const t = landDensity(count);
+  return LAND_ALPHA_SPARSE + (LAND_ALPHA_DENSE - LAND_ALPHA_SPARSE) * t;
+}
 /** The disc's edge feather, as a fraction of its radius. */
 const LAND_DOT_FEATHER = 0.32;
 
@@ -296,15 +379,6 @@ export interface GlobeProps {
   /** The rotation rate the tier allows; 0 is a static globe. */
   rotate: number;
 }
-
-/**
- * The land dot's fixed alpha. cobe's dots are at a fixed alpha with no fade; the
- * catch on a *point* globe is that a hard, fully-opaque disc stacks additively
- * at the silhouette, which is how the globe's hot spots were born (see the
- * 4f51c21 fix). The mask already softens coasts; this stays a hair under 1 so
- * two overlapping dots at the limb do not saturate.
- */
-const LAND_ALPHA = 0.85;
 
 /**
  * The land layer's budget. It is proportional rather than fixed so every tier
@@ -413,19 +487,19 @@ export default function Globe({ points, rotate }: GlobeProps) {
         fragmentShader: LAND_FRAG,
         uniforms: {
           uMask: { value: landMask },
-          uAlpha: { value: LAND_ALPHA },
+          uAlpha: { value: landDotAlpha(landCount) },
           uFeather: { value: LAND_DOT_FEATHER },
           // three's own points shader multiplies the size by the pixel ratio
           // (`material.size * pixelRatio`); a fixed screen size has to do the
           // same or the dots shrink on a high-DPR panel.
-          uPxSize: { value: LAND_DOT_PX * gl.getPixelRatio() },
+          uPxSize: { value: landDotPx(landCount) * gl.getPixelRatio() },
         },
         transparent: true,
         depthWrite: false,
         vertexColors: true,
         blending: THREE.AdditiveBlending,
       }),
-    [landMask, gl],
+    [landMask, gl, landCount],
   );
 
   const lastSun = useRef(0);
