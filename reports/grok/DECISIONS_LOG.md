@@ -1408,3 +1408,42 @@ telemetry strips, which shrank the canvas to y 93..397, so its "disc y 135..731,
 centre (792, 433)" cannot describe the current layout. Flagged stale rather than
 re-measured, because re-measuring needs the strips' height subtracted and the
 clearance is not what this pass was asked about.
+
+## 2026-10-13
+
+**Q: The watchdog's first instruction was "commit any uncommitted work", but the
+working tree had no tracked-source changes — only four untracked M-D6.4 PNGs
+(cobe_t1/cobe_t3, cur_t1/cur_t3) orphaned when the previous session ended, none
+referenced from any README. Commit them, or delete them?**
+**A:** Commit them by path, as an unreferenced capture set, and say in the commit
+message that the comparison they were taken for was never written up.
+**Reason:** They are the only record of a cobe-vs-current globe comparison that
+the owner's 18:00 kit rule points at for faint T1 land, and deleting evidence is
+on the AGENTS.md "never" list. Committing them unreferenced is honest about what
+they are (raw captures, not a result) without me inventing a conclusion the
+prior session never reached. Staging by explicit path, not `git add -A`, kept the
+parallel soak's own modified files (soak_status, autopilot state, the queue) out
+of my commit — those belong to the runner, not to me.
+
+**Q: The queue's binding order ends at the 18:00 "download the kit yourself"
+note, and the kit plus `vendor_assets/README.md` index already exist. What is
+the binding order now?**
+**A:** The 18:00 order is fulfilled; the binding order continues as the open
+items the QA notes attach to it — the two glow spots, faint T1 land, rim confirm
+— now executed under the 17:42/18:00 vendor rules rather than from scratch.
+**Reason:** The 16:24 QA note is the last item that enumerates open work, and the
+two owner rules after it change *how* that work is done, not *what* is open. All
+three vendor pieces the rules call for are already committed (vendor atmosphere
+a0ca3f3, vendor defaults 36c289f, cobe land dots in the same commit), so the
+remaining work is the two spots the 07:27 attribution named but deliberately did
+not fix, verified against the current code rather than against prose.
+
+**Q: Is it safe to run `next dev` on 3199 while the M13 soak and the autopilot
+runner are active?**
+**A:** Yes, on 3199 with the hostname pinned to 127.0.0.1, and without touching
+any database or `.env`.
+**Reason:** 3199 is the port the screenshot harness and the prior M-D6 captures
+already use, so a new port would diverge from every existing screen's
+provenance. The dev server is a read-only presentation surface over the frozen
+Lanes; it writes nothing, and AGENTS.md lets TypeScript run as presentation only.
+The soak's own state files stay untouched — its writes are not mine to commit.
