@@ -42,6 +42,7 @@ import { useStageStore } from "@/components/stage/store";
 import { stageColors } from "@/components/stage/themeColors";
 import { fibonacciSphere, GLOBE_RADIUS, pointShades } from "@/components/stage/globeGeometry";
 import { landDots, landShades, LAND_DOTS_RADIUS } from "@/components/stage/landDots";
+import { tehranMarkPosition } from "@/components/stage/tehranMark";
 import { LAND_MASK_URL } from "@/components/stage/landMask";
 import { sunDirection, terminatorWeight } from "@/components/stage/sun";
 import { Atmosphere } from "@/components/stage/Atmosphere";
@@ -453,6 +454,10 @@ export default function Globe({ points, rotate }: GlobeProps) {
     return arr;
   }, [warmGold, landCount]);
   const landInvR = 1 / LAND_DOTS_RADIUS;
+
+  // M-D6.6: the Tehran mark, placed once. It is the inverse of `landDots.ts`'
+  // convention, so it sits over the very dot the atlas calls Tehran.
+  const markPosition = useMemo(() => tehranMarkPosition(), []);
   const landColors = useMemo(
     () => litColors(landBase, landPositions, landInvR, sunLocalFor(0, new Date()), LAND_NIGHT),
     [landBase, landPositions, landInvR],
@@ -532,27 +537,27 @@ export default function Globe({ points, rotate }: GlobeProps) {
 
   return (
     <group ref={ref} position={GLOBE_POSITION} scale={GLOBE_SCALE} rotation={[0, 0, TILT]}>
-      {/* The body: dark lacquer, clearcoat, lit by the stage's gold point light.
-          Opaque and depth-writing, so it occludes the dots on the far side and
-          the globe reads as a solid object rather than a dust cloud. */}
+      {/* The body: a dark matte sphere. Opaque and depth-writing, so it occludes
+          the dots on the far side and the globe reads as a solid object rather
+          than a dust cloud. */}
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS * 0.965, 64, 48]} />
-        {/* M-D6.4: the clearcoat's specular from the directional key was the
-            globe's second hot spot — a tight highlight that read L=134.0 at one
-            pixel (rgb(206,120,61)) and fell to L≈14 only 20 px away, and being a
-            clearcoat it did not move while the globe turned under it. Broadening
-            the clearcoat rather than the base roughness keeps the lacquer sheen
-            and leaves the stage's dusk key alone: this spreads the same energy
-            over more pixels instead of dimming the light that also lights the
-            floor ring M-D6.2 already QA'd. Measured, not assumed: the same pixel
-            reads L=32.3 and its 10 px neighbourhood flattened from 62–88 to
-            27–37 — see ccr_t3.png. */}
+        {/* Owner QA 2026-10-13: the blurry orange-red blob upper-left of the
+          globe survived two rounds of clearcoat broadening (the note that was
+          here documented the second attempt, and the blob was still there). The
+          blob is the stage's warm directional key producing a specular on the
+          body — confirmed by the rotation test, which showed it holding a fixed
+          screen position while the globe turned under it. A point globe's figure
+          is the dots; the body's only job is to occlude the far side. So the
+          specular path is removed rather than tuned a third time: no clearcoat,
+          fully rough, low metalness. The lights are untouched, so the dusk key
+          still lights the floor ring M-D6.2 QA'd, and the body now takes it as a
+          smooth gradient instead of a hot patch. */}
         <meshPhysicalMaterial
           color={colors.panel}
-          metalness={0.45}
-          roughness={0.5}
-          clearcoat={1}
-          clearcoatRoughness={0.5}
+          metalness={0.18}
+          roughness={1.0}
+          clearcoat={0}
         />
       </mesh>
       {/* The dots. Additive over the body, so a dense field reads as glow without
@@ -585,6 +590,19 @@ export default function Globe({ points, rotate }: GlobeProps) {
           <points geometry={landGeometry} material={landMaterial} />
         </Suspense>
       ) : null}
+      {/* M-D6.6: the Tehran mark — one bead where the atlas puts Tehran (see
+          `tehranMark.ts`). Unlit `meshBasicMaterial`, not additive: the two hot
+          spots the QA notes are still open were additive overexposure, and this
+          must read as a solid bead on the globe rather than a third flare. Solid
+          `warmGold`, the same token the dots take, for the same reason the dots
+          take it — pale `goldHi` reads neon on the globe. It is depth-tested with
+          the body, so the far side hides it as the world turns, and it carries
+          no data: §2.3 keeps ornament from signalling anything. */}
+      {/* TEMP-DIFF: bead removed for an A/B capture. */}
+      {/* <mesh position={markPosition}>
+        <sphereGeometry args={[0.02, 16, 16]} />
+        <meshBasicMaterial color={warmGold} />
+      </mesh> */}
       {/* M-D6.4: the fresnel atmosphere, replacing the hand-rolled rim shell.
           Slightly larger than the dot field, so its glow sits over the outer dust
           rather than at the silhouette itself. Tuning is the vendor kit's own
