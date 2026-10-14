@@ -1,22 +1,22 @@
 {
   "soak": "M13-GOLD-PAPER",
   "paper_only": true,
-  "started_hint": "2026-10-12T04:30:49Z",
+  "started_hint": "2026-10-14T16:46:09Z",
   "cycle_interval_sec": 900.0,
   "planned_days": 6.872,
-  "cycles_ok": 14,
+  "cycles_ok": 255,
   "cycles_failed": 0,
-  "last_day_report": "2026-10-12",
+  "last_day_report": "2026-10-14",
   "last_cycle": {
-    "ts": "2026-10-12T04:30:48Z",
+    "ts": "2026-10-14T16:46:07Z",
     "kind": "cycle",
     "ok": true,
-    "cycle": 33,
+    "cycle": 274,
     "witness_state": "VERIFIED",
-    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.502%",
-    "price_usd": 4212.2500975,
-    "spread_pct": 0.5021730256982276,
-    "equity_usd": 10000.0,
+    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.370%",
+    "price_usd": 4091.3500244999996,
+    "spread_pct": 0.3697524565067091,
+    "equity_usd": 9986.073339606803,
     "position_open": true,
     "exit": null,
     "realized_pnl_usd": null,
@@ -28,27 +28,25 @@
       "allowed": true,
       "reasons": []
     },
-    "duration_s": 1.24
+    "duration_s": 1.85
   },
   "last_tier_gate": {
-    "ts": "2026-10-12T01:15:49Z",
+    "ts": "2026-10-14T00:00:58Z",
     "kind": "tier_gate",
-    "day": "2026-10-12",
+    "day": "2026-10-14",
     "ok": true,
     "tier": "T0",
     "promoted": false,
-    "trades": 0,
-    "months_of_data": 0.05192899348494815,
-    "measurable_passed": 0,
-    "measurable_total": 2,
+    "trades": 1,
+    "months_of_data": 0.11686292537844475,
+    "measurable_passed": 1,
+    "measurable_total": 4,
     "unmeasurable": [
       "regime_coverage",
       "cost_model",
-      "max_drawdown_pct",
       "drawdown_vs_backtest_multiple",
       "sharpe",
       "dsr_psr",
-      "profit_factor",
       "month_profit_share_pct",
       "walk_forward"
     ],
@@ -57,62 +55,62 @@
       "M-REGIME-4: the exit gate's >=3-of-4 regime coverage cannot be evaluated because only 3 regimes are defined (architecture/intel/regimes.py). Owner act: either name the fourth regime the gate intends, or amend the gate to 3.",
       "M-DD-BACKTEST: the drawdown-vs-backtest criterion needs a backtest MaxDD reference; supply one or the criterion stays unmeasurable."
     ],
-    "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-12_tier_gate.md"
+    "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-14_tier_gate.md"
   },
   "ledger_state": {
     "bankroll_usd": 10000.0,
     "breaker": {
       "allowed": true,
-      "daily_loss_pct": null,
-      "drawdown_pct": 0.0,
-      "open_exposure_pct": 10.0,
+      "daily_loss_pct": 0.0774547230795211,
+      "drawdown_pct": 0.13926660393197382,
+      "open_exposure_pct": 10.013946082628857,
       "p_ruin": null,
       "reasons": [],
       "state": "ARMED",
-      "weekly_loss_pct": null
+      "weekly_loss_pct": 0.1394608262885602
     },
-    "closed_trades": 0,
-    "cumulative_realized_pnl_usd": 0.0,
-    "cycle": 33,
-    "equity_usd": 10000.0,
+    "closed_trades": 3,
+    "cumulative_realized_pnl_usd": -13.926660393197267,
+    "cycle": 274,
+    "equity_usd": 9986.073339606803,
     "exit": null,
     "exit_card": "PT-X1-v1",
     "market": "gold",
     "open_unpriced": false,
     "paper_only": true,
     "position": {
-      "cycle": 1,
-      "entry_price": 4200.0,
-      "entry_ts": 1791633149.2152221,
-      "exec_price": 4204.2,
+      "cycle": 259,
+      "entry_price": 4112.850049000001,
+      "entry_ts": 1791982866.4842472,
+      "exec_price": 4116.962899049001,
       "notional_usd": 1000.0,
-      "qty_oz": 0.2378573807145236
+      "qty_oz": 0.24289750102703023
     },
-    "price_usd": 4212.2500975,
-    "realizable_equity_usd": 10000.91286033074,
+    "price_usd": 4091.3500244999996,
+    "realizable_equity_usd": 9978.858257687953,
     "realized_pnl_usd": null,
     "round_trip_bps": 20.0,
-    "settled_trades": 0,
+    "settled_trades": 2,
     "unpriced_for_s": null,
     "witness": {
       "quotes": [
         {
           "instrument": "spot",
-          "observed_at": 1791779439.0,
-          "price_usd": 4201.700195,
+          "observed_at": 1791996356.0,
+          "price_usd": 4083.800049,
           "provider_id": "goldapi_spot",
-          "raw_sha256": "e4068255f9b2447b9df67ac7f9a618c6bdbe75b7475bdfea341d785e98791bae"
+          "raw_sha256": "b7c6cb2b1a9f69cf8734866a094ea9261510cec2a6e7390fbb94260d12914b95"
         },
         {
           "instrument": "futures",
-          "observed_at": 1791778839.0,
-          "price_usd": 4222.8,
+          "observed_at": 1791995766.0,
+          "price_usd": 4098.9,
           "provider_id": "yahoo_gc_futures",
-          "raw_sha256": "78463c0657ecf1849eda5902111791e35f78e4b4566a5b05897c0e0e981e7acf"
+          "raw_sha256": "55467e92823ca3a59124c6a5a68e265a110fa00747f002e8878f1df3a758b68e"
         }
       ],
-      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.502%",
-      "spread_pct": 0.5021730256982276,
+      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.370%",
+      "spread_pct": 0.3697524565067091,
       "state": "VERIFIED",
       "tolerance_pct": 1.0
     }

@@ -17,6 +17,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -24,6 +25,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail
 } from '@/components/ui/sidebar';
+import { useSnap } from '@/components/ahos/use-command-snapshot';
 import { UserAvatarProfile } from '@/components/user-avatar-profile';
 import { navGroups } from '@/config/nav-config';
 import { useMediaQuery } from '@/hooks/use-media-query';
@@ -41,10 +43,30 @@ export default function AppSidebar() {
   const user = AHOS_OPERATOR;
   const router = useRouter();
   const filteredGroups = useFilteredNavGroups(navGroups);
+  const { data: snap } = useSnap();
 
   React.useEffect(() => {
     // Side effects based on sidebar state changes
   }, [isOpen]);
+
+  /**
+   * Live counters for the nav (reference 01 shows a badge on every section).
+   * Each one is a real count from the read model, and a section that has no
+   * corresponding surface yet renders no badge rather than a fabricated 0.
+   */
+  const counts: Record<string, number | null> = snap
+    ? {
+        '/opportunities': snap.opportunities?.length ?? null,
+        '/discovery': snap.watchlist?.length ?? null,
+        '/evidence': snap.findings?.length ?? null,
+        '/identity': snap.canonicalDecisions?.length ?? null,
+        '/paper': snap.paper?.filter((p) => p.status === 'open').length ?? null,
+        '/agents': snap.teams?.reduce((n, t) => n + t.size, 0) ?? null,
+        '/university': snap.lessons?.length ?? null
+      }
+    : {};
+
+  const badgeFor = (url: string): number | null => counts[url] ?? null;
 
   return (
     <Sidebar collapsible='icon'>
@@ -77,6 +99,9 @@ export default function AppSidebar() {
                       <span>{item.title}</span>
                       <Icons.chevronRight className='ml-auto transition-transform duration-200 group-data-panel-open/collapsible:rotate-90' />
                     </CollapsibleTrigger>
+                    {badgeFor(item.url) !== null ? (
+                      <SidebarMenuBadge>{badgeFor(item.url)}</SidebarMenuBadge>
+                    ) : null}
                     <CollapsibleContent>
                       <SidebarMenuSub>
                         {item.items?.map((subItem) => (
@@ -102,6 +127,9 @@ export default function AppSidebar() {
                       <Icon />
                       <span>{item.title}</span>
                     </SidebarMenuButton>
+                    {badgeFor(item.url) !== null ? (
+                      <SidebarMenuBadge>{badgeFor(item.url)}</SidebarMenuBadge>
+                    ) : null}
                   </SidebarMenuItem>
                 );
               })}

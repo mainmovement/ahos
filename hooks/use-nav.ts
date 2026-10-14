@@ -10,13 +10,18 @@
  * it marks itself `disabled`. The `access` field is kept in the config shape so
  * future multi-operator work can add a real check here without touching
  * `nav-config.ts`.
+ *
+ * A NavItem carries `items` as an empty array when it is a leaf route (the
+ * config gives every entry the same shape). Treat an empty list as "no
+ * children", not "children all hidden" — otherwise `[].some()` filters out
+ * every single leaf and the sidebar renders empty.
  */
 
 import { useMemo } from 'react';
 import type { NavItem, NavGroup } from '@/types/nav';
 
 function itemVisible(item: NavItem): boolean {
-  return !item.disabled && (item.items ? item.items.some(itemVisible) : true);
+  return !item.disabled && (item.items?.length ? item.items.some(itemVisible) : true);
 }
 
 export function useFilteredNavItems(items: NavItem[]): NavItem[] {

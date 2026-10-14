@@ -1640,3 +1640,22 @@ with a stale flag on failure, and label the soak with its own staleness — no
 data path changed, only layout. Nothing was fabricated: the gates cells read
 T0 FAIL / measurable UNMEASURABLE / readyForOwnerReview FAIL because that is
 what the soak record says.
+
+---
+
+**2026-10-14 — Sidebar filter fix (use-nav.ts `itemVisible`) surfaced all 15
+nav links, but only `/`, `/badge_sheet`, and `/command_center` have pages.
+How should the other 14 links behave?**
+**A:** Add a single catch-all `app/[...slug]/page.tsx` honest placeholder that
+states the surface is `NOT_STARTED` (FA + EN, no numbers), and keep the links
+live in the sidebar.
+**Reason:** Three options were weighed: (a) leave the links to 404 — violates
+the nav-config contract "nothing 404s while the shell is being built" and
+makes the owner's own window look broken; (b) strip the `href` or mark items
+disabled — hides the full-sidebar-with-counters layout the owner explicitly
+demanded in the 2026-10-14 verdict; (c) catch-all placeholder. (c) is the
+smallest honest surface: Next.js matches concrete route segments before a
+catch-all, so real pages win automatically the moment they are written, and
+the placeholder is deliberately data-free (no fabricated counts, charts, or
+"empty" dashboards) so it cannot be mistaken for evidence. It also does not
+touch Lane A or any authority surface — presentation only.
