@@ -26,3 +26,4 @@ One line per commit: time (UTC), commit, what changed, screenshot. Newest first.
   `inflateSync`, unfilter types 0–4 with the Paeth predictor) — needed because
   this agent cannot view images, so a capture is only proof if its pixel
   statistics show a real render.
+2026-10-14 00:4x +0330  a5e9f8a  dashboard: template-first shell port + 11 overview panels on one /api/command fetch; tsc clean for all owned files  —
