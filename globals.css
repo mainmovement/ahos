@@ -1,5 +1,40 @@
 @import "tailwindcss";
 
+/* Ported shadcn/base-ui shell (MASTER_SPEC "template first"): these are the
+ * primitives the vendor components assume — Tailwind v4 animations, a .dark
+ * variant, and the two data-orientation shorthand variants base-ui emits. */
+@import 'tw-animate-css';
+@custom-variant dark (&:is(.dark *));
+@custom-variant data-horizontal (&[data-orientation='horizontal']);
+@custom-variant data-vertical (&[data-orientation='vertical']);
+
+/* AHOS skin for those primitives. Imported (not inlined) so the asserted
+ * --ahos-* token blocks below stay the sole authority for the AHOS palette. */
+@import './themes/ahos.css';
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  /* Global scrollbar styling to match ScrollArea */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--border) 70%, transparent);
+    border-radius: 9999px;
+    border: 2px solid var(--background);
+  }
+}
+
 /*
  * AHOS theme tokens (M-D3, spec reports/grok/dashboard/DASHBOARD_DESIGN_SPEC.md
  * §2.1 Imperial and §2.2 Neon). This file is the only place the theme switches;

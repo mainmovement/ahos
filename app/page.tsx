@@ -1,12 +1,19 @@
-import DashiShell from "@/components/shell/DashiShell";
+import { AhosShell } from '@/components/shell/AhosShell';
+import { AhosOverview } from '@/components/ahos/overview';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /**
- * The main screen: the Dashi shell (M-D5.2). Built from scratch to
- * DASHBOARD_DESIGN_SPEC §4 and OWNER_DECISIONS; the previous Command Center
- * surface remains at `/command_center`.
+ * The main screen: the AHOS command center (MASTER_SPEC "Layout to match").
+ *
+ * The shell is the ported template's layout primitives reskinned to AHOS; the
+ * overview inside it is one read model from `/api/command`. The previous Dashi
+ * shell remains importable and the old Command Center stays at `/command_center`.
  */
 export default function HomePage() {
-  return <DashiShell />;
+  return (
+    <AhosShell>
+      <AhosOverview />
+    </AhosShell>
+  );
 }
