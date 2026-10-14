@@ -1,137 +1,103 @@
-﻿# ahos_llm_bridge.ps1 - local Anthropic-compatible bridge for Claude Code.
-# Claude (Node) -> localhost -> PowerShell Invoke-WebRequest -> OpenRouter (then Groq fallback).
 param([int]$Port = 8787)
-$ErrorActionPreference = 'Stop'
-$or = [Environment]::GetEnvironmentVariable('OPENROUTER_API_KEY','User')
-if (-not $or) { $or = [Environment]::GetEnvironmentVariable('ANTHROPIC_AUTH_TOKEN','User') }
-$gq = [Environment]::GetEnvironmentVariable('GROQ_API_KEY','User')
-if (-not $or -and -not $gq) { throw 'No OPENROUTER_API_KEY or GROQ_API_KEY in User env' }
-$prefix = "http://127.0.0.1:$Port/"
+$ErrorActionPreference = 'Continue'
+$or = [Environment]::GetEnvironmentVariable('OPENROUTER_API_KEY', 'User')
+$gq = [Environment]::GetEnvironmentVariable('GROQ_API_KEY', 'User')
+$log = Join-Path $PSScriptRoot 'ahos_llm_bridge.log'
+function Log([string]$m) { "$(Get-Date -Format s) $m" | Out-File -Append -Encoding utf8 $log }
 $listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add($prefix)
+$listener.Prefixes.Add("http://127.0.0.1:$Port/")
 $listener.Start()
-"$(Get-Date -Format s) bridge listening on $prefix" | Out-File -Append -Encoding utf8 (Join-Path $PSScriptRoot 'ahos_llm_bridge.log')
+Log "listen-iwr $Port or=$([bool]$or) groq=$([bool]$gq)"
 
-function Write-JsonResponse($ctx, [int]$code, $obj) {
-  $json = if ($obj -is [string]) { $obj } else { $obj | ConvertTo-Json -Depth 40 -Compress }
-  $bytes = [Text.Encoding]::UTF8.GetBytes($json)
+function Reply($ctx, [int]$code, [string]$text) {
+  $bytes = [Text.Encoding]::UTF8.GetBytes($text)
   $ctx.Response.StatusCode = $code
   $ctx.Response.ContentType = 'application/json; charset=utf-8'
   $ctx.Response.ContentLength64 = $bytes.Length
   $ctx.Response.OutputStream.Write($bytes, 0, $bytes.Length)
-  $ctx.Response.OutputStream.Close()
+  $ctx.Response.Close()
 }
 
-function Read-Body($req) {
-  $reader = New-Object IO.StreamReader($req.InputStream, $req.ContentEncoding)
-  try { return $reader.ReadToEnd() } finally { $reader.Close() }
-}
-
-function Invoke-OpenRouter([string]$body) {
-  $headers = @{ Authorization = "Bearer $or"; 'anthropic-version' = '2023-06-01' }
-  return Invoke-WebRequest -UseBasicParsing -Method Post -Uri 'https://openrouter.ai/api/v1/messages' -Headers $headers -ContentType 'application/json' -Body $body -TimeoutSec 300
-}
-
-function ConvertTo-OpenAIChat([string]$anthropicBody) {
-  $j = $anthropicBody | ConvertFrom-Json
-  $msgs = @()
-  if ($j.system) {
-    $sys = $j.system
-    if ($sys -is [string]) { $msgs += @{ role = 'system'; content = $sys } }
-    else {
-      $parts = @()
-      foreach ($b in @($sys)) { if ($b.type -eq 'text') { $parts += $b.text } elseif ($b.text) { $parts += $b.text } }
-      $msgs += @{ role = 'system'; content = ($parts -join "`n") }
+function Post-Iwr([string]$url, [hashtable]$headers, [string]$body) {
+  try {
+    $r = Invoke-WebRequest -UseBasicParsing -Method Post -Uri $url -Headers $headers -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($body)) -TimeoutSec 180
+    return @{ ok = $true; code = [int]$r.StatusCode; text = $r.Content }
+  }
+  catch {
+    $code = 0; $text = $_.Exception.Message
+    if ($_.Exception.Response) {
+      $code = [int]$_.Exception.Response.StatusCode
+      try {
+        $stream = $_.Exception.Response.GetResponseStream()
+        $sr = New-Object IO.StreamReader($stream)
+        $text = $sr.ReadToEnd()
+        $sr.Close()
+      } catch {}
     }
+    return @{ ok = $false; code = $code; text = $text }
   }
-  foreach ($m in @($j.messages)) {
-    $role = $m.role
-    $c = $m.content
-    if ($c -is [string]) { $msgs += @{ role = $role; content = $c } }
-    else {
-      $texts = @()
-      foreach ($b in @($c)) {
-        if ($b.type -eq 'text') { $texts += $b.text }
-        elseif ($b.type -eq 'tool_result') { $texts += ("tool_result $($b.tool_use_id): $($b.content)") }
-        elseif ($b.type -eq 'tool_use') { $texts += ("tool_use $($b.name): $($b.input | ConvertTo-Json -Compress)") }
-        elseif ($b.text) { $texts += $b.text }
-      }
-      $msgs += @{ role = $role; content = ($texts -join "`n") }
-    }
-  }
-  $max = 1024
-  if ($j.max_tokens) { $max = [int]$j.max_tokens }
-  return (@{ model = 'openai/gpt-oss-20b'; max_tokens = $max; messages = $msgs } | ConvertTo-Json -Depth 20)
-}
-
-function Invoke-GroqFromAnthropic([string]$body) {
-  $chat = ConvertTo-OpenAIChat $body
-  $r = Invoke-WebRequest -UseBasicParsing -Method Post -Uri 'https://api.groq.com/openai/v1/chat/completions' -Headers @{ Authorization = "Bearer $gq" } -ContentType 'application/json' -Body $chat -TimeoutSec 300
-  $o = $r.Content | ConvertFrom-Json
-  $text = $o.choices[0].message.content
-  $out = @{
-    id = $o.id
-    type = 'message'
-    role = 'assistant'
-    model = $o.model
-    content = @(@{ type = 'text'; text = $text })
-    stop_reason = 'end_turn'
-    stop_sequence = $null
-    usage = @{ input_tokens = 0; output_tokens = 0 }
-  }
-  return ($out | ConvertTo-Json -Depth 20 -Compress)
 }
 
 while ($listener.IsListening) {
   $ctx = $listener.GetContext()
+  $path = $ctx.Request.Url.AbsolutePath.TrimEnd('/')
+  $method = $ctx.Request.HttpMethod
   try {
-    $path = $ctx.Request.Url.AbsolutePath.TrimEnd('/')
-    if ($ctx.Request.HttpMethod -eq 'GET' -and ($path -eq '' -or $path -eq '/health')) {
-      Write-JsonResponse $ctx 200 (@{ ok = $true; openrouter = [bool]$or; groq = [bool]$gq })
-      continue
-    }
-    if ($ctx.Request.HttpMethod -eq 'GET' -and $path -eq '/v1/models') {
-      Write-JsonResponse $ctx 200 (@{ data = @(@{ id = 'openrouter/free'; object = 'model' }, @{ id = 'claude-sonnet-4-5'; object = 'model' }) })
-      continue
-    }
-    if ($ctx.Request.HttpMethod -eq 'POST' -and ($path -eq '/v1/messages' -or $path -eq '/messages')) {
-      $body = Read-Body $ctx.Request
-      # Force free router model for coding sessions
-      try {
-        $j = $body | ConvertFrom-Json
-        $j.model = 'openrouter/free'
-        $body = $j | ConvertTo-Json -Depth 40 -Compress
-      } catch {}
-      $ok = $false
-      if ($or) {
-        try {
-          $r = Invoke-OpenRouter $body
-          Write-JsonResponse $ctx ([int]$r.StatusCode) $r.Content
-          $ok = $true
-        } catch {
-          "$(Get-Date -Format s) OR fail: $($_.Exception.Message)" | Out-File -Append -Encoding utf8 (Join-Path $PSScriptRoot 'ahos_llm_bridge.log')
+    if ($method -eq 'GET' -and ($path -eq '' -or $path -eq '/health')) { Reply $ctx 200 '{"ok":true}'; continue }
+    if ($method -eq 'GET' -and $path -eq '/v1/models') { Reply $ctx 200 '{"data":[{"id":"openrouter/free","object":"model"}]}'; continue }
+    if ($method -eq 'POST' -and $path -like '*count_tokens*') { Reply $ctx 200 '{"input_tokens":1000}'; continue }
+    if ($method -eq 'POST' -and ($path -eq '/v1/messages' -or $path -eq '/messages')) {
+      $reader = New-Object IO.StreamReader($ctx.Request.InputStream)
+      $body = $reader.ReadToEnd()
+      $reader.Close()
+      if ($body -match '"model"') {
+        $body = [regex]::Replace($body, '"model"\s*:\s*"[^"]*"', '"model":"openrouter/free"', 1)
+      }
+      Log ("REQ bytes=" + $body.Length)
+      $r = Post-Iwr 'https://openrouter.ai/api/v1/messages' @{
+        Authorization = "Bearer $or"
+        'anthropic-version' = '2023-06-01'
+        'HTTP-Referer' = 'https://github.com/anthropics/claude-code'
+        'X-Title' = 'AHOS-Claude-Bridge'
+      } $body
+      $head = if ($r.text.Length -gt 300) { $r.text.Substring(0, 300) } else { $r.text }
+      Log "OR code=$($r.code) ok=$($r.ok) head=$head"
+      if ($r.ok) { Reply $ctx 200 $r.text; continue }
+
+      if ($gq) {
+        $matches = [regex]::Matches($body, '"text"\s*:\s*"(.*?)"')
+        $plain = (($matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 2) -join ' ')
+        if (-not $plain) { $plain = 'Continue the coding task.' }
+        $gbody = (@{
+          model = 'openai/gpt-oss-20b'
+          max_tokens = 1024
+          messages = @(@{ role = 'user'; content = $plain })
+        } | ConvertTo-Json -Compress)
+        $g = Post-Iwr 'https://api.groq.com/openai/v1/chat/completions' @{ Authorization = "Bearer $gq" } $gbody
+        $ghead = if ($g.text.Length -gt 200) { $g.text.Substring(0, 200) } else { $g.text }
+        Log "GROQ code=$($g.code) ok=$($g.ok) head=$ghead"
+        if ($g.ok) {
+          $o = $g.text | ConvertFrom-Json
+          $text = [string]$o.choices[0].message.content
+          $anth = @{
+            id = $o.id; type = 'message'; role = 'assistant'; model = $o.model
+            content = @(@{ type = 'text'; text = $text })
+            stop_reason = 'end_turn'
+            usage = @{ input_tokens = 0; output_tokens = 0 }
+          } | ConvertTo-Json -Depth 6 -Compress
+          Reply $ctx 200 $anth
+          continue
         }
       }
-      if (-not $ok -and $gq) {
-        try {
-          $g = Invoke-GroqFromAnthropic $body
-          Write-JsonResponse $ctx 200 $g
-          $ok = $true
-        } catch {
-          "$(Get-Date -Format s) GROQ fail: $($_.Exception.Message)" | Out-File -Append -Encoding utf8 (Join-Path $PSScriptRoot 'ahos_llm_bridge.log')
-          Write-JsonResponse $ctx 502 (@{ type = 'error'; error = @{ type = 'api_error'; message = "bridge failover failed: $($_.Exception.Message)" } })
-        }
-      } elseif (-not $ok) {
-        Write-JsonResponse $ctx 502 (@{ type = 'error'; error = @{ type = 'api_error'; message = 'openrouter failed and no groq key' } })
-      }
+      $msg = "upstream $($r.code) "
+      if ($r.text.Length -gt 200) { $msg += $r.text.Substring(0, 200) } else { $msg += $r.text }
+      Reply $ctx 502 ((@{ type = 'error'; error = @{ type = 'api_error'; message = $msg } } | ConvertTo-Json -Compress))
       continue
     }
-    if ($ctx.Request.HttpMethod -eq 'POST' -and $path -like '*/count_tokens') {
-      Write-JsonResponse $ctx 200 (@{ input_tokens = 1000 })
-      continue
-    }
-    Write-JsonResponse $ctx 404 (@{ error = 'not found'; path = $path })
-  } catch {
-    try { Write-JsonResponse $ctx 500 (@{ type = 'error'; error = @{ type = 'api_error'; message = $_.Exception.Message } }) } catch {}
+    Reply $ctx 404 '{"error":"not found"}'
+  }
+  catch {
+    $em = $_.Exception.Message -replace '"', ''
+    try { Reply $ctx 500 ('{"type":"error","error":{"type":"api_error","message":"' + $em + '"}}') } catch {}
   }
 }
