@@ -1619,3 +1619,24 @@ gateway (no `127.0.0.1` / `localhost` / `requests` / `http` reference at all), s
 stopping that tree cannot disturb the running soak. `launcher stop` was avoided
 because it would also take down the healthy Telegram edge and the stale engine —
 a wider blast radius than the one orphaned process.
+
+## 2026-10-14 — SOLTAN item 3: mount the telemetry strips in AhosShell, pinned
+
+**Q: The bottom UNKNOWN cards (run, gates, cost, ledger) were dead on the main
+screen. The soak read model → snapshot → `/api/command` → `TelemetryStrips`
+chain was already complete and honest (verified by DOM dump), so the defect was
+where the strips were mounted: the template-first overview port moved `/` to
+`AhosShell`, which never mounts `TelemetryStrips` — only the retired
+`DashiShell` does. Mount them in `AhosShell`, and if so, in-flow or pinned?**
+**A:** Mount them in `AhosShell`, pinned to the viewport bottom (`fixed
+inset-x-0 bottom-0 z-40`) with an `h-44` spacer above the page footer.
+**Reason:** In-flow was tried first and measured: the template page is ~1550px
+tall in a 748px viewport, so an in-flow bar rendered at y=1382 — 640px below
+the fold, invisible on load, which is exactly the failure item 3 existed to
+remove. Pinning is the smallest change that makes the soak visible in the
+owner's window; the spacer keeps the page's own footer from sliding under the
+bar. The strips still fetch `/api/command` themselves, keep the last reading
+with a stale flag on failure, and label the soak with its own staleness — no
+data path changed, only layout. Nothing was fabricated: the gates cells read
+T0 FAIL / measurable UNMEASURABLE / readyForOwnerReview FAIL because that is
+what the soak record says.

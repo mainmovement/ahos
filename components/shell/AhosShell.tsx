@@ -6,6 +6,7 @@ import Header from '@/components/header';
 import { InfoSidebar } from '@/components/info-sidebar';
 import { InfobarProvider } from '@/components/ui/infobar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { TelemetryStrips } from '@/components/shell/TelemetryStrips';
 
 /**
  * AHOS command-center shell, composed from the ported template's layout
@@ -37,6 +38,21 @@ export function AhosShell({ children }: { children: React.ReactNode }) {
             {children}
             <InfoSidebar side='right' />
           </InfobarProvider>
+          {/* Room for the pinned strip bar below so the page's own footer is
+              never hidden under it. */}
+          <div className='h-44 shrink-0' aria-hidden='true' />
+          {/* M-D7 / SOLTAN item 3: the bottom telemetry strips — run, gates,
+              spend, ledger. They fetch /api/command themselves and present the
+              local M13 paper soak (labelled, with its own staleness) whenever
+              the engine is not fresh, so the UNKNOWN cards read real data. The
+              template port left these in the retired DashiShell; the main
+              screen gets them back here. Pinned to the viewport bottom because
+              this template's page is taller than the Dashi shell ever was —
+              in-flow, the owner's window would scroll past the only place the
+              soak is visible. */}
+          <div className='fixed inset-x-0 bottom-0 z-40 border-t border-border/60'>
+            <TelemetryStrips />
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </KBar>
