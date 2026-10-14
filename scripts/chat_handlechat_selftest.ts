@@ -24,6 +24,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 import { handleChat, setChatTestDeps, type ChatResponse } from "../chat.ts";
 import { failClosedCommandSnapshot } from "../snapshot.ts";
+import { unavailableSoak } from "../soak_read_model.ts";
 import { loadCanonicalReadModel } from "../canonical_read_model.ts";
 import { PendingActionStore, revealPendingCode, type ActionDeps, type Identity } from "../chat_actions.ts";
 import { verifyAuditLines } from "../chat_control_gate.ts";
@@ -59,7 +60,13 @@ let clock = 0;
 
 async function fakeSnap(withOpp = false): Promise<Snap> {
   const model = await loadCanonicalReadModel(0);
-  const snap = failClosedCommandSnapshot(new Error("harness: no database"), model);
+  // No soak file in the harness: UNAVAILABLE is the honest reading, and the
+  // snapshot must stay fail-closed with a missing third argument impossible.
+  const snap = failClosedCommandSnapshot(
+    new Error("harness: no database"),
+    model,
+    unavailableSoak("harness: no soak file"),
+  );
   if (withOpp) {
     return {
       ...snap,

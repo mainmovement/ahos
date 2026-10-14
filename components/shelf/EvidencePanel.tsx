@@ -109,8 +109,14 @@ function buildGraph(decisions: CanonicalDecisionView[]) {
   const panel = cssVar("--ahos-panel");
   const text = cssVar("--ahos-text");
   const border = cssVar("--ahos-border");
-  const nodes: echarts.GraphSeriesOption["data"] = [];
-  const links: echarts.GraphSeriesOption["links"] = [];
+  // Built against permissive rows, not echarts' option types: echarts 6 does
+  // not export the node/link item types, and its `data` union
+  // (GraphNodeItemOption | GraphDataValue) rejects the per-node `tooltip` and
+  // string `value` this graph carries. The runtime shapes are echarts' —
+  // `setOption` is called under `EChartsCoreOption`, which absorbs them at
+  // that one boundary. Presentation only; nothing here decides anything.
+  const nodes: Record<string, unknown>[] = [];
+  const links: Record<string, unknown>[] = [];
 
   // The spine: each stage chained to the next, in the canonical order.
   for (const stage of STAGES) {
@@ -131,7 +137,7 @@ function buildGraph(decisions: CanonicalDecisionView[]) {
   // state for, and to the decision node by its outcome.
   for (const d of decisions) {
     const id = d.symbol || d.chain || "token";
-    if (nodes.some((n: echarts.GraphNodeItemOption) => n.id === id)) continue;
+    if (nodes.some((n) => n.id === id)) continue;
     nodes.push({
       id,
       name: d.symbol ?? "؟",
