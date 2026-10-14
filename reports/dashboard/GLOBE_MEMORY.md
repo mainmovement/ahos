@@ -35,8 +35,18 @@ The M-D5.G capture set established the gold baseline that still applies:
    record **before** blaming the stage.
 2. **No blow-out hot patch at the crown.** The gold `pointLight` at `[0, 5.6, 0]`
    was intensity 9 on the old, smaller globe and flattened the crown to flat gold;
-   M-D6.1 lowered it to 3.6 on a larger, higher globe. If a capture shows a
-   saturated gold disc at the top of the globe, the key light has crept back up.
+   M-D6.1 lowered it to 3.6 on a larger, higher globe; SOLTAN 2026-10-14 dimmed it
+   to **2.2 with `distance` 12** (`8fa6f52`) after the owner reported a glow blob
+   plus dots stacking at the tilted pole (the bulb sits above the pole, so the
+   pole dots are the most-lit points of the body). If a capture shows a saturated
+   gold disc at the top of the globe, the key light has crept back up.
+   **Measurement caveat (2026-10-14):** the pixel-statistic floors below were
+   written against the M-D5.G stage and are *not* comparable to the M-D6 stage —
+   the CDP harness's gold count is invariant to this light (732 px on
+   `/command_center` under 3.6 and 2.2 alike, because those pixels are emissive
+   dots and UI accents, not point-lit lacquer). A *saturated-disc* detector, not a
+   gold-count, is what floor #2 needs; `scripts/probe_crown.mjs` is the stub of
+   one and still cannot tell a crown disc from warm text.
 3. **No additive stacking on the land layer.** Two glow spots were traced to the
    land dots stacking additively (`4f51c21`); the fix clamps the fresnel rim's
    dot term to zero on every back-facing fragment (`4e0ff9b`). A T3 capture must
@@ -61,6 +71,8 @@ The M-D5.G capture set established the gold baseline that still applies:
 
 | Commit | Date (Tehran) | What it established |
 |---|---|---|
+| `8fa6f52` | 2026-10-14 08:36 | SOLTAN crown dim: pointLight 3.6/16 → 2.2/12; the CDP gold-count baseline proven invariant to this light, so the M-D5.G pixel floors are retired as a crown proxy |
+| `ae75ca5` | 2026-10-14 07:44 | `next build` passes (tsconfig excludes vendor_assets; unreachable template components removed); the gateway now runs `next start` |
 | `a5e9f8a` | 2026-10-14 05:17 | template-first overview; the stage now lives in `components/ahos/overview/globe-stage.tsx` behind `StageLazy`, gated on a measured quality verdict (T0 with no verdict shows the 2D fallback, not a broken canvas) |
 | `4e94597` | 2026-10-13 21:28 | M-D6.6 Tehran mark + matte body |
 | `b08c724` / `b740a6d` | 2026-10-13 17:07–17:12 | M-D6.4 the mask's v axis — the continents were upside down |
@@ -95,9 +107,13 @@ without those numbers is not evidence of a globe.**
 
 ## Open debt against the floor
 
-- `next build` fails on this checkout and the launcher degrades to `dev`
-  (observed 2026-10-14). The stage still renders; the production path does not.
-- The faithful CDP capture has not yet been run against the new overview at `/`.
-  Until it has, the numbers above belong to the Dashi shell at
-  `/command_center`, and the ported overview's stage is verified only by the
-  full-screen capture's colour statistics.
+- ~~`next build` fails on this checkout and the launcher degrades to `dev`.~~
+  **Closed 2026-10-14 (`ae75ca5`)**: the build passes and the gateway runs
+  `next start`. Consequence for stage work: a `Stage.tsx` edit is **not served**
+  until you rebuild — `launcher stop`, `npm run build`, `launcher start`. Two
+  captures taken mid-edit will silently show the pre-edit bundle.
+- The faithful CDP capture has been run against the overview at `/`
+  (`8fa6f52`, goldPx 5508 / brightGoldPx 2033 / fps 41–45 / no console errors),
+  but the pixel statistics that back floors #2 and the M-D5.G baselines are
+  stale for the M-D6 stage (see floor #2's caveat). A saturated-disc detector
+  that actually discriminates the crown blow-out is still owed.
