@@ -1,7 +1,7 @@
 param([int]$Port = 8787)
 # AHOS Anthropic-compatible bridge with provider rotation.
-# Chain: Z.ai (Anthropic passthrough) -> Gemini -> OpenRouter -> LLM7 -> Pollinations -> HF -> Groq.
-# Debug: header "x-bridge-provider: zai|gemini|openrouter|llm7|pollinations|hf|groq" forces a provider (ignores cooldown).
+# Chain: Gemini (3.8-flash, 3.5-flash-lite, flash-latest) -> Z.ai (Anthropic passthrough) -> OpenRouter -> LLM7 -> Pollinations -> HF -> Groq.
+# Debug: header "x-bridge-provider: gemini|zai|openrouter|llm7|pollinations|hf|groq" forces a provider (ignores cooldown).
 $ErrorActionPreference = 'Continue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Add-Type -AssemblyName System.Web.Extensions
@@ -20,11 +20,11 @@ function Log([string]$m) { "$(Get-Date -Format s) [$Port] $m" | Out-File -Append
 
 # Slots tried in order. kind: anth = raw Anthropic passthrough, oai = OpenAI chat/completions translation.
 $slots = @(
+  @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.8-flash'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
+  @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.5-flash-lite'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
+  @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-flash-latest'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.7-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
   @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.5-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
-  @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.5-flash-lite'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
-  @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.8-flash'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
-  @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-flash-latest'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'openrouter'; kind = 'anth'; key = $or; model = 'openrouter/free'; url = 'https://openrouter.ai/api/v1/messages'; timeout = 90; dropCool = 600 }
   @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'GLM-5.3-Flash'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }
   @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'DeepSeek-V4-Flash-0731'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }

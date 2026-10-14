@@ -1,4 +1,28 @@
-﻿# README_FOR_CLAUDE: read this first before any queued work
+﻿# TEMPLATE DECISION (Soltan, 2026-10-14 22:15 Tehran)
+**Claude: STOP web-searching or guessing template repo URLs. The decision is made and both repos below were checked by Soltan (they exist, MIT, active).**
+
+- **Chosen template:** https://github.com/satnaing/shadcn-admin (MIT, ~15.7k stars, last push 2026-09-10). It's built on the same shadcn/ui + Tailwind 4 + React 19 stack as our `components/ui/*`, so its components can be copied in directly. It uses Vite/TanStack Router: copy **components and layout markup only**, never its router/app shell/package.json.
+- **Backup (only if something is missing):** https://github.com/TailAdmin/free-nextjs-admin-dashboard (MIT, Next 16 + Tailwind 4, not shadcn). Use it only as a visual reference for the right column/bottom row.
+- **Clone command** (into the git-ignored vendor folder, never committed):
+  ```
+  git clone --depth 1 https://github.com/satnaing/shadcn-admin vendor_assets/template/shadcn-admin
+  ```
+  (`vendor_assets/` is already in .gitignore. Don't create a separate `vendor/` folder.)
+
+## Steps (in order, one small commit after each step)
+1. Clone with the command above. From `vendor_assets/template/shadcn-admin/src`, read only these parts: `components/layout/*` (sidebar, header, main layout), `features/dashboard/*` (KPI cards, overview chart, recent list), and `components/ui/*` (only where ours is missing something).
+2. Move the layout into **our existing dashboard** (`app/command_center` + `components/app-sidebar.tsx`, `hooks/use-nav.ts`). Don't create a new parallel app/route. Convert TanStack `Link` to `next/link`.
+3. Match the structure to `reports/dashboard/owner_reference/01_dashboard_target.jpg`: left sidebar (same as 01), top header with search + status pills, a row of 4 KPI cards, central hero/chart, **right column** (Live Intelligence Feed + Quick Actions), **bottom row** (University / Agent Society / Auto Trading / Chat cards).
+4. Styling: black background (#000-#0b0b0f), **glassy gold** cards (`backdrop-blur`, `bg-white/5`, `border` gold `#d4af37`/40, soft gold glow on hover). Every label is **Persian** (`dir="rtl"` on text blocks; the overall layout stays as in 01).
+5. Screenshot the result and place it **side by side** with 01 (`reports/dashboard/screens/<mission>/compare_01.png`), then record 3 differences and fix them.
+
+## Commit rules (strict)
+- Commit only your own files, **by explicit path** (`git add -- <path>`). Never use `git add -A` / `git add .`.
+- **Never commit** Lane A / soak / autopilot files (`reports/grok/M13_SOAK/*`, `reports/grok/autopilot/*`, `CLAUDE_AUTOPILOT_QUEUE.md`, etc.). Don't touch HOLD.flag or trading.
+
+---
+
+# README_FOR_CLAUDE: read this first before any queued work
 Date: 2026-10-09 16:56 Tehran | Version: v1 | Author: Soltan | Reason: owner order (16:55). Claude must use EVERY item that Soltan, Asi, Dashi and Aji found and approved.
 
 ## Rules
