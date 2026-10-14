@@ -185,9 +185,14 @@ function StageLights() {
       <directionalLight position={[-5, 3, 2]} intensity={1.1} color={rim} />
       {/* Gold point light above the globe's crown. Owner QA 00:24: at intensity 9
           on the old, smaller globe the crown sat ~1.5 units from the bulb and
-          blew out to flat gold. The globe is larger now and the bulb is higher
-          and softer, so the top reads as lit lacquer rather than a hot patch. */}
-      <pointLight position={[0, 5.6, 0]} intensity={3.6} distance={16} color={goldEmissive(colors)} />
+          blew out to flat gold. M-D6.1 lowered it to 3.6 on a larger, higher
+          globe; SOLTAN 2026-10-14 still read a glow blob at the crown plus dots
+          stacking at the tilted pole — the bulb is directly above the pole, so
+          the pole dots are the most-lit points on the body. Attempt 1 (1.0/9)
+          starved the whole gold field (732 gold px at T3 against M-D5.G's 31 412
+          baseline on /command_center), so this sits between the two: 2.2 with a
+          shorter reach than before, under the dusk key (1.1 from stage-right). */}
+      <pointLight position={[0, 5.6, 0]} intensity={2.2} distance={12} color={goldEmissive(colors)} />
       {/* A low cool fill so the shadow side is not flat black. */}
       <pointLight position={[0, -1.5, 5]} intensity={2.4} distance={12} color={colors.bg} />
     </>
