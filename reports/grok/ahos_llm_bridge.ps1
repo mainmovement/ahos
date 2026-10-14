@@ -1,7 +1,7 @@
 param([int]$Port = 8787)
 # AHOS Anthropic-compatible bridge with provider rotation.
-# Chain: OpenRouter (Anthropic passthrough) -> Gemini -> Z.ai (Anthropic passthrough, free GLM flash) -> Hugging Face router -> Groq (OpenAI-compat) (OpenAI-compat).
-# Debug: header "x-bridge-provider: openrouter|gemini|zai|hf|groq" forces a provider (ignores cooldown).
+# Chain: OpenRouter (Anthropic passthrough) -> Gemini -> Z.ai (Anthropic passthrough, free GLM flash) -> LLM7 -> SiliconFlow (free Qwen3-8B) -> Pollinations -> Hugging Face router -> Groq (OpenAI-compat) (OpenAI-compat).
+# Debug: header "x-bridge-provider: openrouter|gemini|zai|llm7|siliconflow|pollinations|hf|groq" forces a provider (ignores cooldown).
 $ErrorActionPreference = 'Continue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Add-Type -AssemblyName System.Web.Extensions
@@ -13,6 +13,9 @@ $gq = [Environment]::GetEnvironmentVariable('GROQ_API_KEY', 'User')
 $gm = [Environment]::GetEnvironmentVariable('GEMINI_API_KEY', 'User')
 $hf = [Environment]::GetEnvironmentVariable('HF_TOKEN', 'User')
 $zai = [Environment]::GetEnvironmentVariable('ZAI_API_KEY', 'User')
+$l7 = [Environment]::GetEnvironmentVariable('LLM7_API_KEY', 'User')
+$sf = [Environment]::GetEnvironmentVariable('SILICONFLOW_API_KEY', 'User')
+$pol = [Environment]::GetEnvironmentVariable('POLLINATIONS_API_KEY', 'User')
 $log = Join-Path $PSScriptRoot 'ahos_llm_bridge.log'
 function Log([string]$m) { "$(Get-Date -Format s) [$Port] $m" | Out-File -Append -Encoding utf8 $log }
 
@@ -24,6 +27,14 @@ $slots = @(
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-flash-latest'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.7-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
   @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.5-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
+  @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'GLM-5.3-Flash'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }
+  @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'DeepSeek-V4-Flash-0731'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }
+  @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'gpt-oss:20b'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }
+  # SiliconFlow: free-tier model only (never add billable models here)
+  @{ name = 'siliconflow'; kind = 'oai'; key = $sf; model = 'Qwen/Qwen3-8B'; maxTok = 8192; url = 'https://api.siliconflow.com/v1/chat/completions' }
+  # Pollinations: cheap non-paid_only models (draw from free daily pollen first)
+  @{ name = 'pollinations'; kind = 'oai'; key = $pol; model = 'openai/gpt-6-luna'; maxTok = 16384; url = 'https://gen.pollinations.ai/v1/chat/completions' }
+  @{ name = 'pollinations'; kind = 'oai'; key = $pol; model = 'z-ai/glm-5.3-flash'; maxTok = 16384; url = 'https://gen.pollinations.ai/v1/chat/completions' }
   @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'moonshotai/Kimi-K2.7-Code'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
   @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'zai-org/GLM-4.7'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
   @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'deepseek-ai/DeepSeek-V3.2'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
@@ -35,7 +46,7 @@ $sigCache = @{}  # tool_call id -> gemini thought_signature
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://127.0.0.1:$Port/")
 $listener.Start()
-Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) zai=$([bool]$zai) hf=$([bool]$hf) groq=$([bool]$gq)"
+Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) zai=$([bool]$zai) llm7=$([bool]$l7) sf=$([bool]$sf) pol=$([bool]$pol) hf=$([bool]$hf) groq=$([bool]$gq)"
 
 function Reply($ctx, [int]$code, [string]$text, [string]$ctype = 'application/json; charset=utf-8') {
   $bytes = [Text.Encoding]::UTF8.GetBytes($text)
