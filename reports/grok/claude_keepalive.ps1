@@ -1,4 +1,10 @@
-﻿# claude_keepalive.ps1 - local, token-free keepalive. Every 3 min: if NO claude.exe is running, start claude_fresh.ps1.
+﻿
+# Ensure local LLM bridge is up (Node cannot reach OpenRouter/Groq directly from this network).
+$bridge = Join-Path $PSScriptRoot 'ahos_llm_bridge.ps1'
+$bridgeUp = $false
+try { $h = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:8787/health' -TimeoutSec 2; if ($h.StatusCode -eq 200) { $bridgeUp = $true } } catch {}
+if (-not $bridgeUp -and (Test-Path $bridge)) { Start-Process powershell -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File',$bridge -WindowStyle Hidden; Start-Sleep 2 }
+# claude_keepalive.ps1 - local, token-free keepalive. Every 3 min: if NO claude.exe is running, start claude_fresh.ps1.
 # Ensures exactly one Claude (never starts a second). Portable: paths from script location.
 $here = $PSScriptRoot; $root = Split-Path (Split-Path $here -Parent) -Parent
 $log = Join-Path $here '_keepalive_log.txt'
@@ -15,3 +21,4 @@ while ($true) {
     }
   }
 }
+
