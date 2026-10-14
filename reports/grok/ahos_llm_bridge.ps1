@@ -1,7 +1,7 @@
 param([int]$Port = 8787)
 # AHOS Anthropic-compatible bridge with provider rotation.
-# Chain: OpenRouter (Anthropic passthrough) -> Gemini (OpenAI-compat) -> Groq (OpenAI-compat).
-# Debug: header "x-bridge-provider: openrouter|gemini|groq" forces a provider (ignores cooldown).
+# Chain: OpenRouter (Anthropic passthrough) -> Gemini -> Hugging Face router -> Groq (OpenAI-compat) (OpenAI-compat).
+# Debug: header "x-bridge-provider: openrouter|gemini|hf|groq" forces a provider (ignores cooldown).
 $ErrorActionPreference = 'Continue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Add-Type -AssemblyName System.Web.Extensions
@@ -11,6 +11,7 @@ $json.RecursionLimit = 1000
 $or = [Environment]::GetEnvironmentVariable('OPENROUTER_API_KEY', 'User')
 $gq = [Environment]::GetEnvironmentVariable('GROQ_API_KEY', 'User')
 $gm = [Environment]::GetEnvironmentVariable('GEMINI_API_KEY', 'User')
+$hf = [Environment]::GetEnvironmentVariable('HF_TOKEN', 'User')
 $log = Join-Path $PSScriptRoot 'ahos_llm_bridge.log'
 function Log([string]$m) { "$(Get-Date -Format s) [$Port] $m" | Out-File -Append -Encoding utf8 $log }
 
@@ -20,6 +21,9 @@ $slots = @(
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.5-flash-lite'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.8-flash'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-flash-latest'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
+  @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'moonshotai/Kimi-K2.7-Code'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
+  @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'zai-org/GLM-4.7'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
+  @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'deepseek-ai/DeepSeek-V3.2'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
   @{ name = 'groq'; kind = 'oai'; key = $gq; model = 'openai/gpt-oss-20b'; maxTok = 8192; url = 'https://api.groq.com/openai/v1/chat/completions' }
 )
 $cool = @{}      # "name|model" -> DateTime until
@@ -28,7 +32,7 @@ $sigCache = @{}  # tool_call id -> gemini thought_signature
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://127.0.0.1:$Port/")
 $listener.Start()
-Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) groq=$([bool]$gq)"
+Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) hf=$([bool]$hf) groq=$([bool]$gq)"
 
 function Reply($ctx, [int]$code, [string]$text, [string]$ctype = 'application/json; charset=utf-8') {
   $bytes = [Text.Encoding]::UTF8.GetBytes($text)
@@ -230,7 +234,7 @@ function To-Sse($msg) {
 }
 
 function Cool-For([int]$code) {
-  if ($code -eq 429) { return 90 } if ($code -eq 401 -or $code -eq 403) { return 900 }
+  if ($code -eq 402) { return 21600 } if ($code -eq 429) { return 90 } if ($code -eq 401 -or $code -eq 403) { return 900 }
   if ($code -ge 500 -or $code -eq 0) { return 45 } if ($code -eq 404) { return 3600 }
   return 0
 }
@@ -290,6 +294,7 @@ while ($listener.IsListening) {
         $secs = Cool-For $r.code
         if ($r.ok) { $secs = 30 }
         if ($secs -gt 0 -and -not $force) { $cool[$ck] = (Get-Date).AddSeconds($secs); Log "COOL $ck ${secs}s" }
+        if ($r.code -eq 402 -and -not $force) { foreach ($s2 in $slots) { if ($s2.name -eq $slot.name) { $cool["$($s2.name)|$($s2.model)"] = (Get-Date).AddSeconds($secs) } }; Log "COOL all $($slot.name) (402 no credits)" }
       }
       if (-not $done) {
         Reply $ctx 529 ((Ser @{ type = 'error'; error = @{ type = 'overloaded_error'; message = "all providers failed/cooling: $last" } }))
