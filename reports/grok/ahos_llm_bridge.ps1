@@ -1,7 +1,7 @@
 param([int]$Port = 8787)
 # AHOS Anthropic-compatible bridge with provider rotation.
-# Chain: OpenRouter (Anthropic passthrough) -> Gemini -> Z.ai (Anthropic passthrough, free GLM flash) -> LLM7 -> SiliconFlow (free Qwen3-8B) -> Pollinations -> Hugging Face router -> Groq (OpenAI-compat) (OpenAI-compat).
-# Debug: header "x-bridge-provider: openrouter|gemini|zai|llm7|siliconflow|pollinations|hf|groq" forces a provider (ignores cooldown).
+# Chain: Z.ai (Anthropic passthrough) -> Gemini -> OpenRouter -> LLM7 -> Pollinations -> HF -> Groq.
+# Debug: header "x-bridge-provider: zai|gemini|openrouter|llm7|pollinations|hf|groq" forces a provider (ignores cooldown).
 $ErrorActionPreference = 'Continue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Add-Type -AssemblyName System.Web.Extensions
@@ -14,24 +14,21 @@ $gm = [Environment]::GetEnvironmentVariable('GEMINI_API_KEY', 'User')
 $hf = [Environment]::GetEnvironmentVariable('HF_TOKEN', 'User')
 $zai = [Environment]::GetEnvironmentVariable('ZAI_API_KEY', 'User')
 $l7 = [Environment]::GetEnvironmentVariable('LLM7_API_KEY', 'User')
-$sf = [Environment]::GetEnvironmentVariable('SILICONFLOW_API_KEY', 'User')
 $pol = [Environment]::GetEnvironmentVariable('POLLINATIONS_API_KEY', 'User')
 $log = Join-Path $PSScriptRoot 'ahos_llm_bridge.log'
 function Log([string]$m) { "$(Get-Date -Format s) [$Port] $m" | Out-File -Append -Encoding utf8 $log }
 
 # Slots tried in order. kind: anth = raw Anthropic passthrough, oai = OpenAI chat/completions translation.
 $slots = @(
-  @{ name = 'openrouter'; kind = 'anth'; key = $or; model = 'openrouter/free'; url = 'https://openrouter.ai/api/v1/messages' }
+  @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.7-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
+  @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.5-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.5-flash-lite'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.8-flash'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-flash-latest'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
-  @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.7-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
-  @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.5-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
+  @{ name = 'openrouter'; kind = 'anth'; key = $or; model = 'openrouter/free'; url = 'https://openrouter.ai/api/v1/messages'; timeout = 90; dropCool = 600 }
   @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'GLM-5.3-Flash'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }
   @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'DeepSeek-V4-Flash-0731'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }
   @{ name = 'llm7'; kind = 'oai'; key = $l7; model = 'gpt-oss:20b'; maxTok = 16384; url = 'https://api.llm7.io/v1/chat/completions' }
-  # SiliconFlow: free-tier model only (never add billable models here)
-  @{ name = 'siliconflow'; kind = 'oai'; key = $sf; model = 'Qwen/Qwen3-8B'; maxTok = 8192; url = 'https://api.siliconflow.com/v1/chat/completions' }
   # Pollinations: cheap non-paid_only models (draw from free daily pollen first)
   @{ name = 'pollinations'; kind = 'oai'; key = $pol; model = 'openai/gpt-6-luna'; maxTok = 16384; url = 'https://gen.pollinations.ai/v1/chat/completions' }
   @{ name = 'pollinations'; kind = 'oai'; key = $pol; model = 'z-ai/glm-5.3-flash'; maxTok = 16384; url = 'https://gen.pollinations.ai/v1/chat/completions' }
@@ -40,13 +37,39 @@ $slots = @(
   @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'deepseek-ai/DeepSeek-V3.2'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
   @{ name = 'groq'; kind = 'oai'; key = $gq; model = 'openai/gpt-oss-20b'; maxTok = 8192; url = 'https://api.groq.com/openai/v1/chat/completions' }
 )
-$cool = @{}      # "name|model" -> DateTime until
+$cool = [hashtable]::Synchronized(@{})      # "name|model" -> DateTime until
 $sigCache = @{}  # tool_call id -> gemini thought_signature
 
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://127.0.0.1:$Port/")
 $listener.Start()
-Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) zai=$([bool]$zai) llm7=$([bool]$l7) sf=$([bool]$sf) pol=$([bool]$pol) hf=$([bool]$hf) groq=$([bool]$gq)"
+# Independent /health responder (separate runspace + listener on the /health/ prefix) so health
+# answers while the main loop is busy with an upstream call. Falls back to main-loop /health if it fails.
+$state = [hashtable]::Synchronized(@{ busy = $false; since = $null })
+try {
+  $hrs = [runspacefactory]::CreateRunspace(); $hrs.Open()
+  $hps = [powershell]::Create(); $hps.Runspace = $hrs
+  [void]$hps.AddScript({
+    param($port, $cool, $state)
+    $hl = New-Object System.Net.HttpListener
+    $hl.Prefixes.Add("http://127.0.0.1:$port/health/")
+    $hl.Start()
+    while ($hl.IsListening) {
+      $c = $hl.GetContext()
+      try {
+        $now = Get-Date; $parts = @()
+        foreach ($k in @($cool.Keys)) { $sec = [int]($cool[$k] - $now).TotalSeconds; if ($sec -gt 0) { $parts += ('"' + $k + '":' + $sec) } }
+        $busy = if ($state.busy) { [int]((Get-Date) - $state.since).TotalSeconds } else { 0 }
+        $t = '{"ok":true,"busy_seconds":' + $busy + ',"cooldowns":{' + ($parts -join ',') + '}}'
+        $b = [Text.Encoding]::UTF8.GetBytes($t)
+        $c.Response.ContentType = 'application/json'; $c.Response.ContentLength64 = $b.Length
+        $c.Response.OutputStream.Write($b, 0, $b.Length); $c.Response.Close()
+      } catch { try { $c.Response.Abort() } catch {} }
+    }
+  }).AddArgument($Port).AddArgument($cool).AddArgument($state)
+  [void]$hps.BeginInvoke()
+} catch { }
+Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) zai=$([bool]$zai) llm7=$([bool]$l7) pol=$([bool]$pol) hf=$([bool]$hf) groq=$([bool]$gq)"
 
 function Reply($ctx, [int]$code, [string]$text, [string]$ctype = 'application/json; charset=utf-8') {
   $bytes = [Text.Encoding]::UTF8.GetBytes($text)
@@ -272,6 +295,7 @@ while ($listener.IsListening) {
       $req = $null; try { $req = $json.DeserializeObject($body) } catch {}
       $stream = ((Get-K $req 'stream') -eq $true)
       Log ("REQ bytes=$($body.Length) stream=$stream force=$force")
+      $state.busy = $true; $state.since = Get-Date
       $last = ''; $done = $false
       foreach ($slot in $slots) {
         if (-not $slot.key) { continue }
@@ -282,7 +306,8 @@ while ($listener.IsListening) {
         if ($slot.kind -eq 'anth') {
           $b2 = [regex]::Replace($body, '"model"\s*:\s*"[^"]*"', '"model":"' + $slot.model + '"', 1)
           $ah = if ($slot.auth -eq 'xkey') { @{ 'x-api-key' = $slot.key; 'anthropic-version' = '2023-06-01' } } else { @{ Authorization = "Bearer $($slot.key)"; 'anthropic-version' = '2023-06-01'; 'HTTP-Referer' = 'https://github.com/anthropics/claude-code'; 'X-Title' = 'AHOS-Claude-Bridge' } }
-          $r = Post-Iwr $slot.url $ah $b2
+          $to = if ($slot.timeout) { [int]$slot.timeout } else { 180 }
+          $r = Post-Iwr $slot.url $ah $b2 $to
           Log "$ck code=$($r.code) ok=$($r.ok) head=$(Head $r.text)"
           if ($r.ok -and $r.text -notmatch '^\s*\{\s*"error"') {
             $ct = if ($r.text.TrimStart().StartsWith('event:') -or $r.text.TrimStart().StartsWith('data:') -or $r.text.TrimStart().StartsWith(':')) { 'text/event-stream; charset=utf-8' } else { 'application/json; charset=utf-8' }
@@ -309,9 +334,11 @@ while ($listener.IsListening) {
         if ($r.text -match '"1113"|Insufficient balance|no remaining credits') { $r.code = 402 }
         $secs = Cool-For $r.code
         if ($r.ok) { $secs = 30 }
+        if ($r.code -eq 0 -and $slot.dropCool) { $secs = [int]$slot.dropCool }
         if ($secs -gt 0 -and -not $force) { $cool[$ck] = (Get-Date).AddSeconds($secs); Log "COOL $ck ${secs}s" }
         if ($r.code -eq 402 -and -not $force) { foreach ($s2 in $slots) { if ($s2.name -eq $slot.name) { $cool["$($s2.name)|$($s2.model)"] = (Get-Date).AddSeconds($secs) } }; Log "COOL all $($slot.name) (402 no credits)" }
       }
+      $state.busy = $false
       if (-not $done) {
         Reply $ctx 529 ((Ser @{ type = 'error'; error = @{ type = 'overloaded_error'; message = "all providers failed/cooling: $last" } }))
       }
@@ -321,6 +348,7 @@ while ($listener.IsListening) {
   }
   catch {
     $em = $_.Exception.Message
+    $state.busy = $false
     Log "ERR $em"
     try { Reply $ctx 500 ((Ser @{ type = 'error'; error = @{ type = 'api_error'; message = $em } })) } catch {}
   }
