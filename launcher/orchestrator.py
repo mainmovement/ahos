@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -55,6 +56,16 @@ HEALTH_WAIT = {"stores": 60, "db_backend": 10, "gateway": 240, "telegram": 25,
                # line; this is the minimum bar, and it is shorter than the
                # "telegram" budget so a healthy bot is not held hostage to it.
                "telegram_stable": 8}
+
+# Next prints the address it *actually* bound once it finishes booting, e.g.
+# "- Local:        http://127.0.0.1:3199". When the port we asked for is held by
+# another listener, `next dev` walks to a free one without failing, and nothing
+# else in the stack is told: the health probe, the boot URL, the recorded
+# selection and the owner's app window all keep pointing at the port we *asked*
+# for, which is dead, while the dashboard is live somewhere else. This line is
+# the only place the real port is published, so the boot loop reads it back.
+NEXT_LOCAL_LINE = re.compile(
+    r"Local:\s*https?://(\[[0-9a-fA-F:]+\]|[^:/\s]+):(\d+)")
 
 
 class AhosOrchestrator:
@@ -299,6 +310,64 @@ class AhosOrchestrator:
                 "chosen_via": "ADOPTED_OUR_LIVE_LISTENER",
                 "notes": list(sel.get("notes") or [])
                 + [f"adopted port {live} from our already-running gateway"]}
+
+    def _reconcile_gateway_port(self) -> int | None:
+        """The port our gateway *bound*, read back from its own boot log.
+
+        ``select_gateway`` can only ask "could I bind the port I picked"; it
+        cannot know that Next, finding that port held, silently walked to a free
+        one and is serving there. Nothing else is told about the move, so the
+        health probe keeps hitting a dead address and a gateway that is up and
+        serving is reported UNHEALTHY — which is what keeps the owner's app
+        window closed on a host where something else held the port. Next prints
+        the address it actually bound, so read it back from the bytes this spawn
+        produced and adopt that port for the probe, the record and the URL.
+
+        Returns the newly adopted port, or None when the log has not yet named a
+        port or already names the one we are using. Only the log bytes after
+        this gateway's spawn are scanned: the log is append-only across
+        restarts, and an older boot's line would name a port nothing serves now.
+        """
+        info = self._pid_info("gateway") or {}
+        lp = self.log_path("gateway")
+        try:
+            text = lp.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return None
+        offset = info.get("log_offset")
+        if isinstance(offset, int) and 0 < offset <= len(text):
+            window = text[offset:]
+        else:
+            # No offset recorded (a gateway spawned before this existed): the
+            # last line in the file is the current boot's, which is the answer
+            # this call exists to find.
+            window = text[-8192:]
+        bound = None
+        for line in window.splitlines():
+            m = NEXT_LOCAL_LINE.search(line)
+            if m:
+                bound = int(m.group(2))
+        if not bound:
+            return None
+        current = int(self.gateway.get("port") or 0)
+        if bound == current:
+            return None
+        host = str(self.gateway.get("host") or "127.0.0.1")
+        # Keep every consumer of the selection on the address actually serving:
+        # the probe, ``dashboard_url`` (which the app window is built from), the
+        # record a later start adopts, and the pid record's port.
+        self.gateway = {**self.gateway, "port": bound,
+                        "url": C.gateway_url_at(host, bound),
+                        "chosen_via": "ADOPTED_NEXT_BOUND_PORT",
+                        "notes": list(self.gateway.get("notes") or [])
+                        + [f"next bound {bound}, not the requested {current}"]}
+        self._write_gateway_record(self.gateway)
+        if info.get("pid"):
+            pk.write_pid(self.state_dir, "gateway", int(info["pid"]),
+                         {**info, "port": bound})
+        self.emit(f"  {P.component_label('gateway')}: پورت درخواستی {current} "
+                  f"اشغال بود؛ درگاه روی {bound} بالا آمد و از همان استفاده می‌شود")
+        return bound
 
     def component_state(self, name: str) -> str:
         """ours_running | foreign_busy | down — the idempotency primitive."""
@@ -622,6 +691,13 @@ class AhosOrchestrator:
             # byte offset at spawn is where this bot's output begins.
             lp = self.log_path("telegram")
             spawn_extra = {"log_offset": lp.stat().st_size if lp.exists() else 0}
+        if name == "gateway":
+            # Same reason, other direction: the port Next *bound* is read back
+            # from the bytes this spawn writes, so an earlier boot's "Local:"
+            # line must not be mistaken for this one's.
+            lp = self.log_path("gateway")
+            spawn_extra = {**spawn_extra,
+                           "log_offset": lp.stat().st_size if lp.exists() else 0}
         try:
             pid = self._spawn(name, cmd, env, extra=spawn_extra)
         except Exception as e:
@@ -653,6 +729,14 @@ class AhosOrchestrator:
                                              fresh=True)
                 last = (status, detail)
             else:
+                # Next may have bound a port other than the one it was asked for
+                # (the requested port held by another listener). Until that is
+                # reconciled the probe below asks a dead address and a gateway
+                # that is serving is never found healthy. Read the real port
+                # back before every probe — the line appears partway through the
+                # boot, so the first few probes legitimately see nothing yet.
+                if name == "gateway":
+                    self._reconcile_gateway_port()
                 status, detail = self._component_probe(name)
                 if status == C.HEALTHY:
                     return C.ComponentResult(name, status, detail, pid=pid,

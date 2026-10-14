@@ -1599,3 +1599,23 @@ attempted a production `next build`, that failed, and it fell back to dev mode
 and still opened the window — the resilience path is live, not theoretical.
 `tests/test_launcher_orchestrator.py` + `tests/test_launcher_appwindow.py`:
 151 passed, 1 skipped.
+
+## 2026-10-14
+
+**Q: A hand-started `next dev -p 3199` (orphaned by a previous session in this
+repo, pid 6640 → 7920) was the only live dashboard, while the launcher's
+`gateway.pid.json` was dead and `gateway_selected.json` still advertised port
+3000 — so `dashboard_url()`, the health probe, the boot URL and the app window
+all pointed at a dead port. Stop the stray server, or retarget the launcher at
+3199?**
+**A:** Stop the stray server and let the launcher bind its configured port.
+**Reason:** The launcher must own the gateway process tree (its pid records,
+selection record, health probes and window-open all have to describe one process
+it spawned). Retargeting the configuration at 3199 would have promoted an
+unmanaged hand-start into the canonical selection, and 3199 is not even in the
+candidate-port list `(3000, 3500)` — it exists only because the previous session
+typed it. I confirmed `scripts/m13_gold_soak.py` makes no HTTP call to the
+gateway (no `127.0.0.1` / `localhost` / `requests` / `http` reference at all), so
+stopping that tree cannot disturb the running soak. `launcher stop` was avoided
+because it would also take down the healthy Telegram edge and the stale engine —
+a wider blast radius than the one orphaned process.

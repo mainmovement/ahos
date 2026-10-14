@@ -1039,6 +1039,70 @@ class TestOrchestrator:
         assert orch._gateway_listen_addr() == ("10.0.0.5", 3000)
 
 
+class TestGatewayPortReconcile:
+    """`next dev` walks to a free port when the one it was asked for is held,
+    and tells nobody. The boot loop reads the address it printed back out of its
+    own log so the probe, the recorded selection and the owner's app window all
+    point at the port actually serving (M-D2.1).
+    """
+
+    @staticmethod
+    def _orch_with_log(tmp_path, text: str, offset: int | None = None):
+        orch = make_orchestrator(tmp_path)
+        orch.log_dir.mkdir(parents=True, exist_ok=True)
+        (orch.log_dir / "gateway.log").write_text(text, encoding="utf-8")
+        port = 3000
+        orch.gateway = {**orch.gateway, "port": port,
+                        "url": C.gateway_url_at("127.0.0.1", port)}
+        extra = {"port": port, "started_ts": 1.0}
+        if offset is not None:
+            extra["log_offset"] = offset
+        pk.write_pid(orch.state_dir, "gateway", 999, extra)
+        return orch
+
+    def test_adopts_the_port_next_actually_bound(self, tmp_path):
+        orch = self._orch_with_log(tmp_path, (
+            "▲ Next.js 16.3.8 (Turbopack)\n"
+            "- Local:        http://127.0.0.1:3199\n"
+            "- Network:      http://127.0.0.1:3199\n"
+            "✓ Ready in 18.8s\n"))
+        assert orch._reconcile_gateway_port() == 3199
+        assert orch.gateway["port"] == 3199
+        assert orch.gateway["chosen_via"] == "ADOPTED_NEXT_BOUND_PORT"
+        assert orch.dashboard_url() == "http://127.0.0.1:3199/"
+        # Both records a later start reads name the serving port.
+        assert json.loads((orch.state_dir / "gateway_selected.json").read_text(
+            encoding="utf-8"))["port"] == 3199
+        assert pk.read_pid(orch.state_dir, "gateway")["port"] == 3199
+
+    def test_matching_port_is_a_no_op(self, tmp_path):
+        orch = self._orch_with_log(tmp_path, (
+            "▲ Next.js 16.3.8 (Turbopack)\n"
+            "- Local:        http://127.0.0.1:3000\n"
+            "✓ Ready in 3.1s\n"))
+        assert orch._reconcile_gateway_port() is None
+        assert orch.gateway["port"] == 3000
+        assert orch.gateway.get("chosen_via") != "ADOPTED_NEXT_BOUND_PORT"
+
+    def test_no_ready_line_yet_is_not_an_error(self, tmp_path):
+        orch = self._orch_with_log(tmp_path, "▲ Next.js 16.3.8 (Turbopack)\n")
+        assert orch._reconcile_gateway_port() is None
+
+    def test_an_earlier_boot_line_is_not_adopted(self, tmp_path):
+        """The log is append-only across restarts; only this spawn's bytes count,
+        or a port nothing serves now would be adopted from a previous boot."""
+        before = ("- Local:        http://127.0.0.1:3199\n✓ Ready in 12s\n")
+        after = ("▲ Next.js 16.3.8 (Turbopack)\n- Local:        http://127.0.0.1:3000\n")
+        orch = self._orch_with_log(tmp_path, before + after, offset=len(before))
+        assert orch._reconcile_gateway_port() is None
+        assert orch.gateway["port"] == 3000
+
+    def test_missing_log_is_not_an_error(self, tmp_path):
+        orch = make_orchestrator(tmp_path)
+        pk.write_pid(orch.state_dir, "gateway", 999, {"port": 3000})
+        assert orch._reconcile_gateway_port() is None
+
+
 class TestProcessMarkers:
     """The marker must be a substring of the command line we actually spawn.
 
