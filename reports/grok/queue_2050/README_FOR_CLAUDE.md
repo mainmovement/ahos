@@ -225,3 +225,13 @@ If API 400 or context near full: commit, write the next step in PROGRESS_LOG.md,
 
 ## TOP PRIORITY 2026-10-14 00:06: MASTER_SPEC section 'STRATEGY CHANGE - TEMPLATE FIRST' overrides everything: adopt a complete free dashboard template and reskin it; stop hand-writing.
 
+
+## OWNER REVIEW 2026-10-14 07:47 Tehran of M-D2.1/side_by_side.png - score ~3/10, fix in this order
+1. Layout is CLIPPED: content overflows right/left (title cut 'Mehrdad, ...', KPI row cut). Make it fit 1366x768 and 1920x1080 with no clipping; RTL/LTR correct.
+2. Left sidebar is EMPTY - add the full nav with icons and counters as in 01_dashboard_target.jpg.
+3. Remove the Chrome warning bar (drop --host-resolver-rules).
+4. Globe shows 2D fallback 'no WebGL / T0' in the app window - fix tier/WebGL detection (enable GPU flags) so the 3D globe renders at center with rings.
+5. Hero banner needs the cinematic background image (vendor_assets/hdri or a free image) like 01.
+6. KPI cards empty - add sparklines (ECharts/lightweight-charts) and real numbers.
+7. Add right column (Live Intelligence Feed + Quick Actions) and bottom row panels.
+Each step: commit + real 1920x1080 screenshot + side_by_side. Do not commit identical screenshots twice.
