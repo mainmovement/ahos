@@ -235,3 +235,12 @@ If API 400 or context near full: commit, write the next step in PROGRESS_LOG.md,
 6. KPI cards empty - add sparklines (ECharts/lightweight-charts) and real numbers.
 7. Add right column (Live Intelligence Feed + Quick Actions) and bottom row panels.
 Each step: commit + real 1920x1080 screenshot + side_by_side. Do not commit identical screenshots twice.
+
+## OWNER VERDICT 2026-10-14 10:06 Tehran - TOP PRIORITY, OVERRIDES ALL OLDER ITEMS
+Icon now opens the app (good). But the owner scores the dashboard 5/100 vs his vision. STOP globe tweaks immediately.
+Do this now, in order, one commit each, 1920x1080 screenshot + side-by-side with owner_reference/01 each:
+1. Replace the current overview with a COMPLETE premium free template page (shadcn-admin / TailAdmin / Horizon UI / Magic UI + Aceternity effects). Copy whole layouts, not pieces. Do not hand-write layout.
+2. Reproduce reference 01 exactly: full sidebar with icons, top bar, hero 3D globe center, KPI cards with sparklines + real numbers, right column panels, bottom row. Nothing clipped, nothing empty, no UNKNOWN.
+3. Brand from 02/03: deep navy/black, gold glass panels, glow borders, cyan accents, gold star logo, premium fonts (Vazirmatn + Inter/Orbitron), smooth motion.
+4. Remove Chrome flag warning bar; make 3D globe render in app window (no 2D fallback).
+Gate: self-score each screenshot vs 01 honestly; below 8/10 = keep going, never claim done. Max 2 tries per bug then swap to a ready-made sample. Then continue the standing order without idling.
