@@ -1,7 +1,7 @@
 param([int]$Port = 8787)
 # AHOS Anthropic-compatible bridge with provider rotation.
-# Chain: OpenRouter (Anthropic passthrough) -> Gemini -> Hugging Face router -> Groq (OpenAI-compat) (OpenAI-compat).
-# Debug: header "x-bridge-provider: openrouter|gemini|hf|groq" forces a provider (ignores cooldown).
+# Chain: OpenRouter (Anthropic passthrough) -> Gemini -> Z.ai (Anthropic passthrough, free GLM flash) -> Hugging Face router -> Groq (OpenAI-compat) (OpenAI-compat).
+# Debug: header "x-bridge-provider: openrouter|gemini|zai|hf|groq" forces a provider (ignores cooldown).
 $ErrorActionPreference = 'Continue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Add-Type -AssemblyName System.Web.Extensions
@@ -12,6 +12,7 @@ $or = [Environment]::GetEnvironmentVariable('OPENROUTER_API_KEY', 'User')
 $gq = [Environment]::GetEnvironmentVariable('GROQ_API_KEY', 'User')
 $gm = [Environment]::GetEnvironmentVariable('GEMINI_API_KEY', 'User')
 $hf = [Environment]::GetEnvironmentVariable('HF_TOKEN', 'User')
+$zai = [Environment]::GetEnvironmentVariable('ZAI_API_KEY', 'User')
 $log = Join-Path $PSScriptRoot 'ahos_llm_bridge.log'
 function Log([string]$m) { "$(Get-Date -Format s) [$Port] $m" | Out-File -Append -Encoding utf8 $log }
 
@@ -21,6 +22,8 @@ $slots = @(
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.5-flash-lite'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-3.8-flash'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
   @{ name = 'gemini'; kind = 'oai'; key = $gm; model = 'gemini-flash-latest'; maxTok = 32768; url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' }
+  @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.7-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
+  @{ name = 'zai'; kind = 'anth'; auth = 'xkey'; key = $zai; model = 'glm-4.5-flash'; url = 'https://api.z.ai/api/anthropic/v1/messages' }
   @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'moonshotai/Kimi-K2.7-Code'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
   @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'zai-org/GLM-4.7'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
   @{ name = 'hf'; kind = 'oai'; key = $hf; model = 'deepseek-ai/DeepSeek-V3.2'; maxTok = 16384; url = 'https://router.huggingface.co/v1/chat/completions' }
@@ -32,7 +35,7 @@ $sigCache = @{}  # tool_call id -> gemini thought_signature
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://127.0.0.1:$Port/")
 $listener.Start()
-Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) hf=$([bool]$hf) groq=$([bool]$gq)"
+Log "listen-rotate $Port or=$([bool]$or) gemini=$([bool]$gm) zai=$([bool]$zai) hf=$([bool]$hf) groq=$([bool]$gq)"
 
 function Reply($ctx, [int]$code, [string]$text, [string]$ctype = 'application/json; charset=utf-8') {
   $bytes = [Text.Encoding]::UTF8.GetBytes($text)
@@ -267,7 +270,8 @@ while ($listener.IsListening) {
         if (-not $force -and $cool.ContainsKey($ck) -and $cool[$ck] -gt (Get-Date)) { continue }
         if ($slot.kind -eq 'anth') {
           $b2 = [regex]::Replace($body, '"model"\s*:\s*"[^"]*"', '"model":"' + $slot.model + '"', 1)
-          $r = Post-Iwr $slot.url @{ Authorization = "Bearer $($slot.key)"; 'anthropic-version' = '2023-06-01'; 'HTTP-Referer' = 'https://github.com/anthropics/claude-code'; 'X-Title' = 'AHOS-Claude-Bridge' } $b2
+          $ah = if ($slot.auth -eq 'xkey') { @{ 'x-api-key' = $slot.key; 'anthropic-version' = '2023-06-01' } } else { @{ Authorization = "Bearer $($slot.key)"; 'anthropic-version' = '2023-06-01'; 'HTTP-Referer' = 'https://github.com/anthropics/claude-code'; 'X-Title' = 'AHOS-Claude-Bridge' } }
+          $r = Post-Iwr $slot.url $ah $b2
           Log "$ck code=$($r.code) ok=$($r.ok) head=$(Head $r.text)"
           if ($r.ok -and $r.text -notmatch '^\s*\{\s*"error"') {
             $ct = if ($r.text.TrimStart().StartsWith('event:') -or $r.text.TrimStart().StartsWith('data:') -or $r.text.TrimStart().StartsWith(':')) { 'text/event-stream; charset=utf-8' } else { 'application/json; charset=utf-8' }
@@ -291,6 +295,7 @@ while ($listener.IsListening) {
           }
         }
         $last = "$ck $($r.code) $(Head $r.text 200)"
+        if ($r.text -match '"1113"|Insufficient balance|no remaining credits') { $r.code = 402 }
         $secs = Cool-For $r.code
         if ($r.ok) { $secs = 30 }
         if ($secs -gt 0 -and -not $force) { $cool[$ck] = (Get-Date).AddSeconds($secs); Log "COOL $ck ${secs}s" }
