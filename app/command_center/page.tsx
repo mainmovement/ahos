@@ -1,12 +1,20 @@
-import CommandCenter from "../../CommandCenter";
+import { Suspense } from 'react'
+import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
+import { Dashboard } from '@/components/dashboard'
 
-export const dynamic = "force-dynamic";
-
-/**
- * The real-data Command Center. The Dashi shell is the new main screen at `/`;
- * this route keeps the existing surface reachable and its code alive while the
- * new shell grows (M-D5..M-D8). Nothing is deleted and no evidence is lost.
- */
 export default function CommandCenterPage() {
-  return <CommandCenter />;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading AHOS Command Center...</p>
+        </div>
+      </div>
+    }>
+      <AuthenticatedLayout>
+        <Dashboard />
+      </AuthenticatedLayout>
+    </Suspense>
+  )
 }
