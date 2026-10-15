@@ -20,6 +20,7 @@ import {
   BookOpen,
   ShieldCheck,
   UserCog,
+  EvCharger,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
