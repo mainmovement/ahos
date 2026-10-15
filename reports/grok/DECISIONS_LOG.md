@@ -13,3 +13,8 @@ How should the dashboard template be reskinned and verified against the owner re
 
 ## Reason
 Per unattended operation instructions and standing orders, full dashboard replacement with shadcn-admin components was implemented cleanly without interactive prompts. The UI adheres exactly to the target specifications with high fidelity.
+
+## 2026-10-15 - M-D7 Dashboard Template Verification
+- Question: How to verify M-D7 dashboard template deployment?
+- Choice: Capture screenshot via windows_screenshot.ps1, probe with png_probe.mjs, commit explicitly by path.
+- Reason: Complies with MASTER_SPEC.md and standing orders under PAPER_ONLY and unattended rules.
