@@ -7,7 +7,6 @@ import {
   GraduationCap,
   Shield,
   FileText,
-  Exchange,
   Users,
   MessageSquare,
   Settings,
@@ -84,7 +83,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Paper Trading',
           url: '/paper',
-          icon: Exchange,
+          icon: EvCharger,
         },
         {
           title: 'Learning',
