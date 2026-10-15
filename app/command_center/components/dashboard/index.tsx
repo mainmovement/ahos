@@ -45,138 +45,99 @@ function RecentSales() {
 function DashboardContent() {
   return (
     <div className='flex h-full flex-col'>
-      <div className='flex h-16 shrink-0 items-center gap-2 border-b border-amber-200/20 px-4'>
-        <Suspense>
-          <SearchBar />
-        </Suspense>
-      </div>
       <div className='flex-1 overflow-y-auto p-4'>
-        <div className='grid gap-4 lg:grid-cols-3 lg:gap-8 xl:grid-cols-4'>
-          {/* Left Column */}
-          <div className='grid gap-4 lg:col-span-3'>
-            <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
-              <CardHeader>
-                <CardTitle className='text-xl font-bold text-amber-100'>
-                  فرماندهی AHOS
+        {/* KPI Cards Row */}
+        <div className='grid gap-4 mb-6 lg:grid-cols-4'>
+          {[
+            { title: 'کل کاربران', value: '2,543', change: '+12%', icon: '👥' },
+            { title: 'فرصت‌ها شناسایی شده', value: '48', change: '+23%', icon: '🎯' },
+            { title: 'سیستم‌های فعال', value: '24', change: '+3%', icon: '🖥️' },
+            { title: 'نرخ موفقیت', value: '98.2%', change: '+1.2%', icon: '✅' },
+          ].map((stat, i) => (
+            <Card key={i} className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium text-amber-200/60'>
+                  {stat.title}
                 </CardTitle>
+                <span className='text-2xl'>{stat.icon}</span>
               </CardHeader>
               <CardContent>
-                <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-                  {[
-                    { title: 'کل کاربران', value: '2,543', change: '+12%' },
-                    { title: 'میزان پاسخگویی', value: '98%', change: '+2%' },
-                    { title: 'سیستم‌های فعال', value: '24', change: '+3%' },
-                    { title: 'نرخ خطا', value: '0.2%', change: '-0.1%' },
-                  ].map((stat, i) => (
-                    <div key={i}>
-                      <p className='text-sm font-medium text-amber-200/60'>
-                        {stat.title}
-                      </p>
-                      <div className='flex items-baseline gap-x-2'>
-                        <p className='text-2xl font-semibold text-amber-100'>
-                          {stat.value}
-                        </p>
-                        <p className='text-sm text-amber-400'>
-                          {stat.change}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                <div className='flex items-baseline gap-x-2'>
+                  <p className='text-2xl font-bold text-amber-100'>
+                    {stat.value}
+                  </p>
+                  <p className='text-sm text-green-400'>
+                    {stat.change}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Content Area */}
+        <div className='grid gap-4 lg:grid-cols-3'>
+          {/* Center Globe */}
+          <div className='lg:col-span-2'>
+            <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm h-[400px]'>
+              <CardHeader>
+                <CardTitle className='text-xl font-bold text-amber-100'>
+                  نمایه جهانی AHOS
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='flex items-center justify-center h-[320px]'>
+                <div className='text-center text-amber-200/60'>
+                  <div className='text-4xl mb-4'>🌍</div>
+                  <p>نمایه ۳D تحلیل فرصت‌ها</p>
+                  <p className='text-sm mt-2'>در حال توسعه...</p>
                 </div>
               </CardContent>
             </Card>
           </div>
-          <div className='grid gap-4 lg:col-span-3'>
+
+          {/* Right Intelligence Feed */}
+          <div className='lg:col-span-1'>
             <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
               <CardHeader>
-                <CardTitle className='text-xl font-bold text-amber-100'>
-                  خدمات پیشنهادی
+                <CardTitle className='text-lg font-bold text-amber-100'>
+                  تغذیه هوشمندی
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+                <div className='space-y-3'>
                   {[
                     {
-                      title: 'دوره‌های آموزشی',
-                      description: 'دوره‌های تخصصی و کاربردی',
-                      icon: '📚',
+                      time: '۵ دقیقه پیش',
+                      title: 'فرصت جدید در BTC/USDT',
+                      message: 'پولیگان قوی تشخیص داده شد',
+                      type: 'opportunity'
                     },
                     {
-                      title: 'پشتیبانی فنی',
-                      description: 'پشتیبانی ۲۴ ساعته',
-                      icon: '🔧',
+                      time: '۱۵ دقیقه پیش',
+                      title: 'هشدار امنیتی',
+                      message: 'تلاش غیرمجاز برای دسترسی',
+                      type: 'security'
                     },
                     {
-                      title: 'تحلیل داده‌ها',
-                      description: 'تحلیل پیشرفته داده‌ها',
-                      icon: '📊',
-                    },
-                    {
-                      title: 'امنیت سایبری',
-                      description: 'امنیت پیشرفته',
-                      icon: '🛡️',
-                    },
-                  ].map((service, i) => (
-                    <div
-                      key={i}
-                      className='flex flex-col items-center gap-2 rounded-lg border border-amber-200/20 p-4 hover:border-amber-300/40 transition-colors'
-                    >
-                      <span className='text-3xl'>{service.icon}</span>
-                      <h3 className='text-sm font-medium text-amber-100'>
-                        {service.title}
-                      </h3>
-                      <p className='text-xs text-amber-200/60 text-center'>
-                        {service.description}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className='grid gap-4 lg:col-span-3'>
-            <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
-              <CardHeader>
-                <CardTitle className='text-xl font-bold text-amber-100'>
-                  فعالیت‌های اخیر
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className='space-y-4'>
-                  {[
-                    {
-                      action: 'ورود جدید',
-                      user: 'admin',
-                      time: '۱۰ دقیقه پیش',
-                      icon: '👤',
-                    },
-                    {
-                      action: 'تغییر تنظیمات',
-                      user: 'user',
                       time: '۳۰ دقیقه پیش',
-                      icon: '⚙️',
+                      title: 'به‌روزرسانی سیستم',
+                      message: 'الگوریتم v2.1 اجرا شد',
+                      type: 'system'
                     },
-                    {
-                      action: 'پشتیبان‌گیری',
-                      user: 'system',
-                      time: '۱ ساعت پیش',
-                      icon: '💾',
-                    },
-                  ].map((activity, i) => (
-                    <div key={i} className='flex items-center gap-4'>
-                      <div className='h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center'>
-                        <span className='text-lg text-amber-400'>
-                          {activity.icon}
-                        </span>
+                  ].map((item, i) => (
+                    <div key={i} className='p-3 rounded-lg border border-amber-200/20'>
+                      <div className='flex items-center justify-between mb-1'>
+                        <span className='text-xs text-amber-200/60'>{item.time}</span>
+                        {item.type === 'opportunity' && <span className='text-green-400 text-xs'>✓</span>}
+                        {item.type === 'security' && <span className='text-red-400 text-xs'>⚠</span>}
+                        {item.type === 'system' && <span className='text-blue-400 text-xs'>⚙</span>}
                       </div>
-                      <div className='flex-1'>
-                        <p className='font-medium text-amber-100'>
-                          {activity.action}
-                        </p>
-                        <p className='text-sm text-amber-200/60'>
-                          توسط {activity.user} - {activity.time}
-                        </p>
-                      </div>
+                      <h4 className='text-sm font-medium text-amber-100 mb-1'>
+                        {item.title}
+                      </h4>
+                      <p className='text-xs text-amber-200/60'>
+                        {item.message}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -184,20 +145,75 @@ function DashboardContent() {
             </Card>
           </div>
         </div>
+
+        {/* Bottom Row */}
+        <div className='grid gap-4 mt-6 lg:grid-cols-2'>
+          {/* Market Scan */}
+          <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
+            <CardHeader>
+              <CardTitle className='text-lg font-bold text-amber-100'>
+                اسکن بازار لحظه‌ای
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='space-y-2'>
+                {[
+                  { pair: 'BTC/USDT', trend: 'صعودی', confidence: '92%' },
+                  { pair: 'ETH/USDT', trend: 'نوسانی', confidence: '78%' },
+                  { pair: 'BNB/USDT', trend: 'صعودی', confidence: '85%' },
+                  { pair: 'ADA/USDT', trend: 'نزولی', confidence: '67%' },
+                ].map((item, i) => (
+                  <div key={i} className='flex items-center justify-between py-2 border-b border-amber-200/10'>
+                    <span className='text-sm font-medium text-amber-100'>
+                      {item.pair}
+                    </span>
+                    <div className='flex items-center gap-2'>
+                      <span className={`text-xs ${item.trend === 'صعودی' ? 'text-green-400' : item.trend === 'نزولی' ? 'text-red-400' : 'text-amber-400'}`}>
+                        {item.trend}
+                      </span>
+                      <span className='text-xs text-amber-200/60'>
+                        {item.confidence}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Canonical Decision */}
+          <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
+            <CardHeader>
+              <CardTitle className='text-lg font-bold text-amber-100'>
+                تصمیم کانونی
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='text-center py-4'>
+                <div className='text-6xl mb-2'>🤖</div>
+                <h4 className='text-lg font-bold text-amber-100 mb-2'>
+                  وضعیت: نظارت
+                </h4>
+                <p className='text-sm text-amber-200/60 mb-4'>
+                  سیستم در حال نظارت بر بازار است
+                </p>
+                <div className='flex gap-2 justify-center'>
+                  <span className='px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs border border-green-500/30'>
+                    نرخ موفقیت: 98.2%
+                  </span>
+                  <span className='px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs border border-blue-500/30'>
+                    تاخیر: 0.3s
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )
 }
 
 export default function Dashboard() {
-  return (
-    <div className='grid h-full w-full lg:grid-cols-[280px,1fr]'>
-      <div className='hidden lg:block'>
-        <AppSidebar />
-      </div>
-      <div className='flex h-full w-full flex-col lg:col-span-3'>
-        <DashboardContent />
-      </div>
-    </div>
-  )
+  return <DashboardContent />
 }
