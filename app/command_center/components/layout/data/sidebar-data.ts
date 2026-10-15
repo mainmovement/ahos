@@ -1,94 +1,115 @@
 import {
   LayoutDashboard,
-  ListTodo,
-  Package,
-  MessagesSquare,
+  Search,
+  BarChart3,
+  Lightbulb,
+  Zap,
+  GraduationCap,
+  Shield,
+  FileText,
+  Exchange,
   Users,
+  MessageSquare,
   Settings,
   Bell,
-  UserCog,
-  ShieldCheck,
   HelpCircle,
-  Command,
+  Globe,
+  Server,
+  TrendingUp,
+  Target,
+  Bot,
+  BookOpen,
+  ShieldCheck,
+  UserCog,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
   user: {
-    name: 'AHOS Operator',
-    email: 'operator@ahos.system',
-    avatar: '/ahos-logo.png',
+    name: 'Mehrdad',
+    email: 'mehrdad@ahos.system',
+    avatar: '/avatars/mehrdad.jpg',
   },
   teams: [
     {
       name: 'AHOS Command Center',
-      logo: Command,
+      logo: LayoutDashboard,
       plan: 'Crypto Intelligence Platform',
     },
   ],
   navGroups: [
     {
-      title: 'Command Center',
+      title: 'General',
       items: [
         {
-          title: 'Overview',
+          title: 'Command Center',
           url: '/',
           icon: LayoutDashboard,
         },
         {
           title: 'Discovery',
           url: '/discovery',
-          icon: Package,
+          icon: Search,
         },
         {
           title: 'Opportunities',
           url: '/opportunities',
-          icon: ListTodo,
+          icon: Target,
         },
         {
-          title: 'Trades',
-          url: '/trades',
-          icon: MessagesSquare,
+          title: 'Market Intelligence',
+          url: '/intelligence',
+          icon: BarChart3,
+        },
+        {
+          title: 'Auto Trading',
+          url: '/trading',
+          icon: Zap,
+        },
+        {
+          title: 'AHOS University',
+          url: '/university',
+          icon: GraduationCap,
+        },
+        {
+          title: 'Identity & Security',
+          url: '/security',
+          icon: Shield,
+        },
+        {
+          title: 'Evidence',
+          url: '/evidence',
+          icon: FileText,
+        },
+        {
+          title: 'Paper Trading',
+          url: '/paper',
+          icon: Exchange,
+        },
+        {
+          title: 'Learning',
+          url: '/learning',
+          icon: BookOpen,
         },
         {
           title: 'Agents',
           url: '/agents',
-          icon: Users,
-        },
-      ],
-    },
-    {
-      title: 'Security',
-      items: [
-        {
-          title: 'Access Control',
-          url: '/security',
-          icon: ShieldCheck,
+          icon: Bot,
         },
         {
-          title: 'System Status',
-          url: '/status',
-          icon: Bell,
+          title: 'Chat with AHOS',
+          url: '/chat',
+          icon: MessageSquare,
         },
-      ],
-    },
-    {
-      title: 'Settings',
-      items: [
         {
-          title: 'Profile',
+          title: 'Audit & Governance',
+          url: '/audit',
+          icon: Globe,
+        },
+        {
+          title: 'Settings',
           url: '/settings',
-          icon: UserCog,
-        },
-        {
-          title: 'Preferences',
-          url: '/settings/preferences',
           icon: Settings,
-        },
-        {
-          title: 'Help',
-          url: '/help',
-          icon: HelpCircle,
         },
       ],
     },
