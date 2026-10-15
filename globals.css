@@ -1,52 +1,62 @@
 @import "tailwindcss";
 
-/* Ported shadcn/base-ui shell (MASTER_SPEC "template first"): these are the
- * primitives the vendor components assume — Tailwind v4 animations, a .dark
- * variant, and the two data-orientation shorthand variants base-ui emits. */
-@import 'tw-animate-css';
-@custom-variant dark (&:is(.dark *));
-@custom-variant data-horizontal (&[data-orientation='horizontal']);
-@custom-variant data-vertical (&[data-orientation='vertical']);
-
-/* AHOS skin for those primitives. Imported (not inlined) so the asserted
- * --ahos-* token blocks below stay the sole authority for the AHOS palette. */
-@import './themes/ahos.css';
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  /* Global scrollbar styling to match ScrollArea */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--background);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--border) 70%, transparent);
-    border-radius: 9999px;
-    border: 2px solid var(--background);
-  }
+/* Base UI CSS variables for shadcn components */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
 }
 
-/*
- * AHOS theme tokens (M-D3, spec reports/grok/dashboard/DASHBOARD_DESIGN_SPEC.md
- * §2.1 Imperial and §2.2 Neon). This file is the only place the theme switches;
- * the values here are the hexes of that spec, verbatim, and
- * scripts/dashboard_truth_badge_selftest.ts asserts the agreement so the table in
- * dashboard_tokens.ts and this stylesheet cannot drift apart.
- *
- * DERIVED: spec §2.2 gives Neon no panel-edge row. The Neon hairline is its panel
- * blended 15% toward its own body text (#0A1330 -> #2B354F), the same rule that
- * reproduces Imperial's #372E2E beside the spec-given #3A2A1C. Imperial's edge is
- * the spec's value and is never derived.
- */
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 94.1%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+}
+
+/* AHOS theme extensions */
 :root,
 [data-theme="imperial"] {
   --ahos-bg: #0B0709;
@@ -54,7 +64,7 @@
   --ahos-border: #3A2A1C;
   --ahos-text: #EFE4CC;
   --ahos-text-muted: #A99A80;
-  --ahos-gold: #D4AF5A;
+  --ahos-gold: #D4AF37;
   --ahos-gold-hi: #F1D58E;
   --ahos-crimson: #9E1C26;
   --ahos-crimson-hi: #D2343E;
@@ -64,370 +74,43 @@
 [data-theme="neon"] {
   --ahos-bg: #040714;
   --ahos-panel: #0A1330;
-  --ahos-border: #2B354F;                   /* DERIVED, see above */
+  --ahos-border: #2B354F;
   --ahos-text: #E6F6FF;
   --ahos-text-muted: #8FA6C8;
-  --ahos-gold: #D4AF5A;
+  --ahos-gold: #D4AF37;
   --ahos-accent: #3FD0FF;
   --ahos-accent-2: #4C82FF;
 }
 
-/*
- * Status palette, spec §2.3. Identical in both themes, never used as decoration,
- * and never brand gold or crimson. Every state also has a non-colour cue
- * (border treatment and glyph), carried by the classes below, so the badge is
- * still readable in monochrome and to a colour-blind reader.
- */
-:root {
-  --ahos-status-verified: #2EC4A6;
-  --ahos-status-unknown: #9AA3B2;
-  --ahos-status-conflict: #E07BE8;
-  --ahos-status-stale: #B8A27A;
-  --ahos-status-rejected: #FF5A4E;
+/* Custom CSS utilities that don't exist in Tailwind by default */
+@layer utilities {
+  .border-border {
+    border-color: hsl(var(--border));
+  }
+  .bg-ahos-panel {
+    background-color: hsl(var(--ahos-panel));
+  }
+  .text-ahos-text {
+    color: hsl(var(--ahos-text));
+  }
+  .text-ahos-text-muted {
+    color: hsl(var(--ahos-text-muted));
+  }
+  .border-ahos-border {
+    border-color: hsl(var(--ahos-border));
+  }
 }
 
-:root {
-  --bg: #02040c;
-  --cyan: #4df2ff;
-  --gold: #f0c36a;
-  --magenta: #ff4d9d;
-  --emerald: #3dff9a;
-  --alarm: #ff2d55;
-  --depth-1: rgba(8, 14, 32, 0.55);
-  --depth-2: rgba(12, 22, 48, 0.72);
-  --glow-cyan: 0 0 40px rgba(77, 242, 255, 0.22);
-  --glow-gold: 0 0 36px rgba(240, 195, 106, 0.2);
-}
+/* Base styles */
+@layer base {
+  html, body {
+    min-height: 100%;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 
-* { box-sizing: border-box; }
-
-html, body { min-height: 100%; background: var(--bg); color: #e8f6ff; }
-body { margin: 0; overflow-x: hidden; cursor: crosshair; }
-button, input, textarea { font-family: inherit; }
-
-.stage { position: relative; min-height: 100vh; isolation: isolate; overflow: hidden; perspective: 1600px; }
-.stage-void { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(77, 242, 255, 0.14), transparent 55%), radial-gradient(ellipse 70% 50% at 80% 100%, rgba(240, 195, 106, 0.09), transparent 50%), radial-gradient(ellipse 50% 40% at 10% 80%, rgba(255, 77, 157, 0.07), transparent 45%), linear-gradient(180deg, #02040c 0%, #060b1a 40%, #040714 100%); z-index: 0; }
-.stage-grid { position: absolute; inset: -20%; background-image: linear-gradient(rgba(77, 242, 255, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(77, 242, 255, 0.045) 1px, transparent 1px); background-size: 64px 64px; transform: rotateX(68deg) translateY(-12%) scale(1.4); transform-origin: center top; animation: gridDrift 28s linear infinite; mask-image: linear-gradient(to bottom, transparent, black 25%, black 70%, transparent); pointer-events: none; z-index: 1; }
-.stage-rain { position: absolute; inset: 0; opacity: 0.28; pointer-events: none; z-index: 2; mix-blend-mode: screen; }
-.stage-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 38%, rgba(0, 0, 0, 0.72) 100%); pointer-events: none; z-index: 3; }
-.stage-scan { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.14) 2px, rgba(0, 0, 0, 0.14) 4px); pointer-events: none; z-index: 4; opacity: 0.38; animation: scanFlicker 6s ease-in-out infinite; }
-.cursor-glow { position: fixed; width: 380px; height: 380px; border-radius: 50%; pointer-events: none; z-index: 5; background: radial-gradient(circle, rgba(77, 242, 255, 0.14), transparent 65%); transform: translate(-50%, -50%); transition: opacity 0.25s; mix-blend-mode: screen; will-change: left, top; }
-
-.scene { perspective: 1400px; transform-style: preserve-3d; }
-.tilt-3d { transform-style: preserve-3d; transition: transform 0.12s ease-out; will-change: transform; }
-
-.glass { position: relative; background: linear-gradient(145deg, rgba(18, 32, 68, 0.82), rgba(6, 10, 28, 0.86)); border: 1px solid rgba(77, 242, 255, 0.22); box-shadow: var(--glow-cyan), 0 28px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(77, 242, 255, 0.06); backdrop-filter: blur(24px) saturate(1.25); transform-style: preserve-3d; }
-.glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, rgba(77, 242, 255, 0.5), transparent 40%, transparent 60%, rgba(240, 195, 106, 0.3)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
-.glass-holo { animation: holoShimmer 8s ease-in-out infinite; }
-.rune-edge { box-shadow: inset 0 0 0 1px rgba(240, 195, 106, 0.18), 0 0 28px rgba(240, 195, 106, 0.1); }
-
-.hud-btn { position: relative; border: 1px solid rgba(77, 242, 255, 0.42); background: linear-gradient(180deg, rgba(77, 242, 255, 0.22), rgba(8, 16, 40, 0.8)); color: #d9fbff; border-radius: 16px; padding: 0.85rem 1.25rem; cursor: pointer; transform-style: preserve-3d; transition: transform 110ms cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 130ms ease, filter 130ms ease, border-color 130ms ease; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.15); overflow: hidden; user-select: none; }
-.hud-btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.14) 50%, transparent 60%); transform: translateX(-120%); transition: transform 0.5s ease; }
-.hud-btn:hover { transform: translateY(-4px) scale(1.04) rotateX(5deg); border-color: rgba(240, 195, 106, 0.8); box-shadow: 0 18px 48px rgba(77, 242, 255, 0.25), 0 0 32px rgba(240, 195, 106, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.22); }
-.hud-btn:hover::after { transform: translateX(120%); }
-.hud-btn:active, .hud-btn.is-press { transform: translateY(5px) scale(0.95) rotateX(-8deg); filter: brightness(1.25); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55), inset 0 4px 10px rgba(0, 0, 0, 0.4); }
-.hud-btn.is-loading { pointer-events: none; opacity: 0.7; }
-.hud-btn.is-ok { border-color: #4dff91; box-shadow: 0 0 32px rgba(77, 255, 145, 0.3); }
-.hud-btn.is-err { border-color: #ff4d6a; }
-.hud-btn.is-primary { background: linear-gradient(135deg, rgba(77, 242, 255, 0.38), rgba(255, 77, 157, 0.25)); font-weight: 600; letter-spacing: 0.02em; }
-
-.metric-tile { border-radius: 18px; background: linear-gradient(160deg, rgba(0, 0, 0, 0.5), rgba(10, 20, 40, 0.55)); padding: 0.9rem; box-shadow: inset 0 0 28px rgba(77, 242, 255, 0.05); transform: translateZ(20px); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.metric-tile:hover { transform: translateZ(40px) scale(1.04); box-shadow: 0 14px 36px rgba(77, 242, 255, 0.14); }
-
-.orb-spin { animation: orbspin 28s linear infinite; filter: drop-shadow(0 0 28px rgba(77, 242, 255, 0.5)); }
-.float-y { animation: floaty 7s ease-in-out infinite; }
-.pulse-ring { animation: pulsering 3.6s ease-out infinite; }
-.ticker { animation: ticker 36s linear infinite; }
-
-.alarm-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 90; padding: 1.1rem 1.35rem; text-align: center; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.05em; color: #fff; background: linear-gradient(90deg, #ff2d55, #ff8a00, #ff2d55); background-size: 200% 100%; animation: alarmflash 0.8s ease-in-out infinite, alarmslide 2.6s linear infinite; box-shadow: 0 18px 52px rgba(255, 45, 85, 0.55); border-bottom: 2px solid #ffe566; }
-.alarm-banner small { display: block; margin-top: 0.3rem; font-size: 0.88rem; font-weight: 500; opacity: 0.95; }
-.monitor-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 85; padding: 0.85rem 1.2rem; text-align: center; font-size: 1rem; font-weight: 650; letter-spacing: 0.03em; color: #ffe9c2; background: rgba(42, 28, 8, 0.92); border-bottom: 1px solid rgba(251, 191, 36, 0.45); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35); }
-.monitor-banner small { display: block; margin-top: 0.25rem; font-size: 0.82rem; font-weight: 500; color: rgba(255, 233, 194, 0.85); }
-
-@keyframes gridDrift { from { background-position: 0 0; } to { background-position: 0 128px; } }
-@keyframes scanFlicker { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.42; } }
-@keyframes holoShimmer { 0%, 100% { filter: hue-rotate(0deg); } 50% { filter: hue-rotate(14deg); } }
-@keyframes orbspin { from { transform: rotateY(0deg) rotateX(12deg); } to { transform: rotateY(360deg) rotateX(12deg); } }
-@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
-@keyframes pulsering { 0% { transform: scale(0.7); opacity: 0.55; } 100% { transform: scale(1.45); opacity: 0; } }
-@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@keyframes alarmflash { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.45); } }
-@keyframes alarmslide { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
-@keyframes enterUp { from { opacity: 0; transform: translateY(28px) rotateX(10deg); } to { opacity: 1; transform: translateY(0) rotateX(0); } }
-.enter-up { animation: enterUp 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
-.scroll-thin::-webkit-scrollbar-thumb { background: rgba(77, 242, 255, 0.32); border-radius: 99px; }
-
-/*
- * Truth badge (M-D3). The colour comes from the --ahos-status-* variables, the
- * shape from these classes. `truth-badge--ok` is the only success treatment in
- * the system: there is no second route to it, so an UNKNOWN or CONFLICT cannot be
- * styled right by any caller.
- */
-.truth-badge {
-  display: inline-flex; align-items: center; gap: 0.3em;
-  padding: 0.15rem 0.5rem; border-radius: 0.4rem;
-  font-size: 0.75rem; font-weight: 600; line-height: 1.35;
-  font-family: var(--font-vazir), Tahoma, sans-serif;
-  border: 1px solid currentColor; color: var(--badge-color, var(--ahos-text-muted));
-  /* M-D5.F: the badge carries no background of its own. §2.3's fill is painted
-   * only on the swatch below, so the label always sits on a solid surface and
-   * the hatch can never strike through the glyphs it is meant to sit beside. */
-  background: transparent;
-}
-.truth-badge > .truth-badge__fill {
-  flex: none;
-  inline-size: 0.7em; block-size: 0.7em;
-  border-radius: 0.18em;
-  background: var(--badge-fill, transparent);
-}
-.truth-badge > .truth-badge__label { background: transparent; }
-.truth-badge > .truth-badge__glyph { font-weight: 700; }
-.truth-badge--ok { border-style: solid; }
-.truth-badge--stale { border-style: dotted; filter: saturate(0.5); }   /* §2.3: 50% desaturated */
-/* Owner QA, 2026-10-11 23:03: this was `border-style: dashed` and at chip scale
- * it read as a defect rather than as a cue, so it states the solid base rule
- * explicitly — the UNKNOWN identity is carried by the ? glyph and the hatch on
- * the swatch, not by the border. Spelled out so a later edit does not re-dash it. */
-.truth-badge--unknown { border-style: solid; }
-.truth-badge--conflict { border-style: double; border-width: 3px; }    /* §2.3: double border */
-.truth-badge--rejected { border-left: 4px solid currentColor; }        /* §2.3: solid red bar */
-.truth-badge--glow {
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--badge-color) 55%, transparent),
-              0 0 18px color-mix(in srgb, var(--badge-color) 35%, transparent);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stage-grid, .orb-spin, .float-y, .pulse-ring, .ticker, .alarm-banner, .stage-scan { animation: none !important; }
-}
-
-/*
- * Dashi shell (M-D5.2). All positioning uses logical properties (start/end,
- * inline/block) so the RTL source and a hypothetical LRT translation cannot
- * disagree; the visual authoring is §4's 56px top bar with the stage centred.
- * Colour never carries meaning alone here — the tier chip pairs its hue with a
- * Persian label, per §2.3's "colour is never the only cue".
- */
-.dashi {
-  display: flex; flex-direction: column;
-  min-height: 100vh; min-height: 100dvh;
-  background: var(--ahos-bg); color: var(--ahos-text);
-  font-family: var(--font-vazir), Tahoma, sans-serif;
-}
-.dashi-topbar {
-  display: flex; align-items: center; gap: 1rem;
-  block-size: 56px; padding-inline: 1rem;
-  border-bottom: 1px solid var(--ahos-border);
-  background: color-mix(in srgb, var(--ahos-panel) 88%, transparent);
-  position: relative; z-index: 2;
-}
-.dashi-emblem { display: flex; align-items: baseline; gap: 0.45rem; margin-inline-end: auto; }
-.dashi-emblem__mark { color: var(--ahos-gold); font-size: 1.05rem; }
-.dashi-emblem__word {
-  font-family: var(--font-orbitron), monospace;
-  letter-spacing: 0.08em; color: var(--ahos-text); font-size: 1rem;
-}
-.dashi-topbar__pills { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
-
-.dashi-pill {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  font-size: 0.78rem; color: var(--ahos-text-muted);
-  border: 1px solid var(--ahos-border); border-radius: 0.4rem;
-  padding: 0.2rem 0.55rem; white-space: nowrap;
-}
-.dashi-pill--paper bdi { color: var(--ahos-gold); font-weight: 700; }
-.dashi-pill--violation {
-  color: var(--ahos-status-rejected); font-weight: 700;
-  border-color: var(--ahos-status-rejected);
-}
-
-/* The measured tier chip. Each tier has its own hairline treatment so the rung
- * reads without colour, and the Persian label is always present. */
-.dashi-tier {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  font-size: 0.78rem; color: var(--ahos-text);
-  background: color-mix(in srgb, var(--ahos-panel) 70%, transparent);
-  border: 1px solid var(--ahos-border); border-radius: 0.4rem;
-  padding: 0.25rem 0.6rem; cursor: pointer; min-block-size: 32px;   /* §10: 32px targets */
-  transition: border-color 160ms ease;
-}
-.dashi-tier:hover { border-color: var(--ahos-gold); }
-.dashi-tier__hw { color: var(--ahos-text-muted); }
-.dashi-tier__render { font-weight: 700; }
-.dashi-tier--pending { border-style: dashed; color: var(--ahos-text-muted); cursor: default; }
-.dashi-tier--t0 { border-style: dashed; }
-.dashi-tier--t1 { border-style: dotted; }
-.dashi-tier--t2 { border-style: solid; }
-.dashi-tier--t3 { border-style: solid; border-color: var(--ahos-gold); }
-
-.dashi-theme {
-  font-family: inherit; font-size: 0.78rem; color: var(--ahos-text-muted);
-  background: transparent; border: 1px solid var(--ahos-border);
-  border-radius: 0.4rem; padding: 0.25rem 0.7rem; min-block-size: 32px;
-  cursor: pointer; transition: border-color 160ms ease;
-}
-.dashi-theme:hover { border-color: var(--ahos-gold); color: var(--ahos-text); }
-
-.dashi-main { flex: 1; position: relative; display: grid; place-items: center; min-block-size: 0; }
-.dashi-main > canvas { display: block; }
-
-.dashi-body { flex: 1; display: flex; min-block-size: 0; }
-.dashi-body > .dashi-main { flex: 1; }
-
-.dashi-panel-toggle {
-  font-family: inherit; font-size: 0.78rem; color: var(--ahos-text-muted);
-  background: transparent; border: 1px solid var(--ahos-border);
-  border-radius: 0.4rem; padding: 0.25rem 0.7rem; min-block-size: 32px;
-  cursor: pointer; transition: border-color 160ms ease;
-}
-.dashi-panel-toggle:hover { border-color: var(--ahos-gold); color: var(--ahos-text); }
-.dashi-panel-toggle[aria-expanded="true"] { border-color: var(--ahos-gold); color: var(--ahos-gold); }
-
-/* M-D5.5: the panel is a rail, not a dialogue — it takes space from the stage
- * rather than overlaying it, so the captured stage stays the same size whether
- * the panel is open or not and a screenshot remains comparable. */
-.tier-panel {
-  inline-size: 320px; flex: none;
-  overflow-y: auto;
-  border-inline-start: 1px solid var(--ahos-border);
-  background: color-mix(in srgb, var(--ahos-panel) 62%, var(--ahos-bg));
-  padding: 1.1rem 1.2rem 1.4rem;
-  color: var(--ahos-text);
-  font-size: 0.84rem;
-}
-.tier-panel__title { margin: 0 0 0.8rem; font-weight: 700; color: var(--ahos-gold); }
-.tier-panel__subtitle { margin: 0 0 0.5rem; font-weight: 700; color: var(--ahos-text-muted); }
-.tier-panel__row { display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.35rem 0; align-items: baseline; }
-.tier-panel__key { color: var(--ahos-text-muted); flex: none; }
-.tier-panel__hw b, .tier-panel__tier b { color: var(--ahos-text); }
-.tier-panel__tier-id { font-family: var(--font-mono, ui-monospace, monospace); color: var(--ahos-gold); }
-.tier-panel__band, .tier-panel__reach, .tier-panel__hint { color: var(--ahos-text-muted); font-size: 0.78rem; }
-.tier-panel__reason {
-  margin: 0.3rem 0 0.6rem; color: var(--ahos-text-muted); font-size: 0.8rem;
-  line-height: 1.6; padding-inline-start: 0.6rem; border-inline-start: 2px solid var(--ahos-border);
-}
-.tier-panel__warn { color: var(--ahos-status-unknown); }
-.tier-panel__muted { color: var(--ahos-text-muted); font-size: 0.8rem; line-height: 1.6; }
-.tier-panel__pending { color: var(--ahos-text-muted); font-size: 0.8rem; }
-.tier-panel__divider { block-size: 1px; background: var(--ahos-border); margin: 0.9rem 0; }
-.tier-panel__clear {
-  font-family: inherit; font-size: 0.78rem; color: var(--ahos-text);
-  background: transparent; border: 1px solid var(--ahos-border);
-  border-radius: 0.35rem; padding: 0.15rem 0.55rem; cursor: pointer;
-}
-.tier-panel__clear:hover { border-color: var(--ahos-gold); }
-.tier-panel__unknown { display: grid; gap: 0.4rem; }
-.tier-panel__ideas { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
-.tier-panel__idea {
-  padding: 0.45rem 0.6rem; border: 1px solid var(--ahos-border);
-  border-radius: 0.45rem; background: color-mix(in srgb, var(--ahos-panel) 45%, transparent);
-}
-.tier-panel__idea-title { display: block; color: var(--ahos-text); }
-.tier-panel__idea-meta { display: block; color: var(--ahos-text-muted); font-size: 0.75rem; margin-top: 0.15rem; }
-.tier-panel__footnote { margin: 1rem 0 0; color: var(--ahos-text-muted); font-size: 0.7rem; line-height: 1.6; }
-
-.stage-fallback {
-  color: var(--ahos-text-muted); font-size: 0.9rem;
-  padding: 1rem 1.5rem; border: 1px dashed var(--ahos-border); border-radius: 0.6rem;
-}
-.dashi-scope {
-  position: absolute; inset-block-end: 0.9rem; inset-inline: 0;
-  margin: 0; text-align: center; font-size: 0.72rem;
-  color: var(--ahos-text-muted); opacity: 0.85; pointer-events: none;
-  padding: 0 1rem;
-}
-.dashi-fallback {
-  display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
-  text-align: center; max-inline-size: 34rem; padding: 2rem 1.5rem;
-  border: 1px solid var(--ahos-border); border-radius: 0.8rem;
-  background: color-mix(in srgb, var(--ahos-panel) 88%, transparent);
-}
-.dashi-fallback__title { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--ahos-text); }
-.dashi-fallback__body { margin: 0; font-size: 0.85rem; color: var(--ahos-text-muted); line-height: 1.7; }
-.dashi-retry {
-  font-family: inherit; font-size: 0.82rem; color: var(--ahos-gold);
-  background: transparent; border: 1px solid var(--ahos-gold);
-  border-radius: 0.4rem; padding: 0.4rem 1.1rem; min-block-size: 32px; cursor: pointer;
-}
-.dashi-retry:hover { background: color-mix(in srgb, var(--ahos-gold) 12%, transparent); }
-
-@media (prefers-reduced-motion: reduce) {
-  .dashi-tier, .dashi-theme, .dashi-retry { transition: none; }
-}
-
-/* M-D7 — the bottom telemetry strips. Frosted glass per the owner's WOW-on-8GB
- * list (backdrop-filter on panels only, never on the stage), one hairline edge,
- * and UNKNOWN always rendered as plain grey text rather than a hatched box. */
-.telemetry {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.6rem; padding: 0.55rem 1rem 0.7rem;
-  border-top: 1px solid var(--ahos-border);
-  background: color-mix(in srgb, var(--ahos-panel) 78%, transparent);
-  backdrop-filter: blur(8px); position: relative; z-index: 2;
-}
-.telemetry__cell {
-  min-inline-size: 0; padding: 0.35rem 0.6rem;
-  border: 1px solid var(--ahos-border); border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--ahos-panel) 45%, transparent);
-}
-.telemetry__cell-title {
-  margin: 0 0 0.4rem; font-size: 0.72rem; font-weight: 700;
-  color: var(--ahos-gold); letter-spacing: 0.04em;
-  display: flex; align-items: baseline; gap: 0.45rem; flex-wrap: wrap;
-}
-.telemetry__stale { color: var(--ahos-status-unknown); font-weight: 400; font-size: 0.68rem; }
-.telemetry__line { margin: 0 0 0.3rem; font-size: 0.78rem; color: var(--ahos-text); display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
-.telemetry__line:last-child { margin-block-end: 0; }
-.telemetry__line--muted { color: var(--ahos-text-muted); font-size: 0.72rem; }
-.telemetry__line--err { color: var(--ahos-status-rejected); font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.telemetry__value { color: var(--ahos-text); font-size: 0.78rem; }
-
-.telemetry__gates { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.28rem; }
-.telemetry__gate { display: flex; align-items: center; gap: 0.45rem; min-inline-size: 0; }
-.telemetry__gate-name {
-  color: var(--ahos-text); font-size: 0.74rem; overflow: hidden;
-  text-overflow: ellipsis; white-space: nowrap;
-}
-
-.telemetry__ledger { list-style: none; margin: 0.3rem 0 0; padding: 0; display: grid; gap: 0.22rem; }
-.telemetry__ledger-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; }
-.telemetry__sym { font-family: var(--font-mono, ui-monospace, monospace); color: var(--ahos-text); }
-.telemetry__side { color: var(--ahos-text-muted); font-size: 0.68rem; }
-.telemetry__status { color: var(--ahos-text-muted); font-size: 0.68rem; margin-inline-start: auto; }
-
-.telemetry__age {
-  position: absolute; inset-block-end: 0.2rem; inset-inline-end: 0.7rem;
-  margin: 0; font-size: 0.64rem; color: var(--ahos-text-muted); opacity: 0.7;
-}
-
-@media (max-width: 900px) {
-  .telemetry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .telemetry { backdrop-filter: none; }
-}
-
-/* M-D7 — the evidence graph panel. Same column idiom as the tier panel so the
- * two read as one right-hand rail, frosted glass per the WOW-on-8GB list. */
-.evidence-panel {
-  inline-size: 360px; flex: none; overflow-y: auto;
-  border-inline-start: 1px solid var(--ahos-border);
-  background: color-mix(in srgb, var(--ahos-panel) 62%, var(--ahos-bg));
-  padding: 1.1rem 1.2rem 1.4rem; color: var(--ahos-text); font-size: 0.84rem;
-}
-.evidence-panel__title {
-  margin: 0 0 0.4rem; font-size: 0.95rem; font-weight: 700; color: var(--ahos-gold);
-}
-.evidence-panel__hint {
-  margin: 0 0 0.9rem; font-size: 0.74rem; line-height: 1.7; color: var(--ahos-text-muted);
-}
-.evidence-panel__canvas { inline-size: 100%; block-size: 62vh; min-block-size: 320px; }
-.evidence-panel__unknown {
-  display: flex; align-items: center; gap: 0.5rem; margin: 0.8rem 0 0;
-  padding: 0.7rem 0.8rem; border: 1px solid var(--ahos-border); border-radius: 0.5rem;
-  color: var(--ahos-text-muted); font-size: 0.78rem; line-height: 1.7;
-}
-.evidence-panel__unknown-glyph { color: var(--ahos-status-unknown); font-weight: 700; }
-@media (prefers-reduced-motion: reduce) {
-  .evidence-panel { backdrop-filter: none; }
+  body {
+    margin: 0;
+    font-family: inherit;
+  }
 }
