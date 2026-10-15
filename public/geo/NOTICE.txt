@@ -1,0 +1,5 @@
+Natural Earth 1:110m Admin 0 Countries
+Public domain. https://www.naturalearthdata.com/about/terms-of-use/
+Source: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_admin_0_countries.geojson
+Retrieved for bundling 2026-10-16. Properties reduced to ADMIN/name and ADM0_A3/iso; geometry preserved.
+Boundaries are generalized cartographic representations, not a statement on territorial claims.

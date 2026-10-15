@@ -1,0 +1,93 @@
+/* AHOS design contract. All visual primitives live here. */
+:root {
+  color-scheme: dark;
+  --ah-bg: #080b10;
+  --ah-surface: #0d121a;
+  --ah-elevated: #131a23;
+  --ah-glass: rgb(16 22 30 / 82%);
+  --ah-text: #ecece7;
+  --ah-muted: #9aabbc;
+  --ah-faint: #697b8e;
+  --ah-gold: #d9b977;
+  --ah-gold-bright: #f1d79f;
+  --ah-gold-dim: #8a7044;
+  --ah-gold-soft: rgb(217 185 119 / 9%);
+  --ah-gold-line: rgb(217 185 119 / 24%);
+  --ah-border: rgb(151 173 199 / 12%);
+  --ah-cyan: #78cbd1;
+  --ah-green: #8bbfa6;
+  --ah-danger: #e39494;
+  --ah-overlay: rgb(3 6 10 / 78%);
+  --ah-transparent: transparent;
+  --ah-radius-sm: 6px;
+  --ah-radius: 12px;
+  --ah-radius-lg: 18px;
+  --ah-pill: 999px;
+  --ah-shadow: 0 16px 48px rgb(0 0 0 / 24%);
+  --ah-glow: 0 0 24px rgb(217 185 119 / 9%);
+  --ah-blur: 18px;
+  --ah-fast: 160ms;
+  --ah-slow: 600ms;
+  --ah-orbit-time: 100s;
+  --ah-motion: 1;
+  --ah-render-scale: 1;
+  --ah-particles: 1;
+  --ah-sidebar: 252px;
+  --ah-topbar: 78px;
+  --ah-font: "Vazirmatn", "Inter", Tahoma, sans-serif;
+  --ah-font-latin: "Inter", "Vazirmatn", sans-serif;
+  --ah-gold-gradient: linear-gradient(
+    135deg,
+    var(--ah-gold-bright),
+    var(--ah-gold-dim)
+  );
+  --ah-card-gradient: linear-gradient(
+    140deg,
+    var(--ah-glass),
+    var(--ah-surface)
+  );
+}
+[data-quality="high"] {
+  --ah-blur: 24px;
+  --ah-render-scale: 1.5;
+  --ah-particles: 1;
+}
+[data-quality="low"] {
+  --ah-blur: 0px;
+  --ah-glow: none;
+  --ah-render-scale: 0.75;
+  --ah-particles: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ah-motion: 0;
+    --ah-fast: 0ms;
+    --ah-slow: 0ms;
+  }
+}
+@theme inline {
+  --color-ah-background: var(--ah-bg);
+  --color-ah-surface: var(--ah-surface);
+  --color-ah-gold: var(--ah-gold);
+  --color-ah-text: var(--ah-text);
+  --color-ah-muted: var(--ah-muted);
+  --radius-ah: var(--ah-radius);
+  --font-sans: var(--ah-font);
+}
+
+/* Dashboard / visualization primitives; extend the accepted Stage 1 palette. */
+:root {
+  --ah-cyan-soft: rgb(120 203 209 / 10%);
+  --ah-green-soft: rgb(139 191 166 / 10%);
+  --ah-danger-soft: rgb(227 148 148 / 10%);
+  --ah-radius-xs: 4px;
+  --ah-globe-ocean: #0b1826;
+  --ah-globe-land: #293b46;
+  --ah-globe-line: #526773;
+  --ah-globe-night: #020609;
+  --ah-globe-atmosphere: #738a9d;
+  --ah-globe-night-light: #ffd597;
+  --ah-globe-glow: 0 0 36px rgb(217 185 119 / 16%);
+  --ah-globe-pulse: 2.8s;
+  --ah-chart-height: 205px;
+}

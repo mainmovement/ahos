@@ -1,0 +1,429 @@
+.dc-earth-stage {
+  height: 400px;
+  overflow: hidden;
+}
+.dc-earth-header-note {
+  font-size: 6px;
+  color: var(--ah-faint);
+  letter-spacing: 0.5px;
+}
+.dc-globe-host {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  touch-action: none;
+}
+.dc-globe-host canvas {
+  display: block;
+  outline: none;
+}
+.dc-earth-corner {
+  position: absolute;
+  top: 22px;
+  inset-inline-start: 22px;
+  pointer-events: none;
+  z-index: 3;
+  max-width: 44%;
+}
+.dc-earth-eyebrow {
+  font-family: var(--ah-font-latin);
+  font-size: 6px;
+  letter-spacing: 1.7px;
+  color: var(--ah-gold-dim);
+  display: block;
+  direction: ltr;
+}
+.dc-earth-corner h3 {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 7px 0 4px;
+  color: var(--ah-text);
+}
+.dc-earth-corner p {
+  font-size: 7px;
+  color: var(--ah-faint);
+}
+.dc-earth-coordinates {
+  position: absolute;
+  top: 24px;
+  left: 22px;
+  right: auto;
+  display: flex;
+  flex-direction: column;
+  text-align: end;
+  z-index: 3;
+  pointer-events: none;
+  font-family: var(--ah-font-latin);
+  font-size: 8px;
+  color: var(--ah-faint);
+}
+.dc-earth-coordinates > span:first-child {
+  font-size: 6px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.dc-earth-coordinates strong {
+  font-size: 13px;
+  color: var(--ah-muted);
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+.dc-globe-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  padding: 3px 6px;
+  border: 1px solid var(--ah-border);
+  background: var(--ah-glass);
+  font-size: 6px;
+  color: var(--ah-muted);
+  border-radius: var(--ah-radius-xs);
+  white-space: nowrap;
+  direction: ltr;
+  line-height: 1.4;
+}
+.dc-globe-label:disabled {
+  cursor: default;
+}
+.dc-globe-label-iran {
+  color: var(--ah-gold-bright);
+  border-color: var(--ah-gold-line);
+  font-size: 8px;
+  box-shadow: var(--ah-globe-glow);
+}
+.dc-earth-focus {
+  position: absolute;
+  inset-inline-start: 20px;
+  bottom: 57px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  z-index: 4;
+}
+.dc-earth-focus button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ah-gold);
+  font-size: 9px;
+  border: 1px solid var(--ah-gold-line);
+  border-radius: var(--ah-radius-sm);
+  padding: 6px 9px;
+  background: var(--ah-glass);
+  backdrop-filter: blur(var(--ah-blur));
+}
+.dc-earth-focus button.is-active {
+  background: var(--ah-gold-soft);
+}
+.dc-globe-controls {
+  position: absolute;
+  bottom: 55px;
+  left: 20px;
+  right: auto;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  padding: 4px;
+  background: var(--ah-glass);
+  border: 1px solid var(--ah-gold-line);
+  border-radius: var(--ah-radius-sm);
+  z-index: 5;
+  direction: ltr;
+  backdrop-filter: blur(var(--ah-blur));
+}
+.dc-globe-controls button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 27px;
+  color: var(--ah-muted);
+  border-radius: var(--ah-radius-xs);
+}
+.dc-globe-controls button:hover,
+.dc-globe-controls button[aria-pressed="true"] {
+  color: var(--ah-gold);
+  background: var(--ah-gold-soft);
+}
+.dc-globe-controls button:disabled {
+  color: var(--ah-faint);
+  opacity: 0.4;
+}
+.dc-globe-controls > span {
+  height: 14px;
+  width: 1px;
+  background: var(--ah-border);
+  margin: 0 3px;
+}
+.dc-earth-layers {
+  position: absolute;
+  inset-inline-end: 20px;
+  bottom: 100px;
+  z-index: 6;
+  background: var(--ah-elevated);
+  border: 1px solid var(--ah-gold-line);
+  box-shadow: var(--ah-shadow);
+  padding: 12px;
+  border-radius: var(--ah-radius-sm);
+  min-width: 160px;
+}
+.dc-earth-layers label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 10px;
+  padding: 5px;
+  color: var(--ah-muted);
+}
+.dc-earth-layers input {
+  accent-color: var(--ah-gold);
+}
+.dc-earth-layers small {
+  font-family: var(--ah-font-latin);
+  font-size: 7px;
+  color: var(--ah-faint);
+}
+.dc-earth-legend {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  pointer-events: none;
+  padding: 12px 17px;
+  border-top: 1px solid var(--ah-border);
+  background: var(--ah-glass);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 6px;
+  color: var(--ah-faint);
+}
+.dc-earth-legend > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dc-earth-legend > span > svg {
+  color: var(--ah-gold-dim);
+}
+.dc-earth-legend > bdi {
+  font-family: var(--ah-font-latin);
+  font-size: 6px;
+}
+.dc-iran-detail {
+  position: absolute;
+  z-index: 5;
+  inset-inline-start: 20px;
+  top: 110px;
+  background: var(--ah-glass);
+  backdrop-filter: blur(var(--ah-blur));
+  border: 1px solid var(--ah-gold-line);
+  border-radius: var(--ah-radius);
+  padding: 12px;
+  width: 180px;
+  box-shadow: var(--ah-shadow);
+}
+.dc-iran-detail header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--ah-gold);
+}
+.dc-iran-detail h4 {
+  font-size: 11px;
+  margin: 0;
+  font-weight: 500;
+}
+.dc-iran-detail .ah-icon-button {
+  width: 18px;
+  height: 18px;
+}
+.dc-iran-detail > bdi {
+  display: block;
+  font-family: var(--ah-font-latin);
+  font-size: 8px;
+  margin-top: 7px;
+  color: var(--ah-muted);
+}
+.dc-iran-detail p {
+  font-size: 9px;
+  color: var(--ah-muted);
+  margin: 8px 0;
+  line-height: 1.9;
+}
+.dc-globe-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--ah-font-latin);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ah-gold);
+}
+.dc-earth-fallback {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-top: 55px;
+  padding-bottom: 40px;
+}
+.dc-earth-fallback > svg {
+  width: 100%;
+  height: 100%;
+  max-height: 270px;
+}
+.dc-map-ocean {
+  fill: var(--ah-globe-ocean);
+}
+.dc-map-country {
+  fill: var(--ah-globe-land);
+  stroke: var(--ah-globe-line);
+  stroke-width: 0.4;
+}
+.dc-map-iran {
+  fill: var(--ah-gold-dim);
+  stroke: var(--ah-gold);
+  stroke-width: 1;
+}
+.dc-map-city {
+  fill: var(--ah-gold-bright);
+}
+.dc-map-grid {
+  fill: none;
+  stroke: var(--ah-border);
+  stroke-width: 0.5;
+}
+.dc-map-night {
+  fill: var(--ah-globe-night);
+  opacity: 0.55;
+}
+.dc-map-label {
+  fill: var(--ah-gold);
+  font-family: var(--ah-font-latin);
+  font-size: 7px;
+}
+.dc-fallback-notice {
+  position: absolute;
+  inset-inline-start: 20px;
+  top: 110px;
+  max-width: 190px;
+  background: var(--ah-glass);
+  padding: 12px;
+  border: 1px solid var(--ah-border);
+  border-radius: var(--ah-radius-sm);
+}
+.dc-fallback-notice > span {
+  font-family: var(--ah-font-latin);
+  font-size: 8px;
+  color: var(--ah-gold);
+}
+.dc-fallback-notice p {
+  font-size: 9px;
+  color: var(--ah-muted);
+  margin: 7px 0;
+}
+.dc-fallback-notice button {
+  font-size: 9px;
+  padding: 5px 9px;
+}
+@media (min-width: 1700px) {
+  .dc-earth-stage {
+    height: 450px;
+  }
+  .dc-earth-corner h3 {
+    font-size: 24px;
+  }
+  .dc-earth-corner {
+    top: 30px;
+    inset-inline-start: 28px;
+  }
+}
+@media (max-width: 600px) {
+  .dc-earth-stage {
+    height: 390px;
+    min-height: 390px;
+  }
+  .dc-earth-corner {
+    top: 17px;
+    inset-inline-start: 14px;
+    max-width: 60%;
+  }
+  .dc-earth-corner h3 {
+    font-size: 17px;
+  }
+  .dc-earth-corner p {
+    font-size: 6px;
+  }
+  .dc-earth-eyebrow {
+    font-size: 5px;
+  }
+  .dc-earth-coordinates {
+    inset-inline-end: 14px;
+    top: 20px;
+  }
+  .dc-earth-coordinates strong {
+    font-size: 10px;
+  }
+  .dc-earth-coordinates > span:first-child {
+    font-size: 5px;
+  }
+  .dc-earth-coordinates > span {
+    font-size: 7px;
+  }
+  .dc-earth-header-note {
+    display: none;
+  }
+  .dc-earth-focus {
+    bottom: 65px;
+    inset-inline-start: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .dc-earth-focus button {
+    font-size: 8px;
+    padding: 5px 7px;
+  }
+  .dc-globe-controls {
+    inset-inline-end: 12px;
+    bottom: 64px;
+  }
+  .dc-globe-controls button {
+    width: 25px;
+  }
+  .dc-earth-legend {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 9px 12px;
+    font-size: 6px;
+    min-height: 44px;
+  }
+  .dc-earth-legend > span:last-child {
+    display: none;
+  }
+  .dc-iran-detail {
+    width: 156px;
+    top: 95px;
+    inset-inline-start: 12px;
+  }
+  .dc-iran-detail p {
+    font-size: 8px;
+  }
+  .dc-earth-layers {
+    inset-inline-end: 12px;
+    bottom: 107px;
+  }
+  .dc-earth-fallback > svg {
+    max-height: 230px;
+  }
+}
+
+/* LTR content must not reverse the physical placement of LTR controls in RTL. */
+.ah-main-shell[dir="ltr"] .dc-globe-controls { left: auto; right: 20px; }
+.ah-main-shell[dir="ltr"] .dc-earth-coordinates { left: auto; right: 22px; }
+@media (max-width:600px) { .dc-globe-controls { left:12px; right:auto; inset-inline-end: auto; } .dc-earth-coordinates {left:14px;right:auto;inset-inline-end:auto;} .ah-main-shell[dir="ltr"] .dc-globe-controls {left:auto;right:12px;} .ah-main-shell[dir="ltr"] .dc-earth-coordinates {left:auto;right:14px;} }
