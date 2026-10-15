@@ -14,5 +14,6 @@ export default defineConfig([
     "advanced-3d-audiovisual-website (1)/**",
     "سایت درختadvanced-3d-audiovisual-platform/**",
     "درخت کاملتر immersive-3d-audiovisual-website/**",
+    "ahos-dashboard/**",
   ]),
 ]);

@@ -1,0 +1,313 @@
+@import "tailwindcss" source("../");
+@import "../styles/tokens/tokens.css";
+
+/* Variants driven by the runtime settings (see src/lib/settings) */
+@custom-variant motion-off (&:where([data-motion="reduced"], [data-motion="reduced"] *));
+@custom-variant quality-low (&:where([data-quality="low"], [data-quality="low"] *));
+@custom-variant quality-high (&:where([data-quality="high"], [data-quality="high"] *));
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  html {
+    background: var(--color-ink-1000);
+    color: var(--color-fg-1);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--surface-app);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    overflow: hidden;
+  }
+
+  ::selection {
+    background: rgb(230 191 95 / 0.32);
+    color: var(--color-fg-1);
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Thin gold-tinted scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(230 191 95 / 0.22) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgb(230 191 95 / 0.18);
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(230 191 95 / 0.32);
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  bdi,
+  .ltr {
+    unicode-bidi: isolate;
+  }
+}
+
+/* Reduced motion: honour both the OS preference (when setting = system, JS
+   mirrors it into data-motion) and the explicit in-app setting. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   Components (design-system primitives that are awkward as utilities)
+   ========================================================================== */
+@layer components {
+  /* Frosted glass card with a gold gradient hairline border */
+  .glass {
+    position: relative;
+    isolation: isolate;
+    background: var(--surface-glass);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  }
+  .glass-strong {
+    position: relative;
+    isolation: isolate;
+    background: var(--surface-glass-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-raised);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  }
+  .gold-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gradient-gold-border);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .gold-border-strong::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gradient-gold);
+    opacity: 0.75;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Subtle top highlight on cards */
+  .card-sheen::after {
+    content: "";
+    position: absolute;
+    inset-inline: 12%;
+    top: 0;
+    height: 1px;
+    background: var(--gradient-hairline);
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  .hairline-x {
+    height: 1px;
+    background: var(--gradient-hairline);
+  }
+  .hairline-y {
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgb(230 191 95 / 0.32), transparent);
+  }
+
+  .text-gold-gradient {
+    background: var(--gradient-gold-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .num {
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings:
+      "tnum" 1,
+      "lnum" 1;
+    letter-spacing: -0.005em;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    letter-spacing: 0;
+  }
+
+  .label-caps {
+    font-size: var(--text-3xs);
+    line-height: var(--text-3xs--line-height);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .skip-link {
+    position: fixed;
+    inset-inline-start: 12px;
+    top: -60px;
+    z-index: 100;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    background: var(--color-gold-400);
+    color: var(--color-ink-950);
+    font-weight: 700;
+    transition: top var(--dur-base) var(--ease-out-expo);
+  }
+  .skip-link:focus {
+    top: 12px;
+  }
+
+  /* Procedural background texture: faint grid + noise (no image files) */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgb(230 191 95 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(230 191 95 / 0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+  }
+  .bg-noise {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.9  0 0 0 0 0.7  0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, rgb(255 255 255 / 0.02) 25%, rgb(230 191 95 / 0.08) 50%, rgb(255 255 255 / 0.02) 75%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  /* Dense data table */
+  .data-table {
+    width: 100%;
+    font-size: var(--text-sm);
+  }
+  .data-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgb(7 12 23 / 0.92);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: var(--color-fg-3);
+    font-weight: 500;
+    font-size: var(--text-2xs);
+    letter-spacing: 0.02em;
+    text-align: start;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line-hairline);
+    white-space: nowrap;
+  }
+  .data-table tbody td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line-subtle);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .data-table tbody tr {
+    transition: background-color var(--dur-fast) ease;
+  }
+  .data-table tbody tr:hover {
+    background: var(--surface-hover);
+  }
+  .data-table tbody tr[data-selected="true"] {
+    background: var(--surface-active);
+    box-shadow: inset 2px 0 0 var(--color-gold-400);
+  }
+  [dir="rtl"] .data-table tbody tr[data-selected="true"] {
+    box-shadow: inset -2px 0 0 var(--color-gold-400);
+  }
+  .data-table td.num-cell,
+  .data-table th.num-cell {
+    text-align: end;
+  }
+}
+
+/* ==========================================================================
+   Third-party surface tweaks
+   ========================================================================== */
+
+/* cmdk palette */
+[cmdk-group-heading] {
+  padding: 8px 12px 4px;
+  font-size: var(--text-3xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-fg-4);
+}
+[cmdk-item] {
+  scroll-margin: 8px;
+}
+[cmdk-item][data-selected="true"] {
+  background: var(--surface-active);
+  color: var(--color-fg-1);
+}
+
+/* ECharts tooltips inherit the app font */
+.echarts-tooltip-ahos {
+  font-family: var(--font-sans) !important;
+}
