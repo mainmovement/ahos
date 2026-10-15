@@ -63,18 +63,17 @@ export function Overview() {
           axisLine={false}
         />
         <YAxis
-          direction='ltr'
-          stroke='#888888'
+          stroke='#D4AF37'
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `${value}`}
         />
         <Bar
           dataKey='total'
-          fill='currentColor'
+          fill='#D4AF37'
           radius={[4, 4, 0, 0]}
-          className='fill-primary'
+          className='fill-[#D4AF37]'
         />
       </BarChart>
     </ResponsiveContainer>

@@ -1,0 +1,39 @@
+{
+  "schema": "ahos.test_run.v1",
+  "timestamp_utc": "2026-09-29T09:43:10Z",
+  "finished_utc": "2026-09-29T09:44:54Z",
+  "duration_sec": 104.462,
+  "command": [
+    ".\\.venv\\Scripts\\python.exe",
+    "scripts\\validate_imports.py"
+  ],
+  "command_str": ".\\.venv\\Scripts\\python.exe scripts\\validate_imports.py",
+  "command_resolved": [
+    "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+    "scripts\\validate_imports.py"
+  ],
+  "cwd": "G:\\robat\\ahos",
+  "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+  "git": {
+    "commit_sha": "28653ec8cac3d377f21f98b7da870548d3f3e60e",
+    "branch": "ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.9",
+    "python_implementation": "CPython",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "machine": "AMD64",
+    "system": "Windows",
+    "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+    "cwd": "G:\\robat\\ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "83e3b062f0e54173c69330fb6f4865005ec3dc808f3135624db60f3d10073d42"
+  },
+  "exit_code": 0,
+  "timed_out": false,
+  "pytest_summary": null,
+  "stdout": "\n== ARTIFACTS ==\n   info: no non-ignored build artifacts in the committed tree (ignored transient caches excluded)\n\n== IMPORTS ==\n   info: 236 modules imported cleanly in fresh interpreters\n   info: IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE: HOLD - no evidence changed by the import probe\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 66 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 3394 source files scanned\n\n== ORPHANS ==\n   info: 207 leaf modules scanned, 197 referenced\n   WARN: 10 modules never imported by any module or test (dead-code candidates, governance review): discovery.collect, engine.acquire_3yr, engine.agent_matrix_v2, engine.coverage_audit, engine.data_audit, engine.doc_hygiene, engine.oss_audit, engine.pal_probe, engine.research_report_bot, paper_trading.cycle\n\nVALIDATION PASSED \u2014 repository wiring is clean.\n",
+  "stderr": "",
+  "verdict": "PASS"
+}

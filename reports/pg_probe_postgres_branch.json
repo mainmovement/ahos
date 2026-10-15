@@ -1,0 +1,13 @@
+{
+  "schema": "ahos.pg_probe.v1",
+  "ok": false,
+  "backend": "postgres",
+  "database_url_set": true,
+  "database_url_redacted": "postgresql://ahos_user:***@127.0.0.1:5432/ahos",
+  "error_class": "CONN_REFUSED",
+  "error": "connect ECONNREFUSED 127.0.0.1:5432",
+  "system_state_rows": null,
+  "ahos_table_count": null,
+  "probe_via": null,
+  "note": "STATE B: no db:migrate / db:push"
+}

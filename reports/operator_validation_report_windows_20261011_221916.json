@@ -1,0 +1,211 @@
+{
+  "schema": "ahos.operator_validation_report.v1",
+  "generated_utc": "2026-10-11T22:20:07Z",
+  "platform_arg": "windows",
+  "platform_effective": "windows",
+  "host_platform": "Windows-10-10.0.19045-SP0",
+  "host_is_windows": true,
+  "head_hint": "a258fa0",
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Environment",
+      "status": "PASS",
+      "detail": "{\"python\": \"3.11.9\", \"executable\": \"G:\\\\robat\\\\ahos\\\\.venv\\\\Scripts\\\\python.exe\", \"platform\": \"Windows-10-10.0.19045-SP0\", \"system\": \"Windows\", \"node\": \"v24.19.0\", \"npm\": \"11.17.0\", \"repo_root\": \"G:\\\\robat\\\\ahos\", \"database_url_set\": true, \"web_api_token_set\": true, \"web_api_auth_module_present\": true, \"issues\": [], \"blocked\": []}",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:19:17Z",
+      "python": "3.11.9",
+      "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+      "platform": "Windows-10-10.0.19045-SP0",
+      "system": "Windows",
+      "node": "v24.19.0",
+      "npm": "11.17.0",
+      "repo_root": "G:\\robat\\ahos",
+      "database_url_set": true,
+      "web_api_token_set": true,
+      "web_api_auth_module_present": true,
+      "issues": [],
+      "blocked": []
+    },
+    {
+      "id": "G2",
+      "name": "Gateway",
+      "status": "FAIL",
+      "detail": "URLError: [WinError 10061] No connection could be made because the target machine actively refused it -- start One-Brain with: npm run dev (and set DATABASE_URL in .env)",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:19:47Z",
+      "url": "http://127.0.0.1:3000/api/chat",
+      "database_url_set": true,
+      "web_api_token_set": true,
+      "attempt": 8,
+      "gateway_port_diagnosis": {
+        "schema": "ahos.gateway_port_diagnosis.v1",
+        "configured_url": "http://127.0.0.1:3000/api/chat",
+        "configured_port": 3000,
+        "source": "AHOS_GATEWAY_URL",
+        "warnings": [
+          "AHOS_GATEWAY_PORT_DISAGREES_WITH_URL"
+        ],
+        "configured_listening": false,
+        "listening_candidates": [],
+        "verdict": "NO_GATEWAY_LISTENING",
+        "hint": "No local gateway listener found; start 'npm run dev' (OWNER_ACTION)."
+      }
+    },
+    {
+      "id": "G3",
+      "name": "Discovery providers",
+      "status": "PASS",
+      "detail": "SUCCESS: dexscreener, geckoterminal tokens={'dexscreener': 2, 'geckoterminal': 2}",
+      "artifact": "G:\\robat\\ahos\\reports\\provider_probe_opval_20261011T221950Z.json",
+      "ts_utc": "2026-10-11T22:19:50Z",
+      "status_counts": {
+        "UNSUPPORTED": 5,
+        "SUCCESS": 2,
+        "ERROR": 1
+      },
+      "successes": [
+        "dexscreener",
+        "geckoterminal"
+      ]
+    },
+    {
+      "id": "G4",
+      "name": "Evidence persistence",
+      "status": "PASS",
+      "detail": "discovery_observations=180587 production_observations=50330",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:04Z",
+      "census": {
+        "schema": "ahos.prediction_lifecycle_status.v1",
+        "version": "prediction_lifecycle:v1",
+        "discovery_db": "G:\\robat\\ahos\\data\\e01_discovery.sqlite",
+        "ledger_db": "G:\\robat\\ahos\\data\\ahos_local.sqlite",
+        "observation_state": {
+          "DEAD": 7009,
+          "OBSERVING": 2300,
+          "RESOLVED": 26983
+        },
+        "outcome_labels": 948,
+        "discovery_observations": 180587,
+        "production_observations": 50330,
+        "local_predictions": 44426,
+        "eligible_join_pairs_estimate": 28,
+        "notes": []
+      }
+    },
+    {
+      "id": "G5",
+      "name": "Scoring / predictions",
+      "status": "PASS",
+      "detail": "local_predictions=44426",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:04Z",
+      "local_predictions": 44426
+    },
+    {
+      "id": "G8",
+      "name": "Prediction lifecycle registration",
+      "status": "PASS",
+      "detail": "observation_state_total=36292 states={'DEAD': 7009, 'OBSERVING': 2300, 'RESOLVED': 26983}",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:04Z"
+    },
+    {
+      "id": "G9",
+      "name": "Observation lifecycle",
+      "status": "PASS",
+      "detail": "discovery_observations=180587 outcome_labels=948 (outcome_labels=0 is expected until T+72h RESOLVED — do not fabricate)",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:04Z",
+      "outcome_labels": 948
+    },
+    {
+      "id": "G6",
+      "name": "Security / PAPER_ONLY",
+      "status": "PASS",
+      "detail": "assert_safe_environment ok",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:04Z",
+      "env": {
+        "paper_only_enforced": true,
+        "paper_only_explicit": true,
+        "paper_only_unset": false,
+        "live_trading_flags_absent": true,
+        "zero_real_trading": true,
+        "credentials_isolated": true,
+        "ahos_paper_only_env": "1"
+      }
+    },
+    {
+      "id": "G7",
+      "name": "Lane-A freeze",
+      "status": "PASS",
+      "detail": "Lane-A integrity OK (pinned)",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:04Z"
+    },
+    {
+      "id": "G10",
+      "name": "Restart/recovery",
+      "status": "PASS",
+      "detail": "{\n  \"verdict\": \"PASS\",\n  \"passed\": 5,\n  \"failed\": 0,\n  \"report\": \"G:\\\\robat\\\\ahos\\\\reports\\\\backup_restore_drill.json\",\n  \"timestamp_utc\": \"2026-10-11T22:20:07Z\",\n  \"commit_sha\": \"a258fa0dd7428d31d49b5c5a057d483fbb460f64\"\n}\n",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:07Z",
+      "returncode": 0
+    },
+    {
+      "id": "G11",
+      "name": "Telegram live E2E",
+      "status": "NOT_VERIFIED",
+      "detail": "token present but no --telegram-e2e-artifact supplied (archive reports\\telegram_e2e_<UTC>.md then re-run with that path)",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:07Z",
+      "platform": "windows"
+    },
+    {
+      "id": "G12",
+      "name": "n8n",
+      "status": "STRUCTURAL_VALID",
+      "detail": "use query parameters)\n[PASS(warn)] ahos_10_research_lab.json\n   WARN : SQL_INTERPOLATION: node 'Audit Run' interpolates {{ }} expressions into SQL (internal trigger; prefer query parameters)\n[PASS] ahos_11_data_update.json\n[PASS(warn)] ahos_12_research_report.json\n   WARN : SQL_INTERPOLATION: node 'Audit Dispatch' interpolates {{ }} expressions into SQL (internal trigger; prefer query parameters)\n",
+      "artifact": null,
+      "ts_utc": "2026-10-11T22:20:07Z",
+      "structural_valid": true,
+      "operational_valid": false,
+      "note": "OPERATIONAL_VALID requires live n8n import+execute (OWNER_ACTION) — JSON valid ≠ operational"
+    }
+  ],
+  "summary": {
+    "g1_g10_all_pass": false,
+    "pre_soak_entry_ok": false,
+    "missing": [
+      "G2:FAIL",
+      "G11:NOT_VERIFIED"
+    ],
+    "remediation_actions": [
+      "G2: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows_recover_g2_warm.ps1 (forensics + ensure-pg + DATABASE_URL probe-first + Next restart; Docker health PASS is not enough — Next needs working DATABASE_URL; STATE B: no migrate).",
+      "G11: set TELEGRAM_BOT_TOKEN + allowlist, archive E2E transcript, re-run with --telegram-e2e-artifact reports\\telegram_e2e_<UTC>.md (needed for OPERATOR_READY; pre-soak only needs G1-G10).",
+      "Never claim OPERATOR_READY without Windows G1-G11 PASS artifacts.",
+      "STATE B: never db:migrate / db:push without Cursor classification."
+    ],
+    "host_is_windows": true,
+    "windows_attested": true,
+    "classification": "INTEGRATION_READY",
+    "operator_ready": false,
+    "reason": "required Windows operator gates not all PASS"
+  },
+  "exit_code_legend": {
+    "0": "report written; no FAIL gates",
+    "1": "unexpected script error",
+    "2": "one or more FAIL gates",
+    "3": "windows platform and operator_ready still false"
+  },
+  "forbidden_claims": [
+    "PRODUCTION_READY",
+    "OPERATOR_READY without Windows G1-G11 PASS artifacts",
+    "n8n OPERATIONAL_VALID from JSON alone",
+    "Telegram live from unit tests alone",
+    "Calibration validated with 0 joined_pairs",
+    "Agent-host SUCCESS as OPERATOR_WINDOWS_VERIFIED"
+  ]
+}

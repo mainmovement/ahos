@@ -1,0 +1,18 @@
+{
+  "schema": "ahos.g2_gateway_probe.v1",
+  "timestamp_utc": "2026-10-01T17:50:23Z",
+  "endpoint": "http://127.0.0.1:3000/api/chat",
+  "method": "POST",
+  "request_payload": {
+    "message": "ping",
+    "locale": "fa"
+  },
+  "auth": "Bearer token supplied from .env (value never logged)",
+  "expectation": "HTTP status < 500 (per OPERATOR_VALIDATION_PROTOCOL G2)",
+  "http_status": null,
+  "latency_ms": 2205.4,
+  "error_type": "ConnectionRefusedError",
+  "error": "[WinError 10061] No connection could be made because the target machine actively refused it",
+  "note": "connection refused/failed -> protocol maps this to G2 FAIL",
+  "g2_verdict": "FAIL"
+}

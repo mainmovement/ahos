@@ -1,0 +1,40 @@
+{
+  "action": "stop",
+  "ts": "2026-10-14T08:33:28.805412+00:00",
+  "overall": "STOPPED",
+  "paper_only": true,
+  "components": {
+    "engine": {
+      "status": "STOPPED",
+      "detail": "stopped (force, 1.9s)",
+      "pid": 14236,
+      "critical": true
+    },
+    "telegram": {
+      "status": "STOPPED",
+      "detail": "stopped (force, 1.6s)",
+      "pid": 4612,
+      "critical": false
+    },
+    "gateway": {
+      "status": "STOPPED",
+      "detail": "stopped (failed, 11.1s)",
+      "pid": 11784,
+      "critical": false
+    }
+  },
+  "dashboard_url": "http://127.0.0.1:3000/",
+  "gateway_port": 3000,
+  "gateway_chosen_via": "CONFIGURED_BINDABLE",
+  "gateway_warnings": [],
+  "db_backend": {
+    "scheme": "postgres",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "configured": true
+  },
+  "preflight": null,
+  "cp_status": "HALTED",
+  "swept": [],
+  "duration": 15.259939432144165
+}

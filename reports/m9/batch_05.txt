@@ -1,0 +1,17 @@
+tests/test_observation_runtime.py
+tests/test_observation_scheduler.py
+tests/test_observe_active.py
+tests/test_one_brain_architecture.py
+tests/test_operational_failure_matrix.py
+tests/test_operator_validation_gate.py
+tests/test_opportunity_pipeline_integration.py
+tests/test_opportunity_scoring.py
+tests/test_oss_audit.py
+tests/test_oss_intelligence_pipeline.py
+tests/test_overlay_query.py
+tests/test_p5_episode_polarity.py
+tests/test_p5_memory_authorization_boundary.py
+tests/test_p5_negation_entity.py
+tests/test_p5_observation_grant.py
+tests/test_p5_second_forensic.py
+tests/test_p5_v3_authority_boundary.py

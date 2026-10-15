@@ -1,0 +1,11 @@
+﻿{
+    "waited_sec":  11408,
+    "source":  "live",
+    "wait_outcome":  "EXITED",
+    "exit_code":  0,
+    "verdict":  "DONE",
+    "ts":  "2026-10-06T11:58:58.9876422+03:30",
+    "mission":  "M11.3",
+    "argument":  "",
+    "safe":  "ap_M11_3"
+}

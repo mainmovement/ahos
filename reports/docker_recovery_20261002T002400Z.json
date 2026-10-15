@@ -1,0 +1,119 @@
+{
+  "schema": "ahos.docker_recovery.v1",
+  "timestamp_utc": "2026-10-02T00:24:00Z",
+  "phase": "MINIMUM SAFE RECOVERY AND DATA PRESERVATION (only)",
+  "directive_constraints_honored": [
+    "no delete, reset, prune, uninstall, recreate, or factory-reset of Docker/WSL",
+    "no destructive Docker commands",
+    "no migrations, no schema changes, no writes to PostgreSQL (all queries read-only)",
+    "no Lane A / discovery / paper_trading / CanonicalDecisionAuthority / Python authority modification",
+    "no SQLite store modification",
+    "no Phase 4 SQLite redirection",
+    "no source code changes",
+    "no commits"
+  ],
+  "backup": {
+    "location": "G:\\DockerData\\DockerDesktopWSL_BACKUP_20261002",
+    "drive_free_gb_before": 260.78,
+    "required_gb": 18.37,
+    "drive_chosen_rationale": "G: was the only drive with comfortable headroom (C: 33.54 GB, F: 19.53 GB); source already on G:",
+    "files": [
+      {
+        "file": "docker_data.vhdx",
+        "source": "G:\\DockerData\\DockerDesktopWSL\\disk\\docker_data.vhdx",
+        "backup": "G:\\DockerData\\DockerDesktopWSL_BACKUP_20261002\\docker_data.vhdx",
+        "bytes": 18272485376,
+        "source_sha256": "313B51AC96F41F0FB373CC432E566659C3C14A36F47F98964F8A70C7A72FB954",
+        "backup_sha256": "313B51AC96F41F0FB373CC432E566659C3C14A36F47F98964F8A70C7A72FB954",
+        "verdict": "VERIFIED byte-exact"
+      },
+      {
+        "file": "ext4.vhdx",
+        "source": "G:\\DockerData\\DockerDesktopWSL\\main\\ext4.vhdx",
+        "backup": "G:\\DockerData\\DockerDesktopWSL_BACKUP_20261002\\ext4.vhdx",
+        "bytes": 100663296,
+        "source_sha256": "0EF2E31E7F6E6194BBF3BD641865BC822E8950A3A538BD5A9ADC9D7B1689AE41",
+        "backup_sha256": "0EF2E31E7F6E6194BBF3BD641865BC822E8950A3A538BD5A9ADC9D7B1689AE41",
+        "verdict": "VERIFIED byte-exact"
+      }
+    ]
+  },
+  "wsl": {
+    "version": "3.0.1.0",
+    "kernel": "6.18.40.1-1",
+    "upgrade_state": "COMPLETED - 'wsl --version' resolves cleanly; the 19:06:55 'WSL is finishing an upgrade' blockage has cleared",
+    "shutdown": "wsl --shutdown exited 0; docker-desktop distro Stopped"
+  },
+  "host_memory_at_recovery": {
+    "total_gb": 7.93,
+    "free_gb": 3.53,
+    "free_pct": 44.5,
+    "note": "both original root-cause conditions (memory exhaustion + WSL upgrade) had cleared before restart"
+  },
+  "docker": {
+    "engine_version": "29.6.2",
+    "daemon_ready_at_utc": "2026-10-02T00:22:20Z",
+    "startup_duration": "3m14.88s after engine start",
+    "containers": [
+      {"name": "ahos_postgres_win", "id": "53b7cd17468c", "status": "Up (healthy)", "ports": "127.0.0.1:5432->5432/tcp"},
+      {"name": "ahos_runtime_win", "id": "d8a85111ed1a", "status": "Up (unhealthy)", "ports": "127.0.0.1:18000->8000/tcp", "note": "previously diagnosed: 20.3s PRAGMA integrity_check vs 5s Docker healthcheck timeout; the committed compose disables this check and the running container predates it - not data loss"},
+      {"name": "ahos_n8n_win", "id": "592b3be7cd72", "status": "Up", "ports": "127.0.0.1:5678->5678/tcp"},
+      {"name": "AHOS-N8N", "id": "279d397f8a59", "status": "Exited (137) 6 weeks ago", "note": "legacy, unrelated"},
+      {"name": "ahos-postgres", "id": "6635c52b3299", "status": "Exited (137) 6 weeks ago", "note": "legacy, unrelated"},
+      {"name": "ahos-redis", "id": "ec25bb02cd3c", "status": "Exited (137) 6 weeks ago", "note": "legacy, unrelated"}
+    ]
+  },
+  "postgres": {
+    "pg_isready": "/var/run/postgresql:5432 - accepting connections",
+    "server_version": "16.15",
+    "user_tables_public": 156,
+    "total_tables_all_schemas": 157,
+    "ahos_chat_messages_rows": 4,
+    "chat_rows_detail": [
+      {"id": 1, "role": "user", "intent": "general", "created_at": "2026-08-30T10:09:10.036826Z", "content_len": 4},
+      {"id": 2, "role": "assistant", "intent": "general", "created_at": "2026-08-30T10:09:10.427536Z", "content_len": 490},
+      {"id": 3, "role": "user", "intent": "general", "created_at": "2026-08-30T10:10:24.910554Z", "content_len": 4},
+      {"id": 4, "role": "assistant", "intent": "general", "created_at": "2026-08-30T10:10:24.959591Z", "content_len": 490}
+    ],
+    "note": "all queries were SELECT / pg_isready / pg_dump only; no writes, no migrations, no schema changes"
+  },
+  "pg_dump": {
+    "file": "reports\\pgdump_ahos_chat_messages_20261002T002200Z.sql",
+    "bytes": 4524,
+    "stderr_bytes": 0,
+    "tables_dumped": ["ahos_chat_messages"],
+    "contains": "CREATE TABLE, sequence + ownership, default, COPY of all 4 rows, setval to 4, primary key",
+    "integrity_checks": {
+      "row_count_in_dump": 4,
+      "matches_live_db": true,
+      "persian_utf8_preserved": true,
+      "sequence_setval": 4,
+      "verdict": "COMPLETE AND CONSISTENT"
+    },
+    "source_database_deleted": false
+  },
+  "sqlite_stores_untouched": {
+    "ahos_local": {"bytes": 69689344, "mtime": "2026-10-01 18:34"},
+    "e01_discovery": {"bytes": 149495808, "mtime": "2026-10-01 20:33"},
+    "paper_trading": {"bytes": 180224, "mtime": "2026-08-28 03:41"},
+    "ahos_knowledge": {"bytes": 20480, "mtime": "2026-08-28 03:41"}
+  },
+  "classification": {
+    "backup_byte_exact": "PROVEN BY EVIDENCE",
+    "wsl_upgrade_completed": "PROVEN BY EVIDENCE",
+    "engine_recovered": "PROVEN BY EVIDENCE",
+    "postgres_healthy": "PROVEN BY EVIDENCE",
+    "table_count_156": "PROVEN BY EVIDENCE",
+    "chat_rows_4": "PROVEN BY EVIDENCE",
+    "dump_complete": "PROVEN BY EVIDENCE",
+    "runtime_unhealthy_is_healthcheck_artifact": "STRONGLY INDICATED (consistent with prior forensic probe returning healthy in 20.3s)",
+    "no_data_loss": "PROVEN BY EVIDENCE (all counts match prior evidence; vhdx files intact and backed up)"
+  },
+  "files_created_this_phase": [
+    "G:\\DockerData\\DockerDesktopWSL_BACKUP_20261002\\docker_data.vhdx",
+    "G:\\DockerData\\DockerDesktopWSL_BACKUP_20261002\\ext4.vhdx",
+    "reports\\vhdx_backup_20261002T000000Z.json",
+    "reports\\pgdump_ahos_chat_messages_20261002T002200Z.sql",
+    "reports\\pgdump_ahos_chat_messages_20261002T002200Z.err"
+  ]
+}

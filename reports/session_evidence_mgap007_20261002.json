@@ -1,0 +1,30 @@
+{
+  "schema": "ahos.session_evidence.v1",
+  "purpose": "Session evidence note. Not a governance-document edit; the gap register (AHOS_GAP_REGISTER.md) is intentionally unchanged.",
+  "generated_utc": "2026-10-02T03:20:00Z",
+  "mission_context": "M-20261002-02 full canonical G1-G12 suite run on the Windows operator host",
+  "finding": {
+    "gap": "M-GAP-007",
+    "register_status_unchanged": "MITIGATED - 'operator Windows laptop re-probe still USER ACTION'",
+    "what_the_register_required": "at least one provider status=SUCCESS with token_count>0 in a committed probe artifact, produced ON THE WINDOWS LAPTOP (prior live success was agent-host only: reports/provider_probe_LIVE_VERIFIED_agent_host.json)",
+    "what_this_run_produced": {
+      "artifact": "reports/provider_probe_opval_20261002T023855Z.json",
+      "host": "Windows-10-10.0.19045-SP0 (the operator laptop; sys.platform=win32, G1 platform field)",
+      "chain": "solana",
+      "successes": ["dexscreener (tokens=2)", "geckoterminal (tokens=2)"],
+      "status_counts": {"UNSUPPORTED": 5, "SUCCESS": 2, "AUTH_REQUIRED": 1},
+      "any_success": true,
+      "m_gap_007_live_success_proven": true,
+      "produced_by": "canonical scripts.operator_validation_gate.g3_providers(do_probe=True)"
+    },
+    "interpretation": "The acceptance criterion named by M-GAP-007 for the Windows laptop re-probe is now satisfied by this artifact: live provider SUCCESS with token_count>0 on the Windows host. Whether the register row itself may be re-statused is a governance decision for the owner/registry process - deliberately NOT done here.",
+    "classification": "PROVEN BY EVIDENCE (the artifact is canonical-tool-produced on the Windows host and satisfies the stated acceptance criterion)"
+  },
+  "related_findings": {
+    "M-GAP-003": "Still OPEN - requires >=7 days soak evidence; pre-soak step 1 (M-20261002-03) added one bounded cycle with verified deltas.",
+    "M-GAP-010": "Advanced: reports/nightly_backup_series.json now records night 1/7 distinct UTC days (PASS). Six more distinct days + fresh-host restore remain USER-ACTION-REQUIRED per the tool's own UNPROVEN notes.",
+    "M-GAP-008": "Still OPEN - calibration measurement blocked on real T+72h labels; outcome_labels deliberately unchanged at 508 this session.",
+    "M-GAP-009": "Still OPEN/blocked-on-user - live Telegram E2E (G11) is OWNER_ACTION; a token is present but driving a live conversation is outward-facing and not executed."
+  },
+  "governance_status": "COMPLIANT - read-only w.r.t. governance documents, source, .env, Lane A; no commits"
+}

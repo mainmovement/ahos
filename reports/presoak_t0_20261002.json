@@ -1,0 +1,14 @@
+{
+  "schema": "ahos.presoak_t0.v1",
+  "t0_utc": "2026-10-02T02:54:19Z",
+  "t0_epoch": 1790909659.5918007,
+  "command": "python -m architecture.runtime --single-cycle --evidence-source local --limit 5",
+  "env": {
+    "AHOS_PAPER_ONLY": "1",
+    "AHOS_EVIDENCE_SOURCE": "local"
+  },
+  "interpreter": ".venv/Scripts/python.exe",
+  "pre_soak_entry_ok": true,
+  "gate_report": "reports/operator_validation_report_windows_20261002.json",
+  "note": "Wall-clock T0 for pre-soak prediction registration. Outcomes need real elapsed time to T+72h (do not fabricate)."
+}

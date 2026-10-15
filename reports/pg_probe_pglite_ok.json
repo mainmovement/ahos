@@ -1,0 +1,13 @@
+{
+  "schema": "ahos.pg_probe.v1",
+  "ok": true,
+  "backend": "pglite",
+  "database_url_set": true,
+  "database_url_redacted": "pglite:G:/robat/ahos_runtime/pglite/m10_stage4_smoke",
+  "error_class": null,
+  "error": null,
+  "system_state_rows": 0,
+  "ahos_table_count": 19,
+  "probe_via": "pglite_embedded",
+  "note": "native embedded PGlite (M10): no db:migrate / db:push"
+}

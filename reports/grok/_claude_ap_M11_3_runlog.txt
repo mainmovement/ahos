@@ -1,0 +1,14 @@
+﻿START 10/06/2026 01:34:16 continueFresh=False
+attempt0 mode=fresh session=7f9915fc-456e-467c-9373-e9314092ec9e dur=8511s end=10/06/2026 03:56:07
+DONE attempts=1 END=10/06/2026 03:56:07
+START 10/06/2026 05:20:43 continueFresh=True
+attempt0 mode=fresh session=e090c335-ef2e-4742-90d1-4d587f668c27 dur=7734s end=10/06/2026 07:29:37
+DONE attempts=1 END=10/06/2026 07:29:37
+START 10/06/2026 07:30:20 continueFresh=True
+attempt0 mode=fresh session=62cd072a-71f3-49f4-afb5-56010614111d dur=1070s end=10/06/2026 07:48:10
+DONE attempts=1 END=10/06/2026 07:48:10
+START 10/06/2026 08:48:51 continueFresh=True
+attempt0 mode=fresh session=f3108f2b-e4d1-4b48-934b-bce2280f217e dur=9852s end=10/06/2026 11:33:03
+no AUTOPILOT_RESULT in output -> resume
+attempt1 mode=resume session=f3108f2b-e4d1-4b48-934b-bce2280f217e dur=1526s end=10/06/2026 11:58:49
+DONE attempts=2 END=10/06/2026 11:58:49

@@ -1,0 +1,313 @@
+﻿START 10/10/2026 03:01:27 continueFresh=False
+attempt0 mode=fresh session=8d973ccb-d6d2-4ff2-bba5-1dd726c1377a dur=196s end=10/10/2026 03:04:43
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 03:04:43
+START 10/10/2026 03:15:58 continueFresh=False
+attempt0 mode=fresh session=755ec468-996d-4436-8dd8-a7c8ba1ac16b dur=192s end=10/10/2026 03:19:10
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 03:19:10
+START 10/10/2026 03:30:14 continueFresh=False
+attempt0 mode=fresh session=286ecad4-a486-485c-b25b-c6a024697991 dur=190s end=10/10/2026 03:33:24
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 03:33:24
+START 10/10/2026 03:44:30 continueFresh=False
+attempt0 mode=fresh session=b5163184-9c08-4aa1-9494-acafe32433ea dur=187s end=10/10/2026 03:47:37
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 03:47:37
+START 10/10/2026 03:58:47 continueFresh=False
+attempt0 mode=fresh session=0eea71d8-4fb3-4bdd-9ce7-007b73775a99 dur=188s end=10/10/2026 04:01:55
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 04:01:55
+START 10/10/2026 04:13:03 continueFresh=False
+attempt0 mode=fresh session=9c942594-d95e-4a38-aabc-bb747f6442aa dur=182s end=10/10/2026 04:16:05
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 04:16:05
+START 10/10/2026 04:27:19 continueFresh=False
+attempt0 mode=fresh session=591ef3c9-89db-4a82-b10c-c752f2871ffe dur=186s end=10/10/2026 04:30:25
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 04:30:25
+START 10/10/2026 04:43:35 continueFresh=False
+attempt0 mode=fresh session=87a13d12-2d27-4d22-bab0-704a07e4e4f3 dur=192s end=10/10/2026 04:46:47
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 04:46:47
+START 10/10/2026 04:57:51 continueFresh=False
+attempt0 mode=fresh session=2f342c32-e0ac-4f31-9791-b0e2b07a4cfa dur=193s end=10/10/2026 05:01:05
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 05:01:05
+START 10/10/2026 05:12:07 continueFresh=False
+attempt0 mode=fresh session=550096fa-a161-431c-b77e-727dca078985 dur=183s end=10/10/2026 05:15:10
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 05:15:10
+START 10/10/2026 05:26:23 continueFresh=False
+attempt0 mode=fresh session=74d09443-a4e4-4a52-bd23-1b841c83582a dur=186s end=10/10/2026 05:29:29
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 05:29:29
+START 10/10/2026 05:42:39 continueFresh=False
+attempt0 mode=fresh session=fad0534e-96b0-4ffc-add3-fd12fd798140 dur=184s end=10/10/2026 05:45:43
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 05:45:43
+START 10/10/2026 05:56:56 continueFresh=False
+attempt0 mode=fresh session=86553552-2807-463e-acfa-a32b82089eb1 dur=184s end=10/10/2026 05:59:59
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 05:59:59
+START 10/10/2026 06:11:12 continueFresh=False
+attempt0 mode=fresh session=1cc03dea-9498-45aa-8184-6036f7a38a72 dur=187s end=10/10/2026 06:14:19
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 06:14:19
+START 10/10/2026 06:25:28 continueFresh=False
+attempt0 mode=fresh session=084b7a44-94db-4051-b87a-49b5e66bf064 dur=187s end=10/10/2026 06:28:35
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 06:28:35
+START 10/10/2026 06:43:44 continueFresh=False
+attempt0 mode=fresh session=d33fd1de-2104-41fd-9ea3-5690bf415ebe dur=183s end=10/10/2026 06:46:47
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 06:46:47
+START 10/10/2026 06:58:01 continueFresh=False
+attempt0 mode=fresh session=0b51dd5c-af89-475c-8d8c-9a5fca785ec9 dur=189s end=10/10/2026 07:01:10
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 07:01:10
+START 10/10/2026 07:12:16 continueFresh=False
+attempt0 mode=fresh session=e49df7be-778e-444e-970c-1c31d311a21f dur=185s end=10/10/2026 07:15:21
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 07:15:21
+START 10/10/2026 07:26:33 continueFresh=False
+attempt0 mode=fresh session=a53fdcb1-a035-417f-a39d-720579283110 dur=183s end=10/10/2026 07:29:36
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 07:29:36
+START 10/10/2026 07:42:49 continueFresh=False
+attempt0 mode=fresh session=c85d3429-ced1-4ea6-bbd2-07328d80c9f4 dur=189s end=10/10/2026 07:45:58
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 07:45:58
+START 10/10/2026 07:57:05 continueFresh=False
+attempt0 mode=fresh session=1d1479a1-3875-402a-98c4-325bca872bf7 dur=189s end=10/10/2026 08:00:14
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 08:00:14
+START 10/10/2026 08:11:21 continueFresh=False
+attempt0 mode=fresh session=43f0c061-3cf7-4bef-a937-08caea1a5ee0 dur=193s end=10/10/2026 08:14:34
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 08:14:35
+START 10/10/2026 10:53:48 continueFresh=False
+attempt0 mode=fresh session=2fd6adf0-846c-4447-8851-86e8fb6686b9 dur=231s end=10/10/2026 10:57:39
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 10:57:39
+START 10/10/2026 11:08:49 continueFresh=False
+attempt0 mode=fresh session=cdf77009-1538-4b88-b83e-8eae90af32d4 dur=239s end=10/10/2026 11:12:47
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 11:12:48
+START 10/10/2026 12:31:55 continueFresh=False
+attempt0 mode=fresh session=e8370af0-9798-4e58-8755-733de280bc4e dur=200s end=10/10/2026 12:35:15
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 12:35:15
+START 10/10/2026 12:46:26 continueFresh=False
+attempt0 mode=fresh session=8ae1dc72-3ba0-4d8f-bd54-820b844f67b1 dur=254s end=10/10/2026 12:50:40
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 12:50:40
+START 10/10/2026 13:01:42 continueFresh=False
+attempt0 mode=fresh session=54fb92b6-57b8-4d0e-8f7c-ddf8258a2e01 dur=257s end=10/10/2026 13:05:59
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 13:05:59
+START 10/10/2026 13:17:13 continueFresh=False
+attempt0 mode=fresh session=58500296-a200-4505-a2eb-b9b48ed27516 dur=207s end=10/10/2026 13:20:40
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 13:20:40
+START 10/10/2026 13:31:44 continueFresh=False
+attempt0 mode=fresh session=fc3bc167-3f7a-41df-8ebc-8b053531b97e dur=215s end=10/10/2026 13:35:19
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/10/2026 13:35:19
+START 10/11/2026 00:27:19 continueFresh=False
+attempt0 mode=fresh session=e0e218e5-b36c-4037-b602-aa1fac179639 dur=271s end=10/11/2026 00:31:51
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 00:31:51
+START 10/11/2026 00:43:05 continueFresh=False
+attempt0 mode=fresh session=56d88717-b990-4c10-ac06-f6e91b1b7c78 dur=247s end=10/11/2026 00:47:12
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 00:47:12
+START 10/11/2026 00:58:22 continueFresh=False
+attempt0 mode=fresh session=0417b8ef-2c68-4a06-a735-3eb5fae4d304 dur=260s end=10/11/2026 01:02:42
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 01:02:42
+START 10/11/2026 01:13:53 continueFresh=False
+attempt0 mode=fresh session=344b9a87-c328-43f6-93d6-f9d33eea4395 dur=245s end=10/11/2026 01:17:58
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 01:17:58
+START 10/11/2026 01:29:09 continueFresh=False
+attempt0 mode=fresh session=d30a1332-db05-44a4-9ed0-a1ec1c09e272 dur=184s end=10/11/2026 01:32:13
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 01:32:13
+START 10/11/2026 01:43:25 continueFresh=False
+attempt0 mode=fresh session=9d667e59-6e1d-49d7-b29f-b3574b14fdcd dur=216s end=10/11/2026 01:47:01
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 01:47:01
+START 10/11/2026 01:58:12 continueFresh=False
+attempt0 mode=fresh session=119a35a9-1661-4ce8-ba7b-f3ecb3d02031 dur=187s end=10/11/2026 02:01:19
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 02:01:19
+START 10/11/2026 02:12:28 continueFresh=False
+attempt0 mode=fresh session=a8df9ee5-1438-46f8-a535-82db55c4eac3 dur=215s end=10/11/2026 02:16:03
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 02:16:03
+START 10/11/2026 02:27:14 continueFresh=False
+attempt0 mode=fresh session=7eb6e999-50b8-4fe9-a272-0b80a5c9c0ea dur=188s end=10/11/2026 02:30:22
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 02:30:22
+START 10/11/2026 02:43:31 continueFresh=False
+attempt0 mode=fresh session=3cda9632-b2c8-4946-904b-877f912dfceb dur=215s end=10/11/2026 02:47:05
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 02:47:05
+START 10/11/2026 02:58:17 continueFresh=False
+attempt0 mode=fresh session=0824f147-158a-4ad7-bd00-d146b97953eb dur=196s end=10/11/2026 03:01:33
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 03:01:33
+START 10/11/2026 03:12:48 continueFresh=False
+attempt0 mode=fresh session=acea9074-0946-4ac0-b1d8-ea7bc0210aa3 dur=184s end=10/11/2026 03:15:52
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 03:15:52
+START 10/11/2026 03:27:04 continueFresh=False
+attempt0 mode=fresh session=3c7c37b1-84e2-4a1b-b565-1ecd9b4ae208 dur=186s end=10/11/2026 03:30:10
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 03:30:10
+START 10/11/2026 03:43:20 continueFresh=False
+attempt0 mode=fresh session=981a8db7-355f-427b-a487-2ed244cba740 dur=196s end=10/11/2026 03:46:36
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 03:46:36
+START 10/11/2026 03:57:52 continueFresh=False
+attempt0 mode=fresh session=d58c966f-2a95-414d-a4c2-4fe88a98f99f dur=191s end=10/11/2026 04:01:02
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 04:01:02
+START 10/11/2026 04:12:08 continueFresh=False
+attempt0 mode=fresh session=9dd807cc-a213-4061-a8e6-5b9e4b865826 dur=192s end=10/11/2026 04:15:20
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 04:15:21
+START 10/11/2026 04:26:24 continueFresh=False
+attempt0 mode=fresh session=f78674ff-5d2f-4576-a080-36812d09d2df dur=196s end=10/11/2026 04:29:40
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 04:29:40
+START 10/11/2026 04:42:56 continueFresh=False
+attempt0 mode=fresh session=22e48ec3-7a7f-4c57-8ac1-7a27d8c7ec4d dur=189s end=10/11/2026 04:46:05
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 04:46:05
+START 10/11/2026 04:57:12 continueFresh=False
+attempt0 mode=fresh session=6f426763-6e55-45f6-98f0-06854fe64f40 dur=184s end=10/11/2026 05:00:15
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 05:00:15
+START 10/11/2026 05:11:28 continueFresh=False
+attempt0 mode=fresh session=b460cf5a-fc9d-4e17-b22e-085155b6e831 dur=184s end=10/11/2026 05:14:32
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 05:14:32
+START 10/11/2026 05:25:44 continueFresh=False
+attempt0 mode=fresh session=5bab8014-3fe0-4f07-b304-de338c85469b dur=184s end=10/11/2026 05:28:49
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 05:28:49
+START 10/11/2026 05:44:01 continueFresh=False
+attempt0 mode=fresh session=8b9ec4d0-b2b9-4090-9867-e8d47551ef8b dur=185s end=10/11/2026 05:47:06
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 05:47:06
+START 10/11/2026 05:58:17 continueFresh=False
+attempt0 mode=fresh session=767e8814-1cb9-42e4-bfa0-1d2765173d7f dur=192s end=10/11/2026 06:01:30
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 06:01:30
+START 10/11/2026 06:12:33 continueFresh=False
+attempt0 mode=fresh session=40fd302c-8976-4e95-9f46-595423a1db27 dur=189s end=10/11/2026 06:15:42
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 06:15:42
+START 10/11/2026 06:26:50 continueFresh=False
+attempt0 mode=fresh session=2d6354bc-1fdc-4b81-8035-12b7ee99381c dur=186s end=10/11/2026 06:29:55
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 06:29:56
+START 10/11/2026 08:27:16 continueFresh=False
+attempt0 mode=fresh session=786c7471-f0b7-405e-afcb-fe644912074c dur=196s end=10/11/2026 08:30:32
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 08:30:32
+START 10/11/2026 08:43:46 continueFresh=False
+attempt0 mode=fresh session=2f07f61d-f606-4ed5-b91e-406c1920519b dur=212s end=10/11/2026 08:47:18
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 08:47:18
+START 10/11/2026 08:58:33 continueFresh=False
+attempt0 mode=fresh session=0915e95f-4b52-42ee-bbeb-84426d6e85a9 dur=193s end=10/11/2026 09:01:46
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 09:01:46
+START 10/11/2026 09:12:49 continueFresh=False
+attempt0 mode=fresh session=f9d0fb2c-fda6-4570-8c75-c31ce2e3fd4b dur=193s end=10/11/2026 09:16:01
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 09:16:01
+START 10/11/2026 09:27:05 continueFresh=False
+attempt0 mode=fresh session=77f087b9-1990-44a2-88c5-4081c19f1e8f dur=188s end=10/11/2026 09:30:13
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 09:30:13
+START 10/11/2026 09:43:21 continueFresh=False
+attempt0 mode=fresh session=de29c559-4146-4c0a-a194-4e5a5659a5e1 dur=196s end=10/11/2026 09:46:38
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 09:46:38
+START 10/11/2026 09:57:53 continueFresh=False
+attempt0 mode=fresh session=9ecd50c5-c735-421e-9937-dfd1a4a1a33a dur=197s end=10/11/2026 10:01:10
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 10:01:10
+START 10/11/2026 20:13:17 continueFresh=False
+attempt0 mode=fresh session=93313e2d-e317-4811-9ef8-edd01f698840 dur=296s end=10/11/2026 20:18:13
+no AUTOPILOT_RESULT in output -> resume
+STOP: infra/quota failure -- the mission never ran, no attempt is chargeable
+DONE attempts=1 END=10/11/2026 20:18:13
+START 10/12/2026 04:03:52 continueFresh=False
+attempt0 mode=fresh session=790f41ad-f36a-4f51-9504-078e0270464e dur=15511s end=10/12/2026 08:22:23
+DONE attempts=1 END=10/12/2026 08:22:23

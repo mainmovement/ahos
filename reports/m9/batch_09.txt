@@ -1,0 +1,17 @@
+tests/test_self_evolution_engine.py
+tests/test_soak_snapshot.py
+tests/test_sqlite_backup_restore.py
+tests/test_strategy_lab.py
+tests/test_system_state_snapshot.py
+tests/test_tasks.py
+tests/test_telegram_ai.py
+tests/test_telegram_bot_adapter.py
+tests/test_telegram_conversational.py
+tests/test_telegram_html_escape.py
+tests/test_telegram_offline_harness.py
+tests/test_telegram_persian_nlu_matrix.py
+tests/test_telegram_reply_presentation.py
+tests/test_telegram_service.py
+tests/test_token_dossier.py
+tests/test_tsconfig_archive_exclusion.py
+tests/test_typed_reasoning.py

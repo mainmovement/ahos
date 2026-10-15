@@ -1,0 +1,13 @@
+tests/test_update_manager.py
+tests/test_validate_imports_artifacts.py
+tests/test_validate_n8n_utf8.py
+tests/test_validate_orphans.py
+tests/test_validation_engine.py
+tests/test_vector_and_event_backtest.py
+tests/test_versioned_claim_store.py
+tests/test_virality_feed_through.py
+tests/test_wave7_research.py
+tests/test_wave_directive_declaration.py
+tests/test_web_api_auth_gate.py
+tests/test_whale_intelligence.py
+tests/test_zero_money_invariant.py

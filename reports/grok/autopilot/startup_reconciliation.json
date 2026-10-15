@@ -1,0 +1,66 @@
+﻿{
+    "runner_pid":  2200,
+    "entries":  [
+                    {
+                        "safe":  "ap_M10_1",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M10",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "BLOCKED_OWNER",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M11_2",
+                        "result_verdict":  "DONE",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M11_3",
+                        "result_verdict":  "DONE",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M11_4",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M12",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M13",
+                        "result_verdict":  "DONE",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M34",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M42",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "NEEDS_REVIEW",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M48_1",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    }
+                ],
+    "ts":  "2026-10-13T15:45:38.3629892+03:30"
+}

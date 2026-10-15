@@ -1,0 +1,17 @@
+tests/test_p5_v4_authority_boundary.py
+tests/test_paper_api_security_gate.py
+tests/test_paper_position_manager.py
+tests/test_paper_trading.py
+tests/test_paper_trading_v2.py
+tests/test_paper_trading_v3.py
+tests/test_paper_trading_v32.py
+tests/test_paths_and_cross_platform.py
+tests/test_performance_stress_matrix.py
+tests/test_phase11_prediction_integrity.py
+tests/test_phase11_runtime_and_operator.py
+tests/test_phase12_local_activation.py
+tests/test_phase13_laptop_operation.py
+tests/test_phase14_operator_docs.py
+tests/test_phase18_launchers.py
+tests/test_phase2_operational_invariants.py
+tests/test_phase3_operational_hardening.py

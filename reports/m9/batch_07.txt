@@ -1,0 +1,17 @@
+tests/test_phase4_intelligence_integration.py
+tests/test_phase4_operational_observability.py
+tests/test_pipeline_e2e_matrix.py
+tests/test_positions_and_ledger_matrix.py
+tests/test_prediction_lifecycle_bridge.py
+tests/test_proactive_alert_delivery.py
+tests/test_production_scheduler_hardening.py
+tests/test_provider_abstraction.py
+tests/test_provider_failure_resilience.py
+tests/test_provider_registry_phase7.py
+tests/test_provider_yaml_sync.py
+tests/test_pumpfun_adapter.py
+tests/test_quant_metrics.py
+tests/test_record_local_laptop_baseline.py
+tests/test_red_team.py
+tests/test_registry.py
+tests/test_regression_report.py

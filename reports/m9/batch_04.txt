@@ -1,0 +1,17 @@
+tests/test_gemini_phraser.py
+tests/test_governance.py
+tests/test_health_manager.py
+tests/test_hindsight_engine.py
+tests/test_hypothesis_engine.py
+tests/test_identity_fusion.py
+tests/test_improvement_selection.py
+tests/test_intel_narrative_and_virality.py
+tests/test_intelligence_engine.py
+tests/test_knowledge_trust_registry.py
+tests/test_master_directive.py
+tests/test_mcp_registry.py
+tests/test_mission_ledger.py
+tests/test_month1_failure_matrix.py
+tests/test_multi_mind_council_anti_echo.py
+tests/test_n8n_governance_rules.py
+tests/test_narrative_and_intel_feed_through.py

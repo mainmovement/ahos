@@ -1,0 +1,203 @@
+{
+  "schema": "ahos.operator_validation_report.v1",
+  "generated_utc": "2026-10-02T02:39:05Z",
+  "platform_arg": "windows",
+  "platform_effective": "windows",
+  "host_platform": null,
+  "host_is_windows": true,
+  "head_hint": "6cf3f5a",
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Environment",
+      "status": "PASS",
+      "detail": "{\"python\": \"3.11.9\", \"executable\": \"C:\\\\Users\\\\Sniper\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe\", \"platform\": \"Windows-10-10.0.19045-SP0\", \"system\": \"Windows\", \"node\": \"v24.19.0\", \"npm\": \"11.17.0\", \"repo_root\": \"G:\\\\robat\\\\ahos\", \"database_url_set\": true, \"web_api_token_set\": true, \"web_api_auth_module_present\": true, \"issues\": [], \"blocked\": []}",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:38:52Z",
+      "python": "3.11.9",
+      "executable": "C:\\Users\\Sniper\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "platform": "Windows-10-10.0.19045-SP0",
+      "system": "Windows",
+      "node": "v24.19.0",
+      "npm": "11.17.0",
+      "repo_root": "G:\\robat\\ahos",
+      "database_url_set": true,
+      "web_api_token_set": true,
+      "web_api_auth_module_present": true,
+      "issues": [],
+      "blocked": []
+    },
+    {
+      "id": "G2",
+      "name": "Gateway",
+      "status": "PASS",
+      "detail": "http_200 from http://127.0.0.1:3500/api/chat",
+      "artifact": "{\"reply\":\"فهمیدم چی گفتی — مثل همکار جواب می‌دم، نه ربات خشک. الان رژیم RANGE است، بیت‌کوین ۷۹٫۷۳ هزار دلار (+۰٫۱۵٪). 0 حکم BUY کانونیکال و 0 رد. تازه‌ترین خبر فارسی: بنیاد اتنا در کنار سایر به‌روزرسا",
+      "ts_utc": "2026-10-02T02:38:52Z",
+      "http_status": 200,
+      "url": "http://127.0.0.1:3500/api/chat",
+      "database_url_set": true,
+      "web_api_token_set": true,
+      "attempt": 1
+    },
+    {
+      "id": "G3",
+      "name": "Discovery providers",
+      "status": "PASS",
+      "detail": "SUCCESS: dexscreener, geckoterminal tokens={'dexscreener': 2, 'geckoterminal': 2}",
+      "artifact": "G:\\robat\\ahos\\reports\\provider_probe_opval_20261002T023855Z.json",
+      "ts_utc": "2026-10-02T02:38:55Z",
+      "status_counts": {
+        "UNSUPPORTED": 5,
+        "SUCCESS": 2,
+        "AUTH_REQUIRED": 1
+      },
+      "successes": [
+        "dexscreener",
+        "geckoterminal"
+      ]
+    },
+    {
+      "id": "G4",
+      "name": "Evidence persistence",
+      "status": "PASS",
+      "detail": "discovery_observations=111096 production_observations=33333",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:00Z",
+      "census": {
+        "schema": "ahos.prediction_lifecycle_status.v1",
+        "version": "prediction_lifecycle:v1",
+        "discovery_db": "G:\\robat\\ahos\\data\\e01_discovery.sqlite",
+        "ledger_db": "G:\\robat\\ahos\\data\\ahos_local.sqlite",
+        "observation_state": {
+          "DEAD": 12629,
+          "OBSERVING": 3675,
+          "RESOLVED": 5936
+        },
+        "outcome_labels": 508,
+        "discovery_observations": 111096,
+        "production_observations": 33333,
+        "local_predictions": 27485,
+        "eligible_join_pairs_estimate": 0,
+        "notes": []
+      }
+    },
+    {
+      "id": "G5",
+      "name": "Scoring / predictions",
+      "status": "PASS",
+      "detail": "local_predictions=27485",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:00Z",
+      "local_predictions": 27485
+    },
+    {
+      "id": "G8",
+      "name": "Prediction lifecycle registration",
+      "status": "PASS",
+      "detail": "observation_state_total=22240 states={'DEAD': 12629, 'OBSERVING': 3675, 'RESOLVED': 5936}",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:00Z"
+    },
+    {
+      "id": "G9",
+      "name": "Observation lifecycle",
+      "status": "PASS",
+      "detail": "discovery_observations=111096 outcome_labels=508 (outcome_labels=0 is expected until T+72h RESOLVED — do not fabricate)",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:00Z",
+      "outcome_labels": 508
+    },
+    {
+      "id": "G6",
+      "name": "Security / PAPER_ONLY",
+      "status": "PASS",
+      "detail": "assert_safe_environment ok",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:00Z",
+      "env": {
+        "paper_only_enforced": true,
+        "paper_only_explicit": true,
+        "paper_only_unset": false,
+        "live_trading_flags_absent": true,
+        "zero_real_trading": true,
+        "credentials_isolated": true,
+        "ahos_paper_only_env": "1"
+      }
+    },
+    {
+      "id": "G7",
+      "name": "Lane-A freeze",
+      "status": "PASS",
+      "detail": "Lane-A integrity OK (pinned)",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:00Z"
+    },
+    {
+      "id": "G10",
+      "name": "Restart/recovery",
+      "status": "PASS",
+      "detail": "{\n  \"verdict\": \"PASS\",\n  \"passed\": 5,\n  \"failed\": 0,\n  \"report\": \"G:\\\\robat\\\\ahos\\\\reports\\\\backup_restore_drill.json\",\n  \"timestamp_utc\": \"2026-10-02T02:39:04Z\",\n  \"commit_sha\": \"6cf3f5ab71c4e367c17ca3e1b0dbb24f83253799\"\n}\n",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:05Z",
+      "returncode": 0
+    },
+    {
+      "id": "G11",
+      "name": "Telegram live E2E",
+      "status": "NOT_VERIFIED",
+      "detail": "token present but no --telegram-e2e-artifact supplied (archive reports\\telegram_e2e_<UTC>.md then re-run with that path)",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:05Z",
+      "platform": "windows"
+    },
+    {
+      "id": "G12",
+      "name": "n8n",
+      "status": "STRUCTURAL_VALID",
+      "detail": "[PASS] ahos_01_data_ingest_integrity.json\n[PASS] ahos_02_signal_pipeline.json\n[PASS] ahos_03_telegram_control.json\n[PASS] ahos_10_research_lab.json\n[PASS] ahos_11_data_update.json\n[PASS] ahos_12_research_report.json\n",
+      "artifact": null,
+      "ts_utc": "2026-10-02T02:39:05Z",
+      "structural_valid": true,
+      "operational_valid": false,
+      "note": "OPERATIONAL_VALID requires live n8n import+execute (OWNER_ACTION) — JSON valid ≠ operational"
+    }
+  ],
+  "summary": {
+    "g1_g10_all_pass": true,
+    "pre_soak_entry_ok": true,
+    "missing": [
+      "G11:NOT_VERIFIED"
+    ],
+    "remediation_actions": [
+      "G11: set TELEGRAM_BOT_TOKEN + allowlist, archive E2E transcript, re-run with --telegram-e2e-artifact reports\\telegram_e2e_<UTC>.md (needed for OPERATOR_READY; pre-soak only needs G1-G10).",
+      "Never claim OPERATOR_READY without Windows G1-G11 PASS artifacts.",
+      "STATE B: never db:migrate / db:push without Cursor classification."
+    ],
+    "host_is_windows": true,
+    "windows_attested": true,
+    "classification": "INTEGRATION_READY",
+    "operator_ready": false,
+    "reason": "Windows G1–G10 PASS — pre-soak entry OK; G11 still required for OPERATOR_READY"
+  },
+  "runner": {
+    "type": "full_canonical_suite_via_gate_functions",
+    "reason": "scripts/operator_validation_gate.py main() force-overwrites AHOS_GATEWAY_URL from .env (port 3000); the live gateway is on 3500 per mission directive. Gate functions are called unmodified.",
+    "gateway_url": "http://127.0.0.1:3500/api/chat",
+    "env_source": ".env (read-only; not modified)"
+  },
+  "exit_code_legend": {
+    "0": "report written; no FAIL gates",
+    "1": "unexpected script error",
+    "2": "one or more FAIL gates",
+    "3": "windows platform and operator_ready still false"
+  },
+  "forbidden_claims": [
+    "PRODUCTION_READY",
+    "OPERATOR_READY without Windows G1-G11 PASS artifacts",
+    "n8n OPERATIONAL_VALID from JSON alone",
+    "Telegram live from unit tests alone",
+    "Calibration validated with 0 joined_pairs",
+    "Agent-host SUCCESS as OPERATOR_WINDOWS_VERIFIED"
+  ]
+}

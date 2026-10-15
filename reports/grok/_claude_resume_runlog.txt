@@ -1,0 +1,5 @@
+﻿2026-10-10T13:54:10 AUTO-PICK ed1b109c-35cc-48d2-a8e5-15edc364bc88 (last write 13:53:06)
+2026-10-10T13:54:10 RESUME session=ed1b109c-35cc-48d2-a8e5-15edc364bc88 model=Atria-Dawn-Preview turns=300 timeout=1500s dryrun=True
+2026-10-10T13:54:10 DRY-RUN: model derived, session resolved, environment prepared. No API call made.
+2026-10-10T14:08:55 CONFIG-ERROR: no session to resume. Pass -MissionId <n> (the runner's -n) or -SessionId <id>. This script deliberately does not guess the newest transcript.
+2026-10-10T14:08:55 CONFIG-ERROR: no session to resume. Pass -MissionId <n> (the runner's -n) or -SessionId <id>. This script deliberately does not guess the newest transcript.

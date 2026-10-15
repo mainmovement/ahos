@@ -1,0 +1,39 @@
+{
+  "schema": "ahos.healthcheck_forensic.v1",
+  "timestamp_utc": "2026-10-01T17:48:21Z",
+  "container": "ahos_runtime_win",
+  "finding": "health probe returns OK but run_checks takes ~20s on the bind-mounted store; Docker's 5s timeout is shorter than the probe cost, not an app defect",
+  "probe": "storage_local: connect_sqlite_ro(/app/data/ahos_local.sqlite) + PRAGMA integrity_check",
+  "measured": {
+    "import_lifecycle_sec": 1.0,
+    "construct_sec": 0.0,
+    "run_checks_sec": 20.3,
+    "total_sec": 21.31
+  },
+  "probe_result": {
+    "healthy": true,
+    "status": "OK",
+    "duration_ms": 20304.68,
+    "details": {
+      "storage_local": {
+        "ok": true,
+        "integrity": "ok"
+      }
+    }
+  },
+  "docker_healthcheck": {
+    "timeout_sec": 5,
+    "interval_sec": 30,
+    "start_period_sec": 10,
+    "retries": 3,
+    "source": "deployment/Dockerfile HEALTHCHECK"
+  },
+  "committed_compose": {
+    "healthcheck": "disable: true",
+    "comment": "Dockerfile HEALTHCHECK marks unhealthy without production wiring; disable for Windows compose"
+  },
+  "container_created_utc": "2026-08-28T15:04:28Z",
+  "compose_mtime": "2026-08-28T23:11:34Z (2026-08-29 02:41 +0330)",
+  "stale_container": true,
+  "note": "running container predates the committed compose that disables this check"
+}

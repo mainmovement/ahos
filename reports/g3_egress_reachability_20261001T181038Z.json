@@ -1,0 +1,34 @@
+{
+  "schema": "ahos.g3_egress_reachability.v1",
+  "timestamp_utc": "2026-10-01T18:10:38Z",
+  "scope": "raw urllib GET; no store writes, no provenance rows",
+  "note": "reachability only - NOT the AHOS probe_providers() evidence pipeline; a PASS here means egress is open, not that AHOS evidence was produced",
+  "providers": [
+    {
+      "provider": "dexscreener",
+      "url": "https://api.dexscreener.com/latest/dex/tokens/So11111111111111111111111111111111111111112",
+      "timestamp_utc": "2026-10-01T18:10:37Z",
+      "reachable": true,
+      "responded": true,
+      "http_status": 200,
+      "latency_ms": 410.9,
+      "content_type": "application/json; charset=utf-8",
+      "bytes_inspected": 2048,
+      "looks_like_json": true,
+      "tls_verified": true
+    },
+    {
+      "provider": "geckoterminal",
+      "url": "https://api.geckoterminal.com/api/v2/networks/solana/tokens/So11111111111111111111111111111111111111112",
+      "timestamp_utc": "2026-10-01T18:10:37Z",
+      "reachable": true,
+      "responded": true,
+      "http_status": 200,
+      "latency_ms": 366.0,
+      "content_type": "application/json; charset=utf-8",
+      "bytes_inspected": 974,
+      "looks_like_json": true,
+      "tls_verified": true
+    }
+  ]
+}

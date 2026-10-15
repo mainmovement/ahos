@@ -1,0 +1,10 @@
+﻿2026-10-14T14:21:40 start model=Atria-Dawn-Preview
+[claude-code:unrecognized_model] {"model":"Atria-Dawn-Preview","query_source":"sdk"}
+At C:\Users\Sniper\AppData\Roaming\npm\claude.ps1:14 char:3
++   & "$basedir/node_modules/@anthropic-ai/claude-code/bin/claude.exe"  ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([claude-code:un..._source":"sdk"}:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+API Error: Request rejected (429) ┬╖ Token quota exhausted.
+2026-10-14T14:25:41 done

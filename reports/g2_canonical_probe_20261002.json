@@ -1,0 +1,79 @@
+{
+  "schema": "ahos.g2_canonical_probe.v1",
+  "generated_utc": "2026-10-02T02:04:44Z",
+  "gateway_url": "http://127.0.0.1:3500/api/chat",
+  "env_source": ".env (read-only; not modified)",
+  "env_keys_seeded": [
+    "AHOS_WEB_API_TOKEN",
+    "NEXT_PUBLIC_AHOS_WEB_API_TOKEN",
+    "AHOS_WEB_API_ALLOW_OPEN_ACCESS",
+    "DATABASE_URL",
+    "AHOS_PAPER_ONLY"
+  ],
+  "gateway_url_override_reason": "main() force-overwrites AHOS_GATEWAY_URL from .env (port 3000); canonical g2_gateway() is called directly so only the URL differs",
+  "dashboard": {
+    "tag": "dashboard",
+    "url": "http://127.0.0.1:3500/",
+    "http_status": 200,
+    "latency_ms": 105.4,
+    "bytes_sampled": 4000,
+    "content_type": "text/html; charset=utf-8",
+    "looks_like_html": true
+  },
+  "chat_cold": {
+    "tag": "cold",
+    "url": "http://127.0.0.1:3500/api/chat",
+    "requested_at_utc": "2026-10-02T02:04:44Z",
+    "http_status": 200,
+    "latency_ms": 286.8,
+    "content_type": "application/json",
+    "raw_body_file": "G:\\robat\\ahos\\reports\\g2_raw_body_cold.json",
+    "raw_body_bytes": 1999,
+    "json_parsed": true,
+    "reply_len": 481,
+    "intent": "general",
+    "has_persian": true,
+    "looks_like_error_string": false,
+    "uncertainty": [
+      "UNKNOWN preserved where data missing"
+    ]
+  },
+  "chat_warm": {
+    "tag": "warm",
+    "url": "http://127.0.0.1:3500/api/chat",
+    "requested_at_utc": "2026-10-02T02:04:44Z",
+    "http_status": 200,
+    "latency_ms": 260.0,
+    "content_type": "application/json",
+    "raw_body_file": "G:\\robat\\ahos\\reports\\g2_raw_body_warm.json",
+    "raw_body_bytes": 1999,
+    "json_parsed": true,
+    "reply_len": 481,
+    "intent": "general",
+    "has_persian": true,
+    "looks_like_error_string": false,
+    "uncertainty": [
+      "UNKNOWN preserved where data missing"
+    ]
+  },
+  "g2_canonical": {
+    "id": "G2",
+    "name": "Gateway",
+    "status": "PASS",
+    "detail": "http_200 from http://127.0.0.1:3500/api/chat",
+    "artifact": "{\"reply\":\"فهمیدم چی گفتی — مثل همکار جواب می‌دم، نه ربات خشک. الان رژیم RANGE است، بیت‌کوین ۷۹٫۷۳ هزار دلار (+۰٫۱۵٪). 0 حکم BUY کانونیکال و 0 رد. تازه‌ترین خبر فارسی: بنیاد اتنا در کنار سایر به‌روزرسا",
+    "ts_utc": "2026-10-02T02:04:45Z",
+    "http_status": 200,
+    "url": "http://127.0.0.1:3500/api/chat",
+    "database_url_set": true,
+    "web_api_token_set": true,
+    "attempt": 1
+  },
+  "g2_canonical_url_probed": "http://127.0.0.1:3500/api/chat",
+  "cold_start_verdict": {
+    "cold_reply_healthy": true,
+    "warm_reply_healthy": true,
+    "identical_behavior": true,
+    "classification": "PROVEN BY EVIDENCE: cold-compile POST returns a healthy Persian reply; the prior `ERROR {ms} UnicodeEncodeError` string was an artifact of the probe's own cp1252 console print, not an API defect"
+  }
+}

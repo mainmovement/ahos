@@ -1,0 +1,17 @@
+tests/test_c_forge_07b_gates_fusion.py
+tests/test_calibration_diff.py
+tests/test_calibration_extended.py
+tests/test_canonical_decision_authority.py
+tests/test_canonical_identity.py
+tests/test_canonical_read_model.py
+tests/test_canonical_security_gate.py
+tests/test_chat_control_gate_static.py
+tests/test_cognitive_benchmark.py
+tests/test_cognitive_core.py
+tests/test_cognitive_loop.py
+tests/test_cognitive_memory.py
+tests/test_cognitive_panel.py
+tests/test_coinmarketcap_adapter.py
+tests/test_collector_engine.py
+tests/test_collector_failure_visibility.py
+tests/test_config_validation.py

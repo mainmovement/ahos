@@ -1,0 +1,452 @@
+{
+  "schema": "ahos.calibration_report.v8",
+  "generated_utc": "2026-10-02T03:44:27Z",
+  "horizon": "24h",
+  "event_class": "+50%",
+  "calibration_status": "DESCRIPTIVE_OK",
+  "number_of_predictions": 29547,
+  "number_of_eligible_pairs": 6037,
+  "excluded_predictions": 23510,
+  "exclusion_reasons": {
+    "ineligible_source": 2054,
+    "missing_token_id": 0,
+    "no_matching_label": 21451,
+    "label_predates_prediction": 5,
+    "unresolved_outcome": 0
+  },
+  "eligible_sources": [
+    "local"
+  ],
+  "source_census": {
+    "local": 27493,
+    "sandbox": 2054
+  },
+  "observation_window": {
+    "first_scored_utc": "2026-08-28T22:02:41Z",
+    "last_scored_utc": "2026-09-13T09:21:12Z",
+    "first_resolved_utc": "2026-09-13T09:21:46Z",
+    "last_resolved_utc": "2026-09-13T09:21:46Z"
+  },
+  "dataset_fingerprint": "8025fd0c46229066bdff8fae626d9cdfa1c2e6678d3a5d24f7ce520d8aeabeaa",
+  "score_engine_versions": {
+    "AHOS-SCORE-v1:c6676eed3032": 6037
+  },
+  "weight_fingerprints": [
+    "c6676eed303280df477e82b1a1526ad2198b9b785e93313b338156d47bb846d4"
+  ],
+  "bands": [
+    {
+      "band": "0-20",
+      "lower": 0.0,
+      "upper": 20.0,
+      "n": 1496,
+      "positives": 0,
+      "rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0025612432957822576,
+      "mean_score": 12.996657754010695,
+      "mean_max_favorable": 7.465726980497511e-06,
+      "median_max_favorable": 0.0,
+      "mean_max_adverse": -0.008472370766488076,
+      "calibration_delta": -0.12996657754010696,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "positives<20"
+    },
+    {
+      "band": "20-40",
+      "lower": 20.0,
+      "upper": 40.0,
+      "n": 882,
+      "positives": 794,
+      "rate": 0.9002267573696145,
+      "ci_low": 0.8786792772660609,
+      "ci_high": 0.9183030641244486,
+      "mean_score": 24.447845804988663,
+      "mean_max_favorable": 3.7959895338576066,
+      "median_max_favorable": 4.216701902748415,
+      "mean_max_adverse": -0.11928044268369732,
+      "calibration_delta": 0.6557482993197279,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    },
+    {
+      "band": "40-60",
+      "lower": 40.0,
+      "upper": 60.0,
+      "n": 1337,
+      "positives": 1188,
+      "rate": 0.8885564697083022,
+      "ci_low": 0.8705631411119668,
+      "ci_high": 0.9043233998120204,
+      "mean_score": 42.39566192969335,
+      "mean_max_favorable": 3.7486944991683826,
+      "median_max_favorable": 4.216701902748415,
+      "mean_max_adverse": -0.12067855282161653,
+      "calibration_delta": 0.4645998504113687,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    },
+    {
+      "band": "60-80",
+      "lower": 60.0,
+      "upper": 80.0,
+      "n": 1252,
+      "positives": 60,
+      "rate": 0.04792332268370607,
+      "ci_low": 0.03741169621561807,
+      "ci_high": 0.06120063896848549,
+      "mean_score": 70.07188498402556,
+      "mean_max_favorable": 0.2169365108488377,
+      "median_max_favorable": 0.01557338367154304,
+      "mean_max_adverse": -0.03679358698562782,
+      "calibration_delta": -0.6527955271565495,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    },
+    {
+      "band": "80-100",
+      "lower": 80.0,
+      "upper": 100.001,
+      "n": 1070,
+      "positives": 3,
+      "rate": 0.002803738317757009,
+      "ci_low": 0.00095397221385469,
+      "ci_high": 0.008210750194561736,
+      "mean_score": 91.07009345794393,
+      "mean_max_favorable": 0.027354040680573538,
+      "median_max_favorable": 0.01557338367154304,
+      "mean_max_adverse": -0.03263263195887211,
+      "calibration_delta": -0.9078971962616822,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "positives<20"
+    }
+  ],
+  "confidence_segments": [
+    {
+      "dimension": "confidence_level",
+      "value": "LOW",
+      "n": 2124,
+      "positives": 631,
+      "rate": 0.2970809792843691,
+      "ci_low": 0.27802746772429565,
+      "ci_high": 0.3168671629813242,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    },
+    {
+      "dimension": "confidence_level",
+      "value": "MED",
+      "n": 3913,
+      "positives": 1414,
+      "rate": 0.3613595706618962,
+      "ci_low": 0.34645041717684444,
+      "ci_high": 0.37654066852569235,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    }
+  ],
+  "chain_segments": [
+    {
+      "dimension": "chain",
+      "value": "base",
+      "n": 2046,
+      "positives": 0,
+      "rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.001874027313015945,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "positives<20"
+    },
+    {
+      "dimension": "chain",
+      "value": "bsc",
+      "n": 360,
+      "positives": 0,
+      "rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.01055805705349616,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "positives<20"
+    },
+    {
+      "dimension": "chain",
+      "value": "robinhood",
+      "n": 3619,
+      "positives": 2045,
+      "rate": 0.5650732246476927,
+      "ci_low": 0.5488610912857881,
+      "ci_high": 0.5811473579786302,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    },
+    {
+      "dimension": "chain",
+      "value": "solana",
+      "n": 12,
+      "positives": 0,
+      "rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.2424940095530979,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    }
+  ],
+  "provider_segments": [
+    {
+      "dimension": "provider",
+      "value": "dexscreener",
+      "n": 6037,
+      "positives": 2045,
+      "rate": 0.33874440947490475,
+      "ci_low": 0.3269115769654263,
+      "ci_high": 0.3507823315317907,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    }
+  ],
+  "regime_segments": [
+    {
+      "dimension": "token_price_regime",
+      "value": "BULL_TREND",
+      "n": 2,
+      "positives": 0,
+      "rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.6576197760453506,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "n<200;positives<20"
+    },
+    {
+      "dimension": "token_price_regime",
+      "value": "NEUTRAL_CHOP",
+      "n": 2406,
+      "positives": 0,
+      "rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0015940712062773182,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "positives<20"
+    },
+    {
+      "dimension": "token_price_regime",
+      "value": "UNKNOWN",
+      "n": 3629,
+      "positives": 2045,
+      "rate": 0.5635161201432901,
+      "ci_low": 0.5473214987691192,
+      "ci_high": 0.579576414398267,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    }
+  ],
+  "confidence_ordering": null,
+  "metrics": {
+    "joined_pairs": 6037,
+    "base_rate": 0.33874440947490475,
+    "brier_score": 0.40171055159847613,
+    "brier_base_rate": 0.22399663452441065,
+    "brier_resolution": -0.17771391707406547,
+    "ece": 0.5272022527745569,
+    "spearman_score_vs_hit": -0.1668858845375059,
+    "spearman_score_vs_maxfav": 0.2891564278321674,
+    "guards_met": true,
+    "brier_note": "Brier is computed on opportunity_score/100 — a diagnostic of ranking sharpness, NOT a claim that AHOS scores are calibrated probabilities."
+  },
+  "feature_coverage": {
+    "mean_known_fields": 2.043067748881895,
+    "mean_unknown_fields": 1.956932251118105,
+    "records_with_evidence_sha": 6037,
+    "total_records": 6037
+  },
+  "extreme_records": [
+    {
+      "score_id": "7c9887de5a234ae9b7364d18ec2c2518",
+      "opportunity_score": 11.0,
+      "confidence_level": "LOW",
+      "chain": "solana",
+      "hit": 0,
+      "max_favorable": 0.0,
+      "known_field_count": 1,
+      "unknown_field_count": 3,
+      "evidence_sha256": "12710439a25e7ade"
+    },
+    {
+      "score_id": "70462ac2c22ce3070820146566bd8088",
+      "opportunity_score": 12.0,
+      "confidence_level": "MED",
+      "chain": "solana",
+      "hit": 0,
+      "max_favorable": 0.0,
+      "known_field_count": 2,
+      "unknown_field_count": 2,
+      "evidence_sha256": "1a324becbd869c04"
+    },
+    {
+      "score_id": "d4eb60f7371c54d10a7d26cb81e58de7",
+      "opportunity_score": 12.0,
+      "confidence_level": "MED",
+      "chain": "solana",
+      "hit": 0,
+      "max_favorable": 0.005584363781412138,
+      "known_field_count": 2,
+      "unknown_field_count": 2,
+      "evidence_sha256": "27e13d26cb9947a0"
+    },
+    {
+      "score_id": "fbbf2e40d2c9012070960c1576ffbb7f",
+      "opportunity_score": 100.0,
+      "confidence_level": "MED",
+      "chain": "base",
+      "hit": 0,
+      "max_favorable": 0.01557338367154304,
+      "known_field_count": 3,
+      "unknown_field_count": 1,
+      "evidence_sha256": "34a38f532485e05d"
+    },
+    {
+      "score_id": "fc60c6b3b69e9eae6f1f3a1901892a14",
+      "opportunity_score": 100.0,
+      "confidence_level": "MED",
+      "chain": "base",
+      "hit": 0,
+      "max_favorable": 0.01557338367154304,
+      "known_field_count": 3,
+      "unknown_field_count": 1,
+      "evidence_sha256": "c723860cc182b2f7"
+    },
+    {
+      "score_id": "fc76b225ad15b8bb6af5514d420a3376",
+      "opportunity_score": 100.0,
+      "confidence_level": "MED",
+      "chain": "base",
+      "hit": 0,
+      "max_favorable": 0.01557338367154304,
+      "known_field_count": 3,
+      "unknown_field_count": 1,
+      "evidence_sha256": "007fad17d7b25358"
+    }
+  ],
+  "dimension_availability": {
+    "score": "persisted (opportunity_score_ledger.opportunity_score)",
+    "confidence_level": "persisted (opportunity_score_ledger.confidence_level)",
+    "chain": "persisted (opportunity_score_ledger.chain)",
+    "horizon": "run parameter (outcome_label.horizon)",
+    "event_class": "run parameter (outcome_label.event_class)",
+    "evidence": "persisted (evidence_sha256, positive_reasons_json, known/unknown field counts)",
+    "provider": "persisted (opportunity_score_ledger.source_provider, stamped from the candidate at scoring time)",
+    "market_regime": "computed post-hoc at evaluation time from PRE-prediction observations per token (token_price_regime via architecture/intel/regimes.py, first production consumer; <10 obs -> UNKNOWN); not stamped on predictions",
+    "opportunity_type": "NOT_PERSISTED_AT_PREDICTION_TIME — no opportunity-type concept exists in the scoring contract; not invented by the harness"
+  },
+  "score_drift": {
+    "detector": "StreamingDriftDetector (ADWIN pattern)",
+    "samples": 6037,
+    "verdict": "DRIFT_DETECTED",
+    "drift_detected": true,
+    "first_trigger_at_sample": 6036,
+    "final_window_mean": 46.5
+  },
+  "temporal_buckets": [
+    {
+      "bucket_index": 0,
+      "bucket_start_utc": "2026-08-28T22:02:41Z",
+      "bucket_end_utc": "2026-09-04T22:02:41Z",
+      "n": 3,
+      "positives": 0,
+      "rate": 0.0,
+      "mean_score": 58.0,
+      "verdict": "INSUFFICIENT_DATA",
+      "reason": "bucket below pre-registered guards"
+    },
+    {
+      "bucket_index": 1,
+      "bucket_start_utc": "2026-09-04T22:02:41Z",
+      "bucket_end_utc": "2026-09-11T22:02:41Z",
+      "n": 4430,
+      "positives": 1442,
+      "rate": 0.3255,
+      "mean_score": 47.0865,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    },
+    {
+      "bucket_index": 2,
+      "bucket_start_utc": "2026-09-11T22:02:41Z",
+      "bucket_end_utc": "2026-09-18T22:02:41Z",
+      "n": 1604,
+      "positives": 603,
+      "rate": 0.3759,
+      "mean_score": 46.1951,
+      "verdict": "DESCRIPTIVE_OK",
+      "reason": null
+    }
+  ],
+  "error_analysis": {
+    "threshold": 50.0,
+    "n": 6037,
+    "tp": 179,
+    "fp": 2388,
+    "tn": 1604,
+    "fn": 1866,
+    "guards_met": true,
+    "false_positive_rate": 0.5982,
+    "false_negative_rate": 0.9125,
+    "precision": 0.0697,
+    "recall": 0.0875,
+    "highest_scored_false_positive": {
+      "token_id": "a2c040aa0443254d4e17033a6fe4deac",
+      "score": 100.0,
+      "confidence": "MED",
+      "evidence_sha": "c29c4e9b50a0c4fc"
+    },
+    "lowest_scored_true_positive": {
+      "token_id": "308ec6e09e840ac6bc14579a9ae87967",
+      "score": 50.0,
+      "confidence": "MED",
+      "evidence_sha": "050d995d577225a6"
+    }
+  },
+  "monotonicity": "NOT_MONOTONIC",
+  "verdict": "DESCRIPTIVE_OK",
+  "findings": [
+    "NON_ELIGIBLE_ROWS_PRESENT: {'sandbox': 2054} — these are excluded from every rate below (test/sandbox/synthetic data is never calibration evidence).",
+    "SCORE_DRIFT: the prediction score stream shifted during the observation window (ADWIN trigger at sample 6036) — rates pool distinct score regimes; segment by time before reading them as one curve.",
+    "Score bands do NOT rank outcomes monotonically — higher scores did not produce higher hit rates in this cohort."
+  ],
+  "guards": {
+    "min_n_per_band": 200,
+    "min_positives": 20,
+    "no_peeking": "label.resolved_ts > prediction.scored_ts",
+    "source_filter": "prediction.source IN eligible_sources",
+    "unresolved_policy": "outcome_label.hit IS NULL => UNRESOLVED, never a failure"
+  },
+  "outcome_provenance": {
+    "labeler": "discovery/outcomes.py (Lane-A frozen, hash-pinned)",
+    "horizon_grid": "15m,1h,4h,12h,24h,72h,7d",
+    "event_grid": "+25%,+50%,+100%,+200%",
+    "entry_rule": "closest observation within 15min of first_seen"
+  },
+  "command": "python scripts/calibration_report.py",
+  "timestamp_utc": "2026-10-02T03:44:30Z",
+  "git": {
+    "commit_sha": "6cf3f5ab71c4e367c17ca3e1b0dbb24f83253799",
+    "branch": "ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.9",
+    "python_implementation": "CPython",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "machine": "AMD64",
+    "system": "Windows",
+    "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+    "cwd": "G:\\robat\\ahos",
+    "ahos_related_env_names": [
+      "AHOS_EVIDENCE_SOURCE",
+      "AHOS_PAPER_ONLY"
+    ],
+    "fingerprint_sha256": "83e3b062f0e54173c69330fb6f4865005ec3dc808f3135624db60f3d10073d42"
+  },
+  "ledger_census": {
+    "AHOS-SCORE-v1:c6676eed3032": 29547
+  }
+}

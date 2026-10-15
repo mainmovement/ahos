@@ -1,0 +1,6 @@
+﻿2026-10-10T15:24:19 MISSION 10 -> session a80daba7-7b46-498c-8a26-4870a094aef4 (from its runlog)
+2026-10-10T15:24:19 RESUME session=a80daba7-7b46-498c-8a26-4870a094aef4 model=Atria-Dawn-Preview turns=1 timeout=300s dryrun=False
+2026-10-10T15:28:23 RESULT INFRA dur=240s -- quota/auth/model failure; the session never ran, NOT chargeable.
+2026-10-10T15:32:53 MISSION 10 -> session a80daba7-7b46-498c-8a26-4870a094aef4 (from its runlog)
+2026-10-10T15:32:53 RESUME session=a80daba7-7b46-498c-8a26-4870a094aef4 model=Atria-Dawn-Preview turns=1 timeout=300s dryrun=False
+2026-10-10T15:37:54 TIMEOUT after 300s -- stopping the stalled resume.

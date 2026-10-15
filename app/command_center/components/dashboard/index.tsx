@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
@@ -15,6 +16,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Analytics } from './components/analytics'
+import { HolographicGlobe } from './components/holographic-globe'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
 
@@ -47,6 +49,9 @@ export function Dashboard() {
             <TabsList>
               <TabsTrigger value='overview'>Overview</TabsTrigger>
               <TabsTrigger value='analytics'>Analytics</TabsTrigger>
+              <TabsTrigger value='globe'>
+                Globe
+              </TabsTrigger>
               <TabsTrigger value='reports' disabled>
                 Reports
               </TabsTrigger>
@@ -57,122 +62,78 @@ export function Dashboard() {
           </div>
           <TabsContent value='overview' className='space-y-4'>
             <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-              <Card>
+              <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                  <CardTitle className='text-sm font-medium'>
-                    Total Revenue
+                  <CardTitle className='text-sm font-medium text-[#D4AF37]'>
+                    Canonical State
                   </CardTitle>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    className='h-4 w-4 text-muted-foreground'
-                  >
-                    <path d='M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' />
-                  </svg>
+                  <ShieldCheck className='h-4 w-4 text-[#D4AF37]' />
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>$45,231.89</div>
-                  <p className='text-xs text-muted-foreground'>
-                    +20.1% from last month
+                  <div className='text-2xl font-bold tracking-tight text-white'>INTEGRATION_READY</div>
+                  <p className='text-xs text-cyan-400'>
+                    Security Gate: PASS (Lane B)
                   </p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className='border-cyan-500/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(0,240,255,0.1)]'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                  <CardTitle className='text-sm font-medium'>
-                    Subscriptions
+                  <CardTitle className='text-sm font-medium text-cyan-400'>
+                    Active Signals
                   </CardTitle>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    className='h-4 w-4 text-muted-foreground'
-                  >
-                    <path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' />
-                    <circle cx='9' cy='7' r='4' />
-                    <path d='M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75' />
-                  </svg>
+                  <Activity className='h-4 w-4 text-cyan-400' />
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>+2350</div>
-                  <p className='text-xs text-muted-foreground'>
-                    +180.1% from last month
+                  <div className='text-2xl font-bold tracking-tight text-white'>2,350 /s</div>
+                  <p className='text-xs text-[#D4AF37]'>
+                    +180.1% volatility index
                   </p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                  <CardTitle className='text-sm font-medium'>Sales</CardTitle>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    className='h-4 w-4 text-muted-foreground'
-                  >
-                    <rect width='20' height='14' x='2' y='5' rx='2' />
-                    <path d='M2 10h20' />
-                  </svg>
+                  <CardTitle className='text-sm font-medium text-[#D4AF37]'>Paper Opportunities</CardTitle>
+                  <Database className='h-4 w-4 text-[#D4AF37]' />
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>+12,234</div>
-                  <p className='text-xs text-muted-foreground'>
-                    +19% from last month
+                  <div className='text-2xl font-bold tracking-tight text-white'>12,234</div>
+                  <p className='text-xs text-cyan-400'>
+                    +19% valid liquidity depth
                   </p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className='border-cyan-500/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(0,240,255,0.1)]'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                  <CardTitle className='text-sm font-medium'>
-                    Active Now
+                  <CardTitle className='text-sm font-medium text-cyan-400'>
+                    Agent Mesh Nodes
                   </CardTitle>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    className='h-4 w-4 text-muted-foreground'
-                  >
-                    <path d='M22 12h-4l-3 9L9 3l-3 9H2' />
-                  </svg>
+                  <Cpu className='h-4 w-4 text-cyan-400' />
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>+573</div>
-                  <p className='text-xs text-muted-foreground'>
-                    +201 since last hour
+                  <div className='text-2xl font-bold tracking-tight text-white'>573 Active</div>
+                  <p className='text-xs text-[#D4AF37]'>
+                    +201 since last sync
                   </p>
                 </CardContent>
               </Card>
             </div>
             <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
-              <Card className='col-span-1 lg:col-span-4'>
+              <Card className='col-span-1 border-[#D4AF37]/30 bg-[#0b0b0f]/90 lg:col-span-4'>
                 <CardHeader>
-                  <CardTitle>Overview</CardTitle>
+                  <CardTitle className='text-[#D4AF37]'>Opportunity Inflow & Volatility</CardTitle>
+                  <CardDescription className='text-slate-400'>
+                    Canonical probability and real-time signal velocity
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className='ps-2'>
                   <Overview />
                 </CardContent>
               </Card>
-              <Card className='col-span-1 lg:col-span-3'>
+              <Card className='col-span-1 border-cyan-500/30 bg-[#0b0b0f]/90 lg:col-span-3'>
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
-                  <CardDescription>
-                    You made 265 sales this month.
+                  <CardTitle className='text-cyan-400'>Recent Intelligence Feeds</CardTitle>
+                  <CardDescription className='text-slate-400'>
+                    Verified signals and security evaluations.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -183,6 +144,21 @@ export function Dashboard() {
           </TabsContent>
           <TabsContent value='analytics' className='space-y-4'>
             <Analytics />
+          </TabsContent>
+          <TabsContent value='globe' className='space-y-4'>
+            <div className='grid gap-4'>
+              <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 h-[600px] text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
+                <CardHeader>
+                  <CardTitle className='text-[#D4AF37]'>Global Intelligence Mesh</CardTitle>
+                  <CardDescription className='text-slate-400'>
+                    Real-time AHOS network topology and node distribution
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <HolographicGlobe className='h-[500px]' />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </Main>

@@ -1,21 +1,21 @@
 {
   "soak": "M13-GOLD-PAPER",
   "paper_only": true,
-  "started_hint": "2026-10-14T23:31:11Z",
+  "started_hint": "2026-10-15T00:31:13Z",
   "cycle_interval_sec": 900.0,
   "planned_days": 6.872,
-  "cycles_ok": 282,
+  "cycles_ok": 286,
   "cycles_failed": 0,
-  "last_day_report": "2026-10-14",
+  "last_day_report": "2026-10-15",
   "last_cycle": {
-    "ts": "2026-10-14T23:31:10Z",
+    "ts": "2026-10-15T00:31:11Z",
     "kind": "cycle",
     "ok": true,
-    "cycle": 301,
+    "cycle": 305,
     "witness_state": "VERIFIED",
-    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.526%",
-    "price_usd": 4114.400049,
-    "spread_pct": 0.5263646915918347,
+    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.425%",
+    "price_usd": 4148.5999025,
+    "spread_pct": 0.4251460415728965,
     "equity_usd": 9986.073339606803,
     "position_open": true,
     "exit": null,
@@ -28,25 +28,23 @@
       "allowed": true,
       "reasons": []
     },
-    "duration_s": 1.44
+    "duration_s": 1.6
   },
   "last_tier_gate": {
-    "ts": "2026-10-14T00:00:58Z",
+    "ts": "2026-10-15T00:01:12Z",
     "kind": "tier_gate",
-    "day": "2026-10-14",
+    "day": "2026-10-15",
     "ok": true,
     "tier": "T0",
     "promoted": false,
-    "trades": 1,
-    "months_of_data": 0.11686292537844475,
+    "trades": 2,
+    "months_of_data": 0.15020156962967213,
     "measurable_passed": 1,
-    "measurable_total": 4,
+    "measurable_total": 6,
     "unmeasurable": [
       "regime_coverage",
       "cost_model",
       "drawdown_vs_backtest_multiple",
-      "sharpe",
-      "dsr_psr",
       "month_profit_share_pct",
       "walk_forward"
     ],
@@ -55,7 +53,7 @@
       "M-REGIME-4: the exit gate's >=3-of-4 regime coverage cannot be evaluated because only 3 regimes are defined (architecture/intel/regimes.py). Owner act: either name the fourth regime the gate intends, or amend the gate to 3.",
       "M-DD-BACKTEST: the drawdown-vs-backtest criterion needs a backtest MaxDD reference; supply one or the criterion stays unmeasurable."
     ],
-    "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-14_tier_gate.md"
+    "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-15_tier_gate.md"
   },
   "ledger_state": {
     "bankroll_usd": 10000.0,
@@ -71,7 +69,7 @@
     },
     "closed_trades": 3,
     "cumulative_realized_pnl_usd": -13.926660393197267,
-    "cycle": 301,
+    "cycle": 305,
     "equity_usd": 9986.073339606803,
     "exit": null,
     "exit_card": "PT-X1-v1",
@@ -86,8 +84,8 @@
       "notional_usd": 1000.0,
       "qty_oz": 0.24289750102703023
     },
-    "price_usd": 4114.400049,
-    "realizable_equity_usd": 9984.451452244266,
+    "price_usd": 4148.5999025,
+    "realizable_equity_usd": 9992.750204135955,
     "realized_pnl_usd": null,
     "round_trip_bps": 20.0,
     "settled_trades": 2,
@@ -96,21 +94,21 @@
       "quotes": [
         {
           "instrument": "spot",
-          "observed_at": 1792020657.0,
-          "price_usd": 4103.600098,
+          "observed_at": 1792024257.0,
+          "price_usd": 4139.799805,
           "provider_id": "goldapi_spot",
-          "raw_sha256": "fa0c5d72875988d8cabbbde9096cacb51db076038303f8e824ea2f72c0346db7"
+          "raw_sha256": "a1ac1f58e860ac8aca59e98dabea89e50f94a1823c6929db5071806d0b15cf22"
         },
         {
           "instrument": "futures",
-          "observed_at": 1792020063.0,
-          "price_usd": 4125.2,
+          "observed_at": 1792023670.0,
+          "price_usd": 4157.4,
           "provider_id": "yahoo_gc_futures",
-          "raw_sha256": "a96493333e873da4aa2e9286944d203c191fa3641d22600fc4a89c6a41570517"
+          "raw_sha256": "3f3c4fb39e5bcf5daae164aa4d2bf088f0bdc9c9d0d1d816175deecd7e91821a"
         }
       ],
-      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.526%",
-      "spread_pct": 0.5263646915918347,
+      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.425%",
+      "spread_pct": 0.4251460415728965,
       "state": "VERIFIED",
       "tolerance_pct": 1.0
     }

@@ -1,0 +1,11 @@
+
+== ARTIFACTS ==
+   info: no non-ignored build artifacts in the committed tree (ignored transient caches excluded)
+
+== IMPORTS ==
+   info: 245 modules imported cleanly in fresh interpreters
+   info: IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE: HOLD - no evidence changed by the import probe
+   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']
+
+VALIDATION PASSED — repository wiring is clean.
+EXIT=0

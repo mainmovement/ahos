@@ -44,13 +44,13 @@ export function AnalyticsChart() {
       <AreaChart data={data}>
         <XAxis
           dataKey='name'
-          stroke='#888888'
+          stroke='#D4AF37'
           fontSize={12}
           tickLine={false}
           axisLine={false}
         />
         <YAxis
-          stroke='#888888'
+          stroke='#D4AF37'
           fontSize={12}
           tickLine={false}
           axisLine={false}
@@ -58,18 +58,16 @@ export function AnalyticsChart() {
         <Area
           type='monotone'
           dataKey='clicks'
-          stroke='currentColor'
-          className='text-primary'
-          fill='currentColor'
-          fillOpacity={0.15}
+          stroke='#D4AF37'
+          fill='#D4AF37'
+          fillOpacity={0.25}
         />
         <Area
           type='monotone'
           dataKey='uniques'
-          stroke='currentColor'
-          className='text-muted-foreground'
-          fill='currentColor'
-          fillOpacity={0.1}
+          stroke='#00F0FF'
+          fill='#00F0FF'
+          fillOpacity={0.15}
         />
       </AreaChart>
     </ResponsiveContainer>

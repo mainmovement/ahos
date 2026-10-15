@@ -1,0 +1,71 @@
+{
+  "schema": "ahos.vhdx_backup.v1",
+  "timestamp_utc": "2026-10-02T00:00:00Z",
+  "purpose": "Non-destructive byte-preserving backup of Docker Desktop WSL2 disks before any Docker/WSL recovery operation",
+  "directive": "Perform ONLY the minimum safe recovery and data-preservation phase; no source code changes; no migration",
+  "source_host": "Windows 10 Home 19045, Docker Desktop 4.83.0, WSL 3.0.1.0",
+  "backup_root": "G:\\DockerData\\DockerDesktopWSL_BACKUP_20261002",
+  "pre_backup_checks": {
+    "source_files_existed": true,
+    "docker_data_vhdx": {
+      "path": "G:\\DockerData\\DockerDesktopWSL\\disk\\docker_data.vhdx",
+      "bytes": 18272485376,
+      "mtime_local": "2026-10-01 22:36"
+    },
+    "ext4_vhdx": {
+      "path": "G:\\DockerData\\DockerDesktopWSL\\main\\ext4.vhdx",
+      "bytes": 100663296,
+      "mtime_local": "2026-10-01 23:44"
+    },
+    "vhdx_lock_check": "docker_data.vhdx OPENABLE (not locked) with Docker Desktop UI processes running but engine dead and distro Stopped",
+    "wsl_state": {
+      "default_distro": "docker-desktop",
+      "default_version": 2,
+      "distro_state": "Stopped",
+      "wsl_version_output": "WSL 3.0.1.0 / kernel 6.18.40.1-1 -- clean, no 'finishing an upgrade' message"
+    },
+    "drive_free_space_gb": {
+      "C": 33.54,
+      "F": 19.53,
+      "G": 260.78
+    },
+    "chosen_drive": "G (only drive with comfortable headroom for 18.27 GB; source already on G)"
+  },
+  "backups": [
+    {
+      "file": "ext4.vhdx",
+      "source_bytes": 100663296,
+      "backup_bytes": 100663296,
+      "source_sha256": "0EF2E31E7F6E6194BBF3BD641865BC822E8950A3A538BD5A9ADC9D7B1689AE41",
+      "backup_sha256": "0EF2E31E7F6E6194BBF3BD641865BC822E8950A3A538BD5A9ADC9D7B1689AE41",
+      "byte_preserving": true,
+      "verdict": "VERIFIED"
+    },
+    {
+      "file": "docker_data.vhdx",
+      "source_bytes": 18272485376,
+      "backup_bytes": 18272485376,
+      "source_sha256": "313B51AC96F41F0FB373CC432E566659C3C14A36F47F98964F8A70C7A72FB954",
+      "backup_sha256": "313B51AC96F41F0FB373CC432E566659C3C14A36F47F98964F8A70C7A72FB954",
+      "byte_preserving": true,
+      "verdict": "VERIFIED"
+    }
+  ],
+  "operations_not_performed": [
+    "no delete, reset, prune, uninstall, recreate, or factory-reset of Docker/WSL",
+    "no destructive Docker commands",
+    "no Lane A / discovery / paper_trading modification",
+    "no CanonicalDecisionAuthority or Python decision authority modification",
+    "no SQLite store modification",
+    "no reports overwritten (this is a new file)",
+    "no schema changes, no migrations, no writes to PostgreSQL",
+    "no source code changes",
+    "no commits"
+  ],
+  "next_steps_pending_hash": [
+    "if docker_data.vhdx hash MATCHES: wsl --shutdown, then start Docker Desktop, wait for engine",
+    "docker ps -a, inspect ahos_postgres_win / ahos_runtime_win / ahos_n8n_win",
+    "read-only Postgres verification: pg_isready, table count, ahos_chat_messages count",
+    "pg_dump of AHOS chat data if healthy"
+  ]
+}

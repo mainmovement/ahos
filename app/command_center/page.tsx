@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
-import { Dashboard } from '@/components/dashboard'
+import { AuthenticatedLayout } from './components/layout/authenticated-layout'
+import { Dashboard } from './components/dashboard'
 
 export default function CommandCenterPage() {
   return (

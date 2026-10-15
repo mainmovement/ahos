@@ -1,0 +1,17 @@
+tests/test_evidence_freshness.py
+tests/test_evidence_graph.py
+tests/test_evidence_package.py
+tests/test_evidence_support.py
+tests/test_evolution_proposals_persistence.py
+tests/test_evolution_validate.py
+tests/test_execution_state.py
+tests/test_exitability_and_whales.py
+tests/test_experiment_ledger.py
+tests/test_expert_lenses.py
+tests/test_f1_s1.py
+tests/test_feature_store_boundaries.py
+tests/test_feedback.py
+tests/test_forensic_observability_hardening.py
+tests/test_forensics.py
+tests/test_gateway_port.py
+tests/test_gemini_chat.py

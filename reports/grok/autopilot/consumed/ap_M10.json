@@ -1,0 +1,11 @@
+﻿{
+    "waited_sec":  2957,
+    "source":  "live",
+    "wait_outcome":  "EXITED",
+    "exit_code":  0,
+    "verdict":  "MALFORMED",
+    "ts":  "2026-10-07T08:14:25.1493903+03:30",
+    "mission":  "M10",
+    "argument":  "",
+    "safe":  "ap_M10"
+}

@@ -1,0 +1,201 @@
+{
+  "schema": "ahos.execution_state.v1",
+  "timestamp_utc": "2026-09-28T18:24:20Z",
+  "command": "python scripts/execution_state.py",
+  "git": {
+    "commit_sha": "7ebea7a7ce9efbe0274e15678c61e6318ff15508",
+    "branch": "ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.9",
+    "python_implementation": "CPython",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "machine": "AMD64",
+    "system": "Windows",
+    "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+    "cwd": "G:\\robat\\ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "83e3b062f0e54173c69330fb6f4865005ec3dc808f3135624db60f3d10073d42"
+  },
+  "directive_protocol": {
+    "source": "docs/canonical/MASTER_DIRECTIVE_v1.md OPERATIONAL REGISTRATION \u00a73",
+    "steps_recorded": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "note": "steps 6-12 are execution and remain a human choice; this record describes state and selects nothing"
+  },
+  "steps": {
+    "1_verify_workspace": {
+      "branch": "ahos",
+      "commit_sha": "7ebea7a7ce9efbe0274e15678c61e6318ff15508",
+      "working_tree_clean": false,
+      "verified": true
+    },
+    "2_verify_master_version": {
+      "verified": true,
+      "active_version": 1,
+      "active_file": "MASTER_DIRECTIVE_v1.md",
+      "doctrine_files_on_disk": [
+        "MASTER_DIRECTIVE_v1.md"
+      ],
+      "laws": {
+        "exactly_one_active": true,
+        "active_is_highest": true,
+        "no_orphan_doctrine_files": true,
+        "every_sha_matches_disk": true,
+        "every_sha_in_issue_register": true
+      }
+    },
+    "3_verify_experiment_state": {
+      "stores": {
+        "ahos_local": {
+          "path": "G:\\robat\\ahos\\data\\ahos_local.sqlite",
+          "exists": true,
+          "integrity_check": "ok",
+          "row_counts": {
+            "control_flags": 0,
+            "opportunity_score_ledger": 29501,
+            "position_ledger": 0,
+            "runtime_lifecycle_events": 0,
+            "runtime_operational_metrics": 21208,
+            "scheduler_heartbeats": 2,
+            "scheduler_locks": 1,
+            "scheduler_runs": 2636
+          },
+          "row_total": 53348
+        },
+        "e01_discovery": {
+          "path": "G:\\robat\\ahos\\data\\e01_discovery.sqlite",
+          "exists": true,
+          "integrity_check": "ok",
+          "row_counts": {
+            "discovery_observations": 111033,
+            "feature_definitions": 0,
+            "feature_vector": 0,
+            "gap_register": 55928,
+            "gate_summary": 0,
+            "holder_snapshot": 0,
+            "lifecycle_events": 76334,
+            "observation_state": 22210,
+            "opportunity_assessments": 3789,
+            "opportunity_rank": 0,
+            "outcome_label": 508,
+            "pairs": 0,
+            "production_observations": 33295,
+            "provider_failure_events": 234,
+            "raw_payloads": 8622,
+            "security_verdicts": 0,
+            "tokens": 22210,
+            "wallet_observation": 0
+          },
+          "row_total": 334163
+        },
+        "paper_trading": {
+          "path": "G:\\robat\\ahos\\data\\paper_trading.sqlite",
+          "exists": true,
+          "integrity_check": "ok",
+          "row_counts": {
+            "decision_snapshot": 0,
+            "decision_snapshot_v2": 0,
+            "invalidation": 0,
+            "learning_stats_snapshot": 0,
+            "monitor_event": 0,
+            "paper_exit": 0,
+            "paper_exit_v2": 0,
+            "paper_exit_v3": 0,
+            "paper_position_events": 0,
+            "paper_positions": 0,
+            "paper_trade": 0,
+            "paper_trade_v2": 0,
+            "portfolio_ledger": 0,
+            "position_decision_event": 0,
+            "position_state_event": 0,
+            "post_trade_lesson": 0,
+            "realizable_snapshot": 0,
+            "scam_assessment": 0,
+            "strategy_version": 0
+          },
+          "row_total": 0
+        },
+        "ahos_knowledge": {
+          "path": "G:\\robat\\ahos\\data\\ahos_knowledge.sqlite",
+          "exists": true,
+          "integrity_check": "ok",
+          "row_counts": {
+            "claim_contradiction_edges": 0,
+            "knowledge_claims": 0
+          },
+          "row_total": 0
+        },
+        "ahos_cognitive_memory": {
+          "path": "G:\\robat\\ahos\\data\\ahos_cognitive_memory.sqlite",
+          "exists": false,
+          "integrity_check": "NO_DATA",
+          "row_total": "NO_DATA"
+        }
+      },
+      "lane_a": {
+        "drift": [],
+        "missing": [],
+        "untracked": [],
+        "ok": true,
+        "pinned_files": 0
+      },
+      "any_store_present": true,
+      "all_present_stores_integrity_ok": false,
+      "store_resolution_errors": [],
+      "verified": false
+    },
+    "4_verify_governance": {
+      "registers_present": {
+        "issue_register": true,
+        "gap_register": true,
+        "master_directive_registry": true
+      },
+      "doctrine_registry_ok": true,
+      "lane_a_integrity_ok": true,
+      "verified": true
+    },
+    "5_verify_open_risks": {
+      "status_counts": {
+        "CLOSED": 6,
+        "OPEN": 6,
+        "MITIGATED": 3,
+        "OPTIONAL": 1
+      },
+      "open_total": 10,
+      "resolved_total": 6,
+      "unclassified_rows": [],
+      "implementable_now": [
+        "M-GAP-011"
+      ],
+      "owner_blocked_markers": [
+        "M-GAP-007"
+      ],
+      "verified": true
+    }
+  },
+  "step_verdicts": {
+    "1_verify_workspace": true,
+    "2_verify_master_version": true,
+    "3_verify_experiment_state": false,
+    "4_verify_governance": true,
+    "5_verify_open_risks": true
+  },
+  "verdict": "DEGRADED",
+  "degraded_signals": [
+    "working_tree_not_clean",
+    "store_integrity_not_ok"
+  ],
+  "honest_limitations": [
+    "This record is a description, not an authorisation. It grants nothing.",
+    "A missing persistence store reads NO_DATA -- the honest state of a host that has not run the daemon, never an invented ok.",
+    "Step 6 (select highest-value safe next action) is deliberately not automated; 'implementable_now' repeats the gap register's own words.",
+    "The gap-register parse reads the summary table only. Addendum prose is not counted, so open_total is a floor, not a census."
+  ]
+}

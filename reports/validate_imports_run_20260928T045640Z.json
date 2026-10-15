@@ -1,0 +1,39 @@
+{
+  "schema": "ahos.test_run.v1",
+  "timestamp_utc": "2026-09-28T04:56:40Z",
+  "finished_utc": "2026-09-28T04:57:51Z",
+  "duration_sec": 70.981,
+  "command": [
+    ".venv/Scripts/python.exe",
+    "scripts/validate_imports.py"
+  ],
+  "command_str": ".venv/Scripts/python.exe scripts/validate_imports.py",
+  "command_resolved": [
+    "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+    "scripts/validate_imports.py"
+  ],
+  "cwd": "G:\\robat\\ahos",
+  "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+  "git": {
+    "commit_sha": "77984ce1394245bcb1b1dbbdd264e38bb6acdeec",
+    "branch": "ahos",
+    "working_tree_clean": false
+  },
+  "environment": {
+    "python_version": "3.11.9",
+    "python_implementation": "CPython",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "machine": "AMD64",
+    "system": "Windows",
+    "executable": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+    "cwd": "G:\\robat\\ahos",
+    "ahos_related_env_names": [],
+    "fingerprint_sha256": "83e3b062f0e54173c69330fb6f4865005ec3dc808f3135624db60f3d10073d42"
+  },
+  "exit_code": 1,
+  "timed_out": false,
+  "pytest_summary": null,
+  "stdout": "\n== ARTIFACTS ==\n   info: no build artifacts expected in a clean checkout\n   FAIL: build artifact present: __pycache__/\n   FAIL: build artifact present: .cursor\\hooks\\__pycache__/\n   FAIL: build artifact present: agent_org\\__pycache__/\n   FAIL: build artifact present: agent_org\\research_host\\__pycache__/\n   FAIL: build artifact present: ahos_org\\__pycache__/\n   FAIL: build artifact present: architecture\\__pycache__/\n   FAIL: build artifact present: architecture\\ai\\__pycache__/\n   FAIL: build artifact present: architecture\\alerts\\__pycache__/\n   FAIL: build artifact present: architecture\\cognitive\\__pycache__/\n   FAIL: build artifact present: architecture\\cognitive\\benchmark\\__pycache__/\n   FAIL: build artifact present: architecture\\cognitive\\loop\\__pycache__/\n   FAIL: build artifact present: architecture\\cognitive\\memory\\__pycache__/\n   FAIL: build artifact present: architecture\\collector\\__pycache__/\n   FAIL: build artifact present: architecture\\decision\\__pycache__/\n   FAIL: build artifact present: architecture\\evolution\\__pycache__/\n   FAIL: build artifact present: architecture\\explanations\\__pycache__/\n   FAIL: build artifact present: architecture\\features\\__pycache__/\n   FAIL: build artifact present: architecture\\identity\\__pycache__/\n   FAIL: build artifact present: architecture\\intel\\__pycache__/\n   FAIL: build artifact present: architecture\\intelligence\\__pycache__/\n   FAIL: build artifact present: architecture\\intelligence\\whales\\__pycache__/\n   FAIL: build artifact present: architecture\\knowledge\\__pycache__/\n   FAIL: build artifact present: architecture\\learning\\__pycache__/\n   FAIL: build artifact present: architecture\\pipeline\\__pycache__/\n   FAIL: build artifact present: architecture\\positions\\__pycache__/\n   FAIL: build artifact present: architecture\\providers\\__pycache__/\n   FAIL: build artifact present: architecture\\risk\\__pycache__/\n   FAIL: build artifact present: architecture\\runtime\\__pycache__/\n   FAIL: build artifact present: architecture\\scheduling\\__pycache__/\n   FAIL: build artifact present: architecture\\scoring\\__pycache__/\n   FAIL: build artifact present: architecture\\security\\__pycache__/\n   FAIL: build artifact present: architecture\\tools\\__pycache__/\n   FAIL: build artifact present: config\\__pycache__/\n   FAIL: build artifact present: discovery\\__pycache__/\n   FAIL: build artifact present: engine\\__pycache__/\n   FAIL: build artifact present: paper_trading\\__pycache__/\n   FAIL: build artifact present: research\\__pycache__/\n   FAIL: build artifact present: research_worker\\__pycache__/\n   FAIL: build artifact present: scripts\\__pycache__/\n   FAIL: build artifact present: strategy_lab\\__pycache__/\n   FAIL: build artifact present: telegram_ai\\__pycache__/\n   FAIL: build artifact present: tests\\__pycache__/\n   FAIL: build artifact present: tests2b\\__pycache__/\n   FAIL: build artifact present: .pytest_cache/\n\n== IMPORTS ==\n   info: 236 modules imported cleanly in fresh interpreters\n   info: IMPORTING_A_MODULE_MUST_NOT_MUTATE_TRACKED_EVIDENCE: HOLD - no evidence changed by the import probe\n   info: 2 documented executable entrypoints excluded: ['engine.bot_skeleton', 'engine.run_validation']\n\n== EVIDENCE-BOUNDARY ==\n   info: 66 evidence-surface files scanned\n\n== LANE-A FREEZE ==\n   info: Lane-A integrity OK (36 files pinned)\n\n== SECRETS ==\n   info: 3384 source files scanned\n\n== ORPHANS ==\n   info: 207 leaf modules scanned, 197 referenced\n   WARN: 10 modules never imported by any module or test (dead-code candidates, governance review): discovery.collect, engine.acquire_3yr, engine.agent_matrix_v2, engine.coverage_audit, engine.data_audit, engine.doc_hygiene, engine.oss_audit, engine.pal_probe, engine.research_report_bot, paper_trading.cycle\n\nVALIDATION FAILED \u2014 see FAIL lines above.\n",
+  "stderr": "",
+  "verdict": "FAIL"
+}

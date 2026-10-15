@@ -1,0 +1,49 @@
+{
+  "schema": "ahos.session_evidence.v1",
+  "purpose": "Session evidence note. Not a governance-document edit; AHOS_GAP_REGISTER.md is intentionally unchanged.",
+  "generated_utc": "2026-10-02T03:45:00Z",
+  "mission_context": "M-20261002-02/03 - canonical gate suite + pre-soak step 1 on the Windows operator host",
+  "finding": {
+    "gap": "M-GAP-008",
+    "register_status_unchanged": "OPEN - 'measurement pending T+72h labels', historically '0 joined pairs'",
+    "observation": "The canonical calibration harness now joins real pairs from the local source. The historical '0 joined pairs' statement is outdated on this host's current stores.",
+    "canonical_command": ".venv/Scripts/python.exe scripts/calibration_report.py",
+    "artifact": "reports/calibration_20261002T034430Z.json",
+    "result": {
+      "calibration_status": "DESCRIPTIVE_OK",
+      "predictions_all": 29547,
+      "eligible_pairs": 6037,
+      "eligible_horizon_class": "24h / +50%",
+      "eligible_sources": ["local"],
+      "source_census": {"local": 27493, "sandbox": 2054},
+      "excluded_total": 23510,
+      "excluded_breakdown": {"ineligible_source": 2054, "missing_token_id": 0, "no_matching_label": 21451, "label_predates_prediction": 5, "unresolved_outcome": 0},
+      "diagnostics": {"base_rate": 0.3387, "brier": 0.4017, "ece": 0.5272, "spearman_hit": -0.1669},
+      "bands": {
+        "0-20": "n=1496 INSUFFICIENT_DATA (positives<20)",
+        "20-40": "n=882 rate=0.900 DESCRIPTIVE_OK",
+        "40-60": "n=1337 rate=0.889 DESCRIPTIVE_OK",
+        "60-80": "n=1252 rate=0.048 DESCRIPTIVE_OK",
+        "80-100": "n=1070 rate=0.003 INSUFFICIENT_DATA (positives<20)"
+      },
+      "band_monotonicity": "NOT_MONOTONIC",
+      "score_drift": "DRIFT_DETECTED (ADWIN trigger at sample 6036; the tool itself instructs segmenting by time before reading rates as one curve)"
+    },
+    "honesty_observations": [
+      "The harness reports DESCRIPTIVE_OK, never VALIDATED - it does not claim calibration sufficiency from this cohort.",
+      "It self-flags NOT_MONOTONIC (higher scores did not produce higher hit rates) and SCORE_DRIFT rather than smoothing them away.",
+      "NON_ELIGIBLE_ROWS_PRESENT is reported and sandbox rows are excluded from every rate - the M-GAP-015 source boundary holds.",
+      "Spearman hit rate is negative (-0.167) and is reported as-is."
+    ],
+    "classification": "PROVEN BY EVIDENCE - 6037 eligible local pairs now join; the harness remains explicitly descriptive and self-reports drift + non-monotonicity",
+    "what_is_still_NOT_proven": "Calibration sufficiency. The register's acceptance criterion (a calibration report on historical data with >=8 weeks of observation history) is not met; bands are non-monotonic and drift is detected. Do not re-status M-GAP-008 as CLOSED from this artifact."
+  },
+  "secondary_finding": {
+    "id": "eligible_join_pairs_estimate stub",
+    "observation": "architecture/learning/prediction_lifecycle.py:326 returns eligible_join_pairs_estimate hardcoded to 0 and never computes it. The canonical G4 census therefore prints 0 while the real calibration harness joins 6037 pairs. A reader of the gate JSON alone would conclude 'no pairs' - the opposite of reality.",
+    "impact": "Cosmetic/documentation honesty, not a data defect: no fabricated PASS results from it (the calibration harness computes its own join).",
+    "classification": "STRONGLY INDICATED as worth a small, separately-reviewed source change (emit the real estimate or drop/rename the field with a note). NOT FIXED HERE - source-code changes are outside this mission's directive.",
+    "proposed_owner_action": "A one-line reviewed change to either populate the estimate from the calibration join or replace the constant with an explicit 'not_computed' note. Human review required; not urgent."
+  },
+  "governance_status": "COMPLIANT - read-only w.r.t. source, governance documents, Lane A; the canonical tooling was invoked as designed; no commits"
+}

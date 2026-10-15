@@ -1,0 +1,10 @@
+﻿2026-10-14T20:04:14 start model=openrouter/free
+[claude-code:unrecognized_model] {"model":"openrouter/free","query_source":"sdk"}
+At C:\Users\Sniper\AppData\Roaming\npm\claude.ps1:14 char:3
++   & "$basedir/node_modules/@anthropic-ai/claude-code/bin/claude.exe"  ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([claude-code:un..._source":"sdk"}:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Hi! How can I assist you today?
+2026-10-14T20:06:16 done

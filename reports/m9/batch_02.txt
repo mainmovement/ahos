@@ -1,0 +1,17 @@
+tests/test_control_plane_soak.py
+tests/test_coverage_audit.py
+tests/test_cursor_engineering_foundation.py
+tests/test_cursor_hook_guard.py
+tests/test_dashboard_truth_static.py
+tests/test_decision_advisor.py
+tests/test_defillama_and_dex_providers.py
+tests/test_deployment_config.py
+tests/test_dextools_and_boosts_adapters.py
+tests/test_diagnostic_findings.py
+tests/test_discovery.py
+tests/test_discovery_hardening.py
+tests/test_doc_drift.py
+tests/test_drift_and_regimes.py
+tests/test_drizzle_migration_static_safety.py
+tests/test_e01_gate_protocol.py
+tests/test_engine_import_safety.py

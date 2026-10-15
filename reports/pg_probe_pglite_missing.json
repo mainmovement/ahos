@@ -1,0 +1,13 @@
+{
+  "schema": "ahos.pg_probe.v1",
+  "ok": false,
+  "backend": "pglite",
+  "database_url_set": true,
+  "database_url_redacted": "pglite:C:\\Users\\Sniper\\AppData\\Local\\Temp/ahos_pglite_probe_nope_207",
+  "error_class": "STORE_MISSING",
+  "error": "DIRECTORY_NOT_FOUND: PG_VERSION missing under C:\\Users\\Sniper\\AppData\\Local\\Temp/ahos_pglite_probe_nope_207 (store not initialised; run the launcher once, or: npm run db:restore-pglite -- --dataDir C:\\Users\\Sniper\\AppData\\Local\\Temp/ahos_pglite_probe_nope_207)",
+  "system_state_rows": null,
+  "ahos_table_count": null,
+  "probe_via": "pglite_embedded",
+  "note": "native embedded PGlite (M10): no db:migrate / db:push"
+}

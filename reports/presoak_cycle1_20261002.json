@@ -1,0 +1,74 @@
+{
+  "schema": "ahos.presoak_cycle.v1",
+  "mission_id": "M-20261002-03",
+  "objective": "Pre-soak step 1 per docs/PRE_SOAK_PROTOCOL.md after pre_soak_entry_ok=true: one bounded opportunity cycle, register wall-clock T0, re-census the lifecycle",
+  "t0_utc": "2026-10-02T02:54:19Z",
+  "cycle": {
+    "command": ".venv/Scripts/python.exe -m architecture.runtime --single-cycle --evidence-source local --limit 5",
+    "env": {"AHOS_PAPER_ONLY": "1", "AHOS_EVIDENCE_SOURCE": "local"},
+    "run_id": "run_1790909750_ce19cb35",
+    "started_utc": "2026-10-02T02:55:50Z",
+    "cycle_executed_utc": "2026-10-02T03:03:36Z",
+    "completed_utc": "2026-10-02T03:04:10Z",
+    "pipeline_duration_ms": 33922.89,
+    "status": "SUCCESS",
+    "counts": {"candidates": 8, "scores": 8, "persisted": 8, "alerts": 0, "lane_a_registered": 5, "lane_a_obs": 8},
+    "shutdown": "clean (AHOS Runtime STOPPED cleanly)"
+  },
+  "lifecycle_census": {
+    "schema": "ahos.prediction_lifecycle_status.v1",
+    "captured_utc": "2026-10-02T03:06Z",
+    "before": {
+      "discovery_observations": 111096, "production_observations": 33333,
+      "local_predictions": 27485, "observing": 3675, "dead": 12629, "resolved": 5936,
+      "outcome_labels": 508
+    },
+    "after": {
+      "discovery_observations": 111104, "production_observations": 33341,
+      "local_predictions": 27493, "observing": 3680, "dead": 12629, "resolved": 5936,
+      "outcome_labels": 508
+    },
+    "deltas": {
+      "discovery_observations": 8, "production_observations": 8,
+      "local_predictions": 8, "observing": 5, "dead": 0, "resolved": 0,
+      "outcome_labels": 0
+    },
+    "delta_match": "EVERY DELTA MATCHES THE CYCLE'S REPORTED COUNTS EXACTLY (lane_a_obs=8 -> +8 discovery/production observations; lane_a_registered=5 -> +5 OBSERVING)",
+    "outcome_labels_note": "outcome_labels unchanged at 508 is CORRECT - outcomes require real elapsed time to T+72h; none fabricated"
+  },
+  "post_cycle_safety_checks": {
+    "lane_a_freeze": {"drift": [], "missing": [], "untracked": [], "verdict": "OK (pinned, no drift)"},
+    "paper_only": {
+      "paper_only_enforced": true, "paper_only_explicit": true,
+      "live_trading_flags_absent": true, "zero_real_trading": true,
+      "credentials_isolated": true, "verdict": "PASS"
+    }
+  },
+  "stop_conditions_checked": {
+    "PAPER_ONLY violated": "NO",
+    "Lane A freeze verify FAIL": "NO",
+    "DB corruption / backup restore fail": "NO (G10 drill PASS 5/5)",
+    "Provider outage hidden by mocks": "NO (G3 live providers SUCCESS)",
+    "Security veto bypassed": "NO",
+    "Gateway required but down": "NO (G2 PASS on 3500)",
+    "Fabricating outcome_labels": "NO"
+  },
+  "classification": {
+    "pre_soak_step_1": "PROVEN BY EVIDENCE - single cycle SUCCESS, real evidence registered, deltas verified, Lane A and PAPER_ONLY intact",
+    "t0_registered": "PROVEN BY EVIDENCE - reports/presoak_t0_20261002.json",
+    "outcome_labels": "INTENTIONALLY UNCHANGED - T+72h requires real elapsed wall-clock time from 2026-10-02T02:54:19Z (earliest ~2026-10-05T02:54Z)"
+  },
+  "files_created": [
+    "reports/presoak_t0_20261002.json",
+    "reports/presoak_cycle1_20261002.json (this file)"
+  ],
+  "evidence": [
+    "reports/presoak_t0_20261002.json",
+    "reports/presoak_cycle1_20261002.json",
+    "C:/Users/Sniper/AppData/Local/Temp/ahos_presoak_cycle1.log (runtime log)",
+    "C:/Users/Sniper/AppData/Local/Temp/ahos_lifecycle_postcycle.log (census)"
+  ],
+  "governance_status": "COMPLIANT - PAPER_ONLY enforced; no live trading; no destructive ops; Lane A untouched (freeze verified clean after the cycle); no source changes; no commits",
+  "remaining_risk": "Host RAM is 7.93 GB total; the cycle peaked within bounds. A long daemon run is NOT started here - that is a larger, sustained resource commitment on the operator host and is deferred to the owner's judgement.",
+  "next_mission": null
+}

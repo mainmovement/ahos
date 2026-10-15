@@ -1,0 +1,13 @@
+﻿{
+    "waited_sec":  285,
+    "source":  "live",
+    "wait_outcome":  "EXITED",
+    "exit_code":  0,
+    "verdict":  "INFRA",
+    "consecutive":  0,
+    "mission":  "M34",
+    "ts":  "2026-10-09T20:16:02.7192808+03:30",
+    "backoff_sec":  30,
+    "argument":  "platform_unavailable",
+    "safe":  "ap_M34"
+}
