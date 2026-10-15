@@ -1,6 +1,6 @@
 {
   "action": "start",
-  "ts": "2026-10-15T06:07:19.177450+00:00",
+  "ts": "2026-10-15T13:53:38.906301+00:00",
   "overall": "DEGRADED",
   "paper_only": true,
   "components": {
@@ -11,27 +11,27 @@
       "critical": true
     },
     "db_backend": {
-      "status": "UNKNOWN",
-      "detail": "unsupported DATABASE_URL scheme: file",
+      "status": "UNAVAILABLE",
+      "detail": "Postgres not listening on 127.0.0.1:5432",
       "pid": null,
       "critical": false,
       "evidence": {
-        "scheme": "file",
+        "scheme": "postgres",
         "init_action": "noop_not_pglite"
       }
     },
     "gateway": {
-      "status": "UNAVAILABLE",
-      "detail": "health check timed out after 240s; log tail: ▲ Next.js 16.3.8 (Turbopack)\n- Local:         http://127.0.0.1:3000\n- Network:       http://127.0.0.1:3000\n- Environments: .env\n✓ Ready in 2.5min\n✓ Running next.config.ts took 6.0s",
-      "pid": 14348,
-      "critical": false,
-      "started_ts": 1792044402.5979884
+      "status": "UNHEALTHY",
+      "detail": "foreign_busy",
+      "pid": null,
+      "critical": false
     },
     "telegram": {
       "status": "HEALTHY",
-      "detail": "pid 5664 alive for 24s and polling",
-      "pid": 5664,
-      "critical": false
+      "detail": "pid 13048 alive for 9471s and polling",
+      "pid": 13048,
+      "critical": false,
+      "started_ts": 1792062947.3877635
     },
     "engine": {
       "status": "HEALTHY",
@@ -43,19 +43,19 @@
   },
   "dashboard_url": "http://127.0.0.1:3000/",
   "gateway_port": 3000,
-  "gateway_chosen_via": "CONFIGURED_BINDABLE",
+  "gateway_chosen_via": "CONFIGURED_ALREADY_LISTENING",
   "gateway_warnings": [],
   "db_backend": {
-    "scheme": "file",
-    "host": null,
-    "port": null,
+    "scheme": "postgres",
+    "host": "127.0.0.1",
+    "port": 5432,
     "configured": true
   },
   "preflight": [
     {
       "name": "repo",
       "ok": true,
-      "detail": "workspace root ."
+      "detail": "workspace root G:\\robat\\ahos"
     },
     {
       "name": "venv",
@@ -75,7 +75,7 @@
     {
       "name": "db_reachable",
       "ok": false,
-      "detail": "no DATABASE_URL configured"
+      "detail": "postgres on 127.0.0.1:5432"
     },
     {
       "name": "gemini_cred",
@@ -90,5 +90,5 @@
     "idempotent_replay": true,
     "note": "identical START already completed — no duplicate activation"
   },
-  "duration": 378.63439869880676
+  "duration": 3.4790399074554443
 }
