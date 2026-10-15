@@ -10,6 +10,7 @@ import { ConfigDrawer } from '../layout/config-drawer'
 import { ProfileDropdown } from '../layout/profile-dropdown'
 import { useSnap } from '@/components/ahos/use-command-snapshot'
 import { AhosOverview } from '@/app/command_center/components/ahos/overview'
+import { Globe3D } from '@/app/command_center/components/ahos/globe-3d'
 
 export function Dashboard() {
   const { data, stale, loading } = useSnap()
@@ -64,9 +65,9 @@ export function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">142</div>
+              <div className="text-2xl font-bold">{data?.total_opportunities || 0}</div>
               <p className="text-xs text-muted-foreground">
-                +12% از ماه قبل
+                {data?.opportunity_growth || 0}٪ از ماه قبل
               </p>
             </CardContent>
           </Card>
@@ -90,9 +91,9 @@ export function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">89</div>
+              <div className="text-2xl font-bold">{data?.in_monitoring || 0}</div>
               <p className="text-xs text-muted-foreground">
-                +8% از ماه قبل
+                {data?.monitoring_growth || 0}٪ از ماه قبل
               </p>
             </CardContent>
           </Card>
@@ -115,9 +116,9 @@ export function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">53</div>
+              <div className="text-2xl font-bold">{data?.rejected || 0}</div>
               <p className="text-xs text-muted-foreground">
-                -3% از ماه قبل
+                {data?.rejection_change || 0}٪ از ماه قبل
               </p>
             </CardContent>
           </Card>
@@ -139,9 +140,9 @@ export function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">27</div>
+              <div className="text-2xl font-bold">{data?.in_execution || 0}</div>
               <p className="text-xs text-muted-foreground">
-                +15% از ساعت قبل
+                {data?.execution_change || 0}٪ از ساعت قبل
               </p>
             </CardContent>
           </Card>
@@ -165,24 +166,13 @@ export function Dashboard() {
           <div className="col-span-1">
             <Card className="bg-[#000]/5 border-[#D4AF37]/40 backdrop-blur">
               <CardHeader>
-                <CardTitle>اخبار هوشمند</CardTitle>
+                <CardTitle>نمای جهان</CardTitle>
                 <CardDescription>
-                  مهم‌ترین اخبار و تحولات بازار
+                  نقشه شطرنجی جهانی داده‌های AHOS
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="text-sm">
-                    <p className="font-medium">طلا در بالاترین سطح 2 ماهه</p>
-                    <p className="text-muted-foreground mt-1">قیمت طلا به 4200 دلار رسید</p>
-                    <p className="text-xs text-muted-foreground mt-2">2 دقیقه پیش</p>
-                  </div>
-                  <div className="text-sm">
-                    <p className="font-medium">تحلیل: بیتکوین در حال اصلاح</p>
-                    <p className="text-muted-foreground mt-1">کارشناسان پیش‌بینی اصلاح می‌کنند</p>
-                    <p className="text-xs text-muted-foreground mt-2">15 دقیقه پیش</p>
-                  </div>
-                </div>
+              <CardContent className="p-0">
+                <Globe3D />
               </CardContent>
             </Card>
           </div>
