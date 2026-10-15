@@ -1,7 +1,10 @@
 'use client'
 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { useSnap } from '@/components/ahos/use-command-snapshot'
 import { AhosOverview } from '@/app/command_center/components/ahos/overview'
+import { Dashboard as TemplateDashboard } from './template-dashboard'
 
 export function Dashboard() {
   const { data, stale, loading } = useSnap()
@@ -17,5 +20,5 @@ export function Dashboard() {
     )
   }
 
-  return <AhosOverview />
+  return <TemplateDashboard />
 }
