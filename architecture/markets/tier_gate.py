@@ -241,6 +241,9 @@ def evaluate_tier_gate(
             "max_drawdown_pct", f"<={CRITERIA['max_drawdown_pct']}%",
             _fmt(dd), dd_ok,
             f"max drawdown {dd:.2f}% of the paper bankroll"))
+        # If there were no drawdown readings at all, the field above would be None;
+        # but if dd_readings is non-empty, the first branch above already set dd=None
+        # and marked it UNMEASURABLE, so this branch only runs for trades WITH readings.
     if backtest_max_drawdown_pct is None:
         results.append(CriterionResult(
             "drawdown_vs_backtest_multiple",
