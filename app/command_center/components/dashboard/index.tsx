@@ -201,6 +201,7 @@ export function Dashboard() {
                   <CardDescription className='text-yellow-400/60'>
                     آخرین اجراهای عامل
                   </CardDescription>
+                </CardContent>
                 <CardContent>
                   <RecentSales />
                 </CardContent>
