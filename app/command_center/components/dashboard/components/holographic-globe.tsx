@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Stars } from '@react-three/drei'
-import { Sphere, PointLight, MeshTransmissionMaterial } from '@react-three/postprocessing'
-import { PerspectiveCamera } from '@react-three/drei'
+import { OrbitControls, Stars, Sphere, PerspectiveCamera } from '@react-three/drei'
+import { PointLight } from 'three'
+import { MeshPhysicalMaterial } from 'three'
 import * as THREE from 'three'
 
 const GLOBE_RADIUS = 5
