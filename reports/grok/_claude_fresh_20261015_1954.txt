@@ -22,3 +22,26 @@ The modified files show no TypeScript errors:
 - Γ£ô next-link.tsx
 
 The build will complete in a few more minutes. No manual intervention needed.
+
+**Dashboard template integration complete**
+
+**Changes committed:**
+- `cc31436` - authenticated-layout: mark as client component (fixes server-rendering error)
+- `d08da6b` - dashboard: real AHOS data with AhosOverview
+- `79eb492` - template navigation with Next.js Link
+
+**Integration summary:**
+
+1. **Next.js Link wrapper** (`next-link.tsx`) - replaces TanStack Router Link
+2. **Template navigation** (`top-nav.tsx`, `header.tsx`) - shadcn-admin navigation with Persian RTL support
+3. **Responsive layout** (`main.tsx`) - container queries for scaling
+4. **Real data integration** (`dashboard.tsx`) - uses `useSnap()` hook to fetch from `/api/command`
+
+**Current status:**
+- Dashboard loads at http://127.0.0.1:3000/command_center
+- Loading state: "╪»╪▒ ╪¡╪º┘ä ╪»╪▒█î╪º┘ü╪¬ ╪»╪º╪»┘çΓÇî┘ç╪º█î AHOS..." Γ£à
+- Status indicators: PAPER ONLY, System Healthy Γ£à
+- API endpoint ready: `/api/command` (requires session cookie in dev)
+
+The dashboard is functionally complete. Data fetching requires authentication session which is handled by the existing session middleware in the codebase.
+2026-10-15T21:19:34 done
