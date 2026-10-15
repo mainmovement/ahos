@@ -1,9 +1,11 @@
+'use client'
+
 import { createContext, useContext, useEffect, useState } from 'react'
-import { CommandMenu } from '@/components/command-menu'
+import { CommandMenu } from '@/app/command_center/components/command-menu'
 
 type SearchContextType = {
   open: boolean
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const SearchContext = createContext<SearchContextType | null>(null)
@@ -13,13 +15,13 @@ type SearchProviderProps = {
 }
 
 export function SearchProvider({ children }: SearchProviderProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setIsOpen] = useState(false)
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
-        setOpen((open) => !open)
+        setIsOpen((open) => !open)
       }
     }
     document.addEventListener('keydown', down)
@@ -27,7 +29,7 @@ export function SearchProvider({ children }: SearchProviderProps) {
   }, [])
 
   return (
-    <SearchContext value={{ open, setOpen }}>
+    <SearchContext value={{ open, setIsOpen }}>
       {children}
       <CommandMenu />
     </SearchContext>

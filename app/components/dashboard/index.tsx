@@ -7,13 +7,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ConfigDrawer } from '@/components/config-drawer'
-import { Header } from '@/components/layout/header'
-import { Main } from '@/components/layout/main'
-import { TopNav } from '@/components/layout/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
+import { Header } from '@/app/command_center/components/layout/header'
+import { Main } from '@/app/command_center/components/layout/main'
+import { TopNav } from '@/app/command_center/components/layout/top-nav'
+import { ProfileDropdown } from '@/app/command_center/components/profile-dropdown'
+import { Search } from '@/app/command_center/components/search'
+import { ThemeSwitch } from '@/app/command_center/components/theme-switch'
 import { Analytics } from './components/analytics'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
@@ -26,7 +25,6 @@ export function Dashboard() {
         <TopNav links={topNav} className='me-auto' />
         <Search />
         <ThemeSwitch />
-        <ConfigDrawer />
         <ProfileDropdown />
       </Header>
 
@@ -168,7 +166,7 @@ export function Dashboard() {
                   <Overview />
                 </CardContent>
               </Card>
-              <Card className='col-span-1 lg:col-span-3'>
+              <Card className='col-span-1 lg:col-cols-3'>
                 <CardHeader>
                   <CardTitle>Recent Sales</CardTitle>
                   <CardDescription>

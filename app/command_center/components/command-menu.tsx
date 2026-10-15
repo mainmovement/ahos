@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   Command,
   CommandDialog,
@@ -10,9 +10,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '../ui/command'
+} from '@/components/ui/command'
 import { Search } from 'lucide-react'
-import { useSearch } from '../context/search-context'
+import { useSearch } from '@/app/command_center/components/context/search-provider'
 
 export function CommandMenu() {
   const { setIsOpen } = useSearch()

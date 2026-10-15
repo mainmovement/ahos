@@ -1,4 +1,4 @@
-import { useLayout } from '@/components/layout/layout-provider'
+import { useLayout } from '@/app/command_center/components/context/layout-provider'
 import {
   Sidebar,
   SidebarContent,

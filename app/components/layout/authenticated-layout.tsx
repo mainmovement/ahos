@@ -1,11 +1,11 @@
 import { Outlet } from '@tanstack/react-router'
-import { getCookie } from '@/lib/cookies'
+import { getCookie } from '@/app/command_center/components/lib/cookies'
 import { cn } from '@/lib/utils'
-import { LayoutProvider } from '@/context/layout-provider'
-import { SearchProvider } from '@/context/search-provider'
+import { LayoutProvider } from '@/app/command_center/components/context/layout-provider'
+import { SearchProvider } from '@/app/command_center/components/context/search-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { AppSidebar } from '@/components/app-sidebar'
-import { SkipToMain } from '@/components/skip-to-main'
+import { AppSidebar } from '@/app/command_center/components/layout/app-sidebar'
+import { SkipToMain } from '@/app/command_center/components/skip-to-main'
 
 type AuthenticatedLayoutProps = {
   children?: React.ReactNode

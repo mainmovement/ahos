@@ -1,5 +1,7 @@
+'use client'
+
 import { createContext, useContext, useState } from 'react'
-import { getCookie, setCookie } from '@/lib/cookies'
+import { getCookie, setCookie } from '@/app/command_center/components/lib/cookies'
 
 export type Collapsible = 'offcanvas' | 'icon' | 'none'
 type Variant = 'inset' | 'sidebar' | 'floating'

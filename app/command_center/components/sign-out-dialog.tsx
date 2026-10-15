@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
-import { Button } from '../ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { ArrowLeftToLine, Shield } from 'lucide-react'
-import { useLayout } from '../context/layout-context'
+import { useLayout } from '@/app/command_center/components/context/layout-provider'
 
 export function SignOutDialog() {
   const [open, setOpen] = useState(false)

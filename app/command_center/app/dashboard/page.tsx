@@ -1,5 +1,5 @@
-import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
-import { Dashboard } from '@/components/dashboard'
+import { AuthenticatedLayout } from '@/app/command_center/components/layout/authenticated-layout'
+import { Dashboard } from '@/app/components/dashboard'
 
 export default function DashboardPage() {
   return (
