@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import Link from 'next/link'
 import {
   BadgeCheck,
   Bell,
@@ -7,8 +7,8 @@ import {
   LogOut,
   Sparkles,
 } from 'lucide-react'
-import useDialogState from '@/hooks/use-dialog-state'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import useDialogState from '../hooks/use-dialog-state'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,14 +17,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '../ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/components/ui/sidebar'
-import { SignOutDialog } from '@/components/sign-out-dialog'
+} from '../ui/sidebar'
+import { SignOutDialog } from '../sign-out-dialog'
 
 type NavUserProps = {
   user: {

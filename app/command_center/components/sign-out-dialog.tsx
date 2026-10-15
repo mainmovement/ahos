@@ -1,38 +1,49 @@
-import { useNavigate, useLocation } from '@tanstack/react-router'
-import { useAuthStore } from '@/stores/auth-store'
-import { ConfirmDialog } from '@/components/confirm-dialog'
+'use client'
 
-interface SignOutDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
+import { useState } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Button } from '../ui/button'
+import { ArrowLeftToLine, Shield } from 'lucide-react'
+import { useLayout } from '../context/layout-context'
 
-export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { auth } = useAuthStore()
+export function SignOutDialog() {
+  const [open, setOpen] = useState(false)
+  const { setIsSidebarOpen } = useLayout()
 
   const handleSignOut = () => {
-    auth.reset()
-    // Preserve current location for redirect after sign-in
-    const currentPath = location.href
-    navigate({
-      to: '/sign-in',
-      search: { redirect: currentPath },
-      replace: true,
-    })
+    setOpen(false)
+    setIsSidebarOpen(false)
   }
 
   return (
-    <ConfirmDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title='Sign out'
-      desc='Are you sure you want to sign out? You will need to sign in again to access your account.'
-      confirmText='Sign out'
-      destructive
-      handleConfirm={handleSignOut}
-      className='sm:max-w-sm'
-    />
+    <>
+      <Button variant='ghost' onClick={() => setOpen(true)}>
+        <ArrowLeftToLine className='h-4 w-4' />
+        <span className='sr-only'>خروج</span>
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className='flex items-center gap-2 text-amber-100'>
+              <Shield className='h-5 w-5' />
+              تأیید خروج
+            </DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4'>
+            <p className='text-amber-200/60'>
+              آیا از خروج از حساب کاربری مطمئن هستید؟
+            </p>
+            <div className='flex gap-2'>
+              <Button variant='outline' onClick={() => setOpen(false)}>
+                انصراف
+              </Button>
+              <Button variant='destructive' onClick={handleSignOut}>
+                خروج
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
