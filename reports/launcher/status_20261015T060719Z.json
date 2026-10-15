@@ -1,0 +1,94 @@
+{
+  "action": "start",
+  "ts": "2026-10-15T06:07:19.177450+00:00",
+  "overall": "DEGRADED",
+  "paper_only": true,
+  "components": {
+    "stores": {
+      "status": "HEALTHY",
+      "detail": "already running (idempotent)",
+      "pid": null,
+      "critical": true
+    },
+    "db_backend": {
+      "status": "UNKNOWN",
+      "detail": "unsupported DATABASE_URL scheme: file",
+      "pid": null,
+      "critical": false,
+      "evidence": {
+        "scheme": "file",
+        "init_action": "noop_not_pglite"
+      }
+    },
+    "gateway": {
+      "status": "UNAVAILABLE",
+      "detail": "health check timed out after 240s; log tail: ▲ Next.js 16.3.8 (Turbopack)\n- Local:         http://127.0.0.1:3000\n- Network:       http://127.0.0.1:3000\n- Environments: .env\n✓ Ready in 2.5min\n✓ Running next.config.ts took 6.0s",
+      "pid": 14348,
+      "critical": false,
+      "started_ts": 1792044402.5979884
+    },
+    "telegram": {
+      "status": "HEALTHY",
+      "detail": "pid 5664 alive for 24s and polling",
+      "pid": 5664,
+      "critical": false
+    },
+    "engine": {
+      "status": "HEALTHY",
+      "detail": "already running (idempotent)",
+      "pid": 2164,
+      "critical": true,
+      "started_ts": 1791967721.0946336
+    }
+  },
+  "dashboard_url": "http://127.0.0.1:3000/",
+  "gateway_port": 3000,
+  "gateway_chosen_via": "CONFIGURED_BINDABLE",
+  "gateway_warnings": [],
+  "db_backend": {
+    "scheme": "file",
+    "host": null,
+    "port": null,
+    "configured": true
+  },
+  "preflight": [
+    {
+      "name": "repo",
+      "ok": true,
+      "detail": "workspace root ."
+    },
+    {
+      "name": "venv",
+      "ok": true,
+      "detail": ".venv\\Scripts\\python.exe"
+    },
+    {
+      "name": "node_modules",
+      "ok": true,
+      "detail": "node_modules"
+    },
+    {
+      "name": "scheduler_config",
+      "ok": true,
+      "detail": "existing scheduler (n8n replacement)"
+    },
+    {
+      "name": "db_reachable",
+      "ok": false,
+      "detail": "no DATABASE_URL configured"
+    },
+    {
+      "name": "gemini_cred",
+      "ok": true,
+      "detail": "Credential Manager AHOS/ai/gemini (presence only)"
+    }
+  ],
+  "cp_status": "SYSTEM_ONLINE",
+  "cp_run": {
+    "run_id": "run-0ccbafe98ba4158e",
+    "status": "SYSTEM_ONLINE",
+    "idempotent_replay": true,
+    "note": "identical START already completed — no duplicate activation"
+  },
+  "duration": 378.63439869880676
+}

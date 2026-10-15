@@ -1,6 +1,6 @@
 {
   "action": "start",
-  "ts": "2026-10-14T20:43:34.459909+00:00",
+  "ts": "2026-10-15T06:07:19.177450+00:00",
   "overall": "DEGRADED",
   "paper_only": true,
   "components": {
@@ -11,28 +11,27 @@
       "critical": true
     },
     "db_backend": {
-      "status": "UNAVAILABLE",
-      "detail": "Postgres not listening on 127.0.0.1:5432",
+      "status": "UNKNOWN",
+      "detail": "unsupported DATABASE_URL scheme: file",
       "pid": null,
       "critical": false,
       "evidence": {
-        "scheme": "postgres",
+        "scheme": "file",
         "init_action": "noop_not_pglite"
       }
     },
     "gateway": {
-      "status": "HEALTHY",
-      "detail": "already running (idempotent)",
-      "pid": 13516,
+      "status": "UNAVAILABLE",
+      "detail": "health check timed out after 240s; log tail: ▲ Next.js 16.3.8 (Turbopack)\n- Local:         http://127.0.0.1:3000\n- Network:       http://127.0.0.1:3000\n- Environments: .env\n✓ Ready in 2.5min\n✓ Running next.config.ts took 6.0s",
+      "pid": 14348,
       "critical": false,
-      "started_ts": 1791967701.1874099
+      "started_ts": 1792044402.5979884
     },
     "telegram": {
       "status": "HEALTHY",
-      "detail": "pid 7800 alive for 42906s and polling",
-      "pid": 7800,
-      "critical": false,
-      "started_ts": 1791967707.9329238
+      "detail": "pid 5664 alive for 24s and polling",
+      "pid": 5664,
+      "critical": false
     },
     "engine": {
       "status": "HEALTHY",
@@ -44,19 +43,19 @@
   },
   "dashboard_url": "http://127.0.0.1:3000/",
   "gateway_port": 3000,
-  "gateway_chosen_via": "RECORDED_RUNNING",
+  "gateway_chosen_via": "CONFIGURED_BINDABLE",
   "gateway_warnings": [],
   "db_backend": {
-    "scheme": "postgres",
-    "host": "127.0.0.1",
-    "port": 5432,
+    "scheme": "file",
+    "host": null,
+    "port": null,
     "configured": true
   },
   "preflight": [
     {
       "name": "repo",
       "ok": true,
-      "detail": "workspace root G:\\robat\\ahos"
+      "detail": "workspace root ."
     },
     {
       "name": "venv",
@@ -76,7 +75,7 @@
     {
       "name": "db_reachable",
       "ok": false,
-      "detail": "postgres on 127.0.0.1:5432"
+      "detail": "no DATABASE_URL configured"
     },
     {
       "name": "gemini_cred",
@@ -91,5 +90,5 @@
     "idempotent_replay": true,
     "note": "identical START already completed — no duplicate activation"
   },
-  "duration": 4.353380918502808
+  "duration": 378.63439869880676
 }
