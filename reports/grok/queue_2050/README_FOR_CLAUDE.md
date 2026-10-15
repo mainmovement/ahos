@@ -1,4 +1,19 @@
-﻿# TEMPLATE DECISION (Soltan, 2026-10-14 22:15 Tehran)
+﻿# OWNER+SOLTAN DECISION 2026-10-16 00:45 Tehran
+**The dashboard visual build is now being done externally.** Arena AI output will be dropped in `C:\Users\Sniper\ahos_assets\01_dashboard` and merged later by Soltan. Do not wait for it and do not try to reproduce it.
+
+1. **STOP all dashboard visual / template / globe / restyle work.** No more shadcn-admin integration, no 3D globe, no layout or theme changes, no new dashboard screenshots-for-comparison against 01.
+2. **The ONE allowed dashboard task:** fix the Next.js runtime error `TypeError: createContext ...` so the existing dashboard builds and renders with **no error overlay**. Likely cause: a component using React context/hooks (e.g. `useLayout` / layout-provider) without `"use client"`, or a server component importing a client-only module. Fix the minimum needed.
+   - Proof required: `next build` passes, and a **real screenshot** of the running dashboard showing **no error overlay**. Save it under `reports/dashboard/screens/` with the time in the filename.
+   - Commit it by explicit path (`git add -- <files>`; `git commit -m ... -- <files>`).
+3. **After that, return to the non-dashboard AHOS queue, in order:** QUEUE v2 items A-H, then backend, tests, M-PORT.
+
+## Reminders (strict)
+- Commit only your own files, by explicit path. Never `git add -A` / `git add .`.
+- Never commit soak / autopilot / `_claude_fresh_*` / keepalive log files (`reports/grok/M13_SOAK/*`, `reports/grok/autopilot/*`, etc.).
+- Honest screenshots only: real captures of the running app, never mock-ups, edited or old images. Don't touch HOLD.flag or trading.
+
+---
+# TEMPLATE DECISION (Soltan, 2026-10-14 22:15 Tehran)
 **Claude: STOP web-searching or guessing template repo URLs. The decision is made and both repos below were checked by Soltan (they exist, MIT, active).**
 
 - **Chosen template:** https://github.com/satnaing/shadcn-admin (MIT, ~15.7k stars, last push 2026-09-10). It's built on the same shadcn/ui + Tailwind 4 + React 19 stack as our `components/ui/*`, so its components can be copied in directly. It uses Vite/TanStack Router: copy **components and layout markup only**, never its router/app shell/package.json.
