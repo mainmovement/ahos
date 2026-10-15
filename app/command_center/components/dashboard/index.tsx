@@ -67,7 +67,7 @@ export function Dashboard() {
           <TabsContent value='overview' className='space-y-4'>
             {/* Top KPI Cards */}
             <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-              <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
+              <Card className='backdrop-blur bg-white/5 border border-[#D4AF37]/40 text-slate-100 shadow-[0_0_25px_rgba(212,175,55,0.2)] hover:shadow-[0_0_35px_rgba(212,175,55,0.3)] transition-all duration-300'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium text-[#D4AF37]'>
                     Canonical State
@@ -81,7 +81,7 @@ export function Dashboard() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className='border-cyan-500/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(0,240,255,0.1)]'>
+              <Card className='backdrop-blur bg-white/5 border border-cyan-500/40 text-slate-100 shadow-[0_0_25px_rgba(0,240,255,0.2)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] transition-all duration-300'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium text-cyan-400'>
                     Active Signals
@@ -95,7 +95,7 @@ export function Dashboard() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
+              <Card className='backdrop-blur bg-white/5 border border-[#D4AF37]/40 text-slate-100 shadow-[0_0_25px_rgba(212,175,55,0.2)] hover:shadow-[0_0_35px_rgba(212,175,55,0.3)] transition-all duration-300'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium text-[#D4AF37]'>Paper Opportunities</CardTitle>
                   <Database className='h-4 w-4 text-[#D4AF37]' />
@@ -107,7 +107,7 @@ export function Dashboard() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className='border-cyan-500/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(0,240,255,0.1)]'>
+              <Card className='backdrop-blur bg-white/5 border border-cyan-500/40 text-slate-100 shadow-[0_0_25px_rgba(0,240,255,0.2)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] transition-all duration-300'>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium text-cyan-400'>
                     Agent Mesh Nodes
@@ -239,30 +239,72 @@ export function Dashboard() {
             </div>
 
             {/* Bottom Row Panels */}
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-              {/* Bottom Left - Analytics */}
+            <div className='grid grid-cols-1 lg:grid-cols-4 gap-4'>
+              {/* University / Research Lab */}
               <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
                 <CardHeader>
-                  <CardTitle className='text-[#D4AF37]'>Signal Analysis</CardTitle>
+                  <CardTitle className='text-[#D4AF37]'>AHOS University</CardTitle>
                   <CardDescription className='text-slate-400'>
-                    Evidence velocity and canonical depth metrics
+                    Research & Training
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Analytics />
+                  <div className='space-y-2'>
+                    <div className='text-sm text-white'>Active Courses: 12</div>
+                    <div className='text-xs text-cyan-400'>+3 new this week</div>
+                    <div className='text-xs text-[#D4AF37]'>Progress: 78%</div>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Bottom Right - Security Feed */}
+              {/* Agent Society */}
               <Card className='border-cyan-500/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(0,240,255,0.1)]'>
                 <CardHeader>
-                  <CardTitle className='text-cyan-400'>Security Status</CardTitle>
+                  <CardTitle className='text-cyan-400'>Agent Society</CardTitle>
                   <CardDescription className='text-slate-400'>
-                    Real-time security gate evaluations
+                    Community Network
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales />
+                  <div className='space-y-2'>
+                    <div className='text-sm text-white'>Members: 2,847</div>
+                    <div className='text-xs text-[#D4AF37]'>+127 today</div>
+                    <div className='text-xs text-cyan-400'>Teams: 45 active</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Auto Trading */}
+              <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
+                <CardHeader>
+                  <CardTitle className='text-[#D4AF37]'>Auto Trading</CardTitle>
+                  <CardDescription className='text-slate-400'>
+                    Performance Overview
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className='space-y-2'>
+                    <div className='text-sm text-white'>P&L: +12.3%</div>
+                    <div className='text-xs text-cyan-400'>24h change</div>
+                    <div className='text-xs text-[#D4AF37']'>Active Bots: 23</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Chat with AHOS */}
+              <Card className='border-cyan-500/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(0,240,255,0.1)]'>
+                <CardHeader>
+                  <CardTitle className='text-cyan-400'>Chat with AHOS</CardTitle>
+                  <CardDescription className='text-slate-400'>
+                    AI Assistant
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className='space-y-2'>
+                    <div className='text-sm text-white'>Status: Online</div>
+                    <div className='text-xs text-[#D4AF37]'>Response: 0.8s avg</div>
+                    <div className='text-xs text-cyan-400'>Sessions: 156 today</div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
