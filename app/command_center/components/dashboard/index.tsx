@@ -127,7 +127,7 @@ export function Dashboard() {
             <div className='grid grid-cols-1 gap-4 lg:grid-cols-12'>
               {/* Left Column - Main Charts */}
               <div className='lg:col-span-8 space-y-4'>
-                <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
+                <Card className='backdrop-blur bg-white/5 border border-[#D4AF37]/40 text-slate-100 shadow-[0_0_25px_rgba(212,175,55,0.2)] hover:shadow-[0_0_35px_rgba(212,175,55,0.3)] transition-all duration-300'>
                   <CardHeader>
                     <CardTitle className='text-[#D4AF37]'>Opportunity Inflow & Volatility</CardTitle>
                     <CardDescription className='text-slate-400'>
@@ -143,7 +143,7 @@ export function Dashboard() {
               {/* Right Column - Intelligence Feed & Quick Actions */}
               <div className='lg:col-span-4 space-y-4'>
                 {/* Live Intelligence Feed */}
-                <Card className='border-cyan-500/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(0,240,255,0.1)]'>
+                <Card className='backdrop-blur bg-white/5 border border-cyan-500/40 text-slate-100 shadow-[0_0_25px_rgba(0,240,255,0.2)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] transition-all duration-300'>
                   <CardHeader>
                     <CardTitle className='text-cyan-400'>Live Intelligence Feed</CardTitle>
                     <CardDescription className='text-slate-400'>
@@ -209,7 +209,7 @@ export function Dashboard() {
                 </Card>
 
                 {/* Quick Actions */}
-                <Card className='border-[#D4AF37]/30 bg-[#0b0b0f]/90 text-slate-100 shadow-[0_0_15px_rgba(212,175,55,0.1)]'>
+                <Card className='backdrop-blur bg-white/5 border border-[#D4AF37]/40 text-slate-100 shadow-[0_0_25px_rgba(212,175,55,0.2)] hover:shadow-[0_0_35px_rgba(212,175,55,0.3)] transition-all duration-300'>
                   <CardHeader>
                     <CardTitle className='text-[#D4AF37]'>Quick Actions</CardTitle>
                     <CardDescription className='text-slate-400'>
