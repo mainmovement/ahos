@@ -6,6 +6,7 @@ import { LayoutProvider } from '../context/layout-provider'
 import { SearchProvider } from '../context/search-provider'
 import { SidebarInset, SidebarProvider } from '../ui/sidebar'
 import { AppSidebar } from './app-sidebar'
+import { Header } from './header'
 import { SkipToMain } from '../skip-to-main'
 
 type AuthenticatedLayoutProps = {
@@ -19,6 +20,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
       <LayoutProvider>
         <SidebarProvider defaultOpen={defaultOpen}>
           <SkipToMain />
+          <Header />
           <AppSidebar />
           <SidebarInset
             className={cn(
