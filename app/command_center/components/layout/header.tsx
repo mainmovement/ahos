@@ -6,6 +6,7 @@ import { ProfileDropdown } from './profile-dropdown'
 import { ConfigDrawer } from './config-drawer'
 import { ThemeSwitch } from './theme-switch'
 import { Bell } from 'lucide-react'
+import { TopNav } from './top-nav'
 
 export function Header({ className, children, ...props }: HeaderProps) {
   const topNav = [
@@ -52,7 +53,11 @@ export function Header({ className, children, ...props }: HeaderProps) {
             </div>
             <span className='hidden font-bold sm:inline-block text-[#D4AF37]'>AHOS</span>
           </Link>
-          <div className='relative flex flex-1 items-center gap-3'>
+          <TopNav
+            links={topNav}
+            className='flex-1'
+          />
+          <div className='relative flex-1 max-w-md'>
             <Search placeholder='جستجو...' />
           </div>
         </div>
