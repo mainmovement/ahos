@@ -1,4 +1,4 @@
-import { type LinkProps } from 'react-router-dom'
+import { Link } from 'next/link'
 
 type User = {
   name: string
@@ -19,12 +19,12 @@ type BaseNavItem = {
 }
 
 type NavLink = BaseNavItem & {
-  url: LinkProps['to'] | (string & {})
+  url: string
   items?: never
 }
 
 type NavCollapsible = BaseNavItem & {
-  items: (BaseNavItem & { url: LinkProps['to'] | (string & {}) })[]
+  items: (BaseNavItem & { url: string })[]
   url?: never
 }
 
@@ -42,3 +42,4 @@ type SidebarData = {
 }
 
 export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink }
+export { Link }

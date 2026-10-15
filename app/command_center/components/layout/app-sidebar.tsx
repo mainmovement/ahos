@@ -6,10 +6,10 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { sidebarData } from './data/sidebar-data'
 import { AppTitle } from './app-title'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
+import { ahosSidebarData } from './data/ahos-sidebar-data'
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
@@ -19,12 +19,12 @@ export function AppSidebar() {
         <AppTitle />
       </SidebarHeader>
       <SidebarContent>
-        {sidebarData.navGroups.map((props) => (
+        {ahosSidebarData.navGroups.map((props) => (
           <NavGroup key={props.title} {...props} />
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={sidebarData.user} />
+        <NavUser user={ahosSidebarData.user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
