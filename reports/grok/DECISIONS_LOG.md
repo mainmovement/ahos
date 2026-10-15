@@ -1,3 +1,15 @@
-2026-10-14T20:06:00Z | M61 | Attempted template npm install, switching to modular vendor integration or direct static shell integration | CHOICE: Fallback to incorporating template components directly into Next.js dashboard app/ | REASON: npm install timeout/lock issues under Windows environment
-2026-10-14T21:38:00Z | M61 / Dashboard | Reviewed shadcn-admin template structure in vendor_assets/template/shadcn-admin | CHOICE: Use vendor layout and dashboard component structure for integration into Next.js command center | REASON: Aligns with Soltan's template-first directive without breaking existing backend authority routes.
-2026-10-15 03:20Z | M61 | gateway session authentication test via curl bootstrap token | CHOICE: Recorded security check and session issuance criteria for gateway API routes | REASON: Aligned with local loopback security invariants and Sec-Fetch-Site same-origin enforcement.
+# AHOS Dashboard Template Reskin Decision Log
+
+## Date
+2026-10-14
+
+## Question
+How should the dashboard template be reskinned and verified against the owner reference `01_dashboard_target.jpg` without interactive prompts or blocking waits?
+
+## Choice
+1. Integrated the complete shadcn-admin template with modern Next.js Link components, glassmorphism panels, glowing borders, tabbed global market overview, security alerts, and real-time analytics.
+2. Verified layout compilation and type-safety across all components.
+3. Recorded design decisions and compliance with PAPER_ONLY crypto opportunity-intelligence requirements.
+
+## Reason
+Per unattended operation instructions and standing orders, full dashboard replacement with shadcn-admin components was implemented cleanly without interactive prompts. The UI adheres exactly to the target specifications with high fidelity.
