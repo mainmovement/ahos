@@ -1,4 +1,5 @@
-import { Link } from '@tanstack/react-router'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 type TopNavProps = React.HTMLAttributes<HTMLElement> & {
-  links: {
+  links?: {
     title: string
     href: string
     isActive: boolean
@@ -18,48 +19,60 @@ type TopNavProps = React.HTMLAttributes<HTMLElement> & {
   }[]
 }
 
-export function TopNav({ className, links, ...props }: TopNavProps) {
+export function TopNav({ className, links = [], ...props }: TopNavProps) {
+  const pathname = usePathname()
+
   return (
     <>
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            size='icon'
-            variant='outline'
-            className={cn('md:size-7 lg:hidden', className)}
-          >
-            <Menu />
-            <span className='sr-only'>Toggle navigation menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side='bottom' align='start'>
-          {links.map(({ title, href, isActive, disabled }) => (
-            <DropdownMenuItem key={`${title}-${href}`} asChild>
-              <Link
-                to={href}
-                className={!isActive ? 'text-muted-foreground' : ''}
-                disabled={disabled}
-              >
-                {title}
-              </Link>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className='md:hidden'>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size='icon'
+              variant='outline'
+              aria-label='Open navigation menu'
+            >
+              <Menu />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side='bottom' align='start' className='w-48'>
+            {links.map(({ title, href, disabled }) => (
+              <DropdownMenuItem key={`${title}-${href}`} asChild>
+                <Link
+                  href={disabled ? '#' : href}
+                  aria-disabled={disabled}
+                  className={cn(
+                    'w-full',
+                    disabled && 'pointer-events-none opacity-50'
+                  )}
+                >
+                  {title}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       <nav
         className={cn(
-          'hidden items-center space-x-4 lg:flex lg:space-x-4 xl:space-x-6',
+          'hidden items-center space-x-4 md:flex lg:space-x-6',
           className
         )}
         {...props}
       >
-        {links.map(({ title, href, isActive, disabled }) => (
+        {links.map(({ title, href, disabled }) => (
           <Link
             key={`${title}-${href}`}
-            to={href}
-            disabled={disabled}
-            className={`text-sm font-medium transition-colors hover:text-primary ${isActive ? '' : 'text-muted-foreground'}`}
+            href={disabled ? '#' : href}
+            aria-disabled={disabled}
+            className={cn(
+              'text-sm font-medium transition-colors hover:text-primary',
+              pathname === href || (href !== '/' && pathname.startsWith(href))
+                ? 'text-foreground'
+                : 'text-muted-foreground',
+              disabled && 'pointer-events-none opacity-50'
+            )}
           >
             {title}
           </Link>

@@ -1,4 +1,4 @@
-import { Link } from 'next/link'
+import { LinkProps } from 'next/link'
 
 type User = {
   name: string
@@ -19,12 +19,12 @@ type BaseNavItem = {
 }
 
 type NavLink = BaseNavItem & {
-  url: string
+  url: LinkProps['href'] | (string & {})
   items?: never
 }
 
 type NavCollapsible = BaseNavItem & {
-  items: (BaseNavItem & { url: string })[]
+  items: (BaseNavItem & { url: LinkProps['href'] | (string & {}) })[]
   url?: never
 }
 
@@ -41,5 +41,13 @@ type SidebarData = {
   navGroups: NavGroup[]
 }
 
+export type HeaderProps = React.HTMLAttributes<HTMLElement> & {
+  links?: {
+    title: string
+    href: string
+    isActive: boolean
+    disabled?: boolean
+  }[]
+}
+
 export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink }
-export { Link }

@@ -1,113 +1,94 @@
 import {
   LayoutDashboard,
-  ShieldCheck,
-  Brain,
-  Globe,
-  Database,
-  Lock,
-  Settings,
-  Users,
+  ListTodo,
+  Package,
   MessagesSquare,
-  FileText,
-  Activity,
-  Terminal,
+  Users,
+  Settings,
+  Bell,
+  UserCog,
+  ShieldCheck,
+  HelpCircle,
+  Command,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
   user: {
-    name: 'Mehrdad',
-    email: 'mehrdad@ahos.ai',
-    avatar: '/avatars/shadcn.jpg',
+    name: 'AHOS Operator',
+    email: 'operator@ahos.system',
+    avatar: '/ahos-logo.png',
   },
   teams: [
     {
-      name: 'AHOS Command',
-      logo: ShieldCheck,
-      plan: 'PAPER ONLY',
-    },
-    {
-      name: 'Lane B Engine',
-      logo: Brain,
-      plan: 'Deterministic',
+      name: 'AHOS Command Center',
+      logo: Command,
+      plan: 'Crypto Intelligence Platform',
     },
   ],
   navGroups: [
     {
-      title: 'Command & Intelligence',
+      title: 'Command Center',
       items: [
         {
-          title: 'Command Center',
+          title: 'Overview',
           url: '/',
           icon: LayoutDashboard,
         },
         {
-          title: 'Holographic Globe',
-          url: '/globe',
-          icon: Globe,
+          title: 'Discovery',
+          url: '/discovery',
+          icon: Package,
         },
         {
           title: 'Opportunities',
           url: '/opportunities',
-          icon: Activity,
+          icon: ListTodo,
         },
         {
-          title: 'Market Intelligence',
-          url: '/market',
-          icon: Database,
-        },
-        {
-          title: 'Auto Trading (Agents)',
-          url: '/agents',
-          icon: Terminal,
-        },
-      ],
-    },
-    {
-      title: 'Governance & Security',
-      items: [
-        {
-          title: 'Identity & Security',
-          icon: Lock,
-          items: [
-            { title: 'Gate Authority', url: '/security/gate' },
-            { title: 'Lane A Freeze', url: '/security/lane-a' },
-          ],
-        },
-        {
-          title: 'Audit & Governance',
-          url: '/audit',
-          icon: FileText,
-        },
-        {
-          title: 'Evidence Ledger',
-          url: '/evidence',
-          icon: Database,
-        },
-      ],
-    },
-    {
-      title: 'Labs & Community',
-      items: [
-        {
-          title: 'AHOS University / Lab',
-          url: '/university',
-          icon: Brain,
-        },
-        {
-          title: 'Agent Society',
-          url: '/society',
-          icon: Users,
-        },
-        {
-          title: 'Chat with AHOS',
-          url: '/chat',
+          title: 'Trades',
+          url: '/trades',
           icon: MessagesSquare,
         },
         {
-          title: 'Settings',
+          title: 'Agents',
+          url: '/agents',
+          icon: Users,
+        },
+      ],
+    },
+    {
+      title: 'Security',
+      items: [
+        {
+          title: 'Access Control',
+          url: '/security',
+          icon: ShieldCheck,
+        },
+        {
+          title: 'System Status',
+          url: '/status',
+          icon: Bell,
+        },
+      ],
+    },
+    {
+      title: 'Settings',
+      items: [
+        {
+          title: 'Profile',
           url: '/settings',
+          icon: UserCog,
+        },
+        {
+          title: 'Preferences',
+          url: '/settings/preferences',
           icon: Settings,
+        },
+        {
+          title: 'Help',
+          url: '/help',
+          icon: HelpCircle,
         },
       ],
     },

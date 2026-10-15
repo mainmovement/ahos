@@ -18,7 +18,7 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { Badge } from '../ui/badge'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +26,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 import {
   type NavCollapsible,
   type NavItem,
@@ -116,7 +116,7 @@ function SidebarMenuCollapsible({
                   <Link href={subItem.url} onClick={() => setOpenMobile(false)}>
                     {subItem.icon && <subItem.icon />}
                     <span>{subItem.title}</span>
-                    {subItem.badge && <NavBadge>{subItem.badge}</NavBadge>}
+                    {subItem.badge && <NavBadge>{item.badge}</NavBadge>}
                   </Link>
                 </SidebarMenuSubButton>
               </SidebarMenuSubItem>
@@ -174,13 +174,13 @@ function SidebarMenuCollapsedDropdown({
   )
 }
 
-function checkIsActive(pathname: string, item: NavItem, mainNav = false) {
+function checkIsActive(href: string, item: NavItem, mainNav = false) {
   return (
-    pathname === item.url || // /endpint?search=param
-    pathname.split('?')[0] === item.url || // endpoint
-    !!item?.items?.filter((i) => i.url === pathname).length || // if child nav is active
+    href === item.url || // /endpint?search=param
+    href.split('?')[0] === item.url || // endpoint
+    !!item?.items?.filter((i) => i.url === href).length || // if child nav is active
     (mainNav &&
-      pathname.split('/')[1] !== '' &&
-      pathname.split('/')[1] === item?.url?.split('/')[1])
+      href.split('/')[1] !== '' &&
+      href.split('/')[1] === item?.url?.split('/')[1])
   )
 }
