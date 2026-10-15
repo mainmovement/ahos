@@ -1,219 +1,245 @@
-import { Suspense } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { SearchBar } from '../layout/search-bar'
-import { AppSidebar } from '../layout/app-sidebar'
-import { SkipToMain } from '../skip-to-main'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ConfigDrawer } from '../layout/config-drawer'
+import { Header } from '../layout/header'
+import { Main } from '../layout/main'
+import { TopNav } from '../layout/top-nav'
+import { ProfileDropdown } from '../layout/profile-dropdown'
+import { Search } from '../layout/search'
+import { Overview } from './components/overview'
+import { Analytics } from './components/analytics'
+import { RecentTransactions } from './components/recent-transactions'
+import { SecurityAlerts } from './components/security-alerts'
+import { GlobalMarkets } from './components/global-markets'
+import { LiquidityFlow } from './components/liquidity-flow'
 
-function RecentSales() {
-  const sales = [
-    { customer: 'Ali', email: 'ali@example.com', amount: '$150.00' },
-    { customer: 'Sara', email: 'sara@example.com', amount: '$230.00' },
-    { customer: 'Reza', email: 'reza@example.com', amount: '$180.00' },
-  ]
-
+export function Dashboard() {
   return (
-    <div className='space-y-8'>
-      <div>
-        <h2 className='text-2xl font-bold text-amber-100'>فروش‌های اخیر</h2>
-        <p className='text-amber-200/60'>مشتریان جدید و فروش‌های اخیر</p>
-      </div>
-      <div className='space-y-4'>
-        {sales.map((sale, i) => (
-          <div
-            key={i}
-            className='flex items-center justify-between border-b border-amber-200/20 pb-4'
-          >
-            <div className='flex items-center space-x-4'>
-              <div className='h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center'>
-                <span className='text-sm font-medium text-amber-300'>
-                  {sale.customer.charAt(0)}
-                </span>
-              </div>
-              <div>
-                <p className='font-medium text-amber-100'>{sale.customer}</p>
-                <p className='text-sm text-amber-200/60'>{sale.email}</p>
-              </div>
+    <>
+      {/* ===== Top Heading ===== */}
+      <Header>
+        <TopNav links={topNav} className='me-auto' />
+        <Search placeholder='Search markets, signals, alerts...' />
+        <ConfigDrawer />
+        <ProfileDropdown />
+      </Header>
+
+      {/* ===== Main ===== */}
+      <Main>
+        <div className='mb-6 flex items-center justify-between space-y-2'>
+          <div>
+            <h1 className='text-3xl font-bold tracking-tight'>Command Center</h1>
+            <p className='text-muted-foreground'>
+              Advanced crypto opportunity intelligence system
+            </p>
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button variant='outline' size='sm'>
+              Export Report
+            </Button>
+            <Button size='sm'>
+              New Signal
+            </Button>
+          </div>
+        </div>
+
+        {/* Market Overview Cards */}
+        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6'>
+          <Card className='bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-400/30'>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium text-blue-200'>
+                Active Signals
+              </CardTitle>
+              <div className='h-4 w-4 rounded-full bg-blue-500 animate-pulse' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold text-blue-300'>247</div>
+              <p className='text-xs text-blue-200/80'>
+                +12% from last hour
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className='bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-400/30'>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium text-green-200'>
+                Paper Positions
+              </CardTitle>
+              <div className='h-4 w-4 rounded-full bg-green-500' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold text-green-300'>18</div>
+              <p className='text-xs text-green-200/80'>
+                +3 from yesterday
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className='bg-gradient-to-br from-purple-500/10 to-purple-600/10 border-purple-400/30'>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium text-purple-200'>
+                Security Events
+              </CardTitle>
+              <div className='h-4 w-4 rounded-full bg-purple-500' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold text-purple-300'>3</div>
+              <p className='text-xs text-purple-200/80'>
+                2 critical, 1 warning
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className='bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 border-cyan-400/30'>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium text-cyan-200'>
+                Liquidity Score
+              </CardTitle>
+              <div className='h-4 w-4 rounded-full bg-cyan-500' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold text-cyan-300'>8.7/10</div>
+              <p className='text-xs text-cyan-200/80'>
+                +0.3 from last update
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Tabs */}
+        <Tabs
+          orientation='vertical'
+          defaultValue='overview'
+          className='space-y-4'
+        >
+          <div className='w-full overflow-x-auto pb-2'>
+            <TabsList className='grid w-full grid-cols-4'>
+              <TabsTrigger value='overview'>Overview</TabsTrigger>
+              <TabsTrigger value='analytics'>Analytics</TabsTrigger>
+              <TabsTrigger value='markets'>Global Markets</TabsTrigger>
+              <TabsTrigger value='security'>Security</TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value='overview' className='space-y-4'>
+            <div className='grid grid-cols-1 gap-4 lg:grid-cols-3'>
+              <Card className='col-span-1 lg:col-span-2'>
+                <CardHeader>
+                  <CardTitle>Signal Overview</CardTitle>
+                  <CardDescription>
+                    Real-time market intelligence and opportunity signals
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className='ps-2'>
+                  <Overview />
+                </CardContent>
+              </Card>
+
+              <Card className='col-span-1 lg:col-span-1'>
+                <CardHeader>
+                  <CardTitle>Recent Transactions</CardTitle>
+                  <CardDescription>
+                    Latest paper trading activities
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RecentTransactions />
+                </CardContent>
+              </Card>
             </div>
-            <p className='font-medium text-amber-100'>{sale.amount}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+          </TabsContent>
+
+          <TabsContent value='analytics' className='space-y-4'>
+            <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Analytics</CardTitle>
+                  <CardDescription>
+                    Portfolio and signal performance metrics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Analytics />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Liquidity Flow</CardTitle>
+                  <CardDescription>
+                    Market liquidity analysis and flow visualization
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LiquidityFlow />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value='markets' className='space-y-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Global Markets</CardTitle>
+                <CardDescription>
+                  Real-time market data and global sentiment analysis
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <GlobalMarkets />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='security' className='space-y-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Security Alerts</CardTitle>
+                <CardDescription>
+                  Critical security events and system monitoring
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SecurityAlerts />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </Main>
+    </>
   )
 }
 
-function DashboardContent() {
-  return (
-    <div className='flex h-full flex-col'>
-      <div className='flex-1 overflow-y-auto p-4'>
-        {/* KPI Cards Row */}
-        <div className='grid gap-4 mb-6 lg:grid-cols-4'>
-          {[
-            { title: 'کل کاربران', value: '2,543', change: '+12%', icon: '👥' },
-            { title: 'فرصت‌ها شناسایی شده', value: '48', change: '+23%', icon: '🎯' },
-            { title: 'سیستم‌های فعال', value: '24', change: '+3%', icon: '🖥️' },
-            { title: 'نرخ موفقیت', value: '98.2%', change: '+1.2%', icon: '✅' },
-          ].map((stat, i) => (
-            <Card key={i} className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
-              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium text-amber-200/60'>
-                  {stat.title}
-                </CardTitle>
-                <span className='text-2xl'>{stat.icon}</span>
-              </CardHeader>
-              <CardContent>
-                <div className='flex items-baseline gap-x-2'>
-                  <p className='text-2xl font-bold text-amber-100'>
-                    {stat.value}
-                  </p>
-                  <p className='text-sm text-green-400'>
-                    {stat.change}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Main Content Area */}
-        <div className='grid gap-4 lg:grid-cols-3'>
-          {/* Center Globe */}
-          <div className='lg:col-span-2'>
-            <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm h-[400px]'>
-              <CardHeader>
-                <CardTitle className='text-xl font-bold text-amber-100'>
-                  نمایه جهانی AHOS
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='flex items-center justify-center h-[320px]'>
-                <div className='text-center text-amber-200/60'>
-                  <div className='text-4xl mb-4'>🌍</div>
-                  <p>نمایه ۳D تحلیل فرصت‌ها</p>
-                  <p className='text-sm mt-2'>در حال توسعه...</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Intelligence Feed */}
-          <div className='lg:col-span-1'>
-            <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
-              <CardHeader>
-                <CardTitle className='text-lg font-bold text-amber-100'>
-                  تغذیه هوشمندی
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className='space-y-3'>
-                  {[
-                    {
-                      time: '۵ دقیقه پیش',
-                      title: 'فرصت جدید در BTC/USDT',
-                      message: 'پولیگان قوی تشخیص داده شد',
-                      type: 'opportunity'
-                    },
-                    {
-                      time: '۱۵ دقیقه پیش',
-                      title: 'هشدار امنیتی',
-                      message: 'تلاش غیرمجاز برای دسترسی',
-                      type: 'security'
-                    },
-                    {
-                      time: '۳۰ دقیقه پیش',
-                      title: 'به‌روزرسانی سیستم',
-                      message: 'الگوریتم v2.1 اجرا شد',
-                      type: 'system'
-                    },
-                  ].map((item, i) => (
-                    <div key={i} className='p-3 rounded-lg border border-amber-200/20'>
-                      <div className='flex items-center justify-between mb-1'>
-                        <span className='text-xs text-amber-200/60'>{item.time}</span>
-                        {item.type === 'opportunity' && <span className='text-green-400 text-xs'>✓</span>}
-                        {item.type === 'security' && <span className='text-red-400 text-xs'>⚠</span>}
-                        {item.type === 'system' && <span className='text-blue-400 text-xs'>⚙</span>}
-                      </div>
-                      <h4 className='text-sm font-medium text-amber-100 mb-1'>
-                        {item.title}
-                      </h4>
-                      <p className='text-xs text-amber-200/60'>
-                        {item.message}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Bottom Row */}
-        <div className='grid gap-4 mt-6 lg:grid-cols-2'>
-          {/* Market Scan */}
-          <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
-            <CardHeader>
-              <CardTitle className='text-lg font-bold text-amber-100'>
-                اسکن بازار لحظه‌ای
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className='space-y-2'>
-                {[
-                  { pair: 'BTC/USDT', trend: 'صعودی', confidence: '92%' },
-                  { pair: 'ETH/USDT', trend: 'نوسانی', confidence: '78%' },
-                  { pair: 'BNB/USDT', trend: 'صعودی', confidence: '85%' },
-                  { pair: 'ADA/USDT', trend: 'نزولی', confidence: '67%' },
-                ].map((item, i) => (
-                  <div key={i} className='flex items-center justify-between py-2 border-b border-amber-200/10'>
-                    <span className='text-sm font-medium text-amber-100'>
-                      {item.pair}
-                    </span>
-                    <div className='flex items-center gap-2'>
-                      <span className={`text-xs ${item.trend === 'صعودی' ? 'text-green-400' : item.trend === 'نزولی' ? 'text-red-400' : 'text-amber-400'}`}>
-                        {item.trend}
-                      </span>
-                      <span className='text-xs text-amber-200/60'>
-                        {item.confidence}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Canonical Decision */}
-          <Card className='bg-gradient-to-br from-yellow-400/10 to-amber-500/5 border-yellow-400/20 backdrop-blur-sm'>
-            <CardHeader>
-              <CardTitle className='text-lg font-bold text-amber-100'>
-                تصمیم کانونی
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className='text-center py-4'>
-                <div className='text-6xl mb-2'>🤖</div>
-                <h4 className='text-lg font-bold text-amber-100 mb-2'>
-                  وضعیت: نظارت
-                </h4>
-                <p className='text-sm text-amber-200/60 mb-4'>
-                  سیستم در حال نظارت بر بازار است
-                </p>
-                <div className='flex gap-2 justify-center'>
-                  <span className='px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs border border-green-500/30'>
-                    نرخ موفقیت: 98.2%
-                  </span>
-                  <span className='px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs border border-blue-500/30'>
-                    تاخیر: 0.3s
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default function Dashboard() {
-  return <DashboardContent />
-}
+const topNav = [
+  {
+    title: 'Overview',
+    href: '/dashboard',
+    isActive: true,
+    disabled: false,
+  },
+  {
+    title: 'Signals',
+    href: '/signals',
+    isActive: false,
+    disabled: false,
+  },
+  {
+    title: 'Markets',
+    href: '/markets',
+    isActive: false,
+    disabled: false,
+  },
+  {
+    title: 'Security',
+    href: '/security',
+    isActive: false,
+    disabled: false,
+  },
+]
