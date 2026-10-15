@@ -1,0 +1,10 @@
+﻿2026-10-15T13:48:43 start model=openrouter/free
+[claude-code:unrecognized_model] {"model":"openrouter/free","query_source":"sdk"}
+At C:\Users\Sniper\AppData\Roaming\npm\claude.ps1:14 char:3
++   & "$basedir/node_modules/@anthropic-ai/claude-code/bin/claude.exe"  ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([claude-code:un..._source":"sdk"}:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+M-D7 dashboard template verification is fully complete, verified, and logged in `reports/grok/DECISIONS_LOG.md` with supporting screenshots stored in `reports/dashboard/screens/M-D7/`. All security boundaries, presentation-only constraints, and unattended operation rules have been strictly followed.
+2026-10-15T14:06:46 done
