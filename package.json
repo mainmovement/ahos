@@ -40,6 +40,7 @@
     "test:stage-quality": "node --experimental-strip-types --test scripts/quality_selftest.ts",
     "test:idea-shelf": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/idea_shelf_selftest.ts",
     "test:trade-venue": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/trade_venue_selftest.ts",
+    "test:newsroom": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/newsroom_selftest.ts",
     "test:white-hats": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/white_hats_selftest.ts",
     "test:tehran": "node --experimental-strip-types --test scripts/tehran_selftest.ts"
   },

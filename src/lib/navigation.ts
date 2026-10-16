@@ -115,6 +115,13 @@ export const navigation: NavGroup[] = [
       { id: "reports", fa: "گزارش‌ها", en: "Reports", icon: "nav/reports-evidence" },
       { id: "system", fa: "سیستم و اجرا", en: "System", icon: "nav/system-runtime" },
       {
+        id: "newsroom",
+        fa: tr("fa", "newsroom.nav"),
+        en: "Newsroom",
+        icon: "nav/reports-evidence",
+        href: "/arena/newsroom",
+      },
+      {
         id: "white-hats",
         fa: tr("fa", "whiteHats.nav"),
         en: "White Hats & Judge",
