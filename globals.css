@@ -1,6 +1,7 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Base UI CSS variables for shadcn components */
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
@@ -56,52 +57,6 @@
   --chart-5: 340 75% 55%;
 }
 
-/* AHOS theme extensions */
-:root,
-[data-theme="imperial"] {
-  --ahos-bg: #0B0709;
-  --ahos-panel: #160E12;
-  --ahos-border: #3A2A1C;
-  --ahos-text: #EFE4CC;
-  --ahos-text-muted: #A99A80;
-  --ahos-gold: #D4AF37;
-  --ahos-gold-hi: #F1D58E;
-  --ahos-crimson: #9E1C26;
-  --ahos-crimson-hi: #D2343E;
-  --ahos-ember: #E8834A;
-}
-
-[data-theme="neon"] {
-  --ahos-bg: #040714;
-  --ahos-panel: #0A1330;
-  --ahos-border: #2B354F;
-  --ahos-text: #E6F6FF;
-  --ahos-text-muted: #8FA6C8;
-  --ahos-gold: #D4AF37;
-  --ahos-accent: #3FD0FF;
-  --ahos-accent-2: #4C82FF;
-}
-
-/* Custom CSS utilities that don't exist in Tailwind by default */
-@layer utilities {
-  .border-border {
-    border-color: hsl(var(--border));
-  }
-  .bg-ahos-panel {
-    background-color: hsl(var(--ahos-panel));
-  }
-  .text-ahos-text {
-    color: hsl(var(--ahos-text));
-  }
-  .text-ahos-text-muted {
-    color: hsl(var(--ahos-text-muted));
-  }
-  .border-ahos-border {
-    border-color: hsl(var(--ahos-border));
-  }
-}
-
-/* Base styles */
 @layer base {
   html, body {
     min-height: 100%;
