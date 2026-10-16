@@ -170,3 +170,15 @@ shots: C:\Users\Sniper\QA_1016\afa5c94_dashboard_screenshot.png (+ copied older 
 restart_launched: no
 alert_mehrdad: no
 ==== end ====
+==== 2026-10-16 12:17 Tehran watchdog (Soltan) ====
+laneA: 2d4db075 ACTIVE (claude -p PID 9092 via fresh_1201; gemini-3.5-flash-lite; LW 12:10; running npm run build since 12:07, no terminal API error) -> no restart
+HOLD: present | soak VERIFIED cycles_ok 414 failed 0 cycle 433 paper_only tier T0
+HEAD a7aba54 (tree clean; CONT_GUIDE now committed in a7aba54)
+QA afa5c94..a7aba54: FAIL
+  - 36e3fac + 4ee3b9d 'fix Next.js runtime error - CSS processing issue resolved': only next-env.d.ts changed (.next/dev/types <-> .next/types path flip). No runtime/CSS fix in code; commit message misleading (repeat pattern).
+  - a7aba54 handoff commit: adds 01_dashboard_fix/dashboard_2026-10-16.png (hash CDA18C1E... = same Arena.ai desktop shot rejected earlier, not AHOS), build_output.txt shows TurbopackInternalError 'Failed to write app endpoint /page' (node exit 0xc0000142). Dev server :3000 not reachable this tick. Stray root scripts committed (simple_server.sh, take_screenshot.ps1, create_comparison.ps1, make_comparison.html).
+  - Repeat open: real AHOS screenshot without error overlay, createContext/useLayout proof, Math.random charts without DEMO label, template-complete vs 01.
+shots: no new AHOS shots (existing copies in C:\Users\Sniper\QA_0216)
+restart_launched: no
+alert_mehrdad: no
+==== end ====
