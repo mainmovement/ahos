@@ -2022,5 +2022,14 @@
   },
   "newsroom": {
     "nav": "Newsroom"
+  },
+  "missionsB2": {
+    "nav": {
+      "messageHub": "Message Hub",
+      "selfEvaluation": "Self-evaluation",
+      "ideaShelf": "Idea Shelf",
+      "researchInstitute": "Research Institute",
+      "missionMap": "Mission Map"
+    }
   }
 }

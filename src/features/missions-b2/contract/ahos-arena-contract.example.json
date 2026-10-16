@@ -1,0 +1,740 @@
+{
+  "messageHub": {
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "ahos-arena-contract.example.json",
+    "generatedAt": "2026-10-16T10:00:00Z",
+    "demo": true,
+    "channels": [
+      {
+        "channel": "Kian chat",
+        "status": "LIVE",
+        "lastMessageTime": "2026-10-16T09:30:00Z",
+        "queueDepth": 0,
+        "lastError": null
+      },
+      {
+        "channel": "Telegram",
+        "status": "UNAVAILABLE",
+        "lastMessageTime": "2026-10-15T14:20:00Z",
+        "queueDepth": 5,
+        "lastError": "Connection timeout after 30s"
+      },
+      {
+        "channel": "nightly report",
+        "status": "LIVE",
+        "lastMessageTime": "2026-10-16T03:00:00Z",
+        "queueDepth": null,
+        "lastError": null
+      },
+      {
+        "channel": "command router",
+        "status": "UNKNOWN",
+        "lastMessageTime": null,
+        "queueDepth": null,
+        "lastError": null
+      }
+    ],
+    "telegram": {
+      "bridgeState": "BLOCKED_OWNER",
+      "needsTokenRotation": true
+    },
+    "nightlyReport": {
+      "lastReportTime": "2026-10-16T03:00:00Z",
+      "language": "فارسی",
+      "deliveryState": "SENT",
+      "evidenceLink": "reports/nightly/2026-10-16.txt"
+    },
+    "humanGateInbox": [
+      {
+        "id": "HG-001",
+        "title": "Review decision M35.2 implementation",
+        "requestedByAgent": "agent-alpha",
+        "age": "2h",
+        "state": "UNKNOWN"
+      },
+      {
+        "id": "HG-002",
+        "title": "Verify unseen data test for idea #42",
+        "requestedByAgent": "agent-beta",
+        "age": "1d",
+        "state": "PARTIAL"
+      },
+      {
+        "id": "HG-003",
+        "title": "Hypothesis H-2026-057 awaiting owner review",
+        "requestedByAgent": "agent-gamma",
+        "age": "3d",
+        "state": "DEMO"
+      }
+    ],
+    "messageLog": [
+      {
+        "time": "2026-10-16T09:30:00Z",
+        "direction": "out",
+        "channel": "Kian chat",
+        "summary": "Status check: All systems nominal",
+        "deliveryState": "DELIVERED"
+      },
+      {
+        "time": "2026-10-16T09:25:00Z",
+        "direction": "in",
+        "channel": "Telegram",
+        "summary": "Alert: Connection lost to bridge",
+        "deliveryState": "DELIVERED"
+      },
+      {
+        "time": "2026-10-16T03:00:00Z",
+        "direction": "out",
+        "channel": "nightly report",
+        "summary": "Nightly Persian report generated",
+        "deliveryState": "DELIVERED"
+      }
+    ]
+  },
+  "selfEvaluation": {
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "ahos-arena-contract.example.json",
+    "generatedAt": "2026-10-16T10:00:00Z",
+    "demo": true,
+    "scorecards": [
+      {
+        "period": "week",
+        "decisionsReviewed": 15,
+        "decisionsWithEvidence": 8,
+        "decisionsWithUnseenCheck": 5,
+        "calibrationNote": "Calibration within expected range",
+        "unresolvedItems": 2,
+        "highlights": [
+          {
+            "id": "DEC-2026-10-001",
+            "market": "Forex/EURUSD",
+            "rationaleSummary": "Momentum signal confirmed across 3 timeframes",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "DEC-2026-10-002",
+            "market": "Crypto/BTCUSD",
+            "rationaleSummary": "Breakout pattern with volume confirmation",
+            "outcomeKnown": "no",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "DEC-2026-10-003",
+            "market": "Commodities/Gold",
+            "rationaleSummary": "Seasonal pattern alignment",
+            "outcomeKnown": "yes",
+            "reviewState": "PENDING"
+          }
+        ],
+        "allDecisions": [
+          {
+            "id": "DEC-2026-10-001",
+            "market": "Forex/EURUSD",
+            "rationaleSummary": "Momentum signal confirmed across 3 timeframes",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "DEC-2026-10-002",
+            "market": "Crypto/BTCUSD",
+            "rationaleSummary": "Breakout pattern with volume confirmation",
+            "outcomeKnown": "no",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "DEC-2026-10-003",
+            "market": "Commodities/Gold",
+            "rationaleSummary": "Seasonal pattern alignment",
+            "outcomeKnown": "yes",
+            "reviewState": "PENDING"
+          }
+        ]
+      },
+      {
+        "period": "month",
+        "decisionsReviewed": null,
+        "decisionsWithEvidence": null,
+        "decisionsWithUnseenCheck": null,
+        "calibrationNote": null,
+        "unresolvedItems": null,
+        "highlights": [],
+        "allDecisions": []
+      }
+    ]
+  },
+  "ideaShelf": {
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "ahos-arena-contract.example.json",
+    "generatedAt": "2026-10-16T10:00:00Z",
+    "demo": true,
+    "ideas": [
+      {
+        "id": "IDEA-2026-001",
+        "title": "Multi-timeframe momentum convergence detector",
+        "origin": "agent",
+        "status": "PROPOSED",
+        "reason": null,
+        "hardwareRequirement": {
+          "minRAM": "8 GB"
+        },
+        "flags": ["high-priority", "ml-ready"],
+        "unseenTest": null
+      },
+      {
+        "id": "IDEA-2026-002",
+        "title": "Cross-market correlation anomaly detector",
+        "origin": "university",
+        "status": "ACCEPTED",
+        "reason": "Validated through backtesting on 5 years of data",
+        "hardwareRequirement": {
+          "minRAM": "16 GB"
+        },
+        "flags": ["research", "production-ready"],
+        "unseenTest": {
+          "datasetId": "DS-2026-Q3",
+          "outOfSamplePeriod": "2026-07-01 to 2026-09-30",
+          "sampleSize": 15000,
+          "result": "PASS"
+        }
+      },
+      {
+        "id": "IDEA-2026-003",
+        "title": "NLP-based sentiment analysis for Persian news",
+        "origin": "owner",
+        "status": "REJECTED",
+        "reason": "Insufficient accuracy in preliminary tests",
+        "hardwareRequirement": {
+          "minRAM": "8 GB"
+        },
+        "flags": ["nlp", "persian"],
+        "unseenTest": {
+          "datasetId": "DS-PERSIAN-2026",
+          "outOfSamplePeriod": "2026-08-01 to 2026-09-30",
+          "sampleSize": 5000,
+          "result": "FAIL"
+        }
+      },
+      {
+        "id": "IDEA-2026-004",
+        "title": "Reinforcement learning for position sizing",
+        "origin": "agent",
+        "status": "PROPOSED",
+        "reason": null,
+        "hardwareRequirement": {
+          "minRAM": "32 GB"
+        },
+        "flags": ["rl", "experimental"],
+        "unseenTest": null
+      },
+      {
+        "id": "IDEA-2026-005",
+        "title": "ACCEPTED without reason - should render as PROPOSED",
+        "origin": "agent",
+        "status": "ACCEPTED",
+        "reason": null,
+        "hardwareRequirement": {
+          "minRAM": "8 GB"
+        },
+        "flags": [],
+        "unseenTest": null
+      }
+    ]
+  },
+  "researchInstitute": {
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "ahos-arena-contract.example.json",
+    "generatedAt": "2026-10-16T10:00:00Z",
+    "demo": true,
+    "hypotheses": [
+      {
+        "id": "H-2026-001",
+        "statement": "EURUSD exhibits mean-reverting behavior in Asian session",
+        "source": "university",
+        "market": "Forex/EURUSD",
+        "status": "UNTESTED",
+        "inSampleResult": {
+          "note": "درون‌نمونه؛ معتبر نیست"
+        },
+        "unseenTest": null
+      },
+      {
+        "id": "H-2026-002",
+        "statement": "BTCUSD volatility precedes altcoin movements by 2-3 days",
+        "source": "paper",
+        "market": "Crypto/BTCUSD",
+        "status": "TESTED_UNSEEN",
+        "inSampleResult": null,
+        "unseenTest": {
+          "datasetId": "DS-CRYPTO-2026-Q2",
+          "period": "2026-04-01 to 2026-06-30",
+          "sampleSize": 8000,
+          "costModelPresent": true,
+          "result": "PASS"
+        }
+      },
+      {
+        "id": "H-2026-003",
+        "statement": "Gold prices inversely correlated with USD index",
+        "source": "agent",
+        "market": "Commodities/Gold",
+        "status": "REJECTED",
+        "inSampleResult": null,
+        "unseenTest": {
+          "datasetId": "DS-COMMODITIES-2026-Q1",
+          "period": "2026-01-01 to 2026-03-31",
+          "sampleSize": 6000,
+          "costModelPresent": true,
+          "result": "FAIL"
+        }
+      },
+      {
+        "id": "H-2026-004",
+        "statement": "In-sample only hypothesis",
+        "source": "university",
+        "market": "Forex/GBPUSD",
+        "status": "UNTESTED",
+        "inSampleResult": {
+          "note": "Strong performance in backtest"
+        },
+        "unseenTest": null
+      }
+    ],
+    "weeklyExam": {
+      "lastExamTime": "2026-10-12T09:00:00Z",
+      "itemsExamined": 15,
+      "itemsPassedUnseen": 8
+    }
+  },
+  "missionMap": {
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "ahos-arena-contract.example.json",
+    "generatedAt": "2026-10-16T10:00:00Z",
+    "demo": true,
+    "missions": [
+      {
+        "id": "M9",
+        "title": "Core messaging infrastructure",
+        "group": "M",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "commit:abc123/messaging-v1.0",
+        "lastUpdate": "2026-09-01T10:00:00Z",
+        "caveat": "DONE یعنی ماشین‌آلات، نه پذیرش",
+        "demo": true
+      },
+      {
+        "id": "M11.1",
+        "title": "Data pipeline v2",
+        "group": "M",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "report:data-pipeline-v2.pdf",
+        "lastUpdate": "2026-09-15T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M13",
+        "title": "Risk management module",
+        "group": "M",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "commit:def456/risk-module",
+        "lastUpdate": "2026-09-20T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M42",
+        "title": "Backtesting framework",
+        "group": "M",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "report:backtesting-2026-Q3.pdf",
+        "lastUpdate": "2026-10-01T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M43",
+        "title": "Performance metrics dashboard",
+        "group": "M",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "commit:ghi789/metrics-dashboard",
+        "lastUpdate": "2026-10-05T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D1",
+        "title": "Deployment pipeline",
+        "group": "M-D",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "ci:deployment-pipeline.yml",
+        "lastUpdate": "2026-08-15T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D3",
+        "title": "Monitoring and alerting",
+        "group": "M-D",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "commit:jkl012/monitoring-setup",
+        "lastUpdate": "2026-09-01T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M35.1",
+        "title": "Messaging core v1",
+        "group": "M",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "commit:mno345/messaging-core",
+        "lastUpdate": "2026-10-10T10:00:00Z",
+        "caveat": "Partial implementation",
+        "demo": true
+      },
+      {
+        "id": "M59.S",
+        "title": "Strategy framework",
+        "group": "M",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "report:strategy-framework-2026.pdf",
+        "lastUpdate": "2026-10-12T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D2",
+        "title": "Configuration management",
+        "group": "M-D",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "commit:pqr678/config-management",
+        "lastUpdate": "2026-09-25T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D4",
+        "title": "Security hardening",
+        "group": "M-D",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "doc:security-audit-2026.md",
+        "lastUpdate": "2026-10-08T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D5",
+        "title": "Documentation system",
+        "group": "M-D",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "wiki:documentation-v2",
+        "lastUpdate": "2026-10-10T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M10",
+        "title": "Data validation module",
+        "group": "M",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "commit:stu901/data-validation",
+        "lastUpdate": "2026-09-30T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M48",
+        "title": "API gateway",
+        "group": "M",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "commit:vwx234/api-gateway",
+        "lastUpdate": "2026-10-05T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M35.2",
+        "title": "Kian chat integration",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M35.3",
+        "title": "Telegram bridge",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": true,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M35.4",
+        "title": "Nightly Persian report",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M35.5",
+        "title": "Command routing",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M58",
+        "title": "Decision self-evaluation system",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M59",
+        "title": "Idea shelf implementation",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M57",
+        "title": "Research institute framework",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M33",
+        "title": "Market data connectors",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M21",
+        "title": "Signal generation engine",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M25",
+        "title": "Portfolio optimization",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M28",
+        "title": "Execution engine",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D8",
+        "title": "Container orchestration",
+        "group": "M-D",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D9",
+        "title": "CI/CD pipeline v2",
+        "group": "M-D",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D10",
+        "title": "Infrastructure as code",
+        "group": "M-D",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D11",
+        "title": "Secrets management",
+        "group": "M-D",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D12",
+        "title": "Load testing framework",
+        "group": "M-D",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      }
+    ],
+    "summary": {
+      "doneCount": 5,
+      "partialCount": 6,
+      "notStartedCount": 18
+    },
+    "highlightedMissions": [
+      {
+        "id": "M9",
+        "title": "Core messaging infrastructure",
+        "group": "M",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "commit:abc123/messaging-v1.0",
+        "lastUpdate": "2026-09-01T10:00:00Z",
+        "caveat": "DONE یعنی ماشین‌آلات، نه پذیرش",
+        "demo": true
+      },
+      {
+        "id": "M35.1",
+        "title": "Messaging core v1",
+        "group": "M",
+        "state": "PARTIAL",
+        "blockedOwner": false,
+        "evidence": "commit:mno345/messaging-core",
+        "lastUpdate": "2026-10-10T10:00:00Z",
+        "caveat": "Partial implementation",
+        "demo": true
+      },
+      {
+        "id": "M35.3",
+        "title": "Telegram bridge",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": true,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M59",
+        "title": "Idea shelf implementation",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M58",
+        "title": "Decision self-evaluation system",
+        "group": "M",
+        "state": "NOT_STARTED",
+        "blockedOwner": false,
+        "evidence": null,
+        "lastUpdate": null,
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D1",
+        "title": "Deployment pipeline",
+        "group": "M-D",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "ci:deployment-pipeline.yml",
+        "lastUpdate": "2026-08-15T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      },
+      {
+        "id": "M-D3",
+        "title": "Monitoring and alerting",
+        "group": "M-D",
+        "state": "DONE",
+        "blockedOwner": false,
+        "evidence": "commit:jkl012/monitoring-setup",
+        "lastUpdate": "2026-09-01T10:00:00Z",
+        "caveat": null,
+        "demo": true
+      }
+    ]
+  },
+  "executionMode": "PAPER_ONLY",
+  "realTrading": false,
+  "source": "ahos-arena-contract.example.json",
+  "generatedAt": "2026-10-16T10:00:00Z"
+}

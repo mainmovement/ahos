@@ -1,0 +1,36 @@
+/* missions-b2 (mb-) additions. Everything else comes from the shared tv- design system. Min font 12px. */
+.mb-root { display: grid; gap: 16px; padding: 18px; align-content: start; font-size: 14px; min-width: 0; }
+.mb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.mb-head__chips { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.mb-title { font-size: 24px; font-weight: 600; margin: 0; }
+.mb-sub { margin: 4px 0 0; color: var(--ah-text-2); font-size: 14px; }
+.mb-source { margin: 0; font-size: 13px; color: var(--ah-text-2); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.mb-dot { opacity: 0.5; }
+.mb-note { margin: 0; font-size: 13px; padding: 8px 12px; border: 1px solid var(--ah-gold-hair); border-radius: 12px; background: var(--ah-gold-soft); }
+.mb-body { position: relative; display: grid; gap: 14px; padding: 16px 18px 16px 16px; border: 1px solid var(--ah-gold-hair); border-radius: 18px; background: var(--ah-surface); min-height: 160px; }
+.mb-h2 { font-size: 16px; font-weight: 600; margin: 0 0 10px; }
+.mb-count { font-size: 13px; }
+.mb-highlights { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.mb-hl { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--ah-gold-hair); border-radius: 12px; background: var(--ah-surface-2); align-content: start; }
+.mb-hl__top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.mb-hl__title { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.mb-hl__detail { font-size: 13px; color: var(--ah-text-2); overflow-wrap: anywhere; }
+.mb-tag { font-size: 12px; padding: 2px 8px; border: 1px solid var(--ah-gold-hair); border-radius: 999px; color: var(--ah-text-2); font-family: ui-monospace, monospace; }
+.mb-more, .mb-empty { font-size: 13px; color: var(--ah-text-2); margin: 8px 0 0; }
+.mb-grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.mb-kpis { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.mb-kpi { padding: 10px 12px; border: 1px solid var(--ah-gold-hair); border-radius: 12px; display: grid; gap: 4px; }
+.mb-kpi__k { font-size: 13px; color: var(--ah-text-2); }
+.mb-kpi__v { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mb-tablewrap { overflow-x: auto; }
+.mb-struck { text-decoration: line-through; opacity: 0.7; }
+.mb-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.mb-link { font-size: 13px; padding: 4px 12px; border: 1px solid var(--ah-gold-hair); border-radius: 999px; color: var(--ah-text); text-decoration: none; }
+.mb-link[aria-current="page"] { background: var(--ah-gold-soft); border-color: var(--ah-gold-dim); }
+.mb-sec { display: grid; gap: 8px; margin-bottom: 16px; }
+.mb-kpi__v--sm { font-size: 15px; }
+.mb-tablewrap { max-width: 100%; }
+.mb-tablewrap table { width: 100%; table-layout: auto; }
+.mb-tablewrap td, .mb-tablewrap th { overflow-wrap: anywhere; word-break: break-word; max-width: 360px; vertical-align: top; }
+.mb-body { min-width: 0; max-width: 100%; }
+.mb-root .tv-expander, .mb-root .tv-expander__body { min-width: 0; max-width: 100%; overflow-x: auto; }
