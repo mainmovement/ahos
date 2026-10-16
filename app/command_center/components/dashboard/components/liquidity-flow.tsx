@@ -1,3 +1,5 @@
+'use client'
+
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 
 const data = [

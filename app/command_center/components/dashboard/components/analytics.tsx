@@ -1,3 +1,5 @@
+'use client'
+
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts'
 
 const data = [
