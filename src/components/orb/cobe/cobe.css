@@ -1,0 +1,889 @@
+﻿
+
+/* ==========================================================================
+   AHOS dial design tokens
+   Near-black glass, one gold accent, one cool grey. Every light has a meaning.
+   ========================================================================== */
+
+:root {
+  --color-ahos-ink: #050507;
+  --color-ahos-panel: rgba(9, 9, 11, 0.72);
+  --color-ahos-gold: #d4af37;
+  --color-ahos-gold-soft: #d9b977;
+  --color-ahos-gold-bright: #f5d27a;
+  --color-ahos-amber: #b98a2e;
+  --color-ahos-steel: #8a93a0;
+  --color-ahos-grey: #7c8390;
+  --color-ahos-demoblue: #7f93ad;
+  --color-ahos-text: #f2ede4;
+  --color-ahos-text-dim: rgba(242, 237, 228, 0.62);
+  --font-sans: "Vazirmatn Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --ahos-hairline: rgba(212, 175, 55, 0.2);
+  --ahos-glass: rgba(10, 10, 12, 0.78);
+  --ahos-glass-border: rgba(212, 175, 55, 0.2);
+  color-scheme: dark;
+}
+
+
+/* ==========================================================================
+   Frame / dial / stage
+   ========================================================================== */
+
+.ahos-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+}
+
+/* 3% film grain over the whole dial. */
+.ahos-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  z-index: 30;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+}
+
+.ahos-dial {
+  position: relative;
+  flex: none;
+}
+
+.ahos-stage {
+  position: absolute;
+  overflow: visible;
+}
+
+.ahos-canvas-host {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transition: opacity 0.9s ease-in-out;
+}
+
+.ahos-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Decoration sits slightly back; markers, arcs and Iran (DOM/SVG, above this layer) stay crisp. */
+  opacity: 0.82;
+  transition: opacity 0.9s ease-in-out;
+}
+
+.ahos-canvas[data-dimmed="true"] {
+  opacity: 0;
+}
+
+/* Golden core glow â€” breathes with the heartbeat. */
+.ahos-core-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(212, 175, 55, 0.32) 0%,
+    rgba(212, 175, 55, 0.14) 42%,
+    rgba(212, 175, 55, 0) 72%
+  );
+  filter: blur(26px);
+  opacity: 0.62;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  transition: opacity 0.6s ease;
+}
+
+.ahos-core-glow[data-alert="true"] {
+  opacity: 0.86;
+}
+
+.ahos-core-glow[data-stale="true"] {
+  opacity: 0.18;
+}
+
+/* In flat-map mode the halo would sit behind nothing â€” fade it away. */
+.ahos-core-glow[data-mode="map"] {
+  opacity: 0;
+}
+
+.ahos-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ==========================================================================
+   Department ring + gate
+   ========================================================================== */
+
+.ahos-ring line {
+  transition: opacity 0.6s ease, stroke 0.6s ease;
+}
+
+.ahos-gate path {
+  transition: opacity 0.4s ease;
+}
+
+.ahos-stale-label {
+  font-size: 10px;
+  fill: var(--color-ahos-steel);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Iran + Tehran
+   ========================================================================== */
+
+.ahos-iran-outline {
+  stroke: var(--color-ahos-gold-bright);
+  stroke-width: 1;
+  opacity: 0.42;
+  fill: none;
+  transition: opacity 0.4s ease;
+}
+
+.ahos-tehran-ring {
+  stroke: var(--color-ahos-gold-bright);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ahos-tehran-pulse 3.4s ease-out infinite;
+}
+
+@keyframes ahos-tehran-pulse {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.75;
+  }
+  70% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Flat map (mode="map")
+   ========================================================================== */
+
+.ahos-flatmap {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease-in-out;
+}
+
+.ahos-flatmap[data-visible="true"] {
+  opacity: 1;
+}
+
+.ahos-flatmap-frame {
+  fill: none;
+  stroke: rgba(212, 175, 55, 0.12);
+  stroke-width: 1;
+}
+
+.ahos-flatmap-dots {
+  stroke: #6d6448;
+}
+
+.ahos-flatmap-iran-dots {
+  stroke: var(--color-ahos-gold-bright);
+}
+
+.ahos-flatmap-iran {
+  fill: rgba(212, 175, 55, 0.14);
+  stroke: rgba(245, 210, 122, 0.72);
+  stroke-width: 0.9;
+}
+
+/* ==========================================================================
+   Arcs
+   ========================================================================== */
+
+.ahos-arc-hit {
+  pointer-events: stroke;
+  cursor: help;
+  outline: none;
+}
+
+.ahos-arc-hit:focus-visible {
+  stroke: rgba(245, 210, 122, 0.22);
+}
+
+.ahos-arc[data-active="true"] .ahos-arc-head,
+.ahos-arc[data-active="true"] .ahos-arc-tail {
+  filter: drop-shadow(0 0 3px rgba(245, 210, 122, 0.45));
+}
+
+.ahos-arc-flash {
+  fill: var(--color-ahos-gold-bright);
+  animation: ahos-flash 2.8s ease-out infinite;
+}
+
+@keyframes ahos-flash {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  55% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Markers
+   ========================================================================== */
+
+.ahos-marker-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.ahos-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 999px;
+  transition: opacity 0.4s ease;
+  will-change: transform;
+}
+
+.ahos-marker:focus-visible {
+  outline: 1px solid rgba(245, 210, 122, 0.85);
+  outline-offset: 1px;
+}
+
+.ahos-marker-glyph {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.ahos-marker[data-state="recessed"] .ahos-marker-glyph {
+  opacity: 0.55;
+}
+
+.ahos-marker[data-active="true"] .ahos-marker-glyph {
+  filter: drop-shadow(0 0 5px rgba(245, 210, 122, 0.5));
+}
+
+.ahos-marker-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ahos-marker-breathe 3.2s ease-in-out infinite;
+}
+
+@keyframes ahos-marker-breathe {
+  0%,
+  100% {
+    transform: scale(0.82);
+    opacity: 0.18;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.55;
+  }
+}
+
+.ahos-marker[data-freshness="STALE"] .ahos-marker-glyph {
+  animation: none;
+}
+
+.ahos-marker-attention-flag {
+  position: absolute;
+  inset-inline-end: -2px;
+  inset-block-start: -3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-ahos-gold-bright);
+  box-shadow: 0 0 6px rgba(245, 210, 122, 0.6);
+}
+
+/* ==========================================================================
+   Tooltips, chips, captions
+   ========================================================================== */
+
+.ahos-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 9px;
+  display: grid;
+  gap: 3px;
+  min-width: 148px;
+  max-width: 240px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--ahos-glass);
+  border: 1px solid var(--ahos-glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  color: var(--color-ahos-text);
+  font-size: 11px;
+  line-height: 1.55;
+  text-align: start;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.ahos-marker[data-side="below"] .ahos-tooltip {
+  top: 100%;
+  bottom: auto;
+  margin-top: 9px;
+  margin-bottom: 0;
+}
+
+.ahos-tooltip-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.ahos-tooltip-row {
+  color: var(--color-ahos-text-dim);
+  white-space: nowrap;
+}
+
+.ahos-tooltip-attention {
+  color: var(--color-ahos-gold-bright);
+}
+
+.ahos-tooltip-muted {
+  color: rgba(242, 237, 228, 0.4);
+}
+
+.ahos-tooltip-arc {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: auto;
+  transform: translate3d(0, 0, 0);
+  margin: 0;
+  translate: -50% -115%;
+  z-index: 14;
+}
+
+.ahos-tooltip-row[data-sign="up"] {
+  color: var(--color-ahos-gold-soft);
+}
+
+.ahos-tooltip-row[data-sign="down"] {
+  color: var(--color-ahos-steel);
+}
+
+.ahos-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.ahos-chip[data-freshness="LIVE"] {
+  color: var(--color-ahos-gold-bright);
+}
+.ahos-chip[data-freshness="STALE"] {
+  color: var(--color-ahos-amber);
+}
+.ahos-chip[data-freshness="UNKNOWN"] {
+  color: var(--color-ahos-grey);
+}
+.ahos-chip[data-freshness="DEMO"] {
+  color: var(--color-ahos-demoblue);
+}
+.ahos-chip[data-outcome="absorbed"] {
+  color: var(--color-ahos-gold-bright);
+}
+.ahos-chip[data-outcome="dissipated"] {
+  color: var(--color-ahos-steel);
+}
+.ahos-chip[data-outcome="pending"] {
+  color: #9fb0c4;
+}
+.ahos-chip[data-tone="attention"] {
+  color: var(--color-ahos-gold-bright);
+}
+
+.ahos-captions {
+  position: absolute;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.ahos-caption-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ahos-caption-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(10, 10, 12, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-size: 10.5px;
+  color: var(--color-ahos-text-dim);
+  white-space: nowrap;
+}
+
+.ahos-caption-pill[data-tone="attention"] {
+  color: var(--color-ahos-gold-bright);
+  border-color: rgba(245, 210, 122, 0.3);
+}
+
+.ahos-caption-pill[data-tone="quiet"] {
+  color: rgba(242, 237, 228, 0.45);
+}
+
+.ahos-caption-pill-gate {
+  gap: 5px;
+}
+
+.ahos-caption-value {
+  color: var(--color-ahos-gold-bright);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.ahos-caption-value[data-tone="dissipated"] {
+  color: var(--color-ahos-steel);
+}
+
+.ahos-caption-label {
+  color: var(--color-ahos-text-dim);
+}
+
+.ahos-caption-sep {
+  color: rgba(242, 237, 228, 0.3);
+}
+
+.ahos-caption-derived {
+  color: rgba(242, 237, 228, 0.32);
+  font-size: 9.5px;
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.09);
+  padding-inline-start: 6px;
+}
+
+.ahos-caption-unknown {
+  color: var(--color-ahos-grey);
+}
+
+.ahos-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-ahos-gold-bright);
+  box-shadow: 0 0 6px rgba(245, 210, 122, 0.55);
+}
+
+.ahos-text-toggle {
+  position: absolute;
+  inset-inline-start: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(10, 10, 12, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--color-ahos-text-dim);
+  font-size: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(16px);
+}
+
+.ahos-text-toggle:hover,
+.ahos-text-toggle:focus-visible {
+  border-color: var(--ahos-glass-border);
+  color: var(--color-ahos-gold-soft);
+}
+
+.ahos-badge-demo {
+  position: absolute;
+  inset-inline-end: 0;
+  color: var(--color-ahos-demoblue);
+  border-color: rgba(127, 147, 173, 0.3);
+  letter-spacing: 0.08em;
+  font-size: 9.5px;
+  text-transform: uppercase;
+}
+
+.ahos-caption-stale {
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--color-ahos-steel);
+  border-color: rgba(138, 147, 160, 0.25);
+}
+
+.ahos-more-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  background: rgba(10, 10, 12, 0.7);
+  color: var(--color-ahos-gold-soft);
+  font-size: 10px;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.ahos-more-chip:focus-visible {
+  outline: 1px solid rgba(245, 210, 122, 0.6);
+  outline-offset: 2px;
+}
+
+.ahos-more-chip-tip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  padding: 6px 9px;
+  border-radius: 9px;
+  background: var(--ahos-glass);
+  border: 1px solid var(--ahos-glass-border);
+  color: var(--color-ahos-text-dim);
+  font-size: 10.5px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.ahos-more-chip:hover .ahos-more-chip-tip,
+.ahos-more-chip:focus-visible .ahos-more-chip-tip {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Text view (off-canvas by default, screen-reader friendly)
+   ========================================================================== */
+
+.ahos-textview {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 18px 20px;
+  overflow: auto;
+  border-radius: 14px;
+  background: rgba(7, 7, 9, 0.95);
+  border: 1px solid var(--ahos-glass-border);
+  backdrop-filter: blur(16px);
+  font-size: 12px;
+  transition: opacity 0.3s ease;
+}
+
+.ahos-textview[data-open="false"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+}
+
+.ahos-textview-title {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: var(--color-ahos-gold-soft);
+  font-weight: 600;
+}
+
+.ahos-textview-subtitle {
+  margin: 16px 0 6px;
+  font-size: 11.5px;
+  color: var(--color-ahos-text-dim);
+  font-weight: 600;
+}
+
+.ahos-textview-note {
+  margin: 14px 0 0;
+  color: var(--color-ahos-text-dim);
+  font-size: 11px;
+}
+
+.ahos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ahos-table th,
+.ahos-table td {
+  padding: 4px 8px;
+  text-align: start;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-weight: 400;
+}
+
+.ahos-table thead th {
+  color: rgba(242, 237, 228, 0.45);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.ahos-table tbody th {
+  color: var(--color-ahos-text);
+}
+
+.ahos-table-dim {
+  color: rgba(242, 237, 228, 0.35);
+  font-size: 10.5px;
+}
+
+.ahos-department-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ahos-department-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ahos-fallback-note {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--color-ahos-text-dim);
+  font-size: 10.5px;
+  pointer-events: none;
+}
+
+.ahos-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   Reduced motion: the dial keeps its data, it just stops moving.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ahos-marker-pulse,
+  .ahos-tehran-ring,
+  .ahos-arc-flash {
+    animation: none !important;
+  }
+
+  .ahos-canvas,
+  .ahos-canvas-host,
+  .ahos-flatmap {
+    transition: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   Arena integration: hero stage, always-on pills, DEMO dev toggle, caption legibility.
+   ========================================================================== */
+
+.ahos-orb-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(560px, calc(100vh - 250px), 820px);
+}
+
+.ahos-orb-pills {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  z-index: 20;
+}
+
+.ahos-orb-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: rgba(10, 10, 12, 0.86);
+  border: 1px solid rgba(138, 147, 160, 0.5);
+  color: #e6e9ee;
+  white-space: nowrap;
+}
+
+.ahos-orb-pill[data-kind="paper"] {
+  color: #f5d27a;
+  border-color: rgba(245, 210, 122, 0.7);
+}
+
+.ahos-orb-pill[data-truth="DEMO"] {
+  color: #b9c9de;
+  border-color: rgba(127, 147, 173, 0.75);
+}
+
+.ahos-orb-pill[data-truth="UNKNOWN"] {
+  color: #d3d8e0;
+  border-style: dashed;
+  border-color: rgba(176, 184, 196, 0.75);
+}
+
+.ahos-orb-pill[data-truth="STALE"] {
+  color: #e0b25a;
+  border-color: rgba(185, 138, 46, 0.8);
+}
+
+.ahos-orb-pill[data-truth="LIVE"] {
+  color: #f5d27a;
+  border-color: rgba(245, 210, 122, 0.7);
+}
+
+.ahos-orb-devtoggle {
+  position: absolute;
+  bottom: 10px;
+  inset-inline-start: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(10, 10, 12, 0.82);
+  border: 1px dashed rgba(127, 147, 173, 0.6);
+  z-index: 20;
+}
+
+.ahos-orb-devtag {
+  padding: 0 8px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #9fb2c9;
+}
+
+.ahos-orb-devtoggle button {
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: #d6dbe3;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ahos-orb-devtoggle button[aria-pressed="true"] {
+  background: rgba(245, 210, 122, 0.2);
+  color: #f5d27a;
+}
+
+.ahos-orb-devtoggle button:focus-visible {
+  outline: 2px solid #f5d27a;
+  outline-offset: 1px;
+}
+
+/* Gate caption: larger, opaque, high contrast (was 10.5px dim grey on glass). */
+.ahos-caption-pill {
+  font-size: 13px;
+  padding: 6px 14px;
+  background: rgba(8, 8, 10, 0.88);
+  color: rgba(242, 237, 228, 0.92);
+}
+
+.ahos-caption-pill-gate {
+  font-size: 15px;
+  padding: 8px 18px;
+  gap: 8px;
+  border-color: rgba(245, 210, 122, 0.45);
+  color: #f2ede4;
+}
+
+.ahos-caption-pill-gate .ahos-caption-value {
+  font-size: 18px;
+}
+
+.ahos-caption-pill-gate .ahos-caption-label {
+  color: rgba(242, 237, 228, 0.9);
+}
+
+.ahos-caption-pill-gate .ahos-caption-derived {
+  color: rgba(242, 237, 228, 0.7);
+  font-size: 12px;
+}
+
+.ahos-caption-unknown {
+  color: #d3d8e0;
+  font-weight: 600;
+}
+
+.ahos-caption-pill[data-tone="quiet"] {
+  color: rgba(242, 237, 228, 0.8);
+}
+
+.ahos-badge-demo,
+.ahos-text-toggle,
+.ahos-caption-stale {
+  font-size: 12px;
+}
+
+.ahos-badge-demo {
+  color: #b9c9de;
+}
+
+.ahos-text-toggle {
+  color: rgba(242, 237, 228, 0.85);
+}

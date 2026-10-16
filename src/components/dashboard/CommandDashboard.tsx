@@ -12,7 +12,6 @@ import { MarketChart } from "../charts/MarketChart";
 import { AgentInspector } from "../agents/AgentInspector";
 import { KianChat } from "./KianChat";
 import { OverviewCards } from "./OverviewCards";
-import { EarthPanel } from "../globe/EarthPanel";
 import { OrbSlot } from "../orb/OrbSlot";
 import { getContentDemoNotice, getContentDepartments, getContentGate, getContentHealth, getContentSignals } from "../../lib/api/content";
 export function CommandDashboard({
@@ -29,14 +28,6 @@ export function CommandDashboard({
   const fa = language === "fa";
   return (
     <div className="dc-dashboard">
-      <div className="dc-demo-strip">
-        <span>
-          <AhosIcon name="status/demo" variant="color" size={14} />
-          {fa ? "سناریوی نمایشی" : "DEMO WORKSPACE"}
-        </span>
-        <p>{getContentDemoNotice()[language]}</p>
-        <bdi>16 OCT 2026 · 08:00 UTC</bdi>
-      </div>
       <OrbSlot
         health={getContentHealth()}
         departments={getContentDepartments()}
@@ -45,6 +36,14 @@ export function CommandDashboard({
         calm={quality === "low"}
         language={language}
       />
+      <div className="dc-demo-strip">
+        <span>
+          <AhosIcon name="status/demo" variant="color" size={14} />
+          {fa ? "سناریوی نمایشی" : "DEMO WORKSPACE"}
+        </span>
+        <p>{getContentDemoNotice()[language]}</p>
+        <bdi>16 OCT 2026 · 08:00 UTC</bdi>
+      </div>
       <div className="dc-kpi-grid">
         {snapshot.metrics.map((metric, index) => (
           <section className={`dc-kpi dc-tone-${metric.tone}`} key={metric.id}>
@@ -71,7 +70,6 @@ export function CommandDashboard({
       </div>
       <div className="dc-command-grid">
         <div className="dc-primary">
-          <EarthPanel language={language} quality={quality} />
           <div className="dc-analysis-grid">
             <MarketChart language={language} symbol={symbol} />
             <MarketTable

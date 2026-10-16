@@ -1,15 +1,4 @@
 // Geographic reference coordinates, not market or activity data.
-export type CountryFeature = {
-  type: "Feature";
-  properties: { name: string; iso: string };
-  geometry:
-    | { type: "Polygon"; coordinates: number[][][] }
-    | { type: "MultiPolygon"; coordinates: number[][][][] };
-};
-export type CountryCollection = {
-  type: "FeatureCollection";
-  features: CountryFeature[];
-};
 export const tehran = {
   lat: 35.6892,
   lng: 51.389,
@@ -32,8 +21,3 @@ export const referenceCities = [
   { lat: 48.8566, lng: 2.3522, name: "PARIS", fa: "پاریس" },
   { lat: 34.0522, lng: -118.2437, name: "LOS ANGELES", fa: "لس‌آنجلس" },
 ];
-export function countryRings(feature: CountryFeature): number[][][] {
-  return feature.geometry.type === "Polygon"
-    ? feature.geometry.coordinates
-    : feature.geometry.coordinates.flat();
-}

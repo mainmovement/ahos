@@ -1,0 +1,18 @@
+[
+  { "id": "tehran", "nameFa": "تهران", "nameEn": "Tehran", "lat": 35.69, "lng": 51.39, "expectLand": true, "home": true },
+  { "id": "newyork", "nameFa": "نیویورک", "nameEn": "New York", "lat": 40.7128, "lng": -74.006, "expectLand": true },
+  { "id": "london", "nameFa": "لندن", "nameEn": "London", "lat": 51.5074, "lng": -0.1278, "expectLand": true },
+  { "id": "frankfurt", "nameFa": "فرانکفورت", "nameEn": "Frankfurt", "lat": 50.1109, "lng": 8.6821, "expectLand": true },
+  { "id": "dubai", "nameFa": "دبی", "nameEn": "Dubai", "lat": 25.2048, "lng": 55.2708, "expectLand": true },
+  { "id": "mumbai", "nameFa": "بمبئی", "nameEn": "Mumbai", "lat": 19.076, "lng": 72.8777, "expectLand": true },
+  { "id": "singapore", "nameFa": "سنگاپور", "nameEn": "Singapore", "lat": 1.3521, "lng": 103.8198, "expectLand": true },
+  { "id": "hongkong", "nameFa": "هنگ‌کنگ", "nameEn": "Hong Kong", "lat": 22.3193, "lng": 114.1694, "expectLand": true },
+  { "id": "tokyo", "nameFa": "توکیو", "nameEn": "Tokyo", "lat": 35.6762, "lng": 139.6503, "expectLand": true },
+  { "id": "sydney", "nameFa": "سیدنی", "nameEn": "Sydney", "lat": -33.8688, "lng": 151.2093, "expectLand": true },
+  { "id": "saopaulo", "nameFa": "سائوپائولو", "nameEn": "São Paulo", "lat": -23.5505, "lng": -46.6333, "expectLand": true },
+  { "id": "johannesburg", "nameFa": "ژوهانسبورگ", "nameEn": "Johannesburg", "lat": -26.2041, "lng": 28.0473, "expectLand": true },
+  { "id": "moscow", "nameFa": "مسکو", "nameEn": "Moscow", "lat": 55.7558, "lng": 37.6173, "expectLand": true },
+  { "id": "riyadh", "nameFa": "ریاض", "nameEn": "Riyadh", "lat": 24.7136, "lng": 46.6753, "expectLand": true },
+  { "id": "pacific", "nameFa": "اقیانوس آرام", "nameEn": "Mid-Pacific probe", "lat": -20, "lng": -140, "expectLand": false, "probe": true },
+  { "id": "atlantic", "nameFa": "اقیانوس اطلس", "nameEn": "Mid-Atlantic probe", "lat": 30, "lng": -40, "expectLand": false, "probe": true }
+]
