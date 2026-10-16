@@ -10,11 +10,20 @@ export default function OrbDemoPage() {
   const [departments, setDepartments] = useState<Department[]>(() => makeDepartments(seed));
   const [signals, setSignals] = useState<Signal[]>(() => makeSignals(makeDepartments(seed), 7, 40));
   const [health, setHealth] = useState<Health>(() => makeHealth(1));
-  const [quality, setQuality] = useState<"low" | "medium" | "high">("medium");
   const [morphed, setMorphed] = useState(false);
+  const toggleMorph = () => setMorphed((m) => !m);
+  const [calm, setCalm] = useState(true);
+  const [gate, setGate] = useState({ absorbed: 0, dissipated: 0 });
+  const [churnDone, setChurnDone] = useState(false);
 
-  // regenerate signals when departments change
   const baseDepartments = useMemo(() => makeDepartments(seed), [seed]);
+
+  // compute gate counts from signals
+  React.useEffect(() => {
+    const a = signals.filter((s) => s.outcome === "absorbed").length;
+    const d = signals.filter((s) => s.outcome === "dissipated").length;
+    setGate({ absorbed: a, dissipated: d });
+  }, [signals]);
 
   const handleStale = () => {
     setHealth((h) => ({ ...h, stale: true }));
@@ -35,6 +44,15 @@ export default function OrbDemoPage() {
       return [...burst, ...prev].slice(0, 80);
     });
   };
+  const handlePropChurn = async () => {
+    setChurnDone(false);
+    for (let i = 0; i < 50; i++) {
+      setHealth((current) => ({ ...current, bpm: 55 + (i % 25), jitterMs: i % 5, stale: false }));
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    setChurnDone(true);
+  };
+
   const handleAllClear = () => {
     setHealth({ bpm: 60, jitterMs: 0, stale: false });
     setDepartments((ds) => ds.map((d) => ({ ...d, status: "LIVE", lastDataAt: new Date().toISOString(), confidence: 0.95 })));
@@ -53,8 +71,11 @@ export default function OrbDemoPage() {
             health={health}
             departments={departments}
             signals={signals}
-            quality={quality}
+            gate={gate}
+            calm={calm}
+            quality="medium"
             onMorph={setMorphed}
+            morphed={morphed}
           />
         </div>
         <aside className="w-72 overflow-auto border-l border-amber-400/20 p-3 text-xs">
@@ -64,18 +85,12 @@ export default function OrbDemoPage() {
             <button onClick={handleJitter} className="rounded border border-amber-400/40 px-2 py-1 hover:bg-amber-400/10">شبیه‌سازی جیتر</button>
             <button onClick={handleBurst} className="rounded border border-amber-400/40 px-2 py-1 hover:bg-amber-400/10">انفجار رد دروازه</button>
             <button onClick={handleAllClear} className="rounded border border-amber-400/40 px-2 py-1 hover:bg-amber-400/10">همه پاک</button>
+            <button onClick={() => setCalm((c) => !c)} className="rounded border border-amber-400/40 px-2 py-1 hover:bg-amber-400/10">Calm: {calm ? "روشن" : "خاموش"}</button>
+            <button onClick={toggleMorph} className="rounded border border-amber-400/40 px-2 py-1 hover:bg-amber-400/10">Morph: {morphed ? "نقشه" : "اورب"}</button>
+            <button onClick={handlePropChurn} className="rounded border border-amber-400/40 px-2 py-1 hover:bg-amber-400/10">50 prop updates (test)</button>
+            {churnDone && <div role="status">50 prop updates complete</div>}
           </div>
-          <div className="mt-4">
-            <label className="mb-1 block text-amber-200">کیفیت</label>
-            <select value={quality} onChange={(e) => setQuality(e.target.value as "low" | "medium" | "high")} className="w-full rounded border border-amber-400/40 bg-black px-2 py-1">
-              <option value="low">low</option>
-              <option value="medium">medium</option>
-              <option value="high">high</option>
-            </select>
-          </div>
-          <div className="mt-4 text-stone-400">
-            morphed: {morphed ? "بله" : "خیر"}
-          </div>
+          <div className="mt-4 text-stone-400">morphed: {morphed ? "بله" : "خیر"}</div>
         </aside>
       </div>
     </div>
