@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "../../lib/i18n";
 import { useMemo, useState } from "react";
 import { ArrowDownUp, Search } from "lucide-react";
 import type { Language } from "../../lib/navigation";
@@ -61,11 +62,11 @@ export function MarketTable({
           <thead>
             <tr>
               <th>{fa ? "دارایی" : "Asset"}</th>
-              <th>{fa ? "قیمت" : "Price"}</th>
+              <th>{fa ? tr("fa", "common.labels.price") : "Price"}</th>
               <th>{fa ? "۲۴ ساعت" : "24h"}</th>
-              {expanded && <th>{fa ? "حجم" : "Volume"}</th>}
+              {expanded && <th>{fa ? tr("fa", "common.labels.volume") : "Volume"}</th>}
               <th>{fa ? "روند" : "Trend"}</th>
-              <th>{fa ? "وضعیت" : "Status"}</th>
+              <th>{fa ? tr("fa", "common.labels.status") : "Status"}</th>
             </tr>
           </thead>
           <tbody>

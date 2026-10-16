@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "../../lib/i18n";
 import { AhosIcon } from "../icons";
 import { useState } from "react";
 import { ArrowUpLeft } from "lucide-react";
@@ -57,7 +58,7 @@ export function OverviewCards({
             <bdi>+$181.00</bdi>
           </span>
           <span>
-            {fa ? "موقعیت باز" : "Open positions"}
+            {fa ? tr("fa", "pages.overview.kpis.openPositions.label") : "Open positions"}
             <bdi>{snapshot.positions.length}</bdi>
           </span>
         </div>
@@ -163,7 +164,7 @@ export function OverviewCards({
         </div>
       </DataCard>
       <DataCard
-        title={fa ? "سلامت سیستم" : "System health"}
+        title={fa ? tr("fa", "pages.overview.cards.health.title") : "System health"}
         icon="nav/market-prices"
         language={language}
       >

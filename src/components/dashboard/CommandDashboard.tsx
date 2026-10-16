@@ -13,6 +13,8 @@ import { AgentInspector } from "../agents/AgentInspector";
 import { KianChat } from "./KianChat";
 import { OverviewCards } from "./OverviewCards";
 import { EarthPanel } from "../globe/EarthPanel";
+import { OrbSlot } from "../orb/OrbSlot";
+import { getContentDemoNotice, getContentDepartments, getContentGate, getContentHealth, getContentSignals } from "../../lib/api/content";
 export function CommandDashboard({
   language,
   quality,
@@ -32,13 +34,17 @@ export function CommandDashboard({
           <AhosIcon name="status/demo" variant="color" size={14} />
           {fa ? "سناریوی نمایشی" : "DEMO WORKSPACE"}
         </span>
-        <p>
-          {fa
-            ? "تمام اعداد، خبرها و وضعیت عامل‌ها ساختگی هستند؛ هیچ دادهٔ زنده یا توصیهٔ معاملاتی وجود ندارد."
-            : "All values, stories and agent states are synthetic. No live feed or trading advice."}
-        </p>
+        <p>{getContentDemoNotice()[language]}</p>
         <bdi>16 OCT 2026 · 08:00 UTC</bdi>
       </div>
+      <OrbSlot
+        health={getContentHealth()}
+        departments={getContentDepartments()}
+        signals={getContentSignals()}
+        gate={getContentGate()}
+        calm={quality === "low"}
+        language={language}
+      />
       <div className="dc-kpi-grid">
         {snapshot.metrics.map((metric, index) => (
           <section className={`dc-kpi dc-tone-${metric.tone}`} key={metric.id}>

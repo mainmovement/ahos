@@ -1,4 +1,5 @@
 import type { AhosIconName } from "../components/icons";
+import { tr } from "./i18n";
 
 export type Language = "fa" | "en";
 export type Quality = "high" | "balanced" | "low";
@@ -12,7 +13,7 @@ export const navigation: NavGroup[] = [
     items: [
       {
         id: "command",
-        fa: "مرکز فرماندهی",
+        fa: tr("fa", "brand.commandCenter"),
         en: "Command Center",
         icon: "nav/command-center",
       },
@@ -27,13 +28,13 @@ export const navigation: NavGroup[] = [
     items: [
       {
         id: "prices",
-        fa: "قیمت‌های بازار",
+        fa: tr("fa", "nav.markets"),
         en: "Market Prices",
         icon: "nav/market-prices",
       },
       {
         id: "opportunities",
-        fa: "فرصت‌ها",
+        fa: tr("fa", "nav.signals"),
         en: "Opportunities",
         icon: "nav/opportunities",
       },
@@ -72,7 +73,7 @@ export const navigation: NavGroup[] = [
         en: "Kian Chat",
         icon: "nav/kian-chat",
       },
-      { id: "agents", fa: "مرکز عامل‌ها", en: "Agents", icon: "nav/agents" },
+      { id: "agents", fa: tr("fa", "nav.agents"), en: "Agents", icon: "nav/agents" },
     ],
   },
   {
@@ -82,7 +83,7 @@ export const navigation: NavGroup[] = [
     items: [
       {
         id: "paper",
-        fa: "معاملات آزمایشی",
+        fa: tr("fa", "nav.positions"),
         en: "Paper Trading",
         icon: "nav/paper-trading",
       },
@@ -107,7 +108,7 @@ export const navigation: NavGroup[] = [
       { id: "reports", fa: "گزارش‌ها", en: "Reports", icon: "nav/reports-evidence" },
       { id: "system", fa: "سیستم و اجرا", en: "System", icon: "nav/system-runtime" },
       { id: "governance", fa: "حاکمیت", en: "Governance", icon: "nav/governance-audit" },
-      { id: "settings", fa: "تنظیمات", en: "Settings", icon: "nav/settings" },
+      { id: "settings", fa: tr("fa", "nav.settings"), en: "Settings", icon: "nav/settings" },
     ],
   },
 ];

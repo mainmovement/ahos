@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "../../src/styles/shell.css";
 import "../../src/styles/dashboard.css";
 import "../../src/styles/globe.css";
+import "../../src/styles/orb.css";
 
 export const metadata: Metadata = {
   title: "AHOS - Arena workspace",

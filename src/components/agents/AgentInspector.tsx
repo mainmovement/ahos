@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "../../lib/i18n";
 import { useEffect, useRef } from "react";
 import { Bot, X } from "lucide-react";
 import type { Agent } from "../../lib/api/types";
@@ -58,9 +59,9 @@ export function AgentInspector({
           </p>
           <dl>
             {[
-              { name: fa ? "نقش" : "Role", value: agent.role[language] },
+              { name: fa ? tr("fa", "pages.agents.agents.table.role") : "Role", value: agent.role[language] },
               {
-                name: fa ? "دپارتمان" : "Department",
+                name: fa ? tr("fa", "common.labels.department") : "Department",
                 value: agent.department[language],
               },
               {
