@@ -19,7 +19,7 @@ export function Sidebar({
   open,
   onClose,
 }: Props) {
-  const [collapsed, setCollapsed] = useState<string[]>(["operations"]);
+  const [collapsed, setCollapsed] = useState<string[]>(navigation.filter((g) => g.id === "operations" && !g.items.some((i) => i.id === active)).map((g) => g.id));
   const fa = language === "fa";
   return (
     <>

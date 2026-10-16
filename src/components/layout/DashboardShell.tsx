@@ -1,7 +1,8 @@
 "use client";
 import { tr } from "../../lib/i18n";
 import { AhosIcon } from "../icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowUpLeft, Check, Circle, Command, Crosshair, ExternalLink, LockKeyhole, PanelRightOpen, Radar, Sparkles } from "lucide-react";
 import {
   allItems,
@@ -22,10 +23,19 @@ const defaultPreferences: Preferences = {
   muted: true,
 };
 const storageKey = "ahos.shell.preferences.v1";
-export default function DashboardShell() {
+export default function DashboardShell({
+  activeId,
+  children,
+}: {
+  /** Route mode: id of the nav item this route represents. */
+  activeId?: string;
+  /** Route mode: page content rendered in place of the dashboard body. */
+  children?: ReactNode;
+} = {}) {
+  const router = useRouter();
   const [preferences, setPreferences] =
     useState<Preferences>(defaultPreferences);
-  const [active, setActive] = useState("command");
+  const [active, setActive] = useState(activeId ?? "command");
   const [searchOpen, setSearchOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
@@ -66,6 +76,18 @@ export default function DashboardShell() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
+  function navigate(id: string) {
+    const item = allItems.find((entry) => entry.id === id);
+    if (item?.href) {
+      router.push(item.href);
+      return;
+    }
+    if (children) {
+      router.push("/arena");
+      return;
+    }
+    setActive(id);
+  }
   function updatePreferences(patch: Partial<Preferences>) {
     const next = { ...preferences, ...patch };
     setPreferences(next);
@@ -112,7 +134,7 @@ export default function DashboardShell() {
       <Sidebar
         language={language}
         active={active}
-        onNavigate={setActive}
+        onNavigate={navigate}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
@@ -168,7 +190,9 @@ export default function DashboardShell() {
                 : "Browser storage is unavailable. Preferences apply to this session only."}
             </p>
           )}
-          {active === "command" ? (
+          {children ? (
+            children
+          ) : active === "command" ? (
             <CommandDashboard language={language} quality={quality} />
           ) : (
             <>
@@ -328,7 +352,7 @@ export default function DashboardShell() {
                   </footer>
                 </section>
               </div>
-              {active !== "command" && (
+              {!children && active !== "command" && (
                 <section className="ah-selection-notice" aria-live="polite">
                   <AhosIcon name={selected.icon} size={20} />
                   <div>
@@ -365,7 +389,7 @@ export default function DashboardShell() {
       <CommandPalette
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
-        onNavigate={setActive}
+        onNavigate={navigate}
         language={language}
       />
     </div>

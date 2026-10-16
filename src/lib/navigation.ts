@@ -3,7 +3,7 @@ import { tr } from "./i18n";
 
 export type Language = "fa" | "en";
 export type Quality = "high" | "balanced" | "low";
-export type NavItem = { id: string; fa: string; en: string; icon: AhosIconName };
+export type NavItem = { id: string; fa: string; en: string; icon: AhosIconName; /** Real route; items without it are in-shell placeholders. */ href?: string };
 export type NavGroup = { id: string; fa: string; en: string; items: NavItem[] };
 export const navigation: NavGroup[] = [
   {
@@ -31,6 +31,13 @@ export const navigation: NavGroup[] = [
         fa: tr("fa", "nav.markets"),
         en: "Market Prices",
         icon: "nav/market-prices",
+      },
+      {
+        id: "trade-venue",
+        fa: tr("fa", "tradeVenue.nav"),
+        en: "Trade Venue",
+        icon: "nav/paper-trading",
+        href: "/arena/trade-venue",
       },
       {
         id: "opportunities",
