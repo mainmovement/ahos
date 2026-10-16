@@ -1,0 +1,415 @@
+/* ============================================================================
+   AHOS Newsroom — design tokens & scoped base styles.
+
+   Notes for merging into another Next app
+   ---------------------------------------
+   * Tailwind v4 is imported WITHOUT its preflight so that no global reset can
+     collide with a host application. Every reset rule below is scoped under
+     `.ahos-root`.
+   * The only truly global things are: the `@font-face` rules, the `--ah-*`
+     custom properties on `:root`, and the `@theme` bridge that exposes the
+     same palette to Tailwind utilities (`bg-ah-surface`, `text-ah-gold`, …).
+   * Fonts are bundled locally under `public/fonts/` (Vazirmatn + Inter, woff2)
+     so the app renders identically with zero network access.
+   ========================================================================== */
+
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* ---------------------------------------------------------------------------
+   Fonts (Vazirmatn — SIL Open Font License 1.1 · Inter — SIL OFL 1.1)
+   Two families per script on purpose: the "latin" family comes first so ASCII
+   uses Vazirmatn's Latin glyphs, and Persian/Arabic characters fall through to
+   the dedicated "fa" family. No unicode-range guessing required.
+   ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'AH Vazirmatn Latin';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-latin-300-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn Latin';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn Latin';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn Latin';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn Latin';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn Latin';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-latin-800-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'AH Vazirmatn FA';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-arabic-300-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn FA';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-arabic-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn FA';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-arabic-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn FA';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-arabic-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn FA';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-arabic-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Vazirmatn FA';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/vazirmatn-arabic-800-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'AH Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'AH Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/inter-latin-700-normal.woff2') format('woff2');
+}
+
+@layer base {
+/* ---------------------------------------------------------------------------
+   Palette — single source of truth for AHOS
+   ------------------------------------------------------------------------- */
+
+:root {
+  --ah-bg: #080b10;
+  --ah-surface: #0d121a;
+  --ah-surface-2: #111926;
+  --ah-surface-3: #16202e;
+
+  --ah-gold: #d9b977;
+  --ah-gold-strong: #e8d3a3;
+  --ah-gold-dim: #6d5c38;
+  --ah-gold-hairline: rgba(217, 185, 119, 0.28);
+
+  --ah-text: #ecece7;
+  --ah-text-dim: #a8b1bf;
+  --ah-text-faint: #6f7885;
+
+  --ah-cyan: #78cbd1;
+  --ah-live: #8bbfa6;
+  --ah-danger: #e39494;
+
+  --ah-unknown: #6b7480;
+  /* derived from the gold family so STALE never reads as brand gold */
+  --ah-stale: #a08a5c;
+  --ah-line: #1b2432;
+  --ah-line-strong: #2a3644;
+  --ah-line-soft: #141c27;
+
+  --ah-radius-sm: 6px;
+  --ah-radius: 12px;
+  --ah-radius-lg: 18px;
+
+  --ah-font-fa: 'AH Vazirmatn Latin', 'AH Vazirmatn FA', 'AH Inter', ui-sans-serif, system-ui,
+    'Segoe UI', sans-serif;
+  --ah-font-en: 'AH Inter', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --ah-font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+
+  --ah-tier: 1;
+}
+
+/* Bridge the `--ah-*` variables into Tailwind v4 utilities. */
+@theme {
+  --color-ah-bg: #080b10;
+  --color-ah-surface: #0d121a;
+  --color-ah-surface-2: #111926;
+  --color-ah-surface-3: #16202e;
+  --color-ah-gold: #d9b977;
+  --color-ah-gold-strong: #e8d3a3;
+  --color-ah-gold-dim: #6d5c38;
+  --color-ah-text: #ecece7;
+  --color-ah-text-dim: #a8b1bf;
+  --color-ah-text-faint: #6f7885;
+  --color-ah-cyan: #78cbd1;
+  --color-ah-live: #8bbfa6;
+  --color-ah-danger: #e39494;
+  --color-ah-unknown: #6b7480;
+  --color-ah-stale: #a08a5c;
+  --color-ah-line: #1b2432;
+  --color-ah-line-strong: #2a3644;
+  --color-ah-line-soft: #141c27;
+
+  --radius-ah-sm: 6px;
+  --radius-ah: 12px;
+  --radius-ah-lg: 18px;
+
+  --font-ah-fa: 'AH Vazirmatn Latin', 'AH Vazirmatn FA', 'AH Inter', ui-sans-serif, system-ui,
+    sans-serif;
+  --font-ah-en: 'AH Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-ah-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+}
+
+/* ---------------------------------------------------------------------------
+   Scoped reset (no global preflight)
+   ------------------------------------------------------------------------- */
+
+.ahos-root {
+  box-sizing: border-box;
+  font-family: var(--ah-font-fa);
+  color: var(--ah-text);
+  background: var(--ah-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.ahos-root *,
+.ahos-root *::before,
+.ahos-root *::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--ah-line);
+  margin: 0;
+  padding: 0;
+}
+
+.ahos-root button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+.ahos-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ahos-root ul,
+.ahos-root ol {
+  list-style: none;
+}
+
+.ahos-root table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.ahos-root :focus-visible {
+  outline: 2px solid var(--ah-gold);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Shell primitives
+   ------------------------------------------------------------------------- */
+
+.ahos-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 620px at 88% -8%, rgba(217, 185, 119, 0.07), transparent 62%),
+    radial-gradient(900px 520px at 4% 104%, rgba(120, 203, 209, 0.05), transparent 60%),
+    var(--ah-bg);
+}
+
+/* tier 0 strips every decorative gradient — 2D tables only */
+.ahos-root[data-tier='0'] .ahos-shell {
+  background: var(--ah-bg);
+}
+
+.ah-panel {
+  position: relative;
+  border-radius: var(--ah-radius);
+  border: 1px solid var(--ah-line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.014), rgba(255, 255, 255, 0)) ,
+    var(--ah-surface);
+}
+
+.ah-panel--gold {
+  border-color: var(--ah-gold-hairline);
+}
+
+.ahos-root[data-tier='2'] .ah-panel {
+  backdrop-filter: blur(14px) saturate(120%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.008)),
+    rgba(13, 18, 26, 0.72);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 18px 44px -28px rgba(0, 0, 0, 0.9);
+}
+
+.ahos-root[data-tier='0'] .ah-panel {
+  border-radius: var(--ah-radius-sm);
+  background: var(--ah-surface);
+}
+
+.ah-hairline {
+  border-bottom: 1px solid var(--ah-line-soft);
+}
+
+.ah-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ah-text-faint);
+  font-family: var(--ah-font-en);
+}
+
+.ah-mono {
+  font-family: var(--ah-font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.ah-fa {
+  font-family: var(--ah-font-fa);
+}
+
+.ah-en {
+  font-family: var(--ah-font-en);
+  direction: ltr;
+}
+
+/* DEMO surface: diagonal striped ribbon / header */
+.ah-demo-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(217, 185, 119, 0.16) 0 6px,
+    rgba(217, 185, 119, 0.04) 6px 12px
+  );
+}
+
+.ah-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ah-line) transparent;
+}
+.ah-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.ah-scroll::-webkit-scrollbar-thumb {
+  background: var(--ah-line);
+  border-radius: 999px;
+}
+.ah-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Reduced motion ---------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .ahos-root *,
+  .ahos-root *::before,
+  .ahos-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes ah-pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.ah-pulse-soft {
+  animation: ah-pulse-soft 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ah-pulse-soft {
+    animation: none !important;
+  }
+}
+
+@keyframes ah-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ah-drawer-in {
+  animation: ah-drawer-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ah-drawer-in {
+    animation: none !important;
+  }
+}
+}
