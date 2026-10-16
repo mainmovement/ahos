@@ -1,3 +1,5 @@
+'use client'
+
 import { useLayout } from '@/app/command_center/components/context/layout-provider'
 import {
   Sidebar,
