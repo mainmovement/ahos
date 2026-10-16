@@ -2009,5 +2009,15 @@
       "showDetails": "Show details",
       "none": "No open positions recorded."
     }
+  },
+  "whiteHats": {
+    "nav": "White hats & judge",
+    "sourceDemo": "Demo adapter",
+    "sourceUnknown": "Unknown",
+    "freshnessTitle": "Freshness of the last read from the audit source",
+    "view": "View:",
+    "scenarioAria": "Demo scenario",
+    "reloadAria": "Read-only reload of the source",
+    "reload": "Reload"
   }
 }

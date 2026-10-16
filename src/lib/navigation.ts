@@ -114,6 +114,13 @@ export const navigation: NavGroup[] = [
       },
       { id: "reports", fa: "گزارش‌ها", en: "Reports", icon: "nav/reports-evidence" },
       { id: "system", fa: "سیستم و اجرا", en: "System", icon: "nav/system-runtime" },
+      {
+        id: "white-hats",
+        fa: tr("fa", "whiteHats.nav"),
+        en: "White Hats & Judge",
+        icon: "nav/governance-audit",
+        href: "/arena/white-hats",
+      },
       { id: "governance", fa: "حاکمیت", en: "Governance", icon: "nav/governance-audit" },
       { id: "settings", fa: tr("fa", "nav.settings"), en: "Settings", icon: "nav/settings" },
     ],
