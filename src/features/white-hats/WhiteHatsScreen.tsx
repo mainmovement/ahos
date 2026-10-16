@@ -46,7 +46,7 @@ export function WhiteHatsScreen({
   const router = useRouter();
   const [pickedDecisionId, setSelectedDecisionId] = useState<string | null>(null);
   // undefined = follow the ?open= deep link; null = user closed it; value = user opened it.
-  const [drawerOverride, setDrawer] = useState<DrawerContent | undefined>(undefined);
+  const [drawerPick, setDrawer] = useState<DrawerContent | undefined>(undefined);
 
   const phase = useWhiteHatsSnapshot(scenario);
   const snapshot = phase.phase === "ready" ? phase.snapshot : null;
@@ -76,7 +76,7 @@ export function WhiteHatsScreen({
       if (evidence) deepDrawer = { kind: "evidence", evidence };
     }
   }
-  const drawer: DrawerContent = drawerOverride !== undefined ? drawerOverride : deepDrawer;
+  const drawer: DrawerContent = drawerPick !== undefined ? drawerPick : deepDrawer;
 
   const onScenarioChange = (next: WhiteHatsScenario) => {
     router.push(`/arena/white-hats?scenario=${next}${tier === "t0" ? "&tier=t0" : ""}`);
