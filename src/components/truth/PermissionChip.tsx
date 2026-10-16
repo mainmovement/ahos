@@ -1,3 +1,4 @@
+import { tr } from "@/src/lib/i18n";
 import { NOT_AUTHORIZED_FA, PERMITTED_FA } from "@/src/features/trade-venue/logic/truth";
 
 /**
@@ -18,7 +19,7 @@ export interface PermissionChipProps {
 export function PermissionChip({ allowed, size = "sm", title }: PermissionChipProps) {
   return (
     <span
-      className={size === "sm" ? "ah-chip ah-chip--sm ah-chip--perm" : "ah-chip ah-chip--perm"}
+      className={size === "sm" ? "tv-chip tv-chip--sm tv-chip--perm" : "tv-chip tv-chip--perm"}
       data-chip=""
       data-permission={allowed ? "ALLOWED" : "NOT_ALLOWED"}
       data-tone={allowed ? "neutral" : "danger"}
@@ -26,12 +27,12 @@ export function PermissionChip({ allowed, size = "sm", title }: PermissionChipPr
       title={
         title ??
         (allowed
-          ? "مجوز کاغذی دارد: موتور کاغذی اجازهٔ آینه‌کردن این نماد را دارد."
-          : "مجوز کاغذی ندارد: ردیف «غیرمجاز» است و در هیچ جمعی نمی‌آید.")
+          ? tr("fa", "tradeVenue.ui.PermissionChip_1")
+          : tr("fa", "tradeVenue.ui.PermissionChip_2"))
       }
     >
-      <i className="ah-chip__dot" aria-hidden="true" />
-      <span className="ah-chip__fa">{allowed ? PERMITTED_FA : NOT_AUTHORIZED_FA}</span>
+      <i className="tv-chip__dot" aria-hidden="true" />
+      <span className="tv-chip__fa">{allowed ? PERMITTED_FA : NOT_AUTHORIZED_FA}</span>
     </span>
   );
 }

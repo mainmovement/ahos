@@ -1,3 +1,4 @@
+import { tr } from "@/src/lib/i18n";
 import type { ViolationReport } from "@/src/features/trade-venue/logic/truth";
 
 /**
@@ -17,21 +18,21 @@ export interface ViolationBarProps {
 export function ViolationBar({ report, fixtureProvenance = false }: ViolationBarProps) {
   return (
     <div
-      className="ah-violation"
+      className="tv-violation"
       role="alert"
       data-violation={report.code}
       data-dismissible="false"
     >
-      <span className="ah-violation__tag" dir="ltr">
+      <span className="tv-violation__tag" dir="ltr">
         VIOLATION
       </span>
-      <div className="ah-violation__body">
+      <div className="tv-violation__body">
         <strong>{report.headlineFa}</strong>
         <span>{report.detailFa}</span>
-        <span className="ah-violation__en">{report.detailEn}</span>
+        <span className="tv-violation__en">{report.detailEn}</span>
         {fixtureProvenance ? (
-          <span className="ah-violation__en">
-            reported-by=mock-adapter · این تخطی از آداپتور نمایشی گزارش شده است
+          <span className="tv-violation__en">
+            {tr("fa", "tradeVenue.row.violationDemo")}
           </span>
         ) : null}
       </div>

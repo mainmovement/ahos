@@ -1,3 +1,4 @@
+import { tr } from "@/src/lib/i18n";
 import type { ChipStatus } from "@/src/features/trade-venue/logic/model";
 import { STATUS_FA } from "@/src/features/trade-venue/logic/truth";
 
@@ -30,20 +31,20 @@ const ICON: Record<ChipStatus, string> = {
 };
 
 const TITLE_FA: Partial<Record<ChipStatus, string>> = {
-  LOADING: "در حال خواندن",
-  EMPTY: "ردیفی ثبت نشده است",
-  ERROR: "خطای خواندن",
-  UNKNOWN: "نامشخص",
-  UNAVAILABLE: "در دسترس نیست",
-  STALE: "داده کهنه است",
-  PARTIAL: "خواندن ناقص",
-  PLANNED: "برنامه‌ریزی‌شده",
-  MISSING: "غایب",
-  HISTORICAL: "تاریخی",
-  SIMULATED: "شبیه‌سازی",
-  CONFLICT: "تناقض منابع",
-  REJECTED: "ردشده",
-  DEMO: "نمایشی",
+  LOADING: tr("fa", "tradeVenue.ui.StateBlock_1"),
+  EMPTY: tr("fa", "tradeVenue.ui.StateBlock_2"),
+  ERROR: tr("fa", "tradeVenue.ui.StateBlock_3"),
+  UNKNOWN: tr("fa", "tradeVenue.ui.StateBlock_4"),
+  UNAVAILABLE: tr("fa", "tradeVenue.ui.StateBlock_5"),
+  STALE: tr("fa", "tradeVenue.ui.StateBlock_6"),
+  PARTIAL: tr("fa", "tradeVenue.ui.StateBlock_7"),
+  PLANNED: tr("fa", "tradeVenue.ui.StateBlock_8"),
+  MISSING: tr("fa", "tradeVenue.ui.StateBlock_9"),
+  HISTORICAL: tr("fa", "tradeVenue.ui.StateBlock_10"),
+  SIMULATED: tr("fa", "tradeVenue.ui.StateBlock_11"),
+  CONFLICT: tr("fa", "tradeVenue.ui.StateBlock_12"),
+  REJECTED: tr("fa", "tradeVenue.ui.StateBlock_13"),
+  DEMO: tr("fa", "tradeVenue.ui.StateBlock_14"),
 };
 
 export interface StateBlockProps {
@@ -60,30 +61,30 @@ export function StateBlock({ state, bodyFa, hintFa, lastUpdateText }: StateBlock
   const title = TITLE_FA[state] ?? STATUS_FA[state];
   return (
     <div
-      className={`ah-state ah-state--${state.toLowerCase()}`}
+      className={`tv-state tv-state--${state.toLowerCase()}`}
       data-state-block={state}
       role={state === "ERROR" ? "alert" : "status"}
     >
-      <span className="ah-state__icon" aria-hidden="true">
+      <span className="tv-state__icon" aria-hidden="true">
         {ICON[state]}
       </span>
       <div>
-        <span className="ah-state__title">
+        <span className="tv-state__title">
           {title}
-          <span className="ah-state__en" dir="ltr">
+          <span className="tv-state__en" dir="ltr">
             {state}
           </span>
         </span>
-        {bodyFa ? <p className="ah-state__body">{bodyFa}</p> : null}
+        {bodyFa ? <p className="tv-state__body">{bodyFa}</p> : null}
         {state === "STALE" ? (
-          <p className="ah-state__body">
+          <p className="tv-state__body">
             آخرین به‌روزرسانی:{" "}
-            <span className="ah-mono" dir="ltr">
-              {lastUpdateText ?? "نامشخص"}
+            <span className="tv-mono" dir="ltr">
+              {lastUpdateText ?? tr("fa", "tradeVenue.ui.StateBlock_4")}
             </span>
           </p>
         ) : null}
-        {hintFa ? <p className="ah-state__body">{hintFa}</p> : null}
+        {hintFa ? <p className="tv-state__body">{hintFa}</p> : null}
       </div>
     </div>
   );

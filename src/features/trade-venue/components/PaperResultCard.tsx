@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "@/src/lib/i18n";
 
 import { TruthChip } from "@/src/components/truth/TruthChip";
 import { WorldChip } from "@/src/components/truth/WorldChip";
@@ -42,90 +43,90 @@ export function PaperResultCard({
 
   return (
     <section
-      className="ah-panel ah-ribbon-host"
+      className="tv-panel tv-ribbon-host"
       data-panel="paper-result"
       data-world={world}
-      aria-label="نتیجهٔ کاغذی"
+      aria-label={tr("fa", "tradeVenue.ui.PaperResultCard_1")}
     >
-      <header className="ah-panel__head">
-        <span className="ah-panel__title">
-          {isSim ? "نتیجهٔ شبیه‌سازی" : "نتیجهٔ کاغذی"}
+      <header className="tv-panel__head">
+        <span className="tv-panel__title">
+          {isSim ? tr("fa", "tradeVenue.ui.PaperResultCard_2") : tr("fa", "tradeVenue.ui.PaperResultCard_1")}
         </span>
-        <span className="ah-panel__title-en" dir="ltr">
+        <span className="tv-panel__title-en" dir="ltr">
           {isSim ? "SIMULATED RESULT" : "PAPER RESULT"}
         </span>
-        <div className="ah-panel__tools">
+        <div className="tv-panel__tools">
           <TruthChip status={isSim ? "SIMULATED" : "DEMO"} size="sm" />
           <WorldChip world={world} />
         </div>
       </header>
 
-      <div className="ah-panel__body">
+      <div className="tv-panel__body">
         {renderState ? (
           <StateBlock
             state={renderState}
             bodyFa={
               renderState === "LOADING"
-                ? "جمع‌ها پس از پایان خواندن ساخته می‌شوند؛ تا آن زمان هیچ عددی نشان داده نمی‌شود."
+                ? tr("fa", "tradeVenue.ui.PaperResultCard_3")
                 : renderState === "UNAVAILABLE"
-                  ? "جمع کاغذی در این استقرار در دسترس نیست."
-                  : "خواندن دفتر ناموفق بود؛ هیچ جمعی ساخته نمی‌شود."
+                  ? tr("fa", "tradeVenue.ui.PaperResultCard_4")
+                  : tr("fa", "tradeVenue.ui.PaperResultCard_5")
             }
           />
         ) : (
           <>
             <ResultGroup
-              titleFa="نتیجهٔ بسته‌شده (محقق‌شده)"
+              titleFa={tr("fa", "tradeVenue.ui.PaperResultCard_6")}
               titleEn="REALIZED · CLOSED"
               block={totals.closed}
               world={world}
             />
-            <div className="ah-result-divider" />
+            <div className="tv-result-divider" />
             <ResultGroup
-              titleFa="نتیجهٔ باز (نشانه‌نخورده)"
+              titleFa={tr("fa", "tradeVenue.ui.PaperResultCard_7")}
               titleEn="UNREALIZED · OPEN"
               block={totals.open}
               world={world}
             />
 
-            <div className="ah-result-counts">
-              <Count labelFa="موقعیت باز" value={totals.counts.openRows} />
-              <Count labelFa="ردیف بسته‌شده" value={totals.counts.closedRows} />
-              <Count labelFa="بدون مقدار" value={totals.counts.unknownRows} />
-              <Count labelFa="غیرمجاز" value={totals.counts.notAuthorizedRows} />
+            <div className="tv-result-counts">
+              <Count labelFa={tr("fa", "tradeVenue.ui.PaperResultCard_8")} value={totals.counts.openRows} />
+              <Count labelFa={tr("fa", "tradeVenue.ui.PaperResultCard_9")} value={totals.counts.closedRows} />
+              <Count labelFa={tr("fa", "tradeVenue.ui.PaperResultCard_10")} value={totals.counts.unknownRows} />
+              <Count labelFa={tr("fa", "tradeVenue.ui.PaperResultCard_11")} value={totals.counts.notAuthorizedRows} />
               <Count
-                labelFa="خوانده‌نشده (کنار گذاشته)"
+                labelFa={tr("fa", "tradeVenue.ui.PaperResultCard_12")}
                 value={totals.counts.withheldRows}
-                missingText="نامشخص"
+                missingText={tr("fa", "tradeVenue.ui.StateBlock_4")}
               />
             </div>
 
-            <div className="ah-result-excluded" data-excluded-summary="">
-              <div className="ah-result-excluded__head">
-                <span>کنار گذاشته‌شده از جمع</span>
-                <span className="ah-panel__title-en" dir="ltr">
+            <div className="tv-result-excluded" data-excluded-summary="">
+              <div className="tv-result-excluded__head">
+                <span>{tr("fa", "tradeVenue.ui.PaperResultCard_13")}</span>
+                <span className="tv-panel__title-en" dir="ltr">
                   EXCLUDED
                 </span>
               </div>
-              <p className="ah-state__body ah-one-line" title={describeExclusions(totals)}>
+              <p className="tv-state__body tv-one-line" title={describeExclusions(totals)}>
                 {describeExclusions(totals)}
               </p>
               <p
-                className="ah-state__body ah-one-line"
+                className="tv-state__body tv-one-line"
                 title={`ردیف‌های جهان دیگر («${WORLD_LABEL_FA[otherWorld]}») با برچسب «جهان دیگر» کنار گذاشته می‌شوند.`}
               >
                 «{WORLD_LABEL_FA[otherWorld]}» سهمی در این جمع ندارد.
               </p>
             </div>
 
-            <p className="ah-note" style={{ marginTop: 10 }} data-paper-note="true">
+            <p className="tv-note" style={{ marginTop: 10 }} data-paper-note="true">
               <span aria-hidden="true">⛉</span>
               <span>{PAPER_NOTE_FA}</span>
             </p>
 
             {demoForced ? (
-              <p className="ah-state__body" data-demo-forced="true">
-                برچسب DEMO به‌صورت دستی/محیطی روشن شده است؛ هیچ سطحی در این صفحه زنده تلقی نمی‌شود.
+              <p className="tv-state__body" data-demo-forced="true">
+                {tr("fa", "tradeVenue.ui.PaperResultCard_14")}
               </p>
             ) : null}
           </>
@@ -147,40 +148,40 @@ function ResultGroup({
   world: World;
 }) {
   return (
-    <div className="ah-result-group" data-result-group={titleEn}>
-      <div className="ah-result-group__head">
-        <span className="ah-result-group__title">{titleFa}</span>
-        <span className="ah-panel__title-en" dir="ltr">
+    <div className="tv-result-group" data-result-group={titleEn}>
+      <div className="tv-result-group__head">
+        <span className="tv-result-group__title">{titleFa}</span>
+        <span className="tv-panel__title-en" dir="ltr">
           {titleEn}
         </span>
       </div>
 
       {block.groups.length === 0 ? (
-        <div className="ah-kv__row">
-          <span className="ah-kv__k">جمع</span>
-          <span className="ah-kv__v ah-kv__v--na" data-total="missing">
-            {MISSING_GLYPH} <small>ناموجود</small>
+        <div className="tv-kv__row">
+          <span className="tv-kv__k">{tr("fa", "tradeVenue.ui.PaperResultCard_15")}</span>
+          <span className="tv-kv__v tv-kv__v--na" data-total="missing">
+            {MISSING_GLYPH} <small>{tr("fa", "tradeVenue.ui.PaperResultCard_16")}</small>
           </span>
         </div>
       ) : (
         block.groups.map((group) => (
-          <div className="ah-kv__row" key={group.unit} data-total-unit={group.unit}>
-            <span className="ah-kv__k">
+          <div className="tv-kv__row" key={group.unit} data-total-unit={group.unit}>
+            <span className="tv-kv__k">
               جمع{" "}
-              <span className="ah-chip ah-chip--sm" data-tone="unknown">
-                <span className="ah-chip__code" dir="ltr">
+              <span className="tv-chip tv-chip--sm" data-tone="unknown">
+                <span className="tv-chip__code" dir="ltr">
                   {group.unit}
                 </span>
               </span>
-              <span className="ah-kv__en" dir="ltr">
+              <span className="tv-kv__en" dir="ltr">
                 · {group.totals.included.length} rows
               </span>
             </span>
-            <span className="ah-kv__v" data-total="value">
+            <span className="tv-kv__v" data-total="value">
               {group.totals.sum === null ? (
-                <span className="ah-cell-na" data-missing="true">
+                <span className="tv-cell-na" data-missing="true">
                   {MISSING_GLYPH}
-                  <small>ناموجود</small>
+                  <small>{tr("fa", "tradeVenue.ui.PaperResultCard_16")}</small>
                 </span>
               ) : (
                 valueText(group.totals.sum, { fractionDigits: 2 })
@@ -192,20 +193,20 @@ function ResultGroup({
 
       {block.mixedUnits ? (
         <p
-          className="ah-state__body ah-one-line"
+          className="tv-state__body tv-one-line"
           data-mixed-units="true"
-          title="واحدها ناهمگون‌اند؛ جمع کل ارائه نمی‌شود تا عدد ساختگی ساخته نشود. هر واحد جداگانه گزارش می‌شود."
+          title={tr("fa", "tradeVenue.ui.PaperResultCard_17")}
         >
-          واحدها ناهمگون‌اند · جمع کل ساخته نمی‌شود.
+          {tr("fa", "tradeVenue.ui.PaperResultCard_18")}
         </p>
       ) : null}
 
       <p
-        className="ah-state__body ah-one-line"
-        title="ردیف‌های نمایشی، نامشخص و بی‌مجوز در این جمع نیستند."
+        className="tv-state__body tv-one-line"
+        title={tr("fa", "tradeVenue.ui.PaperResultCard_19")}
       >
-        دامنه: {world === "SIMULATION" ? "کتاب شبیه‌سازی" : "دفتر کاغذی واقعی"} · ردیف‌های نمایشی و
-        نامشخص کنار گذاشته شده‌اند.
+        دامنه: {world === "SIMULATION" ? tr("fa", "tradeVenue.ui.PaperResultCard_20") : tr("fa", "tradeVenue.ui.PaperResultCard_21")} · ردیف‌های نمایشی و
+        {tr("fa", "tradeVenue.ui.PaperResultCard_22")}
       </p>
     </div>
   );
@@ -221,9 +222,9 @@ function Count({
   missingText?: string;
 }) {
   return (
-    <div className="ah-count">
-      <span className="ah-count__k">{labelFa}</span>
-      <span className="ah-count__v" data-count-label={labelFa}>
+    <div className="tv-count">
+      <span className="tv-count__k">{labelFa}</span>
+      <span className="tv-count__v" data-count-label={labelFa}>
         {value === null ? missingText : value}
       </span>
     </div>
@@ -242,7 +243,7 @@ function describeExclusions(totals: VenueTotals): string {
       reasons.set(EXCLUSION_FA.NO_UNIT, (reasons.get(EXCLUSION_FA.NO_UNIT) ?? 0) + 1);
     }
   }
-  if (reasons.size === 0) return "هیچ ردیفی کنار گذاشته نشده است.";
+  if (reasons.size === 0) return tr("fa", "tradeVenue.ui.PaperResultCard_23");
   return Array.from(reasons.entries())
     .map(([reason, count]) => `${count} ردیف ${reason}`)
     .join(" · ");

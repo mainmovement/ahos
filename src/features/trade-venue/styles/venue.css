@@ -1,7 +1,7 @@
 /* ============================================================================
    AHOS · Trade Venue — scoped design system
    ----------------------------------------------------------------------------
-   Everything in this file is scoped under `.ah-venue-root` so the page can be
+   Everything in this file is scoped under `.tv-venue-root` so the page can be
    lifted into an existing AHOS Next app without touching global styles.
    Tokens use the `--ah-*` namespace. Radii: 6 / 12 / 18.
    Quality tiers: T0 = 2D only (no blur, no shadow glow, no WebGL)
@@ -135,7 +135,7 @@
     U+A720-A7FF;
 }
 
-.ah-venue-root {
+.tv-venue-root {
   /* ---- palette (AHOS brand) ---- */
   --ah-bg: #080b10;
   --ah-bg-2: #060910;
@@ -179,151 +179,70 @@
 
   direction: rtl;
   unicode-bidi: isolate;
-  min-height: 100dvh;
-  background:
-    radial-gradient(1200px 640px at 85% -10%, rgba(217, 185, 119, 0.06), transparent 60%),
-    radial-gradient(900px 520px at 5% 110%, rgba(120, 203, 209, 0.05), transparent 62%),
-    linear-gradient(180deg, var(--ah-bg) 0%, var(--ah-bg-2) 100%);
+  background: transparent;
   color: var(--ah-text);
   font-family: var(--ah-font-fa);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
 
 /* A page-scoped reset so the shell never inherits surprising styles. */
-.ah-venue-root *,
-.ah-venue-root *::before,
-.ah-venue-root *::after {
+.tv-venue-root *,
+.tv-venue-root *::before,
+.tv-venue-root *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
-.ah-venue-root button,
-.ah-venue-root input,
-.ah-venue-root select {
+.tv-venue-root button,
+.tv-venue-root input,
+.tv-venue-root select {
   font: inherit;
   color: inherit;
 }
-.ah-venue-root table {
+.tv-venue-root table {
   border-collapse: collapse;
   border-spacing: 0;
 }
-.ah-venue-root [hidden] {
+.tv-venue-root [hidden] {
   display: none !important;
 }
 
 /* ---------------------------------------------------------------- T0 tier --
    T0 = "2D tables / SVG only": no blur, no glow, no WebGL, flat surfaces. */
-.ah-root--t0 {
+.tv-root--t0 {
   --ah-glass: var(--ah-surface);
   --ah-glass-2: var(--ah-surface-2);
   --ah-blur: none;
   --ah-shadow: none;
   --ah-shadow-soft: none;
 }
-.ah-root--t0 .ah-hall,
-.ah-root--t0 .ah-ribbon,
-.ah-root--t0 .ah-striped {
+.tv-root--t0 .tv-hall,
+.tv-root--t0 .tv-ribbon,
+.tv-root--t0 .tv-striped {
   display: none !important;
 }
 /* T0 hides the tape, so the gutter it reserved must be given back. The extra
    `:has()` keeps this rule winning regardless of where it lands in the sheet. */
-.ah-root--t0 .ah-ribbon-host,
-.ah-root--t0 .ah-ribbon-host:has(> .ah-ribbon) {
+.tv-root--t0 .tv-ribbon-host,
+.tv-root--t0 .tv-ribbon-host:has(> .tv-ribbon) {
   padding-inline-start: 0;
 }
-.ah-root--t0 .ah-panel {
+.tv-root--t0 .tv-panel {
   backdrop-filter: none;
 }
 
 /* ------------------------------------------------------------------ shell -- */
-.ah-shell {
+.tv-shell {
   display: grid;
   grid-template-columns: 72px minmax(0, 1fr);
   gap: 12px;
   padding: 12px;
-  min-height: 100dvh;
   align-items: start;
 }
 
-/* ---------------------------------------------------- terminal viewport ----
-   On a real desk (≥1200×700) the page behaves like a terminal: chrome stays
-   fixed, the work area scrolls inside the frame, and the primary three panels
-   scroll their own bodies. Below that size everything falls back to a plain
-   document so phones and small laptops keep normal scrolling behaviour. */
-@media (min-width: 1200px) and (min-height: 700px) {
-  .ah-venue-root {
-    height: 100dvh;
-    overflow: hidden;
-  }
-  .ah-shell {
-    height: 100dvh;
-    min-height: 0;
-    align-items: stretch;
-  }
-  .ah-shell__content {
-    min-height: 0;
-    height: 100%;
-    overflow: hidden;
-  }
-  .ah-work {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-gutter: stable;
-  }
-  /* Everything below the primary row lives in its own scroll region so the
-     blotter keeps the top of the screen — exactly how a desk terminal behaves. */
-  .ah-work > .ah-work__secondary {
-    flex: 0 0 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  /* `.ah-work > .ah-grid3` (specificity 0,2,0) is required: the base
-     `.ah-grid3 { align-items: start }` rule appears later in this file and
-     would otherwise win over a media-query rule of equal specificity.
-     The row *fills* the terminal instead of being content-sized, so the panels
-     become scrolling blotters rather than growing the document. */
-  .ah-work > .ah-grid3 {
-    flex: 1 1 auto;
-    min-height: 420px;
-    height: auto;
-    align-items: stretch;
-  }
-  .ah-grid3 > .ah-panel,
-  .ah-grid3 > .ah-column {
-    min-height: 0;
-    height: 100%;
-    max-height: 100%;
-  }
-  .ah-grid3 > .ah-column {
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-  }
-  .ah-panel {
-    min-height: 0;
-  }
-  .ah-grid3 .ah-panel {
-    height: 100%;
-  }
-  .ah-grid3 .ah-panel__body {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: auto;
-    scrollbar-gutter: stable;
-  }
-  .ah-rail {
-    position: static;
-    min-height: 0;
-    height: 100%;
-    overflow: hidden;
-  }
-}
-.ah-shell__content {
+.tv-shell__content {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -331,7 +250,7 @@
 }
 
 /* Right-edge capsule dock (RTL: column 1 is the rightmost column). */
-.ah-rail {
+.tv-rail {
   position: sticky;
   top: 14px;
   display: flex;
@@ -346,9 +265,9 @@
   align-items: center;
   min-height: 420px;
 }
-.ah-rail__label {
+.tv-rail__label {
   writing-mode: vertical-rl;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   color: var(--ah-gold);
   border: 1px solid var(--ah-gold-dim);
@@ -357,14 +276,14 @@
   background: var(--ah-gold-soft);
   user-select: none;
 }
-.ah-rail__slot {
+.tv-rail__slot {
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 100%;
   align-items: center;
 }
-.ah-rail__cap {
+.tv-rail__cap {
   width: 44px;
   height: 44px;
   border-radius: 14px;
@@ -375,25 +294,25 @@
   font-size: 15px;
   color: var(--ah-text-3);
 }
-.ah-rail__cap[data-state="PLANNED"] {
+.tv-rail__cap[data-state="PLANNED"] {
   border-style: dashed;
   color: var(--ah-text-4);
 }
-.ah-rail__cap[data-state="LIVE"] {
+.tv-rail__cap[data-state="LIVE"] {
   border-style: solid;
   border-color: rgba(139, 191, 166, 0.5);
   color: var(--ah-live);
 }
-.ah-rail__note {
+.tv-rail__note {
   margin-top: auto;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ah-text-4);
   text-align: center;
   line-height: 1.5;
 }
 
 /* ----------------------------------------------------------------- topbar -- */
-.ah-topbar {
+.tv-topbar {
   position: sticky;
   top: 12px;
   z-index: 30;
@@ -407,48 +326,48 @@
   backdrop-filter: var(--ah-blur);
   box-shadow: var(--ah-shadow-soft);
 }
-.ah-topbar__row {
+.tv-topbar__row {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
-.ah-topbar__notices {
+.tv-topbar__notices {
   display: block;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-brand {
+.tv-brand {
   display: flex;
   flex-direction: column;
   line-height: 1.35;
   padding-inline-end: 12px;
   border-inline-end: 1px solid var(--ah-line);
 }
-.ah-brand__title {
+.tv-brand__title {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
-.ah-brand__sub {
-  font-size: 11px;
+.tv-brand__sub {
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-spacer {
+.tv-spacer {
   flex: 1 1 auto;
   min-width: 8px;
 }
-.ah-topbar__meta {
+.tv-topbar__meta {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
-.ah-clock {
+.tv-clock {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -457,21 +376,21 @@
   border-inline-start: 1px solid var(--ah-line);
   direction: ltr;
 }
-.ah-clock__time {
+.tv-clock__time {
   font-family: var(--ah-font-code);
   font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--ah-text);
 }
-.ah-clock__zone {
-  font-size: 10px;
+.tv-clock__zone {
+  font-size: 12px;
   color: var(--ah-text-3);
   letter-spacing: 0.08em;
 }
 
 /* ------------------------------------------------------------------ pills -- */
-.ah-pill {
+.tv-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -479,53 +398,53 @@
   border-radius: 999px;
   border: 1px solid var(--ah-line-strong);
   background: rgba(255, 255, 255, 0.03);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--ah-text-2);
   white-space: nowrap;
 }
-.ah-pill--paper {
+.tv-pill--paper {
   border-color: var(--ah-gold-dim);
   background: var(--ah-gold-soft);
   color: var(--ah-gold);
   font-weight: 700;
 }
-.ah-pill--mute {
+.tv-pill--mute {
   border-color: var(--ah-line-strong);
   color: var(--ah-text-3);
   background: transparent;
 }
-.ah-pill--tier {
+.tv-pill--tier {
   font-family: var(--ah-font-code);
   letter-spacing: 0.08em;
   color: var(--ah-text-2);
 }
-.ah-pill--mute[data-muted="true"] {
+.tv-pill--mute[data-muted="true"] {
   border-color: var(--ah-gold-dim);
   color: var(--ah-gold);
 }
-.ah-pill__x {
+.tv-pill__x {
   width: 14px;
   height: 14px;
   display: inline-grid;
   place-items: center;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 12px;
 }
-.ah-pill__lock {
-  font-size: 11px;
+.tv-pill__lock {
+  font-size: 12px;
 }
-.ah-pill--btn {
+.tv-pill--btn {
   cursor: pointer;
 }
-.ah-pill--btn:hover {
+.tv-pill--btn:hover {
   border-color: var(--ah-gold-dim);
   color: var(--ah-text);
 }
 
 /* ------------------------------------------------------------- work area -- */
-.ah-work {
+.tv-work {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -541,20 +460,20 @@
   isolation: isolate;
   min-width: 0;
 }
-.ah-work--sim {
+.tv-work--sim {
   border-color: rgba(179, 164, 216, 0.22);
 }
-.ah-work__head {
+.tv-work__head {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
-.ah-work__hint {
-  font-size: 11.5px;
+.tv-work__hint {
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-grid3 {
+.tv-grid3 {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 0.86fr);
   gap: 10px;
@@ -565,29 +484,29 @@
    column (results + watchlist) drops under the first two. Real terminals do the
    same thing — an honest reflow beats a squeezed, scrolling table. */
 @media (max-width: 1520px) {
-  .ah-grid3 {
+  .tv-grid3 {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   }
-  .ah-grid3 > .ah-column {
+  .tv-grid3 > .tv-column {
     grid-column: 1 / -1;
     flex-direction: row;
     align-items: start;
   }
-  .ah-grid3 > .ah-column > * {
+  .tv-grid3 > .tv-column > * {
     flex: 1 1 0;
   }
 }
 @media (max-width: 1040px) {
-  .ah-grid3 {
+  .tv-grid3 {
     grid-template-columns: minmax(0, 1fr);
   }
-  .ah-shell {
+  .tv-shell {
     grid-template-columns: 64px minmax(0, 1fr);
   }
 }
 
 /* ----------------------------------------------------------------- panels -- */
-.ah-panel {
+.tv-panel {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--ah-line);
@@ -596,10 +515,10 @@
   overflow: hidden;
   min-width: 0;
 }
-.ah-panel--focus {
+.tv-panel--focus {
   border-color: var(--ah-gold-dim);
 }
-.ah-panel__head {
+.tv-panel__head {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -607,15 +526,15 @@
   border-bottom: 1px solid var(--ah-line);
   background: linear-gradient(180deg, rgba(217, 185, 119, 0.05), transparent);
 }
-.ah-panel__title {
+.tv-panel__title {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
-.ah-panel__title-en {
+.tv-panel__title-en {
   font-family: var(--ah-font-code);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   color: var(--ah-text-4);
   text-transform: uppercase;
@@ -624,22 +543,22 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ah-panel__tools {
+.tv-panel__tools {
   margin-inline-start: auto;
   display: flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
 }
-.ah-panel__body {
+.tv-panel__body {
   padding: 9px 10px;
   min-width: 0;
   overflow-x: auto;
 }
-.ah-panel__body--tight {
+.tv-panel__body--tight {
   padding: 0;
 }
-.ah-panel__toolbar {
+.tv-panel__toolbar {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -647,39 +566,39 @@
   border-bottom: 1px solid var(--ah-line);
   background: rgba(0, 0, 0, 0.2);
 }
-.ah-panel__toolbar .ah-filterbar {
+.tv-panel__toolbar .tv-filterbar {
   gap: 6px;
 }
-.ah-panel__toolbar .ah-input {
+.tv-panel__toolbar .tv-input {
   min-width: 108px;
 }
-.ah-panel__toolbar .ah-filterbar__count {
-  font-size: 10px;
+.tv-panel__toolbar .tv-filterbar__count {
+  font-size: 12px;
 }
 
 /* Stacked numeric cell: number over its unit — never clips a digit. */
-.ah-stack {
+.tv-stack {
   display: inline-flex;
   flex-direction: column;
   line-height: 1.25;
 }
-.ah-stack__unit {
-  font-size: 9.5px;
+.tv-stack__unit {
+  font-size: 12px;
   color: var(--ah-text-4);
   font-family: var(--ah-font-code);
 }
-.ah-panel__foot {
+.tv-panel__foot {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 5px 10px;
   border-top: 1px solid var(--ah-line);
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--ah-text-3);
   flex-wrap: wrap;
 }
 /* One-line footnotes: the full sentence stays available on hover. */
-.ah-panel__foot-line {
+.tv-panel__foot-line {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -687,14 +606,14 @@
 }
 
 /* ------------------------------------------------------------------ chips -- */
-.ah-chip {
+.tv-chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 2.5px 7px;
   border-radius: var(--ah-r-sm);
   border: 1px solid var(--ah-line-strong);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.5;
@@ -702,57 +621,57 @@
   color: var(--ah-text-2);
   background: rgba(255, 255, 255, 0.03);
 }
-.ah-chip__dot {
+.tv-chip__dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: currentColor;
   flex: none;
 }
-.ah-chip__fa {
+.tv-chip__fa {
   font-family: var(--ah-font-fa);
   font-weight: 600;
   letter-spacing: 0;
-  font-size: 10.5px;
+  font-size: 12px;
   opacity: 0.9;
 }
-.ah-chip__code {
+.tv-chip__code {
   font-family: var(--ah-font-code);
   letter-spacing: 0.08em;
 }
-.ah-chip--sm {
-  font-size: 9.5px;
+.tv-chip--sm {
+  font-size: 12px;
   padding: 1.5px 5px;
 }
 /* World label + permission flag: their own neutral vocabularies, never green. */
-.ah-chip--world {
+.tv-chip--world {
   color: var(--ah-text-2);
   border-color: var(--ah-line-strong);
   background: rgba(255, 255, 255, 0.035);
 }
-.ah-chip--perm[data-permission="NOT_ALLOWED"] {
+.tv-chip--perm[data-permission="NOT_ALLOWED"] {
   color: var(--ah-danger);
   border-color: rgba(227, 148, 148, 0.5);
   background: var(--ah-danger-soft);
 }
-.ah-chip--perm[data-permission="ALLOWED"] {
+.tv-chip--perm[data-permission="ALLOWED"] {
   color: var(--ah-text-3);
   border-color: var(--ah-line-strong);
   background: rgba(255, 255, 255, 0.03);
 }
 
-.ah-chip[data-status="LIVE"] {
+.tv-chip[data-status="LIVE"] {
   color: var(--ah-live);
   border-color: rgba(139, 191, 166, 0.45);
   background: var(--ah-live-soft);
 }
-.ah-chip[data-status="SIMULATED"] {
+.tv-chip[data-status="SIMULATED"] {
   color: var(--ah-sim);
   border-color: rgba(179, 164, 216, 0.45);
   background: var(--ah-sim-soft);
   border-style: dashed;
 }
-.ah-chip[data-status="DEMO"] {
+.tv-chip[data-status="DEMO"] {
   color: #a9b8c8;
   border-color: rgba(169, 184, 200, 0.42);
   border-style: dashed;
@@ -763,25 +682,25 @@
     transparent 4px 8px
   );
 }
-.ah-chip[data-status="STALE"] {
+.tv-chip[data-status="STALE"] {
   color: var(--ah-stale);
   border-color: rgba(195, 164, 104, 0.45);
   background: rgba(195, 164, 104, 0.1);
   border-style: dashed;
 }
-.ah-chip[data-status="PARTIAL"] {
+.tv-chip[data-status="PARTIAL"] {
   color: #a8b6c6;
   border-color: rgba(168, 182, 198, 0.4);
   border-style: dotted;
   background: rgba(168, 182, 198, 0.08);
 }
-.ah-chip[data-status="UNKNOWN"] {
+.tv-chip[data-status="UNKNOWN"] {
   color: var(--ah-unknown);
   border-color: rgba(120, 130, 143, 0.45);
   border-style: dotted;
   background: rgba(120, 130, 143, 0.08);
 }
-.ah-chip[data-status="UNAVAILABLE"] {
+.tv-chip[data-status="UNAVAILABLE"] {
   color: var(--ah-text-4);
   border-color: rgba(107, 115, 126, 0.5);
   border-style: dashed;
@@ -791,28 +710,28 @@
     transparent 3px 7px
   );
 }
-.ah-chip[data-status="MISSING"] {
+.tv-chip[data-status="MISSING"] {
   color: var(--ah-text-4);
   border-color: rgba(107, 115, 126, 0.4);
   background: transparent;
 }
-.ah-chip[data-status="PLANNED"] {
+.tv-chip[data-status="PLANNED"] {
   color: var(--ah-text-4);
   border-color: rgba(107, 115, 126, 0.45);
   border-style: dotted;
   background: transparent;
 }
-.ah-chip[data-status="CONFLICT"] {
+.tv-chip[data-status="CONFLICT"] {
   color: var(--ah-conflict);
   border-color: rgba(217, 163, 94, 0.5);
   background: rgba(217, 163, 94, 0.12);
 }
-.ah-chip[data-status="REJECTED"] {
+.tv-chip[data-status="REJECTED"] {
   color: var(--ah-danger);
   border-color: rgba(227, 148, 148, 0.5);
   background: var(--ah-danger-soft);
 }
-.ah-chip[data-status="ERROR"] {
+.tv-chip[data-status="ERROR"] {
   color: var(--ah-danger);
   border-color: rgba(227, 148, 148, 0.55);
   background: repeating-linear-gradient(
@@ -821,26 +740,26 @@
     transparent 3px 7px
   );
 }
-.ah-chip[data-status="HISTORICAL"] {
+.tv-chip[data-status="HISTORICAL"] {
   color: #9aa7b8;
   border-color: rgba(154, 167, 184, 0.42);
   background: rgba(154, 167, 184, 0.08);
 }
-.ah-chip[data-status="LOADING"] {
+.tv-chip[data-status="LOADING"] {
   color: #9aa7b8;
   border-color: var(--ah-line-strong);
   background: transparent;
 }
-.ah-chip[data-status="LOADING"] .ah-chip__dot {
-  animation: ah-pulse 1.15s ease-in-out infinite;
+.tv-chip[data-status="LOADING"] .tv-chip__dot {
+  animation: tv-pulse 1.15s ease-in-out infinite;
 }
-.ah-chip[data-status="EMPTY"] {
+.tv-chip[data-status="EMPTY"] {
   color: var(--ah-text-4);
   border-color: var(--ah-line-strong);
 }
 
 /* ------------------------------------------------------------------ tabs -- */
-.ah-tabs {
+.tv-tabs {
   display: inline-flex;
   padding: 3px;
   gap: 3px;
@@ -848,7 +767,7 @@
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.25);
 }
-.ah-tab {
+.tv-tab {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -862,89 +781,89 @@
   cursor: pointer;
   transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
 }
-.ah-tab:hover {
+.tv-tab:hover {
   color: var(--ah-text-2);
 }
-.ah-tab[aria-selected="true"] {
+.tv-tab[aria-selected="true"] {
   color: var(--ah-text);
   border-color: var(--ah-gold-dim);
   background: var(--ah-gold-soft);
 }
-.ah-tab--sim[aria-selected="true"] {
+.tv-tab--sim[aria-selected="true"] {
   color: var(--ah-sim);
   border-color: rgba(179, 164, 216, 0.5);
   background: var(--ah-sim-soft);
 }
-.ah-tab__en {
+.tv-tab__en {
   font-family: var(--ah-font-code);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   color: var(--ah-text-4);
 }
-.ah-tab[aria-selected="true"] .ah-tab__en {
+.tv-tab[aria-selected="true"] .tv-tab__en {
   color: inherit;
   opacity: 0.75;
 }
 
 /* ------------------------------------------------------------------ table -- */
-.ah-table {
+.tv-table {
   width: 100%;
-  font-size: 12.5px;
-  min-width: 640px;
+  font-size: 14px;
+  min-width: 0;
 }
-.ah-table--narrow {
+.tv-table--narrow {
   min-width: 420px;
 }
-.ah-table thead th {
+.tv-table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
   background: var(--ah-surface-3);
   color: var(--ah-text-3);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-align: right;
-  padding: 7px 9px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--ah-line-strong);
   white-space: nowrap;
 }
-.ah-table tbody td {
-  padding: 7px 9px;
+.tv-table tbody td {
+  padding: 12px 12px;
   border-bottom: 1px solid var(--ah-line);
   vertical-align: middle;
   white-space: nowrap;
 }
-.ah-table tbody tr:hover td {
+.tv-table tbody tr:hover td {
   background: rgba(255, 255, 255, 0.02);
 }
-.ah-table tbody tr:last-child td {
+.tv-table tbody tr:last-child td {
   border-bottom: none;
 }
-.ah-table .ah-num,
-.ah-table .ah-mono {
+.tv-table .tv-num,
+.tv-table .tv-mono {
   font-family: var(--ah-font-code);
   font-variant-numeric: tabular-nums;
   direction: ltr;
   text-align: right;
   unicode-bidi: plaintext;
 }
-.ah-table__dim td {
+.tv-table__dim td {
   color: var(--ah-text-3);
 }
-.ah-table__row--demoted td {
+.tv-table__row--demoted td {
   opacity: 0.72;
 }
-.ah-table__row--sim td {
+.tv-table__row--sim td {
   background: rgba(179, 164, 216, 0.045);
 }
-.ah-table__row--sim:hover td {
+.tv-table__row--sim:hover td {
   background: rgba(179, 164, 216, 0.075);
 }
 /* Second line inside a cell (Persian name, age, note) — keeps columns narrow. */
-.ah-cell-sub {
+.tv-cell-sub {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
   font-family: var(--ah-font-fa);
   color: var(--ah-text-4);
@@ -953,60 +872,60 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ah-table--dense {
+.tv-table--dense {
   min-width: 0;
   width: 100%;
-  font-size: 10.5px;
+  font-size: 12px;
 }
-.ah-table--dense thead th {
+.tv-table--dense thead th {
   padding: 4px 6px;
-  font-size: 9.5px;
+  font-size: 12px;
 }
-.ah-table--dense tbody td {
+.tv-table--dense tbody td {
   padding: 3px 5px;
   line-height: 1.45;
 }
-.ah-table--dense .ah-btn {
+.tv-table--dense .tv-btn {
   padding: 1px 6px;
-  font-size: 9.5px;
+  font-size: 12px;
 }
-.ah-table--dense .ah-chip {
-  font-size: 9px;
+.tv-table--dense .tv-chip {
+  font-size: 12px;
   padding: 1px 4px;
 }
-.ah-table--dense .ah-chip__fa {
-  font-size: 9px;
+.tv-table--dense .tv-chip__fa {
+  font-size: 12px;
 }
 
 /* Persian name sits inline beside the Latin code, truncated with the full text
    in the tooltip — a row stays one line tall. */
-.ah-cell-fa {
+.tv-cell-fa {
   display: inline-block;
-  max-width: 9ch;
+  max-width: 14ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
   margin-inline-start: 5px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ah-text-4);
 }
 
-.ah-cell-symbol {
-  font-size: 11.5px;
+.tv-cell-symbol {
+  font-size: 12px;
 }
-.ah-table--dense .ah-mono {
-  font-size: 10.5px;
+.tv-table--dense .tv-mono {
+  font-size: 12px;
 }
-.ah-ev-id {
-  font-size: 10px;
+.tv-ev-id {
+  font-size: 12px;
   color: var(--ah-text-3);
   white-space: nowrap;
 }
 
 /* Persian name sits inline beside the Latin code, truncated with the full text
    in the tooltip — a row stays one line tall. */
-.ah-cell-fa {
+.tv-cell-fa {
   display: inline-block;
   max-width: 9ch;
   overflow: hidden;
@@ -1014,11 +933,11 @@
   white-space: nowrap;
   vertical-align: bottom;
   margin-inline-start: 5px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ah-text-4);
 }
 
-.ah-cell-symbol {
+.tv-cell-symbol {
   font-family: var(--ah-font-code);
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -1026,54 +945,54 @@
   unicode-bidi: plaintext;
   text-align: right;
 }
-.ah-cell-na {
+.tv-cell-na {
   color: var(--ah-unknown);
 }
-.ah-cell-na small {
+.tv-cell-na small {
   font-family: var(--ah-font-fa);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ah-text-4);
   margin-inline-start: 4px;
 }
-.ah-mono {
+.tv-mono {
   font-family: var(--ah-font-code);
-  font-size: 11.5px;
+  font-size: 14px;
   letter-spacing: 0.01em;
   direction: ltr;
   unicode-bidi: plaintext;
 }
-.ah-dim {
+.tv-dim {
   color: var(--ah-text-3);
 }
-.ah-faint {
+.tv-faint {
   color: var(--ah-text-4);
 }
-.ah-side {
+.tv-side {
   font-family: var(--ah-font-fa);
   font-weight: 600;
   color: var(--ah-text-2);
   white-space: nowrap;
 }
-.ah-side__en {
+.tv-side__en {
   font-family: var(--ah-font-code);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: var(--ah-text-4);
   margin-inline-start: 5px;
 }
-.ah-cell-actions {
+.tv-cell-actions {
   display: flex;
   align-items: center;
   gap: 3px;
   flex-wrap: nowrap;
   justify-content: flex-start;
 }
-.ah-table--dense .ah-btn {
+.tv-table--dense .tv-btn {
   white-space: nowrap;
 }
 
 /* --------------------------------------------------------------- controls -- */
-.ah-btn {
+.tv-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -1082,57 +1001,57 @@
   border: 1px solid var(--ah-line-strong);
   background: rgba(255, 255, 255, 0.02);
   color: var(--ah-text-2);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
 }
-.ah-btn:hover {
+.tv-btn:hover {
   border-color: var(--ah-gold-dim);
   color: var(--ah-text);
   background: var(--ah-gold-soft);
 }
-.ah-btn[data-kind="export"]:hover {
+.tv-btn[data-kind="export"]:hover {
   border-color: rgba(120, 203, 209, 0.5);
   background: var(--ah-cyan-soft);
   color: var(--ah-cyan);
 }
-.ah-btn__en {
+.tv-btn__en {
   font-family: var(--ah-font-code);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   opacity: 0.7;
 }
-.ah-copy-ok {
+.tv-copy-ok {
   color: var(--ah-gold);
 }
-.ah-input {
+.tv-input {
   padding: 3px 8px;
   border-radius: var(--ah-r-sm);
   border: 1px solid var(--ah-line-strong);
   background: rgba(0, 0, 0, 0.28);
   color: var(--ah-text);
-  font-size: 11px;
+  font-size: 12px;
   min-width: 96px;
   width: 100%;
 }
-.ah-input::placeholder {
+.tv-input::placeholder {
   color: var(--ah-text-4);
 }
-.ah-input:focus {
+.tv-input:focus {
   outline: none;
   border-color: var(--ah-gold-dim);
 }
-.ah-select {
+.tv-select {
   padding: 4px 6px;
   border-radius: var(--ah-r-sm);
   border: 1px solid var(--ah-line-strong);
   background: rgba(0, 0, 0, 0.28);
   color: var(--ah-text-2);
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
 }
-.ah-filterbar {
+.tv-filterbar {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1140,19 +1059,19 @@
   width: 100%;
   min-width: 0;
 }
-.ah-filterbar__count {
+.tv-filterbar__count {
   margin-inline-start: auto;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ah-text-3);
 }
 
 /* ------------------------------------------------------------------ cards -- */
-.ah-kv {
+.tv-kv {
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
-.ah-kv__row {
+.tv-kv__row {
   display: flex;
   align-items: baseline;
   gap: 10px;
@@ -1160,14 +1079,14 @@
   border-bottom: 1px dashed var(--ah-line);
   min-width: 0;
 }
-.ah-kv__row:last-child {
+.tv-kv__row:last-child {
   border-bottom: none;
 }
-.ah-kv__k {
-  font-size: 11.5px;
+.tv-kv__k {
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-kv__v {
+.tv-kv__v {
   margin-inline-start: auto;
   font-family: var(--ah-font-code);
   font-size: 14px;
@@ -1180,27 +1099,27 @@
   white-space: nowrap;
   flex: none;
 }
-.ah-kv__k {
+.tv-kv__k {
   min-width: 0;
 }
-.ah-kv__v--na {
+.tv-kv__v--na {
   color: var(--ah-unknown);
   font-family: var(--ah-font-fa);
   font-size: 12px;
 }
-.ah-kv__v--muted {
+.tv-kv__v--muted {
   color: var(--ah-text-2);
 }
-.ah-kv__unit {
-  font-size: 10.5px;
+.tv-kv__unit {
+  font-size: 12px;
   color: var(--ah-text-4);
   margin-inline-start: 5px;
 }
 /* Reason codes are Latin and read left-to-right even inside an RTL row. */
-.ah-kv__row--wrap {
+.tv-kv__row--wrap {
   align-items: flex-start;
 }
-.ah-kv__row--wrap .ah-kv__v {
+.tv-kv__row--wrap .tv-kv__v {
   white-space: normal;
   text-align: end;
   flex: 1 1 auto;
@@ -1211,7 +1130,7 @@
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
-.ah-kv__codes {
+.tv-kv__codes {
   display: inline-flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -1219,7 +1138,7 @@
   direction: ltr;
   unicode-bidi: isolate;
 }
-.ah-kv__code {
+.tv-kv__code {
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
@@ -1229,21 +1148,21 @@
   background: var(--ah-surface-2);
   color: var(--ah-text-3);
   font-family: var(--ah-font-code);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: 0.06em;
 }
-.ah-kv__code b {
+.tv-kv__code b {
   color: var(--ah-text);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.ah-kv__en {
+.tv-kv__en {
   font-family: var(--ah-font-code);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: var(--ah-text-4);
 }
-.ah-note {
+.tv-note {
   display: flex;
   gap: 7px;
   align-items: flex-start;
@@ -1252,57 +1171,57 @@
   border: 1px dashed var(--ah-gold-dim);
   background: var(--ah-gold-soft);
   color: var(--ah-gold);
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.7;
 }
-.ah-note--sim {
+.tv-note--sim {
   border-color: rgba(179, 164, 216, 0.45);
   background: var(--ah-sim-soft);
   color: var(--ah-sim);
 }
-.ah-note--info {
+.tv-note--info {
   border-color: rgba(120, 203, 209, 0.35);
   background: var(--ah-cyan-soft);
   color: var(--ah-cyan);
 }
-.ah-note--warn {
+.tv-note--warn {
   border-color: rgba(195, 164, 104, 0.45);
   background: rgba(195, 164, 104, 0.1);
   color: var(--ah-stale);
 }
 
 /* -------------------------------------------------------- watchlist list -- */
-.ah-list {
+.tv-list {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.ah-list__row {
+.tv-list__row {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 5px 4px;
   border-bottom: 1px dashed var(--ah-line);
 }
-.ah-list__row--stack {
+.tv-list__row--stack {
   flex-direction: column;
   align-items: stretch;
   gap: 2px;
 }
-.ah-list__line {
+.tv-list__line {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
 }
-.ah-list__line--meta {
+.tv-list__line--meta {
   gap: 5px;
   overflow: hidden;
 }
-.ah-list__row:last-child {
+.tv-list__row:last-child {
   border-bottom: none;
 }
-.ah-list__sym {
+.tv-list__sym {
   font-family: var(--ah-font-code);
   font-size: 12px;
   font-weight: 600;
@@ -1310,17 +1229,17 @@
   direction: ltr;
   unicode-bidi: plaintext;
 }
-.ah-list__fa {
-  font-size: 11px;
+.tv-list__fa {
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-list__tail {
+.tv-list__tail {
   margin-inline-start: auto;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.ah-list__empty {
+.tv-list__empty {
   padding: 14px 6px;
   color: var(--ah-text-4);
   font-size: 12px;
@@ -1328,12 +1247,12 @@
 }
 
 /* --------------------------------------------------------- market centers -- */
-.ah-centers {
+.tv-centers {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(184px, 1fr));
   gap: 7px;
 }
-.ah-center {
+.tv-center {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1345,57 +1264,57 @@
   background: rgba(255, 255, 255, 0.014);
   min-width: 0;
 }
-.ah-center[data-state="LIVE"] {
+.tv-center[data-state="LIVE"] {
   border-style: solid;
   border-color: rgba(139, 191, 166, 0.4);
   background: var(--ah-live-soft);
 }
-.ah-center[data-state="DEMO"] {
+.tv-center[data-state="DEMO"] {
   border-style: dashed;
   border-color: rgba(169, 184, 200, 0.4);
   background: rgba(169, 184, 200, 0.05);
 }
-.ah-center[data-state="STALE"] {
+.tv-center[data-state="STALE"] {
   border-color: rgba(195, 164, 104, 0.42);
   background: rgba(195, 164, 104, 0.07);
 }
-.ah-center__top {
+.tv-center__top {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
   overflow: hidden;
 }
-.ah-center__name {
+.tv-center__name {
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
-.ah-center__fa {
-  font-size: 10.5px;
+.tv-center__fa {
+  font-size: 12px;
   color: var(--ah-text-4);
 }
-.ah-center__code {
+.tv-center__code {
   font-family: var(--ah-font-code);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: var(--ah-text-4);
   white-space: nowrap;
 }
-.ah-center__foot {
+.tv-center__foot {
   display: flex;
   align-items: center;
   gap: 5px;
   flex-wrap: nowrap;
   overflow: hidden;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-center__chip {
+.tv-center__chip {
   margin-inline-start: auto;
   min-width: 0;
 }
-.ah-center__metrics {
+.tv-center__metrics {
   display: flex;
   align-items: baseline;
   gap: 7px;
@@ -1403,24 +1322,24 @@
   overflow: hidden;
   white-space: nowrap;
   font-family: var(--ah-font-code);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ah-text-2);
   direction: ltr;
   unicode-bidi: plaintext;
 }
-.ah-center__na {
-  font-size: 10.5px;
+.tv-center__na {
+  font-size: 12px;
   color: var(--ah-text-4);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ah-center__na .ah-faint {
+.tv-center__na .tv-faint {
   display: none;
 }
 
 /* ------------------------------------------------------- component states -- */
-.ah-state {
+.tv-state {
   display: flex;
   gap: 10px;
   align-items: flex-start;
@@ -1431,52 +1350,52 @@
   color: var(--ah-text-2);
   font-size: 12.5px;
 }
-.ah-state__icon {
+.tv-state__icon {
   font-family: var(--ah-font-code);
   font-size: 15px;
   line-height: 1.2;
   color: var(--ah-text-3);
   flex: none;
 }
-.ah-state__title {
+.tv-state__title {
   font-weight: 700;
   color: var(--ah-text);
   display: block;
   margin-bottom: 2px;
 }
-.ah-state__en {
+.tv-state__en {
   font-family: var(--ah-font-code);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   color: var(--ah-text-4);
   margin-inline-start: 6px;
   text-transform: uppercase;
 }
-.ah-state__body {
+.tv-state__body {
   color: var(--ah-text-3);
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.75;
 }
 /* Long explanations stay one line; the full sentence is in the tooltip. */
-.ah-one-line {
+.tv-one-line {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1.6;
 }
-.ah-state--empty {
+.tv-state--empty {
   border-style: solid;
   border-color: var(--ah-line);
 }
-.ah-state--error {
+.tv-state--error {
   border-color: rgba(227, 148, 148, 0.42);
   background: var(--ah-danger-soft);
 }
-.ah-state--error .ah-state__icon {
+.tv-state--error .tv-state__icon {
   color: var(--ah-danger);
 }
-.ah-state--unavailable {
+.tv-state--unavailable {
   border-style: dashed;
   background-image: repeating-linear-gradient(
     135deg,
@@ -1484,35 +1403,35 @@
     transparent 5px 11px
   );
 }
-.ah-state--loading {
+.tv-state--loading {
   border-style: solid;
   border-color: var(--ah-line);
 }
-.ah-state--loading .ah-state__icon {
-  animation: ah-pulse 1.15s ease-in-out infinite;
+.tv-state--loading .tv-state__icon {
+  animation: tv-pulse 1.15s ease-in-out infinite;
 }
-.ah-state--stale {
+.tv-state--stale {
   border-color: rgba(195, 164, 104, 0.4);
   background: rgba(195, 164, 104, 0.07);
 }
-.ah-state--partial {
+.tv-state--partial {
   border-style: dotted;
 }
-.ah-state--planned {
+.tv-state--planned {
   border-style: dotted;
   color: var(--ah-text-3);
 }
 
 /* ------------------------------------------------- DEMO ribbon + banners -- */
-.ah-ribbon-host {
+.tv-ribbon-host {
   position: relative;
   overflow: hidden;
 }
 /* The tape needs a gutter: the panel reserves it on its inline-start edge. */
-.ah-ribbon-host:has(> .ah-ribbon) {
+.tv-ribbon-host:has(> .tv-ribbon) {
   padding-inline-start: 15px;
 }
-.ah-ribbon {
+.tv-ribbon {
   /* Physical edges on purpose: `writing-mode: vertical-rl` re-maps the logical
      `inset-*` properties to the horizontal axis, so the tape must not use them.
      The page is RTL by contract, so "right" is the panel's inline-start edge. */
@@ -1528,7 +1447,7 @@
   justify-content: flex-start;
   padding: 9px 0 0;
   font-family: var(--ah-font-code);
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.16em;
   color: #0b0e13;
@@ -1540,15 +1459,15 @@
 }
 /* The word on the tape runs top-to-bottom; only the inner run is vertical, so
    the tape itself stays a predictable full-height flex column. */
-.ah-ribbon__text {
+.tv-ribbon__text {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: nowrap;
 }
-.ah-ribbon--sim {
+.tv-ribbon--sim {
   background: repeating-linear-gradient(90deg, #b3a4d8 0 8px, #9b8cc4 8px 16px);
 }
-.ah-striped {
+.tv-striped {
   background-image: repeating-linear-gradient(
     135deg,
     rgba(169, 184, 200, 0.13) 0 6px,
@@ -1556,7 +1475,7 @@
   );
   border: 1px dashed rgba(169, 184, 200, 0.4);
 }
-.ah-banner {
+.tv-banner {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -1567,27 +1486,27 @@
   color: #c3cdd8;
   font-size: 12px;
 }
-.ah-banner__code {
+.tv-banner__code {
   font-family: var(--ah-font-code);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   padding: 2px 7px;
   border-radius: var(--ah-r-sm);
   border: 1px solid rgba(169, 184, 200, 0.5);
   background: rgba(0, 0, 0, 0.25);
 }
-.ah-banner--sim {
+.tv-banner--sim {
   border-color: rgba(179, 164, 216, 0.5);
   background: var(--ah-sim-soft);
   color: var(--ah-sim);
 }
-.ah-banner--sim .ah-banner__code {
+.tv-banner--sim .tv-banner__code {
   border-color: rgba(179, 164, 216, 0.55);
 }
 
 /* Full-width VIOLATION bar — shown only when the mock/real adapter reports a
    non paper mode (realTrading=true or executionMode != PAPER_ONLY). */
-.ah-violation {
+.tv-violation {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1608,9 +1527,9 @@
   position: relative;
   z-index: 40;
 }
-.ah-violation__tag {
+.tv-violation__tag {
   font-family: var(--ah-font-code);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.16em;
   padding: 4px 9px;
@@ -1619,31 +1538,31 @@
   color: #fff;
   flex: none;
 }
-.ah-violation__body {
+.tv-violation__body {
   display: flex;
   flex-direction: column;
   gap: 2px;
   line-height: 1.6;
 }
-.ah-violation__body strong {
+.tv-violation__body strong {
   color: #fff;
   font-weight: 700;
 }
-.ah-violation__en {
+.tv-violation__en {
   font-family: var(--ah-font-code);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   color: #ffc9bf;
   direction: ltr;
   unicode-bidi: plaintext;
   text-align: start;
 }
-.ah-violation__strong {
+.tv-violation__strong {
   font-family: var(--ah-font-code);
 }
 
 /* ------------------------------------------------------------- telemetry -- */
-.ah-telemetry {
+.tv-telemetry {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1653,24 +1572,24 @@
   border-radius: var(--ah-r-md);
   background: var(--ah-glass);
   backdrop-filter: var(--ah-blur);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-telemetry__group {
+.tv-telemetry__group {
   display: flex;
   align-items: baseline;
   gap: 6px;
   padding-inline-end: 12px;
   border-inline-end: 1px solid var(--ah-line);
 }
-.ah-telemetry__group:last-child {
+.tv-telemetry__group:last-child {
   border-inline-end: none;
   padding-inline-end: 0;
 }
-.ah-telemetry__k {
+.tv-telemetry__k {
   color: var(--ah-text-4);
 }
-.ah-telemetry__v {
+.tv-telemetry__v {
   font-family: var(--ah-font-code);
   color: var(--ah-text-2);
   direction: ltr;
@@ -1679,12 +1598,12 @@
 }
 
 /* ------------------------------------------------------------------ dock -- */
-.ah-dock {
+.tv-dock {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 8px;
 }
-.ah-dock__item {
+.tv-dock__item {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1695,27 +1614,27 @@
   font-size: 12px;
   background: rgba(255, 255, 255, 0.012);
 }
-.ah-dock__item[data-state="LIVE"] {
+.tv-dock__item[data-state="LIVE"] {
   border-style: solid;
   border-color: rgba(139, 191, 166, 0.4);
   color: var(--ah-text-2);
 }
-.ah-dock__item[data-state="DEMO"] {
+.tv-dock__item[data-state="DEMO"] {
   border-color: rgba(169, 184, 200, 0.4);
   color: var(--ah-text-2);
 }
-.ah-dock__title {
+.tv-dock__title {
   font-weight: 700;
 }
-.ah-dock__fa {
-  font-size: 10.5px;
+.tv-dock__fa {
+  font-size: 12px;
   color: var(--ah-text-4);
 }
 
 /* --------------------------------------------------- decorative 3D hall ----
    T2/T3 only. Purely decorative, aria-hidden, never carries data, and is
    completely absent from T0/T1. No auto-rotation under reduced-motion. */
-.ah-hall {
+.tv-hall {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -1726,7 +1645,7 @@
   -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 82%);
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 82%);
 }
-.ah-hall__floor {
+.tv-hall__floor {
   position: absolute;
   inset-inline: -20%;
   bottom: -14%;
@@ -1736,9 +1655,9 @@
   background-size: 68px 44px;
   transform: rotateX(70deg);
   transform-origin: center bottom;
-  animation: ah-hall-drift 34s linear infinite;
+  animation: tv-hall-drift 34s linear infinite;
 }
-.ah-hall__ring {
+.tv-hall__ring {
   position: absolute;
   inset-inline-start: 50%;
   top: -30%;
@@ -1748,16 +1667,16 @@
   border-radius: 50%;
   border: 1px solid rgba(217, 185, 119, 0.14);
   box-shadow: inset 0 0 90px rgba(217, 185, 119, 0.05);
-  animation: ah-hall-spin 90s linear infinite;
+  animation: tv-hall-spin 90s linear infinite;
 }
-.ah-hall__ring::after {
+.tv-hall__ring::after {
   content: "";
   position: absolute;
   inset: 60px;
   border-radius: 50%;
   border: 1px dashed rgba(120, 203, 209, 0.12);
 }
-.ah-hall__pillar {
+.tv-hall__pillar {
   position: absolute;
   bottom: 0;
   width: 1px;
@@ -1765,14 +1684,14 @@
   background: linear-gradient(180deg, transparent, rgba(217, 185, 119, 0.28));
 }
 @media (prefers-reduced-motion: reduce) {
-  .ah-hall__floor,
-  .ah-hall__ring {
+  .tv-hall__floor,
+  .tv-hall__ring {
     animation: none !important;
   }
 }
 
 /* --------------------------------------------------------- footer / tree -- */
-.ah-footer {
+.tv-footer {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -1782,10 +1701,10 @@
   border-radius: var(--ah-r-md);
   background: var(--ah-glass);
   backdrop-filter: var(--ah-blur);
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--ah-text-3);
 }
-.ah-footer__link {
+.tv-footer__link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1794,18 +1713,18 @@
   border-bottom: 1px dashed var(--ah-gold-dim);
   padding-bottom: 1px;
 }
-.ah-footer__link:hover {
+.tv-footer__link:hover {
   color: var(--ah-text);
 }
-.ah-footer__tree {
+.tv-footer__tree {
   font-family: var(--ah-font-code);
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--ah-text-4);
   direction: ltr;
   unicode-bidi: plaintext;
   text-align: start;
 }
-.ah-footer__legend {
+.tv-footer__legend {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -1813,7 +1732,7 @@
 }
 
 /* ---------------------------------------------------------------- a11y ------ */
-.ah-sr {
+.tv-sr {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -1824,13 +1743,13 @@
   white-space: nowrap;
   border: 0;
 }
-.ah-venue-root :focus-visible {
+.tv-venue-root :focus-visible {
   outline: 2px solid var(--ah-gold);
   outline-offset: 2px;
 }
 
 /* ---------------------------------------------------------------- motion --- */
-@keyframes ah-pulse {
+@keyframes tv-pulse {
   0%,
   100% {
     opacity: 1;
@@ -1839,7 +1758,7 @@
     opacity: 0.28;
   }
 }
-@keyframes ah-hall-drift {
+@keyframes tv-hall-drift {
   from {
     background-position: 0 0;
   }
@@ -1847,7 +1766,7 @@
     background-position: 0 44px;
   }
 }
-@keyframes ah-hall-spin {
+@keyframes tv-hall-spin {
   from {
     transform: rotate(0deg);
   }
@@ -1857,9 +1776,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ah-venue-root *,
-  .ah-venue-root *::before,
-  .ah-venue-root *::after {
+  .tv-venue-root *,
+  .tv-venue-root *::before,
+  .tv-venue-root *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
@@ -1869,13 +1788,13 @@
 
 /* Print / PDF export of the venue view stays readable on white paper. */
 @media print {
-  .ah-venue-root {
+  .tv-venue-root {
     background: #fff;
     color: #111;
   }
-  .ah-rail,
-  .ah-hall,
-  .ah-telemetry {
+  .tv-rail,
+  .tv-hall,
+  .tv-telemetry {
     display: none;
   }
 }
@@ -1885,56 +1804,56 @@
    ========================================================================== */
 
 /* Tier 1: solid surfaces, hairline gold, no blur and no glow. */
-.ah-root--t1 {
+.tv-root--t1 {
   --ah-glass: var(--ah-surface);
   --ah-glass-2: var(--ah-surface);
   --ah-blur: none;
   --ah-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
   --ah-shadow-soft: none;
 }
-.ah-root--t1 .ah-rail,
-.ah-root--t1 .ah-topbar,
-.ah-root--t1 .ah-work,
-.ah-root--t1 .ah-telemetry,
-.ah-root--t1 .ah-footer {
+.tv-root--t1 .tv-rail,
+.tv-root--t1 .tv-topbar,
+.tv-root--t1 .tv-work,
+.tv-root--t1 .tv-telemetry,
+.tv-root--t1 .tv-footer {
   backdrop-filter: none;
 }
 
 /* T0 keeps the ribbon off entirely — the DEMO chip alone carries the label. */
-.ah-root--t0 .ah-hall,
-.ah-root--t0 .ah-ribbon {
+.tv-root--t0 .tv-hall,
+.tv-root--t0 .tv-ribbon {
   display: none;
 }
 
-.ah-violation-wrap {
+.tv-violation-wrap {
   padding: 14px 14px 0;
 }
 
-.ah-banners {
+.tv-banners {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-.ah-banner--state {
+.tv-banner--state {
   border-style: solid;
   border-color: rgba(120, 203, 209, 0.4);
   background: var(--ah-cyan-soft);
   color: var(--ah-cyan);
 }
-.ah-banner--state .ah-banner__code {
+.tv-banner--state .tv-banner__code {
   border-color: rgba(120, 203, 209, 0.5);
 }
-.ah-banner--quiet {
+.tv-banner--quiet {
   border-style: dotted;
   border-color: var(--ah-line-strong);
   background: rgba(255, 255, 255, 0.014);
   color: var(--ah-text-3);
 }
-.ah-banner--quiet .ah-banner__code {
+.tv-banner--quiet .tv-banner__code {
   border-color: var(--ah-line-strong);
 }
 
-.ah-filterbar-row {
+.tv-filterbar-row {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -1943,39 +1862,39 @@
   border-radius: var(--ah-r-md);
   background: rgba(0, 0, 0, 0.22);
 }
-.ah-input-wrap {
+.tv-input-wrap {
   display: inline-flex;
   flex: 1 1 120px;
   min-width: 0;
 }
-.ah-notice {
+.tv-notice {
   display: inline-block;
   padding-inline-end: 14px;
 }
 
-.ah-column {
+.tv-column {
   display: flex;
   flex-direction: column;
   gap: 12px;
   min-width: 0;
 }
 
-.ah-rail__cap-code {
-  font-size: 11px;
+.tv-rail__cap-code {
+  font-size: 12px;
   letter-spacing: 0.06em;
 }
 
-.ah-mark-cell {
+.tv-mark-cell {
   display: inline-flex;
   align-items: center;
   gap: 5px;
 }
 
-.ah-table__detail td {
+.tv-table__detail td {
   background: rgba(0, 0, 0, 0.28);
   border-bottom: 1px solid var(--ah-line);
 }
-.ah-detail {
+.tv-detail {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 10px;
@@ -1983,48 +1902,48 @@
   padding: 4px 2px;
   direction: rtl;
 }
-.ah-detail__k {
-  font-size: 10.5px;
+.tv-detail__k {
+  font-size: 12px;
   color: var(--ah-text-4);
 }
-.ah-detail__k::after {
+.tv-detail__k::after {
   content: "=";
   margin-inline-start: 3px;
 }
-.ah-detail .ah-mono,
-.ah-detail .ah-dim,
-.ah-detail .ah-cell-na {
-  font-size: 11px;
+.tv-detail .tv-mono,
+.tv-detail .tv-dim,
+.tv-detail .tv-cell-na {
+  font-size: 12px;
   color: var(--ah-text-2);
 }
 
 /* ------------------------------------------------------------- results ---- */
-.ah-result-group {
+.tv-result-group {
   padding: 8px 0;
 }
-.ah-result-group__head {
+.tv-result-group__head {
   display: flex;
   align-items: baseline;
   gap: 8px;
   margin-bottom: 2px;
 }
-.ah-result-group__title {
+.tv-result-group__title {
   font-size: 12.5px;
   font-weight: 700;
   color: var(--ah-text);
 }
-.ah-result-divider {
+.tv-result-divider {
   height: 1px;
   background: linear-gradient(90deg, var(--ah-gold-dim), transparent);
   margin: 6px 0;
 }
-.ah-result-counts {
+.tv-result-counts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   gap: 6px;
   margin-top: 10px;
 }
-.ah-count {
+.tv-count {
   display: flex;
   flex-direction: column;
   padding: 6px 8px;
@@ -2032,35 +1951,35 @@
   border-radius: var(--ah-r-sm);
   background: rgba(255, 255, 255, 0.015);
 }
-.ah-count__k {
-  font-size: 10.5px;
+.tv-count__k {
+  font-size: 12px;
   color: var(--ah-text-4);
 }
-.ah-count__v {
+.tv-count__v {
   font-family: var(--ah-font-code);
   font-size: 15px;
   font-variant-numeric: tabular-nums;
   color: var(--ah-text);
 }
-.ah-result-excluded {
+.tv-result-excluded {
   margin-top: 10px;
   padding: 8px 10px;
   border: 1px dashed var(--ah-line-strong);
   border-radius: var(--ah-r-sm);
   background: rgba(255, 255, 255, 0.014);
 }
-.ah-result-excluded__head {
+.tv-result-excluded__head {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ah-text-3);
   margin-bottom: 4px;
 }
 
 /* ------------------------------------------------------------ evidence ---- */
-.ah-evidence-backdrop {
+.tv-evidence-backdrop {
   position: fixed;
   inset: 0;
   z-index: 80;
@@ -2070,7 +1989,7 @@
   background: rgba(4, 6, 10, 0.72);
   backdrop-filter: blur(3px);
 }
-.ah-evidence {
+.tv-evidence {
   width: min(620px, 100%);
   max-height: 80dvh;
   overflow: auto;
@@ -2080,24 +1999,106 @@
   box-shadow: var(--ah-shadow);
 }
 
-.ah-legend__item {
+.tv-legend__item {
   display: inline-flex;
 }
 
 /* ------------------------------------------------------------- gallery ---- */
-.ah-gallery {
+.tv-gallery {
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 14px;
 }
-.ah-gallery__grid {
+.tv-gallery__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 12px;
 }
-.ah-gallery .ah-telemetry {
+.tv-gallery .tv-telemetry {
   margin-top: 10px;
-  font-size: 10px;
+  font-size: 12px;
   backdrop-filter: none;
+}
+
+
+/* ======================================================================
+   Arena-embedded layout (calm summary + collapsible details).
+   The Arena shell owns topbar / sidebar / footer; nothing here is fixed-height.
+   ====================================================================== */
+.tv-venue-root { display: block; padding: 8px 4px 40px; max-width: 100%; }
+.tv-page { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.tv-spacer { flex: 1 1 auto; }
+.tv-pagebar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.tv-viewtabs { display: inline-flex; gap: 6px; }
+.tv-pagebar .tv-tab, .tv-viewtabs .tv-tab { font-size: 14px; padding: 8px 16px; }
+.tv-viewtabs .tv-tab[aria-selected="true"] { border-color: var(--ah-gold-dim); background: var(--ah-gold-soft); color: var(--ah-gold); }
+.tv-btn--lg { font-size: 14px; padding: 8px 18px; }
+.tv-violation-wrap { position: static; }
+
+/* summary */
+.tv-summary { display: flex; flex-direction: column; gap: 28px; }
+.tv-hero { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.tv-hero__card {
+  display: flex; flex-direction: column; gap: 12px; padding: 24px 26px; min-width: 0;
+  border: 1px solid var(--ah-line-strong); border-radius: var(--ah-r-lg); background: var(--ah-surface);
+}
+.tv-hero__card--result { border-color: var(--ah-gold-dim); }
+.tv-hero__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tv-hero__head h2, .tv-highlights__head h2 { font-size: 16px; font-weight: 700; color: var(--ah-text-2); }
+.tv-hero__value { font-size: 44px; line-height: 1.1; font-weight: 600; color: var(--ah-text); direction: ltr; text-align: right; }
+.tv-hero__value[data-missing="true"] { color: var(--ah-unknown); }
+.tv-hero__unit { font-size: 16px; margin-inline-start: 8px; color: var(--ah-text-3); }
+.tv-hero__note { font-size: 14px; color: var(--ah-text-3); line-height: 1.8; }
+.tv-marketstrip { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+.tv-marketstrip li { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.tv-marketstrip__code { font-family: var(--ah-font-code); font-size: 14px; color: var(--ah-text-2); }
+
+.tv-highlights { display: flex; flex-direction: column; gap: 14px; }
+.tv-highlights__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tv-highlights__list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.tv-highlight {
+  display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 2fr); align-items: center; gap: 16px;
+  padding: 14px 20px; border: 1px solid var(--ah-line); border-radius: var(--ah-r-md); background: var(--ah-surface);
+}
+.tv-highlight__sym { display: flex; flex-direction: column; min-width: 0; font-size: 15px; }
+.tv-highlight__sym span { font-size: 13px; color: var(--ah-text-3); }
+.tv-highlight__mark { font-size: 17px; text-align: right; direction: ltr; }
+.tv-summary__foot { font-size: 13px; color: var(--ah-text-3); }
+
+/* per-row DEMO marker: striped inline-start edge + DEMO tag, never green */
+.tv-row--demo { position: relative; }
+.tv-highlight.tv-row--demo, .tv-table tbody tr.tv-row--demo td:first-child {
+  border-inline-start: 5px solid transparent;
+  border-image: repeating-linear-gradient(135deg, var(--ah-gold-dim) 0 5px, transparent 5px 10px) 1;
+  border-image-slice: 1;
+}
+.tv-rowstatus { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tv-demo-tag {
+  font-family: var(--ah-font-code); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; line-height: 1;
+  padding: 3px 7px; border-radius: 4px; color: var(--ah-gold); border: 1px dashed var(--ah-gold-dim);
+  background: repeating-linear-gradient(135deg, rgba(217,185,119,.16) 0 4px, transparent 4px 8px);
+}
+.tv-stale-time { font-family: var(--ah-font-code); font-size: 12px; color: var(--ah-stale); white-space: nowrap; }
+
+/* details */
+.tv-details { display: flex; flex-direction: column; gap: 14px; }
+.tv-expander { border: 1px solid var(--ah-line-strong); border-radius: var(--ah-r-md); background: var(--ah-surface-2); }
+.tv-expander__summary {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; list-style: none;
+  font-size: 16px; font-weight: 700; color: var(--ah-text);
+}
+.tv-expander__summary::-webkit-details-marker { display: none; }
+.tv-expander__summary::before { content: "▸"; color: var(--ah-gold); transition: transform .15s; }
+.tv-expander[open] > .tv-expander__summary::before { transform: rotate(90deg); }
+.tv-expander__meta { font-family: var(--ah-font-code); font-size: 13px; color: var(--ah-text-3); }
+.tv-expander__body { padding: 4px 16px 18px; min-width: 0; overflow-x: auto; }
+.tv-expander__body .tv-panel { overflow: visible; }
+.tv-expander__body .tv-panel__body { overflow-x: auto; }
+.tv-expander__body .tv-table { table-layout: auto; }
+.tv-notes { list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--ah-text-2); }
+
+@media (max-width: 1100px) {
+  .tv-hero { grid-template-columns: 1fr; }
+  .tv-highlight { grid-template-columns: 1fr 1fr; }
 }

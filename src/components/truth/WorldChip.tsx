@@ -11,7 +11,7 @@ import { WORLD_LABEL_EN, WORLD_LABEL_FA } from "@/src/features/trade-venue/logic
 export function WorldChip({ world, size = "sm" }: { world: World; size?: "sm" | "md" }) {
   return (
     <span
-      className={size === "sm" ? "ah-chip ah-chip--sm ah-chip--world" : "ah-chip ah-chip--world"}
+      className={size === "sm" ? "tv-chip tv-chip--sm tv-chip--world" : "tv-chip tv-chip--world"}
       data-chip=""
       data-world-chip={world}
       data-tone="info"
@@ -19,8 +19,8 @@ export function WorldChip({ world, size = "sm" }: { world: World; size?: "sm" | 
       dir="rtl"
       title={`دفتر: ${WORLD_LABEL_FA[world]} · ${WORLD_LABEL_EN[world]}`}
     >
-      <span className="ah-chip__fa">{WORLD_LABEL_FA[world]}</span>
-      <span className="ah-chip__code ah-chip__en" dir="ltr">
+      <span className="tv-chip__fa">{WORLD_LABEL_FA[world]}</span>
+      <span className="tv-chip__code tv-chip__en" dir="ltr">
         {WORLD_LABEL_EN[world]}
       </span>
     </span>

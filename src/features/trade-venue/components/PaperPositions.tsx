@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "@/src/lib/i18n";
 
 import { Fragment, useMemo, useState } from "react";
 import { TruthChip, SourceChip } from "@/src/components/truth/TruthChip";
@@ -14,6 +15,8 @@ import {
   TABLE_LABELS,
 } from "@/src/features/trade-venue/logic/labels";
 import { ageShort, staleDetail } from "@/src/features/trade-venue/logic/format";
+import { rowDisplay } from "@/src/features/trade-venue/logic/rowStatus";
+import { RowStatusCell } from "./RowStatusCell";
 import { NOT_AUTHORIZED_FA, PERMITTED_FA } from "@/src/features/trade-venue/logic/truth";
 import type { StatusFilter, VenueFilters } from "@/src/features/trade-venue/logic/selectors";
 import { filterPositions } from "@/src/features/trade-venue/logic/selectors";
@@ -67,9 +70,9 @@ export function PaperPositions({
 
   return (
     <section
-      className="ah-panel ah-panel--focus ah-ribbon-host"
+      className="tv-panel tv-panel--focus tv-ribbon-host"
       data-panel="paper-positions"
-      aria-label="موقعیت‌های کاغذی باز"
+      aria-label={tr("fa", "tradeVenue.ui.PaperPositions_1")}
     >
       {/* Ribbon follows the *data*: a simulated book, or a bundle whose rows are
           all DEMO. A mixed book keeps the chip alone (the ribbon would overclaim). */}
@@ -78,26 +81,26 @@ export function PaperPositions({
       ) : demoForced ? (
         <DemoRibbon variant="DEMO" />
       ) : null}
-      <header className="ah-panel__head">
-        <span className="ah-panel__title">موقعیت‌های کاغذی باز</span>
-        <span className="ah-panel__title-en" dir="ltr">
+      <header className="tv-panel__head">
+        <span className="tv-panel__title">{tr("fa", "tradeVenue.ui.PaperPositions_1")}</span>
+        <span className="tv-panel__title-en" dir="ltr">
           OPEN PAPER POSITIONS
         </span>
-        <div className="ah-panel__tools">
+        <div className="tv-panel__tools">
           <TruthChip
             status={demoForced ? "DEMO" : world === "SIMULATION" ? "SIMULATED" : "DEMO"}
             size="sm"
-            title="دادهٔ این جدول از آداپتور نمایشی می‌آید"
+            title={tr("fa", "tradeVenue.ui.PaperPositions_2")}
           />
-          <span className="ah-chip ah-chip--sm" data-chip="" data-tone="unknown">
-            <span className="ah-chip__code" dir="ltr">
+          <span className="tv-chip tv-chip--sm" data-chip="" data-tone="unknown">
+            <span className="tv-chip__code" dir="ltr">
               {visible.length}/{rows.length}
             </span>
           </span>
         </div>
       </header>
 
-      <div className="ah-panel__toolbar" data-panel-toolbar="positions">
+      <div className="tv-panel__toolbar" data-panel-toolbar="positions">
         <FilterBar
           filters={filters}
           onChange={onFiltersChange}
@@ -107,40 +110,39 @@ export function PaperPositions({
           statusOptions={statusOptions}
         />
         {exportedAt ? (
-          <span className="ah-work__hint" data-export-taken="">
+          <span className="tv-work__hint" data-export-taken="">
             خروجی خواندنی ساخته شد · asOf={exportedAt} · برچسب DEMO در فایل درج شد.
           </span>
         ) : null}
       </div>
 
-      <div className={renderState ? "ah-panel__body" : "ah-panel__body ah-panel__body--tight"}>
+      <div className={renderState ? "tv-panel__body" : "tv-panel__body tv-panel__body--tight"}>
         {renderState ? (
           <StateBlock
             state={renderState}
             bodyFa={
               renderState === "LOADING"
-                ? "دفتر کاغذی در حال خواندن است؛ هیچ عددی تا پایان خواندن نمایش داده نمی‌شود."
+                ? tr("fa", "tradeVenue.ui.PaperPositions_3")
                 : renderState === "EMPTY"
-                  ? "موتور کاغذی هیچ موقعیت بازی ثبت نکرده است."
+                  ? tr("fa", "tradeVenue.ui.PaperPositions_4")
                   : renderState === "UNAVAILABLE"
-                    ? "این بخش در این استقرار در دسترس نیست."
-                    : "خواندن دفتر کاغذی ناموفق بود؛ عددی ساخته نمی‌شود."
+                    ? tr("fa", "tradeVenue.ui.PaperPositions_5")
+                    : tr("fa", "tradeVenue.ui.PaperPositions_6")
             }
-            hintFa="تنها کارهای ممکن: فیلتر و خروجی خواندنی."
+            hintFa={tr("fa", "tradeVenue.ui.PaperPositions_7")}
           />
         ) : visible.length === 0 ? (
           <StateBlock
             state="EMPTY"
-            bodyFa="با این فیلتر ردیفی مطابقت ندارد. فیلترها را بردارید تا همهٔ ردیف‌ها دیده شود."
+            bodyFa={tr("fa", "tradeVenue.ui.PaperPositions_8")}
           />
         ) : (
-          <table className="ah-table ah-table--dense" data-table="positions">
+          <table className="tv-table tv-table--dense" data-table="positions">
             <thead>
               <tr>
                 <th scope="col">{TABLE_LABELS.symbol}</th>
                 <th scope="col">{TABLE_LABELS.side}</th>
                 <th scope="col">{TABLE_LABELS.qty}</th>
-                <th scope="col">{TABLE_LABELS.entry}</th>
                 <th scope="col" title={COLUMN_HINTS.mark}>
                   {TABLE_LABELS.mark}
                 </th>
@@ -149,25 +151,24 @@ export function PaperPositions({
                 </th>
                 <th scope="col">{TABLE_LABELS.status}</th>
                 <th scope="col" title={`${COLUMN_HINTS.evidence} · ${COLUMN_HINTS.paperAllowed}`}>
-                  شاهد / کارها
+                  {tr("fa", "tradeVenue.ui.PaperPositions_9")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {visible.map((row) => {
                 const isOpen = expanded === row.id;
-                const rowClass =
-                  world === "SIMULATION"
-                    ? "ah-table__row--sim"
-                    : !row.paperAllowed
-                      ? "ah-table__row--demoted"
-                      : undefined;
+                const display = rowDisplay({ status: row.status, updatedAt: row.updatedAt, sourceId: row.sourceId, bundleDemo: demoForced });
+                const rowClass = [
+                  world === "SIMULATION" ? "tv-table__row--sim" : !row.paperAllowed ? "tv-table__row--demoted" : "",
+                  display.demo ? "tv-row--demo" : "",
+                ].filter(Boolean).join(" ") || undefined;
                 return (
                   <Fragment key={row.id}>
-                    <tr className={rowClass} data-row-id={row.id}>
+                    <tr className={rowClass} data-row-id={row.id} data-row-demo={display.demo ? "true" : "false"}>
                       <td title={`${row.symbol} · ${row.symbolFa}`}>
-                        <span className="ah-cell-symbol">{row.symbol}</span>
-                        <span className="ah-cell-fa">{row.symbolFa}</span>
+                        <span className="tv-cell-symbol">{row.symbol}</span>
+                        <span className="tv-cell-fa">{row.symbolFa}</span>
                         {/* Permission is reported as a chip *on the row*, right
                             where a reader looks for the symbol. Unauthorized
                             rows say «غیرمجاز» and never enter a total. */}
@@ -176,16 +177,13 @@ export function PaperPositions({
                         ) : null}
                       </td>
                       <td title={`${SIDE_FA[row.side]} · ${row.side}`}>
-                        <span className="ah-side">{SIDE_FA[row.side]}</span>
+                        <span className="tv-side">{SIDE_FA[row.side]}</span>
                       </td>
                       <td>
                         <ValueCell value={row.qty} fractionDigits={row.qty !== null && row.qty < 1 ? 4 : 2} unit={row.qtyUnit} />
                       </td>
                       <td>
-                        <ValueCell value={row.entry} fractionDigits={priceDigits(row.entry)} />
-                      </td>
-                      <td>
-                        <span className="ah-mark-cell">
+                        <span className="tv-mark-cell">
                           <ValueCell value={row.mark} fractionDigits={priceDigits(row.mark)} />
                           {row.markStatus !== row.status ? (
                             <TruthChip status={row.markStatus} size="sm" hideCode />
@@ -196,20 +194,19 @@ export function PaperPositions({
                         {/* Neutral: no green/red, no ranking, no arrow icon. */}
                         <ValueCell value={row.unrealized} signed={false} />
                       </td>
-                      <td
-                        title={
-                          row.status === "STALE"
-                            ? staleDetail(row.updatedAt, referenceISO)
-                            : `${ageShort(row.updatedAt, referenceISO)} · ${row.updatedAt ?? "نامشخص"}`
-                        }
-                      >
-                        <TruthChip status={row.status} size="sm" hideCode />
+                      <td>
+                        <RowStatusCell
+                          status={display.status}
+                          demo={display.demo}
+                          updatedAt={row.updatedAt}
+                          referenceISO={referenceISO}
+                        />
                       </td>
                       <td>
-                        <span className="ah-cell-actions">
+                        <span className="tv-cell-actions">
                           {row.evidenceId ? (
                             <span
-                              className="ah-mono ah-ev-id"
+                              className="tv-mono tv-ev-id"
                               dir="ltr"
                               title={`${row.evidenceId} — کپی با دکمهٔ «شاهد»`}
                             >
@@ -217,30 +214,30 @@ export function PaperPositions({
                             </span>
                           ) : (
                             <span
-                              className="ah-cell-na"
+                              className="tv-cell-na"
                               data-missing="true"
-                              title="شناسهٔ شاهد ثبت نشده"
+                              title={tr("fa", "tradeVenue.ui.PaperPositions_10")}
                             >
                               —
                             </span>
                           )}
                           <button
                             type="button"
-                            className="ah-btn"
+                            className="tv-btn"
                             data-verb="view"
                             aria-expanded={isOpen}
                             onClick={() => setExpanded(isOpen ? null : row.id)}
                           >
-                            نمایش
+                            {tr("fa", "tradeVenue.ui.PaperPositions_11")}
                           </button>
                           <button
                             type="button"
-                            className="ah-btn"
+                            className="tv-btn"
                             data-verb="evidence"
                             disabled={!row.evidenceId}
                             onClick={() =>
                               onEvidence({
-                                id: row.evidenceId ?? "نامشخص",
+                                id: row.evidenceId ?? tr("fa", "tradeVenue.ui.StateBlock_4"),
                                 kind: "position",
                                 symbol: row.symbol,
                                 status: row.status,
@@ -248,46 +245,46 @@ export function PaperPositions({
                                 updatedAt: row.updatedAt,
                                 worldLabel: WORLD_LABEL_FA[row.world],
                                 extra: [
-                                  { label: "طرف", value: `${row.side} · ${SIDE_FA[row.side]}` },
-                                  { label: "دفتر", value: row.venue },
-                                  { label: "واحد", value: row.currency ?? "نامشخص" },
+                                  { label: tr("fa", "tradeVenue.ui.PaperPositions_12"), value: `${row.side} · ${SIDE_FA[row.side]}` },
+                                  { label: tr("fa", "tradeVenue.ui.PaperPositions_13"), value: row.venue },
+                                  { label: tr("fa", "tradeVenue.ui.PaperPositions_14"), value: row.currency ?? tr("fa", "tradeVenue.ui.StateBlock_4") },
                                 ],
                               })
                             }
                           >
-                            شاهد
+                            {tr("fa", "tradeVenue.ui.EvidenceDrawer_1")}
                           </button>
                         </span>
                       </td>
                     </tr>
                     {isOpen ? (
-                      <tr className="ah-table__detail">
+                      <tr className="tv-table__detail">
                         <td colSpan={8}>
-                          <div className="ah-detail" data-detail-for={row.id}>
-                            <span className="ah-detail__k">شناسهٔ شاهد</span>
-                            <span className="ah-mono" dir="ltr">
+                          <div className="tv-detail" data-detail-for={row.id}>
+                            <span className="tv-detail__k">{tr("fa", "tradeVenue.ui.PaperPositions_15")}</span>
+                            <span className="tv-mono" dir="ltr">
                               {row.evidenceId ?? "—"}
                             </span>
-                            <span className="ah-detail__k">منبع</span>
+                            <span className="tv-detail__k">{tr("fa", "tradeVenue.ui.EvidenceDrawer_11")}</span>
                             <SourceChip sourceId={row.sourceId} demo />
-                            <span className="ah-detail__k">طرف</span>
-                            <span className="ah-mono" dir="ltr">
+                            <span className="tv-detail__k">{tr("fa", "tradeVenue.ui.PaperPositions_12")}</span>
+                            <span className="tv-mono" dir="ltr">
                               {row.side}
                             </span>
-                            <span className="ah-detail__k">دفتر کاغذی</span>
-                            <span className="ah-mono" dir="ltr">
+                            <span className="tv-detail__k">{tr("fa", "tradeVenue.ui.PaperPositions_16")}</span>
+                            <span className="tv-mono" dir="ltr">
                               {row.venue}
                             </span>
-                            <span className="ah-detail__k">واحد نتیجه</span>
-                            <span className="ah-mono" dir="ltr">
+                            <span className="tv-detail__k">{tr("fa", "tradeVenue.ui.PaperPositions_17")}</span>
+                            <span className="tv-mono" dir="ltr">
                               {row.currency ?? "—"}
                             </span>
-                            <span className="ah-detail__k">زمان خواندن</span>
-                            <span className="ah-mono" dir="ltr">
-                              {row.updatedAt ?? "نامشخص"}
+                            <span className="tv-detail__k">{tr("fa", "tradeVenue.ui.PaperPositions_18")}</span>
+                            <span className="tv-mono" dir="ltr">
+                              {row.updatedAt ?? tr("fa", "tradeVenue.ui.StateBlock_4")}
                             </span>
-                            <span className="ah-detail__k">مجوز کاغذی</span>
-                            <span className={row.paperAllowed ? "ah-dim" : "ah-cell-na"}>
+                            <span className="tv-detail__k">{tr("fa", "tradeVenue.ui.OpportunityBook_4")}</span>
+                            <span className={row.paperAllowed ? "tv-dim" : "tv-cell-na"}>
                               {row.paperAllowed ? PERMITTED_FA : NOT_AUTHORIZED_FA}
                             </span>
                           </div>
@@ -302,10 +299,10 @@ export function PaperPositions({
         )}
       </div>
 
-      <footer className="ah-panel__foot">
-        <span className="ah-panel__foot-line">
-          موقعیت کاغذی؛ پول واقعی در کار نیست · «—» یعنی نامشخص، نه صفر · نتیجهٔ باز خنثی است و
-          رتبه‌بندی نمی‌شود
+      <footer className="tv-panel__foot">
+        <span className="tv-panel__foot-line">
+          {tr("fa", "tradeVenue.ui.PaperPositions_19")}
+          {tr("fa", "tradeVenue.ui.PaperPositions_20")}
         </span>
       </footer>
     </section>

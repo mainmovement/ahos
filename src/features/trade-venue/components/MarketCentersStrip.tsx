@@ -1,3 +1,4 @@
+import { tr } from "@/src/lib/i18n";
 import { TruthChip } from "@/src/components/truth/TruthChip";
 import { NOT_CONNECTED_FA } from "@/src/features/trade-venue/logic/truth";
 import { ageShort } from "@/src/features/trade-venue/logic/format";
@@ -20,32 +21,32 @@ export function MarketCentersStrip({
   referenceISO: string | null;
 }) {
   return (
-    <section className="ah-panel" data-panel="market-centers" aria-label="مراکز فرمان بازارها">
-      <header className="ah-panel__head">
-        <span className="ah-panel__title">مرکز فرمان بازارها</span>
-        <span className="ah-panel__title-en" dir="ltr">
+    <section className="tv-panel" data-panel="market-centers" aria-label={tr("fa", "tradeVenue.ui.MarketCentersStrip_1")}>
+      <header className="tv-panel__head">
+        <span className="tv-panel__title">{tr("fa", "tradeVenue.ui.MarketCentersStrip_2")}</span>
+        <span className="tv-panel__title-en" dir="ltr">
           PER-MARKET COMMAND CENTRES
         </span>
-        <div className="ah-panel__tools">
-          <TruthChip status="DEMO" size="sm" title="فقط طلا اتصال دارد و آن هم نمایشی است" />
+        <div className="tv-panel__tools">
+          <TruthChip status="DEMO" size="sm" title={tr("fa", "tradeVenue.ui.MarketCentersStrip_3")} />
         </div>
       </header>
-      <div className="ah-panel__body">
-        <div className="ah-centers" data-table="market-centers">
+      <div className="tv-panel__body">
+        <div className="tv-centers" data-table="market-centers">
           {centers.map((center) => {
             const connected = center.state === "DEMO" || center.state === "STALE";
             return (
               <article
-                className="ah-center"
+                className="tv-center"
                 key={center.id}
                 data-center={center.code}
                 data-state={center.state}
               >
-                <div className="ah-center__top">
-                  <span className="ah-center__name">{center.nameFa}</span>
-                  <span className="ah-center__chip">
+                <div className="tv-center__top">
+                  <span className="tv-center__name">{center.nameFa}</span>
+                  <span className="tv-center__chip">
                     <TruthChip
-                      status={center.state}
+                      status={center.state === "LIVE" ? "DEMO" : center.state}
                       size="sm"
                       labelFa={center.state === "PLANNED" ? NOT_CONNECTED_FA : undefined}
                     />
@@ -53,26 +54,26 @@ export function MarketCentersStrip({
                 </div>
 
                 {connected ? (
-                  <div className="ah-center__metrics" dir="ltr" title={center.noteFa ?? undefined}>
-                    <span className="ah-center__code">{center.code}</span>
-                    <span title="تعداد ردیف خوانده‌شده">
+                  <div className="tv-center__metrics" dir="ltr" title={center.noteFa ?? undefined}>
+                    <span className="tv-center__code">{center.code}</span>
+                    <span title={tr("fa", "tradeVenue.ui.MarketCentersStrip_4")}>
                       rows={center.rows === null ? "—" : center.rows}
                     </span>
-                    <span title="عمر آخرین خواندن در برابر لنگر داده">
+                    <span title={tr("fa", "tradeVenue.ui.MarketCentersStrip_5")}>
                       age={ageShort(center.lastReadAt, referenceISO)}
                     </span>
-                    <span className="ah-faint" title={`منبع: ${center.feeds.join(", ") || "—"}`}>
+                    <span className="tv-faint" title={`منبع: ${center.feeds.join(", ") || "—"}`}>
                       src
                     </span>
 
                   </div>
                 ) : (
                   <p
-                    className="ah-center__na"
+                    className="tv-center__na"
                     data-no-numbers="true"
                     title={`${center.code} — هیچ عددی برای این بازار ساخته نمی‌شود.`}
                   >
-                    <span className="ah-center__code">{center.code}</span>{" "}
+                    <span className="tv-center__code">{center.code}</span>{" "}
                     {center.noteFa ?? NOT_CONNECTED_FA}
                   </p>
                 )}
@@ -81,10 +82,10 @@ export function MarketCentersStrip({
           })}
         </div>
       </div>
-      <footer className="ah-panel__foot">
+      <footer className="tv-panel__foot">
         <span>
-          بازار بدون اتصال، عدد ندارد. برای هر بازار، فرماندهی نیازمند فید مستند است؛ تا آن زمان فقط
-          دفتر کاغذی دیده می‌شود.
+          {tr("fa", "tradeVenue.ui.MarketCentersStrip_6")}
+          {tr("fa", "tradeVenue.ui.MarketCentersStrip_7")}
         </span>
       </footer>
     </section>

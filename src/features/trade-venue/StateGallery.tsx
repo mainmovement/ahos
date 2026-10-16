@@ -1,3 +1,4 @@
+import { tr } from "@/src/lib/i18n";
 import { StateBlock } from "@/src/components/truth/StateBlock";
 import { TruthChip } from "@/src/components/truth/TruthChip";
 import { TelemetryStrip } from "./components/TelemetryStrip";
@@ -26,23 +27,23 @@ const GALLERY_STATES: readonly ViewState[] = [
  */
 export function StateGallery({ query }: { query: VenueQuery }) {
   return (
-    <div className="ah-gallery" data-gallery="">
-      <header className="ah-topbar" style={{ position: "static" }}>
-        <div className="ah-topbar__row">
-          <div className="ah-brand">
-            <span className="ah-brand__title">گالری حالت‌ها · میدان معامله</span>
-            <span className="ah-brand__sub">STATE GALLERY · همهٔ حالت‌ها از یک آداپتور</span>
+    <div className="tv-gallery" data-gallery="">
+      <header className="tv-topbar" style={{ position: "static" }}>
+        <div className="tv-topbar__row">
+          <div className="tv-brand">
+            <span className="tv-brand__title">{tr("fa", "tradeVenue.ui.StateGallery_1")}</span>
+            <span className="tv-brand__sub">{tr("fa", "tradeVenue.ui.StateGallery_2")}</span>
           </div>
           <TruthChip status="DEMO" />
-          <span className="ah-pill ah-pill--paper">فقط کاغذی · PAPER_ONLY</span>
-          <span className="ah-spacer" />
-          <span className="ah-pill ah-pill--tier" dir="ltr">
+          <span className="tv-pill tv-pill--paper">{tr("fa", "tradeVenue.ui.StateGallery_3")}</span>
+          <span className="tv-spacer" />
+          <span className="tv-pill tv-pill--tier" dir="ltr">
             TIER {query.tier}
           </span>
         </div>
       </header>
 
-      <div className="ah-gallery__grid">
+      <div className="tv-gallery__grid">
         {GALLERY_STATES.map((state) => {
           const stateQuery: VenueQuery = { ...query, state, gallery: false };
           const bundle = getVenueBundle(stateQuery);
@@ -66,55 +67,55 @@ export function StateGallery({ query }: { query: VenueQuery }) {
             state === "UNAVAILABLE";
 
           return (
-            <section className="ah-panel" key={state} data-gallery-state={state}>
-              <header className="ah-panel__head">
-                <span className="ah-panel__title" dir="ltr">
+            <section className="tv-panel" key={state} data-gallery-state={state}>
+              <header className="tv-panel__head">
+                <span className="tv-panel__title" dir="ltr">
                   {state}
                 </span>
-                <div className="ah-panel__tools">
+                <div className="tv-panel__tools">
                   <TruthChip status={state === "DEFAULT" ? "DEMO" : state} size="sm" />
-                  <span className="ah-chip ah-chip--sm" data-chip="" data-tone="unknown">
-                    <span className="ah-chip__code" dir="ltr">
+                  <span className="tv-chip tv-chip--sm" data-chip="" data-tone="unknown">
+                    <span className="tv-chip__code" dir="ltr">
                       rows={countRows(snapshot)}
                     </span>
                   </span>
                 </div>
               </header>
-              <div className="ah-panel__body">
+              <div className="tv-panel__body">
                 {isRenderState ? (
                   <StateBlock
                     state={state}
-                    bodyFa="این حالت قبل از وجود هر عددی رندر می‌شود؛ جدول جای خود را به این بلوک می‌دهد."
+                    bodyFa={tr("fa", "tradeVenue.ui.StateGallery_4")}
                   />
                 ) : (
-                  <div className="ah-kv">
-                    <div className="ah-kv__row">
-                      <span className="ah-kv__k">جمع واحد اصلی (نتیجهٔ بسته)</span>
-                      <span className="ah-kv__v">
+                  <div className="tv-kv">
+                    <div className="tv-kv__row">
+                      <span className="tv-kv__k">{tr("fa", "tradeVenue.ui.StateGallery_5")}</span>
+                      <span className="tv-kv__v">
                         {totals.closed.groups
                           .map((group) => `${group.unit}:${group.totals.sum ?? "—"}`)
                           .join(" / ") || "—"}
                       </span>
                     </div>
-                    <div className="ah-kv__row">
-                      <span className="ah-kv__k">واحدها</span>
-                      <span className="ah-kv__v">{totals.closed.units.join(" / ") || "—"}</span>
+                    <div className="tv-kv__row">
+                      <span className="tv-kv__k">{tr("fa", "tradeVenue.ui.StateGallery_6")}</span>
+                      <span className="tv-kv__v">{totals.closed.units.join(" / ") || "—"}</span>
                     </div>
-                    <div className="ah-kv__row">
-                      <span className="ah-kv__k">کنار گذاشته‌شده</span>
-                      <span className="ah-kv__v">
+                    <div className="tv-kv__row">
+                      <span className="tv-kv__k">{tr("fa", "tradeVenue.ui.StateGallery_7")}</span>
+                      <span className="tv-kv__v">
                         {totals.closed.excludedCount + totals.open.excludedCount}
                       </span>
                     </div>
-                    <div className="ah-kv__row ah-kv__row--wrap">
-                      <span className="ah-kv__k">کنارگذاری به‌دلیل وضعیت</span>
-                      <span className="ah-kv__v" data-exclusion-breakdown="true">
+                    <div className="tv-kv__row tv-kv__row--wrap">
+                      <span className="tv-kv__k">{tr("fa", "tradeVenue.ui.StateGallery_8")}</span>
+                      <span className="tv-kv__v" data-exclusion-breakdown="true">
                         {exclusionCodes.length === 0 ? (
-                          <span className="ah-kv__v--na">—</span>
+                          <span className="tv-kv__v--na">—</span>
                         ) : (
-                          <span className="ah-kv__codes">
+                          <span className="tv-kv__codes">
                             {exclusionCodes.map(([reason, count]) => (
-                              <span className="ah-kv__code" key={reason}>
+                              <span className="tv-kv__code" key={reason}>
                                 {reason}
                                 <b>{count}</b>
                               </span>

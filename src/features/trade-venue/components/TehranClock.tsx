@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "@/src/lib/i18n";
 
 import { useMemo, useSyncExternalStore } from "react";
 import { TEHRAN_ZONE_LABEL, tehranParts } from "@/src/features/trade-venue/logic/format";
@@ -66,13 +67,13 @@ export function TehranClock({ label = TEHRAN_ZONE_LABEL }: { label?: string }) {
   const parts = now ? tehranParts(now) : null;
 
   return (
-    <div className="ah-clock" data-clock="tehran">
-      <span className="ah-clock__time" data-clock-time="" dir="ltr">
+    <div className="tv-clock" data-clock="tehran">
+      <span className="tv-clock__time" data-clock-time="" dir="ltr">
         {parts ? parts.time.slice(0, reduced ? 5 : 8) : MISSING_GLYPH}
       </span>
-      <span className="ah-clock__zone">
+      <span className="tv-clock__zone">
         {label}
-        {reduced ? " · دقت دقیقه" : ""} · {parts ? parts.weekday : MISSING_GLYPH}{" "}
+        {reduced ? tr("fa", "tradeVenue.ui.TehranClock_1") : ""} · {parts ? parts.weekday : MISSING_GLYPH}{" "}
         {parts ? parts.date : ""}
       </span>
     </div>

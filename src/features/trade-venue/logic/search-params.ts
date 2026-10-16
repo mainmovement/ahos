@@ -49,6 +49,7 @@ export function readVenueSearchParams(
     world,
     forceViolation: isTrue(first(params.violation)),
     gallery: isTrue(first(params.all)),
+    view: first(params.view)?.toLowerCase() === "details" ? "details" : "summary",
     resolvedFrom: first(params.state) ?? MISSING_GLYPH,
   };
 }

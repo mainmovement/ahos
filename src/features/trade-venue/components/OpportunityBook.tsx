@@ -1,6 +1,9 @@
 "use client";
+import { tr } from "@/src/lib/i18n";
 
 import { TruthChip, SourceChip } from "@/src/components/truth/TruthChip";
+import { rowDisplay } from "@/src/features/trade-venue/logic/rowStatus";
+import { RowStatusCell } from "./RowStatusCell";
 import { PermissionChip } from "@/src/components/truth/PermissionChip";
 import { WorldChip } from "@/src/components/truth/WorldChip";
 import { StateBlock } from "@/src/components/truth/StateBlock";
@@ -30,90 +33,90 @@ export function OpportunityBook({
     state === "LOADING" || state === "ERROR" || state === "UNAVAILABLE" ? state : null;
 
   return (
-    <section className="ah-panel" data-panel="opportunities" aria-label="دفتر نامزدها">
-      <header className="ah-panel__head">
-        <span className="ah-panel__title">دفتر نامزدها</span>
-        <span className="ah-panel__title-en" dir="ltr">
+    <section className="tv-panel" data-panel="opportunities" aria-label={tr("fa", "tradeVenue.ui.OpportunityBook_1")}>
+      <header className="tv-panel__head">
+        <span className="tv-panel__title">{tr("fa", "tradeVenue.ui.OpportunityBook_1")}</span>
+        <span className="tv-panel__title-en" dir="ltr">
           CANDIDATE BOOK · PERMISSION &amp; CANONICAL STATUS
         </span>
-        <div className="ah-panel__tools">
+        <div className="tv-panel__tools">
           <TruthChip status="DEMO" size="sm" />
           {rows[0] ? <WorldChip world={rows[0].world} /> : null}
-          <span className="ah-chip ah-chip--sm" data-chip="" data-tone="unknown">
-            <span className="ah-chip__code" dir="ltr">
+          <span className="tv-chip tv-chip--sm" data-chip="" data-tone="unknown">
+            <span className="tv-chip__code" dir="ltr">
               {rows.length}
             </span>
           </span>
         </div>
       </header>
 
-      <div className={renderState ? "ah-panel__body" : "ah-panel__body ah-panel__body--tight"}>
+      <div className={renderState ? "tv-panel__body" : "tv-panel__body tv-panel__body--tight"}>
         {renderState ? (
           <StateBlock
             state={renderState}
-            bodyFa="دفتر نامزدها در دسترس نیست؛ هیچ نامزدی حدس زده نمی‌شود."
+            bodyFa={tr("fa", "tradeVenue.ui.OpportunityBook_2")}
           />
         ) : rows.length === 0 ? (
-          <StateBlock state="EMPTY" bodyFa="هیچ نامزدی ثبت نشده است." />
+          <StateBlock state="EMPTY" bodyFa={tr("fa", "tradeVenue.ui.OpportunityBook_3")} />
         ) : (
-          <table className="ah-table ah-table--narrow" data-table="opportunities">
+          <table className="tv-table tv-table--narrow" data-table="opportunities">
             <thead>
               <tr>
-                <th scope="col">نماد</th>
-                <th scope="col">مجوز کاغذی</th>
-                <th scope="col">وضعیت کانونیک</th>
-                <th scope="col">منبع</th>
-                <th scope="col">عمر</th>
-                <th scope="col">کارها</th>
+                <th scope="col">{tr("fa", "tradeVenue.ui.EvidenceDrawer_9")}</th>
+                <th scope="col">{tr("fa", "tradeVenue.ui.OpportunityBook_4")}</th>
+                <th scope="col">{tr("fa", "tradeVenue.ui.OpportunityBook_5")}</th>
+                <th scope="col">{tr("fa", "tradeVenue.ui.EvidenceDrawer_11")}</th>
+                <th scope="col">{tr("fa", "tradeVenue.ui.OpportunityBook_6")}</th>
+                <th scope="col">{tr("fa", "tradeVenue.ui.OpportunityBook_7")}</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={`${row.symbol}-${row.evidenceId ?? "na"}`} data-row-id={row.symbol}>
                   <td title={`${row.symbol} · ${row.symbolFa}`}>
-                    <span className="ah-cell-symbol">{row.symbol}</span>
-                    <span className="ah-cell-fa">{row.symbolFa}</span>
+                    <span className="tv-cell-symbol">{row.symbol}</span>
+                    <span className="tv-cell-fa">{row.symbolFa}</span>
                   </td>
                   <td>
                     <PermissionChip allowed={row.paperAllowed} />
                   </td>
                   <td>
-                    <TruthChip status={row.canonicalStatus} size="sm" />
+                    <RowStatusCell status={rowDisplay({ status: row.canonicalStatus, updatedAt: row.updatedAt, sourceId: row.sourceId }).status} demo={rowDisplay({ status: row.canonicalStatus, updatedAt: row.updatedAt, sourceId: row.sourceId }).demo} updatedAt={row.updatedAt} referenceISO={referenceISO} />
                   </td>
                   <td>
                     <SourceChip sourceId={row.sourceId} demo />
                   </td>
                   <td>
-                    <span className="ah-mono" dir="ltr">
+                    <span className="tv-mono" dir="ltr">
                       {ageShort(row.updatedAt, referenceISO)}
                     </span>
                   </td>
                   <td>
-                    <span className="ah-cell-actions">
+                    <span className="tv-cell-actions">
                       <button
                         type="button"
-                        className="ah-btn"
+                        className="tv-btn"
                         data-verb="evidence"
                         disabled={!row.evidenceId}
                         onClick={() =>
                           onEvidence({
-                            id: row.evidenceId ?? "نامشخص",
+                            id: row.evidenceId ?? tr("fa", "tradeVenue.ui.StateBlock_4"),
                             kind: "opportunity",
                             symbol: row.symbol,
                             status: row.canonicalStatus,
                             sourceId: row.sourceId,
                             updatedAt: row.updatedAt,
-                            worldLabel: row.world === "SIMULATION" ? "شبیه‌سازی" : "کاغذی واقعی",
+                            worldLabel: row.world === "SIMULATION" ? tr("fa", "tradeVenue.ui.StateBlock_11") : tr("fa", "tradeVenue.ui.FillLog_10"),
                             extra: [
                               {
-                                label: "مجوز کاغذی",
+                                label: tr("fa", "tradeVenue.ui.OpportunityBook_4"),
                                 value: row.paperAllowed ? PERMITTED_FA : NOT_AUTHORIZED_FA,
                               },
                             ],
                           })
                         }
                       >
-                        شاهد
+                        {tr("fa", "tradeVenue.ui.EvidenceDrawer_1")}
                       </button>
                     </span>
                   </td>
@@ -124,9 +127,9 @@ export function OpportunityBook({
         )}
       </div>
 
-      <footer className="ah-panel__foot">
+      <footer className="tv-panel__foot">
         <span>
-          مجوز کاغذی یک پرچم گزارشی است، نه کنترل اجرایی: این جدول هیچ راهی برای فرستادن چیزی ندارد.
+          {tr("fa", "tradeVenue.ui.OpportunityBook_8")}
         </span>
       </footer>
     </section>

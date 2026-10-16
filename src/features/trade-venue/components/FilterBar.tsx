@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "@/src/lib/i18n";
 
 import type { StatusFilter, VenueFilters } from "@/src/features/trade-venue/logic/selectors";
 import { EXPORT_FA, EXPORT_NOTE_FA, READ_ONLY_FA } from "@/src/features/trade-venue/logic/labels";
@@ -27,23 +28,23 @@ export function FilterBar({
   statusOptions,
 }: FilterBarProps) {
   return (
-    <div className="ah-filterbar" data-filterbar="">
-      <label className="ah-input-wrap">
-        <span className="ah-sr">جستجوی نماد</span>
+    <div className="tv-filterbar" data-filterbar="">
+      <label className="tv-input-wrap">
+        <span className="tv-sr">{tr("fa", "tradeVenue.ui.FilterBar_1")}</span>
         <input
-          className="ah-input"
+          className="tv-input"
           type="search"
           value={filters.query}
-          placeholder="جستجوی نماد یا منبع…"
+          placeholder={tr("fa", "tradeVenue.ui.FilterBar_2")}
           data-verb="filter"
           onChange={(event) => onChange({ ...filters, query: event.target.value })}
         />
       </label>
 
-      <label className="ah-input-wrap">
-        <span className="ah-sr">وضعیت</span>
+      <label className="tv-input-wrap">
+        <span className="tv-sr">{tr("fa", "tradeVenue.ui.FilterBar_3")}</span>
         <select
-          className="ah-select"
+          className="tv-select"
           value={filters.status}
           data-verb="filter"
           onChange={(event) =>
@@ -52,7 +53,7 @@ export function FilterBar({
         >
           {statusOptions.map((status) => (
             <option key={status} value={status}>
-              {status === "ALL" ? "همهٔ وضعیت‌ها" : status}
+              {status === "ALL" ? tr("fa", "tradeVenue.ui.FilterBar_4") : status}
             </option>
           ))}
         </select>
@@ -60,34 +61,34 @@ export function FilterBar({
 
       <button
         type="button"
-        className="ah-btn"
+        className="tv-btn"
         data-verb="filter"
         aria-pressed={filters.onlyAllowed}
         onClick={() => onChange({ ...filters, onlyAllowed: !filters.onlyAllowed })}
-        title="فقط ردیف‌هایی که مجوز کاغذی دارند"
+        title={tr("fa", "tradeVenue.ui.FilterBar_5")}
       >
-        فقط مجوزدار
+        {tr("fa", "tradeVenue.ui.FilterBar_6")}
       </button>
 
       <button
         type="button"
-        className="ah-btn"
+        className="tv-btn"
         data-kind="export"
         data-verb="export"
         onClick={onExport}
         title={EXPORT_NOTE_FA}
       >
         {EXPORT_FA}
-        <span className="ah-btn__en" dir="ltr">
+        <span className="tv-btn__en" dir="ltr">
           read-only
         </span>
       </button>
 
-      <span className="ah-filterbar__count" data-filter-count="" title={READ_ONLY_FA}>
-        <span className="ah-mono" dir="ltr">
+      <span className="tv-filterbar__count" data-filter-count="" title={READ_ONLY_FA}>
+        <span className="tv-mono" dir="ltr">
           {visible}/{total}
         </span>{" "}
-        ردیف
+        {tr("fa", "tradeVenue.ui.FilterBar_7")}
       </span>
     </div>
   );

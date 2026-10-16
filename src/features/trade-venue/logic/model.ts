@@ -277,6 +277,8 @@ export interface VenueQuery {
   forceViolation: boolean;
   /** `?all=1` renders the whole state gallery instead of one venue screen. */
   gallery: boolean;
+  /** `?view=details` opens the detail tables; the calm summary is the default. */
+  view: "summary" | "details";
   /** `?world=simulation` convenience alias for `world=SIMULATION`. */
   resolvedFrom: string;
 }

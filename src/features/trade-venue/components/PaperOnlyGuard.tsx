@@ -1,3 +1,4 @@
+import { tr } from "@/src/lib/i18n";
 import { PAPER_ONLY_CODE, PAPER_ONLY_FA, PAPER_NOTE_FA } from "@/src/features/trade-venue/logic/truth";
 
 /**
@@ -11,17 +12,17 @@ import { PAPER_ONLY_CODE, PAPER_ONLY_FA, PAPER_NOTE_FA } from "@/src/features/tr
 export function PaperOnlyPill() {
   return (
     <span
-      className="ah-pill ah-pill--paper"
+      className="tv-pill tv-pill--paper"
       data-paper-only="permanent"
       data-dismissible="false"
       dir="rtl"
-      title="این میز فقط کاغذی است؛ هیچ مسیر سفارش واقعی وجود ندارد."
+      title={tr("fa", "tradeVenue.ui.PaperOnlyGuard_1")}
     >
-      <span className="ah-pill__lock" aria-hidden="true">
+      <span className="tv-pill__lock" aria-hidden="true">
         ⛉
       </span>
-      {"فقط کاغذی"}
-      <span className="ah-pill__en ah-mono" dir="ltr">
+      {tr("fa", "tradeVenue.row.paperOnly")}
+      <span className="tv-pill__en tv-mono" dir="ltr">
         {PAPER_ONLY_CODE}
       </span>
     </span>
@@ -31,10 +32,10 @@ export function PaperOnlyPill() {
 /** Inline reassurance line that sits under the positions table. */
 export function PaperOnlyNote({ tone = "gold" }: { tone?: "gold" | "sim" }) {
   return (
-    <p className="ah-note" data-paper-note="true">
+    <p className="tv-note" data-paper-note="true">
       <span aria-hidden="true">{tone === "sim" ? "◈" : "⛉"}</span>
       <span>{PAPER_NOTE_FA}</span>
-      <span className="ah-mono ah-faint" dir="ltr">
+      <span className="tv-mono tv-faint" dir="ltr">
         {PAPER_ONLY_FA} · no real money
       </span>
     </p>

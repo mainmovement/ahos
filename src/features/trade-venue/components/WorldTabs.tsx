@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "@/src/lib/i18n";
 
 import type { World } from "@/src/features/trade-venue/logic/model";
 import { WORLD_LABEL_EN, WORLD_LABEL_FA } from "@/src/features/trade-venue/logic/model";
@@ -18,7 +19,7 @@ export interface WorldTabsProps {
 
 export function WorldTabs({ value, onChange }: WorldTabsProps) {
   return (
-    <div className="ah-tabs" role="tablist" aria-label="جهان معامله" data-world-tabs="">
+    <div className="tv-tabs" role="tablist" aria-label={tr("fa", "tradeVenue.ui.WorldTabs_1")} data-world-tabs="">
       {(["REAL_PAPER", "SIMULATION"] as const).map((world) => {
         const selected = value === world;
         return (
@@ -29,12 +30,12 @@ export function WorldTabs({ value, onChange }: WorldTabsProps) {
             aria-selected={selected}
             data-world={world}
             data-verb="tab"
-            className={world === "SIMULATION" ? "ah-tab ah-tab--sim" : "ah-tab"}
+            className={world === "SIMULATION" ? "tv-tab tv-tab--sim" : "tv-tab"}
             onClick={() => onChange(world)}
             title={`${WORLD_LABEL_FA[world]} · ${WORLD_LABEL_EN[world]} · ${PAPER_ONLY_CODE}`}
           >
             <span>{WORLD_LABEL_FA[world]}</span>
-            <span className="ah-tab__en" dir="ltr">
+            <span className="tv-tab__en" dir="ltr">
               {WORLD_LABEL_EN[world]}
             </span>
           </button>

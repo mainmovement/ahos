@@ -40,17 +40,17 @@ export function TruthChip({
   const label = labelFa ?? (SHARED.includes(status) ? tr("fa", `status.${status}.label`) : STATUS_FA[status]);
   return (
     <span
-      className={size === "sm" ? "ah-chip ah-chip--sm" : "ah-chip"}
+      className={size === "sm" ? "tv-chip tv-chip--sm" : "tv-chip"}
       data-chip=""
       data-status={status}
       data-tone={tone}
       data-live={tone === "live" ? "true" : "false"}
       title={title ?? `${label} · ${status}`}
     >
-      <i className="ah-chip__dot" aria-hidden="true" />
-      <span className="ah-chip__fa">{label}</span>
+      <i className="tv-chip__dot" aria-hidden="true" />
+      <span className="tv-chip__fa">{label}</span>
       {hideCode ? null : (
-        <span className="ah-chip__code ah-chip__en" dir="ltr">
+        <span className="tv-chip__code tv-chip__en" dir="ltr">
           {status}
         </span>
       )}
@@ -63,14 +63,14 @@ export function TruthChip({
 export function SourceChip({ sourceId, demo }: { sourceId: string; demo?: boolean }) {
   return (
     <span
-      className="ah-chip ah-chip--sm"
+      className="tv-chip tv-chip--sm"
       data-chip=""
       data-source={sourceId}
       data-source-demo={demo ? "true" : "false"}
       data-tone="unknown"
       title={demo ? `${sourceId} — منبع نمایشی` : sourceId}
     >
-      <span className="ah-chip__code" dir="ltr">
+      <span className="tv-chip__code" dir="ltr">
         {sourceId}
       </span>
     </span>

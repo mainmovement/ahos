@@ -11,11 +11,11 @@
 export function DemoRibbon({ variant = "DEMO" }: { variant?: "DEMO" | "SIMULATED" }) {
   return (
     <span
-      className={variant === "SIMULATED" ? "ah-ribbon ah-ribbon--sim" : "ah-ribbon"}
+      className={variant === "SIMULATED" ? "tv-ribbon tv-ribbon--sim" : "tv-ribbon"}
       data-demo-ribbon={variant}
       aria-hidden="true"
     >
-      <span className="ah-ribbon__text">{variant === "SIMULATED" ? "SIMULATED" : "DEMO"}</span>
+      <span className="tv-ribbon__text">{variant === "SIMULATED" ? "SIMULATED" : "DEMO"}</span>
     </span>
   );
 }

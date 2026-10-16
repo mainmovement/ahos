@@ -1968,6 +1968,46 @@
     "title": "Trade venue · paper",
     "back": "Back to Arena",
     "pill": "Paper only · PAPER_ONLY",
-    "note": "Paper positions; no real money is involved"
+    "note": "Paper positions; no real money is involved",
+    "nav": "Trade venue",
+    "unknown": "Unknown",
+    "viewTabs": "Page view",
+    "viewSummary": "Summary",
+    "viewDetails": "Details",
+    "pageStatusTitle": "Status of this page itself: demo / paper data",
+    "sec": {
+      "positions": "Open paper positions",
+      "result": "Paper result",
+      "fillLog": "Fill & activity log",
+      "watchlist": "Watchlist",
+      "markets": "Market status",
+      "opportunities": "Allowed opportunities",
+      "telemetry": "Source & freshness",
+      "notes": "Notes"
+    },
+    "notice": {
+      "demo": "All rows are demo rows and never enter the real-paper total.",
+      "forced": "The DEMO label was forced with ?demo=1.",
+      "withheld": "{n} rows were not read and are withheld from view.",
+      "gap": "Some rows have unknown data; no number is invented for them."
+    },
+    "row": {
+      "demoTitle": "This row is demo data, not a citable live feed",
+      "violationDemo": "This violation was reported by the demo adapter",
+      "paperOnly": "Paper only"
+    },
+    "sum": {
+      "result": "Paper result",
+      "resultSim": "Simulation result",
+      "resultMissing": "Nothing to show: demo and unknown rows are excluded from the total.",
+      "resultNote": "Only authorized, non-demo rows are included in this total.",
+      "open": "Open positions",
+      "openNote": "{demo} demo · {na} not authorized",
+      "markets": "Market status",
+      "notConnected": "Not connected",
+      "highlights": "Highlights",
+      "showDetails": "Show details",
+      "none": "No open positions recorded."
+    }
   }
 }

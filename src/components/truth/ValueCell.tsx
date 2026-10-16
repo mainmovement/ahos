@@ -31,7 +31,7 @@ export function ValueCell({
 
   if (missing) {
     return (
-      <span className="ah-cell-na" data-missing="true" title={MISSING_LABEL_FA}>
+      <span className="tv-cell-na" data-missing="true" title={MISSING_LABEL_FA}>
         {MISSING_GLYPH}
         {labelMissing ? <small>{MISSING_LABEL_FA}</small> : null}
       </span>
@@ -40,17 +40,17 @@ export function ValueCell({
 
   if (stacked) {
     return (
-      <span className="ah-stack" data-missing="false">
-        <span className="ah-mono">{formatted}</span>
-        {unit ? <span className="ah-stack__unit">{unit}</span> : null}
+      <span className="tv-stack" data-missing="false">
+        <span className="tv-mono">{formatted}</span>
+        {unit ? <span className="tv-stack__unit">{unit}</span> : null}
       </span>
     );
   }
 
   return (
-    <span className="ah-mono" data-missing="false">
+    <span className="tv-mono" data-missing="false">
       {formatted}
-      {unit ? <span className="ah-kv__unit">{unit}</span> : null}
+      {unit ? <span className="tv-kv__unit">{unit}</span> : null}
     </span>
   );
 }

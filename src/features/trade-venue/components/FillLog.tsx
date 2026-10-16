@@ -1,13 +1,16 @@
 "use client";
+import { tr } from "@/src/lib/i18n";
 
 import { useMemo } from "react";
-import { SourceChip, TruthChip } from "@/src/components/truth/TruthChip";
+import { TruthChip } from "@/src/components/truth/TruthChip";
 import { StateBlock } from "@/src/components/truth/StateBlock";
 import { DemoRibbon } from "@/src/components/truth/DemoRibbon";
 import { ValueCell } from "@/src/components/truth/ValueCell";
 import type { FillLogEntry, ViewState, World } from "@/src/features/trade-venue/logic/model";
 import { ACTION_FA, TABLE_LABELS } from "@/src/features/trade-venue/logic/labels";
 import { staleDetail } from "@/src/features/trade-venue/logic/format";
+import { rowDisplay } from "@/src/features/trade-venue/logic/rowStatus";
+import { RowStatusCell } from "./RowStatusCell";
 import type { VenueFilters } from "@/src/features/trade-venue/logic/selectors";
 import { filterFillLog } from "@/src/features/trade-venue/logic/selectors";
 import type { EvidencePayload } from "./EvidenceDrawer";
@@ -44,45 +47,45 @@ export function FillLog({
       : null;
 
   return (
-    <section className="ah-panel ah-ribbon-host" data-panel="fill-log" aria-label="گزارش رخدادها">
+    <section className="tv-panel tv-ribbon-host" data-panel="fill-log" aria-label={tr("fa", "tradeVenue.ui.FillLog_1")}>
       {world === "SIMULATION" ? (
         <DemoRibbon variant="SIMULATED" />
       ) : demoForced ? (
         <DemoRibbon variant="DEMO" />
       ) : null}
-      <header className="ah-panel__head">
-        <span className="ah-panel__title">گزارش رخداد / فعالیت</span>
-        <span className="ah-panel__title-en" dir="ltr">
+      <header className="tv-panel__head">
+        <span className="tv-panel__title">{tr("fa", "tradeVenue.ui.FillLog_2")}</span>
+        <span className="tv-panel__title-en" dir="ltr">
           FILL &amp; ACTIVITY LOG
         </span>
-        <div className="ah-panel__tools">
-          <TruthChip status="DEMO" size="sm" title="آداپتور نمایشی" />
-          <span className="ah-chip ah-chip--sm" data-chip="" data-tone="unknown">
-            <span className="ah-chip__code" dir="ltr">
+        <div className="tv-panel__tools">
+          <TruthChip status="DEMO" size="sm" title={tr("fa", "tradeVenue.ui.FillLog_3")} />
+          <span className="tv-chip tv-chip--sm" data-chip="" data-tone="unknown">
+            <span className="tv-chip__code" dir="ltr">
               {visible.length}/{rows.length}
             </span>
           </span>
         </div>
       </header>
 
-      <div className={renderState ? "ah-panel__body" : "ah-panel__body ah-panel__body--tight"}>
+      <div className={renderState ? "tv-panel__body" : "tv-panel__body tv-panel__body--tight"}>
         {renderState ? (
           <StateBlock
             state={renderState}
             bodyFa={
               renderState === "LOADING"
-                ? "گزارش رخداد در حال خواندن است."
+                ? tr("fa", "tradeVenue.ui.FillLog_4")
                 : renderState === "EMPTY"
-                  ? "هیچ رخدادی در بازهٔ خوانده‌شده ثبت نشده است."
+                  ? tr("fa", "tradeVenue.ui.FillLog_5")
                   : renderState === "UNAVAILABLE"
-                    ? "گزارش رخداد در این استقرار در دسترس نیست."
-                    : "خواندن گزارش رخداد ناموفق بود؛ هیچ ردیفی حدس زده نمی‌شود."
+                    ? tr("fa", "tradeVenue.ui.FillLog_6")
+                    : tr("fa", "tradeVenue.ui.FillLog_7")
             }
           />
         ) : visible.length === 0 ? (
-          <StateBlock state="EMPTY" bodyFa="ردیفی با این فیلتر پیدا نشد." />
+          <StateBlock state="EMPTY" bodyFa={tr("fa", "tradeVenue.ui.FillLog_8")} />
         ) : (
-          <table className="ah-table ah-table--dense" data-table="fill-log">
+          <table className="tv-table tv-table--dense" data-table="fill-log">
             <thead>
               <tr>
                 <th scope="col">{TABLE_LABELS.time}</th>
@@ -90,37 +93,38 @@ export function FillLog({
                 <th scope="col">{TABLE_LABELS.action}</th>
                 <th scope="col">{TABLE_LABELS.qty}</th>
                 <th scope="col">{TABLE_LABELS.price}</th>
-                <th scope="col">{TABLE_LABELS.notional}</th>
                 <th scope="col">{TABLE_LABELS.status}</th>
-                <th scope="col">{TABLE_LABELS.source}</th>
                 <th scope="col">{TABLE_LABELS.actions}</th>
               </tr>
             </thead>
             <tbody>
-              {visible.map((row) => (
+              {visible.map((row) => {
+                const display = rowDisplay({ status: row.status, updatedAt: row.at, sourceId: row.sourceId, bundleDemo: demoForced });
+                return (
                 <tr
                   key={row.id}
-                  className={world === "SIMULATION" ? "ah-table__row--sim" : undefined}
+                  className={[world === "SIMULATION" ? "tv-table__row--sim" : "", display.demo ? "tv-row--demo" : ""].filter(Boolean).join(" ") || undefined}
                   data-row-id={row.id}
+                  data-row-demo={display.demo ? "true" : "false"}
                 >
                   <td
                     title={
                       row.status === "STALE"
                         ? `کهنه · ${staleDetail(row.at, referenceISO)}`
-                        : "زمان تهران"
+                        : tr("fa", "tradeVenue.ui.FillLog_9")
                     }
                   >
-                    <span className="ah-mono" dir="ltr">
+                    <span className="tv-mono" dir="ltr">
                       {row.timeTehran}
                     </span>
 
                   </td>
                   <td>
-                    <span className="ah-cell-symbol">{row.symbol}</span>
+                    <span className="tv-cell-symbol">{row.symbol}</span>
                   </td>
                   <td title={row.action}>
-                    <span className="ah-side">{ACTION_FA[row.action]}</span>
-                    {row.noteFa ? <span className="ah-cell-sub ah-dim">{row.noteFa}</span> : null}
+                    <span className="tv-side">{ACTION_FA[row.action]}</span>
+                    {row.noteFa ? <span className="tv-cell-sub tv-dim">{row.noteFa}</span> : null}
                   </td>
                   <td>
                     <ValueCell value={row.qty} fractionDigits={row.qty !== null && Math.abs(row.qty) < 1 ? 4 : 2} />
@@ -128,56 +132,46 @@ export function FillLog({
                   <td>
                     <ValueCell value={row.price} fractionDigits={row.price !== null && Math.abs(row.price) < 1 ? 4 : 2} />
                   </td>
-                  <td data-cell="notional">
-                    <ValueCell
-                      value={row.notional}
-                      fractionDigits={2}
-                      unit={row.currency}
-                      stacked
-                    />
+                  <td>
+                    <RowStatusCell status={display.status} demo={display.demo} updatedAt={row.at} referenceISO={referenceISO} />
                   </td>
                   <td>
-                    <TruthChip status={row.status} size="sm" hideCode />
-                  </td>
-                  <td>
-                    <SourceChip sourceId={row.sourceId} demo />
-                  </td>
-                  <td>
-                    <span className="ah-cell-actions">
+                    <span className="tv-cell-actions">
                       <button
                         type="button"
-                        className="ah-btn"
+                        className="tv-btn"
                         data-verb="evidence"
                         disabled={!row.evidenceId}
                         onClick={() =>
                           onEvidence({
-                            id: row.evidenceId ?? "نامشخص",
+                            id: row.evidenceId ?? tr("fa", "tradeVenue.ui.StateBlock_4"),
                             kind: "fill",
                             symbol: row.symbol,
                             status: row.status,
                             sourceId: row.sourceId,
                             updatedAt: row.at,
-                            worldLabel: world === "SIMULATION" ? "شبیه‌سازی" : "کاغذی واقعی",
+                            worldLabel: world === "SIMULATION" ? tr("fa", "tradeVenue.ui.StateBlock_11") : tr("fa", "tradeVenue.ui.FillLog_10"),
                             extra: [
-                              { label: "رخداد", value: row.action },
-                              { label: "زمان تهران", value: row.timeTehran },
+                              { label: tr("fa", "tradeVenue.ui.FillLog_11"), value: row.action },
+                              { label: tr("fa", "tradeVenue.ui.FillLog_9"), value: row.timeTehran },
                             ],
                           })
                         }
                       >
-                        شاهد
+                        {tr("fa", "tradeVenue.ui.EvidenceDrawer_1")}
                       </button>
                     </span>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
       </div>
 
-      <footer className="ah-panel__foot">
-        <span>این گزارش «چه شد» را می‌گوید، نه «چه چیزی را بفرست». هیچ ردیفی قابلیت اجرا ندارد.</span>
+      <footer className="tv-panel__foot">
+        <span>{tr("fa", "tradeVenue.ui.FillLog_12")}</span>
       </footer>
     </section>
   );
