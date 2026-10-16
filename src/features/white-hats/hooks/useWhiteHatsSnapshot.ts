@@ -29,7 +29,6 @@ export function useWhiteHatsSnapshot(
 
   useEffect(() => {
     const controller = new AbortController();
-    setState({ phase: "loading" });
     const adapter = adapterFactory(scenario);
     adapter
       .fetchSnapshot(controller.signal)
@@ -48,7 +47,10 @@ export function useWhiteHatsSnapshot(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario, nonce]);
 
-  const reload = useCallback(() => setNonce((n) => n + 1), []);
+  const reload = useCallback(() => {
+    setState({ phase: "loading" });
+    setNonce((n) => n + 1);
+  }, []);
 
   // Stable identity across renders so consumers can safely use it in effect deps.
   return useMemo(() => ({ ...state, reload }), [state, reload]);

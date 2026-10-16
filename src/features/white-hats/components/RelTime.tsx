@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { formatClock, formatRelTime } from "../lib/reltime";
 
 /**
@@ -8,6 +8,18 @@ import { formatClock, formatRelTime } from "../lib/reltime";
  * A missing timestamp renders "—" and callers pair it with UNKNOWN status —
  * this component never invents a time.
  */
+function subscribeMinute(callback: () => void): () => void {
+  const t = setInterval(callback, 30_000);
+  return () => clearInterval(t);
+}
+/** Stable within a 30 s window so the store snapshot does not churn. */
+function nowSnapshot(): number {
+  return Math.floor(Date.now() / 30_000) * 30_000;
+}
+function nowServerSnapshot(): null {
+  return null;
+}
+
 export function RelTime({
   iso,
   clock = false,
@@ -17,13 +29,7 @@ export function RelTime({
   clock?: boolean;
   className?: string;
 }) {
-  const [now, setNow] = useState<number | null>(null);
-
-  useEffect(() => {
-    setNow(Date.now());
-    const t = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(t);
-  }, []);
+  const now = useSyncExternalStore(subscribeMinute, nowSnapshot, nowServerSnapshot);
 
   if (!iso) {
     return <span className={`wh-num text-mute ${className}`}>—</span>;

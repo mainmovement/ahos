@@ -1,11 +1,9 @@
 "use client";
 import { tr } from "@/src/lib/i18n";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  parseOpenTarget,
-  parseScenario,
-  parseTier,
   SCENARIO_LABELS,
   type OpenTarget,
   type QualityTier,
@@ -36,20 +34,19 @@ import {
  * every decision before it can become a paper trade. No execution controls
  * exist anywhere in this tree — by construction, not by convention.
  */
-export function WhiteHatsScreen() {
-  const [scenario, setScenarioState] = useState<WhiteHatsScenario>("calm");
-  const [tier, setTier] = useState<QualityTier>("t1");
-  const [openTarget, setOpenTarget] = useState<OpenTarget>(null);
-  const [selectedDecisionId, setSelectedDecisionId] = useState<string | null>(null);
-  const [drawer, setDrawer] = useState<DrawerContent>(null);
-
-  // URL is the source of truth for the demo view (?scenario=&tier=&open=).
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setScenarioState(parseScenario(params.get("scenario")));
-    setTier(parseTier(params.get("tier")));
-    setOpenTarget(parseOpenTarget(params.get("open")));
-  }, []);
+export function WhiteHatsScreen({
+  scenario = "calm",
+  tier = "t1",
+  openTarget = null,
+}: {
+  scenario?: WhiteHatsScenario;
+  tier?: QualityTier;
+  openTarget?: OpenTarget;
+} = {}) {
+  const router = useRouter();
+  const [pickedDecisionId, setSelectedDecisionId] = useState<string | null>(null);
+  // undefined = follow the ?open= deep link; null = user closed it; value = user opened it.
+  const [drawerOverride, setDrawer] = useState<DrawerContent | undefined>(undefined);
 
   const phase = useWhiteHatsSnapshot(scenario);
   const snapshot = phase.phase === "ready" ? phase.snapshot : null;
@@ -57,39 +54,32 @@ export function WhiteHatsScreen() {
   const demo = snapshot?.demo ?? false;
 
   // Default selection: first non-demo decision (DEMO rows never lead totals).
-  useEffect(() => {
-    if (phase.phase === "ready" && selectedDecisionId === null) {
-      const first =
-        phase.snapshot.decisions.find((d) => !d.demo) ?? phase.snapshot.decisions[0];
-      if (first) setSelectedDecisionId(first.id);
-    }
-  }, [phase, selectedDecisionId]);
+  const selectedDecisionId =
+    pickedDecisionId ??
+    (snapshot ? (snapshot.decisions.find((d) => !d.demo) ?? snapshot.decisions[0])?.id ?? null : null);
 
   // Deep-link ?open=finding:<id> | evidence:<id>
-  useEffect(() => {
-    if (phase.phase !== "ready" || !openTarget) return;
-    const snap = phase.snapshot;
+  let deepDrawer: DrawerContent = null;
+  if (snapshot && openTarget) {
     if (openTarget.kind === "finding") {
-      const finding = snap.findings.find((f) => f.id === openTarget.id);
+      const finding = snapshot.findings.find((f) => f.id === openTarget.id);
       if (finding) {
-        setDrawer({
+        deepDrawer = {
           kind: "finding",
           finding,
           inspectorTitle:
-            snap.inspectors.find((i) => i.id === finding.inspectorId)?.title ??
-            finding.inspectorId,
-        });
+            snapshot.inspectors.find((i) => i.id === finding.inspectorId)?.title ?? finding.inspectorId,
+        };
       }
     } else {
-      const evidence = snap.evidence[openTarget.id];
-      if (evidence) setDrawer({ kind: "evidence", evidence });
+      const evidence = snapshot.evidence[openTarget.id];
+      if (evidence) deepDrawer = { kind: "evidence", evidence };
     }
-  }, [openTarget, phase]);
+  }
+  const drawer: DrawerContent = drawerOverride !== undefined ? drawerOverride : deepDrawer;
 
   const onScenarioChange = (next: WhiteHatsScenario) => {
-    const params = new URLSearchParams(window.location.search);
-    params.set("scenario", next);
-    window.location.assign(`${window.location.pathname}?${params.toString()}`);
+    router.push(`/arena/white-hats?scenario=${next}${tier === "t0" ? "&tier=t0" : ""}`);
   };
 
   const inspectorTitle = (id: string) =>
