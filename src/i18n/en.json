@@ -1963,5 +1963,11 @@
     "demoLoaded": "Demo data loaded.",
     "cycleStarted": "Cycle started.",
     "cycleStopped": "Cycle stopped."
+  },
+  "tradeVenue": {
+    "title": "Trade venue · paper",
+    "back": "Back to Arena",
+    "pill": "Paper only · PAPER_ONLY",
+    "note": "Paper positions; no real money is involved"
   }
 }

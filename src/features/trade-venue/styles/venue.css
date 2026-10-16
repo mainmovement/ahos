@@ -1,0 +1,2103 @@
+/* ============================================================================
+   AHOS · Trade Venue — scoped design system
+   ----------------------------------------------------------------------------
+   Everything in this file is scoped under `.ah-venue-root` so the page can be
+   lifted into an existing AHOS Next app without touching global styles.
+   Tokens use the `--ah-*` namespace. Radii: 6 / 12 / 18.
+   Quality tiers: T0 = 2D only (no blur, no shadow glow, no WebGL)
+                  T1 = solid panels, hairline gold, still no blur
+                  T2 = glass + optional decorative hall (never required for data)
+   ========================================================================== */
+
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-arabic-400-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1,
+    U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF,
+    U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4,
+    U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24,
+    U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47,
+    U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59,
+    U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A,
+    U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89,
+    U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-arabic-500-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC, U+200C-200E;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-arabic-600-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC, U+200C-200E;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-arabic-700-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC, U+200C-200E;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/vazirmatn-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Inter carries Latin codes / numerals when the shell is embedded in a
+   Latin-first app, and stays the number face for tables either way. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/inter-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/inter-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/inter-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/inter-latin-ext-600-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+.ah-venue-root {
+  /* ---- palette (AHOS brand) ---- */
+  --ah-bg: #080b10;
+  --ah-bg-2: #060910;
+  --ah-surface: #0d121a;
+  --ah-surface-2: #111823;
+  --ah-surface-3: #161e2a;
+  --ah-glass: rgba(13, 18, 26, 0.72);
+  --ah-glass-2: rgba(17, 24, 35, 0.62);
+  --ah-gold: #d9b977;
+  --ah-gold-dim: rgba(217, 185, 119, 0.42);
+  --ah-gold-hair: rgba(217, 185, 119, 0.16);
+  --ah-gold-soft: rgba(217, 185, 119, 0.08);
+  --ah-text: #ecece7;
+  --ah-text-2: #b9bfc7;
+  --ah-text-3: #8b949f;
+  --ah-text-4: #6b737e;
+  --ah-cyan: #78cbd1;
+  --ah-cyan-soft: rgba(120, 203, 209, 0.12);
+  --ah-live: #8bbfa6;
+  --ah-live-soft: rgba(139, 191, 166, 0.12);
+  --ah-danger: #e39494;
+  --ah-danger-soft: rgba(227, 148, 148, 0.12);
+  --ah-danger-strong: #d4614f;
+  --ah-unknown: #78828f;
+  --ah-stale: #c3a468;
+  --ah-conflict: #d9a35e;
+  --ah-sim: #b3a4d8;
+  --ah-sim-soft: rgba(179, 164, 216, 0.12);
+  --ah-line: rgba(236, 236, 231, 0.08);
+  --ah-line-strong: rgba(236, 236, 231, 0.14);
+
+  /* ---- geometry / type ---- */
+  --ah-r-sm: 6px;
+  --ah-r-md: 12px;
+  --ah-r-lg: 18px;
+  --ah-font-fa: "Vazirmatn", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --ah-font-code: "Inter", ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  --ah-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+  --ah-shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.35);
+  --ah-blur: blur(18px) saturate(1.05);
+
+  direction: rtl;
+  unicode-bidi: isolate;
+  min-height: 100dvh;
+  background:
+    radial-gradient(1200px 640px at 85% -10%, rgba(217, 185, 119, 0.06), transparent 60%),
+    radial-gradient(900px 520px at 5% 110%, rgba(120, 203, 209, 0.05), transparent 62%),
+    linear-gradient(180deg, var(--ah-bg) 0%, var(--ah-bg-2) 100%);
+  color: var(--ah-text);
+  font-family: var(--ah-font-fa);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A page-scoped reset so the shell never inherits surprising styles. */
+.ah-venue-root *,
+.ah-venue-root *::before,
+.ah-venue-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.ah-venue-root button,
+.ah-venue-root input,
+.ah-venue-root select {
+  font: inherit;
+  color: inherit;
+}
+.ah-venue-root table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.ah-venue-root [hidden] {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------- T0 tier --
+   T0 = "2D tables / SVG only": no blur, no glow, no WebGL, flat surfaces. */
+.ah-root--t0 {
+  --ah-glass: var(--ah-surface);
+  --ah-glass-2: var(--ah-surface-2);
+  --ah-blur: none;
+  --ah-shadow: none;
+  --ah-shadow-soft: none;
+}
+.ah-root--t0 .ah-hall,
+.ah-root--t0 .ah-ribbon,
+.ah-root--t0 .ah-striped {
+  display: none !important;
+}
+/* T0 hides the tape, so the gutter it reserved must be given back. The extra
+   `:has()` keeps this rule winning regardless of where it lands in the sheet. */
+.ah-root--t0 .ah-ribbon-host,
+.ah-root--t0 .ah-ribbon-host:has(> .ah-ribbon) {
+  padding-inline-start: 0;
+}
+.ah-root--t0 .ah-panel {
+  backdrop-filter: none;
+}
+
+/* ------------------------------------------------------------------ shell -- */
+.ah-shell {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  min-height: 100dvh;
+  align-items: start;
+}
+
+/* ---------------------------------------------------- terminal viewport ----
+   On a real desk (≥1200×700) the page behaves like a terminal: chrome stays
+   fixed, the work area scrolls inside the frame, and the primary three panels
+   scroll their own bodies. Below that size everything falls back to a plain
+   document so phones and small laptops keep normal scrolling behaviour. */
+@media (min-width: 1200px) and (min-height: 700px) {
+  .ah-venue-root {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .ah-shell {
+    height: 100dvh;
+    min-height: 0;
+    align-items: stretch;
+  }
+  .ah-shell__content {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .ah-work {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+  }
+  /* Everything below the primary row lives in its own scroll region so the
+     blotter keeps the top of the screen — exactly how a desk terminal behaves. */
+  .ah-work > .ah-work__secondary {
+    flex: 0 0 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  /* `.ah-work > .ah-grid3` (specificity 0,2,0) is required: the base
+     `.ah-grid3 { align-items: start }` rule appears later in this file and
+     would otherwise win over a media-query rule of equal specificity.
+     The row *fills* the terminal instead of being content-sized, so the panels
+     become scrolling blotters rather than growing the document. */
+  .ah-work > .ah-grid3 {
+    flex: 1 1 auto;
+    min-height: 420px;
+    height: auto;
+    align-items: stretch;
+  }
+  .ah-grid3 > .ah-panel,
+  .ah-grid3 > .ah-column {
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+  }
+  .ah-grid3 > .ah-column {
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+  .ah-panel {
+    min-height: 0;
+  }
+  .ah-grid3 .ah-panel {
+    height: 100%;
+  }
+  .ah-grid3 .ah-panel__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-gutter: stable;
+  }
+  .ah-rail {
+    position: static;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+.ah-shell__content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Right-edge capsule dock (RTL: column 1 is the rightmost column). */
+.ah-rail {
+  position: sticky;
+  top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 8px;
+  border: 1px solid var(--ah-gold-hair);
+  border-radius: var(--ah-r-lg);
+  background: var(--ah-glass);
+  backdrop-filter: var(--ah-blur);
+  box-shadow: var(--ah-shadow-soft);
+  align-items: center;
+  min-height: 420px;
+}
+.ah-rail__label {
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ah-gold);
+  border: 1px solid var(--ah-gold-dim);
+  border-radius: 999px;
+  padding: 10px 6px;
+  background: var(--ah-gold-soft);
+  user-select: none;
+}
+.ah-rail__slot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+.ah-rail__cap {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px dashed var(--ah-line-strong);
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  color: var(--ah-text-3);
+}
+.ah-rail__cap[data-state="PLANNED"] {
+  border-style: dashed;
+  color: var(--ah-text-4);
+}
+.ah-rail__cap[data-state="LIVE"] {
+  border-style: solid;
+  border-color: rgba(139, 191, 166, 0.5);
+  color: var(--ah-live);
+}
+.ah-rail__note {
+  margin-top: auto;
+  font-size: 10px;
+  color: var(--ah-text-4);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ----------------------------------------------------------------- topbar -- */
+.ah-topbar {
+  position: sticky;
+  top: 12px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--ah-gold-hair);
+  border-radius: var(--ah-r-lg);
+  background: var(--ah-glass);
+  backdrop-filter: var(--ah-blur);
+  box-shadow: var(--ah-shadow-soft);
+}
+.ah-topbar__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ah-topbar__notices {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--ah-text-3);
+}
+.ah-brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+  padding-inline-end: 12px;
+  border-inline-end: 1px solid var(--ah-line);
+}
+.ah-brand__title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.ah-brand__sub {
+  font-size: 11px;
+  color: var(--ah-text-3);
+}
+.ah-spacer {
+  flex: 1 1 auto;
+  min-width: 8px;
+}
+.ah-topbar__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ah-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.3;
+  padding-inline-start: 12px;
+  border-inline-start: 1px solid var(--ah-line);
+  direction: ltr;
+}
+.ah-clock__time {
+  font-family: var(--ah-font-code);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ah-text);
+}
+.ah-clock__zone {
+  font-size: 10px;
+  color: var(--ah-text-3);
+  letter-spacing: 0.08em;
+}
+
+/* ------------------------------------------------------------------ pills -- */
+.ah-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ah-line-strong);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ah-text-2);
+  white-space: nowrap;
+}
+.ah-pill--paper {
+  border-color: var(--ah-gold-dim);
+  background: var(--ah-gold-soft);
+  color: var(--ah-gold);
+  font-weight: 700;
+}
+.ah-pill--mute {
+  border-color: var(--ah-line-strong);
+  color: var(--ah-text-3);
+  background: transparent;
+}
+.ah-pill--tier {
+  font-family: var(--ah-font-code);
+  letter-spacing: 0.08em;
+  color: var(--ah-text-2);
+}
+.ah-pill--mute[data-muted="true"] {
+  border-color: var(--ah-gold-dim);
+  color: var(--ah-gold);
+}
+.ah-pill__x {
+  width: 14px;
+  height: 14px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.ah-pill__lock {
+  font-size: 11px;
+}
+.ah-pill--btn {
+  cursor: pointer;
+}
+.ah-pill--btn:hover {
+  border-color: var(--ah-gold-dim);
+  color: var(--ah-text);
+}
+
+/* ------------------------------------------------------------- work area -- */
+.ah-work {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--ah-gold-hair);
+  border-radius: var(--ah-r-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.014), transparent 120px),
+    var(--ah-glass-2);
+  backdrop-filter: var(--ah-blur);
+  box-shadow: var(--ah-shadow);
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+}
+.ah-work--sim {
+  border-color: rgba(179, 164, 216, 0.22);
+}
+.ah-work__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ah-work__hint {
+  font-size: 11.5px;
+  color: var(--ah-text-3);
+}
+.ah-grid3 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 0.86fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+}
+/* Below ~1520px the three desks cannot all be legible at once: the third
+   column (results + watchlist) drops under the first two. Real terminals do the
+   same thing — an honest reflow beats a squeezed, scrolling table. */
+@media (max-width: 1520px) {
+  .ah-grid3 {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  }
+  .ah-grid3 > .ah-column {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: start;
+  }
+  .ah-grid3 > .ah-column > * {
+    flex: 1 1 0;
+  }
+}
+@media (max-width: 1040px) {
+  .ah-grid3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ah-shell {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+}
+
+/* ----------------------------------------------------------------- panels -- */
+.ah-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-md);
+  background: var(--ah-surface);
+  overflow: hidden;
+  min-width: 0;
+}
+.ah-panel--focus {
+  border-color: var(--ah-gold-dim);
+}
+.ah-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--ah-line);
+  background: linear-gradient(180deg, rgba(217, 185, 119, 0.05), transparent);
+}
+.ah-panel__title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.ah-panel__title-en {
+  font-family: var(--ah-font-code);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ah-text-4);
+  text-transform: uppercase;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ah-panel__tools {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ah-panel__body {
+  padding: 9px 10px;
+  min-width: 0;
+  overflow-x: auto;
+}
+.ah-panel__body--tight {
+  padding: 0;
+}
+.ah-panel__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ah-line);
+  background: rgba(0, 0, 0, 0.2);
+}
+.ah-panel__toolbar .ah-filterbar {
+  gap: 6px;
+}
+.ah-panel__toolbar .ah-input {
+  min-width: 108px;
+}
+.ah-panel__toolbar .ah-filterbar__count {
+  font-size: 10px;
+}
+
+/* Stacked numeric cell: number over its unit — never clips a digit. */
+.ah-stack {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.ah-stack__unit {
+  font-size: 9.5px;
+  color: var(--ah-text-4);
+  font-family: var(--ah-font-code);
+}
+.ah-panel__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-top: 1px solid var(--ah-line);
+  font-size: 10.5px;
+  color: var(--ah-text-3);
+  flex-wrap: wrap;
+}
+/* One-line footnotes: the full sentence stays available on hover. */
+.ah-panel__foot-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* ------------------------------------------------------------------ chips -- */
+.ah-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 7px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid var(--ah-line-strong);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--ah-text-2);
+  background: rgba(255, 255, 255, 0.03);
+}
+.ah-chip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.ah-chip__fa {
+  font-family: var(--ah-font-fa);
+  font-weight: 600;
+  letter-spacing: 0;
+  font-size: 10.5px;
+  opacity: 0.9;
+}
+.ah-chip__code {
+  font-family: var(--ah-font-code);
+  letter-spacing: 0.08em;
+}
+.ah-chip--sm {
+  font-size: 9.5px;
+  padding: 1.5px 5px;
+}
+/* World label + permission flag: their own neutral vocabularies, never green. */
+.ah-chip--world {
+  color: var(--ah-text-2);
+  border-color: var(--ah-line-strong);
+  background: rgba(255, 255, 255, 0.035);
+}
+.ah-chip--perm[data-permission="NOT_ALLOWED"] {
+  color: var(--ah-danger);
+  border-color: rgba(227, 148, 148, 0.5);
+  background: var(--ah-danger-soft);
+}
+.ah-chip--perm[data-permission="ALLOWED"] {
+  color: var(--ah-text-3);
+  border-color: var(--ah-line-strong);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ah-chip[data-status="LIVE"] {
+  color: var(--ah-live);
+  border-color: rgba(139, 191, 166, 0.45);
+  background: var(--ah-live-soft);
+}
+.ah-chip[data-status="SIMULATED"] {
+  color: var(--ah-sim);
+  border-color: rgba(179, 164, 216, 0.45);
+  background: var(--ah-sim-soft);
+  border-style: dashed;
+}
+.ah-chip[data-status="DEMO"] {
+  color: #a9b8c8;
+  border-color: rgba(169, 184, 200, 0.42);
+  border-style: dashed;
+  background-color: rgba(169, 184, 200, 0.08);
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(169, 184, 200, 0.16) 0 4px,
+    transparent 4px 8px
+  );
+}
+.ah-chip[data-status="STALE"] {
+  color: var(--ah-stale);
+  border-color: rgba(195, 164, 104, 0.45);
+  background: rgba(195, 164, 104, 0.1);
+  border-style: dashed;
+}
+.ah-chip[data-status="PARTIAL"] {
+  color: #a8b6c6;
+  border-color: rgba(168, 182, 198, 0.4);
+  border-style: dotted;
+  background: rgba(168, 182, 198, 0.08);
+}
+.ah-chip[data-status="UNKNOWN"] {
+  color: var(--ah-unknown);
+  border-color: rgba(120, 130, 143, 0.45);
+  border-style: dotted;
+  background: rgba(120, 130, 143, 0.08);
+}
+.ah-chip[data-status="UNAVAILABLE"] {
+  color: var(--ah-text-4);
+  border-color: rgba(107, 115, 126, 0.5);
+  border-style: dashed;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(107, 115, 126, 0.12) 0 3px,
+    transparent 3px 7px
+  );
+}
+.ah-chip[data-status="MISSING"] {
+  color: var(--ah-text-4);
+  border-color: rgba(107, 115, 126, 0.4);
+  background: transparent;
+}
+.ah-chip[data-status="PLANNED"] {
+  color: var(--ah-text-4);
+  border-color: rgba(107, 115, 126, 0.45);
+  border-style: dotted;
+  background: transparent;
+}
+.ah-chip[data-status="CONFLICT"] {
+  color: var(--ah-conflict);
+  border-color: rgba(217, 163, 94, 0.5);
+  background: rgba(217, 163, 94, 0.12);
+}
+.ah-chip[data-status="REJECTED"] {
+  color: var(--ah-danger);
+  border-color: rgba(227, 148, 148, 0.5);
+  background: var(--ah-danger-soft);
+}
+.ah-chip[data-status="ERROR"] {
+  color: var(--ah-danger);
+  border-color: rgba(227, 148, 148, 0.55);
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(227, 148, 148, 0.18) 0 3px,
+    transparent 3px 7px
+  );
+}
+.ah-chip[data-status="HISTORICAL"] {
+  color: #9aa7b8;
+  border-color: rgba(154, 167, 184, 0.42);
+  background: rgba(154, 167, 184, 0.08);
+}
+.ah-chip[data-status="LOADING"] {
+  color: #9aa7b8;
+  border-color: var(--ah-line-strong);
+  background: transparent;
+}
+.ah-chip[data-status="LOADING"] .ah-chip__dot {
+  animation: ah-pulse 1.15s ease-in-out infinite;
+}
+.ah-chip[data-status="EMPTY"] {
+  color: var(--ah-text-4);
+  border-color: var(--ah-line-strong);
+}
+
+/* ------------------------------------------------------------------ tabs -- */
+.ah-tabs {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--ah-line-strong);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+}
+.ah-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ah-text-3);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.ah-tab:hover {
+  color: var(--ah-text-2);
+}
+.ah-tab[aria-selected="true"] {
+  color: var(--ah-text);
+  border-color: var(--ah-gold-dim);
+  background: var(--ah-gold-soft);
+}
+.ah-tab--sim[aria-selected="true"] {
+  color: var(--ah-sim);
+  border-color: rgba(179, 164, 216, 0.5);
+  background: var(--ah-sim-soft);
+}
+.ah-tab__en {
+  font-family: var(--ah-font-code);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ah-text-4);
+}
+.ah-tab[aria-selected="true"] .ah-tab__en {
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* ------------------------------------------------------------------ table -- */
+.ah-table {
+  width: 100%;
+  font-size: 12.5px;
+  min-width: 640px;
+}
+.ah-table--narrow {
+  min-width: 420px;
+}
+.ah-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ah-surface-3);
+  color: var(--ah-text-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: right;
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--ah-line-strong);
+  white-space: nowrap;
+}
+.ah-table tbody td {
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--ah-line);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.ah-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+.ah-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.ah-table .ah-num,
+.ah-table .ah-mono {
+  font-family: var(--ah-font-code);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: right;
+  unicode-bidi: plaintext;
+}
+.ah-table__dim td {
+  color: var(--ah-text-3);
+}
+.ah-table__row--demoted td {
+  opacity: 0.72;
+}
+.ah-table__row--sim td {
+  background: rgba(179, 164, 216, 0.045);
+}
+.ah-table__row--sim:hover td {
+  background: rgba(179, 164, 216, 0.075);
+}
+/* Second line inside a cell (Persian name, age, note) — keeps columns narrow. */
+.ah-cell-sub {
+  display: block;
+  font-size: 10px;
+  line-height: 1.5;
+  font-family: var(--ah-font-fa);
+  color: var(--ah-text-4);
+  max-width: 16ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ah-table--dense {
+  min-width: 0;
+  width: 100%;
+  font-size: 10.5px;
+}
+.ah-table--dense thead th {
+  padding: 4px 6px;
+  font-size: 9.5px;
+}
+.ah-table--dense tbody td {
+  padding: 3px 5px;
+  line-height: 1.45;
+}
+.ah-table--dense .ah-btn {
+  padding: 1px 6px;
+  font-size: 9.5px;
+}
+.ah-table--dense .ah-chip {
+  font-size: 9px;
+  padding: 1px 4px;
+}
+.ah-table--dense .ah-chip__fa {
+  font-size: 9px;
+}
+
+/* Persian name sits inline beside the Latin code, truncated with the full text
+   in the tooltip — a row stays one line tall. */
+.ah-cell-fa {
+  display: inline-block;
+  max-width: 9ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  margin-inline-start: 5px;
+  font-size: 10px;
+  color: var(--ah-text-4);
+}
+
+.ah-cell-symbol {
+  font-size: 11.5px;
+}
+.ah-table--dense .ah-mono {
+  font-size: 10.5px;
+}
+.ah-ev-id {
+  font-size: 10px;
+  color: var(--ah-text-3);
+  white-space: nowrap;
+}
+
+/* Persian name sits inline beside the Latin code, truncated with the full text
+   in the tooltip — a row stays one line tall. */
+.ah-cell-fa {
+  display: inline-block;
+  max-width: 9ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  margin-inline-start: 5px;
+  font-size: 10px;
+  color: var(--ah-text-4);
+}
+
+.ah-cell-symbol {
+  font-family: var(--ah-font-code);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  direction: ltr;
+  unicode-bidi: plaintext;
+  text-align: right;
+}
+.ah-cell-na {
+  color: var(--ah-unknown);
+}
+.ah-cell-na small {
+  font-family: var(--ah-font-fa);
+  font-size: 10px;
+  color: var(--ah-text-4);
+  margin-inline-start: 4px;
+}
+.ah-mono {
+  font-family: var(--ah-font-code);
+  font-size: 11.5px;
+  letter-spacing: 0.01em;
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+.ah-dim {
+  color: var(--ah-text-3);
+}
+.ah-faint {
+  color: var(--ah-text-4);
+}
+.ah-side {
+  font-family: var(--ah-font-fa);
+  font-weight: 600;
+  color: var(--ah-text-2);
+  white-space: nowrap;
+}
+.ah-side__en {
+  font-family: var(--ah-font-code);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--ah-text-4);
+  margin-inline-start: 5px;
+}
+.ah-cell-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+.ah-table--dense .ah-btn {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- controls -- */
+.ah-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid var(--ah-line-strong);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--ah-text-2);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
+}
+.ah-btn:hover {
+  border-color: var(--ah-gold-dim);
+  color: var(--ah-text);
+  background: var(--ah-gold-soft);
+}
+.ah-btn[data-kind="export"]:hover {
+  border-color: rgba(120, 203, 209, 0.5);
+  background: var(--ah-cyan-soft);
+  color: var(--ah-cyan);
+}
+.ah-btn__en {
+  font-family: var(--ah-font-code);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+.ah-copy-ok {
+  color: var(--ah-gold);
+}
+.ah-input {
+  padding: 3px 8px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid var(--ah-line-strong);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--ah-text);
+  font-size: 11px;
+  min-width: 96px;
+  width: 100%;
+}
+.ah-input::placeholder {
+  color: var(--ah-text-4);
+}
+.ah-input:focus {
+  outline: none;
+  border-color: var(--ah-gold-dim);
+}
+.ah-select {
+  padding: 4px 6px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid var(--ah-line-strong);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--ah-text-2);
+  font-size: 11px;
+  cursor: pointer;
+}
+.ah-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
+}
+.ah-filterbar__count {
+  margin-inline-start: auto;
+  font-size: 11px;
+  color: var(--ah-text-3);
+}
+
+/* ------------------------------------------------------------------ cards -- */
+.ah-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.ah-kv__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--ah-line);
+  min-width: 0;
+}
+.ah-kv__row:last-child {
+  border-bottom: none;
+}
+.ah-kv__k {
+  font-size: 11.5px;
+  color: var(--ah-text-3);
+}
+.ah-kv__v {
+  margin-inline-start: auto;
+  font-family: var(--ah-font-code);
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ah-text);
+  direction: ltr;
+  unicode-bidi: plaintext;
+  /* A long id/instant stays on one line and is never broken mid-figure. */
+  white-space: nowrap;
+  flex: none;
+}
+.ah-kv__k {
+  min-width: 0;
+}
+.ah-kv__v--na {
+  color: var(--ah-unknown);
+  font-family: var(--ah-font-fa);
+  font-size: 12px;
+}
+.ah-kv__v--muted {
+  color: var(--ah-text-2);
+}
+.ah-kv__unit {
+  font-size: 10.5px;
+  color: var(--ah-text-4);
+  margin-inline-start: 5px;
+}
+/* Reason codes are Latin and read left-to-right even inside an RTL row. */
+.ah-kv__row--wrap {
+  align-items: flex-start;
+}
+.ah-kv__row--wrap .ah-kv__v {
+  white-space: normal;
+  text-align: end;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--ah-text-3);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.ah-kv__codes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 6px;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.ah-kv__code {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid var(--ah-line-strong);
+  background: var(--ah-surface-2);
+  color: var(--ah-text-3);
+  font-family: var(--ah-font-code);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+}
+.ah-kv__code b {
+  color: var(--ah-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ah-kv__en {
+  font-family: var(--ah-font-code);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--ah-text-4);
+}
+.ah-note {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: var(--ah-r-sm);
+  border: 1px dashed var(--ah-gold-dim);
+  background: var(--ah-gold-soft);
+  color: var(--ah-gold);
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+.ah-note--sim {
+  border-color: rgba(179, 164, 216, 0.45);
+  background: var(--ah-sim-soft);
+  color: var(--ah-sim);
+}
+.ah-note--info {
+  border-color: rgba(120, 203, 209, 0.35);
+  background: var(--ah-cyan-soft);
+  color: var(--ah-cyan);
+}
+.ah-note--warn {
+  border-color: rgba(195, 164, 104, 0.45);
+  background: rgba(195, 164, 104, 0.1);
+  color: var(--ah-stale);
+}
+
+/* -------------------------------------------------------- watchlist list -- */
+.ah-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ah-list__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  border-bottom: 1px dashed var(--ah-line);
+}
+.ah-list__row--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+.ah-list__line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.ah-list__line--meta {
+  gap: 5px;
+  overflow: hidden;
+}
+.ah-list__row:last-child {
+  border-bottom: none;
+}
+.ah-list__sym {
+  font-family: var(--ah-font-code);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ah-text);
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+.ah-list__fa {
+  font-size: 11px;
+  color: var(--ah-text-3);
+}
+.ah-list__tail {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ah-list__empty {
+  padding: 14px 6px;
+  color: var(--ah-text-4);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* --------------------------------------------------------- market centers -- */
+.ah-centers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(184px, 1fr));
+  gap: 7px;
+}
+.ah-center {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 8px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px dashed var(--ah-line-strong);
+  border-radius: var(--ah-r-md);
+  background: rgba(255, 255, 255, 0.014);
+  min-width: 0;
+}
+.ah-center[data-state="LIVE"] {
+  border-style: solid;
+  border-color: rgba(139, 191, 166, 0.4);
+  background: var(--ah-live-soft);
+}
+.ah-center[data-state="DEMO"] {
+  border-style: dashed;
+  border-color: rgba(169, 184, 200, 0.4);
+  background: rgba(169, 184, 200, 0.05);
+}
+.ah-center[data-state="STALE"] {
+  border-color: rgba(195, 164, 104, 0.42);
+  background: rgba(195, 164, 104, 0.07);
+}
+.ah-center__top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+.ah-center__name {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ah-center__fa {
+  font-size: 10.5px;
+  color: var(--ah-text-4);
+}
+.ah-center__code {
+  font-family: var(--ah-font-code);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--ah-text-4);
+  white-space: nowrap;
+}
+.ah-center__foot {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  font-size: 10px;
+  color: var(--ah-text-3);
+}
+.ah-center__chip {
+  margin-inline-start: auto;
+  min-width: 0;
+}
+.ah-center__metrics {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--ah-font-code);
+  font-size: 10px;
+  color: var(--ah-text-2);
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+.ah-center__na {
+  font-size: 10.5px;
+  color: var(--ah-text-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ah-center__na .ah-faint {
+  display: none;
+}
+
+/* ------------------------------------------------------- component states -- */
+.ah-state {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px 12px;
+  border-radius: var(--ah-r-md);
+  border: 1px dashed var(--ah-line-strong);
+  background: rgba(255, 255, 255, 0.012);
+  color: var(--ah-text-2);
+  font-size: 12.5px;
+}
+.ah-state__icon {
+  font-family: var(--ah-font-code);
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--ah-text-3);
+  flex: none;
+}
+.ah-state__title {
+  font-weight: 700;
+  color: var(--ah-text);
+  display: block;
+  margin-bottom: 2px;
+}
+.ah-state__en {
+  font-family: var(--ah-font-code);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--ah-text-4);
+  margin-inline-start: 6px;
+  text-transform: uppercase;
+}
+.ah-state__body {
+  color: var(--ah-text-3);
+  font-size: 11.5px;
+  line-height: 1.75;
+}
+/* Long explanations stay one line; the full sentence is in the tooltip. */
+.ah-one-line {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+.ah-state--empty {
+  border-style: solid;
+  border-color: var(--ah-line);
+}
+.ah-state--error {
+  border-color: rgba(227, 148, 148, 0.42);
+  background: var(--ah-danger-soft);
+}
+.ah-state--error .ah-state__icon {
+  color: var(--ah-danger);
+}
+.ah-state--unavailable {
+  border-style: dashed;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(107, 115, 126, 0.06) 0 5px,
+    transparent 5px 11px
+  );
+}
+.ah-state--loading {
+  border-style: solid;
+  border-color: var(--ah-line);
+}
+.ah-state--loading .ah-state__icon {
+  animation: ah-pulse 1.15s ease-in-out infinite;
+}
+.ah-state--stale {
+  border-color: rgba(195, 164, 104, 0.4);
+  background: rgba(195, 164, 104, 0.07);
+}
+.ah-state--partial {
+  border-style: dotted;
+}
+.ah-state--planned {
+  border-style: dotted;
+  color: var(--ah-text-3);
+}
+
+/* ------------------------------------------------- DEMO ribbon + banners -- */
+.ah-ribbon-host {
+  position: relative;
+  overflow: hidden;
+}
+/* The tape needs a gutter: the panel reserves it on its inline-start edge. */
+.ah-ribbon-host:has(> .ah-ribbon) {
+  padding-inline-start: 15px;
+}
+.ah-ribbon {
+  /* Physical edges on purpose: `writing-mode: vertical-rl` re-maps the logical
+     `inset-*` properties to the horizontal axis, so the tape must not use them.
+     The page is RTL by contract, so "right" is the panel's inline-start edge. */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  transform: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 9px 0 0;
+  font-family: var(--ah-font-code);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #0b0e13;
+  background: repeating-linear-gradient(45deg, #cbb17a 0 5px, #b39a62 5px 10px);
+  box-shadow: 0 0 13px rgba(0, 0, 0, 0.35);
+  border-radius: 0 var(--ah-r-md) var(--ah-r-md) 0;
+  pointer-events: none;
+  z-index: 3;
+}
+/* The word on the tape runs top-to-bottom; only the inner run is vertical, so
+   the tape itself stays a predictable full-height flex column. */
+.ah-ribbon__text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+}
+.ah-ribbon--sim {
+  background: repeating-linear-gradient(90deg, #b3a4d8 0 8px, #9b8cc4 8px 16px);
+}
+.ah-striped {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(169, 184, 200, 0.13) 0 6px,
+    transparent 6px 12px
+  );
+  border: 1px dashed rgba(169, 184, 200, 0.4);
+}
+.ah-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px;
+  border-radius: var(--ah-r-md);
+  border: 1px dashed rgba(169, 184, 200, 0.45);
+  background: rgba(169, 184, 200, 0.07);
+  color: #c3cdd8;
+  font-size: 12px;
+}
+.ah-banner__code {
+  font-family: var(--ah-font-code);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  padding: 2px 7px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid rgba(169, 184, 200, 0.5);
+  background: rgba(0, 0, 0, 0.25);
+}
+.ah-banner--sim {
+  border-color: rgba(179, 164, 216, 0.5);
+  background: var(--ah-sim-soft);
+  color: var(--ah-sim);
+}
+.ah-banner--sim .ah-banner__code {
+  border-color: rgba(179, 164, 216, 0.55);
+}
+
+/* Full-width VIOLATION bar — shown only when the mock/real adapter reports a
+   non paper mode (realTrading=true or executionMode != PAPER_ONLY). */
+.ah-violation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--ah-r-md);
+  border: 1px solid rgba(212, 97, 79, 0.75);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(212, 97, 79, 0.22) 0 10px,
+      rgba(160, 60, 45, 0.16) 10px 20px
+    ),
+    #2a1113;
+  color: #ffd9d2;
+  box-shadow: 0 0 0 1px rgba(212, 97, 79, 0.25) inset, 0 14px 34px rgba(140, 40, 30, 0.35);
+  font-size: 12.5px;
+  position: relative;
+  z-index: 40;
+}
+.ah-violation__tag {
+  font-family: var(--ah-font-code);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  padding: 4px 9px;
+  border-radius: var(--ah-r-sm);
+  background: var(--ah-danger-strong);
+  color: #fff;
+  flex: none;
+}
+.ah-violation__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.6;
+}
+.ah-violation__body strong {
+  color: #fff;
+  font-weight: 700;
+}
+.ah-violation__en {
+  font-family: var(--ah-font-code);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: #ffc9bf;
+  direction: ltr;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+.ah-violation__strong {
+  font-family: var(--ah-font-code);
+}
+
+/* ------------------------------------------------------------- telemetry -- */
+.ah-telemetry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 7px 12px;
+  border: 1px solid var(--ah-gold-hair);
+  border-radius: var(--ah-r-md);
+  background: var(--ah-glass);
+  backdrop-filter: var(--ah-blur);
+  font-size: 11px;
+  color: var(--ah-text-3);
+}
+.ah-telemetry__group {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding-inline-end: 12px;
+  border-inline-end: 1px solid var(--ah-line);
+}
+.ah-telemetry__group:last-child {
+  border-inline-end: none;
+  padding-inline-end: 0;
+}
+.ah-telemetry__k {
+  color: var(--ah-text-4);
+}
+.ah-telemetry__v {
+  font-family: var(--ah-font-code);
+  color: var(--ah-text-2);
+  direction: ltr;
+  unicode-bidi: plaintext;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ dock -- */
+.ah-dock {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+}
+.ah-dock__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--ah-r-md);
+  border: 1px dashed var(--ah-line-strong);
+  color: var(--ah-text-3);
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.012);
+}
+.ah-dock__item[data-state="LIVE"] {
+  border-style: solid;
+  border-color: rgba(139, 191, 166, 0.4);
+  color: var(--ah-text-2);
+}
+.ah-dock__item[data-state="DEMO"] {
+  border-color: rgba(169, 184, 200, 0.4);
+  color: var(--ah-text-2);
+}
+.ah-dock__title {
+  font-weight: 700;
+}
+.ah-dock__fa {
+  font-size: 10.5px;
+  color: var(--ah-text-4);
+}
+
+/* --------------------------------------------------- decorative 3D hall ----
+   T2/T3 only. Purely decorative, aria-hidden, never carries data, and is
+   completely absent from T0/T1. No auto-rotation under reduced-motion. */
+.ah-hall {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  perspective: 900px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 82%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 82%);
+}
+.ah-hall__floor {
+  position: absolute;
+  inset-inline: -20%;
+  bottom: -14%;
+  height: 62%;
+  background-image: linear-gradient(rgba(217, 185, 119, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217, 185, 119, 0.08) 1px, transparent 1px);
+  background-size: 68px 44px;
+  transform: rotateX(70deg);
+  transform-origin: center bottom;
+  animation: ah-hall-drift 34s linear infinite;
+}
+.ah-hall__ring {
+  position: absolute;
+  inset-inline-start: 50%;
+  top: -30%;
+  width: 620px;
+  height: 620px;
+  margin-inline-start: -310px;
+  border-radius: 50%;
+  border: 1px solid rgba(217, 185, 119, 0.14);
+  box-shadow: inset 0 0 90px rgba(217, 185, 119, 0.05);
+  animation: ah-hall-spin 90s linear infinite;
+}
+.ah-hall__ring::after {
+  content: "";
+  position: absolute;
+  inset: 60px;
+  border-radius: 50%;
+  border: 1px dashed rgba(120, 203, 209, 0.12);
+}
+.ah-hall__pillar {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 46%;
+  background: linear-gradient(180deg, transparent, rgba(217, 185, 119, 0.28));
+}
+@media (prefers-reduced-motion: reduce) {
+  .ah-hall__floor,
+  .ah-hall__ring {
+    animation: none !important;
+  }
+}
+
+/* --------------------------------------------------------- footer / tree -- */
+.ah-footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border: 1px solid var(--ah-gold-hair);
+  border-radius: var(--ah-r-md);
+  background: var(--ah-glass);
+  backdrop-filter: var(--ah-blur);
+  font-size: 11.5px;
+  color: var(--ah-text-3);
+}
+.ah-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ah-gold);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--ah-gold-dim);
+  padding-bottom: 1px;
+}
+.ah-footer__link:hover {
+  color: var(--ah-text);
+}
+.ah-footer__tree {
+  font-family: var(--ah-font-code);
+  font-size: 10.5px;
+  color: var(--ah-text-4);
+  direction: ltr;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+.ah-footer__legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
+
+/* ---------------------------------------------------------------- a11y ------ */
+.ah-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.ah-venue-root :focus-visible {
+  outline: 2px solid var(--ah-gold);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- motion --- */
+@keyframes ah-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+@keyframes ah-hall-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 44px;
+  }
+}
+@keyframes ah-hall-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ah-venue-root *,
+  .ah-venue-root *::before,
+  .ah-venue-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print / PDF export of the venue view stays readable on white paper. */
+@media print {
+  .ah-venue-root {
+    background: #fff;
+    color: #111;
+  }
+  .ah-rail,
+  .ah-hall,
+  .ah-telemetry {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   Layout extras used by the composed page
+   ========================================================================== */
+
+/* Tier 1: solid surfaces, hairline gold, no blur and no glow. */
+.ah-root--t1 {
+  --ah-glass: var(--ah-surface);
+  --ah-glass-2: var(--ah-surface);
+  --ah-blur: none;
+  --ah-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  --ah-shadow-soft: none;
+}
+.ah-root--t1 .ah-rail,
+.ah-root--t1 .ah-topbar,
+.ah-root--t1 .ah-work,
+.ah-root--t1 .ah-telemetry,
+.ah-root--t1 .ah-footer {
+  backdrop-filter: none;
+}
+
+/* T0 keeps the ribbon off entirely — the DEMO chip alone carries the label. */
+.ah-root--t0 .ah-hall,
+.ah-root--t0 .ah-ribbon {
+  display: none;
+}
+
+.ah-violation-wrap {
+  padding: 14px 14px 0;
+}
+
+.ah-banners {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ah-banner--state {
+  border-style: solid;
+  border-color: rgba(120, 203, 209, 0.4);
+  background: var(--ah-cyan-soft);
+  color: var(--ah-cyan);
+}
+.ah-banner--state .ah-banner__code {
+  border-color: rgba(120, 203, 209, 0.5);
+}
+.ah-banner--quiet {
+  border-style: dotted;
+  border-color: var(--ah-line-strong);
+  background: rgba(255, 255, 255, 0.014);
+  color: var(--ah-text-3);
+}
+.ah-banner--quiet .ah-banner__code {
+  border-color: var(--ah-line-strong);
+}
+
+.ah-filterbar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px 9px;
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-md);
+  background: rgba(0, 0, 0, 0.22);
+}
+.ah-input-wrap {
+  display: inline-flex;
+  flex: 1 1 120px;
+  min-width: 0;
+}
+.ah-notice {
+  display: inline-block;
+  padding-inline-end: 14px;
+}
+
+.ah-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ah-rail__cap-code {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.ah-mark-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ah-table__detail td {
+  background: rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid var(--ah-line);
+}
+.ah-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  padding: 4px 2px;
+  direction: rtl;
+}
+.ah-detail__k {
+  font-size: 10.5px;
+  color: var(--ah-text-4);
+}
+.ah-detail__k::after {
+  content: "=";
+  margin-inline-start: 3px;
+}
+.ah-detail .ah-mono,
+.ah-detail .ah-dim,
+.ah-detail .ah-cell-na {
+  font-size: 11px;
+  color: var(--ah-text-2);
+}
+
+/* ------------------------------------------------------------- results ---- */
+.ah-result-group {
+  padding: 8px 0;
+}
+.ah-result-group__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.ah-result-group__title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ah-text);
+}
+.ah-result-divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--ah-gold-dim), transparent);
+  margin: 6px 0;
+}
+.ah-result-counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+.ah-count {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px;
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-sm);
+  background: rgba(255, 255, 255, 0.015);
+}
+.ah-count__k {
+  font-size: 10.5px;
+  color: var(--ah-text-4);
+}
+.ah-count__v {
+  font-family: var(--ah-font-code);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ah-text);
+}
+.ah-result-excluded {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--ah-line-strong);
+  border-radius: var(--ah-r-sm);
+  background: rgba(255, 255, 255, 0.014);
+}
+.ah-result-excluded__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ah-text-3);
+  margin-bottom: 4px;
+}
+
+/* ------------------------------------------------------------ evidence ---- */
+.ah-evidence-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(4, 6, 10, 0.72);
+  backdrop-filter: blur(3px);
+}
+.ah-evidence {
+  width: min(620px, 100%);
+  max-height: 80dvh;
+  overflow: auto;
+  border: 1px solid var(--ah-gold-dim);
+  border-radius: var(--ah-r-lg);
+  background: var(--ah-surface);
+  box-shadow: var(--ah-shadow);
+}
+
+.ah-legend__item {
+  display: inline-flex;
+}
+
+/* ------------------------------------------------------------- gallery ---- */
+.ah-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+.ah-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 12px;
+}
+.ah-gallery .ah-telemetry {
+  margin-top: 10px;
+  font-size: 10px;
+  backdrop-filter: none;
+}
