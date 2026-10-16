@@ -77,10 +77,11 @@ KIND_ANCHOR = "ANCHOR"                     # a store's row set, bound to the cha
 KIND_RECONCILE = "RECONCILE"               # a counterparty reconcile verdict
 KIND_HALT = "HALT"                         # a fail-closed stop, recorded
 KIND_HALT_CLEARED = "HALT_CLEARED"         # the owner's explicit release
+KIND_DECISION = "DECISION"                 # autonomy tier decision
 
 #: The evidence kinds that carry a payload rather than a mission state.
 EVIDENCE_KINDS = frozenset({
-    KIND_ANCHOR, KIND_RECONCILE, KIND_HALT, KIND_HALT_CLEARED,
+    KIND_ANCHOR, KIND_RECONCILE, KIND_HALT, KIND_HALT_CLEARED, KIND_DECISION,
 })
 HALT_KINDS = frozenset({KIND_HALT, KIND_HALT_CLEARED})
 
@@ -574,6 +575,28 @@ class MissionLedger:
             raise LedgerError("clear_halt takes the entry_hash of the HALT to release")
         return self.record(KIND_HALT_CLEARED, {"released_hash": halt_hash, "note": note},
                            agent=agent)
+
+    def decision(self, payload: Any, *, agent: str | None = None, authority: str = "NONE") -> dict[str, Any]:
+        """Record an autonomy tier decision. M43: tier promotion/demotion evidence.
+
+        ``payload`` must be a JSON mapping with the decision fields. It is
+        secret-scanned and size-checked by the same laws as checkpoint, so a key
+        can never reach the chain even by this route.
+        """
+        return self.record(KIND_DECISION, payload, agent=agent, authority=authority)
+
+    def decision_history(self) -> list[dict[str, Any]]:
+        """Return all decision records in chain order."""
+        return self.evidence(KIND_DECISION)
+
+    def current_decision(self, market: str) -> dict[str, Any] | None:
+        """Return the latest decision for a market, if any exists."""
+        decs = self.decision_history()
+        for dec in reversed(decs):
+            payload = dec.get("payload", {})
+            if payload.get("market") == market:
+                return dec
+        return None
 
     def halted(self) -> tuple[bool, dict[str, Any] | None]:
         """Is an unresolved HALT on record? Returns (halted, the halt entry).
