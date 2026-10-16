@@ -1,6 +1,6 @@
 {
   "action": "start",
-  "ts": "2026-10-14T16:57:31.307559+00:00",
+  "ts": "2026-10-15T23:48:04.783054+00:00",
   "overall": "DEGRADED",
   "paper_only": true,
   "components": {
@@ -21,18 +21,17 @@
       }
     },
     "gateway": {
-      "status": "HEALTHY",
-      "detail": "already running (idempotent)",
-      "pid": 13516,
-      "critical": false,
-      "started_ts": 1791967701.1874099
+      "status": "UNHEALTHY",
+      "detail": "foreign_busy",
+      "pid": null,
+      "critical": false
     },
     "telegram": {
       "status": "HEALTHY",
-      "detail": "pid 7800 alive for 29342s and polling",
-      "pid": 7800,
+      "detail": "pid 13048 alive for 45121s and polling",
+      "pid": 13048,
       "critical": false,
-      "started_ts": 1791967707.9329238
+      "started_ts": 1792062947.3877635
     },
     "engine": {
       "status": "HEALTHY",
@@ -44,7 +43,7 @@
   },
   "dashboard_url": "http://127.0.0.1:3000/",
   "gateway_port": 3000,
-  "gateway_chosen_via": "RECORDED_RUNNING",
+  "gateway_chosen_via": "CONFIGURED_ALREADY_LISTENING",
   "gateway_warnings": [],
   "db_backend": {
     "scheme": "postgres",
@@ -91,5 +90,5 @@
     "idempotent_replay": true,
     "note": "identical START already completed — no duplicate activation"
   },
-  "duration": 4.8016908168792725
+  "duration": 19.636433839797974
 }

@@ -1,6 +1,6 @@
 {
   "action": "start",
-  "ts": "2026-10-15T13:53:38.906301+00:00",
+  "ts": "2026-10-15T23:48:04.783054+00:00",
   "overall": "DEGRADED",
   "paper_only": true,
   "components": {
@@ -28,7 +28,7 @@
     },
     "telegram": {
       "status": "HEALTHY",
-      "detail": "pid 13048 alive for 9471s and polling",
+      "detail": "pid 13048 alive for 45121s and polling",
       "pid": 13048,
       "critical": false,
       "started_ts": 1792062947.3877635
@@ -90,5 +90,5 @@
     "idempotent_replay": true,
     "note": "identical START already completed — no duplicate activation"
   },
-  "duration": 3.4790399074554443
+  "duration": 19.636433839797974
 }

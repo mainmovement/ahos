@@ -294,3 +294,23 @@ Lane A `586e5711` ACTIVE (PID 5940, fresh `_claude_fresh_20261014_0521` running)
 
 ## Watchdog 2026-10-14 20:22 Tehran
 Lane A ACTIVE via LLM bridge (OpenRouter/Gemini/Groq free @ 127.0.0.1:8787) after Atria 429. Session 3f0c03f2 (claude 11744) working template adoption. HEAD cb85356. Soak OK cycles_ok 255 failed 0 cycle 274 VERIFIED. No Mehrdad alert (already once at 14:14; now unblocked). QA: bridge e58b81f/08d79fb/280e0b3 PASS; cb85356 PARTIAL WIP sidebar badges, no screenshots, mixed soak files into lane-A commit.
+
+## Watchdog 2026-10-16 00:20 Tehran
+- Lane A: 20ccd7c0 ACTIVE (openrouter/free / glm-4.7-flash). No restart.
+- HOLD.flag: present. Soak: VERIFIED cycles_ok 366 failed 0 cycle 385 paper_only.
+- HEAD: 9b601d0
+- QA 3e904fc..9b601d0: FAIL as visual proof. Claimed M-D7 final shots are Next.js createContext error pages (Chrome flag bar still on). No post-fix screenshot after cc31436 use client. Template-complete vs 01_dashboard_target.jpg still open. Shots: C:\Users\Sniper\QA_0013\
+- ALERT_MEHRDAD=no
+
+## Watchdog 2026-10-16 02:22 Tehran
+- Lane A 753dbeaa ACTIVE on M43 (nemotron free bridge). No restart.
+- HOLD present. Soak OK cycles_ok=375 failed=0 cycle=394 VERIFIED paper_only.
+- QA HEAD 2c61737: createContext 'use client' code present; screenshot proof is Arena.ai (FALSE). Need real dashboard shot, no error overlay, under reports/dashboard/screens/.
+- ALERT_MEHRDAD=no
+ 
+## Watchdog 2026-10-16 04:15 Tehran 
+- Laptop OK. HOLD. Soak VERIFIED 382/0/401. 9604fc61 ACTIVE M35.1. No self-heal. HEAD 4a770d1. M43 PASS; restore CONTINUATION_GUIDE from 2c61737. createContext proof unmet. ALERT=no. 
+
+## Watchdog 2026-10-16 10:16 Tehran
+Lane A ed91a6ca ACTIVE (fresh 0856, claude -p). HOLD present. Soak VERIFIED cycles_ok 406 failed 0 cycle 425 paper_only. HEAD afa5c94.
+QA 4a770d1..afa5c94: CODE PARTIAL ('use client' on 5 chart components + Kian AI framework under architecture/ai/kian_*.py). PROOF FAIL: claimed build_success.png missing; Desktop dashboard_screenshot.png is Arena.ai not AHOS Next.js; useLayout/createContext visual proof still unmet; Math.random chart data unlabeled DEMO. CONT_GUIDE intact 112964B. Shots C:\Users\Sniper\QA_1016\. No self-heal. ALERT_MEHRDAD=no.

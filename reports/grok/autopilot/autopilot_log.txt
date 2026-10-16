@@ -3682,3 +3682,34 @@
 2026-10-15T20:18:21 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
 2026-10-15T20:48:21 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
 2026-10-15T21:18:21 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-15T21:48:21 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-15T22:18:21 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-15T22:48:22 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-15T23:18:22 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-15T23:48:22 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-16T00:18:22 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-16T00:48:22 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-16T01:18:22 owner gate: M42 at NEEDS_REVIEW holds M43 -> not launched
+2026-10-16T01:48:44 M43 -> RUNNING
+2026-10-16T01:49:01 launch M43 safe=ap_M43 child=9096 attempt=0
+2026-10-16T04:07:51 wait M43 : EXITED after 8325s code=0
+2026-10-16T04:07:53 M43 -> DONE
+2026-10-16T04:08:23 M35.1 -> RUNNING
+2026-10-16T04:08:24 launch M35.1 safe=ap_M35_1 child=7996 attempt=0
+2026-10-16T07:22:41 wait M35.1 : EXITED after 11656s code=0
+2026-10-16T07:22:49 M35.1 -> PARTIAL
+2026-10-16T07:23:24 M35.1 -> RUNNING
+2026-10-16T07:23:30 launch M35.1 safe=ap_M35_1 child=14736 attempt=1
+2026-10-16T08:31:44 wait M35.1 : EXITED after 4094s code=0
+2026-10-16T08:31:44 M35.1 -> PARTIAL
+2026-10-16T08:32:15 M35.1 -> RUNNING
+2026-10-16T08:32:15 launch M35.1 safe=ap_M35_1 child=8420 attempt=2
+2026-10-16T08:52:49 wait M35.1 : EXITED after 1235s code=0
+2026-10-16T08:52:50 M35.1 -> NEEDS_REVIEW
+2026-10-16T08:53:21 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-16T09:23:21 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-16T09:53:22 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-16T10:23:22 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-16T10:53:22 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-16T11:23:22 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-16T11:53:23 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched

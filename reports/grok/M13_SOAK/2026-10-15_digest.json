@@ -2,9 +2,9 @@
   "schema": "ahos.paper_digest.v1",
   "mission_id": "M13-GOLD-PAPER",
   "day": "2026-10-15",
-  "entries": 1,
-  "digest_sha256": "b62e843bb3143e00e3634c92c59780da7971e2d9a91ff8fdb67bd6488c392814",
-  "head_hash": "400d629c1cb449a5007cdd0aea9cfa9dc9173d88cbd5f4f77f3097e984553ee6",
+  "entries": 85,
+  "digest_sha256": "cb4f6bc3585fe9eeaf7944eef472730a1911a75d24a2501b45117b5d8e272e53",
+  "head_hash": "275534d11919504f26d65a2b6de5e97b7d3366e3a674daf4c82411dcc11a6266",
   "signed": false,
   "unsigned_reason": "signature awaits a sanctioned Credential Manager key under owner approval; no key is fabricated",
   "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000"
