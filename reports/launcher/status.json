@@ -1,7 +1,7 @@
 {
   "action": "start",
-  "ts": "2026-10-15T23:48:04.783054+00:00",
-  "overall": "DEGRADED",
+  "ts": "2026-10-16T18:32:19.879953+00:00",
+  "overall": "FAILED",
   "paper_only": true,
   "components": {
     "stores": {
@@ -27,18 +27,17 @@
       "critical": false
     },
     "telegram": {
-      "status": "HEALTHY",
-      "detail": "pid 13048 alive for 45121s and polling",
-      "pid": 13048,
-      "critical": false,
-      "started_ts": 1792062947.3877635
+      "status": "SKIPPED",
+      "detail": "skipped by request",
+      "pid": null,
+      "critical": false
     },
     "engine": {
-      "status": "HEALTHY",
-      "detail": "already running (idempotent)",
-      "pid": 2164,
+      "status": "UNAVAILABLE",
+      "detail": "health check timed out after 420s; log tail: ule>\n    from .service import TelegramDomainService\n  File \"G:\\robat\\ahos\\telegram_ai\\service.py\", line 30, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+      "pid": 6220,
       "critical": true,
-      "started_ts": 1791967721.0946336
+      "started_ts": 1792175539.6291625
     }
   },
   "dashboard_url": "http://127.0.0.1:3000/",
@@ -83,12 +82,6 @@
       "detail": "Credential Manager AHOS/ai/gemini (presence only)"
     }
   ],
-  "cp_status": "SYSTEM_ONLINE",
-  "cp_run": {
-    "run_id": "run-0ccbafe98ba4158e",
-    "status": "SYSTEM_ONLINE",
-    "idempotent_replay": true,
-    "note": "identical START already completed — no duplicate activation"
-  },
-  "duration": 19.636433839797974
+  "cp_status": "SAFE_HALT",
+  "failure": "engine"
 }

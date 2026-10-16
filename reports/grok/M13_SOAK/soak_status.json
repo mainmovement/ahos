@@ -1,22 +1,22 @@
 {
   "soak": "M13-GOLD-PAPER",
   "paper_only": true,
-  "started_hint": "2026-10-16T09:47:32Z",
+  "started_hint": "2026-10-16T20:56:12Z",
   "cycle_interval_sec": 900.0,
-  "planned_days": 6.872,
-  "cycles_ok": 419,
+  "planned_days": 2.0504,
+  "cycles_ok": 1,
   "cycles_failed": 0,
   "last_day_report": "2026-10-16",
   "last_cycle": {
-    "ts": "2026-10-16T09:47:30Z",
+    "ts": "2026-10-16T20:55:43Z",
     "kind": "cycle",
     "ok": true,
-    "cycle": 438,
+    "cycle": 477,
     "witness_state": "VERIFIED",
-    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.478%",
-    "price_usd": 4193.2999025,
-    "spread_pct": 0.4780961425737578,
-    "equity_usd": 9986.073339606803,
+    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.569%",
+    "price_usd": 4177.149902499999,
+    "spread_pct": 0.568991335786941,
+    "equity_usd": 10000.818481471944,
     "position_open": true,
     "exit": null,
     "realized_pnl_usd": null,
@@ -28,24 +28,23 @@
       "allowed": true,
       "reasons": []
     },
-    "duration_s": 1.66
+    "duration_s": 7.98
   },
   "last_tier_gate": {
-    "ts": "2026-10-16T00:01:43Z",
+    "ts": "2026-10-16T20:55:51Z",
     "kind": "tier_gate",
     "day": "2026-10-16",
     "ok": true,
     "tier": "T0",
     "promoted": false,
-    "trades": 2,
-    "months_of_data": 0.18354692787695445,
+    "trades": 3,
+    "months_of_data": 0.21257798045910434,
     "measurable_passed": 1,
-    "measurable_total": 6,
+    "measurable_total": 7,
     "unmeasurable": [
       "regime_coverage",
       "cost_model",
       "drawdown_vs_backtest_multiple",
-      "month_profit_share_pct",
       "walk_forward"
     ],
     "ready_for_owner_review": false,
@@ -55,60 +54,79 @@
     ],
     "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-16_tier_gate.md"
   },
+  "last_m42_reconcile": {
+    "ts": "2026-10-16T20:56:03Z",
+    "kind": "m42_reconcile",
+    "day": "2026-10-16",
+    "ok": true,
+    "verdict": "UNKNOWN",
+    "findings": 1,
+    "entries": 484,
+    "head_hash": "8ba4521448f0e09b9ae4c9d2b096c9269671f15e56ea20fb18e8213763720995",
+    "recorded": true,
+    "halt_recorded": false,
+    "reconcile_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-16_reconcile.md"
+  },
   "ledger_state": {
     "bankroll_usd": 10000.0,
     "breaker": {
       "allowed": true,
       "daily_loss_pct": 0.0,
       "drawdown_pct": 0.13926660393197382,
-      "open_exposure_pct": 10.013946082628857,
+      "open_exposure_pct": 9.999181585513766,
       "p_ruin": null,
       "reasons": [],
       "state": "ARMED",
-      "weekly_loss_pct": 0.1394608262885602
+      "weekly_loss_pct": 0.139255206151362
     },
-    "closed_trades": 3,
-    "cumulative_realized_pnl_usd": -13.926660393197267,
-    "cycle": 438,
-    "equity_usd": 9986.073339606803,
+    "closed_trades": 4,
+    "cumulative_realized_pnl_usd": 0.8184814719436417,
+    "cycle": 477,
+    "equity_usd": 10000.818481471944,
     "exit": null,
     "exit_card": "PT-X1-v1",
+    "halt": {
+      "allowed": true,
+      "reason": null,
+      "source": null,
+      "state": "ARMED"
+    },
     "market": "gold",
     "open_unpriced": false,
     "paper_only": true,
     "position": {
-      "cycle": 259,
-      "entry_price": 4112.850049000001,
-      "entry_ts": 1791982866.4842472,
-      "exec_price": 4116.962899049001,
+      "cycle": 452,
+      "entry_price": 4177.8000974999995,
+      "entry_ts": 1792156653.5745335,
+      "exec_price": 4181.9778975975,
       "notional_usd": 1000.0,
-      "qty_oz": 0.24289750102703023
+      "qty_oz": 0.23912130204573512
     },
-    "price_usd": 4193.2999025,
-    "realizable_equity_usd": 10003.596864913568,
+    "price_usd": 4177.149902499999,
+    "realizable_equity_usd": 9998.665159474434,
     "realized_pnl_usd": null,
     "round_trip_bps": 20.0,
-    "settled_trades": 2,
+    "settled_trades": 3,
     "unpriced_for_s": null,
     "witness": {
       "quotes": [
         {
           "instrument": "spot",
-          "observed_at": 1792144038.0,
-          "price_usd": 4183.299805,
+          "observed_at": 1792184139.0,
+          "price_usd": 4165.299805,
           "provider_id": "goldapi_spot",
-          "raw_sha256": "eb89ac2aaa0019898a8d7d9abdd93f9fe39cab680d32da3febf1f63949684fd5"
+          "raw_sha256": "a656258bdfe8a008785798a96d1e78ef46d4a9824f33a40d14b9b0b579edc8d1"
         },
         {
           "instrument": "futures",
-          "observed_at": 1792143440.0,
-          "price_usd": 4203.3,
+          "observed_at": 1792183548.0,
+          "price_usd": 4189.0,
           "provider_id": "yahoo_gc_futures",
-          "raw_sha256": "2544ec2578a59ea60904aaf0d271cf19cb542cf1f1821a88f272b2c28332785b"
+          "raw_sha256": "4daee6d020404e9c64f29c9ebeafe24113578288287878dedfa080497a3405ea"
         }
       ],
-      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.478%",
-      "spread_pct": 0.4780961425737578,
+      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.569%",
+      "spread_pct": 0.568991335786941,
       "state": "VERIFIED",
       "tolerance_pct": 1.0
     }

@@ -1,5 +1,5 @@
 ﻿{
-    "runner_pid":  2200,
+    "runner_pid":  3960,
     "entries":  [
                     {
                         "safe":  "ap_M10_1",
@@ -50,9 +50,21 @@
                         "disposition":  "OWNER_GATE_PRESERVED"
                     },
                     {
-                        "safe":  "ap_M42",
+                        "safe":  "ap_M35_1",
                         "result_verdict":  "MALFORMED",
                         "queue_status":  "NEEDS_REVIEW",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M42",
+                        "result_verdict":  "MALFORMED",
+                        "queue_status":  "DONE",
+                        "disposition":  "OWNER_GATE_PRESERVED"
+                    },
+                    {
+                        "safe":  "ap_M43",
+                        "result_verdict":  "DONE",
+                        "queue_status":  "DONE",
                         "disposition":  "OWNER_GATE_PRESERVED"
                     },
                     {
@@ -62,5 +74,5 @@
                         "disposition":  "OWNER_GATE_PRESERVED"
                     }
                 ],
-    "ts":  "2026-10-13T15:45:38.3629892+03:30"
+    "ts":  "2026-10-16T23:13:50.4309006+03:30"
 }

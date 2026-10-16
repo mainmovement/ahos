@@ -1,0 +1,87 @@
+{
+  "action": "start",
+  "ts": "2026-10-16T18:32:19.879953+00:00",
+  "overall": "FAILED",
+  "paper_only": true,
+  "components": {
+    "stores": {
+      "status": "HEALTHY",
+      "detail": "already running (idempotent)",
+      "pid": null,
+      "critical": true
+    },
+    "db_backend": {
+      "status": "UNAVAILABLE",
+      "detail": "Postgres not listening on 127.0.0.1:5432",
+      "pid": null,
+      "critical": false,
+      "evidence": {
+        "scheme": "postgres",
+        "init_action": "noop_not_pglite"
+      }
+    },
+    "gateway": {
+      "status": "UNHEALTHY",
+      "detail": "foreign_busy",
+      "pid": null,
+      "critical": false
+    },
+    "telegram": {
+      "status": "SKIPPED",
+      "detail": "skipped by request",
+      "pid": null,
+      "critical": false
+    },
+    "engine": {
+      "status": "UNAVAILABLE",
+      "detail": "health check timed out after 420s; log tail: ule>\n    from .service import TelegramDomainService\n  File \"G:\\robat\\ahos\\telegram_ai\\service.py\", line 30, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+      "pid": 6220,
+      "critical": true,
+      "started_ts": 1792175539.6291625
+    }
+  },
+  "dashboard_url": "http://127.0.0.1:3000/",
+  "gateway_port": 3000,
+  "gateway_chosen_via": "CONFIGURED_ALREADY_LISTENING",
+  "gateway_warnings": [],
+  "db_backend": {
+    "scheme": "postgres",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "configured": true
+  },
+  "preflight": [
+    {
+      "name": "repo",
+      "ok": true,
+      "detail": "workspace root G:\\robat\\ahos"
+    },
+    {
+      "name": "venv",
+      "ok": true,
+      "detail": ".venv\\Scripts\\python.exe"
+    },
+    {
+      "name": "node_modules",
+      "ok": true,
+      "detail": "node_modules"
+    },
+    {
+      "name": "scheduler_config",
+      "ok": true,
+      "detail": "existing scheduler (n8n replacement)"
+    },
+    {
+      "name": "db_reachable",
+      "ok": false,
+      "detail": "postgres on 127.0.0.1:5432"
+    },
+    {
+      "name": "gemini_cred",
+      "ok": true,
+      "detail": "Credential Manager AHOS/ai/gemini (presence only)"
+    }
+  ],
+  "cp_status": "SAFE_HALT",
+  "failure": "engine"
+}

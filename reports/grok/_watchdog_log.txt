@@ -182,3 +182,47 @@ shots: no new AHOS shots (existing copies in C:\Users\Sniper\QA_0216)
 restart_launched: no
 alert_mehrdad: no
 ==== end ====
+==== watchdog 2026-10-16 14:20 Tehran (Soltan) ====
+laneA: 4c42b79a ACTIVE (claude -p PID 6148 via fresh 1327; glm-4.5-flash; LW 14:16; checking dev server). Note: 1327 log shows a non-fatal [unrecognized_model] openrouter/free line, session still working. No self-heal.
+HOLD.flag: present
+soak: VERIFIED cycles_ok 423 failed 0 cycle 442 paper_only T0 (OK)
+QA a7aba54..4d78ac0:
+  - 9f33596 PASS (code): 'use client' added to app-sidebar.tsx (useLayout consumer) - targets the createContext boundary error. Root :3000 now 200, SSR HTML has no __next_error__/createContext markers. /command_center and /dashboard timed out (30s) on probe.
+  - bd8bf9f FAIL (message): claims 'use client' fix but only touches next-env.d.ts + soak/autopilot logs, and commits _watchdog_log.txt (not its file).
+  - 0e9e4ba/a62bdf1/01cdeb4/661c8d0: housekeeping status/log commits (a62bdf1 again flips next-env.d.ts).
+  - 4d78ac0 PARTIAL: telegram_ai/service.py adds hard 'from dotenv import load_dotenv' (M61). Works only if python-dotenv is installed; should be in requirements or wrapped in try/except.
+  - Repeat open: real AHOS screenshot proof (none new), Math.random charts DEMO label, template-complete vs 01.
+shots: none new
+restart_launched: no
+alert_mehrdad: no
+==== end ====
+==== watchdog 2026-10-16 16:21 Tehran (Soltan/Grok Bot) ====
+laneA: 4c42b79a IDLE (LW 14:39 Tehran; last model glm-4.5-flash via openrouter/free; stalled mid Bash /api/health after BG tsc task killed; no claude -p). Prior fresh 1525 STALLED at 16:03. Local claude_watchdog already started fresh 1619 (PID 2348) at 16:19 -> self-heal skipped-fresh-running (no second launch).
+HOLD.flag: present
+soak: VERIFIED cycles_ok 431 failed 0 cycle 450 paper_only T0 (OK)
+HEAD 4d78ac0 (dirty: soak/logs/fresh only; ahead 270)
+QA: SKIP (no commits newer than 4d78ac0). Open from prior: real AHOS screenshot proof, Math.random DEMO label, template-complete vs 01, dotenv hard-import PARTIAL.
+shots: none new
+restart_launched: no (fresh already running)
+alert_mehrdad: no
+==== end ====
+
+2026-10-16 20:15 Soltan watchdog: lane A 2d23a0f5 ACTIVE (LW 20:13, next build); 2 claude_fresh jobs running (PIDs 896/5448 -> claude 4664/7392); HOLD present; no self-heal. Soak cycles_ok 446 failed 0 cycle 465. QA fadb1b0: logs + scripts/test_m61_fix.py only, no dashboard change.
+
+==== watchdog 2026-10-16 22:12 Tehran (Soltan/Grok Bot) ====
+laneA: 2d23a0f5 + 88a8731a STALLED since 21:10 (post-compaction, no model reply ~58 min); fresh claude -p 4664/7392 (wrappers 896/5448 from keepalive) hung since 18:41 with no API connections, wrappers' own 30-min stall kill never fired. Killed those 6 processes, marked 1749/1841 logs STALLED-KILLED, launched fresh 2211 (claude PID 12436, openrouter/free via proxy :8787 which answers 200).
+HOLD.flag: present
+QA: SKIP (no commits after fadb1b0)
+restart_launched: yes (fresh 2211)
+alert_mehrdad: no
+==== end ====
+2026-10-16T23:13:48 watchdog start pid=4596
+
+==== watchdog 2026-10-17 00:20 Tehran (Soltan) ====
+laptop rebooted 23:00; LLM bridge :8787 was DOWN after reboot (not in Startup) -> restarted ahos_llm_bridge.ps1
+laneA: 9ad5d680 IDLE (LW 22:57, ~80 min; no claude -p). fresh 2211 log showed unrecognized_model warning, no done.
+HOLD.flag: present
+restart_launched: yes (fresh 0019)
+QA: SKIP (no commits after fadb1b0)
+alert_mehrdad: no
+==== end ====
