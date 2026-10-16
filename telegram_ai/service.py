@@ -27,6 +27,10 @@ import time
 import urllib.request
 from pathlib import Path
 from typing import Any
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 AHOS_GATEWAY_URL = os.environ.get("AHOS_GATEWAY_URL", "").strip()
 
