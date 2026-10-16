@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-labelledby="ahos-app-icon-maskable-t">
+  <title id="ahos-app-icon-maskable-t">AHOS app icon — maskable</title>
+  <desc>Maskable app icon: full-bleed dark ground, star inside the safe radius.</desc>
+  <defs>
+    <linearGradient id="ahosAppMask-bg" x1="0" y1="0" x2="358.4" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="0.45" stop-color="#0A0F1A"/>
+      <stop offset="1" stop-color="#05070C"/>
+    </linearGradient>
+    <radialGradient id="ahosAppMask-halo" cx="512" cy="481.28" r="471.04" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D4A437" stop-opacity="0.30"/>
+      <stop offset="0.5" stop-color="#8A6414" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#8A6414" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="ahosAppMask-frame"><rect x="0" y="0" width="1024" height="1024" rx="0" ry="0"/></clipPath>
+  </defs>
+  <g clip-path="url(#ahosAppMask-frame)">
+<rect width="1024" height="1024" fill="url(#ahosAppMask-bg)"/>
+    <rect width="1024" height="1024" fill="url(#ahosAppMask-halo)"/>
+  </g>
+  <g class="ahos-star" transform="translate(194.56 194.56)">
+    <defs>
+      <clipPath id="ahosAppMask-star-clip"><path d="M300.11 93.54 A41.75 41.75 0 0 0 334.77 93.54 L387.73 209.62 A7.48 7.48 0 0 1 398.26 217.28 L525.03 231.77 A41.75 41.75 0 0 0 535.74 264.73 L441.7 350.97 A7.48 7.48 0 0 1 437.68 363.35 L463.07 488.4 A41.75 41.75 0 0 0 435.03 508.77 L323.95 445.98 A7.48 7.48 0 0 1 310.93 445.98 L199.85 508.77 A41.75 41.75 0 0 0 171.81 488.4 L197.2 363.35 A7.48 7.48 0 0 1 193.18 350.97 L99.14 264.73 A41.75 41.75 0 0 0 109.85 231.77 L236.62 217.28 A7.48 7.48 0 0 1 247.15 209.62 Z"/></clipPath>
+    <linearGradient id="ahosAppMask-star-gold" x1="101.58" y1="12.7" x2="507.9" y2="634.88" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6E3A1"/>
+      <stop offset="0.5" stop-color="#D4A437"/>
+      <stop offset="1" stop-color="#8A6414"/>
+    </linearGradient>
+    <linearGradient id="ahosAppMask-star-gloss" x1="0" y1="25.4" x2="0" y2="317.44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.40"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.03"/>
+    </linearGradient>
+    </defs>
+    <path d="M300.11 93.54 A41.75 41.75 0 0 0 334.77 93.54 L387.73 209.62 A7.48 7.48 0 0 1 398.26 217.28 L525.03 231.77 A41.75 41.75 0 0 0 535.74 264.73 L441.7 350.97 A7.48 7.48 0 0 1 437.68 363.35 L463.07 488.4 A41.75 41.75 0 0 0 435.03 508.77 L323.95 445.98 A7.48 7.48 0 0 1 310.93 445.98 L199.85 508.77 A41.75 41.75 0 0 0 171.81 488.4 L197.2 363.35 A7.48 7.48 0 0 1 193.18 350.97 L99.14 264.73 A41.75 41.75 0 0 0 109.85 231.77 L236.62 217.28 A7.48 7.48 0 0 1 247.15 209.62 Z" fill="none" stroke="#D4A437" stroke-opacity="0.16" stroke-width="68.78" stroke-linejoin="round"/>
+    <path d="M300.11 93.54 A41.75 41.75 0 0 0 334.77 93.54 L387.73 209.62 A7.48 7.48 0 0 1 398.26 217.28 L525.03 231.77 A41.75 41.75 0 0 0 535.74 264.73 L441.7 350.97 A7.48 7.48 0 0 1 437.68 363.35 L463.07 488.4 A41.75 41.75 0 0 0 435.03 508.77 L323.95 445.98 A7.48 7.48 0 0 1 310.93 445.98 L199.85 508.77 A41.75 41.75 0 0 0 171.81 488.4 L197.2 363.35 A7.48 7.48 0 0 1 193.18 350.97 L99.14 264.73 A41.75 41.75 0 0 0 109.85 231.77 L236.62 217.28 A7.48 7.48 0 0 1 247.15 209.62 Z" fill="url(#ahosAppMask-star-gold)"/>
+    <g clip-path="url(#ahosAppMask-star-clip)">
+      <rect x="0" y="0" width="634.88" height="317.44" fill="url(#ahosAppMask-star-gloss)"/>
+    </g>
+    <path d="M307.72 165.9 A23.42 23.42 0 0 0 327.16 165.9 L364.14 246.96 A4.19 4.19 0 0 1 370.05 251.25 L458.56 261.37 A23.42 23.42 0 0 0 464.56 279.86 L398.91 340.07 A4.19 4.19 0 0 1 396.65 347.02 L414.38 434.32 A23.42 23.42 0 0 0 398.65 445.75 L321.09 401.91 A4.19 4.19 0 0 1 313.79 401.91 L236.23 445.75 A23.42 23.42 0 0 0 220.5 434.32 L238.23 347.02 A4.19 4.19 0 0 1 235.97 340.07 L170.32 279.86 A23.42 23.42 0 0 0 176.32 261.37 L264.83 251.25 A4.19 4.19 0 0 1 270.74 246.96 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.26" stroke-width="8.47" stroke-linejoin="round"/>
+  </g>
+</svg>

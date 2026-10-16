@@ -1,0 +1,2077 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "paper-positions.json",
+    "entity": "PaperPosition",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 15,
+    "paperNoticeKey": "pages.positions.paperOnlyNotice",
+    "moneyUnit": "USDT_PAPER",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "items": [
+    {
+      "id": "pos.demo.001",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.btc-usdt",
+      "symbol": "BTC/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "qty": {
+        "value": 1.029633,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "entryPrice": {
+        "value": 59750,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "markPrice": {
+        "value": 61500,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "displayedValueUsd": {
+        "value": 63322.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "realizableValueUsd": {
+        "value": 63151.46,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 61520.57,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": 1801.86,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "unrealizedPnlPct": {
+        "value": 2.93,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "exitCostUsd": {
+        "value": 170.97,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "stopLoss": {
+        "value": 58000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "takeProfit": {
+        "value": 63250,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "momentumClass": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "holdMinutes": {
+        "value": 1575,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-21T09:45:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "openedAt": {
+        "value": "2026-10-14T09:45:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "signalId": {
+        "value": "sig.demo.001",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.579Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:18.579Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.002",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.eth-usdt",
+      "symbol": "ETH/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "qty": {
+        "value": 17.139366,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "entryPrice": {
+        "value": 3040,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "markPrice": {
+        "value": 3070,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "displayedValueUsd": {
+        "value": 52617.85,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "realizableValueUsd": {
+        "value": 52202.17,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 52103.67,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": 514.18,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "unrealizedPnlPct": {
+        "value": 0.99,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "exitCostUsd": {
+        "value": 415.68,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "stopLoss": {
+        "value": 2950,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "takeProfit": {
+        "value": 3220,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "momentumClass": {
+        "value": "IMPROVING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "holdMinutes": {
+        "value": 3100,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-20T08:20:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "openedAt": {
+        "value": "2026-10-13T08:20:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "signalId": {
+        "value": "sig.demo.002",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.962Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.962Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.003",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.sol-usdt",
+      "symbol": "SOL/USDT",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "qty": {
+        "value": 48.571985,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "entryPrice": {
+        "value": 153,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "markPrice": {
+        "value": 147,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "displayedValueUsd": {
+        "value": 7140.08,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "realizableValueUsd": {
+        "value": 7115.09,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 7431.51,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": -291.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "unrealizedPnlPct": {
+        "value": -3.92,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "exitCostUsd": {
+        "value": 24.99,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "stopLoss": {
+        "value": 157.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "takeProfit": {
+        "value": 144,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "trailingStopPct": {
+        "value": 2.24,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "momentumClass": {
+        "value": "DETERIORATING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "holdMinutes": {
+        "value": 581,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-22T02:19:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "openedAt": {
+        "value": "2026-10-15T02:19:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "signalId": {
+        "value": "sig.demo.003",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:44.040Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:44.040Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.004",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.xau-usd",
+      "symbol": "XAU/USD",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "qty": {
+        "value": 21.78387,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "entryPrice": {
+        "value": 2335,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "markPrice": {
+        "value": 2325,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "displayedValueUsd": {
+        "value": 50647.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "realizableValueUsd": {
+        "value": 50196.74,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 50865.34,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": -217.84,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "unrealizedPnlPct": {
+        "value": -0.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "exitCostUsd": {
+        "value": 450.76,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "stopLoss": {
+        "value": 2265,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "takeProfit": {
+        "value": 2475,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "trailingStopPct": {
+        "value": 3.07,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "momentumClass": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "holdMinutes": {
+        "value": 4463,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-19T09:37:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "openedAt": {
+        "value": "2026-10-12T09:37:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "signalId": {
+        "value": "sig.demo.030",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.637Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:02.637Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.005",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.eur-usd",
+      "symbol": "EUR/USD",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "qty": {
+        "value": 628.031811,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "entryPrice": {
+        "value": 1.19,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "markPrice": {
+        "value": 1.1425,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "displayedValueUsd": {
+        "value": 717.53,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "realizableValueUsd": {
+        "value": 709.13,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 747.36,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": -29.83,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "unrealizedPnlPct": {
+        "value": -3.99,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "exitCostUsd": {
+        "value": 8.4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "stopLoss": {
+        "value": 1.155,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "takeProfit": {
+        "value": 1.2625,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "momentumClass": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "holdMinutes": {
+        "value": 928,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-21T20:32:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "openedAt": {
+        "value": "2026-10-14T20:32:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "signalId": {
+        "value": "sig.demo.017",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:36.765Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:36.765Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.006",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.ndx-usd",
+      "symbol": "NDX/USD",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "qty": {
+        "value": 1.738182,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "entryPrice": {
+        "value": 17300,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "markPrice": {
+        "value": 18000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "displayedValueUsd": {
+        "value": 31287.28,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "realizableValueUsd": {
+        "value": 31074.53,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 30070.55,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": 1216.73,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "unrealizedPnlPct": {
+        "value": 4.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "exitCostUsd": {
+        "value": 212.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "stopLoss": {
+        "value": 17800,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "takeProfit": {
+        "value": 16300,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_PARTIAL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "liquidityRisk": {
+        "value": "THIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "momentumClass": {
+        "value": "IMPROVING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "holdMinutes": {
+        "value": 356,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-22T06:04:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "openedAt": {
+        "value": "2026-10-15T06:04:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "signalId": {
+        "value": "sig.demo.027",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:45.731Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:45.731Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.007",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.link-usdt",
+      "symbol": "LINK/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "qty": {
+        "value": 223.494697,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "entryPrice": {
+        "value": 12.65,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "markPrice": {
+        "value": 13.1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "displayedValueUsd": {
+        "value": 2927.78,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "realizableValueUsd": {
+        "value": 2893.82,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 2827.21,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": 100.57,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "unrealizedPnlPct": {
+        "value": 3.56,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "exitCostUsd": {
+        "value": 33.96,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "stopLoss": {
+        "value": 12.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "takeProfit": {
+        "value": 13.4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "liquidityRisk": {
+        "value": "THIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "momentumClass": {
+        "value": "DETERIORATING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "holdMinutes": {
+        "value": 1987,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-21T02:53:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "openedAt": {
+        "value": "2026-10-14T02:53:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "signalId": {
+        "value": "sig.demo.009",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.302Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:52.302Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.008",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.arb-usdt",
+      "symbol": "ARB/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "state": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "qty": {
+        "value": 998.55147,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "entryPrice": {
+        "value": 0.81,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "markPrice": {
+        "value": 0.77,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "displayedValueUsd": {
+        "value": 768.88,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "realizableValueUsd": {
+        "value": 763.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 808.83,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": -39.95,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "unrealizedPnlPct": {
+        "value": -4.94,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "exitCostUsd": {
+        "value": 5.38,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "stopLoss": {
+        "value": 0.79,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "takeProfit": {
+        "value": 0.86,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "trailingStopPct": {
+        "value": 3.52,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "momentumClass": {
+        "value": "IMPROVING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "holdMinutes": {
+        "value": 3752,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-19T21:28:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "openedAt": {
+        "value": "2026-10-12T21:28:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "signalId": {
+        "value": "sig.demo.012",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:54.327Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:54.327Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.009",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.bonk-sol",
+      "symbol": "BONK/SOL",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "state": {
+        "value": "TRAPPED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "qty": {
+        "value": 11435.459898,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "entryPrice": {
+        "value": 0.000021,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "markPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:28.708Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "displayedValueUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:28.708Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "realizableValueUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:28.708Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "allocatedNotionalUsd": {
+        "value": 0.24,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:28.708Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "unrealizedPnlPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:28.708Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "exitCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:28.708Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "stopLoss": {
+        "value": 0.0000205,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "takeProfit": {
+        "value": 0.0000225,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "trailingStopPct": {
+        "value": 3.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "exitability": {
+        "value": "UNEXITABLE_NO_PRICE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "liquidityRisk": {
+        "value": "COLLAPSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "momentumClass": {
+        "value": "UNKNOWN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "holdMinutes": {
+        "value": 5818,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-18T11:02:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "openedAt": {
+        "value": "2026-10-11T11:02:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "signalId": {
+        "value": "sig.demo.015",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.708Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:28.708Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.010",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.doge-usdt",
+      "symbol": "DOGE/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "state": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "qty": {
+        "value": 565.396148,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "entryPrice": {
+        "value": 0.113,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "markPrice": {
+        "value": 0.108,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "displayedValueUsd": {
+        "value": 61.06,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "realizableValueUsd": {
+        "value": 60.57,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 63.89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": -2.83,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "unrealizedPnlPct": {
+        "value": -4.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "realizedPnlUsd": {
+        "value": -6.95,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "exitCostUsd": {
+        "value": 0.49,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "stopLoss": {
+        "value": 0.11,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "takeProfit": {
+        "value": 0.12,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "trailingStopPct": {
+        "value": 1.71,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "momentumClass": {
+        "value": "IMPROVING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "holdMinutes": {
+        "value": 2477,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-20T18:43:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "openedAt": {
+        "value": "2026-10-13T18:43:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "closedAt": {
+        "value": "2026-10-14T12:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "signalId": {
+        "value": "sig.demo.007",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:38.083Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.083Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.011",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.gbp-jpy",
+      "symbol": "GBP/JPY",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "state": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "qty": {
+        "value": 13.008481,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "entryPrice": {
+        "value": 186.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "markPrice": {
+        "value": 204.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "displayedValueUsd": {
+        "value": 2656.98,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "realizableValueUsd": {
+        "value": 2636.79,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 2426.08,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": 230.9,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "unrealizedPnlPct": {
+        "value": 9.52,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "realizedPnlUsd": {
+        "value": -109.78,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "exitCostUsd": {
+        "value": 20.19,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "stopLoss": {
+        "value": 192,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "takeProfit": {
+        "value": 175.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "momentumClass": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "holdMinutes": {
+        "value": 1177,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-21T16:23:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "openedAt": {
+        "value": "2026-10-14T16:23:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "closedAt": {
+        "value": "2026-10-14T21:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "signalId": {
+        "value": "sig.demo.025",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:29.642Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:29.642Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.012",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.avax-usdt",
+      "symbol": "AVAX/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "state": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "qty": {
+        "value": 27.813508,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "entryPrice": {
+        "value": 30.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "markPrice": {
+        "value": 31.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "displayedValueUsd": {
+        "value": 876.13,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "realizableValueUsd": {
+        "value": 872.45,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 841.36,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": 34.77,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "unrealizedPnlPct": {
+        "value": 4.13,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "realizedPnlUsd": {
+        "value": 3.56,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "exitCostUsd": {
+        "value": 3.68,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "stopLoss": {
+        "value": 29.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "takeProfit": {
+        "value": 32,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "momentumClass": {
+        "value": "IMPROVING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "holdMinutes": {
+        "value": 5302,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-18T19:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "openedAt": {
+        "value": "2026-10-11T19:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "closedAt": {
+        "value": "2026-10-14T22:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "signalId": {
+        "value": "sig.demo.008",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.904Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:59.904Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.013",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.xag-usd",
+      "symbol": "XAG/USD",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "state": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "qty": {
+        "value": 220.600791,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "entryPrice": {
+        "value": 28.2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "markPrice": {
+        "value": 31.2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "displayedValueUsd": {
+        "value": 6882.74,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "realizableValueUsd": {
+        "value": 6844.88,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 6220.94,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": 661.8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "unrealizedPnlPct": {
+        "value": 10.64,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "realizedPnlUsd": {
+        "value": 819.56,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "exitCostUsd": {
+        "value": 37.86,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "stopLoss": {
+        "value": 27.4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "takeProfit": {
+        "value": 29.9,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "liquidityRisk": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "momentumClass": {
+        "value": "IMPROVING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "holdMinutes": {
+        "value": 777,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-21T23:03:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "openedAt": {
+        "value": "2026-10-14T23:03:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "closedAt": {
+        "value": "2026-10-14T04:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "signalId": {
+        "value": "sig.demo.022",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.849Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:49.849Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.014",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.wif-usdt",
+      "symbol": "WIF/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "state": {
+        "value": "TRAPPED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "qty": {
+        "value": 15.75589,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "entryPrice": {
+        "value": 1.58,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "markPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:31.522Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "displayedValueUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:31.522Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "realizableValueUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:31.522Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "allocatedNotionalUsd": {
+        "value": 24.89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:31.522Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "unrealizedPnlPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:31.522Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "exitCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:31.522Z",
+        "note": "قیمتی خوانده نشد. / No price was read."
+      },
+      "stopLoss": {
+        "value": 1.54,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "takeProfit": {
+        "value": 1.68,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "trailingStopPct": {
+        "value": 2.42,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "exitability": {
+        "value": "UNEXITABLE_NO_LIQUIDITY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "liquidityRisk": {
+        "value": "COLLAPSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "momentumClass": {
+        "value": "UNKNOWN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "holdMinutes": {
+        "value": 7216,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-17T11:44:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "openedAt": {
+        "value": "2026-10-10T11:44:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "closedAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "signalId": {
+        "value": "sig.demo.016",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:31.522Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:31.522Z",
+      "demo": true
+    },
+    {
+      "id": "pos.demo.015",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.op-usdt",
+      "symbol": "OP/USDT",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "state": {
+        "value": "INVALIDATED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "qty": {
+        "value": 313.137603,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "entryPrice": {
+        "value": 1.72,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "markPrice": {
+        "value": 1.66,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "displayedValueUsd": {
+        "value": 519.81,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "realizableValueUsd": {
+        "value": 517.52,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 538.6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "unrealizedPnlUsd": {
+        "value": -18.79,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "unrealizedPnlPct": {
+        "value": -3.49,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "realizedPnlUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "exitCostUsd": {
+        "value": 2.29,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "stopLoss": {
+        "value": 1.66,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "takeProfit": {
+        "value": 1.82,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "trailingStopPct": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "leverage": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "exitability": {
+        "value": "EXECUTABLE_FULL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "liquidityRisk": {
+        "value": "THIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "momentumClass": {
+        "value": "DETERIORATING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "holdMinutes": {
+        "value": 215,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "timeStopAt": {
+        "value": "2026-10-22T08:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "openedAt": {
+        "value": "2026-10-15T08:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "closedAt": {
+        "value": "2026-10-14T07:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "signalId": {
+        "value": "sig.demo.013",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:11.932Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:11.932Z",
+      "demo": true
+    }
+  ]
+}

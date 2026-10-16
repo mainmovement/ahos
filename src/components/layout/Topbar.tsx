@@ -1,16 +1,8 @@
 "use client";
+import { tr } from "../../lib/i18n";
+import { AhosIcon } from "../icons";
 import { useEffect, useState } from "react";
-import {
-  Bell,
-  ChevronDown,
-  Command,
-  Menu,
-  Search,
-  ShieldCheck,
-  SlidersHorizontal,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { Bell, ChevronDown, Command, Menu, Search, SlidersHorizontal, Volume2, VolumeX } from "lucide-react";
 import type { Language, Quality } from "../../lib/navigation";
 
 type Props = {
@@ -227,7 +219,7 @@ export function Topbar({
       </div>
       <div className="ah-sessionbar">
         <div className="ah-session-label">
-          <ShieldCheck size={13} />
+          <AhosIcon name="status/demo" variant="color" size={13} />
           <span>PAPER ONLY</span>
           <i />
           <span>
@@ -241,7 +233,7 @@ export function Topbar({
           {["ASIA", "EUROPE", "US"].map((market) => (
             <span className="ah-session-pill" key={market}>
               {market}
-              <span>UNKNOWN</span>
+              <span>{fa ? tr("fa", "status.UNKNOWN.label") : "UNKNOWN"}</span>
             </span>
           ))}
         </div>

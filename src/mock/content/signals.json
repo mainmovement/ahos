@@ -1,0 +1,3764 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "signals.json",
+    "entity": "Signal",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 30,
+    "paperNoticeKey": "pages.signals.paperOnlyNotice",
+    "moneyUnit": "USDT_PAPER",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "items": [
+    {
+      "id": "sig.demo.007",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.doge-usdt",
+      "symbol": "DOGE/USDT",
+      "departmentId": "dept.marketData",
+      "agentId": "agent.marketdata-integrity",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "action": {
+        "value": "HOLD",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "state": {
+        "value": "ACKNOWLEDGED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "score": {
+        "value": 89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 41,
+          "liquidity": 25,
+          "security": 10,
+          "momentum": 15
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "entryRef": {
+        "value": 0.119,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "stopRef": {
+        "value": 0.117,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "targetRef": {
+        "value": 0.125,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "invalidationRef": {
+        "value": 0.114,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 3514.27,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "روند خنثی است و حد ضرر نخورده؛ نگهداری با ثبت دلیل.",
+          "en": "Momentum is flat and the stop is untouched; hold with the reason recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.doge.7",
+          "ev.depth.7"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "dissentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-15T07:01:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-15T19:01:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:48.591Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:48.591Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.011",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.ton-usdt",
+      "symbol": "TON/USDT",
+      "departmentId": "dept.research",
+      "agentId": "agent.research-hypothesis",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "action": {
+        "value": "TRIM",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "state": {
+        "value": "ACKNOWLEDGED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "conviction": {
+        "value": "LOW",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "strength": {
+        "value": "WEAK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "score": {
+        "value": 55,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 37,
+          "liquidity": 16,
+          "security": 29,
+          "momentum": 13
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "horizonMinutes": {
+        "value": 1440,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "entryRef": {
+        "value": 5.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "stopRef": {
+        "value": 5.4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "targetRef": {
+        "value": 5.8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "invalidationRef": {
+        "value": 5.3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4800.88,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "اسپرد گشاد شده و خروج کامل پرهزینه است؛ کم‌کردن تدریجی.",
+          "en": "The spread widened and a full exit is costly; trim gradually."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.ton.11",
+          "ev.depth.11"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SPREAD_WIDE"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "dissentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-15T05:09:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-16T05:09:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:10.512Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:10.512Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.027",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.ndx-usd",
+      "symbol": "NDX/USD",
+      "departmentId": "dept.onchain",
+      "agentId": "agent.onchain-whale",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "action": {
+        "value": "TRIM",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "state": {
+        "value": "NEW",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "score": {
+        "value": 89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 44,
+          "liquidity": 12,
+          "security": 28,
+          "momentum": 8
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "entryRef": {
+        "value": 17700,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "stopRef": {
+        "value": 17300,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "targetRef": {
+        "value": 18600,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "invalidationRef": {
+        "value": 17000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 2545.62,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "بخشی از سود کاغذی قفل می‌شود تا ریسک باز پایین بیاید.",
+          "en": "Lock part of the paper profit to bring open exposure down."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.ndx.27",
+          "ev.depth.27"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "riskFlags": {
+        "value": [
+          "CONCENTRATION",
+          "SECURITY_UNVERIFIED",
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "dissentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-15T03:23:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-15T15:23:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:14.987Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:14.987Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.030",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.ftse-gbp",
+      "symbol": "FTSE/GBP",
+      "departmentId": "dept.quant",
+      "agentId": "agent.quant-backtest",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "action": {
+        "value": "ABSTAIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "state": {
+        "value": "NEW",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "conviction": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z",
+        "note": "شواهد ناکافی / insufficient evidence"
+      },
+      "strength": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "councilDecision": {
+        "value": "ABSTAIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "score": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "scoreBreakdown": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "entryRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "stopRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "targetRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "invalidationRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "شورا به دلیل نبودِ دادهٔ نقدینگی از رأی دادن امتناع کرد.",
+          "en": "The council abstained because liquidity data was not read."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "evidenceRefs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-15T01:27:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-15T13:27:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:17.572Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:17.572Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.016",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.wif-usdt",
+      "symbol": "WIF/USDT",
+      "departmentId": "dept.quant",
+      "agentId": "agent.quant-backtest",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "action": {
+        "value": "EXIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "councilDecision": {
+        "value": "REJECT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "score": {
+        "value": 61,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 27,
+          "liquidity": 23,
+          "security": 23,
+          "momentum": 5
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "horizonMinutes": {
+        "value": 240,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "entryRef": {
+        "value": 1.56,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "stopRef": {
+        "value": 1.52,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "targetRef": {
+        "value": 1.64,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "invalidationRef": {
+        "value": 1.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4323.72,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "استدلال ورود باطل شده است؛ دلیل نگهداری باقی نمانده.",
+          "en": "The entry argument is invalidated; no reason to hold remains."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.wif.16",
+          "ev.depth.16"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "riskFlags": {
+        "value": [
+          "NEWS_PENDING",
+          "CONCENTRATION"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-15T01:08:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-15T05:08:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:00.128Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:00.128Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.003",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.sol-usdt",
+      "symbol": "SOL/USDT",
+      "departmentId": "dept.council",
+      "agentId": "agent.council-chair",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "action": {
+        "value": "TRIM",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "score": {
+        "value": 58,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 30,
+          "liquidity": 5,
+          "security": 20,
+          "momentum": 20
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "horizonMinutes": {
+        "value": 240,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "entryRef": {
+        "value": 152.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "stopRef": {
+        "value": 149.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "targetRef": {
+        "value": 160,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "invalidationRef": {
+        "value": 146.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 1670.81,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "بخشی از سود کاغذی قفل می‌شود تا ریسک باز پایین بیاید.",
+          "en": "Lock part of the paper profit to bring open exposure down."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.sol.3",
+          "ev.depth.3"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SECURITY_UNVERIFIED"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "dissentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T23:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-15T03:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:43.285Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:43.285Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.026",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.spx-usd",
+      "symbol": "SPX/USD",
+      "departmentId": "dept.security",
+      "agentId": "agent.security-arbiter",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "state": {
+        "value": "NEW",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "score": {
+        "value": 66,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 33,
+          "liquidity": 7,
+          "security": 11,
+          "momentum": 8
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "horizonMinutes": {
+        "value": 1440,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "entryRef": {
+        "value": 5000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "stopRef": {
+        "value": 5100,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "targetRef": {
+        "value": 4750,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "invalidationRef": {
+        "value": 5200,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4404.94,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "نشانه‌های ضعف در روند دیده می‌شود، اما شواهد برای اطمینان بالا کافی نیست.",
+          "en": "Signs of weakness in the trend, but not enough evidence for high conviction."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.spx.26",
+          "ev.depth.26"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "riskFlags": {
+        "value": [
+          "CONCENTRATION"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "dissentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T23:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-15T23:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:42.409Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:42.409Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.018",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.gbp-usd",
+      "symbol": "GBP/USD",
+      "departmentId": "dept.research",
+      "agentId": "agent.research-hypothesis",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "action": {
+        "value": "ABSTAIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "conviction": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z",
+        "note": "شواهد ناکافی / insufficient evidence"
+      },
+      "strength": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "councilDecision": {
+        "value": "ABSTAIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "score": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "scoreBreakdown": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "horizonMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "entryRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "stopRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "targetRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "invalidationRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "شورا به دلیل نبودِ دادهٔ نقدینگی از رأی دادن امتناع کرد.",
+          "en": "The council abstained because liquidity data was not read."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "evidenceRefs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T21:30:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T22:30:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:42.668Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:42.668Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.019",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.usd-jpy",
+      "symbol": "USD/JPY",
+      "departmentId": "dept.security",
+      "agentId": "agent.security-arbiter",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "action": {
+        "value": "HOLD",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "score": {
+        "value": 55,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 26,
+          "liquidity": 6,
+          "security": 30,
+          "momentum": 8
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "horizonMinutes": {
+        "value": 240,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "entryRef": {
+        "value": 145.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "stopRef": {
+        "value": 142.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "targetRef": {
+        "value": 153,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "invalidationRef": {
+        "value": 140,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 831.07,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "روند خنثی است و حد ضرر نخورده؛ نگهداری با ثبت دلیل.",
+          "en": "Momentum is flat and the stop is untouched; hold with the reason recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.usd.19",
+          "ev.depth.19"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "riskFlags": {
+        "value": [
+          "NEWS_PENDING",
+          "SECURITY_UNVERIFIED"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "dissentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T17:05:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T21:05:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.884Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:58.884Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.029",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.dax-eur",
+      "symbol": "DAX/EUR",
+      "departmentId": "dept.discovery",
+      "agentId": "agent.discovery-scanner",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "action": {
+        "value": "NO_TRADE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "conviction": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z",
+        "note": "شواهد ناکافی / insufficient evidence"
+      },
+      "strength": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "councilDecision": {
+        "value": "INSUFFICIENT_EVIDENCE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "score": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "scoreBreakdown": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "horizonMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "entryRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "stopRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "targetRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "invalidationRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "شواهد برای هیچ جهتی کافی نیست؛ «بدون معامله» پاسخ صادقانه است.",
+          "en": "Evidence is insufficient in either direction; no trade is the honest answer."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "evidenceRefs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T15:49:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T16:49:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:56.388Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:56.388Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.024",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.eur-jpy",
+      "symbol": "EUR/JPY",
+      "departmentId": "dept.council",
+      "agentId": "agent.council-chair",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "councilDecision": {
+        "value": "PAPER_CANDIDATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "score": {
+        "value": 55,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 21,
+          "liquidity": 19,
+          "security": 17,
+          "momentum": 18
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "entryRef": {
+        "value": 166.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "stopRef": {
+        "value": 169.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "targetRef": {
+        "value": 158,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "invalidationRef": {
+        "value": 173,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 5246.77,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "واگرایی شاخص نوسان با افت حجم، هم‌جهت با کاهش ریسک بازار.",
+          "en": "Volatility divergence with falling volume, aligned with de-risking."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.eur.24",
+          "ev.depth.24"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SPREAD_WIDE",
+          "CONCENTRATION",
+          "SECURITY_UNVERIFIED",
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "dissentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T13:04:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-15T01:04:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:06.949Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:06.949Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.028",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.dji-usd",
+      "symbol": "DJI/USD",
+      "departmentId": "dept.marketData",
+      "agentId": "agent.marketdata-integrity",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "action": {
+        "value": "EXIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "councilDecision": {
+        "value": "REJECT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "score": {
+        "value": 44,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 21,
+          "liquidity": 9,
+          "security": 10,
+          "momentum": 1
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "horizonMinutes": {
+        "value": 240,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "entryRef": {
+        "value": 40500,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "stopRef": {
+        "value": 39750,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "targetRef": {
+        "value": 42500,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "invalidationRef": {
+        "value": 39000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4780.23,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "استدلال ورود باطل شده است؛ دلیل نگهداری باقی نمانده.",
+          "en": "The entry argument is invalidated; no reason to hold remains."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.dji.28",
+          "ev.depth.28"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SECURITY_UNVERIFIED"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "dissentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T12:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T16:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.903Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:32.903Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.022",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.usd-cad",
+      "symbol": "USD/CAD",
+      "departmentId": "dept.discovery",
+      "agentId": "agent.discovery-scanner",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "action": {
+        "value": "EXIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "councilDecision": {
+        "value": "REJECT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "score": {
+        "value": 71,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 30,
+          "liquidity": 7,
+          "security": 23,
+          "momentum": 17
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "horizonMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "entryRef": {
+        "value": 1.3625,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "stopRef": {
+        "value": 1.335,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "targetRef": {
+        "value": 1.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "invalidationRef": {
+        "value": 1.3075,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 623.3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "بازرسی امنیتی نشانهٔ بحرانی ثبت کرد؛ خروج فوری کاغذی لازم است.",
+          "en": "The security sweep recorded a critical flag; immediate paper exit required."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.usd.22",
+          "ev.depth.22"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SECURITY_UNVERIFIED",
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "dissentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T11:41:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T12:41:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:38.344Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:38.344Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.012",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.arb-usdt",
+      "symbol": "ARB/USDT",
+      "departmentId": "dept.security",
+      "agentId": "agent.security-arbiter",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "councilDecision": {
+        "value": "PAPER_CANDIDATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "score": {
+        "value": 88,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 25,
+          "liquidity": 5,
+          "security": 18,
+          "momentum": 12
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "horizonMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "entryRef": {
+        "value": 0.79,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "stopRef": {
+        "value": 0.81,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "targetRef": {
+        "value": 0.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "invalidationRef": {
+        "value": 0.82,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4877.64,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "واگرایی شاخص نوسان با افت حجم، هم‌جهت با کاهش ریسک بازار.",
+          "en": "Volatility divergence with falling volume, aligned with de-risking."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.arb.12",
+          "ev.depth.12"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "riskFlags": {
+        "value": [
+          "LIQUIDITY_THIN",
+          "SPREAD_WIDE",
+          "NEWS_PENDING"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "dissentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T10:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T11:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:39.639Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:39.639Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.021",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.aud-usd",
+      "symbol": "AUD/USD",
+      "departmentId": "dept.marketData",
+      "agentId": "agent.marketdata-integrity",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "conviction": {
+        "value": "LOW",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "strength": {
+        "value": "WEAK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "score": {
+        "value": 79,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 39,
+          "liquidity": 10,
+          "security": 24,
+          "momentum": 13
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "horizonMinutes": {
+        "value": 240,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "entryRef": {
+        "value": 0.6525,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "stopRef": {
+        "value": 0.64,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "targetRef": {
+        "value": 0.685,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "invalidationRef": {
+        "value": 0.6275,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 1514.12,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "فقط یک نشانهٔ ضعیف از جریان نهنگ دیده شد؛ اطمینان پایین است.",
+          "en": "Only a weak whale-flow hint was seen; conviction is low."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.aud.21",
+          "ev.depth.21"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "riskFlags": {
+        "value": [
+          "LIQUIDITY_THIN",
+          "NEWS_PENDING"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "dissentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T05:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T09:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:27.943Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:27.943Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.010",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.dot-usdt",
+      "symbol": "DOT/USDT",
+      "departmentId": "dept.council",
+      "agentId": "agent.council-chair",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "action": {
+        "value": "EXIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "councilDecision": {
+        "value": "REJECT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "score": {
+        "value": 39,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 32,
+          "liquidity": 13,
+          "security": 19,
+          "momentum": 16
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "horizonMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "entryRef": {
+        "value": 6.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "stopRef": {
+        "value": 5.95,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "targetRef": {
+        "value": 6.35,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "invalidationRef": {
+        "value": 5.8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 2173.3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "بازرسی امنیتی نشانهٔ بحرانی ثبت کرد؛ خروج فوری کاغذی لازم است.",
+          "en": "The security sweep recorded a critical flag; immediate paper exit required."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.dot.10",
+          "ev.depth.10"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SPREAD_WIDE",
+          "CONCENTRATION",
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "dissentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T04:16:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T05:16:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:33.739Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:33.739Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.002",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.eth-usdt",
+      "symbol": "ETH/USDT",
+      "departmentId": "dept.quant",
+      "agentId": "agent.quant-backtest",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "score": {
+        "value": 47,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 23,
+          "liquidity": 8,
+          "security": 21,
+          "momentum": 4
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "entryRef": {
+        "value": 2970,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "stopRef": {
+        "value": 3030,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "targetRef": {
+        "value": 2820,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "invalidationRef": {
+        "value": 3090,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 1431.91,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "نشانه‌های ضعف در روند دیده می‌شود، اما شواهد برای اطمینان بالا کافی نیست.",
+          "en": "Signs of weakness in the trend, but not enough evidence for high conviction."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.eth.2",
+          "ev.depth.2"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "riskFlags": {
+        "value": [
+          "CONCENTRATION"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-14T00:37:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T12:37:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:49.510Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:49.510Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.013",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.op-usdt",
+      "symbol": "OP/USDT",
+      "departmentId": "dept.onchain",
+      "agentId": "agent.onchain-whale",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "councilDecision": {
+        "value": "PAPER_CANDIDATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "score": {
+        "value": 79,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 41,
+          "liquidity": 7,
+          "security": 29,
+          "momentum": 12
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "entryRef": {
+        "value": 1.78,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "stopRef": {
+        "value": 1.74,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "targetRef": {
+        "value": 1.86,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "invalidationRef": {
+        "value": 1.7,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4121.2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "عمق نقدینگی و ساختار قیمت با هم هم‌راه شدند؛ شواهد برای ورود کاغذی کافی است.",
+          "en": "Liquidity depth and price structure line up; evidence is sufficient for a paper entry."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.op.13",
+          "ev.depth.13"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SPREAD_WIDE"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "dissentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T23:21:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T11:21:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:35.994Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:35.994Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.020",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.usd-chf",
+      "symbol": "USD/CHF",
+      "departmentId": "dept.onchain",
+      "agentId": "agent.onchain-whale",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "action": {
+        "value": "ADD",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "councilDecision": {
+        "value": "PAPER_CANDIDATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "score": {
+        "value": 89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 27,
+          "liquidity": 7,
+          "security": 18,
+          "momentum": 18
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "horizonMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "entryRef": {
+        "value": 0.9125,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "stopRef": {
+        "value": 0.895,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "targetRef": {
+        "value": 0.9575,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "invalidationRef": {
+        "value": 0.875,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 3555.37,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "افزودن پله‌ای پس از تأیید شکست سطح، با رعایت سقف اندازهٔ موقعیت.",
+          "en": "Scaled add after level confirmation, within the position size cap."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.usd.20",
+          "ev.depth.20"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "riskFlags": {
+        "value": [
+          "LIQUIDITY_THIN",
+          "NEWS_PENDING"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "dissentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T22:50:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-13T23:50:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.060Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:02.060Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.023",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.eur-gbp",
+      "symbol": "EUR/GBP",
+      "departmentId": "dept.quant",
+      "agentId": "agent.quant-backtest",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "action": {
+        "value": "TRIM",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "conviction": {
+        "value": "LOW",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "strength": {
+        "value": "WEAK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "score": {
+        "value": 77,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 20,
+          "liquidity": 17,
+          "security": 22,
+          "momentum": 9
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "entryRef": {
+        "value": 0.865,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "stopRef": {
+        "value": 0.8475,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "targetRef": {
+        "value": 0.9075,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "invalidationRef": {
+        "value": 0.83,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4682.52,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "اسپرد گشاد شده و خروج کامل پرهزینه است؛ کم‌کردن تدریجی.",
+          "en": "The spread widened and a full exit is costly; trim gradually."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.eur.23",
+          "ev.depth.23"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "riskFlags": {
+        "value": [
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "dissentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T20:11:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T08:11:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:50.738Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:50.738Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.006",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.ada-usdt",
+      "symbol": "ADA/USDT",
+      "departmentId": "dept.onchain",
+      "agentId": "agent.onchain-whale",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "action": {
+        "value": "ABSTAIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "conviction": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z",
+        "note": "شواهد ناکافی / insufficient evidence"
+      },
+      "strength": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "councilDecision": {
+        "value": "ABSTAIN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "score": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "scoreBreakdown": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "horizonMinutes": {
+        "value": 240,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "entryRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "stopRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "targetRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "invalidationRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "شورا به دلیل نبودِ دادهٔ نقدینگی از رأی دادن امتناع کرد.",
+          "en": "The council abstained because liquidity data was not read."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "evidenceRefs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T17:59:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-13T21:59:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:54.757Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:54.757Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.009",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.link-usdt",
+      "symbol": "LINK/USDT",
+      "departmentId": "dept.quant",
+      "agentId": "agent.quant-backtest",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "conviction": {
+        "value": "LOW",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "strength": {
+        "value": "WEAK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "score": {
+        "value": 56,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 27,
+          "liquidity": 8,
+          "security": 20,
+          "momentum": 9
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "horizonMinutes": {
+        "value": 1440,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "entryRef": {
+        "value": 12.35,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "stopRef": {
+        "value": 12.1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "targetRef": {
+        "value": 12.95,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "invalidationRef": {
+        "value": 11.85,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4954.28,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "فقط یک نشانهٔ ضعیف از جریان نهنگ دیده شد؛ اطمینان پایین است.",
+          "en": "Only a weak whale-flow hint was seen; conviction is low."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.link.9",
+          "ev.depth.9"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "riskFlags": {
+        "value": [
+          "LIQUIDITY_THIN",
+          "CONCENTRATION",
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "dissentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T17:09:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T17:09:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:32.239Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:32.239Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.025",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.gbp-jpy",
+      "symbol": "GBP/JPY",
+      "departmentId": "dept.research",
+      "agentId": "agent.research-hypothesis",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "councilDecision": {
+        "value": "PAPER_CANDIDATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "score": {
+        "value": 52,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 22,
+          "liquidity": 17,
+          "security": 28,
+          "momentum": 1
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "entryRef": {
+        "value": 191.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "stopRef": {
+        "value": 188,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "targetRef": {
+        "value": 201.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "invalidationRef": {
+        "value": 184,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 3400.93,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "عمق نقدینگی و ساختار قیمت با هم هم‌راه شدند؛ شواهد برای ورود کاغذی کافی است.",
+          "en": "Liquidity depth and price structure line up; evidence is sufficient for a paper entry."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.gbp.25",
+          "ev.depth.25"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "dissentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T12:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T00:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.916Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:04.916Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.004",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.bnb-usdt",
+      "symbol": "BNB/USDT",
+      "departmentId": "dept.research",
+      "agentId": "agent.research-hypothesis",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "action": {
+        "value": "EXIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "councilDecision": {
+        "value": "REJECT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "score": {
+        "value": 81,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 41,
+          "liquidity": 6,
+          "security": 21,
+          "momentum": 19
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "horizonMinutes": {
+        "value": 240,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "entryRef": {
+        "value": 615,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "stopRef": {
+        "value": 602.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "targetRef": {
+        "value": 645,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "invalidationRef": {
+        "value": 590,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 2674.17,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "استدلال ورود باطل شده است؛ دلیل نگهداری باقی نمانده.",
+          "en": "The entry argument is invalidated; no reason to hold remains."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.bnb.4",
+          "ev.depth.4"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "riskFlags": {
+        "value": [
+          "NEWS_PENDING",
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "dissentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T10:51:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-13T14:51:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.625Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:15.625Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.005",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.xrp-usdt",
+      "symbol": "XRP/USDT",
+      "departmentId": "dept.security",
+      "agentId": "agent.security-arbiter",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "action": {
+        "value": "NO_TRADE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "conviction": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z",
+        "note": "شواهد ناکافی / insufficient evidence"
+      },
+      "strength": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "councilDecision": {
+        "value": "INSUFFICIENT_EVIDENCE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "score": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "scoreBreakdown": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "horizonMinutes": {
+        "value": 1440,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "entryRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "stopRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "targetRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "invalidationRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "شواهد برای هیچ جهتی کافی نیست؛ «بدون معامله» پاسخ صادقانه است.",
+          "en": "Evidence is insufficient in either direction; no trade is the honest answer."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "evidenceRefs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T09:56:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T09:56:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:57.443Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:57.443Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.015",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.bonk-sol",
+      "symbol": "BONK/SOL",
+      "departmentId": "dept.discovery",
+      "agentId": "agent.discovery-scanner",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "action": {
+        "value": "TRIM",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "score": {
+        "value": 47,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 45,
+          "liquidity": 16,
+          "security": 13,
+          "momentum": 2
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "horizonMinutes": {
+        "value": 1440,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "entryRef": {
+        "value": 0.0000215,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "stopRef": {
+        "value": 0.000021,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "targetRef": {
+        "value": 0.0000225,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "invalidationRef": {
+        "value": 0.0000205,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 5762.04,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "بخشی از سود کاغذی قفل می‌شود تا ریسک باز پایین بیاید.",
+          "en": "Lock part of the paper profit to bring open exposure down."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.bonk.15",
+          "ev.depth.15"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "riskFlags": {
+        "value": [
+          "CLOCK_SKEW"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "dissentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T04:09:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T04:09:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:43.355Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:43.355Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.008",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.avax-usdt",
+      "symbol": "AVAX/USDT",
+      "departmentId": "dept.discovery",
+      "agentId": "agent.discovery-scanner",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "action": {
+        "value": "ADD",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "councilDecision": {
+        "value": "PAPER_CANDIDATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "score": {
+        "value": 91,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 20,
+          "liquidity": 17,
+          "security": 24,
+          "momentum": 0
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "entryRef": {
+        "value": 30,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "stopRef": {
+        "value": 29.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "targetRef": {
+        "value": 31.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "invalidationRef": {
+        "value": 28.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4885.55,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "افزودن پله‌ای پس از تأیید شکست سطح، با رعایت سقف اندازهٔ موقعیت.",
+          "en": "Scaled add after level confirmation, within the position size cap."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.avax.8",
+          "ev.depth.8"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "riskFlags": {
+        "value": [
+          "NEWS_PENDING"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "dissentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T03:30:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-13T15:30:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:13.487Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:13.487Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.014",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.inj-usdt",
+      "symbol": "INJ/USDT",
+      "departmentId": "dept.marketData",
+      "agentId": "agent.marketdata-integrity",
+      "side": {
+        "value": "SHORT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "conviction": {
+        "value": "MED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "strength": {
+        "value": "MODERATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "councilDecision": {
+        "value": "WATCH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "score": {
+        "value": 56,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 31,
+          "liquidity": 11,
+          "security": 28,
+          "momentum": 11
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "horizonMinutes": {
+        "value": 720,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "entryRef": {
+        "value": 21.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "stopRef": {
+        "value": 22.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "targetRef": {
+        "value": 20.75,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "invalidationRef": {
+        "value": 22.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 4620.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "نشانه‌های ضعف در روند دیده می‌شود، اما شواهد برای اطمینان بالا کافی نیست.",
+          "en": "Signs of weakness in the trend, but not enough evidence for high conviction."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.inj.14",
+          "ev.depth.14"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SECURITY_UNVERIFIED"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T02:44:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-13T14:44:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:53.049Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:53.049Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.017",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.eur-usd",
+      "symbol": "EUR/USD",
+      "departmentId": "dept.council",
+      "agentId": "agent.council-chair",
+      "side": {
+        "value": "FLAT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "action": {
+        "value": "NO_TRADE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "conviction": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z",
+        "note": "شواهد ناکافی / insufficient evidence"
+      },
+      "strength": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "councilDecision": {
+        "value": "INSUFFICIENT_EVIDENCE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "score": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "scoreBreakdown": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "horizonMinutes": {
+        "value": 1440,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "entryRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "stopRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "targetRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "invalidationRef": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "شواهد برای هیچ جهتی کافی نیست؛ «بدون معامله» پاسخ صادقانه است.",
+          "en": "Evidence is insufficient in either direction; no trade is the honest answer."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "evidenceRefs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "riskFlags": {
+        "value": [],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "dissentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T00:26:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-14T00:26:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:36.447Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:36.447Z",
+      "demo": true
+    },
+    {
+      "id": "sig.demo.001",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.signals.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "marketId": "mkt.btc-usdt",
+      "symbol": "BTC/USDT",
+      "departmentId": "dept.discovery",
+      "agentId": "agent.discovery-scanner",
+      "side": {
+        "value": "LONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "action": {
+        "value": "ENTER",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "state": {
+        "value": "EXPIRED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "conviction": {
+        "value": "HIGH",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "strength": {
+        "value": "STRONG",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "councilDecision": {
+        "value": "PAPER_CANDIDATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "score": {
+        "value": 70,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "scoreBreakdown": {
+        "value": {
+          "evidence": 40,
+          "liquidity": 8,
+          "security": 30,
+          "momentum": 8
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "horizonMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "entryRef": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "stopRef": {
+        "value": 58750,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "targetRef": {
+        "value": 63000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "invalidationRef": {
+        "value": 57500,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "suggestedNotionalUsd": {
+        "value": 2559.94,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "rationale": {
+        "value": {
+          "fa": "عمق نقدینگی و ساختار قیمت با هم هم‌راه شدند؛ شواهد برای ورود کاغذی کافی است.",
+          "en": "Liquidity depth and price structure line up; evidence is sufficient for a paper entry."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "evidenceRefs": {
+        "value": [
+          "ev.btc.1",
+          "ev.depth.1"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "riskFlags": {
+        "value": [
+          "SPREAD_WIDE"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "dissentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "emittedAt": {
+        "value": "2026-10-13T00:17:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "expiresAt": {
+        "value": "2026-10-13T01:17:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:55:52.699Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:55:52.699Z",
+      "demo": true
+    }
+  ]
+}

@@ -1,14 +1,7 @@
 "use client";
+import { AhosIcon } from "../icons";
 import { useState } from "react";
-import {
-  ArrowUpLeft,
-  BellRing,
-  Bot,
-  CircleDot,
-  Layers3,
-  ShieldCheck,
-  TriangleAlert,
-} from "lucide-react";
+import { ArrowUpLeft, Layers3 } from "lucide-react";
 import { getDashboardSnapshot } from "../../lib/api/dashboard";
 import type { Agent } from "../../lib/api/types";
 import type { Language, Quality } from "../../lib/navigation";
@@ -36,7 +29,7 @@ export function CommandDashboard({
     <div className="dc-dashboard">
       <div className="dc-demo-strip">
         <span>
-          <CircleDot size={12} />
+          <AhosIcon name="status/demo" variant="color" size={14} />
           {fa ? "سناریوی نمایشی" : "DEMO WORKSPACE"}
         </span>
         <p>
@@ -83,7 +76,7 @@ export function CommandDashboard({
           </div>
           <div className="dc-evidence-banner">
             <span className="dc-evidence-symbol">
-              <ShieldCheck size={21} />
+              <AhosIcon name="status/unknown" variant="color" size={21} />
             </span>
             <div>
               <strong>
@@ -105,7 +98,7 @@ export function CommandDashboard({
           <KianChat language={language} />
           <DataCard
             title={fa ? "فعالیت عامل‌ها" : "Agent activity"}
-            icon={Bot}
+            icon="nav/agents"
             language={language}
           >
             <p className="dc-small-note">
@@ -140,14 +133,14 @@ export function CommandDashboard({
           </DataCard>
           <DataCard
             title={fa ? "هشدارها و شواهد" : "Alerts & evidence"}
-            icon={BellRing}
+            icon="status/warning"
             language={language}
           >
             <div className="dc-alert-list">
               {snapshot.alerts.map((alert) => (
                 <article key={alert.id}>
                   <div className="dc-alert-title">
-                    <TriangleAlert size={14} />
+                    <AhosIcon name="status/warning" variant="color" size={14} />
                     <h3>{alert.title[language]}</h3>
                     <time>{alert.time}</time>
                   </div>

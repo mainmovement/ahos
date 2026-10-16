@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { ChartCandlestick } from "lucide-react";
+
 import type { EChartsOption } from "echarts";
 import { getMarketCandles, getMarkets } from "../../lib/api/dashboard";
 import type { Language } from "../../lib/navigation";
@@ -147,7 +147,7 @@ export function MarketChart({
   return (
     <DataCard
       title={fa ? "نبض بازار" : "Market pulse"}
-      icon={ChartCandlestick}
+      icon="nav/market-prices"
       language={language}
       className="dc-market-chart"
       action={

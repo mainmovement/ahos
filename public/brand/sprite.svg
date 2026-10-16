@@ -1,0 +1,499 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <defs>
+    <!-- AHOS sprite: 52 outline symbols on the shared 24 / 48 grid.
+         Usage: <svg width="24" height="24"><use href="sprite.svg#ahos-nav-command-center"/></svg> -->
+  </defs>
+  <symbol id="ahos-nav-command-center" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <circle cx="12" cy="12" r="6.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="1.75" fill="currentColor"/>
+      <line x1="12" y1="2.2" x2="12" y2="4.2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="12" y1="19.8" x2="12" y2="21.8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="2.2" y1="12" x2="4.2" y2="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="19.8" y1="12" x2="21.8" y2="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-digital-world" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M11.65 3.8 A0.41 0.41 0 0 0 12.35 3.8 L19.25 7.8 A0.4 0.4 0 0 0 19.6 8.4 L19.6 14.8 A0.4 0.4 0 0 0 19.25 15.4 L12.35 19.4 A0.41 0.41 0 0 0 11.65 19.4 L4.75 15.4 A0.4 0.4 0 0 0 4.4 14.8 L4.4 8.4 A0.4 0.4 0 0 0 4.75 7.8 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 11.6 L4.4 8 M12 11.6 L19.6 8 M12 11.6 V19.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-earth" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.8 12 A4.2 8.4 0 0 1 16.2 12 M16.2 12 A4.2 8.4 0 0 1 7.8 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="3.6" y1="12" x2="20.4" y2="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M6.68 9.74 A0.35 0.35 0 0 0 6.77 9.1 L7.86 7.2 A0.69 0.69 0 0 0 8.87 6.78 L10.64 7.25 A0.58 0.58 0 0 0 11.3 7.97 L11.51 9.29 A0.52 0.52 0 0 0 11.2 10.13 L9.72 11.34 A0.41 0.41 0 0 0 9 11.53 L7.6 11.3 A0.61 0.61 0 0 0 6.87 10.61 Z" fill="currentColor" fill-opacity="0.3"/>
+      <circle cx="16.2" cy="15.6" r="1.2" fill="currentColor" opacity="0.55"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-market-prices" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M3.6 18.8 L8.2 13.4 L12.6 16.0 L20.4 6.0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="3.6" y1="20.6" x2="20.4" y2="20.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="3.6" y1="20.6" x2="3.6" y2="6.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="20.4" cy="6" r="1.6" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-opportunities" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M8.07 7.16 A0.49 0.49 0 0 0 8.89 6.8 L15.11 6.8 A0.49 0.49 0 0 0 15.93 7.16 L19.12 10.65 A1.01 1.01 0 0 0 19.11 12.14 L12.81 18.93 A1.18 1.18 0 0 0 11.19 18.93 L4.89 12.14 A1.01 1.01 0 0 0 4.88 10.65 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4.9 11.4 H19.1 M9.2 11.4 L12 19.2 M14.8 11.4 L12 19.2 M8.4 6.8 L9.2 11.4 M15.6 6.8 L14.8 11.4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <path d="M19.6 2.1 Q20.05 4.15 22.1 4.6 Q20.05 5.05 19.6 7.1 Q19.15 5.05 17.1 4.6 Q19.15 4.15 19.6 2.1 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-oil" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M9.6 5.8 L6.0 19.6 M14.4 5.8 L18.0 19.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.6 11.0 H13.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.2 15.0 H16.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M8.2 6.0 H15.8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M11.8 6.0 V3.2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.7 3.2 H12.9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2.4 19.6 H21.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18.6 2.8 Q18.88 4.15 20.33 5.8 A2 2 0 1 1 16.87 5.8 Q18.32 4.15 18.6 2.8 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-gold" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M9.88 9.72 A0.35 0.35 0 0 0 10.35 9.4 L13.65 9.4 A0.35 0.35 0 0 0 14.12 9.72 L14.95 11.92 A0.72 0.72 0 0 0 14.48 12.6 L9.52 12.6 A0.72 0.72 0 0 0 9.05 11.92 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.04 15.56 A0.4 0.4 0 0 0 7.6 15.2 L16.4 15.2 A0.4 0.4 0 0 0 16.96 15.56 L18.24 18.56 A0.91 0.91 0 0 0 17.69 19.4 L6.31 19.4 A0.91 0.91 0 0 0 5.76 18.56 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M19 2.8 Q19.43 4.77 21.4 5.2 Q19.43 5.63 19 7.6 Q18.57 5.63 16.6 5.2 Q18.57 4.77 19 2.8 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-us-equities" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M3.8 3.6 V19.4 H20.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="7.4" y1="13.6" x2="7.4" y2="18.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="11.7" y1="10.6" x2="11.7" y2="18.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="16" y1="7.6" x2="16" y2="18.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18.69 3.73 A1.51 1.51 0 0 0 19.71 3.73 L19.71 3.73 A0.4 0.4 0 0 1 20.25 4.12 L20.25 4.12 A1.51 1.51 0 0 0 20.57 5.09 L20.56 5.09 A0.4 0.4 0 0 1 20.36 5.73 L20.36 5.73 A1.51 1.51 0 0 0 19.54 6.33 L19.53 6.33 A0.4 0.4 0 0 1 18.87 6.33 L18.86 6.33 A1.51 1.51 0 0 0 18.04 5.73 L18.04 5.73 A0.4 0.4 0 0 1 17.83 5.09 L17.83 5.09 A1.51 1.51 0 0 0 18.15 4.12 L18.15 4.12 A0.41 0.41 0 0 1 18.69 3.73 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-eu-equities" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M3.8 3.6 V19.4 H20.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M6.4 16.6 L9.8 12.8 L13 15 L17.6 8.8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="9.8" cy="12.8" r="1.15" fill="currentColor"/>
+      <circle cx="19.4" cy="5.2" r="2.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="19.4" cy="5.2" r="0.9" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-asia-equities" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M3.8 3.6 V19.4 H20.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="7.6" y1="9.6" x2="7.6" y2="18.4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="6.4" y="12.4" width="2.4" height="3.6" rx="0.7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="12.2" y1="8.2" x2="12.2" y2="18.4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="11" y="10.6" width="2.4" height="4.2" rx="0.7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M20.35 4.67 A2.2 2.2 0 0 1 20.35 8.13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21.43 3.88 A3.5 3.5 0 0 1 21.43 8.92" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <circle cx="19" cy="6.4" r="0.95" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-crypto-market" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="10" y1="7.6" x2="10" y2="16.4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="8.9" y="9.4" width="2.2" height="4.4" rx="0.7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="14" y1="8.6" x2="14" y2="17.4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="12.9" y="10.6" width="2.2" height="4.6" rx="0.7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-token-intelligence" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M11.25 3.64 A0.87 0.87 0 0 0 12.75 3.64 L18.85 7.17 A0.86 0.86 0 0 0 19.6 8.46 L19.6 15.54 A0.86 0.86 0 0 0 18.85 16.83 L12.75 20.36 A0.87 0.87 0 0 0 11.25 20.36 L5.15 16.83 A0.86 0.86 0 0 0 4.4 15.54 L4.4 8.46 A0.86 0.86 0 0 0 5.15 7.17 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M13.88 8.47 A4 4 0 0 1 13.88 15.53" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M15.59 7.06 A6.1 6.1 0 0 1 15.59 16.94" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-newsroom" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M4.8 10.73 A0.53 0.53 0 0 0 5.26 9.94 L12.06 6.15 A1.53 1.53 0 0 0 13.4 6.93 L13.4 17.07 A1.53 1.53 0 0 0 12.06 17.85 L5.26 14.06 A0.53 0.53 0 0 0 4.8 13.27 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.9 13.7 L9.6 18.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.91 9.41 A4.2 4.2 0 0 1 17.91 14.59" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M20.06 8.85 A6.3 6.3 0 0 1 20.06 15.15" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-security" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M12 3.2 L19.2 6 V11.2 C19.2 16 15.9 19.6 12 20.8 C8.1 19.6 4.8 16 4.8 11.2 V6 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="10.2" r="1.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 11.6 V15.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-tech-workshop" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M7.37 5.97 A2.9 2.9 0 1 1 5.72 8.25" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.4 6.0 L6.2 4.8 M5.7 8.3 L4.5 7.1" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.4 10.4 L17.8 17.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18.8 2.8 Q19.23 4.77 21.2 5.2 Q19.23 5.63 18.8 7.6 Q18.37 5.63 16.4 5.2 Q18.37 4.77 18.8 2.8 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-university" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M11.45 5.68 A0.61 0.61 0 0 0 12.55 5.68 L18.51 8.73 A2.35 2.35 0 0 0 18.51 10.87 L12.55 13.92 A0.61 0.61 0 0 0 11.45 13.92 L5.49 10.87 A2.35 2.35 0 0 0 5.49 8.73 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.4 11.8 V15.8 C7.4 17.6 9.8 18.8 12 18.8 C14.2 18.8 16.6 17.6 16.6 15.8 V11.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M20.6 9.8 V15.6" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="20.6" cy="17" r="1.25" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-exams" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M7 4.4 H17 A2.4 2.4 0 0 1 19.4 6.8 V19.2 A2.4 2.4 0 0 1 17 21.6 H7 A2.4 2.4 0 0 1 4.6 19.2 V6.8 A2.4 2.4 0 0 1 7 4.4 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.5 2.6 H13.5 A1.1 1.1 0 0 1 14.6 3.7 V4.9 A1.1 1.1 0 0 1 13.5 6 H10.5 A1.1 1.1 0 0 1 9.4 4.9 V3.7 A1.1 1.1 0 0 1 10.5 2.6 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.4 13.2 L11 15.8 L15.6 10.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-research" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <circle cx="10.6" cy="10.6" r="6.2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M15.2 15.2 L20.4 20.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.6 8.6 H12.4 M7.6 10.7 H12.7 M7.6 12.8 H11.2" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-kian-chat" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M6.2 3.4 H17.8 A3.4 3.4 0 0 1 21.2 6.8 V13.6 A3.4 3.4 0 0 1 17.8 17 H6.2 A3.4 3.4 0 0 1 2.8 13.6 V6.8 A3.4 3.4 0 0 1 6.2 3.4 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.8 17 V20.6 L11.6 17 Z" fill="currentColor"/>
+      <path d="M12 7 Q12.32 9.88 15.2 10.2 Q12.32 10.52 12 13.4 Q11.68 10.52 8.8 10.2 Q11.68 9.88 12 7 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-agents" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M12 12.3 V5.7 M10.4 12.9 L6.7 8.9 M13.6 12.9 L17.3 8.9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="5.4" cy="7.4" r="1.9" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="18.6" cy="7.4" r="1.9" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="3.8" r="1.9" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="14.6" r="2.4" fill="currentColor"/>
+      <path d="M19.4 15.4 Q19.8 17.2 21.6 17.6 Q19.8 18 19.4 19.8 Q19 18 17.2 17.6 Q19 17.2 19.4 15.4 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-paper-trading" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M6.6 4.7 A1.3 1.3 0 0 0 7.9 3.4 L14.06 3.4 A0.54 0.54 0 0 0 14.98 3.78 L19.02 7.82 A0.54 0.54 0 0 0 19.4 8.74 L19.4 19.3 A1.3 1.3 0 0 0 18.1 20.6 L7.9 20.6 A1.3 1.3 0 0 0 6.6 19.3 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14.6 3.4 V8.2 H19.4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M9.6 17.8 L12.2 14.6 L14.4 16.2 L16.8 12.8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-portfolio" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M12 12 L11.2 3.85 A8.2 8.2 0 0 1 19.1 16.1 Z" fill="currentColor" fill-opacity="0.26"/>
+      <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 12 V3.8 M12 12 L19.1 16.1 M12 12 L4.9 16.1" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-memory-learning" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M3.4 7.2 C6 5.6 9.2 5.6 12 7 C14.8 5.6 18 5.6 20.6 7.2 V18.4 C18 16.8 14.8 16.8 12 18.2 C9.2 16.8 6 16.8 3.4 18.4 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 7 V18.2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M19.2 2 Q19.63 3.97 21.6 4.4 Q19.63 4.83 19.2 6.8 Q18.77 4.83 16.8 4.4 Q18.77 3.97 19.2 2 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-errors-recovery" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M5.8 4.4 H18.2 A2.6 2.6 0 0 1 20.8 7 V17 A2.6 2.6 0 0 1 18.2 19.6 H5.8 A2.6 2.6 0 0 1 3.2 17 V7 A2.6 2.6 0 0 1 5.8 4.4 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3.2 8.4 H20.8" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M6.4 6.4 H6.5 M9.0 6.4 H9.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M5.6 14.6 H9.0 L10.6 11.6 L12.6 17.2 L14.4 14.6 H18.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-reports-evidence" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M4.2 5 A1.2 1.2 0 0 0 5.4 3.8 L11.1 3.8 A0.5 0.5 0 0 0 11.95 4.15 L15.25 7.45 A0.5 0.5 0 0 0 15.6 8.3 L15.6 17.6 A1.2 1.2 0 0 0 14.4 18.8 L5.4 18.8 A1.2 1.2 0 0 0 4.2 17.6 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M11.6 3.8 V7.8 H15.6" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M6.8 11.8 H12.8 M6.8 14.4 H10.8" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <circle cx="18.8" cy="18" r="2.9" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.6 18 L18.5 18.9 L19.9 17.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-system-runtime" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M8.4 5.8 H15.6 A2.6 2.6 0 0 1 18.2 8.4 V15.6 A2.6 2.6 0 0 1 15.6 18.2 H8.4 A2.6 2.6 0 0 1 5.8 15.6 V8.4 A2.6 2.6 0 0 1 8.4 5.8 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.8 9.6 H13.2 A1.2 1.2 0 0 1 14.4 10.8 V13.2 A1.2 1.2 0 0 1 13.2 14.4 H10.8 A1.2 1.2 0 0 1 9.6 13.2 V10.8 A1.2 1.2 0 0 1 10.8 9.6 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5.8 9.2 H3.4 M5.8 12 H3.4 M5.8 14.8 H3.4 M18.2 9.2 H20.6 M18.2 12 H20.6 M18.2 14.8 H20.6 M9.2 5.8 V3.4 M12 5.8 V3.4 M14.8 5.8 V3.4 M9.2 18.2 V20.6 M12 18.2 V20.6 M14.8 18.2 V20.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-governance-audit" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M12 5.2 V19.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="5.2" r="1.1" fill="currentColor"/>
+      <path d="M5.2 7.2 H18.8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5.2 7.2 V12.0 M18.8 7.2 V12.0" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M8 12 A2.8 2.8 0 0 1 2.4 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21.6 12 A2.8 2.8 0 0 1 16 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.2 19.8 H15.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-nav-settings" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M11.4 3.6 A0.85 0.85 0 0 0 12.6 3.6 L14.39 5.38 A0.35 0.35 0 0 1 14.99 5.63 L17.52 5.63 A0.85 0.85 0 0 0 18.37 6.48 L18.37 9.01 A0.35 0.35 0 0 1 18.62 9.61 L20.4 11.4 A0.85 0.85 0 0 0 20.4 12.6 L18.62 14.39 A0.35 0.35 0 0 1 18.37 14.99 L18.37 17.52 A0.85 0.85 0 0 0 17.52 18.37 L14.99 18.37 A0.35 0.35 0 0 1 14.39 18.62 L12.6 20.4 A0.85 0.85 0 0 0 11.4 20.4 L9.61 18.62 A0.35 0.35 0 0 1 9.01 18.37 L6.48 18.37 A0.85 0.85 0 0 0 5.63 17.52 L5.63 14.99 A0.35 0.35 0 0 1 5.38 14.39 L3.6 12.6 A0.85 0.85 0 0 0 3.6 11.4 L5.38 9.61 A0.35 0.35 0 0 1 5.63 9.01 L5.63 6.48 A0.85 0.85 0 0 0 6.48 5.63 L9.01 5.63 A0.35 0.35 0 0 1 9.61 5.38 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="2.9" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-live" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <circle cx="7.6" cy="12" r="2.4" fill="currentColor"/>
+      <path d="M11.36 7.19 A6.1 6.1 0 0 1 11.36 16.81" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M13.2 4.83 A9.1 9.1 0 0 1 13.2 19.17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+      <circle cx="18.2" cy="12" r="1.5" fill="currentColor" opacity="0.9"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-stale" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M6.4 3.4 H17.6 M6.4 20.6 H17.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.8 4.6 C7.8 8.6 10.6 10.4 12 12 C10.6 13.6 7.8 15.4 7.8 19.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16.2 4.6 C16.2 8.6 13.4 10.4 12 12 C13.4 13.6 16.2 15.4 16.2 19.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="1.3" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-unknown" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M4.4 8.2 V6.6 C4.4 5.8 5 5.2 5.8 5.2 H7.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16.6 5.2 H18.2 C19 5.2 19.6 5.8 19.6 6.6 V8.2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M19.6 15.8 V17.4 C19.6 18.2 19 18.8 18.2 18.8 H16.6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.4 18.8 H5.8 C5 18.8 4.4 18.2 4.4 17.4 V15.8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 2.6"/>
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" opacity="0.6"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-unavailable" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2.4 3" opacity="0.9"/>
+      <path d="M6.3 17.7 L17.7 6.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-demo" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M9.6 4.0 V9.4 L4.8 17.8 C4.2 18.9 5.0 20.2 6.2 20.2 H17.8 C19 20.2 19.8 18.9 19.2 17.8 L14.4 9.4 V4.0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.4 4.0 H15.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.2 14.6 H16.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <circle cx="10.6" cy="17.6" r="1.1" fill="currentColor" opacity="0.85"/>
+      <circle cx="13.8" cy="18.6" r="0.85" fill="currentColor" opacity="0.7"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-verified" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M12 2.8 L19.4 5.8 V11.6 C19.4 16.4 16.1 19.9 12 21.2 C7.9 19.9 4.6 16.4 4.6 11.6 V5.8 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.4 11.9 L11 14.5 L15.8 9.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-warning" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M10.69 5.54 A2.68 2.68 0 0 0 13.31 5.54 L20.15 17.77 A2.56 2.56 0 0 0 18.84 20 L5.16 20 A2.56 2.56 0 0 0 3.85 17.77 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="12" y1="9.6" x2="12" y2="14.4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="17.2" r="1.15" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-critical" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M11.01 3.59 A1.4 1.4 0 0 0 12.99 3.59 L20.41 11.01 A1.4 1.4 0 0 0 20.41 12.99 L12.99 20.41 A1.4 1.4 0 0 0 11.01 20.41 L3.59 12.99 A1.4 1.4 0 0 0 3.59 11.01 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="12" y1="8" x2="12" y2="13.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="16.4" r="1.25" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-blocked" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M7.82 3.18 A0.54 0.54 0 0 0 8.74 2.8 L15.26 2.8 A0.54 0.54 0 0 0 16.18 3.18 L20.82 7.82 A0.54 0.54 0 0 0 21.2 8.74 L21.2 15.26 A0.54 0.54 0 0 0 20.82 16.18 L16.18 20.82 A0.54 0.54 0 0 0 15.26 21.2 L8.74 21.2 A0.54 0.54 0 0 0 7.82 20.82 L3.18 16.18 A0.54 0.54 0 0 0 2.8 15.26 L2.8 8.74 A0.54 0.54 0 0 0 3.18 7.82 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.0 12 H16.0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-running" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M15.59 5.03 A8.2 8.2 0 0 1 11.14 20.56" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.9 6.3 L14.9 7.2 L16.2 4.4 Z" fill="currentColor"/>
+      <circle cx="12" cy="12.4" r="1.6" fill="currentColor" opacity="0.9"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-failed" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M6.31 3.49 A0.41 0.41 0 0 0 7.01 3.2 L16.99 3.2 A0.41 0.41 0 0 0 17.69 3.49 L20.51 6.31 A0.41 0.41 0 0 0 20.8 7.01 L20.8 16.99 A0.41 0.41 0 0 0 20.51 17.69 L17.69 20.51 A0.41 0.41 0 0 0 16.99 20.8 L7.01 20.8 A0.41 0.41 0 0 0 6.31 20.51 L3.49 17.69 A0.41 0.41 0 0 0 3.2 16.99 L3.2 7.01 A0.41 0.41 0 0 0 3.49 6.31 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.9 8.9 L15.1 15.1 M15.1 8.9 L8.9 15.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-status-planned" viewBox="0 0 24 24">
+    <g class="ahos-body">
+      <path d="M4.6 5.6 C4.6 4.7 5.3 4 6.2 4 H17.8 C18.7 4 19.4 4.7 19.4 5.6 V18.4 C19.4 19.3 18.7 20 17.8 20 H6.2 C5.3 20 4.6 19.3 4.6 18.4 Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4.6 10.2 H19.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.6 2.6 V6.4 M15.4 2.6 V6.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.7 13.1 H13.3 A1.1 1.1 0 0 1 14.4 14.2 V16.3 A1.1 1.1 0 0 1 13.3 17.4 H10.7 A1.1 1.1 0 0 1 9.6 16.3 V14.2 A1.1 1.1 0 0 1 10.7 13.1 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.7 1.8"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-oil" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M20.74 15.57 L15.84 34.34 M27.26 15.57 L32.16 34.34" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22.1 22.64 L25.9 7.68" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.47 28.08 L30.53 7.68" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M18.83 15.84 L29.17 7.68" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M23.73 15.84 L7.68 12.03" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22.23 12.03 L25.22 7.68" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10.94 34.34 L37.06 7.68" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M32.98 11.49 Q33.36 13.32 35.33 15.57 A2.72 2.72 0 1 1 30.62 15.57 Q32.6 13.32 32.98 11.49 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-gold" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M21.12 20.9 A0.48 0.48 0 0 0 21.76 20.46 L26.24 20.46 A0.48 0.48 0 0 0 26.88 20.9 L28.01 23.89 A0.98 0.98 0 0 0 27.37 24.82 L20.63 24.82 A0.98 0.98 0 0 0 19.99 23.89 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.25 28.84 A0.54 0.54 0 0 0 18.02 28.35 L29.98 28.35 A0.54 0.54 0 0 0 30.75 28.84 L32.49 32.92 A1.24 1.24 0 0 0 31.74 34.06 L16.26 34.06 A1.24 1.24 0 0 0 15.51 32.92 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M33.52 11.49 Q34.1 14.17 36.78 14.75 Q34.1 15.34 33.52 18.02 Q32.94 15.34 30.26 14.75 Q32.94 14.17 33.52 11.49 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-us" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M12.85 12.58 L7.68 34.06 L35.7 7.68" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="17.74" y1="26.18" x2="17.74" y2="32.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="23.59" y1="22.1" x2="23.59" y2="32.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="29.44" y1="18.02" x2="29.44" y2="32.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M33.1 12.75 A2.05 2.05 0 0 0 34.49 12.75 L34.49 12.75 A0.54 0.54 0 0 1 35.22 13.28 L35.22 13.28 A2.05 2.05 0 0 0 35.66 14.6 L35.64 14.6 A0.54 0.54 0 0 1 35.37 15.47 L35.37 15.47 A2.05 2.05 0 0 0 34.25 16.29 L34.24 16.29 A0.54 0.54 0 0 1 33.34 16.29 L33.33 16.29 A2.05 2.05 0 0 0 32.21 15.47 L32.21 15.47 A0.54 0.54 0 0 1 31.93 14.6 L31.93 14.6 A2.05 2.05 0 0 0 32.36 13.28 L32.36 13.28 A0.56 0.56 0 0 1 33.1 12.75 Z" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-eu" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M12.85 12.58 L7.68 34.06 L35.7 7.68" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16.38 30.26 L21.01 25.09 L25.36 28.08 L31.62 19.65" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="21.01" cy="25.09" r="1.56" fill="currentColor"/>
+      <circle cx="34.06" cy="14.75" r="3.4" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="34.06" cy="14.75" r="1.22" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-asia" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M12.85 12.58 L7.68 34.06 L35.7 7.68" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="18.02" y1="20.74" x2="18.02" y2="32.7" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="16.38" y="24.54" width="3.26" height="4.9" rx="0.95" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="24.27" y1="18.83" x2="24.27" y2="32.7" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="22.64" y="22.1" width="3.26" height="5.71" rx="0.95" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M35.36 14.03 A2.99 2.99 0 0 1 35.36 18.74" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M36.82 12.96 A4.76 4.76 0 0 1 36.82 19.81" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <circle cx="33.52" cy="16.38" r="1.29" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-token" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M22.98 12.63 A1.18 1.18 0 0 0 25.02 12.63 L33.32 17.43 A1.17 1.17 0 0 0 34.34 19.19 L34.34 28.81 A1.17 1.17 0 0 0 33.32 30.57 L25.02 35.37 A1.18 1.18 0 0 0 22.98 35.37 L14.68 30.57 A1.17 1.17 0 0 0 13.66 28.81 L13.66 19.19 A1.17 1.17 0 0 0 14.68 17.43 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M26.56 19.2 A5.44 5.44 0 0 1 26.56 28.8" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M28.88 17.28 A8.3 8.3 0 0 1 28.88 30.72" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <circle cx="24" cy="24" r="2.04" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-crypto-market" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <circle cx="24" cy="24" r="11.42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="21.28" y1="18.02" x2="21.28" y2="29.98" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="19.78" y="20.46" width="2.99" height="5.98" rx="0.95" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="26.72" y1="19.38" x2="26.72" y2="31.34" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <rect x="25.22" y="22.1" width="2.99" height="6.26" rx="0.95" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-newsroom" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M14.21 22.27 A0.72 0.72 0 0 0 14.83 21.2 L24.08 16.04 A2.08 2.08 0 0 0 25.9 17.1 L25.9 30.9 A2.08 2.08 0 0 0 24.08 31.96 L14.83 26.8 A0.72 0.72 0 0 0 14.21 25.73 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18.42 26.31 L20.74 32.7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M32.04 20.48 A5.71 5.71 0 0 1 32.04 27.52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M34.96 19.72 A8.57 8.57 0 0 1 34.96 28.28" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-security" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 12.03 L33.79 15.84 L7.68 22.91 C33.79 29.44 29.3 34.34 24 35.97 C18.7 34.34 14.21 29.44 14.21 22.91 L7.68 15.84 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="21.55" r="2.04" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M24 23.46 L7.68 28.62" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-university" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M23.25 15.4 A0.83 0.83 0 0 0 24.75 15.4 L32.85 19.55 A3.2 3.2 0 0 0 32.85 22.46 L24.75 26.61 A0.83 0.83 0 0 0 23.25 26.61 L15.15 22.46 A3.2 3.2 0 0 0 15.15 19.55 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.74 23.73 L7.68 29.17 C17.74 31.62 21.01 33.25 24 33.25 C26.99 33.25 30.26 31.62 30.26 29.17 L7.68 23.73" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M35.7 21.01 L7.68 28.9" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="35.7" cy="30.8" r="1.7" fill="currentColor"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-research" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <circle cx="22.1" cy="22.1" r="8.43" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M28.35 28.35 L35.42 35.42" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18.02 19.38 L24.54 7.68 M18.02 22.23 L24.95 7.68 M18.02 25.09 L22.91 7.68" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+    </g>
+  </symbol>
+  <symbol id="ahos-agents-kian" viewBox="0 0 48 48">
+    <g class="ahos-body">
+      <circle cx="24" cy="24" r="21.4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M24 0.9 V3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M24 44.1 V47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M0.9 24 H3.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M44.1 24 H47.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+      <path d="M16.11 12.3 L31.89 7.68 A4.62 4.62 0 0 1 36.51 16.93 L7.68 26.18 A4.62 4.62 0 0 1 31.89 30.8 L16.11 7.68 A4.62 4.62 0 0 1 11.49 26.18 L7.68 16.93 A4.62 4.62 0 0 1 16.11 12.3 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18.29 30.8 L7.68 35.7 L23.46 30.8 Z" fill="currentColor"/>
+      <path d="M24 17.2 Q24.44 21.12 28.35 21.55 Q24.44 21.99 24 25.9 Q23.56 21.99 19.65 21.55 Q23.56 21.12 24 17.2 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+</svg>

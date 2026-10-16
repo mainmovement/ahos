@@ -1,12 +1,7 @@
 "use client";
+import { AhosIcon } from "../icons";
 import { useState } from "react";
-import {
-  Activity,
-  ArrowUpLeft,
-  GraduationCap,
-  Newspaper,
-  Wallet,
-} from "lucide-react";
+import { ArrowUpLeft } from "lucide-react";
 import type { Language } from "../../lib/navigation";
 import type { DashboardSnapshot } from "../../lib/api/types";
 import { DataCard } from "../cards/DataCard";
@@ -29,7 +24,7 @@ export function OverviewCards({
     <div className="dc-bottom-grid">
       <DataCard
         title={fa ? "سبد آزمایشی" : "Paper portfolio"}
-        icon={Wallet}
+        icon="nav/portfolio"
         language={language}
         action={
           <button
@@ -87,7 +82,7 @@ export function OverviewCards({
       </DataCard>
       <DataCard
         title={fa ? "اتاق خبر" : "Newsroom"}
-        icon={Newspaper}
+        icon="nav/newsroom"
         language={language}
       >
         <div className="dc-news-list">
@@ -122,7 +117,7 @@ export function OverviewCards({
       </DataCard>
       <DataCard
         title={fa ? "دانشگاه AHOS" : "AHOS University"}
-        icon={GraduationCap}
+        icon="nav/university"
         language={language}
       >
         <div className="dc-university-score">
@@ -160,7 +155,7 @@ export function OverviewCards({
         <div className="dc-course-list">
           {snapshot.university.courses.map((course) => (
             <div key={course.en}>
-              <GraduationCap size={12} />
+              <AhosIcon name="nav/university" size={14} />
               <span>{course[language]}</span>
               <span className="dc-agent-state dc-state-planned">planned</span>
             </div>
@@ -169,7 +164,7 @@ export function OverviewCards({
       </DataCard>
       <DataCard
         title={fa ? "سلامت سیستم" : "System health"}
-        icon={Activity}
+        icon="nav/market-prices"
         language={language}
       >
         <div className="dc-system-status">

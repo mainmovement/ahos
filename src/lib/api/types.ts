@@ -1,5 +1,8 @@
 export type Localized = { fa: string; en: string };
-export type DataStatus = "LIVE" | "STALE" | "UNKNOWN" | "UNAVAILABLE" | "DEMO";
+import type { Freshness } from "../../types/contract";
+
+/** Freshness comes from the content-pack contract (single source of truth); UNAVAILABLE is Arena-only. */
+export type DataStatus = Freshness | "UNAVAILABLE";
 export type Provenance = {
   source: string;
   retrievedAt: string;

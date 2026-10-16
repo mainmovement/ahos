@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ChevronDown, MessageCircle, Send, Sparkles } from "lucide-react";
+import { ChevronDown, Send, Sparkles } from "lucide-react";
 import { getDemoAnswer } from "../../lib/api/dashboard";
 import type { Localized } from "../../lib/api/types";
 import type { Language } from "../../lib/navigation";
@@ -38,7 +38,7 @@ export function KianChat({ language }: { language: Language }) {
   return (
     <DataCard
       title={fa ? "گفت‌وگو با کیان" : "Kian assistant"}
-      icon={MessageCircle}
+      icon="nav/kian-chat"
       language={language}
       className="dc-kian"
       action={

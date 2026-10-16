@@ -1,0 +1,1113 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "system-health.json",
+    "entity": "SystemHealth",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 1,
+    "paperNoticeKey": "pages.settings.paperOnlyNotice",
+    "moneyUnit": "NONE",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "record": {
+    "id": "health.system",
+    "schemaVersion": "ahos.contract/1",
+    "overall": {
+      "value": "DEGRADED",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "mode": {
+      "value": "PAPER_ONLY",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "liveTrading": {
+      "value": "DISABLED",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "dataPrinciple": {
+      "value": "UNKNOWN_OVER_FABRICATED",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "version": {
+      "value": "1.0.0",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "commit": {
+      "value": "demo-content-pack",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "startedAt": {
+      "value": "2026-10-06T09:00:00.000Z",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "uptimeSeconds": {
+      "value": 788400,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "cycleMs": {
+      "value": 75000,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "cyclesCompleted": {
+      "value": 9842,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "cyclesFailed": {
+      "value": 37,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "clockSkewMs": {
+      "value": 180,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "queueDepth": {
+      "value": 6,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "errorBudgetRemainingPct": {
+      "value": 71.4,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "diskFreeMb": {
+      "value": 18432,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "components": {
+      "value": [
+        {
+          "id": "cmp.cycle-runner",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "اجراکنندهٔ چرخه",
+              "en": "Cycle runner"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "UP",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 243,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 99.883,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 1,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "cmp.event-store",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "ذخیرهٔ رویداد",
+              "en": "Event store"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "UP",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 219,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 99.779,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 0,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "cmp.paper-ledger",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "دفتر کل کاغذی",
+              "en": "Paper ledger"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "UP",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 69,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 99.74,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 1,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "cmp.projection",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "تصویرساز خواندنی",
+              "en": "Read projection"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "DEGRADED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 44,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 98.304,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 1,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "cmp.web-api",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "رابط وب",
+              "en": "Web API"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "UP",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 189,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 98.308,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 0,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "cmp.governance",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "موتور حاکمیت",
+              "en": "Governance engine"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "UP",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 171,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 99.722,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 0,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "cmp.onchain-reader",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "خوانندهٔ آن‌چین",
+              "en": "On-chain reader"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "DOWN",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 86.46,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 5,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "cmp.scheduler",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "زمان‌بند",
+              "en": "Scheduler"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "state": {
+            "value": "UP",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 296,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "uptimePct": {
+            "value": 99.042,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "version": {
+            "value": "1.0.0",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastCheckAt": {
+            "value": "2026-10-15T11:59:48.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "restartCount": {
+            "value": 0,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        }
+      ],
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "providers": {
+      "value": [
+        {
+          "id": "prv.public-cex",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "تابلوی عمومی صرافی",
+              "en": "Public exchange board"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "LIVE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 1671,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T10:38:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": 133,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "منبع در دسترس است و داده می‌فرستد.",
+              "en": "Source is reachable and sending data."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.dex-aggregator",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "تجمع‌کنندهٔ صرافی غیرمتمرکز",
+              "en": "DEX aggregator"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "DEGRADED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 571,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T11:04:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "منبع پاسخ می‌دهد اما با تأخیر و پراکندگی.",
+              "en": "Source answers, but with delay and gaps."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.onchain-explorer",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "کاوشگر زنجیره",
+              "en": "Chain explorer"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "NETWORK_UNAVAILABLE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T10:58:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "شبکه در دسترس نیست؛ هیچ داده‌ای خوانده نشد.",
+              "en": "Network unavailable; nothing was read."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.news-rss",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "خوراک خبری",
+              "en": "News feed"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "RATE_LIMITED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 556,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T10:53:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "منبع تعداد درخواست‌ها را محدود کرده است.",
+              "en": "The source is limiting request rate."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.macro-calendar",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "تقویم کلان",
+              "en": "Macro calendar"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "TIMEOUT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T11:32:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "پاسخ منبع در مهلت مقرر نرسید.",
+              "en": "The source did not answer within its deadline."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.token-security",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "بازرس امنیت توکن",
+              "en": "Token security scanner"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "LIVE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 913,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T11:28:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": 128,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "منبع در دسترس است و داده می‌فرستد.",
+              "en": "Source is reachable and sending data."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.marketcap-premium",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "ارزش بازار (پولی)",
+              "en": "Market cap (paid)"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "NO_KEY",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "برای این منبع کلید دسترسی تنظیم نشده؛ داده «نامعلوم» می‌ماند.",
+              "en": "No key configured for this source; data stays Unknown."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.dex-analytics",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "تحلیل صرافی غیرمتمرکز (پولی)",
+              "en": "DEX analytics (paid)"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "COST_BLOCKED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "این منبع هزینه دارد و مسدود است.",
+              "en": "This source is paid and blocked."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.social-x",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "شبکهٔ اجتماعی ایکس",
+              "en": "X social firehose"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "COST_BLOCKED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "این منبع هزینه دارد و مسدود است.",
+              "en": "This source is paid and blocked."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.social-telegram",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "کانال‌های تلگرام",
+              "en": "Telegram channels"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "OUT_OF_POLICY",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "خواندن این منبع خارج از سیاست اهوس است.",
+              "en": "Reading this source is outside AHOS policy."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.index-feed",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "خوراک شاخص‌ها",
+              "en": "Index feed"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "LIVE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": 858,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T10:58:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": 100,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "منبع در دسترس است و داده می‌فرستد.",
+              "en": "Source is reachable and sending data."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        },
+        {
+          "id": "prv.metal-otc",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "تابلوی فلزات",
+              "en": "Metals board"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "status": {
+            "value": "SOURCE_UNAVAILABLE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "latencyMs": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "lastOkAt": {
+            "value": "2026-10-15T10:51:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "itemCount": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "costBlocked": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "keyRequired": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "statusMessage": {
+            "value": {
+              "fa": "منبع در دسترس نیست.",
+              "en": "The source is unavailable."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:48.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.000Z",
+          "demo": true
+        }
+      ],
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.000Z"
+    },
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T11:59:48.000Z",
+    "demo": true
+  }
+}

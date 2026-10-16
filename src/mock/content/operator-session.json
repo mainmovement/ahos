@@ -1,0 +1,647 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "operator-session.json",
+    "entity": "OperatorSession",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 1,
+    "paperNoticeKey": "pages.operator.paperOnlyNotice",
+    "moneyUnit": "NONE",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "record": {
+    "id": "operator.session",
+    "schemaVersion": "ahos.contract/1",
+    "operatorId": {
+      "value": "op-01",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "displayName": {
+      "value": "اپراتور ارشد",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "role": {
+      "value": {
+        "fa": "اپراتور",
+        "en": "Operator"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "onShift": {
+      "value": true,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "shiftStartedAt": {
+      "value": "2026-10-15T05:00:00.000Z",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "authorityLevel": {
+      "value": 2,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "canEngageKillSwitch": {
+      "value": true,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "canResetKillSwitch": {
+      "value": true,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "canMoveRealMoney": {
+      "value": false,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "secondFactorVerified": {
+      "value": true,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "tasks": {
+      "value": [
+        {
+          "id": "task.demo.001",
+          "schemaVersion": "ahos.contract/1",
+          "paperNoticeKey": "pages.operator.paperOnlyNotice",
+          "moneyUnit": "USDT_PAPER",
+          "kind": {
+            "value": "POSITION_CLOSE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "state": {
+            "value": "PENDING",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "title": {
+            "value": {
+              "fa": "بستن موقعیت گیرافتادهٔ BONK/SOL",
+              "en": "Close trapped position BONK/SOL"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "detail": {
+            "value": {
+              "fa": "خروج در شبیه‌سازی ممکن نیست؛ اپراتور باید تکلیف ارزش «نامعلوم» را روشن کند.",
+              "en": "Exit is impossible in the simulation; the operator must decide how to treat the Unknown value."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requestedBy": {
+            "value": "agent.paper-simulator",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "departmentId": {
+            "value": "dept.paperExecution",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "amountUsd": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "riskLevel": {
+            "value": "RED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "createdAt": {
+            "value": "2026-10-14T10:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "expiresAt": {
+            "value": "2026-10-16T10:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedBy": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requiresPhrase": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "confirmPhrase": {
+            "value": "تأیید می‌کنم",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "auditTrailRef": {
+            "value": "audit://tasks/task.demo.001",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.000Z",
+          "demo": true
+        },
+        {
+          "id": "task.demo.002",
+          "schemaVersion": "ahos.contract/1",
+          "paperNoticeKey": "pages.operator.paperOnlyNotice",
+          "moneyUnit": "USDT_PAPER",
+          "kind": {
+            "value": "KILL_SWITCH_RESET",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "state": {
+            "value": "PENDING",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "title": {
+            "value": {
+              "fa": "بازنشانی کلید توقف پس از رزمایش",
+              "en": "Reset the kill switch after the drill"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "detail": {
+            "value": {
+              "fa": "رزمایش کامل شد؛ برای از سرگیری چرخه‌ها تأیید انسانی لازم است.",
+              "en": "The drill completed; human approval is required to resume cycles."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requestedBy": {
+            "value": "agent.risk-halt",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "departmentId": {
+            "value": "dept.risk",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "amountUsd": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "riskLevel": {
+            "value": "AMBER",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "createdAt": {
+            "value": "2026-10-15T11:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "expiresAt": {
+            "value": "2026-10-17T11:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedBy": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requiresPhrase": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "confirmPhrase": {
+            "value": "بازگشت به حالت کاغذی",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "auditTrailRef": {
+            "value": "audit://tasks/task.demo.002",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.000Z",
+          "demo": true
+        },
+        {
+          "id": "task.demo.003",
+          "schemaVersion": "ahos.contract/1",
+          "paperNoticeKey": "pages.operator.paperOnlyNotice",
+          "moneyUnit": "USDT_PAPER",
+          "kind": {
+            "value": "LIMIT_RAISE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "state": {
+            "value": "PENDING",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "title": {
+            "value": {
+              "fa": "بالا بردن سقف ریسک باز از ۶۰ به ۷۰ درصد",
+              "en": "Raise max open exposure from 60 to 70 percent"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "detail": {
+            "value": {
+              "fa": "دپارتمان کمی برای آزمون قاعدهٔ تازه درخواست افزایش سقف داده است.",
+              "en": "The quant department requests a higher ceiling to test a new rule."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requestedBy": {
+            "value": "agent.quant-backtest",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "departmentId": {
+            "value": "dept.quant",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "amountUsd": {
+            "value": 12000,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "riskLevel": {
+            "value": "AMBER",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "createdAt": {
+            "value": "2026-10-13T22:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "expiresAt": {
+            "value": "2026-10-15T22:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedBy": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requiresPhrase": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "confirmPhrase": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "auditTrailRef": {
+            "value": "audit://tasks/task.demo.003",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.000Z",
+          "demo": true
+        },
+        {
+          "id": "task.demo.004",
+          "schemaVersion": "ahos.contract/1",
+          "paperNoticeKey": "pages.operator.paperOnlyNotice",
+          "moneyUnit": "USDT_PAPER",
+          "kind": {
+            "value": "AGENT_ENABLE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "state": {
+            "value": "APPROVED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "title": {
+            "value": {
+              "fa": "فعال‌کردن دوبارهٔ خوانندهٔ آن‌چین",
+              "en": "Re-enable the on-chain reader"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "detail": {
+            "value": {
+              "fa": "پس از بازیابی منبع، فعال‌سازی با تأیید اپراتور انجام شد.",
+              "en": "After the source recovered, enabling was approved by the operator."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requestedBy": {
+            "value": "agent.onchain-whale",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "departmentId": {
+            "value": "dept.onchain",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "amountUsd": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "riskLevel": {
+            "value": "GREEN",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "createdAt": {
+            "value": "2026-10-15T04:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "expiresAt": {
+            "value": "2026-10-17T04:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedAt": {
+            "value": "2026-10-15T07:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedBy": {
+            "value": "operator:human:op-01",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requiresPhrase": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "confirmPhrase": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "auditTrailRef": {
+            "value": "audit://tasks/task.demo.004",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.000Z",
+          "demo": true
+        },
+        {
+          "id": "task.demo.005",
+          "schemaVersion": "ahos.contract/1",
+          "paperNoticeKey": "pages.operator.paperOnlyNotice",
+          "moneyUnit": "USDT_PAPER",
+          "kind": {
+            "value": "DATA_SOURCE_ENABLE",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "state": {
+            "value": "REJECTED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "title": {
+            "value": {
+              "fa": "اتصال به خوراک خبری پولی",
+              "en": "Connect a paid news feed"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "detail": {
+            "value": {
+              "fa": "به دلیل هزینه و نبودِ شفافیت منبع، درخواست رد شد.",
+              "en": "Rejected because of cost and lack of source transparency."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requestedBy": {
+            "value": "agent.news-ingest",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "departmentId": {
+            "value": "dept.newsMacro",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "amountUsd": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "riskLevel": {
+            "value": "GREEN",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "createdAt": {
+            "value": "2026-10-14T05:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "expiresAt": {
+            "value": "2026-10-16T05:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedAt": {
+            "value": "2026-10-14T10:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedBy": {
+            "value": "operator:human:op-01",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requiresPhrase": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "confirmPhrase": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "auditTrailRef": {
+            "value": "audit://tasks/task.demo.005",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.000Z",
+          "demo": true
+        },
+        {
+          "id": "task.demo.006",
+          "schemaVersion": "ahos.contract/1",
+          "paperNoticeKey": "pages.operator.paperOnlyNotice",
+          "moneyUnit": "USDT_PAPER",
+          "kind": {
+            "value": "DEPLOY_APPROVAL",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "state": {
+            "value": "EXPIRED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "title": {
+            "value": {
+              "fa": "استقرار نسخهٔ تازهٔ تصویرساز خواندنی",
+              "en": "Deploy the new read-projection build"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "detail": {
+            "value": {
+              "fa": "پیش از تأیید منقضی شد؛ باید دوباره درخواست شود.",
+              "en": "Expired before approval; it has to be requested again."
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requestedBy": {
+            "value": "agent.governance-authz",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "departmentId": {
+            "value": "dept.auditGovernance",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "amountUsd": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "riskLevel": {
+            "value": "AMBER",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "createdAt": {
+            "value": "2026-10-13T10:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "expiresAt": {
+            "value": "2026-10-15T10:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "decidedBy": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "requiresPhrase": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "confirmPhrase": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "auditTrailRef": {
+            "value": "audit://tasks/task.demo.006",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:51.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.000Z",
+          "demo": true
+        }
+      ],
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "pendingCount": {
+      "value": 3,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "lastActionAt": {
+      "value": "2026-10-15T11:36:00.000Z",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "lastActionText": {
+      "value": {
+        "fa": "رزمایش کلید توقف را کامل کرد.",
+        "en": "Completed the kill switch drill."
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.000Z"
+    },
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T11:59:51.000Z",
+    "demo": true
+  }
+}

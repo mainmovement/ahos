@@ -1,13 +1,22 @@
 import type { ReactNode } from "react";
-import type { LucideIcon } from "lucide-react";
+import { AhosIcon, type AhosIconName } from "../icons";
 import type { Language } from "../../lib/navigation";
 import type { DataStatus, Provenance } from "../../lib/api/types";
 import { getDemoProvenance } from "../../lib/api/dashboard";
 
-export function StatusChip({ status = "DEMO" }: { status?: DataStatus }) {
+import { tr } from "../../lib/i18n";
+
+export function StatusChip({
+  status = "DEMO",
+  language = "en",
+}: {
+  status?: DataStatus;
+  language?: Language;
+}) {
   return (
     <span className={`dc-status dc-status-${status.toLowerCase()}`}>
-      {status}
+      <AhosIcon name={`status/${status.toLowerCase()}` as AhosIconName} variant="color" size={12} />
+      {language === "fa" && status !== "UNAVAILABLE" ? tr("fa", `status.${status}.label`) : status}
     </span>
   );
 }
@@ -27,7 +36,7 @@ export function ProvenanceFooter({
         {language === "fa" ? "دریافت" : "Retrieved"}{" "}
         <bdi>{provenance.retrievedAt.slice(11, 16)} UTC</bdi>
       </time>
-      <StatusChip status={provenance.status} />
+      <StatusChip status={provenance.status} language={language} />
     </footer>
   );
 }
@@ -41,7 +50,7 @@ export function DataCard({
   provenance,
 }: {
   title: string;
-  icon?: LucideIcon;
+  icon?: AhosIconName;
   language: Language;
   children: ReactNode;
   action?: ReactNode;
@@ -52,7 +61,7 @@ export function DataCard({
     <section className={`dc-card ${className}`}>
       <header className="dc-card-header">
         <h2>
-          {Icon && <Icon size={16} strokeWidth={1.6} />} {title}
+          {Icon && <AhosIcon name={Icon} size={18} />} {title}
         </h2>
         <div className="dc-card-actions">
           {action}

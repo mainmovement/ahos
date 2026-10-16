@@ -8,20 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import dynamic from "next/dynamic";
-import {
-  ArrowUpLeft,
-  Crosshair,
-  Globe2,
-  Layers3,
-  MapPin,
-  Minus,
-  Pause,
-  Play,
-  Plus,
-  RotateCcw,
-  Sun,
-  X,
-} from "lucide-react";
+import { ArrowUpLeft, Crosshair, Layers3, MapPin, Minus, Pause, Play, Plus, RotateCcw, Sun, X } from "lucide-react";
 import type { Language, Quality } from "../../lib/navigation";
 import type { CountryCollection } from "../../lib/geography";
 import { solarPosition } from "../../lib/solar";
@@ -127,7 +114,7 @@ export function EarthPanel({
   return (
     <DataCard
       title={fa ? "زمین و هوشمندی جهانی" : "Earth & global intelligence"}
-      icon={Globe2}
+      icon="nav/digital-world"
       language={language}
       className="dc-earth-panel"
       action={

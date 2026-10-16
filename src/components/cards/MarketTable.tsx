@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { ArrowDownUp, ListFilter, Search } from "lucide-react";
+import { ArrowDownUp, Search } from "lucide-react";
 import type { Language } from "../../lib/navigation";
 import type { MarketAsset } from "../../lib/api/types";
 import { getMarkets } from "../../lib/api/dashboard";
@@ -33,7 +33,7 @@ export function MarketTable({
   return (
     <DataCard
       title={fa ? "دیده‌بان دارایی‌ها" : "Asset watchlist"}
-      icon={ListFilter}
+      icon="nav/market-prices"
       language={language}
       className="dc-watchlist"
       action={

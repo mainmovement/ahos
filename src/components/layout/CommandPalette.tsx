@@ -1,4 +1,5 @@
 "use client";
+import { AhosIcon } from "../icons";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpLeft, Search, X } from "lucide-react";
 import { allItems, type Language } from "../../lib/navigation";
@@ -98,7 +99,7 @@ export function CommandPalette({
               onClose();
             }}
           >
-            <item.icon size={18} />
+            <AhosIcon name={item.icon} size={18} />
             <span>{item[language]}</span>
             <small>{item.en}</small>
             <ArrowUpLeft size={14} />

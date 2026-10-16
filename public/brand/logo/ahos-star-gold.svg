@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-labelledby="ahos-star-gold-t">
+  <title id="ahos-star-gold-t">AHOS star mark — gold</title>
+  <desc>AHOS brand mark: rounded five-point gold star with glossy facet and soft halo.</desc>
+  <g class="ahos-star">
+    <defs>
+      <clipPath id="ahosStar-clip"><path d="M11.34 3.54 A1.58 1.58 0 0 0 12.66 3.54 L14.66 7.92 A0.28 0.28 0 0 1 15.06 8.21 L19.85 8.76 A1.58 1.58 0 0 0 20.25 10.01 L16.7 13.27 A0.28 0.28 0 0 1 16.55 13.74 L17.51 18.46 A1.58 1.58 0 0 0 16.45 19.23 L12.25 16.86 A0.28 0.28 0 0 1 11.75 16.86 L7.55 19.23 A1.58 1.58 0 0 0 6.49 18.46 L7.45 13.74 A0.28 0.28 0 0 1 7.3 13.27 L3.75 10.01 A1.58 1.58 0 0 0 4.15 8.76 L8.94 8.21 A0.28 0.28 0 0 1 9.34 7.92 Z"/></clipPath>
+    <linearGradient id="ahosStar-gold" x1="3.84" y1="0.48" x2="19.2" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6E3A1"/>
+      <stop offset="0.5" stop-color="#D4A437"/>
+      <stop offset="1" stop-color="#8A6414"/>
+    </linearGradient>
+    <linearGradient id="ahosStar-gloss" x1="0" y1="0.96" x2="0" y2="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.40"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.03"/>
+    </linearGradient>
+    </defs>
+    <path d="M11.34 3.54 A1.58 1.58 0 0 0 12.66 3.54 L14.66 7.92 A0.28 0.28 0 0 1 15.06 8.21 L19.85 8.76 A1.58 1.58 0 0 0 20.25 10.01 L16.7 13.27 A0.28 0.28 0 0 1 16.55 13.74 L17.51 18.46 A1.58 1.58 0 0 0 16.45 19.23 L12.25 16.86 A0.28 0.28 0 0 1 11.75 16.86 L7.55 19.23 A1.58 1.58 0 0 0 6.49 18.46 L7.45 13.74 A0.28 0.28 0 0 1 7.3 13.27 L3.75 10.01 A1.58 1.58 0 0 0 4.15 8.76 L8.94 8.21 A0.28 0.28 0 0 1 9.34 7.92 Z" fill="none" stroke="#D4A437" stroke-opacity="0.24" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M11.34 3.54 A1.58 1.58 0 0 0 12.66 3.54 L14.66 7.92 A0.28 0.28 0 0 1 15.06 8.21 L19.85 8.76 A1.58 1.58 0 0 0 20.25 10.01 L16.7 13.27 A0.28 0.28 0 0 1 16.55 13.74 L17.51 18.46 A1.58 1.58 0 0 0 16.45 19.23 L12.25 16.86 A0.28 0.28 0 0 1 11.75 16.86 L7.55 19.23 A1.58 1.58 0 0 0 6.49 18.46 L7.45 13.74 A0.28 0.28 0 0 1 7.3 13.27 L3.75 10.01 A1.58 1.58 0 0 0 4.15 8.76 L8.94 8.21 A0.28 0.28 0 0 1 9.34 7.92 Z" fill="url(#ahosStar-gold)"/>
+    <g clip-path="url(#ahosStar-clip)">
+      <rect x="0" y="0" width="24" height="12" fill="url(#ahosStar-gloss)"/>
+    </g>
+    <path d="M11.63 6.27 A0.89 0.89 0 0 0 12.37 6.27 L13.77 9.34 A0.16 0.16 0 0 1 13.99 9.5 L17.33 9.88 A0.89 0.89 0 0 0 17.56 10.58 L15.08 12.86 A0.16 0.16 0 0 1 14.99 13.12 L15.66 16.42 A0.89 0.89 0 0 0 15.07 16.85 L12.14 15.19 A0.16 0.16 0 0 1 11.86 15.19 L8.93 16.85 A0.89 0.89 0 0 0 8.34 16.42 L9.01 13.12 A0.16 0.16 0 0 1 8.92 12.86 L6.44 10.58 A0.89 0.89 0 0 0 6.67 9.88 L10.01 9.5 A0.16 0.16 0 0 1 10.23 9.34 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.26" stroke-width="0.32" stroke-linejoin="round"/>
+  </g>
+</svg>

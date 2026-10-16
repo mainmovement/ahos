@@ -1,18 +1,8 @@
 "use client";
+import { tr } from "../../lib/i18n";
+import { AhosIcon } from "../icons";
 import { useEffect, useState } from "react";
-import {
-  ArrowUpLeft,
-  Check,
-  Circle,
-  Command,
-  Crosshair,
-  ExternalLink,
-  LockKeyhole,
-  PanelRightOpen,
-  Radar,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowUpLeft, Check, Circle, Command, Crosshair, ExternalLink, LockKeyhole, PanelRightOpen, Radar, Sparkles } from "lucide-react";
 import {
   allItems,
   stageModules,
@@ -160,7 +150,7 @@ export default function DashboardShell() {
             </div>
             <div className="ah-page-actions">
               <span className="ah-chip ah-chip-gold">
-                <ShieldCheck size={12} /> PAPER ONLY
+                <AhosIcon name="nav/paper-trading" size={14} /> {fa ? tr("fa", "paper.badge") : "PAPER ONLY"}
               </span>
               <button
                 className="ah-secondary-button"
@@ -319,7 +309,7 @@ export default function DashboardShell() {
                   <div className="ah-module-grid">
                     {stageModules.map((module) => (
                       <div className="ah-module" key={module.en}>
-                        <module.icon size={21} />
+                        <AhosIcon name={module.icon} size={21} />
                         <div>
                           <strong>{module[language]}</strong>
                           <small>{module.sub}</small>
@@ -340,7 +330,7 @@ export default function DashboardShell() {
               </div>
               {active !== "command" && (
                 <section className="ah-selection-notice" aria-live="polite">
-                  <selected.icon size={20} />
+                  <AhosIcon name={selected.icon} size={20} />
                   <div>
                     <h3>{selected[language]}</h3>
                     <p>

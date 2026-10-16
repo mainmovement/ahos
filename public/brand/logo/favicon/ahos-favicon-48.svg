@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" role="img" aria-label="AHOS">
+  <title>AHOS</title>
+  <defs>
+    <linearGradient id="favGold" x1="3" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6E3A1"/>
+      <stop offset="0.55" stop-color="#D4A437"/>
+      <stop offset="1" stop-color="#8A6414"/>
+    </linearGradient>
+  </defs>
+  <rect width="24" height="24" rx="5" fill="#05070C"/>
+  <path d="M11.29 3.66 A1.71 1.71 0 0 0 12.71 3.66 L14.65 7.9 A0.31 0.31 0 0 1 15.08 8.22 L19.72 8.75 A1.71 1.71 0 0 0 20.16 10.1 L16.72 13.25 A0.31 0.31 0 0 1 16.55 13.76 L17.48 18.33 A1.71 1.71 0 0 0 16.33 19.17 L12.27 16.87 A0.31 0.31 0 0 1 11.73 16.87 L7.67 19.17 A1.71 1.71 0 0 0 6.52 18.33 L7.45 13.76 A0.31 0.31 0 0 1 7.28 13.25 L3.84 10.1 A1.71 1.71 0 0 0 4.28 8.75 L8.92 8.22 A0.31 0.31 0 0 1 9.35 7.9 Z" fill="url(#favGold)"/>
+</svg>

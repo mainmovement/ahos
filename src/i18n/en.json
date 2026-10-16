@@ -1,0 +1,1967 @@
+{
+  "meta": {
+    "locale": "en",
+    "localeName": "English",
+    "dir": "ltr",
+    "calendar": "gregory",
+    "numbering": "latn",
+    "productName": "AHOS",
+    "productNameLatin": "AHOS",
+    "tagline": "Command center for an autonomous analyst — paper only",
+    "contractVersion": "ahos.contract/1",
+    "dataPrinciple": "UNKNOWN beats fabricated",
+    "moneyUnit": "Paper USDT",
+    "lastReviewed": "2026-10-15"
+  },
+  "brand": {
+    "name": "AHOS",
+    "latin": "AHOS",
+    "tag": "Ocean of Intelligence",
+    "commandCenter": "Command Center",
+    "wordmark": "AHOS | Paper-only command center"
+  },
+  "status": {
+    "LIVE": {
+      "label": "Live",
+      "hint": "Read from the source just now and still inside its staleness budget.",
+      "aria": "Data status: live"
+    },
+    "STALE": {
+      "label": "Stale",
+      "hint": "Really observed, but outside its freshness budget — read with care.",
+      "aria": "Data status: stale"
+    },
+    "UNKNOWN": {
+      "label": "Unknown",
+      "hint": "Not observed. You see a dash instead of a number; nothing was guessed.",
+      "aria": "Data status: unknown"
+    },
+    "DEMO": {
+      "label": "Demo",
+      "hint": "Synthetic sample data. It makes no claim about any real market.",
+      "aria": "Data status: demo"
+    },
+    "PAPER": {
+      "label": "Paper",
+      "hint": "Simulated book. Real trading is disabled and no money is involved.",
+      "aria": "Book mode: paper"
+    }
+  },
+  "paper": {
+    "badge": "Paper only",
+    "noticeShort": "Every amount here is paper; no real money is involved.",
+    "noticeLong": "This dashboard runs in paper mode only. Every number you see is simulation output: real trading is disabled, no exchange key exists, and no capital ever moves.",
+    "liveTradingDisabled": "Real trading: disabled",
+    "modeLabel": "Execution mode: PAPER_ONLY",
+    "tooltip": "Execution is paper-only. Live data requires a connected source; otherwise the state stays Unknown.",
+    "acknowledgement": "I understand these numbers are not real",
+    "unitNote": "The accounting unit is paper USDT, not a real balance.",
+    "balanceDisclaimer": "The paper starting balance is an arbitrary figure for testing rules, not your capital."
+  },
+  "nav": {
+    "overview": "Overview",
+    "markets": "Markets",
+    "positions": "Paper positions",
+    "signals": "Signals",
+    "agents": "Agents & departments",
+    "risk": "Risk & kill switch",
+    "logs": "Events",
+    "settings": "Settings",
+    "operator": "Operator desk",
+    "collapse": "Collapse menu",
+    "expand": "Expand menu",
+    "sectionAnalysis": "Analysis",
+    "sectionControl": "Control",
+    "sectionSystem": "System",
+    "footerStatus": "System status",
+    "brandAria": "AHOS — paper-only command center"
+  },
+  "common": {
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "confirm": "Confirm",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "apply": "Apply",
+      "back": "Back",
+      "next": "Next",
+      "search": "Search",
+      "filter": "Filter",
+      "clearFilters": "Clear filters",
+      "sort": "Sort",
+      "export": "Export",
+      "download": "Download",
+      "copy": "Copy",
+      "copied": "Copied",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "viewAll": "View all",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "dismiss": "Dismiss",
+      "acknowledge": "Acknowledge",
+      "escalate": "Escalate",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "start": "Start",
+      "approve": "Approve",
+      "reject": "Reject",
+      "details": "Details",
+      "open": "Open",
+      "add": "Add",
+      "remove": "Remove",
+      "edit": "Edit",
+      "delete": "Delete",
+      "runNow": "Run now",
+      "drill": "Drill",
+      "engage": "Engage kill switch",
+      "reload": "Reload",
+      "selectAll": "Select all",
+      "clearSelection": "Clear selection",
+      "openDocs": "Docs",
+      "yes": "Yes",
+      "no": "No",
+      "loading": "Loading",
+      "test": "Test",
+      "discard": "Discard",
+      "restoreDefaults": "Restore defaults"
+    },
+    "labels": {
+      "asOf": "Observed at",
+      "asOfShort": "Last seen",
+      "freshness": "Freshness",
+      "source": "Source",
+      "provider": "Data provider",
+      "status": "Status",
+      "mode": "Execution mode",
+      "updatedAt": "Last updated",
+      "lastRun": "Last run",
+      "nextRun": "Next run",
+      "lastOk": "Last success",
+      "latency": "Latency",
+      "duration": "Duration",
+      "id": "ID",
+      "symbol": "Symbol",
+      "name": "Name",
+      "price": "Price",
+      "last": "Last price",
+      "bid": "Best bid",
+      "ask": "Best ask",
+      "mid": "Mid price",
+      "change24h": "24h change",
+      "high24h": "24h high",
+      "low24h": "24h low",
+      "volume24h": "24h volume",
+      "liquidity": "Liquidity",
+      "depth": "Market depth",
+      "spread": "Spread",
+      "priceImpact": "Price impact",
+      "tickSize": "Tick size",
+      "score": "Score",
+      "conviction": "Conviction",
+      "strength": "Strength",
+      "side": "Side",
+      "action": "Action",
+      "qty": "Quantity",
+      "entryPrice": "Entry price",
+      "markPrice": "Mark price",
+      "displayedValue": "Displayed value",
+      "realizableValue": "Realizable value",
+      "allocatedNotional": "Allocated notional",
+      "unrealizedPnl": "Unrealized P&L",
+      "realizedPnl": "Realized P&L",
+      "exitCost": "Exit cost",
+      "stopLoss": "Stop loss",
+      "takeProfit": "Take profit",
+      "trailingStop": "Trailing stop",
+      "leverage": "Leverage",
+      "holdTime": "Held for",
+      "timeStop": "Time stop",
+      "openedAt": "Opened at",
+      "closedAt": "Closed at",
+      "fee": "Fee",
+      "slippage": "Slippage",
+      "gas": "Network cost",
+      "netProceeds": "Net proceeds",
+      "ruleVersion": "Rule version",
+      "equity": "Equity",
+      "cash": "Cash",
+      "exposure": "Open exposure",
+      "exposurePct": "Exposure %",
+      "drawdown": "Drawdown",
+      "maxDrawdown": "Max drawdown",
+      "dailyPnl": "Today's P&L",
+      "level": "Level",
+      "reason": "Reason",
+      "actor": "Actor",
+      "scope": "Scope",
+      "note": "Note",
+      "department": "Department",
+      "agent": "Agent",
+      "market": "Market",
+      "position": "Position",
+      "order": "Order",
+      "signal": "Signal",
+      "budget": "Paper budget",
+      "throughput": "Output per day",
+      "queueDepth": "Queue depth",
+      "openIssues": "Open issues",
+      "escalation": "Escalation level",
+      "cycle": "Cycle",
+      "cycleMs": "Cycle duration",
+      "cyclesCompleted": "Cycles completed",
+      "cyclesFailed": "Cycles failed",
+      "consecutiveErrors": "Consecutive errors",
+      "clockSkew": "Clock skew",
+      "errorBudget": "Error budget",
+      "uptime": "Uptime",
+      "version": "Version",
+      "commit": "Commit",
+      "component": "Component",
+      "health": "Health",
+      "overall": "Overall state",
+      "itemCount": "Records",
+      "keyRequired": "Key required",
+      "costBlocked": "Cost blocked",
+      "redacted": "Redacted",
+      "seq": "Seq",
+      "traceId": "Trace ID",
+      "event": "Event",
+      "message": "Message",
+      "horizon": "Horizon",
+      "target": "Target",
+      "invalidation": "Invalidation",
+      "suggestedNotional": "Suggested size",
+      "evidence": "Evidence",
+      "dissent": "Dissent",
+      "humanGate": "Human gate",
+      "capabilities": "Capabilities",
+      "prohibited": "Prohibited actions",
+      "threshold": "Threshold",
+      "observed": "Observed",
+      "current": "Current",
+      "limit": "Limit",
+      "utilization": "Utilization",
+      "warnAt": "Warn at",
+      "breaker": "Circuit breaker",
+      "cooldown": "Cooldown",
+      "confirmPhrase": "Confirmation phrase",
+      "day": "Day",
+      "jalaliDay": "Jalali day",
+      "open": "Open",
+      "high": "High",
+      "low": "Low",
+      "close": "Close",
+      "tradesClosed": "Trades closed",
+      "volume": "Volume",
+      "gaps": "Missing buckets",
+      "complete": "Complete",
+      "sampled": "Sampled",
+      "task": "Task",
+      "requestedBy": "Requested by",
+      "expiresAt": "Expires",
+      "decidedBy": "Decided by",
+      "decidedAt": "Decided at",
+      "amount": "Amount",
+      "riskLevel": "Risk level",
+      "authority": "Authority level",
+      "onShift": "On shift",
+      "secondFactor": "Second factor",
+      "unknown": "Unknown",
+      "notAvailable": "Not available",
+      "demo": "Demo",
+      "paper": "Paper",
+      "live": "Live",
+      "stale": "Stale",
+      "total": "Total",
+      "average": "Average",
+      "count": "Count",
+      "assetClass": "Asset class",
+      "venue": "Venue",
+      "marketState": "Market state",
+      "exitability": "Exitability",
+      "liquidityRisk": "Liquidity risk",
+      "momentum": "Momentum",
+      "state": "State",
+      "venueKind": "Venue kind",
+      "sessionTimezone": "Session time zone",
+      "minNotional": "Minimum order size",
+      "tradableInPaper": "Tradable in paper",
+      "demoGridStep": "Demo grid step",
+      "owner": "Owner",
+      "mission": "Mission",
+      "agentsCount": "Agents",
+      "activeAgents": "Active agents",
+      "lastOutput": "Last output",
+      "evaluationRule": "Evaluation rule",
+      "evaluatedAt": "Evaluated at",
+      "haltReasons": "Halt reasons",
+      "engagedAt": "Engaged at",
+      "engagedBy": "Engaged by",
+      "resetAt": "Reset at",
+      "resetBy": "Reset by",
+      "lastDrill": "Last drill",
+      "auditTrail": "Audit trail",
+      "requiresHumanReset": "Manual reset required",
+      "openPositionsAtEngage": "Open positions when engaged",
+      "dataPrinciple": "Data principle",
+      "executionMode": "Execution mode",
+      "liveTrading": "Real trading",
+      "moneyUnit": "Money unit",
+      "paperNotice": "Paper notice"
+    },
+    "units": {
+      "usd": "USD",
+      "usdt": "USDT",
+      "paperUsd": "paper USD",
+      "paperUsdt": "paper USDT",
+      "bps": "bps",
+      "percent": "percent",
+      "ms": "ms",
+      "second": "s",
+      "minute": "min",
+      "hour": "h",
+      "day": "d",
+      "count": "items",
+      "none": "unitless"
+    },
+    "states": {
+      "freshness": {
+        "LIVE": "Live",
+        "STALE": "Stale",
+        "UNKNOWN": "Unknown",
+        "DEMO": "Demo"
+      },
+      "chipKind": {
+        "LIVE": "Live",
+        "STALE": "Stale",
+        "UNKNOWN": "Unknown",
+        "DEMO": "Demo",
+        "PAPER": "Paper"
+      },
+      "executionMode": {
+        "PAPER_ONLY": "Paper only"
+      },
+      "liveTradingState": {
+        "DISABLED": "Disabled"
+      },
+      "dataPrinciple": {
+        "UNKNOWN_OVER_FABRICATED": "UNKNOWN beats fabricated"
+      },
+      "moneyUnit": {
+        "USDT_PAPER": "Paper USDT",
+        "USD_PAPER": "Paper USD",
+        "PERCENT": "Percent",
+        "BPS": "Basis points",
+        "COUNT": "Count",
+        "NONE": "Unitless"
+      },
+      "assetClass": {
+        "CRYPTO": "Crypto",
+        "FOREX": "Forex",
+        "INDEX": "Index",
+        "METAL": "Metal",
+        "COMMODITY": "Commodity"
+      },
+      "venueKind": {
+        "CEX": "Centralized exchange",
+        "DEX": "Decentralized exchange",
+        "OTC": "Over the counter",
+        "SYNTHETIC_FEED": "Synthetic feed"
+      },
+      "marketState": {
+        "OPEN": "Open",
+        "CLOSED": "Closed",
+        "HALTED": "Halted",
+        "AUCTION": "Auction",
+        "UNKNOWN": "Unknown"
+      },
+      "quoteStatus": {
+        "OK": "Healthy",
+        "THIN": "Thin",
+        "NO_PRICE": "No price",
+        "NO_LIQUIDITY": "No liquidity",
+        "HALTED": "Halted",
+        "UNKNOWN": "Unknown"
+      },
+      "signalSide": {
+        "LONG": "Long",
+        "SHORT": "Short",
+        "FLAT": "Flat"
+      },
+      "positionSide": {
+        "LONG": "Long",
+        "SHORT": "Short"
+      },
+      "orderSide": {
+        "BUY": "Buy",
+        "SELL": "Sell"
+      },
+      "signalAction": {
+        "ENTER": "Enter",
+        "ADD": "Add",
+        "TRIM": "Trim",
+        "EXIT": "Exit",
+        "HOLD": "Hold",
+        "NO_TRADE": "No trade",
+        "ABSTAIN": "Abstain"
+      },
+      "signalState": {
+        "NEW": "New",
+        "ACKNOWLEDGED": "Acknowledged",
+        "ACTED_ON": "Acted on",
+        "EXPIRED": "Expired",
+        "REJECTED": "Rejected",
+        "INVALIDATED": "Invalidated"
+      },
+      "signalStrength": {
+        "STRONG": "Strong",
+        "MODERATE": "Moderate",
+        "WEAK": "Weak",
+        "UNKNOWN": "Unknown"
+      },
+      "conviction": {
+        "HIGH": "High",
+        "MED": "Medium",
+        "LOW": "Low",
+        "UNKNOWN": "Unknown"
+      },
+      "councilDecision": {
+        "WATCH": "Watch",
+        "REJECT": "Reject",
+        "ABSTAIN": "Abstain",
+        "PAPER_CANDIDATE": "Paper candidate",
+        "INSUFFICIENT_EVIDENCE": "Insufficient evidence",
+        "UNKNOWN": "Unknown"
+      },
+      "positionState": {
+        "OPEN": "Open",
+        "CLOSED": "Closed",
+        "TRAPPED": "Trapped",
+        "INVALIDATED": "Invalidated"
+      },
+      "exitability": {
+        "EXECUTABLE_FULL": "Fully exitable",
+        "EXECUTABLE_PARTIAL": "Partially exitable",
+        "UNEXITABLE_HONEYPOT": "Unexitable — honeypot",
+        "UNEXITABLE_NO_PRICE": "Unexitable — no price",
+        "UNEXITABLE_NO_LIQUIDITY": "Unexitable — no liquidity",
+        "SECURITY_RECHECK_CRITICAL": "Critical security recheck",
+        "UNKNOWN": "Unknown"
+      },
+      "liquidityRisk": {
+        "OK": "Acceptable",
+        "THIN": "Thin",
+        "COLLAPSED": "Collapsed",
+        "UNKNOWN": "Unknown"
+      },
+      "momentumClass": {
+        "IMPROVING": "Improving",
+        "FLAT": "Flat",
+        "DETERIORATING": "Deteriorating",
+        "UNKNOWN": "Unknown"
+      },
+      "orderType": {
+        "MARKET": "Market",
+        "LIMIT": "Limit",
+        "STOP_LOSS": "Stop loss",
+        "TAKE_PROFIT": "Take profit",
+        "TRAILING_STOP": "Trailing stop"
+      },
+      "orderState": {
+        "PENDING": "Pending",
+        "FILLED": "Filled",
+        "PARTIALLY_FILLED": "Partially filled",
+        "CANCELLED": "Cancelled",
+        "REJECTED": "Rejected",
+        "EXPIRED": "Expired"
+      },
+      "orderVenue": {
+        "PAPER_SIMULATOR": "Paper simulator"
+      },
+      "exitReason": {
+        "TAKE_PROFIT": "Take profit hit",
+        "STOP_LOSS": "Stop loss hit",
+        "TIME_EXIT": "Time exit",
+        "EXIT_RISK": "Exit risk",
+        "SECURITY_EVENT": "Security event",
+        "LIQUIDITY_COLLAPSE": "Liquidity collapse",
+        "TRAPPED": "Trapped",
+        "TOTAL_LOSS": "Total loss",
+        "MANUAL": "Operator order",
+        "NONE": "No reason",
+        "UNKNOWN": "Unknown"
+      },
+      "departmentHealth": {
+        "OK": "Healthy",
+        "DEGRADED": "Degraded",
+        "BLOCKED": "Blocked",
+        "UNKNOWN": "Unknown"
+      },
+      "escalationLevel": {
+        "0": "Normal",
+        "1": "Watch",
+        "2": "Urgent",
+        "3": "Critical"
+      },
+      "agentRunState": {
+        "IDLE": "Idle",
+        "RUNNING": "Running",
+        "WAITING_GATE": "Waiting on human gate",
+        "BLOCKED": "Blocked",
+        "DEGRADED": "Degraded",
+        "STOPPED": "Stopped",
+        "UNKNOWN": "Unknown"
+      },
+      "agentResult": {
+        "OK": "OK",
+        "WARN": "Warning",
+        "ERROR": "Error",
+        "NO_DATA": "No data",
+        "UNKNOWN": "Unknown"
+      },
+      "riskLevel": {
+        "GREEN": "Green",
+        "AMBER": "Amber",
+        "RED": "Red",
+        "HALTED": "Halted",
+        "UNKNOWN": "Unknown"
+      },
+      "breakerState": {
+        "ARMED": "Armed",
+        "TRIGGERED": "Triggered",
+        "COOLDOWN": "Cooldown",
+        "DISABLED": "Disabled",
+        "UNKNOWN": "Unknown"
+      },
+      "killSwitchPhase": {
+        "ARMED": "Armed",
+        "ENGAGED": "Engaged",
+        "COOLDOWN": "Cooldown",
+        "LOCKED": "Locked",
+        "UNKNOWN": "Unknown"
+      },
+      "killSwitchScope": {
+        "DATA_INGEST": "Data ingest",
+        "SIGNAL_INTAKE": "Signal intake",
+        "ORDER_SUBMISSION": "Order submission",
+        "AUTO_EXIT": "Auto exit",
+        "ALERTS": "Alerts",
+        "REPORTING": "Reporting"
+      },
+      "logLevel": {
+        "TRACE": "Trace",
+        "DEBUG": "Debug",
+        "INFO": "Info",
+        "WARN": "Warning",
+        "ERROR": "Error",
+        "FATAL": "Fatal",
+        "AUDIT": "Audit"
+      },
+      "healthState": {
+        "UP": "Up",
+        "DEGRADED": "Degraded",
+        "DOWN": "Down",
+        "UNKNOWN": "Unknown"
+      },
+      "providerStatus": {
+        "LIVE": "Live",
+        "DEGRADED": "Degraded",
+        "TIMEOUT": "Timeout",
+        "RATE_LIMITED": "Rate limited",
+        "NO_KEY": "No key",
+        "AUTH_FAILED": "Auth failed",
+        "NETWORK_UNAVAILABLE": "Network unavailable",
+        "SOURCE_UNAVAILABLE": "Source unavailable",
+        "OUT_OF_POLICY": "Out of policy",
+        "COST_BLOCKED": "Cost blocked",
+        "UNKNOWN": "Unknown"
+      },
+      "taskState": {
+        "PENDING": "Pending",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "EXPIRED": "Expired",
+        "UNKNOWN": "Unknown"
+      },
+      "taskKind": {
+        "KILL_SWITCH_RESET": "Kill switch reset",
+        "POSITION_CLOSE": "Position close",
+        "LIMIT_RAISE": "Risk limit raise",
+        "AGENT_ENABLE": "Agent enable",
+        "DEPLOY_APPROVAL": "Deploy approval",
+        "DATA_SOURCE_ENABLE": "Data source enable",
+        "UNKNOWN": "Unknown"
+      }
+    },
+    "empty": {
+      "generic": "Nothing to show.",
+      "noData": "No data has been recorded yet.",
+      "noResults": "No results for these filters.",
+      "noConnection": "No connection to the data source; the state is shown as Unknown.",
+      "allUnknown": "Nothing was observed; every cell is Unknown.",
+      "demoOnly": "This section is filled with demo data.",
+      "waitingFirstCycle": "Waiting for the first system cycle."
+    },
+    "errors": {
+      "generic": "An uncategorised error occurred.",
+      "loadFailed": "Loading this section failed.",
+      "timeout": "The data source did not answer within its deadline.",
+      "unauthorized": "You do not have access to this section.",
+      "networkUnavailable": "Network unavailable; nothing was read.",
+      "parseFailed": "The payload could not be parsed.",
+      "stale": "The data on screen is stale.",
+      "rateLimited": "The source is rate limiting requests.",
+      "noKey": "No access key is configured for this source.",
+      "costBlocked": "This source is paid and currently blocked.",
+      "outOfPolicy": "Reading this source is outside AHOS policy.",
+      "unknownState": "System state is unknown; no number was substituted.",
+      "contractMismatch": "The payload does not match the ahos.contract/1 shape.",
+      "retryHint": "Try again in a moment.",
+      "contactHint": "If it repeats, send the events with their trace IDs to audit."
+    },
+    "tooltips": {
+      "asOf": "When this value was actually observed, not when the page loaded.",
+      "freshnessColumn": "Freshness of each value: live, stale, unknown or demo.",
+      "unknownOverFabricated": "If data cannot be read, AHOS shows Unknown; no number is invented.",
+      "displayedVsRealizable": "Displayed value is quantity times mark price. Realizable value is what could actually be recovered after slippage, fee, tax and network cost.",
+      "paperOnly": "Execution mode is paper only and real trading is disabled.",
+      "killSwitch": "The kill switch halts signal intake, order submission and auto exit. Only a human can reset it.",
+      "humanGate": "This action will not run without operator approval.",
+      "score": "Score from 0 to 100 based on recorded evidence; missing evidence means Unknown, not zero.",
+      "demoData": "This row is demo data, generated to exercise the interface.",
+      "stalenessBudget": "Each feed's freshness budget can be changed in Settings.",
+      "appendOnly": "Events are append-only: they are never edited and never deleted.",
+      "clockSkew": "Difference between the system clock and the reference clock. Large skew invalidates event ordering.",
+      "noRealMoney": "There is no path from this dashboard to real money."
+    },
+    "time": {
+      "justNow": "just now",
+      "secondsAgo": "{count} seconds ago",
+      "minutesAgo": "{count} minutes ago",
+      "hoursAgo": "{count} hours ago",
+      "daysAgo": "{count} days ago",
+      "inSeconds": "in {count} seconds",
+      "inMinutes": "in {count} minutes",
+      "inHours": "in {count} hours",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "rangeLast1h": "Last hour",
+      "rangeLast24h": "Last 24 hours",
+      "range7d": "Last 7 days",
+      "range30d": "Last 30 days",
+      "rangeAll": "Whole range",
+      "updatedAt": "Updated at {time}"
+    },
+    "a11y": {
+      "skipToContent": "Skip to main content",
+      "mainNav": "Main navigation",
+      "openNav": "Open menu",
+      "closeNav": "Close menu",
+      "sortAscending": "Sort ascending",
+      "sortDescending": "Sort descending",
+      "chipLabel": "Data status: {state}",
+      "rowSelected": "Row selected",
+      "tableSummary": "{name} table with {count} rows",
+      "liveRegion": "Live updates",
+      "closeDialog": "Close dialog",
+      "dangerConfirm": "Confirm dangerous action",
+      "moneyNoticeRegion": "Paper-only notice",
+      "chartSummary": "{name} chart; data is {freshness}",
+      "loading": "Loading {name}"
+    },
+    "table": {
+      "rowsPerPage": "Rows per page",
+      "page": "Page {current} of {total}",
+      "first": "First page",
+      "prev": "Previous page",
+      "next": "Next page",
+      "last": "Last page",
+      "selected": "{count} rows selected",
+      "noSort": "Unsorted",
+      "density": "Density",
+      "densityCompact": "Compact",
+      "densityComfortable": "Comfortable",
+      "columns": "Columns",
+      "stickyHeader": "Sticky header",
+      "exportCsv": "Export CSV",
+      "exportJson": "Export JSON"
+    }
+  },
+  "pages": {
+    "overview": {
+      "title": "Overview",
+      "subtitle": "One look at paper equity, risk, departments and the newest signals.",
+      "paperOnlyNotice": "The amounts on this page are paper; no real money is involved.",
+      "greeting": "Hello {name}, the system is in paper mode.",
+      "kpis": {
+        "equity": {
+          "label": "Paper equity",
+          "hint": "Cash plus the realizable value of open positions."
+        },
+        "dailyPnl": {
+          "label": "Today's P&L",
+          "hint": "From the start of today until the last completed cycle."
+        },
+        "maxDrawdown": {
+          "label": "Max drawdown",
+          "hint": "Largest peak-to-trough fall inside the visible range."
+        },
+        "openPositions": {
+          "label": "Open positions",
+          "hint": "Paper positions that have not been closed yet."
+        },
+        "exposure": {
+          "label": "Open exposure",
+          "hint": "Share of equity currently sitting in open positions."
+        },
+        "cash": {
+          "label": "Free cash",
+          "hint": "The unallocated part of the paper book."
+        },
+        "riskLevel": {
+          "label": "Risk level",
+          "hint": "Roll-up of limits and circuit breakers."
+        },
+        "cycles": {
+          "label": "Cycles completed",
+          "hint": "Completed cycles since start-up."
+        },
+        "uptime": {
+          "label": "Uptime",
+          "hint": "Continuous time the system has been up."
+        },
+        "unknownShare": {
+          "label": "Share of unknown data",
+          "hint": "How many cells on this page have no observed value."
+        }
+      },
+      "cards": {
+        "equityCurve": {
+          "title": "Paper equity curve — 7 days",
+          "subtitle": "One point per hour; hours without data are shown as gaps.",
+          "empty": "No points recorded yet.",
+          "error": "Reading the curve failed.",
+          "axisY": "Equity (paper USDT)",
+          "axisX": "Day",
+          "legendEquity": "Equity",
+          "legendCash": "Cash",
+          "legendExposure": "Exposure",
+          "legendDrawdown": "Drawdown",
+          "gapNote": "No data was recorded in this hour; the line is not continuous."
+        },
+        "riskGauge": {
+          "title": "Risk gauge",
+          "subtitle": "Current state of limits and circuit breakers.",
+          "empty": "Risk has not been evaluated yet.",
+          "error": "Reading the risk state failed.",
+          "openRisk": "Open the risk page"
+        },
+        "departments": {
+          "title": "Departments",
+          "subtitle": "Twelve departments and the current health of each.",
+          "empty": "No department is registered.",
+          "error": "Reading department status failed.",
+          "allHealthy": "All departments are healthy.",
+          "needsAttention": "{count} departments need attention."
+        },
+        "topSignals": {
+          "title": "Top signals",
+          "subtitle": "Highest scores among open signals.",
+          "empty": "There is no open signal.",
+          "error": "Reading signals failed.",
+          "viewAll": "View all signals"
+        },
+        "openPositions": {
+          "title": "Open positions",
+          "subtitle": "With the displayed-vs-realizable pair.",
+          "empty": "You have no open position.",
+          "error": "Reading positions failed.",
+          "viewAll": "View all positions"
+        },
+        "watchlist": {
+          "title": "Watchlist",
+          "subtitle": "Markets the operator is watching.",
+          "empty": "No market has been added to the watchlist.",
+          "error": "Reading the watchlist failed.",
+          "addToWatchlist": "Add to watchlist",
+          "removeFromWatchlist": "Remove from watchlist"
+        },
+        "recentLogs": {
+          "title": "Recent events",
+          "subtitle": "Last 20 events, append-only.",
+          "empty": "No event has been recorded.",
+          "error": "Reading events failed.",
+          "viewAll": "View all events"
+        },
+        "health": {
+          "title": "System health",
+          "subtitle": "Components, data sources and clock skew.",
+          "empty": "No health report available.",
+          "error": "Reading system health failed.",
+          "componentsUp": "{count} components up",
+          "providersBlocked": "{count} sources blocked"
+        },
+        "killSwitch": {
+          "title": "Kill switch",
+          "subtitle": "Current state and the last drill.",
+          "armed": "Armed — the system is running.",
+          "engaged": "Engaged — all automatic actions are halted.",
+          "cooldown": "Cooldown — {time} remaining.",
+          "locked": "Locked — only the operator can reset it.",
+          "openRisk": "Open the risk panel"
+        }
+      },
+      "actions": {
+        "refreshAll": "Refresh everything",
+        "runCycleNow": "Run a cycle now",
+        "openRisk": "Go to risk",
+        "openPositions": "Go to positions",
+        "openLogs": "Go to events",
+        "lastUpdated": "Last updated: {time}"
+      },
+      "empty": {
+        "title": "No cycle has completed yet",
+        "body": "Until the first full cycle, everything here is Unknown. That is not an error; it is the absence of data."
+      },
+      "errors": {
+        "loadFailed": "Loading the overview failed.",
+        "partial": "Some cards have no data and are shown as Unknown.",
+        "stale": "The overview is stale; the last cycle did not complete."
+      },
+      "tooltips": {
+        "unknownShare": "The unknown share tells you how much of this page actually has data.",
+        "cycle": "One cycle means: read data, evaluate, decide, record the event.",
+        "paperEquity": "Paper equity starts from an agreed balance and only moves through simulated trades."
+      }
+    },
+    "markets": {
+      "title": "Markets",
+      "subtitle": "Forty markets across crypto, forex, indices and metals. A price is shown only if it was observed.",
+      "paperOnlyNotice": "Prices and volumes on this page are paper; no real trade is executed.",
+      "summary": {
+        "tracked": "Markets tracked",
+        "withQuote": "With a quote",
+        "unknown": "Without data",
+        "stale": "Stale",
+        "demo": "Demo",
+        "assetClasses": "Asset classes"
+      },
+      "filters": {
+        "title": "Filters",
+        "search": "Search symbol or name",
+        "searchPlaceholder": "For example BTC or gold",
+        "assetClass": "Asset class",
+        "venue": "Venue",
+        "marketState": "Market state",
+        "freshness": "Freshness",
+        "tradableOnly": "Only tradable in paper",
+        "hideUnknown": "Hide unknown rows",
+        "sort": "Sort by",
+        "sortSymbol": "Symbol",
+        "sortChange": "24h change",
+        "sortVolume": "Volume",
+        "sortLiquidity": "Liquidity",
+        "sortFreshness": "Freshness",
+        "active": "{count} filters active",
+        "clear": "Clear all"
+      },
+      "table": {
+        "symbol": "Symbol",
+        "name": "Name",
+        "assetClass": "Class",
+        "venue": "Venue",
+        "marketState": "State",
+        "last": "Last price",
+        "change24h": "24h change",
+        "high24h": "High",
+        "low24h": "Low",
+        "volume24h": "24h volume",
+        "liquidity": "Liquidity",
+        "spreadBps": "Spread",
+        "freshness": "Freshness",
+        "asOf": "Observed at",
+        "actions": "Actions"
+      },
+      "row": {
+        "watch": "Watch",
+        "unwatch": "Stop watching",
+        "openDetail": "Market detail",
+        "createSignal": "View signals",
+        "noQuote": "No price observed",
+        "thin": "Liquidity is thin"
+      },
+      "detail": {
+        "title": "Market file: {symbol}",
+        "quoteBox": "Quote board",
+        "depthBox": "Depth and slippage",
+        "sessionBox": "Trading sessions",
+        "providerBox": "Data sources",
+        "signalsBox": "Related signals",
+        "positionsBox": "Related positions",
+        "noProvider": "No source is connected for this market.",
+        "providerBlocked": "Source {name} is blocked: {reason}",
+        "close": "Close file"
+      },
+      "empty": {
+        "title": "No market to show",
+        "body": "Either the market list is empty or the filters left no rows.",
+        "noProviders": "No data source is connected; every price stays Unknown.",
+        "unknownOnly": "All remaining rows have no data.",
+        "filtered": "No market matches these filters."
+      },
+      "errors": {
+        "loadFailed": "Reading the market list failed.",
+        "quoteFailed": "Reading the quote board failed.",
+        "timeout": "The price source did not answer in time.",
+        "stale": "Prices are stale; last observation was {time}."
+      },
+      "tooltips": {
+        "spread": "Distance between best bid and best ask, in basis points.",
+        "liquidity": "Depth you can actually exit into, not the whole pool size.",
+        "priceImpact": "Price impact of a reference-sized order.",
+        "demoGrid": "Demo prices are generated on a stepped grid so they cannot be mistaken for real quotes.",
+        "marketState": "Open, closed, auction or halted; Unknown means the session state was not read."
+      }
+    },
+    "positions": {
+      "title": "Paper positions",
+      "subtitle": "The simulated book. Every position shows the displayed-vs-realizable pair.",
+      "paperOnlyNotice": "Every amount on this page is paper; real trading is disabled and no money moves.",
+      "tabs": {
+        "open": "Open",
+        "closed": "Closed",
+        "trapped": "Trapped",
+        "all": "All"
+      },
+      "summary": {
+        "totalDisplayed": "Total displayed value",
+        "totalRealizable": "Total realizable value",
+        "honestyGap": "Displayed minus realizable",
+        "totalUnrealizedPnl": "Unrealized P&L",
+        "totalRealizedPnl": "Realized P&L",
+        "openCount": "Open positions",
+        "winRate": "Win rate",
+        "avgHold": "Average holding time"
+      },
+      "table": {
+        "symbol": "Symbol",
+        "side": "Side",
+        "state": "State",
+        "qty": "Quantity",
+        "entryPrice": "Entry price",
+        "markPrice": "Mark price",
+        "displayedValue": "Displayed value",
+        "realizableValue": "Realizable value",
+        "allocatedNotional": "Allocated notional",
+        "unrealizedPnl": "Unrealized P&L",
+        "unrealizedPnlPct": "Percent",
+        "realizedPnl": "Realized P&L",
+        "stopLoss": "Stop loss",
+        "takeProfit": "Take profit",
+        "holdTime": "Held for",
+        "exitability": "Exitability",
+        "liquidityRisk": "Liquidity risk",
+        "momentum": "Momentum",
+        "freshness": "Freshness",
+        "asOf": "Observed at",
+        "actions": "Actions"
+      },
+      "actions": {
+        "close": "Close position",
+        "trim": "Trim",
+        "add": "Add",
+        "adjustStop": "Adjust stop",
+        "adjustTarget": "Adjust target",
+        "viewSignal": "View source signal",
+        "viewOrders": "View orders",
+        "viewMarket": "View market",
+        "export": "Export paper book"
+      },
+      "filters": {
+        "search": "Search symbol",
+        "side": "Side",
+        "state": "State",
+        "exitability": "Exitability",
+        "onlyLosers": "Losers only",
+        "onlyWinners": "Winners only",
+        "minHold": "Minimum holding time",
+        "sort": "Sort by",
+        "clear": "Clear filters"
+      },
+      "empty": {
+        "title": "You have no paper position",
+        "body": "Until a signal reaches execution, this table stays empty. Empty means absent data, not zero profit.",
+        "noOpen": "There is no open position.",
+        "noClosed": "No position has been closed yet.",
+        "noTrapped": "You have no trapped position.",
+        "filtered": "No position matches these filters."
+      },
+      "errors": {
+        "loadFailed": "Reading positions failed.",
+        "closeFailed": "Closing the position failed; it is still open.",
+        "adjustFailed": "Saving the level change failed.",
+        "markUnavailable": "Mark price unavailable; P&L stays Unknown.",
+        "stale": "Mark price is stale; last observation {time}."
+      },
+      "tooltips": {
+        "displayedValue": "Quantity times mark price — the number a naive interface would show.",
+        "realizableValue": "What could actually be recovered after slippage, fee, tax and network cost.",
+        "honestyGap": "The gap between the two is the hidden cost of exiting.",
+        "trapped": "This position cannot be exited; its value exists on paper only.",
+        "timeStop": "If no reason to hold remains by this time, the position is closed.",
+        "leverage": "Leverage in the AHOS paper book is always one."
+      }
+    },
+    "signals": {
+      "title": "Signals",
+      "subtitle": "Output of the analysis departments and the expert council. Prices are references, not orders.",
+      "paperOnlyNotice": "Suggested sizes and prices on this page are paper and feed the simulation only.",
+      "summary": {
+        "new": "New",
+        "actedOn": "Acted on",
+        "expired": "Expired",
+        "rejected": "Rejected",
+        "abstained": "Abstained",
+        "noTrade": "No trade",
+        "avgScore": "Average score"
+      },
+      "table": {
+        "emittedAt": "Emitted at",
+        "symbol": "Symbol",
+        "side": "Side",
+        "action": "Action",
+        "conviction": "Conviction",
+        "strength": "Strength",
+        "score": "Score",
+        "horizon": "Horizon",
+        "entryRef": "Reference entry",
+        "stopRef": "Reference stop",
+        "targetRef": "Reference target",
+        "invalidationRef": "Invalidation",
+        "suggestedNotional": "Suggested size",
+        "department": "Department",
+        "agent": "Agent",
+        "councilDecision": "Council decision",
+        "state": "State",
+        "expiresAt": "Expires",
+        "freshness": "Freshness",
+        "actions": "Actions"
+      },
+      "actions": {
+        "acknowledge": "Acknowledge",
+        "actOnPaper": "Execute in paper",
+        "reject": "Reject",
+        "invalidate": "Invalidate",
+        "viewMarket": "View market",
+        "viewRationale": "View rationale",
+        "viewEvidence": "View evidence",
+        "copy": "Copy summary"
+      },
+      "filters": {
+        "search": "Search symbol or rationale",
+        "side": "Side",
+        "action": "Action",
+        "conviction": "Conviction",
+        "state": "State",
+        "department": "Department",
+        "minScore": "Minimum score",
+        "horizon": "Horizon",
+        "onlyFresh": "Fresh signals only",
+        "clear": "Clear filters"
+      },
+      "detail": {
+        "title": "Signal file: {symbol}",
+        "rationale": "Rationale",
+        "evidence": "Evidence",
+        "riskFlags": "Risk flags",
+        "dissent": "Dissenting views",
+        "scoreBreakdown": "Score breakdown",
+        "councilVotes": "Council votes",
+        "noEvidence": "No evidence recorded; the score stays Unknown.",
+        "expiresIn": "Expires in {time}",
+        "expired": "This signal has expired.",
+        "close": "Close file"
+      },
+      "empty": {
+        "title": "There is no signal",
+        "body": "No trade is a valid answer too. No signal means evidence was insufficient, not that the market has no opportunity.",
+        "noNew": "No new signal has been emitted.",
+        "filtered": "No signal matches these filters.",
+        "expiredOnly": "Only expired signals remain.",
+        "noEvidence": "No signal has sufficient evidence."
+      },
+      "errors": {
+        "loadFailed": "Reading signals failed.",
+        "ackFailed": "Acknowledging failed.",
+        "actFailed": "Paper execution failed; the signal is still open.",
+        "expired": "This signal expired before your action.",
+        "stale": "Signals are stale; last emission {time}."
+      },
+      "tooltips": {
+        "score": "Score from 0 to 100 based on evidence; missing evidence is Unknown, not zero.",
+        "horizon": "How long the signal is valid for.",
+        "entryRef": "Reference price when the signal was emitted, not a guaranteed fill.",
+        "invalidation": "If the market reaches this level, the signal's argument is invalidated.",
+        "abstain": "Abstain means evidence was insufficient for either direction.",
+        "councilDecision": "Council decisions are advisory; there is no blind averaging."
+      }
+    },
+    "agents": {
+      "title": "Agents & departments",
+      "subtitle": "Twelve departments and their logical agents. No agent can reach real money or an exchange key.",
+      "paperOnlyNotice": "Each department's budget is paper and only allocates simulated capital.",
+      "summary": {
+        "departments": "Departments",
+        "agents": "Agents",
+        "running": "Running",
+        "idle": "Idle",
+        "waitingGate": "Waiting on a gate",
+        "blocked": "Blocked",
+        "degraded": "Degraded",
+        "stopped": "Stopped",
+        "unknown": "Unknown"
+      },
+      "departments": {
+        "title": "Departments",
+        "table": {
+          "order": "Order",
+          "code": "Code",
+          "name": "Department",
+          "mission": "Mission",
+          "health": "Health",
+          "owner": "Owner",
+          "agents": "Agents",
+          "activeAgents": "Active",
+          "budget": "Paper budget",
+          "throughput": "Output per day",
+          "queueDepth": "Queue depth",
+          "openIssues": "Open issues",
+          "escalation": "Escalation",
+          "lastOutput": "Last output",
+          "cycle": "Cycle",
+          "actions": "Actions"
+        },
+        "empty": "No department is registered.",
+        "error": "Reading departments failed.",
+        "detailTitle": "Department: {name}",
+        "agentsInDepartment": "Agents in this department",
+        "noAgents": "This department has no agent yet."
+      },
+      "agents": {
+        "title": "Agents",
+        "table": {
+          "id": "ID",
+          "role": "Role",
+          "department": "Department",
+          "runState": "Run state",
+          "lastResult": "Last result",
+          "enabled": "Enabled",
+          "lastRun": "Last run",
+          "nextRun": "Next run",
+          "cycleMs": "Cycle",
+          "latencyMs": "Latency",
+          "cyclesCompleted": "Cycles completed",
+          "consecutiveErrors": "Consecutive errors",
+          "queueDepth": "Queue depth",
+          "humanGate": "Human gate",
+          "realMoney": "Real money access",
+          "statusMessage": "Status message",
+          "actions": "Actions"
+        },
+        "actions": {
+          "runNow": "Run now",
+          "pause": "Pause",
+          "resume": "Resume",
+          "disable": "Disable",
+          "enable": "Enable",
+          "viewLogs": "View events",
+          "viewTasks": "View pending tasks",
+          "viewCharter": "View charter",
+          "escalate": "Escalate"
+        },
+        "empty": "No agent is registered.",
+        "error": "Reading agent status failed.",
+        "detailTitle": "Agent: {name}",
+        "capabilities": "Allowed capabilities",
+        "prohibited": "Prohibited actions",
+        "noRealMoney": "No — access to real money is denied system-wide.",
+        "neverRan": "This agent has never run."
+      },
+      "filters": {
+        "search": "Search name or ID",
+        "department": "Department",
+        "runState": "Run state",
+        "health": "Health",
+        "onlyBlocked": "Blocked only",
+        "onlyWaitingGate": "Waiting on a gate only",
+        "clear": "Clear filters"
+      },
+      "empty": {
+        "title": "The org chart did not load",
+        "body": "Until agent status is read, every department's health stays Unknown."
+      },
+      "errors": {
+        "loadFailed": "Reading the org chart failed.",
+        "runFailed": "Running this agent now failed.",
+        "toggleFailed": "The agent state change was not recorded.",
+        "stale": "Agent status is stale; last update {time}."
+      },
+      "tooltips": {
+        "logicalAgents": "Agents are logical roles, not separate processes; all sit under one governance engine.",
+        "humanGate": "Gated actions never run without operator approval.",
+        "consecutiveErrors": "Three consecutive errors move an agent into the degraded state.",
+        "budget": "The paper budget is this department's share of the simulated book.",
+        "escalation": "Level 0 is normal and level 3 is critical; level 3 means escalation to the operator."
+      }
+    },
+    "risk": {
+      "title": "Risk & kill switch",
+      "subtitle": "Limits, circuit breakers and the kill switch. This is the only page that can stop the system.",
+      "paperOnlyNotice": "Every amount and limit on this page is paper; the kill switch halts the simulation only.",
+      "level": {
+        "title": "Risk level",
+        "GREEN": "Green — everything is inside the allowed range.",
+        "AMBER": "Amber — we are close to one of the limits.",
+        "RED": "Red — at least one limit has been breached.",
+        "HALTED": "Halted — the decision cycle has stopped.",
+        "UNKNOWN": "Unknown — no data was read to evaluate risk."
+      },
+      "exposure": {
+        "title": "Market exposure",
+        "equity": "Equity",
+        "cash": "Free cash",
+        "exposure": "Open exposure",
+        "exposurePct": "Exposure percent",
+        "dailyPnl": "Today's P&L",
+        "dailyLoss": "Today's loss",
+        "maxDrawdown": "Max drawdown",
+        "openPositions": "Open positions",
+        "maxOpenPositions": "Max open positions",
+        "largestPosition": "Largest position",
+        "concentrationTop3": "Top-3 concentration",
+        "pendingOrders": "Pending orders"
+      },
+      "limits": {
+        "title": "Risk limits",
+        "subtitle": "Current value against the approved ceiling.",
+        "table": {
+          "label": "Limit",
+          "current": "Current",
+          "limit": "Ceiling",
+          "utilization": "Utilization",
+          "warnAt": "Warn at",
+          "unit": "Unit",
+          "state": "State"
+        },
+        "empty": "No limit is defined; without a limit the state is Unknown.",
+        "error": "Reading limits failed.",
+        "breached": "Breached",
+        "warning": "Near the limit",
+        "normal": "Within range",
+        "raiseLimit": "Request a limit raise"
+      },
+      "breakers": {
+        "title": "Circuit breakers",
+        "subtitle": "Any breaker that trips halts the cycle and writes an audit event.",
+        "table": {
+          "label": "Breaker",
+          "state": "State",
+          "threshold": "Threshold",
+          "observed": "Observed",
+          "unit": "Unit",
+          "triggeredAt": "Tripped at",
+          "cooldownEndsAt": "Cooldown ends",
+          "autoReset": "Auto reset"
+        },
+        "actions": {
+          "reset": "Reset breaker",
+          "drill": "Drill",
+          "viewLogs": "View events"
+        },
+        "empty": "No breaker is defined.",
+        "error": "Reading breakers failed.",
+        "noneTriggered": "No breaker has tripped.",
+        "triggered": "{count} breakers have tripped."
+      },
+      "killSwitch": {
+        "title": "Emergency kill switch",
+        "subtitle": "Immediate halt of every automatic action. Reset requires a human.",
+        "stateArmed": "Armed",
+        "stateEngaged": "Engaged",
+        "stateCooldown": "Cooldown",
+        "stateLocked": "Locked",
+        "stateUnknown": "Unknown",
+        "engagedAt": "Engaged at",
+        "engagedBy": "Engaged by",
+        "resetAt": "Reset at",
+        "resetBy": "Reset by",
+        "scope": "Halt scope",
+        "reason": "Reason",
+        "requiresHumanReset": "Manual reset required",
+        "cooldownRemaining": "{time} until cooldown ends",
+        "lastDrill": "Last drill",
+        "drillResult": "Drill result",
+        "auditTrail": "Audit trail",
+        "openPositionsAtEngage": "Open positions when engaged",
+        "engage": "Engage kill switch",
+        "reset": "Reset kill switch",
+        "drill": "Run a drill",
+        "confirmPhraseLabel": "Type this phrase to confirm",
+        "disabled": "The kill switch is disabled in this deployment.",
+        "whyEngaged": "Why it was engaged"
+      },
+      "haltReasons": {
+        "title": "Halt reasons",
+        "none": "No halt reason has been recorded.",
+        "unknown": "The halt reason could not be read.",
+        "resumeHint": "Resuming is possible only after the reason is cleared and the operator approves."
+      },
+      "notes": {
+        "title": "Risk note",
+        "empty": "No note has been recorded.",
+        "addNote": "Add note",
+        "editNote": "Edit note"
+      },
+      "empty": {
+        "title": "Risk has not been evaluated",
+        "body": "Until the first cycle completes, the risk level is Unknown. Unknown never means safe."
+      },
+      "errors": {
+        "loadFailed": "Reading the risk state failed.",
+        "engageFailed": "Engaging the kill switch failed. The state stayed Unknown.",
+        "resetFailed": "Resetting the kill switch failed.",
+        "drillFailed": "The drill did not complete.",
+        "stale": "The risk evaluation is stale; last evaluation {time}.",
+        "unknownLevel": "The risk level is unknown and nothing was substituted."
+      },
+      "tooltips": {
+        "utilization": "Current value against the ceiling; above 100 percent means breached.",
+        "autoReset": "A breaker with auto reset re-arms after its cooldown window.",
+        "cooldown": "During cooldown no automatic action runs.",
+        "killSwitchScope": "The scope states exactly what was halted; there is no vague global stop.",
+        "unknownIsNotSafe": "Unknown is a conservative state, not permission to continue."
+      }
+    },
+    "logs": {
+      "title": "Events & system logs",
+      "subtitle": "Append-only: events are never edited and never deleted. What you see is what was recorded.",
+      "summary": {
+        "total": "Total events",
+        "last24h": "Last 24 hours",
+        "errors": "Errors",
+        "warnings": "Warnings",
+        "audit": "Audit",
+        "redacted": "Redacted"
+      },
+      "table": {
+        "at": "Time",
+        "relative": "Relative",
+        "level": "Level",
+        "department": "Department",
+        "agent": "Agent",
+        "event": "Event",
+        "message": "Message",
+        "market": "Market",
+        "position": "Position",
+        "durationMs": "Duration",
+        "traceId": "Trace ID",
+        "dataFreshness": "Data freshness",
+        "redacted": "Redacted",
+        "actions": "Actions"
+      },
+      "filters": {
+        "search": "Search message and event",
+        "level": "Level",
+        "department": "Department",
+        "agent": "Agent",
+        "market": "Market",
+        "timeRange": "Time range",
+        "onlyErrors": "Errors only",
+        "onlyAudit": "Audit only",
+        "onlyRedacted": "Redacted only",
+        "follow": "Follow live",
+        "autoScroll": "Auto scroll",
+        "clear": "Clear filters"
+      },
+      "actions": {
+        "copyLine": "Copy event",
+        "copyTrace": "Copy trace ID",
+        "viewTrace": "View whole trace",
+        "export": "Export",
+        "pauseFollow": "Stop following",
+        "clearView": "Clear view",
+        "expandAll": "Expand all",
+        "collapseAll": "Collapse all"
+      },
+      "empty": {
+        "title": "No event has been recorded",
+        "body": "Either no cycle has run or the filters hid every row.",
+        "filtered": "No event matches these filters.",
+        "noErrors": "No error was recorded in this range.",
+        "notLoaded": "Events have not loaded yet."
+      },
+      "errors": {
+        "loadFailed": "Reading events failed.",
+        "loadMoreFailed": "Reading older events failed.",
+        "exportFailed": "Exporting events failed.",
+        "followFailed": "The live follow connection dropped.",
+        "stale": "The event stream is stale; latest event {time}."
+      },
+      "tooltips": {
+        "appendOnly": "The event store is append-only; deletion and rewriting are impossible.",
+        "redacted": "Sensitive parts of this event were redacted before storage.",
+        "traceId": "Follow a whole decision chain with this identifier.",
+        "dataFreshness": "Freshness of the data this event was based on.",
+        "seq": "Sequence number in the event store; a jump means an event was missed."
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Language, appearance, data policy, execution, alerts and governance.",
+      "paperOnlyNotice": "The starting balance and limits on this page are paper; changing them does not touch real money.",
+      "sections": {
+        "language": {
+          "title": "Language & format",
+          "locale": "Interface language",
+          "localeFa": "Persian",
+          "localeEn": "English",
+          "dir": "Layout direction",
+          "rtl": "Right to left",
+          "ltr": "Left to right",
+          "digitsTitle": "Digits",
+          "persianDigits": "Persian digits (۰۱۲۳۴۵۶۷۸۹)",
+          "latinDigits": "Latin digits (0123456789)",
+          "digitsHint": "Persian digits are the default; choose Latin to compare against an exchange screen.",
+          "calendarTitle": "Calendar",
+          "jalali": "Jalali (Persian)",
+          "gregorian": "Gregorian",
+          "calendarHint": "Data is always stored in UTC; the calendar is a presentation layer only.",
+          "timeZone": "Display time zone",
+          "timeZoneHint": "Default: Asia/Tehran. Events are stored in UTC.",
+          "relativeTime": "Relative time",
+          "relativeTimeHint": "Show “3 minutes ago” instead of an absolute clock time."
+        },
+        "appearance": {
+          "title": "Appearance",
+          "theme": "Theme",
+          "themeDark": "Black glass",
+          "themeContrast": "High contrast",
+          "goldAccent": "Gold accent intensity",
+          "glass": "Glass opacity",
+          "density": "Table density",
+          "motion": "Motion",
+          "reduceMotion": "Reduce motion",
+          "chartStyle": "Chart style",
+          "monoNumbers": "Tabular numbers in tables"
+        },
+        "data": {
+          "title": "Data policy",
+          "principle": "Governing principle",
+          "principleHint": "UNKNOWN beats fabricated: if data cannot be read, a dash is shown, never a zero.",
+          "stalenessBudgets": "Feed freshness budgets",
+          "quoteBudget": "Quote board",
+          "signalBudget": "Signal",
+          "positionBudget": "Position",
+          "riskBudget": "Risk evaluation",
+          "healthBudget": "System health",
+          "budgetUnit": "seconds",
+          "unknownPolicy": "Rendering unknown data",
+          "showUnknownAs": "Show as",
+          "dashPlaceholder": "Dash (—)",
+          "wordPlaceholder": "The word “Unknown”",
+          "demoData": "Demo data",
+          "demoDataHint": "When enabled, the sample pack loads with the Demo label.",
+          "loadDemoData": "Load demo data"
+        },
+        "execution": {
+          "title": "Execution",
+          "mode": "Execution mode",
+          "modeValue": "Paper only (PAPER_ONLY)",
+          "modeHint": "This value is locked; no other path exists in this build.",
+          "liveTrading": "Real trading",
+          "liveTradingValue": "Disabled",
+          "liveTradingHint": "Real trading would require an exchange key, which this system never stores.",
+          "apiKeys": "Access keys",
+          "noKeysStored": "No key is stored.",
+          "paperStartingBalance": "Paper starting balance",
+          "paperStartingBalanceHint": "Used only when resetting the simulated book.",
+          "orderSimulation": "Order simulation",
+          "slippageModel": "Slippage model",
+          "feeModel": "Fee model",
+          "gasModel": "Network cost model",
+          "impactCap": "Price impact cap",
+          "cycleInterval": "Cycle interval",
+          "cycleIntervalUnit": "seconds"
+        },
+        "alerts": {
+          "title": "Alerts",
+          "channels": "Channels",
+          "inApp": "In dashboard",
+          "telegram": "Telegram",
+          "email": "Email",
+          "sound": "Sound",
+          "quietHours": "Quiet hours",
+          "quietFrom": "From",
+          "quietTo": "Until",
+          "thresholds": "Alert thresholds",
+          "onKillSwitch": "When the kill switch is engaged",
+          "onBreaker": "When a breaker trips",
+          "onLimitBreach": "When a limit is breached",
+          "onUnknownSpike": "On a spike of unknown data",
+          "testAlert": "Test alert",
+          "notConnected": "Not connected"
+        },
+        "governance": {
+          "title": "Governance",
+          "humanGate": "Human gate",
+          "humanGateHint": "Irreversible actions never run without operator approval.",
+          "twoFactor": "Second factor for the operator",
+          "auditTrail": "Audit trail recording",
+          "retention": "Event retention",
+          "retentionDays": "{count} days",
+          "exportAudit": "Export audit bundle",
+          "roles": "Roles",
+          "roleOperator": "Operator",
+          "roleAuditor": "Auditor",
+          "roleViewer": "Viewer",
+          "immutability": "Event store immutability",
+          "immutabilityHint": "The event store is append-only and has no delete key."
+        },
+        "danger": {
+          "title": "Danger zone",
+          "subtitle": "These actions are irreversible and affect the paper book only.",
+          "resetPaperBook": "Reset the paper book",
+          "clearLocalData": "Clear local browser data",
+          "engageKillSwitch": "Engage the kill switch",
+          "purgeDemoData": "Remove demo data"
+        }
+      },
+      "actions": {
+        "save": "Save changes",
+        "discard": "Discard changes",
+        "restoreDefaults": "Restore defaults",
+        "saved": "Settings saved.",
+        "unsaved": "You have unsaved changes.",
+        "saveFailed": "Saving settings failed.",
+        "validationFailed": "The entered value is not valid."
+      },
+      "empty": {
+        "title": "No settings to show",
+        "body": "The settings file could not be read; default values are applied."
+      },
+      "errors": {
+        "loadFailed": "Reading settings failed.",
+        "saveFailed": "Saving settings failed.",
+        "invalidNumber": "The entered number is not valid.",
+        "outOfRange": "The value must be between {min} and {max}.",
+        "permissionDenied": "Changing this section requires operator authority."
+      },
+      "tooltips": {
+        "stalenessBudget": "If an observation is older than this budget, its state moves from Live to Stale.",
+        "demoData": "Demo data is always shown with the Demo label.",
+        "modeLocked": "This value cannot be changed; AHOS is paper-only in this build.",
+        "unknownAsDash": "A dash means “not read”, never “zero”."
+      }
+    },
+    "operator": {
+      "title": "Operator desk",
+      "subtitle": "Human control: approvals, the kill switch and shift status. Nothing irreversible happens without your approval.",
+      "paperOnlyNotice": "Every amount in the tasks on this page is paper; your authority applies to the simulated book only.",
+      "session": {
+        "title": "Operator session",
+        "operator": "Operator",
+        "role": "Role",
+        "onShift": "On shift",
+        "offShift": "Off shift",
+        "shiftStartedAt": "Shift started",
+        "authority": "Authority level",
+        "twoFactor": "Second factor",
+        "verified": "Verified",
+        "notVerified": "Not verified",
+        "canEngageKillSwitch": "May engage the kill switch",
+        "canResetKillSwitch": "May reset the kill switch",
+        "canMoveRealMoney": "May move real money",
+        "never": "No — never",
+        "lastAction": "Last action",
+        "handover": "Hand over shift",
+        "signOut": "Sign out"
+      },
+      "tasks": {
+        "title": "Tasks awaiting approval",
+        "subtitle": "An unapproved task expires; it is never auto-approved.",
+        "table": {
+          "kind": "Kind",
+          "title": "Request",
+          "detail": "Detail",
+          "requestedBy": "Requested by",
+          "department": "Department",
+          "amount": "Paper amount",
+          "riskLevel": "Risk level",
+          "createdAt": "Created at",
+          "expiresAt": "Expires",
+          "state": "State",
+          "actions": "Actions"
+        },
+        "actions": {
+          "approve": "Approve",
+          "reject": "Reject",
+          "openDetail": "Details",
+          "escalate": "Escalate",
+          "refresh": "Refresh"
+        },
+        "empty": "No task is waiting for approval.",
+        "allDecided": "Every task has been decided.",
+        "expired": "This task has expired.",
+        "error": "Reading tasks failed.",
+        "expiresSoon": "{time} until expiry",
+        "requiresPhrase": "This task requires typing a confirmation phrase."
+      },
+      "quickActions": {
+        "title": "Quick actions",
+        "engageKillSwitch": "Engage kill switch",
+        "resetKillSwitch": "Reset kill switch",
+        "runDrill": "Run a drill",
+        "pauseCycles": "Pause cycles",
+        "resumeCycles": "Resume cycles",
+        "forceRefresh": "Force data refresh",
+        "exportAudit": "Export audit bundle",
+        "openLogs": "Open events",
+        "runHealthCheck": "Run a health check"
+      },
+      "checklist": {
+        "title": "Shift checklist",
+        "itemKillSwitch": "Kill switch state reviewed.",
+        "itemRiskLevel": "Risk level and limits reviewed.",
+        "itemUnknownShare": "Share of unknown data reviewed.",
+        "itemPendingTasks": "Pending tasks decided.",
+        "itemBreakers": "Tripped breakers reviewed.",
+        "itemAudit": "Audit events reviewed.",
+        "notDone": "Not done",
+        "done": "Done",
+        "progress": "{done} of {total} items"
+      },
+      "empty": {
+        "title": "No operator is on shift",
+        "body": "Without an operator, human-gated actions stay pending and then expire."
+      },
+      "errors": {
+        "loadFailed": "Reading the operator desk failed.",
+        "decideFailed": "Recording the decision failed; the task is still pending.",
+        "sessionExpired": "Your session has expired.",
+        "permissionDenied": "You do not have authority for this action.",
+        "stale": "The operator desk is stale; last action {time}."
+      },
+      "tooltips": {
+        "expiry": "An expired task is never auto-approved; it has to be requested again.",
+        "phrase": "Typing the confirmation phrase prevents accidental clicks on dangerous actions.",
+        "auditTrail": "Every approval and rejection is recorded with time and actor in the audit events.",
+        "noRealMoney": "Operator authority in this build never reaches real money."
+      }
+    }
+  },
+  "departments": {
+    "discovery": {
+      "name": "Discovery & Watch",
+      "shortName": "Discovery",
+      "mission": "Continuously scan markets and pull out candidates, without inflating the count."
+    },
+    "marketData": {
+      "name": "Market Data",
+      "shortName": "Market data",
+      "mission": "Read price, volume and liquidity from allowed sources and record the freshness of each observation."
+    },
+    "onchain": {
+      "name": "On-chain & Whales",
+      "shortName": "On-chain",
+      "mission": "Inspect holder distribution, whale movement and supply concentration on chain."
+    },
+    "security": {
+      "name": "Token & Contract Security",
+      "shortName": "Security",
+      "mission": "Detect honeypots, sell restrictions and dangerous permissions; Unknown is never assumed to be safe."
+    },
+    "newsMacro": {
+      "name": "News & Macro",
+      "shortName": "News & macro",
+      "mission": "Collect news events and macro indicators with source and timestamp attached."
+    },
+    "research": {
+      "name": "Research & Methodology",
+      "shortName": "Research",
+      "mission": "Design testable hypotheses and review method quality before any conclusion."
+    },
+    "quant": {
+      "name": "Quant & Backtesting",
+      "shortName": "Quant",
+      "mission": "Test rules against historical data with a cost model and no look-ahead."
+    },
+    "council": {
+      "name": "Expert Council",
+      "shortName": "Council",
+      "mission": "Advisory judgement over evidence; no blind averaging and dissent is recorded."
+    },
+    "risk": {
+      "name": "Risk Management",
+      "shortName": "Risk",
+      "mission": "Guard limits, circuit breakers and position sizing; halt before disaster."
+    },
+    "paperExecution": {
+      "name": "Paper Execution",
+      "shortName": "Paper execution",
+      "mission": "Simulate orders realistically with slippage, fees and liquidity constraints."
+    },
+    "learning": {
+      "name": "Learning & Memory",
+      "shortName": "Learning",
+      "mission": "Record the lesson of every closed trade and keep decision memory, without silently changing rules."
+    },
+    "auditGovernance": {
+      "name": "Audit & Governance",
+      "shortName": "Audit",
+      "mission": "Preserve the event chain, hold veto power over final results and keep status reports honest."
+    }
+  },
+  "dialogs": {
+    "killSwitchEngage": {
+      "title": "Halt the whole system",
+      "body": "Engaging the kill switch immediately stops signal intake, paper order submission and automatic exits. Open positions are not closed; only automatic action stops.",
+      "warning": "This action is written to the audit events and cannot be reset without human approval.",
+      "consequencesTitle": "What will be halted",
+      "scopeDataIngest": "Reading data from sources",
+      "scopeSignalIntake": "Accepting new signals",
+      "scopeOrderSubmission": "Submitting paper orders",
+      "scopeAutoExit": "Automatic position exit",
+      "scopeAlerts": "Sending alerts",
+      "scopeReporting": "Generating reports",
+      "reasonLabel": "Reason for the halt",
+      "reasonPlaceholder": "For example: spike of unknown data in the price feed",
+      "reasonRequired": "Writing a reason is required.",
+      "checkboxLabel": "I accept that the automatic cycle stays halted until a manual reset.",
+      "phraseLabel": "Type this phrase to confirm",
+      "phraseHint": "Required phrase: “{phrase}”",
+      "phraseMismatch": "The phrase you typed does not match the required one.",
+      "confirm": "Engage the kill switch",
+      "cancel": "Cancel",
+      "success": "Kill switch engaged; every automatic action is halted.",
+      "failure": "Engaging the kill switch failed. The state is Unknown and must be checked manually."
+    },
+    "killSwitchReset": {
+      "title": "Reset the kill switch",
+      "body": "Resetting lets the system resume its paper cycle. The reason for the halt must be cleared first.",
+      "requirementsTitle": "Prerequisites",
+      "requirementReason": "The halt reason has been cleared.",
+      "requirementRisk": "The risk level has been reviewed and recorded.",
+      "requirementLogs": "Events from the halted window have been reviewed.",
+      "cooldownActive": "Cooldown is active; {time} remaining.",
+      "checkboxLabel": "I have completed the checks above.",
+      "phraseLabel": "Type this phrase to confirm",
+      "phraseHint": "Required phrase: “{phrase}”",
+      "confirm": "Reset the kill switch",
+      "cancel": "Cancel",
+      "success": "Kill switch reset; cycles are resuming.",
+      "failure": "Reset failed; the kill switch is still engaged."
+    },
+    "killSwitchDrill": {
+      "title": "Halt drill",
+      "body": "A drill exercises the halt path without changing the persistent state. The result is written to the audit events.",
+      "confirm": "Start the drill",
+      "cancel": "Cancel",
+      "success": "The drill completed successfully.",
+      "failure": "The drill did not complete; the halt path is not reliable."
+    },
+    "closePosition": {
+      "title": "Close a paper position",
+      "body": "Position {symbol} will be closed in the paper book. This affects the simulation only.",
+      "detailsTitle": "Close summary",
+      "qty": "Quantity",
+      "expectedNotional": "Expected notional",
+      "realizableWarning": "Realizable value may be lower than displayed value; slippage, fee and tax are modelled in the simulation.",
+      "reasonLabel": "Reason for closing",
+      "checkboxLabel": "I understand this trade is paper and no real money moves.",
+      "confirm": "Close position",
+      "cancel": "Cancel",
+      "success": "The position was closed in the paper book.",
+      "failure": "Closing the position failed; it is still open.",
+      "unexitable": "This position cannot be exited in the simulation: {reason}"
+    },
+    "trimPosition": {
+      "title": "Trim a paper position",
+      "body": "Part of position {symbol} will be closed.",
+      "amountLabel": "Percent or amount",
+      "percentOption": "Percentage of the position",
+      "amountOption": "Explicit amount",
+      "validation": "The value must be between {min} and {max}.",
+      "confirm": "Trim",
+      "cancel": "Cancel",
+      "success": "Part of the position was closed.",
+      "failure": "Trimming the position failed."
+    },
+    "adjustStop": {
+      "title": "Adjust the stop loss",
+      "body": "The stop of position {symbol} changes. The exit rule is evaluated against the new level from now on.",
+      "currentLabel": "Current stop",
+      "newLabel": "New stop",
+      "validation": "The new stop must keep a sensible distance from the entry price.",
+      "confirm": "Save change",
+      "cancel": "Cancel",
+      "success": "The stop loss was updated.",
+      "failure": "Saving the stop loss failed."
+    },
+    "cancelOrder": {
+      "title": "Cancel a paper order",
+      "body": "Order {id} is removed from the simulator queue.",
+      "warning": "If the order filled before the cancel, the cancel has no effect.",
+      "confirm": "Cancel order",
+      "cancel": "Back",
+      "success": "The order was cancelled.",
+      "failure": "Cancelling the order failed."
+    },
+    "approveTask": {
+      "title": "Approve a request",
+      "body": "Approving runs the requested action in the paper book and records it in the audit events.",
+      "summaryTitle": "Request summary",
+      "amountLabel": "Paper amount",
+      "riskLabel": "Risk level",
+      "requiresPhrase": "This request requires typing a confirmation phrase.",
+      "phraseLabel": "Type this phrase to confirm",
+      "noteLabel": "Note (optional)",
+      "confirm": "Approve and run",
+      "cancel": "Cancel",
+      "success": "The request was approved.",
+      "failure": "Running the request failed; the task is still pending.",
+      "expired": "This task has expired and cannot be approved."
+    },
+    "rejectTask": {
+      "title": "Reject a request",
+      "body": "The request is rejected and the requester must come back with fresh evidence.",
+      "reasonLabel": "Reason for rejection",
+      "reasonInsufficientEvidence": "Insufficient evidence",
+      "reasonRiskTooHigh": "Risk above the limit",
+      "reasonDataUnknown": "Required data is unknown",
+      "reasonOutOfPolicy": "Out of policy",
+      "reasonOther": "Other reason",
+      "noteLabel": "Explanation",
+      "confirm": "Reject request",
+      "cancel": "Back",
+      "success": "The request was rejected.",
+      "failure": "Recording the rejection failed."
+    },
+    "disableAgent": {
+      "title": "Disable an agent",
+      "body": "Agent {name} leaves the cycle. It produces no output until re-enabled and its department may turn Unknown.",
+      "impactTitle": "Impact of this action",
+      "impactDepartment": "Department health moves to degraded.",
+      "impactSignals": "New signals from this agent stop.",
+      "impactLogs": "The disable event is written to the audit trail.",
+      "reasonLabel": "Reason for disabling",
+      "confirm": "Disable",
+      "cancel": "Cancel",
+      "success": "The agent was disabled.",
+      "failure": "Disabling the agent failed."
+    },
+    "enableAgent": {
+      "title": "Enable an agent",
+      "body": "Agent {name} rejoins the cycle. Its first output appears after one full cycle.",
+      "confirm": "Enable",
+      "cancel": "Cancel",
+      "success": "The agent was enabled.",
+      "failure": "Enabling the agent failed."
+    },
+    "raiseLimit": {
+      "title": "Raise a risk limit",
+      "body": "This request changes the {limit} ceiling. Raising a limit affects the paper book only and is recorded in the audit trail.",
+      "currentLabel": "Current ceiling",
+      "newLabel": "Proposed ceiling",
+      "maxAllowed": "Maximum allowed: {max}",
+      "warning": "Raising a ceiling weakens the circuit breaker.",
+      "checkboxLabel": "I have recorded the reason for this change in the audit trail.",
+      "confirm": "Save the new ceiling",
+      "cancel": "Cancel",
+      "success": "The ceiling was updated.",
+      "failure": "Saving the new ceiling failed."
+    },
+    "resetPaperBook": {
+      "title": "Reset the paper book",
+      "body": "All positions, orders and paper P&L history are cleared and the book restarts from the starting balance.",
+      "warning": "This action is irreversible. Audit events are not cleared.",
+      "checkboxLabel": "I understand the paper history will be lost.",
+      "phraseLabel": "Type this phrase to confirm",
+      "confirm": "Reset the book",
+      "cancel": "Cancel",
+      "success": "The paper book was reset.",
+      "failure": "Resetting the book failed."
+    },
+    "clearLocalData": {
+      "title": "Clear local data",
+      "body": "Settings stored in the browser and cached data are cleared.",
+      "warning": "Server-side data is not changed.",
+      "confirm": "Clear",
+      "cancel": "Cancel",
+      "success": "Local data was cleared.",
+      "failure": "Clearing local data failed."
+    },
+    "unsavedChanges": {
+      "title": "Unsaved changes",
+      "body": "If you leave this page, unsaved changes are lost.",
+      "save": "Save and leave",
+      "discard": "Discard and leave",
+      "cancel": "Stay on this page"
+    },
+    "exportData": {
+      "title": "Export data",
+      "body": "Choose the range and format. Unknown data is exported as an empty value, never as zero.",
+      "formatLabel": "Format",
+      "formatJson": "JSON",
+      "formatCsv": "CSV",
+      "rangeLabel": "Range",
+      "includeMeta": "Include freshness and observation-time metadata",
+      "redactIds": "Redact sensitive identifiers",
+      "confirm": "Export",
+      "cancel": "Cancel",
+      "success": "Export finished.",
+      "failure": "Export failed."
+    },
+    "sessionExpired": {
+      "title": "Session expired",
+      "body": "Sign in again to continue with approval tasks. The data on screen does not turn Unknown.",
+      "confirm": "Sign in again",
+      "cancel": "Stay on this page"
+    },
+    "genericConfirm": {
+      "title": "Confirm action",
+      "body": "Are you sure?",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    },
+    "dangerZoneAck": {
+      "title": "This section is dangerous",
+      "body": "Actions here are irreversible and affect the paper book only.",
+      "confirm": "I understand, continue",
+      "cancel": "Back"
+    }
+  },
+  "toasts": {
+    "saved": "Saved.",
+    "saveFailed": "Saving failed.",
+    "copied": "Copied.",
+    "copyFailed": "Copying failed.",
+    "refreshed": "Data refreshed.",
+    "refreshFailed": "Refreshing failed.",
+    "killSwitchEngaged": "Kill switch engaged.",
+    "killSwitchReset": "Kill switch reset.",
+    "taskApproved": "Task approved.",
+    "taskRejected": "Task rejected.",
+    "taskExpired": "The task had already expired.",
+    "exported": "Export finished.",
+    "unknownResult": "The result of this action is unknown; check the events.",
+    "demoLoaded": "Demo data loaded.",
+    "cycleStarted": "Cycle started.",
+    "cycleStopped": "Cycle stopped."
+  }
+}

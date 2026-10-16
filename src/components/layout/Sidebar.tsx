@@ -1,6 +1,7 @@
 "use client";
+import { AhosIcon } from "../icons";
 import { useState } from "react";
-import { ChevronDown, ChevronLeft, ShieldCheck, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, X } from "lucide-react";
 import { navigation, type Language } from "../../lib/navigation";
 import { StarMark } from "../ui/Brand";
 
@@ -92,7 +93,7 @@ export function Sidebar({
                     }}
                     aria-current={active === item.id ? "page" : undefined}
                   >
-                    <item.icon size={17} strokeWidth={1.55} />
+                    <AhosIcon name={item.icon} size={20} />
                     <span>{item[language]}</span>
                     {item.id === "command" ? (
                       <span className="ah-nav-badge">01</span>
@@ -109,7 +110,7 @@ export function Sidebar({
         </nav>
         <div className="ah-sidebar-bottom">
           <div className="ah-safe-mode">
-            <ShieldCheck size={17} />
+            <AhosIcon name="nav/paper-trading" size={20} />
             <div>
               <strong>
                 {fa ? "محیط امن آزمایشی" : "Paper-only workspace"}

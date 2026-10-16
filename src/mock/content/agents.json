@@ -1,0 +1,3245 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "agents.json",
+    "entity": "AgentStatus",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 31,
+    "paperNoticeKey": "pages.agents.paperOnlyNotice",
+    "moneyUnit": "NONE",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "items": [
+    {
+      "id": "agent.discovery-scanner",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.discovery",
+      "role": {
+        "value": {
+          "fa": "پویشگر بازار",
+          "en": "Market scanner"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:49:05.493Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:04:05.219Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "cycleMs": {
+        "value": 300000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "latencyMs": {
+        "value": 949,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "queueDepth": {
+        "value": 8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "cyclesCompleted": {
+        "value": 5937,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "market.scan",
+          "candidate.propose",
+          "watchlist.write"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "پایش پیوسته در جریان است؛ نامزد تازه‌ای در این چرخه پیدا نشد.",
+          "en": "Continuous scan running; no new candidate this cycle."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:59.547Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:59.547Z",
+      "demo": true
+    },
+    {
+      "id": "agent.discovery-watchlist",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.discovery",
+      "role": {
+        "value": {
+          "fa": "نگهبان فهرست پیگیری",
+          "en": "Watchlist keeper"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:50:50.120Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:32.520Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "cycleMs": {
+        "value": 300000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "latencyMs": {
+        "value": 1696,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "queueDepth": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "cyclesCompleted": {
+        "value": 2164,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "market.scan",
+          "candidate.propose",
+          "watchlist.write"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "پایش پیوسته در جریان است؛ نامزد تازه‌ای در این چرخه پیدا نشد.",
+          "en": "Continuous scan running; no new candidate this cycle."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.778Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:23.778Z",
+      "demo": true
+    },
+    {
+      "id": "agent.discovery-dedupe",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.discovery",
+      "role": {
+        "value": {
+          "fa": "یکتاساز نامزدها",
+          "en": "Candidate deduplicator"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:58:53.322Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:01:37.792Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "cycleMs": {
+        "value": 300000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "latencyMs": {
+        "value": 827,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "queueDepth": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "cyclesCompleted": {
+        "value": 290,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "market.scan",
+          "candidate.propose",
+          "watchlist.write"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "پایش پیوسته در جریان است؛ نامزد تازه‌ای در این چرخه پیدا نشد.",
+          "en": "Continuous scan running; no new candidate this cycle."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:14.426Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:14.426Z",
+      "demo": true
+    },
+    {
+      "id": "agent.marketdata-quote",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.marketData",
+      "role": {
+        "value": {
+          "fa": "خوانندهٔ تابلوی قیمت",
+          "en": "Quote reader"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:47:22.008Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:42.621Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "latencyMs": {
+        "value": 1781,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "queueDepth": {
+        "value": 4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "cyclesCompleted": {
+        "value": 5158,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "quote.read",
+          "depth.read",
+          "integrity.attest"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "تابلوی قیمت ۳۴ بازار از ۴۰ بازار خوانده شد.",
+          "en": "Quote board read for 34 of 40 markets."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:37.012Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:37.012Z",
+      "demo": true
+    },
+    {
+      "id": "agent.marketdata-depth",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.marketData",
+      "role": {
+        "value": {
+          "fa": "سنجشگر عمق بازار",
+          "en": "Depth prober"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:53:43.969Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:22.882Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "latencyMs": {
+        "value": 1929,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "queueDepth": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "cyclesCompleted": {
+        "value": 3330,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "quote.read",
+          "depth.read",
+          "integrity.attest"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "تابلوی قیمت ۳۴ بازار از ۴۰ بازار خوانده شد.",
+          "en": "Quote board read for 34 of 40 markets."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:01.527Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:01.527Z",
+      "demo": true
+    },
+    {
+      "id": "agent.marketdata-integrity",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.marketData",
+      "role": {
+        "value": {
+          "fa": "بازرس یکپارچگی داده",
+          "en": "Data integrity inspector"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:46:52.677Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:23.918Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "latencyMs": {
+        "value": 2051,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "queueDepth": {
+        "value": 4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "cyclesCompleted": {
+        "value": 6005,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "quote.read",
+          "depth.read",
+          "integrity.attest"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "تابلوی قیمت ۳۴ بازار از ۴۰ بازار خوانده شد.",
+          "en": "Quote board read for 34 of 40 markets."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.337Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:58.337Z",
+      "demo": true
+    },
+    {
+      "id": "agent.onchain-whale",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.onchain",
+      "role": {
+        "value": {
+          "fa": "ردیاب نهنگ",
+          "en": "Whale tracker"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "runState": {
+        "value": "BLOCKED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "enabled": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "lastResult": {
+        "value": "ERROR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "lastRunAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:37.608Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "nextRunAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:37.608Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "cycleMs": {
+        "value": 600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "latencyMs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:56:37.608Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "consecutiveErrors": {
+        "value": 4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "queueDepth": {
+        "value": 86,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "cyclesCompleted": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "chain.read",
+          "holder.analyze"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "منبع آن‌چین در دسترس نیست؛ خروجی این عامل «نامعلوم» می‌ماند.",
+          "en": "On-chain source unavailable; this agent's output stays Unknown."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:37.608Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:37.608Z",
+      "demo": true
+    },
+    {
+      "id": "agent.onchain-holders",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.onchain",
+      "role": {
+        "value": {
+          "fa": "تحلیل‌گر توزیع هولدر",
+          "en": "Holder distribution analyst"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "runState": {
+        "value": "BLOCKED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "enabled": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "lastResult": {
+        "value": "ERROR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "lastRunAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:29.335Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "nextRunAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:29.335Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "cycleMs": {
+        "value": 600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "latencyMs": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:58:29.335Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "consecutiveErrors": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "queueDepth": {
+        "value": 68,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "cyclesCompleted": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "chain.read",
+          "holder.analyze"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "منبع آن‌چین در دسترس نیست؛ خروجی این عامل «نامعلوم» می‌ماند.",
+          "en": "On-chain source unavailable; this agent's output stays Unknown."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:29.335Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:29.335Z",
+      "demo": true
+    },
+    {
+      "id": "agent.security-honeypot",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.security",
+      "role": {
+        "value": {
+          "fa": "بازرس هانی‌پات",
+          "en": "Honeypot inspector"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:47:30.731Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:23.947Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "cycleMs": {
+        "value": 600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "latencyMs": {
+        "value": 1575,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "queueDepth": {
+        "value": 4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "cyclesCompleted": {
+        "value": 8834,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "contract.inspect",
+          "security.attest",
+          "veto.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "بازرسی امنیتی کامل شد؛ هیچ مورد بحرانی ثبت نشد.",
+          "en": "Security sweep complete; no critical finding recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:32.907Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:32.907Z",
+      "demo": true
+    },
+    {
+      "id": "agent.security-permissions",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.security",
+      "role": {
+        "value": {
+          "fa": "بازرس دسترسی قرارداد",
+          "en": "Contract permission inspector"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:58:41.865Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:01:35.497Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "cycleMs": {
+        "value": 600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "latencyMs": {
+        "value": 1245,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "queueDepth": {
+        "value": 8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "cyclesCompleted": {
+        "value": 1258,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "contract.inspect",
+          "security.attest",
+          "veto.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "بازرسی امنیتی کامل شد؛ هیچ مورد بحرانی ثبت نشد.",
+          "en": "Security sweep complete; no critical finding recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.464Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:47.464Z",
+      "demo": true
+    },
+    {
+      "id": "agent.security-arbiter",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.security",
+      "role": {
+        "value": {
+          "fa": "داور نامعلوم≠امن",
+          "en": "UNKNOWN-is-not-safe arbiter"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:48:30.741Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:07:46.749Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "cycleMs": {
+        "value": 600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "latencyMs": {
+        "value": 457,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "queueDepth": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "cyclesCompleted": {
+        "value": 3162,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "contract.inspect",
+          "security.attest",
+          "veto.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "بازرسی امنیتی کامل شد؛ هیچ مورد بحرانی ثبت نشد.",
+          "en": "Security sweep complete; no critical finding recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.418Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:22.418Z",
+      "demo": true
+    },
+    {
+      "id": "agent.news-ingest",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.newsMacro",
+      "role": {
+        "value": {
+          "fa": "گردآورندهٔ اخبار",
+          "en": "News ingest"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "runState": {
+        "value": "DEGRADED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:47:00.703Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:05:04.682Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "cycleMs": {
+        "value": 900000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "latencyMs": {
+        "value": 355,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "consecutiveErrors": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "queueDepth": {
+        "value": 4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "cyclesCompleted": {
+        "value": 1281,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "news.read",
+          "macro.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "خوراک خبری با تأخیر و پراکندگی منبع خوانده می‌شود.",
+          "en": "News feed is read with delay and mixed sources."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:22.380Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:22.380Z",
+      "demo": true
+    },
+    {
+      "id": "agent.macro-calendar",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.newsMacro",
+      "role": {
+        "value": {
+          "fa": "نگهبان تقویم کلان",
+          "en": "Macro calendar keeper"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:59:29.913Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:06:34.474Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "cycleMs": {
+        "value": 900000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "latencyMs": {
+        "value": 1705,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "queueDepth": {
+        "value": 8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "cyclesCompleted": {
+        "value": 5121,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "news.read",
+          "macro.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "رویداد خبری تازه‌ای با منبع معتبر ثبت نشد.",
+          "en": "No fresh news event with a trusted source."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:02.104Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:02.104Z",
+      "demo": true
+    },
+    {
+      "id": "agent.research-hypothesis",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.research",
+      "role": {
+        "value": {
+          "fa": "طراح فرضیه",
+          "en": "Hypothesis designer"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:54:49.884Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:16:25.140Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "cycleMs": {
+        "value": 3600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "latencyMs": {
+        "value": 1586,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "queueDepth": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "cyclesCompleted": {
+        "value": 1934,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "hypothesis.propose",
+          "method.review"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "دو فرضیه در صف بررسی روش‌شناسی است.",
+          "en": "Two hypotheses queued for methodology review."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:21.306Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:21.306Z",
+      "demo": true
+    },
+    {
+      "id": "agent.research-methodology",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.research",
+      "role": {
+        "value": {
+          "fa": "بازرس روش‌شناسی",
+          "en": "Methodology reviewer"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "lastResult": {
+        "value": "NO_DATA",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:51:13.208Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:20:39.843Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "cycleMs": {
+        "value": 3600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "latencyMs": {
+        "value": 1433,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "queueDepth": {
+        "value": 7,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "cyclesCompleted": {
+        "value": 210,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "hypothesis.propose",
+          "method.review"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "دو فرضیه در صف بررسی روش‌شناسی است.",
+          "en": "Two hypotheses queued for methodology review."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:37.359Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:37.359Z",
+      "demo": true
+    },
+    {
+      "id": "agent.quant-backtest",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.quant",
+      "role": {
+        "value": {
+          "fa": "بک‌تست‌گیر",
+          "en": "Backtester"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:58:18.203Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:27:27.871Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "cycleMs": {
+        "value": 1800000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "latencyMs": {
+        "value": 1341,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "queueDepth": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "cyclesCompleted": {
+        "value": 7042,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "backtest.run",
+          "costmodel.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "آخرین بک‌تست با مدل هزینهٔ کامل ثبت شد.",
+          "en": "Last backtest recorded with the full cost model."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:30.025Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:30.025Z",
+      "demo": true
+    },
+    {
+      "id": "agent.quant-costmodel",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.quant",
+      "role": {
+        "value": {
+          "fa": "سازندهٔ مدل هزینه",
+          "en": "Cost model builder"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "runState": {
+        "value": "WAITING_GATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "lastResult": {
+        "value": "NO_DATA",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:54:31.727Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:08:03.437Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "cycleMs": {
+        "value": 1800000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "latencyMs": {
+        "value": 1161,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "queueDepth": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "cyclesCompleted": {
+        "value": 7306,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "backtest.run",
+          "costmodel.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "آخرین بک‌تست با مدل هزینهٔ کامل ثبت شد.",
+          "en": "Last backtest recorded with the full cost model."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:28.101Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:28.101Z",
+      "demo": true
+    },
+    {
+      "id": "agent.quant-statistics",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.quant",
+      "role": {
+        "value": {
+          "fa": "بازرس کفایت نمونه",
+          "en": "Sample sufficiency reviewer"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:53:43.572Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:22:07.088Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "cycleMs": {
+        "value": 1800000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "latencyMs": {
+        "value": 1649,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "queueDepth": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "cyclesCompleted": {
+        "value": 5701,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "backtest.run",
+          "costmodel.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "آخرین بک‌تست با مدل هزینهٔ کامل ثبت شد.",
+          "en": "Last backtest recorded with the full cost model."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:20.501Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:20.501Z",
+      "demo": true
+    },
+    {
+      "id": "agent.council-chair",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.council",
+      "role": {
+        "value": {
+          "fa": "دبیر شورا",
+          "en": "Council chair"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:48:38.622Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:14:12.361Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "cycleMs": {
+        "value": 900000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "latencyMs": {
+        "value": 749,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "queueDepth": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "cyclesCompleted": {
+        "value": 2530,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "council.convene",
+          "vote.record"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "شورا روی سه پرونده رأی داد؛ یک رأی مخالف ثبت شد.",
+          "en": "Council voted on three files; one dissent recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.079Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:12.079Z",
+      "demo": true
+    },
+    {
+      "id": "agent.council-dissent",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.council",
+      "role": {
+        "value": {
+          "fa": "ثبت‌کنندهٔ رأی مخالف",
+          "en": "Dissent recorder"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "runState": {
+        "value": "WAITING_GATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:46:10.593Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:14:54.700Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "cycleMs": {
+        "value": 900000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "latencyMs": {
+        "value": 2262,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "queueDepth": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "cyclesCompleted": {
+        "value": 556,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "council.convene",
+          "vote.record"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "شورا روی سه پرونده رأی داد؛ یک رأی مخالف ثبت شد.",
+          "en": "Council voted on three files; one dissent recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.414Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:12.414Z",
+      "demo": true
+    },
+    {
+      "id": "agent.risk-sizing",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.risk",
+      "role": {
+        "value": {
+          "fa": "تعیین‌کنندهٔ اندازهٔ موقعیت",
+          "en": "Position sizer"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:48:42.585Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:49.247Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "latencyMs": {
+        "value": 553,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "queueDepth": {
+        "value": 8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "cyclesCompleted": {
+        "value": 735,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "limit.read",
+          "breaker.arm",
+          "halt.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "همهٔ سقف‌ها در محدوده‌اند؛ فیوزها آماده‌اند.",
+          "en": "All limits within range; breakers armed."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:35.639Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:35.639Z",
+      "demo": true
+    },
+    {
+      "id": "agent.risk-breakers",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.risk",
+      "role": {
+        "value": {
+          "fa": "نگهبان فیوزهای محافظ",
+          "en": "Circuit breaker warden"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:45:27.704Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:44.723Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "latencyMs": {
+        "value": 149,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "queueDepth": {
+        "value": 4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "cyclesCompleted": {
+        "value": 4998,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "limit.read",
+          "breaker.arm",
+          "halt.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "همهٔ سقف‌ها در محدوده‌اند؛ فیوزها آماده‌اند.",
+          "en": "All limits within range; breakers armed."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:25.183Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:25.183Z",
+      "demo": true
+    },
+    {
+      "id": "agent.risk-halt",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.risk",
+      "role": {
+        "value": {
+          "fa": "مجری توقف",
+          "en": "Halt executor"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:49:04.090Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:53.663Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "latencyMs": {
+        "value": 1404,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "queueDepth": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "cyclesCompleted": {
+        "value": 2939,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "limit.read",
+          "breaker.arm",
+          "halt.propose"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "همهٔ سقف‌ها در محدوده‌اند؛ فیوزها آماده‌اند.",
+          "en": "All limits within range; breakers armed."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.104Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:51.104Z",
+      "demo": true
+    },
+    {
+      "id": "agent.paper-simulator",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.paperExecution",
+      "role": {
+        "value": {
+          "fa": "شبیه‌ساز سفارش",
+          "en": "Order simulator"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:53:21.873Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:32.670Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "latencyMs": {
+        "value": 1009,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "queueDepth": {
+        "value": 7,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "cyclesCompleted": {
+        "value": 4368,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "paper.order.submit",
+          "paper.ledger.write",
+          "realizable.compute"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "سفارش‌های کاغذی با لغزش و کارمزد شبیه‌سازی شد.",
+          "en": "Paper orders simulated with slippage and fee."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:26.660Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:26.660Z",
+      "demo": true
+    },
+    {
+      "id": "agent.paper-ledger",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.paperExecution",
+      "role": {
+        "value": {
+          "fa": "نگهبان دفتر کل کاغذی",
+          "en": "Paper ledger keeper"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "runState": {
+        "value": "IDLE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:51:41.128Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:49.692Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "latencyMs": {
+        "value": 253,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "queueDepth": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "cyclesCompleted": {
+        "value": 2706,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "paper.order.submit",
+          "paper.ledger.write",
+          "realizable.compute"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "سفارش‌های کاغذی با لغزش و کارمزد شبیه‌سازی شد.",
+          "en": "Paper orders simulated with slippage and fee."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.495Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:49.495Z",
+      "demo": true
+    },
+    {
+      "id": "agent.paper-realizable",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.paperExecution",
+      "role": {
+        "value": {
+          "fa": "محاسبه‌گر ارزش نقدشدنی",
+          "en": "Realizable value calculator"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "lastResult": {
+        "value": "NO_DATA",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:52:29.586Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:00:16.936Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "cycleMs": {
+        "value": 60000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "latencyMs": {
+        "value": 1840,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "queueDepth": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "cyclesCompleted": {
+        "value": 4631,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "paper.order.submit",
+          "paper.ledger.write",
+          "realizable.compute"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "سفارش‌های کاغذی با لغزش و کارمزد شبیه‌سازی شد.",
+          "en": "Paper orders simulated with slippage and fee."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:28.973Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:28.973Z",
+      "demo": true
+    },
+    {
+      "id": "agent.learning-lessons",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.learning",
+      "role": {
+        "value": {
+          "fa": "نویسندهٔ درس معامله",
+          "en": "Trade lesson writer"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:47:42.908Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:16:32.795Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "cycleMs": {
+        "value": 3600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "latencyMs": {
+        "value": 272,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "queueDepth": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "cyclesCompleted": {
+        "value": 4595,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "lesson.write",
+          "memory.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "درس آخرین معاملهٔ بسته‌شده ثبت شد.",
+          "en": "Lesson recorded for the last closed trade."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:47.668Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:47.668Z",
+      "demo": true
+    },
+    {
+      "id": "agent.learning-memory",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.learning",
+      "role": {
+        "value": {
+          "fa": "حافظهٔ تصمیم",
+          "en": "Decision memory"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "lastResult": {
+        "value": "NO_DATA",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:50:09.811Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:44:22.878Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "cycleMs": {
+        "value": 3600000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "latencyMs": {
+        "value": 2042,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "queueDepth": {
+        "value": 4,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "cyclesCompleted": {
+        "value": 6995,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "lesson.write",
+          "memory.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "humanGateRequired": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "درس آخرین معاملهٔ بسته‌شده ثبت شد.",
+          "en": "Lesson recorded for the last closed trade."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:51.804Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:51.804Z",
+      "demo": true
+    },
+    {
+      "id": "agent.audit-hashchain",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.auditGovernance",
+      "role": {
+        "value": {
+          "fa": "راستی‌آزمای زنجیرهٔ رویداد",
+          "en": "Hash-chain verifier"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "lastResult": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:51:01.287Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:04:32.928Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "cycleMs": {
+        "value": 300000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "latencyMs": {
+        "value": 1035,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "queueDepth": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "cyclesCompleted": {
+        "value": 5869,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "audit.read",
+          "audit.append",
+          "authz.decide",
+          "result.veto"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "زنجیرهٔ رویداد راستی‌آزمایی شد؛ ناسازگاری پیدا نشد.",
+          "en": "Event chain verified; no inconsistency found."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:56:31.298Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:56:31.298Z",
+      "demo": true
+    },
+    {
+      "id": "agent.audit-veto",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.auditGovernance",
+      "role": {
+        "value": {
+          "fa": "حسابرس دارای حق وتو",
+          "en": "Veto auditor"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "runState": {
+        "value": "RUNNING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:50:30.049Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:04:59.481Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "cycleMs": {
+        "value": 300000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "latencyMs": {
+        "value": 1218,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "queueDepth": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "cyclesCompleted": {
+        "value": 7849,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "audit.read",
+          "audit.append",
+          "authz.decide",
+          "result.veto"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "زنجیرهٔ رویداد راستی‌آزمایی شد؛ ناسازگاری پیدا نشد.",
+          "en": "Event chain verified; no inconsistency found."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:49.085Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:49.085Z",
+      "demo": true
+    },
+    {
+      "id": "agent.governance-authz",
+      "schemaVersion": "ahos.contract/1",
+      "departmentId": "dept.auditGovernance",
+      "role": {
+        "value": {
+          "fa": "مجری حاکمیت دسترسی",
+          "en": "Authorization engine"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "runState": {
+        "value": "WAITING_GATE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "enabled": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "lastResult": {
+        "value": "WARN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "lastRunAt": {
+        "value": "2026-10-15T11:55:47.866Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "nextRunAt": {
+        "value": "2026-10-15T12:02:25.271Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "cycleMs": {
+        "value": 300000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "latencyMs": {
+        "value": 672,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "consecutiveErrors": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "queueDepth": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "cyclesCompleted": {
+        "value": 406,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "allowedCapabilities": {
+        "value": [
+          "audit.read",
+          "audit.append",
+          "authz.decide",
+          "result.veto"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "prohibitedCapabilities": {
+        "value": [
+          "trade.live",
+          "withdraw.funds",
+          "key.exchange.read",
+          "key.exchange.write",
+          "secret.read"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "humanGateRequired": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "canTouchRealMoney": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "statusMessage": {
+        "value": {
+          "fa": "زنجیرهٔ رویداد راستی‌آزمایی شد؛ ناسازگاری پیدا نشد.",
+          "en": "Event chain verified; no inconsistency found."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:37.700Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:37.700Z",
+      "demo": true
+    }
+  ]
+}

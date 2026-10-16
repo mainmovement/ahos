@@ -1,0 +1,5811 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "markets.json",
+    "entity": "Market",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 40,
+    "paperNoticeKey": "pages.markets.paperOnlyNotice",
+    "moneyUnit": "USDT_PAPER",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "items": [
+    {
+      "id": "mkt.btc-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "BTC/USDT",
+      "baseAsset": "BTC",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "بیت‌کوین / تتر",
+          "en": "Bitcoin / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-A",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "minNotionalUsd": {
+        "value": 600,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "demoGridStep": {
+        "value": 250,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z"
+      },
+      "quote": {
+        "id": "mkt.btc-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.btc-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "bid": {
+          "value": 59750,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "ask": {
+          "value": 60250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "last": {
+          "value": 60000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "mid": {
+          "value": 60000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "change24hPct": {
+          "value": 0.06,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "high24h": {
+          "value": 63000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "low24h": {
+          "value": 58750,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "volume24hQuote": {
+          "value": 2355119878.43,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "liquidityUsd": {
+          "value": 92108711.84,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "spreadBps": {
+          "value": 23,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 53421141.26,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "priceImpactBps": {
+          "value": 162,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "tickSize": {
+          "value": 250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:54.083Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.083Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.083Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:54.083Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.eth-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "ETH/USDT",
+      "baseAsset": "ETH",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "اتریوم / تتر",
+          "en": "Ethereum / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-A",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "minNotionalUsd": {
+        "value": 30,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "demoGridStep": {
+        "value": 10,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z"
+      },
+      "quote": {
+        "id": "mkt.eth-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.eth-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "bid": {
+          "value": 2960,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "ask": {
+          "value": 2980,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "last": {
+          "value": 2970,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "mid": {
+          "value": 2970,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "change24hPct": {
+          "value": 1.63,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "high24h": {
+          "value": 3110,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "low24h": {
+          "value": 2950,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "volume24hQuote": {
+          "value": 1050791726.35,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "liquidityUsd": {
+          "value": 45509499.38,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "spreadBps": {
+          "value": 40,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 18356487.03,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "priceImpactBps": {
+          "value": 7,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "tickSize": {
+          "value": 10,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:50.203Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.203Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.203Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:50.203Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.sol-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "SOL/USDT",
+      "baseAsset": "SOL",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "سولانا / تتر",
+          "en": "Solana / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-B",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "minNotionalUsd": {
+        "value": 1.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "demoGridStep": {
+        "value": 0.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z"
+      },
+      "quote": {
+        "id": "mkt.sol-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.sol-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "bid": {
+          "value": 152,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "ask": {
+          "value": 153,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "last": {
+          "value": 152.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "mid": {
+          "value": 152.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "change24hPct": {
+          "value": -4.03,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "high24h": {
+          "value": 155,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "low24h": {
+          "value": 150.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "volume24hQuote": {
+          "value": 119490146.42,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "liquidityUsd": {
+          "value": 8557732.38,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "spreadBps": {
+          "value": 22,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 4025879.98,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "priceImpactBps": {
+          "value": 11,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "tickSize": {
+          "value": 0.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:52.795Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:52.795Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:52.795Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:52.795Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.bnb-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "BNB/USDT",
+      "baseAsset": "BNB",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "بایننس‌کوین / تتر",
+          "en": "BNB / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-A",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "minNotionalUsd": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "demoGridStep": {
+        "value": 2.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z"
+      },
+      "quote": {
+        "id": "mkt.bnb-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.bnb-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "bid": {
+          "value": 612.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "ask": {
+          "value": 617.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "last": {
+          "value": 615,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "mid": {
+          "value": 615,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "change24hPct": {
+          "value": 0.94,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "high24h": {
+          "value": 645,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "low24h": {
+          "value": 590,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "volume24hQuote": {
+          "value": 410720671.09,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "liquidityUsd": {
+          "value": 8748642.55,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "spreadBps": {
+          "value": 24,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 3307866.35,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "priceImpactBps": {
+          "value": 5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "tickSize": {
+          "value": 2.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:57.139Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.139Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.139Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:57.139Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.xrp-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "XRP/USDT",
+      "baseAsset": "XRP",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "ریپل / تتر",
+          "en": "XRP / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-B",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.006,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "demoGridStep": {
+        "value": 0.005,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z"
+      },
+      "quote": {
+        "id": "mkt.xrp-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.xrp-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "bid": {
+          "value": 0.6,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "ask": {
+          "value": 0.61,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "last": {
+          "value": 0.605,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "mid": {
+          "value": 0.605,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "change24hPct": {
+          "value": 2.28,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "high24h": {
+          "value": 0.63,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "low24h": {
+          "value": 0.575,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "volume24hQuote": {
+          "value": 327521.89,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "liquidityUsd": {
+          "value": 16887.02,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "spreadBps": {
+          "value": 9,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 5113.13,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "priceImpactBps": {
+          "value": 10,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "tickSize": {
+          "value": 0.005,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:54.235Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.235Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.235Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:54.235Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.ada-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "ADA/USDT",
+      "baseAsset": "ADA",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "کاردانو / تتر",
+          "en": "Cardano / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-B",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.0045,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "demoGridStep": {
+        "value": 0.005,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z"
+      },
+      "quote": {
+        "id": "mkt.ada-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.ada-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "bid": {
+          "value": 0.43,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "ask": {
+          "value": 0.44,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "last": {
+          "value": 0.435,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "mid": {
+          "value": 0.435,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "change24hPct": {
+          "value": -5.1,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "high24h": {
+          "value": 0.445,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "low24h": {
+          "value": 0.41,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "volume24hQuote": {
+          "value": 341263.16,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "liquidityUsd": {
+          "value": 17678.53,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "spreadBps": {
+          "value": 19,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 5832.89,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "priceImpactBps": {
+          "value": 165,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "tickSize": {
+          "value": 0.005,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:46.477Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.477Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.477Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:46.477Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.doge-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "DOGE/USDT",
+      "baseAsset": "DOGE",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "دوج‌کوین / تتر",
+          "en": "Dogecoin / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-A",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.0012,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "demoGridStep": {
+        "value": 0.001,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z"
+      },
+      "quote": {
+        "id": "mkt.doge-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.doge-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "bid": {
+          "value": 0.118,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "ask": {
+          "value": 0.12,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "last": {
+          "value": 0.119,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "mid": {
+          "value": 0.119,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "change24hPct": {
+          "value": 0.33,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "high24h": {
+          "value": 0.125,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "low24h": {
+          "value": 0.112,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "volume24hQuote": {
+          "value": 69015.83,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "liquidityUsd": {
+          "value": 2878.31,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "spreadBps": {
+          "value": 34,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 948.57,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "priceImpactBps": {
+          "value": 151,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "tickSize": {
+          "value": 0.001,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:49.785Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.785Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.785Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:49.785Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.avax-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "AVAX/USDT",
+      "baseAsset": "AVAX",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "آوالانچ / تتر",
+          "en": "Avalanche / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-B",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "demoGridStep": {
+        "value": 0.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z"
+      },
+      "quote": {
+        "id": "mkt.avax-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.avax-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "bid": {
+          "value": 29.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "ask": {
+          "value": 30.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "last": {
+          "value": 30,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "mid": {
+          "value": 30,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "change24hPct": {
+          "value": 4.95,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "high24h": {
+          "value": 31.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "low24h": {
+          "value": 29.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "volume24hQuote": {
+          "value": 15940289.85,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "liquidityUsd": {
+          "value": 627069.82,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "spreadBps": {
+          "value": 8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 235142.56,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "priceImpactBps": {
+          "value": 143,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "tickSize": {
+          "value": 0.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:58.488Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.488Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.488Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:58.488Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.link-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "LINK/USDT",
+      "baseAsset": "LINK",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "چین‌لینک / تتر",
+          "en": "Chainlink / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-A",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.125,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "demoGridStep": {
+        "value": 0.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z"
+      },
+      "quote": {
+        "id": "mkt.link-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.link-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "bid": {
+          "value": 12.3,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "ask": {
+          "value": 12.4,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "last": {
+          "value": 12.35,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "mid": {
+          "value": 12.35,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "change24hPct": {
+          "value": -5.46,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "high24h": {
+          "value": 12.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "low24h": {
+          "value": 12.1,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "volume24hQuote": {
+          "value": 3710872.03,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "liquidityUsd": {
+          "value": 305440.52,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "spreadBps": {
+          "value": 19,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 84000.16,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "priceImpactBps": {
+          "value": 6,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "tickSize": {
+          "value": 0.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:59.129Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.129Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.129Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:59.129Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.dot-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "DOT/USDT",
+      "baseAsset": "DOT",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "پولکادات / تتر",
+          "en": "Polkadot / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-B",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.06,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "demoGridStep": {
+        "value": 0.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z"
+      },
+      "quote": {
+        "id": "mkt.dot-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.dot-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "bid": {
+          "value": 6,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "ask": {
+          "value": 6.1,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "last": {
+          "value": 6.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "mid": {
+          "value": 6.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "change24hPct": {
+          "value": 5.08,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "high24h": {
+          "value": 6.4,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "low24h": {
+          "value": 5.95,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "volume24hQuote": {
+          "value": 992812.12,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "liquidityUsd": {
+          "value": 113674.04,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "spreadBps": {
+          "value": 13,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 65354.89,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "priceImpactBps": {
+          "value": 11,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "tickSize": {
+          "value": 0.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:49.645Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:49.645Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.645Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:49.645Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.ton-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "TON/USDT",
+      "baseAsset": "TON",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "تون‌کوین / تتر",
+          "en": "Toncoin / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-C",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.055,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "demoGridStep": {
+        "value": 0.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z"
+      },
+      "quote": {
+        "id": "mkt.ton-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.ton-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "bid": {
+          "value": 5.45,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "ask": {
+          "value": 5.55,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "last": {
+          "value": 5.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "mid": {
+          "value": 5.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "change24hPct": {
+          "value": -0.21,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "high24h": {
+          "value": 5.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "low24h": {
+          "value": 5.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "volume24hQuote": {
+          "value": 1317324.44,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "liquidityUsd": {
+          "value": 43874.33,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "spreadBps": {
+          "value": 11,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 9773.7,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "priceImpactBps": {
+          "value": 8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "tickSize": {
+          "value": 0.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:53.697Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.697Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.697Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:53.697Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.arb-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "ARB/USDT",
+      "baseAsset": "ARB",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "آربیتروم / تتر",
+          "en": "Arbitrum / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-C",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.008,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "demoGridStep": {
+        "value": 0.01,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z"
+      },
+      "quote": {
+        "id": "mkt.arb-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.arb-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "bid": {
+          "value": 0.78,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "ask": {
+          "value": 0.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "last": {
+          "value": 0.79,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "mid": {
+          "value": 0.79,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "change24hPct": {
+          "value": -2.83,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "high24h": {
+          "value": 0.83,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "low24h": {
+          "value": 0.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "volume24hQuote": {
+          "value": 418962.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "liquidityUsd": {
+          "value": 8556.61,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "spreadBps": {
+          "value": 38,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 4207.55,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "priceImpactBps": {
+          "value": 153,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "tickSize": {
+          "value": 0.01,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:57.889Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.889Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.889Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:57.889Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.op-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "OP/USDT",
+      "baseAsset": "OP",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "اپتیمیزم / تتر",
+          "en": "Optimism / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-C",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.018,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "demoGridStep": {
+        "value": 0.02,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z"
+      },
+      "quote": {
+        "id": "mkt.op-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.op-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "bid": {
+          "value": 1.76,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "ask": {
+          "value": 1.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "last": {
+          "value": 1.78,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "mid": {
+          "value": 1.78,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "change24hPct": {
+          "value": -3.58,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "high24h": {
+          "value": 1.84,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "low24h": {
+          "value": 1.74,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "volume24hQuote": {
+          "value": 202379.13,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "liquidityUsd": {
+          "value": 7810.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "spreadBps": {
+          "value": 16,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 2045.97,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "priceImpactBps": {
+          "value": 173,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "tickSize": {
+          "value": 0.02,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:50.138Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:50.138Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:50.138Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:50.138Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.inj-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "INJ/USDT",
+      "baseAsset": "INJ",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "اینجکتیو / تتر",
+          "en": "Injective / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "venue": {
+        "value": "CEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "venueName": {
+        "value": "PAPER-CEX-C",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.22,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "demoGridStep": {
+        "value": 0.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z"
+      },
+      "quote": {
+        "id": "mkt.inj-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.inj-usdt",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "bid": {
+          "value": 21.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "ask": {
+          "value": 22,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "last": {
+          "value": 21.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "mid": {
+          "value": 21.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "change24hPct": {
+          "value": 4.63,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "high24h": {
+          "value": 22.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "low24h": {
+          "value": 21.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "volume24hQuote": {
+          "value": 9884277.98,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "liquidityUsd": {
+          "value": 179246.82,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "spreadBps": {
+          "value": 22,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 104404.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "priceImpactBps": {
+          "value": 139,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "tickSize": {
+          "value": 0.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:48.618Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.618Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.618Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.618Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.bonk-sol",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "BONK/SOL",
+      "baseAsset": "BONK",
+      "quoteAsset": "SOL",
+      "label": {
+        "value": {
+          "fa": "بونک / سولانا",
+          "en": "Bonk / Solana"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "venue": {
+        "value": "DEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "venueName": {
+        "value": "PAPER-DEX-SOL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "minNotionalUsd": {
+        "value": 2.2e-7,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "demoGridStep": {
+        "value": 5e-7,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z"
+      },
+      "quote": {
+        "id": "mkt.bonk-sol.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.bonk-sol",
+        "status": {
+          "value": "THIN",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "bid": {
+          "value": 0.0000205,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "ask": {
+          "value": 0.0000225,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "last": {
+          "value": 0.0000215,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "mid": {
+          "value": 0.0000215,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "change24hPct": {
+          "value": -5.55,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "high24h": {
+          "value": 0.0000235,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "low24h": {
+          "value": 0.0000195,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "volume24hQuote": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:59:47.634Z",
+          "note": "عمق بازار برای سنجش نقدینگی کافی نبود. / Market depth was insufficient to measure liquidity."
+        },
+        "liquidityUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:59:47.634Z",
+          "note": "عمق بازار برای سنجش نقدینگی کافی نبود. / Market depth was insufficient to measure liquidity."
+        },
+        "spreadBps": {
+          "value": 959,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "bestBidDepthUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:59:47.634Z",
+          "note": "عمق بازار برای سنجش نقدینگی کافی نبود. / Market depth was insufficient to measure liquidity."
+        },
+        "priceImpactBps": {
+          "value": 36,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "tickSize": {
+          "value": 5e-7,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:47.634Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.634Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.634Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:47.634Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.wif-usdt",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "WIF/USDT",
+      "baseAsset": "WIF",
+      "quoteAsset": "USDT",
+      "label": {
+        "value": {
+          "fa": "دوج‌ویت‌هت / تتر",
+          "en": "dogwifhat / Tether"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "assetClass": {
+        "value": "CRYPTO",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "venue": {
+        "value": "DEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "venueName": {
+        "value": "PAPER-DEX-SOL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.016,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "demoGridStep": {
+        "value": 0.02,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z"
+      },
+      "quote": {
+        "id": "mkt.wif-usdt.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.wif-usdt",
+        "status": {
+          "value": "THIN",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "bid": {
+          "value": 1.48,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "ask": {
+          "value": 1.64,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "last": {
+          "value": 1.56,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "mid": {
+          "value": 1.56,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "change24hPct": {
+          "value": -4.52,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "high24h": {
+          "value": 1.68,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "low24h": {
+          "value": 1.4,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "volume24hQuote": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:59:51.360Z",
+          "note": "عمق بازار برای سنجش نقدینگی کافی نبود. / Market depth was insufficient to measure liquidity."
+        },
+        "liquidityUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:59:51.360Z",
+          "note": "عمق بازار برای سنجش نقدینگی کافی نبود. / Market depth was insufficient to measure liquidity."
+        },
+        "spreadBps": {
+          "value": 935,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "bestBidDepthUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:59:51.360Z",
+          "note": "عمق بازار برای سنجش نقدینگی کافی نبود. / Market depth was insufficient to measure liquidity."
+        },
+        "priceImpactBps": {
+          "value": 8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "tickSize": {
+          "value": 0.02,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:51.360Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.360Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.360Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.360Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.eur-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "EUR/USD",
+      "baseAsset": "EUR",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "یورو / دلار آمریکا",
+          "en": "Euro / US Dollar"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.011,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "demoGridStep": {
+        "value": 0.0025,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z"
+      },
+      "quote": {
+        "id": "mkt.eur-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.eur-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "bid": {
+          "value": 1.125,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "ask": {
+          "value": 1.13,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "last": {
+          "value": 1.1275,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "mid": {
+          "value": 1.1275,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "change24hPct": {
+          "value": 4.81,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "high24h": {
+          "value": 1.185,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "low24h": {
+          "value": 1.1125,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "volume24hQuote": {
+          "value": 99420.58,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "liquidityUsd": {
+          "value": 8439.79,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "spreadBps": {
+          "value": 2,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 3262.52,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "priceImpactBps": {
+          "value": 112,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "tickSize": {
+          "value": 0.0025,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:51.774Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.774Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.774Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.774Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.gbp-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "GBP/USD",
+      "baseAsset": "GBP",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "پوند / دلار آمریکا",
+          "en": "Pound Sterling / US Dollar"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "marketState": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.013,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "demoGridStep": {
+        "value": 0.0025,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z"
+      },
+      "quote": {
+        "id": "mkt.gbp-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.gbp-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "bid": {
+          "value": 1.2675,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "ask": {
+          "value": 1.2725,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "last": {
+          "value": 1.27,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "mid": {
+          "value": 1.27,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "change24hPct": {
+          "value": -2.87,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "high24h": {
+          "value": 1.28,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "low24h": {
+          "value": 1.255,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "volume24hQuote": {
+          "value": 756489.19,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "liquidityUsd": {
+          "value": 50773.17,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "spreadBps": {
+          "value": 6,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 17288.45,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "priceImpactBps": {
+          "value": 96,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "tickSize": {
+          "value": 0.0025,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:53.328Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.328Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.328Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:53.328Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.usd-jpy",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "USD/JPY",
+      "baseAsset": "USD",
+      "quoteAsset": "JPY",
+      "label": {
+        "value": {
+          "fa": "دلار آمریکا / ین ژاپن",
+          "en": "US Dollar / Japanese Yen"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "minNotionalUsd": {
+        "value": 1.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "demoGridStep": {
+        "value": 0.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z"
+      },
+      "quote": {
+        "id": "mkt.usd-jpy.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.usd-jpy",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "bid": {
+          "value": 145.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "ask": {
+          "value": 146,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "last": {
+          "value": 145.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "mid": {
+          "value": 145.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "change24hPct": {
+          "value": -0.61,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "high24h": {
+          "value": 152.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "low24h": {
+          "value": 141.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "volume24hQuote": {
+          "value": 62948876.19,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "liquidityUsd": {
+          "value": 3986653.33,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "spreadBps": {
+          "value": 7,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 2001258.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "priceImpactBps": {
+          "value": 47,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "tickSize": {
+          "value": 0.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:46.084Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:46.084Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:46.084Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:46.084Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.usd-chf",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "USD/CHF",
+      "baseAsset": "USD",
+      "quoteAsset": "CHF",
+      "label": {
+        "value": {
+          "fa": "دلار آمریکا / فرانک سوئیس",
+          "en": "US Dollar / Swiss Franc"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.009,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "demoGridStep": {
+        "value": 0.0025,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z"
+      },
+      "quote": {
+        "id": "mkt.usd-chf.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.usd-chf",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "bid": {
+          "value": 0.91,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "ask": {
+          "value": 0.915,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "last": {
+          "value": 0.9125,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "mid": {
+          "value": 0.9125,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "change24hPct": {
+          "value": 2.02,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "high24h": {
+          "value": 0.955,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "low24h": {
+          "value": 0.905,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "volume24hQuote": {
+          "value": 708118.92,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "liquidityUsd": {
+          "value": 74732.99,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "spreadBps": {
+          "value": 1,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 33007.56,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "priceImpactBps": {
+          "value": 60,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "tickSize": {
+          "value": 0.0025,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:56.038Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.038Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.038Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:56.038Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.aud-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "AUD/USD",
+      "baseAsset": "AUD",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "دلار استرالیا / دلار آمریکا",
+          "en": "Australian Dollar / US Dollar"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.0066,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "demoGridStep": {
+        "value": 0.0025,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z"
+      },
+      "quote": {
+        "id": "mkt.aud-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.aud-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "bid": {
+          "value": 0.65,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "ask": {
+          "value": 0.655,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "last": {
+          "value": 0.6525,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "mid": {
+          "value": 0.6525,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "change24hPct": {
+          "value": 5.17,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "high24h": {
+          "value": 0.6575,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "low24h": {
+          "value": 0.62,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "volume24hQuote": {
+          "value": 27752.43,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "liquidityUsd": {
+          "value": 2202.32,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "spreadBps": {
+          "value": 5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 620.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "priceImpactBps": {
+          "value": 147,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "tickSize": {
+          "value": 0.0025,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:57.398Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.398Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.398Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:57.398Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.usd-cad",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "USD/CAD",
+      "baseAsset": "USD",
+      "quoteAsset": "CAD",
+      "label": {
+        "value": {
+          "fa": "دلار آمریکا / دلار کانادا",
+          "en": "US Dollar / Canadian Dollar"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.0136,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "demoGridStep": {
+        "value": 0.0025,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z"
+      },
+      "quote": {
+        "id": "mkt.usd-cad.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.usd-cad",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "bid": {
+          "value": 1.36,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "ask": {
+          "value": 1.365,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "last": {
+          "value": 1.3625,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "mid": {
+          "value": 1.3625,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "change24hPct": {
+          "value": 1.91,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "high24h": {
+          "value": 1.4325,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "low24h": {
+          "value": 1.315,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "volume24hQuote": {
+          "value": 969899.01,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "liquidityUsd": {
+          "value": 13658.21,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "spreadBps": {
+          "value": 7,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 6654.98,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "priceImpactBps": {
+          "value": 171,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "tickSize": {
+          "value": 0.0025,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:47.601Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.601Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.601Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:47.601Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.eur-gbp",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "EUR/GBP",
+      "baseAsset": "EUR",
+      "quoteAsset": "GBP",
+      "label": {
+        "value": {
+          "fa": "یورو / پوند",
+          "en": "Euro / Pound Sterling"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.0085,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "demoGridStep": {
+        "value": 0.0025,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z"
+      },
+      "quote": {
+        "id": "mkt.eur-gbp.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.eur-gbp",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "bid": {
+          "value": 0.8625,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "ask": {
+          "value": 0.8675,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "last": {
+          "value": 0.865,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "mid": {
+          "value": 0.865,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "change24hPct": {
+          "value": 4,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "high24h": {
+          "value": 0.875,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "low24h": {
+          "value": 0.86,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "volume24hQuote": {
+          "value": 598476.68,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "liquidityUsd": {
+          "value": 63077.56,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "spreadBps": {
+          "value": 3,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 16007.66,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "priceImpactBps": {
+          "value": 145,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "tickSize": {
+          "value": 0.0025,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:51.749Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:51.749Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:51.749Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:51.749Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.eur-jpy",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "EUR/JPY",
+      "baseAsset": "EUR",
+      "quoteAsset": "JPY",
+      "label": {
+        "value": {
+          "fa": "یورو / ین ژاپن",
+          "en": "Euro / Japanese Yen"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "minNotionalUsd": {
+        "value": 1.65,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "demoGridStep": {
+        "value": 0.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z"
+      },
+      "quote": {
+        "id": "mkt.eur-jpy.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.eur-jpy",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "bid": {
+          "value": 166,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "ask": {
+          "value": 166.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "last": {
+          "value": 166.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "mid": {
+          "value": 166.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "change24hPct": {
+          "value": 0.55,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "high24h": {
+          "value": 170,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "low24h": {
+          "value": 162.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "volume24hQuote": {
+          "value": 17581020.83,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "liquidityUsd": {
+          "value": 749557.61,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "spreadBps": {
+          "value": 8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 323655.92,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "priceImpactBps": {
+          "value": 156,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "tickSize": {
+          "value": 0.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:58.856Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.856Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.856Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:58.856Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.gbp-jpy",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "GBP/JPY",
+      "baseAsset": "GBP",
+      "quoteAsset": "JPY",
+      "label": {
+        "value": {
+          "fa": "پوند / ین ژاپن",
+          "en": "Pound Sterling / Japanese Yen"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "marketState": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "minNotionalUsd": {
+        "value": 1.95,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "demoGridStep": {
+        "value": 0.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z"
+      },
+      "quote": {
+        "id": "mkt.gbp-jpy.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.gbp-jpy",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "bid": {
+          "value": 191.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "ask": {
+          "value": 192,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "last": {
+          "value": 191.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "mid": {
+          "value": 191.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "change24hPct": {
+          "value": -5.64,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "high24h": {
+          "value": 200.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "low24h": {
+          "value": 189,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "volume24hQuote": {
+          "value": 41125712.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "liquidityUsd": {
+          "value": 4704984.96,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "spreadBps": {
+          "value": 7,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 1930472.47,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "priceImpactBps": {
+          "value": 75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "tickSize": {
+          "value": 0.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:57.016Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.016Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.016Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:57.016Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.usd-try",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "USD/TRY",
+      "baseAsset": "USD",
+      "quoteAsset": "TRY",
+      "label": {
+        "value": {
+          "fa": "دلار آمریکا / لیر ترکیه",
+          "en": "US Dollar / Turkish Lira"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "assetClass": {
+        "value": "FOREX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venueName": {
+        "value": "PAPER-FX-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "marketState": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "tradableInPaper": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "sessionTimezone": {
+        "value": "UTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.34,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "demoGridStep": {
+        "value": 0.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "quote": {
+        "id": "mkt.usd-try.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.usd-try",
+        "status": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "ask": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "last": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "mid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "change24hPct": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "high24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "low24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "volume24hQuote": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "liquidityUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "spreadBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bestBidDepthUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "priceImpactBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "tickSize": {
+          "value": 0.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:15:00.000Z"
+        },
+        "observedAt": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:15:00.000Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.spx-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "SPX/USD",
+      "baseAsset": "SPX",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "شاخص اس‌اندپی ۵۰۰",
+          "en": "S&P 500 index"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "minNotionalUsd": {
+        "value": 50,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "demoGridStep": {
+        "value": 25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z"
+      },
+      "quote": {
+        "id": "mkt.spx-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.spx-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "bid": {
+          "value": 4975,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "ask": {
+          "value": 5025,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "last": {
+          "value": 5000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "mid": {
+          "value": 5000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "change24hPct": {
+          "value": -5.77,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "high24h": {
+          "value": 5150,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "low24h": {
+          "value": 4775,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "volume24hQuote": {
+          "value": 976674009.86,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "liquidityUsd": {
+          "value": 49175248.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "spreadBps": {
+          "value": 31,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 14072865.93,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "priceImpactBps": {
+          "value": 120,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "tickSize": {
+          "value": 25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:48.475Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.475Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.475Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.475Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.ndx-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "NDX/USD",
+      "baseAsset": "NDX",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "شاخص نزدک ۱۰۰",
+          "en": "Nasdaq 100 index"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "minNotionalUsd": {
+        "value": 180,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "demoGridStep": {
+        "value": 100,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z"
+      },
+      "quote": {
+        "id": "mkt.ndx-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.ndx-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "bid": {
+          "value": 17600,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "ask": {
+          "value": 17800,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "last": {
+          "value": 17700,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "mid": {
+          "value": 17700,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "change24hPct": {
+          "value": -3.97,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "high24h": {
+          "value": 17900,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "low24h": {
+          "value": 17200,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "volume24hQuote": {
+          "value": 13291917596.83,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "liquidityUsd": {
+          "value": 1041604470.81,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "spreadBps": {
+          "value": 56,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 235248534.01,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "priceImpactBps": {
+          "value": 180,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "tickSize": {
+          "value": 100,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:48.728Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:48.728Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.728Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.728Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.dji-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "DJI/USD",
+      "baseAsset": "DJI",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "شاخص داوجونز",
+          "en": "Dow Jones Industrial Average"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "minNotionalUsd": {
+        "value": 400,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "demoGridStep": {
+        "value": 250,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z"
+      },
+      "quote": {
+        "id": "mkt.dji-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.dji-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "bid": {
+          "value": 40250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "ask": {
+          "value": 40750,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "last": {
+          "value": 40500,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "mid": {
+          "value": 40500,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "change24hPct": {
+          "value": -2.26,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "high24h": {
+          "value": 41000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "low24h": {
+          "value": 39250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "volume24hQuote": {
+          "value": 3955345256.63,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "liquidityUsd": {
+          "value": 91642017.19,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "spreadBps": {
+          "value": 36,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 22496200.3,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "priceImpactBps": {
+          "value": 116,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "tickSize": {
+          "value": 250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:56.080Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:56.080Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:56.080Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:56.080Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.rut-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "RUT/USD",
+      "baseAsset": "RUT",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "شاخص راسل ۲۰۰۰",
+          "en": "Russell 2000 index"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "marketState": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "tradableInPaper": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "minNotionalUsd": {
+        "value": 20,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "demoGridStep": {
+        "value": 10,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "quote": {
+        "id": "mkt.rut-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.rut-usd",
+        "status": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "ask": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "last": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "mid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "change24hPct": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "high24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "low24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "volume24hQuote": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "liquidityUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "spreadBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bestBidDepthUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "priceImpactBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "tickSize": {
+          "value": 10,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:15:00.000Z"
+        },
+        "observedAt": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:15:00.000Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.dax-eur",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "DAX/EUR",
+      "baseAsset": "DAX",
+      "quoteAsset": "EUR",
+      "label": {
+        "value": {
+          "fa": "شاخص داکس آلمان",
+          "en": "German DAX index"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "minNotionalUsd": {
+        "value": 180,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "demoGridStep": {
+        "value": 100,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z"
+      },
+      "quote": {
+        "id": "mkt.dax-eur.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.dax-eur",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "bid": {
+          "value": 17900,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "ask": {
+          "value": 18100,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "last": {
+          "value": 18000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "mid": {
+          "value": 18000,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "change24hPct": {
+          "value": -4.06,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "high24h": {
+          "value": 18200,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "low24h": {
+          "value": 17800,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "volume24hQuote": {
+          "value": 9110144571.21,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "liquidityUsd": {
+          "value": 964484866.73,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "spreadBps": {
+          "value": 10,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 461567572.41,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "priceImpactBps": {
+          "value": 143,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "tickSize": {
+          "value": 100,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:57.224Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:57.224Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:57.224Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:57.224Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.ftse-gbp",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "FTSE/GBP",
+      "baseAsset": "FTSE",
+      "quoteAsset": "GBP",
+      "label": {
+        "value": {
+          "fa": "شاخص فتسی ۱۰۰ لندن",
+          "en": "UK FTSE 100 index"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "marketState": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "minNotionalUsd": {
+        "value": 80,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "demoGridStep": {
+        "value": 50,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z"
+      },
+      "quote": {
+        "id": "mkt.ftse-gbp.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.ftse-gbp",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "bid": {
+          "value": 8050,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "ask": {
+          "value": 8150,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "last": {
+          "value": 8100,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "mid": {
+          "value": 8100,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "change24hPct": {
+          "value": -5.92,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "high24h": {
+          "value": 8350,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "low24h": {
+          "value": 7750,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "volume24hQuote": {
+          "value": 983106010.85,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "liquidityUsd": {
+          "value": 92434242.05,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "spreadBps": {
+          "value": 10,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 35663086.21,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "priceImpactBps": {
+          "value": 115,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "tickSize": {
+          "value": 50,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:58.661Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:58.661Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:58.661Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:58.661Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.n225-jpy",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "N225/JPY",
+      "baseAsset": "N225",
+      "quoteAsset": "JPY",
+      "label": {
+        "value": {
+          "fa": "شاخص نیک‌کی ۲۲۵ ژاپن",
+          "en": "Japan Nikkei 225 index"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "minNotionalUsd": {
+        "value": 380,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "demoGridStep": {
+        "value": 250,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z"
+      },
+      "quote": {
+        "id": "mkt.n225-jpy.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.n225-jpy",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "bid": {
+          "value": 38250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "ask": {
+          "value": 38750,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "last": {
+          "value": 38500,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "mid": {
+          "value": 38500,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "change24hPct": {
+          "value": 3.37,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "high24h": {
+          "value": 39500,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "low24h": {
+          "value": 36250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "volume24hQuote": {
+          "value": 3506721738.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "liquidityUsd": {
+          "value": 112829944.11,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "spreadBps": {
+          "value": 15,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 55729856.68,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "priceImpactBps": {
+          "value": 43,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "tickSize": {
+          "value": 250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:47.162Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:47.162Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.162Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:47.162Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.vix-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "VIX/USD",
+      "baseAsset": "VIX",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "شاخص نوسان بازار",
+          "en": "Volatility index (VIX)"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "assetClass": {
+        "value": "INDEX",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "venue": {
+        "value": "SYNTHETIC_FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "venueName": {
+        "value": "PAPER-INDEX-FEED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "sessionTimezone": {
+        "value": "America/New_York",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.16,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "demoGridStep": {
+        "value": 0.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z"
+      },
+      "quote": {
+        "id": "mkt.vix-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.vix-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "bid": {
+          "value": 15.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "ask": {
+          "value": 16.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "last": {
+          "value": 16,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "mid": {
+          "value": 16,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "change24hPct": {
+          "value": 2.3,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "high24h": {
+          "value": 16.75,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "low24h": {
+          "value": 15.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "volume24hQuote": {
+          "value": 12337419.9,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "liquidityUsd": {
+          "value": 997824.9,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "spreadBps": {
+          "value": 56,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 340746.31,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "priceImpactBps": {
+          "value": 77,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "tickSize": {
+          "value": 0.25,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:54.268Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:54.268Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:54.268Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:54.268Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.xau-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "XAU/USD",
+      "baseAsset": "XAU",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "طلای جهانی",
+          "en": "Gold spot"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "assetClass": {
+        "value": "METAL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "venueName": {
+        "value": "PAPER-METAL-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "sessionTimezone": {
+        "value": "Europe/London",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "minNotionalUsd": {
+        "value": 24,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "demoGridStep": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z"
+      },
+      "quote": {
+        "id": "mkt.xau-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.xau-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "bid": {
+          "value": 2375,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "ask": {
+          "value": 2385,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "last": {
+          "value": 2380,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "mid": {
+          "value": 2380,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "change24hPct": {
+          "value": -0.71,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "high24h": {
+          "value": 2420,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "low24h": {
+          "value": 2305,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "volume24hQuote": {
+          "value": 836233004.67,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "liquidityUsd": {
+          "value": 72709824.35,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "spreadBps": {
+          "value": 30,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 19933540.84,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "priceImpactBps": {
+          "value": 161,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "tickSize": {
+          "value": 5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:53.885Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:53.885Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:53.885Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:53.885Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.xag-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "XAG/USD",
+      "baseAsset": "XAG",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "نقرهٔ جهانی",
+          "en": "Silver spot"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "assetClass": {
+        "value": "METAL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "venueName": {
+        "value": "PAPER-METAL-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "sessionTimezone": {
+        "value": "Europe/London",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.28,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "demoGridStep": {
+        "value": 0.1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z"
+      },
+      "quote": {
+        "id": "mkt.xag-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.xag-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "bid": {
+          "value": 28.4,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "ask": {
+          "value": 28.6,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "last": {
+          "value": 28.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "mid": {
+          "value": 28.5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "change24hPct": {
+          "value": -0.38,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "high24h": {
+          "value": 28.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "low24h": {
+          "value": 27.7,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "volume24hQuote": {
+          "value": 21783479.53,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "liquidityUsd": {
+          "value": 495725.43,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "spreadBps": {
+          "value": 37,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 108750.35,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "priceImpactBps": {
+          "value": 109,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "tickSize": {
+          "value": 0.1,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:59.100Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:59.100Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:59.100Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:59.100Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.xpt-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "XPT/USD",
+      "baseAsset": "XPT",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "پلاتین",
+          "en": "Platinum spot"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "assetClass": {
+        "value": "METAL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "venueName": {
+        "value": "PAPER-METAL-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "marketState": {
+        "value": "OPEN",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "sessionTimezone": {
+        "value": "Europe/London",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "minNotionalUsd": {
+        "value": 9.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "demoGridStep": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z"
+      },
+      "quote": {
+        "id": "mkt.xpt-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.xpt-usd",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "bid": {
+          "value": 930,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "ask": {
+          "value": 940,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "last": {
+          "value": 935,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "mid": {
+          "value": 935,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "change24hPct": {
+          "value": -0.6,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "high24h": {
+          "value": 965,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "low24h": {
+          "value": 890,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "volume24hQuote": {
+          "value": 421887713.8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "liquidityUsd": {
+          "value": 26602278.85,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "spreadBps": {
+          "value": 15,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 11918298.67,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "priceImpactBps": {
+          "value": 82,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "tickSize": {
+          "value": 5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:55.442Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.442Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.442Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:55.442Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.xpd-usd",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "XPD/USD",
+      "baseAsset": "XPD",
+      "quoteAsset": "USD",
+      "label": {
+        "value": {
+          "fa": "پالادیم",
+          "en": "Palladium spot"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "assetClass": {
+        "value": "METAL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venueName": {
+        "value": "PAPER-METAL-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "marketState": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "tradableInPaper": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "sessionTimezone": {
+        "value": "Europe/London",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "minNotionalUsd": {
+        "value": 10,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "demoGridStep": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "quote": {
+        "id": "mkt.xpd-usd.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.xpd-usd",
+        "status": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "ask": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "last": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "mid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "change24hPct": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "high24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "low24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "volume24hQuote": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "liquidityUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "spreadBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bestBidDepthUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "priceImpactBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "tickSize": {
+          "value": 5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:15:00.000Z"
+        },
+        "observedAt": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:15:00.000Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.xau-eur",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "XAU/EUR",
+      "baseAsset": "XAU",
+      "quoteAsset": "EUR",
+      "label": {
+        "value": {
+          "fa": "طلا به یورو",
+          "en": "Gold in euro"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "assetClass": {
+        "value": "METAL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "venueName": {
+        "value": "PAPER-METAL-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "marketState": {
+        "value": "CLOSED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "tradableInPaper": {
+        "value": true,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "sessionTimezone": {
+        "value": "Europe/London",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "minNotionalUsd": {
+        "value": 22,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "demoGridStep": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z"
+      },
+      "quote": {
+        "id": "mkt.xau-eur.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.xau-eur",
+        "status": {
+          "value": "OK",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "bid": {
+          "value": 2165,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "ask": {
+          "value": 2175,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "last": {
+          "value": 2170,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "mid": {
+          "value": 2170,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "change24hPct": {
+          "value": -1.16,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "high24h": {
+          "value": 2250,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "low24h": {
+          "value": 2075,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "volume24hQuote": {
+          "value": 1627307305.07,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "liquidityUsd": {
+          "value": 135973300.43,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "spreadBps": {
+          "value": 8,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "bestBidDepthUsd": {
+          "value": 34677956.01,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "priceImpactBps": {
+          "value": 62,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "tickSize": {
+          "value": 5,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "observedAt": {
+          "value": "2026-10-15T11:59:55.496Z",
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:55.496Z"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:55.496Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:55.496Z",
+      "demo": true
+    },
+    {
+      "id": "mkt.xag-eur",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.markets.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "symbol": "XAG/EUR",
+      "baseAsset": "XAG",
+      "quoteAsset": "EUR",
+      "label": {
+        "value": {
+          "fa": "نقره به یورو",
+          "en": "Silver in euro"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "assetClass": {
+        "value": "METAL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venue": {
+        "value": "OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "venueName": {
+        "value": "PAPER-METAL-OTC",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "marketState": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "tradableInPaper": {
+        "value": false,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "sessionTimezone": {
+        "value": "Europe/London",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "minNotionalUsd": {
+        "value": 0.26,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "demoGridStep": {
+        "value": 0.1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z"
+      },
+      "quote": {
+        "id": "mkt.xag-eur.quote",
+        "schemaVersion": "ahos.contract/1",
+        "marketId": "mkt.xag-eur",
+        "status": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "ask": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "last": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "mid": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "change24hPct": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "high24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "low24h": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "volume24hQuote": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "liquidityUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "spreadBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "bestBidDepthUsd": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "priceImpactBps": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "tickSize": {
+          "value": 0.1,
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:15:00.000Z"
+        },
+        "observedAt": {
+          "value": null,
+          "freshness": "UNKNOWN",
+          "asOf": "2026-10-15T11:15:00.000Z",
+          "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:15:00.000Z",
+        "demo": true
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:15:00.000Z",
+      "demo": true
+    }
+  ]
+}

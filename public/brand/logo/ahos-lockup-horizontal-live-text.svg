@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 389 112" width="389" height="112" role="img" aria-labelledby="ahos-lockup-horizontal-live-text-t">
+  <title id="ahos-lockup-horizontal-live-text-t">AHOS horizontal lockup — live text</title>
+  <desc>Same layout as the outlined lockup, with real &lt;text&gt; nodes for editing.</desc>
+  <defs>
+    <linearGradient id="ahosLiveGold" x1="6" y1="0" x2="249.27" y2="83" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6E3A1"/>
+      <stop offset="0.55" stop-color="#D4A437"/>
+      <stop offset="1" stop-color="#8A6414"/>
+    </linearGradient>
+  </defs>
+  <!-- Needs a Persian-capable UI font. Vazirmatn (OFL 1.1) is the brand font;
+       the fallbacks keep the layout readable without it. -->
+  <g class="ahos-star" transform="translate(6 9.68)">
+    <defs>
+      <clipPath id="ahosLiveStar-clip"><path d="M29.31 9.13 A4.08 4.08 0 0 0 32.69 9.13 L37.86 20.47 A0.73 0.73 0 0 1 38.89 21.22 L51.27 22.63 A4.08 4.08 0 0 0 52.32 25.85 L43.13 34.27 A0.73 0.73 0 0 1 42.74 35.48 L45.22 47.69 A4.08 4.08 0 0 0 42.48 49.68 L31.64 43.55 A0.73 0.73 0 0 1 30.36 43.55 L19.52 49.68 A4.08 4.08 0 0 0 16.78 47.69 L19.26 35.48 A0.73 0.73 0 0 1 18.87 34.27 L9.68 25.85 A4.08 4.08 0 0 0 10.73 22.63 L23.11 21.22 A0.73 0.73 0 0 1 24.14 20.47 Z"/></clipPath>
+    <linearGradient id="ahosLiveStar-gold" x1="9.92" y1="1.24" x2="49.6" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6E3A1"/>
+      <stop offset="0.5" stop-color="#D4A437"/>
+      <stop offset="1" stop-color="#8A6414"/>
+    </linearGradient>
+    <linearGradient id="ahosLiveStar-gloss" x1="0" y1="2.48" x2="0" y2="31" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.40"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.03"/>
+    </linearGradient>
+    </defs>
+    <path d="M29.31 9.13 A4.08 4.08 0 0 0 32.69 9.13 L37.86 20.47 A0.73 0.73 0 0 1 38.89 21.22 L51.27 22.63 A4.08 4.08 0 0 0 52.32 25.85 L43.13 34.27 A0.73 0.73 0 0 1 42.74 35.48 L45.22 47.69 A4.08 4.08 0 0 0 42.48 49.68 L31.64 43.55 A0.73 0.73 0 0 1 30.36 43.55 L19.52 49.68 A4.08 4.08 0 0 0 16.78 47.69 L19.26 35.48 A0.73 0.73 0 0 1 18.87 34.27 L9.68 25.85 A4.08 4.08 0 0 0 10.73 22.63 L23.11 21.22 A0.73 0.73 0 0 1 24.14 20.47 Z" fill="none" stroke="#D4A437" stroke-opacity="0.18" stroke-width="6.72" stroke-linejoin="round"/>
+    <path d="M29.31 9.13 A4.08 4.08 0 0 0 32.69 9.13 L37.86 20.47 A0.73 0.73 0 0 1 38.89 21.22 L51.27 22.63 A4.08 4.08 0 0 0 52.32 25.85 L43.13 34.27 A0.73 0.73 0 0 1 42.74 35.48 L45.22 47.69 A4.08 4.08 0 0 0 42.48 49.68 L31.64 43.55 A0.73 0.73 0 0 1 30.36 43.55 L19.52 49.68 A4.08 4.08 0 0 0 16.78 47.69 L19.26 35.48 A0.73 0.73 0 0 1 18.87 34.27 L9.68 25.85 A4.08 4.08 0 0 0 10.73 22.63 L23.11 21.22 A0.73 0.73 0 0 1 24.14 20.47 Z" fill="url(#ahosLiveStar-gold)"/>
+    <g clip-path="url(#ahosLiveStar-clip)">
+      <rect x="0" y="0" width="62" height="31" fill="url(#ahosLiveStar-gloss)"/>
+    </g>
+    <path d="M30.05 16.2 A2.29 2.29 0 0 0 31.95 16.2 L35.56 24.12 A0.41 0.41 0 0 1 36.14 24.54 L44.78 25.52 A2.29 2.29 0 0 0 45.37 27.33 L38.96 33.21 A0.41 0.41 0 0 1 38.74 33.89 L40.47 42.41 A2.29 2.29 0 0 0 38.93 43.53 L31.36 39.25 A0.41 0.41 0 0 1 30.64 39.25 L23.07 43.53 A2.29 2.29 0 0 0 21.53 42.41 L23.26 33.89 A0.41 0.41 0 0 1 23.04 33.21 L16.63 27.33 A2.29 2.29 0 0 0 17.22 25.52 L25.86 24.54 A0.41 0.41 0 0 1 26.44 24.12 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.26" stroke-width="0.83" stroke-linejoin="round"/>
+  </g>
+  <text class="ahos-wordmark-latin" x="92" y="63" textLength="129.27" lengthAdjust="spacingAndGlyphs" font-family="Vazirmatn, 'Segoe UI', system-ui, sans-serif" font-size="46" font-weight="600" fill="#D4A437">AHOS</text>
+  <line x1="249.27" y1="33" x2="249.27" y2="75" stroke="#8A6414" stroke-opacity="0.55" stroke-width="1.5"/>
+  <text class="ahos-wordmark-persian" x="381.36" y="57.09" text-anchor="start" textLength="104.08" lengthAdjust="spacingAndGlyphs" font-family="Vazirmatn, 'Vazirmatn FD', Tahoma, sans-serif" font-size="40" font-weight="600" fill="#E8EDF6" direction="rtl">اهوس</text>
+</svg>

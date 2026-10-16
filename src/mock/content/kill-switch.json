@@ -1,0 +1,118 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "kill-switch.json",
+    "entity": "KillSwitchState",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 1,
+    "paperNoticeKey": "pages.risk.paperOnlyNotice",
+    "moneyUnit": "NONE",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "record": {
+    "id": "killswitch.main",
+    "schemaVersion": "ahos.contract/1",
+    "engaged": {
+      "value": false,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "phase": {
+      "value": "ARMED",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "reasonCode": {
+      "value": null,
+      "freshness": "UNKNOWN",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "reasonText": {
+      "value": {
+        "fa": "کلید توقف آماده است و فعال نشده.",
+        "en": "The kill switch is armed and not engaged."
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "scope": {
+      "value": [
+        "DATA_INGEST",
+        "SIGNAL_INTAKE",
+        "ORDER_SUBMISSION",
+        "AUTO_EXIT"
+      ],
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "engagedAt": {
+      "value": null,
+      "freshness": "UNKNOWN",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "engagedBy": {
+      "value": null,
+      "freshness": "UNKNOWN",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "resetAt": {
+      "value": "2026-10-13T08:00:00.000Z",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "resetBy": {
+      "value": "operator:human:op-01",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "requiresHumanReset": {
+      "value": true,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "cooldownEndsAt": {
+      "value": null,
+      "freshness": "UNKNOWN",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "confirmPhrase": {
+      "value": "توقف کامل",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "auditTrailRef": {
+      "value": "audit://events/killswitch/2026-10-13T08:00:00.000Z",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "lastDrillAt": {
+      "value": "2026-10-13T12:00:00.000Z",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "drillResult": {
+      "value": "OK",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "openPositionsAtEngage": {
+      "value": null,
+      "freshness": "UNKNOWN",
+      "asOf": "2026-10-15T11:59:42.000Z"
+    },
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T11:59:42.000Z",
+    "demo": true
+  }
+}

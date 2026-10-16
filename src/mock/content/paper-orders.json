@@ -1,0 +1,4237 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "paper-orders.json",
+    "entity": "PaperOrder",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 36,
+    "paperNoticeKey": "pages.positions.paperOnlyNotice",
+    "moneyUnit": "USDT_PAPER",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "items": [
+    {
+      "id": "ord.demo.023",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.009",
+      "marketId": "mkt.bonk-sol",
+      "symbol": "BONK/SOL",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "state": {
+        "value": "REJECTED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "qtyRequested": {
+        "value": 11435.459898,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 0.24,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "exitReason": {
+        "value": "TRAPPED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "rejectReason": {
+        "value": "UNEXITABLE_NO_LIQUIDITY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T09:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:04.982Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:04.982Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.033",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.014",
+      "marketId": "mkt.wif-usdt",
+      "symbol": "WIF/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "state": {
+        "value": "REJECTED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "qtyRequested": {
+        "value": 15.75589,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 24.89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "exitReason": {
+        "value": "TRAPPED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "rejectReason": {
+        "value": "UNEXITABLE_NO_LIQUIDITY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T09:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.933Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:21.933Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.034",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.015",
+      "marketId": "mkt.op-usdt",
+      "symbol": "OP/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "qtyRequested": {
+        "value": 313.137603,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "qtyFilled": {
+        "value": 313.137603,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "fillPrice": {
+        "value": 1.68,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 519.81,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "executableNotionalUsd": {
+        "value": 526.07,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "feeUsd": {
+        "value": 0.42,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "slippageBps": {
+        "value": 133,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "netProceedsUsd": {
+        "value": 525.65,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T08:25:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "filledAt": {
+        "value": "2026-10-15T08:25:03.096Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:47.230Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:47.230Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.016",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.006",
+      "marketId": "mkt.ndx-usd",
+      "symbol": "NDX/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "qtyRequested": {
+        "value": 1.738182,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "limitPrice": {
+        "value": 16800,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 29201.46,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T06:05:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:48.734Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:48.734Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.015",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.006",
+      "marketId": "mkt.ndx-usd",
+      "symbol": "NDX/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "qtyRequested": {
+        "value": 1.738182,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "qtyFilled": {
+        "value": 1.738182,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "fillPrice": {
+        "value": 18100,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 31287.28,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "executableNotionalUsd": {
+        "value": 31461.09,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "feeUsd": {
+        "value": 25.17,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "slippageBps": {
+        "value": 134,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "netProceedsUsd": {
+        "value": 31435.92,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T06:04:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "filledAt": {
+        "value": "2026-10-15T06:04:01.833Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.976Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:15.976Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.008",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.003",
+      "marketId": "mkt.sol-usdt",
+      "symbol": "SOL/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "type": {
+        "value": "TAKE_PROFIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "qtyRequested": {
+        "value": 48.571985,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "limitPrice": {
+        "value": 148.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 7212.94,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T02:21:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:42.980Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:42.980Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.007",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.003",
+      "marketId": "mkt.sol-usdt",
+      "symbol": "SOL/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "qtyRequested": {
+        "value": 48.571985,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "limitPrice": {
+        "value": 148.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 7212.94,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T02:20:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:36.885Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:36.885Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.006",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.003",
+      "marketId": "mkt.sol-usdt",
+      "symbol": "SOL/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "qtyRequested": {
+        "value": 48.571985,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "qtyFilled": {
+        "value": 48.571985,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "fillPrice": {
+        "value": 147,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 7140.08,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "executableNotionalUsd": {
+        "value": 7140.08,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "feeUsd": {
+        "value": 5.71,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "slippageBps": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "netProceedsUsd": {
+        "value": 7134.37,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T02:19:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "filledAt": {
+        "value": "2026-10-15T02:19:04.008Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.330Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:06.330Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.025",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.010",
+      "marketId": "mkt.doge-usdt",
+      "symbol": "DOGE/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "type": {
+        "value": "LIMIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "qtyRequested": {
+        "value": 565.396148,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "qtyFilled": {
+        "value": 565.396148,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "limitPrice": {
+        "value": 0.116,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "fillPrice": {
+        "value": 0.117,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 65.59,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "executableNotionalUsd": {
+        "value": 66.15,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "feeUsd": {
+        "value": 0.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "slippageBps": {
+        "value": 92,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "netProceedsUsd": {
+        "value": 66.1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "realizedPnlUsd": {
+        "value": 2.21,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "exitReason": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T00:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "filledAt": {
+        "value": "2026-10-15T00:00:03.327Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.527Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:21.527Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.027",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.011",
+      "marketId": "mkt.gbp-jpy",
+      "symbol": "GBP/JPY",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "type": {
+        "value": "LIMIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "qtyRequested": {
+        "value": 13.008481,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "qtyFilled": {
+        "value": 13.008481,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "limitPrice": {
+        "value": 181,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "fillPrice": {
+        "value": 182,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 2354.54,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "executableNotionalUsd": {
+        "value": 2367.54,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "feeUsd": {
+        "value": 1.89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "slippageBps": {
+        "value": 121,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "netProceedsUsd": {
+        "value": 2365.65,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "realizedPnlUsd": {
+        "value": -60.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "exitReason": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T00:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "filledAt": {
+        "value": "2026-10-15T00:00:06.986Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.393Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:17.393Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.029",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.012",
+      "marketId": "mkt.avax-usdt",
+      "symbol": "AVAX/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "type": {
+        "value": "LIMIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "qtyRequested": {
+        "value": 27.813508,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "qtyFilled": {
+        "value": 27.813508,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "limitPrice": {
+        "value": 31.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "fillPrice": {
+        "value": 31.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 869.17,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "executableNotionalUsd": {
+        "value": 869.17,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "feeUsd": {
+        "value": 0.7,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "slippageBps": {
+        "value": 61,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "netProceedsUsd": {
+        "value": 868.47,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "realizedPnlUsd": {
+        "value": 27.11,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "exitReason": {
+        "value": "TIME_EXIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T00:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "filledAt": {
+        "value": "2026-10-15T00:00:01.232Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.226Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:22.226Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.031",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.013",
+      "marketId": "mkt.xag-usd",
+      "symbol": "XAG/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "type": {
+        "value": "LIMIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "qtyRequested": {
+        "value": 220.600791,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "qtyFilled": {
+        "value": 220.600791,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "limitPrice": {
+        "value": 29,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "fillPrice": {
+        "value": 29.2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 6397.42,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "executableNotionalUsd": {
+        "value": 6441.54,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "feeUsd": {
+        "value": 5.15,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "slippageBps": {
+        "value": 128,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "netProceedsUsd": {
+        "value": 6436.39,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "realizedPnlUsd": {
+        "value": 215.45,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "exitReason": {
+        "value": "TAKE_PROFIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-15T00:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "filledAt": {
+        "value": "2026-10-15T00:00:05.798Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.073Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:09.073Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.030",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.013",
+      "marketId": "mkt.xag-usd",
+      "symbol": "XAG/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "qtyRequested": {
+        "value": 220.600791,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "qtyFilled": {
+        "value": 220.600791,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "fillPrice": {
+        "value": 31.3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 6882.74,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "executableNotionalUsd": {
+        "value": 6904.8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "feeUsd": {
+        "value": 5.52,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "slippageBps": {
+        "value": 33,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "netProceedsUsd": {
+        "value": 6899.28,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T23:03:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "filledAt": {
+        "value": "2026-10-14T23:03:03.220Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:18.126Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:18.126Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.014",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.005",
+      "marketId": "mkt.eur-usd",
+      "symbol": "EUR/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "type": {
+        "value": "TAKE_PROFIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "qtyRequested": {
+        "value": 628.031811,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "limitPrice": {
+        "value": 1.225,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 769.34,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T20:34:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:35.363Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:35.363Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.013",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.005",
+      "marketId": "mkt.eur-usd",
+      "symbol": "EUR/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "qtyRequested": {
+        "value": 628.031811,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "limitPrice": {
+        "value": 1.225,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 769.34,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T20:33:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:22.302Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:22.302Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.012",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.005",
+      "marketId": "mkt.eur-usd",
+      "symbol": "EUR/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "qtyRequested": {
+        "value": 628.031811,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "qtyFilled": {
+        "value": 628.031811,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "fillPrice": {
+        "value": 1.1425,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 717.53,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "executableNotionalUsd": {
+        "value": 717.53,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "feeUsd": {
+        "value": 0.57,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "slippageBps": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "netProceedsUsd": {
+        "value": 716.96,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T20:32:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "filledAt": {
+        "value": "2026-10-14T20:32:02.695Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:39.770Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:39.770Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.026",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.011",
+      "marketId": "mkt.gbp-jpy",
+      "symbol": "GBP/JPY",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "qtyRequested": {
+        "value": 13.008481,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "qtyFilled": {
+        "value": 13.008481,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "fillPrice": {
+        "value": 204.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 2656.98,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "executableNotionalUsd": {
+        "value": 2660.23,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "feeUsd": {
+        "value": 2.13,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "slippageBps": {
+        "value": 26,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "netProceedsUsd": {
+        "value": 2658.1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T16:23:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "filledAt": {
+        "value": "2026-10-14T16:23:07.314Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:06.883Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:06.883Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.002",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.001",
+      "marketId": "mkt.btc-usdt",
+      "symbol": "BTC/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "qtyRequested": {
+        "value": 1.029633,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "limitPrice": {
+        "value": 61500,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 63322.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T09:46:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:21.241Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:21.241Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.001",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.001",
+      "marketId": "mkt.btc-usdt",
+      "symbol": "BTC/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "qtyRequested": {
+        "value": 1.029633,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "qtyFilled": {
+        "value": 1.029633,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "fillPrice": {
+        "value": 61750,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 63322.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "executableNotionalUsd": {
+        "value": 63579.84,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "feeUsd": {
+        "value": 50.86,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "slippageBps": {
+        "value": 44,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "netProceedsUsd": {
+        "value": 63528.98,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T09:45:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "filledAt": {
+        "value": "2026-10-14T09:45:06.603Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:23.402Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:23.402Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.036",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.015",
+      "marketId": "mkt.op-usdt",
+      "symbol": "OP/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "type": {
+        "value": "LIMIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "state": {
+        "value": "CANCELLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "qtyRequested": {
+        "value": 313.137603,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "limitPrice": {
+        "value": 1.78,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 557.38,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T07:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:12.605Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:12.605Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.035",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.015",
+      "marketId": "mkt.op-usdt",
+      "symbol": "OP/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "state": {
+        "value": "PARTIALLY_FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "qtyRequested": {
+        "value": 187.882562,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "qtyFilled": {
+        "value": 84.547153,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "fillPrice": {
+        "value": 1.66,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 311.89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "executableNotionalUsd": {
+        "value": 140.35,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "feeUsd": {
+        "value": 0.11,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "slippageBps": {
+        "value": 77,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "netProceedsUsd": {
+        "value": 140.24,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "realizedPnlUsd": {
+        "value": -5.18,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "exitReason": {
+        "value": "SECURITY_EVENT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T06:00:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "filledAt": {
+        "value": "2026-10-14T06:00:07.231Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:09.329Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:09.329Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.018",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.007",
+      "marketId": "mkt.link-usdt",
+      "symbol": "LINK/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "qtyRequested": {
+        "value": 223.494697,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "limitPrice": {
+        "value": 13.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 2916.61,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T02:54:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:17.056Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:17.056Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.017",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.007",
+      "marketId": "mkt.link-usdt",
+      "symbol": "LINK/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "qtyRequested": {
+        "value": 223.494697,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "qtyFilled": {
+        "value": 223.494697,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "fillPrice": {
+        "value": 13.15,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 2927.78,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "executableNotionalUsd": {
+        "value": 2938.96,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "feeUsd": {
+        "value": 2.35,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "slippageBps": {
+        "value": 89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "netProceedsUsd": {
+        "value": 2936.61,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-14T02:53:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "filledAt": {
+        "value": "2026-10-14T02:53:06.971Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:07.748Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:07.748Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.024",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.010",
+      "marketId": "mkt.doge-usdt",
+      "symbol": "DOGE/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "qtyRequested": {
+        "value": 565.396148,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "qtyFilled": {
+        "value": 565.396148,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "fillPrice": {
+        "value": 0.108,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 61.06,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "executableNotionalUsd": {
+        "value": 61.06,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "feeUsd": {
+        "value": 0.05,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "slippageBps": {
+        "value": 72,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "netProceedsUsd": {
+        "value": 61.01,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-13T18:43:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "filledAt": {
+        "value": "2026-10-13T18:43:07.501Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.685Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:10.685Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.005",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.002",
+      "marketId": "mkt.eth-usdt",
+      "symbol": "ETH/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "type": {
+        "value": "TAKE_PROFIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "qtyRequested": {
+        "value": 17.139366,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "limitPrice": {
+        "value": 3130,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 53646.22,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-13T08:22:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:13.267Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:13.267Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.004",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.002",
+      "marketId": "mkt.eth-usdt",
+      "symbol": "ETH/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "qtyRequested": {
+        "value": 17.139366,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "limitPrice": {
+        "value": 3130,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 53646.22,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-13T08:21:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:16.479Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:16.479Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.003",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.002",
+      "marketId": "mkt.eth-usdt",
+      "symbol": "ETH/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "qtyRequested": {
+        "value": 17.139366,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "qtyFilled": {
+        "value": 17.139366,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "fillPrice": {
+        "value": 3090,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 52617.85,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "executableNotionalUsd": {
+        "value": 52960.64,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "feeUsd": {
+        "value": 42.37,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "slippageBps": {
+        "value": 115,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "netProceedsUsd": {
+        "value": 52918.27,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-13T08:20:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "filledAt": {
+        "value": "2026-10-13T08:20:01.792Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.482Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:14.482Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.021",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.008",
+      "marketId": "mkt.arb-usdt",
+      "symbol": "ARB/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "type": {
+        "value": "TAKE_PROFIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "qtyRequested": {
+        "value": 998.55147,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "limitPrice": {
+        "value": 0.83,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 828.8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-12T21:30:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:08.268Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:08.268Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.020",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.008",
+      "marketId": "mkt.arb-usdt",
+      "symbol": "ARB/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "qtyRequested": {
+        "value": 998.55147,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "limitPrice": {
+        "value": 0.83,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 828.8,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-12T21:29:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:03.620Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:03.620Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.019",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.008",
+      "marketId": "mkt.arb-usdt",
+      "symbol": "ARB/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "qtyRequested": {
+        "value": 998.55147,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "qtyFilled": {
+        "value": 998.55147,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "fillPrice": {
+        "value": 0.78,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 768.88,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "executableNotionalUsd": {
+        "value": 778.87,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "feeUsd": {
+        "value": 0.62,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "slippageBps": {
+        "value": 137,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "netProceedsUsd": {
+        "value": 778.25,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-12T21:28:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "filledAt": {
+        "value": "2026-10-12T21:28:06.282Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.545Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:01.545Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.011",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.004",
+      "marketId": "mkt.xau-usd",
+      "symbol": "XAU/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "type": {
+        "value": "TAKE_PROFIT",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "qtyRequested": {
+        "value": 21.78387,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "limitPrice": {
+        "value": 2405,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 52390.21,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-12T09:39:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:15.978Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:15.978Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.010",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.004",
+      "marketId": "mkt.xau-usd",
+      "symbol": "XAU/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "side": {
+        "value": "SELL",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "type": {
+        "value": "STOP_LOSS",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "state": {
+        "value": "PENDING",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "qtyRequested": {
+        "value": 21.78387,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "qtyFilled": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "limitPrice": {
+        "value": 2405,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "fillPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 52390.21,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "executableNotionalUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "feeUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "slippageBps": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "gasCostUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "netProceedsUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-12T09:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "filledAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:00.813Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:00.813Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.009",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.004",
+      "marketId": "mkt.xau-usd",
+      "symbol": "XAU/USD",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "qtyRequested": {
+        "value": 21.78387,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "qtyFilled": {
+        "value": 21.78387,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "fillPrice": {
+        "value": 2335,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 50647.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "executableNotionalUsd": {
+        "value": 50865.34,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "feeUsd": {
+        "value": 40.69,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "slippageBps": {
+        "value": 76,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "netProceedsUsd": {
+        "value": 50824.65,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-12T09:37:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "filledAt": {
+        "value": "2026-10-12T09:37:02.254Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:02.555Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:02.555Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.028",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.012",
+      "marketId": "mkt.avax-usdt",
+      "symbol": "AVAX/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "qtyRequested": {
+        "value": 27.813508,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "qtyFilled": {
+        "value": 27.813508,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "fillPrice": {
+        "value": 31.5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 876.13,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "executableNotionalUsd": {
+        "value": 876.13,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "feeUsd": {
+        "value": 0.7,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "slippageBps": {
+        "value": 30,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "gasCostUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "netProceedsUsd": {
+        "value": 875.43,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-11T19:38:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "filledAt": {
+        "value": "2026-10-11T19:38:08.810Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:49.760Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:49.760Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.022",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.009",
+      "marketId": "mkt.bonk-sol",
+      "symbol": "BONK/SOL",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "qtyRequested": {
+        "value": 11435.459898,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "qtyFilled": {
+        "value": 11435.459898,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "fillPrice": {
+        "value": 0.000021,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 0.24,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "executableNotionalUsd": {
+        "value": 0.24,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "feeUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "slippageBps": {
+        "value": 82,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "gasCostUsd": {
+        "value": 5.27,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "netProceedsUsd": {
+        "value": -5.03,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-11T11:02:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "filledAt": {
+        "value": "2026-10-11T11:02:06.123Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:10.818Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:10.818Z",
+      "demo": true
+    },
+    {
+      "id": "ord.demo.032",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.positions.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "positionId": "pos.demo.014",
+      "marketId": "mkt.wif-usdt",
+      "symbol": "WIF/USDT",
+      "executionMode": {
+        "value": "PAPER_ONLY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "venue": {
+        "value": "PAPER_SIMULATOR",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "side": {
+        "value": "BUY",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "type": {
+        "value": "MARKET",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "state": {
+        "value": "FILLED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "qtyRequested": {
+        "value": 15.75589,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "qtyFilled": {
+        "value": 15.75589,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "limitPrice": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "fillPrice": {
+        "value": 1.58,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "requestedNotionalUsd": {
+        "value": 24.89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "executableNotionalUsd": {
+        "value": 24.89,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "feeUsd": {
+        "value": 0.07,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "slippageBps": {
+        "value": 31,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "gasCostUsd": {
+        "value": 7.13,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "netProceedsUsd": {
+        "value": 17.69,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "realizedPnlUsd": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "exitReason": {
+        "value": "NONE",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "rejectReason": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "ruleVersion": {
+        "value": "PT-X3-v1",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "submittedAt": {
+        "value": "2026-10-10T11:44:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "filledAt": {
+        "value": "2026-10-10T11:44:05.997Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.414Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:14.414Z",
+      "demo": true
+    }
+  ]
+}

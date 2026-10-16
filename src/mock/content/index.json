@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "ahos.contract/1",
+  "generatedAt": "2026-10-15T12:00:00.000Z",
+  "generator": "ahos-content-pack/generate-mocks.mjs",
+  "seed": 20261015,
+  "baseTime": "2026-10-15T12:00:00.000Z",
+  "mode": "PAPER_ONLY",
+  "liveTrading": "DISABLED",
+  "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+  "demo": true,
+  "demoNotice": {
+    "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+    "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+  },
+  "paperNoticeKeys": {
+    "Market": "pages.markets.paperOnlyNotice",
+    "Quote": "pages.markets.paperOnlyNotice",
+    "Signal": "pages.signals.paperOnlyNotice",
+    "PaperPosition": "pages.positions.paperOnlyNotice",
+    "PaperOrder": "pages.positions.paperOnlyNotice",
+    "Department": "pages.agents.paperOnlyNotice",
+    "AgentStatus": "pages.agents.paperOnlyNotice",
+    "RiskState": "pages.risk.paperOnlyNotice",
+    "RiskLimit": "pages.risk.paperOnlyNotice",
+    "CircuitBreaker": "pages.risk.paperOnlyNotice",
+    "KillSwitchState": "pages.risk.paperOnlyNotice",
+    "EquityPoint": "pages.overview.paperOnlyNotice",
+    "DailyEquity": "pages.overview.paperOnlyNotice",
+    "EquityCurve": "pages.overview.paperOnlyNotice",
+    "SystemHealth": "pages.settings.paperOnlyNotice",
+    "OperatorTask": "pages.operator.paperOnlyNotice",
+    "OperatorSession": "pages.operator.paperOnlyNotice",
+    "LogEntry": "paper.noticeShort"
+  },
+  "files": [
+    {
+      "file": "mock/markets.json",
+      "entity": "Market",
+      "kind": "collection",
+      "count": 40,
+      "sha256": "36d41c479b97d60d9836d98913912f8f0a3188f2f142133d82f78433242579dc"
+    },
+    {
+      "file": "mock/departments.json",
+      "entity": "Department",
+      "kind": "collection",
+      "count": 12,
+      "sha256": "0c05fa6bcd3d241e8309e6958f8ac66070d15163fe119412d717ebb335660e3d"
+    },
+    {
+      "file": "mock/agents.json",
+      "entity": "AgentStatus",
+      "kind": "collection",
+      "count": 31,
+      "sha256": "bfcc993554052be1523677e82ebe005fa30d271a041978d622d900d354e5e8c2"
+    },
+    {
+      "file": "mock/signals.json",
+      "entity": "Signal",
+      "kind": "collection",
+      "count": 30,
+      "sha256": "c39d969c388c9aa94e2ee1639ba8db5a3329276f31de54b3098f18c1264f7c27"
+    },
+    {
+      "file": "mock/paper-positions.json",
+      "entity": "PaperPosition",
+      "kind": "collection",
+      "count": 15,
+      "sha256": "9a7c02aae91b79c485e33eb6d9d1d4782dacfe404cba822ab223a36213eb9284"
+    },
+    {
+      "file": "mock/paper-orders.json",
+      "entity": "PaperOrder",
+      "kind": "collection",
+      "count": 36,
+      "sha256": "5330ff8ab600b9619457ae97df85e7e09c1d51d6f5d5cfb3b46c6fa8b0660835"
+    },
+    {
+      "file": "mock/logs.json",
+      "entity": "LogEntry",
+      "kind": "collection",
+      "count": 200,
+      "sha256": "c8db40d0c0f253c23d97adf4ed52c4675de02238b150fa7dff42d23504dc06e7"
+    },
+    {
+      "file": "mock/risk-state.json",
+      "entity": "RiskState",
+      "kind": "record",
+      "count": 1,
+      "sha256": "777b78197b16151efe1b65b81ed1b415230d81b1e45839eff184cc6e3ba5d9f2"
+    },
+    {
+      "file": "mock/kill-switch.json",
+      "entity": "KillSwitchState",
+      "kind": "record",
+      "count": 1,
+      "sha256": "f09cf269fa2995c064ae94e15db1c98196146e6dafee9ab7a287355e07b37395"
+    },
+    {
+      "file": "mock/system-health.json",
+      "entity": "SystemHealth",
+      "kind": "record",
+      "count": 1,
+      "sha256": "ce34c5788b986a389e5806817531609b96bfc977bd10a8cfc4902e9246ec98f1"
+    },
+    {
+      "file": "mock/equity-curve.json",
+      "entity": "EquityCurve",
+      "kind": "record",
+      "count": 1,
+      "sha256": "f8d97b1ea89ceb0716d142a459204f81561882925deddd1da5b94ba0649b25bd"
+    },
+    {
+      "file": "mock/operator-session.json",
+      "entity": "OperatorSession",
+      "kind": "record",
+      "count": 1,
+      "sha256": "6bec3434ad2580c8997d6a193910f914a240132e0aaef222b3a5f1c5096ff656"
+    }
+  ]
+}

@@ -1,0 +1,720 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "risk-state.json",
+    "entity": "RiskState",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 1,
+    "paperNoticeKey": "pages.risk.paperOnlyNotice",
+    "moneyUnit": "USDT_PAPER",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "record": {
+    "id": "risk.current",
+    "schemaVersion": "ahos.contract/1",
+    "paperNoticeKey": "pages.risk.paperOnlyNotice",
+    "moneyUnit": "USDT_PAPER",
+    "level": {
+      "value": "AMBER",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "mode": {
+      "value": "PAPER_ONLY",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "liveTrading": {
+      "value": "DISABLED",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "equityUsd": {
+      "value": 260106.44,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "cashUsd": {
+      "value": 52000,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "exposureUsd": {
+      "value": 209429.33,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "exposurePct": {
+      "value": 80.52,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "dailyPnlUsd": {
+      "value": 3308.6,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "dailyPnlPct": {
+      "value": 1.27,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "dailyLossUsd": {
+      "value": 0,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "maxDrawdownPct": {
+      "value": -5.59,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "openPositions": {
+      "value": 10,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "maxOpenPositions": {
+      "value": 12,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "largestPositionPct": {
+      "value": 24.34,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "concentrationTop3Pct": {
+      "value": 64.05,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "pendingOrders": {
+      "value": 10,
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "limits": {
+      "value": [
+        {
+          "id": "lim.exposure",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "سقف ریسک باز",
+              "en": "Max open exposure"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "current": {
+            "value": 80.52,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "limit": {
+            "value": 60,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "utilizationPct": {
+            "value": 134.2,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "breached": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "warnAtPct": {
+            "value": 75,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "lim.dailyLoss",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "سقف زیان روزانه",
+              "en": "Max daily loss"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "current": {
+            "value": 0,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "limit": {
+            "value": 3,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "utilizationPct": {
+            "value": 0,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "breached": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "warnAtPct": {
+            "value": 66.67,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "lim.drawdown",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "سقف افت سرمایه",
+              "en": "Max drawdown"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "current": {
+            "value": 5.59,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "limit": {
+            "value": 15,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "utilizationPct": {
+            "value": 37.27,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "breached": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "warnAtPct": {
+            "value": 66.67,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "lim.singlePosition",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "سقف یک موقعیت",
+              "en": "Max single position"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "current": {
+            "value": 24.34,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "limit": {
+            "value": 12,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "utilizationPct": {
+            "value": 202.83,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "breached": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "warnAtPct": {
+            "value": 75,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "lim.openPositions",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "سقف تعداد موقعیت باز",
+              "en": "Max open positions"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "COUNT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "current": {
+            "value": 10,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "limit": {
+            "value": 12,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "utilizationPct": {
+            "value": 83.33,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "breached": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "warnAtPct": {
+            "value": 83.33,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "lim.unknownShare",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "سقف سهم دادهٔ نامعلوم",
+              "en": "Max unknown-data share"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "current": {
+            "value": 20,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "limit": {
+            "value": 10,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "utilizationPct": {
+            "value": 200,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "breached": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "warnAtPct": {
+            "value": 50,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        }
+      ],
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "breakers": {
+      "value": [
+        {
+          "id": "brk.dailyLoss",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "فیوز زیان روزانه",
+              "en": "Daily loss breaker"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "state": {
+            "value": "ARMED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "threshold": {
+            "value": 3,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "observed": {
+            "value": 0,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "triggeredAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "cooldownEndsAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "autoReset": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "brk.drawdown",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "فیوز افت سرمایه",
+              "en": "Drawdown breaker"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "state": {
+            "value": "ARMED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "threshold": {
+            "value": 15,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "observed": {
+            "value": 5.59,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "triggeredAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "cooldownEndsAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "autoReset": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "brk.unknownSpike",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "فیوز جهش دادهٔ نامعلوم",
+              "en": "Unknown-data spike breaker"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "state": {
+            "value": "TRIGGERED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "threshold": {
+            "value": 10,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "observed": {
+            "value": 20,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "PERCENT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "triggeredAt": {
+            "value": "2026-10-15T10:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "cooldownEndsAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "autoReset": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "brk.consecutiveErrors",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "فیوز خطای پیاپی عامل",
+              "en": "Agent consecutive-error breaker"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "state": {
+            "value": "COOLDOWN",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "threshold": {
+            "value": 5,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "observed": {
+            "value": 4,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "COUNT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "triggeredAt": {
+            "value": "2026-10-15T09:00:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "cooldownEndsAt": {
+            "value": "2026-10-15T12:40:00.000Z",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "autoReset": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "brk.clockSkew",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "فیوز انحراف ساعت",
+              "en": "Clock skew breaker"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "state": {
+            "value": "ARMED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "threshold": {
+            "value": 2500,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "observed": {
+            "value": 180,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "COUNT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "triggeredAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "cooldownEndsAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "autoReset": {
+            "value": true,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        },
+        {
+          "id": "brk.liquidityCollapse",
+          "schemaVersion": "ahos.contract/1",
+          "label": {
+            "value": {
+              "fa": "فیوز فروریختن نقدینگی",
+              "en": "Liquidity collapse breaker"
+            },
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "state": {
+            "value": "ARMED",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "threshold": {
+            "value": 1,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "observed": {
+            "value": 2,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "unit": {
+            "value": "COUNT",
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "triggeredAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "cooldownEndsAt": {
+            "value": null,
+            "freshness": "UNKNOWN",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "autoReset": {
+            "value": false,
+            "freshness": "DEMO",
+            "asOf": "2026-10-15T11:59:38.000Z"
+          },
+          "freshness": "DEMO",
+          "asOf": "2026-10-15T11:59:38.000Z",
+          "demo": true
+        }
+      ],
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "haltReasons": {
+      "value": [
+        "UNKNOWN_MARK_PRICE:pos.demo.009",
+        "UNKNOWN_MARK_PRICE:pos.demo.014"
+      ],
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "riskNotes": {
+      "value": {
+        "fa": "دو موقعیت قیمت روز ندارند؛ ارزش آن‌ها در دفتر کاغذی «نامعلوم» مانده و از مجموع‌ها بیرون گذاشته شده‌اند.",
+        "en": "Two positions have no mark price; their paper value stays Unknown and is excluded from the totals."
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "evaluatedAt": {
+      "value": "2026-10-15T11:59:38.000Z",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "evaluationRuleVersion": {
+      "value": "RSK-EVAL-v2",
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:38.000Z"
+    },
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T11:59:38.000Z",
+    "demo": true
+  }
+}

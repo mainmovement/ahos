@@ -1,0 +1,1113 @@
+{
+  "contract": {
+    "schemaVersion": "ahos.contract/1",
+    "file": "departments.json",
+    "entity": "Department",
+    "mode": "PAPER_ONLY",
+    "liveTrading": "DISABLED",
+    "dataPrinciple": "UNKNOWN_OVER_FABRICATED",
+    "demo": true,
+    "freshness": "DEMO",
+    "asOf": "2026-10-15T12:00:00.000Z",
+    "generatedAt": "2026-10-15T12:00:00.000Z",
+    "generator": "ahos-content-pack/generate-mocks.mjs",
+    "seed": 20261015,
+    "count": 12,
+    "paperNoticeKey": "pages.agents.paperOnlyNotice",
+    "moneyUnit": "USDT_PAPER",
+    "demoNotice": {
+      "fa": "دادهٔ این پرونده کاملاً ساختگی و نمایشی است و هیچ ادعایی دربارهٔ بازار واقعی ندارد.",
+      "en": "Every value in this file is synthetic demo data and makes no claim about any real market."
+    }
+  },
+  "items": [
+    {
+      "id": "dept.discovery",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "DSC",
+      "order": 1,
+      "name": {
+        "value": {
+          "fa": "کشف و پایش فرصت",
+          "en": "Discovery & Watch"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "پایش پیوستهٔ بازارها و بیرون کشیدن نامزدها، بدون بزرگ‌نمایی تعداد.",
+          "en": "Continuously scan markets and pull out candidates, without inflating the count."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.discovery-scanner",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.discovery-scanner",
+          "agent.discovery-watchlist",
+          "agent.discovery-dedupe"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "agentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "activeAgentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 6000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "throughputPerDay": {
+        "value": 84,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "queueDepth": {
+        "value": 9,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "openIssues": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:36:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "cycleMinutes": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:17.287Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:17.287Z",
+      "demo": true
+    },
+    {
+      "id": "dept.marketData",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "MKD",
+      "order": 2,
+      "name": {
+        "value": {
+          "fa": "دادهٔ بازار",
+          "en": "Market Data"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "خواندن قیمت، حجم و نقدینگی از منابع مجاز و ثبت تازگی هر مشاهده.",
+          "en": "Read price, volume and liquidity from allowed sources and record the freshness of each observation."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "health": {
+        "value": "DEGRADED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.marketdata-quote",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.marketdata-quote",
+          "agent.marketdata-depth",
+          "agent.marketdata-integrity"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "agentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "activeAgentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 4000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "throughputPerDay": {
+        "value": 632,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "queueDepth": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "openIssues": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "escalationLevel": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:40:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "cycleMinutes": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:14.865Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:14.865Z",
+      "demo": true
+    },
+    {
+      "id": "dept.onchain",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "ONC",
+      "order": 3,
+      "name": {
+        "value": {
+          "fa": "آن‌چین و نهنگ‌ها",
+          "en": "On-chain & Whales"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "بررسی توزیع هولدر، جابه‌جایی نهنگ‌ها و تمرکز عرضه روی زنجیره.",
+          "en": "Inspect holder distribution, whale movement and supply concentration on chain."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "health": {
+        "value": "BLOCKED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.onchain-whale",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.onchain-whale",
+          "agent.onchain-holders"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "agentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "activeAgentCount": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 5000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "throughputPerDay": {
+        "value": 241,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "queueDepth": {
+        "value": 51,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "openIssues": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "escalationLevel": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "lastOutputAt": {
+        "value": null,
+        "freshness": "UNKNOWN",
+        "asOf": "2026-10-15T11:57:59.998Z",
+        "note": "منبع داده‌ای برای این بازار متصل نیست. / No data source is connected for this market."
+      },
+      "cycleMinutes": {
+        "value": 10,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:59.998Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:59.998Z",
+      "demo": true
+    },
+    {
+      "id": "dept.security",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "SEC",
+      "order": 4,
+      "name": {
+        "value": {
+          "fa": "امنیت توکن و قرارداد",
+          "en": "Token & Contract Security"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "کشف هانی‌پات، محدودیت فروش و دسترسی‌های خطرناک؛ «نامعلوم» هیچ‌وقت «امن» فرض نمی‌شود.",
+          "en": "Detect honeypots, sell restrictions and dangerous permissions; Unknown is never assumed to be safe."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.security-honeypot",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.security-honeypot",
+          "agent.security-permissions",
+          "agent.security-arbiter"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "agentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "activeAgentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 5000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "throughputPerDay": {
+        "value": 62,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "queueDepth": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "openIssues": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:55:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "cycleMinutes": {
+        "value": 10,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:52.518Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:52.518Z",
+      "demo": true
+    },
+    {
+      "id": "dept.newsMacro",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "NWM",
+      "order": 5,
+      "name": {
+        "value": {
+          "fa": "اخبار و کلان",
+          "en": "News & Macro"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "گردآوری رویدادهای خبری و شاخص‌های کلان با ذکر منبع و زمان.",
+          "en": "Collect news events and macro indicators with source and timestamp attached."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "health": {
+        "value": "DEGRADED",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.news-ingest",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.news-ingest",
+          "agent.macro-calendar"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "agentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "activeAgentCount": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 3000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "throughputPerDay": {
+        "value": 97,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "queueDepth": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "openIssues": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "escalationLevel": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:51:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "cycleMinutes": {
+        "value": 15,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:58.772Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:58.772Z",
+      "demo": true
+    },
+    {
+      "id": "dept.research",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "RSH",
+      "order": 6,
+      "name": {
+        "value": {
+          "fa": "تحقیق و روش‌شناسی",
+          "en": "Research & Methodology"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "طراحی فرضیهٔ آزمون‌پذیر و بررسی کیفیت روش، پیش از هر نتیجه‌گیری.",
+          "en": "Design testable hypotheses and review method quality before any conclusion."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.research-hypothesis",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.research-hypothesis",
+          "agent.research-methodology"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "agentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "activeAgentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 4000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "throughputPerDay": {
+        "value": 346,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "queueDepth": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "openIssues": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:36:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "cycleMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:36.936Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:36.936Z",
+      "demo": true
+    },
+    {
+      "id": "dept.quant",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "QNT",
+      "order": 7,
+      "name": {
+        "value": {
+          "fa": "کمی و بک‌تست",
+          "en": "Quant & Backtesting"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "سنجش قواعد با دادهٔ گذشته، همراه با مدل هزینه و بدون نگاه به آینده.",
+          "en": "Test rules against historical data with a cost model and no look-ahead."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.quant-backtest",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.quant-backtest",
+          "agent.quant-costmodel",
+          "agent.quant-statistics"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "agentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "activeAgentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 8000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "throughputPerDay": {
+        "value": 860,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "queueDepth": {
+        "value": 6,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "openIssues": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:50:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "cycleMinutes": {
+        "value": 30,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:38.798Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:38.798Z",
+      "demo": true
+    },
+    {
+      "id": "dept.council",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "CCL",
+      "order": 8,
+      "name": {
+        "value": {
+          "fa": "شورای خبرگان",
+          "en": "Expert Council"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "داوری مشورتی روی شواهد؛ بدون میانگین‌گیری کور و با ثبت رأی مخالف.",
+          "en": "Advisory judgement over evidence; no blind averaging and dissent is recorded."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.council-chair",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.council-chair",
+          "agent.council-dissent"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "agentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "activeAgentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 2000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "throughputPerDay": {
+        "value": 257,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "queueDepth": {
+        "value": 11,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "openIssues": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:31:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "cycleMinutes": {
+        "value": 15,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:12.615Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:12.615Z",
+      "demo": true
+    },
+    {
+      "id": "dept.risk",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "RSK",
+      "order": 9,
+      "name": {
+        "value": {
+          "fa": "مدیریت ریسک",
+          "en": "Risk Management"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "نگهبانی سقف‌ها، فیوزهای محافظ و اندازهٔ موقعیت؛ توقف پیش از فاجعه.",
+          "en": "Guard limits, circuit breakers and position sizing; halt before disaster."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.risk-sizing",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.risk-sizing",
+          "agent.risk-breakers",
+          "agent.risk-halt"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "agentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "activeAgentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "throughputPerDay": {
+        "value": 255,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "queueDepth": {
+        "value": 9,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "openIssues": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:56:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "cycleMinutes": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:57:58.249Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:57:58.249Z",
+      "demo": true
+    },
+    {
+      "id": "dept.paperExecution",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "PEX",
+      "order": 10,
+      "name": {
+        "value": {
+          "fa": "اجرای کاغذی",
+          "en": "Paper Execution"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "شبیه‌سازی واقع‌بینانهٔ سفارش با لغزش، کارمزد و محدودیت نقدینگی.",
+          "en": "Simulate orders realistically with slippage, fees and liquidity constraints."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.paper-simulator",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.paper-simulator",
+          "agent.paper-ledger",
+          "agent.paper-realizable"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "agentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "activeAgentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 40000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "throughputPerDay": {
+        "value": 886,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "queueDepth": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "openIssues": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:48:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "cycleMinutes": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:58:24.652Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:58:24.652Z",
+      "demo": true
+    },
+    {
+      "id": "dept.learning",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "LRN",
+      "order": 11,
+      "name": {
+        "value": {
+          "fa": "یادگیری و حافظه",
+          "en": "Learning & Memory"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "ثبت درس هر معاملهٔ بسته و نگهداری حافظهٔ تصمیم‌ها، بدون تغییر خاموش قواعد.",
+          "en": "Record the lesson of every closed trade and keep decision memory, without silently changing rules."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.learning-lessons",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.learning-lessons",
+          "agent.learning-memory"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "agentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "activeAgentCount": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 2000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "throughputPerDay": {
+        "value": 831,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "queueDepth": {
+        "value": 2,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "openIssues": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:35:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "cycleMinutes": {
+        "value": 60,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:01.252Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:01.252Z",
+      "demo": true
+    },
+    {
+      "id": "dept.auditGovernance",
+      "schemaVersion": "ahos.contract/1",
+      "paperNoticeKey": "pages.agents.paperOnlyNotice",
+      "moneyUnit": "USDT_PAPER",
+      "code": "AUD",
+      "order": 12,
+      "name": {
+        "value": {
+          "fa": "حسابرسی و حاکمیت",
+          "en": "Audit & Governance"
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "mission": {
+        "value": {
+          "fa": "حفظ زنجیرهٔ رویداد، حق وتو روی نتیجهٔ نهایی و صداقت وضعیت‌ها.",
+          "en": "Preserve the event chain, hold veto power over final results and keep status reports honest."
+        },
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "health": {
+        "value": "OK",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "ownerAgentId": {
+        "value": "agent.audit-hashchain",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "agentIds": {
+        "value": [
+          "agent.audit-hashchain",
+          "agent.audit-veto",
+          "agent.governance-authz"
+        ],
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "agentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "activeAgentCount": {
+        "value": 3,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "allocatedNotionalUsd": {
+        "value": 1000,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "throughputPerDay": {
+        "value": 110,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "queueDepth": {
+        "value": 9,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "openIssues": {
+        "value": 1,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "escalationLevel": {
+        "value": 0,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "lastOutputAt": {
+        "value": "2026-10-15T11:45:00.000Z",
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "cycleMinutes": {
+        "value": 5,
+        "freshness": "DEMO",
+        "asOf": "2026-10-15T11:59:30.487Z"
+      },
+      "freshness": "DEMO",
+      "asOf": "2026-10-15T11:59:30.487Z",
+      "demo": true
+    }
+  ]
+}
