@@ -369,19 +369,29 @@ export default function PulseOrb(props: PulseOrbProps) {
         // build list of country centroids
         const centroids: [number, number][] = [];
         // use d3-geo
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const proj = (THREE as any); // noop
-        void proj;
         // simple: use feature geometry first coordinate as point
         geo.features.forEach((f) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const g: any = f.geometry;
+          const g = f.geometry as { type?: string; coordinates?: unknown } | null;
           if (!g) return;
           let coord: number[] | null = null;
-          if (g.type === "Point") coord = g.coordinates;
-          else if (g.type === "Polygon") coord = g.coordinates?.[0]?.[0];
-          else if (g.type === "MultiPolygon") coord = g.coordinates?.[0]?.[0]?.[0];
-          if (coord) centroids.push([coord[0], coord[1]]);
+          const coords = g.coordinates;
+          if (g.type === "Point" && Array.isArray(coords) && typeof coords[0] === "number") {
+            coord = coords as number[];
+          } else if (g.type === "Polygon" && Array.isArray(coords)) {
+            const ring = coords[0];
+            if (Array.isArray(ring) && Array.isArray(ring[0])) {
+              coord = ring[0] as number[];
+            }
+          } else if (g.type === "MultiPolygon" && Array.isArray(coords)) {
+            const poly = coords[0];
+            if (Array.isArray(poly)) {
+              const ring = poly[0];
+              if (Array.isArray(ring) && Array.isArray(ring[0])) {
+                coord = ring[0] as number[];
+              }
+            }
+          }
+          if (coord && typeof coord[0] === "number") centroids.push([coord[0], coord[1]]);
         });
         if (centroids.length === 0) return;
         // map each signal to a centroid
