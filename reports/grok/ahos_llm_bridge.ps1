@@ -331,7 +331,7 @@ while ($listener.IsListening) {
           }
         }
         $last = "$ck $($r.code) $(Head $r.text 200)"
-        if ($r.text -match '"1113"|Insufficient balance|no remaining credits') { $r.code = 402 }
+        if ($r.text -match '"1113"|Insufficient balance|no remaining credits|doesn''t have enough credits|don''t have enough credits') { $r.code = 402 }
         $secs = Cool-For $r.code
         if ($r.ok) { $secs = 30 }
         if ($r.code -eq 0 -and $slot.dropCool) { $secs = [int]$slot.dropCool }
@@ -340,7 +340,11 @@ while ($listener.IsListening) {
       }
       $state.busy = $false
       if (-not $done) {
-        Reply $ctx 529 ((Ser @{ type = 'error'; error = @{ type = 'overloaded_error'; message = "all providers failed/cooling: $last" } }))
+        $vpnHint = ''
+        if ($last -match '\b403\b' -and ($last -match 'gemini|openrouter' -or $last -match 'generativelanguage|openrouter\.ai')) {
+          $vpnHint = ' VPN را روشن کن (Gemini/OpenRouter بدون VPN معمولاً 403 می‌دهند).'
+        }
+        Reply $ctx 529 ((Ser @{ type = 'error'; error = @{ type = 'overloaded_error'; message = "all providers failed/cooling: $last.$vpnHint" } }))
       }
       continue
     }

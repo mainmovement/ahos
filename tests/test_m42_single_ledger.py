@@ -46,7 +46,7 @@ from architecture.markets.paper_anchor import (  # noqa: E402
     verify_anchor,
 )
 from architecture.mission.ledger import (  # noqa: E402
-    KIND_ANCHOR, KIND_HALT, KIND_HALT_CLEARED, KIND_RECONCILE, KIND_STATE,
+    KIND_ANCHOR, KIND_DECISION, KIND_HALT, KIND_HALT_CLEARED, KIND_RECONCILE, KIND_STATE,
     EVIDENCE_KINDS, LedgerError, LedgerTamperError, MissionLedger,
     SecretRejectedError, _sha, canonical_json,
 )
@@ -844,7 +844,7 @@ class TestAuthorityLaws:
 
     def test_the_evidence_kinds_are_the_shared_surface(self):
         assert EVIDENCE_KINDS == frozenset(
-            {KIND_ANCHOR, KIND_RECONCILE, KIND_HALT, KIND_HALT_CLEARED})
+            {KIND_ANCHOR, KIND_RECONCILE, KIND_HALT, KIND_HALT_CLEARED, KIND_DECISION})
 
     def test_report_type_holds_every_leg(self):
         r = ReconcileReport(CLEAN)
