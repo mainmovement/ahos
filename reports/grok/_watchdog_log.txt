@@ -226,3 +226,64 @@ restart_launched: yes (fresh 0019)
 QA: SKIP (no commits after fadb1b0)
 alert_mehrdad: no
 ==== end ====
+==== watchdog 2026-10-17 02:17 Tehran ====
+laneA: 2594f881 ENDED (LW 00:48, ~87 min) - last reply = bridge chain exhausted down to Pollinations 'not enough credits' (end_turn). fresh 0019 log: done 00:49.
+HOLD.flag: present
+restart_launched: yes (fresh 0216)
+QA: 9252b27 (00:27) = chore only: logs/status/launcher json + next-env.d.ts + re-adds flagged M-D5.2 stage.png; no dashboard/feature work. Verdict: NO-PROGRESS.
+soak: running again since 00:25 (PIDs 7948/8668), cycles_ok 8 failed 0 since restart, last cycle 484, runlog LW 02:11. Weekend witness UNRESOLVED (market closed) - expected.
+alert_mehrdad: no
+==== end ====
+==== watchdog 2026-10-17 04:18 Tehran ====
+laneA: c7b0f62c ENDED (LW 03:21, ~52 min) - net drop 03:21 (all providers 'Unable to connect'), then Pollinations 'not enough credits' end_turn. fresh 0216 log: done 03:22. Bridge :8787 healthy now (gemini-3.5-flash-lite 200).
+HOLD.flag: present
+restart_launched: yes (fresh 0414, claude PID 5700)
+QA: 1f29b3e PARTIAL (adds app/config/fonts.ts + command_center cookies.ts, font-provider/providers import fix; no build/screenshot proof). 7b98d8d FAIL: globals.css swaps Tailwind v4 '@import \"tailwindcss\"' for v3 '@tailwind base/components/utilities' while package is tailwindcss 4.1.17 + @tailwindcss/postcss (v3 directives unsupported -> utilities not generated) and deletes AHOS imperial/neon theme tokens + utilities; its own build test was killed on timeout. :3000 not running, no screenshots.
+soak: running, cycles_ok 16 failed 0 since 00:25 restart, last cycle 492 at 04:11, paper_only T0, weekend witness UNRESOLVED (expected).
+alert_mehrdad: no
+==== end ====
+2026-10-17T05:30:45 STALL_RUNNER heartbeat age=45m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:31:45 STALL_RUNNER heartbeat age=47m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:32:45 STALL_RUNNER heartbeat age=48m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:33:45 STALL_RUNNER heartbeat age=49m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:34:45 STALL_RUNNER heartbeat age=50m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:35:45 STALL_RUNNER heartbeat age=51m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:36:46 STALL_RUNNER heartbeat age=52m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:37:46 STALL_RUNNER heartbeat age=53m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:38:46 STALL_RUNNER heartbeat age=54m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:39:46 STALL_RUNNER heartbeat age=55m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:40:46 STALL_RUNNER heartbeat age=56m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:41:46 STALL_RUNNER heartbeat age=57m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:42:46 STALL_RUNNER heartbeat age=58m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:43:46 STALL_RUNNER heartbeat age=59m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:44:47 STALL_RUNNER heartbeat age=60m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:45:47 STALL_RUNNER heartbeat age=61m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:46:47 STALL_RUNNER heartbeat age=62m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:47:47 STALL_RUNNER heartbeat age=63m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:48:47 STALL_RUNNER heartbeat age=64m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:49:47 STALL_RUNNER heartbeat age=65m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:50:47 STALL_RUNNER heartbeat age=66m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:51:47 STALL_RUNNER heartbeat age=67m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:52:47 STALL_RUNNER heartbeat age=68m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:53:47 STALL_RUNNER heartbeat age=69m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:54:48 STALL_RUNNER heartbeat age=70m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:55:48 STALL_RUNNER heartbeat age=71m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:56:48 STALL_RUNNER heartbeat age=72m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:57:48 STALL_RUNNER heartbeat age=73m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:58:48 STALL_RUNNER heartbeat age=74m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T05:59:48 STALL_RUNNER heartbeat age=75m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:00:48 STALL_RUNNER heartbeat age=76m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:01:48 STALL_RUNNER heartbeat age=77m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:02:48 STALL_RUNNER heartbeat age=78m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:03:48 STALL_RUNNER heartbeat age=79m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:04:48 STALL_RUNNER heartbeat age=80m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:05:48 STALL_RUNNER heartbeat age=81m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:06:49 STALL_RUNNER heartbeat age=82m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:07:49 STALL_RUNNER heartbeat age=83m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:08:49 STALL_RUNNER heartbeat age=84m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:09:49 STALL_RUNNER heartbeat age=85m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:10:49 STALL_RUNNER heartbeat age=86m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:11:49 STALL_RUNNER heartbeat age=87m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17T06:12:49 STALL_RUNNER heartbeat age=88m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-17 06:13 Tehran Soltan watchdog: lane A 90599be4 idle since 05:47 (fresh 0414 done, end_turn). Launched fresh 0612 (PS 6580). HOLD present. QA 814de46 FAIL: 61-byte placeholder PNG + txt of raw HTML, committed under doubled path reports/dashboard/screens/M13/reports/dashboard/screens/M13/; not a real screenshot. Untracked 02-05-39 PNG is 68 bytes (also fake). Soak running cycles_ok 24 failed 0 cycle 500 (witness UNRESOLVED: price sources unreachable). Autopilot pid 3960 not running, last heartbeat 04:45 OWNER_GATE_HOLD.
+2026-10-17T06:13:49 STALL_RUNNER heartbeat age=89m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced

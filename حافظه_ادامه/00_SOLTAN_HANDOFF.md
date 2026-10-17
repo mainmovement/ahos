@@ -1,4 +1,9 @@
 ﻿# 00_SOLTAN_HANDOFF — تحویل کامل سلطان (اول این را بخوان)
+## WATCHDOG 2026-10-16 16:21 Tehran
+- Lane A `4c42b79a` IDLE since 14:39 (glm-4.5-flash; stalled mid-tool). No claude -p. Fresh `1619` already running (PID 2348 via local watchdog) — self-heal skipped. Prior `1525` STALLED 16:03.
+- HOLD present. Soak VERIFIED cycles_ok 431 failed 0 cycle 450 paper_only T0.
+- HEAD `4d78ac0` QA SKIP (no newer commits). ALERT_MEHRDAD=no.
+- Open QA debt: real AHOS screenshot proof; Math.random DEMO labels; template-complete vs 01; dotenv hard-import PARTIAL on 4d78ac0.
 
 ## WATCHDOG 2026-10-14 18:12 Tehran
 - [WD 2026-10-14 18:12 Tehran] Lane A BLOCKED_429 since 12:32; session 8eae307f fresh 1806 429x; keepalive still relaunching; HOLD+autopilot OK; soak VERIFIED paper_only cycles_ok 246; HEAD e758868 QA SKIP; ALERT_MEHRDAD=no (already 14:14).
@@ -314,3 +319,13 @@ Lane A ACTIVE via LLM bridge (OpenRouter/Gemini/Groq free @ 127.0.0.1:8787) afte
 ## Watchdog 2026-10-16 10:16 Tehran
 Lane A ed91a6ca ACTIVE (fresh 0856, claude -p). HOLD present. Soak VERIFIED cycles_ok 406 failed 0 cycle 425 paper_only. HEAD afa5c94.
 QA 4a770d1..afa5c94: CODE PARTIAL ('use client' on 5 chart components + Kian AI framework under architecture/ai/kian_*.py). PROOF FAIL: claimed build_success.png missing; Desktop dashboard_screenshot.png is Arena.ai not AHOS Next.js; useLayout/createContext visual proof still unmet; Math.random chart data unlabeled DEMO. CONT_GUIDE intact 112964B. Shots C:\Users\Sniper\QA_1016\. No self-heal. ALERT_MEHRDAD=no.
+
+- 2026-10-16 22:12 Tehran watchdog: lane A stalled since 21:10 (hung claude -p 4664/7392 since 18:41). Killed hung fresh jobs, launched fresh 2211 (claude PID 12436). HOLD present. No new commits after fadb1b0.
+
+- 2026-10-17 00:20 Tehran watchdog: laptop rebooted 23:00, LLM bridge :8787 down -> restarted; lane A 9ad5d680 idle since 22:57 -> fresh 0019 launched. HOLD present. No new commits. Note: bridge is not in Startup, so every reboot stalls lane A until restarted.
+
+- 2026-10-17 02:17 watchdog: lane A 2594f881 ended on bridge 'Pollinations credits' fallthrough; launched fresh 0216. Commit 9252b27 is chores only. Soak running (restarted 00:25).
+
+- 2026-10-17 04:18 Tehran watchdog: lane A c7b0f62c ended 03:21 (net drop + Pollinations credits); launched fresh 0414. QA 7b98d8d FAIL (Tailwind v3 directives on v4 + AHOS theme tokens deleted), 1f29b3e PARTIAL. Soak OK cycles_ok 16 failed 0.
+
+- 2026-10-17 06:13 Tehran Soltan watchdog: lane A 90599be4 idle since 05:47 (fresh 0414 done, end_turn). Launched fresh 0612 (PS 6580). HOLD present. QA 814de46 FAIL: 61-byte placeholder PNG + txt of raw HTML, committed under doubled path reports/dashboard/screens/M13/reports/dashboard/screens/M13/; not a real screenshot. Untracked 02-05-39 PNG is 68 bytes (also fake). Soak running cycles_ok 24 failed 0 cycle 500 (witness UNRESOLVED: price sources unreachable). Autopilot pid 3960 not running, last heartbeat 04:45 OWNER_GATE_HOLD.

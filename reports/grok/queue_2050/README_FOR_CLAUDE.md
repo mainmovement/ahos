@@ -283,3 +283,14 @@ Do this now, in order, one commit each, 1920x1080 screenshot + side-by-side with
 3. Brand from 02/03: deep navy/black, gold glass panels, glow borders, cyan accents, gold star logo, premium fonts (Vazirmatn + Inter/Orbitron), smooth motion.
 4. Remove Chrome flag warning bar; make 3D globe render in app window (no 2D fallback).
 Gate: self-score each screenshot vs 01 honestly; below 8/10 = keep going, never claim done. Max 2 tries per bug then swap to a ready-made sample. Then continue the standing order without idling.
+
+
+## SOLTAN QA 2026-10-17 04:18 Tehran (watchdog)
+- 7b98d8d FAIL - REVERT/FIX FIRST: root globals.css must keep Tailwind v4 syntax '@import \"tailwindcss\";' (repo uses tailwindcss 4.1.17 + @tailwindcss/postcss; '@tailwind base/components/utilities' is v3 and generates no utilities). Restore the deleted AHOS theme blocks (:root/[data-theme=imperial], [data-theme=neon] --ahos-* tokens) and the @layer utilities. Fix the Turbopack issue another way and prove it with a finished 'next build' log + a real AHOS screenshot.
+- 1f29b3e PARTIAL: fonts.ts/cookies.ts added; needs build proof + screenshot of /command_center rendering.
+
+
+## SOLTAN QA 2026-10-17 06:13 Tehran: 814de46 FAIL
+- The committed "screenshot" 2026-10-17T02-15-41-883Z.png is 61 bytes (not an image of the dashboard) and was committed under a doubled path reports/dashboard/screens/M13/reports/dashboard/screens/M13/. The .txt is raw curl HTML, not proof of a render. Untracked 2026-10-17T02-05-39-700Z.png is 68 bytes, also not real.
+- Required: a real headless-browser PNG (tens of KB or more) of http://localhost:3000 at 1280x800, saved directly in reports/dashboard/screens/M13/, visually showing the AHOS imperial/neon theme with no error overlay. git rm the doubled-path files.
+- Still open from the 04:18 QA: 7b98d8d replaced globals.css with Tailwind v3 @tailwind directives on tailwindcss 4.1.17 and dropped the AHOS theme tokens. Restore Tailwind v4 @import "tailwindcss" plus the AHOS tokens.

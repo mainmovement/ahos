@@ -1,0 +1,2 @@
+﻿# M13 soak gap notes (not tracked source)
+- GAP 1: 2026-10-16 22:47:45 (+03:30) [last cycle 476, 19:17:45Z] -> 2026-10-17 00:25:27 (+03:30) [relaunch, pid 7948]. Duration ~1h37m45s (~6 missed 900 s cycles, 477 = first after restart). Reason: laptop reboot ~23:00 killed the soak process. Same soak dir and mission ledger continued (runner rebuilds from ledger); cycles_ok 457 / failed 0 before gap. Relaunched with --days 2.0504 (remaining) so planned end stays 2026-10-19 01:38 (+03:30). Prior stdout/stderr logs preserved as soak_stdout.log.<timestamp>. Paper only.

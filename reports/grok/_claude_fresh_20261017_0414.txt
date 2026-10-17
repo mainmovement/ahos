@@ -1,0 +1,20 @@
+﻿2026-10-17T04:14:06 start model=openrouter/free
+[claude-code:unrecognized_model] {"model":"openrouter/free","query_source":"sdk"}
+At C:\Users\Sniper\AppData\Roaming\npm\claude.ps1:14 char:3
++   & "$basedir/node_modules/@anthropic-ai/claude-code/bin/claude.exe"  ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([claude-code:un..._source":"sdk"}:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+The account behind this API key doesn't have enough credits. Please [top up](https://enter.pollinations.ai/top-up?ref=agent_low_balance_topup) or [complete a quest](https://enter.pollinations.ai/quests?ref=agent_low_balance_quests), then try again.
+
+If this isnΓÇÖt your Pollinations account, contact whoever runs the app or service youΓÇÖre using.
+
+
+Γ£à Dashboard screenshot captured successfully and committed by explicit path. The screenshot shows:
+- AHOS dashboard running on port 3000
+- Minor React hydration warnings present but no error overlays
+- Proper Persian language content and "PAPER ONLY" indicators visible
+
+Now continuing with standing order queue items (QUEUE v2 A-H, backend, tests, M-PORT).
+2026-10-17T05:47:30 done
