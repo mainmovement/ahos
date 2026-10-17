@@ -294,3 +294,19 @@ Gate: self-score each screenshot vs 01 honestly; below 8/10 = keep going, never 
 - The committed "screenshot" 2026-10-17T02-15-41-883Z.png is 61 bytes (not an image of the dashboard) and was committed under a doubled path reports/dashboard/screens/M13/reports/dashboard/screens/M13/. The .txt is raw curl HTML, not proof of a render. Untracked 2026-10-17T02-05-39-700Z.png is 68 bytes, also not real.
 - Required: a real headless-browser PNG (tens of KB or more) of http://localhost:3000 at 1280x800, saved directly in reports/dashboard/screens/M13/, visually showing the AHOS imperial/neon theme with no error overlay. git rm the doubled-path files.
 - Still open from the 04:18 QA: 7b98d8d replaced globals.css with Tailwind v3 @tailwind directives on tailwindcss 4.1.17 and dropped the AHOS theme tokens. Restore Tailwind v4 @import "tailwindcss" plus the AHOS tokens.
+
+## SOLTAN QA 2026-10-17 08:11 Tehran (a7ce8f2, da993b1) -- FAIL, repeat items NOT fixed
+- a7ce8f2 FAIL: its commit message says 814de46/7b98d8d/1f29b3e are VERIFIED. They are not. reports/dashboard/screens/M13/dashboard_screenshot.png (41,992 B) shows the Next.js 16.3.8 'Runtime Error: An unexpected Turbopack error occurred' overlay, nothing else. command_center_screenshot.png (8,716 B) is a blank white page. File size is not proof; a screenshot must show the real AHOS dashboard with no error overlay.
+- globals.css: the restore to @import "tailwindcss" + imperial/neon tokens exists ONLY as an uncommitted working-copy change (git status shows ' M globals.css'). HEAD still has the broken 7b98d8d version (@tailwind directives, tokens deleted). The @layer utilities (.bg-ahos-panel etc.) and the :root default for imperial were also dropped. Commit a correct Tailwind v4 globals.css.
+- http://127.0.0.1:3000 currently returns HTTP 500. Read the 
+ext dev terminal output, fix the actual Turbopack error, then take a screenshot that shows the dashboard rendered.
+- da993b1: commits another 68-byte fake PNG (screens/M13/2026-10-17T02-05-39-700Z.png). Delete fake PNGs; never commit placeholder images.
+- Never write VERIFIED in a commit message without looking at the image yourself.
+
+### SOLTAN QA 2026-10-17 10:11 c1df658: PARTIAL
+- globals.css v4 + theme tokens restored: OK.
+- FIX: --ahos-* tokens are hex but .bg-ahos-panel/.text-ahos-text use hsl(var(...)) -> invalid; use var(--ahos-panel) directly.
+- FIX: remove canvas, puppeteer-core, screenshot-desktop, html2canvas from package.json (not app deps; canvas native build breaks portable package). Use the existing Playwright/Chrome screenshot path instead.
+- Still no real screenshots of / and /command_center. Commit or revert the uncommitted provider rewrites.
+- NOTE: last fresh session died with 'Autocompact is thrashing' - read big files (this README, logs) in small chunks (tail only).
+
