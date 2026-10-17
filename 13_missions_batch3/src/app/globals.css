@@ -1,0 +1,466 @@
+/* AHOS Arena — shared visual language (prompts 11/12/13).
+ * Tailwind 4 imported as theme + utilities ONLY (no preflight) so no global
+ * CSS reset can collide with the merged host app. All custom rules are scoped
+ * under .ah-* classes or .ah-body.
+ * Minimum font size anywhere: 12px (enforced by tests/guards.test.ts). */
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Fonts: Vazirmatn + Inter via local() only — no binary font files are
+ * bundled (see AUDIT.md / LICENSES.md). Falls back to system-ui. */
+@font-face {
+  font-family: "Vazirmatn";
+  src: local("Vazirmatn"), local("Vazirmatn Variable"), local("Vazirmatn Regular");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: local("Inter"), local("Inter Variable"), local("Inter Regular");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --ah-bg: #080b10;
+  --ah-surface: #0d121a;
+  --ah-gold: #d9b977;
+  --ah-text: #ecece7;
+  --ah-cyan: #78cbd1;
+  --ah-live: #8bbfa6;
+  --ah-danger: #e39494;
+  --ah-muted: #8a93a1;
+  --ah-line: rgba(217, 185, 119, 0.22);
+  --ah-line-strong: rgba(217, 185, 119, 0.45);
+  --ah-glass: rgba(13, 18, 26, 0.72);
+  --ah-r-sm: 6px;
+  --ah-r-md: 12px;
+  --ah-r-lg: 18px;
+  --ah-font: "Vazirmatn", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* --------------------------------------------------------------- */
+/* Scoped base (never a global reset)                               */
+/* --------------------------------------------------------------- */
+
+.ah-body {
+  margin: 0;
+  background: var(--ah-bg);
+  color: var(--ah-text);
+  font-family: var(--ah-font);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.ah-body h1,
+.ah-body h2,
+.ah-body h3,
+.ah-body p {
+  margin: 0;
+}
+
+.ah-body h1 {
+  font-size: 28px;
+  font-weight: 800;
+}
+.ah-body h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
+.ah-body h3 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------- */
+/* Shell layout                                                     */
+/* --------------------------------------------------------------- */
+
+.ah-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-areas:
+    "top top"
+    "main side"
+    "tele tele";
+  min-height: 100vh;
+  gap: 12px;
+  padding: 12px;
+}
+
+[dir="rtl"] .ah-shell {
+  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-areas:
+    "top top"
+    "side main"
+    "tele tele";
+}
+
+.ah-top {
+  grid-area: top;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-lg);
+  background: var(--ah-surface);
+}
+
+.ah-main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.ah-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ah-tele {
+  grid-area: tele;
+}
+
+.ah-panel {
+  background: var(--ah-surface);
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-md);
+  padding: 16px 18px;
+}
+
+.ah-panel-gold {
+  border-color: var(--ah-line-strong);
+}
+
+[data-tier="2"] .ah-panel,
+[data-tier="2"] .ah-top {
+  background: var(--ah-glass);
+  backdrop-filter: blur(10px);
+}
+
+/* --------------------------------------------------------------- */
+/* Chips, pills, badges                                             */
+/* --------------------------------------------------------------- */
+
+.ah-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--ah-line);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: rgba(236, 236, 231, 0.04);
+  color: var(--ah-text);
+}
+
+.ah-chip-live {
+  color: var(--ah-live);
+  border-color: rgba(139, 191, 166, 0.5);
+}
+.ah-chip-stale {
+  color: var(--ah-cyan);
+  border-color: rgba(120, 203, 209, 0.5);
+}
+.ah-chip-unknown {
+  color: var(--ah-muted);
+  border-color: rgba(138, 147, 161, 0.5);
+}
+.ah-chip-demo {
+  color: var(--ah-text);
+  border-color: var(--ah-line-strong);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(217, 185, 119, 0.18),
+    rgba(217, 185, 119, 0.18) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+.ah-chip-danger {
+  color: var(--ah-danger);
+  border-color: rgba(227, 148, 148, 0.55);
+}
+.ah-chip-info {
+  color: var(--ah-cyan);
+  border-color: rgba(120, 203, 209, 0.5);
+}
+.ah-chip-gold {
+  color: var(--ah-gold);
+  border-color: var(--ah-line-strong);
+}
+.ah-chip-muted {
+  color: var(--ah-muted);
+  border-color: rgba(138, 147, 161, 0.35);
+}
+
+.ah-pill-paper {
+  color: var(--ah-gold);
+  border: 1px solid var(--ah-line-strong);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------------------- */
+/* DEMO ribbon (diagonal, decorative, tier >= 1)                    */
+/* --------------------------------------------------------------- */
+
+.ah-ribbon-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.ah-ribbon {
+  position: absolute;
+  top: 14px;
+  left: -52px;
+  transform: rotate(-35deg);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(217, 185, 119, 0.32),
+    rgba(217, 185, 119, 0.32) 8px,
+    rgba(217, 185, 119, 0.12) 8px,
+    rgba(217, 185, 119, 0.12) 16px
+  );
+  color: var(--ah-text);
+  border: 1px solid var(--ah-line-strong);
+  padding: 4px 64px;
+  font-size: 13px;
+  font-weight: 800;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ah-demo-strip {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(217, 185, 119, 0.12),
+    rgba(217, 185, 119, 0.12) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  border: 1px solid var(--ah-line);
+  border-radius: var(--ah-r-sm);
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------- */
+/* Tables (T0-safe: plain 2D)                                       */
+/* --------------------------------------------------------------- */
+
+.ah-table-wrap {
+  overflow-x: auto;
+}
+
+.ah-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.ah-table th {
+  text-align: start;
+  font-size: 13px;
+  color: var(--ah-muted);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ah-line-strong);
+  white-space: nowrap;
+}
+
+.ah-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ah-line);
+  vertical-align: top;
+}
+
+.ah-table tr:hover td {
+  background: rgba(217, 185, 119, 0.05);
+}
+
+/* --------------------------------------------------------------- */
+/* Buttons / controls (view-only verbs)                             */
+/* --------------------------------------------------------------- */
+
+.ah-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 40px;
+  padding: 8px 18px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid var(--ah-line-strong);
+  background: rgba(217, 185, 119, 0.08);
+  color: var(--ah-gold);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ah-btn:hover {
+  background: rgba(217, 185, 119, 0.16);
+}
+
+.ah-btn-ghost {
+  background: transparent;
+  color: var(--ah-text);
+  border-color: var(--ah-line);
+}
+
+.ah-select {
+  min-height: 40px;
+  padding: 6px 12px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid var(--ah-line);
+  background: var(--ah-surface);
+  color: var(--ah-text);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+/* --------------------------------------------------------------- */
+/* Drawer (details)                                                 */
+/* --------------------------------------------------------------- */
+
+.ah-drawer {
+  border: 1px solid var(--ah-line-strong);
+  border-radius: var(--ah-r-md);
+  background: var(--ah-surface);
+  padding: 16px 18px;
+  margin-top: 12px;
+}
+
+.ah-drawer-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* --------------------------------------------------------------- */
+/* Sidebar nav                                                      */
+/* --------------------------------------------------------------- */
+
+.ah-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: var(--ah-r-sm);
+  border: 1px solid transparent;
+  color: var(--ah-text);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.ah-nav-item:hover {
+  border-color: var(--ah-line);
+}
+
+.ah-nav-current {
+  border-color: var(--ah-line-strong);
+  color: var(--ah-gold);
+  font-weight: 700;
+}
+
+.ah-nav-planned {
+  color: var(--ah-muted);
+  cursor: default;
+}
+
+/* --------------------------------------------------------------- */
+/* States, honest lines, violation bar                              */
+/* --------------------------------------------------------------- */
+
+.ah-state {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 24px;
+  border: 1px dashed var(--ah-line-strong);
+  border-radius: var(--ah-r-md);
+  font-size: 15px;
+  color: var(--ah-muted);
+}
+
+.ah-honest {
+  font-size: 15px;
+  color: var(--ah-cyan);
+  border-inline-start: 3px solid var(--ah-cyan);
+  padding: 6px 12px;
+  background: rgba(120, 203, 209, 0.06);
+  border-radius: var(--ah-r-sm);
+}
+
+.ah-violation {
+  background: rgba(227, 148, 148, 0.16);
+  border: 1px solid var(--ah-danger);
+  color: var(--ah-danger);
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 800;
+  border-radius: var(--ah-r-md);
+  margin-bottom: 12px;
+}
+
+.ah-muted {
+  color: var(--ah-muted);
+}
+
+.ah-gold {
+  color: var(--ah-gold);
+}
+
+.ah-cyan {
+  color: var(--ah-cyan);
+}
+
+.ah-danger {
+  color: var(--ah-danger);
+}
+
+.ah-live {
+  color: var(--ah-live);
+}
+
+/* --------------------------------------------------------------- */
+/* Motion / decoration only at higher tiers; reduced motion honored */
+/* --------------------------------------------------------------- */
+
+[data-tier="2"] .ah-anim-slow {
+  animation: ah-fade 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes ah-fade {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

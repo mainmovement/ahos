@@ -1,0 +1,201 @@
+{
+  "contractVersion": "ahos-arena-1",
+  "executionMode": "PAPER_ONLY",
+  "realTrading": false,
+  "source": "DEMO_FIXTURE",
+  "generatedAt": "2026-10-16T12:00:00+03:30",
+  "scienceRadar": {
+    "kind": "scienceRadar",
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "DEMO_FIXTURE",
+    "generatedAt": "2026-10-16T12:00:00+03:30",
+    "demo": true,
+    "items": [
+      { "id": "sr-01", "title": "روش تطبیق نویز بازار در داده‌های کم‌عمق", "sourceType": "paper", "topic": "بازار", "foundAt": "2026-10-15T09:20:00+03:30", "relevanceNote": "به ساختار نویز اشاره دارد؛ ارزیابی نشده است", "status": "NEW", "sourceText": "پیش‌چاپ — نویسندگان دانشگاهی", "demo": true },
+      { "id": "sr-02", "title": "کتابخانه محاسبه پارامترهای نوسان", "sourceType": "repo", "topic": "ابزار", "foundAt": "2026-10-14T18:05:00+03:30", "relevanceNote": "پیاده‌سازی محاسباتی دارد؛ دیده نشده است", "status": "NEW", "sourceText": "مخزن عمومی — بدون ادعای کیفیت", "demo": true },
+      { "id": "sr-03", "title": "یادداشت دانشگاهی درباره ساختار بازار", "sourceType": "university", "topic": "بازار", "foundAt": "2026-10-13T11:40:00+03:30", "relevanceNote": "مرور مفاهیم پایه", "status": "REVIEWED", "sourceText": "یادداشت آموزشی", "demo": true },
+      { "id": "sr-04", "title": "گزارش عامل درباره رفتار نقدینگی", "sourceType": "agent", "topic": "نقدینگی", "foundAt": "2026-10-12T22:15:00+03:30", "relevanceNote": "ثبت عامل؛ منبع بیرونی ندارد", "status": "UNKNOWN", "sourceText": null, "demo": true },
+      { "id": "sr-05", "title": "یادداشت وبلاگی درباره تقویم اقتصادی", "sourceType": "blog", "topic": "کلان", "foundAt": "2026-10-11T08:00:00+03:30", "relevanceNote": "فقط فهرست رویدادها", "status": "DISMISSED", "sourceText": "وبلاگ عمومی", "demo": true },
+      { "id": "sr-06", "title": "کارگاه روش‌شناسی آزمون فرضیه", "sourceType": "university", "topic": "روش", "foundAt": "2026-10-10T15:30:00+03:30", "relevanceNote": "چارچوب مفهومی ارائه می‌دهد", "status": "REVIEWED", "sourceText": "اسلایدهای کارگاه", "demo": true },
+      { "id": "sr-07", "title": "پروژه بازتولید محاسبات آماری", "sourceType": "repo", "topic": "ابزار", "foundAt": "2026-10-09T20:10:00+03:30", "relevanceNote": "کد قابل خواندن؛ بدون ارزیابی", "status": "NEW", "sourceText": "مخزن عمومی", "demo": true },
+      { "id": "sr-08", "title": "چکیده مقاله درباره سنجش ریسک بازار", "sourceType": "paper", "topic": "ریسک", "foundAt": null, "relevanceNote": "تاریخ یافت‌شدن ثبت نشده است", "status": "UNKNOWN", "sourceText": "چکیده", "demo": true }
+    ]
+  },
+  "selfDebug": {
+    "kind": "selfDebug",
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "DEMO_FIXTURE",
+    "generatedAt": "2026-10-16T12:00:00+03:30",
+    "demo": true,
+    "incidents": [
+      {
+        "id": "sd-01",
+        "time": "2026-10-16T06:12:00+03:30",
+        "component": "collector",
+        "errorSignature": "parse-error: unexpected token in payload <redacted>",
+        "diagnosisNote": "ساختار ورودی با قرارداد مغایرت دارد",
+        "status": "DIAGNOSED",
+        "evidencePath": "evidence/sd-01/trace.txt",
+        "timeline": [
+          { "time": "2026-10-16T06:12:00+03:30", "event": "ثبت خطا", "source": "collector-log" },
+          { "time": "2026-10-16T06:20:00+03:30", "event": "بررسی اولیه", "source": "agent-note" }
+        ],
+        "logExcerpt": ["level=error component=collector code=parse payload=<<redacted>>"],
+        "demo": true
+      },
+      {
+        "id": "sd-02",
+        "time": "2026-10-15T23:48:00+03:30",
+        "component": "scheduler",
+        "errorSignature": "timeout: job exceeded limit <redacted>",
+        "diagnosisNote": null,
+        "status": "OPEN",
+        "evidencePath": null,
+        "timeline": [{ "time": "2026-10-15T23:48:00+03:30", "event": "ثبت خطا", "source": "scheduler-log" }],
+        "logExcerpt": ["level=error component=scheduler code=timeout job=<<redacted>>"],
+        "demo": true
+      },
+      {
+        "id": "sd-03",
+        "time": null,
+        "component": "adapter",
+        "errorSignature": "contract mismatch: field missing <redacted>",
+        "diagnosisNote": "زمان رخداد نامشخص است",
+        "status": "UNKNOWN",
+        "evidencePath": null,
+        "timeline": [],
+        "logExcerpt": [],
+        "demo": true
+      },
+      {
+        "id": "sd-04",
+        "time": "2026-10-14T17:05:00+03:30",
+        "component": "notifier",
+        "errorSignature": "rate-limit: too many messages <redacted>",
+        "diagnosisNote": "نرخ ارسال محدود شد",
+        "status": "CLOSED",
+        "evidencePath": "evidence/sd-04/report.md",
+        "timeline": [
+          { "time": "2026-10-14T17:05:00+03:30", "event": "ثبت خطا", "source": "notifier-log" },
+          { "time": "2026-10-14T19:00:00+03:30", "event": "بسته‌شدن پرونده", "source": "agent-note" }
+        ],
+        "logExcerpt": ["level=warn component=notifier code=rate-limit count=<<redacted>>"],
+        "demo": true
+      },
+      {
+        "id": "sd-05",
+        "time": "2026-10-13T09:30:00+03:30",
+        "component": "collector",
+        "errorSignature": "null reference in merge step <redacted>",
+        "diagnosisNote": "ورودی خالی در گام ادغام",
+        "status": "OPEN",
+        "evidencePath": "evidence/sd-05/core.txt",
+        "timeline": [{ "time": "2026-10-13T09:30:00+03:30", "event": "ثبت خطا", "source": "collector-log" }],
+        "logExcerpt": ["level=error component=collector code=null-ref step=merge ref=<<redacted>>"],
+        "demo": true
+      }
+    ]
+  },
+  "weeklyExam": {
+    "kind": "weeklyExam",
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "DEMO_FIXTURE",
+    "generatedAt": "2026-10-16T12:00:00+03:30",
+    "demo": true,
+    "minSampleSize": 3,
+    "runs": [
+      {
+        "id": "we-04",
+        "week": "1405-W29",
+        "itemsCount": 4,
+        "answeredCount": 3,
+        "withEvidenceCount": 2,
+        "resultSummary": "۴ مورد · ۳ پاسخ · ۲ با شواهد",
+        "state": "RAN",
+        "items": [
+          { "id": "we-04-a", "topic": "ساختار بازار", "answered": "yes", "evidence": "yes", "reviewState": "دیده‌شده", "demo": true },
+          { "id": "we-04-b", "topic": "روش آزمون", "answered": "yes", "evidence": "no", "reviewState": "دیده‌شده", "demo": true },
+          { "id": "we-04-c", "topic": "داده", "answered": "yes", "evidence": "yes", "reviewState": "در انتظار", "demo": true },
+          { "id": "we-04-d", "topic": "ریسک", "answered": "no", "evidence": "UNKNOWN", "reviewState": null, "demo": true }
+        ],
+        "demo": true
+      },
+      {
+        "id": "we-03",
+        "week": "1405-W28",
+        "itemsCount": 2,
+        "answeredCount": 1,
+        "withEvidenceCount": 0,
+        "resultSummary": "۲ مورد · ۱ پاسخ · ۰ با شواهد",
+        "state": "PARTIAL",
+        "items": [
+          { "id": "we-03-a", "topic": "نقدینگی", "answered": "yes", "evidence": "no", "reviewState": "دیده‌شده", "demo": true },
+          { "id": "we-03-b", "topic": "کلان", "answered": "UNKNOWN", "evidence": "UNKNOWN", "reviewState": null, "demo": true }
+        ],
+        "demo": true
+      },
+      {
+        "id": "we-02",
+        "week": "1405-W27",
+        "itemsCount": null,
+        "answeredCount": null,
+        "withEvidenceCount": null,
+        "resultSummary": null,
+        "state": "NOT_RUN",
+        "items": [],
+        "demo": true
+      },
+      {
+        "id": "we-01",
+        "week": null,
+        "itemsCount": null,
+        "answeredCount": null,
+        "withEvidenceCount": null,
+        "resultSummary": null,
+        "state": "UNKNOWN",
+        "items": [],
+        "demo": true
+      }
+    ]
+  },
+  "skillMarket": {
+    "kind": "skillMarket",
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "DEMO_FIXTURE",
+    "generatedAt": "2026-10-16T12:00:00+03:30",
+    "demo": true,
+    "entries": [
+      { "id": "sk-01", "name": "تحلیل‌گر سری زمانی", "kind": "skill", "version": "0.3.1", "source": "ثبت داخلی", "installState": "INSTALLED", "permissions": ["خواندن داده بازار"], "reviewState": "REVIEWED", "reason": "بررسی متن قرارداد انجام شد", "demo": true },
+      { "id": "sk-02", "name": "افزونه گزارش‌ساز", "kind": "plugin", "version": "1.0.0", "source": "ثبت داخلی", "installState": "AVAILABLE", "permissions": ["خواندن فایل گزارش", "نوشتن فایل خروجی"], "reviewState": "UNREVIEWED", "reason": null, "demo": true },
+      { "id": "sk-03", "name": "افزونه اتصال داده", "kind": "plugin", "version": "0.9.2", "source": "خارجی", "installState": "BLOCKED", "permissions": ["دسترسی شبکه", "خواندن متغیرهای محیطی"], "reviewState": "REJECTED", "reason": "درخواست دسترسی بیش از نیاز", "demo": true },
+      { "id": "sk-04", "name": "مهارت خلاصه‌ساز", "kind": "skill", "version": "0.2.0", "source": "ثبت داخلی", "installState": "AVAILABLE", "permissions": ["خواندن متن"], "reviewState": "REVIEWED", "reason": null, "demo": true },
+      { "id": "sk-05", "name": "افزونه زمان‌بند", "kind": "plugin", "version": "1.2.4", "source": "ثبت داخلی", "installState": "INSTALLED", "permissions": ["خواندن زمان‌بندی"], "reviewState": "REVIEWED", "reason": "متن مجوز بررسی شد", "demo": true },
+      { "id": "sk-06", "name": "مهارت تطبیق الگو", "kind": "skill", "version": null, "source": "خارجی", "installState": "UNKNOWN", "permissions": [], "reviewState": "UNREVIEWED", "reason": null, "demo": true },
+      { "id": "sk-07", "name": "افزونه آرشیو", "kind": "plugin", "version": "0.5.0", "source": "ثبت داخلی", "installState": "AVAILABLE", "permissions": ["نوشتن آرشیو"], "reviewState": "REJECTED", "reason": null, "demo": true },
+      { "id": "sk-08", "name": "مهارت مقایسه‌گر", "kind": "skill", "version": "0.1.7", "source": "ثبت داخلی", "installState": "BLOCKED", "permissions": ["خواندن داده"], "reviewState": "UNREVIEWED", "reason": null, "demo": true }
+    ]
+  },
+  "newsCenter": {
+    "kind": "newsCenter",
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "DEMO_FIXTURE",
+    "generatedAt": "2026-10-16T12:00:00+03:30",
+    "demo": true,
+    "staleAfterMinutes": 30,
+    "items": [
+      { "id": "nw-01", "time": "2026-10-16T11:50:00+03:30", "sourceName": "خبرگزاری انرژی", "topic": "Oil", "summary": "گزارش هفتگی ذخایر منتشر شد", "reliability": null, "demo": true },
+      { "id": "nw-02", "time": "2026-10-16T11:20:00+03:30", "sourceName": "بازار فلزات", "topic": "Gold", "summary": "قیمت‌های نقدی در بازار جهانی به‌روزرسانی شد", "reliability": null, "demo": true },
+      { "id": "nw-03", "time": "2026-10-16T10:00:00+03:30", "sourceName": "تقویم اقتصادی", "topic": "Macro", "summary": "زمان انتشار شاخص‌های ماهانه اعلام شد", "reliability": "میانه", "demo": true },
+      { "id": "nw-04", "time": "2026-10-16T08:30:00+03:30", "sourceName": "منبع نامشخص", "topic": "Other", "summary": "خبر عمومی بدون منبع مشخص", "reliability": null, "demo": true },
+      { "id": "nw-05", "time": "2026-10-16T11:55:00+03:30", "sourceName": "خبرگزاری انرژی", "topic": "Oil", "summary": "آمار حمل‌ونقل دریایی منتشر شد", "reliability": null, "demo": true },
+      { "id": "nw-06", "time": null, "sourceName": "ثبت دستی", "topic": "Gold", "summary": "یادداشت بدون زمان ثبت شده است", "reliability": null, "demo": true },
+      { "id": "nw-07", "time": "2026-10-16T09:10:00+03:30", "sourceName": "بانک مرکزی", "topic": "Macro", "summary": "اعلام برنامه انتشار داده‌های پولی", "reliability": "رسمی", "demo": true },
+      { "id": "nw-08", "time": "2026-10-16T11:58:00+03:30", "sourceName": "بازار فلزات", "topic": "Gold", "summary": "گزارش روزانه تقاضای فیزیکی ثبت شد", "reliability": null, "demo": true }
+    ]
+  }
+}
