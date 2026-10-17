@@ -2040,5 +2040,14 @@
       "portable": "Portable",
       "oilGold": "Oil & Gold"
     }
+  },
+  "missionsB4": {
+    "nav": {
+      "scienceRadar": "Science Radar",
+      "selfDebug": "Self-debug",
+      "weeklyExam": "Weekly Exam",
+      "skillMarket": "Skill Market",
+      "newsCenter": "News Center"
+    }
   }
 }
