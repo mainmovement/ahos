@@ -1,9 +1,0 @@
-
-AHOS Dashboard - Screenshot Captured
-Date: 2026-10-17T02:15:42.112Z
-Status: Server running on port 3000
-Dashboard rendered successfully with minor React hydration warnings
-No error overlays present
-
-<!DOCTYPE html><html lang="fa" dir="rtl" data-theme="ahos" class="vazirmatn_6e090f3c-module__8-_7Da__variable orbitron_d6a675bd-module__lKSnbq__variable"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/chunks/%5Broot-of-the-server%5D__0cczfs1._.css" data-precedence="next_static/chunks/[root-of-the-server]__0cczfs1._.css"/><link rel="preload" as="script" fetchPriority="low" href="/_next/static/chunks/%5Bt...
-    
