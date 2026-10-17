@@ -1,6 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+[data-theme="imperial"] {
+  --ahos-bg: #0B0709;
+  --ahos-panel: #160E12;
+  --ahos-border: #3A2A1C;
+  --ahos-text: #EFE4CC;
+  --ahos-text-muted: #A99A80;
+  --ahos-gold: #D4AF37;
+  --ahos-gold-hi: #F1D58E;
+  --ahos-crimson: #9E1C26;
+  --ahos-crimson-hi: #D2343E;
+  --ahos-ember: #E8834A;
+}
+
+[data-theme="neon"] {
+  --ahos-bg: #040714;
+  --ahos-panel: #0A1330;
+  --ahos-border: #2B354F;
+  --ahos-text: #E6F6FF;
+  --ahos-text-muted: #8FA6C8;
+  --ahos-gold: #D4AF37;
+  --ahos-accent: #3FD0FF;
+  --ahos-accent-2: #4C82FF;
+}
 
 :root {
   --background: 0 0% 100%;
@@ -55,6 +77,18 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+}
+
+@layer utilities {
+  .border-border {
+    border-color: hsl(var(--border));
+  }
+  .bg-ahos-panel {
+    background-color: hsl(var(--ahos-panel));
+  }
+  .text-ahos-text {
+    color: hsl(var(--ahos-text));
+  }
 }
 
 @layer base {
