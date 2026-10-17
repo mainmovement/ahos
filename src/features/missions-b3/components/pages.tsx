@@ -6,6 +6,8 @@ import { Cell, Details, HighlightList, PageFrame, type FrameProps } from "@/src/
 import { MISSING, buildMissionMap, capHighlights, formatNum, parseFlag, parsePageState, redact, tehranStamp, violationOf, type PageState } from "@/src/features/missions-b2/lib/model";
 import { MISSIONS_STATUS_PATH, readMissionsStatus } from "@/src/features/missions-b2/lib/data.server";
 import { SOAK_STATUS_PATH, loadContract3, readHealth, readReplay } from "../lib/data.server";
+import { RealOilGoldPanel } from "@/src/features/real-paper/components/RealOilGoldPanel";
+import { loadSoakLedger } from "@/src/features/real-paper/lib/data.server";
 import { lessonHighlights, normalizeLesson, oilGoldHighlights, portableHighlights, resolveRamGuardState, toMission } from "../lib/model";
 
 type Params = Record<string, string | string[] | undefined>;
@@ -216,10 +218,14 @@ export async function OilGoldPage({ params }: { params: Params }) {
   const contract = loadContract3();
   const snap = contract?.oilGold ?? null;
   const replay = c.forceDemo ? null : readReplay();
+  const ledger = c.forceDemo ? null : loadSoakLedger(c.nowMs);
+  const realLive = ledger && ledger.state === "ok" ? ledger.value : null;
+  const realOn = [realLive, replay].some((x) => x !== null);
   const base: Base | null = snap && contract
-    ? replay ? { mode: "PAPER_ONLY", real: false, generatedAt: null, demo: false, source: "ahos_replay/results.md (REPLAY_NOT_LIVE)", status: "PARTIAL" } : demoBase(contract)
+    ? realOn ? { mode: "PAPER_ONLY", real: false, generatedAt: realLive?.lastCycleIso ?? null, demo: false, source: "reports/grok/M13_SOAK/soak_status.json (LIVE) + ahos_replay/results.md (REPLAY_NOT_LIVE)", status: realLive?.status === "STALE" ? "STALE" : "PARTIAL" } : demoBase(contract)
     : null;
-  const hl = snap ? oilGoldHighlights(snap, replay, !replay) : [];
+  let hl = snap ? oilGoldHighlights(snap, replay, !realOn) : [];
+  if (realOn) hl = hl.map((h) => (h.id === "live" ? { ...h, title: "gold soak (live) | oil: no live track", detail: realLive ? `gold equity ${realLive.equityUsd ?? "-"} | cycle ${realLive.cycle ?? "-"}` : null, status: realLive ? realLive.status : "UNKNOWN", tag: "PAPER_ONLY" } : h));
   const cap = capHighlights(hl);
   const f = frame("oil-gold", c, base, { empty: !!snap && hl.length === 0, note: replay ? t("oilGold.replayNote") : undefined });
   return (
@@ -228,6 +234,8 @@ export async function OilGoldPage({ params }: { params: Params }) {
         <>
           <p className="mb-note" data-mb-edge="" lang="en" dir="ltr">no proven edge yet &mdash; {t("oilGold.edgeFa")}</p>
           <HighlightList items={cap.shown} hidden={cap.hidden} empty={t2("ui.noData")} />
+          {realOn ? <RealOilGoldPanel nowMs={c.nowMs} /> : null}
+          {!realOn ? (
           <Details open={c.details} meta={t("oilGold.detailsMeta")}>
             <div className="mb-kpis mb-sec">
               <Kpi k={t("oilGold.liveOil")} v={replay ? MISSING : formatNum(snap.live.oil)} chip="UNKNOWN" />
@@ -245,6 +253,7 @@ export async function OilGoldPage({ params }: { params: Params }) {
               ) : <p className="mb-empty">{t("oilGold.noReplay")}</p>}
             </div>
           </Details>
+          ) : null}
         </>
       ) : null}
     </PageFrame>

@@ -3,6 +3,7 @@ import { getVenueBundle } from "@/src/mock/trade_venue";
 import type { VenueQuery } from "./logic/model";
 import { VenueClientRoot } from "./VenueClientRoot";
 import { StateGallery } from "./StateGallery";
+import { RealPaperPanel } from "../real-paper/components/RealPaperPanel";
 
 /**
  * Trade venue page body. It renders inside the Arena shell (which owns the
@@ -43,6 +44,7 @@ export function TradeVenuePage({ query }: TradeVenuePageProps) {
       lang="fa"
       dir="rtl"
     >
+      <RealPaperPanel />
       <VenueClientRoot bundle={bundle} query={query} notices={notices} />
     </div>
   );
