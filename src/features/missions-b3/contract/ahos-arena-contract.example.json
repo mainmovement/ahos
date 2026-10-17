@@ -1,0 +1,52 @@
+{
+  "executionMode": "PAPER_ONLY",
+  "realTrading": false,
+  "source": "EXAMPLE_CONTRACT_DEMO",
+  "generatedAt": null,
+  "demo": true,
+  "healthMonitor": {
+    "demo": true,
+    "services": [
+      { "demo": true, "name": "AHOS API", "status": "DEMO", "lastHeartbeat": null, "version": null, "uptimeSeconds": null },
+      { "demo": true, "name": "Research worker", "status": "DEMO", "lastHeartbeat": null, "version": null, "uptimeSeconds": null },
+      { "demo": true, "name": "Database", "status": "UNKNOWN", "lastHeartbeat": null, "version": null, "uptimeSeconds": null }
+    ],
+    "soak": { "currentRun": null, "elapsedHours": null, "targetHours": null, "restarts": null, "lastError": null },
+    "ramGuard": { "usedGb": null, "limitGb": 8, "headroomGb": null, "state": "UNKNOWN" },
+    "faults": [
+      { "demo": true, "id": "FI-DEMO-001", "time": null, "faultType": "worker timeout", "targetService": "Research worker", "expected": "گزارش خطای کنترل‌شده", "observed": null, "recovered": null, "detail": "نمونهٔ نمایشی؛ هنوز به ثبت واقعی تزریق خطا متصل نیست." }
+    ]
+  },
+  "lessons": {
+    "demo": true,
+    "lessons": [
+      { "demo": true, "id": "LESSON-DEMO-001", "market": "GOLD", "mistake": "نمونهٔ فرضی: اتکا به یک بازهٔ کوتاه", "lesson": "برای ارزیابی، هزینه و دادهٔ خارج از نمونه را جداگانه ثبت کنید.", "sourceReplayId": null, "status": "PROPOSED", "reason": "نمونهٔ نمایشی؛ بررسی انسانی ثبت نشده است.", "unseenTest": { "datasetId": null, "outOfSamplePeriod": null, "result": "NOT_RUN", "sampleSize": null } },
+      { "demo": true, "id": "LESSON-DEMO-002", "market": "OIL", "mistake": "نمونهٔ فرضی: نادیده‌گرفتن هزینهٔ معامله", "lesson": "هزینهٔ مدل باید پیش از مقایسهٔ دوره‌ها مشخص باشد.", "sourceReplayId": null, "status": "PROPOSED", "reason": "نمونهٔ نمایشی؛ آزمون دادهٔ نادیده موجود نیست.", "unseenTest": null }
+    ]
+  },
+  "workroom": {
+    "demo": true,
+    "agents": [
+      { "demo": true, "name": "ناظر سامانه", "role": "پایش و ممیزی", "currentMissionId": null, "lastActivity": null, "status": "DEMO" },
+      { "demo": true, "name": "تحلیل‌گر پژوهش", "role": "تحلیل شواهد", "currentMissionId": null, "lastActivity": null, "status": "UNKNOWN" }
+    ],
+    "missions": [
+      { "demo": true, "id": "MISSION-DEMO-01", "title": "آماده‌سازی قرارداد داده", "ownerAgent": "ناظر سامانه", "status": "PARTIAL", "evidence": "نمونهٔ نمایشی؛ پیوند شواهد واقعی متصل نیست.", "lastUpdate": null },
+      { "demo": true, "id": "MISSION-DEMO-02", "title": "ثبت وضعیت پایش", "ownerAgent": null, "status": "NOT STARTED", "evidence": null, "lastUpdate": null }
+    ]
+  },
+  "portable": {
+    "demo": true,
+    "packageVersion": null,
+    "buildTime": null,
+    "checklist": { "nodeBundled": "UNKNOWN", "fonts": "UNKNOWN", "models": "UNKNOWN", "configTemplate": "UNKNOWN", "smokeTest": "UNKNOWN" },
+    "hardware": { "tier": "UNKNOWN", "ramGb": null, "cpu": null, "gpu": null, "heavyFeaturesAllowed": null, "note": "سخت‌افزار هنوز اندازه‌گیری نشده است." }
+  },
+  "oilGold": {
+    "demo": true,
+    "replay": { "historicalPeriod": null, "replayId": null, "bars": null, "markets": ["OIL", "GOLD"], "summary": null },
+    "live": { "status": "UNKNOWN", "timestamp": null, "oil": null, "gold": null, "source": null },
+    "evidence": { "status": "NO_PROVEN_EDGE", "datasetId": null, "outOfSamplePeriod": null, "sampleSize": null, "costModel": null, "note": "هنوز لبهٔ اثبات‌شده‌ای وجود ندارد · no proven edge yet" },
+    "news": { "oil": null, "gold": null, "otherMarkets": "PLANNED" }
+  }
+}

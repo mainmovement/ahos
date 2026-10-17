@@ -42,6 +42,7 @@
     "test:trade-venue": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/trade_venue_selftest.ts",
     "test:newsroom": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/newsroom_selftest.ts",
     "test:missions-b2": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b2_selftest.ts",
+    "test:missions-b3": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b3_selftest.ts",
     "test:white-hats": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/white_hats_selftest.ts",
     "test:tehran": "node --experimental-strip-types --test scripts/tehran_selftest.ts"
   },

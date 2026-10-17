@@ -2031,5 +2031,14 @@
       "researchInstitute": "Research Institute",
       "missionMap": "Mission Map"
     }
+  },
+  "missionsB3": {
+    "nav": {
+      "healthMonitor": "Health Monitor",
+      "lessons": "Lessons",
+      "workroom": "Workroom",
+      "portable": "Portable",
+      "oilGold": "Oil & Gold"
+    }
   }
 }
