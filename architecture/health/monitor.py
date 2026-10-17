@@ -86,6 +86,11 @@ def assess_soak_health(
     return HealthReport(level, tuple(reasons), True, "")
 
 
+def latch_halt(latched: bool, level: str) -> bool:
+    """HALT sticks for the process. DOWNGRADE does not latch. Owner unhalt is separate."""
+    return bool(latched) or level == "HALT"
+
+
 def load_and_assess(path: Path | None = None, **kwargs: Any) -> HealthReport:
     p = path or default_soak_status_path()
     if not p.is_file():

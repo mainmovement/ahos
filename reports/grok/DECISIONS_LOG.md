@@ -101,3 +101,11 @@
 - b1bf832: Finalize shadcn-admin template integration
 
 **Next Phase:** Desktop application window styling and additional visualizations
+
+## 2026-10-18: M47 / M39 fault injection stays simulated
+
+**Question:** Should the monthly fault suite kill a daemon, fill the disk, lock the live PGlite store, or break the live ledger hash chain?
+
+**Choice:** No. Inject the observation in process and require HALT inside the 60s decision budget.
+
+**Reason:** The gold paper soak is running. Destructive faults would stop that soak or corrupt its ledger. HOLD and PAPER_ONLY stay in force. There is no live order to flatten. Owner unhalt is a pure function and does not clear HOLD.flag.

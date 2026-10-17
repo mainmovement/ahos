@@ -339,11 +339,28 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
     tier: dict[str, Any] | None = None
     reconcile: dict[str, Any] | None = None
     cycles_ok = cycles_fail = 0
+    latched_halt = False
 
     while True:
-        record = _cycle(ledger_path)
+        if latched_halt:
+            # Paper entries stay refused. The cadence process keeps its log;
+            # it does not flatten a live account (there is none) and it does
+            # not clear HOLD. Only an owner unhalt, outside this loop, lifts it.
+            record = {
+                "ts": _utc_stamp(),
+                "kind": "cycle",
+                "ok": False,
+                "skipped": True,
+                "error": "M47 HALT latched; new paper cycles refused until owner unhalt",
+                "duration_s": 0.0,
+                "breaker": {"state": "HALTED", "allowed": False, "reasons": ["M47 HALT"]},
+            }
+        else:
+            record = _cycle(ledger_path)
         _append_jsonl(runlog, record)
-        if record["ok"]:
+        if record.get("skipped"):
+            print(f"[m13-soak] cycle skipped: {record.get('error')}", flush=True)
+        elif record["ok"]:
             cycles_ok += 1
             print(f"[m13-soak] cycle {record.get('cycle')} "
                   f"witness={record.get('witness_state')} "
@@ -387,7 +404,7 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
                       f"{reconcile.get('error')}", flush=True)
 
         state = _latest_state(ledger_path)
-        _write_status(soak_dir, {
+        status: dict[str, Any] = {
             "soak": "M13-GOLD-PAPER",
             "paper_only": True,
             "started_hint": _utc_stamp(),
@@ -400,7 +417,20 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
             "last_tier_gate": tier,
             "last_m42_reconcile": reconcile,
             "ledger_state": state,
-        })
+        }
+        from architecture.health.monitor import assess_soak_health, latch_halt
+
+        health = assess_soak_health(status)
+        latched_halt = latch_halt(latched_halt, health.level)
+        status["health"] = {
+            "level": "HALT" if latched_halt else health.level,
+            "assessed": health.level,
+            "reasons": list(health.reasons),
+            "latched": latched_halt,
+            "paper_only": True,
+        }
+        status["entries_allowed"] = not latched_halt
+        _write_status(soak_dir, status)
 
         if once:
             return 0 if record["ok"] else 1
