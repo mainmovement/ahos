@@ -76,6 +76,10 @@
     "footerStatus": "System status",
     "brandAria": "AHOS — paper-only command center"
   },
+  "legal": {
+    "footerLine1": "Built by Mehrdad Ghodrati in 2026 CE (2585 Imperial). All rights and ownership of this application belong to Mehrdad Ghodrati.",
+    "footerLine2": "Any copying or misuse carries legal consequences."
+  },
   "common": {
     "actions": {
       "save": "Save",

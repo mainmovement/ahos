@@ -3,7 +3,7 @@ import { tr } from "../../lib/i18n";
 import { AhosIcon } from "../icons";
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUpLeft, Check, Circle, Command, Crosshair, ExternalLink, LockKeyhole, PanelRightOpen, Radar, Sparkles } from "lucide-react";
+import { ArrowUpLeft, Check, Circle, Command, Crosshair, LockKeyhole, PanelRightOpen, Radar, Sparkles } from "lucide-react";
 import {
   allItems,
   stageModules,
@@ -15,6 +15,7 @@ import { Topbar } from "./Topbar";
 import { CommandPalette } from "./CommandPalette";
 import { StarMark } from "../ui/Brand";
 import { CommandDashboard } from "../dashboard/CommandDashboard";
+import { AppLegalFooter } from "./AppLegalFooter";
 
 type Preferences = { language: Language; quality: Quality; muted: boolean };
 const defaultPreferences: Preferences = {
@@ -369,20 +370,7 @@ export default function DashboardShell({
             </>
           )}
           <footer className="ah-main-footer">
-            <span>
-              <span className="ah-status-dot" />
-              {fa
-                ? "رابط محلی آماده · منابع زنده متصل نیستند"
-                : "Local interface ready · Live sources disconnected"}
-            </span>
-            <span>
-              DESIGNED FOR CLARITY <span className="ah-footer-star">✦</span>{" "}
-              BUILT ON EVIDENCE
-            </span>
-            <a href="/operator">
-              {fa ? "رابط عملیاتی پیشین" : "Existing operator UI"}
-              <ExternalLink size={11} />
-            </a>
+            <AppLegalFooter language={language} />
           </footer>
         </main>
       </div>
