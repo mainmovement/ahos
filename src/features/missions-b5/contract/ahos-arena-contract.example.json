@@ -1,0 +1,44 @@
+{
+  "executionMode": "PAPER_ONLY",
+  "realTrading": false,
+  "source": "DEMO_FIXTURE_B15",
+  "generatedAt": "2026-10-17T00:00:00Z",
+  "nightlyReport": {
+    "kind": "nightlyReport", "executionMode": "PAPER_ONLY", "realTrading": false, "source": "DEMO_FIXTURE_B15", "generatedAt": "2026-10-16T20:30:00Z", "demo": true,
+    "nights": [
+      { "demo": true, "id": "night-demo-1", "day": "2026-10-16", "timestamp": "2026-10-16T20:30:00Z", "entries": 12, "closed": 8, "wins": 5, "losses": 3, "pnl": 1.5, "judge": "CLEAN", "reconcile": null, "tier": 0, "criteria": "1/7", "signed": false, "ai": true },
+      { "demo": true, "id": "night-demo-2", "day": "2026-10-15", "timestamp": null, "entries": null, "closed": null, "wins": null, "losses": null, "pnl": null, "judge": null, "reconcile": null, "tier": null, "criteria": null, "signed": null, "ai": true }
+    ]
+  },
+  "university": {
+    "kind": "university", "executionMode": "PAPER_ONLY", "realTrading": false, "source": "DEMO_FIXTURE_B15", "generatedAt": "2026-10-16T00:00:00Z", "demo": true,
+    "sources": [
+      { "demo": true, "id": "source-demo-1", "name": "منبع نمونه", "domain": "روش تحقیق", "category": "مرجع", "access": "public", "licence": null, "tosOk": null, "authority": null, "recency": null, "trackRecord": null, "citations": null, "score": null },
+      { "demo": true, "id": "source-demo-2", "name": "منبع نمونهٔ دوم", "domain": "آمار", "category": "کتاب", "access": "public", "licence": "CC-BY", "tosOk": true, "authority": 70, "recency": 50, "trackRecord": 60, "citations": 40, "score": 55 }
+    ],
+    "exams": [
+      { "demo": true, "agent": "agent-demo", "week": "2026-W42", "score": 91, "items": 100, "ci": [85, 96], "hash": "demo-evidence-not-real", "retests": 1 },
+      { "demo": true, "agent": "agent-demo-2", "week": "2026-W42", "score": 80, "items": null, "ci": null, "hash": null, "retests": null }
+    ],
+    "bank": [ { "demo": true, "domain": "روش تحقیق", "skill": "ارزیابی شواهد", "count": 120 } ]
+  },
+  "capabilityLab": {
+    "kind": "capabilityLab", "executionMode": "PAPER_ONLY", "realTrading": false, "source": "DEMO_FIXTURE_B15", "generatedAt": "2026-10-17T00:00:00Z", "demo": true,
+    "points": [
+      { "demo": true, "capability": "استناد", "unit": "%", "timestamp": "2026-10-15T00:00:00Z", "value": 72, "seed": 42, "items": 100 },
+      { "demo": true, "capability": "استناد", "unit": "%", "timestamp": "2026-10-16T00:00:00Z", "value": 72, "seed": 42, "items": 100 },
+      { "demo": true, "capability": "استناد", "unit": "%", "timestamp": "2026-10-17T00:00:00Z", "value": 74, "seed": 42, "items": 100 }
+    ],
+    "proposals": [
+      { "demo": true, "id": "prop-demo-1", "stage": "HUMAN_GATE", "scope": "rule", "title": "پیشنهاد نمونهٔ تغییر قاعده", "requiresHuman": true, "redteam": "NEEDS_MORE_DATA", "createdAt": "2026-10-16T00:00:00Z" },
+      { "demo": true, "id": "prop-demo-2", "stage": "SHADOW_EVAL", "scope": "other", "title": "پیشنهاد نمونهٔ بهینه‌سازی", "requiresHuman": false, "redteam": null, "createdAt": null }
+    ]
+  },
+  "agentCenter": {
+    "kind": "agentCenter", "executionMode": "PAPER_ONLY", "realTrading": false, "source": "DEMO_FIXTURE_B15", "generatedAt": "2026-10-17T00:00:00Z", "demo": true,
+    "agents": [
+      { "demo": true, "id": "AG-DEMO-1", "name": "پژوهشگر نمونه", "role": "research", "regStatus": "EXISTS", "lane": "B", "criticality": "HIGH", "liveFlag": null, "heartbeat": null },
+      { "demo": true, "id": "AG-DEMO-2", "name": "عامل نمونهٔ دوم", "role": null, "regStatus": "PLANNED", "lane": "A", "criticality": null, "liveFlag": false, "heartbeat": "2026-10-17T00:00:00Z" }
+    ]
+  }
+}

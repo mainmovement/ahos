@@ -2053,5 +2053,13 @@
       "skillMarket": "Skill Market",
       "newsCenter": "News Center"
     }
+  },
+  "missionsB5": {
+    "nav": {
+      "nightlyReport": "Nightly Report",
+      "university": "University",
+      "capabilityLab": "Capability Lab",
+      "agentCenter": "Agent Center"
+    }
   }
 }
