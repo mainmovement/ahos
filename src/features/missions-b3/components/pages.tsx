@@ -5,7 +5,7 @@ import { TruthChip } from "@/src/components/truth/TruthChip";
 import { Cell, Details, HighlightList, PageFrame, type FrameProps } from "@/src/features/missions-b2/components/PageFrame";
 import { MISSING, buildMissionMap, capHighlights, formatNum, parseFlag, parsePageState, redact, tehranStamp, violationOf, type PageState } from "@/src/features/missions-b2/lib/model";
 import { MISSIONS_STATUS_PATH, readMissionsStatus } from "@/src/features/missions-b2/lib/data.server";
-import { SOAK_STATUS_PATH, loadContract3, readHealth, readReplay } from "../lib/data.server";
+import { SOAK_STATUS_PATH, loadContract3, readHealth, readLessons, readReplay } from "../lib/data.server";
 import { RealOilGoldPanel } from "@/src/features/real-paper/components/RealOilGoldPanel";
 import { loadSoakLedger } from "@/src/features/real-paper/lib/data.server";
 import { lessonHighlights, normalizeLesson, oilGoldHighlights, portableHighlights, resolveRamGuardState, toMission } from "../lib/model";
@@ -106,9 +106,17 @@ export async function HealthMonitorPage({ params }: { params: Params }) {
 export async function LessonsPage({ params }: { params: Params }) {
   const c = ctxOf(params);
   const contract = loadContract3();
-  const snap = contract?.lessons ?? null;
-  const base = snap && contract ? demoBase(contract) : null;
-  const hl = snap ? lessonHighlights(snap.lessons, true) : [];
+  const realLessons = readLessons();
+  const snap = realLessons ?? contract?.lessons ?? null;
+  const demoMode = snap ? snap.demo : true;
+  const base: Base | null = snap
+    ? realLessons
+      ? { mode: "PAPER_ONLY", real: false, generatedAt: snap.generatedAt, demo: false, source: snap.source ?? "M49 lessons_snapshot.json", status: snap.lessons.length ? "PARTIAL" : "UNKNOWN" }
+      : contract
+        ? demoBase(contract)
+        : null
+    : null;
+  const hl = snap ? lessonHighlights(snap.lessons, demoMode) : [];
   const cap = capHighlights(hl);
   const f = frame("lessons", c, base, { empty: !!snap && hl.length === 0 });
   return (
