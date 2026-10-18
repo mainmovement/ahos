@@ -11,7 +11,7 @@ Date: 2026-10-18 (Tehran).
 ## Proof
 ```
 npx tsc --noEmit -p tsconfig.build.json  → 0 errors
-npm run build  → see reports/dashboard_build_20261018c.log (in progress / result)
+npm run build  → exit **0**, `✓ Compiled successfully in 36.2min`, static pages 6/6; log `reports/dashboard_build_20261018c.log`
 pytest tests/test_gold_lessons_read.py tests/test_paper_path_wire.py
 ```
 
@@ -20,4 +20,4 @@ pytest tests/test_gold_lessons_read.py tests/test_paper_path_wire.py
 - Full-repo `npm run typecheck` still reports template debt outside the build graph.
 
 ## Verdict
-Build graph typecheck **PASS**; production build must finish and be logged before calling Step 2 fully PROVEN.
+Step 2 **PARTIAL PROVEN**: `tsc -p tsconfig.build.json` and **`next build` exit 0**; real browser screenshot at 127.0.0.1:3000 still owed for full QA.
