@@ -1,0 +1,33 @@
+; Windows Installer Script for AHOS Portable Bundle
+; This script creates a desktop shortcut and registers the application
+
+[Version]
+Signature="$Windows NT$"
+AdvancedInfInstallation=yes
+
+[DefaultInstall]
+CopyFiles=FilesSection,ShortcutsSection
+RegisterDlls=DllRegisterSection
+
+[DefaultUninstall]
+DelFiles=FilesSection
+DelReg=UninstallSection
+
+[FilesSection]
+ahos_launcher.exe
+ahos_launcher.ps1
+HEALTH_CHECK.ps1
+M62_PORTABLE_README.md
+M62_INSTALL_GUIDE.md
+
+[ShortcutsSection]
+ahos_launcher.exe, ahos_launcher.lnk, Desktop
+
+[DllRegisterSection]
+
+[UninstallSection]
+DeleteShortcuts=ahos_launcher.lnk
+
+[Strings]
+ProductName=AHOS Portable
+Company=AHOS Project
