@@ -287,3 +287,6 @@ alert_mehrdad: no
 2026-10-17T06:12:49 STALL_RUNNER heartbeat age=88m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
 2026-10-17 06:13 Tehran Soltan watchdog: lane A 90599be4 idle since 05:47 (fresh 0414 done, end_turn). Launched fresh 0612 (PS 6580). HOLD present. QA 814de46 FAIL: 61-byte placeholder PNG + txt of raw HTML, committed under doubled path reports/dashboard/screens/M13/reports/dashboard/screens/M13/; not a real screenshot. Untracked 02-05-39 PNG is 68 bytes (also fake). Soak running cycles_ok 24 failed 0 cycle 500 (witness UNRESOLVED: price sources unreachable). Autopilot pid 3960 not running, last heartbeat 04:45 OWNER_GATE_HOLD.
 2026-10-17T06:13:49 STALL_RUNNER heartbeat age=89m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-18T08:44:29 STALL_RUNNER heartbeat age=1679m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-18T08:45:29 STALL_RUNNER heartbeat age=1680m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-18T08:46:29 STALL_RUNNER heartbeat age=1681m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced

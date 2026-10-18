@@ -1,35 +1,19 @@
 {
   "soak": "M13-GOLD-PAPER",
   "paper_only": true,
-<<<<<<< Updated upstream
-  "started_hint": "2026-10-17T02:41:28Z",
-  "cycle_interval_sec": 900.0,
-  "planned_days": 2.0504,
-  "cycles_ok": 24,
-  "cycles_failed": 0,
-  "last_day_report": "2026-10-17",
-  "last_cycle": {
-    "ts": "2026-10-17T02:41:23Z",
-    "kind": "cycle",
-    "ok": true,
-    "cycle": 500,
-    "witness_state": "UNRESOLVED",
-    "witness_reason": "insufficient_independent_sources (no fresh source answered; failures: goldapi_spot: unreachable (URLError); yahoo_gc_futures: unreachable (URLError))",
-=======
-  "started_hint": "2026-10-18T05:09:36Z",
+  "started_hint": "2026-10-18T07:53:13Z",
   "cycle_interval_sec": 900.0,
   "planned_days": 0.8518,
-  "cycles_ok": 13,
+  "cycles_ok": 23,
   "cycles_failed": 0,
   "last_day_report": "2026-10-18",
   "last_cycle": {
-    "ts": "2026-10-18T05:09:34Z",
+    "ts": "2026-10-18T07:53:07Z",
     "kind": "cycle",
     "ok": true,
-    "cycle": 601,
+    "cycle": 611,
     "witness_state": "UNRESOLVED",
     "witness_reason": "insufficient_independent_sources (only ['goldapi_spot'] answered fresh; stale: ['yahoo_gc_futures'])",
->>>>>>> Stashed changes
     "price_usd": null,
     "spread_pct": null,
     "equity_usd": 10000.818481471944,
@@ -44,55 +28,16 @@
       "allowed": true,
       "reasons": []
     },
-<<<<<<< Updated upstream
-    "duration_s": 4.95
-  },
-  "last_tier_gate": {
-    "ts": "2026-10-17T00:11:19Z",
-    "kind": "tier_gate",
-    "day": "2026-10-17",
-=======
-    "duration_s": 2.16
+    "duration_s": 6.42
   },
   "last_tier_gate": {
     "ts": "2026-10-18T01:42:35Z",
     "kind": "tier_gate",
     "day": "2026-10-18",
->>>>>>> Stashed changes
     "ok": true,
     "tier": "T0",
     "promoted": false,
     "trades": 3,
-<<<<<<< Updated upstream
-    "months_of_data": 0.2171023519128377,
-    "measurable_passed": 1,
-    "measurable_total": 7,
-    "unmeasurable": [
-      "regime_coverage",
-      "cost_model",
-      "drawdown_vs_backtest_multiple",
-      "walk_forward"
-    ],
-    "ready_for_owner_review": false,
-    "open_questions": [
-      "M-REGIME-4: the exit gate's >=3-of-4 regime coverage cannot be evaluated because only 3 regimes are defined (architecture/intel/regimes.py). Owner act: either name the fourth regime the gate intends, or amend the gate to 3.",
-      "M-DD-BACKTEST: the drawdown-vs-backtest criterion needs a backtest MaxDD reference; supply one or the criterion stays unmeasurable."
-    ],
-    "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-17_tier_gate.md"
-  },
-  "last_m42_reconcile": {
-    "ts": "2026-10-17T00:11:19Z",
-    "kind": "m42_reconcile",
-    "day": "2026-10-17",
-    "ok": true,
-    "verdict": "CLEAN",
-    "findings": 0,
-    "entries": 498,
-    "head_hash": "801e82f7d01a87d14e47740327263f0be62d12427abc7acb45520a7df018f529",
-    "recorded": true,
-    "halt_recorded": false,
-    "reconcile_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-17_reconcile.md"
-=======
     "months_of_data": 0.2525484171670712,
     "measurable_passed": 3,
     "measurable_total": 10,
@@ -117,7 +62,6 @@
     "recorded": true,
     "halt_recorded": false,
     "reconcile_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-18_reconcile.md"
->>>>>>> Stashed changes
   },
   "ledger_state": {
     "bankroll_usd": 10000.0,
@@ -133,11 +77,7 @@
     },
     "closed_trades": 4,
     "cumulative_realized_pnl_usd": 0.8184814719436417,
-<<<<<<< Updated upstream
-    "cycle": 500,
-=======
-    "cycle": 601,
->>>>>>> Stashed changes
+    "cycle": 611,
     "equity_usd": 10000.818481471944,
     "exit": null,
     "exit_card": "PT-X1-v1",
@@ -150,8 +90,6 @@
     "market": "gold",
     "open_unpriced": true,
     "paper_only": true,
-<<<<<<< Updated upstream
-=======
     "path": {
       "blocks": [],
       "crisis": "READ",
@@ -165,7 +103,6 @@
       "slot": "local",
       "venue": "ELIGIBLE"
     },
->>>>>>> Stashed changes
     "position": {
       "cycle": 452,
       "entry_price": 4177.8000974999995,
@@ -181,35 +118,27 @@
     "settled_trades": 3,
     "unpriced_for_s": null,
     "witness": {
-<<<<<<< Updated upstream
-      "quotes": [],
-      "reason": "insufficient_independent_sources (no fresh source answered; failures: goldapi_spot: unreachable (URLError); yahoo_gc_futures: unreachable (URLError))",
-=======
       "quotes": [
         {
           "instrument": "spot",
-          "observed_at": 1792300154.0,
+          "observed_at": 1792309964.0,
           "price_usd": 4166.100098,
           "provider_id": "goldapi_spot",
-          "raw_sha256": "afb6665b1b06ab60d25eb9cf063150944321391613f25879673d34a0843b962e"
+          "raw_sha256": "efeb7925e95a4eca852c04b288ff90809c76b2b3626a70bb4bf2661465dc3c4d"
         },
         {
           "instrument": "futures",
           "observed_at": 1792184399.0,
           "price_usd": 4181.1,
           "provider_id": "yahoo_gc_futures",
-          "raw_sha256": "e4587aa40095de79885430175682098fab27b1929403049ff86af2030fbc9227"
+          "raw_sha256": "d122653fb7cad4d93e8478d410ba9f2e1f8bb3b75660e2c2f0877ad3c326465f"
         }
       ],
       "reason": "insufficient_independent_sources (only ['goldapi_spot'] answered fresh; stale: ['yahoo_gc_futures'])",
->>>>>>> Stashed changes
       "spread_pct": null,
       "state": "UNRESOLVED",
       "tolerance_pct": 1.0
     }
-<<<<<<< Updated upstream
-  }
-=======
   },
   "health": {
     "level": "READ",
@@ -221,5 +150,4 @@
     "paper_only": true
   },
   "entries_allowed": true
->>>>>>> Stashed changes
 }
