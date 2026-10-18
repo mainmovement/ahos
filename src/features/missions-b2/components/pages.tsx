@@ -7,7 +7,7 @@ import {
   ideaFromContract, ideaHighlights, ideasFromShelfFile, one, parseFlag, parsePageState, parsePeriod, redact, tehranStamp,
   violationOf, ageHours, bridgeStatus, deliveryStatus, type Highlight, type IdeaRow, type PageState,
 } from "../lib/model";
-import { IDEA_SHELF_PATH, MISSIONS_STATUS_PATH, loadContract, readIdeaShelf, readMissionsStatus } from "../lib/data.server";
+import { IDEA_SHELF_PATH, MISSIONS_STATUS_PATH, loadContract, readIdeaShelf, readMessageHub, readMissionsStatus } from "../lib/data.server";
 
 type Params = Record<string, string | string[] | undefined>;
 const t = (k: string) => tr("fa", `missionsB2.${k}`);
@@ -81,9 +81,15 @@ function Table({ heads, children }: { heads: string[]; children: React.ReactNode
 /* ------------------------------------------------------------ message hub -- */
 export async function MessageHubPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.messageHub ?? null;
-  const base: Base | null = snap ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: true, source: snap.source, status: "DEMO" } : null;
-  const v = snap ? buildMessageHub(snap, true) : null;
+  const realHub = readMessageHub();
+  const snap = realHub ?? loadContract()?.messageHub ?? null;
+  const demoMode = snap ? (realHub ? false : snap.demo !== false) : true;
+  const base: Base | null = snap
+    ? realHub
+      ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: false, source: snap.source, status: "PARTIAL" }
+      : { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: true, source: snap.source, status: "DEMO" }
+    : null;
+  const v = snap ? buildMessageHub(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
   const f = frame("message-hub", c, base, { empty: !!v && v.highlights.length === 0, emptyBody: t("ui.noData") });
   return (
@@ -99,7 +105,7 @@ export async function MessageHubPage({ params }: { params: Params }) {
                 {v.snapshot.channels.map((ch) => (
                   <tr key={ch.channel}>
                     <td dir="ltr">{ch.channel}</td>
-                    <td><TruthChip status={demoize(ch.status, true)} size="sm" /></td>
+                    <td><TruthChip status={demoize(ch.status, demoMode)} size="sm" /></td>
                     <td dir="ltr" className="tv-mono"><Cell v={ch.lastMessageTime ? tehranStamp(ch.lastMessageTime) : null} /></td>
                     <td className="tv-num"><Cell v={ch.queueDepth === null ? null : formatNum(ch.queueDepth)} /></td>
                     <td><Cell v={redact(ch.lastError)} /></td>
@@ -110,8 +116,8 @@ export async function MessageHubPage({ params }: { params: Params }) {
             <div className="mb-sec">
               <h3 className="mb-h2">Telegram / {t("messageHub.nightly")}</h3>
               <div className="mb-grid2">
-                <div className="mb-kpi"><span className="mb-kpi__k">Telegram</span><span className="mb-kpi__v" dir="ltr">{v.snapshot.telegram.bridgeState}</span><TruthChip status={demoize(bridgeStatus(v.snapshot.telegram.bridgeState), true)} size="sm" /></div>
-                <div className="mb-kpi"><span className="mb-kpi__k">{t("messageHub.nightly")}</span><span className="mb-kpi__v" dir="ltr">{v.snapshot.nightlyReport.deliveryState}</span><TruthChip status={demoize(deliveryStatus(v.snapshot.nightlyReport.deliveryState), true)} size="sm" />
+                <div className="mb-kpi"><span className="mb-kpi__k">Telegram</span><span className="mb-kpi__v" dir="ltr">{v.snapshot.telegram.bridgeState}</span><TruthChip status={demoize(bridgeStatus(v.snapshot.telegram.bridgeState), demoMode)} size="sm" /></div>
+                <div className="mb-kpi"><span className="mb-kpi__k">{t("messageHub.nightly")}</span><span className="mb-kpi__v" dir="ltr">{v.snapshot.nightlyReport.deliveryState}</span><TruthChip status={demoize(deliveryStatus(v.snapshot.nightlyReport.deliveryState), demoMode)} size="sm" />
                   <span className="mb-hl__detail" dir="ltr">{tehranStamp(v.snapshot.nightlyReport.lastReportTime)} | {redact(v.snapshot.nightlyReport.evidenceLink)}</span></div>
               </div>
             </div>
@@ -120,7 +126,7 @@ export async function MessageHubPage({ params }: { params: Params }) {
               <p className="mb-hl__detail">{t("messageHub.gateNote")}</p>
               <Table heads={["ID", t("col.title"), t("col.requestedBy"), t("col.age"), t("col.status")]}>
                 {v.snapshot.humanGateInbox.map((g) => (
-                  <tr key={g.id}><td dir="ltr" className="tv-mono">{g.id}</td><td dir="auto">{redact(g.title)}</td><td dir="auto">{g.requestedByAgent}</td><td dir="ltr">{g.age}</td><td><TruthChip status={demoize(g.state, true)} size="sm" /></td></tr>
+                  <tr key={g.id}><td dir="ltr" className="tv-mono">{g.id}</td><td dir="auto">{redact(g.title)}</td><td dir="auto">{g.requestedByAgent}</td><td dir="ltr">{g.age}</td><td><TruthChip status={demoize(g.state, demoMode)} size="sm" /></td></tr>
                 ))}
               </Table>
             </div>
@@ -128,7 +134,7 @@ export async function MessageHubPage({ params }: { params: Params }) {
               <h3 className="mb-h2">{t("messageHub.log")}</h3>
               <Table heads={[t("col.time"), t("col.direction"), t("col.channel"), t("col.summary"), t("col.delivery")]}>
                 {v.snapshot.messageLog.map((m, i) => (
-                  <tr key={i}><td dir="ltr" className="tv-mono">{tehranStamp(m.time)}</td><td dir="ltr">{m.direction}</td><td dir="ltr">{m.channel}</td><td dir="auto">{redact(m.summary).slice(0, 120)}</td><td><TruthChip status={demoize(deliveryStatus(m.deliveryState), true)} size="sm" /></td></tr>
+                  <tr key={i}><td dir="ltr" className="tv-mono">{tehranStamp(m.time)}</td><td dir="ltr">{m.direction}</td><td dir="ltr">{m.channel}</td><td dir="auto">{redact(m.summary).slice(0, 120)}</td><td><TruthChip status={demoize(deliveryStatus(m.deliveryState), demoMode)} size="sm" /></td></tr>
                 ))}
               </Table>
             </div>
