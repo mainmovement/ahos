@@ -310,3 +310,21 @@ ext dev terminal output, fix the actual Turbopack error, then take a screenshot 
 - Still no real screenshots of / and /command_center. Commit or revert the uncommitted provider rewrites.
 - NOTE: last fresh session died with 'Autocompact is thrashing' - read big files (this README, logs) in small chunks (tail only).
 
+
+## SOLTAN QA 2026-10-17 12:15 - 67623a3 PASS-minor: 'use client' on providers is right. Do NOT rewrite whole files (line-ending churn hides the real diff). Still open: hsl(var()) wrapping hex tokens in globals.css, off-spec deps (canvas/puppeteer-core/screenshot-desktop/html2canvas), and NO real screenshot proof yet.
+
+### SOLTAN QA 2026-10-17 14:25 (71ca92b) PARTIAL
+- Good: canvas/html2canvas/puppeteer-core/screenshot-desktop removed from dependencies; .bg-ahos-panel/.text-ahos-text now use var() directly.
+- Still open: root globals.css (the file you edited) is NOT imported by app/layout.tsx, and it is deleted in the working copy. Put the imperial/neon tokens in the stylesheet the app actually loads (import it from app/layout.tsx) instead of inline style objects.
+- Fix the mis-indented class-variance-authority line in package.json, commit the matching package-lock.json, and decide whether puppeteer-core (line ~100) belongs in devDependencies only.
+- Your 12:44 screenshot reports/dashboard/screens/M13/dashboard-ahos-theme.png shows a Turbopack Build Error at app/layout.tsx:52. Retake real screenshots of / with no error overlay and commit them as proof.
+- Keep reads small: the last two sessions died with 'Autocompact is thrashing'. Read this README in chunks and never cat large logs or jsonl files.
+=== SOLTAN QA fcba2f3 (2026-10-17 16:15 Tehran) ===
+VERDICT: FAIL (repeat items regressed).
+1) puppeteer-core ^25.14.0 (devDeps) and playwright ^1.64.1 (deps) RE-ADDED to package.json; 71ca92b had removed off-spec screenshot deps. Screenshot tools must NOT be app deps. Remove both and regenerate package-lock.json.
+2) app/layout.tsx still imports NO globals.css; app/globals.css does not exist; root globals.css and 01/src/app/globals.css are deleted in the working copy but still tracked. Tailwind v4 is therefore never loaded. Moving AHOS tokens + fake --tw-* vars into an inline style on <html> is not a fix. Restore app/globals.css (Tailwind v4 @import 'tailwindcss' + AHOS imperial/neon tokens as plain hex/oklch, no hsl(var()) wrapping) and import it in app/layout.tsx.
+3) Screenshot dashboard_fix_20261017_142932.png is untracked; commit proof screenshots with the fix.
+4) Commit message claims 'Build succeeds' with no build log committed. Attach next build output.
+
+5) dashboard_fix_20261017_142932.png is NOT the AHOS dashboard: it is a desktop capture of an unrelated chat app window. That is fake proof. Proof screenshots must be captured headlessly from http://127.0.0.1:3000 (the dashboard route) and show the AHOS UI with no error overlay.
+

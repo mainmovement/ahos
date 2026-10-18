@@ -34,7 +34,16 @@ try:
 except ImportError:
     pass
 
+# Normalize empty AHOS_GATEWAY_URL to default gateway (same as operator_validation_gate.py)
 AHOS_GATEWAY_URL = os.environ.get("AHOS_GATEWAY_URL", "").strip()
+if not AHOS_GATEWAY_URL:
+    try:
+        from scripts.operator_validation_gate import _resolve_gateway
+        resolved = _resolve_gateway()
+        AHOS_GATEWAY_URL = resolved["url"]
+    except Exception:
+        # Fallback to default if resolution fails
+        AHOS_GATEWAY_URL = "http://127.0.0.1:3000/api/chat"
 
 # Mission 9.5: identity headers verified by chat_auth.ts.
 TG_UID_HEADER = "X-AHOS-TG-Uid"
