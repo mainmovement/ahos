@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-10-18T16:17:46Z",
+  "paper_only": true,
+  "suite": "M47+M42 halt drill",
+  "pytest_rc": 0,
+  "pytest_passed": true,
+  "targets": [
+    "tests/test_soak_halt_latch.py",
+    "tests/test_gold_halt_gate.py",
+    "tests/test_m47_m39_faults.py::test_halt_latches_until_owner_and_downgrade_does_not"
+  ],
+  "pytest_tail": "...                                                                      [100%]\n3 passed in 5.20s",
+  "live_soak": {
+    "status": "NOT_PROVEN_HERE",
+    "reason": "Running soak PID uses pre-restart code; owner restart via start_soak.ps1 (GAP 2)"
+  }
+}
