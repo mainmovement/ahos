@@ -197,10 +197,13 @@ def _tier_report(soak_dir: Path, ledger_path: Path | None,
                                if ledger_path is not None
                                else default_ledger_path())
         history = paper_history(ledger)
+        from architecture.markets.gate_inputs import tier_gate_kwargs
+
         report = evaluate_tier_gate(
             market="gold",
             trades=list(history.trades),
             months_of_data=history.months_of_data,
+            **tier_gate_kwargs(),
         )
         path = soak_dir / f"{record['day']}_tier_gate.md"
         write_gate_report(report, path)

@@ -1,0 +1,12 @@
+# M59.1 source registry seed (paper research only; nothing is fetched here)
+schema: ahos.university.sources.v1
+sources:
+  - url: https://arxiv.org/list/q-fin/recent
+    license: arXiv-TOS
+    faculty: quant
+  - url: https://api.openalex.org/works
+    license: OpenAlex-CC0
+    faculty: research
+  - url: https://fred.stlouisfed.org/
+    license: FRED-public
+    faculty: macro

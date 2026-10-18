@@ -1,0 +1,8 @@
+{
+  "label": "REPLAY_NOT_LIVE",
+  "declared_cost_model": "REPLAY_NOT_LIVE: gold 10 bps/side, 20 bps round-trip (GC=F daily replay protocol)",
+  "walk_forward_evidence": true,
+  "backtest_max_drawdown_pct": 25.0,
+  "verdict": "NO_PROVEN_EDGE",
+  "source": "G:/robat/ahos_replay/results.md"
+}
