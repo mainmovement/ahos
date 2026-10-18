@@ -191,6 +191,8 @@ class GoldPaperTrack:
     breaker: PaperBreaker | None = None
     #: Paper-desk admission. UNKNOWN blocks a new entry. It cannot enable live.
     venue_verdict: str = "ELIGIBLE"
+    #: M51: at most one improvement proposal per gold cycle id.
+    proposal_cycles: set[str] = field(default_factory=set)
 
     # ------------------------------------------------------------------ run --
 
@@ -224,7 +226,7 @@ class GoldPaperTrack:
         # a breached limit, a depeg) is the vision's stop, and the track reads
         # it back here rather than trusting the reconcile to have stopped it.
         halt_state = self._check_halt(ledger)
-        path_info, path_blocks = self._entry_path(ledger=ledger, now=now)
+        path_info, path_blocks = self._entry_path(ledger=ledger, now=now, cycle=cycle)
         self.last_path = path_info
         # Extra gates can only add blocks. They cannot reopen a breaker or halt.
         entry_blocked = (price is not None and self.position is None
@@ -284,15 +286,19 @@ class GoldPaperTrack:
         # is the realized equity path, not the pre-trade bankroll.
         self.equity_curve.append(self.equity_usd)
 
+        close_eval: dict[str, Any] | None = None
+        if ledger is not None and realized is not None:
+            close_eval = self._eval_closed_trade(
+                ledger, cycle=cycle, realized=realized, now=now,
+            )
+            if realized < 0:
+                self._file_lesson(ledger, cycle=cycle, realized=realized)
+
         recorded, ledger_error = self._record(
             ledger=ledger, cycle=cycle, now=now, witness=witness,
             price=price, exit_event=exit_event, realized=realized,
             unpriced_for=unpriced_for, breaker=breaker_state, halt=halt_state,
-            path_info=path_info)
-        if recorded and realized is not None and ledger is not None:
-            self._eval_closed_trade(ledger, cycle=cycle, realized=realized, now=now)
-            if realized < 0:
-                self._file_lesson(ledger, cycle=cycle, realized=realized)
+            path_info=path_info, close_eval=close_eval)
 
         return GoldCycleResult(
             cycle=cycle,
@@ -358,6 +364,7 @@ class GoldPaperTrack:
         *,
         ledger: MissionLedger | None = None,
         now: float = 0.0,
+        cycle: int = 0,
     ) -> tuple[dict, tuple[str, ...]]:
         """OMS, venue, crisis, Kelly ceiling, and a non-order model slot.
 
@@ -390,12 +397,15 @@ class GoldPaperTrack:
         if capped > self.notional_usd:
             blocks.append("size increased")
         slot = choose_slot((FrontierSlot("local", OPEN, 0.0),), purpose="council")
+        proposal_id = f"gold-{cycle}"
         proposal = propose(
-            cycle_id=f"gold-{self.cycles + 1}",
-            seen_cycles=set(),
+            cycle_id=proposal_id,
+            seen_cycles=self.proposal_cycles,
             target="docs/paper_note.md",
             based_on_own_output=False,
         )
+        if proposal.accepted:
+            self.proposal_cycles.add(proposal_id)
         lessons = self._lessons_snapshot(ledger, now=now)
         info = {
             "oms": oms.state,
@@ -409,6 +419,12 @@ class GoldPaperTrack:
             "blocks": list(blocks),
             "live": False,
             "proposal_merge": proposal.merge,
+            "m51": {
+                "accepted": proposal.accepted,
+                "reason": proposal.reason,
+                "merge": proposal.merge,
+                "cycle_id": proposal.cycle_id,
+            },
             "lessons": lessons,
         }
         return info, tuple(blocks)
@@ -420,7 +436,7 @@ class GoldPaperTrack:
         cycle: int,
         realized: float,
         now: float,
-    ) -> None:
+    ) -> dict[str, Any] | None:
         """M58.1 direction check on close; files UNVERIFIED lesson, never moves gates."""
         try:
             from datetime import datetime, timezone
@@ -435,7 +451,7 @@ class GoldPaperTrack:
             outcome_ts = datetime.fromtimestamp(now, tz=timezone.utc).strftime(
                 "%Y-%m-%dT%H:%M:%SZ",
             )
-            evaluate_paper_decision(
+            scored = evaluate_paper_decision(
                 store,
                 lesson_id=f"gold-eval-{cycle}",
                 market="gold",
@@ -447,8 +463,14 @@ class GoldPaperTrack:
                 gate_limit=3.0,
             )
             store.close()
+            return {
+                "lesson_id": scored.lesson_id,
+                "hit": scored.hit,
+                "retrieval_weight": scored.retrieval_weight,
+                "gate_limit": scored.gate_limit,
+            }
         except Exception:
-            return
+            return None
 
     def _file_lesson(self, ledger: MissionLedger, *, cycle: int, realized: float) -> None:
         """A loss becomes an unverified lesson beside the ledger, not inside it."""
@@ -575,7 +597,8 @@ class GoldPaperTrack:
                 unpriced_for: float | None,
                 breaker: BreakerState | None,
                 halt: "HaltGate | None" = None,
-                path_info: dict | None = None) -> tuple[bool, str | None]:
+                path_info: dict | None = None,
+                close_eval: dict[str, Any] | None = None) -> tuple[bool, str | None]:
         if ledger is None:
             return False, None
         payload = {
@@ -632,6 +655,7 @@ class GoldPaperTrack:
             },
             "paper_only": True,
             "path": path_info or {"live": False, "blocks": []},
+            "close_eval": close_eval,
         }
         try:
             ledger.checkpoint(

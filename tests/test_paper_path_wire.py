@@ -30,6 +30,8 @@ def test_a_clean_entry_is_booked_through_the_paper_path(tmp_path):
     assert path["live"] is False
     assert path["blocks"] == []
     assert path["proposal_merge"] is False
+    assert path["m51"]["merge"] is False
+    assert path["m51"]["accepted"] is True
     assert path["notional_usd"] <= 1000.0
     report = judge_paper_ledger(ledger, GOLD_PAPER_MISSION)
     assert report.verdict != "BROKEN_CHAIN"
