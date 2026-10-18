@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-10-18T02:02:42Z",
+  "paper_only": true,
+  "suite": "M39",
+  "faults": [
+    {
+      "fault": "stale_feed",
+      "level": "HALT",
+      "reason": "price feed older than freshness bound",
+      "elapsed_sec": 1.6999997569655534e-06,
+      "promotion_rejected": false,
+      "within_budget": true
+    },
+    {
+      "fault": "provider_error",
+      "level": "HALT",
+      "reason": "provider returned an error",
+      "elapsed_sec": 6.000000212225132e-07,
+      "promotion_rejected": false,
+      "within_budget": true
+    },
+    {
+      "fault": "ledger_mismatch",
+      "level": "HALT",
+      "reason": "ledger reconcile mismatch",
+      "elapsed_sec": 4.000003173132427e-07,
+      "promotion_rejected": false,
+      "within_budget": true
+    },
+    {
+      "fault": "usdt_depeg",
+      "level": "HALT",
+      "reason": "USDT deviation above 0.5%",
+      "elapsed_sec": 4.000003173132427e-07,
+      "promotion_rejected": false,
+      "within_budget": true
+    },
+    {
+      "fault": "broker_api_anomaly",
+      "level": "HALT",
+      "reason": "broker API anomaly on the paper path",
+      "elapsed_sec": 3.999998625658918e-07,
+      "promotion_rejected": false,
+      "within_budget": true
+    }
+  ],
+  "all_halt": true,
+  "all_within_budget": true
+}

@@ -224,7 +224,7 @@ class GoldPaperTrack:
         # a breached limit, a depeg) is the vision's stop, and the track reads
         # it back here rather than trusting the reconcile to have stopped it.
         halt_state = self._check_halt(ledger)
-        path_info, path_blocks = self._entry_path()
+        path_info, path_blocks = self._entry_path(ledger=ledger, now=now)
         self.last_path = path_info
         # Extra gates can only add blocks. They cannot reopen a breaker or halt.
         entry_blocked = (price is not None and self.position is None
@@ -309,7 +309,51 @@ class GoldPaperTrack:
 
     # ------------------------------------------------------------- risk gate --
 
-    def _entry_path(self) -> tuple[dict, tuple[str, ...]]:
+    def _lessons_snapshot(
+        self, ledger: MissionLedger | None, *, now: float,
+    ) -> dict[str, Any]:
+        """Read M49 beside the ledger before sizing. Lessons never move gates."""
+        empty: dict[str, Any] = {
+            "visible_gold": 0,
+            "weight_one": 0,
+            "sample": [],
+            "notional_unchanged": True,
+        }
+        if ledger is None:
+            return empty
+        try:
+            from datetime import datetime, timezone
+
+            from architecture.learning.lessons_ledger import LessonsLedger, apply_gate
+
+            store = LessonsLedger(ledger.path.with_name("m49_lessons.sqlite"))
+            as_of = datetime.fromtimestamp(now, tz=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ",
+            )
+            visible = [row for row in store.visible(as_of) if row.market == "gold"]
+            weight_one = sum(
+                1
+                for row in visible
+                if store.retrieval_weight(row.lesson_id, as_of=as_of) >= 1.0
+            )
+            capped_after = apply_gate(float(self.notional_usd), visible)
+            sample = [row.lesson_id for row in visible[-5:]]
+            store.close()
+            return {
+                "visible_gold": len(visible),
+                "weight_one": weight_one,
+                "sample": sample,
+                "notional_unchanged": capped_after == float(self.notional_usd),
+            }
+        except Exception:
+            return empty
+
+    def _entry_path(
+        self,
+        *,
+        ledger: MissionLedger | None = None,
+        now: float = 0.0,
+    ) -> tuple[dict, tuple[str, ...]]:
         """OMS, venue, crisis, Kelly ceiling, and a non-order model slot.
 
         Kelly at zero (too few trades) is recorded and does not freeze the
@@ -347,6 +391,7 @@ class GoldPaperTrack:
             target="docs/paper_note.md",
             based_on_own_output=False,
         )
+        lessons = self._lessons_snapshot(ledger, now=now)
         info = {
             "oms": oms.state,
             "oms_reason": oms.reason,
@@ -359,6 +404,7 @@ class GoldPaperTrack:
             "blocks": list(blocks),
             "live": False,
             "proposal_merge": proposal.merge,
+            "lessons": lessons,
         }
         return info, tuple(blocks)
 
