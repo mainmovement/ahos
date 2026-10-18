@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-10-18T20:21:52Z",
+  "paper_only": true,
+  "selfEvaluation": {
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "M13_REPLAY/tier_gate_exports/summary.json",
+    "generatedAt": "2026-10-18T20:21:52Z",
+    "demo": false,
+    "scorecards": [
+      {
+        "period": "week",
+        "decisionsReviewed": 10,
+        "decisionsWithEvidence": 4,
+        "decisionsWithUnseenCheck": null,
+        "calibrationNote": "REPLAY_NOT_LIVE: NO_PROVEN_EDGE; gold tier T0",
+        "unresolvedItems": 1,
+        "highlights": [
+          {
+            "id": "tier-gold",
+            "market": "gold",
+            "rationaleSummary": "measurable 4/10",
+            "outcomeKnown": "no",
+            "reviewState": "REVIEWED"
+          }
+        ],
+        "allDecisions": []
+      },
+      {
+        "period": "month",
+        "decisionsReviewed": 10,
+        "decisionsWithEvidence": 4,
+        "decisionsWithUnseenCheck": null,
+        "calibrationNote": "REPLAY_NOT_LIVE: NO_PROVEN_EDGE; gold tier T0",
+        "unresolvedItems": 1,
+        "highlights": [
+          {
+            "id": "tier-gold",
+            "market": "gold",
+            "rationaleSummary": "measurable 4/10",
+            "outcomeKnown": "no",
+            "reviewState": "REVIEWED"
+          }
+        ],
+        "allDecisions": []
+      }
+    ]
+  }
+}

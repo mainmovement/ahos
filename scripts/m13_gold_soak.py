@@ -183,7 +183,11 @@ def _daily_report(soak_dir: Path, ledger_path: Path | None,
     try:
         import subprocess
 
-        for script in ("export_m49_lessons_snapshot.py", "export_message_hub_snapshot.py"):
+        for script in (
+            "export_m49_lessons_snapshot.py",
+            "export_message_hub_snapshot.py",
+            "export_self_eval_snapshot.py",
+        ):
             subprocess.run(
                 [sys.executable, str(ROOT / "scripts" / script)],
                 cwd=str(ROOT),
