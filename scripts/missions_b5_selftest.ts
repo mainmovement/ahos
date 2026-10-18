@@ -4,7 +4,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
   CALM_MAX, HEARTBEAT_MAX_MIN, buildAgents, buildCapability, buildNightly, buildUniversity, capHighlights, clean, examResult, freshOf, needsOwner,
-  parseAgentRegistry, parseBenchmark, parseCriteria, parseDigest, parseJudgeNumbers, parseProposal, parseTier, parseVerdict, presenceOf, stageOf, trend, verdictStatus,
+  parseAgentRegistry, parseBenchmark, parseCriteria, parseDigest, parseJudgeNumbers, parseProposal, parseTier, parseUniversitySources, parseVerdict, presenceOf, stageOf, trend, verdictStatus,
 } from "../src/features/missions-b5/lib/model";
 import { validateContract } from "../src/features/missions-b5/contract/validate";
 import { findForbiddenControl } from "../src/features/trade-venue/logic/truth";
@@ -77,6 +77,15 @@ test("nightly view: DEMO excluded from counts, real counted, latest first, missi
   assert.deepEqual(v.counts, { nights: 2, closed: 8, fresh: 1, unknownVerdicts: 1 });
   assert.equal(v.latest?.day, "2026-10-16");
   assert.equal(buildNightly([], NOW, false).latest, null);
+});
+
+test("university: parseUniversitySources reads registry rows from yaml", () => {
+  const yaml = `schema: ahos.university.sources.v1\nsources:\n  - url: https://example.org/x\n    license: CC0\n    faculty: quant\n`;
+  const rows = parseUniversitySources(yaml);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].demo, false);
+  assert.equal(rows[0].domain, "example.org");
+  assert.equal(rows[0].access, "registry");
 });
 
 test("university: exam score is neutral and insufficient without items>=30, CI and hash; DEMO not counted", () => {

@@ -138,7 +138,10 @@ export function buildUniversity(s: { sources: { demo: boolean; id: string; name:
       const r = examResult(e);
       return { id: `exam-${i}-${e.agent}`, title: `${e.agent} ${e.week ?? MISSING}`, detail: `${r.label} | n=${num(e.items)} | ${e.ci ? `CI ${e.ci[0]}-${e.ci[1]}` : "CI -"}`, status: demo || e.demo ? "DEMO" : r.sufficient ? "PARTIAL" : "UNKNOWN", tag: "exam" };
     }),
-    ...s.sources.map((r): Highlight => ({ id: r.id, title: clean(r.name, 80), detail: `${r.domain} | score ${num(r.score)}`, status: demo || r.demo ? "DEMO" : "UNKNOWN", tag: "source" })),
+    ...s.sources.map((r): Highlight => ({
+      id: r.id, title: clean(r.name, 80), detail: `${r.domain} | ${r.access ?? "source"} | score ${num(r.score)}`,
+      status: demo || r.demo ? "DEMO" : r.access === "registry" ? "PARTIAL" : "UNKNOWN", tag: "source",
+    })),
   ];
   const cs = nonDemo(s.sources), ce = nonDemo(s.exams), cb = nonDemo(s.bank);
   const counts = demo || cs.length + ce.length + cb.length === 0 ? null : { sources: cs.length, exams: ce.length, bankItems: cb.reduce((a, b) => a + (b.count ?? 0), 0) };
@@ -214,6 +217,45 @@ export function buildAgents(agents: Agent[], nowMs: number, demo: boolean) {
     exists: by("EXISTS"), partial: by("PARTIAL"), planned: by("PLANNED"), missing: by("MISSING"),
   };
   return { rows: sorted, highlights, counts };
+}
+
+/** Tolerant parser for config/university/sources.yaml (sources block only). */
+export function parseUniversitySources(text: string): import("../contract/types").Source[] {
+  const sources: import("../contract/types").Source[] = [];
+  let cur: Record<string, string> | null = null;
+  const flush = () => {
+    if (!cur?.url) { cur = null; return; }
+    let domain = cur.url;
+    try { domain = new URL(cur.url).hostname; } catch { domain = cur.url; }
+    const id = `src-${sources.length + 1}`;
+    sources.push({
+      demo: false,
+      id,
+      name: cur.url,
+      domain,
+      category: cur.faculty ?? "research",
+      access: "registry",
+      licence: cur.license ?? null,
+      tosOk: null,
+      authority: null,
+      recency: null,
+      trackRecord: null,
+      citations: null,
+      score: null,
+    });
+    cur = null;
+  };
+  const unq = (v: string) => v.trim().replace(/^["']|["']$/g, "");
+  for (const line of text.split(/\r?\n/)) {
+    const start = line.match(/^ {2}- url:\s*(.+?)\s*$/);
+    if (start) { flush(); cur = { url: unq(start[1]) }; continue; }
+    if (!cur) continue;
+    if (/^\S/.test(line)) { flush(); continue; }
+    const f = line.match(/^ {4}(license|faculty):\s*(.*?)\s*$/);
+    if (f) cur[f[1]] = unq(f[2]);
+  }
+  flush();
+  return sources;
 }
 
 /** Tolerant line parser for config/agent_registry.yaml (no YAML dependency). Unparseable => empty list. */

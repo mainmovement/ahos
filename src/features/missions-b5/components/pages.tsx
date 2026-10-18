@@ -8,7 +8,7 @@ import {
   EXAM_MIN_ITEMS, EXAM_SCHEDULE, MISSING, NIGHT_STALE_HOURS, REGISTERED, buildAgents, buildCapability, buildNightly, buildUniversity, capHighlights, clean,
   examResult, freshOf, needsOwner, num, presenceChip, proposalStatus, verdictStatus,
 } from "../lib/model";
-import { REGISTRY_PATH, SOAK_DIR, loadContract, readAgentRegistry, readCapabilityLab, readNightly, universityRealSourceExists } from "../lib/data.server";
+import { REGISTRY_PATH, SOAK_DIR, loadContract, readAgentRegistry, readCapabilityLab, readNightly, readUniversity, universityRealSourceExists } from "../lib/data.server";
 import { STAGES, type SectionMeta } from "../contract/types";
 
 type Params = Record<string, string | string[] | undefined>;
@@ -114,12 +114,14 @@ export async function NightlyReportPage({ params }: { params: Params }) {
 /* --------------------------------------------------------------- university */
 export async function UniversityPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.university ?? null; // no real parser: config/university/sources.yaml absent on this machine
-  const v = snap ? buildUniversity(snap, true) : null;
+  const snap = readUniversity() ?? loadContract()?.university ?? null;
+  const demoMode = snap ? snap.demo : true;
+  const v = snap ? buildUniversity(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
-  const f = frame("university", c, snap ? baseOf(snap, "DEMO") : null, {
+  const statusChip: ChipStatus = !snap ? "UNAVAILABLE" : snap.demo ? "DEMO" : "PARTIAL";
+  const f = frame("university", c, snap ? baseOf(snap, statusChip) : null, {
     empty: !!snap && snap.sources.length + snap.exams.length + snap.bank.length === 0, emptyBody: tb2("ui.noData"),
-    note: universityRealSourceExists() ? t("university.fileNoParser") : t("university.noRealSource"),
+    note: snap && !snap.demo ? t("university.registryOnly") : universityRealSourceExists() ? t("university.fileNoParser") : t("university.noRealSource"),
   });
   return (
     <PageFrame {...f}>
@@ -140,7 +142,7 @@ export async function UniversityPage({ params }: { params: Params }) {
                   <td dir="ltr" className="tv-mono">{s.id}</td><td dir="auto">{clean(s.name, 80)}</td><td dir="auto">{s.domain}</td><td dir="auto">{s.category}</td>
                   <td dir="ltr"><Cell v={s.access} /></td><td dir="ltr"><Cell v={s.licence} /></td><td dir="ltr"><Cell v={s.tosOk === null ? null : String(s.tosOk)} /></td>
                   <td dir="ltr"><Cell v={s.authority} /></td><td dir="ltr"><Cell v={s.recency} /></td><td dir="ltr"><Cell v={s.trackRecord} /></td><td dir="ltr"><Cell v={s.citations} /></td><td dir="ltr"><Cell v={s.score} /></td>
-                  <td><TruthChip status="DEMO" size="sm" /></td>
+                  <td><TruthChip status={demoMode || s.demo ? "DEMO" : "PARTIAL"} size="sm" /></td>
                 </tr>
               ))}
             </Table>

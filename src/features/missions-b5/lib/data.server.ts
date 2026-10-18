@@ -10,8 +10,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import example from "../contract/ahos-arena-contract.example.json";
 import { validateContract } from "../contract/validate";
-import type { AhosArenaContract, AgentCenterSnapshot, CapabilityLabSnapshot, Night, NightlyReportSnapshot } from "../contract/types";
-import { parseAgentRegistry, parseBenchmark, parseCriteria, parseDigest, parseJudgeNumbers, parseProposal, parseTier, parseVerdict } from "./model";
+import type { AhosArenaContract, AgentCenterSnapshot, CapabilityLabSnapshot, Night, NightlyReportSnapshot, UniversitySnapshot } from "../contract/types";
+import { parseAgentRegistry, parseBenchmark, parseCriteria, parseDigest, parseJudgeNumbers, parseProposal, parseTier, parseUniversitySources, parseVerdict } from "./model";
 
 export function loadContract(): AhosArenaContract | null {
   return validateContract(example) ? (example as unknown as AhosArenaContract) : null;
@@ -89,3 +89,21 @@ export function readCapabilityLab(): CapabilityLabSnapshot | null {
 }
 
 export const universityRealSourceExists = (): boolean => existsSync(UNIVERSITY_SOURCES_PATH);
+
+export function readUniversity(): UniversitySnapshot | null {
+  const text = read(UNIVERSITY_SOURCES_PATH);
+  if (!text) return null;
+  const sources = parseUniversitySources(text);
+  if (sources.length === 0) return null;
+  return {
+    kind: "university",
+    executionMode: "PAPER_ONLY",
+    realTrading: false,
+    source: "config/university/sources.yaml",
+    generatedAt: iso(mtime(UNIVERSITY_SOURCES_PATH)),
+    demo: false,
+    sources,
+    exams: [],
+    bank: [],
+  };
+}
