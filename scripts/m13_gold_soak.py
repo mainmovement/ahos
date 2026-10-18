@@ -180,6 +180,17 @@ def _daily_report(soak_dir: Path, ledger_path: Path | None,
         digest_path.write_text(
             json.dumps(digest, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8")
+    try:
+        import subprocess
+
+        subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "export_m49_lessons_snapshot.py")],
+            cwd=str(ROOT),
+            timeout=120,
+            check=False,
+        )
+    except Exception:  # noqa: BLE001 - Arena export must not block the judge
+        pass
     return {
         "ts": _utc_stamp(),
         "kind": "daily",
