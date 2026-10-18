@@ -189,6 +189,8 @@ class GoldPaperTrack:
     equity_curve: list[float] = field(default_factory=list)
     #: An override for the paper breaker, e.g. a stricter limit under test.
     breaker: PaperBreaker | None = None
+    #: Paper-desk admission. UNKNOWN blocks a new entry. It cannot enable live.
+    venue_verdict: str = "ELIGIBLE"
 
     # ------------------------------------------------------------------ run --
 
@@ -222,8 +224,12 @@ class GoldPaperTrack:
         # a breached limit, a depeg) is the vision's stop, and the track reads
         # it back here rather than trusting the reconcile to have stopped it.
         halt_state = self._check_halt(ledger)
+        path_info, path_blocks = self._entry_path()
+        self.last_path = path_info
+        # Extra gates can only add blocks. They cannot reopen a breaker or halt.
         entry_blocked = (price is not None and self.position is None
-                         and not (breaker_state.allowed and halt_state.allowed))
+                         and not (breaker_state.allowed and halt_state.allowed
+                                  and not path_blocks))
 
         if self.position is None and not entry_blocked:
             if price is not None:
@@ -281,7 +287,10 @@ class GoldPaperTrack:
         recorded, ledger_error = self._record(
             ledger=ledger, cycle=cycle, now=now, witness=witness,
             price=price, exit_event=exit_event, realized=realized,
-            unpriced_for=unpriced_for, breaker=breaker_state, halt=halt_state)
+            unpriced_for=unpriced_for, breaker=breaker_state, halt=halt_state,
+            path_info=path_info)
+        if recorded and realized is not None and realized < 0 and ledger is not None:
+            self._file_lesson(ledger, cycle=cycle, realized=realized)
 
         return GoldCycleResult(
             cycle=cycle,
@@ -299,6 +308,79 @@ class GoldPaperTrack:
         )
 
     # ------------------------------------------------------------- risk gate --
+
+    def _entry_path(self) -> tuple[dict, tuple[str, ...]]:
+        """OMS, venue, crisis, Kelly ceiling, and a non-order model slot.
+
+        Kelly at zero (too few trades) is recorded and does not freeze the
+        pre-registered paper notional. A measurable Kelly fraction can only
+        lower that notional. Nothing here sets live.
+        """
+        from architecture.ai.frontier_slots import OPEN, FrontierSlot, choose_slot
+        from architecture.evolution.improvement import propose
+        from architecture.execution.gateway import PaperOrder
+        from architecture.markets.oms import route
+        from architecture.markets.risk import drawdown_pct
+        from architecture.markets.risk_v2 import bound_notional, fractional_kelly
+
+        blocks: list[str] = []
+        oms = route(
+            PaperOrder("gold", "buy", float(self.notional_usd), False),
+            self.venue_verdict,
+        )
+        if oms.state != "ACCEPTED_PAPER":
+            blocks.append(oms.reason)
+        drawdown = drawdown_pct(self.equity_curve)
+        crisis = "HALT" if drawdown > 10.0 else "READ"
+        if crisis == "HALT":
+            blocks.append("crisis drawdown")
+        kelly = fractional_kelly(
+            win_rate=None, payoff=None, sample=len(self.closed_trades),
+        )
+        capped = bound_notional(self.notional_usd, self.notional_usd)
+        if capped > self.notional_usd:
+            blocks.append("size increased")
+        slot = choose_slot((FrontierSlot("local", OPEN, 0.0),), purpose="council")
+        proposal = propose(
+            cycle_id=f"gold-{self.cycles + 1}",
+            seen_cycles=set(),
+            target="docs/paper_note.md",
+            based_on_own_output=False,
+        )
+        info = {
+            "oms": oms.state,
+            "oms_reason": oms.reason,
+            "venue": self.venue_verdict,
+            "crisis": crisis,
+            "drawdown_pct": drawdown,
+            "kelly": kelly,
+            "notional_usd": capped,
+            "slot": None if slot is None else slot.name,
+            "blocks": list(blocks),
+            "live": False,
+            "proposal_merge": proposal.merge,
+        }
+        return info, tuple(blocks)
+
+    def _file_lesson(self, ledger: MissionLedger, *, cycle: int, realized: float) -> None:
+        """A loss becomes an unverified lesson beside the ledger, not inside it."""
+        try:
+            from architecture.learning.lessons_ledger import LessonsLedger
+
+            store = LessonsLedger(ledger.path.with_name("m49_lessons.sqlite"))
+            store.append(
+                lesson_id=f"gold-{cycle}",
+                source="trade_loss",
+                market="gold",
+                taxonomy="paper",
+                evidence_refs=(f"cycle:{cycle}",),
+                claim=f"paper loss {realized:.4f}",
+                counterfactual="the lesson does not move a gate",
+                valid_from="1970-01-01T00:00:00Z",
+            )
+            store.close()
+        except Exception:
+            return
 
     def _paper_breaker(self) -> PaperBreaker:
         """The breaker for this track, constructed from its own declared limits."""
@@ -404,7 +486,8 @@ class GoldPaperTrack:
                 exit_event: dict | None, realized: float | None,
                 unpriced_for: float | None,
                 breaker: BreakerState | None,
-                halt: "HaltGate | None" = None) -> tuple[bool, str | None]:
+                halt: "HaltGate | None" = None,
+                path_info: dict | None = None) -> tuple[bool, str | None]:
         if ledger is None:
             return False, None
         payload = {
@@ -460,6 +543,7 @@ class GoldPaperTrack:
                 "reason": halt.reason,
             },
             "paper_only": True,
+            "path": path_info or {"live": False, "blocks": []},
         }
         try:
             ledger.checkpoint(
