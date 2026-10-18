@@ -77,8 +77,10 @@ class TelegramDomainService:
 
     def handle_message(self, text: str, user_context: dict | None = None) -> dict[str, Any]:
         """Telegram -> Gateway -> Core only. No independent scoring."""
-        if AHOS_GATEWAY_URL:
-            gw = self._call_conversation_gateway(text, user_context or {})
+        # Normalize empty URL at call time (covers environment variable set to "")
+        gateway_url = AHOS_GATEWAY_URL or "http://127.0.0.1:3000/api/chat"
+        if gateway_url:
+            gw = self._call_conversation_gateway(text, user_context or {}, gateway_url)
             if gw is not None:
                 text_out = gw.get("text") or gw.get("answer") or gw.get("reply") or ""
                 if text_out and FOOTER_MANDATED not in text_out:
@@ -111,7 +113,7 @@ class TelegramDomainService:
             "footer_injected": True,
         }
 
-    def _call_conversation_gateway(self, text: str, user_context: dict) -> dict[str, Any] | None:
+    def _call_conversation_gateway(self, text: str, user_context: dict, gateway_url: str) -> dict[str, Any] | None:
         try:
             payload = {
                 "message": text,
@@ -131,7 +133,7 @@ class TelegramDomainService:
             # the gateway treats this caller as unverified (not the owner).
             self._sign_identity(headers, payload["user_id"], data)
             req = urllib.request.Request(
-                AHOS_GATEWAY_URL,
+                gateway_url,
                 data=data,
                 headers=headers,
                 method="POST",
