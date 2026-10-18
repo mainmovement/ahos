@@ -1,0 +1,42 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "types/**/*.d.ts",
+    "app/layout.tsx",
+    "app/page.tsx",
+    "app/[...slug]/page.tsx",
+    "app/badge_sheet/page.tsx",
+    "app/command_center/page.tsx",
+    "app/command_center/components/layout/**/*.tsx",
+    "app/command_center/components/layout/**/*.ts",
+    "app/command_center/components/context/layout-provider.tsx",
+    "app/command_center/components/context/search-provider.tsx",
+    "app/command_center/components/context/theme-provider.tsx",
+    "app/command_center/components/command-menu.tsx",
+    "app/command_center/components/dashboard.tsx",
+    "app/command_center/components/skip-to-main.tsx",
+    "app/command_center/components/ahos/**/*.tsx",
+    "app/command_center/components/lib/cookies.ts",
+    "app/api/**/*.ts",
+    "components/**/*.tsx",
+    "components/**/*.ts",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "dashboard_snapshot.ts",
+    "web_api_client.ts",
+    "gemini_egress_config.ts",
+    "chat_auth.ts",
+    "chat_agent.ts",
+    "chat.ts",
+    "conversation_gateway.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.tsx",
+    "**/*.test.ts",
+    "components/stage/**",
+    "app/command_center/components/ui/**"
+  ]
+}

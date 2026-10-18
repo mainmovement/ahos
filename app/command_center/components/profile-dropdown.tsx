@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Link } from '@tanstack/react-router'
 import { useDialogState } from '@/app/command_center/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'

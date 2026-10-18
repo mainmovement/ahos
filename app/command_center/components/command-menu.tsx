@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'next/link'
+import Link from 'next/link'
 import { ArrowRight, ChevronRight, Laptop, Moon, Sun } from 'lucide-react'
 import { useSearch } from '@/app/command_center/components/context/search-provider'
 import { useTheme } from '@/app/command_center/components/context/theme-provider'
@@ -17,21 +17,21 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function CommandMenu() {
   const { setTheme } = useTheme()
-  const { open, setOpen } = useSearch()
+  const { open, setIsOpen } = useSearch()
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
-      setOpen(false)
+      setIsOpen(false)
       command()
     },
-    [setOpen]
+    [setIsOpen]
   )
 
   return (
-    <CommandDialog modal open={open} onOpenChange={setOpen}>
+    <CommandDialog modal open={open} onOpenChange={setIsOpen}>
       <CommandInput placeholder='Type a command or search...' />
       <CommandList>
-        <ScrollArea type='hover' className='h-72 pe-1'>
+        <ScrollArea className='h-72 pe-1'>
           <CommandEmpty>No results found.</CommandEmpty>
           {sidebarData.navGroups.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>

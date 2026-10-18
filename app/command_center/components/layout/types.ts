@@ -50,4 +50,4 @@ export type HeaderProps = React.HTMLAttributes<HTMLElement> & {
   }[]
 }
 
-export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink }
+export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink, User, Team }

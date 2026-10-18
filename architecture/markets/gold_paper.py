@@ -289,8 +289,10 @@ class GoldPaperTrack:
             price=price, exit_event=exit_event, realized=realized,
             unpriced_for=unpriced_for, breaker=breaker_state, halt=halt_state,
             path_info=path_info)
-        if recorded and realized is not None and realized < 0 and ledger is not None:
-            self._file_lesson(ledger, cycle=cycle, realized=realized)
+        if recorded and realized is not None and ledger is not None:
+            self._eval_closed_trade(ledger, cycle=cycle, realized=realized, now=now)
+            if realized < 0:
+                self._file_lesson(ledger, cycle=cycle, realized=realized)
 
         return GoldCycleResult(
             cycle=cycle,
@@ -337,6 +339,7 @@ class GoldPaperTrack:
                 if store.retrieval_weight(row.lesson_id, as_of=as_of) >= 1.0
             )
             capped_after = apply_gate(float(self.notional_usd), visible)
+            daily_cap = apply_gate(3.0, visible)
             sample = [row.lesson_id for row in visible[-5:]]
             store.close()
             return {
@@ -344,6 +347,8 @@ class GoldPaperTrack:
                 "weight_one": weight_one,
                 "sample": sample,
                 "notional_unchanged": capped_after == float(self.notional_usd),
+                "m58_daily_cap_pct": daily_cap,
+                "m58_cap_unchanged": daily_cap == 3.0,
             }
         except Exception:
             return empty
@@ -407,6 +412,43 @@ class GoldPaperTrack:
             "lessons": lessons,
         }
         return info, tuple(blocks)
+
+    def _eval_closed_trade(
+        self,
+        ledger: MissionLedger,
+        *,
+        cycle: int,
+        realized: float,
+        now: float,
+    ) -> None:
+        """M58.1 direction check on close; files UNVERIFIED lesson, never moves gates."""
+        try:
+            from datetime import datetime, timezone
+
+            from architecture.learning.decision_eval import evaluate_paper_decision
+            from architecture.learning.lessons_ledger import LessonsLedger
+
+            store = LessonsLedger(ledger.path.with_name("m49_lessons.sqlite"))
+            decision_ts = datetime.fromtimestamp(now - 1.0, tz=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ",
+            )
+            outcome_ts = datetime.fromtimestamp(now, tz=timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ",
+            )
+            evaluate_paper_decision(
+                store,
+                lesson_id=f"gold-eval-{cycle}",
+                market="gold",
+                decision_ts=decision_ts,
+                predicted="up",
+                outcome_ts=outcome_ts,
+                realized="up" if realized >= 0 else "down",
+                evidence_ref=f"cycle:{cycle}",
+                gate_limit=3.0,
+            )
+            store.close()
+        except Exception:
+            return
 
     def _file_lesson(self, ledger: MissionLedger, *, cycle: int, realized: float) -> None:
         """A loss becomes an unverified lesson beside the ledger, not inside it."""

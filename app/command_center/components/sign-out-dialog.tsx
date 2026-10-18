@@ -8,11 +8,11 @@ import { useLayout } from '@/app/command_center/components/context/layout-provid
 
 export function SignOutDialog() {
   const [open, setOpen] = useState(false)
-  const { setIsSidebarOpen } = useLayout()
+  const { resetLayout } = useLayout()
 
   const handleSignOut = () => {
     setOpen(false)
-    setIsSidebarOpen(false)
+    resetLayout()
   }
 
   return (

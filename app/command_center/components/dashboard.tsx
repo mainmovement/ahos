@@ -4,10 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { useSnap } from '@/components/ahos/use-command-snapshot'
 import { AhosOverview } from '@/app/command_center/components/ahos/overview'
-import { Dashboard as TemplateDashboard } from '@/app/command_center/components/dashboard/template-dashboard'
 
 export function Dashboard() {
-  const { data, stale, loading } = useSnap()
+  const { loading } = useSnap()
 
   if (loading) {
     return (
@@ -20,5 +19,5 @@ export function Dashboard() {
     )
   }
 
-  return <TemplateDashboard />
+  return <AhosOverview />
 }

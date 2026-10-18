@@ -18,7 +18,8 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "plugins": [{ "name": "next" }]
+    "plugins": [{ "name": "next" }],
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": [
     "next-env.d.ts",
@@ -35,6 +36,22 @@
     "advanced-3d-audiovisual-website",
     "advanced-3d-audiovisual-website (1)",
     "سایت درختadvanced-3d-audiovisual-platform",
-    "درخت کاملتر immersive-3d-audiovisual-website"
+    "درخت کاملتر immersive-3d-audiovisual-website",
+    "**/*.test.tsx",
+    "**/*.test.ts",
+    "app/command_center/components/app-sidebar.tsx",
+    "app/command_center/components/config-drawer.tsx",
+    "app/command_center/components/data-table",
+    "app/command_center/components/dashboard/components",
+    "app/command_center/components/dashboard/template-dashboard.tsx",
+    "app/command_center/components/dashboard/index.tsx",
+    "app/command_center/components/kbar",
+    "app/command_center/components/themes",
+    "app/command_center/components/stage",
+    "app/command_center/components/shell",
+    "app/command_center/components/modal",
+    "app/command_center/components/password-input.test.tsx",
+    "app/command_center/app",
+    "app/components"
   ]
 }

@@ -4,7 +4,7 @@ import { useSearch } from '@/app/command_center/components/context/search-provid
 import { Button } from '@/components/ui/button'
 
 export function Search({ className = '', placeholder = 'Search', ...props }: React.ComponentProps<'button'> & { placeholder?: string }) {
-  const { setOpen } = useSearch()
+  const { setIsOpen } = useSearch()
   return (
     <Button
       {...props}
@@ -14,7 +14,7 @@ export function Search({ className = '', placeholder = 'Search', ...props }: Rea
         className
       )}
       aria-keyshortcuts='Meta+K Control+K'
-      onClick={() => setOpen(true)}
+      onClick={() => setIsOpen(true)}
     >
       <SearchIcon
         aria-hidden='true'

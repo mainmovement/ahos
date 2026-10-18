@@ -42,6 +42,8 @@ def test_unreviewed_lessons_are_visible_with_zero_weight(tmp_path):
     assert lessons["visible_gold"] == 1
     assert lessons["weight_one"] == 0
     assert lessons["notional_unchanged"] is True
+    assert lessons["m58_cap_unchanged"] is True
+    assert lessons["m58_daily_cap_pct"] == 3.0
 
 
 def test_reviewed_lesson_counts_weight_one_without_blocking(tmp_path):
@@ -70,3 +72,5 @@ def test_reviewed_lesson_counts_weight_one_without_blocking(tmp_path):
     lessons = ledger.latest(GOLD_PAPER_MISSION)["CHECKPOINT"]["path"]["lessons"]
     assert lessons["weight_one"] == 1
     assert lessons["notional_unchanged"] is True
+    assert lessons["m58_cap_unchanged"] is True
+    assert lessons["m58_daily_cap_pct"] == 3.0

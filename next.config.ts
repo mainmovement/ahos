@@ -5,6 +5,11 @@ import type { NextConfig } from "next";
 // See reports/grok/DECKER_N8N_MIGRATION.md (Mission 10, Docker removal).
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@electric-sql/pglite"],
+  typescript: {
+    // Command center still carries ported template files outside the live
+    // /command_center graph; production build typechecks the app route tree only.
+    tsconfigPath: "tsconfig.build.json",
+  },
 };
 
 export default nextConfig;

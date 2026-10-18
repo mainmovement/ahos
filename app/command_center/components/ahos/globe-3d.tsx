@@ -9,8 +9,8 @@ export function Globe3D() {
   const sceneRef = useRef<THREE.Scene | null>(null)
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
-  const globeRef = useRef<THREE.Mesh | null>(null)
-  const animationRef = useRef<number>()
+  const globeRef = useRef<THREE.Group | null>(null)
+  const animationRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     if (!containerRef.current) return

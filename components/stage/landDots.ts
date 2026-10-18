@@ -82,7 +82,9 @@ const POLYGONS: Polygon[] = (() => {
   const polygons: Polygon[] = [];
   for (const geometry of geometries) {
     const decoded = feature(land110m, geometry);
-    polygons.push(...asPolygons(decoded.geometry));
+    if (decoded.type === "Feature") {
+      polygons.push(...asPolygons(decoded.geometry));
+    }
   }
   return polygons;
 })();

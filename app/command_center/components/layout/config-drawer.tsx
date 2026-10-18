@@ -12,7 +12,7 @@ import {
 export function ConfigDrawer() {
   return (
     <Sheet>
-      <SheetTrigger asChild>
+      <SheetTrigger>
         <Button
           size='icon'
           variant='ghost'
