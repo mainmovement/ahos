@@ -96,6 +96,15 @@ def test_a_cycle_records_its_duration_so_the_cadence_stays_exact(monkeypatch):
     assert isinstance(record["duration_s"], float)
 
 
+def test_ledger_path_summary_reads_oms_from_checkpoint(tmp_path):
+    path = tmp_path / "ledger.jsonl"
+    ledger = MissionLedger(path)
+    ledger.start(GOLD_PAPER_MISSION, phase="paper_trading", task="path summary", agent=GOLD_PAPER_AGENT)
+    GoldPaperTrack().run_cycle(_verified(4200.0), now=T0, ledger=ledger)
+    summary = soak._ledger_path_summary(path)
+    assert summary.get("path_oms") == "ACCEPTED_PAPER"
+
+
 def test_the_cycle_result_is_carried_verbatim(monkeypatch):
     """The runlog is the soak's evidence, so nothing is dropped on the way."""
     result = GoldCycleResult(

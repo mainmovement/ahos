@@ -19,6 +19,7 @@ INCLUDE_FILES: tuple[str, ...] = (
     "architecture/__init__.py",
     "config/paths.py",
     "config/idea_shelf.json",
+    "config/university/sources.yaml",
 )
 
 DENY_NAMES = {

@@ -81,6 +81,32 @@ def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
         fh.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
 
 
+def _ledger_path_summary(ledger_path: Path | None) -> dict[str, Any]:
+    """Read wiring fields from the last checkpoint (read-only). Best-effort for runlog ops."""
+    if ledger_path is None:
+        return {}
+    try:
+        from architecture.markets.gold_paper import GOLD_PAPER_MISSION
+        from architecture.mission.ledger import MissionLedger
+
+        cp = (MissionLedger(ledger_path).latest(GOLD_PAPER_MISSION) or {}).get("CHECKPOINT") or {}
+        if not isinstance(cp, dict):
+            return {}
+        path = cp.get("path") if isinstance(cp.get("path"), dict) else {}
+        halt = cp.get("halt") if isinstance(cp.get("halt"), dict) else {}
+        close_eval = cp.get("close_eval") if isinstance(cp.get("close_eval"), dict) else {}
+        m51 = path.get("m51") if isinstance(path.get("m51"), dict) else {}
+        return {
+            "path_oms": path.get("oms"),
+            "path_blocks_n": len(path.get("blocks") or []),
+            "path_m51_merge": m51.get("merge"),
+            "halt_state": halt.get("state"),
+            "close_eval_hit": close_eval.get("hit"),
+        }
+    except Exception:  # noqa: BLE001 - runlog enrichment must not break the soak
+        return {}
+
+
 def _cycle(ledger_path: Path | None) -> dict[str, Any]:
     """Advance one paper cycle. Never raises — a failed cycle is a record."""
     from architecture.markets.gold_paper import run_gold_paper_cycle
@@ -113,6 +139,8 @@ def _cycle(ledger_path: Path | None) -> dict[str, Any]:
                 "reasons": list(result.breaker.reasons),
             },
         )
+        if ledger_path is not None:
+            record.update(_ledger_path_summary(ledger_path))
     except Exception as exc:  # noqa: BLE001 - a soak continues past a bad cycle
         record["error"] = f"{type(exc).__name__}: {exc}"
         record["traceback"] = traceback.format_exc(limit=3)
