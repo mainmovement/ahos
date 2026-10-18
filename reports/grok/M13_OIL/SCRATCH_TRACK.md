@@ -13,3 +13,9 @@ PAPER_ONLY. **Not** wired to `m13_gold_soak.py` (gold PID). Use a dedicated ledg
 ```
 
 Checkpoint includes `margin_event` / `margin_leverage` (paper cap 2x). Mission id: `M13-OIL-PAPER`.
+
+## Stack drill (cadence + judge + tier)
+```
+.venv\Scripts\python.exe scripts\oil_stack_drill.py --cycles 7
+```
+Expect `judge: CLEAN`, `replay_verdict: NO_PROVEN_EDGE`.

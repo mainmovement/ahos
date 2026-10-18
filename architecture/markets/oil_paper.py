@@ -29,6 +29,9 @@ def run_oil_cycle(ledger: MissionLedger, *, left: float | None, right: float | N
             task="oil paper quote cycle",
             agent="AG:AG-28",
         )
+    latest = ledger.latest(OIL_PAPER_MISSION)
+    prev = (latest or {}).get("CHECKPOINT") or {}
+    cycle = int(prev.get("cycle", 0)) + 1 if isinstance(prev.get("cycle"), int) else 1
     quote = witness(left, right)
     oms_state = "NO_ENTRY"
     if quote.state == "VERIFIED":
@@ -43,11 +46,16 @@ def run_oil_cycle(ledger: MissionLedger, *, left: float | None, right: float | N
         OIL_PAPER_MISSION,
         {
             "market": "oil",
+            "cycle": cycle,
             "quote_state": quote.state,
             "price_usd": quote.price_usd,
             "oms": oms_state,
             "margin_event": margin.event,
             "margin_leverage": margin.leverage,
+            "bankroll_usd": OIL_PAPER_BANKROLL_USD,
+            "equity_usd": OIL_PAPER_BANKROLL_USD,
+            "closed_trades": 0,
+            "cumulative_realized_pnl_usd": 0.0,
             "paper_only": True,
             "live": False,
             "trades": False,
