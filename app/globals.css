@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+:root {
+  --ahos-bg: #0b0709;
+  --ahos-panel: #160e12;
+  --ahos-border: #2a1f26;
+  --ahos-text: #e8e6e1;
+  --ahos-text-muted: #8a827b;
+  --ahos-gold: #d4af37;
+  --ahos-gold-hi: #f3cf55;
+  --ahos-crimson: #dc2626;
+  --ahos-crimson-hi: #ef4444;
+  --ahos-ember: #f97316;
+}
+
+[data-theme="ahos"],
+[data-theme="imperial"] {
+  --ahos-bg: #0b0709;
+  --ahos-panel: #160e12;
+  --ahos-border: #2a1f26;
+  --ahos-text: #e8e6e1;
+  --ahos-text-muted: #8a827b;
+  --ahos-gold: #d4af37;
+  --ahos-gold-hi: #f3cf55;
+  --ahos-crimson: #dc2626;
+  --ahos-crimson-hi: #ef4444;
+  --ahos-ember: #f97316;
+}
+
+[data-theme="neon"] {
+  --ahos-bg: #050a14;
+  --ahos-panel: #0a1224;
+  --ahos-border: #0a1a40;
+  --ahos-text: #00f0ff;
+  --ahos-text-muted: #0080a0;
+  --ahos-gold: #00f0ff;
+  --ahos-gold-hi: #a0f0ff;
+  --ahos-crimson: #ff0040;
+  --ahos-crimson-hi: #ff80a0;
+  --ahos-ember: #ff4400;
+}
+
+@layer utilities {
+  .bg-ahos-panel {
+    background-color: var(--ahos-panel);
+  }
+
+  .text-ahos-text {
+    color: var(--ahos-text);
+  }
+
+  .text-ahos-text-muted {
+    color: var(--ahos-text-muted);
+  }
+}
