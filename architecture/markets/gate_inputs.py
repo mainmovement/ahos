@@ -22,8 +22,15 @@ def default_replay_inputs() -> dict:
     }
 
 
+def _default_replay_path() -> Path:
+    root = get_project_root()
+    replay = root / "reports" / "grok" / "M13_REPLAY" / "tier_gate_replay_inputs.json"
+    soak = root / "reports" / "grok" / "M13_SOAK" / "tier_gate_replay_inputs.json"
+    return replay if replay.is_file() else soak
+
+
 def load_replay_inputs(path: Path | None = None) -> dict:
-    p = path or (get_project_root() / "reports" / "grok" / "M13_SOAK" / "tier_gate_replay_inputs.json")
+    p = path or _default_replay_path()
     if p.is_file():
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
@@ -34,13 +41,33 @@ def load_replay_inputs(path: Path | None = None) -> dict:
     return default_replay_inputs()
 
 
-def tier_gate_kwargs(path: Path | None = None) -> dict:
-    data = load_replay_inputs(path)
-    out = {}
-    if data.get("declared_cost_model"):
-        out["declared_cost_model"] = str(data["declared_cost_model"])
-    if "walk_forward_evidence" in data:
-        out["walk_forward_evidence"] = bool(data["walk_forward_evidence"])
-    if data.get("backtest_max_drawdown_pct") is not None:
-        out["backtest_max_drawdown_pct"] = float(data["backtest_max_drawdown_pct"])
+def _kwargs_from_block(block: dict) -> dict:
+    out: dict = {}
+    if block.get("declared_cost_model"):
+        out["declared_cost_model"] = str(block["declared_cost_model"])
+    if "walk_forward_evidence" in block:
+        out["walk_forward_evidence"] = bool(block["walk_forward_evidence"])
+    if block.get("backtest_max_drawdown_pct") is not None:
+        out["backtest_max_drawdown_pct"] = float(block["backtest_max_drawdown_pct"])
     return out
+
+
+def tier_gate_kwargs(path: Path | None = None, *, market: str = "gold") -> dict:
+    data = load_replay_inputs(path)
+    key = market.strip().lower()
+    if key in data and isinstance(data[key], dict):
+        return _kwargs_from_block(data[key])
+    return _kwargs_from_block(data)
+
+
+def load_replay_inputs_for_market(market: str, path: Path | None = None) -> dict:
+    """Full replay block for one market (label + provenance)."""
+    data = load_replay_inputs(path)
+    key = market.strip().lower()
+    if key in data and isinstance(data[key], dict):
+        block = dict(data[key])
+        block.setdefault("label", data.get("label", LABEL))
+        block.setdefault("verdict", data.get("verdict", "NO_PROVEN_EDGE"))
+        block.setdefault("source", data.get("source", ""))
+        return block
+    return dict(data)

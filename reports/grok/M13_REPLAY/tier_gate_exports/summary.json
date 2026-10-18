@@ -1,0 +1,33 @@
+{
+  "label": "REPLAY_NOT_LIVE",
+  "markets": {
+    "gold": {
+      "ledger": "C:\\Users\\Sniper\\AppData\\Local\\Temp\\ahos_export_gold_copy.jsonl",
+      "tier": "T0",
+      "measurable_pass": "4/10",
+      "unmeasurable": [
+        "regime_coverage"
+      ],
+      "report": "reports\\grok\\M13_REPLAY\\tier_gate_exports\\gold_tier_gate_replay.md"
+    },
+    "oil": {
+      "ledger": "G:\\robat\\ahos\\data\\mission_ledger\\oil_paper_scratch.jsonl",
+      "tier": "T0",
+      "measurable_pass": "2/4",
+      "unmeasurable": [
+        "regime_coverage",
+        "max_drawdown_pct",
+        "drawdown_vs_backtest_multiple",
+        "sharpe",
+        "dsr_psr",
+        "profit_factor",
+        "month_profit_share_pct"
+      ],
+      "report": "reports\\grok\\M13_REPLAY\\tier_gate_exports\\oil_tier_gate_replay.md"
+    }
+  },
+  "replay": {
+    "verdict": "NO_PROVEN_EDGE",
+    "source": "G:/robat/ahos_replay/results.md"
+  }
+}

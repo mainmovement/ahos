@@ -20,18 +20,38 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Tier gate on a copy ledger + replay inputs")
     ap.add_argument("--ledger", required=True, help="scratch ledger path")
     ap.add_argument("--out", type=Path, help="optional markdown report path")
+    ap.add_argument("--market", default="gold", choices=("gold", "oil"))
+    ap.add_argument("--replay-config", type=Path, help="override tier_gate_replay_inputs.json")
     args = ap.parse_args(argv)
     path = Path(args.ledger)
     if path.resolve() == default_ledger_path(create=False).resolve():
         print("refusing the live default ledger path", file=sys.stderr)
         return 2
     ledger = MissionLedger(path)
-    history = paper_history(ledger)
+    kw = tier_gate_kwargs(args.replay_config, market=args.market)
+    if args.market == "gold":
+        history = paper_history(ledger)
+        trades = list(history.trades)
+        months = history.months_of_data
+    else:
+        from architecture.markets.oil_paper import OIL_PAPER_MISSION
+        from architecture.markets.gold_paper import _ledger_ts_to_epoch
+
+        trades = []
+        first = last = None
+        for entry in ledger.history(OIL_PAPER_MISSION):
+            ts = _ledger_ts_to_epoch(entry.get("ts"))
+            if ts is None:
+                continue
+            if first is None:
+                first = ts
+            last = ts
+        months = None if first is None or last is None or last <= first else (last - first) / (30.0 * 24.0 * 3600.0)
     report = evaluate_tier_gate(
-        market="gold",
-        trades=list(history.trades),
-        months_of_data=history.months_of_data,
-        **tier_gate_kwargs(),
+        market=args.market,
+        trades=trades,
+        months_of_data=months,
+        **kw,
     )
     line = (
         f"tier={report.tier_today} measurable_pass={report.measurable_and_passed}/"

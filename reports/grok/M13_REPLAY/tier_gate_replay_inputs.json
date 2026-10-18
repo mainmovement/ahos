@@ -1,0 +1,15 @@
+{
+  "label": "REPLAY_NOT_LIVE",
+  "verdict": "NO_PROVEN_EDGE",
+  "source": "G:/robat/ahos_replay/results.md",
+  "gold": {
+    "declared_cost_model": "REPLAY_NOT_LIVE: net of fees and funding with 2x slippage — gold 10 bps/side (20 bps RT per GC=F replay); stress grid in results.md",
+    "walk_forward_evidence": true,
+    "backtest_max_drawdown_pct": 24.9
+  },
+  "oil": {
+    "declared_cost_model": "REPLAY_NOT_LIVE: net of fees and funding with 2x slippage — oil 13 bps/side (26 bps RT per CL=F replay); stress grid in results.md",
+    "walk_forward_evidence": true,
+    "backtest_max_drawdown_pct": 84.0
+  }
+}

@@ -67,10 +67,13 @@ def main(argv: list[str] | None = None) -> int:
 
     ledger = MissionLedger(path)
     judge = judge_paper_ledger(ledger, OIL_PAPER_MISSION)
+    from architecture.markets.gate_inputs import tier_gate_kwargs
+
     gate = evaluate_tier_gate(
         market="oil",
         trades=[],
         months_of_data=_months_span(ledger),
+        **tier_gate_kwargs(market="oil"),
     )
     out = {
         "ledger": str(path),
