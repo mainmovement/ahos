@@ -183,12 +183,13 @@ def _daily_report(soak_dir: Path, ledger_path: Path | None,
     try:
         import subprocess
 
-        subprocess.run(
-            [sys.executable, str(ROOT / "scripts" / "export_m49_lessons_snapshot.py")],
-            cwd=str(ROOT),
-            timeout=120,
-            check=False,
-        )
+        for script in ("export_m49_lessons_snapshot.py", "export_message_hub_snapshot.py"):
+            subprocess.run(
+                [sys.executable, str(ROOT / "scripts" / script)],
+                cwd=str(ROOT),
+                timeout=120,
+                check=False,
+            )
     except Exception:  # noqa: BLE001 - Arena export must not block the judge
         pass
     return {

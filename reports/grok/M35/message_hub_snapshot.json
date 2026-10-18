@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-10-18T20:19:47Z",
+  "paper_only": true,
+  "messageHub": {
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "export_message_hub_snapshot.py (bridge probe + M13_SOAK + M35.5 inbox)",
+    "generatedAt": "2026-10-18T20:19:47Z",
+    "demo": false,
+    "channels": [
+      {
+        "channel": "Kian chat",
+        "status": "PARTIAL",
+        "lastMessageTime": null,
+        "queueDepth": null,
+        "lastError": "M35.2 UI not wired; core only"
+      },
+      {
+        "channel": "Telegram",
+        "status": "UNAVAILABLE",
+        "lastMessageTime": null,
+        "queueDepth": null,
+        "lastError": "M35.3 owner token rotation"
+      },
+      {
+        "channel": "nightly report",
+        "status": "LIVE",
+        "lastMessageTime": "2026-10-18T20:04:21Z",
+        "queueDepth": null,
+        "lastError": null
+      },
+      {
+        "channel": "command router",
+        "status": "LIVE",
+        "lastMessageTime": "2026-10-18T20:19:47Z",
+        "queueDepth": 5,
+        "lastError": null
+      }
+    ],
+    "telegram": {
+      "bridgeState": "BLOCKED_OWNER",
+      "needsTokenRotation": true
+    },
+    "nightlyReport": {
+      "lastReportTime": "2026-10-18T20:04:21Z",
+      "language": "فارسی",
+      "deliveryState": "NOT_SENT",
+      "evidenceLink": "reports/grok/M13_SOAK/2026-10-18_judge.md"
+    },
+    "humanGateInbox": [
+      {
+        "id": "HG-clear_hold",
+        "title": "Owner gate: clear_hold",
+        "requestedByAgent": "M35.5-inbox",
+        "age": "-",
+        "state": "PARTIAL"
+      },
+      {
+        "id": "HG-live",
+        "title": "Owner gate: live",
+        "requestedByAgent": "M35.5-inbox",
+        "age": "-",
+        "state": "PARTIAL"
+      },
+      {
+        "id": "HG-promote",
+        "title": "Owner gate: promote",
+        "requestedByAgent": "M35.5-inbox",
+        "age": "-",
+        "state": "PARTIAL"
+      },
+      {
+        "id": "HG-trade",
+        "title": "Owner gate: trade",
+        "requestedByAgent": "M35.5-inbox",
+        "age": "-",
+        "state": "PARTIAL"
+      },
+      {
+        "id": "HG-withdraw",
+        "title": "Owner gate: withdraw",
+        "requestedByAgent": "M35.5-inbox",
+        "age": "-",
+        "state": "PARTIAL"
+      }
+    ],
+    "messageLog": [
+      {
+        "time": "2026-10-18T20:04:12Z",
+        "direction": "out",
+        "channel": "nightly report",
+        "summary": "soak cycle 644 witness=UNRESOLVED",
+        "deliveryState": "DELIVERED"
+      }
+    ]
+  },
+  "bridge_llm": {
+    "state": "DISCONNECTED",
+    "lastError": "TimeoutError"
+  }
+}
