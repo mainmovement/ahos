@@ -241,3 +241,35 @@ def export_registry_to_yaml(registry: Registry, yaml_path: str) -> bool:
     except Exception as e:
         print(f"Error exporting registry: {e}")
         return False
+
+
+@dataclass(frozen=True, slots=True)
+class RegisterReport:
+    """Legacy paper-core batch result. No network fetch."""
+
+    fetched: int
+    dropped: int
+    kept: tuple[str, ...]
+
+
+def register(entries: list[tuple[str, str] | Source]) -> RegisterReport:
+    """Dedupe source URLs for paper tests. Empty license rows are dropped."""
+    kept: list[str] = []
+    dropped = 0
+    seen: set[str] = set()
+    for item in entries:
+        if isinstance(item, Source):
+            url, lic = item.url, item.license
+        else:
+            url = str(item[0])
+            lic = str(item[1]) if len(item) > 1 else ""
+        if not str(lic).strip():
+            dropped += 1
+            continue
+        key = url.strip().lower()
+        if key in seen:
+            dropped += 1
+            continue
+        seen.add(key)
+        kept.append(url)
+    return RegisterReport(fetched=0, dropped=dropped, kept=tuple(kept))

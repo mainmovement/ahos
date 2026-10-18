@@ -40,6 +40,12 @@ def main(argv: list[str] | None = None) -> int:
         help="scratch ledger path (default: temp file)",
     )
     ap.add_argument("--price", type=float, default=4200.0)
+    ap.add_argument(
+        "--settle-tp",
+        action="store_true",
+        help="if flat, enter at --price then run a second cycle at --tp-price to prove close_eval",
+    )
+    ap.add_argument("--tp-price", type=float, default=6400.0)
     args = ap.parse_args(argv)
 
     live = (args.source or default_ledger_path(create=False)).resolve()
@@ -58,15 +64,47 @@ def main(argv: list[str] | None = None) -> int:
     shutil.copy2(live, dest)
     ledger = MissionLedger(dest)
     track = _track_from_ledger(ledger)
-    now = 1_700_000_000.0 + track.cycles * 70.0
-    witness = GoldPriceWitness(
-        state=VERIFIED,
-        reason="wiring_probe",
-        price_usd=args.price,
-        spread_pct=0.1,
-        checked_at=now,
+    base_now = 1_700_000_000.0 + track.cycles * 70.0
+    result = track.run_cycle(
+        GoldPriceWitness(
+            state=VERIFIED,
+            reason="wiring_probe",
+            price_usd=args.price,
+            spread_pct=0.1,
+            checked_at=base_now,
+        ),
+        now=base_now,
+        ledger=ledger,
     )
-    result = track.run_cycle(witness, now=now, ledger=ledger)
+    if args.settle_tp:
+        track = _track_from_ledger(ledger)
+        if track.position is None:
+            entry_now = base_now + 60.0
+            result = track.run_cycle(
+                GoldPriceWitness(
+                    state=VERIFIED,
+                    reason="wiring_probe_entry",
+                    price_usd=args.price,
+                    spread_pct=0.1,
+                    checked_at=entry_now,
+                ),
+                now=entry_now,
+                ledger=ledger,
+            )
+            track = _track_from_ledger(ledger)
+        if track.position is not None:
+            tp_now = base_now + 180.0
+            result = track.run_cycle(
+                GoldPriceWitness(
+                    state=VERIFIED,
+                    reason="wiring_probe_tp",
+                    price_usd=args.tp_price,
+                    spread_pct=0.1,
+                    checked_at=tp_now,
+                ),
+                now=tp_now,
+                ledger=ledger,
+            )
     cp = ledger.latest(GOLD_PAPER_MISSION) or {}
     checkpoint = cp.get("CHECKPOINT") or {}
     path = checkpoint.get("path") or {}

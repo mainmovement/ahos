@@ -13,7 +13,7 @@ from architecture.learning.benchmark import BenchPoint, record
 from architecture.learning.exam import grade
 from architecture.learning.mistakes import from_loss
 from architecture.learning.transfer import transfer
-from architecture.learning.university import Source, register
+from architecture.learning.university import register
 from architecture.markets.allocator import allocate
 from architecture.markets.arena import rank
 from architecture.markets.council_gate import advise
@@ -117,7 +117,11 @@ def test_lab_quarantine_scan_and_ops():
 
 
 def test_learning_loops_and_tokens():
-    reg = register([Source("https://a.example", ""), Source("https://a.example", "MIT"), Source("https://b.example", "Apache-2.0")])
+    reg = register([
+        ("https://a.example", ""),
+        ("https://a.example", "MIT"),
+        ("https://b.example", "Apache-2.0"),
+    ])
     assert reg.fetched == 0
     assert reg.dropped == 1
     assert reg.kept == ("https://a.example", "https://b.example")
