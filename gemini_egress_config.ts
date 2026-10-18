@@ -55,7 +55,7 @@ let cachedError: string | null = null;
 
 function resolvePath(src: EnvMap): string {
   const p = String(src.AHOS_GEMINI_EGRESS_CONFIG ?? "").trim();
-  return resolve(process.cwd(), p || DEFAULT_PATH);
+  return resolve(/* turbopackIgnore: true */ process.cwd(), p || DEFAULT_PATH);
 }
 
 /**
@@ -68,7 +68,7 @@ export function readEgressRecord(src: EnvMap = process.env): EgressRecord | null
   const path = resolvePath(src);
   let key = path;
   try {
-    const st = statSync(path);
+    const st = statSync(/* turbopackIgnore: true */ path);
     key = `${path}:${st.size}:${Math.floor(st.mtimeMs)}`;
   } catch {
     cachedError = "EGRESS_RECORD_MISSING";
@@ -79,7 +79,7 @@ export function readEgressRecord(src: EnvMap = process.env): EgressRecord | null
     cached = null;
     cachedError = null;
     try {
-      const raw = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+      const raw = JSON.parse(readFileSync(/* turbopackIgnore: true */ path, "utf8")) as Record<string, unknown>;
       if (typeof raw.approved !== "boolean") throw new Error("approved must be boolean");
       if (typeof raw.approvedAt !== "string" || !raw.approvedAt) throw new Error("approvedAt missing");
       if (typeof raw.approvedBy !== "string" || !raw.approvedBy) throw new Error("approvedBy missing");

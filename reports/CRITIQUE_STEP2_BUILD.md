@@ -16,8 +16,8 @@ pytest tests/test_gold_lessons_read.py tests/test_paper_path_wire.py
 ```
 
 ## Gaps
-- Browser screenshot at 127.0.0.1:3000 not captured in this chunk.
+- `/api/command` fetch failed in browser session (stale banner shown); engine/bridge may be offline while `next start` alone runs.
 - Full-repo `npm run typecheck` still reports template debt outside the build graph.
 
 ## Verdict
-Step 2 **PARTIAL PROVEN**: `tsc -p tsconfig.build.json` and **`next build` exit 0**; real browser screenshot at 127.0.0.1:3000 still owed for full QA.
+Step 2 **PARTIAL PROVEN**: build PASS; browser opened `/command_center` with AhosOverview rendered (20261018); snapshot + screenshot attempt; live API stale without soak/bridge.
