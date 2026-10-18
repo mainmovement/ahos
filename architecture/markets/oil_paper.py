@@ -4,12 +4,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from architecture.execution.gateway import PaperOrder
+from architecture.markets.margin import assess
 from architecture.markets.oil_quote import OilQuote, witness
 from architecture.markets.oms import route
 from architecture.mission.ledger import MissionLedger
 
 OIL_PAPER_MISSION = "M13-OIL-PAPER"
 OIL_NOTIONAL_USD = 100.0
+OIL_PAPER_BANKROLL_USD = 10_000.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -36,6 +38,7 @@ def run_oil_cycle(ledger: MissionLedger, *, left: float | None, right: float | N
         ).state
         if oms_state != "ACCEPTED_PAPER":
             oms_state = "REJECTED"
+    margin = assess(equity_usd=OIL_PAPER_BANKROLL_USD, notional_usd=OIL_NOTIONAL_USD)
     ledger.checkpoint(
         OIL_PAPER_MISSION,
         {
@@ -43,6 +46,8 @@ def run_oil_cycle(ledger: MissionLedger, *, left: float | None, right: float | N
             "quote_state": quote.state,
             "price_usd": quote.price_usd,
             "oms": oms_state,
+            "margin_event": margin.event,
+            "margin_leverage": margin.leverage,
             "paper_only": True,
             "live": False,
             "trades": False,

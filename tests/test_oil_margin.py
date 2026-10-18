@@ -11,7 +11,9 @@ def test_oil_cycle_uses_its_own_mission(tmp_path):
     assert cycle.quote.state == "VERIFIED"
     assert cycle.oms == "ACCEPTED_PAPER"
     assert cycle.live is False
-    assert ledger.latest(OIL_PAPER_MISSION)["CHECKPOINT"]["trades"] is False
+    cp = ledger.latest(OIL_PAPER_MISSION)["CHECKPOINT"]
+    assert cp["trades"] is False
+    assert cp["margin_event"] == "WITHIN_CAP"
     assert ledger.latest(GOLD_PAPER_MISSION) is None
     refused = run_oil_cycle(ledger, left=70.0, right=None)
     assert refused.quote.state == "UNKNOWN"
