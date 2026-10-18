@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html
       lang="fa"
       dir="rtl"
-      data-theme="ahos"
+      data-theme={activeTheme}
       suppressHydrationWarning
       className={`${vazir.variable} ${orbitron.variable}`}
     >

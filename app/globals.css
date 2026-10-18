@@ -1,114 +1,69 @@
 @import "tailwindcss";
 
+:root {
+  --ahos-bg: #0b0709;
+  --ahos-panel: #160e12;
+  --ahos-border: #2a1f26;
+  --ahos-text: #e8e6e1;
+  --ahos-text-muted: #8a827b;
+  --ahos-gold: #d4af37;
+  --ahos-gold-hi: #f3cf55;
+  --ahos-crimson: #dc2626;
+  --ahos-crimson-hi: #ef4444;
+  --ahos-ember: #f97316;
+}
+
 [data-theme="ahos"],
 [data-theme="imperial"] {
   --ahos-bg: #0b0709;
   --ahos-panel: #160e12;
-  --ahos-border: #3a2a1c;
-  --ahos-text: #efe4cc;
-  --ahos-text-muted: #a99a80;
+  --ahos-border: #2a1f26;
+  --ahos-text: #e8e6e1;
+  --ahos-text-muted: #8a827b;
   --ahos-gold: #d4af37;
-  --ahos-gold-hi: #f1d58e;
-  --ahos-crimson: #9e1c26;
-  --ahos-crimson-hi: #d2343e;
-  --ahos-ember: #e8834a;
+  --ahos-gold-hi: #f3cf55;
+  --ahos-crimson: #dc2626;
+  --ahos-crimson-hi: #ef4444;
+  --ahos-ember: #f97316;
 }
 
 [data-theme="neon"] {
-  --ahos-bg: #040714;
-  --ahos-panel: #0a1330;
-  --ahos-border: #2b354f;
-  --ahos-text: #e6f6ff;
-  --ahos-text-muted: #8fa6c8;
-  --ahos-gold: #d4af37;
-  --ahos-accent: #3fd0ff;
-  --ahos-accent-2: #4c82ff;
+  --ahos-bg: #050a14;
+  --ahos-panel: #0a1224;
+  --ahos-border: #0a1a40;
+  --ahos-text: #00f0ff;
+  --ahos-text-muted: #0080a0;
+  --ahos-gold: #00f0ff;
+  --ahos-gold-hi: #a0f0ff;
+  --ahos-crimson: #ff0040;
+  --ahos-crimson-hi: #ff80a0;
+  --ahos-ember: #ff4400;
 }
 
+/* Reset for root as fallback */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222.2 84% 4.9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
-  --radius: 0.5rem;
-  --chart-1: 12 76% 61%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
-}
-
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 84% 4.9%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 94.1%;
-  --chart-1: 220 70% 50%;
-  --chart-2: 160 60% 45%;
-  --chart-3: 30 80% 55%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
+  --ahos-bg: #0b0709;
+  --ahos-panel: #160e12;
+  --ahos-border: #2a1f26;
+  --ahos-text: #e8e6e1;
+  --ahos-text-muted: #8a827b;
+  --ahos-gold: #d4af37;
+  --ahos-gold-hi: #f3cf55;
+  --ahos-crimson: #dc2626;
+  --ahos-crimson-hi: #ef4444;
+  --ahos-ember: #f97316;
 }
 
 @layer utilities {
-  .border-border {
-    border-color: hsl(var(--border));
-  }
-  .bg-ahos-bg {
-    background-color: var(--ahos-bg);
-  }
   .bg-ahos-panel {
     background-color: var(--ahos-panel);
   }
+
   .text-ahos-text {
     color: var(--ahos-text);
   }
-}
 
-@layer base {
-  html,
-  body {
-    min-height: 100%;
-  }
-
-  html[data-theme="ahos"] body,
-  html[data-theme="imperial"] body {
-    background: var(--ahos-bg);
-    color: var(--ahos-text);
-  }
-
-  body {
-    margin: 0;
-    font-family: inherit;
+  .text-ahos-text-muted {
+    color: var(--ahos-text-muted);
   }
 }
