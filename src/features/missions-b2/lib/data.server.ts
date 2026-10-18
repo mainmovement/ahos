@@ -7,7 +7,7 @@ import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import example from "../contract/ahos-arena-contract.example.json";
 import { validateContract } from "../contract/validate";
-import type { AHOSArenaContract, MessageHubSnapshot } from "../contract/types";
+import type { AHOSArenaContract, MessageHubSnapshot, SelfEvaluationSnapshot } from "../contract/types";
 import { headerConflicts, parseMissionsStatus, type ParsedMissions } from "./missions-status";
 
 export function loadContract(): AHOSArenaContract | null {
@@ -27,6 +27,22 @@ export const MISSIONS_STATUS_PATH = process.env.AHOS_MISSIONS_STATUS_PATH ?? joi
 export const IDEA_SHELF_PATH = join(process.cwd(), "config", "idea_shelf.json");
 export const MESSAGE_HUB_SNAPSHOT_PATH =
   process.env.AHOS_MESSAGE_HUB_SNAPSHOT_PATH ?? join(process.cwd(), "..", "ahos", "reports", "grok", "M35", "message_hub_snapshot.json");
+
+export const SELF_EVAL_SNAPSHOT_PATH =
+  process.env.AHOS_SELF_EVAL_SNAPSHOT_PATH ?? join(process.cwd(), "..", "ahos", "reports", "grok", "M58", "self_eval_snapshot.json");
+
+export function readSelfEvaluation(): SelfEvaluationSnapshot | null {
+  const f = readFileInfo(SELF_EVAL_SNAPSHOT_PATH);
+  if (!f) return null;
+  try {
+    const j = JSON.parse(f.text) as { selfEvaluation?: SelfEvaluationSnapshot };
+    const se = j.selfEvaluation;
+    if (!se || !Array.isArray(se.scorecards)) return null;
+    return { ...se, demo: false, generatedAt: se.generatedAt ?? f.mtimeIso };
+  } catch {
+    return null;
+  }
+}
 
 export function readMessageHub(): MessageHubSnapshot | null {
   const f = readFileInfo(MESSAGE_HUB_SNAPSHOT_PATH);

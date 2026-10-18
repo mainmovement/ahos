@@ -7,7 +7,7 @@ import {
   ideaFromContract, ideaHighlights, ideasFromShelfFile, one, parseFlag, parsePageState, parsePeriod, redact, tehranStamp,
   violationOf, ageHours, bridgeStatus, deliveryStatus, type Highlight, type IdeaRow, type PageState,
 } from "../lib/model";
-import { IDEA_SHELF_PATH, MISSIONS_STATUS_PATH, loadContract, readIdeaShelf, readMessageHub, readMissionsStatus } from "../lib/data.server";
+import { IDEA_SHELF_PATH, MISSIONS_STATUS_PATH, loadContract, readIdeaShelf, readMessageHub, readMissionsStatus, readSelfEvaluation } from "../lib/data.server";
 
 type Params = Record<string, string | string[] | undefined>;
 const t = (k: string) => tr("fa", `missionsB2.${k}`);
@@ -148,10 +148,16 @@ export async function MessageHubPage({ params }: { params: Params }) {
 /* --------------------------------------------------------- self evaluation - */
 export async function SelfEvaluationPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.selfEvaluation ?? null;
+  const realEval = readSelfEvaluation();
+  const snap = realEval ?? loadContract()?.selfEvaluation ?? null;
   const period = parsePeriod(params.period);
-  const base: Base | null = snap ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: true, source: snap.source, status: "DEMO" } : null;
-  const v = snap ? buildSelfEval(snap, period, true) : null;
+  const demoMode = snap ? (realEval ? false : snap.demo !== false) : true;
+  const base: Base | null = snap
+    ? realEval
+      ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: false, source: snap.source, status: "PARTIAL" }
+      : { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: true, source: snap.source, status: "DEMO" }
+    : null;
+  const v = snap ? buildSelfEval(snap, period, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
   const f = frame("self-evaluation", c, base, { empty: !!v && !v.scorecard, emptyBody: t("ui.noData") });
   const sc = v?.scorecard;
@@ -174,7 +180,7 @@ export async function SelfEvaluationPage({ params }: { params: Params }) {
                     ["decisionsReviewed", sc.decisionsReviewed], ["decisionsWithEvidence", sc.decisionsWithEvidence],
                     ["decisionsWithUnseenCheck", sc.decisionsWithUnseenCheck], ["unresolvedItems", sc.unresolvedItems],
                   ] as const).map(([k, val]) => (
-                    <div key={k} className="mb-kpi"><span className="mb-kpi__k">{t(`selfEvaluation.${k}`)}</span><span className="mb-kpi__v" dir="ltr">{formatNum(val)}</span><TruthChip status="DEMO" size="sm" /></div>
+                    <div key={k} className="mb-kpi"><span className="mb-kpi__k">{t(`selfEvaluation.${k}`)}</span><span className="mb-kpi__v" dir="ltr">{formatNum(val)}</span><TruthChip status={demoMode ? "DEMO" : "PARTIAL"} size="sm" /></div>
                   ))}
                 </div>
                 <p className="mb-hl__detail">{t("selfEvaluation.calibration")}: <Cell v={redact(sc.calibrationNote)} /></p>
