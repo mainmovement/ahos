@@ -246,7 +246,7 @@ class YahooGoldFuturesAdapter(GoldPriceAdapter):
     requires_credentials = False
     instrument = INSTRUMENT_FUTURES
     url = ("https://query1.finance.yahoo.com/v8/finance/chart/GC=F"
-           "?range=1d&interval=1d")
+           "?range=1d&interval=1m")
 
     def fetch_price(self, *, now: float) -> GoldQuote:
         body, raw = self._get(
@@ -259,6 +259,13 @@ class YahooGoldFuturesAdapter(GoldPriceAdapter):
         except (KeyError, TypeError, ValueError, IndexError) as exc:
             raise GoldPriceError(
                 f"{self.provider_id}: no usable market price/time in {body!r}") from exc
+        # During COMEX sessions the 1m tape carries prints newer than
+        # regularMarketTime (which can sit unchanged between ticks). Use the
+        # latest non-null 1m close when it is strictly fresher than meta.
+        candle_price, candle_ts = _yahoo_last_candle(result)
+        if candle_price is not None and candle_ts is not None and candle_ts > observed:
+            price = candle_price
+            observed = candle_ts
         if not (price > 0.0):
             raise GoldPriceError(f"{self.provider_id}: non-positive price {price!r}")
         if str(meta.get("instrumentType") or "").upper() != "FUTURE":
@@ -277,6 +284,28 @@ class YahooGoldFuturesAdapter(GoldPriceAdapter):
             raw_sha256=hashlib.sha256(raw).hexdigest(),
             url=self.url,
         )
+
+
+def _yahoo_last_candle(result: dict) -> tuple[float | None, float | None]:
+    """Last non-null close on a Yahoo chart result, with its bar timestamp."""
+    try:
+        timestamps = result.get("timestamp") or []
+        closes = (result.get("indicators") or {}).get("quote") or []
+        if not timestamps or not closes:
+            return None, None
+        series = closes[0].get("close") or []
+        if len(series) != len(timestamps):
+            return None, None
+        for idx in range(len(timestamps) - 1, -1, -1):
+            close = series[idx]
+            if close is None:
+                continue
+            price = float(close)
+            if price > 0.0:
+                return price, float(timestamps[idx])
+    except (TypeError, ValueError, IndexError):
+        return None, None
+    return None, None
 
 
 def _parse_timestamp(value: object) -> float | None:

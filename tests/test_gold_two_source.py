@@ -72,14 +72,27 @@ def _goldapi(price: float, updated_at: str = "2026-10-09T20:42:14Z") -> dict:
     return {"price": price, "symbol": "XAU", "currency": "USD", "updatedAt": updated_at}
 
 
-def _yahoo(price: float, ts: float = NOW) -> dict:
-    return {"chart": {"result": [{"meta": {
-        "regularMarketPrice": price,
-        "regularMarketTime": ts,
-        "instrumentType": "FUTURE",
-        "exchangeName": "CMX",
-        "shortName": "Gold Dec 26",
-    }}]}}
+def _yahoo(
+    price: float,
+    ts: float = NOW,
+    *,
+    candle_price: float | None = None,
+    candle_ts: float | None = None,
+) -> dict:
+    row: dict[str, Any] = {
+        "meta": {
+            "regularMarketPrice": price,
+            "regularMarketTime": ts,
+            "instrumentType": "FUTURE",
+            "exchangeName": "CMX",
+            "shortName": "Gold Dec 26",
+        },
+    }
+    if candle_ts is not None:
+        cp = candle_price if candle_price is not None else price
+        row["timestamp"] = [candle_ts]
+        row["indicators"] = {"quote": [{"close": [cp]}]}
+    return {"chart": {"result": [row]}}
 
 
 def _epoch(iso: str) -> float:
@@ -191,6 +204,22 @@ def test_a_non_json_body_is_reported_not_swallowed():
         return _FakeResp(b"<html>502</html>")
     with pytest.raises(GoldPriceError):
         GoldApiSpotAdapter(transport=_html).fetch_price(now=NOW)
+
+
+def test_yahoo_uses_a_fresher_one_minute_candle_when_meta_time_is_old():
+    """COMEX 1m prints can be newer than regularMarketTime during the session."""
+    stale_meta = NOW - 7200.0
+    fresh_candle = NOW - 45.0
+    w = resolve_gold_price((
+        GoldApiSpotAdapter(transport=_transport(_goldapi(4196.90))),
+        YahooGoldFuturesAdapter(
+            transport=_transport(_yahoo(4100.0, stale_meta, candle_price=4220.30,
+                                       candle_ts=fresh_candle))),
+    ), now=NOW)
+    assert w.state == VERIFIED
+    yahoo_q = next(q for q in w.quotes if q.provider_id == "yahoo_gc_futures")
+    assert yahoo_q.observed_at == fresh_candle
+    assert yahoo_q.price_usd == 4220.30
 
 
 def test_a_stale_quote_contributes_nothing():

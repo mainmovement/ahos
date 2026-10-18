@@ -109,3 +109,11 @@
 **Choice:** No. Inject the observation in process and require HALT inside the 60s decision budget.
 
 **Reason:** The gold paper soak is running. Destructive faults would stop that soak or corrupt its ledger. HOLD and PAPER_ONLY stay in force. There is no live order to flatten. Owner unhalt is a pure function and does not clear HOLD.flag.
+
+## 2026-10-18: Yahoo GC=F freshness + rejected xaus.com mirror
+
+**Question:** Live soak reports UNRESOLVED when only gold-api is fresh. Add xaus.com as a second spot?
+
+**Choice:** Reject xaus (spot_usd_oz matched gold-api byte-for-byte; silver_source names gold-api.com). Change Yahoo adapter to read the 1m chart and prefer the latest 1m close when it is newer than regularMarketTime.
+
+**Reason:** The two-source independence clause forbids two mirrors of one feed. Weekend/COMEX-closed stale futures stays UNRESOLVED by design (GOLD_MAX_AGE_SEC unchanged). Owner options for a true 24/7 second feed are listed in ahos_assets/OWNER_ACTIONS.md section 5.
