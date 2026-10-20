@@ -10,8 +10,14 @@ $here = $PSScriptRoot; $root = Split-Path (Split-Path $here -Parent) -Parent
 $log = Join-Path $here '_keepalive_log.txt'
 $mutex = New-Object System.Threading.Mutex($false, 'Global\AHOS_Claude_Keepalive')
 if (-not $mutex.WaitOne(0)) { exit }   # only one keepalive instance
+# On 8GB RAM, headless Claude + Cursor agent together freeze Windows. Skip while Cursor is open.
+if ($env:AHOS_DISABLE_CLAUDE_KEEPALIVE -eq '1') { exit 0 }
+$cursorRam = (Get-Process -Name cursor -ErrorAction SilentlyContinue | Measure-Object WorkingSet64 -Sum).Sum
+if ($cursorRam -gt 150MB) { exit 0 }
 while ($true) {
   Start-Sleep -Seconds 180
+  $cursorRam = (Get-Process -Name cursor -ErrorAction SilentlyContinue | Measure-Object WorkingSet64 -Sum).Sum
+  if ($cursorRam -gt 150MB) { continue }
   if (-not (Get-Process claude -ErrorAction SilentlyContinue)) {
     Start-Sleep -Seconds 60
     if (-not (Get-Process claude -ErrorAction SilentlyContinue)) {
