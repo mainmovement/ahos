@@ -22,6 +22,22 @@ from architecture.ai.kian_rate_limit import RateLimiter
 from architecture.ai.kian_audit_store import AuditStoreError
 
 
+@pytest.fixture(autouse=True)
+def _stub_kian_gemini(monkeypatch):
+    """Unit tests must not call the live LLM bridge (hangs CI)."""
+
+    def _fake_chat_step(_request):
+        return {
+            "ok": True,
+            "parts": [{"text": "پاسخ آزمایشی"}],
+            "finish_reason": "STOP",
+            "model": "test-stub",
+            "latency_ms": 1,
+        }
+
+    monkeypatch.setattr("architecture.ai.kian_agent.chat_step", _fake_chat_step)
+
+
 # Helper to clean up test files
 def _cleanup(path_str: str) -> None:
     p = Path(path_str)
@@ -33,9 +49,9 @@ def _cleanup(path_str: str) -> None:
 # K-1: one message from two channels gives one thread, one record and the same answer
 # ============================================
 
-def test_k1_multiple_channels_single_thread():
+def test_k1_multiple_channels_single_thread(tmp_path: Path):
     """K-1: Same message from two channels gets a response from each."""
-    temp_path = Path("data/test_kian_audit_k1.jsonl")
+    temp_path = tmp_path / "kian_audit_k1.jsonl"
     _cleanup(str(temp_path))
 
     try:
@@ -152,9 +168,13 @@ def test_k4_injection_prevents_write_tool_calls():
 # K-5: a Gemini outage falls back through router, then to DETERMINISTIC_ONLY (labelled)
 # ============================================
 
-def test_k5_gemini_outage_fallback():
+def test_k5_gemini_outage_fallback(tmp_path: Path, monkeypatch):
     """K-5: Verify Gemini outage falls back to DETERMINISTIC_ONLY."""
-    temp_path = Path("data/test_kian_audit_k5.jsonl")
+    monkeypatch.setattr(
+        "architecture.ai.kian_agent.chat_step",
+        lambda _req: {"ok": False, "status": "UNAVAILABLE"},
+    )
+    temp_path = tmp_path / "kian_audit_k5.jsonl"
     _cleanup(str(temp_path))
 
     try:
@@ -176,9 +196,9 @@ def test_k5_gemini_outage_fallback():
 # K-6: a number without evidence shows as "نامعلوم"
 # ============================================
 
-def test_k6_number_without_evidence_shows_unknown():
+def test_k6_number_without_evidence_shows_unknown(tmp_path: Path):
     """K-6: Verify numbers without evidence show as 'نامعلوم'."""
-    temp_path = Path("data/test_kian_audit_k6.jsonl")
+    temp_path = tmp_path / "kian_audit_k6.jsonl"
     _cleanup(str(temp_path))
 
     try:
@@ -208,11 +228,11 @@ def test_k6_number_without_evidence_shows_unknown():
 # K-7: the key is read only from wincred; secret scan clean
 # ============================================
 
-def test_k7_gemini_key_read_only_from_wincred():
+def test_k7_gemini_key_read_only_from_wincred(tmp_path: Path):
     """K-7: Verify the Gemini key is read only from wincred."""
     from architecture.ai.credential_store import WindowsCredentialManagerStore
 
-    temp_path = Path("data/test_kian_audit_k7.jsonl")
+    temp_path = tmp_path / "kian_audit_k7.jsonl"
     _cleanup(str(temp_path))
 
     try:
@@ -231,9 +251,9 @@ def test_k7_gemini_key_read_only_from_wincred():
 # K-8: tampering breaks the audit chain
 # ============================================
 
-def test_k8_audit_chain_tampering_detected():
+def test_k8_audit_chain_tampering_detected(tmp_path: Path):
     """K-8: Verify tampering breaks the audit chain."""
-    temp_path = Path("data/test_kian_audit_k8.jsonl")
+    temp_path = tmp_path / "kian_audit_k8.jsonl"
     _cleanup(str(temp_path))
 
     try:
@@ -292,9 +312,9 @@ def test_k8_audit_chain_tampering_detected():
 # K-9: a message burst is queued and the owner is notified
 # ============================================
 
-def test_k9_message_burst_queued():
+def test_k9_message_burst_queued(tmp_path: Path):
     """K-9: Verify a message burst is queued and owner is notified."""
-    temp_path = Path("data/test_kian_audit_k9.jsonl")
+    temp_path = tmp_path / "kian_audit_k9.jsonl"
     _cleanup(str(temp_path))
 
     try:
@@ -322,9 +342,9 @@ def test_k9_message_burst_queued():
 # Additional component tests
 # ============================================
 
-def test_audit_store_persistence():
+def test_audit_store_persistence(tmp_path: Path):
     """Test that audit store persists data correctly."""
-    temp_path = Path("data/test_kian_audit_persistence.jsonl")
+    temp_path = tmp_path / "kian_audit_persistence.jsonl"
     _cleanup(str(temp_path))
 
     try:

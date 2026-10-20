@@ -1,8 +1,7 @@
 {
-  "generated_at": "2026-10-18T17:00:25Z",
+  "generated_at": "2026-10-18T20:04:22Z",
   "paper_only": true,
   "source": "G:\\robat\\ahos\\data\\mission_ledger\\m49_lessons.sqlite",
-  "chain_ok": null,
-  "lessons": [],
-  "note": "sqlite missing; no lessons exported"
+  "chain_ok": true,
+  "lessons": []
 }

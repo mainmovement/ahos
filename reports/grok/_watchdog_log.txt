@@ -290,3 +290,6 @@ alert_mehrdad: no
 2026-10-18T08:44:29 STALL_RUNNER heartbeat age=1679m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
 2026-10-18T08:45:29 STALL_RUNNER heartbeat age=1680m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
 2026-10-18T08:46:29 STALL_RUNNER heartbeat age=1681m phase=OWNER_GATE_HOLD mission=M35.2 pid=3960 -- REPORT ONLY, queue not advanced
+2026-10-18T23:32:11 watchdog start pid=2216
+                                                                                       2026-10-20T22:14:50 watchdog start pid=8088
+2026-10-20T22:15:02 heartbeat read err Invalid JSON primitive: .

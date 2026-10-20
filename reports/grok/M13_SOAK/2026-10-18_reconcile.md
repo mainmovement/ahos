@@ -2,17 +2,17 @@
 
 **Verdict: UNKNOWN**
 
-- ledger entries: 601
-- chain head: `1556fb2edb34dae9f26f6b444ce28aa249863bf90b2a7ef6ad1bf5fa63e971d0`
+- ledger entries: 657
+- chain head: `ceec366c5d40a9b2b314a0b039d1b1f269c25453a1dc0952eb44a59befef75fa`
 - paper store anchor: ANCHORED_CLEAN (0 anchored rows)
-- paper judge: CLEAN over 589 cycles, 0 finding(s)
+- paper judge: CLEAN over 644 cycles, 0 finding(s)
 - broker concentration: not evaluated
 - USDT depeg: UNMEASURED, deviation — from $1
 
 ## The paper judge's own numbers
 
-- cycles replayed: 589
-- closed trades: 4 (3 settled, 1 invalidated)
+- cycles replayed: 644
+- closed trades: 5 (3 settled, 2 invalidated)
 - gross realized PnL: 0.82 (PAPER)
 - equity: 10000.818481471944
 

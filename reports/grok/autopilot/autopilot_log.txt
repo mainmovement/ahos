@@ -3760,3 +3760,50 @@
 2026-10-17T03:44:46 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
 2026-10-17T04:14:49 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
 2026-10-17T04:45:14 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T14:45:09 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T15:15:10 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T15:45:11 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T16:15:11 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T16:45:11 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T17:15:11 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T17:45:11 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T18:15:31 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T18:45:33 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T19:15:40 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T19:45:40 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T20:15:40 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T20:46:05 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T21:16:09 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T21:46:34 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T22:17:27 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T22:47:56 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-18T23:32:12 autopilot start pid=5508
+2026-10-18T23:32:22 recovery ap_M10_1 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:22 recovery ap_M10 : result=MALFORMED queue=BLOCKED_OWNER -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:23 recovery ap_M11_2 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:24 recovery ap_M11_3 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:25 recovery ap_M11_4 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:26 recovery ap_M12 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:26 recovery ap_M13 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:26 recovery ap_M34 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:26 recovery ap_M35_1 : result=MALFORMED queue=NEEDS_REVIEW -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:27 recovery ap_M42 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:27 recovery ap_M43 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:27 recovery ap_M48_1 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-18T23:32:30 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-19T00:02:46 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+                                                                                                                                                                      2026-10-20T22:14:53 autopilot start pid=8080
+2026-10-20T22:15:06 recovery ap_M10_1 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:06 recovery ap_M10 : result=MALFORMED queue=BLOCKED_OWNER -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:07 recovery ap_M11_2 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:07 recovery ap_M11_3 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:08 recovery ap_M11_4 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:09 recovery ap_M12 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:10 recovery ap_M13 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:10 recovery ap_M34 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:10 recovery ap_M35_1 : result=MALFORMED queue=NEEDS_REVIEW -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:11 recovery ap_M42 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:12 recovery ap_M43 : result=DONE queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:13 recovery ap_M48_1 : result=MALFORMED queue=DONE -> OWNER_GATE_PRESERVED (not consumed, not re-run)
+2026-10-20T22:15:26 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
+2026-10-20T22:45:24 owner gate: M35.1 at NEEDS_REVIEW holds M35.2 -> not launched
