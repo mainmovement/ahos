@@ -74,12 +74,77 @@
 [data-theme="neon"] {
   --ahos-bg: #040714;
   --ahos-panel: #0A1330;
+  /* DERIVED: Neon has no panel-edge row in spec §2.2; edge matches dashboard_tokens deriveEdge. */
   --ahos-border: #2B354F;
   --ahos-text: #E6F6FF;
   --ahos-text-muted: #8FA6C8;
   --ahos-gold: #D4AF37;
   --ahos-accent: #3FD0FF;
   --ahos-accent-2: #4C82FF;
+}
+
+/* M-D3 status palette — spec §2.3; identical in both themes, never decoration. */
+:root {
+  --ahos-status-verified: #2EC4A6;
+  --ahos-status-unknown: #9AA3B2;
+  --ahos-status-conflict: #E07BE8;
+  --ahos-status-stale: #B8A27A;
+  --ahos-status-rejected: #FF5A4E;
+}
+
+/* M-D3 / M-D5.F truth badge — presentation only; logic lives in dashboard_truth_badge.ts */
+.truth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem;
+  min-height: 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--badge-color, currentColor);
+  font-size: 12px;
+  line-height: 1.25;
+  background: transparent;
+  color: var(--badge-color, inherit);
+  position: relative;
+}
+
+.truth-badge__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--badge-fill, transparent);
+  pointer-events: none;
+}
+
+.truth-badge__glyph,
+.truth-badge__label {
+  position: relative;
+  z-index: 1;
+}
+
+.truth-badge--ok {
+  border-style: solid;
+}
+
+.truth-badge--stale {
+  border-style: dotted;
+}
+
+.truth-badge--unknown {
+  border-style: solid;
+}
+
+.truth-badge--conflict {
+  border-style: double;
+}
+
+.truth-badge--rejected {
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.truth-badge--glow {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--badge-color) 45%, transparent);
 }
 
 /* Custom CSS utilities that don't exist in Tailwind by default */
