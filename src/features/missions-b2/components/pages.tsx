@@ -7,7 +7,7 @@ import {
   ideaFromContract, ideaHighlights, ideasFromShelfFile, one, parseFlag, parsePageState, parsePeriod, redact, tehranStamp,
   violationOf, ageHours, bridgeStatus, deliveryStatus, type Highlight, type IdeaRow, type PageState,
 } from "../lib/model";
-import { IDEA_SHELF_PATH, MISSIONS_STATUS_PATH, loadContract, readIdeaShelf, readMessageHub, readMissionsStatus, readSelfEvaluation } from "../lib/data.server";
+import { IDEA_SHELF_PATH, MISSIONS_STATUS_PATH, loadContract, readIdeaShelf, readMessageHub, readMissionsStatus, readResearchReplay, readSelfEvaluation } from "../lib/data.server";
 
 type Params = Record<string, string | string[] | undefined>;
 const t = (k: string) => tr("fa", `missionsB2.${k}`);
@@ -247,20 +247,26 @@ export async function IdeaShelfPage({ params }: { params: Params }) {
 /* ----------------------------------------------------- research institute -- */
 export async function ResearchInstitutePage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.researchInstitute ?? null;
-  const base: Base | null = snap ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: true, source: snap.source, status: "DEMO" } : null;
-  const v = snap ? buildResearch(snap, true) : null;
+  const realResearch = c.forceDemo ? null : readResearchReplay();
+  const snap = realResearch ?? loadContract()?.researchInstitute ?? null;
+  const demoMode = snap ? !realResearch : true;
+  const base: Base | null = snap
+    ? realResearch
+      ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: false, source: snap.source ?? "ahos_replay/results.md", status: "PARTIAL" }
+      : { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: true, source: snap.source, status: "DEMO" }
+    : null;
+  const v = snap ? buildResearch(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
   const f = frame("research-institute", c, base, { empty: !!v && v.hypotheses.length === 0, emptyBody: t("ui.noData") });
   return (
     <PageFrame {...f}>
       {v ? (
         <>
-          <p className="mb-note">{t("researchInstitute.inSampleRule")}</p>
+          <p className="mb-note">{realResearch ? "REPLAY_NOT_LIVE · " : ""}{t("researchInstitute.inSampleRule")}</p>
           <HighlightList items={cap.shown} hidden={cap.hidden} empty={t("ui.noData")} />
           <Details open={c.details} meta={`${v.hypotheses.length}`}>
             <div className="mb-kpis mb-sec">
-              <div className="mb-kpi"><span className="mb-kpi__k">{t("researchInstitute.examined")}</span><span className="mb-kpi__v" dir="ltr">{formatNum(v.exam?.itemsExamined)}</span><TruthChip status="DEMO" size="sm" /></div>
+              <div className="mb-kpi"><span className="mb-kpi__k">{t("researchInstitute.examined")}</span><span className="mb-kpi__v" dir="ltr">{formatNum(v.exam?.itemsExamined)}</span><TruthChip status={demoMode ? "DEMO" : "PARTIAL"} size="sm" /></div>
               <div className="mb-kpi"><span className="mb-kpi__k">{t("researchInstitute.passedUnseen")}</span><span className="mb-kpi__v" dir="ltr">{formatNum(v.passedUnseen)}</span><span className="mb-hl__detail">{t("researchInstitute.passedRule")}</span></div>
               <div className="mb-kpi"><span className="mb-kpi__k">{t("researchInstitute.lastExam")}</span><span className="mb-kpi__v mb-kpi__v--sm" dir="ltr">{tehranStamp(v.exam?.lastExamTime)}</span></div>
             </div>

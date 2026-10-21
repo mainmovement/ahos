@@ -7,7 +7,8 @@ import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import example from "../contract/ahos-arena-contract.example.json";
 import { validateContract } from "../contract/validate";
-import type { AHOSArenaContract, MessageHubSnapshot, SelfEvaluationSnapshot } from "../contract/types";
+import type { AHOSArenaContract, MessageHubSnapshot, ResearchInstituteSnapshot, SelfEvaluationSnapshot } from "../contract/types";
+import { buildResearchFromReplay } from "./research-replay";
 import { headerConflicts, parseMissionsStatus, type ParsedMissions } from "./missions-status";
 
 export function loadContract(): AHOSArenaContract | null {
@@ -30,6 +31,14 @@ export const MESSAGE_HUB_SNAPSHOT_PATH =
 
 export const SELF_EVAL_SNAPSHOT_PATH =
   process.env.AHOS_SELF_EVAL_SNAPSHOT_PATH ?? join(process.cwd(), "..", "ahos", "reports", "grok", "M58", "self_eval_snapshot.json");
+export const RESEARCH_REPLAY_PATH =
+  process.env.AHOS_RESEARCH_REPLAY_PATH ?? join(process.cwd(), "..", "ahos_replay", "results.md");
+
+export function readResearchReplay(): ResearchInstituteSnapshot | null {
+  const f = readFileInfo(RESEARCH_REPLAY_PATH);
+  if (!f) return null;
+  return buildResearchFromReplay(f.text, f.mtimeIso);
+}
 
 export function readSelfEvaluation(): SelfEvaluationSnapshot | null {
   const f = readFileInfo(SELF_EVAL_SNAPSHOT_PATH);
