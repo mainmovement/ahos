@@ -3,7 +3,7 @@
  * (the page then shows UNAVAILABLE / UNKNOWN, never a guess).
  * - DEMO contract: contract/ahos-arena-contract.example.json (all five pages)
  * - REAL: self-debug from the M13 soak runlog (ok=false rows) + soak_status.json (paper_only flag)
- * - weekly-exam + science-radar: partial REAL from soak_status.json (tier_gate / last_cycle).
+ * - weekly-exam + science-radar + news-center: partial REAL from soak_status.json.
  * - skill-market (/workspace/ahos-asi not on this machine) stays DEMO.
  */
 import { readFileSync, statSync } from "node:fs";
@@ -12,9 +12,10 @@ import example from "../contract/ahos-arena-contract.example.json";
 import { validateContract } from "../contract/validate";
 import type { AhosArenaContract } from "../contract/types";
 import { parseSoakRunlog } from "./model";
+import { buildNewsCenterFromSoak } from "./news-center-soak";
 import { buildScienceRadarFromSoak } from "./science-radar-soak";
 import { buildWeeklyExamFromSoak } from "./weekly-exam-soak";
-import type { ScienceRadarSnapshot, WeeklyExamSnapshot } from "../contract/types";
+import type { NewsCenterSnapshot, ScienceRadarSnapshot, WeeklyExamSnapshot } from "../contract/types";
 
 export function loadContract(): AhosArenaContract | null {
   return validateContract(example) ? (example as unknown as AhosArenaContract) : null;
@@ -44,6 +45,12 @@ export function readScienceRadarSoak(): ScienceRadarSnapshot | null {
   const f = readSoakStatusFile();
   if (!f) return null;
   return buildScienceRadarFromSoak(f.raw, f.mtimeIso);
+}
+
+export function readNewsCenterSoak(): NewsCenterSnapshot | null {
+  const f = readSoakStatusFile();
+  if (!f) return null;
+  return buildNewsCenterFromSoak(f.raw, f.mtimeIso);
 }
 
 export function readSoakDebug(): { incidents: ReturnType<typeof parseSoakRunlog>; paperOnly: boolean | null; mtimeIso: string } | null {

@@ -8,7 +8,7 @@ import {
   MISSING, buildNewsCenter, buildScienceRadar, buildSelfDebug, buildSkillMarket, buildWeeklyExam, capHighlights, clean,
   debugStatus, examStatus, installChip, radarStatus,
 } from "../lib/model";
-import { SOAK_RUNLOG_PATH, loadContract, readScienceRadarSoak, readSoakDebug, readWeeklyExamSoak } from "../lib/data.server";
+import { SOAK_RUNLOG_PATH, loadContract, readNewsCenterSoak, readScienceRadarSoak, readSoakDebug, readWeeklyExamSoak } from "../lib/data.server";
 import type { SelfDebugSnapshot } from "../contract/types";
 
 type Params = Record<string, string | string[] | undefined>;
@@ -238,10 +238,21 @@ export async function SkillMarketPage({ params }: { params: Params }) {
 /* -------------------------------------------------------------- news center */
 export async function NewsCenterPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.newsCenter ?? null;
-  const v = snap ? buildNewsCenter(snap, true) : null;
+  const real = c.forceDemo ? null : readNewsCenterSoak();
+  const snap = real ?? loadContract()?.newsCenter ?? null;
+  const demoMode = !real;
+  const v = snap ? buildNewsCenter(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
-  const f = frame("news-center", c, snap ? demoBase(snap) : null, { empty: !!v && v.rows.length === 0, emptyBody: tb2("ui.noData") });
+  const base: Base | null = snap
+    ? real
+      ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: false, source: snap.source ?? "M13_SOAK", status: "PARTIAL" }
+      : demoBase(snap)
+    : null;
+  const f = frame("news-center", c, base, {
+    empty: !!v && v.rows.length === 0,
+    emptyBody: tb2("ui.noData"),
+    note: real ? "شاهد قیمت M13 (مرکز اخبار آرام — بدون خبرنگاری زنده)" : null,
+  });
   return (
     <PageFrame {...f}>
       {v && snap ? (
@@ -254,7 +265,7 @@ export async function NewsCenterPage({ params }: { params: Params }) {
                 <tr key={n.id}>
                   <td dir="ltr" className="tv-mono"><Cell v={when(n.time)} /></td><td dir="auto"><Cell v={n.sourceName} /></td><td dir="ltr">{n.topic}</td>
                   <td dir="auto">{clean(n.summary, 120)}</td><td dir="auto"><Cell v={n.reliability} /></td>
-                  <td><TruthChip status={fresh as ChipStatus} size="sm" /></td>
+                  <td><TruthChip status={demoMode || n.demo ? "DEMO" : (fresh as ChipStatus)} size="sm" /></td>
                 </tr>
               ))}
             </Table>
