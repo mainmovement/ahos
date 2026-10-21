@@ -21,12 +21,13 @@ function probe(port: number, ms = 600): Promise<boolean> {
 function parseVerifyReceipt(lines: string[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const line of lines) {
-    const i = line.indexOf("=");
+    const normalized = line.replace(/^\uFEFF/, "");
+    const i = normalized.indexOf("=");
     if (i < 0) {
-      out[line] = "true";
+      out[normalized] = "true";
       continue;
     }
-    out[line.slice(0, i)] = line.slice(i + 1);
+    out[normalized.slice(0, i)] = normalized.slice(i + 1);
   }
   return out;
 }
