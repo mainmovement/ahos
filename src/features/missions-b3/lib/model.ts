@@ -7,6 +7,7 @@
 import type { ChipStatus } from "@/src/features/trade-venue/logic/model";
 import { freshness, redact, type Highlight } from "@/src/features/missions-b2/lib/model";
 import type { Mission } from "@/src/features/missions-b2/contract/types";
+import { telegramHealthStatus } from "@/src/lib/launcher-verify";
 import type { HealthSnapshot, LessonRecord, MissionRecord, OilGoldSnapshot } from "../contract/types";
 
 export type ProbeResult = "open" | "closed" | "unknown";
@@ -40,7 +41,13 @@ export interface SoakView {
 }
 
 /** REAL binding: reports/grok/M13_SOAK/soak_status.json (read-only). Returns null when the shape is not recognisable. */
-export function healthFromSoak(raw: unknown, probes: { bridge: ProbeResult; arena: ProbeResult }, fileMtimeIso: string, nowMs: number): SoakView | null {
+export function healthFromSoak(
+  raw: unknown,
+  probes: { bridge: ProbeResult; arena: ProbeResult },
+  fileMtimeIso: string,
+  nowMs: number,
+  launcherVerify?: Record<string, string> | null,
+): SoakView | null {
   if (!isObj(raw) || typeof raw.soak !== "string") return null;
   const last = isObj(raw.last_cycle) ? raw.last_cycle : null;
   const lastTs = last ? str(last.ts) : null;
@@ -80,10 +87,34 @@ export function healthFromSoak(raw: unknown, probes: { bridge: ProbeResult; aren
     ramGuard: { usedGb: null, limitGb: null, headroomGb: null, state: "UNKNOWN" },
     faults: [],
   };
+  const tgState = launcherVerify?.telegram_state;
+  if (tgState) {
+    const tgChip = telegramHealthStatus(tgState);
+    snapshot.services.push({
+      demo: false,
+      name: "telegram (run_bot)",
+      status: ts(tgChip),
+      lastHeartbeat: str(launcherVerify?.ts),
+      version: null,
+      uptimeSeconds: null,
+    });
+  }
+  const freeMb = numOrNull(launcherVerify?.free_ram_mb);
+  if (freeMb !== null) {
+    const headroomGb = Math.round((freeMb / 1024) * 10) / 10;
+    const limitGb = 8;
+    snapshot.ramGuard = {
+      usedGb: Math.max(0, Math.round((limitGb - headroomGb) * 10) / 10),
+      limitGb,
+      headroomGb,
+      state: freeMb < 2048 ? "TRIPPED" : "ARMED",
+    };
+  }
   const hl: Highlight[] = [
     { id: "runner", title: `soak ${raw.soak}`, detail: lastTs ? `cycle ${last && numOrNull(last.cycle) !== null ? last.cycle : "-"} | ok ${numOrNull(raw.cycles_ok) ?? "-"} / failed ${failed ?? "-"}` : null, status: runner, tag: paper ? "PAPER_ONLY" : null },
     { id: "bridge", title: "bridge :8787", detail: probes.bridge, status: probeStatus(probes.bridge) },
     { id: "arena", title: "arena :3200", detail: probes.arena, status: probeStatus(probes.arena) },
+    ...(tgState ? [{ id: "telegram", title: "telegram bot", detail: tgState, status: telegramHealthStatus(tgState) }] : []),
     { id: "breaker", title: "circuit breaker", detail: breaker, status: breaker === null ? "UNKNOWN" : breaker === "ARMED" ? runner : "ERROR" },
     { id: "witness", title: "price witness", detail: witness === null ? null : redact(`${witness}${last && str(last.witness_reason) ? ` - ${str(last.witness_reason)}` : ""}`), status: witness === "RESOLVED" ? runner : witness === null ? "UNKNOWN" : "PARTIAL" },
   ];

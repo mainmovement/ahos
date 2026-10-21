@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { readFileSync, existsSync } from "node:fs";
 import { connect } from "node:net";
 import { join } from "node:path";
+import { launcherDir, readLauncherVerifyReceipt } from "@/src/lib/launcher-verify";
 
 export const dynamic = "force-dynamic";
 
@@ -18,38 +19,16 @@ function probe(port: number, ms = 600): Promise<boolean> {
   });
 }
 
-function parseVerifyReceipt(lines: string[]): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const line of lines) {
-    const normalized = line.replace(/^\uFEFF/, "");
-    const i = normalized.indexOf("=");
-    if (i < 0) {
-      out[normalized] = "true";
-      continue;
-    }
-    out[normalized.slice(0, i)] = normalized.slice(i + 1);
-  }
-  return out;
-}
-
 /** Read-only ops snapshot (ports + launcher verify file if present). */
 export async function GET() {
-  const launcherDir = process.env.AHOS_LAUNCHER_DIR ?? join(process.cwd(), "..", "AHOS_Launcher");
-  const verifyPath = join(launcherDir, "logs", "verify_stack_latest.txt");
-  let verifyLines: string[] = [];
-  let verify: Record<string, string> | null = null;
-  if (existsSync(verifyPath)) {
-    try {
-      verifyLines = readFileSync(verifyPath, "utf8").split(/\r?\n/).filter(Boolean);
-      verify = parseVerifyReceipt(verifyLines);
-    } catch {
-      verifyLines = [];
-    }
-  }
+  const root = launcherDir();
+  const receipt = readLauncherVerifyReceipt();
+  const verify = receipt?.map ?? null;
+  const verifyLines = receipt?.lines ?? [];
   const [arena, bridge] = await Promise.all([probe(3200), probe(8787)]);
   let served: string | null = null;
   try {
-    served = readFileSync(join(launcherDir, "served_commit.txt"), "utf8").trim() || null;
+    served = readFileSync(join(root, "served_commit.txt"), "utf8").trim() || null;
   } catch {
     served = null;
   }

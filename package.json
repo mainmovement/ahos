@@ -44,7 +44,7 @@
     "test:missions-b2": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b2_selftest.ts scripts/research_replay_selftest.ts scripts/missions_soak_fallback_selftest.ts",
     "test:missions-b4": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b4_selftest.ts scripts/missions_b4_soak_bind_selftest.ts scripts/missions_b4_skill_market_selftest.ts",
     "test:missions-b5": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b5_selftest.ts",
-    "test:missions-b3": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b3_selftest.ts",
+    "test:missions-b3": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b3_selftest.ts scripts/launcher_verify_selftest.ts",
     "test:white-hats": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/white_hats_selftest.ts scripts/white_hats_soak_selftest.ts",
     "test:real-paper": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/real_paper_selftest.ts",
     "test:tehran": "node --experimental-strip-types --test scripts/tehran_selftest.ts",

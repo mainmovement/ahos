@@ -8,6 +8,7 @@ import { buildPortableFromLauncherEvidence, parsePortableSnapshotJson } from "./
 import example from "../contract/ahos-arena-contract.example.json";
 import { validateArenaContract } from "../contract/validate";
 import type { ArenaContract, LessonRecord, LessonsSnapshot } from "../contract/types";
+import { readLauncherVerifyReceipt } from "@/src/lib/launcher-verify";
 import { healthFromSoak, parseReplayResults, type ProbeResult, type ReplayView, type SoakView } from "./model";
 
 export function loadContract3(): ArenaContract | null {
@@ -96,7 +97,8 @@ export async function readHealth(nowMs: number): Promise<SoakView | null> {
   let raw: unknown;
   try { raw = JSON.parse(text); } catch { return null; }
   const [bridge, arena] = await Promise.all([probe(8787), probe(3200)]);
-  return healthFromSoak(raw, { bridge, arena }, mtimeIso, nowMs);
+  const launcher = readLauncherVerifyReceipt();
+  return healthFromSoak(raw, { bridge, arena }, mtimeIso, nowMs, launcher?.map ?? null);
 }
 
 export function readReplay(): ReplayView | null {
