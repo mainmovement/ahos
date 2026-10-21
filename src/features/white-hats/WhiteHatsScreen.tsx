@@ -13,6 +13,8 @@ import {
   useWhiteHatsSnapshot,
   type SnapshotPhase,
 } from "./hooks/useWhiteHatsSnapshot";
+import { SoakWhiteHatsAdapter } from "./lib/soak-adapter";
+import { MockWhiteHatsAdapter } from "@/src/mock/white_hats/adapter";
 import type { PanelBodyState } from "./types";
 import { PageBar } from "./components/PageBar";
 import { PaperOnlyGuard } from "./components/PaperOnlyGuard";
@@ -38,17 +40,25 @@ export function WhiteHatsScreen({
   scenario = "calm",
   tier = "t1",
   openTarget = null,
+  dataMode = "soak",
 }: {
   scenario?: WhiteHatsScenario;
   tier?: QualityTier;
   openTarget?: OpenTarget;
+  /** soak = M13_SOAK REAL files; mock = typed DEMO fixtures (?demo=1) */
+  dataMode?: "soak" | "mock";
 } = {}) {
   const router = useRouter();
   const [pickedDecisionId, setSelectedDecisionId] = useState<string | null>(null);
   // undefined = follow the ?open= deep link; null = user closed it; value = user opened it.
   const [drawerPick, setDrawer] = useState<DrawerContent | undefined>(undefined);
 
-  const phase = useWhiteHatsSnapshot(scenario);
+  const phase = useWhiteHatsSnapshot(
+    scenario,
+    dataMode === "mock"
+      ? (s) => new MockWhiteHatsAdapter(s)
+      : () => new SoakWhiteHatsAdapter(),
+  );
   const snapshot = phase.phase === "ready" ? phase.snapshot : null;
   // DEMO is derived from the data, never hard-coded.
   const demo = snapshot?.demo ?? false;
