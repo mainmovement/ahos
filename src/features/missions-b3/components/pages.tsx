@@ -64,7 +64,10 @@ export async function HealthMonitorPage({ params }: { params: Params }) {
   const base: Base | null = real ? { mode: real.mode, real: real.real, generatedAt: real.snapshot.generatedAt, demo: false, source: real.snapshot.source ?? SOAK_STATUS_PATH, status: real.status } : demoSnap && contract ? demoBase(contract) : null;
   const hl = real ? real.highlights : demoSnap ? demoSnap.services.map((s) => ({ id: s.name, title: s.name, detail: null, status: "DEMO" as ChipStatus })) : [];
   const cap = capHighlights(hl);
-  const servedShort = launcherReceipt?.map.served_commit?.slice(0, 7) ?? null;
+  const servedFile = c.forceDemo ? null : readServedCommit();
+  const verifyServed = launcherReceipt?.map.served_commit ?? null;
+  const servedShort = (servedFile ?? verifyServed)?.slice(0, 7) ?? null;
+  const servedMismatch = Boolean(servedFile && verifyServed && servedFile !== verifyServed);
   const verifyArena = launcherReceipt?.map["arena:3200"];
   const arenaLive = snap?.services.some((s) => s.name.includes("3200") && s.status === "LIVE");
   const staleVerify = Boolean(verifyArena && verifyArena !== "OK" && arenaLive);
@@ -73,6 +76,7 @@ export async function HealthMonitorPage({ params }: { params: Params }) {
         t("ui.soakNote"),
         servedShort ? `build ${servedShort}` : null,
         launcherReceipt?.map.telegram_state ? `telegram ${launcherReceipt.map.telegram_state}` : null,
+        servedMismatch ? "CONFLICT served_commit vs verify" : null,
         staleVerify ? `verify stale (arena was ${verifyArena})` : null,
       ]
         .filter(Boolean)
