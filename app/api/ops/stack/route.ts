@@ -18,14 +18,29 @@ function probe(port: number, ms = 600): Promise<boolean> {
   });
 }
 
+function parseVerifyReceipt(lines: string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const line of lines) {
+    const i = line.indexOf("=");
+    if (i < 0) {
+      out[line] = "true";
+      continue;
+    }
+    out[line.slice(0, i)] = line.slice(i + 1);
+  }
+  return out;
+}
+
 /** Read-only ops snapshot (ports + launcher verify file if present). */
 export async function GET() {
-  const launcherDir = process.env.AHOS_LAUNCHER_DIR ?? join(process.cwd(), "..");
+  const launcherDir = process.env.AHOS_LAUNCHER_DIR ?? join(process.cwd(), "..", "AHOS_Launcher");
   const verifyPath = join(launcherDir, "logs", "verify_stack_latest.txt");
   let verifyLines: string[] = [];
+  let verify: Record<string, string> | null = null;
   if (existsSync(verifyPath)) {
     try {
-      verifyLines = readFileSync(verifyPath, "utf8").split(/\r?\n/).filter(Boolean).slice(-8);
+      verifyLines = readFileSync(verifyPath, "utf8").split(/\r?\n/).filter(Boolean);
+      verify = parseVerifyReceipt(verifyLines);
     } catch {
       verifyLines = [];
     }
@@ -37,13 +52,20 @@ export async function GET() {
   } catch {
     served = null;
   }
+  const stackOk = arena && bridge;
+  const soakPids = verify?.soak_venv_pids?.trim() ?? "";
+  const telegramState = verify?.telegram_state?.trim() ?? "UNKNOWN";
   return NextResponse.json({
-    ok: arena && bridge,
+    ok: stackOk,
     executionMode: "PAPER_ONLY",
     arenaPort: arena ? "OK" : "DOWN",
     bridgePort: bridge ? "OK" : "DOWN",
     servedCommit: served,
-    verifyFile: existsSync(verifyPath) ? verifyLines : null,
+    soakVenvPids: soakPids.length ? soakPids.split(",").filter(Boolean) : [],
+    telegramState,
+    freeRamMb: verify?.free_ram_mb ? Number(verify.free_ram_mb) : null,
+    verifyFile: verifyLines.length ? verifyLines.slice(-10) : null,
+    verify,
     demo: false,
   });
 }
