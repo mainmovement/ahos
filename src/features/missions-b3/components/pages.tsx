@@ -5,7 +5,7 @@ import { TruthChip } from "@/src/components/truth/TruthChip";
 import { Cell, Details, HighlightList, PageFrame, type FrameProps } from "@/src/features/missions-b2/components/PageFrame";
 import { MISSING, buildMissionMap, capHighlights, formatNum, parseFlag, parsePageState, redact, tehranStamp, violationOf, type PageState } from "@/src/features/missions-b2/lib/model";
 import { MISSIONS_STATUS_PATH, readMissionsStatus } from "@/src/features/missions-b2/lib/data.server";
-import { SOAK_STATUS_PATH, loadContract3, readHealth, readLessons, readReplay } from "../lib/data.server";
+import { SOAK_STATUS_PATH, loadContract3, readHealth, readLessons, readPortable, readReplay } from "../lib/data.server";
 import { RealOilGoldPanel } from "@/src/features/real-paper/components/RealOilGoldPanel";
 import { loadSoakLedger } from "@/src/features/real-paper/lib/data.server";
 import { lessonHighlights, normalizeLesson, oilGoldHighlights, portableHighlights, resolveRamGuardState, toMission } from "../lib/model";
@@ -190,9 +190,17 @@ export async function WorkroomPage({ params }: { params: Params }) {
 export async function PortablePage({ params }: { params: Params }) {
   const c = ctxOf(params);
   const contract = loadContract3();
-  const snap = contract?.portable ?? null;
-  const base = snap && contract ? demoBase(contract) : null;
-  const hl = snap ? portableHighlights(snap, true) : [];
+  const realPortable = c.forceDemo ? null : readPortable(c.nowMs);
+  const snap = realPortable ?? contract?.portable ?? null;
+  const demoMode = snap ? !realPortable : true;
+  const base: Base | null = snap
+    ? realPortable
+      ? { mode: "PAPER_ONLY", real: false, generatedAt: snap.generatedAt, demo: false, source: snap.source ?? "AHOS_Launcher", status: "PARTIAL" }
+      : contract
+        ? demoBase(contract)
+        : null
+    : null;
+  const hl = snap ? portableHighlights(snap, demoMode) : [];
   const cap = capHighlights(hl);
   const f = frame("portable", c, base, { empty: !!snap && hl.length === 0 });
   return (

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { healthFromSoak, lessonHighlights, normalizeLesson, oilGoldHighlights, parseReplayResults, portableHighlights, probeStatus, resolveRamGuardState, toMission } from "../src/features/missions-b3/lib/model";
+import { buildPortableFromLauncherEvidence, ramTierFromGb } from "../src/features/missions-b3/lib/portable-evidence";
 import { validateArenaContract } from "../src/features/missions-b3/contract/validate";
 import { buildMissionMap, redact, capHighlights } from "../src/features/missions-b2/lib/model";
 import { headerConflicts, parseMissionsStatus } from "../src/features/missions-b2/lib/missions-status";
@@ -76,6 +77,23 @@ test("portable: unknown hardware never promoted; checklist UNKNOWN stays UNKNOWN
   assert.equal(contract.portable.hardware.tier, "UNKNOWN");
   assert.ok(portableHighlights(contract.portable, true).every((h) => h.status === "DEMO"));
   assert.ok(portableHighlights(contract.portable, false).every((h) => h.status === "UNKNOWN"));
+});
+test("portable: launcher evidence maps RAM tier honestly; smoke stays PARTIAL not LIVE", () => {
+  assert.equal(ramTierFromGb(7.5), "T0");
+  assert.equal(ramTierFromGb(8), "T1");
+  const p = buildPortableFromLauncherEvidence({
+    arenaCommit: "ffe244eabc",
+    arenaDist: ".next-b",
+    buildId: "build123",
+    generatedAt: "2026-10-21T12:00:00Z",
+    ramGb: 8,
+    cpuModel: "Test CPU",
+    launcherIniPresent: true,
+  });
+  assert.equal(p.demo, false);
+  assert.equal(p.checklist.smokeTest, "PARTIAL");
+  assert.equal(p.hardware.tier, "T1");
+  assert.ok(portableHighlights(p, false).some((h) => h.status === "PARTIAL"));
 });
 test("oil-gold: always 'no proven edge yet'; replay is labelled REPLAY_NOT_LIVE and never live", () => {
   const rp = parseReplayResults("# Replay 2025\nbars: 100\nsecret: abc123");
