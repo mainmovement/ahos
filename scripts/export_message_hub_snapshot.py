@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -14,7 +16,14 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from run_bot import load_dotenv
+
 from architecture.ai.command_inbox import HUMAN, route_command
+
+load_dotenv()
+_owner_env = ROOT.parent / "AHOS_Launcher" / "profile" / "owner_secrets.env"
+if _owner_env.is_file():
+    load_dotenv(_owner_env)
 
 SOAK_DIR = ROOT / "reports" / "grok" / "M13_SOAK"
 DEFAULT_OUT = ROOT / "reports" / "grok" / "M35" / "message_hub_snapshot.json"
@@ -22,6 +31,24 @@ DEFAULT_OUT = ROOT / "reports" / "grok" / "M35" / "message_hub_snapshot.json"
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _probe_telegram() -> tuple[str, bool, str | None]:
+    tok = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    if not tok or tok.startswith("__") or "NEW_TOKEN" in tok.upper():
+        return "BLOCKED_OWNER", True, "owner token not set"
+    if not re.fullmatch(r"\d{6,}:[A-Za-z0-9_-]{20,}", tok):
+        return "BLOCKED_OWNER", True, "token format invalid"
+    url = f"https://api.telegram.org/bot{tok}/getMe"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "ahos-export/1.0"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            body = json.loads(resp.read())
+        if body.get("ok") is True:
+            return "CONNECTED", False, None
+        return "DISCONNECTED", False, "getMe ok=false"
+    except Exception as exc:  # noqa: BLE001
+        return "DISCONNECTED", False, type(exc).__name__
 
 
 def _probe_bridge(url: str = "http://127.0.0.1:8787/health") -> tuple[str, str | None]:
@@ -60,6 +87,7 @@ def _latest_judge_day() -> tuple[str | None, str | None]:
 
 
 def build_snapshot() -> dict:
+    tg_state, tg_needs_rotation, tg_err = _probe_telegram()
     bridge, bridge_err = _probe_bridge()
     soak = _read_soak_status() or {}
     last_cycle = soak.get("last_cycle") or {}
@@ -108,10 +136,10 @@ def build_snapshot() -> dict:
                 },
                 {
                     "channel": "Telegram",
-                    "status": "UNAVAILABLE",
-                    "lastMessageTime": None,
+                    "status": "LIVE" if tg_state == "CONNECTED" else "UNAVAILABLE",
+                    "lastMessageTime": _utc_now() if tg_state == "CONNECTED" else None,
                     "queueDepth": None,
-                    "lastError": "M35.3 owner token rotation",
+                    "lastError": tg_err or ("M35.3 owner token rotation" if tg_needs_rotation else None),
                 },
                 {
                     "channel": "nightly report",
@@ -129,13 +157,14 @@ def build_snapshot() -> dict:
                 },
             ],
             "telegram": {
-                "bridgeState": "BLOCKED_OWNER",
-                "needsTokenRotation": True,
+                "bridgeState": tg_state,
+                "needsTokenRotation": tg_needs_rotation,
             },
             "nightlyReport": {
                 "lastReportTime": judge_mtime,
                 "language": "فارسی",
-                "deliveryState": "NOT_SENT" if judge_mtime else "UNKNOWN",
+                # On-disk judge exists; Telegram send is not proven here.
+                "deliveryState": "UNKNOWN" if judge_mtime else "NOT_SENT",
                 "evidenceLink": f"reports/grok/M13_SOAK/{judge_day}_judge.md" if judge_day else None,
             },
             "humanGateInbox": inbox,
