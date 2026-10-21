@@ -5,7 +5,7 @@ import { TruthChip } from "@/src/components/truth/TruthChip";
 import { Cell, Details, HighlightList, PageFrame, type FrameProps } from "@/src/features/missions-b2/components/PageFrame";
 import { MISSING, buildMissionMap, capHighlights, formatNum, parseFlag, parsePageState, redact, tehranStamp, violationOf, type PageState } from "@/src/features/missions-b2/lib/model";
 import { MISSIONS_STATUS_PATH, readMissionsStatus } from "@/src/features/missions-b2/lib/data.server";
-import { readLauncherVerifyReceipt } from "@/src/lib/launcher-verify";
+import { readLauncherVerifyReceipt, readServedCommit } from "@/src/lib/launcher-verify";
 import { SOAK_STATUS_PATH, loadContract3, readHealth, readLessons, readPortable, readReplay } from "../lib/data.server";
 import { RealOilGoldPanel } from "@/src/features/real-paper/components/RealOilGoldPanel";
 import { loadSoakLedger } from "@/src/features/real-paper/lib/data.server";
@@ -222,7 +222,11 @@ export async function PortablePage({ params }: { params: Params }) {
     : null;
   const hl = snap ? portableHighlights(snap, demoMode) : [];
   const cap = capHighlights(hl);
-  const f = frame("portable", c, base, { empty: !!snap && hl.length === 0 });
+  const served = c.forceDemo ? null : readServedCommit();
+  const f = frame("portable", c, base, {
+    empty: !!snap && hl.length === 0,
+    note: realPortable && served ? `served_commit ${served.slice(0, 7)} · PAPER_ONLY` : undefined,
+  });
   return (
     <PageFrame {...f}>
       {snap ? (
