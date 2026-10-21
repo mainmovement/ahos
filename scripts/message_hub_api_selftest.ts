@@ -13,4 +13,5 @@ test("message-hub and self-eval snapshot routes exist", () => {
   assert.ok(ops.includes("telegramState"));
   assert.ok(ops.includes("readLauncherVerifyReceipt"));
   assert.ok(ops.includes("statusOneline"));
+  assert.ok(ops.includes("servedCommitMismatch"));
 });

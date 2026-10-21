@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { readFileSync, existsSync } from "node:fs";
 import { connect } from "node:net";
-import { join } from "node:path";
-import { launcherDir, readLauncherStatusOneline, readLauncherVerifyReceipt } from "@/src/lib/launcher-verify";
+import { readLauncherStatusOneline, readLauncherVerifyReceipt, readServedCommit } from "@/src/lib/launcher-verify";
 
 export const dynamic = "force-dynamic";
 
@@ -21,18 +19,14 @@ function probe(port: number, ms = 600): Promise<boolean> {
 
 /** Read-only ops snapshot (ports + launcher verify file if present). */
 export async function GET() {
-  const root = launcherDir();
   const receipt = readLauncherVerifyReceipt();
   const verify = receipt?.map ?? null;
   const verifyLines = receipt?.lines ?? [];
   const [arena, bridge] = await Promise.all([probe(3200), probe(8787)]);
-  let served: string | null = null;
-  try {
-    served = readFileSync(join(root, "served_commit.txt"), "utf8").trim() || null;
-  } catch {
-    served = null;
-  }
-  const stackOk = arena && bridge;
+  const served = readServedCommit();
+  const verifyServed = verify?.served_commit?.trim() ?? null;
+  const servedCommitMismatch = Boolean(served && verifyServed && served !== verifyServed);
+  const stackOk = arena && bridge && !servedCommitMismatch;
   const soakPids = verify?.soak_venv_pids?.trim() ?? "";
   const telegramState = verify?.telegram_state?.trim() ?? "UNKNOWN";
   return NextResponse.json({
@@ -41,6 +35,8 @@ export async function GET() {
     arenaPort: arena ? "OK" : "DOWN",
     bridgePort: bridge ? "OK" : "DOWN",
     servedCommit: served,
+    verifyServedCommit: verifyServed,
+    servedCommitMismatch,
     soakVenvPids: soakPids.length ? soakPids.split(",").filter(Boolean) : [],
     telegramState,
     freeRamMb: verify?.free_ram_mb ? Number(verify.free_ram_mb) : null,
