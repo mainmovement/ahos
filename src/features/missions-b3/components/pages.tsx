@@ -150,7 +150,14 @@ export async function WorkroomPage({ params }: { params: Params }) {
   const missions = real ? real.parsed.missions : demoSnap ? demoSnap.missions.map(toMission) : [];
   const isDemo = !real;
   const base: Base | null = real
-    ? { mode: "PAPER_ONLY", real: false, generatedAt: real.generatedAt, demo: false, source: MISSIONS_STATUS_PATH.replace(/^.*[\\/]ahos_assets[\\/]/, "ahos_assets/"), status: real.conflict ? "CONFLICT" : "PARTIAL" }
+    ? {
+        mode: "PAPER_ONLY",
+        real: false,
+        generatedAt: real.generatedAt,
+        demo: false,
+        source: real.soakFallback ? "soak_status.json · last_tier_gate" : MISSIONS_STATUS_PATH.replace(/^.*[\\/]ahos_assets[\\/]/, "ahos_assets/"),
+        status: real.conflict ? "CONFLICT" : "PARTIAL",
+      }
     : demoSnap && contract ? demoBase(contract) : null;
   const m = buildMissionMap(missions, isDemo);
   const cap = capHighlights(m.highlights);

@@ -81,7 +81,7 @@ function Table({ heads, children }: { heads: string[]; children: React.ReactNode
 /* ------------------------------------------------------------ message hub -- */
 export async function MessageHubPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const realHub = readMessageHub();
+  const realHub = c.forceDemo ? null : readMessageHub();
   const snap = realHub ?? loadContract()?.messageHub ?? null;
   const demoMode = snap ? (realHub ? false : snap.demo !== false) : true;
   const base: Base | null = snap
@@ -148,7 +148,7 @@ export async function MessageHubPage({ params }: { params: Params }) {
 /* --------------------------------------------------------- self evaluation - */
 export async function SelfEvaluationPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const realEval = readSelfEvaluation();
+  const realEval = c.forceDemo ? null : readSelfEvaluation();
   const snap = realEval ?? loadContract()?.selfEvaluation ?? null;
   const period = parsePeriod(params.period);
   const demoMode = snap ? (realEval ? false : snap.demo !== false) : true;
@@ -300,9 +300,12 @@ export async function MissionMapPage({ params }: { params: Params }) {
   let note: string | null = null;
   if (real) {
     const st = real.conflict ? "CONFLICT" : freshness("file", real.generatedAt, c.nowMs);
-    base = { mode: "PAPER_ONLY", real: false, generatedAt: real.generatedAt, demo: false, source: `MISSIONS_STATUS.md (${t("ui.readOnlyFile")})`, status: st };
+    const src = real.soakFallback
+      ? "soak_status.json · last_tier_gate (MISSIONS_STATUS.md missing)"
+      : `MISSIONS_STATUS.md (${t("ui.readOnlyFile")})`;
+    base = { mode: "PAPER_ONLY", real: false, generatedAt: real.generatedAt, demo: false, source: src, status: st };
     missions = real.parsed.missions;
-    note = real.conflict ? t("missionMap.conflict") : t("missionMap.realNote");
+    note = real.conflict ? t("missionMap.conflict") : real.soakFallback ? "فقط open_questions و tier_gate از M13 (نه چک‌لیست کامل)" : t("missionMap.realNote");
   } else {
     const snap = loadContract()?.missionMap ?? null;
     if (snap) {

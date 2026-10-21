@@ -10,6 +10,11 @@ import { validateContract } from "../contract/validate";
 import type { AHOSArenaContract, MessageHubSnapshot, ResearchInstituteSnapshot, SelfEvaluationSnapshot } from "../contract/types";
 import { buildResearchFromReplay } from "./research-replay";
 import { headerConflicts, parseMissionsStatus, type ParsedMissions } from "./missions-status";
+import { parseMissionsFromSoakTierGate } from "./missions-soak-fallback";
+
+const SOAK_STATUS_FOR_MISSIONS =
+  process.env.AHOS_SOAK_DIR ?? join(process.cwd(), "..", "ahos", "reports", "grok", "M13_SOAK");
+const SOAK_STATUS_MISSIONS_PATH = join(SOAK_STATUS_FOR_MISSIONS, "soak_status.json");
 
 export function loadContract(): AHOSArenaContract | null {
   return validateContract(example) ? (example as unknown as AHOSArenaContract) : null;
@@ -66,12 +71,28 @@ export function readMessageHub(): MessageHubSnapshot | null {
   }
 }
 
-export function readMissionsStatus(): { parsed: ParsedMissions; generatedAt: string; conflict: boolean } | null {
+export function readMissionsStatus(): { parsed: ParsedMissions; generatedAt: string; conflict: boolean; soakFallback?: boolean } | null {
   const f = readFileInfo(MISSIONS_STATUS_PATH);
-  if (!f) return null;
-  const parsed = parseMissionsStatus(f.text);
-  if (!parsed) return null;
-  return { parsed, generatedAt: parsed.generatedAt ?? f.mtimeIso, conflict: headerConflicts(parsed) };
+  if (f) {
+    const parsed = parseMissionsStatus(f.text);
+    if (!parsed) return null;
+    return { parsed, generatedAt: parsed.generatedAt ?? f.mtimeIso, conflict: headerConflicts(parsed) };
+  }
+  const soakFile = readFileInfo(SOAK_STATUS_MISSIONS_PATH);
+  if (!soakFile) return null;
+  try {
+    const raw = JSON.parse(soakFile.text) as Record<string, unknown>;
+    const parsed = parseMissionsFromSoakTierGate(raw);
+    if (!parsed) return null;
+    return {
+      parsed,
+      generatedAt: parsed.generatedAt ?? soakFile.mtimeIso,
+      conflict: false,
+      soakFallback: true,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function readIdeaShelf(): { raw: unknown; mtimeIso: string } | null {
