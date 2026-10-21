@@ -106,7 +106,7 @@ export async function HealthMonitorPage({ params }: { params: Params }) {
 export async function LessonsPage({ params }: { params: Params }) {
   const c = ctxOf(params);
   const contract = loadContract3();
-  const realLessons = readLessons();
+  const realLessons = c.forceDemo ? null : readLessons();
   const snap = realLessons ?? contract?.lessons ?? null;
   const demoMode = snap ? snap.demo : true;
   const base: Base | null = snap
