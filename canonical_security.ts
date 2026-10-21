@@ -127,7 +127,14 @@ function pythonBin(): string {
   const win = path.join(root, envDir, "Scripts", "python.exe");
   if (existsSync(unix)) return unix;
   if (existsSync(win)) return win;
-  return "python3";
+  const ahosRoot = process.env.AHOS_REPO_DIR;
+  if (ahosRoot) {
+    const ahosUnix = path.join(ahosRoot, ".venv", "bin", "python");
+    const ahosWin = path.join(ahosRoot, ".venv", "Scripts", "python.exe");
+    if (existsSync(ahosUnix)) return ahosUnix;
+    if (existsSync(ahosWin)) return ahosWin;
+  }
+  return process.platform === "win32" ? "python" : "python3";
 }
 
 /** Spawn Lane B overlay_query. Fail closed: errors → empty map (no PASS). */
