@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { TruthChip } from '@/src/features/newsroom/truth';
 import { COPY, PANEL } from '@/src/features/newsroom/lib/labels';
-import { newsroomAdapter, type NewsroomScenario } from '@/src/mock/newsroom';
+import { mockNewsroomAdapter, type NewsroomScenario } from '@/src/mock/newsroom';
+import { soakNewsroomAdapter } from '@/src/features/newsroom/lib/soak-adapter';
 import { buildStoryView, filterStories, type StoryFilterId, type StoryView } from '@/src/features/newsroom/lib/selectors';
 import { type Tier } from '@/src/features/newsroom/lib/tier';
 import { demoteLiveOnMock } from '@/src/features/newsroom/lib/normalize';
@@ -102,6 +103,8 @@ export interface NewsroomPageProps {
   story?: string | null;
   /** `?details=1` — open the dense tables. */
   details?: boolean;
+  /** soak = M13 witness (default); mock = fixtures (`?mock=1`). */
+  dataMode?: 'soak' | 'mock';
 }
 
 export function NewsroomPage({
@@ -111,7 +114,9 @@ export function NewsroomPage({
   tier: urlTier = 1,
   story: deepLinkedStory = null,
   details = false,
+  dataMode = 'soak',
 }: NewsroomPageProps = {}) {
+  const adapter = dataMode === 'mock' ? mockNewsroomAdapter : soakNewsroomAdapter;
   const [tier, setTier] = useState<Tier>(urlTier);
   const [filter, setFilter] = useState<StoryFilterId>('ALL');
   const [showDetails, setShowDetails] = useState(details);
@@ -124,7 +129,7 @@ export function NewsroomPage({
    * matches as "not loaded yet", so switching scenario (or retrying) falls back
    * to LOADING without a synchronous setState inside an effect.
    */
-  const requestKey = `${scenario}|${String(forceDemo)}|${String(forceViolation)}|${reloadKey}`;
+  const requestKey = `${dataMode}|${scenario}|${String(forceDemo)}|${String(forceViolation)}|${reloadKey}`;
 
   const [result, setResult] = useState<LoadResult | null>(null);
   const current = result !== null && result.key === requestKey ? result : null;
@@ -136,11 +141,11 @@ export function NewsroomPage({
   useEffect(() => {
     let cancelled = false;
 
-    newsroomAdapter
+    adapter
       .load({ scenario, forceDemo, forceViolation })
       .then((next) => {
         if (cancelled) return;
-        const safe = newsroomAdapter.kind === 'mock' ? demoteLiveOnMock(next) : next;
+        const safe = adapter.kind === 'mock' ? demoteLiveOnMock(next) : next;
         setResult({ key: requestKey, state: 'READY', snapshot: safe, error: null });
         setSelectedId((selected) => selected ?? deepLinkedStory ?? safe.stories[0]?.id ?? null);
       })
@@ -159,7 +164,7 @@ export function NewsroomPage({
     };
     // `deepLinkedStory` is only a deep-link seed, deliberately not a dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenario, forceDemo, forceViolation, requestKey]);
+  }, [adapter, scenario, forceDemo, forceViolation, requestKey]);
 
   const views = useMemo<StoryView[]>(
     () => (snapshot ? filterStories(snapshot, filter).map((s) => buildStoryView(snapshot, s)) : []),
@@ -174,12 +179,16 @@ export function NewsroomPage({
 
   const totals = useMemo(() => (snapshot ? computeTotals(snapshot) : null), [snapshot]);
 
-  const isMock = newsroomAdapter.kind === 'mock';
+  const isMock = adapter.kind === 'mock';
   const showDemoBanner = forceDemo || isMock;
 
   const derivedPageState = (): Extract<NewsroomLoadState, 'EMPTY' | 'UNAVAILABLE'> | null => {
     if (!snapshot) return null;
-    if (snapshot.stories.length === 0) return 'EMPTY';
+    if (snapshot.stories.length === 0) {
+      const readable = snapshot.sources.some((s) => s.lastReadAt !== null && s.status !== 'UNKNOWN');
+      if (readable) return null;
+      return 'EMPTY';
+    }
     const readable = snapshot.sources.some((s) => s.lastReadAt !== null && s.status !== 'UNKNOWN');
     return readable ? null : 'UNAVAILABLE';
   };

@@ -1,6 +1,6 @@
 export {
   mockNewsroomAdapter,
-  newsroomAdapter,
+  newsroomAdapter, // default binding remains mock for legacy imports
   type NewsroomAdapter,
   type NewsroomRequest,
   type NewsroomScenario,
