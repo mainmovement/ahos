@@ -5,6 +5,7 @@ import { TruthChip } from "@/src/components/truth/TruthChip";
 import { Cell, Details, HighlightList, PageFrame, type FrameProps } from "@/src/features/missions-b2/components/PageFrame";
 import { MISSING, buildMissionMap, capHighlights, formatNum, parseFlag, parsePageState, redact, tehranStamp, violationOf, type PageState } from "@/src/features/missions-b2/lib/model";
 import { MISSIONS_STATUS_PATH, readMissionsStatus } from "@/src/features/missions-b2/lib/data.server";
+import { readLauncherVerifyReceipt } from "@/src/lib/launcher-verify";
 import { SOAK_STATUS_PATH, loadContract3, readHealth, readLessons, readPortable, readReplay } from "../lib/data.server";
 import { RealOilGoldPanel } from "@/src/features/real-paper/components/RealOilGoldPanel";
 import { loadSoakLedger } from "@/src/features/real-paper/lib/data.server";
@@ -55,6 +56,7 @@ function Kpi({ k, v, chip }: { k: string; v: string; chip?: ChipStatus }) {
 export async function HealthMonitorPage({ params }: { params: Params }) {
   const c = ctxOf(params);
   const real = c.forceDemo ? null : await readHealth(c.nowMs);
+  const launcherReceipt = c.forceDemo ? null : readLauncherVerifyReceipt();
   const contract = loadContract3();
   const demoSnap = contract?.healthMonitor ?? null;
   const snap = real?.snapshot ?? demoSnap;
@@ -62,7 +64,13 @@ export async function HealthMonitorPage({ params }: { params: Params }) {
   const base: Base | null = real ? { mode: real.mode, real: real.real, generatedAt: real.snapshot.generatedAt, demo: false, source: real.snapshot.source ?? SOAK_STATUS_PATH, status: real.status } : demoSnap && contract ? demoBase(contract) : null;
   const hl = real ? real.highlights : demoSnap ? demoSnap.services.map((s) => ({ id: s.name, title: s.name, detail: null, status: "DEMO" as ChipStatus })) : [];
   const cap = capHighlights(hl);
-  const f = frame("health-monitor", c, base, { empty: !!snap && hl.length === 0, note: real ? t("ui.soakNote") : undefined });
+  const servedShort = launcherReceipt?.map.served_commit?.slice(0, 7) ?? null;
+  const healthNote = real
+    ? [t("ui.soakNote"), servedShort ? `build ${servedShort}` : null, launcherReceipt?.map.telegram_state ? `telegram ${launcherReceipt.map.telegram_state}` : null]
+        .filter(Boolean)
+        .join(" · ")
+    : undefined;
+  const f = frame("health-monitor", c, base, { empty: !!snap && hl.length === 0, note: healthNote });
   return (
     <PageFrame {...f}>
       {snap ? (
@@ -95,6 +103,11 @@ export async function HealthMonitorPage({ params }: { params: Params }) {
                 </Table>
               )}
             </div>
+            {real && launcherReceipt ? (
+              <p className="mb-hl__detail" dir="ltr">
+                served_commit={launcherReceipt.map.served_commit ?? MISSING} · /api/ops/stack
+              </p>
+            ) : null}
           </Details>
         </>
       ) : null}
