@@ -8,7 +8,7 @@ import {
   MISSING, buildNewsCenter, buildScienceRadar, buildSelfDebug, buildSkillMarket, buildWeeklyExam, capHighlights, clean,
   debugStatus, examStatus, installChip, radarStatus,
 } from "../lib/model";
-import { SOAK_RUNLOG_PATH, loadContract, readSoakDebug } from "../lib/data.server";
+import { SOAK_RUNLOG_PATH, loadContract, readScienceRadarSoak, readSoakDebug, readWeeklyExamSoak } from "../lib/data.server";
 import type { SelfDebugSnapshot } from "../contract/types";
 
 type Params = Record<string, string | string[] | undefined>;
@@ -56,10 +56,21 @@ function demoBase(s: { executionMode: string; realTrading: boolean; generatedAt:
 /* ------------------------------------------------------------ science radar */
 export async function ScienceRadarPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.scienceRadar ?? null;
-  const v = snap ? buildScienceRadar(snap, true) : null;
+  const real = c.forceDemo ? null : readScienceRadarSoak();
+  const snap = real ?? loadContract()?.scienceRadar ?? null;
+  const demoMode = !real;
+  const v = snap ? buildScienceRadar(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
-  const f = frame("science-radar", c, snap ? demoBase(snap) : null, { empty: !!v && v.rows.length === 0, emptyBody: tb2("ui.noData") });
+  const base: Base | null = snap
+    ? real
+      ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: false, source: snap.source ?? "M13_SOAK", status: "PARTIAL" }
+      : demoBase(snap)
+    : null;
+  const f = frame("science-radar", c, base, {
+    empty: !!v && v.rows.length === 0,
+    emptyBody: tb2("ui.noData"),
+    note: real ? "شاهد قیمت M13 (نه خبرنگاری زنده)" : null,
+  });
   return (
     <PageFrame {...f}>
       {v && snap ? (
@@ -72,7 +83,7 @@ export async function ScienceRadarPage({ params }: { params: Params }) {
                 <tr key={r.id}>
                   <td dir="auto">{clean(r.title)}</td><td dir="ltr">{r.sourceType}</td><td dir="auto"><Cell v={r.topic} /></td>
                   <td dir="ltr" className="tv-mono"><Cell v={when(r.foundAt)} /></td><td dir="auto"><Cell v={clean(r.relevanceNote)} /></td>
-                  <td><TruthChip status={radarStatus(r.status, true)} size="sm" /> <span dir="ltr" className="tv-faint">{r.status}</span></td>
+                  <td><TruthChip status={radarStatus(r.status, demoMode)} size="sm" /> <span dir="ltr" className="tv-faint">{r.status}</span></td>
                   <td dir="auto"><Cell v={clean(r.sourceText)} /></td>
                 </tr>
               ))}
@@ -149,10 +160,17 @@ export async function SelfDebugPage({ params }: { params: Params }) {
 /* -------------------------------------------------------------- weekly exam */
 export async function WeeklyExamPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.weeklyExam ?? null;
-  const v = snap ? buildWeeklyExam(snap, true) : null;
+  const real = c.forceDemo ? null : readWeeklyExamSoak();
+  const snap = real ?? loadContract()?.weeklyExam ?? null;
+  const demoMode = !real;
+  const v = snap ? buildWeeklyExam(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
-  const f = frame("weekly-exam", c, snap ? demoBase(snap) : null, { empty: !!v && v.runs.length === 0, emptyBody: tb2("ui.noData") });
+  const base: Base | null = snap
+    ? real
+      ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: false, source: snap.source ?? "M13_SOAK tier_gate", status: "PARTIAL" }
+      : demoBase(snap)
+    : null;
+  const f = frame("weekly-exam", c, base, { empty: !!v && v.runs.length === 0, emptyBody: tb2("ui.noData") });
   return (
     <PageFrame {...f}>
       {v && snap ? (
@@ -166,7 +184,7 @@ export async function WeeklyExamPage({ params }: { params: Params }) {
                 <tr key={r.id}>
                   <td dir="ltr" className="tv-mono"><Cell v={r.week} /></td><td className="tv-num"><Cell v={r.itemsCount} /></td><td className="tv-num"><Cell v={r.answeredCount} /></td>
                   <td className="tv-num"><Cell v={r.withEvidenceCount} /></td><td dir="auto"><Cell v={clean(r.resultSummary)} /></td>
-                  <td><TruthChip status={examStatus(r.state, true)} size="sm" /> <span dir="ltr" className="tv-faint">{r.state}</span></td>
+                  <td><TruthChip status={examStatus(r.state, demoMode)} size="sm" /> <span dir="ltr" className="tv-faint">{r.state}</span></td>
                 </tr>
               ))}
             </Table>

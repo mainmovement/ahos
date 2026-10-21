@@ -3,7 +3,8 @@
  * (the page then shows UNAVAILABLE / UNKNOWN, never a guess).
  * - DEMO contract: contract/ahos-arena-contract.example.json (all five pages)
  * - REAL: self-debug from the M13 soak runlog (ok=false rows) + soak_status.json (paper_only flag)
- * - weekly-exam (no ahos_replay exam file exists) and skill-market (/workspace/ahos-asi not on this machine) stay DEMO.
+ * - weekly-exam + science-radar: partial REAL from soak_status.json (tier_gate / last_cycle).
+ * - skill-market (/workspace/ahos-asi not on this machine) stays DEMO.
  */
 import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -11,6 +12,9 @@ import example from "../contract/ahos-arena-contract.example.json";
 import { validateContract } from "../contract/validate";
 import type { AhosArenaContract } from "../contract/types";
 import { parseSoakRunlog } from "./model";
+import { buildScienceRadarFromSoak } from "./science-radar-soak";
+import { buildWeeklyExamFromSoak } from "./weekly-exam-soak";
+import type { ScienceRadarSnapshot, WeeklyExamSnapshot } from "../contract/types";
 
 export function loadContract(): AhosArenaContract | null {
   return validateContract(example) ? (example as unknown as AhosArenaContract) : null;
@@ -19,6 +23,28 @@ export function loadContract(): AhosArenaContract | null {
 const SOAK_DIR = process.env.AHOS_SOAK_DIR ?? join(process.cwd(), "..", "ahos", "reports", "grok", "M13_SOAK");
 export const SOAK_RUNLOG_PATH = join(SOAK_DIR, "soak_runlog.jsonl");
 export const SOAK_STATUS_PATH = join(SOAK_DIR, "soak_status.json");
+
+function readSoakStatusFile(): { raw: Record<string, unknown>; mtimeIso: string } | null {
+  try {
+    const st = statSync(SOAK_STATUS_PATH);
+    const raw = JSON.parse(readFileSync(SOAK_STATUS_PATH, "utf8")) as Record<string, unknown>;
+    return { raw, mtimeIso: new Date(st.mtimeMs).toISOString() };
+  } catch {
+    return null;
+  }
+}
+
+export function readWeeklyExamSoak(): WeeklyExamSnapshot | null {
+  const f = readSoakStatusFile();
+  if (!f) return null;
+  return buildWeeklyExamFromSoak(f.raw, f.mtimeIso);
+}
+
+export function readScienceRadarSoak(): ScienceRadarSnapshot | null {
+  const f = readSoakStatusFile();
+  if (!f) return null;
+  return buildScienceRadarFromSoak(f.raw, f.mtimeIso);
+}
 
 export function readSoakDebug(): { incidents: ReturnType<typeof parseSoakRunlog>; paperOnly: boolean | null; mtimeIso: string } | null {
   try {
