@@ -114,7 +114,7 @@ export async function NightlyReportPage({ params }: { params: Params }) {
 /* --------------------------------------------------------------- university */
 export async function UniversityPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = readUniversity() ?? loadContract()?.university ?? null;
+  const snap = (c.forceDemo ? null : readUniversity()) ?? loadContract()?.university ?? null;
   const demoMode = snap ? snap.demo : true;
   const v = snap ? buildUniversity(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { readFileSync, existsSync } from "node:fs";
 import { connect } from "node:net";
 import { join } from "node:path";
-import { launcherDir, readLauncherVerifyReceipt } from "@/src/lib/launcher-verify";
+import { launcherDir, readLauncherStatusOneline, readLauncherVerifyReceipt } from "@/src/lib/launcher-verify";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +46,7 @@ export async function GET() {
     freeRamMb: verify?.free_ram_mb ? Number(verify.free_ram_mb) : null,
     verifyFile: verifyLines.length ? verifyLines.slice(-10) : null,
     verify,
+    statusOneline: readLauncherStatusOneline(),
     demo: false,
   });
 }

@@ -11,5 +11,6 @@ test("message-hub and self-eval snapshot routes exist", () => {
   const ops = readFileSync(join(root, "ops", "stack", "route.ts"), "utf8");
   assert.ok(ops.includes("probe(3200)"));
   assert.ok(ops.includes("telegramState"));
-  assert.ok(ops.includes("parseVerifyReceipt"));
+  assert.ok(ops.includes("readLauncherVerifyReceipt"));
+  assert.ok(ops.includes("statusOneline"));
 });

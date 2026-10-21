@@ -19,6 +19,17 @@ export function launcherDir(): string {
   return process.env.AHOS_LAUNCHER_DIR ?? join(process.cwd(), "..", "AHOS_Launcher");
 }
 
+export function readLauncherStatusOneline(): string | null {
+  const path = join(launcherDir(), "logs", "status_oneline.txt");
+  if (!existsSync(path)) return null;
+  try {
+    const t = readFileSync(path, "utf8").trim();
+    return t.length ? t : null;
+  } catch {
+    return null;
+  }
+}
+
 export function readServedCommit(): string | null {
   const path = join(launcherDir(), "served_commit.txt");
   if (!existsSync(path)) return null;
