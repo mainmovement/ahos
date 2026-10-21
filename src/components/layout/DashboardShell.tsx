@@ -14,6 +14,7 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { CommandPalette } from "./CommandPalette";
 import { StarMark } from "../ui/Brand";
+import { AhosStartupSplash } from "../ui/AhosStartupSplash";
 import { CommandDashboard } from "../dashboard/CommandDashboard";
 import { AppLegalFooter } from "./AppLegalFooter";
 
@@ -129,6 +130,7 @@ export default function DashboardShell({
   }
   return (
     <div className="ah-shell" data-quality={quality}>
+      <AhosStartupSplash />
       <a className="ah-skip-link" href="#main-content">
         {fa ? "رفتن به محتوای اصلی" : "Skip to content"}
       </a>
@@ -248,7 +250,7 @@ export default function DashboardShell({
                   <div className="ah-orbit-cross ah-orbit-cross-h" />
                   <div className="ah-orbit-cross ah-orbit-cross-v" />
                   <div className="ah-orbit-core">
-                    <StarMark />
+                    <StarMark variant="orbit" />
                     <span>AHOS</span>
                     <small>CONNECTED INTELLIGENCE</small>
                   </div>
