@@ -65,8 +65,16 @@ export async function HealthMonitorPage({ params }: { params: Params }) {
   const hl = real ? real.highlights : demoSnap ? demoSnap.services.map((s) => ({ id: s.name, title: s.name, detail: null, status: "DEMO" as ChipStatus })) : [];
   const cap = capHighlights(hl);
   const servedShort = launcherReceipt?.map.served_commit?.slice(0, 7) ?? null;
+  const verifyArena = launcherReceipt?.map["arena:3200"];
+  const arenaLive = snap?.services.some((s) => s.name.includes("3200") && s.status === "LIVE");
+  const staleVerify = Boolean(verifyArena && verifyArena !== "OK" && arenaLive);
   const healthNote = real
-    ? [t("ui.soakNote"), servedShort ? `build ${servedShort}` : null, launcherReceipt?.map.telegram_state ? `telegram ${launcherReceipt.map.telegram_state}` : null]
+    ? [
+        t("ui.soakNote"),
+        servedShort ? `build ${servedShort}` : null,
+        launcherReceipt?.map.telegram_state ? `telegram ${launcherReceipt.map.telegram_state}` : null,
+        staleVerify ? `verify stale (arena was ${verifyArena})` : null,
+      ]
         .filter(Boolean)
         .join(" · ")
     : undefined;
