@@ -57,7 +57,13 @@ export const navigation: NavGroup[] = [
         en: "Token Intelligence",
         icon: "nav/token-intelligence",
       },
-      { id: "news", fa: "اتاق خبر", en: "Newsroom", icon: "nav/newsroom" },
+      {
+        id: "news",
+        fa: "اتاق خبر",
+        en: "Newsroom",
+        icon: "nav/newsroom",
+        href: "/arena/newsroom",
+      },
     ],
   },
   {
@@ -79,6 +85,7 @@ export const navigation: NavGroup[] = [
         fa: "گفت‌وگو با کیان",
         en: "Kian Chat",
         icon: "nav/kian-chat",
+        href: "/arena/kian",
       },
       { id: "agents", fa: tr("fa", "nav.agents"), en: "Agents", icon: "nav/agents" },
     ],

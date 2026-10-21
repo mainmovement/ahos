@@ -47,7 +47,8 @@
     "test:missions-b3": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b3_selftest.ts",
     "test:white-hats": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/white_hats_selftest.ts scripts/white_hats_soak_selftest.ts",
     "test:real-paper": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/real_paper_selftest.ts",
-    "test:tehran": "node --experimental-strip-types --test scripts/tehran_selftest.ts"
+    "test:tehran": "node --experimental-strip-types --test scripts/tehran_selftest.ts",
+    "test:kian-nav": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/kian_nav_selftest.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

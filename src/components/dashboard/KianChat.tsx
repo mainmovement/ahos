@@ -64,8 +64,11 @@ export function KianChat({ language }: { language: Language }) {
               </strong>
               <small>
                 {fa
-                  ? "پاسخ‌های از پیش نوشته‌شده · بدون مدل متصل"
-                  : "Scripted responses · No AI connected"}
+                  ? "نمای دمو در داشبورد · گفت‌وگوی واقعی: "
+                  : "Demo widget here · live chat: "}
+                <a href="/arena/kian" className="mb-link">
+                  {fa ? "صفحه کیان" : "Kian arena"}
+                </a>
               </small>
             </div>
           </div>
