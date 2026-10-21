@@ -8,7 +8,7 @@ import {
   MISSING, buildNewsCenter, buildScienceRadar, buildSelfDebug, buildSkillMarket, buildWeeklyExam, capHighlights, clean,
   debugStatus, examStatus, installChip, radarStatus,
 } from "../lib/model";
-import { SOAK_RUNLOG_PATH, loadContract, readNewsCenterSoak, readScienceRadarSoak, readSoakDebug, readWeeklyExamSoak } from "../lib/data.server";
+import { SOAK_RUNLOG_PATH, loadContract, readNewsCenterSoak, readScienceRadarSoak, readSkillMarketProposals, readSoakDebug, readWeeklyExamSoak } from "../lib/data.server";
 import type { SelfDebugSnapshot } from "../contract/types";
 
 type Params = Record<string, string | string[] | undefined>;
@@ -206,10 +206,21 @@ export async function WeeklyExamPage({ params }: { params: Params }) {
 /* ------------------------------------------------------------- skill market */
 export async function SkillMarketPage({ params }: { params: Params }) {
   const c = ctxOf(params);
-  const snap = loadContract()?.skillMarket ?? null;
-  const v = snap ? buildSkillMarket(snap, true) : null;
+  const real = c.forceDemo ? null : readSkillMarketProposals();
+  const snap = real ?? loadContract()?.skillMarket ?? null;
+  const demoMode = !real;
+  const v = snap ? buildSkillMarket(snap, demoMode) : null;
   const cap = v ? capHighlights(v.highlights) : { shown: [], hidden: 0 };
-  const f = frame("skill-market", c, snap ? demoBase(snap) : null, { empty: !!v && v.rows.length === 0, emptyBody: tb2("ui.noData") });
+  const base: Base | null = snap
+    ? real
+      ? { mode: snap.executionMode, real: snap.realTrading, generatedAt: snap.generatedAt, demo: false, source: snap.source ?? "proposals/", status: "PARTIAL" }
+      : demoBase(snap)
+    : null;
+  const f = frame("skill-market", c, base, {
+    empty: !!v && v.rows.length === 0,
+    emptyBody: tb2("ui.noData"),
+    note: real ? "صف پیشنهاد Lane B روی دیسک (رجیستری ahos-asi نیست)" : null,
+  });
   return (
     <PageFrame {...f}>
       {v && snap ? (
@@ -221,7 +232,7 @@ export async function SkillMarketPage({ params }: { params: Params }) {
               {v.rows.map(({ e, review }) => (
                 <tr key={e.id}>
                   <td dir="auto">{clean(e.name, 80)}</td><td dir="ltr">{e.kind}</td><td dir="ltr" className="tv-mono"><Cell v={e.version} /></td><td dir="auto"><Cell v={clean(e.source)} /></td>
-                  <td><TruthChip status={installChip(e.installState, true)} size="sm" /> <span dir="ltr" className="tv-faint">{e.installState}</span></td>
+                  <td><TruthChip status={installChip(e.installState, demoMode)} size="sm" /> <span dir="ltr" className="tv-faint">{e.installState}</span></td>
                   <td dir="auto"><Cell v={e.permissions.length ? e.permissions.map((p) => clean(p, 60)).join("، ") : null} /></td>
                   <td dir="ltr">{review.state}{review.missingReason ? <span className="tv-faint"> ({t("skillMarket.noReason")})</span> : null}</td>
                   <td dir="auto"><Cell v={clean(e.reason)} /></td>

@@ -42,7 +42,7 @@
     "test:trade-venue": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/trade_venue_selftest.ts",
     "test:newsroom": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/newsroom_selftest.ts scripts/newsroom_soak_selftest.ts",
     "test:missions-b2": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b2_selftest.ts scripts/research_replay_selftest.ts",
-    "test:missions-b4": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b4_selftest.ts scripts/missions_b4_soak_bind_selftest.ts",
+    "test:missions-b4": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b4_selftest.ts scripts/missions_b4_soak_bind_selftest.ts scripts/missions_b4_skill_market_selftest.ts",
     "test:missions-b5": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b5_selftest.ts",
     "test:missions-b3": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/missions_b3_selftest.ts",
     "test:white-hats": "node --experimental-strip-types --import ./scripts/ts_strip_resolve.mjs --test scripts/white_hats_selftest.ts scripts/white_hats_soak_selftest.ts",
