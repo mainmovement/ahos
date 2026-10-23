@@ -45,6 +45,8 @@ def main() -> int:
     aci_agi_si_brain = _read_json(ROOT / "reports" / "grok" / "M60" / "aci_agi_si_brain_snapshot.json")
     whole_ahos_organs = _read_json(ROOT / "reports" / "grok" / "M57" / "whole_ahos_organ_evolution.json")
     autonomous_coder = _read_json(ROOT / "reports" / "grok" / "M60" / "autonomous_coder_snapshot.json")
+    hundred_dollar_compounding = _read_json(ROOT / "reports" / "grok" / "M60" / "hundred_dollar_compounding_snapshot.json")
+    self_evolution_cycle = _read_json(ROOT / "reports" / "grok" / "M60" / "self_evolution_cycle_snapshot.json")
 
     trades = 0
     pnl = 0.0
@@ -70,6 +72,8 @@ def main() -> int:
         aci_agi_si_brain=aci_agi_si_brain,
         whole_ahos_organs=whole_ahos_organs,
         autonomous_coder=autonomous_coder,
+        hundred_dollar_compounding=hundred_dollar_compounding,
+        self_evolution_cycle=self_evolution_cycle,
     )
 
     out_dir = ROOT / "reports" / "grok" / "M31"

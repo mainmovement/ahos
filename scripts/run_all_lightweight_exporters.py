@@ -71,6 +71,16 @@ EXPORT_STEPS: list[tuple[str, str, list[str]]] = [
         "scripts.export_autonomous_coder_snapshot",
         ["reports/grok/M60/autonomous_coder_snapshot.json"],
     ),
+    (
+        "M60_hundred_dollar_compounding",
+        "scripts.export_compounding_engine_snapshot",
+        ["reports/grok/M60/hundred_dollar_compounding_snapshot.json"],
+    ),
+    (
+        "M60_self_evolution_cycle",
+        "scripts.export_self_evolution_cycle_snapshot",
+        ["reports/grok/M60/self_evolution_cycle_snapshot.json"],
+    ),
 ]
 
 
@@ -118,6 +128,9 @@ def run_all_exports() -> dict:
     out_path = ROOT / MANIFEST_REL
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    assets_manifest = Path(r"G:\robat\ahos_assets\daily_exporter_manifest.json")
+    if assets_manifest.parent.is_dir():
+        assets_manifest.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     manifest["manifest_path"] = MANIFEST_REL
     return manifest
 

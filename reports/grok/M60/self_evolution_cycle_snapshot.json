@@ -1,0 +1,69 @@
+{
+  "schema": "ahos.self_evolution_cycle.v1",
+  "generated_at": "2026-10-23T20:51:16Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "day_1_agi_claimed": false,
+  "stage_ids": [
+    "DISCOVER_BOTTLENECK",
+    "SYNTHESIZE_PATCH",
+    "QUARANTINE_VERIFY",
+    "PROMOTE_OR_ROLLBACK"
+  ],
+  "stages": [
+    {
+      "stage_id": "DISCOVER_BOTTLENECK",
+      "status": "COMPLETE",
+      "organs_scanned": 8,
+      "selected_target": {
+        "organ_id": "SELF_DEBUG_AND_HEALING",
+        "organ_title_fa": "موتور خودعیب‌یاب و خوددیباگ‌کن (Self-Debug & Auto-Heal)",
+        "held_out_exam_score_pct": 91
+      }
+    },
+    {
+      "stage_id": "SYNTHESIZE_PATCH",
+      "status": "COMPLETE",
+      "patch_candidate": {
+        "target_organ_id": "SELF_DEBUG_AND_HEALING",
+        "patch_kind": "PARAMETER_TUNING",
+        "source_brain": "FOUR_BRAIN_AUTONOMOUS_CODER",
+        "bridge_8787": "ONLINE",
+        "local_tier": "8GB_SAFE_API_OFFLOAD"
+      },
+      "memory_context_blocks": 3
+    },
+    {
+      "stage_id": "QUARANTINE_VERIFY",
+      "status": "COMPLETE",
+      "ast_parse": "PASS",
+      "m45_sandbox_layers": 4,
+      "sandbox_gate": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+      "statistical_edge_gate": "PASS_PAPER_ONLY"
+    },
+    {
+      "stage_id": "PROMOTE_OR_ROLLBACK",
+      "status": "COMPLETE",
+      "promotion": {
+        "verdict": "ROLLBACK_QUARANTINE",
+        "rollback_latency_ms_target": 4.2,
+        "m70_6_lock": "LOCKED_CLEAN"
+      },
+      "day_1_agi_claimed": false
+    }
+  ],
+  "organ_alias_map": {
+    "core_brain_aci_agi_si": "CORE_BRAIN_ACI_AGI_SI",
+    "body_performance_8gb": "SYSTEM_PERFORMANCE_AND_BODY",
+    "reporters_didehban": "REPORTERS_DIDEHBAN_OSINT",
+    "white_hats_negahban": "WHITE_HATS_NEGAHBAN_SECURITY",
+    "self_debug_autonomy": "SELF_DEBUG_AND_HEALING",
+    "research_institute": "RESEARCH_INSTITUTE_PAZHOOHESHKADEH",
+    "university_curriculum": "AHOS_UNIVERSITY_DANESHGAH",
+    "trading_desks_7": "TRADING_AND_RISK_DESKS"
+  },
+  "aci_agi_si_stage_fa": "مرحلهٔ ۲ — هوش توانمند خودمختار (ACI — Artificial Capable Intelligence)",
+  "compounding_capability_index": 42.97,
+  "persian_cycle_summary_fa": "چرخهٔ بستهٔ خودتکاملی M60.E (۴ مرحله): کشف گلوگاه در ۸ اندام → سنتز پچ با ۴ مغز کدنویس → قرنطینه و ast.parse + سندباکس M45 → ارتقای سایه یا بازگشت <۵ms. day_1_agi_claimed=false."
+}

@@ -139,3 +139,15 @@
 - **Unresolved risks (explicit; not resolved):** (1) transaction atomicity of snap/trade/ALLOCATE/ENTRY under separate commits; (2) no schema/API duplicate-ALLOCATE prevention; (3) orphan decision_snapshot_v2 + permanent per-token uniqueness/skip; (4) missing-ALLOCATE recovery is exclusion-via-invalidation only (not financial repair); (5) no verified public monitor-only API (run_cycle_v3 still combines entry scan + monitor).
 - **Reason:** Owner selected freeze preservation. Chat-only ADR was never persisted as a repo file; this log entry is the durable governance record.
 - **Stop:** Documentation only. Implementation deferred pending a new explicit owner decision.
+
+## 2026-10-24 — Mega Wave 9 (C47–C56) closure
+
+- **Question:** Wire 4-Brain Autonomous Coder (M60.C) across Python, Arena, and M31 without violating 8GB anti-freeze rules?
+- **Choice:** Implement `autonomous_coder_bridge.py` with offline-safe :8787 probe; step-18 exporter; Arena read-only bridges; single-file pytest/selftest only.
+- **Reason:** Owner mandate for internal coding/self-debug/self-update gated by M70.6; no live apply or full-suite CI on 8GB laptop.
+
+## 2026-10-23 — Mega Wave 8 (C37–C46) closure
+
+- **Question:** Execute Wave 8 under 8GB anti-freeze rules with split pytest/selftest files?
+- **Choice:** Run exporters and tests one file at a time; register brain/M35-M10-M45 exporters as steps 16–17 (27 manifest artifacts); no `next build` / full pytest.
+- **Reason:** Matches CURSOR_SAFE_MISSION.md and owner mandate for Whole-AHOS 8-organ + honest ACI→AGI→SI progression (`day_1_agi_claimed=false`).

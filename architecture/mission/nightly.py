@@ -46,6 +46,8 @@ def build_comprehensive_nightly_digest_fa(
     aci_agi_si_brain: Mapping[str, Any] | None = None,
     whole_ahos_organs: Mapping[str, Any] | None = None,
     autonomous_coder: Mapping[str, Any] | None = None,
+    hundred_dollar_compounding: Mapping[str, Any] | None = None,
+    self_evolution_cycle: Mapping[str, Any] | None = None,
 ) -> str:
     """Persian executive digest for M31/M35.4 (backward-compatible; optional snapshot inputs)."""
     base = render_fa(day=day, trades=trades, pnl_usd=pnl_usd)
@@ -188,6 +190,28 @@ def build_comprehensive_nightly_digest_fa(
                 f"قفل M70.6: {autonomous_coder.get('m70_6_safety_lock_status', '—')}.",
             ]
         )
+
+    if hundred_dollar_compounding or self_evolution_cycle:
+        comp = hundred_dollar_compounding or {}
+        ledger = comp.get("paper_compounding_ledger") or {}
+        evo = self_evolution_cycle or {}
+        stages = evo.get("stages") or []
+        target = (stages[0].get("selected_target") if stages and isinstance(stages[0], dict) else {}) or {}
+        lines.extend(
+            [
+                "",
+                "## پله‌های رشد مرکب ۱۰۰ دلاری و چرخه خودتکاملی بسته (M60.P / M60.E)",
+                f"- مرکب: ${ledger.get('initial_capital_usd', 100)} → ${ledger.get('current_equity_usd', '—')} · "
+                f"قفل سود ${ledger.get('active_profit_lock_floor_usd', '—')} · پله {comp.get('active_ladder_step_id', '—')}.",
+                f"- پایلوت زنده: {(comp.get('live_pilot_ledger') or {}).get('status', 'READY_LOCKED_BY_HOLD_FLAG')} · "
+                f"LONG/SHORT · {(comp.get('live_pilot_ledger') or {}).get('leverage_range', '10x-25x')}.",
+                f"- چرخهٔ M60.E: اندام هدف «{target.get('organ_title_fa', '—')}» · "
+                f"day_1_agi_claimed={evo.get('day_1_agi_claimed', False)}.",
+            ]
+        )
+        summary_evo = str(evo.get("persian_cycle_summary_fa") or "").strip()
+        if summary_evo:
+            lines.append(f"- {summary_evo}")
 
     if aci_agi_si_brain or whole_ahos_organs:
         brain = aci_agi_si_brain or {}
