@@ -3,6 +3,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from architecture.university.whole_ahos_organ_evolution import (
+    WHOLE_AHOS_ORGANS_8,
+    build_whole_ahos_organ_evolution_snapshot,
+)
+
 PAPER_ONLY: bool = True
 
 GLOBAL_SOURCES: tuple[dict[str, str], ...] = (
@@ -69,6 +74,36 @@ def run_science_to_desk_pipeline() -> dict[str, Any]:
                 "paper_only": True,
             }
         )
+
+    organs_snap = build_whole_ahos_organ_evolution_snapshot()
+    organ_routes = []
+    for organ in organs_snap.get("organs") or []:
+        if not isinstance(organ, dict):
+            continue
+        organ_id = str(organ.get("organ_id") or "")
+        organ_routes.append(
+            {
+                "organ_id": organ_id,
+                "organ_title_fa": organ.get("organ_title_fa"),
+                "scouted_discovery_title": organ.get("scouted_discovery_title"),
+                "research_lab_validation": organ.get("research_lab_validation"),
+                "university_curriculum_module_fa": organ.get("university_curriculum_module_fa"),
+                "held_out_exam_score_pct": organ.get("held_out_exam_score_pct"),
+                "route_status": "ADMITTED_SANDBOX",
+                "paper_only": True,
+            }
+        )
+
+    whole_ahos_organs = {
+        "organs_covered_count": organs_snap.get("organs_covered_count", len(WHOLE_AHOS_ORGANS_8)),
+        "organ_ids": organs_snap.get("organ_ids", list(WHOLE_AHOS_ORGANS_8)),
+        "trading_only": organs_snap.get("trading_only", False),
+        "average_university_exam_score_pct": organs_snap.get("average_university_exam_score_pct"),
+        "summary_fa": organs_snap.get("summary_fa"),
+        "organ_discovery_routes": organ_routes,
+        "desks_also_trained": list(DESKS),
+    }
+
     return {
         "schema": "ahos.science_to_desk_pipeline.v1",
         "paper_only": PAPER_ONLY,
@@ -81,6 +116,8 @@ def run_science_to_desk_pipeline() -> dict[str, Any]:
             "research_institute": research,
             "ahos_applied": ahos_applied,
             "university_desk_training": university,
+            "whole_ahos_organ_routing": organ_routes,
         },
+        "whole_ahos_organs": whole_ahos_organs,
         "desks_trained": len(DESKS),
     }
