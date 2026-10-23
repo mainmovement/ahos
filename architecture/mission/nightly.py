@@ -40,6 +40,9 @@ def build_comprehensive_nightly_digest_fa(
     macro_overlays: Mapping[str, Any] | None = None,
     strategy_red_team: Mapping[str, Any] | None = None,
     teaching_journal: Mapping[str, Any] | None = None,
+    crypto_universe: Mapping[str, Any] | None = None,
+    pilot_gateway: Mapping[str, Any] | None = None,
+    science_pipeline: Mapping[str, Any] | None = None,
 ) -> str:
     """Persian executive digest for M31/M35.4 (backward-compatible; optional snapshot inputs)."""
     base = render_fa(day=day, trades=trades, pnl_usd=pnl_usd)
@@ -126,5 +129,45 @@ def build_comprehensive_nightly_digest_fa(
             lines.append(f"- عنوان: {title_fa}")
         if takeaway_fa:
             lines.append(f"- نکتهٔ کلیدی: {takeaway_fa}")
+
+    if pilot_gateway:
+        acct = pilot_gateway.get("pilot_account") or {}
+        gw = pilot_gateway.get("gateway") or {}
+        fut = pilot_gateway.get("high_leverage_futures") or {}
+        lines.extend(
+            [
+                "",
+                "## پایلوت ۱۰۰ دلاری و درگاه آمادهٔ زنده (قفل HOLD · M43)",
+                f"- سرمایهٔ اولیه: ${acct.get('initial_capital_usd', 100)} · ارزش فعلی: ${acct.get('current_equity_usd', '—')} · ROI: {acct.get('roi_pct', '—')}%",
+                f"- وضعیت لوله‌کشی: {gw.get('plumbing_status', 'READY_LOCKED_BY_HOLD_FLAG')} · live_orders_blocked={gw.get('live_orders_blocked_until_owner_unlock', True)}",
+                f"- اهرم ایزوله LONG/SHORT (حداقل {fut.get('min_leverage_enforced', 10)}×): {len(fut.get('positions') or [])} موقعیت آموزشی کاغذی.",
+            ]
+        )
+
+    if crypto_universe:
+        lines.extend(
+            [
+                "",
+                "## رادار جهانی کریپتو (M33 Full Universe)",
+                f"- شاخص‌شده: {crypto_universe.get('total_indexed_universe', '—')} · ELIGIBLE_GEM: {crypto_universe.get('eligible_gems_count', '—')}",
+            ]
+        )
+        top = crypto_universe.get("top_eligible_gems") or []
+        for row in top[:3]:
+            if isinstance(row, dict):
+                lines.append(
+                    f"- {row.get('symbol', '—')}: جهش حجم {row.get('volume_surge_multiple', '—')}× · {row.get('discovery_reason_fa', '')}"
+                )
+
+    if science_pipeline:
+        stages = science_pipeline.get("stages") or {}
+        lines.extend(
+            [
+                "",
+                "## خط لولهٔ علم → پژوهشکده → AHOS → دانشگاه (M57)",
+                f"- منابع جهانی: {science_pipeline.get('sources_count', '—')} · میزهای آموزش‌دیده: {science_pipeline.get('desks_trained', '—')}",
+                f"- مراحل: scouts={len(stages.get('scouts') or [])} · research={len(stages.get('research_institute') or [])} · applied={len(stages.get('ahos_applied') or [])}",
+            ]
+        )
 
     return base + "\n".join(lines) + "\n"

@@ -39,6 +39,9 @@ def main() -> int:
     macro_overlays = _read_json(ROOT / "reports" / "grok" / "M19" / "macro_overlays_snapshot.json")
     strategy_red_team = _read_json(ROOT / "reports" / "grok" / "M56" / "strategy_red_team_snapshot.json")
     teaching_journal = _read_json(ROOT / "reports" / "grok" / "M65" / "teaching_journal_snapshot.json")
+    crypto_universe = _read_json(ROOT / "reports" / "grok" / "M33" / "crypto_universe_snapshot.json")
+    pilot_gateway = _read_json(ROOT / "reports" / "grok" / "M43" / "pilot_100usd_gateway_snapshot.json")
+    science_pipeline = _read_json(ROOT / "reports" / "grok" / "M57" / "science_to_desk_pipeline_snapshot.json")
 
     trades = 0
     pnl = 0.0
@@ -58,6 +61,9 @@ def main() -> int:
         macro_overlays=macro_overlays,
         strategy_red_team=strategy_red_team,
         teaching_journal=teaching_journal,
+        crypto_universe=crypto_universe,
+        pilot_gateway=pilot_gateway,
+        science_pipeline=science_pipeline,
     )
 
     out_dir = ROOT / "reports" / "grok" / "M31"
