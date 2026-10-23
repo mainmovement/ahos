@@ -77,3 +77,6 @@ def test_m36_autonomous_world_orchestrator_end_to_end() -> None:
     organs = subs["m57_whole_ahos_organs"]
     assert organs["organs_covered_count"] == 8
     assert organs["trading_only"] is False
+    coder = subs["m60_autonomous_coder_bridge"]
+    assert coder["bridge_port_8787_status"] in {"ONLINE", "OFFLINE"}
+    assert coder["four_brain_engine"] is not None

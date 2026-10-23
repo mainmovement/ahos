@@ -30,6 +30,8 @@ def test_aci_agi_si_brain_four_loops_and_honest_progression() -> None:
     assert loops["self_deciding"]["decisions_count"] >= 2
     assert loops["self_updating"]["rollback_triggered"] is False
     assert len(day12["evolution_ledger_chain"]) == 5
+    assert day12.get("four_brain_engine") is not None
+    assert day12["four_brain_engine"]["persian_briefs_generated"] >= 1
 
 
 def test_aci_agi_si_self_updating_loop_blocks_protected_safety_files() -> None:

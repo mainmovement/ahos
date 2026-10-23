@@ -27,6 +27,7 @@ from architecture.markets.news_desk import build_nightly_news_brief_fa, ingest_r
 from architecture.markets.reconcile_bridge import reconcile_desk_states
 from architecture.markets.token_hunter_24 import screen_token_batch
 from architecture.cognitive.aci_agi_si_brain import run_aci_agi_si_evolution_cycle
+from architecture.cognitive.autonomous_coder_bridge import run_autonomous_coder_cycle
 from architecture.security.negahban import run_whitehat_security_audit
 from architecture.university.whole_ahos_organ_evolution import build_whole_ahos_organ_evolution_snapshot
 from core.safety_lock import verify_safety_lock
@@ -93,6 +94,7 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
     negahban = run_whitehat_security_audit(repo)
 
     brain = run_aci_agi_si_evolution_cycle(root=repo)
+    autonomous_coder = run_autonomous_coder_cycle(root=repo)
     organs = build_whole_ahos_organ_evolution_snapshot()
     brain_loops = brain.get("loops") or {}
 
@@ -187,6 +189,14 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
                 "organs_covered_count": organs.get("organs_covered_count", 8),
                 "trading_only": organs.get("trading_only", False),
                 "average_university_exam_score_pct": organs.get("average_university_exam_score_pct"),
+            },
+            "m60_autonomous_coder_bridge": {
+                "bridge_port_8787_status": autonomous_coder.get("bridge_port_8787_status"),
+                "sandbox_gate_verdict": autonomous_coder.get("sandbox_gate_verdict"),
+                "four_brain_engine": autonomous_coder.get("four_brain_engine"),
+                "patches_verified": (autonomous_coder.get("four_brain_engine") or {}).get(
+                    "synthesized_patches_verified"
+                ),
             },
         },
     }

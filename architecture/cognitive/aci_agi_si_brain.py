@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from architecture.cognitive.autonomous_coder_bridge import run_autonomous_coder_cycle
 from core.safety_lock import guard_autonomous_write, verify_safety_lock
 
 PAPER_ONLY: bool = True
@@ -427,6 +428,8 @@ def run_aci_agi_si_evolution_cycle(
         evolution_ledger.append({**entry_body, "entry_hash": ehash})
         prev_hash = ehash
 
+    coder = run_autonomous_coder_cycle(root=repo)
+
     return {
         "schema": "ahos.aci_agi_si_brain.v1",
         "generated_at": now_iso,
@@ -453,4 +456,6 @@ def run_aci_agi_si_evolution_cycle(
             "ما ادعای دروغین AGI در روز اول نداریم؛ بلکه هر روز با ۴ حلقهٔ خودتصمیم‌گیر، خودعیب‌پیداکن، خوددیباگ‌کن و خودآپدیت‌کن، "
             "تمام اندام‌های سیستم (مغز، کالبد ۸ گیگ، خبرنگاران، کلاه‌سفیدها، پژوهشکده، دانشگاه و میزهای معاملاتی) را گام‌به‌گام قوی‌تر و هوشمندتر می‌کنیم."
         ),
+        "four_brain_engine": coder.get("four_brain_engine"),
+        "autonomous_coder_ref": "reports/grok/M60/autonomous_coder_snapshot.json",
     }

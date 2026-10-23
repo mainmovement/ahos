@@ -11,6 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from architecture.cognitive.aci_agi_si_brain import run_aci_agi_si_evolution_cycle
+from architecture.cognitive.autonomous_coder_bridge import run_autonomous_coder_cycle
 from architecture.university.whole_ahos_organ_evolution import (
     build_whole_ahos_organ_evolution_snapshot,
 )
@@ -23,6 +24,11 @@ def _write_json(path: Path, data: dict) -> None:
 
 def main() -> int:
     brain = run_aci_agi_si_evolution_cycle(root=ROOT)
+    coder = run_autonomous_coder_cycle(root=ROOT)
+    coder_path = ROOT / "reports" / "grok" / "M60" / "autonomous_coder_snapshot.json"
+    _write_json(coder_path, coder)
+    if not brain.get("four_brain_engine"):
+        brain = {**brain, "four_brain_engine": coder.get("four_brain_engine")}
     brain_path = ROOT / "reports" / "grok" / "M60" / "aci_agi_si_brain_snapshot.json"
     _write_json(brain_path, brain)
 
