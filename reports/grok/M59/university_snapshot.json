@@ -3,7 +3,7 @@
   "executionMode": "PAPER_ONLY",
   "realTrading": false,
   "source": "config/university/sources.yaml + M50/M59 exam & bank registry",
-  "generatedAt": "2026-10-23T19:02:15Z",
+  "generatedAt": "2026-10-23T19:10:35Z",
   "demo": false,
   "sources": [
     {
@@ -239,6 +239,30 @@
       "domain": "security",
       "skill": "Prompt-injection taint defense & secret hygiene (M64)",
       "count": 30
+    },
+    {
+      "demo": false,
+      "domain": "quant",
+      "skill": "Deflated Sharpe Ratio (DSR) & multiple-testing haircut (M25/M56)",
+      "count": 28,
+      "summary_en": "DSR penalises backtests that survive only because many variants were tried; AHOS uses it in M56 paper tournaments before any shadow promotion review.",
+      "summary_fa": "نسبت شارپ تعدیل‌شده (DSR) جریمهٔ آزمون‌های چندگانه را اعمال می‌کند؛ در تورنمنت کاغذی M56 قبل از هر بررسی سایه به‌کار می‌رود."
+    },
+    {
+      "demo": false,
+      "domain": "risk",
+      "skill": "Hierarchical Risk Parity via skfolio (M24/M28.6)",
+      "count": 22,
+      "summary_en": "HRP clusters correlated sleeves and caps risk contributions on CPU-friendly sklearn pipelines (skfolio, BSD-3) — paper weights only.",
+      "summary_fa": "تخصیص ریسک سلسله‌مراتبی (HRP) با skfolio وزن‌های همبسته را متعادل می‌کند؛ فقط سبد کاغذی و بدون معامله زنده."
+    },
+    {
+      "demo": false,
+      "domain": "governance",
+      "skill": "Two-Source Witness validation (M19/M42)",
+      "count": 26,
+      "summary_en": "VERIFIED requires ≥2 independent quotes within spread tolerance; otherwise UNRESOLVED or CONFLICT — never a lone-source PASS.",
+      "summary_fa": "تأیید شاهد دومنبعی: حداقل دو منبع مستقل در تلورانس اسپرد؛ در غیر این صورت UNKNOWN/CONFLICT — هرگز PASS تک‌منبعی."
     }
   ]
 }

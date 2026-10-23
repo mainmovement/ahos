@@ -3,7 +3,7 @@
   "executionMode": "PAPER_ONLY",
   "realTrading": false,
   "source": "reports/grok/M44/science_radar_snapshot.json (M44 Science Radar + M59.1 registry)",
-  "generatedAt": "2026-10-23T19:02:15Z",
+  "generatedAt": "2026-10-23T19:10:35Z",
   "demo": false,
   "items": [
     {
@@ -11,7 +11,7 @@
       "title": "Kronos Foundation Model for Financial Candlesticks (MIT, Paper-Only Challenger)",
       "sourceType": "repo",
       "topic": "Quant Forecasting (M15.10 / M24)",
-      "foundAt": "2026-10-23T19:02:15Z",
+      "foundAt": "2026-10-23T19:10:35Z",
       "relevanceNote": "MIT license; evaluated strictly as paper-only candle forecaster alongside baseline.",
       "status": "REVIEWED",
       "sourceText": "config/university/sources.yaml | QUANT_DESK_REPOS_VETTING_v1.md",
@@ -22,7 +22,7 @@
       "title": "skfolio: Hierarchical Risk Parity (HRP) & Equal Risk Contribution on scikit-learn (BSD-3)",
       "sourceType": "repo",
       "topic": "Portfolio Risk Allocation (M24 / M28.6)",
-      "foundAt": "2026-10-23T19:02:15Z",
+      "foundAt": "2026-10-23T19:10:35Z",
       "relevanceNote": "BSD-3 permissive license; T8 CPU compatible for paper portfolio weight caps.",
       "status": "REVIEWED",
       "sourceText": "config/university/sources.yaml | AHOS_TRADING_SKILLS_v2.md §7",
@@ -33,7 +33,7 @@
       "title": "Filtered Regime Detection & PELT Structural Break Detection (BSD-2 / BSD-3)",
       "sourceType": "paper",
       "topic": "Market Regime Filtering (M24)",
-      "foundAt": "2026-10-23T19:02:15Z",
+      "foundAt": "2026-10-23T19:10:35Z",
       "relevanceNote": "Forward-only filtered probabilities (no smoothing lookahead) for Gold & Oil paper tracks.",
       "status": "REVIEWED",
       "sourceText": "config/university/sources.yaml | AHOS_TRADING_SKILLS_v2.md §1",
@@ -44,10 +44,25 @@
       "title": "Deflated Sharpe Ratio & Probability of Backtest Overfitting (DSR / PBO)",
       "sourceType": "paper",
       "topic": "Statistical Promotion Gate (M25 / M28.1)",
-      "foundAt": "2026-10-23T19:02:15Z",
+      "foundAt": "2026-10-23T19:10:35Z",
       "relevanceNote": "Enforces multiple-testing haircut before any strategy can pass T0 -> T1 review.",
+      "summary_en": "DSR deflates reported Sharpe when many strategies were searched; PBO estimates overfit probability — both are advisory gates in AHOS paper promotion.",
+      "summary_fa": "DSR شارپ گزارش‌شده را وقتی استراتژی‌های زیادی جستجو شده‌اند کاهش می‌دهد؛ PBO احتمال overfit را تخمین می‌زند — هر دو در ارتقای کاغذی مشورتی‌اند.",
       "status": "REVIEWED",
       "sourceText": "https://arxiv.org/list/q-fin/recent | AHOS_TRADING_SKILLS_v2.md §8",
+      "demo": false
+    },
+    {
+      "id": "sr-witness-law-2026",
+      "title": "Two-Source Witness Law (Open Access Summary)",
+      "sourceType": "policy",
+      "topic": "Cross-Desk Price Integrity (M19 / M42)",
+      "foundAt": "2026-10-23T19:10:35Z",
+      "relevanceNote": "Canonical open-access summary for university exam bank alignment.",
+      "summary_en": "A desk price is VERIFIED only when ≥2 independent sources agree within tolerance; single-source quotes remain UNRESOLVED.",
+      "summary_fa": "قیمت میز فقط با توافق حداقل دو منبع مستقل در تلورانس VERIFIED می‌شود؛ تک‌منبع UNRESOLVED می‌ماند.",
+      "status": "REVIEWED",
+      "sourceText": "architecture/markets/multi_market_desks.py | AHOS_TRADING_SKILLS_v2.md",
       "demo": false
     }
   ]

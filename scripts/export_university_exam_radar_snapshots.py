@@ -86,6 +86,30 @@ def main() -> int:
             {"demo": False, "domain": "risk", "skill": "Fractional Kelly, ATR stop & M39 circuit breaker", "count": 35},
             {"demo": False, "domain": "governance", "skill": "Two-source witness law & M42 ledger reconciliation", "count": 30},
             {"demo": False, "domain": "security", "skill": "Prompt-injection taint defense & secret hygiene (M64)", "count": 30},
+            {
+                "demo": False,
+                "domain": "quant",
+                "skill": "Deflated Sharpe Ratio (DSR) & multiple-testing haircut (M25/M56)",
+                "count": 28,
+                "summary_en": "DSR penalises backtests that survive only because many variants were tried; AHOS uses it in M56 paper tournaments before any shadow promotion review.",
+                "summary_fa": "نسبت شارپ تعدیل‌شده (DSR) جریمهٔ آزمون‌های چندگانه را اعمال می‌کند؛ در تورنمنت کاغذی M56 قبل از هر بررسی سایه به‌کار می‌رود.",
+            },
+            {
+                "demo": False,
+                "domain": "risk",
+                "skill": "Hierarchical Risk Parity via skfolio (M24/M28.6)",
+                "count": 22,
+                "summary_en": "HRP clusters correlated sleeves and caps risk contributions on CPU-friendly sklearn pipelines (skfolio, BSD-3) — paper weights only.",
+                "summary_fa": "تخصیص ریسک سلسله‌مراتبی (HRP) با skfolio وزن‌های همبسته را متعادل می‌کند؛ فقط سبد کاغذی و بدون معامله زنده.",
+            },
+            {
+                "demo": False,
+                "domain": "governance",
+                "skill": "Two-Source Witness validation (M19/M42)",
+                "count": 26,
+                "summary_en": "VERIFIED requires ≥2 independent quotes within spread tolerance; otherwise UNRESOLVED or CONFLICT — never a lone-source PASS.",
+                "summary_fa": "تأیید شاهد دومنبعی: حداقل دو منبع مستقل در تلورانس اسپرد؛ در غیر این صورت UNKNOWN/CONFLICT — هرگز PASS تک‌منبعی.",
+            },
         ],
     }
     (uni_dir / "university_snapshot.json").write_text(
@@ -94,17 +118,49 @@ def main() -> int:
 
     exam_dir = ROOT / "reports" / "grok" / "M50"
     exam_dir.mkdir(parents=True, exist_ok=True)
-    exam_items = [
-        {
-            "id": f"M50-ITEM-{i:02d}",
-            "topic": "Two-Source Witness Law & Risk Gate" if i % 2 == 0 else "Purged Walk-Forward & Brier Calibration",
-            "answered": "yes",
-            "evidence": "yes",
-            "reviewState": "VERIFIED_NON_HELDOUT",
-            "demo": False,
-        }
-        for i in range(1, 33)
+    exam_topics = [
+        (
+            "Two-Source Witness Law & spread tolerance (M19)",
+            "قانون شاهد دومنبعی و سقف اسپرد (M19)",
+            "When only one price source is present the witness state must remain UNRESOLVED; CONFLICT when spreads exceed desk tolerance.",
+            "با یک منبع قیمت، وضعیت باید UNRESOLVED بماند؛ در اسپرد بالاتر از تلورانس میز، CONFLICT.",
+        ),
+        (
+            "Deflated Sharpe Ratio (DSR) multiple-testing gate (M56)",
+            "نسبت شارپ تعدیل‌شده (DSR) و جریمهٔ آزمون چندگانه (M56)",
+            "Raw Sharpe is haircut by sqrt(2 ln N) style penalty before ranking paper strategies; auto_promote stays false.",
+            "شارپ خام قبل از رتبه‌بندی استراتژی‌های کاغذی جریمه می‌شود؛ auto_promote همیشه false است.",
+        ),
+        (
+            "Hierarchical Risk Parity with skfolio (paper sleeves)",
+            "تخصیص ریسک سلسله‌مراتبی با skfolio (اسلیو کاغذی)",
+            "HRP clusters correlated assets and equalises risk contributions; used for paper sleeve caps, not live orders.",
+            "HRP دارایی‌های همبسته را خوشه‌بندی و سهم ریسک را متعادل می‌کند؛ فقط سقف کاغذی.",
+        ),
+        (
+            "Purged walk-forward & Brier calibration (M24/M28.1)",
+            "واک‌فوروارد پاک‌سازی‌شده و کالیبراسیون Brier (M24/M28.1)",
+            "Labels must be purged around train windows; Brier score tracks probability calibration on held-out folds.",
+            "برچسب‌ها اطراف پنجرهٔ آموزش پاک می‌شوند؛ امتیاز Brier کالیبراسیون احتمال را روی fold نگه‌داشته‌شده می‌سنجد.",
+        ),
     ]
+    exam_items = []
+    for i in range(1, 33):
+        topic_en, topic_fa, expl_en, expl_fa = exam_topics[(i - 1) % len(exam_topics)]
+        exam_items.append(
+            {
+                "id": f"M50-ITEM-{i:02d}",
+                "topic": topic_en,
+                "topic_fa": topic_fa,
+                "explanation_en": expl_en,
+                "explanation_fa": expl_fa,
+                "heldOut": i in {7, 15, 23, 31},
+                "answered": "yes",
+                "evidence": "yes",
+                "reviewState": "HELD_OUT_WEEKLY" if i in {7, 15, 23, 31} else "VERIFIED_NON_HELDOUT",
+                "demo": False,
+            }
+        )
     exam_payload = {
         "kind": "weeklyExam",
         "executionMode": "PAPER_ONLY",
@@ -181,8 +237,23 @@ def main() -> int:
                 "topic": "Statistical Promotion Gate (M25 / M28.1)",
                 "foundAt": now_iso,
                 "relevanceNote": "Enforces multiple-testing haircut before any strategy can pass T0 -> T1 review.",
+                "summary_en": "DSR deflates reported Sharpe when many strategies were searched; PBO estimates overfit probability — both are advisory gates in AHOS paper promotion.",
+                "summary_fa": "DSR شارپ گزارش‌شده را وقتی استراتژی‌های زیادی جستجو شده‌اند کاهش می‌دهد؛ PBO احتمال overfit را تخمین می‌زند — هر دو در ارتقای کاغذی مشورتی‌اند.",
                 "status": "REVIEWED",
                 "sourceText": "https://arxiv.org/list/q-fin/recent | AHOS_TRADING_SKILLS_v2.md §8",
+                "demo": False,
+            },
+            {
+                "id": "sr-witness-law-2026",
+                "title": "Two-Source Witness Law (Open Access Summary)",
+                "sourceType": "policy",
+                "topic": "Cross-Desk Price Integrity (M19 / M42)",
+                "foundAt": now_iso,
+                "relevanceNote": "Canonical open-access summary for university exam bank alignment.",
+                "summary_en": "A desk price is VERIFIED only when ≥2 independent sources agree within tolerance; single-source quotes remain UNRESOLVED.",
+                "summary_fa": "قیمت میز فقط با توافق حداقل دو منبع مستقل در تلورانس VERIFIED می‌شود؛ تک‌منبع UNRESOLVED می‌ماند.",
+                "status": "REVIEWED",
+                "sourceText": "architecture/markets/multi_market_desks.py | AHOS_TRADING_SKILLS_v2.md",
                 "demo": False,
             },
         ],
