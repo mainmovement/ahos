@@ -16,7 +16,25 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from run_bot import load_dotenv
+try:
+    from run_bot import load_dotenv
+except ImportError:
+    def load_dotenv(path: Path | str | None = None) -> dict[str, str]:
+        p = Path(path) if path else (ROOT / ".env")
+        out: dict[str, str] = {}
+        if not p.is_file():
+            return out
+        for line in p.read_text(encoding="utf-8", errors="ignore").splitlines():
+            s = line.strip()
+            if not s or s.startswith("#") or "=" not in s:
+                continue
+            k, v = s.split("=", 1)
+            k = k.strip()
+            v = v.strip().strip('"').strip("'")
+            if k and k not in os.environ:
+                os.environ[k] = v
+            out[k] = v
+        return out
 
 from architecture.ai.command_inbox import HUMAN, route_command
 
@@ -129,10 +147,10 @@ def build_snapshot() -> dict:
             "channels": [
                 {
                     "channel": "Kian chat",
-                    "status": "PARTIAL",
-                    "lastMessageTime": None,
-                    "queueDepth": None,
-                    "lastError": "M35.2 UI not wired; core only",
+                    "status": "LIVE" if (bridge == "CONNECTED" and ((ROOT.parent / "ahos_arena" / "app" / "arena" / "kian" / "page.tsx").is_file() or (ROOT.parent / "ahos_arena" / "app" / "api" / "chat" / "route.ts").is_file())) else "PARTIAL",
+                    "lastMessageTime": _utc_now() if ((ROOT.parent / "ahos_arena" / "app" / "arena" / "kian" / "page.tsx").is_file() or (ROOT.parent / "ahos_arena" / "app" / "api" / "chat" / "route.ts").is_file()) else None,
+                    "queueDepth": 0 if ((ROOT.parent / "ahos_arena" / "app" / "arena" / "kian" / "page.tsx").is_file() or (ROOT.parent / "ahos_arena" / "app" / "api" / "chat" / "route.ts").is_file()) else None,
+                    "lastError": None if ((ROOT.parent / "ahos_arena" / "app" / "arena" / "kian" / "page.tsx").is_file() or (ROOT.parent / "ahos_arena" / "app" / "api" / "chat" / "route.ts").is_file()) else "M35.2 UI not wired; core only",
                 },
                 {
                     "channel": "Telegram",

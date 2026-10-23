@@ -1,0 +1,24 @@
+# Asi 12-Point Vetting Gate (M57.T / M52) — immutable read-only checklist
+schema: ahos.vet_checklist.v1
+allowed_spdx:
+  - MIT
+  - Apache-2.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - CC0-1.0
+forbidden_spdx_prefixes:
+  - GPL
+  - AGPL
+  - LGPL
+  - CC-BY-NC
+  - PROPRIETARY
+  - NONE
+max_cost_usd: 0.0
+required_license_sources: 2
+allowed_tiers:
+  - T8
+  - T16
+  - T32
+  - GPU
+auto_install_allowed: false

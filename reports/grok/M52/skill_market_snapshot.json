@@ -1,0 +1,167 @@
+{
+  "kind": "skillMarket",
+  "executionMode": "PAPER_ONLY",
+  "realTrading": false,
+  "source": "config/skills_registry.json + M52 skill_vet.py + proposals/prop_*.json",
+  "generatedAt": "2026-10-23T18:23:45Z",
+  "demo": false,
+  "entries": [
+    {
+      "id": "skill-hmmlearn",
+      "name": "hmmlearn (3-State Filtered Regime Detection)",
+      "kind": "skill",
+      "version": "0.3.x (BSD-3-Clause)",
+      "source": "AHOS_TRADING_SKILLS_v2.md §1",
+      "installState": "AVAILABLE",
+      "permissions": [
+        "read-only OHLCV series",
+        "filtered forward state only (no lookahead)"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: BSD-3 license, $0 cost, T8 CPU safe, paper-only regime filter.",
+      "demo": false
+    },
+    {
+      "id": "skill-ruptures",
+      "name": "ruptures (PELT Structural Break Detection)",
+      "kind": "skill",
+      "version": "1.1.x (BSD-2-Clause)",
+      "source": "AHOS_TRADING_SKILLS_v2.md §1.2",
+      "installState": "AVAILABLE",
+      "permissions": [
+        "read-only return/volatility series"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: BSD-2 license, $0 cost, T8 CPU safe, detects variance breaks.",
+      "demo": false
+    },
+    {
+      "id": "skill-pandas-ta",
+      "name": "pandas-ta (Multi-Timeframe ATR / ADX / RSI Confluence)",
+      "kind": "skill",
+      "version": "0.3.x (MIT)",
+      "source": "AHOS_TRADING_SKILLS_v2.md §2",
+      "installState": "AVAILABLE",
+      "permissions": [
+        "read-only candle indicators"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: MIT license, $0 cost, T8 CPU safe.",
+      "demo": false
+    },
+    {
+      "id": "skill-skfolio",
+      "name": "skfolio (HRP / ERC Portfolio Risk Allocation)",
+      "kind": "skill",
+      "version": "0.4.x (BSD-3-Clause)",
+      "source": "QUANT_DESK_REPOS_VETTING_v1.md",
+      "installState": "AVAILABLE",
+      "permissions": [
+        "read-only covariance matrix",
+        "paper portfolio weight sizing"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: BSD-3 license, $0 cost, replaces PyPortfolioOpt for HRP/ERC.",
+      "demo": false
+    },
+    {
+      "id": "skill-kronos-paper",
+      "name": "Kronos (Financial Candlestick Foundation Forecaster — PAPER_ONLY)",
+      "kind": "plugin",
+      "version": "v1-small (MIT)",
+      "source": "QUANT_DESK_REPOS_VETTING_v1.md",
+      "installState": "BLOCKED",
+      "permissions": [
+        "read-only OHLCV context",
+        "PAPER_ONLY ensemble challenger (M15.10)"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS (ADOPT-PAPER): MIT license; gated on 8GB T8 until challenger benchmark passes.",
+      "demo": false
+    },
+    {
+      "id": "skill-vosk-fa",
+      "name": "Vosk small-fa-0.5 (Offline Persian Speech-to-Text for Kian)",
+      "kind": "plugin",
+      "version": "0.5 (Apache-2.0)",
+      "source": "ASI_VETTING_v1.19.md (M-D9)",
+      "installState": "AVAILABLE",
+      "permissions": [
+        "local offline audio buffer (push-to-talk only)"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: Apache-2.0, 100% offline Persian STT (~40MB RAM).",
+      "demo": false
+    },
+    {
+      "id": "skill-sherpa-piper-fa",
+      "name": "sherpa-onnx + Piper fa_IR (Offline Persian Text-to-Speech for Kian)",
+      "kind": "plugin",
+      "version": "1.10 (Apache-2.0 / CC0 voices)",
+      "source": "ASI_VETTING_v1.19.md (M-D9)",
+      "installState": "AVAILABLE",
+      "permissions": [
+        "local offline audio synthesis"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: Apache-2.0 + CC0 voices, zero cloud dependency.",
+      "demo": false
+    },
+    {
+      "id": "skill-laya-421m",
+      "name": "Laya 421M (Lightweight LocalPersian/Code Model — Idea Shelf)",
+      "kind": "plugin",
+      "version": "0.1 (MIT)",
+      "source": "ASI_VETTING_v1.19.md (M59.S)",
+      "installState": "BLOCKED",
+      "permissions": [
+        "local CPU inference sandbox"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: shelved in Idea Shelf (T8); requires owner activation.",
+      "demo": false
+    },
+    {
+      "id": "skill-kev-0.8b",
+      "name": "Kev-0.8B (Qwen3.5 Decision Challenger — Idea Shelf)",
+      "kind": "plugin",
+      "version": "0.8B (Apache-2.0)",
+      "source": "ASI_VETTING_v1.19.md (M59.S)",
+      "installState": "BLOCKED",
+      "permissions": [
+        "shadow benchmark evaluation only"
+      ],
+      "reviewState": "REVIEWED",
+      "reason": "Asi M52 Gate PASS: shelved challenger (T16); zero live authority.",
+      "demo": false
+    },
+    {
+      "id": "skill-krypt-trader",
+      "name": "KRYPT TRADER (External Bot Package)",
+      "kind": "plugin",
+      "version": "unverified",
+      "source": "ASI_VETTING_v1.19.md",
+      "installState": "BLOCKED",
+      "permissions": [
+        "requested Windows Defender exclusion (DENIED)"
+      ],
+      "reviewState": "REJECTED",
+      "reason": "REJECTED by Asi & Soltan: requests Windows Defender exclusion (malware red flag) and live keys.",
+      "demo": false
+    },
+    {
+      "id": "skill-kalshi-live",
+      "name": "Kalshi Prediction Market Connector",
+      "kind": "plugin",
+      "version": "n/a",
+      "source": "ASI_VETTING_v1.19.md",
+      "installState": "BLOCKED",
+      "permissions": [
+        "external US KYC API (DENIED)"
+      ],
+      "reviewState": "REJECTED",
+      "reason": "REJECTED by Asi & Soltan: Kalshi blocks Iran/sanctioned jurisdictions and requires US KYC.",
+      "demo": false
+    }
+  ]
+}

@@ -31,8 +31,9 @@ CANONICAL_AGENT_IDS: tuple[str, ...] = (
     "agent.red-team",
     "agent.change-architect",
     "agent.release-governance-reviewer",
-    "agent.kian",
 )
+
+KIAN_AGENT_ID: str = "agent.kian"
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,17 @@
+{
+  "track": "M13.1-OIL-SCRATCH-PAPER",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "generated_at": "2026-10-23T18:23:46Z",
+  "cycles": 7,
+  "closed_trades": 2,
+  "wins": 1,
+  "losses": 1,
+  "final_equity_usd": 10000.0,
+  "judge_verdict": "CLEAN",
+  "tier": "T0",
+  "measurable_pass": "2/4",
+  "witness_mode": "TWO_SOURCE_REQUIRED (WTI CL=F + USO / FRED DCOILWTICO)",
+  "replay_verdict": "NO_PROVEN_EDGE"
+}

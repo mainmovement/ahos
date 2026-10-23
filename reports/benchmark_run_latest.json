@@ -1,0 +1,26 @@
+{
+  "timestamp_utc": "2026-10-23T18:23:44Z",
+  "paper_only": true,
+  "results": {
+    "vectorized_backtest": {
+      "combinations_evaluated": 64,
+      "evaluations_per_sec": 1520.4
+    },
+    "quantstats_tearsheet": {
+      "runs": 50,
+      "latency_per_tearsheet_ms": 0.52
+    },
+    "olap_analytics_bridge": {
+      "runs": 50,
+      "latency_per_aggregation_ms": 1.18
+    },
+    "streaming_drift_throughput": {
+      "samples": 1000,
+      "samples_per_sec": 49500.0
+    },
+    "event_driven_backtest": {
+      "events_processed": 5000,
+      "events_per_sec": 12850.0
+    }
+  }
+}

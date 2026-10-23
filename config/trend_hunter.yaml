@@ -1,0 +1,16 @@
+# M57.T Trend Hunter watch configuration (read-only to autonomous loops)
+schema: ahos.trend_hunter.v1
+dedupe_resurface_days: 90
+sources:
+  - id: github_trending_python
+    url: https://github.com/trending/python
+    kind: repo_index
+  - id: arxiv_qfin
+    url: https://arxiv.org/list/q-fin/recent
+    kind: paper_feed
+  - id: arxiv_cs_ai
+    url: https://arxiv.org/list/cs.AI/recent
+    kind: paper_feed
+  - id: hf_Trending_models
+    url: https://huggingface.co/models
+    kind: model_hub

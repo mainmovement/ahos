@@ -1,0 +1,279 @@
+{
+  "kind": "weeklyExam",
+  "executionMode": "PAPER_ONLY",
+  "realTrading": false,
+  "source": "reports/grok/M50/weekly_exam_snapshot.json (M50 exam grader + M13 tier gate)",
+  "generatedAt": "2026-10-23T18:23:44Z",
+  "demo": false,
+  "minSampleSize": 30,
+  "runs": [
+    {
+      "id": "M50-1405-W30",
+      "week": "1405-W30",
+      "itemsCount": 32,
+      "answeredCount": 32,
+      "withEvidenceCount": 32,
+      "resultSummary": "91/100 (32/32 answered, 0 held-out leak,sha256:ad259cd6)",
+      "state": "RAN",
+      "items": [
+        {
+          "id": "M50-ITEM-01",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-02",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-03",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-04",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-05",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-06",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-07",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-08",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-09",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-10",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-11",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-12",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-13",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-14",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-15",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-16",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-17",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-18",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-19",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-20",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-21",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-22",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-23",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-24",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-25",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-26",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-27",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-28",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-29",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-30",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-31",
+          "topic": "Purged Walk-Forward & Brier Calibration",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        },
+        {
+          "id": "M50-ITEM-32",
+          "topic": "Two-Source Witness Law & Risk Gate",
+          "answered": "yes",
+          "evidence": "yes",
+          "reviewState": "VERIFIED_NON_HELDOUT",
+          "demo": false
+        }
+      ],
+      "demo": false
+    }
+  ]
+}

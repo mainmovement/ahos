@@ -1,48 +1,135 @@
 {
-  "generated_at": "2026-10-18T20:21:52Z",
+  "generated_at": "2026-10-23T18:23:56Z",
   "paper_only": true,
+  "brier_score": 0.1529,
   "selfEvaluation": {
     "executionMode": "PAPER_ONLY",
     "realTrading": false,
-    "source": "M13_REPLAY/tier_gate_exports/summary.json",
-    "generatedAt": "2026-10-18T20:21:52Z",
+    "source": "M13_REPLAY/tier_gate_exports/summary.json + M58.4 Brier calibration",
+    "generatedAt": "2026-10-23T18:23:56Z",
     "demo": false,
     "scorecards": [
       {
         "period": "week",
         "decisionsReviewed": 10,
         "decisionsWithEvidence": 4,
-        "decisionsWithUnseenCheck": null,
-        "calibrationNote": "REPLAY_NOT_LIVE: NO_PROVEN_EDGE; gold tier T0",
+        "decisionsWithUnseenCheck": 8,
+        "calibrationNote": "REPLAY_NOT_LIVE: NO_PROVEN_EDGE; gold tier T0; M58.4 Brier=0.1529 (held-out n=8)",
         "unresolvedItems": 1,
         "highlights": [
           {
             "id": "tier-gold",
             "market": "gold",
-            "rationaleSummary": "measurable 4/10",
-            "outcomeKnown": "no",
+            "rationaleSummary": "Gold soak measurable 4/10 | M42 CLEAN | Brier 0.1529",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "tier-oil",
+            "market": "oil",
+            "rationaleSummary": "Oil scratch paper measurable 2/4 | M42 CLEAN",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "m58-devils-advocate",
+            "market": "gold",
+            "rationaleSummary": "M58.3 Devil's Advocate dissent enforced on all council paper entries",
+            "outcomeKnown": "yes",
             "reviewState": "REVIEWED"
           }
         ],
-        "allDecisions": []
+        "allDecisions": [
+          {
+            "id": "tier-gold",
+            "market": "gold",
+            "rationaleSummary": "Gold soak measurable 4/10 | M42 CLEAN | Brier 0.1529",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "tier-oil",
+            "market": "oil",
+            "rationaleSummary": "Oil scratch paper measurable 2/4 | M42 CLEAN",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "m58-devils-advocate",
+            "market": "gold",
+            "rationaleSummary": "M58.3 Devil's Advocate dissent enforced on all council paper entries",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "m58-mistake-eval",
+            "market": "gold",
+            "rationaleSummary": "M58.2 repeated M49 loss lessons converted to regression eval fixtures",
+            "outcomeKnown": "no",
+            "reviewState": "REVIEWED"
+          }
+        ]
       },
       {
         "period": "month",
         "decisionsReviewed": 10,
         "decisionsWithEvidence": 4,
-        "decisionsWithUnseenCheck": null,
-        "calibrationNote": "REPLAY_NOT_LIVE: NO_PROVEN_EDGE; gold tier T0",
+        "decisionsWithUnseenCheck": 8,
+        "calibrationNote": "REPLAY_NOT_LIVE: NO_PROVEN_EDGE; gold tier T0; M58.4 Brier=0.1529 (held-out n=8)",
         "unresolvedItems": 1,
         "highlights": [
           {
             "id": "tier-gold",
             "market": "gold",
-            "rationaleSummary": "measurable 4/10",
-            "outcomeKnown": "no",
+            "rationaleSummary": "Gold soak measurable 4/10 | M42 CLEAN | Brier 0.1529",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "tier-oil",
+            "market": "oil",
+            "rationaleSummary": "Oil scratch paper measurable 2/4 | M42 CLEAN",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "m58-devils-advocate",
+            "market": "gold",
+            "rationaleSummary": "M58.3 Devil's Advocate dissent enforced on all council paper entries",
+            "outcomeKnown": "yes",
             "reviewState": "REVIEWED"
           }
         ],
-        "allDecisions": []
+        "allDecisions": [
+          {
+            "id": "tier-gold",
+            "market": "gold",
+            "rationaleSummary": "Gold soak measurable 4/10 | M42 CLEAN | Brier 0.1529",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "tier-oil",
+            "market": "oil",
+            "rationaleSummary": "Oil scratch paper measurable 2/4 | M42 CLEAN",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "m58-devils-advocate",
+            "market": "gold",
+            "rationaleSummary": "M58.3 Devil's Advocate dissent enforced on all council paper entries",
+            "outcomeKnown": "yes",
+            "reviewState": "REVIEWED"
+          },
+          {
+            "id": "m58-mistake-eval",
+            "market": "gold",
+            "rationaleSummary": "M58.2 repeated M49 loss lessons converted to regression eval fixtures",
+            "outcomeKnown": "no",
+            "reviewState": "REVIEWED"
+          }
+        ]
       }
     ]
   }

@@ -187,6 +187,12 @@ def _daily_report(soak_dir: Path, ledger_path: Path | None,
             "export_m49_lessons_snapshot.py",
             "export_message_hub_snapshot.py",
             "export_self_eval_snapshot.py",
+            "export_capability_lab_snapshot.py",
+            "export_university_exam_radar_snapshots.py",
+            "export_skill_market_snapshot.py",
+            "export_oil_paper_snapshot.py",
+            "export_newsroom_snapshot.py",
+            "export_whitehat_audit.py",
         ):
             subprocess.run(
                 [sys.executable, str(ROOT / "scripts" / script)],

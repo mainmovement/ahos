@@ -1,0 +1,11 @@
+{
+  "proposal_id": "prop_m51_brier_shrinkage",
+  "created_ts": 1792771200.0,
+  "diagnosis": "M51 paper-only proposal: apply log-odds extremizing calibration (M15.10) on council confidence",
+  "detected_by": "AG-12",
+  "requires_human": true,
+  "governance_touching": true,
+  "redteam_verdict": "PASS",
+  "current_stage": "QA",
+  "paper_only": true
+}

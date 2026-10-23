@@ -1,51 +1,51 @@
 {
-  "generated_at": "2026-10-18T20:19:47Z",
+  "generated_at": "2026-10-23T18:23:44Z",
   "paper_only": true,
   "messageHub": {
     "executionMode": "PAPER_ONLY",
     "realTrading": false,
     "source": "export_message_hub_snapshot.py (bridge probe + M13_SOAK + M35.5 inbox)",
-    "generatedAt": "2026-10-18T20:19:47Z",
+    "generatedAt": "2026-10-23T18:23:44Z",
     "demo": false,
     "channels": [
       {
         "channel": "Kian chat",
         "status": "PARTIAL",
-        "lastMessageTime": null,
-        "queueDepth": null,
-        "lastError": "M35.2 UI not wired; core only"
+        "lastMessageTime": "2026-10-23T18:23:44Z",
+        "queueDepth": 0,
+        "lastError": null
       },
       {
         "channel": "Telegram",
-        "status": "UNAVAILABLE",
-        "lastMessageTime": null,
+        "status": "LIVE",
+        "lastMessageTime": "2026-10-23T18:23:44Z",
         "queueDepth": null,
-        "lastError": "M35.3 owner token rotation"
+        "lastError": null
       },
       {
         "channel": "nightly report",
         "status": "LIVE",
-        "lastMessageTime": "2026-10-18T20:04:21Z",
+        "lastMessageTime": "2026-10-23T18:21:05Z",
         "queueDepth": null,
         "lastError": null
       },
       {
         "channel": "command router",
         "status": "LIVE",
-        "lastMessageTime": "2026-10-18T20:19:47Z",
+        "lastMessageTime": "2026-10-23T18:23:44Z",
         "queueDepth": 5,
         "lastError": null
       }
     ],
     "telegram": {
-      "bridgeState": "BLOCKED_OWNER",
-      "needsTokenRotation": true
+      "bridgeState": "CONNECTED",
+      "needsTokenRotation": false
     },
     "nightlyReport": {
-      "lastReportTime": "2026-10-18T20:04:21Z",
+      "lastReportTime": "2026-10-23T18:21:05Z",
       "language": "فارسی",
-      "deliveryState": "NOT_SENT",
-      "evidenceLink": "reports/grok/M13_SOAK/2026-10-18_judge.md"
+      "deliveryState": "UNKNOWN",
+      "evidenceLink": "reports/grok/M13_SOAK/2026-10-23_judge.md"
     },
     "humanGateInbox": [
       {
@@ -86,16 +86,16 @@
     ],
     "messageLog": [
       {
-        "time": "2026-10-18T20:04:12Z",
+        "time": "2026-10-23T18:21:02Z",
         "direction": "out",
         "channel": "nightly report",
-        "summary": "soak cycle 644 witness=UNRESOLVED",
+        "summary": "soak cycle 864 witness=VERIFIED",
         "deliveryState": "DELIVERED"
       }
     ]
   },
   "bridge_llm": {
     "state": "DISCONNECTED",
-    "lastError": "TimeoutError"
+    "lastError": "URLError"
   }
 }

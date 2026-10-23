@@ -102,17 +102,39 @@ class KianAuditStore:
         except OSError as exc:
             raise AuditStoreError(f"Failed to write genesis: {exc}")
 
+    def _verify_record_hash(self, record: dict) -> bool:
+        """Verify that entry_hash matches canonical content hash of record."""
+        if "entry_hash" not in record:
+            return False
+        payload = {k: v for k, v in record.items() if k != "entry_hash"}
+        return record["entry_hash"] == self._content_hash(payload)
+
     def _load_genesis(self) -> None:
-        """Load and verify genesis from existing file."""
+        """Load and verify genesis and full chain from existing file."""
         try:
             with open(self.path, "r", encoding="utf-8") as f:
-                line = f.readline().strip()
-            data = json.loads(line)
-            if data.get("seq") != 0:
+                records = [json.loads(line.strip()) for line in f if line.strip()]
+            if not records:
+                raise AuditStoreError("Empty audit store file")
+            genesis = records[0]
+            if genesis.get("seq") != 0 or genesis.get("prev_hash") != self.GENESIS_PREV_HASH:
                 raise AuditStoreError("Invalid genesis record")
-            self._last_hash = data["entry_hash"]
-            self._last_seq = 0
-            self._init_timestamp = data.get("timestamp", time.time())
+            if not self._verify_record_hash(genesis):
+                raise AuditStoreError("Genesis hash mismatch")
+            for i in range(1, len(records)):
+                prev = records[i - 1]
+                cur = records[i]
+                if cur.get("seq") != int(prev["seq"]) + 1:
+                    raise AuditStoreError(f"Broken sequence at index {i}")
+                if cur.get("prev_hash") != prev["entry_hash"]:
+                    raise AuditStoreError(f"Broken hash chain at index {i}")
+                if not self._verify_record_hash(cur):
+                    raise AuditStoreError(f"Record content hash mismatch at index {i}")
+            self._last_hash = records[-1]["entry_hash"]
+            self._last_seq = int(records[-1]["seq"])
+            self._init_timestamp = genesis.get("timestamp", time.time())
+        except AuditStoreError:
+            raise
         except Exception as exc:
             raise AuditStoreError(f"Failed to load genesis: {exc}")
 
@@ -186,10 +208,16 @@ class KianAuditStore:
             genesis = records[0]
             if genesis.get("seq") != 0 or genesis.get("prev_hash") != self.GENESIS_PREV_HASH:
                 return False
+            if not self._verify_record_hash(genesis):
+                return False
 
             # Chain integrity check
             for i in range(1, len(records)):
-                if records[i]["prev_hash"] != records[i-1]["entry_hash"]:
+                if records[i].get("seq") != int(records[i - 1]["seq"]) + 1:
+                    return False
+                if records[i]["prev_hash"] != records[i - 1]["entry_hash"]:
+                    return False
+                if not self._verify_record_hash(records[i]):
                     return False
 
             # Check last hash matches

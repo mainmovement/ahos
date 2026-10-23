@@ -1,0 +1,11 @@
+{
+  "proposal_id": "prop_m51_atr_trailing_exit",
+  "created_ts": 1792756800.0,
+  "diagnosis": "M51 paper-only proposal: tighten ATR trailing stop multiplier from 2.5x to 2.0x in high-spread sessions",
+  "detected_by": "AG-16",
+  "requires_human": true,
+  "governance_touching": false,
+  "redteam_verdict": "NEEDS_MORE_DATA",
+  "current_stage": "PROPOSED",
+  "paper_only": true
+}

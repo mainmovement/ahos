@@ -92,7 +92,8 @@ class KianAgent:
 
         # Initialize components
         self.audit_store = KianAuditStore(self.config.audit_store_path)
-        self.memory = OwnerDialogueMemory()
+        mem_file = None if self.config.audit_store_path == 'data/kian_audit.jsonl' else Path(self.config.audit_store_path).with_name('owner_dialogue.jsonl')
+        self.memory = OwnerDialogueMemory(path=mem_file)
         self.injection_defense = InjectionDefense()
         self.rate_limiter = RateLimiter(self.audit_store)
         self.gate_service = GateService()

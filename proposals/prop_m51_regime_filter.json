@@ -1,0 +1,11 @@
+{
+  "proposal_id": "prop_m51_regime_filter",
+  "created_ts": 1792742400.0,
+  "diagnosis": "M51 paper-only proposal: add filtered HMM + PELT structural-break regime gate before M13 Gold entry",
+  "detected_by": "AG-15",
+  "requires_human": true,
+  "governance_touching": false,
+  "redteam_verdict": "PASS",
+  "current_stage": "SHADOW_EVAL",
+  "paper_only": true
+}

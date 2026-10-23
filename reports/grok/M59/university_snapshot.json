@@ -1,0 +1,244 @@
+{
+  "kind": "university",
+  "executionMode": "PAPER_ONLY",
+  "realTrading": false,
+  "source": "config/university/sources.yaml + M50/M59 exam & bank registry",
+  "generatedAt": "2026-10-23T18:23:44Z",
+  "demo": false,
+  "sources": [
+    {
+      "demo": false,
+      "id": "src-1",
+      "name": "https://arxiv.org/list/q-fin/recent",
+      "domain": "arxiv.org",
+      "category": "quant",
+      "access": "registry",
+      "licence": "arXiv-TOS",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-2",
+      "name": "https://arxiv.org/list/cs.AI/recent",
+      "domain": "arxiv.org",
+      "category": "ai",
+      "access": "registry",
+      "licence": "arXiv-TOS",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-3",
+      "name": "https://api.openalex.org/works",
+      "domain": "api.openalex.org",
+      "category": "research",
+      "access": "registry",
+      "licence": "OpenAlex-CC0",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-4",
+      "name": "https://api.semanticscholar.org/graph/v1/paper/search",
+      "domain": "api.semanticscholar.org",
+      "category": "research",
+      "access": "registry",
+      "licence": "SemanticScholar-Open-API",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-5",
+      "name": "https://fred.stlouisfed.org/",
+      "domain": "fred.stlouisfed.org",
+      "category": "macro",
+      "access": "registry",
+      "licence": "FRED-public",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-6",
+      "name": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "domain": "www.cftc.gov",
+      "category": "macro",
+      "access": "registry",
+      "licence": "US-Public-Domain",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-7",
+      "name": "https://www.eia.gov/petroleum/supply/weekly/",
+      "domain": "www.eia.gov",
+      "category": "commodities",
+      "access": "registry",
+      "licence": "US-Public-Domain",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-8",
+      "name": "https://github.com/wangzhe3224/awesome-systematic-trading",
+      "domain": "github.com",
+      "category": "quant",
+      "access": "registry",
+      "licence": "MIT",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-9",
+      "name": "https://www.3blue1brown.com/topics/neural-networks",
+      "domain": "www.3blue1brown.com",
+      "category": "foundations",
+      "access": "registry",
+      "licence": "Free-Educational-Track-TA",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-10",
+      "name": "https://cs50.harvard.edu/ai/",
+      "domain": "cs50.harvard.edu",
+      "category": "ai",
+      "access": "registry",
+      "licence": "CC-BY-NC-SA-4.0-Track-TB",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-11",
+      "name": "https://huggingface.co/learn/nlp-course",
+      "domain": "huggingface.co",
+      "category": "nlp",
+      "access": "registry",
+      "licence": "Apache-2.0-Track-TC",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    },
+    {
+      "demo": false,
+      "id": "src-12",
+      "name": "https://cs229.stanford.edu/",
+      "domain": "cs229.stanford.edu",
+      "category": "ml",
+      "access": "registry",
+      "licence": "Academic-Open-Track-TD",
+      "tosOk": true,
+      "authority": 90,
+      "recency": 88,
+      "trackRecord": 92,
+      "citations": null,
+      "score": 90
+    }
+  ],
+  "exams": [
+    {
+      "demo": false,
+      "agent": "AG-41 (Farzaneh / Quant & Risk Track)",
+      "week": "1405-W30",
+      "score": 91,
+      "items": 32,
+      "ci": [
+        87,
+        95
+      ],
+      "hash": "sha256:ad259cd6e5e93d9c",
+      "retests": 0
+    },
+    {
+      "demo": false,
+      "agent": "AG-15 (Decision Council / Two-Source Law)",
+      "week": "1405-W30",
+      "score": 94,
+      "items": 32,
+      "ci": [
+        90,
+        98
+      ],
+      "hash": "sha256:c9d39e5e6dc952da",
+      "retests": 0
+    }
+  ],
+  "bank": [
+    {
+      "demo": false,
+      "domain": "quant",
+      "skill": "Regime detection & purged walk-forward (M24/M28.1)",
+      "count": 40
+    },
+    {
+      "demo": false,
+      "domain": "risk",
+      "skill": "Fractional Kelly, ATR stop & M39 circuit breaker",
+      "count": 35
+    },
+    {
+      "demo": false,
+      "domain": "governance",
+      "skill": "Two-source witness law & M42 ledger reconciliation",
+      "count": 30
+    },
+    {
+      "demo": false,
+      "domain": "security",
+      "skill": "Prompt-injection taint defense & secret hygiene (M64)",
+      "count": 30
+    }
+  ]
+}

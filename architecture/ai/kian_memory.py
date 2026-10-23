@@ -77,38 +77,53 @@ class OwnerDialogueMemory:
         if not self.path.exists():
             return
 
+        from collections import deque
         try:
             with open(self.path, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-
-                    data = json.loads(line)
-                    msg = OwnerDialogueMessage(
-                        seq=data["seq"],
-                        timestamp=data["timestamp"],
-                        channel=data["channel"],
-                        user_id_hash=data["user_id_hash"],
-                        role=data["role"],
-                        content=data["content"],
-                        response_to_seq=data.get("response_to_seq"),
-                        summary_fa=data.get("summary_fa"),
-                    )
-                    self.messages.append(msg)
-                    self.last_seq = max(self.last_seq, msg.seq)
-
+                tail_lines = deque((line.strip() for line in f if line.strip()), maxlen=1000)
+            for line in tail_lines:
+                data = json.loads(line)
+                msg = OwnerDialogueMessage(
+                    seq=data["seq"],
+                    timestamp=data["timestamp"],
+                    channel=data["channel"],
+                    user_id_hash=data["user_id_hash"],
+                    role=data["role"],
+                    content=data["content"],
+                    response_to_seq=data.get("response_to_seq"),
+                    summary_fa=data.get("summary_fa"),
+                )
+                self.messages.append(msg)
+                self.last_seq = max(self.last_seq, msg.seq)
         except (json.JSONDecodeError, KeyError) as e:
             raise RuntimeError(f"Failed to load owner dialogue: {e}")
 
+    def _append_one_to_disk(self, msg: OwnerDialogueMessage) -> None:
+        """Append a single new message to disk."""
+        try:
+            with open(self.path, "a", encoding="utf-8", buffering=1) as f:
+                content_dict = {
+                    "seq": msg.seq,
+                    "timestamp": msg.timestamp,
+                    "channel": msg.channel,
+                    "user_id_hash": msg.user_id_hash,
+                    "role": msg.role,
+                    "content": msg.content,
+                    "response_to_seq": msg.response_to_seq,
+                    "summary_fa": msg.summary_fa,
+                }
+                f.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
+        except OSError as e:
+            raise RuntimeError(f"Failed to append owner dialogue: {e}")
+
     def save_to_disk(self) -> None:
-        """Append new messages to disk atomically."""
+        """Write current bounded messages to disk without duplicating history."""
         if not self.messages:
             return
 
         try:
-            with open(self.path, "a", encoding="utf-8", buffering=1) as f:
-                for msg in self.messages:
+            with open(self.path, "w", encoding="utf-8", buffering=1) as f:
+                for msg in self.messages[-1000:]:
                     content_dict = {
                         "seq": msg.seq,
                         "timestamp": msg.timestamp,
@@ -149,8 +164,8 @@ class OwnerDialogueMemory:
         self.messages.append(msg)
         self.last_seq = msg.seq
 
-        # Save to disk
-        self.save_to_disk()
+        # Append single new message to disk
+        self._append_one_to_disk(msg)
 
         # Prune old messages (keep last 1000)
         if len(self.messages) > 1000:

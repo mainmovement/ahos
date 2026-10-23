@@ -1097,3 +1097,21 @@ class CalibrationHarness:
                 "Only one band cleared the guards — a calibration CURVE needs at "
                 "least two comparable bands.")
         return report
+
+
+def brier_score(preds: Iterable[float], outcomes: Iterable[float]) -> float:
+    """Public M58.4 Brier score wrapper over held-out probability predictions."""
+    val = _brier(preds, outcomes)
+    return float(val) if val is not None else 0.25
+
+
+def log_odds_recalibrate(probs: Iterable[float], alpha: float = 1.2) -> list[float]:
+    """M58.5 / M15.10 log-odds recalibration on held-out probability forecasts."""
+    import math
+    out: list[float] = []
+    for p in probs:
+        clamped = max(1e-6, min(1.0 - 1e-6, float(p)))
+        logit = math.log(clamped / (1.0 - clamped))
+        scaled = max(-20.0, min(20.0, alpha * logit))
+        out.append(round(1.0 / (1.0 + math.exp(-scaled)), 6))
+    return out

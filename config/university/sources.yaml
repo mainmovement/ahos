@@ -4,9 +4,36 @@ sources:
   - url: https://arxiv.org/list/q-fin/recent
     license: arXiv-TOS
     faculty: quant
+  - url: https://arxiv.org/list/cs.AI/recent
+    license: arXiv-TOS
+    faculty: ai
   - url: https://api.openalex.org/works
     license: OpenAlex-CC0
+    faculty: research
+  - url: https://api.semanticscholar.org/graph/v1/paper/search
+    license: SemanticScholar-Open-API
     faculty: research
   - url: https://fred.stlouisfed.org/
     license: FRED-public
     faculty: macro
+  - url: https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm
+    license: US-Public-Domain
+    faculty: macro
+  - url: https://www.eia.gov/petroleum/supply/weekly/
+    license: US-Public-Domain
+    faculty: commodities
+  - url: https://github.com/wangzhe3224/awesome-systematic-trading
+    license: MIT
+    faculty: quant
+  - url: https://www.3blue1brown.com/topics/neural-networks
+    license: Free-Educational-Track-TA
+    faculty: foundations
+  - url: https://cs50.harvard.edu/ai/
+    license: CC-BY-NC-SA-4.0-Track-TB
+    faculty: ai
+  - url: https://huggingface.co/learn/nlp-course
+    license: Apache-2.0-Track-TC
+    faculty: nlp
+  - url: https://cs229.stanford.edu/
+    license: Academic-Open-Track-TD
+    faculty: ml

@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-10-23T18:23:47Z",
+  "paper_only": true,
+  "newsCenter": {
+    "kind": "newsCenter",
+    "executionMode": "PAPER_ONLY",
+    "realTrading": false,
+    "source": "reports/grok/M18/newsroom_snapshot.json (M18.N + M80 Didehban)",
+    "generatedAt": "2026-10-23T18:23:47Z",
+    "demo": false,
+    "staleAfterMinutes": 60,
+    "items": [
+      {
+        "id": "m18-gold-witness",
+        "time": "2026-10-23T18:23:47Z",
+        "sourceName": "goldapi_spot + yahoo_gc_futures (2-source)",
+        "topic": "Gold",
+        "summary": "Gold 2-source witness CORROBORATED (C=0.98, P=0.83)",
+        "reliability": "CORROBORATED (C=0.98)",
+        "demo": false
+      },
+      {
+        "id": "m18-oil-eia-fred",
+        "time": "2026-10-23T18:23:47Z",
+        "sourceName": "eia.gov + fred.stlouisfed.org (2-source)",
+        "topic": "Oil",
+        "summary": "WTI / EIA petroleum inventory CORROBORATED (C=0.99, P=0.76)",
+        "reliability": "CORROBORATED (C=0.99)",
+        "demo": false
+      },
+      {
+        "id": "m18-macro-cot-single",
+        "time": "2026-10-23T18:23:47Z",
+        "sourceName": "cftc.gov (1 source -> UNKNOWN)",
+        "topic": "Macro",
+        "summary": "CFTC COT single-source report held as UNKNOWN per Two-Source Law",
+        "reliability": "UNKNOWN (1 source)",
+        "demo": false
+      }
+    ]
+  },
+  "newsroomStories": [
+    {
+      "id": "story-gold-2src",
+      "headlineFa": "تأیید دو‌منبعی قیمت طلا (اسپات و آتی COMEX) در چرخهٔ کاغذی",
+      "headlineEn": "Two-source Gold price corroborated across Spot & COMEX Futures",
+      "market": "GOLD",
+      "publishedAt": "2026-10-23T18:23:47Z",
+      "claimStrength": "STRONG",
+      "sourceIds": [
+        "src-goldapi_spot",
+        "src-yahoo_gc_futures"
+      ],
+      "marketImpactNoteFa": "امتیاز اعتبار C=0.98 · اولویت P=0.83",
+      "demo": false,
+      "status": "LIVE",
+      "conflictId": null
+    },
+    {
+      "id": "story-oil-2src",
+      "headlineFa": "گزارش موجودی نفت EIA و شاخص WTI در مسیر آزمایشی کاغذی (M13.1)",
+      "headlineEn": "EIA Weekly Petroleum & WTI corroborated on scratch paper track",
+      "market": "OIL",
+      "publishedAt": "2026-10-23T18:23:47Z",
+      "claimStrength": "MODERATE",
+      "sourceIds": [
+        "src-goldapi_spot",
+        "src-yahoo_gc_futures"
+      ],
+      "marketImpactNoteFa": "امتیاز اعتبار C=0.99 · فقط کاغذی (PAPER_ONLY)",
+      "demo": false,
+      "status": "STALE",
+      "conflictId": null
+    }
+  ]
+}
