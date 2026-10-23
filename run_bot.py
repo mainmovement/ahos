@@ -20,6 +20,12 @@ DESIGN NOTES FOR THE DEPLOYMENT TARGET (single user, laptop, Iran):
     never replays or drops messages.
 """
 from __future__ import annotations
+import sys as _sys
+try:
+    _sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+    _sys.stderr.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+except Exception:
+    pass
 
 import argparse
 import json
@@ -50,7 +56,10 @@ def load_dotenv(path: Path = ROOT / ".env") -> dict[str, str]:
         key, val = key.strip(), val.strip().strip('"').strip("'")
         if key:
             loaded[key] = val
-            os.environ.setdefault(key, val)
+            if val and (not os.environ.get(key) or key == "AHOS_GATEWAY_URL"):
+                os.environ[key] = val
+            else:
+                os.environ.setdefault(key, val)
     return loaded
 
 
