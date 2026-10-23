@@ -13,6 +13,8 @@ def test_m60_all_eight_stages_pass_in_shadow_paper_mode() -> None:
     assert res["overall_status"] == "SHADOW_PAPER_ACTIVE"
     assert res["stages_count"] == 8
     assert res["stages_passed"] == 8
+    assert res["mutation_rationale_fa"]
+    assert all("summary_fa" in stage for stage in res["stages"])
 
 
 def test_m60_triggers_automatic_rollback_on_safety_lock_or_drift_violation() -> None:

@@ -24,6 +24,22 @@ from core.safety_lock import guard_autonomous_write, verify_safety_lock
 PAPER_ONLY: bool = True
 LIVE_PROMOTION_ALLOWED: bool = False
 
+_STAGE_SUMMARY_FA: dict[str, str] = {
+    "M60.1_TELEMETRY_INGESTION": "تلهمتری ساک M13، درس‌های M49 و کالیبراسیون Brier M58 وارد شد",
+    "M60.2_DRIFT_BOTTLENECK_DETECTION": "گلوگاه کالیبراسیون جهت‌دهی و بهبود Brier کاندیدا شناسایی شد",
+    "M60.3_HYPOTHESIS_GENERATION": "فرضیه Regime-HMM + فیلتر نوسان ATR برای اسلات سایه تولید شد",
+    "M60.4_REPLAY_SANDBOX_BACKTEST": "بازپخش walk-forward پاک‌سازی‌شده در sandbox (DSR)",
+    "M60.5_TAIL_RISK_STRESS_TEST": "آزمون استرس رژیم و ریسک دنباله (M29)",
+    "M60.6_DEVILS_ADVOCATE_COUNCIL_GATE": "درگاه شورا با مخالفت اجباری وکیل مدافع شیطان",
+    "M60.7_SHADOW_PAPER_SLOT_ALLOCATION": "تخصیص اسلات سایه کاغذی (۰٪ سرمایه زنده)",
+    "M60.8_ROLLBACK_AND_SAFETY_LOCK_GUARD": "نگهبان قفل M70.6 و بازگشت خودکار در صورت انحراف",
+}
+
+
+def _summary_fa(stage_id: str, summary_en: str) -> str:
+    return _STAGE_SUMMARY_FA.get(stage_id, summary_en)
+
+
 ASTRA_STAGES: tuple[str, ...] = (
     "M60.1_TELEMETRY_INGESTION",
     "M60.2_DRIFT_BOTTLENECK_DETECTION",
@@ -185,6 +201,14 @@ def run_astra_evolution_cycle(
     )
 
     overall = "ROLLBACK_ENFORCED" if rollback_triggered else ("SHADOW_PAPER_ACTIVE" if s7_ok else "HOLD_FOR_REVIEW")
+    mutation_rationale = (
+        "Bounded Regime-HMM + ATR volatility filter candidate improves Brier calibration "
+        "under purged replay; shadow slot only (no live promotion)."
+    )
+    mutation_rationale_fa = (
+        "کاندیدای محدود Regime-HMM + فیلتر نوسان ATR کالیبراسیون Brier را در بازپخش پاک‌سازی‌شده "
+        "بهبود می‌دهد؛ فقط اسلات سایه کاغذی (بدون ارتقای زنده)."
+    )
     return {
         "schema": "ahos.astra_engine.v1",
         "generated_at": now_iso,
@@ -193,6 +217,8 @@ def run_astra_evolution_cycle(
         "real_trading": False,
         "live_promotion": False,
         "hypothesis_id": hypothesis_id,
+        "mutation_rationale": mutation_rationale,
+        "mutation_rationale_fa": mutation_rationale_fa,
         "overall_status": overall,
         "rollback_triggered": rollback_triggered,
         "safety_lock_status": lock_check["status"],
@@ -203,6 +229,7 @@ def run_astra_evolution_cycle(
                 "stage_id": s.stage_id,
                 "status": s.status,
                 "summary": s.summary,
+                "summary_fa": _summary_fa(s.stage_id, s.summary),
                 "metrics": s.metrics,
             }
             for s in stages
