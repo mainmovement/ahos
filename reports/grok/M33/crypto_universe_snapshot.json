@@ -1,0 +1,86 @@
+{
+  "schema": "ahos.crypto_full_universe.v1",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "live": false,
+  "total_indexed_universe": 12500,
+  "breakouts_screened": 3,
+  "eligible_gems_count": 2,
+  "vetoed_scam_count": 1,
+  "candidates": [
+    {
+      "symbol": "PEPE2-USDT",
+      "tier": "EMERGING_BREAKOUT_GEM",
+      "venue": "DEX_UNISWAP_V3",
+      "volume_surge_multiple": 8.4,
+      "price_change_24h_pct": 42.5,
+      "two_source_witness": "VERIFIED",
+      "m33_steps_passed": 24,
+      "m33_verdict": "ELIGIBLE_GEM",
+      "futures_long_short_eligible": true,
+      "discovery_reason_fa": "جهش حجم ۸.۴× روی DEX با شاهد دومنبعی؛ عبور کامل M33 (کاغذی).",
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "symbol": "SCAMCOIN-SOL",
+      "tier": "HIGH_RISK_VETOED",
+      "venue": "DEX_PUMPFUN",
+      "volume_surge_multiple": 15.0,
+      "price_change_24h_pct": 220.0,
+      "two_source_witness": "VERIFIED",
+      "m33_steps_passed": 3,
+      "m33_verdict": "VETOED_SCAM",
+      "futures_long_short_eligible": false,
+      "discovery_reason_fa": "جهش حجم مشکوک؛ وتوی M33 به‌دلیل نقض گام‌های امنیتی.",
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "symbol": "BTCUSDT",
+      "tier": "MEGA_CAP",
+      "venue": "CEX_AGG",
+      "volume_surge_multiple": 1.2,
+      "price_change_24h_pct": 1.8,
+      "two_source_witness": "VERIFIED",
+      "m33_steps_passed": 24,
+      "m33_verdict": "ELIGIBLE_GEM",
+      "futures_long_short_eligible": true,
+      "discovery_reason_fa": "مگا‌کپ شاخص؛ بدون رد M33 برای نمایش سطح (کاغذی).",
+      "paper_only": true,
+      "live": false
+    }
+  ],
+  "top_eligible_gems": [
+    {
+      "symbol": "PEPE2-USDT",
+      "tier": "EMERGING_BREAKOUT_GEM",
+      "venue": "DEX_UNISWAP_V3",
+      "volume_surge_multiple": 8.4,
+      "price_change_24h_pct": 42.5,
+      "two_source_witness": "VERIFIED",
+      "m33_steps_passed": 24,
+      "m33_verdict": "ELIGIBLE_GEM",
+      "futures_long_short_eligible": true,
+      "discovery_reason_fa": "جهش حجم ۸.۴× روی DEX با شاهد دومنبعی؛ عبور کامل M33 (کاغذی).",
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "symbol": "BTCUSDT",
+      "tier": "MEGA_CAP",
+      "venue": "CEX_AGG",
+      "volume_surge_multiple": 1.2,
+      "price_change_24h_pct": 1.8,
+      "two_source_witness": "VERIFIED",
+      "m33_steps_passed": 24,
+      "m33_verdict": "ELIGIBLE_GEM",
+      "futures_long_short_eligible": true,
+      "discovery_reason_fa": "مگا‌کپ شاخص؛ بدون رد M33 برای نمایش سطح (کاغذی).",
+      "paper_only": true,
+      "live": false
+    }
+  ],
+  "generated_at": "2026-10-23T20:01:31Z"
+}
