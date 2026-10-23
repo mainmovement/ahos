@@ -115,6 +115,33 @@ def test_nightly_digest_exporter_writes_m31_snapshot(tmp_path, monkeypatch) -> N
     assert "خلاصهٔ اجرایی شبانه" in (grok / "M31" / "nightly_digest_fa.md").read_text(encoding="utf-8")
 
 
+def test_comprehensive_nightly_digest_includes_golden_intel_sections() -> None:
+    text = build_comprehensive_nightly_digest_fa(
+        day="2026-10-23",
+        trades=1,
+        pnl_usd=0.5,
+        macro_overlays={
+            "gold_macro_bias": "BULLISH_TAILWIND",
+            "oil_macro_bias": "BULLISH_TAILWIND",
+            "macro_summary_fa": "خلاصهٔ کلان آزمایشی",
+        },
+        strategy_red_team={
+            "survived_count": 2,
+            "vetoed_count": 1,
+            "top_survivor_verdict_fa": "تأیید تیم قرمز",
+        },
+        teaching_journal={
+            "lessons_count": 4,
+            "journal_entries_count": 3,
+            "latest_lesson_title_fa": "درس آزمایشی",
+            "latest_key_takeaway_fa": "نکتهٔ آزمایشی",
+        },
+    )
+    assert "قطب‌نمای کلان" in text
+    assert "تیم قرمز" in text
+    assert "M65" in text
+
+
 def test_comprehensive_nightly_digest_fa_uses_injected_snapshots() -> None:
     text = build_comprehensive_nightly_digest_fa(
         day="2026-10-23",

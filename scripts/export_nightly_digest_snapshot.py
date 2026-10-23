@@ -36,6 +36,9 @@ def main() -> int:
     multi_market = _read_json(ROOT / "reports" / "grok" / "M19" / "multi_market_snapshot.json")
     tournament = _read_json(ROOT / "reports" / "grok" / "M56" / "tournament_snapshot.json")
     astra = _read_json(ROOT / "reports" / "grok" / "M60" / "astra_snapshot.json")
+    macro_overlays = _read_json(ROOT / "reports" / "grok" / "M19" / "macro_overlays_snapshot.json")
+    strategy_red_team = _read_json(ROOT / "reports" / "grok" / "M56" / "strategy_red_team_snapshot.json")
+    teaching_journal = _read_json(ROOT / "reports" / "grok" / "M65" / "teaching_journal_snapshot.json")
 
     trades = 0
     pnl = 0.0
@@ -52,6 +55,9 @@ def main() -> int:
         multi_market=multi_market,
         tournament=tournament,
         astra=astra,
+        macro_overlays=macro_overlays,
+        strategy_red_team=strategy_red_team,
+        teaching_journal=teaching_journal,
     )
 
     out_dir = ROOT / "reports" / "grok" / "M31"
@@ -73,6 +79,9 @@ def main() -> int:
             "multi_market": "reports/grok/M19/multi_market_snapshot.json",
             "tournament": "reports/grok/M56/tournament_snapshot.json",
             "astra": "reports/grok/M60/astra_snapshot.json",
+            "macro_overlays": "reports/grok/M19/macro_overlays_snapshot.json",
+            "strategy_red_team": "reports/grok/M56/strategy_red_team_snapshot.json",
+            "teaching_journal": "reports/grok/M65/teaching_journal_snapshot.json",
         },
         "inputs_present": {
             "gold_soak": gold_soak is not None,
@@ -80,6 +89,9 @@ def main() -> int:
             "multi_market": multi_market is not None,
             "tournament": tournament is not None,
             "astra": astra is not None,
+            "macro_overlays": macro_overlays is not None,
+            "strategy_red_team": strategy_red_team is not None,
+            "teaching_journal": teaching_journal is not None,
         },
         "paper_trades": trades,
         "paper_pnl_usd": pnl,

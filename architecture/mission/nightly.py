@@ -37,6 +37,9 @@ def build_comprehensive_nightly_digest_fa(
     multi_market: Mapping[str, Any] | None = None,
     tournament: Mapping[str, Any] | None = None,
     astra: Mapping[str, Any] | None = None,
+    macro_overlays: Mapping[str, Any] | None = None,
+    strategy_red_team: Mapping[str, Any] | None = None,
+    teaching_journal: Mapping[str, Any] | None = None,
 ) -> str:
     """Persian executive digest for M31/M35.4 (backward-compatible; optional snapshot inputs)."""
     base = render_fa(day=day, trades=trades, pnl_usd=pnl_usd)
@@ -78,4 +81,50 @@ def build_comprehensive_nightly_digest_fa(
         f"- آسترا M60: وضعیت سایه {astra_status} — بدون ارتقای زنده.",
         "- یادآوری: نمونهٔ کوتاه ≠ لبهٔ ثابت‌شده؛ live=false.",
     ]
+
+    if macro_overlays:
+        gold_bias = macro_overlays.get("gold_macro_bias", "UNKNOWN")
+        oil_bias = macro_overlays.get("oil_macro_bias", "UNKNOWN")
+        summary_fa = str(macro_overlays.get("macro_summary_fa") or "").strip()
+        lines.extend(
+            [
+                "",
+                "## قطب‌نمای کلان طلا و نفت (Macro Overlays)",
+                f"- طلا: {gold_bias} | نفت WTI: {oil_bias}",
+            ]
+        )
+        if summary_fa:
+            lines.append(f"- {summary_fa}")
+
+    if strategy_red_team:
+        survived = strategy_red_team.get("survived_count", "—")
+        vetoed = strategy_red_team.get("vetoed_count", "—")
+        verdict_fa = str(strategy_red_team.get("top_survivor_verdict_fa") or "").strip()
+        lines.extend(
+            [
+                "",
+                "## گزارش تیم قرمز استراتژی‌ها (۲×/۳× استرس هزینه)",
+                f"- نتیجه: {survived} SURVIVED / {vetoed} VETO (PAPER_ONLY، بدون auto_promote).",
+            ]
+        )
+        if verdict_fa:
+            lines.append(f"- {verdict_fa}")
+
+    if teaching_journal:
+        title_fa = str(teaching_journal.get("latest_lesson_title_fa") or "").strip()
+        takeaway_fa = str(teaching_journal.get("latest_key_takeaway_fa") or "").strip()
+        lessons_n = teaching_journal.get("lessons_count", "—")
+        journal_n = teaching_journal.get("journal_entries_count", "—")
+        lines.extend(
+            [
+                "",
+                "## درس روز و ژورنال تصمیم هومن (M65 Teaching Mode)",
+                f"- درس‌های ثبت‌شده: {lessons_n} · ورودی ژورنال: {journal_n}",
+            ]
+        )
+        if title_fa:
+            lines.append(f"- عنوان: {title_fa}")
+        if takeaway_fa:
+            lines.append(f"- نکتهٔ کلیدی: {takeaway_fa}")
+
     return base + "\n".join(lines) + "\n"
