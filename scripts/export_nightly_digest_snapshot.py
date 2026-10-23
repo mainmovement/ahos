@@ -44,6 +44,7 @@ def main() -> int:
     science_pipeline = _read_json(ROOT / "reports" / "grok" / "M57" / "science_to_desk_pipeline_snapshot.json")
     aci_agi_si_brain = _read_json(ROOT / "reports" / "grok" / "M60" / "aci_agi_si_brain_snapshot.json")
     whole_ahos_organs = _read_json(ROOT / "reports" / "grok" / "M57" / "whole_ahos_organ_evolution.json")
+    autonomous_coder = _read_json(ROOT / "reports" / "grok" / "M60" / "autonomous_coder_snapshot.json")
 
     trades = 0
     pnl = 0.0
@@ -68,6 +69,7 @@ def main() -> int:
         science_pipeline=science_pipeline,
         aci_agi_si_brain=aci_agi_si_brain,
         whole_ahos_organs=whole_ahos_organs,
+        autonomous_coder=autonomous_coder,
     )
 
     out_dir = ROOT / "reports" / "grok" / "M31"

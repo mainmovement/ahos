@@ -182,6 +182,27 @@ def test_comprehensive_nightly_digest_includes_aci_brain_and_organs() -> None:
     assert "8/8" in text
 
 
+def test_comprehensive_nightly_digest_includes_four_brain_autonomous_coder() -> None:
+    text = build_comprehensive_nightly_digest_fa(
+        day="2026-10-24",
+        trades=1,
+        pnl_usd=0.0,
+        autonomous_coder={
+            "bridge_port_8787_status": "OFFLINE",
+            "m70_6_safety_lock_status": "LOCKED_CLEAN",
+            "four_brain_engine": {
+                "brain_2_local_oss_tier": "8GB_SAFE_API_OFFLOAD",
+                "brain_3_sandbox_verifier": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+                "brain_4_memory_science_context": 2,
+                "synthesized_patches_verified": 1,
+                "persian_briefs_generated": 1,
+            },
+        },
+    )
+    assert "۴ مغز کدنویس" in text
+    assert "M60.C" in text
+
+
 def test_update_exam_skill_and_inbox():
     assert propose(expected_hash="a", actual_hash="b", cve=False, rollback="revert").accepted is False
     assert propose(expected_hash="a", actual_hash="a", cve=True, rollback="revert").lockfile_changed is False

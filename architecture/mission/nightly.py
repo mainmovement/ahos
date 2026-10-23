@@ -45,6 +45,7 @@ def build_comprehensive_nightly_digest_fa(
     science_pipeline: Mapping[str, Any] | None = None,
     aci_agi_si_brain: Mapping[str, Any] | None = None,
     whole_ahos_organs: Mapping[str, Any] | None = None,
+    autonomous_coder: Mapping[str, Any] | None = None,
 ) -> str:
     """Persian executive digest for M31/M35.4 (backward-compatible; optional snapshot inputs)."""
     base = render_fa(day=day, trades=trades, pnl_usd=pnl_usd)
@@ -169,6 +170,22 @@ def build_comprehensive_nightly_digest_fa(
                 "## خط لولهٔ علم → پژوهشکده → AHOS → دانشگاه (M57)",
                 f"- منابع جهانی: {science_pipeline.get('sources_count', '—')} · میزهای آموزش‌دیده: {science_pipeline.get('desks_trained', '—')}",
                 f"- مراحل: scouts={len(stages.get('scouts') or [])} · research={len(stages.get('research_institute') or [])} · applied={len(stages.get('ahos_applied') or [])}",
+            ]
+        )
+
+    if autonomous_coder:
+        eng = autonomous_coder.get("four_brain_engine") or {}
+        lines.extend(
+            [
+                "",
+                "## معماری ۴ مغز کدنویس، خوددیباگ‌کن و نویسنده داخلی (M60.C)",
+                f"- مغز ۱ (پل :8787): {autonomous_coder.get('bridge_port_8787_status', '—')} · "
+                f"مغز ۲ (OSS): {eng.get('brain_2_local_oss_tier', '—')} · "
+                f"مغز ۳ (سندباکس): {eng.get('brain_3_sandbox_verifier', '—')}.",
+                f"- مغز ۴ (حافظه/علم): {eng.get('brain_4_memory_science_context', '—')} بلوک زمینه.",
+                f"- پچ‌های تأییدشده: {eng.get('synthesized_patches_verified', '—')} · "
+                f"خلاصهٔ فارسی: {eng.get('persian_briefs_generated', '—')} · "
+                f"قفل M70.6: {autonomous_coder.get('m70_6_safety_lock_status', '—')}.",
             ]
         )
 
