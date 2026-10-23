@@ -1,0 +1,77 @@
+{
+  "schema": "ahos.macro_overlays.v1",
+  "generated_at": "2026-10-23T19:25:50Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "gold_macro_bias": "BULLISH_TAILWIND",
+  "oil_macro_bias": "BULLISH_TAILWIND",
+  "macro_summary_fa": "قطب‌نمای کلان (Macro Overlay): وضعیت طلا = BULLISH_TAILWIND (عقب‌نشینی شاخص دلار DXY و بهرهٔ حقیقی ۱۰ساله DFII10 همراه با موقعیت متعادل صندوق‌ها در CFTC COT) | وضعیت نفت WTI = BULLISH_TAILWIND (کاهش 2.4 میلیون بشکه‌ای موجودی هفتگی EIA).",
+  "factors_count": 4,
+  "factors": [
+    {
+      "factor_id": "DXY_USD_INDEX",
+      "name_en": "US Dollar Index (DXY / Broad Trade-Weighted USD)",
+      "name_fa": "شاخص دلار آمریکا (DXY)",
+      "value": 103.85,
+      "unit": "index",
+      "change_zscore": -0.65,
+      "sources": [
+        "fred_dtwexbgs",
+        "stooq_dx_f"
+      ],
+      "corroborated": true,
+      "impact_on_gold": "TAILWIND",
+      "impact_on_oil": "TAILWIND",
+      "note_fa": "تغییر شاخص دلار (-0.65z) پشتیبان رشد (Tailwind) برای طلا و کالاهاست."
+    },
+    {
+      "factor_id": "US_10Y_REAL_YIELD_DFII10",
+      "name_en": "US 10-Year TIPS Real Yield (FRED DFII10)",
+      "name_fa": "نرخ بهرهٔ حقیقی ۱۰سالهٔ آمریکا (DFII10)",
+      "value": 1.82,
+      "unit": "%",
+      "change_zscore": -0.55,
+      "sources": [
+        "fred_dfii10",
+        "treasury_gov_tips"
+      ],
+      "corroborated": true,
+      "impact_on_gold": "TAILWIND",
+      "impact_on_oil": "NEUTRAL",
+      "note_fa": "نرخ بهرهٔ حقیقی 1.82% (-0.55z) هزینهٔ فرصت نگهداری طلا را کاهش داده است."
+    },
+    {
+      "factor_id": "CFTC_COT_POSITIONING",
+      "name_en": "CFTC Commitment of Traders Managed Money Percentile",
+      "name_fa": "موقعیت خالص صندوق‌ها در گزارش CFTC COT",
+      "value": 68.0,
+      "unit": "percentile",
+      "change_zscore": 0.72,
+      "sources": [
+        "cftc_gov_disaggregated",
+        "cftc_gov_legacy"
+      ],
+      "corroborated": true,
+      "impact_on_gold": "TAILWIND",
+      "impact_on_oil": "TAILWIND",
+      "note_fa": "صدک موقعیت صندوق‌ها در طلا روی 68% است (بدون اشباع خرید خطرناک بالای ۹۰٪)."
+    },
+    {
+      "factor_id": "EIA_WEEKLY_CRUDE_SURPRISE",
+      "name_en": "EIA Weekly US Crude Inventory Surprise (Mbbl)",
+      "name_fa": "غافلگیری موجودی هفتگی نفت خام آمریکا (EIA)",
+      "value": -2.4,
+      "unit": "Mbbl",
+      "change_zscore": -1.6,
+      "sources": [
+        "eia_gov_weekly",
+        "fred_wcrstus1"
+      ],
+      "corroborated": true,
+      "impact_on_gold": "NEUTRAL",
+      "impact_on_oil": "TAILWIND",
+      "note_fa": "تغییر موجودی هفتگی نفت (-2.4 میلیون بشکه) نشان‌دهندهٔ کاهش عرضه و حمایت بنیادی از نفت WTI است."
+    }
+  ]
+}

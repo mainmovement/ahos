@@ -1,0 +1,160 @@
+{
+  "schema": "ahos.strategy_red_team.v1",
+  "generated_at": "2026-10-23T19:25:51Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "auto_promote": false,
+  "attack_vectors": [
+    "01_COST_STRESS_2X_3X",
+    "02_SINGLE_EVENT_DEPENDENCY",
+    "03_LOOKAHEAD_CANARY",
+    "04_REGIME_CONCENTRATION",
+    "05_PARAMETER_PERTURBATION_15PCT"
+  ],
+  "candidates_tested": 3,
+  "survived_count": 2,
+  "vetoed_count": 1,
+  "top_survivor_id": "strat-regime-hmm-v2",
+  "top_survivor_verdict_fa": "تأیید تیم قرمز (SURVIVED_RED_TEAM — 5/5): استراتژی «Forward-Filtered Regime HMM + ATR Stop (M24)» از هر ۵ حملهٔ استرس (کارمزد ۲ و ۳ برابر، حذف ۳ معاملهٔ برتر، قناری نشت آینده، تنوع رژیم و تغییر ±۱۵٪ پارامتر) با موفقیت عبور کرد (صرفاً کاغذی / PAPER_ONLY).",
+  "reports": [
+    {
+      "strategy_id": "strat-regime-hmm-v2",
+      "title": "Forward-Filtered Regime HMM + ATR Stop (M24)",
+      "verdict": "SURVIVED_RED_TEAM",
+      "vectors_passed": 5,
+      "vectors_total": 5,
+      "baseline_sharpe": 15.7072,
+      "sharpe_at_2x_cost": 12.8514,
+      "sharpe_at_3x_cost": 9.9955,
+      "ex_top3_net_return_pct": 1.4,
+      "red_team_verdict_fa": "تأیید تیم قرمز (SURVIVED_RED_TEAM — 5/5): استراتژی «Forward-Filtered Regime HMM + ATR Stop (M24)» از هر ۵ حملهٔ استرس (کارمزد ۲ و ۳ برابر، حذف ۳ معاملهٔ برتر، قناری نشت آینده، تنوع رژیم و تغییر ±۱۵٪ پارامتر) با موفقیت عبور کرد (صرفاً کاغذی / PAPER_ONLY).",
+      "paper_only": true,
+      "auto_promote": false,
+      "attacks": [
+        {
+          "vector_id": "01_COST_STRESS_2X_3X",
+          "passed": true,
+          "metric_summary": "sr_1x=15.71,sr_2x=12.85,sr_3x=10.00",
+          "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=12.85, 3x=10.00)."
+        },
+        {
+          "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+          "passed": true,
+          "metric_summary": "ex_top3_return_pct=+1.400%",
+          "critique_fa": "با حذف ۳ معاملهٔ برتر، بازده خالص همچنان مثبت است (+1.40%)؛ سود وابسته به یک رویداد تصادفی نیست."
+        },
+        {
+          "vector_id": "03_LOOKAHEAD_CANARY",
+          "passed": true,
+          "metric_summary": "lookahead_leak=False",
+          "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+        },
+        {
+          "vector_id": "04_REGIME_CONCENTRATION",
+          "passed": true,
+          "metric_summary": "positive_regimes=2,worst_regime_pct=-0.30%",
+          "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+        },
+        {
+          "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+          "passed": true,
+          "metric_summary": "sharpe_retention=0.88",
+          "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 88٪ از نسبت شارپ حفظ می‌شود."
+        }
+      ]
+    },
+    {
+      "strategy_id": "strat-multi-tf-confluence",
+      "title": "Multi-Timeframe Confluence (H4/H1/M15 + Two-Source Filter)",
+      "verdict": "SURVIVED_RED_TEAM",
+      "vectors_passed": 5,
+      "vectors_total": 5,
+      "baseline_sharpe": 13.5578,
+      "sharpe_at_2x_cost": 10.6074,
+      "sharpe_at_3x_cost": 7.657,
+      "ex_top3_net_return_pct": 0.945,
+      "red_team_verdict_fa": "تأیید تیم قرمز (SURVIVED_RED_TEAM — 5/5): استراتژی «Multi-Timeframe Confluence (H4/H1/M15 + Two-Source Filter)» از هر ۵ حملهٔ استرس (کارمزد ۲ و ۳ برابر، حذف ۳ معاملهٔ برتر، قناری نشت آینده، تنوع رژیم و تغییر ±۱۵٪ پارامتر) با موفقیت عبور کرد (صرفاً کاغذی / PAPER_ONLY).",
+      "paper_only": true,
+      "auto_promote": false,
+      "attacks": [
+        {
+          "vector_id": "01_COST_STRESS_2X_3X",
+          "passed": true,
+          "metric_summary": "sr_1x=13.56,sr_2x=10.61,sr_3x=7.66",
+          "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=10.61, 3x=7.66)."
+        },
+        {
+          "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+          "passed": true,
+          "metric_summary": "ex_top3_return_pct=+0.945%",
+          "critique_fa": "با حذف ۳ معاملهٔ برتر، بازده خالص همچنان مثبت است (+0.94%)؛ سود وابسته به یک رویداد تصادفی نیست."
+        },
+        {
+          "vector_id": "03_LOOKAHEAD_CANARY",
+          "passed": true,
+          "metric_summary": "lookahead_leak=False",
+          "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+        },
+        {
+          "vector_id": "04_REGIME_CONCENTRATION",
+          "passed": true,
+          "metric_summary": "positive_regimes=2,worst_regime_pct=-0.40%",
+          "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+        },
+        {
+          "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+          "passed": true,
+          "metric_summary": "sharpe_retention=0.84",
+          "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 84٪ از نسبت شارپ حفظ می‌شود."
+        }
+      ]
+    },
+    {
+      "strategy_id": "strat-overfit-scalper-fragile",
+      "title": "High-Churn 1m Scalper (Fragile Under 2x/3x Slippage & Top-3 Removal)",
+      "verdict": "VETOED_FRAGILE",
+      "vectors_passed": 1,
+      "vectors_total": 5,
+      "baseline_sharpe": 2.4822,
+      "sharpe_at_2x_cost": -0.4964,
+      "sharpe_at_3x_cost": -3.475,
+      "ex_top3_net_return_pct": -2.24,
+      "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «High-Churn 1m Scalper (Fragile Under 2x/3x Slippage & Top-3 Removal)» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+      "paper_only": true,
+      "auto_promote": false,
+      "attacks": [
+        {
+          "vector_id": "01_COST_STRESS_2X_3X",
+          "passed": false,
+          "metric_summary": "sr_1x=2.48,sr_2x=-0.50,sr_3x=-3.48",
+          "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-0.50, 3x=-3.48)."
+        },
+        {
+          "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+          "passed": false,
+          "metric_summary": "ex_top3_return_pct=-2.240%",
+          "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-2.24%)؛ خطر وابستگی به تک‌رویداد."
+        },
+        {
+          "vector_id": "03_LOOKAHEAD_CANARY",
+          "passed": true,
+          "metric_summary": "lookahead_leak=False",
+          "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+        },
+        {
+          "vector_id": "04_REGIME_CONCENTRATION",
+          "passed": false,
+          "metric_summary": "positive_regimes=1,worst_regime_pct=-3.40%",
+          "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-3.40%)."
+        },
+        {
+          "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+          "passed": false,
+          "metric_summary": "sharpe_retention=0.42",
+          "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "schema": "ahos.nightly_digest.v1",
   "kind": "nightlyDigest",
-  "generated_at": "2026-10-23T19:17:53Z",
+  "generated_at": "2026-10-23T19:25:51Z",
   "day": "2026-10-23",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",

@@ -1,0 +1,33 @@
+{
+  "schema": "ahos.portable_migration_pack.v1",
+  "generated_at": "2026-10-23T19:25:51Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "portable_ready": true,
+  "dynamic_root_resolved": "G:\\robat",
+  "drive_or_mount": "G:",
+  "zero_c_drive_dependency": true,
+  "hardware": {
+    "platform": "Windows",
+    "ram_gb": 7.93,
+    "cpu_cores": 4,
+    "auto_tier": "TIER_8GB_SAFE",
+    "arena_quality_default": "low",
+    "heavy_features_allowed": false,
+    "max_pytest_files_per_invocation": 2,
+    "allow_local_next_build": false,
+    "description_fa": "حالت ایمن ۸ گیگابایت (TIER_8GB_SAFE): غیرفعال‌سازی بیلدهای سنگین محلی و اجرای سبک بدون فریز."
+  },
+  "safety_verification": {
+    "m70_6_safety_lock": "LOCKED_CLEAN",
+    "verified_files_count": 8,
+    "hold_flag_ahos": true,
+    "hold_flag_arena": true
+  },
+  "migration_steps_fa": [
+    "۱. پوشهٔ کامل robat را روی هر درایو دلخواه در سیستم مقصد (مثلاً D:\\robat یا G:\\robat) کپی کنید (بدون هیچ وابستگی به درایو C).",
+    "۲. اسکریپت Verify-PortableMigration.ps1 را اجرا کنید تا به صورت خودکار مقدار رم سیستم جدید را تشخیص داده و سطح سخت‌افزاری (8GB Safe / 16GB Balanced / 32GB Ultra) و قفل‌های ایمنی M70.6 را تنظیم کند.",
+    "۳. با اجرای AHOS_LightStart.ps1 داشبورد Arena روی پورت 3200 و موتور کاغذی طلا با همان تاریخچهٔ زنجیره‌ای بدون نیاز به نصب مجدد بالا می‌آیند."
+  ]
+}
