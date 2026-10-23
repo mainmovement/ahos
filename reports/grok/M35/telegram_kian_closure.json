@@ -1,0 +1,28 @@
+{
+  "schema": "ahos.m35_telegram_kian_closure.v1",
+  "generated_at": "2026-10-23T19:54:09Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "status": "VERIFIED_CONFIGURED",
+  "token_redacted": true,
+  "bridge_mode": "CONFIGURED_TOKEN_AND_ARENA_KIAN_ACTIVE",
+  "m35_sub_missions": {
+    "M35.1_kian_core_and_audit_chain": "DONE",
+    "M35.2_arena_kian_bilingual_ui": "DONE",
+    "M35.3_telegram_bridge_and_token_config": "DONE",
+    "M35.4_persian_nightly_digest": "DONE",
+    "M35.5_human_gate_command_inbox": "DONE"
+  },
+  "credentials_audit": {
+    "telegram_bot_token_present": true,
+    "telegram_bot_token_length": 46,
+    "telegram_bot_token_format_valid": true,
+    "telegram_bot_token_fingerprint": "sha256:0f3db27e51f3",
+    "allowed_chat_ids_count": 1,
+    "gateway_hmac_secret_present": true,
+    "telegram_service_module_present": true,
+    "raw_secrets_exposed": false
+  },
+  "summary_fa": "مأموریت M35.3 (پل تلگرام و دستیار دوزبانهٔ کیان) به‌طور کامل تأیید شد: توکن تلگرام و شناسه‌های مجاز چت در محیط محلی بدون افشای هیچ کلید محرمانه‌ای شناسایی شدند و کانال داخلی /arena/kian نیز به‌عنوان مسیر ارتباطی زنده و بدون وابستگی خارجی فعال است."
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "ahos.m10_db_migration_closure.v1",
+  "generated_at": "2026-10-23T19:54:09Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "status": "DONE",
+  "stages_completed": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "active_backend": "local_canonical_sqlite_pglite",
+  "env_database_url_configured": true,
+  "docker_daemon_required": false,
+  "stages": {
+    "stage_1_canonical_schema_ddl": "DONE",
+    "stage_2_pglite_and_sqlite_init": "DONE",
+    "stage_3_canonical_read_model_parity": "DONE",
+    "stage_4_local_canonical_db_switch": "DONE",
+    "stage_5_docker_free_soak_and_arena": "DONE"
+  },
+  "summary_fa": "مأموریت M10 (مراحل ۱ تا ۵ مهاجرت پایگاه‌داده و حذف وابستگی به داکر سنگین) به‌طور کامل تکمیل شد: ذخیره‌سازهای محلی SQLite/JSONL و PGlite بدون نیاز به اجرای سرویس سنگین Docker روی رم ۸ گیگابایت فعال و همگام هستند."
+}

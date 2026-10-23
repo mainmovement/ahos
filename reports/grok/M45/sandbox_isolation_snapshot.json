@@ -1,0 +1,15 @@
+{
+  "schema": "ahos.m45_sandbox_isolation.v1",
+  "generated_at": "2026-10-23T19:54:09Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "status": "ENFORCED_CLEAN",
+  "subprocess_spawn_blocked": true,
+  "env_write_blocked": true,
+  "safety_file_write_blocked": true,
+  "m70_6_safety_lock_status": "LOCKED_CLEAN",
+  "network_policy": "LOOPBACK_127_0_0_1_ONLY",
+  "windows_admin_prompt_required": false,
+  "summary_fa": "مأموریت M45 (قرنطینه و ایزولاسیون آزمایشگاه) در سطح کد و هستهٔ اجرایی به‌طور کامل قفل و تأیید شد: هرگونه ایجاد پردازش فرزند (Subprocess Spawn)، تغییر فایل‌های ایمنی یا .env و دسترسی شبکهٔ غیرمحلی مسدود است."
+}
