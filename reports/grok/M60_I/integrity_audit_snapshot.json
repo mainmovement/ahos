@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "mission_id": "M60.I",
+  "generated_at": "2026-10-23T22:21:17Z",
+  "status": "GREEN",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "overall_integrity_pct": 95.0,
+  "snapshots_audited": 76,
+  "snapshots_healthy": 61,
+  "pages_audited": 36,
+  "pages_clean_live": 36,
+  "kian_gateway_ready": true,
+  "telegram_bot_ready": true,
+  "hold_flags_intact": true,
+  "hold_flags_count": 16,
+  "checks": [
+    {
+      "id": "snapshots",
+      "status": "GREEN"
+    },
+    {
+      "id": "arena_pages",
+      "status": "GREEN"
+    },
+    {
+      "id": "kian_gateway",
+      "status": "GREEN"
+    },
+    {
+      "id": "hold_flags",
+      "status": "GREEN"
+    },
+    {
+      "id": "organ_telemetry",
+      "status": "GREEN"
+    }
+  ],
+  "summary_fa": "ممیزی یکپارچگی M60.I: 95.0% — 61 snapshot سالم از 76 · 36 صفحهٔ تمیز · HOLD.flag=16 · PAPER_ONLY فعال؛ معاملهٔ واقعی قفل.",
+  "detail": {
+    "snapshots_audited": 76,
+    "snapshots_healthy": 61,
+    "snapshot_issues": [
+      "parse:heartbeat.json:JSONDecodeError",
+      "parse:infra_state.json:JSONDecodeError",
+      "parse:startup_reconciliation.json:JSONDecodeError",
+      "parse:state.json:JSONDecodeError",
+      "parse:ap_M10.json:JSONDecodeError",
+      "parse:ap_M10_1.json:JSONDecodeError",
+      "parse:ap_M11_3.json:JSONDecodeError",
+      "parse:ap_M11_4.json:JSONDecodeError",
+      "parse:ap_M12.json:JSONDecodeError",
+      "parse:ap_M13.json:JSONDecodeError",
+      "parse:ap_M34.json:JSONDecodeError",
+      "parse:ap_M35_1.json:JSONDecodeError",
+      "parse:ap_M42.json:JSONDecodeError",
+      "parse:ap_M43.json:JSONDecodeError",
+      "parse:ap_M48_1.json:JSONDecodeError"
+    ],
+    "pages_audited": 36,
+    "pages_clean_live": 36,
+    "demo_placeholder_hits": [],
+    "kian_gateway_ready": true,
+    "telegram_bot_ready": true,
+    "run_bot_utf8_guard": true,
+    "hold_flags_intact": true,
+    "hold_flags_count": 16,
+    "eight_organ_telemetry_path": "G:\\robat\\ahos\\reports\\grok\\M60\\organ_telemetry_audit.json",
+    "organ_telemetry_exists": true
+  }
+}

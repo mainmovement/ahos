@@ -82,6 +82,17 @@ def main() -> int:
     out_path = out_dir / "multi_market_snapshot.json"
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"wrote {out_path} desks={len(DESK_SPECS)} instruments={len(cycles)}")
+
+    from architecture.autonomy.whole_project_integrity_auditor import export_integrity_audit_snapshot
+
+    integrity_out = ROOT / "reports" / "grok" / "M60_I" / "integrity_audit_snapshot.json"
+    integrity = export_integrity_audit_snapshot(integrity_out, ahos_root=ROOT)
+    assets_copy = Path(r"G:\robat\ahos_assets\m60_i_integrity_audit_snapshot.json")
+    if assets_copy.parent.is_dir():
+        assets_copy.write_text(
+            json.dumps(integrity, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+    print(f"m60_i_integrity pct={integrity.get('overall_integrity_pct')} status={integrity.get('status')}")
     return 0
 
 
