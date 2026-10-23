@@ -1,0 +1,27 @@
+{
+  "schema": "ahos.nightly_digest.v1",
+  "kind": "nightlyDigest",
+  "generated_at": "2026-10-23T19:17:53Z",
+  "day": "2026-10-23",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "sources": {
+    "gold_soak": "reports/grok/M13_SOAK/soak_status.json",
+    "oil_soak": "reports/grok/M13_OIL/oil_status.json",
+    "multi_market": "reports/grok/M19/multi_market_snapshot.json",
+    "tournament": "reports/grok/M56/tournament_snapshot.json",
+    "astra": "reports/grok/M60/astra_snapshot.json"
+  },
+  "inputs_present": {
+    "gold_soak": true,
+    "oil_soak": true,
+    "multi_market": true,
+    "tournament": true,
+    "astra": true
+  },
+  "paper_trades": 0,
+  "paper_pnl_usd": 0.0,
+  "digest_fa_path": "reports/grok/M31/nightly_digest_fa.md",
+  "digest_fa": "# Nightly 2026-10-23\ntrades: 0\npaper_pnl_usd: 0.0\nverdict: NO_PROVEN_EDGE\nlive: false\nیادداشت: این عدد کاغذی است و سود ثابت‌شده نیست.\n\n## خلاصهٔ اجرایی شبانه (M31 · M35.4)\n- طلا (M13): وضعیت ساک UNKNOWN — فقط کاغذی.\n- نفت (M13.1): وضعیت ساک UNKNOWN — فقط کاغذی.\n- میزهای M19: 13 نماد با شاهد VERIFIED از 7 میز (قانون دو منبع).\n- تورنمنت M56: پیشتاز «Forward-Filtered Regime HMM + ATR Stop (M24)» (DSR=16.7525).\n- آسترا M60: وضعیت سایه SHADOW_PAPER_ACTIVE — بدون ارتقای زنده.\n- یادآوری: نمونهٔ کوتاه ≠ لبهٔ ثابت‌شده؛ live=false.\n"
+}

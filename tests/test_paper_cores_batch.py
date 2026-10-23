@@ -78,6 +78,43 @@ def test_crisis_halt_and_reports():
     assert "کاغذی" in render_fa(day="2026-10-18", trades=2, pnl_usd=3)
 
 
+def test_nightly_digest_exporter_writes_m31_snapshot(tmp_path, monkeypatch) -> None:
+    import json
+    from pathlib import Path
+
+    import scripts.export_nightly_digest_snapshot as exp
+
+    fake_root = tmp_path / "ahos"
+    grok = fake_root / "reports" / "grok"
+    (grok / "M13_SOAK").mkdir(parents=True)
+    (grok / "M19").mkdir(parents=True)
+    (grok / "M56").mkdir(parents=True)
+    (grok / "M60").mkdir(parents=True)
+    (grok / "M31").mkdir(parents=True)
+    (grok / "M13_SOAK" / "soak_status.json").write_text(
+        json.dumps({"status": "LIVE", "closed_trades": 2, "realized_pnl_usd": 1.25}),
+        encoding="utf-8",
+    )
+    (grok / "M19" / "multi_market_snapshot.json").write_text(
+        json.dumps({"desks_count": 7, "verified_instruments": 13}),
+        encoding="utf-8",
+    )
+    (grok / "M56" / "tournament_snapshot.json").write_text(
+        json.dumps({"leader_title": "Test", "leader_dsr": 1.1}),
+        encoding="utf-8",
+    )
+    (grok / "M60" / "astra_snapshot.json").write_text(
+        json.dumps({"overall_status": "SHADOW_PAPER_ACTIVE"}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(exp, "ROOT", fake_root)
+    assert exp.main() == 0
+    snap = json.loads((grok / "M31" / "nightly_digest_snapshot.json").read_text(encoding="utf-8"))
+    assert snap["schema"] == "ahos.nightly_digest.v1"
+    assert snap["paper_only"] is True
+    assert "خلاصهٔ اجرایی شبانه" in (grok / "M31" / "nightly_digest_fa.md").read_text(encoding="utf-8")
+
+
 def test_comprehensive_nightly_digest_fa_uses_injected_snapshots() -> None:
     text = build_comprehensive_nightly_digest_fa(
         day="2026-10-23",
