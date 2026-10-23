@@ -1,6 +1,6 @@
 {
   "schema": "ahos.token_hunter_24.v1",
-  "generated_at": "2026-10-23T19:02:09Z",
+  "generated_at": "2026-10-23T19:18:04Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -48,6 +48,7 @@
         "goplus"
       ],
       "veto_reasons": [],
+      "veto_reasons_fa": [],
       "paper_only": true,
       "live": false,
       "trades": false
@@ -65,6 +66,7 @@
         "rugcheck"
       ],
       "veto_reasons": [],
+      "veto_reasons_fa": [],
       "paper_only": true,
       "live": false,
       "trades": false
@@ -103,6 +105,29 @@
         "22_slippage_impact_cap:slippage_1k_bps=850.0",
         "23_oracle_reference_sanity:oracle_sanity_ok=False"
       ],
+      "veto_reasons_fa": [
+        "عدم توافق منابع امنیتی (CONFLICT یا غیر PASS) — source_conflict_or_non_pass",
+        "قرارداد هوشمند تأیید نشده — verified=False",
+        "شبیه‌سازی هانی‌پات ناموفق یا توکن تله — is_honeypot=True",
+        "مرجع mint هنوز فعال است — mint_renounced=False",
+        "مرجع freeze هنوز فعال است — freeze_disabled=False",
+        "تابع blacklist در قرارداد — has_blacklist=True",
+        "مالک پنهان یا پروکسی مشکوک — hidden_owner_or_proxy=True",
+        "مالیات خرید بالاتر از سقف — buy_tax_pct=12.00",
+        "مالیات فروش بالاتر از سقف — sell_tax_pct=45.00",
+        "مالیات قابل تغییر است — tax_modifiable=True",
+        "درصد LP قفل/سوزانده ناکافی — lp_locked_pct=10.0",
+        "مدت قفل LP ناکافی — lp_lock_days=7",
+        "نقدینگی USD زیر حداقل — liquidity_usd=12000",
+        "تمرکز دارندگان top10 بیش از حد — top10_holders_pct=78.5",
+        "موجودی سازنده بیش از سقف — creator_balance_pct=35.0",
+        "سابقه rug برای سازنده — creator_prior_rugs=3",
+        "عمر جفت معاملاتی کوتاه — pair_age_hours=2.5",
+        "نسبت حجم به نقدینگی غیرعادی — vol_liq_ratio=79.17",
+        "تنوع کیف پول یا شست‌وشوی معاملات مشکوک — unique_traders=14,wash_flag=True",
+        "اسلیپیج ۱k$ بالاتر از سقف — slippage_1k_bps=850.0",
+        "مرجع قیمت / اوراکل نامعتبر — oracle_sanity_ok=False"
+      ],
       "paper_only": true,
       "live": false,
       "trades": false
@@ -120,6 +145,10 @@
       "veto_reasons": [
         "02_two_source_security_witness:sources=1",
         "03_source_consensus_agreement:source_conflict_or_non_pass"
+      ],
+      "veto_reasons_fa": [
+        "قانون شاهد دومنبعی امنیتی: کمتر از دو منبع رایگان — sources=1",
+        "عدم توافق منابع امنیتی (CONFLICT یا غیر PASS) — source_conflict_or_non_pass"
       ],
       "paper_only": true,
       "live": false,

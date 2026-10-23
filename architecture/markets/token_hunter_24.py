@@ -17,6 +17,46 @@ ALLOWED_FREE_SOURCES: frozenset[str] = frozenset(
     {"goplus", "honeypotis", "dexscreener", "geckoterminal", "rugcheck"}
 )
 
+_VETO_REASON_FA: dict[str, str] = {
+    "01_free_source_policy": "سیاست منبع رایگان: منبع پولی یا ناشناخته رد شد",
+    "02_two_source_security_witness": "قانون شاهد دومنبعی امنیتی: کمتر از دو منبع رایگان",
+    "03_source_consensus_agreement": "عدم توافق منابع امنیتی (CONFLICT یا غیر PASS)",
+    "04_contract_verified": "قرارداد هوشمند تأیید نشده",
+    "05_no_honeypot_simulation": "شبیه‌سازی هانی‌پات ناموفق یا توکن تله",
+    "06_mint_authority_renounced": "مرجع mint هنوز فعال است",
+    "07_freeze_authority_disabled": "مرجع freeze هنوز فعال است",
+    "08_no_blacklist_function": "تابع blacklist در قرارداد",
+    "09_no_hidden_owner_or_proxy": "مالک پنهان یا پروکسی مشکوک",
+    "10_buy_tax_within_cap": "مالیات خرید بالاتر از سقف",
+    "11_sell_tax_within_cap": "مالیات فروش بالاتر از سقف",
+    "12_tax_immutable": "مالیات قابل تغییر است",
+    "13_lp_locked_or_burned_pct": "درصد LP قفل/سوزانده ناکافی",
+    "14_lp_lock_duration_days": "مدت قفل LP ناکافی",
+    "15_min_liquidity_usd": "نقدینگی USD زیر حداقل",
+    "16_top10_holders_concentration": "تمرکز دارندگان top10 بیش از حد",
+    "17_creator_balance_cap": "موجودی سازنده بیش از سقف",
+    "18_creator_no_prior_rugs": "سابقه rug برای سازنده",
+    "19_min_pair_age_hours": "عمر جفت معاملاتی کوتاه",
+    "20_volume_to_liquidity_bounds": "نسبت حجم به نقدینگی غیرعادی",
+    "21_wash_trade_wallet_diversity": "تنوع کیف پول یا شست‌وشوی معاملات مشکوک",
+    "22_slippage_impact_cap": "اسلیپیج ۱k$ بالاتر از سقف",
+    "23_oracle_reference_sanity": "مرجع قیمت / اوراکل نامعتبر",
+    "24_paper_only_execution_lock": "قفل اجرای کاغذی نقض شد",
+}
+
+
+def format_veto_reasons_fa(veto_reasons: Sequence[str]) -> list[str]:
+    """Deterministic Persian labels for M33 veto reason tokens (step_id:detail)."""
+    out: list[str] = []
+    for raw in veto_reasons:
+        text = str(raw)
+        step, detail = (text.split(":", 1) + [""])[:2] if ":" in text else (text, "")
+        step = step.strip()
+        label = _VETO_REASON_FA.get(step, f"رد مرحله {step}")
+        out.append(f"{label} — {detail}" if detail else label)
+    return out
+
+
 STEP_NAMES_24: tuple[str, ...] = (
     "01_free_source_policy",
     "02_two_source_security_witness",

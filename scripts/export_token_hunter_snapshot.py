@@ -11,7 +11,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from architecture.markets.token_hunter_24 import STEP_NAMES_24, screen_token_batch
+from architecture.markets.token_hunter_24 import (
+    STEP_NAMES_24,
+    format_veto_reasons_fa,
+    screen_token_batch,
+)
 
 
 def _utc_now() -> str:
@@ -45,6 +49,7 @@ def main() -> int:
                 "steps_total": v.steps_total,
                 "corroborated_sources": list(v.corroborated_sources),
                 "veto_reasons": list(v.veto_reasons),
+                "veto_reasons_fa": format_veto_reasons_fa(v.veto_reasons),
                 "paper_only": v.paper_only,
                 "live": v.live,
                 "trades": v.trades,

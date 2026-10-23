@@ -5,6 +5,7 @@ from architecture.markets.token_hunter_24 import (
     STEP_NAMES_24,
     default_token_hunter_fixtures,
     evaluate_token_24_steps,
+    format_veto_reasons_fa,
     screen_token_batch,
 )
 
@@ -26,6 +27,10 @@ def test_24_steps_defined_and_enforced() -> None:
 
     assert by_sym["RUGMEME"].state == "VETO_UNSAFE"
     assert len(by_sym["RUGMEME"].veto_reasons) >= 15
+    fa = format_veto_reasons_fa(by_sym["RUGMEME"].veto_reasons)
+    assert len(fa) == len(by_sym["RUGMEME"].veto_reasons)
+    assert all(isinstance(line, str) and len(line) > 0 for line in fa)
+    assert any("رد مرحله" in line or "—" in line for line in fa)
 
     assert by_sym["SINGLE_SRC_TOKEN"].state == "VETO_UNSAFE"
     assert any("02_two_source_security_witness" in reason for reason in by_sym["SINGLE_SRC_TOKEN"].veto_reasons)
