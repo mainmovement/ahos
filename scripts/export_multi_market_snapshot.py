@@ -11,7 +11,13 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from architecture.markets.multi_market_desks import DESK_SPECS, evaluate_all_desks
+from architecture.markets.multi_market_desks import (
+    DESK_SPECS,
+    REGIME_TAGS,
+    default_historical_regime_candles,
+    evaluate_all_desks,
+    summarize_regime_witness_win_rates,
+)
 
 
 def _utc_now() -> str:
@@ -46,6 +52,9 @@ def main() -> int:
         "desks_count": len(DESK_SPECS),
         "instruments_evaluated": len(cycles),
         "verified_instruments": sum(1 for c in cycles if c.witness.state == "VERIFIED"),
+        "regime_catalog": list(REGIME_TAGS),
+        "regime_replay_win_rates": summarize_regime_witness_win_rates(),
+        "historical_regime_candles": default_historical_regime_candles(),
         "desks": desks_summary,
         "instruments": [
             {
