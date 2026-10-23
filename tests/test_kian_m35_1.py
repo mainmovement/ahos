@@ -393,6 +393,25 @@ def test_tool_allowlist():
     print("✓ Tool allowlist test passed")
 
 
+def test_kian_evolution_brief_persian_brain_keywords(tmp_path: Path, monkeypatch):
+    """Owner questions about مغز/دیباگ/AGI cite 4-brain coder + pilot + missions (no live LLM)."""
+    monkeypatch.setattr(
+        "architecture.ai.kian_agent.chat_step",
+        lambda _req: {"ok": False, "status": "UNAVAILABLE"},
+    )
+    temp_path = tmp_path / "kian_audit_evolution.jsonl"
+    _cleanup(str(temp_path))
+    try:
+        kian = KianAgent(config=KianConfig(audit_store_path=str(temp_path)))
+        response = kian.process_message(channel="dashboard", user_id="owner", message="وضعیت مغز و دیباگ ACI چطور است؟")
+        assert response.intent == "evolution_brief"
+        assert "M60.C" in response.message or "۴گانه" in response.message or "8787" in response.message
+        assert "85/85" in response.message
+        assert "PAPER_ONLY" in response.message or "کاغذی" in response.message
+    finally:
+        _cleanup(str(temp_path))
+
+
 def test_gate_service_issue_with_code():
     """Test gate service issue_with_code returns raw code."""
     service = GateService()

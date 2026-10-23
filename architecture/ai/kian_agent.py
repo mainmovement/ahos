@@ -30,6 +30,7 @@ from architecture.ai.kian_tools import KianTools, InvalidToolError
 from architecture.ai.kian_rate_limit import RateLimiter
 from architecture.ai.kian_gate import GateService, GateServiceError
 from architecture.ai.kian_audit_store import KianAuditStore
+from architecture.ai.kian_evolution_brief import build_owner_evolution_brief_fa
 from architecture.ai.credential_store import WindowsCredentialManagerStore
 from ahos_org.registry import AgentRecord, AgentRegistry
 from ahos_org.models import MaturityLevel
@@ -257,6 +258,28 @@ class KianAgent:
             ]
             if len(recent_bursts) >= 5:  # Burst threshold
                 self._record_message_burst(channel, user_id_hash, [message])
+
+        evolution_brief = build_owner_evolution_brief_fa(message)
+        if evolution_brief:
+            self._record_event(
+                channel=channel,
+                user_id_hash=user_id_hash,
+                message_hash=message_hash,
+                action_type="evolution_brief",
+                tool_calls=[],
+                content=evolution_brief[:200],
+                taint_labels=["EVOLUTION_BRIEF"],
+            )
+            return KianResponse(
+                message=evolution_brief,
+                intent="evolution_brief",
+                evidence={"source": "M60.C_autonomous_coder_snapshot", "paper_only": True},
+                tool_calls=[],
+                gate_code=None,
+                timestamp=time.time(),
+                confidence=0.95,
+                raw_response=None,
+            )
 
         # Get context from memory
         context = self.memory.get_context(limit=5)
