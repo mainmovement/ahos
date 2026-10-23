@@ -1,6 +1,6 @@
 {
   "schema": "ahos.world_orchestrator_m36.v1",
-  "generated_at": "2026-10-23T19:18:06Z",
+  "generated_at": "2026-10-23T20:22:48Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -56,6 +56,23 @@
     "m64_negahban_security": {
       "overall_verdict": "CLEAN",
       "checks_count": 5
+    },
+    "m60_m70_aci_agi_si_brain": {
+      "current_stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+      "current_stage_title_fa": "مرحلهٔ ۲ — هوش توانمند خودمختار (ACI — Artificial Capable Intelligence)",
+      "compounding_capability_index": 42.97,
+      "day_1_agi_claimed": false,
+      "loops": {
+        "self_deciding": null,
+        "self_fault_finding": null,
+        "self_debugging": null,
+        "self_updating": null
+      }
+    },
+    "m57_whole_ahos_organs": {
+      "organs_covered_count": 8,
+      "trading_only": false,
+      "average_university_exam_score_pct": 94.1
     }
   }
 }

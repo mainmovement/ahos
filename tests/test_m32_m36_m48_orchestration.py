@@ -70,3 +70,10 @@ def test_m36_autonomous_world_orchestrator_end_to_end() -> None:
     assert subs["m56_tournament"]["auto_promote"] is False
     assert subs["m60_astra_engine"]["overall_status"] == "SHADOW_PAPER_ACTIVE"
     assert subs["m64_negahban_security"]["overall_verdict"] == "CLEAN"
+    brain = subs["m60_m70_aci_agi_si_brain"]
+    assert brain["day_1_agi_claimed"] is False
+    assert brain["compounding_capability_index"] is not None
+    assert brain["current_stage_id"]
+    organs = subs["m57_whole_ahos_organs"]
+    assert organs["organs_covered_count"] == 8
+    assert organs["trading_only"] is False

@@ -26,7 +26,9 @@ from architecture.markets.multi_market_desks import evaluate_all_desks
 from architecture.markets.news_desk import build_nightly_news_brief_fa, ingest_rss_feeds
 from architecture.markets.reconcile_bridge import reconcile_desk_states
 from architecture.markets.token_hunter_24 import screen_token_batch
+from architecture.cognitive.aci_agi_si_brain import run_aci_agi_si_evolution_cycle
 from architecture.security.negahban import run_whitehat_security_audit
+from architecture.university.whole_ahos_organ_evolution import build_whole_ahos_organ_evolution_snapshot
 from core.safety_lock import verify_safety_lock
 
 PAPER_ONLY: bool = True
@@ -89,6 +91,10 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
     # 10. Dependency Lock Audit (M48) & Negahban White-Hat Security Audit (M64)
     dep_audit = audit_dependency_locks(repo_root=repo)
     negahban = run_whitehat_security_audit(repo)
+
+    brain = run_aci_agi_si_evolution_cycle(root=repo)
+    organs = build_whole_ahos_organ_evolution_snapshot()
+    brain_loops = brain.get("loops") or {}
 
     all_healthy = (
         safety["ok"]
@@ -156,6 +162,31 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
             "m64_negahban_security": {
                 "overall_verdict": negahban["overall_verdict"],
                 "checks_count": len(negahban["checks"]),
+            },
+            "m60_m70_aci_agi_si_brain": {
+                "current_stage_id": brain.get("current_stage_id"),
+                "current_stage_title_fa": brain.get("current_stage_title_fa"),
+                "compounding_capability_index": brain.get("compounding_capability_index"),
+                "day_1_agi_claimed": brain.get("day_1_agi_claimed", False),
+                "loops": {
+                    "self_deciding": brain_loops.get("self_deciding", {}).get("status")
+                    if isinstance(brain_loops.get("self_deciding"), dict)
+                    else None,
+                    "self_fault_finding": brain_loops.get("self_fault_finding", {}).get("status")
+                    if isinstance(brain_loops.get("self_fault_finding"), dict)
+                    else None,
+                    "self_debugging": brain_loops.get("self_debugging", {}).get("status")
+                    if isinstance(brain_loops.get("self_debugging"), dict)
+                    else None,
+                    "self_updating": brain_loops.get("self_updating", {}).get("status")
+                    if isinstance(brain_loops.get("self_updating"), dict)
+                    else None,
+                },
+            },
+            "m57_whole_ahos_organs": {
+                "organs_covered_count": organs.get("organs_covered_count", 8),
+                "trading_only": organs.get("trading_only", False),
+                "average_university_exam_score_pct": organs.get("average_university_exam_score_pct"),
             },
         },
     }
