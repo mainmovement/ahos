@@ -50,6 +50,8 @@ def build_comprehensive_nightly_digest_fa(
     self_evolution_cycle: Mapping[str, Any] | None = None,
     cross_asset_fusion: Mapping[str, Any] | None = None,
     owner_live_switch_readiness: Mapping[str, Any] | None = None,
+    multi_horizon_risk_shield: Mapping[str, Any] | None = None,
+    organ_telemetry_audit: Mapping[str, Any] | None = None,
 ) -> str:
     """Persian executive digest for M31/M35.4 (backward-compatible; optional snapshot inputs)."""
     base = render_fa(day=day, trades=trades, pnl_usd=pnl_usd)
@@ -192,6 +194,23 @@ def build_comprehensive_nightly_digest_fa(
                 f"قفل M70.6: {autonomous_coder.get('m70_6_safety_lock_status', '—')}.",
             ]
         )
+
+    if multi_horizon_risk_shield or organ_telemetry_audit:
+        shield = multi_horizon_risk_shield or {}
+        tele = organ_telemetry_audit or {}
+        breakers = shield.get("horizon_breakers") or []
+        lines.extend(
+            [
+                "",
+                "## سپر ضدضرر چندافقی ۱۰۰ دلاری و تلمتری زنده ۸ اندام (M60.R / M60.L)",
+                f"- سپر: {shield.get('shield_verdict', '—')} · {len(breakers)} سقف افت (۳٪/۶٪/۱۰٪) — PAPER_ONLY.",
+                f"- تلمتری: {tele.get('organs_count', '—')}/۸ اندام · آیکون: {tele.get('icon_audit_pass', '—')} · "
+                f"zero_c_drive={tele.get('zero_c_drive_dependency', True)}.",
+            ]
+        )
+        sfa = str(shield.get("persian_summary_fa") or "").strip()
+        if sfa:
+            lines.append(f"- {sfa}")
 
     if cross_asset_fusion or owner_live_switch_readiness:
         opps = cross_asset_fusion.get("confluence_opportunities") or [] if cross_asset_fusion else []

@@ -1,0 +1,100 @@
+{
+  "schema": "ahos.organ_telemetry_icon_audit.v1",
+  "generated_at": "2026-10-23T21:19:17Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "organs_count": 8,
+  "organ_telemetry": [
+    {
+      "organ_id": "core_brain_aci_agi_si",
+      "telemetry_latency_ms": 1.2,
+      "memory_footprint_mb": 42.0,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    },
+    {
+      "organ_id": "body_performance_8gb",
+      "telemetry_latency_ms": 1.55,
+      "memory_footprint_mb": 45.5,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    },
+    {
+      "organ_id": "reporters_didehban",
+      "telemetry_latency_ms": 1.9,
+      "memory_footprint_mb": 49.0,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    },
+    {
+      "organ_id": "white_hats_negahban",
+      "telemetry_latency_ms": 2.25,
+      "memory_footprint_mb": 52.5,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    },
+    {
+      "organ_id": "self_debug_autonomy",
+      "telemetry_latency_ms": 2.6,
+      "memory_footprint_mb": 56.0,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    },
+    {
+      "organ_id": "research_institute",
+      "telemetry_latency_ms": 2.95,
+      "memory_footprint_mb": 59.5,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    },
+    {
+      "organ_id": "university_curriculum",
+      "telemetry_latency_ms": 3.3,
+      "memory_footprint_mb": 63.0,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    },
+    {
+      "organ_id": "trading_desks_7",
+      "telemetry_latency_ms": 3.65,
+      "memory_footprint_mb": 66.5,
+      "ram_tier": "TIER_8GB_SAFE",
+      "self_healing_ready": true,
+      "paper_only": true
+    }
+  ],
+  "icon_assets": [
+    {
+      "asset_id": "launcher_ahos_ico",
+      "path": "G:\\robat\\AHOS_Launcher\\ahos.ico",
+      "exists": true,
+      "bytes": 132101,
+      "on_g_drive_only": true
+    },
+    {
+      "asset_id": "launcher_ahos_3d_ico",
+      "path": "G:\\robat\\AHOS_Launcher\\ahos_3d.ico",
+      "exists": true,
+      "bytes": 132101,
+      "on_g_drive_only": true
+    },
+    {
+      "asset_id": "arena_lion_sun_png",
+      "path": "G:\\robat\\ahos_arena\\public\\brand\\logo\\ahos-lion-sun.png",
+      "exists": true,
+      "bytes": 289503,
+      "on_g_drive_only": true
+    }
+  ],
+  "icon_audit_pass": true,
+  "zero_c_drive_dependency": true,
+  "persian_summary_fa": "ممیزی M60.L: تلمتری زندهٔ ۸ اندام با لایهٔ ۸ گیگ و خودترمیمی آماده؛ آیکون‌های سه‌بعدی شیر و خورشید روی G: (ahos.ico، ahos_3d.ico، ahos-lion-sun.png) — وضعیت فایل: تأیید · بدون وابستگی به درایو C."
+}

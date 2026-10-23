@@ -91,6 +91,16 @@ EXPORT_STEPS: list[tuple[str, str, list[str]]] = [
         "scripts.export_owner_live_switch_readiness",
         ["reports/grok/M60/owner_live_switch_readiness.json"],
     ),
+    (
+        "M60_multi_horizon_risk_shield",
+        "scripts.export_multi_horizon_risk_shield",
+        ["reports/grok/M60/multi_horizon_risk_shield.json"],
+    ),
+    (
+        "M60_organ_telemetry_audit",
+        "scripts.export_organ_telemetry_audit",
+        ["reports/grok/M60/organ_telemetry_audit.json"],
+    ),
 ]
 
 

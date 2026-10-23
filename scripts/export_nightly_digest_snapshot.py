@@ -49,6 +49,8 @@ def main() -> int:
     self_evolution_cycle = _read_json(ROOT / "reports" / "grok" / "M60" / "self_evolution_cycle_snapshot.json")
     cross_asset_fusion = _read_json(ROOT / "reports" / "grok" / "M60" / "cross_asset_fusion_snapshot.json")
     owner_live_switch_readiness = _read_json(ROOT / "reports" / "grok" / "M60" / "owner_live_switch_readiness.json")
+    multi_horizon_risk_shield = _read_json(ROOT / "reports" / "grok" / "M60" / "multi_horizon_risk_shield.json")
+    organ_telemetry_audit = _read_json(ROOT / "reports" / "grok" / "M60" / "organ_telemetry_audit.json")
 
     trades = 0
     pnl = 0.0
@@ -78,6 +80,8 @@ def main() -> int:
         self_evolution_cycle=self_evolution_cycle,
         cross_asset_fusion=cross_asset_fusion,
         owner_live_switch_readiness=owner_live_switch_readiness,
+        multi_horizon_risk_shield=multi_horizon_risk_shield,
+        organ_telemetry_audit=organ_telemetry_audit,
     )
 
     out_dir = ROOT / "reports" / "grok" / "M31"

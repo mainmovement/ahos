@@ -1,6 +1,6 @@
 {
   "schema": "ahos.owner_live_switch_readiness.v1",
-  "generated_at": "2026-10-23T21:02:30Z",
+  "generated_at": "2026-10-23T21:19:17Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -8,8 +8,8 @@
   "gates": [
     {
       "gate_id": "GATE_1_MISSIONS_100_PCT",
-      "status": "RED",
-      "detail": "missions status not 100%"
+      "status": "GREEN",
+      "detail": "85/85 DONE (100%) verified · 0 CONFLICT"
     },
     {
       "gate_id": "GATE_2_RECONCILE_AND_SOAK",
@@ -37,11 +37,11 @@
       "detail": "hold_flag=True live_gateway_status=READY_LOCKED_BY_HOLD_FLAG"
     }
   ],
-  "gates_green_count": 5,
+  "gates_green_count": 6,
   "gates_total": 6,
   "owner_unlock_allowed": false,
   "live_gateway_status": "READY_LOCKED_BY_HOLD_FLAG",
   "hold_flag_active": true,
   "day_1_agi_claimed": false,
-  "persian_owner_guide_fa": "۶ قفل آمادگی حساب ۱۰۰ دلاری (M60.G): 5/۶ سبز — معاملهٔ واقعی هنوز قفل HOLD است؛ حتی با سبز بودن همهٔ قفل‌ها، فقط مهراد با حذف صریح HOLD.flag اجازهٔ لولهٔ زنده می‌گیرد. day_1_agi_claimed=false · PAPER_ONLY."
+  "persian_owner_guide_fa": "وضعیت ۶ قفل فنی آمادگی حساب ۱۰۰ دلاری (M60.G): 6/۶ GREEN (۶/۶ GREEN) — معاملهٔ واقعی همچنان پشت HOLD.flag قفل است (owner_unlock_allowed=false، PAPER_ONLY=true). حتی با ۶/۶ GREEN، فقط مهراد با حذف صریح HOLD.flag اجازهٔ لولهٔ زنده می‌گیرد. day_1_agi_claimed=false."
 }

@@ -1,10 +1,10 @@
 {
   "schema": "ahos.teaching_mode_m65.v1",
-  "generated_at": "2026-10-23T21:02:27Z",
+  "generated_at": "2026-10-23T21:19:15Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
-  "lessons_count": 6,
+  "lessons_count": 7,
   "journal_entries_count": 3,
   "glossary_count": 5,
   "latest_lesson_title_fa": "کالبدشکافی آموزشی ضرر کاغذی در GOLD (XAUUSD) — رژیم RANGE_CHOP",
@@ -108,12 +108,28 @@
         "Drawdown"
       ],
       "paper_only": true
+    },
+    {
+      "lesson_id": "m65-m60r-risk-shield",
+      "market": "PILOT_100USD",
+      "symbol": "M60.R",
+      "regime_tag": "MULTI_HORIZON_SHIELD",
+      "title_fa": "سپر ضدضرر چندافقی ۱۰۰ دلاری (۳٪ روزانه · ۶٪ هفتگی · ۱۰٪ ماهانه)",
+      "why_entered_fa": "قبل از هر برش LONG/SHORT با اهرم ۱۰×–۲۵×، سه سقف افت جداگانه از سرمایهٔ ۱۰۰ دلار محافظت می‌کند.",
+      "what_happened_fa": "هیچ سقفی در ساک زنده شکسته نشده؛ shield_verdict=ARMED_GREEN و ذخیرهٔ کیف پول ≥۴۰٪ حفظ شده است.",
+      "mistake_or_strength_fa": "نقطهٔ قوت: توقف خودکار و قرنطینهٔ کاغذی بدون نیاز به معاملهٔ واقعی.",
+      "key_takeaway_fa": "حد ضرر روزانه ۳٪، هفتگی ۶٪ و ماهانه ۱۰٪ — PAPER_ONLY تا اثبات لبه.",
+      "glossary_keys": [
+        "Drawdown",
+        "ATR"
+      ],
+      "paper_only": true
     }
   ],
   "hooman_journal": [
     {
       "journal_id": "hooman-jrnl-01",
-      "timestamp_iso": "2026-10-23T21:02:27Z",
+      "timestamp_iso": "2026-10-23T21:19:15Z",
       "market": "GOLD",
       "symbol": "XAUUSD",
       "decision_type": "PAPER_EXIT",
@@ -126,7 +142,7 @@
     },
     {
       "journal_id": "hooman-jrnl-02",
-      "timestamp_iso": "2026-10-23T21:02:27Z",
+      "timestamp_iso": "2026-10-23T21:19:15Z",
       "market": "OIL",
       "symbol": "WTI",
       "decision_type": "PAPER_ENTRY",
@@ -139,7 +155,7 @@
     },
     {
       "journal_id": "hooman-jrnl-03",
-      "timestamp_iso": "2026-10-23T21:02:27Z",
+      "timestamp_iso": "2026-10-23T21:19:15Z",
       "market": "DEX_TOKENS",
       "symbol": "RUGMEME",
       "decision_type": "SAFETY_VETO",
