@@ -1,0 +1,83 @@
+{
+  "schema": "ahos.autonomous_coder.v1",
+  "generated_at": "2026-10-23T20:32:13Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "bridge_port_8787_status": "ONLINE",
+  "bridge_port_8787_error": null,
+  "sandbox_gate_verdict": "PASS",
+  "m70_6_safety_lock_status": "LOCKED_CLEAN",
+  "four_brain_engine": {
+    "brain_1_bridge_8787": "ONLINE",
+    "brain_2_local_oss_tier": "8GB_SAFE_API_OFFLOAD",
+    "brain_3_sandbox_verifier": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+    "brain_4_memory_science_context": 3,
+    "synthesized_patches_verified": 1,
+    "persian_briefs_generated": 1
+  },
+  "fourBrains": [
+    {
+      "brain_id": "CLOUD_FREE_BRIDGE_8787",
+      "title_fa": "مغز ۱ — پل ابری رایگان (پورت ۸۷۸۷)",
+      "status": "ONLINE",
+      "detail_fa": "وضعیت پل: ONLINE"
+    },
+    {
+      "brain_id": "LOCAL_OPEN_SOURCE_CODER_TIER",
+      "title_fa": "مغز ۲ — لایهٔ کدنویس اوپن‌سورس سخت‌افزارمحور",
+      "status": "ROUTED",
+      "detail_fa": "لایهٔ کدنویس ۸ گیگ — واگذاری API به پل :8787"
+    },
+    {
+      "brain_id": "SANDBOX_PYTEST_AND_M70_6_GATE",
+      "title_fa": "مغز ۳ — سندباکس ast.parse + pytest تک‌فایلی + قفل M70.6",
+      "status": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+      "detail_fa": "پچ در سندباکس ایزوله تأیید شد (تک‌فایل pytest شبیه‌سازی‌شده)."
+    },
+    {
+      "brain_id": "MEMORY_AND_SCIENCE_ACCUMULATOR",
+      "title_fa": "مغز ۴ — انباشت حافظه M30 / درس M65 / علم M57",
+      "status": "ACTIVE",
+      "detail_fa": "حافظهٔ زنجیره‌ای M30 برای زمینهٔ کدنویس. · درس M65: کالبدشکافی آموزشی ضرر کاغذی در GOLD (XAUUSD) — رژیم RANGE_CHOP · خط لولهٔ علم M57: 12 منبع."
+    }
+  ],
+  "local_coder_tier": {
+    "tier_id": "8GB_SAFE_API_OFFLOAD",
+    "model_route": "CLOUD_FREE_BRIDGE_8787",
+    "title_fa": "لایهٔ کدنویس ۸ گیگ — واگذاری API به پل :8787",
+    "local_weights_loaded": false
+  },
+  "memory_science_context": {
+    "m30_memory_head": "c01772667e816a8f",
+    "m30_chain_ok": true,
+    "m65_lesson_title_fa": "کالبدشکافی آموزشی ضرر کاغذی در GOLD (XAUUSD) — رژیم RANGE_CHOP",
+    "m57_sources_count": 12,
+    "context_lines_fa": [
+      "حافظهٔ زنجیره‌ای M30 برای زمینهٔ کدنویس.",
+      "درس M65: کالبدشکافی آموزشی ضرر کاغذی در GOLD (XAUUSD) — رژیم RANGE_CHOP",
+      "خط لولهٔ علم M57: 12 منبع."
+    ]
+  },
+  "recentSynthesizedPatches": [
+    {
+      "patch_id": "AUTO-CODER-SAMPLE-01",
+      "target_path": "proposals/prop_autonomous_coder_sample.py",
+      "sandbox_test_status": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+      "rollback_triggered": false
+    },
+    {
+      "patch_id": "AUTO-CODER-BLOCK-M70-01",
+      "target_path": "core/safety_lock.py",
+      "sandbox_test_status": "M70_6_BLOCKED",
+      "rollback_triggered": true
+    }
+  ],
+  "recentPersianTexts": [
+    {
+      "brief_id": "INTERNAL-BRIEF-01",
+      "text_fa": "خلاصهٔ داخلی: پل Gemini روی پورت ۸۷۸۷ فعال است؛ لایهٔ کدنویس 8GB_SAFE_API_OFFLOAD آمادهٔ تولید متن و پچ سندباکسی است (PAPER_ONLY).",
+      "source": "BRIDGE_8787_CONTEXT"
+    }
+  ]
+}
