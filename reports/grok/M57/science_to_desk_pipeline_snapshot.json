@@ -1,0 +1,218 @@
+{
+  "schema": "ahos.science_to_desk_pipeline.v1",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "live": false,
+  "sources_count": 12,
+  "stages": {
+    "scouts": [
+      {
+        "source_id": "github",
+        "title_en": "GitHub OSS signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "mit_ocw",
+        "title_en": "MIT OpenCourseWare signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "arxiv",
+        "title_en": "arXiv signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "ssrn",
+        "title_en": "SSRN signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "quantpedia",
+        "title_en": "Quantpedia signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "stanford",
+        "title_en": "Stanford Online signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "oxford",
+        "title_en": "Oxford ML signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "cme",
+        "title_en": "CME Education signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "eia",
+        "title_en": "EIA Data signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "bis",
+        "title_en": "BIS Research signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "world_bank",
+        "title_en": "World Bank Open Data signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      },
+      {
+        "source_id": "nber",
+        "title_en": "NBER Working Papers signal batch",
+        "status": "ADMITTED_SANDBOX",
+        "paper_only": true
+      }
+    ],
+    "research_institute": [
+      {
+        "artifact_id": "RI-github-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "RI-mit_ocw-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "RI-arxiv-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "RI-ssrn-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "RI-quantpedia-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "RI-stanford-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "RI-oxford-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "RI-cme-2026",
+        "sandbox_verdict": "VALIDATED_PAPER",
+        "module_target": "architecture.learning",
+        "paper_only": true
+      }
+    ],
+    "ahos_applied": [
+      {
+        "module_id": "ahos.upgrade.github",
+        "applied": true,
+        "live_promotion": false,
+        "paper_only": true
+      },
+      {
+        "module_id": "ahos.upgrade.mit_ocw",
+        "applied": true,
+        "live_promotion": false,
+        "paper_only": true
+      },
+      {
+        "module_id": "ahos.upgrade.arxiv",
+        "applied": true,
+        "live_promotion": false,
+        "paper_only": true
+      },
+      {
+        "module_id": "ahos.upgrade.ssrn",
+        "applied": true,
+        "live_promotion": false,
+        "paper_only": true
+      },
+      {
+        "module_id": "ahos.upgrade.quantpedia",
+        "applied": true,
+        "live_promotion": false,
+        "paper_only": true
+      },
+      {
+        "module_id": "ahos.upgrade.stanford",
+        "applied": true,
+        "live_promotion": false,
+        "paper_only": true
+      }
+    ],
+    "university_desk_training": [
+      {
+        "desk": "GOLD_DESK",
+        "curriculum_modules": 4,
+        "syllabus_fa": "سیلابس آموزشی GOLD_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "paper_only": true
+      },
+      {
+        "desk": "OIL_DESK",
+        "curriculum_modules": 4,
+        "syllabus_fa": "سیلابس آموزشی OIL_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "paper_only": true
+      },
+      {
+        "desk": "CRYPTO_UNIVERSE_DESK",
+        "curriculum_modules": 4,
+        "syllabus_fa": "سیلابس آموزشی CRYPTO_UNIVERSE_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "paper_only": true
+      },
+      {
+        "desk": "US_EQUITIES_DESK",
+        "curriculum_modules": 4,
+        "syllabus_fa": "سیلابس آموزشی US_EQUITIES_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "paper_only": true
+      },
+      {
+        "desk": "EU_EQUITIES_DESK",
+        "curriculum_modules": 4,
+        "syllabus_fa": "سیلابس آموزشی EU_EQUITIES_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "paper_only": true
+      },
+      {
+        "desk": "ASIA_EQUITIES_DESK",
+        "curriculum_modules": 4,
+        "syllabus_fa": "سیلابس آموزشی ASIA_EQUITIES_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "paper_only": true
+      },
+      {
+        "desk": "FOREX_DESK",
+        "curriculum_modules": 4,
+        "syllabus_fa": "سیلابس آموزشی FOREX_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "paper_only": true
+      }
+    ]
+  },
+  "desks_trained": 7,
+  "generated_at": "2026-10-23T20:01:42Z"
+}
