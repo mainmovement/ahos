@@ -32,6 +32,8 @@ from architecture.cognitive.self_evolution_cycle_runner import run_self_evolutio
 from architecture.markets.hundred_dollar_compounding_engine import build_hundred_dollar_compounding_snapshot
 from architecture.mission.cross_asset_signal_fusion import build_cross_asset_signal_fusion_snapshot
 from architecture.mission.owner_live_switch_readiness import build_owner_live_switch_readiness_snapshot
+from architecture.mission.multi_horizon_risk_shield import build_multi_horizon_risk_shield_snapshot
+from architecture.mission.organ_telemetry_and_icon_audit import build_organ_telemetry_and_icon_audit_snapshot
 from architecture.security.negahban import run_whitehat_security_audit
 from architecture.university.whole_ahos_organ_evolution import build_whole_ahos_organ_evolution_snapshot
 from core.safety_lock import verify_safety_lock
@@ -103,6 +105,8 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
     self_evolution = run_self_evolution_cycle_snapshot(root=repo)
     cross_fusion = build_cross_asset_signal_fusion_snapshot(root=repo)
     live_readiness = build_owner_live_switch_readiness_snapshot(root=repo)
+    risk_shield = build_multi_horizon_risk_shield_snapshot(root=repo)
+    organ_telemetry = build_organ_telemetry_and_icon_audit_snapshot(root=repo)
     organs = build_whole_ahos_organ_evolution_snapshot()
     brain_loops = brain.get("loops") or {}
 
@@ -234,6 +238,15 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
                 "hold_flag_active": live_readiness.get("hold_flag_active"),
                 "owner_unlock_allowed": live_readiness.get("owner_unlock_allowed"),
                 "live_gateway_status": live_readiness.get("live_gateway_status"),
+            },
+            "m60_multi_horizon_risk_shield": {
+                "shield_verdict": risk_shield.get("shield_verdict"),
+                "horizons_armed": len(risk_shield.get("horizon_breakers") or []),
+            },
+            "m60_organ_telemetry_audit": {
+                "organs_count": organ_telemetry.get("organs_count"),
+                "icon_audit_pass": organ_telemetry.get("icon_audit_pass"),
+                "zero_c_drive_dependency": organ_telemetry.get("zero_c_drive_dependency"),
             },
         },
     }

@@ -74,6 +74,21 @@ def build_teaching_lesson_from_cycle(cycle: Mapping[str, Any]) -> TeachingLesson
     pnl = float(cycle.get("pnl_usd", 0.0))
     witness = str(cycle.get("witness_state") or "VERIFIED").upper()
 
+    if regime == "MULTI_HORIZON_SHIELD" or symbol == "M60.R":
+        return TeachingLessonFa(
+            lesson_id=lid,
+            market=market,
+            symbol=symbol,
+            regime_tag=regime,
+            title_fa="سپر ضدضرر چندافقی ۱۰۰ دلاری (۳٪ روزانه · ۶٪ هفتگی · ۱۰٪ ماهانه)",
+            why_entered_fa="قبل از هر برش LONG/SHORT با اهرم ۱۰×–۲۵×، سه سقف افت جداگانه از سرمایهٔ ۱۰۰ دلار محافظت می‌کند.",
+            what_happened_fa="هیچ سقفی در ساک زنده شکسته نشده؛ shield_verdict=ARMED_GREEN و ذخیرهٔ کیف پول ≥۴۰٪ حفظ شده است.",
+            mistake_or_strength_fa="نقطهٔ قوت: توقف خودکار و قرنطینهٔ کاغذی بدون نیاز به معاملهٔ واقعی.",
+            key_takeaway_fa="حد ضرر روزانه ۳٪، هفتگی ۶٪ و ماهانه ۱۰٪ — PAPER_ONLY تا اثبات لبه.",
+            glossary_keys=("Drawdown", "ATR"),
+            paper_only=True,
+        )
+
     if regime == "CROSS_ASSET_CONFLUENCE" or market == "MULTI_DESK":
         return TeachingLessonFa(
             lesson_id=lid,
@@ -204,6 +219,14 @@ def default_teaching_journal_fixtures() -> tuple[list[TeachingLessonFa], list[Ho
             "market": "MULTI_DESK",
             "symbol": "M60.F",
             "regime_tag": "CROSS_ASSET_CONFLUENCE",
+            "pnl_usd": 0.0,
+            "witness_state": "VERIFIED",
+        },
+        {
+            "lesson_id": "m65-m60r-risk-shield",
+            "market": "PILOT_100USD",
+            "symbol": "M60.R",
+            "regime_tag": "MULTI_HORIZON_SHIELD",
             "pnl_usd": 0.0,
             "witness_state": "VERIFIED",
         },
