@@ -49,6 +49,23 @@ EXPORT_STEPS: list[tuple[str, str, list[str]]] = [
     ("M33_crypto_universe", "scripts.export_crypto_universe_snapshot", ["reports/grok/M33/crypto_universe_snapshot.json"]),
     ("M43_pilot_100usd", "scripts.export_pilot_100usd_gateway_snapshot", ["reports/grok/M43/pilot_100usd_gateway_snapshot.json"]),
     ("M57_science_pipeline", "scripts.export_science_to_desk_pipeline", ["reports/grok/M57/science_to_desk_pipeline_snapshot.json"]),
+    (
+        "M60_M70_brain_M57_organs",
+        "scripts.export_aci_agi_si_brain_snapshot",
+        [
+            "reports/grok/M60/aci_agi_si_brain_snapshot.json",
+            "reports/grok/M57/whole_ahos_organ_evolution.json",
+        ],
+    ),
+    (
+        "M35_M10_M45_closure",
+        "scripts.export_m35_m10_m45_closure",
+        [
+            "reports/grok/M35/telegram_kian_closure.json",
+            "reports/grok/M10/db_migration_closure.json",
+            "reports/grok/M45/sandbox_isolation_snapshot.json",
+        ],
+    ),
 ]
 
 
