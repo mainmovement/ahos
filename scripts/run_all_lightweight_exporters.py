@@ -46,6 +46,9 @@ EXPORT_STEPS: list[tuple[str, str, list[str]]] = [
     ("M_PORT", "scripts.export_portable_migration_pack", ["reports/grok/M62/portable_migration_pack.json"]),
     ("M31_nightly", "scripts.export_nightly_digest_snapshot", ["reports/grok/M31/nightly_digest_snapshot.json", "reports/grok/M31/nightly_digest_fa.md"]),
     ("M13_edge_margin", "scripts.export_edge_margin_snapshot", ["reports/grok/M13/edge_margin_sim_snapshot.json"]),
+    ("M33_crypto_universe", "scripts.export_crypto_universe_snapshot", ["reports/grok/M33/crypto_universe_snapshot.json"]),
+    ("M43_pilot_100usd", "scripts.export_pilot_100usd_gateway_snapshot", ["reports/grok/M43/pilot_100usd_gateway_snapshot.json"]),
+    ("M57_science_pipeline", "scripts.export_science_to_desk_pipeline", ["reports/grok/M57/science_to_desk_pipeline_snapshot.json"]),
 ]
 
 
