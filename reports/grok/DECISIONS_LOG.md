@@ -154,3 +154,5 @@
 2026-10-24 | Mega Wave 10 path mapping | Use architecture/mission/* | PAPER_ONLY C57-C66
 2026-10-24 | Mega Wave 11 | Map mission paths to architecture/mission and teaching_mode_m65 | PAPER_ONLY C67-C76
 2026-10-24 | Mega Wave 12 | GATE_1 0 CONFLICT fix; 6/6 GREEN readiness | PAPER_ONLY C77-C86
+2026-10-24 | Mega Wave 13 hold gates | Add 8 organ + launcher/assets HOLD.flag to meet M60.I count >=12 without removing any gate | PAPER_ONLY C87-C96
+2026-10-24 | Mega Wave 13 gateway audit | Document AHOS_GATEWAY_URL :3200 in run_bot + auditor reads telegram_ai/.env.example | Arena chat path C90
