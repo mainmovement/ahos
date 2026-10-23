@@ -25,7 +25,7 @@ from architecture.markets.readiness import pilot_gate
 from architecture.markets.risk_v2 import bound_notional, fractional_kelly
 from architecture.markets.token_gate import consider
 from architecture.mission.controller import MissionController
-from architecture.mission.nightly import render, render_fa
+from architecture.mission.nightly import build_comprehensive_nightly_digest_fa, render, render_fa
 from architecture.mission.teams import register_team
 from architecture.security.negahban import scan
 from architecture.security.skill_vet import vet
@@ -76,6 +76,24 @@ def test_crisis_halt_and_reports():
     text = render(day="2026-10-18", trades=2, pnl_usd=3)
     assert "NO_PROVEN_EDGE" in text
     assert "کاغذی" in render_fa(day="2026-10-18", trades=2, pnl_usd=3)
+
+
+def test_comprehensive_nightly_digest_fa_uses_injected_snapshots() -> None:
+    text = build_comprehensive_nightly_digest_fa(
+        day="2026-10-23",
+        trades=4,
+        pnl_usd=1.5,
+        gold_soak={"status": "SOAK_OK"},
+        oil_soak={"status": "PAPER_IDLE"},
+        multi_market={"desks_count": 7, "verified_instruments": 13},
+        tournament={"leader_title": "Regime HMM", "leader_dsr": 1.42},
+        astra={"overall_status": "SHADOW_PAPER_ACTIVE"},
+    )
+    assert "خلاصهٔ اجرایی شبانه" in text
+    assert "M19" in text
+    assert "M56" in text
+    assert "M60" in text
+    assert "live: false" in text
 
 
 def test_update_exam_skill_and_inbox():
