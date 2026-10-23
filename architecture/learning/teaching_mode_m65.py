@@ -74,6 +74,24 @@ def build_teaching_lesson_from_cycle(cycle: Mapping[str, Any]) -> TeachingLesson
     pnl = float(cycle.get("pnl_usd", 0.0))
     witness = str(cycle.get("witness_state") or "VERIFIED").upper()
 
+    if regime == "CROSS_ASSET_CONFLUENCE" or market == "MULTI_DESK":
+        return TeachingLessonFa(
+            lesson_id=lid,
+            market=market,
+            symbol=symbol,
+            regime_tag=regime,
+            title_fa="همگرایی سیگنال‌های ۷ بازار و ۶ قفل قبل از حساب واقعی (M60.F / M60.G)",
+            why_entered_fa=(
+                "فقط وقتی ماتریس همگرایی LONG/SHORT (طلا، نفت، کریپتو، سهام، FX و کلان) با شاهد دومنبعی "
+                "و E>0 هم‌راستا باشد، پایلوت ۱۰۰ دلاری کاغذی ورود می‌زند."
+            ),
+            what_happened_fa="۶ قفل آمادگی (مأموریت‌ها، ساک/تطبیق، لبه/تیم قرمز، برش و پلهٔ سود، ۸ اندام/۴ مغز، HOLD) بررسی شد.",
+            mistake_or_strength_fa="نقطهٔ قوت: معاملهٔ زنده بدون رفع صریح HOLD.flag ممکن نیست حتی اگر همهٔ قفل‌ها سبز باشند.",
+            key_takeaway_fa="همگرایی ≠ اجازهٔ زنده؛ HOLD قانون نهایی است.",
+            glossary_keys=("Two-Source Witness", "Drawdown"),
+            paper_only=True,
+        )
+
     if regime == "COMPOUNDING_LADDER" or market == "PILOT_100USD":
         return TeachingLessonFa(
             lesson_id=lid,
@@ -179,6 +197,14 @@ def default_teaching_journal_fixtures() -> tuple[list[TeachingLessonFa], list[Ho
             "symbol": "M60.P",
             "regime_tag": "COMPOUNDING_LADDER",
             "pnl_usd": 18.5,
+            "witness_state": "VERIFIED",
+        },
+        {
+            "lesson_id": "m65-m60f-cross-asset-confluence",
+            "market": "MULTI_DESK",
+            "symbol": "M60.F",
+            "regime_tag": "CROSS_ASSET_CONFLUENCE",
+            "pnl_usd": 0.0,
             "witness_state": "VERIFIED",
         },
     ]

@@ -30,6 +30,8 @@ from architecture.cognitive.aci_agi_si_brain import run_aci_agi_si_evolution_cyc
 from architecture.cognitive.autonomous_coder_bridge import run_autonomous_coder_cycle
 from architecture.cognitive.self_evolution_cycle_runner import run_self_evolution_cycle_snapshot
 from architecture.markets.hundred_dollar_compounding_engine import build_hundred_dollar_compounding_snapshot
+from architecture.mission.cross_asset_signal_fusion import build_cross_asset_signal_fusion_snapshot
+from architecture.mission.owner_live_switch_readiness import build_owner_live_switch_readiness_snapshot
 from architecture.security.negahban import run_whitehat_security_audit
 from architecture.university.whole_ahos_organ_evolution import build_whole_ahos_organ_evolution_snapshot
 from core.safety_lock import verify_safety_lock
@@ -99,6 +101,8 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
     autonomous_coder = run_autonomous_coder_cycle(root=repo)
     compounding = build_hundred_dollar_compounding_snapshot(root=repo)
     self_evolution = run_self_evolution_cycle_snapshot(root=repo)
+    cross_fusion = build_cross_asset_signal_fusion_snapshot(root=repo)
+    live_readiness = build_owner_live_switch_readiness_snapshot(root=repo)
     organs = build_whole_ahos_organ_evolution_snapshot()
     brain_loops = brain.get("loops") or {}
 
@@ -219,6 +223,17 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
                     "verdict"
                 ),
                 "day_1_agi_claimed": self_evolution.get("day_1_agi_claimed", False),
+            },
+            "m60_cross_asset_fusion": {
+                "opportunities_count": len(cross_fusion.get("confluence_opportunities") or []),
+                "top_symbol": (cross_fusion.get("confluence_opportunities") or [{}])[0].get("symbol"),
+                "desks_fused": cross_fusion.get("desks_fused_count"),
+            },
+            "m60_owner_live_switch_readiness": {
+                "gates_green_count": live_readiness.get("gates_green_count"),
+                "hold_flag_active": live_readiness.get("hold_flag_active"),
+                "owner_unlock_allowed": live_readiness.get("owner_unlock_allowed"),
+                "live_gateway_status": live_readiness.get("live_gateway_status"),
             },
         },
     }

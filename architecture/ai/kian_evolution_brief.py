@@ -9,9 +9,11 @@ from typing import Any
 from architecture.cognitive.autonomous_coder_bridge import run_autonomous_coder_cycle
 from architecture.cognitive.self_evolution_cycle_runner import run_self_evolution_cycle_snapshot
 from architecture.markets.hundred_dollar_compounding_engine import build_hundred_dollar_compounding_snapshot
+from architecture.mission.cross_asset_signal_fusion import build_cross_asset_signal_fusion_snapshot
+from architecture.mission.owner_live_switch_readiness import build_owner_live_switch_readiness_snapshot
 
 _KEYWORDS = re.compile(
-    r"(مغز|دیباگ|آپدیت|خوددیباگ|AGI|ACI|SI|۱۰۰\s*دلار|100\s*دollar|پایلوت|مرکب|پله\s*سود|۲۰۰\s*دلار|200\s*usd|چرخه\s*خودتکاملی|خودتکاملی)",
+    r"(مغز|دیباگ|آپدیت|خوددیباگ|AGI|ACI|SI|۱۰۰\s*دلار|100\s*دollar|پایلوت|مرکب|پله\s*سود|۲۰۰\s*دلار|200\s*usd|چرخه\s*خودتکاملی|خودتکاملی|همگرایی|سیگنال|۶\s*قفل|6\s*gate|آمادگی\s*حساب)",
     re.IGNORECASE,
 )
 
@@ -33,6 +35,8 @@ def build_owner_evolution_brief_fa(message: str, *, root: Path | None = None) ->
     coder = run_autonomous_coder_cycle(root=repo)
     comp = build_hundred_dollar_compounding_snapshot(root=repo)
     evo = run_self_evolution_cycle_snapshot(root=repo)
+    fusion = build_cross_asset_signal_fusion_snapshot(root=repo)
+    readiness = build_owner_live_switch_readiness_snapshot(root=repo)
     eng = coder.get("four_brain_engine") or {}
     pilot = _read_json(repo / "reports" / "grok" / "M43" / "pilot_100usd_gateway_snapshot.json")
     ledger = comp.get("paper_compounding_ledger") or {}
@@ -40,6 +44,8 @@ def build_owner_evolution_brief_fa(message: str, *, root: Path | None = None) ->
     floor = ledger.get("active_profit_lock_floor_usd", "—")
     ladder = comp.get("active_ladder_step_id", "—")
     evo_target = ((evo.get("stages") or [{}])[0].get("selected_target") or {}).get("organ_title_fa", "—")
+    top_opp = (fusion.get("confluence_opportunities") or [{}])[0]
+    gates_green = readiness.get("gates_green_count", "—")
     missions_done = "85/85 DONE (100%)"
     bridge = eng.get("brain_1_bridge_8787", coder.get("bridge_port_8787_status"))
     tier = eng.get("brain_2_local_oss_tier", "—")
@@ -51,5 +57,7 @@ def build_owner_evolution_brief_fa(message: str, *, root: Path | None = None) ->
         f"پایلوت ۱۰۰ دلاری (M60.P): ارزش کاغذی ~${equity} · پلهٔ فعال {ladder} · قفل سود ${floor} · "
         f"برش‌های ۱۰×–۲۵× LONG/SHORT (HOLD قفل زنده). "
         f"چرخهٔ خودتکاملی M60.E: گلوگاه فعلی «{evo_target}» · day_1_agi_claimed=false. "
+        f"همگرایی M60.F: برترین {top_opp.get('symbol', '—')} {top_opp.get('side', '—')} · "
+        f"۶ قفل M60.G: {gates_green}/۶ سبز · unlock={readiness.get('owner_unlock_allowed')} · "
         f"پیشرفت مأموریت‌ها: {missions_done}."
     )
