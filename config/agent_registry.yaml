@@ -11,6 +11,10 @@ created_utc: "2026-08-13T02:05:00+00:00"
 agents:
   - agent_id: AG-01
     name: Master Orchestrator
+    floor: 6
+    role_fa: "ارکستراتور کل و هماهنگ‌کنندهٔ چرخهٔ مأموریت‌ها (بدون اجرای مستقیم)"
+    input_contract_summary: "ورودی: orchestration، lifecycle; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: MISSING
     lane: B
     form: n8n_workflow
@@ -41,6 +45,10 @@ agents:
       notes: "ABSENT BY DESIGN; absence ⇒ manual per-component operation = current reality"
   - agent_id: AG-02
     name: Data Intelligence
+    floor: 4
+    role_fa: "جمع‌آوری و نرمال‌سازی داده با ردیابی منشأ برای میزهای کاغذی"
+    input_contract_summary: "ورودی: collection، normalization، provenance; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: EXISTS
     lane: A
     form: lib
@@ -70,6 +78,10 @@ agents:
       notes: "infra deps (PAL/providers.yaml) declared here; tracked-token refresh coverage thin (F12)"
   - agent_id: AG-03
     name: Research Agent
+    floor: 2
+    role_fa: "تحقیق آماری و ارزیابی نمونه؛ بدون ارتقای خودکار استراتژی"
+    input_contract_summary: "ورودی: statistics، evaluation، registry; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: EXISTS
     lane: A
     form: lib
@@ -99,6 +111,10 @@ agents:
       notes: "first real scan wall-clock gated (≥200 resolved ≈ 2026-08-17)"
   - agent_id: AG-04
     name: Market Intelligence
+    floor: 3
+    role_fa: "هوش بازار و رتبه‌بندی فرصت‌ها با برچسب رژیم"
+    input_contract_summary: "ورودی: ranking، regimes; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: A
     form: lib
@@ -128,6 +144,10 @@ agents:
       notes: "boundary vs AG-05 documented (F16): AG-04 ranks; AG-05 classifies momentum"
   - agent_id: AG-05
     name: Trend Intelligence
+    floor: 3
+    role_fa: "هوش روند و مومنتوم برای فیلتر ورود کاغذی"
+    input_contract_summary: "ورودی: momentum، decay; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: A
     form: lib
@@ -157,6 +177,10 @@ agents:
       notes: "stale obs ⇒ consumer-side NO_DATA (PT-X3-v2 live behavior)"
   - agent_id: AG-06
     name: On-Chain Intelligence
+    floor: 3
+    role_fa: "هوش زنجیره‌ای (دارندگان/استقرار) برای وتوی امنیتی"
+    input_contract_summary: "ورودی: holders، deployers; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: A
     form: service
@@ -186,6 +210,10 @@ agents:
       notes: "OPEN circuit by evidence (sources refuted); re-close needs a live source"
   - agent_id: AG-07
     name: Liquidity/Exitability
+    floor: 4
+    role_fa: "نقدشوندگی و خروج‌پذیری واقعی قبل از ALLOCATE کاغذی"
+    input_contract_summary: "ورودی: realizable، impact، exitability; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: EXISTS
     lane: A
     form: lib
@@ -215,6 +243,10 @@ agents:
       notes: "gas MODEL classes tagged (no live oracle); EVM true sell-sim unavailable (GoPlus proxy documented)"
   - agent_id: AG-08
     name: Risk Agent
+    floor: 5
+    role_fa: "طبقه‌بندی ریسک و تشدید؛ بدون تصمیم نهایی"
+    input_contract_summary: "ورودی: classification، escalation، trapped; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: EXISTS
     lane: A
     form: lib
@@ -244,6 +276,10 @@ agents:
       notes: "escalation is advisory-only (documented)"
   - agent_id: AG-09
     name: Security/Scam Defense
+    floor: 5
+    role_fa: "دفاع امنیتی و وتوی قطعی کلاه‌سیاه"
+    input_contract_summary: "ورودی: veto، taxes، honeypot، lp-lock; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: EXISTS
     lane: A
     form: service
@@ -273,6 +309,10 @@ agents:
       notes: "deterministic safety VETO is explicit in this spec (F5 resolution: authority text amended to recognize deterministic vetoes; never an AI veto)"
   - agent_id: AG-10
     name: Narrative Intelligence
+    floor: 3
+    role_fa: "هوش روایت و خبر RSS با اولویت C×R×I"
+    input_contract_summary: "ورودی: rss، narrative_streams; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: A
     form: service
@@ -302,6 +342,10 @@ agents:
       notes: "live=false honestly: feeds probed OK but narrative rows not yet consumed by any decision path"
   - agent_id: AG-11
     name: Multi-Mind Council
+    floor: 5
+    role_fa: "شورای چندذهنی مشورتی؛ بدون رأی اکثریت"
+    input_contract_summary: "ورودی: advisory_review، lenses، AI; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -331,6 +375,10 @@ agents:
       notes: "council OFFLINE ≠ system halt (deterministic floor law)"
   - agent_id: AG-12
     name: AI Model Router
+    floor: 1
+    role_fa: "مسیریابی مدل AI با کف قطعی آفلاین"
+    input_contract_summary: "ورودی: capability_routing، fallback، AI; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: B
     form: lib
@@ -360,6 +408,10 @@ agents:
       notes: "W10 F9 gap closed: circuit breaker + health state now implemented (test-pinned)"
   - agent_id: AG-13
     name: Consensus/Disagreement Engine
+    floor: 5
+    role_fa: "موتور اختلاف و عدم‌قطعیت در شورا"
+    input_contract_summary: "ورودی: disagreement_detection; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: B
     form: lib
@@ -389,6 +441,10 @@ agents:
       notes: "F2 resolved 2026-08-13: former cycle AG-11↔AG-13 removed (consumes envelopes post-hoc; no service dependency)"
   - agent_id: AG-14
     name: Red Team
+    floor: 5
+    role_fa: "تیم قرمز و آزمون خصمانهٔ ادعاها"
+    input_contract_summary: "ورودی: adversarial_lints، veto_claims; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: B
     form: service
@@ -418,6 +474,10 @@ agents:
       notes: "fail-closed for promotions: red-team down ⇒ no promotion proceeds (governance law)"
   - agent_id: AG-15
     name: Decision Engine
+    floor: 5
+    role_fa: "موتور تصمیم قطعی Lane A/B (تنها دارنده DECIDE)"
+    input_contract_summary: "ورودی: frozen_rules، exits; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: حکم BUY/AVOID/WATCH کاغذی با مهر امنیت و نقدینگی"
     status: EXISTS
     lane: A
     form: lib
@@ -447,6 +507,10 @@ agents:
       notes: "only DECIDE holder (with AG-16); deterministic; frozen cards only"
   - agent_id: AG-16
     name: Paper-Trading Agent
+    floor: 4
+    role_fa: "معاملات کاغذی ورود/تسویه (تنها DECIDE دوم)"
+    input_contract_summary: "ورودی: entries، settlement، ledger; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: حکم BUY/AVOID/WATCH کاغذی با مهر امنیت و نقدینگی"
     status: EXISTS
     lane: A
     form: service
@@ -476,6 +540,10 @@ agents:
       notes: "PAPER ONLY — LIVE TRADING CLOSED forever by law"
   - agent_id: AG-17
     name: Memory Agent
+    floor: 1
+    role_fa: "حافظه رویدادمحور و تداوم شواهد"
+    input_contract_summary: "ورودی: event_sourcing، durability; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: EXISTS
     lane: SHARED
     form: service
@@ -505,6 +573,10 @@ agents:
       notes: "F1: claim corrected to measured reality; PG convergence plan exists; NO destructive migration"
   - agent_id: AG-18
     name: Learning Agent
+    floor: 2
+    role_fa: "یادگیری از خطا و درس‌نامهٔ کاغذی"
+    input_contract_summary: "ورودی: lessons، stats; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: A
     form: service
@@ -534,6 +606,10 @@ agents:
       notes: "input-gated on experiment clock (0 closed), correctly idle"
   - agent_id: AG-19
     name: Self-Diagnostic
+    floor: 1
+    role_fa: "خودعیب‌یابی و ممیزی زنده"
+    input_contract_summary: "ورودی: probes، audits; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: SHARED
     form: service
@@ -563,6 +639,10 @@ agents:
       notes: "tracked-token freshness SLA probe still absent (F12, owner decision pending)"
   - agent_id: AG-20
     name: Controlled Self-Evolution
+    floor: 1
+    role_fa: "تکامل کنترل‌شده با پیشنهاد و بازپخش"
+    input_contract_summary: "ورودی: proposals، replay، versioning; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: pipeline
@@ -592,6 +672,10 @@ agents:
       notes: "human gate dependency is structural (requires_human forced when governance_touching)"
   - agent_id: AG-21
     name: Evidence/Provenance
+    floor: 6
+    role_fa: "اثبات و هش زنجیره‌ای برای شواهد"
+    input_contract_summary: "ورودی: hashing، linkage، manifests; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: EXISTS
     lane: SHARED
     form: lib
@@ -621,6 +705,10 @@ agents:
       notes: "evidence-id runtime resolution step contracted (D-chain), enforcement at P3+"
   - agent_id: AG-22
     name: Observability/Health
+    floor: 6
+    role_fa: "مشاهده‌پذیری، ضربان و دفترچهٔ اجرا"
+    input_contract_summary: "ورودی: heartbeat، run_ledger; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: B
     form: service
@@ -650,6 +738,10 @@ agents:
       notes: "P3 scope: health/heartbeat/run-ledger implemented as Lane-B engine (test-pinned)"
   - agent_id: AG-23
     name: Governance/Policy
+    floor: 6
+    role_fa: "حاکمیت، قوانین و کارت‌های مأموریت"
+    input_contract_summary: "ورودی: laws، cards، versioning; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: SHARED
     form: loop_doc
@@ -679,6 +771,10 @@ agents:
       notes: "F5 resolution: PROMOTE+VETO legal ONLY as documented human gateway; NEVER implement as software (human_gate semantics recorded in ops.notes)"
   - agent_id: AG-24
     name: Cost/Resource Manager
+    floor: 6
+    role_fa: "بودجه و محدودیت منابع (free-first)"
+    input_contract_summary: "ورودی: budgets، rate_limits; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PARTIAL
     lane: SHARED
     form: lib
@@ -708,6 +804,10 @@ agents:
       notes: "dynamic budget accounting table = P3-adjacent future"
   - agent_id: AG-25
     name: Open-Source Capability Intelligence
+    floor: 2
+    role_fa: "هوش قابلیت متن‌باز GitHub"
+    input_contract_summary: "ورودی: github_discovery، repository_ranking، capability_extraction، license_analysis، dependency_security_analysis; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: pipeline
@@ -744,6 +844,10 @@ agents:
 # the Slice-1 ahos_org store; the two-taxonomy mapping (OWN-AV-56) stays human-gated.
   - agent_id: AG-26
     name: Kourosh (CIO / Portfolio Manager)
+    floor: 6
+    role_fa: "مدیر سرمایه (CIO) و ترجمهٔ منشور به سبد کاغذی"
+    input_contract_summary: "ورودی: portfolio_management، mandate_translation، sleeve_allocation، cross_market_view، escalation; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -773,6 +877,10 @@ agents:
       notes: "vision #20 · plane COGNITION · charter reporting line: Chief of Staff (vision #39 کیان, registration deferred to M35.1 — no AG edge created). Owns the portfolio mandate across sleeves; subordinate views enter as evidence, never as orders."
   - agent_id: AG-27
     name: Bahram (Macro, Rates & FX)
+    floor: 4
+    role_fa: "ماکرو، نرخ و FX با طبقه‌بندی رژیم HMM"
+    input_contract_summary: "ورودی: nowcasting، regime_classification_hmm، fomc_ecb_analysis، macro_calendar، probability_views; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -802,6 +910,10 @@ agents:
       notes: "vision #21 · plane COGNITION · reports کوروش (AG-26). Probabilistic view only — never an order; may raise a high-risk-event flag to the risk anchor (رامین, Slice-1 — cross-taxonomy edge human-gated, OWN-AV-56). 'Gold Macro Agent' (P1§27) is a @gold profile of this same agent, not a duplicate."
   - agent_id: AG-28
     name: Zarrin (Gold & Oil Division Lead)
+    floor: 4
+    role_fa: "رهبری بخش طلا و نفت (میز M13)"
+    input_contract_summary: "ورودی: gold_market_research، lbma_wgc_flows، etf_flows، cot، oil_term_structure; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -831,6 +943,10 @@ agents:
       notes: "vision #22 · plane COGNITION · reports کوروش (AG-26). Owns commodity view/strategy only — execution and risk are outside her authority; no executable proposal without roll/margin (AG-32) and risk review. Sub-role mapping of the Gold Division is §2.5, governance-gated."
   - agent_id: AG-29
     name: Sara (US Equities)
+    floor: 4
+    role_fa: "سهام آمریکا و فاکتور ارزش"
+    input_contract_summary: "ورودی: regional_equity_views، value_factors، momentum_factors، earnings_analysis، universe_screening; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -860,6 +976,10 @@ agents:
       notes: "vision #23 · plane COGNITION · reports کوروش (AG-26). Own region only; only venues declared ELIGIBLE, everything else paper-only. Declaring a venue eligible is NOT hers (compliance, AG-39). EDGAR sources."
   - agent_id: AG-30
     name: Leila (European Equities)
+    floor: 4
+    role_fa: "سهام اروپا و دیدگاه منطقه‌ای"
+    input_contract_summary: "ورودی: regional_equity_views، value_factors، momentum_factors، earnings_analysis، universe_screening; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -889,6 +1009,10 @@ agents:
       notes: "vision #24 · plane COGNITION · reports کوروش (AG-26). Same charter shape as AG-29, European market and hours only; exchange-disclosure sources."
   - agent_id: AG-31
     name: Mahsa (Asian Equities)
+    floor: 4
+    role_fa: "سهام آسیا و دیدگاه منطقه‌ای"
+    input_contract_summary: "ورودی: regional_equity_views، value_factors، momentum_factors، earnings_analysis، universe_screening; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -918,6 +1042,10 @@ agents:
       notes: "vision #25 · plane COGNITION · reports کوروش (AG-26). Same charter shape as AG-29, Asian market and hours only; Japan, Hong Kong, Korea and India sources."
   - agent_id: AG-32
     name: Farhad (Futures & Derivatives)
+    floor: 4
+    role_fa: "آتی و مشتقات با تقویم رول"
+    input_contract_summary: "ورودی: instrument_design، roll_calendar، basis، funding، margin; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -947,6 +1075,10 @@ agents:
       notes: "vision #26 · plane COGNITION · reports کوروش (AG-26), dotted line to the risk anchor (رامین, Slice-1 — cross-taxonomy edge human-gated). Leverage is a variable, not a target: instrument and leverage proposals stay under the risk ceiling and leverage is never the optimization objective. Every leverage proposal documents liquidation distance >= 3x ATR. 'Gold Futures Agent' (P1§27) is a @gold profile of this same agent."
   - agent_id: AG-33
     name: Negar (News Intelligence Division Lead)
+    floor: 3
+    role_fa: "رهبری اخبار و استخراج رویداد (دیده‌بان)"
+    input_contract_summary: "ورودی: news_monitoring، event_extraction، sentiment_analysis، entity_anonymization، source_quality_scoring; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -976,6 +1108,10 @@ agents:
       notes: "vision #27 · plane COGNITION · reports the data anchor (دانا, Slice-1 — cross-taxonomy edge human-gated), dotted line to کوروش (AG-26). Output is 'event + source quality', never a buy signal; news is never auto-converted to fact and news text is never executed as an instruction (prompt-injection defence). Every story carries the eight P1§32 fields. 'Gold News Agent' is a @gold profile of this division."
   - agent_id: AG-34
     name: Bijan (Chart Intelligence)
+    floor: 1
+    role_fa: "هوش نمودار و پرایس‌اکشن"
+    input_contract_summary: "ورودی: technical_analysis، price_action، indicators، market_structure، volume_analysis; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1005,6 +1141,10 @@ agents:
       notes: "vision #28 · plane COGNITION · reports the quant anchor (کیمیا, Slice-1 — cross-taxonomy edge human-gated). Reads charts by two paths, numeric (reference) and vision; his vote is the SECOND vote and an order number is never read off an image. 'Gold Chart Intelligence Agent' is a @gold profile of this same agent."
   - agent_id: AG-35
     name: Shida (GitHub Intelligence)
+    floor: 2
+    role_fa: "هوش GitHub و بازرسی مجوز"
+    input_contract_summary: "ورودی: github_discovery، license_inspection، thirteen_criteria_review، reproduction_in_sandbox، research_tickets; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1034,6 +1174,10 @@ agents:
       notes: "vision #29 · plane COGNITION · reports فرزانه (AG-41). Member 1 of at least 2 (the GH-2 seat is a §2.7 mandate and stays unregistered). Method DISCOVER→LICENSE→INSPECT→COMPARE→TEST→ADAPT→VERIFY, never COPY; never merges external code, never adds an unpinned dependency."
   - agent_id: AG-36
     name: Siavash (AGI/ACI Architecture Team Lead)
+    floor: 6
+    role_fa: "رهبری معماری AGI/ACI و چرخهٔ جهان M36"
+    input_contract_summary: "ورودی: cognitive_experiment_design، cognitive_benchmarks، world_model_research، metacognition، causal_counterfactual; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1063,6 +1207,10 @@ agents:
       notes: "vision #30 · plane COGNITION · reports the architecture and epistemology anchors (آرش, عرفان, Slice-1 — cross-taxonomy edges human-gated). Research and design only; makes NO AGI/SI claim and promotes neither himself nor any other agent (INV-07). Three further seats on the owner's four-person team (§2.7) stay unregistered."
   - agent_id: AG-37
     name: Babak (Treasury & Allocation)
+    floor: 5
+    role_fa: "خزانه و تخصیص sleeve"
+    input_contract_summary: "ورودی: treasury_management، sleeve_allocation، rebalancing، profit_sweep، transfer_design; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1092,6 +1240,10 @@ agents:
       notes: "vision #31 · plane EXECUTION (financial, restricted) · charter reporting line: Chief of Staff (vision #39 کیان, deferred to M35.1); control by the risk and security anchors (رامین, سپهر, Slice-1). TODAY testnet and a simulated ledger only (Real Money Movement = DISABLED, P1§28). Cannot trade, cannot alter the allowlist, holds no credentials, and moves nothing above threshold without the owner."
   - agent_id: AG-38
     name: Dariush (Execution & Broker)
+    floor: 4
+    role_fa: "اجرای کاغذی OMS/EMS"
+    input_contract_summary: "ورودی: oms، ems، broker_adapter، twap، vwap; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1121,6 +1273,10 @@ agents:
       notes: "vision #32 · plane EXECUTION · reports کوروش (AG-26); permission from the security anchor (سپهر, Slice-1). Executes ApprovedOrder only, PaperAdapter only until the G-L2 signature; never bypasses or disables the Risk Governor (P1§71) and never switches on a live adapter. The chain is INTELLIGENCE → DECISION → RISK GOVERNOR → PERMISSION → EXECUTION; capability is not permission."
   - agent_id: AG-39
     name: Maryam (Compliance & Sanctions)
+    floor: 5
+    role_fa: "انطباق، تحریم و eligibility"
+    input_contract_summary: "ورودی: venue_eligibility، sanctions_screening، kyc، legal_limits، product_eligibility; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1150,6 +1306,10 @@ agents:
       notes: "vision #33 · plane GOVERNANCE · reports the governance anchor (گیتی, Slice-1 — cross-taxonomy edge human-gated). DESIGNED authority, NOT granted at registration: PASS or VETO on every order and venue, a veto the CIO cannot cancel. VETO is therefore deliberately absent from forbidden_authority (forbidding it would deny an owner-approved charter fact) and granting it is a governance promotion, not a registration act. P2§36 access-resilience is data resilience only — never a licence to bypass sanctions or KYC (INV-08)."
   - agent_id: AG-40
     name: Homan (Failure Analysis & Post-trade Learning)
+    floor: 1
+    role_fa: "تحلیل شکست و پس از معامله"
+    input_contract_summary: "ورودی: attribution، error_classification، post_mortem، root_cause_analysis، counterfactual; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1179,6 +1339,10 @@ agents:
       notes: "vision #34 · plane COGNITION · reports فرزانه (AG-41). Error as data: every paper trade (win, loss and skip, P1§49) gets a post-mortem along Failure → Root Cause → Architectural/Process/Test/Governance/Memory gap → Prevention → New test → Learning. Proposes only, never edits production parameters; never draws a definitive lesson from LUCK."
   - agent_id: AG-41
     name: Farzaneh (Dean of AHOS University)
+    floor: 2
+    role_fa: "دانشگاه AHOS، آزمون و گواهی (بدون مجوز معامله)"
+    input_contract_summary: "ورودی: curriculum، examinations، certification_l0_l4، knowledge_store، asku_tickets; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1208,6 +1372,10 @@ agents:
       notes: "vision #35 · plane COGNITION (educational) · reports the architecture and epistemology anchors (آرش, عرفان, Slice-1). Runs the permanently active research system: curriculum, exams, Knowledge Store, AskU. A certificate is NOT trade permission — permission sits with the governance anchor and the owner; she never both builds and scores an agent exam without an independent Reviewer."
   - agent_id: AG-42
     name: Zhaleh (Accounting / Financial Ledger)
+    floor: 5
+    role_fa: "دفتر کل مالی کاغذی و تطبیق M42"
+    input_contract_summary: "ورودی: paper_pnl، realized_pnl، unrealized_pnl، fees، slippage; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service
@@ -1237,6 +1405,10 @@ agents:
       notes: "vision #36 · plane GOVERNANCE (control) · reports بابک (AG-37) with an INDEPENDENT report to the governance anchor (گیتی, Slice-1). The owner-defined P1§29 agent: all fifteen items plus treasury NAV and high-water mark. No write access to the accounts — records and reconciles only; declares breaks, which block new entries (INV-12), and never declares a break solved without a witness. Independent and audit-friendly by charter."
   - agent_id: AG-43
     name: Ayda (Agent Supervision / Guardian Lead)
+    floor: 6
+    role_fa: "نظارت عامل‌ها، ژورنال تصمیم و drift"
+    input_contract_summary: "ورودی: decision_journal، drift_monitoring، incident_rca، agent_audit، asku_enforcement; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
+    output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
     status: PLANNED
     lane: B
     form: service

@@ -755,5 +755,318 @@
         }
       ]
     }
-  ]
+  ],
+  "ops_matrix_tower_metadata": {
+    "schema": "ahos.agent_tower.floor_map.v1",
+    "status": "RECONCILED_NOT_MERGED",
+    "floor_range": [
+      1,
+      6
+    ],
+    "agents_count": 43,
+    "agents": {
+      "AG-01": {
+        "floor": 6,
+        "role_fa": "ارکستراتور کل و هماهنگ‌کنندهٔ چرخهٔ مأموریت‌ها (بدون اجرای مستقیم)",
+        "input_contract_summary": "ورودی: orchestration، lifecycle; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-02": {
+        "floor": 4,
+        "role_fa": "جمع‌آوری و نرمال‌سازی داده با ردیابی منشأ برای میزهای کاغذی",
+        "input_contract_summary": "ورودی: collection، normalization، provenance; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-03": {
+        "floor": 2,
+        "role_fa": "تحقیق آماری و ارزیابی نمونه؛ بدون ارتقای خودکار استراتژی",
+        "input_contract_summary": "ورودی: statistics، evaluation، registry; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-04": {
+        "floor": 3,
+        "role_fa": "هوش بازار و رتبه‌بندی فرصت‌ها با برچسب رژیم",
+        "input_contract_summary": "ورودی: ranking، regimes; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-05": {
+        "floor": 3,
+        "role_fa": "هوش روند و مومنتوم برای فیلتر ورود کاغذی",
+        "input_contract_summary": "ورودی: momentum، decay; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-06": {
+        "floor": 3,
+        "role_fa": "هوش زنجیره‌ای (دارندگان/استقرار) برای وتوی امنیتی",
+        "input_contract_summary": "ورودی: holders، deployers; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-07": {
+        "floor": 4,
+        "role_fa": "نقدشوندگی و خروج‌پذیری واقعی قبل از ALLOCATE کاغذی",
+        "input_contract_summary": "ورودی: realizable، impact، exitability; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-08": {
+        "floor": 5,
+        "role_fa": "طبقه‌بندی ریسک و تشدید؛ بدون تصمیم نهایی",
+        "input_contract_summary": "ورودی: classification، escalation، trapped; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-09": {
+        "floor": 5,
+        "role_fa": "دفاع امنیتی و وتوی قطعی کلاه‌سیاه",
+        "input_contract_summary": "ورودی: veto، taxes، honeypot، lp-lock; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-10": {
+        "floor": 3,
+        "role_fa": "هوش روایت و خبر RSS با اولویت C×R×I",
+        "input_contract_summary": "ورودی: rss، narrative_streams; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-11": {
+        "floor": 5,
+        "role_fa": "شورای چندذهنی مشورتی؛ بدون رأی اکثریت",
+        "input_contract_summary": "ورودی: advisory_review، lenses، AI; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-12": {
+        "floor": 1,
+        "role_fa": "مسیریابی مدل AI با کف قطعی آفلاین",
+        "input_contract_summary": "ورودی: capability_routing، fallback، AI; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-13": {
+        "floor": 5,
+        "role_fa": "موتور اختلاف و عدم‌قطعیت در شورا",
+        "input_contract_summary": "ورودی: disagreement_detection; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-14": {
+        "floor": 5,
+        "role_fa": "تیم قرمز و آزمون خصمانهٔ ادعاها",
+        "input_contract_summary": "ورودی: adversarial_lints، veto_claims; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-15": {
+        "floor": 5,
+        "role_fa": "موتور تصمیم قطعی Lane A/B (تنها دارنده DECIDE)",
+        "input_contract_summary": "ورودی: frozen_rules، exits; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: حکم BUY/AVOID/WATCH کاغذی با مهر امنیت و نقدینگی",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-16": {
+        "floor": 4,
+        "role_fa": "معاملات کاغذی ورود/تسویه (تنها DECIDE دوم)",
+        "input_contract_summary": "ورودی: entries، settlement، ledger; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: حکم BUY/AVOID/WATCH کاغذی با مهر امنیت و نقدینگی",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-17": {
+        "floor": 1,
+        "role_fa": "حافظه رویدادمحور و تداوم شواهد",
+        "input_contract_summary": "ورودی: event_sourcing، durability; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-18": {
+        "floor": 2,
+        "role_fa": "یادگیری از خطا و درس‌نامهٔ کاغذی",
+        "input_contract_summary": "ورودی: lessons، stats; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-19": {
+        "floor": 1,
+        "role_fa": "خودعیب‌یابی و ممیزی زنده",
+        "input_contract_summary": "ورودی: probes، audits; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-20": {
+        "floor": 1,
+        "role_fa": "تکامل کنترل‌شده با پیشنهاد و بازپخش",
+        "input_contract_summary": "ورودی: proposals، replay، versioning; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-21": {
+        "floor": 6,
+        "role_fa": "اثبات و هش زنجیره‌ای برای شواهد",
+        "input_contract_summary": "ورودی: hashing، linkage، manifests; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-22": {
+        "floor": 6,
+        "role_fa": "مشاهده‌پذیری، ضربان و دفترچهٔ اجرا",
+        "input_contract_summary": "ورودی: heartbeat، run_ledger; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-23": {
+        "floor": 6,
+        "role_fa": "حاکمیت، قوانین و کارت‌های مأموریت",
+        "input_contract_summary": "ورودی: laws، cards، versioning; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-24": {
+        "floor": 6,
+        "role_fa": "بودجه و محدودیت منابع (free-first)",
+        "input_contract_summary": "ورودی: budgets، rate_limits; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-25": {
+        "floor": 2,
+        "role_fa": "هوش قابلیت متن‌باز GitHub",
+        "input_contract_summary": "ورودی: github_discovery، repository_ranking، capability_extraction، license_analysis، dependency_security_analysis; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-26": {
+        "floor": 6,
+        "role_fa": "مدیر سرمایه (CIO) و ترجمهٔ منشور به سبد کاغذی",
+        "input_contract_summary": "ورودی: portfolio_management، mandate_translation، sleeve_allocation، cross_market_view، escalation; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-27": {
+        "floor": 4,
+        "role_fa": "ماکرو، نرخ و FX با طبقه‌بندی رژیم HMM",
+        "input_contract_summary": "ورودی: nowcasting، regime_classification_hmm، fomc_ecb_analysis، macro_calendar، probability_views; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-28": {
+        "floor": 4,
+        "role_fa": "رهبری بخش طلا و نفت (میز M13)",
+        "input_contract_summary": "ورودی: gold_market_research، lbma_wgc_flows، etf_flows، cot، oil_term_structure; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-29": {
+        "floor": 4,
+        "role_fa": "سهام آمریکا و فاکتور ارزش",
+        "input_contract_summary": "ورودی: regional_equity_views، value_factors، momentum_factors، earnings_analysis، universe_screening; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-30": {
+        "floor": 4,
+        "role_fa": "سهام اروپا و دیدگاه منطقه‌ای",
+        "input_contract_summary": "ورودی: regional_equity_views، value_factors، momentum_factors، earnings_analysis، universe_screening; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-31": {
+        "floor": 4,
+        "role_fa": "سهام آسیا و دیدگاه منطقه‌ای",
+        "input_contract_summary": "ورودی: regional_equity_views، value_factors، momentum_factors، earnings_analysis، universe_screening; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-32": {
+        "floor": 4,
+        "role_fa": "آتی و مشتقات با تقویم رول",
+        "input_contract_summary": "ورودی: instrument_design، roll_calendar، basis، funding، margin; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-33": {
+        "floor": 3,
+        "role_fa": "رهبری اخبار و استخراج رویداد (دیده‌بان)",
+        "input_contract_summary": "ورودی: news_monitoring، event_extraction، sentiment_analysis، entity_anonymization، source_quality_scoring; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-34": {
+        "floor": 1,
+        "role_fa": "هوش نمودار و پرایس‌اکشن",
+        "input_contract_summary": "ورودی: technical_analysis، price_action، indicators، market_structure، volume_analysis; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-35": {
+        "floor": 2,
+        "role_fa": "هوش GitHub و بازرسی مجوز",
+        "input_contract_summary": "ورودی: github_discovery، license_inspection، thirteen_criteria_review، reproduction_in_sandbox، research_tickets; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-36": {
+        "floor": 6,
+        "role_fa": "رهبری معماری AGI/ACI و چرخهٔ جهان M36",
+        "input_contract_summary": "ورودی: cognitive_experiment_design، cognitive_benchmarks، world_model_research، metacognition، causal_counterfactual; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-37": {
+        "floor": 5,
+        "role_fa": "خزانه و تخصیص sleeve",
+        "input_contract_summary": "ورودی: treasury_management، sleeve_allocation، rebalancing، profit_sweep، transfer_design; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-38": {
+        "floor": 4,
+        "role_fa": "اجرای کاغذی OMS/EMS",
+        "input_contract_summary": "ورودی: oms، ems، broker_adapter، twap، vwap; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-39": {
+        "floor": 5,
+        "role_fa": "انطباق، تحریم و eligibility",
+        "input_contract_summary": "ورودی: venue_eligibility، sanctions_screening، kyc، legal_limits، product_eligibility; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-40": {
+        "floor": 1,
+        "role_fa": "تحلیل شکست و پس از معامله",
+        "input_contract_summary": "ورودی: attribution، error_classification، post_mortem، root_cause_analysis، counterfactual; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-41": {
+        "floor": 2,
+        "role_fa": "دانشگاه AHOS، آزمون و گواهی (بدون مجوز معامله)",
+        "input_contract_summary": "ورودی: curriculum، examinations، certification_l0_l4، knowledge_store، asku_tickets; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-42": {
+        "floor": 5,
+        "role_fa": "دفتر کل مالی کاغذی و تطبیق M42",
+        "input_contract_summary": "ورودی: paper_pnl، realized_pnl، unrealized_pnl، fees، slippage; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      },
+      "AG-43": {
+        "floor": 6,
+        "role_fa": "نظارت عامل‌ها، ژورنال تصمیم و drift",
+        "input_contract_summary": "ورودی: decision_journal، drift_monitoring، incident_rca، agent_audit، asku_enforcement; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده",
+        "output_contract_summary": "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live",
+        "tower_panel_ref": "ahos_arena/src/components/dashboard/AgentTowerPanel.tsx"
+      }
+    },
+    "note": "Floors align with M-D8 six-floor walk mode; mapping does not grant authority."
+  }
 }
