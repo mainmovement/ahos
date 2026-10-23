@@ -160,6 +160,28 @@ def test_comprehensive_nightly_digest_fa_uses_injected_snapshots() -> None:
     assert "live: false" in text
 
 
+def test_comprehensive_nightly_digest_includes_aci_brain_and_organs() -> None:
+    text = build_comprehensive_nightly_digest_fa(
+        day="2026-10-23",
+        trades=2,
+        pnl_usd=0.0,
+        aci_agi_si_brain={
+            "current_stage_title_fa": "مرحلهٔ ۲ — ACI",
+            "compounding_capability_index": 42.97,
+            "loops": {
+                "self_deciding": {},
+                "self_fault_finding": {},
+                "self_debugging": {},
+                "self_updating": {},
+            },
+        },
+        whole_ahos_organs={"organs_covered_count": 8, "average_university_exam_score_pct": 94.1, "trading_only": False},
+    )
+    assert "تکامل تدریجی مغز" in text
+    assert "94.1" in text
+    assert "8/8" in text
+
+
 def test_update_exam_skill_and_inbox():
     assert propose(expected_hash="a", actual_hash="b", cve=False, rollback="revert").accepted is False
     assert propose(expected_hash="a", actual_hash="a", cve=True, rollback="revert").lockfile_changed is False

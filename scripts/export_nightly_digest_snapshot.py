@@ -42,6 +42,8 @@ def main() -> int:
     crypto_universe = _read_json(ROOT / "reports" / "grok" / "M33" / "crypto_universe_snapshot.json")
     pilot_gateway = _read_json(ROOT / "reports" / "grok" / "M43" / "pilot_100usd_gateway_snapshot.json")
     science_pipeline = _read_json(ROOT / "reports" / "grok" / "M57" / "science_to_desk_pipeline_snapshot.json")
+    aci_agi_si_brain = _read_json(ROOT / "reports" / "grok" / "M60" / "aci_agi_si_brain_snapshot.json")
+    whole_ahos_organs = _read_json(ROOT / "reports" / "grok" / "M57" / "whole_ahos_organ_evolution.json")
 
     trades = 0
     pnl = 0.0
@@ -64,6 +66,8 @@ def main() -> int:
         crypto_universe=crypto_universe,
         pilot_gateway=pilot_gateway,
         science_pipeline=science_pipeline,
+        aci_agi_si_brain=aci_agi_si_brain,
+        whole_ahos_organs=whole_ahos_organs,
     )
 
     out_dir = ROOT / "reports" / "grok" / "M31"

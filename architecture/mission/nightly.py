@@ -43,6 +43,8 @@ def build_comprehensive_nightly_digest_fa(
     crypto_universe: Mapping[str, Any] | None = None,
     pilot_gateway: Mapping[str, Any] | None = None,
     science_pipeline: Mapping[str, Any] | None = None,
+    aci_agi_si_brain: Mapping[str, Any] | None = None,
+    whole_ahos_organs: Mapping[str, Any] | None = None,
 ) -> str:
     """Persian executive digest for M31/M35.4 (backward-compatible; optional snapshot inputs)."""
     base = render_fa(day=day, trades=trades, pnl_usd=pnl_usd)
@@ -167,6 +169,26 @@ def build_comprehensive_nightly_digest_fa(
                 "## خط لولهٔ علم → پژوهشکده → AHOS → دانشگاه (M57)",
                 f"- منابع جهانی: {science_pipeline.get('sources_count', '—')} · میزهای آموزش‌دیده: {science_pipeline.get('desks_trained', '—')}",
                 f"- مراحل: scouts={len(stages.get('scouts') or [])} · research={len(stages.get('research_institute') or [])} · applied={len(stages.get('ahos_applied') or [])}",
+            ]
+        )
+
+    if aci_agi_si_brain or whole_ahos_organs:
+        brain = aci_agi_si_brain or {}
+        organs = whole_ahos_organs or {}
+        stage_fa = brain.get("current_stage_title_fa", "—")
+        index = brain.get("compounding_capability_index", "—")
+        loops = brain.get("loops") or {}
+        loop_names = ("self_deciding", "self_fault_finding", "self_debugging", "self_updating")
+        active_loops = sum(1 for k in loop_names if loops.get(k))
+        avg_exam = organs.get("average_university_exam_score_pct", "—")
+        organs_n = organs.get("organs_covered_count", "—")
+        lines.extend(
+            [
+                "",
+                "## تکامل تدریجی مغز (ACI -> AGI -> SI) و ارتقای ۸ اندام AHOS",
+                f"- مرحلهٔ فعلی: {stage_fa} · شاخص توانمندی: {index}/100 (day_1_agi_claimed=false).",
+                f"- حلقه‌های خودمختار فعال: {active_loops}/4 (خودتصمیم‌گیر · خودعیب‌پیداکن · خوددیباگ‌کن · خودآپدیت‌کن با قفل M70.6).",
+                f"- پژوهش و دانشگاه: {organs_n}/8 اندام · میانگین آزمون: {avg_exam}% · trading_only=false.",
             ]
         )
 
