@@ -3,7 +3,7 @@
   "executionMode": "PAPER_ONLY",
   "realTrading": false,
   "source": "reports/grok/M50/weekly_exam_snapshot.json (M50 exam grader + M13 tier gate)",
-  "generatedAt": "2026-10-23T18:23:44Z",
+  "generatedAt": "2026-10-23T19:02:15Z",
   "demo": false,
   "minSampleSize": 30,
   "runs": [

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T18:23:55Z",
+  "generated_at": "2026-10-23T17:32:18Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "overall_verdict": "CLEAN",
@@ -7,7 +7,7 @@
     {
       "check": "loopback_bind_127_0_0_1",
       "verdict": "CLEAN",
-      "files_checked": 18,
+      "files_checked": 16,
       "violations": []
     },
     {
@@ -19,7 +19,7 @@
     {
       "check": "secret_hygiene_scan",
       "verdict": "CLEAN",
-      "files_scanned": 272,
+      "files_scanned": 268,
       "findings": 0
     },
     {
@@ -32,14 +32,8 @@
     {
       "check": "mission_ledger_hash_chain",
       "verdict": "CLEAN",
-      "entries": {
-        "schema": "ahos.mission_ledger.v1",
-        "path": "C:\\Users\\Sniper\\AppData\\Local\\Temp\\tmpep3xdebz\\ledger_copy.jsonl",
-        "entries": 921,
-        "head_hash": "ca5295730e753978982826c52afb61e403c1f67c3d92c81dadcfd5f465802eba",
-        "torn_tail": false,
-        "verdict": "CHAIN_INTACT"
-      }
+      "entries": 0,
+      "note": "no_live_ledger_file"
     }
   ]
 }

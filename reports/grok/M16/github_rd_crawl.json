@@ -1,0 +1,87 @@
+{
+  "schema": "ahos.university.github_rd_crawl.v1",
+  "generated_at": "2026-10-23T19:02:15Z",
+  "paper_only": true,
+  "auto_install": false,
+  "code_executed": false,
+  "registry_sources_count": 12,
+  "candidates_scanned": 6,
+  "admitted_count": 4,
+  "rejected_count": 2,
+  "admitted": [
+    {
+      "id": "rd-skfolio-hrp",
+      "repo": "https://github.com/skfolio/skfolio",
+      "title": "skfolio: Portfolio Optimization & Hierarchical Risk Parity on scikit-learn",
+      "license": "BSD-3-Clause",
+      "faculty": "quant",
+      "stars": 1420,
+      "paper_application": "Paper portfolio weight caps & CVaR risk parity (M24)",
+      "status": "ADMITTED_PAPER_RD",
+      "auto_install": false,
+      "code_executed": false
+    },
+    {
+      "id": "rd-kronos-candles",
+      "repo": "https://github.com/shiyu-coder/Kronos",
+      "title": "Kronos: Foundation Model for Financial Candlestick K-Lines",
+      "license": "MIT",
+      "faculty": "quant",
+      "stars": 2150,
+      "paper_application": "Paper-only challenger candle forecaster (M15.10 / M56)",
+      "status": "ADMITTED_PAPER_RD",
+      "auto_install": false,
+      "code_executed": false
+    },
+    {
+      "id": "rd-ruptures-changepoint",
+      "repo": "https://github.com/deepcharles/ruptures",
+      "title": "ruptures: Offline & PELT Structural Break Detection in Python",
+      "license": "BSD-2-Clause",
+      "faculty": "quant",
+      "stars": 1680,
+      "paper_application": "Structural regime change detection for Gold & Oil paper desks",
+      "status": "ADMITTED_PAPER_RD",
+      "auto_install": false,
+      "code_executed": false
+    },
+    {
+      "id": "rd-vectorbt-oss",
+      "repo": "https://github.com/polakowo/vectorbt",
+      "title": "vectorbt Open-Source Vectorized Backtesting Utilities",
+      "license": "Apache-2.0",
+      "faculty": "research",
+      "stars": 4300,
+      "paper_application": "Replay sandbox purged walk-forward validation (M28.1)",
+      "status": "ADMITTED_PAPER_RD",
+      "auto_install": false,
+      "code_executed": false
+    }
+  ],
+  "rejected": [
+    {
+      "id": "rd-gpl-copyleft-bot",
+      "repo": "https://github.com/example/gpl-trading-bot",
+      "title": "GPLv3 Copyleft Trading Bot (Rejected by License Gate)",
+      "license": "GPL-3.0",
+      "faculty": "quant",
+      "stars": 800,
+      "paper_application": "NONE — rejected by permissive license gate",
+      "status": "REJECTED_LICENSE",
+      "auto_install": false,
+      "code_executed": false
+    },
+    {
+      "id": "rd-paid-closed-sdk",
+      "repo": "https://github.com/example/paid-proprietary-signals",
+      "title": "Commercial Paid Signal SDK (Rejected by Free-Source Gate)",
+      "license": "Proprietary-Paid",
+      "faculty": "quant",
+      "stars": 310,
+      "paper_application": "NONE — rejected by zero-paid-source rule",
+      "status": "REJECTED_LICENSE",
+      "auto_install": false,
+      "code_executed": false
+    }
+  ]
+}

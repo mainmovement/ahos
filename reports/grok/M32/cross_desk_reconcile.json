@@ -1,0 +1,75 @@
+{
+  "schema": "ahos.reconcile_bridge_m32.v1",
+  "generated_at": "2026-10-23T19:02:10Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "overall_verdict": "CLEAN",
+  "desks_reconciled": 7,
+  "total_paper_equity_usd": 70000.0,
+  "desks": [
+    {
+      "desk": "GOLD",
+      "mission_id": "M13-GOLD-SOAK",
+      "ledger_equity_usd": 10000.0,
+      "reported_equity_usd": 10000.0,
+      "drift_usd": 0.0,
+      "chain_ok": true,
+      "verdict": "CLEAN"
+    },
+    {
+      "desk": "OIL",
+      "mission_id": "M13.1-OIL-PAPER",
+      "ledger_equity_usd": 10000.0,
+      "reported_equity_usd": 10000.0,
+      "drift_usd": 0.0,
+      "chain_ok": true,
+      "verdict": "CLEAN"
+    },
+    {
+      "desk": "CRYPTO",
+      "mission_id": "M13.3-CRYPTO-PAPER",
+      "ledger_equity_usd": 10000.0,
+      "reported_equity_usd": 10000.0,
+      "drift_usd": 0.0,
+      "chain_ok": true,
+      "verdict": "CLEAN"
+    },
+    {
+      "desk": "US_EQUITIES",
+      "mission_id": "M13.4-US-EQ-PAPER",
+      "ledger_equity_usd": 10000.0,
+      "reported_equity_usd": 10000.0,
+      "drift_usd": 0.0,
+      "chain_ok": true,
+      "verdict": "CLEAN"
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "mission_id": "M13.5-EU-EQ-PAPER",
+      "ledger_equity_usd": 10000.0,
+      "reported_equity_usd": 10000.0,
+      "drift_usd": 0.0,
+      "chain_ok": true,
+      "verdict": "CLEAN"
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "mission_id": "M13.6-ASIA-EQ-PAPER",
+      "ledger_equity_usd": 10000.0,
+      "reported_equity_usd": 10000.0,
+      "drift_usd": 0.0,
+      "chain_ok": true,
+      "verdict": "CLEAN"
+    },
+    {
+      "desk": "FOREX",
+      "mission_id": "M19-FOREX-PAPER",
+      "ledger_equity_usd": 10000.0,
+      "reported_equity_usd": 10000.0,
+      "drift_usd": 0.0,
+      "chain_ok": true,
+      "verdict": "CLEAN"
+    }
+  ]
+}

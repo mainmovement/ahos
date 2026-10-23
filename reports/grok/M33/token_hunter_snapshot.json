@@ -1,0 +1,129 @@
+{
+  "schema": "ahos.token_hunter_24.v1",
+  "generated_at": "2026-10-23T19:02:09Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "steps_count": 24,
+  "step_names": [
+    "01_free_source_policy",
+    "02_two_source_security_witness",
+    "03_source_consensus_agreement",
+    "04_contract_verified",
+    "05_no_honeypot_simulation",
+    "06_mint_authority_renounced",
+    "07_freeze_authority_disabled",
+    "08_no_blacklist_function",
+    "09_no_hidden_owner_or_proxy",
+    "10_buy_tax_within_cap",
+    "11_sell_tax_within_cap",
+    "12_tax_immutable",
+    "13_lp_locked_or_burned_pct",
+    "14_lp_lock_duration_days",
+    "15_min_liquidity_usd",
+    "16_top10_holders_concentration",
+    "17_creator_balance_cap",
+    "18_creator_no_prior_rugs",
+    "19_min_pair_age_hours",
+    "20_volume_to_liquidity_bounds",
+    "21_wash_trade_wallet_diversity",
+    "22_slippage_impact_cap",
+    "23_oracle_reference_sanity",
+    "24_paper_only_execution_lock"
+  ],
+  "candidates_screened": 4,
+  "paper_watch_eligible_count": 2,
+  "veto_unsafe_count": 2,
+  "candidates": [
+    {
+      "symbol": "AERO",
+      "chain": "base",
+      "contract_address": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "state": "PAPER_WATCH_ELIGIBLE",
+      "steps_passed": 24,
+      "steps_total": 24,
+      "corroborated_sources": [
+        "dexscreener",
+        "geckoterminal",
+        "goplus"
+      ],
+      "veto_reasons": [],
+      "paper_only": true,
+      "live": false,
+      "trades": false
+    },
+    {
+      "symbol": "JUP",
+      "chain": "solana",
+      "contract_address": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+      "state": "PAPER_WATCH_ELIGIBLE",
+      "steps_passed": 24,
+      "steps_total": 24,
+      "corroborated_sources": [
+        "dexscreener",
+        "geckoterminal",
+        "rugcheck"
+      ],
+      "veto_reasons": [],
+      "paper_only": true,
+      "live": false,
+      "trades": false
+    },
+    {
+      "symbol": "RUGMEME",
+      "chain": "ethereum",
+      "contract_address": "0xdead00000000000000000000000000000000beef",
+      "state": "VETO_UNSAFE",
+      "steps_passed": 3,
+      "steps_total": 24,
+      "corroborated_sources": [
+        "goplus",
+        "honeypotis"
+      ],
+      "veto_reasons": [
+        "03_source_consensus_agreement:source_conflict_or_non_pass",
+        "04_contract_verified:verified=False",
+        "05_no_honeypot_simulation:is_honeypot=True",
+        "06_mint_authority_renounced:mint_renounced=False",
+        "07_freeze_authority_disabled:freeze_disabled=False",
+        "08_no_blacklist_function:has_blacklist=True",
+        "09_no_hidden_owner_or_proxy:hidden_owner_or_proxy=True",
+        "10_buy_tax_within_cap:buy_tax_pct=12.00",
+        "11_sell_tax_within_cap:sell_tax_pct=45.00",
+        "12_tax_immutable:tax_modifiable=True",
+        "13_lp_locked_or_burned_pct:lp_locked_pct=10.0",
+        "14_lp_lock_duration_days:lp_lock_days=7",
+        "15_min_liquidity_usd:liquidity_usd=12000",
+        "16_top10_holders_concentration:top10_holders_pct=78.5",
+        "17_creator_balance_cap:creator_balance_pct=35.0",
+        "18_creator_no_prior_rugs:creator_prior_rugs=3",
+        "19_min_pair_age_hours:pair_age_hours=2.5",
+        "20_volume_to_liquidity_bounds:vol_liq_ratio=79.17",
+        "21_wash_trade_wallet_diversity:unique_traders=14,wash_flag=True",
+        "22_slippage_impact_cap:slippage_1k_bps=850.0",
+        "23_oracle_reference_sanity:oracle_sanity_ok=False"
+      ],
+      "paper_only": true,
+      "live": false,
+      "trades": false
+    },
+    {
+      "symbol": "SINGLE_SRC_TOKEN",
+      "chain": "arbitrum",
+      "contract_address": "0x1111222233334444555566667777888899990000",
+      "state": "VETO_UNSAFE",
+      "steps_passed": 22,
+      "steps_total": 24,
+      "corroborated_sources": [
+        "dexscreener"
+      ],
+      "veto_reasons": [
+        "02_two_source_security_witness:sources=1",
+        "03_source_consensus_agreement:source_conflict_or_non_pass"
+      ],
+      "paper_only": true,
+      "live": false,
+      "trades": false
+    }
+  ]
+}

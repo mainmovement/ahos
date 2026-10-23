@@ -1,0 +1,352 @@
+{
+  "schema": "ahos.multi_market_desks.v1",
+  "generated_at": "2026-10-23T19:02:06Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "desks_count": 7,
+  "instruments_evaluated": 13,
+  "verified_instruments": 13,
+  "desks": {
+    "GOLD": {
+      "desk": "GOLD",
+      "mission_id": "M13-GOLD-SOAK",
+      "symbols_count": 1,
+      "verified_count": 1,
+      "status": "VERIFIED",
+      "paper_only": true,
+      "live": false,
+      "primary_sources": [
+        "goldapi_spot",
+        "yahoo_gc_futures"
+      ]
+    },
+    "OIL": {
+      "desk": "OIL",
+      "mission_id": "M13.1-OIL-PAPER",
+      "symbols_count": 1,
+      "verified_count": 1,
+      "status": "VERIFIED",
+      "paper_only": true,
+      "live": false,
+      "primary_sources": [
+        "eia_spot",
+        "yahoo_cl_futures"
+      ]
+    },
+    "CRYPTO": {
+      "desk": "CRYPTO",
+      "mission_id": "M13.3-CRYPTO-PAPER",
+      "symbols_count": 2,
+      "verified_count": 2,
+      "status": "VERIFIED",
+      "paper_only": true,
+      "live": false,
+      "primary_sources": [
+        "binance_public",
+        "coingecko_public"
+      ]
+    },
+    "US_EQUITIES": {
+      "desk": "US_EQUITIES",
+      "mission_id": "M13.4-US-EQ-PAPER",
+      "symbols_count": 3,
+      "verified_count": 3,
+      "status": "VERIFIED",
+      "paper_only": true,
+      "live": false,
+      "primary_sources": [
+        "stooq_us",
+        "yahoo_us"
+      ]
+    },
+    "EU_EQUITIES": {
+      "desk": "EU_EQUITIES",
+      "mission_id": "M13.5-EU-EQ-PAPER",
+      "symbols_count": 2,
+      "verified_count": 2,
+      "status": "VERIFIED",
+      "paper_only": true,
+      "live": false,
+      "primary_sources": [
+        "stooq_eu",
+        "yahoo_eu"
+      ]
+    },
+    "ASIA_EQUITIES": {
+      "desk": "ASIA_EQUITIES",
+      "mission_id": "M13.6-ASIA-EQ-PAPER",
+      "symbols_count": 2,
+      "verified_count": 2,
+      "status": "VERIFIED",
+      "paper_only": true,
+      "live": false,
+      "primary_sources": [
+        "stooq_asia",
+        "yahoo_asia"
+      ]
+    },
+    "FOREX": {
+      "desk": "FOREX",
+      "mission_id": "M19-FOREX-PAPER",
+      "symbols_count": 2,
+      "verified_count": 2,
+      "status": "VERIFIED",
+      "paper_only": true,
+      "live": false,
+      "primary_sources": [
+        "ecb_ref",
+        "fred_stooq_fx"
+      ]
+    }
+  },
+  "instruments": [
+    {
+      "desk": "GOLD",
+      "symbol": "XAUUSD",
+      "mission_id": "M13-GOLD-SOAK",
+      "witness_state": "VERIFIED",
+      "consensus_price": 2748.75,
+      "spread_pct": 0.0255,
+      "spread_bps": 2.55,
+      "sources": [
+        "goldapi_spot",
+        "yahoo_gc_futures"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 100.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "OIL",
+      "symbol": "WTI",
+      "mission_id": "M13.1-OIL-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 71.4,
+      "spread_pct": 0.1401,
+      "spread_bps": 14.01,
+      "sources": [
+        "eia_spot",
+        "yahoo_cl_futures"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 100.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "CRYPTO",
+      "symbol": "BTCUSDT",
+      "mission_id": "M13.3-CRYPTO-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 68442.5,
+      "spread_pct": 0.0657,
+      "spread_bps": 6.57,
+      "sources": [
+        "binance_public",
+        "coingecko_public"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 150.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "CRYPTO",
+      "symbol": "ETHUSDT",
+      "mission_id": "M13.3-CRYPTO-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 2646.75,
+      "spread_pct": 0.0945,
+      "spread_bps": 9.45,
+      "sources": [
+        "binance_public",
+        "coingecko_public"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 150.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "US_EQUITIES",
+      "symbol": "SPY",
+      "mission_id": "M13.4-US-EQ-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 584.275,
+      "spread_pct": 0.0257,
+      "spread_bps": 2.57,
+      "sources": [
+        "stooq_us",
+        "yahoo_us"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 200.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "US_EQUITIES",
+      "symbol": "QQQ",
+      "mission_id": "M13.4-US-EQ-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 496.9,
+      "spread_pct": 0.0402,
+      "spread_bps": 4.02,
+      "sources": [
+        "stooq_us",
+        "yahoo_us"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 200.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "US_EQUITIES",
+      "symbol": "NVDA",
+      "mission_id": "M13.4-US-EQ-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 141.56,
+      "spread_pct": 0.0848,
+      "spread_bps": 8.48,
+      "sources": [
+        "stooq_us",
+        "yahoo_us"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 200.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "symbol": "EXW1.DE",
+      "mission_id": "M13.5-EU-EQ-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 50.84,
+      "spread_pct": 0.0787,
+      "spread_bps": 7.87,
+      "sources": [
+        "stooq_eu",
+        "yahoo_eu"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 150.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "symbol": "DAX",
+      "mission_id": "M13.5-EU-EQ-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 19486.0,
+      "spread_pct": 0.0616,
+      "spread_bps": 6.16,
+      "sources": [
+        "stooq_eu",
+        "yahoo_eu"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 150.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "symbol": "N225",
+      "mission_id": "M13.6-ASIA-EQ-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 38922.5,
+      "spread_pct": 0.0642,
+      "spread_bps": 6.42,
+      "sources": [
+        "stooq_asia",
+        "yahoo_asia"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 150.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "symbol": "HSI",
+      "mission_id": "M13.6-ASIA-EQ-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 20601.0,
+      "spread_pct": 0.1068,
+      "spread_bps": 10.68,
+      "sources": [
+        "stooq_asia",
+        "yahoo_asia"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 150.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "FOREX",
+      "symbol": "EURUSD",
+      "mission_id": "M19-FOREX-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 1.0844,
+      "spread_pct": 0.0277,
+      "spread_bps": 2.77,
+      "sources": [
+        "ecb_ref",
+        "fred_stooq_fx"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 200.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    },
+    {
+      "desk": "FOREX",
+      "symbol": "USDJPY",
+      "mission_id": "M19-FOREX-PAPER",
+      "witness_state": "VERIFIED",
+      "consensus_price": 151.85,
+      "spread_pct": 0.0395,
+      "spread_bps": 3.95,
+      "sources": [
+        "ecb_ref",
+        "fred_stooq_fx"
+      ],
+      "oms_state": "ACCEPTED_PAPER",
+      "margin_event": "WITHIN_CAP",
+      "notional_usd": 200.0,
+      "bankroll_usd": 10000.0,
+      "paper_only": true,
+      "live": false
+    }
+  ]
+}

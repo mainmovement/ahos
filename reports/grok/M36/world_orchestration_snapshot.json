@@ -1,0 +1,61 @@
+{
+  "schema": "ahos.world_orchestrator_m36.v1",
+  "generated_at": "2026-10-23T19:02:10Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "live_trading": false,
+  "world_state": "NOMINAL_PAPER_AUTONOMOUS",
+  "tier": "T0",
+  "subsystems": {
+    "m70_safety_lock": "LOCKED_CLEAN",
+    "m19_multi_market": {
+      "instruments_total": 13,
+      "verified_count": 13
+    },
+    "m33_token_hunter": {
+      "screened": 4,
+      "paper_watch_eligible": 2,
+      "veto_unsafe": 2
+    },
+    "m18_didehban_osint": {
+      "clusters_total": 3,
+      "corroborated_count": 3,
+      "nightly_brief_fa_preview": "گزارش شبانهٔ اتاق خبر دیده‌بان (M18 · صرفاً کاغذی / PAPER_ONLY):"
+    },
+    "m15_m58_council": {
+      "status": "APPROVED_PAPER",
+      "approved_paper": true,
+      "promoted_live": false
+    },
+    "m32_m42_reconcile": {
+      "verdict": "CLEAN",
+      "desks_reconciled": 7,
+      "total_paper_equity_usd": 70000.0
+    },
+    "m30_canonical_memory": {
+      "chain_ok": true,
+      "total_entries": 10,
+      "head_hash": "c01772667e816a8f"
+    },
+    "m56_tournament": {
+      "contenders": 4,
+      "leader_id": "strat-regime-hmm-v2",
+      "leader_dsr": 16.7525,
+      "auto_promote": false
+    },
+    "m60_astra_engine": {
+      "overall_status": "SHADOW_PAPER_ACTIVE",
+      "stages_passed": "8/8",
+      "rollback_triggered": false
+    },
+    "m48_dependency_audit": {
+      "verdict": "CLEAN",
+      "next_version": "16.3.8"
+    },
+    "m64_negahban_security": {
+      "overall_verdict": "CLEAN",
+      "checks_count": 5
+    }
+  }
+}

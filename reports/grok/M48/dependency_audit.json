@@ -1,0 +1,14 @@
+{
+  "schema": "ahos.dependency_lock_audit_m48.v1",
+  "generated_at": "2026-10-23T19:02:10Z",
+  "paper_only": true,
+  "lockfile_mutated": false,
+  "arena_lockfile_present": true,
+  "arena_lockfile_sha256": "e89b3ff0686f3de5720f881ae34c439a751a5c08a1ec6cfcf73d9a31762333e1",
+  "arena_packages_count": 770,
+  "next_version": "16.3.8",
+  "blocked_packages_policy_count": 5,
+  "accepted_proposals": [],
+  "rejected_proposals": [],
+  "verdict": "CLEAN"
+}

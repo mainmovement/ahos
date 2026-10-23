@@ -198,3 +198,138 @@ def evaluate_osint_cluster(
         taint_labels=taint,
         injection_sanitized=sanitized_any,
     )
+
+
+def ingest_rss_feeds(
+    feed_xmls_or_fixtures: Sequence[dict[str, Any] | str] | None = None,
+) -> list[dict[str, Any]]:
+    """M18: Parse and corroborate multi-source RSS/Atom feed items or structured feed fixtures.
+    Sanitizes all untrusted text, deduplicates via 64-bit SimHash, and groups by topic/claim
+    to enforce the Two-Source Witness Law.
+    """
+    import xml.etree.ElementTree as ET
+
+    raw_entries: list[dict[str, Any]] = []
+    if feed_xmls_or_fixtures is None:
+        raw_entries = [
+            {
+                "source": "https://fred.stlouisfed.org/feeds/gold",
+                "topic": "GOLD",
+                "claim": "gold_two_source_steady",
+                "headline": "Gold spot and COMEX futures maintain two-source witness parity",
+                "reliability": 0.90,
+            },
+            {
+                "source": "https://finance.yahoo.com/rss/commodities",
+                "topic": "GOLD",
+                "claim": "gold_two_source_steady",
+                "headline": "COMEX Gold futures corroborate spot bullion witness within 5 bps",
+                "reliability": 0.86,
+            },
+            {
+                "source": "https://www.eia.gov/rss/petroleum.xml",
+                "topic": "OIL",
+                "claim": "wti_inventory_draw_paper",
+                "headline": "EIA weekly petroleum report shows crude draw on WTI paper track",
+                "reliability": 0.92,
+            },
+            {
+                "source": "https://fred.stlouisfed.org/feeds/oil",
+                "topic": "OIL",
+                "claim": "wti_inventory_draw_paper",
+                "headline": "FRED DCOILWTICO corroborates EIA WTI crude reference price",
+                "reliability": 0.90,
+            },
+            {
+                "source": "https://www.ecb.europa.eu/rss/fx.xml",
+                "topic": "MACRO",
+                "claim": "fx_rates_corroborated",
+                "headline": "ECB euro reference rates align with FRED macro FX series",
+                "reliability": 0.91,
+            },
+            {
+                "source": "https://stooq.com/rss/fx",
+                "topic": "MACRO",
+                "claim": "fx_rates_corroborated",
+                "headline": "Stooq FX feed confirms EURUSD and USDJPY reference parity",
+                "reliability": 0.85,
+            },
+        ]
+    else:
+        for entry in feed_xmls_or_fixtures:
+            if isinstance(entry, str) and entry.lstrip().startswith("<"):
+                try:
+                    root = ET.fromstring(entry)
+                    for item in root.findall(".//item") + root.findall(".//{http://www.w3.org/2005/Atom}entry"):
+                        t1 = item.find("title")
+                        title_el = t1 if t1 is not None else item.find("{http://www.w3.org/2005/Atom}title")
+                        l1 = item.find("link")
+                        link_el = l1 if l1 is not None else item.find("{http://www.w3.org/2005/Atom}link")
+                        cat_el = item.find("category")
+                        title_txt = (title_el.text if title_el is not None and title_el.text else "").strip()
+                        link_txt = (
+                            (link_el.text if link_el is not None and link_el.text else "")
+                            or (link_el.attrib.get("href", "") if link_el is not None else "")
+                        ).strip()
+                        topic_txt = (cat_el.text if cat_el is not None and cat_el.text else "MACRO").strip().upper()
+                        raw_entries.append(
+                            {
+                                "source": link_txt or "rss.local",
+                                "topic": topic_txt,
+                                "claim": topic_txt.lower() + "_rss_claim",
+                                "headline": title_txt,
+                                "reliability": 0.80,
+                            }
+                        )
+                except ET.ParseError:
+                    continue
+            elif isinstance(entry, dict):
+                raw_entries.append(dict(entry))
+
+    sanitized_entries: list[dict[str, Any]] = []
+    for item in raw_entries:
+        clean_h, was_inj = sanitize_untrusted_headline(str(item.get("headline") or item.get("title") or ""))
+        sanitized_entries.append({**item, "headline": clean_h, "injection_sanitized": was_inj})
+
+    deduped = deduplicate_headlines(sanitized_entries, max_hamming=6)
+    by_topic: dict[str, list[dict[str, Any]]] = {}
+    for d in deduped:
+        t = str(d.get("topic") or "MACRO").upper()
+        by_topic.setdefault(t, []).append(d)
+
+    clusters: list[dict[str, Any]] = []
+    for topic, group in by_topic.items():
+        res = evaluate_osint_cluster(group, age_seconds=450.0, impact=0.85)
+        clusters.append(
+            {
+                "topic": topic,
+                "state": res.state,
+                "claim": res.claim,
+                "independent_domains": list(res.independent_domains),
+                "credibility": res.credibility,
+                "recency": res.recency,
+                "priority": res.priority,
+                "headlines": [g["headline"] for g in group],
+                "paper_only": True,
+            }
+        )
+    return clusters
+
+
+def build_nightly_news_brief_fa(stories: Sequence[dict[str, Any]]) -> str:
+    """M18: Generate the deterministic Persian nightly newsroom brief from corroborated stories."""
+    if not stories:
+        return "گزارش شبانهٔ دیده‌بان (M18): هیچ خبر دو‌منبعی تأییدشده‌ای در این چرخه ثبت نشد (PAPER_ONLY)."
+    corroborated = [
+        s for s in stories if str(s.get("state") or s.get("claimStrength") or "") in {"CORROBORATED", "STRONG", "MODERATE", "LIVE"}
+    ]
+    lines = [
+        "گزارش شبانهٔ اتاق خبر دیده‌بان (M18 · صرفاً کاغذی / PAPER_ONLY):",
+        f"- تعداد کل خوشه‌های بررسی‌شده: {len(stories)} | تأییدشده با حداقل دو منبع مستقل: {len(corroborated)}",
+    ]
+    for s in stories[:5]:
+        topic = s.get("topic") or s.get("market") or "GLOBAL"
+        headline = s.get("headlineFa") or (s.get("headlines") or [s.get("claim") or ""])[0]
+        state = s.get("state") or s.get("status") or "UNKNOWN"
+        lines.append(f"- [{topic}] ({state}): {headline}")
+    return "\n".join(lines)

@@ -3,7 +3,7 @@
   "executionMode": "PAPER_ONLY",
   "realTrading": false,
   "source": "config/skills_registry.json + M52 skill_vet.py + proposals/prop_*.json",
-  "generatedAt": "2026-10-23T18:23:45Z",
+  "generatedAt": "2026-10-23T17:28:33Z",
   "demo": false,
   "entries": [
     {

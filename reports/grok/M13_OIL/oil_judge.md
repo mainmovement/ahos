@@ -4,7 +4,7 @@
 
 - ledger entries: 8
 - cycles replayed: 7
-- chain head: `22b76bf54c6a3257aac7bb95a37434c61f697ce07b58ded44dfd613494932265`
+- chain head: `82012445671e523d165a7e5657bf635127bdae87207797d7190ae492933ae76f`
 
 ## The judge's own numbers
 

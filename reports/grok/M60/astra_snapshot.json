@@ -1,0 +1,90 @@
+{
+  "schema": "ahos.astra_engine.v1",
+  "generated_at": "2026-10-23T19:02:10Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "live_promotion": false,
+  "hypothesis_id": "ASTRA-HYP-2026-1023-01",
+  "overall_status": "SHADOW_PAPER_ACTIVE",
+  "rollback_triggered": false,
+  "safety_lock_status": "LOCKED_CLEAN",
+  "stages_count": 8,
+  "stages_passed": 8,
+  "stages": [
+    {
+      "stage_id": "M60.1_TELEMETRY_INGESTION",
+      "status": "PASS",
+      "summary": "Ingested M13 soak, M49 lessons, and M58 Brier calibration telemetry",
+      "metrics": {
+        "brier_baseline": 0.168,
+        "brier_candidate": 0.1529
+      }
+    },
+    {
+      "stage_id": "M60.2_DRIFT_BOTTLENECK_DETECTION",
+      "status": "PASS",
+      "summary": "Detected direction-call calibration bottleneck; candidate improves Brier by +0.0151",
+      "metrics": {
+        "brier_improvement": 0.0151
+      }
+    },
+    {
+      "stage_id": "M60.3_HYPOTHESIS_GENERATION",
+      "status": "PASS",
+      "summary": "Generated Regime-HMM + ATR Volatility Filter hypothesis for paper shadow slot",
+      "metrics": {
+        "hypothesis_id": "ASTRA-HYP-2026-1023-01",
+        "target_path": "proposals/prop_astra_m60_shadow.json"
+      }
+    },
+    {
+      "stage_id": "M60.4_REPLAY_SANDBOX_BACKTEST",
+      "status": "PASS",
+      "summary": "Purged walk-forward replay sandbox DSR=1.84",
+      "metrics": {
+        "deflated_sharpe": 1.84,
+        "purged_walk_forward": true
+      }
+    },
+    {
+      "stage_id": "M60.5_TAIL_RISK_STRESS_TEST",
+      "status": "PASS",
+      "summary": "Tail-risk stress test drawdown=4.20% (crisis level=READ)",
+      "metrics": {
+        "stress_drawdown_pct": 4.2,
+        "crisis_level": "READ",
+        "entries_allowed": true
+      }
+    },
+    {
+      "stage_id": "M60.6_DEVILS_ADVOCATE_COUNCIL_GATE",
+      "status": "PASS",
+      "summary": "Council gate APPROVED_PAPER with mandatory Devil's Advocate dissent",
+      "metrics": {
+        "council_status": "APPROVED_PAPER",
+        "promoted_live": false
+      }
+    },
+    {
+      "stage_id": "M60.7_SHADOW_PAPER_SLOT_ALLOCATION",
+      "status": "PASS",
+      "summary": "Allocated to shadow paper slot SHADOW-SLOT-01 (0% live capital, 100% paper)",
+      "metrics": {
+        "slot_id": "SHADOW-SLOT-01",
+        "live_capital_usd": 0.0
+      }
+    },
+    {
+      "stage_id": "M60.8_ROLLBACK_AND_SAFETY_LOCK_GUARD",
+      "status": "PASS",
+      "summary": "Safety lock LOCKED_CLEAN; drift 11.0 bps <= 35.0 bps cap",
+      "metrics": {
+        "safety_lock_status": "LOCKED_CLEAN",
+        "write_guard_passed": true,
+        "write_error": null,
+        "rollback_triggered": false
+      }
+    }
+  ]
+}

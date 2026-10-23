@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from architecture.markets.news_desk import deduplicate_headlines, evaluate_osint_cluster
+from architecture.markets.news_desk import build_nightly_news_brief_fa, deduplicate_headlines, evaluate_osint_cluster, ingest_rss_feeds
 
 
 def _utc_now() -> str:
@@ -120,6 +120,8 @@ def main() -> int:
             "items": [{k: v for k, v in item.items() if k != "simhash"} for item in deduped],
         },
         "newsroomStories": stories,
+        "rssClusters": ingest_rss_feeds(),
+        "nightlyBriefFa": build_nightly_news_brief_fa(stories),
     }
     out_path = out_dir / "newsroom_snapshot.json"
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -1,48 +1,48 @@
 {
-  "generated_at": "2026-10-23T18:27:37Z",
+  "generated_at": "2026-10-23T17:17:44Z",
   "paper_only": true,
   "messageHub": {
     "executionMode": "PAPER_ONLY",
     "realTrading": false,
     "source": "export_message_hub_snapshot.py (bridge probe + M13_SOAK + M35.5 inbox)",
-    "generatedAt": "2026-10-23T18:27:37Z",
+    "generatedAt": "2026-10-23T17:17:44Z",
     "demo": false,
     "channels": [
       {
         "channel": "Kian chat",
-        "status": "LIVE",
-        "lastMessageTime": "2026-10-23T18:27:37Z",
+        "status": "PARTIAL",
+        "lastMessageTime": "2026-10-23T17:17:44Z",
         "queueDepth": 0,
         "lastError": null
       },
       {
         "channel": "Telegram",
-        "status": "LIVE",
-        "lastMessageTime": "2026-10-23T18:27:37Z",
+        "status": "UNAVAILABLE",
+        "lastMessageTime": null,
         "queueDepth": null,
-        "lastError": null
+        "lastError": "owner token not set"
       },
       {
         "channel": "nightly report",
         "status": "LIVE",
-        "lastMessageTime": "2026-10-23T18:24:00Z",
+        "lastMessageTime": "2026-10-23T13:44:49Z",
         "queueDepth": null,
         "lastError": null
       },
       {
         "channel": "command router",
         "status": "LIVE",
-        "lastMessageTime": "2026-10-23T18:27:37Z",
+        "lastMessageTime": "2026-10-23T17:17:44Z",
         "queueDepth": 5,
         "lastError": null
       }
     ],
     "telegram": {
-      "bridgeState": "CONNECTED",
-      "needsTokenRotation": false
+      "bridgeState": "BLOCKED_OWNER",
+      "needsTokenRotation": true
     },
     "nightlyReport": {
-      "lastReportTime": "2026-10-23T18:24:00Z",
+      "lastReportTime": "2026-10-23T13:44:49Z",
       "language": "فارسی",
       "deliveryState": "UNKNOWN",
       "evidenceLink": "reports/grok/M13_SOAK/2026-10-23_judge.md"
@@ -86,16 +86,16 @@
     ],
     "messageLog": [
       {
-        "time": "2026-10-23T18:23:57Z",
+        "time": "2026-10-23T14:44:53Z",
         "direction": "out",
         "channel": "nightly report",
-        "summary": "soak cycle 865 witness=VERIFIED",
+        "summary": "soak cycle 851 witness=VERIFIED",
         "deliveryState": "DELIVERED"
       }
     ]
   },
   "bridge_llm": {
-    "state": "CONNECTED",
-    "lastError": null
+    "state": "DISCONNECTED",
+    "lastError": "URLError"
   }
 }

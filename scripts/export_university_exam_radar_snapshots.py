@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from architecture.learning.exam import grade
-from architecture.university.registry import load_sources
+from architecture.university.registry import crawl_open_source_rd, load_sources
 
 
 def _utc_now() -> str:
@@ -190,7 +190,8 @@ def main() -> int:
     (radar_dir / "science_radar_snapshot.json").write_text(
         json.dumps(radar_payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    print(f"wrote M59 ({len(sources)} sources), M50 (32 items), and M44 (4 items) snapshots")
+    m16_crawl = crawl_open_source_rd()
+    print(f"wrote M16 ({m16_crawl['admitted_count']} admitted), M59 ({len(sources)} sources), M50 (32 items), and M44 (4 items) snapshots")
     return 0
 
 

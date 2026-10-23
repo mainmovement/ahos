@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-10-23T18:23:56Z",
+  "generated_at": "2026-10-23T17:35:45Z",
   "paper_only": true,
   "brier_score": 0.1529,
   "selfEvaluation": {
     "executionMode": "PAPER_ONLY",
     "realTrading": false,
     "source": "M13_REPLAY/tier_gate_exports/summary.json + M58.4 Brier calibration",
-    "generatedAt": "2026-10-23T18:23:56Z",
+    "generatedAt": "2026-10-23T17:35:45Z",
     "demo": false,
     "scorecards": [
       {
