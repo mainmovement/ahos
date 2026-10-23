@@ -9,6 +9,8 @@ Configuration comes from a .env file beside this script (see .env.example).
 The only mandatory value is TELEGRAM_BOT_TOKEN; everything else has a working
 default.
 
+# Arena gateway (PAPER_ONLY): AHOS_GATEWAY_URL=http://127.0.0.1:3200/api/chat
+
 DESIGN NOTES FOR THE DEPLOYMENT TARGET (single user, laptop, Iran):
   * api.telegram.org is filtered. Set ALL_PROXY=socks5://127.0.0.1:10808 (or
     whatever your tunnel exposes) and every outbound call honours it.
