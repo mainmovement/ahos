@@ -81,6 +81,16 @@ EXPORT_STEPS: list[tuple[str, str, list[str]]] = [
         "scripts.export_self_evolution_cycle_snapshot",
         ["reports/grok/M60/self_evolution_cycle_snapshot.json"],
     ),
+    (
+        "M60_cross_asset_fusion",
+        "scripts.export_cross_asset_fusion_snapshot",
+        ["reports/grok/M60/cross_asset_fusion_snapshot.json"],
+    ),
+    (
+        "M60_owner_live_switch",
+        "scripts.export_owner_live_switch_readiness",
+        ["reports/grok/M60/owner_live_switch_readiness.json"],
+    ),
 ]
 
 

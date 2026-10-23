@@ -1,0 +1,148 @@
+{
+  "schema": "ahos.cross_asset_signal_fusion.v1",
+  "generated_at": "2026-10-23T21:02:30Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "pilot_capital_usd": 100.0,
+  "supported_directions": [
+    "LONG",
+    "SHORT"
+  ],
+  "desks_fused_count": 7,
+  "min_leverage_enforced": 10,
+  "allowed_leverage": [
+    10,
+    15,
+    20,
+    25
+  ],
+  "max_isolated_slice_usd": 20.0,
+  "confluence_opportunities": [
+    {
+      "rank": 1,
+      "desk": "GOLD_MICRO",
+      "symbol": "MGC",
+      "side": "LONG",
+      "leverage": 15,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.49,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 65.88,
+      "paper_only": true
+    },
+    {
+      "rank": 2,
+      "desk": "GOLD_MICRO",
+      "symbol": "MGC",
+      "side": "SHORT",
+      "leverage": 20,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.49,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 63.88,
+      "paper_only": true
+    },
+    {
+      "rank": 3,
+      "desk": "CRUDE_MICRO",
+      "symbol": "MCL",
+      "side": "SHORT",
+      "leverage": 20,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.49,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 63.88,
+      "paper_only": true
+    },
+    {
+      "rank": 4,
+      "desk": "CRUDE_MICRO",
+      "symbol": "MCL",
+      "side": "LONG",
+      "leverage": 10,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.49,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 65.88,
+      "paper_only": true
+    },
+    {
+      "rank": 5,
+      "desk": "CRYPTO_MAJORS",
+      "symbol": "BTCUSDT-PERP",
+      "side": "LONG",
+      "leverage": 10,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.49,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 65.88,
+      "paper_only": true
+    },
+    {
+      "rank": 6,
+      "desk": "CRYPTO_MAJORS",
+      "symbol": "SOLUSDT-PERP",
+      "side": "SHORT",
+      "leverage": 25,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.49,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 63.88,
+      "paper_only": true
+    },
+    {
+      "rank": 7,
+      "desk": "CRYPTO_UNIVERSE",
+      "symbol": "M33_GEM_ALPHA",
+      "side": "LONG",
+      "leverage": 15,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.525,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 66.3,
+      "paper_only": true
+    },
+    {
+      "rank": 8,
+      "desk": "GLOBAL_EQUITIES",
+      "symbol": "SPX-MICRO",
+      "side": "LONG",
+      "leverage": 10,
+      "isolated_margin_usd": 15.0,
+      "statistical_edge_e": 0.49,
+      "red_team_survived": true,
+      "witness_state": "VERIFIED",
+      "confluence_score": 65.88,
+      "paper_only": true
+    }
+  ],
+  "macro_alignment_matrix": {
+    "DXY": {
+      "bias": "NEUTRAL_TO_BEARISH_GOLD",
+      "gold_long_support": true,
+      "oil_long_support": false
+    },
+    "DFII10": {
+      "real_yield_trend": "ELEVATED",
+      "gold_headwind": true
+    },
+    "COT": {
+      "gold_spec_net": "REDUCED_SHORT_COVERING",
+      "oil_spec_net": "NET_LONG_TRIM"
+    },
+    "EIA": {
+      "crude_draw_surprise": "MILD_DRAW",
+      "mcl_short_confluence": true
+    },
+    "macro_overlays_verdict": "PARTIAL_ALIGNMENT_PAPER_ONLY"
+  },
+  "persian_summary_fa": "ماتریس همگرایی M60.F (۷ میز · PAPER_ONLY): رتبه‌بندی فرصت‌های LONG و SHORT برای پایلوت ۱۰۰ دلاری با برش ایزوله ۱۰–۲۰ دلار، اهرم ۱۰×–۲۵×، لبهٔ آماری E>0 و عبور تیم قرمز ۲×/۳×. طلا MGC، نفت MCL، BTC/SOL، جواهر M33 و کلان DXY/DFII10/COT/EIA — بدون معاملهٔ زنده تا رفع HOLD."
+}

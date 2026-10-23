@@ -1,10 +1,10 @@
 {
   "schema": "ahos.teaching_mode_m65.v1",
-  "generated_at": "2026-10-23T19:25:50Z",
+  "generated_at": "2026-10-23T21:02:27Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
-  "lessons_count": 4,
+  "lessons_count": 6,
   "journal_entries_count": 3,
   "glossary_count": 5,
   "latest_lesson_title_fa": "کالبدشکافی آموزشی ضرر کاغذی در GOLD (XAUUSD) — رژیم RANGE_CHOP",
@@ -76,12 +76,44 @@
         "Drawdown"
       ],
       "paper_only": true
+    },
+    {
+      "lesson_id": "m65-m60p-compounding-ladder",
+      "market": "PILOT_100USD",
+      "symbol": "M60.P",
+      "regime_tag": "COMPOUNDING_LADDER",
+      "title_fa": "پلهٔ قفل سود و برش‌های ایزولهٔ ۱۰۰ دلاری (M60.P)",
+      "why_entered_fa": "پایلوت ۱۰۰ دلاری فقط با برش‌های ۱۰–۲۰ دلاری و اهرم ۱۰× تا ۲۵× (LONG/SHORT) و حداقل ۴۰٪ ذخیرهٔ کیف پول اجازهٔ ورود کاغذی دارد؛ لولهٔ زنده هنوز READY_LOCKED_BY_HOLD_FLAG است.",
+      "what_happened_fa": "ارزش کاغذی به ~118.50 دلار رسید؛ پلهٔ قفل سود فعال می‌شود (۱۱۰→۱۰۲، ۱۲۵→۱۱۰، ۱۵۰→۱۲۵، ۲۰۰=اصل آزاد).",
+      "mistake_or_strength_fa": "نقطهٔ قوت: جدا کردن سود انباشته از اصل سرمایه قبل از افزایش ریسک.",
+      "key_takeaway_fa": "رشد مرکب پله‌ای بدون قفل سود، اصل ۱۰۰ دلار را در معرض یک برش بد قرار می‌دهد — M60.P این را کاغذی ثبت می‌کند.",
+      "glossary_keys": [
+        "Drawdown",
+        "ATR"
+      ],
+      "paper_only": true
+    },
+    {
+      "lesson_id": "m65-m60f-cross-asset-confluence",
+      "market": "MULTI_DESK",
+      "symbol": "M60.F",
+      "regime_tag": "CROSS_ASSET_CONFLUENCE",
+      "title_fa": "همگرایی سیگنال‌های ۷ بازار و ۶ قفل قبل از حساب واقعی (M60.F / M60.G)",
+      "why_entered_fa": "فقط وقتی ماتریس همگرایی LONG/SHORT (طلا، نفت، کریپتو، سهام، FX و کلان) با شاهد دومنبعی و E>0 هم‌راستا باشد، پایلوت ۱۰۰ دلاری کاغذی ورود می‌زند.",
+      "what_happened_fa": "۶ قفل آمادگی (مأموریت‌ها، ساک/تطبیق، لبه/تیم قرمز، برش و پلهٔ سود، ۸ اندام/۴ مغز، HOLD) بررسی شد.",
+      "mistake_or_strength_fa": "نقطهٔ قوت: معاملهٔ زنده بدون رفع صریح HOLD.flag ممکن نیست حتی اگر همهٔ قفل‌ها سبز باشند.",
+      "key_takeaway_fa": "همگرایی ≠ اجازهٔ زنده؛ HOLD قانون نهایی است.",
+      "glossary_keys": [
+        "Two-Source Witness",
+        "Drawdown"
+      ],
+      "paper_only": true
     }
   ],
   "hooman_journal": [
     {
       "journal_id": "hooman-jrnl-01",
-      "timestamp_iso": "2026-10-23T19:25:50Z",
+      "timestamp_iso": "2026-10-23T21:02:27Z",
       "market": "GOLD",
       "symbol": "XAUUSD",
       "decision_type": "PAPER_EXIT",
@@ -94,7 +126,7 @@
     },
     {
       "journal_id": "hooman-jrnl-02",
-      "timestamp_iso": "2026-10-23T19:25:50Z",
+      "timestamp_iso": "2026-10-23T21:02:27Z",
       "market": "OIL",
       "symbol": "WTI",
       "decision_type": "PAPER_ENTRY",
@@ -107,7 +139,7 @@
     },
     {
       "journal_id": "hooman-jrnl-03",
-      "timestamp_iso": "2026-10-23T19:25:50Z",
+      "timestamp_iso": "2026-10-23T21:02:27Z",
       "market": "DEX_TOKENS",
       "symbol": "RUGMEME",
       "decision_type": "SAFETY_VETO",

@@ -48,6 +48,8 @@ def build_comprehensive_nightly_digest_fa(
     autonomous_coder: Mapping[str, Any] | None = None,
     hundred_dollar_compounding: Mapping[str, Any] | None = None,
     self_evolution_cycle: Mapping[str, Any] | None = None,
+    cross_asset_fusion: Mapping[str, Any] | None = None,
+    owner_live_switch_readiness: Mapping[str, Any] | None = None,
 ) -> str:
     """Persian executive digest for M31/M35.4 (backward-compatible; optional snapshot inputs)."""
     base = render_fa(day=day, trades=trades, pnl_usd=pnl_usd)
@@ -190,6 +192,24 @@ def build_comprehensive_nightly_digest_fa(
                 f"قفل M70.6: {autonomous_coder.get('m70_6_safety_lock_status', '—')}.",
             ]
         )
+
+    if cross_asset_fusion or owner_live_switch_readiness:
+        opps = cross_asset_fusion.get("confluence_opportunities") or [] if cross_asset_fusion else []
+        top = opps[0] if opps and isinstance(opps[0], dict) else {}
+        gates = owner_live_switch_readiness or {}
+        lines.extend(
+            [
+                "",
+                "## ماتریس همگرایی سیگنال‌های ۷ بازار و ۶ قفل آمادگی حساب ۱۰۰ دلاری (M60.F / M60.G)",
+                f"- همگرایی: {len(opps)} فرصت رتبه‌بندی‌شده · برترین {top.get('symbol', '—')} {top.get('side', '—')} "
+                f"({top.get('leverage', '—')}×) — PAPER_ONLY.",
+                f"- ۶ قفل: {gates.get('gates_green_count', '—')}/{gates.get('gates_total', 6)} سبز · "
+                f"unlock={gates.get('owner_unlock_allowed', False)} · {gates.get('live_gateway_status', 'READY_LOCKED_BY_HOLD_FLAG')}.",
+            ]
+        )
+        guide = str(gates.get("persian_owner_guide_fa") or "").strip()
+        if guide:
+            lines.append(f"- {guide}")
 
     if hundred_dollar_compounding or self_evolution_cycle:
         comp = hundred_dollar_compounding or {}

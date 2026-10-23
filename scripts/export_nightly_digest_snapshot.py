@@ -47,6 +47,8 @@ def main() -> int:
     autonomous_coder = _read_json(ROOT / "reports" / "grok" / "M60" / "autonomous_coder_snapshot.json")
     hundred_dollar_compounding = _read_json(ROOT / "reports" / "grok" / "M60" / "hundred_dollar_compounding_snapshot.json")
     self_evolution_cycle = _read_json(ROOT / "reports" / "grok" / "M60" / "self_evolution_cycle_snapshot.json")
+    cross_asset_fusion = _read_json(ROOT / "reports" / "grok" / "M60" / "cross_asset_fusion_snapshot.json")
+    owner_live_switch_readiness = _read_json(ROOT / "reports" / "grok" / "M60" / "owner_live_switch_readiness.json")
 
     trades = 0
     pnl = 0.0
@@ -74,6 +76,8 @@ def main() -> int:
         autonomous_coder=autonomous_coder,
         hundred_dollar_compounding=hundred_dollar_compounding,
         self_evolution_cycle=self_evolution_cycle,
+        cross_asset_fusion=cross_asset_fusion,
+        owner_live_switch_readiness=owner_live_switch_readiness,
     )
 
     out_dir = ROOT / "reports" / "grok" / "M31"
