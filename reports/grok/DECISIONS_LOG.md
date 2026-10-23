@@ -117,3 +117,25 @@
 **Choice:** Reject xaus (spot_usd_oz matched gold-api byte-for-byte; silver_source names gold-api.com). Change Yahoo adapter to read the 1m chart and prefer the latest 1m close when it is newer than regularMarketTime.
 
 **Reason:** The two-source independence clause forbids two mirrors of one feed. Weekend/COMEX-closed stale futures stays UNRESOLVED by design (GOLD_MAX_AGE_SEC unchanged). Owner options for a true 24/7 second feed are listed in ahos_assets/OWNER_ACTIONS.md section 5.
+
+| 2026-10-21 | Continue M-series without cloud / user stop | Sync AHOS data paths in launcher .env.local | Arena cwd was G:\robat\AHOS_Launcher\app so relative ../ahos paths missed real soak files |
+| 2026-10-21 | Soak after Oct-19 milestone | start_soak --days 0 + manual --once cycle | Refresh stale UI; witness VERIFIED; continuous PAPER_ONLY cadence at logon |
+| 2026-10-21 | Telegram logon task | User Startup copies instead of schtasks | Register-ScheduledTask access denied |
+
+## 2026-10-22 — LightStart post-Logon silence (launcher)
+- **Question:** Why did automatic Logon leave no light_start.log / stamp_lightstart while VerifyStack ran?
+- **Choice:** Fix AHOS_LightStart.ps1 parse break (ASCII hyphen instead of curly/mojibake quote in DEGRADED message); add Logon invoke begin/end/FAIL lines; verify with one isolated LightStart while Arena HTTP 200 (no Force restart / no ApplyPending).
+- **Reason:** Parser reported missing string terminator; SilentlyContinue on Logon hid the failure. Isolated run wrote begin/done + stamp RUNNING; Arena PID unchanged.
+- **Repos:** G:\robat\AHOS_Launcher only (not a git repo). ahos/arena trees not modified for this fix.
+
+## 2026-10-22 — Canonical-only paper entry boundary (owner governance)
+
+- **Question:** May Lane B open PAPER positions via a Lane A freeze amendment (public entry + monitor-only APIs) or via direct SQL/copied INSERT into Lane A tables?
+- **Choice (owner):** Option A ACCEPTED — preserve the existing Lane A freeze (discovery/**, paper_trading/**). No bridge implementation authorized.
+- **Option B:** NOT APPROVED — freeze-amendment proposal only; no public open_canonical_paper_position / run_monitor_v3 authorized; no freeze-hash regeneration authorized.
+- **Option C:** REJECTED — direct Lane B SQL / copied INSERT into Lane A tables remains forbidden.
+- **PAPER_ONLY:** Mandatory. Real trading remains disabled. No OPERATOR_READY / production-readiness claim.
+- **Evidence baseline:** Remains PARTIALLY_ESTABLISHED (lifecycle/recovery contracts). Not upgraded by this decision.
+- **Unresolved risks (explicit; not resolved):** (1) transaction atomicity of snap/trade/ALLOCATE/ENTRY under separate commits; (2) no schema/API duplicate-ALLOCATE prevention; (3) orphan decision_snapshot_v2 + permanent per-token uniqueness/skip; (4) missing-ALLOCATE recovery is exclusion-via-invalidation only (not financial repair); (5) no verified public monitor-only API (run_cycle_v3 still combines entry scan + monitor).
+- **Reason:** Owner selected freeze preservation. Chat-only ADR was never persisted as a repo file; this log entry is the durable governance record.
+- **Stop:** Documentation only. Implementation deferred pending a new explicit owner decision.
