@@ -1,16 +1,21 @@
-"""Live real-time market price feed with two-source witness & clean deterministic fallback (PAPER_ONLY).
+"""Live market price feed (PAPER_ONLY) — real quotes only, never constants.
 
-Fetches live quotes from:
-1. CoinGecko Simple Price API (BTC, ETH, SOL, PAXG/XAU, BNB, XRP, DOGE, TON)
-2. Alternative.me Crypto Fear & Greed Index
-3. CoinGecko Global Market Cap & Dominance API
+Sources:
+- Yahoo Finance chart API (oil BZ=F / CL=F, gold GC=F, ^GSPC, ^GDAXI, ^N225, DX-Y.NYB,
+  plus equities/FX/crypto cross-check symbols)
+- CoinGecko simple price (crypto + PAX Gold)
+- Alternative.me Fear & Greed, CoinGecko global
 
-Never places orders or mutates execution state (PAPER_ONLY = True, LIVE_TRADING = False).
+Every quote carries ``source`` and ``fetched_at`` (plus the exchange ``market_time`` when known)
+and a ``freshness`` of LIVE (fetched < 5 min ago), STALE (older, with ``age_seconds``) or
+UNAVAILABLE (no data: ``price`` is None). There is NO constant fallback anywhere: when a fetch
+fails the price is simply unavailable and consumers must say so.
 """
 from __future__ import annotations
 
 import json
 import math
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,445 +24,306 @@ from typing import Any
 PAPER_ONLY: bool = True
 LIVE_TRADING: bool = False
 
+LIVE_MAX_AGE_SECONDS = 300
+BROWSER_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+)
+YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=1d&interval=5m"
 COINGECKO_SIMPLE_URL = (
     "https://api.coingecko.com/api/v3/simple/price"
     "?ids=bitcoin,ethereum,solana,pax-gold,binancecoin,ripple,dogecoin,toncoin"
     "&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true"
+    "&include_last_updated_at=true"
 )
 ALTERNATIVE_FNG_URL = "https://api.alternative.me/fng/?limit=1"
 COINGECKO_GLOBAL_URL = "https://api.coingecko.com/api/v3/global"
 
-FALLBACK_PRICES: dict[str, dict[str, float]] = {
-    "BTC": {"price": 81270.0, "change_24h": 0.42, "vol_24h": 22510000000.0, "mcap": 1633328874182.0},
-    "ETH": {"price": 2395.45, "change_24h": 0.47, "vol_24h": 8950000000.0, "mcap": 292413884037.0},
-    "SOL": {"price": 103.60, "change_24h": 0.85, "vol_24h": 2020000000.0, "mcap": 61050208115.0},
-    "XAU": {"price": 4003.00, "change_24h": 0.38, "vol_24h": 184000000.0, "mcap": 1772719222.0},
-    "BNB": {"price": 740.50, "change_24h": 1.30, "vol_24h": 852000000.0, "mcap": 97362450371.0},
-    "XRP": {"price": 1.30, "change_24h": -0.20, "vol_24h": 1203000000.0, "mcap": 82299330037.0},
-    "DOGE": {"price": 0.0791, "change_24h": 0.64, "vol_24h": 447700000.0, "mcap": 12373884889.0},
-    "TON": {"price": 4.85, "change_24h": 0.92, "vol_24h": 215000000.0, "mcap": 12100000000.0},
-    "BRENT": {"price": 74.85, "change_24h": -0.45, "vol_24h": 92000000.0, "mcap": 0.0},
-    "WTI": {"price": 71.35, "change_24h": -0.38, "vol_24h": 110000000.0, "mcap": 0.0},
-    "SPX": {"price": 5842.50, "change_24h": 0.48, "vol_24h": 4200000000.0, "mcap": 0.0},
-    "SPY": {"price": 584.25, "change_24h": 0.48, "vol_24h": 3100000000.0, "mcap": 0.0},
-    "QQQ": {"price": 496.90, "change_24h": 0.62, "vol_24h": 2400000000.0, "mcap": 0.0},
-    "NVDA": {"price": 141.56, "change_24h": 1.15, "vol_24h": 3800000000.0, "mcap": 0.0},
-    "EXW1.DE": {"price": 50.84, "change_24h": 0.22, "vol_24h": 410000000.0, "mcap": 0.0},
-    "DAX": {"price": 19540.0, "change_24h": 0.31, "vol_24h": 1700000000.0, "mcap": 0.0},
-    "N225": {"price": 39120.0, "change_24h": 0.65, "vol_24h": 2600000000.0, "mcap": 0.0},
-    "HSI": {"price": 20601.0, "change_24h": 0.44, "vol_24h": 1900000000.0, "mcap": 0.0},
-    "EURUSD": {"price": 1.0844, "change_24h": 0.12, "vol_24h": 5400000000.0, "mcap": 0.0},
-    "USDJPY": {"price": 151.85, "change_24h": 0.18, "vol_24h": 4800000000.0, "mcap": 0.0},
+# internal symbol -> yahoo ticker
+YAHOO_SYMBOLS: dict[str, str] = {
+    "BRENT": "BZ=F",
+    "WTI": "CL=F",
+    "GOLD_FUT": "GC=F",
+    "SPX": "^GSPC",
+    "DAX": "^GDAXI",
+    "N225": "^N225",
+    "DXY": "DX-Y.NYB",
+    "HSI": "^HSI",
+    "SPY": "SPY",
+    "QQQ": "QQQ",
+    "NVDA": "NVDA",
+    "EXW1.DE": "EXW1.DE",
+    "EURUSD": "EURUSD=X",
+    "USDJPY": "JPY=X",
+    "BTC_Y": "BTC-USD",
+    "ETH_Y": "ETH-USD",
+    "SOL_Y": "SOL-USD",
+}
+COINGECKO_IDS: dict[str, str] = {
+    "BTC": "bitcoin",
+    "ETH": "ethereum",
+    "SOL": "solana",
+    "XAU": "pax-gold",
+    "BNB": "binancecoin",
+    "XRP": "ripple",
+    "DOGE": "dogecoin",
+    "TON": "toncoin",
 }
 
 
-def _fetch_json(url: str, timeout: float = 5.0) -> dict[str, Any] | None:
+def _iso(ts: float) -> str:
+    return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _now_ts() -> float:
+    return datetime.now(timezone.utc).timestamp()
+
+
+def _fetch_json(url: str, timeout: float = 6.0) -> dict[str, Any] | None:
     try:
-        req = urllib.request.Request(
-            url,
-            headers={
-                "User-Agent": "AHOS-Market-Feed/1.0 (PAPER_ONLY)",
-                "Accept": "application/json",
-            },
-        )
+        req = urllib.request.Request(url, headers={"User-Agent": BROWSER_UA, "Accept": "application/json"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            raw = resp.read().decode("utf-8", errors="replace")
-            data = json.loads(raw)
+            data = json.loads(resp.read().decode("utf-8", errors="replace"))
             return data if isinstance(data, dict) else None
     except Exception:
         return None
 
 
-def _fmt_vol(vol: float, fallback: str) -> str:
-    if not math.isfinite(vol) or vol <= 0:
-        return fallback
-    if vol >= 1e9:
-        return f"{vol / 1e9:.1f}B"
-    if vol >= 1e6:
-        return f"{vol / 1e6:.0f}M"
-    return fallback
+def _num(v: Any) -> float | None:
+    if isinstance(v, (int, float)) and math.isfinite(float(v)) and float(v) > 0:
+        return float(v)
+    return None
 
 
-def _series_anchored(price: float, volatility: float) -> list[float]:
-    raw = [
-        round(
-            price
-            * (
-                1.0
-                + math.sin(i * 0.55) * volatility
-                + math.sin(i * 1.8) * volatility * 0.2
-                + (i * volatility) / 15.0
-            ),
-            2,
-        )
-        for i in range(48)
-    ]
-    last = raw[-1] if raw and raw[-1] != 0 else price
-    factor = price / last if last else 1.0
-    out = [round(v * factor, 2) for v in raw]
-    if out:
-        out[-1] = round(price, 2)
+def unavailable_quote(source: str) -> dict[str, Any]:
+    return {
+        "price": None,
+        "change_24h": None,
+        "source": source,
+        "fetched_at": None,
+        "market_time": None,
+        "freshness": "UNAVAILABLE",
+        "age_seconds": None,
+    }
+
+
+def classify_freshness(quote: dict[str, Any], now_ts: float | None = None) -> dict[str, Any]:
+    """Recompute freshness from fetched_at: LIVE < 5 min, STALE otherwise, UNAVAILABLE if no price."""
+    q = dict(quote)
+    if _num(q.get("price")) is None or not q.get("fetched_at"):
+        q.update(price=None, freshness="UNAVAILABLE", age_seconds=None)
+        return q
+    try:
+        fetched = datetime.strptime(str(q["fetched_at"]), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except ValueError:
+        q.update(freshness="STALE", age_seconds=None)
+        return q
+    age = max(0, int((now_ts if now_ts is not None else _now_ts()) - fetched.timestamp()))
+    q["age_seconds"] = age
+    q["freshness"] = "LIVE" if age < LIVE_MAX_AGE_SECONDS else "STALE"
+    return q
+
+
+def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]:
+    url = YAHOO_CHART_URL.format(sym=urllib.parse.quote(yahoo_sym, safe=""))
+    src = f"yahoo_finance:{yahoo_sym}"
+    data = _fetch_json(url, timeout=timeout)
+    try:
+        res = data["chart"]["result"][0]  # type: ignore[index]
+        meta = res["meta"]
+    except Exception:
+        return unavailable_quote(src)
+    price = _num(meta.get("regularMarketPrice"))
+    if price is None:
+        return unavailable_quote(src)
+    prev = _num(meta.get("chartPreviousClose")) or _num(meta.get("previousClose"))
+    closes: list[float] = []
+    try:
+        closes = [round(float(c), 4) for c in res["indicators"]["quote"][0]["close"] if _num(c) is not None]
+    except Exception:
+        closes = []
+    mt = meta.get("regularMarketTime")
+    now = _now_ts()
+    return {
+        "price": round(price, 4 if price < 10 else 2),
+        "change_24h": round((price - prev) / prev * 100.0, 2) if prev else None,
+        "previous_close": prev,
+        "source": src,
+        "fetched_at": _iso(now),
+        "market_time": _iso(float(mt)) if isinstance(mt, (int, float)) else None,
+        "freshness": "LIVE",
+        "age_seconds": 0,
+        "history": closes[-48:],
+        "currency": meta.get("currency"),
+    }
+
+
+def fetch_coingecko_quotes(*, timeout: float = 6.0) -> dict[str, dict[str, Any]]:
+    data = _fetch_json(COINGECKO_SIMPLE_URL, timeout=timeout)
+    now = _now_ts()
+    out: dict[str, dict[str, Any]] = {}
+    for sym, cg_id in COINGECKO_IDS.items():
+        src = f"coingecko:{cg_id}"
+        row = data.get(cg_id) if isinstance(data, dict) else None
+        price = _num(row.get("usd")) if isinstance(row, dict) else None
+        if price is None:
+            out[sym] = unavailable_quote(src)
+            continue
+        chg = row.get("usd_24h_change")
+        lu = row.get("last_updated_at")
+        out[sym] = {
+            "price": round(price, 4 if price < 10 else 2),
+            "change_24h": round(float(chg), 2) if isinstance(chg, (int, float)) else None,
+            "vol_24h": _num(row.get("usd_24h_vol")),
+            "mcap": _num(row.get("usd_market_cap")),
+            "source": src,
+            "fetched_at": _iso(now),
+            "market_time": _iso(float(lu)) if isinstance(lu, (int, float)) else None,
+            "freshness": "LIVE",
+            "age_seconds": 0,
+        }
     return out
 
 
-def fetch_live_market_prices(*, timeout: float = 5.0) -> dict[str, Any]:
-    """Fetch real-time crypto, gold (PAXG), fear & greed, and global mcap with clean fallback."""
-    now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    cg = _fetch_json(COINGECKO_SIMPLE_URL, timeout=timeout)
+def _fmt_vol(vol: Any) -> str:
+    v = _num(vol)
+    if v is None:
+        return "—"
+    if v >= 1e9:
+        return f"{v / 1e9:.1f}B"
+    if v >= 1e6:
+        return f"{v / 1e6:.0f}M"
+    return f"{v:.0f}"
+
+
+MARKET_ROWS: list[tuple[str, str, str, str, str]] = [
+    # symbol, fa, en, category, unit
+    ("BTC", "بیت‌کوین", "Bitcoin", "crypto", "USD"),
+    ("ETH", "اتریوم", "Ethereum", "crypto", "USD"),
+    ("SOL", "سولانا", "Solana", "crypto", "USD"),
+    ("XAU", "طلای جهانی", "Gold (COMEX GC=F)", "gold", "USD / oz"),
+    ("BRENT", "نفت برنت", "Brent Crude (BZ=F)", "oil", "USD / bbl"),
+    ("WTI", "نفت WTI", "WTI Crude (CL=F)", "oil", "USD / bbl"),
+    ("SPX", "اس‌اندپی ۵۰۰", "S&P 500", "us", "points"),
+    ("DAX", "دکس آلمان", "DAX", "eu", "points"),
+    ("N225", "نیکی ژاپن", "Nikkei 225", "asia", "points"),
+    ("DXY", "شاخص دلار", "US Dollar Index", "fx", "points"),
+]
+
+
+def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
+    """Fetch real quotes. Missing data -> UNAVAILABLE (price None). Never a constant."""
+    now_iso = _iso(_now_ts())
+    yq = {k: fetch_yahoo_quote(v, timeout=timeout) for k, v in YAHOO_SYMBOLS.items()}
+    cg = fetch_coingecko_quotes(timeout=timeout)
     fng = _fetch_json(ALTERNATIVE_FNG_URL, timeout=timeout)
     glob = _fetch_json(COINGECKO_GLOBAL_URL, timeout=timeout)
 
-    live_fetch_ok = bool(cg and isinstance(cg.get("bitcoin"), dict))
+    quotes: dict[str, dict[str, Any]] = {}
+    # crypto primary = CoinGecko (Yahoo crypto kept as independent cross-check)
+    for sym in ("BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "TON"):
+        quotes[sym] = cg[sym]
+        ycross = yq.get(f"{sym}_Y")
+        if ycross is not None:
+            quotes[f"{sym}_YAHOO"] = ycross
+            if quotes[sym].get("price") is not None and ycross.get("history"):
+                quotes[sym]["history"] = ycross["history"]
+    # gold primary = COMEX futures on Yahoo; PAXG kept as cross-check
+    quotes["XAU"] = yq["GOLD_FUT"]
+    quotes["PAXG"] = cg["XAU"]
+    for k in ("BRENT", "WTI", "SPX", "DAX", "N225", "DXY", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE", "EURUSD", "USDJPY"):
+        quotes[k] = yq[k]
 
-    def _coin(cg_id: str, sym: str) -> dict[str, float]:
-        fb = FALLBACK_PRICES[sym]
-        row = cg.get(cg_id) if isinstance(cg, dict) else None
-        if not isinstance(row, dict):
-            return dict(fb)
-        p = row.get("usd")
-        c = row.get("usd_24h_change")
-        v = row.get("usd_24h_vol")
-        m = row.get("usd_market_cap")
-        price_val = float(p) if isinstance(p, (int, float)) and p > 0 else fb["price"]
-        chg_val = round(float(c), 2) if isinstance(c, (int, float)) and math.isfinite(float(c)) else fb["change_24h"]
-        if abs(chg_val) < 0.01 and fb["change_24h"] != 0:
-            chg_val = round(float(c), 3) if isinstance(c, (int, float)) and float(c) != 0 else fb["change_24h"]
-        vol_val = float(v) if isinstance(v, (int, float)) and v > 0 else fb["vol_24h"]
-        mcap_val = float(m) if isinstance(m, (int, float)) and m > 0 else fb["mcap"]
-        return {
-            "price": round(price_val, 4 if price_val < 10 else 2),
-            "change_24h": round(chg_val, 2),
-            "vol_24h": vol_val,
-            "mcap": mcap_val,
-        }
-
-    btc = _coin("bitcoin", "BTC")
-    eth = _coin("ethereum", "ETH")
-    sol = _coin("solana", "SOL")
-    xau = _coin("pax-gold", "XAU")
-    bnb = _coin("binancecoin", "BNB")
-    xrp = _coin("ripple", "XRP")
-    doge = _coin("dogecoin", "DOGE")
-    ton = _coin("toncoin", "TON")
-
-    fng_val = 50
-    fng_label = "Neutral"
+    macro: dict[str, Any] = {"fear_greed": None, "fear_greed_label": None, "total_mcap_usd": None,
+                             "mcap_change_24h_pct": None, "btc_dominance_pct": None,
+                             "source": "alternative.me+coingecko_global", "fetched_at": now_iso}
     if isinstance(fng, dict) and isinstance(fng.get("data"), list) and fng["data"]:
         first = fng["data"][0]
-        if isinstance(first, dict):
-            try:
-                fng_val = int(first.get("value") or 50)
-            except (ValueError, TypeError):
-                fng_val = 50
-            fng_label = str(first.get("value_classification") or "Neutral")
-
-    total_mcap_usd = 2680000000000.0
-    btc_dom = 57.4
-    mcap_chg_24h = 0.65
+        try:
+            macro["fear_greed"] = int(first.get("value"))
+            macro["fear_greed_label"] = str(first.get("value_classification") or "")
+        except Exception:
+            pass
     if isinstance(glob, dict) and isinstance(glob.get("data"), dict):
-        gdata = glob["data"]
-        tmc = gdata.get("total_market_cap")
-        if isinstance(tmc, dict) and isinstance(tmc.get("usd"), (int, float)) and tmc["usd"] > 0:
-            total_mcap_usd = float(tmc["usd"])
-        mp = gdata.get("market_cap_percentage")
-        if isinstance(mp, dict) and isinstance(mp.get("btc"), (int, float)) and mp["btc"] > 0:
-            btc_dom = round(float(mp["btc"]), 2)
-        mc_chg = gdata.get("market_cap_change_percentage_24h_usd")
-        if isinstance(mc_chg, (int, float)) and math.isfinite(float(mc_chg)):
-            mcap_chg_24h = round(float(mc_chg), 2)
+        g = glob["data"]
+        tmc = (g.get("total_market_cap") or {}).get("usd")
+        macro["total_mcap_usd"] = _num(tmc)
+        macro["btc_dominance_pct"] = _num((g.get("market_cap_percentage") or {}).get("btc"))
+        mc = g.get("market_cap_change_percentage_24h_usd")
+        macro["mcap_change_24h_pct"] = round(float(mc), 2) if isinstance(mc, (int, float)) else None
 
-    brent = FALLBACK_PRICES["BRENT"]
-    wti = FALLBACK_PRICES["WTI"]
-    spx = FALLBACK_PRICES["SPX"]
-    dax = FALLBACK_PRICES["DAX"]
-    n225 = FALLBACK_PRICES["N225"]
+    markets_list = []
+    for sym, fa, en, cat, unit in MARKET_ROWS:
+        q = quotes.get(sym) or unavailable_quote("none")
+        markets_list.append({
+            "symbol": sym,
+            "name": {"fa": fa, "en": en},
+            "category": cat,
+            "price": q.get("price"),
+            "change": q.get("change_24h"),
+            "volume": _fmt_vol(q.get("vol_24h")),
+            "freshness": q.get("freshness"),
+            "history": list(q.get("history") or []),
+            "unit": unit,
+            "source": q.get("source"),
+            "fetched_at": q.get("fetched_at"),
+            "market_time": q.get("market_time"),
+            "age_seconds": q.get("age_seconds"),
+        })
 
-    markets_list = [
-        {
-            "symbol": "BTC",
-            "name": {"fa": "بیت‌کوین", "en": "Bitcoin"},
-            "category": "crypto",
-            "price": round(btc["price"], 2),
-            "change": btc["change_24h"] if btc["change_24h"] != 0 else 0.42,
-            "volume": _fmt_vol(btc["vol_24h"], "22.5B"),
-            "freshness": "LIVE",
-            "history": _series_anchored(round(btc["price"], 2), 0.012),
-            "unit": "USD",
-        },
-        {
-            "symbol": "ETH",
-            "name": {"fa": "اتریوم", "en": "Ethereum"},
-            "category": "crypto",
-            "price": round(eth["price"], 2),
-            "change": eth["change_24h"] if eth["change_24h"] != 0 else 0.47,
-            "volume": _fmt_vol(eth["vol_24h"], "8.9B"),
-            "freshness": "LIVE",
-            "history": _series_anchored(round(eth["price"], 2), 0.013),
-            "unit": "USD",
-        },
-        {
-            "symbol": "SOL",
-            "name": {"fa": "سولانا", "en": "Solana"},
-            "category": "crypto",
-            "price": round(sol["price"], 2),
-            "change": sol["change_24h"] if sol["change_24h"] != 0 else 0.85,
-            "volume": _fmt_vol(sol["vol_24h"], "2.0B"),
-            "freshness": "LIVE",
-            "history": _series_anchored(round(sol["price"], 2), 0.02),
-            "unit": "USD",
-        },
-        {
-            "symbol": "XAU",
-            "name": {"fa": "طلای جهانی", "en": "Spot Gold"},
-            "category": "gold",
-            "price": round(xau["price"], 2),
-            "change": xau["change_24h"] if xau["change_24h"] != 0 else 0.38,
-            "volume": _fmt_vol(xau["vol_24h"], "184M"),
-            "freshness": "LIVE",
-            "history": _series_anchored(round(xau["price"], 2), 0.008),
-            "unit": "USD / oz",
-        },
-        {
-            "symbol": "BRENT",
-            "name": {"fa": "نفت برنت", "en": "Brent Crude"},
-            "category": "oil",
-            "price": brent["price"],
-            "change": brent["change_24h"],
-            "volume": "92M",
-            "freshness": "LIVE",
-            "history": _series_anchored(brent["price"], -0.005),
-            "unit": "USD / bbl",
-        },
-        {
-            "symbol": "SPX",
-            "name": {"fa": "اس‌اندپی ۵۰۰", "en": "S&P 500"},
-            "category": "us",
-            "price": spx["price"],
-            "change": spx["change_24h"],
-            "volume": "4.2B",
-            "freshness": "LIVE",
-            "history": _series_anchored(spx["price"], 0.004),
-            "unit": "points",
-        },
-        {
-            "symbol": "DAX",
-            "name": {"fa": "دکس آلمان", "en": "DAX"},
-            "category": "eu",
-            "price": dax["price"],
-            "change": dax["change_24h"],
-            "volume": "1.7B",
-            "freshness": "LIVE",
-            "history": _series_anchored(dax["price"], 0.003),
-            "unit": "points",
-        },
-        {
-            "symbol": "N225",
-            "name": {"fa": "نیکی ژاپن", "en": "Nikkei 225"},
-            "category": "asia",
-            "price": n225["price"],
-            "change": n225["change_24h"],
-            "volume": "2.6B",
-            "freshness": "LIVE",
-            "history": _series_anchored(n225["price"], 0.004),
-            "unit": "points",
-        },
-    ]
-
+    live_n = sum(1 for q in quotes.values() if q.get("freshness") == "LIVE")
     return {
-        "schema": "ahos.live_market_prices.v1",
+        "schema": "ahos.live_market_prices.v2",
         "generated_at": now_iso,
         "paper_only": True,
         "execution_mode": "PAPER_ONLY",
         "real_trading": False,
-        "live_fetch_ok": live_fetch_ok,
-        "source": "coingecko_v3_live+alternative_fng+m19_witness" if live_fetch_ok else "ahos_verified_snapshot_fallback",
-        "macro": {
-            "regime": "RISK_ON",
-            "fear_greed": fng_val,
-            "fear_greed_label": fng_label,
-            "total_mcap_usd": round(total_mcap_usd, 2),
-            "mcap_change_24h_pct": mcap_chg_24h,
-            "btc_dominance_pct": btc_dom,
-        },
-        "pilot_100usd": {
-            "initial_capital_usd": 100.0,
-            "current_equity_usd": 118.50,
-            "realized_pnl_usd": 18.50,
-            "roi_pct": 18.50,
-            "profit_lock_floor_usd": 105.0,
-            "active_rung": "STEP_2_125",
-            "breaker_state": "NORMAL",
-            "paper_only": True,
-        },
-        "quotes": {
-            "BTC": btc,
-            "ETH": eth,
-            "SOL": sol,
-            "XAU": xau,
-            "BNB": bnb,
-            "XRP": xrp,
-            "DOGE": doge,
-            "TON": ton,
-            "BRENT": brent,
-            "WTI": wti,
-            "SPX": spx,
-            "SPY": FALLBACK_PRICES["SPY"],
-            "QQQ": FALLBACK_PRICES["QQQ"],
-            "NVDA": FALLBACK_PRICES["NVDA"],
-            "EXW1.DE": FALLBACK_PRICES["EXW1.DE"],
-            "DAX": dax,
-            "N225": n225,
-            "HSI": FALLBACK_PRICES["HSI"],
-            "EURUSD": FALLBACK_PRICES["EURUSD"],
-            "USDJPY": FALLBACK_PRICES["USDJPY"],
-        },
+        "live_fetch_ok": live_n > 0,
+        "live_quote_count": live_n,
+        "source": "yahoo_finance_chart+coingecko_v3",
+        "freshness_rule": "LIVE if fetched < 300s ago, else STALE; UNAVAILABLE if no data. No constant fallback.",
+        "macro": macro,
+        "quotes": quotes,
         "markets": markets_list,
     }
 
 
+def _price(q: dict[str, Any], key: str) -> float | None:
+    row = q.get(key)
+    return _num(row.get("price")) if isinstance(row, dict) else None
+
+
 def build_live_multi_market_fixtures(live_payload: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-    """Build 7-desk 13-instrument two-source witness quotes anchored to live prices."""
+    """13-instrument witness rows built ONLY from real fetched quotes.
+
+    Each quote is a real, independently fetched source. No synthetic ±offsets. Where only one
+    real source exists the desk will honestly report UNRESOLVED (needs >= 2 sources).
+    """
     data = live_payload or fetch_live_market_prices()
     q = data.get("quotes") or {}
 
-    def _p(sym: str, default: float) -> float:
-        row = q.get(sym)
-        if isinstance(row, dict) and isinstance(row.get("price"), (int, float)) and row["price"] > 0:
-            return float(row["price"])
-        return default
-
-    xau = _p("XAU", 4003.00)
-    wti = _p("WTI", 71.35)
-    btc = _p("BTC", 81270.00)
-    eth = _p("ETH", 2395.45)
-    spy = _p("SPY", 584.25)
-    qqq = _p("QQQ", 496.90)
-    nvda = _p("NVDA", 141.56)
-    exw = _p("EXW1.DE", 50.84)
-    dax = _p("DAX", 19540.0)
-    n225 = _p("N225", 39120.0)
-    hsi = _p("HSI", 20601.0)
-    eurusd = _p("EURUSD", 1.0844)
-    usdjpy = _p("USDJPY", 151.85)
+    def _row(desk: str, symbol: str, regime: str, pairs: list[tuple[str, str]]) -> dict[str, Any]:
+        quotes = []
+        for key, label in pairs:
+            p = _price(q, key)
+            if p is not None:
+                quotes.append({"source": label or str((q.get(key) or {}).get("source")), "price": p})
+        return {"desk": desk, "symbol": symbol, "regime": regime, "quotes": quotes}
 
     return [
-        {
-            "desk": "GOLD",
-            "symbol": "XAUUSD",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "goldapi_spot", "price": round(xau - 0.35, 2)},
-                {"source": "yahoo_gc_futures", "price": round(xau + 0.35, 2)},
-            ],
-        },
-        {
-            "desk": "OIL",
-            "symbol": "WTI",
-            "regime": "RANGE_CHOP",
-            "quotes": [
-                {"source": "eia_spot", "price": round(wti - 0.05, 2)},
-                {"source": "yahoo_cl_futures", "price": round(wti + 0.05, 2)},
-            ],
-        },
-        {
-            "desk": "CRYPTO",
-            "symbol": "BTCUSDT",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "binance_public", "price": round(btc - 8.0, 2)},
-                {"source": "coingecko_public", "price": round(btc + 8.0, 2)},
-            ],
-        },
-        {
-            "desk": "CRYPTO",
-            "symbol": "ETHUSDT",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "binance_public", "price": round(eth - 0.45, 2)},
-                {"source": "coingecko_public", "price": round(eth + 0.45, 2)},
-            ],
-        },
-        {
-            "desk": "US_EQUITIES",
-            "symbol": "SPY",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "stooq_us", "price": round(spy - 0.05, 2)},
-                {"source": "yahoo_us", "price": round(spy + 0.05, 2)},
-            ],
-        },
-        {
-            "desk": "US_EQUITIES",
-            "symbol": "QQQ",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "stooq_us", "price": round(qqq - 0.10, 2)},
-                {"source": "yahoo_us", "price": round(qqq + 0.10, 2)},
-            ],
-        },
-        {
-            "desk": "US_EQUITIES",
-            "symbol": "NVDA",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "stooq_us", "price": round(nvda - 0.06, 2)},
-                {"source": "yahoo_us", "price": round(nvda + 0.06, 2)},
-            ],
-        },
-        {
-            "desk": "EU_EQUITIES",
-            "symbol": "EXW1.DE",
-            "regime": "RANGE_CHOP",
-            "quotes": [
-                {"source": "stooq_eu", "price": round(exw - 0.02, 2)},
-                {"source": "yahoo_eu", "price": round(exw + 0.02, 2)},
-            ],
-        },
-        {
-            "desk": "EU_EQUITIES",
-            "symbol": "DAX",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "stooq_eu", "price": round(dax - 4.0, 2)},
-                {"source": "yahoo_eu", "price": round(dax + 4.0, 2)},
-            ],
-        },
-        {
-            "desk": "ASIA_EQUITIES",
-            "symbol": "N225",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "stooq_asia", "price": round(n225 - 8.0, 2)},
-                {"source": "yahoo_asia", "price": round(n225 + 8.0, 2)},
-            ],
-        },
-        {
-            "desk": "ASIA_EQUITIES",
-            "symbol": "HSI",
-            "regime": "RANGE_CHOP",
-            "quotes": [
-                {"source": "stooq_asia", "price": round(hsi - 6.0, 2)},
-                {"source": "yahoo_asia", "price": round(hsi + 6.0, 2)},
-            ],
-        },
-        {
-            "desk": "FOREX",
-            "symbol": "EURUSD",
-            "regime": "RANGE_CHOP",
-            "quotes": [
-                {"source": "ecb_ref", "price": round(eurusd - 0.0001, 4)},
-                {"source": "fred_stooq_fx", "price": round(eurusd + 0.0001, 4)},
-            ],
-        },
-        {
-            "desk": "FOREX",
-            "symbol": "USDJPY",
-            "regime": "BULL_TREND",
-            "quotes": [
-                {"source": "ecb_ref", "price": round(usdjpy - 0.02, 2)},
-                {"source": "fred_stooq_fx", "price": round(usdjpy + 0.02, 2)},
-            ],
-        },
+        _row("GOLD", "XAUUSD", "BULL_TREND", [("XAU", "yahoo_gc_futures"), ("PAXG", "coingecko_paxg")]),
+        _row("OIL", "WTI", "RANGE_CHOP", [("WTI", "yahoo_cl_futures")]),
+        _row("CRYPTO", "BTCUSDT", "BULL_TREND", [("BTC", "coingecko_public"), ("BTC_YAHOO", "yahoo_btc_usd")]),
+        _row("CRYPTO", "ETHUSDT", "BULL_TREND", [("ETH", "coingecko_public"), ("ETH_YAHOO", "yahoo_eth_usd")]),
+        _row("US_EQUITIES", "SPY", "BULL_TREND", [("SPY", "yahoo_us")]),
+        _row("US_EQUITIES", "QQQ", "BULL_TREND", [("QQQ", "yahoo_us")]),
+        _row("US_EQUITIES", "NVDA", "BULL_TREND", [("NVDA", "yahoo_us")]),
+        _row("EU_EQUITIES", "EXW1.DE", "RANGE_CHOP", [("EXW1.DE", "yahoo_eu")]),
+        _row("EU_EQUITIES", "DAX", "BULL_TREND", [("DAX", "yahoo_eu")]),
+        _row("ASIA_EQUITIES", "N225", "BULL_TREND", [("N225", "yahoo_asia")]),
+        _row("ASIA_EQUITIES", "HSI", "RANGE_CHOP", [("HSI", "yahoo_asia")]),
+        _row("FOREX", "EURUSD", "RANGE_CHOP", [("EURUSD", "yahoo_fx")]),
+        _row("FOREX", "USDJPY", "BULL_TREND", [("USDJPY", "yahoo_fx")]),
     ]
 
 
@@ -467,6 +333,7 @@ def export_live_market_prices(repo_root: Path | None = None) -> dict[str, Any]:
     payload = fetch_live_market_prices()
     out_dir = root / "reports" / "grok" / "M19"
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "live_market_prices.json"
-    out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (out_dir / "live_market_prices.json").write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
     return payload

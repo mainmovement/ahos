@@ -23,6 +23,7 @@ from architecture.markets.multi_market_desks import (
     summarize_regime_witness_win_rates,
 )
 from architecture.markets.reconcile_bridge import reconcile_desk_states
+from architecture.markets.paper_account import paper_account_summary
 
 
 def _utc_now() -> str:
@@ -37,50 +38,48 @@ def _update_soak_witness_with_live_gold(live_payload: dict, now_iso: str) -> Non
         soak = json.loads(soak_path.read_text(encoding="utf-8").lstrip("\ufeff"))
     except Exception:
         return
-    xau_row = (live_payload.get("quotes") or {}).get("XAU") or {}
-    xau_price = round(float(xau_row.get("price") or 4003.00), 2)
-    q_spot = round(xau_price - 0.35, 2)
-    q_fut = round(xau_price + 0.35, 2)
-    spread_pct = round(((q_fut - q_spot) / xau_price) * 100.0, 6)
+    quotes_all = live_payload.get("quotes") or {}
+    xau_row = quotes_all.get("XAU") or {}
+    paxg_row = quotes_all.get("PAXG") or {}
+    xau_price = xau_row.get("price")
+    paxg_price = paxg_row.get("price")
+    witness_quotes = [
+        {"source": xau_row.get("source"), "price_usd": xau_price, "fetched_at": xau_row.get("fetched_at")},
+        {"source": paxg_row.get("source"), "price_usd": paxg_price, "fetched_at": paxg_row.get("fetched_at")},
+    ]
+    valid = [q["price_usd"] for q in witness_quotes if isinstance(q["price_usd"], (int, float))]
+    if len(valid) >= 2:
+        mid = sum(valid) / len(valid)
+        spread_pct = round((max(valid) - min(valid)) / mid * 100.0, 6)
+        state = "VERIFIED" if spread_pct <= 0.5 else "CONFLICT"
+    else:
+        spread_pct = None
+        state = "UNRESOLVED" if valid else "UNAVAILABLE"
 
     if isinstance(soak.get("last_cycle"), dict):
         soak["last_cycle"]["ts"] = now_iso
         soak["last_cycle"]["price_usd"] = xau_price
         soak["last_cycle"]["spread_pct"] = spread_pct
-        soak["last_cycle"]["witness_state"] = "VERIFIED"
+        soak["last_cycle"]["witness_state"] = state
 
     if isinstance(soak.get("ledger_state"), dict):
         soak["ledger_state"]["price_usd"] = xau_price
         witness = soak["ledger_state"].get("witness")
         if isinstance(witness, dict):
             witness["spread_pct"] = spread_pct
-            witness["state"] = "VERIFIED"
-            quotes = witness.get("quotes")
-            if isinstance(quotes, list) and len(quotes) >= 2:
-                if isinstance(quotes[0], dict):
-                    quotes[0]["price_usd"] = q_spot
-                if isinstance(quotes[1], dict):
-                    quotes[1]["price_usd"] = q_fut
+            witness["state"] = state
+            witness["quotes"] = witness_quotes
 
-    soak["pilot_100usd"] = {
-        "initial_capital_usd": 100.0,
-        "current_equity_usd": 118.50,
-        "realized_pnl_usd": 18.50,
-        "roi_pct": 18.50,
-        "profit_lock_floor_usd": 105.0,
-        "active_rung": "STEP_2_125",
-        "paper_only": True,
-    }
+    soak["pilot_100usd"] = paper_account_summary(ROOT)
     soak["live_crypto_witness"] = {
-        "BTC": (live_payload.get("quotes") or {}).get("BTC", {}).get("price", 81270.0),
-        "ETH": (live_payload.get("quotes") or {}).get("ETH", {}).get("price", 2395.45),
-        "SOL": (live_payload.get("quotes") or {}).get("SOL", {}).get("price", 103.60),
-        "XAU": xau_price,
+        k: {f: (quotes_all.get(k) or {}).get(f) for f in ("price", "source", "fetched_at", "freshness")}
+        for k in ("BTC", "ETH", "SOL", "XAU")
     }
     soak_path.write_text(json.dumps(soak, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def _sync_reconcile_and_alias_snapshots(now_iso: str) -> None:
+    acct_sum = paper_account_summary(ROOT)
     rec = reconcile_desk_states()
     m32_dir = ROOT / "reports" / "grok" / "M32"
     m32_dir.mkdir(parents=True, exist_ok=True)
@@ -98,7 +97,7 @@ def _sync_reconcile_and_alias_snapshots(now_iso: str) -> None:
                 "verdict": "CLEAN",
                 "desks_reconciled": 7,
                 "initial_capital_usd": 100.0,
-                "total_paper_equity_usd": 118.50,
+                "total_paper_equity_usd": acct_sum["current_equity_usd"],
             }
             m36_path.write_text(json.dumps(m36, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         except Exception:
@@ -111,10 +110,11 @@ def _sync_reconcile_and_alias_snapshots(now_iso: str) -> None:
             m43["generated_at"] = now_iso
             acct = m43.setdefault("pilot_account", {})
             acct["initial_capital_usd"] = 100.0
-            acct["current_equity_usd"] = 118.50
-            acct["net_pnl_usd"] = 18.50
-            acct["roi_pct"] = 18.50
-            acct["profit_lock_floor_usd"] = 105.0
+            acct["current_equity_usd"] = acct_sum["current_equity_usd"]
+            acct["net_pnl_usd"] = acct_sum["realized_pnl_usd"]
+            acct["roi_pct"] = acct_sum["roi_pct"]
+            acct["trade_count"] = acct_sum["trade_count"]
+            acct["basis"] = acct_sum["basis"]
             m43_path.write_text(json.dumps(m43, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         except Exception:
             pass
@@ -123,12 +123,13 @@ def _sync_reconcile_and_alias_snapshots(now_iso: str) -> None:
     if comp_path.is_file():
         try:
             comp = json.loads(comp_path.read_text(encoding="utf-8").lstrip("\ufeff"))
-            comp["active_ladder_step_id"] = "STEP_2_125"
+            comp["active_ladder_step_id"] = "STEP_0_100" if acct_sum["trade_count"] == 0 else comp.get("active_ladder_step_id")
             ledger = comp.setdefault("paper_compounding_ledger", {})
             ledger["initial_capital_usd"] = 100.0
-            ledger["current_equity_usd"] = 118.50
-            ledger["cumulative_roi_pct"] = 18.50
-            ledger["active_profit_lock_floor_usd"] = 105.0
+            ledger["current_equity_usd"] = acct_sum["current_equity_usd"]
+            ledger["cumulative_roi_pct"] = acct_sum["roi_pct"]
+            ledger["trade_count"] = acct_sum["trade_count"]
+            ledger["basis"] = acct_sum["basis"]
             comp_txt = json.dumps(comp, indent=2, ensure_ascii=False) + "\n"
             comp_path.write_text(comp_txt, encoding="utf-8")
             assets_comp = ROOT.parent / "ahos_assets" / "m60_hundred_dollar_compounding_snapshot.json"
@@ -181,7 +182,7 @@ def main() -> int:
         "execution_mode": "PAPER_ONLY",
         "real_trading": False,
         "initial_capital_usd": 100.0,
-        "current_equity_usd": 118.50,
+        "current_equity_usd": paper_account_summary(ROOT)["current_equity_usd"],
         "desks_count": len(DESK_SPECS),
         "instruments_evaluated": len(cycles),
         "verified_instruments": sum(1 for c in cycles if c.witness.state == "VERIFIED"),

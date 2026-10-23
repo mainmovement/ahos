@@ -1,6 +1,6 @@
 """M32 Nightly & Cross-Desk Reconciliation Bridge.
 Reconciles paper positions, realized PnL, and hash-chain integrity across Gold (M13), Oil (M13.1),
-and Multi-Market (M19) paper desks against the canonical MissionLedger ($100 base pilot account -> $118.50 equity).
+and Multi-Market (M19) paper desks against the canonical MissionLedger ($100 base pilot account; equity only from real paper trades).
 Any discrepancy between desk state and ledger state raises RECONCILE_DRIFT_HALT.
 """
 from __future__ import annotations
@@ -31,61 +31,22 @@ def reconcile_desk_states(
     *,
     tolerance_usd: float = 0.01,
 ) -> dict[str, Any]:
-    """Reconcile reported desk equity & PnL against ledger checkpoints across all 7 paper desks ($100 base -> $118.50)."""
+    """Reconcile reported desk equity & PnL against ledger checkpoints across all 7 paper desks (per-desk realized PnL from real paper trades)."""
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     _ = get_project_root()
 
     if rows is None:
+        from architecture.markets.paper_account import DESKS, paper_account_summary
+
+        summary = paper_account_summary(get_project_root())
+        mids = {"GOLD": "M13-GOLD-SOAK", "OIL": "M13.1-OIL-PAPER", "CRYPTO": "M13.3-CRYPTO-PAPER",
+                "US_EQUITIES": "M13.4-US-EQ-PAPER", "EU_EQUITIES": "M13.5-EU-EQ-PAPER",
+                "ASIA_EQUITIES": "M13.6-ASIA-EQ-PAPER", "FOREX": "M19-FOREX-PAPER"}
         rows = [
-            {
-                "desk": "GOLD",
-                "mission_id": "M13-GOLD-SOAK",
-                "ledger_equity_usd": 22.50,
-                "reported_equity_usd": 22.50,
-                "chain_ok": True,
-            },
-            {
-                "desk": "OIL",
-                "mission_id": "M13.1-OIL-PAPER",
-                "ledger_equity_usd": 18.00,
-                "reported_equity_usd": 18.00,
-                "chain_ok": True,
-            },
-            {
-                "desk": "CRYPTO",
-                "mission_id": "M13.3-CRYPTO-PAPER",
-                "ledger_equity_usd": 24.00,
-                "reported_equity_usd": 24.00,
-                "chain_ok": True,
-            },
-            {
-                "desk": "US_EQUITIES",
-                "mission_id": "M13.4-US-EQ-PAPER",
-                "ledger_equity_usd": 16.00,
-                "reported_equity_usd": 16.00,
-                "chain_ok": True,
-            },
-            {
-                "desk": "EU_EQUITIES",
-                "mission_id": "M13.5-EU-EQ-PAPER",
-                "ledger_equity_usd": 13.00,
-                "reported_equity_usd": 13.00,
-                "chain_ok": True,
-            },
-            {
-                "desk": "ASIA_EQUITIES",
-                "mission_id": "M13.6-ASIA-EQ-PAPER",
-                "ledger_equity_usd": 13.00,
-                "reported_equity_usd": 13.00,
-                "chain_ok": True,
-            },
-            {
-                "desk": "FOREX",
-                "mission_id": "M19-FOREX-PAPER",
-                "ledger_equity_usd": 12.00,
-                "reported_equity_usd": 12.00,
-                "chain_ok": True,
-            },
+            {"desk": d, "mission_id": mids[d],
+             "ledger_equity_usd": summary["per_desk_realized_pnl_usd"][d],
+             "reported_equity_usd": summary["per_desk_realized_pnl_usd"][d], "chain_ok": True}
+            for d in DESKS
         ]
 
     evaluated: list[DeskReconcileRow] = []

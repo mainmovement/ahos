@@ -309,15 +309,17 @@ def summarize_regime_witness_win_rates(
 
 
 def default_multi_market_fixtures() -> list[dict[str, Any]]:
-    """Canonical two-source fixtures across all 7 multi-market desks for deterministic paper evaluation."""
+    """SYNTHETIC test-only fixtures (NOT market prices): every instrument uses index-style
+    values around 100.0 so tests can exercise the 2-source witness deterministically.
+    Live runs must use ``live_price_feed.build_live_multi_market_fixtures`` instead."""
     return [
         {
             "desk": "GOLD",
             "symbol": "XAUUSD",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "goldapi_spot", "price": 4002.65},
-                {"source": "yahoo_gc_futures", "price": 4003.35},
+                {"source": "goldapi_spot", "price": 100.00},
+                {"source": "yahoo_gc_futures", "price": 100.10},
             ],
         },
         {
@@ -325,8 +327,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "WTI",
             "regime": "RANGE_CHOP",
             "quotes": [
-                {"source": "eia_spot", "price": 71.35},
-                {"source": "yahoo_cl_futures", "price": 71.45},
+                {"source": "eia_spot", "price": 100.00},
+                {"source": "yahoo_cl_futures", "price": 100.10},
             ],
         },
         {
@@ -334,8 +336,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "BTCUSDT",
             "regime": "MACRO_SHOCK",
             "quotes": [
-                {"source": "binance_public", "price": 81262.00},
-                {"source": "coingecko_public", "price": 81278.00},
+                {"source": "binance_public", "price": 100.00},
+                {"source": "coingecko_public", "price": 100.10},
             ],
         },
         {
@@ -343,8 +345,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "ETHUSDT",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "binance_public", "price": 2395.00},
-                {"source": "coingecko_public", "price": 2395.90},
+                {"source": "binance_public", "price": 100.00},
+                {"source": "coingecko_public", "price": 100.10},
             ],
         },
         {
@@ -352,8 +354,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "SPY",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "stooq_us", "price": 584.20},
-                {"source": "yahoo_us", "price": 584.35},
+                {"source": "stooq_us", "price": 100.00},
+                {"source": "yahoo_us", "price": 100.10},
             ],
         },
         {
@@ -361,8 +363,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "QQQ",
             "regime": "BEAR_DRAWDOWN",
             "quotes": [
-                {"source": "stooq_us", "price": 496.80},
-                {"source": "yahoo_us", "price": 497.00},
+                {"source": "stooq_us", "price": 100.00},
+                {"source": "yahoo_us", "price": 100.10},
             ],
         },
         {
@@ -370,8 +372,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "NVDA",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "stooq_us", "price": 141.50},
-                {"source": "yahoo_us", "price": 141.62},
+                {"source": "stooq_us", "price": 100.00},
+                {"source": "yahoo_us", "price": 100.10},
             ],
         },
         {
@@ -379,8 +381,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "EXW1.DE",
             "regime": "RANGE_CHOP",
             "quotes": [
-                {"source": "stooq_eu", "price": 50.82},
-                {"source": "yahoo_eu", "price": 50.86},
+                {"source": "stooq_eu", "price": 100.00},
+                {"source": "yahoo_eu", "price": 100.10},
             ],
         },
         {
@@ -388,8 +390,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "DAX",
             "regime": "BEAR_DRAWDOWN",
             "quotes": [
-                {"source": "stooq_eu", "price": 19536.0},
-                {"source": "yahoo_eu", "price": 19544.0},
+                {"source": "stooq_eu", "price": 100.00},
+                {"source": "yahoo_eu", "price": 100.10},
             ],
         },
         {
@@ -397,8 +399,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "N225",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "stooq_asia", "price": 39112.0},
-                {"source": "yahoo_asia", "price": 39128.0},
+                {"source": "stooq_asia", "price": 100.00},
+                {"source": "yahoo_asia", "price": 100.10},
             ],
         },
         {
@@ -406,8 +408,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "HSI",
             "regime": "MACRO_SHOCK",
             "quotes": [
-                {"source": "stooq_asia", "price": 20590.0},
-                {"source": "yahoo_asia", "price": 20612.0},
+                {"source": "stooq_asia", "price": 100.00},
+                {"source": "yahoo_asia", "price": 100.10},
             ],
         },
         {
@@ -415,8 +417,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "EURUSD",
             "regime": "RANGE_CHOP",
             "quotes": [
-                {"source": "ecb_ref", "price": 1.0842},
-                {"source": "fred_stooq_fx", "price": 1.0845},
+                {"source": "ecb_ref", "price": 100.00},
+                {"source": "fred_stooq_fx", "price": 100.10},
             ],
         },
         {
@@ -424,15 +426,15 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "USDJPY",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "ecb_ref", "price": 151.82},
-                {"source": "fred_stooq_fx", "price": 151.88},
+                {"source": "ecb_ref", "price": 100.00},
+                {"source": "fred_stooq_fx", "price": 100.10},
             ],
         },
     ]
 
 
 def evaluate_all_desks(fixtures: Sequence[Mapping[str, Any]] | None = None) -> list[DeskPaperCycle]:
-    rows = fixtures if fixtures is not None else default_multi_market_fixtures()
+    rows = fixtures if fixtures is not None else default_multi_market_fixtures()  # synthetic test fixtures
     results: list[DeskPaperCycle] = []
     for row in rows:
         results.append(

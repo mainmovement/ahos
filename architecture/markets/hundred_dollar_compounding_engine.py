@@ -113,7 +113,7 @@ def build_slice_allocations(
 def build_hundred_dollar_compounding_snapshot(
     *,
     root: Any | None = None,
-    paper_equity_usd: float = 118.5,
+    paper_equity_usd: float = 100.0,
 ) -> dict[str, Any]:
     """Deterministic M60.P snapshot (shadow paper equity defaults above STEP_1)."""
     from pathlib import Path
