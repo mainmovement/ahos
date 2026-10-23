@@ -88,6 +88,23 @@ def test_strategy_red_team_5_attack_vectors() -> None:
     assert leaked.verdict == "VETOED_FRAGILE"
 
 
+def test_run_all_lightweight_exporters_manifest() -> None:
+    import json
+    from pathlib import Path
+
+    from scripts.run_all_lightweight_exporters import MANIFEST_REL, run_all_exports
+
+    manifest = run_all_exports()
+    assert manifest["paper_only"] is True
+    assert manifest["real_trading"] is False
+    assert manifest["steps_count"] >= 10
+    path = Path(__file__).resolve().parents[1] / MANIFEST_REL
+    assert path.is_file()
+    on_disk = json.loads(path.read_text(encoding="utf-8"))
+    assert on_disk["execution_mode"] == "PAPER_ONLY"
+    assert any(e.get("exists") for e in on_disk["exports"])
+
+
 def test_mport_auto_tier_and_migration_pack() -> None:
     t8 = select_auto_tier(8.0, 8)
     assert t8["auto_tier"] == "TIER_8GB_SAFE"
