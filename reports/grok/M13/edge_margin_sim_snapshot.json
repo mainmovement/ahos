@@ -1,0 +1,191 @@
+{
+  "schema": "ahos.edge_margin_sim.v1",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "expectancy_gate": {
+    "sample_size": 30,
+    "expectancy_per_trade": 6.7e-05,
+    "win_rate_pct": 63.33,
+    "avg_win": 0.002521,
+    "avg_loss": 0.001991,
+    "cost_per_trade": 0.0008,
+    "ci95_lower": -0.000763,
+    "ci95_upper": 0.000853,
+    "verdict": "NO_PROVEN_EDGE_HOLD",
+    "paper_only": true,
+    "live": false
+  },
+  "expectancy_gate_small_sample_demo": {
+    "sample_size": 12,
+    "expectancy_per_trade": -0.00015,
+    "win_rate_pct": 58.33,
+    "avg_win": 0.0027,
+    "avg_loss": 0.00222,
+    "cost_per_trade": 0.0008,
+    "ci95_lower": -0.001658,
+    "ci95_upper": 0.0013,
+    "verdict": "NO_PROVEN_EDGE_HOLD",
+    "paper_only": true,
+    "live": false
+  },
+  "instruments": {
+    "MGC": {
+      "name_en": "CME Micro Gold (MGC, 10 troy oz)",
+      "atr_pct": 1.25,
+      "leverage_ladder": [
+        {
+          "symbol": "MGC",
+          "leverage": 1,
+          "liquidation_distance_pct": 50.0,
+          "atr_multiple_to_liquidation": 40.0,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "SAFE_PAPER_BAND",
+          "warning_fa": "اهرم تا ۳× در محدودهٔ آموزشی کاغذی؛ فاصلهٔ نقدشوندگی معمولاً از نوسان ATR بیشتر است.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MGC",
+          "leverage": 2,
+          "liquidation_distance_pct": 25.0,
+          "atr_multiple_to_liquidation": 20.0,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "SAFE_PAPER_BAND",
+          "warning_fa": "اهرم تا ۳× در محدودهٔ آموزشی کاغذی؛ فاصلهٔ نقدشوندگی معمولاً از نوسان ATR بیشتر است.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MGC",
+          "leverage": 3,
+          "liquidation_distance_pct": 16.6667,
+          "atr_multiple_to_liquidation": 13.33,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "SAFE_PAPER_BAND",
+          "warning_fa": "اهرم تا ۳× در محدودهٔ آموزشی کاغذی؛ فاصلهٔ نقدشوندگی معمولاً از نوسان ATR بیشتر است.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MGC",
+          "leverage": 5,
+          "liquidation_distance_pct": 10.0,
+          "atr_multiple_to_liquidation": 8.0,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "CAUTION_ELEVATED_RISK",
+          "warning_fa": "اهرم ۵× ریسک مارجین‌کال را بالا می‌برد؛ فقط برای آزمایش کاغذی با سقف سرمایهٔ ثابت.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MGC",
+          "leverage": 10,
+          "liquidation_distance_pct": 5.0,
+          "atr_multiple_to_liquidation": 4.0,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "VETO_RUIN_DANGER",
+          "warning_fa": "اهرم ۱۰× یا بالاتر در شوک ۳×ATR احتمال مارجین‌کال و ریسک نابودی سرمایه را به‌شدت افزایش می‌دهد (فقط آموزشی — وتوی کاغذی).",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MGC",
+          "leverage": 25,
+          "liquidation_distance_pct": 2.0,
+          "atr_multiple_to_liquidation": 1.6,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "HIGH",
+          "classification": "VETO_RUIN_DANGER",
+          "warning_fa": "اهرم ۱۰× یا بالاتر در شوک ۳×ATR احتمال مارجین‌کال و ریسک نابودی سرمایه را به‌شدت افزایش می‌دهد (فقط آموزشی — وتوی کاغذی).",
+          "paper_only": true,
+          "live": false
+        }
+      ]
+    },
+    "MCL": {
+      "name_en": "CME Micro WTI Crude (MCL, 100 barrels)",
+      "atr_pct": 2.1,
+      "leverage_ladder": [
+        {
+          "symbol": "MCL",
+          "leverage": 1,
+          "liquidation_distance_pct": 50.0,
+          "atr_multiple_to_liquidation": 23.81,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "SAFE_PAPER_BAND",
+          "warning_fa": "اهرم تا ۳× در محدودهٔ آموزشی کاغذی؛ فاصلهٔ نقدشوندگی معمولاً از نوسان ATR بیشتر است.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MCL",
+          "leverage": 2,
+          "liquidation_distance_pct": 25.0,
+          "atr_multiple_to_liquidation": 11.9,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "SAFE_PAPER_BAND",
+          "warning_fa": "اهرم تا ۳× در محدودهٔ آموزشی کاغذی؛ فاصلهٔ نقدشوندگی معمولاً از نوسان ATR بیشتر است.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MCL",
+          "leverage": 3,
+          "liquidation_distance_pct": 16.6667,
+          "atr_multiple_to_liquidation": 7.94,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "SAFE_PAPER_BAND",
+          "warning_fa": "اهرم تا ۳× در محدودهٔ آموزشی کاغذی؛ فاصلهٔ نقدشوندگی معمولاً از نوسان ATR بیشتر است.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MCL",
+          "leverage": 5,
+          "liquidation_distance_pct": 10.0,
+          "atr_multiple_to_liquidation": 4.76,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "LOW",
+          "classification": "CAUTION_ELEVATED_RISK",
+          "warning_fa": "اهرم ۵× ریسک مارجین‌کال را بالا می‌برد؛ فقط برای آزمایش کاغذی با سقف سرمایهٔ ثابت.",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MCL",
+          "leverage": 10,
+          "liquidation_distance_pct": 5.0,
+          "atr_multiple_to_liquidation": 2.38,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "HIGH",
+          "classification": "VETO_RUIN_DANGER",
+          "warning_fa": "اهرم ۱۰× یا بالاتر در شوک ۳×ATR احتمال مارجین‌کال و ریسک نابودی سرمایه را به‌شدت افزایش می‌دهد (فقط آموزشی — وتوی کاغذی).",
+          "paper_only": true,
+          "live": false
+        },
+        {
+          "symbol": "MCL",
+          "leverage": 25,
+          "liquidation_distance_pct": 2.0,
+          "atr_multiple_to_liquidation": 0.95,
+          "maintenance_margin_pct": 50.0,
+          "margin_call_prob_3atr_shock": "HIGH",
+          "classification": "VETO_RUIN_DANGER",
+          "warning_fa": "اهرم ۱۰× یا بالاتر در شوک ۳×ATR احتمال مارجین‌کال و ریسک نابودی سرمایه را به‌شدت افزایش می‌دهد (فقط آموزشی — وتوی کاغذی).",
+          "paper_only": true,
+          "live": false
+        }
+      ]
+    }
+  },
+  "generated_at": "2026-10-23T19:49:51Z"
+}
