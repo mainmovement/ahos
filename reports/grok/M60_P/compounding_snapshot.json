@@ -1,0 +1,112 @@
+{
+  "schema": "ahos.hundred_dollar_compounding.v1",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "live": false,
+  "initial_capital_usd": 100.0,
+  "directions": [
+    "LONG",
+    "SHORT"
+  ],
+  "leverage_range": "10x-25x",
+  "min_leverage_enforced": 10,
+  "allowed_leverage": [
+    10,
+    15,
+    20,
+    25
+  ],
+  "slice_allocations": [
+    {
+      "symbol": "MGC",
+      "side": "LONG",
+      "leverage": 15,
+      "isolated_margin_usd": 20.0,
+      "statistical_edge_positive": true,
+      "red_team_pass": true,
+      "atr_stop_distance_pct": 2.5,
+      "liquidation_distance_pct": 8.0,
+      "paper_only": true
+    },
+    {
+      "symbol": "MCL",
+      "side": "SHORT",
+      "leverage": 20,
+      "isolated_margin_usd": 20.0,
+      "statistical_edge_positive": true,
+      "red_team_pass": true,
+      "atr_stop_distance_pct": 2.5,
+      "liquidation_distance_pct": 8.0,
+      "paper_only": true
+    },
+    {
+      "symbol": "BTCUSDT-PERP",
+      "side": "LONG",
+      "leverage": 10,
+      "isolated_margin_usd": 20.0,
+      "statistical_edge_positive": true,
+      "red_team_pass": true,
+      "atr_stop_distance_pct": 2.5,
+      "liquidation_distance_pct": 10.0,
+      "paper_only": true
+    }
+  ],
+  "slice_instruments_catalog": [
+    "MGC",
+    "MCL",
+    "BTCUSDT-PERP",
+    "ETHUSDT-PERP",
+    "SOLUSDT-PERP",
+    "M33_BREAKOUT_GEM"
+  ],
+  "max_concurrent_slices": 3,
+  "wallet_reserve_min_pct": 40.0,
+  "compounding_ladder": [
+    {
+      "step_id": "STEP_1_110",
+      "target_equity_usd": 110.0,
+      "roi_pct": 10.0,
+      "profit_lock_floor_usd": 102.0
+    },
+    {
+      "step_id": "STEP_2_125",
+      "target_equity_usd": 125.0,
+      "roi_pct": 25.0,
+      "profit_lock_floor_usd": 110.0
+    },
+    {
+      "step_id": "STEP_3_150",
+      "target_equity_usd": 150.0,
+      "roi_pct": 50.0,
+      "profit_lock_floor_usd": 125.0
+    },
+    {
+      "step_id": "STEP_4_200_PRINCIPAL_FREE",
+      "target_equity_usd": 200.0,
+      "roi_pct": 100.0,
+      "profit_lock_floor_usd": 100.0,
+      "principal_free_milestone_reached": true
+    }
+  ],
+  "active_ladder_step_id": "STEP_2_125",
+  "paper_compounding_ledger": {
+    "initial_capital_usd": 100.0,
+    "current_equity_usd": 118.5,
+    "cumulative_roi_pct": 18.5,
+    "active_profit_lock_floor_usd": 105.0,
+    "max_single_slice_loss_usd": 20.0,
+    "principal_free_milestone_reached": false
+  },
+  "live_pilot_ledger": {
+    "status": "READY_LOCKED_BY_HOLD_FLAG",
+    "initial_capital_usd": 100.0,
+    "hold_flag_active": true,
+    "leverage_range": "10x-25x",
+    "directions": [
+      "LONG",
+      "SHORT"
+    ]
+  },
+  "persian_summary_fa": "پایلوت ۱۰۰ دلاری (M60.P · PAPER_ONLY): برش‌های ایزوله ۱۰–۲۰ دلاری با حداکثر ۳ موقعیت همزمان و حفظ ≥۴۰٪ ذخیرهٔ کیف پول؛ جهت LONG و SHORT با اهرم ۱۰× تا ۲۵× (کمتر از ۱۰× رد می‌شود). پلهٔ قفل سود: ۱۱۰→۱۰۲، ۱۲۵→۱۱۰، ۱۵۰→۱۲۵، ۲۰۰ دلار = آزادسازی اصل سرمایه برای معاملهٔ صرفاً با سود."
+}

@@ -15,7 +15,7 @@ MISSION_ID = "M60.I"
 
 DEMO_MARKERS: tuple[str, ...] = (
     "EXAMPLE_CONTRACT_DEMO",
-    "???? ??? ?? ???????",
+    "سناریوی نمایشی",
     "getDemoAnswer",
 )
 
@@ -54,7 +54,7 @@ def audit_snapshots(reports_root: Path) -> dict[str, Any]:
     issues: list[str] = []
     for fp in files:
         try:
-            raw = fp.read_text(encoding="utf-8")
+            raw = fp.read_text(encoding="utf-8").lstrip("\ufeff")
             if _text_has_mojibake(raw[:8000]):
                 issues.append(f"mojibake:{fp.relative_to(reports_root)}")
                 continue
@@ -87,7 +87,7 @@ def audit_arena_pages(arena_root: Path) -> dict[str, Any]:
     for fp in pages:
         try:
             text = fp.read_text(encoding="utf-8")
-        except OSError:
+        except (OSError, UnicodeDecodeError):
             demo_hits.append(str(fp))
             continue
         bad = [m for m in DEMO_MARKERS if m in text and m != "getDemoAnswer"]

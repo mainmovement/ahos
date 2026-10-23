@@ -15,7 +15,7 @@
                                        "configTemplate":  "DONE"
                                    },
                      "hardware":  {
-                                      "note":  "RAM under 8 GB - heavy features gated (T0).",
+                                      "note":  "RAM under 8 GB â€” heavy features gated (T0).",
                                       "ramGb":  7.9,
                                       "tier":  "T0",
                                       "gpu":  null,

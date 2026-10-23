@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+ARENA_ROOT = ROOT if (ROOT / "engine.ts").is_file() else ROOT.parent / "ahos_arena"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -96,14 +97,14 @@ def test_unavailable_writer(tmp_path, monkeypatch):
 
 
 def test_engine_ts_loads_python_read_model_not_hardcoded_null():
-    src = (ROOT / "engine.ts").read_text(encoding="utf-8")
+    src = (ARENA_ROOT / "engine.ts").read_text(encoding="utf-8")
     assert "loadCanonicalReadModel" in src
     assert "toBackendDecision" in src
     assert "canonicalBackend: null" not in src
 
 
 def test_snapshot_overlays_canonical_and_command_center_does_not_green_watch():
-    snap = (ROOT / "snapshot.ts").read_text(encoding="utf-8")
+    snap = (ARENA_ROOT / "snapshot.ts").read_text(encoding="utf-8")
     assert "overlayOpportunity" in snap
     assert "canonicalReadModel" in snap
     assert "canonicalOverlayCensus" in snap
@@ -111,7 +112,7 @@ def test_snapshot_overlays_canonical_and_command_center_does_not_green_watch():
     assert "failClosedCommandSnapshot" in snap
     assert "presentCanonicalDecisions" in snap
     assert "loadCanonicalReadModel" in snap
-    cc = (ROOT / "CommandCenter.tsx").read_text(encoding="utf-8")
+    cc = (ARENA_ROOT / "CommandCenter.tsx").read_text(encoding="utf-8")
     assert "canonicalReadModel" in cc
     assert "canonicalDecisions" in cc
     assert "overlayCensus" in cc
@@ -121,13 +122,13 @@ def test_snapshot_overlays_canonical_and_command_center_does_not_green_watch():
     # WATCH must not be treated as a success/positive pill.
     assert 'status === "WATCH" || status === "HIGH"' not in cc
     assert "WATCH" in cc  # still displayed as a non-positive state
-    route = (ROOT / "app" / "api" / "command" / "route.ts").read_text(encoding="utf-8")
+    route = (ARENA_ROOT / "app" / "api" / "command" / "route.ts").read_text(encoding="utf-8")
     assert "failClosedCommandSnapshot" in route
     assert "command_snapshot_failed" not in route
 
 
 def test_canonical_api_route_is_auth_gated():
-    src = (ROOT / "app" / "api" / "canonical" / "route.ts").read_text(encoding="utf-8")
+    src = (ARENA_ROOT / "app" / "api" / "canonical" / "route.ts").read_text(encoding="utf-8")
     # Mission 9.5 gate (bearer OR verified session); see test_web_api_auth_gate.
     assert "authorizeDashboardEndpoint(req)" in src
     assert "if (denied) return denied" in src
@@ -171,23 +172,23 @@ def test_pipeline_persists_read_model(tmp_path, monkeypatch):
 
 
 def test_alerts_ts_requires_python_alerts_allowed_not_ts_watch():
-    src = (ROOT / "alerts.ts").read_text(encoding="utf-8")
+    src = (ARENA_ROOT / "alerts.ts").read_text(encoding="utf-8")
     assert "alertsAllowedFromCanonical" in src
     assert "loadCanonicalReadModel" in src
     assert "lookupCanonicalRow" in src
     assert 'opp.decision !== "WATCH"' not in src
-    engine = (ROOT / "engine.ts").read_text(encoding="utf-8")
+    engine = (ARENA_ROOT / "engine.ts").read_text(encoding="utf-8")
     assert "displayDecision" in engine
     assert "canonRow?.is_positive" in engine
     assert "countCanonicalOutcomesForTokens" in engine
     assert 'r.decision === "WATCH"' not in engine
-    chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
+    chat = (ARENA_ROOT / "chat.ts").read_text(encoding="utf-8")
     assert "canonicalDecisions" in chat
     assert "canonicalFocusTokenKey" in chat
 
 
 def test_command_center_renders_python_decisions_without_db_rows():
-    cc = (ROOT / "CommandCenter.tsx").read_text(encoding="utf-8")
+    cc = (ARENA_ROOT / "CommandCenter.tsx").read_text(encoding="utf-8")
     assert "canonicalDecisions" in cc
     assert "احکام کانونیکال پایتون" in cc
     assert "لایه وب BUY/WATCH نمی‌سازد" in cc
@@ -204,12 +205,12 @@ def test_command_center_renders_python_decisions_without_db_rows():
 
 
 def test_env_example_documents_canonical_read_model_path():
-    text = (ROOT / ".env.example").read_text(encoding="utf-8")
+    text = (ARENA_ROOT / ".env.example").read_text(encoding="utf-8")
     assert "AHOS_CANONICAL_READ_MODEL=" in text
 
 
 def test_chat_greeting_counts_python_canonical_not_ts_watch():
-    chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
+    chat = (ARENA_ROOT / "chat.ts").read_text(encoding="utf-8")
     assert "canonicalDecisions" in chat
     greeting = chat.split("function greetingReply")[1].split("function helpReply")[0]
     assert 'o.decision === "WATCH"' not in greeting
@@ -228,17 +229,17 @@ def test_chat_greeting_counts_python_canonical_not_ts_watch():
 
 
 def test_paper_api_requires_canonical_buy():
-    src = (ROOT / "app" / "api" / "paper" / "route.ts").read_text(encoding="utf-8")
+    src = (ARENA_ROOT / "app" / "api" / "paper" / "route.ts").read_text(encoding="utf-8")
     assert "paperAllowedFromCanonical" in src
     assert "CANONICAL_PAPER_DENIED" in src
     # Phase 7b moved chat-initiated paper buys behind the confirm gate in
     # chat_actions.ts (the same functions the dashboard routes use). chat.ts
     # must not write paper rows itself; the canonical BUY check must run in
     # chat_actions' paperBuy before engine.addPaper.
-    chat = (ROOT / "chat.ts").read_text(encoding="utf-8")
+    chat = (ARENA_ROOT / "chat.ts").read_text(encoding="utf-8")
     assert "addPaper(" not in chat
     assert "./chat_actions" in chat
-    actions = (ROOT / "chat_actions.ts").read_text(encoding="utf-8")
+    actions = (ARENA_ROOT / "chat_actions.ts").read_text(encoding="utf-8")
     paper_buy = actions.split("paperBuy: async")[1].split("recordDevMission")[0]
     assert "paperAllowedFromCanonical(" in paper_buy
     assert paper_buy.index("paperAllowedFromCanonical(") < paper_buy.index("addPaper(")

@@ -71,56 +71,56 @@ DESK_SPECS: dict[str, dict[str, Any]] = {
         "symbols": ("XAUUSD",),
         "primary_sources": ("goldapi_spot", "yahoo_gc_futures"),
         "max_spread_pct": 0.5,
-        "paper_notional_usd": 100.0,
-        "paper_bankroll_usd": 10_000.0,
+        "paper_notional_usd": 15.0,
+        "paper_bankroll_usd": 100.0,
     },
     "OIL": {
         "mission_id": "M13.1-OIL-PAPER",
         "symbols": ("WTI", "BRENT"),
         "primary_sources": ("eia_spot", "yahoo_cl_futures"),
         "max_spread_pct": 0.6,
-        "paper_notional_usd": 100.0,
-        "paper_bankroll_usd": 10_000.0,
+        "paper_notional_usd": 15.0,
+        "paper_bankroll_usd": 100.0,
     },
     "CRYPTO": {
         "mission_id": "M13.3-CRYPTO-PAPER",
         "symbols": ("BTCUSDT", "ETHUSDT"),
         "primary_sources": ("binance_public", "coingecko_public"),
         "max_spread_pct": 0.5,
-        "paper_notional_usd": 150.0,
-        "paper_bankroll_usd": 10_000.0,
+        "paper_notional_usd": 15.0,
+        "paper_bankroll_usd": 100.0,
     },
     "US_EQUITIES": {
         "mission_id": "M13.4-US-EQ-PAPER",
         "symbols": ("SPY", "QQQ", "NVDA"),
         "primary_sources": ("stooq_us", "yahoo_us"),
         "max_spread_pct": 0.35,
-        "paper_notional_usd": 200.0,
-        "paper_bankroll_usd": 10_000.0,
+        "paper_notional_usd": 20.0,
+        "paper_bankroll_usd": 100.0,
     },
     "EU_EQUITIES": {
         "mission_id": "M13.5-EU-EQ-PAPER",
         "symbols": ("EXW1.DE", "DAX"),
         "primary_sources": ("stooq_eu", "yahoo_eu"),
         "max_spread_pct": 0.4,
-        "paper_notional_usd": 150.0,
-        "paper_bankroll_usd": 10_000.0,
+        "paper_notional_usd": 15.0,
+        "paper_bankroll_usd": 100.0,
     },
     "ASIA_EQUITIES": {
         "mission_id": "M13.6-ASIA-EQ-PAPER",
         "symbols": ("N225", "HSI"),
         "primary_sources": ("stooq_asia", "yahoo_asia"),
         "max_spread_pct": 0.45,
-        "paper_notional_usd": 150.0,
-        "paper_bankroll_usd": 10_000.0,
+        "paper_notional_usd": 15.0,
+        "paper_bankroll_usd": 100.0,
     },
     "FOREX": {
         "mission_id": "M19-FOREX-PAPER",
         "symbols": ("EURUSD", "USDJPY"),
         "primary_sources": ("ecb_ref", "fred_stooq_fx"),
         "max_spread_pct": 0.25,
-        "paper_notional_usd": 200.0,
-        "paper_bankroll_usd": 10_000.0,
+        "paper_notional_usd": 20.0,
+        "paper_bankroll_usd": 100.0,
     },
 }
 
@@ -210,8 +210,8 @@ def evaluate_desk_paper_cycle(
     desk_key = desk.strip().upper()
     spec = DESK_SPECS.get(desk_key, {})
     mission_id = str(spec.get("mission_id", f"M19-{desk_key}-PAPER"))
-    notional = float(spec.get("paper_notional_usd", 100.0))
-    bankroll = float(spec.get("paper_bankroll_usd", 10_000.0))
+    notional = float(spec.get("paper_notional_usd", 15.0))
+    bankroll = float(spec.get("paper_bankroll_usd", 100.0))
 
     witness = verify_two_source_witness(desk_key, symbol, quotes, max_spread_pct=max_spread_pct)
     oms_state = "NO_ENTRY_WITNESS_GATE"
@@ -316,8 +316,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "XAUUSD",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "goldapi_spot", "price": 2748.40},
-                {"source": "yahoo_gc_futures", "price": 2749.10},
+                {"source": "goldapi_spot", "price": 4002.65},
+                {"source": "yahoo_gc_futures", "price": 4003.35},
             ],
         },
         {
@@ -334,8 +334,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "BTCUSDT",
             "regime": "MACRO_SHOCK",
             "quotes": [
-                {"source": "binance_public", "price": 68420.00},
-                {"source": "coingecko_public", "price": 68465.00},
+                {"source": "binance_public", "price": 81262.00},
+                {"source": "coingecko_public", "price": 81278.00},
             ],
         },
         {
@@ -343,8 +343,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "ETHUSDT",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "binance_public", "price": 2645.50},
-                {"source": "coingecko_public", "price": 2648.00},
+                {"source": "binance_public", "price": 2395.00},
+                {"source": "coingecko_public", "price": 2395.90},
             ],
         },
         {
@@ -388,8 +388,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "DAX",
             "regime": "BEAR_DRAWDOWN",
             "quotes": [
-                {"source": "stooq_eu", "price": 19480.0},
-                {"source": "yahoo_eu", "price": 19492.0},
+                {"source": "stooq_eu", "price": 19536.0},
+                {"source": "yahoo_eu", "price": 19544.0},
             ],
         },
         {
@@ -397,8 +397,8 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
             "symbol": "N225",
             "regime": "BULL_TREND",
             "quotes": [
-                {"source": "stooq_asia", "price": 38910.0},
-                {"source": "yahoo_asia", "price": 38935.0},
+                {"source": "stooq_asia", "price": 39112.0},
+                {"source": "yahoo_asia", "price": 39128.0},
             ],
         },
         {

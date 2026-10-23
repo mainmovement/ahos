@@ -89,12 +89,12 @@
       "principal_free_milestone_reached": true
     }
   ],
-  "active_ladder_step_id": "STEP_1_110",
+  "active_ladder_step_id": "STEP_2_125",
   "paper_compounding_ledger": {
     "initial_capital_usd": 100.0,
     "current_equity_usd": 118.5,
     "cumulative_roi_pct": 18.5,
-    "active_profit_lock_floor_usd": 102.0,
+    "active_profit_lock_floor_usd": 105.0,
     "max_single_slice_loss_usd": 20.0,
     "principal_free_milestone_reached": false
   },

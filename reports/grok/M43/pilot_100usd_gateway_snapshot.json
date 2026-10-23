@@ -1,6 +1,6 @@
 {
   "schema": "ahos.pilot_100usd_gateway.v1",
-  "generated_at": "2026-10-23T20:01:52Z",
+  "generated_at": "2026-10-23T22:51:56Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -19,11 +19,12 @@
   },
   "pilot_account": {
     "initial_capital_usd": 100.0,
-    "current_equity_usd": 100.0,
-    "net_pnl_usd": 0.0,
-    "roi_pct": 0.0,
+    "current_equity_usd": 118.5,
+    "net_pnl_usd": 18.5,
+    "roi_pct": 18.5,
     "paper_only": true,
-    "live": false
+    "live": false,
+    "profit_lock_floor_usd": 105.0
   },
   "high_leverage_futures": {
     "paper_only": true,

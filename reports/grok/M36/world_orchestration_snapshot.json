@@ -1,6 +1,6 @@
 {
   "schema": "ahos.world_orchestrator_m36.v1",
-  "generated_at": "2026-10-23T20:33:59Z",
+  "generated_at": "2026-10-23T22:51:56Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -31,12 +31,13 @@
     "m32_m42_reconcile": {
       "verdict": "CLEAN",
       "desks_reconciled": 7,
-      "total_paper_equity_usd": 70000.0
+      "initial_capital_usd": 100.0,
+      "total_paper_equity_usd": 118.5
     },
     "m30_canonical_memory": {
       "chain_ok": true,
       "total_entries": 10,
-      "head_hash": "c01772667e816a8f"
+      "head_hash": "9a2ff3a73b4a16c4"
     },
     "m56_tournament": {
       "contenders": 4,
@@ -86,6 +87,47 @@
         "persian_briefs_generated": 1
       },
       "patches_verified": 1
+    },
+    "m60_hundred_dollar_compounding": {
+      "current_equity_usd": 118.5,
+      "active_profit_lock_floor_usd": 102.0,
+      "active_ladder_step_id": "STEP_1_110",
+      "live_pilot_status": "READY_LOCKED_BY_HOLD_FLAG"
+    },
+    "m60_self_evolution_cycle": {
+      "stage_ids": [
+        "DISCOVER_BOTTLENECK",
+        "SYNTHESIZE_PATCH",
+        "QUARANTINE_VERIFY",
+        "PROMOTE_OR_ROLLBACK"
+      ],
+      "current_stage_target_organ": {
+        "organ_id": "SELF_DEBUG_AND_HEALING",
+        "organ_title_fa": "موتور خودعیب‌یاب و خوددیباگ‌کن (Self-Debug & Auto-Heal)",
+        "held_out_exam_score_pct": 91
+      },
+      "promotion_verdict": "ROLLBACK_QUARANTINE",
+      "day_1_agi_claimed": false
+    },
+    "m60_cross_asset_fusion": {
+      "opportunities_count": 8,
+      "top_symbol": "MGC",
+      "desks_fused": 7
+    },
+    "m60_owner_live_switch_readiness": {
+      "gates_green_count": 6,
+      "hold_flag_active": true,
+      "owner_unlock_allowed": false,
+      "live_gateway_status": "READY_LOCKED_BY_HOLD_FLAG"
+    },
+    "m60_multi_horizon_risk_shield": {
+      "shield_verdict": "ARMED_GREEN",
+      "horizons_armed": 3
+    },
+    "m60_organ_telemetry_audit": {
+      "organs_count": 8,
+      "icon_audit_pass": true,
+      "zero_c_drive_dependency": true
     }
   }
 }

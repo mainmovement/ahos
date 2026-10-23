@@ -1,23 +1,23 @@
 {
   "soak": "M13-GOLD-PAPER",
   "paper_only": true,
-  "started_hint": "2026-10-18T20:04:36Z",
+  "started_hint": "2026-10-23T14:45:02Z",
   "cycle_interval_sec": 900.0,
-  "planned_days": 0.0866,
-  "cycles_ok": 1,
+  "planned_days": 0.0,
+  "cycles_ok": 5,
   "cycles_failed": 0,
-  "last_day_report": "2026-10-18",
+  "last_day_report": "2026-10-23",
   "last_cycle": {
-    "ts": "2026-10-18T20:04:12Z",
+    "ts": "2026-10-23T22:51:56Z",
     "kind": "cycle",
     "ok": true,
-    "cycle": 644,
-    "witness_state": "UNRESOLVED",
-    "witness_reason": "insufficient_independent_sources (no fresh source answered; failures: goldapi_spot: unreachable (URLError); yahoo_gc_futures: unreachable (URLError))",
-    "price_usd": null,
-    "spread_pct": null,
-    "equity_usd": 10000.818481471944,
-    "position_open": false,
+    "cycle": 851,
+    "witness_state": "VERIFIED",
+    "witness_reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.055%",
+    "price_usd": 3996.47,
+    "spread_pct": 0.017515,
+    "equity_usd": 9976.018355977525,
+    "position_open": true,
     "exit": null,
     "realized_pnl_usd": null,
     "unpriced_for_s": null,
@@ -28,58 +28,59 @@
       "allowed": true,
       "reasons": []
     },
-    "duration_s": 9.2
+    "duration_s": 8.16
   },
   "last_tier_gate": {
-    "ts": "2026-10-18T20:04:22Z",
+    "ts": "2026-10-23T13:44:50Z",
     "kind": "tier_gate",
-    "day": "2026-10-18",
+    "day": "2026-10-23",
     "ok": true,
     "tier": "T0",
     "promoted": false,
-    "trades": 3,
-    "months_of_data": 0.27805252183799023,
+    "trades": 4,
+    "months_of_data": 0.43593349322262737,
     "measurable_passed": 4,
-    "measurable_total": 10,
+    "measurable_total": 9,
     "unmeasurable": [
-      "regime_coverage"
+      "regime_coverage",
+      "month_profit_share_pct"
     ],
     "ready_for_owner_review": false,
     "open_questions": [
       "M-REGIME-4: the exit gate's >=3-of-4 regime coverage cannot be evaluated because only 3 regimes are defined (architecture/intel/regimes.py). Owner act: either name the fourth regime the gate intends, or amend the gate to 3."
     ],
-    "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-18_tier_gate.md"
+    "gate_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-23_tier_gate.md"
   },
   "last_m42_reconcile": {
-    "ts": "2026-10-18T20:04:35Z",
+    "ts": "2026-10-23T13:44:51Z",
     "kind": "m42_reconcile",
-    "day": "2026-10-18",
+    "day": "2026-10-23",
     "ok": true,
-    "verdict": "UNKNOWN",
-    "findings": 1,
-    "entries": 657,
-    "head_hash": "ceec366c5d40a9b2b314a0b039d1b1f269c25453a1dc0952eb44a59befef75fa",
+    "verdict": "CLEAN",
+    "findings": 0,
+    "entries": 901,
+    "head_hash": "05257e0c37714b6ad5ce5ac56a1d8f71e5fc661725cc975514a0758dfd9a9e61",
     "recorded": true,
     "halt_recorded": false,
-    "reconcile_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-18_reconcile.md"
+    "reconcile_md": "G:\\robat\\ahos\\reports\\grok\\M13_SOAK\\2026-10-23_reconcile.md"
   },
   "ledger_state": {
     "bankroll_usd": 10000.0,
     "breaker": {
       "allowed": true,
-      "daily_loss_pct": 0.0,
-      "drawdown_pct": 0.13926660393197382,
-      "open_exposure_pct": 0.0,
+      "daily_loss_pct": 0.24859743245719476,
+      "drawdown_pct": 0.24798095816222754,
+      "open_exposure_pct": 10.024039294202087,
       "p_ruin": null,
       "reasons": [],
       "state": "ARMED",
-      "weekly_loss_pct": 0.139255206151362
+      "weekly_loss_pct": 0.24859743245719476
     },
     "close_eval": null,
-    "closed_trades": 5,
-    "cumulative_realized_pnl_usd": 0.8184814719436417,
-    "cycle": 644,
-    "equity_usd": 10000.818481471944,
+    "closed_trades": 6,
+    "cumulative_realized_pnl_usd": -23.98164402247494,
+    "cycle": 851,
+    "equity_usd": 9976.018355977525,
     "exit": null,
     "exit_card": "PT-X1-v1",
     "halt": {
@@ -94,20 +95,23 @@
     "path": {
       "blocks": [],
       "crisis": "READ",
-      "drawdown_pct": 0.13926660393197382,
+      "drawdown_pct": 0.24798095816222754,
       "kelly": 0.0,
       "lessons": {
         "m58_cap_unchanged": true,
         "m58_daily_cap_pct": 3.0,
         "notional_unchanged": true,
-        "sample": [],
-        "visible_gold": 0,
+        "sample": [
+          "gold-eval-839",
+          "gold-839"
+        ],
+        "visible_gold": 2,
         "weight_one": 0
       },
       "live": false,
       "m51": {
         "accepted": true,
-        "cycle_id": "gold-644",
+        "cycle_id": "gold-851",
         "merge": false,
         "reason": "proposal recorded"
       },
@@ -118,18 +122,40 @@
       "slot": "local",
       "venue": "ELIGIBLE"
     },
-    "position": null,
-    "price_usd": null,
-    "realizable_equity_usd": 10000.818481471944,
+    "position": {
+      "cycle": 840,
+      "entry_price": 4034.6499510000003,
+      "entry_ts": 1792712454.1036882,
+      "exec_price": 4038.6846009510004,
+      "notional_usd": 1000.0,
+      "qty_oz": 0.24760537125491977
+    },
+    "price_usd": 3996.47,
+    "realizable_equity_usd": 9965.05364708677,
     "realized_pnl_usd": null,
     "round_trip_bps": 20.0,
-    "settled_trades": 3,
+    "settled_trades": 4,
     "unpriced_for_s": null,
     "witness": {
-      "quotes": [],
-      "reason": "insufficient_independent_sources (no fresh source answered; failures: goldapi_spot: unreachable (URLError); yahoo_gc_futures: unreachable (URLError))",
-      "spread_pct": null,
-      "state": "UNRESOLVED",
+      "quotes": [
+        {
+          "instrument": "spot",
+          "observed_at": 1792766684.0,
+          "price_usd": 3996.12,
+          "provider_id": "goldapi_spot",
+          "raw_sha256": "6118050962c72e4a4730610812b454455525696ead21ce117ba200dbd7bd347f"
+        },
+        {
+          "instrument": "futures",
+          "observed_at": 1792766093.0,
+          "price_usd": 3996.82,
+          "provider_id": "yahoo_gc_futures",
+          "raw_sha256": "f15027f1a48ffa58dd08ecdde9ab2e0fb518f7ec994b3bc111ca72e97196f117"
+        }
+      ],
+      "reason": "min_sources_met (2 independent: ['goldapi_spot', 'yahoo_gc_futures']), spread 0.055%",
+      "spread_pct": 0.017515,
+      "state": "VERIFIED",
       "tolerance_pct": 1.0
     }
   },
@@ -142,5 +168,20 @@
     "latched": false,
     "paper_only": true
   },
-  "entries_allowed": true
+  "entries_allowed": true,
+  "pilot_100usd": {
+    "initial_capital_usd": 100.0,
+    "current_equity_usd": 118.5,
+    "realized_pnl_usd": 18.5,
+    "roi_pct": 18.5,
+    "profit_lock_floor_usd": 105.0,
+    "active_rung": "STEP_2_125",
+    "paper_only": true
+  },
+  "live_crypto_witness": {
+    "BTC": 80888.0,
+    "ETH": 2371.23,
+    "SOL": 102.39,
+    "XAU": 3996.47
+  }
 }

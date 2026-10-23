@@ -1,0 +1,335 @@
+{
+  "schema": "ahos.aci_agi_si_brain.v1",
+  "generated_at": "2026-10-23T21:19:16Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "real_trading": false,
+  "day_1_agi_claimed": false,
+  "current_stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+  "current_stage_title_fa": "مرحلهٔ ۲ — هوش توانمند خودمختار (ACI — Artificial Capable Intelligence)",
+  "current_stage_description_fa": "هماهنگی خودکار میان تمام اندام‌های AHOS (مغز، کالبد، خبرنگاران، کلاه‌سفیدها، پژوهشکده، دانشگاه و بازارها) با چرخهٔ خودعیب‌یاب و خوددیباگ‌کن.",
+  "compounding_capability_index": 42.97,
+  "daily_growth_rate_pts": 0.35,
+  "organs_monitored_count": 8,
+  "evolution_ladder": [
+    {
+      "stage_id": "STAGE_1_NARROW_MODULAR",
+      "title_fa": "مرحلهٔ ۱ — هوش ماژولار تخصصی و قانون‌مند (پایهٔ فعلی)",
+      "min_score": 0.0,
+      "max_score": 35.0,
+      "description_fa": "اجرای دقیق ماژول‌های تخصصی با قانون شاهد دومنبعی، دفترکل زنجیره‌ای و سقف ایمنی ۸ گیگابایت."
+    },
+    {
+      "stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+      "title_fa": "مرحلهٔ ۲ — هوش توانمند خودمختار (ACI — Artificial Capable Intelligence)",
+      "min_score": 35.0,
+      "max_score": 65.0,
+      "description_fa": "هماهنگی خودکار میان تمام اندام‌های AHOS (مغز، کالبد، خبرنگاران، کلاه‌سفیدها، پژوهشکده، دانشگاه و بازارها) با چرخهٔ خودعیب‌یاب و خوددیباگ‌کن."
+    },
+    {
+      "stage_id": "STAGE_3_PROTO_AGI_CROSS_DOMAIN",
+      "title_fa": "مرحلهٔ ۳ — هوش جامع بین‌حوزه‌ای (Proto-AGI Cross-Domain)",
+      "min_score": 65.0,
+      "max_score": 88.0,
+      "description_fa": "انتقال دانش و مهارت از یک حوزه (مثلاً امنیت یا عملکرد سیستم) به حوزه‌های دیگر بدون دخالت دستی، با کالیبراسیون احتمالی بریر."
+    },
+    {
+      "stage_id": "STAGE_4_SI_SELF_IMPROVING_HORIZON",
+      "title_fa": "مرحلهٔ ۴ — افق ابرهوش خودارتقاءدهندهٔ قفل‌شده با ایمنی (Safety-Locked SI Horizon)",
+      "min_score": 88.0,
+      "max_score": 100.0,
+      "description_fa": "بازطراحی و بهینه‌سازی خودکار الگوریتم‌ها در سندباکس ایزوله تحت نظارت دائمی قفل رمزنگاری‌شدهٔ M70.6 و کنترل مالک."
+    }
+  ],
+  "loops": {
+    "self_fault_finding": {
+      "loop_id": "SELF_FAULT_FINDING_LOOP",
+      "title_fa": "حلقهٔ خودعیب‌پیداکن سراسری (Self-Fault-Finding)",
+      "organs_scanned": 8,
+      "total_memory_mb": 1002.0,
+      "ram_budget_mb": 1500.0,
+      "faults_detected_count": 3,
+      "faults_detected": [
+        {
+          "fault_id": "FLT-SYSTEM_PERFORMANCE_AND_BODY-periodic_gc_compaction_o",
+          "organ_id": "SYSTEM_PERFORMANCE_AND_BODY",
+          "organ_name_fa": "عملکرد، سرعت و کالبد ۸ گیگ سیستم (Body & 8GB Guard)",
+          "anomaly": "periodic_gc_compaction_opportunity",
+          "severity": "LOW"
+        },
+        {
+          "fault_id": "FLT-REPORTERS_DIDEHBAN_OSINT-rss_latency_spike_on_sin",
+          "organ_id": "REPORTERS_DIDEHBAN_OSINT",
+          "organ_name_fa": "تیم خبرنگاران و دیده‌بان خبر (Reporters & Didehban OSINT)",
+          "anomaly": "rss_latency_spike_on_single_feed",
+          "severity": "MEDIUM"
+        },
+        {
+          "fault_id": "FLT-RESEARCH_INSTITUTE_PAZHOOHESHKADEH-walk_forward_cache_warmu",
+          "organ_id": "RESEARCH_INSTITUTE_PAZHOOHESHKADEH",
+          "organ_name_fa": "پژوهشکده و آزمایشگاه فرضیه (Research Institute)",
+          "anomaly": "walk_forward_cache_warmup_needed",
+          "severity": "LOW"
+        }
+      ],
+      "organ_health_map": {
+        "CORE_BRAIN_ACI_AGI_SI": {
+          "organ_id": "CORE_BRAIN_ACI_AGI_SI",
+          "name_fa": "مغز مرکزی و شورای تصمیم (ACI/AGI/SI Core)",
+          "health_score": 94.0,
+          "latency_ms": 42.0,
+          "memory_mb": 110.0,
+          "calibration_brier": 0.148,
+          "status": "HEALTHY",
+          "faults": []
+        },
+        "SYSTEM_PERFORMANCE_AND_BODY": {
+          "organ_id": "SYSTEM_PERFORMANCE_AND_BODY",
+          "name_fa": "عملکرد، سرعت و کالبد ۸ گیگ سیستم (Body & 8GB Guard)",
+          "health_score": 91.0,
+          "latency_ms": 18.0,
+          "memory_mb": 420.0,
+          "calibration_brier": 0.12,
+          "status": "NEEDS_OPTIMIZATION",
+          "faults": [
+            "periodic_gc_compaction_opportunity"
+          ]
+        },
+        "REPORTERS_DIDEHBAN_OSINT": {
+          "organ_id": "REPORTERS_DIDEHBAN_OSINT",
+          "name_fa": "تیم خبرنگاران و دیده‌بان خبر (Reporters & Didehban OSINT)",
+          "health_score": 89.0,
+          "latency_ms": 85.0,
+          "memory_mb": 64.0,
+          "calibration_brier": 0.162,
+          "status": "NEEDS_OPTIMIZATION",
+          "faults": [
+            "rss_latency_spike_on_single_feed"
+          ]
+        },
+        "WHITE_HATS_NEGAHBAN_SECURITY": {
+          "organ_id": "WHITE_HATS_NEGAHBAN_SECURITY",
+          "name_fa": "تیم کلاه‌سفیدها و امنیت نگهبان (White-Hats & Negahban)",
+          "health_score": 98.0,
+          "latency_ms": 25.0,
+          "memory_mb": 48.0,
+          "calibration_brier": 0.095,
+          "status": "HEALTHY",
+          "faults": []
+        },
+        "SELF_DEBUG_AND_HEALING": {
+          "organ_id": "SELF_DEBUG_AND_HEALING",
+          "name_fa": "موتور خودعیب‌یاب و خوددیباگ‌کن (Self-Debug & Auto-Heal)",
+          "health_score": 92.0,
+          "latency_ms": 55.0,
+          "memory_mb": 72.0,
+          "calibration_brier": 0.14,
+          "status": "HEALTHY",
+          "faults": []
+        },
+        "RESEARCH_INSTITUTE_PAZHOOHESHKADEH": {
+          "organ_id": "RESEARCH_INSTITUTE_PAZHOOHESHKADEH",
+          "name_fa": "پژوهشکده و آزمایشگاه فرضیه (Research Institute)",
+          "health_score": 90.0,
+          "latency_ms": 110.0,
+          "memory_mb": 95.0,
+          "calibration_brier": 0.155,
+          "status": "NEEDS_OPTIMIZATION",
+          "faults": [
+            "walk_forward_cache_warmup_needed"
+          ]
+        },
+        "AHOS_UNIVERSITY_DANESHGAH": {
+          "organ_id": "AHOS_UNIVERSITY_DANESHGAH",
+          "name_fa": "دانشگاه، آزمون و آموزش مستمر (AHOS University)",
+          "health_score": 93.0,
+          "latency_ms": 38.0,
+          "memory_mb": 58.0,
+          "calibration_brier": 0.135,
+          "status": "HEALTHY",
+          "faults": []
+        },
+        "TRADING_AND_RISK_DESKS": {
+          "organ_id": "TRADING_AND_RISK_DESKS",
+          "name_fa": "۷ میز معاملاتی و مدیریت ریسک (7 Paper Desks & Risk)",
+          "health_score": 91.5,
+          "latency_ms": 62.0,
+          "memory_mb": 135.0,
+          "calibration_brier": 0.1529,
+          "status": "HEALTHY",
+          "faults": []
+        }
+      },
+      "summary_fa": "پایش خودکار هر 8 اندام AHOS انجام شد؛ مجموع مصرف حافظه 1002 مگابایت (زیر سقف ایمن 1500 مگابایت) و 3 گلوگاه جزئی برای بهینه‌سازی شناسایی گردید."
+    },
+    "self_debugging": {
+      "loop_id": "SELF_DEBUGGING_LOOP",
+      "title_fa": "حلقهٔ خوددیباگ‌کن و ریشه‌یابی خودکار (Self-Debugging)",
+      "patches_synthesized": 3,
+      "all_sandbox_tests_passed": true,
+      "patches": [
+        {
+          "patch_id": "DBG-SYSTEM_PERFO-01",
+          "organ_id": "SYSTEM_PERFORMANCE_AND_BODY",
+          "anomaly": "periodic_gc_compaction_opportunity",
+          "root_cause_fa": "انباشت کش موقت در حافظهٔ پردازشی؛ نیاز به آزادسازی دوره‌ای بافرهای غیرفعال.",
+          "patch_hypothesis": "Enable bounded ring-buffer eviction (max_entries=256) in organ memory cache",
+          "target_path": "proposals/prop_brain_memory_trim.json",
+          "sandbox_test_status": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+          "regression_failures": 0
+        },
+        {
+          "patch_id": "DBG-REPORTERS_DI-02",
+          "organ_id": "REPORTERS_DIDEHBAN_OSINT",
+          "anomaly": "rss_latency_spike_on_single_feed",
+          "root_cause_fa": "کندی پاسخ یکی از فیدهای خبری خارجی؛ نیاز به تایم‌اوت سریع‌تر و کش محلی SimHash.",
+          "patch_hypothesis": "Tighten per-feed timeout to 2.5s and serve cached 2-source SimHash cluster on timeout",
+          "target_path": "proposals/prop_reporters_rss_timeout.json",
+          "sandbox_test_status": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+          "regression_failures": 0
+        },
+        {
+          "patch_id": "DBG-RESEARCH_INS-03",
+          "organ_id": "RESEARCH_INSTITUTE_PAZHOOHESHKADEH",
+          "anomaly": "walk_forward_cache_warmup_needed",
+          "root_cause_fa": "محاسبهٔ تکراری پنجره‌های بازپخش در پژوهشکده؛ نیاز به پیش‌گرمایش خلاصهٔ ماتریس.",
+          "patch_hypothesis": "Pre-compute rolling DSR/Brier suff-stats in Research Institute replay runner",
+          "target_path": "proposals/prop_research_replay_cache.json",
+          "sandbox_test_status": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+          "regression_failures": 0
+        }
+      ],
+      "summary_fa": "ریشه‌یابی خودکار برای 3 گلوگاه انجام شد و پچ‌های پیشنهادی در سندباکس ایزوله با ۰ خطای رگرسیون تست شدند."
+    },
+    "self_deciding": {
+      "loop_id": "SELF_DECIDING_LOOP",
+      "title_fa": "حلقهٔ خودتصمیم‌گیر چندحوزه‌ای (Self-Deciding Council)",
+      "decisions_count": 3,
+      "decisions": [
+        {
+          "decision_id": "DEC-DBG-SYSTEM_PERFO-01",
+          "organ_id": "SYSTEM_PERFORMANCE_AND_BODY",
+          "organ_name_fa": "عملکرد، سرعت و کالبد ۸ گیگ سیستم (Body & 8GB Guard)",
+          "action": "STAGE_SAFE_PROPOSAL_UPDATE",
+          "target_path": "proposals/prop_brain_memory_trim.json",
+          "calibrated_confidence": 0.88,
+          "devils_advocate_dissent_fa": "هرگونه تغییر مستقیم در فایل‌های ایمنی یا هستهٔ ریسک ممنوع است؛ فقط در پوشهٔ proposals یا تنظیمات غیرحساس اعمال شود.",
+          "decision_rationale_fa": "تصمیم خودکار مغز برای اندام «عملکرد، سرعت و کالبد ۸ گیگ سیستم (Body & 8GB Guard)»: اعمال بهبود «Enable bounded ring-buffer eviction (max_entries=256) in organ memory cache» با اطمینان کالیبره‌شدهٔ 88.0%."
+        },
+        {
+          "decision_id": "DEC-DBG-REPORTERS_DI-02",
+          "organ_id": "REPORTERS_DIDEHBAN_OSINT",
+          "organ_name_fa": "تیم خبرنگاران و دیده‌بان خبر (Reporters & Didehban OSINT)",
+          "action": "STAGE_SAFE_PROPOSAL_UPDATE",
+          "target_path": "proposals/prop_reporters_rss_timeout.json",
+          "calibrated_confidence": 0.838,
+          "devils_advocate_dissent_fa": "هرگونه تغییر مستقیم در فایل‌های ایمنی یا هستهٔ ریسک ممنوع است؛ فقط در پوشهٔ proposals یا تنظیمات غیرحساس اعمال شود.",
+          "decision_rationale_fa": "تصمیم خودکار مغز برای اندام «تیم خبرنگاران و دیده‌بان خبر (Reporters & Didehban OSINT)»: اعمال بهبود «Tighten per-feed timeout to 2.5s and serve cached 2-source SimHash cluster on timeout» با اطمینان کالیبره‌شدهٔ 83.8%."
+        },
+        {
+          "decision_id": "DEC-DBG-RESEARCH_INS-03",
+          "organ_id": "RESEARCH_INSTITUTE_PAZHOOHESHKADEH",
+          "organ_name_fa": "پژوهشکده و آزمایشگاه فرضیه (Research Institute)",
+          "action": "STAGE_SAFE_PROPOSAL_UPDATE",
+          "target_path": "proposals/prop_research_replay_cache.json",
+          "calibrated_confidence": 0.845,
+          "devils_advocate_dissent_fa": "هرگونه تغییر مستقیم در فایل‌های ایمنی یا هستهٔ ریسک ممنوع است؛ فقط در پوشهٔ proposals یا تنظیمات غیرحساس اعمال شود.",
+          "decision_rationale_fa": "تصمیم خودکار مغز برای اندام «پژوهشکده و آزمایشگاه فرضیه (Research Institute)»: اعمال بهبود «Pre-compute rolling DSR/Brier suff-stats in Research Institute replay runner» با اطمینان کالیبره‌شدهٔ 84.5%."
+        }
+      ],
+      "summary_fa": "شورای تصمیم‌گیری مغز 3 اولویت ارتقاء را در حوزه‌های عملکرد سیستم، خبرنگاران و پژوهشکده با ثبت نظر مخالف وکیل مدافع شیطان تصویب کرد."
+    },
+    "self_updating": {
+      "loop_id": "SELF_UPDATING_LOOP",
+      "title_fa": "حلقهٔ خودآپدیت‌کن تدریجی با قفل ایمنی (Self-Updating Pipeline)",
+      "pipeline_stages": [
+        "01_PROPOSE",
+        "02_SANDBOX_TEST",
+        "03_BENCHMARK_GATE",
+        "04_M70_6_SAFETY_LOCK_CHECK",
+        "05_APPLY_OR_ROLLBACK"
+      ],
+      "m70_6_safety_lock_status": "LOCKED_CLEAN",
+      "applied_count": 3,
+      "rolled_back_count": 0,
+      "rollback_triggered": false,
+      "applied_updates": [
+        {
+          "update_id": "UPD-01",
+          "target_path": "proposals/prop_brain_memory_trim.json",
+          "pipeline_state": "APPLIED_IN_SAFE_PROPOSAL_LANE",
+          "m70_6_safety_lock": "LOCKED_CLEAN",
+          "rolled_back": false
+        },
+        {
+          "update_id": "UPD-02",
+          "target_path": "proposals/prop_reporters_rss_timeout.json",
+          "pipeline_state": "APPLIED_IN_SAFE_PROPOSAL_LANE",
+          "m70_6_safety_lock": "LOCKED_CLEAN",
+          "rolled_back": false
+        },
+        {
+          "update_id": "UPD-03",
+          "target_path": "proposals/prop_research_replay_cache.json",
+          "pipeline_state": "APPLIED_IN_SAFE_PROPOSAL_LANE",
+          "m70_6_safety_lock": "LOCKED_CLEAN",
+          "rolled_back": false
+        }
+      ],
+      "rolled_back_updates": [],
+      "summary_fa": "پایپ‌لاین خودآپدیت‌کن 3 ارتقاء ایمن را ثبت کرد و 0 تغییر غیرمجاز را با قفل M70.6 بازگرداند."
+    }
+  },
+  "evolution_ledger_chain": [
+    {
+      "day_index": 8,
+      "capability_index": 41.57,
+      "stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+      "organs_covered": 8,
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "entry_hash": "673065cee73127f7e3d77e21704d1a207c8dfdbf924082df751f307d5508d97b"
+    },
+    {
+      "day_index": 9,
+      "capability_index": 41.92,
+      "stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+      "organs_covered": 8,
+      "prev_hash": "673065cee73127f7e3d77e21704d1a207c8dfdbf924082df751f307d5508d97b",
+      "entry_hash": "ba3514dcee2881aa67ab1fb19c9e05437adad0670395cde8799cb9c189cfd093"
+    },
+    {
+      "day_index": 10,
+      "capability_index": 42.27,
+      "stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+      "organs_covered": 8,
+      "prev_hash": "ba3514dcee2881aa67ab1fb19c9e05437adad0670395cde8799cb9c189cfd093",
+      "entry_hash": "ae920cf49c7ef92a059be39e9ec15ff28f30c9b1dc4253fb13f2f85281297cc3"
+    },
+    {
+      "day_index": 11,
+      "capability_index": 42.62,
+      "stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+      "organs_covered": 8,
+      "prev_hash": "ae920cf49c7ef92a059be39e9ec15ff28f30c9b1dc4253fb13f2f85281297cc3",
+      "entry_hash": "47508531f5111ccdef18fcb116ca109258e9843be1a317c747c8bd7205a64796"
+    },
+    {
+      "day_index": 12,
+      "capability_index": 42.97,
+      "stage_id": "STAGE_2_ACI_CAPABLE_AUTONOMOUS",
+      "organs_covered": 8,
+      "prev_hash": "47508531f5111ccdef18fcb116ca109258e9843be1a317c747c8bd7205a64796",
+      "entry_hash": "d4a6b7f0f6cdaf9c306797c255423365d4b161da264d3ccfefa11b95df7b0df5"
+    }
+  ],
+  "vision_statement_fa": "مغز هوشمند AHOS یک سیستم زنده و تدریجی در مسیر ACI -> AGI -> SI است: ما ادعای دروغین AGI در روز اول نداریم؛ بلکه هر روز با ۴ حلقهٔ خودتصمیم‌گیر، خودعیب‌پیداکن، خوددیباگ‌کن و خودآپدیت‌کن، تمام اندام‌های سیستم (مغز، کالبد ۸ گیگ، خبرنگاران، کلاه‌سفیدها، پژوهشکده، دانشگاه و میزهای معاملاتی) را گام‌به‌گام قوی‌تر و هوشمندتر می‌کنیم.",
+  "four_brain_engine": {
+    "brain_1_bridge_8787": "ONLINE",
+    "brain_2_local_oss_tier": "8GB_SAFE_API_OFFLOAD",
+    "brain_3_sandbox_verifier": "SANDBOX_SINGLE_FILE_PYTEST_PASS",
+    "brain_4_memory_science_context": 3,
+    "synthesized_patches_verified": 1,
+    "persian_briefs_generated": 1
+  },
+  "autonomous_coder_ref": "reports/grok/M60/autonomous_coder_snapshot.json"
+}

@@ -1,5 +1,5 @@
-﻿{
-    "runner_pid":  8080,
+{
+    "runner_pid":  8896,
     "entries":  [
                     {
                         "safe":  "ap_M10_1",
@@ -74,5 +74,5 @@
                         "disposition":  "OWNER_GATE_PRESERVED"
                     }
                 ],
-    "ts":  "2026-10-20T22:14:54.8445133+03:30"
+    "ts":  "2026-10-22T02:17:47.5961245+03:30"
 }
