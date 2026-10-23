@@ -21,6 +21,13 @@ VERIFIED = "VERIFIED"
 UNRESOLVED = "UNRESOLVED"
 CONFLICT = "CONFLICT"
 
+REGIME_TAGS: tuple[str, ...] = (
+    "BULL_TREND",
+    "BEAR_DRAWDOWN",
+    "RANGE_CHOP",
+    "MACRO_SHOCK",
+)
+
 
 @dataclass(frozen=True, slots=True)
 class SourceQuote:
@@ -228,12 +235,86 @@ def evaluate_desk_paper_cycle(
     )
 
 
+def default_historical_regime_candles() -> list[dict[str, Any]]:
+    """Deterministic OHLC replay candles tagged by macro regime (paper fixtures only)."""
+    template = [
+        ("BULL_TREND", [100.0, 100.4, 99.9, 100.6]),
+        ("BULL_TREND", [100.6, 101.0, 100.5, 101.2]),
+        ("BEAR_DRAWDOWN", [101.2, 101.1, 100.2, 100.3]),
+        ("BEAR_DRAWDOWN", [100.3, 100.5, 99.6, 99.8]),
+        ("RANGE_CHOP", [99.8, 100.1, 99.7, 100.0]),
+        ("RANGE_CHOP", [100.0, 100.2, 99.9, 100.1]),
+        ("MACRO_SHOCK", [100.1, 100.1, 97.5, 98.0]),
+        ("MACRO_SHOCK", [98.0, 98.5, 97.8, 98.2]),
+        ("BULL_TREND", [98.2, 99.0, 98.1, 98.9]),
+        ("RANGE_CHOP", [98.9, 99.1, 98.7, 99.0]),
+        ("BEAR_DRAWDOWN", [99.0, 99.0, 98.2, 98.4]),
+        ("BULL_TREND", [98.4, 99.2, 98.3, 99.1]),
+    ]
+    desks = ("GOLD", "OIL", "CRYPTO", "US_EQUITIES", "EU_EQUITIES", "ASIA_EQUITIES", "FOREX")
+    symbols = {
+        "GOLD": "XAUUSD",
+        "OIL": "WTI",
+        "CRYPTO": "BTCUSDT",
+        "US_EQUITIES": "SPY",
+        "EU_EQUITIES": "DAX",
+        "ASIA_EQUITIES": "N225",
+        "FOREX": "EURUSD",
+    }
+    rows: list[dict[str, Any]] = []
+    for desk in desks:
+        sym = symbols[desk]
+        candles: list[dict[str, Any]] = []
+        for idx, (regime, ohlc) in enumerate(template, start=1):
+            o, h, l, c = ohlc
+            ret = round((c - o) / o, 6) if o else 0.0
+            candles.append(
+                {
+                    "bar": idx,
+                    "regime": regime,
+                    "open": o,
+                    "high": h,
+                    "low": l,
+                    "close": c,
+                    "return_pct": ret,
+                    "win": ret > 0,
+                }
+            )
+        rows.append({"desk": desk, "symbol": sym, "regime_candles": candles})
+    return rows
+
+
+def summarize_regime_witness_win_rates(
+    candles_by_desk: Sequence[Mapping[str, Any]] | None = None,
+) -> dict[str, dict[str, float | int]]:
+    """Regime-conditional positive-return rate across replay candles."""
+    rows = candles_by_desk if candles_by_desk is not None else default_historical_regime_candles()
+    buckets: dict[str, list[bool]] = {tag: [] for tag in REGIME_TAGS}
+    for row in rows:
+        for candle in row.get("regime_candles") or ():
+            regime = str(candle.get("regime") or "").strip().upper()
+            if regime in buckets:
+                buckets[regime].append(bool(candle.get("win")))
+    summary: dict[str, dict[str, float | int]] = {}
+    for tag in REGIME_TAGS:
+        wins = buckets[tag]
+        n = len(wins)
+        win_n = sum(1 for w in wins if w)
+        summary[tag] = {
+            "sample_bars": n,
+            "wins": win_n,
+            "win_rate_pct": round((win_n / n) * 100.0, 2) if n else 0.0,
+        }
+    return summary
+
+
 def default_multi_market_fixtures() -> list[dict[str, Any]]:
     """Canonical two-source fixtures across all 7 multi-market desks for deterministic paper evaluation."""
     return [
         {
             "desk": "GOLD",
             "symbol": "XAUUSD",
+            "regime": "BULL_TREND",
             "quotes": [
                 {"source": "goldapi_spot", "price": 2748.40},
                 {"source": "yahoo_gc_futures", "price": 2749.10},
@@ -242,6 +323,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "OIL",
             "symbol": "WTI",
+            "regime": "RANGE_CHOP",
             "quotes": [
                 {"source": "eia_spot", "price": 71.35},
                 {"source": "yahoo_cl_futures", "price": 71.45},
@@ -250,6 +332,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "CRYPTO",
             "symbol": "BTCUSDT",
+            "regime": "MACRO_SHOCK",
             "quotes": [
                 {"source": "binance_public", "price": 68420.00},
                 {"source": "coingecko_public", "price": 68465.00},
@@ -258,6 +341,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "CRYPTO",
             "symbol": "ETHUSDT",
+            "regime": "BULL_TREND",
             "quotes": [
                 {"source": "binance_public", "price": 2645.50},
                 {"source": "coingecko_public", "price": 2648.00},
@@ -266,6 +350,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "US_EQUITIES",
             "symbol": "SPY",
+            "regime": "BULL_TREND",
             "quotes": [
                 {"source": "stooq_us", "price": 584.20},
                 {"source": "yahoo_us", "price": 584.35},
@@ -274,6 +359,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "US_EQUITIES",
             "symbol": "QQQ",
+            "regime": "BEAR_DRAWDOWN",
             "quotes": [
                 {"source": "stooq_us", "price": 496.80},
                 {"source": "yahoo_us", "price": 497.00},
@@ -282,6 +368,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "US_EQUITIES",
             "symbol": "NVDA",
+            "regime": "BULL_TREND",
             "quotes": [
                 {"source": "stooq_us", "price": 141.50},
                 {"source": "yahoo_us", "price": 141.62},
@@ -290,6 +377,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "EU_EQUITIES",
             "symbol": "EXW1.DE",
+            "regime": "RANGE_CHOP",
             "quotes": [
                 {"source": "stooq_eu", "price": 50.82},
                 {"source": "yahoo_eu", "price": 50.86},
@@ -298,6 +386,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "EU_EQUITIES",
             "symbol": "DAX",
+            "regime": "BEAR_DRAWDOWN",
             "quotes": [
                 {"source": "stooq_eu", "price": 19480.0},
                 {"source": "yahoo_eu", "price": 19492.0},
@@ -306,6 +395,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "ASIA_EQUITIES",
             "symbol": "N225",
+            "regime": "BULL_TREND",
             "quotes": [
                 {"source": "stooq_asia", "price": 38910.0},
                 {"source": "yahoo_asia", "price": 38935.0},
@@ -314,6 +404,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "ASIA_EQUITIES",
             "symbol": "HSI",
+            "regime": "MACRO_SHOCK",
             "quotes": [
                 {"source": "stooq_asia", "price": 20590.0},
                 {"source": "yahoo_asia", "price": 20612.0},
@@ -322,6 +413,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "FOREX",
             "symbol": "EURUSD",
+            "regime": "RANGE_CHOP",
             "quotes": [
                 {"source": "ecb_ref", "price": 1.0842},
                 {"source": "fred_stooq_fx", "price": 1.0845},
@@ -330,6 +422,7 @@ def default_multi_market_fixtures() -> list[dict[str, Any]]:
         {
             "desk": "FOREX",
             "symbol": "USDJPY",
+            "regime": "BULL_TREND",
             "quotes": [
                 {"source": "ecb_ref", "price": 151.82},
                 {"source": "fred_stooq_fx", "price": 151.88},

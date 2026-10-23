@@ -13,6 +13,13 @@ from typing import Any, Mapping, Sequence
 PAPER_ONLY: bool = True
 AUTO_PROMOTE: bool = False
 
+REGIME_TAGS: tuple[str, ...] = (
+    "BULL_TREND",
+    "BEAR_DRAWDOWN",
+    "RANGE_CHOP",
+    "MACRO_SHOCK",
+)
+
 
 @dataclass(frozen=True, slots=True)
 class StrategyScore:
@@ -62,6 +69,77 @@ def compute_max_drawdown_pct(returns: Sequence[float]) -> float:
     return round(max_dd, 4)
 
 
+def compute_win_rate_by_regime(
+    returns: Sequence[float],
+    regime_tags: Sequence[str],
+) -> dict[str, dict[str, float | int]]:
+    """Regime-conditional win-rate breakdown for deterministic replay fixtures."""
+    buckets: dict[str, list[float]] = {tag: [] for tag in REGIME_TAGS}
+    for ret, tag in zip(returns, regime_tags):
+        key = str(tag).strip().upper()
+        if key not in buckets:
+            continue
+        buckets[key].append(float(ret))
+    out: dict[str, dict[str, float | int]] = {}
+    for tag in REGIME_TAGS:
+        rets = buckets[tag]
+        wins = sum(1 for r in rets if r > 0)
+        n = len(rets)
+        out[tag] = {
+            "sample_trades": n,
+            "wins": wins,
+            "win_rate_pct": round((wins / n) * 100.0, 2) if n else 0.0,
+        }
+    return out
+
+
+def default_historical_regime_replay_segments() -> list[dict[str, Any]]:
+    """Tagged historical replay windows (deterministic; not live market data)."""
+    return [
+        {
+            "segment_id": "m56-replay-2024Q1-bull",
+            "regime": "BULL_TREND",
+            "bars": 12,
+            "note": "Synthetic uptrend replay for tournament calibration",
+        },
+        {
+            "segment_id": "m56-replay-2024Q2-bear",
+            "regime": "BEAR_DRAWDOWN",
+            "bars": 12,
+            "note": "Synthetic drawdown replay for stop-loss stress",
+        },
+        {
+            "segment_id": "m56-replay-2024Q3-range",
+            "regime": "RANGE_CHOP",
+            "bars": 12,
+            "note": "Mean-reversion friendly chop replay",
+        },
+        {
+            "segment_id": "m56-replay-2024Q4-shock",
+            "regime": "MACRO_SHOCK",
+            "bars": 12,
+            "note": "Gap/vol shock replay for witness + risk gates",
+        },
+    ]
+
+
+def _default_regime_tag_cycle() -> list[str]:
+    return [
+        "BULL_TREND",
+        "BULL_TREND",
+        "BEAR_DRAWDOWN",
+        "BULL_TREND",
+        "RANGE_CHOP",
+        "BEAR_DRAWDOWN",
+        "BULL_TREND",
+        "BULL_TREND",
+        "MACRO_SHOCK",
+        "RANGE_CHOP",
+        "BULL_TREND",
+        "RANGE_CHOP",
+    ]
+
+
 def compute_brier(probs: Sequence[float], outcomes: Sequence[int]) -> float:
     if not probs or len(probs) != len(outcomes):
         return 0.25
@@ -78,6 +156,7 @@ def default_tournament_strategies() -> list[dict[str, Any]]:
             "returns": [0.0042, 0.0031, -0.0015, 0.0050, 0.0028, -0.0011, 0.0039, 0.0044, -0.0009, 0.0036, 0.0029, 0.0041],
             "probs": [0.68, 0.64, 0.42, 0.72, 0.61, 0.39, 0.66, 0.70, 0.45, 0.65, 0.62, 0.69],
             "outcomes": [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1],
+            "regime_tags": _default_regime_tag_cycle(),
         },
         {
             "strategy_id": "strat-multi-tf-confluence",
@@ -86,6 +165,7 @@ def default_tournament_strategies() -> list[dict[str, Any]]:
             "returns": [0.0035, 0.0022, -0.0018, 0.0041, 0.0019, -0.0014, 0.0030, 0.0033, -0.0012, 0.0027, 0.0024, 0.0031],
             "probs": [0.63, 0.59, 0.44, 0.67, 0.58, 0.41, 0.62, 0.64, 0.47, 0.60, 0.59, 0.63],
             "outcomes": [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1],
+            "regime_tags": _default_regime_tag_cycle(),
         },
         {
             "strategy_id": "strat-trend-donchian-ema",
@@ -94,6 +174,7 @@ def default_tournament_strategies() -> list[dict[str, Any]]:
             "returns": [0.0060, -0.0032, -0.0028, 0.0075, 0.0012, -0.0025, 0.0055, -0.0019, 0.0048, 0.0015, -0.0021, 0.0052],
             "probs": [0.61, 0.52, 0.48, 0.65, 0.55, 0.46, 0.60, 0.51, 0.59, 0.54, 0.49, 0.62],
             "outcomes": [1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+            "regime_tags": _default_regime_tag_cycle(),
         },
         {
             "strategy_id": "strat-mean-reversion-bb",
@@ -102,6 +183,7 @@ def default_tournament_strategies() -> list[dict[str, Any]]:
             "returns": [0.0021, 0.0018, -0.0045, 0.0024, -0.0038, 0.0019, 0.0022, -0.0031, 0.0017, 0.0020, -0.0029, 0.0015],
             "probs": [0.57, 0.56, 0.58, 0.59, 0.54, 0.55, 0.58, 0.52, 0.56, 0.57, 0.53, 0.55],
             "outcomes": [1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1],
+            "regime_tags": _default_regime_tag_cycle(),
         },
     ]
 
@@ -113,6 +195,7 @@ def run_strategy_tournament(
     rows = strategies if strategies is not None else default_tournament_strategies()
     num_trials = max(2, len(rows))
     scored: list[StrategyScore] = []
+    regime_breakdowns: list[dict[str, Any]] = []
 
     for item in rows:
         sid = str(item.get("strategy_id") or "unknown")
@@ -121,6 +204,11 @@ def run_strategy_tournament(
         rets = [float(x) for x in (item.get("returns") or ())]
         probs = [float(x) for x in (item.get("probs") or ())]
         outcomes = [int(x) for x in (item.get("outcomes") or ())]
+        regime_tags = [str(x) for x in (item.get("regime_tags") or _default_regime_tag_cycle())]
+        if len(regime_tags) < len(rets):
+            regime_tags = (regime_tags + _default_regime_tag_cycle())[: len(rets)]
+        elif len(regime_tags) > len(rets):
+            regime_tags = regime_tags[: len(rets)]
 
         raw_sr, dsr = compute_sharpe_and_dsr(rets, num_trials=num_trials)
         mdd = compute_max_drawdown_pct(rets)
@@ -131,6 +219,8 @@ def run_strategy_tournament(
         # Composite score rewards high DSR, low drawdown, and low Brier calibration error
         composite = round(dsr * 10.0 - mdd * 2.5 + (0.25 - brier) * 40.0, 4)
         eligible = dsr > 1.0 and mdd <= 5.0 and brier <= 0.22
+
+        win_by_regime = compute_win_rate_by_regime(rets, regime_tags)
 
         scored.append(
             StrategyScore(
@@ -149,9 +239,18 @@ def run_strategy_tournament(
                 auto_promote=False,
             )
         )
+        # attach per-strategy regime breakdown on the last appended score via parallel list
+        regime_breakdowns.append(
+            {
+                "strategy_id": sid,
+                "regime_tags": regime_tags,
+                "win_rate_by_regime": win_by_regime,
+            }
+        )
 
     scored.sort(key=lambda s: s.composite_rank_score, reverse=True)
     leader = scored[0] if scored else None
+    regime_by_id = {row["strategy_id"]: row for row in regime_breakdowns}
 
     return {
         "schema": "ahos.strategy_tournament.v1",
@@ -165,6 +264,8 @@ def run_strategy_tournament(
         "leader_title": leader.title if leader else None,
         "leader_dsr": leader.deflated_sharpe if leader else None,
         "leader_brier": leader.brier_score if leader else None,
+        "regime_catalog": list(REGIME_TAGS),
+        "historical_replay_segments": default_historical_regime_replay_segments(),
         "leaderboard": [
             {
                 "rank": idx,
@@ -181,6 +282,9 @@ def run_strategy_tournament(
                 "eligible_for_shadow": s.eligible_for_shadow,
                 "paper_only": s.paper_only,
                 "auto_promote": s.auto_promote,
+                "win_rate_by_regime": regime_by_id.get(s.strategy_id, {}).get(
+                    "win_rate_by_regime", {}
+                ),
             }
             for idx, s in enumerate(scored, start=1)
         ],

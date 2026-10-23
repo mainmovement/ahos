@@ -1,12 +1,924 @@
 {
   "schema": "ahos.multi_market_desks.v1",
-  "generated_at": "2026-10-23T19:02:06Z",
+  "generated_at": "2026-10-23T19:09:06Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
   "desks_count": 7,
   "instruments_evaluated": 13,
   "verified_instruments": 13,
+  "regime_catalog": [
+    "BULL_TREND",
+    "BEAR_DRAWDOWN",
+    "RANGE_CHOP",
+    "MACRO_SHOCK"
+  ],
+  "regime_replay_win_rates": {
+    "BULL_TREND": {
+      "sample_bars": 28,
+      "wins": 28,
+      "win_rate_pct": 100.0
+    },
+    "BEAR_DRAWDOWN": {
+      "sample_bars": 21,
+      "wins": 0,
+      "win_rate_pct": 0.0
+    },
+    "RANGE_CHOP": {
+      "sample_bars": 21,
+      "wins": 21,
+      "win_rate_pct": 100.0
+    },
+    "MACRO_SHOCK": {
+      "sample_bars": 14,
+      "wins": 7,
+      "win_rate_pct": 50.0
+    }
+  },
+  "historical_regime_candles": [
+    {
+      "desk": "GOLD",
+      "symbol": "XAUUSD",
+      "regime_candles": [
+        {
+          "bar": 1,
+          "regime": "BULL_TREND",
+          "open": 100.0,
+          "high": 100.4,
+          "low": 99.9,
+          "close": 100.6,
+          "return_pct": 0.006,
+          "win": true
+        },
+        {
+          "bar": 2,
+          "regime": "BULL_TREND",
+          "open": 100.6,
+          "high": 101.0,
+          "low": 100.5,
+          "close": 101.2,
+          "return_pct": 0.005964,
+          "win": true
+        },
+        {
+          "bar": 3,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 101.2,
+          "high": 101.1,
+          "low": 100.2,
+          "close": 100.3,
+          "return_pct": -0.008893,
+          "win": false
+        },
+        {
+          "bar": 4,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 100.3,
+          "high": 100.5,
+          "low": 99.6,
+          "close": 99.8,
+          "return_pct": -0.004985,
+          "win": false
+        },
+        {
+          "bar": 5,
+          "regime": "RANGE_CHOP",
+          "open": 99.8,
+          "high": 100.1,
+          "low": 99.7,
+          "close": 100.0,
+          "return_pct": 0.002004,
+          "win": true
+        },
+        {
+          "bar": 6,
+          "regime": "RANGE_CHOP",
+          "open": 100.0,
+          "high": 100.2,
+          "low": 99.9,
+          "close": 100.1,
+          "return_pct": 0.001,
+          "win": true
+        },
+        {
+          "bar": 7,
+          "regime": "MACRO_SHOCK",
+          "open": 100.1,
+          "high": 100.1,
+          "low": 97.5,
+          "close": 98.0,
+          "return_pct": -0.020979,
+          "win": false
+        },
+        {
+          "bar": 8,
+          "regime": "MACRO_SHOCK",
+          "open": 98.0,
+          "high": 98.5,
+          "low": 97.8,
+          "close": 98.2,
+          "return_pct": 0.002041,
+          "win": true
+        },
+        {
+          "bar": 9,
+          "regime": "BULL_TREND",
+          "open": 98.2,
+          "high": 99.0,
+          "low": 98.1,
+          "close": 98.9,
+          "return_pct": 0.007128,
+          "win": true
+        },
+        {
+          "bar": 10,
+          "regime": "RANGE_CHOP",
+          "open": 98.9,
+          "high": 99.1,
+          "low": 98.7,
+          "close": 99.0,
+          "return_pct": 0.001011,
+          "win": true
+        },
+        {
+          "bar": 11,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 99.0,
+          "high": 99.0,
+          "low": 98.2,
+          "close": 98.4,
+          "return_pct": -0.006061,
+          "win": false
+        },
+        {
+          "bar": 12,
+          "regime": "BULL_TREND",
+          "open": 98.4,
+          "high": 99.2,
+          "low": 98.3,
+          "close": 99.1,
+          "return_pct": 0.007114,
+          "win": true
+        }
+      ]
+    },
+    {
+      "desk": "OIL",
+      "symbol": "WTI",
+      "regime_candles": [
+        {
+          "bar": 1,
+          "regime": "BULL_TREND",
+          "open": 100.0,
+          "high": 100.4,
+          "low": 99.9,
+          "close": 100.6,
+          "return_pct": 0.006,
+          "win": true
+        },
+        {
+          "bar": 2,
+          "regime": "BULL_TREND",
+          "open": 100.6,
+          "high": 101.0,
+          "low": 100.5,
+          "close": 101.2,
+          "return_pct": 0.005964,
+          "win": true
+        },
+        {
+          "bar": 3,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 101.2,
+          "high": 101.1,
+          "low": 100.2,
+          "close": 100.3,
+          "return_pct": -0.008893,
+          "win": false
+        },
+        {
+          "bar": 4,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 100.3,
+          "high": 100.5,
+          "low": 99.6,
+          "close": 99.8,
+          "return_pct": -0.004985,
+          "win": false
+        },
+        {
+          "bar": 5,
+          "regime": "RANGE_CHOP",
+          "open": 99.8,
+          "high": 100.1,
+          "low": 99.7,
+          "close": 100.0,
+          "return_pct": 0.002004,
+          "win": true
+        },
+        {
+          "bar": 6,
+          "regime": "RANGE_CHOP",
+          "open": 100.0,
+          "high": 100.2,
+          "low": 99.9,
+          "close": 100.1,
+          "return_pct": 0.001,
+          "win": true
+        },
+        {
+          "bar": 7,
+          "regime": "MACRO_SHOCK",
+          "open": 100.1,
+          "high": 100.1,
+          "low": 97.5,
+          "close": 98.0,
+          "return_pct": -0.020979,
+          "win": false
+        },
+        {
+          "bar": 8,
+          "regime": "MACRO_SHOCK",
+          "open": 98.0,
+          "high": 98.5,
+          "low": 97.8,
+          "close": 98.2,
+          "return_pct": 0.002041,
+          "win": true
+        },
+        {
+          "bar": 9,
+          "regime": "BULL_TREND",
+          "open": 98.2,
+          "high": 99.0,
+          "low": 98.1,
+          "close": 98.9,
+          "return_pct": 0.007128,
+          "win": true
+        },
+        {
+          "bar": 10,
+          "regime": "RANGE_CHOP",
+          "open": 98.9,
+          "high": 99.1,
+          "low": 98.7,
+          "close": 99.0,
+          "return_pct": 0.001011,
+          "win": true
+        },
+        {
+          "bar": 11,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 99.0,
+          "high": 99.0,
+          "low": 98.2,
+          "close": 98.4,
+          "return_pct": -0.006061,
+          "win": false
+        },
+        {
+          "bar": 12,
+          "regime": "BULL_TREND",
+          "open": 98.4,
+          "high": 99.2,
+          "low": 98.3,
+          "close": 99.1,
+          "return_pct": 0.007114,
+          "win": true
+        }
+      ]
+    },
+    {
+      "desk": "CRYPTO",
+      "symbol": "BTCUSDT",
+      "regime_candles": [
+        {
+          "bar": 1,
+          "regime": "BULL_TREND",
+          "open": 100.0,
+          "high": 100.4,
+          "low": 99.9,
+          "close": 100.6,
+          "return_pct": 0.006,
+          "win": true
+        },
+        {
+          "bar": 2,
+          "regime": "BULL_TREND",
+          "open": 100.6,
+          "high": 101.0,
+          "low": 100.5,
+          "close": 101.2,
+          "return_pct": 0.005964,
+          "win": true
+        },
+        {
+          "bar": 3,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 101.2,
+          "high": 101.1,
+          "low": 100.2,
+          "close": 100.3,
+          "return_pct": -0.008893,
+          "win": false
+        },
+        {
+          "bar": 4,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 100.3,
+          "high": 100.5,
+          "low": 99.6,
+          "close": 99.8,
+          "return_pct": -0.004985,
+          "win": false
+        },
+        {
+          "bar": 5,
+          "regime": "RANGE_CHOP",
+          "open": 99.8,
+          "high": 100.1,
+          "low": 99.7,
+          "close": 100.0,
+          "return_pct": 0.002004,
+          "win": true
+        },
+        {
+          "bar": 6,
+          "regime": "RANGE_CHOP",
+          "open": 100.0,
+          "high": 100.2,
+          "low": 99.9,
+          "close": 100.1,
+          "return_pct": 0.001,
+          "win": true
+        },
+        {
+          "bar": 7,
+          "regime": "MACRO_SHOCK",
+          "open": 100.1,
+          "high": 100.1,
+          "low": 97.5,
+          "close": 98.0,
+          "return_pct": -0.020979,
+          "win": false
+        },
+        {
+          "bar": 8,
+          "regime": "MACRO_SHOCK",
+          "open": 98.0,
+          "high": 98.5,
+          "low": 97.8,
+          "close": 98.2,
+          "return_pct": 0.002041,
+          "win": true
+        },
+        {
+          "bar": 9,
+          "regime": "BULL_TREND",
+          "open": 98.2,
+          "high": 99.0,
+          "low": 98.1,
+          "close": 98.9,
+          "return_pct": 0.007128,
+          "win": true
+        },
+        {
+          "bar": 10,
+          "regime": "RANGE_CHOP",
+          "open": 98.9,
+          "high": 99.1,
+          "low": 98.7,
+          "close": 99.0,
+          "return_pct": 0.001011,
+          "win": true
+        },
+        {
+          "bar": 11,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 99.0,
+          "high": 99.0,
+          "low": 98.2,
+          "close": 98.4,
+          "return_pct": -0.006061,
+          "win": false
+        },
+        {
+          "bar": 12,
+          "regime": "BULL_TREND",
+          "open": 98.4,
+          "high": 99.2,
+          "low": 98.3,
+          "close": 99.1,
+          "return_pct": 0.007114,
+          "win": true
+        }
+      ]
+    },
+    {
+      "desk": "US_EQUITIES",
+      "symbol": "SPY",
+      "regime_candles": [
+        {
+          "bar": 1,
+          "regime": "BULL_TREND",
+          "open": 100.0,
+          "high": 100.4,
+          "low": 99.9,
+          "close": 100.6,
+          "return_pct": 0.006,
+          "win": true
+        },
+        {
+          "bar": 2,
+          "regime": "BULL_TREND",
+          "open": 100.6,
+          "high": 101.0,
+          "low": 100.5,
+          "close": 101.2,
+          "return_pct": 0.005964,
+          "win": true
+        },
+        {
+          "bar": 3,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 101.2,
+          "high": 101.1,
+          "low": 100.2,
+          "close": 100.3,
+          "return_pct": -0.008893,
+          "win": false
+        },
+        {
+          "bar": 4,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 100.3,
+          "high": 100.5,
+          "low": 99.6,
+          "close": 99.8,
+          "return_pct": -0.004985,
+          "win": false
+        },
+        {
+          "bar": 5,
+          "regime": "RANGE_CHOP",
+          "open": 99.8,
+          "high": 100.1,
+          "low": 99.7,
+          "close": 100.0,
+          "return_pct": 0.002004,
+          "win": true
+        },
+        {
+          "bar": 6,
+          "regime": "RANGE_CHOP",
+          "open": 100.0,
+          "high": 100.2,
+          "low": 99.9,
+          "close": 100.1,
+          "return_pct": 0.001,
+          "win": true
+        },
+        {
+          "bar": 7,
+          "regime": "MACRO_SHOCK",
+          "open": 100.1,
+          "high": 100.1,
+          "low": 97.5,
+          "close": 98.0,
+          "return_pct": -0.020979,
+          "win": false
+        },
+        {
+          "bar": 8,
+          "regime": "MACRO_SHOCK",
+          "open": 98.0,
+          "high": 98.5,
+          "low": 97.8,
+          "close": 98.2,
+          "return_pct": 0.002041,
+          "win": true
+        },
+        {
+          "bar": 9,
+          "regime": "BULL_TREND",
+          "open": 98.2,
+          "high": 99.0,
+          "low": 98.1,
+          "close": 98.9,
+          "return_pct": 0.007128,
+          "win": true
+        },
+        {
+          "bar": 10,
+          "regime": "RANGE_CHOP",
+          "open": 98.9,
+          "high": 99.1,
+          "low": 98.7,
+          "close": 99.0,
+          "return_pct": 0.001011,
+          "win": true
+        },
+        {
+          "bar": 11,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 99.0,
+          "high": 99.0,
+          "low": 98.2,
+          "close": 98.4,
+          "return_pct": -0.006061,
+          "win": false
+        },
+        {
+          "bar": 12,
+          "regime": "BULL_TREND",
+          "open": 98.4,
+          "high": 99.2,
+          "low": 98.3,
+          "close": 99.1,
+          "return_pct": 0.007114,
+          "win": true
+        }
+      ]
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "symbol": "DAX",
+      "regime_candles": [
+        {
+          "bar": 1,
+          "regime": "BULL_TREND",
+          "open": 100.0,
+          "high": 100.4,
+          "low": 99.9,
+          "close": 100.6,
+          "return_pct": 0.006,
+          "win": true
+        },
+        {
+          "bar": 2,
+          "regime": "BULL_TREND",
+          "open": 100.6,
+          "high": 101.0,
+          "low": 100.5,
+          "close": 101.2,
+          "return_pct": 0.005964,
+          "win": true
+        },
+        {
+          "bar": 3,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 101.2,
+          "high": 101.1,
+          "low": 100.2,
+          "close": 100.3,
+          "return_pct": -0.008893,
+          "win": false
+        },
+        {
+          "bar": 4,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 100.3,
+          "high": 100.5,
+          "low": 99.6,
+          "close": 99.8,
+          "return_pct": -0.004985,
+          "win": false
+        },
+        {
+          "bar": 5,
+          "regime": "RANGE_CHOP",
+          "open": 99.8,
+          "high": 100.1,
+          "low": 99.7,
+          "close": 100.0,
+          "return_pct": 0.002004,
+          "win": true
+        },
+        {
+          "bar": 6,
+          "regime": "RANGE_CHOP",
+          "open": 100.0,
+          "high": 100.2,
+          "low": 99.9,
+          "close": 100.1,
+          "return_pct": 0.001,
+          "win": true
+        },
+        {
+          "bar": 7,
+          "regime": "MACRO_SHOCK",
+          "open": 100.1,
+          "high": 100.1,
+          "low": 97.5,
+          "close": 98.0,
+          "return_pct": -0.020979,
+          "win": false
+        },
+        {
+          "bar": 8,
+          "regime": "MACRO_SHOCK",
+          "open": 98.0,
+          "high": 98.5,
+          "low": 97.8,
+          "close": 98.2,
+          "return_pct": 0.002041,
+          "win": true
+        },
+        {
+          "bar": 9,
+          "regime": "BULL_TREND",
+          "open": 98.2,
+          "high": 99.0,
+          "low": 98.1,
+          "close": 98.9,
+          "return_pct": 0.007128,
+          "win": true
+        },
+        {
+          "bar": 10,
+          "regime": "RANGE_CHOP",
+          "open": 98.9,
+          "high": 99.1,
+          "low": 98.7,
+          "close": 99.0,
+          "return_pct": 0.001011,
+          "win": true
+        },
+        {
+          "bar": 11,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 99.0,
+          "high": 99.0,
+          "low": 98.2,
+          "close": 98.4,
+          "return_pct": -0.006061,
+          "win": false
+        },
+        {
+          "bar": 12,
+          "regime": "BULL_TREND",
+          "open": 98.4,
+          "high": 99.2,
+          "low": 98.3,
+          "close": 99.1,
+          "return_pct": 0.007114,
+          "win": true
+        }
+      ]
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "symbol": "N225",
+      "regime_candles": [
+        {
+          "bar": 1,
+          "regime": "BULL_TREND",
+          "open": 100.0,
+          "high": 100.4,
+          "low": 99.9,
+          "close": 100.6,
+          "return_pct": 0.006,
+          "win": true
+        },
+        {
+          "bar": 2,
+          "regime": "BULL_TREND",
+          "open": 100.6,
+          "high": 101.0,
+          "low": 100.5,
+          "close": 101.2,
+          "return_pct": 0.005964,
+          "win": true
+        },
+        {
+          "bar": 3,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 101.2,
+          "high": 101.1,
+          "low": 100.2,
+          "close": 100.3,
+          "return_pct": -0.008893,
+          "win": false
+        },
+        {
+          "bar": 4,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 100.3,
+          "high": 100.5,
+          "low": 99.6,
+          "close": 99.8,
+          "return_pct": -0.004985,
+          "win": false
+        },
+        {
+          "bar": 5,
+          "regime": "RANGE_CHOP",
+          "open": 99.8,
+          "high": 100.1,
+          "low": 99.7,
+          "close": 100.0,
+          "return_pct": 0.002004,
+          "win": true
+        },
+        {
+          "bar": 6,
+          "regime": "RANGE_CHOP",
+          "open": 100.0,
+          "high": 100.2,
+          "low": 99.9,
+          "close": 100.1,
+          "return_pct": 0.001,
+          "win": true
+        },
+        {
+          "bar": 7,
+          "regime": "MACRO_SHOCK",
+          "open": 100.1,
+          "high": 100.1,
+          "low": 97.5,
+          "close": 98.0,
+          "return_pct": -0.020979,
+          "win": false
+        },
+        {
+          "bar": 8,
+          "regime": "MACRO_SHOCK",
+          "open": 98.0,
+          "high": 98.5,
+          "low": 97.8,
+          "close": 98.2,
+          "return_pct": 0.002041,
+          "win": true
+        },
+        {
+          "bar": 9,
+          "regime": "BULL_TREND",
+          "open": 98.2,
+          "high": 99.0,
+          "low": 98.1,
+          "close": 98.9,
+          "return_pct": 0.007128,
+          "win": true
+        },
+        {
+          "bar": 10,
+          "regime": "RANGE_CHOP",
+          "open": 98.9,
+          "high": 99.1,
+          "low": 98.7,
+          "close": 99.0,
+          "return_pct": 0.001011,
+          "win": true
+        },
+        {
+          "bar": 11,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 99.0,
+          "high": 99.0,
+          "low": 98.2,
+          "close": 98.4,
+          "return_pct": -0.006061,
+          "win": false
+        },
+        {
+          "bar": 12,
+          "regime": "BULL_TREND",
+          "open": 98.4,
+          "high": 99.2,
+          "low": 98.3,
+          "close": 99.1,
+          "return_pct": 0.007114,
+          "win": true
+        }
+      ]
+    },
+    {
+      "desk": "FOREX",
+      "symbol": "EURUSD",
+      "regime_candles": [
+        {
+          "bar": 1,
+          "regime": "BULL_TREND",
+          "open": 100.0,
+          "high": 100.4,
+          "low": 99.9,
+          "close": 100.6,
+          "return_pct": 0.006,
+          "win": true
+        },
+        {
+          "bar": 2,
+          "regime": "BULL_TREND",
+          "open": 100.6,
+          "high": 101.0,
+          "low": 100.5,
+          "close": 101.2,
+          "return_pct": 0.005964,
+          "win": true
+        },
+        {
+          "bar": 3,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 101.2,
+          "high": 101.1,
+          "low": 100.2,
+          "close": 100.3,
+          "return_pct": -0.008893,
+          "win": false
+        },
+        {
+          "bar": 4,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 100.3,
+          "high": 100.5,
+          "low": 99.6,
+          "close": 99.8,
+          "return_pct": -0.004985,
+          "win": false
+        },
+        {
+          "bar": 5,
+          "regime": "RANGE_CHOP",
+          "open": 99.8,
+          "high": 100.1,
+          "low": 99.7,
+          "close": 100.0,
+          "return_pct": 0.002004,
+          "win": true
+        },
+        {
+          "bar": 6,
+          "regime": "RANGE_CHOP",
+          "open": 100.0,
+          "high": 100.2,
+          "low": 99.9,
+          "close": 100.1,
+          "return_pct": 0.001,
+          "win": true
+        },
+        {
+          "bar": 7,
+          "regime": "MACRO_SHOCK",
+          "open": 100.1,
+          "high": 100.1,
+          "low": 97.5,
+          "close": 98.0,
+          "return_pct": -0.020979,
+          "win": false
+        },
+        {
+          "bar": 8,
+          "regime": "MACRO_SHOCK",
+          "open": 98.0,
+          "high": 98.5,
+          "low": 97.8,
+          "close": 98.2,
+          "return_pct": 0.002041,
+          "win": true
+        },
+        {
+          "bar": 9,
+          "regime": "BULL_TREND",
+          "open": 98.2,
+          "high": 99.0,
+          "low": 98.1,
+          "close": 98.9,
+          "return_pct": 0.007128,
+          "win": true
+        },
+        {
+          "bar": 10,
+          "regime": "RANGE_CHOP",
+          "open": 98.9,
+          "high": 99.1,
+          "low": 98.7,
+          "close": 99.0,
+          "return_pct": 0.001011,
+          "win": true
+        },
+        {
+          "bar": 11,
+          "regime": "BEAR_DRAWDOWN",
+          "open": 99.0,
+          "high": 99.0,
+          "low": 98.2,
+          "close": 98.4,
+          "return_pct": -0.006061,
+          "win": false
+        },
+        {
+          "bar": 12,
+          "regime": "BULL_TREND",
+          "open": 98.4,
+          "high": 99.2,
+          "low": 98.3,
+          "close": 99.1,
+          "return_pct": 0.007114,
+          "win": true
+        }
+      ]
+    }
+  ],
   "desks": {
     "GOLD": {
       "desk": "GOLD",

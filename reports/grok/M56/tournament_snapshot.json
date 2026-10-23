@@ -1,6 +1,6 @@
 {
   "schema": "ahos.strategy_tournament.v1",
-  "generated_at": "2026-10-23T19:02:10Z",
+  "generated_at": "2026-10-23T19:09:06Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -10,6 +10,38 @@
   "leader_title": "Forward-Filtered Regime HMM + ATR Stop (M24)",
   "leader_dsr": 16.7525,
   "leader_brier": 0.1302,
+  "regime_catalog": [
+    "BULL_TREND",
+    "BEAR_DRAWDOWN",
+    "RANGE_CHOP",
+    "MACRO_SHOCK"
+  ],
+  "historical_replay_segments": [
+    {
+      "segment_id": "m56-replay-2024Q1-bull",
+      "regime": "BULL_TREND",
+      "bars": 12,
+      "note": "Synthetic uptrend replay for tournament calibration"
+    },
+    {
+      "segment_id": "m56-replay-2024Q2-bear",
+      "regime": "BEAR_DRAWDOWN",
+      "bars": 12,
+      "note": "Synthetic drawdown replay for stop-loss stress"
+    },
+    {
+      "segment_id": "m56-replay-2024Q3-range",
+      "regime": "RANGE_CHOP",
+      "bars": 12,
+      "note": "Mean-reversion friendly chop replay"
+    },
+    {
+      "segment_id": "m56-replay-2024Q4-shock",
+      "regime": "MACRO_SHOCK",
+      "bars": 12,
+      "note": "Gap/vol shock replay for witness + risk gates"
+    }
+  ],
   "leaderboard": [
     {
       "rank": 1,
@@ -25,7 +57,29 @@
       "composite_rank_score": 171.942,
       "eligible_for_shadow": true,
       "paper_only": true,
-      "auto_promote": false
+      "auto_promote": false,
+      "win_rate_by_regime": {
+        "BULL_TREND": {
+          "sample_trades": 6,
+          "wins": 6,
+          "win_rate_pct": 100.0
+        },
+        "BEAR_DRAWDOWN": {
+          "sample_trades": 2,
+          "wins": 0,
+          "win_rate_pct": 0.0
+        },
+        "RANGE_CHOP": {
+          "sample_trades": 3,
+          "wins": 3,
+          "win_rate_pct": 100.0
+        },
+        "MACRO_SHOCK": {
+          "sample_trades": 1,
+          "wins": 0,
+          "win_rate_pct": 0.0
+        }
+      }
     },
     {
       "rank": 2,
@@ -41,7 +95,29 @@
       "composite_rank_score": 136.723,
       "eligible_for_shadow": true,
       "paper_only": true,
-      "auto_promote": false
+      "auto_promote": false,
+      "win_rate_by_regime": {
+        "BULL_TREND": {
+          "sample_trades": 6,
+          "wins": 6,
+          "win_rate_pct": 100.0
+        },
+        "BEAR_DRAWDOWN": {
+          "sample_trades": 2,
+          "wins": 0,
+          "win_rate_pct": 0.0
+        },
+        "RANGE_CHOP": {
+          "sample_trades": 3,
+          "wins": 3,
+          "win_rate_pct": 100.0
+        },
+        "MACRO_SHOCK": {
+          "sample_trades": 1,
+          "wins": 0,
+          "win_rate_pct": 0.0
+        }
+      }
     },
     {
       "rank": 3,
@@ -57,7 +133,29 @@
       "composite_rank_score": 57.9203,
       "eligible_for_shadow": true,
       "paper_only": true,
-      "auto_promote": false
+      "auto_promote": false,
+      "win_rate_by_regime": {
+        "BULL_TREND": {
+          "sample_trades": 6,
+          "wins": 3,
+          "win_rate_pct": 50.0
+        },
+        "BEAR_DRAWDOWN": {
+          "sample_trades": 2,
+          "wins": 0,
+          "win_rate_pct": 0.0
+        },
+        "RANGE_CHOP": {
+          "sample_trades": 3,
+          "wins": 3,
+          "win_rate_pct": 100.0
+        },
+        "MACRO_SHOCK": {
+          "sample_trades": 1,
+          "wins": 1,
+          "win_rate_pct": 100.0
+        }
+      }
     },
     {
       "rank": 4,
@@ -73,7 +171,29 @@
       "composite_rank_score": -0.0168,
       "eligible_for_shadow": false,
       "paper_only": true,
-      "auto_promote": false
+      "auto_promote": false,
+      "win_rate_by_regime": {
+        "BULL_TREND": {
+          "sample_trades": 6,
+          "wins": 4,
+          "win_rate_pct": 66.67
+        },
+        "BEAR_DRAWDOWN": {
+          "sample_trades": 2,
+          "wins": 1,
+          "win_rate_pct": 50.0
+        },
+        "RANGE_CHOP": {
+          "sample_trades": 3,
+          "wins": 2,
+          "win_rate_pct": 66.67
+        },
+        "MACRO_SHOCK": {
+          "sample_trades": 1,
+          "wins": 1,
+          "win_rate_pct": 100.0
+        }
+      }
     }
   ]
 }

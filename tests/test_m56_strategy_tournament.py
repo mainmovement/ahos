@@ -4,8 +4,10 @@ from __future__ import annotations
 from architecture.learning.strategy_tournament import (
     AUTO_PROMOTE,
     PAPER_ONLY,
+    REGIME_TAGS,
     compute_max_drawdown_pct,
     compute_sharpe_and_dsr,
+    compute_win_rate_by_regime,
     run_strategy_tournament,
 )
 
@@ -22,6 +24,14 @@ def test_m56_tournament_ranks_strategies_without_auto_promotion() -> None:
     board = res["leaderboard"]
     assert board[0]["rank"] == 1
     assert all(row["auto_promote"] is False and row["paper_only"] is True for row in board)
+    assert res["regime_catalog"] == list(REGIME_TAGS)
+    assert board[0]["win_rate_by_regime"]["BULL_TREND"]["sample_trades"] > 0
+
+
+def test_regime_win_rate_breakdown_covers_all_tags() -> None:
+    tags = ["BULL_TREND", "BEAR_DRAWDOWN", "RANGE_CHOP", "MACRO_SHOCK"]
+    breakdown = compute_win_rate_by_regime([0.01, -0.02, 0.0, 0.03], tags)
+    assert set(breakdown) == set(REGIME_TAGS)
 
 
 def test_dsr_haircut_and_max_drawdown_math() -> None:

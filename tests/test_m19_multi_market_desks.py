@@ -8,12 +8,23 @@ from architecture.markets.multi_market_desks import (
     CONFLICT,
     DESK_SPECS,
     PAPER_ONLY,
+    REGIME_TAGS,
     UNRESOLVED,
     VERIFIED,
+    default_historical_regime_candles,
     evaluate_all_desks,
     evaluate_desk_paper_cycle,
+    summarize_regime_witness_win_rates,
     verify_two_source_witness,
 )
+
+
+def test_historical_regime_candles_and_win_rate_summary() -> None:
+    candles = default_historical_regime_candles()
+    assert len(candles) == 7
+    summary = summarize_regime_witness_win_rates(candles)
+    assert set(summary) == set(REGIME_TAGS)
+    assert summary["BULL_TREND"]["sample_bars"] > 0
 
 
 def test_two_source_witness_verified() -> None:
