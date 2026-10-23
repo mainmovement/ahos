@@ -1,12 +1,12 @@
 {
   "schema": "ahos.daily_exporter_manifest.v1",
-  "generated_at": "2026-10-23T20:26:02Z",
-  "started_at": "2026-10-23T20:26:00Z",
+  "generated_at": "2026-10-23T20:34:01Z",
+  "started_at": "2026-10-23T20:33:58Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
-  "steps_count": 17,
-  "files_count": 27,
+  "steps_count": 18,
+  "files_count": 28,
   "steps": [
     {
       "step": "M19_multi_market",
@@ -16,7 +16,7 @@
         {
           "path": "reports/grok/M19/multi_market_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:01Z",
+          "mtime_iso": "2026-10-23T20:33:58Z",
           "bytes": 30417
         }
       ]
@@ -29,7 +29,7 @@
         {
           "path": "reports/grok/M33/token_hunter_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:01Z",
+          "mtime_iso": "2026-10-23T20:33:58Z",
           "bytes": 6350
         }
       ]
@@ -42,7 +42,7 @@
         {
           "path": "reports/grok/M30/memory_consolidation_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:01Z",
+          "mtime_iso": "2026-10-23T20:33:58Z",
           "bytes": 6232
         }
       ]
@@ -55,32 +55,32 @@
         {
           "path": "reports/grok/M56/tournament_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:01Z",
+          "mtime_iso": "2026-10-23T20:33:59Z",
           "bytes": 5410
         },
         {
           "path": "reports/grok/M60/astra_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:01Z",
+          "mtime_iso": "2026-10-23T20:33:59Z",
           "bytes": 4103
         },
         {
           "path": "reports/grok/M32/cross_desk_reconcile.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:01Z",
+          "mtime_iso": "2026-10-23T20:33:59Z",
           "bytes": 1935
         },
         {
           "path": "reports/grok/M48/dependency_audit.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:01Z",
+          "mtime_iso": "2026-10-23T20:33:59Z",
           "bytes": 463
         },
         {
           "path": "reports/grok/M36/world_orchestration_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
-          "bytes": 2315
+          "mtime_iso": "2026-10-23T20:34:00Z",
+          "bytes": 2815
         }
       ]
     },
@@ -92,19 +92,19 @@
         {
           "path": "reports/grok/M59/university_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 7742
         },
         {
           "path": "reports/grok/M50/weekly_exam_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 24195
         },
         {
           "path": "reports/grok/M44/science_radar_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 3633
         }
       ]
@@ -117,7 +117,7 @@
         {
           "path": "reports/grok/M18/newsroom_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 4689
         }
       ]
@@ -130,7 +130,7 @@
         {
           "path": "reports/grok/M65/teaching_journal_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 10336
         }
       ]
@@ -143,7 +143,7 @@
         {
           "path": "reports/grok/M19/macro_overlays_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 3171
         }
       ]
@@ -156,7 +156,7 @@
         {
           "path": "reports/grok/M56/strategy_red_team_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 8596
         }
       ]
@@ -169,7 +169,7 @@
         {
           "path": "reports/grok/M62/portable_migration_pack.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:00Z",
           "bytes": 1726
         }
       ]
@@ -182,14 +182,14 @@
         {
           "path": "reports/grok/M31/nightly_digest_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
-          "bytes": 4927
+          "mtime_iso": "2026-10-23T20:34:00Z",
+          "bytes": 5326
         },
         {
           "path": "reports/grok/M31/nightly_digest_fa.md",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
-          "bytes": 3786
+          "mtime_iso": "2026-10-23T20:34:00Z",
+          "bytes": 4185
         }
       ]
     },
@@ -201,7 +201,7 @@
         {
           "path": "reports/grok/M13/edge_margin_sim_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 8022
         }
       ]
@@ -214,7 +214,7 @@
         {
           "path": "reports/grok/M33/crypto_universe_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 2923
         }
       ]
@@ -227,7 +227,7 @@
         {
           "path": "reports/grok/M43/pilot_100usd_gateway_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 2358
         }
       ]
@@ -240,7 +240,7 @@
         {
           "path": "reports/grok/M57/science_to_desk_pipeline_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 19971
         }
       ]
@@ -253,13 +253,13 @@
         {
           "path": "reports/grok/M60/aci_agi_si_brain_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
-          "bytes": 17657
+          "mtime_iso": "2026-10-23T20:34:01Z",
+          "bytes": 18045
         },
         {
           "path": "reports/grok/M57/whole_ahos_organ_evolution.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 10449
         }
       ]
@@ -272,20 +272,33 @@
         {
           "path": "reports/grok/M35/telegram_kian_closure.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 1408
         },
         {
           "path": "reports/grok/M10/db_migration_closure.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 1045
         },
         {
           "path": "reports/grok/M45/sandbox_isolation_snapshot.json",
           "exists": true,
-          "mtime_iso": "2026-10-23T20:26:02Z",
+          "mtime_iso": "2026-10-23T20:34:01Z",
           "bytes": 825
+        }
+      ]
+    },
+    {
+      "step": "M60_autonomous_coder",
+      "module": "scripts.export_autonomous_coder_snapshot",
+      "exit_code": 0,
+      "outputs": [
+        {
+          "path": "reports/grok/M60/autonomous_coder_snapshot.json",
+          "exists": true,
+          "mtime_iso": "2026-10-23T20:34:01Z",
+          "bytes": 3555
         }
       ]
     }
@@ -294,164 +307,170 @@
     {
       "path": "reports/grok/M19/multi_market_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:01Z",
+      "mtime_iso": "2026-10-23T20:33:58Z",
       "bytes": 30417
     },
     {
       "path": "reports/grok/M33/token_hunter_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:01Z",
+      "mtime_iso": "2026-10-23T20:33:58Z",
       "bytes": 6350
     },
     {
       "path": "reports/grok/M30/memory_consolidation_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:01Z",
+      "mtime_iso": "2026-10-23T20:33:58Z",
       "bytes": 6232
     },
     {
       "path": "reports/grok/M56/tournament_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:01Z",
+      "mtime_iso": "2026-10-23T20:33:59Z",
       "bytes": 5410
     },
     {
       "path": "reports/grok/M60/astra_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:01Z",
+      "mtime_iso": "2026-10-23T20:33:59Z",
       "bytes": 4103
     },
     {
       "path": "reports/grok/M32/cross_desk_reconcile.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:01Z",
+      "mtime_iso": "2026-10-23T20:33:59Z",
       "bytes": 1935
     },
     {
       "path": "reports/grok/M48/dependency_audit.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:01Z",
+      "mtime_iso": "2026-10-23T20:33:59Z",
       "bytes": 463
     },
     {
       "path": "reports/grok/M36/world_orchestration_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
-      "bytes": 2315
+      "mtime_iso": "2026-10-23T20:34:00Z",
+      "bytes": 2815
     },
     {
       "path": "reports/grok/M59/university_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 7742
     },
     {
       "path": "reports/grok/M50/weekly_exam_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 24195
     },
     {
       "path": "reports/grok/M44/science_radar_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 3633
     },
     {
       "path": "reports/grok/M18/newsroom_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 4689
     },
     {
       "path": "reports/grok/M65/teaching_journal_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 10336
     },
     {
       "path": "reports/grok/M19/macro_overlays_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 3171
     },
     {
       "path": "reports/grok/M56/strategy_red_team_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 8596
     },
     {
       "path": "reports/grok/M62/portable_migration_pack.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:00Z",
       "bytes": 1726
     },
     {
       "path": "reports/grok/M31/nightly_digest_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
-      "bytes": 4927
+      "mtime_iso": "2026-10-23T20:34:00Z",
+      "bytes": 5326
     },
     {
       "path": "reports/grok/M31/nightly_digest_fa.md",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
-      "bytes": 3786
+      "mtime_iso": "2026-10-23T20:34:00Z",
+      "bytes": 4185
     },
     {
       "path": "reports/grok/M13/edge_margin_sim_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 8022
     },
     {
       "path": "reports/grok/M33/crypto_universe_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 2923
     },
     {
       "path": "reports/grok/M43/pilot_100usd_gateway_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 2358
     },
     {
       "path": "reports/grok/M57/science_to_desk_pipeline_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 19971
     },
     {
       "path": "reports/grok/M60/aci_agi_si_brain_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
-      "bytes": 17657
+      "mtime_iso": "2026-10-23T20:34:01Z",
+      "bytes": 18045
     },
     {
       "path": "reports/grok/M57/whole_ahos_organ_evolution.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 10449
     },
     {
       "path": "reports/grok/M35/telegram_kian_closure.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 1408
     },
     {
       "path": "reports/grok/M10/db_migration_closure.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 1045
     },
     {
       "path": "reports/grok/M45/sandbox_isolation_snapshot.json",
       "exists": true,
-      "mtime_iso": "2026-10-23T20:26:02Z",
+      "mtime_iso": "2026-10-23T20:34:01Z",
       "bytes": 825
+    },
+    {
+      "path": "reports/grok/M60/autonomous_coder_snapshot.json",
+      "exists": true,
+      "mtime_iso": "2026-10-23T20:34:01Z",
+      "bytes": 3555
     }
   ]
 }

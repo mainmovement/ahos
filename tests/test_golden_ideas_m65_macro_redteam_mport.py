@@ -97,7 +97,7 @@ def test_run_all_lightweight_exporters_manifest() -> None:
     manifest = run_all_exports()
     assert manifest["paper_only"] is True
     assert manifest["real_trading"] is False
-    assert manifest["steps_count"] >= 17
+    assert manifest["steps_count"] >= 18
     assert manifest["files_count"] >= 22
     path = Path(__file__).resolve().parents[1] / MANIFEST_REL
     assert path.is_file()

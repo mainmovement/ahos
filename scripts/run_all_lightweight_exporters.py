@@ -66,6 +66,11 @@ EXPORT_STEPS: list[tuple[str, str, list[str]]] = [
             "reports/grok/M45/sandbox_isolation_snapshot.json",
         ],
     ),
+    (
+        "M60_autonomous_coder",
+        "scripts.export_autonomous_coder_snapshot",
+        ["reports/grok/M60/autonomous_coder_snapshot.json"],
+    ),
 ]
 
 
