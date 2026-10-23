@@ -1,38 +1,38 @@
 {
-  "generated_at": "2026-10-23T18:23:44Z",
+  "generated_at": "2026-10-23T18:27:37Z",
   "paper_only": true,
   "messageHub": {
     "executionMode": "PAPER_ONLY",
     "realTrading": false,
     "source": "export_message_hub_snapshot.py (bridge probe + M13_SOAK + M35.5 inbox)",
-    "generatedAt": "2026-10-23T18:23:44Z",
+    "generatedAt": "2026-10-23T18:27:37Z",
     "demo": false,
     "channels": [
       {
         "channel": "Kian chat",
-        "status": "PARTIAL",
-        "lastMessageTime": "2026-10-23T18:23:44Z",
+        "status": "LIVE",
+        "lastMessageTime": "2026-10-23T18:27:37Z",
         "queueDepth": 0,
         "lastError": null
       },
       {
         "channel": "Telegram",
         "status": "LIVE",
-        "lastMessageTime": "2026-10-23T18:23:44Z",
+        "lastMessageTime": "2026-10-23T18:27:37Z",
         "queueDepth": null,
         "lastError": null
       },
       {
         "channel": "nightly report",
         "status": "LIVE",
-        "lastMessageTime": "2026-10-23T18:21:05Z",
+        "lastMessageTime": "2026-10-23T18:24:00Z",
         "queueDepth": null,
         "lastError": null
       },
       {
         "channel": "command router",
         "status": "LIVE",
-        "lastMessageTime": "2026-10-23T18:23:44Z",
+        "lastMessageTime": "2026-10-23T18:27:37Z",
         "queueDepth": 5,
         "lastError": null
       }
@@ -42,7 +42,7 @@
       "needsTokenRotation": false
     },
     "nightlyReport": {
-      "lastReportTime": "2026-10-23T18:21:05Z",
+      "lastReportTime": "2026-10-23T18:24:00Z",
       "language": "فارسی",
       "deliveryState": "UNKNOWN",
       "evidenceLink": "reports/grok/M13_SOAK/2026-10-23_judge.md"
@@ -86,16 +86,16 @@
     ],
     "messageLog": [
       {
-        "time": "2026-10-23T18:21:02Z",
+        "time": "2026-10-23T18:23:57Z",
         "direction": "out",
         "channel": "nightly report",
-        "summary": "soak cycle 864 witness=VERIFIED",
+        "summary": "soak cycle 865 witness=VERIFIED",
         "deliveryState": "DELIVERED"
       }
     ]
   },
   "bridge_llm": {
-    "state": "DISCONNECTED",
-    "lastError": "URLError"
+    "state": "CONNECTED",
+    "lastError": null
   }
 }
