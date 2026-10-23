@@ -45,6 +45,7 @@ EXPORT_STEPS: list[tuple[str, str, list[str]]] = [
     ("M56_red_team", "scripts.export_strategy_red_team_snapshot", ["reports/grok/M56/strategy_red_team_snapshot.json"]),
     ("M_PORT", "scripts.export_portable_migration_pack", ["reports/grok/M62/portable_migration_pack.json"]),
     ("M31_nightly", "scripts.export_nightly_digest_snapshot", ["reports/grok/M31/nightly_digest_snapshot.json", "reports/grok/M31/nightly_digest_fa.md"]),
+    ("M13_edge_margin", "scripts.export_edge_margin_snapshot", ["reports/grok/M13/edge_margin_sim_snapshot.json"]),
 ]
 
 
