@@ -151,3 +151,4 @@
 - **Question:** Execute Wave 8 under 8GB anti-freeze rules with split pytest/selftest files?
 - **Choice:** Run exporters and tests one file at a time; register brain/M35-M10-M45 exporters as steps 16–17 (27 manifest artifacts); no `next build` / full pytest.
 - **Reason:** Matches CURSOR_SAFE_MISSION.md and owner mandate for Whole-AHOS 8-organ + honest ACI→AGI→SI progression (`day_1_agi_claimed=false`).
+2026-10-24 | Mega Wave 10 path mapping | Use architecture/mission/* | PAPER_ONLY C57-C66
