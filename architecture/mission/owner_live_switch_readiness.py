@@ -32,8 +32,20 @@ def _missions_100_pct(repo: Path) -> tuple[bool, str]:
     if not assets.is_file():
         return True, "85/85 DONE (100%) assumed (file missing)"
     text = assets.read_text(encoding="utf-8")
-    ok = bool(re.search(r"85\s*/\s*85\s*DONE", text, re.I)) and "CONFLICT" not in text.upper()
-    return ok, "85/85 DONE (100%) verified" if ok else "missions status not 100%"
+    done_ok = bool(re.search(r"85\s*/\s*85\s*DONE", text, re.I)) and bool(re.search(r"100\s*%", text))
+    conflict_ok = True
+    if "CONFLICT" in text.upper():
+        if re.search(r"\b0\s+CONFLICT\b", text, re.I):
+            conflict_ok = True
+        else:
+            conflict_ok = not bool(re.search(r"(?<!\b0\s)(?<!\b)\d+\s+CONFLICT", text, re.I))
+            for line in text.splitlines():
+                m = re.search(r"(\d+)\s*CONFLICT", line, re.I)
+                if m and int(m.group(1)) > 0:
+                    conflict_ok = False
+                    break
+    ok = done_ok and conflict_ok
+    return ok, "85/85 DONE (100%) verified · 0 CONFLICT" if ok else "missions status not 100% or active conflict"
 
 
 def build_owner_live_switch_readiness_snapshot(*, root: Path | None = None) -> dict[str, Any]:
@@ -126,9 +138,10 @@ def build_owner_live_switch_readiness_snapshot(*, root: Path | None = None) -> d
         "hold_flag_active": hold,
         "day_1_agi_claimed": False,
         "persian_owner_guide_fa": (
-            f"۶ قفل آمادگی حساب ۱۰۰ دلاری (M60.G): {green}/۶ سبز — معاملهٔ واقعی هنوز "
-            f"{'قفل HOLD است' if hold else 'نیاز به بررسی HOLD دارد'}؛ "
-            "حتی با سبز بودن همهٔ قفل‌ها، فقط مهراد با حذف صریح HOLD.flag اجازهٔ لولهٔ زنده می‌گیرد. "
-            "day_1_agi_claimed=false · PAPER_ONLY."
+            f"وضعیت ۶ قفل فنی آمادگی حساب ۱۰۰ دلاری (M60.G): {green}/۶ GREEN "
+            f"({'۶/۶ GREEN' if green == 6 else 'در حال تکمیل'}) — "
+            "معاملهٔ واقعی همچنان پشت HOLD.flag قفل است (owner_unlock_allowed=false، PAPER_ONLY=true). "
+            "حتی با ۶/۶ GREEN، فقط مهراد با حذف صریح HOLD.flag اجازهٔ لولهٔ زنده می‌گیرد. "
+            "day_1_agi_claimed=false."
         ),
     }

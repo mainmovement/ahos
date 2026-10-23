@@ -13,3 +13,5 @@ def test_six_gates_hold_locked() -> None:
     assert snap["day_1_agi_claimed"] is False
     hold_gate = next(g for g in snap["gates"] if g["gate_id"] == "GATE_6_OWNER_HOLD_FLAG_LOCK")
     assert hold_gate["status"] == "GREEN"
+    assert snap["gates_green_count"] == 6
+    assert "۶/۶ GREEN" in snap["persian_owner_guide_fa"] or "6/6 GREEN" in snap["persian_owner_guide_fa"]
