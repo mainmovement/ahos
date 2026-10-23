@@ -28,6 +28,8 @@ from architecture.markets.reconcile_bridge import reconcile_desk_states
 from architecture.markets.token_hunter_24 import screen_token_batch
 from architecture.cognitive.aci_agi_si_brain import run_aci_agi_si_evolution_cycle
 from architecture.cognitive.autonomous_coder_bridge import run_autonomous_coder_cycle
+from architecture.cognitive.self_evolution_cycle_runner import run_self_evolution_cycle_snapshot
+from architecture.markets.hundred_dollar_compounding_engine import build_hundred_dollar_compounding_snapshot
 from architecture.security.negahban import run_whitehat_security_audit
 from architecture.university.whole_ahos_organ_evolution import build_whole_ahos_organ_evolution_snapshot
 from core.safety_lock import verify_safety_lock
@@ -95,6 +97,8 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
 
     brain = run_aci_agi_si_evolution_cycle(root=repo)
     autonomous_coder = run_autonomous_coder_cycle(root=repo)
+    compounding = build_hundred_dollar_compounding_snapshot(root=repo)
+    self_evolution = run_self_evolution_cycle_snapshot(root=repo)
     organs = build_whole_ahos_organ_evolution_snapshot()
     brain_loops = brain.get("loops") or {}
 
@@ -197,6 +201,24 @@ def run_autonomous_world_cycle(*, root: Path | None = None) -> dict[str, Any]:
                 "patches_verified": (autonomous_coder.get("four_brain_engine") or {}).get(
                     "synthesized_patches_verified"
                 ),
+            },
+            "m60_hundred_dollar_compounding": {
+                "current_equity_usd": (compounding.get("paper_compounding_ledger") or {}).get(
+                    "current_equity_usd"
+                ),
+                "active_profit_lock_floor_usd": (compounding.get("paper_compounding_ledger") or {}).get(
+                    "active_profit_lock_floor_usd"
+                ),
+                "active_ladder_step_id": compounding.get("active_ladder_step_id"),
+                "live_pilot_status": (compounding.get("live_pilot_ledger") or {}).get("status"),
+            },
+            "m60_self_evolution_cycle": {
+                "stage_ids": self_evolution.get("stage_ids"),
+                "current_stage_target_organ": (self_evolution.get("stages") or [{}])[0].get("selected_target"),
+                "promotion_verdict": ((self_evolution.get("stages") or [{}])[-1].get("promotion") or {}).get(
+                    "verdict"
+                ),
+                "day_1_agi_claimed": self_evolution.get("day_1_agi_claimed", False),
             },
         },
     }

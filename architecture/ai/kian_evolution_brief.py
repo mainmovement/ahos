@@ -7,9 +7,11 @@ from pathlib import Path
 from typing import Any
 
 from architecture.cognitive.autonomous_coder_bridge import run_autonomous_coder_cycle
+from architecture.cognitive.self_evolution_cycle_runner import run_self_evolution_cycle_snapshot
+from architecture.markets.hundred_dollar_compounding_engine import build_hundred_dollar_compounding_snapshot
 
 _KEYWORDS = re.compile(
-    r"(مغز|دیباگ|آپدیت|خوددیباگ|AGI|ACI|SI|۱۰۰\s*دلار|100\s*دollar|پایلوت)",
+    r"(مغز|دیباگ|آپدیت|خوددیباگ|AGI|ACI|SI|۱۰۰\s*دلار|100\s*دollar|پایلوت|مرکب|پله\s*سود|۲۰۰\s*دلار|200\s*usd|چرخه\s*خودتکاملی|خودتکاملی)",
     re.IGNORECASE,
 )
 
@@ -29,9 +31,15 @@ def build_owner_evolution_brief_fa(message: str, *, root: Path | None = None) ->
         return None
     repo = (root or Path(__file__).resolve().parents[2]).resolve()
     coder = run_autonomous_coder_cycle(root=repo)
+    comp = build_hundred_dollar_compounding_snapshot(root=repo)
+    evo = run_self_evolution_cycle_snapshot(root=repo)
     eng = coder.get("four_brain_engine") or {}
     pilot = _read_json(repo / "reports" / "grok" / "M43" / "pilot_100usd_gateway_snapshot.json")
-    equity = (pilot or {}).get("pilot_account", {}).get("current_equity_usd", 100)
+    ledger = comp.get("paper_compounding_ledger") or {}
+    equity = ledger.get("current_equity_usd") or (pilot or {}).get("pilot_account", {}).get("current_equity_usd", 100)
+    floor = ledger.get("active_profit_lock_floor_usd", "—")
+    ladder = comp.get("active_ladder_step_id", "—")
+    evo_target = ((evo.get("stages") or [{}])[0].get("selected_target") or {}).get("organ_title_fa", "—")
     missions_done = "85/85 DONE (100%)"
     bridge = eng.get("brain_1_bridge_8787", coder.get("bridge_port_8787_status"))
     tier = eng.get("brain_2_local_oss_tier", "—")
@@ -40,6 +48,8 @@ def build_owner_evolution_brief_fa(message: str, *, root: Path | None = None) ->
         f"وضعیت مغز ۴گانهٔ کدنویس (M60.C · PAPER_ONLY): پل :8787={bridge} · لایهٔ OSS={tier} · "
         f"پچ‌های تأییدشده در سندباکس={patches} · قفل M70.6={coder.get('m70_6_safety_lock_status', '—')}. "
         f"مسیر ACI→AGI→SI بدون ادعای AGI روز اول؛ حلقه‌های خوددیباگ/خودآپدیت فعال در snapshot. "
-        f"پایلوت ۱۰۰ دلاری: ارزش کاغذی ~${equity} (HOLD قفل زنده). "
+        f"پایلوت ۱۰۰ دلاری (M60.P): ارزش کاغذی ~${equity} · پلهٔ فعال {ladder} · قفل سود ${floor} · "
+        f"برش‌های ۱۰×–۲۵× LONG/SHORT (HOLD قفل زنده). "
+        f"چرخهٔ خودتکاملی M60.E: گلوگاه فعلی «{evo_target}» · day_1_agi_claimed=false. "
         f"پیشرفت مأموریت‌ها: {missions_done}."
     )

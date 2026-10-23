@@ -74,6 +74,26 @@ def build_teaching_lesson_from_cycle(cycle: Mapping[str, Any]) -> TeachingLesson
     pnl = float(cycle.get("pnl_usd", 0.0))
     witness = str(cycle.get("witness_state") or "VERIFIED").upper()
 
+    if regime == "COMPOUNDING_LADDER" or market == "PILOT_100USD":
+        return TeachingLessonFa(
+            lesson_id=lid,
+            market=market,
+            symbol=symbol,
+            regime_tag=regime,
+            title_fa="پلهٔ قفل سود و برش‌های ایزولهٔ ۱۰۰ دلاری (M60.P)",
+            why_entered_fa=(
+                "پایلوت ۱۰۰ دلاری فقط با برش‌های ۱۰–۲۰ دلاری و اهرم ۱۰× تا ۲۵× (LONG/SHORT) و حداقل ۴۰٪ ذخیرهٔ کیف پول "
+                "اجازهٔ ورود کاغذی دارد؛ لولهٔ زنده هنوز READY_LOCKED_BY_HOLD_FLAG است."
+            ),
+            what_happened_fa=(
+                f"ارزش کاغذی به ~{100 + pnl:.2f} دلار رسید؛ پلهٔ قفل سود فعال می‌شود (۱۱۰→۱۰۲، ۱۲۵→۱۱۰، ۱۵۰→۱۲۵، ۲۰۰=اصل آزاد)."
+            ),
+            mistake_or_strength_fa="نقطهٔ قوت: جدا کردن سود انباشته از اصل سرمایه قبل از افزایش ریسک.",
+            key_takeaway_fa="رشد مرکب پله‌ای بدون قفل سود، اصل ۱۰۰ دلار را در معرض یک برش بد قرار می‌دهد — M60.P این را کاغذی ثبت می‌کند.",
+            glossary_keys=("Drawdown", "ATR"),
+            paper_only=True,
+        )
+
     if witness != "VERIFIED":
         return TeachingLessonFa(
             lesson_id=lid,
@@ -152,6 +172,14 @@ def default_teaching_journal_fixtures() -> tuple[list[TeachingLessonFa], list[Ho
             "regime_tag": "MACRO_SHOCK",
             "pnl_usd": 0.0,
             "witness_state": "UNRESOLVED",
+        },
+        {
+            "lesson_id": "m65-m60p-compounding-ladder",
+            "market": "PILOT_100USD",
+            "symbol": "M60.P",
+            "regime_tag": "COMPOUNDING_LADDER",
+            "pnl_usd": 18.5,
+            "witness_state": "VERIFIED",
         },
     ]
     lessons = [build_teaching_lesson_from_cycle(c) for c in raw_cycles]
