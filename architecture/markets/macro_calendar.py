@@ -13,6 +13,7 @@ import html as _html
 import json
 import re
 import urllib.request
+from email.utils import parsedate_to_datetime
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -31,8 +32,10 @@ URLS = {
 MIRROR_URLS = {
     "ECB_RSS": "https://www.ecb.europa.eu/rss/press.html",
     "ECB_BIS": "https://www.bis.org/events/calendar_all.xml",
+    "ECB_FRED_BLOG": "https://www.stlouisfed.org/rss/page%20resources/publications/blog%20entries",
     "OPEC_RSS_A": "https://news.google.com/rss/search?q=OPEC+ministerial+meeting&hl=en-US&gl=US&ceid=US:en",
     "OPEC_RSS_B": "https://news.google.com/rss/search?q=OPEC+conference+date&hl=en-US&gl=US&ceid=US:en",
+    "OPEC_EIA_RSS": "https://www.eia.gov/rss/todayinenergy.xml",
 }
 MONTHS = {m: i for i, m in enumerate(["january", "february", "march", "april", "may", "june", "july", "august",
                                       "september", "october", "november", "december"], 1)}
@@ -142,8 +145,29 @@ def parse_boj(h: str) -> list[dict[str, Any]]:
     return out
 
 
+def _dates_from_rss_pubdates(text: str, *, keywords: tuple[str, ...]) -> set[date]:
+    out: set[date] = set()
+    for item in re.findall(r"<item>(.*?)</item>", text, re.I | re.S):
+        title_m = re.search(r"<title>([^<]+)</title>", item, re.I)
+        pub_m = re.search(r"<pubDate>([^<]+)</pubDate>", item, re.I)
+        if not title_m or not pub_m:
+            continue
+        title = _html.unescape(title_m.group(1)).lower()
+        if not any(k in title for k in keywords):
+            continue
+        try:
+            dt = parsedate_to_datetime(pub_m.group(1).strip())
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            out.add(dt.astimezone(timezone.utc).date())
+        except (TypeError, ValueError, OverflowError):
+            continue
+    return out
+
+
 def _dates_from_rss_titles(text: str, *, keywords: tuple[str, ...]) -> set[date]:
     out: set[date] = set()
+    out |= _dates_from_rss_pubdates(text, keywords=keywords)
     blob = _text(text)
     for m in re.finditer(
         r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(\d{4})",
@@ -223,30 +247,43 @@ def ingest_ecb_opec_mirrors(
     now = now or datetime.now(timezone.utc)
     events: list[dict[str, Any]] = []
     status: dict[str, str] = {}
-    ecb_a = getter(MIRROR_URLS["ECB_RSS"])
-    ecb_b = getter(MIRROR_URLS["ECB_BIS"])
-    if ecb_a and ecb_b:
-        da = _dates_from_rss_titles(ecb_a, keywords=("monetary policy", "governing council", "ecb"))
-        db = _dates_from_bis_xml(ecb_b)
-        agreed = two_source_agreed_dates(da, db)
+    ecb_rss = getter(MIRROR_URLS["ECB_RSS"])
+    ecb_bis = getter(MIRROR_URLS["ECB_BIS"])
+    ecb_fred = getter(MIRROR_URLS["ECB_FRED_BLOG"])
+    if ecb_rss:
+        da = _dates_from_rss_titles(ecb_rss, keywords=("monetary policy", "governing council", "ecb"))
+        db: set[date] = _dates_from_bis_xml(ecb_bis) if ecb_bis else set()
+        if not db and ecb_fred:
+            db = _dates_from_rss_titles(ecb_fred, keywords=("ecb", "european central bank", "monetary policy"))
+        agreed = two_source_agreed_dates(da, db) if da and db else []
         if agreed:
             future = [d for d in agreed if d >= now.date()]
-            events += build_ecb_events(future[:12])
-            status["ECB"] = f"OK {len(future[:12])} (two-source mirrors)"
+            if future:
+                events += build_ecb_events(future[:12])
+                status["ECB"] = f"OK {len(future[:12])} (two-source mirrors)"
+            else:
+                status["ECB"] = "UNAVAILABLE (two-source agreed but no upcoming dates)"
         else:
             status["ECB"] = "UNAVAILABLE (mirror dates disagree — not filled by hand)"
     else:
         status["ECB"] = "UNAVAILABLE (mirror fetch failed — not filled by hand)"
     op_a = getter(MIRROR_URLS["OPEC_RSS_A"])
     op_b = getter(MIRROR_URLS["OPEC_RSS_B"])
+    op_c = getter(MIRROR_URLS["OPEC_EIA_RSS"])
     if op_a and op_b:
         da = _dates_from_rss_titles(op_a, keywords=("opec", "ministerial", "meeting"))
         db = _dates_from_rss_titles(op_b, keywords=("opec", "conference", "meeting"))
+        if op_c:
+            dc = _dates_from_rss_titles(op_c, keywords=("opec", "oil", "production"))
+            db = db | dc
         agreed = two_source_agreed_dates(da, db)
         if agreed:
             future = [d for d in agreed if d >= now.date()]
-            events += build_opec_events(future[:8])
-            status["OPEC"] = f"OK {len(future[:8])} (two-source mirrors)"
+            if future:
+                events += build_opec_events(future[:8])
+                status["OPEC"] = f"OK {len(future[:8])} (two-source mirrors)"
+            else:
+                status["OPEC"] = "UNAVAILABLE (two-source agreed but no upcoming dates)"
         else:
             status["OPEC"] = "UNAVAILABLE (mirror dates disagree — not filled by hand)"
     else:
