@@ -1,0 +1,117 @@
+{
+  "schema": "ahos.rotation_m24.v1",
+  "generated_at": "2026-10-24T04:42:40Z",
+  "paper_only": true,
+  "switching_cost_bps": 15.0,
+  "hysteresis_multiplier": 2.0,
+  "scenarios": [
+    {
+      "scenario_id": "day4_eu_equity",
+      "title_fa": "روز ۴: چرخش به سهم اروپایی (DAX / EXW1.DE) پس از شکست مقاومت در رژیم BULL_TREND",
+      "from_desk": "FOREX",
+      "to_desk": "EU_EQUITIES",
+      "from_symbol": "EURUSD",
+      "to_symbol": "DAX",
+      "regime_from": "RANGE_CHOP",
+      "regime_to": "BULL_TREND",
+      "expected_edge_bps": 48.0,
+      "switching_cost_bps": 15.0,
+      "net_edge_bps": 33.0,
+      "rotated": true,
+      "reason": "ROTATED_PAPER: net_edge=+33.0 bps after 15.0 bps switching cost",
+      "weights_before": {
+        "CRYPTO": 0.22,
+        "PB_TOKEN": 0.03,
+        "GOLD": 0.15,
+        "OIL": 0.15,
+        "US_EQUITIES": 0.15,
+        "EU_EQUITIES": 0.1,
+        "ASIA_EQUITIES": 0.1,
+        "FOREX": 0.1
+      },
+      "weights_after": {
+        "CRYPTO": 0.22,
+        "PB_TOKEN": 0.03,
+        "GOLD": 0.15,
+        "OIL": 0.15,
+        "US_EQUITIES": 0.15,
+        "EU_EQUITIES": 0.15,
+        "ASIA_EQUITIES": 0.1,
+        "FOREX": 0.05
+      },
+      "paper_only": true
+    },
+    {
+      "scenario_id": "eu_equity_to_gold",
+      "title_fa": "چرخش دفاعی سهام اروپا ↔ طلا (DAX → XAU) در رژیم شوک نوسان و ریسک‌گریزی",
+      "from_desk": "EU_EQUITIES",
+      "to_desk": "GOLD",
+      "from_symbol": "DAX",
+      "to_symbol": "XAU",
+      "regime_from": "HIGH_VOL_SHOCK",
+      "regime_to": "SAFE_HAVEN_TREND",
+      "expected_edge_bps": 62.0,
+      "switching_cost_bps": 15.0,
+      "net_edge_bps": 47.0,
+      "rotated": true,
+      "reason": "ROTATED_PAPER: net_edge=+47.0 bps after 15.0 bps switching cost",
+      "weights_before": {
+        "CRYPTO": 0.22,
+        "PB_TOKEN": 0.03,
+        "GOLD": 0.15,
+        "OIL": 0.15,
+        "US_EQUITIES": 0.15,
+        "EU_EQUITIES": 0.15,
+        "ASIA_EQUITIES": 0.1,
+        "FOREX": 0.05
+      },
+      "weights_after": {
+        "CRYPTO": 0.22,
+        "PB_TOKEN": 0.03,
+        "GOLD": 0.2,
+        "OIL": 0.15,
+        "US_EQUITIES": 0.15,
+        "EU_EQUITIES": 0.1,
+        "ASIA_EQUITIES": 0.1,
+        "FOREX": 0.05
+      },
+      "paper_only": true
+    },
+    {
+      "scenario_id": "anti_churn_blocked",
+      "title_fa": "رد چرخش کم‌بازده (ضد نوسان اضافه / Anti-Churn Hysteresis)",
+      "from_desk": "GOLD",
+      "to_desk": "OIL",
+      "from_symbol": "XAU",
+      "to_symbol": "WTI",
+      "regime_from": "NORMAL",
+      "regime_to": "NORMAL",
+      "expected_edge_bps": 22.0,
+      "switching_cost_bps": 15.0,
+      "net_edge_bps": 7.0,
+      "rotated": false,
+      "reason": "ANTI_CHURN_HOLD: edge 22.0 bps < 30.0 bps (2x switch cost)",
+      "weights_before": {
+        "CRYPTO": 0.22,
+        "PB_TOKEN": 0.03,
+        "GOLD": 0.2,
+        "OIL": 0.15,
+        "US_EQUITIES": 0.15,
+        "EU_EQUITIES": 0.1,
+        "ASIA_EQUITIES": 0.1,
+        "FOREX": 0.05
+      },
+      "weights_after": {
+        "CRYPTO": 0.22,
+        "PB_TOKEN": 0.03,
+        "GOLD": 0.2,
+        "OIL": 0.15,
+        "US_EQUITIES": 0.15,
+        "EU_EQUITIES": 0.1,
+        "ASIA_EQUITIES": 0.1,
+        "FOREX": 0.05
+      },
+      "paper_only": true
+    }
+  ]
+}

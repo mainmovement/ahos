@@ -1,0 +1,34 @@
+{
+  "schema": "ahos.self_debug_m46.v1",
+  "generated_at": "2026-10-24T04:42:42Z",
+  "paper_only": true,
+  "redacted_error": "ZeroDivisionError in spread calculation with [REDACTED]",
+  "evidence_refs": [
+    "reports/grok/M13_SOAK/soak_runlog.jsonl#L42"
+  ],
+  "candidates_tested": 2,
+  "winner_candidate_id": "cand-safe-guard",
+  "applied_to_main": false,
+  "pushed": false,
+  "candidates": [
+    {
+      "candidate_id": "cand-protected-rejected",
+      "target_branch": "debug/touch-hold",
+      "proposal_accepted": false,
+      "reason": "protected path",
+      "pytest_passed": false,
+      "applied_to_main": false,
+      "pushed": false
+    },
+    {
+      "candidate_id": "cand-safe-guard",
+      "target_branch": "debug/safe-div-guard",
+      "proposal_accepted": true,
+      "reason": "isolated_worktree_pytest_pass",
+      "pytest_passed": true,
+      "pytest_summary": ".                                                                        [100%]\n1 passed in 0.03s",
+      "applied_to_main": false,
+      "pushed": false
+    }
+  ]
+}

@@ -58,11 +58,13 @@ YAHOO_SYMBOLS: dict[str, str] = {
     "BTC_Y": "BTC-USD",
     "ETH_Y": "ETH-USD",
     "SOL_Y": "SOL-USD",
+    "UNI_Y": "UNI7083-USD",
 }
 COINGECKO_IDS: dict[str, str] = {
     "BTC": "bitcoin",
     "ETH": "ethereum",
     "SOL": "solana",
+    "UNI": "uniswap",
     "XAU": "pax-gold",
     "BNB": "binancecoin",
     "XRP": "ripple",
@@ -230,7 +232,7 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
 
     quotes: dict[str, dict[str, Any]] = {}
     # crypto primary = CoinGecko (Yahoo crypto kept as independent cross-check)
-    for sym in ("BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "TON"):
+    for sym in ("BTC", "ETH", "SOL", "UNI", "BNB", "XRP", "DOGE", "TON"):
         quotes[sym] = cg[sym]
         ycross = yq.get(f"{sym}_Y")
         if ycross is not None:

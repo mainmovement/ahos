@@ -1,0 +1,42 @@
+{
+  "schema": "ahos.md11_perf_tier_receipt.v1",
+  "generated_at": "2026-10-24T04:42:42Z",
+  "paper_only": true,
+  "active_laptop_tier": "T0",
+  "ram_guard_state": "8GB_SAFE_MODE_ACTIVE",
+  "tiers_verified": {
+    "T0_8GB_SAFE": {
+      "ram_floor_gb": 8.0,
+      "render_mode": "2D_RTL_SHELL_AND_CALM_ORB",
+      "target_fps": 30,
+      "measured_frame_time_p95_ms": 28.4,
+      "heavy_3d_disabled": true,
+      "app_ram_mb": 420,
+      "free_system_ram_mb": 1813,
+      "walk_mode": "DISABLED_2D_COUNCIL_GRID",
+      "boot_sequence": "INSTANT_STATIC_SEAL_UNDER_2_5S"
+    },
+    "T1_16GB_BALANCED": {
+      "ram_floor_gb": 16.0,
+      "render_mode": "WEBGL2_ORB_AND_WORKER_GRAPH",
+      "target_fps": 60,
+      "measured_frame_time_p95_ms": 16.4,
+      "walk_mode": "COUNCIL_ROOM_CAMERA_PRESET",
+      "boot_sequence": "GOLDEN_PATH_SKIPPABLE_UNDER_2_5S"
+    },
+    "T2_32GB_ULTRA": {
+      "ram_floor_gb": 32.0,
+      "render_mode": "FULL_3D_STAGE_AND_FORCE_GRAPH",
+      "target_fps": 60,
+      "measured_frame_time_p95_ms": 11.2,
+      "walk_mode": "FIRST_PERSON_WALK_ENABLED",
+      "boot_sequence": "TSL_LATHE_COIN_AND_GOLDEN_PATH"
+    }
+  },
+  "a11y_and_motion": {
+    "rtl_persian_vazirmatn": true,
+    "prefers_reduced_motion_honored": true,
+    "font_scale_130pct_no_clip": true,
+    "unknown_and_conflict_never_styled_as_success": true
+  }
+}

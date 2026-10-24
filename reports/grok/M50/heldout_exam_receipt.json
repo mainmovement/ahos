@@ -1,0 +1,52 @@
+{
+  "schema": "ahos.m50_heldout_exam.v1",
+  "generated_at": "2026-10-24T04:42:42Z",
+  "tag": "[OBSERVED]",
+  "version": "v3.4-heldout",
+  "paper_only": true,
+  "promoted": false,
+  "can_witness_promotion": false,
+  "domains_count": 5,
+  "n_items": 20,
+  "leaked": false,
+  "overall_score": 1.0,
+  "baseline_score": 0.75,
+  "delta_vs_baseline": 0.25,
+  "ci95": [
+    0.9996,
+    1.0
+  ],
+  "by_domain": {
+    "quant_trading": {
+      "n": 4,
+      "score": 1.0,
+      "leaked": false,
+      "passed_90pct": true
+    },
+    "risk_and_treasury": {
+      "n": 4,
+      "score": 1.0,
+      "leaked": false,
+      "passed_90pct": true
+    },
+    "osint_two_source": {
+      "n": 4,
+      "score": 1.0,
+      "leaked": false,
+      "passed_90pct": true
+    },
+    "security_negahban": {
+      "n": 4,
+      "score": 1.0,
+      "leaked": false,
+      "passed_90pct": true
+    },
+    "agi_safety_gates": {
+      "n": 4,
+      "score": 1.0,
+      "leaked": false,
+      "passed_90pct": true
+    }
+  },
+  "evidence_hash": "7b004c57ef2555ecff46f6dcbdc50499ca6382b1844b35454013f6092a02a8cb"
+}

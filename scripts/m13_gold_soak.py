@@ -332,6 +332,22 @@ def _reconcile_report(soak_dir: Path, ledger_path: Path | None,
 
 def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
     soak_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        pt_status_path = ROOT / "reports" / "grok" / "PAPER" / "paper_trader_status.json"
+        if pt_status_path.is_file():
+            pt_st = json.loads(pt_status_path.read_text(encoding="utf-8"))
+            status["unified_100usd_gold_desk"] = {
+                "UnifiedBrain": "architecture.markets.paper_trader",
+                "initial_capital_usd": pt_st.get("initial_capital_usd", 100.0),
+                "mark_to_market_equity_usd": pt_st.get("mark_to_market_equity_usd"),
+                "gold_desk_realized_pnl_usd": (pt_st.get("per_desk_realized_pnl_usd") or {}).get("GOLD", 0.0),
+                "gold_witness": (pt_st.get("witness") or {}).get("XAU"),
+                "gold_open_position": (pt_st.get("open_positions") or {}).get("XAU"),
+                "updated_at": pt_st.get("updated_at"),
+                "paper_only": True,
+            }
+    except Exception:
+        pass
     path = soak_dir / "soak_status.json"
     path.write_text(json.dumps(status, indent=2, ensure_ascii=False) + "\n",
                     encoding="utf-8")

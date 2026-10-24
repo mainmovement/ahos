@@ -1,0 +1,22 @@
+{
+  "schema": "ahos.m14_controller_cycle.v1",
+  "generated_at": "2026-10-24T04:42:40Z",
+  "proposal_id": "prop-m14-witness-timeout-guard",
+  "fault_summary": "Transient timeout on secondary quote provider handled by fail-closed UNRESOLVED state",
+  "evidence_refs": [
+    "reports/grok/PAPER/paper_trader_status.json",
+    "data/mission_ledger/mission_ledger.jsonl"
+  ],
+  "phases_recorded": [
+    "IDLE",
+    "RUNNING",
+    "INTAKE",
+    "RCA_BOUND",
+    "GATE_VERIFIED"
+  ],
+  "gate_passed": true,
+  "owner_signed": false,
+  "promoted": false,
+  "state": "AWAITING_OWNER_SIGNATURE",
+  "paper_only": true
+}

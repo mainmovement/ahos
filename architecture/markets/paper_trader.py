@@ -46,6 +46,7 @@ AGENT = "agent:paper_trader"
 
 INSTRUMENTS: dict[str, tuple[str, float, float]] = {   # sym -> (desk, fee/side, slippage/side)
     "BTC": ("CRYPTO", 0.0010, 0.0005), "ETH": ("CRYPTO", 0.0010, 0.0005), "SOL": ("CRYPTO", 0.0010, 0.0008),
+    "UNI": ("PB_TOKEN", 0.0015, 0.0010),
     "XAU": ("GOLD", 0.0004, 0.0003),
     "WTI": ("OIL", 0.0005, 0.0004), "BRENT": ("OIL", 0.0005, 0.0004),
     "SPX": ("US_EQUITIES", 0.0003, 0.0002), "QQQ": ("US_EQUITIES", 0.0003, 0.0002),
@@ -53,8 +54,15 @@ INSTRUMENTS: dict[str, tuple[str, float, float]] = {   # sym -> (desk, fee/side,
     "N225": ("ASIA_EQUITIES", 0.0004, 0.0003), "HSI": ("ASIA_EQUITIES", 0.0004, 0.0003),
     "EURUSD": ("FOREX", 0.0002, 0.0001), "USDJPY": ("FOREX", 0.0002, 0.0001),
 }
-DESK_WEIGHTS = {"CRYPTO": 0.25, "GOLD": 0.15, "OIL": 0.15, "US_EQUITIES": 0.15,
+DESK_WEIGHTS = {"CRYPTO": 0.25, "PB_TOKEN": 0.05, "GOLD": 0.15, "OIL": 0.15, "US_EQUITIES": 0.15,
                 "EU_EQUITIES": 0.10, "ASIA_EQUITIES": 0.10, "FOREX": 0.10}
+CLUSTER_OF_DESK = {
+    "CRYPTO": "crypto", "PB_TOKEN": "crypto",
+    "GOLD": "metals", "OIL": "energy",
+    "US_EQUITIES": "equities", "EU_EQUITIES": "equities", "ASIA_EQUITIES": "equities",
+    "FOREX": "fx",
+}
+CLUSTER_CAPS = {"crypto": 0.35, "metals": 0.20, "energy": 0.20, "equities": 0.40, "fx": 0.15}
 MAX_TRADE_AGE_S = 20 * 60
 ENTRY = 0.25
 RISK_PER_TRADE = 0.005
@@ -230,6 +238,46 @@ def performance(trades: list[dict[str, Any]], seed: int = 7) -> dict[str, Any]:
             "promotion_gate": "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)" if n < 30 else "EVALUATE"}
 
 
+
+def mc_risk_of_ruin(trades: list[dict[str, Any]], equity: float = 100.0, *, ruin_dd: float = 0.20, paths: int = 1000, horizon_trades: int = 50, seed: int = 42) -> dict[str, Any]:
+    """TS-12 & M21: 1,000-path block-bootstrap Monte Carlo risk-of-ruin estimator."""
+    pnls = [float(t.get("realized_pnl_usd", 0.0)) for t in trades]
+    # When n < 5 closed trades, use conservative per-trade risk distribution (±0.5% equity stop)
+    sample = pnls if len(pnls) >= 5 else [-0.50, -0.45, 0.55, -0.48, 0.65, -0.50, 0.60, -0.42]
+    rnd = random.Random(seed)
+    ruin_floor = equity * (1.0 - ruin_dd)
+    ruined = 0
+    max_dds: list[float] = []
+    for _ in range(paths):
+        eq = equity
+        peak = equity
+        mdd = 0.0
+        hit_ruin = False
+        for _ in range(horizon_trades):
+            eq += rnd.choice(sample)
+            if eq > peak:
+                peak = eq
+            dd = (peak - eq) / max(1e-6, peak)
+            if dd > mdd:
+                mdd = dd
+            if eq <= ruin_floor:
+                hit_ruin = True
+                break
+        if hit_ruin:
+            ruined += 1
+        max_dds.append(mdd)
+    max_dds.sort()
+    p95_dd = max_dds[int(0.95 * len(max_dds))] if max_dds else 0.0
+    return {
+        "paths": paths,
+        "horizon_trades": horizon_trades,
+        "ruin_drawdown_threshold_pct": round(ruin_dd * 100, 1),
+        "ruin_probability": round(ruined / max(1, paths), 4),
+        "p95_max_drawdown_pct": round(p95_dd * 100, 2),
+        "empirical_trades_used": len(pnls),
+    }
+
+
 def kill_switch(trades: list[dict[str, Any]], equity: float, now: float) -> tuple[bool, str | None]:
     day = sum(float(t["realized_pnl_usd"]) for t in trades if (_parse(t.get("closed_at")) or 0) > now - 86400)
     week = sum(float(t["realized_pnl_usd"]) for t in trades if (_parse(t.get("closed_at")) or 0) > now - 7 * 86400)
@@ -356,6 +404,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         elif newsig and newsig["available"] and newsig["score"] * (1 if side == "LONG" else -1) < -0.5: why = "NEWS_EVENT_RISK"
         elif desk == "CRYPTO" and not next((s["evidence"].get("spread_gate_ok", True) for s in sigs if s["name"] == "order_flow"), True):
             why = "SPREAD_GATE"
+        elif desk == "PB_TOKEN" and signals_fn is None:
+            from architecture.markets.token_safety_live import veto_check as _tok_veto
+            tv = _tok_veto(sym)
+            brain["token_safety_veto"] = {k: tv.get(k) for k in ("verdict", "allowed", "sources_verified", "reasons")}
+            if not tv.get("allowed"):
+                why = f"TOKEN_SAFETY_VETO:{','.join(tv.get('reasons') or ['fail_closed'])}"
         if why:
             log({**base, "event": "NO_TRADE", "reason": why, "price": price, "composite": comp,
                  "top_contributions": comb["contributions"][:5], "regime": regime["regime"]}); continue
@@ -363,10 +417,29 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         stop_pct = max(MIN_STOP, 2 * atr)
         desk_cap = equity * DESK_WEIGHTS[desk] / per_desk_n[desk]
         notional = min(equity * RISK_PER_TRADE / stop_pct * regime["size_mult"], desk_cap * regime["size_mult"])
+        cluster = CLUSTER_OF_DESK.get(desk, "other")
+        cluster_open = sum(p["notional_usd"] for p in positions.values() if CLUSTER_OF_DESK.get(p.get("desk", ""), "") == cluster)
+        cluster_rem = max(0.0, CLUSTER_CAPS.get(cluster, 0.35) * equity - cluster_open)
         open_now = sum(p["notional_usd"] for p in positions.values())
-        notional = round(min(notional, MAX_OPEN_NOTIONAL * equity - open_now), 4)
+        notional = round(min(notional, cluster_rem, MAX_OPEN_NOTIONAL * equity - open_now), 4)
+        adv_chk = sb.adv_cap_check(notional, q, ohlcv)
+        brain["adv_cap"] = adv_chk
+        if not adv_chk["allowed"]:
+            notional = round(min(notional, adv_chk["cap_1pct_usd"]), 4)
         if notional < 0.5:
             log({**base, "event": "NO_TRADE", "reason": "ALLOCATION_EXHAUSTED", "composite": comp}); continue
+        try:
+            from architecture.markets.council_gate import soroush_blind_debate_and_bl
+            brain["council_debate"] = soroush_blind_debate_and_bl(
+                symbol=sym,
+                bull_prob=max(0.05, min(0.95, 0.5 + 0.4 * comp)),
+                bear_prob=max(0.05, min(0.95, 0.5 - 0.4 * comp)),
+                bull_evidence_refs=[f"{s['name']}:{s['source']}" for s in sigs if s["available"] and s["score"] > 0] or [f"witness:{w['source_a']}"],
+                bear_evidence_refs=[f"{s['name']}:{s['source']}" for s in sigs if s["available"] and s["score"] < 0] or [f"witness:{w['source_b']}"],
+                devils_advocate_dissent=f"Counter-case for {side} {sym}: macro/regime reversal or spread widening beyond {stop_pct:.2%} stop",
+            )
+        except Exception:
+            pass
         d = 1 if side == "LONG" else -1
         oms = oms_route(PaperOrder(desk.lower(), "buy" if d > 0 else "sell", notional, False), "ELIGIBLE")
         if oms.state != "ACCEPTED_PAPER":
@@ -410,6 +483,11 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         "edge_status": EDGE_STATUS, "edge_status_fa": EDGE_STATUS_FA, "edge_evidence": _edge_evidence(root),
         "strategy_switch_version": switch_version,
         "shadow_signals": sorted(k for k, v in live_weights.items() if not v),
+        "risk_of_ruin_mc": mc_risk_of_ruin(trades, acct["current_equity_usd"]),
+        "cluster_exposure_usd": {
+            cl: round(sum(p["notional_usd"] for p in positions.values() if CLUSTER_OF_DESK.get(p.get("desk", ""), "") == cl), 4)
+            for cl in CLUSTER_CAPS
+        },
     }
     _save_json(root / STATUS_REL, status)
     return status

@@ -1,0 +1,28 @@
+{
+  "schema": "ahos.m52_skill_vet_s12.v1",
+  "generated_at": "2026-10-24T04:42:42Z",
+  "skill_id": "skill-vetted-sma",
+  "tag": "[PLANNED]",
+  "paper_only": true,
+  "installed": false,
+  "merged": false,
+  "accepted_to_shelf": true,
+  "code_sha256": "b8158b063e3c1928825c695322958773e8265818f7d640f571f9a6e366d21145",
+  "checks_passed": 12,
+  "checks_total": 12,
+  "checks": {
+    "S-1_spdx_license": true,
+    "S-2_provenance_hash": true,
+    "S-3_ast_forbidden_imports": true,
+    "S-4_zero_network_egress": true,
+    "S-5_zero_fs_write": true,
+    "S-6_zero_env_secret_read": true,
+    "S-7_deterministic_output": true,
+    "S-8_timeout_cap": true,
+    "S-9_memory_cap": true,
+    "S-10_isolated_subprocess_pass": true,
+    "S-11_zero_autoinstall_automerge": true,
+    "S-12_quorum_signoff": true
+  },
+  "reasons": []
+}

@@ -19,8 +19,8 @@ CNBC_URL = ("https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/s
             "&requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json")
 CNBC_MAP = {"WTI": "@CL.1", "BRENT": "@LCO.1", "SPX": ".SPX", "DAX": ".GDAXI", "N225": ".N225",
             "HSI": ".HSI", "EURUSD": "EUR=", "USDJPY": "JPY=", "QQQ": "QQQ", "DXY": ".DXY", "US10Y": "US10Y"}
-KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XBTUSD,ETHUSD,SOLUSD,PAXGUSD"
-KRAKEN_MAP = {"XXBTZUSD": "BTC", "XETHZUSD": "ETH", "SOLUSD": "SOL", "PAXGUSD": "XAU"}
+KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XBTUSD,ETHUSD,SOLUSD,UNIUSD,PAXGUSD"
+KRAKEN_MAP = {"XXBTZUSD": "BTC", "XETHZUSD": "ETH", "SOLUSD": "SOL", "UNIUSD": "UNI", "PAXGUSD": "XAU"}
 # tolerance per symbol (fraction). Gold B is PAXG (a token), futures vs spot basis -> wider.
 TOLERANCE = {"XAU": 0.008, "WTI": 0.006, "BRENT": 0.006, "DXY": 0.004, "US10Y": 0.02}
 DEFAULT_TOL = 0.004

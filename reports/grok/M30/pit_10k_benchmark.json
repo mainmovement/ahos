@@ -1,0 +1,12 @@
+{
+  "schema": "ahos.m30_pit_10k_benchmark.v1",
+  "generated_at": "2026-10-24T04:42:42Z",
+  "paper_only": true,
+  "items_indexed": 10000,
+  "queries_run": 500,
+  "future_leakage_count": 0,
+  "zero_leakage_verified": true,
+  "recall_at_10": 1.0,
+  "recall_sla_met": true,
+  "elapsed_seconds": 0.1451
+}

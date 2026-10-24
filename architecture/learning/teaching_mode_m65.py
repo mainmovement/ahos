@@ -119,7 +119,7 @@ def build_teaching_lesson_from_cycle(cycle: Mapping[str, Any]) -> TeachingLesson
                 "اجازهٔ ورود کاغذی دارد؛ لولهٔ زنده هنوز READY_LOCKED_BY_HOLD_FLAG است."
             ),
             what_happened_fa=(
-                f"ارزش کاغذی به ~{100 + pnl:.2f} دلار رسید؛ پلهٔ قفل سود فعال می‌شود (۱۱۰→۱۰۲، ۱۲۵→۱۱۰، ۱۵۰→۱۲۵، ۲۰۰=اصل آزاد)."
+                f"ارزش کاغذی فعلی {100 + pnl:.2f} دلار است (لبهٔ سودآوری اثبات‌نشده؛ ۰ معاملهٔ بسته از حداقل ۳۰ معامله)؛ پلهٔ قفل سود فقط پس از سود واقعی فعال می‌شود."
             ),
             mistake_or_strength_fa="نقطهٔ قوت: جدا کردن سود انباشته از اصل سرمایه قبل از افزایش ریسک.",
             key_takeaway_fa="رشد مرکب پله‌ای بدون قفل سود، اصل ۱۰۰ دلار را در معرض یک برش بد قرار می‌دهد — M60.P این را کاغذی ثبت می‌کند.",
@@ -211,7 +211,7 @@ def default_teaching_journal_fixtures() -> tuple[list[TeachingLessonFa], list[Ho
             "market": "PILOT_100USD",
             "symbol": "M60.P",
             "regime_tag": "COMPOUNDING_LADDER",
-            "pnl_usd": 18.5,
+            "pnl_usd": 0.0,
             "witness_state": "VERIFIED",
         },
         {
@@ -278,12 +278,52 @@ def default_teaching_journal_fixtures() -> tuple[list[TeachingLessonFa], list[Ho
     return lessons, journal
 
 
+def _load_live_paper_cycles(root: Path) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    st_path = root / "reports" / "grok" / "PAPER" / "paper_trader_status.json"
+    if st_path.is_file():
+        try:
+            st = json.loads(st_path.read_text(encoding="utf-8"))
+            for sym, pos in (st.get("open_positions") or {}).items():
+                out.append({
+                    "lesson_id": f"m65-live-open-{sym.lower()}",
+                    "market": str(pos.get("desk") or "CRYPTO"),
+                    "symbol": sym,
+                    "regime_tag": "LIVE_PAPER_OPEN",
+                    "pnl_usd": 0.0,
+                    "witness_state": str(((st.get("witness") or {}).get(sym) or {}).get("verdict") or "VERIFIED"),
+                })
+            for sym, wit in (st.get("witness") or {}).items():
+                if wit.get("verdict") in ("CONFLICT", "UNRESOLVED"):
+                    out.append({
+                        "lesson_id": f"m65-live-witness-{sym.lower()}",
+                        "market": "OIL" if sym in ("BRENT", "WTI") else "MULTI_DESK",
+                        "symbol": sym,
+                        "regime_tag": "WITNESS_GUARD",
+                        "pnl_usd": 0.0,
+                        "witness_state": str(wit.get("verdict")),
+                    })
+                    break
+        except Exception:
+            pass
+    return out
+
+
 def generate_teaching_journal_snapshot(
     cycles: Sequence[Mapping[str, Any]] | None = None,
+    *,
+    root: "Path | None" = None,
 ) -> dict[str, Any]:
+    import json
+    from pathlib import Path
+    repo = Path(root) if root is not None else Path(__file__).resolve().parents[2]
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     default_lessons, journal = default_teaching_journal_fixtures()
-    lessons = [build_teaching_lesson_from_cycle(c) for c in cycles] if cycles is not None else default_lessons
+    if cycles is not None:
+        lessons = [build_teaching_lesson_from_cycle(c) for c in cycles]
+    else:
+        live_c = _load_live_paper_cycles(repo)
+        lessons = [build_teaching_lesson_from_cycle(c) for c in live_c] + default_lessons
 
     return {
         "schema": "ahos.teaching_mode_m65.v1",

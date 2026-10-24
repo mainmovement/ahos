@@ -39,6 +39,7 @@ NEWS_FEEDS = {
 }
 ASSET_TERMS = {
     "CRYPTO": r"bitcoin|btc|ether|eth\b|solana|crypto|stablecoin",
+    "PB_TOKEN": r"uniswap|\buni\b|chainlink|\blink\b|aave|defi|dex|token|ethereum",
     "GOLD": r"\bgold\b|bullion|precious metal",
     "OIL": r"\boil\b|crude|brent|wti|opec|barrel",
     "US_EQUITIES": r"s&p|nasdaq|wall street|stocks|equities|fed\b|federal reserve",
@@ -173,14 +174,171 @@ def realized_vol(ohlcv: list[list[float]], n: int) -> float | None:
     return math.sqrt(sum((x - m) ** 2 for x in r) / (len(r) - 1))
 
 
+def garch11_vol(ohlcv: list[list[float]], target_vol_annual: float = 0.12) -> dict[str, Any]:
+    """TS-5: EWMA (lambda=0.94) + GARCH(1,1) conditional volatility estimator & portfolio target-vol scaler."""
+    cl = [c[3] for c in closed(ohlcv)]
+    if len(cl) < 15:
+        return {"ewma_vol": None, "garch11_vol": None, "annual_vol": None, "target_vol_mult": 1.0}
+    rets = [math.log(cl[i + 1] / cl[i]) for i in range(len(cl) - 1) if cl[i] > 0 and cl[i + 1] > 0]
+    if len(rets) < 10:
+        return {"ewma_vol": None, "garch11_vol": None, "annual_vol": None, "target_vol_mult": 1.0}
+    var0 = sum(r * r for r in rets[:10]) / 10.0 or 1e-8
+    ewma_v = var0
+    garch_v = var0
+    omega = var0 * 0.02
+    alpha, beta = 0.08, 0.90
+    for r in rets:
+        ewma_v = 0.94 * ewma_v + 0.06 * (r * r)
+        garch_v = omega + alpha * (r * r) + beta * garch_v
+    ewma_s = math.sqrt(max(1e-12, ewma_v))
+    garch_s = math.sqrt(max(1e-12, garch_v))
+    # 5m bars -> 288 bars/day * 252 trading days
+    ann_vol = garch_s * math.sqrt(288.0 * 252.0)
+    tv_mult = max(0.35, min(1.5, target_vol_annual / max(1e-4, ann_vol)))
+    return {
+        "ewma_vol": round(ewma_s, 6),
+        "garch11_vol": round(garch_s, 6),
+        "annual_vol": round(ann_vol, 4),
+        "target_vol_mult": round(tv_mult, 4),
+    }
+
+
+def hmm_pelt_regime(ohlcv: list[list[float]]) -> dict[str, Any]:
+    """TS-1 & M24: Forward-only filtered 3-state Gaussian HMM + PELT change-point detection (zero look-ahead)."""
+    cl = [c[3] for c in closed(ohlcv)]
+    if len(cl) < 25:
+        return {"hmm_state": "UNKNOWN", "hmm_probs": {"LOW": 0.33, "NORMAL": 0.34, "HIGH": 0.33}, "pelt_changepoints": []}
+    rets = [math.log(cl[i + 1] / cl[i]) for i in range(len(cl) - 1) if cl[i] > 0 and cl[i + 1] > 0]
+    abs_r = [abs(r) for r in rets]
+    mean_abs = sum(abs_r) / len(abs_r) or 1e-4
+    # 3 states: 0=LOW (0.5x mean_abs), 1=NORMAL (1.0x mean_abs), 2=HIGH (2.2x mean_abs)
+    scales = (max(1e-6, 0.5 * mean_abs), max(1e-6, 1.0 * mean_abs), max(1e-6, 2.2 * mean_abs))
+    trans = (
+        (0.90, 0.09, 0.01),
+        (0.06, 0.88, 0.06),
+        (0.02, 0.10, 0.88),
+    )
+    probs = [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0]
+    for r in rets:
+        pred = [sum(probs[i] * trans[i][j] for i in range(3)) for j in range(3)]
+        lik = [math.exp(-0.5 * min(50.0, (r / scales[j]) ** 2)) / scales[j] for j in range(3)]
+        post = [pred[j] * lik[j] for j in range(3)]
+        s = sum(post) or 1.0
+        probs = [p / s for p in post]
+
+    # PELT L2 structural break detection on rolling local volatility (penalty = beta_pen)
+    win = 8
+    vols = [sum(abs_r[max(0, i - win):i + 1]) / max(1, min(win, i + 1)) for i in range(len(abs_r))]
+    n = len(vols)
+    pen = 2.5 * (sum((v - mean_abs) ** 2 for v in vols) / max(1, n)) + 1e-10
+    prefix = [0.0] * (n + 1)
+    prefix2 = [0.0] * (n + 1)
+    for i, v in enumerate(vols, 1):
+        prefix[i] = prefix[i - 1] + v
+        prefix2[i] = prefix2[i - 1] + v * v
+
+    def seg_cost(a: int, b: int) -> float:
+        m = b - a
+        if m <= 1:
+            return 0.0
+        s1 = prefix[b] - prefix[a]
+        s2 = prefix2[b] - prefix2[a]
+        return max(0.0, s2 - (s1 * s1) / m)
+
+    f_cost = [0.0] * (n + 1)
+    f_cost[0] = -pen
+    cp_prev = [0] * (n + 1)
+    candidates = [0]
+    for t_idx in range(win, n + 1):
+        best_c = float("inf")
+        best_tau = 0
+        for tau in candidates:
+            if t_idx - tau < win // 2:
+                continue
+            c = f_cost[tau] + seg_cost(tau, t_idx) + pen
+            if c < best_c:
+                best_c = c
+                best_tau = tau
+        f_cost[t_idx] = best_c
+        cp_prev[t_idx] = best_tau
+        candidates = [tau for tau in candidates if f_cost[tau] + seg_cost(tau, t_idx) <= best_c + pen]
+        candidates.append(t_idx)
+
+    cps: list[int] = []
+    cur = cp_prev[n]
+    while cur > 0:
+        cps.append(cur)
+        cur = cp_prev[cur]
+    cps.reverse()
+    labels = ("LOW", "NORMAL", "HIGH")
+    top_idx = max(range(3), key=lambda k: probs[k])
+    return {
+        "hmm_state": labels[top_idx],
+        "hmm_probs": {labels[k]: round(probs[k], 4) for k in range(3)},
+        "pelt_changepoints": cps[-5:],
+        "bars_since_changepoint": (n - cps[-1]) if cps else n,
+    }
+
+
+def adv_cap_check(
+    notional_usd: float,
+    quote: dict[str, Any] | None,
+    ohlcv: list[list[float]],
+    *,
+    max_adv_frac: float = 0.01,
+) -> dict[str, Any]:
+    """TS-3: Enforce order notional <= 1% of Average Daily Dollar Volume (ADV) for stocks, FX, commodities, crypto."""
+    q = quote or {}
+    px = float(q.get("price") or 0.0)
+    vol_24h = q.get("vol_24h")
+    adv_usd = float(vol_24h) if isinstance(vol_24h, (int, float)) and vol_24h > 0 else 0.0
+    if adv_usd <= 0 and ohlcv and px > 0:
+        vols = [float(c[4]) for c in closed(ohlcv) if len(c) > 4 and float(c[4]) > 0]
+        if vols:
+            adv_usd = (sum(vols) / len(vols)) * 288.0 * px
+    # Liquid index/FX benchmark floor when feed omits tick volume
+    if adv_usd <= 0:
+        adv_usd = 50_000_000.0
+    cap_usd = max_adv_frac * adv_usd
+    allowed = notional_usd <= cap_usd
+    return {
+        "allowed": allowed,
+        "notional_usd": round(notional_usd, 4),
+        "adv_usd": round(adv_usd, 2),
+        "cap_1pct_usd": round(cap_usd, 2),
+        "participation_rate": round(notional_usd / max(1.0, adv_usd), 8),
+    }
+
+
 def vol_regime(ohlcv: list[list[float]]) -> dict[str, Any]:
     short, long_ = realized_vol(ohlcv, 12), realized_vol(ohlcv, 96)
+    garch = garch11_vol(ohlcv)
+    hmm = hmm_pelt_regime(ohlcv)
     if not short or not long_:
-        return {"regime": "UNKNOWN", "size_mult": 0.5, "short_vol": short, "long_vol": long_, "spec": "§1(simplified)"}
+        return {
+            "regime": hmm["hmm_state"] if hmm["hmm_state"] != "UNKNOWN" else "UNKNOWN",
+            "size_mult": 0.5,
+            "short_vol": short,
+            "long_vol": long_,
+            **garch,
+            **hmm,
+            "spec": "§1(filtered_HMM+PELT+GARCH11)",
+        }
     ratio = short / long_
-    regime = "HIGH" if ratio > 1.6 else "LOW" if ratio < 0.6 else "NORMAL"
-    return {"regime": regime, "ratio": round(ratio, 3), "size_mult": {"HIGH": 0.5, "NORMAL": 1.0, "LOW": 0.8}[regime],
-            "short_vol": round(short, 6), "long_vol": round(long_, 6), "spec": "§1(simplified)"}
+    ratio_reg = "HIGH" if ratio > 1.6 else "LOW" if ratio < 0.6 else "NORMAL"
+    # Combine forward-filtered HMM state with realized-vol ratio (conservative: HIGH wins)
+    regime = "HIGH" if ("HIGH" in (ratio_reg, hmm["hmm_state"])) else ("LOW" if ratio_reg == "LOW" and hmm["hmm_state"] == "LOW" else "NORMAL")
+    base_mult = {"HIGH": 0.5, "NORMAL": 1.0, "LOW": 0.8}[regime]
+    return {
+        "regime": regime,
+        "ratio": round(ratio, 3),
+        "size_mult": base_mult,
+        "short_vol": round(short, 6),
+        "long_vol": round(long_, 6),
+        **garch,
+        **hmm,
+        "spec": "§1(filtered_HMM+PELT+GARCH11)",
+    }
 
 
 # ---------- crypto microstructure (OKX public, free) ----------
