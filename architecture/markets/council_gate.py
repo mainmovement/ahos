@@ -80,9 +80,7 @@ def soroush_blind_debate_and_bl(
     view_confidence_omega: float = 0.0002,
     tau: float = 0.05,
 ) -> dict[str, Any]:
-    """M15 & M15.6: Bull/Bear debate with witness refs, blind Judge Soroush A/B swap invariance (>=90%),
-    log-odds aggregation, Black-Litterman posterior view, and Brier/ECE calibration verification.
-    """
+    """M15 debate arithmetic. Swap consistency of a commutative blend is not a calibration, and no Brier is stored unless a held-out scorecard measured it."""
     if not bull_evidence_refs or not bear_evidence_refs or not devils_advocate_dissent.strip():
         return {
             "symbol": symbol,
@@ -114,27 +112,26 @@ def soroush_blind_debate_and_bl(
     bl_post_var = 1.0 / ((1.0 / tau_sigma) + (1.0 / omega))
     bl_post_ret = bl_post_var * ((market_prior_return / tau_sigma) + (view_q / omega))
 
-    # Historical calibration proof over 20 seeded replay calls (Brier_judge <= min(Brier_bull, Brier_bear), ECE <= 0.08)
-    brier_bull = 0.2140
-    brier_bear = 0.2085
-    brier_judge = 0.1720
-    ece_judge = 0.0410
-    calibration_ok = (brier_judge <= min(brier_bull, brier_bear)) and (ece_judge <= 0.08) and (swap_consistency >= 0.90)
-
+    # Seat Brier and ECE are not measured here. Constants are not a calibration.
     return {
         "symbol": symbol,
-        "approved_paper": calibration_ok,
-        "status": "APPROVED_SOROUSH_BL" if calibration_ok else "HOLD_CALIBRATION",
+        "approved_paper": False,
+        "status": "HOLD_CALIBRATION_NOT_MEASURED",
         "posterior_prob_up": p_posterior,
         "log_odds": round(_logit(p_posterior), 4),
         "swap_consistency": swap_consistency,
-        "swap_gate_passed": swap_consistency >= 0.90,
+        "swap_gate_passed": swap_consistency >= 0.95,
+        "swap_note": "The two orders add the same two terms, so this swap check cannot fail. It is not evidence of an independent judge.",
         "bl_prior_return": round(market_prior_return, 6),
         "bl_view_return": round(view_q, 6),
         "bl_posterior_return": round(bl_post_ret, 6),
-        "brier_judge": brier_judge,
-        "brier_best_analyst": min(brier_bull, brier_bear),
-        "ece_judge": ece_judge,
+        "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+        "brier_judge": None,
+        "brier_bull": None,
+        "brier_bear": None,
+        "brier_best_analyst": None,
+        "ece_judge": None,
+        "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
         "devils_advocate_dissent": devils_advocate_dissent.strip(),
         "bull_refs_count": len(bull_evidence_refs),
         "bear_refs_count": len(bear_evidence_refs),

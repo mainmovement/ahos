@@ -81,10 +81,12 @@ def test_m15_soroush_blind_swap_and_black_litterman() -> None:
         bear_evidence_refs=["macro:dxy"],
         devils_advocate_dissent="Macro tightening could reverse intraday crypto bounce",
     )
-    assert res["approved_paper"] is True
+    assert res["approved_paper"] is False
+    assert res["status"] == "HOLD_CALIBRATION_NOT_MEASURED"
+    assert res["brier_judge"] is None and res["ece_judge"] is None
+    assert res["calibration_status"] == "NOT_MEASURED_NO_HELD_OUT_SCORECARD"
     assert res["swap_consistency"] >= 0.90
-    assert res["brier_judge"] <= res["brier_best_analyst"]
-    assert res["ece_judge"] <= 0.08
+    assert res["bl_prior_status"] == "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST"
 
 
 def test_m20_ccxt_and_ibkr_paper_adapters() -> None:

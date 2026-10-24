@@ -95,6 +95,7 @@
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
     "Closed paper trades are 20 of 30",
+    "Council debate still has no held-out seat Brier. The constant Briers were removed. Stage 11 is not complete",
     "Broker connectivity is not verified",
     "Saturday session: cash equity and listed commodity desks are closed"
   ],

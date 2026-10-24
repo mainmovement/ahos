@@ -367,3 +367,10 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** An empty audit fixture stays clean. Fee drag must match the rows. The bridge has no recommendation words. The launcher still has no copy of the Arena panel. pytest stayed at three files.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 24 checks, drift [], unknown []. Whitehat CLEAN. pytest `test_paper_trader.py`, `test_stage4_closures.py`, and `test_stage6_deepening.py`: 69 passed. Node stage6 bridge and chat format passed inside the 54-test run. The live book was not rewritten to manufacture closes.
 - **Verification:** `scripts/validate_imports.py` exit 0: 373 modules, evidence HOLD, Lane A 36/36, 4281 files scanned, VALIDATION PASSED. The first attempt was stopped during the evidence bisect; the quiet rerun passed. pytest 69 passed. Node selftests passed. Whitehat CLEAN. Unification UNIFIED_CLEAN 24/24. Closed paper trades 20/30. The running daemon was not restarted. Phase status: Stage 10 `PARTIAL`. Edge `UNPROVEN_EDGE`.
+
+## 2026-10-24 — Council calibration constants removed (start of Stage 11, not the stage)
+
+- **Question:** `soroush_blind_debate_and_bl` returned `approved_paper: true` from fixed Brier values 0.1720, 0.2140, 0.2085 and ECE 0.0410.
+- **Choice:** Those constants are deleted. `brier_judge`, seat Briers, and `ece_judge` are null. Status is `HOLD_CALIBRATION_NOT_MEASURED`. `approved_paper` is false. The Black-Litterman scalar is labeled `ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST`. The swap of the two weighted terms is commutative, so swap consistency cannot fail and is not treated as a judge.
+- **Reason:** A stored constant is not a held-out score. Stage 11 still has to build the five-seat matrix from real seat scores. This edit does not do that.
+- **Verification:** `tests/test_stage4_closures.py` 8 passed.
