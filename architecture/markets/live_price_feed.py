@@ -29,7 +29,7 @@ BROWSER_UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
-YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=1d&interval=5m"
+YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=2d&interval=5m"
 COINGECKO_SIMPLE_URL = (
     "https://api.coingecko.com/api/v3/simple/price"
     "?ids=bitcoin,ethereum,solana,pax-gold,binancecoin,ripple,dogecoin,toncoin"
@@ -47,7 +47,7 @@ YAHOO_SYMBOLS: dict[str, str] = {
     "SPX": "^GSPC",
     "DAX": "^GDAXI",
     "N225": "^N225",
-    "DXY": "DX-Y.NYB",
+    "DXY": "DX-Y.NYB", "US10Y": "^TNX",
     "HSI": "^HSI",
     "SPY": "SPY",
     "QQQ": "QQQ",
@@ -142,6 +142,14 @@ def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]
         closes = [round(float(c), 4) for c in res["indicators"]["quote"][0]["close"] if _num(c) is not None]
     except Exception:
         closes = []
+    ohlcv: list[list[float]] = []
+    try:
+        qd = res["indicators"]["quote"][0]
+        for o, h, l, c, v in zip(qd["open"], qd["high"], qd["low"], qd["close"], qd.get("volume") or [0] * len(qd["close"])):
+            if None not in (_num(o), _num(h), _num(l), _num(c)):
+                ohlcv.append([round(float(o), 6), round(float(h), 6), round(float(l), 6), round(float(c), 6), float(v or 0)])
+    except Exception:
+        ohlcv = []
     mt = meta.get("regularMarketTime")
     now = _now_ts()
     return {
@@ -154,6 +162,7 @@ def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]
         "freshness": "LIVE",
         "age_seconds": 0,
         "history": closes[-48:],
+        "ohlcv_5m": ohlcv[-288:],
         "currency": meta.get("currency"),
     }
 
@@ -228,10 +237,11 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
             quotes[f"{sym}_YAHOO"] = ycross
             if quotes[sym].get("price") is not None and ycross.get("history"):
                 quotes[sym]["history"] = ycross["history"]
+                quotes[sym]["ohlcv_5m"] = ycross.get("ohlcv_5m") or []
     # gold primary = COMEX futures on Yahoo; PAXG kept as cross-check
     quotes["XAU"] = yq["GOLD_FUT"]
     quotes["PAXG"] = cg["XAU"]
-    for k in ("BRENT", "WTI", "SPX", "DAX", "N225", "DXY", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE", "EURUSD", "USDJPY"):
+    for k in ("BRENT", "WTI", "SPX", "DAX", "N225", "DXY", "US10Y", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE", "EURUSD", "USDJPY"):
         quotes[k] = yq[k]
 
     macro: dict[str, Any] = {"fear_greed": None, "fear_greed_label": None, "total_mcap_usd": None,

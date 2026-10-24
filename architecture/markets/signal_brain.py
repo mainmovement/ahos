@@ -1,0 +1,351 @@
+"""AHOS paper-trader signal brain (PAPER_ONLY), built from AHOS_TRADING_SKILLS_v2 + owner t607u list.
+
+Every signal returns {name, score in [-1, 1], available, evidence, source, spec}. Nothing is invented:
+an input that could not be fetched is ``available: False`` and contributes 0.
+Implemented (real data):
+  mtf_trend      §2  multi-timeframe confluence on CLOSED 5m / 1h / session candles (Yahoo chart)
+  candles        t607u(e) wick/shadow, hammer/shooting-star, engulfing on closed 5m and 1h candles
+  zscore_mr      t607u(f) z-score mean reversion vs 1h mean
+  vol_regime     §1 (simplified, filtered-only) realized-vol regime -> size multiplier, not direction
+  order_flow     §3 OKX top-20 book imbalance + spread gate (crypto only)
+  large_trades   t607u(c) OKX large prints (>= $50k) buy-vs-sell notional (crypto only)
+  funding_oi     t607u(b) OKX perp funding rate (crowding, contrarian) + open interest (evidence)
+  stablecoin     t607u(c) USDT+USDC market-cap change between cycles (CoinGecko) -> crypto liquidity
+  macro          t607u(d) DXY + US10Y intraday move (two-source via CNBC) -> gold/equity/crypto pressure
+  news           §10 decayed keyword sentiment from free RSS, counts only if >= 2 sources; event-risk filter
+Not yet implemented (labelled in SPEC_TRACE.md): HMM/PELT regimes, central-bank calendar, on-chain whale
+wallets / exchange net-flows, EIA/OPEC event calendar, calibrated ensemble (§9), research-paper hypotheses.
+"""
+from __future__ import annotations
+
+import json
+import math
+import re
+import time
+import urllib.request
+from email.utils import parsedate_to_datetime
+from pathlib import Path
+from typing import Any
+
+UA = {"User-Agent": "Mozilla/5.0 (AHOS paper research)"}
+NEWS_FEEDS = {
+    "cointelegraph": "https://cointelegraph.com/rss", "decrypt": "https://decrypt.co/feed",
+    "cryptoslate": "https://cryptoslate.com/feed/", "theblock": "https://www.theblock.co/rss.xml",
+    "oilprice": "https://oilprice.com/rss/main", "cnbc_markets": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    "investing": "https://www.investing.com/rss/news_25.rss", "bbc_business": "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "fed_press": "https://www.federalreserve.gov/feeds/press_all.xml", "boj": "https://www.boj.or.jp/en/rss/whatsnew.xml",
+    "eia": "https://www.eia.gov/rss/todayinenergy.xml",
+}
+ASSET_TERMS = {
+    "CRYPTO": r"bitcoin|btc|ether|eth\b|solana|crypto|stablecoin",
+    "GOLD": r"\bgold\b|bullion|precious metal",
+    "OIL": r"\boil\b|crude|brent|wti|opec|barrel",
+    "US_EQUITIES": r"s&p|nasdaq|wall street|stocks|equities|fed\b|federal reserve",
+    "EU_EQUITIES": r"\bdax\b|europe|ecb|euro zone|eurozone",
+    "ASIA_EQUITIES": r"nikkei|japan|boj|hong kong|hang seng|china",
+    "FOREX": r"dollar|euro\b|yen|forex|currency",
+}
+POS = r"\b(surge\w*|rall(y|ies|ied)|soar\w*|jump\w*|gain\w*|record high|bullish|beats?|rebound\w*|climb\w*|inflows?|approv\w*)\b"
+NEG = r"\b(plunge\w*|crash\w*|slump\w*|falls?|fell|drops?|dropped|tumble\w*|bearish|miss(es|ed)?|sell-?offs?|outflows?|hack\w*|bans?|banned|war|sanction\w*|lawsuits?|recession)\b"
+NEWS_HALF_LIFE_H = 6.0
+_NEWS_CACHE: dict[str, Any] = {"at": 0.0, "items": []}
+
+
+def _get(url: str, timeout: float = 8.0) -> bytes | None:
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+            return r.read()
+    except Exception:
+        return None
+
+
+def _json(url: str, timeout: float = 8.0) -> Any:
+    b = _get(url, timeout)
+    try:
+        return json.loads(b.decode("utf-8")) if b else None
+    except ValueError:
+        return None
+
+
+def _sig(name: str, score: float | None, evidence: dict[str, Any], source: str, spec: str) -> dict[str, Any]:
+    ok = score is not None and math.isfinite(score)
+    return {"name": name, "score": round(max(-1.0, min(1.0, score)), 4) if ok else 0.0, "available": ok,
+            "evidence": evidence, "source": source, "spec": spec}
+
+
+# ---------- candle helpers (closed candles only: the last bar may still be forming -> dropped) ----------
+def closed(ohlcv: list[list[float]]) -> list[list[float]]:
+    return ohlcv[:-1] if len(ohlcv) > 1 else []
+
+
+def resample(ohlcv: list[list[float]], n: int) -> list[list[float]]:
+    out = []
+    full = len(ohlcv) - len(ohlcv) % n
+    for i in range(len(ohlcv) - full, len(ohlcv), n):
+        ch = ohlcv[i:i + n]
+        if len(ch) == n:
+            out.append([ch[0][0], max(c[1] for c in ch), min(c[2] for c in ch), ch[-1][3], sum(c[4] for c in ch)])
+    return out
+
+
+def _ema(xs: list[float], n: int) -> float | None:
+    if len(xs) < n:
+        return None
+    k = 2.0 / (n + 1)
+    e = sum(xs[:n]) / n
+    for x in xs[n:]:
+        e = x * k + e * (1 - k)
+    return e
+
+
+def mtf_trend(ohlcv: list[list[float]]) -> dict[str, Any]:
+    c5 = closed(ohlcv)
+    h1 = resample(c5, 12)
+    cl5 = [c[3] for c in c5]
+    cl1 = [c[3] for c in h1]
+    tfs = {}
+    if len(cl5) >= 26:
+        f, s = _ema(cl5, 9), _ema(cl5, 26)
+        tfs["5m"] = (f - s) / s
+    if len(cl1) >= 10:
+        f, s = _ema(cl1, 3), _ema(cl1, 10)
+        tfs["1h"] = (f - s) / s
+    if len(cl5) >= 60:
+        tfs["session"] = (cl5[-1] - cl5[0]) / cl5[0]
+    if len(tfs) < 2:
+        return _sig("mtf_trend", None, {"bars_5m": len(cl5)}, "yahoo_chart_5m", "§2")
+    w = {"5m": 0.3, "1h": 0.45, "session": 0.25}
+    score = sum(w[k] * (1 if v > 0 else -1 if v < 0 else 0) for k, v in tfs.items()) / sum(w[k] for k in tfs)
+    higher = tfs.get("1h", tfs.get("session"))
+    return _sig("mtf_trend", score, {"tf_gaps": {k: round(v, 5) for k, v in tfs.items()},
+                                     "higher_tf_sign": 1 if higher > 0 else -1}, "yahoo_chart_5m", "§2")
+
+
+def candle_patterns(ohlcv: list[list[float]]) -> dict[str, Any]:
+    c5 = closed(ohlcv)
+    h1 = resample(c5, 12)
+    found, score = [], 0.0
+    for tf, bars, w in (("5m", c5, 0.4), ("1h", h1, 0.6)):
+        if len(bars) < 2:
+            continue
+        o, h, l, c, _ = bars[-1]
+        po, _, _, pc, _ = bars[-2]
+        rng = h - l
+        if rng <= 0:
+            continue
+        body = abs(c - o)
+        upper = h - max(o, c)
+        lower = min(o, c) - l
+        if lower >= 2 * body and upper <= 0.3 * rng:
+            found.append(f"{tf}:hammer(lower_wick={lower / rng:.2f})"); score += w
+        elif upper >= 2 * body and lower <= 0.3 * rng:
+            found.append(f"{tf}:shooting_star(upper_wick={upper / rng:.2f})"); score -= w
+        if c > o and pc < po and c >= po and o <= pc:
+            found.append(f"{tf}:bullish_engulfing"); score += w
+        elif c < o and pc > po and c <= po and o >= pc:
+            found.append(f"{tf}:bearish_engulfing"); score -= w
+    if not c5:
+        return _sig("candles", None, {}, "yahoo_chart_5m", "t607u(e)")
+    return _sig("candles", score, {"patterns": found or ["none"]}, "yahoo_chart_5m", "t607u(e)")
+
+
+def zscore_mr(ohlcv: list[list[float]]) -> dict[str, Any]:
+    cl = [c[3] for c in closed(ohlcv)][-48:]
+    if len(cl) < 24:
+        return _sig("zscore_mr", None, {}, "yahoo_chart_5m", "t607u(f)")
+    m = sum(cl) / len(cl)
+    sd = math.sqrt(sum((x - m) ** 2 for x in cl) / (len(cl) - 1)) or 1e-12
+    z = (cl[-1] - m) / sd
+    score = -(z / 3.0) if abs(z) >= 1.5 else 0.0      # contrarian only at stretched levels
+    return _sig("zscore_mr", score, {"z": round(z, 3), "window_bars": len(cl)}, "yahoo_chart_5m", "t607u(f)")
+
+
+def realized_vol(ohlcv: list[list[float]], n: int) -> float | None:
+    cl = [c[3] for c in closed(ohlcv)][-(n + 1):]
+    if len(cl) < n + 1:
+        return None
+    r = [math.log(cl[i + 1] / cl[i]) for i in range(len(cl) - 1) if cl[i] > 0 and cl[i + 1] > 0]
+    if len(r) < 2:
+        return None
+    m = sum(r) / len(r)
+    return math.sqrt(sum((x - m) ** 2 for x in r) / (len(r) - 1))
+
+
+def vol_regime(ohlcv: list[list[float]]) -> dict[str, Any]:
+    short, long_ = realized_vol(ohlcv, 12), realized_vol(ohlcv, 96)
+    if not short or not long_:
+        return {"regime": "UNKNOWN", "size_mult": 0.5, "short_vol": short, "long_vol": long_, "spec": "§1(simplified)"}
+    ratio = short / long_
+    regime = "HIGH" if ratio > 1.6 else "LOW" if ratio < 0.6 else "NORMAL"
+    return {"regime": regime, "ratio": round(ratio, 3), "size_mult": {"HIGH": 0.5, "NORMAL": 1.0, "LOW": 0.8}[regime],
+            "short_vol": round(short, 6), "long_vol": round(long_, 6), "spec": "§1(simplified)"}
+
+
+# ---------- crypto microstructure (OKX public, free) ----------
+OKX = {"BTC": "BTC", "ETH": "ETH", "SOL": "SOL"}
+
+
+def order_flow(sym: str) -> dict[str, Any]:
+    d = _json(f"https://www.okx.com/api/v5/market/books?instId={sym}-USDT&sz=20")
+    try:
+        book = d["data"][0]
+        bids = sum(float(b[1]) * float(b[0]) for b in book["bids"])
+        asks = sum(float(a[1]) * float(a[0]) for a in book["asks"])
+        bb, ba = float(book["bids"][0][0]), float(book["asks"][0][0])
+    except Exception:
+        return _sig("order_flow", None, {}, "okx_books", "§3")
+    imb = (bids - asks) / (bids + asks)
+    spread = (ba - bb) / ((ba + bb) / 2)
+    return _sig("order_flow", imb, {"imbalance": round(imb, 4), "spread": round(spread, 6),
+                                    "depth_usd": round(bids + asks), "spread_gate_ok": spread < 0.001}, "okx_books", "§3")
+
+
+def large_trades(sym: str, min_usd: float = 50_000) -> dict[str, Any]:
+    d = _json(f"https://www.okx.com/api/v5/market/trades?instId={sym}-USDT-SWAP&limit=500")
+    try:
+        rows = d["data"]
+    except Exception:
+        return _sig("large_trades", None, {}, "okx_trades", "t607u(c)")
+    ct = {"BTC": 0.01, "ETH": 0.1, "SOL": 1.0}[sym]          # OKX swap contract size in coin
+    buy = sell = 0.0
+    n = 0
+    for t in rows:
+        usd = float(t["px"]) * float(t["sz"]) * ct
+        if usd >= min_usd:
+            n += 1
+            if t["side"] == "buy":
+                buy += usd
+            else:
+                sell += usd
+    if buy + sell == 0:
+        return _sig("large_trades", 0.0, {"large_prints": 0, "window_trades": len(rows)}, "okx_trades", "t607u(c)")
+    return _sig("large_trades", (buy - sell) / (buy + sell), {"large_prints": n, "buy_usd": round(buy), "sell_usd": round(sell),
+                                                              "window_trades": len(rows)}, "okx_trades", "t607u(c)")
+
+
+def funding_oi(sym: str) -> dict[str, Any]:
+    f = _json(f"https://www.okx.com/api/v5/public/funding-rate?instId={sym}-USDT-SWAP")
+    oi = _json(f"https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId={sym}-USDT-SWAP")
+    try:
+        rate = float(f["data"][0]["fundingRate"])
+    except Exception:
+        return _sig("funding_oi", None, {}, "okx_public", "t607u(b)")
+    oi_usd = None
+    try:
+        oi_usd = float(oi["data"][0]["oiUsd"])
+    except Exception:
+        pass
+    # neutral ~0.01%/8h; strongly positive = crowded longs -> mild contrarian
+    score = -max(-1.0, min(1.0, (rate - 0.0001) / 0.0004))
+    return _sig("funding_oi", score * 0.5, {"funding_rate_8h": rate, "open_interest_usd": oi_usd}, "okx_public", "t607u(b)")
+
+
+def stablecoin_flow(state: dict[str, Any]) -> dict[str, Any]:
+    d = _json("https://api.coingecko.com/api/v3/simple/price?ids=tether,usd-coin&vs_currencies=usd&include_market_cap=true")
+    try:
+        cap = float(d["tether"]["usd_market_cap"]) + float(d["usd-coin"]["usd_market_cap"])
+    except Exception:
+        return _sig("stablecoin", None, {}, "coingecko_simple", "t607u(c)")
+    prev = state.get("stable_cap")
+    prev_ts = state.get("stable_cap_ts")
+    state["stable_cap"], state["stable_cap_ts"] = cap, time.time()
+    if not prev or not prev_ts or time.time() - prev_ts > 6 * 3600:
+        return _sig("stablecoin", None, {"usdt_usdc_cap_usd": round(cap), "note": "first observation; needs a previous cycle"},
+                    "coingecko_simple", "t607u(c)")
+    ch = (cap - prev) / prev
+    return _sig("stablecoin", ch / 0.001, {"usdt_usdc_cap_usd": round(cap), "change_since_last": round(ch, 6),
+                                           "minutes": round((time.time() - prev_ts) / 60, 1)}, "coingecko_simple", "t607u(c)")
+
+
+def macro_pressure(desk: str, quotes: dict[str, Any], witness: dict[str, Any]) -> dict[str, Any]:
+    ev, score, used = {}, 0.0, 0
+    for k in ("DXY", "US10Y"):
+        q = quotes.get(k) or {}
+        ch = q.get("change_24h")
+        if isinstance(ch, (int, float)) and (witness.get(k) or {}).get("verdict") == "VERIFIED":
+            ev[k] = ch
+            used += 1
+            score -= max(-1.0, min(1.0, ch / (0.5 if k == "DXY" else 1.5)))
+    if not used or desk in ("FOREX", "OIL"):
+        return _sig("macro", None, ev, "yahoo+cnbc", "t607u(d)")
+    return _sig("macro", score / used, {"change_pct": ev, "rule": "rising dollar/yields pressure gold, equities, crypto"},
+                "yahoo+cnbc", "t607u(d)")
+
+
+# ---------- news (§10) ----------
+def _parse_rss(xml: str, src: str) -> list[dict[str, Any]]:
+    out = []
+    for item in re.findall(r"<item[\s>].*?</item>", xml, flags=re.S | re.I)[:60]:
+        t = re.search(r"<title[^>]*>(.*?)</title>", item, re.S | re.I)
+        d = re.search(r"<pubDate[^>]*>(.*?)</pubDate>|<dc:date[^>]*>(.*?)</dc:date>", item, re.S | re.I)
+        if not t:
+            continue
+        title = re.sub(r"<!\[CDATA\[|\]\]>|<[^>]+>", "", t.group(1)).strip()
+        ts = None
+        if d:
+            try:
+                raw = (d.group(1) or d.group(2)).strip()
+                ts = parsedate_to_datetime(raw).timestamp() if d.group(1) else time.mktime(time.strptime(raw[:19], "%Y-%m-%dT%H:%M:%S"))
+            except Exception:
+                ts = None
+        out.append({"title": title, "source": src, "ts": ts})
+    return out
+
+
+def fetch_news(max_age_s: float = 900) -> list[dict[str, Any]]:
+    if time.time() - _NEWS_CACHE["at"] < max_age_s and _NEWS_CACHE["items"]:
+        return _NEWS_CACHE["items"]
+    items: list[dict[str, Any]] = []
+    for src, url in NEWS_FEEDS.items():
+        b = _get(url, 8.0)
+        if b:
+            items.extend(_parse_rss(b.decode("utf-8", "replace"), src))
+    seen, dedup = set(), []
+    for it in items:                      # dedupe on normalised title
+        key = re.sub(r"\W+", " ", it["title"].lower()).strip()[:90]
+        if key and key not in seen:
+            seen.add(key); dedup.append(it)
+    _NEWS_CACHE.update(at=time.time(), items=dedup)
+    return dedup
+
+
+def news_signal(desk: str, items: list[dict[str, Any]]) -> dict[str, Any]:
+    now = time.time()
+    terms = re.compile(ASSET_TERMS[desk], re.I)
+    pos, neg = re.compile(POS, re.I), re.compile(NEG, re.I)
+    total, srcs, hits = 0.0, set(), []
+    for it in items:
+        if not it.get("ts") or now - it["ts"] > 48 * 3600 or not terms.search(it["title"]):
+            continue
+        s = (1 if pos.search(it["title"]) else 0) - (1 if neg.search(it["title"]) else 0)
+        if not s:
+            continue
+        decay = 0.5 ** ((now - it["ts"]) / 3600 / NEWS_HALF_LIFE_H)
+        total += s * decay
+        srcs.add(it["source"])
+        hits.append({"title": it["title"][:120], "source": it["source"], "s": s, "age_h": round((now - it["ts"]) / 3600, 1)})
+    corroborated = len(srcs) >= 2
+    score = math.tanh(total / 3.0) if corroborated else 0.0
+    return _sig("news", score if hits else (0.0 if items else None),
+                {"items_matched": len(hits), "sources": sorted(srcs), "corroborated_2src": corroborated,
+                 "top": sorted(hits, key=lambda h: h["age_h"])[:4], "feeds_live": len({i["source"] for i in items})},
+                "rss:" + ",".join(sorted({i["source"] for i in items})), "§10")
+
+
+DEFAULT_WEIGHTS = {"mtf_trend": 0.30, "candles": 0.12, "zscore_mr": 0.10, "order_flow": 0.10, "large_trades": 0.10,
+                   "funding_oi": 0.06, "stablecoin": 0.05, "macro": 0.08, "news": 0.09}
+
+
+def combine(signals: list[dict[str, Any]], weights: dict[str, float]) -> dict[str, Any]:
+    num = den = 0.0
+    contrib = []
+    for s in signals:
+        if not s["available"]:
+            continue
+        w = float(weights.get(s["name"], 0.0))
+        num += w * s["score"]
+        den += w
+        contrib.append({"signal": s["name"], "score": s["score"], "weight": round(w, 4), "contribution": round(w * s["score"], 4)})
+    composite = num / den if den else 0.0
+    contrib.sort(key=lambda c: -abs(c["contribution"]))
+    return {"composite": round(composite, 4), "weight_used": round(den, 4), "contributions": contrib}

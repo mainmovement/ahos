@@ -75,3 +75,14 @@ def test_telegram_service_unknown_message(service):
 def test_require_scorer_forbidden(service):
     with pytest.raises(RuntimeError, match="W57"):
         service._require_scorer_forbidden()
+
+
+def test_gateway_reply_has_no_forced_footer_and_long_timeout(monkeypatch, service):
+    import telegram_ai.service as svc
+    assert svc.GATEWAY_TIMEOUT_S >= 25
+    monkeypatch.setattr(type(service), "_call_conversation_gateway",
+                        lambda self, t, c, u: {"reply": "سلام، طلا الان ۲۴۰۰ دلار است.", "intent": "agent"})
+    res = service.handle_message("طلا چنده؟")
+    assert res["source"] == "conversation_gateway"
+    assert FOOTER_MANDATED not in res["text"]
+    assert res["footer_injected"] is False

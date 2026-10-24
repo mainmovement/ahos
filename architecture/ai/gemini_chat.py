@@ -25,7 +25,7 @@ from architecture.ai import gemini_phraser as gp
 
 MAX_REQUEST_BYTES = 256 * 1024
 ALLOWED_PART_KEYS = ("text", "functionCall", "functionResponse", "thoughtSignature")
-TOTAL_BUDGET_MS = 9000
+TOTAL_BUDGET_MS = 12000
 
 
 def _clean_parts(parts: Any) -> list[dict[str, Any]]:
@@ -72,7 +72,9 @@ def build_chat_body(req: dict[str, Any]) -> bytes:
     return json.dumps(body, ensure_ascii=False).encode("utf-8")
 
 
-_NO_RETRY = {"AUTH_FAILED", "QUOTA_EXHAUSTED", "BLOCKED"}
+# Free-tier quota is per model, so a 429/QUOTA on one model rotates to the next.
+_NO_RETRY = {"AUTH_FAILED", "BLOCKED"}
+FREE_MODEL_ROTATION = ("gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-flash-latest")
 
 
 def chat_step(request: dict[str, Any], *, store=None, opener: gp.Opener = gp._default_opener,
@@ -85,7 +87,7 @@ def chat_step(request: dict[str, Any], *, store=None, opener: gp.Opener = gp._de
         if not json.loads(body.decode("utf-8")).get("contents"):
             out.update(status="DEGRADED", reason_code="EMPTY_CONTENTS")
             return out
-        models = [str(m).strip() for m in (request.get("models") or gp.DEFAULT_MODELS) if str(m).strip()][:2]
+        models = [str(m).strip() for m in (request.get("models") or FREE_MODEL_ROTATION) if str(m).strip()][:4]
         per_call_s = max(0.5, min(int(request.get("timeout_ms") or gp.DEFAULT_TIMEOUT_MS), 8000) / 1000.0)
         from architecture.ai.credential_store import (CredentialRef, CredentialUnavailable,
                                                       WindowsCredentialManagerStore)

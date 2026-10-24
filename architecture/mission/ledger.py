@@ -51,7 +51,9 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import contextlib
 import os
+import time
 import re
 from datetime import datetime, timezone
 from enum import Enum
@@ -273,6 +275,42 @@ def default_ledger_path(create: bool = False) -> Path:
 
 # ------------------------------------------------------------------- ledger --
 
+@contextlib.contextmanager
+def _writer_lock(path: Path, timeout_s: float = 20.0):
+    lock_path = Path(str(path) + ".lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    fh = open(lock_path, "a+b")
+    deadline = time.monotonic() + timeout_s
+    try:
+        while True:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    fh.seek(0)
+                    msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError:
+                if time.monotonic() > deadline:
+                    raise LedgerError("ledger writer lock timeout (another writer holds it)")
+                time.sleep(0.05)
+        yield
+    finally:
+        try:
+            if os.name == "nt":
+                import msvcrt
+                fh.seek(0)
+                msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+        except OSError:
+            pass
+        fh.close()
+
+
 class MissionLedger:
     """Append-only mission ledger. Not an authority; see module docstring."""
 
@@ -376,6 +414,12 @@ class MissionLedger:
 
     # ---- writing -------------------------------------------------------
     def _append(self, record: dict[str, Any], *, _torn_recovery: bool = False) -> dict[str, Any]:
+        # Cross-process writer lock (soak + paper trader share this one ledger; the 2026-10-23
+        # duplicate-seq incident was two writers racing). scan + write happen inside the lock.
+        with _writer_lock(self.path):
+            return self._append_locked(record, _torn_recovery=_torn_recovery)
+
+    def _append_locked(self, record: dict[str, Any], *, _torn_recovery: bool = False) -> dict[str, Any]:
         s = self._scan()
         prefix = b""
         if s["torn_tail"] is not None:

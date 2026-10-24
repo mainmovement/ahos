@@ -52,6 +52,9 @@ TG_SIG_HEADER = "X-AHOS-TG-Sig"
 
 from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTENTS
 from .response_contract import FOOTER_MANDATED
+
+# Kian may rotate across several free models; 12s cut replies off mid-rotation.
+GATEWAY_TIMEOUT_S = 28
 from .positions import open_ledger, log_buy, positions_for_token, latest_observed_value
 from config.paths import connect_sqlite_ro, get_discovery_db_path, get_local_db_path
 
@@ -83,15 +86,11 @@ class TelegramDomainService:
             gw = self._call_conversation_gateway(text, user_context or {}, gateway_url)
             if gw is not None:
                 text_out = gw.get("text") or gw.get("answer") or gw.get("reply") or ""
-                if text_out and FOOTER_MANDATED not in text_out:
-                    text_out = text_out + "\n\n" + FOOTER_MANDATED
                 # Presentation only: optional pre-escaped Telegram HTML from the
                 # gateway. The plain `text` stays authoritative for fallback.
                 html_out = gw.get("answer_html") or ""
                 if not isinstance(html_out, str):
                     html_out = ""
-                if html_out and FOOTER_MANDATED not in html_out:
-                    html_out = html_out + "\n\n<i>" + FOOTER_MANDATED + "</i>"
                 return {
                     "text": text_out,
                     "text_html": html_out or None,
@@ -100,7 +99,8 @@ class TelegramDomainService:
                     "source": "conversation_gateway",
                     "focus_token": gw.get("focus_token") or gw.get("focusToken"),
                     "evidence": gw.get("evidence", {}),
-                    "footer_injected": True,
+                    # Owner decision: no forced footer on conversational replies.
+                    "footer_injected": False,
                 }
         return {
             "text": (
@@ -138,7 +138,7 @@ class TelegramDomainService:
                 headers=headers,
                 method="POST",
             )
-            with urllib.request.urlopen(req, timeout=12) as resp:
+            with urllib.request.urlopen(req, timeout=GATEWAY_TIMEOUT_S) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
                 return body if isinstance(body, dict) else None
         except Exception:

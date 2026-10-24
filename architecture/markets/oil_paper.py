@@ -11,7 +11,7 @@ from architecture.mission.ledger import MissionLedger
 
 OIL_PAPER_MISSION = "M13-OIL-PAPER"
 OIL_NOTIONAL_USD = 100.0
-OIL_PAPER_BANKROLL_USD = 10_000.0
+OIL_PAPER_BANKROLL_USD = 100.0
 
 
 @dataclass(frozen=True, slots=True)
