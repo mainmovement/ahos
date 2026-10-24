@@ -315,6 +315,22 @@ def ask_university(query: str, *, root: Path | None = None) -> dict[str, Any]:
             "quality_score": round(4.0 - 0.05 * idx, 2),
         })
 
+    live_exam = base / "reports" / "grok" / "M50" / "live_conflict_exam_items.json"
+    if live_exam.is_file():
+        try:
+            ex = json.loads(live_exam.read_text(encoding="utf-8"))
+            for it in (ex.get("items") or [])[:5]:
+                claims.append({
+                    "claim_id": f"exam:{it.get('item_id')}",
+                    "title": str(it.get("prompt_fa") or "live conflict exam item"),
+                    "source_url": "reports/grok/M50/live_conflict_exam_items.json",
+                    "license": "ahos-held-out-exam",
+                    "faculty": str(it.get("domain") or "osint_two_source"),
+                    "quality_score": float(it.get("discrimination") or 1.0),
+                })
+        except Exception:
+            pass
+
     q_words = {w.lower() for w in query.split() if len(w) > 2}
     for c in claims:
         txt = (c["title"] + " " + c["faculty"]).lower()

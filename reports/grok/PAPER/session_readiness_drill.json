@@ -1,0 +1,90 @@
+{
+  "schema": "ahos.session_readiness_drill.v1",
+  "generated_at": "2026-10-24T08:42:50Z",
+  "paper_only": true,
+  "session_gate": {
+    "paper_only": true,
+    "utc": "2026-10-24T08:42:50Z",
+    "tehran": "2026-10-24 12:12 +0330",
+    "tehran_weekday": "Saturday",
+    "weekend_tehran": true,
+    "cash_desks_expected": "CLOSED_OR_STALE",
+    "crypto_desks_expected": "OPEN_IF_VERIFIED",
+    "summary_fa": "زمان تهران: 2026-10-24 12:12 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
+  },
+  "cash_sessions": [
+    {
+      "label_fa": "توکیو",
+      "symbols": [
+        "N225",
+        "HSI"
+      ],
+      "next_open_utc": "2026-10-26T00:00:00Z",
+      "next_open_tehran": "2026-10-26 03:30",
+      "countdown_fa": "39 ساعت و 17 دقیقه",
+      "hours_until": 39.29
+    },
+    {
+      "label_fa": "فرانکفورت/لندن",
+      "symbols": [
+        "DAX",
+        "BRENT",
+        "EURUSD"
+      ],
+      "next_open_utc": "2026-10-26T08:00:00Z",
+      "next_open_tehran": "2026-10-26 11:30",
+      "countdown_fa": "47 ساعت و 17 دقیقه",
+      "hours_until": 47.29
+    },
+    {
+      "label_fa": "نیویورک",
+      "symbols": [
+        "SPX",
+        "QQQ",
+        "WTI",
+        "XAU",
+        "USDJPY"
+      ],
+      "next_open_utc": "2026-10-26T13:30:00Z",
+      "next_open_tehran": "2026-10-26 17:00",
+      "countdown_fa": "52 ساعت و 47 دقیقه",
+      "hours_until": 52.79
+    }
+  ],
+  "adapters": {
+    "ccxt_paper": {
+      "oms_state": "ACCEPTED_PAPER",
+      "reason": "paper order booked",
+      "sandbox": true
+    },
+    "ibkr_paper": {
+      "oms_state": "ACCEPTED_PAPER",
+      "reason": "paper order booked",
+      "account": "DU1234567"
+    }
+  },
+  "adv_cap_checks": {
+    "SPX": {
+      "allowed": true,
+      "notional_usd": 100.0,
+      "adv_usd": 69410909261618.68,
+      "cap_1pct_usd": 694109092616.19,
+      "participation_rate": 0.0
+    },
+    "BTC": {
+      "allowed": true,
+      "notional_usd": 100.0,
+      "adv_usd": 1704487191831705.5,
+      "cap_1pct_usd": 17044871918317.05,
+      "participation_rate": 0.0
+    },
+    "XAU": {
+      "allowed": true,
+      "notional_usd": 100.0,
+      "adv_usd": 711239355.49,
+      "cap_1pct_usd": 7112393.55,
+      "participation_rate": 1.4e-07
+    }
+  },
+  "summary_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن توکیو در 39 ساعت و 17 دقیقه (تهران). آداپتورهای کاغذی CCXT/IBKR: ACCEPTED_PAPER/ACCEPTED_PAPER. زمان تهران: 2026-10-24 12:12 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
+}

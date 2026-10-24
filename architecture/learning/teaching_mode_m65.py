@@ -339,6 +339,38 @@ def _load_live_paper_cycles(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _lessons_from_live_conflict_exam(repo: "Path") -> list[TeachingLessonFa]:
+    import json
+    from pathlib import Path
+
+    path = Path(repo) / "reports" / "grok" / "M50" / "live_conflict_exam_items.json"
+    if not path.is_file():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    out: list[TeachingLessonFa] = []
+    for it in (payload.get("items") or [])[:6]:
+        iid = str(it.get("item_id") or "live-exam")
+        prompt = str(it.get("prompt_fa") or "سؤال آزمون held-out")
+        out.append(
+            TeachingLessonFa(
+                lesson_id=f"m65-exam-{iid}",
+                market="MULTI_DESK",
+                symbol="EXAM",
+                regime_tag="LIVE_CONFLICT_EXAM",
+                title_fa=f"درس آزمون زنده: {prompt[:48]}…" if len(prompt) > 48 else f"درس آزمون زنده: {prompt}",
+                why_entered_fa="این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
+                what_happened_fa=prompt,
+                mistake_or_strength_fa="تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
+                key_takeaway_fa="پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+                glossary_keys=("Two-Source Witness", "DSR"),
+            )
+        )
+    return out
+
+
 def generate_teaching_journal_snapshot(
     cycles: Sequence[Mapping[str, Any]] | None = None,
     *,
@@ -353,7 +385,8 @@ def generate_teaching_journal_snapshot(
         lessons = [build_teaching_lesson_from_cycle(c) for c in cycles]
     else:
         live_c = _load_live_paper_cycles(repo)
-        lessons = [build_teaching_lesson_from_cycle(c) for c in live_c] + default_lessons
+        exam_lessons = _lessons_from_live_conflict_exam(repo)
+        lessons = exam_lessons + [build_teaching_lesson_from_cycle(c) for c in live_c] + default_lessons
 
     return {
         "schema": "ahos.teaching_mode_m65.v1",

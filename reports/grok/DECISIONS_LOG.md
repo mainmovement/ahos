@@ -158,3 +158,10 @@
 2026-10-24 | Mega Wave 13 gateway audit | Document AHOS_GATEWAY_URL :3200 in run_bot + auditor reads telegram_ai/.env.example | Arena chat path C90
 2026-10-24 | Continuation Tracks 1–4 | Paper trade audit module; ECB/OPEC two-source mirrors; M50 os_h05 + M49 derive; Persian metric glossary | Saturday: cash fills remain PARTIAL honestly
 2026-10-24 08:24 Tehran | Track1 deepen | ledger_hash legacy OPEN + weekday witness probe; audit GREEN; no fake cash GREEN on weekend | PAPER_ONLY
+
+## 2026-10-24 — Continuation Tracks 5–8 (3-layer critique)
+
+- **Step A (Builder):** `shadow_forward_scorecard.py` (M28/M56/M58) scores six shadow signals on 1h/4h/24h forward returns from `paper_trades.jsonl`; `session_readiness_drill.py` (M13/M19/M20) Tehran countdowns + CCXT/IBKR paper probes + optional `adv_cap_check`; `synthesize_live_conflict_exam_items` + AskU registry provenance; M65 exam-derived teaching cards; Arena `StageReceiptsPanel` + Kian/markets Persian surfaces.
+- **Step B (7-domain red-team):** (1) No promotion when n&lt;30; DSR/PBO untouched. (2) Forward prices from ledger only—no single-source live override. (3) Weekend cash gate preserved in drill summary. (4) Kian adds shadow summary without robotic footer. (5) CONFLICT/UNPROVEN never styled as success. (6) Held-out items `leaked==False`; PIT exporter unchanged. (7) No npm build; whitehat CLEAN; Lane A untouched.
+- **Step C (Meta):** Embedded `session_readiness_drill` inside weekday probe JSON for one API read; theta on live exam is key-self-check only (not operator ability)—documented as receipt metadata, not promotion signal.
+- **Verification:** `pytest` test_shadow_forward_scorecard + test_session_readiness_drill; Arena `stage_receipts_selftest.ts` + weekday/metric selftests; `run_continuation_tracks.py` track5–8 fields populated.

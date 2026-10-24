@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run Tracks 1–3 continuation receipts (PAPER_ONLY, 8GB-safe)."""
+"""Run Tracks 1–8 continuation receipts (PAPER_ONLY, 8GB-safe)."""
 from __future__ import annotations
 
 import json
@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from architecture.learning.exam import run_heldout_5domain_exam
+from architecture.learning.exam import run_heldout_5domain_exam, synthesize_live_conflict_exam_items
+from architecture.learning.shadow_forward_scorecard import export_shadow_forward_scorecard
+from architecture.markets.session_readiness_drill import export_session_readiness_drill
 from architecture.learning.memory_consolidation import consolidate_canonical_memory, run_pit_10k_benchmark
 from architecture.markets import macro_calendar as mc
 from architecture.learning.teaching_mode_m65 import generate_teaching_journal_snapshot
@@ -32,6 +34,9 @@ def main() -> int:
     mem = consolidate_canonical_memory(root=ROOT)
     pit = run_pit_10k_benchmark(root=ROOT, n_items=2000, n_queries=50)
     exam = run_heldout_5domain_exam(root=ROOT)
+    shadow = export_shadow_forward_scorecard(ROOT)
+    drill = export_session_readiness_drill(ROOT)
+    live_exam = synthesize_live_conflict_exam_items(ROOT)
     m65 = generate_teaching_journal_snapshot(root=ROOT)
     m65_dir = ROOT / "reports" / "grok" / "M65"
     m65_dir.mkdir(parents=True, exist_ok=True)
@@ -53,6 +58,17 @@ def main() -> int:
         "track3_pit_leaks": pit.get("future_leakage_count"),
         "track3_exam_score": exam.get("overall_score"),
         "track3_exam_leaked": exam.get("leaked"),
+        "track5_shadow_best_n": max((s.get("n") or 0) for s in shadow.get("signals") or []),
+        "track5_shadow_summary_fa": shadow.get("summary_fa"),
+        "track6_session_drill_fa": drill.get("summary_fa"),
+        "track6_next_countdown_fa": (drill.get("cash_sessions") or [{}])[0].get("countdown_fa"),
+        "track7_live_exam_items": live_exam.get("n_items"),
+        "track7_theta": live_exam.get("estimate_ability_theta"),
+        "track8_receipts_written": [
+            "reports/grok/M28/shadow_forward_scorecard.json",
+            "reports/grok/PAPER/session_readiness_drill.json",
+            "reports/grok/M50/live_conflict_exam_items.json",
+        ],
     }
     out = ROOT / "reports" / "grok" / "CONTINUATION" / "tracks_receipt.json"
     out.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,156 @@
+{
+  "schema": "ahos.shadow_forward_scorecard.v1",
+  "generated_at": "2026-10-24T08:42:39Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "unproven_edge": true,
+  "live_prices_path": "reports/grok/M19/live_market_prices.json",
+  "events_scanned": 1237,
+  "signals": [
+    {
+      "signal": "stablecoin_impulse",
+      "hypothesis_id": "H15",
+      "n": 0,
+      "hit_rate": null,
+      "rolling_ic": null,
+      "brier": null,
+      "horizons": {
+        "1h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "4h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "24h": {
+          "n": 0,
+          "hit_rate": null
+        }
+      },
+      "trades_remaining_to_gate": 30,
+      "promotion_eligible": false
+    },
+    {
+      "signal": "exchange_netflow",
+      "hypothesis_id": "H14",
+      "n": 0,
+      "hit_rate": null,
+      "rolling_ic": null,
+      "brier": null,
+      "horizons": {
+        "1h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "4h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "24h": {
+          "n": 0,
+          "hit_rate": null
+        }
+      },
+      "trades_remaining_to_gate": 30,
+      "promotion_eligible": false
+    },
+    {
+      "signal": "whale_mempool",
+      "hypothesis_id": "H17",
+      "n": 0,
+      "hit_rate": null,
+      "rolling_ic": null,
+      "brier": null,
+      "horizons": {
+        "1h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "4h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "24h": {
+          "n": 0,
+          "hit_rate": null
+        }
+      },
+      "trades_remaining_to_gate": 30,
+      "promotion_eligible": false
+    },
+    {
+      "signal": "macro_event",
+      "hypothesis_id": "H18",
+      "n": 0,
+      "hit_rate": null,
+      "rolling_ic": null,
+      "brier": null,
+      "horizons": {
+        "1h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "4h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "24h": {
+          "n": 0,
+          "hit_rate": null
+        }
+      },
+      "trades_remaining_to_gate": 30,
+      "promotion_eligible": false
+    },
+    {
+      "signal": "mtf_trend",
+      "hypothesis_id": "hmm_pelt_regime",
+      "n": 0,
+      "hit_rate": null,
+      "rolling_ic": null,
+      "brier": null,
+      "horizons": {
+        "1h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "4h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "24h": {
+          "n": 0,
+          "hit_rate": null
+        }
+      },
+      "trades_remaining_to_gate": 30,
+      "promotion_eligible": false
+    },
+    {
+      "signal": "council_debate",
+      "hypothesis_id": "soroush_bl_view",
+      "n": 0,
+      "hit_rate": null,
+      "rolling_ic": null,
+      "brier": null,
+      "horizons": {
+        "1h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "4h": {
+          "n": 0,
+          "hit_rate": null
+        },
+        "24h": {
+          "n": 0,
+          "hit_rate": null
+        }
+      },
+      "trades_remaining_to_gate": 30,
+      "promotion_eligible": false
+    }
+  ],
+  "summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی): بهترین نمونه stablecoin_impulse با n=0 — حداقل ۳۰ معاملهٔ بسته و DSR/PBO برای ارتقا لازم است؛ لبهٔ سودآوری اثبات‌نشده."
+}

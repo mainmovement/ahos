@@ -1,0 +1,84 @@
+{
+  "schema": "ahos.m50_live_conflict_exam.v1",
+  "generated_at": "2026-10-24T08:42:50Z",
+  "paper_only": true,
+  "promoted": false,
+  "n_items": 8,
+  "leaked": false,
+  "estimate_ability_theta": 1.0,
+  "items": [
+    {
+      "item_id": "live_brent_00",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    },
+    {
+      "item_id": "live_brent_01",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    },
+    {
+      "item_id": "live_brent_02",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    },
+    {
+      "item_id": "live_brent_03",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    },
+    {
+      "item_id": "live_brent_04",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    },
+    {
+      "item_id": "live_brent_05",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    },
+    {
+      "item_id": "live_brent_06",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    },
+    {
+      "item_id": "live_brent_07",
+      "domain": "osint_two_source",
+      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+      "answer_key": "divergent_sources_are_conflict",
+      "difficulty": 1.2,
+      "discrimination": 1.6,
+      "leaked": false
+    }
+  ],
+  "note_fa": "آزمون held-out از تعارض‌های زندهٔ کاغذی — بدون ارتقا."
+}

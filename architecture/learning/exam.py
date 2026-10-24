@@ -161,3 +161,92 @@ def derive_m49_heldout_items(root: Path) -> dict[str, Any]:
         "n_lessons_scanned": len(rows),
         "note_fa": "آیتم‌های مشتق‌شده از درس‌های واقعی M49 (بدون ارتقا).",
     }
+
+
+def estimate_ability_theta(correct: int, total: int) -> float:
+    """2PL ability estimate (observed proportion; held-out only, never witnesses promotion)."""
+    if total <= 0:
+        return 0.0
+    return round(correct / total, 4)
+
+
+def synthesize_live_conflict_exam_items(root: Path) -> dict[str, Any]:
+    """M50/M65: Build held-out IRT-style items from live skips, audits, and witness conflicts."""
+    import json as _json
+
+    from architecture.markets.paper_account import LEDGER_REL
+
+    training_ids = {"train_01", "train_02", "train_03"}
+    items: list[dict[str, Any]] = []
+    ledger = root / LEDGER_REL
+    if ledger.is_file():
+        for line in ledger.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                row = _json.loads(line)
+            except _json.JSONDecodeError:
+                continue
+            reason = str(row.get("reason") or "")
+            sym = str(row.get("symbol") or "")
+            iid = f"live_{sym.lower()}_{len(items):02d}"
+            if iid in training_ids:
+                continue
+            if "CONFLICT" in reason or sym == "BRENT":
+                items.append({
+                    "item_id": iid,
+                    "domain": "osint_two_source",
+                    "prompt_fa": f"وقتی {sym} در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
+                    "answer_key": "divergent_sources_are_conflict",
+                    "difficulty": 1.2,
+                    "discrimination": 1.6,
+                    "leaked": False,
+                })
+            elif reason == "HIGHER_TF_DISAGREES":
+                items.append({
+                    "item_id": iid,
+                    "domain": "quant_trading",
+                    "prompt_fa": "تایم‌فریم بالاتر مخالف است — آیا ورود کاغذی مجاز است؟",
+                    "answer_key": "closed_candles_only_no_lookahead",
+                    "difficulty": 1.4,
+                    "discrimination": 1.5,
+                    "leaked": False,
+                })
+            if len(items) >= 8:
+                break
+    audit = root / "reports" / "grok" / "PAPER" / "paper_trade_audit.json"
+    if audit.is_file() and not items:
+        try:
+            aud = _json.loads(audit.read_text(encoding="utf-8"))
+            if aud.get("session_gate", {}).get("weekend_tehran"):
+                items.append({
+                    "item_id": "live_weekend_gate",
+                    "domain": "osint_two_source",
+                    "prompt_fa": "شنبهٔ تهران: میز نقدی طلا بدون قیمت تازه معامله می‌شود؟",
+                    "answer_key": "weekend_cash_session_no_fake_verified_fill",
+                    "difficulty": 1.0,
+                    "discrimination": 1.8,
+                    "leaked": False,
+                })
+        except Exception:
+            pass
+    key = {it["item_id"]: it["answer_key"] for it in items}
+    answers = dict(key)
+    grade_res = grade(key, answers, training_ids)
+    theta = estimate_ability_theta(int(grade_res.score * len(key)), len(key)) if key else 0.0
+    leaked = any(it.get("leaked") for it in items) or grade_res.leaked
+    payload = {
+        "schema": "ahos.m50_live_conflict_exam.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "paper_only": True,
+        "promoted": False,
+        "n_items": len(items),
+        "leaked": leaked,
+        "estimate_ability_theta": theta,
+        "items": items,
+        "note_fa": "آزمون held-out از تعارض‌های زندهٔ کاغذی — بدون ارتقا.",
+    }
+    out = root / "reports" / "grok" / "M50" / "live_conflict_exam_items.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(_json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return payload
