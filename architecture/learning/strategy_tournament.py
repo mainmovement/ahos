@@ -264,6 +264,10 @@ def run_strategy_tournament(
         "leader_title": leader.title if leader else None,
         "leader_dsr": leader.deflated_sharpe if leader else None,
         "leader_brier": leader.brier_score if leader else None,
+        "data_source": "FIXTURE_ILLUSTRATIVE" if strategies is None else "CALLER_SUPPLIED",
+        "dsr_semantics": ("HAIRCUT_ANNUALIZED_SHARPE: annualized Sharpe minus "
+                          "0.35*sqrt(2 ln n_trials); NOT the Bailey-Lopez de Prado "
+                          "probability in [0,1] used by walk_forward batch gates"),
         "regime_catalog": list(REGIME_TAGS),
         "historical_replay_segments": default_historical_regime_replay_segments(),
         "leaderboard": [

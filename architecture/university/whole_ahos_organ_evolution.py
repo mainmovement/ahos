@@ -201,10 +201,17 @@ def build_whole_ahos_organ_evolution_snapshot(
         "organs_covered_count": len(serialized),
         "organ_ids": [x["organ_id"] for x in serialized],
         "average_university_exam_score_pct": avg_exam,
+        "exam_score_evidence": (
+            "STATIC_UNVERIFIED: held_out_exam_score_pct values are curriculum constants, not the output "
+            "of an exam run; measured live exam -> reports/grok/M50/live_conflict_exam_items.json"
+            if items is None else "CALLER_SUPPLIED"
+        ),
         "organs": serialized,
         "summary_fa": (
             f"پژوهشکده و دانشگاه AHOS اکنون هر {len(serialized)} اندام حیاتی سیستم "
             "(مغز ACI/AGI/SI، کالبد و سرعت ۸ گیگ، خبرنگاران دیده‌بان، کلاه‌سفیدهای نگهبان، موتور خوددیباگ‌کن، پژوهشکده، دانشگاه و ۷ میز بازار) "
-            f"را تحت پوشش تحقیق، آزمایش سندباکس و آموزش مستمر قرار داده‌اند (میانگین نمرهٔ آزمون: {avg_exam}%)."
+            f"را تحت پوشش تحقیق، آزمایش سندباکس و آموزش مستمر قرار داده‌اند (میانگین نمرهٔ آزمون: {avg_exam}%"
+            + ("؛ عدد ثابت برنامهٔ درسی، اندازه‌گیری‌نشده" if items is None else "")
+            + ")."
         ),
     }

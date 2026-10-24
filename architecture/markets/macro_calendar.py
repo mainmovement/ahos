@@ -407,12 +407,99 @@ def load_or_build(root: Path, max_age_h: float = 24.0) -> dict[str, Any]:
     return build_calendar(root)
 
 
+# Trader desk names -> calendar desk labels used in events[*].desks
+CALENDAR_DESK = {"US_EQUITIES": "US", "EU_EQUITIES": "EU", "ASIA_EQUITIES": "ASIA", "FOREX": "FX", "GOLD": "GOLD",
+                 "OIL": "OIL", "CRYPTO": "CRYPTO", "PB_TOKEN": "CRYPTO"}
+
+# ---------------- Asset-specific causal impact matrix (WP-2 / M18.N / TS-10) ----------------
+# Which instruments an event moves through a documented transmission channel. Windows are (hours before, hours after).
+EVENT_ASSETS: dict[str, tuple[str, ...]] = {
+    "FOMC_STATEMENT": ("XAU", "SPX", "QQQ", "BTC", "ETH", "EURUSD", "USDJPY"),
+    "EIA_WPSR": ("WTI", "BRENT"),
+    "OPEC_MINISTERIAL": ("WTI", "BRENT"),
+    "ECB_GOV_COUNCIL": ("DAX", "EURUSD"),
+    "BOJ_MPM_DECISION": ("N225", "USDJPY"),
+    "BOE_MPC_DECISION": ("EURUSD", "DAX"),
+}
+EVENT_WINDOWS_H: dict[str, tuple[float, float]] = {
+    "FOMC_STATEMENT": (24.0, 24.0), "EIA_WPSR": (2.0, 4.0), "OPEC_MINISTERIAL": (24.0, 48.0),
+    "ECB_GOV_COUNCIL": (12.0, 24.0), "BOJ_MPM_DECISION": (12.0, 24.0), "BOE_MPC_DECISION": (12.0, 24.0),
+}
+# Only literature-documented directional priors (Lucca & Moench 2015 pre-FOMC drift). Everything else: direction unknown.
+DOCUMENTED_PRE_EVENT_DRIFT: dict[tuple[str, str], float] = {("FOMC_STATEMENT", "SPX"): 0.5, ("FOMC_STATEMENT", "QQQ"): 0.5}
+IMPACT_REL = Path("reports") / "grok" / "M19" / "event_impact_matrix.json"
+
+
+def measure_event_impact(cal: dict[str, Any], daily: dict[str, list[tuple]], *, min_events: int = 8) -> dict[str, Any]:
+    """Measured, never assumed: per (event, symbol) mean |return| on event days / non-event days (vol ratio) and the
+    mean signed event-day return with its t-stat. ``daily[sym]`` rows are (ts, o, h, l, c)."""
+    import math as _m
+    import statistics as _st
+    out: dict[str, dict[str, Any]] = {}
+    for ev, syms in EVENT_ASSETS.items():
+        days = {e["at_utc"][:10] for e in cal.get("events") or [] if e.get("event") == ev}
+        for sym in syms:
+            bars = daily.get(sym) or []
+            if len(bars) < 300 or not days:
+                continue
+            # Yahoo stamps some daily FX/futures bars at the prior evening UTC; +6h maps every venue to its trading date.
+            rets = {datetime.fromtimestamp(bars[i][0] + 6 * 3600, timezone.utc).strftime("%Y-%m-%d"): bars[i][4] / bars[i - 1][4] - 1
+                    for i in range(1, len(bars))}
+            ev_r = [r for d, r in rets.items() if d in days]
+            other = [abs(r) for d, r in rets.items() if d not in days]
+            if len(ev_r) < min_events or not other:
+                out.setdefault(ev, {})[sym] = {"n_events": len(ev_r), "status": "INSUFFICIENT_EVENTS"}
+                continue
+            base = _st.fmean(other) or 1e-12
+            sd = _st.pstdev(ev_r) or 1e-12
+            out.setdefault(ev, {})[sym] = {
+                "n_events": len(ev_r), "vol_ratio": round(_st.fmean(abs(r) for r in ev_r) / base, 3),
+                "mean_event_ret_pct": round(_st.fmean(ev_r) * 100, 4),
+                "t_stat": round(_st.fmean(ev_r) / (sd / _m.sqrt(len(ev_r))), 3), "status": "MEASURED"}
+    return {"schema": "ahos.event_impact_matrix.v1", "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "paper_only": True, "method": "event-day |ret| / non-event-day |ret| on Yahoo daily closes; t-stat of event-day mean",
+            "windows_h": {k: list(v) for k, v in EVENT_WINDOWS_H.items()}, "matrix": out}
+
+
+def load_impact_matrix(root: Path) -> dict[str, Any]:
+    try:
+        return json.loads((Path(root) / IMPACT_REL).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def event_window_state(snap: dict[str, Any], symbol: str, *, now: datetime | None = None,
+                       matrix: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Active scheduled events for ``symbol``: measured vol multiplier (1.0 when unmeasured) and documented drift only."""
+    now = now or datetime.now(timezone.utc)
+    mat = (matrix or {}).get("matrix") or {}
+    active, vol_mult, drift = [], 1.0, 0.0
+    for e in snap.get("events") or []:
+        ev = e.get("event")
+        if symbol not in EVENT_ASSETS.get(ev, ()):
+            continue
+        h = (datetime.fromisoformat(e["at_utc"]) - now).total_seconds() / 3600
+        pre, post = EVENT_WINDOWS_H.get(ev, (12.0, 24.0))
+        if not (-post <= h <= pre):
+            continue
+        cell = (mat.get(ev) or {}).get(symbol) or {}
+        vr = float(cell["vol_ratio"]) if cell.get("status") == "MEASURED" else 1.0
+        vol_mult = max(vol_mult, vr)
+        phase = "PRE_EVENT" if h > 0 else "POST_EVENT"
+        if phase == "PRE_EVENT":
+            drift += DOCUMENTED_PRE_EVENT_DRIFT.get((ev, symbol), 0.0)
+        active.append({"event": ev, "at_utc": e["at_utc"], "hours_until": round(h, 2), "phase": phase,
+                       "vol_ratio": cell.get("vol_ratio"), "impact_status": cell.get("status", "UNMEASURED")})
+    return {"symbol": symbol, "active_events": active, "vol_mult": round(vol_mult, 3), "documented_drift": drift}
+
+
 def upcoming(snap: dict[str, Any], desk: str, now: datetime | None = None, horizon_h: float = 72.0) -> list[dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
+    cdesk = CALENDAR_DESK.get(desk, desk)
     out = []
     for e in snap.get("events") or []:
         t = datetime.fromisoformat(e["at_utc"])
         h = (t - now).total_seconds() / 3600
-        if -2 <= h <= horizon_h and desk in e["desks"]:
+        if -2 <= h <= horizon_h and cdesk in e["desks"]:
             out.append({**e, "hours_until": round(h, 2)})
     return out

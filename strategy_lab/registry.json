@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-24T01:17:23Z",
+  "updated": "2026-10-24T10:04:58Z",
   "experiment_log": "exp_20260811_165329.json",
   "candidates": {
     "H1": {
@@ -340,8 +340,263 @@
       "detail": {
         "reason": "GDELT DOC ~3 months, RSS not archived"
       }
+    },
+    "H23": {
+      "name": "HMM low/normal-vol regime x on-chain flow x liquidity impulse confluence (BTC/ETH)",
+      "family": "regime_confluence",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch5_research.json @ 2026-10-24T10:04:58Z",
+      "detail": {
+        "b5-H23-BTC": {
+          "oos_n": 37,
+          "oos_sharpe": -0.0377,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H23-ETH": {
+          "oos_n": 30,
+          "oos_sharpe": 0.1955,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        }
+      }
+    },
+    "H24": {
+      "name": "Liquidity-sweep wick rejection with volume confirmation",
+      "family": "microstructure_liquidity",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch5_research.json @ 2026-10-24T10:04:58Z",
+      "detail": {
+        "b5-H24-BTC": {
+          "oos_n": 18,
+          "oos_sharpe": 0.1349,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-ETH": {
+          "oos_n": 11,
+          "oos_sharpe": -0.4445,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-SOL": {
+          "oos_n": 13,
+          "oos_sharpe": 0.1162,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-XAU": {
+          "oos_n": 12,
+          "oos_sharpe": 0.1362,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-XAG": {
+          "oos_n": 2,
+          "oos_sharpe": 0.4449,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-WTI": {
+          "oos_n": 10,
+          "oos_sharpe": -0.2823,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-BRENT": {
+          "oos_n": 12,
+          "oos_sharpe": 0.0483,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-SPX": {
+          "oos_n": 0,
+          "oos_sharpe": 0.0,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "NOT_TESTED",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-QQQ": {
+          "oos_n": 4,
+          "oos_sharpe": 0.8387,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-DAX": {
+          "oos_n": 2,
+          "oos_sharpe": 3.0373,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-N225": {
+          "oos_n": 2,
+          "oos_sharpe": 0.901,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H24-HSI": {
+          "oos_n": 7,
+          "oos_sharpe": -0.2002,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        }
+      }
+    },
+    "H25": {
+      "name": "DXY / US10Y macro-gated weekly rotation: gold vs SPX vs BTC vs cash",
+      "family": "macro_rotation",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch5_research.json @ 2026-10-24T10:04:58Z",
+      "detail": {
+        "b5-H25-ROT3": {
+          "oos_n": 196,
+          "oos_sharpe": 0.0987,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": "FAIL_NO_EXCESS_VS_EQUAL_WEIGHT"
+        }
+      }
+    },
+    "H26": {
+      "name": "Post-announcement drift after pre-event volatility compression",
+      "family": "macro_event",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch5_research.json @ 2026-10-24T10:04:58Z",
+      "detail": {
+        "b5-H26-FOMC-SPX": {
+          "oos_n": 1,
+          "oos_sharpe": 0.0,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "NOT_TESTED",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H26-FOMC-QQQ": {
+          "oos_n": 1,
+          "oos_sharpe": 0.0,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "NOT_TESTED",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H26-FOMC-XAU": {
+          "oos_n": 4,
+          "oos_sharpe": -0.0568,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H26-FOMC-EURUSD": {
+          "oos_n": 4,
+          "oos_sharpe": 0.0857,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H26-FOMC-USDJPY": {
+          "oos_n": 7,
+          "oos_sharpe": 0.2174,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H26-FOMC-BTC": {
+          "oos_n": 6,
+          "oos_sharpe": -0.0565,
+          "dsr": null,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H26-EIA-WTI": {
+          "oos_n": 13,
+          "oos_sharpe": -0.0955,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        },
+        "b5-H26-EIA-BRENT": {
+          "oos_n": 11,
+          "oos_sharpe": -0.1882,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        }
+      }
+    },
+    "H27": {
+      "name": "Bull/bear agent views blended by Black-Litterman (Ledoit-Wolf covariance, Brier-weighted confidence)",
+      "family": "calibrated_combination",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch5_research.json @ 2026-10-24T10:04:58Z",
+      "detail": {
+        "b5-H27-BL8": {
+          "oos_n": 38,
+          "oos_sharpe": 0.3779,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "SURVIVED_RED_TEAM",
+          "preregistered_benchmark_test": "FAIL_NO_EXCESS_VS_EQUAL_WEIGHT"
+        }
+      }
+    },
+    "H28": {
+      "name": "Vol-targeted (12% annual) allocator over IS-surviving streams with tail hedge and quarter-Kelly cap",
+      "family": "portfolio_allocation",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch5_research.json @ 2026-10-24T10:04:58Z",
+      "detail": {
+        "b5-H28-VT12": {
+          "oos_n": 200,
+          "oos_sharpe": 0.1948,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "preregistered_benchmark_test": null
+        }
+      }
     }
   },
   "batch4_pbo": 0.2714,
-  "dsr_trials_counted": 64
+  "dsr_trials_counted": 89,
+  "batch5_pbo": 0.4398
 }

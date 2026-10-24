@@ -188,7 +188,7 @@ def default_red_team_candidates(root: "Path | None" = None) -> list[dict[str, An
     import json as _json
     base = _P(root) if root else _P(__file__).resolve().parents[2]
     rows = []
-    for rel in ("walk_forward_snapshot.json", "batch4_research.json"):
+    for rel in ("walk_forward_snapshot.json", "batch4_research.json", "batch5_research.json"):
         try:
             rows += _json.loads((base / "reports" / "grok" / "M28" / rel).read_text(encoding="utf-8")).get("candidates", [])
         except Exception:

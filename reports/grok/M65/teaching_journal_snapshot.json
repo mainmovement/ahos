@@ -1,110 +1,222 @@
 {
   "schema": "ahos.teaching_mode_m65.v1",
-  "generated_at": "2026-10-24T08:42:50Z",
+  "generated_at": "2026-10-24T10:37:15Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
-  "lessons_count": 13,
+  "lessons_count": 19,
   "journal_entries_count": 3,
   "glossary_count": 5,
-  "latest_lesson_title_fa": "درس آزمون زنده: وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چ…",
-  "latest_key_takeaway_fa": "پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+  "latest_lesson_title_fa": "کارت آزمون held-out: تصمیم درست بود — BTC",
+  "latest_key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
   "lessons": [
     {
-      "lesson_id": "m65-exam-live_brent_00",
-      "market": "MULTI_DESK",
-      "symbol": "EXAM",
-      "regime_tag": "LIVE_CONFLICT_EXAM",
-      "title_fa": "درس آزمون زنده: وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چ…",
-      "why_entered_fa": "این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
-      "what_happened_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "mistake_or_strength_fa": "تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
-      "key_takeaway_fa": "پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "lesson_id": "m65-exam-live_btc_1792828722",
+      "market": "CRYPTO",
+      "symbol": "BTC",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — BTC",
+      "why_entered_fa": "BTC (CRYPTO) در 2026-10-24T07:58:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.10% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
       "glossary_keys": [
-        "Two-Source Witness",
+        "Brier Score",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
     },
     {
-      "lesson_id": "m65-exam-live_brent_01",
-      "market": "MULTI_DESK",
-      "symbol": "EXAM",
-      "regime_tag": "LIVE_CONFLICT_EXAM",
-      "title_fa": "درس آزمون زنده: وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چ…",
-      "why_entered_fa": "این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
-      "what_happened_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "mistake_or_strength_fa": "تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
-      "key_takeaway_fa": "پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "lesson_id": "m65-exam-live_eth_1792828722",
+      "market": "CRYPTO",
+      "symbol": "ETH",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — ETH",
+      "why_entered_fa": "ETH (CRYPTO) در 2026-10-24T07:58:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.34% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
       "glossary_keys": [
-        "Two-Source Witness",
+        "Brier Score",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
     },
     {
-      "lesson_id": "m65-exam-live_brent_02",
-      "market": "MULTI_DESK",
-      "symbol": "EXAM",
-      "regime_tag": "LIVE_CONFLICT_EXAM",
-      "title_fa": "درس آزمون زنده: وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چ…",
-      "why_entered_fa": "این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
-      "what_happened_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "mistake_or_strength_fa": "تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
-      "key_takeaway_fa": "پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "lesson_id": "m65-exam-live_sol_1792828722",
+      "market": "CRYPTO",
+      "symbol": "SOL",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — SOL",
+      "why_entered_fa": "SOL (CRYPTO) در 2026-10-24T07:58:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.09% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
       "glossary_keys": [
-        "Two-Source Witness",
+        "Brier Score",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
     },
     {
-      "lesson_id": "m65-exam-live_brent_03",
-      "market": "MULTI_DESK",
-      "symbol": "EXAM",
-      "regime_tag": "LIVE_CONFLICT_EXAM",
-      "title_fa": "درس آزمون زنده: وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چ…",
-      "why_entered_fa": "این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
-      "what_happened_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "mistake_or_strength_fa": "تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
-      "key_takeaway_fa": "پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "lesson_id": "m65-exam-live_btc_1792832622",
+      "market": "CRYPTO",
+      "symbol": "BTC",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — BTC",
+      "why_entered_fa": "BTC (CRYPTO) در 2026-10-24T09:03:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.03% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
       "glossary_keys": [
-        "Two-Source Witness",
+        "Brier Score",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
     },
     {
-      "lesson_id": "m65-exam-live_brent_04",
-      "market": "MULTI_DESK",
-      "symbol": "EXAM",
-      "regime_tag": "LIVE_CONFLICT_EXAM",
-      "title_fa": "درس آزمون زنده: وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چ…",
-      "why_entered_fa": "این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
-      "what_happened_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "mistake_or_strength_fa": "تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
-      "key_takeaway_fa": "پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "lesson_id": "m65-exam-live_eth_1792832622",
+      "market": "CRYPTO",
+      "symbol": "ETH",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — ETH",
+      "why_entered_fa": "ETH (CRYPTO) در 2026-10-24T09:03:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.00% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
       "glossary_keys": [
-        "Two-Source Witness",
+        "Brier Score",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
     },
     {
-      "lesson_id": "m65-exam-live_brent_05",
-      "market": "MULTI_DESK",
-      "symbol": "EXAM",
-      "regime_tag": "LIVE_CONFLICT_EXAM",
-      "title_fa": "درس آزمون زنده: وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چ…",
-      "why_entered_fa": "این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
-      "what_happened_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "mistake_or_strength_fa": "تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
-      "key_takeaway_fa": "پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "lesson_id": "m65-exam-live_sol_1792832622",
+      "market": "CRYPTO",
+      "symbol": "SOL",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — SOL",
+      "why_entered_fa": "SOL (CRYPTO) در 2026-10-24T09:03:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.41% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
       "glossary_keys": [
+        "Brier Score",
+        "DSR"
+      ],
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
+    },
+    {
+      "lesson_id": "m65-live-open-eth",
+      "market": "CRYPTO",
+      "symbol": "ETH",
+      "regime_tag": "LIVE_PAPER_OPEN",
+      "title_fa": "تحلیل آموزشی چرخهٔ کاغذی CRYPTO (ETH) در رژیم LIVE_PAPER_OPEN",
+      "why_entered_fa": "تأیید هم‌زمان دو منبع مستقل قیمت (VERIFIED) و هم‌جهتی روند در رژیم LIVE_PAPER_OPEN با رعایت حد ضرر مبتنی بر ATR.",
+      "what_happened_fa": "قیمت پس از ثبت سفارش کاغذی در مسیر پیش‌بینی حرکت کرد و نتیجهٔ کاغذی +0.00 دلار ثبت شد.",
+      "mistake_or_strength_fa": "نقطهٔ قوت: رعایت کامل حجم مجاز کاغذی (سقف ۱۰۰ دلار) و ثبت نظر مخالف وکیل مدافع شیطان پیش از ورود.",
+      "key_takeaway_fa": "حتی معاملات موفق کاغذی نیز تا زمان تکمیل نمونهٔ آماری ۶ماهه و عبور از معیار DSR مجوز ورود به پول واقعی ندارند.",
+      "glossary_keys": [
+        "ATR",
         "Two-Source Witness",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "LIVE_PAPER_STATE"
+    },
+    {
+      "lesson_id": "m65-live-open-sol",
+      "market": "CRYPTO",
+      "symbol": "SOL",
+      "regime_tag": "LIVE_PAPER_OPEN",
+      "title_fa": "تحلیل آموزشی چرخهٔ کاغذی CRYPTO (SOL) در رژیم LIVE_PAPER_OPEN",
+      "why_entered_fa": "تأیید هم‌زمان دو منبع مستقل قیمت (VERIFIED) و هم‌جهتی روند در رژیم LIVE_PAPER_OPEN با رعایت حد ضرر مبتنی بر ATR.",
+      "what_happened_fa": "قیمت پس از ثبت سفارش کاغذی در مسیر پیش‌بینی حرکت کرد و نتیجهٔ کاغذی +0.00 دلار ثبت شد.",
+      "mistake_or_strength_fa": "نقطهٔ قوت: رعایت کامل حجم مجاز کاغذی (سقف ۱۰۰ دلار) و ثبت نظر مخالف وکیل مدافع شیطان پیش از ورود.",
+      "key_takeaway_fa": "حتی معاملات موفق کاغذی نیز تا زمان تکمیل نمونهٔ آماری ۶ماهه و عبور از معیار DSR مجوز ورود به پول واقعی ندارند.",
+      "glossary_keys": [
+        "ATR",
+        "Two-Source Witness",
+        "DSR"
+      ],
+      "paper_only": true,
+      "source": "LIVE_PAPER_STATE"
+    },
+    {
+      "lesson_id": "m65-live-open-btc",
+      "market": "CRYPTO",
+      "symbol": "BTC",
+      "regime_tag": "LIVE_PAPER_OPEN",
+      "title_fa": "تحلیل آموزشی چرخهٔ کاغذی CRYPTO (BTC) در رژیم LIVE_PAPER_OPEN",
+      "why_entered_fa": "تأیید هم‌زمان دو منبع مستقل قیمت (VERIFIED) و هم‌جهتی روند در رژیم LIVE_PAPER_OPEN با رعایت حد ضرر مبتنی بر ATR.",
+      "what_happened_fa": "قیمت پس از ثبت سفارش کاغذی در مسیر پیش‌بینی حرکت کرد و نتیجهٔ کاغذی +0.00 دلار ثبت شد.",
+      "mistake_or_strength_fa": "نقطهٔ قوت: رعایت کامل حجم مجاز کاغذی (سقف ۱۰۰ دلار) و ثبت نظر مخالف وکیل مدافع شیطان پیش از ورود.",
+      "key_takeaway_fa": "حتی معاملات موفق کاغذی نیز تا زمان تکمیل نمونهٔ آماری ۶ماهه و عبور از معیار DSR مجوز ورود به پول واقعی ندارند.",
+      "glossary_keys": [
+        "ATR",
+        "Two-Source Witness",
+        "DSR"
+      ],
+      "paper_only": true,
+      "source": "LIVE_PAPER_STATE"
+    },
+    {
+      "lesson_id": "m65-live-open-uni",
+      "market": "PB_TOKEN",
+      "symbol": "UNI",
+      "regime_tag": "LIVE_PAPER_OPEN",
+      "title_fa": "تحلیل آموزشی چرخهٔ کاغذی PB_TOKEN (UNI) در رژیم LIVE_PAPER_OPEN",
+      "why_entered_fa": "تأیید هم‌زمان دو منبع مستقل قیمت (VERIFIED) و هم‌جهتی روند در رژیم LIVE_PAPER_OPEN با رعایت حد ضرر مبتنی بر ATR.",
+      "what_happened_fa": "قیمت پس از ثبت سفارش کاغذی در مسیر پیش‌بینی حرکت کرد و نتیجهٔ کاغذی +0.00 دلار ثبت شد.",
+      "mistake_or_strength_fa": "نقطهٔ قوت: رعایت کامل حجم مجاز کاغذی (سقف ۱۰۰ دلار) و ثبت نظر مخالف وکیل مدافع شیطان پیش از ورود.",
+      "key_takeaway_fa": "حتی معاملات موفق کاغذی نیز تا زمان تکمیل نمونهٔ آماری ۶ماهه و عبور از معیار DSR مجوز ورود به پول واقعی ندارند.",
+      "glossary_keys": [
+        "ATR",
+        "Two-Source Witness",
+        "DSR"
+      ],
+      "paper_only": true,
+      "source": "LIVE_PAPER_STATE"
+    },
+    {
+      "lesson_id": "m65-live-witness-brent",
+      "market": "OIL",
+      "symbol": "BRENT",
+      "regime_tag": "WITNESS_GUARD",
+      "title_fa": "توقف هوشمند در بازار OIL (BRENT) به دلیل عدم تطابق دو منبع قیمت",
+      "why_entered_fa": "ورودی انجام نشد؛ قانون شاهد دومنبعی (Two-Source Witness) وضعیت را تأیید نکرد.",
+      "what_happened_fa": "وضعیت شاهد روی CONFLICT قرار گرفت (تغییر اسپرد یا تعطیلی پایان هفتهٔ بازار).",
+      "mistake_or_strength_fa": "نقطهٔ قوت سیستم: جلوگیری از ورود کاغذی بر اساس دادهٔ تک‌منبعی یا مبهم.",
+      "key_takeaway_fa": "صبر کردن در زمان ابهام داده، مهم‌ترین اصل حفظ سرمایه است (UNKNOWN != SAFE).",
+      "glossary_keys": [
+        "Two-Source Witness",
+        "Drawdown"
+      ],
+      "paper_only": true,
+      "source": "LIVE_PAPER_STATE"
+    },
+    {
+      "lesson_id": "m65-weekend-session-gate",
+      "market": "MULTI_DESK",
+      "symbol": "SESSION",
+      "regime_tag": "WEEKEND_SESSION_GATE",
+      "title_fa": "همگرایی سیگنال‌های ۷ بازار و ۶ قفل قبل از حساب واقعی (M60.F / M60.G)",
+      "why_entered_fa": "فقط وقتی ماتریس همگرایی LONG/SHORT (طلا، نفت، کریپتو، سهام، FX و کلان) با شاهد دومنبعی و E>0 هم‌راستا باشد، پایلوت ۱۰۰ دلاری کاغذی ورود می‌زند.",
+      "what_happened_fa": "۶ قفل آمادگی (مأموریت‌ها، ساک/تطبیق، لبه/تیم قرمز، برش و پلهٔ سود، ۸ اندام/۴ مغز، HOLD) بررسی شد.",
+      "mistake_or_strength_fa": "نقطهٔ قوت: معاملهٔ زنده بدون رفع صریح HOLD.flag ممکن نیست حتی اگر همهٔ قفل‌ها سبز باشند.",
+      "key_takeaway_fa": "همگرایی ≠ اجازهٔ زنده؛ HOLD قانون نهایی است.",
+      "glossary_keys": [
+        "Two-Source Witness",
+        "Drawdown"
+      ],
+      "paper_only": true,
+      "source": "LIVE_PAPER_STATE"
     },
     {
       "lesson_id": "m65-gold-cycle-839",
@@ -121,7 +233,8 @@
         "Drawdown",
         "Brier Score"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "FIXTURE_ILLUSTRATIVE"
     },
     {
       "lesson_id": "m65-gold-cycle-846",
@@ -138,7 +251,8 @@
         "Two-Source Witness",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "FIXTURE_ILLUSTRATIVE"
     },
     {
       "lesson_id": "m65-oil-cycle-007",
@@ -155,7 +269,8 @@
         "Two-Source Witness",
         "DSR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "FIXTURE_ILLUSTRATIVE"
     },
     {
       "lesson_id": "m65-gold-weekend-guard",
@@ -171,7 +286,8 @@
         "Two-Source Witness",
         "Drawdown"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "FIXTURE_ILLUSTRATIVE"
     },
     {
       "lesson_id": "m65-m60p-compounding-ladder",
@@ -187,7 +303,8 @@
         "Drawdown",
         "ATR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "FIXTURE_ILLUSTRATIVE"
     },
     {
       "lesson_id": "m65-m60f-cross-asset-confluence",
@@ -203,7 +320,8 @@
         "Two-Source Witness",
         "Drawdown"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "FIXTURE_ILLUSTRATIVE"
     },
     {
       "lesson_id": "m65-m60r-risk-shield",
@@ -219,13 +337,165 @@
         "Drawdown",
         "ATR"
       ],
-      "paper_only": true
+      "paper_only": true,
+      "source": "FIXTURE_ILLUSTRATIVE"
     }
   ],
+  "lesson_sources": {
+    "LIVE_HELDOUT_EXAM": 6,
+    "LIVE_PAPER_STATE": 6,
+    "FIXTURE_ILLUSTRATIVE": 7,
+    "CALLER_SUPPLIED_CYCLE": 0
+  },
+  "live_anomaly_exam": {
+    "schema": "ahos.m50_live_conflict_exam.v2",
+    "generated_at": "2026-10-24T10:37:15Z",
+    "status": "INSUFFICIENT_INDEPENDENT_EPISODES",
+    "method": "outcome-keyed decisions; time split; b from calibration half; 2PL MAP theta on held-out half",
+    "n_calibration_items": 13,
+    "n_heldout_items": 12,
+    "estimate_ability_theta": 3.0,
+    "theta_se": 0.9781,
+    "theta_meaning": "relative to the calibration period: >0 better than earlier decisions of the same type, <0 worse",
+    "heldout_accuracy": 1.0,
+    "abstain_baseline_accuracy": 0.0,
+    "skill_vs_abstain_baseline": 1.0,
+    "independent_episodes": 4,
+    "min_independent_episodes": 10,
+    "theta_at_bound": true,
+    "item_types_heldout": [
+      "HOLD::CRYPTO"
+    ],
+    "leaked": false,
+    "promoted": false,
+    "cards_fa": [
+      {
+        "item_id": "live_btc_1792820912",
+        "symbol": "BTC",
+        "desk": "CRYPTO",
+        "prompt_fa": "BTC (CRYPTO) در 2026-10-24T05:48:32Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.01% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_eth_1792820912",
+        "symbol": "ETH",
+        "desk": "CRYPTO",
+        "prompt_fa": "ETH (CRYPTO) در 2026-10-24T05:48:32Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.06% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_sol_1792820912",
+        "symbol": "SOL",
+        "desk": "CRYPTO",
+        "prompt_fa": "SOL (CRYPTO) در 2026-10-24T05:48:32Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.28% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_btc_1792824811",
+        "symbol": "BTC",
+        "desk": "CRYPTO",
+        "prompt_fa": "BTC (CRYPTO) در 2026-10-24T06:53:31Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.02% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_eth_1792824811",
+        "symbol": "ETH",
+        "desk": "CRYPTO",
+        "prompt_fa": "ETH (CRYPTO) در 2026-10-24T06:53:31Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.05% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_sol_1792824811",
+        "symbol": "SOL",
+        "desk": "CRYPTO",
+        "prompt_fa": "SOL (CRYPTO) در 2026-10-24T06:53:31Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.13% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_btc_1792828722",
+        "symbol": "BTC",
+        "desk": "CRYPTO",
+        "prompt_fa": "BTC (CRYPTO) در 2026-10-24T07:58:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.10% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_eth_1792828722",
+        "symbol": "ETH",
+        "desk": "CRYPTO",
+        "prompt_fa": "ETH (CRYPTO) در 2026-10-24T07:58:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.34% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_sol_1792828722",
+        "symbol": "SOL",
+        "desk": "CRYPTO",
+        "prompt_fa": "SOL (CRYPTO) در 2026-10-24T07:58:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.09% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_btc_1792832622",
+        "symbol": "BTC",
+        "desk": "CRYPTO",
+        "prompt_fa": "BTC (CRYPTO) در 2026-10-24T09:03:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.03% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_eth_1792832622",
+        "symbol": "ETH",
+        "desk": "CRYPTO",
+        "prompt_fa": "ETH (CRYPTO) در 2026-10-24T09:03:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.00% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_sol_1792832622",
+        "symbol": "SOL",
+        "desk": "CRYPTO",
+        "prompt_fa": "SOL (CRYPTO) در 2026-10-24T09:03:42Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.41% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      }
+    ],
+    "source": "reports/grok/M50/live_conflict_exam_items.json"
+  },
   "hooman_journal": [
     {
       "journal_id": "hooman-jrnl-01",
-      "timestamp_iso": "2026-10-24T08:42:50Z",
+      "timestamp_iso": "2026-10-24T10:37:15Z",
       "market": "GOLD",
       "symbol": "XAUUSD",
       "decision_type": "PAPER_EXIT",
@@ -238,7 +508,7 @@
     },
     {
       "journal_id": "hooman-jrnl-02",
-      "timestamp_iso": "2026-10-24T08:42:50Z",
+      "timestamp_iso": "2026-10-24T10:37:15Z",
       "market": "OIL",
       "symbol": "WTI",
       "decision_type": "PAPER_ENTRY",
@@ -251,7 +521,7 @@
     },
     {
       "journal_id": "hooman-jrnl-03",
-      "timestamp_iso": "2026-10-24T08:42:50Z",
+      "timestamp_iso": "2026-10-24T10:37:15Z",
       "market": "DEX_TOKENS",
       "symbol": "RUGMEME",
       "decision_type": "SAFETY_VETO",

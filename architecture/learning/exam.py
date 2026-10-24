@@ -170,94 +170,151 @@ def estimate_ability_theta(correct: int, total: int) -> float:
     return round(correct / total, 4)
 
 
+LIVE_EXAM_REL = Path("reports") / "grok" / "M50" / "live_conflict_exam_items.json"
+EXAM_HORIZON_S = 3600
+EXAM_MIN_ITEMS = 10
+EXAM_MIN_EPISODES = 10
+THETA_BOUND = 3.0
+DECISION_REASONS = ("COMPOSITE_BELOW_ENTRY", "HIGHER_TF_DISAGREES", "NEWS_EVENT_RISK", "SPREAD_GATE")
+COMPLIANCE_PREFIXES = ("WITNESS_", "MARKET_CLOSED_OR_STALE", "TOKEN_SAFETY_VETO", "LEDGER_HALT", "KILL_SWITCH")
+_ACTION_FA = {"OPEN": "ورود کاغذی", "HOLD": "نگه‌داشتن پوزیشن", "NO_TRADE": "عدم ورود"}
+
+
+def _round_trip_cost(sym: str) -> float:
+    from architecture.markets.paper_trader import INSTRUMENTS
+    _, fee, slip = INSTRUMENTS.get(sym, ("", 0.001, 0.001))
+    return 2 * (fee + slip)
+
+
+def _decision_items(rows: list[dict[str, Any]], series: dict[str, list[tuple[float, float]]]) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Outcome-keyed decision items; the key is what the NEXT hour's price proved, never the policy's own answer."""
+    from architecture.learning.shadow_forward_scorecard import _forward_return, _parse_ts
+    times = {s: [t for t, _ in v] for s, v in series.items()}
+    items, compliance, last = [], {"n": 0, "abstained": 0}, {}
+    for row in rows:
+        ev, reason, sym = row.get("event"), str(row.get("reason") or ""), str(row.get("symbol") or "")
+        t = _parse_ts(str(row.get("ts") or ""))
+        if t is None:
+            continue
+        if ev in ("SKIP", "NO_TRADE") and reason.startswith(COMPLIANCE_PREFIXES):
+            compliance["n"] += 1
+            compliance["abstained"] += 1
+            continue
+        if not (ev in ("OPEN", "HOLD") or (ev == "NO_TRADE" and reason in DECISION_REASONS)):
+            continue
+        if sym not in series or t < last.get(sym, -1e18) + EXAM_HORIZON_S:
+            continue
+        fwd = _forward_return(series[sym], t, EXAM_HORIZON_S, times[sym])
+        if fwd is None:
+            continue
+        last[sym] = t
+        side = row.get("side")
+        s = 1 if side == "LONG" else -1 if side == "SHORT" else (1 if (row.get("composite") or 0) > 0 else -1 if (row.get("composite") or 0) < 0 else 0)
+        cost = _round_trip_cost(sym)
+        if ev == "OPEN":
+            correct, trivial = s * fwd > cost, not (s * fwd > cost)
+        elif ev == "HOLD":
+            correct, trivial = s * fwd > 0, not (s * fwd > 0)
+        else:
+            correct = (s * fwd <= cost) if s else abs(fwd) <= cost
+            trivial = correct
+        items.append({"item_id": f"live_{sym.lower()}_{int(t)}", "t": t, "ts": row.get("ts"), "symbol": sym,
+                      "desk": row.get("desk"), "action": ev, "reason": reason or None, "direction": s,
+                      "item_type": f"{ev}:{reason if ev == 'NO_TRADE' else ''}:{row.get('desk')}",
+                      "forward_1h_ret": round(fwd, 6), "round_trip_cost": round(cost, 6),
+                      "correct": bool(correct), "abstain_baseline_correct": bool(trivial), "leaked": False})
+    return items, compliance
+
+
 def synthesize_live_conflict_exam_items(root: Path) -> dict[str, Any]:
-    """M50/M65: Build held-out IRT-style items from live skips, audits, and witness conflicts."""
+    """M50/M65 held-out exam from live paper decisions (OPEN / HOLD / discretionary NO_TRADE), keyed by the realized
+    1h outcome net of round-trip cost. Items are split in time: the earlier half calibrates per-item-type difficulty
+    (b = -logit(Laplace p), a = 1 because a single examinee cannot identify discrimination); the later half is the
+    held-out exam, scored with the canonical 2PL MAP estimator (registry.estimate_ability_theta). Policy-enforced
+    abstentions (witness, stale session, token veto, halt) are compliance checks, excluded from theta."""
     import json as _json
 
-    from architecture.markets.paper_account import LEDGER_REL
+    from architecture.learning.shadow_forward_scorecard import _load_events, _price_timeline
+    from architecture.university.registry import estimate_ability_theta as map_theta
 
-    training_ids = {"train_01", "train_02", "train_03"}
-    items: list[dict[str, Any]] = []
-    ledger = root / LEDGER_REL
-    if ledger.is_file():
-        for line in ledger.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            try:
-                row = _json.loads(line)
-            except _json.JSONDecodeError:
-                continue
-            reason = str(row.get("reason") or "")
-            sym = str(row.get("symbol") or "")
-            wit = row.get("witness") or {}
-            wit_verdict = str(wit.get("verdict") or "")
-            iid = f"live_{sym.lower()}_{len(items):02d}"
-            if iid in training_ids:
-                continue
-            if wit_verdict == "CONFLICT" or "CONFLICT" in reason or sym == "BRENT":
-                items.append({
-                    "item_id": iid,
-                    "domain": "osint_two_source",
-                    "prompt_fa": f"وقتی {sym} در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-                    "answer_key": "divergent_sources_are_conflict",
-                    "difficulty": 1.2,
-                    "discrimination": 1.6,
-                    "leaked": False,
-                })
-            elif reason in ("HIGHER_TF_DISAGREES", "MARKET_CLOSED_OR_STALE", "WEEKEND_CASH_SESSION"):
-                if reason == "HIGHER_TF_DISAGREES":
-                    prompt = "تایم‌فریم بالاتر مخالف است — آیا ورود کاغذی مجاز است؟"
-                    key = "closed_candles_only_no_lookahead"
-                elif reason == "WEEKEND_CASH_SESSION":
-                    prompt = f"آخر هفتهٔ تهران — میز {sym} بدون قیمت تازه معامله می‌شود؟"
-                    key = "weekend_cash_session_no_fake_verified_fill"
-                else:
-                    prompt = f"قیمت {sym} منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟"
-                    key = "weekend_cash_session_no_fake_verified_fill"
-                items.append({
-                    "item_id": iid,
-                    "domain": "quant_trading" if reason == "HIGHER_TF_DISAGREES" else "osint_two_source",
-                    "prompt_fa": prompt,
-                    "answer_key": key,
-                    "difficulty": 1.4,
-                    "discrimination": 1.5,
-                    "leaked": False,
-                })
-            if len(items) >= 8:
-                break
-    audit = root / "reports" / "grok" / "PAPER" / "paper_trade_audit.json"
-    if audit.is_file() and not items:
-        try:
-            aud = _json.loads(audit.read_text(encoding="utf-8"))
-            if aud.get("session_gate", {}).get("weekend_tehran"):
-                items.append({
-                    "item_id": "live_weekend_gate",
-                    "domain": "osint_two_source",
-                    "prompt_fa": "شنبهٔ تهران: میز نقدی طلا بدون قیمت تازه معامله می‌شود؟",
-                    "answer_key": "weekend_cash_session_no_fake_verified_fill",
-                    "difficulty": 1.0,
-                    "discrimination": 1.8,
-                    "leaked": False,
-                })
-        except Exception:
-            pass
-    key = {it["item_id"]: it["answer_key"] for it in items}
-    answers = dict(key)
-    grade_res = grade(key, answers, training_ids)
-    theta = estimate_ability_theta(int(grade_res.score * len(key)), len(key)) if key else 0.0
-    leaked = any(it.get("leaked") for it in items) or grade_res.leaked
+    events = _load_events(root)
+    items, compliance = _decision_items(events, _price_timeline(events))
+    items.sort(key=lambda x: x["t"])
+    cut = len(items) // 2
+    calib, held = items[:cut], items[cut:]
+    calib_end = calib[-1]["t"] if calib else None
+    if calib_end is not None:
+        held = [it for it in held if it["t"] >= calib_end + EXAM_HORIZON_S]
+    by_type: dict[str, list[bool]] = {}
+    for it in calib:
+        by_type.setdefault(it["item_type"], []).append(it["correct"])
+    for it in held:
+        hist = by_type.get(it["item_type"])
+        p = (sum(hist) + 0.5) / (len(hist) + 1) if hist else 0.5
+        it["difficulty_b"] = round(-math.log(p / (1 - p)), 4)
+        it["discrimination_a"] = 1.0
+        it["b_source"] = "calibration_half" if hist else "PRIOR_UNSEEN_TYPE"
+        it["split"] = "held_out"
+    for it in calib:
+        it["split"] = "calibration"
+    leaked = bool(held and calib and min(h["t"] for h in held) < calib_end + EXAM_HORIZON_S)
+    est = map_theta([{"a": it["discrimination_a"], "b": it["difficulty_b"], "correct": it["correct"]} for it in held]) if held else None
+    acc = sum(it["correct"] for it in held) / len(held) if held else None
+    base = sum(it["abstain_baseline_correct"] for it in held) / len(held) if held else None
+    # Items sharing a 1h outcome window (same cycle, other symbols; next cycle, same move) are one market episode.
+    episodes, window_end = 0, None
+    for it in held:
+        if window_end is None or it["t"] >= window_end:
+            episodes += 1
+            window_end = it["t"] + EXAM_HORIZON_S
+    at_bound = bool(est) and abs(float(est["theta"])) >= THETA_BOUND
+    if len(held) < EXAM_MIN_ITEMS:
+        status = "INSUFFICIENT_ITEMS"
+    elif episodes < EXAM_MIN_EPISODES:
+        status = "INSUFFICIENT_INDEPENDENT_EPISODES"
+    elif at_bound:
+        status = "THETA_AT_BOUND_NOT_IDENTIFIED"
+    else:
+        status = "MEASURED"
+    cards = [{
+        "item_id": it["item_id"], "symbol": it["symbol"], "desk": it["desk"],
+        "prompt_fa": f"{it['symbol']} ({it['desk']}) در {it['ts']}: سیستم «{_ACTION_FA.get(it['action'], it['action'])}» را انتخاب کرد"
+                     + (f" (دلیل: {it['reason']})." if it["reason"] else "."),
+        "outcome_fa": f"بازدهٔ ۱ ساعت بعد {it['forward_1h_ret'] * 100:+.2f}% در برابر هزینهٔ رفت‌وبرگشت {it['round_trip_cost'] * 100:.2f}%.",
+        "verdict_fa": "تصمیم درست بود" if it["correct"] else "تصمیم نادرست بود",
+        "lesson_fa": ("عدم ورود از زیان یا حرکتِ کمتر از هزینه جلوگیری کرد." if it["action"] == "NO_TRADE" and it["correct"] else
+                      "عدم ورود یک حرکت بزرگ‌تر از هزینه را از دست داد؛ فقط با شواهد بیشتر قابل اصلاح است، نه با حدس." if it["action"] == "NO_TRADE" else
+                      "جهت پوزیشن با حرکت بعدی هم‌سو بود." if it["correct"] else
+                      "جهت پوزیشن خلاف حرکت بعدی بود؛ حد ضرر و اندازهٔ ریسک تنها محافظ است."),
+        "correct": it["correct"],
+    } for it in held[-12:]]
     payload = {
-        "schema": "ahos.m50_live_conflict_exam.v1",
+        "schema": "ahos.m50_live_conflict_exam.v2",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "paper_only": True,
         "promoted": False,
-        "n_items": len(items),
+        "method": "outcome-keyed decisions; time split; b from calibration half; 2PL MAP theta on held-out half",
+        "n_items": len(held),
+        "n_calibration_items": len(calib),
+        "n_heldout_items": len(held),
         "leaked": leaked,
-        "estimate_ability_theta": theta,
-        "items": items,
-        "note_fa": "آزمون held-out از تعارض‌های زندهٔ کاغذی — بدون ارتقا.",
+        "estimate_ability_theta": est["theta"] if est else None,
+        "theta_se": est["se"] if est else None,
+        "theta_meaning": "relative to the calibration period: >0 better than earlier decisions of the same type, <0 worse",
+        "heldout_accuracy": round(acc, 4) if acc is not None else None,
+        "abstain_baseline_accuracy": round(base, 4) if base is not None else None,
+        "skill_vs_abstain_baseline": round(acc - base, 4) if acc is not None and base is not None else None,
+        "compliance_checks": {**compliance, "note": "policy-enforced abstentions; excluded from theta"},
+        "independent_episodes": episodes,
+        "min_independent_episodes": EXAM_MIN_EPISODES,
+        "theta_at_bound": at_bound,
+        "item_types_heldout": sorted({it["item_type"] for it in held}),
+        "status": status,
+        "items": [{k: v for k, v in it.items() if k != "t"} for it in held],
+        "cards_fa": cards,
+        "note_fa": "آزمون held-out واقعی: کلید پاسخ از نتیجهٔ بازار یک ساعت بعد، نه از پاسخ خود سیستم — بدون ارتقا.",
     }
-    out = root / "reports" / "grok" / "M50" / "live_conflict_exam_items.json"
+    out = root / LIVE_EXAM_REL
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return payload

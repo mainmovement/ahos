@@ -30,7 +30,8 @@ from typing import Any, Callable
 
 from architecture.markets import signal_brain as sb
 from architecture.markets.paper_account import INITIAL_CAPITAL_USD, LEDGER_REL, load_paper_trades, paper_account_summary
-from architecture.markets.second_source import fetch_second_sources, witness
+from architecture.markets.second_source import (FUTURES, fetch_second_sources, fetch_third_sources,
+                                                 third_source_needed, witness)
 from architecture.execution.gateway import PaperOrder
 from architecture.markets.oms import route as oms_route
 
@@ -275,6 +276,9 @@ def mc_risk_of_ruin(trades: list[dict[str, Any]], equity: float = 100.0, *, ruin
         "ruin_probability": round(ruined / max(1, paths), 4),
         "p95_max_drawdown_pct": round(p95_dd * 100, 2),
         "empirical_trades_used": len(pnls),
+        "empirical": len(pnls) >= 5,
+        "basis": "EMPIRICAL_CLOSED_TRADES" if len(pnls) >= 5 else
+                 "POLICY_STRESS_PRIOR (±0.5% equity stop per RISK_PER_TRADE; not observed trades)",
     }
 
 
@@ -300,18 +304,64 @@ def _atr_pct(ohlcv: list[list[float]]) -> float | None:
     return (sum(trs) / len(trs)) / h1[-1][3]
 
 
+def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, Any]] | None = None,
+                   fetch_c: Callable[[list[str]], dict[str, Any]] | None = None,
+                   symbols: set[str] | None = None) -> dict[str, dict[str, Any]]:
+    """A (execution feed) vs B (same contract month) vs lazy C (independent vendor) -> witness per symbol."""
+    syms = symbols or (set(INSTRUMENTS) | {"DXY", "US10Y"})
+    if fetch_b is not None:
+        second = fetch_b()
+    else:
+        months = {s: (quotes.get(s) or {}).get("contract_month") for s in FUTURES}
+        second = fetch_second_sources(contract_months={s: m for s, m in months.items() if m})
+    pre = {s: witness(s, quotes.get(s), second.get(s)) for s in syms}
+    if fetch_c is not None:
+        third = fetch_c(third_source_needed(pre))
+    elif fetch_b is None:
+        third = fetch_third_sources(third_source_needed(pre))
+    else:
+        third = {}
+    return {s: (witness(s, quotes.get(s), second.get(s), third.get(s)) if s in third else pre[s]) for s in syms}
+
+
+DEX_FEE, DEX_SLIP = 0.0030, 0.0020   # AMM pool fee + conservative slippage per side
+
+
+def live_dex_feed(root: Path, positions: dict[str, Any]) -> dict[str, tuple[dict[str, Any], dict[str, Any]]]:
+    """M33 -> PB_TOKEN: fresh vetted tokens with a distinct-pool witness, plus every open DEX position (exit path)."""
+    from architecture.markets import token_safety_live as tsl
+    want = {f"DEX_{t['symbol']}": t for t in tsl.load_eligible_paper_tokens(root)}
+    for sym, p in positions.items():
+        if sym.startswith("DEX_") and p.get("token_address") and p.get("dex_pool"):
+            want.setdefault(sym, {"symbol": sym[4:], "address": p["token_address"], "pool": p["dex_pool"]})
+    out = {}
+    for sym, tok in want.items():
+        try:
+            out[sym] = tsl.dex_paper_quote(tok)
+        except Exception:
+            continue
+    return out
+
+
 def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
               fetch_b: Callable[[], dict[str, Any]] | None = None, signals_fn: Callable[..., list[dict[str, Any]]] | None = None,
-              now: Callable[[], float] = time.time, use_ledger: bool = True) -> dict[str, Any]:
+              now: Callable[[], float] = time.time, use_ledger: bool = True,
+              fetch_c: Callable[[list[str]], dict[str, Any]] | None = None,
+              dex_feed: Callable[[Path, dict[str, Any]], dict[str, tuple[dict[str, Any], dict[str, Any]]]] | None = None) -> dict[str, Any]:
     if fetch is None:
         from architecture.markets.live_price_feed import fetch_live_market_prices as fetch
     t = now()
     quotes = (fetch() or {}).get("quotes") or {}
-    second = (fetch_b or fetch_second_sources)()
-    wit = {s: witness(s, quotes.get(s), second.get(s)) for s in set(INSTRUMENTS) | {"DXY", "US10Y"}}
+    wit = gather_witness(quotes, fetch_b=fetch_b, fetch_c=fetch_c)
     state = _load(root / STATE_REL, {})
     state.setdefault("positions", {})
     state.setdefault("brain", {})
+    if dex_feed is None and fetch_b is None and signals_fn is None:
+        dex_feed = live_dex_feed
+    dex = dex_feed(root, state["positions"]) if dex_feed else {}
+    for sym, (dq, dw) in dex.items():
+        quotes[sym], wit[sym] = dq, dw
+    instruments = {**INSTRUMENTS, **{s: ("PB_TOKEN", DEX_FEE, DEX_SLIP) for s in dex}}
     weights = load_weights(root)
     try:  # Stage 3: research -> trader only through the versioned, reversible promotion switch
         from architecture.learning import strategy_switch as _sw
@@ -325,14 +375,14 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     killed, kill_reason = kill_switch(trades, equity, t)
     news = [] if signals_fn else sb.fetch_news()
     positions: dict[str, Any] = state["positions"]
-    per_desk_n = {d: sum(1 for v in INSTRUMENTS.values() if v[0] == d) for d in DESK_WEIGHTS}
+    per_desk_n = {d: max(1, sum(1 for v in instruments.values() if v[0] == d)) for d in DESK_WEIGHTS}
     events: list[dict[str, Any]] = []
 
     def log(row: dict[str, Any]) -> None:
         _append(root, LEDGER_REL, row)
         events.append(row)
 
-    for sym, (desk, fee, slip) in INSTRUMENTS.items():
+    for sym, (desk, fee, slip) in instruments.items():
         q = quotes.get(sym) or {}
         price = q.get("price")
         w = wit[sym]
@@ -351,7 +401,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             sigs = signals_fn(sym, desk, q)
         else:
             sigs = [sb.mtf_trend(ohlcv), sb.candle_patterns(ohlcv), sb.zscore_mr(ohlcv), sb.news_signal(desk, news),
-                    sb.macro_pressure(desk, quotes, wit), sb.macro_event(desk, root)]
+                    sb.macro_pressure(desk, quotes, wit), sb.macro_event(desk, root), sb.event_shock(desk, sym, root)]
             if desk == "CRYPTO":
                 sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym), sb.stablecoin_flow(state["brain"]),
                          sb.exchange_netflow(sym), sb.whale_mempool(sym), sb.stablecoin_impulse(sym)]
@@ -364,6 +414,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         brain = {"composite": comp, "contributions": comb["contributions"], "regime": regime,
                  "signals": [{k: s[k] for k in ("name", "score", "available", "source", "spec", "evidence")} for s in sigs],
                  "weights_version": weights["version"]}
+        scores = {s["name"]: round(float(s["score"]), 4) for s in sigs if s.get("available")}
         if pos:
             side = pos["side"]
             d = 1 if side == "LONG" else -1
@@ -377,7 +428,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             if not reason:
                 pos["mark_price"] = price
                 log({**base, "event": "HOLD", "side": side, "price": price, "move_pct": round(move * 100, 3),
-                     "composite": comp, "top_contributions": comb["contributions"][:4]})
+                     "composite": comp, "top_contributions": comb["contributions"][:4], "signal_scores": scores})
                 continue
             oms = oms_route(PaperOrder(desk.lower(), "sell" if d > 0 else "buy", pos["notional_usd"], False), "ELIGIBLE")
             exit_px = price * (1 - slip * d)
@@ -406,17 +457,21 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             why = "SPREAD_GATE"
         elif desk == "PB_TOKEN" and signals_fn is None:
             from architecture.markets.token_safety_live import veto_check as _tok_veto
-            tv = _tok_veto(sym)
+            tv = _tok_veto(sym[4:] if sym.startswith("DEX_") else sym, q.get("token_address"),
+                           strict=bool(q.get("token_address")))
             brain["token_safety_veto"] = {k: tv.get(k) for k in ("verdict", "allowed", "sources_verified", "reasons")}
             if not tv.get("allowed"):
                 why = f"TOKEN_SAFETY_VETO:{','.join(tv.get('reasons') or ['fail_closed'])}"
         if why:
             log({**base, "event": "NO_TRADE", "reason": why, "price": price, "composite": comp,
-                 "top_contributions": comb["contributions"][:5], "regime": regime["regime"]}); continue
+                 "top_contributions": comb["contributions"][:5], "regime": regime["regime"], "signal_scores": scores}); continue
         atr = _atr_pct(ohlcv) or MIN_STOP
         stop_pct = max(MIN_STOP, 2 * atr)
         desk_cap = equity * DESK_WEIGHTS[desk] / per_desk_n[desk]
-        notional = min(equity * RISK_PER_TRADE / stop_pct * regime["size_mult"], desk_cap * regime["size_mult"])
+        shock = next((s for s in sigs if s["name"] == "event_shock"), None)
+        event_size = min(1.0, float(((shock or {}).get("evidence") or {}).get("size_mult") or 1.0))
+        brain["event_size_mult"] = event_size
+        notional = min(equity * RISK_PER_TRADE / stop_pct * regime["size_mult"], desk_cap * regime["size_mult"]) * event_size
         cluster = CLUSTER_OF_DESK.get(desk, "other")
         cluster_open = sum(p["notional_usd"] for p in positions.values() if CLUSTER_OF_DESK.get(p.get("desk", ""), "") == cluster)
         cluster_rem = max(0.0, CLUSTER_CAPS.get(cluster, 0.35) * equity - cluster_open)
@@ -449,7 +504,8 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         entry_fee = notional * fee
         positions[sym] = {"side": side, "entry_price": round(fill, 6), "qty": qty, "notional_usd": notional,
                           "entry_fee_usd": round(entry_fee, 6), "opened_at": _iso(t), "opened_ts": t, "desk": desk,
-                          "stop_pct": round(stop_pct, 5), "entry_brain": brain, "mark_price": price}
+                          "stop_pct": round(stop_pct, 5), "entry_brain": brain, "mark_price": price,
+                          **({"token_address": q["token_address"], "dex_pool": q.get("dex_pool")} if q.get("token_address") else {})}
         row = {**base, "event": "OPEN", "side": side, "quote_price": price, "fill_price": round(fill, 6), "qty": qty,
                "notional_usd": notional, "fee_usd": round(entry_fee, 6), "slippage_pct": slip, "stop_pct": round(stop_pct, 5),
                "take_pct": round(stop_pct * TAKE_MULT, 5), "equity_at_open_usd": round(equity, 4), "brain": brain,
@@ -471,7 +527,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         "open_positions": {s: {k: v for k, v in p.items() if k != "entry_brain"} | {"top_contributions": (p.get("entry_brain") or {}).get("contributions", [])[:4]}
                            for s, p in positions.items()},
         "per_desk_realized_pnl_usd": acct["per_desk_realized_pnl_usd"], "performance": performance(trades),
-        "witness": {s: {k: w[k] for k in ("verdict", "price_a", "price_b", "source_a", "source_b", "gap")} for s, w in wit.items()},
+        "witness": {s: {k: w.get(k) for k in ("verdict", "price_a", "price_b", "source_a", "source_b", "gap", "price_c",
+                                               "source_c", "pair", "n_sources", "contract_month_a", "diagnostics")}
+                    for s, w in wit.items()},
         "halted": halted, "halt_reason": halt_reason, "kill_switch": killed, "kill_reason": kill_reason,
         "ledger_error": ledger.error, "weights_version": weights["version"], "weights": weights["weights"],
         "last_cycle": {"opens": sum(e["event"] == "OPEN" for e in events), "closes": sum(e["event"] == "CLOSE" for e in events),

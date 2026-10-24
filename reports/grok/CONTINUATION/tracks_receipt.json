@@ -1,6 +1,6 @@
 {
   "schema": "ahos.continuation_tracks.v1",
-  "generated_at": "2026-10-24T08:47:07Z",
+  "generated_at": "2026-10-24T10:37:16Z",
   "paper_only": true,
   "track1_paper_audit": "GREEN",
   "track1_weekend_tehran": true,
@@ -9,7 +9,7 @@
     "PB_TOKEN"
   ],
   "track1_promotion_gate": "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)",
-  "track3_teaching_lessons": 13,
+  "track3_teaching_lessons": 19,
   "track2_macro_ecb": "OK 10 (two-source mirrors)",
   "track2_macro_opec": "OK 10 (two-source mirrors)",
   "track3_memory": "OK",
@@ -17,14 +17,24 @@
   "track3_exam_score": 1.0,
   "track3_exam_leaked": false,
   "track5_shadow_best_n": 3,
-  "track5_shadow_summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی، بازدهٔ 1h): بیشترین نمونه macro_event با n=3 · IC≈0.0 — هنوز ارتقا ممنوع (UNPROVEN_EDGE؛ نه ۳۰ معاملهٔ بسته).",
-  "track6_session_drill_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن توکیو در 39 ساعت و 12 دقیقه (تهران). آداپتورهای کاغذی CCXT/IBKR: ACCEPTED_PAPER/ACCEPTED_PAPER. زمان تهران: 2026-10-24 12:17 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
-  "track6_next_countdown_fa": "39 ساعت و 12 دقیقه",
-  "track7_live_exam_items": 8,
-  "track7_theta": 1.0,
+  "track5_shadow_summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی، افق اصلی 1h): بیشترین نمونهٔ غیرهم‌پوشان stablecoin_impulse با n_eff=3 · هنوز هیچ سیگنالی ۱۰ مشاهدهٔ غیرهم‌پوشان ندارد — معاملات بسته 0/30؛ 30 معاملهٔ دیگر تا دروازه (UNPROVEN_EDGE).",
+  "track6_session_drill_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن نیویورک — 34 ساعت و 23 دقیقه (تهران 2026-10-26 00:30). کنترل‌های منفی آداپتورهای کاغذی: PREFLIGHT_PASS؛ اتصال واقعی کارگزار: NOT_VERIFIED. ضربان دیمون: FRESH. زمان تهران: 2026-10-24 14:07 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
+  "track6_next_countdown_fa": "37 ساعت و 23 دقیقه",
+  "track7_live_exam_items": 12,
+  "track7_theta": 3.0,
+  "track7_live_exam_status": "INSUFFICIENT_INDEPENDENT_EPISODES",
+  "track7_science_pillars_live": 7,
+  "track7_loop_status": "OPEN_AT_PROMOTE",
+  "track8_unification": "UNIFIED_CLEAN",
+  "track8_unification_drift": [],
+  "track8_unification_unknown": [],
   "track8_receipts_written": [
     "reports/grok/M28/shadow_forward_scorecard.json",
     "reports/grok/PAPER/session_readiness_drill.json",
-    "reports/grok/M50/live_conflict_exam_items.json"
+    "reports/grok/M50/live_conflict_exam_items.json",
+    "reports/grok/M65/teaching_snapshot.json",
+    "reports/grok/M57/science_to_desk_snapshot.json",
+    "reports/grok/M58/aci_agi_si_loop_status.json",
+    "reports/grok/M34/unification_audit.json"
   ]
 }

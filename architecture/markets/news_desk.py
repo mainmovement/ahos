@@ -5,6 +5,7 @@ Includes Asi's M80 v2 credibility/recency/priority math and SimHash deduplicatio
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import re
 from dataclasses import dataclass
@@ -422,6 +423,72 @@ def build_live_newsroom(root: Any, host: str, *, max_feeds: int = 90, max_age_h:
     return {"feeds_used": len(feeds), "feed_errors": errors, "items_24h": len(items), "clusters": len(clusters),
             "corroborated": sum(1 for s in stories if s["state"] == "CORROBORATED"),
             "stories": stories[:120], "rss_clusters": rss_clusters[:120], "center_items": center}
+
+
+# ============================ WP-2: causal news -> asset transmission matrix ============================
+NEWSROOM_REL = "reports/grok/M18/newsroom_snapshot.json"
+NEWS_HALF_LIFE_H = 6.0
+_HAWK = re.compile(r"\b(rate hikes?|hikes? rates?|rais(e|es|ed|ing) rates?|hawkish|tighten\w*|higher for longer|"
+                   r"hot(ter)? inflation|inflation (surges?|jumps?|accelerat\w*|rises?))\b", re.I)
+_DOVE = re.compile(r"\b(rate cuts?|cuts? rates?|cutting rates|dovish|eas(e|es|ed|ing) policy|monetary easing|"
+                   r"inflation (cools?|slows?|eases?|falls?))\b", re.I)
+_BANK = {"FED": re.compile(r"\b(fed|fomc|powell|federal reserve)\b", re.I),
+         "ECB": re.compile(r"\b(ecb|lagarde|european central bank)\b", re.I),
+         "BOJ": re.compile(r"\b(boj|bank of japan|ueda)\b", re.I),
+         "BOE": re.compile(r"\b(boe|bank of england|bailey)\b", re.I),
+         "OPEC": re.compile(r"\b(opec\+?|saudi output|output cuts?)\b", re.I)}
+# Sign of each asset's response to a HAWKISH surprise by that bank (standard rates/FX transmission). OPEC: supply cut.
+POLICY_TRANSMISSION: dict[str, dict[str, float]] = {
+    "FED": {"XAU": -1.0, "SPX": -1.0, "QQQ": -1.0, "BTC": -1.0, "ETH": -1.0, "SOL": -1.0, "EURUSD": -1.0, "USDJPY": 1.0},
+    "ECB": {"EURUSD": 1.0, "DAX": -1.0},
+    "BOJ": {"USDJPY": -1.0, "N225": -1.0},
+    "BOE": {"EURUSD": -0.5},
+}
+_OPEC_CUT = re.compile(r"\b(output|production|supply) cuts?\b|\bcuts? (output|production|supply)\b", re.I)
+_OPEC_HIKE = re.compile(r"\b(output|production|supply) (hikes?|increases?|boost)\b|\b(raise|boost|increase)s? (output|production)\b", re.I)
+
+
+def load_corroborated_stories(root: Any) -> list[dict[str, Any]]:
+    from pathlib import Path as _P
+    try:
+        snap = json.loads((_P(root) / NEWSROOM_REL).read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    return [s for s in snap.get("newsroomStories") or [] if s.get("state") == "CORROBORATED" and len(s.get("sourceIds") or []) >= 2]
+
+
+def causal_news_impact(stories: Sequence[dict[str, Any]], symbol: str, *, now: Any = None) -> dict[str, Any]:
+    """Signed drift for ``symbol`` from corroborated stories only: policy tone x bank transmission sign, OPEC supply
+    direction for oil, 6h half-life decay, tanh-bounded. Single-publisher stories contribute nothing."""
+    import math as _m
+    from datetime import datetime as _dt, timezone as _tz
+    now = now or _dt.now(_tz.utc)
+    total, used, ev = 0.0, 0, []
+    for s in stories:
+        if s.get("state") != "CORROBORATED" or len(s.get("sourceIds") or []) < 2:
+            continue
+        try:
+            age_h = (now - _dt.strptime(s["publishedAt"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=_tz.utc)).total_seconds() / 3600
+        except (KeyError, ValueError):
+            continue
+        if age_h < 0 or age_h > 48:
+            continue
+        title = str(s.get("headlineEn") or "")
+        contrib = 0.0
+        tone = (1 if _HAWK.search(title) else 0) - (1 if _DOVE.search(title) else 0)
+        if tone:
+            for bank, rx in _BANK.items():
+                if bank != "OPEC" and rx.search(title):
+                    contrib += tone * POLICY_TRANSMISSION.get(bank, {}).get(symbol, 0.0)
+        if symbol in ("WTI", "BRENT") and _BANK["OPEC"].search(title):
+            contrib += (1.0 if _OPEC_CUT.search(title) else 0.0) - (1.0 if _OPEC_HIKE.search(title) else 0.0)
+        if not contrib:
+            continue
+        w = 0.5 ** (age_h / NEWS_HALF_LIFE_H) * min(2.0, len(s["sourceIds"]) / 2.0)
+        total += contrib * w
+        used += 1
+        ev.append({"headline": title[:120], "publishers": len(s["sourceIds"]), "age_h": round(age_h, 1), "sign": contrib})
+    return {"drift": round(_m.tanh(total / 2.0), 4), "clusters_used": used, "evidence": ev}
 
 
 def urllib_get(url: str, timeout: float = 12.0) -> bytes:

@@ -1,0 +1,280 @@
+{
+  "schema": "ahos.unification_audit.v1",
+  "generated_at": "2026-10-24T10:37:16Z",
+  "paper_only": true,
+  "execution_mode": "PAPER_ONLY",
+  "read_only": true,
+  "overall_status": "UNIFIED_CLEAN",
+  "checks_total": 16,
+  "checks_by_status": {
+    "PASS": 16
+  },
+  "drift": [],
+  "unknown": [],
+  "checks": [
+    {
+      "id": "ledger.chain",
+      "status": "PASS",
+      "detail": {
+        "verdict": "CHAIN_INTACT",
+        "entries": 996,
+        "head_hash": "f91f05b218f93e326562648e68b5d979768381c315825cbf8b57a0a11492ebbb"
+      },
+      "surfaces": [
+        "data\\mission_ledger\\mission_ledger.jsonl"
+      ]
+    },
+    {
+      "id": "paper.closed_trades",
+      "status": "PASS",
+      "detail": {
+        "status.closed_trades": 0,
+        "audit.trades.closes": 0,
+        "paper_trades.jsonl CLOSE rows": 0,
+        "mission_ledger PAPER_FILL CLOSE": 0
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\paper_trader_status.json",
+        "reports\\grok\\PAPER\\paper_positions.json",
+        "reports\\grok\\PAPER\\paper_trade_audit.json",
+        "reports\\grok\\PAPER\\paper_trades.jsonl",
+        "data\\mission_ledger\\mission_ledger.jsonl"
+      ]
+    },
+    {
+      "id": "paper.open_positions",
+      "status": "PASS",
+      "detail": {
+        "status.open_positions": [
+          "BTC",
+          "ETH",
+          "SOL",
+          "UNI"
+        ],
+        "paper_positions.positions": [
+          "BTC",
+          "ETH",
+          "SOL",
+          "UNI"
+        ],
+        "paper_trades.jsonl net OPEN": [
+          "BTC",
+          "ETH",
+          "SOL",
+          "UNI"
+        ],
+        "mission_ledger net OPEN": [
+          "BTC",
+          "ETH",
+          "SOL",
+          "UNI"
+        ]
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\paper_trader_status.json",
+        "reports\\grok\\PAPER\\paper_positions.json",
+        "reports\\grok\\PAPER\\paper_trade_audit.json",
+        "reports\\grok\\PAPER\\paper_trades.jsonl",
+        "data\\mission_ledger\\mission_ledger.jsonl"
+      ]
+    },
+    {
+      "id": "paper.equity",
+      "status": "PASS",
+      "detail": {
+        "initial_capital_usd": 100.0,
+        "sum_close_realized_pnl_usd": 0,
+        "realized_equity_usd": 100.0,
+        "unrealized_pnl_usd": -0.001,
+        "mark_to_market_equity_usd": 99.999,
+        "tolerance_usd": 0.01
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\paper_trader_status.json",
+        "reports\\grok\\PAPER\\paper_trades.jsonl"
+      ]
+    },
+    {
+      "id": "paper.ledger_xref",
+      "status": "PASS",
+      "detail": {
+        "fills_on_jsonl": 4,
+        "fills_on_ledger": 4,
+        "unlinked": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\paper_trades.jsonl",
+        "data\\mission_ledger\\mission_ledger.jsonl"
+      ]
+    },
+    {
+      "id": "paper.audit_ledger_refs",
+      "status": "PASS",
+      "detail": {
+        "audit.paper_trader_refs": 4,
+        "ledger_entries_matching": 4
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\paper_trade_audit.json",
+        "data\\mission_ledger\\mission_ledger.jsonl"
+      ]
+    },
+    {
+      "id": "gold.soak_witness",
+      "status": "PASS",
+      "detail": {
+        "last_cycle": {
+          "ts": "2026-10-24T10:35:40Z",
+          "cycle": 931,
+          "witness_state": "UNRESOLVED",
+          "price_usd": null
+        },
+        "runlog_last": {
+          "ts": "2026-10-24T10:35:40Z",
+          "cycle": 931,
+          "witness_state": "UNRESOLVED",
+          "price_usd": null
+        },
+        "contradictions": []
+      },
+      "surfaces": [
+        "reports\\grok\\M13_SOAK\\soak_status.json",
+        "reports\\grok\\M13_SOAK\\soak_runlog.jsonl",
+        "data\\mission_ledger\\mission_ledger.jsonl"
+      ]
+    },
+    {
+      "id": "gold.separate_10k_account",
+      "status": "PASS",
+      "detail": {
+        "ledger_checkpoint_bankroll_usd": 10000.0,
+        "expected_usd": 10000.0,
+        "ledger_state_rows": 932,
+        "note": "Gold soak is its own $10k paper account; it is never summed into the $100 paper trader."
+      },
+      "surfaces": [
+        "data\\mission_ledger\\mission_ledger.jsonl"
+      ]
+    },
+    {
+      "id": "gold.daily_digest",
+      "status": "PASS",
+      "detail": {
+        "latest": "2026-10-24_digest.json"
+      },
+      "surfaces": [
+        "reports\\grok\\M13_SOAK"
+      ]
+    },
+    {
+      "id": "macro.calendar_6_banks",
+      "status": "PASS",
+      "detail": {
+        "ok": 6,
+        "of": 6,
+        "not_ok": {}
+      },
+      "surfaces": [
+        "reports\\grok\\M19\\macro_calendar.json"
+      ]
+    },
+    {
+      "id": "news.two_source_corroboration",
+      "status": "PASS",
+      "detail": {
+        "corroborated_clusters_listed": 43,
+        "under_two_domains": [],
+        "stats": {
+          "feeds_used": 90,
+          "feed_errors": 0,
+          "items_24h": 479,
+          "clusters": 392,
+          "corroborated": 43
+        }
+      },
+      "surfaces": [
+        "reports\\grok\\M18\\newsroom_snapshot.json"
+      ]
+    },
+    {
+      "id": "token.watch_invariants",
+      "status": "PASS",
+      "detail": {
+        "eligible": 2,
+        "violations": [],
+        "counts_consistent": true
+      },
+      "surfaces": [
+        "reports\\grok\\M33\\token_hunter_snapshot.json"
+      ]
+    },
+    {
+      "id": "research.dsr_is_probability",
+      "status": "PASS",
+      "detail": {
+        "candidates_checked": 64,
+        "out_of_range": [],
+        "tournament_leader_dsr": 16.7525,
+        "tournament_dsr_semantics_labeled": true
+      },
+      "surfaces": [
+        "reports\\grok\\M28\\walk_forward_snapshot.json",
+        "reports\\grok\\M28\\batch4_research.json",
+        "reports\\grok\\M28\\batch5_research.json",
+        "reports\\grok\\M56\\tournament_snapshot.json"
+      ]
+    },
+    {
+      "id": "research.batch5_registry_switch",
+      "status": "PASS",
+      "detail": {
+        "promotion_eligible": [],
+        "problems": [],
+        "strategy_switch_version": 0
+      },
+      "surfaces": [
+        "reports\\grok\\M28\\batch5_research.json",
+        "reports\\grok\\M56\\red_team_audit.json",
+        "strategy_lab\\registry.json",
+        "reports\\grok\\PAPER\\paper_trader_status.json"
+      ]
+    },
+    {
+      "id": "edge.unproven_consistency",
+      "status": "PASS",
+      "detail": {
+        "status.edge_status": "UNPROVEN_EDGE",
+        "audit.unproven_edge": true,
+        "scorecard.unproven_edge": true,
+        "scorecard.closed_trades_count": 0,
+        "scorecard.trades_remaining_to_30_gate": 30,
+        "paper_closed_trades": 0
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\paper_trader_status.json",
+        "reports\\grok\\PAPER\\paper_trade_audit.json",
+        "reports\\grok\\M28\\shadow_forward_scorecard.json"
+      ]
+    },
+    {
+      "id": "claims.static_labeled",
+      "status": "PASS",
+      "detail": {
+        "unlabeled": []
+      },
+      "surfaces": [
+        "reports\\grok\\M57\\whole_ahos_organ_evolution.json",
+        "reports\\grok\\M57\\science_to_desk_snapshot.json",
+        "reports\\grok\\M56\\tournament_snapshot.json"
+      ]
+    }
+  ],
+  "open_gaps": [
+    "Exchange holidays are not modeled in weekday_session_gate (holidays_modeled=false).",
+    "Broker connectivity is NOT_VERIFIED: IBKR DU*/CCXT sandbox preflight runs negative controls only.",
+    "Organ held_out_exam_score_pct values are curriculum constants (STATIC_UNVERIFIED), not exam output.",
+    "M56 tournament contenders are FIXTURE_ILLUSTRATIVE returns; its 'DSR' is a haircut Sharpe, not a probability.",
+    "Edge is unproven until >= 30 real OOS closed trades with DSR > 0.95 and PBO < 0.50."
+  ],
+  "summary_fa": "همهٔ 16 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
+}

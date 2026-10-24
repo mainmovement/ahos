@@ -1,6 +1,6 @@
 {
   "schema": "ahos.strategy_tournament.v1",
-  "generated_at": "2026-10-23T20:33:59Z",
+  "generated_at": "2026-10-24T10:37:15Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -10,6 +10,8 @@
   "leader_title": "Forward-Filtered Regime HMM + ATR Stop (M24)",
   "leader_dsr": 16.7525,
   "leader_brier": 0.1302,
+  "data_source": "FIXTURE_ILLUSTRATIVE",
+  "dsr_semantics": "HAIRCUT_ANNUALIZED_SHARPE: annualized Sharpe minus 0.35*sqrt(2 ln n_trials); NOT the Bailey-Lopez de Prado probability in [0,1] used by walk_forward batch gates",
   "regime_catalog": [
     "BULL_TREND",
     "BEAR_DRAWDOWN",

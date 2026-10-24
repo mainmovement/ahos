@@ -1,0 +1,359 @@
+{
+ "schema": "ahos.science_to_desk_snapshot.v1",
+ "generated_at": "2026-10-24T10:37:15Z",
+ "paper_only": true,
+ "source": "reports/grok/M44/arxiv_scout.json",
+ "scout_generated_at": "2026-10-24T10:14:17Z",
+ "pillars_total": 7,
+ "pillars_live": 7,
+ "proposed_hypotheses_total": 14,
+ "validated_claims_total": 0,
+ "organ_static_curricula": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
+ "honesty_note": "Papers motivate questions only. validated_claims stays 0 until a pre-registered test passes every gate.",
+ "matrix": [
+  {
+   "pillar": "P1_MARKETS_QUANT",
+   "organ": "TRADING_AND_RISK_DESKS",
+   "query": "(cat:q-fin.TR OR cat:q-fin.PM OR cat:q-fin.ST)",
+   "papers_found": 5,
+   "latest_papers": [
+    {
+     "arxiv_id": "2610.31141v1",
+     "title": "Intraday Forecasting Ability and Liquidity Provision of Institutional Traders",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31141v1"
+    },
+    {
+     "arxiv_id": "2610.31074v1",
+     "title": "Directionally Correct Views in Portfolio Optimization",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31074v1"
+    },
+    {
+     "arxiv_id": "2610.30891v1",
+     "title": "Equilibria and Learning in Competitive Market Making",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.30891v1"
+    }
+   ],
+   "proposed_hypotheses": [
+    {
+     "question_en": "Does 'Intraday Forecasting Ability and Liquidity Provision of Institutional Traders' transfer to AHOS organ TRADING_AND_RISK_DESKS under a pre-registered test?",
+     "arxiv_id": "2610.31141v1",
+     "url": "https://arxiv.org/abs/2610.31141v1",
+     "published": "2026-10-22",
+     "asku_ref": "asku_d033a6e09380",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    },
+    {
+     "question_en": "Does 'Directionally Correct Views in Portfolio Optimization' transfer to AHOS organ TRADING_AND_RISK_DESKS under a pre-registered test?",
+     "arxiv_id": "2610.31074v1",
+     "url": "https://arxiv.org/abs/2610.31074v1",
+     "published": "2026-10-22",
+     "asku_ref": "asku_717af107b327",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    }
+   ],
+   "linked_preregistered_hypotheses": {
+    "H18": "REJECTED",
+    "H23": "REJECTED",
+    "H24": "REJECTED",
+    "H25": "REJECTED",
+    "H27": "REJECTED",
+    "H28": "REJECTED"
+   },
+   "validated_claims": 0,
+   "status": "LIVE"
+  },
+  {
+   "pillar": "P2_CORE_BRAIN_REASONING",
+   "organ": "CORE_BRAIN_ACI_AGI_SI",
+   "query": "cat:cs.AI AND (all:calibration OR all:metacognition OR all:abstention)",
+   "papers_found": 5,
+   "latest_papers": [
+    {
+     "arxiv_id": "2610.31657v1",
+     "title": "Cost-Aware Abstention for LLM-Based IT Ticket Classification",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31657v1"
+    },
+    {
+     "arxiv_id": "2610.31586v1",
+     "title": "Would an LLM Match into a Residency? Uncertainty, Reasoning and Image Use of Open Language Models on the Spanish MIR Examination",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31586v1"
+    },
+    {
+     "arxiv_id": "2610.31579v1",
+     "title": "Who Is Sycophantic to Whom? Confident LLMs, Human Deference, and the Collapse of Trust Calibration",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31579v1"
+    }
+   ],
+   "proposed_hypotheses": [
+    {
+     "question_en": "Does 'Cost-Aware Abstention for LLM-Based IT Ticket Classification' transfer to AHOS organ CORE_BRAIN_ACI_AGI_SI under a pre-registered test?",
+     "arxiv_id": "2610.31657v1",
+     "url": "https://arxiv.org/abs/2610.31657v1",
+     "published": "2026-10-22",
+     "asku_ref": "asku_65d7c2e56c89",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    },
+    {
+     "question_en": "Does 'Would an LLM Match into a Residency? Uncertainty, Reasoning and Image Use of Open Language Models on the Spanish MIR Exa' transfer to AHOS organ CORE_BRAIN_ACI_AGI_SI under a pre-registered test?",
+     "arxiv_id": "2610.31586v1",
+     "url": "https://arxiv.org/abs/2610.31586v1",
+     "published": "2026-10-22",
+     "asku_ref": "asku_bbd6072e5d2c",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    }
+   ],
+   "linked_preregistered_hypotheses": {},
+   "validated_claims": 0,
+   "status": "LIVE"
+  },
+  {
+   "pillar": "P3_LEARNING_FORECASTING",
+   "organ": "AHOS_UNIVERSITY_DANESHGAH",
+   "query": "cat:cs.LG AND all:\"time series\" AND (all:forecasting OR all:\"distribution shift\")",
+   "papers_found": 5,
+   "latest_papers": [
+    {
+     "arxiv_id": "2610.31288v1",
+     "title": "DISC: Domain-Integrated Similarity Cost for Time-Series Dataset",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31288v1"
+    },
+    {
+     "arxiv_id": "2610.29504v1",
+     "title": "Rethinking Agentic Model Orchestration for Time Series Forecasting",
+     "published": "2026-10-21",
+     "url": "https://arxiv.org/abs/2610.29504v1"
+    },
+    {
+     "arxiv_id": "2610.28997v1",
+     "title": "Rethinking Time Series Tokenization from a Frequency Perspective",
+     "published": "2026-10-20",
+     "url": "https://arxiv.org/abs/2610.28997v1"
+    }
+   ],
+   "proposed_hypotheses": [
+    {
+     "question_en": "Does 'DISC: Domain-Integrated Similarity Cost for Time-Series Dataset' transfer to AHOS organ AHOS_UNIVERSITY_DANESHGAH under a pre-registered test?",
+     "arxiv_id": "2610.31288v1",
+     "url": "https://arxiv.org/abs/2610.31288v1",
+     "published": "2026-10-22",
+     "asku_ref": "asku_652fa2e99e58",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    },
+    {
+     "question_en": "Does 'Rethinking Agentic Model Orchestration for Time Series Forecasting' transfer to AHOS organ AHOS_UNIVERSITY_DANESHGAH under a pre-registered test?",
+     "arxiv_id": "2610.29504v1",
+     "url": "https://arxiv.org/abs/2610.29504v1",
+     "published": "2026-10-21",
+     "asku_ref": "asku_301355040b8e",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    }
+   ],
+   "linked_preregistered_hypotheses": {},
+   "validated_claims": 0,
+   "status": "LIVE"
+  },
+  {
+   "pillar": "P4_SECURITY_WHITE_HATS",
+   "organ": "WHITE_HATS_NEGAHBAN_SECURITY",
+   "query": "cat:cs.CR AND (all:\"smart contract\" OR all:honeypot OR all:\"prompt injection\" OR all:\"rug pull\")",
+   "papers_found": 5,
+   "latest_papers": [
+    {
+     "arxiv_id": "2610.29747v1",
+     "title": "Prompt Injection Through Forensic Evidence: A Taxonomy and Proof of Concept of Anti-Forensic Attacks on LLM-Assisted Digital Investigations",
+     "published": "2026-10-21",
+     "url": "https://arxiv.org/abs/2610.29747v1"
+    },
+    {
+     "arxiv_id": "2610.30202v1",
+     "title": "MPIDetector: Detecting Multi-modal Prompt Injection via LLM-based Reasoning",
+     "published": "2026-10-21",
+     "url": "https://arxiv.org/abs/2610.30202v1"
+    },
+    {
+     "arxiv_id": "2610.29379v1",
+     "title": "Where AI Vulnerability Discovery Harnesses Go Quiet: Structural False Negatives and Hidden Vulnerabilities",
+     "published": "2026-10-21",
+     "url": "https://arxiv.org/abs/2610.29379v1"
+    }
+   ],
+   "proposed_hypotheses": [
+    {
+     "question_en": "Does 'Prompt Injection Through Forensic Evidence: A Taxonomy and Proof of Concept of Anti-Forensic Attacks on LLM-Assisted Dig' transfer to AHOS organ WHITE_HATS_NEGAHBAN_SECURITY under a pre-registered test?",
+     "arxiv_id": "2610.29747v1",
+     "url": "https://arxiv.org/abs/2610.29747v1",
+     "published": "2026-10-21",
+     "asku_ref": "asku_bb5fb79bd2e2",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    },
+    {
+     "question_en": "Does 'MPIDetector: Detecting Multi-modal Prompt Injection via LLM-based Reasoning' transfer to AHOS organ WHITE_HATS_NEGAHBAN_SECURITY under a pre-registered test?",
+     "arxiv_id": "2610.30202v1",
+     "url": "https://arxiv.org/abs/2610.30202v1",
+     "published": "2026-10-21",
+     "asku_ref": "asku_a12add1aad6c",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    }
+   ],
+   "linked_preregistered_hypotheses": {},
+   "validated_claims": 0,
+   "status": "LIVE"
+  },
+  {
+   "pillar": "P5_SYSTEM_PERFORMANCE_BODY",
+   "organ": "SYSTEM_PERFORMANCE_AND_BODY",
+   "query": "cat:cs.PF AND (all:memory OR all:latency OR all:streaming)",
+   "papers_found": 5,
+   "latest_papers": [
+    {
+     "arxiv_id": "2610.29489v1",
+     "title": "Reorienting the Vector Axis: Restructuring FlashAttention for Long-Vector Processors",
+     "published": "2026-10-21",
+     "url": "https://arxiv.org/abs/2610.29489v1"
+    },
+    {
+     "arxiv_id": "2610.28699v1",
+     "title": "Reinforcement learning for hardware acceleration and system-level optimization on FPGA and integrated-circuit platforms: A survey",
+     "published": "2026-10-20",
+     "url": "https://arxiv.org/abs/2610.28699v1"
+    },
+    {
+     "arxiv_id": "2610.27356v1",
+     "title": "Stop Paying by the Letter: Accelerating Full-Chip RTL Simulation with Host-Side Tokenized Logging",
+     "published": "2026-10-19",
+     "url": "https://arxiv.org/abs/2610.27356v1"
+    }
+   ],
+   "proposed_hypotheses": [
+    {
+     "question_en": "Does 'Reorienting the Vector Axis: Restructuring FlashAttention for Long-Vector Processors' transfer to AHOS organ SYSTEM_PERFORMANCE_AND_BODY under a pre-registered test?",
+     "arxiv_id": "2610.29489v1",
+     "url": "https://arxiv.org/abs/2610.29489v1",
+     "published": "2026-10-21",
+     "asku_ref": "asku_288f4c8184a2",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    },
+    {
+     "question_en": "Does 'Reinforcement learning for hardware acceleration and system-level optimization on FPGA and integrated-circuit platforms:' transfer to AHOS organ SYSTEM_PERFORMANCE_AND_BODY under a pre-registered test?",
+     "arxiv_id": "2610.28699v1",
+     "url": "https://arxiv.org/abs/2610.28699v1",
+     "published": "2026-10-20",
+     "asku_ref": "asku_9ad16e5d19cb",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    }
+   ],
+   "linked_preregistered_hypotheses": {},
+   "validated_claims": 0,
+   "status": "LIVE"
+  },
+  {
+   "pillar": "P6_STATISTICS_VALIDATION",
+   "organ": "RESEARCH_INSTITUTE_PAZHOOHESHKADEH",
+   "query": "cat:stat.ML AND (all:conformal OR all:\"multiple testing\" OR all:calibration OR all:overfitting)",
+   "papers_found": 5,
+   "latest_papers": [
+    {
+     "arxiv_id": "2610.31336v1",
+     "title": "Metric Conformal Prediction via the Conditional Expected Local Radius",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31336v1"
+    },
+    {
+     "arxiv_id": "2610.31163v1",
+     "title": "Prediction Uncertainty Controlled Computer Model Calibration",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.31163v1"
+    },
+    {
+     "arxiv_id": "2610.30652v1",
+     "title": "Residual Calibration via Local Feature-Space Refinement",
+     "published": "2026-10-22",
+     "url": "https://arxiv.org/abs/2610.30652v1"
+    }
+   ],
+   "proposed_hypotheses": [
+    {
+     "question_en": "Does 'Metric Conformal Prediction via the Conditional Expected Local Radius' transfer to AHOS organ RESEARCH_INSTITUTE_PAZHOOHESHKADEH under a pre-registered test?",
+     "arxiv_id": "2610.31336v1",
+     "url": "https://arxiv.org/abs/2610.31336v1",
+     "published": "2026-10-22",
+     "asku_ref": "asku_4fb924824eef",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    },
+    {
+     "question_en": "Does 'Prediction Uncertainty Controlled Computer Model Calibration' transfer to AHOS organ RESEARCH_INSTITUTE_PAZHOOHESHKADEH under a pre-registered test?",
+     "arxiv_id": "2610.31163v1",
+     "url": "https://arxiv.org/abs/2610.31163v1",
+     "published": "2026-10-22",
+     "asku_ref": "asku_e1c365b070f7",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    }
+   ],
+   "linked_preregistered_hypotheses": {
+    "H19": "REJECTED",
+    "H20": "REJECTED"
+   },
+   "validated_claims": 0,
+   "status": "LIVE"
+  },
+  {
+   "pillar": "P7_MACRO_EVENTS_OSINT",
+   "organ": "REPORTERS_DIDEHBAN_OSINT",
+   "query": "(cat:econ.EM OR cat:q-fin.GN) AND (all:announcement OR all:\"event study\" OR all:news)",
+   "papers_found": 5,
+   "latest_papers": [
+    {
+     "arxiv_id": "2610.30487v1",
+     "title": "Monetary Policy Forecast Errors and Inflation Compensation under Sovereign Stress in Brazil",
+     "published": "2026-10-21",
+     "url": "https://arxiv.org/abs/2610.30487v1"
+    },
+    {
+     "arxiv_id": "2610.28562v1",
+     "title": "OptScientist: Automated Discovery of Optimization Laws",
+     "published": "2026-10-20",
+     "url": "https://arxiv.org/abs/2610.28562v1"
+    },
+    {
+     "arxiv_id": "2610.27405v1",
+     "title": "Evidence-Based Policy Choice in Macroeconomics",
+     "published": "2026-10-19",
+     "url": "https://arxiv.org/abs/2610.27405v1"
+    }
+   ],
+   "proposed_hypotheses": [
+    {
+     "question_en": "Does 'Monetary Policy Forecast Errors and Inflation Compensation under Sovereign Stress in Brazil' transfer to AHOS organ REPORTERS_DIDEHBAN_OSINT under a pre-registered test?",
+     "arxiv_id": "2610.30487v1",
+     "url": "https://arxiv.org/abs/2610.30487v1",
+     "published": "2026-10-21",
+     "asku_ref": "asku_c4be0621fc71",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    },
+    {
+     "question_en": "Does 'OptScientist: Automated Discovery of Optimization Laws' transfer to AHOS organ REPORTERS_DIDEHBAN_OSINT under a pre-registered test?",
+     "arxiv_id": "2610.28562v1",
+     "url": "https://arxiv.org/abs/2610.28562v1",
+     "published": "2026-10-20",
+     "asku_ref": "asku_c43b0e7714ff",
+     "status": "PROPOSED_NOT_PREREGISTERED"
+    }
+   ],
+   "linked_preregistered_hypotheses": {
+    "H16": "REJECTED",
+    "H17": "REJECTED",
+    "H22": "FORWARD_TEST",
+    "H26": "REJECTED"
+   },
+   "validated_claims": 0,
+   "status": "LIVE"
+  }
+ ]
+}

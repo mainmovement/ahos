@@ -13,6 +13,8 @@ from typing import Any
 
 SWITCH_REL = Path("reports") / "grok" / "PAPER" / "strategy_switch.json"
 B4_REL = Path("reports") / "grok" / "M28" / "batch4_research.json"
+B5_REL = Path("reports") / "grok" / "M28" / "batch5_research.json"
+BATCH_RELS = (B4_REL, B5_REL)
 RED_REL = Path("reports") / "grok" / "M56" / "strategy_red_team_snapshot.json"
 
 
@@ -38,9 +40,16 @@ def _save(root: Path, s: dict[str, Any]) -> None:
 
 
 def promote(root: Path, strategy_id: str, signal: str, weight: float, *, actor: str) -> dict[str, Any]:
-    b4 = json.loads((Path(root) / B4_REL).read_text(encoding="utf-8"))
-    cand = next((c for c in b4.get("candidates") or [] if c["strategy_id"] == strategy_id), None)
-    if not cand or cand.get("gate") != "PASS_STATS":
+    cand = None
+    for rel in BATCH_RELS:
+        try:
+            snap = json.loads((Path(root) / rel).read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            continue
+        cand = next((c for c in snap.get("candidates") or [] if c["strategy_id"] == strategy_id), None)
+        if cand:
+            break
+    if not cand or cand.get("gate") != "PASS_STATS" or int(cand.get("oos_trades") or 0) < 30:
         raise PermissionError(f"{strategy_id}: stats gate not passed ({(cand or {}).get('gate_detail')})")
     red = json.loads((Path(root) / RED_REL).read_text(encoding="utf-8"))
     row = next((r for r in red.get("reports") or [] if r.get("strategy_id") == strategy_id), None)

@@ -1,6 +1,6 @@
 {
  "schema": "ahos.arxiv_scout.v1",
- "generated_at": "2026-10-24T01:16:52Z",
+ "generated_at": "2026-10-24T10:14:17Z",
  "source": "https://export.arxiv.org/api/query",
  "queries": {
   "H14": "all:bitcoin AND all:exchange AND (all:inflow OR all:inflows OR all:\"on-chain\")",
@@ -783,6 +783,614 @@
   ]
  },
  "errors": {},
+ "pillar_queries": {
+  "P1_MARKETS_QUANT": "(cat:q-fin.TR OR cat:q-fin.PM OR cat:q-fin.ST)",
+  "P2_CORE_BRAIN_REASONING": "cat:cs.AI AND (all:calibration OR all:metacognition OR all:abstention)",
+  "P3_LEARNING_FORECASTING": "cat:cs.LG AND all:\"time series\" AND (all:forecasting OR all:\"distribution shift\")",
+  "P4_SECURITY_WHITE_HATS": "cat:cs.CR AND (all:\"smart contract\" OR all:honeypot OR all:\"prompt injection\" OR all:\"rug pull\")",
+  "P5_SYSTEM_PERFORMANCE_BODY": "cat:cs.PF AND (all:memory OR all:latency OR all:streaming)",
+  "P6_STATISTICS_VALIDATION": "cat:stat.ML AND (all:conformal OR all:\"multiple testing\" OR all:calibration OR all:overfitting)",
+  "P7_MACRO_EVENTS_OSINT": "(cat:econ.EM OR cat:q-fin.GN) AND (all:announcement OR all:\"event study\" OR all:news)"
+ },
+ "papers_by_pillar": {
+  "P1_MARKETS_QUANT": [
+   {
+    "arxiv_id": "2610.31141v1",
+    "url": "https://arxiv.org/abs/2610.31141v1",
+    "title": "Intraday Forecasting Ability and Liquidity Provision of Institutional Traders",
+    "authors": [
+     "Xinlei Hao",
+     "Jiajun Guo",
+     "Jussi Keppo",
+     "Xianhua Peng"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "q-fin.TR",
+     "q-fin.GN",
+     "q-fin.ST"
+    ],
+    "abstract_snippet": "This study uses a high-frequency dataset from a stock exchange to examine how forecasting ability and liquidity provision relate to institutional traders' proprietary intraday profitability. We discover persistent forecasting abilities among traders. Specifically, we demonstrate that hypothetical flow-following strategies based on the execution flows of these skillful traders yield annualized Sharpe ratios ranging fr"
+   },
+   {
+    "arxiv_id": "2610.31074v1",
+    "url": "https://arxiv.org/abs/2610.31074v1",
+    "title": "Directionally Correct Views in Portfolio Optimization",
+    "authors": [
+     "Ojas Kumar",
+     "Sreejit Dey",
+     "Sarvesh Ravichandran Iyer",
+     "Sandeep Juneja"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "Portfolio optimization techniques often use historical data to estimate parameters for Markowitz-type or ML models. Effective allocation requires a way to align the available data with conditions expected over the investment horizon. Inspired by the Black-Litterman framework, we ask whether incorporating expert views leads to better portfolio allocations. In a simple Markowitz setting, we show that even a small amoun"
+   },
+   {
+    "arxiv_id": "2610.30891v1",
+    "url": "https://arxiv.org/abs/2610.30891v1",
+    "title": "Equilibria and Learning in Competitive Market Making",
+    "authors": [
+     "Matteo Onger",
+     "Luigi Foscari"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.GT",
+     "cs.LG",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "We propose a market-making game played among $N \\ge 2$ strategic market makers and a single non-strategic representative trader. In a continuous quote space, standard finite-game arguments do not apply, while non-convex and discontinuous payoffs rule out classical continuous existence results and complicate learning. Nonetheless, we characterize pure-strategy Nash equilibria (PSNEs) and show that at least one PSNE al"
+   },
+   {
+    "arxiv_id": "2610.30564v1",
+    "url": "https://arxiv.org/abs/2610.30564v1",
+    "title": "When News Gets Old: Portfolio Allocation with Reinforcement Learning and Large Language Models",
+    "authors": [
+     "Bolin Song",
+     "Surui Xiang"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.LG",
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "Financial news can influence investment decisions long after publication. Timely news may reach an investor before prices fully adjust, whereas older news may already be reflected in prices. We examine two ways to handle aging signals: retain them and give a portfolio policy timing information, or filter them out before portfolio selection. A fixed large language model (LLM) extracts signals from public SEC disclosur"
+   },
+   {
+    "arxiv_id": "2610.30557v1",
+    "url": "https://arxiv.org/abs/2610.30557v1",
+    "title": "Governed Self-Evolution for Autonomous Investing: A Multi-Agent LLM System with an Invariant Core",
+    "authors": [
+     "Yebo Feng",
+     "Jingyang Dai",
+     "Liangrui Pan",
+     "Nelson Lau",
+     "Jiahua Xu",
+     "Yang Liu"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.AI",
+     "cs.CL",
+     "cs.MA",
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "LLM agents that act on live Web data must combine heterogeneous evidence, remember what they have done and improve from outcomes without weakening their own safeguards. We study this problem in autonomous investing, where every action is irreversible and based on untrusted Web content. We present Steward, a multi-agent LLM system that draws the boundary of self-evolution in its type system. First, nine role-specialis"
+   }
+  ],
+  "P2_CORE_BRAIN_REASONING": [
+   {
+    "arxiv_id": "2610.31657v1",
+    "url": "https://arxiv.org/abs/2610.31657v1",
+    "title": "Cost-Aware Abstention for LLM-Based IT Ticket Classification",
+    "authors": [
+     "Sachin Gupta"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.LG",
+     "cs.AI",
+     "cs.CL"
+    ],
+    "abstract_snippet": "Wrong automatic routing of an IT support ticket can cost more than human triage. We evaluate cost-aware abstention as an offline, cost-conditional readiness assessment: select a routing policy on calibration data under explicit costs, then evaluate that frozen policy once on held-out test data. On a public 47,837-ticket, eight-class corpus, we compare four trained non-LLM classifiers with four large language models u"
+   },
+   {
+    "arxiv_id": "2610.31586v1",
+    "url": "https://arxiv.org/abs/2610.31586v1",
+    "title": "Would an LLM Match into a Residency? Uncertainty, Reasoning and Image Use of Open Language Models on the Spanish MIR Examination",
+    "authors": [
+     "Miguel Fernandez-de-Retana",
+     "Unai Zulaika",
+     "Ruben Sanchez-Corcuera",
+     "Aritz Bilbao-Jayo",
+     "Aitor Almeida"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.CL",
+     "cs.AI",
+     "cs.CY",
+     "cs.LG"
+    ],
+    "abstract_snippet": "Accuracy on medical examinations is common evidence offered for the clinical use of language models, yet a health system that intends to run an open model on its own hardware needs to know considerably more: whether the model recognizes when it is likely to be wrong, whether medical fine-tuning improves this ability, whether its correct answers rest on sound clinical reasoning, or whether it actually uses the images "
+   },
+   {
+    "arxiv_id": "2610.31579v1",
+    "url": "https://arxiv.org/abs/2610.31579v1",
+    "title": "Who Is Sycophantic to Whom? Confident LLMs, Human Deference, and the Collapse of Trust Calibration",
+    "authors": [
+     "Deepthika S",
+     "Pawni Yadav",
+     "B. Sankar"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.AI",
+     "cs.HC"
+    ],
+    "abstract_snippet": "Research on sycophancy asks whether large language models (LLMs) bend towards what their users want to hear. We ask the reverse question: when an LLM is confident, consistent, and wrong, do users bend towards it? In a within-subjects experiment, 32 participants learned up to five science topics by chatting with five assistants built on the same model (GPT-5-mini). Unknown to participants, each assistant's briefing ha"
+   },
+   {
+    "arxiv_id": "2610.31436v1",
+    "url": "https://arxiv.org/abs/2610.31436v1",
+    "title": "Conservative Meta-Agent Search: Architecture Adaptation under Non-Stationarity",
+    "authors": [
+     "Ali Atiah Alzahrani"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.AI",
+     "cs.LG",
+     "cs.MA"
+    ],
+    "abstract_snippet": "Automated agentic-system design is typically evaluated on static task suites with immediate scalar rewards. Deployed systems face persistent shift, delayed dependent feedback, correlated component failures, and costly architecture changes. We formalize meta-agent architecture search as sequential incumbent replacement with switching costs and hard risk constraints and introduce Conservative Meta-Agent Search (CMAS). "
+   },
+   {
+    "arxiv_id": "2610.31407v1",
+    "url": "https://arxiv.org/abs/2610.31407v1",
+    "title": "Same Entity, Different Script: Diagnosing Cross-Script Entity Matching Failures in Language Models",
+    "authors": [
+     "Athira Gopal",
+     "Patil Prathamesh Pravin",
+     "Ankush Kadu",
+     "Arpit Jain",
+     "Ashwanth Krishnan"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.CL",
+     "cs.AI"
+    ],
+    "abstract_snippet": "Multilingual language models can give different identity judgments when the same people's names are written in different scripts. We study this effect using 601 audited identity pairs with attested Devanagari and Latin forms, holding the question and relation fixed. Qwen2.5-7B's same-person accuracy falls from 35.1% in Latin to 8.5% in Devanagari under Marathi prompts, while different-person accuracy remains above 98"
+   }
+  ],
+  "P3_LEARNING_FORECASTING": [
+   {
+    "arxiv_id": "2610.31288v1",
+    "url": "https://arxiv.org/abs/2610.31288v1",
+    "title": "DISC: Domain-Integrated Similarity Cost for Time-Series Dataset",
+    "authors": [
+     "Yen-Ku Liu",
+     "Hongjie Chen",
+     "Franck Dernoncourt",
+     "Ryan Rossi"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.LG"
+    ],
+    "abstract_snippet": "The growth of time-series datasets and foundation models has made dataset comparison a central part of time-series workflows. Assessing source-target transfer before model adaptation requires similarity estimates that can summarize transfer-related dataset relationships without exhaustive source-target evaluation over every candidate pair. Many metrics have been proposed for measuring similarity between time-series d"
+   },
+   {
+    "arxiv_id": "2610.29504v1",
+    "url": "https://arxiv.org/abs/2610.29504v1",
+    "title": "Rethinking Agentic Model Orchestration for Time Series Forecasting",
+    "authors": [
+     "Tong Guan",
+     "Tianxiang Zhan",
+     "Shirui Pan",
+     "Ming Jin"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "cs.LG",
+     "cs.AI"
+    ],
+    "abstract_snippet": "Time series foundation models (TSFMs) perform unevenly across forecasting tasks. Recent work uses agentic model orchestration (AMO) to select or combine TSFMs, often outperforming individual forecasters. Yet these gains may reflect stronger or more complementary candidates rather than better orchestration. To disentangle these effects, we introduce FairAMO, a controlled evaluation protocol with frozen candidate forec"
+   },
+   {
+    "arxiv_id": "2610.28997v1",
+    "url": "https://arxiv.org/abs/2610.28997v1",
+    "title": "Rethinking Time Series Tokenization from a Frequency Perspective",
+    "authors": [
+     "Zelong Tian",
+     "Ming Jin",
+     "Bo Du",
+     "Shirui Pan"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "cs.LG",
+     "cs.AI"
+    ],
+    "abstract_snippet": "Tokenization that partitions time series into subsequences has become a foundational paradigm in modern time series modeling. However, we find that current tokenization strategies inherently introduce spectral distortions, forcing the learned representations to diverge from the true underlying patterns such as trend, periodicity, and seasonality, thereby impairing model performance. Through theoretical analysis from "
+   },
+   {
+    "arxiv_id": "2610.28563v1",
+    "url": "https://arxiv.org/abs/2610.28563v1",
+    "title": "Asymmetric Bidirectional Predictive Dynamics in Google Search and COVID-19 Time Series: A Multi-Horizon Forecast-Error Analysis",
+    "authors": [
+     "Andrei Velichko",
+     "Imen Mahmoud"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "cs.LG"
+    ],
+    "abstract_snippet": "Online search activity is widely used as a digital trace of information seeking during epidemics, but its predictive value is often reduced to correlation, a selected lag, or a single forecast-error score. We examine eight pre-specified Google Trends-COVID-19 pairs in both directions using matched LightGBM forecasts over rolling 400-day windows and horizons of 1-14 days. Log-RMSE gain is combined with forecast-error "
+   },
+   {
+    "arxiv_id": "2610.28495v1",
+    "url": "https://arxiv.org/abs/2610.28495v1",
+    "title": "Model- and Layer-Level Closed-Loop Forecasting with SSM-Based Spiking Neural Networks",
+    "authors": [
+     "Erik Stolt",
+     "Sanja Karilanova",
+     "Ayca Ozcelikkale"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "cs.LG",
+     "cs.AI"
+    ],
+    "abstract_snippet": "Deep State-Space Models (Deep SSMs) have shown promising performance and computational benefits in processing of time-series data with complex temporal dependencies. Spiking neural networks (SNNs) constitute a biologically inspired class of deep SSMs, where computing blocks communicate through spikes, discrete single-bit events rather than continuous activation functions. A particularly important task in time-series "
+   }
+  ],
+  "P4_SECURITY_WHITE_HATS": [
+   {
+    "arxiv_id": "2610.29747v1",
+    "url": "https://arxiv.org/abs/2610.29747v1",
+    "title": "Prompt Injection Through Forensic Evidence: A Taxonomy and Proof of Concept of Anti-Forensic Attacks on LLM-Assisted Digital Investigations",
+    "authors": [
+     "Frank Breitinger",
+     "Jan Gruber",
+     "Christopher Hargreaves",
+     "Jan-Niclas Hilgert",
+     "Gaëtan Michelet",
+     "Mark Scanlon"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "cs.CR"
+    ],
+    "abstract_snippet": "Large language models (LLMs) are entering digital forensics as examination assistants and autonomous agents. Digital forensics inverts the usual setting for indirect prompt injection: the evidence under analysis is attacker-controlled by definition, and the examiner is obliged to read it closely. This makes the reasoning layer a new anti-forensic target, next to the classical ones of data and tools. Classical anti-fo"
+   },
+   {
+    "arxiv_id": "2610.30202v1",
+    "url": "https://arxiv.org/abs/2610.30202v1",
+    "title": "MPIDetector: Detecting Multi-modal Prompt Injection via LLM-based Reasoning",
+    "authors": [
+     "Yiheng Li",
+     "Jingyue Li"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "cs.CR",
+     "cs.AI"
+    ],
+    "abstract_snippet": "With the rapid integration of Multi-modal Large Language Models (MLLMs) into real-world applications, Prompt Injection (PI) has emerged as a critical security threat. Attackers can conceal malicious instructions within textual narratives or visual inputs to bypass safety alignment. Existing approaches, such as signature- and perplexity-based methods, rely heavily on pattern matching, making them insufficient to detec"
+   },
+   {
+    "arxiv_id": "2610.29379v1",
+    "url": "https://arxiv.org/abs/2610.29379v1",
+    "title": "Where AI Vulnerability Discovery Harnesses Go Quiet: Structural False Negatives and Hidden Vulnerabilities",
+    "authors": [
+     "Gadi Evron"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "cs.CR"
+    ],
+    "abstract_snippet": "LLM-based vulnerability discovery harnesses can miss real, reachable vulnerabilities because of how the harness around the model is built. Steps that select code, filter it, and store and merge findings can drop a vulnerability before or after the model runs, independently of the model's capability, and the report usually gives no sign that this happened. These drops come from engineering choices, and errors. They le"
+   },
+   {
+    "arxiv_id": "2610.30193v1",
+    "url": "https://arxiv.org/abs/2610.30193v1",
+    "title": "Protection Is Not One Event: A Survey of RAG Protection Research by Measured Endpoint",
+    "authors": [
+     "Peiyang Liu",
+     "Xi Wang",
+     "Di Liang",
+     "Youru Li",
+     "Zhi Cai",
+     "Wei Ye"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "cs.CR",
+     "cs.CL",
+     "cs.IR"
+    ],
+    "abstract_snippet": "Retrieval-augmented generation (RAG) systems face security, privacy, and copyright risks including content leakage, source reconstruction, unauthorized access, data poisoning, and prompt injection. Yet RAG protection studies use incompatible evaluation metrics, datasets, and threat models. We present a systematic survey and human-coded evidence map of 118 full-text-confirmed RAG defense papers, organized by measured "
+   },
+   {
+    "arxiv_id": "2610.28810v1",
+    "url": "https://arxiv.org/abs/2610.28810v1",
+    "title": "Combining Long-Term Memory and LLMs Comes at a High Cost: From Prompt Injection to Persistent Compromise",
+    "authors": [
+     "Pedro H. Barcha Correia",
+     "Matheus Azevedo de Sá",
+     "Paulo H. Gomes de Senna",
+     "Giovanni Mandel Martignago",
+     "Victor Takashi Hayashi",
+     "Charles Christian Miers"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "cs.CR",
+     "cs.AI",
+     "cs.CL",
+     "cs.LG"
+    ],
+    "abstract_snippet": "The widespread adoption of generative artificial intelligence in recent years has brought a parallel rise in prompt injection and jailbreak attacks. By embedding malicious instructions, these exploits manipulate language models to bypass intended behavior and operational boundaries. In traditional chatbots, such attacks are confined to a single session because state memory is not preserved across conversations. Howev"
+   }
+  ],
+  "P5_SYSTEM_PERFORMANCE_BODY": [
+   {
+    "arxiv_id": "2610.29489v1",
+    "url": "https://arxiv.org/abs/2610.29489v1",
+    "title": "Reorienting the Vector Axis: Restructuring FlashAttention for Long-Vector Processors",
+    "authors": [
+     "Emmanuel Irabor",
+     "Marc Casas"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "cs.AR",
+     "cs.DC",
+     "cs.PF"
+    ],
+    "abstract_snippet": "A Transformer is built around attention, whose cost grows with the square of the sequence length and dominates the layer on long sequences. FlashAttention made that cost manageable by tiling the attention matrix and updating the softmax as it goes, but almost all work since has targeted GPUs. On long-vector processors one vector register can hold up to 512 single-precision numbers. The savings of a vector instruction"
+   },
+   {
+    "arxiv_id": "2610.28699v1",
+    "url": "https://arxiv.org/abs/2610.28699v1",
+    "title": "Reinforcement learning for hardware acceleration and system-level optimization on FPGA and integrated-circuit platforms: A survey",
+    "authors": [
+     "Hamza Kheddar"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "cs.LG",
+     "cs.AI",
+     "cs.AR",
+     "cs.PF",
+     "cs.RO",
+     "eess.SY"
+    ],
+    "abstract_snippet": "Reinforcement learning (RL) enables adaptive and autonomous decision-making in embedded, edge, and heterogeneous computing systems. Field-programmable gate arrays (FPGAs) and integrated circuits (ICs) offer low latency, energy efficiency, and architectural flexibility for RL deployment, while introducing challenges in resource constraints, implementation complexity, and hardware-algorithm co-design. This review surve"
+   },
+   {
+    "arxiv_id": "2610.27356v1",
+    "url": "https://arxiv.org/abs/2610.27356v1",
+    "title": "Stop Paying by the Letter: Accelerating Full-Chip RTL Simulation with Host-Side Tokenized Logging",
+    "authors": [
+     "Daniel Keller",
+     "Rohit Kumar"
+    ],
+    "published": "2026-10-19",
+    "categories": [
+     "cs.AR",
+     "cs.PF",
+     "cs.SE"
+    ],
+    "abstract_snippet": "Firmware diagnostic logging (printf) is an essential debug instrument in full-chip SoC design verification, yet it imposes a heavy tax on cycle-accurate RTL simulation: formatting a 30-character, 1-argument message on a simulated CPU and serializing it through an MMIO aperture costs 3.04 to 15.23 $μ$s per call (15.27 $μ$s unweighted / 15.08 $μ$s print-weighted critical-path mean on Suite A). Unlike embedded tokenizer"
+   },
+   {
+    "arxiv_id": "2610.25519v1",
+    "url": "https://arxiv.org/abs/2610.25519v1",
+    "title": "ATEST: Adaptive Resource-Aware Test-Time Scaling for LLM Inference",
+    "authors": [
+     "Mobina Kashaniyan",
+     "Ali Jannesari"
+    ],
+    "published": "2026-10-18",
+    "categories": [
+     "cs.LG",
+     "cs.AI",
+     "cs.CL",
+     "cs.DC",
+     "cs.PF"
+    ],
+    "abstract_snippet": "Test-time scaling (TTS) improves large language model (LLM) reasoning by sampling multiple answers, but fixed sampling budgets ignore both query difficulty and the changing energy cost of inference under GPU contention. We measure up to a 4.1-fold increase in energy for the same four-sample query as GPU load rises. We present ATEST, a resource-aware TTS framework that jointly considers the expected value of additiona"
+   },
+   {
+    "arxiv_id": "2610.25256v1",
+    "url": "https://arxiv.org/abs/2610.25256v1",
+    "title": "PanoDent-KD: From Generalist Knowledge Distillation to Cross-Dataset Specialist Detection and Embedded Deployment in Panoramic Radiographs",
+    "authors": [
+     "Muhammad Waqas Ashraf",
+     "Imad Ali Shah",
+     "Ali Hassan"
+    ],
+    "published": "2026-10-18",
+    "categories": [
+     "cs.CV",
+     "cs.PF"
+    ],
+    "abstract_snippet": "Reliable panoramic-radiograph detection requires consistency across datasets with different class definitions and deployment software. We present PanoDent-KD, an auditable 1280-pixel YOLO26m pipeline linking a 12-class source generalist, feature-level knowledge distillation (KD), exact classifier-row transfer, teacher-free five-class specialization, and embedded deployment. A common training and evaluation pipeline c"
+   }
+  ],
+  "P6_STATISTICS_VALIDATION": [
+   {
+    "arxiv_id": "2610.31336v1",
+    "url": "https://arxiv.org/abs/2610.31336v1",
+    "title": "Metric Conformal Prediction via the Conditional Expected Local Radius",
+    "authors": [
+     "Rui Qiu",
+     "Fang Yao",
+     "Zhou Yu"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "stat.ML",
+     "cs.LG"
+    ],
+    "abstract_snippet": "We introduce the conditional expected local radius (CELR) and develop a new conformal prediction method for non-Euclidean responses in general metric spaces. CELR measures local conditional probability concentration, allowing prediction sets to accommodate heterogeneity and multimodality without requiring densities or a vector space structure. Its conditional distribution yields a nonconformity score that is comparab"
+   },
+   {
+    "arxiv_id": "2610.31163v1",
+    "url": "https://arxiv.org/abs/2610.31163v1",
+    "title": "Prediction Uncertainty Controlled Computer Model Calibration",
+    "authors": [
+     "Ryan Heejoon Byun",
+     "Dayeon Yoon",
+     "Won Chang"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "stat.ML",
+     "cs.LG",
+     "stat.AP",
+     "stat.CO",
+     "stat.ME"
+    ],
+    "abstract_snippet": "Computer-model calibration is usually undertaken in service of prediction, yet neither Bayesian Kennedy-O'Hagan (KOH) calibration nor amortized simulation-based inference is built to control the predictive error of the calibrated simulator. When parameters are weakly identified or the data-model discrepancy is misspecified, the simulator-output bands induced by a nominal posterior level can be far from nominal. We pr"
+   },
+   {
+    "arxiv_id": "2610.30652v1",
+    "url": "https://arxiv.org/abs/2610.30652v1",
+    "title": "Residual Calibration via Local Feature-Space Refinement",
+    "authors": [
+     "Xihao Wang",
+     "Chengyao Yu",
+     "Ruixing Ming"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.CV",
+     "stat.ML"
+    ],
+    "abstract_snippet": "Deep neural networks often struggle to provide reliable confidence estimates, making post-hoc calibration essential for reliable decision-making. Existing post-hoc methods largely rely on score-based transformations, which improve marginal calibration but often fail to capture spatially varying miscalibration in local regions of the learned feature space. To address this gap, we propose Local Adaptive Probability Est"
+   },
+   {
+    "arxiv_id": "2610.30562v1",
+    "url": "https://arxiv.org/abs/2610.30562v1",
+    "title": "Lifetime-valid decisions by continually evolving AI analysts",
+    "authors": [
+     "Xiaojing Sun",
+     "Yuhan Zeng",
+     "Xiao Wang"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "stat.ME",
+     "cs.AI",
+     "cs.LG",
+     "stat.ML"
+    ],
+    "abstract_snippet": "AI agents increasingly act as analysts whose decision can often be cast as hypothesis tests. Classical tests control the Type I error rate, the probability of rejecting a true null hypothesis, for fixed procedures. However, AI analysts introduce internal randomness and can evolve continuously over time. As AI analysts evolve, the risk of approving versions with Type I error rates above the target can accumulate, and "
+   },
+   {
+    "arxiv_id": "2610.28937v1",
+    "url": "https://arxiv.org/abs/2610.28937v1",
+    "title": "Auditing Conformal Prediction for Language Models Under Inference-Time Model Shift",
+    "authors": [
+     "Achref Doula",
+     "Max Mühlhäuser"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "cs.LG",
+     "stat.ML"
+    ],
+    "abstract_snippet": "Conformal prediction (CP) for language models is typically evaluated under a matched protocol, in which calibration and deployment use the same post-training inference configuration, such as quantization mode and inference temperature. In deployment, these choices often differ from those used at calibration to meet memory or throughput constraints or serving policies. We argue that this exposes a limitation in curren"
+   }
+  ],
+  "P7_MACRO_EVENTS_OSINT": [
+   {
+    "arxiv_id": "2610.30487v1",
+    "url": "https://arxiv.org/abs/2610.30487v1",
+    "title": "Monetary Policy Forecast Errors and Inflation Compensation under Sovereign Stress in Brazil",
+    "authors": [
+     " Giovana",
+     " Tommy"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "econ.EM"
+    ],
+    "abstract_snippet": "This paper examines whether inflation compensation around Brazilian monetary policy decisions is associated differently with policy forecast errors when sovereign spreads are relatively elevated. Public Tesouro Direto quotations, meeting-specific Focus forecasts and a lagged EMBI indicator yield 68 three-year and 60 five-year event observations. The outcome is a matched-horizon retail yield proxy; the policy variable"
+   },
+   {
+    "arxiv_id": "2610.28562v1",
+    "url": "https://arxiv.org/abs/2610.28562v1",
+    "title": "OptScientist: Automated Discovery of Optimization Laws",
+    "authors": [
+     "Ma ZhenYao",
+     "Yue Liang",
+     "Jian-Qiao Zhu"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "cs.AI",
+     "cs.LG",
+     "cs.SC",
+     "econ.EM",
+     "math.OC"
+    ],
+    "abstract_snippet": "Many scientific phenomena are best understood as outcomes of underlying optimization problems, yet automated scientific discovery has largely focused on recovering equations that describe observed input-output patterns. We introduce OptScientist, a novel automated framework for discovering compact symbolic optimization laws directly from data. OptScientist comprises (i) a model that infers symbolic optimization probl"
+   },
+   {
+    "arxiv_id": "2610.27405v1",
+    "url": "https://arxiv.org/abs/2610.27405v1",
+    "title": "Evidence-Based Policy Choice in Macroeconomics",
+    "authors": [
+     "Toru Kitagawa",
+     "Simone Martinalli"
+    ],
+    "published": "2026-10-19",
+    "categories": [
+     "econ.EM"
+    ],
+    "abstract_snippet": "This paper studies data-driven macroeconomic policy choice in a structural VAR framework. We formulate the policymaker's problem of optimizing the future path of a policy instrument as a statistical decision problem under two alternative policy regimes: a \"contemporaneous\" regime, where the chosen path is implemented through unexpected policy shocks each period, and a \"forward guidance\" regime, where the expected pat"
+   },
+   {
+    "arxiv_id": "2610.25237v1",
+    "url": "https://arxiv.org/abs/2610.25237v1",
+    "title": "Conventional Inference under Nonstationary Heavy Tailed Fractional Processes & Arrays",
+    "authors": [
+     "Ioannis Kasparis"
+    ],
+    "published": "2026-10-18",
+    "categories": [
+     "math.ST",
+     "econ.EM"
+    ],
+    "abstract_snippet": "Existing regression inference methods for nonstationary heavy tailed data are largely limited to unit roots tests. Functional central limit theorems (FCLTs), which are commonly used for the asymptotic analysis of nonstationary models, are inapplicable to nonstationary data characterized by a memory parameter $d<1$ and a stability parameter $α<2$. Furthermore, it is well known that inference under nonstationarity is o"
+   },
+   {
+    "arxiv_id": "2610.22043v1",
+    "url": "https://arxiv.org/abs/2610.22043v1",
+    "title": "Momentum, Commentary Tone, and Earnings Surprise in LLM Financial Forecasts",
+    "authors": [
+     "Alina Khaybullina"
+    ],
+    "published": "2026-10-15",
+    "categories": [
+     "cs.LG",
+     "cs.AI",
+     "cs.CL",
+     "q-fin.GN"
+    ],
+    "abstract_snippet": "Which inputs drive a language model's financial forecast? We construct synthetic earnings announcements that independently reverse 20-day momentum, non-informational commentary tone, and whether fixed actual EPS beats a manipulated consensus. Six instruction/chat checkpoint conversions from four families (0.49-7.61B base parameters) receive 2,016 prompts each under a direct-answer Q8_0 protocol. The design includes 2"
+   }
+  ]
+ },
+ "pillar_paper_count": 35,
  "paper_count": 45,
  "honesty_note": "Papers motivate hypotheses only; acceptance requires walk-forward OOS evidence."
 }

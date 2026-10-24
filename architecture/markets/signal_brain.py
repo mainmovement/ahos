@@ -292,19 +292,23 @@ def adv_cap_check(
     px = float(q.get("price") or 0.0)
     vol_24h = q.get("vol_24h")
     adv_usd = float(vol_24h) if isinstance(vol_24h, (int, float)) and vol_24h > 0 else 0.0
+    adv_source = "vendor_24h_volume" if adv_usd > 0 else None
     if adv_usd <= 0 and ohlcv and px > 0:
         vols = [float(c[4]) for c in closed(ohlcv) if len(c) > 4 and float(c[4]) > 0]
         if vols:
             adv_usd = (sum(vols) / len(vols)) * 288.0 * px
+            adv_source = "5m_bar_volume_x288"
     # Liquid index/FX benchmark floor when feed omits tick volume
     if adv_usd <= 0:
         adv_usd = 50_000_000.0
+        adv_source = "ASSUMED_FLOOR_50M_NO_VOLUME_IN_FEED"
     cap_usd = max_adv_frac * adv_usd
     allowed = notional_usd <= cap_usd
     return {
         "allowed": allowed,
         "notional_usd": round(notional_usd, 4),
         "adv_usd": round(adv_usd, 2),
+        "adv_source": adv_source,
         "cap_1pct_usd": round(cap_usd, 2),
         "participation_rate": round(notional_usd / max(1.0, adv_usd), 8),
     }
@@ -483,10 +487,41 @@ def macro_event(desk: str, root: Any = None) -> dict[str, Any]:
         c = _ONCHAIN_CACHE["cal"] = (time.time(), mc.load_or_build(base))
     up = mc.upcoming(c[1], desk, horizon_h=48)
     score = 0.0
-    if desk == "US" and any(e["event"] == "FOMC_STATEMENT" and 0 < e["hours_until"] <= 24 for e in up):
+    if mc.CALENDAR_DESK.get(desk, desk) == "US" and any(e["event"] == "FOMC_STATEMENT" and 0 < e["hours_until"] <= 24 for e in up):
         score = 0.5
     return _sig("macro_event", score, {"next_events": [{k: e[k] for k in ("event", "at_utc", "hours_until")} for e in up[:4]],
                                        "calendar_status": c[1].get("status")}, "official_calendars", "t607u(b)")
+
+
+def event_shock(desk: str, symbol: str, root: Any = None, *, now: Any = None,
+                calendar: dict[str, Any] | None = None, stories: list[dict[str, Any]] | None = None,
+                matrix: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Causal event/news shock vector (WP-2, TS-10): scheduled-event window -> measured vol multiplier (sizing only,
+    never larger) + documented drift; corroborated (>= 2 publishers) bank-attributed policy-tone news -> signed drift
+    through the transmission matrix in news_desk. SHADOW (weight 0) until a walk-forward promotes it."""
+    from datetime import datetime as _dt, timezone as _tz
+    from pathlib import Path as _P
+    from architecture.markets import macro_calendar as mc, news_desk as nd
+    base = _P(root) if root else _P(__file__).resolve().parents[2]
+    now = now or _dt.now(_tz.utc)
+    if calendar is None:
+        c = _ONCHAIN_CACHE.get("cal")
+        if not c or time.time() - c[0] > 6 * 3600:
+            c = _ONCHAIN_CACHE["cal"] = (time.time(), mc.load_or_build(base))
+        calendar = c[1]
+    if matrix is None:
+        matrix = mc.load_impact_matrix(base)
+    if stories is None:
+        stories = nd.load_corroborated_stories(base)
+    ev = mc.event_window_state(calendar, symbol, now=now, matrix=matrix)
+    news = nd.causal_news_impact(stories, symbol, now=now)
+    drift = max(-1.0, min(1.0, ev["documented_drift"] + news["drift"]))
+    available = bool(ev["active_events"] or news["clusters_used"])
+    return _sig("event_shock", drift if available else 0.0,
+                {"vol_mult": ev["vol_mult"], "size_mult": round(min(1.0, 1.0 / max(1e-9, ev["vol_mult"])), 3),
+                 "active_events": ev["active_events"][:4], "news_clusters": news["clusters_used"],
+                 "news_evidence": news["evidence"][:3], "matrix_status": "MEASURED" if matrix.get("matrix") else "UNMEASURED"},
+                "official_calendars+corroborated_newsroom", "WP-2/TS-10")
 
 
 def macro_pressure(desk: str, quotes: dict[str, Any], witness: dict[str, Any]) -> dict[str, Any]:
@@ -584,7 +619,8 @@ def news_signal(desk: str, items: list[dict[str, Any]]) -> dict[str, Any]:
 DEFAULT_WEIGHTS = {"mtf_trend": 0.30, "candles": 0.12, "zscore_mr": 0.10, "order_flow": 0.10, "large_trades": 0.10,
                    "funding_oi": 0.06, "stablecoin": 0.05, "macro": 0.08, "news": 0.09,
                    # SHADOW signals: logged + hit-rate tracked, zero weight until promoted by walk-forward (Stage 3)
-                   "exchange_netflow": 0.0, "whale_mempool": 0.0, "macro_event": 0.0, "stablecoin_impulse": 0.0}
+                   "exchange_netflow": 0.0, "whale_mempool": 0.0, "macro_event": 0.0, "stablecoin_impulse": 0.0,
+                   "event_shock": 0.0}
 
 
 def combine(signals: list[dict[str, Any]], weights: dict[str, float]) -> dict[str, Any]:

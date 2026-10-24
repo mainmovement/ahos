@@ -6,8 +6,10 @@ Strictly PAPER_ONLY = True.
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 PAPER_ONLY: bool = True
@@ -351,24 +353,46 @@ def _lessons_from_live_conflict_exam(repo: "Path") -> list[TeachingLessonFa]:
     except Exception:
         return []
     out: list[TeachingLessonFa] = []
-    for it in (payload.get("items") or [])[:6]:
+    for it in (payload.get("cards_fa") or [])[-6:]:
         iid = str(it.get("item_id") or "live-exam")
         prompt = str(it.get("prompt_fa") or "سؤال آزمون held-out")
         out.append(
             TeachingLessonFa(
                 lesson_id=f"m65-exam-{iid}",
-                market="MULTI_DESK",
-                symbol="EXAM",
-                regime_tag="LIVE_CONFLICT_EXAM",
-                title_fa=f"درس آزمون زنده: {prompt[:48]}…" if len(prompt) > 48 else f"درس آزمون زنده: {prompt}",
-                why_entered_fa="این کارت از تعارض شاهد، گیت آخر هفته، یا رد تایم‌فریم بالاتر در لاگ کاغذی ساخته شده — نه از حدس.",
-                what_happened_fa=prompt,
-                mistake_or_strength_fa="تا وقتی دو منبع VERIFIED نباشند یا نمونهٔ بسته کم باشد، سیستم عمداً ورود نمی‌کند.",
-                key_takeaway_fa="پاسخ درست: «نامشخص/تعارض = بدون معامله» — لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
-                glossary_keys=("Two-Source Witness", "DSR"),
+                market=str(it.get("desk") or "MULTI_DESK"),
+                symbol=str(it.get("symbol") or "EXAM"),
+                regime_tag="LIVE_HELDOUT_EXAM",
+                title_fa=f"کارت آزمون held-out: {it.get('verdict_fa', '')} — {it.get('symbol', '')}",
+                why_entered_fa=prompt,
+                what_happened_fa=str(it.get("outcome_fa") or ""),
+                mistake_or_strength_fa=str(it.get("verdict_fa") or ""),
+                key_takeaway_fa=str(it.get("lesson_fa") or "") + " لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+                glossary_keys=("Brier Score", "DSR"),
             )
         )
     return out
+
+
+def _lesson_source(lesson_id: str) -> str:
+    if lesson_id.startswith("m65-exam-"):
+        return "LIVE_HELDOUT_EXAM"
+    if lesson_id.startswith(("m65-live-", "m65-weekend-")):
+        return "LIVE_PAPER_STATE"
+    return "FIXTURE_ILLUSTRATIVE"
+
+
+def _exam_summary(repo: "Path") -> dict[str, Any]:
+    path = Path(repo) / "reports" / "grok" / "M50" / "live_conflict_exam_items.json"
+    try:
+        ex = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {"status": "NOT_RUN"}
+    return {k: ex.get(k) for k in ("schema", "generated_at", "status", "method", "n_calibration_items", "n_heldout_items",
+                                   "estimate_ability_theta", "theta_se", "theta_meaning", "heldout_accuracy",
+                                   "abstain_baseline_accuracy", "skill_vs_abstain_baseline", "independent_episodes",
+                                   "min_independent_episodes", "theta_at_bound", "item_types_heldout", "leaked",
+                                   "promoted")} | {
+        "cards_fa": (ex.get("cards_fa") or [])[-12:], "source": "reports/grok/M50/live_conflict_exam_items.json"}
 
 
 def generate_teaching_journal_snapshot(
@@ -412,9 +436,13 @@ def generate_teaching_journal_snapshot(
                 "key_takeaway_fa": l.key_takeaway_fa,
                 "glossary_keys": list(l.glossary_keys),
                 "paper_only": l.paper_only,
+                "source": _lesson_source(l.lesson_id) if cycles is None else "CALLER_SUPPLIED_CYCLE",
             }
             for l in lessons
         ],
+        "lesson_sources": {s: sum(1 for l in lessons if (_lesson_source(l.lesson_id) if cycles is None else "CALLER_SUPPLIED_CYCLE") == s)
+                           for s in ("LIVE_HELDOUT_EXAM", "LIVE_PAPER_STATE", "FIXTURE_ILLUSTRATIVE", "CALLER_SUPPLIED_CYCLE")},
+        "live_anomaly_exam": _exam_summary(repo),
         "hooman_journal": [
             {
                 "journal_id": j.journal_id,

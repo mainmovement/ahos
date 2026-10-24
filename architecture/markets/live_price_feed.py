@@ -145,13 +145,16 @@ def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]
     except Exception:
         closes = []
     ohlcv: list[list[float]] = []
+    ohlcv_ts: list[int] = []
     try:
         qd = res["indicators"]["quote"][0]
-        for o, h, l, c, v in zip(qd["open"], qd["high"], qd["low"], qd["close"], qd.get("volume") or [0] * len(qd["close"])):
+        stamps = res.get("timestamp") or [None] * len(qd["close"])
+        for ts, o, h, l, c, v in zip(stamps, qd["open"], qd["high"], qd["low"], qd["close"], qd.get("volume") or [0] * len(qd["close"])):
             if None not in (_num(o), _num(h), _num(l), _num(c)):
                 ohlcv.append([round(float(o), 6), round(float(h), 6), round(float(l), 6), round(float(c), 6), float(v or 0)])
+                ohlcv_ts.append(int(ts) if isinstance(ts, (int, float)) else 0)
     except Exception:
-        ohlcv = []
+        ohlcv, ohlcv_ts = [], []
     mt = meta.get("regularMarketTime")
     now = _now_ts()
     return {
@@ -165,8 +168,62 @@ def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]
         "age_seconds": 0,
         "history": closes[-48:],
         "ohlcv_5m": ohlcv[-288:],
+        "ohlcv_5m_ts": ohlcv_ts[-288:],
         "currency": meta.get("currency"),
+        "_regular_market_time": mt if isinstance(mt, (int, float)) else None,
     }
+
+
+# Continuous Yahoo futures roll on Yahoo's own schedule, which differs from TradingView/Stooq "1!" continuous
+# contracts (e.g. BZ=F already on Jan while ICE BRN1! is still Dec). The witness must compare the SAME month.
+FUTURES_ROOTS: dict[str, tuple[str, str]] = {"BRENT": ("BZ", "NYM"), "WTI": ("CL", "NYM"), "XAU": ("GC", "CMX")}
+MONTH_CODES = "FGHJKMNQUVXZ"
+_CONTRACT_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
+CONTRACT_CACHE_TTL_S = 3600.0
+
+
+def _candidate_months(now_ts: float, n: int = 6) -> list[tuple[int, int]]:
+    d = datetime.fromtimestamp(now_ts, tz=timezone.utc)
+    out = []
+    y, m = d.year, d.month
+    for _ in range(n):
+        out.append((y, m))
+        m += 1
+        if m > 12:
+            y, m = y + 1, 1
+    return out
+
+
+def resolve_yahoo_contract_month(sym: str, continuous: dict[str, Any], *,
+                                 fetch: Any = None, now_ts: float | None = None) -> dict[str, Any] | None:
+    """Identify which explicit contract Yahoo's continuous future currently is, using only Yahoo itself
+    (same regularMarketTime and same price as an explicit ``BZF27.NYM``-style contract). No cross-vendor matching:
+    a match against another vendor would make the later agreement test circular."""
+    root = FUTURES_ROOTS.get(sym)
+    price, mt = continuous.get("price"), continuous.get("_regular_market_time")
+    if root is None or _num(price) is None or not isinstance(mt, (int, float)):
+        return None
+    now = now_ts if now_ts is not None else _now_ts()
+    cached = _CONTRACT_CACHE.get(sym)
+    if fetch is None and cached and now - cached[0] < CONTRACT_CACHE_TTL_S and cached[1].get("price") == price:
+        return cached[1]
+    getter = fetch or (lambda s: _fetch_json(
+        f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(s, safe='')}?range=1d&interval=1d"))
+    for y, m in _candidate_months(now):
+        code = f"{root[0]}{MONTH_CODES[m - 1]}{y % 100:02d}.{root[1]}"
+        data = getter(code)
+        try:
+            meta = data["chart"]["result"][0]["meta"]  # type: ignore[index]
+        except Exception:
+            continue
+        p, t = _num(meta.get("regularMarketPrice")), meta.get("regularMarketTime")
+        if p is not None and isinstance(t, (int, float)) and abs(p - float(price)) < 1e-9 and abs(float(t) - float(mt)) <= 60:
+            res = {"contract_month": f"{y:04d}-{m:02d}", "contract_symbol": code, "price": price,
+                   "method": "yahoo_self_identity(price+regularMarketTime)"}
+            if fetch is None:
+                _CONTRACT_CACHE[sym] = (now, res)
+            return res
+    return None
 
 
 def fetch_coingecko_quotes(*, timeout: float = 6.0) -> dict[str, dict[str, Any]]:
@@ -247,6 +304,11 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
     quotes["PAXG"] = cg["XAU"]
     for k in ("BRENT", "WTI", "SPX", "DAX", "N225", "DXY", "US10Y", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE", "EURUSD", "USDJPY"):
         quotes[k] = yq[k]
+    for k in FUTURES_ROOTS:
+        if quotes.get(k, {}).get("price") is not None:
+            res = resolve_yahoo_contract_month(k, quotes[k])
+            quotes[k]["contract_month"] = (res or {}).get("contract_month")
+            quotes[k]["contract_symbol"] = (res or {}).get("contract_symbol")
 
     macro: dict[str, Any] = {"fear_greed": None, "fear_greed_label": None, "total_mcap_usd": None,
                              "mcap_change_24h_pct": None, "btc_dominance_pct": None,

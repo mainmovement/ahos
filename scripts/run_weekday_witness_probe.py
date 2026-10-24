@@ -12,15 +12,15 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from architecture.markets.live_price_feed import fetch_live_market_prices
-from architecture.markets.paper_trader import INSTRUMENTS, fetch_second_sources
+from architecture.markets.paper_trader import INSTRUMENTS, gather_witness
 from architecture.markets.session_readiness_drill import export_session_readiness_drill
 from architecture.markets.weekday_witness_probe import build_witness_probe_payload
 
 
 def main() -> int:
     quotes = (fetch_live_market_prices() or {}).get("quotes") or {}
-    second = fetch_second_sources()
-    payload = build_witness_probe_payload(INSTRUMENTS, quotes, second, root=ROOT)
+    wit = gather_witness(quotes)
+    payload = build_witness_probe_payload(INSTRUMENTS, quotes, {}, root=ROOT, witnesses=wit)
     payload["generated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     export_session_readiness_drill(ROOT, quotes=quotes)
     out = ROOT / "reports" / "grok" / "PAPER" / "weekday_witness_probe.json"

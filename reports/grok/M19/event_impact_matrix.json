@@ -1,0 +1,147 @@
+{
+ "schema": "ahos.event_impact_matrix.v1",
+ "generated_at": "2026-10-24T10:04:25Z",
+ "paper_only": true,
+ "method": "event-day |ret| / non-event-day |ret| on Yahoo daily closes; t-stat of event-day mean",
+ "windows_h": {
+  "FOMC_STATEMENT": [
+   24.0,
+   24.0
+  ],
+  "EIA_WPSR": [
+   2.0,
+   4.0
+  ],
+  "OPEC_MINISTERIAL": [
+   24.0,
+   48.0
+  ],
+  "ECB_GOV_COUNCIL": [
+   12.0,
+   24.0
+  ],
+  "BOJ_MPM_DECISION": [
+   12.0,
+   24.0
+  ],
+  "BOE_MPC_DECISION": [
+   12.0,
+   24.0
+  ]
+ },
+ "matrix": {
+  "FOMC_STATEMENT": {
+   "XAU": {
+    "n_events": 45,
+    "vol_ratio": 0.82,
+    "mean_event_ret_pct": 0.1023,
+    "t_stat": 0.724,
+    "status": "MEASURED"
+   },
+   "SPX": {
+    "n_events": 45,
+    "vol_ratio": 1.353,
+    "mean_event_ret_pct": 0.0162,
+    "t_stat": 0.084,
+    "status": "MEASURED"
+   },
+   "QQQ": {
+    "n_events": 45,
+    "vol_ratio": 1.365,
+    "mean_event_ret_pct": 0.2382,
+    "t_stat": 0.926,
+    "status": "MEASURED"
+   },
+   "BTC": {
+    "n_events": 46,
+    "vol_ratio": 1.068,
+    "mean_event_ret_pct": 0.5155,
+    "t_stat": 1.039,
+    "status": "MEASURED"
+   },
+   "ETH": {
+    "n_events": 46,
+    "vol_ratio": 1.119,
+    "mean_event_ret_pct": 0.6504,
+    "t_stat": 0.949,
+    "status": "MEASURED"
+   },
+   "EURUSD": {
+    "n_events": 45,
+    "vol_ratio": 0.861,
+    "mean_event_ret_pct": -0.0337,
+    "t_stat": -0.51,
+    "status": "MEASURED"
+   },
+   "USDJPY": {
+    "n_events": 45,
+    "vol_ratio": 1.2,
+    "mean_event_ret_pct": 0.081,
+    "t_stat": 0.853,
+    "status": "MEASURED"
+   }
+  },
+  "EIA_WPSR": {
+   "WTI": {
+    "n_events": 145,
+    "vol_ratio": 0.888,
+    "mean_event_ret_pct": -0.0007,
+    "t_stat": -0.003,
+    "status": "MEASURED"
+   },
+   "BRENT": {
+    "n_events": 145,
+    "vol_ratio": 1.042,
+    "mean_event_ret_pct": 0.0769,
+    "t_stat": 0.342,
+    "status": "MEASURED"
+   }
+  },
+  "OPEC_MINISTERIAL": {
+   "WTI": {
+    "n_events": 6,
+    "status": "INSUFFICIENT_EVENTS"
+   },
+   "BRENT": {
+    "n_events": 6,
+    "status": "INSUFFICIENT_EVENTS"
+   }
+  },
+  "ECB_GOV_COUNCIL": {
+   "DAX": {
+    "n_events": 9,
+    "vol_ratio": 1.385,
+    "mean_event_ret_pct": -0.53,
+    "t_stat": -1.317,
+    "status": "MEASURED"
+   },
+   "EURUSD": {
+    "n_events": 9,
+    "vol_ratio": 0.673,
+    "mean_event_ret_pct": -0.1748,
+    "t_stat": -1.996,
+    "status": "MEASURED"
+   }
+  },
+  "BOJ_MPM_DECISION": {
+   "N225": {
+    "n_events": 4,
+    "status": "INSUFFICIENT_EVENTS"
+   },
+   "USDJPY": {
+    "n_events": 4,
+    "status": "INSUFFICIENT_EVENTS"
+   }
+  },
+  "BOE_MPC_DECISION": {
+   "EURUSD": {
+    "n_events": 6,
+    "status": "INSUFFICIENT_EVENTS"
+   },
+   "DAX": {
+    "n_events": 6,
+    "status": "INSUFFICIENT_EVENTS"
+   }
+  }
+ }
+}

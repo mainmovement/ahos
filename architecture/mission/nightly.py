@@ -89,7 +89,10 @@ def build_comprehensive_nightly_digest_fa(
         f"- طلا (M13): وضعیت ساک {gold_status} — فقط کاغذی.",
         f"- نفت (M13.1): وضعیت ساک {oil_status} — فقط کاغذی.",
         f"- میزهای M19: {verified_n} نماد با شاهد VERIFIED از {desks_n} میز (قانون دو منبع).",
-        f"- تورنمنت M56: پیشتاز «{leader}»" + (f" (DSR={leader_dsr})" if leader_dsr is not None else "") + ".",
+        f"- تورنمنت M56: پیشتاز «{leader}»"
+        + (f" (شارپ سالانهٔ کسرشده={leader_dsr}؛ احتمال DSR نیست)" if leader_dsr is not None else "")
+        + (" — دادهٔ نمایشی، نه نتیجهٔ بک‌تست" if tournament.get("data_source") == "FIXTURE_ILLUSTRATIVE" else "")
+        + ".",
         f"- آسترا M60: وضعیت سایه {astra_status} — بدون ارتقای زنده.",
         "- یادآوری: نمونهٔ کوتاه ≠ لبهٔ ثابت‌شده؛ live=false.",
     ]

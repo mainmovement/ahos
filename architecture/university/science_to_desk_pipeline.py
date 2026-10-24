@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -113,6 +114,7 @@ def run_science_to_desk_pipeline(root: Path | None = None) -> dict[str, Any]:
                 "university_curriculum_module_fa": organ.get("university_curriculum_module_fa"),
                 "held_out_exam_score_pct": organ.get("held_out_exam_score_pct"),
                 "route_status": "ADMITTED_SANDBOX",
+                "evidence_status": STATIC_CLAIM,
                 "paper_only": True,
             }
         )
@@ -144,3 +146,93 @@ def run_science_to_desk_pipeline(root: Path | None = None) -> dict[str, Any]:
         "whole_ahos_organs": whole_ahos_organs,
         "desks_trained": len(DESKS),
     }
+
+
+# ---------------- Stage 6: 7-pillar organism science radar + self-improvement loop telemetry ----------------
+STATIC_CLAIM = "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)"
+M57_REL = Path("reports") / "grok" / "M57" / "science_to_desk_snapshot.json"
+M58_REL = Path("reports") / "grok" / "M58" / "aci_agi_si_loop_status.json"
+PILLAR_HYPOTHESES = {"P1_MARKETS_QUANT": ("H18", "H23", "H24", "H25", "H27", "H28"), "P7_MACRO_EVENTS_OSINT": ("H16", "H17", "H22", "H26"),
+                     "P6_STATISTICS_VALIDATION": ("H19", "H20")}
+
+
+def build_organism_science_matrix(root: Path | None = None) -> dict[str, Any]:
+    """Pillar x organ matrix from the real arXiv scout. Each paper becomes at most a PROPOSED research question with
+    an asku_ provenance ref; nothing is validated until it is pre-registered and passes walk-forward + red team."""
+    from architecture.university.arxiv_scout import PILLARS
+    from architecture.university.registry import ask_university
+
+    root = Path(root) if root else Path(__file__).resolve().parents[2]
+    ax = _read(root, "reports/grok/M44/arxiv_scout.json") or {}
+    reg = (_read(root, "strategy_lab/registry.json") or {}).get("candidates", {})
+    by_pillar = ax.get("papers_by_pillar") or {}
+    rows = []
+    for pid, spec in PILLARS.items():
+        papers = by_pillar.get(pid) or []
+        proposed = []
+        for p in papers[:2]:
+            ref = ask_university(f"{pid} {p['title']}", root=root)["asku_ref"]
+            proposed.append({"question_en": f"Does '{p['title'][:120]}' transfer to AHOS organ {spec['organ']} under a pre-registered test?",
+                             "arxiv_id": p["arxiv_id"], "url": p["url"], "published": p.get("published"),
+                             "asku_ref": ref, "status": "PROPOSED_NOT_PREREGISTERED"})
+        linked = {h: (reg.get(h) or {}).get("verdict", "NOT_RUN") for h in PILLAR_HYPOTHESES.get(pid, ())}
+        rows.append({"pillar": pid, "organ": spec["organ"], "query": spec["query"], "papers_found": len(papers),
+                     "latest_papers": [{k: p.get(k) for k in ("arxiv_id", "title", "published", "url")} for p in papers[:3]],
+                     "proposed_hypotheses": proposed, "linked_preregistered_hypotheses": linked,
+                     "validated_claims": 0,
+                     "status": "LIVE" if papers else ("ERROR" if pid in (ax.get("errors") or {}) else "NO_PAPERS")})
+    snap = {"schema": "ahos.science_to_desk_snapshot.v1", "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "paper_only": True, "source": "reports/grok/M44/arxiv_scout.json", "scout_generated_at": ax.get("generated_at"),
+            "pillars_total": len(PILLARS), "pillars_live": sum(1 for r in rows if r["status"] == "LIVE"),
+            "proposed_hypotheses_total": sum(len(r["proposed_hypotheses"]) for r in rows),
+            "validated_claims_total": 0,
+            "organ_static_curricula": STATIC_CLAIM,
+            "honesty_note": "Papers motivate questions only. validated_claims stays 0 until a pre-registered test passes every gate.",
+            "matrix": rows}
+    out = root / M57_REL
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def build_aci_agi_si_loop_status(root: Path | None = None) -> dict[str, Any]:
+    """Telemetry of the scout -> hypothesize -> pre-register -> test -> red-team -> promote -> teach -> feedback loop,
+    read from artifacts only. It makes no capability claim; a stage with no artifact is EMPTY, not assumed."""
+    root = Path(root) if root else Path(__file__).resolve().parents[2]
+    ax = _read(root, "reports/grok/M44/arxiv_scout.json") or {}
+    m57 = _read(root, str(M57_REL)) or {}
+    reg = (_read(root, "strategy_lab/registry.json") or {}).get("candidates", {})
+    b5 = _read(root, "reports/grok/M28/batch5_research.json") or {}
+    red = _read(root, "reports/grok/M56/red_team_audit.json") or {}
+    switch = _read(root, "reports/grok/PAPER/strategy_switch.json") or {"active": {}, "version": 0}
+    exam = _read(root, "reports/grok/M50/live_conflict_exam_items.json") or {}
+    shadow = _read(root, "reports/grok/M28/shadow_forward_scorecard.json") or {}
+    verdicts: dict[str, int] = {}
+    for c in reg.values():
+        verdicts[c.get("verdict", "NOT_RUN")] = verdicts.get(c.get("verdict", "NOT_RUN"), 0) + 1
+    stages = [
+        ("SCOUT", (ax.get("paper_count") or 0) + (ax.get("pillar_paper_count") or 0),
+         {"papers": ax.get("paper_count"), "pillar_papers": ax.get("pillar_paper_count"), "at": ax.get("generated_at")}),
+        ("HYPOTHESIZE", m57.get("proposed_hypotheses_total") or 0, {"pillars_live": m57.get("pillars_live")}),
+        ("PRE_REGISTER", len(reg), {"registry_entries": len(reg)}),
+        ("TEST", sum(n for v, n in verdicts.items() if v != "NOT_RUN"),
+         {"verdicts": verdicts, "dsr_trials_counted": b5.get("n_trials_counted_in_dsr"), "batch5_pbo": b5.get("pbo_cscv")}),
+        ("RED_TEAM", len(red.get("rows") or []), {"survived_all_candidates": (red.get("red_team_all_candidates") or {}).get("survived")}),
+        ("PROMOTE", len(switch.get("active") or {}), {"switch_version": switch.get("version"),
+                                                      "promotion_eligible": red.get("promotion_eligible", [])}),
+        ("TEACH", exam.get("n_heldout_items") or 0, {"theta": exam.get("estimate_ability_theta"), "theta_se": exam.get("theta_se"),
+                                                     "status": exam.get("status")}),
+        ("FEEDBACK", shadow.get("closed_trades_count") or 0, {"trades_remaining_to_30_gate": shadow.get("trades_remaining_to_30_gate")}),
+    ]
+    rows = [{"stage": s, "evidence_count": int(n), "status": "ACTIVE" if n else "EMPTY", "detail": d} for s, n, d in stages]
+    first_empty = next((r["stage"] for r in rows if r["status"] == "EMPTY"), None)
+    snap = {"schema": "ahos.aci_agi_si_loop_status.v1", "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "paper_only": True, "capability_claims": "NONE — loop telemetry only; no AGI/SI capability is asserted",
+            "loop_closed": first_empty is None, "loop_status": "CLOSED" if first_empty is None else f"OPEN_AT_{first_empty}",
+            "edge_status": "UNPROVEN_EDGE", "stages": rows,
+            "summary_fa": ("حلقهٔ علم→آزمون→آموزش: " + " → ".join(f"{r['stage']}({r['evidence_count']})" for r in rows)
+                           + (f" — حلقه در مرحلهٔ {first_empty} باز است (بدون شواهد، بدون ادعا)." if first_empty else " — حلقه بسته است."))}
+    out = root / M58_REL
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap

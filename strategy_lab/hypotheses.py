@@ -193,4 +193,58 @@ _B4 = [
 ]
 HYPOTHESES.extend(_B4)
 
+# ---------------- BATCH 5 (registered 2026-10-24 13:17 Tehran — PRE-REGISTERED BEFORE ANY RUN) ---------------
+# Executor: architecture/learning/walk_forward.py run_batch5 (free data only). Same promotion gate as batch 4, with
+# DSR = min(per-observation DSR, frequency-annualized DSR) counting every trial ever run (64 prior + this batch), PBO by
+# time-aligned CSCV (16 calendar blocks), and purged walk-forward folds (embargo = holding period). Trial accounting is
+# frozen now: H23 x{BTC,ETH}; H24 x every daily instrument with real volume; H25 x1; H26 x{FOMC:SPX,QQQ,XAU,EURUSD,
+# USDJPY,BTC; EIA:WTI,BRENT} (ECB/BOJ/BOE/OPEC have <30 dated events in the official calendar -> INSUFFICIENT_EVENTS,
+# not run); H27 x1; H28 x1. Parameters below are frozen now; the red team perturbs them +/-15%.
+_B5 = [
+ dict(id="H23", family="regime_confluence", name="HMM low/normal-vol regime x on-chain flow x liquidity impulse confluence (BTC/ETH)",
+  batch=5, hypothesis="Long BTC/ETH for 7 days only when (a) the forward-filtered 3-state HMM on the trailing 90 daily returns is LOW or NORMAL, (b) close > SMA200 and close > EMA50 with a positive 5-day return (multi-timeframe agreement), (c) the 2-day-lagged exchange netflow z90 <= 0, and (d) 7-day stablecoin supply growth is above its trailing-year 60th percentile.",
+  reasoning="H14 and H15 each failed alone (DSR < 0.2); a regime filter plus requiring independent families to agree is the standard way to raise signal-to-noise without new parameters.",
+  market_mechanism="Trend persistence in calm regimes when spot supply leaves venues while new stablecoin liquidity enters.",
+  required_data="Yahoo daily, Coin Metrics community flows (2-day lag), DefiLlama stablecoin supply. HAVE.",
+  risk_model="Long only, 7-day hold, cost 10 bps/side.", expected_failure_mode="Confluence is so rare that OOS n < 30; conditions are collinear with trend.",
+  status="TESTABLE"),
+ dict(id="H24", family="microstructure_liquidity", name="Liquidity-sweep wick rejection with volume confirmation",
+  batch=5, hypothesis="A daily bar whose rejection wick is >= 2.2x its body, whose extreme pierces the EWMA(20) mean -/+ 2 EWMA sigma, and whose volume exceeds 1.2x the trailing 20-day mean reverses over the next 3 days.",
+  reasoning="Stop-run / liquidity-sweep reversal (stop-hunting literature; Osler 2005 on stop-loss clustering).",
+  market_mechanism="Clustered stop orders are absorbed by liquidity providers; price returns inside the range.",
+  required_data="Yahoo daily OHLCV ~10y. Open interest history is not free -> volume only. Instruments without real volume (spot FX) are excluded, not imputed.",
+  risk_model="3-day hold, cost per instrument.", expected_failure_mode="Wicks are noise at daily resolution; breakouts continue.",
+  status="TESTABLE"),
+ dict(id="H25", family="macro_rotation", name="DXY / US10Y macro-gated weekly rotation: gold vs SPX vs BTC vs cash",
+  batch=5, hypothesis="Holding the asset with the best 63-day return/vol score (switching only if the challenger beats the incumbent by 0.25), and moving to cash when both DXY and the US 10y yield rose over 63 days unless the leader's score exceeds 1.0, beats equal-weight buy-and-hold of the three after costs.",
+  reasoning="Cross-asset relative momentum (Asness-Moskowitz-Pedersen 2013) plus the dollar/real-rate headwind to non-yielding and risk assets.",
+  market_mechanism="Tightening financial conditions (strong dollar, rising yields) compress gold, equity and crypto multiples together.",
+  required_data="Yahoo daily GC=F, ^GSPC, BTC-USD, DX-Y.NYB, ^TNX. HAVE.",
+  risk_model="Weekly rebalance on a business-day grid, hysteresis 0.25, cost 15 bps per switch.", expected_failure_mode="Whipsaw at regime turns; cash drag.",
+  status="TESTABLE"),
+ dict(id="H26", family="macro_event", name="Post-announcement drift after pre-event volatility compression",
+  batch=5, hypothesis="When 5-day realized vol before a scheduled event is < 0.8x the 20-day realized vol and the event-day move exceeds 0.5 daily sigma, the event-day direction continues for 3 days.",
+  reasoning="Compressed pre-event vol signals positioning uncertainty; the resolution move is under-reacted (Lucca-Moench 2015; slow diffusion).",
+  market_mechanism="Positioning re-builds over several sessions after uncertainty resolves.",
+  required_data="Official calendars (federalreserve.gov FOMC 2021-2026, EIA WPSR schedule) + Yahoo daily. HAVE.",
+  risk_model="Enter at the event-day close, 3-day hold, cost per instrument.", expected_failure_mode="Too few qualifying events; reversal dominates.",
+  status="TESTABLE"),
+ dict(id="H27", family="calibrated_combination", name="Bull/bear agent views blended by Black-Litterman (Ledoit-Wolf covariance, Brier-weighted confidence)",
+  batch=5, hypothesis="A monthly Black-Litterman portfolio over 8 assets, with a bull agent (12m trend) and a bear agent (5d reversal) whose view confidences equal their own trailing Brier skill (0 when unproven), beats equal weight OOS.",
+  reasoning="BL shrinks noisy views toward the equilibrium prior; Brier weighting gives zero weight to agents with no demonstrated skill (no self-confidence).",
+  market_mechanism="Allocation and view-skill weighting; no new alpha source.",
+  required_data="Yahoo daily BTC, ETH, XAU, WTI, SPX, DAX, N225, EURUSD. HAVE.",
+  risk_model="tau=0.05, delta=2.5, gross exposure 1, monthly (21 business days) rebalance, turnover cost per instrument.",
+  expected_failure_mode="Both agents have no skill -> BL returns the equal-weight prior and no edge.",
+  status="TESTABLE"),
+ dict(id="H28", family="portfolio_allocation", name="Vol-targeted (12% annual) allocator over IS-surviving streams with tail hedge and quarter-Kelly cap",
+  batch=5, hypothesis="Equal-risk combining the batch-5 streams whose IS Sharpe > 0 (selected on IS data only), scaled to 12% annualized vol with a causal EWMA estimate, halved after a 5% 20-day drawdown, capped at quarter-Kelly (IS) and 1x gross, has OOS DSR > 0.95.",
+  reasoning="Volatility targeting improves risk-adjusted returns of diversified books (Moreira-Muir 2017); allocation cannot create edge from edgeless streams.",
+  market_mechanism="Risk budgeting; no new alpha source.", required_data="Batch-5 daily stream returns. HAVE.",
+  risk_model="1x gross cap, 1% ADV cap (non-binding at paper size), embargo = 21 days between IS selection and OOS.",
+  expected_failure_mode="No stream survives IS selection, or the survivors are IS-overfit.",
+  status="TESTABLE"),
+]
+HYPOTHESES.extend(_B5)
+
 def get(hid): return next(h for h in HYPOTHESES if h["id"] == hid)

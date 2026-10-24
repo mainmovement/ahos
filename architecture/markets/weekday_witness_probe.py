@@ -46,6 +46,7 @@ def build_witness_probe_payload(
     now: float | None = None,
     fetch_ts: datetime | None = None,
     root: Path | None = None,
+    witnesses: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     t = now if now is not None else time.time()
     sess = session_report(fetch_ts)
@@ -55,7 +56,7 @@ def build_witness_probe_payload(
     tradable_desks: set[str] = set()
     for sym, (desk, _fee, _slip) in instruments.items():
         q = quotes.get(sym) or {}
-        w = witness(sym, q, second.get(sym))
+        w = (witnesses or {}).get(sym) or witness(sym, q, second.get(sym))
         ok, reason = tradable_for_paper(desk, w["verdict"], q, now=t, weekend_tehran=weekend)
         row = {
             "symbol": sym,
@@ -63,6 +64,10 @@ def build_witness_probe_payload(
             "gap": w.get("gap"),
             "source_a": w.get("source_a"),
             "source_b": w.get("source_b"),
+            "source_c": w.get("source_c"),
+            "pair": w.get("pair"),
+            "contract_month_a": w.get("contract_month_a"),
+            "diagnostics": w.get("diagnostics"),
             "quote_age_s": quote_age_seconds(q, t),
             "tradable_for_paper": ok,
             "tradable_reason": reason,

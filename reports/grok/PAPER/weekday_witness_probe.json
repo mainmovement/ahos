@@ -3,13 +3,98 @@
   "paper_only": true,
   "session_gate": {
     "paper_only": true,
-    "utc": "2026-10-24T08:46:29Z",
-    "tehran": "2026-10-24 12:16 +0330",
+    "utc": "2026-10-24T10:36:26Z",
+    "tehran": "2026-10-24 14:06 +0330",
     "tehran_weekday": "Saturday",
     "weekend_tehran": true,
     "cash_desks_expected": "CLOSED_OR_STALE",
     "crypto_desks_expected": "OPEN_IF_VERIFIED",
-    "summary_fa": "زمان تهران: 2026-10-24 12:16 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
+    "venues": {
+      "NYSE": {
+        "venue": "NYSE",
+        "label_fa": "نیویورک (NYSE/Nasdaq)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-26T13:30:00Z",
+        "next_open_tehran": "2026-10-26 17:00",
+        "minutes_until_open": 3054,
+        "holidays_modeled": false
+      },
+      "XETRA": {
+        "venue": "XETRA",
+        "label_fa": "فرانکفورت (Xetra)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-26T08:00:00Z",
+        "next_open_tehran": "2026-10-26 11:30",
+        "minutes_until_open": 2724,
+        "holidays_modeled": false
+      },
+      "LSE": {
+        "venue": "LSE",
+        "label_fa": "لندن (LSE)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-26T08:00:00Z",
+        "next_open_tehran": "2026-10-26 11:30",
+        "minutes_until_open": 2724,
+        "holidays_modeled": false
+      },
+      "TSE": {
+        "venue": "TSE",
+        "label_fa": "توکیو (TSE)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-26T00:00:00Z",
+        "next_open_tehran": "2026-10-26 03:30",
+        "minutes_until_open": 2244,
+        "holidays_modeled": false
+      },
+      "HKEX": {
+        "venue": "HKEX",
+        "label_fa": "هنگ‌کنگ (HKEX)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-26T01:30:00Z",
+        "next_open_tehran": "2026-10-26 05:00",
+        "minutes_until_open": 2334,
+        "holidays_modeled": false
+      },
+      "ICE_BRENT": {
+        "venue": "ICE_BRENT",
+        "label_fa": "برنت (ICE Futures Europe)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-26T01:00:00Z",
+        "next_open_tehran": "2026-10-26 04:30",
+        "minutes_until_open": 2304,
+        "holidays_modeled": false
+      },
+      "CME_GLOBEX": {
+        "venue": "CME_GLOBEX",
+        "label_fa": "CME Globex (طلا/WTI)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-25T22:00:00Z",
+        "next_open_tehran": "2026-10-26 01:30",
+        "minutes_until_open": 2124,
+        "holidays_modeled": false
+      },
+      "FX_OTC": {
+        "venue": "FX_OTC",
+        "label_fa": "فارکس (OTC)",
+        "open": false,
+        "closes_utc": null,
+        "next_open_utc": "2026-10-25T21:00:00Z",
+        "next_open_tehran": "2026-10-26 00:30",
+        "minutes_until_open": 2064,
+        "holidays_modeled": false
+      }
+    },
+    "venues_open_now": [],
+    "symbols_open_now": [],
+    "schedule_basis": "exchange-published regular hours; DST via zoneinfo; exchange holidays NOT modeled",
+    "summary_fa": "زمان تهران: 2026-10-24 14:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست."
   },
   "verified_asset_classes": [
     "ASIA_EQUITIES",
@@ -30,30 +115,48 @@
       {
         "symbol": "BTC",
         "verdict": "VERIFIED",
-        "gap": 0.00038,
+        "gap": 9e-05,
         "source_a": "coingecko:bitcoin",
         "source_b": "kraken:XXBTZUSD",
-        "quote_age_s": 22.12458109855652,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 9e-05
+        },
+        "quote_age_s": 45.36538505554199,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       },
       {
         "symbol": "ETH",
         "verdict": "VERIFIED",
-        "gap": 0.0005,
+        "gap": 0.00014,
         "source_a": "coingecko:ethereum",
         "source_b": "kraken:XETHZUSD",
-        "quote_age_s": 22.12458109855652,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.00014
+        },
+        "quote_age_s": 45.36538505554199,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       },
       {
         "symbol": "SOL",
         "verdict": "VERIFIED",
-        "gap": 0.00079,
+        "gap": 0.0002,
         "source_a": "coingecko:solana",
         "source_b": "kraken:SOLUSD",
-        "quote_age_s": 8.124581098556519,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.0002
+        },
+        "quote_age_s": 45.36538505554199,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       }
@@ -62,10 +165,16 @@
       {
         "symbol": "UNI",
         "verdict": "VERIFIED",
-        "gap": 0.00146,
+        "gap": 0.00086,
         "source_a": "yahoo_finance:UNI7083-USD",
         "source_b": "kraken:UNIUSD",
-        "quote_age_s": 43.12458109855652,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.00086
+        },
+        "quote_age_s": 47.36538505554199,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       }
@@ -76,8 +185,18 @@
         "verdict": "VERIFIED",
         "gap": 0.0,
         "source_a": "yahoo_finance:GC=F",
-        "source_b": "tradingview:COMEX:GC1!",
-        "quote_age_s": 42391.12458109856,
+        "source_b": "tradingview:COMEX:GCZ2026",
+        "source_c": "stooq:gc.f",
+        "pair": "A-B",
+        "contract_month_a": "2026-12",
+        "diagnostics": {
+          "gap_ab": 0.0,
+          "gap_ac": 0.0,
+          "gap_bc": 0.0,
+          "futures_roll_basis_bps": 0.0,
+          "front_vs_a_bps": 0.0
+        },
+        "quote_age_s": 48988.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -88,20 +207,40 @@
         "verdict": "VERIFIED",
         "gap": 0.0,
         "source_a": "yahoo_finance:CL=F",
-        "source_b": "tradingview:NYMEX:CL1!",
-        "quote_age_s": 42391.12458109856,
+        "source_b": "tradingview:NYMEX:CLZ2026",
+        "source_c": "stooq:cl.f",
+        "pair": "A-B",
+        "contract_month_a": "2026-12",
+        "diagnostics": {
+          "gap_ab": 0.0,
+          "gap_ac": 0.0,
+          "gap_bc": 0.0,
+          "futures_roll_basis_bps": 0.0,
+          "front_vs_a_bps": 0.0
+        },
+        "quote_age_s": 48988.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
       {
         "symbol": "BRENT",
-        "verdict": "CONFLICT",
-        "gap": 0.04395,
+        "verdict": "VERIFIED",
+        "gap": 0.0,
         "source_a": "yahoo_finance:BZ=F",
-        "source_b": "tradingview:ICEEUR:BRN1!",
-        "quote_age_s": 42430.12458109856,
+        "source_b": "tradingview:ICEEUR:BRNF2027",
+        "source_c": "stooq:cb.f",
+        "pair": "A-B",
+        "contract_month_a": "2027-01",
+        "diagnostics": {
+          "gap_ab": 0.0,
+          "gap_ac": 0.04395,
+          "gap_bc": 0.04395,
+          "futures_roll_basis_bps": 449.4,
+          "front_vs_a_bps": 449.4
+        },
+        "quote_age_s": 49027.36538505554,
         "tradable_for_paper": false,
-        "tradable_reason": "WITNESS_CONFLICT"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ],
     "US_EQUITIES": [
@@ -111,7 +250,13 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^GSPC",
         "source_b": "tradingview:SP:SPX",
-        "quote_age_s": 43689.12458109856,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.0
+        },
+        "quote_age_s": 50286.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
@@ -121,7 +266,13 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:QQQ",
         "source_b": "tradingview:NASDAQ:QQQ",
-        "quote_age_s": 45989.12458109856,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.0
+        },
+        "quote_age_s": 52586.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -133,7 +284,13 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^GDAXI",
         "source_b": "tradingview:XETR:DAX",
-        "quote_age_s": 60389.12458109856,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.0
+        },
+        "quote_age_s": 66986.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -145,7 +302,13 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^N225",
         "source_b": "tradingview:TVC:NI225",
-        "quote_age_s": 93686.12458109856,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.0
+        },
+        "quote_age_s": 100283.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
@@ -155,7 +318,13 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^HSI",
         "source_b": "tradingview:TVC:HSI",
-        "quote_age_s": 88679.12458109856,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.0
+        },
+        "quote_age_s": 95276.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -167,7 +336,13 @@
         "gap": 8e-05,
         "source_a": "yahoo_finance:EURUSD=X",
         "source_b": "tradingview:FX:EURUSD",
-        "quote_age_s": 40622.12458109856,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 8e-05
+        },
+        "quote_age_s": 47219.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
@@ -177,15 +352,21 @@
         "gap": 0.00013,
         "source_a": "yahoo_finance:JPY=X",
         "source_b": "tradingview:FX:USDJPY",
-        "quote_age_s": 42399.12458109856,
+        "source_c": null,
+        "pair": "A-B",
+        "contract_month_a": null,
+        "diagnostics": {
+          "gap_ab": 0.00013
+        },
+        "quote_age_s": 48996.36538505554,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ]
   },
-  "summary_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 12:16 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
+  "summary_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 14:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
   "session_readiness_drill": {
-    "summary_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن توکیو در 39 ساعت و 13 دقیقه (تهران). آداپتورهای کاغذی CCXT/IBKR: ACCEPTED_PAPER/ACCEPTED_PAPER. زمان تهران: 2026-10-24 12:16 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
+    "summary_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن نیویورک — 34 ساعت و 24 دقیقه (تهران 2026-10-26 00:30). کنترل‌های منفی آداپتورهای کاغذی: PREFLIGHT_PASS؛ اتصال واقعی کارگزار: NOT_VERIFIED. ضربان دیمون: FRESH. زمان تهران: 2026-10-24 14:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
     "cash_sessions": [
       {
         "label_fa": "توکیو",
@@ -193,10 +374,34 @@
           "N225",
           "HSI"
         ],
+        "venues": [
+          {
+            "venue": "TSE",
+            "label_fa": "توکیو (TSE)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-26T00:00:00Z",
+            "next_open_tehran": "2026-10-26 03:30",
+            "minutes_until_open": 2244,
+            "holidays_modeled": false
+          },
+          {
+            "venue": "HKEX",
+            "label_fa": "هنگ‌کنگ (HKEX)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-26T01:30:00Z",
+            "next_open_tehran": "2026-10-26 05:00",
+            "minutes_until_open": 2334,
+            "holidays_modeled": false
+          }
+        ],
+        "open_now": false,
         "next_open_utc": "2026-10-26T00:00:00Z",
         "next_open_tehran": "2026-10-26 03:30",
-        "countdown_fa": "39 ساعت و 13 دقیقه",
-        "hours_until": 39.23
+        "minutes_until_open": 2244,
+        "countdown_fa": "37 ساعت و 24 دقیقه",
+        "hours_until": 37.4
       },
       {
         "label_fa": "فرانکفورت/لندن",
@@ -205,10 +410,44 @@
           "BRENT",
           "EURUSD"
         ],
-        "next_open_utc": "2026-10-26T08:00:00Z",
-        "next_open_tehran": "2026-10-26 11:30",
-        "countdown_fa": "47 ساعت و 13 دقیقه",
-        "hours_until": 47.23
+        "venues": [
+          {
+            "venue": "XETRA",
+            "label_fa": "فرانکفورت (Xetra)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-26T08:00:00Z",
+            "next_open_tehran": "2026-10-26 11:30",
+            "minutes_until_open": 2724,
+            "holidays_modeled": false
+          },
+          {
+            "venue": "LSE",
+            "label_fa": "لندن (LSE)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-26T08:00:00Z",
+            "next_open_tehran": "2026-10-26 11:30",
+            "minutes_until_open": 2724,
+            "holidays_modeled": false
+          },
+          {
+            "venue": "ICE_BRENT",
+            "label_fa": "برنت (ICE Futures Europe)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-26T01:00:00Z",
+            "next_open_tehran": "2026-10-26 04:30",
+            "minutes_until_open": 2304,
+            "holidays_modeled": false
+          }
+        ],
+        "open_now": false,
+        "next_open_utc": "2026-10-26T01:00:00Z",
+        "next_open_tehran": "2026-10-26 04:30",
+        "minutes_until_open": 2304,
+        "countdown_fa": "38 ساعت و 24 دقیقه",
+        "hours_until": 38.4
       },
       {
         "label_fa": "نیویورک",
@@ -219,22 +458,71 @@
           "XAU",
           "USDJPY"
         ],
-        "next_open_utc": "2026-10-26T13:30:00Z",
-        "next_open_tehran": "2026-10-26 17:00",
-        "countdown_fa": "52 ساعت و 43 دقیقه",
-        "hours_until": 52.73
+        "venues": [
+          {
+            "venue": "NYSE",
+            "label_fa": "نیویورک (NYSE/Nasdaq)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-26T13:30:00Z",
+            "next_open_tehran": "2026-10-26 17:00",
+            "minutes_until_open": 3054,
+            "holidays_modeled": false
+          },
+          {
+            "venue": "CME_GLOBEX",
+            "label_fa": "CME Globex (طلا/WTI)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-25T22:00:00Z",
+            "next_open_tehran": "2026-10-26 01:30",
+            "minutes_until_open": 2124,
+            "holidays_modeled": false
+          },
+          {
+            "venue": "FX_OTC",
+            "label_fa": "فارکس (OTC)",
+            "open": false,
+            "closes_utc": null,
+            "next_open_utc": "2026-10-25T21:00:00Z",
+            "next_open_tehran": "2026-10-26 00:30",
+            "minutes_until_open": 2064,
+            "holidays_modeled": false
+          }
+        ],
+        "open_now": false,
+        "next_open_utc": "2026-10-25T21:00:00Z",
+        "next_open_tehran": "2026-10-26 00:30",
+        "minutes_until_open": 2064,
+        "countdown_fa": "34 ساعت و 24 دقیقه",
+        "hours_until": 34.4
       }
     ],
     "adapters": {
       "ccxt_paper": {
         "oms_state": "ACCEPTED_PAPER",
-        "reason": "paper order booked",
         "sandbox": true
       },
       "ibkr_paper": {
         "oms_state": "ACCEPTED_PAPER",
-        "reason": "paper order booked",
-        "account": "DU1234567"
+        "account": "DU* placeholder"
+      },
+      "preflight": {
+        "negative_controls": {
+          "ccxt_sandbox_paper_routes": "ACCEPTED_PAPER",
+          "ccxt_live_true_refused": "REJECTED_LIVE_FORBIDDEN",
+          "ccxt_sandbox_false_refused": "REJECTED_LIVE_FORBIDDEN",
+          "ccxt_withdraw_refused": "REJECTED_LIVE_FORBIDDEN",
+          "ibkr_du_paper_routes": "ACCEPTED_PAPER",
+          "ibkr_non_du_account_refused": "REJECTED_LIVE_FORBIDDEN",
+          "ibkr_live_true_refused": "REJECTED_LIVE_FORBIDDEN"
+        },
+        "live_paths_refused": true,
+        "paper_paths_route": true,
+        "verdict": "PREFLIGHT_PASS",
+        "broker_connectivity": "NOT_VERIFIED",
+        "broker_connectivity_reason": "stub paper adapters only; no IBKR TWS/Gateway session, no CCXT sandbox keys used in the box",
+        "account_ids": "placeholders only (DU* pattern check); no real account id read"
       }
     },
     "adv_cap_checks": {
@@ -242,27 +530,31 @@
         "allowed": true,
         "notional_usd": 100.0,
         "adv_usd": 69410909261618.68,
+        "adv_source": "5m_bar_volume_x288",
         "cap_1pct_usd": 694109092616.19,
         "participation_rate": 0.0
       },
       "BTC": {
         "allowed": true,
         "notional_usd": 100.0,
-        "adv_usd": 22405823834.7,
-        "cap_1pct_usd": 224058238.35,
+        "adv_usd": 22572958202.42,
+        "adv_source": "vendor_24h_volume",
+        "cap_1pct_usd": 225729582.02,
         "participation_rate": 0.0
       },
       "ETH": {
         "allowed": true,
         "notional_usd": 100.0,
-        "adv_usd": 8072539996.94,
-        "cap_1pct_usd": 80725399.97,
+        "adv_usd": 8201408328.58,
+        "adv_source": "vendor_24h_volume",
+        "cap_1pct_usd": 82014083.29,
         "participation_rate": 1e-08
       },
       "BRENT": {
         "allowed": true,
         "notional_usd": 100.0,
         "adv_usd": 4825552.48,
+        "adv_source": "5m_bar_volume_x288",
         "cap_1pct_usd": 48255.52,
         "participation_rate": 2.072e-05
       },
@@ -270,6 +562,7 @@
         "allowed": true,
         "notional_usd": 100.0,
         "adv_usd": 711239355.49,
+        "adv_source": "5m_bar_volume_x288",
         "cap_1pct_usd": 7112393.55,
         "participation_rate": 1.4e-07
       },
@@ -277,10 +570,11 @@
         "allowed": true,
         "notional_usd": 100.0,
         "adv_usd": 50000000.0,
+        "adv_source": "ASSUMED_FLOOR_50M_NO_VOLUME_IN_FEED",
         "cap_1pct_usd": 500000.0,
         "participation_rate": 2e-06
       }
     }
   },
-  "generated_at": "2026-10-24T08:46:29Z"
+  "generated_at": "2026-10-24T10:36:26Z"
 }

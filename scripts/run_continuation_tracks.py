@@ -18,8 +18,18 @@ from architecture.learning.memory_consolidation import consolidate_canonical_mem
 from architecture.markets import macro_calendar as mc
 from architecture.learning.teaching_mode_m65 import generate_teaching_journal_snapshot
 from architecture.markets.paper_trade_audit import export_paper_trade_audit_snapshot
+from architecture.learning.strategy_tournament import run_strategy_tournament
+from architecture.university.whole_ahos_organ_evolution import build_whole_ahos_organ_evolution_snapshot
+from architecture.university.science_to_desk_pipeline import build_aci_agi_si_loop_status, build_organism_science_matrix
+from architecture.health.unification_audit import export_unification_audit
 
 import subprocess
+
+
+def _write(rel: str, payload: dict) -> None:
+    path = ROOT / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def main() -> int:
@@ -38,11 +48,13 @@ def main() -> int:
     drill = export_session_readiness_drill(ROOT)
     live_exam = synthesize_live_conflict_exam_items(ROOT)
     m65 = generate_teaching_journal_snapshot(root=ROOT)
-    m65_dir = ROOT / "reports" / "grok" / "M65"
-    m65_dir.mkdir(parents=True, exist_ok=True)
-    (m65_dir / "teaching_journal_snapshot.json").write_text(
-        json.dumps(m65, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    _write("reports/grok/M65/teaching_journal_snapshot.json", m65)
+    _write("reports/grok/M65/teaching_snapshot.json", m65)
+    _write("reports/grok/M56/tournament_snapshot.json", run_strategy_tournament())
+    _write("reports/grok/M57/whole_ahos_organ_evolution.json", build_whole_ahos_organ_evolution_snapshot())
+    science = build_organism_science_matrix(ROOT)
+    loop = build_aci_agi_si_loop_status(ROOT)
+    unification = export_unification_audit(ROOT)
     payload = {
         "schema": "ahos.continuation_tracks.v1",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -64,10 +76,20 @@ def main() -> int:
         "track6_next_countdown_fa": (drill.get("cash_sessions") or [{}])[0].get("countdown_fa"),
         "track7_live_exam_items": live_exam.get("n_items"),
         "track7_theta": live_exam.get("estimate_ability_theta"),
+        "track7_live_exam_status": live_exam.get("status"),
+        "track7_science_pillars_live": science.get("pillars_live"),
+        "track7_loop_status": loop.get("loop_status"),
+        "track8_unification": unification["overall_status"],
+        "track8_unification_drift": unification["drift"],
+        "track8_unification_unknown": unification["unknown"],
         "track8_receipts_written": [
             "reports/grok/M28/shadow_forward_scorecard.json",
             "reports/grok/PAPER/session_readiness_drill.json",
             "reports/grok/M50/live_conflict_exam_items.json",
+            "reports/grok/M65/teaching_snapshot.json",
+            "reports/grok/M57/science_to_desk_snapshot.json",
+            "reports/grok/M58/aci_agi_si_loop_status.json",
+            "reports/grok/M34/unification_audit.json",
         ],
     }
     out = ROOT / "reports" / "grok" / "CONTINUATION" / "tracks_receipt.json"

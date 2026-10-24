@@ -279,20 +279,45 @@ def ask_university(query: str, *, root: Path | None = None) -> dict[str, Any]:
     if arxiv_path.is_file():
         try:
             arx = json.loads(arxiv_path.read_text(encoding="utf-8"))
-            for p in (arx.get("papers") or [])[:15]:
-                cid = str(p.get("arxiv_id") or p.get("id") or "")
-                title = str(p.get("title") or "")
-                if cid and title:
+            seen: set[str] = set()
+            groups = [("quant_research", ps) for ps in (arx.get("papers_by_hypothesis") or {}).values()]
+            groups += [(f"pillar:{pid}", ps) for pid, ps in (arx.get("papers_by_pillar") or {}).items()]
+            for faculty, papers in groups:
+                for p in papers or []:
+                    cid = str(p.get("arxiv_id") or "")
+                    title = str(p.get("title") or "")
+                    if not cid or not title or cid in seen:
+                        continue
+                    seen.add(cid)
                     claims.append({
                         "claim_id": f"arxiv:{cid}",
                         "title": title,
                         "source_url": f"https://arxiv.org/abs/{cid}",
                         "license": "arXiv-non-exclusive",
-                        "faculty": "quant_research",
-                        "quality_score": 4.5,
+                        "faculty": faculty,
+                        "claim_type": "PAPER_MOTIVATES_HYPOTHESIS",
+                        "evidence_status": "NOT_VALIDATED_BY_AHOS",
+                        "quality_score": 4.0,
                     })
         except Exception:
             pass
+    reg_path = base / "strategy_lab" / "registry.json"
+    try:
+        verdicts = json.loads(reg_path.read_text(encoding="utf-8")).get("candidates", {})
+    except Exception:
+        verdicts = {}
+    for h in _preregistered_hypotheses():
+        v = (verdicts.get(h["id"]) or {}).get("verdict", "NOT_RUN")
+        claims.append({
+            "claim_id": f"hypothesis:{h['id']}",
+            "title": f"{h['id']} {h['name']} — verdict {v}",
+            "source_url": f"strategy_lab/hypotheses.py#{h['id']}",
+            "license": "ahos-internal",
+            "faculty": str(h.get("family") or "quant_research"),
+            "claim_type": "PREREGISTERED_HYPOTHESIS",
+            "evidence_status": v,
+            "quality_score": 4.3 if v in ("REJECTED", "SHADOW_FORWARD_TEST", "PASSED_ALL_GATES_AWAITING_SWITCH") else 3.5,
+        })
     for rd in default_github_rd_candidates():
         if is_permissive_rd_license(str(rd.get("license") or "")):
             claims.append({
@@ -303,30 +328,20 @@ def ask_university(query: str, *, root: Path | None = None) -> dict[str, Any]:
                 "faculty": str(rd["faculty"]),
                 "quality_score": 4.2,
             })
-    # Ensure >= 10 ranked claims even in minimal test environments
-    while len(claims) < 12:
-        idx = len(claims) + 1
-        claims.append({
-            "claim_id": f"univ-core-{idx:02d}",
-            "title": f"AHOS Vetted Quantitative & Safety Claim #{idx} (Two-Source Witness / DSR Gate)",
-            "source_url": f"https://arxiv.org/abs/2401.{1000 + idx:04d}",
-            "license": "cc-by-4.0",
-            "faculty": "quant_research",
-            "quality_score": round(4.0 - 0.05 * idx, 2),
-        })
-
     live_exam = base / "reports" / "grok" / "M50" / "live_conflict_exam_items.json"
     if live_exam.is_file():
         try:
             ex = json.loads(live_exam.read_text(encoding="utf-8"))
-            for it in (ex.get("items") or [])[:5]:
+            for it in (ex.get("cards_fa") or [])[-5:]:
                 claims.append({
                     "claim_id": f"exam:{it.get('item_id')}",
-                    "title": str(it.get("prompt_fa") or "live conflict exam item"),
+                    "title": f"{it.get('prompt_fa', '')} {it.get('verdict_fa', '')}".strip(),
                     "source_url": "reports/grok/M50/live_conflict_exam_items.json",
                     "license": "ahos-held-out-exam",
-                    "faculty": str(it.get("domain") or "osint_two_source"),
-                    "quality_score": float(it.get("discrimination") or 1.0),
+                    "faculty": "live_heldout_exam",
+                    "claim_type": "MEASURED_DECISION_OUTCOME",
+                    "evidence_status": "CORRECT" if it.get("correct") else "INCORRECT",
+                    "quality_score": 3.0,
                 })
         except Exception:
             pass
@@ -345,6 +360,20 @@ def ask_university(query: str, *, root: Path | None = None) -> dict[str, Any]:
         "query": query,
         "asku_ref": asku_ref,
         "ranked_claims_count": len(claims),
+        "sufficient_claims": len(claims) >= 10,
+        "padding": "NONE — every claim is a real paper, a pre-registered hypothesis with its tested verdict, a vetted repo, or a measured exam outcome",
         "top_claims": claims[:10],
         "paper_only": True,
     }
+
+
+def _preregistered_hypotheses() -> list[dict[str, Any]]:
+    import importlib.util
+    path = Path(__file__).resolve().parents[2] / "strategy_lab" / "hypotheses.py"
+    try:
+        spec = importlib.util.spec_from_file_location("_ahos_hypotheses", path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return list(mod.HYPOTHESES)
+    except Exception:
+        return []
