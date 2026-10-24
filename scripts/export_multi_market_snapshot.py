@@ -222,6 +222,11 @@ def main() -> int:
     from architecture.autonomy.whole_project_integrity_auditor import export_integrity_audit_snapshot
 
     integrity_out = ROOT / "reports" / "grok" / "M60_I" / "integrity_audit_snapshot.json"
+    from architecture.markets.paper_trade_audit import export_paper_trade_audit_snapshot
+
+    paper_audit = export_paper_trade_audit_snapshot(ROOT)
+    print(f"paper_trade_audit status={paper_audit.get('status')}")
+
     integrity = export_integrity_audit_snapshot(integrity_out, ahos_root=ROOT)
     assets_copy = ROOT.parent / "ahos_assets" / "m60_i_integrity_audit_snapshot.json"
     if assets_copy.parent.is_dir():

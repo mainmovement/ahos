@@ -33,6 +33,7 @@ MIRROR_URLS = {
     "ECB_RSS": "https://www.ecb.europa.eu/rss/press.html",
     "ECB_BIS": "https://www.bis.org/events/calendar_all.xml",
     "ECB_FRED_BLOG": "https://www.stlouisfed.org/rss/page%20resources/publications/blog%20entries",
+    "ECB_GNEWS": "https://news.google.com/rss/search?q=ECB+Governing+Council+monetary+policy&hl=en-US&gl=US&ceid=US:en",
     "OPEC_RSS_A": "https://news.google.com/rss/search?q=OPEC+ministerial+meeting&hl=en-US&gl=US&ceid=US:en",
     "OPEC_RSS_B": "https://news.google.com/rss/search?q=OPEC+conference+date&hl=en-US&gl=US&ceid=US:en",
     "OPEC_EIA_RSS": "https://www.eia.gov/rss/todayinenergy.xml",
@@ -255,6 +256,9 @@ def ingest_ecb_opec_mirrors(
         db: set[date] = _dates_from_bis_xml(ecb_bis) if ecb_bis else set()
         if not db and ecb_fred:
             db = _dates_from_rss_titles(ecb_fred, keywords=("ecb", "european central bank", "monetary policy"))
+        ecb_gnews = getter(MIRROR_URLS["ECB_GNEWS"])
+        if not db and ecb_gnews:
+            db = _dates_from_rss_titles(ecb_gnews, keywords=("ecb", "governing council", "monetary policy"))
         agreed = two_source_agreed_dates(da, db) if da and db else []
         if agreed:
             future = [d for d in agreed if d >= now.date()]
