@@ -69,6 +69,10 @@ ENTRY = 0.25
 RISK_PER_TRADE = 0.005
 MIN_STOP, TAKE_MULT = 0.010, 1.5
 MAX_HOLD_S = 24 * 3600
+CHANDELIER_ATR_MULT = 3.0
+PARTIAL_FRACTION = 0.5
+TIME_STOP_HOLD_FRAC = 0.5
+TIME_STOP_MOVE_FRAC = 0.25
 DAILY_LOSS_LIMIT, WEEKLY_LOSS_LIMIT = 0.03, 0.06
 MAX_OPEN_NOTIONAL = 1.0          # 1x equity in total, no leverage
 
@@ -304,6 +308,42 @@ def _atr_pct(ohlcv: list[list[float]]) -> float | None:
     return (sum(trs) / len(trs)) / h1[-1][3]
 
 
+def _mark_excursion(pos: dict[str, Any], price: float, atr_pct: float) -> float:
+    """Update the path high-water and the chandelier. The stop only tightens."""
+    entry = float(pos["entry_price"])
+    d = 1 if pos["side"] == "LONG" else -1
+    move = (price - entry) / entry * d
+    pos["mfe"] = move if pos.get("mfe") is None else max(float(pos["mfe"]), move)
+    pos["mae"] = move if pos.get("mae") is None else min(float(pos["mae"]), move)
+    pos["path_points"] = int(pos.get("path_points") or 0) + 1
+    stop_pct = float(pos["stop_pct"])
+    atr_abs = max(0.0, float(atr_pct)) * price
+    if pos["side"] == "LONG":
+        pos["peak_price"] = max(float(pos.get("peak_price") or price), price)
+        hard = entry * (1.0 - stop_pct)
+        trail = float(pos["peak_price"]) - CHANDELIER_ATR_MULT * atr_abs
+        pos["chandelier_stop"] = max(hard, trail)
+    else:
+        pos["trough_price"] = min(float(pos.get("trough_price") or price), price)
+        hard = entry * (1.0 + stop_pct)
+        trail = float(pos["trough_price"]) + CHANDELIER_ATR_MULT * atr_abs
+        pos["chandelier_stop"] = min(hard, trail)
+    return move
+
+
+def _chandelier_hit(pos: dict[str, Any], price: float) -> bool:
+    stop = pos.get("chandelier_stop")
+    if not isinstance(stop, (int, float)):
+        return False
+    entry = float(pos["entry_price"])
+    stop_pct = float(pos["stop_pct"])
+    if pos["side"] == "LONG":
+        hard = entry * (1.0 - stop_pct)
+        return price <= float(stop) and float(stop) > hard + 1e-12
+    hard = entry * (1.0 + stop_pct)
+    return price >= float(stop) and float(stop) < hard - 1e-12
+
+
 def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, Any]] | None = None,
                    fetch_c: Callable[[list[str]], dict[str, Any]] | None = None,
                    symbols: set[str] | None = None) -> dict[str, dict[str, Any]]:
@@ -403,9 +443,14 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             sigs = [sb.mtf_trend(ohlcv), sb.candle_patterns(ohlcv), sb.zscore_mr(ohlcv), sb.news_signal(desk, news),
                     sb.macro_pressure(desk, quotes, wit), sb.macro_event(desk, root), sb.event_shock(desk, sym, root)]
             if desk == "CRYPTO":
-                sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym), sb.stablecoin_flow(state["brain"]),
+                fund_hist = state["brain"].setdefault("funding_history", {}).setdefault(sym, [])
+                sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym, fund_hist), sb.stablecoin_flow(state["brain"]),
                          sb.exchange_netflow(sym), sb.whale_mempool(sym), sb.stablecoin_impulse(sym)]
         regime = sb.vol_regime(ohlcv)
+        oflow = next((s for s in sigs if s["name"] == "order_flow"), None)
+        if oflow and (oflow.get("evidence") or {}).get("depth_disagreement"):
+            regime["size_mult"] = round(float(regime.get("size_mult") or 1.0) * 0.5, 4)
+            regime["depth_disagreement_haircut"] = True
         comb = sb.combine(sigs, live_weights)
         comp = comb["composite"]
         mtf = next((s for s in sigs if s["name"] == "mtf_trend"), None)
@@ -418,33 +463,63 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if pos:
             side = pos["side"]
             d = 1 if side == "LONG" else -1
-            move = (price - pos["entry_price"]) / pos["entry_price"] * d
+            atr_pct = _atr_pct(ohlcv) or float(pos["stop_pct"]) / 2.0
+            move = _mark_excursion(pos, price, atr_pct)
+            held_s = t - pos["opened_ts"]
             reason = None
-            if move <= -pos["stop_pct"]: reason = "STOP_LOSS"
-            elif move >= pos["stop_pct"] * TAKE_MULT: reason = "TAKE_PROFIT"
-            elif comp * d <= -ENTRY: reason = "SIGNAL_REVERSAL"
-            elif t - pos["opened_ts"] > MAX_HOLD_S: reason = "MAX_HOLD"
-            elif w["verdict"] == "CONFLICT": reason = "WITNESS_CONFLICT_EXIT"
+            partial = False
+            if move <= -pos["stop_pct"]:
+                reason = "STOP_LOSS"
+            elif move >= pos["stop_pct"] * TAKE_MULT:
+                reason = "TAKE_PROFIT"
+            elif not pos.get("partial_taken") and move >= pos["stop_pct"]:
+                reason = "PARTIAL_TAKE_PROFIT"
+                partial = True
+            elif _chandelier_hit(pos, price):
+                reason = "CHANDELIER_STOP"
+            elif comp * d <= -ENTRY:
+                reason = "SIGNAL_REVERSAL"
+            elif held_s > MAX_HOLD_S * TIME_STOP_HOLD_FRAC and abs(move) < TIME_STOP_MOVE_FRAC * pos["stop_pct"]:
+                reason = "TIME_STOP"
+            elif held_s > MAX_HOLD_S:
+                reason = "MAX_HOLD"
+            elif w["verdict"] == "CONFLICT":
+                reason = "WITNESS_CONFLICT_EXIT"
             if not reason:
                 pos["mark_price"] = price
                 log({**base, "event": "HOLD", "side": side, "price": price, "move_pct": round(move * 100, 3),
-                     "composite": comp, "top_contributions": comb["contributions"][:4], "signal_scores": scores})
+                     "composite": comp, "top_contributions": comb["contributions"][:4], "signal_scores": scores,
+                     "chandelier_stop": pos.get("chandelier_stop"), "mfe": pos.get("mfe"), "mae": pos.get("mae")})
                 continue
-            oms = oms_route(PaperOrder(desk.lower(), "sell" if d > 0 else "buy", pos["notional_usd"], False), "ELIGIBLE")
+            fraction = PARTIAL_FRACTION if partial else 1.0
+            oms = oms_route(PaperOrder(desk.lower(), "sell" if d > 0 else "buy", pos["notional_usd"] * fraction, False), "ELIGIBLE")
             exit_px = price * (1 - slip * d)
-            gross = (exit_px - pos["entry_price"]) * pos["qty"] * d
-            exit_fee = exit_px * pos["qty"] * fee
-            pnl = round(gross - exit_fee - pos["entry_fee_usd"], 4)
-            row = {**base, "event": "CLOSE", "side": side, "reason": reason, "quote_price": price,
-                   "fill_price": round(exit_px, 6), "entry_price": pos["entry_price"], "qty": pos["qty"],
-                   "notional_usd": pos["notional_usd"], "fees_usd": round(exit_fee + pos["entry_fee_usd"], 6),
+            qty_close = pos["qty"] * fraction
+            gross = (exit_px - pos["entry_price"]) * qty_close * d
+            exit_fee = exit_px * qty_close * fee
+            entry_fee_part = pos["entry_fee_usd"] * fraction
+            pnl = round(gross - exit_fee - entry_fee_part, 4)
+            row = {**base, "event": "CLOSE", "side": side, "reason": reason, "partial": partial, "quote_price": price,
+                   "fill_price": round(exit_px, 6), "entry_price": pos["entry_price"], "qty": qty_close,
+                   "notional_usd": round(pos["notional_usd"] * fraction, 4),
+                   "fees_usd": round(exit_fee + entry_fee_part, 6),
                    "slippage_pct": slip, "opened_at": pos["opened_at"], "closed_at": _iso(t), "realized_pnl_usd": pnl,
+                   "mae": None if pos.get("mae") is None else round(float(pos["mae"]), 6),
+                   "mfe": None if pos.get("mfe") is None else round(float(pos["mfe"]), 6),
+                   "path_points": int(pos.get("path_points") or 0),
                    "entry_brain": pos.get("entry_brain"), "exit_composite": comp, "oms": oms.state}
             row["ledger_hash"] = ledger.fill(row)
             log(row)
             university_lesson(root, weights, row, (pos.get("entry_brain") or {}).get("contributions") or [])
             equity += pnl
-            del positions[sym]
+            if partial:
+                pos["qty"] = pos["qty"] - qty_close
+                pos["notional_usd"] = round(pos["notional_usd"] * (1.0 - fraction), 4)
+                pos["entry_fee_usd"] = round(pos["entry_fee_usd"] - entry_fee_part, 6)
+                pos["partial_taken"] = True
+                pos["mark_price"] = price
+            else:
+                del positions[sym]
             continue
         side = "LONG" if comp >= ENTRY else "SHORT" if comp <= -ENTRY else None
         why = None
@@ -455,6 +530,11 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         elif newsig and newsig["available"] and newsig["score"] * (1 if side == "LONG" else -1) < -0.5: why = "NEWS_EVENT_RISK"
         elif desk == "CRYPTO" and not next((s["evidence"].get("spread_gate_ok", True) for s in sigs if s["name"] == "order_flow"), True):
             why = "SPREAD_GATE"
+        elif desk == "CRYPTO":
+            fund = next((s for s in sigs if s["name"] == "funding_oi"), None)
+            z = ((fund or {}).get("evidence") or {}).get("funding_z")
+            if isinstance(z, (int, float)) and ((side == "LONG" and z >= 2.0) or (side == "SHORT" and z <= -2.0)):
+                why = "FUNDING_CROWDING"
         elif desk == "PB_TOKEN" and signals_fn is None:
             from architecture.markets.token_safety_live import veto_check as _tok_veto
             tv = _tok_veto(sym[4:] if sym.startswith("DEX_") else sym, q.get("token_address"),

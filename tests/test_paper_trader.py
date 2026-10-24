@@ -60,3 +60,53 @@ def test_close_writes_m49_lesson_and_oms(tmp_path):
     st = LessonsLedger(tmp_path / "data/mission_ledger/m49_lessons.sqlite")
     rows = st.all_rows(); assert len(rows) == 1 and rows[0].status == "UNVERIFIED" and "lost" in rows[0].claim and st.verify()
     st.close()
+
+
+def test_range_vol_matches_the_textbook_estimators_and_refuses_a_short_sample():
+    from architecture.markets.signal_brain import book_depth_features, funding_zscore, range_vol
+    import math
+    bars = [[100.0, 102.0, 99.0, 101.0, 1.0] for _ in range(8)]
+    got = range_vol(bars)
+    hl = math.log(102.0 / 99.0)
+    park = math.sqrt((hl * hl) / (4.0 * math.log(2.0)))
+    co = math.log(101.0 / 100.0)
+    gk = math.sqrt(0.5 * hl * hl - (2.0 * math.log(2.0) - 1.0) * co * co)
+    assert abs(got["parkinson_vol"] - park) < 1e-8
+    assert abs(got["garman_klass_vol"] - gk) < 1e-8
+    assert range_vol(bars[:3])["parkinson_vol"] is None
+    book = book_depth_features(
+        [[100, 2], [99, 2], [98, 2], [97, 2], [96, 2]],
+        [[101, 1], [102, 1], [103, 1], [104, 1], [105, 1]] + [[110, 20]] * 15,
+    )
+    assert book["imbalance_top5"] > 0 and book["imbalance_top20"] < 0 and book["depth_disagreement"] is True
+    assert book["bid_slope_log"] is not None
+    assert funding_zscore(0.01, [0.0] * 7) is None
+    z = funding_zscore(0.03, [0.0, 0.01] * 4)
+    assert z is not None and z > 0
+
+
+def test_chandelier_only_tightens_and_a_single_mark_is_not_an_excursion(tmp_path):
+    from architecture.markets.execution_microstructure_audit import build_microstructure_audit
+    pos = {"side": "LONG", "entry_price": 100.0, "stop_pct": 0.01, "qty": 1.0, "notional_usd": 100.0,
+           "entry_fee_usd": 0.1, "opened_ts": 0.0, "opened_at": "t0"}
+    pt._mark_excursion(pos, 103.0, 0.005)
+    assert pos["chandelier_stop"] > 100.0 * 0.99
+    first = pos["chandelier_stop"]
+    pt._mark_excursion(pos, 102.0, 0.005)
+    assert pos["chandelier_stop"] >= first - 1e-9
+    assert pt._chandelier_hit(pos, pos["chandelier_stop"] - 0.01) is True
+    flat = {"side": "LONG", "entry_price": 100.0, "stop_pct": 0.01, "qty": 1.0, "notional_usd": 10.0,
+            "entry_fee_usd": 0.01, "opened_ts": 0.0, "opened_at": "t0", "partial_taken": False}
+    move = pt._mark_excursion(flat, 100.05, 0.005)
+    assert abs(move) < pt.TIME_STOP_MOVE_FRAC * flat["stop_pct"]
+    audit = build_microstructure_audit(tmp_path)
+    assert audit["paper_only"] is True and audit["closed_count"] == 0
+    (tmp_path / "reports/grok/PAPER").mkdir(parents=True)
+    (tmp_path / "reports/grok/PAPER/paper_trades.jsonl").write_text(
+        json.dumps({"event": "CLOSE", "symbol": "BTC", "realized_pnl_usd": 0.2, "fees_usd": 0.05,
+                    "slippage_pct": 0.001, "notional_usd": 10.0, "mae": -0.01, "mfe": 0.02, "path_points": 1}) + "\n",
+        encoding="utf-8")
+    audited = build_microstructure_audit(tmp_path)
+    assert audited["rows"][0]["mae_mfe_status"] == "UNAVAILABLE_NO_INTRATRADE_PATH"
+    assert audited["rows"][0]["mae"] is None and audited["fee_drag_usd"] == 0.05
+

@@ -629,6 +629,8 @@ def _ua_root(tmp_path):
                                                 "screened": [{"hypothesis_id": "H40", "counted_in_dsr": False}]})
     w("reports/grok/CONTINUATION_STATE.json", {"paper_only": True, "current_stage": "Stage 9",
                                                "completed_stages": [], "next_wave_queue": ["Stage 10"]})
+    w("reports/grok/PAPER/microstructure_audit.json", {"paper_only": True, "closed_count": 0, "rows": [],
+                                                       "fee_drag_usd": 0.0})
     w("reports/grok/M12/cognitive_graph_snapshot.json", {"registry_agents": 1, "authority_violations": [],
                                                          "verdict_counts": {"HOLD": 1}, "agents": [
         {"agent_id": "AG-01", "verdict": "HOLD", "authority_ok": True}]})

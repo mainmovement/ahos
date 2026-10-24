@@ -203,6 +203,110 @@ def garch11_vol(ohlcv: list[list[float]], target_vol_annual: float = 0.12) -> di
     }
 
 
+def range_vol(ohlcv: list[list[float]], bar_interval: str = "5m") -> dict[str, Any]:
+    """Parkinson and Garman-Klass on closed bars. Bar layout is open, high, low, close, volume.
+
+    A bar with no positive open is skipped for Garman-Klass. Fewer than five usable bars
+    returns None rather than a number from a shorter sample.
+    """
+    bars = closed(ohlcv)
+    parks: list[float] = []
+    gks: list[float] = []
+    ln2 = math.log(2.0)
+    for b in bars:
+        if len(b) < 4:
+            continue
+        o, h, l, c = (float(b[0]), float(b[1]), float(b[2]), float(b[3]))
+        if h <= 0 or l <= 0 or h < l or o <= 0 or c <= 0:
+            continue
+        if h + 1e-12 < max(o, c) or l - 1e-12 > min(o, c):
+            continue
+        hl = math.log(h / l)
+        parks.append((hl * hl) / (4.0 * ln2))
+        co = math.log(c / o)
+        gks.append(0.5 * hl * hl - (2.0 * ln2 - 1.0) * co * co)
+    def _sigma(xs: list[float]) -> float | None:
+        if len(xs) < 5:
+            return None
+        var = sum(xs) / len(xs)
+        if var <= 0:
+            return None
+        return math.sqrt(var)
+    per_year = {"5m": 288.0 * 252.0, "1h": 6.5 * 252.0, "1d": 252.0}.get(bar_interval)
+    def _ann(sig: float | None) -> float | None:
+        if sig is None or per_year is None:
+            return None
+        return round(sig * math.sqrt(per_year), 6)
+    p_sig, g_sig = _sigma(parks), _sigma(gks)
+    return {
+        "parkinson_vol": None if p_sig is None else round(p_sig, 8),
+        "parkinson_annual": _ann(p_sig),
+        "garman_klass_vol": None if g_sig is None else round(g_sig, 8),
+        "garman_klass_annual": _ann(g_sig),
+        "bars_used": len(parks),
+        "bar_interval": bar_interval,
+        "garman_klass_status": "OK" if g_sig is not None else "UNAVAILABLE",
+    }
+
+
+def book_depth_features(bids: list, asks: list) -> dict[str, Any]:
+    """Top-5 and top-20 notional imbalance, plus the log-depth slope of the bid side."""
+    def notional(levels, n: int) -> tuple[float, int]:
+        total, used = 0.0, 0
+        for row in list(levels)[:n]:
+            if not isinstance(row, (list, tuple)) or len(row) < 2:
+                continue
+            px, sz = float(row[0]), float(row[1])
+            if px > 0 and sz > 0:
+                total += px * sz
+                used += 1
+        return total, used
+
+    def imb(b: float, a: float) -> float | None:
+        if b + a <= 0:
+            return None
+        return (b - a) / (b + a)
+
+    b5, _ = notional(bids, 5)
+    a5, _ = notional(asks, 5)
+    b20, nb = notional(bids, 20)
+    a20, na = notional(asks, 20)
+    notionals = []
+    for row in list(bids)[:20]:
+        if isinstance(row, (list, tuple)) and len(row) >= 2 and float(row[0]) > 0 and float(row[1]) > 0:
+            notionals.append(float(row[0]) * float(row[1]))
+    slope = None
+    if len(notionals) >= 5:
+        xs = list(range(len(notionals)))
+        ys = [math.log(v) for v in notionals]
+        mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+        varx = sum((x - mx) ** 2 for x in xs)
+        if varx > 0:
+            slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / varx
+    i5, i20 = imb(b5, a5), imb(b20, a20)
+    disagree = bool(i5 is not None and i20 is not None and i5 * i20 < 0)
+    return {
+        "imbalance_top5": None if i5 is None else round(i5, 4),
+        "imbalance_top20": None if i20 is None else round(i20, 4),
+        "bid_slope_log": None if slope is None else round(slope, 4),
+        "depth_disagreement": disagree,
+        "levels_bid": nb,
+        "levels_ask": na,
+    }
+
+
+def funding_zscore(rate: float, history: list[float]) -> float | None:
+    """Z-score of one funding print against earlier prints. Fewer than eight prints is None."""
+    prior = [float(x) for x in history if isinstance(x, (int, float))]
+    if len(prior) < 8:
+        return None
+    mean = sum(prior) / len(prior)
+    var = sum((x - mean) ** 2 for x in prior) / (len(prior) - 1)
+    if var <= 0:
+        return None
+    return (float(rate) - mean) / math.sqrt(var)
+
+
 def hmm_pelt_regime(ohlcv: list[list[float]]) -> dict[str, Any]:
     """TS-1 & M24: Forward-only filtered 3-state Gaussian HMM + PELT change-point detection (zero look-ahead)."""
     cl = [c[3] for c in closed(ohlcv)]
@@ -317,6 +421,7 @@ def adv_cap_check(
 def vol_regime(ohlcv: list[list[float]]) -> dict[str, Any]:
     short, long_ = realized_vol(ohlcv, 12), realized_vol(ohlcv, 96)
     garch = garch11_vol(ohlcv)
+    ranges = range_vol(ohlcv)
     hmm = hmm_pelt_regime(ohlcv)
     if not short or not long_:
         return {
@@ -325,8 +430,9 @@ def vol_regime(ohlcv: list[list[float]]) -> dict[str, Any]:
             "short_vol": short,
             "long_vol": long_,
             **garch,
+            **ranges,
             **hmm,
-            "spec": "§1(filtered_HMM+PELT+GARCH11)",
+            "spec": "§1(filtered_HMM+PELT+GARCH11+PARKINSON+GARMAN_KLASS)",
         }
     ratio = short / long_
     ratio_reg = "HIGH" if ratio > 1.6 else "LOW" if ratio < 0.6 else "NORMAL"
@@ -340,8 +446,9 @@ def vol_regime(ohlcv: list[list[float]]) -> dict[str, Any]:
         "short_vol": round(short, 6),
         "long_vol": round(long_, 6),
         **garch,
+        **ranges,
         **hmm,
-        "spec": "§1(filtered_HMM+PELT+GARCH11)",
+        "spec": "§1(filtered_HMM+PELT+GARCH11+PARKINSON+GARMAN_KLASS)",
     }
 
 
@@ -353,15 +460,17 @@ def order_flow(sym: str) -> dict[str, Any]:
     d = _json(f"https://www.okx.com/api/v5/market/books?instId={sym}-USDT&sz=20")
     try:
         book = d["data"][0]
-        bids = sum(float(b[1]) * float(b[0]) for b in book["bids"])
-        asks = sum(float(a[1]) * float(a[0]) for a in book["asks"])
-        bb, ba = float(book["bids"][0][0]), float(book["asks"][0][0])
+        bids, asks = book["bids"], book["asks"]
+        bb, ba = float(bids[0][0]), float(asks[0][0])
     except Exception:
         return _sig("order_flow", None, {}, "okx_books", "§3")
-    imb = (bids - asks) / (bids + asks)
+    depth = book_depth_features(bids, asks)
+    imb = depth["imbalance_top20"]
+    if imb is None or bb <= 0 or ba <= 0:
+        return _sig("order_flow", None, depth, "okx_books", "§3")
     spread = (ba - bb) / ((ba + bb) / 2)
-    return _sig("order_flow", imb, {"imbalance": round(imb, 4), "spread": round(spread, 6),
-                                    "depth_usd": round(bids + asks), "spread_gate_ok": spread < 0.001}, "okx_books", "§3")
+    return _sig("order_flow", imb, {**depth, "imbalance": round(imb, 4), "spread": round(spread, 6),
+                                    "spread_gate_ok": spread < 0.001}, "okx_books", "§3")
 
 
 def large_trades(sym: str, min_usd: float = 50_000) -> dict[str, Any]:
@@ -387,7 +496,7 @@ def large_trades(sym: str, min_usd: float = 50_000) -> dict[str, Any]:
                                                               "window_trades": len(rows)}, "okx_trades", "t607u(c)")
 
 
-def funding_oi(sym: str) -> dict[str, Any]:
+def funding_oi(sym: str, history: list[float] | None = None) -> dict[str, Any]:
     f = _json(f"https://www.okx.com/api/v5/public/funding-rate?instId={sym}-USDT-SWAP")
     oi = _json(f"https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId={sym}-USDT-SWAP")
     try:
@@ -399,9 +508,17 @@ def funding_oi(sym: str) -> dict[str, Any]:
         oi_usd = float(oi["data"][0]["oiUsd"])
     except Exception:
         pass
+    z = funding_zscore(rate, history or [])
+    if history is not None:
+        history.append(rate)
+        del history[:-30]
     # neutral ~0.01%/8h; strongly positive = crowded longs -> mild contrarian
     score = -max(-1.0, min(1.0, (rate - 0.0001) / 0.0004))
-    return _sig("funding_oi", score * 0.5, {"funding_rate_8h": rate, "open_interest_usd": oi_usd}, "okx_public", "t607u(b)")
+    return _sig("funding_oi", score * 0.5, {
+        "funding_rate_8h": rate, "open_interest_usd": oi_usd,
+        "funding_z": None if z is None else round(z, 4),
+        "funding_z_n": len(history or []),
+    }, "okx_public", "t607u(b)")
 
 
 def stablecoin_flow(state: dict[str, Any]) -> dict[str, Any]:

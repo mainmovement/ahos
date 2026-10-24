@@ -527,6 +527,57 @@ def _stage9_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage10_checks(root: Path) -> list[dict[str, Any]]:
+    import math
+    from architecture.markets.signal_brain import range_vol
+    bars = [[100.0, 102.0, 99.0, 101.0, 1.0] for _ in range(8)]
+    got = range_vol(bars)
+    hl = math.log(102.0 / 99.0)
+    ln2 = math.log(2.0)
+    park = math.sqrt((hl * hl) / (4.0 * ln2))
+    co = math.log(101.0 / 100.0)
+    gk_var = 0.5 * hl * hl - (2.0 * ln2 - 1.0) * co * co
+    gk = math.sqrt(gk_var) if gk_var > 0 else None
+    ok = (
+        got.get("parkinson_vol") is not None
+        and abs(float(got["parkinson_vol"]) - park) < 1e-8
+        and gk is not None
+        and got.get("garman_klass_vol") is not None
+        and abs(float(got["garman_klass_vol"]) - gk) < 1e-8
+    )
+    out = [_check("execution.range_vol", _pass_fail(ok),
+                  {"parkinson_vol": got.get("parkinson_vol"), "garman_klass_vol": got.get("garman_klass_vol"),
+                   "bars_used": got.get("bars_used")},
+                  ["architecture/markets/signal_brain.py"])]
+    micro = _json(root, Path("reports") / "grok" / "PAPER" / "microstructure_audit.json")
+    if not isinstance(micro, dict):
+        out.append(_check("execution.microstructure", "UNKNOWN", {"file": False},
+                          ["reports/grok/PAPER/microstructure_audit.json"]))
+        return out
+    rows = micro.get("rows") or []
+    problems = []
+    if micro.get("paper_only") is not True:
+        problems.append("paper_only is not true")
+    if micro.get("closed_count") != len(rows):
+        problems.append("closed_count does not match rows")
+    fee = round(sum(float(r.get("fees_usd") or 0) for r in rows if isinstance(r.get("fees_usd"), (int, float))), 4)
+    if micro.get("fee_drag_usd") is not None and abs(float(micro["fee_drag_usd"]) - fee) > 0.05:
+        problems.append("fee_drag_usd does not match the row fees")
+    for r in rows:
+        status = r.get("mae_mfe_status")
+        if status not in ("MEASURED", "UNAVAILABLE_NO_INTRATRADE_PATH"):
+            problems.append("mae_mfe_status is not a known label")
+        if status == "MEASURED" and int(r.get("path_points") or 0) < 2:
+            problems.append("MAE/MFE marked measured without two path marks")
+        if status != "MEASURED" and (r.get("mae") is not None or r.get("mfe") is not None):
+            problems.append("an excursion number was stored without a measured path")
+    out.append(_check("execution.microstructure", _pass_fail(not problems),
+                      {"closed_count": micro.get("closed_count"), "problems": problems,
+                       "mae_mfe_measured_closed": micro.get("mae_mfe_measured_closed")},
+                      ["reports/grok/PAPER/microstructure_audit.json"]))
+    return out
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -544,6 +595,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage7_checks(root)
     checks += _stage8_checks(root)
     checks += _stage9_checks(root)
+    checks += _stage10_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

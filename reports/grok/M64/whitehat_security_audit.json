@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T18:08:27Z",
+  "generated_at": "2026-10-24T23:02:01Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "overall_verdict": "CLEAN",
@@ -26,7 +26,7 @@
     {
       "check": "secret_hygiene_scan",
       "verdict": "CLEAN",
-      "files_scanned": 1118,
+      "files_scanned": 1119,
       "findings": 0,
       "finding_paths": []
     },
@@ -70,9 +70,9 @@
       "verdict": "CLEAN",
       "entries": {
         "schema": "ahos.mission_ledger.v1",
-        "path": "G:\\robat\\_tmp\\tmpe225nqiy\\ledger_copy.jsonl",
-        "entries": 1050,
-        "head_hash": "9806f92e22d272e0249b8ad2b4846cc80a87e3fd72ac8b3c3bc67a52bbd4ca0c",
+        "path": "G:\\robat\\_tmp\\tmp_ggaq_f_\\ledger_copy.jsonl",
+        "entries": 1085,
+        "head_hash": "752b1c5c9c8208fe2484a8eda3f92ab154cfcd987e8e4edbdacd836056a8befa",
         "torn_tail": false,
         "verdict": "CHAIN_INTACT"
       }
