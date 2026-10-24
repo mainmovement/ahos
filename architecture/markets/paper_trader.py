@@ -31,6 +31,8 @@ from typing import Any, Callable
 from architecture.markets import signal_brain as sb
 from architecture.markets.paper_account import INITIAL_CAPITAL_USD, LEDGER_REL, load_paper_trades, paper_account_summary
 from architecture.markets.second_source import fetch_second_sources, witness
+from architecture.execution.gateway import PaperOrder
+from architecture.markets.oms import route as oms_route
 
 PAPER_ONLY: bool = True
 PAPER_DIR = Path("reports") / "grok" / "PAPER"
@@ -39,6 +41,7 @@ STATUS_REL = PAPER_DIR / "paper_trader_status.json"
 WEIGHTS_REL = PAPER_DIR / "signal_weights.json"
 LESSONS_REL = PAPER_DIR / "signal_lessons.jsonl"
 MISSION_LEDGER_REL = Path("data") / "mission_ledger" / "mission_ledger.jsonl"
+M49_DB_REL = Path("data") / "mission_ledger" / "m49_lessons.sqlite"   # same store gold_paper.py uses
 AGENT = "agent:paper_trader"
 
 INSTRUMENTS: dict[str, tuple[str, float, float]] = {   # sym -> (desk, fee/side, slippage/side)
@@ -156,7 +159,27 @@ def university_lesson(root: Path, w: dict[str, Any], close_row: dict[str, Any], 
     if changed:
         w["history"].append({"version": w["version"], "weights": dict(w["weights"]), "at": close_row["closed_at"]})
         w["version"] += 1
-    _append(root, LESSONS_REL, {"ts": close_row["closed_at"], "symbol": close_row["symbol"], "win": win,
+    m49_id = None
+    try:  # M49: the one lessons ledger (append-only hash chain, UNVERIFIED until reviewer 16)
+        from architecture.learning.lessons_ledger import LessonsLedger
+        store = LessonsLedger(root / M49_DB_REL)
+        try:
+            top = sorted(contributions, key=lambda c: -abs(c.get("contribution", 0)))[:3]
+            m49_id = f"PT-{close_row['symbol']}-{close_row['closed_at']}"
+            store.append(lesson_id=m49_id, source="paper_trader", market=close_row["desk"].lower(),
+                         taxonomy="paper_trade_outcome",
+                         evidence_refs=[f"paper_trades.jsonl:{close_row['symbol']}:{close_row['closed_at']}",
+                                        f"mission_ledger:{close_row.get('ledger_hash') or 'none'}"],
+                         claim=f"{close_row['side']} {close_row['symbol']} {'won' if win else 'lost'} "
+                               f"{close_row['realized_pnl_usd']} USD ({close_row['reason']}); top signals: "
+                               + ", ".join(f"{c['signal']}={c['contribution']}" for c in top),
+                         counterfactual="no trade (flat) = 0 USD; " + ("signals agreed with outcome" if win else "signals disagreed with outcome"),
+                         valid_from=close_row["closed_at"])
+        finally:
+            store.close()
+    except Exception as exc:  # never block trading on the lesson store
+        m49_id = f"ERROR:{repr(exc)[:120]}"
+    _append(root, LESSONS_REL, {"m49_lesson_id": m49_id, "ts": close_row["closed_at"], "symbol": close_row["symbol"], "win": win,
                                 "pnl_usd": close_row["realized_pnl_usd"], "signals": contributions,
                                 "weights_changed": changed, "weights_version": w["version"], "paper_only": True})
     _save_json(root / WEIGHTS_REL, w)
@@ -283,6 +306,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 log({**base, "event": "HOLD", "side": side, "price": price, "move_pct": round(move * 100, 3),
                      "composite": comp, "top_contributions": comb["contributions"][:4]})
                 continue
+            oms = oms_route(PaperOrder(desk.lower(), "sell" if d > 0 else "buy", pos["notional_usd"], False), "ELIGIBLE")
             exit_px = price * (1 - slip * d)
             gross = (exit_px - pos["entry_price"]) * pos["qty"] * d
             exit_fee = exit_px * pos["qty"] * fee
@@ -291,7 +315,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                    "fill_price": round(exit_px, 6), "entry_price": pos["entry_price"], "qty": pos["qty"],
                    "notional_usd": pos["notional_usd"], "fees_usd": round(exit_fee + pos["entry_fee_usd"], 6),
                    "slippage_pct": slip, "opened_at": pos["opened_at"], "closed_at": _iso(t), "realized_pnl_usd": pnl,
-                   "entry_brain": pos.get("entry_brain"), "exit_composite": comp}
+                   "entry_brain": pos.get("entry_brain"), "exit_composite": comp, "oms": oms.state}
             row["ledger_hash"] = ledger.fill(row)
             log(row)
             university_lesson(root, weights, row, (pos.get("entry_brain") or {}).get("contributions") or [])
@@ -319,6 +343,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if notional < 0.5:
             log({**base, "event": "NO_TRADE", "reason": "ALLOCATION_EXHAUSTED", "composite": comp}); continue
         d = 1 if side == "LONG" else -1
+        oms = oms_route(PaperOrder(desk.lower(), "buy" if d > 0 else "sell", notional, False), "ELIGIBLE")
+        if oms.state != "ACCEPTED_PAPER":
+            log({**base, "event": "NO_TRADE", "reason": f"OMS_{oms.state}:{oms.reason}", "composite": comp}); continue
         fill = price * (1 + slip * d)
         qty = notional / fill
         entry_fee = notional * fee
@@ -328,7 +355,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         row = {**base, "event": "OPEN", "side": side, "quote_price": price, "fill_price": round(fill, 6), "qty": qty,
                "notional_usd": notional, "fee_usd": round(entry_fee, 6), "slippage_pct": slip, "stop_pct": round(stop_pct, 5),
                "take_pct": round(stop_pct * TAKE_MULT, 5), "equity_at_open_usd": round(equity, 4), "brain": brain,
-               "kelly": "OFF (n<30 closed trades, §6)"}
+               "kelly": "OFF (n<30 closed trades, §6)", "oms": "ACCEPTED_PAPER"}
         row["ledger_hash"] = ledger.fill(row)
         log(row)
 

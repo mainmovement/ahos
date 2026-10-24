@@ -46,3 +46,17 @@ def test_witness_verdicts():
     assert witness("BTC", {"price": 100}, {"price": 100.2})["verdict"] == "VERIFIED"
     assert witness("BTC", {"price": 100}, {"price": 102})["verdict"] == "CONFLICT"
     assert witness("BTC", {"price": 100}, None)["verdict"] == "UNRESOLVED"
+
+def test_close_writes_m49_lesson_and_oms(tmp_path):
+    from architecture.learning.lessons_ledger import LessonsLedger
+    t = [1_800_000_000.0]; px = {"p": 120.0}
+    mt = lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t[0]))
+    fetch = lambda: {"quotes": {"BTC": {"price": px["p"], "source": "A", "market_time": mt(), "ohlcv_5m": _bars(100, 0.5)}}}
+    fb = lambda: {"BTC": {"price": px["p"], "source": "B"}}
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
+    assert [r for r in _rows(tmp_path) if r["event"] == "OPEN"][0]["oms"] == "ACCEPTED_PAPER"
+    t[0] += 300; px["p"] = 100.0
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
+    st = LessonsLedger(tmp_path / "data/mission_ledger/m49_lessons.sqlite")
+    rows = st.all_rows(); assert len(rows) == 1 and rows[0].status == "UNVERIFIED" and "lost" in rows[0].claim and st.verify()
+    st.close()

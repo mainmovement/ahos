@@ -184,36 +184,23 @@ def evaluate_strategy_red_team(candidate: Mapping[str, Any]) -> StrategyRedTeamR
     )
 
 
-def default_red_team_candidates() -> list[dict[str, Any]]:
-    return [
-        {
-            "strategy_id": "strat-regime-hmm-v2",
-            "title": "Forward-Filtered Regime HMM + ATR Stop (M24)",
-            "returns": [0.0042, 0.0031, -0.0011, 0.0050, 0.0028, -0.0009, 0.0039, 0.0044, -0.0008, 0.0036, 0.0029, 0.0041],
-            "cost_bps": 4.0,
-            "lookahead_leak_detected": False,
-            "regime_pnl_pct": {"BULL_TREND": 2.4, "BEAR_DRAWDOWN": 0.7, "RANGE_CHOP": -0.3},
-            "param_perturbation_sharpe_retention": 0.88,
-        },
-        {
-            "strategy_id": "strat-multi-tf-confluence",
-            "title": "Multi-Timeframe Confluence (H4/H1/M15 + Two-Source Filter)",
-            "returns": [0.0035, 0.0024, -0.0012, 0.0041, 0.0021, -0.0010, 0.0030, 0.0033, -0.0009, 0.0027, 0.0024, 0.0031],
-            "cost_bps": 3.5,
-            "lookahead_leak_detected": False,
-            "regime_pnl_pct": {"BULL_TREND": 1.9, "BEAR_DRAWDOWN": 0.5, "RANGE_CHOP": -0.4},
-            "param_perturbation_sharpe_retention": 0.84,
-        },
-        {
-            "strategy_id": "strat-overfit-scalper-fragile",
-            "title": "High-Churn 1m Scalper (Fragile Under 2x/3x Slippage & Top-3 Removal)",
-            "returns": [0.0150, 0.0120, 0.0110, 0.0002, -0.0018, -0.0015, -0.0012, -0.0019, -0.0014, -0.0011, -0.0016, -0.0013],
-            "cost_bps": 12.0,
-            "lookahead_leak_detected": False,
-            "regime_pnl_pct": {"BULL_TREND": 3.8, "BEAR_DRAWDOWN": -3.4, "RANGE_CHOP": -2.9},
-            "param_perturbation_sharpe_retention": 0.42,
-        },
-    ]
+def default_red_team_candidates(root: "Path | None" = None) -> list[dict[str, Any]]:
+    """REAL candidates only: out-of-sample trades from the M28.1 walk-forward on real Yahoo history
+    (reports/grok/M28/walk_forward_snapshot.json). No snapshot -> empty list (nothing to attack), never invented rows."""
+    from pathlib import Path as _P
+    import json as _json
+    base = _P(root) if root else _P(__file__).resolve().parents[2]
+    p = base / "reports" / "grok" / "M28" / "walk_forward_snapshot.json"
+    try:
+        snap = _json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    out = []
+    for c in snap.get("candidates", []):
+        if c.get("data_is_real") and len(c.get("returns") or []) >= 2:
+            out.append({k: c[k] for k in ("strategy_id", "title", "returns", "cost_bps", "lookahead_leak_detected",
+                                          "regime_pnl_pct", "param_perturbation_sharpe_retention")})
+    return out
 
 
 def run_strategy_red_team_suite(
