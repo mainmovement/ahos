@@ -3,8 +3,8 @@
   "paper_only": true,
   "session_gate": {
     "paper_only": true,
-    "utc": "2026-10-24T10:36:26Z",
-    "tehran": "2026-10-24 14:06 +0330",
+    "utc": "2026-10-24T14:33:05Z",
+    "tehran": "2026-10-24 18:03 +0330",
     "tehran_weekday": "Saturday",
     "weekend_tehran": true,
     "cash_desks_expected": "CLOSED_OR_STALE",
@@ -17,8 +17,10 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T13:30:00Z",
         "next_open_tehran": "2026-10-26 17:00",
-        "minutes_until_open": 3054,
-        "holidays_modeled": false
+        "minutes_until_open": 2817,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       },
       "XETRA": {
         "venue": "XETRA",
@@ -27,8 +29,10 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T08:00:00Z",
         "next_open_tehran": "2026-10-26 11:30",
-        "minutes_until_open": 2724,
-        "holidays_modeled": false
+        "minutes_until_open": 2487,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       },
       "LSE": {
         "venue": "LSE",
@@ -37,8 +41,10 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T08:00:00Z",
         "next_open_tehran": "2026-10-26 11:30",
-        "minutes_until_open": 2724,
-        "holidays_modeled": false
+        "minutes_until_open": 2487,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       },
       "TSE": {
         "venue": "TSE",
@@ -47,8 +53,10 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T00:00:00Z",
         "next_open_tehran": "2026-10-26 03:30",
-        "minutes_until_open": 2244,
-        "holidays_modeled": false
+        "minutes_until_open": 2007,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       },
       "HKEX": {
         "venue": "HKEX",
@@ -57,8 +65,10 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T01:30:00Z",
         "next_open_tehran": "2026-10-26 05:00",
-        "minutes_until_open": 2334,
-        "holidays_modeled": false
+        "minutes_until_open": 2097,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       },
       "ICE_BRENT": {
         "venue": "ICE_BRENT",
@@ -67,8 +77,10 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T01:00:00Z",
         "next_open_tehran": "2026-10-26 04:30",
-        "minutes_until_open": 2304,
-        "holidays_modeled": false
+        "minutes_until_open": 2067,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       },
       "CME_GLOBEX": {
         "venue": "CME_GLOBEX",
@@ -77,8 +89,10 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-25T22:00:00Z",
         "next_open_tehran": "2026-10-26 01:30",
-        "minutes_until_open": 2124,
-        "holidays_modeled": false
+        "minutes_until_open": 1887,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       },
       "FX_OTC": {
         "venue": "FX_OTC",
@@ -87,14 +101,16 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-25T21:00:00Z",
         "next_open_tehran": "2026-10-26 00:30",
-        "minutes_until_open": 2064,
-        "holidays_modeled": false
+        "minutes_until_open": 1827,
+        "holidays_modeled": true,
+        "holiday_today": false,
+        "holiday_name": null
       }
     },
     "venues_open_now": [],
     "symbols_open_now": [],
-    "schedule_basis": "exchange-published regular hours; DST via zoneinfo; exchange holidays NOT modeled",
-    "summary_fa": "زمان تهران: 2026-10-24 14:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست."
+    "schedule_basis": "exchange-published regular hours; DST via zoneinfo; 2026-2027 official exchange holidays modeled",
+    "summary_fa": "زمان تهران: 2026-10-24 18:03 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست."
   },
   "verified_asset_classes": [
     "ASIA_EQUITIES",
@@ -115,48 +131,48 @@
       {
         "symbol": "BTC",
         "verdict": "VERIFIED",
-        "gap": 9e-05,
+        "gap": 0.00124,
         "source_a": "coingecko:bitcoin",
         "source_b": "kraken:XXBTZUSD",
         "source_c": null,
         "pair": "A-B",
         "contract_month_a": null,
         "diagnostics": {
-          "gap_ab": 9e-05
+          "gap_ab": 0.00124
         },
-        "quote_age_s": 45.36538505554199,
+        "quote_age_s": 46.204938650131226,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       },
       {
         "symbol": "ETH",
         "verdict": "VERIFIED",
-        "gap": 0.00014,
+        "gap": 0.00149,
         "source_a": "coingecko:ethereum",
         "source_b": "kraken:XETHZUSD",
         "source_c": null,
         "pair": "A-B",
         "contract_month_a": null,
         "diagnostics": {
-          "gap_ab": 0.00014
+          "gap_ab": 0.00149
         },
-        "quote_age_s": 45.36538505554199,
+        "quote_age_s": 46.204938650131226,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       },
       {
         "symbol": "SOL",
         "verdict": "VERIFIED",
-        "gap": 0.0002,
+        "gap": 0.0007,
         "source_a": "coingecko:solana",
         "source_b": "kraken:SOLUSD",
         "source_c": null,
         "pair": "A-B",
         "contract_month_a": null,
         "diagnostics": {
-          "gap_ab": 0.0002
+          "gap_ab": 0.0007
         },
-        "quote_age_s": 45.36538505554199,
+        "quote_age_s": 62.204938650131226,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       }
@@ -165,16 +181,16 @@
       {
         "symbol": "UNI",
         "verdict": "VERIFIED",
-        "gap": 0.00086,
+        "gap": 0.00115,
         "source_a": "yahoo_finance:UNI7083-USD",
         "source_b": "kraken:UNIUSD",
         "source_c": null,
         "pair": "A-B",
         "contract_month_a": null,
         "diagnostics": {
-          "gap_ab": 0.00086
+          "gap_ab": 0.00115
         },
-        "quote_age_s": 47.36538505554199,
+        "quote_age_s": 44.204938650131226,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       }
@@ -196,7 +212,7 @@
           "futures_roll_basis_bps": 0.0,
           "front_vs_a_bps": 0.0
         },
-        "quote_age_s": 48988.36538505554,
+        "quote_age_s": 63187.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -218,7 +234,7 @@
           "futures_roll_basis_bps": 0.0,
           "front_vs_a_bps": 0.0
         },
-        "quote_age_s": 48988.36538505554,
+        "quote_age_s": 63187.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
@@ -238,7 +254,7 @@
           "futures_roll_basis_bps": 449.4,
           "front_vs_a_bps": 449.4
         },
-        "quote_age_s": 49027.36538505554,
+        "quote_age_s": 63226.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -256,7 +272,7 @@
         "diagnostics": {
           "gap_ab": 0.0
         },
-        "quote_age_s": 50286.36538505554,
+        "quote_age_s": 64484.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
@@ -272,7 +288,7 @@
         "diagnostics": {
           "gap_ab": 0.0
         },
-        "quote_age_s": 52586.36538505554,
+        "quote_age_s": 66785.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -290,7 +306,7 @@
         "diagnostics": {
           "gap_ab": 0.0
         },
-        "quote_age_s": 66986.36538505554,
+        "quote_age_s": 81185.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -308,7 +324,7 @@
         "diagnostics": {
           "gap_ab": 0.0
         },
-        "quote_age_s": 100283.36538505554,
+        "quote_age_s": 114482.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
@@ -324,7 +340,7 @@
         "diagnostics": {
           "gap_ab": 0.0
         },
-        "quote_age_s": 95276.36538505554,
+        "quote_age_s": 109475.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
@@ -342,7 +358,7 @@
         "diagnostics": {
           "gap_ab": 8e-05
         },
-        "quote_age_s": 47219.36538505554,
+        "quote_age_s": 61401.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       },
@@ -358,15 +374,15 @@
         "diagnostics": {
           "gap_ab": 0.00013
         },
-        "quote_age_s": 48996.36538505554,
+        "quote_age_s": 63195.20493865013,
         "tradable_for_paper": false,
         "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ]
   },
-  "summary_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 14:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
+  "summary_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 18:03 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
   "session_readiness_drill": {
-    "summary_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن نیویورک — 34 ساعت و 24 دقیقه (تهران 2026-10-26 00:30). کنترل‌های منفی آداپتورهای کاغذی: PREFLIGHT_PASS؛ اتصال واقعی کارگزار: NOT_VERIFIED. ضربان دیمون: FRESH. زمان تهران: 2026-10-24 14:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
+    "summary_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن نیویورک — 30 ساعت و 27 دقیقه (تهران 2026-10-26 00:30). کنترل‌های منفی آداپتورهای کاغذی: PREFLIGHT_PASS؛ اتصال واقعی کارگزار: NOT_VERIFIED. ضربان دیمون: FRESH. زمان تهران: 2026-10-24 18:03 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
     "cash_sessions": [
       {
         "label_fa": "توکیو",
@@ -382,8 +398,10 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-26T00:00:00Z",
             "next_open_tehran": "2026-10-26 03:30",
-            "minutes_until_open": 2244,
-            "holidays_modeled": false
+            "minutes_until_open": 2007,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           },
           {
             "venue": "HKEX",
@@ -392,16 +410,18 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-26T01:30:00Z",
             "next_open_tehran": "2026-10-26 05:00",
-            "minutes_until_open": 2334,
-            "holidays_modeled": false
+            "minutes_until_open": 2097,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           }
         ],
         "open_now": false,
         "next_open_utc": "2026-10-26T00:00:00Z",
         "next_open_tehran": "2026-10-26 03:30",
-        "minutes_until_open": 2244,
-        "countdown_fa": "37 ساعت و 24 دقیقه",
-        "hours_until": 37.4
+        "minutes_until_open": 2007,
+        "countdown_fa": "33 ساعت و 27 دقیقه",
+        "hours_until": 33.45
       },
       {
         "label_fa": "فرانکفورت/لندن",
@@ -418,8 +438,10 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-26T08:00:00Z",
             "next_open_tehran": "2026-10-26 11:30",
-            "minutes_until_open": 2724,
-            "holidays_modeled": false
+            "minutes_until_open": 2487,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           },
           {
             "venue": "LSE",
@@ -428,8 +450,10 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-26T08:00:00Z",
             "next_open_tehran": "2026-10-26 11:30",
-            "minutes_until_open": 2724,
-            "holidays_modeled": false
+            "minutes_until_open": 2487,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           },
           {
             "venue": "ICE_BRENT",
@@ -438,16 +462,18 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-26T01:00:00Z",
             "next_open_tehran": "2026-10-26 04:30",
-            "minutes_until_open": 2304,
-            "holidays_modeled": false
+            "minutes_until_open": 2067,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           }
         ],
         "open_now": false,
         "next_open_utc": "2026-10-26T01:00:00Z",
         "next_open_tehran": "2026-10-26 04:30",
-        "minutes_until_open": 2304,
-        "countdown_fa": "38 ساعت و 24 دقیقه",
-        "hours_until": 38.4
+        "minutes_until_open": 2067,
+        "countdown_fa": "34 ساعت و 27 دقیقه",
+        "hours_until": 34.45
       },
       {
         "label_fa": "نیویورک",
@@ -466,8 +492,10 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-26T13:30:00Z",
             "next_open_tehran": "2026-10-26 17:00",
-            "minutes_until_open": 3054,
-            "holidays_modeled": false
+            "minutes_until_open": 2817,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           },
           {
             "venue": "CME_GLOBEX",
@@ -476,8 +504,10 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-25T22:00:00Z",
             "next_open_tehran": "2026-10-26 01:30",
-            "minutes_until_open": 2124,
-            "holidays_modeled": false
+            "minutes_until_open": 1887,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           },
           {
             "venue": "FX_OTC",
@@ -486,16 +516,18 @@
             "closes_utc": null,
             "next_open_utc": "2026-10-25T21:00:00Z",
             "next_open_tehran": "2026-10-26 00:30",
-            "minutes_until_open": 2064,
-            "holidays_modeled": false
+            "minutes_until_open": 1827,
+            "holidays_modeled": true,
+            "holiday_today": false,
+            "holiday_name": null
           }
         ],
         "open_now": false,
         "next_open_utc": "2026-10-25T21:00:00Z",
         "next_open_tehran": "2026-10-26 00:30",
-        "minutes_until_open": 2064,
-        "countdown_fa": "34 ساعت و 24 دقیقه",
-        "hours_until": 34.4
+        "minutes_until_open": 1827,
+        "countdown_fa": "30 ساعت و 27 دقیقه",
+        "hours_until": 30.45
       }
     ],
     "adapters": {
@@ -537,17 +569,17 @@
       "BTC": {
         "allowed": true,
         "notional_usd": 100.0,
-        "adv_usd": 22572958202.42,
+        "adv_usd": 19067798953.33,
         "adv_source": "vendor_24h_volume",
-        "cap_1pct_usd": 225729582.02,
-        "participation_rate": 0.0
+        "cap_1pct_usd": 190677989.53,
+        "participation_rate": 1e-08
       },
       "ETH": {
         "allowed": true,
         "notional_usd": 100.0,
-        "adv_usd": 8201408328.58,
+        "adv_usd": 7685055429.73,
         "adv_source": "vendor_24h_volume",
-        "cap_1pct_usd": 82014083.29,
+        "cap_1pct_usd": 76850554.3,
         "participation_rate": 1e-08
       },
       "BRENT": {
@@ -576,5 +608,5 @@
       }
     }
   },
-  "generated_at": "2026-10-24T10:36:26Z"
+  "generated_at": "2026-10-24T14:33:05Z"
 }

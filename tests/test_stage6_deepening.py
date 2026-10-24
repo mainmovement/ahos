@@ -661,3 +661,53 @@ def test_unification_audit_missing_input_is_incomplete_and_tamper_is_drift(tmp_p
     led.write_text(led.read_text(encoding="utf-8").replace("PAPER_TRADER:BTC", "PAPER_TRADER:ETH", 1), encoding="utf-8")
     b = build_unification_audit(root)
     assert b["overall_status"] == "DRIFT_DETECTED" and "ledger.chain" in b["drift"]
+
+
+def test_exchange_holidays_2026_2027_modeled_and_skipped():
+    from datetime import date, datetime, timezone
+    from architecture.markets.weekday_session_gate import is_holiday, holiday_name, venue_status
+    # Thanksgiving 2026-11-26 (Thursday) -> NYSE closed, next open is Friday 2026-11-27 09:30 ET (14:30 UTC / 18:00 Tehran)
+    assert is_holiday("NYSE", date(2026, 11, 26)) is True
+    assert holiday_name("NYSE", date(2026, 11, 26)) == "Thanksgiving Day"
+    thx = datetime(2026, 11, 26, 15, 0, tzinfo=timezone.utc)
+    st_ny = venue_status("NYSE", thx)
+    assert st_ny["open"] is False
+    assert st_ny["holidays_modeled"] is True
+    assert st_ny["holiday_today"] is True
+    assert st_ny["next_open_utc"] == "2026-11-27T14:30:00Z"
+    assert st_ny["next_open_tehran"] == "2026-11-27 18:00"
+    # Good Friday 2026-04-03 -> XETRA closed, Easter Monday 2026-04-06 -> also closed, next open Tuesday 2026-04-07 09:00 CEST (07:00 UTC)
+    gf = datetime(2026, 4, 3, 10, 0, tzinfo=timezone.utc)
+    st_xe = venue_status("XETRA", gf)
+    assert st_xe["open"] is False and st_xe["next_open_utc"] == "2026-04-07T07:00:00Z"
+    # TSE Culture Day 2026-11-03 (Tuesday) -> closed, next open Wednesday 2026-11-04 09:00 JST (00:00 UTC)
+    cul = datetime(2026, 11, 3, 2, 0, tzinfo=timezone.utc)
+    st_tse = venue_status("TSE", cul)
+    assert st_tse["open"] is False and st_tse["next_open_utc"] == "2026-11-04T00:00:00Z"
+    # CME Globex Christmas 2026-12-25 (Friday) -> Thursday 17:00 CT session is skipped
+    xmas_eve = datetime(2026, 12, 24, 23, 30, tzinfo=timezone.utc)
+    st_cme = venue_status("CME_GLOBEX", xmas_eve)
+    assert st_cme["open"] is False
+
+
+def test_m13_gold_soak_enforce_witness_invariant_blocks_single_source_verified():
+    from scripts.m13_gold_soak import _enforce_witness_invariant
+    status = {
+        "last_cycle": {
+            "cycle": 929,
+            "witness_state": "VERIFIED",
+            "witness_reason": "insufficient_independent_sources (only ['goldapi_spot'] answered fresh)",
+            "price_usd": 4007.9,
+        },
+        "ledger_state": {
+            "price_usd": 4007.9,
+            "witness": {
+                "state": "UNRESOLVED",
+                "quotes": [{"provider_id": "goldapi_spot", "price_usd": 4007.9}],
+            },
+        },
+    }
+    _enforce_witness_invariant(status)
+    assert status["last_cycle"]["witness_state"] == "UNRESOLVED"
+    assert status["last_cycle"]["price_usd"] is None
+    assert status["ledger_state"]["price_usd"] is None

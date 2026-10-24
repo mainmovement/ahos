@@ -330,8 +330,42 @@ def _reconcile_report(soak_dir: Path, ledger_path: Path | None,
     return record
 
 
+def _enforce_witness_invariant(status: dict[str, Any]) -> None:
+    """Fail-closed guard: never allow soak_status.json to mark VERIFIED or carry a price
+    unless witness_state == VERIFIED and >= 2 independent sources succeeded in that exact cycle."""
+    last = status.get("last_cycle")
+    state = status.get("ledger_state")
+    cp_witness = (state.get("witness") if isinstance(state, dict) else None) or {}
+    quotes = cp_witness.get("quotes") if isinstance(cp_witness, dict) else None
+    distinct_providers = {
+        str(q.get("provider_id") or q.get("source") or "")
+        for q in (quotes or [])
+        if isinstance(q, dict) and isinstance(q.get("price_usd"), (int, float)) and q.get("price_usd") > 0
+        and "pax-gold" not in str(q.get("source") or q.get("provider_id") or "").lower()
+    } - {""}
+    if isinstance(last, dict):
+        w_state = str(last.get("witness_state") or "UNRESOLVED")
+        w_reason = str(last.get("witness_reason") or "")
+        if (
+            w_state != "VERIFIED"
+            or "insufficient_independent_sources" in w_reason
+            or last.get("price_usd") is None
+            or (isinstance(quotes, list) and len(distinct_providers) < 2)
+        ):
+            if w_state == "VERIFIED":
+                last["witness_state"] = str(cp_witness.get("state") or "UNRESOLVED")
+                if last["witness_state"] == "VERIFIED":
+                    last["witness_state"] = "UNRESOLVED"
+            last["price_usd"] = None
+            if isinstance(state, dict):
+                state["price_usd"] = None
+                if isinstance(cp_witness, dict) and cp_witness.get("state") == "VERIFIED":
+                    cp_witness["state"] = last["witness_state"]
+
+
 def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
     soak_dir.mkdir(parents=True, exist_ok=True)
+    _enforce_witness_invariant(status)
     try:
         pt_status_path = ROOT / "reports" / "grok" / "PAPER" / "paper_trader_status.json"
         if pt_status_path.is_file():

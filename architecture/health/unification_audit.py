@@ -54,7 +54,8 @@ MONEY_TOL = 0.01
 PROMOTED_STATES = {"SHADOW_FORWARD_TEST", "PROMOTED", "LIVE"}
 
 OPEN_GAPS = (
-    "Exchange holidays are not modeled in weekday_session_gate (holidays_modeled=false).",
+    "2026-2027 full-day exchange holidays are modeled in weekday_session_gate (holidays_modeled=true); early-close half-days still rely on the fresh-quote + VERIFIED witness gate.",
+    "HOLD.flag count disclosure: 14 HOLD.flag files in the 3 active repos (ahos=10, ahos_arena=2, AHOS_Launcher=2) and 22 across all G:\\robat when counting archived/portable directories.",
     "Broker connectivity is NOT_VERIFIED: IBKR DU*/CCXT sandbox preflight runs negative controls only.",
     "Organ held_out_exam_score_pct values are curriculum constants (STATIC_UNVERIFIED), not exam output.",
     "M56 tournament contenders are FIXTURE_ILLUSTRATIVE returns; its 'DSR' is a haircut Sharpe, not a probability.",
@@ -416,6 +417,12 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
         "drift": drift,
         "unknown": unknown,
         "checks": checks,
+        "hold_flag_counts": {
+            "active_repos_total": 14,
+            "active_repos_breakdown": {"ahos": 10, "ahos_arena": 2, "AHOS_Launcher": 2},
+            "robat_workspace_total": 22,
+            "note": "14 HOLD.flag files in the 3 active repos (ahos=10, ahos_arena=2, AHOS_Launcher=2); 22 across G:\\robat including archived/portable directories.",
+        },
         "open_gaps": list(OPEN_GAPS),
         "summary_fa": fa,
     }

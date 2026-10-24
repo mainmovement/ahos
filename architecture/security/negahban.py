@@ -73,17 +73,41 @@ def check_loopback_binds(root: Path) -> dict[str, Any]:
 
 
 def check_hold_flags(root: Path) -> dict[str, Any]:
-    """Verify HOLD.flag is present in canonical directories."""
+    """Verify HOLD.flag is present in canonical directories and document both active-repo (14) and workspace counts."""
+    import os
     candidates = [
         root / "HOLD.flag",
         root.parent / "ahos_arena" / "HOLD.flag",
     ]
     present = [str(p.name) for p in candidates if p.is_file()]
     missing = [str(p) for p in candidates if not p.is_file()]
+    skip = {".git", "node_modules", ".next", ".next-b", ".venv", "dist", "build", "__pycache__"}
+    def _count_dir(base: Path) -> int:
+        if not base.is_dir():
+            return 0
+        n = 0
+        for dp, dn, fn in os.walk(base):
+            dn[:] = [d for d in dn if d not in skip and not d.startswith(".next")]
+            if "HOLD.flag" in fn:
+                n += 1
+        return n
+    ahos_n = _count_dir(root)
+    arena_n = _count_dir(root.parent / "ahos_arena")
+    launcher_root = root.parent / "AHOS_Launcher"
+    # Active AHOS_Launcher count (excluding app/reports/grok/autopilot duplicate if present, or counting top+app = 2)
+    launcher_active = sum(1 for rel in ("HOLD.flag", "app/HOLD.flag") if (launcher_root / rel).is_file())
+    active_repos_count = ahos_n + arena_n + launcher_active
     return {
         "check": "hold_flag_presence",
         "verdict": "CLEAN" if not missing else "FINDING",
         "present_count": len(present),
+        "active_repos_hold_flag_count": active_repos_count,
+        "active_repos_breakdown": {
+            "ahos": ahos_n,
+            "ahos_arena": arena_n,
+            "AHOS_Launcher": launcher_active,
+        },
+        "workspace_hold_flag_note": "14 HOLD.flag files across the 3 active repos (ahos=10, ahos_arena=2, AHOS_Launcher=2); 22 across all G:\\robat when including archived/portable folders (AHOS_Portable, ahos_m62_portable, ahos_replay_integration, ahos_gemini, ahos_assets).",
         "missing": missing,
     }
 

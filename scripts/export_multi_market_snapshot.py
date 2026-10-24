@@ -56,19 +56,15 @@ def _update_soak_witness_with_live_gold(live_payload: dict, now_iso: str) -> Non
         spread_pct = None
         state = "UNRESOLVED" if valid else "UNAVAILABLE"
 
-    if isinstance(soak.get("last_cycle"), dict):
-        soak["last_cycle"]["ts"] = now_iso
-        soak["last_cycle"]["price_usd"] = xau_price
-        soak["last_cycle"]["spread_pct"] = spread_pct
-        soak["last_cycle"]["witness_state"] = state
-
-    if isinstance(soak.get("ledger_state"), dict):
-        soak["ledger_state"]["price_usd"] = xau_price
-        witness = soak["ledger_state"].get("witness")
-        if isinstance(witness, dict):
-            witness["spread_pct"] = spread_pct
-            witness["state"] = state
-            witness["quotes"] = witness_quotes
+    # NEVER mutate last_cycle or ledger_state in soak_status.json: those must strictly
+    # mirror the M13 gold soak mission ledger and soak_runlog.jsonl (Stage 6 M34 invariant).
+    soak["multi_market_gold_overlay"] = {
+        "ts": now_iso,
+        "witness_state": state,
+        "price_usd": xau_price if state == "VERIFIED" else None,
+        "spread_pct": spread_pct,
+        "quotes": witness_quotes,
+    }
 
     soak["pilot_100usd"] = paper_account_summary(ROOT)
     soak["live_crypto_witness"] = {

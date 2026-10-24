@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T10:36:30Z",
+  "generated_at": "2026-10-24T14:33:52Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "overall_verdict": "CLEAN",
@@ -14,6 +14,13 @@
       "check": "hold_flag_presence",
       "verdict": "CLEAN",
       "present_count": 2,
+      "active_repos_hold_flag_count": 14,
+      "active_repos_breakdown": {
+        "ahos": 10,
+        "ahos_arena": 2,
+        "AHOS_Launcher": 2
+      },
+      "workspace_hold_flag_note": "14 HOLD.flag files across the 3 active repos (ahos=10, ahos_arena=2, AHOS_Launcher=2); 22 across all G:\\robat when including archived/portable folders (AHOS_Portable, ahos_m62_portable, ahos_replay_integration, ahos_gemini, ahos_assets).",
       "missing": []
     },
     {
@@ -63,9 +70,9 @@
       "verdict": "CLEAN",
       "entries": {
         "schema": "ahos.mission_ledger.v1",
-        "path": "G:\\robat\\_tmp\\tmp3qr2pbuy\\ledger_copy.jsonl",
-        "entries": 996,
-        "head_hash": "f91f05b218f93e326562648e68b5d979768381c315825cbf8b57a0a11492ebbb",
+        "path": "C:\\Users\\Sniper\\AppData\\Local\\Temp\\tmp6b1kv9fd\\ledger_copy.jsonl",
+        "entries": 1013,
+        "head_hash": "a9c8e40af96489673e2af0efbdf81fe032f33850007260f7761ebe992a4eeb54",
         "torn_tail": false,
         "verdict": "CHAIN_INTACT"
       }

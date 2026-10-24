@@ -224,3 +224,9 @@
 - `run_continuation_tracks.py` exit 0; whitehat CLEAN (6 checks); Lane A integrity OK (36 pinned); unification UNIFIED_CLEAN.
 - Not run (RAM guard): `next build`, `tsc` over the whole Arena project, Playwright -> Arena type-check NOT_VERIFIED.
 - Phase status: Stage 6 `PARTIAL` — code + receipts VERIFIED locally; edge UNPROVEN (0/30 closed trades); broker connectivity NOT_VERIFIED; holidays not modeled.
+
+### Stage 6 Fix-Up & Independent Review Closure (2026-10-24 18:00 Tehran)
+- **Gold soak status file (`soak_status.json`):** Identified `scripts/export_multi_market_snapshot.py` (`_update_soak_witness_with_live_gold`) as the writer that overwrote `last_cycle` and `ledger_state` in `soak_status.json` using PAXG proxy prices. Removed all mutations of `last_cycle` and `ledger_state` from `export_multi_market_snapshot.py` (moved to `multi_market_gold_overlay`) and added `_enforce_witness_invariant` in `scripts/m13_gold_soak.py` so `soak_status.json` strictly mirrors the ledger/runlog and can never mark `VERIFIED` or carry a price when `< 2` independent non-proxy sources succeeded.
+- **2026–2027 Exchange Holiday Calendars (`weekday_session_gate.py`):** Modeled official 2026–2027 full-day exchange holidays for `NYSE`, `XETRA`, `LSE`, `ICE_BRENT`, `TSE`, `HKEX`, `CME_GLOBEX`, and `FX_OTC` (`holidays_modeled=True`), skipping holidays in `venue_intervals`, `next_open_tehran`, and `session_readiness_drill.json`.
+- **`HOLD.flag` Count Disclosure:** Documented both counts (`14` in the 3 active repos: `ahos`=10, `ahos_arena`=2, `AHOS_Launcher`=2; `22` across `G:\robat` including archived/portable directories) in `unification_audit.py` and `negahban.py` (`export_whitehat_audit.py`).
+- **Daemons Zero `C:` Footprint:** Recreated `G:\robat\ahos\.venv` launcher stubs against `G:\robat\ahos_runtime\python\python.exe` and restarted `m13_gold_soak.py`, `paper_trader_cycle.py`, and `run_bot.py` so zero AHOS Python processes touch `C:\`.
