@@ -621,8 +621,11 @@ def _ua_root(tmp_path):
     w("reports/grok/M28/batch6_research.json", {"n_trials_prior": 89, "n_trials_counted_in_dsr": 89, "candidates": [],
                                                 "screened": [{"hypothesis_id": "H30", "counted_in_dsr": False}]})
     w("reports/grok/M28/map_elites_grid.json", {"cells_occupied": 0, "grid": {"macro_weekly": {"crisis_defensive": None}}})
-    w("reports/grok/M12/cognitive_graph_snapshot.json", {"registry_agents": 1, "authority_violations": [], "agents": [
-        {"agent_id": "AG-01", "verdict": "UNRESOLVED", "authority_ok": True}]})
+    w("reports/grok/M28/batch7_research.json", {"n_trials_prior": 93, "n_trials_counted_in_dsr": 93, "candidates": [],
+                                                "screened": [{"hypothesis_id": "H36", "counted_in_dsr": False}]})
+    w("reports/grok/M12/cognitive_graph_snapshot.json", {"registry_agents": 1, "authority_violations": [],
+                                                         "verdict_counts": {"HOLD": 1}, "agents": [
+        {"agent_id": "AG-01", "verdict": "HOLD", "authority_ok": True}]})
     (tmp_path / "config").mkdir(parents=True, exist_ok=True)
     (tmp_path / "config" / "agent_registry.yaml").write_text("agents:\n  - agent_id: AG-01\n    allowed_authority: [OBSERVE]\n", encoding="utf-8")
     return tmp_path
@@ -800,7 +803,12 @@ def test_validate_imports_secret_scanner_strict_on_keys_and_allows_public_pool_a
     assert scan_text_for_secrets(f"{{\"wallet_secret\": \"{sol_key}\"}}", suffix=".json")
     assert scan_text_for_secrets(f"{{\"url\": \"https://api.example.com?key={openai_key}\"}}", suffix=".json")
     # Public Uniswap v4 32-byte pool key hash in explicit pool field and Google News RSS URL path must pass
+    assert scan_text_for_secrets(f"{{\"source_b\": \"{priv_hex}\"}}", suffix=".json")
     assert not scan_text_for_secrets(f"{{\"pool\": \"{priv_hex}\"}}", suffix=".json")
+    assert not scan_text_for_secrets(
+        f"{{\"source_b\": \"dexscreener:uniswap:{priv_hex}\"}}", suffix=".json")
+    assert not scan_text_for_secrets(
+        f"{{\"source_b\": \"dexscreener:uniswap:pool32:{priv_hex[2:]}\"}}", suffix=".json")
     assert not scan_text_for_secrets(
         f"{{\"links\": [\"https://news.google.com/rss/articles/{sol_key}\"]}}",
         suffix=".json",
@@ -820,3 +828,31 @@ def test_cognitive_graph_full_43_agent_repo_wiring():
     assert by_id["AG-14"]["verdict"] == "VETO"
     for eq_id in ("AG-29", "AG-30", "AG-31"):
         assert by_id[eq_id]["verdict"] in ("PASS", "HOLD")
+    assert snap["critical_path_blockers"] and snap["dependency_edges"]
+    assert set(snap["pillar_owners"]) == {
+        "P1_MARKETS_QUANT", "P2_CORE_BRAIN_REASONING", "P3_LEARNING_FORECASTING",
+        "P4_SECURITY_WHITE_HATS", "P5_SYSTEM_PERFORMANCE_BODY", "P6_STATISTICS_VALIDATION",
+        "P7_MACRO_EVENTS_OSINT"}
+
+
+def test_hysteresis_holds_a_small_weight_change_and_the_cost_hurdle_blocks_a_tiny_edge():
+    from architecture.learning.walk_forward import apply_weight_hysteresis, clears_cost_hurdle
+    assert apply_weight_hysteresis([0.5, 0.5], [0.52, 0.48], 0.05) == [0.5, 0.5]
+    moved = apply_weight_hysteresis([0.5, 0.5], [0.8, 0.2], 0.05)
+    assert abs(sum(moved) - 1) < 1e-9 and moved[0] > 0.7
+    assert clears_cost_hurdle(0.0001, 0.5, 15.0) is False
+    assert clears_cost_hurdle(0.02, 0.5, 15.0) is True
+    assert clears_cost_hurdle(0.0, 0.0, 15.0) is True
+
+
+def test_calibration_refuses_a_training_row_that_is_not_strictly_before_the_test():
+    from architecture.learning.calibration import brier_score, fit_and_apply
+    train = [{"ts": "2020-01-02", "y": True, "features": {"vol_ratio": 1.0}}]
+    test = [{"ts": "2020-01-02", "y": False, "features": {"vol_ratio": 1.0}}]
+    leaked = fit_and_apply(train, test, ("vol_ratio",))
+    assert leaked["leaked"] is True and leaked["probs"] == []
+    train = [{"ts": f"2020-01-{i:02d}", "y": i % 2 == 0, "features": {"vol_ratio": 0.5 + (i % 3) * 0.2}} for i in range(1, 21)]
+    test = [{"ts": "2020-02-01", "y": True, "features": {"vol_ratio": 0.8}}]
+    fit = fit_and_apply(train, test, ("vol_ratio",))
+    assert fit["leaked"] is False and fit["status"] == "FIT" and 0.0 < fit["probs"][0] < 1.0
+    assert brier_score([0.5, 0.5], [0.0, 1.0]) == 0.25

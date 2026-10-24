@@ -16,6 +16,7 @@
  "cells_occupied": 4,
  "cells_total": 9,
  "empty_cells_mean": "no admitted strategy, not a zero-quality strategy",
+ "intraday_empty_reason": "daily bars have no intraday session; those three cells stay empty",
  "grid": {
   "intraday": {
    "trend_breakout": null,
@@ -24,10 +25,10 @@
   },
   "swing_2_5d": {
    "trend_breakout": {
-    "strategy_id": "b6-H31-BOOK",
-    "hypothesis_id": "H31",
-    "is_sharpe": -0.0443,
-    "oos_sharpe": -0.0102,
+    "strategy_id": "b7-H34-BOOK",
+    "hypothesis_id": "H34",
+    "is_sharpe": 0.4663,
+    "oos_sharpe": 0.3005,
     "gate": "FAIL",
     "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
    },
@@ -44,23 +45,62 @@
     "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
    },
    "vol_compression_carry": {
-    "strategy_id": "b6-H29-BOOK",
-    "hypothesis_id": "H29",
-    "is_sharpe": 0.0521,
-    "oos_sharpe": -0.0073,
+    "strategy_id": "b7-H33-BOOK",
+    "hypothesis_id": "H33",
+    "is_sharpe": 0.1769,
+    "oos_sharpe": 0.1905,
     "gate": "FAIL",
     "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
    },
    "crisis_defensive": {
-    "strategy_id": "b6-H32-BOOK",
-    "hypothesis_id": "H32",
-    "is_sharpe": 0.1376,
-    "oos_sharpe": 0.107,
+    "strategy_id": "b7-H35-BOOK",
+    "hypothesis_id": "H35",
+    "is_sharpe": 0.2402,
+    "oos_sharpe": 0.1551,
     "gate": "FAIL",
     "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
    }
   }
  },
- "screened": [],
- "generated_at": "2026-10-24T14:54:02Z"
+ "screened": [
+  {
+   "hypothesis_id": "H36",
+   "strategy_id": "b7-H36-BOOK",
+   "counted_in_dsr": false,
+   "screen": "active_share 0.109 < 0.25",
+   "is_observations": 388,
+   "is_active_share": 0.1085,
+   "cell": {
+    "horizon": "swing_2_5d",
+    "regime": "vol_compression_carry"
+   }
+  }
+ ],
+ "challengers": [
+  {
+   "cell": {
+    "horizon": "macro_weekly",
+    "regime": "vol_compression_carry"
+   },
+   "kept": "H33",
+   "displaced": "H29"
+  },
+  {
+   "cell": {
+    "horizon": "swing_2_5d",
+    "regime": "trend_breakout"
+   },
+   "kept": "H34",
+   "displaced": "H31"
+  },
+  {
+   "cell": {
+    "horizon": "macro_weekly",
+    "regime": "crisis_defensive"
+   },
+   "kept": "H35",
+   "displaced": "H32"
+  }
+ ],
+ "generated_at": "2026-10-24T16:27:29Z"
 }

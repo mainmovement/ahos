@@ -281,6 +281,12 @@ import re as _re
 _PUBLIC_JSON_HEX64_FIELD_RE = _re.compile(
     r"\"(?:pool|pool_address|pair_address|dex_pool|sha256|hash|entry_hash|prev_hash|content_hash|file_hash|head_hash|arena_lockfile_sha256|ledger_hash)\"\s*:\s*\"0x[0-9a-fA-F]{64}\""
 )
+# A DEX witness citation names the venue and the pool. It is not a key field.
+# A bare 0x + 64 hex in any other JSON value still matches.
+_PUBLIC_POOL_CITATION_RE = _re.compile(
+    r"(?:dexscreener|geckoterminal):[A-Za-z0-9_-]+:(?:0x[0-9a-fA-F]{64}|pool32:[0-9a-fA-F]{64})"
+    r"|pool32:[0-9a-fA-F]{64}"
+)
 _HTTP_URL_PATH_RE = _re.compile(r"https?://[^\s\"'<>?]+")
 
 
@@ -295,11 +301,10 @@ def scan_text_for_secrets(text: str, *, suffix: str = ".py") -> list[str]:
     """
     from architecture.security.hygiene import _SECRET_PATTERNS
 
-    ev_text = (
-        _PUBLIC_JSON_HEX64_FIELD_RE.sub("\"public_hex64\": \"[PUBLIC_HEX64]\",", text)
-        if suffix.lower() == ".json"
-        else text
-    )
+    ev_text = text
+    if suffix.lower() == ".json":
+        ev_text = _PUBLIC_JSON_HEX64_FIELD_RE.sub("\"public_hex64\": \"[PUBLIC_HEX64]\",", ev_text)
+        ev_text = _PUBLIC_POOL_CITATION_RE.sub("[PUBLIC_POOL_ID]", ev_text)
     no_url_path_text = _HTTP_URL_PATH_RE.sub("https://url.path.local/", ev_text)
     matched: list[str] = []
     for pattern in _SECRET_PATTERNS:

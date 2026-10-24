@@ -239,6 +239,7 @@ def build_cognitive_graph(root: Path) -> dict[str, Any]:
     counts: dict[str, int] = {}
     for row in rows:
         counts[row["verdict"]] = counts.get(row["verdict"], 0) + 1
+    edges = _dependency_edges(rows)
     return {
         "schema": "ahos.cognitive_graph.v1",
         "generated_at": _utc(),
@@ -247,8 +248,84 @@ def build_cognitive_graph(root: Path) -> dict[str, Any]:
         "registry_note": "config/agent_registry.yaml lists 43 agents (AG-01 through AG-43), not 39.",
         "verdict_counts": counts,
         "authority_violations": [r["agent_id"] for r in rows if not r["authority_ok"]],
+        "pillar_owners": PILLAR_OWNERS,
+        "dependency_edges": edges,
+        "critical_path_blockers": _critical_blockers(root),
         "agents": rows,
     }
+
+
+# Real receipt flow. An edge is stale when the downstream file is older than its upstream file.
+_EDGES = (
+    ("AG-02", "AG-04", "live quotes feed the multi-market snapshot"),
+    ("AG-02", "AG-16", "live quotes feed the paper trader"),
+    ("AG-06", "AG-16", "token veto feeds the paper desk"),
+    ("AG-27", "AG-15", "macro calendar feeds the shadow scorecard"),
+    ("AG-03", "AG-14", "research candidates feed the red team"),
+    ("AG-14", "AG-26", "red team feeds the portfolio mandate"),
+    ("AG-41", "AG-26", "batch research feeds the MAP-Elites grid"),
+    ("AG-09", "AG-08", "whitehat is an unification input"),
+    ("AG-16", "AG-43", "paper status feeds the trade audit"),
+    ("AG-43", "AG-08", "the trade audit is an unification input"),
+    ("AG-21", "AG-17", "the PIT benchmark feeds memory"),
+    ("AG-17", "AG-18", "memory feeds the lesson chain"),
+    ("AG-36", "AG-03", "science proposals feed research"),
+    ("AG-29", "AG-38", "the US session feeds execution"),
+    ("AG-33", "AG-10", "the newsroom feeds corroboration"),
+)
+
+PILLAR_OWNERS = {
+    "P1_MARKETS_QUANT": ["AG-03", "AG-41"],
+    "P2_CORE_BRAIN_REASONING": ["AG-36"],
+    "P3_LEARNING_FORECASTING": ["AG-17", "AG-18"],
+    "P4_SECURITY_WHITE_HATS": ["AG-09"],
+    "P5_SYSTEM_PERFORMANCE_BODY": ["AG-19", "AG-24"],
+    "P6_STATISTICS_VALIDATION": ["AG-08", "AG-41"],
+    "P7_MACRO_EVENTS_OSINT": ["AG-33"],
+}
+
+
+def _dependency_edges(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    by = {r["agent_id"]: r for r in rows}
+    out = []
+    for up, down, why in _EDGES:
+        a, b = by.get(up), by.get(down)
+        if not a or not b:
+            continue
+        order = "MISSING_TIMESTAMP"
+        if a.get("executed_at") and b.get("executed_at"):
+            order = "DOWNSTREAM_FRESH" if b["executed_at"] >= a["executed_at"] else "DOWNSTREAM_STALE"
+        out.append({"upstream": up, "downstream": down, "why": why, "order": order,
+                    "upstream_at": a.get("executed_at"), "downstream_at": b.get("executed_at")})
+    return out
+
+
+def _critical_blockers(root: Path) -> list[dict[str, Any]]:
+    """The four promotion blockers, each read from a receipt. Missing data stays unknown."""
+    research = None
+    for rel in ("reports/grok/M28/batch7_research.json", "reports/grok/M28/batch6_research.json"):
+        research, _ = _read(root, rel)
+        if research:
+            break
+    sharpes = [c.get("deflated_sharpe") for c in (research or {}).get("candidates") or [] if c.get("deflated_sharpe") is not None]
+    max_dsr = max(sharpes) if sharpes else None
+    paper, _ = _read(root, "reports/grok/PAPER/paper_trader_status.json")
+    closed = paper.get("closed_trades") if isinstance(paper, dict) else None
+    drill, _ = _read(root, "reports/grok/PAPER/session_readiness_drill.json")
+    pre = ((drill or {}).get("adapters") or {}).get("preflight") or {}
+    sessions = (drill or {}).get("cash_sessions") or []
+    cash_open = any(s.get("open_now") for s in sessions) if sessions else None
+    broker = pre.get("broker_connectivity")
+    return [
+        {"id": "dsr_below_0.95", "active": None if max_dsr is None else max_dsr <= 0.95,
+         "max_deflated_sharpe": max_dsr, "source": "latest batch research receipt"},
+        {"id": "closed_trades_under_30", "active": None if closed is None else int(closed) < 30,
+         "closed_trades": closed, "source": "reports/grok/PAPER/paper_trader_status.json"},
+        {"id": "weekend_cash_markets_closed", "active": None if cash_open is None else not cash_open,
+         "source": "reports/grok/PAPER/session_readiness_drill.json"},
+        {"id": "broker_connectivity_not_verified", "active": None if broker is None else broker != "VERIFIED",
+         "broker_connectivity": broker or "UNKNOWN", "source": "session drill preflight"},
+    ]
 
 
 def export_cognitive_graph(root: Path) -> dict[str, Any]:

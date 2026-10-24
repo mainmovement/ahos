@@ -1,6 +1,6 @@
 {
  "schema": "ahos.cognitive_graph.v1",
- "generated_at": "2026-10-24T15:42:50Z",
+ "generated_at": "2026-10-24T16:31:59Z",
  "paper_only": true,
  "registry_agents": 43,
  "registry_note": "config/agent_registry.yaml lists 43 agents (AG-01 through AG-43), not 39.",
@@ -10,6 +10,180 @@
   "VETO": 1
  },
  "authority_violations": [],
+ "pillar_owners": {
+  "P1_MARKETS_QUANT": [
+   "AG-03",
+   "AG-41"
+  ],
+  "P2_CORE_BRAIN_REASONING": [
+   "AG-36"
+  ],
+  "P3_LEARNING_FORECASTING": [
+   "AG-17",
+   "AG-18"
+  ],
+  "P4_SECURITY_WHITE_HATS": [
+   "AG-09"
+  ],
+  "P5_SYSTEM_PERFORMANCE_BODY": [
+   "AG-19",
+   "AG-24"
+  ],
+  "P6_STATISTICS_VALIDATION": [
+   "AG-08",
+   "AG-41"
+  ],
+  "P7_MACRO_EVENTS_OSINT": [
+   "AG-33"
+  ]
+ },
+ "dependency_edges": [
+  {
+   "upstream": "AG-02",
+   "downstream": "AG-04",
+   "why": "live quotes feed the multi-market snapshot",
+   "order": "DOWNSTREAM_STALE",
+   "upstream_at": "2026-10-24T15:48:46Z",
+   "downstream_at": "2026-10-24T10:29:01Z"
+  },
+  {
+   "upstream": "AG-02",
+   "downstream": "AG-16",
+   "why": "live quotes feed the paper trader",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T15:48:46Z",
+   "downstream_at": "2026-10-24T16:27:46Z"
+  },
+  {
+   "upstream": "AG-06",
+   "downstream": "AG-16",
+   "why": "token veto feeds the paper desk",
+   "order": "DOWNSTREAM_STALE",
+   "upstream_at": "2026-10-24T16:30:12Z",
+   "downstream_at": "2026-10-24T16:27:46Z"
+  },
+  {
+   "upstream": "AG-27",
+   "downstream": "AG-15",
+   "why": "macro calendar feeds the shadow scorecard",
+   "order": "DOWNSTREAM_STALE",
+   "upstream_at": "2026-10-24T16:31:36Z",
+   "downstream_at": "2026-10-24T16:29:21Z"
+  },
+  {
+   "upstream": "AG-03",
+   "downstream": "AG-14",
+   "why": "research candidates feed the red team",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T10:04:58Z",
+   "downstream_at": "2026-10-24T10:04:58Z"
+  },
+  {
+   "upstream": "AG-14",
+   "downstream": "AG-26",
+   "why": "red team feeds the portfolio mandate",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T10:04:58Z",
+   "downstream_at": "2026-10-24T16:27:29Z"
+  },
+  {
+   "upstream": "AG-41",
+   "downstream": "AG-26",
+   "why": "batch research feeds the MAP-Elites grid",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T14:58:42Z",
+   "downstream_at": "2026-10-24T16:27:29Z"
+  },
+  {
+   "upstream": "AG-09",
+   "downstream": "AG-08",
+   "why": "whitehat is an unification input",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T16:29:01Z",
+   "downstream_at": "2026-10-24T16:31:58Z"
+  },
+  {
+   "upstream": "AG-16",
+   "downstream": "AG-43",
+   "why": "paper status feeds the trade audit",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T16:27:46Z",
+   "downstream_at": "2026-10-24T16:29:01Z"
+  },
+  {
+   "upstream": "AG-43",
+   "downstream": "AG-08",
+   "why": "the trade audit is an unification input",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T16:29:01Z",
+   "downstream_at": "2026-10-24T16:31:58Z"
+  },
+  {
+   "upstream": "AG-21",
+   "downstream": "AG-17",
+   "why": "the PIT benchmark feeds memory",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T16:29:21Z",
+   "downstream_at": "2026-10-24T16:29:21Z"
+  },
+  {
+   "upstream": "AG-17",
+   "downstream": "AG-18",
+   "why": "memory feeds the lesson chain",
+   "order": "DOWNSTREAM_STALE",
+   "upstream_at": "2026-10-24T16:29:21Z",
+   "downstream_at": "2026-10-24T14:35:12Z"
+  },
+  {
+   "upstream": "AG-36",
+   "downstream": "AG-03",
+   "why": "science proposals feed research",
+   "order": "DOWNSTREAM_STALE",
+   "upstream_at": "2026-10-24T16:30:12Z",
+   "downstream_at": "2026-10-24T10:04:58Z"
+  },
+  {
+   "upstream": "AG-29",
+   "downstream": "AG-38",
+   "why": "the US session feeds execution",
+   "order": "DOWNSTREAM_FRESH",
+   "upstream_at": "2026-10-24T16:29:37Z",
+   "downstream_at": "2026-10-24T16:29:37Z"
+  },
+  {
+   "upstream": "AG-33",
+   "downstream": "AG-10",
+   "why": "the newsroom feeds corroboration",
+   "order": "DOWNSTREAM_STALE",
+   "upstream_at": "2026-10-24T14:35:39Z",
+   "downstream_at": "2026-10-24T10:29:02Z"
+  }
+ ],
+ "critical_path_blockers": [
+  {
+   "id": "dsr_below_0.95",
+   "active": true,
+   "max_deflated_sharpe": 0.0,
+   "source": "latest batch research receipt"
+  },
+  {
+   "id": "closed_trades_under_30",
+   "active": true,
+   "closed_trades": 7,
+   "source": "reports/grok/PAPER/paper_trader_status.json"
+  },
+  {
+   "id": "weekend_cash_markets_closed",
+   "active": true,
+   "source": "reports/grok/PAPER/session_readiness_drill.json"
+  },
+  {
+   "id": "broker_connectivity_not_verified",
+   "active": true,
+   "broker_connectivity": "NOT_VERIFIED",
+   "source": "session drill preflight"
+  }
+ ],
  "agents": [
   {
    "agent_id": "AG-01",
@@ -29,7 +203,7 @@
    "name": "Data Intelligence",
    "input_artifact": "reports/grok/M19/live_market_prices.json",
    "evidence_artifact": "reports/grok/M19/live_market_prices.json",
-   "executed_at": "2026-10-24T14:57:15Z",
+   "executed_at": "2026-10-24T15:48:46Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
@@ -84,7 +258,7 @@
    "name": "On-Chain Intelligence",
    "input_artifact": "reports/grok/M33/live_token_safety_snapshot.json",
    "evidence_artifact": "reports/grok/M33/live_token_safety_snapshot.json",
-   "executed_at": "2026-10-24T15:42:47Z",
+   "executed_at": "2026-10-24T16:30:12Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
@@ -111,7 +285,7 @@
    "name": "Risk Agent",
    "input_artifact": "reports/grok/M34/unification_audit.json",
    "evidence_artifact": "reports/grok/M34/unification_audit.json",
-   "executed_at": "2026-10-24T15:42:49Z",
+   "executed_at": "2026-10-24T16:31:58Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
@@ -125,7 +299,7 @@
    "name": "Security/Scam Defense",
    "input_artifact": "reports/grok/M64/whitehat_security_audit.json",
    "evidence_artifact": "reports/grok/M64/whitehat_security_audit.json",
-   "executed_at": "2026-10-24T15:41:42Z",
+   "executed_at": "2026-10-24T16:29:01Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
@@ -210,7 +384,7 @@
    "name": "Decision Engine",
    "input_artifact": "reports/grok/M28/shadow_forward_scorecard.json",
    "evidence_artifact": "reports/grok/M28/shadow_forward_scorecard.json",
-   "executed_at": "2026-10-24T15:42:03Z",
+   "executed_at": "2026-10-24T16:29:21Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
@@ -223,7 +397,7 @@
    "name": "Paper-Trading Agent",
    "input_artifact": "reports/grok/PAPER/paper_trader_status.json",
    "evidence_artifact": "reports/grok/PAPER/paper_trader_status.json",
-   "executed_at": "2026-10-24T15:40:10Z",
+   "executed_at": "2026-10-24T16:27:46Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
@@ -236,7 +410,7 @@
    "name": "Memory Agent",
    "input_artifact": "reports/grok/M30/memory_consolidation_snapshot.json",
    "evidence_artifact": "reports/grok/M30/memory_consolidation_snapshot.json",
-   "executed_at": "2026-10-24T15:42:03Z",
+   "executed_at": "2026-10-24T16:29:21Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
@@ -276,7 +450,7 @@
    "name": "Controlled Self-Evolution",
    "input_artifact": "reports/grok/M58/aci_agi_si_loop_status.json",
    "evidence_artifact": "reports/grok/M58/aci_agi_si_loop_status.json",
-   "executed_at": "2026-10-24T15:42:47Z",
+   "executed_at": "2026-10-24T16:30:12Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
@@ -289,7 +463,7 @@
    "name": "Evidence/Provenance",
    "input_artifact": "reports/grok/M30/pit_10k_benchmark.json",
    "evidence_artifact": "reports/grok/M30/pit_10k_benchmark.json",
-   "executed_at": "2026-10-24T15:42:03Z",
+   "executed_at": "2026-10-24T16:29:21Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
@@ -303,7 +477,7 @@
    "name": "Observability/Health",
    "input_artifact": "reports/grok/CONTINUATION/tracks_receipt.json",
    "evidence_artifact": "reports/grok/CONTINUATION/tracks_receipt.json",
-   "executed_at": "2026-10-24T15:35:58Z",
+   "executed_at": "2026-10-24T16:30:16Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
@@ -359,7 +533,7 @@
    "name": "Kourosh (CIO / Portfolio Manager)",
    "input_artifact": "reports/grok/M28/map_elites_grid.json",
    "evidence_artifact": "reports/grok/M28/map_elites_grid.json",
-   "executed_at": "2026-10-24T14:58:42Z",
+   "executed_at": "2026-10-24T16:27:29Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
@@ -370,7 +544,7 @@
    "name": "Bahram (Macro, Rates & FX)",
    "input_artifact": "reports/grok/M19/macro_calendar.json",
    "evidence_artifact": "reports/grok/M19/macro_calendar.json",
-   "executed_at": "2026-10-24T15:42:03Z",
+   "executed_at": "2026-10-24T16:31:36Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
@@ -381,7 +555,7 @@
    "name": "Zarrin (Gold & Oil Division Lead)",
    "input_artifact": "reports/grok/M13_SOAK/soak_status.json",
    "evidence_artifact": "reports/grok/M13_SOAK/soak_status.json",
-   "executed_at": "2026-10-24T15:35:47Z",
+   "executed_at": "2026-10-24T16:20:48Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
@@ -392,7 +566,7 @@
    "name": "Sara (US Equities)",
    "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
    "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
-   "executed_at": "2026-10-24T15:42:19Z",
+   "executed_at": "2026-10-24T16:29:37Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
@@ -403,7 +577,7 @@
    "name": "Leila (European Equities)",
    "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
    "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
-   "executed_at": "2026-10-24T15:42:19Z",
+   "executed_at": "2026-10-24T16:29:37Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
@@ -414,7 +588,7 @@
    "name": "Mahsa (Asian Equities)",
    "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
    "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
-   "executed_at": "2026-10-24T15:42:19Z",
+   "executed_at": "2026-10-24T16:29:37Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
@@ -469,7 +643,7 @@
    "name": "Siavash (AGI/ACI Architecture Team Lead)",
    "input_artifact": "reports/grok/M57/science_to_desk_snapshot.json",
    "evidence_artifact": "reports/grok/M57/science_to_desk_snapshot.json",
-   "executed_at": "2026-10-24T15:42:47Z",
+   "executed_at": "2026-10-24T16:30:12Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
@@ -491,7 +665,7 @@
    "name": "Dariush (Execution & Broker)",
    "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
    "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
-   "executed_at": "2026-10-24T15:42:19Z",
+   "executed_at": "2026-10-24T16:29:37Z",
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
@@ -546,7 +720,7 @@
    "name": "Ayda (Agent Supervision / Guardian Lead)",
    "input_artifact": "reports/grok/PAPER/paper_trade_audit.json",
    "evidence_artifact": "reports/grok/PAPER/paper_trade_audit.json",
-   "executed_at": "2026-10-24T15:41:42Z",
+   "executed_at": "2026-10-24T16:29:01Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],

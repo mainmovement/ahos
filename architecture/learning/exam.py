@@ -23,6 +23,7 @@ def grade(key: dict[str, str], answers: dict[str, str], training_ids: set[str]) 
 
 import hashlib
 import json
+import statistics
 import math
 from datetime import datetime, timezone
 from pathlib import Path
@@ -347,6 +348,46 @@ def _live_daemon_episodes(root: Path) -> dict[str, Any]:
             "note": "Live rows so far are one short window. This count is not a skill score."}
 
 
+def _episode_features(cache: dict, sym: str, days: list[str], i: int) -> dict[str, float]:
+    """Features from closes strictly before the event day. The close cache has no wick or body."""
+    closes = [cache[sym][days[j]] for j in range(i - 20, i)]
+    rets = [closes[j] / closes[j - 1] - 1 for j in range(1, len(closes)) if closes[j - 1] > 0 and closes[j] > 0]
+    vol5 = statistics.pstdev(rets[-5:]) if len(rets) >= 5 else 0.0
+    vol20 = statistics.pstdev(rets) if len(rets) >= 10 else 0.0
+    ratio = (vol5 / vol20) if vol20 else 1.0
+    trail = closes[-1] / closes[0] - 1 if closes[0] > 0 else 0.0
+    other = "XAU" if sym == "SPX" else "SPX"
+    align = 0.0
+    if other in cache and closes[0] > 0:
+        prior = [d for d in sorted(cache[other]) if d < days[i]]
+        if len(prior) >= 21 and cache[other][prior[-21]] > 0:
+            oth = cache[other][prior[-1]] / cache[other][prior[-21]] - 1
+            align = 1.0 if oth * trail > 0 else 0.0
+    return {"vol_ratio": ratio, "trail_z": (trail / vol20) if vol20 else 0.0, "cross_align": align}
+
+
+def _calibrated_block(train_eps: list[dict], test_eps: list[dict]) -> dict[str, Any]:
+    from architecture.learning.calibration import brier_score, brier_skill_score, fit_and_apply
+    names = ("vol_ratio", "trail_z", "cross_align")
+    train = [{"ts": e["ts"], "y": e["correct"], "features": e["features"]} for e in train_eps if e.get("features")]
+    test = [{"ts": e["ts"], "y": e["correct"], "features": e["features"]} for e in test_eps if e.get("features")]
+    fit = fit_and_apply(train, test, names)
+    detail = {"status": fit.get("status"), "wick_body": "UNAVAILABLE_CLOSE_CACHE_HAS_NO_OHLC",
+              "features": list(names), "n_train": fit.get("n_train"), "n_test": fit.get("n_test")}
+    if fit.get("leaked") or fit.get("status") != "FIT":
+        return {"leaked": bool(fit.get("leaked")), "brier": None, "bss": None, "decision_correct": [], "detail": detail}
+    ys = [1.0 if r["y"] else 0.0 for r in test]
+    br = brier_score(fit["probs"], ys)
+    bss = brier_skill_score(br, 0.25)
+    detail["mean_predicted_p"] = round(sum(fit["probs"]) / len(fit["probs"]), 4)
+    detail["max_train_ts"] = train[-1]["ts"]
+    detail["min_test_ts"] = test[0]["ts"]
+    return {"leaked": False, "brier": round(br, 4) if br is not None else None,
+            "bss": round(bss, 4) if bss is not None else None,
+            "decision_correct": [(p >= 0.5) == (y == 1.0) for p, y in zip(fit["probs"], ys)],
+            "detail": detail}
+
+
 def _historical_oos_episodes(root: Path) -> dict[str, Any]:
     """Event-day episodes from the local close cache and the official calendar. No network."""
     import json as _json
@@ -379,8 +420,10 @@ def _historical_oos_episodes(root: Path) -> dict[str, Any]:
         outcome = cache[sym][days[i + 1]] / prev[-1] - 1
         if trend == 0:
             continue
-        episodes.append({"day": day, "symbol": sym, "event": ev.get("event"),
-                         "correct": (1 if trend > 0 else -1) * outcome > 0, "leaked": False})
+        feats = _episode_features(cache, sym, days, i)
+        episodes.append({"day": day, "symbol": sym, "event": ev.get("event"), "ts": day,
+                         "correct": (1 if trend > 0 else -1) * outcome > 0, "leaked": False,
+                         "features": feats})
         last_day = days[i + 1]
     if len(episodes) < HISTORICAL_MIN_EPISODES * 2:
         empty["count"] = len(episodes)
@@ -391,11 +434,23 @@ def _historical_oos_episodes(root: Path) -> dict[str, Any]:
     est = map_theta([{"a": 1.0, "b": 0.0, "correct": e["correct"]} for e in held]) if held else None
     ys = [1.0 if e["correct"] else 0.0 for e in held]
     brier = round(sum((0.5 - y) ** 2 for y in ys) / len(ys), 4) if ys else None
+    calibrated = _calibrated_block(episodes[:cut], held)
+    decision = calibrated.get("decision_correct") or []
+    est_cal = map_theta([{"a": 1.0, "b": 0.0, "correct": c} for c in decision]) if decision else None
     status = "MEASURED" if len(held) >= HISTORICAL_MIN_EPISODES else "INSUFFICIENT_HELD_OUT"
-    return {"count": len(episodes), "heldout": len(held), "status": status, "leaked": False,
-            "estimate_ability_theta": est["theta"] if est else None, "theta_se": est["se"] if est else None,
-            "brier": brier, "probability_model": "constant 0.5 (no-skill Brier, not a fitted confidence)",
-            "rule": "sign of the prior 20 sessions vs the next session after an official event; features stop before the event day",
+    return {"count": len(episodes), "heldout": len(held), "status": status,
+            "leaked": bool(calibrated.get("leaked")),
+            "estimate_ability_theta": est_cal["theta"] if est_cal else (est["theta"] if est else None),
+            "theta_se": est_cal["se"] if est_cal else (est["se"] if est else None),
+            "theta_trend_rule": est["theta"] if est else None,
+            "theta_trend_rule_se": est["se"] if est else None,
+            "brier": brier, "brier_constant_0_5": brier,
+            "brier_calibrated": calibrated.get("brier"),
+            "brier_skill_score": calibrated.get("bss"),
+            "probability_model": "constant 0.5 baseline, plus a ridge logit fit on earlier episodes only",
+            "calibration": calibrated.get("detail"),
+            "rule": "sign of the prior 20 sessions vs the next session after an official event; features stop the day before the event",
+            "why_stage7_brier_was_0_25": "Stage 7 scored every episode at p=0.5, so Brier is 0.25 for any mix of right and wrong.",
             "cards_fa": [{"prompt_fa": f"{e['event']} در {e['day']} روی {e['symbol']}",
                           "verdict_fa": "درست" if e["correct"] else "نادرست",
                           "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."} for e in held[-6:]]}

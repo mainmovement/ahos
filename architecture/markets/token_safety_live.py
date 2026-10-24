@@ -79,6 +79,22 @@ GECKO_TRENDING_URL = "https://api.geckoterminal.com/api/v2/networks/eth/trending
 GECKO_POOLS_URL = "https://api.geckoterminal.com/api/v2/networks/eth/pools?page=1"
 DEXS_BOOSTS_URL = "https://api.dexscreener.com/token-boosts/top/v1"
 DEXS_SEARCH_URL = "https://api.dexscreener.com/latest/dex/search?q=WETH"
+# Established liquid contracts plus one high-volume meme, queried as pairs so DexScreener returns pools
+# instead of the empty WETH search. Public addresses, not secrets.
+DEXS_TOKENS_URL = (
+    "https://api.dexscreener.com/latest/dex/tokens/"
+    "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,"
+    "0x514910771AF9Ca656af840dff83E8264EcF986CA,"
+    "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,"
+    "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32,"
+    "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,"
+    "0x57e114B691Db790C35207b2e685D4A43181e6061,"
+    "0x808507121B80c02388fAd14726482e061B8da827,"
+    "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72,"
+    "0x6982508145454Ce325dDbE47a25d4ec3d2311933,"
+    "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84,"
+    "0xBe9895146f7AF43049ca1c1AE358B0541Ea49704"
+)
 BLOCKSCOUT_TOKENS_URL = "https://eth.blockscout.com/api/v2/tokens?type=ERC-20"
 AUTHORITY_FLAGS = ("is_proxy", "hidden_owner", "can_take_back_ownership", "owner_change_balance", "selfdestruct",
                    "cannot_sell_all", "transfer_pausable", "slippage_modifiable", "personal_slippage_modifiable",
@@ -417,6 +433,25 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
                     "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")), "buys_24h": None, "sells_24h": None})
         seen.add(addr)
     ep["tokens"] = len(raw) - before
+    listed, ep = _probe(getter, DEXS_TOKENS_URL)
+    endpoints.append(ep)
+    before = len(raw)
+    listed_pairs = (listed or {}).get("pairs") if isinstance(listed, dict) else None
+    for pair in (listed_pairs or [])[:40]:
+        if not isinstance(pair, dict) or pair.get("chainId") != "ethereum":
+            continue
+        addr = str((pair.get("baseToken") or {}).get("address") or "").lower()
+        if not _is_eth_address(addr) or addr in seen:
+            continue
+        created = pair.get("pairCreatedAt")
+        age = (now.timestamp() - created / 1000.0) / 86400.0 if isinstance(created, (int, float)) and created > 0 else None
+        raw.append({"address": addr, "symbol": str((pair.get("baseToken") or {}).get("symbol") or "")[:16],
+                    "pool": _normalize_pool_id(pair.get("pairAddress")), "source": "dexscreener_tokens",
+                    "pool_age_days": age, "volume_24h_usd": _f((pair.get("volume") or {}).get("h24")),
+                    "liquidity_usd": _f((pair.get("liquidity") or {}).get("usd")), "fdv_usd": _f(pair.get("fdv")),
+                    "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")), "buys_24h": None, "sells_24h": None})
+        seen.add(addr)
+    ep["tokens"] = len(raw) - before
     scout, ep = _probe(getter, BLOCKSCOUT_TOKENS_URL)
     endpoints.append(ep)
     before = len(raw)
@@ -469,7 +504,7 @@ def discovery_rank_score(c: dict[str, Any]) -> float:
     return round(0.4 * pressure + 0.3 * turnover + 0.3 * mom, 4)
 
 
-def run_discovery_funnel(getter: Callable[[str], Any] = _http_json, *, max_vet: int = 8,
+def run_discovery_funnel(getter: Callable[[str], Any] = _http_json, *, max_vet: int = 12,
                          now: datetime | None = None) -> dict[str, Any]:
     disc = discover_candidates(getter, now=now)
     ranked = sorted(disc["passed"], key=lambda c: -discovery_rank_score(c))[:max_vet]
@@ -512,6 +547,9 @@ def export_token_safety_snapshot(root: Path | None = None, *, getter: Callable[[
         "discovery": {k: v for k, v in funnel.items() if k != "vetted"},
         "eligible_count": sum(1 for t in tokens if t["allowed"]),
         "vetoed_count": sum(1 for t in tokens if not t["allowed"]),
+        "veto_breakdown": [{"symbol": t.get("symbol"), "address": t.get("address"), "allowed": t.get("allowed"),
+                           "verdict": t.get("verdict"), "reasons": t.get("reasons") or t.get("veto_reasons") or []}
+                          for t in tokens],
         "vetoed_security_count": sum(1 for t in tokens if t["verdict"] == "VETOED_SECURITY"),
         "paper_tradable_dynamic": [{"symbol": t["symbol"], "address": t["address"], "rank_score": t["discovery_rank_score"],
                                     "pool": (t.get("discovery") or {}).get("pool")} for t in eligible],
@@ -565,7 +603,10 @@ def dex_paper_quote(token: dict[str, Any], getter: Callable[[str], Any] = _http_
         gap = abs(quote["price"] - other["price_usd"]) / ((quote["price"] + other["price_usd"]) / 2.0)
         verdict = "VERIFIED" if gap <= POOL_PRICE_TOL else "CONFLICT"
     wit = {"verdict": verdict, "source_a": src, "price_a": quote["price"],
-           "source_b": f"dexscreener:{other.get('dex')}:{other.get('pool')}" if other else None,
+           "source_b": (
+               f"dexscreener:{other.get('dex')}:{_normalize_pool_id(str(other.get('pool') or ''))}"
+               if other else None
+           ),
            "price_b": other.get("price_usd"), "gap": round(gap, 5) if gap is not None else None, "tolerance": POOL_PRICE_TOL,
            "pair": "POOL-POOL", "diagnostics": {"pool_witness": pw["verdict"], "distinct_pools": pw["distinct_pools"]}}
     return quote, wit

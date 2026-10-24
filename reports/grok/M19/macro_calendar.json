@@ -1,6 +1,6 @@
 {
  "schema": "ahos.macro_calendar.v1",
- "generated_at": "2026-10-24T08:36:18Z",
+ "generated_at": "2026-10-24T16:31:14Z",
  "paper_only": true,
  "sources": {
   "FOMC": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
@@ -1028,6 +1028,16 @@
    ]
   },
   {
+   "event": "OPEC_MINISTERIAL",
+   "bank": "OPEC",
+   "at_utc": "2025-02-04T14:00:00+00:00",
+   "two_source_mirrors": true,
+   "desks": [
+    "OIL",
+    "GOLD"
+   ]
+  },
+  {
    "event": "EIA_WPSR",
    "bank": "EIA",
    "at_utc": "2025-02-05T15:30:00+00:00",
@@ -1770,16 +1780,6 @@
    ]
   },
   {
-   "event": "OPEC_MINISTERIAL",
-   "bank": "OPEC",
-   "at_utc": "2026-04-06T14:00:00+00:00",
-   "two_source_mirrors": true,
-   "desks": [
-    "OIL",
-    "GOLD"
-   ]
-  },
-  {
    "event": "EIA_WPSR",
    "bank": "EIA",
    "at_utc": "2026-04-08T14:30:00+00:00",
@@ -1914,6 +1914,17 @@
    ]
   },
   {
+   "event": "ECB_GOV_COUNCIL",
+   "bank": "ECB",
+   "at_utc": "2026-06-11T12:45:00+00:00",
+   "two_source_mirrors": true,
+   "desks": [
+    "EU",
+    "FX",
+    "GOLD"
+   ]
+  },
+  {
    "event": "EIA_WPSR",
    "bank": "EIA",
    "at_utc": "2026-06-17T14:30:00+00:00",
@@ -1989,6 +2000,17 @@
    "holiday_shift": false,
    "desks": [
     "OIL"
+   ]
+  },
+  {
+   "event": "ECB_GOV_COUNCIL",
+   "bank": "ECB",
+   "at_utc": "2026-07-23T12:45:00+00:00",
+   "two_source_mirrors": true,
+   "desks": [
+    "EU",
+    "FX",
+    "GOLD"
    ]
   },
   {
@@ -2077,6 +2099,17 @@
    "holiday_shift": false,
    "desks": [
     "OIL"
+   ]
+  },
+  {
+   "event": "ECB_GOV_COUNCIL",
+   "bank": "ECB",
+   "at_utc": "2026-09-04T12:45:00+00:00",
+   "two_source_mirrors": true,
+   "desks": [
+    "EU",
+    "FX",
+    "GOLD"
    ]
   },
   {
@@ -2224,45 +2257,12 @@
    ]
   },
   {
-   "event": "ECB_GOV_COUNCIL",
-   "bank": "ECB",
-   "at_utc": "2026-10-07T12:45:00+00:00",
-   "two_source_mirrors": true,
-   "desks": [
-    "EU",
-    "FX",
-    "GOLD"
-   ]
-  },
-  {
    "event": "EIA_WPSR",
    "bank": "EIA",
    "at_utc": "2026-10-07T14:30:00+00:00",
    "holiday_shift": false,
    "desks": [
     "OIL"
-   ]
-  },
-  {
-   "event": "ECB_GOV_COUNCIL",
-   "bank": "ECB",
-   "at_utc": "2026-10-08T12:45:00+00:00",
-   "two_source_mirrors": true,
-   "desks": [
-    "EU",
-    "FX",
-    "GOLD"
-   ]
-  },
-  {
-   "event": "ECB_GOV_COUNCIL",
-   "bank": "ECB",
-   "at_utc": "2026-10-15T12:45:00+00:00",
-   "two_source_mirrors": true,
-   "desks": [
-    "EU",
-    "FX",
-    "GOLD"
    ]
   },
   {

@@ -394,6 +394,17 @@ def _lessons_from_historical_exam(repo: "Path") -> list[TeachingLessonFa]:
             key_takeaway_fa=str(card.get("lesson_fa") or "") + " این نمره جدا از معامله‌گر زنده است.",
             glossary_keys=("DSR",),
         ))
+    bss = hist.get("brier_skill_score")
+    if bss is not None:
+        out.append(TeachingLessonFa(
+            lesson_id="m65-hist-brier", market="MACRO", symbol="EVENT", regime_tag="HISTORICAL_OOS",
+            title_fa="کالیبراسیون احتمال روی رویدادهای تاریخی",
+            why_entered_fa="احتمال ثابت ۰٫۵ همیشه بریر ۰٫۲۵ می‌دهد، حتی اگر برخی پیش‌بینی‌ها درست باشند.",
+            what_happened_fa=f"بریر کالیبره‌شده {hist.get('brier_calibrated')} و مهارت نسبت به ۰٫۲۵ برابر {bss} است.",
+            mistake_or_strength_fa="مهارت مثبت" if bss > 0 else "مهارتی بهتر از سکه دیده نشد",
+            key_takeaway_fa="این نمره از روی داده‌های قبل از آزمون ساخته شده و معامله‌گر زنده را ارتقا نمی‌دهد.",
+            glossary_keys=("Brier Score",),
+        ))
     return out
 
 

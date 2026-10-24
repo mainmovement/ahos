@@ -423,6 +423,59 @@ def _stage7_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage8_checks(root: Path) -> list[dict[str, Any]]:
+    b7 = _json(root, Path("reports") / "grok" / "M28" / "batch7_research.json")
+    grid = _json(root, Path("reports") / "grok" / "M28" / "map_elites_grid.json")
+    surfaces = ["reports/grok/M28/batch7_research.json", "reports/grok/M28/map_elites_grid.json"]
+    if b7 is None or grid is None:
+        out = [_check("research.batch7_low_turnover", "UNKNOWN", {"batch7": b7 is not None, "grid": grid is not None}, surfaces)]
+    else:
+        problems = []
+        counted = b7.get("candidates") or []
+        screened = b7.get("screened") or []
+        if any(s.get("counted_in_dsr") for s in screened):
+            problems.append("a screened batch-7 hypothesis was counted")
+        expected = int(b7.get("n_trials_prior") or 0) + len(counted)
+        if b7.get("n_trials_counted_in_dsr") != expected:
+            problems.append("batch7 n_trials_counted_in_dsr != prior + admitted")
+        for c in counted:
+            v = c.get("deflated_sharpe")
+            if v is not None and not 0.0 <= float(v) <= 1.0:
+                problems.append(f"{c.get('strategy_id')} DSR {v} outside [0,1]")
+        occupied = sum(1 for h in (grid.get("grid") or {}).values() for cell in h.values() if cell)
+        if grid.get("cells_occupied") != occupied:
+            problems.append("grid occupancy does not match its cells")
+        challengers = grid.get("challengers") or []
+        for c in counted:
+            cell = c.get("map_elites_cell") or {}
+            slot = ((grid.get("grid") or {}).get(cell.get("horizon")) or {}).get(cell.get("regime"))
+            hid = c.get("hypothesis_id")
+            occupant = slot.get("hypothesis_id") if isinstance(slot, dict) else None
+            mentioned = occupant == hid or any(ch.get("challenger") == hid or ch.get("displaced") == hid for ch in challengers)
+            if not mentioned:
+                problems.append(f"{hid} is neither the cell occupant nor a recorded challenger")
+        out = [_check("research.batch7_low_turnover", _pass_fail(not problems),
+                      {"admitted": len(counted), "screened": len(screened), "cells_occupied": grid.get("cells_occupied"),
+                       "problems": problems, "n_trials_counted_in_dsr": b7.get("n_trials_counted_in_dsr")}, surfaces)]
+    graph = _json(root, Path("reports") / "grok" / "M12" / "cognitive_graph_snapshot.json")
+    if graph is None:
+        out.append(_check("cognitive.resolved_graph", "UNKNOWN", {"graph": False},
+                          ["reports/grok/M12/cognitive_graph_snapshot.json"]))
+        return out
+    unresolved = int((graph.get("verdict_counts") or {}).get("UNRESOLVED") or 0)
+    unresolved += sum(1 for a in graph.get("agents") or [] if a.get("verdict") == "UNRESOLVED")
+    # verdict_counts already includes the rows; do not double-count when the count is present
+    if graph.get("verdict_counts") is not None:
+        unresolved = int(graph["verdict_counts"].get("UNRESOLVED") or 0)
+    violations = graph.get("authority_violations") or []
+    ok = unresolved == 0 and not violations and int(graph.get("registry_agents") or 0) == len(graph.get("agents") or [])
+    out.append(_check("cognitive.resolved_graph", _pass_fail(ok),
+                      {"unresolved": unresolved, "authority_violations": violations,
+                       "registry_agents": graph.get("registry_agents")},
+                      ["reports/grok/M12/cognitive_graph_snapshot.json"]))
+    return out
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -438,6 +491,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _research_checks(root, closed)
     checks += _static_claim_checks(root)
     checks += _stage7_checks(root)
+    checks += _stage8_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

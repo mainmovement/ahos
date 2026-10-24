@@ -295,4 +295,50 @@ _B6 = [
 ]
 HYPOTHESES.extend(_B6)
 
+# ---------------- BATCH 7 (registered 2026-10-24 19:45 Tehran — PRE-REGISTERED BEFORE ANY RUN) ---------------
+# Executor: architecture/markets/map_elites_lab.py run_batch7. Same walk-forward engine. A book is an OOS trial
+# only after the batch-6 screens plus |rho| < 0.65 against the in-sample paths of H29-H32. Screened books are
+# not counted. DSR counts batch 6's 93 plus every batch-7 book that touches the OOS folds.
+# Rebalance rule (frozen): a weight moves only when |delta| > 0.05, and only when the causal expected edge
+# exceeds 2.5x the round-trip of that turnover at 15 bps. Holds pay no switching cost.
+# Cell rule (frozen): H33-H35 use the cells named below even where batch 6 already occupies them. The archive
+# keeps the higher in-sample Sharpe and records the other as a challenger. That does not raise occupancy.
+# H36 uses swing_2_5d x vol_compression_carry. The brief also allowed an intraday label; daily bars have no
+# intraday session, so that cell is left empty rather than filled with a daily book.
+_B7 = [
+ dict(id="H33", family="low_turnover_core", batch=7, name="Vol-scaled core that turns defensive only when a causal crash rule clears the cost hurdle",
+  hypothesis="Weekly. Risk-parity long the positive 63-day names among SPX, QQQ, BTC, ETH, XAU. Switch the whole book to XAU when SPX's prior 20-day return is below -8%, or the mean pairwise 20-day correlation exceeds 0.55, or the causal vol filter's P(HIGH) is at least 0.5, and only if the weight change clears a 5-point deadband and a 2.5x round-trip cost hurdle at 15 bps. Otherwise hold. Must beat equal weight out of sample.",
+  reasoning="Batch 6's negative excess came from paying 15 bps on small flips. A hold is not a new trade.",
+  market_mechanism="Equity and crypto have positive drift most weeks; the defensive sleeve is a rare, cost-gated crash rule, not a weekly forecast.",
+  required_data="Yahoo daily SPX, QQQ, BTC, ETH, XAU. HAVE.",
+  risk_model="Gross 1, long only, 15 bps on actual turnover, deadband 0.05.",
+  expected_failure_mode="The crash rule lags, or the book still correlates with H29 or H32 and is screened.",
+  map_elites_cell=("macro_weekly", "vol_compression_carry"), active_share_min=0.25, status="TESTABLE"),
+ dict(id="H34", family="breakout", batch=7, name="Donchian breakout with a chandelier stop and a cost deadband",
+  hypothesis="Enter only when the close breaks the prior 20-day or 55-day high, today's range exceeds 1.2x ATR(14), volume exceeds its 20-day average where volume exists, and the breakout distance exceeds 2.5x the round-trip cost. Hold until the close falls 3 ATR below the highest close since entry. No new entry while a position is open. Spot FX excluded.",
+  reasoning="Ranges pay the spread and produce nothing. The stop is the exit, so the book does not flip inside the channel.",
+  market_mechanism="A closed-bar channel break with expanding range is the trend cell. The chandelier is a trailing stop, not a new signal.",
+  required_data="Yahoo daily OHLC and volume for the DAILY universe except EURUSD and USDJPY. HAVE.",
+  risk_model="One round trip per completed breakout, instrument cost, equal weight when several names exit together.",
+  expected_failure_mode="Too few breakouts clear the cost hurdle, or the path correlates with H31.",
+  map_elites_cell=("swing_2_5d", "trend_breakout"), active_share_min=0.25, status="TESTABLE"),
+ dict(id="H35", family="dual_momentum", batch=7, name="Monthly absolute-and-relative momentum rotation with a cost deadband",
+  hypothesis="Every 21 sessions, among SPX, QQQ, DAX, N225, XAU, BRENT, BTC, ETH, hold equal weight of the top two names with a positive 12-month return. If none are positive, hold XAU. Rotate only when the challenger's 12-month return exceeds the current book's by more than 2.5x the round-trip cost at 15 bps. Must beat equal weight out of sample.",
+  reasoning="Antonacci dual momentum is one monthly decision. Rank flips smaller than the cost hurdle are holds.",
+  market_mechanism="Absolute momentum is the defensive filter. Relative momentum is the ranking. Neither is refit on the test window.",
+  required_data="Yahoo daily for those eight symbols. HAVE.",
+  risk_model="Gross 1, long only, 21-day spacing, 15 bps on actual turnover, deadband on the 12-month gap.",
+  expected_failure_mode="The absolute-momentum filter sits in cash-like gold through a bull market and loses to equal weight.",
+  map_elites_cell=("macro_weekly", "crisis_defensive"), active_share_min=0.25, status="TESTABLE"),
+ dict(id="H36", family="cost_aware_tilt", batch=7, name="Equal-weight book tilted only when three horizons agree, vol is compressed, and the tilt clears 2.5x cost",
+  hypothesis="Every 5 sessions on BTC, ETH, XAU, SPX, QQQ. Start from equal weight. If SPX 5-day vol is below 0.8x its 20-day vol and at least two names have the same sign on the 21-day, 63-day and 252-day returns, double the agreeing positive names, drop the agreeing negative names, and renormalize. Apply the tilt only when it clears the 0.05 deadband and the 2.5x cost hurdle. Otherwise hold equal weight. In-sample active share must average at least 0.25 or the book is screened.",
+  reasoning="A tilt that does not clear its cost is the batch-6 failure mode. Equal weight remains the baseline the tilt has to beat.",
+  market_mechanism="Multi-horizon agreement during quiet vol is a filter on the same momentum signal, not a new one.",
+  required_data="Yahoo daily BTC, ETH, XAU, SPX, QQQ. HAVE.",
+  risk_model="Gross 1, long only, 5-day spacing, 15 bps on actual turnover.",
+  expected_failure_mode="Agreement during compressed vol is rare, so active share stays under 0.25 and no OOS trial is spent.",
+  map_elites_cell=("swing_2_5d", "vol_compression_carry"), active_share_min=0.25, status="TESTABLE"),
+]
+HYPOTHESES.extend(_B7)
+
 def get(hid): return next(h for h in HYPOTHESES if h["id"] == hid)

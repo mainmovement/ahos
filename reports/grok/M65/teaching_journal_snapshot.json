@@ -1,66 +1,15 @@
 {
   "schema": "ahos.teaching_mode_m65.v1",
-  "generated_at": "2026-10-24T15:42:47Z",
+  "generated_at": "2026-10-24T16:33:22Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
-  "lessons_count": 20,
+  "lessons_count": 21,
   "journal_entries_count": 3,
   "glossary_count": 5,
   "latest_lesson_title_fa": "کارت آزمون held-out: تصمیم درست بود — ETH",
   "latest_key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
   "lessons": [
-    {
-      "lesson_id": "m65-exam-live_eth_1792847381",
-      "market": "CRYPTO",
-      "symbol": "ETH",
-      "regime_tag": "LIVE_HELDOUT_EXAM",
-      "title_fa": "کارت آزمون held-out: تصمیم درست بود — ETH",
-      "why_entered_fa": "ETH (CRYPTO) در 2026-10-24T13:09:41Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
-      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.28% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
-      "mistake_or_strength_fa": "تصمیم درست بود",
-      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
-      "glossary_keys": [
-        "Brier Score",
-        "DSR"
-      ],
-      "paper_only": true,
-      "source": "LIVE_HELDOUT_EXAM"
-    },
-    {
-      "lesson_id": "m65-exam-live_sol_1792847381",
-      "market": "CRYPTO",
-      "symbol": "SOL",
-      "regime_tag": "LIVE_HELDOUT_EXAM",
-      "title_fa": "کارت آزمون held-out: تصمیم درست بود — SOL",
-      "why_entered_fa": "SOL (CRYPTO) در 2026-10-24T13:09:41Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
-      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.48% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
-      "mistake_or_strength_fa": "تصمیم درست بود",
-      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
-      "glossary_keys": [
-        "Brier Score",
-        "DSR"
-      ],
-      "paper_only": true,
-      "source": "LIVE_HELDOUT_EXAM"
-    },
-    {
-      "lesson_id": "m65-exam-live_btc_1792851290",
-      "market": "CRYPTO",
-      "symbol": "BTC",
-      "regime_tag": "LIVE_HELDOUT_EXAM",
-      "title_fa": "کارت آزمون held-out: تصمیم درست بود — BTC",
-      "why_entered_fa": "BTC (CRYPTO) در 2026-10-24T14:14:50Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
-      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -1.05% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
-      "mistake_or_strength_fa": "تصمیم درست بود",
-      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
-      "glossary_keys": [
-        "Brier Score",
-        "DSR"
-      ],
-      "paper_only": true,
-      "source": "LIVE_HELDOUT_EXAM"
-    },
     {
       "lesson_id": "m65-exam-live_eth_1792851290",
       "market": "CRYPTO",
@@ -113,6 +62,57 @@
       "source": "LIVE_HELDOUT_EXAM"
     },
     {
+      "lesson_id": "m65-exam-live_btc_1792854966",
+      "market": "CRYPTO",
+      "symbol": "BTC",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — BTC",
+      "why_entered_fa": "BTC (CRYPTO) در 2026-10-24T15:16:06Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد -0.02% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "glossary_keys": [
+        "Brier Score",
+        "DSR"
+      ],
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
+    },
+    {
+      "lesson_id": "m65-exam-live_eth_1792855316",
+      "market": "CRYPTO",
+      "symbol": "ETH",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم درست بود — ETH",
+      "why_entered_fa": "ETH (CRYPTO) در 2026-10-24T15:21:56Z: سیستم «عدم ورود» را انتخاب کرد (دلیل: COMPOSITE_BELOW_ENTRY).",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد +0.40% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+      "mistake_or_strength_fa": "تصمیم درست بود",
+      "key_takeaway_fa": "عدم ورود از زیان یا حرکتِ کمتر از هزینه جلوگیری کرد. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "glossary_keys": [
+        "Brier Score",
+        "DSR"
+      ],
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
+    },
+    {
+      "lesson_id": "m65-exam-live_sol_1792855316",
+      "market": "CRYPTO",
+      "symbol": "SOL",
+      "regime_tag": "LIVE_HELDOUT_EXAM",
+      "title_fa": "کارت آزمون held-out: تصمیم نادرست بود — SOL",
+      "why_entered_fa": "SOL (CRYPTO) در 2026-10-24T15:21:56Z: سیستم «ورود کاغذی» را انتخاب کرد.",
+      "what_happened_fa": "بازدهٔ ۱ ساعت بعد +0.62% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+      "mistake_or_strength_fa": "تصمیم نادرست بود",
+      "key_takeaway_fa": "جهت پوزیشن خلاف حرکت بعدی بود؛ حد ضرر و اندازهٔ ریسک تنها محافظ است. لبهٔ سود هنوز اثبات‌نشده (UNPROVEN_EDGE).",
+      "glossary_keys": [
+        "Brier Score",
+        "DSR"
+      ],
+      "paper_only": true,
+      "source": "LIVE_HELDOUT_EXAM"
+    },
+    {
       "lesson_id": "m65-hist-0",
       "market": "MACRO",
       "symbol": "EVENT",
@@ -140,6 +140,22 @@
       "key_takeaway_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده. این نمره جدا از معامله‌گر زنده است.",
       "glossary_keys": [
         "DSR"
+      ],
+      "paper_only": true,
+      "source": "HISTORICAL_OOS"
+    },
+    {
+      "lesson_id": "m65-hist-brier",
+      "market": "MACRO",
+      "symbol": "EVENT",
+      "regime_tag": "HISTORICAL_OOS",
+      "title_fa": "کالیبراسیون احتمال روی رویدادهای تاریخی",
+      "why_entered_fa": "احتمال ثابت ۰٫۵ همیشه بریر ۰٫۲۵ می‌دهد، حتی اگر برخی پیش‌بینی‌ها درست باشند.",
+      "what_happened_fa": "بریر کالیبره‌شده 0.2569 و مهارت نسبت به ۰٫۲۵ برابر -0.0275 است.",
+      "mistake_or_strength_fa": "مهارتی بهتر از سکه دیده نشد",
+      "key_takeaway_fa": "این نمره از روی داده‌های قبل از آزمون ساخته شده و معامله‌گر زنده را ارتقا نمی‌دهد.",
+      "glossary_keys": [
+        "Brier Score"
       ],
       "paper_only": true,
       "source": "HISTORICAL_OOS"
@@ -364,57 +380,29 @@
   },
   "live_anomaly_exam": {
     "schema": "ahos.m50_live_conflict_exam.v2",
-    "generated_at": "2026-10-24T15:42:20Z",
+    "generated_at": "2026-10-24T16:33:22Z",
     "status": "INSUFFICIENT_INDEPENDENT_EPISODES",
     "method": "outcome-keyed decisions; time split; b from calibration half; 2PL MAP theta on held-out half",
-    "n_calibration_items": 21,
+    "n_calibration_items": 23,
     "n_heldout_items": 22,
-    "estimate_ability_theta": 0.5617,
-    "theta_se": 0.4778,
+    "estimate_ability_theta": 0.2828,
+    "theta_se": 0.4702,
     "theta_meaning": "relative to the calibration period: >0 better than earlier decisions of the same type, <0 worse",
-    "heldout_accuracy": 0.7273,
-    "abstain_baseline_accuracy": 0.2727,
-    "skill_vs_abstain_baseline": 0.4545,
+    "heldout_accuracy": 0.6818,
+    "abstain_baseline_accuracy": 0.3636,
+    "skill_vs_abstain_baseline": 0.3182,
     "independent_episodes": 7,
     "min_independent_episodes": 10,
     "theta_at_bound": false,
     "item_types_heldout": [
       "HOLD::CRYPTO",
-      "HOLD::PB_TOKEN"
+      "HOLD::PB_TOKEN",
+      "NO_TRADE:COMPOSITE_BELOW_ENTRY:CRYPTO",
+      "OPEN::CRYPTO"
     ],
     "leaked": false,
     "promoted": false,
     "cards_fa": [
-      {
-        "item_id": "live_eth_1792839856",
-        "symbol": "ETH",
-        "desk": "CRYPTO",
-        "prompt_fa": "ETH (CRYPTO) در 2026-10-24T11:04:16Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
-        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.30% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
-        "verdict_fa": "تصمیم درست بود",
-        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
-        "correct": true
-      },
-      {
-        "item_id": "live_sol_1792839856",
-        "symbol": "SOL",
-        "desk": "CRYPTO",
-        "prompt_fa": "SOL (CRYPTO) در 2026-10-24T11:04:16Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
-        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.31% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
-        "verdict_fa": "تصمیم درست بود",
-        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
-        "correct": true
-      },
-      {
-        "item_id": "live_btc_1792843467",
-        "symbol": "BTC",
-        "desk": "CRYPTO",
-        "prompt_fa": "BTC (CRYPTO) در 2026-10-24T12:04:27Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
-        "outcome_fa": "بازدهٔ ۱ ساعت بعد +0.30% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
-        "verdict_fa": "تصمیم نادرست بود",
-        "lesson_fa": "جهت پوزیشن خلاف حرکت بعدی بود؛ حد ضرر و اندازهٔ ریسک تنها محافظ است.",
-        "correct": false
-      },
       {
         "item_id": "live_eth_1792843467",
         "symbol": "ETH",
@@ -504,6 +492,36 @@
         "verdict_fa": "تصمیم درست بود",
         "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
         "correct": true
+      },
+      {
+        "item_id": "live_btc_1792854966",
+        "symbol": "BTC",
+        "desk": "CRYPTO",
+        "prompt_fa": "BTC (CRYPTO) در 2026-10-24T15:16:06Z: سیستم «نگه‌داشتن پوزیشن» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد -0.02% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "جهت پوزیشن با حرکت بعدی هم‌سو بود.",
+        "correct": true
+      },
+      {
+        "item_id": "live_eth_1792855316",
+        "symbol": "ETH",
+        "desk": "CRYPTO",
+        "prompt_fa": "ETH (CRYPTO) در 2026-10-24T15:21:56Z: سیستم «عدم ورود» را انتخاب کرد (دلیل: COMPOSITE_BELOW_ENTRY).",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد +0.40% در برابر هزینهٔ رفت‌وبرگشت 0.30%.",
+        "verdict_fa": "تصمیم درست بود",
+        "lesson_fa": "عدم ورود از زیان یا حرکتِ کمتر از هزینه جلوگیری کرد.",
+        "correct": true
+      },
+      {
+        "item_id": "live_sol_1792855316",
+        "symbol": "SOL",
+        "desk": "CRYPTO",
+        "prompt_fa": "SOL (CRYPTO) در 2026-10-24T15:21:56Z: سیستم «ورود کاغذی» را انتخاب کرد.",
+        "outcome_fa": "بازدهٔ ۱ ساعت بعد +0.62% در برابر هزینهٔ رفت‌وبرگشت 0.36%.",
+        "verdict_fa": "تصمیم نادرست بود",
+        "lesson_fa": "جهت پوزیشن خلاف حرکت بعدی بود؛ حد ضرر و اندازهٔ ریسک تنها محافظ است.",
+        "correct": false
       }
     ],
     "source": "reports/grok/M50/live_conflict_exam_items.json"
@@ -511,7 +529,7 @@
   "hooman_journal": [
     {
       "journal_id": "hooman-jrnl-01",
-      "timestamp_iso": "2026-10-24T15:42:47Z",
+      "timestamp_iso": "2026-10-24T16:33:22Z",
       "market": "GOLD",
       "symbol": "XAUUSD",
       "decision_type": "PAPER_EXIT",
@@ -524,7 +542,7 @@
     },
     {
       "journal_id": "hooman-jrnl-02",
-      "timestamp_iso": "2026-10-24T15:42:47Z",
+      "timestamp_iso": "2026-10-24T16:33:22Z",
       "market": "OIL",
       "symbol": "WTI",
       "decision_type": "PAPER_ENTRY",
@@ -537,7 +555,7 @@
     },
     {
       "journal_id": "hooman-jrnl-03",
-      "timestamp_iso": "2026-10-24T15:42:47Z",
+      "timestamp_iso": "2026-10-24T16:33:22Z",
       "market": "DEX_TOKENS",
       "symbol": "RUGMEME",
       "decision_type": "SAFETY_VETO",

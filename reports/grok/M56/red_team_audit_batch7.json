@@ -1,0 +1,46 @@
+{
+ "schema": "ahos.red_team_audit.batch7.v1",
+ "generated_at": "2026-10-24T16:27:58Z",
+ "paper_only": true,
+ "auto_promote": false,
+ "batch": 7,
+ "source": "reports/grok/M28/batch7_research.json",
+ "n_trials_counted_in_dsr": 96,
+ "pbo_cscv": 0.0087,
+ "promotion_eligible": [],
+ "rows": [
+  {
+   "strategy_id": "b7-H33-BOOK",
+   "hypothesis_id": "H33",
+   "oos_n": 200,
+   "oos_sharpe": 0.1905,
+   "dsr": 0.0,
+   "gate": "FAIL",
+   "red_team": "VETOED_FRAGILE",
+   "excess_vs_equal_weight_oos_sharpe": 0.0256,
+   "promotion_eligible": false
+  },
+  {
+   "strategy_id": "b7-H34-BOOK",
+   "hypothesis_id": "H34",
+   "oos_n": 33,
+   "oos_sharpe": 0.3005,
+   "dsr": 0.0,
+   "gate": "FAIL",
+   "red_team": "SURVIVED_RED_TEAM",
+   "excess_vs_equal_weight_oos_sharpe": -0.3014,
+   "promotion_eligible": false
+  },
+  {
+   "strategy_id": "b7-H35-BOOK",
+   "hypothesis_id": "H35",
+   "oos_n": 47,
+   "oos_sharpe": 0.1551,
+   "dsr": 0.0,
+   "gate": "FAIL",
+   "red_team": "VETOED_FRAGILE",
+   "excess_vs_equal_weight_oos_sharpe": -0.2851,
+   "promotion_eligible": false
+  }
+ ]
+}

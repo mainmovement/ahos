@@ -176,7 +176,9 @@ def build_organism_science_matrix(root: Path | None = None) -> dict[str, Any]:
                              "arxiv_id": p["arxiv_id"], "url": p["url"], "published": p.get("published"),
                              "asku_ref": ref, "status": "PROPOSED_NOT_PREREGISTERED"})
         linked = {h: (reg.get(h) or {}).get("verdict", "NOT_RUN") for h in PILLAR_HYPOTHESES.get(pid, ())}
-        rows.append({"pillar": pid, "organ": spec["organ"], "query": spec["query"], "papers_found": len(papers),
+        from architecture.mission.cognitive_graph_m12 import PILLAR_OWNERS
+        rows.append({"pillar": pid, "organ": spec["organ"], "owning_agents": PILLAR_OWNERS.get(pid, []),
+                     "query": spec["query"], "papers_found": len(papers),
                      "latest_papers": [{k: p.get(k) for k in ("arxiv_id", "title", "published", "url")} for p in papers[:3]],
                      "proposed_hypotheses": proposed, "linked_preregistered_hypotheses": linked,
                      "validated_claims": 0,
@@ -188,6 +190,7 @@ def build_organism_science_matrix(root: Path | None = None) -> dict[str, Any]:
             "validated_claims_total": 0,
             "organ_static_curricula": STATIC_CLAIM,
             "honesty_note": "Papers motivate questions only. validated_claims stays 0 until a pre-registered test passes every gate.",
+            "pillar_owners": {r["pillar"]: r.get("owning_agents") for r in rows},
             "matrix": rows}
     out = root / M57_REL
     out.parent.mkdir(parents=True, exist_ok=True)

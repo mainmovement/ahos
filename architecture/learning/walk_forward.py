@@ -650,6 +650,38 @@ def fetch_daily_v(yahoo: str, range_: str = "10y") -> list[tuple[int, float, flo
             zip(res["timestamp"], q["open"], q["high"], q["low"], q["close"], vols) if None not in (o, h, l, c)]
 
 
+def clears_cost_hurdle(expected_edge: float, one_way_turnover: float, cost_bps: float, *, multiple: float = 2.5) -> bool:
+    """True when |expected edge| exceeds `multiple` times the round-trip cost of this rebalance.
+
+    one_way_turnover is 0.5 * sum(|dw|). Round trip = that turnover * 2 * (cost_bps / 1e4).
+    A zero-turnover hold clears, because it pays nothing.
+    """
+    if one_way_turnover <= 1e-12:
+        return True
+    round_trip = abs(one_way_turnover) * 2.0 * (cost_bps / 1e4)
+    return abs(expected_edge) > multiple * round_trip
+
+
+def apply_weight_hysteresis(previous: list[float], proposed: list[float], tau: float) -> list[float]:
+    """Keep each previous weight unless |delta| > tau, then re-scale to gross 1."""
+    if len(previous) != len(proposed):
+        raise ValueError("weight vectors differ in length")
+    out = []
+    changed = False
+    for prev, new in zip(previous, proposed):
+        if abs(new - prev) > tau:
+            out.append(new)
+            changed = True
+        else:
+            out.append(prev)
+    if not changed:
+        return list(previous)
+    gross = sum(abs(x) for x in out)
+    if gross <= 0:
+        return list(previous)
+    return [x / gross for x in out]
+
+
 def safe_simple_return(p0: float, p1: float) -> float | None:
     """Percent return. Undefined (None) when either price is non-positive, so a negative commodity print
     drops that day instead of producing NaN/Inf from a logarithm."""
