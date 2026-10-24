@@ -76,8 +76,8 @@
     {
       "stage": "Stage 10",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "8fbbd92",
+      "arena_commit": "74161e0",
       "closed_paper_trades": 20,
       "fee_drag_usd": 0.226231,
       "mae_mfe_measured": 0,
