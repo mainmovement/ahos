@@ -1,27 +1,27 @@
 {
     "portable":  {
                      "source":  "AHOS_Launcher Write-PortableSnapshot.ps1",
-                     "buildTime":  "2026-10-22T00:32:25Z",
+                     "buildTime":  "2026-10-24T01:31:30Z",
                      "demo":  false,
                      "executionMode":  "PAPER_ONLY",
                      "realTrading":  false,
                      "availability":  "AVAILABLE",
-                     "generatedAt":  "2026-10-22T00:32:25Z",
+                     "generatedAt":  "2026-10-24T01:31:30Z",
                      "checklist":  {
-                                       "nodeBundled":  "UNKNOWN",
+                                       "nodeBundled":  "DONE",
                                        "fonts":  "PARTIAL",
                                        "smokeTest":  "PARTIAL",
                                        "models":  "NOT STARTED",
                                        "configTemplate":  "DONE"
                                    },
                      "hardware":  {
-                                      "note":  "RAM under 8 GB â€” heavy features gated (T0).",
+                                      "note":  "RAM under 8 GB - heavy features gated (T0).",
                                       "ramGb":  7.9,
                                       "tier":  "T0",
                                       "gpu":  null,
                                       "heavyFeaturesAllowed":  false,
                                       "cpu":  "Intel(R) Core(TM) i7-4510U CPU @ 2.00GHz"
                                   },
-                     "packageVersion":  "ecc2812c928b"
+                     "packageVersion":  "2989b01"
                  }
 }

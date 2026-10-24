@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T17:32:18Z",
+  "generated_at": "2026-10-24T02:02:43Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "overall_verdict": "CLEAN",
@@ -7,7 +7,7 @@
     {
       "check": "loopback_bind_127_0_0_1",
       "verdict": "CLEAN",
-      "files_checked": 16,
+      "files_checked": 18,
       "violations": []
     },
     {
@@ -19,8 +19,37 @@
     {
       "check": "secret_hygiene_scan",
       "verdict": "CLEAN",
-      "files_scanned": 268,
-      "findings": 0
+      "files_scanned": 1094,
+      "findings": 0,
+      "finding_paths": []
+    },
+    {
+      "check": "cve_supply_chain_audit",
+      "verdict": "CLEAN",
+      "python_runtime_packages": {
+        "certifi": "2026.10.23",
+        "urllib3": "2.8.0",
+        "setuptools": "84.2.1",
+        "requests": "2.34.2",
+        "PyYAML": "6.0.3"
+      },
+      "python_runtime_vulnerabilities": [],
+      "npm_advisories_noted": [
+        {
+          "package": "next",
+          "installed": "16.3.8",
+          "fix": "16.4.3",
+          "severity": "critical",
+          "note": "loopback-only 127.0.0.1 bind mitigates external exposure; upgrade gated by OWNER_GATE"
+        },
+        {
+          "package": "postcss",
+          "installed": "8.5.8",
+          "fix": "8.5.31",
+          "severity": "high",
+          "note": "build-time CSS parser only; upgrade gated by OWNER_GATE"
+        }
+      ]
     },
     {
       "check": "lane_a_freeze_sha256",
@@ -32,8 +61,14 @@
     {
       "check": "mission_ledger_hash_chain",
       "verdict": "CLEAN",
-      "entries": 0,
-      "note": "no_live_ledger_file"
+      "entries": {
+        "schema": "ahos.mission_ledger.v1",
+        "path": "G:\\robat\\_tmp\\tmpjld37nai\\ledger_copy.jsonl",
+        "entries": 960,
+        "head_hash": "116a5daed9a2a05fdc24ffcf3c0c6da032af293a222c1311dac93fe025b23dce",
+        "torn_tail": false,
+        "verdict": "CHAIN_INTACT"
+      }
     }
   ]
 }

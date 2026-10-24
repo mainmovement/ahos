@@ -17,7 +17,9 @@ pandas>=2.1.0              # CSV datasets, research reports
 # floor has ZERO third-party network dependency. requests is used only by the
 # optional social/news collectors and the Telegram long-poll transport.
 requests>=2.31.0
-urllib3>=2.0.0
+urllib3>=2.8.0             # CVE-patched (PYSEC-2026-4175..4177)
+certifi>=2026.10.19        # CVE-patched (PYSEC-2026-4320)
+setuptools>=84.1.0         # CVE-patched (GHSA-xmj3-9gf7-h52w)
 
 # ---- Iran-resilience: SOCKS5 proxy support for filtered endpoints ------------
 PySocks>=1.7.1             # enables ALL_PROXY=socks5://127.0.0.1:10808

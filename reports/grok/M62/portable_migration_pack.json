@@ -1,6 +1,6 @@
 {
   "schema": "ahos.portable_migration_pack.v1",
-  "generated_at": "2026-10-23T19:25:51Z",
+  "generated_at": "2026-10-24T02:02:45Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -8,6 +8,12 @@
   "dynamic_root_resolved": "G:\\robat",
   "drive_or_mount": "G:",
   "zero_c_drive_dependency": true,
+  "portable_runtimes": {
+    "runtime_dir": "G:\\robat\\ahos_runtime",
+    "portable_node_bundled": true,
+    "portable_python_bundled": true,
+    "venv_pyvenv_cfg_zero_c": true
+  },
   "hardware": {
     "platform": "Windows",
     "ram_gb": 7.93,

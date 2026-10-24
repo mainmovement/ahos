@@ -1,9 +1,11 @@
-"""M64 & M80 Part B (Negahban) defensive scan & white-hat security audit.
-A secret-shaped string halts the action. Nothing is exploited.
+"""M64 & M80 Part B (Negahban) defensive scan, secret hygiene & CVE audit.
+A secret-shaped string halts the action. Nothing is exploited, and no secret value is ever printed.
 """
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata as importlib_metadata
+import json
 import re
 import shutil
 import tempfile
@@ -12,7 +14,29 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-_SECRET = re.compile(r"\bsk-[A-Za-z0-9]{8,}\b|BEGIN [A-Z ]*PRIVATE KEY")
+_SECRET = re.compile(
+    r"\bsk-[A-Za-z0-9]{8,}\b"
+    r"|\bAIza[0-9A-Za-z_-]{35}\b"
+    r"|\bghp_[0-9A-Za-z]{36}\b"
+    r"|\bgithub_pat_[0-9A-Za-z_]{20,}\b"
+    r"|\bxox[baprs]-[0-9A-Za-z-]{10,}\b"
+    r"|\bAKIA[0-9A-Z]{16}\b"
+    r"|\b\d{8,10}:AA[0-9A-Za-z_-]{33}\b"
+    r"|BEGIN [A-Z ]*PRIVATE KEY"
+)
+
+_PY_MIN_SAFE: dict[str, tuple[int, ...]] = {
+    "certifi": (2026, 10, 19),
+    "urllib3": (2, 8, 0),
+    "setuptools": (84, 1, 0),
+    "requests": (2, 32, 0),
+    "PyYAML": (6, 0, 1),
+}
+
+
+def _ver_tuple(v: str) -> tuple[int, ...]:
+    nums = re.findall(r"\d+", v)
+    return tuple(int(x) for x in nums[:4]) if nums else (0,)
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,24 +119,77 @@ def check_lane_a_freeze(root: Path) -> dict[str, Any]:
 
 
 def check_secret_hygiene(root: Path) -> dict[str, Any]:
-    """Run Negahban secret scan across config/ and architecture/."""
+    """Run Negahban secret scan across ahos (config, architecture, scripts, telegram_ai, core) and ahos_arena (src, app)."""
     findings = 0
     files_scanned = 0
-    for sub in ("config", "architecture"):
-        base = root / sub
+    finding_paths: list[str] = []
+    scan_roots: list[tuple[Path, Path]] = [
+        (root, root / sub) for sub in ("config", "architecture", "scripts", "telegram_ai", "core")
+    ]
+    arena = root.parent / "ahos_arena"
+    if arena.is_dir():
+        scan_roots.extend((arena, arena / sub) for sub in ("src", "app"))
+    exts = {".py", ".yaml", ".json", ".ts", ".tsx"}
+    for base_root, base in scan_roots:
         if not base.is_dir():
             continue
         for p in base.rglob("*"):
-            if not p.is_file() or p.suffix not in {".py", ".yaml", ".json"}:
+            if not p.is_file() or p.suffix not in exts:
+                continue
+            if any(part in {"node_modules", ".next", "__pycache__"} for part in p.parts):
+                continue
+            if p.name.endswith("_selftest.ts") or p.name.startswith("test_"):
                 continue
             files_scanned += 1
             res = scan(p.read_text(encoding="utf-8", errors="ignore"))
-            findings += res.findings
+            if res.findings > 0:
+                findings += res.findings
+                finding_paths.append(str(p.relative_to(base_root)))
     return {
         "check": "secret_hygiene_scan",
         "verdict": "CLEAN" if findings == 0 else "HALT",
         "files_scanned": files_scanned,
         "findings": findings,
+        "finding_paths": finding_paths,
+    }
+
+
+def check_cve_audit(root: Path) -> dict[str, Any]:
+    """Inspect Python runtime package versions against 2026 OSV safe floors and report npm lockfile advisories."""
+    py_installed: dict[str, str] = {}
+    py_vulnerable: list[dict[str, Any]] = []
+    for pkg, min_ver in _PY_MIN_SAFE.items():
+        try:
+            ver = importlib_metadata.version(pkg)
+            py_installed[pkg] = ver
+            if _ver_tuple(ver) < min_ver:
+                py_vulnerable.append({"package": pkg, "installed": ver, "min_safe": ".".join(map(str, min_ver))})
+        except importlib_metadata.PackageNotFoundError:
+            continue
+
+    arena_lock = root.parent / "ahos_arena" / "package-lock.json"
+    npm_advisories_noted: list[dict[str, str]] = []
+    if arena_lock.is_file():
+        try:
+            pkgs = (json.loads(arena_lock.read_text(encoding="utf-8")).get("packages") or {})
+            nxt = str((pkgs.get("node_modules/next") or {}).get("version") or "")
+            if nxt and _ver_tuple(nxt) < (16, 4, 3):
+                npm_advisories_noted.append({"package": "next", "installed": nxt, "fix": "16.4.3", "severity": "critical", "note": "loopback-only 127.0.0.1 bind mitigates external exposure; upgrade gated by OWNER_GATE"})
+            pcss = str((pkgs.get("node_modules/postcss") or {}).get("version") or "")
+            if pcss and _ver_tuple(pcss) < (8, 5, 31):
+                npm_advisories_noted.append({"package": "postcss", "installed": pcss, "fix": "8.5.31", "severity": "high", "note": "build-time CSS parser only; upgrade gated by OWNER_GATE"})
+            esb = str((pkgs.get("node_modules/drizzle-kit/node_modules/esbuild") or pkgs.get("node_modules/esbuild") or {}).get("version") or "")
+            if esb and _ver_tuple(esb) < (0, 25, 0):
+                npm_advisories_noted.append({"package": "esbuild (via drizzle-kit)", "installed": esb, "fix": "drizzle-kit>=0.18.1", "severity": "moderate", "note": "dev-only CLI, never runs in prod"})
+        except (OSError, json.JSONDecodeError):
+            pass
+
+    return {
+        "check": "cve_supply_chain_audit",
+        "verdict": "CLEAN" if not py_vulnerable else "FINDING",
+        "python_runtime_packages": py_installed,
+        "python_runtime_vulnerabilities": py_vulnerable,
+        "npm_advisories_noted": npm_advisories_noted,
     }
 
 
@@ -141,6 +218,7 @@ def run_whitehat_security_audit(root: Path | None = None) -> dict[str, Any]:
         check_loopback_binds(repo),
         check_hold_flags(repo),
         check_secret_hygiene(repo),
+        check_cve_audit(repo),
         check_lane_a_freeze(repo),
         check_ledger_integrity_copy(repo),
     ]

@@ -95,9 +95,16 @@ def build_portable_migration_pack(root: Path | None = None) -> dict[str, Any]:
     hold_ahos = (repo / "HOLD.flag").is_file()
     hold_arena = (workspace_root / "ahos_arena" / "HOLD.flag").is_file()
 
-    # Verify zero C:\ hardcoded requirement
+    # Verify zero C:\ hardcoded requirement and portable runtimes under ahos_runtime/
     drive_or_mount = repo.drive if repo.drive else "/"
-    zero_c_drive_dependency = drive_or_mount.upper() != "C:"
+    rt_dir = workspace_root / "ahos_runtime"
+    portable_node = (rt_dir / "node" / "node.exe").is_file() or (rt_dir / "node" / "bin" / "node").is_file()
+    portable_python = (rt_dir / "python" / "python.exe").is_file() or (rt_dir / "python" / "bin" / "python3").is_file()
+    pyvenv_cfg = repo / ".venv" / "pyvenv.cfg"
+    venv_zero_c = True
+    if pyvenv_cfg.is_file():
+        venv_zero_c = "c:\\" not in pyvenv_cfg.read_text(encoding="utf-8", errors="ignore").lower()
+    zero_c_drive_dependency = (drive_or_mount.upper() != "C:") and venv_zero_c
 
     return {
         "schema": "ahos.portable_migration_pack.v1",
@@ -109,6 +116,12 @@ def build_portable_migration_pack(root: Path | None = None) -> dict[str, Any]:
         "dynamic_root_resolved": str(workspace_root),
         "drive_or_mount": drive_or_mount,
         "zero_c_drive_dependency": zero_c_drive_dependency,
+        "portable_runtimes": {
+            "runtime_dir": str(rt_dir),
+            "portable_node_bundled": portable_node,
+            "portable_python_bundled": portable_python,
+            "venv_pyvenv_cfg_zero_c": venv_zero_c,
+        },
         "hardware": {
             "platform": platform.system(),
             "ram_gb": ram_gb,
