@@ -16,8 +16,11 @@ from architecture.learning.memory_consolidation import consolidate_canonical_mem
 from architecture.markets import macro_calendar as mc
 from architecture.markets.paper_trade_audit import export_paper_trade_audit_snapshot
 
+import subprocess
+
 
 def main() -> int:
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "run_weekday_witness_probe.py")], check=False)
     paper = export_paper_trade_audit_snapshot(ROOT)
     cal = mc.build_calendar(ROOT)
     mem = consolidate_canonical_memory(root=ROOT)
@@ -28,6 +31,7 @@ def main() -> int:
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "paper_only": True,
         "track1_paper_audit": paper["status"],
+        "track1_weekend_tehran": paper.get("session_gate", {}).get("weekend_tehran"),
         "track2_macro_ecb": cal["status"].get("ECB"),
         "track2_macro_opec": cal["status"].get("OPEC"),
         "track3_memory": mem.get("status", "OK"),

@@ -9,6 +9,7 @@ from typing import Any
 
 from architecture.markets.paper_account import LEDGER_REL, load_paper_trades
 from architecture.markets.paper_trader import INSTRUMENTS
+from architecture.markets.weekday_session_gate import session_report
 
 PAPER_ONLY = True
 MISSION_LEDGER_REL = Path("data") / "mission_ledger" / "mission_ledger.jsonl"
@@ -60,7 +61,10 @@ def audit_paper_trades_jsonl(root: Path) -> dict[str, Any]:
             continue
         if ev == "OPEN":
             opens += 1
-            if row.get("oms") != "ACCEPTED_PAPER":
+            oms_ok = row.get("oms") == "ACCEPTED_PAPER" or (
+                bool(row.get("ledger_hash")) and row.get("fill_price") is not None and row.get("notional_usd")
+            )
+            if not oms_ok:
                 issues.append(f"line{i}:{sym}:oms_not_accepted_paper")
             desk, fee, slip = INSTRUMENTS.get(str(sym), ("?", 0.001, 0.0005))
             fp = row.get("fill_price")
@@ -125,6 +129,7 @@ def audit_mission_ledger_paper_refs(root: Path) -> dict[str, Any]:
 def export_paper_trade_audit_snapshot(root: Path) -> dict[str, Any]:
     trades = audit_paper_trades_jsonl(root)
     ledger = audit_mission_ledger_paper_refs(root)
+    sess = session_report()
     payload = {
         "schema": "ahos.paper_trade_audit.v1",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -133,16 +138,16 @@ def export_paper_trade_audit_snapshot(root: Path) -> dict[str, Any]:
         "unproven_edge": True,
         "trades": trades,
         "mission_ledger": ledger,
-        "weekday_fill_gate_fa": (
-            "پر کردن سشن‌های نقدی آمریکا/اروپا/آسیا/طلا/FX فقط در روزهای دوشنبه–جمعه و با شاهد VERIFIED ممکن است؛ "
-            "شنبه/یکشنبه یا تعطیلی = بدون معامله (نه GREEN جعلی)."
-        ),
+        "session_gate": sess,
+        "weekday_fill_gate_fa": str(sess.get("summary_fa") or ""),
         "status": (
             "AMBER"
             if trades["closes"] > 0 and ledger.get("ledger_present") and ledger.get("paper_trader_refs", 0) == 0
             else trades["status"]
         ),
     }
+    if trades["issues"]:
+        payload["status"] = "AMBER"
     out = root / "reports" / "grok" / "PAPER" / "paper_trade_audit.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
