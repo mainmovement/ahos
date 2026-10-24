@@ -1,0 +1,12 @@
+{
+  "schema": "ahos.continuation_tracks.v1",
+  "generated_at": "2026-10-24T04:51:21Z",
+  "paper_only": true,
+  "track1_paper_audit": "AMBER",
+  "track2_macro_ecb": "UNAVAILABLE (mirror fetch failed — not filled by hand)",
+  "track2_macro_opec": "UNAVAILABLE (mirror dates disagree — not filled by hand)",
+  "track3_memory": "OK",
+  "track3_pit_leaks": 0,
+  "track3_exam_score": 1.0,
+  "track3_exam_leaked": false
+}
