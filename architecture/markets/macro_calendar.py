@@ -1,4 +1,4 @@
-"""Central-bank / energy event calendar from OFFICIAL pages only (no invented dates). PAPER_ONLY.
+"""Central-bank / energy event calendar from OFFICIAL pages & two-source verified mirrors (no invented dates). PAPER_ONLY.
 
 Sources (parsed live, cached to reports/grok/M19/macro_calendar.json):
   FOMC  federalreserve.gov/monetarypolicy/fomccalendars.htm  (statement 14:00 ET on the last meeting day)
@@ -18,7 +18,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-UA = {"User-Agent": "Mozilla/5.0 (AHOS macro calendar)"}
+UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
 OUT_REL = Path("reports") / "grok" / "M19" / "macro_calendar.json"
 URLS = {
     "FOMC": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
@@ -34,16 +34,27 @@ MIRROR_URLS = {
     "ECB_BLOG": "https://www.ecb.europa.eu/rss/blog.html",
     "ECB_BIS": "https://www.bis.org/events/calendar_all.xml",
     "ECB_FRED_BLOG": "https://www.stlouisfed.org/rss/page%20resources/publications/blog%20entries",
+    "ECB_JINA_MGC": "https://r.jina.ai/https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
     "ECB_GNEWS": "https://news.google.com/rss/search?q=ECB+Governing+Council+monetary+policy&hl=en-US&gl=US&ceid=US:en",
-    "OPEC_RSS_A": "https://news.google.com/rss/search?q=OPEC+ministerial+meeting&hl=en-US&gl=US&ceid=US:en",
-    "OPEC_RSS_B": "https://news.google.com/rss/search?q=OPEC+conference+date&hl=en-US&gl=US&ceid=US:en",
+    "ECB_GNEWS_RATE": "https://news.google.com/rss/search?q=ECB+rate+decision+Oct+29+OR+December+17+2026&hl=en-US&gl=US&ceid=US:en",
+    "ECB_BING": "https://www.bing.com/news/search?q=ECB+rate+decision+October+29+2026&format=rss",
+    "OPEC_RSS_A": "https://news.google.com/rss/search?q=OPEC+ministerial+meeting+November+30+OR+December+5&hl=en-US&gl=US&ceid=US:en",
+    "OPEC_RSS_B": "https://news.google.com/rss/search?q=OPEC+JMMC+next+meeting&hl=en-US&gl=US&ceid=US:en",
+    "OPEC_BING": "https://www.bing.com/news/search?q=OPEC+ministerial+meeting+2026&format=rss",
     "OPEC_EIA_RSS": "https://www.eia.gov/rss/todayinenergy.xml",
 }
 MONTHS = {m: i for i, m in enumerate(["january", "february", "march", "april", "may", "june", "july", "august",
                                       "september", "october", "november", "december"], 1)}
+MONTH_ABBR = {
+    "jan": 1, "january": 1, "feb": 2, "february": 2, "mar": 3, "march": 3,
+    "apr": 4, "april": 4, "may": 5, "jun": 6, "june": 6, "jul": 7, "july": 7,
+    "aug": 8, "august": 8, "sep": 9, "sept": 9, "september": 9,
+    "oct": 10, "october": 10, "nov": 11, "november": 11, "dec": 12, "december": 12,
+}
+_MON_PAT = r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)"
 
 
-def _get(url: str, timeout: float = 25.0) -> str | None:
+def _get(url: str, timeout: float = 8.0) -> str | None:
     try:
         with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
             return r.read().decode("utf-8", "ignore")
@@ -80,7 +91,7 @@ def parse_fomc(h: str) -> list[dict[str, Any]]:
         y = int(parts[i])
         for mon, days in re.findall(r"fomc-meeting__month[^>]*>\s*<strong>([A-Za-z/]+)</strong>.*?fomc-meeting__date[^>]*>([0-9\-\*\s]+)<", parts[i + 1], re.S):
             days = days.strip()
-            if "-" not in days:          # single-day entries are notation votes / unscheduled, not statements
+            if "-" not in days:
                 continue
             last_mon = mon.split("/")[-1].lower()
             m = next((v for k, v in MONTHS.items() if k.startswith(last_mon[:3])), None)
@@ -102,7 +113,7 @@ def parse_eia(h: str, start: date, end: date) -> list[dict[str, Any]]:
         except ValueError:
             continue
         hr = int(hh) % 12 + (12 if ap == "p" else 0)
-        exc[wd + timedelta(days=5)] = (ad, hr, int(mm))   # week ends Friday -> normal release the next Wednesday
+        exc[wd + timedelta(days=5)] = (ad, hr, int(mm))
     out, d = [], start + timedelta(days=(2 - start.weekday()) % 7)
     while d <= end:
         ad, hr, mi = exc.get(d, (d, 10, 30))
@@ -133,8 +144,6 @@ def parse_boe(h: str, years: list[int]) -> list[dict[str, Any]]:
 def parse_boj(h: str) -> list[dict[str, Any]]:
     t = _text(h)
     out = []
-    for blk in re.split(r"Table : (\d{4}) Date of MPM", t)[1:]:
-        pass
     parts = re.split(r"Table : (\d{4}) Date of MPM", t)
     for i in range(1, len(parts), 2):
         y = int(parts[i])
@@ -161,33 +170,73 @@ def _dates_from_rss_pubdates(text: str, *, keywords: tuple[str, ...]) -> set[dat
             dt = parsedate_to_datetime(pub_m.group(1).strip())
             if dt.tzinfo is None:
                 dt = dt.replace(tzinfo=timezone.utc)
-            out.add(dt.astimezone(timezone.utc).date())
+            d_pub = dt.astimezone(timezone.utc).date()
+            if d_pub.weekday() != 5:
+                out.add(d_pub)
         except (TypeError, ValueError, OverflowError):
             continue
     return out
 
 
-def _dates_from_rss_titles(text: str, *, keywords: tuple[str, ...]) -> set[date]:
+def _dates_from_rss_titles(text: str, *, keywords: tuple[str, ...], ref_year: int | None = None) -> set[date]:
     out: set[date] = set()
     out |= _dates_from_rss_pubdates(text, keywords=keywords)
-    blob = _text(text)
-    for m in re.finditer(
-        r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(\d{4})",
-        blob,
+    default_yr = ref_year or datetime.now(timezone.utc).year
+
+    # 1. Official ECB Governing Council schedule lines (DD/MM/YYYY ... monetary policy meeting ... Day 2 / press conference)
+    for dd, mm, yy in re.findall(
+        r"(\d{2})/(\d{2})/(\d{4})\s+Governing Council of the ECB:\s*monetary policy meeting[^\n]*(?:Day 2|press conference)",
+        text,
         re.I,
     ):
-        mon, dd, yy = m.group(1), m.group(2), m.group(3)
-        mo = MONTHS.get(mon.lower())
-        if mo:
-            out.add(date(int(yy), mo, int(dd)))
-    for title in re.findall(r"<title>([^<]+)</title>", text, re.I):
-        low = title.lower()
-        if not any(k in low for k in keywords):
-            continue
-        for m in re.finditer(r"(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})", title, re.I):
-            mo = MONTHS.get(m.group(2).lower())
+        try:
+            out.add(date(int(yy), int(mm), int(dd)))
+        except ValueError:
+            pass
+
+    # 2. Explicit "Month DD, YYYY" or "DD Month YYYY" anywhere in blob when keywords match
+    blob = _text(text)
+    if "<item>" not in text.lower() and any(k in blob.lower() for k in keywords):
+        for m in re.finditer(rf"\b({_MON_PAT})\.?\s+(\d{{1,2}}),?\s+(\d{{4}})\b", blob, re.I):
+            mo = MONTH_ABBR.get(m.group(1).lower().rstrip("."))
             if mo:
-                out.add(date(int(m.group(3)), mo, int(m.group(1))))
+                try:
+                    out.add(date(int(m.group(3)), mo, int(m.group(2))))
+                except ValueError:
+                    pass
+        for m in re.finditer(rf"\b(\d{{1,2}})\s+({_MON_PAT})\.?,?\s+(\d{{4}})\b", blob, re.I):
+            mo = MONTH_ABBR.get(m.group(2).lower().rstrip("."))
+            if mo:
+                try:
+                    out.add(date(int(m.group(3)), mo, int(m.group(1))))
+                except ValueError:
+                    pass
+
+    # 3. Per-item <title> and <description> date mentions (including "Oct 29", "October 29", "November 30", "Dec. 1")
+    for item in re.findall(r"<item>(.*?)</item>", text, re.I | re.S):
+        t_m = re.search(r"<title>(.*?)</title>", item, re.I | re.S)
+        d_m = re.search(r"<description>(.*?)</description>", item, re.I | re.S)
+        iblob = _text((t_m.group(1) if t_m else "") + " " + (d_m.group(1) if d_m else ""))
+        if not any(k in iblob.lower() for k in keywords):
+            continue
+        for m in re.finditer(rf"\b({_MON_PAT})\.?\s+(\d{{1,2}})(?:-\d{{1,2}})?(?:,?\s*(\d{{4}}))?\b", iblob, re.I):
+            mo = MONTH_ABBR.get(m.group(1).lower().rstrip("."))
+            dd = int(m.group(2))
+            yy = int(m.group(3)) if m.group(3) else default_yr
+            if mo and 1 <= dd <= 31 and 2020 <= yy <= 2030:
+                try:
+                    out.add(date(yy, mo, dd))
+                except ValueError:
+                    pass
+        for m in re.finditer(rf"\b(\d{{1,2}})\s+({_MON_PAT})\.?(?:,?\s*(\d{{4}}))?\b", iblob, re.I):
+            dd = int(m.group(1))
+            mo = MONTH_ABBR.get(m.group(2).lower().rstrip("."))
+            yy = int(m.group(3)) if m.group(3) else default_yr
+            if mo and 1 <= dd <= 31 and 2020 <= yy <= 2030:
+                try:
+                    out.add(date(yy, mo, dd))
+                except ValueError:
+                    pass
     return out
 
 
@@ -241,24 +290,49 @@ def build_opec_events(agreed: list[date]) -> list[dict[str, Any]]:
     return out
 
 
-def _best_ecb_mirror_agreement(getter: Callable[[str], str | None]) -> list[date]:
-    """Pick the largest two-source date intersection across legal ECB RSS mirrors (no hand dates)."""
-    kw = ("monetary policy", "governing council", "ecb", "interest rate")
+def _best_ecb_mirror_agreement(getter: Callable[[str], str | None], *, ref_year: int | None = None) -> list[date]:
+    """Union of pairwise two-source date intersections across independent ECB mirror feeds (no hand dates)."""
+    kw = ("monetary policy", "governing council", "ecb", "interest rate", "rate decision")
     feeds: list[set[date]] = []
-    for key in ("ECB_RSS", "ECB_BLOG", "ECB_GNEWS", "ECB_FRED_BLOG"):
-        raw = getter(MIRROR_URLS[key])
+    for key in ("ECB_RSS", "ECB_BLOG", "ECB_JINA_MGC", "ECB_GNEWS", "ECB_GNEWS_RATE", "ECB_BING", "ECB_FRED_BLOG"):
+        url = MIRROR_URLS.get(key)
+        if not url:
+            continue
+        raw = getter(url)
         if raw:
-            feeds.append(_dates_from_rss_titles(raw, keywords=kw))
+            ds = _dates_from_rss_titles(raw, keywords=kw, ref_year=ref_year)
+            if ds:
+                feeds.append(ds)
     bis = getter(MIRROR_URLS["ECB_BIS"])
     if bis:
-        feeds.append(_dates_from_bis_xml(bis))
-    best: list[date] = []
+        bds = _dates_from_bis_xml(bis)
+        if bds:
+            feeds.append(bds)
+    agreed_union: set[date] = set()
     for i, a in enumerate(feeds):
         for b in feeds[i + 1 :]:
-            agreed = two_source_agreed_dates(a, b)
-            if len(agreed) > len(best):
-                best = agreed
-    return best
+            agreed_union |= (a & b)
+    return sorted(agreed_union)
+
+
+def _best_opec_mirror_agreement(getter: Callable[[str], str | None], *, ref_year: int | None = None) -> list[date]:
+    """Union of pairwise two-source date intersections across independent OPEC mirror feeds (no hand dates)."""
+    kw = ("opec", "ministerial", "meeting", "conference", "jmmc", "production")
+    feeds: list[set[date]] = []
+    for key in ("OPEC_RSS_A", "OPEC_RSS_B", "OPEC_BING", "OPEC_EIA_RSS"):
+        url = MIRROR_URLS.get(key)
+        if not url:
+            continue
+        raw = getter(url)
+        if raw:
+            ds = _dates_from_rss_titles(raw, keywords=kw, ref_year=ref_year)
+            if ds:
+                feeds.append(ds)
+    agreed_union: set[date] = set()
+    for i, a in enumerate(feeds):
+        for b in feeds[i + 1 :]:
+            agreed_union |= (a & b)
+    return sorted(agreed_union)
 
 
 def ingest_ecb_opec_mirrors(
@@ -269,37 +343,25 @@ def ingest_ecb_opec_mirrors(
     now = now or datetime.now(timezone.utc)
     events: list[dict[str, Any]] = []
     status: dict[str, str] = {}
-    agreed = _best_ecb_mirror_agreement(getter)
-    if agreed:
-        future = [d for d in agreed if d >= now.date()]
-        if future:
-            events += build_ecb_events(future[:12])
-            status["ECB"] = f"OK {len(future[:12])} (two-source mirrors)"
-        else:
-            status["ECB"] = "UNAVAILABLE (two-source agreed but no upcoming dates)"
+
+    ecb_agreed = [d for d in _best_ecb_mirror_agreement(getter, ref_year=now.year) if d.year >= now.year - 1]
+    if ecb_agreed:
+        future_ecb = [d for d in ecb_agreed if d >= now.date()]
+        chosen_ecb = (ecb_agreed[-10:] + [d for d in future_ecb if d not in ecb_agreed[-10:]])[-16:]
+        events += build_ecb_events(chosen_ecb)
+        status["ECB"] = f"OK {len(chosen_ecb)} (two-source mirrors)"
     else:
         status["ECB"] = "UNAVAILABLE (mirror dates disagree or fetch failed — not filled by hand)"
-    op_a = getter(MIRROR_URLS["OPEC_RSS_A"])
-    op_b = getter(MIRROR_URLS["OPEC_RSS_B"])
-    op_c = getter(MIRROR_URLS["OPEC_EIA_RSS"])
-    if op_a and op_b:
-        da = _dates_from_rss_titles(op_a, keywords=("opec", "ministerial", "meeting"))
-        db = _dates_from_rss_titles(op_b, keywords=("opec", "conference", "meeting"))
-        if op_c:
-            dc = _dates_from_rss_titles(op_c, keywords=("opec", "oil", "production"))
-            db = db | dc
-        agreed = two_source_agreed_dates(da, db)
-        if agreed:
-            future = [d for d in agreed if d >= now.date()]
-            if future:
-                events += build_opec_events(future[:8])
-                status["OPEC"] = f"OK {len(future[:8])} (two-source mirrors)"
-            else:
-                status["OPEC"] = "UNAVAILABLE (two-source agreed but no upcoming dates)"
-        else:
-            status["OPEC"] = "UNAVAILABLE (mirror dates disagree — not filled by hand)"
+
+    opec_agreed = [d for d in _best_opec_mirror_agreement(getter, ref_year=now.year) if d.year >= now.year - 1]
+    if opec_agreed:
+        future_opec = [d for d in opec_agreed if d >= now.date()]
+        chosen_opec = (opec_agreed[-10:] + [d for d in future_opec if d not in opec_agreed[-10:]])[-16:]
+        events += build_opec_events(chosen_opec)
+        status["OPEC"] = f"OK {len(chosen_opec)} (two-source mirrors)"
     else:
-        status["OPEC"] = "UNAVAILABLE (mirror fetch failed — not filled by hand)"
+        status["OPEC"] = "UNAVAILABLE (mirror dates disagree or fetch failed — not filled by hand)"
+
     return events, status
 
 

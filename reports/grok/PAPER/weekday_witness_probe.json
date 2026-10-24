@@ -3,13 +3,13 @@
   "paper_only": true,
   "session_gate": {
     "paper_only": true,
-    "utc": "2026-10-24T05:03:13Z",
-    "tehran": "2026-10-24 08:33 +0330",
+    "utc": "2026-10-24T08:36:14Z",
+    "tehran": "2026-10-24 12:06 +0330",
     "tehran_weekday": "Saturday",
     "weekend_tehran": true,
     "cash_desks_expected": "CLOSED_OR_STALE",
     "crypto_desks_expected": "OPEN_IF_VERIFIED",
-    "summary_fa": "زمان تهران: 2026-10-24 08:33 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
+    "summary_fa": "زمان تهران: 2026-10-24 12:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
   },
   "verified_asset_classes": [
     "ASIA_EQUITIES",
@@ -30,30 +30,30 @@
       {
         "symbol": "BTC",
         "verdict": "VERIFIED",
-        "gap": 0.00048,
+        "gap": 0.00064,
         "source_a": "coingecko:bitcoin",
         "source_b": "kraken:XXBTZUSD",
-        "quote_age_s": 43.81582164764404,
+        "quote_age_s": 15.91493821144104,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       },
       {
         "symbol": "ETH",
         "verdict": "VERIFIED",
-        "gap": 0.00069,
+        "gap": 0.00112,
         "source_a": "coingecko:ethereum",
         "source_b": "kraken:XETHZUSD",
-        "quote_age_s": 43.81582164764404,
+        "quote_age_s": 15.91493821144104,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       },
       {
         "symbol": "SOL",
         "verdict": "VERIFIED",
-        "gap": 0.00088,
+        "gap": 0.00127,
         "source_a": "coingecko:solana",
         "source_b": "kraken:SOLUSD",
-        "quote_age_s": 23.815821647644043,
+        "quote_age_s": 26.91493821144104,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       }
@@ -62,10 +62,10 @@
       {
         "symbol": "UNI",
         "verdict": "VERIFIED",
-        "gap": 0.0004,
+        "gap": 0.00229,
         "source_a": "yahoo_finance:UNI7083-USD",
         "source_b": "kraken:UNIUSD",
-        "quote_age_s": 9.815821647644043,
+        "quote_age_s": 22.91493821144104,
         "tradable_for_paper": true,
         "tradable_reason": "OK"
       }
@@ -77,9 +77,9 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:GC=F",
         "source_b": "tradingview:COMEX:GC1!",
-        "quote_age_s": 28995.815821647644,
+        "quote_age_s": 41776.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ],
     "OIL": [
@@ -89,9 +89,9 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:CL=F",
         "source_b": "tradingview:NYMEX:CL1!",
-        "quote_age_s": 28995.815821647644,
+        "quote_age_s": 41776.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       },
       {
         "symbol": "BRENT",
@@ -99,7 +99,7 @@
         "gap": 0.04395,
         "source_a": "yahoo_finance:BZ=F",
         "source_b": "tradingview:ICEEUR:BRN1!",
-        "quote_age_s": 29034.815821647644,
+        "quote_age_s": 41815.91493821144,
         "tradable_for_paper": false,
         "tradable_reason": "WITNESS_CONFLICT"
       }
@@ -111,9 +111,9 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^GSPC",
         "source_b": "tradingview:SP:SPX",
-        "quote_age_s": 30293.815821647644,
+        "quote_age_s": 43074.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       },
       {
         "symbol": "QQQ",
@@ -121,9 +121,9 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:QQQ",
         "source_b": "tradingview:NASDAQ:QQQ",
-        "quote_age_s": 32593.815821647644,
+        "quote_age_s": 45374.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ],
     "EU_EQUITIES": [
@@ -133,9 +133,9 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^GDAXI",
         "source_b": "tradingview:XETR:DAX",
-        "quote_age_s": 46993.815821647644,
+        "quote_age_s": 59774.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ],
     "ASIA_EQUITIES": [
@@ -145,9 +145,9 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^N225",
         "source_b": "tradingview:TVC:NI225",
-        "quote_age_s": 80290.81582164764,
+        "quote_age_s": 93071.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       },
       {
         "symbol": "HSI",
@@ -155,9 +155,9 @@
         "gap": 0.0,
         "source_a": "yahoo_finance:^HSI",
         "source_b": "tradingview:TVC:HSI",
-        "quote_age_s": 75283.81582164764,
+        "quote_age_s": 88064.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ],
     "FOREX": [
@@ -167,9 +167,9 @@
         "gap": 8e-05,
         "source_a": "yahoo_finance:EURUSD=X",
         "source_b": "tradingview:FX:EURUSD",
-        "quote_age_s": 27226.815821647644,
+        "quote_age_s": 40007.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       },
       {
         "symbol": "USDJPY",
@@ -177,12 +177,12 @@
         "gap": 0.00013,
         "source_a": "yahoo_finance:JPY=X",
         "source_b": "tradingview:FX:USDJPY",
-        "quote_age_s": 29003.815821647644,
+        "quote_age_s": 41784.91493821144,
         "tradable_for_paper": false,
-        "tradable_reason": "MARKET_CLOSED_OR_STALE"
+        "tradable_reason": "WEEKEND_CASH_SESSION"
       }
     ]
   },
-  "summary_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 08:33 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
-  "generated_at": "2026-10-24T05:03:13Z"
+  "summary_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 12:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
+  "generated_at": "2026-10-24T08:36:14Z"
 }

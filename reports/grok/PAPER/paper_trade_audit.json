@@ -1,6 +1,6 @@
 {
   "schema": "ahos.paper_trade_audit.v1",
-  "generated_at": "2026-10-24T08:16:01Z",
+  "generated_at": "2026-10-24T08:36:18Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "unproven_edge": true,
@@ -10,7 +10,7 @@
     "opens": 4,
     "closes": 0,
     "closed_with_pnl": 0,
-    "skips": 901,
+    "skips": 931,
     "issues": [],
     "status": "GREEN",
     "note_fa": "ممیزی 4 باز و 0 بسته — بدون ایراد ساختاری."
@@ -23,15 +23,15 @@
   },
   "session_gate": {
     "paper_only": true,
-    "utc": "2026-10-24T08:16:01Z",
-    "tehran": "2026-10-24 11:46 +0330",
+    "utc": "2026-10-24T08:36:18Z",
+    "tehran": "2026-10-24 12:06 +0330",
     "tehran_weekday": "Saturday",
     "weekend_tehran": true,
     "cash_desks_expected": "CLOSED_OR_STALE",
     "crypto_desks_expected": "OPEN_IF_VERIFIED",
-    "summary_fa": "زمان تهران: 2026-10-24 11:46 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
+    "summary_fa": "زمان تهران: 2026-10-24 12:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
   },
-  "weekday_fill_gate_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 11:45 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
+  "weekday_fill_gate_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 12:06 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
   "tradable_asset_classes": [
     "CRYPTO",
     "PB_TOKEN"
@@ -46,7 +46,7 @@
     "PB_TOKEN",
     "US_EQUITIES"
   ],
-  "promotion_gate": null,
-  "promotion_gate_fa": "نامشخص",
+  "promotion_gate": "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)",
+  "promotion_gate_fa": "هنوز واجد ارتقا نیست: کمتر از ۳۰ معاملهٔ بسته یا DSR/PBO پاس نشده — لبهٔ سودآوری اثبات‌نشده.",
   "status": "GREEN"
 }

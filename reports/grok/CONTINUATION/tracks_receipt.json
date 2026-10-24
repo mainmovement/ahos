@@ -1,6 +1,6 @@
 {
   "schema": "ahos.continuation_tracks.v1",
-  "generated_at": "2026-10-24T08:16:39Z",
+  "generated_at": "2026-10-24T08:36:41Z",
   "paper_only": true,
   "track1_paper_audit": "GREEN",
   "track1_weekend_tehran": true,
@@ -8,10 +8,10 @@
     "CRYPTO",
     "PB_TOKEN"
   ],
-  "track1_promotion_gate": null,
+  "track1_promotion_gate": "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)",
   "track3_teaching_lessons": 7,
-  "track2_macro_ecb": "UNAVAILABLE (mirror dates disagree or fetch failed — not filled by hand)",
-  "track2_macro_opec": "UNAVAILABLE (two-source agreed but no upcoming dates)",
+  "track2_macro_ecb": "OK 10 (two-source mirrors)",
+  "track2_macro_opec": "OK 10 (two-source mirrors)",
   "track3_memory": "OK",
   "track3_pit_leaks": 0,
   "track3_exam_score": 1.0,
