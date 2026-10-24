@@ -1,16 +1,16 @@
 {
   "schema": "ahos.session_readiness_drill.v1",
-  "generated_at": "2026-10-24T08:42:50Z",
+  "generated_at": "2026-10-24T08:47:07Z",
   "paper_only": true,
   "session_gate": {
     "paper_only": true,
-    "utc": "2026-10-24T08:42:50Z",
-    "tehran": "2026-10-24 12:12 +0330",
+    "utc": "2026-10-24T08:47:07Z",
+    "tehran": "2026-10-24 12:17 +0330",
     "tehran_weekday": "Saturday",
     "weekend_tehran": true,
     "cash_desks_expected": "CLOSED_OR_STALE",
     "crypto_desks_expected": "OPEN_IF_VERIFIED",
-    "summary_fa": "زمان تهران: 2026-10-24 12:12 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
+    "summary_fa": "زمان تهران: 2026-10-24 12:17 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
   },
   "cash_sessions": [
     {
@@ -21,8 +21,8 @@
       ],
       "next_open_utc": "2026-10-26T00:00:00Z",
       "next_open_tehran": "2026-10-26 03:30",
-      "countdown_fa": "39 ساعت و 17 دقیقه",
-      "hours_until": 39.29
+      "countdown_fa": "39 ساعت و 12 دقیقه",
+      "hours_until": 39.21
     },
     {
       "label_fa": "فرانکفورت/لندن",
@@ -33,8 +33,8 @@
       ],
       "next_open_utc": "2026-10-26T08:00:00Z",
       "next_open_tehran": "2026-10-26 11:30",
-      "countdown_fa": "47 ساعت و 17 دقیقه",
-      "hours_until": 47.29
+      "countdown_fa": "47 ساعت و 12 دقیقه",
+      "hours_until": 47.21
     },
     {
       "label_fa": "نیویورک",
@@ -47,8 +47,8 @@
       ],
       "next_open_utc": "2026-10-26T13:30:00Z",
       "next_open_tehran": "2026-10-26 17:00",
-      "countdown_fa": "52 ساعت و 47 دقیقه",
-      "hours_until": 52.79
+      "countdown_fa": "52 ساعت و 42 دقیقه",
+      "hours_until": 52.71
     }
   ],
   "adapters": {
@@ -74,9 +74,23 @@
     "BTC": {
       "allowed": true,
       "notional_usd": 100.0,
-      "adv_usd": 1704487191831705.5,
-      "cap_1pct_usd": 17044871918317.05,
+      "adv_usd": 22405823834.7,
+      "cap_1pct_usd": 224058238.35,
       "participation_rate": 0.0
+    },
+    "ETH": {
+      "allowed": true,
+      "notional_usd": 100.0,
+      "adv_usd": 8072539996.94,
+      "cap_1pct_usd": 80725399.97,
+      "participation_rate": 1e-08
+    },
+    "BRENT": {
+      "allowed": true,
+      "notional_usd": 100.0,
+      "adv_usd": 4825552.48,
+      "cap_1pct_usd": 48255.52,
+      "participation_rate": 2.072e-05
     },
     "XAU": {
       "allowed": true,
@@ -84,7 +98,14 @@
       "adv_usd": 711239355.49,
       "cap_1pct_usd": 7112393.55,
       "participation_rate": 1.4e-07
+    },
+    "EURUSD": {
+      "allowed": true,
+      "notional_usd": 100.0,
+      "adv_usd": 50000000.0,
+      "cap_1pct_usd": 500000.0,
+      "participation_rate": 2e-06
     }
   },
-  "summary_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن توکیو در 39 ساعت و 17 دقیقه (تهران). آداپتورهای کاغذی CCXT/IBKR: ACCEPTED_PAPER/ACCEPTED_PAPER. زمان تهران: 2026-10-24 12:12 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
+  "summary_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن توکیو در 39 ساعت و 12 دقیقه (تهران). آداپتورهای کاغذی CCXT/IBKR: ACCEPTED_PAPER/ACCEPTED_PAPER. زمان تهران: 2026-10-24 12:17 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی."
 }

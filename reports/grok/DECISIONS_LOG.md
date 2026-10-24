@@ -165,3 +165,10 @@
 - **Step B (7-domain red-team):** (1) No promotion when n&lt;30; DSR/PBO untouched. (2) Forward prices from ledger only—no single-source live override. (3) Weekend cash gate preserved in drill summary. (4) Kian adds shadow summary without robotic footer. (5) CONFLICT/UNPROVEN never styled as success. (6) Held-out items `leaked==False`; PIT exporter unchanged. (7) No npm build; whitehat CLEAN; Lane A untouched.
 - **Step C (Meta):** Embedded `session_readiness_drill` inside weekday probe JSON for one API read; theta on live exam is key-self-check only (not operator ability)—documented as receipt metadata, not promotion signal.
 - **Verification:** `pytest` test_shadow_forward_scorecard + test_session_readiness_drill; Arena `stage_receipts_selftest.ts` + weekday/metric selftests; `run_continuation_tracks.py` track5–8 fields populated.
+
+## 2026-10-24 — Tracks 5–8 deepen (shadow n fix + probe drill canonical)
+
+- **Step A:** Shadow scorecard now evaluates on **1h forward returns** (not blocked on missing 24h), merges `live_market_prices.history`, maps signal aliases (`stablecoin`→`stablecoin_impulse`, `news`→`macro_event`). Session drill embedded in `weekday_witness_probe.build_witness_probe_payload(root=…)`; exam items from `witness.CONFLICT` and stale-session skips.
+- **Step B:** IC≈0 on n=3 flagged honestly—no promotion narrative. Weekend cash still blocks fills; shadow metrics remain UNPROVEN_EDGE.
+- **Step C:** Kian `paperAccountLine` + markets table show 1h n/IC; live `track5_shadow_best_n=3` after fix.
+- **Verify:** pytest 4 passed; continuation refreshed; Arena selftests pass.

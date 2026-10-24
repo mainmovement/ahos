@@ -189,10 +189,12 @@ def synthesize_live_conflict_exam_items(root: Path) -> dict[str, Any]:
                 continue
             reason = str(row.get("reason") or "")
             sym = str(row.get("symbol") or "")
+            wit = row.get("witness") or {}
+            wit_verdict = str(wit.get("verdict") or "")
             iid = f"live_{sym.lower()}_{len(items):02d}"
             if iid in training_ids:
                 continue
-            if "CONFLICT" in reason or sym == "BRENT":
+            if wit_verdict == "CONFLICT" or "CONFLICT" in reason or sym == "BRENT":
                 items.append({
                     "item_id": iid,
                     "domain": "osint_two_source",
@@ -202,12 +204,21 @@ def synthesize_live_conflict_exam_items(root: Path) -> dict[str, Any]:
                     "discrimination": 1.6,
                     "leaked": False,
                 })
-            elif reason == "HIGHER_TF_DISAGREES":
+            elif reason in ("HIGHER_TF_DISAGREES", "MARKET_CLOSED_OR_STALE", "WEEKEND_CASH_SESSION"):
+                if reason == "HIGHER_TF_DISAGREES":
+                    prompt = "تایم‌فریم بالاتر مخالف است — آیا ورود کاغذی مجاز است؟"
+                    key = "closed_candles_only_no_lookahead"
+                elif reason == "WEEKEND_CASH_SESSION":
+                    prompt = f"آخر هفتهٔ تهران — میز {sym} بدون قیمت تازه معامله می‌شود؟"
+                    key = "weekend_cash_session_no_fake_verified_fill"
+                else:
+                    prompt = f"قیمت {sym} منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟"
+                    key = "weekend_cash_session_no_fake_verified_fill"
                 items.append({
                     "item_id": iid,
-                    "domain": "quant_trading",
-                    "prompt_fa": "تایم‌فریم بالاتر مخالف است — آیا ورود کاغذی مجاز است؟",
-                    "answer_key": "closed_candles_only_no_lookahead",
+                    "domain": "quant_trading" if reason == "HIGHER_TF_DISAGREES" else "osint_two_source",
+                    "prompt_fa": prompt,
+                    "answer_key": key,
                     "difficulty": 1.4,
                     "discrimination": 1.5,
                     "leaked": False,

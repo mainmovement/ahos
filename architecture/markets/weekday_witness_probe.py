@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Callable
 
 from architecture.markets.paper_trader import MAX_TRADE_AGE_S, _parse
@@ -44,6 +45,7 @@ def build_witness_probe_payload(
     *,
     now: float | None = None,
     fetch_ts: datetime | None = None,
+    root: Path | None = None,
 ) -> dict[str, Any]:
     t = now if now is not None else time.time()
     sess = session_report(fetch_ts)
@@ -70,7 +72,7 @@ def build_witness_probe_payload(
             verified_desks.add(desk)
         if ok:
             tradable_desks.add(desk)
-    return {
+    payload: dict[str, Any] = {
         "schema": "ahos.weekday_witness_probe.v2",
         "paper_only": True,
         "session_gate": sess,
@@ -83,3 +85,14 @@ def build_witness_probe_payload(
             f"{sess.get('summary_fa', '')}"
         ),
     }
+    if root is not None:
+        from architecture.markets.session_readiness_drill import build_session_readiness_drill
+
+        drill = build_session_readiness_drill(root, quotes=quotes)
+        payload["session_readiness_drill"] = {
+            "summary_fa": drill.get("summary_fa"),
+            "cash_sessions": drill.get("cash_sessions"),
+            "adapters": drill.get("adapters"),
+            "adv_cap_checks": drill.get("adv_cap_checks"),
+        }
+    return payload

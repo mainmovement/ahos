@@ -61,7 +61,7 @@ def build_session_readiness_drill(root: Path, *, quotes: dict[str, Any] | None =
     ibkr_probe = ibkr.submit_order(symbol="SPX", side="buy", notional_usd=5.0)
     adv_checks: dict[str, Any] = {}
     if quotes:
-        for sym in ("SPX", "BTC", "XAU"):
+        for sym in ("SPX", "BTC", "ETH", "BRENT", "XAU", "EURUSD"):
             q = quotes.get(sym) or {}
             adv_checks[sym] = adv_cap_check(100.0, q, q.get("ohlcv_5m") or [])
     payload = {

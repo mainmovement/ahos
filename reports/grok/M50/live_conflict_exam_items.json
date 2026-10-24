@@ -1,6 +1,6 @@
 {
   "schema": "ahos.m50_live_conflict_exam.v1",
-  "generated_at": "2026-10-24T08:42:50Z",
+  "generated_at": "2026-10-24T08:47:07Z",
   "paper_only": true,
   "promoted": false,
   "n_items": 8,
@@ -8,21 +8,21 @@
   "estimate_ability_theta": 1.0,
   "items": [
     {
-      "item_id": "live_brent_00",
+      "item_id": "live_xau_00",
       "domain": "osint_two_source",
-      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "answer_key": "divergent_sources_are_conflict",
-      "difficulty": 1.2,
-      "discrimination": 1.6,
+      "prompt_fa": "قیمت XAU منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟",
+      "answer_key": "weekend_cash_session_no_fake_verified_fill",
+      "difficulty": 1.4,
+      "discrimination": 1.5,
       "leaked": false
     },
     {
-      "item_id": "live_brent_01",
+      "item_id": "live_wti_01",
       "domain": "osint_two_source",
-      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "answer_key": "divergent_sources_are_conflict",
-      "difficulty": 1.2,
-      "discrimination": 1.6,
+      "prompt_fa": "قیمت WTI منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟",
+      "answer_key": "weekend_cash_session_no_fake_verified_fill",
+      "difficulty": 1.4,
+      "discrimination": 1.5,
       "leaked": false
     },
     {
@@ -35,48 +35,48 @@
       "leaked": false
     },
     {
-      "item_id": "live_brent_03",
+      "item_id": "live_spx_03",
       "domain": "osint_two_source",
-      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "answer_key": "divergent_sources_are_conflict",
-      "difficulty": 1.2,
-      "discrimination": 1.6,
+      "prompt_fa": "قیمت SPX منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟",
+      "answer_key": "weekend_cash_session_no_fake_verified_fill",
+      "difficulty": 1.4,
+      "discrimination": 1.5,
       "leaked": false
     },
     {
-      "item_id": "live_brent_04",
+      "item_id": "live_qqq_04",
       "domain": "osint_two_source",
-      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "answer_key": "divergent_sources_are_conflict",
-      "difficulty": 1.2,
-      "discrimination": 1.6,
+      "prompt_fa": "قیمت QQQ منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟",
+      "answer_key": "weekend_cash_session_no_fake_verified_fill",
+      "difficulty": 1.4,
+      "discrimination": 1.5,
       "leaked": false
     },
     {
-      "item_id": "live_brent_05",
+      "item_id": "live_dax_05",
       "domain": "osint_two_source",
-      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "answer_key": "divergent_sources_are_conflict",
-      "difficulty": 1.2,
-      "discrimination": 1.6,
+      "prompt_fa": "قیمت DAX منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟",
+      "answer_key": "weekend_cash_session_no_fake_verified_fill",
+      "difficulty": 1.4,
+      "discrimination": 1.5,
       "leaked": false
     },
     {
-      "item_id": "live_brent_06",
+      "item_id": "live_n225_06",
       "domain": "osint_two_source",
-      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "answer_key": "divergent_sources_are_conflict",
-      "difficulty": 1.2,
-      "discrimination": 1.6,
+      "prompt_fa": "قیمت N225 منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟",
+      "answer_key": "weekend_cash_session_no_fake_verified_fill",
+      "difficulty": 1.4,
+      "discrimination": 1.5,
       "leaked": false
     },
     {
-      "item_id": "live_brent_07",
+      "item_id": "live_hsi_07",
       "domain": "osint_two_source",
-      "prompt_fa": "وقتی BRENT در شاهد دومنبعی CONFLICT است، سیستم چه می‌کند؟",
-      "answer_key": "divergent_sources_are_conflict",
-      "difficulty": 1.2,
-      "discrimination": 1.6,
+      "prompt_fa": "قیمت HSI منقضی یا سشن بسته — آیا ورود کاغذی مجاز است؟",
+      "answer_key": "weekend_cash_session_no_fake_verified_fill",
+      "difficulty": 1.4,
+      "discrimination": 1.5,
       "leaked": false
     }
   ],

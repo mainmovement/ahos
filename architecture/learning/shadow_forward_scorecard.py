@@ -21,6 +21,16 @@ SHADOW_SIGNALS: tuple[tuple[str, str], ...] = (
     ("council_debate", "soroush_bl_view"),
 )
 HORIZONS_H = (1, 4, 24)
+PRIMARY_EVAL_H = 1
+SIGNAL_ALIASES: dict[str, tuple[str, ...]] = {
+    "stablecoin_impulse": ("stablecoin_impulse", "stablecoin"),
+    "exchange_netflow": ("exchange_netflow",),
+    "whale_mempool": ("whale_mempool",),
+    "macro_event": ("macro_event", "news", "macro"),
+    "mtf_trend": ("mtf_trend",),
+    "council_debate": ("council_debate",),
+}
+BAR_SECONDS_LIVE_HISTORY = 300
 
 
 def _parse_ts(ts: str) -> float | None:
@@ -46,6 +56,35 @@ def _load_events(root: Path) -> list[dict[str, Any]]:
         if isinstance(row, dict) and row.get("symbol") and row.get("ts"):
             out.append(row)
     out.sort(key=lambda r: _parse_ts(str(r["ts"])) or 0.0)
+    return out
+
+
+def _enrich_series_from_live_prices(root: Path, series: dict[str, list[tuple[float, float]]]) -> dict[str, list[tuple[float, float]]]:
+    path = root / LIVE_PRICES_REL
+    if not path.is_file():
+        return series
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return series
+    fetched = _parse_ts(str(payload.get("generated_at") or ""))
+    if fetched is None:
+        return series
+    quotes = payload.get("quotes") or {}
+    out = dict(series)
+    for sym, pts in list(out.items()):
+        q = quotes.get(sym) or {}
+        hist = q.get("history") or []
+        if not hist:
+            continue
+        extra: list[tuple[float, float]] = []
+        for i, price in enumerate(hist):
+            if not isinstance(price, (int, float)):
+                continue
+            t = fetched - (len(hist) - 1 - i) * BAR_SECONDS_LIVE_HISTORY
+            extra.append((t, float(price)))
+        merged = sorted({(t, p) for t, p in (pts + extra)}, key=lambda x: x[0])
+        out[sym] = merged
     return out
 
 
@@ -98,9 +137,15 @@ def _signal_score(row: dict[str, Any], signal_name: str) -> float | None:
             if s.get("name") == "mtf_trend" and s.get("available"):
                 return float(s.get("score") or 0.0)
         return None
-    for s in brain.get("signals") or []:
-        if s.get("name") == signal_name and s.get("available"):
-            return float(s.get("score") or 0.0)
+    names = SIGNAL_ALIASES.get(signal_name, (signal_name,))
+    for alias in names:
+        for s in brain.get("signals") or []:
+            if s.get("name") == alias and s.get("available"):
+                return float(s.get("score") or 0.0)
+    if signal_name == "council_debate":
+        comp = brain.get("composite")
+        if isinstance(comp, (int, float)):
+            return float(comp)
     return None
 
 
@@ -114,13 +159,13 @@ def _eval_signal(events: list[dict[str, Any]], series: dict[str, list[tuple[floa
         t0 = _parse_ts(str(row["ts"]))
         if score is None or t0 is None or sym not in series:
             continue
-        ret24 = _forward_return(series[sym], t0, 24 * 3600)
-        if ret24 is None:
+        ret_primary = _forward_return(series[sym], t0, PRIMARY_EVAL_H * 3600)
+        if ret_primary is None:
             continue
         pred = 1.0 if score > 0 else -1.0 if score < 0 else 0.0
         if pred == 0.0:
             continue
-        preds.append((pred, ret24))
+        preds.append((pred, ret_primary))
     n = len(preds)
     if n == 0:
         return {
@@ -133,6 +178,8 @@ def _eval_signal(events: list[dict[str, Any]], series: dict[str, list[tuple[floa
             "horizons": {f"{h}h": {"n": 0, "hit_rate": None} for h in HORIZONS_H},
             "trades_remaining_to_gate": 30,
             "promotion_eligible": False,
+            "primary_horizon_h": PRIMARY_EVAL_H,
+            "note_fa": f"سیگنال سایهٔ {signal_name}: هنوز نمونهٔ کافی برای بازدهٔ {PRIMARY_EVAL_H}h نیست — ارتقا ممنوع.",
         }
     hits = sum(1 for p, r in preds if (p > 0 and r > 0) or (p < 0 and r < 0))
     hit_rate = hits / n
@@ -171,18 +218,25 @@ def _eval_signal(events: list[dict[str, Any]], series: dict[str, list[tuple[floa
         "horizons": horizons,
         "trades_remaining_to_gate": max(0, 30 - n),
         "promotion_eligible": False,
-        "note_fa": f"سیگنال سایهٔ {signal_name}: {n} نمونهٔ قابل‌سنجش — هنوز ارتقا ممنوع (UNPROVEN_EDGE).",
+        "primary_horizon_h": PRIMARY_EVAL_H,
+        "note_fa": (
+            f"سیگنال سایهٔ {signal_name}: {n} نمونهٔ {PRIMARY_EVAL_H}h (فقط کاغذی) — "
+            f"حداقل ۳۰ معاملهٔ بسته برای ارتقا؛ لبهٔ سودآوری اثبات‌نشده."
+        ),
     }
 
 
 def build_shadow_forward_scorecard(root: Path) -> dict[str, Any]:
     events = _load_events(root)
-    series = _price_timeline(events)
+    series = _enrich_series_from_live_prices(root, _price_timeline(events))
     signals = [_eval_signal(events, series, name, hyp) for name, hyp in SHADOW_SIGNALS]
     best = max(signals, key=lambda s: s["n"])
+    best_ic = next((s for s in sorted(signals, key=lambda x: -(x.get("rolling_ic") or -9)) if s["n"] > 0), best)
     summary_fa = (
-        f"تورنمنت سیگنال‌های سایه (فقط کاغذی): بهترین نمونه {best['signal']} با n={best['n']} — "
-        f"حداقل ۳۰ معاملهٔ بسته و DSR/PBO برای ارتقا لازم است؛ لبهٔ سودآوری اثبات‌نشده."
+        f"تورنمنت سیگنال‌های سایه (فقط کاغذی، بازدهٔ {PRIMARY_EVAL_H}h): "
+        f"بیشترین نمونه {best['signal']} با n={best['n']}"
+        + (f" · IC≈{best_ic.get('rolling_ic')}" if best_ic.get("rolling_ic") is not None else "")
+        + " — هنوز ارتقا ممنوع (UNPROVEN_EDGE؛ نه ۳۰ معاملهٔ بسته)."
     )
     payload = {
         "schema": "ahos.shadow_forward_scorecard.v1",
@@ -191,6 +245,8 @@ def build_shadow_forward_scorecard(root: Path) -> dict[str, Any]:
         "execution_mode": "PAPER_ONLY",
         "unproven_edge": True,
         "live_prices_path": str(LIVE_PRICES_REL).replace("\\", "/"),
+        "primary_eval_horizon_h": PRIMARY_EVAL_H,
+        "price_series_source": "paper_trades.jsonl+live_market_prices.history",
         "events_scanned": len(events),
         "signals": signals,
         "summary_fa": summary_fa,

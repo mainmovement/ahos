@@ -20,17 +20,11 @@ from architecture.markets.weekday_witness_probe import build_witness_probe_paylo
 def main() -> int:
     quotes = (fetch_live_market_prices() or {}).get("quotes") or {}
     second = fetch_second_sources()
-    payload = build_witness_probe_payload(INSTRUMENTS, quotes, second)
+    payload = build_witness_probe_payload(INSTRUMENTS, quotes, second, root=ROOT)
     payload["generated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    export_session_readiness_drill(ROOT, quotes=quotes)
     out = ROOT / "reports" / "grok" / "PAPER" / "weekday_witness_probe.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    drill = export_session_readiness_drill(ROOT, quotes=quotes)
-    payload["session_readiness_drill"] = {
-        "summary_fa": drill.get("summary_fa"),
-        "cash_sessions": drill.get("cash_sessions"),
-        "adapters": drill.get("adapters"),
-    }
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
         json.dumps(

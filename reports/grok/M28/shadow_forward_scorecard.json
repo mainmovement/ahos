@@ -1,35 +1,39 @@
 {
   "schema": "ahos.shadow_forward_scorecard.v1",
-  "generated_at": "2026-10-24T08:42:39Z",
+  "generated_at": "2026-10-24T08:46:51Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "unproven_edge": true,
   "live_prices_path": "reports/grok/M19/live_market_prices.json",
+  "primary_eval_horizon_h": 1,
+  "price_series_source": "paper_trades.jsonl+live_market_prices.history",
   "events_scanned": 1237,
   "signals": [
     {
       "signal": "stablecoin_impulse",
       "hypothesis_id": "H15",
-      "n": 0,
-      "hit_rate": null,
-      "rolling_ic": null,
-      "brier": null,
+      "n": 1,
+      "hit_rate": 1.0,
+      "rolling_ic": 0.0,
+      "brier": 0.0,
       "horizons": {
         "1h": {
-          "n": 0,
-          "hit_rate": null
+          "n": 1,
+          "hit_rate": 1.0
         },
         "4h": {
-          "n": 0,
-          "hit_rate": null
+          "n": 1,
+          "hit_rate": 1.0
         },
         "24h": {
           "n": 0,
           "hit_rate": null
         }
       },
-      "trades_remaining_to_gate": 30,
-      "promotion_eligible": false
+      "trades_remaining_to_gate": 29,
+      "promotion_eligible": false,
+      "primary_horizon_h": 1,
+      "note_fa": "سیگنال سایهٔ stablecoin_impulse: 1 نمونهٔ 1h (فقط کاغذی) — حداقل ۳۰ معاملهٔ بسته برای ارتقا؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "exchange_netflow",
@@ -53,7 +57,9 @@
         }
       },
       "trades_remaining_to_gate": 30,
-      "promotion_eligible": false
+      "promotion_eligible": false,
+      "primary_horizon_h": 1,
+      "note_fa": "سیگنال سایهٔ exchange_netflow: هنوز نمونهٔ کافی برای بازدهٔ 1h نیست — ارتقا ممنوع."
     },
     {
       "signal": "whale_mempool",
@@ -77,55 +83,61 @@
         }
       },
       "trades_remaining_to_gate": 30,
-      "promotion_eligible": false
+      "promotion_eligible": false,
+      "primary_horizon_h": 1,
+      "note_fa": "سیگنال سایهٔ whale_mempool: هنوز نمونهٔ کافی برای بازدهٔ 1h نیست — ارتقا ممنوع."
     },
     {
       "signal": "macro_event",
       "hypothesis_id": "H18",
-      "n": 0,
-      "hit_rate": null,
-      "rolling_ic": null,
-      "brier": null,
+      "n": 3,
+      "hit_rate": 0.3333,
+      "rolling_ic": 0.0,
+      "brier": 0.6667,
       "horizons": {
         "1h": {
-          "n": 0,
-          "hit_rate": null
+          "n": 3,
+          "hit_rate": 0.3333
         },
         "4h": {
-          "n": 0,
-          "hit_rate": null
+          "n": 3,
+          "hit_rate": 0.0
         },
         "24h": {
           "n": 0,
           "hit_rate": null
         }
       },
-      "trades_remaining_to_gate": 30,
-      "promotion_eligible": false
+      "trades_remaining_to_gate": 27,
+      "promotion_eligible": false,
+      "primary_horizon_h": 1,
+      "note_fa": "سیگنال سایهٔ macro_event: 3 نمونهٔ 1h (فقط کاغذی) — حداقل ۳۰ معاملهٔ بسته برای ارتقا؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "mtf_trend",
       "hypothesis_id": "hmm_pelt_regime",
-      "n": 0,
-      "hit_rate": null,
-      "rolling_ic": null,
-      "brier": null,
+      "n": 3,
+      "hit_rate": 0.3333,
+      "rolling_ic": 0.0,
+      "brier": 0.6667,
       "horizons": {
         "1h": {
-          "n": 0,
-          "hit_rate": null
+          "n": 3,
+          "hit_rate": 0.3333
         },
         "4h": {
-          "n": 0,
-          "hit_rate": null
+          "n": 3,
+          "hit_rate": 0.0
         },
         "24h": {
           "n": 0,
           "hit_rate": null
         }
       },
-      "trades_remaining_to_gate": 30,
-      "promotion_eligible": false
+      "trades_remaining_to_gate": 27,
+      "promotion_eligible": false,
+      "primary_horizon_h": 1,
+      "note_fa": "سیگنال سایهٔ mtf_trend: 3 نمونهٔ 1h (فقط کاغذی) — حداقل ۳۰ معاملهٔ بسته برای ارتقا؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "council_debate",
@@ -149,8 +161,10 @@
         }
       },
       "trades_remaining_to_gate": 30,
-      "promotion_eligible": false
+      "promotion_eligible": false,
+      "primary_horizon_h": 1,
+      "note_fa": "سیگنال سایهٔ council_debate: هنوز نمونهٔ کافی برای بازدهٔ 1h نیست — ارتقا ممنوع."
     }
   ],
-  "summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی): بهترین نمونه stablecoin_impulse با n=0 — حداقل ۳۰ معاملهٔ بسته و DSR/PBO برای ارتقا لازم است؛ لبهٔ سودآوری اثبات‌نشده."
+  "summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی، بازدهٔ 1h): بیشترین نمونه macro_event با n=3 · IC≈0.0 — هنوز ارتقا ممنوع (UNPROVEN_EDGE؛ نه ۳۰ معاملهٔ بسته)."
 }

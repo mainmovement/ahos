@@ -1,6 +1,6 @@
 {
   "schema": "ahos.continuation_tracks.v1",
-  "generated_at": "2026-10-24T08:42:50Z",
+  "generated_at": "2026-10-24T08:47:07Z",
   "paper_only": true,
   "track1_paper_audit": "GREEN",
   "track1_weekend_tehran": true,
@@ -16,10 +16,10 @@
   "track3_pit_leaks": 0,
   "track3_exam_score": 1.0,
   "track3_exam_leaked": false,
-  "track5_shadow_best_n": 0,
-  "track5_shadow_summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی): بهترین نمونه stablecoin_impulse با n=0 — حداقل ۳۰ معاملهٔ بسته و DSR/PBO برای ارتقا لازم است؛ لبهٔ سودآوری اثبات‌نشده.",
-  "track6_session_drill_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن توکیو در 39 ساعت و 17 دقیقه (تهران). آداپتورهای کاغذی CCXT/IBKR: ACCEPTED_PAPER/ACCEPTED_PAPER. زمان تهران: 2026-10-24 12:12 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
-  "track6_next_countdown_fa": "39 ساعت و 17 دقیقه",
+  "track5_shadow_best_n": 3,
+  "track5_shadow_summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی، بازدهٔ 1h): بیشترین نمونه macro_event با n=3 · IC≈0.0 — هنوز ارتقا ممنوع (UNPROVEN_EDGE؛ نه ۳۰ معاملهٔ بسته).",
+  "track6_session_drill_fa": "آمادگی پیش‌بازار: نزدیک‌ترین سشن توکیو در 39 ساعت و 12 دقیقه (تهران). آداپتورهای کاغذی CCXT/IBKR: ACCEPTED_PAPER/ACCEPTED_PAPER. زمان تهران: 2026-10-24 12:17 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی.",
+  "track6_next_countdown_fa": "39 ساعت و 12 دقیقه",
   "track7_live_exam_items": 8,
   "track7_theta": 1.0,
   "track8_receipts_written": [

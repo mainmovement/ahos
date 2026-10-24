@@ -15,14 +15,20 @@ def test_shadow_scorecard_writes_schema(tmp_path: Path) -> None:
             "event": "OPEN",
             "symbol": "BTC",
             "price": 100.0,
-            "brain": {"signals": [{"name": "stablecoin_impulse", "available": True, "score": 0.5}]},
+            "brain": {"signals": [{"name": "stablecoin", "available": True, "score": 0.5}]},
         },
         {
-            "ts": "2026-01-02T12:00:00Z",
-            "event": "OPEN",
+            "ts": "2026-01-01T13:30:00Z",
+            "event": "HOLD",
             "symbol": "BTC",
             "price": 110.0,
-            "brain": {"signals": [{"name": "stablecoin_impulse", "available": True, "score": 0.5}]},
+        },
+        {
+            "ts": "2026-01-01T14:00:00Z",
+            "event": "OPEN",
+            "symbol": "BTC",
+            "price": 105.0,
+            "brain": {"signals": [{"name": "stablecoin", "available": True, "score": -0.2}]},
         },
     ]
     (ledger / "paper_trades.jsonl").write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
@@ -30,5 +36,7 @@ def test_shadow_scorecard_writes_schema(tmp_path: Path) -> None:
     assert out["schema"] == "ahos.shadow_forward_scorecard.v1"
     assert out["unproven_edge"] is True
     assert len(out["signals"]) >= 1
+    impulse = next(s for s in out["signals"] if s["signal"] == "stablecoin_impulse")
+    assert impulse["n"] >= 1
     path = tmp_path / "reports" / "grok" / "M28" / "shadow_forward_scorecard.json"
     assert path.is_file()
