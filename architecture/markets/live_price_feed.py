@@ -1,4 +1,4 @@
-"""Live market price feed (PAPER_ONLY) — real quotes only, never constants.
+"""Live market price feed (PAPER_ONLY) â€” real quotes only, never constants.
 
 Sources:
 - Yahoo Finance chart API (oil BZ=F / CL=F, gold GC=F, ^GSPC, ^GDAXI, ^N225, DX-Y.NYB,
@@ -199,7 +199,7 @@ def fetch_coingecko_quotes(*, timeout: float = 6.0) -> dict[str, dict[str, Any]]
 def _fmt_vol(vol: Any) -> str:
     v = _num(vol)
     if v is None:
-        return "—"
+        return "â€”"
     if v >= 1e9:
         return f"{v / 1e9:.1f}B"
     if v >= 1e6:
@@ -209,16 +209,16 @@ def _fmt_vol(vol: Any) -> str:
 
 MARKET_ROWS: list[tuple[str, str, str, str, str]] = [
     # symbol, fa, en, category, unit
-    ("BTC", "بیت‌کوین", "Bitcoin", "crypto", "USD"),
-    ("ETH", "اتریوم", "Ethereum", "crypto", "USD"),
-    ("SOL", "سولانا", "Solana", "crypto", "USD"),
-    ("XAU", "طلای جهانی", "Gold (COMEX GC=F)", "gold", "USD / oz"),
-    ("BRENT", "نفت برنت", "Brent Crude (BZ=F)", "oil", "USD / bbl"),
-    ("WTI", "نفت WTI", "WTI Crude (CL=F)", "oil", "USD / bbl"),
-    ("SPX", "اس‌اندپی ۵۰۰", "S&P 500", "us", "points"),
-    ("DAX", "دکس آلمان", "DAX", "eu", "points"),
-    ("N225", "نیکی ژاپن", "Nikkei 225", "asia", "points"),
-    ("DXY", "شاخص دلار", "US Dollar Index", "fx", "points"),
+    ("BTC", "Ø¨ÛŒØªâ€ŒÚ©ÙˆÛŒÙ†", "Bitcoin", "crypto", "USD"),
+    ("ETH", "Ø§ØªØ±ÛŒÙˆÙ…", "Ethereum", "crypto", "USD"),
+    ("SOL", "Ø³ÙˆÙ„Ø§Ù†Ø§", "Solana", "crypto", "USD"),
+    ("XAU", "Ø·Ù„Ø§ÛŒ Ø¬Ù‡Ø§Ù†ÛŒ", "Gold (COMEX GC=F)", "gold", "USD / oz"),
+    ("BRENT", "Ù†ÙØª Ø¨Ø±Ù†Øª", "Brent Crude (BZ=F)", "oil", "USD / bbl"),
+    ("WTI", "Ù†ÙØª WTI", "WTI Crude (CL=F)", "oil", "USD / bbl"),
+    ("SPX", "Ø§Ø³â€ŒØ§Ù†Ø¯Ù¾ÛŒ ÛµÛ°Û°", "S&P 500", "us", "points"),
+    ("DAX", "Ø¯Ú©Ø³ Ø¢Ù„Ù…Ø§Ù†", "DAX", "eu", "points"),
+    ("N225", "Ù†ÛŒÚ©ÛŒ Ú˜Ø§Ù¾Ù†", "Nikkei 225", "asia", "points"),
+    ("DXY", "Ø´Ø§Ø®Øµ Ø¯Ù„Ø§Ø±", "US Dollar Index", "fx", "points"),
 ]
 
 
@@ -237,7 +237,9 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
         ycross = yq.get(f"{sym}_Y")
         if ycross is not None:
             quotes[f"{sym}_YAHOO"] = ycross
-            if quotes[sym].get("price") is not None and ycross.get("history"):
+            if quotes[sym].get("price") is None and ycross.get("price") is not None:
+                quotes[sym] = dict(ycross)
+            elif quotes[sym].get("price") is not None and ycross.get("history"):
                 quotes[sym]["history"] = ycross["history"]
                 quotes[sym]["ohlcv_5m"] = ycross.get("ohlcv_5m") or []
     # gold primary = COMEX futures on Yahoo; PAXG kept as cross-check
@@ -308,7 +310,7 @@ def _price(q: dict[str, Any], key: str) -> float | None:
 def build_live_multi_market_fixtures(live_payload: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     """13-instrument witness rows built ONLY from real fetched quotes.
 
-    Each quote is a real, independently fetched source. No synthetic ±offsets. Where only one
+    Each quote is a real, independently fetched source. No synthetic Â±offsets. Where only one
     real source exists the desk will honestly report UNRESOLVED (needs >= 2 sources).
     """
     data = live_payload or fetch_live_market_prices()
