@@ -548,4 +548,14 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         },
     }
     _save_json(root / STATUS_REL, status)
+    if signals_fn is None and any(e["event"] in ("OPEN", "CLOSE") for e in events):
+        try:
+            from architecture.markets.paper_trade_audit import export_paper_trade_audit_snapshot
+            from architecture.learning.shadow_forward_scorecard import export_shadow_forward_scorecard
+            from architecture.health.unification_audit import export_unification_audit
+            export_paper_trade_audit_snapshot(root)
+            export_shadow_forward_scorecard(root)
+            export_unification_audit(root)
+        except Exception:
+            pass
     return status

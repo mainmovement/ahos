@@ -1,6 +1,6 @@
 {
   "schema": "ahos.shadow_forward_scorecard.v1",
-  "generated_at": "2026-10-24T15:42:03Z",
+  "generated_at": "2026-10-24T17:29:46Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "unproven_edge": true,
@@ -14,41 +14,41 @@
   ],
   "metrics": "accuracy, Spearman rank IC, Brier skill vs sample base rate — on non-overlapping observations",
   "price_series_source": "paper_trades.jsonl (stale-session SKIP rows excluded)+live_market_prices.history",
-  "events_scanned": 2237,
-  "closed_trades_count": 7,
-  "trades_remaining_to_30_gate": 23,
+  "events_scanned": 2499,
+  "closed_trades_count": 11,
+  "trades_remaining_to_30_gate": 19,
   "signals": [
     {
       "signal": "stablecoin_impulse",
       "hypothesis_id": "H15",
-      "n": 6,
-      "n_eff": 6,
+      "n": 56,
+      "n_eff": 9,
       "hit_rate": 1.0,
       "accuracy": 1.0,
-      "rolling_ic": 0.6547,
-      "rank_ic": 0.6547,
-      "brier": 0.2475,
-      "brier_skill": -0.1138,
+      "rolling_ic": 0.1369,
+      "rank_ic": 0.1369,
+      "brier": 0.2483,
+      "brier_skill": -0.0058,
       "horizons": {
         "15m": {
-          "n": 25,
-          "n_eff": 11,
+          "n": 76,
+          "n_eff": 29,
           "n_directional": 1,
           "accuracy": 1.0,
           "hit_rate": 1.0,
-          "rank_ic": 0.4,
-          "brier": 0.2486,
-          "brier_skill": -0.6715
+          "rank_ic": 0.0452,
+          "brier": 0.2495,
+          "brier_skill": -0.0087
         },
         "1h": {
-          "n": 6,
-          "n_eff": 6,
+          "n": 56,
+          "n_eff": 9,
           "n_directional": 1,
           "accuracy": 1.0,
           "hit_rate": 1.0,
-          "rank_ic": 0.6547,
-          "brier": 0.2475,
-          "brier_skill": -0.1138
+          "rank_ic": 0.1369,
+          "brier": 0.2483,
+          "brier_skill": -0.0058
         },
         "4h": {
           "n": 3,
@@ -71,42 +71,42 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ stablecoin_impulse: 6 مشاهدهٔ غیرهم‌پوشان 1h (از 6) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ stablecoin_impulse: 9 مشاهدهٔ غیرهم‌پوشان 1h (از 56) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "exchange_netflow",
       "hypothesis_id": "H14",
-      "n": 2,
-      "n_eff": 2,
-      "hit_rate": 0.0,
-      "accuracy": 0.0,
-      "rolling_ic": null,
-      "rank_ic": null,
-      "brier": 0.5363,
-      "brier_skill": null,
+      "n": 35,
+      "n_eff": 4,
+      "hit_rate": 0.5,
+      "accuracy": 0.5,
+      "rolling_ic": -0.4472,
+      "rank_ic": -0.4472,
+      "brier": 0.3268,
+      "brier_skill": -0.3073,
       "horizons": {
         "15m": {
-          "n": 15,
-          "n_eff": 6,
-          "n_directional": 6,
-          "accuracy": 0.0,
-          "hit_rate": 0.0,
-          "rank_ic": -0.488,
-          "brier": 0.5363,
-          "brier_skill": null
+          "n": 49,
+          "n_eff": 18,
+          "n_directional": 18,
+          "accuracy": 0.3889,
+          "hit_rate": 0.3889,
+          "rank_ic": -0.0321,
+          "brier": 0.3532,
+          "brier_skill": -0.4863
         },
         "1h": {
-          "n": 2,
-          "n_eff": 2,
-          "n_directional": 2,
-          "accuracy": 0.0,
-          "hit_rate": 0.0,
-          "rank_ic": null,
-          "brier": 0.5363,
-          "brier_skill": null
+          "n": 35,
+          "n_eff": 4,
+          "n_directional": 4,
+          "accuracy": 0.5,
+          "hit_rate": 0.5,
+          "rank_ic": -0.4472,
+          "brier": 0.3268,
+          "brier_skill": -0.3073
         },
         "4h": {
           "n": 0,
@@ -129,42 +129,42 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ exchange_netflow: 2 مشاهدهٔ غیرهم‌پوشان 1h (از 2) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ exchange_netflow: 4 مشاهدهٔ غیرهم‌پوشان 1h (از 35) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "whale_mempool",
       "hypothesis_id": "LIVE_ONLY_NO_BACKTEST",
-      "n": 1,
-      "n_eff": 1,
+      "n": 18,
+      "n_eff": 2,
       "hit_rate": null,
       "accuracy": null,
       "rolling_ic": null,
       "rank_ic": null,
       "brier": 0.25,
-      "brier_skill": null,
+      "brier_skill": 0.0,
       "horizons": {
         "15m": {
-          "n": 8,
-          "n_eff": 3,
+          "n": 25,
+          "n_eff": 9,
           "n_directional": 0,
           "accuracy": null,
           "hit_rate": null,
           "rank_ic": null,
           "brier": 0.25,
-          "brier_skill": null
+          "brier_skill": -0.125
         },
         "1h": {
-          "n": 1,
-          "n_eff": 1,
+          "n": 18,
+          "n_eff": 2,
           "n_directional": 0,
           "accuracy": null,
           "hit_rate": null,
           "rank_ic": null,
           "brier": 0.25,
-          "brier_skill": null
+          "brier_skill": 0.0
         },
         "4h": {
           "n": 0,
@@ -187,42 +187,42 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ whale_mempool: 1 مشاهدهٔ غیرهم‌پوشان 1h (از 1) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ whale_mempool: 2 مشاهدهٔ غیرهم‌پوشان 1h (از 18) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "macro_event",
       "hypothesis_id": "H16",
-      "n": 4,
-      "n_eff": 4,
+      "n": 70,
+      "n_eff": 8,
       "hit_rate": null,
       "accuracy": null,
       "rolling_ic": null,
       "rank_ic": null,
       "brier": 0.25,
-      "brier_skill": null,
+      "brier_skill": 0.0,
       "horizons": {
         "15m": {
-          "n": 31,
-          "n_eff": 12,
+          "n": 105,
+          "n_eff": 39,
           "n_directional": 0,
           "accuracy": null,
           "hit_rate": null,
           "rank_ic": null,
           "brier": 0.25,
-          "brier_skill": -2.2727
+          "brier_skill": -0.0007
         },
         "1h": {
-          "n": 4,
-          "n_eff": 4,
+          "n": 70,
+          "n_eff": 8,
           "n_directional": 0,
           "accuracy": null,
           "hit_rate": null,
           "rank_ic": null,
           "brier": 0.25,
-          "brier_skill": null
+          "brier_skill": 0.0
         },
         "4h": {
           "n": 0,
@@ -245,42 +245,42 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ macro_event: 4 مشاهدهٔ غیرهم‌پوشان 1h (از 4) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ macro_event: 8 مشاهدهٔ غیرهم‌پوشان 1h (از 70) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "event_shock",
       "hypothesis_id": "H26",
-      "n": 4,
-      "n_eff": 4,
+      "n": 70,
+      "n_eff": 8,
       "hit_rate": null,
       "accuracy": null,
       "rolling_ic": null,
       "rank_ic": null,
       "brier": 0.25,
-      "brier_skill": null,
+      "brier_skill": 0.0,
       "horizons": {
         "15m": {
-          "n": 31,
-          "n_eff": 12,
+          "n": 105,
+          "n_eff": 39,
           "n_directional": 0,
           "accuracy": null,
           "hit_rate": null,
           "rank_ic": null,
           "brier": 0.25,
-          "brier_skill": -2.2727
+          "brier_skill": -0.0007
         },
         "1h": {
-          "n": 4,
-          "n_eff": 4,
+          "n": 70,
+          "n_eff": 8,
           "n_directional": 0,
           "accuracy": null,
           "hit_rate": null,
           "rank_ic": null,
           "brier": 0.25,
-          "brier_skill": null
+          "brier_skill": 0.0
         },
         "4h": {
           "n": 0,
@@ -303,42 +303,42 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ event_shock: 4 مشاهدهٔ غیرهم‌پوشان 1h (از 4) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ event_shock: 8 مشاهدهٔ غیرهم‌پوشان 1h (از 70) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "news",
       "hypothesis_id": "H22",
-      "n": 7,
-      "n_eff": 7,
-      "hit_rate": 0.7143,
-      "accuracy": 0.7143,
-      "rolling_ic": -0.8469,
-      "rank_ic": -0.8469,
-      "brier": 0.227,
-      "brier_skill": -0.1123,
+      "n": 73,
+      "n_eff": 11,
+      "hit_rate": 0.4545,
+      "accuracy": 0.4545,
+      "rolling_ic": 0.516,
+      "rank_ic": 0.516,
+      "brier": 0.2948,
+      "brier_skill": -0.1889,
       "horizons": {
         "15m": {
-          "n": 33,
-          "n_eff": 14,
-          "n_directional": 14,
-          "accuracy": 0.7857,
-          "hit_rate": 0.7857,
-          "rank_ic": -0.3006,
-          "brier": 0.202,
-          "brier_skill": -0.1998
+          "n": 107,
+          "n_eff": 41,
+          "n_directional": 41,
+          "accuracy": 0.4146,
+          "hit_rate": 0.4146,
+          "rank_ic": -0.141,
+          "brier": 0.3041,
+          "brier_skill": -0.2172
         },
         "1h": {
-          "n": 7,
-          "n_eff": 7,
-          "n_directional": 7,
-          "accuracy": 0.7143,
-          "hit_rate": 0.7143,
-          "rank_ic": -0.8469,
-          "brier": 0.227,
-          "brier_skill": -0.1123
+          "n": 73,
+          "n_eff": 11,
+          "n_directional": 11,
+          "accuracy": 0.4545,
+          "hit_rate": 0.4545,
+          "rank_ic": 0.516,
+          "brier": 0.2948,
+          "brier_skill": -0.1889
         },
         "4h": {
           "n": 3,
@@ -361,42 +361,42 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ news: 7 مشاهدهٔ غیرهم‌پوشان 1h (از 7) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ news: 11 مشاهدهٔ غیرهم‌پوشان 1h (از 73) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "mtf_trend",
       "hypothesis_id": "M28.1",
-      "n": 7,
-      "n_eff": 7,
-      "hit_rate": 0.7143,
-      "accuracy": 0.7143,
+      "n": 73,
+      "n_eff": 11,
+      "hit_rate": 0.4545,
+      "accuracy": 0.4545,
       "rolling_ic": null,
       "rank_ic": null,
-      "brier": 0.2857,
-      "brier_skill": -0.4,
+      "brier": 0.5455,
+      "brier_skill": -1.2,
       "horizons": {
         "15m": {
-          "n": 33,
-          "n_eff": 14,
-          "n_directional": 14,
-          "accuracy": 0.7857,
-          "hit_rate": 0.7857,
-          "rank_ic": null,
-          "brier": 0.2143,
-          "brier_skill": -0.2727
+          "n": 107,
+          "n_eff": 41,
+          "n_directional": 41,
+          "accuracy": 0.4878,
+          "hit_rate": 0.4878,
+          "rank_ic": -0.0861,
+          "brier": 0.5166,
+          "brier_skill": -1.0676
         },
         "1h": {
-          "n": 7,
-          "n_eff": 7,
-          "n_directional": 7,
-          "accuracy": 0.7143,
-          "hit_rate": 0.7143,
+          "n": 73,
+          "n_eff": 11,
+          "n_directional": 11,
+          "accuracy": 0.4545,
+          "hit_rate": 0.4545,
           "rank_ic": null,
-          "brier": 0.2857,
-          "brier_skill": -0.4
+          "brier": 0.5455,
+          "brier_skill": -1.2
         },
         "4h": {
           "n": 3,
@@ -419,42 +419,42 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ mtf_trend: 7 مشاهدهٔ غیرهم‌پوشان 1h (از 7) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ mtf_trend: 11 مشاهدهٔ غیرهم‌پوشان 1h (از 73) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     },
     {
       "signal": "council_debate",
       "hypothesis_id": "H27",
-      "n": 2,
-      "n_eff": 2,
+      "n": 7,
+      "n_eff": 5,
       "hit_rate": null,
       "accuracy": null,
       "rolling_ic": null,
       "rank_ic": null,
       "brier": 0.25,
-      "brier_skill": null,
+      "brier_skill": -0.0417,
       "horizons": {
         "15m": {
-          "n": 5,
+          "n": 12,
+          "n_eff": 12,
+          "n_directional": 0,
+          "accuracy": null,
+          "hit_rate": null,
+          "rank_ic": null,
+          "brier": 0.25,
+          "brier_skill": -0.0286
+        },
+        "1h": {
+          "n": 7,
           "n_eff": 5,
           "n_directional": 0,
           "accuracy": null,
           "hit_rate": null,
           "rank_ic": null,
           "brier": 0.25,
-          "brier_skill": -0.5625
-        },
-        "1h": {
-          "n": 2,
-          "n_eff": 2,
-          "n_directional": 0,
-          "accuracy": null,
-          "hit_rate": null,
-          "rank_ic": null,
-          "brier": 0.25,
-          "brier_skill": null
+          "brier_skill": -0.0417
         },
         "4h": {
           "n": 0,
@@ -477,11 +477,11 @@
           "brier_skill": null
         }
       },
-      "trades_remaining_to_gate": 23,
+      "trades_remaining_to_gate": 19,
       "promotion_eligible": false,
       "primary_horizon_h": 1,
-      "note_fa": "سیگنال سایهٔ council_debate: 2 مشاهدهٔ غیرهم‌پوشان 1h (از 2) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
+      "note_fa": "سیگنال سایهٔ council_debate: 5 مشاهدهٔ غیرهم‌پوشان 1h (از 7) — فقط کاغذی؛ ارتقا فقط با ۳۰ معاملهٔ بستهٔ واقعی و DSR/PBO؛ لبهٔ سودآوری اثبات‌نشده."
     }
   ],
-  "summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی، افق اصلی 1h): بیشترین نمونهٔ غیرهم‌پوشان news با n_eff=7 · هنوز هیچ سیگنالی ۱۰ مشاهدهٔ غیرهم‌پوشان ندارد — معاملات بسته 7/30؛ 23 معاملهٔ دیگر تا دروازه (UNPROVEN_EDGE)."
+  "summary_fa": "تورنمنت سیگنال‌های سایه (فقط کاغذی، افق اصلی 1h): بیشترین نمونهٔ غیرهم‌پوشان news با n_eff=11 · بهترین Rank IC=0.516 (news) — معاملات بسته 11/30؛ 19 معاملهٔ دیگر تا دروازه (UNPROVEN_EDGE)."
 }

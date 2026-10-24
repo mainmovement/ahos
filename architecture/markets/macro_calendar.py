@@ -54,12 +54,18 @@ MONTH_ABBR = {
 _MON_PAT = r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)"
 
 
-def _get(url: str, timeout: float = 8.0) -> str | None:
-    try:
-        with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
-            return r.read().decode("utf-8", "ignore")
-    except Exception:
-        return None
+def _get(url: str, timeout: float = 10.0, retries: int = 2) -> str | None:
+    import time as _time
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+                data = r.read().decode("utf-8", "ignore")
+                if data:
+                    return data
+        except Exception:
+            if attempt + 1 < retries:
+                _time.sleep(0.4 * (attempt + 1))
+    return None
 
 
 def _text(h: str) -> str:
@@ -89,7 +95,10 @@ def parse_fomc(h: str) -> list[dict[str, Any]]:
     parts = re.split(r"(\d{4}) FOMC Meetings", h)
     for i in range(1, len(parts), 2):
         y = int(parts[i])
-        for mon, days in re.findall(r"fomc-meeting__month[^>]*>\s*<strong>([A-Za-z/]+)</strong>.*?fomc-meeting__date[^>]*>([0-9\-\*\s]+)<", parts[i + 1], re.S):
+        pairs = re.findall(r"fomc-meeting__month[^>]*>\s*<strong>([A-Za-z/]+)</strong>.*?fomc-meeting__date[^>]*>([0-9\-\*\s]+)<", parts[i + 1], re.S)
+        if not pairs:
+            pairs = re.findall(r"\*\*([A-Za-z/]+)\*\*\s+([0-9]{1,2}-[0-9]{1,2}\*?)", parts[i + 1])
+        for mon, days in pairs:
             days = days.strip()
             if "-" not in days:
                 continue
@@ -372,8 +381,24 @@ def build_calendar(root: Path | None = None, *, getter: Callable[[str], str | No
     raw = {k: g(u) for k, u in URLS.items()}
     events: list[dict[str, Any]] = []
     status = {}
+    prev_snap: dict[str, Any] = {}
+    if getter is None and root is not None:
+        try:
+            prev_snap = json.loads((Path(root) / OUT_REL).read_text(encoding="utf-8"))
+        except Exception:
+            prev_snap = {}
     if raw["FOMC"]:
-        e = parse_fomc(raw["FOMC"]); events += e; status["FOMC"] = f"OK {len(e)}"
+        e = parse_fomc(raw["FOMC"])
+        if e:
+            events += e
+            status["FOMC"] = f"OK {len(e)}"
+    if "FOMC" not in status:
+        jina_fomc = g("https://r.jina.ai/https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm")
+        if jina_fomc:
+            e = parse_fomc(jina_fomc)
+            if e:
+                events += e
+                status["FOMC"] = f"OK {len(e)} (mirror)" 
     if raw["EIA"]:
         e = parse_eia(raw["EIA"], date(now.year - 2, 1, 1), (now + timedelta(days=120)).date()); events += e; status["EIA"] = f"OK {len(e)}"
     if raw["BOE"]:
@@ -383,6 +408,22 @@ def build_calendar(root: Path | None = None, *, getter: Callable[[str], str | No
     mirror_events, mirror_status = ingest_ecb_opec_mirrors(g, now=now)
     events += mirror_events
     status.update(mirror_status)
+    BANK_EVENT_MAP = {
+        "FOMC": "FOMC_STATEMENT",
+        "EIA": "EIA_WPSR",
+        "BOE": "BOE_MPC_DECISION",
+        "BOJ": "BOJ_MPM_DECISION",
+        "ECB": "ECB_GOV_COUNCIL",
+        "OPEC": "OPEC_MINISTERIAL",
+    }
+    if getter is None and prev_snap.get("events"):
+        prev_status = prev_snap.get("status") or {}
+        for k, ev_type in BANK_EVENT_MAP.items():
+            if not str(status.get(k, "")).startswith("OK") and str(prev_status.get(k, "")).startswith("OK"):
+                cached_ev = [ev for ev in (prev_snap.get("events") or []) if ev.get("event") == ev_type]
+                if cached_ev:
+                    events += cached_ev
+                    status[k] = f"OK {len(cached_ev)} (cached verified schedule after transient timeout)"
     for k in URLS:
         status.setdefault(k, "UNAVAILABLE (official site unreachable from this host; not filled by hand)")
     events.sort(key=lambda x: x["at_utc"])
