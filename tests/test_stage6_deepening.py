@@ -737,7 +737,7 @@ def test_discovery_source_is_partial_when_only_one_feed_returns_tokens():
     from architecture.markets.token_safety_live import discover_candidates
     out = discover_candidates(_getter(), now=datetime(2026, 10, 24, tzinfo=timezone.utc))
     assert out["discovery_source"] == "PARTIAL_LIVE"
-    assert out["address_form"] == "LOWERCASE_NO_KECCAK"
+    assert out["address_form"] == "EIP55_CHECKSUM"
     assert any(e["tokens"] > 0 for e in out["endpoints"])
     assert sum(1 for e in out["endpoints"] if e["tokens"] > 0) == 1
 
@@ -769,3 +769,54 @@ def test_cognitive_graph_lists_every_registry_agent_without_inventing_pass(tmp_p
         encoding="utf-8")
     g2 = build_cognitive_graph(tmp_path)
     assert g2["agents"][0]["verdict"] == "PASS" and g2["agents"][0]["authority_ok"] is True
+
+
+def test_eip55_checksum_official_vectors_and_pool32_normalization():
+    from architecture.markets.token_safety_live import _normalize_pool_id, to_eip55_checksum, VETTED_TOKEN_CONTRACTS
+    vectors = [
+        "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+        "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+        "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB",
+        "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+    ]
+    for vec in vectors:
+        assert to_eip55_checksum(vec.lower()) == vec
+        assert to_eip55_checksum(vec.upper().replace("0X", "0x")) == vec
+    assert VETTED_TOKEN_CONTRACTS["UNI"]["address"] == "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+    pool32 = "0x053f6a47ccba79e7d5d623173ed6dd5a31cf19c28bae0fb8276f4506295f90da"
+    assert _normalize_pool_id(pool32) == "pool32:" + pool32[2:]
+    pool20 = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
+    assert _normalize_pool_id(pool20) == pool20
+
+
+def test_validate_imports_secret_scanner_strict_on_keys_and_allows_public_pool_and_rss_urls():
+    from scripts.validate_imports import scan_text_for_secrets
+    priv_hex = "0x" + "a1b2c3d4" * 8
+    sol_key = "5" * 88
+    openai_key = "sk-" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4"
+    # Real secrets must fail in code, config, and JSON private/config fields
+    assert scan_text_for_secrets(f"PRIVATE_KEY = '{priv_hex}'", suffix=".py")
+    assert scan_text_for_secrets(f"{{\"private_key\": \"{priv_hex}\"}}", suffix=".json")
+    assert scan_text_for_secrets(f"{{\"wallet_secret\": \"{sol_key}\"}}", suffix=".json")
+    assert scan_text_for_secrets(f"{{\"url\": \"https://api.example.com?key={openai_key}\"}}", suffix=".json")
+    # Public Uniswap v4 32-byte pool key hash in explicit pool field and Google News RSS URL path must pass
+    assert not scan_text_for_secrets(f"{{\"pool\": \"{priv_hex}\"}}", suffix=".json")
+    assert not scan_text_for_secrets(
+        f"{{\"links\": [\"https://news.google.com/rss/articles/{sol_key}\"]}}",
+        suffix=".json",
+    )
+
+
+def test_cognitive_graph_full_43_agent_repo_wiring():
+    from architecture.mission.cognitive_graph_m12 import _ARTIFACTS, build_cognitive_graph
+    assert len(_ARTIFACTS) == 43
+    root = Path(__file__).resolve().parents[1]
+    snap = build_cognitive_graph(root)
+    assert snap["registry_agents"] == 43
+    assert snap["authority_violations"] == []
+    by_id = {a["agent_id"]: a for a in snap["agents"]}
+    assert by_id["AG-08"]["verdict"] in ("PASS", "HOLD")
+    assert by_id["AG-09"]["verdict"] == "PASS"
+    assert by_id["AG-14"]["verdict"] == "VETO"
+    for eq_id in ("AG-29", "AG-30", "AG-31"):
+        assert by_id[eq_id]["verdict"] in ("PASS", "HOLD")

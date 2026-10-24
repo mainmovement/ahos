@@ -108,6 +108,10 @@ def main() -> int:
     out = ROOT / "reports" / "grok" / "CONTINUATION" / "tracks_receipt.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     print(json.dumps(payload, ensure_ascii=False))
     return 0
 

@@ -1,132 +1,131 @@
 {
  "schema": "ahos.cognitive_graph.v1",
- "generated_at": "2026-10-24T15:04:35Z",
+ "generated_at": "2026-10-24T15:42:50Z",
  "paper_only": true,
  "registry_agents": 43,
  "registry_note": "config/agent_registry.yaml lists 43 agents (AG-01 through AG-43), not 39.",
  "verdict_counts": {
-  "UNRESOLVED": 39,
-  "PASS": 2,
-  "VETO": 1,
-  "HOLD": 1
+  "PASS": 24,
+  "HOLD": 18,
+  "VETO": 1
  },
  "authority_violations": [],
  "agents": [
   {
    "agent_id": "AG-01",
    "name": "Master Orchestrator",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M36/world_orchestration_snapshot.json",
+   "evidence_artifact": "reports/grok/M36/world_orchestration_snapshot.json",
+   "executed_at": "2026-10-24T10:29:08Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "world_orchestrator_nominal_paper_only"
   },
   {
    "agent_id": "AG-02",
    "name": "Data Intelligence",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M19/live_market_prices.json",
+   "evidence_artifact": "reports/grok/M19/live_market_prices.json",
+   "executed_at": "2026-10-24T14:57:15Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "live_market_prices_verified"
   },
   {
    "agent_id": "AG-03",
    "name": "Research Agent",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M28/batch5_research.json",
+   "evidence_artifact": "reports/grok/M28/batch5_research.json",
+   "executed_at": "2026-10-24T10:04:58Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE",
     "ANALYZE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "batch5_89_trials_no_candidate_passed_dsr_gate"
   },
   {
    "agent_id": "AG-04",
    "name": "Market Intelligence",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
-   "authority_ok": true,
-   "allowed_authority": [
-    "OBSERVE",
-    "ANALYZE"
-   ],
-   "reason": "no_runtime_this_cycle"
-  },
-  {
-   "agent_id": "AG-05",
-   "name": "Trend Intelligence",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
-   "authority_ok": true,
-   "allowed_authority": [
-    "OBSERVE",
-    "ANALYZE"
-   ],
-   "reason": "no_runtime_this_cycle"
-  },
-  {
-   "agent_id": "AG-06",
-   "name": "On-Chain Intelligence",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
-   "authority_ok": true,
-   "allowed_authority": [
-    "OBSERVE"
-   ],
-   "reason": "no_runtime_this_cycle"
-  },
-  {
-   "agent_id": "AG-07",
-   "name": "Liquidity/Exitability",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
-   "authority_ok": true,
-   "allowed_authority": [
-    "OBSERVE",
-    "ANALYZE"
-   ],
-   "reason": "no_runtime_this_cycle"
-  },
-  {
-   "agent_id": "AG-08",
-   "name": "Risk Agent",
-   "input_artifact": "reports/grok/M34/unification_audit.json",
-   "evidence_artifact": "reports/grok/M34/unification_audit.json",
-   "executed_at": "2026-10-24T15:03:06Z",
+   "input_artifact": "reports/grok/M19/multi_market_snapshot.json",
+   "evidence_artifact": "reports/grok/M19/multi_market_snapshot.json",
+   "executed_at": "2026-10-24T10:29:01Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE",
     "ANALYZE"
    ],
-   "reason": "artifact"
+   "reason": "multi_market_regime_snapshot_ready"
+  },
+  {
+   "agent_id": "AG-05",
+   "name": "Trend Intelligence",
+   "input_artifact": "reports/grok/M24/rotation_snapshot.json",
+   "evidence_artifact": "reports/grok/M24/rotation_snapshot.json",
+   "executed_at": "2026-10-24T04:42:40Z",
+   "verdict": "PASS",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "m24_rotation_hysteresis_snapshot_ready"
+  },
+  {
+   "agent_id": "AG-06",
+   "name": "On-Chain Intelligence",
+   "input_artifact": "reports/grok/M33/live_token_safety_snapshot.json",
+   "evidence_artifact": "reports/grok/M33/live_token_safety_snapshot.json",
+   "executed_at": "2026-10-24T15:42:47Z",
+   "verdict": "PASS",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE"
+   ],
+   "reason": "3_source_dex_token_safety_veto_active"
+  },
+  {
+   "agent_id": "AG-07",
+   "name": "Liquidity/Exitability",
+   "input_artifact": "reports/grok/M13/edge_margin_sim_snapshot.json",
+   "evidence_artifact": "reports/grok/M13/edge_margin_sim_snapshot.json",
+   "executed_at": "2026-10-24T10:29:30Z",
+   "verdict": "PASS",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "edge_margin_and_exitability_sim_active"
+  },
+  {
+   "agent_id": "AG-08",
+   "name": "Risk Agent",
+   "input_artifact": "reports/grok/M34/unification_audit.json",
+   "evidence_artifact": "reports/grok/M34/unification_audit.json",
+   "executed_at": "2026-10-24T15:42:49Z",
+   "verdict": "PASS",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "unification_audit_clean"
   },
   {
    "agent_id": "AG-09",
    "name": "Security/Scam Defense",
    "input_artifact": "reports/grok/M64/whitehat_security_audit.json",
    "evidence_artifact": "reports/grok/M64/whitehat_security_audit.json",
-   "executed_at": "2026-10-24T15:01:58Z",
+   "executed_at": "2026-10-24T15:41:42Z",
    "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
@@ -134,63 +133,63 @@
     "ANALYZE",
     "VETO"
    ],
-   "reason": "artifact"
+   "reason": "whitehat_security_audit_clean"
   },
   {
    "agent_id": "AG-10",
    "name": "Narrative Intelligence",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M18/news_corroboration_snapshot.json",
+   "evidence_artifact": "reports/grok/M18/news_corroboration_snapshot.json",
+   "executed_at": "2026-10-24T10:29:02Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE",
     "ANALYZE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "two_source_narrative_corroboration_active"
   },
   {
    "agent_id": "AG-11",
    "name": "Multi-Mind Council",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M60/aci_agi_si_brain_snapshot.json",
+   "evidence_artifact": "reports/grok/M60/aci_agi_si_brain_snapshot.json",
+   "executed_at": "2026-10-24T10:29:30Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "ANALYZE",
     "ADVISE",
     "CHALLENGE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "advisory_council_deterministic_floor_active"
   },
   {
    "agent_id": "AG-12",
    "name": "AI Model Router",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M35/telegram_kian_closure.json",
+   "evidence_artifact": "reports/grok/M35/telegram_kian_closure.json",
+   "executed_at": "2026-10-24T10:29:30Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "ANALYZE",
     "ADVISE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "provider_router_and_kian_bridge_verified"
   },
   {
    "agent_id": "AG-13",
    "name": "Consensus/Disagreement Engine",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M19/event_impact_matrix.json",
+   "evidence_artifact": "reports/grok/M19/event_impact_matrix.json",
+   "executed_at": "2026-10-24T10:04:25Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "ANALYZE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "event_impact_and_disagreement_matrix_ready"
   },
   {
    "agent_id": "AG-14",
@@ -204,321 +203,321 @@
     "CHALLENGE",
     "VETO"
    ],
-   "reason": "artifact"
+   "reason": "all_candidates_vetoed_no_promotion"
   },
   {
    "agent_id": "AG-15",
    "name": "Decision Engine",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M28/shadow_forward_scorecard.json",
+   "evidence_artifact": "reports/grok/M28/shadow_forward_scorecard.json",
+   "executed_at": "2026-10-24T15:42:03Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "DECIDE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "unproven_edge_under_30_closed_trades_gate"
   },
   {
    "agent_id": "AG-16",
    "name": "Paper-Trading Agent",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/PAPER/paper_trader_status.json",
+   "evidence_artifact": "reports/grok/PAPER/paper_trader_status.json",
+   "executed_at": "2026-10-24T15:40:10Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "DECIDE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "paper_trader_accumulating_7_of_30_closed_trades"
   },
   {
    "agent_id": "AG-17",
    "name": "Memory Agent",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M30/memory_consolidation_snapshot.json",
+   "evidence_artifact": "reports/grok/M30/memory_consolidation_snapshot.json",
+   "executed_at": "2026-10-24T15:42:03Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "canonical_memory_hash_chain_verified"
   },
   {
    "agent_id": "AG-18",
    "name": "Learning Agent",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M49/lessons_snapshot.json",
+   "evidence_artifact": "reports/grok/M49/lessons_snapshot.json",
+   "executed_at": "2026-10-24T14:35:12Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "ANALYZE",
     "ADVISE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "m49_post_trade_lessons_chain_verified"
   },
   {
    "agent_id": "AG-19",
    "name": "Self-Diagnostic",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M46/self_debug_receipt.json",
+   "evidence_artifact": "reports/grok/M46/self_debug_receipt.json",
+   "executed_at": "2026-10-24T04:42:42Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "m46_sandbox_self_debug_verified"
   },
   {
    "agent_id": "AG-20",
    "name": "Controlled Self-Evolution",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M58/aci_agi_si_loop_status.json",
+   "evidence_artifact": "reports/grok/M58/aci_agi_si_loop_status.json",
+   "executed_at": "2026-10-24T15:42:47Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "ADVISE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "loop_open_at_promote_human_gate_enforced"
   },
   {
    "agent_id": "AG-21",
    "name": "Evidence/Provenance",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M30/pit_10k_benchmark.json",
+   "evidence_artifact": "reports/grok/M30/pit_10k_benchmark.json",
+   "executed_at": "2026-10-24T15:42:03Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE",
     "CHALLENGE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "pit_benchmark_zero_future_leakage_verified"
   },
   {
    "agent_id": "AG-22",
    "name": "Observability/Health",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/CONTINUATION/tracks_receipt.json",
+   "evidence_artifact": "reports/grok/CONTINUATION/tracks_receipt.json",
+   "executed_at": "2026-10-24T15:35:58Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "observability_hold"
   },
   {
    "agent_id": "AG-23",
    "name": "Governance/Policy",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M60/owner_live_switch_readiness.json",
+   "evidence_artifact": "reports/grok/M60/owner_live_switch_readiness.json",
+   "executed_at": "2026-10-24T10:29:30Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "VETO",
     "PROMOTE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "human_governance_loop_only_live_switch_locked"
   },
   {
    "agent_id": "AG-24",
    "name": "Cost/Resource Manager",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M_D11/perf_tier_receipt.json",
+   "evidence_artifact": "reports/grok/M_D11/perf_tier_receipt.json",
+   "executed_at": "2026-10-24T04:42:42Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE",
     "ANALYZE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "8gb_ram_resource_and_rate_limit_budget_enforced"
   },
   {
    "agent_id": "AG-25",
    "name": "Open-Source Capability Intelligence",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M52/skill_vet_s12_receipt.json",
+   "evidence_artifact": "reports/grok/M52/skill_vet_s12_receipt.json",
+   "executed_at": "2026-10-24T04:42:42Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [
     "OBSERVE",
     "ANALYZE",
     "ADVISE"
    ],
-   "reason": "no_runtime_this_cycle"
+   "reason": "vetted_to_shelf_only_no_auto_install"
   },
   {
    "agent_id": "AG-26",
    "name": "Kourosh (CIO / Portfolio Manager)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M28/map_elites_grid.json",
+   "evidence_artifact": "reports/grok/M28/map_elites_grid.json",
+   "executed_at": "2026-10-24T14:58:42Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "portfolio_mandate_paper_only_no_promoted_book"
   },
   {
    "agent_id": "AG-27",
    "name": "Bahram (Macro, Rates & FX)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M19/macro_calendar.json",
+   "evidence_artifact": "reports/grok/M19/macro_calendar.json",
+   "executed_at": "2026-10-24T15:42:03Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "macro_calendar_6_of_6_banks_verified"
   },
   {
    "agent_id": "AG-28",
    "name": "Zarrin (Gold & Oil Division Lead)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M13_SOAK/soak_status.json",
+   "evidence_artifact": "reports/grok/M13_SOAK/soak_status.json",
+   "executed_at": "2026-10-24T15:35:47Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "gold_soak_and_oil_paper_tracks_weekend_hold"
   },
   {
    "agent_id": "AG-29",
    "name": "Sara (US Equities)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "executed_at": "2026-10-24T15:42:19Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "WEEKEND_SESSION_CLOSED_VERIFIED_QUOTES_READY"
   },
   {
    "agent_id": "AG-30",
    "name": "Leila (European Equities)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "executed_at": "2026-10-24T15:42:19Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "WEEKEND_SESSION_CLOSED_VERIFIED_QUOTES_READY"
   },
   {
    "agent_id": "AG-31",
    "name": "Mahsa (Asian Equities)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "executed_at": "2026-10-24T15:42:19Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "WEEKEND_SESSION_CLOSED_VERIFIED_QUOTES_READY"
   },
   {
    "agent_id": "AG-32",
    "name": "Farhad (Futures & Derivatives)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M13_OIL/oil_status.json",
+   "evidence_artifact": "reports/grok/M13_OIL/oil_status.json",
+   "executed_at": "2026-10-24T14:35:18Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "futures_roll_and_margin_guard_paper_only"
   },
   {
    "agent_id": "AG-33",
    "name": "Negar (News Intelligence Division Lead)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M18/newsroom_snapshot.json",
+   "evidence_artifact": "reports/grok/M18/newsroom_snapshot.json",
+   "executed_at": "2026-10-24T14:35:39Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "live_rss_newsroom_36_corroborated_clusters"
   },
   {
    "agent_id": "AG-34",
    "name": "Bijan (Chart Intelligence)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M60_F/signal_fusion_snapshot.json",
+   "evidence_artifact": "reports/grok/M60_F/signal_fusion_snapshot.json",
+   "executed_at": "2026-10-24T10:29:02Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "multi_timeframe_numeric_chart_signals_active"
   },
   {
    "agent_id": "AG-35",
    "name": "Shida (GitHub Intelligence)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M16/github_rd_crawl.json",
+   "evidence_artifact": "reports/grok/M16/github_rd_crawl.json",
+   "executed_at": "2026-10-24T14:35:15Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "github_rd_crawl_license_and_sandbox_vetted"
   },
   {
    "agent_id": "AG-36",
    "name": "Siavash (AGI/ACI Architecture Team Lead)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M57/science_to_desk_snapshot.json",
+   "evidence_artifact": "reports/grok/M57/science_to_desk_snapshot.json",
+   "executed_at": "2026-10-24T15:42:47Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "7_pillars_live_proposals_only_zero_agi_claim"
   },
   {
    "agent_id": "AG-37",
    "name": "Babak (Treasury & Allocation)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M43/pilot_100usd_gateway_snapshot.json",
+   "evidence_artifact": "reports/grok/M43/pilot_100usd_gateway_snapshot.json",
+   "executed_at": "2026-10-24T10:29:30Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "treasury_real_money_disabled_paper_100usd_only"
   },
   {
    "agent_id": "AG-38",
    "name": "Dariush (Execution & Broker)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "evidence_artifact": "reports/grok/PAPER/session_readiness_drill.json",
+   "executed_at": "2026-10-24T15:42:19Z",
+   "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "paper_adapter_preflight_pass_broker_not_verified"
   },
   {
    "agent_id": "AG-39",
    "name": "Maryam (Compliance & Sanctions)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M45/sandbox_isolation_snapshot.json",
+   "evidence_artifact": "reports/grok/M45/sandbox_isolation_snapshot.json",
+   "executed_at": "2026-10-24T10:29:30Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "compliance_and_sandbox_isolation_enforced_clean"
   },
   {
    "agent_id": "AG-40",
    "name": "Homan (Failure Analysis & Post-trade Learning)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M29/crisis_replay_receipt.json",
+   "evidence_artifact": "reports/grok/M29/crisis_replay_receipt.json",
+   "executed_at": "2026-10-24T04:42:42Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "crisis_replay_10_of_10_blocked_under_60s"
   },
   {
    "agent_id": "AG-41",
@@ -529,29 +528,29 @@
    "verdict": "HOLD",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "artifact"
+   "reason": "batch6_scored_zero_promotion_eligible"
   },
   {
    "agent_id": "AG-42",
    "name": "Zhaleh (Accounting / Financial Ledger)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/M32/cross_desk_reconcile.json",
+   "evidence_artifact": "reports/grok/M32/cross_desk_reconcile.json",
+   "executed_at": "2026-10-24T10:29:05Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "cross_desk_accounting_reconciliation_clean"
   },
   {
    "agent_id": "AG-43",
    "name": "Ayda (Agent Supervision / Guardian Lead)",
-   "input_artifact": "config/agent_registry.yaml",
-   "evidence_artifact": null,
-   "executed_at": null,
-   "verdict": "UNRESOLVED",
+   "input_artifact": "reports/grok/PAPER/paper_trade_audit.json",
+   "evidence_artifact": "reports/grok/PAPER/paper_trade_audit.json",
+   "executed_at": "2026-10-24T15:41:42Z",
+   "verdict": "PASS",
    "authority_ok": true,
    "allowed_authority": [],
-   "reason": "no_runtime_this_cycle"
+   "reason": "decision_journal_and_paper_trade_audit_intact"
   }
  ]
 }

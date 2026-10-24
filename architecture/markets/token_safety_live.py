@@ -27,14 +27,42 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from architecture.identity.validate import eip55_checksum
+
 PAPER_ONLY: bool = True
 UA = {"User-Agent": "Mozilla/5.0 (AHOS paper token safety veto)"}
 
+
+def to_eip55_checksum(addr: str | None) -> str | None:
+    if not addr or not isinstance(addr, str):
+        return None
+    s = addr.strip()
+    if len(s) == 42 and s[:2].lower() == "0x":
+        try:
+            int(s[2:], 16)
+            return eip55_checksum(s)
+        except ValueError:
+            return s
+    return s
+
+
+def _normalize_pool_id(pool: Any) -> str | None:
+    s = str(pool or "").strip().lower()
+    if not s:
+        return None
+    if len(s) == 66 and s.startswith("0x"):
+        try:
+            int(s[2:], 16)
+            return f"pool32:{s[2:]}"
+        except ValueError:
+            return s
+    return s
+
 # Canonical ERC-20 contracts on Ethereum mainnet (chain_id=1) for M13.6 PB-TOKEN desk
 VETTED_TOKEN_CONTRACTS: dict[str, dict[str, str]] = {
-    "UNI": {"symbol": "UNI", "name": "Uniswap", "chain_id": "1", "address": "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"},
-    "LINK": {"symbol": "LINK", "name": "Chainlink", "chain_id": "1", "address": "0x514910771af9ca656af840dff83e8264ecf986ca"},
-    "AAVE": {"symbol": "AAVE", "name": "Aave", "chain_id": "1", "address": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"},
+    "UNI": {"symbol": "UNI", "name": "Uniswap", "chain_id": "1", "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"},
+    "LINK": {"symbol": "LINK", "name": "Chainlink", "chain_id": "1", "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA"},
+    "AAVE": {"symbol": "AAVE", "name": "Aave", "chain_id": "1", "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9"},
 }
 
 MAX_TAX = 0.05
@@ -154,7 +182,7 @@ def fetch_dexscreener(address: str, getter: Callable[[str], Any] = _http_json) -
         base = str(((p.get("baseToken") or {}).get("address")) or "").lower()
         if base and base != address.lower():
             continue  # token is the quote side: priceUsd refers to the other token
-        pools.append({"pool": str(p.get("pairAddress") or "").lower() or None, "dex": p.get("dexId"),
+        pools.append({"pool": _normalize_pool_id(p.get("pairAddress")), "dex": p.get("dexId"),
                       "price_usd": _f(p.get("priceUsd")), "liquidity_usd": _f((p.get("liquidity") or {}).get("usd")) or 0.0,
                       "volume_24h_usd": _f((p.get("volume") or {}).get("h24")) or 0.0, "fdv": _f(p.get("fdv")),
                       "created_ms": p.get("pairCreatedAt")})
@@ -274,7 +302,7 @@ def veto_check(
     verdict = "ELIGIBLE_PAPER_TOKEN" if allowed else ("VETOED_SECURITY" if breach else "VETOED_FAIL_CLOSED")
     res = {
         "symbol": symbol.upper(),
-        "address": addr,
+        "address": to_eip55_checksum(addr),
         "chain_id": cid,
         "allowed": allowed,
         "verdict": verdict,
@@ -335,7 +363,7 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
         addr = base_id.split("_", 1)[-1].lower() if base_id.startswith("eth_") else None
         tx = (at.get("transactions") or {}).get("h24") or {}
         raw.append({"address": addr, "symbol": str(at.get("name") or "").split(" / ")[0].strip().upper()[:16],
-                    "pool": str(at.get("address") or "").lower(), "source": "geckoterminal_trending",
+                    "pool": _normalize_pool_id(at.get("address")) or "", "source": "geckoterminal_trending",
                     "pool_age_days": _age_days(at.get("pool_created_at"), now),
                     "volume_24h_usd": _f((at.get("volume_usd") or {}).get("h24")), "liquidity_usd": _f(at.get("reserve_in_usd")),
                     "fdv_usd": _f(at.get("fdv_usd")), "price_change_h6_pct": _f((at.get("price_change_percentage") or {}).get("h6")),
@@ -362,7 +390,7 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
         if not _is_eth_address(addr) or addr in seen:
             continue
         raw.append({"address": addr, "symbol": str(at.get("name") or "").split(" / ")[0].strip().upper()[:16],
-                    "pool": str(at.get("address") or "").lower(), "source": "geckoterminal_pools",
+                    "pool": _normalize_pool_id(at.get("address")) or "", "source": "geckoterminal_pools",
                     "pool_age_days": _age_days(at.get("pool_created_at"), now),
                     "volume_24h_usd": _f((at.get("volume_usd") or {}).get("h24")), "liquidity_usd": _f(at.get("reserve_in_usd")),
                     "fdv_usd": _f(at.get("fdv_usd")), "price_change_h6_pct": None, "buys_24h": None, "sells_24h": None})
@@ -383,7 +411,7 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
         if isinstance(created, (int, float)) and created > 0:
             age = (now.timestamp() - created / 1000.0) / 86400.0
         raw.append({"address": addr, "symbol": str((pair.get("baseToken") or {}).get("symbol") or "")[:16],
-                    "pool": str(pair.get("pairAddress") or "").lower() or None, "source": "dexscreener_search",
+                    "pool": _normalize_pool_id(pair.get("pairAddress")), "source": "dexscreener_search",
                     "pool_age_days": age, "volume_24h_usd": _f((pair.get("volume") or {}).get("h24")),
                     "liquidity_usd": _f((pair.get("liquidity") or {}).get("usd")), "fdv_usd": _f(pair.get("fdv")),
                     "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")), "buys_24h": None, "sells_24h": None})
@@ -413,6 +441,8 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
         discovery_source = "STATIC_FALLBACK"
     passed, rejected = [], []
     for r in raw:
+        if r.get("address"):
+            r["address"] = to_eip55_checksum(r["address"])
         why = []
         if not r["address"]:
             why.append("no_eth_base_token")
@@ -426,7 +456,7 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
     return {"raw_count": len(raw), "gecko_trending": sum(1 for r in raw if r["source"] == "geckoterminal_trending"),
             "dexscreener_boosted_eth": len(boosted_eth), "passed": passed, "rejected": rejected,
             "discovery_source": discovery_source, "endpoints": endpoints,
-            "address_form": "LOWERCASE_NO_KECCAK",
+            "address_form": "EIP55_CHECKSUM",
             "feeds_ok": {e["url"].split("/")[2]: e["ok"] for e in endpoints}}
 
 
@@ -511,7 +541,8 @@ def load_eligible_paper_tokens(root: Path, *, max_age_h: float = 6.0, max_n: int
 def dex_paper_quote(token: dict[str, Any], getter: Callable[[str], Any] = _http_json) -> tuple[dict[str, Any], dict[str, Any]]:
     """(quote, witness) for a discovered token: GeckoTerminal 5m OHLCV of its main pool + distinct-pool price witness."""
     pool, addr = token["pool"], token["address"]
-    o = getter(f"https://api.geckoterminal.com/api/v2/networks/eth/pools/{pool}/ohlcv/minute?aggregate=5&limit=288")
+    raw_pool = ("0x" + pool[7:]) if str(pool).startswith("pool32:") else pool
+    o = getter(f"https://api.geckoterminal.com/api/v2/networks/eth/pools/{raw_pool}/ohlcv/minute?aggregate=5&limit=288")
     rows = (((o or {}).get("data") or {}).get("attributes") or {}).get("ohlcv_list") or [] if isinstance(o, dict) else []
     rows = sorted(r for r in rows if isinstance(r, list) and len(r) >= 6)
     dx = fetch_dexscreener(addr, getter=getter)

@@ -1,6 +1,6 @@
 {
  "schema": "ahos.aci_agi_si_loop_status.v1",
- "generated_at": "2026-10-24T10:37:15Z",
+ "generated_at": "2026-10-24T15:42:47Z",
  "paper_only": true,
  "capability_claims": "NONE — loop telemetry only; no AGI/SI capability is asserted",
  "loop_closed": false,
@@ -27,19 +27,19 @@
   },
   {
    "stage": "PRE_REGISTER",
-   "evidence_count": 28,
+   "evidence_count": 32,
    "status": "ACTIVE",
    "detail": {
-    "registry_entries": 28
+    "registry_entries": 32
    }
   },
   {
    "stage": "TEST",
-   "evidence_count": 28,
+   "evidence_count": 32,
    "status": "ACTIVE",
    "detail": {
     "verdicts": {
-     "REJECTED": 24,
+     "REJECTED": 28,
      "NOT TESTED": 1,
      "SHADOW_FORWARD_TEST": 1,
      "FORWARD_TEST": 2
@@ -67,22 +67,22 @@
   },
   {
    "stage": "TEACH",
-   "evidence_count": 12,
+   "evidence_count": 22,
    "status": "ACTIVE",
    "detail": {
-    "theta": 3.0,
-    "theta_se": 0.9781,
+    "theta": 0.5617,
+    "theta_se": 0.4778,
     "status": "INSUFFICIENT_INDEPENDENT_EPISODES"
    }
   },
   {
    "stage": "FEEDBACK",
-   "evidence_count": 0,
-   "status": "EMPTY",
+   "evidence_count": 7,
+   "status": "ACTIVE",
    "detail": {
-    "trades_remaining_to_30_gate": 30
+    "trades_remaining_to_30_gate": 23
    }
   }
  ],
- "summary_fa": "حلقهٔ علم→آزمون→آموزش: SCOUT(80) → HYPOTHESIZE(14) → PRE_REGISTER(28) → TEST(28) → RED_TEAM(25) → PROMOTE(0) → TEACH(12) → FEEDBACK(0) — حلقه در مرحلهٔ PROMOTE باز است (بدون شواهد، بدون ادعا)."
+ "summary_fa": "حلقهٔ علم→آزمون→آموزش: SCOUT(80) → HYPOTHESIZE(14) → PRE_REGISTER(32) → TEST(32) → RED_TEAM(25) → PROMOTE(0) → TEACH(22) → FEEDBACK(7) — حلقه در مرحلهٔ PROMOTE باز است (بدون شواهد، بدون ادعا)."
 }

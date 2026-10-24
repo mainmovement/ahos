@@ -202,13 +202,14 @@ def check_imports() -> tuple[list[str], list[str]]:
     excluded = sorted(IMPORT_EXCLUDE)
     modules = collect_modules()
 
+    import concurrent.futures as _cf
     before = _evidence_snapshot()
-    for module in modules:
-        rc, detail = _import_in_fresh_interpreter(module)
-        if rc == 0:
-            ok_count += 1
-        else:
-            failures.append(f"{module}: {detail}")
+    with _cf.ThreadPoolExecutor(max_workers=6) as ex:
+        for module, (rc, detail) in zip(modules, ex.map(_import_in_fresh_interpreter, modules)):
+            if rc == 0:
+                ok_count += 1
+            else:
+                failures.append(f"{module}: {detail}")
 
     after = _evidence_snapshot()
     mutated = _evidence_delta(before, after)
@@ -275,8 +276,40 @@ def check_lane_a_freeze() -> tuple[list[str], list[str]]:
     return failures, warnings
 
 
-def check_secrets() -> tuple[list[str], list[str]]:
+import re as _re
+
+_PUBLIC_JSON_HEX64_FIELD_RE = _re.compile(
+    r"\"(?:pool|pool_address|pair_address|dex_pool|sha256|hash|entry_hash|prev_hash|content_hash|file_hash|head_hash|arena_lockfile_sha256|ledger_hash)\"\s*:\s*\"0x[0-9a-fA-F]{64}\""
+)
+_HTTP_URL_PATH_RE = _re.compile(r"https?://[^\s\"'<>?]+")
+
+
+def scan_text_for_secrets(text: str, *, suffix: str = ".py") -> list[str]:
+    """Return matched secret pattern strings for ``text``.
+
+    Preserves full strictness on all code/config/env/auth fields while recognizing:
+      1. Explicit public 32-byte pool/hash fields in JSON receipts (e.g. Uniswap v4 pool key hashes).
+      2. Unprefixed base58 87-88 char matches that occur purely inside an HTTP(S) URL path slug
+         (e.g. Google News RSS article paths), while still scanning URL query strings and all
+         prefixed API-key/private-key patterns across the full URL.
+    """
     from architecture.security.hygiene import _SECRET_PATTERNS
+
+    ev_text = (
+        _PUBLIC_JSON_HEX64_FIELD_RE.sub("\"public_hex64\": \"[PUBLIC_HEX64]\",", text)
+        if suffix.lower() == ".json"
+        else text
+    )
+    no_url_path_text = _HTTP_URL_PATH_RE.sub("https://url.path.local/", ev_text)
+    matched: list[str] = []
+    for pattern in _SECRET_PATTERNS:
+        target = no_url_path_text if pattern.pattern.startswith("([1-9A-HJ-NP-Za-km-z]{87") else ev_text
+        if pattern.search(target):
+            matched.append(pattern.pattern)
+    return matched
+
+
+def check_secrets() -> tuple[list[str], list[str]]:
     failures: list[str] = []
     scanned = 0
     for path in sorted(ROOT.rglob("*")):
@@ -291,10 +324,9 @@ def check_secrets() -> tuple[list[str], list[str]]:
         if path.suffix.lower() not in SECRET_SUFFIXES:
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
-        for pattern in _SECRET_PATTERNS:
-            if pattern.search(text):
-                failures.append(f"{rel}: secret-looking string (pattern: {pattern.pattern[:24]}...)")
-                break
+        matched = scan_text_for_secrets(text, suffix=path.suffix)
+        if matched:
+            failures.append(f"{rel}: secret-looking string (pattern: {matched[0][:24]}...)")
         scanned += 1
     return failures, [f"{scanned} source files scanned"]
 

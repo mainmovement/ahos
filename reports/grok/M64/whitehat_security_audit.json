@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T15:01:58Z",
+  "generated_at": "2026-10-24T15:41:42Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "overall_verdict": "CLEAN",
@@ -70,9 +70,9 @@
       "verdict": "CLEAN",
       "entries": {
         "schema": "ahos.mission_ledger.v1",
-        "path": "G:\\robat\\_tmp\\tmpjky2llrw\\ledger_copy.jsonl",
-        "entries": 1020,
-        "head_hash": "12695679fb152d92c457c884081a73236ebd0a06bee0fc3f3f4e79d4b19d5086",
+        "path": "C:\\Users\\Sniper\\AppData\\Local\\Temp\\tmptlqhmpl0\\ledger_copy.jsonl",
+        "entries": 1031,
+        "head_hash": "bdd3f5ddf9f363196ae0a57fc5c79754a8c72adb7a378d5d87c96d77a004b971",
         "torn_tail": false,
         "verdict": "CHAIN_INTACT"
       }
