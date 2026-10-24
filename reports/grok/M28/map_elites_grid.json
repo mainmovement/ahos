@@ -1,0 +1,66 @@
+{
+ "schema": "ahos.map_elites_grid.v1",
+ "paper_only": true,
+ "descriptors": {
+  "horizon": [
+   "intraday",
+   "swing_2_5d",
+   "macro_weekly"
+  ],
+  "regime": [
+   "trend_breakout",
+   "vol_compression_carry",
+   "crisis_defensive"
+  ]
+ },
+ "cells_occupied": 4,
+ "cells_total": 9,
+ "empty_cells_mean": "no admitted strategy, not a zero-quality strategy",
+ "grid": {
+  "intraday": {
+   "trend_breakout": null,
+   "vol_compression_carry": null,
+   "crisis_defensive": null
+  },
+  "swing_2_5d": {
+   "trend_breakout": {
+    "strategy_id": "b6-H31-BOOK",
+    "hypothesis_id": "H31",
+    "is_sharpe": -0.0443,
+    "oos_sharpe": -0.0102,
+    "gate": "FAIL",
+    "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
+   },
+   "vol_compression_carry": null,
+   "crisis_defensive": null
+  },
+  "macro_weekly": {
+   "trend_breakout": {
+    "strategy_id": "b6-H30-BOOK",
+    "hypothesis_id": "H30",
+    "is_sharpe": 0.0106,
+    "oos_sharpe": 0.143,
+    "gate": "FAIL",
+    "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
+   },
+   "vol_compression_carry": {
+    "strategy_id": "b6-H29-BOOK",
+    "hypothesis_id": "H29",
+    "is_sharpe": 0.0521,
+    "oos_sharpe": -0.0073,
+    "gate": "FAIL",
+    "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
+   },
+   "crisis_defensive": {
+    "strategy_id": "b6-H32-BOOK",
+    "hypothesis_id": "H32",
+    "is_sharpe": 0.1376,
+    "oos_sharpe": 0.107,
+    "gate": "FAIL",
+    "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key."
+   }
+  }
+ },
+ "screened": [],
+ "generated_at": "2026-10-24T14:54:02Z"
+}

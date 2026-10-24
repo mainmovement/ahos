@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-24T10:04:58Z",
+  "updated": "2026-10-24T14:54:02Z",
   "experiment_log": "exp_20260811_165329.json",
   "candidates": {
     "H1": {
@@ -594,9 +594,74 @@
           "preregistered_benchmark_test": null
         }
       }
+    },
+    "H29": {
+      "name": "Cross-sectional time-series momentum with inverse-vol weights and 15 bps switching cost",
+      "family": "cross_sectional_momentum",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch6_research.json @ 2026-10-24T14:54:02Z",
+      "detail": {
+        "b6-H29-BOOK": {
+          "oos_n": 292,
+          "oos_sharpe": -0.0073,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H30": {
+      "name": "Black-Litterman tilt whose view uncertainty shrinks only when trailing signal IC is real",
+      "family": "calibrated_combination",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch6_research.json @ 2026-10-24T14:54:02Z",
+      "detail": {
+        "b6-H30-BOOK": {
+          "oos_n": 68,
+          "oos_sharpe": 0.143,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H31": {
+      "name": "Volatility-compression breakout with wick asymmetry, gated by a causal vol-state filter",
+      "family": "microstructure_liquidity",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch6_research.json @ 2026-10-24T14:54:02Z",
+      "detail": {
+        "b6-H31-BOOK": {
+          "oos_n": 367,
+          "oos_sharpe": -0.0102,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H32": {
+      "name": "Crisis barbell: gold and dollar in high-vol regimes, crypto and equity momentum in low-vol regimes",
+      "family": "crisis_hedge",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch6_research.json @ 2026-10-24T14:54:02Z",
+      "detail": {
+        "b6-H32-BOOK": {
+          "oos_n": 200,
+          "oos_sharpe": 0.107,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
     }
   },
   "batch4_pbo": 0.2714,
-  "dsr_trials_counted": 89,
-  "batch5_pbo": 0.4398
+  "dsr_trials_counted": 93,
+  "batch5_pbo": 0.4398,
+  "batch6_pbo": 0.0341
 }

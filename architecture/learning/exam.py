@@ -318,3 +318,103 @@ def synthesize_live_conflict_exam_items(root: Path) -> dict[str, Any]:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return payload
+
+
+LIVE_RECEIPT_REL = Path("reports") / "grok" / "M50" / "live_exam_receipt.json"
+LIVE_EPISODE_GAP_S = 86400
+HISTORICAL_MIN_EPISODES = 15
+_EVENT_SYMBOL = {"FOMC_STATEMENT": "SPX", "EIA_WPSR": "WTI"}
+
+
+def _live_daemon_episodes(root: Path) -> dict[str, Any]:
+    """Live paper decisions grouped so two rows inside 24h are one episode."""
+    from architecture.learning.shadow_forward_scorecard import _load_events, _parse_ts
+    times = []
+    for row in _load_events(root):
+        if row.get("event") not in ("OPEN", "HOLD", "NO_TRADE"):
+            continue
+        t = _parse_ts(str(row.get("ts") or ""))
+        if t is not None:
+            times.append(t)
+    times.sort()
+    count, last = 0, None
+    for t in times:
+        if last is None or t >= last + LIVE_EPISODE_GAP_S:
+            count += 1
+            last = t
+    return {"count": count, "min_episodes": EXAM_MIN_EPISODES, "gap_hours": 24,
+            "status": "ACCUMULATING" if count < EXAM_MIN_EPISODES else "READY_NOT_A_PROMOTION",
+            "note": "Live rows so far are one short window. This count is not a skill score."}
+
+
+def _historical_oos_episodes(root: Path) -> dict[str, Any]:
+    """Event-day episodes from the local close cache and the official calendar. No network."""
+    import json as _json
+    empty = {"count": 0, "heldout": 0, "status": "INSUFFICIENT_LOCAL_HISTORY", "leaked": False,
+             "estimate_ability_theta": None, "theta_se": None, "brier": None}
+    try:
+        cache = _json.loads((root / "reports" / "grok" / "M28" / "daily_close_cache.json").read_text(encoding="utf-8"))["closes"]
+        cal = _json.loads((root / "reports" / "grok" / "M19" / "macro_calendar.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError, KeyError):
+        return empty
+    episodes = []
+    last_day = None
+    for ev in sorted(cal.get("events") or [], key=lambda e: e.get("at_utc") or ""):
+        sym = _EVENT_SYMBOL.get(ev.get("event"))
+        if not sym or sym not in cache:
+            continue
+        day = str(ev.get("at_utc") or "")[:10]
+        if len(day) != 10 or (last_day and day <= last_day):
+            continue
+        days = sorted(cache[sym])
+        if day not in days:
+            continue
+        i = days.index(day)
+        if i < 21 or i + 1 >= len(days):
+            continue
+        prev = [cache[sym][days[j]] for j in range(i - 20, i + 1)]
+        if min(prev) <= 0 or cache[sym][days[i + 1]] <= 0:
+            continue
+        trend = prev[-1] / prev[0] - 1
+        outcome = cache[sym][days[i + 1]] / prev[-1] - 1
+        if trend == 0:
+            continue
+        episodes.append({"day": day, "symbol": sym, "event": ev.get("event"),
+                         "correct": (1 if trend > 0 else -1) * outcome > 0, "leaked": False})
+        last_day = days[i + 1]
+    if len(episodes) < HISTORICAL_MIN_EPISODES * 2:
+        empty["count"] = len(episodes)
+        return empty
+    cut = len(episodes) // 2
+    held = [e for e in episodes[cut:] if e["day"] > episodes[cut - 1]["day"]]
+    from architecture.university.registry import estimate_ability_theta as map_theta
+    est = map_theta([{"a": 1.0, "b": 0.0, "correct": e["correct"]} for e in held]) if held else None
+    ys = [1.0 if e["correct"] else 0.0 for e in held]
+    brier = round(sum((0.5 - y) ** 2 for y in ys) / len(ys), 4) if ys else None
+    status = "MEASURED" if len(held) >= HISTORICAL_MIN_EPISODES else "INSUFFICIENT_HELD_OUT"
+    return {"count": len(episodes), "heldout": len(held), "status": status, "leaked": False,
+            "estimate_ability_theta": est["theta"] if est else None, "theta_se": est["se"] if est else None,
+            "brier": brier, "probability_model": "constant 0.5 (no-skill Brier, not a fitted confidence)",
+            "rule": "sign of the prior 20 sessions vs the next session after an official event; features stop before the event day",
+            "cards_fa": [{"prompt_fa": f"{e['event']} در {e['day']} روی {e['symbol']}",
+                          "verdict_fa": "درست" if e["correct"] else "نادرست",
+                          "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."} for e in held[-6:]]}
+
+
+def build_live_exam_receipt(root: Path) -> dict[str, Any]:
+    """Two scores, kept apart: live daemon episodes (still accumulating) and historical event episodes."""
+    import json as _json
+    live_items = synthesize_live_conflict_exam_items(root)
+    payload = {
+        "schema": "ahos.m50_live_exam_receipt.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "paper_only": True,
+        "live_daemon_episodes": _live_daemon_episodes(root),
+        "historical_oos_episodes": _historical_oos_episodes(root),
+        "live_1h_exam_status": live_items.get("status"),
+        "note_fa": "نمرهٔ زنده و نمرهٔ تاریخی جدا هستند. هیچ‌کدام ارتقا نمی‌دهد.",
+    }
+    out = root / LIVE_RECEIPT_REL
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(_json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return payload

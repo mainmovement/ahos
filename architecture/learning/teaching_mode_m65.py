@@ -373,7 +373,33 @@ def _lessons_from_live_conflict_exam(repo: "Path") -> list[TeachingLessonFa]:
     return out
 
 
+def _lessons_from_historical_exam(repo: "Path") -> list[TeachingLessonFa]:
+    path = Path(repo) / "reports" / "grok" / "M50" / "live_exam_receipt.json"
+    if not path.is_file():
+        return []
+    try:
+        hist = json.loads(path.read_text(encoding="utf-8")).get("historical_oos_episodes") or {}
+    except Exception:
+        return []
+    out = []
+    for i, card in enumerate((hist.get("cards_fa") or [])[:4]):
+        if card.get("verdict_fa") != "نادرست":
+            continue
+        out.append(TeachingLessonFa(
+            lesson_id=f"m65-hist-{i}", market="MACRO", symbol="EVENT", regime_tag="HISTORICAL_OOS",
+            title_fa=f"درس تاریخی: {card.get('prompt_fa', '')}",
+            why_entered_fa=str(card.get("prompt_fa") or ""),
+            what_happened_fa="جهت ۲۰ جلسهٔ قبل با جلسهٔ بعد از رویداد نخواند.",
+            mistake_or_strength_fa="نادرست",
+            key_takeaway_fa=str(card.get("lesson_fa") or "") + " این نمره جدا از معامله‌گر زنده است.",
+            glossary_keys=("DSR",),
+        ))
+    return out
+
+
 def _lesson_source(lesson_id: str) -> str:
+    if lesson_id.startswith("m65-hist-"):
+        return "HISTORICAL_OOS"
     if lesson_id.startswith("m65-exam-"):
         return "LIVE_HELDOUT_EXAM"
     if lesson_id.startswith(("m65-live-", "m65-weekend-")):
@@ -409,7 +435,7 @@ def generate_teaching_journal_snapshot(
         lessons = [build_teaching_lesson_from_cycle(c) for c in cycles]
     else:
         live_c = _load_live_paper_cycles(repo)
-        exam_lessons = _lessons_from_live_conflict_exam(repo)
+        exam_lessons = _lessons_from_live_conflict_exam(repo) + _lessons_from_historical_exam(repo)
         lessons = exam_lessons + [build_teaching_lesson_from_cycle(c) for c in live_c] + default_lessons
 
     return {

@@ -650,6 +650,37 @@ def fetch_daily_v(yahoo: str, range_: str = "10y") -> list[tuple[int, float, flo
             zip(res["timestamp"], q["open"], q["high"], q["low"], q["close"], vols) if None not in (o, h, l, c)]
 
 
+def safe_simple_return(p0: float, p1: float) -> float | None:
+    """Percent return. Undefined (None) when either price is non-positive, so a negative commodity print
+    drops that day instead of producing NaN/Inf from a logarithm."""
+    if p0 > 0.0 and p1 > 0.0:
+        return p1 / p0 - 1.0
+    return None
+
+
+def wilder_atr(bars, n: int = 14) -> list[float | None]:
+    """ATR at each bar from prior true ranges only (index i uses bars up to i, never i+1)."""
+    out: list[float | None] = [None] * len(bars)
+    prev = None
+    for i, b in enumerate(bars):
+        h, l, c = b[2], b[3], b[4]
+        if i == 0:
+            tr = h - l
+        else:
+            pc = bars[i - 1][4]
+            tr = max(h - l, abs(h - pc), abs(l - pc))
+        prev = tr if prev is None else (prev * (n - 1) + tr) / n
+        out[i] = prev if i >= n else None
+    return out
+
+
+def atr_normalized_return(prev_close: float, close: float, prev_atr: float | None) -> float | None:
+    """Dollar change divided by the prior bar's ATR. Finite when price itself is negative."""
+    if prev_atr is None or prev_atr <= 0.0:
+        return None
+    return (close - prev_close) / prev_atr
+
+
 def _bar_day(ts: int) -> str:
     """Trading date of a Yahoo daily bar (FX/futures bars are stamped the prior evening UTC)."""
     return _day(ts + 6 * 3600)

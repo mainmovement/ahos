@@ -14,7 +14,8 @@ from typing import Any
 SWITCH_REL = Path("reports") / "grok" / "PAPER" / "strategy_switch.json"
 B4_REL = Path("reports") / "grok" / "M28" / "batch4_research.json"
 B5_REL = Path("reports") / "grok" / "M28" / "batch5_research.json"
-BATCH_RELS = (B4_REL, B5_REL)
+B6_REL = Path("reports") / "grok" / "M28" / "batch6_research.json"
+BATCH_RELS = (B4_REL, B5_REL, B6_REL)
 RED_REL = Path("reports") / "grok" / "M56" / "strategy_red_team_snapshot.json"
 
 

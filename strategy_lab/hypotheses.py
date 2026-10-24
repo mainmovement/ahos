@@ -247,4 +247,52 @@ _B5 = [
 ]
 HYPOTHESES.extend(_B5)
 
+# ---------------- BATCH 6 (registered 2026-10-24 18:18 Tehran — PRE-REGISTERED BEFORE ANY RUN) ---------------
+# Executor: architecture/markets/map_elites_lab.py run_batch6, which calls architecture/learning/walk_forward.py
+# (the one walk-forward engine). Four composite trials, not per-symbol grids. A hypothesis is an out-of-sample
+# trial ONLY if its in-sample book passes both screens below; a screened hypothesis is recorded and NOT counted
+# in trials_counted_in_dsr. DSR counts 89 (through batch 5) plus every batch-6 trial that touches the OOS folds.
+# Screens (frozen): pairwise |rho| of IS daily returns < 0.65 versus equal-weight, versus 12-month time-series
+# momentum, and versus every batch-6 sibling already admitted; active_share = 0.5 * sum(|w|-equal) on
+# gross-normalized weights, IS mean >= 0.30 (H29) or >= 0.25 (H30-H32).
+# Return methodology (frozen): primary gate uses percent returns, and any day whose price is <= 0 (WTI front
+# month, 2020-04-20) is dropped for that asset and the book is renormalized — never a log of a non-positive
+# price. The same book is also reported as ATR-normalized dollar changes (delta P / ATR_14 of the prior bar),
+# which stays finite through a negative print; that series is a robustness receipt, not a second trial.
+_B6 = [
+ dict(id="H29", family="cross_sectional_momentum", batch=6, name="Cross-sectional time-series momentum with inverse-vol weights and 15 bps switching cost",
+  hypothesis="Weekly (5 business days), long the top third and short the bottom third of the 14-instrument universe by 252-day return divided by 63-day vol, weights proportional to inverse vol, gross exposure 1, cost 15 bps times one-way turnover. Beats equal weight out of sample.",
+  reasoning="Asness-Moskowitz-Pedersen cross-sectional momentum, vol-scaled so one asset cannot dominate. One composite trial, not 14.",
+  market_mechanism="Relative momentum persists across asset classes; inverse-vol weights are a risk budget, not a new signal.",
+  required_data="Yahoo daily for the DAILY universe. HAVE.",
+  risk_model="Dollar-neutral gross 1, 5-day hold, 15 bps per unit turnover.",
+  expected_failure_mode="IS returns correlate > 0.65 with plain time-series momentum, so the orthogonality screen refuses the OOS trial.",
+  map_elites_cell=("macro_weekly", "vol_compression_carry"), active_share_min=0.30, status="TESTABLE"),
+ dict(id="H30", family="calibrated_combination", batch=6, name="Black-Litterman tilt whose view uncertainty shrinks only when trailing signal IC is real",
+  hypothesis="Monthly Black-Litterman over the 8 liquid assets. The single view is 12-month momentum. View variance omega = tau * variance / max(|trailing IC|, 1e-3), where trailing IC is the correlation of the previous rebalance's view with the return that had already been realized — never the return being scored. Posterior weights must show IS active_share >= 0.25 against equal weight, and OOS Sharpe must beat equal weight.",
+  reasoning="H27 collapsed to equal weight because unproven views were given no confidence. Scaling omega by a measured trailing IC is the same idea with a continuous weight, and it fails closed (screened, not counted) when the tilt never appears.",
+  market_mechanism="Allocation. No new alpha source.",
+  required_data="Yahoo daily BTC, ETH, XAU, WTI, SPX, DAX, N225, EURUSD, with the non-positive-price day dropped rather than a Brent substitution.",
+  risk_model="tau=0.05, delta=2.5, gross 1, 21-day rebalance, per-instrument cost.",
+  expected_failure_mode="Trailing IC stays near 0, omega stays large, active_share < 0.25, no OOS trial.",
+  map_elites_cell=("macro_weekly", "trend_breakout"), active_share_min=0.25, status="TESTABLE"),
+ dict(id="H31", family="microstructure_liquidity", batch=6, name="Volatility-compression breakout with wick asymmetry, gated by a causal vol-state filter",
+  hypothesis="Across instruments with OHLC, enter a 3-day reversal when the rejection wick is >= 2.2x the body AND 5-day realized vol < 0.8x 20-day realized vol AND the causal 3-state vol filter (trailing-252 emission scales, forward filter only) is not in HIGH. Equal-weight the names that fire on a day into one book.",
+  reasoning="H24's wick fade plus a compression gate. The filter is the forward pass of the existing HMM with scales estimated only on past returns; full-sample PELT is not used because its penalty sees future volatility.",
+  market_mechanism="Stop-run absorption during quiet regimes; breakouts during high vol are not faded.",
+  required_data="Yahoo daily OHLCV. HAVE. Spot FX excluded (no real volume), same rule as H24.",
+  risk_model="3-day hold, cost per instrument, one composite trial.",
+  expected_failure_mode="Too few days pass every gate, or the book correlates with an already-admitted sibling.",
+  map_elites_cell=("swing_2_5d", "trend_breakout"), active_share_min=0.25, status="TESTABLE"),
+ dict(id="H32", family="crisis_hedge", batch=6, name="Crisis barbell: gold and dollar in high-vol regimes, crypto and equity momentum in low-vol regimes",
+  hypothesis="Weekly. When SPX 20-day realized vol exceeds its own trailing-252-day median, hold equal weight XAU and DXY. Otherwise hold equal weight of BTC, ETH and SPX that have a positive 63-day return (cash if none do). Cost 15 bps per unit turnover. Must beat equal weight of the same assets out of sample.",
+  reasoning="A defensive rotation is the crisis cell of the MAP-Elites grid. The vol median is trailing, so the regime label at t does not use vol after t.",
+  market_mechanism="High-vol regimes reward duration-free hedges; low-vol regimes reward risk momentum.",
+  required_data="Yahoo daily SPX, XAU, BTC, ETH and DX-Y.NYB. HAVE.",
+  risk_model="Gross 1, long only, 5-day rebalance, 15 bps turnover.",
+  expected_failure_mode="The vol switch lags the crash, so the hedge is bought after the drawdown.",
+  map_elites_cell=("macro_weekly", "crisis_defensive"), active_share_min=0.25, status="TESTABLE"),
+]
+HYPOTHESES.extend(_B6)
+
 def get(hid): return next(h for h in HYPOTHESES if h["id"] == hid)

@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from architecture.learning.exam import run_heldout_5domain_exam, synthesize_live_conflict_exam_items
+from architecture.learning.exam import build_live_exam_receipt, run_heldout_5domain_exam
 from architecture.learning.shadow_forward_scorecard import export_shadow_forward_scorecard
 from architecture.markets.session_readiness_drill import export_session_readiness_drill
 from architecture.learning.memory_consolidation import consolidate_canonical_memory, run_pit_10k_benchmark
@@ -22,6 +22,8 @@ from architecture.learning.strategy_tournament import run_strategy_tournament
 from architecture.university.whole_ahos_organ_evolution import build_whole_ahos_organ_evolution_snapshot
 from architecture.university.science_to_desk_pipeline import build_aci_agi_si_loop_status, build_organism_science_matrix
 from architecture.health.unification_audit import export_unification_audit
+from architecture.markets.token_safety_live import export_token_safety_snapshot
+from architecture.mission.cognitive_graph_m12 import export_cognitive_graph
 
 import subprocess
 
@@ -46,7 +48,9 @@ def main() -> int:
     exam = run_heldout_5domain_exam(root=ROOT)
     shadow = export_shadow_forward_scorecard(ROOT)
     drill = export_session_readiness_drill(ROOT)
-    live_exam = synthesize_live_conflict_exam_items(ROOT)
+    receipt = build_live_exam_receipt(ROOT)
+    live_exam = json.loads((ROOT / "reports/grok/M50/live_conflict_exam_items.json").read_text(encoding="utf-8"))
+    tokens = export_token_safety_snapshot(ROOT)
     m65 = generate_teaching_journal_snapshot(root=ROOT)
     _write("reports/grok/M65/teaching_journal_snapshot.json", m65)
     _write("reports/grok/M65/teaching_snapshot.json", m65)
@@ -54,6 +58,8 @@ def main() -> int:
     _write("reports/grok/M57/whole_ahos_organ_evolution.json", build_whole_ahos_organ_evolution_snapshot())
     science = build_organism_science_matrix(ROOT)
     loop = build_aci_agi_si_loop_status(ROOT)
+    export_unification_audit(ROOT)
+    graph = export_cognitive_graph(ROOT)
     unification = export_unification_audit(ROOT)
     payload = {
         "schema": "ahos.continuation_tracks.v1",
@@ -77,6 +83,10 @@ def main() -> int:
         "track7_live_exam_items": live_exam.get("n_items"),
         "track7_theta": live_exam.get("estimate_ability_theta"),
         "track7_live_exam_status": live_exam.get("status"),
+        "track7_live_daemon_episodes": (receipt.get("live_daemon_episodes") or {}).get("status"),
+        "track7_historical_oos_episodes": (receipt.get("historical_oos_episodes") or {}).get("status"),
+        "track2_token_discovery": tokens.get("discovery_source"),
+        "track4_cognitive_agents": graph.get("registry_agents"),
         "track7_science_pillars_live": science.get("pillars_live"),
         "track7_loop_status": loop.get("loop_status"),
         "track8_unification": unification["overall_status"],
@@ -86,6 +96,9 @@ def main() -> int:
             "reports/grok/M28/shadow_forward_scorecard.json",
             "reports/grok/PAPER/session_readiness_drill.json",
             "reports/grok/M50/live_conflict_exam_items.json",
+            "reports/grok/M50/live_exam_receipt.json",
+            "reports/grok/M33/live_token_safety_snapshot.json",
+            "reports/grok/M12/cognitive_graph_snapshot.json",
             "reports/grok/M65/teaching_snapshot.json",
             "reports/grok/M57/science_to_desk_snapshot.json",
             "reports/grok/M58/aci_agi_si_loop_status.json",

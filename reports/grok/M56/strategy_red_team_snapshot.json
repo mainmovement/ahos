@@ -1,6 +1,6 @@
 {
  "schema": "ahos.strategy_red_team.v1",
- "generated_at": "2026-10-24T01:17:23Z",
+ "generated_at": "2026-10-24T14:59:44Z",
  "paper_only": true,
  "execution_mode": "PAPER_ONLY",
  "real_trading": false,
@@ -12,9 +12,9 @@
   "04_REGIME_CONCENTRATION",
   "05_PARAMETER_PERTURBATION_15PCT"
  ],
- "candidates_tested": 51,
- "survived_count": 2,
- "vetoed_count": 49,
+ "candidates_tested": 77,
+ "survived_count": 3,
+ "vetoed_count": 74,
  "top_survivor_id": "b4-H15-BTC",
  "top_survivor_verdict_fa": "تأیید تیم قرمز (SURVIVED_RED_TEAM — 5/5): استراتژی «Stablecoin 7d supply growth > trailing-year p80, long 7d — BTC» از هر ۵ حملهٔ استرس (کارمزد ۲ و ۳ برابر، حذف ۳ معاملهٔ برتر، قناری نشت آینده، تنوع رژیم و تغییر ±۱۵٪ پارامتر) با موفقیت عبور کرد (صرفاً کاغذی / PAPER_ONLY).",
  "reports": [
@@ -2361,6 +2361,1202 @@
      "passed": false,
      "metric_summary": "sharpe_retention=0.00",
      "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H23-BTC",
+   "title": "HMM calm/normal x trend x netflow<=0 x stablecoin impulse>p60, long 7d — BTC",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -0.8503,
+   "sharpe_at_2x_cost": -1.102,
+   "sharpe_at_3x_cost": -1.3536,
+   "ex_top3_net_return_pct": -49.448,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «HMM calm/normal x trend x netflow<=0 x stablecoin impulse>p60, long 7d — BTC» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-0.85,sr_2x=-1.10,sr_3x=-1.35",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-1.10, 3x=-1.35)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-49.448%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-49.45%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-31.57%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-31.57%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H23-ETH",
+   "title": "HMM calm/normal x trend x netflow<=0 x stablecoin impulse>p60, long 7d — ETH",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 4,
+   "vectors_total": 5,
+   "baseline_sharpe": 2.9157,
+   "sharpe_at_2x_cost": 2.7283,
+   "sharpe_at_3x_cost": 2.5409,
+   "ex_top3_net_return_pct": 1.2409,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 4/5): استراتژی «HMM calm/normal x trend x netflow<=0 x stablecoin impulse>p60, long 7d — ETH» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=2.92,sr_2x=2.73,sr_3x=2.54",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=2.73, 3x=2.54)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": true,
+     "metric_summary": "ex_top3_return_pct=+1.241%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، بازده خالص همچنان مثبت است (+1.24%)؛ سود وابسته به یک رویداد تصادفی نیست."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-1.26%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-1.26%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=0.91",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 91٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-BTC",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — BTC",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 1.9084,
+   "sharpe_at_2x_cost": 1.6754,
+   "sharpe_at_3x_cost": 1.4424,
+   "ex_top3_net_return_pct": -20.3948,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — BTC» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=1.91,sr_2x=1.68,sr_3x=1.44",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=1.68, 3x=1.44)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-20.395%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-20.39%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+7.20%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.66",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-ETH",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — ETH",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -7.4459,
+   "sharpe_at_2x_cost": -7.8352,
+   "sharpe_at_3x_cost": -8.2245,
+   "ex_top3_net_return_pct": -27.5293,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — ETH» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-7.45,sr_2x=-7.84,sr_3x=-8.22",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-7.84, 3x=-8.22)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-27.529%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-27.53%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-23.09%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-23.09%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-SOL",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — SOL",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 2,
+   "vectors_total": 5,
+   "baseline_sharpe": 1.6289,
+   "sharpe_at_2x_cost": 1.4131,
+   "sharpe_at_3x_cost": 1.1973,
+   "ex_top3_net_return_pct": -24.6504,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 2/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — SOL» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=1.63,sr_2x=1.41,sr_3x=1.20",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=1.41, 3x=1.20)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-24.650%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-24.65%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-15.59%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-15.59%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=-0.93",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-XAU",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — XAU",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 1.9297,
+   "sharpe_at_2x_cost": 1.6969,
+   "sharpe_at_3x_cost": 1.4642,
+   "ex_top3_net_return_pct": -7.4198,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — XAU» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=1.93,sr_2x=1.70,sr_3x=1.46",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=1.70, 3x=1.46)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-7.420%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-7.42%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+0.17%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=-0.37",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-XAG",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — XAG",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 6.4971,
+   "sharpe_at_2x_cost": 5.9322,
+   "sharpe_at_3x_cost": 5.3672,
+   "ex_top3_net_return_pct": 0.0,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — XAG» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=6.50,sr_2x=5.93,sr_3x=5.37",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=5.93, 3x=5.37)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=+0.000%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (+0.00%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-0.44%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-0.44%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-WTI",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — WTI",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -4.567,
+   "sharpe_at_2x_cost": -4.6521,
+   "sharpe_at_3x_cost": -4.7373,
+   "ex_top3_net_return_pct": -39.3241,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — WTI» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-4.57,sr_2x=-4.65,sr_3x=-4.74",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-4.65, 3x=-4.74)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-39.324%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-39.32%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-27.08%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-27.08%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-BRENT",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — BRENT",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": 0.6194,
+   "sharpe_at_2x_cost": 0.4721,
+   "sharpe_at_3x_cost": 0.3247,
+   "ex_top3_net_return_pct": -17.8399,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — BRENT» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=0.62,sr_2x=0.47,sr_3x=0.32",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=0.47, 3x=0.32)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-17.840%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-17.84%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-3.84%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-3.84%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=-4.63",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-QQQ",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — QQQ",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 13.0739,
+   "sharpe_at_2x_cost": 12.8341,
+   "sharpe_at_3x_cost": 12.5943,
+   "ex_top3_net_return_pct": -0.8487,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — QQQ» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=13.07,sr_2x=12.83,sr_3x=12.59",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=12.83, 3x=12.59)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-0.849%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-0.85%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+3.22%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.30",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-DAX",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — DAX",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 4,
+   "vectors_total": 5,
+   "baseline_sharpe": 46.5722,
+   "sharpe_at_2x_cost": 44.9266,
+   "sharpe_at_3x_cost": 43.281,
+   "ex_top3_net_return_pct": 0.0,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 4/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — DAX» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=46.57,sr_2x=44.93,sr_3x=43.28",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=44.93, 3x=43.28)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=+0.000%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (+0.00%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+0.90%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-N225",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — N225",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 13.6858,
+   "sharpe_at_2x_cost": 13.0679,
+   "sharpe_at_3x_cost": 12.45,
+   "ex_top3_net_return_pct": 0.0,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — N225» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=13.69,sr_2x=13.07,sr_3x=12.45",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=13.07, 3x=12.45)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=+0.000%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (+0.00%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+0.20%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=-0.34",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H24-HSI",
+   "title": "Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — HSI",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -3.4165,
+   "sharpe_at_2x_cost": -3.6546,
+   "sharpe_at_3x_cost": -3.8926,
+   "ex_top3_net_return_pct": -11.2563,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Wick >= 2.20x body beyond EWMA20 ±2σ + volume > 1.2x, fade 3d — HSI» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-3.42,sr_2x=-3.65,sr_3x=-3.89",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-3.65, 3x=-3.89)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-11.256%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-11.26%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-5.33%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-5.33%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H26-FOMC-XAU",
+   "title": "FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — XAU",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -0.9709,
+   "sharpe_at_2x_cost": -1.0405,
+   "sharpe_at_3x_cost": -1.11,
+   "ex_top3_net_return_pct": -12.3947,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — XAU» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-0.97,sr_2x=-1.04,sr_3x=-1.11",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-1.04, 3x=-1.11)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-12.395%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-12.39%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-12.52%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-12.52%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H26-FOMC-EURUSD",
+   "title": "FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — EURUSD",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 2,
+   "vectors_total": 5,
+   "baseline_sharpe": 1.0798,
+   "sharpe_at_2x_cost": 0.7984,
+   "sharpe_at_3x_cost": 0.5171,
+   "ex_top3_net_return_pct": -1.3278,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 2/5): استراتژی «FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — EURUSD» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=1.08,sr_2x=0.80,sr_3x=0.52",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=0.80, 3x=0.52)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-1.328%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-1.33%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+0.04%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=-3.36",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H26-FOMC-USDJPY",
+   "title": "FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — USDJPY",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 3.3082,
+   "sharpe_at_2x_cost": 3.1659,
+   "sharpe_at_3x_cost": 3.0237,
+   "ex_top3_net_return_pct": -3.753,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — USDJPY» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=3.31,sr_2x=3.17,sr_3x=3.02",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=3.17, 3x=3.02)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-3.753%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-3.75%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+1.32%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=-1.89",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H26-FOMC-BTC",
+   "title": "FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — BTC",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -1.4489,
+   "sharpe_at_2x_cost": -2.0007,
+   "sharpe_at_3x_cost": -2.5525,
+   "ex_top3_net_return_pct": -7.3255,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «FOMC_STATEMENT pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — BTC» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-1.45,sr_2x=-2.00,sr_3x=-2.55",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-2.00, 3x=-2.55)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-7.325%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-7.33%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-3.27%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-3.27%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H26-EIA-WTI",
+   "title": "EIA_WPSR pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — WTI",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -1.6819,
+   "sharpe_at_2x_cost": -1.8471,
+   "sharpe_at_3x_cost": -2.0123,
+   "ex_top3_net_return_pct": -21.7032,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «EIA_WPSR pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — WTI» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-1.68,sr_2x=-1.85,sr_3x=-2.01",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-1.85, 3x=-2.01)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-21.703%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-21.70%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-8.61%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-8.61%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H26-EIA-BRENT",
+   "title": "EIA_WPSR pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — BRENT",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -3.1286,
+   "sharpe_at_2x_cost": -3.2689,
+   "sharpe_at_3x_cost": -3.4092,
+   "ex_top3_net_return_pct": -28.603,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «EIA_WPSR pre-event vol compression (<0.80x) + kick > 0.5σ, follow 3d — BRENT» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-3.13,sr_2x=-3.27,sr_3x=-3.41",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-3.27, 3x=-3.41)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-28.603%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-28.60%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-23.11%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-23.11%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H25-ROT3",
+   "title": "DXY/US10Y-gated weekly rotation XAU/SPX/BTC/cash (63d ret/vol, hysteresis 0.25)",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 2,
+   "vectors_total": 5,
+   "baseline_sharpe": 0.9784,
+   "sharpe_at_2x_cost": 0.3907,
+   "sharpe_at_3x_cost": -0.197,
+   "ex_top3_net_return_pct": -9.936,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 2/5): استراتژی «DXY/US10Y-gated weekly rotation XAU/SPX/BTC/cash (63d ret/vol, hysteresis 0.25)» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=0.98,sr_2x=0.39,sr_3x=-0.20",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=0.39, 3x=-0.20)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-9.936%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-9.94%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-0.13%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-0.13%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H27-BL8",
+   "title": "Black-Litterman bull(12m trend)/bear(5d reversal) agents, LW covariance, Brier-weighted confidence",
+   "verdict": "SURVIVED_RED_TEAM",
+   "vectors_passed": 5,
+   "vectors_total": 5,
+   "baseline_sharpe": 5.8343,
+   "sharpe_at_2x_cost": 5.6691,
+   "sharpe_at_3x_cost": 5.5038,
+   "ex_top3_net_return_pct": 36.908,
+   "red_team_verdict_fa": "تأیید تیم قرمز (SURVIVED_RED_TEAM — 5/5): استراتژی «Black-Litterman bull(12m trend)/bear(5d reversal) agents, LW covariance, Brier-weighted confidence» از هر ۵ حملهٔ استرس (کارمزد ۲ و ۳ برابر، حذف ۳ معاملهٔ برتر، قناری نشت آینده، تنوع رژیم و تغییر ±۱۵٪ پارامتر) با موفقیت عبور کرد (صرفاً کاغذی / PAPER_ONLY).",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=5.83,sr_2x=5.67,sr_3x=5.50",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=5.67, 3x=5.50)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": true,
+     "metric_summary": "ex_top3_return_pct=+36.908%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، بازده خالص همچنان مثبت است (+36.91%)؛ سود وابسته به یک رویداد تصادفی نیست."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+9.86%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b5-H28-VT12",
+   "title": "Vol-target 12% allocator over IS-surviving batch-5 streams, quarter-Kelly, DD halving",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": -0.6506,
+   "sharpe_at_2x_cost": -4.393,
+   "sharpe_at_3x_cost": -8.1355,
+   "ex_top3_net_return_pct": -4.118,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Vol-target 12% allocator over IS-surviving batch-5 streams, quarter-Kelly, DD halving» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-0.65,sr_2x=-4.39,sr_3x=-8.14",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-4.39, 3x=-8.14)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-4.118%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-4.12%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+1.15%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b6-H29-BOOK",
+   "title": "Cross-sectional momentum, inverse-vol, 15 bps turnover",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -2.3533,
+   "sharpe_at_2x_cost": -4.5902,
+   "sharpe_at_3x_cost": -6.8272,
+   "ex_top3_net_return_pct": -53.825,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Cross-sectional momentum, inverse-vol, 15 bps turnover» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-2.35,sr_2x=-4.59,sr_3x=-6.83",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-4.59, 3x=-6.83)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-53.825%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-53.83%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-6.64%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-6.64%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b6-H30-BOOK",
+   "title": "Black-Litterman momentum view, omega inverse to trailing IC",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 1.0422,
+   "sharpe_at_2x_cost": -0.185,
+   "sharpe_at_3x_cost": -1.4122,
+   "ex_top3_net_return_pct": -4.1725,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Black-Litterman momentum view, omega inverse to trailing IC» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=1.04,sr_2x=-0.18,sr_3x=-1.41",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-0.18, 3x=-1.41)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-4.173%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-4.17%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+5.24%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b6-H31-BOOK",
+   "title": "Wick fade under vol compression, causal vol-state gate",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -0.8287,
+   "sharpe_at_2x_cost": -1.4959,
+   "sharpe_at_3x_cost": -2.1631,
+   "ex_top3_net_return_pct": -122.6585,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Wick fade under vol compression, causal vol-state gate» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-0.83,sr_2x=-1.50,sr_3x=-2.16",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-1.50, 3x=-2.16)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-122.659%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-122.66%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-41.77%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-41.77%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b6-H32-BOOK",
+   "title": "Gold/USD in high vol, crypto/equity momentum in low vol",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": 1.098,
+   "sharpe_at_2x_cost": 0.4975,
+   "sharpe_at_3x_cost": -0.1029,
+   "ex_top3_net_return_pct": -1.0651,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Gold/USD in high vol, crypto/equity momentum in low vol» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=1.10,sr_2x=0.50,sr_3x=-0.10",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=0.50, 3x=-0.10)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-1.065%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-1.07%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+7.38%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=0.94",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 94٪ از نسبت شارپ حفظ می‌شود."
     }
    ]
   }

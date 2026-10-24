@@ -555,7 +555,7 @@ def test_m57_m58_propose_only_and_claim_no_capability(tmp_path):
 def test_teaching_lessons_carry_their_evidence_source(tmp_path):
     from architecture.learning.teaching_mode_m65 import generate_teaching_journal_snapshot
     snap = generate_teaching_journal_snapshot(root=tmp_path)
-    allowed = {"LIVE_HELDOUT_EXAM", "LIVE_PAPER_STATE", "FIXTURE_ILLUSTRATIVE", "CALLER_SUPPLIED_CYCLE"}
+    allowed = {"LIVE_HELDOUT_EXAM", "LIVE_PAPER_STATE", "FIXTURE_ILLUSTRATIVE", "CALLER_SUPPLIED_CYCLE", "HISTORICAL_OOS"}
     assert snap["lessons"] and all(lesson["source"] in allowed for lesson in snap["lessons"])
     assert snap["lesson_sources"].get("LIVE_HELDOUT_EXAM", 0) == 0
     assert snap["live_anomaly_exam"]["status"] == "NOT_RUN"
@@ -618,6 +618,13 @@ def _ua_root(tmp_path):
     w("reports/grok/M57/whole_ahos_organ_evolution.json", {"exam_score_evidence": "STATIC_UNVERIFIED: constants"})
     w("reports/grok/M57/science_to_desk_snapshot.json", {"organ_static_curricula": "STATIC_UNVERIFIED_CLAIM",
                                                          "validated_claims_total": 0, "matrix": [{"validated_claims": 0}]})
+    w("reports/grok/M28/batch6_research.json", {"n_trials_prior": 89, "n_trials_counted_in_dsr": 89, "candidates": [],
+                                                "screened": [{"hypothesis_id": "H30", "counted_in_dsr": False}]})
+    w("reports/grok/M28/map_elites_grid.json", {"cells_occupied": 0, "grid": {"macro_weekly": {"crisis_defensive": None}}})
+    w("reports/grok/M12/cognitive_graph_snapshot.json", {"registry_agents": 1, "authority_violations": [], "agents": [
+        {"agent_id": "AG-01", "verdict": "UNRESOLVED", "authority_ok": True}]})
+    (tmp_path / "config").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "config" / "agent_registry.yaml").write_text("agents:\n  - agent_id: AG-01\n    allowed_authority: [OBSERVE]\n", encoding="utf-8")
     return tmp_path
 
 
@@ -711,3 +718,54 @@ def test_m13_gold_soak_enforce_witness_invariant_blocks_single_source_verified()
     assert status["last_cycle"]["witness_state"] == "UNRESOLVED"
     assert status["last_cycle"]["price_usd"] is None
     assert status["ledger_state"]["price_usd"] is None
+
+
+def test_batch6_screen_refuses_a_clone_and_a_flat_book():
+    from architecture.learning.walk_forward import atr_normalized_return, safe_simple_return
+    from architecture.markets.map_elites_lab import active_share, screen_book
+    assert safe_simple_return(-37.0, -20.0) is None
+    assert atr_normalized_return(-37.0, -20.0, 5.0) == 3.4
+    assert active_share([1, 1, 1, 1]) == 0.0
+    series = [0.01 * ((i % 7) - 3) for i in range(40)]
+    refused, why = screen_book(series, {"tsmom_12m": list(series)}, {}, 0.4, 0.25)
+    assert refused is False and "rho" in why
+    flat, why = screen_book(series, {}, {}, 0.1, 0.25)
+    assert flat is False and "active_share" in why
+
+
+def test_discovery_source_is_partial_when_only_one_feed_returns_tokens():
+    from architecture.markets.token_safety_live import discover_candidates
+    out = discover_candidates(_getter(), now=datetime(2026, 10, 24, tzinfo=timezone.utc))
+    assert out["discovery_source"] == "PARTIAL_LIVE"
+    assert out["address_form"] == "LOWERCASE_NO_KECCAK"
+    assert any(e["tokens"] > 0 for e in out["endpoints"])
+    assert sum(1 for e in out["endpoints"] if e["tokens"] > 0) == 1
+
+
+def test_exam_receipt_keeps_live_and_historical_scores_apart(tmp_path):
+    from architecture.learning.exam import build_live_exam_receipt
+    _paper_rows(tmp_path / "reports" / "grok" / "PAPER", [
+        {"ts": "2026-10-24T01:00:00Z", "event": "HOLD", "symbol": "BTC", "desk": "CRYPTO", "side": "SHORT", "price": 100.0},
+        {"ts": "2026-10-24T02:00:00Z", "event": "HOLD", "symbol": "ETH", "desk": "CRYPTO", "side": "SHORT", "price": 100.0}])
+    rec = build_live_exam_receipt(tmp_path)
+    assert rec["live_daemon_episodes"]["status"] == "ACCUMULATING"
+    assert rec["live_daemon_episodes"]["count"] == 1
+    assert rec["historical_oos_episodes"]["status"] == "INSUFFICIENT_LOCAL_HISTORY"
+
+
+def test_cognitive_graph_lists_every_registry_agent_without_inventing_pass(tmp_path):
+    from architecture.mission.cognitive_graph_m12 import build_cognitive_graph
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config" / "agent_registry.yaml").write_text(
+        "agents:\n  - agent_id: AG-01\n    name: Solo\n    allowed_authority: [OBSERVE]\n    forbidden_authority: [PROMOTE]\n",
+        encoding="utf-8")
+    g = build_cognitive_graph(tmp_path)
+    assert g["registry_agents"] == 1
+    assert g["agents"][0]["verdict"] == "UNRESOLVED" and g["agents"][0]["authority_ok"] is True
+    (tmp_path / "reports/grok/M64").mkdir(parents=True)
+    (tmp_path / "reports/grok/M64/whitehat_security_audit.json").write_text('{"overall_verdict": "CLEAN"}', encoding="utf-8")
+    (tmp_path / "config/agent_registry.yaml").write_text(
+        "agents:\n  - agent_id: AG-09\n    name: Security\n    allowed_authority: [OBSERVE, VETO]\n",
+        encoding="utf-8")
+    g2 = build_cognitive_graph(tmp_path)
+    assert g2["agents"][0]["verdict"] == "PASS" and g2["agents"][0]["authority_ok"] is True

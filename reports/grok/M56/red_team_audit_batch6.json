@@ -1,0 +1,62 @@
+{
+ "schema": "ahos.red_team_audit.batch6.v1",
+ "generated_at": "2026-10-24T14:59:44Z",
+ "paper_only": true,
+ "auto_promote": false,
+ "batch": 6,
+ "source": "reports/grok/M28/batch6_research.json",
+ "n_trials_counted_in_dsr": 93,
+ "pbo_cscv": 0.0341,
+ "note": "Screened hypotheses are absent here because they never touched the out-of-sample folds.",
+ "promotion_eligible": [],
+ "rows": [
+  {
+   "strategy_id": "b6-H29-BOOK",
+   "hypothesis_id": "H29",
+   "oos_n": 292,
+   "oos_sharpe": -0.0073,
+   "dsr": 0.0,
+   "gate": "FAIL",
+   "red_team": "VETOED_FRAGILE",
+   "excess_vs_equal_weight_oos_sharpe": -0.1611,
+   "preregistered_benchmark_test": "FAIL_NO_EXCESS_VS_EQUAL_WEIGHT",
+   "promotion_eligible": false
+  },
+  {
+   "strategy_id": "b6-H30-BOOK",
+   "hypothesis_id": "H30",
+   "oos_n": 68,
+   "oos_sharpe": 0.143,
+   "dsr": 0.0,
+   "gate": "FAIL",
+   "red_team": "VETOED_FRAGILE",
+   "excess_vs_equal_weight_oos_sharpe": -0.1597,
+   "preregistered_benchmark_test": "FAIL_NO_EXCESS_VS_EQUAL_WEIGHT",
+   "promotion_eligible": false
+  },
+  {
+   "strategy_id": "b6-H31-BOOK",
+   "hypothesis_id": "H31",
+   "oos_n": 367,
+   "oos_sharpe": -0.0102,
+   "dsr": 0.0,
+   "gate": "FAIL",
+   "red_team": "VETOED_FRAGILE",
+   "excess_vs_equal_weight_oos_sharpe": -0.1305,
+   "preregistered_benchmark_test": "FAIL_NO_EXCESS_VS_EQUAL_WEIGHT",
+   "promotion_eligible": false
+  },
+  {
+   "strategy_id": "b6-H32-BOOK",
+   "hypothesis_id": "H32",
+   "oos_n": 200,
+   "oos_sharpe": 0.107,
+   "dsr": 0.0,
+   "gate": "FAIL",
+   "red_team": "VETOED_FRAGILE",
+   "excess_vs_equal_weight_oos_sharpe": -0.0429,
+   "preregistered_benchmark_test": "FAIL_NO_EXCESS_VS_EQUAL_WEIGHT",
+   "promotion_eligible": false
+  }
+ ]
+}

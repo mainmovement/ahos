@@ -48,7 +48,10 @@ POOL_PRICE_TOL = 0.01
 SNAPSHOT_REL = Path("reports") / "grok" / "M33" / "live_token_safety_snapshot.json"
 BURN_ADDRESSES = {"0x000000000000000000000000000000000000dead", "0x0000000000000000000000000000000000000000"}
 GECKO_TRENDING_URL = "https://api.geckoterminal.com/api/v2/networks/eth/trending_pools?page=1"
+GECKO_POOLS_URL = "https://api.geckoterminal.com/api/v2/networks/eth/pools?page=1"
 DEXS_BOOSTS_URL = "https://api.dexscreener.com/token-boosts/top/v1"
+DEXS_SEARCH_URL = "https://api.dexscreener.com/latest/dex/search?q=WETH"
+BLOCKSCOUT_TOKENS_URL = "https://eth.blockscout.com/api/v2/tokens?type=ERC-20"
 AUTHORITY_FLAGS = ("is_proxy", "hidden_owner", "can_take_back_ownership", "owner_change_balance", "selfdestruct",
                    "cannot_sell_all", "transfer_pausable", "slippage_modifiable", "personal_slippage_modifiable",
                    "cannot_buy")
@@ -302,11 +305,30 @@ def _age_days(created_iso: str | None, now: datetime) -> float | None:
     return (now - t).total_seconds() / 86400.0
 
 
+def _is_eth_address(addr: str | None) -> bool:
+    if not addr or not addr.startswith("0x") or len(addr) != 42:
+        return False
+    try:
+        int(addr[2:], 16)
+    except ValueError:
+        return False
+    return True
+
+
+def _probe(getter: Callable[[str], Any], url: str) -> tuple[Any, dict[str, Any]]:
+    started = time.perf_counter()
+    body = getter(url)
+    return body, {"url": url, "ok": body is not None, "latency_ms": round((time.perf_counter() - started) * 1000.0, 1),
+                  "tokens": 0}
+
+
 def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datetime | None = None) -> dict[str, Any]:
-    """GeckoTerminal trending ETH pools + DexScreener boosted ethereum tokens -> funnel-filtered candidates."""
+    """Public DEX feeds -> funnel. Reference majors (UNI/LINK/AAVE) are not discovery results."""
     now = now or datetime.now(timezone.utc)
     raw: list[dict[str, Any]] = []
-    gt = getter(GECKO_TRENDING_URL)
+    endpoints: list[dict[str, Any]] = []
+    gt, ep = _probe(getter, GECKO_TRENDING_URL)
+    endpoints.append(ep)
     for p in (gt or {}).get("data") or [] if isinstance(gt, dict) else []:
         at = p.get("attributes") or {}
         base_id = ((((p.get("relationships") or {}).get("base_token") or {}).get("data") or {}).get("id")) or ""
@@ -318,7 +340,9 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
                     "volume_24h_usd": _f((at.get("volume_usd") or {}).get("h24")), "liquidity_usd": _f(at.get("reserve_in_usd")),
                     "fdv_usd": _f(at.get("fdv_usd")), "price_change_h6_pct": _f((at.get("price_change_percentage") or {}).get("h6")),
                     "buys_24h": tx.get("buys"), "sells_24h": tx.get("sells")})
-    boosts = getter(DEXS_BOOSTS_URL)
+    ep["tokens"] = sum(1 for r in raw if r["source"] == "geckoterminal_trending" and r["address"])
+    boosts, ep = _probe(getter, DEXS_BOOSTS_URL)
+    endpoints.append(ep)
     boosted_eth = [b for b in boosts if isinstance(b, dict) and b.get("chainId") == "ethereum"] if isinstance(boosts, list) else []
     seen = {r["address"] for r in raw if r["address"]}
     for b in boosted_eth[:10]:
@@ -327,6 +351,66 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
             raw.append({"address": addr, "symbol": None, "pool": None, "source": "dexscreener_boost", "pool_age_days": None,
                         "volume_24h_usd": None, "liquidity_usd": None, "fdv_usd": None})
             seen.add(addr)
+    ep["tokens"] = sum(1 for r in raw if r["source"] == "dexscreener_boost")
+    pools, ep = _probe(getter, GECKO_POOLS_URL)
+    endpoints.append(ep)
+    before = len(raw)
+    for p in (pools or {}).get("data") or [] if isinstance(pools, dict) else []:
+        at = p.get("attributes") or {}
+        base_id = ((((p.get("relationships") or {}).get("base_token") or {}).get("data") or {}).get("id")) or ""
+        addr = base_id.split("_", 1)[-1].lower() if base_id.startswith("eth_") else None
+        if not _is_eth_address(addr) or addr in seen:
+            continue
+        raw.append({"address": addr, "symbol": str(at.get("name") or "").split(" / ")[0].strip().upper()[:16],
+                    "pool": str(at.get("address") or "").lower(), "source": "geckoterminal_pools",
+                    "pool_age_days": _age_days(at.get("pool_created_at"), now),
+                    "volume_24h_usd": _f((at.get("volume_usd") or {}).get("h24")), "liquidity_usd": _f(at.get("reserve_in_usd")),
+                    "fdv_usd": _f(at.get("fdv_usd")), "price_change_h6_pct": None, "buys_24h": None, "sells_24h": None})
+        seen.add(addr)
+    ep["tokens"] = len(raw) - before
+    search, ep = _probe(getter, DEXS_SEARCH_URL)
+    endpoints.append(ep)
+    before = len(raw)
+    pairs = (search or {}).get("pairs") if isinstance(search, dict) else None
+    for pair in (pairs or [])[:30]:
+        if not isinstance(pair, dict) or pair.get("chainId") != "ethereum":
+            continue
+        addr = str((pair.get("baseToken") or {}).get("address") or "").lower()
+        if not _is_eth_address(addr) or addr in seen:
+            continue
+        created = pair.get("pairCreatedAt")
+        age = None
+        if isinstance(created, (int, float)) and created > 0:
+            age = (now.timestamp() - created / 1000.0) / 86400.0
+        raw.append({"address": addr, "symbol": str((pair.get("baseToken") or {}).get("symbol") or "")[:16],
+                    "pool": str(pair.get("pairAddress") or "").lower() or None, "source": "dexscreener_search",
+                    "pool_age_days": age, "volume_24h_usd": _f((pair.get("volume") or {}).get("h24")),
+                    "liquidity_usd": _f((pair.get("liquidity") or {}).get("usd")), "fdv_usd": _f(pair.get("fdv")),
+                    "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")), "buys_24h": None, "sells_24h": None})
+        seen.add(addr)
+    ep["tokens"] = len(raw) - before
+    scout, ep = _probe(getter, BLOCKSCOUT_TOKENS_URL)
+    endpoints.append(ep)
+    before = len(raw)
+    items = (scout or {}).get("items") if isinstance(scout, dict) else None
+    for item in (items or [])[:15]:
+        if not isinstance(item, dict):
+            continue
+        addr = str(item.get("address") or "").lower()
+        if not _is_eth_address(addr) or addr in seen:
+            continue
+        raw.append({"address": addr, "symbol": str(item.get("symbol") or "")[:16] or None, "pool": None,
+                    "source": "blockscout_erc20", "pool_age_days": None, "volume_24h_usd": None,
+                    "liquidity_usd": None, "fdv_usd": None, "price_change_h6_pct": None, "buys_24h": None, "sells_24h": None})
+        seen.add(addr)
+    ep["tokens"] = len(raw) - before
+    live_feeds = sum(1 for e in endpoints if e["tokens"] > 0)
+    if live_feeds >= 2:
+        discovery_source = "LIVE_MULTI_ENDPOINT"
+    elif live_feeds == 1:
+        discovery_source = "PARTIAL_LIVE"
+    else:
+        discovery_source = "STATIC_FALLBACK"
     passed, rejected = [], []
     for r in raw:
         why = []
@@ -341,7 +425,9 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
         (rejected if why else passed).append({**r, "funnel_reasons": why})
     return {"raw_count": len(raw), "gecko_trending": sum(1 for r in raw if r["source"] == "geckoterminal_trending"),
             "dexscreener_boosted_eth": len(boosted_eth), "passed": passed, "rejected": rejected,
-            "feeds_ok": {"geckoterminal": isinstance(gt, dict), "dexscreener_boosts": isinstance(boosts, list)}}
+            "discovery_source": discovery_source, "endpoints": endpoints,
+            "address_form": "LOWERCASE_NO_KECCAK",
+            "feeds_ok": {e["url"].split("/")[2]: e["ok"] for e in endpoints}}
 
 
 def discovery_rank_score(c: dict[str, Any]) -> float:
@@ -364,7 +450,8 @@ def run_discovery_funnel(getter: Callable[[str], Any] = _http_json, *, max_vet: 
                                                                    "liquidity_usd", "fdv_usd")},
                        "discovery_rank_score": discovery_rank_score(c),
                        "paper_tradable": bool(v["allowed"] and v["pool_witness"]["verdict"] == "POOL_WITNESS_VERIFIED")})
-    return {**{k: disc[k] for k in ("raw_count", "gecko_trending", "dexscreener_boosted_eth", "feeds_ok")},
+    return {**{k: disc[k] for k in ("raw_count", "gecko_trending", "dexscreener_boosted_eth", "feeds_ok",
+                                    "discovery_source", "endpoints", "address_form")},
             "funnel_passed": len(disc["passed"]), "funnel_rejected": len(disc["rejected"]),
             "funnel_rejected_sample": [{k: r.get(k) for k in ("symbol", "address", "funnel_reasons")} for r in disc["rejected"][:12]],
             "vetted": vetted}
@@ -391,6 +478,7 @@ def export_token_safety_snapshot(root: Path | None = None, *, getter: Callable[[
                          "min_liquidity_usd": MIN_LIQUIDITY_USD, "max_tax": MAX_TAX,
                          "max_single_holder_pct": MAX_SINGLE_HOLDER_PCT, "max_top10_holder_pct": MAX_TOP10_HOLDER_PCT,
                          "max_fdv_to_liquidity": MAX_FDV_TO_LIQUIDITY, "pool_price_tol": POOL_PRICE_TOL},
+        "discovery_source": funnel.get("discovery_source"),
         "discovery": {k: v for k, v in funnel.items() if k != "vetted"},
         "eligible_count": sum(1 for t in tokens if t["allowed"]),
         "vetoed_count": sum(1 for t in tokens if not t["allowed"]),

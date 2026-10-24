@@ -18,7 +18,7 @@ def _write(root: Path, rel: Path, obj) -> None:
 def test_switch_refuses_unproven_and_rolls_back(tmp_path):
     _write(tmp_path, sw.B4_REL, {"candidates": [
         {"strategy_id": "b4-X", "gate": "FAIL", "gate_detail": "DSR=0.2"},
-        {"strategy_id": "b4-Y", "gate": "PASS_STATS", "gate_detail": "ok"}]})
+        {"strategy_id": "b4-Y", "gate": "PASS_STATS", "gate_detail": "ok", "oos_trades": 30}]})
     _write(tmp_path, sw.RED_REL, {"reports": [{"strategy_id": "b4-Y", "verdict": "SURVIVED_RED_TEAM"}]})
     with pytest.raises(PermissionError):
         sw.promote(tmp_path, "b4-X", "stablecoin_impulse", 0.05, actor="test")

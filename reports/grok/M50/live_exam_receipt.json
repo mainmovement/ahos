@@ -1,0 +1,57 @@
+{
+  "schema": "ahos.m50_live_exam_receipt.v1",
+  "generated_at": "2026-10-24T15:02:38Z",
+  "paper_only": true,
+  "live_daemon_episodes": {
+    "count": 1,
+    "min_episodes": 10,
+    "gap_hours": 24,
+    "status": "ACCUMULATING",
+    "note": "Live rows so far are one short window. This count is not a skill score."
+  },
+  "historical_oos_episodes": {
+    "count": 169,
+    "heldout": 85,
+    "status": "MEASURED",
+    "leaked": false,
+    "estimate_ability_theta": -0.2116,
+    "theta_se": 0.2181,
+    "brier": 0.25,
+    "probability_model": "constant 0.5 (no-skill Brier, not a fitted confidence)",
+    "rule": "sign of the prior 20 sessions vs the next session after an official event; features stop before the event day",
+    "cards_fa": [
+      {
+        "prompt_fa": "EIA_WPSR در 2026-09-16 روی WTI",
+        "verdict_fa": "نادرست",
+        "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+      },
+      {
+        "prompt_fa": "EIA_WPSR در 2026-09-23 روی WTI",
+        "verdict_fa": "درست",
+        "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+      },
+      {
+        "prompt_fa": "EIA_WPSR در 2026-09-30 روی WTI",
+        "verdict_fa": "درست",
+        "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+      },
+      {
+        "prompt_fa": "EIA_WPSR در 2026-10-07 روی WTI",
+        "verdict_fa": "نادرست",
+        "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+      },
+      {
+        "prompt_fa": "EIA_WPSR در 2026-10-15 روی WTI",
+        "verdict_fa": "نادرست",
+        "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+      },
+      {
+        "prompt_fa": "EIA_WPSR در 2026-10-21 روی WTI",
+        "verdict_fa": "درست",
+        "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+      }
+    ]
+  },
+  "live_1h_exam_status": "INSUFFICIENT_INDEPENDENT_EPISODES",
+  "note_fa": "نمرهٔ زنده و نمرهٔ تاریخی جدا هستند. هیچ‌کدام ارتقا نمی‌دهد."
+}

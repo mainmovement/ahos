@@ -381,6 +381,48 @@ def _static_claim_checks(root: Path) -> list[dict[str, Any]]:
                    [str(ORGANS_REL), str(SCIENCE_REL), str(TOURNAMENT_REL)])]
 
 
+def _stage7_checks(root: Path) -> list[dict[str, Any]]:
+    b6 = _json(root, Path("reports") / "grok" / "M28" / "batch6_research.json")
+    grid = _json(root, Path("reports") / "grok" / "M28" / "map_elites_grid.json")
+    surfaces = ["reports/grok/M28/batch6_research.json", "reports/grok/M28/map_elites_grid.json"]
+    if b6 is None or grid is None:
+        return [_check("research.map_elites_batch6", "UNKNOWN", {"batch6": b6 is not None, "grid": grid is not None}, surfaces)]
+    problems = []
+    counted = b6.get("candidates") or []
+    screened = b6.get("screened") or []
+    if any(s.get("counted_in_dsr") for s in screened):
+        problems.append("a screened hypothesis was counted")
+    expected = int(b6.get("n_trials_prior") or 0) + len(counted)
+    if b6.get("n_trials_counted_in_dsr") != expected:
+        problems.append("n_trials_counted_in_dsr != prior + admitted")
+    for c in counted:
+        v = c.get("deflated_sharpe")
+        if v is not None and not 0.0 <= float(v) <= 1.0:
+            problems.append(f"{c.get('strategy_id')} DSR {v} outside [0,1]")
+    occupied = sum(1 for h in (grid.get("grid") or {}).values() for cell in h.values() if cell)
+    if grid.get("cells_occupied") != occupied:
+        problems.append("grid occupancy does not match its cells")
+    out = [_check("research.map_elites_batch6", _pass_fail(not problems),
+                  {"admitted": len(counted), "screened": len(screened), "problems": problems,
+                   "n_trials_counted_in_dsr": b6.get("n_trials_counted_in_dsr")}, surfaces)]
+    graph = _json(root, Path("reports") / "grok" / "M12" / "cognitive_graph_snapshot.json")
+    reg = root / "config" / "agent_registry.yaml"
+    if graph is None or not reg.is_file():
+        out.append(_check("cognitive.graph", "UNKNOWN", {"graph": graph is not None, "registry": reg.is_file()},
+                          ["reports/grok/M12/cognitive_graph_snapshot.json", "config/agent_registry.yaml"]))
+        return out
+    import yaml
+    n = len((yaml.safe_load(reg.read_text(encoding="utf-8")) or {}).get("agents") or [])
+    ids = [a.get("agent_id") for a in graph.get("agents") or []]
+    bad = [a.get("agent_id") for a in graph.get("agents") or []
+           if a.get("verdict") not in {"PASS", "VETO", "HOLD", "UNRESOLVED"} or not a.get("authority_ok")]
+    ok = graph.get("registry_agents") == n == len(ids) == len(set(ids)) and not bad and not graph.get("authority_violations")
+    out.append(_check("cognitive.graph", _pass_fail(ok),
+                      {"registry": n, "snapshot": graph.get("registry_agents"), "bad_rows": bad},
+                      ["reports/grok/M12/cognitive_graph_snapshot.json", "config/agent_registry.yaml"]))
+    return out
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -395,6 +437,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     closed = int(status.get("closed_trades") or 0) if isinstance(status, dict) else None
     checks += _research_checks(root, closed)
     checks += _static_claim_checks(root)
+    checks += _stage7_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

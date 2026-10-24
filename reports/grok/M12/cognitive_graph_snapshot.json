@@ -1,0 +1,557 @@
+{
+ "schema": "ahos.cognitive_graph.v1",
+ "generated_at": "2026-10-24T15:04:35Z",
+ "paper_only": true,
+ "registry_agents": 43,
+ "registry_note": "config/agent_registry.yaml lists 43 agents (AG-01 through AG-43), not 39.",
+ "verdict_counts": {
+  "UNRESOLVED": 39,
+  "PASS": 2,
+  "VETO": 1,
+  "HOLD": 1
+ },
+ "authority_violations": [],
+ "agents": [
+  {
+   "agent_id": "AG-01",
+   "name": "Master Orchestrator",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-02",
+   "name": "Data Intelligence",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-03",
+   "name": "Research Agent",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-04",
+   "name": "Market Intelligence",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-05",
+   "name": "Trend Intelligence",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-06",
+   "name": "On-Chain Intelligence",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-07",
+   "name": "Liquidity/Exitability",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-08",
+   "name": "Risk Agent",
+   "input_artifact": "reports/grok/M34/unification_audit.json",
+   "evidence_artifact": "reports/grok/M34/unification_audit.json",
+   "executed_at": "2026-10-24T15:03:06Z",
+   "verdict": "PASS",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "artifact"
+  },
+  {
+   "agent_id": "AG-09",
+   "name": "Security/Scam Defense",
+   "input_artifact": "reports/grok/M64/whitehat_security_audit.json",
+   "evidence_artifact": "reports/grok/M64/whitehat_security_audit.json",
+   "executed_at": "2026-10-24T15:01:58Z",
+   "verdict": "PASS",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE",
+    "VETO"
+   ],
+   "reason": "artifact"
+  },
+  {
+   "agent_id": "AG-10",
+   "name": "Narrative Intelligence",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-11",
+   "name": "Multi-Mind Council",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "ANALYZE",
+    "ADVISE",
+    "CHALLENGE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-12",
+   "name": "AI Model Router",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "ANALYZE",
+    "ADVISE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-13",
+   "name": "Consensus/Disagreement Engine",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "ANALYZE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-14",
+   "name": "Red Team",
+   "input_artifact": "reports/grok/M56/red_team_audit.json",
+   "evidence_artifact": "reports/grok/M56/red_team_audit.json",
+   "executed_at": "2026-10-24T10:04:58Z",
+   "verdict": "VETO",
+   "authority_ok": true,
+   "allowed_authority": [
+    "CHALLENGE",
+    "VETO"
+   ],
+   "reason": "artifact"
+  },
+  {
+   "agent_id": "AG-15",
+   "name": "Decision Engine",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "DECIDE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-16",
+   "name": "Paper-Trading Agent",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "DECIDE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-17",
+   "name": "Memory Agent",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-18",
+   "name": "Learning Agent",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "ANALYZE",
+    "ADVISE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-19",
+   "name": "Self-Diagnostic",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-20",
+   "name": "Controlled Self-Evolution",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "ADVISE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-21",
+   "name": "Evidence/Provenance",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "CHALLENGE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-22",
+   "name": "Observability/Health",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-23",
+   "name": "Governance/Policy",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "VETO",
+    "PROMOTE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-24",
+   "name": "Cost/Resource Manager",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-25",
+   "name": "Open-Source Capability Intelligence",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [
+    "OBSERVE",
+    "ANALYZE",
+    "ADVISE"
+   ],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-26",
+   "name": "Kourosh (CIO / Portfolio Manager)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-27",
+   "name": "Bahram (Macro, Rates & FX)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-28",
+   "name": "Zarrin (Gold & Oil Division Lead)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-29",
+   "name": "Sara (US Equities)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-30",
+   "name": "Leila (European Equities)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-31",
+   "name": "Mahsa (Asian Equities)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-32",
+   "name": "Farhad (Futures & Derivatives)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-33",
+   "name": "Negar (News Intelligence Division Lead)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-34",
+   "name": "Bijan (Chart Intelligence)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-35",
+   "name": "Shida (GitHub Intelligence)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-36",
+   "name": "Siavash (AGI/ACI Architecture Team Lead)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-37",
+   "name": "Babak (Treasury & Allocation)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-38",
+   "name": "Dariush (Execution & Broker)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-39",
+   "name": "Maryam (Compliance & Sanctions)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-40",
+   "name": "Homan (Failure Analysis & Post-trade Learning)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-41",
+   "name": "Farzaneh (Dean of AHOS University)",
+   "input_artifact": "reports/grok/M28/batch6_research.json",
+   "evidence_artifact": "reports/grok/M28/batch6_research.json",
+   "executed_at": "2026-10-24T14:58:42Z",
+   "verdict": "HOLD",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "artifact"
+  },
+  {
+   "agent_id": "AG-42",
+   "name": "Zhaleh (Accounting / Financial Ledger)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  },
+  {
+   "agent_id": "AG-43",
+   "name": "Ayda (Agent Supervision / Guardian Lead)",
+   "input_artifact": "config/agent_registry.yaml",
+   "evidence_artifact": null,
+   "executed_at": null,
+   "verdict": "UNRESOLVED",
+   "authority_ok": true,
+   "allowed_authority": [],
+   "reason": "no_runtime_this_cycle"
+  }
+ ]
+}
