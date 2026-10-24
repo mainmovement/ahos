@@ -9,206 +9,332 @@
     "scouts": [
       {
         "source_id": "github",
-        "title_en": "GitHub OSS signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "GitHub OSS",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "mit_ocw",
-        "title_en": "MIT OpenCourseWare signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "MIT OpenCourseWare",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "arxiv",
-        "title_en": "arXiv signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "arXiv",
+        "status": "LIVE (45 papers, 2026-10-24T01:16:52Z)",
         "paper_only": true
       },
       {
         "source_id": "ssrn",
-        "title_en": "SSRN signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "SSRN",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "quantpedia",
-        "title_en": "Quantpedia signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "Quantpedia",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "stanford",
-        "title_en": "Stanford Online signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "Stanford Online",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "oxford",
-        "title_en": "Oxford ML signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "Oxford ML",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "cme",
-        "title_en": "CME Education signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "CME Education",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "eia",
-        "title_en": "EIA Data signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "EIA Data",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "bis",
-        "title_en": "BIS Research signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "BIS Research",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "world_bank",
-        "title_en": "World Bank Open Data signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "World Bank Open Data",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       },
       {
         "source_id": "nber",
-        "title_en": "NBER Working Papers signal batch",
-        "status": "ADMITTED_SANDBOX",
+        "title_en": "NBER Working Papers",
+        "status": "NOT_CONNECTED",
         "paper_only": true
       }
     ],
     "research_institute": [
       {
-        "artifact_id": "RI-github-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H14",
+        "name": "Exchange netflow z90 contrarian-to-flow",
+        "sandbox_verdict": "REJECTED",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "2201.09790v1",
+            "title": "Linear Laws of Markov Chains with an Application for Anomaly Detection in Bitcoin Prices",
+            "url": "https://arxiv.org/abs/2201.09790v1"
+          },
+          {
+            "arxiv_id": "2411.06327v2",
+            "title": "Return and Volatility Forecasting Using On-Chain Flows in Cryptocurrency Markets",
+            "url": "https://arxiv.org/abs/2411.06327v2"
+          },
+          {
+            "arxiv_id": "2308.00013v1",
+            "title": "Bitcoin Gold, Litecoin Silver:An Introduction to Cryptocurrency's Valuation and Trading Strategy",
+            "url": "https://arxiv.org/abs/2308.00013v1"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       },
       {
-        "artifact_id": "RI-mit_ocw-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H15",
+        "name": "Stablecoin supply impulse",
+        "sandbox_verdict": "SHADOW_FORWARD_TEST",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "2501.05232v1",
+            "title": "The Intraday Bitcoin Response to Tether Minting and Burning Events: Asymmetry, Investor Sentiment, And \"Whale Alerts\" On Twitter",
+            "url": "https://arxiv.org/abs/2501.05232v1"
+          },
+          {
+            "arxiv_id": "2107.12041v5",
+            "title": "Inverse and Quanto Inverse Options in a Black-Scholes World",
+            "url": "https://arxiv.org/abs/2107.12041v5"
+          },
+          {
+            "arxiv_id": "2210.12881v1",
+            "title": "A Control Theoretic Approach to Infrastructure-Centric Blockchain Tokenomics",
+            "url": "https://arxiv.org/abs/2210.12881v1"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       },
       {
-        "artifact_id": "RI-arxiv-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H16",
+        "name": "FOMC statement-day drift (US equities)",
+        "sandbox_verdict": "REJECTED",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "2606.08141v1",
+            "title": "A Structural Matrix Autoregressive Model for the Joint Dynamics of Volume, Volatility, and Returns",
+            "url": "https://arxiv.org/abs/2606.08141v1"
+          },
+          {
+            "arxiv_id": "2302.10252v1",
+            "title": "Monetary Policy, Digital Assets, and DeFi Activity",
+            "url": "https://arxiv.org/abs/2302.10252v1"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       },
       {
-        "artifact_id": "RI-ssrn-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H17",
+        "name": "EIA WPSR first-hour momentum (WTI)",
+        "sandbox_verdict": "REJECTED",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       },
       {
-        "artifact_id": "RI-quantpedia-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H18",
+        "name": "Time-series momentum 12m/1m, vol-scaled (Moskowitz-Ooi-Pedersen 2012)",
+        "sandbox_verdict": "REJECTED",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "1702.07374v1",
+            "title": "Time series momentum and contrarian effects in the Chinese stock market",
+            "url": "https://arxiv.org/abs/1702.07374v1"
+          },
+          {
+            "arxiv_id": "1904.04912v3",
+            "title": "Enhancing Time Series Momentum Strategies Using Deep Neural Networks",
+            "url": "https://arxiv.org/abs/1904.04912v3"
+          },
+          {
+            "arxiv_id": "2406.08742v1",
+            "title": "DeepUnifiedMom: Unified Time-series Momentum Portfolio Construction via Multi-Task Learning with Multi-Gate Mixture of Experts",
+            "url": "https://arxiv.org/abs/2406.08742v1"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       },
       {
-        "artifact_id": "RI-stanford-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H19",
+        "name": "Logistic, Platt-calibrated combination of brain features",
+        "sandbox_verdict": "REJECTED",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "2609.23703v1",
+            "title": "Financial Language Models as Applied Artificial Intelligence Systems for News-Based Trading under Market Frictions",
+            "url": "https://arxiv.org/abs/2609.23703v1"
+          },
+          {
+            "arxiv_id": "2604.03888v1",
+            "title": "PolySwarm: A Multi-Agent Large Language Model Framework for Prediction Market Trading and Latency Arbitrage",
+            "url": "https://arxiv.org/abs/2604.03888v1"
+          },
+          {
+            "arxiv_id": "2606.04217v2",
+            "title": "Polymarket-v1 Database",
+            "url": "https://arxiv.org/abs/2606.04217v2"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       },
       {
-        "artifact_id": "RI-oxford-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H20",
+        "name": "HRP allocation across strategy return streams (Lopez de Prado 2016)",
+        "sandbox_verdict": "REJECTED",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "2411.05807v1",
+            "title": "Schur Complementary Allocation: A Unification of Hierarchical Risk Parity and Minimum Variance Portfolios",
+            "url": "https://arxiv.org/abs/2411.05807v1"
+          },
+          {
+            "arxiv_id": "2202.02728v1",
+            "title": "Hierarchical Risk Parity and Minimum Variance Portfolio Design on NIFTY 50 Stocks",
+            "url": "https://arxiv.org/abs/2202.02728v1"
+          },
+          {
+            "arxiv_id": "2210.00984v1",
+            "title": "A Comparative Study of Hierarchical Risk Parity Portfolio and Eigen Portfolio on the NIFTY 50 Stocks",
+            "url": "https://arxiv.org/abs/2210.00984v1"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       },
       {
-        "artifact_id": "RI-cme-2026",
-        "sandbox_verdict": "VALIDATED_PAPER",
-        "module_target": "architecture.learning",
+        "artifact_id": "H21",
+        "name": "Extreme perpetual funding contrarian (forward test)",
+        "sandbox_verdict": "FORWARD_TEST",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "2506.08573v1",
+            "title": "Designing funding rates for perpetual futures in cryptocurrency markets",
+            "url": "https://arxiv.org/abs/2506.08573v1"
+          },
+          {
+            "arxiv_id": "2212.06888v7",
+            "title": "Fundamentals of Perpetual Futures",
+            "url": "https://arxiv.org/abs/2212.06888v7"
+          },
+          {
+            "arxiv_id": "2209.03307v1",
+            "title": "A primer on perpetuals",
+            "url": "https://arxiv.org/abs/2209.03307v1"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
+        "paper_only": true
+      },
+      {
+        "artifact_id": "H22",
+        "name": "News tone (GDELT / RSS lexicon) leads returns (forward test)",
+        "sandbox_verdict": "FORWARD_TEST",
+        "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+        "papers": [
+          {
+            "arxiv_id": "2505.16136v1",
+            "title": "Interpretable Machine Learning for Macro Alpha: A News Sentiment Case Study",
+            "url": "https://arxiv.org/abs/2505.16136v1"
+          },
+          {
+            "arxiv_id": "1412.3948v4",
+            "title": "Coupling news sentiment with web browsing data improves prediction of intra-day price dynamics",
+            "url": "https://arxiv.org/abs/1412.3948v4"
+          },
+          {
+            "arxiv_id": "2603.11408v2",
+            "title": "Beyond Polarity: Multi-Dimensional LLM Sentiment Signals for WTI Crude Oil Futures Return Prediction",
+            "url": "https://arxiv.org/abs/2603.11408v2"
+          }
+        ],
+        "module_target": "architecture.learning.walk_forward",
         "paper_only": true
       }
     ],
-    "ahos_applied": [
-      {
-        "module_id": "ahos.upgrade.github",
-        "applied": true,
-        "live_promotion": false,
-        "paper_only": true
-      },
-      {
-        "module_id": "ahos.upgrade.mit_ocw",
-        "applied": true,
-        "live_promotion": false,
-        "paper_only": true
-      },
-      {
-        "module_id": "ahos.upgrade.arxiv",
-        "applied": true,
-        "live_promotion": false,
-        "paper_only": true
-      },
-      {
-        "module_id": "ahos.upgrade.ssrn",
-        "applied": true,
-        "live_promotion": false,
-        "paper_only": true
-      },
-      {
-        "module_id": "ahos.upgrade.quantpedia",
-        "applied": true,
-        "live_promotion": false,
-        "paper_only": true
-      },
-      {
-        "module_id": "ahos.upgrade.stanford",
-        "applied": true,
-        "live_promotion": false,
-        "paper_only": true
-      }
-    ],
+    "ahos_applied": [],
     "university_desk_training": [
       {
         "desk": "GOLD_DESK",
         "curriculum_modules": 4,
-        "syllabus_fa": "سیلابس آموزشی GOLD_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "real_trade_lessons": 0,
+        "syllabus_fa": "درس‌های GOLD_DESK: فرضیه‌های آزموده‌شده (H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "OIL_DESK",
-        "curriculum_modules": 4,
-        "syllabus_fa": "سیلابس آموزشی OIL_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "curriculum_modules": 5,
+        "real_trade_lessons": 0,
+        "syllabus_fa": "درس‌های OIL_DESK: فرضیه‌های آزموده‌شده (H17 REJECTED، H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "CRYPTO_UNIVERSE_DESK",
-        "curriculum_modules": 4,
-        "syllabus_fa": "سیلابس آموزشی CRYPTO_UNIVERSE_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "curriculum_modules": 7,
+        "real_trade_lessons": 0,
+        "syllabus_fa": "درس‌های CRYPTO_UNIVERSE_DESK: فرضیه‌های آزموده‌شده (H14 REJECTED، H15 SHADOW_FORWARD_TEST، H18 REJECTED، H19 REJECTED، H20 REJECTED، H21 FORWARD_TEST، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "US_EQUITIES_DESK",
-        "curriculum_modules": 4,
-        "syllabus_fa": "سیلابس آموزشی US_EQUITIES_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "curriculum_modules": 5,
+        "real_trade_lessons": 0,
+        "syllabus_fa": "درس‌های US_EQUITIES_DESK: فرضیه‌های آزموده‌شده (H16 REJECTED، H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "EU_EQUITIES_DESK",
         "curriculum_modules": 4,
-        "syllabus_fa": "سیلابس آموزشی EU_EQUITIES_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "real_trade_lessons": 0,
+        "syllabus_fa": "درس‌های EU_EQUITIES_DESK: فرضیه‌های آزموده‌شده (H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "ASIA_EQUITIES_DESK",
         "curriculum_modules": 4,
-        "syllabus_fa": "سیلابس آموزشی ASIA_EQUITIES_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "real_trade_lessons": 0,
+        "syllabus_fa": "درس‌های ASIA_EQUITIES_DESK: فرضیه‌های آزموده‌شده (H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "FOREX_DESK",
         "curriculum_modules": 4,
-        "syllabus_fa": "سیلابس آموزشی FOREX_DESK: الگوریتم‌های پذیرفته‌شده در مؤسسهٔ پژوهش، فقط کاغذی و بدون ارتقای زنده.",
+        "real_trade_lessons": 0,
+        "syllabus_fa": "درس‌های FOREX_DESK: فرضیه‌های آزموده‌شده (H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       }
     ],
@@ -402,6 +528,5 @@
       "FOREX_DESK"
     ]
   },
-  "desks_trained": 7,
-  "generated_at": "2026-10-23T20:34:01Z"
+  "desks_trained": 7
 }

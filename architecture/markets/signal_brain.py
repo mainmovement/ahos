@@ -23,6 +23,7 @@ import math
 import re
 import time
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
@@ -48,6 +49,7 @@ ASSET_TERMS = {
 POS = r"\b(surge\w*|rall(y|ies|ied)|soar\w*|jump\w*|gain\w*|record high|bullish|beats?|rebound\w*|climb\w*|inflows?|approv\w*)\b"
 NEG = r"\b(plunge\w*|crash\w*|slump\w*|falls?|fell|drops?|dropped|tumble\w*|bearish|miss(es|ed)?|sell-?offs?|outflows?|hack\w*|bans?|banned|war|sanction\w*|lawsuits?|recession)\b"
 NEWS_HALF_LIFE_H = 6.0
+NEWS_MAX_FEEDS = 40
 _NEWS_CACHE: dict[str, Any] = {"at": 0.0, "items": []}
 
 
@@ -257,6 +259,78 @@ def stablecoin_flow(state: dict[str, Any]) -> dict[str, Any]:
                                            "minutes": round((time.time() - prev_ts) / 60, 1)}, "coingecko_simple", "t607u(c)")
 
 
+_ONCHAIN_CACHE: dict[str, Any] = {}
+
+
+def exchange_netflow(sym: str, ttl_s: float = 6 * 3600) -> dict[str, Any]:
+    """t607u(c) whales/banks: Coin Metrics daily exchange netflow z (90d). Net INFLOW to exchanges = sell pressure.
+    SHADOW signal (weight 0) until a walk-forward test promotes it."""
+    from architecture.markets import onchain_flows as oc
+    asset = {"BTC": "btc", "ETH": "eth"}.get(sym)
+    if not asset:
+        return _sig("exchange_netflow", None, {"note": "coinmetrics community covers btc/eth only"}, "coinmetrics_community", "t607u(c)")
+    c = _ONCHAIN_CACHE.get(asset)
+    if not c or time.time() - c[0] > ttl_s:
+        h = oc.exchange_flows_history(asset, (datetime.now(timezone.utc) - timedelta(days=200)).strftime("%Y-%m-%d"))
+        c = _ONCHAIN_CACHE[asset] = (time.time(), h)
+    z, last = oc.netflow_z(c[1], time.time())
+    if z is None:
+        return _sig("exchange_netflow", None, {"history_days": len(c[1])}, "coinmetrics_community", "t607u(c)")
+    return _sig("exchange_netflow", -z / 3.0, {"netflow_z90": round(z, 3), "day": last["date"],
+                                              "netflow_native": round(last["netflow"], 2), "lag_days": oc.LAG_DAYS},
+                "coinmetrics_community", "t607u(c)")
+
+
+def stablecoin_impulse(sym: str, ttl_s: float = 6 * 3600) -> dict[str, Any]:
+    """H15 form (DefiLlama total supply): 7d growth percentile vs trailing year. >p80 -> +1 (long bias).
+    Best batch-4 OOS result (beat unconditional long) but DSR 0.20 < 0.95 -> SHADOW (weight 0)."""
+    from architecture.markets import onchain_flows as oc
+    if sym not in ("BTC", "ETH", "SOL"):
+        return _sig("stablecoin_impulse", None, {}, "defillama_stablecoins", "H15")
+    c = _ONCHAIN_CACHE.get("stable")
+    if not c or time.time() - c[0] > ttl_s:
+        c = _ONCHAIN_CACHE["stable"] = (time.time(), oc.stablecoin_supply_history())
+    h = [x for x in c[1] if x["usable_from_ts"] <= time.time()]
+    if len(h) < 380:
+        return _sig("stablecoin_impulse", None, {"days": len(h)}, "defillama_stablecoins", "H15")
+    g = [h[k]["usd"] / h[k - 7]["usd"] - 1 for k in range(len(h) - 366, len(h)) if h[k - 7]["usd"] > 0]
+    pct = sum(1 for x in g[:-1] if x < g[-1]) / max(1, len(g) - 1)
+    return _sig("stablecoin_impulse", 1.0 if pct > 0.8 else 0.0, {"growth_7d": round(g[-1], 5), "percentile_1y": round(pct, 3)},
+                "defillama_stablecoins", "H15")
+
+
+def whale_mempool(sym: str, ttl_s: float = 600) -> dict[str, Any]:
+    """BTC whale transfers (>=100 BTC) in the unconfirmed mempool sample. Direction unknown -> score 0, evidence only."""
+    from architecture.markets import onchain_flows as oc
+    if sym != "BTC":
+        return _sig("whale_mempool", None, {}, "blockchain.info", "t607u(c)")
+    c = _ONCHAIN_CACHE.get("whale")
+    if not c or time.time() - c[0] > ttl_s:
+        c = _ONCHAIN_CACHE["whale"] = (time.time(), oc.whale_mempool())
+    if not c[1]:
+        return _sig("whale_mempool", None, {}, "blockchain.info", "t607u(c)")
+    return _sig("whale_mempool", 0.0, {"whale_txs": len(c[1]["whale_txs"]), "sampled": c[1]["sampled_txs"],
+                                       "largest_btc": max([w["btc"] for w in c[1]["whale_txs"]], default=0)},
+                "blockchain.info", "t607u(c)")
+
+
+def macro_event(desk: str, root: Any = None) -> dict[str, Any]:
+    """Official central-bank / EIA calendar. Pre-FOMC drift (Lucca & Moench 2015): US equities +0.5 in the 24h
+    before a statement. Other desks: event proximity as evidence (score 0). SHADOW (weight 0) until promoted."""
+    from pathlib import Path as _P
+    from architecture.markets import macro_calendar as mc
+    base = _P(root) if root else _P(__file__).resolve().parents[2]
+    c = _ONCHAIN_CACHE.get("cal")
+    if not c or time.time() - c[0] > 6 * 3600:
+        c = _ONCHAIN_CACHE["cal"] = (time.time(), mc.load_or_build(base))
+    up = mc.upcoming(c[1], desk, horizon_h=48)
+    score = 0.0
+    if desk == "US" and any(e["event"] == "FOMC_STATEMENT" and 0 < e["hours_until"] <= 24 for e in up):
+        score = 0.5
+    return _sig("macro_event", score, {"next_events": [{k: e[k] for k in ("event", "at_utc", "hours_until")} for e in up[:4]],
+                                       "calendar_status": c[1].get("status")}, "official_calendars", "t607u(b)")
+
+
 def macro_pressure(desk: str, quotes: dict[str, Any], witness: dict[str, Any]) -> dict[str, Any]:
     ev, score, used = {}, 0.0, 0
     for k in ("DXY", "US10Y"):
@@ -296,10 +370,27 @@ def fetch_news(max_age_s: float = 900) -> list[dict[str, Any]]:
     if time.time() - _NEWS_CACHE["at"] < max_age_s and _NEWS_CACHE["items"]:
         return _NEWS_CACHE["items"]
     items: list[dict[str, Any]] = []
-    for src, url in NEWS_FEEDS.items():
-        b = _get(url, 8.0)
-        if b:
-            items.extend(_parse_rss(b.decode("utf-8", "replace"), src))
+    feeds = dict(NEWS_FEEDS)
+    try:  # Stage 3: add registry-verified feeds for THIS host (M18 news_registry), capped for the 8 GB laptop
+        import os
+        from pathlib import Path as _P
+        from architecture.markets import news_registry as nr
+        host = os.environ.get("AHOS_HOST_ID", "laptop" if os.name == "nt" else "box")
+        pri = ["crypto", "energy", "metals", "central_bank", "commodities", "macro", "fx", "markets", "asia", "eu", "official"]
+        ver = sorted(nr.verified_feeds(_P(__file__).resolve().parents[2], host),
+                     key=lambda f: pri.index(f["category"]) if f["category"] in pri else 99)
+        for f in ver:
+            if len(feeds) >= NEWS_MAX_FEEDS:
+                break
+            if f["category"] in pri:
+                feeds.setdefault(f["id"], f["url"])
+    except Exception:
+        pass
+    import concurrent.futures as _cf
+    with _cf.ThreadPoolExecutor(max_workers=8) as ex:
+        for src, b in zip(feeds, ex.map(lambda u: _get(u, 8.0), feeds.values())):
+            if b:
+                items.extend(_parse_rss(b.decode("utf-8", "replace"), src))
     seen, dedup = set(), []
     for it in items:                      # dedupe on normalised title
         key = re.sub(r"\W+", " ", it["title"].lower()).strip()[:90]
@@ -333,7 +424,9 @@ def news_signal(desk: str, items: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 DEFAULT_WEIGHTS = {"mtf_trend": 0.30, "candles": 0.12, "zscore_mr": 0.10, "order_flow": 0.10, "large_trades": 0.10,
-                   "funding_oi": 0.06, "stablecoin": 0.05, "macro": 0.08, "news": 0.09}
+                   "funding_oi": 0.06, "stablecoin": 0.05, "macro": 0.08, "news": 0.09,
+                   # SHADOW signals: logged + hit-rate tracked, zero weight until promoted by walk-forward (Stage 3)
+                   "exchange_netflow": 0.0, "whale_mempool": 0.0, "macro_event": 0.0, "stablecoin_impulse": 0.0}
 
 
 def combine(signals: list[dict[str, Any]], weights: dict[str, float]) -> dict[str, Any]:

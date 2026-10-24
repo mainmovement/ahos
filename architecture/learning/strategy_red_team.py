@@ -123,11 +123,8 @@ def evaluate_strategy_red_team(candidate: Mapping[str, Any]) -> StrategyRedTeamR
     )
 
     # 4. Regime concentration
-    regime_pnl: Mapping[str, float] = candidate.get("regime_pnl_pct") or {
-        "BULL_TREND": 1.8,
-        "BEAR_DRAWDOWN": 0.4,
-        "RANGE_CHOP": -0.2,
-    }
+    # No invented defaults: a vector with no measured evidence FAILS (Stage 3 honesty rule).
+    regime_pnl: Mapping[str, float] = candidate.get("regime_pnl_pct") or {}
     worst_regime_dd = min(float(v) for v in regime_pnl.values()) if regime_pnl else -99.0
     positive_regimes = sum(1 for v in regime_pnl.values() if float(v) > 0)
     v4_pass = positive_regimes >= 2 and worst_regime_dd >= -2.5
@@ -143,7 +140,7 @@ def evaluate_strategy_red_team(candidate: Mapping[str, Any]) -> StrategyRedTeamR
     )
 
     # 5. Parameter perturbation +/-15%
-    param_retention = float(candidate.get("param_perturbation_sharpe_retention", 0.86))
+    param_retention = float(candidate.get("param_perturbation_sharpe_retention", 0.0) or 0.0)
     v5_pass = param_retention >= 0.70
     v5 = AttackVectorResult(
         vector_id="05_PARAMETER_PERTURBATION_15PCT",
@@ -190,16 +187,17 @@ def default_red_team_candidates(root: "Path | None" = None) -> list[dict[str, An
     from pathlib import Path as _P
     import json as _json
     base = _P(root) if root else _P(__file__).resolve().parents[2]
-    p = base / "reports" / "grok" / "M28" / "walk_forward_snapshot.json"
-    try:
-        snap = _json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return []
+    rows = []
+    for rel in ("walk_forward_snapshot.json", "batch4_research.json"):
+        try:
+            rows += _json.loads((base / "reports" / "grok" / "M28" / rel).read_text(encoding="utf-8")).get("candidates", [])
+        except Exception:
+            continue
     out = []
-    for c in snap.get("candidates", []):
+    for c in rows:
         if c.get("data_is_real") and len(c.get("returns") or []) >= 2:
             out.append({k: c[k] for k in ("strategy_id", "title", "returns", "cost_bps", "lookahead_leak_detected",
-                                          "regime_pnl_pct", "param_perturbation_sharpe_retention")})
+                                          "regime_pnl_pct", "param_perturbation_sharpe_retention") if k in c})
     return out
 
 

@@ -130,6 +130,25 @@ class _Ledger:
             return None
 
 
+EDGE_STATUS = "UNPROVEN_EDGE"
+EDGE_STATUS_FA = "لبهٔ سودآوری اثبات‌نشده — این معامله‌گر کاغذی داده برای یادگیری جمع می‌کند، نه سیستم سودده"
+
+
+def _edge_evidence(root: Path) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for key, rel in (("m28_walk_forward", Path("reports/grok/M28/walk_forward_snapshot.json")),
+                     ("batch4", Path("reports/grok/M28/batch4_research.json"))):
+        try:
+            s = json.loads((root / rel).read_text(encoding="utf-8"))
+            c = s.get("candidates") or []
+            out[key] = {"trials": len(c), "pbo": s.get("pbo_cscv"),
+                        "passed": sum(1 for x in c if x.get("gate") == "PASS_STATS"),
+                        "best_dsr": max([x.get("deflated_sharpe") or 0 for x in c], default=None)}
+        except Exception:
+            out[key] = None
+    return out
+
+
 def load_weights(root: Path) -> dict[str, Any]:
     w = _load(root / WEIGHTS_REL, None)
     if not isinstance(w, dict) or "weights" not in w:
@@ -246,6 +265,11 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     state.setdefault("positions", {})
     state.setdefault("brain", {})
     weights = load_weights(root)
+    try:  # Stage 3: research -> trader only through the versioned, reversible promotion switch
+        from architecture.learning import strategy_switch as _sw
+        live_weights, switch_version = _sw.apply(weights["weights"], root)
+    except Exception:
+        live_weights, switch_version = dict(weights["weights"]), 0
     ledger = _Ledger(root, use_ledger)
     trades = load_paper_trades(root)
     equity = float(paper_account_summary(root)["current_equity_usd"])
@@ -279,11 +303,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             sigs = signals_fn(sym, desk, q)
         else:
             sigs = [sb.mtf_trend(ohlcv), sb.candle_patterns(ohlcv), sb.zscore_mr(ohlcv), sb.news_signal(desk, news),
-                    sb.macro_pressure(desk, quotes, wit)]
+                    sb.macro_pressure(desk, quotes, wit), sb.macro_event(desk, root)]
             if desk == "CRYPTO":
-                sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym), sb.stablecoin_flow(state["brain"])]
+                sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym), sb.stablecoin_flow(state["brain"]),
+                         sb.exchange_netflow(sym), sb.whale_mempool(sym), sb.stablecoin_impulse(sym)]
         regime = sb.vol_regime(ohlcv)
-        comb = sb.combine(sigs, weights["weights"])
+        comb = sb.combine(sigs, live_weights)
         comp = comb["composite"]
         mtf = next((s for s in sigs if s["name"] == "mtf_trend"), None)
         higher = (mtf or {}).get("evidence", {}).get("higher_tf_sign")
@@ -382,6 +407,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         "strategy": "multi-signal composite (MTF trend, candles/wicks, z-score, order flow, large trades, funding/OI, "
                     "stablecoin, macro, news) | two-source witness | vol-sized, compounding | stop max(1%,2xATR1h), take 1.5x",
         "honesty_note": "Paper only. Short record; not evidence of profitability. Closed markets and unverified prices are not traded.",
+        "edge_status": EDGE_STATUS, "edge_status_fa": EDGE_STATUS_FA, "edge_evidence": _edge_evidence(root),
+        "strategy_switch_version": switch_version,
+        "shadow_signals": sorted(k for k, v in live_weights.items() if not v),
     }
     _save_json(root / STATUS_REL, status)
     return status

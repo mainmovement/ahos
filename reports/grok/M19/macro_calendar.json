@@ -1,0 +1,2603 @@
+{
+ "schema": "ahos.macro_calendar.v1",
+ "generated_at": "2026-10-24T01:33:53Z",
+ "paper_only": true,
+ "sources": {
+  "FOMC": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+  "EIA": "https://www.eia.gov/petroleum/supply/weekly/schedule.php",
+  "BOE": "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates",
+  "BOJ": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
+  "ECB": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
+  "OPEC": "https://www.opec.org/press-releases.html"
+ },
+ "status": {
+  "FOMC": "OK 56",
+  "EIA": "OK 164",
+  "BOE": "OK 16",
+  "BOJ": "OK 12",
+  "ECB": "UNAVAILABLE (official site unreachable from this host; not filled by hand)",
+  "OPEC": "UNAVAILABLE (official site unreachable from this host; not filled by hand)"
+ },
+ "events": [
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-01-27T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-03-17T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-04-28T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-06-16T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-07-28T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-09-22T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-11-03T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2021-12-15T19:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-01-26T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-03-16T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-05-04T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-06-15T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-07-27T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-09-21T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-11-02T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2022-12-14T19:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-02-01T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-03-22T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-05-03T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-06-14T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-07-26T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-09-20T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-11-01T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2023-12-13T19:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-01-03T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-01-10T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-01-17T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-01-24T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-01-31T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-01-31T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-02-07T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-02-14T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-02-21T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-02-28T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-03-06T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-03-13T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-03-20T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-03-20T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-03-27T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-04-03T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-04-10T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-04-17T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-04-24T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-05-01T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-05-01T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-05-08T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-05-15T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-05-22T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-05-29T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-06-05T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-06-12T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-06-12T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-06-19T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-06-26T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-07-03T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-07-10T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-07-17T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-07-24T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-07-31T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-07-31T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-08-07T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-08-14T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-08-21T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-08-28T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-09-04T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-09-11T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-09-18T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-09-18T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-09-25T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-10-02T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-10-09T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-10-16T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-10-23T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-10-30T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-11-06T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-11-07T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-11-13T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-11-20T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-11-27T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-12-04T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-12-11T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-12-18T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2024-12-18T19:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2024-12-25T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-01-02T16:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-01-08T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-01-15T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-01-23T17:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-01-29T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-01-29T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-02-05T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-02-12T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-02-20T17:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-02-26T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-03-05T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-03-12T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-03-19T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-03-19T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-03-26T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-04-02T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-04-09T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-04-16T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-04-23T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-04-30T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-05-07T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-05-07T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-05-14T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-05-21T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-05-29T16:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-06-04T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-06-11T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-06-18T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-06-18T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-06-25T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-07-02T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-07-09T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-07-16T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-07-23T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-07-30T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-07-30T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-08-06T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-08-13T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-08-17T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-08-20T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-08-27T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-09-04T16:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-09-10T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-09-17T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-09-24T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-10-01T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-10-08T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-10-16T16:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-10-22T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-10-29T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-10-29T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-11-05T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-11-13T17:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-11-19T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-11-26T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-12-03T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-12-10T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2025-12-10T19:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-12-17T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-12-29T22:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2025-12-31T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-01-07T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-01-14T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-01-22T17:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2026-01-23T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-01-28T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-01-28T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-02-04T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-02-05T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-02-11T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-02-19T17:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-02-25T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-03-04T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-03-11T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-03-18T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-03-18T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2026-03-19T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-03-19T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-03-25T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-04-01T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-04-08T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-04-15T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-04-22T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2026-04-28T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-04-29T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-04-29T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-04-30T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-05-06T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-05-13T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-05-20T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-05-28T16:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-06-03T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-06-10T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-06-17T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-06-17T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-06-18T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-06-24T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-07-01T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-07-08T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-07-15T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-07-22T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-07-29T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-07-29T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-07-30T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-08-05T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-08-12T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-08-19T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-08-26T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-09-02T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-09-10T16:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-09-16T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-09-16T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-09-17T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2026-09-18T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-09-23T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-09-30T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-10-07T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-10-15T16:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-10-21T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-10-28T14:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-10-28T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2026-10-30T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-11-04T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-11-05T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-11-12T17:00:00+00:00",
+   "holiday_shift": true,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-11-18T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-11-25T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-12-02T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-12-09T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2026-12-09T19:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-12-16T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2026-12-17T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2026-12-18T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-12-23T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2026-12-30T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2027-01-06T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2027-01-13T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2027-01-20T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2027-01-22T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2027-01-27T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-01-27T19:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2027-02-03T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-02-04T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2027-02-10T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "EIA_WPSR",
+   "bank": "EIA",
+   "at_utc": "2027-02-17T15:30:00+00:00",
+   "holiday_shift": false,
+   "desks": [
+    "OIL"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-03-17T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2027-03-18T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-03-18T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2027-04-28T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-04-28T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-04-29T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-06-09T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-06-17T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-07-28T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-07-29T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-09-15T18:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-09-16T11:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2027-09-22T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-10-27T18:00:00+00:00",
+   "sep": false,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2027-10-29T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-11-04T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "FOMC_STATEMENT",
+   "bank": "FED",
+   "at_utc": "2027-12-08T19:00:00+00:00",
+   "sep": true,
+   "desks": [
+    "US",
+    "FX",
+    "GOLD",
+    "CRYPTO",
+    "EU",
+    "ASIA",
+    "OIL"
+   ]
+  },
+  {
+   "event": "BOE_MPC_DECISION",
+   "bank": "BOE",
+   "at_utc": "2027-12-16T12:00:00+00:00",
+   "desks": [
+    "EU",
+    "FX"
+   ]
+  },
+  {
+   "event": "BOJ_MPM_DECISION",
+   "bank": "BOJ",
+   "at_utc": "2027-12-17T03:00:00+00:00",
+   "time_approx": true,
+   "desks": [
+    "ASIA",
+    "FX"
+   ]
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-11T16:53:38.048499+00:00",
+  "updated": "2026-10-24T01:17:23Z",
   "experiment_log": "exp_20260811_165329.json",
   "candidates": {
     "H1": {
@@ -10,7 +10,7 @@
       "evidence": "exp_20260810_121055.json"
     },
     "H2": {
-      "name": "Bollinger z20 \u00b12 reversion",
+      "name": "Bollinger z20 ±2 reversion",
       "family": "mean_reversion",
       "status": "TESTED",
       "verdict": "REJECTED",
@@ -87,11 +87,261 @@
       "evidence": "exp_20260811_154550.json"
     },
     "H13": {
-      "name": "OI\u00d7high-vol, BTC-scoped, 7-year sample",
+      "name": "OI×high-vol, BTC-scoped, 7-year sample",
       "family": "open_interest+regime+instrument-scope",
       "status": "TESTED",
       "verdict": "REJECTED",
       "evidence": "exp_20260811_165329.json"
+    },
+    "H14": {
+      "name": "Exchange netflow z90 contrarian-to-flow",
+      "family": "onchain_exchange_flow",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "b4-H14-BTC": {
+          "oos_n": 110,
+          "oos_sharpe": 0.0563,
+          "dsr": 0.0001,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H14-ETH": {
+          "oos_n": 110,
+          "oos_sharpe": 0.0824,
+          "dsr": 0.0004,
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H15": {
+      "name": "Stablecoin supply impulse",
+      "family": "liquidity_stablecoin",
+      "status": "TESTED",
+      "verdict": "SHADOW_FORWARD_TEST",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "b4-H15-BTC": {
+          "oos_n": 57,
+          "oos_sharpe": 0.2988,
+          "dsr": 0.1982,
+          "red_team": "SURVIVED_RED_TEAM"
+        },
+        "b4-H15-ETH": {
+          "oos_n": 55,
+          "oos_sharpe": 0.2391,
+          "dsr": 0.0956,
+          "red_team": "SURVIVED_RED_TEAM"
+        }
+      }
+    },
+    "H16": {
+      "name": "FOMC statement-day drift (US equities)",
+      "family": "macro_event",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "b4-H16-SPX": {
+          "oos_n": 18,
+          "oos_sharpe": -0.2142,
+          "dsr": 0.0028,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H16-QQQ": {
+          "oos_n": 18,
+          "oos_sharpe": -0.0087,
+          "dsr": 0.0423,
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H17": {
+      "name": "EIA WPSR first-hour momentum (WTI)",
+      "family": "macro_event",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "b4-H17-WTI": {
+          "oos_n": 49,
+          "oos_sharpe": -0.0228,
+          "dsr": 0.0015,
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H18": {
+      "name": "Time-series momentum 12m/1m, vol-scaled (Moskowitz-Ooi-Pedersen 2012)",
+      "family": "trend_following",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "b4-H18-BTC": {
+          "oos_n": 34,
+          "oos_sharpe": -0.0761,
+          "dsr": 0.0024,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-ETH": {
+          "oos_n": 31,
+          "oos_sharpe": -0.1828,
+          "dsr": 0.0005,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-SOL": {
+          "oos_n": 22,
+          "oos_sharpe": -0.0614,
+          "dsr": 0.0142,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-XAU": {
+          "oos_n": 24,
+          "oos_sharpe": 0.2252,
+          "dsr": 0.1985,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-XAG": {
+          "oos_n": 24,
+          "oos_sharpe": 0.1612,
+          "dsr": 0.1172,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-WTI": {
+          "oos_n": 24,
+          "oos_sharpe": 0.03,
+          "dsr": 0.03,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-BRENT": {
+          "oos_n": 24,
+          "oos_sharpe": -0.0953,
+          "dsr": 0.0098,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-SPX": {
+          "oos_n": 24,
+          "oos_sharpe": 0.3051,
+          "dsr": 0.3139,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-QQQ": {
+          "oos_n": 24,
+          "oos_sharpe": 0.2673,
+          "dsr": 0.2605,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-DAX": {
+          "oos_n": 23,
+          "oos_sharpe": 0.544,
+          "dsr": 0.7199,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-N225": {
+          "oos_n": 23,
+          "oos_sharpe": 0.1822,
+          "dsr": 0.1288,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-HSI": {
+          "oos_n": 23,
+          "oos_sharpe": -0.0858,
+          "dsr": 0.0069,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-EURUSD": {
+          "oos_n": 24,
+          "oos_sharpe": 0.1637,
+          "dsr": 0.1125,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H18-USDJPY": {
+          "oos_n": 24,
+          "oos_sharpe": -0.0182,
+          "dsr": 0.0198,
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H19": {
+      "name": "Logistic, Platt-calibrated combination of brain features",
+      "family": "calibrated_combination",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "b4-H19-BTC": {
+          "oos_n": 51,
+          "oos_sharpe": -0.2742,
+          "dsr": 0.0,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H19-ETH": {
+          "oos_n": 73,
+          "oos_sharpe": -0.1337,
+          "dsr": 0.0,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H19-XAU": {
+          "oos_n": 23,
+          "oos_sharpe": 0.2207,
+          "dsr": 0.1851,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H19-WTI": {
+          "oos_n": 111,
+          "oos_sharpe": -0.0732,
+          "dsr": 0.0,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H19-SPX": {
+          "oos_n": 39,
+          "oos_sharpe": 0.1174,
+          "dsr": 0.0341,
+          "red_team": "VETOED_FRAGILE"
+        },
+        "b4-H19-EURUSD": {
+          "oos_n": 147,
+          "oos_sharpe": -0.0001,
+          "dsr": 0.0,
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H20": {
+      "name": "HRP allocation across strategy return streams (Lopez de Prado 2016)",
+      "family": "portfolio_allocation",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "oos_sharpe_ann_hrp": -0.011,
+        "oos_sharpe_ann_equal": 1.064,
+        "streams": 27
+      }
+    },
+    "H21": {
+      "name": "Extreme perpetual funding contrarian (forward test)",
+      "family": "derivatives_positioning",
+      "status": "INSUFFICIENT_HISTORY",
+      "verdict": "FORWARD_TEST",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "reason": "OKX funding history ~3 months (free)"
+      }
+    },
+    "H22": {
+      "name": "News tone (GDELT / RSS lexicon) leads returns (forward test)",
+      "family": "news_sentiment",
+      "status": "INSUFFICIENT_HISTORY",
+      "verdict": "FORWARD_TEST",
+      "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+      "detail": {
+        "reason": "GDELT DOC ~3 months, RSS not archived"
+      }
     }
-  }
+  },
+  "batch4_pbo": 0.2714,
+  "dsr_trials_counted": 64
 }

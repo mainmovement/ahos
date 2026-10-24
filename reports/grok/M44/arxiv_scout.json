@@ -1,0 +1,788 @@
+{
+ "schema": "ahos.arxiv_scout.v1",
+ "generated_at": "2026-10-24T01:16:52Z",
+ "source": "https://export.arxiv.org/api/query",
+ "queries": {
+  "H14": "all:bitcoin AND all:exchange AND (all:inflow OR all:inflows OR all:\"on-chain\")",
+  "H15": "all:stablecoin AND all:bitcoin AND all:price",
+  "H16": "all:FOMC AND (all:drift OR all:announcement) AND all:returns",
+  "H17": "all:oil AND all:inventory AND (all:EIA OR all:announcement OR all:news)",
+  "H18": "all:\"time series momentum\"",
+  "H19": "all:\"probability calibration\" AND all:trading",
+  "H20": "all:\"hierarchical risk parity\"",
+  "H21": "all:\"funding rate\" AND all:perpetual",
+  "H22": "all:\"news sentiment\" AND all:returns",
+  "RECENT_QFIN_TR": "cat:q-fin.TR",
+  "RECENT_QFIN_PM": "cat:q-fin.PM"
+ },
+ "papers_by_hypothesis": {
+  "H14": [
+   {
+    "arxiv_id": "2201.09790v1",
+    "url": "https://arxiv.org/abs/2201.09790v1",
+    "title": "Linear Laws of Markov Chains with an Application for Anomaly Detection in Bitcoin Prices",
+    "authors": [
+     "Marcell T. Kurbucz",
+     "Péter Pósfay",
+     "Antal Jakovác"
+    ],
+    "published": "2022-01-24",
+    "categories": [
+     "q-fin.ST",
+     "cs.LG"
+    ],
+    "abstract_snippet": "The goals of this paper are twofold: (1) to present a new method that is able to find linear laws governing the time evolution of Markov chains and (2) to apply this method for anomaly detection in Bitcoin prices. To accomplish these goals, first, the linear laws of Markov chains are derived by using the time embedding of their (categorical) autocorrelation function. Then, a binary series is generated from the first "
+   },
+   {
+    "arxiv_id": "2411.06327v2",
+    "url": "https://arxiv.org/abs/2411.06327v2",
+    "title": "Return and Volatility Forecasting Using On-Chain Flows in Cryptocurrency Markets",
+    "authors": [
+     "Yeguang Chi",
+     " Qionghua",
+     " Chu",
+     "Wenyan Hao"
+    ],
+    "published": "2024-11-10",
+    "categories": [
+     "econ.EM"
+    ],
+    "abstract_snippet": "We empirically examine the intraday return- and volatility-forecasting power of on-chain flow data for Bitcoin(BTC), Ethereum(ETH), and Tether(USDT). We find ETH net inflows to strongly predict ETH returns and volatility in the 2017-2023 period. Our intraday frequencies are 1-6 hours. We find that differing significantly from forecasting patterns for BTC, ETH net inflows negatively predict ETH returns and volatility."
+   },
+   {
+    "arxiv_id": "2308.00013v1",
+    "url": "https://arxiv.org/abs/2308.00013v1",
+    "title": "Bitcoin Gold, Litecoin Silver:An Introduction to Cryptocurrency's Valuation and Trading Strategy",
+    "authors": [
+     "Haoyang Yu",
+     "Yutong Sun",
+     "Yulin Liu",
+     "Luyao Zhang"
+    ],
+    "published": "2023-07-30",
+    "categories": [
+     "cs.CE",
+     "cs.CR",
+     "econ.GN",
+     "q-fin.CP",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "Historically, gold and silver have played distinct roles in traditional monetary systems. While gold has primarily been revered as a superior store of value, prompting individuals to hoard it, silver has commonly been used as a medium of exchange. As the financial world evolves, the emergence of cryptocurrencies has introduced a new paradigm of value and exchange. However, the store-of-value characteristic of these d"
+   },
+   {
+    "arxiv_id": "2211.08281v1",
+    "url": "https://arxiv.org/abs/2211.08281v1",
+    "title": "Forecasting Bitcoin volatility spikes from whale transactions and CryptoQuant data using Synthesizer Transformer models",
+    "authors": [
+     "Dorien Herremans",
+     "Kah Wee Low"
+    ],
+    "published": "2022-10-06",
+    "categories": [
+     "q-fin.TR",
+     "cs.AI",
+     "cs.LG",
+     "q-fin.CP",
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "The cryptocurrency market is highly volatile compared to traditional financial markets. Hence, forecasting its volatility is crucial for risk management. In this paper, we investigate CryptoQuant data (e.g. on-chain analytics, exchange and miner data) and whale-alert tweets, and explore their relationship to Bitcoin's next-day volatility, with a focus on extreme volatility spikes. We propose a deep learning Synthesiz"
+   },
+   {
+    "arxiv_id": "2107.12041v5",
+    "url": "https://arxiv.org/abs/2107.12041v5",
+    "title": "Inverse and Quanto Inverse Options in a Black-Scholes World",
+    "authors": [
+     "Carol Alexander",
+     "Ding Chen",
+     "Arben Imeraj"
+    ],
+    "published": "2021-07-26",
+    "categories": [
+     "q-fin.PR",
+     "q-fin.MF",
+     "q-fin.PM",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "Over 90% of exchange trading on crypto options has always been on the Deribit platform. This centralised crypto exchange only lists inverse products because they do not accept fiat currency. Currently, fiat-based traders can only make deposits in bitcoin, although they can withdraw both bitcoin and ether to their on-chain wallets. Likewise, other major crypto options platforms only list crypto--stablecoin trading pai"
+   }
+  ],
+  "H15": [
+   {
+    "arxiv_id": "2501.05232v1",
+    "url": "https://arxiv.org/abs/2501.05232v1",
+    "title": "The Intraday Bitcoin Response to Tether Minting and Burning Events: Asymmetry, Investor Sentiment, And \"Whale Alerts\" On Twitter",
+    "authors": [
+     "Aman Saggu"
+    ],
+    "published": "2025-01-09",
+    "categories": [
+     "q-fin.GN",
+     "cs.SI",
+     "q-fin.PR",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "Tether Limited has the sole authority to create (mint) and destroy (burn) Tether stablecoins (USDT). This paper investigates Bitcoin's response to USDT supply change events between 2014 and 2021 and identifies an interesting asymmetry between Bitcoin's responses to USDT minting and burning events. Bitcoin responds positively to USDT minting events over 5- to 30-minute event windows, but this response begins declining"
+   },
+   {
+    "arxiv_id": "2107.12041v5",
+    "url": "https://arxiv.org/abs/2107.12041v5",
+    "title": "Inverse and Quanto Inverse Options in a Black-Scholes World",
+    "authors": [
+     "Carol Alexander",
+     "Ding Chen",
+     "Arben Imeraj"
+    ],
+    "published": "2021-07-26",
+    "categories": [
+     "q-fin.PR",
+     "q-fin.MF",
+     "q-fin.PM",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "Over 90% of exchange trading on crypto options has always been on the Deribit platform. This centralised crypto exchange only lists inverse products because they do not accept fiat currency. Currently, fiat-based traders can only make deposits in bitcoin, although they can withdraw both bitcoin and ether to their on-chain wallets. Likewise, other major crypto options platforms only list crypto--stablecoin trading pai"
+   },
+   {
+    "arxiv_id": "2210.12881v1",
+    "url": "https://arxiv.org/abs/2210.12881v1",
+    "title": "A Control Theoretic Approach to Infrastructure-Centric Blockchain Tokenomics",
+    "authors": [
+     "Oguzhan Akcin",
+     "Robert P. Streit",
+     "Benjamin Oommen",
+     "Sriram Vishwanath",
+     "Sandeep Chinchali"
+    ],
+    "published": "2022-10-23",
+    "categories": [
+     "cs.DC",
+     "cs.CR",
+     "cs.CY",
+     "econ.GN",
+     "eess.SY"
+    ],
+    "abstract_snippet": "There are a multitude of Blockchain-based physical infrastructure systems, operating on a crypto-currency enabled token economy, where infrastructure suppliers are rewarded with tokens for enabling, validating, managing and/or securing the system. However, today's token economies are largely designed without infrastructure systems in mind, and often operate with a fixed token supply (e.g., Bitcoin). This paper argues"
+   }
+  ],
+  "H16": [
+   {
+    "arxiv_id": "2606.08141v1",
+    "url": "https://arxiv.org/abs/2606.08141v1",
+    "title": "A Structural Matrix Autoregressive Model for the Joint Dynamics of Volume, Volatility, and Returns",
+    "authors": [
+     "Andrea Bucci",
+     "Giulio Palomba",
+     "Eduardo Rossi"
+    ],
+    "published": "2026-06-06",
+    "categories": [
+     "econ.EM",
+     "q-fin.GN"
+    ],
+    "abstract_snippet": "This paper proposes a Structural Matrix Autoregressive (SMAR) model for the joint analysis of asset returns, realized volatility, and trading volume in a large-dimensional setting. This framework simultaneously captures dynamic spillovers across financial variables and cross-sectional dependence across assets while preserving a parsimonious parameterization relative to conventional vector autoregressive models. The m"
+   },
+   {
+    "arxiv_id": "2302.10252v1",
+    "url": "https://arxiv.org/abs/2302.10252v1",
+    "title": "Monetary Policy, Digital Assets, and DeFi Activity",
+    "authors": [
+     "Antzelos Kyriazis",
+     "Iason Ofeidis",
+     "Georgios Palaiokrassas",
+     "Leandros Tassiulas"
+    ],
+    "published": "2023-02-20",
+    "categories": [
+     "q-fin.ST"
+    ],
+    "abstract_snippet": "This paper studies the effects of unexpected changes in US monetary policy on digital asset returns. We use event study regressions and find that monetary policy surprises negatively affect BTC and ETH, the two largest digital assets, but do not significantly affect the rest of the market. Second, we use high-frequency price data to examine the effect of the FOMC statements release and Minutes release on the prices o"
+   }
+  ],
+  "H17": [],
+  "H18": [
+   {
+    "arxiv_id": "1702.07374v1",
+    "url": "https://arxiv.org/abs/1702.07374v1",
+    "title": "Time series momentum and contrarian effects in the Chinese stock market",
+    "authors": [
+     "Huai-Long Shi",
+     "Wei-Xing Zhou"
+    ],
+    "published": "2017-02-07",
+    "categories": [
+     "q-fin.ST",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "This paper concentrates on the time series momentum or contrarian effects in the Chinese stock market. We evaluate the performance of the time series momentum strategy applied to major stock indices in mainland China and explore the relation between the performance of time series momentum strategies and some firm-specific characteristics. Our findings indicate that there is a time series momentum effect in the short "
+   },
+   {
+    "arxiv_id": "1904.04912v3",
+    "url": "https://arxiv.org/abs/1904.04912v3",
+    "title": "Enhancing Time Series Momentum Strategies Using Deep Neural Networks",
+    "authors": [
+     "Bryan Lim",
+     "Stefan Zohren",
+     "Stephen Roberts"
+    ],
+    "published": "2019-04-09",
+    "categories": [
+     "stat.ML",
+     "cs.LG",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "While time series momentum is a well-studied phenomenon in finance, common strategies require the explicit definition of both a trend estimator and a position sizing rule. In this paper, we introduce Deep Momentum Networks -- a hybrid approach which injects deep learning based trading rules into the volatility scaling framework of time series momentum. The model also simultaneously learns both trend estimation and po"
+   },
+   {
+    "arxiv_id": "2406.08742v1",
+    "url": "https://arxiv.org/abs/2406.08742v1",
+    "title": "DeepUnifiedMom: Unified Time-series Momentum Portfolio Construction via Multi-Task Learning with Multi-Gate Mixture of Experts",
+    "authors": [
+     "Joel Ong",
+     "Dorien Herremans"
+    ],
+    "published": "2024-06-13",
+    "categories": [
+     "q-fin.CP"
+    ],
+    "abstract_snippet": "This paper introduces DeepUnifiedMom, a deep learning framework that enhances portfolio management through a multi-task learning approach and a multi-gate mixture of experts. The essence of DeepUnifiedMom lies in its ability to create unified momentum portfolios that incorporate the dynamics of time series momentum across a spectrum of time frames, a feature often missing in traditional momentum strategies. Our compr"
+   },
+   {
+    "arxiv_id": "2306.13661v1",
+    "url": "https://arxiv.org/abs/2306.13661v1",
+    "title": "Constructing Time-Series Momentum Portfolios with Deep Multi-Task Learning",
+    "authors": [
+     "Joel Ong",
+     "Dorien Herremans"
+    ],
+    "published": "2023-06-08",
+    "categories": [
+     "q-fin.CP",
+     "cs.LG",
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "A diversified risk-adjusted time-series momentum (TSMOM) portfolio can deliver substantial abnormal returns and offer some degree of tail risk protection during extreme market events. The performance of existing TSMOM strategies, however, relies not only on the quality of the momentum signal but also on the efficacy of the volatility estimator. Yet many of the existing studies have always considered these two factors"
+   },
+   {
+    "arxiv_id": "2106.08420v4",
+    "url": "https://arxiv.org/abs/2106.08420v4",
+    "title": "Trend-Following Strategies via Dynamic Momentum Learning",
+    "authors": [
+     "Bruno P. C. Levy",
+     "Hedibert F. Lopes"
+    ],
+    "published": "2021-06-15",
+    "categories": [
+     "q-fin.ST"
+    ],
+    "abstract_snippet": "Time series momentum strategies are widely applied in the quantitative financial industry and its academic research has grown rapidly since the work of Moskowitz, Ooi and Pedersen (2012). However, trading signals are usually obtained via simple observation of past return measurements. In this article we study the benefits of incorporating dynamic econometric models to sequentially learn the time-varying importance of"
+   }
+  ],
+  "H19": [
+   {
+    "arxiv_id": "2609.23703v1",
+    "url": "https://arxiv.org/abs/2609.23703v1",
+    "title": "Financial Language Models as Applied Artificial Intelligence Systems for News-Based Trading under Market Frictions",
+    "authors": [
+     "Kemal Kirtac"
+    ],
+    "published": "2026-09-20",
+    "categories": [
+     "cs.CL",
+     "cs.LG",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "Financial language models can transform unstructured firm-specific news into structured decision signals, but financial AI research lacks an integrated deployment framework for evaluating whether those signals remain useful in financial decision systems. Computer science research has developed strong methods for time-series forecasting, text classification, multimodal stock prediction, graph-based market modeling, an"
+   },
+   {
+    "arxiv_id": "2604.03888v1",
+    "url": "https://arxiv.org/abs/2604.03888v1",
+    "title": "PolySwarm: A Multi-Agent Large Language Model Framework for Prediction Market Trading and Latency Arbitrage",
+    "authors": [
+     "Rajat M. Barot",
+     "Arjun S. Borkhatariya"
+    ],
+    "published": "2026-04-04",
+    "categories": [
+     "cs.AI",
+     "cs.CL",
+     "cs.MA",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "This paper presents PolySwarm, a novel multi-agent large language model (LLM) framework designed for real-time prediction market trading and latency arbitrage on decentralized platforms such as Polymarket. PolySwarm deploys a swarm of 50 diverse LLM personas that concurrently evaluate binary outcome markets, aggregating individual probability estimates through confidence-weighted Bayesian combination of swarm consens"
+   },
+   {
+    "arxiv_id": "2606.04217v2",
+    "url": "https://arxiv.org/abs/2606.04217v2",
+    "title": "Polymarket-v1 Database",
+    "authors": [
+     "Boka Qin",
+     "Rui Yang"
+    ],
+    "published": "2026-06-02",
+    "categories": [
+     "cs.CE",
+     "q-fin.ST",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "We introduce the Polymarket-v1 Database: the complete on-chain trade archive of Polymarket's first-generation CTF Exchange on Polygon, spanning 2022-11-21 to 2026-04-28 and covering the full contract lifecycle from first settlement to natural termination. The dataset comprises 1.20 billion trade records across 1.30 million markets with $61 billion in nominal volume. Its defining feature is 100% ground-truth aggressor"
+   },
+   {
+    "arxiv_id": "2603.06733v1",
+    "url": "https://arxiv.org/abs/2603.06733v1",
+    "title": "Calibrated Credit Intelligence: Shift-Robust and Fair Risk Scoring with Bayesian Uncertainty and Gradient Boosting",
+    "authors": [
+     "Srikumar Nayak"
+    ],
+    "published": "2026-03-06",
+    "categories": [
+     "q-fin.RM",
+     "cs.AI",
+     "cs.LG"
+    ],
+    "abstract_snippet": "Credit risk scoring must support high-stakes lending decisions where data distributions change over time, probability estimates must be reliable, and group-level fairness is required. While modern machine learning models improve default prediction accuracy, they often produce poorly calibrated scores under distribution shift and may create unfair outcomes when trained without explicit constraints. This paper proposes"
+   },
+   {
+    "arxiv_id": "2512.18118v3",
+    "url": "https://arxiv.org/abs/2512.18118v3",
+    "title": "Distribution-Free Selection of Low-Risk Oncology Patients for Survival Beyond a Time Horizon",
+    "authors": [
+     "Matteo Sesia",
+     "Vladimir Svetnik"
+    ],
+    "published": "2025-12-19",
+    "categories": [
+     "stat.AP",
+     "stat.ME"
+    ],
+    "abstract_snippet": "We study how to select a subset of patients who are unlikely to experience an adverse event within a given time horizon, by calibrating a screening rule based on the output of any survival model. We consider two complementary frameworks. The first extends the classical idea of estimating the event rate among selected patients using a hold-out dataset, integrating it with the Learn-Then-Test method. This provides appr"
+   }
+  ],
+  "H20": [
+   {
+    "arxiv_id": "2411.05807v1",
+    "url": "https://arxiv.org/abs/2411.05807v1",
+    "title": "Schur Complementary Allocation: A Unification of Hierarchical Risk Parity and Minimum Variance Portfolios",
+    "authors": [
+     "Peter Cotton"
+    ],
+    "published": "2024-10-29",
+    "categories": [
+     "q-fin.PM",
+     "q-fin.MF"
+    ],
+    "abstract_snippet": "Despite many attempts to make optimization-based portfolio construction in the spirit of Markowitz robust and approachable, it is far from universally adopted. Meanwhile, the collection of more heuristic divide-and-conquer approaches was revitalized by Lopez de Prado where Hierarchical Risk Parity (HRP) was introduced. This paper reveals the hidden connection between these seemingly disparate approaches."
+   },
+   {
+    "arxiv_id": "2202.02728v1",
+    "url": "https://arxiv.org/abs/2202.02728v1",
+    "title": "Hierarchical Risk Parity and Minimum Variance Portfolio Design on NIFTY 50 Stocks",
+    "authors": [
+     "Jaydip Sen",
+     "Sidra Mehtab",
+     "Abhishek Dutta",
+     "Saikat Mondal"
+    ],
+    "published": "2022-02-06",
+    "categories": [
+     "q-fin.PM",
+     "cs.LG"
+    ],
+    "abstract_snippet": "Portfolio design and optimization have been always an area of research that has attracted a lot of attention from researchers from the finance domain. Designing an optimum portfolio is a complex task since it involves accurate forecasting of future stock returns and risks and making a suitable tradeoff between them. This paper proposes a systematic approach to designing portfolios using two algorithms, the critical l"
+   },
+   {
+    "arxiv_id": "2210.00984v1",
+    "url": "https://arxiv.org/abs/2210.00984v1",
+    "title": "A Comparative Study of Hierarchical Risk Parity Portfolio and Eigen Portfolio on the NIFTY 50 Stocks",
+    "authors": [
+     "Jaydip Sen",
+     "Abhishek Dutta"
+    ],
+    "published": "2022-10-03",
+    "categories": [
+     "q-fin.PM",
+     "cs.LG"
+    ],
+    "abstract_snippet": "Portfolio optimization has been an area of research that has attracted a lot of attention from researchers and financial analysts. Designing an optimum portfolio is a complex task since it not only involves accurate forecasting of future stock returns and risks but also needs to optimize them. This paper presents a systematic approach to portfolio optimization using two approaches, the hierarchical risk parity algori"
+   },
+   {
+    "arxiv_id": "2509.03712v1",
+    "url": "https://arxiv.org/abs/2509.03712v1",
+    "title": "Hierarchical Risk Parity for Portfolio Allocation in the Latin American NUAM Market",
+    "authors": [
+     "Gonzalo Ramirez-Carrillo",
+     "David Ortiz-Mora",
+     "Alex Aguilar-Larrotta"
+    ],
+    "published": "2025-09-03",
+    "categories": [
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "This study applies the Hierarchical Risk Parity (HRP) portfolio allocation methodology to the NUAM market, a regional holding that integrates the markets of Chile, Colombia and Peru. As one of the first empirical analyses of HRP in this newly formed Latin American context, the paper addresses a gap in the literature on portfolio construction under cross-border, emerging market conditions. HRP leverages hierarchical c"
+   },
+   {
+    "arxiv_id": "2305.17523v1",
+    "url": "https://arxiv.org/abs/2305.17523v1",
+    "title": "A Comparative Analysis of Portfolio Optimization Using Mean-Variance, Hierarchical Risk Parity, and Reinforcement Learning Approaches on the Indian Stock Market",
+    "authors": [
+     "Jaydip Sen",
+     "Aditya Jaiswal",
+     "Anshuman Pathak",
+     "Atish Kumar Majee",
+     "Kushagra Kumar",
+     "Manas Kumar Sarkar"
+    ],
+    "published": "2023-05-27",
+    "categories": [
+     "cs.LG",
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "This paper presents a comparative analysis of the performances of three portfolio optimization approaches. Three approaches of portfolio optimization that are considered in this work are the mean-variance portfolio (MVP), hierarchical risk parity (HRP) portfolio, and reinforcement learning-based portfolio. The portfolios are trained and tested over several stock data and their performances are compared on their annua"
+   }
+  ],
+  "H21": [
+   {
+    "arxiv_id": "2506.08573v1",
+    "url": "https://arxiv.org/abs/2506.08573v1",
+    "title": "Designing funding rates for perpetual futures in cryptocurrency markets",
+    "authors": [
+     "Jaehyun Kim",
+     "Hyungbin Park"
+    ],
+    "published": "2025-06-10",
+    "categories": [
+     "q-fin.MF",
+     "q-fin.PR"
+    ],
+    "abstract_snippet": "In cryptocurrency markets, a key challenge for perpetual future issuers is maintaining alignment between the perpetual future price and target value. This study addresses this challenge by exploring the relationship between funding rates and perpetual future prices. Our results demonstrate that by appropriately designing funding rates, the perpetual future price can remain aligned with the target value. We develop re"
+   },
+   {
+    "arxiv_id": "2212.06888v7",
+    "url": "https://arxiv.org/abs/2212.06888v7",
+    "title": "Fundamentals of Perpetual Futures",
+    "authors": [
+     "Songrun He",
+     "Asaf Manela",
+     "Omri Ross",
+     "Victor von Wachter"
+    ],
+    "published": "2022-12-13",
+    "categories": [
+     "q-fin.PR",
+     "q-fin.GN"
+    ],
+    "abstract_snippet": "Perpetual futures are the most popular cryptocurrency derivatives. Perpetuals offer leveraged exposure to their underlying without rollover or direct ownership. Unlike fixed-maturity futures, perpetuals are not guaranteed to converge to the spot price. To minimize the gap between perpetual and spot prices, long investors periodically pay shorts a funding rate proportional to this difference. We derive no-arbitrage pr"
+   },
+   {
+    "arxiv_id": "2209.03307v1",
+    "url": "https://arxiv.org/abs/2209.03307v1",
+    "title": "A primer on perpetuals",
+    "authors": [
+     "Guillermo Angeris",
+     "Tarun Chitra",
+     "Alex Evans",
+     "Matthew Lorig"
+    ],
+    "published": "2022-09-07",
+    "categories": [
+     "q-fin.MF"
+    ],
+    "abstract_snippet": "We consider a continuous-time financial market with no arbitrage and no transactions costs. In this setting, we introduce two types of perpetual contracts, one in which the payoff to the long side is a fixed function of the underlyers and the long side pays a funding rate to the short side, the other in which the payoff to the long side is a fixed function of the underlyers times a discount factor that changes over t"
+   },
+   {
+    "arxiv_id": "2609.05433v1",
+    "url": "https://arxiv.org/abs/2609.05433v1",
+    "title": "Perpetual Futures for Stocks: The SpaceX Pre-IPO Market",
+    "authors": [
+     "Aditya Gupta",
+     "Nick Polson"
+    ],
+    "published": "2026-06-22",
+    "categories": [
+     "q-fin.PR"
+    ],
+    "abstract_snippet": "Robert Shiller proposed perpetual futures in 1993 to create derivative markets for assets that are illiquid or whose price cannot be observed directly, such as single family homes, human capital, and the consumer price index. The crypto markets later built the instrument for a different reason and with a different funding rule. We give a single no arbitrage result that nests both designs: the perpetual price is the p"
+   },
+   {
+    "arxiv_id": "2601.10812v1",
+    "url": "https://arxiv.org/abs/2601.10812v1",
+    "title": "Optimal Liquidation of Perpetual Contracts",
+    "authors": [
+     "Ryan Donnelly",
+     "Junhan Lin",
+     "Matthew Lorig"
+    ],
+    "published": "2026-01-15",
+    "categories": [
+     "q-fin.MF"
+    ],
+    "abstract_snippet": "An agent holds a position in a perpetual contract with payoff function $ψ$ and attempts to liquidate the position while managing transaction costs, inventory risk, and funding rate payments. By solving the agent's stochastic control problem we obtain a closed-form expression for the optimal trading strategy when the payoff function is given by $ψ(s) = s$. When the payoff function is non-linear we provide approximatio"
+   }
+  ],
+  "H22": [
+   {
+    "arxiv_id": "2505.16136v1",
+    "url": "https://arxiv.org/abs/2505.16136v1",
+    "title": "Interpretable Machine Learning for Macro Alpha: A News Sentiment Case Study",
+    "authors": [
+     "Yuke Zhang"
+    ],
+    "published": "2025-05-22",
+    "categories": [
+     "q-fin.CP",
+     "cs.AI",
+     "cs.LG",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "This study introduces an interpretable machine learning (ML) framework to extract macroeconomic alpha from global news sentiment. We process the Global Database of Events, Language, and Tone (GDELT) Project's worldwide news feed using FinBERT -- a Bidirectional Encoder Representations from Transformers (BERT) based model pretrained on finance-specific language -- to construct daily sentiment indices incorporating mea"
+   },
+   {
+    "arxiv_id": "1412.3948v4",
+    "url": "https://arxiv.org/abs/1412.3948v4",
+    "title": "Coupling news sentiment with web browsing data improves prediction of intra-day price dynamics",
+    "authors": [
+     "Gabriele Ranco",
+     "Ilaria Bordino",
+     "Giacomo Bormetti",
+     "Guido Caldarelli",
+     "Fabrizio Lillo",
+     "Michele Treccani"
+    ],
+    "published": "2014-12-12",
+    "categories": [
+     "q-fin.ST",
+     "q-fin.CP"
+    ],
+    "abstract_snippet": "The new digital revolution of big data is deeply changing our capability of understanding society and forecasting the outcome of many social and economic systems. Unfortunately, information can be very heterogeneous in the importance, relevance, and surprise it conveys, affecting severely the predictive power of semantic and statistical methods. Here we show that the aggregation of web users' behavior can be elicited"
+   },
+   {
+    "arxiv_id": "2603.11408v2",
+    "url": "https://arxiv.org/abs/2603.11408v2",
+    "title": "Beyond Polarity: Multi-Dimensional LLM Sentiment Signals for WTI Crude Oil Futures Return Prediction",
+    "authors": [
+     "Dehao Dai",
+     "Ding Ma",
+     "Dou Liu",
+     "Kerui Geng",
+     "Yiqing Wang"
+    ],
+    "published": "2026-03-12",
+    "categories": [
+     "q-fin.ST",
+     "cs.CL"
+    ],
+    "abstract_snippet": "Forecasting crude oil prices remains challenging because market-relevant information is embedded in large volumes of unstructured news and is not fully captured by traditional polarity-based sentiment measures. This paper examines whether multi-dimensional sentiment signals extracted by large language models improve the prediction of weekly WTI crude oil futures returns. Using energy-sector news articles from 2020 to"
+   },
+   {
+    "arxiv_id": "1807.06824v1",
+    "url": "https://arxiv.org/abs/1807.06824v1",
+    "title": "News-based trading strategies",
+    "authors": [
+     "Stefan Feuerriegel",
+     "Helmut Prendinger"
+    ],
+    "published": "2018-07-18",
+    "categories": [
+     "q-fin.TR",
+     "cs.LG",
+     "stat.ML"
+    ],
+    "abstract_snippet": "The marvel of markets lies in the fact that dispersed information is instantaneously processed and used to adjust the price of goods, services and assets. Financial markets are particularly efficient when it comes to processing information; such information is typically embedded in textual news that is then interpreted by investors. Quite recently, researchers have started to automatically determine news sentiment in"
+   },
+   {
+    "arxiv_id": "2304.05115v1",
+    "url": "https://arxiv.org/abs/2304.05115v1",
+    "title": "Towards systematic intraday news screening: a liquidity-focused approach",
+    "authors": [
+     "Jianfei Zhang",
+     "Mathieu Rosenbaum"
+    ],
+    "published": "2023-04-11",
+    "categories": [
+     "q-fin.TR",
+     "cs.LG",
+     "q-fin.CP"
+    ],
+    "abstract_snippet": "News can convey bearish or bullish views on financial assets. Institutional investors need to evaluate automatically the implied news sentiment based on textual data. Given the huge amount of news articles published each day, most of which are neutral, we present a systematic news screening method to identify the ``true'' impactful ones, aiming for more effective development of news sentiment learning methods. Based "
+   }
+  ],
+  "RECENT_QFIN_TR": [
+   {
+    "arxiv_id": "2610.31141v1",
+    "url": "https://arxiv.org/abs/2610.31141v1",
+    "title": "Intraday Forecasting Ability and Liquidity Provision of Institutional Traders",
+    "authors": [
+     "Xinlei Hao",
+     "Jiajun Guo",
+     "Jussi Keppo",
+     "Xianhua Peng"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "q-fin.TR",
+     "q-fin.GN",
+     "q-fin.ST"
+    ],
+    "abstract_snippet": "This study uses a high-frequency dataset from a stock exchange to examine how forecasting ability and liquidity provision relate to institutional traders' proprietary intraday profitability. We discover persistent forecasting abilities among traders. Specifically, we demonstrate that hypothetical flow-following strategies based on the execution flows of these skillful traders yield annualized Sharpe ratios ranging fr"
+   },
+   {
+    "arxiv_id": "2610.30891v1",
+    "url": "https://arxiv.org/abs/2610.30891v1",
+    "title": "Equilibria and Learning in Competitive Market Making",
+    "authors": [
+     "Matteo Onger",
+     "Luigi Foscari"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.GT",
+     "cs.LG",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "We propose a market-making game played among $N \\ge 2$ strategic market makers and a single non-strategic representative trader. In a continuous quote space, standard finite-game arguments do not apply, while non-convex and discontinuous payoffs rule out classical continuous existence results and complicate learning. Nonetheless, we characterize pure-strategy Nash equilibria (PSNEs) and show that at least one PSNE al"
+   },
+   {
+    "arxiv_id": "2610.30539v1",
+    "url": "https://arxiv.org/abs/2610.30539v1",
+    "title": "Dynamics of the Liquidity Profile in Concentrated Liquidity Provision: An SPIDE Approach",
+    "authors": [
+     "Cheuk Yin Lee",
+     "Jimmy Risk",
+     "Shen-Ning Tung",
+     "Tai-Ho Wang"
+    ],
+    "published": "2026-10-21",
+    "categories": [
+     "q-fin.MF",
+     "math.PR",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "We model the dynamics of the liquidity profile in Uniswap~V3 and other concentrated-liquidity automated market makers with a stochastic partial integro-differential equation (SPIDE). The profile, the aggregate of all provider positions across tick space, evolves under a degenerate Sturm--Liouville operator, which encodes mean-reverting concentration around the market price, coupled with a Hilbert--Schmidt integral op"
+   },
+   {
+    "arxiv_id": "2610.28753v1",
+    "url": "https://arxiv.org/abs/2610.28753v1",
+    "title": "Understanding the Inner Workings of a State-Space Foundation Model for Limit Order Books",
+    "authors": [
+     "Valentin Mohl",
+     "Alexandre Bismuth",
+     "Aramis Marti-Shahandeh",
+     "George Nigmatulin",
+     "Kang Li",
+     "Stefan Zohren"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "q-fin.TR",
+     "cs.LG"
+    ],
+    "abstract_snippet": "Autoregressive foundation models offer state-of-the-art capabilities to simulate the market by generating the message flow of limit order books (LOBs). Yet, without understanding their inner workings, research directions are hard to narrow and practical use in real-world trading environments remains uncertain. This study therefore asks what these models actually learn about market microstructure. We find that, simila"
+   },
+   {
+    "arxiv_id": "2610.28075v1",
+    "url": "https://arxiv.org/abs/2610.28075v1",
+    "title": "Speculative Imbalance Positions by Non-Physical Traders: Impacts on Electricity System Balancing in Great Britain",
+    "authors": [
+     "Joseph Cary",
+     "Thomas Morstyn"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "eess.SY",
+     "econ.GN",
+     "q-fin.TR"
+    ],
+    "abstract_snippet": "The electricity system in Great Britain (GB) allows participants to deliberately produce or consume a different volume to their traded position and has incentivised this practice with a single imbalance price since 2015. In particular, non-physical traders (NPTs) often take an open position to imbalance without any intention to produce or consume power. However, new government proposals could restrict this practice d"
+   }
+  ],
+  "RECENT_QFIN_PM": [
+   {
+    "arxiv_id": "2610.31074v1",
+    "url": "https://arxiv.org/abs/2610.31074v1",
+    "title": "Directionally Correct Views in Portfolio Optimization",
+    "authors": [
+     "Ojas Kumar",
+     "Sreejit Dey",
+     "Sarvesh Ravichandran Iyer",
+     "Sandeep Juneja"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "Portfolio optimization techniques often use historical data to estimate parameters for Markowitz-type or ML models. Effective allocation requires a way to align the available data with conditions expected over the investment horizon. Inspired by the Black-Litterman framework, we ask whether incorporating expert views leads to better portfolio allocations. In a simple Markowitz setting, we show that even a small amoun"
+   },
+   {
+    "arxiv_id": "2610.30564v1",
+    "url": "https://arxiv.org/abs/2610.30564v1",
+    "title": "When News Gets Old: Portfolio Allocation with Reinforcement Learning and Large Language Models",
+    "authors": [
+     "Bolin Song",
+     "Surui Xiang"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.LG",
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "Financial news can influence investment decisions long after publication. Timely news may reach an investor before prices fully adjust, whereas older news may already be reflected in prices. We examine two ways to handle aging signals: retain them and give a portfolio policy timing information, or filter them out before portfolio selection. A fixed large language model (LLM) extracts signals from public SEC disclosur"
+   },
+   {
+    "arxiv_id": "2610.30557v1",
+    "url": "https://arxiv.org/abs/2610.30557v1",
+    "title": "Governed Self-Evolution for Autonomous Investing: A Multi-Agent LLM System with an Invariant Core",
+    "authors": [
+     "Yebo Feng",
+     "Jingyang Dai",
+     "Liangrui Pan",
+     "Nelson Lau",
+     "Jiahua Xu",
+     "Yang Liu"
+    ],
+    "published": "2026-10-22",
+    "categories": [
+     "cs.AI",
+     "cs.CL",
+     "cs.MA",
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "LLM agents that act on live Web data must combine heterogeneous evidence, remember what they have done and improve from outcomes without weakening their own safeguards. We study this problem in autonomous investing, where every action is irreversible and based on untrusted Web content. We present Steward, a multi-agent LLM system that draws the boundary of self-evolution in its type system. First, nine role-specialis"
+   },
+   {
+    "arxiv_id": "2610.27751v1",
+    "url": "https://arxiv.org/abs/2610.27751v1",
+    "title": "Market Regime-Based Multi-Asset Portfolio Optimization Using Nested Clustered Optimization for Tactical Asset Allocation",
+    "authors": [
+     " Supriadi",
+     "Bambang Siswoyo"
+    ],
+    "published": "2026-10-20",
+    "categories": [
+     "q-fin.PM"
+    ],
+    "abstract_snippet": "We propose a regime-aware tactical asset allocation (TAA) framework integrating market regime detection with Nested Clustered Optimization (NCO) for multi-asset portfolio construction. The central hypothesis is that incorporating market regime information into the NCO pipeline, specifically at the stages of covariance estimation, hierarchical clustering, and weight optimization, yields portfolios with improved risk-a"
+   },
+   {
+    "arxiv_id": "2610.26456v1",
+    "url": "https://arxiv.org/abs/2610.26456v1",
+    "title": "Regime-Aware Interpretable Ranking for Sector Rotation",
+    "authors": [
+     "Kelvin J. L. Koa",
+     "Ziling Liu",
+     "Xinyang Li",
+     "Shuowei Feng",
+     "Ruoyu Liang",
+     "Mathieu Giroux"
+    ],
+    "published": "2026-10-19",
+    "categories": [
+     "q-fin.PM",
+     "cs.LG",
+     "q-fin.CP"
+    ],
+    "abstract_snippet": "Sector rotation is a common decision in benchmark-relative portfolio management, where portfolio managers rank sectors for overweight and underweight positions. We formulate this task as ranking sector actions by expected future risk-adjusted active performance, measured with forward sector-benchmark Sharpe ratios. Such rankings should preserve temporal information, express model outputs through economically familiar"
+   }
+  ]
+ },
+ "errors": {},
+ "paper_count": 45,
+ "honesty_note": "Papers motivate hypotheses only; acceptance requires walk-forward OOS evidence."
+}

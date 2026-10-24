@@ -333,3 +333,98 @@ def build_nightly_news_brief_fa(stories: Sequence[dict[str, Any]]) -> str:
         state = s.get("state") or s.get("status") or "UNKNOWN"
         lines.append(f"- [{topic}] ({state}): {headline}")
     return "\n".join(lines)
+
+
+# ============================ Stage 3: LIVE newsroom from the verified registry ============================
+TOPIC_FA = {"CRYPTO": "رمزارز", "GOLD": "طلا", "OIL": "نفت", "US_EQUITIES": "سهام آمریکا", "EU_EQUITIES": "سهام اروپا",
+            "ASIA_EQUITIES": "سهام آسیا", "FOREX": "ارز", "MACRO": "اقتصاد کلان"}
+_STOP = set("a an the of to in on for and or with at by from as is are be was were after amid over into its it this that new says say said will may could us u.s. than more".split())
+
+
+def _publisher(item: dict[str, Any], feed_domain: str) -> str:
+    """Independent-source key. Aggregators (news.google.com) -> the publisher named after ' - ' in the title."""
+    if "news.google.com" in feed_domain and " - " in item.get("title", ""):
+        return "gnews:" + item["title"].rsplit(" - ", 1)[-1].strip().lower()
+    return feed_domain
+
+
+def _tokens(title: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z0-9$%.]+", title.lower()) if len(w) > 2 and w not in _STOP}
+
+
+def build_live_newsroom(root: Any, host: str, *, max_feeds: int = 90, max_age_h: float = 24.0,
+                        fetch: Any = None) -> dict[str, Any]:
+    """Fetch verified feeds for this host, tag topics, cluster near-duplicate headlines, and mark a story
+    CORROBORATED only when >= 2 independent publishers carry it (Two-Source Witness Law). No invented items."""
+    import concurrent.futures as cf
+    from datetime import datetime, timezone
+    from architecture.markets import news_registry as nr
+    from architecture.markets.signal_brain import ASSET_TERMS
+
+    feeds = nr.verified_feeds(root, host)[:max_feeds]
+    fetch = fetch or (lambda f: nr.parse_feed(urllib_get(f["url"])))
+    now = datetime.now(timezone.utc)
+    items: list[dict[str, Any]] = []
+    errors = 0
+
+    def one(f):
+        try:
+            return f, fetch(f)
+        except Exception:
+            return f, None
+    with cf.ThreadPoolExecutor(max_workers=10) as ex:
+        for f, got in ex.map(one, feeds):
+            if got is None:
+                errors += 1
+                continue
+            for it in got:
+                pub = it.get("published")
+                if not pub or (now - pub).total_seconds() > max_age_h * 3600:
+                    continue
+                title, inj = sanitize_untrusted_headline(it["title"])
+                topics = [t for t, rx in ASSET_TERMS.items() if re.search(rx, title, re.I)] or (["MACRO"] if f["category"] in ("macro", "central_bank", "official") else [])
+                if not topics:
+                    continue
+                items.append({"title": title, "link": it.get("link"), "published": pub, "feed": f["id"],
+                              "publisher": _publisher(it, f["domain"]), "category": f["category"], "topics": topics,
+                              "tokens": _tokens(title), "injection_stripped": inj})
+    clusters: list[dict[str, Any]] = []
+    for it in sorted(items, key=lambda x: x["published"], reverse=True):
+        for c in clusters:
+            if set(it["topics"]) & set(c["topics"]):
+                inter = len(it["tokens"] & c["tokens"])
+                if inter >= 3 and inter / max(1, len(it["tokens"] | c["tokens"])) >= 0.3:
+                    c["items"].append(it); c["publishers"].add(it["publisher"]); break
+        else:
+            clusters.append({"topics": list(it["topics"]), "tokens": set(it["tokens"]), "items": [it], "publishers": {it["publisher"]}})
+    stories, rss_clusters, center = [], [], []
+    for k, c in enumerate(sorted(clusters, key=lambda c: (-len(c["publishers"]), -c["items"][0]["published"].timestamp()))):
+        lead = c["items"][0]
+        n_pub = len(c["publishers"])
+        state = "CORROBORATED" if n_pub >= 2 else "SINGLE_SOURCE"
+        age_s = (now - lead["published"]).total_seconds()
+        ev = evaluate_osint_cluster([{"source": p, "claim": lead["title"], "reliability": 0.8} for p in sorted(c["publishers"])],
+                                    age_seconds=age_s, impact=0.7)
+        topic = c["topics"][0]
+        stories.append({"id": f"live-{k}", "headlineEn": lead["title"], "headlineFa": f"{TOPIC_FA.get(topic, topic)}: {lead['title']}",
+                        "market": topic, "publishedAt": lead["published"].strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        "claimStrength": "STRONG" if n_pub >= 3 else "MODERATE" if n_pub == 2 else "WEAK",
+                        "state": state, "sourceIds": sorted(c["publishers"])[:8], "links": [i["link"] for i in c["items"][:4]],
+                        "marketImpactNoteFa": f"{n_pub} ناشر مستقل · اعتبار C={ev.credibility:.2f}", "demo": False,
+                        "status": "LIVE" if age_s < 6 * 3600 else "STALE", "conflictId": None})
+        rss_clusters.append({"topic": topic, "state": state, "independent_domains": sorted(c["publishers"]),
+                             "credibility": ev.credibility, "recency": ev.recency, "priority": ev.priority,
+                             "headlines": [i["title"] for i in c["items"][:4]], "paper_only": True})
+    for s in stories[:60]:
+        center.append({"id": s["id"], "time": s["publishedAt"], "sourceName": ", ".join(s["sourceIds"][:3]),
+                       "topic": s["market"], "summary": s["headlineEn"], "reliability": f"{s['state']} ({len(s['sourceIds'])} src)",
+                       "demo": False})
+    return {"feeds_used": len(feeds), "feed_errors": errors, "items_24h": len(items), "clusters": len(clusters),
+            "corroborated": sum(1 for s in stories if s["state"] == "CORROBORATED"),
+            "stories": stories[:120], "rss_clusters": rss_clusters[:120], "center_items": center}
+
+
+def urllib_get(url: str, timeout: float = 12.0) -> bytes:
+    import urllib.request
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (AHOS newsroom)"}), timeout=timeout) as r:
+        return r.read(3_000_000)
