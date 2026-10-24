@@ -21,8 +21,8 @@
     {
       "stage": "Stage 9",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "ae65b85",
+      "arena_commit": "eb21364",
       "batch8": {
         "prior_trials": 96,
         "admitted": ["H38", "H39", "H40"],
