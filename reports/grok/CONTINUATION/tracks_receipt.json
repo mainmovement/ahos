@@ -1,10 +1,16 @@
 {
   "schema": "ahos.continuation_tracks.v1",
-  "generated_at": "2026-10-24T05:03:45Z",
+  "generated_at": "2026-10-24T08:16:39Z",
   "paper_only": true,
   "track1_paper_audit": "GREEN",
   "track1_weekend_tehran": true,
-  "track2_macro_ecb": "UNAVAILABLE (mirror fetch failed — not filled by hand)",
+  "track1_tradable_desks": [
+    "CRYPTO",
+    "PB_TOKEN"
+  ],
+  "track1_promotion_gate": null,
+  "track3_teaching_lessons": 7,
+  "track2_macro_ecb": "UNAVAILABLE (mirror dates disagree or fetch failed — not filled by hand)",
   "track2_macro_opec": "UNAVAILABLE (two-source agreed but no upcoming dates)",
   "track3_memory": "OK",
   "track3_pit_leaks": 0,

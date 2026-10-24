@@ -321,6 +321,21 @@ def _load_live_paper_cycles(root: Path) -> list[dict[str, Any]]:
                     break
         except Exception:
             pass
+    probe_path = root / "reports" / "grok" / "PAPER" / "weekday_witness_probe.json"
+    if probe_path.is_file():
+        try:
+            probe = json.loads(probe_path.read_text(encoding="utf-8"))
+            if probe.get("session_gate", {}).get("weekend_tehran"):
+                out.append({
+                    "lesson_id": "m65-weekend-session-gate",
+                    "market": "MULTI_DESK",
+                    "symbol": "SESSION",
+                    "regime_tag": "WEEKEND_SESSION_GATE",
+                    "pnl_usd": 0.0,
+                    "witness_state": "VERIFIED",
+                })
+        except Exception:
+            pass
     return out
 
 

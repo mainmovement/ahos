@@ -80,6 +80,21 @@ def test_ecb_two_source_mirror_agreement():
     assert ev[0]["event"] == "ECB_GOV_COUNCIL" and ev[0]["two_source_mirrors"] is True
 
 
+def test_ecb_best_mirror_pair_across_feeds():
+    press = """<rss><channel><item><title>ECB monetary policy meeting on 12 December 2026</title></item></channel></rss>"""
+    gnews = """<rss><channel><item><title>ECB Governing Council decision 12 December 2026</title></item></channel></rss>"""
+
+    def getter(url: str) -> str | None:
+        if "press.html" in url:
+            return press
+        if "gnews" in url or "ECB+Governing" in url:
+            return gnews
+        return None
+
+    agreed = mc._best_ecb_mirror_agreement(getter)
+    assert date(2026, 12, 12) in agreed
+
+
 def test_opec_mirror_requires_overlap():
     a = mc._dates_from_rss_titles(
         "<title>OPEC ministerial meeting set for 5 March 2027</title>",

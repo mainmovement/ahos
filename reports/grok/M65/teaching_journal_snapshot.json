@@ -1,6 +1,6 @@
 {
   "schema": "ahos.teaching_mode_m65.v1",
-  "generated_at": "2026-10-24T04:42:42Z",
+  "generated_at": "2026-10-24T08:16:39Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "real_trading": false,
@@ -129,7 +129,7 @@
   "hooman_journal": [
     {
       "journal_id": "hooman-jrnl-01",
-      "timestamp_iso": "2026-10-24T04:42:42Z",
+      "timestamp_iso": "2026-10-24T08:16:39Z",
       "market": "GOLD",
       "symbol": "XAUUSD",
       "decision_type": "PAPER_EXIT",
@@ -142,7 +142,7 @@
     },
     {
       "journal_id": "hooman-jrnl-02",
-      "timestamp_iso": "2026-10-24T04:42:42Z",
+      "timestamp_iso": "2026-10-24T08:16:39Z",
       "market": "OIL",
       "symbol": "WTI",
       "decision_type": "PAPER_ENTRY",
@@ -155,7 +155,7 @@
     },
     {
       "journal_id": "hooman-jrnl-03",
-      "timestamp_iso": "2026-10-24T04:42:42Z",
+      "timestamp_iso": "2026-10-24T08:16:39Z",
       "market": "DEX_TOKENS",
       "symbol": "RUGMEME",
       "decision_type": "SAFETY_VETO",

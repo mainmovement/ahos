@@ -126,10 +126,34 @@ def audit_mission_ledger_paper_refs(root: Path) -> dict[str, Any]:
     }
 
 
+def _load_witness_probe(root: Path) -> dict[str, Any]:
+    p = root / "reports" / "grok" / "PAPER" / "weekday_witness_probe.json"
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _load_trader_promotion_gate(root: Path) -> str | None:
+    p = root / "reports" / "grok" / "PAPER" / "paper_trader_status.json"
+    try:
+        st = json.loads(p.read_text(encoding="utf-8"))
+        perf = st.get("performance") or {}
+        if isinstance(perf, dict) and perf.get("promotion_gate"):
+            return str(perf["promotion_gate"])
+        if isinstance(perf, dict) and int(perf.get("n") or 0) < 30:
+            return "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)"
+        return st.get("edge_status_fa")
+    except Exception:
+        return None
+
+
 def export_paper_trade_audit_snapshot(root: Path) -> dict[str, Any]:
     trades = audit_paper_trades_jsonl(root)
     ledger = audit_mission_ledger_paper_refs(root)
     sess = session_report()
+    probe = _load_witness_probe(root)
+    promotion_gate = _load_trader_promotion_gate(root)
     payload = {
         "schema": "ahos.paper_trade_audit.v1",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -139,7 +163,15 @@ def export_paper_trade_audit_snapshot(root: Path) -> dict[str, Any]:
         "trades": trades,
         "mission_ledger": ledger,
         "session_gate": sess,
-        "weekday_fill_gate_fa": str(sess.get("summary_fa") or ""),
+        "weekday_fill_gate_fa": str(probe.get("summary_fa") or sess.get("summary_fa") or ""),
+        "tradable_asset_classes": probe.get("tradable_asset_classes") or [],
+        "verified_asset_classes": probe.get("verified_asset_classes") or [],
+        "promotion_gate": promotion_gate,
+        "promotion_gate_fa": (
+            "هنوز واجد ارتقا نیست: کمتر از ۳۰ معاملهٔ بسته یا DSR/PBO پاس نشده — لبهٔ سودآوری اثبات‌نشده."
+            if promotion_gate and "NOT_ELIGIBLE" in str(promotion_gate)
+            else str(promotion_gate or "نامشخص")
+        ),
         "status": (
             "AMBER"
             if trades["closes"] > 0 and ledger.get("ledger_present") and ledger.get("paper_trader_refs", 0) == 0

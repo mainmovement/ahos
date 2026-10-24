@@ -31,6 +31,7 @@ URLS = {
 # Legal mirrors when primary ECB/OPEC HTML is blocked (two-source agreement required).
 MIRROR_URLS = {
     "ECB_RSS": "https://www.ecb.europa.eu/rss/press.html",
+    "ECB_BLOG": "https://www.ecb.europa.eu/rss/blog.html",
     "ECB_BIS": "https://www.bis.org/events/calendar_all.xml",
     "ECB_FRED_BLOG": "https://www.stlouisfed.org/rss/page%20resources/publications/blog%20entries",
     "ECB_GNEWS": "https://news.google.com/rss/search?q=ECB+Governing+Council+monetary+policy&hl=en-US&gl=US&ceid=US:en",
@@ -240,6 +241,26 @@ def build_opec_events(agreed: list[date]) -> list[dict[str, Any]]:
     return out
 
 
+def _best_ecb_mirror_agreement(getter: Callable[[str], str | None]) -> list[date]:
+    """Pick the largest two-source date intersection across legal ECB RSS mirrors (no hand dates)."""
+    kw = ("monetary policy", "governing council", "ecb", "interest rate")
+    feeds: list[set[date]] = []
+    for key in ("ECB_RSS", "ECB_BLOG", "ECB_GNEWS", "ECB_FRED_BLOG"):
+        raw = getter(MIRROR_URLS[key])
+        if raw:
+            feeds.append(_dates_from_rss_titles(raw, keywords=kw))
+    bis = getter(MIRROR_URLS["ECB_BIS"])
+    if bis:
+        feeds.append(_dates_from_bis_xml(bis))
+    best: list[date] = []
+    for i, a in enumerate(feeds):
+        for b in feeds[i + 1 :]:
+            agreed = two_source_agreed_dates(a, b)
+            if len(agreed) > len(best):
+                best = agreed
+    return best
+
+
 def ingest_ecb_opec_mirrors(
     getter: Callable[[str], str | None],
     *,
@@ -248,29 +269,16 @@ def ingest_ecb_opec_mirrors(
     now = now or datetime.now(timezone.utc)
     events: list[dict[str, Any]] = []
     status: dict[str, str] = {}
-    ecb_rss = getter(MIRROR_URLS["ECB_RSS"])
-    ecb_bis = getter(MIRROR_URLS["ECB_BIS"])
-    ecb_fred = getter(MIRROR_URLS["ECB_FRED_BLOG"])
-    if ecb_rss:
-        da = _dates_from_rss_titles(ecb_rss, keywords=("monetary policy", "governing council", "ecb"))
-        db: set[date] = _dates_from_bis_xml(ecb_bis) if ecb_bis else set()
-        if not db and ecb_fred:
-            db = _dates_from_rss_titles(ecb_fred, keywords=("ecb", "european central bank", "monetary policy"))
-        ecb_gnews = getter(MIRROR_URLS["ECB_GNEWS"])
-        if not db and ecb_gnews:
-            db = _dates_from_rss_titles(ecb_gnews, keywords=("ecb", "governing council", "monetary policy"))
-        agreed = two_source_agreed_dates(da, db) if da and db else []
-        if agreed:
-            future = [d for d in agreed if d >= now.date()]
-            if future:
-                events += build_ecb_events(future[:12])
-                status["ECB"] = f"OK {len(future[:12])} (two-source mirrors)"
-            else:
-                status["ECB"] = "UNAVAILABLE (two-source agreed but no upcoming dates)"
+    agreed = _best_ecb_mirror_agreement(getter)
+    if agreed:
+        future = [d for d in agreed if d >= now.date()]
+        if future:
+            events += build_ecb_events(future[:12])
+            status["ECB"] = f"OK {len(future[:12])} (two-source mirrors)"
         else:
-            status["ECB"] = "UNAVAILABLE (mirror dates disagree — not filled by hand)"
+            status["ECB"] = "UNAVAILABLE (two-source agreed but no upcoming dates)"
     else:
-        status["ECB"] = "UNAVAILABLE (mirror fetch failed — not filled by hand)"
+        status["ECB"] = "UNAVAILABLE (mirror dates disagree or fetch failed — not filled by hand)"
     op_a = getter(MIRROR_URLS["OPEC_RSS_A"])
     op_b = getter(MIRROR_URLS["OPEC_RSS_B"])
     op_c = getter(MIRROR_URLS["OPEC_EIA_RSS"])
