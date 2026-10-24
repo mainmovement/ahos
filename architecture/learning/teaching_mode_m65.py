@@ -127,6 +127,21 @@ def build_teaching_lesson_from_cycle(cycle: Mapping[str, Any]) -> TeachingLesson
             paper_only=True,
         )
 
+    if str(cycle.get("regime_tag") or "").upper() == "WEEKEND_SESSION_GATE":
+        return TeachingLessonFa(
+            lesson_id=lid,
+            market=market,
+            symbol=symbol,
+            regime_tag="WEEKEND_SESSION_GATE",
+            title_fa="شنبه/یکشنبه: میزهای نقدی بدون قیمت تازه معامله نمی‌کنند",
+            why_entered_fa="قانون سشن: طلا، نفت، سهام و FX در آخر هفته معمولاً بسته یا قیمت منقضی دارند.",
+            what_happened_fa="سیستم به‌جای GREEN جعلی، رویداد SKIP با دلیل MARKET_CLOSED_OR_STALE ثبت کرد.",
+            mistake_or_strength_fa="نقطهٔ قوت: صبر تا دوشنبه و شاهد VERIFIED واقعی.",
+            key_takeaway_fa="کریپتو ممکن است باز باشد، اما لبهٔ سود هنوز اثبات‌نشده (۳۰ معاملهٔ بسته).",
+            glossary_keys=("Two-Source Witness", "UNPROVEN_EDGE"),
+            paper_only=True,
+        )
+
     if witness != "VERIFIED":
         return TeachingLessonFa(
             lesson_id=lid,
