@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -67,6 +67,29 @@ def test_fomc_parser_and_upcoming():
 def test_calendar_unavailable_is_reported_not_invented(tmp_path):
     snap = mc.build_calendar(tmp_path, getter=lambda u: None, now=datetime(2026, 10, 24, tzinfo=timezone.utc))
     assert snap["events"] == [] and all(v.startswith("UNAVAILABLE") for v in snap["status"].values())
+
+
+def test_ecb_two_source_mirror_agreement():
+    ecb_rss = """<rss><channel><item><title>ECB Governing Council monetary policy meeting on 12 December 2026</title></item></channel></rss>"""
+    bis = '<events><event><name>ECB policy</name><date>2026-12-12</date></event></events>'
+    da = mc._dates_from_rss_titles(ecb_rss, keywords=("monetary policy", "ecb"))
+    db = mc._dates_from_bis_xml(bis)
+    agreed = mc.two_source_agreed_dates(da, db)
+    assert agreed == [date(2026, 12, 12)]
+    ev = mc.build_ecb_events(agreed)
+    assert ev[0]["event"] == "ECB_GOV_COUNCIL" and ev[0]["two_source_mirrors"] is True
+
+
+def test_opec_mirror_requires_overlap():
+    a = mc._dates_from_rss_titles(
+        "<title>OPEC ministerial meeting set for 5 March 2027</title>",
+        keywords=("opec", "ministerial"),
+    )
+    b = mc._dates_from_rss_titles(
+        "<title>OPEC conference date confirmed 5 March 2027</title>",
+        keywords=("opec", "conference"),
+    )
+    assert mc.two_source_agreed_dates(a, b) == [date(2027, 3, 5)]
 
 
 RSS = b"""<?xml version="1.0"?><rss><channel><item><title>Oil prices jump on OPEC cut talk</title><link>http://a/1</link>

@@ -1,6 +1,6 @@
 {
  "schema": "ahos.macro_calendar.v1",
- "generated_at": "2026-10-24T01:33:53Z",
+ "generated_at": "2026-10-24T04:51:14Z",
  "paper_only": true,
  "sources": {
   "FOMC": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
@@ -15,8 +15,8 @@
   "EIA": "OK 164",
   "BOE": "OK 16",
   "BOJ": "OK 12",
-  "ECB": "UNAVAILABLE (official site unreachable from this host; not filled by hand)",
-  "OPEC": "UNAVAILABLE (official site unreachable from this host; not filled by hand)"
+  "ECB": "UNAVAILABLE (mirror fetch failed — not filled by hand)",
+  "OPEC": "UNAVAILABLE (mirror dates disagree — not filled by hand)"
  },
  "events": [
   {

@@ -5,7 +5,7 @@ Sources (parsed live, cached to reports/grok/M19/macro_calendar.json):
   EIA   eia.gov/petroleum/supply/weekly/schedule.php          (WPSR Wed 10:30 ET + official holiday exceptions)
   BoE   bankofengland.co.uk/monetary-policy/upcoming-mpc-dates (decision 12:00 London)
   BoJ   boj.or.jp/en/mopo/mpmsche_minu/index.htm              (decision ~03:00 UTC on the second day; time approximate)
-  ECB / OPEC: official sites refuse this host (TLS EOF / HTTP 403) -> reported UNAVAILABLE, never filled in by hand.
+  ECB / OPEC: primary HTML pages may refuse this host -> use legal mirror feeds below; dates require TWO independent mirrors on the same calendar day.
 """
 from __future__ import annotations
 
@@ -26,6 +26,13 @@ URLS = {
     "BOJ": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
     "ECB": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
     "OPEC": "https://www.opec.org/press-releases.html",
+}
+# Legal mirrors when primary ECB/OPEC HTML is blocked (two-source agreement required).
+MIRROR_URLS = {
+    "ECB_RSS": "https://www.ecb.europa.eu/rss/press.html",
+    "ECB_BIS": "https://www.bis.org/events/calendar_all.xml",
+    "OPEC_RSS_A": "https://news.google.com/rss/search?q=OPEC+ministerial+meeting&hl=en-US&gl=US&ceid=US:en",
+    "OPEC_RSS_B": "https://news.google.com/rss/search?q=OPEC+conference+date&hl=en-US&gl=US&ceid=US:en",
 }
 MONTHS = {m: i for i, m in enumerate(["january", "february", "march", "april", "may", "june", "july", "august",
                                       "september", "october", "november", "december"], 1)}
@@ -135,6 +142,118 @@ def parse_boj(h: str) -> list[dict[str, Any]]:
     return out
 
 
+def _dates_from_rss_titles(text: str, *, keywords: tuple[str, ...]) -> set[date]:
+    out: set[date] = set()
+    blob = _text(text)
+    for m in re.finditer(
+        r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(\d{4})",
+        blob,
+        re.I,
+    ):
+        mon, dd, yy = m.group(1), m.group(2), m.group(3)
+        mo = MONTHS.get(mon.lower())
+        if mo:
+            out.add(date(int(yy), mo, int(dd)))
+    for title in re.findall(r"<title>([^<]+)</title>", text, re.I):
+        low = title.lower()
+        if not any(k in low for k in keywords):
+            continue
+        for m in re.finditer(r"(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})", title, re.I):
+            mo = MONTHS.get(m.group(2).lower())
+            if mo:
+                out.add(date(int(m.group(3)), mo, int(m.group(1))))
+    return out
+
+
+def _dates_from_bis_xml(text: str) -> set[date]:
+    out: set[date] = set()
+    for m in re.finditer(r"<event[^>]*>.*?ECB.*?</event>", text, re.I | re.S):
+        blk = m.group(0)
+        dm = re.search(r"(\d{4})-(\d{2})-(\d{2})", blk)
+        if dm:
+            out.add(date(int(dm.group(1)), int(dm.group(2)), int(dm.group(3))))
+    if not out:
+        for dm in re.finditer(r"(\d{4})-(\d{2})-(\d{2})", text):
+            if "ECB" in text[max(0, dm.start() - 120) : dm.end() + 120]:
+                out.add(date(int(dm.group(1)), int(dm.group(2)), int(dm.group(3))))
+    return out
+
+
+def two_source_agreed_dates(a: set[date], b: set[date]) -> list[date]:
+    return sorted(a & b)
+
+
+def build_ecb_events(agreed: list[date]) -> list[dict[str, Any]]:
+    out = []
+    for d in agreed:
+        at = datetime(d.year, d.month, d.day, 12, 45, tzinfo=timezone.utc)
+        out.append(
+            {
+                "event": "ECB_GOV_COUNCIL",
+                "bank": "ECB",
+                "at_utc": at.isoformat(),
+                "two_source_mirrors": True,
+                "desks": ["EU", "FX", "GOLD"],
+            }
+        )
+    return out
+
+
+def build_opec_events(agreed: list[date]) -> list[dict[str, Any]]:
+    out = []
+    for d in agreed:
+        at = datetime(d.year, d.month, d.day, 14, 0, tzinfo=timezone.utc)
+        out.append(
+            {
+                "event": "OPEC_MINISTERIAL",
+                "bank": "OPEC",
+                "at_utc": at.isoformat(),
+                "two_source_mirrors": True,
+                "desks": ["OIL", "GOLD"],
+            }
+        )
+    return out
+
+
+def ingest_ecb_opec_mirrors(
+    getter: Callable[[str], str | None],
+    *,
+    now: datetime | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    now = now or datetime.now(timezone.utc)
+    events: list[dict[str, Any]] = []
+    status: dict[str, str] = {}
+    ecb_a = getter(MIRROR_URLS["ECB_RSS"])
+    ecb_b = getter(MIRROR_URLS["ECB_BIS"])
+    if ecb_a and ecb_b:
+        da = _dates_from_rss_titles(ecb_a, keywords=("monetary policy", "governing council", "ecb"))
+        db = _dates_from_bis_xml(ecb_b)
+        agreed = two_source_agreed_dates(da, db)
+        if agreed:
+            future = [d for d in agreed if d >= now.date()]
+            events += build_ecb_events(future[:12])
+            status["ECB"] = f"OK {len(future[:12])} (two-source mirrors)"
+        else:
+            status["ECB"] = "UNAVAILABLE (mirror dates disagree — not filled by hand)"
+    else:
+        status["ECB"] = "UNAVAILABLE (mirror fetch failed — not filled by hand)"
+    op_a = getter(MIRROR_URLS["OPEC_RSS_A"])
+    op_b = getter(MIRROR_URLS["OPEC_RSS_B"])
+    if op_a and op_b:
+        da = _dates_from_rss_titles(op_a, keywords=("opec", "ministerial", "meeting"))
+        db = _dates_from_rss_titles(op_b, keywords=("opec", "conference", "meeting"))
+        agreed = two_source_agreed_dates(da, db)
+        if agreed:
+            future = [d for d in agreed if d >= now.date()]
+            events += build_opec_events(future[:8])
+            status["OPEC"] = f"OK {len(future[:8])} (two-source mirrors)"
+        else:
+            status["OPEC"] = "UNAVAILABLE (mirror dates disagree — not filled by hand)"
+    else:
+        status["OPEC"] = "UNAVAILABLE (mirror fetch failed — not filled by hand)"
+    return events, status
+
+
 def build_calendar(root: Path | None = None, *, getter: Callable[[str], str | None] | None = None,
                    now: datetime | None = None) -> dict[str, Any]:
     g = getter or _get
@@ -150,6 +269,9 @@ def build_calendar(root: Path | None = None, *, getter: Callable[[str], str | No
         e = parse_boe(raw["BOE"], [now.year, now.year + 1]); events += e; status["BOE"] = f"OK {len(e)}"
     if raw["BOJ"]:
         e = parse_boj(raw["BOJ"]); events += e; status["BOJ"] = f"OK {len(e)}"
+    mirror_events, mirror_status = ingest_ecb_opec_mirrors(g, now=now)
+    events += mirror_events
+    status.update(mirror_status)
     for k in URLS:
         status.setdefault(k, "UNAVAILABLE (official site unreachable from this host; not filled by hand)")
     events.sort(key=lambda x: x["at_utc"])
