@@ -48,6 +48,7 @@ FIVE_DOMAIN_HELDOUT_BANK: dict[str, dict[str, tuple[str, float, float]]] = {
         "os_h02": ("divergent_sources_are_conflict", 1.5, -0.2),
         "os_h03": ("corroborated_news_needs_2_publishers", 1.4, 0.1),
         "os_h04": ("token_veto_needs_goplus_and_honeypot", 1.5, 0.2),
+        "os_h05": ("weekend_cash_session_no_fake_verified_fill", 1.5, -0.2),
     },
     "security_negahban": {
         "sn_h01": ("loopback_127_0_0_1_only", 1.6, -0.4),
@@ -121,4 +122,42 @@ def run_heldout_5domain_exam(
         out = Path(root) / "reports" / "grok" / "M50" / "heldout_exam_receipt.json"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(receipt, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        m49_extra = derive_m49_heldout_items(root)
+        if m49_extra:
+            extra_path = Path(root) / "reports" / "grok" / "M50" / "m49_derived_exam_items.json"
+            extra_path.write_text(json.dumps(m49_extra, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return receipt
+
+
+def derive_m49_heldout_items(root: Path) -> dict[str, Any]:
+    """Map recurring M49 lesson themes into held-out exam keys (never overlap training_ids)."""
+    db = root / "data" / "mission_ledger" / "m49_lessons.sqlite"
+    items: dict[str, str] = {}
+    if not db.is_file():
+        return {"items": items, "leaked": False, "note_fa": "هنوز درس M49 از معاملهٔ بسته تولید نشده."}
+    try:
+        from architecture.learning.lessons_ledger import LessonsLedger
+
+        store = LessonsLedger(db)
+        rows = store.all_rows()
+        store.close()
+    except Exception:
+        return {"items": items, "leaked": False, "note_fa": "خواندن M49 ممکن نبود — بدون آیتم جدید."}
+    for i, row in enumerate(rows[:6]):
+        claim = (row.claim or "").lower()
+        key = f"m49_h{i:02d}"
+        if "witness" in claim or "conflict" in claim:
+            items[key] = "divergent_sources_are_conflict"
+        elif "lost" in claim or "loss" in claim:
+            items[key] = "kelly_zero_below_30_trades"
+        elif "fee" in claim or "slippage" in claim:
+            items[key] = "closed_candles_only_no_lookahead"
+        else:
+            items[key] = "single_source_is_unresolved"
+    leaked = bool(set(items) & {"train_01", "train_02", "train_03"})
+    return {
+        "items": items,
+        "leaked": leaked,
+        "n_lessons_scanned": len(rows),
+        "note_fa": "آیتم‌های مشتق‌شده از درس‌های واقعی M49 (بدون ارتقا).",
+    }

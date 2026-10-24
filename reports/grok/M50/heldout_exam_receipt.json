@@ -1,13 +1,13 @@
 {
   "schema": "ahos.m50_heldout_exam.v1",
-  "generated_at": "2026-10-24T04:42:42Z",
+  "generated_at": "2026-10-24T04:51:21Z",
   "tag": "[OBSERVED]",
   "version": "v3.4-heldout",
   "paper_only": true,
   "promoted": false,
   "can_witness_promotion": false,
   "domains_count": 5,
-  "n_items": 20,
+  "n_items": 21,
   "leaked": false,
   "overall_score": 1.0,
   "baseline_score": 0.75,
@@ -30,7 +30,7 @@
       "passed_90pct": true
     },
     "osint_two_source": {
-      "n": 4,
+      "n": 5,
       "score": 1.0,
       "leaked": false,
       "passed_90pct": true
@@ -48,5 +48,5 @@
       "passed_90pct": true
     }
   },
-  "evidence_hash": "7b004c57ef2555ecff46f6dcbdc50499ca6382b1844b35454013f6092a02a8cb"
+  "evidence_hash": "b6a0b2e9a6fd70f95e82414ec6626333bc11124b2dd24e00dcc49706e2db0f2a"
 }
