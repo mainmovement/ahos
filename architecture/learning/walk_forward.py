@@ -251,6 +251,17 @@ def fetch_daily(yahoo: str, range_: str = "10y") -> list[tuple[int, float, float
             zip(res["timestamp"], q["open"], q["high"], q["low"], q["close"]) if None not in (o, h, l, c)]
 
 
+def fetch_1h_v(yahoo: str, range_: str = "730d") -> list[tuple[int, float, float, float, float, float]]:
+    """One-hour OHLC plus volume. Yahoo serves about 730 days, not ten years. Volume 0 is a missing print."""
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.request.quote(yahoo)}?range={range_}&interval=1h"
+    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=25) as r:
+        res = json.loads(r.read().decode())["chart"]["result"][0]
+    q = res["indicators"]["quote"][0]
+    vols = q.get("volume") or [None] * len(q["close"])
+    return [(int(t), float(o), float(h), float(l), float(c), float(v or 0.0)) for t, o, h, l, c, v in
+            zip(res["timestamp"], q["open"], q["high"], q["low"], q["close"], vols) if None not in (o, h, l, c)]
+
+
 def fetch_1h_ts(yahoo: str, range_: str = "730d") -> list[tuple[int, float, float, float, float]]:
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.request.quote(yahoo)}?range={range_}&interval=1h"
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=25) as r:
@@ -660,6 +671,26 @@ def clears_cost_hurdle(expected_edge: float, one_way_turnover: float, cost_bps: 
         return True
     round_trip = abs(one_way_turnover) * 2.0 * (cost_bps / 1e4)
     return abs(expected_edge) > multiple * round_trip
+
+
+def portfolio_l1_turnover(previous: list[float], proposed: list[float]) -> float:
+    """One-way portfolio turnover, 0.5 * sum |w - w_prev|. This is the whole-book L1, not a per-asset gap."""
+    if len(previous) != len(proposed):
+        raise ValueError("weight vectors differ in length")
+    return 0.5 * sum(abs(a - b) for a, b in zip(previous, proposed))
+
+
+def apply_portfolio_l1_gate(previous: list[float], proposed: list[float], tau_l1: float) -> list[float]:
+    """Hold the entire previous book unless portfolio one-way L1 turnover is at least tau_l1.
+
+    A single name can move more than the old per-asset deadband while the book stays put.
+    """
+    if portfolio_l1_turnover(previous, proposed) + 1e-12 < tau_l1:
+        return list(previous)
+    gross = sum(abs(x) for x in proposed)
+    if gross <= 0:
+        return list(previous)
+    return [x / gross for x in proposed]
 
 
 def apply_weight_hysteresis(previous: list[float], proposed: list[float], tau: float) -> list[float]:

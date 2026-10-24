@@ -348,8 +348,8 @@ def _live_daemon_episodes(root: Path) -> dict[str, Any]:
             "note": "Live rows so far are one short window. This count is not a skill score."}
 
 
-def _episode_features(cache: dict, sym: str, days: list[str], i: int) -> dict[str, float]:
-    """Features from closes strictly before the event day. The close cache has no wick or body."""
+def _episode_features(cache: dict, sym: str, days: list[str], i: int, ohlcv: dict | None = None) -> dict[str, float]:
+    """Features strictly before the event day. OHLC features are omitted when that cache has no bar."""
     closes = [cache[sym][days[j]] for j in range(i - 20, i)]
     rets = [closes[j] / closes[j - 1] - 1 for j in range(1, len(closes)) if closes[j - 1] > 0 and closes[j] > 0]
     vol5 = statistics.pstdev(rets[-5:]) if len(rets) >= 5 else 0.0
@@ -363,17 +363,55 @@ def _episode_features(cache: dict, sym: str, days: list[str], i: int) -> dict[st
         if len(prior) >= 21 and cache[other][prior[-21]] > 0:
             oth = cache[other][prior[-1]] / cache[other][prior[-21]] - 1
             align = 1.0 if oth * trail > 0 else 0.0
-    return {"vol_ratio": ratio, "trail_z": (trail / vol20) if vol20 else 0.0, "cross_align": align}
+    out = {"vol_ratio": ratio, "trail_z": (trail / vol20) if vol20 else 0.0, "cross_align": align}
+    extra = _ohlc_features(ohlcv or {}, sym, days, i, vol20)
+    if extra:
+        out.update(extra)
+    return out
+
+
+def _ohlc_features(ohlcv: dict, sym: str, days: list[str], i: int, close_vol: float) -> dict[str, float] | None:
+    """Wick, Parkinson, and volume shock from bars strictly before the event. No invented OHLC."""
+    import math
+    series = (ohlcv.get("bars") or {}).get(sym) or {}
+    prior = [series.get(days[j]) for j in range(max(0, i - 10), i)]
+    prior = [b for b in prior if isinstance(b, dict)]
+    if len(prior) < 5:
+        return None
+    wicks, parks, vols = [], [], []
+    for b in prior:
+        o, h, l, c = b.get("o"), b.get("h"), b.get("l"), b.get("c")
+        if not all(isinstance(x, (int, float)) and x > 0 for x in (o, h, l, c)):
+            continue
+        span = h - l
+        if span > 0 and h > l:
+            wicks.append(((h - max(o, c)) - (min(o, c) - l)) / span)
+            parks.append((math.log(h / l) ** 2) / (4.0 * math.log(2.0)))
+        if isinstance(b.get("v"), (int, float)):
+            vols.append(float(b["v"]))
+    if len(wicks) < 5 or len(parks) < 5:
+        return None
+    vol_z = 0.0
+    if len(vols) >= 6 and statistics.pstdev(vols[:-1]) > 0:
+        vol_z = (vols[-1] - statistics.fmean(vols[:-1])) / statistics.pstdev(vols[:-1])
+    return {"wick_asym": statistics.fmean(wicks[-5:]), "parkinson": statistics.fmean(parks[-5:]),
+            "volume_z": vol_z, "parkinson_over_close_vol": (statistics.fmean(parks[-5:]) / close_vol) if close_vol else 0.0}
 
 
 def _calibrated_block(train_eps: list[dict], test_eps: list[dict]) -> dict[str, Any]:
-    from architecture.learning.calibration import brier_score, brier_skill_score, fit_and_apply
-    names = ("vol_ratio", "trail_z", "cross_align")
+    from architecture.learning.calibration import brier_score, brier_skill_score, fit_and_apply, select_l2
+    base = ("vol_ratio", "trail_z", "cross_align")
+    extra = ("wick_asym", "parkinson", "volume_z", "parkinson_over_close_vol")
+    usable = [n for n in extra if all(n in (e.get("features") or {}) for e in train_eps + test_eps)]
+    names = base + tuple(usable)
     train = [{"ts": e["ts"], "y": e["correct"], "features": e["features"]} for e in train_eps if e.get("features")]
     test = [{"ts": e["ts"], "y": e["correct"], "features": e["features"]} for e in test_eps if e.get("features")]
-    fit = fit_and_apply(train, test, names)
-    detail = {"status": fit.get("status"), "wick_body": "UNAVAILABLE_CLOSE_CACHE_HAS_NO_OHLC",
-              "features": list(names), "n_train": fit.get("n_train"), "n_test": fit.get("n_test")}
+    chosen = select_l2(train, names) if train else {"l2": 0.05, "status": "NO_TRAIN"}
+    fit = fit_and_apply(train, test, names, l2=float(chosen.get("l2") or 0.05))
+    detail = {"status": fit.get("status"),
+              "wick_body": "OHLCV_CACHE" if usable else "UNAVAILABLE_OHLCV_CACHE",
+              "features": list(names), "n_train": fit.get("n_train"), "n_test": fit.get("n_test"),
+              "l2_selection": chosen}
     if fit.get("leaked") or fit.get("status") != "FIT":
         return {"leaked": bool(fit.get("leaked")), "brier": None, "bss": None, "decision_correct": [], "detail": detail}
     ys = [1.0 if r["y"] else 0.0 for r in test]
@@ -382,10 +420,43 @@ def _calibrated_block(train_eps: list[dict], test_eps: list[dict]) -> dict[str, 
     detail["mean_predicted_p"] = round(sum(fit["probs"]) / len(fit["probs"]), 4)
     detail["max_train_ts"] = train[-1]["ts"]
     detail["min_test_ts"] = test[0]["ts"]
+    detail["l2"] = chosen.get("l2")
     return {"leaked": False, "brier": round(br, 4) if br is not None else None,
             "bss": round(bss, 4) if bss is not None else None,
             "decision_correct": [(p >= 0.5) == (y == 1.0) for p, y in zip(fit["probs"], ys)],
             "detail": detail}
+
+
+def write_ohlcv_cache(root: Path, symbols: tuple[str, ...] = ("SPX", "XAU", "BTC", "WTI", "QQQ")) -> dict[str, Any]:
+    """Fetch daily OHLC and volume once. The exam then reads the file and does not go to the network."""
+    from architecture.learning.walk_forward import DAILY, fetch_daily_v
+    bars: dict[str, dict[str, dict[str, float]]] = {}
+    errors: dict[str, str] = {}
+    for sym in symbols:
+        yahoo = (DAILY.get(sym) or (None,))[0]
+        if not yahoo:
+            errors[sym] = "not_in_DAILY"
+            continue
+        try:
+            rows = fetch_daily_v(yahoo)
+        except Exception as exc:  # noqa: BLE001
+            errors[sym] = repr(exc)[:160]
+            continue
+        one: dict[str, dict[str, float]] = {}
+        for t, o, h, l, c, v in rows:
+            if min(o, h, l, c) <= 0:
+                continue
+            day = datetime.fromtimestamp(t, timezone.utc).strftime("%Y-%m-%d")
+            one[day] = {"o": o, "h": h, "l": l, "c": c, "v": v}
+        bars[sym] = one
+    snap = {"schema": "ahos.daily_ohlcv_cache.v1",
+            "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "paper_only": True, "errors": errors, "bars": bars,
+            "note": "Bars are the vendor print. A missing symbol is omitted, not filled."}
+    path = Path(root) / "reports" / "grok" / "M28" / "daily_ohlcv_cache.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap), encoding="utf-8")
+    return {"symbols": list(bars), "errors": errors, "days": {s: len(v) for s, v in bars.items()}}
 
 
 def _historical_oos_episodes(root: Path) -> dict[str, Any]:
@@ -398,6 +469,11 @@ def _historical_oos_episodes(root: Path) -> dict[str, Any]:
         cal = _json.loads((root / "reports" / "grok" / "M19" / "macro_calendar.json").read_text(encoding="utf-8"))
     except (OSError, ValueError, KeyError):
         return empty
+    ohlcv = {}
+    try:
+        ohlcv = _json.loads((root / "reports" / "grok" / "M28" / "daily_ohlcv_cache.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        ohlcv = {}
     episodes = []
     last_day = None
     for ev in sorted(cal.get("events") or [], key=lambda e: e.get("at_utc") or ""):
@@ -420,7 +496,7 @@ def _historical_oos_episodes(root: Path) -> dict[str, Any]:
         outcome = cache[sym][days[i + 1]] / prev[-1] - 1
         if trend == 0:
             continue
-        feats = _episode_features(cache, sym, days, i)
+        feats = _episode_features(cache, sym, days, i, ohlcv)
         episodes.append({"day": day, "symbol": sym, "event": ev.get("event"), "ts": day,
                          "correct": (1 if trend > 0 else -1) * outcome > 0, "leaked": False,
                          "features": feats})

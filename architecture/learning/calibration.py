@@ -73,7 +73,34 @@ def fit_and_apply(train: list[dict[str, Any]], test: list[dict[str, Any]], featu
         eta = sum(b * x for b, x in zip(beta, row(rec)))
         probs.append(_sigmoid(eta))
     return {"leaked": False, "status": "FIT", "probs": probs, "n_train": len(train), "n_test": len(test),
-            "features": list(features), "intercept_unpenalized": True}
+            "features": list(features), "intercept_unpenalized": True, "l2": l2}
+
+
+def select_l2(train: list[dict[str, Any]], features: tuple[str, ...],
+              grid: tuple[float, ...] = (0.01, 0.05, 0.2, 1.0)) -> dict[str, Any]:
+    """Pick the ridge penalty on an inner chronological split of the training rows only.
+
+    The test block is not an argument. A tie keeps the larger penalty.
+    """
+    ordered = sorted(train, key=lambda r: r["ts"])
+    cut = int(len(ordered) * 0.7)
+    if cut < 20 or len(ordered) - cut < 15:
+        return {"l2": 0.05, "status": "INNER_FOLD_TOO_SMALL", "inner_brier": None, "grid": list(grid)}
+    inner_train, inner_val = ordered[:cut], ordered[cut:]
+    best_brier, best_l2 = None, grid[-1]
+    for lam in grid:
+        fit = fit_and_apply(inner_train, inner_val, features, l2=lam)
+        if fit.get("status") != "FIT":
+            continue
+        score = brier_score(fit["probs"], [1.0 if r["y"] else 0.0 for r in inner_val])
+        if score is None:
+            continue
+        if best_brier is None or score < best_brier - 1e-12 or (abs(score - best_brier) <= 1e-12 and lam > best_l2):
+            best_brier, best_l2 = score, lam
+    return {"l2": best_l2, "status": "SELECTED_ON_INNER_TRAIN_ONLY",
+            "inner_brier": None if best_brier is None else round(best_brier, 4),
+            "inner_train_end": inner_train[-1]["ts"], "inner_val_start": inner_val[0]["ts"],
+            "grid": list(grid), "tie_break": "larger_l2"}
 
 
 def _solve(hess: list[list[float]], grad: list[float]) -> list[float] | None:

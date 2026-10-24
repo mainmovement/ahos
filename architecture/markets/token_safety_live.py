@@ -102,6 +102,33 @@ AUTHORITY_FLAGS = ("is_proxy", "hidden_owner", "can_take_back_ownership", "owner
 _VETO_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
 
 
+INSTITUTIONAL_PROXY_LIQ_USD = 500_000.0
+
+
+def institutional_proxy_ok(gp: dict | None, liquidity_usd: float) -> bool:
+    """Governance-style proxy: open source, zero tax, no honeypot, no balance-takeback, liquid.
+
+    A true mint flag or a hidden owner still fails. A missing mint flag does not, by itself, pass
+    this test; the other conditions have to be present and false/zero.
+    """
+    if not isinstance(gp, dict):
+        return False
+    auth = gp.get("authority") or {}
+    if auth.get("is_proxy") is not True:
+        return False
+    if gp.get("is_open_source") is not True or gp.get("is_honeypot") is not False:
+        return False
+    if gp.get("buy_tax") != 0 or gp.get("sell_tax") != 0:
+        return False
+    if auth.get("owner_change_balance") is not False:
+        return False
+    if auth.get("can_take_back_ownership") is True or auth.get("hidden_owner") is True:
+        return False
+    if gp.get("is_mintable") is True:
+        return False
+    return float(liquidity_usd or 0) >= INSTITUTIONAL_PROXY_LIQ_USD
+
+
 def _http_json(url: str, timeout: float = 7.0) -> Any:
     try:
         req = urllib.request.Request(url, headers=UA)
@@ -316,12 +343,25 @@ def veto_check(
     reasons = breach + missing
     allowed = not reasons
     verdict = "ELIGIBLE_PAPER_TOKEN" if allowed else ("VETOED_SECURITY" if breach else "VETOED_FAIL_CLOSED")
+    proxy_tier = "NONE"
+    if institutional_proxy_ok(gp, liq_usd):
+        breach = [b for b in breach if b != "goplus:is_proxy"]
+        missing = [m for m in missing if m != "goplus:missing_is_mintable"]
+        reasons = breach + missing
+        allowed = not reasons
+        if allowed:
+            verdict = "ELIGIBLE_INSTITUTIONAL_PROXY"
+            proxy_tier = "GOVERNANCE_TIMELOCKED_STYLE"
+        else:
+            verdict = "VETOED_SECURITY" if breach else "VETOED_FAIL_CLOSED"
+            proxy_tier = "PROXY_DID_NOT_CLEAR"
     res = {
         "symbol": symbol.upper(),
         "address": to_eip55_checksum(addr),
         "chain_id": cid,
         "allowed": allowed,
         "verdict": verdict,
+        "proxy_tier": proxy_tier,
         "reasons": reasons,
         "strict": strict,
         "sources_verified": len(sec_sources) + (1 if dx is not None else 0),

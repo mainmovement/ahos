@@ -1,6 +1,6 @@
 {
  "schema": "ahos.strategy_red_team.v1",
- "generated_at": "2026-10-24T14:59:44Z",
+ "generated_at": "2026-10-24T18:04:47Z",
  "paper_only": true,
  "execution_mode": "PAPER_ONLY",
  "real_trading": false,
@@ -12,9 +12,9 @@
   "04_REGIME_CONCENTRATION",
   "05_PARAMETER_PERTURBATION_15PCT"
  ],
- "candidates_tested": 77,
- "survived_count": 3,
- "vetoed_count": 74,
+ "candidates_tested": 83,
+ "survived_count": 4,
+ "vetoed_count": 79,
  "top_survivor_id": "b4-H15-BTC",
  "top_survivor_verdict_fa": "تأیید تیم قرمز (SURVIVED_RED_TEAM — 5/5): استراتژی «Stablecoin 7d supply growth > trailing-year p80, long 7d — BTC» از هر ۵ حملهٔ استرس (کارمزد ۲ و ۳ برابر، حذف ۳ معاملهٔ برتر، قناری نشت آینده، تنوع رژیم و تغییر ±۱۵٪ پارامتر) با موفقیت عبور کرد (صرفاً کاغذی / PAPER_ONLY).",
  "reports": [
@@ -3557,6 +3557,282 @@
      "passed": true,
      "metric_summary": "sharpe_retention=0.94",
      "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 94٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b7-H33-BOOK",
+   "title": "Low-turnover vol-scaled core, cost-gated crash sleeve",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 4,
+   "vectors_total": 5,
+   "baseline_sharpe": 2.0313,
+   "sharpe_at_2x_cost": 1.0382,
+   "sharpe_at_3x_cost": 0.045,
+   "ex_top3_net_return_pct": 38.8493,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 4/5): استراتژی «Low-turnover vol-scaled core, cost-gated crash sleeve» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=2.03,sr_2x=1.04,sr_3x=0.04",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=1.04, 3x=0.04)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": true,
+     "metric_summary": "ex_top3_return_pct=+38.849%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، بازده خالص همچنان مثبت است (+38.85%)؛ سود وابسته به یک رویداد تصادفی نیست."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+21.40%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b7-H34-BOOK",
+   "title": "Donchian breakout, chandelier stop, cost deadband",
+   "verdict": "SURVIVED_RED_TEAM",
+   "vectors_passed": 5,
+   "vectors_total": 5,
+   "baseline_sharpe": 4.7198,
+   "sharpe_at_2x_cost": 4.6692,
+   "sharpe_at_3x_cost": 4.6186,
+   "ex_top3_net_return_pct": 125.2696,
+   "red_team_verdict_fa": "تأیید تیم قرمز (SURVIVED_RED_TEAM — 5/5): استراتژی «Donchian breakout, chandelier stop, cost deadband» از هر ۵ حملهٔ استرس (کارمزد ۲ و ۳ برابر، حذف ۳ معاملهٔ برتر، قناری نشت آینده، تنوع رژیم و تغییر ±۱۵٪ پارامتر) با موفقیت عبور کرد (صرفاً کاغذی / PAPER_ONLY).",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=4.72,sr_2x=4.67,sr_3x=4.62",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=4.67, 3x=4.62)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": true,
+     "metric_summary": "ex_top3_return_pct=+125.270%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، بازده خالص همچنان مثبت است (+125.27%)؛ سود وابسته به یک رویداد تصادفی نیست."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+84.52%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b7-H35-BOOK",
+   "title": "Monthly dual momentum, cost deadband",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 4,
+   "vectors_total": 5,
+   "baseline_sharpe": 2.2565,
+   "sharpe_at_2x_cost": 2.0515,
+   "sharpe_at_3x_cost": 1.8465,
+   "ex_top3_net_return_pct": -18.3251,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 4/5): استراتژی «Monthly dual momentum, cost deadband» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": true,
+     "metric_summary": "sr_1x=2.26,sr_2x=2.05,sr_3x=1.85",
+     "critique_fa": "مقاوم در برابر دوبرابر و سه‌برابر شدن کارمزد و اسلیپیج (Sharpe 2x=2.05, 3x=1.85)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-18.325%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-18.33%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+37.07%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=1.00",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 100٪ از نسبت شارپ حفظ می‌شود."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b8-H38-BOOK",
+   "title": "Hourly Donchian breakout, 4h to 12h hold",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -2.0389,
+   "sharpe_at_2x_cost": -2.5998,
+   "sharpe_at_3x_cost": -3.1608,
+   "ex_top3_net_return_pct": -40.1876,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Hourly Donchian breakout, 4h to 12h hold» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-2.04,sr_2x=-2.60,sr_3x=-3.16",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-2.60, 3x=-3.16)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-40.188%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-40.19%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-10.60%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-10.60%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b8-H39-BOOK",
+   "title": "Hourly vol-compression carry, portfolio L1 gate",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 1,
+   "vectors_total": 5,
+   "baseline_sharpe": -2.0019,
+   "sharpe_at_2x_cost": -3.9524,
+   "sharpe_at_3x_cost": -5.9029,
+   "ex_top3_net_return_pct": -51.4991,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 1/5): استراتژی «Hourly vol-compression carry, portfolio L1 gate» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-2.00,sr_2x=-3.95,sr_3x=-5.90",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-3.95, 3x=-5.90)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-51.499%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-51.50%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": false,
+     "metric_summary": "positive_regimes=1,worst_regime_pct=-7.87%",
+     "critique_fa": "تمرکز خطرناک در یک رژیم واحد یا زیان سنگین در رژیم معکوس (-7.87%)."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": false,
+     "metric_summary": "sharpe_retention=0.00",
+     "critique_fa": "بیش‌برازش (Overfitting) به اعداد دقیق پارامترها؛ افت شدید کارایی با تغییر ±۱۵٪ پارامترها."
+    }
+   ]
+  },
+  {
+   "strategy_id": "b8-H40-BOOK",
+   "title": "Hourly stress sleeve into XAU, portfolio L1 gate",
+   "verdict": "VETOED_FRAGILE",
+   "vectors_passed": 3,
+   "vectors_total": 5,
+   "baseline_sharpe": -0.8432,
+   "sharpe_at_2x_cost": -1.9275,
+   "sharpe_at_3x_cost": -3.0119,
+   "ex_top3_net_return_pct": -43.9121,
+   "red_team_verdict_fa": "وتوی تیم قرمز (VETOED_FRAGILE — 3/5): استراتژی «Hourly stress sleeve into XAU, portfolio L1 gate» در تست‌های استرس شکننده تشخیص داده شد و اجازهٔ ورود به اسلات سایه را ندارد.",
+   "paper_only": true,
+   "auto_promote": false,
+   "attacks": [
+    {
+     "vector_id": "01_COST_STRESS_2X_3X",
+     "passed": false,
+     "metric_summary": "sr_1x=-0.84,sr_2x=-1.93,sr_3x=-3.01",
+     "critique_fa": "شکننده در برابر افزایش هزینهٔ تراکنش و اسلیپیج (Sharpe 2x=-1.93, 3x=-3.01)."
+    },
+    {
+     "vector_id": "02_SINGLE_EVENT_DEPENDENCY",
+     "passed": false,
+     "metric_summary": "ex_top3_return_pct=-43.912%",
+     "critique_fa": "با حذف ۳ معاملهٔ برتر، کل سود استراتژی از بین می‌رود (-43.91%)؛ خطر وابستگی به تک‌رویداد."
+    },
+    {
+     "vector_id": "03_LOOKAHEAD_CANARY",
+     "passed": true,
+     "metric_summary": "lookahead_leak=False",
+     "critique_fa": "تست قناری نشت دادهٔ آینده (Lookahead Canary) پاک است؛ فقط از داده‌های گذشتهٔ هر کندل استفاده شده است."
+    },
+    {
+     "vector_id": "04_REGIME_CONCENTRATION",
+     "passed": true,
+     "metric_summary": "positive_regimes=2,worst_regime_pct=+0.87%",
+     "critique_fa": "عملکرد متوازن در حداقل 2 رژیم بازار بدون افت فاجعه‌بار در رژیم‌های دیگر."
+    },
+    {
+     "vector_id": "05_PARAMETER_PERTURBATION_15PCT",
+     "passed": true,
+     "metric_summary": "sharpe_retention=0.82",
+     "critique_fa": "پایداری پارامترها عالی است؛ با تغییر ±۱۵٪ پارامترها، 82٪ از نسبت شارپ حفظ می‌شود."
     }
    ]
   }

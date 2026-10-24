@@ -476,6 +476,57 @@ def _stage8_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage9_checks(root: Path) -> list[dict[str, Any]]:
+    b8 = _json(root, Path("reports") / "grok" / "M28" / "batch8_research.json")
+    grid = _json(root, Path("reports") / "grok" / "M28" / "map_elites_grid.json")
+    surfaces = ["reports/grok/M28/batch8_research.json", "reports/grok/M28/map_elites_grid.json"]
+    if b8 is None or grid is None:
+        out = [_check("research.batch8_hourly_grid", "UNKNOWN", {"batch8": b8 is not None, "grid": grid is not None}, surfaces)]
+    else:
+        problems = []
+        counted = b8.get("candidates") or []
+        screened = b8.get("screened") or []
+        if any(s.get("counted_in_dsr") for s in screened):
+            problems.append("a screened batch-8 hypothesis was counted")
+        expected = int(b8.get("n_trials_prior") or 0) + len(counted)
+        if b8.get("n_trials_counted_in_dsr") != expected:
+            problems.append("batch8 n_trials_counted_in_dsr != prior + admitted")
+        for c in counted:
+            v = c.get("deflated_sharpe")
+            if v is not None and not 0.0 <= float(v) <= 1.0:
+                problems.append(f"{c.get('strategy_id')} DSR {v} outside [0,1]")
+            cell = c.get("map_elites_cell") or {}
+            if cell.get("horizon") == "intraday" and c.get("bar_interval") != "1h":
+                problems.append(f"{c.get('hypothesis_id')} intraday cell is not a 1h book")
+            if c.get("hypothesis_id") == "H37" and c.get("bar_interval") == "1h":
+                problems.append("H37 is a daily book labeled 1h")
+        occupied = sum(1 for h in (grid.get("grid") or {}).values() for cell in h.values() if cell)
+        if grid.get("cells_occupied") != occupied:
+            problems.append("grid occupancy does not match its cells")
+        out = [_check("research.batch8_hourly_grid", _pass_fail(not problems),
+                      {"admitted": len(counted), "screened": len(screened), "cells_occupied": grid.get("cells_occupied"),
+                       "intraday_provenance": grid.get("intraday_provenance"), "problems": problems,
+                       "n_trials_counted_in_dsr": b8.get("n_trials_counted_in_dsr")}, surfaces)]
+    state = _json(root, Path("reports") / "grok" / "CONTINUATION_STATE.json")
+    if not isinstance(state, dict):
+        out.append(_check("continuation.state", "UNKNOWN", {"state": False}, ["reports/grok/CONTINUATION_STATE.json"]))
+        return out
+    problems = []
+    if state.get("paper_only") is not True:
+        problems.append("paper_only is not true")
+    if not isinstance(state.get("completed_stages"), list):
+        problems.append("completed_stages is not a list")
+    if not isinstance(state.get("next_wave_queue"), list) or not state.get("next_wave_queue"):
+        problems.append("next_wave_queue is empty")
+    if not state.get("current_stage"):
+        problems.append("current_stage is missing")
+    out.append(_check("continuation.state", _pass_fail(not problems),
+                      {"current_stage": state.get("current_stage"), "problems": problems,
+                       "queue": state.get("next_wave_queue")},
+                      ["reports/grok/CONTINUATION_STATE.json"]))
+    return out
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -492,6 +543,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _static_claim_checks(root)
     checks += _stage7_checks(root)
     checks += _stage8_checks(root)
+    checks += _stage9_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

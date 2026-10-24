@@ -13,15 +13,39 @@
    "crisis_defensive"
   ]
  },
- "cells_occupied": 4,
+ "cells_occupied": 7,
  "cells_total": 9,
  "empty_cells_mean": "no admitted strategy, not a zero-quality strategy",
- "intraday_empty_reason": "daily bars have no intraday session; those three cells stay empty",
+ "intraday_empty_reason": null,
  "grid": {
   "intraday": {
-   "trend_breakout": null,
-   "vol_compression_carry": null,
-   "crisis_defensive": null
+   "trend_breakout": {
+    "strategy_id": "b8-H38-BOOK",
+    "hypothesis_id": "H38",
+    "is_sharpe": 0.1924,
+    "oos_sharpe": -0.0931,
+    "gate": "FAIL",
+    "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key.",
+    "bar_interval": "1h"
+   },
+   "vol_compression_carry": {
+    "strategy_id": "b8-H39-BOOK",
+    "hypothesis_id": "H39",
+    "is_sharpe": 0.1123,
+    "oos_sharpe": -0.0032,
+    "gate": "FAIL",
+    "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key.",
+    "bar_interval": "1h"
+   },
+   "crisis_defensive": {
+    "strategy_id": "b8-H40-BOOK",
+    "hypothesis_id": "H40",
+    "is_sharpe": 0.1746,
+    "oos_sharpe": 0.0152,
+    "gate": "FAIL",
+    "quality_definition": "IS Sharpe (admission). OOS Sharpe is reported and is not the archive key.",
+    "bar_interval": "1h"
+   }
   },
   "swing_2_5d": {
    "trend_breakout": {
@@ -74,6 +98,19 @@
     "horizon": "swing_2_5d",
     "regime": "vol_compression_carry"
    }
+  },
+  {
+   "hypothesis_id": "H37",
+   "strategy_id": "b8-H37-BOOK",
+   "counted_in_dsr": false,
+   "screen": "|rho|=0.927 vs H33 >= 0.65",
+   "is_observations": 252,
+   "is_active_share": 0.5735,
+   "cell": {
+    "horizon": "macro_weekly",
+    "regime": "vol_compression_carry"
+   },
+   "bar_interval": "1d"
   }
  ],
  "challengers": [
@@ -102,5 +139,7 @@
    "displaced": "H32"
   }
  ],
- "generated_at": "2026-10-24T16:27:29Z"
+ "intraday_provenance": "yahoo_chart_interval_1h_range_730d",
+ "generated_at": "2026-10-24T18:01:26Z",
+ "cells_empty": 2
 }

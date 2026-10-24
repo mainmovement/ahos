@@ -17,12 +17,13 @@ from typing import Any
 import numpy as np
 
 from architecture.learning.walk_forward import (
-    B5_OUT_REL, DAILY, _bar_day, _cand5, _grid, _regime_pnl, _ts,
-    deflated_sharpe, deflated_sharpe_annualized, fetch_daily_v, ledoit_wolf,
+    B5_OUT_REL, DAILY, _bar_day, _cand5, _day, _grid, _regime_pnl, _ts,
+    deflated_sharpe, deflated_sharpe_annualized, fetch_1h_v, fetch_daily_v, ledoit_wolf,
     sharpe, time_aligned_pbo,
 )
 from architecture.markets.walk_forward import (
-    apply_weight_hysteresis, atr_normalized_return, clears_cost_hurdle, safe_simple_return, wilder_atr,
+    apply_portfolio_l1_gate, apply_weight_hysteresis, atr_normalized_return, clears_cost_hurdle,
+    portfolio_l1_turnover, safe_simple_return, wilder_atr,
 )
 
 B6_OUT_REL = Path("reports") / "grok" / "M28" / "batch6_research.json"
@@ -43,7 +44,16 @@ CELLS.update({
     "H34": ("swing_2_5d", "trend_breakout"),
     "H35": ("macro_weekly", "crisis_defensive"),
     "H36": ("swing_2_5d", "vol_compression_carry"),
+    "H37": ("macro_weekly", "vol_compression_carry"),
+    "H38": ("intraday", "trend_breakout"),
+    "H39": ("intraday", "vol_compression_carry"),
+    "H40": ("intraday", "crisis_defensive"),
 })
+ACTIVE_MIN.update({"H37": 0.25, "H38": 0.25, "H39": 0.25, "H40": 0.25})
+B8_OUT_REL = Path("reports") / "grok" / "M28" / "batch8_research.json"
+TAU_L1 = 0.25
+HOUR_ASSETS = ("BTC", "ETH", "SPX", "QQQ", "XAU")
+HOUR_YAHOO = {"BTC": "BTC-USD", "ETH": "ETH-USD", "SPX": "^GSPC", "QQQ": "QQQ", "XAU": "GC=F"}
 B7_OUT_REL = Path("reports") / "grok" / "M28" / "batch7_research.json"
 TAU_REBAL = 0.05
 HURDLE = 2.5
@@ -987,6 +997,469 @@ def run_batch7(root: Path, daily: dict | None = None) -> dict[str, Any]:
     except (OSError, ValueError):
         pass
     grid = merge_map_elites_grid(prior_rows, clean, list(b6s) + ev["screened"])
+    grid["generated_at"] = snap["generated_at"]
+    (root / GRID_REL).write_text(json.dumps(grid, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def _l1_gate(previous: np.ndarray, proposed: np.ndarray, edge: float, tau_l1: float, hurdle: float):
+    """Hold the whole book unless portfolio L1 turnover clears tau_l1 and the cost hurdle."""
+    held = np.array(apply_portfolio_l1_gate(previous.tolist(), proposed.tolist(), tau_l1), dtype=float)
+    turn = portfolio_l1_turnover(previous.tolist(), held.tolist())
+    if not clears_cost_hurdle(edge, turn, B7_COST_BPS, multiple=hurdle):
+        return previous, 0.0
+    gross = float(np.abs(held).sum())
+    return (held / gross if gross > 0 else previous), turn
+
+
+def _htrade(ts_open: int, ts_close: int, ret: float, w: np.ndarray, assets: tuple[str, ...], ew: float) -> dict:
+    return {"ts_open": int(ts_open), "ts_close": int(ts_close), "ret": float(ret), "d": 1,
+            "weights": {a: round(float(w[i]), 4) for i, a in enumerate(assets)}, "ew_ret": float(ew),
+            "bar_interval": "1h"}
+
+
+def align_hours(hourly: dict, assets: tuple[str, ...] = HOUR_ASSETS) -> dict | None:
+    """Intersection of hour stamps. A missing name yields None. Daily bars are not accepted here."""
+    maps = {}
+    for a in assets:
+        bucket = {}
+        for b in hourly.get(a) or []:
+            if len(b) < 6:
+                continue
+            bucket[int(b[0] // 3600) * 3600] = b
+        maps[a] = bucket
+    if any(len(maps[a]) < 100 for a in assets):
+        return None
+    keys = set.intersection(*(set(maps[a]) for a in assets))
+    ts = sorted(keys)
+    if len(ts) < 400:
+        return None
+    k, n = len(assets), len(ts)
+    C, H, L = (np.full((n, k), np.nan) for _ in range(3))
+    V = np.zeros((n, k))
+    series = {a: [] for a in assets}
+    for t, stamp in enumerate(ts):
+        for i, a in enumerate(assets):
+            b = maps[a][stamp]
+            H[t, i], L[t, i], C[t, i], V[t, i] = b[2], b[3], b[4], b[5]
+            series[a].append(b)
+    return {"ts": ts, "C": C, "H": H, "L": L, "V": V, "atr": {a: wilder_atr(series[a]) for a in assets},
+            "assets": assets, "span_utc": (_day(ts[0]), _day(ts[-1]))}
+
+
+def h37_book(daily: dict, *, step: int = 5, tau_l1: float = TAU_L1, hurdle: float = HURDLE,
+             until_ts: int | None = None) -> list[dict]:
+    """H33 core plus a 25% Donchian satellite. The gate is portfolio L1, not a per-asset band."""
+    assets = ("SPX", "QQQ", "BTC", "ETH", "XAU")
+    if any(a not in daily or len(daily.get(a) or []) < 300 for a in assets):
+        return []
+    days, C = _closes(daily, assets)
+    n, k = C.shape
+    trades, w_prev = [], np.zeros(k)
+    cost = B7_COST_BPS / 1e4
+    ix = {a: i for i, a in enumerate(assets)}
+    high_p = _causal_high_prob(C[:, ix["SPX"]])
+    ohlc = {a: {_bar_day(b[0]): b for b in daily[a]} for a in assets}
+    atr = {a: {_bar_day(b[0]): v for b, v in zip(daily[a], wilder_atr(daily[a]))} for a in assets}
+    for t in range(252, n - step, step):
+        if until_ts is not None and _ts(days[t]) >= until_ts:
+            break
+        raw = np.zeros(k)
+        inv, rets20 = [], []
+        for i in range(k):
+            window = [r for r in (_fwd(float(C[j - 1, i]), float(C[j, i])) for j in range(t - 19, t + 1)) if r is not None]
+            if len(window) >= 15:
+                rets20.append(window)
+            mom = _fwd(float(C[t - 63, i]), float(C[t, i]))
+            vol = statistics.pstdev(window) if len(window) >= 15 else 0.0
+            if mom is not None and mom > 0 and vol > 0:
+                inv.append((i, 1.0 / vol))
+        crisis = False
+        spx_20 = _fwd(float(C[t - 20, ix["SPX"]]), float(C[t, ix["SPX"]]))
+        if spx_20 is not None and spx_20 < -0.08:
+            crisis = True
+        if high_p[t] is not None and high_p[t] >= 0.5:
+            crisis = True
+        if len(rets20) >= 3:
+            m = np.array([r[-15:] for r in rets20])
+            if m.shape[1] >= 15:
+                corr = np.corrcoef(m)
+                if np.isfinite(corr).all():
+                    upper = corr[np.triu_indices(len(corr), 1)]
+                    if len(upper) and float(np.mean(upper)) > 0.55:
+                        crisis = True
+        if crisis and math.isfinite(C[t, ix["XAU"]]):
+            raw[ix["XAU"]] = 1.0
+        elif inv:
+            s = sum(v for _, v in inv)
+            for i, v in inv:
+                raw[i] = v / s
+            best_i, best_dist = None, 0.0
+            for i, a in enumerate(assets):
+                bar, a_tr = ohlc[a].get(days[t]), atr[a].get(days[t])
+                prior = [ohlc[a][days[j]][2] for j in range(t - 20, t) if days[j] in ohlc[a]]
+                if not bar or not a_tr or a_tr <= 0 or len(prior) < 15:
+                    continue
+                hi = max(prior)
+                if hi > 0 and bar[4] > hi and (bar[2] - bar[3]) > 1.2 * a_tr:
+                    dist = bar[4] / hi - 1.0
+                    if dist > best_dist:
+                        best_i, best_dist = i, dist
+            if best_i is not None:
+                raw = raw * 0.75
+                raw[best_i] += 0.25
+                raw = raw / raw.sum()
+        proposed = raw if raw.sum() > 0 else w_prev
+        edge = _trail_port(C, proposed, t, 20) - _trail_port(C, w_prev, t, 20)
+        held, turn = _l1_gate(w_prev, proposed, edge, tau_l1, hurdle)
+        g = _g(C, t, step)
+        w = _renorm(held, np.isfinite(g))
+        if w is None:
+            continue
+        ret = float(np.nansum(w * g)) - turn * cost
+        trades.append(_trade(days, t, step, ret, w, assets, float(np.nanmean(g))))
+        trades[-1]["turnover"] = turn
+        trades[-1]["bar_interval"] = "1d"
+        w_prev = w
+    return trades
+
+
+def h38_book(hourly: dict, *, hurdle: float = HURDLE, until_ts: int | None = None) -> list[dict]:
+    """Completed 1h breakouts only. Hold is at least 4 hours and at most 12. Flat time is not a cash return."""
+    panel = align_hours(hourly)
+    if panel is None:
+        return []
+    ts, C, H, L, V, atr = panel["ts"], panel["C"], panel["H"], panel["L"], panel["V"], panel["atr"]
+    assets, trades, open_pos = HOUR_ASSETS, [], {}
+    for t in range(60, len(ts)):
+        if until_ts is not None and ts[t] >= until_ts:
+            break
+        for i, a in enumerate(assets):
+            a_tr = atr[a][t]
+            pos = open_pos.get(i)
+            if pos is not None:
+                pos["peak"] = max(pos["peak"], float(C[t, i]))
+                held_h = t - pos["t"]
+                if a_tr and held_h >= 4 and (held_h >= 12 or float(C[t, i]) < pos["peak"] - 3.0 * a_tr):
+                    ret = _fwd(pos["entry"], float(C[t, i]))
+                    if ret is not None:
+                        w = np.zeros(len(assets))
+                        w[i] = 1.0
+                        window = _g(C, pos["t"], held_h)
+                        ew = float(np.nanmean(window)) if np.isfinite(window).any() else 0.0
+                        trades.append(_htrade(ts[pos["t"]], ts[t], ret - 2.0 * B7_COST_BPS / 1e4, w, assets, ew))
+                        trades[-1]["turnover"] = 1.0
+                    del open_pos[i]
+                continue
+            if not a_tr or a_tr <= 0:
+                continue
+            hi = float(np.nanmax(H[t - 55:t, i]))
+            vol_avg = float(np.mean(V[t - 20:t, i]))
+            dist = float(C[t, i]) / hi - 1.0 if hi > 0 else 0.0
+            if (hi > 0 and float(C[t, i]) > hi and (H[t, i] - L[t, i]) > 1.2 * a_tr
+                    and (vol_avg <= 0 or V[t, i] > vol_avg)
+                    and clears_cost_hurdle(dist, 1.0, B7_COST_BPS, multiple=hurdle)):
+                open_pos[i] = {"t": t, "entry": float(C[t, i]), "peak": float(C[t, i])}
+    return trades
+
+
+def _hour_weights(C: np.ndarray, t: int, compressed: bool) -> np.ndarray:
+    k = C.shape[1]
+    raw = np.zeros(k)
+    vols = []
+    for i in range(k):
+        window = [r for r in (_fwd(float(C[j - 1, i]), float(C[j, i])) for j in range(t - 11, t + 1)) if r is not None]
+        vol = statistics.pstdev(window) if len(window) >= 8 else 0.0
+        mom = _fwd(float(C[t - 24, i]), float(C[t, i]))
+        if vol > 0:
+            vols.append((vol, i))
+        if compressed and mom is not None and mom > 0 and vol > 0:
+            raw[i] = 1.0 / vol
+    if raw.sum() > 0:
+        return raw / raw.sum()
+    if vols:
+        raw[min(vols)[1]] = 1.0
+    return raw
+
+
+def h39_book(hourly: dict, *, step: int = 6, tau_l1: float = TAU_L1, hurdle: float = HURDLE,
+             until_ts: int | None = None) -> list[dict]:
+    panel = align_hours(hourly)
+    if panel is None:
+        return []
+    ts, C, assets = panel["ts"], panel["C"], HOUR_ASSETS
+    trades, w_prev, cost = [], np.zeros(C.shape[1]), B7_COST_BPS / 1e4
+    spx = assets.index("SPX")
+    for t in range(48, len(ts) - step, step):
+        if until_ts is not None and ts[t] >= until_ts:
+            break
+        spx_w = [r for r in (_fwd(float(C[j - 1, spx]), float(C[j, spx])) for j in range(t - 47, t + 1)) if r is not None]
+        vol_s = statistics.pstdev(spx_w[-12:]) if len(spx_w) >= 12 else 0.0
+        vol_l = statistics.pstdev(spx_w) if len(spx_w) >= 24 else 0.0
+        proposed = _hour_weights(C, t, bool(vol_l > 0 and vol_s < 0.8 * vol_l))
+        if proposed.sum() <= 0:
+            proposed = w_prev
+        edge = _trail_port(C, proposed, t, 12) - _trail_port(C, w_prev, t, 12)
+        held, turn = _l1_gate(w_prev, proposed, edge, tau_l1, hurdle)
+        g = _g(C, t, step)
+        w = _renorm(held, np.isfinite(g))
+        if w is None:
+            continue
+        trades.append(_htrade(ts[t], ts[min(t + step, len(ts) - 1)], float(np.nansum(w * g)) - turn * cost, w, assets, float(np.nanmean(g))))
+        trades[-1]["turnover"] = turn
+        w_prev = w
+    return trades
+
+
+def h40_book(hourly: dict, *, step: int = 8, tau_l1: float = TAU_L1, hurdle: float = HURDLE,
+             until_ts: int | None = None) -> list[dict]:
+    panel = align_hours(hourly)
+    if panel is None:
+        return []
+    ts, C, assets = panel["ts"], panel["C"], HOUR_ASSETS
+    trades, w_prev, cost = [], np.zeros(C.shape[1]), B7_COST_BPS / 1e4
+    k = C.shape[1]
+    xau = assets.index("XAU")
+    for t in range(48, len(ts) - step, step):
+        if until_ts is not None and ts[t] >= until_ts:
+            break
+        last6 = [_fwd(float(C[t - 6, i]), float(C[t, i])) for i in range(k)]
+        last6 = [r for r in last6 if r is not None]
+        crisis = bool(last6) and float(np.mean(last6)) < -0.015
+        if not crisis:
+            mats = []
+            for i in range(k):
+                window = [r for r in (_fwd(float(C[j - 1, i]), float(C[j, i])) for j in range(t - 11, t + 1)) if r is not None]
+                if len(window) >= 8:
+                    mats.append(window[-8:])
+            if len(mats) >= 3:
+                corr = np.corrcoef(np.array(mats))
+                if np.isfinite(corr).all():
+                    upper = corr[np.triu_indices(len(corr), 1)]
+                    crisis = bool(len(upper) and float(np.mean(upper)) > 0.55)
+        raw = np.zeros(k)
+        if crisis and math.isfinite(C[t, xau]):
+            raw[xau] = 1.0
+        else:
+            for i in range(k):
+                mom = _fwd(float(C[t - 24, i]), float(C[t, i]))
+                if mom is not None and mom > 0:
+                    raw[i] = 1.0
+            if raw.sum() > 0:
+                raw = raw / raw.sum()
+        proposed = raw if raw.sum() > 0 else w_prev
+        edge = _trail_port(C, proposed, t, 12) - _trail_port(C, w_prev, t, 12)
+        held, turn = _l1_gate(w_prev, proposed, edge, tau_l1, hurdle)
+        g = _g(C, t, step)
+        w = _renorm(held, np.isfinite(g))
+        if w is None:
+            continue
+        trades.append(_htrade(ts[t], ts[min(t + step, len(ts) - 1)], float(np.nansum(w * g)) - turn * cost, w, assets, float(np.nanmean(g))))
+        trades[-1]["turnover"] = turn
+        w_prev = w
+    return trades
+
+
+B8_BUILDERS = {"H37": h37_book, "H38": h38_book, "H39": h39_book, "H40": h40_book}
+B8_TITLES = {
+    "H37": "Core plus Donchian satellite, portfolio L1 gate",
+    "H38": "Hourly Donchian breakout, 4h to 12h hold",
+    "H39": "Hourly vol-compression carry, portfolio L1 gate",
+    "H40": "Hourly stress sleeve into XAU, portfolio L1 gate",
+}
+
+
+def _batch7_is_paths(daily: dict, split_ts: int) -> dict[str, list[float]]:
+    """In-sample paths of the already-counted batch-7 books. Not new trials."""
+    return {hid: [t["ret"] for t in fn(daily, until_ts=split_ts)] for hid, fn in B7_BUILDERS.items()}
+
+
+def _to_candidate8(hid: str, trades: list[dict], split_ts: int, regime_bars) -> dict[str, Any]:
+    step = {"H37": 5, "H38": 8, "H39": 6, "H40": 8}[hid]
+    session_hours = 6.5 if hid != "H37" else None
+    obs = 252.0 / step if hid == "H37" else (252.0 * session_hours) / step
+    end_ts = max(t["ts_close"] for t in trades)
+    c = _cand5(hid, "BOOK", B8_TITLES[hid], trades, split_ts, B7_COST_BPS, "yahoo_1h" if hid != "H37" else "yahoo_daily_price_safe",
+               obs_per_year=obs, end_ts=end_ts, unit="completed_breakout" if hid == "H38" else "rebalance")
+    c["strategy_id"] = f"b8-{hid}-BOOK"
+    oos = [t for t in trades if t["ts_open"] >= split_ts]
+    oos_ew = [t["ew_ret"] for t in oos]
+    c["equal_weight_oos_sharpe"] = round(sharpe(oos_ew), 4)
+    c["excess_vs_equal_weight_oos_sharpe"] = round(c["oos_sharpe"] - c["equal_weight_oos_sharpe"], 4)
+    c["is_active_share"] = round(_mean_share([t for t in trades if t["ts_open"] < split_ts]), 4)
+    c["rebalance_count"] = sum(1 for t in trades if t.get("turnover", 0) > 0)
+    c["mark_count"] = len(trades)
+    c["mean_turnover"] = round(statistics.fmean([t.get("turnover", 0.0) for t in trades]), 4) if trades else 0.0
+    c["map_elites_cell"] = {"horizon": CELLS[hid][0], "regime": CELLS[hid][1]}
+    c["bar_interval"] = "1d" if hid == "H37" else "1h"
+    c["gate_method"] = "completed_breakout" if hid == "H38" else "portfolio_l1"
+    c["tau_l1"] = None if hid == "H38" else TAU_L1
+    c["return_method"] = "percent; portfolio L1 gate 0.25 and 2.5x cost hurdle; 1h books use Yahoo 1h bars"
+    c["atr_oos_sharpe"] = None
+    _regime_pnl(c, regime_bars or [])
+    return c
+
+
+def evaluate_batch8(daily: dict, hourly: dict) -> dict[str, Any]:
+    ref_days, _ = _closes(daily, tuple(DAILY))
+    split_daily = _split_of(ref_days)
+    baselines = {**_baselines(daily, split_daily), **_batch6_is_paths(daily, split_daily), **_batch7_is_paths(daily, split_daily)}
+    admitted, screened, sibling = [], [], {}
+    probe = h37_book(daily, until_ts=split_daily)
+    share = _mean_share(probe)
+    ok, reason = screen_book([t["ret"] for t in probe], baselines, sibling, share, ACTIVE_MIN["H37"])
+    if not ok:
+        screened.append({"hypothesis_id": "H37", "strategy_id": "b8-H37-BOOK", "counted_in_dsr": False,
+                         "screen": reason, "is_observations": len(probe), "is_active_share": round(share, 4),
+                         "cell": {"horizon": "macro_weekly", "regime": "vol_compression_carry"}, "bar_interval": "1d"})
+    else:
+        full = h37_book(daily)
+        cand = _to_candidate8("H37", full, split_daily, daily.get("SPX") or [])
+        cand["screen"] = reason
+        admitted.append(cand)
+        sibling["H37"] = [t["ret"] for t in probe]
+    panel = align_hours(hourly)
+    split_h = panel["ts"][int(len(panel["ts"]) * 0.6)] if panel else None
+    hour_siblings: dict[str, list[float]] = {}
+    for hid, fn in (("H38", h38_book), ("H39", h39_book), ("H40", h40_book)):
+        if panel is None:
+            screened.append({"hypothesis_id": hid, "strategy_id": f"b8-{hid}-BOOK", "counted_in_dsr": False,
+                             "screen": "incomplete_1h_universe", "is_observations": 0, "is_active_share": 0.0,
+                             "cell": {"horizon": CELLS[hid][0], "regime": CELLS[hid][1]}, "bar_interval": "1h"})
+            continue
+        probe_h = fn(hourly, until_ts=split_h)
+        share_h = _mean_share(probe_h)
+        # Hourly IS paths are not correlated with daily books: the observation unit is different.
+        ok_h, reason_h = screen_book([t["ret"] for t in probe_h], {}, hour_siblings, share_h, ACTIVE_MIN[hid])
+        if not ok_h:
+            screened.append({"hypothesis_id": hid, "strategy_id": f"b8-{hid}-BOOK", "counted_in_dsr": False,
+                             "screen": reason_h, "is_observations": len(probe_h), "is_active_share": round(share_h, 4),
+                             "cell": {"horizon": CELLS[hid][0], "regime": CELLS[hid][1]}, "bar_interval": "1h"})
+            continue
+        full_h = fn(hourly)
+        cand = _to_candidate8(hid, full_h, split_h, hourly.get("SPX") or [])
+        cand["screen"] = reason_h
+        cand["hour_span_utc"] = list(panel["span_utc"])
+        admitted.append(cand)
+        hour_siblings[hid] = [t["ret"] for t in probe_h]
+    return {"admitted": admitted, "screened": screened, "split_daily": split_daily, "split_h": split_h,
+            "hour_span": None if panel is None else list(panel["span_utc"])}
+
+
+def _prior8(root: Path) -> tuple[int, list[tuple[float, float]]]:
+    n, rows = 96, []
+    for rel in (B5_OUT_REL, B6_OUT_REL, B7_OUT_REL):
+        try:
+            doc = json.loads((root / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if rel == B7_OUT_REL:
+            n = int(doc.get("n_trials_counted_in_dsr") or n)
+        for c in doc.get("candidates") or []:
+            opy = c.get("obs_per_year") or 1.0
+            rows.append((float(c["oos_sharpe"]), float(c["oos_sharpe"]) * math.sqrt(max(1.0, opy))))
+    return n, rows
+
+
+def _score8(cands: list[dict], root: Path) -> dict[str, Any]:
+    n_prior, prior = _prior8(root)
+    n_trials = n_prior + len(cands)
+    if cands:
+        tr_obs = [c["oos_sharpe"] for c in cands] + [p[0] for p in prior]
+        tr_ann = [c["oos_sharpe"] * math.sqrt(max(1.0, c["obs_per_year"])) for c in cands] + [p[1] for p in prior]
+        for c in cands:
+            v1 = deflated_sharpe(c["returns"], n_trials, tr_obs)
+            v2 = deflated_sharpe_annualized(c["returns"], c["obs_per_year"], n_trials, tr_ann)
+            c["dsr_per_observation"], c["dsr_annualized"] = v1, v2
+            c["deflated_sharpe"] = min(v1, v2) if v1 is not None and v2 is not None else None
+    pbo = time_aligned_pbo(cands) if len(cands) >= 2 else {"pbo": None, "included": [], "blocks": 16}
+    pbo["scope"] = "batch8_admitted_only"
+    pbo["note"] = "PBO uses this batch's admitted paths only. Rebuilding earlier paths would not be a new trial and was not done."
+    for c in cands:
+        ok = (c["oos_trades"] >= 30 and (c["deflated_sharpe"] or 0) > 0.95 and pbo.get("pbo") is not None
+              and pbo["pbo"] < 0.5 and (c.get("excess_vs_equal_weight_oos_sharpe") or 0) > 0)
+        c["gate"] = "PASS_STATS" if ok else "FAIL"
+    return {"n_prior": n_prior, "n_trials": n_trials, "pbo": pbo, "trial_sharpes_used": len(prior) + len(cands),
+            "trial_sharpe_note": "SR0 uses the counted trial total. The variance uses stored OOS Sharpes from batches 5, 6 and 7 plus this batch, which is fewer than the counted total."}
+
+
+def _fetch_retry(symbols: dict[str, str], fetcher) -> tuple[dict, dict]:
+    import time
+    got, errors = {}, {}
+    for _attempt in range(3):
+        errors = {}
+        for sym, yahoo in symbols.items():
+            if sym in got:
+                continue
+            try:
+                got[sym] = fetcher(yahoo)
+            except Exception as exc:  # noqa: BLE001
+                errors[sym] = repr(exc)[:160]
+        if not errors:
+            break
+        time.sleep(2)
+    return got, errors
+
+
+def run_batch8(root: Path, daily: dict | None = None, hourly: dict | None = None) -> dict[str, Any]:
+    root = Path(root)
+    if daily is None:
+        daily, daily_errors = _fetch_retry({s: y for s, (y, _c) in {**DAILY, "DXY": ("DX-Y.NYB", 2.0)}.items()}, fetch_daily_v)
+    else:
+        daily_errors = {}
+    if hourly is None:
+        hourly, hour_errors = _fetch_retry(HOUR_YAHOO, fetch_1h_v)
+    else:
+        hour_errors = {}
+    ev = evaluate_batch8(daily, hourly)
+    for c in ev["admitted"]:
+        base = c["oos_sharpe"]
+        hid = c["hypothesis_id"]
+        alt = B8_BUILDERS[hid](hourly if hid != "H37" else daily, hurdle=HURDLE * 1.15)
+        split = ev["split_h"] if hid != "H37" else ev["split_daily"]
+        alt_s = sharpe([t["ret"] for t in alt if split is not None and t["ts_open"] >= split])
+        c["param_perturbation_sharpe_retention"] = None if base <= 0 or split is None else round(min(alt_s, base) / base, 3)
+    scored = _score8(ev["admitted"], root)
+    clean = [{k: v for k, v in c.items() if not k.startswith("_")} for c in ev["admitted"]]
+    for c in clean:
+        c.pop("weights", None)
+    snap = {"schema": "ahos.strategy_lab.batch8.v1",
+            "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "paper_only": True,
+            "pre_registered": "strategy_lab/hypotheses.py _B8 @ 2026-10-24 21:20 Tehran (before first run)",
+            "tau_l1": TAU_L1, "cost_hurdle_multiple": HURDLE, "cost_bps": B7_COST_BPS,
+            "hour_span_utc": ev["hour_span"],
+            "hour_note": "Intraday cells use Yahoo 1h bars (about 730 days). A daily bar is not labeled intraday. An empty intraday cell means no admitted 1h book.",
+            "n_trials_this_batch": len(clean), "n_trials_prior": scored["n_prior"],
+            "n_trials_counted_in_dsr": scored["n_trials"],
+            "trial_sharpes_used": scored["trial_sharpes_used"], "trial_sharpe_note": scored["trial_sharpe_note"],
+            "pbo_cscv": scored["pbo"].get("pbo"), "pbo_detail": scored["pbo"],
+            "screened": ev["screened"], "errors": {"daily": daily_errors, "hourly": hour_errors},
+            "candidates": clean,
+            "promotion_rule": "OOS obs>=30 AND DSR>0.95 AND PBO<0.5 AND excess over equal weight > 0 AND survives strategy_red_team"}
+    out = root / B8_OUT_REL
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    prior_rows, screened_prior = [], []
+    for rel in (B6_OUT_REL, B7_OUT_REL):
+        try:
+            doc = json.loads((root / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        prior_rows += doc.get("candidates") or []
+        screened_prior += doc.get("screened") or []
+    grid = merge_map_elites_grid(prior_rows, clean, screened_prior + ev["screened"])
+    for c in clean:
+        cell = c.get("map_elites_cell") or {}
+        slot = ((grid.get("grid") or {}).get(cell.get("horizon")) or {}).get(cell.get("regime"))
+        if isinstance(slot, dict) and slot.get("hypothesis_id") == c["hypothesis_id"]:
+            slot["bar_interval"] = c["bar_interval"]
+    intra = (grid.get("grid") or {}).get("intraday") or {}
+    empty_intra = [name for name, slot in intra.items() if not slot]
+    grid["intraday_provenance"] = "yahoo_chart_interval_1h_range_730d"
+    grid["intraday_empty_reason"] = None if not empty_intra else (
+        "These intraday cells have no admitted 1h book: " + ", ".join(empty_intra)
+        + ". Daily bars were not used to fill them.")
     grid["generated_at"] = snap["generated_at"]
     (root / GRID_REL).write_text(json.dumps(grid, ensure_ascii=False, indent=1), encoding="utf-8")
     return snap

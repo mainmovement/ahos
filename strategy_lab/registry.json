@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-24T16:27:29Z",
+  "updated": "2026-10-24T18:01:26Z",
   "experiment_log": "exp_20260811_165329.json",
   "candidates": {
     "H1": {
@@ -714,11 +714,68 @@
       "verdict": "SCREENED_IN_SAMPLE",
       "evidence": "reports/grok/M28/batch7_research.json @ 2026-10-24T16:27:29Z",
       "detail": {}
+    },
+    "H37": {
+      "name": "H33 core with a Donchian satellite, gated on portfolio L1 turnover",
+      "family": "core_satellite",
+      "status": "SCREENED",
+      "verdict": "SCREENED_IN_SAMPLE",
+      "evidence": "reports/grok/M28/batch8_research.json @ 2026-10-24T18:01:26Z",
+      "detail": {}
+    },
+    "H38": {
+      "name": "Hourly Donchian breakout held between 4 and 12 hours",
+      "family": "intraday_breakout",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch8_research.json @ 2026-10-24T18:01:26Z",
+      "detail": {
+        "b8-H38-BOOK": {
+          "oos_n": 27,
+          "oos_sharpe": -0.0931,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H39": {
+      "name": "Hourly vol-compression carry, portfolio L1 gate, no cash park",
+      "family": "intraday_carry",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch8_research.json @ 2026-10-24T18:01:26Z",
+      "detail": {
+        "b8-H39-BOOK": {
+          "oos_n": 228,
+          "oos_sharpe": -0.0032,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
+    },
+    "H40": {
+      "name": "Hourly cross-asset stress sleeve into XAU",
+      "family": "intraday_crisis",
+      "status": "TESTED",
+      "verdict": "REJECTED",
+      "evidence": "reports/grok/M28/batch8_research.json @ 2026-10-24T18:01:26Z",
+      "detail": {
+        "b8-H40-BOOK": {
+          "oos_n": 171,
+          "oos_sharpe": 0.0152,
+          "dsr": 0.0,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE"
+        }
+      }
     }
   },
   "batch4_pbo": 0.2714,
-  "dsr_trials_counted": 96,
+  "dsr_trials_counted": 99,
   "batch5_pbo": 0.4398,
   "batch6_pbo": 0.0341,
-  "batch7_pbo": 0.0087
+  "batch7_pbo": 0.0087,
+  "batch8_pbo": 0.4889
 }

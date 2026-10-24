@@ -1,6 +1,6 @@
 {
   "schema": "ahos.token_safety_live.v2",
-  "generated_at": "2026-10-24T16:30:12Z",
+  "generated_at": "2026-10-24T18:09:58Z",
   "paper_only": true,
   "spec": "TRADING_SKILLS_v2 §4 + M13.6 + M33.1-M33.7 + TS-4",
   "funnel_rules": {
@@ -28,43 +28,43 @@
       {
         "url": "https://api.geckoterminal.com/api/v2/networks/eth/trending_pools?page=1",
         "ok": true,
-        "latency_ms": 400.5,
+        "latency_ms": 410.9,
         "tokens": 20
       },
       {
         "url": "https://api.dexscreener.com/token-boosts/top/v1",
         "ok": true,
-        "latency_ms": 403.0,
+        "latency_ms": 563.0,
         "tokens": 0
       },
       {
         "url": "https://api.geckoterminal.com/api/v2/networks/eth/pools?page=1",
         "ok": true,
-        "latency_ms": 406.5,
+        "latency_ms": 556.6,
         "tokens": 11
       },
       {
         "url": "https://api.dexscreener.com/latest/dex/search?q=WETH",
         "ok": true,
-        "latency_ms": 484.6,
+        "latency_ms": 412.4,
         "tokens": 0
       },
       {
         "url": "https://api.dexscreener.com/latest/dex/tokens/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,0x514910771AF9Ca656af840dff83E8264EcF986CA,0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32,0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,0x57e114B691Db790C35207b2e685D4A43181e6061,0x808507121B80c02388fAd14726482e061B8da827,0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72,0x6982508145454Ce325dDbE47a25d4ec3d2311933,0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84,0xBe9895146f7AF43049ca1c1AE358B0541Ea49704",
         "ok": true,
-        "latency_ms": 578.2,
+        "latency_ms": 658.1,
         "tokens": 4
       },
       {
         "url": "https://eth.blockscout.com/api/v2/tokens?type=ERC-20",
         "ok": false,
-        "latency_ms": 7208.9,
+        "latency_ms": 7240.2,
         "tokens": 0
       }
     ],
     "address_form": "EIP55_CHECKSUM",
-    "funnel_passed": 16,
-    "funnel_rejected": 19,
+    "funnel_passed": 14,
+    "funnel_rejected": 21,
     "funnel_rejected_sample": [
       {
         "symbol": "PEPINA",
@@ -81,14 +81,6 @@
         ]
       },
       {
-        "symbol": "GROKLET",
-        "address": "0x787873c9ae96855bdB032F6fF1Ef76a5e1Fc8aDC",
-        "funnel_reasons": [
-          "volume_24h<250k_or_unknown",
-          "liquidity<100k_or_unknown"
-        ]
-      },
-      {
         "symbol": "YELLOW",
         "address": "0x236eB848C95b231299B4AA9f56c73D6893462720",
         "funnel_reasons": [
@@ -96,10 +88,11 @@
         ]
       },
       {
-        "symbol": "WALLET",
-        "address": "0x88800092fF476844f74dC2FC427974BBee2794Ae",
+        "symbol": "GROKLET",
+        "address": "0x787873c9ae96855bdB032F6fF1Ef76a5e1Fc8aDC",
         "funnel_reasons": [
-          "volume_24h<250k_or_unknown"
+          "volume_24h<250k_or_unknown",
+          "liquidity<100k_or_unknown"
         ]
       },
       {
@@ -117,22 +110,15 @@
         ]
       },
       {
+        "symbol": "WALLET",
+        "address": "0x88800092fF476844f74dC2FC427974BBee2794Ae",
+        "funnel_reasons": [
+          "volume_24h<250k_or_unknown"
+        ]
+      },
+      {
         "symbol": "AGL",
         "address": "0x63401cDd577478F9389A1683e866A937f072D1C2",
-        "funnel_reasons": [
-          "volume_24h<250k_or_unknown"
-        ]
-      },
-      {
-        "symbol": "MANYU",
-        "address": "0x95AF4aF910c28E8EcE4512BFE46F1F33687424ce",
-        "funnel_reasons": [
-          "volume_24h<250k_or_unknown"
-        ]
-      },
-      {
-        "symbol": "RAIL",
-        "address": "0xe76C6c83af64e4C60245D8C7dE953DF673a7A33D",
         "funnel_reasons": [
           "volume_24h<250k_or_unknown"
         ]
@@ -145,8 +131,22 @@
         ]
       },
       {
-        "symbol": "UPEG",
-        "address": "0x44b28991B167582F18BA0259e0173176ca125505",
+        "symbol": "MANYU",
+        "address": "0x95AF4aF910c28E8EcE4512BFE46F1F33687424ce",
+        "funnel_reasons": [
+          "volume_24h<250k_or_unknown"
+        ]
+      },
+      {
+        "symbol": "EVMZONE",
+        "address": "0xE51a1e57E3C1f037BFc0154918000419636FB1F0",
+        "funnel_reasons": [
+          "pool_age<7d_or_unknown"
+        ]
+      },
+      {
+        "symbol": "RAIL",
+        "address": "0xe76C6c83af64e4C60245D8C7dE953DF673a7A33D",
         "funnel_reasons": [
           "volume_24h<250k_or_unknown"
         ]
@@ -181,13 +181,23 @@
       ]
     },
     {
+      "symbol": "ORDER",
+      "address": "0xABD4C63d2616A5201454168269031355f4764337",
+      "allowed": false,
+      "verdict": "VETOED_SECURITY",
+      "reasons": [
+        "goplus:holder_concentration(top1=0.2644,top10=0.8924)",
+        "goplus:missing_cannot_sell_all"
+      ]
+    },
+    {
       "symbol": "USDC",
       "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
       "reasons": [
         "goplus:is_proxy",
-        "dexscreener:fdv_to_liquidity(3575>1000)",
+        "dexscreener:fdv_to_liquidity(3591>1000)",
         "goplus:missing_is_mintable",
         "goplus:missing_hidden_owner",
         "goplus:missing_can_take_back_ownership",
@@ -209,22 +219,33 @@
       ]
     },
     {
+      "symbol": "TREE",
+      "address": "0x77146784315Ba81904d654466968e3a7c196d1f3",
+      "allowed": false,
+      "verdict": "VETOED_SECURITY",
+      "reasons": [
+        "goplus:is_honeypot",
+        "goplus:is_proxy",
+        "goplus:holder_concentration(top1=0.1715,top10=0.8756)",
+        "insufficient_security_sources:1_of_2",
+        "goplus:missing_is_mintable",
+        "goplus:missing_hidden_owner",
+        "goplus:missing_can_take_back_ownership",
+        "goplus:missing_owner_change_balance",
+        "goplus:missing_selfdestruct",
+        "goplus:missing_cannot_sell_all",
+        "goplus:missing_transfer_pausable",
+        "goplus:missing_slippage_modifiable",
+        "goplus:missing_personal_slippage_modifiable"
+      ]
+    },
+    {
       "symbol": "TRAC",
       "address": "0xaA7a9CA87d3694B5755f213B5D04094b8d0F0A6F",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
       "reasons": [
         "goplus:mintable_supply",
-        "goplus:missing_cannot_sell_all"
-      ]
-    },
-    {
-      "symbol": "ORDER",
-      "address": "0xABD4C63d2616A5201454168269031355f4764337",
-      "allowed": false,
-      "verdict": "VETOED_SECURITY",
-      "reasons": [
-        "goplus:holder_concentration(top1=0.2644,top10=0.8903)",
         "goplus:missing_cannot_sell_all"
       ]
     },
@@ -253,24 +274,12 @@
       "reasons": []
     },
     {
-      "symbol": "TREE",
-      "address": "0x77146784315Ba81904d654466968e3a7c196d1f3",
+      "symbol": "FOLD",
+      "address": "0xE172e9B6cfBeeB5593bDcE3f077356FDb33af904",
       "allowed": false,
-      "verdict": "VETOED_SECURITY",
+      "verdict": "VETOED_FAIL_CLOSED",
       "reasons": [
-        "goplus:is_honeypot",
-        "goplus:is_proxy",
-        "goplus:holder_concentration(top1=0.1715,top10=0.8756)",
-        "insufficient_security_sources:1_of_2",
-        "goplus:missing_is_mintable",
-        "goplus:missing_hidden_owner",
-        "goplus:missing_can_take_back_ownership",
-        "goplus:missing_owner_change_balance",
-        "goplus:missing_selfdestruct",
-        "goplus:missing_cannot_sell_all",
-        "goplus:missing_transfer_pausable",
-        "goplus:missing_slippage_modifiable",
-        "goplus:missing_personal_slippage_modifiable"
+        "insufficient_security_sources:0_of_2"
       ]
     },
     {
@@ -283,47 +292,30 @@
       ]
     },
     {
-      "symbol": "FOLD",
-      "address": "0xE172e9B6cfBeeB5593bDcE3f077356FDb33af904",
+      "symbol": "PENDLE",
+      "address": "0x808507121B80c02388fAd14726482e061B8da827",
       "allowed": false,
-      "verdict": "VETOED_SECURITY",
+      "verdict": "VETOED_FAIL_CLOSED",
       "reasons": [
-        "goplus:mintable_supply",
-        "goplus:holder_concentration(top1=0.3889,top10=0.7685)",
-        "insufficient_security_sources:1_of_2",
-        "goplus:missing_cannot_sell_all"
+        "insufficient_security_sources:1_of_2"
       ]
     },
     {
       "symbol": "USDT",
       "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
       "allowed": false,
-      "verdict": "VETOED_SECURITY",
+      "verdict": "VETOED_FAIL_CLOSED",
       "reasons": [
-        "goplus:mintable_supply",
-        "goplus:owner_change_balance",
-        "goplus:transfer_pausable",
-        "goplus:slippage_modifiable",
-        "goplus:missing_cannot_sell_all"
+        "insufficient_security_sources:1_of_2"
       ]
     },
     {
       "symbol": "CTM",
       "address": "0xc8Fb80fCc03f699C70ff0CC08C09106288888888",
       "allowed": false,
-      "verdict": "VETOED_SECURITY",
+      "verdict": "VETOED_FAIL_CLOSED",
       "reasons": [
-        "goplus:mintable_supply",
-        "goplus:missing_cannot_sell_all"
-      ]
-    },
-    {
-      "symbol": "PENDLE",
-      "address": "0x808507121B80c02388fAd14726482e061B8da827",
-      "allowed": false,
-      "verdict": "VETOED_SECURITY",
-      "reasons": [
-        "goplus:mintable_supply"
+        "insufficient_security_sources:1_of_2"
       ]
     },
     {
@@ -341,12 +333,12 @@
       ]
     }
   ],
-  "vetoed_security_count": 11,
+  "vetoed_security_count": 7,
   "paper_tradable_dynamic": [
     {
       "symbol": "LINK",
       "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
-      "rank_score": -0.0917,
+      "rank_score": -0.072,
       "pool": "0x5d4f3c6fa16908609bac31ff148bd002aa6b8c83"
     }
   ],
@@ -357,6 +349,7 @@
       "chain_id": "1",
       "allowed": true,
       "verdict": "ELIGIBLE_PAPER_TOKEN",
+      "proxy_tier": "NONE",
       "reasons": [],
       "strict": false,
       "sources_verified": 3,
@@ -384,7 +377,7 @@
           "cannot_buy": false
         },
         "cannot_sell_all": null,
-        "holder_count": 392352,
+        "holder_count": 392359,
         "holder_concentration": {
           "top1_pct": 0.2622,
           "top10_pct": 0.4037,
@@ -403,32 +396,32 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 15,
-        "liquidity_usd": 37447927.76,
-        "volume_24h_usd": 4985316.04,
-        "price_usd": 6.58,
-        "fdv_usd": 5842592598.0,
-        "largest_pool_share": 0.352
+        "liquidity_usd": 37815155.78,
+        "volume_24h_usd": 5043304.69,
+        "price_usd": 6.67,
+        "fdv_usd": 5916265346.0,
+        "largest_pool_share": 0.3528
       },
       "pool_witness": {
         "verdict": "POOL_WITNESS_VERIFIED",
         "distinct_pools": 13,
-        "gap": 0.0,
+        "gap": 0.003,
         "pools": [
           {
             "pool": "0x1d42064fc4beb5f8aaf85f4617ae8b3b5b8bd801",
             "dex": "uniswap",
-            "price_usd": 6.58,
-            "liquidity_usd": 13180184.84
+            "price_usd": 6.67,
+            "liquidity_usd": 13342381.35
           },
           {
             "pool": "pool32:053f6a47ccba79e7d5d623173ed6dd5a31cf19c28bae0fb8276f4506295f90da",
             "dex": "uniswap",
-            "price_usd": 6.58,
-            "liquidity_usd": 7038140.52
+            "price_usd": 6.65,
+            "liquidity_usd": 7107723.8
           }
         ]
       },
-      "checked_at": "2026-10-24T16:29:39Z",
+      "checked_at": "2026-10-24T18:09:25Z",
       "paper_only": true
     },
     {
@@ -437,6 +430,7 @@
       "chain_id": "1",
       "allowed": true,
       "verdict": "ELIGIBLE_PAPER_TOKEN",
+      "proxy_tier": "NONE",
       "reasons": [],
       "strict": false,
       "sources_verified": 3,
@@ -464,7 +458,7 @@
           "cannot_buy": false
         },
         "cannot_sell_all": false,
-        "holder_count": 924136,
+        "holder_count": 924149,
         "holder_concentration": {
           "top1_pct": 0.0409,
           "top10_pct": 0.3105,
@@ -483,32 +477,32 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 15,
-        "liquidity_usd": 31309397.31,
-        "volume_24h_usd": 3417365.34,
-        "price_usd": 11.35,
-        "fdv_usd": 11353179048.0,
-        "largest_pool_share": 0.4693
+        "liquidity_usd": 31522281.28,
+        "volume_24h_usd": 3505049.53,
+        "price_usd": 11.42,
+        "fdv_usd": 11429480887.0,
+        "largest_pool_share": 0.4699
       },
       "pool_witness": {
         "verdict": "POOL_WITNESS_VERIFIED",
         "distinct_pools": 11,
-        "gap": 0.00088,
+        "gap": 0.0,
         "pools": [
           {
             "pool": "pool32:b2b5618903d74bbac9e9049a035c3827afc4487cde3b994a1568b050f4c8e2e4",
             "dex": "uniswap",
-            "price_usd": 11.35,
-            "liquidity_usd": 14693165.54
+            "price_usd": 11.42,
+            "liquidity_usd": 14812420.27
           },
           {
             "pool": "0xa6cc3c2531fdaa6ae1a3ca84c2855806728693e8",
             "dex": "uniswap",
-            "price_usd": 11.36,
-            "liquidity_usd": 13025854.91
+            "price_usd": 11.42,
+            "liquidity_usd": 13102229.95
           }
         ]
       },
-      "checked_at": "2026-10-24T16:29:41Z",
+      "checked_at": "2026-10-24T18:09:26Z",
       "paper_only": true
     },
     {
@@ -517,6 +511,7 @@
       "chain_id": "1",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
+      "proxy_tier": "NONE",
       "reasons": [
         "goplus:is_proxy",
         "goplus:missing_is_mintable"
@@ -547,10 +542,10 @@
           "cannot_buy": false
         },
         "cannot_sell_all": false,
-        "holder_count": 190753,
+        "holder_count": 190766,
         "holder_concentration": {
           "top1_pct": 0.1548,
-          "top10_pct": 0.4405,
+          "top10_pct": 0.4406,
           "top1_is_contract": true,
           "excluded": "burn, locked, known LP pools"
         }
@@ -566,33 +561,113 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 15,
-        "liquidity_usd": 21069632.2,
-        "volume_24h_usd": 2230997.67,
-        "price_usd": 134.71,
-        "fdv_usd": 2155463427.0,
-        "largest_pool_share": 0.4947
+        "liquidity_usd": 21228357.2,
+        "volume_24h_usd": 2252615.23,
+        "price_usd": 135.82,
+        "fdv_usd": 2173218518.0,
+        "largest_pool_share": 0.4957
       },
       "pool_witness": {
         "verdict": "POOL_WITNESS_VERIFIED",
         "distinct_pools": 15,
-        "gap": 0.00297,
+        "gap": 0.00694,
         "pools": [
           {
             "pool": "0x5ab53ee1d50eef2c1dd3d5402789cd27bb52c1bb",
             "dex": "uniswap",
-            "price_usd": 134.71,
-            "liquidity_usd": 10422954.17
+            "price_usd": 135.82,
+            "liquidity_usd": 10523706.02
           },
           {
             "pool": "0x3de27efa2f1aa663ae5d458857e731c129069f29",
             "dex": "balancer",
-            "price_usd": 134.31,
-            "liquidity_usd": 2693779.3
+            "price_usd": 134.88,
+            "liquidity_usd": 2706358.0
           }
         ]
       },
-      "checked_at": "2026-10-24T16:29:44Z",
+      "checked_at": "2026-10-24T18:09:28Z",
       "paper_only": true
+    },
+    {
+      "symbol": "ORDER",
+      "address": "0xABD4C63d2616A5201454168269031355f4764337",
+      "chain_id": "1",
+      "allowed": false,
+      "verdict": "VETOED_SECURITY",
+      "proxy_tier": "NONE",
+      "reasons": [
+        "goplus:holder_concentration(top1=0.2644,top10=0.8924)",
+        "goplus:missing_cannot_sell_all"
+      ],
+      "strict": true,
+      "sources_verified": 3,
+      "security_sources": [
+        "goplus_v1",
+        "honeypot_is_v2"
+      ],
+      "goplus": {
+        "source": "goplus_v1",
+        "is_honeypot": false,
+        "buy_tax": 0.0,
+        "sell_tax": 0.0,
+        "is_open_source": true,
+        "is_mintable": false,
+        "authority": {
+          "is_proxy": false,
+          "hidden_owner": false,
+          "can_take_back_ownership": false,
+          "owner_change_balance": false,
+          "selfdestruct": false,
+          "cannot_sell_all": null,
+          "transfer_pausable": false,
+          "slippage_modifiable": false,
+          "personal_slippage_modifiable": false,
+          "cannot_buy": false
+        },
+        "cannot_sell_all": null,
+        "holder_count": 28062,
+        "holder_concentration": {
+          "top1_pct": 0.2644,
+          "top10_pct": 0.8924,
+          "top1_is_contract": true,
+          "excluded": "burn, locked, known LP pools"
+        }
+      },
+      "honeypot_is": {
+        "source": "honeypot_is_v2",
+        "simulation_success": true,
+        "is_honeypot": false,
+        "buy_tax": 0.0,
+        "sell_tax": 0.0,
+        "is_open_source": true
+      },
+      "dexscreener": {
+        "source": "dexscreener_v1",
+        "pairs_count": 4,
+        "liquidity_usd": 642373.01,
+        "volume_24h_usd": 3466082.42,
+        "price_usd": 0.07094,
+        "fdv_usd": 70563214.0,
+        "largest_pool_share": 0.9795
+      },
+      "pool_witness": {
+        "verdict": "SINGLE_POOL_UNRESOLVED",
+        "distinct_pools": 1,
+        "gap": null
+      },
+      "checked_at": "2026-10-24T18:09:40Z",
+      "paper_only": true,
+      "discovery": {
+        "source": "geckoterminal_trending",
+        "pool": "0xb2dc4d7627501338b578985c214208eb32283086",
+        "pool_age_days": 789.4145080540742,
+        "volume_24h_usd": 3431750.16324474,
+        "liquidity_usd": 630181.1724,
+        "fdv_usd": 71249887.2296518
+      },
+      "discovery_rank_score": 0.3589,
+      "paper_tradable": false
     },
     {
       "symbol": "USDC",
@@ -600,9 +675,10 @@
       "chain_id": "1",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
+      "proxy_tier": "NONE",
       "reasons": [
         "goplus:is_proxy",
-        "dexscreener:fdv_to_liquidity(3575>1000)",
+        "dexscreener:fdv_to_liquidity(3591>1000)",
         "goplus:missing_is_mintable",
         "goplus:missing_hidden_owner",
         "goplus:missing_can_take_back_ownership",
@@ -639,10 +715,10 @@
           "cannot_buy": false
         },
         "cannot_sell_all": null,
-        "holder_count": 9329509,
+        "holder_count": 9330068,
         "holder_concentration": {
-          "top1_pct": 0.087,
-          "top10_pct": 0.2747,
+          "top1_pct": 0.0867,
+          "top10_pct": 0.2743,
           "top1_is_contract": false,
           "excluded": "burn, locked, known LP pools"
         }
@@ -658,11 +734,11 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 15,
-        "liquidity_usd": 13424054.47,
-        "volume_24h_usd": 147879793.28,
+        "liquidity_usd": 13362110.82,
+        "volume_24h_usd": 149607758.37,
         "price_usd": 1.0011,
-        "fdv_usd": 47984844802.0,
-        "largest_pool_share": 0.4423
+        "fdv_usd": 47986283741.0,
+        "largest_pool_share": 0.4393
       },
       "pool_witness": {
         "verdict": "POOL_CONFLICT",
@@ -673,7 +749,7 @@
             "pool": "pool32:2b21c65d9a7dc6926ee330a1c6e5a8037fd81774f3dc066536f800128e39f634",
             "dex": "uniswap",
             "price_usd": 1.0011,
-            "liquidity_usd": 5937937.53
+            "liquidity_usd": 5870274.76
           },
           {
             "pool": "0xc636bfe0bae34824380b4e26bc34e4614e55e483",
@@ -683,17 +759,17 @@
           }
         ]
       },
-      "checked_at": "2026-10-24T16:29:54Z",
+      "checked_at": "2026-10-24T18:09:43Z",
       "paper_only": true,
       "discovery": {
         "source": "geckoterminal_pools",
         "pool": "0xe0554a476a092703abdb3ef35c80e0d76d32939f",
-        "pool_age_days": 1758.8316438410761,
-        "volume_24h_usd": 39422801.2982597,
-        "liquidity_usd": 8773276.6648,
-        "fdv_usd": 47841027184.3448
+        "pool_age_days": 1758.900908517037,
+        "volume_24h_usd": 39214683.7617736,
+        "liquidity_usd": 8831330.0666,
+        "fdv_usd": 47777373509.7031
       },
-      "discovery_rank_score": 0.182,
+      "discovery_rank_score": 0.1801,
       "paper_tradable": false
     },
     {
@@ -702,6 +778,7 @@
       "chain_id": "1",
       "allowed": false,
       "verdict": "VETOED_FAIL_CLOSED",
+      "proxy_tier": "NONE",
       "reasons": [
         "goplus:missing_cannot_sell_all"
       ],
@@ -731,10 +808,10 @@
           "cannot_buy": false
         },
         "cannot_sell_all": null,
-        "holder_count": 3689629,
+        "holder_count": 3689658,
         "holder_concentration": {
-          "top1_pct": 0.1813,
-          "top10_pct": 0.6092,
+          "top1_pct": 0.1815,
+          "top10_pct": 0.6089,
           "top1_is_contract": true,
           "excluded": "burn, locked, known LP pools"
         }
@@ -750,405 +827,43 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 15,
-        "liquidity_usd": 107997367.62,
-        "volume_24h_usd": 104358481.47,
-        "price_usd": 2296.092,
-        "fdv_usd": 5118441902.0,
-        "largest_pool_share": 0.749
+        "liquidity_usd": 108541314.86,
+        "volume_24h_usd": 104875853.11,
+        "price_usd": 2322.3,
+        "fdv_usd": 5198874351.0,
+        "largest_pool_share": 0.7477
       },
       "pool_witness": {
         "verdict": "POOL_WITNESS_VERIFIED",
         "distinct_pools": 10,
-        "gap": 0.0011,
+        "gap": 0.00095,
         "pools": [
           {
             "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
             "dex": "uniswap",
-            "price_usd": 2296.092,
-            "liquidity_usd": 80890889.21
+            "price_usd": 2322.3,
+            "liquidity_usd": 81161624.96
           },
           {
             "pool": "0x11b815efb8f581194ae79006d24e0d814b7697f6",
             "dex": "uniswap",
-            "price_usd": 2298.62,
-            "liquidity_usd": 9151792.06
+            "price_usd": 2324.5,
+            "liquidity_usd": 9219375.32
           }
         ]
       },
-      "checked_at": "2026-10-24T16:29:56Z",
+      "checked_at": "2026-10-24T18:09:45Z",
       "paper_only": true,
       "discovery": {
         "source": "geckoterminal_pools",
         "pool": "0xc7bbec68d12a0d1830360f8ec58fa599ba1b0e9b",
-        "pool_age_days": 1398.4941901373727,
-        "volume_24h_usd": 10105132.9333303,
-        "liquidity_usd": 3180323.0138,
-        "fdv_usd": 5142019421.32676
+        "pool_age_days": 1398.5634548133335,
+        "volume_24h_usd": 9724519.13193304,
+        "liquidity_usd": 3208677.0545,
+        "fdv_usd": 5198884899.5047
       },
-      "discovery_rank_score": 0.1215,
+      "discovery_rank_score": 0.1124,
       "paper_tradable": false
-    },
-    {
-      "symbol": "TRAC",
-      "address": "0xaA7a9CA87d3694B5755f213B5D04094b8d0F0A6F",
-      "chain_id": "1",
-      "allowed": false,
-      "verdict": "VETOED_SECURITY",
-      "reasons": [
-        "goplus:mintable_supply",
-        "goplus:missing_cannot_sell_all"
-      ],
-      "strict": true,
-      "sources_verified": 3,
-      "security_sources": [
-        "goplus_v1",
-        "honeypot_is_v2"
-      ],
-      "goplus": {
-        "source": "goplus_v1",
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true,
-        "is_mintable": true,
-        "authority": {
-          "is_proxy": false,
-          "hidden_owner": false,
-          "can_take_back_ownership": false,
-          "owner_change_balance": false,
-          "selfdestruct": false,
-          "cannot_sell_all": null,
-          "transfer_pausable": false,
-          "slippage_modifiable": false,
-          "personal_slippage_modifiable": false,
-          "cannot_buy": false
-        },
-        "cannot_sell_all": null,
-        "holder_count": 23760,
-        "holder_concentration": {
-          "top1_pct": 0.1355,
-          "top10_pct": 0.5147,
-          "top1_is_contract": true,
-          "excluded": "burn, locked, known LP pools"
-        }
-      },
-      "honeypot_is": {
-        "source": "honeypot_is_v2",
-        "simulation_success": true,
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true
-      },
-      "dexscreener": {
-        "source": "dexscreener_v1",
-        "pairs_count": 11,
-        "liquidity_usd": 579930.01,
-        "volume_24h_usd": 1555278.27,
-        "price_usd": 0.3756,
-        "fdv_usd": 187831067.0,
-        "largest_pool_share": 0.8131
-      },
-      "pool_witness": {
-        "verdict": "POOL_WITNESS_VERIFIED",
-        "distinct_pools": 2,
-        "gap": 0.00027,
-        "pools": [
-          {
-            "pool": "0xb1914469141ebb6e244e75cee3f35d43bf6b85e5",
-            "dex": "uniswap",
-            "price_usd": 0.3756,
-            "liquidity_usd": 471557.87
-          },
-          {
-            "pool": "pool32:54e9eac9333699224524d39fdd36c25a401dd6dcbeeae41159106b1eb5563617",
-            "dex": "uniswap",
-            "price_usd": 0.3755,
-            "liquidity_usd": 70553.94
-          }
-        ]
-      },
-      "checked_at": "2026-10-24T16:29:57Z",
-      "paper_only": true,
-      "discovery": {
-        "source": "geckoterminal_trending",
-        "pool": "0xb1914469141ebb6e244e75cee3f35d43bf6b85e5",
-        "pool_age_days": 1760.1051044892245,
-        "volume_24h_usd": 1350809.25423118,
-        "liquidity_usd": 470146.1816,
-        "fdv_usd": 187258049.3
-      },
-      "discovery_rank_score": 0.0335,
-      "paper_tradable": false
-    },
-    {
-      "symbol": "ORDER",
-      "address": "0xABD4C63d2616A5201454168269031355f4764337",
-      "chain_id": "1",
-      "allowed": false,
-      "verdict": "VETOED_SECURITY",
-      "reasons": [
-        "goplus:holder_concentration(top1=0.2644,top10=0.8903)",
-        "goplus:missing_cannot_sell_all"
-      ],
-      "strict": true,
-      "sources_verified": 3,
-      "security_sources": [
-        "goplus_v1",
-        "honeypot_is_v2"
-      ],
-      "goplus": {
-        "source": "goplus_v1",
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true,
-        "is_mintable": false,
-        "authority": {
-          "is_proxy": false,
-          "hidden_owner": false,
-          "can_take_back_ownership": false,
-          "owner_change_balance": false,
-          "selfdestruct": false,
-          "cannot_sell_all": null,
-          "transfer_pausable": false,
-          "slippage_modifiable": false,
-          "personal_slippage_modifiable": false,
-          "cannot_buy": false
-        },
-        "cannot_sell_all": null,
-        "holder_count": 28087,
-        "holder_concentration": {
-          "top1_pct": 0.2644,
-          "top10_pct": 0.8903,
-          "top1_is_contract": true,
-          "excluded": "burn, locked, known LP pools"
-        }
-      },
-      "honeypot_is": {
-        "source": "honeypot_is_v2",
-        "simulation_success": true,
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true
-      },
-      "dexscreener": {
-        "source": "dexscreener_v1",
-        "pairs_count": 4,
-        "liquidity_usd": 656482.95,
-        "volume_24h_usd": 3299717.22,
-        "price_usd": 0.07361,
-        "fdv_usd": 73220658.0,
-        "largest_pool_share": 0.9795
-      },
-      "pool_witness": {
-        "verdict": "SINGLE_POOL_UNRESOLVED",
-        "distinct_pools": 1,
-        "gap": null
-      },
-      "checked_at": "2026-10-24T16:29:59Z",
-      "paper_only": true,
-      "discovery": {
-        "source": "geckoterminal_trending",
-        "pool": "0xb2dc4d7627501338b578985c214208eb32283086",
-        "pool_age_days": 789.3452433781134,
-        "volume_24h_usd": 3268460.41827155,
-        "liquidity_usd": 644608.4688,
-        "fdv_usd": 73498819.453057
-      },
-      "discovery_rank_score": -0.0554,
-      "paper_tradable": false
-    },
-    {
-      "symbol": "AAVE",
-      "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
-      "chain_id": "1",
-      "allowed": false,
-      "verdict": "VETOED_SECURITY",
-      "reasons": [
-        "goplus:is_proxy",
-        "goplus:missing_is_mintable",
-        "goplus:missing_hidden_owner",
-        "goplus:missing_can_take_back_ownership",
-        "goplus:missing_owner_change_balance",
-        "goplus:missing_selfdestruct",
-        "goplus:missing_transfer_pausable",
-        "goplus:missing_slippage_modifiable",
-        "goplus:missing_personal_slippage_modifiable"
-      ],
-      "strict": true,
-      "sources_verified": 3,
-      "security_sources": [
-        "goplus_v1",
-        "honeypot_is_v2"
-      ],
-      "goplus": {
-        "source": "goplus_v1",
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true,
-        "is_mintable": null,
-        "authority": {
-          "is_proxy": true,
-          "hidden_owner": null,
-          "can_take_back_ownership": null,
-          "owner_change_balance": null,
-          "selfdestruct": null,
-          "cannot_sell_all": false,
-          "transfer_pausable": null,
-          "slippage_modifiable": null,
-          "personal_slippage_modifiable": null,
-          "cannot_buy": false
-        },
-        "cannot_sell_all": false,
-        "holder_count": 190753,
-        "holder_concentration": {
-          "top1_pct": 0.1548,
-          "top10_pct": 0.4405,
-          "top1_is_contract": true,
-          "excluded": "burn, locked, known LP pools"
-        }
-      },
-      "honeypot_is": {
-        "source": "honeypot_is_v2",
-        "simulation_success": true,
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true
-      },
-      "dexscreener": {
-        "source": "dexscreener_v1",
-        "pairs_count": 15,
-        "liquidity_usd": 21069330.33,
-        "volume_24h_usd": 2231493.82,
-        "price_usd": 134.71,
-        "fdv_usd": 2155463427.0,
-        "largest_pool_share": 0.4947
-      },
-      "pool_witness": {
-        "verdict": "POOL_WITNESS_VERIFIED",
-        "distinct_pools": 15,
-        "gap": 0.00297,
-        "pools": [
-          {
-            "pool": "0x5ab53ee1d50eef2c1dd3d5402789cd27bb52c1bb",
-            "dex": "uniswap",
-            "price_usd": 134.71,
-            "liquidity_usd": 10422954.17
-          },
-          {
-            "pool": "0x3de27efa2f1aa663ae5d458857e731c129069f29",
-            "dex": "balancer",
-            "price_usd": 134.31,
-            "liquidity_usd": 2693779.3
-          }
-        ]
-      },
-      "checked_at": "2026-10-24T16:30:00Z",
-      "paper_only": true,
-      "discovery": {
-        "source": "dexscreener_tokens",
-        "pool": "0x4674abc5796e1334b5075326b39b748bee9eaa34",
-        "pool_age_days": 1996.7999771744096,
-        "volume_24h_usd": 319071.63,
-        "liquidity_usd": 148249.37,
-        "fdv_usd": 2150557211.0
-      },
-      "discovery_rank_score": -0.0734,
-      "paper_tradable": false
-    },
-    {
-      "symbol": "LINK",
-      "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
-      "chain_id": "1",
-      "allowed": true,
-      "verdict": "ELIGIBLE_PAPER_TOKEN",
-      "reasons": [],
-      "strict": true,
-      "sources_verified": 3,
-      "security_sources": [
-        "goplus_v1",
-        "honeypot_is_v2"
-      ],
-      "goplus": {
-        "source": "goplus_v1",
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true,
-        "is_mintable": false,
-        "authority": {
-          "is_proxy": false,
-          "hidden_owner": false,
-          "can_take_back_ownership": false,
-          "owner_change_balance": false,
-          "selfdestruct": false,
-          "cannot_sell_all": false,
-          "transfer_pausable": false,
-          "slippage_modifiable": false,
-          "personal_slippage_modifiable": false,
-          "cannot_buy": false
-        },
-        "cannot_sell_all": false,
-        "holder_count": 924136,
-        "holder_concentration": {
-          "top1_pct": 0.0409,
-          "top10_pct": 0.3105,
-          "top1_is_contract": true,
-          "excluded": "burn, locked, known LP pools"
-        }
-      },
-      "honeypot_is": {
-        "source": "honeypot_is_v2",
-        "simulation_success": true,
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true
-      },
-      "dexscreener": {
-        "source": "dexscreener_v1",
-        "pairs_count": 15,
-        "liquidity_usd": 31309397.31,
-        "volume_24h_usd": 3417365.34,
-        "price_usd": 11.35,
-        "fdv_usd": 11353179048.0,
-        "largest_pool_share": 0.4693
-      },
-      "pool_witness": {
-        "verdict": "POOL_WITNESS_VERIFIED",
-        "distinct_pools": 11,
-        "gap": 0.00088,
-        "pools": [
-          {
-            "pool": "pool32:b2b5618903d74bbac9e9049a035c3827afc4487cde3b994a1568b050f4c8e2e4",
-            "dex": "uniswap",
-            "price_usd": 11.35,
-            "liquidity_usd": 14693165.54
-          },
-          {
-            "pool": "0xa6cc3c2531fdaa6ae1a3ca84c2855806728693e8",
-            "dex": "uniswap",
-            "price_usd": 11.36,
-            "liquidity_usd": 13025854.91
-          }
-        ]
-      },
-      "checked_at": "2026-10-24T16:30:02Z",
-      "paper_only": true,
-      "discovery": {
-        "source": "dexscreener_tokens",
-        "pool": "0x5d4f3c6fa16908609bac31ff148bd002aa6b8c83",
-        "pool_age_days": 1997.8407873595947,
-        "volume_24h_usd": 571454.24,
-        "liquidity_usd": 392225.78,
-        "fdv_usd": 11337063670.0
-      },
-      "discovery_rank_score": -0.0917,
-      "paper_tradable": true
     },
     {
       "symbol": "TREE",
@@ -1156,6 +871,7 @@
       "chain_id": "1",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
+      "proxy_tier": "NONE",
       "reasons": [
         "goplus:is_honeypot",
         "goplus:is_proxy",
@@ -1208,115 +924,60 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 7,
-        "liquidity_usd": 538994.11,
-        "volume_24h_usd": 982672.89,
-        "price_usd": 0.04246,
-        "fdv_usd": 42467062.0,
-        "largest_pool_share": 0.4897
+        "liquidity_usd": 549332.15,
+        "volume_24h_usd": 951004.63,
+        "price_usd": 0.04386,
+        "fdv_usd": 43869520.0,
+        "largest_pool_share": 0.4943
       },
       "pool_witness": {
         "verdict": "POOL_CONFLICT",
         "distinct_pools": 2,
-        "gap": 0.05118,
+        "gap": 0.0389,
         "pools": [
           {
             "pool": "0xdaba3d8ccf79ef289a7e2dbce51871b39ea445a2-0x77146784315ba81904d654466968e3a7c196d1f3-0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
             "dex": "balancer",
-            "price_usd": 0.04246,
-            "liquidity_usd": 263965.58
+            "price_usd": 0.04386,
+            "liquidity_usd": 271524.39
           },
           {
             "pool": "pool32:63f5342442628ded4f084f6ba32bcec4f6ae3bf45c43c5834704b4beb903eea2",
             "dex": "uniswap",
-            "price_usd": 0.04469,
-            "liquidity_usd": 226546.22
+            "price_usd": 0.0456,
+            "liquidity_usd": 228981.54
           }
         ]
       },
-      "checked_at": "2026-10-24T16:30:04Z",
+      "checked_at": "2026-10-24T18:09:46Z",
       "paper_only": true,
       "discovery": {
         "source": "geckoterminal_trending",
         "pool": "pool32:63f5342442628ded4f084f6ba32bcec4f6ae3bf45c43c5834704b4beb903eea2",
-        "pool_age_days": 456.98996560033567,
-        "volume_24h_usd": 635898.521198461,
-        "liquidity_usd": 225427.5943,
-        "fdv_usd": 44234687.8599045
+        "pool_age_days": 457.05923027629626,
+        "volume_24h_usd": 612861.259387925,
+        "liquidity_usd": 230264.0767,
+        "fdv_usd": 45947493.7599008
       },
-      "discovery_rank_score": -0.1537,
+      "discovery_rank_score": 0.1003,
       "paper_tradable": false
     },
     {
-      "symbol": "ETH",
-      "address": "0x0000000000000000000000000000000000000000",
-      "chain_id": "1",
-      "allowed": false,
-      "verdict": "VETOED_FAIL_CLOSED",
-      "reasons": [
-        "insufficient_security_sources:0_of_2"
-      ],
-      "strict": true,
-      "sources_verified": 1,
-      "security_sources": [],
-      "goplus": null,
-      "honeypot_is": null,
-      "dexscreener": {
-        "source": "dexscreener_v1",
-        "pairs_count": 15,
-        "liquidity_usd": 44455621.44,
-        "volume_24h_usd": 69469874.76,
-        "price_usd": 2296.91,
-        "fdv_usd": null,
-        "largest_pool_share": 0.3615
-      },
-      "pool_witness": {
-        "verdict": "POOL_WITNESS_VERIFIED",
-        "distinct_pools": 15,
-        "gap": 0.00073,
-        "pools": [
-          {
-            "pool": "pool32:bac3aa3b91584a53a579b3c999a56756e954e59247e497bad1d25a4334bde551",
-            "dex": "uniswap",
-            "price_usd": 2296.91,
-            "liquidity_usd": 16072523.02
-          },
-          {
-            "pool": "pool32:387bf619da4d3fb62bb276482693dba1b9b3520f573cabdfe033384a24125982",
-            "dex": "uniswap",
-            "price_usd": 2295.24,
-            "liquidity_usd": 5089600.82
-          }
-        ]
-      },
-      "checked_at": "2026-10-24T16:30:05Z",
-      "paper_only": true,
-      "discovery": {
-        "source": "geckoterminal_pools",
-        "pool": "pool32:00b9edc1583bf6ef09ff3a09f6c23ecb57fd7d0bb75625717ec81eed181e22d7",
-        "pool_age_days": 637.8935767114468,
-        "volume_24h_usd": 1086499.91979128,
-        "liquidity_usd": 2466957.6252,
-        "fdv_usd": 0.0
-      },
-      "discovery_rank_score": -0.1685,
-      "paper_tradable": false
-    },
-    {
-      "symbol": "FOLD",
-      "address": "0xE172e9B6cfBeeB5593bDcE3f077356FDb33af904",
+      "symbol": "TRAC",
+      "address": "0xaA7a9CA87d3694B5755f213B5D04094b8d0F0A6F",
       "chain_id": "1",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
+      "proxy_tier": "NONE",
       "reasons": [
         "goplus:mintable_supply",
-        "goplus:holder_concentration(top1=0.3889,top10=0.7685)",
-        "insufficient_security_sources:1_of_2",
         "goplus:missing_cannot_sell_all"
       ],
       "strict": true,
-      "sources_verified": 2,
+      "sources_verified": 3,
       "security_sources": [
-        "goplus_v1"
+        "goplus_v1",
+        "honeypot_is_v2"
       ],
       "goplus": {
         "source": "goplus_v1",
@@ -1338,68 +999,80 @@
           "cannot_buy": false
         },
         "cannot_sell_all": null,
-        "holder_count": 3571,
+        "holder_count": 23763,
         "holder_concentration": {
-          "top1_pct": 0.3889,
-          "top10_pct": 0.7685,
+          "top1_pct": 0.1356,
+          "top10_pct": 0.5147,
           "top1_is_contract": true,
           "excluded": "burn, locked, known LP pools"
         }
       },
-      "honeypot_is": null,
+      "honeypot_is": {
+        "source": "honeypot_is_v2",
+        "simulation_success": true,
+        "is_honeypot": false,
+        "buy_tax": 0.0,
+        "sell_tax": 0.0,
+        "is_open_source": true
+      },
       "dexscreener": {
         "source": "dexscreener_v1",
-        "pairs_count": 3,
-        "liquidity_usd": 1882548.51,
-        "volume_24h_usd": 2477277.28,
-        "price_usd": 0.05093,
-        "fdv_usd": 61116869.0,
-        "largest_pool_share": 0.6539
+        "pairs_count": 11,
+        "liquidity_usd": 582669.25,
+        "volume_24h_usd": 1549423.39,
+        "price_usd": 0.3775,
+        "fdv_usd": 188767901.0,
+        "largest_pool_share": 0.8128
       },
       "pool_witness": {
         "verdict": "POOL_WITNESS_VERIFIED",
         "distinct_pools": 2,
-        "gap": 0.00157,
+        "gap": 0.00212,
         "pools": [
           {
-            "pool": "pool32:909e4a022a7505d44b19b36fe76ee18567379ee4c9697438acde2e159c006c32",
+            "pool": "0xb1914469141ebb6e244e75cee3f35d43bf6b85e5",
             "dex": "uniswap",
-            "price_usd": 0.05093,
-            "liquidity_usd": 1230944.47
+            "price_usd": 0.3775,
+            "liquidity_usd": 473564.75
           },
           {
-            "pool": "pool32:53fe4b18518342d4a54253d25e01c2a4637255fa399a101cc406097e70d54247",
+            "pool": "pool32:54e9eac9333699224524d39fdd36c25a401dd6dcbeeae41159106b1eb5563617",
             "dex": "uniswap",
-            "price_usd": 0.05085,
-            "liquidity_usd": 651075.33
+            "price_usd": 0.3783,
+            "liquidity_usd": 71037.22
           }
         ]
       },
-      "checked_at": "2026-10-24T16:30:07Z",
+      "checked_at": "2026-10-24T18:09:48Z",
       "paper_only": true,
       "discovery": {
         "source": "geckoterminal_trending",
-        "pool": "pool32:909e4a022a7505d44b19b36fe76ee18567379ee4c9697438acde2e159c006c32",
-        "pool_age_days": 106.08593782255787,
-        "volume_24h_usd": 1656084.81920198,
-        "liquidity_usd": 1231951.6673,
-        "fdv_usd": 61142924.1859639
+        "pool": "0xb1914469141ebb6e244e75cee3f35d43bf6b85e5",
+        "pool_age_days": 1760.174369165185,
+        "volume_24h_usd": 1346025.47346686,
+        "liquidity_usd": 474236.7254,
+        "fdv_usd": 188075083.0
       },
-      "discovery_rank_score": -0.1748,
+      "discovery_rank_score": 0.0262,
       "paper_tradable": false
     },
     {
-      "symbol": "USDT",
-      "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "symbol": "AAVE",
+      "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
       "chain_id": "1",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
+      "proxy_tier": "NONE",
       "reasons": [
-        "goplus:mintable_supply",
-        "goplus:owner_change_balance",
-        "goplus:transfer_pausable",
-        "goplus:slippage_modifiable",
-        "goplus:missing_cannot_sell_all"
+        "goplus:is_proxy",
+        "goplus:missing_is_mintable",
+        "goplus:missing_hidden_owner",
+        "goplus:missing_can_take_back_ownership",
+        "goplus:missing_owner_change_balance",
+        "goplus:missing_selfdestruct",
+        "goplus:missing_transfer_pausable",
+        "goplus:missing_slippage_modifiable",
+        "goplus:missing_personal_slippage_modifiable"
       ],
       "strict": true,
       "sources_verified": 3,
@@ -1413,25 +1086,25 @@
         "buy_tax": 0.0,
         "sell_tax": 0.0,
         "is_open_source": true,
-        "is_mintable": true,
+        "is_mintable": null,
         "authority": {
-          "is_proxy": false,
-          "hidden_owner": false,
-          "can_take_back_ownership": false,
-          "owner_change_balance": true,
-          "selfdestruct": false,
-          "cannot_sell_all": null,
-          "transfer_pausable": true,
-          "slippage_modifiable": true,
-          "personal_slippage_modifiable": false,
+          "is_proxy": true,
+          "hidden_owner": null,
+          "can_take_back_ownership": null,
+          "owner_change_balance": null,
+          "selfdestruct": null,
+          "cannot_sell_all": false,
+          "transfer_pausable": null,
+          "slippage_modifiable": null,
+          "personal_slippage_modifiable": null,
           "cannot_buy": false
         },
-        "cannot_sell_all": null,
-        "holder_count": 15732690,
+        "cannot_sell_all": false,
+        "holder_count": 190766,
         "holder_concentration": {
-          "top1_pct": 0.1812,
-          "top10_pct": 0.4999,
-          "top1_is_contract": false,
+          "top1_pct": 0.1548,
+          "top10_pct": 0.4406,
+          "top1_is_contract": true,
           "excluded": "burn, locked, known LP pools"
         }
       },
@@ -1446,54 +1119,52 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 15,
-        "liquidity_usd": 287785.16,
-        "volume_24h_usd": 3304.22,
-        "price_usd": 0.0004633,
-        "fdv_usd": 16810681.0,
-        "largest_pool_share": 0.4284
+        "liquidity_usd": 21228357.2,
+        "volume_24h_usd": 2252615.23,
+        "price_usd": 135.82,
+        "fdv_usd": 2173218518.0,
+        "largest_pool_share": 0.4957
       },
       "pool_witness": {
-        "verdict": "POOL_CONFLICT",
-        "distinct_pools": 2,
-        "gap": 0.01754,
+        "verdict": "POOL_WITNESS_VERIFIED",
+        "distinct_pools": 15,
+        "gap": 0.00694,
         "pools": [
           {
-            "pool": "0xd2335e1c634fc3a1ddf766161bcb8e7ec134cf03",
-            "dex": "pulsex",
-            "price_usd": 0.0004633,
-            "liquidity_usd": 123284.48
+            "pool": "0x5ab53ee1d50eef2c1dd3d5402789cd27bb52c1bb",
+            "dex": "uniswap",
+            "price_usd": 135.82,
+            "liquidity_usd": 10523706.02
           },
           {
-            "pool": "0x232911c6992e1f2f51fedd1f3d0be7d3a613f260",
-            "dex": "pulsex",
-            "price_usd": 0.0004715,
-            "liquidity_usd": 66701.18
+            "pool": "0x3de27efa2f1aa663ae5d458857e731c129069f29",
+            "dex": "balancer",
+            "price_usd": 134.88,
+            "liquidity_usd": 2706358.0
           }
         ]
       },
-      "checked_at": "2026-10-24T16:30:08Z",
+      "checked_at": "2026-10-24T18:09:49Z",
       "paper_only": true,
       "discovery": {
-        "source": "geckoterminal_pools",
-        "pool": "pool32:90078845bceb849b171873cfbc92db8540e9c803ff57d9d21b1215ec158e79b3",
-        "pool_age_days": 459.545798933669,
-        "volume_24h_usd": 639796.668893502,
-        "liquidity_usd": 2041631.7902,
-        "fdv_usd": 88329275188.5435
+        "source": "dexscreener_tokens",
+        "pool": "0x4674abc5796e1334b5075326b39b748bee9eaa34",
+        "pool_age_days": 1996.8692418503706,
+        "volume_24h_usd": 323687.87,
+        "liquidity_usd": 149670.92,
+        "fdv_usd": 2169649430.0
       },
-      "discovery_rank_score": -0.1864,
+      "discovery_rank_score": -0.0499,
       "paper_tradable": false
     },
     {
-      "symbol": "CTM",
-      "address": "0xc8Fb80fCc03f699C70ff0CC08C09106288888888",
+      "symbol": "LINK",
+      "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
       "chain_id": "1",
-      "allowed": false,
-      "verdict": "VETOED_SECURITY",
-      "reasons": [
-        "goplus:mintable_supply",
-        "goplus:missing_cannot_sell_all"
-      ],
+      "allowed": true,
+      "verdict": "ELIGIBLE_PAPER_TOKEN",
+      "proxy_tier": "NONE",
+      "reasons": [],
       "strict": true,
       "sources_verified": 3,
       "security_sources": [
@@ -1506,85 +1177,7 @@
         "buy_tax": 0.0,
         "sell_tax": 0.0,
         "is_open_source": true,
-        "is_mintable": true,
-        "authority": {
-          "is_proxy": false,
-          "hidden_owner": false,
-          "can_take_back_ownership": false,
-          "owner_change_balance": false,
-          "selfdestruct": false,
-          "cannot_sell_all": null,
-          "transfer_pausable": false,
-          "slippage_modifiable": false,
-          "personal_slippage_modifiable": false,
-          "cannot_buy": false
-        },
-        "cannot_sell_all": null,
-        "holder_count": 5031,
-        "holder_concentration": {
-          "top1_pct": 0.0399,
-          "top10_pct": 0.1529,
-          "top1_is_contract": false,
-          "excluded": "burn, locked, known LP pools"
-        }
-      },
-      "honeypot_is": {
-        "source": "honeypot_is_v2",
-        "simulation_success": true,
-        "is_honeypot": false,
-        "buy_tax": 0.009899999999999999,
-        "sell_tax": 0.01,
-        "is_open_source": true
-      },
-      "dexscreener": {
-        "source": "dexscreener_v1",
-        "pairs_count": 3,
-        "liquidity_usd": 2328413.84,
-        "volume_24h_usd": 524993.07,
-        "price_usd": 0.2003,
-        "fdv_usd": 59358008.0,
-        "largest_pool_share": 0.9924
-      },
-      "pool_witness": {
-        "verdict": "SINGLE_POOL_UNRESOLVED",
-        "distinct_pools": 1,
-        "gap": null
-      },
-      "checked_at": "2026-10-24T16:30:10Z",
-      "paper_only": true,
-      "discovery": {
-        "source": "geckoterminal_pools",
-        "pool": "pool32:db4c4d91f12ce76f5c9ac0eae193cf3b4d6684cd5f09bf35d03dd9ae6d8a43b1",
-        "pool_age_days": 207.1569100447801,
-        "volume_24h_usd": 463624.273809124,
-        "liquidity_usd": 2311378.3796,
-        "fdv_usd": 59368010.1332246
-      },
-      "discovery_rank_score": -0.2021,
-      "paper_tradable": false
-    },
-    {
-      "symbol": "PENDLE",
-      "address": "0x808507121B80c02388fAd14726482e061B8da827",
-      "chain_id": "1",
-      "allowed": false,
-      "verdict": "VETOED_SECURITY",
-      "reasons": [
-        "goplus:mintable_supply"
-      ],
-      "strict": true,
-      "sources_verified": 3,
-      "security_sources": [
-        "goplus_v1",
-        "honeypot_is_v2"
-      ],
-      "goplus": {
-        "source": "goplus_v1",
-        "is_honeypot": false,
-        "buy_tax": 0.0,
-        "sell_tax": 0.0,
-        "is_open_source": true,
-        "is_mintable": true,
+        "is_mintable": false,
         "authority": {
           "is_proxy": false,
           "hidden_owner": false,
@@ -1598,10 +1191,10 @@
           "cannot_buy": false
         },
         "cannot_sell_all": false,
-        "holder_count": 74207,
+        "holder_count": 924149,
         "holder_concentration": {
-          "top1_pct": 0.2253,
-          "top10_pct": 0.6737,
+          "top1_pct": 0.0409,
+          "top10_pct": 0.3105,
           "top1_is_contract": true,
           "excluded": "burn, locked, known LP pools"
         }
@@ -1617,22 +1210,199 @@
       "dexscreener": {
         "source": "dexscreener_v1",
         "pairs_count": 15,
-        "liquidity_usd": 1020212.54,
-        "volume_24h_usd": 331119.3,
-        "price_usd": 1.93,
-        "fdv_usd": 544894224.0,
-        "largest_pool_share": 0.4478
+        "liquidity_usd": 31522281.28,
+        "volume_24h_usd": 3505049.53,
+        "price_usd": 11.42,
+        "fdv_usd": 11429480887.0,
+        "largest_pool_share": 0.4699
+      },
+      "pool_witness": {
+        "verdict": "POOL_WITNESS_VERIFIED",
+        "distinct_pools": 11,
+        "gap": 0.0,
+        "pools": [
+          {
+            "pool": "pool32:b2b5618903d74bbac9e9049a035c3827afc4487cde3b994a1568b050f4c8e2e4",
+            "dex": "uniswap",
+            "price_usd": 11.42,
+            "liquidity_usd": 14812420.27
+          },
+          {
+            "pool": "0xa6cc3c2531fdaa6ae1a3ca84c2855806728693e8",
+            "dex": "uniswap",
+            "price_usd": 11.42,
+            "liquidity_usd": 13102229.95
+          }
+        ]
+      },
+      "checked_at": "2026-10-24T18:09:51Z",
+      "paper_only": true,
+      "discovery": {
+        "source": "dexscreener_tokens",
+        "pool": "0x5d4f3c6fa16908609bac31ff148bd002aa6b8c83",
+        "pool_age_days": 1997.9100520355557,
+        "volume_24h_usd": 572480.11,
+        "liquidity_usd": 395760.96,
+        "fdv_usd": 11432354492.0
+      },
+      "discovery_rank_score": -0.072,
+      "paper_tradable": true
+    },
+    {
+      "symbol": "FOLD",
+      "address": "0xE172e9B6cfBeeB5593bDcE3f077356FDb33af904",
+      "chain_id": "1",
+      "allowed": false,
+      "verdict": "VETOED_FAIL_CLOSED",
+      "proxy_tier": "NONE",
+      "reasons": [
+        "insufficient_security_sources:0_of_2"
+      ],
+      "strict": true,
+      "sources_verified": 1,
+      "security_sources": [],
+      "goplus": null,
+      "honeypot_is": null,
+      "dexscreener": {
+        "source": "dexscreener_v1",
+        "pairs_count": 2,
+        "liquidity_usd": 1882565.6,
+        "volume_24h_usd": 1846261.79,
+        "price_usd": 0.05073,
+        "fdv_usd": 60878303.0,
+        "largest_pool_share": 0.6546
+      },
+      "pool_witness": {
+        "verdict": "POOL_WITNESS_VERIFIED",
+        "distinct_pools": 2,
+        "gap": 0.0,
+        "pools": [
+          {
+            "pool": "pool32:909e4a022a7505d44b19b36fe76ee18567379ee4c9697438acde2e159c006c32",
+            "dex": "uniswap",
+            "price_usd": 0.05073,
+            "liquidity_usd": 1232366.6
+          },
+          {
+            "pool": "pool32:53fe4b18518342d4a54253d25e01c2a4637255fa399a101cc406097e70d54247",
+            "dex": "uniswap",
+            "price_usd": 0.05073,
+            "liquidity_usd": 650199.0
+          }
+        ]
+      },
+      "checked_at": "2026-10-24T18:09:52Z",
+      "paper_only": true,
+      "discovery": {
+        "source": "geckoterminal_trending",
+        "pool": "pool32:909e4a022a7505d44b19b36fe76ee18567379ee4c9697438acde2e159c006c32",
+        "pool_age_days": 106.15520249851852,
+        "volume_24h_usd": 1253668.17599486,
+        "liquidity_usd": 1233059.2805,
+        "fdv_usd": 60667524.3625084
+      },
+      "discovery_rank_score": -0.1538,
+      "paper_tradable": false
+    },
+    {
+      "symbol": "ETH",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "1",
+      "allowed": false,
+      "verdict": "VETOED_FAIL_CLOSED",
+      "proxy_tier": "NONE",
+      "reasons": [
+        "insufficient_security_sources:0_of_2"
+      ],
+      "strict": true,
+      "sources_verified": 1,
+      "security_sources": [],
+      "goplus": null,
+      "honeypot_is": null,
+      "dexscreener": {
+        "source": "dexscreener_v1",
+        "pairs_count": 15,
+        "liquidity_usd": 44791069.14,
+        "volume_24h_usd": 68788788.11,
+        "price_usd": 2321.44,
+        "fdv_usd": null,
+        "largest_pool_share": 0.3616
+      },
+      "pool_witness": {
+        "verdict": "POOL_WITNESS_VERIFIED",
+        "distinct_pools": 15,
+        "gap": 7e-05,
+        "pools": [
+          {
+            "pool": "pool32:bac3aa3b91584a53a579b3c999a56756e954e59247e497bad1d25a4334bde551",
+            "dex": "uniswap",
+            "price_usd": 2321.44,
+            "liquidity_usd": 16197859.11
+          },
+          {
+            "pool": "pool32:387bf619da4d3fb62bb276482693dba1b9b3520f573cabdfe033384a24125982",
+            "dex": "uniswap",
+            "price_usd": 2321.61,
+            "liquidity_usd": 5144737.08
+          }
+        ]
+      },
+      "checked_at": "2026-10-24T18:09:54Z",
+      "paper_only": true,
+      "discovery": {
+        "source": "geckoterminal_pools",
+        "pool": "pool32:00b9edc1583bf6ef09ff3a09f6c23ecb57fd7d0bb75625717ec81eed181e22d7",
+        "pool_age_days": 637.9628413874074,
+        "volume_24h_usd": 986926.276572057,
+        "liquidity_usd": 2482539.9799,
+        "fdv_usd": 0.0
+      },
+      "discovery_rank_score": -0.1746,
+      "paper_tradable": false
+    },
+    {
+      "symbol": "PENDLE",
+      "address": "0x808507121B80c02388fAd14726482e061B8da827",
+      "chain_id": "1",
+      "allowed": false,
+      "verdict": "VETOED_FAIL_CLOSED",
+      "proxy_tier": "NONE",
+      "reasons": [
+        "insufficient_security_sources:1_of_2"
+      ],
+      "strict": true,
+      "sources_verified": 2,
+      "security_sources": [
+        "honeypot_is_v2"
+      ],
+      "goplus": null,
+      "honeypot_is": {
+        "source": "honeypot_is_v2",
+        "simulation_success": true,
+        "is_honeypot": false,
+        "buy_tax": 0.0,
+        "sell_tax": 0.0,
+        "is_open_source": true
+      },
+      "dexscreener": {
+        "source": "dexscreener_v1",
+        "pairs_count": 15,
+        "liquidity_usd": 1026795.57,
+        "volume_24h_usd": 304633.8,
+        "price_usd": 1.96,
+        "fdv_usd": 552366593.0,
+        "largest_pool_share": 0.4506
       },
       "pool_witness": {
         "verdict": "POOL_CONFLICT",
         "distinct_pools": 3,
-        "gap": 0.03882,
+        "gap": 0.0234,
         "pools": [
           {
             "pool": "0x57af956d3e2cca3b86f3d8c6772c03ddca3eaacb",
             "dex": "uniswap",
-            "price_usd": 1.93,
-            "liquidity_usd": 456847.82
+            "price_usd": 1.96,
+            "liquidity_usd": 462659.81
           },
           {
             "pool": "pool32:35a69205bed8888653505ba8bdb26c07682efb3a2ac907fd9a481018e2bcbdeb",
@@ -1642,17 +1412,133 @@
           }
         ]
       },
-      "checked_at": "2026-10-24T16:30:12Z",
+      "checked_at": "2026-10-24T18:09:55Z",
       "paper_only": true,
       "discovery": {
         "source": "dexscreener_tokens",
         "pool": "0x57af956d3e2cca3b86f3d8c6772c03ddca3eaacb",
-        "pool_age_days": 1997.8842595818169,
-        "volume_24h_usd": 292195.67,
-        "liquidity_usd": 456847.82,
-        "fdv_usd": 544894224.0
+        "pool_age_days": 1997.953524257778,
+        "volume_24h_usd": 271356.81,
+        "liquidity_usd": 462659.81,
+        "fdv_usd": 552366593.0
       },
-      "discovery_rank_score": -0.2268,
+      "discovery_rank_score": -0.1771,
+      "paper_tradable": false
+    },
+    {
+      "symbol": "USDT",
+      "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "chain_id": "1",
+      "allowed": false,
+      "verdict": "VETOED_FAIL_CLOSED",
+      "proxy_tier": "NONE",
+      "reasons": [
+        "insufficient_security_sources:1_of_2"
+      ],
+      "strict": true,
+      "sources_verified": 2,
+      "security_sources": [
+        "honeypot_is_v2"
+      ],
+      "goplus": null,
+      "honeypot_is": {
+        "source": "honeypot_is_v2",
+        "simulation_success": true,
+        "is_honeypot": false,
+        "buy_tax": 0.0,
+        "sell_tax": 0.0,
+        "is_open_source": true
+      },
+      "dexscreener": {
+        "source": "dexscreener_v1",
+        "pairs_count": 15,
+        "liquidity_usd": 289754.35,
+        "volume_24h_usd": 3220.98,
+        "price_usd": 0.0004656,
+        "fdv_usd": 16894794.0,
+        "largest_pool_share": 0.4274
+      },
+      "pool_witness": {
+        "verdict": "POOL_CONFLICT",
+        "distinct_pools": 2,
+        "gap": 0.01259,
+        "pools": [
+          {
+            "pool": "0xd2335e1c634fc3a1ddf766161bcb8e7ec134cf03",
+            "dex": "pulsex",
+            "price_usd": 0.0004656,
+            "liquidity_usd": 123850.66
+          },
+          {
+            "pool": "0x232911c6992e1f2f51fedd1f3d0be7d3a613f260",
+            "dex": "pulsex",
+            "price_usd": 0.0004715,
+            "liquidity_usd": 66701.18
+          }
+        ]
+      },
+      "checked_at": "2026-10-24T18:09:57Z",
+      "paper_only": true,
+      "discovery": {
+        "source": "geckoterminal_pools",
+        "pool": "pool32:90078845bceb849b171873cfbc92db8540e9c803ff57d9d21b1215ec158e79b3",
+        "pool_age_days": 459.6150636096296,
+        "volume_24h_usd": 652519.922911563,
+        "liquidity_usd": 2062477.2028,
+        "fdv_usd": 88232330598.8201
+      },
+      "discovery_rank_score": -0.186,
+      "paper_tradable": false
+    },
+    {
+      "symbol": "CTM",
+      "address": "0xc8Fb80fCc03f699C70ff0CC08C09106288888888",
+      "chain_id": "1",
+      "allowed": false,
+      "verdict": "VETOED_FAIL_CLOSED",
+      "proxy_tier": "NONE",
+      "reasons": [
+        "insufficient_security_sources:1_of_2"
+      ],
+      "strict": true,
+      "sources_verified": 2,
+      "security_sources": [
+        "honeypot_is_v2"
+      ],
+      "goplus": null,
+      "honeypot_is": {
+        "source": "honeypot_is_v2",
+        "simulation_success": true,
+        "is_honeypot": false,
+        "buy_tax": 0.009899999999999999,
+        "sell_tax": 0.01,
+        "is_open_source": true
+      },
+      "dexscreener": {
+        "source": "dexscreener_v1",
+        "pairs_count": 3,
+        "liquidity_usd": 2354822.74,
+        "volume_24h_usd": 519559.61,
+        "price_usd": 0.2025,
+        "fdv_usd": 60029047.0,
+        "largest_pool_share": 0.9924
+      },
+      "pool_witness": {
+        "verdict": "SINGLE_POOL_UNRESOLVED",
+        "distinct_pools": 1,
+        "gap": null
+      },
+      "checked_at": "2026-10-24T18:09:58Z",
+      "paper_only": true,
+      "discovery": {
+        "source": "geckoterminal_pools",
+        "pool": "pool32:db4c4d91f12ce76f5c9ac0eae193cf3b4d6684cd5f09bf35d03dd9ae6d8a43b1",
+        "pool_age_days": 207.22617472074072,
+        "volume_24h_usd": 463935.370719544,
+        "liquidity_usd": 2334721.3276,
+        "fdv_usd": 59962579.8215189
+      },
+      "discovery_rank_score": -0.2023,
       "paper_tradable": false
     },
     {
@@ -1661,6 +1547,7 @@
       "chain_id": "1",
       "allowed": false,
       "verdict": "VETOED_SECURITY",
+      "proxy_tier": "NONE",
       "reasons": [
         "goplus:is_honeypot",
         "goplus:high_tax(buy=0.45,sell=0.99)",
@@ -1704,7 +1591,7 @@
         "distinct_pools": 0,
         "gap": null
       },
-      "checked_at": "2026-10-24T16:30:12Z",
+      "checked_at": "2026-10-24T18:09:58Z",
       "paper_only": true
     }
   ],

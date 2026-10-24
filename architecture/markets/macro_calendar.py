@@ -374,6 +374,18 @@ def ingest_ecb_opec_mirrors(
     return events, status
 
 
+CALENDAR_CACHE_TTL_H = 168.0
+
+
+def _cache_fresh(prev: dict[str, Any], now: datetime) -> bool:
+    """A verified on-disk calendar may fill a timed-out bank only inside this TTL. Older files stay unused."""
+    try:
+        gen = datetime.strptime(str(prev.get("generated_at")), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except (TypeError, ValueError):
+        return False
+    return 0 <= (now - gen).total_seconds() / 3600 <= CALENDAR_CACHE_TTL_H
+
+
 def build_calendar(root: Path | None = None, *, getter: Callable[[str], str | None] | None = None,
                    now: datetime | None = None) -> dict[str, Any]:
     g = getter or _get
@@ -416,14 +428,14 @@ def build_calendar(root: Path | None = None, *, getter: Callable[[str], str | No
         "ECB": "ECB_GOV_COUNCIL",
         "OPEC": "OPEC_MINISTERIAL",
     }
-    if getter is None and prev_snap.get("events"):
+    if getter is None and prev_snap.get("events") and _cache_fresh(prev_snap, now):
         prev_status = prev_snap.get("status") or {}
         for k, ev_type in BANK_EVENT_MAP.items():
             if not str(status.get(k, "")).startswith("OK") and str(prev_status.get(k, "")).startswith("OK"):
                 cached_ev = [ev for ev in (prev_snap.get("events") or []) if ev.get("event") == ev_type]
                 if cached_ev:
                     events += cached_ev
-                    status[k] = f"OK {len(cached_ev)} (cached verified schedule after transient timeout)"
+                    status[k] = f"OK {len(cached_ev)} (cached verified schedule within {int(CALENDAR_CACHE_TTL_H)}h)"
     for k in URLS:
         status.setdefault(k, "UNAVAILABLE (official site unreachable from this host; not filled by hand)")
     events.sort(key=lambda x: x["at_utc"])

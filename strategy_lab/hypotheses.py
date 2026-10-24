@@ -341,4 +341,49 @@ _B7 = [
 ]
 HYPOTHESES.extend(_B7)
 
+# BATCH 8 (registered 2026-10-24 21:20 Tehran — PRE-REGISTERED BEFORE ANY RUN).
+# Frozen before the first OOS fold. Portfolio gate is one-way L1 turnover >= 0.25, not the per-asset 0.05 band.
+# H37 sits on H33's cell and can only displace it. H38-H40 are hourly bars (Yahoo 1h, about 730 days) and are
+# the only books allowed to occupy the intraday row. A daily bar is never labeled intraday. A screened book
+# is not counted. DSR counts batch 7's 96 plus every batch-8 book that touches the OOS folds.
+_B8 = [
+ dict(id="H37", family="core_satellite", batch=8, name="H33 core with a Donchian satellite, gated on portfolio L1 turnover",
+  hypothesis="Weekly on SPX, QQQ, BTC, ETH, XAU. The baseline is the H33 inverse-vol core, or 100% XAU in the same causal crash rule. When the book is not in that crash sleeve, a name whose close breaks its prior 20-day high with range above 1.2x ATR receives a 25% satellite and the core is scaled to 75%. The whole book is held unless one-way portfolio L1 turnover is at least 0.25 and the 20-day portfolio gap clears 2.5x the round-trip cost at 15 bps. Idle weeks stay in the core. They are not moved to cash.",
+  reasoning="H33 still rebalanced 201 of 451 weeks because each asset could cross a 5-point band on its own. H34's stress survival was a breakout path that earned nothing while flat. The satellite borrows the breakout and parks the rest in the core.",
+  market_mechanism="The core is the drift sleeve. The satellite is a closed-bar channel break. The gate is the sum of weight changes, so one noisy name cannot force a rebalance.",
+  required_data="Yahoo daily OHLC for SPX, QQQ, BTC, ETH, XAU. HAVE.",
+  risk_model="Gross 1, long only, portfolio L1 threshold 0.25, 15 bps on actual turnover.",
+  expected_failure_mode="The satellite still correlates with H33 or H34 and is screened, or the 0.25 gate does not cut rebalances to 65 or fewer.",
+  map_elites_cell=("macro_weekly", "vol_compression_carry"), active_share_min=0.25, status="TESTABLE",
+  bar_interval="1d", tau_l1=0.25),
+ dict(id="H38", family="intraday_breakout", batch=8, name="Hourly Donchian breakout held between 4 and 12 hours",
+  hypothesis="On 1-hour bars of BTC, ETH, SPX, QQQ and XAU, enter when the close breaks the prior 20-hour and 55-hour high, the bar range exceeds 1.2x ATR(14), and volume exceeds its 20-hour average where volume exists. Exit at the chandelier (close below the peak by 3 ATR) and never before 4 hours or after 12 hours. One position per name. Spot FX is not in this universe. This is not a daily bar.",
+  reasoning="The intraday trend cell was empty because the archive only saw daily bars. The 1-hour loader already exists. The hold is bounded so a signal cannot become a swing trade by accident.",
+  market_mechanism="A closed-hour channel break with expanding range. The chandelier is the exit.",
+  required_data="Yahoo 1h OHLC and volume, range about 730 days, for those five symbols. HAVE as a loader.",
+  risk_model="One round trip per completed breakout, 15 bps, gross 1 on the name that exits.",
+  expected_failure_mode="Too few breakouts in the 730-day window, or the path fails the 0.25 active-share screen.",
+  map_elites_cell=("intraday", "trend_breakout"), active_share_min=0.25, status="TESTABLE",
+  bar_interval="1h", hold_hours=(4, 12)),
+ dict(id="H39", family="intraday_carry", batch=8, name="Hourly vol-compression carry, portfolio L1 gate, no cash park",
+  hypothesis="Every 6 hours on the same five 1-hour names. When the prior 12-hour close-to-close vol is below 0.8x the prior 48-hour vol, hold inverse-vol of the names with a positive prior 24-hour return. Otherwise hold 100% of the lowest-vol name. Rebalance only when portfolio L1 turnover is at least 0.25 and the gap clears 2.5x cost. The hold is 6 hours, inside the 4-12 hour band.",
+  reasoning="The intraday carry cell needs a real hour bar. Quiet hours keep a risk-bearing sleeve instead of a zero-weight cash book.",
+  market_mechanism="Compressed hourly vol is the regime. The lowest-vol name is the carry sleeve when compression fails.",
+  required_data="Yahoo 1h for BTC, ETH, SPX, QQQ, XAU. HAVE as a loader.",
+  risk_model="Gross 1, long only, 6-hour spacing, portfolio L1 threshold 0.25, 15 bps on actual turnover.",
+  expected_failure_mode="The quiet-vol sleeve collapses toward equal weight and fails active share, so no OOS trial is spent.",
+  map_elites_cell=("intraday", "vol_compression_carry"), active_share_min=0.25, status="TESTABLE",
+  bar_interval="1h", hold_hours=(6, 6)),
+ dict(id="H40", family="intraday_crisis", batch=8, name="Hourly cross-asset stress sleeve into XAU",
+  hypothesis="Every 8 hours on the same five 1-hour names. If the mean prior-6-hour return is below -1.5% or the mean pairwise correlation of the prior 12 hourly returns exceeds 0.55, hold 100% XAU. Otherwise hold equal weight of the names with a positive prior 24-hour return, or the prior book if none qualify. Apply the same portfolio L1 gate and 2.5x cost hurdle. The hold is 8 hours.",
+  reasoning="The intraday defensive cell is a crash rule on hour bars, not a relabeled daily H35.",
+  market_mechanism="A short-horizon correlation spike is the stress. Gold is the sleeve already used by the daily crash rule.",
+  required_data="Yahoo 1h for BTC, ETH, SPX, QQQ, XAU. HAVE as a loader.",
+  risk_model="Gross 1, long only, 8-hour spacing, portfolio L1 threshold 0.25, 15 bps on actual turnover.",
+  expected_failure_mode="XAU 1-hour history is short or misaligned, the book is screened, and the cell stays empty.",
+  map_elites_cell=("intraday", "crisis_defensive"), active_share_min=0.25, status="TESTABLE",
+  bar_interval="1h", hold_hours=(8, 8)),
+]
+HYPOTHESES.extend(_B8)
+
 def get(hid): return next(h for h in HYPOTHESES if h["id"] == hid)

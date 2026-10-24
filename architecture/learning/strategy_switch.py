@@ -16,7 +16,8 @@ B4_REL = Path("reports") / "grok" / "M28" / "batch4_research.json"
 B5_REL = Path("reports") / "grok" / "M28" / "batch5_research.json"
 B6_REL = Path("reports") / "grok" / "M28" / "batch6_research.json"
 B7_REL = Path("reports") / "grok" / "M28" / "batch7_research.json"
-BATCH_RELS = (B4_REL, B5_REL, B6_REL, B7_REL)
+B8_REL = Path("reports") / "grok" / "M28" / "batch8_research.json"
+BATCH_RELS = (B4_REL, B5_REL, B6_REL, B7_REL, B8_REL)
 RED_REL = Path("reports") / "grok" / "M56" / "strategy_red_team_snapshot.json"
 
 

@@ -153,7 +153,9 @@ def test_strict_veto_classifies_breach_vs_missing_evidence():
     assert clean["verdict"] == "ELIGIBLE_PAPER_TOKEN", clean["reasons"]
     assert clean["goplus"]["holder_concentration"]["top1_pct"] == 0.05  # LP pool excluded from concentration
     proxy = veto_check("GOOD", TOK, getter=_getter(gp=_gp(is_proxy="1")), strict=True)
-    assert proxy["verdict"] == "VETOED_SECURITY" and "goplus:is_proxy" in proxy["reasons"]
+    assert proxy["verdict"] == "ELIGIBLE_INSTITUTIONAL_PROXY" and "goplus:is_proxy" not in proxy["reasons"]
+    thin = _getter(gp=_gp(is_proxy="1"), pools=1)
+    assert veto_check("GOOD", TOK, getter=thin, strict=True)["verdict"] == "VETOED_SECURITY"
     gp = _gp(); del gp["result"][TOK]["hidden_owner"]
     missing = veto_check("GOOD", TOK, getter=_getter(gp=gp), strict=True)
     assert missing["verdict"] == "VETOED_FAIL_CLOSED" and "goplus:missing_hidden_owner" in missing["reasons"]
@@ -623,6 +625,10 @@ def _ua_root(tmp_path):
     w("reports/grok/M28/map_elites_grid.json", {"cells_occupied": 0, "grid": {"macro_weekly": {"crisis_defensive": None}}})
     w("reports/grok/M28/batch7_research.json", {"n_trials_prior": 93, "n_trials_counted_in_dsr": 93, "candidates": [],
                                                 "screened": [{"hypothesis_id": "H36", "counted_in_dsr": False}]})
+    w("reports/grok/M28/batch8_research.json", {"n_trials_prior": 96, "n_trials_counted_in_dsr": 96, "candidates": [],
+                                                "screened": [{"hypothesis_id": "H40", "counted_in_dsr": False}]})
+    w("reports/grok/CONTINUATION_STATE.json", {"paper_only": True, "current_stage": "Stage 9",
+                                               "completed_stages": [], "next_wave_queue": ["Stage 10"]})
     w("reports/grok/M12/cognitive_graph_snapshot.json", {"registry_agents": 1, "authority_violations": [],
                                                          "verdict_counts": {"HOLD": 1}, "agents": [
         {"agent_id": "AG-01", "verdict": "HOLD", "authority_ok": True}]})
@@ -856,3 +862,25 @@ def test_calibration_refuses_a_training_row_that_is_not_strictly_before_the_test
     fit = fit_and_apply(train, test, ("vol_ratio",))
     assert fit["leaked"] is False and fit["status"] == "FIT" and 0.0 < fit["probs"][0] < 1.0
     assert brier_score([0.5, 0.5], [0.0, 1.0]) == 0.25
+
+
+def test_portfolio_l1_gate_holds_when_only_one_name_moves_a_little():
+    from architecture.learning.walk_forward import apply_portfolio_l1_gate, portfolio_l1_turnover
+    assert portfolio_l1_turnover([0.5, 0.5], [0.62, 0.38]) == pytest.approx(0.12)
+    assert apply_portfolio_l1_gate([0.5, 0.5], [0.62, 0.38], 0.25) == [0.5, 0.5]
+    moved = apply_portfolio_l1_gate([0.5, 0.5], [0.9, 0.1], 0.25)
+    assert moved[0] == pytest.approx(0.9) and sum(moved) == pytest.approx(1.0)
+
+
+def test_institutional_proxy_requires_every_listed_condition():
+    from architecture.markets.token_safety_live import institutional_proxy_ok
+    gp = {"is_open_source": True, "is_honeypot": False, "is_mintable": None, "buy_tax": 0, "sell_tax": 0.0,
+          "authority": {"is_proxy": True, "owner_change_balance": False, "hidden_owner": False,
+                        "can_take_back_ownership": False}}
+    assert institutional_proxy_ok(gp, 600_000) is True
+    assert institutional_proxy_ok(gp, 100_000) is False
+    assert institutional_proxy_ok({**gp, "is_mintable": True}, 600_000) is False
+    eoa = {**gp, "authority": {**gp["authority"], "owner_change_balance": True}}
+    assert institutional_proxy_ok(eoa, 600_000) is False
+    bare = {**gp, "authority": {**gp["authority"], "is_proxy": False}}
+    assert institutional_proxy_ok(bare, 600_000) is False

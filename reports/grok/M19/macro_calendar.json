@@ -1,6 +1,6 @@
 {
  "schema": "ahos.macro_calendar.v1",
- "generated_at": "2026-10-24T16:31:14Z",
+ "generated_at": "2026-10-24T18:08:28Z",
  "paper_only": true,
  "sources": {
   "FOMC": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
@@ -15,7 +15,7 @@
   "EIA": "OK 164",
   "BOE": "OK 16",
   "BOJ": "OK 12",
-  "ECB": "OK 10 (two-source mirrors)",
+  "ECB": "OK 9 (two-source mirrors)",
   "OPEC": "OK 10 (two-source mirrors)"
  },
  "events": [
@@ -1762,6 +1762,17 @@
    ]
   },
   {
+   "event": "ECB_GOV_COUNCIL",
+   "bank": "ECB",
+   "at_utc": "2026-03-19T12:45:00+00:00",
+   "two_source_mirrors": true,
+   "desks": [
+    "EU",
+    "FX",
+    "GOLD"
+   ]
+  },
+  {
    "event": "EIA_WPSR",
    "bank": "EIA",
    "at_utc": "2026-03-25T14:30:00+00:00",
@@ -2207,17 +2218,6 @@
    ]
   },
   {
-   "event": "ECB_GOV_COUNCIL",
-   "bank": "ECB",
-   "at_utc": "2026-09-29T12:45:00+00:00",
-   "two_source_mirrors": true,
-   "desks": [
-    "EU",
-    "FX",
-    "GOLD"
-   ]
-  },
-  {
    "event": "OPEC_MINISTERIAL",
    "bank": "OPEC",
    "at_utc": "2026-09-30T14:00:00+00:00",
@@ -2266,34 +2266,23 @@
    ]
   },
   {
+   "event": "ECB_GOV_COUNCIL",
+   "bank": "ECB",
+   "at_utc": "2026-10-15T12:45:00+00:00",
+   "two_source_mirrors": true,
+   "desks": [
+    "EU",
+    "FX",
+    "GOLD"
+   ]
+  },
+  {
    "event": "EIA_WPSR",
    "bank": "EIA",
    "at_utc": "2026-10-15T16:00:00+00:00",
    "holiday_shift": true,
    "desks": [
     "OIL"
-   ]
-  },
-  {
-   "event": "ECB_GOV_COUNCIL",
-   "bank": "ECB",
-   "at_utc": "2026-10-19T12:45:00+00:00",
-   "two_source_mirrors": true,
-   "desks": [
-    "EU",
-    "FX",
-    "GOLD"
-   ]
-  },
-  {
-   "event": "ECB_GOV_COUNCIL",
-   "bank": "ECB",
-   "at_utc": "2026-10-20T12:45:00+00:00",
-   "two_source_mirrors": true,
-   "desks": [
-    "EU",
-    "FX",
-    "GOLD"
    ]
   },
   {

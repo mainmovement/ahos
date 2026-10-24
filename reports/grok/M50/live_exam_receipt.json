@@ -1,6 +1,6 @@
 {
   "schema": "ahos.m50_live_exam_receipt.v1",
-  "generated_at": "2026-10-24T16:33:22Z",
+  "generated_at": "2026-10-24T18:09:23Z",
   "paper_only": true,
   "live_daemon_episodes": {
     "count": 1,
@@ -14,28 +14,47 @@
     "heldout": 85,
     "status": "MEASURED",
     "leaked": false,
-    "estimate_ability_theta": -0.259,
-    "theta_se": 0.2188,
+    "estimate_ability_theta": 0.1172,
+    "theta_se": 0.2173,
     "theta_trend_rule": -0.2116,
     "theta_trend_rule_se": 0.2181,
     "brier": 0.25,
     "brier_constant_0_5": 0.25,
-    "brier_calibrated": 0.2569,
-    "brier_skill_score": -0.0275,
+    "brier_calibrated": 0.3158,
+    "brier_skill_score": -0.2632,
     "probability_model": "constant 0.5 baseline, plus a ridge logit fit on earlier episodes only",
     "calibration": {
       "status": "FIT",
-      "wick_body": "UNAVAILABLE_CLOSE_CACHE_HAS_NO_OHLC",
+      "wick_body": "OHLCV_CACHE",
       "features": [
         "vol_ratio",
         "trail_z",
-        "cross_align"
+        "cross_align",
+        "wick_asym",
+        "parkinson",
+        "volume_z",
+        "parkinson_over_close_vol"
       ],
       "n_train": 84,
       "n_test": 85,
-      "mean_predicted_p": 0.52,
+      "l2_selection": {
+        "l2": 0.01,
+        "status": "SELECTED_ON_INNER_TRAIN_ONLY",
+        "inner_brier": 0.2189,
+        "inner_train_end": "2024-08-28",
+        "inner_val_start": "2024-09-04",
+        "grid": [
+          0.01,
+          0.05,
+          0.2,
+          1.0
+        ],
+        "tie_break": "larger_l2"
+      },
+      "mean_predicted_p": 0.3829,
       "max_train_ts": "2025-03-05",
-      "min_test_ts": "2025-03-12"
+      "min_test_ts": "2025-03-12",
+      "l2": 0.01
     },
     "rule": "sign of the prior 20 sessions vs the next session after an official event; features stop the day before the event",
     "why_stage7_brier_was_0_25": "Stage 7 scored every episode at p=0.5, so Brier is 0.25 for any mix of right and wrong.",
