@@ -1039,8 +1039,8 @@
     {
       "stage": "Stage 37",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "9ce596f",
+      "arena_commit": "138b109",
       "status_word": "GATE_NOT_ON_THE_ROW",
       "active_rows": 4,
       "unresolved_rows": 4,
@@ -1085,7 +1085,7 @@
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 38: count historical cash opens against the reconstructed session without inferring a breach",
+    "Stage 38: separate stale-quote skips from a reconstructed closed venue without relabeling the log",
     "Stage 39: the next measured gap, four work packages"
   ]
 }
