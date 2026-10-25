@@ -753,3 +753,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At 2026-10-25T14:23:08Z the four open shorts were 7.42 to 8.53 hours old, still inside the 12-hour and 24-hour limits, and they were not closed.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 69 checks, drift [], unknown []. Skip census at this export: 3964 rows, `MARKET_CLOSED_OR_STALE` 3789. Whitehat CLEAN, 6 checks. pytest 71 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4324 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 27 pnl identity, gross sign, stored debate claim
+
+### WP-27.1 — a stored debate approval is not authority
+- **Draft:** Count the flags on the open debate blobs. Do not copy a Brier number, a return, or a symbol into the receipt. Do not rewrite the log. The current builder already refuses approval and stores no judge score. The swap of the two orders is the same sum, so the current builder must not label that check as passed.
+- **Critique 1:** 27 of 30 opens store a debate. All 27 have `approved_paper` true, `swap_gate_passed` true, status `APPROVED_SOROUSH_BL`, and a numeric judge Brier and ECE. 3 opens have no debate. Those blobs were written by the process that has been running since 2026-10-24 22:24. The current source already returns `approved_paper` false, status `HOLD_CALIBRATION_NOT_MEASURED`, and null judge scores. `swap_gate_passed` in that source is now false, because the two orders cannot disagree. `swap_consistency` stays the arithmetic diagnostic.
+- **Critique 2 (meta):** The stored number is not a held-out Brier. The stored approval is not canonical authority. The paper trader stores the blob and does not branch on it. The running process has not loaded the flag change, and the 27 historical blobs were not rewritten.
+- **Result:** `reports/grok/PAPER/debate_claim.json`. Status `STORED_CLAIM_NOT_AUTHORITY`. `authority_used` false. `log_rewritten` false.
+
+### WP-27.2 — stored close pnl matches rounded gross minus fees
+- **Draft:** For each close, rounded price gross minus fees must match `realized_pnl_usd` within 0.0001. Do not add the gap to the cash discrepancy. Do not call the match an edge.
+- **Critique 1:** 26 closes match. 0 are missing a field. The largest absolute gap is 0.0.
+- **Critique 2 (meta):** This identity is the stored rounding of one close. It is not the Stage 13 cash gap and it is not the Stage 23 fee split.
+- **Result:** `reports/grok/PAPER/pnl_identity.json`. Status `PNL_IDENTITY`. `added_to_cash_gap` false. `edge_claimed` false.
+
+### WP-27.3 — the sign of price gross is not the exit reason
+- **Draft:** Count positive and negative price gross by exit reason. Do not relabel a positive-gross reversal or conflict as a take-profit. Do not call the positive rows an edge.
+- **Critique 1:** Take-profit is 2 positive and 0 negative. Signal reversal is 3 positive and 9 negative. Witness-conflict exit is 5 positive and 7 negative. Overall, 10 closes have positive gross and 16 have negative gross.
+- **Critique 2 (meta):** Net account pnl remains negative. A positive gross on a reversal or a conflict is the earlier rule winning on that row, not a new exit rule and not skill.
+- **Result:** `reports/grok/PAPER/gross_sign.json`. Status `GROSS_RECORDED`. `exit_rule_changed` false. `edge_claimed` false.
+
+### WP-27.4 — checks 70 to 72
+- **Draft:** Each check recomputes the log. A pnl receipt that adds the gap to cash fails. A gross receipt that claims an edge fails. A debate receipt that uses the stored approval or rewrites the log fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the 14:46Z export the four open shorts were 7.82 to 8.93 hours old, still inside the 12-hour and 24-hour limits, and they were not closed. Reentry spacing was measured in the diagnostic (25 gaps, shortest 235 seconds) and no cooldown was added.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 72 checks, drift [], unknown []. Skip census at this export: 3994 rows, `MARKET_CLOSED_OR_STALE` 3818. Whitehat CLEAN, 6 checks. pytest 72 passed on the weekday and stage-6 files. The existing council test now asserts `swap_gate_passed` is false. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4327 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

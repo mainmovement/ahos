@@ -2537,6 +2537,183 @@ def write_higher_tf(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_pnl_identity(root: Path) -> dict[str, Any]:
+    """Stored close pnl against rounded gross minus fees. The match is not a cash gap."""
+    band = 0.0001
+    within = beyond = missing = 0
+    gaps: list[float] = []
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        direction = _direction(row)
+        entry, fill, qty = row.get("entry_price"), row.get("fill_price"), row.get("qty")
+        fees, pnl = row.get("fees_usd"), row.get("realized_pnl_usd")
+        if (direction is None or not isinstance(fees, (int, float)) or not isinstance(pnl, (int, float))
+                or not all(isinstance(v, (int, float)) and v for v in (entry, fill, qty))):
+            missing += 1
+            continue
+        gross = (float(fill) - float(entry)) * float(qty) * direction
+        gap = abs(round(gross - float(fees), 4) - float(pnl))
+        gaps.append(gap)
+        if gap <= band:
+            within += 1
+        else:
+            beyond += 1
+    closes = within + beyond + missing
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif beyond == 0:
+        status = "PNL_IDENTITY"
+    else:
+        status = "PNL_BEYOND"
+    return {
+        "paper_only": True,
+        "added_to_cash_gap": False,
+        "edge_claimed": False,
+        "pnl_band": band,
+        "close_rows": closes,
+        "missing_rows": missing,
+        "within_band": within,
+        "beyond_band": beyond,
+        "max_abs_gap": None if not gaps else round(max(gaps), 4),
+        "status": status,
+    }
+
+
+def write_pnl_identity(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.pnl_identity.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_pnl_identity(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "pnl_identity.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_gross_sign(root: Path) -> dict[str, Any]:
+    """Sign of price gross by exit reason. A positive gross is not an edge."""
+    from collections import defaultdict
+
+    cells: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0])
+    missing = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        direction = _direction(row)
+        entry, fill, qty = row.get("entry_price"), row.get("fill_price"), row.get("qty")
+        if direction is None or not all(isinstance(v, (int, float)) and v for v in (entry, fill, qty)):
+            missing += 1
+            continue
+        gross = (float(fill) - float(entry)) * float(qty) * direction
+        reason = str(row.get("reason") or "MISSING")
+        cells[reason][0] += 1
+        if gross > 0:
+            cells[reason][1] += 1
+        elif gross < 0:
+            cells[reason][2] += 1
+    reasons = [{
+        "reason": reason,
+        "rows": cells[reason][0],
+        "gross_positive": cells[reason][1],
+        "gross_negative": cells[reason][2],
+    } for reason in sorted(cells)]
+    closes = sum(item["rows"] for item in reasons) + missing
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    else:
+        status = "GROSS_RECORDED"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "exit_rule_changed": False,
+        "close_rows": closes,
+        "missing_rows": missing,
+        "gross_positive": sum(item["gross_positive"] for item in reasons),
+        "gross_negative": sum(item["gross_negative"] for item in reasons),
+        "reasons": reasons,
+        "status": status,
+    }
+
+
+def write_gross_sign(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.gross_sign.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_gross_sign(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "gross_sign.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_debate_claim(root: Path) -> dict[str, Any]:
+    """Flags stored on the open debate. A stored approval is not canonical authority."""
+    from collections import Counter
+
+    stored = missing = approved_true = swap_true = brier_present = ece_present = 0
+    statuses: Counter[str] = Counter()
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        debate = brain.get("council_debate")
+        if not isinstance(debate, dict):
+            missing += 1
+            continue
+        stored += 1
+        if debate.get("approved_paper") is True:
+            approved_true += 1
+        if debate.get("swap_gate_passed") is True:
+            swap_true += 1
+        if debate.get("brier_judge") is not None:
+            brier_present += 1
+        if debate.get("ece_judge") is not None:
+            ece_present += 1
+        statuses[str(debate.get("status") or "MISSING")] += 1
+    opens = stored + missing
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif stored == 0:
+        status = "NO_STORED_DEBATE"
+    elif approved_true or brier_present or swap_true:
+        status = "STORED_CLAIM_NOT_AUTHORITY"
+    else:
+        status = "NO_APPROVAL_CLAIM"
+    return {
+        "paper_only": True,
+        "authority_used": False,
+        "log_rewritten": False,
+        "open_rows": opens,
+        "stored_rows": stored,
+        "missing_rows": missing,
+        "approved_true": approved_true,
+        "swap_true": swap_true,
+        "brier_present": brier_present,
+        "ece_present": ece_present,
+        "statuses": [{"status": name, "rows": statuses[name]} for name in sorted(statuses)],
+        "status": status,
+    }
+
+
+def write_debate_claim(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.debate_claim.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_debate_claim(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "debate_claim.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

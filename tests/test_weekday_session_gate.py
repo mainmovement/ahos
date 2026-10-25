@@ -522,3 +522,48 @@ def test_adv_cap_and_regime_multiple_match_the_stored_open(tmp_path):
     higher = measure_higher_tf(tmp_path)
     assert higher["status"] == "SIGN_AGREES" and higher["rule_changed"] is False
     assert higher["agree_rows"] == 1 and higher["disagree_rows"] == 0 and higher["missing_rows"] == 1
+
+
+def test_pnl_matches_gross_minus_fees_and_a_stored_approval_is_not_authority(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_debate_claim, measure_gross_sign, measure_pnl_identity,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    rows = [
+        {
+            "event": "OPEN", "symbol": "BTC", "side": "LONG",
+            "brain": {"council_debate": {
+                "approved_paper": True, "swap_gate_passed": True,
+                "brier_judge": 0.2, "ece_judge": 0.1, "status": "APPROVED_SOROUSH_BL",
+            }},
+        },
+        {"event": "OPEN", "symbol": "ETH", "side": "SHORT"},
+        {"event": "CLOSE", "symbol": "BTC", "side": "LONG", "reason": "TAKE_PROFIT",
+         "entry_price": 100.0, "fill_price": 110.0, "qty": 0.01, "fees_usd": 0.001,
+         "realized_pnl_usd": 0.099},
+        {"event": "CLOSE", "symbol": "ETH", "side": "SHORT", "reason": "SIGNAL_REVERSAL",
+         "entry_price": 100.0, "fill_price": 90.0, "qty": 0.01, "fees_usd": 0.002,
+         "realized_pnl_usd": 0.098},
+        {"event": "CLOSE", "symbol": "SOL", "side": "SHORT", "reason": "WITNESS_CONFLICT_EXIT",
+         "entry_price": 100.0, "fill_price": 110.0, "qty": 0.01, "fees_usd": 0.001,
+         "realized_pnl_usd": -0.101},
+    ]
+    (paper / "paper_trades.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    pnl = measure_pnl_identity(tmp_path)
+    assert pnl["status"] == "PNL_IDENTITY" and pnl["added_to_cash_gap"] is False
+    assert pnl["edge_claimed"] is False and pnl["beyond_band"] == 0 and pnl["max_abs_gap"] == 0.0
+    gross = measure_gross_sign(tmp_path)
+    assert gross["status"] == "GROSS_RECORDED" and gross["edge_claimed"] is False
+    assert gross["exit_rule_changed"] is False
+    assert gross["gross_positive"] == 2 and gross["gross_negative"] == 1
+    debate = measure_debate_claim(tmp_path)
+    assert debate["status"] == "STORED_CLAIM_NOT_AUTHORITY"
+    assert debate["authority_used"] is False and debate["log_rewritten"] is False
+    assert debate["stored_rows"] == 1 and debate["missing_rows"] == 1
+    assert debate["approved_true"] == 1 and debate["brier_present"] == 1
+    assert "0x" not in json.dumps(debate).lower()

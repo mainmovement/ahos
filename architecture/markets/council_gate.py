@@ -121,7 +121,7 @@ def soroush_blind_debate_and_bl(
         "posterior_prob_up": p_posterior,
         "log_odds": round(_logit(p_posterior), 4),
         "swap_consistency": swap_consistency,
-        "swap_gate_passed": swap_consistency >= 0.95,
+        "swap_gate_passed": False,
         "swap_note": "The two orders add the same two terms, so this swap check cannot fail. It is not evidence of an independent judge.",
         "bl_prior_return": round(market_prior_return, 6),
         "bl_view_return": round(view_q, 6),

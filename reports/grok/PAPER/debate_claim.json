@@ -1,0 +1,21 @@
+{
+ "schema": "ahos.paper.debate_claim.v1",
+ "generated_at": "2026-10-25T14:46:52Z",
+ "paper_only": true,
+ "authority_used": false,
+ "log_rewritten": false,
+ "open_rows": 30,
+ "stored_rows": 27,
+ "missing_rows": 3,
+ "approved_true": 27,
+ "swap_true": 27,
+ "brier_present": 27,
+ "ece_present": 27,
+ "statuses": [
+  {
+   "status": "APPROVED_SOROUSH_BL",
+   "rows": 27
+  }
+ ],
+ "status": "STORED_CLAIM_NOT_AUTHORITY"
+}

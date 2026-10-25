@@ -1,0 +1,14 @@
+{
+ "schema": "ahos.paper.pnl_identity.v1",
+ "generated_at": "2026-10-25T14:46:52Z",
+ "paper_only": true,
+ "added_to_cash_gap": false,
+ "edge_claimed": false,
+ "pnl_band": 0.0001,
+ "close_rows": 26,
+ "missing_rows": 0,
+ "within_band": 26,
+ "beyond_band": 0,
+ "max_abs_gap": 0.0,
+ "status": "PNL_IDENTITY"
+}

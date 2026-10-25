@@ -794,6 +794,18 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/higher_tf.json", {
         "paper_only": True, "rule_changed": False, "open_rows": 1, "agree_rows": 0,
         "disagree_rows": 0, "missing_rows": 1, "status": "NO_STORED_SIGN"})
+    w("reports/grok/PAPER/pnl_identity.json", {
+        "paper_only": True, "added_to_cash_gap": False, "edge_claimed": False, "pnl_band": 0.0001,
+        "close_rows": 0, "missing_rows": 0, "within_band": 0, "beyond_band": 0,
+        "max_abs_gap": None, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/gross_sign.json", {
+        "paper_only": True, "edge_claimed": False, "exit_rule_changed": False, "close_rows": 0,
+        "missing_rows": 0, "gross_positive": 0, "gross_negative": 0, "reasons": [],
+        "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/debate_claim.json", {
+        "paper_only": True, "authority_used": False, "log_rewritten": False, "open_rows": 1,
+        "stored_rows": 0, "missing_rows": 1, "approved_true": 0, "swap_true": 0,
+        "brier_present": 0, "ece_present": 0, "statuses": [], "status": "NO_STORED_DEBATE"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

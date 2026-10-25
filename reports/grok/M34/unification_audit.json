@@ -1,13 +1,13 @@
 {
   "schema": "ahos.unification_audit.v1",
-  "generated_at": "2026-10-25T14:23:08Z",
+  "generated_at": "2026-10-25T14:47:01Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "read_only": true,
   "overall_status": "UNIFIED_CLEAN",
-  "checks_total": 69,
+  "checks_total": 72,
   "checks_by_status": {
-    "PASS": 69
+    "PASS": 72
   },
   "drift": [],
   "unknown": [],
@@ -17,8 +17,8 @@
       "status": "PASS",
       "detail": {
         "verdict": "CHAIN_INTACT",
-        "entries": 1161,
-        "head_hash": "62af798a5dffdf9e10034dcfc42ff035c96e7544c3c939d5a26cee8fbba31f85"
+        "entries": 1163,
+        "head_hash": "6d4abc540b0b5c47f1ab42de58173c137599817fc0c56e39cf5e1ca54066a352"
       },
       "surfaces": [
         "data\\mission_ledger\\mission_ledger.jsonl"
@@ -85,8 +85,8 @@
         "initial_capital_usd": 100.0,
         "sum_close_realized_pnl_usd": -0.1381,
         "realized_equity_usd": 99.86,
-        "unrealized_pnl_usd": 0.0762,
-        "mark_to_market_equity_usd": 99.9362,
+        "unrealized_pnl_usd": 0.0688,
+        "mark_to_market_equity_usd": 99.9288,
         "tolerance_usd": 0.01
       },
       "surfaces": [
@@ -124,14 +124,14 @@
       "status": "PASS",
       "detail": {
         "last_cycle": {
-          "ts": "2026-10-25T14:14:18Z",
-          "cycle": 1041,
+          "ts": "2026-10-25T14:44:18Z",
+          "cycle": 1043,
           "witness_state": "UNRESOLVED",
           "price_usd": null
         },
         "runlog_last": {
-          "ts": "2026-10-25T14:14:18Z",
-          "cycle": 1041,
+          "ts": "2026-10-25T14:44:18Z",
+          "cycle": 1043,
           "witness_state": "UNRESOLVED",
           "price_usd": null
         },
@@ -149,7 +149,7 @@
       "detail": {
         "ledger_checkpoint_bankroll_usd": 10000.0,
         "expected_usd": 10000.0,
-        "ledger_state_rows": 1042,
+        "ledger_state_rows": 1044,
         "note": "Gold soak is its own $10k paper account; it is never summed into the $100 paper trader."
       },
       "surfaces": [
@@ -342,11 +342,11 @@
       "id": "continuation.state",
       "status": "PASS",
       "detail": {
-        "current_stage": "Stage 26",
+        "current_stage": "Stage 27",
         "problems": [],
         "queue": [
-          "Stage 26: diagnostic sweep, then four work packages",
-          "Stage 27: the next measured gap, four work packages"
+          "Stage 27: diagnostic sweep, then four work packages",
+          "Stage 28: the next measured gap, four work packages"
         ]
       },
       "surfaces": [
@@ -518,7 +518,7 @@
       "id": "execution.skip_census",
       "status": "PASS",
       "detail": {
-        "rows": 3964,
+        "rows": 3994,
         "problems": []
       },
       "surfaces": [
@@ -857,6 +857,36 @@
       "surfaces": [
         "reports\\grok\\PAPER\\higher_tf.json"
       ]
+    },
+    {
+      "id": "execution.pnl_identity",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\pnl_identity.json"
+      ]
+    },
+    {
+      "id": "execution.gross_sign",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\gross_sign.json"
+      ]
+    },
+    {
+      "id": "execution.debate_claim",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\debate_claim.json"
+      ]
     }
   ],
   "hold_flag_counts": {
@@ -877,5 +907,5 @@
     "M56 tournament contenders are FIXTURE_ILLUSTRATIVE returns; its 'DSR' is a haircut Sharpe, not a probability.",
     "Edge is unproven until >= 30 real OOS closed trades with DSR > 0.95 and PBO < 0.50."
   ],
-  "summary_fa": "همهٔ 69 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
+  "summary_fa": "همهٔ 72 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
 }

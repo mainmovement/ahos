@@ -86,6 +86,7 @@ def test_m15_soroush_blind_swap_and_black_litterman() -> None:
     assert res["brier_judge"] is None and res["ece_judge"] is None
     assert res["calibration_status"] == "NOT_MEASURED_NO_HELD_OUT_SCORECARD"
     assert res["swap_consistency"] >= 0.90
+    assert res["swap_gate_passed"] is False
     assert res["bl_prior_status"] == "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST"
 
 

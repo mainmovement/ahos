@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T14:40:00Z",
-  "current_stage": "Stage 27",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 27) in full. Do not rerun Stage 26. Do not treat the participation rate as liquidity skill. Do not add a depth-disagreement haircut. Do not change the higher-timeframe rule. Do not close the four open positions. Do not rerun Stage 25. Do not lower the 0.25 entry gate. Do not raise a desk weight because the desk line was touched. Do not treat the quantity gap as a cash gap. Do not write the defaulted event multiplier back onto the four early opens. Do not close the four open positions. Do not widen the 1200-second stale gate. Do not rewrite historical source strings and do not copy an address into a receipt. Do not relabel a VERIFIED exit as a conflict. Do not add the fee split or the 0.0045 equity residual to the cash gap. Do not rewrite equity stamps. Do not treat a missing path key as zero marks and do not backfill mae or mfe. Do not change the 1.5 take multiple. Do not treat the fee table as an edge. Do not move the take-profit trigger from the quote to the fill. Do not delete a zero-score signal or exchange_netflow. Do not add the slippage drag to the cash gap. Do not delay a witness-conflict exit until the score flips. Do not rescale weight sums up to 1. Do not turn Kelly on. Do not restart the paper trader.",
+  "updated_at": "2026-10-25T14:51:00Z",
+  "current_stage": "Stage 28",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 28) in full. Do not rerun Stage 27. Do not treat stored council approved_paper True or a stored numeric Brier as authority. Do not rewrite historical debate blobs. Do not restart the daemon. Do not label a commutative swap as a passed test. Do not treat positive close gross as an edge. Do not add a reentry cooldown. Do not treat the pnl identity as a cash gap. Do not rerun Stage 26. Do not treat the participation rate as liquidity skill. Do not add a depth-disagreement haircut. Do not change the higher-timeframe rule. Do not close the four open positions. Do not rerun Stage 25. Do not lower the 0.25 entry gate. Do not raise a desk weight because the desk line was touched. Do not treat the quantity gap as a cash gap. Do not write the defaulted event multiplier back onto the four early opens. Do not close the four open positions. Do not widen the 1200-second stale gate. Do not rewrite historical source strings and do not copy an address into a receipt. Do not relabel a VERIFIED exit as a conflict. Do not add the fee split or the 0.0045 equity residual to the cash gap. Do not rewrite equity stamps. Do not treat a missing path key as zero marks and do not backfill mae or mfe. Do not change the 1.5 take multiple. Do not treat the fee table as an edge. Do not move the take-profit trigger from the quote to the fill. Do not delete a zero-score signal or exchange_netflow. Do not add the slippage drag to the cash gap. Do not delay a witness-conflict exit until the score flips. Do not rescale weight sums up to 1. Do not turn Kelly on. Do not restart the paper trader.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -592,6 +592,45 @@
       "validate_imports": "exit 0; 373 modules; evidence HOLD; Lane A 36/36; 4324 files",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 27",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "debate_status": "STORED_CLAIM_NOT_AUTHORITY",
+      "debate_stored_rows": 27,
+      "debate_missing_rows": 3,
+      "approved_true": 27,
+      "swap_true_on_log": 27,
+      "brier_present": 27,
+      "authority_used": false,
+      "log_rewritten": false,
+      "swap_gate_passed_in_source": false,
+      "pnl_status": "PNL_IDENTITY",
+      "pnl_within_band": 26,
+      "pnl_max_abs_gap": 0.0,
+      "added_to_cash_gap": false,
+      "gross_status": "GROSS_RECORDED",
+      "gross_positive": 10,
+      "gross_negative": 16,
+      "gross_take_profit_pos_neg": [2, 0],
+      "gross_reversal_pos_neg": [3, 9],
+      "gross_conflict_pos_neg": [5, 7],
+      "edge_claimed": false,
+      "exit_rule_changed": false,
+      "open_age_hours_at_1446Z": [7.82, 8.93],
+      "positions_closed": false,
+      "skip_rows_at_export": 3994,
+      "stale_skips_at_export": 3818,
+      "closed_paper_trades": 26,
+      "unification": "72/72 UNIFIED_CLEAN",
+      "pytest": "72 passed (test_weekday_session_gate.py + test_stage6_deepening.py); test_stage4_closures.py 10 passed",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "validate_imports": "exit 0; 373 modules; evidence HOLD; Lane A 36/36; 4327 files",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -599,14 +638,14 @@
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
-    "Closed paper trades are 26 of 30. 27 stored volume caps match the one-percent inequality and the assumed floor was used 0 times. The largest participation rate is 0.00000036 and is not liquidity skill. All 30 size multiples match the regime table, including one UNKNOWN at 0.5, and no depth haircut is stored. 29 opens agree with the higher timeframe and none disagree. At 14:23Z the four open shorts were 7.42 to 8.53 hours old and were not closed",
+    "Closed paper trades are 26 of 30. Stored close pnl matches rounded gross minus fees on all 26, max gap 0.0, and that match is not a cash gap. Price gross is positive on 10 closes and negative on 16: take-profit 2/0, reversal 3/9, conflict 5/7. Positive gross is not an edge. 27 opens store a debate approval and a numeric Brier; that claim is not authority and the number is not a held-out score. 3 opens have no debate. Current source sets swap_gate_passed false because the two orders are the same sum. The running process has not loaded that change and the log was not rewritten. At 14:46Z the four open shorts were 7.82 to 8.93 hours old and were not closed",
     "Open fees 0.181288 USD and close fees 0.305656 USD are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten",
-    "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested",
+    "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested. A number stored on 27 paper-log debate blobs is not that measurement",
     "Broker connectivity is not verified",
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 27: diagnostic sweep, then four work packages",
-    "Stage 28: the next measured gap, four work packages"
+    "Stage 28: diagnostic sweep, then four work packages",
+    "Stage 29: the next measured gap, four work packages"
   ]
 }
