@@ -729,6 +729,19 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/exit_slippage.json", {
         "paper_only": True, "added_to_cash_gap": False, "edge_claimed": False, "close_rows": 0,
         "drag_sum": 0.0, "reasons": [], "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/path_storage.json", {
+        "paper_only": True, "path_backfilled": False, "exit_inferred": False, "close_rows": 0,
+        "path_stored_rows": 0, "missing_mae": 0, "missing_mfe": 0, "missing_path_points": 0,
+        "missing_partial": 0, "hold_rows": 1, "hold_with_mfe": 0, "hold_with_chandelier": 0,
+        "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/take_field.json", {
+        "paper_only": True, "multiple_changed": False, "take_multiple": 1.5, "storage_unit": 1e-5,
+        "open_rows": 1, "missing_rows": 1, "within_storage": 0, "beyond_storage": 0,
+        "max_abs_gap": None, "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/cost_schedule.json", {
+        "paper_only": True, "edge_claimed": False, "schedule_changed": False, "open_rows": 1,
+        "close_rows": 0, "missing_rows": 1, "open_fee_mismatch": 0, "open_slip_mismatch": 0,
+        "close_slip_mismatch": 0, "status": "INCOMPLETE"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

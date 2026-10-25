@@ -340,3 +340,40 @@ def test_take_profit_uses_the_quote_and_dissent_removes_nothing(tmp_path):
     slip = measure_exit_slippage(tmp_path)
     assert slip["added_to_cash_gap"] is False and slip["edge_claimed"] is False
     assert slip["drag_sum"] == 0.006 and slip["status"] == "DRAG_RECORDED"
+
+
+def test_missing_path_is_not_zero_and_the_cost_table_holds(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_cost_schedule, measure_path_storage, measure_take_field,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({
+            "event": "OPEN", "symbol": "ETH", "notional_usd": 10.0, "fee_usd": 0.01,
+            "slippage_pct": 0.0005, "stop_pct": 0.01014, "take_pct": 0.0152}),
+        json.dumps({"event": "HOLD", "symbol": "ETH"}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "ETH", "side": "LONG", "reason": "TAKE_PROFIT",
+            "slippage_pct": 0.0005}),
+        json.dumps({
+            "event": "OPEN", "symbol": "DEX_LINK", "notional_usd": 8.0, "fee_usd": 0.024,
+            "slippage_pct": 0.002, "stop_pct": 0.02, "take_pct": 0.03}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "DEX_LINK", "side": "SHORT", "reason": "SIGNAL_REVERSAL",
+            "slippage_pct": 0.002}),
+    ]) + "\n", encoding="utf-8")
+    path = measure_path_storage(tmp_path)
+    assert path["status"] == "PATH_NOT_STORED" and path["path_backfilled"] is False
+    assert path["missing_mae"] == 2 and path["missing_path_points"] == 2
+    assert path["hold_rows"] == 1 and path["hold_with_mfe"] == 0 and path["exit_inferred"] is False
+    take = measure_take_field(tmp_path)
+    assert take["status"] == "WITHIN_STORAGE_PRECISION" and take["multiple_changed"] is False
+    assert take["within_storage"] == 2 and take["beyond_storage"] == 0
+    cost = measure_cost_schedule(tmp_path)
+    assert cost["status"] == "SCHEDULE_HELD" and cost["schedule_changed"] is False
+    assert cost["edge_claimed"] is False and cost["close_fee_compared"] is False
+    assert cost["open_fee_mismatch"] == 0 and cost["close_slip_mismatch"] == 0

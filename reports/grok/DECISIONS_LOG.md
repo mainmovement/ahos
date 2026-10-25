@@ -623,3 +623,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the trigger status, the dissent counts, and the drag sum. Each missing file stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 54 checks, drift [], unknown []. Skip census at this export: 3550 rows, `MARKET_CLOSED_OR_STALE` 3399. Whitehat CLEAN, 6 checks. pytest 66 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4309 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 22 path absence, take-field precision, cost schedule
+
+### WP-22.1 — a missing path key is not zero marks
+- **Draft:** Count closes that lack `mae`, `mfe`, `path_points`, and the `partial` key. Count holds that actually store `mfe` or `chandelier_stop`. Do not write a zero into the log.
+- **Critique 1:** All 26 closes lack those four keys. At the clean export, 1121 hold rows stored neither an excursion nor a chandelier. `path_backfilled` false. `exit_inferred` false.
+- **Critique 2 (meta):** The microstructure receipt already says the excursion is unavailable, and it stores a missing `path_points` as 0 on its own row. That derived 0 is not a mark count. The hold-row count moves whenever the daemon appends a HOLD, so the audit does not treat that count as an invariant. The invariant is that none of those holds carry the path fields.
+- **Result:** `reports/grok/PAPER/path_storage.json`. Status `PATH_NOT_STORED`.
+
+### WP-22.2 — the stored take sits within one digit of 1.5 times the stop
+- **Draft:** Compare each open's `take_pct` with `stop_pct * 1.5`. The storage unit is 0.00001. Do not change the multiple.
+- **Critique 1:** 30 opens, 30 inside the unit, 0 beyond it. The widest gap is 0.00001. Eight opens differ from `round(stop * 1.5, 5)` by that one digit because the stop was already rounded.
+- **Critique 2 (meta):** A one-digit gap is the stored precision. It is not a second take-profit rule and it does not move the trigger off the quote.
+- **Result:** `reports/grok/PAPER/take_field.json`. Status `WITHIN_STORAGE_PRECISION`. `multiple_changed` false.
+
+### WP-22.3 — the open fee and both slips match the instrument table
+- **Draft:** Compare each open's fee divided by notional, and each open and close `slippage_pct`, with the instrument table. DEX symbols use the pool fee and slip. Do not divide the close fee by notional.
+- **Critique 1:** 30 opens and 26 closes. Fee mismatches 0. Slip mismatches 0. Crypto fee 0.001. UNI fee 0.0015. DEX fee 0.003. Slips are the table values 0.0005, 0.0008, 0.001, and 0.002.
+- **Critique 2 (meta):** The close fee mixes the entry share and the exit fee, so that ratio is not the schedule. Matching the table is not an edge.
+- **Result:** `reports/grok/PAPER/cost_schedule.json`. Status `SCHEDULE_HELD`. `schedule_changed` false. `close_fee_compared` false.
+
+### WP-22.4 — checks 55 to 57
+- **Draft:** Each check recomputes the log. A path receipt that backfills fails. A take receipt that changes the multiple fails. A cost receipt that changes the table fails. The hold-row count is recorded and is not a compared key.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 57 checks, drift [], unknown []. Skip census at this export: 3580 rows, `MARKET_CLOSED_OR_STALE` 3427. Whitehat CLEAN, 6 checks. pytest 67 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4312 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

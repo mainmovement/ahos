@@ -1576,6 +1576,189 @@ def write_exit_slippage(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_path_storage(root: Path) -> dict[str, Any]:
+    """The path keys are either on the close or they are not. Absence is not zero."""
+    closes = [row for row in _log_rows(root) if row.get("event") == "CLOSE"]
+    holds = [row for row in _log_rows(root) if row.get("event") == "HOLD"]
+    missing_mae = missing_mfe = missing_points = missing_partial = stored = 0
+    for row in closes:
+        has_mae = isinstance(row.get("mae"), (int, float))
+        has_mfe = isinstance(row.get("mfe"), (int, float))
+        has_points = isinstance(row.get("path_points"), int)
+        if not has_mae:
+            missing_mae += 1
+        if not has_mfe:
+            missing_mfe += 1
+        if not has_points:
+            missing_points += 1
+        if "partial" not in row:
+            missing_partial += 1
+        if has_mae and has_mfe and has_points:
+            stored += 1
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif stored == len(closes):
+        status = "PATH_STORED"
+    elif stored == 0 and missing_mae == missing_mfe == missing_points == len(closes):
+        status = "PATH_NOT_STORED"
+    else:
+        status = "PATH_PARTIAL"
+    return {
+        "paper_only": True,
+        "path_backfilled": False,
+        "exit_inferred": False,
+        "close_rows": len(closes),
+        "path_stored_rows": stored,
+        "missing_mae": missing_mae,
+        "missing_mfe": missing_mfe,
+        "missing_path_points": missing_points,
+        "missing_partial": missing_partial,
+        "hold_rows": len(holds),
+        "hold_with_mfe": sum(1 for row in holds if isinstance(row.get("mfe"), (int, float))),
+        "hold_with_chandelier": sum(1 for row in holds if isinstance(row.get("chandelier_stop"), (int, float))),
+        "status": status,
+    }
+
+
+def write_path_storage(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.path_storage.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_path_storage(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "path_storage.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_take_field(root: Path) -> dict[str, Any]:
+    """Stored take against stored stop. One digit of storage is not a new multiple."""
+    from architecture.markets.paper_trader import TAKE_MULT
+
+    storage_unit = 1e-5
+    opens = [row for row in _log_rows(root) if row.get("event") == "OPEN"]
+    missing = within = beyond = 0
+    gaps: list[float] = []
+    for row in opens:
+        stop = row.get("stop_pct")
+        take = row.get("take_pct")
+        if not isinstance(stop, (int, float)) or not stop or not isinstance(take, (int, float)):
+            missing += 1
+            continue
+        gap = abs(float(take) - float(stop) * TAKE_MULT)
+        gaps.append(gap)
+        if gap <= storage_unit + 1e-12:
+            within += 1
+        else:
+            beyond += 1
+    if not opens:
+        status = "NO_OPEN_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif beyond == 0:
+        status = "WITHIN_STORAGE_PRECISION"
+    else:
+        status = "BEYOND_STORAGE_PRECISION"
+    return {
+        "paper_only": True,
+        "multiple_changed": False,
+        "take_multiple": TAKE_MULT,
+        "storage_unit": storage_unit,
+        "open_rows": len(opens),
+        "missing_rows": missing,
+        "within_storage": within,
+        "beyond_storage": beyond,
+        "max_abs_gap": None if not gaps else round(max(gaps), 8),
+        "status": status,
+    }
+
+
+def write_take_field(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.take_field.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_take_field(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "take_field.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def _cost_schedule(symbol: str) -> tuple[float, float] | None:
+    from architecture.markets.paper_trader import DEX_FEE, DEX_SLIP, INSTRUMENTS
+
+    if symbol.startswith("DEX_"):
+        return float(DEX_FEE), float(DEX_SLIP)
+    spec = INSTRUMENTS.get(symbol)
+    if spec is None:
+        return None
+    return float(spec[1]), float(spec[2])
+
+
+def measure_cost_schedule(root: Path) -> dict[str, Any]:
+    """Open fee and both slips against the instrument table. The table is not an edge."""
+    opens = [row for row in _log_rows(root) if row.get("event") == "OPEN"]
+    closes = [row for row in _log_rows(root) if row.get("event") == "CLOSE"]
+    missing = open_fee_mismatch = open_slip_mismatch = close_slip_mismatch = 0
+    for row in opens:
+        schedule = _cost_schedule(str(row.get("symbol") or ""))
+        fee = row.get("fee_usd")
+        notional = row.get("notional_usd")
+        slip = row.get("slippage_pct")
+        if (schedule is None or not isinstance(fee, (int, float)) or not isinstance(notional, (int, float))
+                or not notional or not isinstance(slip, (int, float))):
+            missing += 1
+            continue
+        fee_rate, slip_rate = schedule
+        if abs(float(fee) / float(notional) - fee_rate) > 1e-6:
+            open_fee_mismatch += 1
+        if abs(float(slip) - slip_rate) > 1e-9:
+            open_slip_mismatch += 1
+    for row in closes:
+        schedule = _cost_schedule(str(row.get("symbol") or ""))
+        slip = row.get("slippage_pct")
+        if schedule is None or not isinstance(slip, (int, float)):
+            missing += 1
+            continue
+        if abs(float(slip) - schedule[1]) > 1e-9:
+            close_slip_mismatch += 1
+    if not opens and not closes:
+        status = "NO_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif open_fee_mismatch or open_slip_mismatch or close_slip_mismatch:
+        status = "SCHEDULE_MISMATCH"
+    else:
+        status = "SCHEDULE_HELD"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "schedule_changed": False,
+        "close_fee_compared": False,
+        "open_rows": len(opens),
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "open_fee_mismatch": open_fee_mismatch,
+        "open_slip_mismatch": open_slip_mismatch,
+        "close_slip_mismatch": close_slip_mismatch,
+        "status": status,
+    }
+
+
+def write_cost_schedule(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.cost_schedule.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_cost_schedule(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "cost_schedule.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",
