@@ -695,6 +695,18 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/weight_vintage.json", {
         "paper_only": True, "comparison_claimed": False, "close_rows": 0, "largest_cell": 0,
         "versions": [], "status": "NO_CLOSED_ROWS", "sample_gate": 30})
+    w("reports/grok/PAPER/contribution_identity.json", {
+        "paper_only": True, "edge_claimed": False, "close_rows": 0, "scored_rows": 0, "missing_rows": 0,
+        "max_abs_gap": None, "beyond_rounding": 0, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/dominant_signal.json", {
+        "paper_only": True, "skill_claimed": False, "close_rows": 0, "scored_rows": 0,
+        "sign_matches_side": 0, "signals": [], "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/side_book.json", {
+        "paper_only": True, "edge_claimed": False, "close_rows": 0, "sides": [],
+        "realized_pnl_usd": 0.0, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/entry_regime.json", {
+        "paper_only": True, "comparison_claimed": False, "close_rows": 0, "schemas": [],
+        "hmm_states": [], "largest_hmm_cell": 0, "status": "NO_CLOSED_ROWS", "sample_gate": 30})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

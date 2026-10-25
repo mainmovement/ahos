@@ -1,0 +1,47 @@
+{
+ "schema": "ahos.paper.entry_regime.v1",
+ "generated_at": "2026-10-25T09:12:01Z",
+ "paper_only": true,
+ "comparison_claimed": false,
+ "sample_gate": 30,
+ "close_rows": 26,
+ "missing_rows": 0,
+ "schemas": [
+  {
+   "schema": "HMM_WITHOUT_RATIO",
+   "rows": 1
+  },
+  {
+   "schema": "HMM_WITH_RATIO",
+   "rows": 22
+  },
+  {
+   "schema": "NO_HMM",
+   "rows": 3
+  }
+ ],
+ "hmm_states": [
+  {
+   "state": "ABSENT",
+   "rows": 3
+  },
+  {
+   "state": "HIGH",
+   "rows": 10
+  },
+  {
+   "state": "LOW",
+   "rows": 5
+  },
+  {
+   "state": "NORMAL",
+   "rows": 7
+  },
+  {
+   "state": "UNKNOWN",
+   "rows": 1
+  }
+ ],
+ "largest_hmm_cell": 10,
+ "status": "TOO_SMALL_TO_COMPARE"
+}

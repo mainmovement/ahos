@@ -1,13 +1,13 @@
 {
   "schema": "ahos.unification_audit.v1",
-  "generated_at": "2026-10-25T09:03:11Z",
+  "generated_at": "2026-10-25T09:12:09Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "read_only": true,
   "overall_status": "UNIFIED_CLEAN",
-  "checks_total": 44,
+  "checks_total": 48,
   "checks_by_status": {
-    "PASS": 44
+    "PASS": 48
   },
   "drift": [],
   "unknown": [],
@@ -85,8 +85,8 @@
         "initial_capital_usd": 100.0,
         "sum_close_realized_pnl_usd": -0.1381,
         "realized_equity_usd": 99.86,
-        "unrealized_pnl_usd": 0.088,
-        "mark_to_market_equity_usd": 99.948,
+        "unrealized_pnl_usd": 0.0929,
+        "mark_to_market_equity_usd": 99.9529,
         "tolerance_usd": 0.01
       },
       "surfaces": [
@@ -342,11 +342,11 @@
       "id": "continuation.state",
       "status": "PASS",
       "detail": {
-        "current_stage": "Stage 18",
+        "current_stage": "Stage 19",
         "problems": [],
         "queue": [
-          "Stage 18: diagnostic sweep, then four work packages",
-          "Stage 19-20: the next measured gap, four work packages each turn"
+          "Stage 19: diagnostic sweep, then four work packages",
+          "Stage 20: the next measured gap, four work packages"
         ]
       },
       "surfaces": [
@@ -518,7 +518,7 @@
       "id": "execution.skip_census",
       "status": "PASS",
       "detail": {
-        "rows": 3490,
+        "rows": 3510,
         "problems": []
       },
       "surfaces": [
@@ -607,6 +607,46 @@
       "surfaces": [
         "reports\\grok\\PAPER\\weight_vintage.json"
       ]
+    },
+    {
+      "id": "execution.contribution_identity",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\contribution_identity.json"
+      ]
+    },
+    {
+      "id": "execution.dominant_signal",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\dominant_signal.json"
+      ]
+    },
+    {
+      "id": "execution.side_book",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\side_book.json"
+      ]
+    },
+    {
+      "id": "execution.entry_regime",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\entry_regime.json"
+      ]
     }
   ],
   "hold_flag_counts": {
@@ -627,5 +667,5 @@
     "M56 tournament contenders are FIXTURE_ILLUSTRATIVE returns; its 'DSR' is a haircut Sharpe, not a probability.",
     "Edge is unproven until >= 30 real OOS closed trades with DSR > 0.95 and PBO < 0.50."
   ],
-  "summary_fa": "همهٔ 44 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
+  "summary_fa": "همهٔ 48 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
 }

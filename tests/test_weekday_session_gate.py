@@ -225,3 +225,38 @@ def test_entry_gate_is_not_a_probability_and_kelly_stays_off(tmp_path):
     vintage = measure_weight_vintage(tmp_path)
     assert vintage["status"] == "TOO_SMALL_TO_COMPARE" and vintage["comparison_claimed"] is False
     assert vintage["largest_cell"] == 2 and vintage["versions"][0]["realized_pnl_usd"] == -0.03
+
+
+def test_contribution_identity_and_side_split_claim_no_edge(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_contribution_identity, measure_dominant_signal, measure_entry_regime, measure_side_book,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({"event": "CLOSE", "symbol": "ETH", "side": "LONG", "realized_pnl_usd": 0.02,
+                    "entry_brain": {"composite": 0.3, "contributions": [
+                        {"signal": "mtf_trend", "score": 0.3, "weight": 1.0, "contribution": 0.3}],
+                        "regime": {"hmm_state": "HIGH", "ratio": 1.0}}}),
+        json.dumps({"event": "CLOSE", "symbol": "BTC", "side": "SHORT", "realized_pnl_usd": -0.05,
+                    "entry_brain": {"composite": -0.4, "contributions": [
+                        {"signal": "large_trades", "score": -0.4, "weight": 1.0, "contribution": -0.4}],
+                        "regime": {"hmm_state": "HIGH", "ratio": 1.0}}}),
+    ]) + "\n", encoding="utf-8")
+    identity = measure_contribution_identity(tmp_path)
+    assert identity["status"] == "IDENTITY_WITHIN_ROUNDING" and identity["max_abs_gap"] == 0.0
+    assert identity["beyond_rounding"] == 0 and identity["edge_claimed"] is False
+    dominant = measure_dominant_signal(tmp_path)
+    assert dominant["status"] == "LARGEST_TERM_SHARES_THE_SIDE" and dominant["skill_claimed"] is False
+    assert dominant["sign_matches_side"] == 2
+    assert {item["signal"] for item in dominant["signals"]} == {"mtf_trend", "large_trades"}
+    sides = measure_side_book(tmp_path)
+    assert sides["edge_claimed"] is False and sides["realized_pnl_usd"] == -0.03
+    assert sides["sides"][0]["side"] == "LONG" and sides["sides"][0]["wins"] == 1
+    regime = measure_entry_regime(tmp_path)
+    assert regime["status"] == "TOO_SMALL_TO_COMPARE" and regime["comparison_claimed"] is False
+    assert regime["largest_hmm_cell"] == 2
+    assert regime["schemas"] == [{"schema": "HMM_WITH_RATIO", "rows": 2}]

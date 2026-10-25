@@ -1,0 +1,13 @@
+{
+ "schema": "ahos.paper.contribution_identity.v1",
+ "generated_at": "2026-10-25T09:12:00Z",
+ "paper_only": true,
+ "edge_claimed": false,
+ "close_rows": 26,
+ "scored_rows": 26,
+ "missing_rows": 0,
+ "max_abs_gap": 0.00016,
+ "beyond_rounding": 0,
+ "rounding_band": 0.001,
+ "status": "IDENTITY_WITHIN_ROUNDING"
+}

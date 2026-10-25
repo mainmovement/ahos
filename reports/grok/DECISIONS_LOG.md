@@ -545,3 +545,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** Eight versions. Largest cell is version 1 with 12 closes and recorded pnl 0.3522. The other cells are 1 to 3 closes. The book total remains -0.1381. Status `TOO_SMALL_TO_COMPARE`.
 - **Critique 2 (meta):** Version 1's positive sum was read after the closes. Choosing it now would be a peek. `comparison_claimed` stays false. Unification is UNIFIED_CLEAN, 44 checks. Skip census at the clean export: 3490 rows, `MARKET_CLOSED_OR_STALE` 3339. Whitehat CLEAN, 6 checks. pytest 63 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4299 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 19 contribution identity, dominant signal, side book, entry regime
+
+### WP-19.1 — the composite is the weighted average
+- **Draft:** Rebuild each close's composite as the sum of stored contributions divided by the sum of stored weights. A gap inside 0.001 is rounding. Do not refit the weights.
+- **Critique 1:** Quant: 26 scored closes. Maximum absolute gap 0.00016. Rows beyond 0.001: 0. Council: nothing is promoted. Lane A untouched.
+- **Critique 2 (meta):** The identity says the stored parts add up. It does not say the parts forecast the next return.
+- **Result:** `reports/grok/PAPER/contribution_identity.json`. Status `IDENTITY_WITHIN_ROUNDING`. `edge_claimed` false.
+
+### WP-19.2 — the largest term shares the side
+- **Draft:** Take the contribution with the largest absolute value on each close. Count how often its score has the same sign as the position side.
+- **Critique 1:** `mtf_trend` is the largest term on 24 closes. `candles` on 1. `large_trades` on 1. All 26 scores share the side's sign.
+- **Critique 2 (meta):** The signed entry score was already at or above 0.25 on every close. The largest term of a weighted average often carries that sign. The agreement is the formula. It is not a reason to promote `mtf_trend`.
+- **Result:** `reports/grok/PAPER/dominant_signal.json`. Status `LARGEST_TERM_SHARES_THE_SIDE`. `skill_claimed` false.
+
+### WP-19.3 — long and short are both in the same book
+- **Draft:** Sum recorded pnl by side. Keep wins and losses next to the sum.
+- **Critique 1:** LONG 7 closes, pnl -0.1862, wins 2, losses 5. SHORT 19 closes, pnl 0.0481, wins 7, losses 12. The two sums add to -0.1381.
+- **Critique 2 (meta):** Twelve of the nineteen shorts lost. The positive short sum is the size of the winners in the log. It is not a reason to drop the long book or to call the short book an edge.
+- **Result:** `reports/grok/PAPER/side_book.json`. Status `RECORDED_SPLIT`. `edge_claimed` false.
+
+### WP-19.4 — regime cells stay under the sample gate
+- **Draft:** Class the stored entry regime as no HMM, HMM with ratio, or HMM without ratio. Count HMM states. A cell under the existing 30-close gate is not a comparison.
+- **Critique 1:** HMM with ratio 22, no HMM 3, HMM without ratio 1. States: HIGH 10, NORMAL 7, LOW 5, ABSENT 3, UNKNOWN 1. Largest state cell is 10.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 48 checks. The first skip export in this turn drifted because the log grew; the rewrite is 3510 rows, of which `MARKET_CLOSED_OR_STALE` is 3359. Whitehat CLEAN, 6 checks. pytest 64 passed. Node stage6 bridge 6/6. No HMM state becomes a filter.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4303 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

@@ -937,6 +937,241 @@ def write_weight_vintage(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _close_brains(root: Path) -> list[dict[str, Any]]:
+    out = []
+    for row in _log_rows(root):
+        if row.get("event") == "CLOSE":
+            out.append(row)
+    return out
+
+
+def measure_contribution_identity(root: Path) -> dict[str, Any]:
+    """Stored composite against the weighted average of stored contributions."""
+    gaps: list[float] = []
+    missing = 0
+    closes = _close_brains(root)
+    for row in closes:
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        contributions = brain.get("contributions")
+        composite = brain.get("composite")
+        if not isinstance(contributions, list) or not isinstance(composite, (int, float)):
+            missing += 1
+            continue
+        weight = sum(float(item.get("weight") or 0) for item in contributions if isinstance(item, dict))
+        total = sum(float(item.get("contribution") or 0) for item in contributions if isinstance(item, dict))
+        if weight == 0:
+            missing += 1
+            continue
+        gaps.append(round(total / weight - float(composite), 5))
+    beyond = sum(1 for gap in gaps if abs(gap) > 0.001)
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif beyond:
+        status = "IDENTITY_BROKEN"
+    else:
+        status = "IDENTITY_WITHIN_ROUNDING"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "close_rows": len(closes),
+        "scored_rows": len(gaps),
+        "missing_rows": missing,
+        "max_abs_gap": None if not gaps else round(max(abs(gap) for gap in gaps), 5),
+        "beyond_rounding": beyond,
+        "rounding_band": 0.001,
+        "status": status,
+    }
+
+
+def write_contribution_identity(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.contribution_identity.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_contribution_identity(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "contribution_identity.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_dominant_signal(root: Path) -> dict[str, Any]:
+    """Largest stored contribution. Sign agreement with the side is the formula, not skill."""
+    from collections import Counter
+
+    rows = Counter()
+    matches = Counter()
+    missing = 0
+    closes = _close_brains(root)
+    for row in closes:
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        contributions = [item for item in (brain.get("contributions") or []) if isinstance(item, dict)]
+        side = row.get("side")
+        if not contributions or side not in ("LONG", "SHORT"):
+            missing += 1
+            continue
+        best = max(contributions, key=lambda item: abs(float(item.get("contribution") or 0)))
+        name = str(best.get("signal") or "MISSING")
+        rows[name] += 1
+        score = best.get("score")
+        direction = 1.0 if side == "LONG" else -1.0
+        if isinstance(score, (int, float)) and float(score) * direction > 0:
+            matches[name] += 1
+    signals = [{
+        "signal": name,
+        "rows": rows[name],
+        "sign_matches_side": matches[name],
+    } for name in sorted(rows, key=lambda name: (-rows[name], name))]
+    matched = sum(item["sign_matches_side"] for item in signals)
+    scored = sum(item["rows"] for item in signals)
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif matched == scored:
+        status = "LARGEST_TERM_SHARES_THE_SIDE"
+    else:
+        status = "MIXED_SIGNS"
+    return {
+        "paper_only": True,
+        "skill_claimed": False,
+        "close_rows": len(closes),
+        "scored_rows": scored,
+        "missing_rows": missing,
+        "sign_matches_side": matched,
+        "signals": signals,
+        "status": status,
+    }
+
+
+def write_dominant_signal(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.dominant_signal.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_dominant_signal(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "dominant_signal.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_side_book(root: Path) -> dict[str, Any]:
+    """Recorded pnl by position side. A positive side sum is not an edge."""
+    from collections import defaultdict
+
+    cells: dict[str, list[float]] = defaultdict(lambda: [0, 0.0, 0, 0])
+    closes = _close_brains(root)
+    missing = 0
+    for row in closes:
+        side = row.get("side")
+        pnl = row.get("realized_pnl_usd")
+        if side not in ("LONG", "SHORT") or not isinstance(pnl, (int, float)):
+            missing += 1
+            continue
+        cells[side][0] += 1
+        cells[side][1] += float(pnl)
+        if float(pnl) > 0:
+            cells[side][2] += 1
+        elif float(pnl) < 0:
+            cells[side][3] += 1
+    sides = [{
+        "side": side,
+        "closes": cells[side][0],
+        "realized_pnl_usd": round(cells[side][1], 4),
+        "wins": cells[side][2],
+        "losses": cells[side][3],
+    } for side in sorted(cells)]
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    else:
+        status = "RECORDED_SPLIT"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "sides": sides,
+        "realized_pnl_usd": round(sum(item["realized_pnl_usd"] for item in sides), 4),
+        "status": status,
+    }
+
+
+def write_side_book(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.side_book.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_side_book(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "side_book.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_entry_regime(root: Path) -> dict[str, Any]:
+    """Entry-regime schema and HMM state counts. Cells under 30 are not a comparison."""
+    from collections import Counter
+
+    schemas: Counter[str] = Counter()
+    states: Counter[str] = Counter()
+    missing = 0
+    closes = _close_brains(root)
+    for row in closes:
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        regime = brain.get("regime")
+        if not isinstance(regime, dict) or not regime:
+            missing += 1
+            continue
+        if "hmm_state" not in regime:
+            schemas["NO_HMM"] += 1
+            states["ABSENT"] += 1
+        elif "ratio" in regime:
+            schemas["HMM_WITH_RATIO"] += 1
+            states[str(regime.get("hmm_state"))] += 1
+        else:
+            schemas["HMM_WITHOUT_RATIO"] += 1
+            states[str(regime.get("hmm_state"))] += 1
+    schema_rows = [{"schema": name, "rows": schemas[name]} for name in sorted(schemas)]
+    state_rows = [{"state": name, "rows": states[name]} for name in sorted(states)]
+    largest = max((item["rows"] for item in state_rows), default=0)
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif largest < 30:
+        status = "TOO_SMALL_TO_COMPARE"
+    else:
+        status = "COMPARABLE_CELL_PRESENT"
+    return {
+        "paper_only": True,
+        "comparison_claimed": False,
+        "sample_gate": 30,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "schemas": schema_rows,
+        "hmm_states": state_rows,
+        "largest_hmm_cell": largest,
+        "status": status,
+    }
+
+
+def write_entry_regime(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.entry_regime.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_entry_regime(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "entry_regime.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

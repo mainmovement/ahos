@@ -1,0 +1,28 @@
+{
+ "schema": "ahos.paper.dominant_signal.v1",
+ "generated_at": "2026-10-25T09:12:00Z",
+ "paper_only": true,
+ "skill_claimed": false,
+ "close_rows": 26,
+ "scored_rows": 26,
+ "missing_rows": 0,
+ "sign_matches_side": 26,
+ "signals": [
+  {
+   "signal": "mtf_trend",
+   "rows": 24,
+   "sign_matches_side": 24
+  },
+  {
+   "signal": "candles",
+   "rows": 1,
+   "sign_matches_side": 1
+  },
+  {
+   "signal": "large_trades",
+   "rows": 1,
+   "sign_matches_side": 1
+  }
+ ],
+ "status": "LARGEST_TERM_SHARES_THE_SIDE"
+}
