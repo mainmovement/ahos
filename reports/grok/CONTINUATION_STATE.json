@@ -791,8 +791,8 @@
     {
       "stage": "Stage 32",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "19eb10f",
+      "arena_commit": "6682554",
       "weight_band_status": "INSIDE_BAND",
       "weights_version": 22,
       "history_rows": 21,
