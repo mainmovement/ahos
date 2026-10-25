@@ -204,8 +204,8 @@
     {
       "stage": "Stage 16",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "998ceef",
+      "arena_commit": "e7a525b",
       "conflict_rows": 12,
       "mapped_rows": 8,
       "dex_rows": 4,
