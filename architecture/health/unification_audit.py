@@ -1667,6 +1667,28 @@ def _stage36_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage37_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_trade_audit import measure_session_entry
+
+    rel = Path("reports") / "grok" / "PAPER" / "session_entry.json"
+    doc = _json(root, rel)
+    if not isinstance(doc, dict):
+        return [_check("execution.session_entry", "UNKNOWN", {"file": False}, [str(rel)])]
+    fresh = measure_session_entry(root)
+    problems = []
+    if doc.get("paper_only") is not True or doc.get("rows_rewritten") is not False:
+        problems.append("rows_rewritten is not false")
+    if (doc.get("edge_claimed") is True or doc.get("pass_inferred") is True
+            or doc.get("breach_inferred") is True):
+        problems.append("a missing session result was treated as a pass or a breach")
+    for key in ("active_rows", "unresolved_rows", "pass_rows", "breach_rows",
+                "timestamp_missing_rows", "code_calls_gate", "entries", "status"):
+        if doc.get(key) != fresh[key]:
+            problems.append(f"{key} does not match the log")
+    return [_check("execution.session_entry", _pass_fail(not problems),
+                    {"problems": problems[:6]}, [str(rel)])]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -1711,6 +1733,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage34_checks(root)
     checks += _stage35_checks(root)
     checks += _stage36_checks(root)
+    checks += _stage37_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")
@@ -1748,5 +1771,14 @@ def export_unification_audit(root: Path, now: datetime | None = None) -> dict[st
     out = build_unification_audit(root, now=now)
     path = Path(root) / OUT_REL
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_file():
+        try:
+            prev = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            prev = None
+        prev_n = prev.get("checks_total") if isinstance(prev, dict) else None
+        new_n = out.get("checks_total")
+        if isinstance(prev_n, int) and not isinstance(prev_n, bool) and isinstance(new_n, int) and not isinstance(new_n, bool) and new_n < prev_n:
+            return prev
     path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return out

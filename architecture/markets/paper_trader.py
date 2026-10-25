@@ -559,6 +559,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             else:
                 del positions[sym]
             continue
+        from architecture.markets.weekday_session_gate import CASH_DESKS, symbol_session
+        moment = datetime.fromtimestamp(t, tz=timezone.utc)
+        gate = symbol_session(sym, moment)
+        session_gate = {"evaluated": True, "venue": gate.get("venue"), "open": gate.get("open") is True}
+        if desk in CASH_DESKS and session_gate["open"] is not True:
+            log({**base, "event": "SKIP", "reason": "SESSION_CLOSED", "session_gate": session_gate})
+            continue
         side = "LONG" if comp >= ENTRY else "SHORT" if comp <= -ENTRY else None
         why = None
         if halted: why = f"LEDGER_HALT:{halt_reason}"
@@ -627,7 +634,8 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         row = {**base, "event": "OPEN", "side": side, "quote_price": price, "fill_price": round(fill, 6), "qty": qty,
                "notional_usd": notional, "fee_usd": round(entry_fee, 6), "slippage_pct": slip, "stop_pct": round(stop_pct, 5),
                "take_pct": round(stop_pct * TAKE_MULT, 5), "equity_at_open_usd": round(equity, 4), "brain": brain,
-               "kelly": "OFF (a close count does not switch Kelly on)", "oms": "ACCEPTED_PAPER"}
+               "kelly": "OFF (a close count does not switch Kelly on)", "oms": "ACCEPTED_PAPER",
+               "session_gate": session_gate}
         row["ledger_hash"] = ledger.fill(row)
         log(row)
 

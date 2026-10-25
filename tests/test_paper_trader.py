@@ -36,6 +36,28 @@ def test_two_source_gate_open_close_compounds(tmp_path):
     assert st["realized_equity_usd"] > 100.0 and st["performance"]["n"] == 1
     assert (tmp_path / "reports/grok/PAPER/signal_lessons.jsonl").is_file()
 
+def test_sunday_fx_is_not_opened_and_crypto_records_the_session_gate(tmp_path):
+    from datetime import datetime, timezone
+    moment = datetime(2026, 10, 25, 18, 47, 46, tzinfo=timezone.utc)
+    t = [moment.timestamp()]
+    mt = lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t[0]))
+    fetch = lambda: {"quotes": {
+        "EURUSD": {"price": 1.10, "source": "A", "market_time": mt(), "ohlcv_5m": _bars(1.1, 0.0001)},
+        "BTC": {"price": 100.0, "source": "A", "market_time": mt(), "ohlcv_5m": _bars(100, 0.5)},
+    }}
+    fb = lambda: {"EURUSD": {"price": 1.1001, "source": "B"}, "BTC": {"price": 100.02, "source": "B"}}
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
+    rows = _rows(tmp_path)
+    eurusd = [r for r in rows if r.get("symbol") == "EURUSD"]
+    assert any(r.get("event") == "SKIP" and r.get("reason") == "SESSION_CLOSED" for r in eurusd)
+    assert not any(r.get("event") == "OPEN" for r in eurusd)
+    blocked = next(r for r in eurusd if r.get("reason") == "SESSION_CLOSED")
+    assert blocked["session_gate"] == {"evaluated": True, "venue": "FX_OTC", "open": False}
+    opened = [r for r in rows if r.get("event") == "OPEN" and r.get("symbol") == "BTC"]
+    assert len(opened) == 1
+    assert opened[0]["session_gate"] == {"evaluated": True, "venue": "CRYPTO_24_7", "open": True}
+
+
 def test_kill_switch_blocks_new_risk():
     now = 1_800_000_000.0
     trades = [{"realized_pnl_usd": -4.0, "closed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now - 60))}]

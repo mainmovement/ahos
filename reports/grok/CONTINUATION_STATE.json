@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T19:14:00Z",
-  "current_stage": "Stage 37",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 37) in full. Do not rerun Stage 36. Do not rewrite the 31 lesson rows. Do not treat a sentence that follows the trade sign as a signal vote. Do not copy a stored scalar. Do not treat a scalar match as a forecast. Do not delete an unobserved exit rule. Do not close UNI, BTC, or EURUSD. At the Stage 36 export UNI was 4.08 hours old at version 19, BTC was 1.17 hours old at version 23, EURUSD was 0.60 hours old at version 23, and SOL was 0.09 hours old at version 23. The running process opened EURUSD and SOL. Do not rewrite UNI onto version 23. Do not close SOL. Read why that EURUSD open exists before treating the Sunday cash-desk sentence as a pass or a breach. Do not restart the daemon. The import probe started 2026-10-25T19:05:46Z passed. Do not treat 31 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability.",
+  "updated_at": "2026-10-25T20:05:00Z",
+  "current_stage": "Stage 38",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 38) in full. Do not rerun Stage 37. Do not treat an UNRESOLVED session row as a verified pass or a verified breach. Do not backfill session_gate onto the four open rows. Do not close BTC, EURUSD, SOL, or UNI. EURUSD opened at 2026-10-25T18:47:46Z. SOL opened at 2026-10-25T19:17:57Z. The running process has not loaded the session call and has not loaded the audit shrink guard. Do not restart it. The import probe started 2026-10-25T20:00:14Z passed. Do not treat 31 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability. Do not lower the 1200-second stale gate.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -1035,6 +1035,42 @@
       "validate_imports": "PASSED on the probe started 2026-10-25T19:05:46Z; exit 0; 373 modules; 4354 source files; Lane A 36/36. A later probe started 2026-10-25T19:26:02Z stayed silent after the artifact section and was stopped; daemons were not stopped; that second probe is NOT_VERIFIED",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 37",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "status_word": "GATE_NOT_ON_THE_ROW",
+      "active_rows": 4,
+      "unresolved_rows": 4,
+      "pass_rows": 0,
+      "breach_rows": 0,
+      "eurusd": {"ts": "2026-10-25T18:47:46Z", "desk": "FOREX", "classification": "UNRESOLVED", "reconstructed_venue": "FX_OTC", "reconstructed_open": false, "gate_on_row": false, "within_stale_gate": true},
+      "sol": {"ts": "2026-10-25T19:17:57Z", "desk": "CRYPTO", "classification": "UNRESOLVED", "reconstructed_venue": "CRYPTO_24_7", "reconstructed_open": true, "gate_on_row": false, "within_stale_gate": true},
+      "btc": {"ts": "2026-10-25T18:13:25Z", "desk": "CRYPTO", "classification": "UNRESOLVED", "reconstructed_open": true, "gate_on_row": false},
+      "uni": {"ts": "2026-10-25T15:18:45Z", "desk": "PB_TOKEN", "classification": "UNRESOLVED", "reconstructed_open": true, "gate_on_row": false},
+      "pass_inferred": false,
+      "breach_inferred": false,
+      "rows_rewritten": false,
+      "code_calls_gate": true,
+      "daemon_loaded_gate": false,
+      "shrink_guard_loaded_by_daemon": false,
+      "open_age_hours_at_export": {"UNI": 4.66, "BTC": 1.75, "EURUSD": 1.18, "SOL": 0.68},
+      "positions_closed_by_stage": false,
+      "skip_rows_at_export": 4524,
+      "stale_skips_at_export": 4225,
+      "closed_paper_trades": 31,
+      "open_fee_usd_sum": 0.206393,
+      "open_rows_with_fee": 35,
+      "close_fees_usd_sum": 0.370674,
+      "unification": "100/100 UNIFIED_CLEAN",
+      "pytest": "89 passed (test_weekday_session_gate.py + test_stage6_deepening.py + test_paper_trader.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN checks=6",
+      "validate_imports": "PASSED; probe started 2026-10-25T20:00:14Z; exit 0; 373 modules; 4355 source files; Lane A 36/36",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -1049,7 +1085,7 @@
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 37: read the EURUSD open against the session gate, then four work packages",
-    "Stage 38: the next measured gap, four work packages"
+    "Stage 38: count historical cash opens against the reconstructed session without inferring a breach",
+    "Stage 39: the next measured gap, four work packages"
   ]
 }

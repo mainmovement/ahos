@@ -4539,6 +4539,115 @@ def write_exit_roster(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_session_entry(root: Path) -> dict[str, Any]:
+    """An open row without a session result is unresolved. Reconstruction is not that result."""
+    import inspect
+
+    from architecture.markets.paper_trader import MAX_TRADE_AGE_S, run_cycle
+    from architecture.markets.weekday_session_gate import symbol_session
+
+    active: dict[str, dict[str, Any]] = {}
+    for row in _log_rows(root):
+        symbol = row.get("symbol")
+        if not isinstance(symbol, str):
+            continue
+        if row.get("event") == "OPEN":
+            active[symbol] = row
+        elif row.get("event") == "CLOSE" and row.get("partial") is not True:
+            active.pop(symbol, None)
+    entries = []
+    unresolved = passed = breach = missing_ts = 0
+    for symbol in sorted(active):
+        row = active[symbol]
+        gate = row.get("session_gate") if isinstance(row.get("session_gate"), dict) else None
+        evaluated = bool(gate and gate.get("evaluated") is True and "open" in gate)
+        stamp = row.get("ts")
+        ts_ok = isinstance(stamp, str)
+        if not ts_ok:
+            classification = "TIMESTAMP_MISSING"
+            missing_ts += 1
+            reconstructed_open = None
+            venue = None
+        elif not evaluated:
+            classification = "UNRESOLVED"
+            unresolved += 1
+        elif gate.get("open") is True:
+            classification = "VERIFIED_PASS"
+            passed += 1
+        elif gate.get("open") is False:
+            classification = "VERIFIED_BREACH"
+            breach += 1
+        else:
+            classification = "UNRESOLVED"
+            unresolved += 1
+        if ts_ok:
+            try:
+                moment = datetime.strptime(str(stamp), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+            except ValueError:
+                moment = None
+            if moment is None:
+                reconstructed_open = None
+                venue = None
+            else:
+                fresh = symbol_session(symbol, moment)
+                reconstructed_open = fresh.get("open") is True
+                venue = fresh.get("venue") if isinstance(fresh.get("venue"), str) else None
+        opened = _parse_stamp(row.get("ts"))
+        marked = _parse_stamp(row.get("market_time"))
+        if opened is None or marked is None:
+            within = None
+        else:
+            within = (opened - marked).total_seconds() <= MAX_TRADE_AGE_S
+        entries.append({
+            "symbol": symbol,
+            "desk": row.get("desk") if isinstance(row.get("desk"), str) else None,
+            "ts": stamp if ts_ok else None,
+            "gate_on_row": evaluated,
+            "classification": classification,
+            "reconstructed_open": reconstructed_open,
+            "reconstructed_venue": venue,
+            "within_stale_gate": within,
+        })
+    if not entries:
+        status = "NO_OPEN_POSITIONS"
+    elif breach:
+        status = "BREACH_RECORDED"
+    elif passed == len(entries):
+        status = "GATE_RECORDED_OPEN"
+    elif unresolved + missing_ts == len(entries):
+        status = "GATE_NOT_ON_THE_ROW"
+    else:
+        status = "MIXED"
+    return {
+        "paper_only": True,
+        "pass_inferred": False,
+        "breach_inferred": False,
+        "rows_rewritten": False,
+        "edge_claimed": False,
+        "daemon_restarted": False,
+        "code_calls_gate": "symbol_session" in inspect.getsource(run_cycle),
+        "active_rows": len(entries),
+        "unresolved_rows": unresolved,
+        "pass_rows": passed,
+        "breach_rows": breach,
+        "timestamp_missing_rows": missing_ts,
+        "entries": entries,
+        "status": status,
+    }
+
+
+def write_session_entry(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.session_entry.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_session_entry(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "session_entry.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

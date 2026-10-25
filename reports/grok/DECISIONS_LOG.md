@@ -1027,3 +1027,31 @@ Scope: Lane B measurement, the next-process lesson sentence, and the Arena read-
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 4.08 hours old at version 19, BTC was 1.17 hours old at version 23, EURUSD was 0.60 hours old at version 23, and SOL was 0.09 hours old at version 23. None was closed. The running process opened EURUSD and then SOL. This stage did not. Closed paper trades remain 31. The blend receipt refreshed with the log: 35 opens, 32 debates, 32 matches. A short writer replaced the audit with 22 checks at 2026-10-25T19:20:01Z. The same export was run again and restored 99 checks.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 99 checks, drift [], unknown []. Skip census at this export: 4469 rows, `MARKET_CLOSED_OR_STALE` 4185. Whitehat CLEAN, 6 checks. pytest 87 passed on the weekday gate, the stage-6 deepening file, and the paper-trader file. Node stage6 bridge 6/6. Thirty-one closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T19:05:46Z and exited 0. 373 modules imported cleanly. 4354 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. A later probe started 2026-10-25T19:26:02Z stayed silent after the artifact section and was stopped. The paper-trader and gold-soak processes were not stopped. That stopped probe is `NOT_VERIFIED`. It is not a product defect.
+
+## 2026-10-25 — Stage 37 session gate on the open rows
+
+Scope: Lane B measurement, the next-process entry check, and the Arena read-only line. Lane A was not edited. No open was closed. No stop, target, or ledger row was rewritten. The paper trader (pid 4904, started 2026-10-24 22:24:43 local) and the gold soak (pid 9312, started 2026-10-24 22:24:37 local) were not restarted.
+
+### WP-37.1 — EURUSD at 2026-10-25T18:47:46Z
+- **Draft:** Read the OPEN row. Reconstruct the FX_OTC clock at that timestamp from the current schedule. Do not treat the reconstruction as the decision that was stored.
+- **Critique 1:** One EURUSD open. Desk FOREX. The row has no session field. The witness verdict on the row is VERIFIED. The stored quote time is inside the 1200-second stale gate. The schedule, whose file was last committed at 2026-10-24T18:04:38+03:30, says FX_OTC was closed at that timestamp and the close was not a holiday. `run_cycle` in the file the process loaded does not call `symbol_session`. Git history has no session call in `paper_trader.py` before this stage.
+- **Critique 2 (meta):** A missing field is not a stored ALLOW and it is not, by itself, a stored BLOCK. The reconstruction is not a decision-time result. The classification is UNRESOLVED.
+- **Result:** `reports/grok/PAPER/session_entry.json`. EURUSD classification `UNRESOLVED`. `reconstructed_open` false. `reconstructed_venue` FX_OTC. `gate_on_row` false.
+
+### WP-37.2 — SOL at 2026-10-25T19:17:57Z
+- **Draft:** Read the latest SOL open that has no later full close. Reconstruct the crypto rule at that timestamp. Do not promote an open book into a pass.
+- **Critique 1:** Desk CRYPTO. No session field. The quote time is inside the stale gate. The current rule names the venue CRYPTO_24_7 and the reconstructed open flag is true. The same row does not record that this rule was evaluated.
+- **Critique 2 (meta):** A rule that would not block is not a verified pass unless the row says the gate was evaluated and open. The classification is UNRESOLVED.
+- **Result:** SOL classification `UNRESOLVED`. `reconstructed_open` true. `reconstructed_venue` CRYPTO_24_7. `gate_on_row` false.
+
+### WP-37.3 — the next process records the gate and does not open a closed cash desk
+- **Draft:** On the entry path only, call `symbol_session` at the cycle clock. A cash desk whose venue is not open is skipped as SESSION_CLOSED. An existing position is left to the exit rules. Store `evaluated`, `venue`, and `open` on a new open. Do not backfill the four current opens.
+- **Critique 1:** The current source contains that call. The running process has not loaded it. BTC, EURUSD, SOL, and UNI remain open. Their rows were not rewritten. A test at the EURUSD timestamp opens no EURUSD position and still records an open session on BTC.
+- **Critique 2 (meta):** The code change does not classify the historical rows. It gives a later process a decision-time field. This process was not restarted.
+- **Result:** `pass_inferred` false. `breach_inferred` false. `rows_rewritten` false. `daemon_restarted` false. `code_calls_gate` true for the file on disk.
+
+### WP-37.4 — check 100, and a shorter audit does not replace a longer one
+- **Draft:** Recompute the active opens. A receipt that infers a pass or a breach fails. `export_unification_audit` returns the existing document when its `checks_total` is greater than the new build. The running process still has the old writer.
+- **Critique 1:** Four active opens, all UNRESOLVED. BTC 2026-10-25T18:13:25Z, UNI 2026-10-25T15:18:45Z, and SOL reconstruct open. EURUSD reconstructs closed. None store the gate. At the export the ages were UNI 4.66 hours, BTC 1.75, EURUSD 1.18, and SOL 0.68. None was closed. Closed paper trades remain 31.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 100 checks. Skip census at this export: 4524 rows, `MARKET_CLOSED_OR_STALE` 4225. Whitehat CLEAN, 6 checks. pytest 89 passed. Node stage6 bridge 6/6. The shrink guard is in the current export function. It does not stop the already-running writer. Thirty-one closed trades do not prove an edge. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T20:00:14Z and exited 0. 373 modules imported cleanly. 4355 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.

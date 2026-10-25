@@ -930,6 +930,16 @@ def _ua_root(tmp_path):
             "SIGNAL_REVERSAL", "TIME_STOP", "MAX_HOLD", "WITNESS_CONFLICT_EXIT",
         ],
         "code_names_missing": 0, "status": "RULES_PRESENT"})
+    w("reports/grok/PAPER/session_entry.json", {
+        "paper_only": True, "pass_inferred": False, "breach_inferred": False, "rows_rewritten": False,
+        "edge_claimed": False, "daemon_restarted": False, "code_calls_gate": True,
+        "active_rows": 1, "unresolved_rows": 1, "pass_rows": 0, "breach_rows": 0,
+        "timestamp_missing_rows": 0, "status": "GATE_NOT_ON_THE_ROW",
+        "entries": [{
+            "symbol": "BTC", "desk": None, "ts": "2026-10-24T00:36:00Z", "gate_on_row": False,
+            "classification": "UNRESOLVED", "reconstructed_open": True,
+            "reconstructed_venue": "CRYPTO_24_7", "within_stale_gate": None,
+        }]})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

@@ -998,3 +998,59 @@ def test_a_trade_sign_sentence_is_not_a_vote_and_a_scalar_is_not_a_forecast(tmp_
     contradicted = measure_lesson_sentence(tmp_path)
     assert contradicted["status"] == "SENTENCE_CONTRADICTS_THE_TRADE"
     assert contradicted["contradicts_trade"] == 1
+
+
+def test_a_missing_session_result_is_not_a_pass_or_a_breach(tmp_path):
+    import json
+
+    from architecture.health.unification_audit import export_unification_audit
+    from architecture.markets.paper_trade_audit import measure_session_entry
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    eurusd = {
+        "event": "OPEN", "symbol": "EURUSD", "desk": "FOREX", "ts": "2026-10-25T18:47:46Z",
+        "market_time": "2026-10-25T18:47:40Z", "oms": "ACCEPTED_PAPER",
+    }
+    sol = {
+        "event": "OPEN", "symbol": "SOL", "desk": "CRYPTO", "ts": "2026-10-25T19:17:57Z",
+        "market_time": "2026-10-25T19:17:50Z", "oms": "ACCEPTED_PAPER",
+    }
+    log = paper / "paper_trades.jsonl"
+    body = json.dumps(eurusd) + "\n" + json.dumps(sol) + "\n"
+    log.write_text(body, encoding="utf-8")
+    measured = measure_session_entry(tmp_path)
+    assert log.read_text(encoding="utf-8") == body
+    assert measured["status"] == "GATE_NOT_ON_THE_ROW"
+    assert measured["pass_inferred"] is False and measured["breach_inferred"] is False
+    assert measured["rows_rewritten"] is False and measured["code_calls_gate"] is True
+    by_symbol = {row["symbol"]: row for row in measured["entries"]}
+    assert by_symbol["EURUSD"]["classification"] == "UNRESOLVED"
+    assert by_symbol["EURUSD"]["reconstructed_open"] is False
+    assert by_symbol["EURUSD"]["reconstructed_venue"] == "FX_OTC"
+    assert by_symbol["EURUSD"]["within_stale_gate"] is True
+    assert by_symbol["SOL"]["classification"] == "UNRESOLVED"
+    assert by_symbol["SOL"]["reconstructed_open"] is True
+    assert by_symbol["SOL"]["reconstructed_venue"] == "CRYPTO_24_7"
+    dumped = json.dumps(measured)
+    assert "1.10" not in dumped and "quote_price" not in dumped
+    eurusd["session_gate"] = {"evaluated": True, "venue": "FX_OTC", "open": False}
+    log.write_text(json.dumps(eurusd) + "\n" + json.dumps(sol) + "\n", encoding="utf-8")
+    breach = measure_session_entry(tmp_path)
+    assert breach["status"] == "BREACH_RECORDED" and breach["breach_rows"] == 1
+    assert breach["breach_inferred"] is False
+    sol["session_gate"] = {"evaluated": True, "venue": "CRYPTO_24_7", "open": True}
+    eurusd.pop("session_gate")
+    log.write_text(
+        json.dumps(eurusd) + "\n" + json.dumps(sol) + "\n"
+        + json.dumps({"event": "CLOSE", "symbol": "EURUSD", "ts": "2026-10-25T20:00:00Z"}) + "\n",
+        encoding="utf-8")
+    closed = measure_session_entry(tmp_path)
+    assert [row["symbol"] for row in closed["entries"]] == ["SOL"]
+    assert closed["status"] == "GATE_RECORDED_OPEN" and closed["pass_rows"] == 1
+    audit = tmp_path / "reports" / "grok" / "M34" / "unification_audit.json"
+    audit.parent.mkdir(parents=True)
+    audit.write_text(json.dumps({"checks_total": 5000, "overall_status": "UNIFIED_CLEAN"}) + "\n", encoding="utf-8")
+    kept = export_unification_audit(tmp_path)
+    assert kept["checks_total"] == 5000
+    assert json.loads(audit.read_text(encoding="utf-8"))["checks_total"] == 5000

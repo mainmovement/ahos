@@ -1,0 +1,59 @@
+{
+ "schema": "ahos.paper.session_entry.v1",
+ "generated_at": "2026-10-25T19:58:14Z",
+ "paper_only": true,
+ "pass_inferred": false,
+ "breach_inferred": false,
+ "rows_rewritten": false,
+ "edge_claimed": false,
+ "daemon_restarted": false,
+ "code_calls_gate": true,
+ "active_rows": 4,
+ "unresolved_rows": 4,
+ "pass_rows": 0,
+ "breach_rows": 0,
+ "timestamp_missing_rows": 0,
+ "entries": [
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "ts": "2026-10-25T18:13:25Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
+   "reconstructed_venue": "CRYPTO_24_7",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "ts": "2026-10-25T18:47:46Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": false,
+   "reconstructed_venue": "FX_OTC",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "ts": "2026-10-25T19:17:57Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
+   "reconstructed_venue": "CRYPTO_24_7",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "ts": "2026-10-25T15:18:45Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
+   "reconstructed_venue": "CRYPTO_24_7",
+   "within_stale_gate": true
+  }
+ ],
+ "status": "GATE_NOT_ON_THE_ROW"
+}
