@@ -235,3 +235,192 @@ def write_exit_reason_census(root: Path) -> dict[str, Any]:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
     return snap
+
+
+def _log_rows(root: Path) -> list[dict[str, Any]]:
+    path = Path(root) / LEDGER_REL
+    if not path.is_file():
+        return []
+    out = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(row, dict):
+            out.append(row)
+    return out
+
+
+def _hold_hours(row: dict[str, Any]) -> float | None:
+    try:
+        opened = datetime.strptime(str(row.get("opened_at")), "%Y-%m-%dT%H:%M:%SZ")
+        closed = datetime.strptime(str(row.get("closed_at")), "%Y-%m-%dT%H:%M:%SZ")
+    except (TypeError, ValueError):
+        return None
+    return round((closed - opened).total_seconds() / 3600.0, 2)
+
+
+def measure_conflict_anatomy(root: Path) -> dict[str, Any]:
+    """Classify recorded witness-conflict exits. The exit rule is not changed."""
+    from collections import Counter, defaultdict
+
+    from architecture.markets.second_source import DEFAULT_TOL, TOLERANCE
+
+    rows = _log_rows(root)
+    by_symbol: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        if row.get("symbol"):
+            by_symbol[str(row["symbol"])].append(row)
+    gaps: list[float] = []
+    holds: list[float] = []
+    missing = within = prior_zero = prior_one = prior_more = 0
+    symbols: Counter[str] = Counter()
+    for seq in by_symbol.values():
+        for index, row in enumerate(seq):
+            if row.get("event") != "CLOSE" or row.get("reason") != "WITNESS_CONFLICT_EXIT":
+                continue
+            symbols[str(row.get("symbol"))] += 1
+            prior = 0
+            cursor = index - 1
+            while cursor >= 0 and (seq[cursor].get("witness") or {}).get("verdict") == "CONFLICT":
+                prior += 1
+                cursor -= 1
+            if prior == 0:
+                prior_zero += 1
+            elif prior == 1:
+                prior_one += 1
+            else:
+                prior_more += 1
+            gap = (row.get("witness") or {}).get("gap")
+            tol = TOLERANCE.get(str(row.get("symbol")), DEFAULT_TOL)
+            if not isinstance(gap, (int, float)):
+                missing += 1
+            else:
+                gaps.append(float(gap))
+                if float(gap) - tol <= 0:
+                    within += 1
+            held = _hold_hours(row)
+            if held is not None:
+                holds.append(held)
+    ordered = sorted(gaps)
+    return {
+        "paper_only": True,
+        "exit_rule_changed": False,
+        "rule": "FAIL_CLOSED_ON_RECORDED_DISAGREEMENT",
+        "rows": sum(symbols.values()),
+        "gap_missing": missing,
+        "gap_min": ordered[0] if ordered else None,
+        "gap_max": ordered[-1] if ordered else None,
+        "gap_upper_median": ordered[len(ordered) // 2] if ordered else None,
+        "within_tolerance": within,
+        "prior_conflict_zero": prior_zero,
+        "prior_conflict_one": prior_one,
+        "prior_conflict_more": prior_more,
+        "symbols": dict(symbols),
+        "hold_hours_min": min(holds) if holds else None,
+        "hold_hours_max": max(holds) if holds else None,
+    }
+
+
+def write_conflict_anatomy(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.witness_conflict_anatomy.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_conflict_anatomy(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "witness_conflict_anatomy.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_reversal_anatomy(root: Path) -> dict[str, Any]:
+    """Check recorded signal-reversal exits against the stored composite threshold."""
+    from architecture.markets.paper_trader import ENTRY
+
+    signed: list[float] = []
+    moves: list[float] = []
+    holds: list[float] = []
+    reversals = [row for row in _log_rows(root)
+                 if row.get("event") == "CLOSE" and row.get("reason") == "SIGNAL_REVERSAL"]
+    for row in reversals:
+        side = 1.0 if row.get("side") == "LONG" else -1.0
+        composite = row.get("exit_composite")
+        if isinstance(composite, (int, float)):
+            signed.append(round(float(composite) * side, 4))
+        entry = row.get("entry_price")
+        fill = row.get("fill_price")
+        if isinstance(entry, (int, float)) and isinstance(fill, (int, float)) and entry:
+            moves.append(round((float(fill) - float(entry)) / float(entry) * side, 4))
+        held = _hold_hours(row)
+        if held is not None:
+            holds.append(held)
+    beyond = bool(signed) and all(value <= -ENTRY for value in signed)
+    if not reversals:
+        status = "NO_REVERSAL_ROWS"
+    elif len(signed) != len(reversals):
+        status = "COMPOSITE_NOT_STORED"
+    elif beyond:
+        status = "MATCHES_RECORDED_THRESHOLD"
+    else:
+        status = "THRESHOLD_MISS"
+    return {
+        "paper_only": True,
+        "exit_rule_changed": False,
+        "threshold": ENTRY,
+        "rows": len(reversals),
+        "signed_composite_n": len(signed),
+        "all_at_or_beyond_threshold": beyond if reversals else True,
+        "signed_composite_min": min(signed) if signed else None,
+        "signed_composite_max": max(signed) if signed else None,
+        "signed_move_min": min(moves) if moves else None,
+        "signed_move_max": max(moves) if moves else None,
+        "hold_hours_min": min(holds) if holds else None,
+        "hold_hours_max": max(holds) if holds else None,
+        "status": status,
+    }
+
+
+def write_reversal_anatomy(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.reversal_anatomy.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_reversal_anatomy(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "reversal_anatomy.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_skip_census(root: Path) -> dict[str, Any]:
+    """Count SKIP and NO_TRADE reasons already written on the paper log."""
+    from collections import Counter
+
+    counts: Counter[str] = Counter()
+    for row in _log_rows(root):
+        if row.get("event") in ("SKIP", "NO_TRADE"):
+            counts[str(row.get("reason") or "UNLABELED")] += 1
+    dominant = sorted(counts, key=lambda key: (-counts[key], key))[0] if counts else None
+    return {
+        "paper_only": True,
+        "event_rows": sum(counts.values()),
+        "reason_counts": dict(counts),
+        "dominant_reason": dominant,
+    }
+
+
+def write_skip_census(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.skip_census.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_skip_census(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "skip_census.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap

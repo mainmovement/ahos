@@ -441,3 +441,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The bridge copies the sums and says the fee line is not a second cash gap.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 33 checks, drift [], unknown []. Whitehat CLEAN. pytest 61 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4288 files, VALIDATION PASSED).
+
+## 2026-10-25 — Stage 15 conflict, reversal, and skip anatomy
+
+### WP-15.1 — conflict exits are the first disagreement
+- **Draft:** For each recorded `WITNESS_CONFLICT_EXIT`, read the stored gap, compare it with the symbol tolerance, and count how many earlier rows of that symbol were already `CONFLICT`. Do not change the exit.
+- **Critique 1:** Quant: 12 exits. Gap minimum 0.0041, upper median 0.00548, maximum 0.01416. Within tolerance: 0. Prior conflict rows: 0 on all 12. Symbols: ETH 4, DEX_LINK 4, SOL 3, BTC 1. Hold 0.1 to 13.92 hours. Council: nothing is promoted. Lane A untouched.
+- **Critique 2 (meta):** These exits are fail-closed on the first recorded disagreement. Waiting for a second print would loosen the witness law. The rule stays.
+- **Result:** `reports/grok/PAPER/witness_conflict_anatomy.json`. `exit_rule_changed` false.
+
+### WP-15.2 — reversals match the recorded threshold
+- **Draft:** Sign `exit_composite` by the position side and compare it with `ENTRY` 0.25. Also record the signed price move from entry to fill.
+- **Critique 1:** 12 reversals. Signed composite from -0.4533 to -0.253, all at or beyond the threshold. Signed move from -0.0166 to 0.0043. Hold 0.23 to 7.31 hours. Status `MATCHES_RECORDED_THRESHOLD`.
+- **Critique 2 (meta):** The move is the log, not a claim that the reversal rule has an edge. The threshold was not refit.
+- **Result:** `reports/grok/PAPER/reversal_anatomy.json`.
+
+### WP-15.3 — skips are mostly a closed or stale quote
+- **Draft:** Count `SKIP` and `NO_TRADE` reasons. The dominant reason is named, not interpreted as a performance result.
+- **Critique 1:** 3420 such rows. `MARKET_CLOSED_OR_STALE` is 3270. That reason covers both a closed session and a stale quote. The receipt does not split them further because the log does not. The count moves when the paper trader appends a skip, so the committed receipt is the count at the audit export.
+- **Critique 2 (meta):** This agrees with the Sunday session audit. It does not invent a weekday print.
+- **Result:** `reports/grok/PAPER/skip_census.json`.
+
+### WP-15.4 — checks 34 to 36
+- **Draft:** Each check recomputes the log and fails if the receipt disagrees. A receipt that marks the exit rule changed fails.
+- **Critique 1:** The panel copies the counts and says the exit rule was not changed.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 36 checks, drift [], unknown []. Whitehat CLEAN. pytest 61 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4291 files, VALIDATION PASSED).

@@ -89,3 +89,35 @@ def test_fee_coverage_stays_a_label_and_pb_token_joins_the_desk_map(tmp_path):
     assert "PB_TOKEN" in summary["per_desk_realized_pnl_usd"]
     assert summary["per_desk_realized_pnl_usd"]["PB_TOKEN"] == -0.05
     assert abs(sum(summary["per_desk_realized_pnl_usd"].values()) - summary["realized_pnl_usd"]) <= 0.02
+
+
+def test_conflict_and_reversal_anatomies_match_the_log(tmp_path):
+    import json
+    from architecture.markets.paper_trade_audit import (
+        write_conflict_anatomy, write_reversal_anatomy, write_skip_census,
+    )
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({"event": "HOLD", "symbol": "BTC", "witness": {"verdict": "VERIFIED", "gap": 0.001}}),
+        json.dumps({"event": "CLOSE", "symbol": "BTC", "reason": "WITNESS_CONFLICT_EXIT", "side": "LONG",
+                    "opened_at": "2026-10-25T00:00:00Z", "closed_at": "2026-10-25T01:00:00Z",
+                    "witness": {"verdict": "CONFLICT", "gap": 0.01}}),
+        json.dumps({"event": "CLOSE", "symbol": "ETH", "reason": "WITNESS_CONFLICT_EXIT", "side": "LONG",
+                    "opened_at": "2026-10-25T00:00:00Z", "closed_at": "2026-10-25T02:00:00Z",
+                    "witness": {"verdict": "CONFLICT", "gap": 0.001}}),
+        json.dumps({"event": "CLOSE", "symbol": "BTC", "reason": "SIGNAL_REVERSAL", "side": "LONG",
+                    "exit_composite": -0.3, "entry_price": 100.0, "fill_price": 99.0,
+                    "opened_at": "2026-10-25T00:00:00Z", "closed_at": "2026-10-25T03:00:00Z"}),
+        json.dumps({"event": "SKIP", "symbol": "SPX", "reason": "MARKET_CLOSED_OR_STALE"}),
+    ]) + "\n", encoding="utf-8")
+    conflict = write_conflict_anatomy(tmp_path)
+    assert conflict["rows"] == 2 and conflict["exit_rule_changed"] is False
+    assert conflict["prior_conflict_zero"] == 2 and conflict["within_tolerance"] == 1
+    assert conflict["gap_min"] == 0.001 and conflict["gap_max"] == 0.01
+    assert conflict["symbols"] == {"BTC": 1, "ETH": 1}
+    reversal = write_reversal_anatomy(tmp_path)
+    assert reversal["status"] == "MATCHES_RECORDED_THRESHOLD"
+    assert reversal["signed_composite_min"] == -0.3 and reversal["exit_rule_changed"] is False
+    skips = write_skip_census(tmp_path)
+    assert skips["dominant_reason"] == "MARKET_CLOSED_OR_STALE" and skips["event_rows"] == 1

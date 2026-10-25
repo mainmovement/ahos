@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T08:10:00Z",
-  "current_stage": "Stage 15",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 15) in full. Do not rerun Stage 14. Start with a diagnostic sweep, then four work packages. Do not rewrite the ledger to itemize historical fees.",
+  "updated_at": "2026-10-25T08:20:00Z",
+  "current_stage": "Stage 16",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 16) in full. Do not rerun Stage 15. Start with a diagnostic sweep, then four work packages. Do not loosen the witness-conflict exit. Do not rewrite the ledger to itemize historical fees.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -171,6 +171,35 @@
       "whitehat": "CLEAN",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 15",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "conflict_rows": 12,
+      "gap_min": 0.0041,
+      "gap_max": 0.01416,
+      "gap_upper_median": 0.00548,
+      "within_tolerance": 0,
+      "prior_conflict_zero": 12,
+      "conflict_symbols": {"BTC": 1, "ETH": 4, "SOL": 3, "DEX_LINK": 4},
+      "conflict_hold_hours": [0.1, 13.92],
+      "reversal_rows": 12,
+      "reversal_status": "MATCHES_RECORDED_THRESHOLD",
+      "signed_composite_min": -0.4533,
+      "signed_composite_max": -0.253,
+      "signed_move_min": -0.0166,
+      "signed_move_max": 0.0043,
+      "skip_rows": 3420,
+      "dominant_skip": "MARKET_CLOSED_OR_STALE",
+      "stale_skips": 3270,
+      "exit_rule_changed": false,
+      "unification": "36/36 UNIFIED_CLEAN",
+      "pytest": "61 passed (test_weekday_session_gate.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -178,14 +207,14 @@
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
-    "Closed paper trades are 26 of 30. Twelve closes are WITNESS_CONFLICT_EXIT and twelve are SIGNAL_REVERSAL. Two are TAKE_PROFIT. Partial closes are 0",
+    "Closed paper trades are 26 of 30. All 12 witness-conflict exits are the first CONFLICT row for that symbol. Gaps are 0.0041 to 0.01416, none inside tolerance. DEX_LINK accounts for 4. The exit rule was not loosened",
     "Open fees 0.181288 USD and close fees 0.305656 USD are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten",
     "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested",
     "Broker connectivity is not verified",
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 15: diagnostic sweep, then four work packages",
-    "Stage 16-20: the next measured gap, four work packages each turn"
+    "Stage 16: diagnostic sweep, then four work packages",
+    "Stage 17-20: the next measured gap, four work packages each turn"
   ]
 }

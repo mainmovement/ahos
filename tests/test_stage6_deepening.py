@@ -659,6 +659,17 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/exit_reason_census.json", {
         "paper_only": True, "close_rows": 0, "partial_rows": 0, "reason_counts": {},
         "daemon_restarted": False, "absence_note": "not observed in this log"})
+    w("reports/grok/PAPER/witness_conflict_anatomy.json", {
+        "paper_only": True, "exit_rule_changed": False, "rule": "FAIL_CLOSED_ON_RECORDED_DISAGREEMENT",
+        "rows": 0, "gap_missing": 0, "gap_min": None, "gap_max": None, "gap_upper_median": None,
+        "within_tolerance": 0, "prior_conflict_zero": 0, "prior_conflict_one": 0, "prior_conflict_more": 0,
+        "symbols": {}})
+    w("reports/grok/PAPER/reversal_anatomy.json", {
+        "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
+        "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,
+        "signed_composite_max": None, "status": "NO_REVERSAL_ROWS"})
+    w("reports/grok/PAPER/skip_census.json", {
+        "paper_only": True, "event_rows": 0, "reason_counts": {}, "dominant_reason": None})
     w("reports/grok/M57/science_to_desk_snapshot.json", {
         "paper_only": True, "pillars_total": 7, "validated_claims_total": 0,
         "matrix": [{"validated_claims": 0,

@@ -1,0 +1,24 @@
+{
+ "schema": "ahos.paper.witness_conflict_anatomy.v1",
+ "generated_at": "2026-10-25T08:13:28Z",
+ "paper_only": true,
+ "exit_rule_changed": false,
+ "rule": "FAIL_CLOSED_ON_RECORDED_DISAGREEMENT",
+ "rows": 12,
+ "gap_missing": 0,
+ "gap_min": 0.0041,
+ "gap_max": 0.01416,
+ "gap_upper_median": 0.00548,
+ "within_tolerance": 0,
+ "prior_conflict_zero": 12,
+ "prior_conflict_one": 0,
+ "prior_conflict_more": 0,
+ "symbols": {
+  "BTC": 1,
+  "ETH": 4,
+  "SOL": 3,
+  "DEX_LINK": 4
+ },
+ "hold_hours_min": 0.1,
+ "hold_hours_max": 13.92
+}

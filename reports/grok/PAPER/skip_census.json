@@ -1,0 +1,14 @@
+{
+ "schema": "ahos.paper.skip_census.v1",
+ "generated_at": "2026-10-25T08:16:48Z",
+ "paper_only": true,
+ "event_rows": 3420,
+ "reason_counts": {
+  "COMPOSITE_BELOW_ENTRY": 85,
+  "MARKET_CLOSED_OR_STALE": 3270,
+  "PRICE_UNAVAILABLE": 41,
+  "WITNESS_CONFLICT": 23,
+  "HIGHER_TF_DISAGREES": 1
+ },
+ "dominant_reason": "MARKET_CLOSED_OR_STALE"
+}
